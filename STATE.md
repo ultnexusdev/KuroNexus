@@ -4,14 +4,7 @@
 > Yeni bir oturuma başlayan ajan İLK İŞ olarak bu dosyayı okur.
 
 ## Mevcut Aşama
-**Faz 1 — Dark Stories + admin paneli + uploads tamamlandı ve uçtan uca test edildi. Sıradaki adım: git push + Coolify deploy + yedekleme.**
-
-## ▶️ YARIN BURADAN DEVAM (2026-07-07 sonu, oturum kapandı)
-Kod tarafında Faz 1'in tüm modülleri bitti ve test edildi. Kalan tek şey **deploy** (aşağıdaki "Sıradaki Adım"). İlk yapılacaklar:
-1. **Git henüz başlatılmadı** — `git init` yapılmadı, hiç commit yok. Kök dizinde bir `.gitignore` var (`.env`), `backend/.gitignore` ve `frontend/.gitignore` de mevcut. Yarın: kök dizinde `git init`, `.env` dosyalarının (kök `.env`, `backend/.env`, `frontend/.env.local`) commit'lenmediğini doğrula (gizli anahtarlar içeriyor!), ilk commit, sonra remote'a push.
-2. **GitHub reposu hazır:** `https://github.com/ultnexusdev/KuroNexus.git` — proje bu repoda tutulacak. Henüz remote eklenmedi/push yapılmadı.
-3. Ardından Coolify'da iki Application oluştur (deploy adımına bak).
-⚠️ Push öncesi KONTROL: `.env` dosyaları asla push edilmemeli — içlerinde `DATABASE_URL` (canlı DB şifresi), `JWT_SECRET`, `ADMIN_PASSWORD` var.
+**Faz 1 — Kod tamam + GitHub'a push edildi (2026-07-08). Sıradaki adım: Coolify deploy + yedekleme.**
 
 ## Tamamlananlar
 - [x] implementation_plan.md v3 kesinleşti (şema, mimari, fazlı yol haritası)
@@ -33,8 +26,9 @@ Kod tarafında Faz 1'in tüm modülleri bitti ve test edildi. Kalan tek şey **d
 - [x] **Uploads modülü (backend) tamamlandı ve canlı test edildi**: `POST /admin/uploads` (multipart `file` alanı) — mime kontrolü (jpeg/png/webp/gif, geçersiz tip 400 döner — test edildi), boyut limiti `MAX_UPLOAD_BYTES` (varsayılan 10MB), dosyalar `UPLOAD_DIR`'e (varsayılan `./uploads`, .gitignore'da) rastgele adla yazılır, `MediaAsset` metadata DB'ye; DB kaydı başarısızsa disk dosyası geri silinir; `/uploads/*` ServeStaticModule ile public servis edilir (200 doğrulandı). Deploy'da `UPLOAD_DIR` Coolify persistent volume'e işaret etmeli (kural 15)
 - [x] **Frontend Dark Stories + admin paneli tamamlandı ve uçtan uca test edildi**: public `/dark-stories` (kart listesi) + `/dark-stories/[slug]` (detay; 404 çalışıyor; backend kapalıysa liste boş durum gösterir, çökmez); admin `/admin` → `/admin/stories` (liste + sil onayı) + `/admin/stories/new` + `/admin/stories/[id]` (düzenleme); `AdminGuard` client-side login formu (token `kuronexus-token` cookie'sinde, 1 gün), `StoryForm` kapak görseli yükleme + yayınla checkbox'ı içerir; API istemcisi `lib/api/` + `lib/admin/` (`NEXT_PUBLIC_API_URL`, `frontend/.env.local`); header'a Dark Stories nav linki eklendi; `next/image` remotePatterns API URL'inden türetiliyor; tüm metinler `t()` ile TR/EN
 
+- [x] **Git init + ilk commit + push tamamlandı (2026-07-08)**: `main` branch → `https://github.com/ultnexusdev/KuroNexus.git` (commit `6f82c58`, 104 dosya). Gizli `.env`'lerin (kök, `backend/.env`, `frontend/.env.local`) staged OLMADIĞI push öncesi doğrulandı; yalnızca `.env.example` şablonları repoda. `frontend/.gitignore`'a `!.env.example` istisnası eklendi. Git kimliği (repo-local): `ultnexusdev` + `ultnexusdev@users.noreply.github.com`
+
 ## Sıradaki Adım (Faz 1 devamı)
-0. **Git init + ilk commit + push** → `https://github.com/ultnexusdev/KuroNexus.git` (`.env`'leri hariç tut — yukarıdaki uyarı)
 1. Coolify'a deploy: `kuronexus-backend`, `kuronexus-frontend` + pg_dump yedekleme yapılandırması (`kuronexus-db` zaten oluşturuldu); backend `UPLOAD_DIR` için persistent volume (`/app/uploads`); deploy sonrası db public erişimini kapatıp internal URL'e geçiş. Env değişkenleri (`DATABASE_URL` internal, `JWT_SECRET`, `ADMIN_*`, `CORS_ORIGIN`, `NEXT_PUBLIC_API_URL`) Coolify panelinden girilecek
 2. Faz 1 "Bitti" kriterleri kontrolü: geri yükleme testi, mobil taşma kontrolü, rate limit prod doğrulaması
 
@@ -46,7 +40,7 @@ Kod tarafında Faz 1'in tüm modülleri bitti ve test edildi. Kalan tek şey **d
 - Tasarım prensibi: glow/parlama efekti yok, düşük doygunluklu accent renkler, saf siyah zemin yok (göz yormayan dark theme)
 
 ## Ortam Bilgileri
-- **GitHub reposu:** `https://github.com/ultnexusdev/KuroNexus.git` (proje bu başlık altında tutulacak; henüz push yapılmadı)
+- **GitHub reposu:** `https://github.com/ultnexusdev/KuroNexus.git` (`main` branch push edildi, origin remote ayarlı)
 - Sunucu: Hetzner CX23, Helsinki (eu-central), IP `65.108.220.5`
 - Deploy: Coolify — aynı repo, iki Application, root dirs `/backend` ve `/frontend`
 - Veritabanı: PostgreSQL (Coolify resource, `Kuronexus > production` projesi altında), public port `5433` (bağlantı bilgisi `backend/.env`'de) — **not:** bu public erişim geçici bir geliştirme kolaylığı, backend/frontend Coolify'a deploy edilince internal URL'e geçilip public erişim kapatılmalı (kural 6 güvenlik)

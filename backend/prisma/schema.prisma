@@ -1,0 +1,347 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
+  moduleFormat        = "cjs"
+  importFileExtension = ""
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  passwordHash      String
+  name              String
+  role              Role      @default(ADMIN)
+  emailVerified     Boolean   @default(false)
+  verificationToken String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  isDeleted         Boolean   @default(false)
+
+  stories           Story[]
+  wikiEntries       WikiEntry[]
+  reviews           Review[]
+  characterAnalyses CharacterAnalysis[]
+  quotes            Quote[]
+  comments          Comment[]
+  favorites         Favorite[]
+}
+
+model Story {
+  id          String    @id @default(cuid())
+  title       String
+  slug        String    @unique
+  content     String    @db.Text
+  excerpt     String?
+  coverImage  String?
+  isPublished Boolean   @default(false)
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  isDeleted   Boolean   @default(false)
+
+  // Faz 3: Community Stories desteği — admin içeriğiyle asla aynı listede karışmaz
+  isCommunitySubmission Boolean          @default(false)
+  submissionStatus      SubmissionStatus @default(APPROVED)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  tags      TagOnStory[]
+  comments  Comment[]
+  favorites Favorite[]
+
+  @@index([userId])
+  @@index([isPublished, isDeleted])
+  @@index([submissionStatus])
+}
+
+model WikiUniverse {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?  @db.Text
+  coverImage  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  isDeleted   Boolean  @default(false)
+
+  entries WikiEntry[]
+}
+
+model WikiEntry {
+  id          String       @id @default(cuid())
+  title       String
+  slug        String
+  content     String       @db.Text
+  category    WikiCategory
+  coverImage  String?
+  metadata    Json?
+  spoilerTier Int?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  isDeleted   Boolean      @default(false)
+
+  universeId String
+  universe   WikiUniverse @relation(fields: [universeId], references: [id])
+  userId     String
+  user       User         @relation(fields: [userId], references: [id])
+
+  tags              TagOnWikiEntry[]
+  comments          Comment[]
+  favorites         Favorite[]
+  characterAnalyses CharacterAnalysis[]
+
+  // Çapraz linkleme (AGENTS.md kural 5): karakter → terim → şehir ilişkileri
+  outgoingRelations WikiEntryRelation[] @relation("outgoing")
+  incomingRelations WikiEntryRelation[] @relation("incoming")
+
+  @@unique([universeId, slug])
+  @@index([userId])
+  @@index([universeId, category, isDeleted])
+}
+
+// Wiki sayfaları arası ilişkiler veri modelinde tutulur — düz metin linki DEĞİL.
+model WikiEntryRelation {
+  fromId       String
+  from         WikiEntry @relation("outgoing", fields: [fromId], references: [id])
+  toId         String
+  to           WikiEntry @relation("incoming", fields: [toId], references: [id])
+  relationType String?
+  createdAt    DateTime  @default(now())
+
+  @@id([fromId, toId])
+  @@index([toId])
+}
+
+model Review {
+  id                     String    @id @default(cuid())
+  title                  String
+  slug                   String    @unique
+  content                String    @db.Text
+  rating                 Float?
+  mediaType              MediaType
+  externalId             String?
+  externalData           Json?
+  externalDataFetchedAt  DateTime?
+  coverImage             String?
+  isPublished            Boolean   @default(false)
+  publishedAt            DateTime?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  isDeleted              Boolean   @default(false)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  tags              TagOnReview[]
+  comments          Comment[]
+  favorites         Favorite[]
+  characterAnalyses CharacterAnalysis[]
+
+  @@index([userId])
+  @@index([mediaType, isPublished, isDeleted])
+}
+
+// Karakter analizi, Review (anime/film) veya WikiEntry (kitap karakteri) üzerinden
+// tetiklenebilir — ikisi de opsiyonel, hangi kaynaktan geldiği karışmaz.
+model CharacterAnalysis {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  content     String   @db.Text
+  series      String
+  coverImage  String?
+  isPublished Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  isDeleted   Boolean  @default(false)
+
+  reviewId    String?
+  review      Review?    @relation(fields: [reviewId], references: [id])
+  wikiEntryId String?
+  wikiEntry   WikiEntry? @relation(fields: [wikiEntryId], references: [id])
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  tags TagOnCharacterAnalysis[]
+
+  @@index([userId])
+  @@index([reviewId])
+  @@index([wikiEntryId])
+}
+
+model Quote {
+  id        String   @id @default(cuid())
+  text      String   @db.Text
+  source    String
+  character String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean  @default(false)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  tags TagOnQuote[]
+
+  @@index([userId])
+}
+
+// --- Dosya/Görsel Yükleme (Faz 1) ---
+// Kapak görselleri, wiki harita dosyaları, mood board görselleri buradan yönetilir.
+// Dosyalar Coolify persistent volume'e yazılır (/app/uploads), DB yalnızca metadata tutar.
+model MediaAsset {
+  id           String   @id @default(cuid())
+  filename     String
+  originalName String
+  mimeType     String
+  sizeBytes    Int
+  altText      String?
+  createdAt    DateTime @default(now())
+  isDeleted    Boolean  @default(false)
+
+  userId String
+
+  @@index([userId])
+}
+
+// --- Etiket Sistemi (ilişkisel, String[] DEĞİL) ---
+model Tag {
+  id   String @id @default(cuid())
+  name String @unique
+  slug String @unique
+
+  stories           TagOnStory[]
+  wikiEntries       TagOnWikiEntry[]
+  reviews           TagOnReview[]
+  characterAnalyses TagOnCharacterAnalysis[]
+  quotes            TagOnQuote[]
+}
+
+model TagOnStory {
+  tagId   String
+  tag     Tag    @relation(fields: [tagId], references: [id])
+  storyId String
+  story   Story  @relation(fields: [storyId], references: [id])
+
+  @@id([tagId, storyId])
+}
+
+model TagOnWikiEntry {
+  tagId       String
+  tag         Tag       @relation(fields: [tagId], references: [id])
+  wikiEntryId String
+  wikiEntry   WikiEntry @relation(fields: [wikiEntryId], references: [id])
+
+  @@id([tagId, wikiEntryId])
+}
+
+model TagOnReview {
+  tagId    String
+  tag      Tag    @relation(fields: [tagId], references: [id])
+  reviewId String
+  review   Review @relation(fields: [reviewId], references: [id])
+
+  @@id([tagId, reviewId])
+}
+
+model TagOnCharacterAnalysis {
+  tagId               String
+  tag                 Tag               @relation(fields: [tagId], references: [id])
+  characterAnalysisId String
+  characterAnalysis   CharacterAnalysis @relation(fields: [characterAnalysisId], references: [id])
+
+  @@id([tagId, characterAnalysisId])
+}
+
+model TagOnQuote {
+  tagId   String
+  tag     Tag    @relation(fields: [tagId], references: [id])
+  quoteId String
+  quote   Quote  @relation(fields: [quoteId], references: [id])
+
+  @@id([tagId, quoteId])
+}
+
+// --- Faz 2+: Kullanıcı Etkileşimi ---
+model Comment {
+  id         String   @id @default(cuid())
+  content    String   @db.Text
+  isApproved Boolean  @default(false)
+  isFlagged  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  isDeleted  Boolean  @default(false)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  storyId     String?
+  story       Story?     @relation(fields: [storyId], references: [id])
+  reviewId    String?
+  review      Review?    @relation(fields: [reviewId], references: [id])
+  wikiEntryId String?
+  wikiEntry   WikiEntry? @relation(fields: [wikiEntryId], references: [id])
+
+  @@index([userId])
+  @@index([isApproved, isDeleted])
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  storyId     String?
+  story       Story?     @relation(fields: [storyId], references: [id])
+  reviewId    String?
+  review      Review?    @relation(fields: [reviewId], references: [id])
+  wikiEntryId String?
+  wikiEntry   WikiEntry? @relation(fields: [wikiEntryId], references: [id])
+
+  // Aynı kullanıcı aynı içeriği yalnızca bir kez favorileyebilir
+  @@unique([userId, storyId])
+  @@unique([userId, reviewId])
+  @@unique([userId, wikiEntryId])
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+enum WikiCategory {
+  CHARACTER
+  LOCATION
+  TERM
+  EVENT
+  ITEM
+  ORGANIZATION
+  MAGIC_SYSTEM
+}
+
+enum MediaType {
+  ANIME
+  MOVIE
+  TV_SERIES
+  BOOK
+  MANGA
+  GAME
+}
+
+enum SubmissionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}

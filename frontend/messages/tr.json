@@ -1,0 +1,67 @@
+{
+  "common": {
+    "siteName": "KuroNexus"
+  },
+  "nav": {
+    "darkStories": "Karanlık Hikâyeler"
+  },
+  "home": {
+    "title": "KuroNexus",
+    "tagline": "Karanlık evrenine açılan kapı",
+    "intro": "Karanlık hikâyeler, fandom wikileri, anime ve film arşivi, derinlemesine karakter analizleri — hepsi tek bir kişisel evrende."
+  },
+  "stories": {
+    "listTitle": "Karanlık Hikâyeler",
+    "empty": "Henüz hikâye yok.",
+    "backToList": "← Tüm hikâyeler"
+  },
+  "admin": {
+    "title": "Yönetim Paneli",
+    "logout": "Çıkış yap",
+    "login": {
+      "title": "Yönetici Girişi",
+      "email": "E-posta",
+      "password": "Şifre",
+      "submit": "Giriş yap",
+      "submitting": "Giriş yapılıyor…",
+      "error": "Giriş başarısız. Bilgilerinizi kontrol edin."
+    },
+    "stories": {
+      "title": "Hikâyeler",
+      "new": "Yeni hikâye",
+      "newTitle": "Yeni Hikâye",
+      "editTitle": "Hikâyeyi Düzenle",
+      "edit": "Düzenle",
+      "delete": "Sil",
+      "confirmDelete": "\"{title}\" silinsin mi?",
+      "published": "Yayında",
+      "draft": "Taslak",
+      "empty": "Henüz hikâye yok.",
+      "loadError": "Liste yüklenemedi. Sayfayı yenileyin."
+    },
+    "form": {
+      "title": "Başlık",
+      "excerpt": "Özet (isteğe bağlı)",
+      "content": "İçerik",
+      "cover": "Kapak görseli",
+      "upload": "Görsel yükle",
+      "uploading": "Yükleniyor…",
+      "publish": "Yayınla",
+      "save": "Kaydet",
+      "saving": "Kaydediliyor…",
+      "error": "Kaydedilemedi. Tekrar deneyin."
+    }
+  },
+  "theme": {
+    "label": "Tema seçimi",
+    "purple": "Mor temaya geç",
+    "orange": "Turuncu temaya geç",
+    "navy": "Bordo temaya geç"
+  },
+  "locale": {
+    "switch": "İngilizceye geç"
+  },
+  "meta": {
+    "description": "Kişisel karanlık evren portalı: dark stories, fandom wikileri, anime/film arşivi ve karakter analizleri."
+  }
+}

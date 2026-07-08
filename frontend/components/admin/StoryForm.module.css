@@ -1,0 +1,94 @@
+.form {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: 0 var(--pad-md) var(--pad-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.field input[type="text"],
+.field textarea {
+  padding: 10px 12px;
+  background: var(--surface);
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-family: var(--font-sans);
+  resize: vertical;
+}
+
+.field input[type="text"] {
+  min-height: var(--touch-min);
+}
+
+.field input:focus,
+.field textarea:focus {
+  outline: 1px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.coverPreview {
+  width: 100%;
+  max-width: 30rem;
+  height: auto;
+  border-radius: var(--radius);
+  border: 0.5px solid var(--border);
+}
+
+.uploadLabel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--touch-min);
+  padding: 8px 16px;
+  align-self: flex-start;
+  background: var(--surface);
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.uploadLabel:hover {
+  background: var(--surface-hover);
+}
+
+.fileInput {
+  display: none;
+}
+
+.checkboxField {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  min-height: var(--touch-min);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.checkboxField input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+}
+
+.error {
+  margin: 0;
+  color: var(--danger);
+  font-size: 0.9rem;
+}
+
+.actions {
+  display: flex;
+  gap: var(--gap-md);
+}

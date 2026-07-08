@@ -1,0 +1,67 @@
+{
+  "common": {
+    "siteName": "KuroNexus"
+  },
+  "nav": {
+    "darkStories": "Dark Stories"
+  },
+  "home": {
+    "title": "KuroNexus",
+    "tagline": "The gateway to your dark universe",
+    "intro": "Dark stories, fandom wikis, an anime and movie archive, and in-depth character analyses — all in one personal universe."
+  },
+  "stories": {
+    "listTitle": "Dark Stories",
+    "empty": "No stories yet.",
+    "backToList": "← All stories"
+  },
+  "admin": {
+    "title": "Admin Panel",
+    "logout": "Log out",
+    "login": {
+      "title": "Admin Login",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Log in",
+      "submitting": "Logging in…",
+      "error": "Login failed. Check your credentials."
+    },
+    "stories": {
+      "title": "Stories",
+      "new": "New story",
+      "newTitle": "New Story",
+      "editTitle": "Edit Story",
+      "edit": "Edit",
+      "delete": "Delete",
+      "confirmDelete": "Delete \"{title}\"?",
+      "published": "Published",
+      "draft": "Draft",
+      "empty": "No stories yet.",
+      "loadError": "Failed to load the list. Refresh the page."
+    },
+    "form": {
+      "title": "Title",
+      "excerpt": "Excerpt (optional)",
+      "content": "Content",
+      "cover": "Cover image",
+      "upload": "Upload image",
+      "uploading": "Uploading…",
+      "publish": "Publish",
+      "save": "Save",
+      "saving": "Saving…",
+      "error": "Could not save. Try again."
+    }
+  },
+  "theme": {
+    "label": "Theme selection",
+    "purple": "Switch to purple theme",
+    "orange": "Switch to orange theme",
+    "navy": "Switch to burgundy theme"
+  },
+  "locale": {
+    "switch": "Türkçeye geç"
+  },
+  "meta": {
+    "description": "A personal dark universe portal: dark stories, fandom wikis, anime/movie archive, and character analyses."
+  }
+}

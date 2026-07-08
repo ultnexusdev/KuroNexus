@@ -1,0 +1,23 @@
+.page {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: 0 var(--pad-md) var(--pad-lg);
+}
+
+.heading {
+  margin: 0 0 var(--gap-lg);
+  font-size: 1.6rem;
+  color: var(--text-primary);
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
+
+.menu a {
+  min-height: var(--touch-min);
+  display: flex;
+  align-items: center;
+}

@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: kuronexus-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-kuronexus}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-kuronexus_dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-kuronexus_dev}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - kuronexus_db_data:/var/lib/postgresql/data
+
+volumes:
+  kuronexus_db_data:

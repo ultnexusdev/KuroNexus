@@ -1,0 +1,143 @@
+/* ============================================================
+   KuroNexus — Design Tokens & Themes
+   AGENTS.md kural 16: Bilesenler asla dogrudan hex kullanmaz,
+   yalnizca asagidaki degiskenleri (var(--...)) okur.
+   Uc dark tema ayni token setini override eder.
+   ============================================================ */
+
+/* --- Tema-bagimsiz sabitler --- */
+:root {
+  --radius: 8px;
+  --radius-card: 12px;
+
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", monospace;
+
+  --gap-sm: 8px;
+  --gap-md: 12px;
+  --gap-lg: 20px;
+
+  --pad-sm: 12px;
+  --pad-md: 16px;
+  --pad-lg: 24px;
+
+  --touch-min: 44px; /* kural 2: mobil dokunma alani min 44px */
+
+  /* Tema secici swatch renkleri — her temanin accent'i, temadan bagimsiz sabit */
+  --swatch-purple: #9d97b8;
+  --swatch-orange: #d97a3f;
+  --swatch-navy:   #9b4a4a;
+}
+
+/* ============================================================
+   TEMA 1 — Mor (VARSAYILAN)
+   Sakin, dusuk doygunlukta mor-gri accent. Saf siyah degil.
+   ============================================================ */
+:root,
+:root[data-theme="purple"] {
+  --bg:             #14141a;
+  --surface:        #1b1b23;
+  --surface-hover:  #22222c;
+  --border:         #2c2c36;
+  --border-strong:  #3a3a46;
+
+  --text-primary:   #d8d6d2;
+  --text-secondary: #8a8990;
+  --text-muted:     #5f5c72;
+
+  --accent:         #9d97b8;
+  --accent-hover:   #b0aac9;
+  --accent-muted:   #5f5c72;
+
+  --gold:           #b89968; /* wiki kategori etiketleri */
+  --warn:           #b8564f; /* hata / uyari — toprak tonu kirmizi */
+  --danger:         #b8564f;
+}
+
+/* ============================================================
+   TEMA 2 — Siyah + Turuncu
+   Technopat hissi; turuncu neon degil, toprak tonuna cekilmis.
+   ============================================================ */
+:root[data-theme="orange"] {
+  --bg:             #121212;
+  --surface:        #1a1a1a;
+  --surface-hover:  #202020;
+  --border:         #2b2b2b;
+  --border-strong:  #383838;
+
+  --text-primary:   #e2e0da;
+  --text-secondary: #8f8f8a;
+  --text-muted:     #68655f;
+
+  --accent:         #d97a3f;
+  --accent-hover:   #e28a54;
+  --accent-muted:   #6e5a48;
+
+  --gold:           #d99b52;
+  --warn:           #c25a3c;
+  --danger:         #c25a3c;
+}
+
+/* ============================================================
+   TEMA 3 — Lacivert + Bordo
+   Zemin koyu lacivert; accent cart kirmizi degil, soluk bordo.
+   ============================================================ */
+:root[data-theme="navy"] {
+  --bg:             #10141c;
+  --surface:        #171d29;
+  --surface-hover:  #1c2330;
+  --border:         #26303f;
+  --border-strong:  #34404f;
+
+  --text-primary:   #dcdde0;
+  --text-secondary: #868c99;
+  --text-muted:     #5c6270;
+
+  --accent:         #9b4a4a; /* bordo */
+  --accent-hover:   #b05858;
+  --accent-muted:   #5c4448;
+
+  --gold:           #b08a5a;
+  --warn:           #a64545;
+  --danger:         #a64545;
+}
+
+/* ============================================================
+   Temel eleman stilleri (ornek — bilesenler bunlari genisletir)
+   ============================================================ */
+body {
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  margin: 0;
+  line-height: 1.7;
+}
+
+.card {
+  background: var(--surface);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: var(--pad-md);
+}
+
+.card:hover {
+  background: var(--surface-hover);
+  /* NOT: glow/box-shadow parlamasi YOK (kural 16) */
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+a:hover { color: var(--accent-hover); }
+
+.btn {
+  min-height: var(--touch-min);
+  background: var(--surface);
+  border: 0.5px solid var(--border-strong);
+  color: var(--accent);
+  border-radius: var(--radius);
+  padding: 8px 16px;
+  cursor: pointer;
+}
+.btn:hover { background: var(--surface-hover); }

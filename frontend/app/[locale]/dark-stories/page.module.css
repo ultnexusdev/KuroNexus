@@ -1,0 +1,75 @@
+/* Mobile-first (AGENTS.md kural 2) */
+.page {
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: var(--pad-lg) var(--pad-md);
+}
+
+.heading {
+  margin: 0 0 var(--gap-lg);
+  font-size: 1.75rem;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+}
+
+.empty {
+  color: var(--text-secondary);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-lg);
+}
+
+.card {
+  display: block;
+  background: var(--surface);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  color: var(--text-primary);
+}
+
+.card:hover {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.cover {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.cardBody {
+  padding: var(--pad-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: 1.2rem;
+  color: var(--accent);
+}
+
+.cardExcerpt {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.cardDate {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+@media (min-width: 768px) {
+  .heading {
+    font-size: 2.1rem;
+  }
+}

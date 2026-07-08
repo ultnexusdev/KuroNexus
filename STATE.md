@@ -4,7 +4,7 @@
 > Yeni bir oturuma başlayan ajan İLK İŞ olarak bu dosyayı okur.
 
 ## Mevcut Aşama
-**Faz 1 — Kod tamam + GitHub'a push edildi (2026-07-08). Sıradaki adım: Coolify deploy + yedekleme.**
+**Faz 1 — SİTE CANLIDA (2026-07-08): https://kuronexus.com + https://api.kuronexus.com. DB public erişimi kapalı, günlük yedekleme kurulu. Kalan küçük işler: geri yükleme testi, mobil taşma kontrolü, canlıda admin login/upload denemesi.**
 
 ## Tamamlananlar
 - [x] implementation_plan.md v3 kesinleşti (şema, mimari, fazlı yol haritası)
@@ -28,9 +28,13 @@
 
 - [x] **Git init + ilk commit + push tamamlandı (2026-07-08)**: `main` branch → `https://github.com/ultnexusdev/KuroNexus.git` (commit `6f82c58`, 104 dosya). Gizli `.env`'lerin (kök, `backend/.env`, `frontend/.env.local`) staged OLMADIĞI push öncesi doğrulandı; yalnızca `.env.example` şablonları repoda. `frontend/.gitignore`'a `!.env.example` istisnası eklendi. Git kimliği (repo-local): `ultnexusdev` + `ultnexusdev@users.noreply.github.com`
 
-## Sıradaki Adım (Faz 1 devamı)
-1. Coolify'a deploy: `kuronexus-backend`, `kuronexus-frontend` + pg_dump yedekleme yapılandırması (`kuronexus-db` zaten oluşturuldu); backend `UPLOAD_DIR` için persistent volume (`/app/uploads`); deploy sonrası db public erişimini kapatıp internal URL'e geçiş. Env değişkenleri (`DATABASE_URL` internal, `JWT_SECRET`, `ADMIN_*`, `CORS_ORIGIN`, `NEXT_PUBLIC_API_URL`) Coolify panelinden girilecek
-2. Faz 1 "Bitti" kriterleri kontrolü: geri yükleme testi, mobil taşma kontrolü, rate limit prod doğrulaması
+- [x] **Coolify deploy (2026-07-08)**: `kuronexus-backend` (Dockerfile, `/backend`, port 3001, domain `https://api.kuronexus.com`, volume `kuronexus-uploads` → `/app/uploads`) + `kuronexus-frontend` (Dockerfile, `/frontend`, domain `https://kuronexus.com`, `NEXT_PUBLIC_API_URL` build variable). Backend env: PORT, JWT_EXPIRES_IN, CORS_ORIGIN, UPLOAD_DIR, MAX_UPLOAD_BYTES + kullanıcı tarafından DATABASE_URL (internal) ve JWT_SECRET (yeni üretildi — eski dev token'ları geçersiz). DNS Porkbun'da: kuronexus.com + api → 65.108.220.5. Backend canlı doğrulandı: `GET https://api.kuronexus.com/stories` → 200 + veri. Not: ilk deploy'da DATABASE_URL'e yanlışlıkla panel URL'i yapıştırılmıştı (P1013 crash loop) — düzeltildi.
+
+- [x] **Deploy sonrası güvenlik + yedekleme (2026-07-08)**: DB public erişimi kapatıldı (5433 dışarıdan erişilemez — doğrulandı), günlük pg_dump yedekleme kuruldu (cron `0 3 * * *` UTC, saklama 7 yedek, manuel test yedeği Success — 42.95 KB, `/data/coolify/backups/...` altında). Rate limit canlıda doğrulandı: 6. login denemesi 429. Canlı smoke test: ana sayfa 200, /dark-stories 200 + API verisi SSR'da, /en 200.
+
+## Sıradaki Adım (Faz 1 kapanışı)
+1. Faz 1 "Bitti" kriterlerinden kalanlar: yedekten geri yükleme testi, mobil taşma kontrolü, canlıda admin login + kapak görseli upload denemesi (uploads volume doğrulaması)
+2. Lokal geliştirme için DB: canlı DB'ye public erişim kapatıldı — lokalde çalışmak için Docker Desktop kurup `docker-compose.yml` ile lokal postgres kullanılacak (kökteki compose hazır), `backend/.env` lokal URL'e güncellenecek
 
 ## Açık Kararlar / Notlar
 - CX23 (4 GB RAM) iki projeyi birden taşıyacak — build sırasında bellek sıkışırsa CX33'e rescale edilecek
@@ -43,5 +47,5 @@
 - **GitHub reposu:** `https://github.com/ultnexusdev/KuroNexus.git` (`main` branch push edildi, origin remote ayarlı)
 - Sunucu: Hetzner CX23, Helsinki (eu-central), IP `65.108.220.5`
 - Deploy: Coolify — aynı repo, iki Application, root dirs `/backend` ve `/frontend`
-- Veritabanı: PostgreSQL (Coolify resource, `Kuronexus > production` projesi altında), public port `5433` (bağlantı bilgisi `backend/.env`'de) — **not:** bu public erişim geçici bir geliştirme kolaylığı, backend/frontend Coolify'a deploy edilince internal URL'e geçilip public erişim kapatılmalı (kural 6 güvenlik)
+- Veritabanı: PostgreSQL (Coolify resource, `Kuronexus > production` projesi altında) — **public erişim KAPALI (2026-07-08)**, backend internal URL ile bağlanıyor. `backend/.env`'deki eski 5433'lü URL artık çalışmaz (lokal dev için Docker Desktop + lokal postgres planı yukarıda)
 - Domain: kuronexus.com (DNS/SSL yapılandırması Faz 1 deploy adımında doğrulanacak)

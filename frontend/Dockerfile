@@ -1,0 +1,39 @@
+# syntax=docker/dockerfile:1
+
+# ---- Build asamasi ----
+FROM node:24-slim AS build
+WORKDIR /app
+
+RUN npm install -g pnpm@10
+
+# Once yalnizca bagimlilik dosyalari (Docker katman cache'i icin)
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+RUN pnpm install --frozen-lockfile
+
+COPY . .
+
+# NEXT_PUBLIC_* degiskenleri build sirasinda bundle'a gomulur —
+# Coolify'da bu degisken "Build Variable" olarak isaretlenmeli
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
+# standalone cikti yalnizca Docker build'inde etkin (bkz. next.config.ts)
+ENV NEXT_OUTPUT_STANDALONE=1
+
+RUN pnpm run build
+
+# ---- Calisma asamasi ----
+FROM node:24-slim
+WORKDIR /app
+ENV NODE_ENV=production
+
+# output: "standalone" ciktisi: server.js + minimal node_modules
+COPY --from=build /app/.next/standalone ./
+COPY --from=build /app/.next/static ./.next/static
+COPY --from=build /app/public ./public
+
+EXPOSE 3000
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
+
+CMD ["node", "server.js"]

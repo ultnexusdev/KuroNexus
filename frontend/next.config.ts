@@ -6,6 +6,9 @@ const withNextIntl = createNextIntlPlugin("./lib/i18n/request.ts");
 const apiUrl = new URL(process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001");
 
 const nextConfig: NextConfig = {
+  // Docker deploy: yalnizca gerekli dosyalari iceren .next/standalone ciktisi uretir.
+  // Yalnizca Docker build'inde acik — Windows'ta pnpm + standalone symlink izni istiyor (EPERM).
+  output: process.env.NEXT_OUTPUT_STANDALONE === "1" ? "standalone" : undefined,
   images: {
     remotePatterns: [
       {

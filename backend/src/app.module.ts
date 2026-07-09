@@ -1,4 +1,4 @@
-import { join } from 'node:path';
+import { resolve } from 'node:path';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
@@ -22,8 +22,7 @@ import { RolesGuard } from './common/guards/roles.guard';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => [
         {
-          rootPath: join(
-            process.cwd(),
+          rootPath: resolve(
             configService.get<string>('UPLOAD_DIR', './uploads'),
           ),
           serveRoot: '/uploads',

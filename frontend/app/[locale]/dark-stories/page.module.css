@@ -9,6 +9,7 @@
   margin: 0 0 var(--gap-lg);
   font-size: 1.75rem;
   letter-spacing: 0.04em;
+  text-align: center;
   color: var(--text-primary);
 }
 

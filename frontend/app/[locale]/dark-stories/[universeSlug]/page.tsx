@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
-import { ApiError } from "@/lib/api/client";
+import { apiUrl, ApiError } from "@/lib/api/client";
 import { fetchUniverseBySlug } from "@/lib/api/universes";
 import type { WikiUniverse } from "@/lib/api/types";
 import { ContentCard } from "@/components/ContentCard";
@@ -46,36 +47,50 @@ export default async function UniverseDetailPage({
   });
 
   return (
-    <section className={styles.page}>
-      <Link href="/dark-stories" className={styles.back}>
-        {t("backToList")}
-      </Link>
-      <h1 className={styles.heading}>{universe.name}</h1>
-      {universe.description ? (
-        <p className={styles.description}>{universe.description}</p>
+    <>
+      {universe.coverImage ? (
+        <div className={styles.bannerWrap}>
+          <Image
+            src={apiUrl(universe.coverImage)}
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className={styles.banner}
+          />
+        </div>
       ) : null}
-      {universe.stories.length === 0 ? (
-        <p className={styles.empty}>{t("empty")}</p>
-      ) : (
-        <ul className={styles.list}>
-          {universe.stories.map((story) => (
-            <li key={story.id}>
-              <ContentCard
-                href={`/dark-stories/${universeSlug}/${story.slug}`}
-                coverImage={story.coverImage}
-                title={story.title}
-                subtitle={story.excerpt}
-                dateTime={story.publishedAt}
-                dateLabel={
-                  story.publishedAt
-                    ? dateFormatter.format(new Date(story.publishedAt))
-                    : null
-                }
-              />
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
+      <section className={styles.page}>
+        <Link href="/dark-stories" className={styles.back}>
+          {t("backToList")}
+        </Link>
+        <h1 className={styles.heading}>{universe.name}</h1>
+        {universe.description ? (
+          <p className={styles.description}>{universe.description}</p>
+        ) : null}
+        {universe.stories.length === 0 ? (
+          <p className={styles.empty}>{t("empty")}</p>
+        ) : (
+          <ul className={styles.list}>
+            {universe.stories.map((story) => (
+              <li key={story.id}>
+                <ContentCard
+                  href={`/dark-stories/${universeSlug}/${story.slug}`}
+                  coverImage={story.coverImage}
+                  title={story.title}
+                  subtitle={story.excerpt}
+                  dateTime={story.publishedAt}
+                  dateLabel={
+                    story.publishedAt
+                      ? dateFormatter.format(new Date(story.publishedAt))
+                      : null
+                  }
+                />
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+    </>
   );
 }

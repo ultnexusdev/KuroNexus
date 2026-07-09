@@ -3,17 +3,20 @@
     "siteName": "KuroNexus"
   },
   "nav": {
-    "darkStories": "Karanlık Hikâyeler"
+    "darkStories": "Kadim Dünyalar"
   },
   "home": {
     "title": "KuroNexus",
-    "tagline": "Karanlık evrenine açılan kapı",
-    "intro": "Karanlık hikâyeler, fandom wikileri, anime ve film arşivi, derinlemesine karakter analizleri — hepsi tek bir kişisel evrende."
+    "tagline": "Gölgede kalmış kadim bilgilerin arşivi",
+    "intro": "Kadim dünyalar, fandom wikileri, anime ve film arşivi, derinlemesine karakter analizleri — hepsi tek bir kişisel evrende.",
+    "adminLink": "Yönetim Paneli"
   },
   "stories": {
-    "listTitle": "Karanlık Hikâyeler",
+    "listTitle": "Kadim Dünyalar",
+    "emptyUniverses": "Henüz evren yok.",
     "empty": "Henüz hikâye yok.",
-    "backToList": "← Tüm hikâyeler"
+    "backToList": "← Tüm evrenler",
+    "backToUniverse": "← {name}"
   },
   "admin": {
     "title": "Yönetim Paneli",
@@ -39,6 +42,27 @@
       "empty": "Henüz hikâye yok.",
       "loadError": "Liste yüklenemedi. Sayfayı yenileyin."
     },
+    "universes": {
+      "title": "Evrenler",
+      "new": "Yeni evren",
+      "newTitle": "Yeni Evren",
+      "editTitle": "Evreni Düzenle",
+      "edit": "Düzenle",
+      "delete": "Sil",
+      "confirmDelete": "\"{name}\" silinsin mi?",
+      "empty": "Henüz evren yok.",
+      "loadError": "Liste yüklenemedi. Sayfayı yenileyin."
+    },
+    "universeForm": {
+      "name": "Ad",
+      "description": "Açıklama (isteğe bağlı)",
+      "cover": "Kapak görseli",
+      "upload": "Görsel yükle",
+      "uploading": "Yükleniyor…",
+      "save": "Kaydet",
+      "saving": "Kaydediliyor…",
+      "error": "Kaydedilemedi. Tekrar deneyin."
+    },
     "form": {
       "title": "Başlık",
       "excerpt": "Özet (isteğe bağlı)",
@@ -46,11 +70,38 @@
       "cover": "Kapak görseli",
       "upload": "Görsel yükle",
       "uploading": "Yükleniyor…",
+      "universe": "Evren",
+      "noUniverse": "Evren yok",
       "publish": "Yayınla",
       "save": "Kaydet",
       "saving": "Kaydediliyor…",
       "error": "Kaydedilemedi. Tekrar deneyin."
+    },
+    "editor": {
+      "bold": "Kalın",
+      "italic": "İtalik",
+      "underline": "Altı çizili",
+      "strike": "Üstü çizili",
+      "heading2": "Alt başlık",
+      "heading3": "Küçük alt başlık",
+      "bulletList": "Madde listesi",
+      "orderedList": "Numaralı liste",
+      "blockquote": "Alıntı",
+      "link": "Bağlantı ekle/düzenle",
+      "alignLeft": "Sola hizala",
+      "alignCenter": "Ortala",
+      "alignRight": "Sağa hizala",
+      "image": "Görsel ekle",
+      "undo": "Geri al",
+      "redo": "İleri al",
+      "linkPrompt": "Bağlantı adresi (boş bırakırsan kaldırılır):"
     }
+  },
+  "account": {
+    "profileTab": "Profil Bilgileri",
+    "appearanceTab": "Görünüm",
+    "name": "Ad",
+    "email": "E-posta"
   },
   "theme": {
     "label": "Tema seçimi",

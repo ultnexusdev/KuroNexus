@@ -1,6 +1,6 @@
 /* Mobile-first (AGENTS.md kural 2) */
 .page {
-  max-width: 44rem;
+  max-width: 54rem;
   margin: 0 auto;
   padding: var(--pad-lg) var(--pad-md);
   display: flex;
@@ -40,9 +40,46 @@
 }
 
 .content {
-  white-space: pre-wrap;
   color: var(--text-primary);
   line-height: 1.85;
+}
+
+.content p {
+  margin: 0 0 var(--gap-md);
+}
+
+.content h2 {
+  font-size: 1.5rem;
+  margin: var(--gap-lg) 0 var(--gap-sm);
+}
+
+.content h3 {
+  font-size: 1.2rem;
+  margin: var(--gap-lg) 0 var(--gap-sm);
+}
+
+.content ul,
+.content ol {
+  margin: 0 0 var(--gap-md);
+  padding-left: 1.4rem;
+}
+
+.content blockquote {
+  margin: var(--gap-md) 0;
+  padding-left: var(--pad-md);
+  border-left: 2px solid var(--accent);
+  color: var(--text-secondary);
+}
+
+.content a {
+  color: var(--accent);
+}
+
+.content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-card);
+  margin: var(--gap-sm) 0;
 }
 
 @media (min-width: 768px) {

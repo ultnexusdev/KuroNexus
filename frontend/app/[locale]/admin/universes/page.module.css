@@ -1,0 +1,95 @@
+/* Mobile-first: liste tablodan kaçınır, dikey kart deseni kullanır (kural 2) */
+.page {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: 0 var(--pad-md) var(--pad-lg);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-md);
+  margin-bottom: var(--gap-lg);
+}
+
+.heading {
+  margin: 0;
+  font-size: 1.6rem;
+  color: var(--text-primary);
+}
+
+.header a {
+  display: inline-flex;
+  align-items: center;
+}
+
+.error {
+  color: var(--danger);
+}
+
+.empty {
+  color: var(--text-secondary);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+  background: var(--surface);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: var(--pad-md);
+}
+
+.itemInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.itemTitle {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.itemActions {
+  display: flex;
+  gap: var(--gap-sm);
+}
+
+.itemActions a {
+  display: inline-flex;
+  align-items: center;
+}
+
+.deleteButton {
+  min-height: var(--touch-min);
+  padding: 8px 16px;
+  background: var(--surface);
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--danger);
+  cursor: pointer;
+}
+
+.deleteButton:hover {
+  background: var(--surface-hover);
+}
+
+@media (min-width: 640px) {
+  .item {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}

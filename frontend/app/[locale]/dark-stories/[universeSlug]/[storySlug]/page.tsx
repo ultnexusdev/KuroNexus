@@ -5,6 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
 import { apiFetch, apiUrl, ApiError } from "@/lib/api/client";
 import type { Story } from "@/lib/api/types";
+import { legacyPlainTextToHtml } from "@/lib/content/legacyPlainTextToHtml";
 import styles from "./page.module.css";
 
 async function getStory(slug: string): Promise<Story | null> {
@@ -23,21 +24,21 @@ async function getStory(slug: string): Promise<Story | null> {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ locale: string; slug: string }>;
+  params: Promise<{ locale: string; universeSlug: string; storySlug: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
-  const story = await getStory(slug);
+  const { storySlug } = await params;
+  const story = await getStory(storySlug);
   return { title: story?.title ?? "KuroNexus" };
 }
 
 export default async function StoryDetailPage({
   params,
 }: {
-  params: Promise<{ locale: string; slug: string }>;
+  params: Promise<{ locale: string; universeSlug: string; storySlug: string }>;
 }) {
-  const { locale, slug } = await params;
-  const story = await getStory(slug);
-  if (!story) {
+  const { locale, universeSlug, storySlug } = await params;
+  const story = await getStory(storySlug);
+  if (!story || story.universe?.slug !== universeSlug) {
     notFound();
   }
 
@@ -48,8 +49,8 @@ export default async function StoryDetailPage({
 
   return (
     <article className={styles.page}>
-      <Link href="/dark-stories" className={styles.back}>
-        {t("backToList")}
+      <Link href={`/dark-stories/${universeSlug}`} className={styles.back}>
+        {t("backToUniverse", { name: story.universe.name })}
       </Link>
       <h1 className={styles.title}>{story.title}</h1>
       {story.publishedAt ? (
@@ -67,7 +68,12 @@ export default async function StoryDetailPage({
           priority
         />
       ) : null}
-      <div className={styles.content}>{story.content}</div>
+      <div
+        className={styles.content}
+        dangerouslySetInnerHTML={{
+          __html: legacyPlainTextToHtml(story.content),
+        }}
+      />
     </article>
   );
 }

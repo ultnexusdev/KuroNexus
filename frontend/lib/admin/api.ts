@@ -1,9 +1,11 @@
 import { apiFetch, apiUrl, ApiError } from "../api/client";
 import type {
+  AuthenticatedUser,
   LoginResult,
   Story,
   StorySummary,
   UploadResult,
+  WikiUniverseSummary,
 } from "../api/types";
 import { getToken } from "./auth";
 
@@ -17,6 +19,12 @@ export function login(email: string, password: string): Promise<LoginResult> {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
+  });
+}
+
+export function fetchMe(): Promise<AuthenticatedUser> {
+  return apiFetch<AuthenticatedUser>("/auth/me", {
+    headers: authHeaders(),
   });
 }
 
@@ -35,6 +43,7 @@ export interface StoryInput {
   content: string;
   excerpt?: string;
   coverImage?: string;
+  universeId?: string;
   isPublished?: boolean;
 }
 
@@ -59,6 +68,52 @@ export function updateStory(
 
 export function deleteStory(id: string): Promise<Story> {
   return apiFetch<Story>(`/admin/stories/${id}`, {
+    method: "DELETE",
+    headers: authHeaders(),
+  });
+}
+
+export interface UniverseInput {
+  name: string;
+  description?: string;
+  coverImage?: string;
+}
+
+export function fetchAdminUniverses(): Promise<WikiUniverseSummary[]> {
+  return apiFetch<WikiUniverseSummary[]>("/admin/universes", {
+    headers: authHeaders(),
+  });
+}
+
+export function fetchAdminUniverse(id: string): Promise<WikiUniverseSummary> {
+  return apiFetch<WikiUniverseSummary>(`/admin/universes/${id}`, {
+    headers: authHeaders(),
+  });
+}
+
+export function createUniverse(
+  input: UniverseInput,
+): Promise<WikiUniverseSummary> {
+  return apiFetch<WikiUniverseSummary>("/admin/universes", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(input),
+  });
+}
+
+export function updateUniverse(
+  id: string,
+  input: Partial<UniverseInput>,
+): Promise<WikiUniverseSummary> {
+  return apiFetch<WikiUniverseSummary>(`/admin/universes/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(input),
+  });
+}
+
+export function deleteUniverse(id: string): Promise<WikiUniverseSummary> {
+  return apiFetch<WikiUniverseSummary>(`/admin/universes/${id}`, {
     method: "DELETE",
     headers: authHeaders(),
   });

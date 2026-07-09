@@ -1,0 +1,47 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--surface);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  color: var(--text-primary);
+}
+
+.card:hover {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.cover {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  display: block;
+}
+
+.body {
+  padding: var(--pad-md);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: var(--gap-sm);
+}
+
+.title {
+  margin: 0;
+  font-size: 1.2rem;
+  color: var(--accent);
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.date {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}

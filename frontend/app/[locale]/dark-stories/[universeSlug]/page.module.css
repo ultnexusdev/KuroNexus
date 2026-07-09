@@ -5,11 +5,30 @@
   padding: var(--pad-lg) var(--pad-md);
 }
 
+.back {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  margin-bottom: var(--gap-md);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.back:hover {
+  color: var(--accent);
+}
+
 .heading {
-  margin: 0 0 var(--gap-lg);
+  margin: 0 0 var(--gap-sm);
   font-size: 1.75rem;
   letter-spacing: 0.04em;
   color: var(--text-primary);
+}
+
+.description {
+  margin: 0 0 var(--gap-lg);
+  color: var(--text-secondary);
+  line-height: 1.7;
 }
 
 .empty {

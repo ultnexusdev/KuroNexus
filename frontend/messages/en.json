@@ -3,17 +3,20 @@
     "siteName": "KuroNexus"
   },
   "nav": {
-    "darkStories": "Dark Stories"
+    "darkStories": "Ancient Worlds"
   },
   "home": {
     "title": "KuroNexus",
-    "tagline": "The gateway to your dark universe",
-    "intro": "Dark stories, fandom wikis, an anime and movie archive, and in-depth character analyses — all in one personal universe."
+    "tagline": "An archive of ancient knowledge lost to shadow",
+    "intro": "Ancient worlds, fandom wikis, an anime and movie archive, and in-depth character analyses — all in one personal universe.",
+    "adminLink": "Admin Panel"
   },
   "stories": {
-    "listTitle": "Dark Stories",
+    "listTitle": "Ancient Worlds",
+    "emptyUniverses": "No universes yet.",
     "empty": "No stories yet.",
-    "backToList": "← All stories"
+    "backToList": "← All universes",
+    "backToUniverse": "← {name}"
   },
   "admin": {
     "title": "Admin Panel",
@@ -39,6 +42,27 @@
       "empty": "No stories yet.",
       "loadError": "Failed to load the list. Refresh the page."
     },
+    "universes": {
+      "title": "Universes",
+      "new": "New universe",
+      "newTitle": "New Universe",
+      "editTitle": "Edit Universe",
+      "edit": "Edit",
+      "delete": "Delete",
+      "confirmDelete": "Delete \"{name}\"?",
+      "empty": "No universes yet.",
+      "loadError": "Failed to load the list. Refresh the page."
+    },
+    "universeForm": {
+      "name": "Name",
+      "description": "Description (optional)",
+      "cover": "Cover image",
+      "upload": "Upload image",
+      "uploading": "Uploading…",
+      "save": "Save",
+      "saving": "Saving…",
+      "error": "Could not save. Try again."
+    },
     "form": {
       "title": "Title",
       "excerpt": "Excerpt (optional)",
@@ -46,11 +70,38 @@
       "cover": "Cover image",
       "upload": "Upload image",
       "uploading": "Uploading…",
+      "universe": "Universe",
+      "noUniverse": "No universe",
       "publish": "Publish",
       "save": "Save",
       "saving": "Saving…",
       "error": "Could not save. Try again."
+    },
+    "editor": {
+      "bold": "Bold",
+      "italic": "Italic",
+      "underline": "Underline",
+      "strike": "Strikethrough",
+      "heading2": "Heading",
+      "heading3": "Subheading",
+      "bulletList": "Bullet list",
+      "orderedList": "Numbered list",
+      "blockquote": "Quote",
+      "link": "Add/edit link",
+      "alignLeft": "Align left",
+      "alignCenter": "Align center",
+      "alignRight": "Align right",
+      "image": "Insert image",
+      "undo": "Undo",
+      "redo": "Redo",
+      "linkPrompt": "Link URL (leave empty to remove):"
     }
+  },
+  "account": {
+    "profileTab": "Profile Info",
+    "appearanceTab": "Appearance",
+    "name": "Name",
+    "email": "Email"
   },
   "theme": {
     "label": "Theme selection",

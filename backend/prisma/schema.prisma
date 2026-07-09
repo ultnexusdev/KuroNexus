@@ -53,6 +53,9 @@ model Story {
   userId String
   user   User   @relation(fields: [userId], references: [id])
 
+  universeId String?
+  universe   WikiUniverse? @relation(fields: [universeId], references: [id])
+
   tags      TagOnStory[]
   comments  Comment[]
   favorites Favorite[]
@@ -60,6 +63,7 @@ model Story {
   @@index([userId])
   @@index([isPublished, isDeleted])
   @@index([submissionStatus])
+  @@index([universeId])
 }
 
 model WikiUniverse {
@@ -73,6 +77,7 @@ model WikiUniverse {
   isDeleted   Boolean  @default(false)
 
   entries WikiEntry[]
+  stories Story[]
 }
 
 model WikiEntry {

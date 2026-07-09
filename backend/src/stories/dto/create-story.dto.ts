@@ -27,6 +27,10 @@ export class CreateStoryDto {
   coverImage?: string;
 
   @IsOptional()
+  @IsString({ message: 'VALIDATION.INVALID_UNIVERSE_ID' })
+  universeId?: string;
+
+  @IsOptional()
   @IsBoolean({ message: 'VALIDATION.INVALID_PUBLISH_FLAG' })
   isPublished?: boolean;
 }

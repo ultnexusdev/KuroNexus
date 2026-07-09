@@ -16,8 +16,7 @@
 }
 
 .field input[type="text"],
-.field textarea,
-.field select {
+.field textarea {
   padding: 10px 12px;
   background: var(--surface);
   border: 0.5px solid var(--border-strong);
@@ -28,14 +27,12 @@
   resize: vertical;
 }
 
-.field input[type="text"],
-.field select {
+.field input[type="text"] {
   min-height: var(--touch-min);
 }
 
 .field input:focus,
-.field textarea:focus,
-.field select:focus {
+.field textarea:focus {
   outline: 1px solid var(--accent);
   outline-offset: 1px;
 }
@@ -68,21 +65,6 @@
 
 .fileInput {
   display: none;
-}
-
-.checkboxField {
-  display: flex;
-  align-items: center;
-  gap: var(--gap-sm);
-  min-height: var(--touch-min);
-  color: var(--text-primary);
-  cursor: pointer;
-}
-
-.checkboxField input {
-  width: 18px;
-  height: 18px;
-  accent-color: var(--accent);
 }
 
 .error {

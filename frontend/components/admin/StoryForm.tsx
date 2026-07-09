@@ -1,17 +1,20 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/lib/i18n/navigation";
 import { apiUrl } from "@/lib/api/client";
 import {
   createStory,
+  fetchAdminUniverses,
   updateStory,
   uploadImage,
   type StoryInput,
 } from "@/lib/admin/api";
-import type { Story } from "@/lib/api/types";
+import type { Story, WikiUniverseSummary } from "@/lib/api/types";
+import { legacyPlainTextToHtml } from "@/lib/content/legacyPlainTextToHtml";
+import { RichTextEditor } from "./RichTextEditor";
 import styles from "./StoryForm.module.css";
 
 export function StoryForm({ story }: { story?: Story }) {
@@ -20,12 +23,22 @@ export function StoryForm({ story }: { story?: Story }) {
 
   const [title, setTitle] = useState(story?.title ?? "");
   const [excerpt, setExcerpt] = useState(story?.excerpt ?? "");
-  const [content, setContent] = useState(story?.content ?? "");
+  const [content, setContent] = useState(
+    story?.content ? legacyPlainTextToHtml(story.content) : "",
+  );
   const [coverImage, setCoverImage] = useState(story?.coverImage ?? "");
+  const [universeId, setUniverseId] = useState(story?.universeId ?? "");
+  const [universes, setUniverses] = useState<WikiUniverseSummary[]>([]);
   const [isPublished, setIsPublished] = useState(story?.isPublished ?? false);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(false);
+
+  useEffect(() => {
+    fetchAdminUniverses()
+      .then(setUniverses)
+      .catch(() => undefined);
+  }, []);
 
   async function handleUpload(file: File) {
     setUploading(true);
@@ -49,6 +62,7 @@ export function StoryForm({ story }: { story?: Story }) {
       content,
       excerpt: excerpt || undefined,
       coverImage: coverImage || undefined,
+      universeId: universeId || undefined,
       isPublished,
     };
     try {
@@ -88,14 +102,24 @@ export function StoryForm({ story }: { story?: Story }) {
         />
       </label>
 
-      <label className={styles.field}>
+      <div className={styles.field}>
         <span>{t("content")}</span>
-        <textarea
-          value={content}
-          onChange={(event) => setContent(event.target.value)}
-          rows={14}
-          required
-        />
+        <RichTextEditor content={content} onChange={setContent} />
+      </div>
+
+      <label className={styles.field}>
+        <span>{t("universe")}</span>
+        <select
+          value={universeId}
+          onChange={(event) => setUniverseId(event.target.value)}
+        >
+          <option value="">{t("noUniverse")}</option>
+          {universes.map((universe) => (
+            <option key={universe.id} value={universe.id}>
+              {universe.name}
+            </option>
+          ))}
+        </select>
       </label>
 
       <div className={styles.field}>

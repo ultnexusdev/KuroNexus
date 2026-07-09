@@ -29,6 +29,25 @@
   color: var(--text-secondary);
 }
 
+.adminLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--touch-min);
+  margin-top: var(--gap-sm);
+  padding: 8px 20px;
+  background: var(--surface);
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.adminLink:hover {
+  background: var(--surface-hover);
+  color: var(--accent);
+}
+
 @media (min-width: 768px) {
   .title {
     font-size: 3rem;

@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { slugify } from '../common/utils/slugify';
+import { sanitizeStoryContent } from '../common/utils/sanitize-story-content';
 import { CreateStoryDto } from './dto/create-story.dto';
 import { UpdateStoryDto } from './dto/update-story.dto';
 import type { Prisma } from '../generated/prisma/client';
@@ -43,6 +44,9 @@ export class StoriesService {
         isDeleted: false,
         isCommunitySubmission: false,
       },
+      include: {
+        universe: { select: { slug: true, name: true } },
+      },
     });
     if (!story) {
       throw new NotFoundException('STORIES.NOT_FOUND');
@@ -76,9 +80,10 @@ export class StoriesService {
       data: {
         title: dto.title,
         slug,
-        content: dto.content,
+        content: sanitizeStoryContent(dto.content),
         excerpt: dto.excerpt,
         coverImage: dto.coverImage,
+        universeId: dto.universeId,
         isPublished: dto.isPublished ?? false,
         publishedAt: dto.isPublished ? new Date() : null,
         userId,
@@ -89,11 +94,12 @@ export class StoriesService {
   async update(id: string, dto: UpdateStoryDto) {
     const existing = await this.findByIdForAdmin(id);
 
-    const data: Prisma.StoryUpdateInput = {
+    const data: Prisma.StoryUncheckedUpdateInput = {
       title: dto.title,
-      content: dto.content,
+      content: dto.content ? sanitizeStoryContent(dto.content) : undefined,
       excerpt: dto.excerpt,
       coverImage: dto.coverImage,
+      universeId: dto.universeId,
       isPublished: dto.isPublished,
     };
 

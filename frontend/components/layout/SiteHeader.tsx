@@ -1,7 +1,7 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/lib/i18n/navigation";
 import type { Theme } from "@/lib/theme";
-import { ThemeSwitcher } from "./ThemeSwitcher";
+import { AccountMenu } from "./AccountMenu";
 import { LocaleSwitcher } from "./LocaleSwitcher";
 import styles from "./SiteHeader.module.css";
 
@@ -21,8 +21,8 @@ export function SiteHeader({ initialTheme }: { initialTheme: Theme }) {
         </nav>
       </div>
       <div className={styles.controls}>
-        <ThemeSwitcher initialTheme={initialTheme} />
         <LocaleSwitcher />
+        <AccountMenu initialTheme={initialTheme} />
       </div>
     </header>
   );

@@ -1,0 +1,108 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  padding: 6px;
+  border-bottom: 0.5px solid var(--border);
+  background: var(--surface-hover);
+}
+
+.button,
+.buttonActive {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--touch-min);
+  min-height: var(--touch-min);
+  padding: 0 8px;
+  border: 0.5px solid transparent;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+.button:disabled {
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.buttonActive {
+  background: var(--surface);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.divider {
+  width: 0.5px;
+  align-self: stretch;
+  margin: 4px 2px;
+  background: var(--border);
+}
+
+.fileInput {
+  display: none;
+}
+
+.content {
+  min-height: 420px;
+  padding: var(--pad-md);
+  color: var(--text-primary);
+  font-size: 1rem;
+  line-height: 1.75;
+  outline: none;
+}
+
+.content :global(p) {
+  margin: 0 0 var(--gap-sm);
+}
+
+.content :global(h2) {
+  font-size: 1.4rem;
+  margin: var(--gap-md) 0 var(--gap-sm);
+  color: var(--text-primary);
+}
+
+.content :global(h3) {
+  font-size: 1.15rem;
+  margin: var(--gap-md) 0 var(--gap-sm);
+  color: var(--text-primary);
+}
+
+.content :global(ul),
+.content :global(ol) {
+  margin: 0 0 var(--gap-sm);
+  padding-left: 1.4rem;
+}
+
+.content :global(blockquote) {
+  margin: var(--gap-sm) 0;
+  padding-left: var(--pad-md);
+  border-left: 2px solid var(--accent);
+  color: var(--text-secondary);
+}
+
+.content :global(a) {
+  color: var(--accent);
+}
+
+.content :global(img) {
+  max-width: 100%;
+  border-radius: var(--radius);
+}

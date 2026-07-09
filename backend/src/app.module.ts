@@ -9,6 +9,7 @@ import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { StoriesModule } from './stories/stories.module';
+import { UniversesModule } from './universes/universes.module';
 import { UploadsModule } from './uploads/uploads.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
@@ -32,6 +33,7 @@ import { RolesGuard } from './common/guards/roles.guard';
     PrismaModule,
     AuthModule,
     StoriesModule,
+    UniversesModule,
     UploadsModule,
   ],
   controllers: [AppController],

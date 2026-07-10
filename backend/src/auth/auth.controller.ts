@@ -4,11 +4,13 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Patch,
   Post,
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { AuthService, LoginResult } from './auth.service';
 import { LoginDto } from './dto/login.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { Public } from '../common/decorators/public.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import type { AuthenticatedUser } from '../common/types/authenticated-user';
@@ -30,5 +32,21 @@ export class AuthController {
   @Get('me')
   me(@CurrentUser() user: AuthenticatedUser): AuthenticatedUser {
     return user;
+  }
+
+  // Varsayılan guard zinciri korur: yalnızca geçerli JWT ile erişilir,
+  // mevcut şifre de ayrıca doğrulanır (kural 6).
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Patch('password')
+  async changePassword(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: ChangePasswordDto,
+  ): Promise<void> {
+    await this.authService.changePassword(
+      user.id,
+      dto.currentPassword,
+      dto.newPassword,
+    );
   }
 }

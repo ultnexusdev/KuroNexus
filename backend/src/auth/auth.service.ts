@@ -12,6 +12,8 @@ export interface LoginResult {
   user: AuthenticatedUser;
 }
 
+const BCRYPT_ROUNDS = 12;
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -44,5 +46,32 @@ export class AuthService {
         role: user.role,
       },
     };
+  }
+
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<void> {
+    const user = await this.prisma.user.findFirst({
+      where: { id: userId, isDeleted: false },
+    });
+    if (!user) {
+      throw new UnauthorizedException('AUTH.INVALID_CREDENTIALS');
+    }
+
+    const passwordMatches = await bcrypt.compare(
+      currentPassword,
+      user.passwordHash,
+    );
+    if (!passwordMatches) {
+      throw new UnauthorizedException('AUTH.INVALID_CREDENTIALS');
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, BCRYPT_ROUNDS);
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash },
+    });
   }
 }

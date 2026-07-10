@@ -3,6 +3,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { login } from "@/lib/admin/api";
+import { ApiError } from "@/lib/api/client";
 import { clearToken, getToken, setToken } from "@/lib/admin/auth";
 import styles from "./AdminGuard.module.css";
 
@@ -14,7 +15,7 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
   );
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<"invalid" | "rateLimited" | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -24,13 +25,13 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     setSubmitting(true);
-    setError(false);
+    setError(null);
     try {
       const result = await login(email, password);
       setToken(result.accessToken);
       setStatus("authed");
-    } catch {
-      setError(true);
+    } catch (err) {
+      setError(err instanceof ApiError && err.status === 429 ? "rateLimited" : "invalid");
     } finally {
       setSubmitting(false);
     }
@@ -64,7 +65,13 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
             autoComplete="current-password"
           />
         </label>
-        {error ? <p className={styles.error}>{t("login.error")}</p> : null}
+        {error ? (
+          <p className={styles.error}>
+            {error === "rateLimited"
+              ? t("login.rateLimited")
+              : t("login.error")}
+          </p>
+        ) : null}
         <button type="submit" className="btn" disabled={submitting}>
           {submitting ? t("login.submitting") : t("login.submit")}
         </button>

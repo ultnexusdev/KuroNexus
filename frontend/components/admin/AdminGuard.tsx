@@ -15,6 +15,7 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
   );
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<"invalid" | "rateLimited" | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -57,13 +58,23 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
         </label>
         <label className={styles.field}>
           <span>{t("login.password")}</span>
-          <input
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            required
-            autoComplete="current-password"
-          />
+          <div className={styles.passwordWrap}>
+            <input
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              required
+              autoComplete="current-password"
+            />
+            <button
+              type="button"
+              className={styles.togglePassword}
+              aria-pressed={showPassword}
+              onClick={() => setShowPassword((value) => !value)}
+            >
+              {showPassword ? t("login.hidePassword") : t("login.showPassword")}
+            </button>
+          </div>
         </label>
         {error ? (
           <p className={styles.error}>

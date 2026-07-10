@@ -28,7 +28,9 @@
       "submit": "Giriş yap",
       "submitting": "Giriş yapılıyor…",
       "error": "Giriş başarısız. Bilgilerinizi kontrol edin.",
-      "rateLimited": "Çok fazla deneme yapıldı. Lütfen bir dakika bekleyip tekrar deneyin."
+      "rateLimited": "Çok fazla deneme yapıldı. Lütfen bir dakika bekleyip tekrar deneyin.",
+      "showPassword": "Göster",
+      "hidePassword": "Gizle"
     },
     "stories": {
       "title": "Hikâyeler",

@@ -36,6 +36,33 @@
   outline-offset: 1px;
 }
 
+.passwordWrap {
+  display: flex;
+  gap: var(--gap-sm);
+}
+
+.passwordWrap input {
+  flex: 1;
+  min-width: 0;
+}
+
+.togglePassword {
+  min-height: var(--touch-min);
+  padding: 0 12px;
+  background: var(--surface);
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.togglePassword:hover {
+  background: var(--surface-hover);
+  color: var(--accent);
+}
+
 .error {
   margin: 0;
   color: var(--danger);

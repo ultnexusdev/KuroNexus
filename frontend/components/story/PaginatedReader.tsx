@@ -32,6 +32,30 @@ export function PaginatedReader({
   
   const containerRefs = useRef<(HTMLDivElement | null)[]>([]);
 
+  // Sayfa yüklendiğinde URL'den mevcut sayfayı al
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const page = parseInt(params.get("page") || "1", 10);
+      if (!isNaN(page) && page > 0) {
+        setGlobalCurrentPage(page - 1);
+      }
+    }
+  }, []);
+
+  // Sayfa değiştiğinde URL'yi güncelle (sayfayı yenilemeden)
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      if (globalCurrentPage === 0) {
+        url.searchParams.delete("page");
+      } else {
+        url.searchParams.set("page", (globalCurrentPage + 1).toString());
+      }
+      window.history.replaceState(null, "", url.toString());
+    }
+  }, [globalCurrentPage]);
+
   // Split the content into chunks at every <hr>
   const parts = useMemo(() => {
     return content.split(/<hr[^>]*>/i);

@@ -73,6 +73,14 @@
   text-indent: 1.5rem; /* Kitap hissi için paragraf başı boşluğu */
 }
 
+/* Corinthia fontu çok küçük kaldığı için ona özel büyütme */
+.content span[style*="Corinthia"] {
+  font-size: 2.2rem;
+  line-height: 1.1;
+  display: inline-block;
+  transform: translateY(4px);
+}
+
 .content h2, .content h3 {
   font-size: 1.5rem;
   margin: var(--gap-lg) 0 var(--gap-sm);

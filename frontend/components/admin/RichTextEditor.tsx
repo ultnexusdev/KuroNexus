@@ -145,7 +145,7 @@ export function RichTextEditor({
         >
           <option value="">Varsayılan Font</option>
           <option value="var(--font-cinzel)">Epik Başlık (Cinzel)</option>
-          <option value="'Caveat', cursive">El Yazısı/Şiir (Caveat)</option>
+          <option value="'Corinthia', cursive">Şiirsel/Estetik (Corinthia)</option>
           <option value="'Noto Sans Old Turkic', sans-serif">Göktürkçe (Orhun)</option>
         </select>
         

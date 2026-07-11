@@ -4,7 +4,7 @@
 > Yeni bir oturuma başlayan ajan İLK İŞ olarak bu dosyayı okur.
 
 ## Mevcut Aşama
-**Faz 1 — SİTE CANLIDA (2026-07-08): https://kuronexus.com + https://api.kuronexus.com. DB public erişimi kapalı, günlük yedekleme kurulu. Kalan küçük işler: geri yükleme testi, mobil taşma kontrolü.**
+**Faz 2 BAŞLADI (2026-07-11): Wiki modülü çekirdeği CANLIDA — evren içi wiki sayfaları (kategori gruplu) + spoiler seviyesi sistemi. Site: https://kuronexus.com + https://api.kuronexus.com. Webhook ile otomatik deploy çalışıyor (push = yayın). Faz 1'den kalan küçük işler: yedekten geri yükleme testi, mobil taşma kontrolü, www DNS kaydı.**
 
 ## Tamamlananlar
 - [x] implementation_plan.md v3 kesinleşti (şema, mimari, fazlı yol haritası)
@@ -43,13 +43,17 @@
 - [x] **Evren detay sayfasına banner + liste başlığı ortalama (2026-07-09)**: `dark-stories/[universeSlug]/page.tsx`'e evrenin `coverImage`'ı varsa sayfa üstünde tam genişlik, altta `--bg`'ye doğru gradient ile yumuşayan bir banner eklendi (`next/image fill` + `sizes="100vw"`); mobilde 200px, ≥768px'te 320px yükseklik. `dark-stories/page.tsx`'teki "Kadim Dünyalar" başlığı ortalandı. Prod API'ye geçici bağlanıp bir evrene geçici kapak atanarak (sonra `null`'a geri alındı) görsel doğrulandı. **Not**: Kullanıcının "Buz ve Ateşin Şarkısı" için sohbette paylaştığı görsel dosyaya erişilemediği için yüklenemedi — kapak görselleri `/admin/universes` üzerinden (UniverseForm'daki mevcut yükleme butonu) elle eklenmeli.
 - [x] **`www.kuronexus.com` DNS eksikliği tespit edildi (2026-07-09)**: Kullanıcı Yandex'te `www.kuronexus.com`'a ulaşamadığını bildirdi; `www` için Porkbun'da hiç DNS kaydı yok (yalnızca kök alan adı + `api` var) — kod/deploy ile ilgisi yok. Kullanıcıya CNAME (`www` → `kuronexus.com`) eklemesi ve Coolify frontend Domains alanına `https://kuronexus.com,https://www.kuronexus.com` + "Allow www & non-www" direction ayarı önerildi. **Kullanıcı tarafında henüz uygulanıp uygulanmadığı doğrulanmadı.**
 
-## Sıradaki Adım (Faz 1 kapanışı)
-1. `www.kuronexus.com` için Porkbun'a DNS kaydı + Coolify frontend domain ayarı eklenmeli (yukarıda detay var) — kullanıcı işlemi
-2. Faz 1 "Bitti" kriterlerinden kalanlar: yedekten geri yükleme testi, mobil taşma kontrolü
-3. Coolify auto-deploy webhook'u kontrol edilmeli (son push'larda otomatik deploy tetiklenmedi, manuel deploy gerekti)
-4. (İsteğe bağlı) Upload testi sırasında oluşan 2 test kaydını (`cmrduiuco00021qs01pshvngg`, `cmrduzd3w00001qrxd664ngh4`) DB/diskten temizle
-5. 8 evrene açıklama/kapak görseli eklenmesi — şu an hepsi boş (Dune test için bir ara kapak aldı, geri `null`'a alındı), `/admin/universes` üzerinden doldurulabilir; "Buz ve Ateşin Şarkısı" için kullanıcının paylaştığı görsel bekleniyor
-6. Lokal geliştirme için DB: canlı DB'ye public erişim kapatıldı — lokalde çalışmak için Docker Desktop kurup `docker-compose.yml` ile lokal postgres kullanılacak (kökteki compose hazır), `backend/.env` lokal URL'e güncellenecek
+- [x] **Operasyon düzeltmeleri + hesap işleri (2026-07-10/11)**: (1) **GitHub webhook kuruldu, otomatik deploy artık çalışıyor** — repo "Public GitHub" kaynağıyla bağlı olduğundan Coolify webhook kuramıyordu; iki uygulamaya da aynı "GitHub Webhook Secret" girildi, GitHub repo Settings → Webhooks'a `http://65.108.220.5:8000/webhooks/source/github/events/manual` payload URL'i eklendi. O günden beri her push iki uygulamayı da otomatik deploy ediyor (defalarca doğrulandı). (2) **trust proxy bug'ı düzeltildi** (`main.ts`: `NestExpressApplication` + `app.set('trust proxy', 1)`) — önceden ThrottlerGuard tüm ziyaretçileri proxy IP'si olarak görüyor, login limiti (5/dk) herkes arasında paylaşılıyordu; kullanıcının "giriş yapamıyorum" şikayetinin köklerinden biri buydu. Login formu artık 429'u ayrı mesajla gösteriyor. (3) **Şifre göster/gizle** butonu login formuna eklendi — asıl sorunun Chrome'un yanlış kayıtlı şifreyi autofill etmesi olduğu ortaya çıktı. (4) **`PATCH /auth/password`** endpoint'i eklendi (JWT + mevcut şifre doğrulamalı); admin şifresi kullanıcının istediği değerle değiştirildi, `backend/.env` senkron.
+
+- [x] **Wiki modülü çekirdeği (2026-07-11) — commit `e1bc78f`, deploy edildi ve canlıda uçtan uca doğrulandı**: Faz 2 başladı. Backend: `backend/src/wiki/*` (stories/universes deseni) — public `GET /universes/:slug/wiki` + `/:entrySlug`, admin `/admin/wiki-entries` CRUD (`?universeId=` filtreli); slug evren başına benzersiz (`@@unique([universeId, slug])`), içerik `sanitizeStoryContent` ile temizleniyor; şema değişikliği GEREKMEDİ (WikiEntry tablosu init migration'dan beri vardı). Frontend: evren detay sayfasında kategoriye göre gruplu wiki bölümü (`components/wiki/WikiSection.tsx` — 7 kategori sabit sıralı, yalnızca dolu olanlar), spoiler seviyesi seçici (cookie: `kuronexus-spoiler-{universeSlug}`, seçenekler entry'lerin max tier'ından türetilir, varsayılan 0 = güvenli taraf), seviye üstü kartlar blur + "Spoiler" rozetli ve tap-to-reveal (ilk tıklama gezinmez, açar), wiki detay sayfası (`[universeSlug]/wiki/[entrySlug]` — kategori rozeti gold token'la, `SpoilerGate` uyarı + "Yine de göster"), admin panelde wiki CRUD (`/admin/wiki` — evren filtresi; form: evren/kategori/spoiler tier/kapak/RichTextEditor). Canlı smoke test: Zaman Çarkı'na 2 örnek sayfa eklendi (Rand al'Thor — CHARACTER spoiler'sız, Tel'aran'rhiod — TERM `spoilerTier:2`; Türkçe içerik dosyadan `--data-binary` ile, mojibake yok) — liste gruplaması, blur/rozet, tap-to-reveal, detay kapısı ve reveal canlıda doğrulandı. Örnek sayfalar canlıda duruyor (gerçek içerik başlangıcı olarak kalabilir/düzenlenebilir). **Sonraki wiki adımı: `WikiEntryRelation` çapraz link yönetimi (bilinçli ertelendi).**
+
+## Sıradaki Adım
+1. **Wiki devamı (Faz 2)**: çapraz linkler (`WikiEntryRelation` — admin'den sayfalar arası ilişki kurma + detayda "İlişkili Sayfalar"), sonra site içi arama (PostgreSQL full-text, önce wiki kapsamında — plan Faz 2)
+2. `www.kuronexus.com` için Porkbun'a DNS kaydı (CNAME `www` → `kuronexus.com`) + Coolify frontend Domains'e `https://www.kuronexus.com` eklenmeli — kullanıcı işlemi, henüz doğrulanmadı
+3. Faz 1 "Bitti" kriterlerinden kalanlar: yedekten geri yükleme testi, mobil taşma kontrolü
+4. 8 evrene açıklama/kapak görseli eklenmesi (`/admin/universes`) — banner desteği hazır, görseller bekleniyor
+5. (İsteğe bağlı) Upload testi sırasında oluşan 2 test kaydını (`cmrduiuco00021qs01pshvngg`, `cmrduzd3w00001qrxd664ngh4`) DB/diskten temizle
+6. Lokal geliştirme için DB: Docker Desktop + lokal postgres (kökteki compose hazır), `backend/.env` lokal URL'e güncellenecek
 
 ## Açık Kararlar / Notlar
 - CX23 (4 GB RAM) iki projeyi birden taşıyacak — build sırasında bellek sıkışırsa CX33'e rescale edilecek

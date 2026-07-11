@@ -154,6 +154,7 @@
     }
   },
   "account": {
+    "preferences": "Tercihler",
     "profileTab": "Profil Bilgileri",
     "appearanceTab": "Görünüm",
     "name": "Ad",

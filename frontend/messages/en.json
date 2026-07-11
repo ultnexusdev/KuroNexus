@@ -154,6 +154,7 @@
     }
   },
   "account": {
+    "preferences": "Preferences",
     "profileTab": "Profile Info",
     "appearanceTab": "Appearance",
     "name": "Name",

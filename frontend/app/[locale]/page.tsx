@@ -25,8 +25,8 @@ export default function HomePage() {
       </h1>
       <p className={styles.tagline}>{t("tagline")}</p>
       <p className={styles.intro}>{t("intro")}</p>
-      <Link href="/admin" className={styles.adminLink}>
-        {t("adminLink")}
+      <Link href="/dark-stories" className={styles.adminLink}>
+        Evrenleri Keşfet
       </Link>
       </div>
     </section>

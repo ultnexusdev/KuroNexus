@@ -22,14 +22,17 @@ export function PaginatedReader({
 }: PaginatedReaderProps) {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
+  const [colWidth, setColWidth] = useState<number | undefined>(undefined);
   const columnsRef = useRef<HTMLDivElement>(null);
 
   const calculatePages = () => {
     if (columnsRef.current) {
-      const scrollW = columnsRef.current.scrollWidth;
       const clientW = columnsRef.current.clientWidth;
-      // We assume 2rem gap = 32px
-      // It's safer to measure gap dynamically, but standard 32px is used in our CSS.
+      if (clientW > 0) {
+        setColWidth(clientW);
+      }
+      
+      const scrollW = columnsRef.current.scrollWidth;
       const gap = 32;
       const total = Math.round((scrollW + gap) / (clientW + gap));
       const finalTotal = total > 0 ? total : 1;
@@ -40,11 +43,17 @@ export function PaginatedReader({
   };
 
   useEffect(() => {
-    // Biraz gecikmeli hesaplama, görsellerin vb. yüklenmesi için
-    const timer = setTimeout(calculatePages, 100);
+    // Initial calculate
+    calculatePages();
+    
+    // Gecikmeli hesaplama, görseller vb. için
+    const timer = setTimeout(calculatePages, 200);
+    const timer2 = setTimeout(calculatePages, 1000); // Ekstra garanti
+    
     window.addEventListener("resize", calculatePages);
     return () => {
       clearTimeout(timer);
+      clearTimeout(timer2);
       window.removeEventListener("resize", calculatePages);
     };
   }, [content, coverImage]);
@@ -65,6 +74,7 @@ export function PaginatedReader({
           className={styles.columns}
           style={{
             transform: `translateX(calc(-${currentPage} * (100% + var(--column-gap))))`,
+            columnWidth: colWidth ? `${colWidth}px` : "100%",
           }}
         >
           <div className={styles.coverPage}>

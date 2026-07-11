@@ -112,14 +112,11 @@
   break-inside: avoid;
 }
 
-.pageBreakSpacer {
-  display: inline-block;
-  width: 100%;
-  break-before: column;
-  -webkit-column-break-before: always;
-  page-break-before: always;
-  height: 1px;
-  visibility: hidden;
+.forceBreak {
+  break-before: column !important;
+  -webkit-column-break-before: always !important;
+  page-break-before: always !important;
+  display: block;
 }
 
 .controls {

@@ -1,10 +1,13 @@
 import { apiFetch, apiUrl, ApiError } from "../api/client";
 import type {
+  AdminWikiEntrySummary,
   AuthenticatedUser,
   LoginResult,
   Story,
   StorySummary,
   UploadResult,
+  WikiCategory,
+  WikiEntryDetail,
   WikiUniverseSummary,
 } from "../api/types";
 import { getToken } from "./auth";
@@ -114,6 +117,60 @@ export function updateUniverse(
 
 export function deleteUniverse(id: string): Promise<WikiUniverseSummary> {
   return apiFetch<WikiUniverseSummary>(`/admin/universes/${id}`, {
+    method: "DELETE",
+    headers: authHeaders(),
+  });
+}
+
+export interface WikiEntryInput {
+  title: string;
+  content: string;
+  category: WikiCategory;
+  universeId: string;
+  coverImage?: string;
+  spoilerTier?: number;
+}
+
+export function fetchAdminWikiEntries(
+  universeId?: string,
+): Promise<AdminWikiEntrySummary[]> {
+  const query = universeId
+    ? `?universeId=${encodeURIComponent(universeId)}`
+    : "";
+  return apiFetch<AdminWikiEntrySummary[]>(`/admin/wiki-entries${query}`, {
+    headers: authHeaders(),
+  });
+}
+
+export function fetchAdminWikiEntry(id: string): Promise<WikiEntryDetail> {
+  return apiFetch<WikiEntryDetail>(`/admin/wiki-entries/${id}`, {
+    headers: authHeaders(),
+  });
+}
+
+export function createWikiEntry(
+  input: WikiEntryInput,
+): Promise<WikiEntryDetail> {
+  return apiFetch<WikiEntryDetail>("/admin/wiki-entries", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(input),
+  });
+}
+
+export function updateWikiEntry(
+  id: string,
+  input: Partial<WikiEntryInput>,
+): Promise<WikiEntryDetail> {
+  return apiFetch<WikiEntryDetail>(`/admin/wiki-entries/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(input),
+  });
+}
+
+export function deleteWikiEntry(id: string): Promise<WikiEntryDetail> {
+  return apiFetch<WikiEntryDetail>(`/admin/wiki-entries/${id}`, {
     method: "DELETE",
     headers: authHeaders(),
   });

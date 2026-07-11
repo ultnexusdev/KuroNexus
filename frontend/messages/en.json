@@ -66,6 +66,34 @@
       "saving": "Saving…",
       "error": "Could not save. Try again."
     },
+    "wiki": {
+      "title": "Wiki",
+      "new": "New page",
+      "newTitle": "New Wiki Page",
+      "editTitle": "Edit Wiki Page",
+      "edit": "Edit",
+      "delete": "Delete",
+      "confirmDelete": "Delete \"{title}\"?",
+      "empty": "No wiki pages yet.",
+      "loadError": "Failed to load the list. Refresh the page.",
+      "universeFilter": "Filter by universe",
+      "allUniverses": "All universes"
+    },
+    "wikiForm": {
+      "title": "Title",
+      "universe": "Universe",
+      "selectUniverse": "Select a universe…",
+      "category": "Category",
+      "spoilerTier": "Spoiler tier (optional)",
+      "spoilerTierHint": "Empty = no spoilers; e.g. 2 = spoils up to book 2",
+      "content": "Content",
+      "cover": "Cover image",
+      "upload": "Upload image",
+      "uploading": "Uploading…",
+      "save": "Save",
+      "saving": "Saving…",
+      "error": "Could not save. Try again."
+    },
     "form": {
       "title": "Title",
       "excerpt": "Excerpt (optional)",
@@ -98,6 +126,28 @@
       "undo": "Undo",
       "redo": "Redo",
       "linkPrompt": "Link URL (leave empty to remove):"
+    }
+  },
+  "wiki": {
+    "sectionTitle": "Wiki",
+    "empty": "No wiki pages yet.",
+    "categories": {
+      "CHARACTER": "Characters",
+      "LOCATION": "Locations",
+      "TERM": "Terms",
+      "EVENT": "Events",
+      "ITEM": "Items",
+      "ORGANIZATION": "Organizations",
+      "MAGIC_SYSTEM": "Magic Systems"
+    },
+    "spoiler": {
+      "label": "My spoiler level",
+      "none": "Hide spoilers",
+      "tier": "Up to book {tier}",
+      "all": "Show everything",
+      "badge": "Spoiler",
+      "warning": "This page contains spoilers up to book {tier}. You can adjust your spoiler level on the universe page.",
+      "reveal": "Reveal anyway"
     }
   },
   "account": {

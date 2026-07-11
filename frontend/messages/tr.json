@@ -66,6 +66,34 @@
       "saving": "Kaydediliyor…",
       "error": "Kaydedilemedi. Tekrar deneyin."
     },
+    "wiki": {
+      "title": "Wiki",
+      "new": "Yeni sayfa",
+      "newTitle": "Yeni Wiki Sayfası",
+      "editTitle": "Wiki Sayfasını Düzenle",
+      "edit": "Düzenle",
+      "delete": "Sil",
+      "confirmDelete": "\"{title}\" silinsin mi?",
+      "empty": "Henüz wiki sayfası yok.",
+      "loadError": "Liste yüklenemedi. Sayfayı yenileyin.",
+      "universeFilter": "Evrene göre filtrele",
+      "allUniverses": "Tüm evrenler"
+    },
+    "wikiForm": {
+      "title": "Başlık",
+      "universe": "Evren",
+      "selectUniverse": "Evren seç…",
+      "category": "Kategori",
+      "spoilerTier": "Spoiler seviyesi (isteğe bağlı)",
+      "spoilerTierHint": "Boş = spoiler içermez; örn. 2 = 2. kitaba kadar okuyanlara spoiler",
+      "content": "İçerik",
+      "cover": "Kapak görseli",
+      "upload": "Görsel yükle",
+      "uploading": "Yükleniyor…",
+      "save": "Kaydet",
+      "saving": "Kaydediliyor…",
+      "error": "Kaydedilemedi. Tekrar deneyin."
+    },
     "form": {
       "title": "Başlık",
       "excerpt": "Özet (isteğe bağlı)",
@@ -98,6 +126,28 @@
       "undo": "Geri al",
       "redo": "İleri al",
       "linkPrompt": "Bağlantı adresi (boş bırakırsan kaldırılır):"
+    }
+  },
+  "wiki": {
+    "sectionTitle": "Wiki",
+    "empty": "Henüz wiki sayfası yok.",
+    "categories": {
+      "CHARACTER": "Karakterler",
+      "LOCATION": "Mekânlar",
+      "TERM": "Terimler",
+      "EVENT": "Olaylar",
+      "ITEM": "Nesneler",
+      "ORGANIZATION": "Örgütler",
+      "MAGIC_SYSTEM": "Büyü Sistemleri"
+    },
+    "spoiler": {
+      "label": "Spoiler seviyem",
+      "none": "Spoiler gösterme",
+      "tier": "{tier}. kitaba kadar",
+      "all": "Tümünü göster",
+      "badge": "Spoiler",
+      "warning": "Bu sayfa {tier}. kitaba kadar spoiler içeriyor. Spoiler seviyeni evren sayfasından ayarlayabilirsin.",
+      "reveal": "Yine de göster"
     }
   },
   "account": {

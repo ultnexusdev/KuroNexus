@@ -30,6 +30,36 @@ export interface WikiUniverse extends WikiUniverseSummary {
   stories: StorySummary[];
 }
 
+export type WikiCategory =
+  | "CHARACTER"
+  | "LOCATION"
+  | "TERM"
+  | "EVENT"
+  | "ITEM"
+  | "ORGANIZATION"
+  | "MAGIC_SYSTEM";
+
+export interface WikiEntrySummary {
+  id: string;
+  title: string;
+  slug: string;
+  category: WikiCategory;
+  coverImage: string | null;
+  spoilerTier: number | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface WikiEntryDetail extends WikiEntrySummary {
+  content: string;
+  universeId: string;
+  universe?: { slug: string; name: string };
+}
+
+export interface AdminWikiEntrySummary extends WikiEntrySummary {
+  universe: { id: string; name: string; slug: string };
+}
+
 export interface AuthenticatedUser {
   id: string;
   email: string;

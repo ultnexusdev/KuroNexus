@@ -19,6 +19,9 @@ export default function AdminHomePage() {
           <Link href="/admin/universes" className="card">
             {t("universes.title")}
           </Link>
+          <Link href="/admin/wiki" className="card">
+            {t("wiki.title")}
+          </Link>
         </nav>
       </section>
     </AdminGuard>

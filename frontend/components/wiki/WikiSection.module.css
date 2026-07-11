@@ -1,0 +1,86 @@
+.section {
+  margin-top: var(--gap-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-sm);
+}
+
+.title {
+  margin: 0;
+  font-size: 1.5rem;
+  letter-spacing: 0.03em;
+  color: var(--text-primary);
+}
+
+.spoilerControl {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.spoilerControl select {
+  min-height: var(--touch-min);
+  padding: 6px 10px;
+  background: var(--surface);
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+}
+
+.groupTitle {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--gold);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--gap-md);
+}
+
+.cardWrap {
+  position: relative;
+  height: 100%;
+}
+
+.blurred {
+  height: 100%;
+  filter: blur(10px);
+  opacity: 0.75;
+  pointer-events: none;
+  user-select: none;
+}
+
+.badge {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}

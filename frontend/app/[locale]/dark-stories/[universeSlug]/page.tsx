@@ -5,8 +5,10 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
 import { apiUrl, ApiError } from "@/lib/api/client";
 import { fetchUniverseBySlug } from "@/lib/api/universes";
-import type { WikiUniverse } from "@/lib/api/types";
+import { fetchWikiEntries } from "@/lib/api/wiki";
+import type { WikiEntrySummary, WikiUniverse } from "@/lib/api/types";
 import { ContentCard } from "@/components/ContentCard";
+import { WikiSection } from "@/components/wiki/WikiSection";
 import styles from "./page.module.css";
 
 async function getUniverse(slug: string): Promise<WikiUniverse | null> {
@@ -17,6 +19,15 @@ async function getUniverse(slug: string): Promise<WikiUniverse | null> {
       return null;
     }
     throw error;
+  }
+}
+
+async function getWikiEntries(slug: string): Promise<WikiEntrySummary[]> {
+  try {
+    return await fetchWikiEntries(slug);
+  } catch {
+    // Wiki listesi alınamazsa evren sayfası çökmez (kural 4 ruhu)
+    return [];
   }
 }
 
@@ -36,7 +47,10 @@ export default async function UniverseDetailPage({
   params: Promise<{ locale: string; universeSlug: string }>;
 }) {
   const { locale, universeSlug } = await params;
-  const universe = await getUniverse(universeSlug);
+  const [universe, wikiEntries] = await Promise.all([
+    getUniverse(universeSlug),
+    getWikiEntries(universeSlug),
+  ]);
   if (!universe) {
     notFound();
   }
@@ -90,6 +104,7 @@ export default async function UniverseDetailPage({
             ))}
           </ul>
         )}
+        <WikiSection universeSlug={universeSlug} entries={wikiEntries} />
       </section>
     </>
   );

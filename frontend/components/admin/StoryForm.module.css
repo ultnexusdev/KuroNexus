@@ -16,6 +16,7 @@
 }
 
 .field input[type="text"],
+.field input[type="number"],
 .field textarea,
 .field select {
   padding: 10px 12px;
@@ -29,6 +30,7 @@
 }
 
 .field input[type="text"],
+.field input[type="number"],
 .field select {
   min-height: var(--touch-min);
 }

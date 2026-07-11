@@ -78,6 +78,7 @@ model WikiUniverse {
 
   entries WikiEntry[]
   stories Story[]
+  ambientTracks AmbientTrack[]
 }
 
 model WikiEntry {
@@ -349,4 +350,18 @@ enum SubmissionStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+model AmbientTrack {
+  id         String       @id @default(cuid())
+  title      String
+  audioUrl   String
+  order      Int          @default(0)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  universeId String
+  universe   WikiUniverse @relation(fields: [universeId], references: [id])
+
+  @@index([universeId])
 }

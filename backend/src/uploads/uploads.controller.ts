@@ -25,6 +25,6 @@ export class UploadsController {
     if (!file) {
       throw new BadRequestException('UPLOADS.FILE_REQUIRED');
     }
-    return this.uploadsService.saveImage(file, user.id);
+    return this.uploadsService.saveFile(file, user.id);
   }
 }

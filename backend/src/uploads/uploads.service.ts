@@ -10,9 +10,13 @@ const ALLOWED_MIME_TYPES = new Set([
   'image/png',
   'image/webp',
   'image/gif',
+  'audio/mpeg',
+  'audio/wav',
+  'audio/ogg',
+  'audio/mp3',
 ]);
 
-const DEFAULT_MAX_BYTES = 10 * 1024 * 1024; // 10MB (AGENTS.md kural 15)
+const DEFAULT_MAX_BYTES = 50 * 1024 * 1024; // 50MB
 
 @Injectable()
 export class UploadsService implements OnModuleInit {
@@ -37,7 +41,7 @@ export class UploadsService implements OnModuleInit {
     return this.uploadDir;
   }
 
-  async saveImage(file: Express.Multer.File, userId: string) {
+  async saveFile(file: Express.Multer.File, userId: string) {
     if (!ALLOWED_MIME_TYPES.has(file.mimetype)) {
       throw new BadRequestException('UPLOADS.INVALID_FILE_TYPE');
     }

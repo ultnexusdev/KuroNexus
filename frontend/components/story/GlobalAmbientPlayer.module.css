@@ -1,0 +1,201 @@
+.playerWrapper {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  z-index: 1000;
+  padding: 12px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.3);
+  transition: background 0.3s, border-color 0.3s;
+}
+
+/* Parşömen moduna uyum için HTML data-theme veya spesifik class kontrolü yapılabilir, 
+   ancak parşömen modu sadece okuma sayfasında "isParchmentMode" state'i ile yönetiliyor. 
+   Parşömen modunda player'ın rengini değiştirmek için global bir CSS kuralı yazmamız gerekecek. */
+   
+:global(html[data-theme="parchment"]) .playerWrapper {
+  background: #fdf5e6;
+  border-top: 1px solid #d4c4a8;
+  color: #3b2f2f;
+}
+
+.topRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.trackInfo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+}
+
+.trackTitle {
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 300px;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  justify-content: center;
+}
+
+.controlBtn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s, transform 0.2s;
+  padding: 4px;
+}
+
+.controlBtn:hover {
+  color: var(--accent);
+  transform: scale(1.1);
+}
+
+.controlBtn.active {
+  color: var(--accent);
+}
+
+.playBtn {
+  font-size: 1.8rem;
+  color: var(--text-primary);
+}
+
+.playBtn:hover {
+  color: var(--accent);
+  transform: scale(1.1);
+}
+
+.rightControls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.volumeSlider {
+  width: 100px;
+  cursor: pointer;
+  accent-color: var(--accent);
+}
+
+.progressRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.progressBar {
+  flex: 1;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  cursor: pointer;
+  position: relative;
+}
+
+.progressFill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+}
+
+/* Playlist Menu */
+.playlistBtn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.2rem;
+  cursor: pointer;
+  position: relative;
+}
+
+.playlistBtn:hover {
+  color: var(--accent);
+}
+
+.playlistMenu {
+  position: absolute;
+  bottom: 100%;
+  right: 0;
+  margin-bottom: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 8px 0;
+  width: 250px;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.4);
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1001;
+}
+
+.playlistItem {
+  padding: 10px 16px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  transition: background 0.2s, color 0.2s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.playlistItem:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+}
+
+.playlistItem.activeTrack {
+  color: var(--accent);
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+@media (max-width: 768px) {
+  .playerWrapper {
+    padding: 8px 12px;
+  }
+  .trackInfo {
+    display: none; /* Mobilde şarkı adı gizlenebilir veya ortaya alınabilir */
+  }
+  .volumeSlider {
+    display: none; /* Mobilde sesi sistemden ayarlasın */
+  }
+  .rightControls {
+    flex: 0;
+  }
+  .controls {
+    justify-content: flex-start;
+    flex: 1;
+  }
+}

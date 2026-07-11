@@ -22,6 +22,9 @@ export default function AdminHomePage() {
           <Link href="/admin/wiki" className="card">
             {t("wiki.title")}
           </Link>
+          <Link href="/admin/ambient-tracks" className="card">
+            Müzik Kütüphanesi
+          </Link>
         </nav>
       </section>
     </AdminGuard>

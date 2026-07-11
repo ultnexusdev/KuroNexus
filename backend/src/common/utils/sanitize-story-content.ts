@@ -15,6 +15,7 @@ const ALLOWED_TAGS = [
   'a',
   'img',
   'br',
+  'hr',
 ];
 
 export function sanitizeStoryContent(content: string): string {

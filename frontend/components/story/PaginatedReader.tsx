@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useMemo } from "react";
+import React, { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import styles from "./PaginatedReader.module.css";
 
 interface PaginatedReaderProps {
@@ -41,8 +41,8 @@ export function PaginatedReader({
     setIsEditingPage(false);
   };
 
-  const calculatePages = () => {
-    let newPartPages: number[] = [];
+  const calculatePages = useCallback(() => {
+    const newPartPages: number[] = [];
     let cWidth: number | undefined = undefined;
 
     parts.forEach((_, i) => {
@@ -77,7 +77,7 @@ export function PaginatedReader({
     setTotalPages(finalTotal);
     
     setGlobalCurrentPage((prev) => (prev >= finalTotal ? finalTotal - 1 : prev));
-  };
+  }, [parts]);
 
   useEffect(() => {
     calculatePages();
@@ -91,7 +91,7 @@ export function PaginatedReader({
       clearTimeout(timer2);
       window.removeEventListener("resize", calculatePages);
     };
-  }, [parts, coverImage]);
+  }, [calculatePages, coverImage]);
 
   const goToPrev = () => {
     setGlobalCurrentPage((p) => Math.max(0, p - 1));

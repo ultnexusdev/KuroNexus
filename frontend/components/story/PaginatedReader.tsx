@@ -137,6 +137,7 @@ export function PaginatedReader({
               {index === 0 && (
                 <div className={styles.coverPage}>
                   {coverImage ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
                     <img src={coverImage} alt="" className={styles.cover} />
                   ) : null}
                   <h1 className={styles.title}>{title}</h1>

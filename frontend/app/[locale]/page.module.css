@@ -1,59 +1,107 @@
 /* Mobile-first (AGENTS.md kural 2) */
 .hero {
+  position: relative;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--gap-md);
+  gap: var(--gap-lg);
   padding: var(--pad-lg) var(--pad-md);
   text-align: center;
-  min-height: 60vh;
+  min-height: 80vh;
   justify-content: center;
+}
+
+/* Yavaş hareket eden karanlık sis / parçacık efekti */
+.hero::before,
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: -100%;
+  z-index: -1;
+  pointer-events: none;
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(138, 43, 226, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(70, 130, 180, 0.08) 0%, transparent 40%);
+  opacity: 0.6;
+  animation: floatFog 20s infinite alternate ease-in-out;
+}
+
+.hero::after {
+  animation: floatFog 25s infinite alternate-reverse ease-in-out;
+  background: 
+    radial-gradient(circle at 70% 20%, rgba(255, 255, 255, 0.03) 0%, transparent 40%),
+    radial-gradient(circle at 30% 80%, rgba(255, 255, 255, 0.03) 0%, transparent 40%);
+}
+
+@keyframes floatFog {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-5%, 5%) scale(1.1); }
+  100% { transform: translate(5%, -5%) scale(1); }
 }
 
 .title {
   margin: 0;
-  font-size: 2.25rem;
-  letter-spacing: 0.08em;
+  font-size: 3.5rem;
+  letter-spacing: 0.1em;
   color: var(--text-primary);
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+  z-index: 1;
 }
 
 .tagline {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 1.4rem;
   color: var(--accent);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  z-index: 1;
 }
 
 .intro {
   margin: 0;
-  max-width: 34rem;
+  max-width: 40rem;
+  font-size: 1.1rem;
   color: var(--text-secondary);
+  line-height: 1.8;
+  z-index: 1;
 }
 
 .adminLink {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: var(--touch-min);
-  margin-top: var(--gap-sm);
-  padding: 8px 20px;
-  background: var(--surface);
-  border: 0.5px solid var(--border-strong);
-  border-radius: var(--radius);
-  color: var(--text-secondary);
-  font-size: 0.9rem;
+  min-height: 3rem;
+  margin-top: var(--gap-md);
+  padding: 12px 32px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border-strong);
+  border-radius: 24px;
+  color: var(--text-primary);
+  font-size: 1.1rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  transition: all 0.3s ease;
+  z-index: 1;
 }
 
 .adminLink:hover {
-  background: var(--surface-hover);
+  background: rgba(255, 255, 255, 0.1);
   color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
 }
 
 @media (min-width: 768px) {
   .title {
-    font-size: 3rem;
+    font-size: 5rem;
   }
 
   .tagline {
+    font-size: 1.8rem;
+  }
+  
+  .intro {
     font-size: 1.25rem;
   }
 }

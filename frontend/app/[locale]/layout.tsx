@@ -1,12 +1,22 @@
 import type { Metadata } from "next";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations } from "next-intl/server";
+import { Yuji_Boku } from "next/font/google";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { routing } from "@/lib/i18n/routing";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { THEMES, DEFAULT_THEME, THEME_COOKIE, type Theme } from "@/lib/theme";
 import "../../styles/globals.css";
+
+// Logo'daki 黒 (kuro) için fırça kaligrafisi. Font unicode-range dilimli
+// self-host edilir; tarayıcı yalnızca bu karakteri içeren dilimi indirir.
+const brushFont = Yuji_Boku({
+  weight: "400",
+  variable: "--font-brush",
+  display: "swap",
+  preload: false,
+});
 
 export async function generateMetadata({
   params,
@@ -45,7 +55,7 @@ export default async function LocaleLayout({
     : DEFAULT_THEME;
 
   return (
-    <html lang={locale} data-theme={theme}>
+    <html lang={locale} data-theme={theme} className={brushFont.variable}>
       <body>
         <NextIntlClientProvider>
           <SiteHeader initialTheme={theme} />

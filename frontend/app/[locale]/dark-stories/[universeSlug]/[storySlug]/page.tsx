@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
@@ -7,6 +6,7 @@ import { apiFetch, apiUrl, ApiError } from "@/lib/api/client";
 import type { Story } from "@/lib/api/types";
 import { legacyPlainTextToHtml } from "@/lib/content/legacyPlainTextToHtml";
 import styles from "./page.module.css";
+import { PaginatedReader } from "@/components/story/PaginatedReader";
 
 async function getStory(slug: string): Promise<Story | null> {
   try {
@@ -47,32 +47,24 @@ export default async function StoryDetailPage({
     dateStyle: "medium",
   });
 
+  const coverImageUrl = story.coverImage ? apiUrl(story.coverImage) : undefined;
+  const dateFormatted = story.publishedAt
+    ? dateFormatter.format(new Date(story.publishedAt))
+    : undefined;
+
   return (
     <article className={styles.page}>
       <Link href={`/dark-stories/${universeSlug}`} className={styles.back}>
         {t("backToUniverse", { name: story.universe.name })}
       </Link>
-      <h1 className={styles.title}>{story.title}</h1>
-      {story.publishedAt ? (
-        <time className={styles.date} dateTime={story.publishedAt}>
-          {dateFormatter.format(new Date(story.publishedAt))}
-        </time>
-      ) : null}
-      {story.coverImage ? (
-        <Image
-          src={apiUrl(story.coverImage)}
-          alt=""
-          width={960}
-          height={540}
-          className={styles.cover}
-          priority
-        />
-      ) : null}
-      <div
-        className={styles.content}
-        dangerouslySetInnerHTML={{
-          __html: legacyPlainTextToHtml(story.content),
-        }}
+      
+      <PaginatedReader
+        title={story.title}
+        content={legacyPlainTextToHtml(story.content)}
+        coverImage={coverImageUrl}
+        date={dateFormatted}
+        prevLabel={t("prevPage")}
+        nextLabel={t("nextPage")}
       />
     </article>
   );

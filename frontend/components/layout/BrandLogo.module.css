@@ -1,0 +1,23 @@
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  line-height: 1;
+}
+
+.kuro {
+  font-family: var(--font-brush), serif;
+  font-size: 1.45em;
+  font-weight: 400;
+  letter-spacing: normal;
+  color: var(--accent);
+}
+
+.nexus {
+  font-family: var(--font-sans);
+  font-weight: 300;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  /* letter-spacing son harften sonra da boşluk bırakır — görsel denge için */
+  margin-right: -0.22em;
+}

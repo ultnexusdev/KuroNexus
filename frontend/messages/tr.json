@@ -16,7 +16,9 @@
     "emptyUniverses": "Henüz evren yok.",
     "empty": "Henüz hikâye yok.",
     "backToList": "← Tüm evrenler",
-    "backToUniverse": "← {name}"
+    "backToUniverse": "← {name}",
+    "prevPage": "Önceki",
+    "nextPage": "Sonraki"
   },
   "admin": {
     "title": "Yönetim Paneli",

@@ -16,7 +16,9 @@
     "emptyUniverses": "No universes yet.",
     "empty": "No stories yet.",
     "backToList": "← All universes",
-    "backToUniverse": "← {name}"
+    "backToUniverse": "← {name}",
+    "prevPage": "Previous",
+    "nextPage": "Next"
   },
   "admin": {
     "title": "Admin Panel",

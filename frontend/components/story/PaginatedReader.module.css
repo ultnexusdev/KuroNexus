@@ -1,0 +1,132 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+  width: 100%;
+}
+
+.viewport {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  --column-gap: 2rem;
+  /* Kural 2: touch hedeflerini rahatlatmak için alt boşluk */
+  padding-bottom: var(--pad-sm);
+}
+
+.columns {
+  column-width: 100%;
+  column-gap: var(--column-gap);
+  height: 65vh; /* Dinamik yükseklik: ekranın %65'i */
+  transition: transform 0.4s ease-in-out;
+  will-change: transform;
+}
+
+.coverPage {
+  /* Bu divin kendisi bir sütun kaplar ve sonrasında metin diğer sütuna geçer */
+  break-after: column;
+  column-break-after: always; /* eski tarayıcı desteği */
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: var(--gap-md);
+  padding: var(--pad-md);
+  box-sizing: border-box;
+}
+
+.cover {
+  max-width: 100%;
+  max-height: 45vh; /* Kapak yüksekliğini sınırlar */
+  object-fit: contain;
+  border-radius: var(--radius-card);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.title {
+  margin: 0;
+  font-size: 2.2rem;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.date {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.content {
+  color: var(--text-primary);
+  line-height: 1.85;
+}
+
+.content p {
+  margin: 0 0 var(--gap-md);
+  text-indent: 1.5rem; /* Kitap hissi için paragraf başı boşluğu */
+}
+
+.content h2 {
+  font-size: 1.5rem;
+  margin: var(--gap-lg) 0 var(--gap-sm);
+  break-after: avoid; /* Başlıktan hemen sonra sayfa kırılmasını engeller */
+}
+
+.content h3 {
+  font-size: 1.2rem;
+  margin: var(--gap-lg) 0 var(--gap-sm);
+  break-after: avoid;
+}
+
+.content ul,
+.content ol {
+  margin: 0 0 var(--gap-md);
+  padding-left: 1.4rem;
+}
+
+.content blockquote {
+  margin: var(--gap-md) 0;
+  padding-left: var(--pad-md);
+  border-left: 2px solid var(--accent);
+  color: var(--text-secondary);
+}
+
+.content a {
+  color: var(--accent);
+}
+
+.content img {
+  max-width: 100%;
+  max-height: 50vh;
+  object-fit: contain;
+  border-radius: var(--radius-card);
+  margin: var(--gap-sm) 0;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: var(--pad-md);
+  border-top: 1px solid var(--border);
+}
+
+.pageIndicator {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 768px) {
+  .viewport {
+    --column-gap: 1rem; /* Mobilde daha dar boşluk */
+  }
+  .title {
+    font-size: 1.8rem;
+  }
+  .columns {
+    height: 70vh; /* Mobilde daha fazla yer ver */
+  }
+}

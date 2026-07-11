@@ -53,6 +53,10 @@
   - Okuma ekranı için **Parşömen Modu (Parchment Mode)** eklendi. Arka plan nostaljik yaprak rengi, metinler ve tüm okuma içi renkler (rünler, drop-cap vb.) koyu kahverengiye dönüştürülüyor. Sağ alt köşedeki (📜) butonu ile geçiş yapılıyor. Sayfalandırma butonları köşeli ve temaya uygun "Cinzel" fontlu bir tasarıma geçirildi.
   - **Landing Page (Ana sayfa) yenilendi**: Ziyaretçilerin doğrudan yönetim paneli butonunu görmesi engellendi; "Yönetim Paneli" butonu "Evrenleri Keşfet" (doğrudan `/dark-stories` listesi) olarak değiştirildi. Sağ üst köşedeki "Admin" kullanıcı menüsü kaldırılarak ziyaretçi dostu evrensel "Tercihler" sekmesine (sadece görünüm ve dil ayarı) dönüştürüldü.
   - Ana sayfaya 9MB 4K MP4 **arka plan videosu** (hero-bg.mp4) animasyonlu sis efekti ile entegre edildi. Kadim Dünyalar evren listesinde kapak görselleri için yatay/dikey oran iyileştirmesi (`aspect-ratio: 2/3`, `object-fit: cover`) yapıldı.
+- [x] **Global Ambient Müzik Çalar ve Müzik Kütüphanesi (2026-07-12)**:
+  - Backend: `AmbientTrack` modeli (`universeId` ilişkili) Prisma'ya eklendi, uploads limiti 50MB audio dosyaları (mp3/wav/ogg) destekleyecek şekilde güncellendi.
+  - Admin: `/admin/ambient-tracks` sayfası yapıldı, müziğin başlığı, dosyası ve ait olduğu evren seçilerek sisteme eklenebiliyor.
+  - Public: Layout köküne yerleştirilen, düz/sade tasarımlı ve site temasına uyan `GlobalAmbientPlayer` yapıldı. Okuyucu bir evren içine (örn: Temürkan) girdiğinde o evrenin çalma listesi yükleniyor, müzik sitenin her yerinde kesintisiz devam ediyor. Play/Pause/Prev/Next/Shuffle/Repeat özellikleri eklendi. TypeScript build hataları düzeltildi ve başarılı deploy alındı.
 
 ## Sıradaki Adım
 1. **Wiki devamı (Faz 2)**: çapraz linkler (`WikiEntryRelation` — admin'den sayfalar arası ilişki kurma + detayda "İlişkili Sayfalar"), sonra site içi arama (PostgreSQL full-text, önce wiki kapsamında — plan Faz 2)

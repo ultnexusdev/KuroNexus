@@ -110,6 +110,7 @@ export default async function UniverseDetailPage({
                       ? dateFormatter.format(new Date(story.publishedAt))
                       : null
                   }
+                  variant="vertical"
                 />
               </li>
             ))}

@@ -10,6 +10,7 @@ export function ContentCard({
   subtitle,
   dateTime,
   dateLabel,
+  variant = "horizontal",
 }: {
   href: string;
   coverImage?: string | null;
@@ -17,17 +18,20 @@ export function ContentCard({
   subtitle?: string | null;
   dateTime?: string | null;
   dateLabel?: string | null;
+  variant?: "horizontal" | "vertical";
 }) {
   return (
     <Link href={href} className={styles.card}>
       {coverImage ? (
-        <Image
-          src={apiUrl(coverImage)}
-          alt=""
-          width={400}
-          height={600}
-          className={styles.cover}
-        />
+        <div className={`${styles.coverWrap} ${styles[variant]}`}>
+          <Image
+            src={apiUrl(coverImage)}
+            alt=""
+            width={variant === "vertical" ? 400 : 640}
+            height={variant === "vertical" ? 600 : 360}
+            className={styles.cover}
+          />
+        </div>
       ) : null}
       <div className={styles.body}>
         <h2 className={styles.title}>{title}</h2>

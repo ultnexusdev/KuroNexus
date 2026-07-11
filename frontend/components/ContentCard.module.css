@@ -14,12 +14,25 @@
   color: var(--text-primary);
 }
 
-.cover {
+.coverWrap {
   width: 100%;
-  height: auto;
+  position: relative;
+}
+
+.horizontal {
+  aspect-ratio: 16 / 9;
+}
+
+.vertical {
   aspect-ratio: 2 / 3;
+}
+
+.cover {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  display: block;
   object-position: center top;
 }
 

@@ -19,7 +19,6 @@
   column-gap: var(--column-gap);
   column-fill: auto;
   height: 65vh; /* Dinamik yükseklik: ekranın %65'i */
-  transition: transform 0.4s ease-in-out;
   will-change: transform;
 }
 

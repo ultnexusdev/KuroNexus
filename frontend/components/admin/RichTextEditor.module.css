@@ -109,6 +109,15 @@
   margin: 3rem 0;
   position: relative;
   overflow: visible;
+  height: 24px;
+  cursor: pointer;
+  transition: outline 0.2s;
+  border-radius: 4px;
+}
+
+.content :global(hr.ProseMirror-selectednode) {
+  outline: 3px solid var(--accent);
+  background: var(--surface-hover);
 }
 
 .content :global(hr)::after {
@@ -123,6 +132,7 @@
   font-size: 0.85rem;
   font-weight: 500;
   white-space: nowrap;
+  pointer-events: none;
 }
 
 .content :global(a) {

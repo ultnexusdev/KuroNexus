@@ -4,16 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { apiFetch, apiUrl } from "../../lib/api/client";
 import styles from "./GlobalAmbientPlayer.module.css";
-import {
-  PlayIcon,
-  PauseIcon,
-  NextIcon,
-  PrevIcon,
-  ShuffleIcon,
-  RepeatIcon,
-  ListIcon,
-} from "../admin/icons"; // Varsayılan ikonlarımız yoksa react-icons veya basit svg kullanabiliriz.
-// Şimdilik kendi SVG'lerimizi koyalım.
+// İkonları şimdilik emoji olarak kullandığımız için import'a gerek yok.
 
 function formatTime(seconds: number) {
   if (isNaN(seconds)) return "0:00";
@@ -22,10 +13,20 @@ function formatTime(seconds: number) {
   return `${m}:${s < 10 ? "0" : ""}${s}`;
 }
 
+interface AmbientTrack {
+  id: string;
+  title: string;
+  audioUrl: string;
+  order: number;
+  universeId: string;
+  createdAt: string;
+  universe?: { name: string; slug: string };
+}
+
 export function GlobalAmbientPlayer() {
   const pathname = usePathname();
   const [universeSlug, setUniverseSlug] = useState<string | null>(null);
-  const [tracks, setTracks] = useState<any[]>([]);
+  const [tracks, setTracks] = useState<AmbientTrack[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
 
   const [isPlaying, setIsPlaying] = useState(false);
@@ -48,7 +49,7 @@ export function GlobalAmbientPlayer() {
       if (newSlug !== universeSlug) {
         setUniverseSlug(newSlug);
         // Yeni evren için müzikleri çek
-        apiFetch<any[]>(`/ambient-tracks/universe/${newSlug}`)
+        apiFetch<AmbientTrack[]>(`/ambient-tracks/universe/${newSlug}`)
           .then((res) => {
             if (res && res.length > 0) {
               setTracks(res);

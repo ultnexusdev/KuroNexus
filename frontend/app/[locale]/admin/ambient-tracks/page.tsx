@@ -2,11 +2,27 @@
 
 import { useEffect, useState, useRef } from "react";
 import { AdminGuard } from "@/components/admin/AdminGuard";
-import { apiFetch, apiUrl } from "@/lib/api/client";
+import { apiFetch } from "@/lib/api/client";
+
+interface AmbientTrack {
+  id: string;
+  title: string;
+  audioUrl: string;
+  order: number;
+  universeId: string;
+  createdAt: string;
+  universe?: { name: string; slug: string };
+}
+
+interface Universe {
+  id: string;
+  name: string;
+  slug: string;
+}
 
 export default function AmbientTracksPage() {
-  const [tracks, setTracks] = useState<any[]>([]);
-  const [universes, setUniverses] = useState<any[]>([]);
+  const [tracks, setTracks] = useState<AmbientTrack[]>([]);
+  const [universes, setUniverses] = useState<Universe[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -15,10 +31,10 @@ export default function AmbientTracksPage() {
   const [universeId, setUniverseId] = useState("");
 
   const fetchData = () => {
-    apiFetch<any[]>("/ambient-tracks")
+    apiFetch<AmbientTrack[]>("/ambient-tracks")
       .then(setTracks)
       .catch(console.error);
-    apiFetch<any[]>("/admin/universes")
+    apiFetch<Universe[]>("/admin/universes")
       .then(setUniverses)
       .catch(console.error);
   };

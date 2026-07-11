@@ -29,6 +29,7 @@ export function PaginatedReader({
   const [partPages, setPartPages] = useState<number[]>([]);
   const [colWidth, setColWidth] = useState<number | undefined>(undefined);
   const [isEditingPage, setIsEditingPage] = useState(false);
+  const [isParchmentMode, setIsParchmentMode] = useState(false);
   
   const containerRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -176,7 +177,7 @@ export function PaginatedReader({
   }
 
   return (
-    <div className={styles.container}>
+    <div className={`${styles.container} ${isParchmentMode ? styles.parchmentMode : ""}`}>
       <div className={styles.viewport}>
         {formattedParts.map((part, index) => {
           const isActive = index === activePartIndex;
@@ -232,6 +233,14 @@ export function PaginatedReader({
           </button>
         </div>
         <span className={styles.pageIndicator}>
+          <button 
+            type="button" 
+            className={styles.parchmentToggle} 
+            onClick={() => setIsParchmentMode(!isParchmentMode)}
+            title="Parşömen Modu"
+          >
+            📜
+          </button>
           {isEditingPage ? (
             <input
               type="number"

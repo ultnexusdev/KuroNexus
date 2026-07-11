@@ -37,6 +37,27 @@ export function PaginatedReader({
     return content.split(/<hr[^>]*>/i);
   }, [content]);
 
+  // Clean up legacy Markdown and add Drop Cap
+  const formattedParts = useMemo(() => {
+    return parts.map((part, index) => {
+      let p = part;
+      // Convert legacy Markdown H3
+      p = p.replace(/<p>###\s+(.*?)<\/p>/g, "<h3>$1</h3>");
+      p = p.replace(/(?:^|\n)###\s+(.*?)(?:\n|$)/g, "<h3>$1</h3>");
+      
+      // Convert legacy --- to rune divider
+      const dividerHtml = `<div class="${styles.runeDivider}"><span class="${styles.runeSymbol}">❖</span></div>`;
+      p = p.replace(/<p>---<\/p>/g, dividerHtml);
+      p = p.replace(/(?:^|\n)---(?:\n|$)/g, dividerHtml);
+
+      // Add dropcap to the first paragraph of the first part
+      if (index === 0) {
+        p = p.replace(/<p>/, `<p class="${styles.firstLetter}">`);
+      }
+      return p;
+    });
+  }, [parts]);
+
   const handlePageSubmit = (val: string) => {
     const pageNum = parseInt(val, 10);
     if (!isNaN(pageNum) && pageNum >= 1 && pageNum <= totalPages) {
@@ -122,7 +143,7 @@ export function PaginatedReader({
   return (
     <div className={styles.container}>
       <div className={styles.viewport}>
-        {parts.map((part, index) => {
+        {formattedParts.map((part, index) => {
           const isActive = index === activePartIndex;
           return (
             <div

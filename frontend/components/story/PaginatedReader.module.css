@@ -54,6 +54,7 @@
   font-size: 2.2rem;
   color: var(--text-primary);
   line-height: 1.2;
+  font-family: var(--font-cinzel), serif;
 }
 
 .date {
@@ -64,6 +65,7 @@
 .content {
   color: var(--text-primary);
   line-height: 1.85;
+  font-family: var(--font-lora), serif;
 }
 
 .content p {
@@ -71,16 +73,47 @@
   text-indent: 1.5rem; /* Kitap hissi için paragraf başı boşluğu */
 }
 
-.content h2 {
+.content h2, .content h3 {
   font-size: 1.5rem;
   margin: var(--gap-lg) 0 var(--gap-sm);
-  break-after: avoid; /* Başlıktan hemen sonra sayfa kırılmasını engeller */
+  break-after: avoid;
+  font-family: var(--font-cinzel), serif;
 }
 
-.content h3 {
-  font-size: 1.2rem;
-  margin: var(--gap-lg) 0 var(--gap-sm);
-  break-after: avoid;
+.firstLetter::first-letter {
+  font-family: var(--font-cinzel), serif;
+  font-size: 4.5rem;
+  float: left;
+  line-height: 0.8;
+  padding-right: 12px;
+  padding-top: 6px;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+
+.runeDivider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 3rem 0;
+  gap: 1rem;
+  opacity: 0.8;
+  break-inside: avoid;
+}
+
+.runeDivider::before,
+.runeDivider::after {
+  content: "";
+  height: 1px;
+  background: var(--border-strong);
+  flex: 1;
+  max-width: 120px;
+}
+
+.runeSymbol {
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.5rem;
+  color: var(--accent);
 }
 
 .content ul,

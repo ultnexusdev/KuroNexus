@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations } from "next-intl/server";
-import { Yuji_Boku } from "next/font/google";
+import { Yuji_Boku, Cinzel, Lora } from "next/font/google";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { routing } from "@/lib/i18n/routing";
@@ -16,6 +16,18 @@ const brushFont = Yuji_Boku({
   variable: "--font-brush",
   display: "swap",
   preload: false,
+});
+
+const cinzel = Cinzel({
+  subsets: ["latin"],
+  variable: "--font-cinzel",
+  display: "swap",
+});
+
+const lora = Lora({
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-lora",
+  display: "swap",
 });
 
 export async function generateMetadata({
@@ -55,7 +67,7 @@ export default async function LocaleLayout({
     : DEFAULT_THEME;
 
   return (
-    <html lang={locale} data-theme={theme} className={brushFont.variable}>
+    <html lang={locale} data-theme={theme} className={`${brushFont.variable} ${cinzel.variable} ${lora.variable}`}>
       <body>
         <NextIntlClientProvider>
           <SiteHeader initialTheme={theme} />

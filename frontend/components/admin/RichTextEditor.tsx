@@ -248,6 +248,15 @@ export function RichTextEditor({
         <span className={styles.divider} />
 
         <ToolbarButton
+          label={t("pageBreak")}
+          onClick={() => editor.chain().focus().setHorizontalRule().run()}
+        >
+          📄
+        </ToolbarButton>
+
+        <span className={styles.divider} />
+
+        <ToolbarButton
           label={t("undo")}
           disabled={!editor.can().undo()}
           onClick={() => editor.chain().focus().undo().run()}

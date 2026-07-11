@@ -127,7 +127,8 @@
       "image": "Insert image",
       "undo": "Undo",
       "redo": "Redo",
-      "linkPrompt": "Link URL (leave empty to remove):"
+      "linkPrompt": "Link URL (leave empty to remove):",
+      "pageBreak": "Insert Page Break"
     }
   },
   "wiki": {

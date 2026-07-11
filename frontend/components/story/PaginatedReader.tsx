@@ -23,7 +23,16 @@ export function PaginatedReader({
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [colWidth, setColWidth] = useState<number | undefined>(undefined);
+  const [isEditingPage, setIsEditingPage] = useState(false);
   const columnsRef = useRef<HTMLDivElement>(null);
+
+  const handlePageSubmit = (val: string) => {
+    const pageNum = parseInt(val, 10);
+    if (!isNaN(pageNum) && pageNum >= 1 && pageNum <= totalPages) {
+      setCurrentPage(pageNum - 1);
+    }
+    setIsEditingPage(false);
+  };
 
   const calculatePages = () => {
     if (columnsRef.current) {
@@ -100,7 +109,33 @@ export function PaginatedReader({
           &larr; {prevLabel}
         </button>
         <span className={styles.pageIndicator}>
-          {currentPage + 1} / {totalPages}
+          {isEditingPage ? (
+            <input
+              type="number"
+              min={1}
+              max={totalPages}
+              defaultValue={currentPage + 1}
+              autoFocus
+              onBlur={(e) => handlePageSubmit(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handlePageSubmit(e.currentTarget.value);
+                } else if (e.key === "Escape") {
+                  setIsEditingPage(false);
+                }
+              }}
+              className={styles.pageInput}
+            />
+          ) : (
+            <span
+              onClick={() => setIsEditingPage(true)}
+              title="Sayfaya gitmek için tıklayın"
+              style={{ cursor: "pointer" }}
+            >
+              {currentPage + 1}
+            </span>
+          )}
+          {" / " + totalPages}
         </span>
         <button
           type="button"

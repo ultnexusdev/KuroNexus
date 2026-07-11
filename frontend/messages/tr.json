@@ -127,7 +127,8 @@
       "image": "Görsel ekle",
       "undo": "Geri al",
       "redo": "İleri al",
-      "linkPrompt": "Bağlantı adresi (boş bırakırsan kaldırılır):"
+      "linkPrompt": "Bağlantı adresi (boş bırakırsan kaldırılır):",
+      "pageBreak": "Sayfa Sonu Ekle"
     }
   },
   "wiki": {

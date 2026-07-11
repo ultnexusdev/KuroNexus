@@ -4,10 +4,13 @@
   background: var(--surface);
   border: 0.5px solid var(--border-strong);
   border-radius: var(--radius);
-  overflow: hidden;
+  /* overflow: hidden; Removed so sticky works */
 }
 
 .toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -15,6 +18,8 @@
   padding: 6px;
   border-bottom: 0.5px solid var(--border);
   background: var(--surface-hover);
+  border-top-left-radius: var(--radius);
+  border-top-right-radius: var(--radius);
 }
 
 .button,
@@ -96,6 +101,28 @@
   padding-left: var(--pad-md);
   border-left: 2px solid var(--accent);
   color: var(--text-secondary);
+}
+
+.content :global(hr) {
+  border: none;
+  border-top: 2px dashed var(--accent);
+  margin: 3rem 0;
+  position: relative;
+  overflow: visible;
+}
+
+.content :global(hr)::after {
+  content: "--- Sayfa Sonu (Bu çizgiden sonrası yeni sayfada başlar) ---";
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--surface);
+  padding: 0 16px;
+  color: var(--accent);
+  font-size: 0.85rem;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 .content :global(a) {

@@ -22,8 +22,15 @@ export function sanitizeStoryContent(content: string): string {
   return sanitizeHtml(content, {
     allowedTags: ALLOWED_TAGS,
     allowedAttributes: {
+      '*': ['style', 'class'],
       a: ['href', 'target', 'rel'],
       img: ['src', 'alt'],
+    },
+    allowedStyles: {
+      '*': {
+        'text-align': [/^left$/, /^right$/, /^center$/, /^justify$/],
+        'font-family': [/^.+$/],
+      },
     },
     allowedSchemes: ['http', 'https'],
     transformTags: {

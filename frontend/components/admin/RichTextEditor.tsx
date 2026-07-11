@@ -5,6 +5,8 @@ import { EditorContent, useEditor, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import TextAlign from "@tiptap/extension-text-align";
 import Image from "@tiptap/extension-image";
+import FontFamily from "@tiptap/extension-font-family";
+import TextStyle from "@tiptap/extension-text-style";
 import { useTranslations } from "next-intl";
 import { apiUrl } from "@/lib/api/client";
 import { uploadImage } from "@/lib/admin/api";
@@ -80,6 +82,8 @@ export function RichTextEditor({
       StarterKit,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       Image,
+      TextStyle,
+      FontFamily,
     ],
     content,
     immediatelyRender: false,
@@ -127,6 +131,26 @@ export function RichTextEditor({
   return (
     <div className={styles.wrapper}>
       <div className={styles.toolbar} role="toolbar">
+        <select
+          className={styles.fontSelect}
+          onChange={(e) => {
+            const value = e.target.value;
+            if (value) {
+              editor.chain().focus().setFontFamily(value).run();
+            } else {
+              editor.chain().focus().unsetFontFamily().run();
+            }
+          }}
+          value={editor.getAttributes("textStyle").fontFamily || ""}
+        >
+          <option value="">Varsayılan Font</option>
+          <option value="var(--font-cinzel)">Epik Başlık (Cinzel)</option>
+          <option value="'Caveat', cursive">El Yazısı/Şiir (Caveat)</option>
+          <option value="'Noto Sans Old Turkic', sans-serif">Göktürkçe (Orhun)</option>
+        </select>
+        
+        <span className={styles.divider} />
+
         <ToolbarButton
           label={t("bold")}
           active={editor.isActive("bold")}

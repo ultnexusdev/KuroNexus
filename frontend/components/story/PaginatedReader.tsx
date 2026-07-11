@@ -50,9 +50,20 @@ export function PaginatedReader({
       p = p.replace(/<p>\s*---\s*<\/p>/g, dividerHtml);
       p = p.replace(/(?:^|\n)\s*---\s*(?:\n|$)/g, dividerHtml);
 
-      // Add dropcap to the first paragraph of the first part
+      // Add dropcap to the first paragraph of the first part that is actually long enough
       if (index === 0) {
-        p = p.replace(/<p>/, `<p class="${styles.firstLetter}">`);
+        let applied = false;
+        p = p.replace(/<p>(.*?)<\/p>/g, (match, content) => {
+          if (!applied) {
+            // Check if the text length (without HTML tags) is long enough to be a story paragraph
+            const textLength = content.replace(/<[^>]+>/g, '').trim().length;
+            if (textLength > 40) {
+              applied = true;
+              return `<p class="${styles.firstLetter}">${content}</p>`;
+            }
+          }
+          return match;
+        });
       }
       return p;
     });

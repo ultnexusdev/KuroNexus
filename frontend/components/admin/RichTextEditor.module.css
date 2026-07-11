@@ -58,7 +58,22 @@
   width: 0.5px;
   align-self: stretch;
   margin: 4px 2px;
-  background: var(--border);
+  background: var(--border-strong);
+}
+
+.fontSelect {
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  outline: none;
+  cursor: pointer;
+}
+
+.fontSelect:focus {
+  border-color: var(--accent);
 }
 
 .fileInput {

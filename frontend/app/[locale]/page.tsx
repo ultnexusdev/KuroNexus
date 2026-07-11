@@ -8,7 +8,19 @@ export default function HomePage() {
 
   return (
     <section className={styles.hero}>
-      <h1 className={styles.title}>
+      <video
+        className={styles.heroVideo}
+        autoPlay
+        loop
+        muted
+        playsInline
+      >
+        <source src="/videos/hero-bg.mp4" type="video/mp4" />
+      </video>
+      <div className={styles.heroOverlay}></div>
+      
+      <div className={styles.heroContent}>
+        <h1 className={styles.title}>
         <BrandLogo />
       </h1>
       <p className={styles.tagline}>{t("tagline")}</p>
@@ -16,6 +28,7 @@ export default function HomePage() {
       <Link href="/admin" className={styles.adminLink}>
         {t("adminLink")}
       </Link>
+      </div>
     </section>
   );
 }

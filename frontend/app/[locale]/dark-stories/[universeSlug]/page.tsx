@@ -72,13 +72,24 @@ export default async function UniverseDetailPage({
             sizes="100vw"
             className={styles.banner}
           />
+          <div className={styles.bannerOverlay}>
+            <div className={styles.page}>
+              <Link href="/dark-stories" className={styles.back}>
+                {t("backToList")}
+              </Link>
+              <h1 className={styles.headingBanner}>{universe.name.toLocaleUpperCase(locale)}</h1>
+            </div>
+          </div>
         </div>
-      ) : null}
-      <section className={styles.page}>
-        <Link href="/dark-stories" className={styles.back}>
-          {t("backToList")}
-        </Link>
-        <h1 className={styles.heading}>{universe.name}</h1>
+      ) : (
+        <div className={styles.page}>
+          <Link href="/dark-stories" className={styles.back}>
+            {t("backToList")}
+          </Link>
+          <h1 className={styles.heading}>{universe.name.toLocaleUpperCase(locale)}</h1>
+        </div>
+      )}
+      <section className={styles.pageContent}>
         {universe.description ? (
           <p className={styles.description}>{universe.description}</p>
         ) : null}

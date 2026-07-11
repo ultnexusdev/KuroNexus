@@ -24,8 +24,8 @@ export function ContentCard({
         <Image
           src={apiUrl(coverImage)}
           alt=""
-          width={640}
-          height={360}
+          width={400}
+          height={600}
           className={styles.cover}
         />
       ) : null}

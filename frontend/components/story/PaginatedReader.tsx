@@ -85,7 +85,7 @@ export function PaginatedReader({
           type="button"
           className="btn"
           onClick={goToPrev}
-          disabled={currentPage === 0}
+          style={{ visibility: currentPage === 0 ? "hidden" : "visible" }}
         >
           &larr; {prevLabel}
         </button>
@@ -96,7 +96,9 @@ export function PaginatedReader({
           type="button"
           className="btn"
           onClick={goToNext}
-          disabled={currentPage >= totalPages - 1}
+          style={{
+            visibility: currentPage >= totalPages - 1 ? "hidden" : "visible",
+          }}
         >
           {nextLabel} &rarr;
         </button>

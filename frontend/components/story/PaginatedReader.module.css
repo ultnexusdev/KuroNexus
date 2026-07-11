@@ -17,6 +17,7 @@
 .columns {
   column-width: 100%;
   column-gap: var(--column-gap);
+  column-fill: auto;
   height: 65vh; /* Dinamik yükseklik: ekranın %65'i */
   transition: transform 0.4s ease-in-out;
   will-change: transform;
@@ -26,7 +27,11 @@
   /* Bu divin kendisi bir sütun kaplar ve sonrasında metin diğer sütuna geçer */
   break-after: column;
   column-break-after: always; /* eski tarayıcı desteği */
+  break-inside: avoid;
+  page-break-inside: avoid;
   height: 100%;
+  min-height: 100%;
+  margin-bottom: 5rem; /* Sonraki metni kesinlikle diğer sütuna itmek için */
   display: flex;
   flex-direction: column;
   align-items: center;

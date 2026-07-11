@@ -168,13 +168,13 @@ export function RichTextEditor({
           H2
         </ToolbarButton>
         <ToolbarButton
-          label={t("heading3")}
+          label={t("heading3") || "Epik Başlık"}
           active={editor.isActive("heading", { level: 3 })}
           onClick={() =>
             editor.chain().focus().toggleHeading({ level: 3 }).run()
           }
         >
-          H3
+          <span style={{ fontSize: "0.85rem", fontWeight: 600 }}>H3 (Epik)</span>
         </ToolbarButton>
 
         <span className={styles.divider} />
@@ -248,10 +248,16 @@ export function RichTextEditor({
         <span className={styles.divider} />
 
         <ToolbarButton
-          label={t("pageBreak")}
+          label={t("pageBreak") || "Sayfa Sonu"}
           onClick={() => editor.chain().focus().setHorizontalRule().run()}
         >
           📄
+        </ToolbarButton>
+        <ToolbarButton
+          label="Rün Ayracı"
+          onClick={() => editor.chain().focus().insertContent('<p>---</p>').run()}
+        >
+          ❖
         </ToolbarButton>
 
         <span className={styles.divider} />

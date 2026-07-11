@@ -41,14 +41,14 @@ export function PaginatedReader({
   const formattedParts = useMemo(() => {
     return parts.map((part, index) => {
       let p = part;
-      // Convert legacy Markdown H3
-      p = p.replace(/<p>###\s+(.*?)<\/p>/g, "<h3>$1</h3>");
-      p = p.replace(/(?:^|\n)###\s+(.*?)(?:\n|$)/g, "<h3>$1</h3>");
+      // Convert legacy Markdown H3 (forgiving space)
+      p = p.replace(/<p>###\s*(.*?)<\/p>/g, "<h3>$1</h3>");
+      p = p.replace(/(?:^|\n)###\s*(.*?)(?:\n|$)/g, "<h3>$1</h3>");
       
       // Convert legacy --- to rune divider
       const dividerHtml = `<div class="${styles.runeDivider}"><span class="${styles.runeSymbol}">❖</span></div>`;
-      p = p.replace(/<p>---<\/p>/g, dividerHtml);
-      p = p.replace(/(?:^|\n)---(?:\n|$)/g, dividerHtml);
+      p = p.replace(/<p>\s*---\s*<\/p>/g, dividerHtml);
+      p = p.replace(/(?:^|\n)\s*---\s*(?:\n|$)/g, dividerHtml);
 
       // Add dropcap to the first paragraph of the first part
       if (index === 0) {

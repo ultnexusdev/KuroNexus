@@ -216,7 +216,7 @@ export function PaginatedReader({
         <div style={{ display: "flex", gap: "var(--gap-sm)" }}>
           <button
             type="button"
-            className="btn"
+            className={styles.navBtn}
             onClick={() => setGlobalCurrentPage(0)}
             style={{ visibility: globalCurrentPage === 0 ? "hidden" : "visible" }}
           >
@@ -224,7 +224,7 @@ export function PaginatedReader({
           </button>
           <button
             type="button"
-            className="btn"
+            className={styles.navBtn}
             onClick={goToPrev}
             style={{ visibility: globalCurrentPage === 0 ? "hidden" : "visible" }}
           >
@@ -263,7 +263,7 @@ export function PaginatedReader({
         <div style={{ display: "flex", gap: "var(--gap-sm)" }}>
           <button
             type="button"
-            className="btn"
+            className={styles.navBtn}
             onClick={goToNext}
             style={{
               visibility: globalCurrentPage >= totalPages - 1 ? "hidden" : "visible",
@@ -273,7 +273,7 @@ export function PaginatedReader({
           </button>
           <button
             type="button"
-            className="btn"
+            className={styles.navBtn}
             onClick={() => setGlobalCurrentPage(totalPages - 1)}
             style={{
               visibility: globalCurrentPage >= totalPages - 1 ? "hidden" : "visible",

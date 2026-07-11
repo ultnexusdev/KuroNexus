@@ -94,11 +94,13 @@ export function PaginatedReader({
             {date ? <time className={styles.date}>{date}</time> : null}
           </div>
           {content.split(/<hr[^>]*>/i).map((part, index) => (
-            <div
-              key={index}
-              className={`${styles.content} ${index > 0 ? styles.pageBreak : ""}`}
-              dangerouslySetInnerHTML={{ __html: part }}
-            />
+            <React.Fragment key={index}>
+              {index > 0 && <div className={styles.pageBreakSpacer} />}
+              <div
+                className={styles.content}
+                dangerouslySetInnerHTML={{ __html: part }}
+              />
+            </React.Fragment>
           ))}
         </div>
       </div>

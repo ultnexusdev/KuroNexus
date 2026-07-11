@@ -112,10 +112,14 @@
   break-inside: avoid;
 }
 
-.pageBreak {
+.pageBreakSpacer {
+  display: inline-block;
+  width: 100%;
   break-before: column;
   -webkit-column-break-before: always;
   page-break-before: always;
+  height: 1px;
+  visibility: hidden;
 }
 
 .controls {

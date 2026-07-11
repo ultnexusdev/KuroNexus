@@ -88,6 +88,7 @@
 .content ol {
   margin: 0 0 var(--gap-md);
   padding-left: 1.4rem;
+  break-inside: avoid;
 }
 
 .content blockquote {
@@ -95,6 +96,7 @@
   padding-left: var(--pad-md);
   border-left: 2px solid var(--accent);
   color: var(--text-secondary);
+  break-inside: avoid;
 }
 
 .content a {
@@ -107,6 +109,7 @@
   object-fit: contain;
   border-radius: var(--radius-card);
   margin: var(--gap-sm) 0;
+  break-inside: avoid;
 }
 
 .controls {

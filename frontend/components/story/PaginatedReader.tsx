@@ -93,10 +93,13 @@ export function PaginatedReader({
             <h1 className={styles.title}>{title}</h1>
             {date ? <time className={styles.date}>{date}</time> : null}
           </div>
-          <div
-            className={styles.content}
-            dangerouslySetInnerHTML={{ __html: content }}
-          />
+          {content.split(/<hr[^>]*>/i).map((part, index) => (
+            <div
+              key={index}
+              className={`${styles.content} ${index > 0 ? styles.pageBreak : ""}`}
+              dangerouslySetInnerHTML={{ __html: part }}
+            />
+          ))}
         </div>
       </div>
       <div className={styles.controls}>

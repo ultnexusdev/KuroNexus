@@ -263,14 +263,29 @@ export function RichTextEditor({
         >
           ↶
         </ToolbarButton>
-        <ToolbarButton
-          label={t("redo")}
-          disabled={!editor.can().redo()}
-          onClick={() => editor.chain().focus().redo().run()}
-        >
-          ↷
-        </ToolbarButton>
-      </div>
+          <ToolbarButton
+            label={t("redo")}
+            disabled={!editor.can().redo()}
+            onClick={() => editor.chain().focus().redo().run()}
+          >
+            ↷
+          </ToolbarButton>
+
+          <div style={{ marginLeft: "auto", display: "flex", gap: "4px" }}>
+            <ToolbarButton
+              label={t("scrollTop") || "Üste Çık"}
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            >
+              ↑
+            </ToolbarButton>
+            <ToolbarButton
+              label={t("scrollBottom") || "Alta İn"}
+              onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" })}
+            >
+              ↓
+            </ToolbarButton>
+          </div>
+        </div>
       <EditorContent editor={editor} />
     </div>
   );

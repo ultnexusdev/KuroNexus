@@ -112,11 +112,7 @@
   break-inside: avoid;
 }
 
-.content hr {
-  display: none;
-}
-
-.content hr + * {
+.pageBreak {
   break-before: column;
   -webkit-column-break-before: always;
   page-break-before: always;

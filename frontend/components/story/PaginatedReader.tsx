@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import styles from "./PaginatedReader.module.css";
 
 interface PaginatedReaderProps {
@@ -20,44 +20,70 @@ export function PaginatedReader({
   prevLabel = "Önceki",
   nextLabel = "Sonraki",
 }: PaginatedReaderProps) {
-  const [currentPage, setCurrentPage] = useState(0);
+  const [globalCurrentPage, setGlobalCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
+  const [partPages, setPartPages] = useState<number[]>([]);
   const [colWidth, setColWidth] = useState<number | undefined>(undefined);
   const [isEditingPage, setIsEditingPage] = useState(false);
-  const columnsRef = useRef<HTMLDivElement>(null);
+  
+  const containerRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  // Split the content into chunks at every <hr>
+  const parts = useMemo(() => {
+    return content.split(/<hr[^>]*>/i);
+  }, [content]);
 
   const handlePageSubmit = (val: string) => {
     const pageNum = parseInt(val, 10);
     if (!isNaN(pageNum) && pageNum >= 1 && pageNum <= totalPages) {
-      setCurrentPage(pageNum - 1);
+      setGlobalCurrentPage(pageNum - 1);
     }
     setIsEditingPage(false);
   };
 
   const calculatePages = () => {
-    if (columnsRef.current) {
-      const clientW = columnsRef.current.clientWidth;
-      if (clientW > 0) {
-        setColWidth(clientW);
+    let newPartPages: number[] = [];
+    let cWidth: number | undefined = undefined;
+
+    parts.forEach((_, i) => {
+      const el = containerRefs.current[i];
+      if (el) {
+        const clientW = el.clientWidth;
+        if (clientW > 0 && !cWidth) {
+          cWidth = clientW;
+        }
+        
+        const scrollW = el.scrollWidth;
+        const gap = 32; // var(--column-gap)
+        
+        const total = Math.round((scrollW + gap) / (clientW + gap));
+        newPartPages.push(total > 0 ? total : 1);
+      } else {
+        newPartPages.push(1);
       }
-      
-      const scrollW = columnsRef.current.scrollWidth;
-      const gap = 32;
-      const total = Math.round((scrollW + gap) / (clientW + gap));
-      const finalTotal = total > 0 ? total : 1;
-      setTotalPages(finalTotal);
-      
-      setCurrentPage((prev) => (prev >= finalTotal ? finalTotal - 1 : prev));
-    }
+    });
+
+    if (cWidth) setColWidth(cWidth);
+    
+    // Sadece dizi değiştiyse güncelle
+    setPartPages((prev) => {
+      if (prev.length === newPartPages.length && prev.every((v, i) => v === newPartPages[i])) {
+        return prev;
+      }
+      return newPartPages;
+    });
+    
+    const finalTotal = newPartPages.reduce((acc, val) => acc + val, 0) || 1;
+    setTotalPages(finalTotal);
+    
+    setGlobalCurrentPage((prev) => (prev >= finalTotal ? finalTotal - 1 : prev));
   };
 
   useEffect(() => {
-    // Initial calculate
     calculatePages();
     
-    // Gecikmeli hesaplama, görseller vb. için
     const timer = setTimeout(calculatePages, 200);
-    const timer2 = setTimeout(calculatePages, 1000); // Ekstra garanti
+    const timer2 = setTimeout(calculatePages, 1000);
     
     window.addEventListener("resize", calculatePages);
     return () => {
@@ -65,49 +91,72 @@ export function PaginatedReader({
       clearTimeout(timer2);
       window.removeEventListener("resize", calculatePages);
     };
-  }, [content, coverImage]);
+  }, [parts, coverImage]);
 
   const goToPrev = () => {
-    setCurrentPage((p) => Math.max(0, p - 1));
+    setGlobalCurrentPage((p) => Math.max(0, p - 1));
   };
 
   const goToNext = () => {
-    setCurrentPage((p) => Math.min(totalPages - 1, p + 1));
+    setGlobalCurrentPage((p) => Math.min(totalPages - 1, p + 1));
   };
+
+  // Determine active part and local translation offset
+  let remaining = globalCurrentPage;
+  let activePartIndex = 0;
+  let localOffset = 0;
+
+  for (let i = 0; i < partPages.length; i++) {
+    if (remaining < partPages[i]) {
+      activePartIndex = i;
+      localOffset = remaining;
+      break;
+    }
+    remaining -= partPages[i];
+  }
 
   return (
     <div className={styles.container}>
       <div className={styles.viewport}>
-        <div
-          ref={columnsRef}
-          className={styles.columns}
-          style={{
-            transform: `translateX(calc(-${currentPage} * (100% + var(--column-gap))))`,
-            columnWidth: colWidth ? `${colWidth}px` : "100%",
-          }}
-        >
-          <div className={styles.coverPage}>
-            {coverImage ? (
-              <img src={coverImage} alt="" className={styles.cover} />
-            ) : null}
-            <h1 className={styles.title}>{title}</h1>
-            {date ? <time className={styles.date}>{date}</time> : null}
-          </div>
-          {content.split(/<hr[^>]*>/i).map((part, index) => (
+        {parts.map((part, index) => {
+          const isActive = index === activePartIndex;
+          return (
             <div
               key={index}
-              className={`${styles.content} ${index > 0 ? styles.forceBreak : ""}`}
-              dangerouslySetInnerHTML={{ __html: part }}
-            />
-          ))}
-        </div>
+              ref={(el) => {
+                containerRefs.current[index] = el;
+              }}
+              className={`${styles.columns} ${isActive ? styles.activePart : styles.inactivePart}`}
+              style={{
+                transform: isActive 
+                  ? `translateX(calc(-${localOffset} * (100% + var(--column-gap))))` 
+                  : "translateX(0)",
+                columnWidth: colWidth ? `${colWidth}px` : "100%",
+              }}
+            >
+              {index === 0 && (
+                <div className={styles.coverPage}>
+                  {coverImage ? (
+                    <img src={coverImage} alt="" className={styles.cover} />
+                  ) : null}
+                  <h1 className={styles.title}>{title}</h1>
+                  {date ? <time className={styles.date}>{date}</time> : null}
+                </div>
+              )}
+              <div
+                className={styles.content}
+                dangerouslySetInnerHTML={{ __html: part }}
+              />
+            </div>
+          );
+        })}
       </div>
       <div className={styles.controls}>
         <button
           type="button"
           className="btn"
           onClick={goToPrev}
-          style={{ visibility: currentPage === 0 ? "hidden" : "visible" }}
+          style={{ visibility: globalCurrentPage === 0 ? "hidden" : "visible" }}
         >
           &larr; {prevLabel}
         </button>
@@ -117,7 +166,7 @@ export function PaginatedReader({
               type="number"
               min={1}
               max={totalPages}
-              defaultValue={currentPage + 1}
+              defaultValue={globalCurrentPage + 1}
               autoFocus
               onBlur={(e) => handlePageSubmit(e.target.value)}
               onKeyDown={(e) => {
@@ -135,7 +184,7 @@ export function PaginatedReader({
               title="Sayfaya gitmek için tıklayın"
               style={{ cursor: "pointer" }}
             >
-              {currentPage + 1}
+              {globalCurrentPage + 1}
             </span>
           )}
           {" / " + totalPages}
@@ -145,7 +194,7 @@ export function PaginatedReader({
           className="btn"
           onClick={goToNext}
           style={{
-            visibility: currentPage >= totalPages - 1 ? "hidden" : "visible",
+            visibility: globalCurrentPage >= totalPages - 1 ? "hidden" : "visible",
           }}
         >
           {nextLabel} &rarr;

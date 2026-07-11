@@ -112,11 +112,23 @@
   break-inside: avoid;
 }
 
-.forceBreak {
-  break-before: column !important;
-  -webkit-column-break-before: always !important;
-  page-break-before: always !important;
-  display: block;
+.activePart {
+  position: relative;
+  visibility: visible;
+  pointer-events: auto;
+  z-index: 2;
+  opacity: 1;
+}
+
+.inactivePart {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
 }
 
 .controls {

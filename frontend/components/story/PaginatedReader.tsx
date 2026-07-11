@@ -10,6 +10,8 @@ interface PaginatedReaderProps {
   date?: string;
   prevLabel?: string;
   nextLabel?: string;
+  firstLabel?: string;
+  lastLabel?: string;
 }
 
 export function PaginatedReader({
@@ -19,6 +21,8 @@ export function PaginatedReader({
   date,
   prevLabel = "Önceki",
   nextLabel = "Sonraki",
+  firstLabel = "İlk",
+  lastLabel = "Son",
 }: PaginatedReaderProps) {
   const [globalCurrentPage, setGlobalCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
@@ -153,14 +157,24 @@ export function PaginatedReader({
         })}
       </div>
       <div className={styles.controls}>
-        <button
-          type="button"
-          className="btn"
-          onClick={goToPrev}
-          style={{ visibility: globalCurrentPage === 0 ? "hidden" : "visible" }}
-        >
-          &larr; {prevLabel}
-        </button>
+        <div style={{ display: "flex", gap: "var(--gap-sm)" }}>
+          <button
+            type="button"
+            className="btn"
+            onClick={() => setGlobalCurrentPage(0)}
+            style={{ visibility: globalCurrentPage === 0 ? "hidden" : "visible" }}
+          >
+            &laquo; {firstLabel}
+          </button>
+          <button
+            type="button"
+            className="btn"
+            onClick={goToPrev}
+            style={{ visibility: globalCurrentPage === 0 ? "hidden" : "visible" }}
+          >
+            &larr; {prevLabel}
+          </button>
+        </div>
         <span className={styles.pageIndicator}>
           {isEditingPage ? (
             <input
@@ -190,16 +204,28 @@ export function PaginatedReader({
           )}
           {" / " + totalPages}
         </span>
-        <button
-          type="button"
-          className="btn"
-          onClick={goToNext}
-          style={{
-            visibility: globalCurrentPage >= totalPages - 1 ? "hidden" : "visible",
-          }}
-        >
-          {nextLabel} &rarr;
-        </button>
+        <div style={{ display: "flex", gap: "var(--gap-sm)" }}>
+          <button
+            type="button"
+            className="btn"
+            onClick={goToNext}
+            style={{
+              visibility: globalCurrentPage >= totalPages - 1 ? "hidden" : "visible",
+            }}
+          >
+            {nextLabel} &rarr;
+          </button>
+          <button
+            type="button"
+            className="btn"
+            onClick={() => setGlobalCurrentPage(totalPages - 1)}
+            style={{
+              visibility: globalCurrentPage >= totalPages - 1 ? "hidden" : "visible",
+            }}
+          >
+            {lastLabel} &raquo;
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -15,10 +15,13 @@ export async function generateMetadata({
   return { title: t("listTitle") };
 }
 
+export const dynamic = "force-dynamic";
+
 async function getCategories(): Promise<UniverseCategory[]> {
   try {
     return await fetchCategories();
-  } catch {
+  } catch (error) {
+    console.error("Failed to fetch categories:", error);
     return [];
   }
 }

@@ -24,6 +24,8 @@ export async function generateMetadata({
   }
 }
 
+export const dynamic = "force-dynamic";
+
 export default async function CategoryUniversesPage({
   params,
 }: {
@@ -38,7 +40,8 @@ export default async function CategoryUniversesPage({
       fetchCategories(),
       fetchUniverses(),
     ]);
-  } catch {
+  } catch (error) {
+    console.error("Failed to fetch data for category page:", error);
     notFound();
   }
 

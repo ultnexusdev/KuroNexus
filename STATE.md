@@ -66,7 +66,7 @@
 2. Faz 1 "Bitti" kriterlerinden kalanlar: yedekten geri yükleme testi, mobil taşma kontrolü
 3. 8 evrene açıklama metni eklenmesi (`/admin/universes`) — kapaklar tamamlandı (2026-07-12), açıklamalar bekliyor
 4. (İsteğe bağlı) Test upload'larını DB/diskten temizle: 2 eski test görseli (`cmrduiuco00021qs01pshvngg`, `cmrduzd3w00001qrxd664ngh4`) + ambient player testinden kalan `1783861953005-6b08c4870b375ed1.wav` (MediaAsset `cmrhtck5500001pqubljlm8rd`)
-4b. Ambient player küçük düzeltmeleri: başlangıç volume bug'ı, tek şarkıda bitiş durumunda buton durumu, hardcoded Türkçe metinlerin t()'ye taşınması (kural 1)
+4b. ~~Ambient player küçük düzeltmeleri~~ TAMAMLANDI (2026-07-12, commit `f6cab18`): player kompakt ortalanmış tasarıma geçti (`min(520px, 100vw-24px)`, alt-orta sabit, köşeli + border, tema token'lı inline SVG ikonlar, emoji yok), şarkı başlığı tıklanınca çalma listesi açılıyor (parça seçimi çalışıyor), başlangıç volume bug'ı düzeltildi (ref callback ile 0.3 uygulanıyor — canlıda doğrulandı), tek parçada bitişte isPlaying sıfırlanıyor, player + admin müzik sayfası tüm metinleri i18n'e taşındı (`player.*`, `admin.ambient.*`). Canlıda DOM üzerinden doğrulandı (browser panelinde ekran görüntüsü alınamadı — panel sorunu). Temürkan'da 2 test parçası duruyor ("Bozkır Rüzgârı (test)", "Kadim Yankılar (test)") — kullanıcı yeni player'ı deneyip gerçek müzik yükleyince silinecek. Kullanıcının fikri: player'ın altına ayrıca Spotify embed eklemek (henüz karar verilmedi).
 5. Lokal geliştirme için DB: Docker Desktop + lokal postgres (kökteki compose hazır), `backend/.env` lokal URL'e güncellenecek
 
 ## Açık Kararlar / Notlar

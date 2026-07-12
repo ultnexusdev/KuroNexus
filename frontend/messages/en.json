@@ -20,6 +20,14 @@
     "prevPage": "Previous",
     "nextPage": "Next"
   },
+  "footer": {
+    "about": "Ancient worlds, fandom wikis, and in-depth character analyses — a personal archive of knowledge lost to shadow.",
+    "explore": "Explore",
+    "home": "Home",
+    "darkStories": "Ancient Worlds",
+    "universes": "Universes",
+    "tagline": "An archive of ancient knowledge lost to shadow."
+  },
   "player": {
     "unknownTrack": "Unknown track",
     "shuffle": "Shuffle",

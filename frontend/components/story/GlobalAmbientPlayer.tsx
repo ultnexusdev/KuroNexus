@@ -150,6 +150,12 @@ export function GlobalAmbientPlayer() {
 
   if (tracks.length === 0) return null;
 
+  // Evren sayfalarının dışında (ana sayfa, evren listesi vb.) çalar yalnızca
+  // aktif bir dinleme oturumu varsa görünür — ilk gezinmede araya girmez.
+  const inUniverse = /\/dark-stories\/.+/.test(pathname ?? "");
+  const hasActiveSession = isPlaying || currentTime > 0;
+  if (!inUniverse && !hasActiveSession) return null;
+
   const currentTrack = tracks[currentIndex];
 
   const handlePlayPause = () => {

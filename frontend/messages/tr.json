@@ -20,6 +20,14 @@
     "prevPage": "Önceki",
     "nextPage": "Sonraki"
   },
+  "footer": {
+    "about": "Kadim dünyalar, fandom wikileri ve derinlemesine karakter analizleri — gölgede kalmış bilgilerin kişisel arşivi.",
+    "explore": "Keşfet",
+    "home": "Ana Sayfa",
+    "darkStories": "Kadim Dünyalar",
+    "universes": "Evrenler",
+    "tagline": "Gölgede kalmış kadim bilgilerin arşivi."
+  },
   "player": {
     "unknownTrack": "Bilinmeyen parça",
     "shuffle": "Karışık çal",

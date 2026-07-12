@@ -1,6 +1,7 @@
 import { apiFetch, apiUrl, ApiError } from "../api/client";
 import type {
   AdminWikiEntrySummary,
+  AmbientTrack,
   AuthenticatedUser,
   LoginResult,
   Story,
@@ -171,6 +172,36 @@ export function updateWikiEntry(
 
 export function deleteWikiEntry(id: string): Promise<WikiEntryDetail> {
   return apiFetch<WikiEntryDetail>(`/admin/wiki-entries/${id}`, {
+    method: "DELETE",
+    headers: authHeaders(),
+  });
+}
+
+export interface AmbientTrackInput {
+  title: string;
+  universeId: string;
+  audioUrl: string;
+  order?: number;
+}
+
+export function fetchAdminAmbientTracks(): Promise<AmbientTrack[]> {
+  return apiFetch<AmbientTrack[]>("/ambient-tracks", {
+    headers: authHeaders(),
+  });
+}
+
+export function createAmbientTrack(
+  input: AmbientTrackInput,
+): Promise<AmbientTrack> {
+  return apiFetch<AmbientTrack>("/ambient-tracks", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(input),
+  });
+}
+
+export function deleteAmbientTrack(id: string): Promise<AmbientTrack> {
+  return apiFetch<AmbientTrack>(`/ambient-tracks/${id}`, {
     method: "DELETE",
     headers: authHeaders(),
   });

@@ -3,28 +3,19 @@
 import { useEffect, useState, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { AdminGuard } from "@/components/admin/AdminGuard";
-import { apiFetch } from "@/lib/api/client";
-
-interface AmbientTrack {
-  id: string;
-  title: string;
-  audioUrl: string;
-  order: number;
-  universeId: string;
-  createdAt: string;
-  universe?: { name: string; slug: string };
-}
-
-interface Universe {
-  id: string;
-  name: string;
-  slug: string;
-}
+import {
+  createAmbientTrack,
+  deleteAmbientTrack,
+  fetchAdminAmbientTracks,
+  fetchAdminUniverses,
+  uploadImage,
+} from "@/lib/admin/api";
+import type { AmbientTrack, WikiUniverseSummary } from "@/lib/api/types";
 
 export default function AmbientTracksPage() {
   const t = useTranslations("admin.ambient");
   const [tracks, setTracks] = useState<AmbientTrack[]>([]);
-  const [universes, setUniverses] = useState<Universe[]>([]);
+  const [universes, setUniverses] = useState<WikiUniverseSummary[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -33,12 +24,8 @@ export default function AmbientTracksPage() {
   const [universeId, setUniverseId] = useState("");
 
   const fetchData = () => {
-    apiFetch<AmbientTrack[]>("/ambient-tracks")
-      .then(setTracks)
-      .catch(console.error);
-    apiFetch<Universe[]>("/admin/universes")
-      .then(setUniverses)
-      .catch(console.error);
+    fetchAdminAmbientTracks().then(setTracks).catch(console.error);
+    fetchAdminUniverses().then(setUniverses).catch(console.error);
   };
 
   useEffect(() => {
@@ -48,7 +35,7 @@ export default function AmbientTracksPage() {
   const handleDelete = async (id: string, trackTitle: string) => {
     if (!confirm(t("confirmDelete", { title: trackTitle }))) return;
     try {
-      await apiFetch(`/ambient-tracks/${id}`, { method: "DELETE" });
+      await deleteAmbientTrack(id);
       fetchData();
     } catch (e) {
       console.error(e);
@@ -71,23 +58,14 @@ export default function AmbientTracksPage() {
     setIsSubmitting(true);
     try {
       // 1. Upload audio
-      const formData = new FormData();
-      formData.append("file", file);
-      const uploadRes = await apiFetch<{ url: string }>("/admin/uploads", {
-        method: "POST",
-        body: formData,
-      });
+      const uploadRes = await uploadImage(file);
 
       // 2. Create track record
-      await apiFetch("/ambient-tracks", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title,
-          universeId,
-          audioUrl: uploadRes.url,
-          order: tracks.length,
-        }),
+      await createAmbientTrack({
+        title,
+        universeId,
+        audioUrl: uploadRes.url,
+        order: tracks.length,
       });
 
       // Reset

@@ -76,3 +76,14 @@ export interface UploadResult {
   id: string;
   url: string;
 }
+
+export interface AmbientTrack {
+  id: string;
+  title: string;
+  audioUrl: string;
+  order: number;
+  universeId: string;
+  createdAt: string;
+  updatedAt: string;
+  universe?: { name: string; slug: string };
+}

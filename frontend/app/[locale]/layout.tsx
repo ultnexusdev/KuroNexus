@@ -47,6 +47,7 @@ export async function generateMetadata({
 }
 
 import { GlobalAmbientPlayer } from "@/components/story/GlobalAmbientPlayer";
+import { SiteFooter } from "@/components/layout/SiteFooter";
 
 export default async function LocaleLayout({
   children,
@@ -74,6 +75,7 @@ export default async function LocaleLayout({
         <NextIntlClientProvider>
           <SiteHeader initialTheme={theme} />
           <main>{children}</main>
+          <SiteFooter />
           <GlobalAmbientPlayer />
         </NextIntlClientProvider>
       </body>

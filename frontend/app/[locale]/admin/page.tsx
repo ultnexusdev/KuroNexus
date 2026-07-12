@@ -23,7 +23,7 @@ export default function AdminHomePage() {
             {t("wiki.title")}
           </Link>
           <Link href="/admin/ambient-tracks" className="card">
-            Müzik Kütüphanesi
+            {t("ambient.title")}
           </Link>
         </nav>
       </section>

@@ -20,9 +20,41 @@
     "prevPage": "Önceki",
     "nextPage": "Sonraki"
   },
+  "player": {
+    "unknownTrack": "Bilinmeyen parça",
+    "shuffle": "Karışık çal",
+    "previous": "Önceki",
+    "play": "Oynat",
+    "pause": "Duraklat",
+    "next": "Sonraki",
+    "repeat": "Tekrarla",
+    "playlist": "Çalma listesi",
+    "volume": "Ses seviyesi"
+  },
   "admin": {
     "title": "Yönetim Paneli",
     "logout": "Çıkış yap",
+    "ambient": {
+      "title": "Müzik Kütüphanesi",
+      "addTitle": "Yeni Müzik Ekle",
+      "trackTitle": "Başlık",
+      "universe": "Evren",
+      "selectUniverse": "-- Seçiniz --",
+      "file": "Ses Dosyası (Maks. 50MB)",
+      "submit": "Yükle ve Ekle",
+      "submitting": "Yükleniyor…",
+      "existing": "Mevcut Müzikler",
+      "colUniverse": "Evren",
+      "colDate": "Tarih",
+      "colAction": "İşlem",
+      "delete": "Sil",
+      "empty": "Kayıtlı müzik yok.",
+      "confirmDelete": "\"{title}\" silinsin mi?",
+      "missingFields": "Lütfen başlık ve evren seçin.",
+      "missingFile": "Lütfen bir ses dosyası seçin (mp3/wav/ogg).",
+      "uploadError": "Yüklenirken hata oluştu.",
+      "deleteError": "Silinirken hata oluştu."
+    },
     "login": {
       "title": "Yönetici Girişi",
       "email": "E-posta",

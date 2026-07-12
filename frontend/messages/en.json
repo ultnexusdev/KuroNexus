@@ -20,9 +20,41 @@
     "prevPage": "Previous",
     "nextPage": "Next"
   },
+  "player": {
+    "unknownTrack": "Unknown track",
+    "shuffle": "Shuffle",
+    "previous": "Previous",
+    "play": "Play",
+    "pause": "Pause",
+    "next": "Next",
+    "repeat": "Repeat",
+    "playlist": "Playlist",
+    "volume": "Volume"
+  },
   "admin": {
     "title": "Admin Panel",
     "logout": "Log out",
+    "ambient": {
+      "title": "Music Library",
+      "addTitle": "Add New Track",
+      "trackTitle": "Title",
+      "universe": "Universe",
+      "selectUniverse": "-- Select --",
+      "file": "Audio File (max 50MB)",
+      "submit": "Upload & Add",
+      "submitting": "Uploading…",
+      "existing": "Existing Tracks",
+      "colUniverse": "Universe",
+      "colDate": "Date",
+      "colAction": "Action",
+      "delete": "Delete",
+      "empty": "No tracks yet.",
+      "confirmDelete": "Delete \"{title}\"?",
+      "missingFields": "Please provide a title and select a universe.",
+      "missingFile": "Please choose an audio file (mp3/wav/ogg).",
+      "uploadError": "Upload failed.",
+      "deleteError": "Delete failed."
+    },
     "login": {
       "title": "Admin Login",
       "email": "Email",

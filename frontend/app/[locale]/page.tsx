@@ -1,6 +1,7 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/lib/i18n/navigation";
 import { BrandLogo } from "@/components/layout/BrandLogo";
+import { HeroVideo } from "@/components/home/HeroVideo";
 import styles from "./page.module.css";
 
 export default function HomePage() {
@@ -8,15 +9,7 @@ export default function HomePage() {
 
   return (
     <section className={styles.hero}>
-      <video
-        className={styles.heroVideo}
-        autoPlay
-        loop
-        muted
-        playsInline
-      >
-        <source src="/videos/hero-bg.mp4" type="video/mp4" />
-      </video>
+      <HeroVideo className={styles.heroVideo} />
       <div className={styles.heroOverlay}></div>
       
       <div className={styles.heroContent}>

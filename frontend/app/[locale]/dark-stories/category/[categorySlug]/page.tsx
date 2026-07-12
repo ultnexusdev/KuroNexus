@@ -34,16 +34,10 @@ export default async function CategoryUniversesPage({
   const { locale, categorySlug } = await params;
   const t = await getTranslations({ locale, namespace: "stories" });
 
-  let categories, allUniverses;
-  try {
-    [categories, allUniverses] = await Promise.all([
-      fetchCategories(),
-      fetchUniverses(),
-    ]);
-  } catch (error) {
-    console.error("Failed to fetch data for category page:", error);
-    notFound();
-  }
+  const [categories, allUniverses] = await Promise.all([
+    fetchCategories(),
+    fetchUniverses(),
+  ]);
 
   const category = categories.find((c) => c.slug === categorySlug);
   if (!category) {

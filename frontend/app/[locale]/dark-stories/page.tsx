@@ -18,12 +18,7 @@ export async function generateMetadata({
 export const dynamic = "force-dynamic";
 
 async function getCategories(): Promise<UniverseCategory[]> {
-  try {
-    return await fetchCategories();
-  } catch (error) {
-    console.error("Failed to fetch categories:", error);
-    return [];
-  }
+  return fetchCategories();
 }
 
 export default async function DarkStoriesPage({

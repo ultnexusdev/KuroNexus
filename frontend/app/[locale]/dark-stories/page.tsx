@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { fetchUniverses, fetchCategories } from "@/lib/api/universes";
-import type { WikiUniverseSummary, UniverseCategory } from "@/lib/api/types";
-import { CategoryTabs } from "@/components/story/CategoryTabs";
+import { fetchCategories } from "@/lib/api/universes";
+import type { UniverseCategory } from "@/lib/api/types";
+import { ContentCard } from "@/components/ContentCard";
 import styles from "./page.module.css";
 
 export async function generateMetadata({
@@ -15,14 +15,6 @@ export async function generateMetadata({
   return { title: t("listTitle") };
 }
 
-async function getUniverses(): Promise<WikiUniverseSummary[]> {
-  try {
-    return await fetchUniverses();
-  } catch {
-    return [];
-  }
-}
-
 async function getCategories(): Promise<UniverseCategory[]> {
   try {
     return await fetchCategories();
@@ -31,15 +23,35 @@ async function getCategories(): Promise<UniverseCategory[]> {
   }
 }
 
-export default async function DarkStoriesPage() {
-  const [universes, categories] = await Promise.all([
-    getUniverses(),
-    getCategories(),
-  ]);
+export default async function DarkStoriesPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "stories" });
+  const categories = await getCategories();
 
   return (
     <section className={styles.page}>
-      <CategoryTabs universes={universes} categories={categories} />
+      <h1 className={styles.heading}>{t("listTitle")}</h1>
+      
+      {categories.length === 0 ? (
+        <p className={styles.empty}>{t("emptyCategory")}</p>
+      ) : (
+        <ul className={styles.list}>
+          {categories.map((cat) => (
+            <li key={cat.id}>
+              <ContentCard
+                href={`/dark-stories/category/${cat.slug}`}
+                coverImage={cat.coverImage}
+                title={cat.name}
+                subtitle={cat.description}
+              />
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }

@@ -59,12 +59,14 @@
   - Backend: `AmbientTrack` modeli (`universeId` ilişkili) Prisma'ya eklendi, uploads limiti 50MB audio dosyaları (mp3/wav/ogg) destekleyecek şekilde güncellendi.
   - Admin: `/admin/ambient-tracks` sayfası yapıldı, müziğin başlığı, dosyası ve ait olduğu evren seçilerek sisteme eklenebiliyor.
   - Public: Layout köküne yerleştirilen, düz/sade tasarımlı ve site temasına uyan `GlobalAmbientPlayer` yapıldı. Okuyucu bir evren içine (örn: Temürkan) girdiğinde o evrenin çalma listesi yükleniyor, müzik sitenin her yerinde kesintisiz devam ediyor. Play/Pause/Prev/Next/Shuffle/Repeat özellikleri eklendi. TypeScript build hataları düzeltildi ve başarılı deploy alındı.
+  - **Canlıda uçtan uca doğrulandı (2026-07-12)**: test WAV'ı API ile yüklendi (login → `/admin/uploads` → `POST /ambient-tracks`, Türkçe başlık `--data-binary` ile bozulmadan), public `GET /ambient-tracks/universe/temurkan-efsaneleri` 200; tarayıcıda player evren sayfasında belirdi, oynatma çalıştı ve **client-side gezinme sırasında müzik kesilmeden devam etti** (zaman damgalı ölçümle kanıtlandı). Test kaydı sonrasında DELETE ile temizlendi (yüklenen test .wav dosyası + MediaAsset kaydı diskte/DB'de duruyor — temizlik listesine eklendi). Testte bulunan küçük kusurlar: (1) başlangıç ses seviyesi efekti uygulanmıyor — slider 0.3 gösterirken gerçek volume 1 (audio elementi ilk render'da yokken effect çalışıyor); (2) tek şarkı bitince buton "Durdur" görünürken ses duruyor (playNext tek parçada no-op, isPlaying true kalıyor); (3) AGENTS.md kural 1 ihlali: `GlobalAmbientPlayer.tsx` ve `admin/ambient-tracks/page.tsx`'te hardcoded Türkçe metinler (t() kullanılmıyor) + admin sayfası inline style kullanıyor.
 
 ## Sıradaki Adım
 1. **Wiki devamı (Faz 2)**: çapraz linkler (`WikiEntryRelation` — admin'den sayfalar arası ilişki kurma + detayda "İlişkili Sayfalar"), sonra site içi arama (PostgreSQL full-text, önce wiki kapsamında — plan Faz 2)
 2. Faz 1 "Bitti" kriterlerinden kalanlar: yedekten geri yükleme testi, mobil taşma kontrolü
 3. 8 evrene açıklama metni eklenmesi (`/admin/universes`) — kapaklar tamamlandı (2026-07-12), açıklamalar bekliyor
-4. (İsteğe bağlı) Upload testi sırasında oluşan 2 test kaydını (`cmrduiuco00021qs01pshvngg`, `cmrduzd3w00001qrxd664ngh4`) DB/diskten temizle
+4. (İsteğe bağlı) Test upload'larını DB/diskten temizle: 2 eski test görseli (`cmrduiuco00021qs01pshvngg`, `cmrduzd3w00001qrxd664ngh4`) + ambient player testinden kalan `1783861953005-6b08c4870b375ed1.wav` (MediaAsset `cmrhtck5500001pqubljlm8rd`)
+4b. Ambient player küçük düzeltmeleri: başlangıç volume bug'ı, tek şarkıda bitiş durumunda buton durumu, hardcoded Türkçe metinlerin t()'ye taşınması (kural 1)
 5. Lokal geliştirme için DB: Docker Desktop + lokal postgres (kökteki compose hazır), `backend/.env` lokal URL'e güncellenecek
 
 ## Açık Kararlar / Notlar

@@ -3,16 +3,17 @@
     "siteName": "KuroNexus"
   },
   "nav": {
-    "darkStories": "Kadim Dünyalar"
+    "darkStories": "Nexus'u Keşfet"
   },
   "home": {
     "title": "KuroNexus",
     "tagline": "Gölgede kalmış kadim bilgilerin arşivi",
     "intro": "Kadim dünyalar, fandom wikileri, anime ve film arşivi, derinlemesine karakter analizleri — hepsi tek bir kişisel evrende.",
-    "adminLink": "Yönetim Paneli"
+    "adminLink": "Yönetim Paneli",
+    "explore": "Nexus'u Keşfet"
   },
   "stories": {
-    "listTitle": "Evrenleri Keşfet",
+    "listTitle": "Nexus'u Keşfet",
     "all": "Tümü",
     "emptyUniverses": "Henüz evren yok.",
     "emptyCategory": "Bu kategoride henüz içerik yok.",
@@ -26,7 +27,7 @@
     "about": "Kadim dünyalar, fandom wikileri ve derinlemesine karakter analizleri — gölgede kalmış bilgilerin kişisel arşivi.",
     "explore": "Keşfet",
     "home": "Ana Sayfa",
-    "darkStories": "Kadim Dünyalar",
+    "darkStories": "Nexus'u Keşfet",
     "universes": "Evrenler",
     "tagline": "Gölgede kalmış kadim bilgilerin arşivi."
   },

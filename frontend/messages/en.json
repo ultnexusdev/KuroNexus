@@ -3,16 +3,17 @@
     "siteName": "KuroNexus"
   },
   "nav": {
-    "darkStories": "Ancient Worlds"
+    "darkStories": "Discover Nexus"
   },
   "home": {
     "title": "KuroNexus",
     "tagline": "An archive of ancient knowledge lost to shadow",
     "intro": "Ancient worlds, fandom wikis, an anime and movie archive, and in-depth character analyses — all in one personal universe.",
-    "adminLink": "Admin Panel"
+    "adminLink": "Admin Panel",
+    "explore": "Discover Nexus"
   },
   "stories": {
-    "listTitle": "Discover Universes",
+    "listTitle": "Discover Nexus",
     "all": "All",
     "emptyUniverses": "No universes yet.",
     "emptyCategory": "No content in this category yet.",
@@ -26,7 +27,7 @@
     "about": "Ancient worlds, fandom wikis, and in-depth character analyses — a personal archive of knowledge lost to shadow.",
     "explore": "Explore",
     "home": "Home",
-    "darkStories": "Ancient Worlds",
+    "darkStories": "Discover Nexus",
     "universes": "Universes",
     "tagline": "An archive of ancient knowledge lost to shadow."
   },

@@ -26,7 +26,7 @@ export default function HomePage() {
       <p className={styles.tagline}>{t("tagline")}</p>
       <p className={styles.intro}>{t("intro")}</p>
       <Link href="/dark-stories" className={styles.adminLink}>
-        Evrenleri Keşfet
+        {t("explore")}
       </Link>
       </div>
     </section>

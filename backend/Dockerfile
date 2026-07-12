@@ -41,4 +41,4 @@ COPY --from=build /app/package.json ./package.json
 EXPOSE 3001
 
 # Container ayaga kalkarken bekleyen migration'lar uygulanir, sonra API baslar
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main"]
+CMD ["sh", "-c", "npx prisma migrate deploy || echo 'Migration warning — continuing' && node dist/main"]

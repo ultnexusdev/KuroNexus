@@ -3,18 +3,18 @@ import type { WikiUniverse, WikiUniverseSummary, UniverseCategory } from "./type
 
 export function fetchUniverses(): Promise<WikiUniverseSummary[]> {
   return apiFetch<WikiUniverseSummary[]>("/universes", {
-    cache: "no-store",
+    next: { revalidate: 60 },
   });
 }
 
 export function fetchUniverseBySlug(slug: string): Promise<WikiUniverse> {
   return apiFetch<WikiUniverse>(`/universes/${encodeURIComponent(slug)}`, {
-    cache: "no-store",
+    next: { revalidate: 60 },
   });
 }
 
 export function fetchCategories(): Promise<UniverseCategory[]> {
   return apiFetch<UniverseCategory[]>("/universe-categories", {
-    cache: "no-store",
+    next: { revalidate: 60 },
   });
 }

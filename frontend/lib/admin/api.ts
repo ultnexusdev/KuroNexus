@@ -82,7 +82,7 @@ export interface UniverseInput {
   name: string;
   description?: string;
   coverImage?: string;
-  categoryId?: string;
+  categoryId?: string | null;
 }
 
 export function fetchAdminUniverses(): Promise<WikiUniverseSummary[]> {

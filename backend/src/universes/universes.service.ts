@@ -111,6 +111,7 @@ export class UniversesService {
       name: dto.name,
       description: dto.description,
       coverImage: dto.coverImage,
+      ...(dto.categoryId !== undefined && { categoryId: dto.categoryId }),
     };
 
     // İsim değiştiyse slug yeniden üretilir (AGENTS.md kural 14 — slug serbestliği)

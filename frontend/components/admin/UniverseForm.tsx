@@ -66,7 +66,7 @@ export function UniverseForm({
       name,
       description: description || undefined,
       coverImage: coverImage || undefined,
-      categoryId: categoryId || undefined,
+      categoryId: categoryId === "" ? null : categoryId,
     };
     try {
       if (universe) {

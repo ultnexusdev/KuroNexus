@@ -4,6 +4,15 @@
   gap: 2rem;
 }
 
+.pageTitle {
+  margin: 0;
+  font-size: 2.1rem;
+  letter-spacing: 0.04em;
+  text-align: center;
+  color: var(--text-primary);
+  font-family: var(--font-heading, var(--font-cinzel));
+}
+
 .tabs {
   display: flex;
   flex-wrap: wrap;

@@ -12,8 +12,10 @@
     "adminLink": "Admin Panel"
   },
   "stories": {
-    "listTitle": "Ancient Worlds",
+    "listTitle": "Discover Universes",
+    "all": "All",
     "emptyUniverses": "No universes yet.",
+    "emptyCategory": "No content in this category yet.",
     "empty": "No stories yet.",
     "backToList": "← All universes",
     "backToUniverse": "← {name}",

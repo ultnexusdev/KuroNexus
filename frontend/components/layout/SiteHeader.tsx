@@ -1,4 +1,3 @@
-import { useTranslations } from "next-intl";
 import { Link } from "@/lib/i18n/navigation";
 import type { Theme } from "@/lib/theme";
 import { AccountMenu } from "./AccountMenu";
@@ -7,7 +6,6 @@ import { LocaleSwitcher } from "./LocaleSwitcher";
 import styles from "./SiteHeader.module.css";
 
 export function SiteHeader({ initialTheme }: { initialTheme: Theme }) {
-  const t = useTranslations();
 
   return (
     <header className={styles.header}>

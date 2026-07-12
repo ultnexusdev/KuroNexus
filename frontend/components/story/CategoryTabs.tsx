@@ -15,7 +15,7 @@ export function CategoryTabs({
   universes: WikiUniverseSummary[];
   categories: UniverseCategory[];
 }) {
-  const t = useTranslations("admin.universeCategories.form");
+  const t = useTranslations("stories");
   const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
 
   const activeCategory = categories.find((c) => c.id === activeCategoryId);
@@ -27,30 +27,33 @@ export function CategoryTabs({
 
   return (
     <div className={styles.container}>
-      <div className={styles.tabs} role="tablist">
-        <button
-          type="button"
-          role="tab"
-          aria-selected={activeCategoryId === null}
-          className={styles.tab}
-          onClick={() => setActiveCategoryId(null)}
-        >
-          {/* We can use a generic 'All' text here */}
-          Tümü
-        </button>
-        {categories.map((cat) => (
+      <h1 className={styles.pageTitle}>{t("listTitle")}</h1>
+
+      {categories.length > 0 && (
+        <div className={styles.tabs} role="tablist">
           <button
-            key={cat.id}
             type="button"
             role="tab"
-            aria-selected={activeCategoryId === cat.id}
+            aria-selected={activeCategoryId === null}
             className={styles.tab}
-            onClick={() => setActiveCategoryId(cat.id)}
+            onClick={() => setActiveCategoryId(null)}
           >
-            {cat.name}
+            {t("all")}
           </button>
-        ))}
-      </div>
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              type="button"
+              role="tab"
+              aria-selected={activeCategoryId === cat.id}
+              className={styles.tab}
+              onClick={() => setActiveCategoryId(cat.id)}
+            >
+              {cat.name}
+            </button>
+          ))}
+        </div>
+      )}
 
       {activeCategory && activeCategory.coverImage && (
         <div className={styles.bannerWrapper}>
@@ -71,7 +74,9 @@ export function CategoryTabs({
       )}
 
       {filteredUniverses.length === 0 ? (
-        <p className={styles.empty}>Bu kategoride henüz içerik yok.</p>
+        <p className={styles.empty}>
+          {activeCategoryId ? t("emptyCategory") : t("emptyUniverses")}
+        </p>
       ) : (
         <ul className={styles.grid}>
           {filteredUniverses.map((universe) => (

@@ -12,8 +12,10 @@
     "adminLink": "Yönetim Paneli"
   },
   "stories": {
-    "listTitle": "Kadim Dünyalar",
+    "listTitle": "Evrenleri Keşfet",
+    "all": "Tümü",
     "emptyUniverses": "Henüz evren yok.",
+    "emptyCategory": "Bu kategoride henüz içerik yok.",
     "empty": "Henüz hikâye yok.",
     "backToList": "← Tüm evrenler",
     "backToUniverse": "← {name}",

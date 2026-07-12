@@ -31,13 +31,7 @@ async function getCategories(): Promise<UniverseCategory[]> {
   }
 }
 
-export default async function DarkStoriesPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
-  const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "stories" });
+export default async function DarkStoriesPage() {
   const [universes, categories] = await Promise.all([
     getUniverses(),
     getCategories(),

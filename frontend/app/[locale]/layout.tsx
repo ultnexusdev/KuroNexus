@@ -69,11 +69,24 @@ export default async function LocaleLayout({
     ? (cookieTheme as Theme)
     : DEFAULT_THEME;
 
+  const token = cookieStore.get("kuronexus-token")?.value;
+  let isAdmin = false;
+  if (token) {
+    try {
+      const payload = JSON.parse(Buffer.from(token.split(".")[1], "base64").toString());
+      if (payload.role === "ADMIN") {
+        isAdmin = true;
+      }
+    } catch {
+      // ignore parse error
+    }
+  }
+
   return (
     <html lang={locale} data-theme={theme} className={`${brushFont.variable} ${cinzel.variable} ${lora.variable}`}>
       <body>
         <NextIntlClientProvider>
-          <SiteHeader initialTheme={theme} />
+          <SiteHeader initialTheme={theme} isAdmin={isAdmin} />
           <main>{children}</main>
           <GlobalAmbientPlayer />
           <SiteFooter />

@@ -225,7 +225,8 @@
     "profileTab": "Profil Bilgileri",
     "appearanceTab": "Görünüm",
     "name": "Ad",
-    "email": "E-posta"
+    "email": "E-posta",
+    "adminPanel": "Admin Paneli"
   },
   "theme": {
     "label": "Tema seçimi",

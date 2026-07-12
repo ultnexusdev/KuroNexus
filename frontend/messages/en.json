@@ -225,7 +225,8 @@
     "profileTab": "Profile Info",
     "appearanceTab": "Appearance",
     "name": "Name",
-    "email": "Email"
+    "email": "Email",
+    "adminPanel": "Admin Panel"
   },
   "theme": {
     "label": "Theme selection",

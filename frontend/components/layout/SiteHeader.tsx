@@ -5,7 +5,9 @@ import { BrandLogo } from "./BrandLogo";
 import { LocaleSwitcher } from "./LocaleSwitcher";
 import styles from "./SiteHeader.module.css";
 
-export function SiteHeader({ initialTheme }: { initialTheme: Theme }) {
+import { useTranslations } from "next-intl";
+export function SiteHeader({ initialTheme, isAdmin }: { initialTheme: Theme; isAdmin?: boolean }) {
+  const t = useTranslations("account");
 
   return (
     <header className={styles.header}>
@@ -13,6 +15,13 @@ export function SiteHeader({ initialTheme }: { initialTheme: Theme }) {
         <Link href="/" className={styles.brand}>
           <BrandLogo />
         </Link>
+        {isAdmin && (
+          <nav className={styles.nav}>
+            <Link href="/admin/dashboard" className={styles.navLink}>
+              {t("adminPanel", { fallback: "Admin Paneli" })}
+            </Link>
+          </nav>
+        )}
       </div>
       <div className={styles.controls}>
         <LocaleSwitcher />

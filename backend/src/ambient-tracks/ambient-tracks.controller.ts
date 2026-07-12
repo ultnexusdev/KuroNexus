@@ -29,6 +29,13 @@ export class AmbientTracksController {
     return this.ambientTracksService.findAll();
   }
 
+  // Parametrik ':id' route'undan ÖNCE tanımlanmalı; aksi halde 'playlists' id sanılır
+  @Public()
+  @Get('playlists')
+  findPlaylists() {
+    return this.ambientTracksService.findPlaylists();
+  }
+
   @Public()
   @Get('universe/:slug')
   findAllByUniverse(@Param('slug') slug: string) {

@@ -86,10 +86,17 @@ function IconRepeat() {
   );
 }
 
+interface Playlist {
+  id: string;
+  name: string;
+  slug: string;
+}
+
 export function GlobalAmbientPlayer() {
   const pathname = usePathname();
   const t = useTranslations("player");
   const [universeSlug, setUniverseSlug] = useState<string | null>(null);
+  const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [tracks, setTracks] = useState<AmbientTrack[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
 
@@ -112,29 +119,43 @@ export function GlobalAmbientPlayer() {
     if (el) el.volume = volumeRef.current;
   }, []);
 
+  // Parça içeren evrenler = seçilebilir çalma listeleri
+  useEffect(() => {
+    apiFetch<Playlist[]>("/ambient-tracks/playlists")
+      .then(setPlaylists)
+      .catch(console.error);
+  }, []);
+
+  const loadPlaylist = useCallback(
+    (slug: string, autoplay: boolean) => {
+      setUniverseSlug(slug);
+      apiFetch<AmbientTrack[]>(`/ambient-tracks/universe/${slug}`)
+        .then((res) => {
+          if (res && res.length > 0) {
+            setTracks(res);
+            setCurrentIndex(0);
+            if (autoplay) setIsPlaying(true);
+          } else {
+            setTracks([]);
+          }
+        })
+        .catch(console.error);
+    },
+    [],
+  );
+
   // Pathname'den universeSlug çıkarma (örn: /tr/dark-stories/temurkan-efsaneleri/...)
   useEffect(() => {
     if (!pathname) return;
     const match = pathname.match(/\/dark-stories\/([^\/]+)/);
-    if (match && match[1]) {
-      const newSlug = match[1];
-      if (newSlug !== universeSlug) {
-        setUniverseSlug(newSlug);
-        apiFetch<AmbientTrack[]>(`/ambient-tracks/universe/${newSlug}`)
-          .then((res) => {
-            if (res && res.length > 0) {
-              setTracks(res);
-              if (!isPlaying) {
-                setCurrentIndex(0);
-              }
-            } else {
-              setTracks([]);
-            }
-          })
-          .catch(console.error);
+    if (match && match[1] && match[1] !== universeSlug) {
+      // Yeni evrene girildi: müzik çalmıyorsa listeyi sessizce değiştir;
+      // çalıyorsa mevcut liste bitene/değiştirilene kadar devam eder (kesinti yok)
+      if (!isPlaying) {
+        loadPlaylist(match[1], false);
       }
     }
-  }, [pathname, universeSlug, isPlaying]);
+  }, [pathname, universeSlug, isPlaying, loadPlaylist]);
 
   useEffect(() => {
     if (audioRef.current) {
@@ -248,6 +269,10 @@ export function GlobalAmbientPlayer() {
           </button>
           {showPlaylist && (
             <div className={styles.playlistMenu}>
+              <div className={styles.playlistHeader}>
+                {playlists.find((p) => p.slug === universeSlug)?.name ??
+                  t("playlist")}
+              </div>
               {tracks.map((track, idx) => (
                 <button
                   type="button"
@@ -262,6 +287,28 @@ export function GlobalAmbientPlayer() {
                   {track.title}
                 </button>
               ))}
+              {playlists.filter((p) => p.slug !== universeSlug).length > 0 && (
+                <>
+                  <div className={styles.playlistSectionLabel}>
+                    {t("otherPlaylists")}
+                  </div>
+                  {playlists
+                    .filter((p) => p.slug !== universeSlug)
+                    .map((p) => (
+                      <button
+                        type="button"
+                        key={p.id}
+                        className={styles.playlistSwitchItem}
+                        onClick={() => {
+                          loadPlaylist(p.slug, isPlaying);
+                          setShowPlaylist(false);
+                        }}
+                      >
+                        {p.name}
+                      </button>
+                    ))}
+                </>
+              )}
             </div>
           )}
         </div>

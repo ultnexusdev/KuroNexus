@@ -22,6 +22,15 @@ export class AmbientTracksService {
     });
   }
 
+  // İçinde en az bir parça olan evrenler — player'ın çalma listesi seçicisi için
+  async findPlaylists() {
+    return this.prisma.wikiUniverse.findMany({
+      where: { isDeleted: false, ambientTracks: { some: {} } },
+      select: { id: true, name: true, slug: true },
+      orderBy: { name: 'asc' },
+    });
+  }
+
   async findAllByUniverse(universeSlug: string) {
     return this.prisma.ambientTrack.findMany({
       where: { universe: { slug: universeSlug } },

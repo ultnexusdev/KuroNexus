@@ -1,12 +1,8 @@
 .playerWrapper {
-  position: fixed;
-  bottom: 12px;
-  left: 50%;
-  transform: translateX(-50%);
   width: min(520px, calc(100vw - 24px));
+  margin: 2.5rem auto;
   background: var(--surface);
   border: 1px solid var(--border);
-  z-index: 1000;
   display: flex;
   flex-direction: column;
   transition: background 0.3s, border-color 0.3s;
@@ -159,6 +155,48 @@
   z-index: 1001;
 }
 
+.playlistHeader {
+  padding: 10px 14px 6px;
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  border-bottom: 1px solid var(--border);
+}
+
+.playlistSectionLabel {
+  margin-top: 4px;
+  padding: 8px 14px 4px;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  border-top: 1px solid var(--border);
+}
+
+.playlistSwitchItem {
+  display: block;
+  width: 100%;
+  background: transparent;
+  border: none;
+  text-align: left;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  transition: color 0.2s, background 0.2s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.playlistSwitchItem:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--accent);
+}
+
 .playlistItem {
   display: block;
   width: 100%;
@@ -187,7 +225,7 @@
 
 @media (max-width: 600px) {
   .playerWrapper {
-    bottom: 8px;
+    margin: 2rem auto;
   }
   .time {
     display: none;

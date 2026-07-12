@@ -69,8 +69,6 @@
 .bottomBar {
   border-top: 1px solid var(--border);
   padding: 1.25rem 1.5rem;
-  /* Sabit çalar footer'ın son satırını örtmesin */
-  padding-bottom: calc(1.25rem + 72px);
   text-align: center;
   font-size: 0.8rem;
   color: var(--text-secondary);

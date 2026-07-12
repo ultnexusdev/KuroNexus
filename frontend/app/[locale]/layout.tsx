@@ -75,8 +75,8 @@ export default async function LocaleLayout({
         <NextIntlClientProvider>
           <SiteHeader initialTheme={theme} />
           <main>{children}</main>
-          <SiteFooter />
           <GlobalAmbientPlayer />
+          <SiteFooter />
         </NextIntlClientProvider>
       </body>
     </html>

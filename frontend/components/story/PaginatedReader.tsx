@@ -201,7 +201,10 @@ export function PaginatedReader({
                     /* eslint-disable-next-line @next/next/no-img-element */
                     <img src={coverImage} alt="" className={styles.cover} />
                   ) : null}
-                  <h1 className={styles.title}>{title}</h1>
+                  {/* Kapak görseli varsa başlık zaten kapakta yazıyor; ekran okuyucular için gizli tutulur */}
+                  <h1 className={coverImage ? styles.srOnly : styles.title}>
+                    {title}
+                  </h1>
                   {date ? <time className={styles.date}>{date}</time> : null}
                 </div>
               )}

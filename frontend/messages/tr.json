@@ -64,6 +64,27 @@
       "uploadError": "Yüklenirken hata oluştu.",
       "deleteError": "Silinirken hata oluştu."
     },
+    "universeCategories": {
+      "title": "Kategoriler",
+      "new": "Yeni Kategori",
+      "newTitle": "Yeni Kategori",
+      "editTitle": "Kategoriyi Düzenle",
+      "edit": "Düzenle",
+      "delete": "Sil",
+      "confirmDelete": "\"{name}\" silinsin mi?",
+      "empty": "Henüz kategori yok.",
+      "loadError": "Liste yüklenemedi. Sayfayı yenileyin.",
+      "form": {
+        "name": "Ad",
+        "description": "Açıklama (isteğe bağlı)",
+        "cover": "Kapak banner",
+        "upload": "Görsel yükle",
+        "uploading": "Yükleniyor…",
+        "save": "Kaydet",
+        "saving": "Kaydediliyor…",
+        "error": "Kaydedilemedi. Tekrar deneyin."
+      }
+    },
     "login": {
       "title": "Yönetici Girişi",
       "email": "E-posta",
@@ -103,6 +124,8 @@
       "name": "Ad",
       "description": "Açıklama (isteğe bağlı)",
       "cover": "Kapak görseli",
+      "category": "Kategori",
+      "noCategory": "Kategori Yok",
       "upload": "Görsel yükle",
       "uploading": "Yükleniyor…",
       "save": "Kaydet",

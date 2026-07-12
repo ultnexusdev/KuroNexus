@@ -66,6 +66,19 @@ model Story {
   @@index([universeId])
 }
 
+model UniverseCategory {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?  @db.Text
+  coverImage  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  isDeleted   Boolean  @default(false)
+
+  universes   WikiUniverse[]
+}
+
 model WikiUniverse {
   id          String   @id @default(cuid())
   name        String
@@ -75,6 +88,9 @@ model WikiUniverse {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   isDeleted   Boolean  @default(false)
+
+  categoryId  String?
+  category    UniverseCategory? @relation(fields: [categoryId], references: [id])
 
   entries WikiEntry[]
   stories Story[]

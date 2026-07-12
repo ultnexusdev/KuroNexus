@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { fetchUniverses } from "@/lib/api/universes";
-import type { WikiUniverseSummary } from "@/lib/api/types";
-import { ContentCard } from "@/components/ContentCard";
+import { fetchUniverses, fetchCategories } from "@/lib/api/universes";
+import type { WikiUniverseSummary, UniverseCategory } from "@/lib/api/types";
+import { CategoryTabs } from "@/components/story/CategoryTabs";
 import styles from "./page.module.css";
 
 export async function generateMetadata({
@@ -19,7 +19,14 @@ async function getUniverses(): Promise<WikiUniverseSummary[]> {
   try {
     return await fetchUniverses();
   } catch {
-    // Backend erişilemezse sayfa çökmez, boş durum gösterilir (kural 4 ruhu)
+    return [];
+  }
+}
+
+async function getCategories(): Promise<UniverseCategory[]> {
+  try {
+    return await fetchCategories();
+  } catch {
     return [];
   }
 }
@@ -31,27 +38,14 @@ export default async function DarkStoriesPage({
 }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "stories" });
-  const universes = await getUniverses();
+  const [universes, categories] = await Promise.all([
+    getUniverses(),
+    getCategories(),
+  ]);
 
   return (
     <section className={styles.page}>
-      <h1 className={styles.heading}>{t("listTitle")}</h1>
-      {universes.length === 0 ? (
-        <p className={styles.empty}>{t("emptyUniverses")}</p>
-      ) : (
-        <ul className={styles.list}>
-          {universes.map((universe) => (
-            <li key={universe.id}>
-              <ContentCard
-                href={`/dark-stories/${universe.slug}`}
-                coverImage={universe.coverImage}
-                title={universe.name}
-                subtitle={universe.description}
-              />
-            </li>
-          ))}
-        </ul>
-      )}
+      <CategoryTabs universes={universes} categories={categories} />
     </section>
   );
 }

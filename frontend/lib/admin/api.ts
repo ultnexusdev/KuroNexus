@@ -10,6 +10,7 @@ import type {
   WikiCategory,
   WikiEntryDetail,
   WikiUniverseSummary,
+  UniverseCategory,
 } from "../api/types";
 import { getToken } from "./auth";
 
@@ -81,6 +82,7 @@ export interface UniverseInput {
   name: string;
   description?: string;
   coverImage?: string;
+  categoryId?: string;
 }
 
 export function fetchAdminUniverses(): Promise<WikiUniverseSummary[]> {
@@ -197,6 +199,61 @@ export function createAmbientTrack(
     method: "POST",
     headers: { "Content-Type": "application/json", ...authHeaders() },
     body: JSON.stringify(input),
+  });
+}
+
+export function updateAmbientTrack(
+  id: string,
+  input: { title?: string; universeId?: string },
+): Promise<AmbientTrack> {
+  return apiFetch<AmbientTrack>(`/admin/ambient-tracks/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(input),
+  });
+}
+
+export interface CategoryInput {
+  name: string;
+  description?: string;
+  coverImage?: string;
+}
+
+export function fetchAdminCategories(): Promise<UniverseCategory[]> {
+  return apiFetch<UniverseCategory[]>("/admin/universe-categories", {
+    headers: authHeaders(),
+  });
+}
+
+export function fetchAdminCategory(id: string): Promise<UniverseCategory> {
+  return apiFetch<UniverseCategory>(`/admin/universe-categories/${id}`, {
+    headers: authHeaders(),
+  });
+}
+
+export function createCategory(input: CategoryInput): Promise<UniverseCategory> {
+  return apiFetch<UniverseCategory>("/admin/universe-categories", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(input),
+  });
+}
+
+export function updateCategory(
+  id: string,
+  input: Partial<CategoryInput>,
+): Promise<UniverseCategory> {
+  return apiFetch<UniverseCategory>(`/admin/universe-categories/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(input),
+  });
+}
+
+export function deleteCategory(id: string): Promise<UniverseCategory> {
+  return apiFetch<UniverseCategory>(`/admin/universe-categories/${id}`, {
+    method: "DELETE",
+    headers: authHeaders(),
   });
 }
 

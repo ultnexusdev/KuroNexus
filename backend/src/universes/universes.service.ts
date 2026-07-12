@@ -13,6 +13,14 @@ const LIST_SELECT = {
   coverImage: true,
   createdAt: true,
   updatedAt: true,
+  categoryId: true,
+  category: {
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+    },
+  },
 } satisfies Prisma.WikiUniverseSelect;
 
 const STORY_SUMMARY_SELECT = {
@@ -91,6 +99,7 @@ export class UniversesService {
         slug,
         description: dto.description,
         coverImage: dto.coverImage,
+        categoryId: dto.categoryId,
       },
     });
   }

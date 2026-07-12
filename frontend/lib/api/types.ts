@@ -16,12 +16,24 @@ export interface Story extends StorySummary {
   universe?: { slug: string; name: string } | null;
 }
 
+export interface UniverseCategory {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  coverImage: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface WikiUniverseSummary {
   id: string;
   name: string;
   slug: string;
   description: string | null;
   coverImage: string | null;
+  categoryId?: string | null;
+  category?: { id: string; name: string; slug: string } | null;
   createdAt: string;
   updatedAt: string;
 }

@@ -15,11 +15,6 @@ export function SiteHeader({ initialTheme }: { initialTheme: Theme }) {
         <Link href="/" className={styles.brand}>
           <BrandLogo />
         </Link>
-        <nav className={styles.nav}>
-          <Link href="/dark-stories" className={styles.navLink}>
-            {t("nav.darkStories")}
-          </Link>
-        </nav>
       </div>
       <div className={styles.controls}>
         <LocaleSwitcher />

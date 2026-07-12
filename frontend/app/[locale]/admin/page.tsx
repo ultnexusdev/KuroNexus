@@ -22,6 +22,9 @@ export default function AdminHomePage() {
           <Link href="/admin/wiki" className="card">
             {t("wiki.title")}
           </Link>
+          <Link href="/admin/universe-categories" className="card">
+            {t("universeCategories.title")}
+          </Link>
           <Link href="/admin/ambient-tracks" className="card">
             {t("ambient.title")}
           </Link>

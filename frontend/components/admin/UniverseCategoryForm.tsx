@@ -6,44 +6,28 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "@/lib/i18n/navigation";
 import { apiUrl } from "@/lib/api/client";
 import {
-  createUniverse,
-  updateUniverse,
+  createCategory,
+  updateCategory,
   uploadImage,
-  fetchAdminCategories,
-  type UniverseInput,
+  type CategoryInput,
 } from "@/lib/admin/api";
-import type { WikiUniverseSummary, UniverseCategory } from "@/lib/api/types";
-import { useEffect, useCallback } from "react";
-import styles from "./UniverseForm.module.css";
+import type { UniverseCategory } from "@/lib/api/types";
+import styles from "./UniverseForm.module.css"; // Reuse existing styles
 
-export function UniverseForm({
-  universe,
+export function UniverseCategoryForm({
+  category,
 }: {
-  universe?: WikiUniverseSummary;
+  category?: UniverseCategory;
 }) {
-  const t = useTranslations("admin.universeForm");
+  const t = useTranslations("admin.universeCategories.form");
   const router = useRouter();
 
-  const [name, setName] = useState(universe?.name ?? "");
-  const [description, setDescription] = useState(universe?.description ?? "");
-  const [coverImage, setCoverImage] = useState(universe?.coverImage ?? "");
-  const [categoryId, setCategoryId] = useState(universe?.categoryId ?? "");
-  const [categories, setCategories] = useState<UniverseCategory[]>([]);
+  const [name, setName] = useState(category?.name ?? "");
+  const [description, setDescription] = useState(category?.description ?? "");
+  const [coverImage, setCoverImage] = useState(category?.coverImage ?? "");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(false);
-
-  const loadCategories = useCallback(async () => {
-    try {
-      setCategories(await fetchAdminCategories());
-    } catch {
-      // ignore
-    }
-  }, []);
-
-  useEffect(() => {
-    void loadCategories();
-  }, [loadCategories]);
 
   async function handleUpload(file: File) {
     setUploading(true);
@@ -62,19 +46,18 @@ export function UniverseForm({
     event.preventDefault();
     setSaving(true);
     setError(false);
-    const input: UniverseInput = {
+    const input: CategoryInput = {
       name,
       description: description || undefined,
       coverImage: coverImage || undefined,
-      categoryId: categoryId || undefined,
     };
     try {
-      if (universe) {
-        await updateUniverse(universe.id, input);
+      if (category) {
+        await updateCategory(category.id, input);
       } else {
-        await createUniverse(input);
+        await createCategory(input);
       }
-      router.push("/admin/universes");
+      router.push("/admin/universe-categories");
       router.refresh();
     } catch {
       setError(true);
@@ -93,21 +76,6 @@ export function UniverseForm({
           required
           maxLength={200}
         />
-      </label>
-
-      <label className={styles.field}>
-        <span>{t("category")}</span>
-        <select
-          value={categoryId}
-          onChange={(event) => setCategoryId(event.target.value)}
-        >
-          <option value="">{t("noCategory")}</option>
-          {categories.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
-            </option>
-          ))}
-        </select>
       </label>
 
       <label className={styles.field}>

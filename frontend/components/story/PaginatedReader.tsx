@@ -57,9 +57,9 @@ export function PaginatedReader({
     }
   }, [globalCurrentPage]);
 
-  // Artık <hr> ile sayfayı bölmüyoruz çünkü editörde (Tiptap) <hr> görsel ayraç olarak kullanılıyor.
+  // Split the content into chunks at every <hr>
   const parts = useMemo(() => {
-    return [content];
+    return content.split(/<hr[^>]*>/i);
   }, [content]);
 
   // Clean up legacy Markdown and add Drop Cap
@@ -70,11 +70,8 @@ export function PaginatedReader({
       p = p.replace(/<p>###\s*(.*?)<\/p>/g, "<h3>$1</h3>");
       p = p.replace(/(?:^|\n)###\s*(.*?)(?:\n|$)/g, "<h3>$1</h3>");
       
-      // Convert <hr> (from Tiptap) and legacy --- to rune divider
+      // Sadece düz metin olarak girilmiş --- (boşluklar veya <br> içerebilir) ifadeleri görsel ayraca çevir
       const dividerHtml = `<div class="${styles.runeDivider}"><span class="${styles.runeSymbol}">❖</span></div>`;
-      
-      // Tiptap'ın ürettiği yatay çizgi (<hr>) ayracını dönüştür
-      p = p.replace(/<hr[^>]*>/gi, dividerHtml);
       
       // Düz metin olarak girilmiş --- (boşluklar veya <br> içerebilir) paragraf içindeyse tüm paragrafı ayraca çevir
       p = p.replace(/<p[^>]*>(?:&nbsp;|\s|<br\s*\/?>)*---(?:&nbsp;|\s|<br\s*\/?>)*<\/p>/gi, dividerHtml);

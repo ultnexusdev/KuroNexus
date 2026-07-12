@@ -53,6 +53,8 @@
   - Okuma ekranı için **Parşömen Modu (Parchment Mode)** eklendi. Arka plan nostaljik yaprak rengi, metinler ve tüm okuma içi renkler (rünler, drop-cap vb.) koyu kahverengiye dönüştürülüyor. Sağ alt köşedeki (📜) butonu ile geçiş yapılıyor. Sayfalandırma butonları köşeli ve temaya uygun "Cinzel" fontlu bir tasarıma geçirildi.
   - **Landing Page (Ana sayfa) yenilendi**: Ziyaretçilerin doğrudan yönetim paneli butonunu görmesi engellendi; "Yönetim Paneli" butonu "Evrenleri Keşfet" (doğrudan `/dark-stories` listesi) olarak değiştirildi. Sağ üst köşedeki "Admin" kullanıcı menüsü kaldırılarak ziyaretçi dostu evrensel "Tercihler" sekmesine (sadece görünüm ve dil ayarı) dönüştürüldü.
   - Ana sayfaya 9MB 4K MP4 **arka plan videosu** (hero-bg.mp4) animasyonlu sis efekti ile entegre edildi. Kadim Dünyalar evren listesinde kapak görselleri için yatay/dikey oran iyileştirmesi (`aspect-ratio: 2/3`, `object-fit: cover`) yapıldı.
+- [x] **`www.kuronexus.com` canlıya alındı (2026-07-12)**: Kullanıcı Porkbun'a CNAME (`www` → `kuronexus.com`) ekledi. Doğrulandı: DNS çözümleniyor (65.108.220.5), `https://www.kuronexus.com` 200 dönüyor, `www.kuronexus.com` için geçerli TLS sertifikası var (bitiş 2026-10-07), HTTP→HTTPS 307 yönlendirmesi çalışıyor. Not: www şu an içeriği doğrudan (yönlendirmesiz) sunuyor — SEO için Coolify'da tek kanonik host'a redirect direction ayarı değerlendirilebilir.
+- [x] **8 evrene kapak görselleri eklendi (2026-07-12)**: Kullanıcı `/admin/universes` üzerinden tüm evrenlere kapak yükledi. Canlıda doğrulandı: `/dark-stories` liste kartlarında 8 kapak da 200 dönüyor ve render oluyor; evren detay banner'ı (Zaman Çarkı ile test edildi) gradient + başlık overlay ile çalışıyor; konsol hatasız.
 - [x] **Global Ambient Müzik Çalar ve Müzik Kütüphanesi (2026-07-12)**:
   - Backend: `AmbientTrack` modeli (`universeId` ilişkili) Prisma'ya eklendi, uploads limiti 50MB audio dosyaları (mp3/wav/ogg) destekleyecek şekilde güncellendi.
   - Admin: `/admin/ambient-tracks` sayfası yapıldı, müziğin başlığı, dosyası ve ait olduğu evren seçilerek sisteme eklenebiliyor.
@@ -60,11 +62,10 @@
 
 ## Sıradaki Adım
 1. **Wiki devamı (Faz 2)**: çapraz linkler (`WikiEntryRelation` — admin'den sayfalar arası ilişki kurma + detayda "İlişkili Sayfalar"), sonra site içi arama (PostgreSQL full-text, önce wiki kapsamında — plan Faz 2)
-2. `www.kuronexus.com` için Porkbun'a DNS kaydı (CNAME `www` → `kuronexus.com`) + Coolify frontend Domains'e `https://www.kuronexus.com` eklenmeli — kullanıcı işlemi, henüz doğrulanmadı
-3. Faz 1 "Bitti" kriterlerinden kalanlar: yedekten geri yükleme testi, mobil taşma kontrolü
-4. 8 evrene açıklama/kapak görseli eklenmesi (`/admin/universes`) — banner desteği hazır, görseller bekleniyor
-5. (İsteğe bağlı) Upload testi sırasında oluşan 2 test kaydını (`cmrduiuco00021qs01pshvngg`, `cmrduzd3w00001qrxd664ngh4`) DB/diskten temizle
-6. Lokal geliştirme için DB: Docker Desktop + lokal postgres (kökteki compose hazır), `backend/.env` lokal URL'e güncellenecek
+2. Faz 1 "Bitti" kriterlerinden kalanlar: yedekten geri yükleme testi, mobil taşma kontrolü
+3. 8 evrene açıklama metni eklenmesi (`/admin/universes`) — kapaklar tamamlandı (2026-07-12), açıklamalar bekliyor
+4. (İsteğe bağlı) Upload testi sırasında oluşan 2 test kaydını (`cmrduiuco00021qs01pshvngg`, `cmrduzd3w00001qrxd664ngh4`) DB/diskten temizle
+5. Lokal geliştirme için DB: Docker Desktop + lokal postgres (kökteki compose hazır), `backend/.env` lokal URL'e güncellenecek
 
 ## Açık Kararlar / Notlar
 - CX23 (4 GB RAM) iki projeyi birden taşıyacak — build sırasında bellek sıkışırsa CX33'e rescale edilecek

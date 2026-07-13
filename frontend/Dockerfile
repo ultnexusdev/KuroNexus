@@ -1,4 +1,3 @@
-# syntax=docker/dockerfile:1
 
 # ---- Build asamasi ----
 FROM node:24-slim AS build

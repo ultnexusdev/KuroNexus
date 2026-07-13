@@ -1,0 +1,59 @@
+.filigree {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  color: var(--gold);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.tl {
+  top: 10px;
+  left: 10px;
+}
+.tr {
+  top: 10px;
+  right: 10px;
+  transform: scaleX(-1);
+}
+.bl {
+  bottom: 10px;
+  left: 10px;
+  transform: scaleY(-1);
+}
+.br {
+  bottom: 10px;
+  right: 10px;
+  transform: scale(-1, -1);
+}
+
+.margin {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1.4em;
+  font-family: var(--font-runic);
+  font-size: 1.05rem;
+  line-height: 1.5;
+  letter-spacing: 0.1em;
+  color: var(--rune-ink);
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  overflow: hidden;
+  user-select: none;
+  pointer-events: none;
+}
+
+.left {
+  left: -1.9em;
+}
+.right {
+  right: -1.9em;
+}
+
+/* Dar ekranlarda marj yazısı içeriğe girmesin */
+@media (max-width: 900px) {
+  .margin {
+    display: none;
+  }
+}

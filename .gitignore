@@ -1,2 +1,5 @@
 .env
 .claude/settings.local.json
+
+# UI/UX Pro Max skill: canvas render fontları (5MB, kullanmıyoruz — lokalde kalsın)
+.claude/skills/ui-styling/canvas-fonts/

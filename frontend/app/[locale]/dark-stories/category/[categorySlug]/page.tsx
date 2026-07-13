@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import { fetchCategories, fetchUniverses } from "@/lib/api/universes";
 import { ContentCard } from "@/components/ContentCard";
+import { CodexCard } from "@/components/kadim/CodexCard";
+import { CornerFiligree, RunicMargin } from "@/components/kadim/CodexOrnaments";
 import { apiUrl } from "@/lib/api/client";
 import { Link } from "@/lib/i18n/navigation";
 import styles from "./page.module.css";
@@ -45,51 +47,131 @@ export default async function CategoryUniversesPage({
   }
 
   const universes = allUniverses.filter((u) => u.categoryId === category.id);
+  // Kategori derisi: yalnızca derisi tanımlı kategoriler dönüşür (şimdilik kadim-dunyalar)
+  const isCodex = category.slug === "kadim-dunyalar";
 
   return (
-    <section className={styles.page}>
-      <Link href="/dark-stories" className={styles.backLink}>
-        {t("backToList")}
-      </Link>
-
-      {category.coverImage && (
-        <div className={styles.bannerWrapper}>
-          <Image
-            src={apiUrl(category.coverImage)}
-            alt={category.name}
-            fill
-            className={styles.bannerImage}
-            priority
-          />
-          <div className={styles.bannerOverlay}>
-            <h1 className={styles.bannerTitle}>{category.name}</h1>
-            {category.description && (
-              <p className={styles.bannerDesc}>{category.description}</p>
-            )}
-          </div>
-        </div>
-      )}
-
-      {!category.coverImage && (
-        <h1 className={styles.heading}>{category.name}</h1>
-      )}
-
-      {universes.length === 0 ? (
-        <p className={styles.empty}>{t("emptyCategory")}</p>
-      ) : (
-        <ul className={styles.list}>
-          {universes.map((universe) => (
-            <li key={universe.id}>
-              <ContentCard
-                href={`/dark-stories/${universe.slug}`}
-                coverImage={universe.coverImage}
-                title={universe.name}
-                subtitle={universe.description}
+    <div data-category={category.slug} className={isCodex ? styles.wing : undefined}>
+      {isCodex ? (
+        <>
+          {category.coverImage ? (
+            <header className={styles.hero}>
+              <Image
+                src={apiUrl(category.coverImage)}
+                alt=""
+                fill
+                priority
+                sizes="100vw"
+                className={styles.heroImg}
               />
-            </li>
-          ))}
-        </ul>
+              <div className={styles.heroOverlay} />
+              <div className={styles.heroInner}>
+                <Link href="/dark-stories" className={styles.back}>
+                  {t("backToList")}
+                </Link>
+                <span className={styles.eyebrow}>
+                  {t("worldCount", { count: universes.length })}
+                </span>
+                <h1 className={styles.title}>
+                  {category.name.toLocaleUpperCase(locale)}
+                </h1>
+                <span className={styles.rule}>
+                  <span className={styles.diamond}>❖</span>
+                </span>
+              </div>
+            </header>
+          ) : (
+            <header className={`${styles.hero} ${styles.heroPlain}`}>
+              <div className={styles.heroInner}>
+                <Link href="/dark-stories" className={styles.back}>
+                  {t("backToList")}
+                </Link>
+                <h1 className={styles.title}>
+                  {category.name.toLocaleUpperCase(locale)}
+                </h1>
+                <span className={styles.rule}>
+                  <span className={styles.diamond}>❖</span>
+                </span>
+              </div>
+            </header>
+          )}
+
+          <section className={styles.codex}>
+            <RunicMargin side="left" />
+            <RunicMargin side="right" />
+            <CornerFiligree corner="tl" />
+            <CornerFiligree corner="tr" />
+            <CornerFiligree corner="bl" />
+            <CornerFiligree corner="br" />
+
+            {category.description ? (
+              <p className={styles.lede}>{category.description}</p>
+            ) : null}
+
+            {universes.length === 0 ? (
+              <p className={styles.empty}>{t("emptyCategory")}</p>
+            ) : (
+              <ul className={styles.list}>
+                {universes.map((universe) => (
+                  <li key={universe.id}>
+                    <CodexCard
+                      href={`/dark-stories/${universe.slug}`}
+                      coverImage={universe.coverImage}
+                      title={universe.name}
+                      subtitle={universe.description}
+                    />
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </>
+      ) : (
+        <section className={styles.page}>
+          <Link href="/dark-stories" className={styles.backLink}>
+            {t("backToList")}
+          </Link>
+
+          {category.coverImage && (
+            <div className={styles.bannerWrapper}>
+              <Image
+                src={apiUrl(category.coverImage)}
+                alt={category.name}
+                fill
+                className={styles.bannerImage}
+                priority
+              />
+              <div className={styles.bannerOverlay}>
+                <h1 className={styles.bannerTitle}>{category.name}</h1>
+                {category.description && (
+                  <p className={styles.bannerDesc}>{category.description}</p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {!category.coverImage && (
+            <h1 className={styles.heading}>{category.name}</h1>
+          )}
+
+          {universes.length === 0 ? (
+            <p className={styles.empty}>{t("emptyCategory")}</p>
+          ) : (
+            <ul className={styles.list}>
+              {universes.map((universe) => (
+                <li key={universe.id}>
+                  <ContentCard
+                    href={`/dark-stories/${universe.slug}`}
+                    coverImage={universe.coverImage}
+                    title={universe.name}
+                    subtitle={universe.description}
+                  />
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
       )}
-    </section>
+    </div>
   );
 }

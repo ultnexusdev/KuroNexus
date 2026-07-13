@@ -1,0 +1,115 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  color: var(--text-primary);
+  position: relative;
+  transition: border-color 0.25s;
+}
+
+/* Üstte beliren altın çizgi — hover imzası */
+.card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(to right, transparent, var(--gold), transparent);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+  z-index: 2;
+}
+
+.card:hover {
+  border-color: var(--accent-muted);
+  color: var(--text-primary);
+}
+.card:hover::before {
+  transform: scaleX(1);
+}
+
+.coverWrap {
+  width: 100%;
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+
+.cover {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.5s ease;
+}
+.card:hover .cover {
+  transform: scale(1.04);
+}
+
+.coverFallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: var(--accent-muted);
+  background: var(--surface-hover);
+}
+
+/* Alt vinyet: metin panelin üstünde başlığa yumuşak geçiş */
+.vignette {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 55%, rgba(0, 0, 0, 0.35));
+  pointer-events: none;
+}
+
+.body {
+  padding: var(--pad-md);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.title {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--font-cinzel), serif;
+  font-weight: 500;
+  font-size: 1.12rem;
+  letter-spacing: 0.03em;
+  color: var(--text-primary);
+  transition: color 0.2s;
+}
+.card:hover .title {
+  color: var(--accent-hover);
+}
+
+.mark {
+  font-size: 0.62rem;
+  color: var(--gold);
+  flex-shrink: 0;
+}
+
+.subtitle {
+  margin: 0;
+  font-family: var(--font-cormorant);
+  font-size: 1.02rem;
+  line-height: 1.45;
+  color: var(--text-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

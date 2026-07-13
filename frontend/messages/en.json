@@ -21,6 +21,7 @@
     "backToList": "← All universes",
     "backToUniverse": "← {name}",
     "wingAncient": "Ancient Worlds",
+    "worldCount": "{count} Worlds",
     "volumes": "Volumes",
     "prevPage": "Previous",
     "nextPage": "Next"

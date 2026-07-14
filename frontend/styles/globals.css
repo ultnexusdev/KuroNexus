@@ -140,6 +140,37 @@
 }
 
 /* ============================================================
+   ANA SAYFA — "Gece Muzesi" giris holu token'lari
+   Hero, kullanicinin sectigi temadan bagimsiz tek bir kimlik tasir:
+   murekkep karanligi + kapilardan sizan kanat atmosferleri.
+   Kapi renkleri kategori slug'ina gore surulur; yeni kategori
+   eklenirse --door-default-* devreye girer (moduler).
+   ============================================================ */
+:root {
+  --hub-ink:   #101116; /* hol zemini — saf siyah degil */
+  --hub-soot:  #17181f; /* hol yuzeyleri */
+  --hub-paper: #e4e0d5; /* metin / damga pulu */
+  --hub-muted: #8a8b93; /* ikincil metin */
+  --hub-gold:  #b08d57; /* indeks & detay — codex kanadiyla kopru */
+  --hub-seal:  #a34233; /* muhur kizili: yalnizca balmumu muhur + CTA cizgisi */
+  --hub-line:  #26272e; /* ince ayirici cizgiler */
+
+  /* Kapi atmosferleri (a: sizan isik, b: oda karanligi) */
+  --door-film-a:  #e5b23c;
+  --door-film-b:  #3d1215;
+  --door-dizi-a:  #4fa6c4;
+  --door-dizi-b:  #10242e;
+  --door-spor-a:  #e11f2c;
+  --door-spor-b:  #0a1730;
+  --door-anime-a: #f0731e;
+  --door-anime-b: #0e2140;
+  --door-kadim-a: #b08d57;
+  --door-kadim-b: #1b211e;
+  --door-default-a: #9ba6a0;
+  --door-default-b: #16181e;
+}
+
+/* ============================================================
    Temel eleman stilleri (ornek — bilesenler bunlari genisletir)
    ============================================================ */
 body {

@@ -1,0 +1,261 @@
+/* Kapı duvarı — mobile-first (kural 2): dar ekranda yatay "çekmeceler",
+   ≥900px'te dikey kapı aralıkları. Renkler token'lardan (kural 16). */
+
+.wall {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.door {
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  background: var(--room);
+  border: 1px solid var(--hub-line);
+  color: var(--hub-paper);
+  min-height: 84px;
+  flex: 1;
+  transition: flex 0.45s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.3s;
+}
+
+.door:hover,
+.door:focus-visible {
+  border-color: color-mix(in srgb, var(--leak) 55%, var(--hub-line));
+  color: var(--hub-paper);
+}
+
+/* Kapak görseli: odanın içi — loş, atmosfer rengiyle boyanmış */
+.doorImg {
+  object-fit: cover;
+  opacity: 0.38;
+  filter: saturate(0.7) contrast(0.95);
+  transition: opacity 0.45s ease, transform 0.6s ease;
+}
+.door:hover .doorImg {
+  opacity: 0.62;
+  transform: scale(1.03);
+}
+
+/* Oda karanlığı: mesh-sis (iki radial, kanat renginde — jenerik mor/mavi değil) */
+.room {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(90% 70% at 20% 100%, color-mix(in srgb, var(--leak) 16%, transparent), transparent 60%),
+    radial-gradient(70% 60% at 85% 20%, color-mix(in srgb, var(--leak) 9%, transparent), transparent 55%),
+    linear-gradient(to bottom, color-mix(in srgb, var(--room) 55%, transparent), color-mix(in srgb, var(--hub-ink) 78%, transparent));
+  pointer-events: none;
+}
+
+/* Kapı aralığından sızan ışık: üst kenardan içeri düşen şerit */
+.leak {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--leak) 34%, transparent),
+    transparent 34%
+  );
+  opacity: 0.5;
+  transition: opacity 0.45s ease;
+  pointer-events: none;
+}
+.door:hover .leak {
+  opacity: 0.95;
+}
+
+/* İmleci takip eden loş fener ışığı (glow/box-shadow değil, zemin gradyanı) */
+.cursorLight {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    220px circle at var(--mx, 50%) var(--my, 20%),
+    color-mix(in srgb, var(--leak) 20%, transparent),
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+.door:hover .cursorLight {
+  opacity: 1;
+}
+
+.hallNo {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  z-index: 2;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.18em;
+  color: color-mix(in srgb, var(--hub-paper) 62%, transparent);
+  text-transform: uppercase;
+}
+
+.doorMeta {
+  position: relative;
+  z-index: 2;
+  margin-top: auto;
+  padding: 14px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 100%;
+  background: linear-gradient(to top, color-mix(in srgb, var(--hub-ink) 88%, transparent), transparent);
+}
+
+.doorName {
+  font-family: var(--font-cinzel), serif;
+  font-weight: 500;
+  font-size: 1.02rem;
+  letter-spacing: 0.06em;
+}
+
+.doorSub {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--hub-muted);
+  transition: color 0.3s;
+}
+.door:hover .doorSub {
+  color: color-mix(in srgb, var(--leak) 70%, var(--hub-paper));
+}
+
+/* Temürkan: en karanlık kapı — ışığı en az sızan, mühürlü baş köşe */
+.sealed .doorImg {
+  opacity: 0.16;
+}
+.sealed .leak {
+  opacity: 0.22;
+}
+.sealed:hover .leak {
+  opacity: 0.5;
+}
+.sealed .doorName {
+  color: var(--hub-gold);
+}
+
+.waxSeal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -60%) rotate(-8deg);
+  width: 46px;
+  height: 46px;
+  color: var(--hub-seal);
+  z-index: 2;
+  transition: transform 0.4s ease;
+}
+.sealed:hover .waxSeal {
+  transform: translate(-50%, -60%) rotate(-2deg) scale(1.06);
+}
+
+.waxGlyph {
+  font-family: var(--font-runic);
+  font-size: 26px;
+  fill: color-mix(in srgb, var(--hub-ink) 82%, var(--hub-seal));
+}
+
+/* ≥900px: dikey kapı aralıkları — asimetrik genişlikler, hover'da açılma */
+@media (min-width: 900px) {
+  .wall {
+    flex-direction: row;
+    gap: 12px;
+    height: min(62vh, 560px);
+  }
+
+  .door {
+    min-height: 0;
+    height: 100%;
+  }
+
+  /* Asimetri: kapılar eş genişlikte değil */
+  .door:nth-child(5n + 1) { flex: 1.25; }
+  .door:nth-child(5n + 2) { flex: 0.95; }
+  .door:nth-child(5n + 3) { flex: 1.1; }
+  .door:nth-child(5n + 4) { flex: 0.9; }
+  .door:nth-child(5n + 5) { flex: 1.05; }
+
+  .door:hover,
+  .door:focus-visible {
+    flex: 2.1;
+  }
+
+  /* Dikey kanat adı: kapı kapalıyken yan yazı, hover'da yatay meta belirir */
+  .doorName {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    position: absolute;
+    bottom: 14px;
+    right: 12px;
+    font-size: 1.05rem;
+    letter-spacing: 0.14em;
+    transition: opacity 0.3s ease;
+  }
+  .doorMeta {
+    background: linear-gradient(to top, color-mix(in srgb, var(--hub-ink) 90%, transparent) 30%, transparent);
+    padding: 40px 16px 14px;
+  }
+  .doorSub {
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.35s ease 0.12s, transform 0.35s ease 0.12s, color 0.3s;
+  }
+  .door:hover .doorName,
+  .door:focus-visible .doorName {
+    writing-mode: horizontal-tb;
+    position: static;
+    font-size: 1.25rem;
+  }
+  .door:hover .doorSub,
+  .door:focus-visible .doorSub {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .waxSeal {
+    width: 56px;
+    height: 56px;
+  }
+}
+
+/* Yükleme anı: hol ışıkları soldan sağa sırayla yanar */
+@media (prefers-reduced-motion: no-preference) {
+  .door {
+    opacity: 0;
+    animation: doorLight 0.7s ease forwards;
+  }
+  .door:nth-child(1) { animation-delay: 0.05s; }
+  .door:nth-child(2) { animation-delay: 0.15s; }
+  .door:nth-child(3) { animation-delay: 0.25s; }
+  .door:nth-child(4) { animation-delay: 0.35s; }
+  .door:nth-child(5) { animation-delay: 0.45s; }
+  .door:nth-child(6) { animation-delay: 0.55s; }
+}
+
+@keyframes doorLight {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .door,
+  .doorImg,
+  .leak,
+  .cursorLight,
+  .waxSeal {
+    transition: none;
+    animation: none;
+  }
+}

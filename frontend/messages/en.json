@@ -10,6 +10,18 @@
     "tagline": "An archive of ancient knowledge lost to shadow",
     "intro": "Ancient worlds, fandom wikis, an anime and movie archive, and in-depth character analyses — all in one personal universe.",
     "adminLink": "Admin Panel",
+    "eyebrow": "A Personal Culture Archive",
+    "manifestoA": "Every passion",
+    "manifestoB": "left in shadow",
+    "manifestoC": "has a room of its own.",
+    "sub": "Cinema, sport, ancient worlds — halls that each live by their own light. One of the doors is always ajar.",
+    "cta": "Enter the archive",
+    "hall": "Hall {num}",
+    "indexTitle": "Archive Index",
+    "worldsCount": "{count} worlds",
+    "sealedTitle": "Legends of Temürkan",
+    "sealedSub": "The Archive's Seat of Honor",
+    "sealAria": "Wax seal",
     "explore": "Discover Nexus"
   },
   "stories": {

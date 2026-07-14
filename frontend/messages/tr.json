@@ -10,6 +10,18 @@
     "tagline": "Gölgede kalmış kadim bilgilerin arşivi",
     "intro": "Kadim dünyalar, fandom wikileri, anime ve film arşivi, derinlemesine karakter analizleri — hepsi tek bir kişisel evrende.",
     "adminLink": "Yönetim Paneli",
+    "eyebrow": "Kişisel Kültür Arşivi",
+    "manifestoA": "Gölgede kalan",
+    "manifestoB": "her tutkunun",
+    "manifestoC": "bir odası var.",
+    "sub": "Sinema, spor, kadim dünyalar — her biri kendi ışığıyla yaşayan salonlar. Kapılardan biri her zaman aralık.",
+    "cta": "Arşive gir",
+    "hall": "Salon {num}",
+    "indexTitle": "Arşiv İndeksi",
+    "worldsCount": "{count} evren",
+    "sealedTitle": "Temürkan Efsaneleri",
+    "sealedSub": "Arşivin Baş Köşesi",
+    "sealAria": "Balmumu mühür",
     "explore": "Nexus'u Keşfet"
   },
   "stories": {

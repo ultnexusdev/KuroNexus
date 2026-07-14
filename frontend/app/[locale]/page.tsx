@@ -69,30 +69,35 @@ export default async function HomePage({
   return (
     <section className={styles.hall}>
       <div className={styles.grid}>
-        {/* Sol: küratör sütunu */}
+        {/* Sol: 黒 glifi + küratör sütunu */}
         <div className={styles.curator}>
-          <p className={styles.eyebrow}>{t("eyebrow")}</p>
-          <h1 className={styles.manifesto}>
-            {t("manifestoA")}
-            <br />
-            {t("manifestoB")}
-            <br />
-            <em>{t("manifestoC")}</em>
-          </h1>
-          <p className={styles.sub}>{t("sub")}</p>
-          <Link href="/dark-stories" className={styles.cta}>
-            {t("cta")}
-            <span className={styles.ctaArrow} aria-hidden>
-              →
-            </span>
-          </Link>
-
-          {/* 黒 — kâğıt pulu üstüne basılmış siyah fırça damgası (shodō) */}
-          <span className={styles.stamp} role="img" aria-label="KuroNexus">
-            <span className={styles.stampGlyph} aria-hidden>
+          {/* Karanlıkta altın konturuyla beliren mühür — holün ana karakteri */}
+          <div className={styles.glyphCol} role="img" aria-label="KuroNexus">
+            <span className={styles.glyph} aria-hidden>
               黒
             </span>
-          </span>
+            <span className={styles.glyphWord} aria-hidden>
+              nexus
+            </span>
+          </div>
+
+          <div className={styles.textCol}>
+            <p className={styles.eyebrow}>{t("eyebrow")}</p>
+            <h1 className={styles.manifesto}>
+              {t("manifestoA")}
+              <br />
+              {t("manifestoB")}
+              <br />
+              <em>{t("manifestoC")}</em>
+            </h1>
+            <p className={styles.sub}>{t("sub")}</p>
+            <Link href="/dark-stories" className={styles.cta}>
+              {t("cta")}
+              <span className={styles.ctaArrow} aria-hidden>
+                →
+              </span>
+            </Link>
+          </div>
         </div>
 
         {/* Sağ: kapı duvarı */}

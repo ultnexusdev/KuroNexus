@@ -1,3 +1,6 @@
+"use client";
+
+import { usePathname } from "next/navigation";
 import { Link } from "@/lib/i18n/navigation";
 import type { Theme } from "@/lib/theme";
 import { AccountMenu } from "./AccountMenu";
@@ -8,13 +11,18 @@ import styles from "./SiteHeader.module.css";
 import { useTranslations } from "next-intl";
 export function SiteHeader({ initialTheme, isAdmin }: { initialTheme: Theme; isAdmin?: boolean }) {
   const t = useTranslations("account");
+  const pathname = usePathname();
+  // Ana sayfada marka, header'da değil holdeki büyük 黒 glifinde yaşar
+  const isHome = /^\/(?:en)?$/.test(pathname ?? "");
 
   return (
     <header className={styles.header}>
       <div className={styles.left}>
-        <Link href="/" className={styles.brand}>
-          <BrandLogo />
-        </Link>
+        {!isHome && (
+          <Link href="/" className={styles.brand}>
+            <BrandLogo />
+          </Link>
+        )}
         {isAdmin && (
           <nav className={styles.nav}>
             <Link href="/admin/dashboard" className={styles.navLink}>

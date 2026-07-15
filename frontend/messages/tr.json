@@ -60,7 +60,30 @@
     "calendarEmpty": "Takvim ışıkları henüz yanmadı.",
     "standings": "Şampiyona",
     "standingsEmpty": "Sıralama verisi henüz girilmedi.",
-    "round": "Tur"
+    "round": "Tur",
+    "viewProfile": "Profili gör"
+  },
+  "futbol": {
+    "backToTeam": "Galatasaray",
+    "seasonLabel": "{season} Sezonu",
+    "age": "{age} yaş",
+    "noStats": "{season} sezonu için istatistik bulunamadı.",
+    "seasonStats": "Sezon İstatistikleri",
+    "performance": "Performans",
+    "byCompetition": "Turnuva Dökümü",
+    "apps": "Maç",
+    "goals": "Gol",
+    "assists": "Asist",
+    "minutes": "Dakika",
+    "rating": "Reyting",
+    "passAccuracy": "Pas İsabeti",
+    "passes": "Pas",
+    "keyPasses": "{count} kilit pas",
+    "shots": "Şut",
+    "shotsOn": "{count} isabetli",
+    "saves": "Kurtarış",
+    "conceded": "{count} gol yedi",
+    "cards": "Kartlar"
   },
   "footer": {
     "about": "Kadim dünyalar, fandom wikileri ve derinlemesine karakter analizleri — gölgede kalmış bilgilerin kişisel arşivi.",

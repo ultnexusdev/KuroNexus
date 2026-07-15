@@ -60,7 +60,30 @@
     "calendarEmpty": "The calendar lights are not on yet.",
     "standings": "Championship",
     "standingsEmpty": "No standings data entered yet.",
-    "round": "Round"
+    "round": "Round",
+    "viewProfile": "View profile"
+  },
+  "futbol": {
+    "backToTeam": "Galatasaray",
+    "seasonLabel": "{season} Season",
+    "age": "{age} yrs",
+    "noStats": "No statistics found for the {season} season.",
+    "seasonStats": "Season Statistics",
+    "performance": "Performance",
+    "byCompetition": "By Competition",
+    "apps": "Apps",
+    "goals": "Goals",
+    "assists": "Assists",
+    "minutes": "Minutes",
+    "rating": "Rating",
+    "passAccuracy": "Pass Accuracy",
+    "passes": "Passes",
+    "keyPasses": "{count} key passes",
+    "shots": "Shots",
+    "shotsOn": "{count} on target",
+    "saves": "Saves",
+    "conceded": "{count} conceded",
+    "cards": "Cards"
   },
   "footer": {
     "about": "Ancient worlds, fandom wikis, and in-depth character analyses — a personal archive of knowledge lost to shadow.",

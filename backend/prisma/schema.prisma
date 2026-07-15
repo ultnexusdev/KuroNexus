@@ -101,6 +101,15 @@ model WikiUniverse {
   driverStandings DriverStanding[]
 }
 
+// Dış API yanıtları için kalıcı cache (kural 4 + 14: her sayfa yüklemesinde
+// dış istek atılmaz; fetchedAt ile TTL uygulanır, hata durumunda bayat veri
+// sunulur ama kullanıcıya hata gösterilmez)
+model ExternalCache {
+  cacheKey  String   @id
+  payload   Json
+  fetchedAt DateTime @default(now())
+}
+
 // ---- Spor kanadı (Faz A: veriler admin panelden girilir, kural 4'e uygun
 // dış API entegrasyonu Faz B'de bu modellerin üstüne eklenecek) ----
 

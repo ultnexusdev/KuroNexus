@@ -1,0 +1,322 @@
+/* Oyuncu profili — Stadyum Gecesi dili. Mobile-first (kural 2).
+   Renkler globals.css token'larından (kural 16). */
+
+.page {
+  background: var(--sport-ink);
+  color: var(--text-primary);
+  min-height: 70vh;
+}
+
+/* --- Hero --- */
+.hero {
+  position: relative;
+  overflow: hidden;
+  background: var(--gs-anthracite);
+}
+
+.floodlight {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(55% 90% at 8% -10%, var(--gs-glow), transparent 55%),
+    radial-gradient(45% 80% at 92% -14%, rgba(166, 28, 43, 0.2), transparent 55%),
+    linear-gradient(to bottom, transparent 30%, var(--sport-ink) 97%);
+  pointer-events: none;
+}
+
+.heroInner {
+  position: relative;
+  z-index: 2;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: var(--pad-lg) var(--pad-md);
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+.back:hover {
+  color: var(--gs-gold);
+}
+
+.identity {
+  display: flex;
+  align-items: center;
+  gap: clamp(16px, 3vw, 32px);
+  margin-top: 8px;
+}
+
+.photo {
+  width: clamp(96px, 16vw, 148px);
+  height: clamp(96px, 16vw, 148px);
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid color-mix(in srgb, var(--gs-gold) 55%, transparent);
+  background: var(--surface-hover);
+  flex-shrink: 0;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--gs-gold);
+}
+
+.name {
+  margin: 4px 0 10px;
+  font-family: var(--font-bebas), sans-serif;
+  font-size: clamp(2.4rem, 7vw, 4.4rem);
+  line-height: 0.95;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--gs-cream);
+}
+
+.chips {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.chips li {
+  padding: 5px 12px;
+  border: 1px solid color-mix(in srgb, var(--gs-gold) 35%, var(--border));
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+/* --- Gövde --- */
+.body {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: var(--pad-lg) var(--pad-md) 56px;
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+.empty {
+  margin: 0;
+  font-family: var(--font-cormorant);
+  font-style: italic;
+  font-size: 1.15rem;
+  color: var(--text-muted);
+}
+
+.sectionLabel {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin: 0 0 16px;
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gs-gold);
+}
+.sectionLabel::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  align-self: center;
+  background: linear-gradient(to right, color-mix(in srgb, var(--gs-gold) 45%, transparent), transparent);
+}
+
+.sectionNote {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  text-transform: none;
+}
+
+/* Çekirdek istatistik karoları */
+.tiles {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: var(--gap-md);
+}
+
+.tile {
+  padding: 18px 16px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: 2px solid color-mix(in srgb, var(--gs-gold) 55%, var(--border));
+  text-align: center;
+}
+.tile b {
+  display: block;
+  font-family: var(--font-bebas), sans-serif;
+  font-size: 2.4rem;
+  line-height: 1;
+  color: var(--gs-cream);
+}
+.tile span {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gs-gold);
+}
+
+/* Performans kartları */
+.perfGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--gap-md);
+}
+
+.perfCard {
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.perfLabel {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.perfValue {
+  font-family: var(--font-bebas), sans-serif;
+  font-size: 1.9rem;
+  line-height: 1;
+  color: var(--gs-cream);
+}
+
+.perfSub {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.meter {
+  height: 6px;
+  background: color-mix(in srgb, var(--gs-red) 25%, var(--surface-hover));
+  overflow: hidden;
+}
+.meterFill {
+  display: block;
+  height: 100%;
+  background: linear-gradient(to right, var(--gs-red), var(--gs-gold));
+  animation: fill 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transform-origin: left;
+}
+@keyframes fill {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+.cardsRow {
+  display: flex;
+  gap: 10px;
+}
+.cardChip {
+  min-width: 40px;
+  padding: 8px 0;
+  text-align: center;
+  font-family: var(--font-bebas), sans-serif;
+  font-size: 1.3rem;
+  line-height: 1;
+  border-radius: 3px;
+}
+.yellow {
+  background: color-mix(in srgb, var(--gs-gold) 80%, transparent);
+  color: var(--sport-ink);
+}
+.red {
+  background: color-mix(in srgb, var(--gs-red) 85%, transparent);
+  color: var(--gs-cream);
+}
+
+/* Turnuva dökümü */
+.compList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.compRow {
+  display: grid;
+  grid-template-columns: minmax(140px, 2fr) repeat(4, minmax(64px, 1fr));
+  align-items: center;
+  gap: 10px;
+  min-height: var(--touch-min);
+  padding: 8px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  transition: border-color 0.25s;
+}
+.compRow:hover {
+  border-color: color-mix(in srgb, var(--gs-gold) 45%, var(--border));
+}
+
+.compName {
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  color: var(--gs-cream);
+  display: flex;
+  flex-direction: column;
+}
+.compTeam {
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.compStat {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+  text-align: right;
+  white-space: nowrap;
+}
+
+@media (max-width: 560px) {
+  .compRow {
+    grid-template-columns: 1fr 1fr;
+    row-gap: 4px;
+  }
+  .compName {
+    grid-column: 1 / -1;
+  }
+  .compStat {
+    text-align: left;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .meterFill {
+    animation: none;
+  }
+}

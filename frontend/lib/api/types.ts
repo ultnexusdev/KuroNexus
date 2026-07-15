@@ -138,6 +138,61 @@ export interface DriverStanding {
   universeId: string;
 }
 
+// ---- API-Football (backend cache üzerinden) ----
+export interface FootballSquadPlayer {
+  id: number;
+  name: string;
+  age: number | null;
+  number: number | null;
+  position: string | null;
+  photo: string | null;
+}
+
+export interface FootballSquad {
+  teamId: string;
+  players: FootballSquadPlayer[];
+}
+
+export interface FootballStatBlock {
+  league: string | null;
+  leagueLogo: string | null;
+  team: string | null;
+  appearances: number;
+  lineups: number;
+  minutes: number;
+  position: string | null;
+  rating: string | null;
+  shotsTotal: number | null;
+  shotsOn: number | null;
+  goals: number;
+  assists: number;
+  conceded: number | null;
+  saves: number | null;
+  passesTotal: number | null;
+  passesKey: number | null;
+  passAccuracy: number | null;
+  cardsYellow: number;
+  cardsRed: number;
+}
+
+export interface FootballPlayerDetail {
+  season: string;
+  player: {
+    id: number;
+    name: string;
+    firstname: string | null;
+    lastname: string | null;
+    age: number | null;
+    birthDate: string | null;
+    birthCountry: string | null;
+    nationality: string | null;
+    height: string | null;
+    weight: string | null;
+    photo: string | null;
+  } | null;
+  statistics: FootballStatBlock[];
+}
+
 export interface SportBundle {
   players: SportPlayer[];
   legends: SportLegend[];

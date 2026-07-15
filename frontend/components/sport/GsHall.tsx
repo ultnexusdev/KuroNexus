@@ -2,8 +2,23 @@ import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
 import { apiUrl } from "@/lib/api/client";
-import type { SportBundle, WikiUniverse } from "@/lib/api/types";
+import { fetchFootballSquad } from "@/lib/api/football";
+import type {
+  FootballSquadPlayer,
+  SportBundle,
+  WikiUniverse,
+} from "@/lib/api/types";
 import styles from "./GsHall.module.css";
+
+async function getApiSquad(): Promise<FootballSquadPlayer[]> {
+  try {
+    const squad = await fetchFootballSquad();
+    return squad.players ?? [];
+  } catch {
+    // API anahtarı yoksa / dış servis çökmüşse admin kadrosuna düşülür
+    return [];
+  }
+}
 
 /**
  * Galatasaray — "Stadyum Gecesi" salonu.
@@ -20,6 +35,7 @@ export async function GsHall({
   locale: string;
 }) {
   const t = await getTranslations({ locale, namespace: "sport" });
+  const apiSquad = await getApiSquad();
 
   return (
     <div data-category="spor" className={styles.hall}>
@@ -49,10 +65,46 @@ export async function GsHall({
       </header>
 
       <div className={styles.body}>
-        {/* Kadro */}
+        {/* Kadro — öncelik API-Football (backend cache'li); yoksa admin verisi */}
         <section>
           <h2 className={styles.sectionLabel}>{t("squad")}</h2>
-          {bundle.players.length === 0 ? (
+          {apiSquad.length > 0 ? (
+            <ul className={styles.squad}>
+              {apiSquad.map((p) => (
+                <li key={p.id}>
+                  <Link
+                    href={`/futbol/oyuncu/${p.id}`}
+                    className={styles.playerCard}
+                  >
+                    {p.photo ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={p.photo}
+                        alt=""
+                        loading="lazy"
+                        className={styles.playerPhoto}
+                      />
+                    ) : null}
+                    <span className={styles.shirtNo} aria-hidden>
+                      {p.number ?? "–"}
+                    </span>
+                    <span className={styles.playerMeta}>
+                      <span className={styles.playerName}>{p.name}</span>
+                      <span className={styles.playerPos}>
+                        {p.position ?? ""}
+                        {p.age ? ` · ${p.age}` : ""}
+                      </span>
+                    </span>
+                    <span className={styles.drawer}>
+                      <span className={styles.profileCue}>
+                        {t("viewProfile")} →
+                      </span>
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          ) : bundle.players.length === 0 ? (
             <p className={styles.empty}>{t("squadEmpty")}</p>
           ) : (
             <ul className={styles.squad}>

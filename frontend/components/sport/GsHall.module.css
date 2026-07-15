@@ -134,6 +134,7 @@
   position: relative;
   overflow: hidden;
   min-height: 150px;
+  color: var(--text-primary); /* global link renginin üstüne */
   padding: 16px;
   background: var(--surface);
   border: 1px solid var(--border);
@@ -151,6 +152,34 @@
 .playerImgWrap {
   position: absolute;
   inset: 0;
+}
+
+/* API-Football kadro fotoğrafı: altın çerçeveli madalyon */
+.playerPhoto {
+  position: absolute;
+  right: 12px;
+  bottom: 48px;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid color-mix(in srgb, var(--gs-gold) 45%, transparent);
+  background: var(--surface-hover);
+  filter: saturate(0.85);
+  transition: transform 0.3s ease, border-color 0.3s, filter 0.3s;
+}
+.playerCard:hover .playerPhoto {
+  transform: scale(1.06);
+  border-color: var(--gs-gold);
+  filter: saturate(1);
+}
+
+.profileCue {
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gs-gold);
 }
 .playerImg {
   width: 100%;

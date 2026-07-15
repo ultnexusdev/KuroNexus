@@ -1,12 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as https from 'https';
+import { Readable } from 'stream';
 import csv = require('csv-parser');
+import * as unzipper from 'unzipper';
 import { PrismaService } from '../prisma/prisma.service';
 import type { Prisma } from '../generated/prisma/client';
 
-const PLAYERS_CSV_URL =
-  'https://raw.githubusercontent.com/dcaribou/transfermarkt-datasets/master/data/prep/players.csv';
+// transfermarkt-datasets'in resmî yayın kanalı Kaggle'dır (CSV'ler git'te değil).
+// Tek dosya indirmesi ZIP olarak döner; stream edilerek açılır.
+const KAGGLE_PLAYERS_URL =
+  'https://www.kaggle.com/api/v1/datasets/download/davidcariboo/player-scores/players.csv';
 const SYNC_STATUS_KEY = 'football:sync:last';
 
 export interface SquadPlayer {
@@ -167,7 +170,7 @@ export class FootballService {
     this.logger.log(`Transfermarkt sync bitti: ${rows.length} oyuncu`);
   }
 
-  private collectSquadRows(): Promise<
+  private async collectSquadRows(): Promise<
     Array<{
       id: string;
       name: string;
@@ -186,45 +189,68 @@ export class FootballService {
       currentClubName: string | null;
     }>
   > {
-    const teamId = this.teamId;
-    return new Promise((resolve, reject) => {
-      const rows: Awaited<ReturnType<FootballService['collectSquadRows']>> =
-        [];
-      const request = https.get(PLAYERS_CSV_URL, (res) => {
-        if (res.statusCode !== 200) {
-          res.resume();
-          return reject(new Error(`SYNC.HTTP_${res.statusCode}`));
-        }
-        res
-          .pipe(csv())
-          .on('data', (row: Record<string, string>) => {
-            if (!row.player_id || row.current_club_id !== teamId) return;
-            rows.push({
-              id: row.player_id,
-              name: row.name,
-              firstName: row.first_name || null,
-              lastName: row.last_name || null,
-              dateOfBirth: parseDate(row.date_of_birth),
-              position: row.position || null,
-              subPosition: row.sub_position || null,
-              foot: row.foot || null,
-              heightInCm: parseNumber(row.height_in_cm),
-              marketValueInEur: parseNumber(row.market_value_in_eur),
-              imageUrl: row.image_url || null,
-              url: row.url || null,
-              lastSeason: row.last_season || null,
-              currentClubId: teamId,
-              currentClubName: row.current_club_name || null,
-            });
-          })
-          .on('end', () => resolve(rows))
-          .on('error', reject);
-      });
-      request.on('error', reject);
-      request.setTimeout(120_000, () => {
-        request.destroy(new Error('SYNC.TIMEOUT'));
-      });
+    const username = this.config.get<string>('KAGGLE_USERNAME');
+    const key = this.config.get<string>('KAGGLE_KEY');
+    if (!username || !key) {
+      throw new Error('SYNC.KAGGLE_CREDENTIALS_MISSING');
+    }
+
+    // fetch yönlendirmeleri izler (Kaggle -> imzalı depolama URL'i)
+    const res = await fetch(KAGGLE_PLAYERS_URL, {
+      headers: {
+        Authorization:
+          'Basic ' + Buffer.from(`${username}:${key}`).toString('base64'),
+      },
+      signal: AbortSignal.timeout(180_000),
     });
+    if (!res.ok || !res.body) {
+      throw new Error(`SYNC.HTTP_${res.status}`);
+    }
+
+    const teamId = this.teamId;
+    const rows: Awaited<ReturnType<FootballService['collectSquadRows']>> = [];
+
+    await new Promise<void>((resolve, reject) => {
+      const nodeStream = Readable.fromWeb(
+        res.body as import('stream/web').ReadableStream,
+      );
+      nodeStream
+        .pipe(unzipper.Parse())
+        .on('entry', (entry: unzipper.Entry) => {
+          if (!entry.path.endsWith('.csv')) {
+            entry.autodrain();
+            return;
+          }
+          entry
+            .pipe(csv())
+            .on('data', (row: Record<string, string>) => {
+              if (!row.player_id || row.current_club_id !== teamId) return;
+              rows.push({
+                id: row.player_id,
+                name: row.name,
+                firstName: row.first_name || null,
+                lastName: row.last_name || null,
+                dateOfBirth: parseDate(row.date_of_birth),
+                position: row.position || null,
+                subPosition: row.sub_position || null,
+                foot: row.foot || null,
+                heightInCm: parseNumber(row.height_in_cm),
+                marketValueInEur: parseNumber(row.market_value_in_eur),
+                imageUrl: row.image_url || null,
+                url: row.url || null,
+                lastSeason: row.last_season || null,
+                currentClubId: teamId,
+                currentClubName: row.current_club_name || null,
+              });
+            })
+            .on('error', reject);
+        })
+        .on('close', () => resolve())
+        .on('finish', () => resolve())
+        .on('error', reject);
+    });
+
+    return rows;
   }
 
   private async writeSyncStatus(payload: Record<string, unknown>) {

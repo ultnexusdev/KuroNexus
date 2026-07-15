@@ -1,0 +1,361 @@
+/* Galatasaray — Stadyum Gecesi. Mobile-first (kural 2).
+   Renkler globals.css token'larından (kural 16); glow kullanıcı isteği, düşük doz. */
+
+.hall {
+  background: var(--sport-ink);
+  color: var(--text-primary);
+}
+
+/* --- Hero --- */
+.hero {
+  position: relative;
+  min-height: 320px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  background: var(--gs-anthracite);
+}
+
+.heroImg {
+  object-fit: cover;
+  opacity: 0.3;
+  filter: saturate(0.8);
+}
+
+.floodlight {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(55% 85% at 10% -8%, var(--gs-glow), transparent 55%),
+    radial-gradient(45% 75% at 90% -12%, rgba(166, 28, 43, 0.2), transparent 55%),
+    linear-gradient(to bottom, transparent 30%, var(--sport-ink) 96%);
+  pointer-events: none;
+}
+
+.heroInner {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: var(--pad-lg) var(--pad-md);
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+.back:hover {
+  color: var(--gs-gold);
+}
+
+.sub {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--gs-gold);
+}
+
+.title {
+  margin: 6px 0 0;
+  font-family: var(--font-bebas), sans-serif;
+  font-size: clamp(3rem, 9vw, 6rem);
+  line-height: 0.92;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--gs-cream);
+}
+
+.lede {
+  margin: 12px 0 0;
+  max-width: 34rem;
+  font-family: var(--font-cormorant);
+  font-size: 1.15rem;
+  font-style: italic;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* --- Gövde --- */
+.body {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: var(--pad-lg) var(--pad-md) 56px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.sectionLabel {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0 0 18px;
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gs-gold);
+}
+.sectionLabel::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, color-mix(in srgb, var(--gs-gold) 45%, transparent), transparent);
+}
+
+.empty {
+  margin: 0;
+  font-family: var(--font-cormorant);
+  font-style: italic;
+  font-size: 1.1rem;
+  color: var(--text-muted);
+}
+
+/* --- Kadro kartları --- */
+.squad {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: var(--gap-lg);
+}
+
+.playerCard {
+  position: relative;
+  overflow: hidden;
+  min-height: 150px;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: 2px solid color-mix(in srgb, var(--gs-gold) 55%, var(--border));
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  transition: border-color 0.3s, transform 0.3s ease;
+}
+.playerCard:hover {
+  border-color: var(--gs-gold);
+  transform: translateY(-3px);
+}
+
+.playerImgWrap {
+  position: absolute;
+  inset: 0;
+}
+.playerImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  opacity: 0.2;
+  transition: opacity 0.3s;
+}
+.playerCard:hover .playerImg {
+  opacity: 0.35;
+}
+
+/* Dev forma numarası */
+.shirtNo {
+  position: absolute;
+  top: 2px;
+  right: 12px;
+  font-family: var(--font-bebas), sans-serif;
+  font-size: 4.4rem;
+  line-height: 1;
+  color: color-mix(in srgb, var(--gs-gold) 26%, transparent);
+  transition: color 0.3s;
+  user-select: none;
+}
+.playerCard:hover .shirtNo {
+  color: color-mix(in srgb, var(--gs-gold) 55%, transparent);
+}
+
+.playerMeta {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  transition: transform 0.3s ease;
+}
+.playerCard:hover .playerMeta {
+  transform: translateY(-34px);
+}
+
+.playerName {
+  font-family: var(--font-bebas), sans-serif;
+  font-size: 1.35rem;
+  letter-spacing: 0.04em;
+  color: var(--gs-cream);
+}
+
+.playerPos {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gs-gold);
+}
+
+/* İstatistik çekmecesi */
+.drawer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  display: flex;
+  gap: 14px;
+  padding: 10px 16px;
+  background: color-mix(in srgb, var(--gs-red) 24%, var(--surface));
+  border-top: 1px solid color-mix(in srgb, var(--gs-gold) 30%, transparent);
+  transform: translateY(100%);
+  transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.playerCard:hover .drawer,
+.playerCard:focus-within .drawer {
+  transform: translateY(0);
+}
+
+.stat {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+.stat b {
+  display: block;
+  font-family: var(--font-bebas), sans-serif;
+  font-size: 1.15rem;
+  letter-spacing: 0.02em;
+  color: var(--gs-cream);
+}
+
+/* --- Efsane arşiv kartları --- */
+.legends {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gap-lg);
+}
+
+.legendCard {
+  position: relative;
+  padding: clamp(18px, 3vw, 28px);
+  background: var(--surface);
+  border: 1px solid color-mix(in srgb, var(--gs-gold) 32%, var(--border));
+  /* altın-varak çift çerçeve */
+  outline: 1px solid color-mix(in srgb, var(--gs-gold) 14%, transparent);
+  outline-offset: 5px;
+}
+
+.legendHead {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.legendImgWrap {
+  flex-shrink: 0;
+  width: 72px;
+  height: 72px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--gs-gold) 45%, transparent);
+}
+.legendImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.legendEra {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.2em;
+  color: var(--text-muted);
+}
+
+.legendName {
+  margin: 2px 0;
+  font-family: var(--font-cinzel), serif;
+  font-weight: 500;
+  font-size: 1.35rem;
+  letter-spacing: 0.05em;
+  color: var(--gs-gold);
+}
+
+.legendTitle {
+  font-family: var(--font-cormorant);
+  font-style: italic;
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+}
+
+.legendStory {
+  margin: 0;
+  font-family: var(--font-cormorant);
+  font-size: 1.14rem;
+  line-height: 1.72;
+  color: var(--text-primary);
+}
+.legendStory::first-letter {
+  float: left;
+  font-family: var(--font-cinzel), serif;
+  font-size: 2.6rem;
+  line-height: 0.85;
+  padding: 4px 10px 0 0;
+  color: var(--gs-gold);
+}
+
+.achievements {
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+}
+.achievements li {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gs-gold);
+}
+.achievements li::before {
+  content: "★ ";
+  color: color-mix(in srgb, var(--gs-gold) 60%, transparent);
+}
+
+@media (min-width: 768px) {
+  .hero {
+    min-height: 400px;
+  }
+  .legends {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .playerCard,
+  .playerMeta,
+  .drawer,
+  .playerImg,
+  .shirtNo {
+    transition: none;
+  }
+}

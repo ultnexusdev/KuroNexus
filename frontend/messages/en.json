@@ -48,7 +48,19 @@
     "f1Sub": "Midnight Race",
     "f1Line": "The pulse of the track never stops.",
     "f1Chips": "Calendar · Championship · Legends",
-    "enter": "Enter the hall"
+    "enter": "Enter the hall",
+    "squad": "Current Squad",
+    "squadEmpty": "The squad will fill these stands soon.",
+    "legends": "Legends",
+    "legendsEmpty": "The legends' stories are being written.",
+    "apps": "Apps",
+    "goals": "Goals",
+    "assists": "Assists",
+    "calendar": "Season Calendar",
+    "calendarEmpty": "The calendar lights are not on yet.",
+    "standings": "Championship",
+    "standingsEmpty": "No standings data entered yet.",
+    "round": "Round"
   },
   "footer": {
     "about": "Ancient worlds, fandom wikis, and in-depth character analyses — a personal archive of knowledge lost to shadow.",

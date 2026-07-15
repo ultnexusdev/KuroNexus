@@ -95,6 +95,94 @@ model WikiUniverse {
   entries WikiEntry[]
   stories Story[]
   ambientTracks AmbientTrack[]
+  sportPlayers    SportPlayer[]
+  sportLegends    SportLegend[]
+  raceEvents      RaceEvent[]
+  driverStandings DriverStanding[]
+}
+
+// ---- Spor kanadı (Faz A: veriler admin panelden girilir, kural 4'e uygun
+// dış API entegrasyonu Faz B'de bu modellerin üstüne eklenecek) ----
+
+model SportPlayer {
+  id          String  @id @default(cuid())
+  name        String
+  shirtNumber Int?
+  position    String // GK / DF / MF / FW vb. — çeviri anahtarı olarak kullanılır
+  nationality String?
+  imageUrl    String?
+  appearances Int     @default(0)
+  goals       Int     @default(0)
+  assists     Int     @default(0)
+  note        String? @db.Text
+  order       Int     @default(0)
+
+  universeId String
+  universe   WikiUniverse @relation(fields: [universeId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean  @default(false)
+
+  @@index([universeId, isDeleted])
+}
+
+model SportLegend {
+  id           String  @id @default(cuid())
+  name         String
+  era          String? // örn. "1996–2001"
+  title        String? // örn. "Karpatların Maradonası"
+  story        String  @db.Text
+  imageUrl     String?
+  achievements String? @db.Text // satır satır başarı listesi
+  order        Int     @default(0)
+
+  universeId String
+  universe   WikiUniverse @relation(fields: [universeId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean  @default(false)
+
+  @@index([universeId, isDeleted])
+}
+
+model RaceEvent {
+  id           String    @id @default(cuid())
+  round        Int
+  name         String // örn. "Türkiye GP"
+  circuit      String // örn. "Istanbul Park"
+  country      String?
+  raceDate     DateTime?
+  trackSvgPath String?   @db.Text // pistin tek çizgi SVG path verisi (d attribute)
+
+  universeId String
+  universe   WikiUniverse @relation(fields: [universeId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean  @default(false)
+
+  @@index([universeId, isDeleted])
+}
+
+model DriverStanding {
+  id       String  @id @default(cuid())
+  position Int
+  driver   String
+  team     String?
+  points   Int     @default(0)
+  wins     Int     @default(0)
+  teamColor String? // takımın gerçek dünya rengi — veri, tema token'ı değil
+
+  universeId String
+  universe   WikiUniverse @relation(fields: [universeId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean  @default(false)
+
+  @@index([universeId, isDeleted])
 }
 
 model WikiEntry {

@@ -13,7 +13,23 @@ import {
   CornerFiligree,
   RunicMargin,
 } from "@/components/kadim/CodexOrnaments";
+import { GsHall } from "@/components/sport/GsHall";
+import { F1Hall } from "@/components/sport/F1Hall";
+import { fetchSportBundle } from "@/lib/api/sport";
+import type { SportBundle } from "@/lib/api/types";
 import styles from "./page.module.css";
+
+// Spor kanadının özel salonları (slug → salon bileşeni)
+const SPORT_HALLS = new Set(["galatasaray", "formula-1"]);
+
+async function getSportBundle(slug: string): Promise<SportBundle> {
+  try {
+    return await fetchSportBundle(slug);
+  } catch {
+    // Spor verisi alınamazsa salon boş bölümlerle açılır, sayfa çökmez
+    return { players: [], legends: [], races: [], standings: [] };
+  }
+}
 
 async function getUniverse(slug: string): Promise<WikiUniverse | null> {
   try {
@@ -57,6 +73,15 @@ export default async function UniverseDetailPage({
   ]);
   if (!universe) {
     notFound();
+  }
+
+  // Spor salonları kendi tam sayfa tasarımlarını kullanır
+  if (SPORT_HALLS.has(universeSlug)) {
+    const bundle = await getSportBundle(universeSlug);
+    if (universeSlug === "galatasaray") {
+      return <GsHall universe={universe} bundle={bundle} locale={locale} />;
+    }
+    return <F1Hall universe={universe} bundle={bundle} locale={locale} />;
   }
 
   const t = await getTranslations({ locale, namespace: "stories" });

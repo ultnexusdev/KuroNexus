@@ -89,6 +89,62 @@ export interface UploadResult {
   url: string;
 }
 
+export interface SportPlayer {
+  id: string;
+  name: string;
+  shirtNumber: number | null;
+  position: string;
+  nationality: string | null;
+  imageUrl: string | null;
+  appearances: number;
+  goals: number;
+  assists: number;
+  note: string | null;
+  order: number;
+  universeId: string;
+}
+
+export interface SportLegend {
+  id: string;
+  name: string;
+  era: string | null;
+  title: string | null;
+  story: string;
+  imageUrl: string | null;
+  achievements: string | null;
+  order: number;
+  universeId: string;
+}
+
+export interface RaceEvent {
+  id: string;
+  round: number;
+  name: string;
+  circuit: string;
+  country: string | null;
+  raceDate: string | null;
+  trackSvgPath: string | null;
+  universeId: string;
+}
+
+export interface DriverStanding {
+  id: string;
+  position: number;
+  driver: string;
+  team: string | null;
+  points: number;
+  wins: number;
+  teamColor: string | null;
+  universeId: string;
+}
+
+export interface SportBundle {
+  players: SportPlayer[];
+  legends: SportLegend[];
+  races: RaceEvent[];
+  standings: DriverStanding[];
+}
+
 export interface AmbientTrack {
   id: string;
   title: string;

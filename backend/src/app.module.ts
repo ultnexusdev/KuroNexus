@@ -15,6 +15,7 @@ import { UploadsModule } from './uploads/uploads.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { AmbientTracksModule } from './ambient-tracks/ambient-tracks.module';
+import { SportModule } from './sport/sport.module';
 import { CategoriesModule } from './categories/categories.module';
 
 @Module({
@@ -40,6 +41,7 @@ import { CategoriesModule } from './categories/categories.module';
     WikiModule,
     UploadsModule,
     AmbientTracksModule,
+    SportModule,
     CategoriesModule,
   ],
   controllers: [AppController],

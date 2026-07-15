@@ -48,7 +48,19 @@
     "f1Sub": "Gece Yarışı",
     "f1Line": "Pistin nabzı hiç durmaz.",
     "f1Chips": "Takvim · Şampiyona · Efsaneler",
-    "enter": "Salona gir"
+    "enter": "Salona gir",
+    "squad": "Mevcut Kadro",
+    "squadEmpty": "Kadro yakında bu tribünleri dolduracak.",
+    "legends": "Efsaneler",
+    "legendsEmpty": "Efsanelerin hikâyeleri yazılıyor.",
+    "apps": "Maç",
+    "goals": "Gol",
+    "assists": "Asist",
+    "calendar": "Sezon Takvimi",
+    "calendarEmpty": "Takvim ışıkları henüz yanmadı.",
+    "standings": "Şampiyona",
+    "standingsEmpty": "Sıralama verisi henüz girilmedi.",
+    "round": "Tur"
   },
   "footer": {
     "about": "Kadim dünyalar, fandom wikileri ve derinlemesine karakter analizleri — gölgede kalmış bilgilerin kişisel arşivi.",

@@ -140,7 +140,7 @@ export interface DriverStanding {
 
 // ---- API-Football (backend cache üzerinden) ----
 export interface FootballSquadPlayer {
-  id: number;
+  id: string;
   name: string;
   age: number | null;
   number: number | null;
@@ -178,7 +178,7 @@ export interface FootballStatBlock {
 export interface FootballPlayerDetail {
   season: string;
   player: {
-    id: number;
+    id: string;
     name: string;
     firstname: string | null;
     lastname: string | null;

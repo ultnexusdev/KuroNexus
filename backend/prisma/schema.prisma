@@ -478,3 +478,126 @@ model AmbientTrack {
 
   @@index([universeId])
 }
+
+// --- Transfermarkt Yerel Veri Modelleri (Faz B: API-Football Yerine) ---
+
+model TmCompetition {
+  id                 String   @id // TM competition_id
+  name               String
+  type               String?
+  countryName        String?
+  domesticLeagueCode String?
+  confederation      String?
+  url                String?
+
+  clubs TmClub[]
+  games TmGame[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TmClub {
+  id                    String  @id // TM club_id
+  name                  String
+  clubCode              String?
+  squadSize             Int?
+  averageAge            Float?
+  stadiumName           String?
+  stadiumSeats          Int?
+  url                   String?
+
+  domesticCompetitionId String?
+  domesticCompetition   TmCompetition? @relation(fields: [domesticCompetitionId], references: [id])
+
+  players   TmPlayer[]
+  homeGames TmGame[]   @relation("HomeClub")
+  awayGames TmGame[]   @relation("AwayClub")
+
+  transfersIn  TmTransfer[] @relation("ToClub")
+  transfersOut TmTransfer[] @relation("FromClub")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([domesticCompetitionId])
+}
+
+model TmPlayer {
+  id               String  @id // TM player_id
+  name             String
+  firstName        String?
+  lastName         String?
+  dateOfBirth      DateTime?
+  position         String?
+  subPosition      String?
+  foot             String?
+  heightInCm       Int?
+  marketValueInEur Float?
+  imageUrl         String?
+  url              String?
+  lastSeason       String?
+
+  currentClubId String?
+  currentClub   TmClub? @relation(fields: [currentClubId], references: [id])
+
+  transfers TmTransfer[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([currentClubId])
+}
+
+model TmGame {
+  id             String  @id // TM game_id
+  season         String?
+  round          String?
+  date           DateTime?
+  homeClubGoals  Int?
+  awayClubGoals  Int?
+  stadium        String?
+  attendance     Int?
+  referee        String?
+  url            String?
+
+  competitionId String?
+  competition   TmCompetition? @relation(fields: [competitionId], references: [id])
+
+  homeClubId String?
+  homeClub   TmClub? @relation("HomeClub", fields: [homeClubId], references: [id])
+
+  awayClubId String?
+  awayClub   TmClub? @relation("AwayClub", fields: [awayClubId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([competitionId])
+  @@index([homeClubId])
+  @@index([awayClubId])
+  @@index([date])
+}
+
+model TmTransfer {
+  id           String    @id @default(cuid()) // kendi ID'miz
+  playerId     String
+  player       TmPlayer  @relation(fields: [playerId], references: [id])
+  
+  fromClubId   String?
+  fromClub     TmClub?   @relation("FromClub", fields: [fromClubId], references: [id])
+  
+  toClubId     String?
+  toClub       TmClub?   @relation("ToClub", fields: [toClubId], references: [id])
+  
+  transferDate DateTime?
+  transferFee  Float?
+  season       String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([playerId])
+  @@index([fromClubId])
+  @@index([toClubId])
+}

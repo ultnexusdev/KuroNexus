@@ -1,8 +1,11 @@
-import { PrismaClient } from '../src/generated/prisma';
+import { PrismaClient } from '../src/generated/prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
 import * as https from 'https';
-import * as csv from 'csv-parser';
+import csv = require('csv-parser');
 
-const prisma = new PrismaClient();
+const connectionString = process.env.DATABASE_URL || 'postgresql://user:password@localhost:5432/kuronexus?schema=public';
+const adapter = new PrismaPg({ connectionString });
+const prisma = new PrismaClient({ adapter });
 
 const DATASETS = {
   competitions: 'https://raw.githubusercontent.com/dcaribou/transfermarkt-datasets/master/data/prep/competitions.csv',

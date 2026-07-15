@@ -42,7 +42,7 @@ export class FootballService {
       'FOOTBALL_API_HOST',
       'v3.football.api-sports.io',
     );
-    this.teamId = this.config.get<string>('FOOTBALL_TEAM_ID', '496');
+    this.teamId = this.config.get<string>('FOOTBALL_TEAM_ID', '645');
     // Ücretsiz plan 2022–2024 sezonlarıyla sınırlı; plan yükseltilince
     // Coolify'da FOOTBALL_SEASON güncellenmesi yeterli
     this.season = this.config.get<string>('FOOTBALL_SEASON', '2024');

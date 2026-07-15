@@ -189,18 +189,24 @@ export class FootballService {
       currentClubName: string | null;
     }>
   > {
+    // Yeni tip Kaggle erişim token'ı (KGAT_..., Bearer) tercih edilir;
+    // eski kullanıcıadı+key ikilisi de desteklenir (Basic)
+    const accessToken = this.config.get<string>('KAGGLE_API_TOKEN');
     const username = this.config.get<string>('KAGGLE_USERNAME');
     const key = this.config.get<string>('KAGGLE_KEY');
-    if (!username || !key) {
+    let authHeader: string;
+    if (accessToken) {
+      authHeader = `Bearer ${accessToken}`;
+    } else if (username && key) {
+      authHeader =
+        'Basic ' + Buffer.from(`${username}:${key}`).toString('base64');
+    } else {
       throw new Error('SYNC.KAGGLE_CREDENTIALS_MISSING');
     }
 
     // fetch yönlendirmeleri izler (Kaggle -> imzalı depolama URL'i)
     const res = await fetch(KAGGLE_PLAYERS_URL, {
-      headers: {
-        Authorization:
-          'Basic ' + Buffer.from(`${username}:${key}`).toString('base64'),
-      },
+      headers: { Authorization: authHeader },
       signal: AbortSignal.timeout(180_000),
     });
     if (!res.ok || !res.body) {
@@ -214,14 +220,15 @@ export class FootballService {
       const nodeStream = Readable.fromWeb(
         res.body as import('stream/web').ReadableStream,
       );
-      nodeStream
-        .pipe(unzipper.Parse())
-        .on('entry', (entry: unzipper.Entry) => {
-          if (!entry.path.endsWith('.csv')) {
-            entry.autodrain();
-            return;
-          }
-          entry
+      // Endpoint auth tipine göre ZIP ya da düz CSV dönebiliyor — ilk
+      // baytlardan ("PK") biçim koklanır
+      peekStream(nodeStream, 4)
+        .then((head) => {
+          const isZip = head[0] === 0x50 && head[1] === 0x4b;
+          const source = isZip
+            ? nodeStream.pipe(unzipper.ParseOne(/\.csv$/))
+            : nodeStream;
+          source
             .pipe(csv())
             .on('data', (row: Record<string, string>) => {
               if (!row.player_id || row.current_club_id !== teamId) return;
@@ -243,14 +250,21 @@ export class FootballService {
                 currentClubName: row.current_club_name || null,
               });
             })
+            .on('end', () => resolve())
             .on('error', reject);
         })
-        .on('close', () => resolve())
-        .on('finish', () => resolve())
-        .on('error', reject);
+        .catch(reject);
     });
 
-    return rows;
+    // Veri seti eski oyuncuları da "son kulübüyle" tutar (ör. yıllar önce
+    // ayrılanlar). Gerçek kadro = en güncel last_season değerine sahip olanlar.
+    const maxSeason = rows.reduce(
+      (max, r) => Math.max(max, parseNumber(r.lastSeason ?? '') ?? 0),
+      0,
+    );
+    return rows.filter(
+      (r) => (parseNumber(r.lastSeason ?? '') ?? 0) === maxSeason,
+    );
   }
 
   private async writeSyncStatus(payload: Record<string, unknown>) {
@@ -266,6 +280,23 @@ export class FootballService {
       },
     });
   }
+}
+
+// Akışın başından n baytı tüketmeden okur (biçim koklama için)
+function peekStream(stream: Readable, n: number): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    const tryRead = () => {
+      const chunk = stream.read(n) as Buffer | null;
+      if (chunk) {
+        stream.unshift(chunk);
+        resolve(chunk);
+      } else {
+        stream.once('readable', tryRead);
+      }
+    };
+    stream.once('error', reject);
+    tryRead();
+  });
 }
 
 function parseDate(value: string | undefined): Date | null {

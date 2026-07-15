@@ -184,7 +184,8 @@
   }
 
   .curator {
-    flex: 0 0 46%;
+    /* Kapı duvarı etiketleri sıkışmasın diye üst sınırı sabitlenmiş pay */
+    flex: 0 0 clamp(300px, 38%, 420px);
     padding-right: clamp(16px, 3vw, 48px);
     /* sol-alt bilinçli boşluk: küratör metni yukarı yaslanır */
     justify-content: flex-start;

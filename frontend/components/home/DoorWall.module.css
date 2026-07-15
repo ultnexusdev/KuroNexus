@@ -86,13 +86,23 @@
 .hallNo {
   position: absolute;
   top: 10px;
-  left: 12px;
+  left: 10px;
   z-index: 2;
   font-family: var(--font-mono);
   font-size: 0.66rem;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.1em;
   color: color-mix(in srgb, var(--hub-paper) 62%, transparent);
   text-transform: uppercase;
+  white-space: nowrap; /* dar kapıda rakam alt satıra düşmesin */
+  max-width: calc(100% - 20px);
+  overflow: hidden;
+}
+
+/* Dar masaüstünde kapılar incelir; etiket birlikte küçülür */
+@media (min-width: 900px) and (max-width: 1199px) {
+  .hallNo {
+    font-size: 0.58rem;
+  }
 }
 
 .doorMeta {
@@ -174,12 +184,13 @@
     height: 100%;
   }
 
-  /* Asimetri: kapılar eş genişlikte değil */
-  .door:nth-child(5n + 1) { flex: 1.25; }
-  .door:nth-child(5n + 2) { flex: 0.95; }
-  .door:nth-child(5n + 3) { flex: 1.1; }
-  .door:nth-child(5n + 4) { flex: 0.9; }
-  .door:nth-child(5n + 5) { flex: 1.05; }
+  /* Asimetri: kapılar eş genişlikte değil — ama fark, etiketleri
+     sıkıştırmayacak kadar yumuşak tutulur */
+  .door:nth-child(5n + 1) { flex: 1.15; }
+  .door:nth-child(5n + 2) { flex: 1; }
+  .door:nth-child(5n + 3) { flex: 1.08; }
+  .door:nth-child(5n + 4) { flex: 0.96; }
+  .door:nth-child(5n + 5) { flex: 1.06; }
 
   .door:hover,
   .door:focus-visible {

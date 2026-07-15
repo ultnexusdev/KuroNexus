@@ -38,6 +38,18 @@
     "prevPage": "Önceki",
     "nextPage": "Sonraki"
   },
+  "sport": {
+    "eyebrow": "Salon 03 · Spor",
+    "footballTitle": "Galatasaray",
+    "footballSub": "Stadyum Gecesi",
+    "footballLine": "Sahanın ışıkları sönmez.",
+    "footballChips": "Kadro · Efsaneler · Anlar",
+    "f1Title": "Formula 1",
+    "f1Sub": "Gece Yarışı",
+    "f1Line": "Pistin nabzı hiç durmaz.",
+    "f1Chips": "Takvim · Şampiyona · Efsaneler",
+    "enter": "Salona gir"
+  },
   "footer": {
     "about": "Kadim dünyalar, fandom wikileri ve derinlemesine karakter analizleri — gölgede kalmış bilgilerin kişisel arşivi.",
     "explore": "Keşfet",

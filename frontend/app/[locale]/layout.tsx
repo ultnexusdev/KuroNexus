@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations } from "next-intl/server";
-import { Yuji_Boku, Cinzel, Lora } from "next/font/google";
+import { Yuji_Boku, Cinzel, Lora, Bebas_Neue } from "next/font/google";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { routing } from "@/lib/i18n/routing";
@@ -27,6 +27,14 @@ const cinzel = Cinzel({
 const lora = Lora({
   subsets: ["latin", "latin-ext"],
   variable: "--font-lora",
+  display: "swap",
+});
+
+// Spor kanadı: kondanse skor/numara yazısı (forma numaraları, F1 başlıkları)
+const bebas = Bebas_Neue({
+  weight: "400",
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-bebas",
   display: "swap",
 });
 
@@ -83,7 +91,7 @@ export default async function LocaleLayout({
   }
 
   return (
-    <html lang={locale} data-theme={theme} className={`${brushFont.variable} ${cinzel.variable} ${lora.variable}`}>
+    <html lang={locale} data-theme={theme} className={`${brushFont.variable} ${cinzel.variable} ${lora.variable} ${bebas.variable}`}>
       <body>
         <NextIntlClientProvider>
           <SiteHeader initialTheme={theme} isAdmin={isAdmin} />

@@ -171,6 +171,54 @@
 }
 
 /* ============================================================
+   KATEGORI DERISI — Spor ("Stadyum Gecesi & Gece Yarisi")
+   Salon 03: solda futbol (GS geceye cekilmis altin/bordo),
+   sagda Formula 1 (karbon + yaris kirmizisi + gece mavisi).
+   Glow degerleri kullanicinin acik istegi (kural 16 istisnasi,
+   dusuk dozda). Renk kararlari yalnizca bu dosyada.
+   ============================================================ */
+[data-category="spor"] {
+  --bg:             #0c0f15;
+  --surface:        #12151d;
+  --surface-hover:  #171b25;
+  --border:         #232833;
+  --border-strong:  #303747;
+
+  --text-primary:   #e8e6df;
+  --text-secondary: #9a9ca6;
+  --text-muted:     #6c6f7a;
+
+  --accent:         #d9a62e;
+  --accent-hover:   #e6b84a;
+  --accent-muted:   #6e5e33;
+
+  --gold:           #d9a62e;
+  --warn:           #a61c2b;
+  --danger:         #a61c2b;
+}
+
+:root {
+  /* Spor kanadi ortak */
+  --sport-ink:  #0c0f15;
+  --sport-line: #232833;
+
+  /* Futbol — Stadyum Gecesi (GS geceye cekilmis) */
+  --gs-anthracite: #14161c;
+  --gs-gold:       #d9a62e;
+  --gs-red:        #a61c2b;
+  --gs-cream:      #efe9dc;
+  --gs-glow:       rgba(217, 166, 46, 0.28);
+
+  /* Formula 1 — Gece Yarisi */
+  --f1-carbon:    #0d0f12;
+  --f1-carbon-hi: #16191e;
+  --f1-red:       #d50f1e;
+  --f1-midnight:  #12264a;
+  --f1-white:     #f2f4f8;
+  --f1-glow:      rgba(213, 15, 30, 0.22);
+}
+
+/* ============================================================
    Temel eleman stilleri (ornek — bilesenler bunlari genisletir)
    ============================================================ */
 body {

@@ -98,12 +98,6 @@
   overflow: hidden;
 }
 
-/* Dar masaüstünde kapılar incelir; etiket birlikte küçülür */
-@media (min-width: 900px) and (max-width: 1199px) {
-  .hallNo {
-    font-size: 0.58rem;
-  }
-}
 
 .doorMeta {
   position: relative;
@@ -195,6 +189,20 @@
   .door:hover,
   .door:focus-visible {
     flex: 2.1;
+  }
+
+  /* Salon numarası da kapı adı gibi dikey durur, hover'da yatay döner */
+  .hallNo {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    top: 12px;
+    left: 12px;
+    max-width: none;
+    overflow: visible;
+  }
+  .door:hover .hallNo,
+  .door:focus-visible .hallNo {
+    writing-mode: horizontal-tb;
   }
 
   /* Dikey kanat adı: kapı kapalıyken yan yazı, hover'da yatay meta belirir */

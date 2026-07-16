@@ -1,10 +1,14 @@
 import { apiFetch } from "./client";
 import type { FootballPlayerDetail, FootballSquad } from "./types";
 
-// Kadro backend cache'inden gelir (TTL 24s) — SSR'da 5 dk revalidate yeterli
+// Kadro/oyuncu verisi backend'in yerel Transfermarkt tablolarından gelir ve
+// yalnızca admin sync'inde değişir. Kaynak-doğruluk backend'de olduğundan
+// frontend cache'lemez (no-store) — bir sync sonrası değişiklik anında görünür.
+// (Bu fetch yalnızca galatasaray render yolunda çağrılır; diğer evren
+// sayfaları etkilenmez, cache'li kalır.)
 export function fetchFootballSquad(): Promise<FootballSquad> {
   return apiFetch<FootballSquad>("/football/squad", {
-    next: { revalidate: 300 },
+    cache: "no-store",
   });
 }
 
@@ -13,6 +17,6 @@ export function fetchFootballPlayer(
 ): Promise<FootballPlayerDetail> {
   return apiFetch<FootballPlayerDetail>(
     `/football/player/${encodeURIComponent(id)}`,
-    { next: { revalidate: 300 } },
+    { cache: "no-store" },
   );
 }

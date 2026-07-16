@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post } from '@nestjs/common';
+import { Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { FootballService } from './football.service';
 import { Public } from '../common/decorators/public.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -50,9 +50,11 @@ export class FootballAdminController {
   }
 
   // Süper Lig puan tablosu + sonraki maç (Apify)
+  // ?season= ile sezon geçici olarak zorlanabilir (teşhis/ilk kurulum)
   @Post('sync-league')
-  startLeagueSync() {
-    return this.football.startLeagueSync();
+  startLeagueSync(@Query('season') season?: string) {
+    const s = season ? Number(season) : undefined;
+    return this.football.startLeagueSync(Number.isNaN(s) ? undefined : s);
   }
 
   @Get('sync-league')

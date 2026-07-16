@@ -224,11 +224,11 @@ export class FootballService {
     };
   }
 
-  startLeagueSync() {
+  startLeagueSync(seasonOverride?: number) {
     if (this.leagueSyncRunning) return { status: 'ALREADY_RUNNING' };
     if (!this.apifyToken) return { status: 'NO_APIFY_TOKEN' };
     this.leagueSyncRunning = true;
-    void this.runLeagueSync()
+    void this.runLeagueSync(seasonOverride)
       .catch(async (error: unknown) => {
         const message = error instanceof Error ? error.message : String(error);
         this.logger.error(`Süper Lig sync hatası: ${message}`);
@@ -240,9 +240,32 @@ export class FootballService {
     return { status: 'STARTED' };
   }
 
-  private async runLeagueSync() {
-    this.logger.log(`Süper Lig sync başladı (sezon ${this.apifySeason})`);
-    const items = await this.runApifyActor();
+  private async runLeagueSync(seasonOverride?: number) {
+    const season = seasonOverride ?? this.apifySeason;
+    this.logger.log(`Süper Lig sync başladı (sezon ${season})`);
+    let items = await this.runApifyActor(season);
+    let usedSeason = season;
+
+    // Sezon arası boşluk: istenen sezon boşsa bir önceki sezonu dene
+    const hasStandings = (arr: Array<ApifyMatchRow | ApifyStandingRow>) =>
+      arr.some(
+        (i) =>
+          'teamName' in i &&
+          typeof (i as ApifyStandingRow).position === 'number',
+      );
+    if (!hasStandings(items) && seasonOverride === undefined) {
+      this.logger.warn(`Sezon ${season} boş, ${season - 1} deneniyor`);
+      items = await this.runApifyActor(season - 1);
+      usedSeason = season - 1;
+    }
+
+    // Teşhis: ham veri şeklini kayda al (frontend'i doğru kurmak için)
+    const diag = {
+      usedSeason,
+      totalItems: items.length,
+      sampleKeys: items[0] ? Object.keys(items[0]) : [],
+      sample: items.slice(0, 2),
+    };
 
     const matches = items.filter(
       (i): i is ApifyMatchRow => 'matchDate' in i && !!(i as ApifyMatchRow).matchDate,
@@ -289,13 +312,16 @@ export class FootballService {
       ok: true,
       standings: standings.length,
       nextMatch: !!nextMatch,
+      diag,
     });
     this.logger.log(
       `Süper Lig sync bitti: ${standings.length} takım, sonraki maç ${nextMatch ? 'var' : 'yok'}`,
     );
   }
 
-  private async runApifyActor(): Promise<Array<ApifyMatchRow | ApifyStandingRow>> {
+  private async runApifyActor(
+    season: number,
+  ): Promise<Array<ApifyMatchRow | ApifyStandingRow>> {
     // run-sync-get-dataset-items: actor'ı çalıştırıp dataset satırlarını döndürür
     const url = `https://api.apify.com/v2/acts/${APIFY_ACTOR}/run-sync-get-dataset-items?token=${this.apifyToken}&timeout=180`;
     const res = await fetch(url, {
@@ -303,7 +329,7 @@ export class FootballService {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         leagues: ['super-lig'],
-        season: this.apifySeason,
+        season,
         includeMatches: true,
         includeStandings: true,
         maxMatches: 600,

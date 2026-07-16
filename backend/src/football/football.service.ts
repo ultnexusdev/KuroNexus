@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Cron } from '@nestjs/schedule';
 import { Readable } from 'stream';
 import csv = require('csv-parser');
 import * as unzipper from 'unzipper';
@@ -106,6 +107,25 @@ export class FootballService {
   // ExternalCache'e yazılır (kural 4/14 ruhu: durum kalıcı ve gözlemlenebilir).
 
   private syncRunning = false;
+
+  // Haftalık otomatik kadro senkronizasyonu (Pazartesi 04:00 UTC).
+  // Kaggle veri seti haftalık güncellendiği için bu aralık yeterli.
+  // Kimlik bilgisi yoksa sessizce atlanır (env kurulu değilse patlamaz).
+  @Cron('0 4 * * 1', { name: 'football-squad-sync', timeZone: 'UTC' })
+  handleWeeklySync() {
+    const hasCreds =
+      !!this.config.get<string>('KAGGLE_API_TOKEN') ||
+      (!!this.config.get<string>('KAGGLE_USERNAME') &&
+        !!this.config.get<string>('KAGGLE_KEY'));
+    if (!hasCreds) {
+      this.logger.warn(
+        'Haftalık kadro sync atlandı: Kaggle kimlik bilgisi yok',
+      );
+      return;
+    }
+    this.logger.log('Haftalık kadro sync tetikleniyor');
+    this.startSquadSync();
+  }
 
   async getSyncStatus() {
     const last = await this.prisma.externalCache.findUnique({

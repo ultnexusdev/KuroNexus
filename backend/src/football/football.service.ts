@@ -13,6 +13,38 @@ const KAGGLE_PLAYERS_URL =
   'https://www.kaggle.com/api/v1/datasets/download/davidcariboo/player-scores/players.csv';
 const SYNC_STATUS_KEY = 'football:sync:last';
 
+// Apify actor: Türkiye Süper Lig maçları + puan tablosu (kullanıcı seçimi).
+// Actor her istekte koşarsa yavaş/pahalı — sonuç ExternalCache'e yazılır,
+// public uçlar cache'ten okur (kural 4/14).
+const APIFY_ACTOR = 'trovevault~turkey-football-results-tables';
+const STANDINGS_KEY = 'football:standings';
+const NEXTMATCH_KEY = 'football:nextmatch';
+const LEAGUE_SYNC_KEY = 'football:league:sync:last';
+const GS_NAME = 'Galatasaray';
+
+interface ApifyMatchRow {
+  matchDate?: string;
+  homeTeam?: string;
+  awayTeam?: string;
+  homeScore?: number | null;
+  awayScore?: number | null;
+  status?: string;
+  round?: number | string | null;
+  leagueName?: string;
+}
+interface ApifyStandingRow {
+  position?: number;
+  teamName?: string;
+  points?: number;
+  played?: number;
+  won?: number;
+  drawn?: number;
+  lost?: number;
+  goalsFor?: number;
+  goalsAgainst?: number;
+  goalDifference?: number;
+}
+
 export interface SquadPlayer {
   id: string; // TM IDs are strings
   name: string;
@@ -27,6 +59,8 @@ export class FootballService {
   private readonly logger = new Logger(FootballService.name);
   private readonly teamId: string;
   private readonly season: string;
+  private readonly apifyToken?: string;
+  private readonly apifySeason: number;
 
   constructor(
     private readonly config: ConfigService,
@@ -34,6 +68,14 @@ export class FootballService {
   ) {
     this.teamId = this.config.get<string>('TM_TEAM_ID', '141'); // 141 = Galatasaray in TM
     this.season = this.config.get<string>('TM_SEASON', '2024');
+    this.apifyToken = this.config.get<string>('APIFY_TOKEN');
+    // Sezon başlangıç yılı (2025 = 2025/2026). Coolify'da APIFY_TR_SEASON ile
+    // güncellenebilir; verilmezse takvimden mevcut sezon türetilir.
+    const now = new Date();
+    const derived = now.getUTCMonth() >= 6 ? now.getUTCFullYear() : now.getUTCFullYear() - 1;
+    this.apifySeason = Number(
+      this.config.get<string>('APIFY_TR_SEASON', String(derived)),
+    );
   }
 
   async getSquad() {
@@ -127,6 +169,15 @@ export class FootballService {
     this.startSquadSync();
   }
 
+  // Puan tablosu + sonraki maç: her gün 05:00 UTC tazelenir (tablo maç günü
+  // değişir, sayaç günlük güncel kalmalı). Apify token yoksa sessizce atlanır.
+  @Cron('0 5 * * *', { name: 'football-league-sync', timeZone: 'UTC' })
+  handleDailyLeagueSync() {
+    if (!this.apifyToken) return;
+    this.logger.log('Günlük Süper Lig sync tetikleniyor');
+    this.startLeagueSync();
+  }
+
   async getSyncStatus() {
     const last = await this.prisma.externalCache.findUnique({
       where: { cacheKey: SYNC_STATUS_KEY },
@@ -136,6 +187,144 @@ export class FootballService {
       last: last?.payload ?? null,
       lastAt: last?.fetchedAt ?? null,
     };
+  }
+
+  // ---- Süper Lig: puan tablosu + sonraki maç (Apify) ----
+
+  async getStandings() {
+    const row = await this.prisma.externalCache.findUnique({
+      where: { cacheKey: STANDINGS_KEY },
+    });
+    return {
+      table: row?.payload ?? [],
+      updatedAt: row?.fetchedAt ?? null,
+    };
+  }
+
+  async getNextMatch() {
+    const row = await this.prisma.externalCache.findUnique({
+      where: { cacheKey: NEXTMATCH_KEY },
+    });
+    return {
+      match: row?.payload ?? null,
+      updatedAt: row?.fetchedAt ?? null,
+    };
+  }
+
+  private leagueSyncRunning = false;
+
+  async getLeagueSyncStatus() {
+    const last = await this.prisma.externalCache.findUnique({
+      where: { cacheKey: LEAGUE_SYNC_KEY },
+    });
+    return {
+      running: this.leagueSyncRunning,
+      last: last?.payload ?? null,
+      lastAt: last?.fetchedAt ?? null,
+    };
+  }
+
+  startLeagueSync() {
+    if (this.leagueSyncRunning) return { status: 'ALREADY_RUNNING' };
+    if (!this.apifyToken) return { status: 'NO_APIFY_TOKEN' };
+    this.leagueSyncRunning = true;
+    void this.runLeagueSync()
+      .catch(async (error: unknown) => {
+        const message = error instanceof Error ? error.message : String(error);
+        this.logger.error(`Süper Lig sync hatası: ${message}`);
+        await this.upsertCache(LEAGUE_SYNC_KEY, { ok: false, error: message });
+      })
+      .finally(() => {
+        this.leagueSyncRunning = false;
+      });
+    return { status: 'STARTED' };
+  }
+
+  private async runLeagueSync() {
+    this.logger.log(`Süper Lig sync başladı (sezon ${this.apifySeason})`);
+    const items = await this.runApifyActor();
+
+    const matches = items.filter(
+      (i): i is ApifyMatchRow => 'matchDate' in i && !!(i as ApifyMatchRow).matchDate,
+    );
+    const standings = items
+      .filter(
+        (i): i is ApifyStandingRow =>
+          'teamName' in i && typeof (i as ApifyStandingRow).position === 'number',
+      )
+      .sort((a, b) => (a.position ?? 99) - (b.position ?? 99));
+
+    // Sonraki GS maçı: bugünden sonraki, henüz oynanmamış en yakın maç
+    const now = Date.now();
+    const gsUpcoming = matches
+      .filter((m) => m.homeTeam === GS_NAME || m.awayTeam === GS_NAME)
+      .filter((m) => {
+        const t = new Date(m.matchDate as string).getTime();
+        const unplayed =
+          m.homeScore == null ||
+          m.awayScore == null ||
+          (m.status ?? '').toLowerCase() !== 'finished';
+        return t >= now - 3 * 3600_000 && unplayed; // 3s tolerans (canlı maç)
+      })
+      .sort(
+        (a, b) =>
+          new Date(a.matchDate as string).getTime() -
+          new Date(b.matchDate as string).getTime(),
+      );
+    const nextMatch = gsUpcoming[0]
+      ? {
+          date: gsUpcoming[0].matchDate,
+          home: gsUpcoming[0].homeTeam,
+          away: gsUpcoming[0].awayTeam,
+          round: gsUpcoming[0].round ?? null,
+          league: gsUpcoming[0].leagueName ?? 'Süper Lig',
+        }
+      : null;
+
+    if (standings.length > 0) {
+      await this.upsertCache(STANDINGS_KEY, standings);
+    }
+    await this.upsertCache(NEXTMATCH_KEY, nextMatch);
+    await this.upsertCache(LEAGUE_SYNC_KEY, {
+      ok: true,
+      standings: standings.length,
+      nextMatch: !!nextMatch,
+    });
+    this.logger.log(
+      `Süper Lig sync bitti: ${standings.length} takım, sonraki maç ${nextMatch ? 'var' : 'yok'}`,
+    );
+  }
+
+  private async runApifyActor(): Promise<Array<ApifyMatchRow | ApifyStandingRow>> {
+    // run-sync-get-dataset-items: actor'ı çalıştırıp dataset satırlarını döndürür
+    const url = `https://api.apify.com/v2/acts/${APIFY_ACTOR}/run-sync-get-dataset-items?token=${this.apifyToken}&timeout=180`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        leagues: ['super-lig'],
+        season: this.apifySeason,
+        includeMatches: true,
+        includeStandings: true,
+        maxMatches: 600,
+      }),
+      signal: AbortSignal.timeout(190_000),
+    });
+    if (!res.ok) {
+      throw new Error(`APIFY.HTTP_${res.status}`);
+    }
+    return (await res.json()) as Array<ApifyMatchRow | ApifyStandingRow>;
+  }
+
+  private async upsertCache(key: string, payload: unknown) {
+    await this.prisma.externalCache.upsert({
+      where: { cacheKey: key },
+      create: { cacheKey: key, payload: payload as Prisma.InputJsonValue },
+      update: {
+        payload: payload as Prisma.InputJsonValue,
+        fetchedAt: new Date(),
+      },
+    });
   }
 
   startSquadSync() {

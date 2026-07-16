@@ -19,6 +19,18 @@ export class FootballController {
   getPlayer(@Param('id') id: string) {
     return this.football.getPlayer(id);
   }
+
+  @Public()
+  @Get('standings')
+  getStandings() {
+    return this.football.getStandings();
+  }
+
+  @Public()
+  @Get('next-match')
+  getNextMatch() {
+    return this.football.getNextMatch();
+  }
 }
 
 // Transfermarkt veri seti senkronizasyonu — yalnızca admin tetikler
@@ -35,5 +47,16 @@ export class FootballAdminController {
   @Get('sync')
   syncStatus() {
     return this.football.getSyncStatus();
+  }
+
+  // Süper Lig puan tablosu + sonraki maç (Apify)
+  @Post('sync-league')
+  startLeagueSync() {
+    return this.football.startLeagueSync();
+  }
+
+  @Get('sync-league')
+  leagueSyncStatus() {
+    return this.football.getLeagueSyncStatus();
   }
 }

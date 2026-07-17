@@ -4,6 +4,7 @@ import type {
   FootballSquad,
   NextMatchResponse,
   SuperLigStandings,
+  TransferNewsItem,
 } from "./types";
 
 // Kadro/oyuncu verisi backend'in yerel Transfermarkt tablolarından gelir ve
@@ -29,6 +30,17 @@ export function fetchNextMatch(): Promise<NextMatchResponse> {
   return apiFetch<NextMatchResponse>("/football/next-match", {
     cache: "no-store",
   });
+}
+
+// Transfer haberleri admin panelinden girilir; yeni haber anında görünsün diye
+// cache'lenmez.
+export function fetchTransferNews(
+  universeSlug: string,
+): Promise<TransferNewsItem[]> {
+  return apiFetch<TransferNewsItem[]>(
+    `/transfer-news/universe/${encodeURIComponent(universeSlug)}`,
+    { cache: "no-store" },
+  );
 }
 
 export function fetchFootballPlayer(

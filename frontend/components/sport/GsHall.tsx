@@ -2,13 +2,16 @@ import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
 import { apiUrl } from "@/lib/api/client";
-import { fetchFootballSquad } from "@/lib/api/football";
+import { fetchFootballSquad, fetchTransferNews } from "@/lib/api/football";
 import type {
   FootballSquadPlayer,
   SportBundle,
+  TransferNewsItem,
   WikiUniverse,
 } from "@/lib/api/types";
 import { GiltNav } from "./GiltNav";
+import { SquadGrid } from "./SquadGrid";
+import { TransferNews } from "./TransferNews";
 import { WidgetRail } from "./WidgetRail";
 import styles from "./GsHall.module.css";
 
@@ -18,6 +21,15 @@ async function getApiSquad(): Promise<FootballSquadPlayer[]> {
     return squad.players ?? [];
   } catch {
     // API anahtarı yoksa / dış servis çökmüşse admin kadrosuna düşülür
+    return [];
+  }
+}
+
+async function getNews(slug: string): Promise<TransferNewsItem[]> {
+  try {
+    return await fetchTransferNews(slug);
+  } catch {
+    // Haber ucu çökerse salonun geri kalanı açılmaya devam etsin
     return [];
   }
 }
@@ -37,7 +49,10 @@ export async function GsHall({
   locale: string;
 }) {
   const t = await getTranslations({ locale, namespace: "sport" });
-  const apiSquad = await getApiSquad();
+  const [apiSquad, news] = await Promise.all([
+    getApiSquad(),
+    getNews(universe.slug),
+  ]);
 
   return (
     <div data-category="spor" className={styles.hall}>
@@ -71,6 +86,7 @@ export async function GsHall({
           sections={[
             { id: "genel-bakis", label: t("navOverview") },
             { id: "kadro", label: t("navSquad") },
+            { id: "haberler", label: t("navNews") },
             { id: "efsaneler", label: t("navLegends") },
           ]}
         />
@@ -88,41 +104,14 @@ export async function GsHall({
           <section id="kadro" className={styles.section}>
             <h2 className={styles.sectionLabel}>{t("squad")}</h2>
           {apiSquad.length > 0 ? (
-            <ul className={styles.squad}>
-              {apiSquad.map((p) => (
-                <li key={p.id}>
-                  <Link
-                    href={`/futbol/oyuncu/${p.id}`}
-                    className={styles.playerCard}
-                  >
-                    {p.photo ? (
-                      /* eslint-disable-next-line @next/next/no-img-element */
-                      <img
-                        src={p.photo}
-                        alt=""
-                        loading="lazy"
-                        className={styles.playerPhoto}
-                      />
-                    ) : null}
-                    <span className={styles.shirtNo} aria-hidden>
-                      {p.number ?? "–"}
-                    </span>
-                    <span className={styles.playerMeta}>
-                      <span className={styles.playerName}>{p.name}</span>
-                      <span className={styles.playerPos}>
-                        {p.position ?? ""}
-                        {p.age ? ` · ${p.age}` : ""}
-                      </span>
-                    </span>
-                    <span className={styles.drawer}>
-                      <span className={styles.profileCue}>
-                        {t("viewProfile")} →
-                      </span>
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <SquadGrid
+              players={apiSquad}
+              labels={{
+                showAll: t("showAll"),
+                showLess: t("showLess"),
+                viewProfile: t("viewProfile"),
+              }}
+            />
           ) : bundle.players.length === 0 ? (
             <p className={styles.empty}>{t("squadEmpty")}</p>
           ) : (
@@ -165,6 +154,13 @@ export async function GsHall({
               ))}
             </ul>
           )}
+        </section>
+
+        {/* Haberler → Transfer Haberleri (ileride başka alt başlıklar eklenebilir) */}
+        <section id="haberler" className={styles.section}>
+          <h2 className={styles.sectionLabel}>{t("navNews")}</h2>
+          <h3 className={styles.subLabel}>{t("transferNews")}</h3>
+          <TransferNews news={news} locale={locale} />
         </section>
 
         {/* Efsaneler */}

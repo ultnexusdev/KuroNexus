@@ -6,6 +6,8 @@ import type {
   LoginResult,
   Story,
   StorySummary,
+  TransferNewsItem,
+  TransferNewsPlayer,
   UploadResult,
   WikiCategory,
   WikiEntryDetail,
@@ -210,6 +212,55 @@ export function updateAmbientTrack(
     method: "PATCH",
     headers: { "Content-Type": "application/json", ...authHeaders() },
     body: JSON.stringify(input),
+  });
+}
+
+// ---- Transfer haberleri ----
+
+export interface TransferNewsInput {
+  title: string;
+  body: string;
+  universeId: string;
+  tmPlayerId?: string;
+  sourceUrl?: string;
+  publishedAt?: string;
+}
+
+export function fetchAdminTransferNews(
+  universeId?: string,
+): Promise<TransferNewsItem[]> {
+  const qs = universeId
+    ? `?universeId=${encodeURIComponent(universeId)}`
+    : "";
+  return apiFetch<TransferNewsItem[]>(`/transfer-news${qs}`, {
+    headers: authHeaders(),
+  });
+}
+
+// Haber formundaki oyuncu seçici — yerel TM kadrosundan
+export function searchTransferNewsPlayers(
+  query?: string,
+): Promise<TransferNewsPlayer[]> {
+  const qs = query ? `?q=${encodeURIComponent(query)}` : "";
+  return apiFetch<TransferNewsPlayer[]>(`/transfer-news/players${qs}`, {
+    headers: authHeaders(),
+  });
+}
+
+export function createTransferNews(
+  input: TransferNewsInput,
+): Promise<TransferNewsItem> {
+  return apiFetch<TransferNewsItem>("/transfer-news", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(input),
+  });
+}
+
+export function deleteTransferNews(id: string): Promise<void> {
+  return apiFetch<void>(`/transfer-news/${id}`, {
+    method: "DELETE",
+    headers: authHeaders(),
   });
 }
 

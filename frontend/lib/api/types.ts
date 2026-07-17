@@ -193,6 +193,28 @@ export interface FootballPlayerDetail {
   statistics: FootballStatBlock[];
 }
 
+// Transfer haberi — künye alanları (fotoğraf/mevki/piyasa değeri/yaş) haberin
+// içine kopyalanmaz, backend TM tablosundan okuyup `player` olarak döner.
+export interface TransferNewsPlayer {
+  id: string;
+  name: string;
+  position: string | null;
+  photo: string | null;
+  marketValueInEur: number | null;
+  age: number | null;
+}
+
+export interface TransferNewsItem {
+  id: string;
+  title: string;
+  body: string; // sanitize edilmiş HTML
+  sourceUrl: string | null;
+  publishedAt: string;
+  universeId: string;
+  tmPlayerId: string | null;
+  player: TransferNewsPlayer | null;
+}
+
 // Süper Lig puan tablosu — backend maç sonuçlarından hesaplayıp cache'ler.
 // `season` sezon başlangıç yılıdır (2025 = 2025/26).
 export interface SuperLigRow {

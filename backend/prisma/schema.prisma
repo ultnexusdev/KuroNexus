@@ -99,6 +99,7 @@ model WikiUniverse {
   sportLegends    SportLegend[]
   raceEvents      RaceEvent[]
   driverStandings DriverStanding[]
+  transferNews    TransferNews[]
 }
 
 // Dış API yanıtları için kalıcı cache (kural 4 + 14: her sayfa yüklemesinde
@@ -465,6 +466,27 @@ enum SubmissionStatus {
   REJECTED
 }
 
+// Transfer haberleri — evrene bağlı (şimdilik Galatasaray). Bir habere TM
+// oyuncusu bağlanabilir; fotoğraf/mevki/piyasa değeri o kayıttan okunur, haber
+// metninde tekrarlanmaz (tek kaynak-doğruluk: TM sync'i).
+model TransferNews {
+  id          String   @id @default(cuid())
+  title       String
+  body        String   @db.Text // sanitize edilmiş HTML
+  sourceUrl   String?
+  publishedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  universeId String
+  universe   WikiUniverse @relation(fields: [universeId], references: [id])
+
+  tmPlayerId String?
+  tmPlayer   TmPlayer? @relation(fields: [tmPlayerId], references: [id])
+
+  @@index([universeId, publishedAt])
+}
+
 model AmbientTrack {
   id         String       @id @default(cuid())
   title      String
@@ -541,7 +563,8 @@ model TmPlayer {
   currentClubId String?
   currentClub   TmClub? @relation(fields: [currentClubId], references: [id])
 
-  transfers TmTransfer[]
+  transfers    TmTransfer[]
+  transferNews TransferNews[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

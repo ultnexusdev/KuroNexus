@@ -28,6 +28,9 @@ export default function AdminHomePage() {
           <Link href="/admin/ambient-tracks" className="card">
             {t("ambient.title")}
           </Link>
+          <Link href="/admin/transfer-news" className="card">
+            {t("transferNews.title")}
+          </Link>
         </nav>
       </section>
     </AdminGuard>

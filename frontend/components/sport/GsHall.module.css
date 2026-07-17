@@ -107,6 +107,17 @@
   scroll-margin-top: 2rem;
 }
 
+/* Bölüm içi alt başlık (ör. Haberler → Transfer Haberleri) */
+.subLabel {
+  margin: 0 0 14px;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
 .overview {
   margin: 0;
   max-width: 46rem;
@@ -158,21 +169,23 @@
 }
 
 /* --- Kadro kartları --- */
+/* Kompakt kartlar: dar ekranda da satır başına birden fazla sığar
+   (210px'lik eski minmax telefonda tek sütuna düşürüyordu). */
 .squad {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-  gap: var(--gap-lg);
+  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+  gap: 12px;
 }
 
 .playerCard {
   position: relative;
   overflow: hidden;
-  min-height: 150px;
+  min-height: 104px;
   color: var(--text-primary); /* global link renginin üstüne */
-  padding: 16px;
+  padding: 10px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-top: 2px solid color-mix(in srgb, var(--gs-gold) 55%, var(--border));
@@ -194,10 +207,10 @@
 /* API-Football kadro fotoğrafı: altın çerçeveli madalyon */
 .playerPhoto {
   position: absolute;
-  right: 12px;
-  bottom: 48px;
-  width: 72px;
-  height: 72px;
+  right: 8px;
+  top: 8px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid color-mix(in srgb, var(--gs-gold) 45%, transparent);
@@ -213,8 +226,8 @@
 
 .profileCue {
   font-family: var(--font-cinzel), serif;
-  font-size: 0.72rem;
-  letter-spacing: 0.18em;
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--gs-gold);
 }
@@ -231,12 +244,39 @@
 }
 
 /* Dev forma numarası */
+/* Kadroyu tam listeye açan/kapayan buton */
+.showAll {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: var(--touch-min);
+  margin-top: 12px;
+  padding: 0 16px;
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--gs-gold) 35%, var(--border));
+  color: var(--gs-gold);
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.25s ease, border-color 0.25s ease;
+}
+
+.showAll:hover {
+  background: var(--surface-hover);
+  border-color: var(--gs-gold);
+}
+
+/* Dekoratif forma numarası — fotoğraf artık sağ üstte, numara alta alındı */
 .shirtNo {
   position: absolute;
-  top: 2px;
-  right: 12px;
+  bottom: 2px;
+  right: 10px;
   font-family: var(--font-bebas), sans-serif;
-  font-size: 4.4rem;
+  font-size: 2.4rem;
   line-height: 1;
   color: color-mix(in srgb, var(--gs-gold) 26%, transparent);
   transition: color 0.3s;
@@ -255,19 +295,20 @@
   transition: transform 0.3s ease;
 }
 .playerCard:hover .playerMeta {
-  transform: translateY(-34px);
+  transform: translateY(-26px);
 }
 
 .playerName {
   font-family: var(--font-bebas), sans-serif;
-  font-size: 1.35rem;
+  font-size: 1.05rem;
   letter-spacing: 0.04em;
+  line-height: 1.15;
   color: var(--gs-cream);
 }
 
 .playerPos {
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: 0.58rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--gs-gold);
@@ -281,8 +322,8 @@
   bottom: 0;
   z-index: 1;
   display: flex;
-  gap: 14px;
-  padding: 10px 16px;
+  gap: 10px;
+  padding: 6px 10px;
   background: color-mix(in srgb, var(--gs-red) 24%, var(--surface));
   border-top: 1px solid color-mix(in srgb, var(--gs-gold) 30%, transparent);
   transform: translateY(100%);

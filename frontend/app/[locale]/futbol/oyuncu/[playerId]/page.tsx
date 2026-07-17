@@ -26,6 +26,13 @@ export async function generateMetadata({
   return { title: detail?.player?.name ?? "KuroNexus" };
 }
 
+function marketValue(eur: number | null, locale: string) {
+  if (!eur || eur <= 0) return null;
+  const millions = eur / 1_000_000;
+  const value = millions >= 10 ? Math.round(millions) : Number(millions.toFixed(1));
+  return `${new Intl.NumberFormat(locale).format(value)} M €`;
+}
+
 export default async function PlayerProfilePage({
   params,
 }: {
@@ -38,26 +45,25 @@ export default async function PlayerProfilePage({
   if (!detail || !detail.player) {
     notFound();
   }
-  const { player, statistics, season } = detail;
+  const { player } = detail;
 
-  // Çekirdek toplamlar tüm turnuvaların toplamı; detay paneli en çok
-  // süre alınan turnuvadan gelir (etiketiyle birlikte — dürüst gösterim)
-  const totals = statistics.reduce(
-    (acc, s) => ({
-      apps: acc.apps + (s.appearances ?? 0),
-      goals: acc.goals + (s.goals ?? 0),
-      assists: acc.assists + (s.assists ?? 0),
-      minutes: acc.minutes + (s.minutes ?? 0),
-      yellow: acc.yellow + (s.cardsYellow ?? 0),
-      red: acc.red + (s.cardsRed ?? 0),
-    }),
-    { apps: 0, goals: 0, assists: 0, minutes: 0, yellow: 0, red: 0 },
-  );
-  const primary =
-    statistics.length > 0
-      ? statistics.reduce((a, b) => (b.minutes > a.minutes ? b : a))
-      : null;
-  const accuracy = primary?.passAccuracy ?? null;
+  const birth = player.birthDate
+    ? new Intl.DateTimeFormat(locale, {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      }).format(new Date(player.birthDate))
+    : null;
+
+  // Künye satırları — yalnızca gerçekten veri olanlar basılır
+  const facts: Array<[string, string]> = [];
+  if (player.clubName) facts.push([t("club"), player.clubName]);
+  if (player.position) facts.push([t("position"), player.position]);
+  if (birth) facts.push([t("birthDate"), birth]);
+  if (player.heightInCm) facts.push([t("height"), `${player.heightInCm} cm`]);
+  if (player.foot) facts.push([t("foot"), player.foot]);
+  const value = marketValue(player.marketValueInEur, locale);
+  if (value) facts.push([t("marketValue"), value]);
 
   return (
     <div data-category="spor" className={styles.page}>
@@ -73,16 +79,12 @@ export default async function PlayerProfilePage({
               <img src={player.photo} alt="" className={styles.photo} />
             ) : null}
             <div>
-              <span className={styles.eyebrow}>
-                {t("seasonLabel", { season })}
-              </span>
+              <span className={styles.eyebrow}>{t("dossier")}</span>
               <h1 className={styles.name}>{player.name}</h1>
               <ul className={styles.chips}>
-                {primary?.position ? <li>{primary.position}</li> : null}
-                {player.nationality ? <li>{player.nationality}</li> : null}
+                {player.position ? <li>{player.position}</li> : null}
                 {player.age ? <li>{t("age", { age: player.age })}</li> : null}
-                {player.height ? <li>{player.height} cm</li> : null}
-                {player.weight ? <li>{player.weight} kg</li> : null}
+                {value ? <li>{value}</li> : null}
               </ul>
             </div>
           </div>
@@ -90,153 +92,28 @@ export default async function PlayerProfilePage({
       </header>
 
       <div className={styles.body}>
-        {statistics.length === 0 ? (
-          <p className={styles.empty}>{t("noStats", { season })}</p>
-        ) : (
-          <>
-            {/* Sezon çekirdek istatistikleri */}
-            <section>
-              <h2 className={styles.sectionLabel}>{t("seasonStats")}</h2>
-              <ul className={styles.tiles}>
-                <li className={styles.tile}>
-                  <b>{totals.apps}</b>
-                  <span>{t("apps")}</span>
-                </li>
-                <li className={styles.tile}>
-                  <b>{totals.goals}</b>
-                  <span>{t("goals")}</span>
-                </li>
-                <li className={styles.tile}>
-                  <b>{totals.assists}</b>
-                  <span>{t("assists")}</span>
-                </li>
-                <li className={styles.tile}>
-                  <b>{totals.minutes.toLocaleString(locale)}</b>
-                  <span>{t("minutes")}</span>
-                </li>
-              </ul>
-            </section>
-
-            {/* Detaylı performans — birincil turnuva */}
-            {primary ? (
-              <section>
-                <h2 className={styles.sectionLabel}>
-                  {t("performance")}
-                  <span className={styles.sectionNote}>
-                    {primary.team} · {primary.league}
-                  </span>
-                </h2>
-                <div className={styles.perfGrid}>
-                  {primary.rating ? (
-                    <div className={styles.perfCard}>
-                      <span className={styles.perfLabel}>{t("rating")}</span>
-                      <b className={styles.perfValue}>
-                        {Number(primary.rating).toFixed(2)}
-                      </b>
-                      <span className={styles.meter} aria-hidden>
-                        <span
-                          className={styles.meterFill}
-                          style={{
-                            width: `${Math.min(100, (Number(primary.rating) / 10) * 100)}%`,
-                          }}
-                        />
-                      </span>
-                    </div>
-                  ) : null}
-                  {accuracy !== null ? (
-                    <div className={styles.perfCard}>
-                      <span className={styles.perfLabel}>
-                        {t("passAccuracy")}
-                      </span>
-                      <b className={styles.perfValue}>%{accuracy}</b>
-                      <span className={styles.meter} aria-hidden>
-                        <span
-                          className={styles.meterFill}
-                          style={{ width: `${Math.min(100, accuracy)}%` }}
-                        />
-                      </span>
-                    </div>
-                  ) : null}
-                  {primary.passesTotal !== null ? (
-                    <div className={styles.perfCard}>
-                      <span className={styles.perfLabel}>{t("passes")}</span>
-                      <b className={styles.perfValue}>
-                        {primary.passesTotal.toLocaleString(locale)}
-                      </b>
-                      {primary.passesKey !== null ? (
-                        <span className={styles.perfSub}>
-                          {t("keyPasses", { count: primary.passesKey })}
-                        </span>
-                      ) : null}
-                    </div>
-                  ) : null}
-                  {primary.shotsTotal !== null ? (
-                    <div className={styles.perfCard}>
-                      <span className={styles.perfLabel}>{t("shots")}</span>
-                      <b className={styles.perfValue}>{primary.shotsTotal}</b>
-                      {primary.shotsOn !== null ? (
-                        <span className={styles.perfSub}>
-                          {t("shotsOn", { count: primary.shotsOn })}
-                        </span>
-                      ) : null}
-                    </div>
-                  ) : null}
-                  {primary.saves !== null ? (
-                    <div className={styles.perfCard}>
-                      <span className={styles.perfLabel}>{t("saves")}</span>
-                      <b className={styles.perfValue}>{primary.saves}</b>
-                      {primary.conceded !== null ? (
-                        <span className={styles.perfSub}>
-                          {t("conceded", { count: primary.conceded })}
-                        </span>
-                      ) : null}
-                    </div>
-                  ) : null}
-                  <div className={styles.perfCard}>
-                    <span className={styles.perfLabel}>{t("cards")}</span>
-                    <span className={styles.cardsRow}>
-                      <b className={`${styles.cardChip} ${styles.yellow}`}>
-                        {totals.yellow}
-                      </b>
-                      <b className={`${styles.cardChip} ${styles.red}`}>
-                        {totals.red}
-                      </b>
-                    </span>
-                  </div>
-                </div>
-              </section>
-            ) : null}
-
-            {/* Turnuva dökümü */}
-            <section>
-              <h2 className={styles.sectionLabel}>{t("byCompetition")}</h2>
-              <ul className={styles.compList}>
-                {statistics
-                  .filter((s) => (s.appearances ?? 0) > 0 || s.minutes > 0)
-                  .map((s, i) => (
-                    <li key={i} className={styles.compRow}>
-                      <span className={styles.compName}>
-                        {s.league ?? "—"}
-                        <span className={styles.compTeam}>{s.team}</span>
-                      </span>
-                      <span className={styles.compStat}>
-                        {s.appearances} {t("apps")}
-                      </span>
-                      <span className={styles.compStat}>
-                        {s.goals} {t("goals")}
-                      </span>
-                      <span className={styles.compStat}>
-                        {s.assists} {t("assists")}
-                      </span>
-                      <span className={styles.compStat}>
-                        {s.minutes.toLocaleString(locale)}&#8217;
-                      </span>
-                    </li>
-                  ))}
-              </ul>
-            </section>
-          </>
-        )}
+        <section>
+          <h2 className={styles.sectionLabel}>{t("dossier")}</h2>
+          <dl className={styles.facts}>
+            {facts.map(([label, val]) => (
+              <div key={label} className={styles.factRow}>
+                <dt>{label}</dt>
+                <dd>{val}</dd>
+              </div>
+            ))}
+          </dl>
+          <p className={styles.note}>{t("dossierNote")}</p>
+          {player.tmUrl ? (
+            <a
+              href={player.tmUrl}
+              className={styles.tmLink}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {t("tmProfile")} →
+            </a>
+          ) : null}
+        </section>
       </div>
     </div>
   );

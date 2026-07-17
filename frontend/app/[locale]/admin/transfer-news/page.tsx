@@ -10,6 +10,7 @@ import {
   fetchAdminTransferNews,
   fetchAdminUniverses,
   searchTransferNewsPlayers,
+  uploadImage,
 } from "@/lib/admin/api";
 import type {
   TransferNewsItem,
@@ -17,6 +18,9 @@ import type {
   WikiUniverseSummary,
 } from "@/lib/api/types";
 import styles from "./page.module.css";
+
+// Oyuncu seçicide "elle gir" seçeneğinin değeri — TM id'leriyle çakışmasın
+const MANUAL = "__manual__";
 
 export default function TransferNewsPage() {
   const t = useTranslations("admin.transferNews");
@@ -30,6 +34,12 @@ export default function TransferNewsPage() {
   const [universeId, setUniverseId] = useState("");
   const [tmPlayerId, setTmPlayerId] = useState("");
   const [sourceUrl, setSourceUrl] = useState("");
+  // Kulüpte olmayan oyuncu (transfer hedefi): TM kadrosunda bulunmadığı için
+  // künye elle girilir
+  const [manualName, setManualName] = useState("");
+  const [manualFacts, setManualFacts] = useState("");
+  const [manualPhoto, setManualPhoto] = useState("");
+  const manualMode = tmPlayerId === MANUAL;
 
   const refresh = () => {
     fetchAdminTransferNews().then(setNews).catch(console.error);
@@ -65,13 +75,19 @@ export default function TransferNewsPage() {
         title,
         body,
         universeId,
-        tmPlayerId: tmPlayerId || undefined,
+        tmPlayerId: manualMode ? undefined : tmPlayerId || undefined,
+        manualPlayerName: manualMode ? manualName || undefined : undefined,
+        manualPlayerFacts: manualMode ? manualFacts || undefined : undefined,
+        manualPlayerPhoto: manualMode ? manualPhoto || undefined : undefined,
         sourceUrl: sourceUrl || undefined,
       });
       setTitle("");
       setBody("");
       setTmPlayerId("");
       setSourceUrl("");
+      setManualName("");
+      setManualFacts("");
+      setManualPhoto("");
       refresh();
     } catch (err) {
       console.error(err);
@@ -130,16 +146,73 @@ export default function TransferNewsPage() {
                 onChange={(e) => setTmPlayerId(e.target.value)}
               >
                 <option value="">{t("noPlayer")}</option>
+                <option value={MANUAL}>{t("manualPlayer")}</option>
                 {players.map((p) => (
-                  <option key={p.id} value={p.id}>
+                  <option key={p.id ?? p.name} value={p.id ?? ""}>
                     {p.name}
                     {p.position ? ` — ${p.position}` : ""}
                   </option>
                 ))}
               </select>
-              <span className={styles.hint}>{t("playerHint")}</span>
+              <span className={styles.hint}>
+                {manualMode ? t("manualHint") : t("playerHint")}
+              </span>
             </div>
           </div>
+
+          {/* Kulüpte olmayan oyuncu: künye TM'den gelemez, elle girilir */}
+          {manualMode ? (
+            <div className={styles.row}>
+              <div className={styles.field}>
+                <label className={styles.label} htmlFor="manual-name">
+                  {t("manualName")}
+                </label>
+                <input
+                  id="manual-name"
+                  className={styles.input}
+                  value={manualName}
+                  onChange={(e) => setManualName(e.target.value)}
+                />
+              </div>
+              <div className={styles.field}>
+                <label className={styles.label} htmlFor="manual-facts">
+                  {t("manualFacts")}
+                </label>
+                <input
+                  id="manual-facts"
+                  className={styles.input}
+                  value={manualFacts}
+                  onChange={(e) => setManualFacts(e.target.value)}
+                  placeholder={t("manualFactsPlaceholder")}
+                />
+              </div>
+              <div className={styles.field}>
+                <label className={styles.label} htmlFor="manual-photo">
+                  {t("manualPhoto")}
+                </label>
+                <input
+                  id="manual-photo"
+                  type="file"
+                  accept="image/*"
+                  className={styles.input}
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    try {
+                      const uploaded = await uploadImage(file);
+                      setManualPhoto(uploaded.url);
+                    } catch (err) {
+                      console.error(err);
+                      alert(t("uploadError"));
+                    }
+                  }}
+                />
+                {manualPhoto ? (
+                  <span className={styles.hint}>{t("photoReady")}</span>
+                ) : null}
+              </div>
+            </div>
+          ) : null}
 
           <div className={styles.field}>
             <label className={styles.label} htmlFor="news-source">

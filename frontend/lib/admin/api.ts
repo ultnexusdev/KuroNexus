@@ -215,6 +215,47 @@ export function updateAmbientTrack(
   });
 }
 
+// ---- Kadro düzeltmeleri ----
+// TM veri seti transferleri geç yansıtıyor; ayrılanlar gizlenir, yeni
+// transferler elle eklenir. Sync bunları ezmez.
+
+export interface SquadOverride {
+  id: string;
+  teamId: string;
+  tmPlayerId: string | null;
+  name: string | null;
+  position: string | null;
+  age: number | null;
+  photo: string | null;
+}
+
+export function fetchSquadOverrides(): Promise<SquadOverride[]> {
+  return apiFetch<SquadOverride[]>("/admin/football/squad-overrides", {
+    headers: authHeaders(),
+  });
+}
+
+export function createSquadOverride(input: {
+  tmPlayerId?: string;
+  name?: string;
+  position?: string;
+  age?: number;
+  photo?: string;
+}): Promise<SquadOverride> {
+  return apiFetch<SquadOverride>("/admin/football/squad-overrides", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(input),
+  });
+}
+
+export function deleteSquadOverride(id: string): Promise<void> {
+  return apiFetch<void>(`/admin/football/squad-overrides/${id}`, {
+    method: "DELETE",
+    headers: authHeaders(),
+  });
+}
+
 // ---- Transfer haberleri ----
 
 export interface TransferNewsInput {
@@ -222,6 +263,10 @@ export interface TransferNewsInput {
   body: string;
   universeId: string;
   tmPlayerId?: string;
+  // Kulüpte olmayan oyuncu (transfer hedefi) — TM kadrosunda bulunmaz
+  manualPlayerName?: string;
+  manualPlayerPhoto?: string;
+  manualPlayerFacts?: string;
   sourceUrl?: string;
   publishedAt?: string;
 }

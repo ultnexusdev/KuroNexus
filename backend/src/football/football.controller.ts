@@ -1,4 +1,12 @@
-import { Controller, Get, Param, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { FootballService } from './football.service';
 import { Public } from '../common/decorators/public.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -42,6 +50,31 @@ export class FootballAdminController {
   @Post('sync')
   startSync() {
     return this.football.startSquadSync();
+  }
+
+  // Kadro düzeltmeleri — veri seti transferleri geç yansıttığı için elle
+  @Get('squad-overrides')
+  listSquadOverrides() {
+    return this.football.listSquadOverrides();
+  }
+
+  @Post('squad-overrides')
+  createSquadOverride(
+    @Body()
+    body: {
+      tmPlayerId?: string;
+      name?: string;
+      position?: string;
+      age?: number;
+      photo?: string;
+    },
+  ) {
+    return this.football.createSquadOverride(body);
+  }
+
+  @Delete('squad-overrides/:id')
+  removeSquadOverride(@Param('id') id: string) {
+    return this.football.removeSquadOverride(id);
   }
 
   @Get('sync')

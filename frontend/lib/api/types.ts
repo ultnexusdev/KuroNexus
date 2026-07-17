@@ -175,8 +175,10 @@ export interface FootballStatBlock {
   cardsRed: number;
 }
 
+// Oyuncu künyesi — Transfermarkt kaydından. Sezon istatistiği YOK: TM veri
+// setindeki maç tablosu (TmGame) senkronize edilmiyor, o gelene kadar sayfa
+// yalnızca elimizdeki gerçek veriyi gösterir.
 export interface FootballPlayerDetail {
-  season: string;
   player: {
     id: string;
     name: string;
@@ -184,24 +186,28 @@ export interface FootballPlayerDetail {
     lastname: string | null;
     age: number | null;
     birthDate: string | null;
-    birthCountry: string | null;
-    nationality: string | null;
-    height: string | null;
-    weight: string | null;
+    heightInCm: number | null;
+    foot: string | null;
+    position: string | null;
+    marketValueInEur: number | null;
+    clubName: string | null;
     photo: string | null;
+    tmUrl: string | null;
   } | null;
-  statistics: FootballStatBlock[];
 }
 
 // Transfer haberi — künye alanları (fotoğraf/mevki/piyasa değeri/yaş) haberin
 // içine kopyalanmaz, backend TM tablosundan okuyup `player` olarak döner.
+// TM kaydı varsa alanlar oradan; yoksa elle girilen künye (`facts` serbest
+// metin, ör. "Santrfor · 24 yaş · 12 M €"). `id` yalnızca TM oyuncularında var.
 export interface TransferNewsPlayer {
-  id: string;
+  id: string | null;
   name: string;
   position: string | null;
   photo: string | null;
   marketValueInEur: number | null;
   age: number | null;
+  facts: string | null;
 }
 
 export interface TransferNewsItem {

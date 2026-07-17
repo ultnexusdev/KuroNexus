@@ -25,6 +25,19 @@ export class CreateTransferNewsDto {
   @IsOptional()
   tmPlayerId?: string;
 
+  // Kulüpte olmayan oyuncu (transfer hedefi) — TM kadromuzda yok, künye elle
+  @IsString()
+  @IsOptional()
+  manualPlayerName?: string;
+
+  @IsString()
+  @IsOptional()
+  manualPlayerPhoto?: string;
+
+  @IsString()
+  @IsOptional()
+  manualPlayerFacts?: string;
+
   @IsUrl()
   @IsOptional()
   sourceUrl?: string;

@@ -31,6 +31,9 @@ export default function AdminHomePage() {
           <Link href="/admin/transfer-news" className="card">
             {t("transferNews.title")}
           </Link>
+          <Link href="/admin/squad" className="card">
+            {t("squad.title")}
+          </Link>
         </nav>
       </section>
     </AdminGuard>

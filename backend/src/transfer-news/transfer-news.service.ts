@@ -35,6 +35,9 @@ export class TransferNewsService {
     publishedAt: Date;
     universeId: string;
     tmPlayerId: string | null;
+    manualPlayerName: string | null;
+    manualPlayerPhoto: string | null;
+    manualPlayerFacts: string | null;
     tmPlayer: {
       id: string;
       name: string;
@@ -45,6 +48,31 @@ export class TransferNewsService {
       dateOfBirth: Date | null;
     } | null;
   }) {
+    // TM kaydı varsa o kazanır (sync ile tazelenir); yoksa elle girilen künye.
+    // `facts` doluysa frontend onu olduğu gibi basar — kulüpte olmayan
+    // oyuncular için mevki/yaş/değer üçlüsünü ayrı alanlara bölmeye gerek yok.
+    const player = item.tmPlayer
+      ? {
+          id: item.tmPlayer.id,
+          name: item.tmPlayer.name,
+          position: item.tmPlayer.subPosition ?? item.tmPlayer.position,
+          photo: item.tmPlayer.imageUrl,
+          marketValueInEur: item.tmPlayer.marketValueInEur,
+          age: age(item.tmPlayer.dateOfBirth),
+          facts: null as string | null,
+        }
+      : item.manualPlayerName
+        ? {
+            id: null,
+            name: item.manualPlayerName,
+            position: null,
+            photo: item.manualPlayerPhoto,
+            marketValueInEur: null,
+            age: null,
+            facts: item.manualPlayerFacts,
+          }
+        : null;
+
     return {
       id: item.id,
       title: item.title,
@@ -53,16 +81,7 @@ export class TransferNewsService {
       publishedAt: item.publishedAt,
       universeId: item.universeId,
       tmPlayerId: item.tmPlayerId,
-      player: item.tmPlayer
-        ? {
-            id: item.tmPlayer.id,
-            name: item.tmPlayer.name,
-            position: item.tmPlayer.subPosition ?? item.tmPlayer.position,
-            photo: item.tmPlayer.imageUrl,
-            marketValueInEur: item.tmPlayer.marketValueInEur,
-            age: age(item.tmPlayer.dateOfBirth),
-          }
-        : null,
+      player,
     };
   }
 
@@ -73,6 +92,9 @@ export class TransferNewsService {
         body: sanitizeStoryContent(dto.body),
         universeId: dto.universeId,
         tmPlayerId: dto.tmPlayerId || null,
+        manualPlayerName: dto.manualPlayerName || null,
+        manualPlayerPhoto: dto.manualPlayerPhoto || null,
+        manualPlayerFacts: dto.manualPlayerFacts || null,
         sourceUrl: dto.sourceUrl || null,
         publishedAt: dto.publishedAt ? new Date(dto.publishedAt) : new Date(),
       },
@@ -121,6 +143,15 @@ export class TransferNewsService {
         ...(dto.tmPlayerId !== undefined
           ? { tmPlayerId: dto.tmPlayerId || null }
           : {}),
+        ...(dto.manualPlayerName !== undefined
+          ? { manualPlayerName: dto.manualPlayerName || null }
+          : {}),
+        ...(dto.manualPlayerPhoto !== undefined
+          ? { manualPlayerPhoto: dto.manualPlayerPhoto || null }
+          : {}),
+        ...(dto.manualPlayerFacts !== undefined
+          ? { manualPlayerFacts: dto.manualPlayerFacts || null }
+          : {}),
         ...(dto.sourceUrl !== undefined
           ? { sourceUrl: dto.sourceUrl || null }
           : {}),
@@ -156,6 +187,7 @@ export class TransferNewsService {
       photo: p.imageUrl,
       marketValueInEur: p.marketValueInEur,
       age: age(p.dateOfBirth),
+      facts: null,
     }));
   }
 }

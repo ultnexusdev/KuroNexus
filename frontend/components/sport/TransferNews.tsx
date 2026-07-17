@@ -57,13 +57,16 @@ export async function TransferNews({
                 <div className={styles.dossierMeta}>
                   <span className={styles.playerName}>{item.player.name}</span>
                   <span className={styles.playerFacts}>
-                    {[
-                      item.player.position,
-                      item.player.age ? `${item.player.age}` : null,
-                      value,
-                    ]
-                      .filter(Boolean)
-                      .join(" · ")}
+                    {/* Kulüpte olmayan oyuncularda künye elle girilir (`facts`);
+                        TM kaydı olanlarda alanlardan derlenir. */}
+                    {item.player.facts ??
+                      [
+                        item.player.position,
+                        item.player.age ? `${item.player.age}` : null,
+                        value,
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
                   </span>
                 </div>
               </div>

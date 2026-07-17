@@ -320,3 +320,53 @@
     animation: none;
   }
 }
+
+/* Künye listesi — sezon istatistiği yerine gerçek TM verisi */
+.facts {
+  margin: 0;
+  max-width: 34rem;
+}
+
+.factRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.factRow:last-child {
+  border-bottom: 0;
+}
+
+.factRow dt {
+  font-family: var(--font-cormorant);
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+}
+
+.factRow dd {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-primary);
+  text-align: right;
+}
+
+.note {
+  margin: 1.25rem 0 0;
+  font-family: var(--font-cormorant);
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+
+.tmLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gs-gold);
+}

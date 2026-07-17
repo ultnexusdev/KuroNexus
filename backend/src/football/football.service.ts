@@ -148,11 +148,31 @@ export class FootballService {
   }
 
   async getSquad() {
-    const players = await this.prisma.tmPlayer.findMany({
-      where: { currentClubId: this.teamId },
-    });
+    // Kadro = TM sync'i + elle düzeltmeler (bkz. SquadOverride). Kaggle veri
+    // seti transferleri geç yansıttığı için düzeltmeler olmadan ayrılan
+    // oyuncular kadroda kalır, yeni transferler görünmez.
+    const [players, overrides] = await Promise.all([
+      this.prisma.tmPlayer.findMany({ where: { currentClubId: this.teamId } }),
+      this.prisma.squadOverride.findMany({ where: { teamId: this.teamId } }),
+    ]);
 
-    const mapped: SquadPlayer[] = players.map(p => {
+    const hiddenIds = new Set(
+      overrides.filter((o) => o.tmPlayerId).map((o) => o.tmPlayerId as string),
+    );
+    const manual: SquadPlayer[] = overrides
+      .filter((o) => !o.tmPlayerId && o.name)
+      .map((o) => ({
+        id: `manual:${o.id}`, // TM id'leriyle çakışmasın; profil sayfası yok
+        name: o.name as string,
+        age: o.age ?? null,
+        number: null,
+        position: o.position ?? null,
+        photo: o.photo ?? null,
+      }));
+
+    const mapped: SquadPlayer[] = players
+      .filter((p) => !hiddenIds.has(p.id))
+      .map(p => {
       let age: number | null = null;
       if (p.dateOfBirth) {
         const ageDifMs = Date.now() - p.dateOfBirth.getTime();
@@ -170,7 +190,48 @@ export class FootballService {
       };
     });
 
-    return { teamId: this.teamId, players: mapped };
+    return { teamId: this.teamId, players: [...mapped, ...manual] };
+  }
+
+  // ---- Kadro düzeltmeleri (admin) ----
+
+  listSquadOverrides() {
+    return this.prisma.squadOverride.findMany({
+      where: { teamId: this.teamId },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  /** tmPlayerId verilirse o oyuncu gizlenir; name verilirse kadroya eklenir. */
+  async createSquadOverride(input: {
+    tmPlayerId?: string;
+    name?: string;
+    position?: string;
+    age?: number;
+    photo?: string;
+  }) {
+    if (input.tmPlayerId) {
+      // Aynı oyuncu iki kez gizlenmeye çalışılırsa sessizce mevcut kaydı döner
+      return this.prisma.squadOverride.upsert({
+        where: { tmPlayerId: input.tmPlayerId },
+        create: { teamId: this.teamId, tmPlayerId: input.tmPlayerId },
+        update: {},
+      });
+    }
+    return this.prisma.squadOverride.create({
+      data: {
+        teamId: this.teamId,
+        name: input.name,
+        position: input.position ?? null,
+        age: input.age ?? null,
+        photo: input.photo ?? null,
+      },
+    });
+  }
+
+  async removeSquadOverride(id: string) {
+    await this.prisma.squadOverride.delete({ where: { id } });
+    return { ok: true };
   }
 
   async getPlayer(playerId: string) {
@@ -180,7 +241,7 @@ export class FootballService {
     });
 
     if (!p) {
-      return { season: this.season, player: null, statistics: [] };
+      return { player: null };
     }
 
     let age: number | null = null;
@@ -190,24 +251,29 @@ export class FootballService {
       age = Math.abs(ageDate.getUTCFullYear() - 1970);
     }
 
+    // Sezon istatistiği YOK: API-Football döneminden kalan `statistics` alanı
+    // TM geçişinde hep boş dönüyordu, sayfa da "{sezon} sezonu için istatistik
+    // bulunamadı" diye sabit bir hata gösteriyordu. TM veri setinde maç bazlı
+    // istatistik var (TmGame) ama senkronize edilmiyor; o gelene kadar sayfa
+    // elimizdeki gerçek veriyi (künye) gösterir, olmayan veriyi vaat etmez.
     return {
-      season: this.season,
       player: {
         id: p.id,
         name: p.name,
         firstname: p.firstName ?? null,
         lastname: p.lastName ?? null,
         age,
-        birthDate: p.dateOfBirth ? p.dateOfBirth.toISOString().split('T')[0] : null,
-        birthCountry: null, // TM datasetinde birthCountry eksik
-        nationality: null, 
-        height: p.heightInCm ? `${p.heightInCm} cm` : null,
-        weight: null,
+        birthDate: p.dateOfBirth
+          ? p.dateOfBirth.toISOString().split('T')[0]
+          : null,
+        heightInCm: p.heightInCm ?? null,
+        foot: p.foot ?? null,
+        position: p.subPosition ?? p.position ?? null,
+        marketValueInEur: p.marketValueInEur ?? null,
+        clubName: p.currentClub?.name ?? null,
         photo: p.imageUrl ?? null,
+        tmUrl: p.url ?? null,
       },
-      // Kapsamlı istatistikler TM games tablosundan türetilebilir
-      // Ancak performans için şimdilik temel boş tablo dönüyoruz.
-      statistics: [],
     };
   }
 

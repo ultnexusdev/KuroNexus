@@ -466,6 +466,29 @@ enum SubmissionStatus {
   REJECTED
 }
 
+// Kadro düzeltmeleri. Transfermarkt veri seti (Kaggle) yaz transferlerini
+// haftalar sonra yansıtıyor — ayrılan oyuncu kadroda kalıyor, yeni transfer
+// görünmüyor. Bu tablo sync'in ÜSTÜNE biner: sync serbestçe çalışmaya devam
+// eder, buradaki düzeltmeler her zaman uygulanır.
+//   tmPlayerId dolu  -> o TM oyuncusu kadrodan gizlenir (ayrıldı)
+//   name dolu        -> kadroya elle oyuncu eklenir (yeni transfer)
+model SquadOverride {
+  id       String  @id @default(cuid())
+  teamId   String // TM kulüp id (Galatasaray = 141)
+
+  tmPlayerId String? @unique
+
+  name     String?
+  position String?
+  age      Int?
+  photo    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([teamId])
+}
+
 // Transfer haberleri — evrene bağlı (şimdilik Galatasaray). Bir habere TM
 // oyuncusu bağlanabilir; fotoğraf/mevki/piyasa değeri o kayıttan okunur, haber
 // metninde tekrarlanmaz (tek kaynak-doğruluk: TM sync'i).
@@ -477,6 +500,13 @@ model TransferNews {
   publishedAt DateTime @default(now())
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  // Kulüpte olmayan oyuncular (transfer hedefleri) TM kadromuzda bulunmaz —
+  // TM sync'i yalnızca mevcut kadroyu tutar. Böyle haberlerde künye elle
+  // girilir. tmPlayerId doluysa TM kaydı önceliklidir.
+  manualPlayerName  String?
+  manualPlayerPhoto String?
+  manualPlayerFacts String? // ör. "Santrfor · 24 yaş · 12 M €"
 
   universeId String
   universe   WikiUniverse @relation(fields: [universeId], references: [id])

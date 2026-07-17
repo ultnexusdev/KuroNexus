@@ -22,7 +22,15 @@
     "sealedTitle": "Legends of Temürkan",
     "sealedSub": "The Archive's Seat of Honor",
     "sealAria": "Wax seal",
-    "explore": "Discover Nexus"
+    "explore": "Discover Nexus",
+    "enter": "Step through",
+    "halls": {
+      "film": "Cinema",
+      "dizi": "Series",
+      "spor": "Sports",
+      "anime": "Anime",
+      "kadim-dunyalar": "Ancient Worlds"
+    }
   },
   "stories": {
     "listTitle": "Discover Nexus",

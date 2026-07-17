@@ -114,7 +114,9 @@ export function DoorWall({ doors }: { doors: Door[] }) {
             <span className={styles.doorSub}>
               {door.sealed
                 ? t("sealedSub")
-                : t("worldsCount", { count: door.count ?? 0 })}
+                : door.count !== undefined
+                  ? t("worldsCount", { count: door.count })
+                  : t("enter")}
             </span>
           </span>
         </Link>

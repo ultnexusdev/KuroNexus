@@ -3,12 +3,18 @@ import { Link } from "@/lib/i18n/navigation";
 import { fetchCategories, fetchUniverses } from "@/lib/api/universes";
 import type { UniverseCategory, WikiUniverseSummary } from "@/lib/api/types";
 import { DoorWall, type Door } from "@/components/home/DoorWall";
+import { HeroGlyph } from "@/components/home/HeroGlyph";
 import styles from "./page.module.css";
 
 export const dynamic = "force-dynamic";
 
 // Salon sıralaması: kullanıcının müze kurgusu (bilinmeyen yeni kategoriler sona eklenir)
 const HALL_ORDER = ["film", "dizi", "spor", "anime", "kadim-dunyalar"];
+
+// API erişilemezse (ör. local'de backend kapalı) hol boş kalmasın diye
+// statik kapı kadrosu. Sayı/kapak yok — yalnızca kanat kimliği + atmosfer.
+const FALLBACK_SLUGS = HALL_ORDER;
+const FALLBACK_SEALED_SLUG = "temurkan-efsaneleri";
 
 async function getData(): Promise<{
   categories: UniverseCategory[];
@@ -44,14 +50,25 @@ export default async function HomePage({
   const countFor = (categoryId: string) =>
     universes.filter((u) => u.categoryId === categoryId).length;
 
-  const doors: Door[] = ordered.map((cat, i) => ({
-    slug: cat.slug,
-    name: cat.name,
-    href: `/dark-stories/category/${cat.slug}`,
-    coverImage: cat.coverImage,
-    hall: i + 1,
-    count: countFor(cat.id),
-  }));
+  const hasData = ordered.length > 0;
+
+  // Gerçek veri varsa API'den, yoksa statik kadrodan kapıları kur.
+  // Fallback'te count/coverImage yoktur; kanatlar atmosfer rengiyle çizilir.
+  const doors: Door[] = hasData
+    ? ordered.map((cat, i) => ({
+        slug: cat.slug,
+        name: cat.name,
+        href: `/dark-stories/category/${cat.slug}`,
+        coverImage: cat.coverImage,
+        hall: i + 1,
+        count: countFor(cat.id),
+      }))
+    : FALLBACK_SLUGS.map((slug, i) => ({
+        slug,
+        name: t(`halls.${slug}`),
+        href: `/dark-stories/category/${slug}`,
+        hall: i + 1,
+      }));
 
   // Baş köşe: Temürkan'ın mühürlü kapısı — duvarın en sonunda
   const temurkan = universes.find((u) => u.slug === "temurkan-efsaneleri");
@@ -64,6 +81,15 @@ export default async function HomePage({
       hall: doors.length + 1,
       sealed: true,
     });
+  } else if (!hasData) {
+    // Fallback: mühürlü baş köşe de gösterilsin (duvar tam hissetsin)
+    doors.push({
+      slug: "temurkan-muhru",
+      name: t("sealedTitle"),
+      href: `/dark-stories/${FALLBACK_SEALED_SLUG}`,
+      hall: doors.length + 1,
+      sealed: true,
+    });
   }
 
   return (
@@ -71,15 +97,8 @@ export default async function HomePage({
       <div className={styles.grid}>
         {/* Sol: 黒 glifi + küratör sütunu */}
         <div className={styles.curator}>
-          {/* Karanlıkta altın konturuyla beliren mühür — holün ana karakteri */}
-          <div className={styles.glyphCol} role="img" aria-label="KuroNexus">
-            <span className={styles.glyph} aria-hidden>
-              黒
-            </span>
-            <span className={styles.glyphWord} aria-hidden>
-              nexus
-            </span>
-          </div>
+          {/* Karanlıkta altın konturuyla beliren mühür — imlece tepki verir */}
+          <HeroGlyph word="nexus" />
 
           <div className={styles.textCol}>
             <p className={styles.eyebrow}>{t("eyebrow")}</p>

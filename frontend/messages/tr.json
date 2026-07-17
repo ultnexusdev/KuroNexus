@@ -22,7 +22,15 @@
     "sealedTitle": "Temürkan Efsaneleri",
     "sealedSub": "Arşivin Baş Köşesi",
     "sealAria": "Balmumu mühür",
-    "explore": "Nexus'u Keşfet"
+    "explore": "Nexus'u Keşfet",
+    "enter": "Kapıyı arala",
+    "halls": {
+      "film": "Sinema",
+      "dizi": "Dizi",
+      "spor": "Spor",
+      "anime": "Anime",
+      "kadim-dunyalar": "Kadim Dünyalar"
+    }
   },
   "stories": {
     "listTitle": "Nexus'u Keşfet",

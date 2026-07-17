@@ -45,6 +45,74 @@ interface ApifyStandingRow {
   goalDifference?: number;
 }
 
+// Tamamlanmış maçlardan puan tablosu üretir. Sıralama: puan, averaj, atılan gol.
+// Not: TFF'nin resmî eşitlik bozma kuralı ikili averajdır; burada genel averaj
+// kullanılıyor, eşit puanlı takımlarda sıra resmî tablodan ayrılabilir.
+function computeStandings(matches: ApifyMatchRow[]): ApifyStandingRow[] {
+  type Row = Required<Omit<ApifyStandingRow, 'position'>>;
+  const rows = new Map<string, Row>();
+  const rowFor = (team: string): Row => {
+    const existing = rows.get(team);
+    if (existing) return existing;
+    const fresh: Row = {
+      teamName: team,
+      points: 0,
+      played: 0,
+      won: 0,
+      drawn: 0,
+      lost: 0,
+      goalsFor: 0,
+      goalsAgainst: 0,
+      goalDifference: 0,
+    };
+    rows.set(team, fresh);
+    return fresh;
+  };
+
+  for (const m of matches) {
+    if ((m.status ?? '').toLowerCase() !== 'finished') continue;
+    if (!m.homeTeam || !m.awayTeam) continue;
+    if (typeof m.homeScore !== 'number' || typeof m.awayScore !== 'number') {
+      continue;
+    }
+
+    const home = rowFor(m.homeTeam);
+    const away = rowFor(m.awayTeam);
+    home.played += 1;
+    away.played += 1;
+    home.goalsFor += m.homeScore;
+    home.goalsAgainst += m.awayScore;
+    away.goalsFor += m.awayScore;
+    away.goalsAgainst += m.homeScore;
+
+    if (m.homeScore > m.awayScore) {
+      home.won += 1;
+      home.points += 3;
+      away.lost += 1;
+    } else if (m.homeScore < m.awayScore) {
+      away.won += 1;
+      away.points += 3;
+      home.lost += 1;
+    } else {
+      home.drawn += 1;
+      away.drawn += 1;
+      home.points += 1;
+      away.points += 1;
+    }
+  }
+
+  return [...rows.values()]
+    .map((r) => ({ ...r, goalDifference: r.goalsFor - r.goalsAgainst }))
+    .sort(
+      (a, b) =>
+        b.points - a.points ||
+        b.goalDifference - a.goalDifference ||
+        b.goalsFor - a.goalsFor ||
+        a.teamName.localeCompare(b.teamName, 'tr'),
+    )
+    .map((r, i): ApifyStandingRow => ({ ...r, position: i + 1 }));
+}
+
 export interface SquadPlayer {
   id: string; // TM IDs are strings
   name: string;
@@ -195,8 +263,13 @@ export class FootballService {
     const row = await this.prisma.externalCache.findUnique({
       where: { cacheKey: STANDINGS_KEY },
     });
+    const payload = row?.payload as {
+      season?: number;
+      table?: ApifyStandingRow[];
+    } | null;
     return {
-      table: row?.payload ?? [],
+      season: payload?.season ?? null,
+      table: payload?.table ?? [],
       updatedAt: row?.fetchedAt ?? null,
     };
   }
@@ -246,14 +319,9 @@ export class FootballService {
     let items = await this.runApifyActor(season);
     let usedSeason = season;
 
-    // Sezon arası boşluk: istenen sezon boşsa bir önceki sezonu dene
-    const hasStandings = (arr: Array<ApifyMatchRow | ApifyStandingRow>) =>
-      arr.some(
-        (i) =>
-          'teamName' in i &&
-          typeof (i as ApifyStandingRow).position === 'number',
-      );
-    if (!hasStandings(items) && seasonOverride === undefined) {
+    // Sezon arası boşluk: istenen sezon hiç veri döndürmüyorsa bir öncekini dene
+    // (ör. Temmuz'da 2026/27 fikstürü henüz yayımlanmamış olur).
+    if (items.length === 0 && seasonOverride === undefined) {
       this.logger.warn(`Sezon ${season} boş, ${season - 1} deneniyor`);
       items = await this.runApifyActor(season - 1);
       usedSeason = season - 1;
@@ -270,12 +338,19 @@ export class FootballService {
     const matches = items.filter(
       (i): i is ApifyMatchRow => 'matchDate' in i && !!(i as ApifyMatchRow).matchDate,
     );
-    const standings = items
+    // Actor "Matches" ve "Standings" diye İKİ ayrı çıktı tablosu üretir;
+    // run-sync-get-dataset-items yalnızca default (Matches) dataset'ini döndürür.
+    // Bu yüzden puan tablosunu maç sonuçlarından kendimiz hesaplıyoruz
+    // (actor'ın kendi tablosu da aynı şekilde tamamlanmış maçlardan üretiliyor).
+    // Standings satırları ileride default dataset'e düşerse onları tercih ederiz.
+    const actorStandings = items
       .filter(
         (i): i is ApifyStandingRow =>
           'teamName' in i && typeof (i as ApifyStandingRow).position === 'number',
       )
       .sort((a, b) => (a.position ?? 99) - (b.position ?? 99));
+    const standings =
+      actorStandings.length > 0 ? actorStandings : computeStandings(matches);
 
     // Sonraki GS maçı: bugünden sonraki, henüz oynanmamış en yakın maç
     const now = Date.now();
@@ -305,7 +380,7 @@ export class FootballService {
       : null;
 
     if (standings.length > 0) {
-      await this.upsertCache(STANDINGS_KEY, standings);
+      await this.upsertCache(STANDINGS_KEY, { season: usedSeason, table: standings });
     }
     await this.upsertCache(NEXTMATCH_KEY, nextMatch);
     await this.upsertCache(LEAGUE_SYNC_KEY, {

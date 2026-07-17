@@ -328,17 +328,35 @@ export class FootballService {
       usedSeason = season - 1;
     }
 
-    // Teşhis: ham veri şeklini kayda al (frontend'i doğru kurmak için)
-    const diag = {
-      usedSeason,
-      totalItems: items.length,
-      sampleKeys: items[0] ? Object.keys(items[0]) : [],
-      sample: items.slice(0, 2),
-    };
-
     const matches = items.filter(
       (i): i is ApifyMatchRow => 'matchDate' in i && !!(i as ApifyMatchRow).matchDate,
     );
+
+    // Teşhis: ham veri şeklini kayda al (frontend'i doğru kurmak için).
+    // statusCounts/scoredCount: kaynağın sezonu ne kadar tamamladığını gösterir —
+    // "finished" filtresi mi eliyor, yoksa sonuçlar mı eksik, ayırt etmek için.
+    const statusCounts: Record<string, number> = {};
+    for (const m of matches) {
+      const key = (m.status ?? '(bos)').toLowerCase();
+      statusCounts[key] = (statusCounts[key] ?? 0) + 1;
+    }
+    const scoredCount = matches.filter(
+      (m) => typeof m.homeScore === 'number' && typeof m.awayScore === 'number',
+    ).length;
+    const rounds = matches
+      .filter((m) => typeof m.homeScore === 'number')
+      .map((m) => Number(m.round))
+      .filter((n) => Number.isFinite(n));
+    const diag = {
+      usedSeason,
+      totalItems: items.length,
+      matchCount: matches.length,
+      statusCounts,
+      scoredCount,
+      lastScoredRound: rounds.length > 0 ? Math.max(...rounds) : null,
+      sampleKeys: items[0] ? Object.keys(items[0]) : [],
+      sample: items.slice(0, 2),
+    };
     // Actor "Matches" ve "Standings" diye İKİ ayrı çıktı tablosu üretir;
     // run-sync-get-dataset-items yalnızca default (Matches) dataset'ini döndürür.
     // Bu yüzden puan tablosunu maç sonuçlarından kendimiz hesaplıyoruz

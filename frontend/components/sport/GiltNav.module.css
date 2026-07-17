@@ -1,0 +1,64 @@
+/* Yaldızlı kenar indeksi — yalnızca geniş ekranda görünür (GsHall grid'i
+   dar ekranda tek sütuna düşer ve bu sütunu gizler). */
+.nav {
+  position: sticky;
+  top: 2rem;
+  align-self: start;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  border-left: 1px solid var(--border);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: var(--touch-min);
+  padding: 0.5rem 0 0.5rem 1rem;
+  margin-left: -1px;
+  border-left: 1px solid transparent;
+  text-decoration: none;
+  color: var(--text-muted);
+  transition:
+    color 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.item:hover {
+  color: var(--text-secondary);
+  border-left-color: var(--accent-muted);
+}
+
+.item[data-active="true"] {
+  color: var(--gs-gold, var(--gold));
+  border-left-color: var(--gs-gold, var(--gold));
+}
+
+.num {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  /* Kapı adları deseni: numara dikey yazılır */
+  writing-mode: vertical-rl;
+  opacity: 0.7;
+}
+
+.label {
+  font-family: var(--font-cinzel);
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item {
+    transition: none;
+  }
+}

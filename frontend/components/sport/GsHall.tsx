@@ -8,6 +8,8 @@ import type {
   SportBundle,
   WikiUniverse,
 } from "@/lib/api/types";
+import { GiltNav } from "./GiltNav";
+import { WidgetRail } from "./WidgetRail";
 import styles from "./GsHall.module.css";
 
 async function getApiSquad(): Promise<FootballSquadPlayer[]> {
@@ -58,16 +60,33 @@ export async function GsHall({
           </Link>
           <span className={styles.sub}>{t("footballSub")}</span>
           <h1 className={styles.title}>{universe.name}</h1>
-          {universe.description ? (
-            <p className={styles.lede}>{universe.description}</p>
-          ) : null}
+          {/* Açıklama artık "Genel Bakış" bölümünde — hero'da tekrar etmesin */}
         </div>
       </header>
 
       <div className={styles.body}>
-        {/* Kadro — öncelik API-Football (backend cache'li); yoksa admin verisi */}
-        <section>
-          <h2 className={styles.sectionLabel}>{t("squad")}</h2>
+        {/* Sol: yaldızlı kenar indeksi (scroll-spy). Bölüm id'leri aşağıdaki
+            <section>'larla eşleşmeli. */}
+        <GiltNav
+          sections={[
+            { id: "genel-bakis", label: t("navOverview") },
+            { id: "kadro", label: t("navSquad") },
+            { id: "efsaneler", label: t("navLegends") },
+          ]}
+        />
+
+        <div className={styles.main}>
+          {/* Genel bakış */}
+          <section id="genel-bakis" className={styles.section}>
+            <h2 className={styles.sectionLabel}>{t("navOverview")}</h2>
+            <p className={styles.overview}>
+              {universe.description ?? t("overviewFallback")}
+            </p>
+          </section>
+
+          {/* Kadro — öncelik API-Football (backend cache'li); yoksa admin verisi */}
+          <section id="kadro" className={styles.section}>
+            <h2 className={styles.sectionLabel}>{t("squad")}</h2>
           {apiSquad.length > 0 ? (
             <ul className={styles.squad}>
               {apiSquad.map((p) => (
@@ -149,7 +168,7 @@ export async function GsHall({
         </section>
 
         {/* Efsaneler */}
-        <section>
+        <section id="efsaneler" className={styles.section}>
           <h2 className={styles.sectionLabel}>{t("legends")}</h2>
           {bundle.legends.length === 0 ? (
             <p className={styles.empty}>{t("legendsEmpty")}</p>
@@ -193,7 +212,11 @@ export async function GsHall({
               ))}
             </ul>
           )}
-        </section>
+          </section>
+        </div>
+
+        {/* Sağ: sonraki maç · puan durumu · kadro künyesi */}
+        <WidgetRail squad={apiSquad} locale={locale} />
       </div>
     </div>
   );

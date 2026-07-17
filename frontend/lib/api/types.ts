@@ -193,6 +193,40 @@ export interface FootballPlayerDetail {
   statistics: FootballStatBlock[];
 }
 
+// Süper Lig puan tablosu — backend maç sonuçlarından hesaplayıp cache'ler.
+// `season` sezon başlangıç yılıdır (2025 = 2025/26).
+export interface SuperLigRow {
+  position: number;
+  teamName: string;
+  played: number;
+  won: number;
+  drawn: number;
+  lost: number;
+  goalsFor: number;
+  goalsAgainst: number;
+  goalDifference: number;
+  points: number;
+}
+
+export interface SuperLigStandings {
+  season: number | null;
+  table: SuperLigRow[];
+  updatedAt: string | null;
+}
+
+export interface NextMatch {
+  date: string;
+  home: string;
+  away: string;
+  round: number | string | null;
+  league: string;
+}
+
+export interface NextMatchResponse {
+  match: NextMatch | null;
+  updatedAt: string | null;
+}
+
 export interface SportBundle {
   players: SportPlayer[];
   legends: SportLegend[];

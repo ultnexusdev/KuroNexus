@@ -1,0 +1,200 @@
+.rail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-lg);
+  align-self: start;
+}
+
+@media (min-width: 1100px) {
+  .rail {
+    position: sticky;
+    top: 2rem;
+  }
+}
+
+.widget {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: var(--pad-md);
+}
+
+.widgetTitle {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-cinzel);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gs-gold, var(--gold));
+}
+
+.empty {
+  margin: 0;
+  font-family: var(--font-cormorant);
+  font-size: 1rem;
+  color: var(--text-muted);
+}
+
+/* ---- Sonraki maç ---- */
+.fixture {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0 0 0.35rem;
+}
+
+.team {
+  font-family: var(--font-bebas);
+  font-size: 1.15rem;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+}
+
+.team[data-gs="true"] {
+  color: var(--gs-gold, var(--gold));
+}
+
+.vs {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.fixtureMeta {
+  margin: 0 0 0.9rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.countdown {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.4rem;
+  min-height: 3.4rem;
+}
+
+.cdCell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.45rem 0.2rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.cdValue {
+  font-family: var(--font-bebas);
+  font-size: 1.35rem;
+  line-height: 1;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.cdLabel {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ---- Puan tablosu ---- */
+.seasonTag {
+  margin: -0.35rem 0 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+}
+
+.table th {
+  padding: 0.3rem 0.35rem;
+  text-align: left;
+  font-weight: 400;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+
+.table td {
+  padding: 0.4rem 0.35rem;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+}
+
+.table tr[data-gs="true"] td {
+  color: var(--gs-gold, var(--gold));
+  background: var(--surface-hover);
+}
+
+.numCol {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.more {
+  margin-top: 0.75rem;
+}
+
+.moreSummary {
+  cursor: pointer;
+  min-height: var(--touch-min);
+  display: flex;
+  align-items: center;
+  font-family: var(--font-cinzel);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.moreSummary:hover {
+  color: var(--gs-gold, var(--gold));
+}
+
+/* ---- Kadro künyesi ---- */
+.dossier {
+  margin: 0;
+}
+
+.dossierRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.dossierRow:last-child {
+  border-bottom: 0;
+}
+
+.dossierRow dt {
+  font-family: var(--font-cormorant);
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+.dossierRow dd {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}

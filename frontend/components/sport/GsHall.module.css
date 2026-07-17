@@ -85,13 +85,50 @@
 }
 
 /* --- Gövde --- */
+/* Dar ekran: tek sütun — kenar indeksi gizlenir, raf içeriğin altına düşer.
+   ≥1100px: 01 indeks · içerik · widget rafı. */
 .body {
   max-width: 72rem;
   margin: 0 auto;
   padding: var(--pad-lg) var(--pad-md) 56px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 40px;
+}
+
+.main {
   display: flex;
   flex-direction: column;
   gap: 40px;
+  min-width: 0;
+}
+
+.section {
+  scroll-margin-top: 2rem;
+}
+
+.overview {
+  margin: 0;
+  max-width: 46rem;
+  font-family: var(--font-cormorant);
+  font-size: 1.15rem;
+  line-height: 1.75;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 1099px) {
+  .body > nav {
+    display: none;
+  }
+}
+
+@media (min-width: 1100px) {
+  .body {
+    max-width: 84rem;
+    grid-template-columns: 11rem minmax(0, 1fr) 19rem;
+    align-items: start;
+    gap: 48px;
+  }
 }
 
 .sectionLabel {

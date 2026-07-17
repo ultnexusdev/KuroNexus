@@ -2,13 +2,33 @@
    Renkler globals.css token'larından (kural 16); glow kullanıcı isteği, düşük doz. */
 
 .hall {
+  position: relative;
+  isolation: isolate;
   background: var(--sport-ink);
   color: var(--text-primary);
+}
+
+/* Sayfa geneline yayılan sarı-kırmızı ambiyans (kullanıcı isteği, düşük doz
+   ama belirgin). Sabit: scroll boyunca köşe huzmeleri yerinde kalır, böylece
+   renk yalnızca hero'da değil tüm salonda hissedilir. İçerik z-index:1 ile üstte. */
+.hall::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  /* Sol kenar boyunca altın, sağ kenar boyunca kırmızı — tepeden en alta
+     kadar (tam boy dikey bantlar). Elips merkezi ekran dışına taşınır ki en
+     güçlü renk kenarları sarsın, ortaya doğru sönerek siyahlığı azaltsın. */
+  background:
+    radial-gradient(78% 108% at -12% 50%, color-mix(in srgb, var(--gs-gold) 30%, transparent), transparent 78%),
+    radial-gradient(74% 108% at 112% 50%, color-mix(in srgb, var(--gs-red) 30%, transparent), transparent 78%);
 }
 
 /* --- Hero --- */
 .hero {
   position: relative;
+  z-index: 1;
   min-height: 320px;
   display: flex;
   align-items: flex-end;
@@ -26,9 +46,9 @@
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(55% 85% at 10% -8%, var(--gs-glow), transparent 55%),
-    radial-gradient(45% 75% at 90% -12%, rgba(166, 28, 43, 0.2), transparent 55%),
-    linear-gradient(to bottom, transparent 30%, var(--sport-ink) 96%);
+    radial-gradient(58% 90% at 8% -8%, color-mix(in srgb, var(--gs-gold) 50%, transparent), transparent 56%),
+    radial-gradient(50% 80% at 92% -12%, color-mix(in srgb, var(--gs-red) 50%, transparent), transparent 56%),
+    linear-gradient(to bottom, transparent 34%, var(--sport-ink) 97%);
   pointer-events: none;
 }
 
@@ -88,6 +108,8 @@
 /* Dar ekran: tek sütun — kenar indeksi gizlenir, raf içeriğin altına düşer.
    ≥1100px: 01 indeks · içerik · widget rafı. */
 .body {
+  position: relative;
+  z-index: 1;
   max-width: 72rem;
   margin: 0 auto;
   padding: var(--pad-lg) var(--pad-md) 56px;

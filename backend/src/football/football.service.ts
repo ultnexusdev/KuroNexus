@@ -32,7 +32,8 @@ interface ApifyMatchRow {
   round?: number | string | null;
   leagueName?: string;
 }
-interface ApifyStandingRow {
+// Public getStandings() dönüş tipinde göründüğü için export edilmeli (TS4053).
+export interface ApifyStandingRow {
   position?: number;
   teamName?: string;
   points?: number;

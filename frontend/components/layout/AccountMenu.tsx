@@ -77,13 +77,15 @@ export function AccountMenu({
 
   return (
     <div className={styles.root} ref={rootRef}>
+      {/* Girişli olduğun düğmenin kendisinden anlaşılsın — menüyü açmak
+          gerekmesin */}
       <button
         type="button"
-        className={styles.trigger}
+        className={isAdmin ? styles.triggerAdmin : styles.trigger}
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
       >
-        {t("preferences")}
+        {isAdmin ? t("adminBadge") : t("preferences")}
       </button>
       {open ? (
         <div className={styles.panel}>

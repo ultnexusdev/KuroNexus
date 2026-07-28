@@ -528,6 +528,7 @@
     "name": "Ad",
     "email": "E-posta",
     "adminPanel": "Admin Paneli",
+    "adminBadge": "Admin",
     "signIn": "Yönetici girişi",
     "signOut": "Çıkış yap"
   },

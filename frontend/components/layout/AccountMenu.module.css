@@ -2,7 +2,8 @@
   position: relative;
 }
 
-.trigger {
+.trigger,
+.triggerAdmin {
   display: inline-flex;
   align-items: center;
   min-height: var(--touch-min);
@@ -14,8 +15,15 @@
   font-size: 0.9rem;
 }
 
-.trigger:hover {
+.trigger:hover,
+.triggerAdmin:hover {
   background: var(--surface-hover);
+  color: var(--accent);
+}
+
+/* Girişli durum sessizce ama görünür şekilde ayrışır */
+.triggerAdmin {
+  border-color: var(--accent);
   color: var(--accent);
 }
 

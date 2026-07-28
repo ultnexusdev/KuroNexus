@@ -528,6 +528,7 @@
     "name": "Name",
     "email": "Email",
     "adminPanel": "Admin Panel",
+    "adminBadge": "Admin",
     "signIn": "Admin sign-in",
     "signOut": "Sign out"
   },

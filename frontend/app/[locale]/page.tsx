@@ -4,12 +4,10 @@ import { fetchCategories, fetchUniverses } from "@/lib/api/universes";
 import type { UniverseCategory, WikiUniverseSummary } from "@/lib/api/types";
 import { DoorWall, type Door } from "@/components/home/DoorWall";
 import { HeroGlyph } from "@/components/home/HeroGlyph";
+import { HALL_ORDER, sortByHallOrder } from "@/lib/halls";
 import styles from "./page.module.css";
 
 export const dynamic = "force-dynamic";
-
-// Salon sıralaması: kullanıcının müze kurgusu (bilinmeyen yeni kategoriler sona eklenir)
-const HALL_ORDER = ["film", "dizi", "spor", "anime", "kadim-dunyalar"];
 
 // API erişilemezse (ör. local'de backend kapalı) hol boş kalmasın diye
 // statik kapı kadrosu. Sayı/kapak yok — yalnızca kanat kimliği + atmosfer.
@@ -41,11 +39,7 @@ export default async function HomePage({
   const t = await getTranslations({ locale, namespace: "home" });
   const { categories, universes } = await getData();
 
-  const ordered = [...categories].sort((a, b) => {
-    const ia = HALL_ORDER.indexOf(a.slug);
-    const ib = HALL_ORDER.indexOf(b.slug);
-    return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
-  });
+  const ordered = sortByHallOrder(categories);
 
   const countFor = (categoryId: string) =>
     universes.filter((u) => u.categoryId === categoryId).length;

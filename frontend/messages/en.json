@@ -423,7 +423,18 @@
     }
   },
   "film": {
-    "eyebrow": "Hall 02 · Cinema",
+    "hall": "Hall {num} · Cinema",
+    "hallName": "Cinema",
+    "lobbyLede": "The curtain is closed and the projector is ready. Which part of the hall do you want?",
+    "lobbySectionsAria": "Hall sections",
+    "lobbyArchiveMeter": "{count} films · {watchlist} waiting",
+    "lobbyArchiveEmpty": "No films added yet",
+    "sections": {
+      "archive": {
+        "title": "Film Archive",
+        "desc": "What I have watched, what is waiting, what I will rewatch, and my favourites."
+      }
+    },
     "title": "My Film Archive",
     "lede": "Films I have watched, films I want to see again, and films still waiting.",
     "statTotal": "{count} films",

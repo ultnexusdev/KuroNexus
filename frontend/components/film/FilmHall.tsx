@@ -126,9 +126,12 @@ function MovieCard({ movie }: { movie: ArchiveMovie }) {
 export function FilmHall({
   archive,
   locale,
+  hallLabel,
 }: {
   archive: MovieArchive;
   locale: string;
+  /** Salon numarası ana sayfayla aynı kaynaktan gelir ("01", "02"…) */
+  hallLabel: string;
 }) {
   const t = useTranslations("film");
   const tStories = useTranslations("stories");
@@ -173,10 +176,11 @@ export function FilmHall({
   return (
     <div data-category="film" className={styles.hall}>
       <header className={styles.head}>
-        <Link href="/dark-stories" className={styles.back}>
-          {tStories("backToList")}
+        {/* Geri: bir üst kapı olan salon girişine döner */}
+        <Link href="/dark-stories/category/film" className={styles.back}>
+          {tStories("backToUniverse", { name: t("hallName") })}
         </Link>
-        <span className={styles.eyebrow}>{t("eyebrow")}</span>
+        <span className={styles.eyebrow}>{t("hall", { num: hallLabel })}</span>
         <h1 className={styles.title}>{t("title")}</h1>
         <p className={styles.lede}>{t("lede")}</p>
 

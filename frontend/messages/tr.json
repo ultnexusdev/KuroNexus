@@ -423,7 +423,18 @@
     }
   },
   "film": {
-    "eyebrow": "Salon 02 · Film",
+    "hall": "Salon {num} · Film",
+    "hallName": "Film",
+    "lobbyLede": "Perde kapalı, projeksiyon hazır. Salonun hangi bölümüne girmek istersin?",
+    "lobbySectionsAria": "Salon bölümleri",
+    "lobbyArchiveMeter": "{count} film · {watchlist} sırada",
+    "lobbyArchiveEmpty": "Henüz film eklenmedi",
+    "sections": {
+      "archive": {
+        "title": "Film Arşivi",
+        "desc": "İzlediklerim, sırada bekleyenler, tekrar izleyeceklerim ve favorilerim."
+      }
+    },
     "title": "Film Arşivim",
     "lede": "İzlediğim, tekrar izlemek istediğim ve sırada bekleyen filmler.",
     "statTotal": "{count} film",

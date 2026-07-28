@@ -159,6 +159,13 @@
   - **Yönetim**: `/admin/film` — TMDB'de ada göre ara, sonuçtan seç, durum + tarih + puan + not + favori ile ekle; listeden durum/favori değiştir, sil.
   - **Denetim**: backend `tsc` temiz, frontend `tsc` + lint + `next build` temiz. Örnek veriyle lokalde doğrulandı: masaüstü 6 sütun / favoriler duvarı 4 sütun / mobil 2 sütun, yatay taşma yok, TMDB posterleri yükleniyor, sekme sayaçları doğru. **Gerçek veriyle canlıda denenmedi.**
 
+- [x] **Film salonu — ilk kullanım düzeltmeleri (2026-07-28, kullanıcı geri bildirimi)**: dördü de kök sebebiyle bulundu, tahminle değil.
+  - **Salon numarası çelişkisi** (ana sayfada 01, içeride 02): numara iki yerde ayrı hesaplanıyordu. `lib/halls.ts` tek kaynak oldu (`HALL_ORDER`, `sortByHallOrder`, `hallNumber`, `hallLabel`); ana sayfa da salon başlıkları da oradan okuyor. `FilmHall` artık `hallLabel` prop'u alıyor, sabit metin yok.
+  - **"Eklediğim film sayfada yok"**: film ASLINDA arşivdeydi (API'de görüldü) — `fetchMovieArchive` `next: { revalidate: 300 }` ile 5 dk önbellekliydi. `cache: "no-store"` yapıldı; istek kendi DB'mize gidiyor, dış maliyet yok.
+  - **"Admin özelliklerim kayboluyor"**: header'daki "Admin Paneli" bağlantısı `/admin/dashboard`'a gidiyordu — **öyle bir sayfa hiç yoktu** (canlıda 404 doğrulandı, `/admin` 200). `/admin`'e çevrildi; admin çerezli istekle `href="/admin"` doğrulandı. Header nav mobilde de görünüyor (gizleyen media query yok).
+  - **Salon girişi (lobi)**: film kapısı artık doğrudan arşive değil `FilmLobby`ye açılıyor; arşiv `…/category/film/arsiv` statik alt yolunda (statik segment `[categorySlug]` dinamik yolundan önce eşleşir, ayrı bir route ağacı veya redirect gerekmedi). **Yeni başlık eklemek = `lib/film/sections.ts`'e bir satır + o yolda bir sayfa**; lobi kendini günceller. Her bölüm kartı canlı sayısını taşır ("Film Arşivi · 1 film · 0 sırada") — tek bölümle bile yer tutucu gibi durmasın diye.
+  - **Denetim**: `tsc` + lint + `next build` temiz; lobi/arşiv lokalde 200, "Salon 01 · Film" ikisinde de doğru, eklenen film rafta görünüyor.
+
 ## Sıradaki Adım
 0e. **Film salonu — canlı doğrulama (İLK İŞ)**: `/admin/film`'den TMDB araması çalışıyor mu (anahtar doğru okunuyor mu), bir film ekle → `/dark-stories/category/film` salonunda görünüyor mu, favori işaretle → favoriler duvarında künye levhası doğru mu.
 0d. **Yazım Atölyesi — canlı doğrulama (İLK İŞ)**: `/admin/atolye/temurkan-efsaneleri`de (1) bir karaktere takma ad ekle, (2) bölümde `@` yazıp öneri listesinden bağla, (3) imleci işaretin üstüne getirince sağda künye açılıyor mu, (4) adı bağlamadan yaz → "Bu Bölümde Geçenler"de soluk noktayla çıkıyor mu, (5) bölümü yayınlayıp okuma ekranında işarete tıkla → künye paneli.

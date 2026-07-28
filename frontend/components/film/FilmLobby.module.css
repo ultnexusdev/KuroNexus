@@ -1,0 +1,143 @@
+/* Film salonunun girişi. Palet globals.css'teki [data-category="film"]
+   blogundan gelir (AGENTS.md kural 16). */
+
+.lobby {
+  min-height: 100vh;
+  padding: var(--pad-lg) var(--pad-md) 96px;
+  background: var(--bg);
+  background-image: radial-gradient(
+    120% 70% at 50% -10%,
+    var(--film-dust),
+    transparent 60%
+  );
+}
+
+.head {
+  max-width: 780px;
+  margin: 0 auto var(--pad-lg);
+  text-align: center;
+}
+
+.back {
+  display: inline-block;
+  margin-bottom: var(--pad-lg);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  text-decoration: none;
+}
+
+.back:hover {
+  color: var(--accent);
+}
+
+.eyebrow {
+  display: block;
+  color: var(--gold);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.95rem;
+  letter-spacing: 0.32em;
+}
+
+.title {
+  margin: var(--gap-sm) 0 0;
+  color: var(--text-primary);
+  font-family: var(--font-cinzel), serif;
+  font-size: clamp(2rem, 6vw, 3.4rem);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 1.05;
+}
+
+.rule {
+  display: block;
+  margin: var(--gap-md) 0;
+  color: var(--accent-muted);
+}
+
+.diamond {
+  font-size: 0.8rem;
+}
+
+.lede {
+  max-width: 48ch;
+  margin: 0 auto;
+  color: var(--text-secondary);
+  font-family: var(--font-cormorant), serif;
+  font-size: 1.15rem;
+  line-height: 1.6;
+}
+
+/* --- Bolum kapilari --- */
+
+.sections {
+  display: grid;
+  gap: var(--gap-md);
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+.section {
+  position: relative;
+  display: grid;
+  gap: 4px;
+  padding: var(--pad-md) 56px var(--pad-md) var(--pad-md);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--accent-muted);
+  border-radius: var(--radius-card);
+  text-decoration: none;
+  transition: border-color 200ms ease, background 200ms ease;
+}
+
+.section:hover {
+  background: var(--surface-hover);
+  border-left-color: var(--accent);
+}
+
+.sectionTitle {
+  color: var(--text-primary);
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.15rem;
+  letter-spacing: 0.04em;
+}
+
+.sectionDesc {
+  color: var(--text-secondary);
+  font-family: var(--font-cormorant), serif;
+  font-size: 1.02rem;
+  line-height: 1.5;
+}
+
+.sectionMeter {
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.9rem;
+  letter-spacing: 0.14em;
+}
+
+.sectionArrow {
+  position: absolute;
+  top: 50%;
+  right: var(--pad-md);
+  transform: translateY(-50%);
+  color: var(--accent-muted);
+  font-size: 1.1rem;
+  transition: color 200ms ease, transform 200ms ease;
+}
+
+.section:hover .sectionArrow {
+  color: var(--accent);
+  transform: translateY(-50%) translateX(3px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section,
+  .sectionArrow {
+    transition: none;
+  }
+
+  .section:hover .sectionArrow {
+    transform: translateY(-50%);
+  }
+}

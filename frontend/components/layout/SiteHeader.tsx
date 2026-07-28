@@ -25,7 +25,7 @@ export function SiteHeader({ initialTheme, isAdmin }: { initialTheme: Theme; isA
         )}
         {isAdmin && (
           <nav className={styles.nav}>
-            <Link href="/admin/dashboard" className={styles.navLink}>
+            <Link href="/admin" className={styles.navLink}>
               {t("adminPanel", { fallback: "Admin Paneli" })}
             </Link>
           </nav>

@@ -150,6 +150,7 @@ export interface WikiEntryInput {
   universeId: string;
   coverImage?: string;
   spoilerTier?: number;
+  aliases?: string[];
 }
 
 export function fetchAdminWikiEntries(

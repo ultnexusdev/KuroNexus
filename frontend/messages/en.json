@@ -156,8 +156,16 @@
       "excerpt": "Excerpt",
       "publish": "Published",
       "category": "Category",
+      "aliases": "Aliases",
+      "aliasesHint": "Comma-separated — these names are recognised in the text too.",
       "spoilerTier": "Spoiler level",
       "spoilerHint": "Empty = no spoilers.",
+      "appearances": "Appears In This Chapter",
+      "noAppearances": "No known element appears in this chapter yet.",
+      "detectedHint": "Mentioned by name but not linked — call it with @ in the text to link it.",
+      "openEntry": "Edit element →",
+      "closeDossier": "Close details",
+      "loading": "Loading…",
       "wordCount": "{count} words",
       "chapterPosition": "Position: {position} / {total}",
       "openFullForm": "Open full form (cover, universe)",
@@ -381,6 +389,14 @@
       "linkPrompt": "Link URL (leave empty to remove):",
       "pageBreak": "Insert Page Break"
     }
+  },
+  "lore": {
+    "panelAria": "Element details",
+    "close": "Close",
+    "fullPage": "Open full page →",
+    "missing": "This element is no longer available.",
+    "spoilerWarning": "These details contain spoilers up to book {tier}.",
+    "reveal": "Show anyway"
   },
   "wiki": {
     "sectionTitle": "Wiki",

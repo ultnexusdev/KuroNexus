@@ -24,6 +24,12 @@ import type {
   WikiUniverseSummary,
 } from "@/lib/api/types";
 import { legacyPlainTextToHtml } from "@/lib/content/legacyPlainTextToHtml";
+import {
+  extractEntryIds,
+  findMentionedEntries,
+  htmlToPlainText,
+  type LoreEntryRef,
+} from "@/lib/editor/loreMatch";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
 import styles from "./WritingStudio.module.css";
 
@@ -54,6 +60,7 @@ interface Draft {
   isPublished: boolean;
   category: WikiCategory;
   spoilerTier: string;
+  aliases: string;
 }
 
 type SaveState = "idle" | "saving" | "saved" | "error";
@@ -87,6 +94,10 @@ export function WritingStudio({ universeSlug }: { universeSlug: string }) {
   const [focusMode, setFocusMode] = useState(false);
   const [mobilePane, setMobilePane] = useState<MobilePane>("tree");
   const [busy, setBusy] = useState(false);
+  // İmlecin üstündeki lore işareti; künye paneli önce buna bakar
+  const [cursorEntryId, setCursorEntryId] = useState<string | null>(null);
+  // Kullanıcının panelden açtığı kayıt (imleçten bağımsız)
+  const [pinnedEntryId, setPinnedEntryId] = useState<string | null>(null);
 
   // Otomatik kayıt kapanış/geçiş anında son hâli göndersin diye ref'te tutulur
   const draftRef = useRef<Draft | null>(null);
@@ -148,16 +159,26 @@ export function WritingStudio({ universeSlug }: { universeSlug: string }) {
         );
       } else {
         const tier = Number.parseInt(current.spoilerTier, 10);
+        const aliases = current.aliases
+          .split(",")
+          .map((alias) => alias.trim())
+          .filter(Boolean);
         await updateWikiEntry(node.id, {
           title: current.title,
           content: current.content,
           category: current.category,
           spoilerTier: Number.isFinite(tier) && tier > 0 ? tier : undefined,
+          aliases,
         });
         setElements((list) =>
           list.map((item) =>
             item.id === node.id
-              ? { ...item, title: current.title, category: current.category }
+              ? {
+                  ...item,
+                  title: current.title,
+                  category: current.category,
+                  aliases,
+                }
               : item,
           ),
         );
@@ -196,6 +217,7 @@ export function WritingStudio({ universeSlug }: { universeSlug: string }) {
             isPublished: story.isPublished,
             category: "CHARACTER",
             spoilerTier: "",
+            aliases: "",
           });
         } else {
           const entry = await fetchAdminWikiEntry(node.id);
@@ -206,10 +228,13 @@ export function WritingStudio({ universeSlug }: { universeSlug: string }) {
             isPublished: true,
             category: entry.category,
             spoilerTier: entry.spoilerTier ? String(entry.spoilerTier) : "",
+            aliases: entry.aliases.join(", "),
           });
         }
         setSelected(node);
         setDirty(false);
+        setCursorEntryId(null);
+        setPinnedEntryId(null);
         setMobilePane("editor");
       } catch {
         setLoadError(true);
@@ -264,6 +289,7 @@ export function WritingStudio({ universeSlug }: { universeSlug: string }) {
         category: entry.category,
         coverImage: entry.coverImage,
         spoilerTier: entry.spoilerTier,
+        aliases: entry.aliases ?? [],
         createdAt: entry.createdAt,
         updatedAt: entry.updatedAt,
         universe: { id: universe.id, name: universe.name, slug: universe.slug },
@@ -327,6 +353,61 @@ export function WritingStudio({ universeSlug }: { universeSlug: string }) {
     () => (draft ? countWords(draft.content) : 0),
     [draft],
   );
+
+  // Künye önizlemeleri (kayıt içeriği liste ucunda gelmez) — bir kez çekilir
+  const [previews, setPreviews] = useState<Record<string, string>>({});
+
+  // Editörün "@" önerisi ve metin taraması aynı listeyi kullanır
+  const loreRefs = useMemo<LoreEntryRef[]>(
+    () =>
+      elements.map((entry) => ({
+        id: entry.id,
+        title: entry.title,
+        slug: entry.slug,
+        category: entry.category,
+        aliases: entry.aliases ?? [],
+      })),
+    [elements],
+  );
+
+  // Bu bölümde geçenler: önce bağlanmış işaretler, sonra yalnızca adı geçenler
+  const appearances = useMemo(() => {
+    if (!draft || selected?.kind !== "chapter") {
+      return { linked: [] as LoreEntryRef[], detected: [] as LoreEntryRef[] };
+    }
+    const linkedIds = new Set(extractEntryIds(draft.content));
+    const linked = loreRefs.filter((entry) => linkedIds.has(entry.id));
+    const detected = findMentionedEntries(
+      htmlToPlainText(draft.content),
+      loreRefs,
+    ).filter((entry) => !linkedIds.has(entry.id));
+    return { linked, detected };
+  }, [draft, selected, loreRefs]);
+
+  const dossierEntryId = cursorEntryId ?? pinnedEntryId;
+  const dossierEntry = dossierEntryId
+    ? (elements.find((entry) => entry.id === dossierEntryId) ?? null)
+    : null;
+
+  useEffect(() => {
+    if (!dossierEntryId || previews[dossierEntryId] !== undefined) {
+      return;
+    }
+    let cancelled = false;
+    fetchAdminWikiEntry(dossierEntryId)
+      .then((entry) => {
+        if (!cancelled) {
+          setPreviews((current) => ({
+            ...current,
+            [entry.id]: htmlToPlainText(entry.content).slice(0, 320),
+          }));
+        }
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [dossierEntryId, previews]);
 
   const elementsByCategory = useMemo(() => {
     const map = new Map<WikiCategory, AdminWikiEntrySummary[]>();
@@ -550,6 +631,8 @@ export function WritingStudio({ universeSlug }: { universeSlug: string }) {
                 key={`${selected.kind}:${selected.id}`}
                 content={draft.content}
                 onChange={(html) => patchDraft({ content: html })}
+                loreEntries={loreRefs}
+                onCursorEntryChange={setCursorEntryId}
               />
             </>
           ) : (
@@ -561,6 +644,97 @@ export function WritingStudio({ universeSlug }: { universeSlug: string }) {
         <aside className={styles.dossier} aria-label={t("dossierAria")}>
           {draft && selected ? (
             <>
+              {/* İmleç bir lore işaretinin üstündeyken künye hemen açılır */}
+              {dossierEntry ? (
+                <div className={styles.loreCard}>
+                  <div className={styles.loreHead}>
+                    <span className={styles.loreCategory}>
+                      {tCategories(dossierEntry.category)}
+                    </span>
+                    <button
+                      type="button"
+                      className={styles.loreClose}
+                      aria-label={t("closeDossier")}
+                      title={t("closeDossier")}
+                      onClick={() => {
+                        setPinnedEntryId(null);
+                        setCursorEntryId(null);
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                  <p className={styles.loreTitle}>{dossierEntry.title}</p>
+                  {dossierEntry.aliases.length > 0 ? (
+                    <p className={styles.loreAliases}>
+                      {dossierEntry.aliases.join(" · ")}
+                    </p>
+                  ) : null}
+                  <p className={styles.lorePreview}>
+                    {previews[dossierEntry.id] ?? t("loading")}
+                  </p>
+                  <button
+                    type="button"
+                    className={styles.loreOpen}
+                    onClick={() =>
+                      void openNode({ kind: "element", id: dossierEntry.id })
+                    }
+                  >
+                    {t("openEntry")}
+                  </button>
+                </div>
+              ) : null}
+
+              {/* Bölümde geçenler: bağlı işaretler + yalnızca adı geçenler */}
+              {selected.kind === "chapter" ? (
+                <div className={styles.appearances}>
+                  <p className={styles.dossierKind}>{t("appearances")}</p>
+                  {appearances.linked.length === 0 &&
+                  appearances.detected.length === 0 ? (
+                    <p className={styles.hint}>{t("noAppearances")}</p>
+                  ) : (
+                    <ul className={styles.appearanceList}>
+                      {appearances.linked.map((entry) => (
+                        <li key={entry.id}>
+                          <button
+                            type="button"
+                            className={styles.appearanceItem}
+                            onClick={() => setPinnedEntryId(entry.id)}
+                          >
+                            <span className={styles.appearanceMark} aria-hidden>
+                              ❖
+                            </span>
+                            <span className={styles.treeItemText}>
+                              {entry.title}
+                            </span>
+                          </button>
+                        </li>
+                      ))}
+                      {appearances.detected.map((entry) => (
+                        <li key={entry.id}>
+                          <button
+                            type="button"
+                            className={styles.appearanceItem}
+                            title={t("detectedHint")}
+                            onClick={() => setPinnedEntryId(entry.id)}
+                          >
+                            <span
+                              className={styles.appearanceLoose}
+                              aria-hidden
+                            >
+                              ·
+                            </span>
+                            <span className={styles.treeItemText}>
+                              {entry.title}
+                            </span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              ) : null}
+
               <p className={styles.dossierKind}>
                 {selected.kind === "chapter"
                   ? t("chapterDossier")
@@ -617,6 +791,17 @@ export function WritingStudio({ universeSlug }: { universeSlug: string }) {
                         </option>
                       ))}
                     </select>
+                  </label>
+                  <label className={styles.field}>
+                    <span>{t("aliases")}</span>
+                    <input
+                      type="text"
+                      value={draft.aliases}
+                      onChange={(event) =>
+                        patchDraft({ aliases: event.target.value })
+                      }
+                    />
+                    <small className={styles.hint}>{t("aliasesHint")}</small>
                   </label>
                   <label className={styles.field}>
                     <span>{t("spoilerTier")}</span>

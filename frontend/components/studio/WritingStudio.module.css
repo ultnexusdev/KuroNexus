@@ -441,3 +441,128 @@
     color: var(--accent);
   }
 }
+
+/* --- Sag sutun: lore kunyesi ve bolumde gecenler --- */
+
+.loreCard {
+  margin-bottom: var(--gap-md);
+  padding: var(--gap-sm);
+  background: var(--bg);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+}
+
+.loreHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-sm);
+}
+
+.loreCategory {
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.loreClose {
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  border: 0;
+  color: var(--text-muted);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.loreClose:hover {
+  color: var(--text-primary);
+}
+
+.loreTitle {
+  margin: 4px 0 0;
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.98rem;
+  color: var(--text-primary);
+}
+
+.loreAliases {
+  margin: 2px 0 0;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.lorePreview {
+  margin: var(--gap-sm) 0 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.loreOpen {
+  margin-top: var(--gap-sm);
+  padding: 0;
+  background: transparent;
+  border: 0;
+  color: var(--accent);
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.loreOpen:hover {
+  color: var(--accent-hover);
+}
+
+.appearances {
+  margin-bottom: var(--gap-md);
+  padding-bottom: var(--gap-md);
+  border-bottom: 1px solid var(--border);
+}
+
+.appearanceList {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+}
+
+.appearanceItem {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  width: 100%;
+  min-height: 30px;
+  padding: 2px var(--gap-sm) 2px 0;
+  background: transparent;
+  border: 0;
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.appearanceItem:hover {
+  color: var(--text-primary);
+}
+
+/* Bagli isaret: metinde gercekten baglanmis */
+.appearanceMark {
+  flex-shrink: 0;
+  color: var(--accent);
+  font-size: 0.6rem;
+}
+
+/* Yalnizca adi geciyor: henuz baglanmamis */
+.appearanceLoose {
+  flex-shrink: 0;
+  width: 8px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .appearanceItem {
+    min-height: var(--touch-min);
+  }
+}

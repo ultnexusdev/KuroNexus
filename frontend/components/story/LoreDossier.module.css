@@ -1,0 +1,102 @@
+/* Okuma ekranı künye paneli — sağdan açılır, metin akışını bozmaz. */
+
+.panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 70;
+  width: min(340px, 90vw);
+  height: 100vh;
+  overflow-y: auto;
+  padding: var(--pad-lg) var(--pad-md);
+  background: var(--surface);
+  border-left: 1px solid var(--border-strong);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-sm);
+}
+
+.category {
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.close {
+  min-width: var(--touch-min);
+  min-height: var(--touch-min);
+  background: transparent;
+  border: 0;
+  color: var(--text-secondary);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.close:hover {
+  color: var(--text-primary);
+}
+
+.title {
+  margin: var(--gap-sm) 0 0;
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.15rem;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+}
+
+.cover {
+  width: 100%;
+  height: auto;
+  margin-top: var(--gap-md);
+  border-radius: var(--radius);
+}
+
+.body {
+  margin: var(--gap-md) 0 0;
+  font-family: var(--font-cormorant), serif;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+.fullPage {
+  display: inline-block;
+  margin-top: var(--gap-lg);
+  font-size: 0.85rem;
+}
+
+.reveal {
+  min-height: var(--touch-min);
+  margin-top: var(--gap-md);
+  padding: 0 var(--pad-md);
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--accent);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.reveal:hover {
+  background: var(--surface-hover);
+}
+
+/* Mobilde alttan açılan yaprak — tek elle kapatılabilir yükseklikte */
+@media (max-width: 900px) {
+  .panel {
+    top: auto;
+    bottom: 0;
+    width: 100%;
+    height: auto;
+    max-height: 70vh;
+    border-left: 0;
+    border-top: 1px solid var(--border-strong);
+    border-radius: var(--radius-card) var(--radius-card) 0 0;
+  }
+}

@@ -26,6 +26,9 @@ export function sanitizeStoryContent(content: string): string {
       '*': ['style', 'class'],
       a: ['href', 'target', 'rel'],
       img: ['src', 'alt'],
+      // Lore bağlantısı: metindeki işaret hangi wiki kaydına baktığını taşır.
+      // İlişkinin kaynağı StoryEntryLink tablosudur, bu yalnızca gösterimdir.
+      span: ['data-entry-id', 'data-entry-slug'],
     },
     allowedStyles: {
       '*': {

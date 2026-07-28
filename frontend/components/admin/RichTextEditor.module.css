@@ -158,3 +158,64 @@
   max-width: 100%;
   border-radius: var(--radius);
 }
+
+/* --- "@" ile lore bagi: imlecin altinda acilan oneri listesi --- */
+
+.suggestions {
+  position: fixed;
+  z-index: 60;
+  min-width: 220px;
+  max-width: 320px;
+  max-height: 260px;
+  overflow-y: auto;
+  margin: 4px 0 0;
+  padding: 4px;
+  list-style: none;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+}
+
+.suggestion,
+.suggestionActive {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--gap-sm);
+  width: 100%;
+  min-height: 34px;
+  padding: 6px var(--gap-sm);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.suggestionActive {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.suggestionTitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.suggestionCategory {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 900px) {
+  .suggestion,
+  .suggestionActive {
+    min-height: var(--touch-min);
+  }
+}

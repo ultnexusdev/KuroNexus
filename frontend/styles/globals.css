@@ -264,3 +264,18 @@ a:hover { color: var(--accent-hover); }
   cursor: pointer;
 }
 .btn:hover { background: var(--surface-hover); }
+
+/* Lore isareti: el yazmasinda bir wiki kaydina bakan sozcuk.
+   Hem editorde hem okuma ekraninda ayni gorunur — okuma akisini bolmesin
+   diye link mavisi/alti cizgisi degil, sadece noktali ince bir iz. */
+.lore-mention {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px dotted var(--accent-muted);
+  cursor: pointer;
+}
+
+.lore-mention:hover {
+  border-bottom-color: var(--accent);
+  color: var(--accent-hover);
+}

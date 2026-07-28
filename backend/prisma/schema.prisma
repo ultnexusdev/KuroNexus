@@ -64,6 +64,8 @@ model Story {
   comments  Comment[]
   favorites Favorite[]
 
+  entryLinks StoryEntryLink[]
+
   @@index([userId])
   @@index([isPublished, isDeleted])
   @@index([submissionStatus])
@@ -213,6 +215,10 @@ model WikiEntry {
   updatedAt   DateTime     @updatedAt
   isDeleted   Boolean      @default(false)
 
+  // Takma adlar: el yazmasında "Kağan" yazınca "Temür Kağan" kaydı bulunsun.
+  // Yalnızca metin taraması/öneri içindir, ilişki kaynağı DEĞİLDİR (kural 5).
+  aliases String[] @default([])
+
   universeId String
   universe   WikiUniverse @relation(fields: [universeId], references: [id])
   userId     String
@@ -226,6 +232,8 @@ model WikiEntry {
   // Çapraz linkleme (AGENTS.md kural 5): karakter → terim → şehir ilişkileri
   outgoingRelations WikiEntryRelation[] @relation("outgoing")
   incomingRelations WikiEntryRelation[] @relation("incoming")
+
+  storyLinks StoryEntryLink[]
 
   @@unique([universeId, slug])
   @@index([userId])
@@ -243,6 +251,20 @@ model WikiEntryRelation {
 
   @@id([fromId, toId])
   @@index([toId])
+}
+
+// Bölüm ↔ wiki kaydı bağı. Metindeki mention işareti yalnızca gösterimdir;
+// sorgulanabilir ilişki burada tutulur (AGENTS.md kural 5). Kayıt sırasında
+// bölüm içeriğinden türetilir, elle beslenmez.
+model StoryEntryLink {
+  storyId   String
+  story     Story     @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  entryId   String
+  entry     WikiEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+
+  @@id([storyId, entryId])
+  @@index([entryId])
 }
 
 model Review {

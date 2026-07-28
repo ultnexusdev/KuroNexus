@@ -156,8 +156,16 @@
       "excerpt": "Özet",
       "publish": "Yayında",
       "category": "Kategori",
+      "aliases": "Takma adlar",
+      "aliasesHint": "Virgülle ayırın — metinde bu adlar geçtiğinde de tanınır.",
       "spoilerTier": "Spoiler seviyesi",
       "spoilerHint": "Boş = spoiler içermez.",
+      "appearances": "Bu Bölümde Geçenler",
+      "noAppearances": "Bu bölümde henüz tanınan bir kayıt yok.",
+      "detectedHint": "Adı geçiyor ama bağlanmamış — bağlamak için metinde @ ile çağırın.",
+      "openEntry": "Kaydı düzenle →",
+      "closeDossier": "Künyeyi kapat",
+      "loading": "Yükleniyor…",
       "wordCount": "{count} kelime",
       "chapterPosition": "Sıra: {position} / {total}",
       "openFullForm": "Tam formda aç (kapak, evren)",
@@ -381,6 +389,14 @@
       "linkPrompt": "Bağlantı adresi (boş bırakırsan kaldırılır):",
       "pageBreak": "Sayfa Sonu Ekle"
     }
+  },
+  "lore": {
+    "panelAria": "Kayıt künyesi",
+    "close": "Kapat",
+    "fullPage": "Tam sayfayı aç →",
+    "missing": "Bu kayda artık ulaşılamıyor.",
+    "spoilerWarning": "Bu künye {tier}. kitaba kadar spoiler içeriyor.",
+    "reveal": "Yine de göster"
   },
   "wiki": {
     "sectionTitle": "Wiki",

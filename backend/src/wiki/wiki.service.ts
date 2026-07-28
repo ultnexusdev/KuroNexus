@@ -13,9 +13,19 @@ const LIST_SELECT = {
   category: true,
   coverImage: true,
   spoilerTier: true,
+  aliases: true,
   createdAt: true,
   updatedAt: true,
 } satisfies Prisma.WikiEntrySelect;
+
+// Boş/yinelenen takma adlar tarama listesini kirletmesin
+function normalizeAliases(aliases?: string[]): string[] {
+  if (!aliases) {
+    return [];
+  }
+  const cleaned = aliases.map((alias) => alias.trim()).filter(Boolean);
+  return [...new Set(cleaned)];
+}
 
 @Injectable()
 export class WikiService {
@@ -87,6 +97,7 @@ export class WikiService {
         category: dto.category,
         coverImage: dto.coverImage,
         spoilerTier: dto.spoilerTier,
+        aliases: normalizeAliases(dto.aliases),
         universeId: dto.universeId,
         userId,
       },
@@ -103,6 +114,7 @@ export class WikiService {
       category: dto.category,
       coverImage: dto.coverImage,
       spoilerTier: dto.spoilerTier,
+      aliases: dto.aliases ? normalizeAliases(dto.aliases) : undefined,
       universeId: dto.universeId,
     };
 

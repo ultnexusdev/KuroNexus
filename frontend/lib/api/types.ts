@@ -16,6 +16,8 @@ export interface StorySummary {
 export interface Story extends StorySummary {
   content: string;
   universe?: { slug: string; name: string } | null;
+  // Yalnızca yayınlanmış bölümün genel ucunda dolu gelir
+  entries?: StoryLoreEntry[];
 }
 
 export interface UniverseCategory {
@@ -60,8 +62,21 @@ export interface WikiEntrySummary {
   category: WikiCategory;
   coverImage: string | null;
   spoilerTier: number | null;
+  // Metinde adı geçtiğinde tanınsın diye takma adlar
+  aliases: string[];
   createdAt: string;
   updatedAt: string;
+}
+
+// Okuma ekranındaki künye paneli — bölümle birlikte tek istekte gelir
+export interface StoryLoreEntry {
+  id: string;
+  title: string;
+  slug: string;
+  category: WikiCategory;
+  coverImage: string | null;
+  spoilerTier: number | null;
+  excerpt: string;
 }
 
 export interface WikiEntryDetail extends WikiEntrySummary {

@@ -2,6 +2,10 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { slugify } from '../common/utils/slugify';
 import { sanitizeStoryContent } from '../common/utils/sanitize-story-content';
+import {
+  buildPlainExcerpt,
+  extractEntryIds,
+} from '../common/utils/lore-links';
 import { CreateStoryDto } from './dto/create-story.dto';
 import { UpdateStoryDto } from './dto/update-story.dto';
 import type { Prisma } from '../generated/prisma/client';
@@ -48,12 +52,45 @@ export class StoriesService {
       },
       include: {
         universe: { select: { slug: true, name: true } },
+        // Okuma ekranındaki künye paneli tek istekte dolsun: bölümde geçen
+        // kayıtların özeti metinle birlikte gelir, tıklayınca beklenmez.
+        entryLinks: {
+          where: { entry: { isDeleted: false } },
+          select: {
+            entry: {
+              select: {
+                id: true,
+                title: true,
+                slug: true,
+                category: true,
+                coverImage: true,
+                spoilerTier: true,
+                content: true,
+              },
+            },
+          },
+        },
       },
     });
     if (!story) {
       throw new NotFoundException('STORIES.NOT_FOUND');
     }
-    return story;
+
+    const { entryLinks, ...rest } = story;
+    return {
+      ...rest,
+      entries: entryLinks
+        .map(({ entry }) => ({
+          id: entry.id,
+          title: entry.title,
+          slug: entry.slug,
+          category: entry.category,
+          coverImage: entry.coverImage,
+          spoilerTier: entry.spoilerTier,
+          excerpt: buildPlainExcerpt(entry.content),
+        }))
+        .sort((a, b) => a.title.localeCompare(b.title)),
+    };
   }
 
   // --- Admin ---
@@ -82,11 +119,12 @@ export class StoriesService {
 
   async create(dto: CreateStoryDto, userId: string) {
     const slug = await this.buildUniqueSlug(dto.title);
-    return this.prisma.story.create({
+    const content = sanitizeStoryContent(dto.content);
+    const story = await this.prisma.story.create({
       data: {
         title: dto.title,
         slug,
-        content: sanitizeStoryContent(dto.content),
+        content,
         excerpt: dto.excerpt,
         coverImage: dto.coverImage,
         universeId: dto.universeId,
@@ -96,6 +134,8 @@ export class StoriesService {
         userId,
       },
     });
+    await this.syncEntryLinks(story.id, story.universeId, content);
+    return story;
   }
 
   async update(id: string, dto: UpdateStoryDto) {
@@ -121,7 +161,13 @@ export class StoriesService {
       data.publishedAt = new Date();
     }
 
-    return this.prisma.story.update({ where: { id }, data });
+    const story = await this.prisma.story.update({ where: { id }, data });
+
+    // İçerik ya da evren değiştiyse lore bağları yeniden türetilir
+    if (dto.content !== undefined || dto.universeId !== undefined) {
+      await this.syncEntryLinks(story.id, story.universeId, story.content);
+    }
+    return story;
   }
 
   // El yazması ağacında sürükle-bırak: dizideki konum yeni orderIndex olur.
@@ -157,6 +203,41 @@ export class StoriesService {
         slug: `${existing.slug}-deleted-${Date.now()}`,
       },
     });
+  }
+
+  // Bölüm ↔ wiki kaydı bağları içerikten türetilir: metindeki her lore işareti
+  // aynı evrende yaşayan bir kayda bakıyorsa bağ kurulur, kalanlar silinir.
+  // Başka evrenin kaydına yapılan işaret bağ üretmez (kural 6 — veri izolasyonu).
+  private async syncEntryLinks(
+    storyId: string,
+    universeId: string | null,
+    content: string,
+  ): Promise<void> {
+    const referenced = extractEntryIds(content);
+    const valid =
+      universeId && referenced.length > 0
+        ? await this.prisma.wikiEntry.findMany({
+            where: { id: { in: referenced }, universeId, isDeleted: false },
+            select: { id: true },
+          })
+        : [];
+    const validIds = valid.map((entry) => entry.id);
+
+    await this.prisma.$transaction([
+      this.prisma.storyEntryLink.deleteMany({
+        where: {
+          storyId,
+          ...(validIds.length > 0 ? { entryId: { notIn: validIds } } : {}),
+        },
+      }),
+      ...validIds.map((entryId) =>
+        this.prisma.storyEntryLink.upsert({
+          where: { storyId_entryId: { storyId, entryId } },
+          create: { storyId, entryId },
+          update: {},
+        }),
+      ),
+    ]);
   }
 
   // Yeni bölüm evrenin sonuna eklenir (evrensiz hikâyelerde sıra anlamsız).

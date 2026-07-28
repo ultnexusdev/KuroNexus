@@ -1,5 +1,7 @@
 import { Type } from 'class-transformer';
 import {
+  ArrayMaxSize,
+  IsArray,
   IsEnum,
   IsInt,
   IsOptional,
@@ -36,4 +38,12 @@ export class CreateWikiEntryDto {
   @IsInt({ message: 'VALIDATION.INVALID_SPOILER_TIER' })
   @Min(0, { message: 'VALIDATION.INVALID_SPOILER_TIER' })
   spoilerTier?: number;
+
+  // El yazmasında geçen takma adlar ("Kağan" → "Temür Kağan")
+  @IsOptional()
+  @IsArray({ message: 'VALIDATION.INVALID_ALIASES' })
+  @ArrayMaxSize(20, { message: 'VALIDATION.INVALID_ALIASES' })
+  @IsString({ each: true, message: 'VALIDATION.INVALID_ALIASES' })
+  @MaxLength(100, { each: true, message: 'VALIDATION.INVALID_ALIASES' })
+  aliases?: string[];
 }

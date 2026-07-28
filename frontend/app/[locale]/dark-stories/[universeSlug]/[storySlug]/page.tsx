@@ -7,6 +7,7 @@ import type { Story } from "@/lib/api/types";
 import { legacyPlainTextToHtml } from "@/lib/content/legacyPlainTextToHtml";
 import styles from "./page.module.css";
 import { PaginatedReader } from "@/components/story/PaginatedReader";
+import { LoreDossier } from "@/components/story/LoreDossier";
 
 async function getStory(slug: string): Promise<Story | null> {
   try {
@@ -65,6 +66,12 @@ export default async function StoryDetailPage({
         date={dateFormatted}
         prevLabel={t("prevPage")}
         nextLabel={t("nextPage")}
+      />
+
+      {/* Metindeki lore işaretine tıklanınca açılan künye paneli */}
+      <LoreDossier
+        entries={story.entries ?? []}
+        universeSlug={universeSlug}
       />
     </article>
   );

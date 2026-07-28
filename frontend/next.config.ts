@@ -17,6 +17,12 @@ const nextConfig: NextConfig = {
         port: apiUrl.port,
         pathname: "/uploads/**",
       },
+      // Salon 02: film posterleri TMDB'nin kendi CDN'inden gelir
+      {
+        protocol: "https",
+        hostname: "image.tmdb.org",
+        pathname: "/t/p/**",
+      },
     ],
   },
 };

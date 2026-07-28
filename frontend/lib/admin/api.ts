@@ -1,11 +1,14 @@
-import { apiFetch, apiUrl, ApiError } from "../api/client";
+import { apiFetch, apiFetchUrl, ApiError } from "../api/client";
 import type {
   AdminWikiEntrySummary,
   AmbientTrack,
   AuthenticatedUser,
   LoginResult,
+  MovieEntryRecord,
+  MovieStatus,
   Story,
   StorySummary,
+  TmdbSearchResult,
   TransferNewsItem,
   TransferNewsPlayer,
   UploadResult,
@@ -326,6 +329,58 @@ export function deleteTransferNews(id: string): Promise<void> {
   });
 }
 
+// ---- Salon 02 · Film arşivi ----
+
+export interface MovieEntryInput {
+  tmdbId: number;
+  status?: MovieStatus;
+  isFavorite?: boolean;
+  personalRating?: number;
+  personalNote?: string;
+  watchedAt?: string;
+}
+
+export function searchTmdbMovies(query: string): Promise<TmdbSearchResult[]> {
+  return apiFetch<TmdbSearchResult[]>(
+    `/admin/movies/search?q=${encodeURIComponent(query)}`,
+    { headers: authHeaders() },
+  );
+}
+
+export function fetchAdminMovies(): Promise<MovieEntryRecord[]> {
+  return apiFetch<MovieEntryRecord[]>("/admin/movies", {
+    headers: authHeaders(),
+  });
+}
+
+export function createMovieEntry(
+  input: MovieEntryInput,
+): Promise<MovieEntryRecord> {
+  return apiFetch<MovieEntryRecord>("/admin/movies", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(input),
+  });
+}
+
+export function updateMovieEntry(
+  id: string,
+  input: Partial<Omit<MovieEntryInput, "tmdbId">>,
+): Promise<MovieEntryRecord> {
+  return apiFetch<MovieEntryRecord>(`/admin/movies/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(input),
+  });
+}
+
+export function deleteMovieEntry(id: string): Promise<MovieEntryRecord> {
+  return apiFetch<MovieEntryRecord>(`/admin/movies/${id}`, {
+    method: "DELETE",
+    headers: authHeaders(),
+  });
+}
+
 export interface CategoryInput {
   name: string;
   description?: string;
@@ -380,7 +435,7 @@ export function deleteAmbientTrack(id: string): Promise<AmbientTrack> {
 export async function uploadImage(file: File): Promise<UploadResult> {
   const formData = new FormData();
   formData.append("file", file);
-  const response = await fetch(apiUrl("/admin/uploads"), {
+  const response = await fetch(apiFetchUrl("/admin/uploads"), {
     method: "POST",
     headers: authHeaders(),
     body: formData,

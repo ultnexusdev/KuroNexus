@@ -20,6 +20,7 @@ import { TransferNewsModule } from './transfer-news/transfer-news.module';
 import { SportModule } from './sport/sport.module';
 import { FootballModule } from './football/football.module';
 import { CategoriesModule } from './categories/categories.module';
+import { MoviesModule } from './movies/movies.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { CategoriesModule } from './categories/categories.module';
     SportModule,
     FootballModule,
     CategoriesModule,
+    MoviesModule,
   ],
   controllers: [AppController],
   providers: [

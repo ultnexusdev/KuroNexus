@@ -1,0 +1,556 @@
+/* Salon 02 · Film — "Projeksiyon Salonu".
+   Renkler yalnizca token'lardan; palet globals.css'teki
+   [data-category="film"] blogunda tanimli (AGENTS.md kural 16). */
+
+.hall {
+  min-height: 100vh;
+  padding: var(--pad-lg) var(--pad-md) 96px;
+  background: var(--bg);
+  /* Havada asili projektor tozu — tek, genis, sessiz bir hale */
+  background-image: radial-gradient(
+    120% 70% at 50% -10%,
+    var(--film-dust),
+    transparent 60%
+  );
+}
+
+/* --- Giris --- */
+
+.head {
+  max-width: 1180px;
+  margin: 0 auto var(--pad-lg);
+}
+
+.back {
+  display: inline-block;
+  margin-bottom: var(--gap-lg);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  text-decoration: none;
+}
+
+.back:hover {
+  color: var(--accent);
+}
+
+.eyebrow {
+  display: block;
+  color: var(--gold);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.95rem;
+  letter-spacing: 0.32em;
+}
+
+.title {
+  margin: var(--gap-sm) 0 0;
+  color: var(--text-primary);
+  font-family: var(--font-cinzel), serif;
+  font-size: clamp(2rem, 5.5vw, 3.4rem);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  line-height: 1.05;
+}
+
+.lede {
+  max-width: 46ch;
+  margin: var(--gap-md) 0 0;
+  color: var(--text-secondary);
+  font-family: var(--font-cormorant), serif;
+  font-size: 1.15rem;
+  line-height: 1.6;
+}
+
+/* Kunye seridi: teknik kunye gibi tek satir, kondanse kapitaller */
+.colophon {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-sm);
+  margin: var(--gap-lg) 0 0;
+  padding-top: var(--gap-md);
+  border-top: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 1.05rem;
+  letter-spacing: 0.14em;
+}
+
+.colophon span[aria-hidden] {
+  color: var(--accent-muted);
+}
+
+/* --- Imza: 35 mm film seridi --- */
+
+.stripSection {
+  max-width: 1180px;
+  margin: 0 auto var(--pad-lg);
+}
+
+.sectionTitle {
+  margin: 0 0 var(--gap-md);
+  color: var(--gold);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 1rem;
+  font-weight: 400;
+  letter-spacing: 0.3em;
+}
+
+.strip {
+  padding: 6px 0;
+  background: var(--film-frame);
+  border-top: 1px solid var(--film-curtain);
+  border-bottom: 1px solid var(--film-curtain);
+}
+
+/* Perforasyon rayi: esit arali kucuk delikler */
+.perforation {
+  display: block;
+  height: 12px;
+  background-image: radial-gradient(
+    circle at 8px 6px,
+    var(--bg) 0 3.5px,
+    transparent 4px
+  );
+  background-size: 22px 12px;
+  opacity: 0.9;
+}
+
+.stripTrack {
+  display: flex;
+  gap: 2px;
+  overflow-x: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  scrollbar-width: none;
+  scroll-snap-type: x proximity;
+}
+
+.stripTrack::-webkit-scrollbar {
+  display: none;
+}
+
+.frame {
+  flex: 0 0 auto;
+  width: 148px;
+  padding: 8px;
+  border-left: 1px solid var(--film-curtain);
+  scroll-snap-align: start;
+}
+
+.frame:last-child {
+  border-right: 1px solid var(--film-curtain);
+}
+
+.framePoster {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.frameTitle {
+  margin: var(--gap-sm) 0 0;
+  overflow: hidden;
+  color: var(--text-primary);
+  font-size: 0.78rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.frameDate {
+  margin: 2px 0 0;
+  color: var(--text-muted);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+}
+
+/* --- Raflar --- */
+
+.shelfSection {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-md);
+  padding-bottom: var(--gap-sm);
+  border-bottom: 1px solid var(--border);
+}
+
+.tab,
+.tabActive {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  min-height: var(--touch-min);
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 1.1rem;
+  letter-spacing: 0.16em;
+  cursor: pointer;
+}
+
+.tabActive {
+  border-bottom-color: var(--accent);
+  color: var(--text-primary);
+}
+
+.tab:hover {
+  color: var(--text-primary);
+}
+
+.tabCount {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-sm);
+  margin: var(--gap-md) 0 0;
+}
+
+.chip,
+.chipActive {
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.chipActive {
+  border-color: var(--accent-muted);
+  color: var(--accent);
+}
+
+.chip:hover {
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+.shelf {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--gap-lg) var(--gap-md);
+  margin: var(--pad-lg) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* --- Poster karti --- */
+
+.card {
+  display: flex;
+  flex-direction: column;
+}
+
+.posterWrap {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: transform 200ms ease, border-color 200ms ease;
+}
+
+.card:hover .posterWrap {
+  transform: translateY(-4px);
+  border-color: var(--accent-muted);
+}
+
+.posterImg {
+  object-fit: cover;
+}
+
+.posterFallback {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  padding: var(--gap-md);
+  color: var(--text-muted);
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 6px;
+  padding: var(--gap-md);
+  background: linear-gradient(
+    to top,
+    rgba(10, 11, 14, 0.94),
+    rgba(10, 11, 14, 0.72) 55%,
+    rgba(10, 11, 14, 0.1)
+  );
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.overlayFacts {
+  display: flex;
+  gap: var(--gap-md);
+  margin: 0;
+}
+
+.overlayFacts dt {
+  color: var(--text-muted);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.overlayFacts dd {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+}
+
+.overlayGenres {
+  margin: 0;
+  color: var(--accent);
+  font-size: 0.72rem;
+}
+
+.overlayNote {
+  margin: 0;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  color: var(--text-secondary);
+  font-family: var(--font-cormorant), serif;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.favoriteMark {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  color: var(--accent);
+  font-size: 0.9rem;
+}
+
+.cardTitle {
+  margin: var(--gap-sm) 0 0;
+  overflow: hidden;
+  color: var(--text-primary);
+  font-size: 0.86rem;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cardMeta {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--gap-sm);
+  margin: 2px 0 0;
+  color: var(--text-muted);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+}
+
+.cardRating {
+  color: var(--accent);
+}
+
+/* --- Favoriler duvari --- */
+
+.favoritesIntro {
+  margin: var(--pad-lg) 0 0;
+}
+
+.favoritesTitle {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.favoritesLede {
+  max-width: 52ch;
+  margin: var(--gap-sm) 0 0;
+  color: var(--text-secondary);
+  font-family: var(--font-cormorant), serif;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.wall {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--pad-lg) var(--gap-lg);
+  margin: var(--pad-lg) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.framed {
+  display: flex;
+  flex-direction: column;
+}
+
+.framedPoster {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  background: var(--surface);
+  /* Cerceve: ince ic hat + perde tonunda dis hat */
+  border: 1px solid var(--film-curtain);
+  outline: 1px solid var(--border);
+  outline-offset: 4px;
+}
+
+/* Pirinc kunye levhasi — cercevenin altinda, hafifce iceri cekilmis */
+.plaque {
+  margin: 14px 10px 0;
+  padding: var(--gap-sm) var(--gap-md);
+  background: var(--surface);
+  border-top: 1px solid var(--accent-muted);
+}
+
+.plaqueTitle {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.92rem;
+  letter-spacing: 0.03em;
+}
+
+.plaqueMeta {
+  display: flex;
+  gap: var(--gap-md);
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.9rem;
+  letter-spacing: 0.12em;
+}
+
+.plaqueRating {
+  color: var(--accent);
+}
+
+.plaqueNote {
+  margin: var(--gap-sm) 0 0;
+  color: var(--text-secondary);
+  font-family: var(--font-cormorant), serif;
+  font-size: 1rem;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+/* --- Yonetmenler --- */
+
+.directors {
+  max-width: 1180px;
+  margin: 96px auto 0;
+  padding-top: var(--pad-lg);
+  border-top: 1px solid var(--border);
+}
+
+.directorsTitle {
+  margin: 0 0 var(--gap-md);
+  color: var(--text-muted);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.95rem;
+  font-weight: 400;
+  letter-spacing: 0.3em;
+}
+
+.directorList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.directorChip {
+  padding: 5px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+}
+
+/* --- Bos durumlar --- */
+
+.empty {
+  max-width: 46ch;
+  margin: var(--pad-lg) auto;
+  color: var(--text-muted);
+  font-family: var(--font-cormorant), serif;
+  font-size: 1.05rem;
+  text-align: center;
+}
+
+/* --- Olcekler --- */
+
+@media (min-width: 640px) {
+  .shelf {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .wall {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1100px) {
+  .hall {
+    padding-inline: var(--pad-lg);
+  }
+
+  .shelf {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .wall {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Kunye kaplamasi yalnizca gercek hover'i olan cihazlarda —
+   dokunmatikte posteri kapatip okumayi zorlastiriyordu */
+@media (hover: hover) and (pointer: fine) {
+  .card:hover .overlay,
+  .card:focus-within .overlay {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .posterWrap,
+  .overlay {
+    transition: none;
+  }
+
+  .card:hover .posterWrap {
+    transform: none;
+  }
+}

@@ -279,6 +279,67 @@ export interface SportBundle {
   standings: DriverStanding[];
 }
 
+// ---- Salon 02 · Film arşivi ----
+
+export type MovieStatus = "WATCHED" | "WATCHLIST" | "REWATCH";
+
+// Kişisel alanlar bizim, künye alanları TMDB anlık görüntüsünden gelir
+export interface ArchiveMovie {
+  id: string;
+  tmdbId: number;
+  status: MovieStatus;
+  isFavorite: boolean;
+  personalRating: number | null;
+  personalNote: string | null;
+  watchedAt: string | null;
+  title: string;
+  overview: string | null;
+  posterPath: string | null;
+  backdropPath: string | null;
+  releaseYear: number | null;
+  runtime: number | null;
+  genres: string[];
+  voteAverage: number | null;
+  director: string | null;
+}
+
+export interface MovieArchive {
+  movies: ArchiveMovie[];
+  stats: {
+    total: number;
+    watchedThisYear: number;
+    averageRating: number | null;
+    watchlist: number;
+  };
+  directors: Array<{ name: string; count: number }>;
+  genres: string[];
+}
+
+export interface MovieEntryRecord {
+  id: string;
+  tmdbId: number;
+  status: MovieStatus;
+  isFavorite: boolean;
+  personalRating: number | null;
+  personalNote: string | null;
+  watchedAt: string | null;
+  externalData: {
+    title?: string;
+    posterPath?: string | null;
+    releaseDate?: string | null;
+  } | null;
+  updatedAt: string;
+}
+
+export interface TmdbSearchResult {
+  tmdbId: number;
+  title: string;
+  releaseDate: string | null;
+  posterPath: string | null;
+  voteAverage: number | null;
+  overview: string | null;
+}
+
 export interface AmbientTrack {
   id: string;
   title: string;

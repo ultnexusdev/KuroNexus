@@ -1,10 +1,28 @@
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
-// Backend'in döndürdüğü göreli yolları (/uploads/...) mutlak URL'e çevirir
+// Backend'in döndürdüğü göreli yolları (/uploads/...) mutlak URL'e çevirir.
+// Görsel/ses kaynakları için kullanılır — bunlar CORS'a takılmaz.
 export function apiUrl(path: string): string {
   if (path.startsWith("http://") || path.startsWith("https://")) {
     return path;
+  }
+  return `${API_BASE_URL}${path}`;
+}
+
+/**
+ * Veri isteklerinin gideceği adres.
+ *
+ * Geliştirmede tarayıcıdan giden istekler `/api/dev-proxy` üzerinden kendi
+ * sunucumuza uğrar (canlı API localhost kaynağını CORS'ta tanımıyor).
+ * Sunucu tarafındaki çağrılar ve üretim her zaman doğrudan API'ye gider.
+ */
+export function apiFetchUrl(path: string): string {
+  if (path.startsWith("http://") || path.startsWith("https://")) {
+    return path;
+  }
+  if (process.env.NODE_ENV !== "production" && typeof window !== "undefined") {
+    return `/api/dev-proxy${path}`;
   }
   return `${API_BASE_URL}${path}`;
 }
@@ -22,7 +40,7 @@ export async function apiFetch<T>(
   path: string,
   init?: RequestInit,
 ): Promise<T> {
-  const response = await fetch(apiUrl(path), init);
+  const response = await fetch(apiFetchUrl(path), init);
   if (!response.ok) {
     let messageKey = "API.REQUEST_FAILED";
     try {

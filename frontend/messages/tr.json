@@ -185,6 +185,38 @@
       "paneEditor": "Yazı",
       "paneDossier": "Künye"
     },
+    "film": {
+      "title": "Film Arşivi",
+      "intro": "Filmi adıyla arayın, sonuçtan seçin ve durumunu, puanınızı, notunuzu girerek arşive ekleyin. Künye (poster, süre, tür, yönetmen) TMDB'den gelir ve kaydedilir; kişisel puanınız ve notunuz ayrı durur.",
+      "search": "Ara",
+      "searching": "Aranıyor…",
+      "searchLabel": "Film adı",
+      "searchPlaceholder": "Film adı yazın…",
+      "noResults": "Bu adla film bulunamadı.",
+      "status": "Durum",
+      "statusLabel": {
+        "WATCHED": "İzledim",
+        "WATCHLIST": "İzleyeceğim",
+        "REWATCH": "Tekrar izleyeceğim"
+      },
+      "watchedAt": "İzleme tarihi",
+      "rating": "Puanım (0–10)",
+      "note": "Notum",
+      "notePlaceholder": "Atmosferi ve müzikleri nedeniyle tekrar tekrar izlenebilir.",
+      "markFavorite": "Favorilerime ekle",
+      "add": "Arşive ekle",
+      "saving": "Kaydediliyor…",
+      "cancel": "Vazgeç",
+      "archive": "Arşiv ({count})",
+      "emptyArchive": "Arşiv henüz boş.",
+      "noRating": "Puan yok",
+      "delete": "Sil",
+      "confirmDelete": "\"{title}\" arşivden çıkarılsın mı?",
+      "loadError": "Arşiv yüklenemedi. Sayfayı yenileyin.",
+      "searchError": "TMDB araması başarısız. Anahtar tanımlı mı kontrol edin.",
+      "saveError": "Kaydedilemedi. Tekrar deneyin.",
+      "deleteError": "Silinemedi. Tekrar deneyin."
+    },
     "squad": {
       "title": "Kadro Düzeltmeleri",
       "intro": "Transfermarkt veri seti yaz transferlerini haftalar sonra yansıtıyor. Ayrılan oyuncuyu buradan gizleyebilir, yeni transferi elle ekleyebilirsiniz. Bu düzeltmeler senkronizasyonda silinmez.",
@@ -389,6 +421,33 @@
       "linkPrompt": "Bağlantı adresi (boş bırakırsan kaldırılır):",
       "pageBreak": "Sayfa Sonu Ekle"
     }
+  },
+  "film": {
+    "eyebrow": "Salon 02 · Film",
+    "title": "Film Arşivim",
+    "lede": "İzlediğim, tekrar izlemek istediğim ve sırada bekleyen filmler.",
+    "statTotal": "{count} film",
+    "statThisYear": "{count} bu yıl",
+    "statAverage": "ort. {value}",
+    "statNoRating": "puan yok",
+    "statWatchlist": "{count} sırada",
+    "recent": "Son İzlenenler",
+    "allGenres": "Tümü",
+    "shelf": {
+      "watched": "İzlediklerim",
+      "watchlist": "İzleyeceklerim",
+      "rewatch": "Tekrar İzlenecekler",
+      "favorites": "Favoriler"
+    },
+    "favoritesTitle": "Tüm Zamanların Favorileri",
+    "favoritesLede": "Beni en çok etkileyen ve tekrar izlemekten hiç sıkılmadığım filmler.",
+    "favorite": "Favori",
+    "tmdbScore": "TMDB",
+    "runtime": "Süre",
+    "minutes": "{count} dk",
+    "directors": "Favori Yönetmenler",
+    "emptyArchive": "Salon henüz karanlık. İlk filmi yönetim panelindeki film arşivinden ekleyin.",
+    "emptyShelf": "Bu raf henüz boş."
   },
   "lore": {
     "panelAria": "Kayıt künyesi",

@@ -7,6 +7,9 @@ import { ContentCard } from "@/components/ContentCard";
 import { CodexCard } from "@/components/kadim/CodexCard";
 import { CornerFiligree, RunicMargin } from "@/components/kadim/CodexOrnaments";
 import { SportSplit } from "@/components/sport/SportSplit";
+import { FilmHall } from "@/components/film/FilmHall";
+import { fetchMovieArchive } from "@/lib/api/movies";
+import type { MovieArchive } from "@/lib/api/types";
 import { apiUrl } from "@/lib/api/client";
 import { Link } from "@/lib/i18n/navigation";
 import styles from "./page.module.css";
@@ -28,6 +31,25 @@ export async function generateMetadata({
 }
 
 export const dynamic = "force-dynamic";
+
+// Arşiv alınamazsa salon boş açılır, sayfa çökmez (kural 4 ruhu)
+async function getMovieArchive(): Promise<MovieArchive> {
+  try {
+    return await fetchMovieArchive();
+  } catch {
+    return {
+      movies: [],
+      stats: {
+        total: 0,
+        watchedThisYear: 0,
+        averageRating: null,
+        watchlist: 0,
+      },
+      directors: [],
+      genres: [],
+    };
+  }
+}
 
 export default async function CategoryUniversesPage({
   params,
@@ -51,6 +73,12 @@ export default async function CategoryUniversesPage({
   // Kategori derisi: yalnızca derisi tanımlı kategoriler dönüşür
   const isCodex = category.slug === "kadim-dunyalar";
   const isSport = category.slug === "spor";
+
+  // Salon 02: film kapısı kendi arşiv salonunu açar
+  if (category.slug === "film") {
+    const archive = await getMovieArchive();
+    return <FilmHall archive={archive} locale={locale} />;
+  }
 
   if (isSport) {
     const tSport = await getTranslations({ locale, namespace: "sport" });

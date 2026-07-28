@@ -17,6 +17,9 @@ export default function AdminHomePage() {
           <Link href="/admin/atolye/temurkan-efsaneleri" className="card">
             {t("studio.title")}
           </Link>
+          <Link href="/admin/film" className="card">
+            {t("film.title")}
+          </Link>
           <Link href="/admin/stories" className="card">
             {t("stories.title")}
           </Link>

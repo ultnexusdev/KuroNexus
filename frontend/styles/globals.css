@@ -197,7 +197,41 @@
   --danger:         #a61c2b;
 }
 
+/* ============================================================
+   KATEGORI DERISI — Film ("Projeksiyon Salonu")
+   Salon 02: ana sayfadaki film kapisindan kehribar bir projektor
+   isigi sizar (--door-film-a), ardindaki oda koyu bordo perdedir
+   (--door-film-b). Bu deri, o kapidan girince gorulen yerdir:
+   notr karanlik + havada kehribar toz. Accent kapidan gelir;
+   mor/neon bir vurgu kapinin verdigi sozu bozardi.
+   Renk kararlari yalnizca bu dosyada (kural 16).
+   ============================================================ */
+[data-category="film"] {
+  --bg:             #0e0f13;
+  --surface:        #16171d;
+  --surface-hover:  #1c1e26;
+  --border:         #24262f;
+  --border-strong:  #333644;
+
+  --text-primary:   #f2f0ea;
+  --text-secondary: #9a9ba6;
+  --text-muted:     #6a6b76;
+
+  --accent:         #d9a13f; /* projektor kehribari, doygunlugu dusurulmus */
+  --accent-hover:   #e6b355;
+  --accent-muted:   #6b5730;
+
+  --gold:           #d9a13f;
+  --warn:           #a6584a;
+  --danger:         #a6584a;
+}
+
 :root {
+  /* Salon 02 — Projeksiyon Salonu yardimci token'lari */
+  --film-curtain: #3d1215; /* kapinin ardindaki perde: serit cercevesi + kunye levhasi */
+  --film-frame:   #0a0b0e; /* 35 mm serit govdesi — zeminden koyu */
+  --film-dust:    rgba(229, 178, 60, 0.06); /* havadaki isik tozu */
+
   /* Spor kanadi ortak */
   --sport-ink:  #0c0f15;
   --sport-line: #232833;

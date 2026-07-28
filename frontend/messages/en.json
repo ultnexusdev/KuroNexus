@@ -185,6 +185,38 @@
       "paneEditor": "Text",
       "paneDossier": "Details"
     },
+    "film": {
+      "title": "Film Archive",
+      "intro": "Search a film by name, pick it from the results, then add it with its status, your rating and your note. The metadata (poster, runtime, genres, director) comes from TMDB and is stored; your own rating and note stay separate.",
+      "search": "Search",
+      "searching": "Searching…",
+      "searchLabel": "Film title",
+      "searchPlaceholder": "Type a film title…",
+      "noResults": "No film found with that name.",
+      "status": "Status",
+      "statusLabel": {
+        "WATCHED": "Watched",
+        "WATCHLIST": "Will watch",
+        "REWATCH": "Will rewatch"
+      },
+      "watchedAt": "Watched on",
+      "rating": "My rating (0–10)",
+      "note": "My note",
+      "notePlaceholder": "Worth rewatching for its atmosphere and score alone.",
+      "markFavorite": "Add to my favourites",
+      "add": "Add to archive",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "archive": "Archive ({count})",
+      "emptyArchive": "The archive is empty.",
+      "noRating": "No rating",
+      "delete": "Delete",
+      "confirmDelete": "Remove \"{title}\" from the archive?",
+      "loadError": "The archive could not be loaded. Refresh the page.",
+      "searchError": "TMDB search failed. Check that the API key is set.",
+      "saveError": "Could not save. Try again.",
+      "deleteError": "Could not delete. Try again."
+    },
     "squad": {
       "title": "Squad Corrections",
       "intro": "The Transfermarkt dataset reflects summer transfers weeks late. Hide a departed player here, or add a new signing manually. These corrections survive the sync.",
@@ -389,6 +421,33 @@
       "linkPrompt": "Link URL (leave empty to remove):",
       "pageBreak": "Insert Page Break"
     }
+  },
+  "film": {
+    "eyebrow": "Hall 02 · Cinema",
+    "title": "My Film Archive",
+    "lede": "Films I have watched, films I want to see again, and films still waiting.",
+    "statTotal": "{count} films",
+    "statThisYear": "{count} this year",
+    "statAverage": "avg. {value}",
+    "statNoRating": "no ratings",
+    "statWatchlist": "{count} waiting",
+    "recent": "Recently Watched",
+    "allGenres": "All",
+    "shelf": {
+      "watched": "Watched",
+      "watchlist": "Watchlist",
+      "rewatch": "Rewatch",
+      "favorites": "Favourites"
+    },
+    "favoritesTitle": "Favourites of All Time",
+    "favoritesLede": "The films that moved me most, and that I never tire of watching again.",
+    "favorite": "Favourite",
+    "tmdbScore": "TMDB",
+    "runtime": "Runtime",
+    "minutes": "{count} min",
+    "directors": "Favourite Directors",
+    "emptyArchive": "The hall is still dark. Add your first film from the film archive in the admin panel.",
+    "emptyShelf": "This shelf is empty."
   },
   "lore": {
     "panelAria": "Element details",

@@ -31,6 +31,7 @@ model User {
   quotes            Quote[]
   comments          Comment[]
   favorites         Favorite[]
+  movieEntries      MovieEntry[]
 }
 
 model Story {
@@ -267,6 +268,33 @@ model StoryEntryLink {
   @@index([entryId])
 }
 
+// Film arşivi: kişisel koleksiyon takibi. Review'un yerine geçmez — Review
+// uzun yazılmış inceleme, bu ise "izledim / sırada / tekrar izlerim + puanım".
+// TMDB verisi `externalData` içinde anlık görüntü olarak durur (kural 4):
+// dış kaynak değişse bile kişisel puan/not etkilenmez.
+model MovieEntry {
+  id                    String      @id @default(cuid())
+  tmdbId                Int
+  status                MovieStatus @default(WATCHED)
+  isFavorite            Boolean     @default(false)
+  personalRating        Float?
+  personalNote          String?     @db.Text
+  watchedAt             DateTime?
+  externalData          Json?
+  externalDataFetchedAt DateTime?
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+  isDeleted             Boolean     @default(false)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  // Aynı film arşive iki kez girmez
+  @@unique([userId, tmdbId])
+  @@index([userId, status, isDeleted])
+  @@index([userId, isFavorite, isDeleted])
+}
+
 model Review {
   id                     String    @id @default(cuid())
   title                  String
@@ -476,6 +504,14 @@ enum WikiCategory {
   ITEM
   ORGANIZATION
   MAGIC_SYSTEM
+}
+
+// Film arşivinde bir filmin nerede durduğu. "Favori" bir durum değil bayraktır:
+// izlenmiş bir film aynı anda favori olabilir.
+enum MovieStatus {
+  WATCHED
+  WATCHLIST
+  REWATCH
 }
 
 enum MediaType {

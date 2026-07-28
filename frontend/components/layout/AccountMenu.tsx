@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
-import { Link, useRouter } from "@/lib/i18n/navigation";
+import { Link } from "@/lib/i18n/navigation";
 import { login } from "@/lib/admin/api";
 import { clearToken, setToken } from "@/lib/admin/auth";
 import { ApiError } from "@/lib/api/client";
@@ -27,7 +27,6 @@ export function AccountMenu({
 }) {
   const t = useTranslations("account");
   const tLogin = useTranslations("admin.login");
-  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [signingIn, setSigningIn] = useState(false);
   const [email, setEmail] = useState("");
@@ -51,28 +50,29 @@ export function AccountMenu({
     event.preventDefault();
     setSubmitting(true);
     setError(null);
+    let token: string;
     try {
-      const result = await login(email, password);
-      setToken(result.accessToken);
-      setPassword("");
-      setSigningIn(false);
-      setOpen(false);
-      // Sunucu bileşenleri yeniden çalışsın: isAdmin true olur, düzenleme
-      // kontrolleri bulunulan sayfada belirir
-      router.refresh();
+      token = (await login(email, password)).accessToken;
     } catch (err) {
+      // Yalnızca giriş isteğinin kendisi bu dalda raporlanır. Tazeleme buranın
+      // içinde olsaydı, oradaki bir hata "şifren yanlış" gibi görünürdü.
       setError(
         err instanceof ApiError && err.status === 429 ? "rateLimited" : "invalid",
       );
-    } finally {
       setSubmitting(false);
+      return;
     }
+    setToken(token);
+    setPassword("");
+    // Tam yeniden yükleme: çerez yazıldıktan sonra sayfa sunucudan `isAdmin`
+    // ile yeniden gelir. Soft refresh yerine bunun tercih edilme sebebi,
+    // girişin gözle görülür bir sonuç vermesi (kullanıcı geri bildirimi).
+    window.location.reload();
   }
 
   function handleSignOut() {
     clearToken();
-    setOpen(false);
-    router.refresh();
+    window.location.reload();
   }
 
   return (

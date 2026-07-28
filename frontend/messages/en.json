@@ -528,7 +528,7 @@
     "name": "Name",
     "email": "Email",
     "adminPanel": "Admin Panel",
-    "signIn": "Sign in",
+    "signIn": "Admin sign-in",
     "signOut": "Sign out"
   },
   "theme": {

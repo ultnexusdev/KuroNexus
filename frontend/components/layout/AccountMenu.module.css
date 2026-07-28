@@ -23,7 +23,7 @@
   position: absolute;
   top: calc(100% + 6px);
   right: 0;
-  min-width: 14rem;
+  min-width: 16rem;
   background: var(--surface);
   border: 0.5px solid var(--border);
   border-radius: var(--radius-card);
@@ -75,4 +75,111 @@
 .profile dd {
   margin: 0;
   color: var(--text-primary);
+}
+
+.sectionLabel {
+  margin-bottom: var(--gap-md);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+/* --- Oturum bölümü --- */
+
+.session {
+  display: flex;
+  flex-direction: column;
+  padding: var(--gap-sm) var(--pad-md) var(--pad-md);
+  border-top: 0.5px solid var(--border);
+}
+
+.sessionLink,
+.sessionAction {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  text-align: left;
+  text-decoration: none;
+  background: none;
+  border: 0;
+}
+
+.sessionLink:hover,
+.sessionAction:hover {
+  color: var(--accent);
+}
+
+.signInForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+  padding-top: var(--gap-sm);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.field input {
+  min-height: var(--touch-min);
+  padding: 0 8px;
+  background: var(--bg);
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.passwordWrap {
+  position: relative;
+  display: flex;
+}
+
+.passwordWrap input {
+  flex: 1;
+  padding-right: 3.6rem;
+}
+
+.togglePassword {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  padding: 0 8px;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  background: none;
+  border: 0;
+}
+
+.togglePassword:hover {
+  color: var(--accent);
+}
+
+.submit {
+  min-height: var(--touch-min);
+  background: var(--surface-hover);
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-size: 0.88rem;
+}
+
+.submit:hover:not(:disabled) {
+  color: var(--accent);
+}
+
+.submit:disabled {
+  opacity: 0.6;
+}
+
+.error {
+  margin: 0;
+  color: var(--danger);
+  font-size: 0.78rem;
 }

@@ -458,7 +458,38 @@
     "minutes": "{count} min",
     "directors": "Favourite Directors",
     "emptyArchive": "The hall is still dark. Add your first film from the film archive in the admin panel.",
-    "emptyShelf": "This shelf is empty."
+    "emptyShelf": "This shelf is empty.",
+    "curator": {
+      "on": "Curator mode",
+      "off": "Leave curator mode",
+      "hint": "Editing controls are visible only to you.",
+      "addTitle": "Add a Film to the Archive",
+      "search": "Search",
+      "searching": "Searching…",
+      "searchLabel": "Film title",
+      "searchPlaceholder": "Type a film title…",
+      "noResults": "No film found with that title.",
+      "searchError": "TMDB search failed. Check that the API key is set.",
+      "status": "Status",
+      "statusLabel": {
+        "WATCHED": "Watched",
+        "WATCHLIST": "Watchlist",
+        "REWATCH": "Rewatch"
+      },
+      "watchedAt": "Watched on",
+      "rating": "My rating (0–10)",
+      "note": "My note",
+      "markFavorite": "Add to favourites",
+      "add": "Add to archive",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "favoriteOn": "Remove from favourites",
+      "favoriteOff": "Add to favourites",
+      "remove": "Remove from archive",
+      "confirmRemove": "Remove \"{title}\" from the archive?",
+      "duplicate": "This film is already in the archive.",
+      "error": "Action failed. Please try again."
+    }
   },
   "lore": {
     "panelAria": "Element details",
@@ -496,7 +527,9 @@
     "appearanceTab": "Appearance",
     "name": "Name",
     "email": "Email",
-    "adminPanel": "Admin Panel"
+    "adminPanel": "Admin Panel",
+    "signIn": "Sign in",
+    "signOut": "Sign out"
   },
   "theme": {
     "label": "Theme selection",

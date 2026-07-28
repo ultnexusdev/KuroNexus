@@ -33,7 +33,7 @@ export function SiteHeader({ initialTheme, isAdmin }: { initialTheme: Theme; isA
       </div>
       <div className={styles.controls}>
         <LocaleSwitcher />
-        <AccountMenu initialTheme={initialTheme} />
+        <AccountMenu initialTheme={initialTheme} isAdmin={isAdmin} />
       </div>
     </header>
   );

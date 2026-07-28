@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { readIsAdmin } from "@/lib/auth/session";
 import { fetchCategories } from "@/lib/api/universes";
 import { getMovieArchive } from "@/lib/api/movies";
 import { hallLabel, hallNumber } from "@/lib/halls";
@@ -36,10 +37,18 @@ export default async function FilmArchivePage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const [archive, label] = await Promise.all([
+  const [archive, label, isAdmin] = await Promise.all([
     getMovieArchive(),
     getHallLabel(),
+    readIsAdmin(),
   ]);
 
-  return <FilmHall archive={archive} locale={locale} hallLabel={label} />;
+  return (
+    <FilmHall
+      archive={archive}
+      locale={locale}
+      hallLabel={label}
+      isAdmin={isAdmin}
+    />
+  );
 }

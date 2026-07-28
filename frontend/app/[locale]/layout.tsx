@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { Yuji_Boku, Cinzel, Lora, Bebas_Neue } from "next/font/google";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
+import { readIsAdmin } from "@/lib/auth/session";
 import { routing } from "@/lib/i18n/routing";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { THEMES, DEFAULT_THEME, THEME_COOKIE, type Theme } from "@/lib/theme";
@@ -77,18 +78,9 @@ export default async function LocaleLayout({
     ? (cookieTheme as Theme)
     : DEFAULT_THEME;
 
-  const token = cookieStore.get("kuronexus-token")?.value;
-  let isAdmin = false;
-  if (token) {
-    try {
-      const payload = JSON.parse(Buffer.from(token.split(".")[1], "base64").toString());
-      if (payload.role === "ADMIN") {
-        isAdmin = true;
-      }
-    } catch {
-      // ignore parse error
-    }
-  }
+  // Düzenleme kontrolleri sayfaların üstünde de görünüyor — bu karar tek
+  // yerden okunuyor (lib/auth/session.ts, imza doğrulaması neden yok orada yazılı)
+  const isAdmin = await readIsAdmin();
 
   return (
     <html lang={locale} data-theme={theme} className={`${brushFont.variable} ${cinzel.variable} ${lora.variable} ${bebas.variable}`}>

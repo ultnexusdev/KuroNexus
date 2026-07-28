@@ -1,0 +1,283 @@
+/* Küratör kontrolleri — salonun kendi paletiyle konuşur, ayrı bir
+   "yönetim paneli" görünümü ÜRETMEZ; sahnenin içinde durur. */
+
+.bar {
+  max-width: 1180px;
+  margin: 0 auto var(--pad-lg);
+  padding: var(--pad-md);
+  background: var(--surface);
+  border: 0.5px dashed var(--gold);
+  border-radius: var(--radius-card);
+}
+
+.barTitle {
+  margin: 0 0 var(--gap-md);
+  color: var(--gold);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 1rem;
+  font-weight: 400;
+  letter-spacing: 0.3em;
+}
+
+.searchForm {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-sm);
+}
+
+.searchForm input {
+  flex: 1 1 16rem;
+  min-height: var(--touch-min);
+  padding: 0 10px;
+  background: var(--bg);
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
+.primary,
+.ghost {
+  min-height: var(--touch-min);
+  padding: 0 16px;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+}
+
+.primary {
+  background: var(--surface-hover);
+  border: 0.5px solid var(--gold);
+  color: var(--text-primary);
+}
+
+.primary:hover:not(:disabled) {
+  color: var(--gold);
+}
+
+.primary:disabled {
+  opacity: 0.6;
+}
+
+.ghost {
+  background: none;
+  border: 0.5px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.ghost:hover {
+  color: var(--text-primary);
+}
+
+.muted {
+  margin: var(--gap-md) 0 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.error {
+  margin: var(--gap-md) 0 0;
+  color: var(--danger);
+  font-size: 0.9rem;
+}
+
+/* --- Arama sonuçları --- */
+
+.results {
+  list-style: none;
+  margin: var(--gap-md) 0 0;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.result {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-md);
+  width: 100%;
+  min-height: var(--touch-min);
+  padding: 6px;
+  background: none;
+  border: 0;
+  border-radius: var(--radius);
+  text-align: left;
+}
+
+.result:hover {
+  background: var(--surface-hover);
+}
+
+.resultPoster {
+  position: relative;
+  flex: none;
+  width: 34px;
+  height: 51px;
+  background: var(--film-frame);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.resultImg {
+  object-fit: cover;
+}
+
+.resultInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.resultTitle {
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
+.resultMeta {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+/* --- Ekleme formu --- */
+
+.addForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+  margin-top: var(--gap-lg);
+  padding-top: var(--gap-md);
+  border-top: 0.5px solid var(--border);
+}
+
+.picked {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.05rem;
+}
+
+.fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-md);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1 1 9rem;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.field input,
+.field select,
+.field textarea {
+  min-height: var(--touch-min);
+  padding: 6px 8px;
+  background: var(--bg);
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+.field textarea {
+  resize: vertical;
+}
+
+.checkField {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  min-height: var(--touch-min);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.addActions {
+  display: flex;
+  gap: var(--gap-sm);
+}
+
+/* --- Kart üstü hızlı kontroller --- */
+
+.tools {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.favOn,
+.favOff,
+.remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: var(--surface);
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.favOn {
+  color: var(--gold);
+  border-color: var(--gold);
+}
+
+.favOff {
+  color: var(--text-muted);
+}
+
+.favOff:hover {
+  color: var(--gold);
+}
+
+.remove {
+  color: var(--text-muted);
+}
+
+.remove:hover {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.statusSelect {
+  flex: 1;
+  min-width: 0;
+  height: 28px;
+  padding: 0 4px;
+  background: var(--surface);
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.72rem;
+}
+
+.toolError {
+  color: var(--danger);
+  font-size: 0.7rem;
+}
+
+/* Dokunmatik hedefleri küçük kalmasın: dar ekranda kontroller büyür */
+@media (max-width: 640px) {
+  .favOn,
+  .favOff,
+  .remove,
+  .statusSelect {
+    height: 34px;
+  }
+
+  .favOn,
+  .favOff,
+  .remove {
+    width: 34px;
+  }
+}

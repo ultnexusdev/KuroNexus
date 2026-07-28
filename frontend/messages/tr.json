@@ -458,7 +458,38 @@
     "minutes": "{count} dk",
     "directors": "Favori Yönetmenler",
     "emptyArchive": "Salon henüz karanlık. İlk filmi yönetim panelindeki film arşivinden ekleyin.",
-    "emptyShelf": "Bu raf henüz boş."
+    "emptyShelf": "Bu raf henüz boş.",
+    "curator": {
+      "on": "Küratör modu",
+      "off": "Küratör modundan çık",
+      "hint": "Düzenleme kontrolleri yalnızca sana görünür.",
+      "addTitle": "Arşive Film Ekle",
+      "search": "Ara",
+      "searching": "Aranıyor…",
+      "searchLabel": "Film adı",
+      "searchPlaceholder": "Film adı yazın…",
+      "noResults": "Bu adla film bulunamadı.",
+      "searchError": "TMDB araması başarısız. Anahtar tanımlı mı kontrol edin.",
+      "status": "Durum",
+      "statusLabel": {
+        "WATCHED": "İzledim",
+        "WATCHLIST": "İzleyeceğim",
+        "REWATCH": "Tekrar izleyeceğim"
+      },
+      "watchedAt": "İzleme tarihi",
+      "rating": "Puanım (0–10)",
+      "note": "Notum",
+      "markFavorite": "Favorilerime ekle",
+      "add": "Arşive ekle",
+      "saving": "Kaydediliyor…",
+      "cancel": "Vazgeç",
+      "favoriteOn": "Favorilerden çıkar",
+      "favoriteOff": "Favorilere ekle",
+      "remove": "Arşivden çıkar",
+      "confirmRemove": "\"{title}\" arşivden çıkarılsın mı?",
+      "duplicate": "Bu film zaten arşivde.",
+      "error": "İşlem başarısız. Tekrar deneyin."
+    }
   },
   "lore": {
     "panelAria": "Kayıt künyesi",
@@ -496,7 +527,9 @@
     "appearanceTab": "Görünüm",
     "name": "Ad",
     "email": "E-posta",
-    "adminPanel": "Admin Paneli"
+    "adminPanel": "Admin Paneli",
+    "signIn": "Giriş yap",
+    "signOut": "Çıkış yap"
   },
   "theme": {
     "label": "Tema seçimi",

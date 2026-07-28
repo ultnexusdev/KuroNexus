@@ -1,12 +1,23 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/lib/i18n/navigation";
 import { tmdbImage } from "@/lib/api/movies";
 import type { ArchiveMovie, MovieArchive } from "@/lib/api/types";
 import styles from "./FilmHall.module.css";
+
+// Küratör kontrolleri yalnızca mod açılınca indirilir — ziyaretçi bu JS'i almaz
+const CuratorBar = dynamic(
+  () => import("./FilmCurator").then((mod) => mod.CuratorBar),
+  { ssr: false },
+);
+const CuratorCardTools = dynamic(
+  () => import("./FilmCurator").then((mod) => mod.CuratorCardTools),
+  { ssr: false },
+);
 
 /**
  * Salon 02 · Film — "Projeksiyon Salonu".
@@ -66,7 +77,13 @@ function Poster({
   );
 }
 
-function MovieCard({ movie }: { movie: ArchiveMovie }) {
+function MovieCard({
+  movie,
+  curating,
+}: {
+  movie: ArchiveMovie;
+  curating: boolean;
+}) {
   const t = useTranslations("film");
   const rating = movie.personalRating ?? movie.voteAverage;
 
@@ -119,6 +136,7 @@ function MovieCard({ movie }: { movie: ArchiveMovie }) {
           <span className={styles.cardRating}>{rating.toFixed(1)}</span>
         ) : null}
       </p>
+      {curating ? <CuratorCardTools movie={movie} /> : null}
     </article>
   );
 }
@@ -127,16 +145,20 @@ export function FilmHall({
   archive,
   locale,
   hallLabel,
+  isAdmin = false,
 }: {
   archive: MovieArchive;
   locale: string;
   /** Salon numarası ana sayfayla aynı kaynaktan gelir ("01", "02"…) */
   hallLabel: string;
+  /** Küratör modu anahtarını gösterir — yetki her istekte backend'de doğrulanır */
+  isAdmin?: boolean;
 }) {
   const t = useTranslations("film");
   const tStories = useTranslations("stories");
   const [shelf, setShelf] = useState<ShelfKey>("watched");
   const [genre, setGenre] = useState<string | null>(null);
+  const [curating, setCurating] = useState(false);
 
   const dateFormatter = useMemo(
     () => new Intl.DateTimeFormat(locale, { dateStyle: "medium" }),
@@ -198,7 +220,26 @@ export function FilmHall({
           <span aria-hidden>·</span>
           <span>{t("statWatchlist", { count: stats.watchlist })}</span>
         </p>
+
+        {isAdmin ? (
+          <div className={styles.curatorSwitch}>
+            <button
+              type="button"
+              className={curating ? styles.curatorOn : styles.curatorOff}
+              aria-pressed={curating}
+              onClick={() => setCurating((value) => !value)}
+            >
+              {curating ? t("curator.off") : t("curator.on")}
+            </button>
+            {curating ? (
+              <span className={styles.curatorHint}>{t("curator.hint")}</span>
+            ) : null}
+          </div>
+        ) : null}
       </header>
+
+      {/* Boş salonda da görünür: ilk film buradan eklenir */}
+      {isAdmin && curating ? <CuratorBar /> : null}
 
       {isEmpty ? (
         <p className={styles.empty}>{t("emptyArchive")}</p>
@@ -309,6 +350,7 @@ export function FilmHall({
                       {movie.personalNote ? (
                         <p className={styles.plaqueNote}>{movie.personalNote}</p>
                       ) : null}
+                      {curating ? <CuratorCardTools movie={movie} /> : null}
                     </div>
                   </li>
                 ))}
@@ -317,7 +359,7 @@ export function FilmHall({
               <ul className={styles.shelf}>
                 {shelfMovies.map((movie) => (
                   <li key={movie.id}>
-                    <MovieCard movie={movie} />
+                    <MovieCard movie={movie} curating={curating} />
                   </li>
                 ))}
               </ul>

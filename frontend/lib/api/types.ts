@@ -8,11 +8,13 @@ export interface StorySummary {
   publishedAt: string | null;
   createdAt: string;
   updatedAt: string;
+  // El yazması ağacındaki bölüm sırası (atölye sürükle-bırak ile yazar)
+  orderIndex: number;
+  universeId?: string | null;
 }
 
 export interface Story extends StorySummary {
   content: string;
-  universeId?: string | null;
   universe?: { slug: string; name: string } | null;
 }
 

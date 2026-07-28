@@ -46,6 +46,10 @@ model Story {
   updatedAt   DateTime  @updatedAt
   isDeleted   Boolean   @default(false)
 
+  // Yazım atölyesi: bir evren içindeki bölüm sırası (el yazması ağacı).
+  // Yayın tarihi sıralaması kitap bölümleri için anlamsız — okuma sırası budur.
+  orderIndex Int @default(0)
+
   // Faz 3: Community Stories desteği — admin içeriğiyle asla aynı listede karışmaz
   isCommunitySubmission Boolean          @default(false)
   submissionStatus      SubmissionStatus @default(APPROVED)
@@ -64,6 +68,7 @@ model Story {
   @@index([isPublished, isDeleted])
   @@index([submissionStatus])
   @@index([universeId])
+  @@index([universeId, orderIndex])
 }
 
 model UniverseCategory {

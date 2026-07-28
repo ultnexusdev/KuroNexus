@@ -33,6 +33,7 @@ const STORY_SUMMARY_SELECT = {
   publishedAt: true,
   createdAt: true,
   updatedAt: true,
+  orderIndex: true,
 } satisfies Prisma.StorySelect;
 
 @Injectable()
@@ -60,7 +61,9 @@ export class UniversesService {
             isDeleted: false,
             isCommunitySubmission: false,
           },
-          orderBy: { publishedAt: 'desc' },
+          // Kitap bölümleri okuma sırasına göre listelenir; sırası verilmemiş
+          // eski kayıtlar (orderIndex = 0) yayın tarihine düşer.
+          orderBy: [{ orderIndex: 'asc' }, { publishedAt: 'asc' }],
           select: STORY_SUMMARY_SELECT,
         },
       },

@@ -1,0 +1,443 @@
+/* Yazım Atölyesi — üç sütun: el yazması ağacı | yazım masası | künye paneli.
+   Renkler yalnızca token'lardan okunur (AGENTS.md kural 16). */
+
+.studio {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+  padding: var(--pad-md);
+}
+
+/* --- Üst şerit --- */
+
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-md);
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: var(--pad-sm);
+}
+
+.topLeft,
+.topRight {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-md);
+}
+
+.backLink {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+
+.backLink:hover {
+  color: var(--accent);
+}
+
+.workTitle {
+  margin: 0;
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.08em;
+  color: var(--text-primary);
+}
+
+.status,
+.statusError {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.statusError {
+  color: var(--warn);
+}
+
+.topButton {
+  min-height: 36px;
+  padding: 0 var(--pad-sm);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.topButton:hover {
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+.error {
+  margin: 0;
+  color: var(--warn);
+  font-size: 0.85rem;
+}
+
+/* --- Sütunlar --- */
+
+.columns {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr) 300px;
+  gap: var(--gap-md);
+  align-items: start;
+}
+
+.focused .columns {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.focused .tree,
+.focused .dossier {
+  display: none;
+}
+
+.tree,
+.dossier {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: var(--pad-sm);
+  max-height: calc(100vh - 180px);
+  overflow-y: auto;
+}
+
+.desk {
+  min-width: 0;
+}
+
+/* --- Sol sütun: ağaç --- */
+
+.treeGroup {
+  margin-bottom: var(--gap-md);
+}
+
+.treeGroupHead {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  padding: 4px 2px;
+  border-bottom: 1px solid var(--border);
+}
+
+.treeGroupTitle {
+  flex: 1;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.treeCount {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.addButton {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.addButton:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.addButton:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.treeList {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+}
+
+.treeRow,
+.treeRowActive {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: var(--radius);
+}
+
+.treeRowActive {
+  background: var(--surface-hover);
+}
+
+.treeItem {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  min-height: 32px;
+  padding: 4px var(--gap-sm);
+  background: transparent;
+  border: 0;
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.treeRowActive .treeItem {
+  color: var(--text-primary);
+}
+
+.treeItem:hover {
+  color: var(--text-primary);
+}
+
+.treeItemText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chapterNo {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.draftDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-muted);
+  flex-shrink: 0;
+}
+
+.moveGroup {
+  display: flex;
+  gap: 2px;
+  padding-right: 4px;
+}
+
+.moveButton {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.moveButton:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.moveButton:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.treeEmpty {
+  margin: var(--gap-sm) 2px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* --- Orta sütun: yazım masası --- */
+
+.deskTitle {
+  width: 100%;
+  margin-bottom: var(--gap-sm);
+  padding: var(--gap-sm) var(--pad-sm);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+}
+
+.deskTitle:focus {
+  outline: none;
+  border-color: var(--accent-muted);
+}
+
+.deskEmpty {
+  margin: 0;
+  padding: var(--pad-lg);
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  text-align: center;
+}
+
+/* --- Sağ sütun: künye --- */
+
+.dossierKind {
+  margin: 0 0 var(--gap-md);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: var(--gap-md);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.field textarea,
+.field input,
+.field select {
+  width: 100%;
+  padding: var(--gap-sm);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.85rem;
+}
+
+.field textarea {
+  resize: vertical;
+}
+
+.hint {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+.checkField {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  min-height: var(--touch-min);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.meta {
+  margin: 0 0 var(--gap-sm);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.dossierActions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+  margin-top: var(--gap-md);
+  padding-top: var(--gap-md);
+  border-top: 1px solid var(--border);
+}
+
+.secondaryLink {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  text-decoration: none;
+}
+
+.secondaryLink:hover {
+  color: var(--accent);
+}
+
+.deleteButton {
+  align-self: flex-start;
+  min-height: 34px;
+  padding: 0 var(--pad-sm);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--warn);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.deleteButton:hover:not(:disabled) {
+  border-color: var(--warn);
+}
+
+/* --- Mobil sütun şeridi --- */
+
+.paneBar {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Mobilde aynı anda tek sütun görünür */
+  .studio[data-pane="tree"] .desk,
+  .studio[data-pane="tree"] .dossier,
+  .studio[data-pane="editor"] .tree,
+  .studio[data-pane="editor"] .dossier,
+  .studio[data-pane="dossier"] .tree,
+  .studio[data-pane="dossier"] .desk {
+    display: none;
+  }
+
+  .tree,
+  .dossier {
+    max-height: none;
+  }
+
+  .treeItem,
+  .addButton,
+  .moveButton {
+    min-height: var(--touch-min);
+  }
+
+  .addButton,
+  .moveButton {
+    min-width: var(--touch-min);
+  }
+
+  .paneBar {
+    position: sticky;
+    bottom: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .paneTab,
+  .paneActive {
+    min-height: var(--touch-min);
+    background: var(--surface);
+    border: 0;
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+    cursor: pointer;
+  }
+
+  .paneActive {
+    background: var(--surface-hover);
+    color: var(--accent);
+  }
+}

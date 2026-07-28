@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -13,6 +14,7 @@ import type { AuthenticatedUser } from '../common/types/authenticated-user';
 import { StoriesService } from './stories.service';
 import { CreateStoryDto } from './dto/create-story.dto';
 import { UpdateStoryDto } from './dto/update-story.dto';
+import { ReorderStoriesDto } from './dto/reorder-stories.dto';
 
 @Roles('ADMIN')
 @Controller('admin/stories')
@@ -20,8 +22,8 @@ export class StoriesAdminController {
   constructor(private readonly storiesService: StoriesService) {}
 
   @Get()
-  findAll() {
-    return this.storiesService.findAllForAdmin();
+  findAll(@Query('universeId') universeId?: string) {
+    return this.storiesService.findAllForAdmin(universeId);
   }
 
   @Get(':id')
@@ -32,6 +34,12 @@ export class StoriesAdminController {
   @Post()
   create(@Body() dto: CreateStoryDto, @CurrentUser() user: AuthenticatedUser) {
     return this.storiesService.create(dto, user.id);
+  }
+
+  // ':id' rotasından ÖNCE tanımlanmalı — aksi halde "reorder" bir id sanılır.
+  @Patch('reorder')
+  reorder(@Body() dto: ReorderStoriesDto) {
+    return this.storiesService.reorder(dto.ids);
   }
 
   @Patch(':id')

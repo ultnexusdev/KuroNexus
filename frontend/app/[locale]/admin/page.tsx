@@ -13,6 +13,10 @@ export default function AdminHomePage() {
       <section className={styles.page}>
         <h1 className={styles.heading}>{t("title")}</h1>
         <nav className={styles.menu}>
+          {/* Temürkan Efsaneleri'nin yazım masası — kitabın kendi kapısı */}
+          <Link href="/admin/atolye/temurkan-efsaneleri" className="card">
+            {t("studio.title")}
+          </Link>
           <Link href="/admin/stories" className="card">
             {t("stories.title")}
           </Link>

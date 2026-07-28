@@ -35,8 +35,14 @@ export function fetchMe(): Promise<AuthenticatedUser> {
   });
 }
 
-export function fetchAdminStories(): Promise<StorySummary[]> {
-  return apiFetch<StorySummary[]>("/admin/stories", {
+// universeId verilirse liste el yazması sırasına (orderIndex) göre döner
+export function fetchAdminStories(
+  universeId?: string,
+): Promise<StorySummary[]> {
+  const query = universeId
+    ? `?universeId=${encodeURIComponent(universeId)}`
+    : "";
+  return apiFetch<StorySummary[]>(`/admin/stories${query}`, {
     headers: authHeaders(),
   });
 }
@@ -52,6 +58,7 @@ export interface StoryInput {
   coverImage?: string;
   universeId?: string;
   isPublished?: boolean;
+  orderIndex?: number;
 }
 
 export function createStory(input: StoryInput): Promise<Story> {
@@ -70,6 +77,15 @@ export function updateStory(
     method: "PATCH",
     headers: { "Content-Type": "application/json", ...authHeaders() },
     body: JSON.stringify(input),
+  });
+}
+
+// Bölüm sırası: dizideki konum orderIndex olur (1'den başlar)
+export function reorderStories(ids: string[]): Promise<{ updated: number }> {
+  return apiFetch<{ updated: number }>("/admin/stories/reorder", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify({ ids }),
   });
 }
 

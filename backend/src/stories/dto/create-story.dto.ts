@@ -1,8 +1,10 @@
 import {
   IsBoolean,
+  IsInt,
   IsOptional,
   IsString,
   MaxLength,
+  Min,
   MinLength,
 } from 'class-validator';
 
@@ -33,4 +35,9 @@ export class CreateStoryDto {
   @IsOptional()
   @IsBoolean({ message: 'VALIDATION.INVALID_PUBLISH_FLAG' })
   isPublished?: boolean;
+
+  @IsOptional()
+  @IsInt({ message: 'VALIDATION.INVALID_ORDER_INDEX' })
+  @Min(0, { message: 'VALIDATION.INVALID_ORDER_INDEX' })
+  orderIndex?: number;
 }

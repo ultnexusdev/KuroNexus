@@ -16,6 +16,8 @@ const LIST_SELECT = {
   publishedAt: true,
   createdAt: true,
   updatedAt: true,
+  orderIndex: true,
+  universeId: true,
 } satisfies Prisma.StorySelect;
 
 @Injectable()
@@ -56,10 +58,14 @@ export class StoriesService {
 
   // --- Admin ---
 
-  findAllForAdmin() {
+  // Evren süzgeci verildiğinde liste el yazması sırasına (orderIndex) düşer;
+  // genel admin listesi eskisi gibi son düzenlenen üstte kalır.
+  findAllForAdmin(universeId?: string) {
     return this.prisma.story.findMany({
-      where: { isDeleted: false },
-      orderBy: { updatedAt: 'desc' },
+      where: { isDeleted: false, ...(universeId ? { universeId } : {}) },
+      orderBy: universeId
+        ? [{ orderIndex: 'asc' }, { createdAt: 'asc' }]
+        : { updatedAt: 'desc' },
       select: LIST_SELECT,
     });
   }
@@ -86,6 +92,7 @@ export class StoriesService {
         universeId: dto.universeId,
         isPublished: dto.isPublished ?? false,
         publishedAt: dto.isPublished ? new Date() : null,
+        orderIndex: dto.orderIndex ?? (await this.nextOrderIndex(dto.universeId)),
         userId,
       },
     });
@@ -101,6 +108,7 @@ export class StoriesService {
       coverImage: dto.coverImage,
       universeId: dto.universeId,
       isPublished: dto.isPublished,
+      orderIndex: dto.orderIndex,
     };
 
     // Başlık değiştiyse slug yeniden üretilir
@@ -116,6 +124,29 @@ export class StoriesService {
     return this.prisma.story.update({ where: { id }, data });
   }
 
+  // El yazması ağacında sürükle-bırak: dizideki konum yeni orderIndex olur.
+  // Tek transaction — yarım kalmış sıra bırakmaz.
+  async reorder(ids: string[]): Promise<{ updated: number }> {
+    const existing = await this.prisma.story.findMany({
+      where: { id: { in: ids }, isDeleted: false },
+      select: { id: true },
+    });
+    const known = new Set(existing.map((story) => story.id));
+    const updates = ids
+      .filter((id) => known.has(id))
+      .map((id, index) =>
+        this.prisma.story.update({
+          where: { id },
+          data: { orderIndex: index + 1 },
+        }),
+      );
+    if (updates.length === 0) {
+      throw new NotFoundException('STORIES.NOT_FOUND');
+    }
+    await this.prisma.$transaction(updates);
+    return { updated: updates.length };
+  }
+
   // Soft delete + slug serbest bırakma (AGENTS.md kural 3 + 14)
   async softDelete(id: string) {
     const existing = await this.findByIdForAdmin(id);
@@ -126,6 +157,19 @@ export class StoriesService {
         slug: `${existing.slug}-deleted-${Date.now()}`,
       },
     });
+  }
+
+  // Yeni bölüm evrenin sonuna eklenir (evrensiz hikâyelerde sıra anlamsız).
+  private async nextOrderIndex(universeId?: string): Promise<number> {
+    if (!universeId) {
+      return 0;
+    }
+    const last = await this.prisma.story.findFirst({
+      where: { universeId, isDeleted: false },
+      orderBy: { orderIndex: 'desc' },
+      select: { orderIndex: true },
+    });
+    return (last?.orderIndex ?? 0) + 1;
   }
 
   private async buildUniqueSlug(

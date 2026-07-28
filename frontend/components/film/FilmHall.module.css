@@ -1,10 +1,17 @@
 /* Salon 02 · Film — "Projeksiyon Salonu".
    Renkler yalnizca token'lardan; palet globals.css'teki
-   [data-category="film"] blogunda tanimli (AGENTS.md kural 16). */
+   [data-category="film"] blogunda tanimli (AGENTS.md kural 16).
+
+   Duzen: .hall tam genislikte sarmalayici (yan duvarlar burada, fixed),
+   .page ortalanmis icerik sutunu. Sutun genisligi tek degiskenden
+   (--film-content-w) okunur — duvarlarin genisligi de ondan turetilir. */
 
 .hall {
+  --film-content-w: 1180px;
+
+  position: relative;
   min-height: 100vh;
-  padding: var(--pad-lg) var(--pad-md) 96px;
+  padding: var(--pad-lg) var(--pad-md) 120px;
   background: var(--bg);
   /* Havada asili projektor tozu — tek, genis, sessiz bir hale */
   background-image: radial-gradient(
@@ -14,11 +21,18 @@
   );
 }
 
+/* Icerik daima duvarlarin ustunde */
+.page {
+  position: relative;
+  z-index: 1;
+  width: min(var(--film-content-w), 100%);
+  margin-inline: auto;
+}
+
 /* --- Giris --- */
 
 .head {
-  max-width: 1180px;
-  margin: 0 auto var(--pad-lg);
+  margin-bottom: var(--pad-lg);
 }
 
 .back {
@@ -60,31 +74,13 @@
   line-height: 1.6;
 }
 
-/* Kunye seridi: teknik kunye gibi tek satir, kondanse kapitaller */
-.colophon {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--gap-sm);
-  margin: var(--gap-lg) 0 0;
-  padding-top: var(--gap-md);
-  border-top: 1px solid var(--border);
-  color: var(--text-secondary);
-  font-family: var(--font-bebas), var(--font-sans);
-  font-size: 1.05rem;
-  letter-spacing: 0.14em;
-}
-
-.colophon span[aria-hidden] {
-  color: var(--accent-muted);
-}
-
 /* Kurator anahtari: sahnenin parcasi gibi durur, panel gibi degil */
 .curatorSwitch {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--gap-md);
-  margin-top: var(--gap-md);
+  margin-top: var(--gap-lg);
 }
 
 .curatorOn,
@@ -119,11 +115,53 @@
   font-size: 0.8rem;
 }
 
+/* --- Kunye kartlari --- */
+
+.statCards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--gap-md);
+  margin-bottom: var(--pad-lg);
+  padding: 0;
+  list-style: none;
+}
+
+.statCard {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--gap-lg) var(--gap-md);
+  /* Yari saydam: arkadaki toz halesi ve duvarin kenari sizabilsin */
+  background: color-mix(in srgb, var(--surface) 74%, transparent);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  backdrop-filter: blur(10px);
+}
+
+.statLabel {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.statValue {
+  color: var(--text-primary);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 2.4rem;
+  line-height: 1.1;
+  letter-spacing: 0.04em;
+}
+
+.statSub {
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+}
+
 /* --- Imza: 35 mm film seridi --- */
 
 .stripSection {
-  max-width: 1180px;
-  margin: 0 auto var(--pad-lg);
+  margin-bottom: var(--pad-lg);
 }
 
 .sectionTitle {
@@ -206,57 +244,13 @@
   letter-spacing: 0.1em;
 }
 
-/* --- Raflar --- */
-
-.shelfSection {
-  max-width: 1180px;
-  margin: 0 auto;
-}
-
-.tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--gap-md);
-  padding-bottom: var(--gap-sm);
-  border-bottom: 1px solid var(--border);
-}
-
-.tab,
-.tabActive {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 6px;
-  min-height: var(--touch-min);
-  padding: 0;
-  background: transparent;
-  border: 0;
-  border-bottom: 2px solid transparent;
-  color: var(--text-secondary);
-  font-family: var(--font-bebas), var(--font-sans);
-  font-size: 1.1rem;
-  letter-spacing: 0.16em;
-  cursor: pointer;
-}
-
-.tabActive {
-  border-bottom-color: var(--accent);
-  color: var(--text-primary);
-}
-
-.tab:hover {
-  color: var(--text-primary);
-}
-
-.tabCount {
-  color: var(--text-muted);
-  font-size: 0.8rem;
-}
+/* --- Tur suzgeci --- */
 
 .chips {
   display: flex;
   flex-wrap: wrap;
   gap: var(--gap-sm);
-  margin: var(--gap-md) 0 0;
+  margin-bottom: var(--pad-lg);
 }
 
 .chip,
@@ -278,6 +272,38 @@
 .chip:hover {
   border-color: var(--border-strong);
   color: var(--text-primary);
+}
+
+/* --- Raflar (bolum bolum) --- */
+
+.shelfSection {
+  margin-bottom: 72px;
+}
+
+.shelfHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--gap-md);
+  padding-bottom: var(--gap-sm);
+  border-bottom: 1px solid var(--border);
+}
+
+.shelfTitle {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.shelfCount {
+  color: var(--text-muted);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.95rem;
+  letter-spacing: 0.16em;
+  white-space: nowrap;
 }
 
 .shelf {
@@ -419,21 +445,12 @@
 /* --- Favoriler duvari --- */
 
 .favoritesIntro {
-  margin: var(--pad-lg) 0 0;
-}
-
-.favoritesTitle {
-  margin: 0;
-  color: var(--text-primary);
-  font-family: var(--font-cinzel), serif;
-  font-size: 1.5rem;
-  font-weight: 600;
-  letter-spacing: 0.05em;
+  margin-bottom: var(--gap-md);
 }
 
 .favoritesLede {
   max-width: 52ch;
-  margin: var(--gap-sm) 0 0;
+  margin: 0;
   color: var(--text-secondary);
   font-family: var(--font-cormorant), serif;
   font-size: 1.1rem;
@@ -469,8 +486,9 @@
 .plaque {
   margin: 14px 10px 0;
   padding: var(--gap-sm) var(--gap-md);
-  background: var(--surface);
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
   border-top: 1px solid var(--accent-muted);
+  backdrop-filter: blur(6px);
 }
 
 .plaqueTitle {
@@ -507,8 +525,7 @@
 /* --- Yonetmenler --- */
 
 .directors {
-  max-width: 1180px;
-  margin: 96px auto 0;
+  margin-top: 96px;
   padding-top: var(--pad-lg);
   border-top: 1px solid var(--border);
 }
@@ -550,9 +567,20 @@
   text-align: center;
 }
 
+.emptyShelf {
+  margin: var(--pad-lg) 0 0;
+  color: var(--text-muted);
+  font-family: var(--font-cormorant), serif;
+  font-size: 1.05rem;
+}
+
 /* --- Olcekler --- */
 
 @media (min-width: 640px) {
+  .statCards {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
   .shelf {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }

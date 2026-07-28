@@ -442,15 +442,26 @@
     "statAverage": "ort. {value}",
     "statNoRating": "puan yok",
     "statWatchlist": "{count} sırada",
+    "statCard": {
+      "watched": "İzlediğim Filmler",
+      "watchedSub": "Toplam film",
+      "watchedAvg": "ort. {value} puan",
+      "watchlist": "İzleyeceklerim",
+      "watchlistSub": "Sıradaki filmler",
+      "favorites": "Favorilerim",
+      "favoritesSub": "Favori filmler",
+      "runtime": "Toplam Süre",
+      "runtimeSub": "Saat"
+    },
     "recent": "Son İzlenenler",
     "allGenres": "Tümü",
     "shelf": {
-      "watched": "İzlediklerim",
+      "watched": "İzlediğim Filmler",
       "watchlist": "İzleyeceklerim",
       "rewatch": "Tekrar İzlenecekler",
       "favorites": "Favoriler"
     },
-    "favoritesTitle": "Tüm Zamanların Favorileri",
+    "shelfCount": "{count} film",
     "favoritesLede": "Beni en çok etkileyen ve tekrar izlemekten hiç sıkılmadığım filmler.",
     "favorite": "Favori",
     "tmdbScore": "TMDB",

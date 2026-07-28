@@ -26,9 +26,21 @@
 > **Bekleyen fikirler:** film lobisine yeni başlıklar (kullanıcı ekleyecek);
 > arşiv için "Bu akşam ne izlesem?", şeritte zaman ayracı, ok tuşlarıyla sekme geçişi.
 >
-> **AKŞAM EKİ (ev makinesi):** küratör modu pilotu yazıldı (bkz. aşağıdaki madde) —
-> header'dan giriş + film salonunda yerinde ekleme/düzenleme. Ev makinesinde
-> **dev sunucusu dışarı çıkamıyor**, o yüzden gerçek veriyle test canlıda.
+> **AKŞAM OTURUMU KAPANDI (28 Temmuz, ev makinesi).** Beş push gitti, hepsi
+> canlıda ve doğrulandı: `2a836c3` küratör modu → `6fc01db` giriş düzeltmeleri →
+> `c8a9698`+`c9eebbe` admin tespiti kök hatası → `307352e` salon duvarları +
+> bölüm düzeni → `8e70809` öneriler/raf sayfaları/süzgeç → `296a62a` lobi
+> afişleri + öneri davranışı. Çalışma dizini temiz.
+>
+> **Ev makinesi kısıtı (bu turda tekrar doğrulandı):** dev sunucusu (Node
+> süreci) **dışarı çıkamıyor** — `api.kuronexus.com` PowerShell'den 200 dönerken
+> Next'in fetch'i ECONNREFUSED alıyor, Google Fonts de "Retrying" veriyor.
+> Sonuç: lokalde yalnızca **düzen/etkileşim** doğrulanabiliyor, o da geçici
+> fikstürle (`getMovieArchive`in catch dalına konup commit öncesi geri alınıyor).
+> Gerçek veriyle doğrulama push sonrası canlıda yapılıyor.
+>
+> **Yarın ilk iş:** aşağıdaki "Sıradaki Adım" listesinde 0g (öneriler rafı canlı
+> kontrol) ve 0d (yazım atölyesi — HÂLÂ hiç doğrulanmadı).
 
 **Yazım Atölyesi (adım 1+2) ve Salon 02 · Film push edildi (2026-07-28) — ikisi de canlıda doğrulanmayı bekliyor: `/admin/atolye/temurkan-efsaneleri` (bölüm ağacı, tek editör, `@` ile lore bağlama, okuma ekranında künye paneli) ve `/dark-stories/category/film` + `/admin/film` (TMDB'li kişisel film arşivi). Lokalde admin geliştirmesi artık dev proxy ile mümkün. Faz 2 BAŞLADI (2026-07-11): Wiki modülü çekirdeği CANLIDA — evren içi wiki sayfaları (kategori gruplu) + spoiler seviyesi sistemi. Site: https://kuronexus.com + https://api.kuronexus.com. Webhook ile otomatik deploy çalışıyor (push = yayın). Faz 1'den kalan küçük işler: yedekten geri yükleme testi, mobil taşma kontrolü, www DNS kaydı.**
 
@@ -227,11 +239,10 @@
   - **Öneriler artık tıklayınca yenilenmiyor**: eskiden ekleme/eleme kartı listeden düşürüp havuzdan yedek çekiyor ve `router.refresh()` çağırıyordu → her tıklamada bütün ızgara kayıyordu. Artık kart **yerinde kalıyor**, yalnızca sönükleşip "✓ Eklendi" / "Elendi" oluyor; art arda birkaç film işaretlenebiliyor. Liste ve arşiv tazelemesi **yalnızca "Yenile"** ile: o an elden geçenler havuzdan düşürülüp yeni onluk çekiliyor ve `router.refresh()` orada çağrılıyor. Altta "{n} film eklendi — Yenile'ye basınca listelere işlenir" uyarısı var.
   - **Salon girişi (lobi) görselleştirildi**: `LobbyPosters` — iki yanda **tam boy tek afiş** (sol Matrix, sağ Yüzüklerin Efendisi). Arşiv duvarlarından bilinçli olarak daha canlı: mozaik yok, opaklık .62 (arşivde .22), bulanıklık yok, üstünde ince zemin karartması + huzme + vinyet + gren. İçerik dikeyde ortalandı (sayfa üstte toplanıp altta kocaman boşluk bırakıyordu), bölüm kartı yarı saydam + `backdrop-filter`.
   - **Afiş yolları koda GÖMÜLMEDİ**: yeni public uç `GET /movies/showcase` başlıkla TMDB'de arayıp yılı doğruluyor ve sonucu 30 gün cache'liyor (`movies:showcase:v1`). Anahtar yoksa/arama düşerse boş döner, lobi CSS sahnesiyle açılır. Afişi değiştirmek = `movies.service.ts`teki iki başlık sabitini değiştirmek.
-  - **Salon adı tek kaynağa alındı**: `film.hall` çevirisi artık `"Salon {num} · {name}"` — "Film" kelimesi koddan çıktı. Ad `lib/halls.ts`teki yeni `hallName()` ile **kategori kaydından** okunuyor (lobi zaten öyleydi). Yani kategoriyi `/admin/universe-categories`ten "Sinema" diye yeniden adlandırmak ana sayfadaki kapıyı, lobiyi ve salon başlıklarını birlikte değiştirir. `film.hallName` yalnızca kategori okunamazsa devreye giren yedek (TR "Sinema", EN "Cinema").
-  - **Doğrulama**: backend `tsc` temiz, frontend `tsc` + lint + `next build` temiz. **Lobi lokalde açılamadı** — kategori listesi API'den geliyor, dev sunucusu ağa çıkamıyor (mevcut kısıt, bu turda değişmedi); canlıda doğrulanacak.
+  - **Salon adı tek kaynağa alındı**: `film.hall` çevirisi artık `"Salon {num} · {name}"` — "Film" kelimesi koddan çıktı. Ad `lib/halls.ts`teki yeni `hallName()` ile **kategori kaydından** okunuyor (lobi zaten öyleydi). **KARAR: ad "Film" olarak KALIYOR** — "Sinema" fikri kullanıcı tarafından geri alındı (2026-07-28). Yeniden adlandırma istenirse tek adım: `/admin/universe-categories`ten kategori adını değiştirmek; kapı, lobi ve salon başlıkları birlikte değişir, slug (`film`) ve rotalar etkilenmez. `film.hallName` yalnızca kategori okunamazsa devreye giren yedek (TR "Sinema", EN "Cinema") — bu yedek metin canlıda görünmüyor.
+  - **Doğrulama**: backend `tsc` temiz, frontend `tsc` + lint + `next build` temiz. Lobi lokalde açılamadı (kategori listesi API'den geliyor, dev sunucusu ağa çıkamıyor) → **canlıda doğrulandı**: `GET /movies/showcase` iki afişi de çözüyor (Matrix `/dXNAPwY7VrqMAo51EKhhCJfaGb5.jpg`, YE `/37kdeAEyw8YlVLaAhYazBRAni9S.jpg`), lobide iki panel 550px genişlik + tam yükseklik, görseller yükleniyor, yatay taşma yok, başlık "Salon 01 · FİLM".
 
 ## Sıradaki Adım
-0h. **Kategori adını değiştir (KULLANICI)**: `/admin/universe-categories` → "Film" kategorisini **"Sinema"** yap. Slug (`film`) ve rotalar değişmez, yalnızca görünen ad. Bunu yapmadan ana sayfadaki kapı "FİLM" kalır.
 0g. **Öneriler rafı — canlı doğrulama**: küratör modunu aç → "Öneriler" 10 film getiriyor mu (TMDB anahtarı bu ucu da kullanıyor), "İzledim"/"İzleyeceğim" ekliyor mu, "Yenile" listeyi değiştiriyor mu, ✕ ile elenen film geri gelmiyor mu, arşivdeki filmler önerilerde çıkmıyor mu.
 0f. **Küratör modu — canlı doğrulama (İLK İŞ)**: `/dark-stories/category/film/arsiv` → header "Tercihler → Giriş yap" (mail+şifre) → sayfa kendiliğinden küratör anahtarını göstermeli → mod aç → TMDB'de film ara → ekle → poster raf'ta belirmeli; kart altındaki ★ ile favori, durum seçici ve ✕ ile çıkarma denenmeli. Beğenilirse aynı desen GS salonuna (transfer haberi/kadro düzeltmesi) taşınacak.
 0e. **Film salonu — canlı doğrulama (İLK İŞ)**: `/admin/film`'den TMDB araması çalışıyor mu (anahtar doğru okunuyor mu), bir film ekle → `/dark-stories/category/film` salonunda görünüyor mu, favori işaretle → favoriler duvarında künye levhası doğru mu.

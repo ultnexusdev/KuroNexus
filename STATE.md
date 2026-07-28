@@ -4,6 +4,28 @@
 > Yeni bir oturuma başlayan ajan İLK İŞ olarak bu dosyayı okur.
 
 ## Mevcut Aşama
+
+> **OTURUM NOTU — 28 Temmuz 2026, iş yeri makinesi.** Gün içinde dört push gitti,
+> hepsi canlıda: `5621ec0` yazım atölyesi adım 1 → `752f773` metin↔lore bağı →
+> `b312d96` film salonu → `ebf9a5f` film düzeltmeleri. Çalışma dizini temiz,
+> bekleyen değişiklik yok. **Akşam evdeki makineden devam edilecek — önce `git pull`.**
+>
+> **Evde ilk iş (kod yazmadan önce, canlı doğrulama):**
+> 1. `/admin/atolye/temurkan-efsaneleri` → bir karaktere takma ad ekle, bölümde
+>    `@` yazıp öneriden bağla, imleci işaretin üstüne getir (sağda künye açılmalı),
+>    adı bağlamadan yaz ("Bu Bölümde Geçenler"de soluk noktayla çıkmalı).
+> 2. Bölümü yayınla → okuma ekranında işarete tıkla, künye paneli açılmalı.
+> 3. `/admin/film` → TMDB araması sonuç veriyor mu (anahtarın doğru okunduğunun
+>    tek gerçek testi). Şu an arşivde 1 film var: Yüzüklerin Efendisi (favori, 10).
+> 4. Header'daki "Admin Paneli" bağlantısı panele götürüyor mu (eskiden 404'tü).
+>
+> **Evdeki makinede gerekenler:** `frontend/.env.local` içinde
+> `NEXT_PUBLIC_API_URL=https://api.kuronexus.com` (gitignore'da, her makinede elle).
+> Dev proxy sayesinde admin paneli lokalde de çalışır — ama **canlı veritabanına yazar**.
+>
+> **Bekleyen fikirler:** film lobisine yeni başlıklar (kullanıcı ekleyecek);
+> arşiv için "Bu akşam ne izlesem?", şeritte zaman ayracı, ok tuşlarıyla sekme geçişi.
+
 **Yazım Atölyesi (adım 1+2) ve Salon 02 · Film push edildi (2026-07-28) — ikisi de canlıda doğrulanmayı bekliyor: `/admin/atolye/temurkan-efsaneleri` (bölüm ağacı, tek editör, `@` ile lore bağlama, okuma ekranında künye paneli) ve `/dark-stories/category/film` + `/admin/film` (TMDB'li kişisel film arşivi). Lokalde admin geliştirmesi artık dev proxy ile mümkün. Faz 2 BAŞLADI (2026-07-11): Wiki modülü çekirdeği CANLIDA — evren içi wiki sayfaları (kategori gruplu) + spoiler seviyesi sistemi. Site: https://kuronexus.com + https://api.kuronexus.com. Webhook ile otomatik deploy çalışıyor (push = yayın). Faz 1'den kalan küçük işler: yedekten geri yükleme testi, mobil taşma kontrolü, www DNS kaydı.**
 
 ## Tamamlananlar
@@ -194,7 +216,8 @@
   - **PATH tuzağı**: winget PATH'i kalıcı güncelledi ama bu oturumdaki süreçler eski ortamı miras alıyor → her yeni kabukta `$env:Path = "$([Environment]::GetEnvironmentVariable('Path','User'));$env:Path"` gerekiyor. Uygulama yeniden başlatılınca bu gereksiz kalır.
   - **pnpm sürüm tuzağı (önemli)**: `npx pnpm@10 install` ile kurup `npx pnpm` (sürümsüz → **v11** çeker) ile çalıştırmak `node_modules`'ü her seferinde yeniden kurduruyor (~5 dk, "Recreating node_modules"). **Tek bir sürümde kal**. Ayrıca pnpm TTY'siz ortamda temizlik onayı isteyip `ERR_PNPM_ABORTED_REMOVE_MODULES_DIR_NO_TTY` ile ölüyor → `CI=true` gerekiyor.
   - **`.claude/launch.json` bu oturumda çalışmadı**: `runtimeExecutable: "npx"` → PATH eski olduğu için `spawn npx ENOENT`; mutlak `npx.cmd` yolu verilince süreç sessizce anında ölüyor (Windows'ta `.cmd` spawn sorunu). **Çözüm**: `runtimeExecutable` = mutlak `node.exe`, `runtimeArgs` = `["frontend/node_modules/next/dist/bin/next", "dev", "frontend"]` → çalıştı. Bu makineye özgü olduğu için **repoya commit EDİLMEDİ**; launch.json orijinal (`npx`) halinde bırakıldı — uygulama yeniden başlatılıp PATH tazelenince orijinali zaten çalışmalı.
-  - **`frontend/.env.local` oluşturuldu** (gitignore'da): `NEXT_PUBLIC_API_URL=https://api.kuronexus.com` → dev server **canlı API'ye** bağlanır. **SSR içerik gerçek veriyle gelir** (GS kadrosu/künyesi doğrulandı). **İstemci tarafı fetch'ler lokalde ÇALIŞMAZ** — prod `CORS_ORIGIN` localhost:3000'i kabul etmiyor; konsolda `GlobalAmbientPlayer` "Failed to fetch" verir (beklenen, kod hatası değil). Admin paneli de aynı sebeple lokalde çalışmaz.
+  - **`frontend/.env.local` gerekli** (gitignore'da, her makinede elle oluşturulur): `NEXT_PUBLIC_API_URL=https://api.kuronexus.com` → dev server **canlı API'ye** bağlanır, SSR içerik gerçek veriyle gelir.
+  - **~~İstemci tarafı fetch'ler lokalde çalışmaz~~ ÇÖZÜLDÜ (2026-07-28, dev proxy)**: `/api/dev-proxy` ile tarayıcıdan giden istekler Next sunucusundan geçiyor, CORS devre dışı kalıyor. **Admin paneli ve yazım atölyesi artık lokalde tam çalışıyor** (giriş dahil). Ayrıntı yukarıdaki "Lokal geliştirme köprüsü" maddesinde. **UYARI: lokal admin canlı veritabanına yazar.**
   - **Backend lokalde ÇALIŞTIRILAMAZ**: `backend/.env` yok (gitignore'da, doğru) → `DATABASE_URL`/`JWT_SECRET`/`APIFY_TOKEN` elde yok; DB'nin public erişimi kapalı; Docker Desktop yok → lokal postgres de yok. Apify'a doğrudan çağrı yapılamaz, yalnızca kendi admin uçlarımız üzerinden.
 - **GitHub reposu:** `https://github.com/ultnexusdev/KuroNexus.git` (`main` branch push edildi, origin remote ayarlı)
 - Sunucu: Hetzner CX23, Helsinki (eu-central), IP `65.108.220.5`

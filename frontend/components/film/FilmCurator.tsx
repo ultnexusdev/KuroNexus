@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useCallback, useEffect, useState, type FormEvent } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/lib/i18n/navigation";
@@ -9,6 +9,7 @@ import { tmdbImage } from "@/lib/api/movies";
 import {
   createMovieEntry,
   deleteMovieEntry,
+  fetchMovieSuggestions,
   searchTmdbMovies,
   updateMovieEntry,
 } from "@/lib/admin/api";
@@ -29,6 +30,9 @@ import styles from "./FilmCurator.module.css";
  */
 
 const STATUSES: MovieStatus[] = ["WATCHED", "WATCHLIST", "REWATCH"];
+
+// Öneriler rafında aynı anda kaç film durur
+const SUGGESTION_COUNT = 10;
 
 function today(): string {
   return new Date().toISOString().slice(0, 10);
@@ -256,6 +260,193 @@ export function CuratorBar() {
   );
 }
 
+/**
+ * Öneriler rafı — küratör modunun "aramadan ekle" yolu.
+ *
+ * Havuz (~40 film) bir kez çekilir; onluk seçim, "Yenile" ve "ilgilenmiyorum"
+ * tamamen istemcide döner, yani her yenilemede TMDB'ye gidilmez. Arşivde olan
+ * filmler havuza zaten girmiyor (backend eliyor), eklediğin film de anında
+ * havuzdan düşüyor — aynı filmi iki kez önermez.
+ */
+export function SuggestionShelf() {
+  const t = useTranslations("film.suggestions");
+  const router = useRouter();
+
+  const [pool, setPool] = useState<TmdbSearchResult[]>([]);
+  const [shown, setShown] = useState<TmdbSearchResult[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [busyId, setBusyId] = useState<number | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  /** Havuzdan rastgele on film seçer. */
+  const draw = useCallback((from: TmdbSearchResult[]) => {
+    const copy = [...from];
+    for (let i = copy.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    setShown(copy.slice(0, SUGGESTION_COUNT));
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const items = await fetchMovieSuggestions();
+        if (!cancelled) {
+          setPool(items);
+          draw(items);
+        }
+      } catch {
+        if (!cancelled) {
+          setError(t("error"));
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [draw, t]);
+
+  /** Havuzdan çıkarır ve gösterilen onluğu tazeler (ekleme + ilgilenmiyorum). */
+  function drop(tmdbId: number) {
+    setPool((current) => {
+      const next = current.filter((item) => item.tmdbId !== tmdbId);
+      setShown((visible) => {
+        const remaining = visible.filter((item) => item.tmdbId !== tmdbId);
+        // Boşalan yeri havuzdan, ekranda olmayan bir filmle doldur
+        const spare = next.find(
+          (item) => !remaining.some((seen) => seen.tmdbId === item.tmdbId),
+        );
+        return spare ? [...remaining, spare] : remaining;
+      });
+      return next;
+    });
+  }
+
+  async function add(item: TmdbSearchResult, status: MovieStatus) {
+    setBusyId(item.tmdbId);
+    setError(null);
+    try {
+      await createMovieEntry({
+        tmdbId: item.tmdbId,
+        status,
+        // Sırada bekleyen film henüz izlenmedi — tarih yazmak yanlış olur
+        watchedAt:
+          status === "WATCHLIST" ? undefined : new Date().toISOString(),
+      });
+      drop(item.tmdbId);
+      router.refresh();
+    } catch (err) {
+      setError(
+        err instanceof ApiError && err.status === 409
+          ? t("duplicate")
+          : t("error"),
+      );
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  if (loading) {
+    return (
+      <section className={styles.suggestions}>
+        <h2 className={styles.suggestionsTitle}>{t("title")}</h2>
+        <p className={styles.muted}>{t("loading")}</p>
+      </section>
+    );
+  }
+
+  return (
+    <section className={styles.suggestions}>
+      <h2 className={styles.suggestionsTitle}>{t("title")}</h2>
+      <p className={styles.suggestionsLede}>{t("lede")}</p>
+
+      {error ? <p className={styles.error}>{error}</p> : null}
+
+      {shown.length === 0 ? (
+        <p className={styles.muted}>{t("empty")}</p>
+      ) : (
+        <ul className={styles.suggestionGrid}>
+          {shown.map((item) => {
+            const poster = tmdbImage(item.posterPath, "w342");
+            const busy = busyId === item.tmdbId;
+            return (
+              <li key={item.tmdbId} className={styles.suggestion}>
+                <div className={styles.suggestionPoster}>
+                  {poster ? (
+                    <Image
+                      src={poster}
+                      alt=""
+                      fill
+                      sizes="(max-width: 640px) 45vw, 160px"
+                      className={styles.resultImg}
+                      unoptimized
+                    />
+                  ) : null}
+                  <button
+                    type="button"
+                    className={styles.dismiss}
+                    title={t("dismiss")}
+                    aria-label={t("dismiss")}
+                    onClick={() => drop(item.tmdbId)}
+                  >
+                    ✕
+                  </button>
+                </div>
+                <p className={styles.suggestionTitle}>{item.title}</p>
+                <p className={styles.suggestionMeta}>
+                  <span>{item.releaseDate?.slice(0, 4) ?? "—"}</span>
+                  {item.voteAverage ? (
+                    <span className={styles.suggestionScore}>
+                      {item.voteAverage.toFixed(1)}
+                    </span>
+                  ) : null}
+                </p>
+                <div className={styles.suggestionActions}>
+                  <button
+                    type="button"
+                    className={styles.addWatched}
+                    disabled={busy}
+                    onClick={() => void add(item, "WATCHED")}
+                  >
+                    {t("addWatched")}
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.addWatchlist}
+                    disabled={busy}
+                    onClick={() => void add(item, "WATCHLIST")}
+                  >
+                    {t("addWatchlist")}
+                  </button>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
+      <div className={styles.suggestionFooter}>
+        <button
+          type="button"
+          className={styles.ghost}
+          onClick={() => draw(pool)}
+        >
+          {t("refresh")}
+        </button>
+        <span className={styles.muted}>
+          {t("poolLeft", { count: pool.length })}
+        </span>
+      </div>
+    </section>
+  );
+}
+
 /** Poster altındaki hızlı kontroller: favori, durum, arşivden çıkarma. */
 export function CuratorCardTools({ movie }: { movie: ArchiveMovie }) {
   const t = useTranslations("film.curator");
@@ -292,6 +483,26 @@ export function CuratorCardTools({ movie }: { movie: ArchiveMovie }) {
       >
         ★
       </button>
+
+      {/* Sırada bekleyeni tek tıkla izlenmişe taşır — tarih bugün düşer */}
+      {movie.status === "WATCHLIST" ? (
+        <button
+          type="button"
+          className={styles.markWatched}
+          title={t("markWatched")}
+          disabled={busy}
+          onClick={() =>
+            void run(() =>
+              updateMovieEntry(movie.id, {
+                status: "WATCHED",
+                watchedAt: new Date().toISOString(),
+              }),
+            )
+          }
+        >
+          ✓
+        </button>
+      ) : null}
 
       <select
         className={styles.statusSelect}

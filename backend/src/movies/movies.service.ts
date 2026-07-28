@@ -4,10 +4,18 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { TmdbService, type TmdbMovie } from './tmdb.service';
+import {
+  TmdbService,
+  type TmdbMovie,
+  type TmdbSearchResult,
+} from './tmdb.service';
 import { CreateMovieEntryDto } from './dto/create-movie-entry.dto';
 import { UpdateMovieEntryDto } from './dto/update-movie-entry.dto';
 import type { MovieEntry, Prisma } from '../generated/prisma/client';
+
+// Öneri havuzu: kaç kaynak filmden benzer istenir, havuz kaç film taşır
+const SUGGESTION_SEEDS = 3;
+const SUGGESTION_POOL = 40;
 
 // Salonun künye şeridi: arşivin özeti
 export interface MovieArchiveStats {
@@ -67,6 +75,71 @@ export class MoviesService {
       directors: topDirectors(movies),
       genres: allGenres(movies),
     };
+  }
+
+  /**
+   * Küratör modundaki "Öneriler" havuzu.
+   *
+   * Yarısı gündem (trend + popüler), yarısı zevk (favorilerine benzeyenler);
+   * ikisi dönüşümlü diziliyor, böylece liste ne tamamen gişe ne tamamen
+   * kendi kuyruğunu kovalayan bir şey oluyor. **Arşivde bir kez yer almış
+   * her tmdbId elenir** — silinmişler dahil: arşivden çıkardığın bir filmi
+   * öneri olarak geri getirmek istemezsin.
+   *
+   * Havuz olduğu gibi döner (~40); onluk seçim ve "ilgilenmiyorum" istemcide
+   * tutulur, böylece "Yenile" her seferinde TMDB'ye gitmez.
+   */
+  async suggestions(): Promise<TmdbSearchResult[]> {
+    const entries = await this.prisma.movieEntry.findMany({
+      select: { tmdbId: true, isFavorite: true, isDeleted: true },
+      orderBy: { createdAt: 'desc' },
+    });
+    const known = new Set(entries.map((entry) => entry.tmdbId));
+
+    // Zevk kaynağı: önce favoriler, yoksa arşivdeki en yeni kayıtlar
+    const favorites = entries.filter(
+      (entry) => entry.isFavorite && !entry.isDeleted,
+    );
+    const seeds = (favorites.length > 0
+      ? favorites
+      : entries.filter((entry) => !entry.isDeleted)
+    ).slice(0, SUGGESTION_SEEDS);
+
+    const safe = async (
+      promise: Promise<TmdbSearchResult[]>,
+    ): Promise<TmdbSearchResult[]> => {
+      try {
+        return await promise;
+      } catch {
+        // Bir kaynak düşerse öneri hiç gelmesin diye değil, eksik gelsin diye
+        return [];
+      }
+    };
+
+    const [trending, popular1, popular2, ...tasteLists] = await Promise.all([
+      safe(this.tmdb.trending()),
+      safe(this.tmdb.popular(1)),
+      safe(this.tmdb.popular(2)),
+      ...seeds.map((seed) => safe(this.tmdb.recommendations(seed.tmdbId))),
+    ]);
+
+    const buzz = shuffle(dedupe([...trending, ...popular1, ...popular2], known));
+    const taste = shuffle(dedupe(tasteLists.flat(), known));
+
+    // Dönüşümlü dizim: bir gündem, bir zevk
+    const mixed: TmdbSearchResult[] = [];
+    for (let i = 0; i < Math.max(buzz.length, taste.length); i += 1) {
+      if (i < buzz.length) {
+        mixed.push(buzz[i]);
+      }
+      if (i < taste.length) {
+        mixed.push(taste[i]);
+      }
+      if (mixed.length >= SUGGESTION_POOL) {
+        break;
+      }
+    }
+    return mixed.slice(0, SUGGESTION_POOL);
   }
 
   // --- Admin ---
@@ -180,6 +253,30 @@ export class MoviesService {
       return { payload: undefined, fetchedAt: null };
     }
   }
+}
+
+/** Arşivde olanları ve tekrarları eler. */
+function dedupe(
+  items: TmdbSearchResult[],
+  known: Set<number>,
+): TmdbSearchResult[] {
+  const seen = new Set<number>();
+  return items.filter((item) => {
+    if (known.has(item.tmdbId) || seen.has(item.tmdbId)) {
+      return false;
+    }
+    seen.add(item.tmdbId);
+    return true;
+  });
+}
+
+function shuffle<T>(items: T[]): T[] {
+  const copy = [...items];
+  for (let i = copy.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
 }
 
 function toArchiveMovie(entry: MovieEntry): ArchiveMovie {

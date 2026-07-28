@@ -462,6 +462,40 @@
       "favorites": "Favoriler"
     },
     "shelfCount": "{count} film",
+    "showAll": "Tümünü göster →",
+    "loadMore": "Daha fazla",
+    "backToArchive": "← Film Arşivim",
+    "sortLabel": "Sırala",
+    "sort": {
+      "added": "Eklenme sırası",
+      "ratingDesc": "TMDB puanı: yüksekten düşüğe",
+      "ratingAsc": "TMDB puanı: düşükten yükseğe",
+      "myRatingDesc": "Benim puanım: yüksekten düşüğe",
+      "yearDesc": "Yapım yılı: yeniden eskiye",
+      "yearAsc": "Yapım yılı: eskiden yeniye",
+      "title": "Ada göre (A–Z)"
+    },
+    "periodLabel": "Dönem",
+    "allPeriods": "Tüm yıllar",
+    "decade": "{decade}'ler",
+    "older": "Daha eski",
+    "tonight": {
+      "button": "Bu akşam ne izlesem?",
+      "pick": "Bu akşam: {title}"
+    },
+    "suggestions": {
+      "title": "Öneriler",
+      "lede": "Arşivinde olmayan filmler. Gündemden ve favorilerine benzeyenlerden karışık geliyor — beğendiğini aramadan doğrudan ekle.",
+      "loading": "Öneriler hazırlanıyor…",
+      "empty": "Şimdilik önerilecek film kalmadı. Yenile'ye basmayı dene.",
+      "refresh": "Yenile",
+      "poolLeft": "havuzda {count} film",
+      "addWatched": "İzledim",
+      "addWatchlist": "İzleyeceğim",
+      "dismiss": "İlgilenmiyorum",
+      "duplicate": "Bu film zaten arşivde.",
+      "error": "Öneriler alınamadı. Tekrar deneyin."
+    },
     "favoritesLede": "Beni en çok etkileyen ve tekrar izlemekten hiç sıkılmadığım filmler.",
     "favorite": "Favori",
     "tmdbScore": "TMDB",
@@ -497,6 +531,7 @@
       "favoriteOn": "Favorilerden çıkar",
       "favoriteOff": "Favorilere ekle",
       "remove": "Arşivden çıkar",
+      "markWatched": "İzledim olarak işaretle",
       "confirmRemove": "\"{title}\" arşivden çıkarılsın mı?",
       "duplicate": "Bu film zaten arşivde.",
       "error": "İşlem başarısız. Tekrar deneyin."

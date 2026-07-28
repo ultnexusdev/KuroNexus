@@ -298,12 +298,111 @@
   letter-spacing: 0.05em;
 }
 
+.shelfLink {
+  text-decoration: none;
+}
+
+.shelfLink:hover .shelfTitle {
+  color: var(--gold);
+}
+
 .shelfCount {
   color: var(--text-muted);
   font-family: var(--font-bebas), var(--font-sans);
   font-size: 0.95rem;
   letter-spacing: 0.16em;
   white-space: nowrap;
+}
+
+/* Rafin sag altindaki "tumunu goster" / "daha fazla" */
+.shelfFooter {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--gap-lg);
+}
+
+.showAll {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  padding: 0 14px;
+  background: none;
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.9rem;
+  letter-spacing: 0.16em;
+  text-decoration: none;
+}
+
+.showAll:hover {
+  color: var(--gold);
+  border-color: var(--gold);
+}
+
+/* "Bu aksam ne izlesem?" */
+.tonight {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--gap-md);
+  margin-top: var(--gap-md);
+}
+
+.tonightButton {
+  min-height: var(--touch-min);
+  padding: 0 14px;
+  background: none;
+  border: 0.5px dashed var(--accent-muted);
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+}
+
+.tonightButton:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.tonightPick {
+  margin: 0;
+  color: var(--accent);
+  font-family: var(--font-cormorant), serif;
+  font-size: 1.15rem;
+  font-style: italic;
+}
+
+/* --- Siralama / donem suzgeci (raf sayfalari) --- */
+
+.filterBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-md);
+  margin-bottom: var(--pad-lg);
+}
+
+.filterField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.filterField select {
+  min-height: var(--touch-min);
+  padding: 0 8px;
+  background: var(--surface);
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.9rem;
+  letter-spacing: normal;
+  text-transform: none;
 }
 
 .shelf {

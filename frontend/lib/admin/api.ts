@@ -347,6 +347,16 @@ export function searchTmdbMovies(query: string): Promise<TmdbSearchResult[]> {
   );
 }
 
+/**
+ * Küratör modundaki öneri havuzu (~40 film). Onluk seçim ve "ilgilenmiyorum"
+ * istemcide tutulur — "Yenile" her basışta TMDB'ye gitmesin diye.
+ */
+export function fetchMovieSuggestions(): Promise<TmdbSearchResult[]> {
+  return apiFetch<TmdbSearchResult[]>("/admin/movies/suggestions", {
+    headers: authHeaders(),
+  });
+}
+
 export function fetchAdminMovies(): Promise<MovieEntryRecord[]> {
   return apiFetch<MovieEntryRecord[]>("/admin/movies", {
     headers: authHeaders(),

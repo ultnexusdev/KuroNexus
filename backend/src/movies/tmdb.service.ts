@@ -10,6 +10,8 @@ import { PrismaService } from '../prisma/prisma.service';
 
 const TMDB_BASE = 'https://api.themoviedb.org/3';
 const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // kural 14: varsayılan 7 gün
+// Popüler/trend listeleri künyeden hızlı eskiyor — bir gün yeterli
+const LIST_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
 export interface TmdbMovie {
   tmdbId: number;
@@ -151,6 +153,91 @@ export class TmdbService {
           `TMDB ${tmdbId} yenilenemedi, bayat cache sunuluyor: ${String(error)}`,
         );
         return cached.payload as unknown as TmdbMovie;
+      }
+      throw error;
+    }
+  }
+
+  /** Bu haftanın trendleri — öneri havuzunun "gündem" yarısı. */
+  trending(): Promise<TmdbSearchResult[]> {
+    return this.cachedList(
+      `tmdb:trending:week:${this.language}`,
+      '/trending/movie/week',
+      {},
+      LIST_CACHE_TTL_MS,
+    );
+  }
+
+  /** Popüler filmler; havuzu genişletmek için birden çok sayfa çekilebilir. */
+  popular(page = 1): Promise<TmdbSearchResult[]> {
+    return this.cachedList(
+      `tmdb:popular:${page}:${this.language}`,
+      '/movie/popular',
+      { page: String(page) },
+      LIST_CACHE_TTL_MS,
+    );
+  }
+
+  /** Bir filme benzeyenler — öneri havuzunun "senin zevkin" yarısı. */
+  recommendations(tmdbId: number): Promise<TmdbSearchResult[]> {
+    return this.cachedList(
+      `tmdb:recommendations:${tmdbId}:${this.language}`,
+      `/movie/${tmdbId}/recommendations`,
+      {},
+      CACHE_TTL_MS,
+    );
+  }
+
+  /**
+   * Liste uçları için ortak cache'li okuma. Künye okumasıyla aynı davranış:
+   * TTL dolmadıysa cache, dış istek düşerse bayat cache (kural 4/14).
+   */
+  private async cachedList(
+    cacheKey: string,
+    path: string,
+    params: Record<string, string>,
+    ttlMs: number,
+  ): Promise<TmdbSearchResult[]> {
+    const cached = await this.prisma.externalCache.findUnique({
+      where: { cacheKey },
+    });
+    if (cached && Date.now() - cached.fetchedAt.getTime() < ttlMs) {
+      return cached.payload as unknown as TmdbSearchResult[];
+    }
+
+    try {
+      const payload = await this.request<TmdbSearchResponse>(path, params);
+      // Postersiz film öneri duvarında boş kare bırakıyor — havuza alınmaz
+      const items = (payload.results ?? [])
+        .filter((item) => Boolean(item.poster_path))
+        .map((item) => ({
+          tmdbId: item.id,
+          title: item.title ?? item.original_title ?? '',
+          releaseDate: item.release_date || null,
+          posterPath: item.poster_path ?? null,
+          voteAverage:
+            typeof item.vote_average === 'number' ? item.vote_average : null,
+          overview: item.overview || null,
+        }));
+      await this.prisma.externalCache.upsert({
+        where: { cacheKey },
+        create: {
+          cacheKey,
+          payload: items as unknown as object,
+          fetchedAt: new Date(),
+        },
+        update: {
+          payload: items as unknown as object,
+          fetchedAt: new Date(),
+        },
+      });
+      return items;
+    } catch (error) {
+      if (cached) {
+        this.logger.warn(
+          `TMDB ${path} yenilenemedi, bayat cache sunuluyor: ${String(error)}`,
+        );
+        return cached.payload as unknown as TmdbSearchResult[];
       }
       throw error;
     }

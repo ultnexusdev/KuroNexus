@@ -462,6 +462,40 @@
       "favorites": "Favourites"
     },
     "shelfCount": "{count} films",
+    "showAll": "Show all →",
+    "loadMore": "Load more",
+    "backToArchive": "← My Film Archive",
+    "sortLabel": "Sort",
+    "sort": {
+      "added": "Recently added",
+      "ratingDesc": "TMDB score: high to low",
+      "ratingAsc": "TMDB score: low to high",
+      "myRatingDesc": "My rating: high to low",
+      "yearDesc": "Release year: new to old",
+      "yearAsc": "Release year: old to new",
+      "title": "Title (A–Z)"
+    },
+    "periodLabel": "Period",
+    "allPeriods": "All years",
+    "decade": "{decade}s",
+    "older": "Older",
+    "tonight": {
+      "button": "What should I watch tonight?",
+      "pick": "Tonight: {title}"
+    },
+    "suggestions": {
+      "title": "Suggestions",
+      "lede": "Films not yet in your archive — a mix of what's trending and what resembles your favourites. Add one straight away, no search needed.",
+      "loading": "Preparing suggestions…",
+      "empty": "Nothing left to suggest right now. Try Refresh.",
+      "refresh": "Refresh",
+      "poolLeft": "{count} in the pool",
+      "addWatched": "Watched",
+      "addWatchlist": "Watchlist",
+      "dismiss": "Not interested",
+      "duplicate": "This film is already in the archive.",
+      "error": "Could not load suggestions. Please try again."
+    },
     "favoritesLede": "The films that moved me most, and that I never tire of watching again.",
     "favorite": "Favourite",
     "tmdbScore": "TMDB",
@@ -497,6 +531,7 @@
       "favoriteOn": "Remove from favourites",
       "favoriteOff": "Add to favourites",
       "remove": "Remove from archive",
+      "markWatched": "Mark as watched",
       "confirmRemove": "Remove \"{title}\" from the archive?",
       "duplicate": "This film is already in the archive.",
       "error": "Action failed. Please try again."

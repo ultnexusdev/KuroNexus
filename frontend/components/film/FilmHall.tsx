@@ -2,21 +2,21 @@
 
 import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/lib/i18n/navigation";
-import { tmdbImage } from "@/lib/api/movies";
 import type { ArchiveMovie, MovieArchive } from "@/lib/api/types";
+import { belongsTo, shelfHref, type ShelfKey } from "@/lib/film/shelves";
 import { FilmBackdrop } from "./FilmBackdrop";
+import { MovieCard, Poster } from "./MovieCard";
 import styles from "./FilmHall.module.css";
 
 /**
  * Salon 02 · Film — "Projeksiyon Salonu".
  *
- * Kişisel bir film arşivi. Düzen üç katman: geniş ekranda içeriğin iki yanını
- * dolduran dekoratif sinema duvarı (FilmBackdrop), ortada sabit genişlikte
- * içerik sütunu, ve sütun içinde üst üste dizilmiş raflar. Raflar sekme
- * değil bölüm — sayfayı aşağı kaydırırken arşiv bir kerede görünüyor.
+ * Düzen üç katman: geniş ekranda içeriğin iki yanını dolduran dekoratif sinema
+ * duvarı (FilmBackdrop), ortada sabit genişlikte içerik sütunu, sütun içinde
+ * üst üste raflar. Her raf burada YALNIZCA ilk satırı gösterir; tamamı kendi
+ * sayfasında (süzgeç + sıralama + sayfalama orada).
  *
  * Salonun imzası "Son İzlenenler" şeridi: yatay poster sırası değil,
  * perforasyonlu bir 35 mm film şeridi.
@@ -27,122 +27,15 @@ const CuratorBar = dynamic(
   () => import("./FilmCurator").then((mod) => mod.CuratorBar),
   { ssr: false },
 );
-const CuratorCardTools = dynamic(
-  () => import("./FilmCurator").then((mod) => mod.CuratorCardTools),
+const SuggestionShelf = dynamic(
+  () => import("./FilmCurator").then((mod) => mod.SuggestionShelf),
   { ssr: false },
 );
 
-type ShelfKey = "watched" | "watchlist" | "rewatch" | "favorites";
-
 // Şerit kaç kare taşır — fazlası kaydırmayı yorucu yapıyor
 const STRIP_LIMIT = 8;
-
-function belongsTo(movie: ArchiveMovie, shelf: ShelfKey): boolean {
-  if (shelf === "favorites") {
-    return movie.isFavorite;
-  }
-  if (shelf === "watched") {
-    return movie.status === "WATCHED";
-  }
-  if (shelf === "watchlist") {
-    return movie.status === "WATCHLIST";
-  }
-  return movie.status === "REWATCH";
-}
-
-function Poster({
-  movie,
-  size,
-  sizes,
-}: {
-  movie: ArchiveMovie;
-  size: "w185" | "w342" | "w500";
-  sizes: string;
-}) {
-  const src = tmdbImage(movie.posterPath, size);
-  if (!src) {
-    // Künye gelmemiş film: posterin yerini başlığın kendisi tutar
-    return (
-      <span className={styles.posterFallback}>
-        <span>{movie.title}</span>
-      </span>
-    );
-  }
-  return (
-    <Image
-      src={src}
-      alt=""
-      fill
-      sizes={sizes}
-      className={styles.posterImg}
-      unoptimized
-    />
-  );
-}
-
-function MovieCard({
-  movie,
-  curating,
-}: {
-  movie: ArchiveMovie;
-  curating: boolean;
-}) {
-  const t = useTranslations("film");
-  const rating = movie.personalRating ?? movie.voteAverage;
-
-  return (
-    <article className={styles.card}>
-      <div className={styles.posterWrap}>
-        <Poster
-          movie={movie}
-          size="w342"
-          sizes="(max-width: 640px) 45vw, (max-width: 1100px) 23vw, 15vw"
-        />
-
-        {/* Masaüstünde üzerine gelince açılan künye — dokunmatikte gizli */}
-        <div className={styles.overlay}>
-          <dl className={styles.overlayFacts}>
-            {movie.voteAverage ? (
-              <div>
-                <dt>{t("tmdbScore")}</dt>
-                <dd>{movie.voteAverage.toFixed(1)}</dd>
-              </div>
-            ) : null}
-            {movie.runtime ? (
-              <div>
-                <dt>{t("runtime")}</dt>
-                <dd>{t("minutes", { count: movie.runtime })}</dd>
-              </div>
-            ) : null}
-          </dl>
-          {movie.genres.length > 0 ? (
-            <p className={styles.overlayGenres}>
-              {movie.genres.slice(0, 3).join(" · ")}
-            </p>
-          ) : null}
-          {movie.personalNote ? (
-            <p className={styles.overlayNote}>{movie.personalNote}</p>
-          ) : null}
-        </div>
-
-        {movie.isFavorite ? (
-          <span className={styles.favoriteMark} aria-label={t("favorite")}>
-            ★
-          </span>
-        ) : null}
-      </div>
-
-      <h3 className={styles.cardTitle}>{movie.title}</h3>
-      <p className={styles.cardMeta}>
-        {movie.releaseYear ? <span>{movie.releaseYear}</span> : null}
-        {rating ? (
-          <span className={styles.cardRating}>{rating.toFixed(1)}</span>
-        ) : null}
-      </p>
-      {curating ? <CuratorCardTools movie={movie} /> : null}
-    </article>
-  );
-}
+// Salonda her raf tek satır: geniş ekrandaki sütun sayısı kadar
+const ROW_LIMIT = 6;
 
 export function FilmHall({
   archive,
@@ -161,6 +54,7 @@ export function FilmHall({
   const tStories = useTranslations("stories");
   const [genre, setGenre] = useState<string | null>(null);
   const [curating, setCurating] = useState(false);
+  const [tonight, setTonight] = useState<ArchiveMovie | null>(null);
 
   const dateFormatter = useMemo(
     () => new Intl.DateTimeFormat(locale, { dateStyle: "medium" }),
@@ -169,14 +63,11 @@ export function FilmHall({
 
   // Şerit: en son izlenenler, tarihi olanlar önce
   const recent = useMemo(
-    () =>
-      archive.movies
-        .filter((movie) => movie.watchedAt)
-        .slice(0, STRIP_LIMIT),
+    () => archive.movies.filter((movie) => movie.watchedAt).slice(0, STRIP_LIMIT),
     [archive.movies],
   );
 
-  // Tür süzgeci bütün bölümlere birden uygulanır
+  // Tür süzgeci bütün raflara birden uygulanır
   const visible = useMemo(
     () =>
       genre === null
@@ -223,21 +114,52 @@ export function FilmHall({
     [archive.movies],
   );
 
+  function pickTonight() {
+    const pool = shelves.watchlist;
+    if (pool.length === 0) {
+      return;
+    }
+    setTonight(pool[Math.floor(Math.random() * pool.length)]);
+  }
+
   function renderShelf(key: ShelfKey, movies: ArchiveMovie[]) {
+    const row = movies.slice(0, ROW_LIMIT);
+    const hasMore = movies.length > row.length;
+
     return (
       <section className={styles.shelfSection} key={key}>
         <div className={styles.shelfHead}>
-          <h2 className={styles.shelfTitle}>{t(`shelf.${key}`)}</h2>
+          {/* Başlık rafın kendi sayfasına açılır */}
+          <Link href={shelfHref(key)} className={styles.shelfLink}>
+            <h2 className={styles.shelfTitle}>{t(`shelf.${key}`)}</h2>
+          </Link>
           <span className={styles.shelfCount}>
             {t("shelfCount", { count: movies.length })}
           </span>
         </div>
 
+        {key === "watchlist" && movies.length > 0 ? (
+          <div className={styles.tonight}>
+            <button
+              type="button"
+              className={styles.tonightButton}
+              onClick={pickTonight}
+            >
+              {t("tonight.button")}
+            </button>
+            {tonight ? (
+              <p className={styles.tonightPick}>
+                {t("tonight.pick", { title: tonight.title })}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+
         {movies.length === 0 ? (
           <p className={styles.emptyShelf}>{t("emptyShelf")}</p>
         ) : key === "favorites" ? (
           <ul className={styles.wall}>
-            {movies.map((movie) => (
+            {row.map((movie) => (
               <li key={movie.id} className={styles.framed}>
                 <div className={styles.framedPoster}>
                   <Poster
@@ -260,20 +182,27 @@ export function FilmHall({
                   {movie.personalNote ? (
                     <p className={styles.plaqueNote}>{movie.personalNote}</p>
                   ) : null}
-                  {curating ? <CuratorCardTools movie={movie} /> : null}
                 </div>
               </li>
             ))}
           </ul>
         ) : (
           <ul className={styles.shelf}>
-            {movies.map((movie) => (
+            {row.map((movie) => (
               <li key={movie.id}>
                 <MovieCard movie={movie} curating={curating} />
               </li>
             ))}
           </ul>
         )}
+
+        {hasMore ? (
+          <div className={styles.shelfFooter}>
+            <Link href={shelfHref(key)} className={styles.showAll}>
+              {t("showAll")}
+            </Link>
+          </div>
+        ) : null}
       </section>
     );
   }
@@ -339,8 +268,13 @@ export function FilmHall({
           </article>
         </section>
 
-        {/* Boş salonda da görünür: ilk film buradan eklenir */}
-        {isAdmin && curating ? <CuratorBar /> : null}
+        {/* Küratör araçları: öneriler (aramadan ekle) + arama şeridi */}
+        {isAdmin && curating ? (
+          <>
+            <SuggestionShelf />
+            <CuratorBar />
+          </>
+        ) : null}
 
         {isEmpty ? (
           <p className={styles.empty}>{t("emptyArchive")}</p>

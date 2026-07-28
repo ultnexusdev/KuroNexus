@@ -31,6 +31,11 @@ export class MoviesAdminController {
     return this.moviesService.search(query ?? '');
   }
 
+  @Get('suggestions')
+  suggestions() {
+    return this.moviesService.suggestions();
+  }
+
   @Post()
   create(
     @Body() dto: CreateMovieEntryDto,

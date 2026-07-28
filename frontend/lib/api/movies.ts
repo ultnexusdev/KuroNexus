@@ -1,5 +1,7 @@
 import { apiFetch } from "./client";
-import type { MovieArchive } from "./types";
+import type { MovieArchive, MovieShowcase } from "./types";
+
+const EMPTY_SHOWCASE: MovieShowcase = { left: null, right: null };
 
 const EMPTY_ARCHIVE: MovieArchive = {
   movies: [],
@@ -30,6 +32,20 @@ export function tmdbImage(
  */
 export function fetchMovieArchive(): Promise<MovieArchive> {
   return apiFetch<MovieArchive>("/movies", { cache: "no-store" });
+}
+
+/**
+ * Salon girişinin iki yanındaki afişler. Alınamazsa lobi CSS sahnesiyle açılır.
+ * Günlük önbellek yeterli: afişler ayda bir bile değişmiyor.
+ */
+export async function getMovieShowcase(): Promise<MovieShowcase> {
+  try {
+    return await apiFetch<MovieShowcase>("/movies/showcase", {
+      next: { revalidate: 86400 },
+    });
+  } catch {
+    return EMPTY_SHOWCASE;
+  }
 }
 
 /** Arşiv alınamazsa salon boş açılır, sayfa çökmez (kural 4 ruhu). */

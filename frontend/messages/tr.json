@@ -423,8 +423,8 @@
     }
   },
   "film": {
-    "hall": "Salon {num} · Film",
-    "hallName": "Film",
+    "hall": "Salon {num} · {name}",
+    "hallName": "Sinema",
     "lobbyLede": "Perde kapalı, projeksiyon hazır. Salonun hangi bölümüne girmek istersin?",
     "lobbySectionsAria": "Salon bölümleri",
     "lobbyArchiveMeter": "{count} film · {watchlist} sırada",
@@ -493,6 +493,9 @@
       "addWatched": "İzledim",
       "addWatchlist": "İzleyeceğim",
       "dismiss": "İlgilenmiyorum",
+      "added": "✓ Eklendi",
+      "dismissed": "Elendi",
+      "pending": "{count} film eklendi — Yenile'ye basınca listelere işlenir",
       "duplicate": "Bu film zaten arşivde.",
       "error": "Öneriler alınamadı. Tekrar deneyin."
     },

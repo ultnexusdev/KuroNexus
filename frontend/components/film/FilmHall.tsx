@@ -41,12 +41,15 @@ export function FilmHall({
   archive,
   locale,
   hallLabel,
+  hallName,
   isAdmin = false,
 }: {
   archive: MovieArchive;
   locale: string;
   /** Salon numarası ana sayfayla aynı kaynaktan gelir ("01", "02"…) */
   hallLabel: string;
+  /** Salon adı da aynı kaynaktan: kategori kaydı (kod içinde sabit yok) */
+  hallName: string;
   /** Küratör modu anahtarını gösterir — yetki her istekte backend'de doğrulanır */
   isAdmin?: boolean;
 }) {
@@ -215,9 +218,11 @@ export function FilmHall({
         <header className={styles.head}>
           {/* Geri: bir üst kapı olan salon girişine döner */}
           <Link href="/dark-stories/category/film" className={styles.back}>
-            {tStories("backToUniverse", { name: t("hallName") })}
+            {tStories("backToUniverse", { name: hallName })}
           </Link>
-          <span className={styles.eyebrow}>{t("hall", { num: hallLabel })}</span>
+          <span className={styles.eyebrow}>
+            {t("hall", { num: hallLabel, name: hallName })}
+          </span>
           <h1 className={styles.title}>{t("title")}</h1>
           <p className={styles.lede}>{t("lede")}</p>
 

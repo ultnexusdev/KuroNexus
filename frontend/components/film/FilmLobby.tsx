@@ -1,7 +1,8 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
 import { FILM_SECTIONS } from "@/lib/film/sections";
-import type { MovieArchive } from "@/lib/api/types";
+import type { MovieArchive, MovieShowcase } from "@/lib/api/types";
+import { LobbyPosters } from "./LobbyPosters";
 import styles from "./FilmLobby.module.css";
 
 /**
@@ -15,11 +16,13 @@ export async function FilmLobby({
   hallLabel,
   categoryName,
   archive,
+  showcase,
 }: {
   locale: string;
   hallLabel: string;
   categoryName: string;
   archive: MovieArchive;
+  showcase: MovieShowcase;
 }) {
   const t = await getTranslations({ locale, namespace: "film" });
   const tStories = await getTranslations({ locale, namespace: "stories" });
@@ -39,12 +42,14 @@ export async function FilmLobby({
 
   return (
     <div data-category="film" className={styles.lobby}>
+      <LobbyPosters showcase={showcase} />
+
       <header className={styles.head}>
         <Link href="/dark-stories" className={styles.back}>
           {tStories("backToList")}
         </Link>
         <span className={styles.eyebrow}>
-          {t("hall", { num: hallLabel })}
+          {t("hall", { num: hallLabel, name: categoryName })}
         </span>
         <h1 className={styles.title}>
           {categoryName.toLocaleUpperCase(locale)}

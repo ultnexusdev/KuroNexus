@@ -423,7 +423,7 @@
     }
   },
   "film": {
-    "hall": "Hall {num} · Cinema",
+    "hall": "Hall {num} · {name}",
     "hallName": "Cinema",
     "lobbyLede": "The curtain is closed and the projector is ready. Which part of the hall do you want?",
     "lobbySectionsAria": "Hall sections",
@@ -493,6 +493,9 @@
       "addWatched": "Watched",
       "addWatchlist": "Watchlist",
       "dismiss": "Not interested",
+      "added": "✓ Added",
+      "dismissed": "Dismissed",
+      "pending": "{count} added — press Refresh to fold them into your lists",
       "duplicate": "This film is already in the archive.",
       "error": "Could not load suggestions. Please try again."
     },

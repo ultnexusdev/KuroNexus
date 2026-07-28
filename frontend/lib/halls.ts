@@ -36,6 +36,19 @@ export function hallNumber(
   return index === -1 ? null : index + 1;
 }
 
+/**
+ * Salonun görünen adı: veritabanındaki kategori adı. Kod içinde sabit bir ad
+ * TUTULMAZ — kategori `/admin/universe-categories`ten yeniden adlandırılınca
+ * ana sayfadaki kapı, salon girişi ve salon başlıkları birlikte değişsin diye.
+ */
+export function hallName(
+  categories: Array<{ slug: string; name: string }>,
+  slug: string,
+  fallback: string,
+): string {
+  return categories.find((category) => category.slug === slug)?.name ?? fallback;
+}
+
 /** "01", "02" … — başlıklarda iki haneli gösterilir. */
 export function hallLabel(value: number | null): string {
   return value === null ? "" : String(value).padStart(2, "0");

@@ -8,7 +8,7 @@ import { CodexCard } from "@/components/kadim/CodexCard";
 import { CornerFiligree, RunicMargin } from "@/components/kadim/CodexOrnaments";
 import { SportSplit } from "@/components/sport/SportSplit";
 import { FilmLobby } from "@/components/film/FilmLobby";
-import { getMovieArchive } from "@/lib/api/movies";
+import { getMovieArchive, getMovieShowcase } from "@/lib/api/movies";
 import { hallLabel, hallNumber } from "@/lib/halls";
 import { apiUrl } from "@/lib/api/client";
 import { Link } from "@/lib/i18n/navigation";
@@ -58,13 +58,17 @@ export default async function CategoryUniversesPage({
   // Film kapısı doğrudan arşive değil, salon girişine açılır — buraya yeni
   // başlıklar eklenebilsin diye (bkz. lib/film/sections.ts)
   if (category.slug === "film") {
-    const archive = await getMovieArchive();
+    const [archive, showcase] = await Promise.all([
+      getMovieArchive(),
+      getMovieShowcase(),
+    ]);
     return (
       <FilmLobby
         locale={locale}
         hallLabel={hallLabel(hallNumber(categories, category.slug))}
         categoryName={category.name}
         archive={archive}
+        showcase={showcase}
       />
     );
   }

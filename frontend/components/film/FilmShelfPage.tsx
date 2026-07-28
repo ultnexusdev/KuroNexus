@@ -38,11 +38,13 @@ export function FilmShelfPage({
   archive,
   shelf,
   hallLabel,
+  hallName,
   isAdmin = false,
 }: {
   archive: MovieArchive;
   shelf: ShelfKey;
   hallLabel: string;
+  hallName: string;
   isAdmin?: boolean;
 }) {
   const t = useTranslations("film");
@@ -119,7 +121,9 @@ export function FilmShelfPage({
           <Link href="/dark-stories/category/film/arsiv" className={styles.back}>
             {t("backToArchive")}
           </Link>
-          <span className={styles.eyebrow}>{t("hall", { num: hallLabel })}</span>
+          <span className={styles.eyebrow}>
+            {t("hall", { num: hallLabel, name: hallName })}
+          </span>
           <h1 className={styles.title}>{t(`shelf.${shelf}`)}</h1>
           <p className={styles.lede}>
             {t("shelfCount", { count: filtered.length })}

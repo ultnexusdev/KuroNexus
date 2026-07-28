@@ -12,4 +12,11 @@ export class MoviesController {
   getArchive() {
     return this.moviesService.getArchive();
   }
+
+  // Salon girişinin dekoratif afişleri
+  @Public()
+  @Get('showcase')
+  getShowcase() {
+    return this.moviesService.showcase();
+  }
 }

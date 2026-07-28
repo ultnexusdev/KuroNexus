@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { readIsAdmin } from "@/lib/auth/session";
 import { fetchCategories } from "@/lib/api/universes";
 import { getMovieArchive } from "@/lib/api/movies";
-import { hallLabel, hallNumber } from "@/lib/halls";
+import { hallLabel, hallName, hallNumber } from "@/lib/halls";
 import { FilmHall } from "@/components/film/FilmHall";
 
 // Film salonunun bir bölümü. Statik yol, [categorySlug] dinamik yolundan
@@ -21,13 +21,19 @@ export async function generateMetadata({
   return { title: t("title") };
 }
 
-async function getHallLabel(): Promise<string> {
+/** Salon numarası ve adı tek kaynaktan: kategori kaydı. */
+async function getHall(
+  fallbackName: string,
+): Promise<{ label: string; name: string }> {
   try {
     const categories = await fetchCategories();
-    return hallLabel(hallNumber(categories, "film"));
+    return {
+      label: hallLabel(hallNumber(categories, "film")),
+      name: hallName(categories, "film", fallbackName),
+    };
   } catch {
     // Kategori listesi alınamazsa başlık numarasız görünür, sayfa çökmez
-    return "";
+    return { label: "", name: fallbackName };
   }
 }
 
@@ -37,9 +43,10 @@ export default async function FilmArchivePage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const [archive, label, isAdmin] = await Promise.all([
+  const t = await getTranslations({ locale, namespace: "film" });
+  const [archive, hall, isAdmin] = await Promise.all([
     getMovieArchive(),
-    getHallLabel(),
+    getHall(t("hallName")),
     readIsAdmin(),
   ]);
 
@@ -47,7 +54,8 @@ export default async function FilmArchivePage({
     <FilmHall
       archive={archive}
       locale={locale}
-      hallLabel={label}
+      hallLabel={hall.label}
+      hallName={hall.name}
       isAdmin={isAdmin}
     />
   );

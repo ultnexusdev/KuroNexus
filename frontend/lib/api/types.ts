@@ -315,6 +315,16 @@ export interface MovieArchive {
   genres: string[];
 }
 
+export interface ShowcasePoster {
+  title: string;
+  posterPath: string;
+}
+
+export interface MovieShowcase {
+  left: ShowcasePoster | null;
+  right: ShowcasePoster | null;
+}
+
 export interface MovieEntryRecord {
   id: string;
   tmdbId: number;

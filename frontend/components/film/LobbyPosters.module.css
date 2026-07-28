@@ -1,0 +1,95 @@
+/* Salon girisi — yan afisler.
+   Arsiv duvarindan farki: tek buyuk afis, yuksek opaklik, minimum bulanik.
+   Renkler afisin kendisinden gelir; token'lar yalnizca karartma ve huzmede. */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.side {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  /* Icerik sutununun disinda kalan bosluk + 120px: afis icerigin altina
+     girer, maske orayi soldurur — kesik kenar olusmaz */
+  width: calc((100vw - var(--lobby-content-w)) / 2 + 120px);
+  overflow: hidden;
+}
+
+.left {
+  left: 0;
+  mask-image: linear-gradient(to right, #000 0%, #000 46%, transparent 100%);
+}
+
+.right {
+  right: 0;
+  mask-image: linear-gradient(to left, #000 0%, #000 46%, transparent 100%);
+}
+
+/* Afis: boydan boya, kirpilarak. Arsiv duvarinda .22 idi; burasi giris */
+.poster {
+  object-fit: cover;
+  opacity: 0.62;
+  filter: saturate(0.95) contrast(1.05);
+}
+
+/* Zemine baglayan ince karartma — afis parlarken sayfa dagilmasin */
+.tint {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--bg) 55%, transparent),
+    color-mix(in srgb, var(--bg) 20%, transparent) 45%,
+    color-mix(in srgb, var(--bg) 70%, transparent)
+  );
+}
+
+/* Projeksiyon huzmesi: iki yandan icerideki basliga dogru */
+.beam {
+  position: absolute;
+  inset: -15% -25%;
+  background-image: conic-gradient(
+    from 205deg at 50% -5%,
+    transparent 0deg,
+    var(--film-dust) 16deg,
+    transparent 38deg
+  );
+}
+
+.vignette {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+    120% 70% at 50% 45%,
+    transparent 20%,
+    rgba(0, 0, 0, 0.82) 100%
+  );
+}
+
+.grain {
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.12;
+  mix-blend-mode: overlay;
+}
+
+/* --- Olcekler --- */
+
+@media (max-width: 1440px) {
+  .poster {
+    opacity: 0.5;
+  }
+}
+
+/* Dar ekranda yan bosluk yok — afisler hic cizilmez */
+@media (max-width: 1100px) {
+  .backdrop {
+    display: none;
+  }
+}

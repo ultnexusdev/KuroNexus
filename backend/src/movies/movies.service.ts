@@ -17,6 +17,19 @@ import type { MovieEntry, Prisma } from '../generated/prisma/client';
 const SUGGESTION_SEEDS = 3;
 const SUGGESTION_POOL = 40;
 
+// Salon girişinin iki yanındaki afişler — başlık burada, yol TMDB'den gelir
+const SHOWCASE_LEFT = { query: 'The Matrix', year: '1999' };
+const SHOWCASE_RIGHT = {
+  query: 'The Lord of the Rings: The Fellowship of the Ring',
+  year: '2001',
+};
+const SHOWCASE_CACHE_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+
+export interface ShowcasePoster {
+  title: string;
+  posterPath: string;
+}
+
 // Salonun künye şeridi: arşivin özeti
 export interface MovieArchiveStats {
   total: number;
@@ -140,6 +153,78 @@ export class MoviesService {
       }
     }
     return mixed.slice(0, SUGGESTION_POOL);
+  }
+
+  /**
+   * Salon girişinin iki yanındaki afişler.
+   *
+   * Poster yolları koda GÖMÜLMEZ (TMDB yolları değişebilir): başlıkla aranır,
+   * yıl doğrulanır ve sonuç cache'lenir. Anahtar tanımsızsa ya da arama
+   * düşerse boş döner — lobi CSS sahnesiyle açılır, hata göstermez.
+   */
+  async showcase(): Promise<{
+    left: ShowcasePoster | null;
+    right: ShowcasePoster | null;
+  }> {
+    const cacheKey = 'movies:showcase:v1';
+    const cached = await this.prisma.externalCache.findUnique({
+      where: { cacheKey },
+    });
+    if (
+      cached &&
+      Date.now() - cached.fetchedAt.getTime() < SHOWCASE_CACHE_TTL_MS
+    ) {
+      return cached.payload as unknown as {
+        left: ShowcasePoster | null;
+        right: ShowcasePoster | null;
+      };
+    }
+
+    const resolve = async (
+      query: string,
+      year: string,
+    ): Promise<ShowcasePoster | null> => {
+      try {
+        const results = await this.tmdb.search(query);
+        const match =
+          results.find((item) => item.releaseDate?.startsWith(year)) ??
+          results[0];
+        if (!match?.posterPath) {
+          return null;
+        }
+        return { title: match.title, posterPath: match.posterPath };
+      } catch {
+        return null;
+      }
+    };
+
+    const [left, right] = await Promise.all([
+      resolve(SHOWCASE_LEFT.query, SHOWCASE_LEFT.year),
+      resolve(SHOWCASE_RIGHT.query, SHOWCASE_RIGHT.year),
+    ]);
+    const payload = { left, right };
+
+    // İkisi de boşsa cache'leme: anahtar sonradan tanımlanınca hemen dolsun
+    if (left || right) {
+      await this.prisma.externalCache.upsert({
+        where: { cacheKey },
+        create: {
+          cacheKey,
+          payload: payload as unknown as object,
+          fetchedAt: new Date(),
+        },
+        update: {
+          payload: payload as unknown as object,
+          fetchedAt: new Date(),
+        },
+      });
+    } else if (cached) {
+      return cached.payload as unknown as {
+        left: ShowcasePoster | null;
+        right: ShowcasePoster | null;
+      };
+    }
+    return payload;
   }
 
   // --- Admin ---

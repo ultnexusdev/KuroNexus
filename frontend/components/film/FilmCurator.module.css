@@ -238,9 +238,30 @@
   list-style: none;
 }
 
-.suggestion {
+.suggestion,
+.suggestionDone {
   display: flex;
   flex-direction: column;
+}
+
+/* Elden gecmis kart yerinde kalir, sadece geri cekilir */
+.suggestionDone {
+  opacity: 0.4;
+}
+
+.suggestionState {
+  margin: 6px 0 0;
+  min-height: 30px;
+  display: flex;
+  align-items: center;
+  color: var(--gold);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+}
+
+.suggestionPending {
+  color: var(--gold);
+  font-size: 0.8rem;
 }
 
 .suggestionPoster {

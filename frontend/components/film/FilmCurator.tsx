@@ -263,10 +263,13 @@ export function CuratorBar() {
 /**
  * Öneriler rafı — küratör modunun "aramadan ekle" yolu.
  *
- * Havuz (~40 film) bir kez çekilir; onluk seçim, "Yenile" ve "ilgilenmiyorum"
- * tamamen istemcide döner, yani her yenilemede TMDB'ye gidilmez. Arşivde olan
- * filmler havuza zaten girmiyor (backend eliyor), eklediğin film de anında
- * havuzdan düşüyor — aynı filmi iki kez önermez.
+ * **Liste yalnızca "Yenile" ile değişir.** Bir filme "İzledim" demek ya da
+ * elemek kartı yerinde bırakır, sadece görünümünü değiştirir; art arda birkaç
+ * film işaretleyebilmek için böyle (kullanıcı geri bildirimi). Sayfanın geri
+ * kalanı da o sırada tazelenmez — arşiv tazelemesi Yenile'ye ertelenir.
+ *
+ * Havuz (~40 film) bir kez çekilir, onluk seçim istemcide yapılır: her
+ * yenilemede TMDB'ye gidilmez. Arşivde olan filmler havuza zaten girmiyor.
  */
 export function SuggestionShelf() {
   const t = useTranslations("film.suggestions");
@@ -277,6 +280,11 @@ export function SuggestionShelf() {
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Bu turda elden geçenler: eklenenler ve elenenler. Liste bunlar yüzünden
+  // DEĞİŞMEZ — kartlar yerinde durur, yalnızca görünümleri değişir. Böylece
+  // arka arkaya birkaç film işaretlenebilir; yenileme kullanıcının elinde.
+  const [added, setAdded] = useState<Set<number>>(new Set());
+  const [dismissed, setDismissed] = useState<Set<number>>(new Set());
 
   /** Havuzdan rastgele on film seçer. */
   const draw = useCallback((from: TmdbSearchResult[]) => {
@@ -312,20 +320,23 @@ export function SuggestionShelf() {
     };
   }, [draw, t]);
 
-  /** Havuzdan çıkarır ve gösterilen onluğu tazeler (ekleme + ilgilenmiyorum). */
-  function drop(tmdbId: number) {
-    setPool((current) => {
-      const next = current.filter((item) => item.tmdbId !== tmdbId);
-      setShown((visible) => {
-        const remaining = visible.filter((item) => item.tmdbId !== tmdbId);
-        // Boşalan yeri havuzdan, ekranda olmayan bir filmle doldur
-        const spare = next.find(
-          (item) => !remaining.some((seen) => seen.tmdbId === item.tmdbId),
-        );
-        return spare ? [...remaining, spare] : remaining;
-      });
-      return next;
-    });
+  /** Elenen film: kart yerinde kalır, sönükleşir; liste kaymaz. */
+  function dismiss(tmdbId: number) {
+    setDismissed((current) => new Set(current).add(tmdbId));
+  }
+
+  /**
+   * Yenile: elden geçenleri havuzdan düşürüp yeni bir onluk çeker ve arşivi
+   * tazeler — eklediğin filmler sayfanın alt bölümlerine burada yansır.
+   */
+  function refresh() {
+    const touched = new Set([...added, ...dismissed]);
+    const next = pool.filter((item) => !touched.has(item.tmdbId));
+    setPool(next);
+    setAdded(new Set());
+    setDismissed(new Set());
+    draw(next);
+    router.refresh();
   }
 
   async function add(item: TmdbSearchResult, status: MovieStatus) {
@@ -339,8 +350,8 @@ export function SuggestionShelf() {
         watchedAt:
           status === "WATCHLIST" ? undefined : new Date().toISOString(),
       });
-      drop(item.tmdbId);
-      router.refresh();
+      // Kart listede kalır, "eklendi" olarak işaretlenir (router.refresh YOK)
+      setAdded((current) => new Set(current).add(item.tmdbId));
     } catch (err) {
       setError(
         err instanceof ApiError && err.status === 409
@@ -375,8 +386,14 @@ export function SuggestionShelf() {
           {shown.map((item) => {
             const poster = tmdbImage(item.posterPath, "w342");
             const busy = busyId === item.tmdbId;
+            const isAdded = added.has(item.tmdbId);
+            const isDismissed = dismissed.has(item.tmdbId);
+            const done = isAdded || isDismissed;
             return (
-              <li key={item.tmdbId} className={styles.suggestion}>
+              <li
+                key={item.tmdbId}
+                className={done ? styles.suggestionDone : styles.suggestion}
+              >
                 <div className={styles.suggestionPoster}>
                   {poster ? (
                     <Image
@@ -388,15 +405,17 @@ export function SuggestionShelf() {
                       unoptimized
                     />
                   ) : null}
-                  <button
-                    type="button"
-                    className={styles.dismiss}
-                    title={t("dismiss")}
-                    aria-label={t("dismiss")}
-                    onClick={() => drop(item.tmdbId)}
-                  >
-                    ✕
-                  </button>
+                  {!done ? (
+                    <button
+                      type="button"
+                      className={styles.dismiss}
+                      title={t("dismiss")}
+                      aria-label={t("dismiss")}
+                      onClick={() => dismiss(item.tmdbId)}
+                    >
+                      ✕
+                    </button>
+                  ) : null}
                 </div>
                 <p className={styles.suggestionTitle}>{item.title}</p>
                 <p className={styles.suggestionMeta}>
@@ -407,24 +426,30 @@ export function SuggestionShelf() {
                     </span>
                   ) : null}
                 </p>
-                <div className={styles.suggestionActions}>
-                  <button
-                    type="button"
-                    className={styles.addWatched}
-                    disabled={busy}
-                    onClick={() => void add(item, "WATCHED")}
-                  >
-                    {t("addWatched")}
-                  </button>
-                  <button
-                    type="button"
-                    className={styles.addWatchlist}
-                    disabled={busy}
-                    onClick={() => void add(item, "WATCHLIST")}
-                  >
-                    {t("addWatchlist")}
-                  </button>
-                </div>
+                {done ? (
+                  <p className={styles.suggestionState}>
+                    {isAdded ? t("added") : t("dismissed")}
+                  </p>
+                ) : (
+                  <div className={styles.suggestionActions}>
+                    <button
+                      type="button"
+                      className={styles.addWatched}
+                      disabled={busy}
+                      onClick={() => void add(item, "WATCHED")}
+                    >
+                      {t("addWatched")}
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.addWatchlist}
+                      disabled={busy}
+                      onClick={() => void add(item, "WATCHLIST")}
+                    >
+                      {t("addWatchlist")}
+                    </button>
+                  </div>
+                )}
               </li>
             );
           })}
@@ -432,13 +457,14 @@ export function SuggestionShelf() {
       )}
 
       <div className={styles.suggestionFooter}>
-        <button
-          type="button"
-          className={styles.ghost}
-          onClick={() => draw(pool)}
-        >
+        <button type="button" className={styles.primary} onClick={refresh}>
           {t("refresh")}
         </button>
+        {added.size > 0 ? (
+          <span className={styles.suggestionPending}>
+            {t("pending", { count: added.size })}
+          </span>
+        ) : null}
         <span className={styles.muted}>
           {t("poolLeft", { count: pool.length })}
         </span>

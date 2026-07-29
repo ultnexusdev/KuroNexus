@@ -574,14 +574,15 @@ function toArchiveAnime(entry: EntryWithParts): ArchiveAnime {
    * araya giren tek bölümlük bir özel ("Heroes:Rising Epilogue Plus")
    * "nerede kaldım" satırını kaçırıyor, 5. sezon yerine onu gösteriyordu.
    */
+  const isSeason = (part: ArchiveAnimePart) =>
+    part.format === 'TV' || part.format === 'TV_SHORT';
   const currentPart =
     parts.find((part) => !part.isCompleted && part.watchedEpisodes > 0) ??
-    parts.find(
-      (part) =>
-        !part.isCompleted &&
-        (part.format === 'TV' || part.format === 'TV_SHORT'),
-    ) ??
+    parts.find((part) => !part.isCompleted && isSeason(part)) ??
     parts.find((part) => !part.isCompleted) ??
+    // Her şey bitmişse son sezon gösterilir; sona düşen tek bölümlük bir
+    // özel ("…the Genie, and the Three Wishes") serinin yüzü olmamalı
+    [...parts].reverse().find(isSeason) ??
     parts[parts.length - 1] ??
     null;
 

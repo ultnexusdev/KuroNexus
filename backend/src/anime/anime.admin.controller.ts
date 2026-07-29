@@ -46,6 +46,12 @@ export class AnimeAdminController {
     return this.animeService.updatePart(partId, dto);
   }
 
+  // "Buraya kadar hepsini izledim" — bu parça ve öncekiler tamamlanır
+  @Patch('parts/:partId/complete-through')
+  completeThrough(@Param('partId') partId: string) {
+    return this.animeService.completeThrough(partId);
+  }
+
   @Patch(':id/refresh')
   refresh(@Param('id') id: string) {
     return this.animeService.refresh(id);

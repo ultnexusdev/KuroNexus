@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/lib/i18n/navigation";
 import { fetchPartEpisodes } from "@/lib/api/anime";
-import { updateAnimePart } from "@/lib/admin/api";
+import { completeAnimeThrough, updateAnimePart } from "@/lib/admin/api";
 import type {
   AnimeCharacter,
   ArchiveAnime,
@@ -354,8 +354,91 @@ function PartRow({
         </button>
       </div>
 
-      {isOpen ? <EpisodeGrid part={part} isAdmin={isAdmin} /> : null}
+      {isOpen ? (
+        <>
+          {isAdmin ? <PartTools part={part} /> : null}
+          <EpisodeGrid part={part} isAdmin={isAdmin} />
+        </>
+      ) : null}
     </li>
+  );
+}
+
+/**
+ * Sezon satırının küratör kontrolleri: tek tıkla bitirme, "buraya kadar
+ * hepsini izledim" ve manga bölümü. Üçü de uzun serilerde tek tek
+ * işaretlemekten kurtarıyor.
+ */
+function PartTools({ part }: { part: ArchiveAnimePart }) {
+  const t = useTranslations("anime");
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+  const [chapter, setChapter] = useState(
+    part.mangaChapter ? String(part.mangaChapter) : "",
+  );
+
+  async function run(action: () => Promise<unknown>) {
+    setBusy(true);
+    try {
+      await action();
+      router.refresh();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className={styles.partTools}>
+      {part.episodes ? (
+        <button
+          type="button"
+          className={styles.partTool}
+          disabled={busy || part.isCompleted}
+          onClick={() =>
+            void run(() =>
+              updateAnimePart(part.id, {
+                watchedEpisodes: part.episodes ?? 0,
+                isCompleted: true,
+              }),
+            )
+          }
+        >
+          {part.isCompleted ? t("detail.partDone") : t("detail.finishPart")}
+        </button>
+      ) : null}
+
+      <button
+        type="button"
+        className={styles.partTool}
+        disabled={busy}
+        title={t("detail.completeThroughHint")}
+        onClick={() => void run(() => completeAnimeThrough(part.id))}
+      >
+        {t("detail.completeThrough")}
+      </button>
+
+      {/* Anime → manga eşlemesi hiçbir API'de yok; tek sayı, elle girilir */}
+      <label className={styles.mangaField}>
+        <span>{t("detail.mangaChapter")}</span>
+        <input
+          type="number"
+          min={0}
+          value={chapter}
+          disabled={busy}
+          placeholder="137"
+          onChange={(event) => setChapter(event.target.value)}
+          onBlur={() => {
+            const parsed = Number.parseInt(chapter, 10);
+            if (!Number.isFinite(parsed) || parsed === part.mangaChapter) {
+              return;
+            }
+            void run(() =>
+              updateAnimePart(part.id, { mangaChapter: Math.max(0, parsed) }),
+            );
+          }}
+        />
+      </label>
+    </div>
   );
 }
 
@@ -426,6 +509,11 @@ function EpisodeGrid({
     (episode) => episode.state === "WATCHED" && !episode.filler,
   ).length;
   const canonTotal = data.episodes.length - data.fillerCount;
+  // İzlenmiş bölümlerin sonuncusu: ızgarada ▶ ile işaretlenen kare
+  const lastWatched = data.episodes.reduce(
+    (last, episode) => (episode.state === "WATCHED" ? episode.number : last),
+    0,
+  );
 
   return (
     <div className={styles.episodes}>
@@ -462,6 +550,9 @@ function EpisodeGrid({
 
       <ol className={styles.episodeGrid}>
         {data.episodes.map((episode) => {
+          // Son izlenen bölüm ayrı vurgulanır: ilerleme çubuğu "nerede
+          // kaldım"ı yeterince anlatmıyordu (kullanıcı geri bildirimi)
+          const isLastWatched = episode.number === lastWatched;
           const className = [
             episode.state === "WATCHED"
               ? styles.epWatched
@@ -469,6 +560,7 @@ function EpisodeGrid({
                 ? styles.epSkipped
                 : styles.ep,
             episode.filler ? styles.epFiller : "",
+            isLastWatched ? styles.epCurrent : "",
           ]
             .filter(Boolean)
             .join(" ");
@@ -500,7 +592,7 @@ function EpisodeGrid({
                   )
                 }
               >
-                {episode.number}
+                {isLastWatched ? "▶" : episode.number}
               </button>
             </li>
           );

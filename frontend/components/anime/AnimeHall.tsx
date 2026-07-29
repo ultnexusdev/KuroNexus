@@ -5,8 +5,18 @@ import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { Link } from "@/lib/i18n/navigation";
 import type { AnimeArchive, ArchiveAnime } from "@/lib/api/types";
+import Image from "next/image";
 import { belongsTo, shelfHref, SHELF_KEYS, type ShelfKey } from "@/lib/anime/shelves";
-import { buildChips, CHIP_LIMIT, matchesFilter } from "@/lib/anime/filters";
+import {
+  buildTaxonomy,
+  CHIP_LIMIT,
+  EMPTY_FILTER,
+  isFilterEmpty,
+  matchesFilter,
+  daysUntil,
+  type AnimeFilter,
+  type FilterChip,
+} from "@/lib/anime/filters";
 import { AnimeCard } from "./AnimeCard";
 import styles from "./AnimeHall.module.css";
 
@@ -45,18 +55,66 @@ export function AnimeHall({
 }) {
   const t = useTranslations("anime");
   const tStories = useTranslations("stories");
-  const [filter, setFilter] = useState<string | null>(null);
-  const [showAllChips, setShowAllChips] = useState(false);
+  const [filter, setFilter] = useState<AnimeFilter>(EMPTY_FILTER);
+  const [showAllThemes, setShowAllThemes] = useState(false);
   const [curating, setCurating] = useState(false);
 
-  const chips = useMemo(() => buildChips(archive.entries), [archive.entries]);
-  const visibleChips = showAllChips ? chips : chips.slice(0, CHIP_LIMIT);
+  const taxonomy = useMemo(
+    () => buildTaxonomy(archive.entries),
+    [archive.entries],
+  );
+  const themes = showAllThemes
+    ? taxonomy.themes
+    : taxonomy.themes.slice(0, CHIP_LIMIT);
 
   // Süzgeç bütün raflara birden uygulanır (film salonundaki davranış)
   const visible = useMemo(
     () => archive.entries.filter((anime) => matchesFilter(anime, filter)),
     [archive.entries, filter],
   );
+
+  // Hero: şu an izlediğim seri. Dekoratif değil — "devam et" düğmesiyle
+  // salona girer girmez kaldığın yere dönmek için (kullanıcı kararı).
+  const hero = useMemo(
+    () =>
+      archive.entries.find(
+        (anime) => anime.status === "WATCHING" && anime.currentPart,
+      ) ??
+      archive.entries.find((anime) => anime.status === "WATCHING") ??
+      null,
+    [archive.entries],
+  );
+
+  /** Bir katmanın çip satırı; aynı çipe tekrar basmak seçimi kaldırır. */
+  function chipRow(
+    label: string,
+    chips: FilterChip[],
+    current: string | null,
+    onPick: (value: string | null) => void,
+    extra?: React.ReactNode,
+  ) {
+    if (chips.length === 0) {
+      return null;
+    }
+    return (
+      <div className={styles.filterRow}>
+        <span className={styles.filterLabel}>{label}</span>
+        <div className={styles.filters}>
+          {chips.map((chip) => (
+            <button
+              key={chip.value}
+              type="button"
+              className={current === chip.value ? styles.chipOn : styles.chip}
+              onClick={() => onPick(current === chip.value ? null : chip.value)}
+            >
+              {chip.value}
+            </button>
+          ))}
+          {extra}
+        </div>
+      </div>
+    );
+  }
 
   const shelves = useMemo(() => {
     const map = {} as Record<ShelfKey, ArchiveAnime[]>;
@@ -105,6 +163,9 @@ export function AnimeHall({
 
   return (
     <div data-category="anime" className={styles.hall}>
+      {/* Salonun yüzü: şu an izlediğin seri, kaldığın yer ve "devam et" */}
+      {hero ? <Hero anime={hero} /> : null}
+
       <div className={styles.page}>
         <header className={styles.head}>
           <Link href="/dark-stories/category/anime" className={styles.back}>
@@ -159,44 +220,47 @@ export function AnimeHall({
           <p className={styles.empty}>{t("empty")}</p>
         ) : (
           <>
-            {chips.length > 0 ? (
-              <div className={styles.filters}>
-                <button
-                  type="button"
-                  className={filter === null ? styles.chipOn : styles.chip}
-                  onClick={() => setFilter(null)}
-                >
-                  {t("allGenres")}
-                </button>
-                {visibleChips.map((chip) => (
-                  <button
-                    key={chip.value}
-                    type="button"
-                    className={
-                      filter === chip.value ? styles.chipOn : styles.chip
-                    }
-                    onClick={() =>
-                      setFilter(filter === chip.value ? null : chip.value)
-                    }
-                  >
-                    {chip.value}
-                  </button>
-                ))}
-                {/* Tür + etiket sayısı kabarık: gerisi burada açılır */}
-                {chips.length > CHIP_LIMIT ? (
+            <div className={styles.filterBlock}>
+              {chipRow(t("filters.genre"), taxonomy.genres, filter.genre, (genre) =>
+                setFilter({ ...filter, genre }),
+              )}
+              {chipRow(
+                t("filters.audience"),
+                taxonomy.audience,
+                filter.audience,
+                (audience) => setFilter({ ...filter, audience }),
+              )}
+              {chipRow(
+                t("filters.theme"),
+                themes,
+                filter.theme,
+                (theme) => setFilter({ ...filter, theme }),
+                // Tema sayısı kabarık: gerisi burada açılır
+                taxonomy.themes.length > CHIP_LIMIT ? (
                   <button
                     type="button"
                     className={styles.moreChips}
-                    aria-expanded={showAllChips}
-                    onClick={() => setShowAllChips((current) => !current)}
+                    aria-expanded={showAllThemes}
+                    onClick={() => setShowAllThemes((current) => !current)}
                   >
-                    {showAllChips
+                    {showAllThemes
                       ? t("fewerGenres")
-                      : t("moreGenres", { count: chips.length - CHIP_LIMIT })}
+                      : t("moreGenres", {
+                          count: taxonomy.themes.length - CHIP_LIMIT,
+                        })}
                   </button>
-                ) : null}
-              </div>
-            ) : null}
+                ) : null,
+              )}
+              {!isFilterEmpty(filter) ? (
+                <button
+                  type="button"
+                  className={styles.clearFilter}
+                  onClick={() => setFilter(EMPTY_FILTER)}
+                >
+                  {t("filters.clear")}
+                </button>
+              ) : null}
+            </div>
 
             {SHELF_KEYS.map((key) => renderShelf(key))}
 
@@ -219,5 +283,73 @@ export function AnimeHall({
         )}
       </div>
     </div>
+  );
+}
+
+/**
+ * Salonun hero alanı: izlemekte olduğun serinin banner'ı.
+ *
+ * İşlevsel olması bilinçli — banner + başlık + "S2 · 18/23" + "devam et".
+ * Salona girer girmez ilk yapacağın şey zaten kaldığın yere dönmek.
+ */
+function Hero({ anime }: { anime: ArchiveAnime }) {
+  const t = useTranslations("anime");
+  const part = anime.currentPart;
+  const total = part?.episodes ?? null;
+  const watched = part?.watchedEpisodes ?? 0;
+  const percent =
+    total && total > 0 ? Math.min(100, Math.round((watched / total) * 100)) : 0;
+  const days = daysUntil(anime.nextAiringAt);
+  const image = anime.bannerImage ?? anime.coverImage;
+
+  return (
+    <section className={styles.hero}>
+      {image ? (
+        <Image
+          src={image}
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className={styles.heroImg}
+          unoptimized
+        />
+      ) : null}
+      <div className={styles.heroShade} />
+
+      <div className={styles.heroInner}>
+        <span className={styles.heroEyebrow}>{t("hero.eyebrow")}</span>
+        <h2 className={styles.heroTitle}>{anime.title}</h2>
+
+        {part ? (
+          <p className={styles.heroLine}>
+            <span>{part.title}</span>
+            <span className={styles.heroCount}>
+              {total
+                ? t("episodeOf", { watched, total })
+                : t("episodeCount", { watched })}
+            </span>
+            {days !== null ? (
+              <span className={styles.countdown}>
+                {t("nextInDays", { count: days, episode: anime.nextEpisode ?? 0 })}
+              </span>
+            ) : null}
+          </p>
+        ) : null}
+
+        {total ? (
+          <span className={styles.heroBar} aria-hidden>
+            <span className={styles.heroBarFill} style={{ width: `${percent}%` }} />
+          </span>
+        ) : null}
+
+        <Link
+          href={`/dark-stories/category/anime/${anime.slug}`}
+          className={styles.heroCta}
+        >
+          {t("hero.resume")}
+        </Link>
+      </div>
+    </section>
   );
 }

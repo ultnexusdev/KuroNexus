@@ -5,7 +5,15 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/lib/i18n/navigation";
 import type { AnimeArchive } from "@/lib/api/types";
 import { belongsTo, type ShelfKey } from "@/lib/anime/shelves";
-import { buildChips, CHIP_LIMIT, matchesFilter } from "@/lib/anime/filters";
+import {
+  buildTaxonomy,
+  CHIP_LIMIT,
+  EMPTY_FILTER,
+  isFilterEmpty,
+  matchesFilter,
+  type AnimeFilter,
+  type FilterChip,
+} from "@/lib/anime/filters";
 import { AnimeCard } from "./AnimeCard";
 import styles from "./AnimeHall.module.css";
 
@@ -34,8 +42,8 @@ export function AnimeShelfPage({
   isAdmin?: boolean;
 }) {
   const t = useTranslations("anime");
-  const [filter, setFilter] = useState<string | null>(null);
-  const [showAllChips, setShowAllChips] = useState(false);
+  const [filter, setFilter] = useState<AnimeFilter>(EMPTY_FILTER);
+  const [showAllThemes, setShowAllThemes] = useState(false);
   const [curating, setCurating] = useState(false);
 
   const shelfEntries = useMemo(
@@ -43,13 +51,47 @@ export function AnimeShelfPage({
     [archive.entries, shelf],
   );
 
-  const chips = useMemo(() => buildChips(shelfEntries), [shelfEntries]);
-  const visibleChips = showAllChips ? chips : chips.slice(0, CHIP_LIMIT);
+  // Süzgeç katmanları rafın kendi içeriğinden türetilir: "izleyeceklerim"de
+  // olmayan bir tür çip olarak görünmesin
+  const taxonomy = useMemo(() => buildTaxonomy(shelfEntries), [shelfEntries]);
+  const themes = showAllThemes
+    ? taxonomy.themes
+    : taxonomy.themes.slice(0, CHIP_LIMIT);
 
   const entries = useMemo(
     () => shelfEntries.filter((anime) => matchesFilter(anime, filter)),
     [shelfEntries, filter],
   );
+
+  function chipRow(
+    label: string,
+    chips: FilterChip[],
+    current: string | null,
+    onPick: (value: string | null) => void,
+    extra?: React.ReactNode,
+  ) {
+    if (chips.length === 0) {
+      return null;
+    }
+    return (
+      <div className={styles.filterRow}>
+        <span className={styles.filterLabel}>{label}</span>
+        <div className={styles.filters}>
+          {chips.map((chip) => (
+            <button
+              key={chip.value}
+              type="button"
+              className={current === chip.value ? styles.chipOn : styles.chip}
+              onClick={() => onPick(current === chip.value ? null : chip.value)}
+            >
+              {chip.value}
+            </button>
+          ))}
+          {extra}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div data-category="anime" className={styles.hall}>
@@ -83,39 +125,46 @@ export function AnimeShelfPage({
           ) : null}
         </header>
 
-        {chips.length > 0 ? (
-          <div className={styles.filters}>
-            <button
-              type="button"
-              className={filter === null ? styles.chipOn : styles.chip}
-              onClick={() => setFilter(null)}
-            >
-              {t("allGenres")}
-            </button>
-            {visibleChips.map((chip) => (
-              <button
-                key={chip.value}
-                type="button"
-                className={filter === chip.value ? styles.chipOn : styles.chip}
-                onClick={() => setFilter(filter === chip.value ? null : chip.value)}
-              >
-                {chip.value}
-              </button>
-            ))}
-            {chips.length > CHIP_LIMIT ? (
+        <div className={styles.filterBlock}>
+          {chipRow(t("filters.genre"), taxonomy.genres, filter.genre, (genre) =>
+            setFilter({ ...filter, genre }),
+          )}
+          {chipRow(
+            t("filters.audience"),
+            taxonomy.audience,
+            filter.audience,
+            (audience) => setFilter({ ...filter, audience }),
+          )}
+          {chipRow(
+            t("filters.theme"),
+            themes,
+            filter.theme,
+            (theme) => setFilter({ ...filter, theme }),
+            taxonomy.themes.length > CHIP_LIMIT ? (
               <button
                 type="button"
                 className={styles.moreChips}
-                aria-expanded={showAllChips}
-                onClick={() => setShowAllChips((current) => !current)}
+                aria-expanded={showAllThemes}
+                onClick={() => setShowAllThemes((current) => !current)}
               >
-                {showAllChips
+                {showAllThemes
                   ? t("fewerGenres")
-                  : t("moreGenres", { count: chips.length - CHIP_LIMIT })}
+                  : t("moreGenres", {
+                      count: taxonomy.themes.length - CHIP_LIMIT,
+                    })}
               </button>
-            ) : null}
-          </div>
-        ) : null}
+            ) : null,
+          )}
+          {!isFilterEmpty(filter) ? (
+            <button
+              type="button"
+              className={styles.clearFilter}
+              onClick={() => setFilter(EMPTY_FILTER)}
+            >
+              {t("filters.clear")}
+            </button>
+          ) : null}
+        </div>
 
         {entries.length === 0 ? (
           <p className={styles.empty}>{t(`shelfEmpty.${shelf}`)}</p>

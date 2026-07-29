@@ -712,7 +712,22 @@
       "skipFillers": "Mark filler as skipped",
       "filler": "Filler",
       "recap": "Recap",
-      "gridHint": "Click an episode to mark everything up to it as watched. Click a watched episode to step back one."
+      "gridHint": "Click an episode to mark everything up to it as watched. Click a watched episode to step back one.",
+      "finishPart": "Finished this season",
+      "partDone": "Season done",
+      "completeThrough": "Watched everything up to here",
+      "completeThroughHint": "This part and every part before it are marked complete.",
+      "mangaChapter": "Manga chapter"
+    },
+    "filters": {
+      "genre": "Genre",
+      "audience": "Audience",
+      "theme": "Theme",
+      "clear": "Clear filters"
+    },
+    "hero": {
+      "eyebrow": "Currently watching",
+      "resume": "Pick up where you left off →"
     }
   }
 }

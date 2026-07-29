@@ -150,15 +150,25 @@ export function AnimeCard({
 }
 
 /**
- * Sezon adı seri adını tekrar etmesin: "Jujutsu Kaisen 2nd Season" kartın
- * altında "2nd Season" olarak okunur. Tek sezonluk yapımlarda (One Piece)
- * parça adı serinin adıyla aynıdır — o zaman hiç yazılmaz, başlık zaten
- * kartın üstünde duruyor.
+ * Sezon adı seri adını tekrar etmesin: "Jujutsu Kaisen Season 2" kartın
+ * altında "Season 2" olarak okunur. Tek sezonluk yapımlarda parça adı serinin
+ * adıyla aynıdır — o zaman hiç yazılmaz, başlık zaten kartın üstünde.
+ *
+ * Kırpma yalnızca kalan parça gerçekten bir **sezon işareti** ise yapılır:
+ * canlıda "Naruto, the Genie, and the Three Wishes, Believe It!" başlığı
+ * körlemesine kırpılınca kartta ", the Genie, and the Three Wishes…" diye
+ * başlayan bir artık kalıyordu.
  */
+const SEASON_MARK =
+  /^(season\s*\d+|s\d+\b|part\s*\d+|\d+(st|nd|rd|th)\s+season|final\s+season|movie\b)/i;
+
 function partLabel(partTitle: string, seriesTitle: string): string {
   if (partTitle === seriesTitle) {
     return "";
   }
-  const trimmed = partTitle.replace(seriesTitle, "").trim();
-  return trimmed.length > 0 ? trimmed.replace(/^[:·\-–]\s*/, "") : partTitle;
+  if (!partTitle.startsWith(seriesTitle)) {
+    return partTitle;
+  }
+  const rest = partTitle.slice(seriesTitle.length).trim().replace(/^[:·\-–]\s*/, "");
+  return SEASON_MARK.test(rest) ? rest : partTitle;
 }

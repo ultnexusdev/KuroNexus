@@ -618,7 +618,7 @@
       "topTag": "En çok izlenen tür"
     },
     "allGenres": "Tümü",
-    "moreGenres": "+{count} tür",
+    "moreGenres": "+{count} daha",
     "fewerGenres": "Daha az",
     "studios": "Stüdyolar",
     "favorite": "Favori",
@@ -712,7 +712,22 @@
       "skipFillers": "Filler'ları geçildi say",
       "filler": "Filler",
       "recap": "Özet bölüm",
-      "gridHint": "Bir bölüme tıkla: oraya kadar izlendi sayılır. İzlenmiş bölüme tekrar tıklarsan bir geri alır."
+      "gridHint": "Bir bölüme tıkla: oraya kadar izlendi sayılır. İzlenmiş bölüme tekrar tıklarsan bir geri alır.",
+      "finishPart": "Bu sezonu bitirdim",
+      "partDone": "Sezon bitti",
+      "completeThrough": "Buraya kadar hepsini izledim",
+      "completeThroughHint": "Bu parça ve ondan önceki bütün parçalar tamamlanmış sayılır.",
+      "mangaChapter": "Manga bölümü"
+    },
+    "filters": {
+      "genre": "Tür",
+      "audience": "Kitle",
+      "theme": "Tema",
+      "clear": "Süzgeçleri temizle"
+    },
+    "hero": {
+      "eyebrow": "Şu an izliyorum",
+      "resume": "Kaldığın yerden devam et →"
     }
   }
 }

@@ -566,6 +566,14 @@ export function deleteAnimeEntry(id: string): Promise<unknown> {
   });
 }
 
+/** "Buraya kadar hepsini izledim": bu parça ve öncekiler tamamlanır. */
+export function completeAnimeThrough(partId: string): Promise<unknown> {
+  return apiFetch<unknown>(`/admin/anime/parts/${partId}/complete-through`, {
+    method: "PATCH",
+    headers: authHeaders(),
+  });
+}
+
 /** Künyeyi ve sezon zincirini AniList'ten tazeler; ilerleme korunur. */
 export function refreshAnimeEntry(id: string): Promise<unknown> {
   return apiFetch<unknown>(`/admin/anime/${id}/refresh`, {

@@ -263,6 +263,11 @@ export class AnimeService {
     });
 
     await this.syncParts(entry.id, franchise);
+    // "Bitirdim" diyerek eklenen seride bütün bölümler izlenmiş demektir —
+    // sonra tek tek işaretlemek anlamsız (kullanıcı geri bildirimi)
+    if ((dto.status ?? 'WATCHING') === 'COMPLETED') {
+      await this.markAllPartsWatched(entry.id);
+    }
     return this.findByIdOrFail(entry.id);
   }
 
@@ -282,6 +287,10 @@ export class AnimeService {
       data.startedAt = new Date();
     }
     await this.prisma.animeEntry.update({ where: { id }, data });
+    // Durumu "bitirdim"e çevirmek de bütün bölümleri izlenmiş sayar
+    if (dto.status === 'COMPLETED') {
+      await this.markAllPartsWatched(id);
+    }
     return this.findByIdOrFail(id);
   }
 
@@ -342,6 +351,55 @@ export class AnimeService {
       },
     });
 
+    await this.syncEntryStatus(part.entryId);
+    return this.findByIdOrFail(part.entryId);
+  }
+
+  /**
+   * "Bitirdim" işareti: bütün parçalar tamamlanmış sayılır. Hem seriyi
+   * bitirdim diyerek eklerken hem de durumu sonradan çevirirken kullanılır.
+   */
+  private async markAllPartsWatched(entryId: string): Promise<void> {
+    const parts = await this.prisma.animePart.findMany({ where: { entryId } });
+    for (const part of parts) {
+      const media = (part.externalData ?? null) as AnilistMedia | null;
+      const total = media?.episodes ?? null;
+      // Bölüm sayısı bilinmeyen (devam eden) yapımda sayaç uydurulmaz
+      if (total === null || total <= 0) {
+        continue;
+      }
+      await this.prisma.animePart.update({
+        where: { id: part.id },
+        data: { watchedEpisodes: total, isCompleted: true },
+      });
+    }
+  }
+
+  /**
+   * "Buraya kadar hepsini izledim": seçilen parça ve ondan önceki bütün
+   * parçalar tamamlanmış sayılır. Uzun franchise'larda tek hamle.
+   */
+  async completeThrough(partId: string): Promise<EntryWithParts> {
+    const part = await this.prisma.animePart.findUnique({
+      where: { id: partId },
+    });
+    if (!part) {
+      throw new NotFoundException('ANIME.PART_NOT_FOUND');
+    }
+    const earlier = await this.prisma.animePart.findMany({
+      where: { entryId: part.entryId, orderIndex: { lte: part.orderIndex } },
+    });
+    for (const item of earlier) {
+      const media = (item.externalData ?? null) as AnilistMedia | null;
+      const total = media?.episodes ?? null;
+      if (total === null || total <= 0) {
+        continue;
+      }
+      await this.prisma.animePart.update({
+        where: { id: item.id },
+        data: { watchedEpisodes: total, isCompleted: true },
+      });
+    }
     await this.syncEntryStatus(part.entryId);
     return this.findByIdOrFail(part.entryId);
   }
@@ -506,9 +564,23 @@ function toArchiveAnime(entry: EntryWithParts): ArchiveAnime {
     { watched: 0, total: 0, unknown: false },
   );
 
-  // Sırada bekleyen ilk parça: "nerede kaldım" satırı bunu gösterir
+  /**
+   * "Nerede kaldım" parçası. Sıralama önemli:
+   *  1. elde kalan (başlanmış ama bitmemiş) parça,
+   *  2. bitmemiş ilk **sezon**,
+   *  3. bitmemiş herhangi bir parça.
+   *
+   * İkinci adım canlı veriden çıktı: sırf yayın tarihi sırasına bakınca
+   * araya giren tek bölümlük bir özel ("Heroes:Rising Epilogue Plus")
+   * "nerede kaldım" satırını kaçırıyor, 5. sezon yerine onu gösteriyordu.
+   */
   const currentPart =
     parts.find((part) => !part.isCompleted && part.watchedEpisodes > 0) ??
+    parts.find(
+      (part) =>
+        !part.isCompleted &&
+        (part.format === 'TV' || part.format === 'TV_SHORT'),
+    ) ??
     parts.find((part) => !part.isCompleted) ??
     parts[parts.length - 1] ??
     null;

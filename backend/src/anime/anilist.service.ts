@@ -33,8 +33,19 @@ const CHAIN_MAX_EXTRAS = 14;
 /** Sezon sayılan formatlar — kotası ayrı, önceliği yüksek. */
 const CHAIN_MAIN_FORMATS = new Set(['TV', 'TV_SHORT']);
 
-/** Sezon zincirine giren ilişki türleri — spin-off/alternatif sürüm alınmaz. */
-const CHAIN_RELATIONS = new Set(['SEQUEL', 'PREQUEL', 'PARENT', 'SIDE_STORY']);
+/**
+ * Sezon zincirine giren ilişki türleri. Spin-off'lar kullanıcı kararıyla
+ * dahil (MHA: Vigilantes gibi yan seriler aynı kartta görünsün); alternatif
+ * sürüm/özet (ALTERNATIVE, SUMMARY) hâlâ dışarıda — aynı hikâyenin ikinci
+ * çekimi çizelgeyi kirletir.
+ */
+const CHAIN_RELATIONS = new Set([
+  'SEQUEL',
+  'PREQUEL',
+  'PARENT',
+  'SIDE_STORY',
+  'SPIN_OFF',
+]);
 /** Zincire giren formatlar; müzik klibi/reklam alınmaz. */
 const CHAIN_FORMATS = new Set([
   'TV',

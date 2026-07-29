@@ -1,4 +1,8 @@
-import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -109,7 +113,8 @@ export class TmdbService {
       title: item.title ?? item.original_title ?? '',
       releaseDate: item.release_date || null,
       posterPath: item.poster_path ?? null,
-      voteAverage: typeof item.vote_average === 'number' ? item.vote_average : null,
+      voteAverage:
+        typeof item.vote_average === 'number' ? item.vote_average : null,
       overview: item.overview || null,
     }));
   }
@@ -175,6 +180,45 @@ export class TmdbService {
       '/movie/popular',
       { page: String(page) },
       LIST_CACHE_TTL_MS,
+    );
+  }
+
+  /**
+   * Tür (ve istenirse dönem) taraması — öneri havuzunun "keşif" ayağı.
+   *
+   * Trend/popüler listeleri hep aynı bir avuç yeni gişe filmini döndürür;
+   * geniş bir arşiv için işe yaramaz. Burada tür + dönem + sayfa birlikte
+   * seçildiğinden havuz komediden korkuya, 80'lerden bugüne yayılabiliyor.
+   * `vote_count` eşiği niş/çöp kayıtları eler, sıralama da ona göre.
+   */
+  discover(options: {
+    genreId: number;
+    page?: number;
+    from?: string;
+    to?: string;
+    minVotes?: number;
+  }): Promise<TmdbSearchResult[]> {
+    const { genreId, page = 1, from, to, minVotes = 200 } = options;
+    const params: Record<string, string> = {
+      with_genres: String(genreId),
+      sort_by: 'vote_count.desc',
+      'vote_count.gte': String(minVotes),
+      include_adult: 'false',
+      page: String(page),
+    };
+    if (from) {
+      params['primary_release_date.gte'] = from;
+    }
+    if (to) {
+      params['primary_release_date.lte'] = to;
+    }
+    const era = from || to ? `${from ?? ''}_${to ?? ''}` : 'all';
+    return this.cachedList(
+      `tmdb:discover:${genreId}:${era}:${page}:${minVotes}:${this.language}`,
+      '/discover/movie',
+      params,
+      // Tür listeleri gündemden çok daha yavaş değişir — künye TTL'i yeterli
+      CACHE_TTL_MS,
     );
   }
 
@@ -282,7 +326,8 @@ function isBearerToken(key: string): boolean {
 
 function normalize(raw: TmdbMovieResponse): TmdbMovie {
   const director =
-    raw.credits?.crew?.find((member) => member.job === 'Director')?.name ?? null;
+    raw.credits?.crew?.find((member) => member.job === 'Director')?.name ??
+    null;
   return {
     tmdbId: raw.id,
     title: raw.title ?? raw.original_title ?? '',

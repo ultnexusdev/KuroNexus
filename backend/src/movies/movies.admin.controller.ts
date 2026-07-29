@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   Query,
@@ -14,6 +15,7 @@ import type { AuthenticatedUser } from '../common/types/authenticated-user';
 import { MoviesService } from './movies.service';
 import { CreateMovieEntryDto } from './dto/create-movie-entry.dto';
 import { UpdateMovieEntryDto } from './dto/update-movie-entry.dto';
+import { DismissSuggestionDto } from './dto/dismiss-suggestion.dto';
 
 @Roles('ADMIN')
 @Controller('admin/movies')
@@ -32,8 +34,25 @@ export class MoviesAdminController {
   }
 
   @Get('suggestions')
-  suggestions() {
-    return this.moviesService.suggestions();
+  suggestions(@CurrentUser() user: AuthenticatedUser) {
+    return this.moviesService.suggestions(user.id);
+  }
+
+  // "İlgilenmiyorum" kalıcıdır: elenen film öneri havuzuna bir daha girmez
+  @Post('suggestions/dismiss')
+  dismissSuggestion(
+    @Body() dto: DismissSuggestionDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.moviesService.dismissSuggestion(dto.tmdbId, user.id);
+  }
+
+  @Delete('suggestions/dismiss/:tmdbId')
+  restoreSuggestion(
+    @Param('tmdbId', ParseIntPipe) tmdbId: number,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.moviesService.restoreSuggestion(tmdbId, user.id);
   }
 
   @Post()

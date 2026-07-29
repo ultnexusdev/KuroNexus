@@ -9,7 +9,9 @@ import { tmdbImage } from "@/lib/api/movies";
 import {
   createMovieEntry,
   deleteMovieEntry,
+  dismissMovieSuggestion,
   fetchMovieSuggestions,
+  restoreMovieSuggestion,
   searchTmdbMovies,
   updateMovieEntry,
 } from "@/lib/admin/api";
@@ -268,7 +270,9 @@ export function CuratorBar() {
  * film işaretleyebilmek için böyle (kullanıcı geri bildirimi). Sayfanın geri
  * kalanı da o sırada tazelenmez — arşiv tazelemesi Yenile'ye ertelenir.
  *
- * Havuz (~40 film) bir kez çekilir, onluk seçim istemcide yapılır: her
+ * **Eleme kalıcıdır**: sunucuya yazılır, elenen film havuza bir daha girmez
+ * (yanlışlıkla elendiyse aynı düğme geri alır). Havuz (~60 film, tür ve dönem
+ * taramasıyla geniş) bir kez çekilir, onluk seçim istemcide yapılır: her
  * yenilemede TMDB'ye gidilmez. Arşivde olan filmler havuza zaten girmiyor.
  */
 export function SuggestionShelf() {
@@ -320,9 +324,47 @@ export function SuggestionShelf() {
     };
   }, [draw, t]);
 
-  /** Elenen film: kart yerinde kalır, sönükleşir; liste kaymaz. */
-  function dismiss(tmdbId: number) {
-    setDismissed((current) => new Set(current).add(tmdbId));
+  /**
+   * Eleme/geri alma. Kart yerinde kalır, sönükleşir; liste kaymaz.
+   *
+   * Eleme **sunucuya yazılır**: film öneri havuzundan kalıcı olarak düşer,
+   * sayfa yenilense de bir daha gelmez. Yanlışlıkla elendiyse aynı düğme
+   * geri alır. Arşiv etkilenmez — istenirse arama ile eklenebilir.
+   */
+  async function toggleDismiss(tmdbId: number) {
+    const isDismissed = dismissed.has(tmdbId);
+    setBusyId(tmdbId);
+    setError(null);
+    // İyimser güncelleme: kart hemen tepki versin, hata olursa geri alınır
+    setDismissed((current) => {
+      const next = new Set(current);
+      if (isDismissed) {
+        next.delete(tmdbId);
+      } else {
+        next.add(tmdbId);
+      }
+      return next;
+    });
+    try {
+      if (isDismissed) {
+        await restoreMovieSuggestion(tmdbId);
+      } else {
+        await dismissMovieSuggestion(tmdbId);
+      }
+    } catch {
+      setDismissed((current) => {
+        const next = new Set(current);
+        if (isDismissed) {
+          next.add(tmdbId);
+        } else {
+          next.delete(tmdbId);
+        }
+        return next;
+      });
+      setError(t("error"));
+    } finally {
+      setBusyId(null);
+    }
   }
 
   /**
@@ -405,15 +447,18 @@ export function SuggestionShelf() {
                       unoptimized
                     />
                   ) : null}
-                  {!done ? (
+                  {/* Eklenmis filmde eleme anlamsiz; elenmiste ayni dugme geri alir */}
+                  {!isAdded ? (
                     <button
                       type="button"
                       className={styles.dismiss}
-                      title={t("dismiss")}
-                      aria-label={t("dismiss")}
-                      onClick={() => dismiss(item.tmdbId)}
+                      title={isDismissed ? t("undo") : t("dismiss")}
+                      aria-label={isDismissed ? t("undo") : t("dismiss")}
+                      aria-pressed={isDismissed}
+                      disabled={busy}
+                      onClick={() => void toggleDismiss(item.tmdbId)}
                     >
-                      ✕
+                      {isDismissed ? "↩" : "✕"}
                     </button>
                   ) : null}
                 </div>

@@ -348,13 +348,42 @@ export function searchTmdbMovies(query: string): Promise<TmdbSearchResult[]> {
 }
 
 /**
- * Küratör modundaki öneri havuzu (~40 film). Onluk seçim ve "ilgilenmiyorum"
- * istemcide tutulur — "Yenile" her basışta TMDB'ye gitmesin diye.
+ * Küratör modundaki öneri havuzu (~60 film; tür ve dönem taramasıyla geniş).
+ * Onluk seçim istemcide yapılır — "Yenile" her basışta TMDB'ye gitmesin diye.
  */
 export function fetchMovieSuggestions(): Promise<TmdbSearchResult[]> {
   return apiFetch<TmdbSearchResult[]>("/admin/movies/suggestions", {
     headers: authHeaders(),
   });
+}
+
+/**
+ * "İlgilenmiyorum" — film öneri havuzundan kalıcı olarak düşer (sayfa
+ * yenilense de geri gelmez). Arşive dokunmaz: aranıp elle eklenebilir.
+ */
+export function dismissMovieSuggestion(
+  tmdbId: number,
+): Promise<SuggestionDismissal> {
+  return apiFetch<SuggestionDismissal>("/admin/movies/suggestions/dismiss", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify({ tmdbId }),
+  });
+}
+
+/** Yanlışlıkla elenen filmi havuza geri alır. */
+export function restoreMovieSuggestion(
+  tmdbId: number,
+): Promise<SuggestionDismissal> {
+  return apiFetch<SuggestionDismissal>(
+    `/admin/movies/suggestions/dismiss/${tmdbId}`,
+    { method: "DELETE", headers: authHeaders() },
+  );
+}
+
+export interface SuggestionDismissal {
+  tmdbId: number;
+  dismissed: boolean;
 }
 
 export function fetchAdminMovies(): Promise<MovieEntryRecord[]> {

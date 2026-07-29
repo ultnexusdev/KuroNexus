@@ -32,6 +32,7 @@ model User {
   comments          Comment[]
   favorites         Favorite[]
   movieEntries      MovieEntry[]
+  movieDismissals   MovieSuggestionDismissal[]
 }
 
 model Story {
@@ -293,6 +294,20 @@ model MovieEntry {
   @@unique([userId, tmdbId])
   @@index([userId, status, isDeleted])
   @@index([userId, isFavorite, isDeleted])
+}
+
+/// Öneri rafında "ilgilenmiyorum" denen filmler. Arşive girmedikleri için
+/// MovieEntry'de yerleri yok; ayrı tutulmalarının sebebi bu. Yalnızca öneri
+/// havuzunu süzer — elenen film arama ile her zaman eklenebilir.
+model MovieSuggestionDismissal {
+  id        String   @id @default(cuid())
+  tmdbId    Int
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@unique([userId, tmdbId])
 }
 
 model Review {

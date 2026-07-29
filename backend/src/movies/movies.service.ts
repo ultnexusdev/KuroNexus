@@ -14,8 +14,50 @@ import { UpdateMovieEntryDto } from './dto/update-movie-entry.dto';
 import type { MovieEntry, Prisma } from '../generated/prisma/client';
 
 // Öneri havuzu: kaç kaynak filmden benzer istenir, havuz kaç film taşır
-const SUGGESTION_SEEDS = 3;
-const SUGGESTION_POOL = 40;
+const SUGGESTION_SEEDS = 4;
+const SUGGESTION_POOL = 60;
+
+// Keşif ayağı: her istekte bu türlerden kaçı taranır ve hangi sayfaya kadar
+const DISCOVERY_QUERIES = 6;
+const DISCOVERY_MAX_PAGE = 5;
+
+/**
+ * Keşif taramasının tür listesi (TMDB tür numaraları). Amaç arşivin
+ * kendi türlerini tekrarlamak değil, listeyi bilinçli olarak genişletmek:
+ * her istekte buradan rastgele birkaçı seçilir.
+ */
+const DISCOVERY_GENRES = [
+  28, // Aksiyon
+  12, // Macera
+  16, // Animasyon
+  35, // Komedi
+  80, // Suç
+  99, // Belgesel
+  18, // Dram
+  14, // Fantastik
+  36, // Tarih
+  27, // Korku
+  9648, // Gizem
+  10749, // Romantik
+  878, // Bilim Kurgu
+  53, // Gerilim
+  10752, // Savaş
+  37, // Western
+];
+
+/**
+ * Dönem kovaları. `null` = tüm zamanlar; kalanlar havuza eski filmleri de
+ * sokar — yalnız son yılların gişesi önerilmesin diye.
+ */
+const DISCOVERY_ERAS: Array<{ from?: string; to?: string } | null> = [
+  null,
+  { to: '1979-12-31' },
+  { from: '1980-01-01', to: '1989-12-31' },
+  { from: '1990-01-01', to: '1999-12-31' },
+  { from: '2000-01-01', to: '2009-12-31' },
+  { from: '2010-01-01', to: '2019-12-31' },
+  { from: '2020-01-01' },
+];
 
 // Salon girişinin iki yanındaki afişler — başlık burada, yol TMDB'den gelir
 const SHOWCASE_LEFT = { query: 'The Matrix', year: '1999' };
@@ -93,29 +135,45 @@ export class MoviesService {
   /**
    * Küratör modundaki "Öneriler" havuzu.
    *
-   * Yarısı gündem (trend + popüler), yarısı zevk (favorilerine benzeyenler);
-   * ikisi dönüşümlü diziliyor, böylece liste ne tamamen gişe ne tamamen
-   * kendi kuyruğunu kovalayan bir şey oluyor. **Arşivde bir kez yer almış
-   * her tmdbId elenir** — silinmişler dahil: arşivden çıkardığın bir filmi
-   * öneri olarak geri getirmek istemezsin.
+   * Üç ayaktan beslenir ve üçü dönüşümlü diziler:
+   *  - **keşif**: rastgele tür + dönem taraması (havuzun ağırlığı burada —
+   *    komedi/korku/macera, 80'ler ya da 2010'lar hep birlikte gelsin diye),
+   *  - **zevk**: favorilere benzeyenler,
+   *  - **gündem**: trend + popüler.
    *
-   * Havuz olduğu gibi döner (~40); onluk seçim ve "ilgilenmiyorum" istemcide
-   * tutulur, böylece "Yenile" her seferinde TMDB'ye gitmez.
+   * **Arşivde bir kez yer almış her tmdbId elenir** (silinmişler dahil:
+   * arşivden çıkardığın filmi öneri olarak geri getirmek istemezsin) ve
+   * **"ilgilenmiyorum" denenler kalıcı olarak elenir** — o kayıt veritabanında
+   * durur, öneri bir daha hiç gelmez; istenirse arama ile eklenebilir.
+   *
+   * Havuz olduğu gibi döner (~60); onluk seçim istemcide yapılır, böylece
+   * "Yenile" her seferinde TMDB'ye gitmez.
    */
-  async suggestions(): Promise<TmdbSearchResult[]> {
-    const entries = await this.prisma.movieEntry.findMany({
-      select: { tmdbId: true, isFavorite: true, isDeleted: true },
-      orderBy: { createdAt: 'desc' },
-    });
-    const known = new Set(entries.map((entry) => entry.tmdbId));
+  async suggestions(userId: string): Promise<TmdbSearchResult[]> {
+    const [entries, dismissals] = await Promise.all([
+      this.prisma.movieEntry.findMany({
+        select: { tmdbId: true, isFavorite: true, isDeleted: true },
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.movieSuggestionDismissal.findMany({
+        where: { userId },
+        select: { tmdbId: true },
+      }),
+    ]);
+    const known = new Set([
+      ...entries.map((entry) => entry.tmdbId),
+      ...dismissals.map((dismissal) => dismissal.tmdbId),
+    ]);
 
-    // Zevk kaynağı: önce favoriler, yoksa arşivdeki en yeni kayıtlar
+    // Zevk kaynağı: önce favoriler, yoksa arşivdeki kayıtlar. Karıştırılıyor —
+    // hep aynı üç favoriden beslenmesin, her istekte başka filmlere baksın.
     const favorites = entries.filter(
       (entry) => entry.isFavorite && !entry.isDeleted,
     );
-    const seeds = (favorites.length > 0
-      ? favorites
-      : entries.filter((entry) => !entry.isDeleted)
+    const seeds = shuffle(
+      favorites.length > 0
+        ? favorites
+        : entries.filter((entry) => !entry.isDeleted),
     ).slice(0, SUGGESTION_SEEDS);
 
     const safe = async (
@@ -129,30 +187,95 @@ export class MoviesService {
       }
     };
 
-    const [trending, popular1, popular2, ...tasteLists] = await Promise.all([
+    // Her istekte başka tür/dönem/sayfa üçlüsü: liste tur tur genişler
+    const picks = shuffle(DISCOVERY_GENRES).slice(0, DISCOVERY_QUERIES);
+    const discoveries = picks.map((genreId) => {
+      const era =
+        DISCOVERY_ERAS[Math.floor(Math.random() * DISCOVERY_ERAS.length)];
+      return safe(
+        this.tmdb.discover({
+          genreId,
+          page: 1 + Math.floor(Math.random() * DISCOVERY_MAX_PAGE),
+          from: era?.from,
+          to: era?.to,
+        }),
+      );
+    });
+
+    const [trending, popular1, ...rest] = await Promise.all([
       safe(this.tmdb.trending()),
       safe(this.tmdb.popular(1)),
-      safe(this.tmdb.popular(2)),
+      ...discoveries,
       ...seeds.map((seed) => safe(this.tmdb.recommendations(seed.tmdbId))),
     ]);
+    const discovered = rest.slice(0, discoveries.length);
+    const tasteLists = rest.slice(discoveries.length);
 
-    const buzz = shuffle(dedupe([...trending, ...popular1, ...popular2], known));
+    const explore = shuffle(dedupe(discovered.flat(), known));
     const taste = shuffle(dedupe(tasteLists.flat(), known));
+    const buzz = shuffle(dedupe([...trending, ...popular1], known));
 
-    // Dönüşümlü dizim: bir gündem, bir zevk
+    // Dönüşümlü dizim: iki keşif, bir zevk, bir gündem. Keşif ağır basıyor —
+    // havuz gündemin dar penceresine sıkışmasın.
+    const streams: TmdbSearchResult[][] = [explore, taste, explore, buzz];
+    const cursors = [0, 0, 0, 0];
     const mixed: TmdbSearchResult[] = [];
-    for (let i = 0; i < Math.max(buzz.length, taste.length); i += 1) {
-      if (i < buzz.length) {
-        mixed.push(buzz[i]);
+    const taken = new Set<number>();
+    while (mixed.length < SUGGESTION_POOL) {
+      let progressed = false;
+      for (let s = 0; s < streams.length; s += 1) {
+        const stream = streams[s];
+        // explore iki kez listede: aynı elemanı iki kez almamak için işaretli
+        while (
+          cursors[s] < stream.length &&
+          taken.has(stream[cursors[s]].tmdbId)
+        ) {
+          cursors[s] += 1;
+        }
+        if (cursors[s] >= stream.length) {
+          continue;
+        }
+        const item = stream[cursors[s]];
+        cursors[s] += 1;
+        taken.add(item.tmdbId);
+        mixed.push(item);
+        progressed = true;
+        if (mixed.length >= SUGGESTION_POOL) {
+          break;
+        }
       }
-      if (i < taste.length) {
-        mixed.push(taste[i]);
-      }
-      if (mixed.length >= SUGGESTION_POOL) {
+      if (!progressed) {
         break;
       }
     }
-    return mixed.slice(0, SUGGESTION_POOL);
+    return mixed;
+  }
+
+  /**
+   * "İlgilenmiyorum": film öneri havuzundan kalıcı olarak düşer. Arşive
+   * dokunmaz — aynı film arama ile her zaman eklenebilir.
+   */
+  async dismissSuggestion(
+    tmdbId: number,
+    userId: string,
+  ): Promise<{ tmdbId: number; dismissed: boolean }> {
+    await this.prisma.movieSuggestionDismissal.upsert({
+      where: { userId_tmdbId: { userId, tmdbId } },
+      create: { tmdbId, userId },
+      update: {},
+    });
+    return { tmdbId, dismissed: true };
+  }
+
+  /** Yanlışlıkla elenen filmi havuza geri alır. */
+  async restoreSuggestion(
+    tmdbId: number,
+    userId: string,
+  ): Promise<{ tmdbId: number; dismissed: boolean }> {
+    await this.prisma.movieSuggestionDismissal.deleteMany({
+      where: { userId, tmdbId },
+    });
+    return { tmdbId, dismissed: false };
   }
 
   /**
@@ -398,13 +521,17 @@ function buildStats(
   const rated = entries.filter(
     (entry) => typeof entry.personalRating === 'number',
   );
-  const sum = rated.reduce((acc, entry) => acc + (entry.personalRating ?? 0), 0);
+  const sum = rated.reduce(
+    (acc, entry) => acc + (entry.personalRating ?? 0),
+    0,
+  );
   return {
     total: movies.filter((movie) => movie.status !== 'WATCHLIST').length,
     watchedThisYear: entries.filter(
       (entry) => entry.watchedAt?.getFullYear() === currentYear,
     ).length,
-    averageRating: rated.length > 0 ? Number((sum / rated.length).toFixed(1)) : null,
+    averageRating:
+      rated.length > 0 ? Number((sum / rated.length).toFixed(1)) : null,
     watchlist: entries.filter((entry) => entry.status === 'WATCHLIST').length,
   };
 }

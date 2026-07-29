@@ -131,7 +131,9 @@ const MEDIA_FIELDS = `
   relations {
     edges {
       relationType
-      node { id type format }
+      # Manga künyesi de buradan okunuyor: yalnızca id/format istenirse
+      # "Uyarlandığı manga" satırı başlıksız kalıyor (canlıda görüldü)
+      node { id type format title { romaji english } chapters volumes status }
     }
   }
 `;
@@ -210,7 +212,7 @@ export class AnilistService {
    * gün sonra" bilgisi bir hafta bekletilirse yanlış olur.
    */
   async getMedia(anilistId: number): Promise<AnilistMedia> {
-    const cacheKey = `anilist:media:${anilistId}`;
+    const cacheKey = `anilist:media:v2:${anilistId}`;
     const cached = await this.prisma.externalCache.findUnique({
       where: { cacheKey },
     });
@@ -245,7 +247,7 @@ export class AnilistService {
   async getMediaWithRelations(
     anilistId: number,
   ): Promise<{ media: AnilistMedia; relations: AnilistRelation[] }> {
-    const cacheKey = `anilist:media:${anilistId}`;
+    const cacheKey = `anilist:media:v2:${anilistId}`;
     const cached = await this.prisma.externalCache.findUnique({
       where: { cacheKey },
     });

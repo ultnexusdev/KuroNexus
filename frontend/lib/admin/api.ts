@@ -2,6 +2,8 @@ import { apiFetch, apiFetchUrl, ApiError } from "../api/client";
 import type {
   AdminWikiEntrySummary,
   AmbientTrack,
+  AnilistSearchResult,
+  AnimeWatchStatus,
   AuthenticatedUser,
   LoginResult,
   MovieEntryRecord,
@@ -492,4 +494,77 @@ export async function uploadImage(file: File): Promise<UploadResult> {
     throw new ApiError(response.status, messageKey);
   }
   return response.json() as Promise<UploadResult>;
+}
+
+// ---- Salon 04 · Anime arşivi ----
+
+export interface AnimeEntryInput {
+  anilistId: number;
+  status?: AnimeWatchStatus;
+  isFavorite?: boolean;
+  personalRating?: number;
+  personalNote?: string;
+}
+
+/** Sezon ilerlemesi: `delta` günlük kullanım, `watchedEpisodes` doğrudan atama. */
+export interface AnimePartInput {
+  delta?: number;
+  watchedEpisodes?: number;
+  isCompleted?: boolean;
+  personalRating?: number;
+  mangaChapter?: number;
+}
+
+export function searchAnilist(query: string): Promise<AnilistSearchResult[]> {
+  return apiFetch<AnilistSearchResult[]>(
+    `/admin/anime/search?q=${encodeURIComponent(query)}`,
+    { headers: authHeaders() },
+  );
+}
+
+/** Seriyi arşive alır; sezon zinciri backend'de kurulur. */
+export function createAnimeEntry(input: AnimeEntryInput): Promise<unknown> {
+  return apiFetch<unknown>("/admin/anime", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(input),
+  });
+}
+
+export function updateAnimeEntry(
+  id: string,
+  input: Omit<Partial<AnimeEntryInput>, "anilistId">,
+): Promise<unknown> {
+  return apiFetch<unknown>(`/admin/anime/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(input),
+  });
+}
+
+/** "+1 bölüm" ve ızgaradan işaretleme aynı ucu kullanır. */
+export function updateAnimePart(
+  partId: string,
+  input: AnimePartInput,
+): Promise<unknown> {
+  return apiFetch<unknown>(`/admin/anime/parts/${partId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(input),
+  });
+}
+
+export function deleteAnimeEntry(id: string): Promise<unknown> {
+  return apiFetch<unknown>(`/admin/anime/${id}`, {
+    method: "DELETE",
+    headers: authHeaders(),
+  });
+}
+
+/** Künyeyi ve sezon zincirini AniList'ten tazeler; ilerleme korunur. */
+export function refreshAnimeEntry(id: string): Promise<unknown> {
+  return apiFetch<unknown>(`/admin/anime/${id}/refresh`, {
+    method: "PATCH",
+    headers: authHeaders(),
+  });
 }

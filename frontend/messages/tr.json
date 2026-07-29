@@ -593,5 +593,98 @@
   },
   "meta": {
     "description": "Kişisel karanlık evren portalı: dark stories, fandom wikileri, anime/film arşivi ve karakter analizleri."
+  },
+  "anime": {
+    "hall": "Salon {num} · {name}",
+    "hallName": "Anime",
+    "backToHall": "← Arşive dön",
+    "lobbyLede": "Sezon sezon, bölüm bölüm. Ne izliyorum, nerede kaldım, hangisinin devamı gelecek.",
+    "lobbySectionsAria": "Salon bölümleri",
+    "lobbyArchiveMeter": "{count} seri · {watching} izleniyor",
+    "lobbyArchiveEmpty": "Henüz seri yok",
+    "sections": {
+      "archive": {
+        "title": "Anime Arşivim",
+        "desc": "İzlediğim, izleyeceğim ve devamını beklediğim seriler — sezonlarıyla birlikte."
+      }
+    },
+    "archiveTitle": "Anime Arşivim",
+    "archiveLede": "Her kart bir seri; sezonlar, filmler ve OVA'lar serinin içinde durur. İlerleme sezonun kendisinde tutulur.",
+    "empty": "Arşiv henüz boş. Küratör modunu açıp ilk seriyi ekleyebilirsin.",
+    "stats": {
+      "series": "Toplam seri",
+      "episodes": "İzlenen bölüm",
+      "completed": "Bitirdiklerim",
+      "topTag": "En çok izlenen tür"
+    },
+    "allGenres": "Tümü",
+    "moreGenres": "+{count} tür",
+    "fewerGenres": "Daha az",
+    "studios": "Stüdyolar",
+    "favorite": "Favori",
+    "shelfCount": "{count} seri",
+    "episodeOf": "{watched}/{total} bölüm",
+    "episodeCount": "{watched} bölüm",
+    "nextInDays": "{episode}. bölüme {count} gün",
+    "airing": {
+      "RELEASING": "Yayında",
+      "UPCOMING": "Bekleniyor",
+      "FINISHED": "Tamamlandı",
+      "HIATUS": "Ara verildi",
+      "CANCELLED": "İptal"
+    },
+    "shelf": {
+      "watching": "İzliyorum",
+      "upcoming": "Devamı Gelecek",
+      "completed": "Bitirdiklerim",
+      "planned": "İzleyeceklerim",
+      "paused": "Ara Verdiklerim",
+      "favorites": "Favorilerim"
+    },
+    "shelfEmpty": {
+      "watching": "Şu an izlediğin bir seri yok.",
+      "upcoming": "Devamı duyurulmuş bir seri yok.",
+      "completed": "Henüz bitirdiğin seri yok.",
+      "planned": "Sırada bekleyen seri yok.",
+      "paused": "Ara verdiğin seri yok.",
+      "favorites": "Henüz favori işaretlemedin."
+    },
+    "curator": {
+      "on": "Küratör modu açık",
+      "off": "Küratör modu",
+      "hint": "Seri ekle, bölüm işaretle, durumu değiştir.",
+      "addTitle": "Seri ekle",
+      "addLede": "Seriyi ekle, sezonları ve filmleri AniList zincirinden kendiliğinden insin.",
+      "searchPlaceholder": "Anime adı…",
+      "searchLabel": "Anime ara",
+      "search": "Ara",
+      "searching": "Aranıyor…",
+      "searchError": "Arama yapılamadı. Tekrar deneyin.",
+      "noResults": "Sonuç yok.",
+      "episodes": "{count} bölüm",
+      "changePick": "başkasını seç",
+      "status": "Durum",
+      "rating": "Puanım",
+      "favorite": "Favori",
+      "note": "Not",
+      "add": "Arşive ekle",
+      "adding": "Ekleniyor…",
+      "duplicate": "Bu seri zaten arşivde.",
+      "error": "İşlem yapılamadı. Tekrar deneyin.",
+      "plusOne": "+1 bölüm",
+      "plusOneTitle": "{part} — bir bölüm ilerle",
+      "partDone": "Sezon bitti",
+      "refresh": "Künyeyi tazele",
+      "remove": "Arşivden çıkar",
+      "removeConfirm": "{title} arşivden çıkarılsın mı?",
+      "statusName": {
+        "WATCHING": "İzliyorum",
+        "COMPLETED": "Bitirdim",
+        "PLANNED": "İzleyeceğim",
+        "ON_HOLD": "Ara verdim",
+        "DROPPED": "Bıraktım",
+        "REWATCHING": "Yeniden izliyorum"
+      }
+    }
   }
 }

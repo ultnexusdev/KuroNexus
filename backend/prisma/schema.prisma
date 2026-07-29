@@ -33,6 +33,7 @@ model User {
   favorites         Favorite[]
   movieEntries      MovieEntry[]
   movieDismissals   MovieSuggestionDismissal[]
+  animeEntries      AnimeEntry[]
 }
 
 model Story {
@@ -294,6 +295,83 @@ model MovieEntry {
   @@unique([userId, tmdbId])
   @@index([userId, status, isDeleted])
   @@index([userId, isFavorite, isDeleted])
+}
+
+/// Anime arşivinde **benim** durumum. Yapımın kendi yayın durumu (devam
+/// ediyor / tamamlandı / yakında) buradan okunmaz — o AniList'ten gelir ve
+/// türetilir. İki eksen bilinçli olarak ayrı: "bitirdim ama yeni sezon yolda"
+/// ancak böyle anlatılabiliyor.
+enum AnimeWatchStatus {
+  WATCHING
+  COMPLETED
+  PLANNED
+  ON_HOLD
+  DROPPED
+  REWATCHING
+}
+
+/// Anime arşivinde bir **seri** (franchise). Sezonlar, filmler ve OVA'lar
+/// altındaki `AnimePart` kayıtlarıdır — rafta tek kart görünsün diye.
+model AnimeEntry {
+  id                    String           @id @default(cuid())
+  /// Serinin kök yapımı (genelde 1. sezon) — AniList Media id'si
+  anilistId             Int
+  malId                 Int?
+  status                AnimeWatchStatus @default(WATCHING)
+  isFavorite            Boolean          @default(false)
+  personalRating        Float?
+  personalNote          String?          @db.Text
+  startedAt             DateTime?
+  finishedAt            DateTime?
+  /// Kök yapımın AniList künyesi (başlık, kapak, banner, tür, etiket, manga bağı)
+  externalData          Json?
+  externalDataFetchedAt DateTime?
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+  isDeleted             Boolean          @default(false)
+
+  userId String
+  user   User        @relation(fields: [userId], references: [id])
+  parts  AnimePart[]
+
+  // Aynı seri arşive iki kez girmez
+  @@unique([userId, anilistId])
+  @@index([userId, status, isDeleted])
+  @@index([userId, isFavorite, isDeleted])
+}
+
+/// Serinin bir parçası: sezon, film, OVA ya da özel bölüm. İlerleme **burada**
+/// tutulur (serinin ilerlemesi bunlardan türetilir) — iki ayrı sayı tutulursa
+/// birbirini tutmaz.
+model AnimePart {
+  id              String  @id @default(cuid())
+  anilistId       Int
+  malId           Int?
+  /// İzleme sırası: yayın tarihine göre kurulur, elle düzeltilebilir
+  orderIndex      Int     @default(0)
+  watchedEpisodes Int     @default(0)
+  isCompleted     Boolean @default(false)
+  personalRating  Float?
+
+  /// Faz B — bölüm bölüm işaretleme: { "12": "WATCHED" | "SKIPPED" }.
+  /// Sayaç günlük kullanım için yeterli; bu alan sırayı bozup atlanan
+  /// bölümleri anlatabilmek için var.
+  episodeMarks Json?
+
+  /// Faz B — manga bağı: bu parçanın bittiği manga bölümü. Hiçbir API bu
+  /// eşlemeyi vermiyor, elle girilir ("S2 sonu = manga 137").
+  mangaChapter Int?
+
+  externalData          Json?
+  externalDataFetchedAt DateTime?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  entryId String
+  entry   AnimeEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+
+  @@unique([entryId, anilistId])
+  @@index([entryId, orderIndex])
 }
 
 /// Öneri rafında "ilgilenmiyorum" denen filmler. Arşive girmedikleri için

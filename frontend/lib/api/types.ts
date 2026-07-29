@@ -360,3 +360,101 @@ export interface AmbientTrack {
   updatedAt: string;
   universe?: { name: string; slug: string };
 }
+
+// ---- Salon 04 · Anime arşivi ----
+
+/** Benim durumum. Yapımın kendi yayın durumu ayrı eksen (`AiringState`). */
+export type AnimeWatchStatus =
+  | "WATCHING"
+  | "COMPLETED"
+  | "PLANNED"
+  | "ON_HOLD"
+  | "DROPPED"
+  | "REWATCHING";
+
+/** Yapımın durumu — AniList'ten türetilir, ben işaretlemem. */
+export type AiringState =
+  | "RELEASING"
+  | "UPCOMING"
+  | "FINISHED"
+  | "HIATUS"
+  | "CANCELLED";
+
+/** Serinin bir parçası: sezon, film, OVA. İlerleme burada tutulur. */
+export interface ArchiveAnimePart {
+  id: string;
+  anilistId: number;
+  malId: number | null;
+  title: string;
+  format: string | null;
+  airingStatus: string | null;
+  episodes: number | null;
+  watchedEpisodes: number;
+  isCompleted: boolean;
+  personalRating: number | null;
+  seasonYear: number | null;
+  coverImage: string | null;
+  orderIndex: number;
+  nextEpisode: number | null;
+  nextAiringAt: number | null;
+  mangaChapter: number | null;
+}
+
+export interface ArchiveAnime {
+  id: string;
+  anilistId: number;
+  malId: number | null;
+  status: AnimeWatchStatus;
+  isFavorite: boolean;
+  personalRating: number | null;
+  personalNote: string | null;
+  title: string;
+  titleNative: string | null;
+  description: string | null;
+  coverImage: string | null;
+  bannerImage: string | null;
+  genres: string[];
+  tags: string[];
+  studios: string[];
+  averageScore: number | null;
+  startYear: number | null;
+  airingState: AiringState;
+  totalEpisodes: number | null;
+  watchedEpisodes: number;
+  currentPart: ArchiveAnimePart | null;
+  nextEpisode: number | null;
+  nextAiringAt: number | null;
+  parts: ArchiveAnimePart[];
+  manga: {
+    anilistId: number;
+    title: string;
+    chapters: number | null;
+    volumes: number | null;
+    status: string | null;
+  } | null;
+}
+
+export interface AnimeArchive {
+  entries: ArchiveAnime[];
+  stats: {
+    series: number;
+    watching: number;
+    completedSeries: number;
+    watchedEpisodes: number;
+    topTag: string | null;
+  };
+  studios: Array<{ name: string; count: number }>;
+  genres: string[];
+  tags: string[];
+}
+
+export interface AnilistSearchResult {
+  anilistId: number;
+  title: string;
+  format: string | null;
+  status: string | null;
+  episodes: number | null;
+  seasonYear: number | null;
+  coverImage: string | null;
+  averageScore: number | null;
+}

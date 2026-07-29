@@ -1,0 +1,675 @@
+/* Salon 04 · Anime — "Anime Arsivim".
+   Renkler yalnizca token'lardan; palet globals.css'teki
+   [data-category="anime"] blogunda tanimli (AGENTS.md kural 16).
+
+   Duzen film salonuyla ayni iskelet: .hall tam genislikte sarmalayici,
+   .page ortalanmis icerik sutunu, sutun icinde ust uste raflar.
+   Fark: kart yatay degil dikey bilgi tasir (ilerleme + rozet + sonraki). */
+
+.hall {
+  --anime-content-w: 1180px;
+
+  position: relative;
+  min-height: 100vh;
+  padding: var(--pad-lg) var(--pad-md) 120px;
+  background: var(--bg);
+  background-image: radial-gradient(
+    120% 70% at 50% -10%,
+    var(--anime-glow),
+    transparent 60%
+  );
+}
+
+.page {
+  position: relative;
+  z-index: 1;
+  width: min(var(--anime-content-w), 100%);
+  margin-inline: auto;
+}
+
+/* --- Giris --- */
+
+.head {
+  margin-bottom: var(--pad-lg);
+}
+
+.back {
+  display: inline-block;
+  margin-bottom: var(--gap-lg);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  text-decoration: none;
+}
+
+.back:hover {
+  color: var(--accent);
+}
+
+.eyebrow {
+  display: block;
+  color: var(--gold);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.95rem;
+  letter-spacing: 0.32em;
+}
+
+.title {
+  margin: var(--gap-sm) 0 0;
+  color: var(--text-primary);
+  font-family: var(--font-cinzel), serif;
+  font-size: clamp(2rem, 5.5vw, 3.4rem);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  line-height: 1.05;
+}
+
+.lede {
+  max-width: 52ch;
+  margin: var(--gap-md) 0 0;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.curatorSwitch {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--gap-md);
+  margin-top: var(--gap-lg);
+}
+
+.curatorOn,
+.curatorOff {
+  min-height: var(--touch-min);
+  padding: 0 14px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+
+.curatorOn {
+  border-color: var(--accent-muted);
+  color: var(--accent);
+}
+
+/* --- Kunye seridi --- */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--gap-md);
+  margin: var(--pad-md) 0;
+}
+
+.statCard {
+  padding: var(--gap-md) var(--gap-lg);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+  backdrop-filter: blur(3px);
+}
+
+.statLabel {
+  display: block;
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.statValue {
+  display: block;
+  margin: 6px 0 0;
+  color: var(--text-primary);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 1.9rem;
+  letter-spacing: 0.04em;
+}
+
+/* --- Tur suzgeci --- */
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-sm);
+  margin: var(--pad-md) 0;
+}
+
+.chip,
+.chipOn {
+  min-height: 34px;
+  padding: 0 12px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.chipOn {
+  border-color: var(--accent-muted);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+}
+
+.chip:hover {
+  color: var(--text-primary);
+}
+
+/* Tur sayisi kabarik: gerisi bu dugmeyle acilir */
+.moreChips {
+  min-height: 34px;
+  padding: 0 12px;
+  border: 0.5px dashed var(--border-strong);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+/* --- Raflar --- */
+
+.shelfSection {
+  margin-top: var(--pad-lg);
+}
+
+.shelfHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--gap-md);
+  padding-bottom: var(--gap-sm);
+  border-bottom: 0.5px solid var(--border);
+}
+
+.shelfLink {
+  text-decoration: none;
+}
+
+.shelfTitle {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.15rem;
+  letter-spacing: 0.08em;
+}
+
+.shelfLink:hover .shelfTitle {
+  color: var(--accent);
+}
+
+.shelfCount {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--gap-lg);
+  margin-top: var(--gap-lg);
+  padding: 0;
+  list-style: none;
+}
+
+.empty {
+  margin: var(--gap-lg) 0 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.muted {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+/* --- Seri karti --- */
+
+.card {
+  display: flex;
+  flex-direction: column;
+}
+
+.coverWrap {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.coverImg {
+  object-fit: cover;
+}
+
+.coverFallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: var(--gap-md);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  text-align: center;
+}
+
+.favoriteMark {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  color: var(--gold);
+  font-size: 0.9rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+.cardHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--gap-sm);
+  margin-top: var(--gap-sm);
+}
+
+.cardTitle {
+  margin: 0;
+  overflow: hidden;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  line-height: 1.3;
+}
+
+.cardProgress {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--gap-sm);
+  margin: 6px 0 0;
+  font-size: 0.76rem;
+}
+
+.partName {
+  overflow: hidden;
+  color: var(--text-secondary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.partCount {
+  flex-shrink: 0;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.progressBar {
+  display: block;
+  height: 3px;
+  margin-top: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--border);
+}
+
+.progressFill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+
+.cardMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--gap-sm);
+  margin: 6px 0 0;
+  color: var(--text-muted);
+  font-size: 0.74rem;
+}
+
+.countdown {
+  color: var(--anime-upcoming-ink);
+}
+
+.cardRating {
+  margin-left: auto;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Yayin durumu rozetleri ---
+   Uc ton, hepsi dusuk doygunlukta: parlama yok (tasarim ilkesi). */
+
+.badgeAiring,
+.badgeUpcoming,
+.badgeFinished,
+.badgePaused {
+  flex-shrink: 0;
+  padding: 2px 7px;
+  border: 0.5px solid;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.badgeAiring {
+  border-color: color-mix(in srgb, var(--anime-airing-ink) 45%, transparent);
+  background: color-mix(in srgb, var(--anime-airing-ink) 12%, transparent);
+  color: var(--anime-airing-ink);
+}
+
+.badgeUpcoming {
+  border-color: color-mix(in srgb, var(--anime-upcoming-ink) 45%, transparent);
+  background: color-mix(in srgb, var(--anime-upcoming-ink) 12%, transparent);
+  color: var(--anime-upcoming-ink);
+}
+
+.badgeFinished {
+  border-color: var(--border-strong);
+  color: var(--text-muted);
+}
+
+.badgePaused {
+  border-color: color-mix(in srgb, var(--danger) 45%, transparent);
+  color: var(--danger);
+}
+
+/* --- Studyolar --- */
+
+.studios {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-sm);
+  margin-top: var(--gap-lg);
+  padding: 0;
+  list-style: none;
+}
+
+.studio {
+  padding: 6px 12px;
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+}
+
+.studioCount {
+  margin-left: 6px;
+  color: var(--text-muted);
+}
+
+/* --- Kurator --- */
+
+.bar {
+  margin: var(--pad-md) 0;
+  padding: var(--gap-lg);
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+}
+
+.barTitle {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: var(--font-cinzel), serif;
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+}
+
+.barLede {
+  margin: 6px 0 var(--gap-md);
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.searchForm {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-sm);
+}
+
+.searchForm input {
+  flex: 1 1 240px;
+  min-height: var(--touch-min);
+  padding: 0 12px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text-primary);
+}
+
+.primary {
+  min-height: var(--touch-min);
+  padding: 0 16px;
+  border: 0.5px solid var(--accent-muted);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--accent);
+  font-size: 0.84rem;
+  cursor: pointer;
+}
+
+.primary:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.error {
+  margin: var(--gap-md) 0 0;
+  color: var(--danger);
+  font-size: 0.84rem;
+}
+
+.results {
+  display: grid;
+  gap: var(--gap-sm);
+  margin: var(--gap-md) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.result {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-md);
+  width: 100%;
+  padding: var(--gap-sm);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.result:hover {
+  background: var(--surface-hover);
+}
+
+.resultPoster {
+  position: relative;
+  flex-shrink: 0;
+  width: 48px;
+  height: 68px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: var(--surface);
+}
+
+.resultImg {
+  object-fit: cover;
+}
+
+.resultText {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.resultTitle {
+  color: var(--text-primary);
+  font-size: 0.88rem;
+}
+
+.resultMeta {
+  color: var(--text-muted);
+  font-size: 0.76rem;
+}
+
+.addForm {
+  margin-top: var(--gap-lg);
+}
+
+.picked {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--gap-md);
+  margin: 0 0 var(--gap-md);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.link {
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font-size: 0.8rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.addRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-md);
+}
+
+.addRow label,
+.noteField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+}
+
+.addRow select,
+.addRow input[type="text"],
+.noteField input {
+  min-height: var(--touch-min);
+  padding: 0 10px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text-primary);
+}
+
+.noteField {
+  margin-top: var(--gap-md);
+}
+
+.checkbox {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--gap-sm);
+  align-self: flex-end;
+  min-height: var(--touch-min);
+}
+
+.addActions {
+  margin-top: var(--gap-lg);
+}
+
+/* --- Kart ustundeki kurator kontrolleri --- */
+
+.tools {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: var(--gap-sm);
+}
+
+/* Gunluk eylem bu: buyuk, tek tik */
+.episodeButton {
+  min-height: var(--touch-min);
+  border: 0.5px solid var(--accent-muted);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--accent);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.episodeButton:disabled {
+  border-color: var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: default;
+}
+
+.toolRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.star,
+.starOn,
+.iconButton,
+.remove {
+  width: 30px;
+  height: 30px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.starOn {
+  border-color: var(--accent-muted);
+  color: var(--gold);
+}
+
+.remove:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.statusSelect {
+  flex: 1;
+  min-width: 0;
+  height: 30px;
+  padding: 0 4px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+}
+
+.toolError {
+  color: var(--danger);
+  font-size: 0.72rem;
+}
+
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: var(--gap-md);
+  }
+}

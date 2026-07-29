@@ -226,7 +226,36 @@
   --danger:         #a6584a;
 }
 
+/* Salon 04 — Anime Arsivim. Faz A'nin taban paleti: mor gecenin icinde
+   soguk bir mavi-mor accent. Kanadin tam gorsel kimligi (Faz D) bunun
+   uzerine gelecek; simdilik amac rozet/ilerleme renklerinin token'dan
+   okunmasi (kural 16). */
+[data-category="anime"] {
+  --bg:             #0d0e14;
+  --surface:        #15161f;
+  --surface-hover:  #1b1d28;
+  --border:         #232532;
+  --border-strong:  #333648;
+
+  --text-primary:   #f0eef7;
+  --text-secondary: #9b9aad;
+  --text-muted:     #6b6a7c;
+
+  --accent:         #8f7fd4; /* mürekkep moru, doygunlugu dusurulmus */
+  --accent-hover:   #a293e0;
+  --accent-muted:   #574f7a;
+
+  --gold:           #c2a15e;
+  --warn:           #a6784a;
+  --danger:         #a6584a;
+}
+
 :root {
+  /* Salon 04 — yayin durumu rozetleri: uc ton, hepsi dusuk doygunlukta */
+  --anime-airing-ink:   #6f9c72; /* yayinda */
+  --anime-upcoming-ink: #b8894f; /* yeni sezon bekleniyor */
+  --anime-glow:         rgba(143, 127, 212, 0.06);
+
   /* Salon 02 — Projeksiyon Salonu yardimci token'lari */
   --film-curtain: #3d1215; /* kapinin ardindaki perde: serit cercevesi + kunye levhasi */
   --film-frame:   #0a0b0e; /* 35 mm serit govdesi — zeminden koyu */

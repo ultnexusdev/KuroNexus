@@ -593,5 +593,98 @@
   },
   "meta": {
     "description": "A personal dark universe portal: dark stories, fandom wikis, anime/movie archive, and character analyses."
+  },
+  "anime": {
+    "hall": "Hall {num} · {name}",
+    "hallName": "Anime",
+    "backToHall": "← Back to the archive",
+    "lobbyLede": "Season by season, episode by episode. What I'm watching, where I left off, what's still coming.",
+    "lobbySectionsAria": "Hall sections",
+    "lobbyArchiveMeter": "{count} series · {watching} in progress",
+    "lobbyArchiveEmpty": "No series yet",
+    "sections": {
+      "archive": {
+        "title": "My Anime Archive",
+        "desc": "Series I'm watching, have finished, or am waiting on — seasons included."
+      }
+    },
+    "archiveTitle": "My Anime Archive",
+    "archiveLede": "Each card is a series; seasons, films and OVAs live inside it. Progress is kept on the season itself.",
+    "empty": "The archive is empty. Turn on curator mode to add your first series.",
+    "stats": {
+      "series": "Series",
+      "episodes": "Episodes watched",
+      "completed": "Finished",
+      "topTag": "Most watched genre"
+    },
+    "allGenres": "All",
+    "moreGenres": "+{count} more",
+    "fewerGenres": "Show fewer",
+    "studios": "Studios",
+    "favorite": "Favourite",
+    "shelfCount": "{count} series",
+    "episodeOf": "{watched}/{total} episodes",
+    "episodeCount": "{watched} episodes",
+    "nextInDays": "ep. {episode} in {count} days",
+    "airing": {
+      "RELEASING": "Airing",
+      "UPCOMING": "Announced",
+      "FINISHED": "Finished",
+      "HIATUS": "On hiatus",
+      "CANCELLED": "Cancelled"
+    },
+    "shelf": {
+      "watching": "Watching",
+      "upcoming": "More To Come",
+      "completed": "Finished",
+      "planned": "Plan To Watch",
+      "paused": "On Hold",
+      "favorites": "Favourites"
+    },
+    "shelfEmpty": {
+      "watching": "You're not watching anything right now.",
+      "upcoming": "No series with an announced continuation.",
+      "completed": "You haven't finished a series yet.",
+      "planned": "Nothing queued up.",
+      "paused": "Nothing on hold.",
+      "favorites": "No favourites marked yet."
+    },
+    "curator": {
+      "on": "Curator mode on",
+      "off": "Curator mode",
+      "hint": "Add series, log episodes, change status.",
+      "addTitle": "Add a series",
+      "addLede": "Add the series and its seasons and films come down from the AniList chain automatically.",
+      "searchPlaceholder": "Anime title…",
+      "searchLabel": "Search anime",
+      "search": "Search",
+      "searching": "Searching…",
+      "searchError": "Search failed. Please try again.",
+      "noResults": "No results.",
+      "episodes": "{count} episodes",
+      "changePick": "pick another",
+      "status": "Status",
+      "rating": "My rating",
+      "favorite": "Favourite",
+      "note": "Note",
+      "add": "Add to archive",
+      "adding": "Adding…",
+      "duplicate": "This series is already in the archive.",
+      "error": "Something went wrong. Please try again.",
+      "plusOne": "+1 episode",
+      "plusOneTitle": "{part} — advance one episode",
+      "partDone": "Season done",
+      "refresh": "Refresh metadata",
+      "remove": "Remove from archive",
+      "removeConfirm": "Remove {title} from the archive?",
+      "statusName": {
+        "WATCHING": "Watching",
+        "COMPLETED": "Finished",
+        "PLANNED": "Plan to watch",
+        "ON_HOLD": "On hold",
+        "DROPPED": "Dropped",
+        "REWATCHING": "Rewatching"
+      }
+    }
   }
 }

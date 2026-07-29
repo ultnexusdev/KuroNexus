@@ -8,7 +8,9 @@ import { CodexCard } from "@/components/kadim/CodexCard";
 import { CornerFiligree, RunicMargin } from "@/components/kadim/CodexOrnaments";
 import { SportSplit } from "@/components/sport/SportSplit";
 import { FilmLobby } from "@/components/film/FilmLobby";
+import { AnimeLobby } from "@/components/anime/AnimeLobby";
 import { getMovieArchive, getMovieShowcase } from "@/lib/api/movies";
+import { getAnimeArchive } from "@/lib/api/anime";
 import { hallLabel, hallNumber } from "@/lib/halls";
 import { apiUrl } from "@/lib/api/client";
 import { Link } from "@/lib/i18n/navigation";
@@ -69,6 +71,19 @@ export default async function CategoryUniversesPage({
         categoryName={category.name}
         archive={archive}
         showcase={showcase}
+      />
+    );
+  }
+
+  // Anime kapısı da salon girişine açılır (film salonuyla aynı desen)
+  if (category.slug === "anime") {
+    const archive = await getAnimeArchive();
+    return (
+      <AnimeLobby
+        locale={locale}
+        hallLabel={hallLabel(hallNumber(categories, category.slug))}
+        categoryName={category.name}
+        archive={archive}
       />
     );
   }

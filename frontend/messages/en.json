@@ -33,6 +33,40 @@
       "kadim-dunyalar": "Ancient Worlds"
     }
   },
+  "nexus": {
+    "eyebrow": "A Personal Culture Archive",
+    "title": "Discover Nexus",
+    "lede": "The legends I write, the films I watch, the series I follow and the worlds I collect — all under one roof.",
+    "featuredEyebrow": "Head Of The Table · My Own Work",
+    "chapterCount": "{count} chapters",
+    "entryCount": "{count} wiki entries",
+    "lastWritten": "last written {when}",
+    "latestChapter": "Latest chapter: {title}",
+    "readLatest": "Read the latest chapter",
+    "enterUniverse": "Enter the universe",
+    "halls": "Halls",
+    "hallLine": {
+      "film": "{count} films · {year} this year",
+      "anime": "{count} series",
+      "animeWatching": "{count} series · watching: {title}",
+      "universes": "{count} worlds"
+    },
+    "nowPlaying": "Right Now In Nexus",
+    "kind": {
+      "FILM": "Last film watched",
+      "ANIME": "Last series progressed",
+      "CHAPTER": "Last chapter written",
+      "WIKI": "Last wiki entry"
+    },
+    "universes": "Worlds",
+    "stat": {
+      "universes": "Worlds",
+      "chapters": "Chapters",
+      "films": "Films",
+      "animeEpisodes": "Anime episodes",
+      "wikiEntries": "Wiki entries"
+    }
+  },
   "stories": {
     "listTitle": "Discover Nexus",
     "all": "All",

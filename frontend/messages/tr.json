@@ -33,6 +33,40 @@
       "kadim-dunyalar": "Kadim Dünyalar"
     }
   },
+  "nexus": {
+    "eyebrow": "Kişisel Kültür Arşivi",
+    "title": "Nexus'u Keşfet",
+    "lede": "Kendi yazdığım efsaneler, izlediğim filmler, takip ettiğim seriler ve derlediğim evrenler — hepsi tek çatı altında.",
+    "featuredEyebrow": "Baş Köşe · Kendi Eserim",
+    "chapterCount": "{count} bölüm",
+    "entryCount": "{count} wiki kaydı",
+    "lastWritten": "son yazılan: {when}",
+    "latestChapter": "Son bölüm: {title}",
+    "readLatest": "Son bölümü oku",
+    "enterUniverse": "Evrene gir",
+    "halls": "Salonlar",
+    "hallLine": {
+      "film": "{count} film · bu yıl {year}",
+      "anime": "{count} seri",
+      "animeWatching": "{count} seri · izliyorum: {title}",
+      "universes": "{count} evren"
+    },
+    "nowPlaying": "Şu An Nexus'ta",
+    "kind": {
+      "FILM": "Son izlenen film",
+      "ANIME": "Son ilerleyen seri",
+      "CHAPTER": "Son yazılan bölüm",
+      "WIKI": "Son wiki kaydı"
+    },
+    "universes": "Evrenler",
+    "stat": {
+      "universes": "Evren",
+      "chapters": "Bölüm",
+      "films": "Film",
+      "animeEpisodes": "Anime bölümü",
+      "wikiEntries": "Wiki kaydı"
+    }
+  },
   "stories": {
     "listTitle": "Nexus'u Keşfet",
     "all": "Tümü",

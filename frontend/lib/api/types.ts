@@ -317,6 +317,59 @@ export interface MovieArchive {
   genres: string[];
 }
 
+/** "Nexus'u Keşfet" sayfasının tek yanıtı (`GET /pulse`) */
+export interface PulseHall {
+  slug: string;
+  name: string;
+  description: string | null;
+  coverImage: string | null;
+  universeCount: number;
+  /** Kapının altındaki canlı satırın ham değeri (salona göre değişir) */
+  line: string | null;
+  count: number | null;
+}
+
+export interface PulseEntry {
+  kind: "FILM" | "ANIME" | "CHAPTER" | "WIKI";
+  title: string;
+  subtitle: string | null;
+  href: string;
+  image: string | null;
+  at: string | null;
+}
+
+export interface PulseFeatured {
+  slug: string;
+  name: string;
+  description: string | null;
+  coverImage: string | null;
+  chapterCount: number;
+  entryCount: number;
+  latestChapter: { title: string; slug: string; at: string | null } | null;
+}
+
+export interface PulseUniverse {
+  slug: string;
+  name: string;
+  coverImage: string | null;
+  categorySlug: string | null;
+  storyCount: number;
+}
+
+export interface Pulse {
+  featured: PulseFeatured | null;
+  halls: PulseHall[];
+  recent: PulseEntry[];
+  universes: PulseUniverse[];
+  totals: {
+    universes: number;
+    chapters: number;
+    films: number;
+    animeEpisodes: number;
+    wikiEntries: number;
+  };
+}
+
 /** Film sayfasının bağlantı kartları */
 export type MovieLinkKind = "TMDB" | "IMDB" | "RT" | "HOMEPAGE";
 

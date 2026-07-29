@@ -308,7 +308,17 @@
   - Migration: `20260729210000_add_movie_links` (`links` JSONB).
   - **Çalışma tarzı kararı (kullanıcı, 2026-07-29)**: kullanıcı lokalde kontrol edemiyor; lokal görsel doğrulamaya fazla token harcanmayacak. Kısa dene → build/lint temizse push → canlıda doğrula.
 
+- [x] **"Nexus'u Keşfet" yeniden yazıldı (2026-07-29 gece)**: Sayfa beş düz karttan ibaretti; ana sayfadaki kapı duvarının gücü buraya hiç gelmemişti ve **sitenin kendi eseri Temürkan burada hiç görünmüyordu** (kategori değil, Kadim Dünyalar içindeki bir evren olduğu için). Kullanıcı fikir turu istedi, sekiz modül sunuldu, dördü + atmosfer seçildi.
+  - **Tek uç**: yeni `GET /pulse` (`backend/src/pulse/*`) sayfanın tamamını tek istekte döndürüyor — baş köşe, salon kapıları, "şu an" şeridi, evrenler rafı ve künye sayaçları. **Dış API'ye hiç çıkmıyor**, her sayı veritabanından; TMDB/AniList düşse de sayfa eksiksiz açılır.
+  - **Temürkan baş köşesi**: kendi kapağı zemin, Orhun 𐱅 mührü, bölüm + wiki sayacı, "son yazılan: 3 gün önce", iki giriş (Son bölümü oku / Evrene gir). `FEATURED_UNIVERSE_SLUG` sabiti — evren yoksa bölüm hiç çizilmiyor.
+  - **Canlı salon kapıları**: kapak görseli kapının aralığından sızan ışık gibi; altındaki satır gerçek veri (Film: "63 film · bu yıl 12", Anime: "13 seri · izliyorum: BAKI", diğerleri: "N evren"). Sıra ana sayfayla aynı kaynaktan (`HALL_ORDER`).
+  - **"Şu an Nexus'ta"**: son izlenen film, son ilerleyen anime (hangi sezon/bölümde kaldığım dahil), son yazılan bölüm — tarihe göre sıralı, "3 gün önce" biçiminde.
+  - **Evrenler rafı** (8 evren, kategoriye girmeden) + **künye şeridi** (evren/bölüm/film/anime bölümü/wiki sayıları).
+  - **Atmosfer**: zeminde çok yavaş süzülen iki katmanlı toz + ışık havuzu, `prefers-reduced-motion`'da tamamen duruyor. Parlama yok (kural 16).
+  - **Tamamı sunucuda çiziliyor** — bu sayfa için ziyaretçiye tek satır JS inmiyor (hareket ve hover CSS'te).
+
 ## Sıradaki Adım
+0f. **Nexus'u Keşfet — canlı kontrol**: baş köşede Temürkan görünüyor mu, kapı satırlarındaki sayılar doğru mu, "şu an" şeridi dolu mu, evrenler rafı kayıyor mu, mobilde taşma var mı.
 0g. **Film — canlı kontrol**: bir afişe tıkla (film sayfası açılmalı), fragman oynuyor mu, "nerede izlenir" rozetleri geliyor mu (TMDB künyesi v2'ye geçtiği için ilk açılış biraz yavaş olabilir), RT kartı arama sayfasına gidiyor mu, küratör künyesinden RT adresi kaydedilebiliyor mu, "en üste git" raf sayfasında beliriyor mu.
 0h. **Anime — canlı kontrol (ilk iş)**: (1) Küratör Künyesi'nden bir animeye banner ve manga/OP/ED bağlantısı gir, kaydet, kartlar çıkıyor mu bak. (2) Raf adresleri değişti — `/arsiv/beklemede` ve `/arsiv/planliyorum` açılıyor mu. (3) Bir animenin banner'ı artık sabit mi (⟳ tazeledikten sonra da).
 0i. **Anime Faz B kalanları**: (0) **Karakter detay sayfası** (kullanıcı isteği, bilinçli ertelendi): anime sayfasındaki karakter şeridi tıklanabilir olacak, karakter sayfasında sağ/sol büyük banner + ortada açıklama/künye. AniList `Character` sorgusu (`image.large`, `description`, `media`) ayrı cache ile çekilir. (1) **Ekran görüntüleri kararı bekliyor**: kendi yüklediklerim (uploads modülü, güvenilir) / TMDB eşlemesi (anime başlıklarında isabet düşük) / hiç. (2) Parça sırasını elle düzeltme (şu an yalnızca yayın tarihi). (3) Arşivin gizliliği: şu an ne izlediğin herkese açık — istenirse ziyaretçiye kapatılabilir.

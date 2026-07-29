@@ -1,0 +1,583 @@
+/* "Nexus'u Kesfet" — sitenin kalbi. Renkler yalnizca token'lardan
+   (AGENTS.md kural 16), parlama yok; derinlik golge ve gradyanla kuruluyor. */
+
+.hub {
+  position: relative;
+  overflow: hidden;
+  min-height: 100vh;
+  padding-bottom: 120px;
+  background: var(--bg);
+}
+
+/* --- Atmosfer --- */
+
+/* Zemin: kenarlara dogru koyulasan cok yumusak bir isik havuzu */
+.veil {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      120% 60% at 50% -10%,
+      color-mix(in srgb, var(--accent) 7%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      80% 50% at 50% 110%,
+      color-mix(in srgb, var(--surface) 60%, transparent),
+      transparent 70%
+    );
+}
+
+/* Toz: cok yavas suzulen ince noktalar. Iki katman farkli hizda kayiyor. */
+.dust {
+  position: absolute;
+  inset: -20% 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.35;
+  background-image:
+    radial-gradient(
+      1px 1px at 20% 30%,
+      color-mix(in srgb, var(--text-muted) 70%, transparent),
+      transparent
+    ),
+    radial-gradient(
+      1px 1px at 70% 60%,
+      color-mix(in srgb, var(--text-muted) 50%, transparent),
+      transparent
+    ),
+    radial-gradient(
+      1px 1px at 45% 80%,
+      color-mix(in srgb, var(--text-muted) 60%, transparent),
+      transparent
+    );
+  background-size: 340px 340px, 260px 260px, 420px 420px;
+  animation: drift 90s linear infinite;
+}
+
+@keyframes drift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-120px, -180px, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dust {
+    animation: none;
+  }
+}
+
+/* --- Baslik --- */
+
+.head {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  width: min(1180px, 100%);
+  margin-inline: auto;
+  padding: calc(var(--gap-lg) * 2) var(--pad-md) var(--gap-lg);
+  text-align: center;
+}
+
+.eyebrow {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: var(--gap-md) 0 0;
+  color: var(--text-primary);
+  font-family: var(--font-cinzel), serif;
+  font-size: clamp(1.9rem, 5vw, 3rem);
+  letter-spacing: 0.06em;
+}
+
+.lede {
+  max-width: 56ch;
+  margin: var(--gap-md) auto 0;
+  color: var(--text-secondary);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+/* --- Bas kose (Temurkan) --- */
+
+.featured {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  width: min(1180px, 100%);
+  min-height: clamp(320px, 46vw, 520px);
+  margin: var(--gap-lg) auto 0;
+  overflow: hidden;
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius-card);
+}
+
+.featuredImg {
+  object-fit: cover;
+  opacity: 0.42;
+}
+
+/* Kapak solda koyu, sagda acik: metin her zaman okunur kalir */
+.featuredShade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+      100deg,
+      var(--bg) 8%,
+      color-mix(in srgb, var(--bg) 72%, transparent) 46%,
+      transparent 100%
+    ),
+    linear-gradient(
+      to top,
+      var(--bg) 2%,
+      transparent 55%
+    );
+}
+
+.featuredInner {
+  position: relative;
+  max-width: 46rem;
+  padding: clamp(var(--gap-lg), 4vw, 48px);
+}
+
+/* Balmumu muhru: ana sayfadaki kapinin buradaki buyumus hali */
+.seal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  margin-bottom: var(--gap-md);
+  border: 1px solid var(--accent-muted);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+  font-family: var(--font-runic), serif;
+  font-size: 1.3rem;
+}
+
+.featuredEyebrow {
+  display: block;
+  color: var(--accent);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.featuredTitle {
+  margin: var(--gap-sm) 0 0;
+  color: var(--text-primary);
+  font-family: var(--font-cinzel), serif;
+  font-size: clamp(1.6rem, 4vw, 2.6rem);
+  line-height: 1.15;
+}
+
+.featuredLede {
+  max-width: 48ch;
+  margin: var(--gap-md) 0 0;
+  color: var(--text-secondary);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.featuredMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: var(--gap-lg) 0 0;
+  color: var(--text-muted);
+  font-size: 0.76rem;
+  letter-spacing: 0.06em;
+}
+
+.featuredMeta span + span::before {
+  margin-right: 16px;
+  content: "·";
+}
+
+.featuredActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-md);
+  margin-top: var(--gap-lg);
+}
+
+.primaryAction,
+.secondaryAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: var(--radius);
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+}
+
+.primaryAction {
+  border: 0.5px solid var(--accent-muted);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--accent);
+}
+
+.primaryAction:hover {
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+.actionArrow {
+  transition: transform 200ms ease;
+}
+
+.primaryAction:hover .actionArrow {
+  transform: translateX(3px);
+}
+
+.secondaryAction {
+  border: 0.5px solid var(--border-strong);
+  color: var(--text-secondary);
+}
+
+.secondaryAction:hover {
+  border-color: var(--accent-muted);
+  color: var(--accent);
+}
+
+.featuredChapter {
+  margin: var(--gap-md) 0 0;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-style: italic;
+}
+
+/* --- Bolumler --- */
+
+.section {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  width: min(1180px, 100%);
+  margin: calc(var(--gap-lg) * 2.5) auto 0;
+  padding: 0 var(--pad-md);
+}
+
+.sectionTitle {
+  margin: 0 0 var(--gap-lg);
+  padding-bottom: 8px;
+  border-bottom: 0.5px solid var(--border);
+  color: var(--text-secondary);
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* --- Salon kapilari --- */
+
+.doors {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--gap-lg);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.doorItem {
+  min-width: 0;
+}
+
+.door {
+  display: block;
+  height: 100%;
+  overflow: hidden;
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-card);
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+  text-decoration: none;
+  transition: border-color 200ms ease, transform 200ms ease;
+}
+
+.door:hover {
+  border-color: var(--accent-muted);
+  transform: translateY(-3px);
+}
+
+.doorFrame {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.doorImg {
+  object-fit: cover;
+  opacity: 0.62;
+  transition: opacity 300ms ease, transform 500ms ease;
+}
+
+.door:hover .doorImg {
+  opacity: 0.85;
+  transform: scale(1.03);
+}
+
+/* Kapinin aralindan sizan isik: hover'da genisler */
+.doorLeak {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    var(--surface) 4%,
+    transparent 60%
+  );
+}
+
+.doorText {
+  display: block;
+  padding: var(--gap-md);
+}
+
+.doorNo {
+  display: block;
+  color: var(--text-muted);
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+}
+
+.doorName {
+  display: block;
+  margin-top: 4px;
+  color: var(--text-primary);
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.05rem;
+  letter-spacing: 0.08em;
+}
+
+.door:hover .doorName {
+  color: var(--accent);
+}
+
+/* Salonun nabzi: gercek veriden gelen tek satir */
+.doorLive {
+  display: block;
+  margin-top: 6px;
+  overflow: hidden;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --- Su an Nexus'ta --- */
+
+.pulseRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--gap-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pulseItem {
+  min-width: 0;
+}
+
+.pulseCard {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-md);
+  min-height: 76px;
+  padding: 10px;
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-card);
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
+  text-decoration: none;
+}
+
+.pulseCard:hover {
+  border-color: var(--accent-muted);
+}
+
+.pulseCover {
+  position: relative;
+  flex-shrink: 0;
+  width: 44px;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border-radius: 4px;
+  background: var(--surface);
+}
+
+.pulseImg {
+  object-fit: cover;
+}
+
+.pulseText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.pulseKind {
+  color: var(--text-muted);
+  font-size: 0.64rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.pulseTitle {
+  overflow: hidden;
+  color: var(--text-primary);
+  font-size: 0.88rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pulseCard:hover .pulseTitle {
+  color: var(--accent);
+}
+
+.pulseSub {
+  overflow: hidden;
+  color: var(--text-secondary);
+  font-size: 0.74rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pulseWhen {
+  margin-left: auto;
+  flex-shrink: 0;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+}
+
+/* --- Evrenler rafi --- */
+
+.rail {
+  display: flex;
+  gap: var(--gap-md);
+  margin: 0;
+  padding: 0 0 8px;
+  overflow-x: auto;
+  list-style: none;
+  scroll-snap-type: x proximity;
+}
+
+.railItem {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+}
+
+.railCard {
+  display: block;
+  width: 160px;
+  text-decoration: none;
+}
+
+.railCover {
+  position: relative;
+  display: block;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.railImg {
+  object-fit: cover;
+  opacity: 0.85;
+  transition: opacity 250ms ease;
+}
+
+.railCard:hover .railImg {
+  opacity: 1;
+}
+
+.railName {
+  display: block;
+  margin-top: 8px;
+  overflow: hidden;
+  color: var(--text-primary);
+  font-size: 0.84rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.railCard:hover .railName {
+  color: var(--accent);
+}
+
+.railMeta {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+/* --- Kunye seridi --- */
+
+.stats {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--gap-lg) calc(var(--gap-lg) * 2);
+  width: min(1180px, 100%);
+  margin: calc(var(--gap-lg) * 3) auto 0;
+  padding: var(--gap-lg) var(--pad-md);
+  border-top: 0.5px solid var(--border);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.statValue {
+  color: var(--accent);
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.4rem;
+}
+
+.statLabel {
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 640px) {
+  .featuredInner {
+    padding: var(--gap-lg) var(--pad-md);
+  }
+
+  .featuredShade {
+    background: linear-gradient(
+      to top,
+      var(--bg) 22%,
+      color-mix(in srgb, var(--bg) 70%, transparent) 70%,
+      transparent 100%
+    );
+  }
+}

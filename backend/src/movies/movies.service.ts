@@ -216,7 +216,29 @@ export class MoviesService {
     }
     const movie = movies[index];
     const entry = entries[index];
-    const data = (entry.externalData ?? null) as TmdbMovie | null;
+    let data = (entry.externalData ?? null) as TmdbMovie | null;
+
+    /**
+     * Eski kayıtların künyesi film sayfası yokken alınmıştı: kadro, fragman,
+     * IMDb numarası ve platformlar o anlık görüntüde YOK. Sayfa ilk açıldığında
+     * künye kendiliğinden tazelenip kayda yazılıyor — arşivdeki onlarca filmi
+     * tek tek "⟳ tazele" ile geçmek gerekmesin. TMDB yanıtı zaten cache'li,
+     * ikinci açılışta dış istek yok.
+     */
+    if (!data || data.cast === undefined) {
+      try {
+        data = await this.tmdb.getMovie(entry.tmdbId);
+        await this.prisma.movieEntry.update({
+          where: { id: entry.id },
+          data: {
+            externalData: data as unknown as Prisma.InputJsonValue,
+            externalDataFetchedAt: new Date(),
+          },
+        });
+      } catch {
+        // TMDB düşerse sayfa eski künyeyle açılır (kural 4)
+      }
+    }
 
     let similar: TmdbSearchResult[] = [];
     try {

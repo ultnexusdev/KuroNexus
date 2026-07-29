@@ -326,6 +326,13 @@ model AnimeEntry {
   /// Kök yapımın AniList künyesi (başlık, kapak, banner, tür, etiket, manga bağı)
   externalData          Json?
   externalDataFetchedAt DateTime?
+  /// Küratörün seçtiği sabit banner. Doluysa AniList'ten gelene bakılmaz —
+  /// künye her tazelendiğinde sayfanın üstü değişmesin diye (kullanıcı kararı).
+  bannerImage           String?
+  /// Elle girilen dış bağlantılar: { manga, opening, ending, trailer, official }.
+  /// Hiçbir API vermediği (manga okuma adresi, OP/ED klibi) ya da yanlış
+  /// verdiği bağlantılar burada durur; AniList'ten geleni ezer.
+  links                 Json?
   createdAt             DateTime         @default(now())
   updatedAt             DateTime         @updatedAt
   isDeleted             Boolean          @default(false)

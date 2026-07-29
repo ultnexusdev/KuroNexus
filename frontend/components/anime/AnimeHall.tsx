@@ -6,7 +6,13 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/lib/i18n/navigation";
 import type { AnimeArchive, ArchiveAnime } from "@/lib/api/types";
 import Image from "next/image";
-import { belongsTo, shelfHref, SHELF_KEYS, type ShelfKey } from "@/lib/anime/shelves";
+import {
+  belongsTo,
+  shelfHref,
+  SHELF_ICONS,
+  SHELF_KEYS,
+  type ShelfKey,
+} from "@/lib/anime/shelves";
 import {
   buildTaxonomy,
   CHIP_LIMIT,
@@ -139,7 +145,12 @@ export function AnimeHall({
       <section className={styles.shelfSection} key={key}>
         <div className={styles.shelfHead}>
           <Link href={shelfHref(key)} className={styles.shelfLink}>
-            <h2 className={styles.shelfTitle}>{t(`shelf.${key}`)}</h2>
+            <h2 className={styles.shelfTitle}>
+              <span className={styles.shelfIcon} aria-hidden>
+                {SHELF_ICONS[key]}
+              </span>
+              {t(`shelf.${key}`)}
+            </h2>
           </Link>
           <span className={styles.shelfCount}>
             {t("shelfCount", { count: entries.length })}
@@ -263,22 +274,6 @@ export function AnimeHall({
             </div>
 
             {SHELF_KEYS.map((key) => renderShelf(key))}
-
-            {archive.studios.length > 0 ? (
-              <section className={styles.shelfSection}>
-                <div className={styles.shelfHead}>
-                  <h2 className={styles.shelfTitle}>{t("studios")}</h2>
-                </div>
-                <ul className={styles.studios}>
-                  {archive.studios.map((studio) => (
-                    <li key={studio.name} className={styles.studio}>
-                      {studio.name}
-                      <span className={styles.studioCount}>{studio.count}</span>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            ) : null}
           </>
         )}
       </div>

@@ -620,7 +620,6 @@
     "allGenres": "Tümü",
     "moreGenres": "+{count} daha",
     "fewerGenres": "Daha az",
-    "studios": "Stüdyolar",
     "favorite": "Favori",
     "shelfCount": "{count} seri",
     "episodeOf": "{watched}/{total} bölüm",
@@ -635,19 +634,19 @@
     },
     "shelf": {
       "watching": "İzliyorum",
+      "paused": "Beklemede",
       "upcoming": "Devamı Gelecek",
       "completed": "Bitirdiklerim",
-      "planned": "İzleyeceklerim",
-      "paused": "Ara Verdiklerim",
-      "favorites": "Favorilerim"
+      "favorites": "Favorilerim",
+      "planned": "Planlıyorum"
     },
     "shelfEmpty": {
       "watching": "Şu an izlediğin bir seri yok.",
+      "paused": "Ara verip beklemeye aldığın seri yok.",
       "upcoming": "Devamı duyurulmuş bir seri yok.",
       "completed": "Henüz bitirdiğin seri yok.",
-      "planned": "Sırada bekleyen seri yok.",
-      "paused": "Ara verdiğin seri yok.",
-      "favorites": "Henüz favori işaretlemedin."
+      "favorites": "Henüz favori işaretlemedin.",
+      "planned": "İzlemeyi planladığın seri yok."
     },
     "curator": {
       "on": "Küratör modu açık",
@@ -688,7 +687,6 @@
       "editCount": "Bölüm sayısını elle gir"
     },
     "detail": {
-      "studio": "Stüdyo",
       "year": "Yıl",
       "seasons": "Parça",
       "partCount": "{count} sezon/film",
@@ -717,7 +715,32 @@
       "partDone": "Sezon bitti",
       "completeThrough": "Buraya kadar hepsini izledim",
       "completeThroughHint": "Bu parça ve ondan önceki bütün parçalar tamamlanmış sayılır.",
-      "mangaChapter": "Manga bölümü"
+      "mangaChapter": "Manga bölümü",
+      "links": "Dış Bağlantılar",
+      "linkName": {
+        "MANGA": "Manga",
+        "TRAILER": "Fragman",
+        "OPENING": "Opening",
+        "ENDING": "Ending",
+        "OFFICIAL": "Resmi Site",
+        "ANILIST": "AniList",
+        "MAL": "MyAnimeList"
+      },
+      "curatorTitle": "Küratör Künyesi",
+      "curatorLede": "Sayfanın banner'ı ve elle girilen bağlantılar. Bir alanı boşaltırsan AniList'ten geleni yeniden gösterilir.",
+      "bannerField": "Banner adresi",
+      "bannerUpload": "Ya da görsel yükle",
+      "linkField": {
+        "manga": "Manga bağlantısı",
+        "opening": "Opening (YouTube)",
+        "ending": "Ending (YouTube)",
+        "trailer": "Fragman (AniList'inkini ezer)",
+        "official": "Resmi site (AniList'inkini ezer)"
+      },
+      "save": "Kaydet",
+      "saving": "Kaydediliyor…",
+      "saved": "Kaydedildi",
+      "saveError": "Kaydedilemedi. Tekrar deneyin."
     },
     "filters": {
       "genre": "Tür",

@@ -52,6 +52,37 @@ export interface ArchiveAnimePart {
   mangaChapter: number | null;
 }
 
+/** Anime sayfasının altındaki küçük bağlantı kartları. */
+export type AnimeLinkKind =
+  'MANGA' | 'TRAILER' | 'OPENING' | 'ENDING' | 'OFFICIAL' | 'ANILIST' | 'MAL';
+
+export interface AnimeLink {
+  kind: AnimeLinkKind;
+  url: string;
+}
+
+/**
+ * Küratörün elle girdiği bağlantılar — `AnimeEntry.links` alanının şekli.
+ * Manga okuma adresini ve OP/ED klibini hiçbir API vermiyor; fragman ile
+ * resmi site AniList'ten geliyor ama buradan ezilebiliyor.
+ */
+export interface AnimeCustomLinks {
+  manga?: string;
+  trailer?: string;
+  opening?: string;
+  ending?: string;
+  official?: string;
+}
+
+/** Elle girilebilen bağlantı alanları — kaydetme döngüsü bunları gezer. */
+const LINK_FIELDS = [
+  'manga',
+  'trailer',
+  'opening',
+  'ending',
+  'official',
+] as const satisfies ReadonlyArray<keyof AnimeCustomLinks>;
+
 export interface ArchiveAnime {
   id: string;
   /** Anime sayfasının adresi. Başlıktan türetilir, veritabanında tutulmaz. */
@@ -66,10 +97,12 @@ export interface ArchiveAnime {
   titleNative: string | null;
   description: string | null;
   coverImage: string | null;
+  /** Sayfanın üstündeki sabit banner (küratör seçimi > kök künye > sezonlar) */
   bannerImage: string | null;
+  /** Yalnızca küratörün seçtiği banner — form bunu doldurur, boşsa AniList'inki */
+  customBanner: string | null;
   genres: string[];
   tags: string[];
-  studios: string[];
   averageScore: number | null;
   startYear: number | null;
   /** Yapımın durumu (part'lardan türetilir), benim durumumdan bağımsız */
@@ -82,6 +115,10 @@ export interface ArchiveAnime {
   nextAiringAt: number | null;
   parts: ArchiveAnimePart[];
   manga: AnilistMedia['manga'];
+  /** Gösterilecek dış bağlantılar (elle girilenler + AniList'ten türetilenler) */
+  links: AnimeLink[];
+  /** Küratör formunun doldurduğu ham değerler — yalnızca elle girilenler */
+  customLinks: AnimeCustomLinks;
 }
 
 // Salon girişinin iki yanındaki afişler — başlık burada, yol AniList'ten gelir
@@ -127,7 +164,6 @@ export class AnimeService {
   async getArchive(): Promise<{
     entries: ArchiveAnime[];
     stats: AnimeArchiveStats;
-    studios: Array<{ name: string; count: number }>;
     genres: string[];
     tags: string[];
   }> {
@@ -141,7 +177,6 @@ export class AnimeService {
     return {
       entries,
       stats: buildStats(entries),
-      studios: topStudios(entries),
       genres: collect(entries, (entry) => entry.genres),
       tags: collect(entries, (entry) => entry.tags),
     };
@@ -367,6 +402,28 @@ export class AnimeService {
       personalRating: dto.personalRating,
       personalNote: dto.personalNote,
     };
+    // Boş metin "temizle" demektir: küratör alanı silince AniList'ten gelen
+    // banner/bağlantı yeniden devreye girsin
+    if (dto.bannerImage !== undefined) {
+      data.bannerImage = normalizeUrl(dto.bannerImage);
+    }
+    if (dto.links !== undefined) {
+      const incoming = dto.links;
+      const merged: AnimeCustomLinks = { ...readCustomLinks(entry) };
+      for (const field of LINK_FIELDS) {
+        // Gönderilmeyen alan olduğu gibi kalır; boş gönderilen alan silinir
+        if (incoming[field] === undefined) {
+          continue;
+        }
+        const url = normalizeUrl(incoming[field]);
+        if (url) {
+          merged[field] = url;
+        } else {
+          delete merged[field];
+        }
+      }
+      data.links = merged as unknown as Prisma.InputJsonValue;
+    }
     // "Bitirdim" denince tarih kendiliğinden düşsün — elle girdirmek yorar
     if (dto.status === 'COMPLETED' && !entry.finishedAt) {
       data.finishedAt = new Date();
@@ -690,10 +747,10 @@ function toArchiveAnime(entry: EntryWithParts): ArchiveAnime {
     titleNative: root?.titleNative ?? null,
     description: root?.description ?? null,
     coverImage: root?.coverImage ?? null,
-    bannerImage: root?.bannerImage ?? null,
+    bannerImage: pickBanner(entry, root),
+    customBanner: entry.bannerImage,
     genres: root?.genres ?? [],
     tags: root?.tags ?? [],
-    studios: root?.studios ?? [],
     averageScore: root?.averageScore ?? null,
     startYear: root?.seasonYear ?? root?.startYear ?? null,
     airingState: deriveAiringState(entry.parts),
@@ -704,7 +761,105 @@ function toArchiveAnime(entry: EntryWithParts): ArchiveAnime {
     nextAiringAt: airing?.nextAiringAt ?? null,
     parts,
     manga: root?.manga ?? null,
+    links: buildLinks(entry, root),
+    customLinks: readCustomLinks(entry),
   };
+}
+
+/**
+ * Sayfanın üstündeki banner. Sıra bilinçli:
+ *  1. küratörün seçtiği görsel — künye tazelense de değişmez,
+ *  2. kök yapımın AniList banner'ı,
+ *  3. sezonların banner'ı (önce TV sezonları, sıralı ilk dolu olan).
+ *
+ * Üçüncü adım rastgele değil **sıralı**: kökün banner'ı yoksa bile sayfa her
+ * açılışta aynı görselle açılsın (kullanıcı geri bildirimi: banner sürekli
+ * değişiyor ve bazıları düşük çözünürlüklü).
+ */
+function pickBanner(
+  entry: EntryWithParts,
+  root: AnilistMedia | null,
+): string | null {
+  if (entry.bannerImage) {
+    return entry.bannerImage;
+  }
+  if (root?.bannerImage) {
+    return root.bannerImage;
+  }
+  const ordered = [...entry.parts].sort((a, b) => a.orderIndex - b.orderIndex);
+  const banners = ordered.map((part) => {
+    const media = (part.externalData ?? null) as AnilistMedia | null;
+    return media;
+  });
+  const season = banners.find(
+    (media) =>
+      media?.bannerImage &&
+      (media.format === 'TV' || media.format === 'TV_SHORT'),
+  );
+  return (
+    season?.bannerImage ??
+    banners.find((media) => media?.bannerImage)?.bannerImage ??
+    null
+  );
+}
+
+/**
+ * Küratörün yapıştırdığı adresi temizler. Boş metin "temizle" demek (null
+ * döner); `/uploads/...` gibi kendi yüklediğimiz yollar olduğu gibi kalır;
+ * şemasız yapıştırılan adrese `https://` eklenir — "myanimelist.net/anime/1"
+ * yazınca bağlantının sayfanın kendi yoluna gitmesi hataydı.
+ */
+function normalizeUrl(value: string | null | undefined): string | null {
+  const trimmed = (value ?? '').trim();
+  if (!trimmed) {
+    return null;
+  }
+  if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith('/')) {
+    return trimmed;
+  }
+  return `https://${trimmed}`;
+}
+
+function readCustomLinks(entry: EntryWithParts): AnimeCustomLinks {
+  return (entry.links ?? {}) as AnimeCustomLinks;
+}
+
+/**
+ * Dış bağlantı kartları. Elle girilen adres her zaman kazanır; girilmemişse
+ * AniList künyesinden türetilir. Adresi olmayan tür hiç kart açmaz — boş bir
+ * karta tıklamak, kartın hiç olmamasından kötü.
+ */
+function buildLinks(
+  entry: EntryWithParts,
+  root: AnilistMedia | null,
+): AnimeLink[] {
+  const custom = readCustomLinks(entry);
+  const candidates: Array<{ kind: AnimeLinkKind; url: string | null }> = [
+    {
+      kind: 'MANGA',
+      url:
+        custom.manga ??
+        (root?.manga
+          ? `https://anilist.co/manga/${root.manga.anilistId}`
+          : null),
+    },
+    { kind: 'TRAILER', url: custom.trailer ?? root?.trailerUrl ?? null },
+    // OP/ED'yi hiçbir kaynak vermiyor: yalnızca elle girilir
+    { kind: 'OPENING', url: custom.opening ?? null },
+    { kind: 'ENDING', url: custom.ending ?? null },
+    { kind: 'OFFICIAL', url: custom.official ?? root?.officialSite ?? null },
+    { kind: 'ANILIST', url: `https://anilist.co/anime/${entry.anilistId}` },
+    {
+      kind: 'MAL',
+      url: entry.malId ? `https://myanimelist.net/anime/${entry.malId}` : null,
+    },
+  ];
+
+  return candidates
+    .filter((item): item is { kind: AnimeLinkKind; url: string } =>
+      Boolean(item.url),
+    )
+    .map((item) => ({ kind: item.kind, url: item.url }));
 }
 
 function toArchivePart(part: AnimePart): ArchiveAnimePart {
@@ -777,23 +932,6 @@ function buildStats(entries: ArchiveAnime[]): AnimeArchiveStats {
     ),
     topTag,
   };
-}
-
-// Film salonundaki "yönetmenler" şeridinin karşılığı
-function topStudios(
-  entries: ArchiveAnime[],
-): Array<{ name: string; count: number }> {
-  const counts = new Map<string, number>();
-  for (const entry of entries) {
-    for (const studio of entry.studios) {
-      const weight = entry.isFavorite ? 2 : 1;
-      counts.set(studio, (counts.get(studio) ?? 0) + weight);
-    }
-  }
-  return [...counts.entries()]
-    .map(([name, count]) => ({ name, count }))
-    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'tr'))
-    .slice(0, 6);
 }
 
 function collect(

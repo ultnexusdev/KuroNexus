@@ -620,7 +620,6 @@
     "allGenres": "All",
     "moreGenres": "+{count} more",
     "fewerGenres": "Show fewer",
-    "studios": "Studios",
     "favorite": "Favourite",
     "shelfCount": "{count} series",
     "episodeOf": "{watched}/{total} episodes",
@@ -635,19 +634,19 @@
     },
     "shelf": {
       "watching": "Watching",
+      "paused": "On Hold",
       "upcoming": "More To Come",
       "completed": "Finished",
-      "planned": "Plan To Watch",
-      "paused": "On Hold",
-      "favorites": "Favourites"
+      "favorites": "Favourites",
+      "planned": "Plan To Watch"
     },
     "shelfEmpty": {
       "watching": "You're not watching anything right now.",
+      "paused": "Nothing paused and waiting.",
       "upcoming": "No series with an announced continuation.",
       "completed": "You haven't finished a series yet.",
-      "planned": "Nothing queued up.",
-      "paused": "Nothing on hold.",
-      "favorites": "No favourites marked yet."
+      "favorites": "No favourites marked yet.",
+      "planned": "Nothing planned yet."
     },
     "curator": {
       "on": "Curator mode on",
@@ -688,7 +687,6 @@
       "editCount": "Type the episode count"
     },
     "detail": {
-      "studio": "Studio",
       "year": "Year",
       "seasons": "Parts",
       "partCount": "{count} seasons/films",
@@ -717,7 +715,32 @@
       "partDone": "Season done",
       "completeThrough": "Watched everything up to here",
       "completeThroughHint": "This part and every part before it are marked complete.",
-      "mangaChapter": "Manga chapter"
+      "mangaChapter": "Manga chapter",
+      "links": "External Links",
+      "linkName": {
+        "MANGA": "Manga",
+        "TRAILER": "Trailer",
+        "OPENING": "Opening",
+        "ENDING": "Ending",
+        "OFFICIAL": "Official Site",
+        "ANILIST": "AniList",
+        "MAL": "MyAnimeList"
+      },
+      "curatorTitle": "Curator Dossier",
+      "curatorLede": "The page banner and hand-entered links. Clear a field and the AniList value comes back.",
+      "bannerField": "Banner URL",
+      "bannerUpload": "Or upload an image",
+      "linkField": {
+        "manga": "Manga link",
+        "opening": "Opening (YouTube)",
+        "ending": "Ending (YouTube)",
+        "trailer": "Trailer (overrides AniList)",
+        "official": "Official site (overrides AniList)"
+      },
+      "save": "Save",
+      "saving": "Saving…",
+      "saved": "Saved",
+      "saveError": "Could not save. Please try again."
     },
     "filters": {
       "genre": "Genre",

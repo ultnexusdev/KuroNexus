@@ -15,7 +15,6 @@ const EMPTY_ARCHIVE: AnimeArchive = {
     watchedEpisodes: 0,
     topTag: null,
   },
-  studios: [],
   genres: [],
   tags: [],
 };

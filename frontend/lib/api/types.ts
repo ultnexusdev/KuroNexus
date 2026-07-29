@@ -415,9 +415,10 @@ export interface ArchiveAnime {
   description: string | null;
   coverImage: string | null;
   bannerImage: string | null;
+  /** Yalnızca küratörün seçtiği banner; boşsa AniList'ten geleni gösteriliyor */
+  customBanner: string | null;
   genres: string[];
   tags: string[];
-  studios: string[];
   averageScore: number | null;
   startYear: number | null;
   airingState: AiringState;
@@ -434,6 +435,32 @@ export interface ArchiveAnime {
     volumes: number | null;
     status: string | null;
   } | null;
+  links: AnimeLink[];
+  customLinks: AnimeCustomLinks;
+}
+
+/** Anime sayfasının altındaki küçük bağlantı kartları */
+export type AnimeLinkKind =
+  | "MANGA"
+  | "TRAILER"
+  | "OPENING"
+  | "ENDING"
+  | "OFFICIAL"
+  | "ANILIST"
+  | "MAL";
+
+export interface AnimeLink {
+  kind: AnimeLinkKind;
+  url: string;
+}
+
+/** Yalnızca küratörün elle girdiği adresler (form bunları doldurur) */
+export interface AnimeCustomLinks {
+  manga?: string;
+  trailer?: string;
+  opening?: string;
+  ending?: string;
+  official?: string;
 }
 
 export interface AnimeArchive {
@@ -445,7 +472,6 @@ export interface AnimeArchive {
     watchedEpisodes: number;
     topTag: string | null;
   };
-  studios: Array<{ name: string; count: number }>;
   genres: string[];
   tags: string[];
 }

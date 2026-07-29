@@ -84,6 +84,10 @@ export interface AnilistMedia {
   nextEpisode: number | null;
   nextAiringAt: number | null;
   source: string | null;
+  /** Fragman (YouTube/Dailymotion) — dış bağlantı kartlarının kaynağı */
+  trailerUrl: string | null;
+  /** Yapımın resmi sitesi (AniList `externalLinks` içinden) */
+  officialSite: string | null;
   /** Uyarlandığı manga (Faz B'de "anime nerede bitti" bağı için) */
   manga: {
     anilistId: number;
@@ -144,6 +148,8 @@ const MEDIA_FIELDS = `
   studios(isMain: true) { nodes { name } }
   averageScore
   source
+  trailer { id site }
+  externalLinks { site url type }
   nextAiringEpisode { episode airingAt }
   relations {
     edges {
@@ -174,6 +180,12 @@ interface RawMedia {
   studios?: { nodes?: Array<{ name: string }> };
   averageScore: number | null;
   source: string | null;
+  trailer?: { id: string | null; site: string | null } | null;
+  externalLinks?: Array<{
+    site: string | null;
+    url: string | null;
+    type: string | null;
+  }> | null;
   nextAiringEpisode?: { episode: number; airingAt: number } | null;
   relations?: {
     edges?: Array<{
@@ -231,7 +243,7 @@ export class AnilistService {
    * gün sonra" bilgisi bir hafta bekletilirse yanlış olur.
    */
   async getMedia(anilistId: number): Promise<AnilistMedia> {
-    const cacheKey = `anilist:media:v2:${anilistId}`;
+    const cacheKey = `anilist:media:v3:${anilistId}`;
     const cached = await this.prisma.externalCache.findUnique({
       where: { cacheKey },
     });
@@ -266,7 +278,7 @@ export class AnilistService {
   async getMediaWithRelations(
     anilistId: number,
   ): Promise<{ media: AnilistMedia; relations: AnilistRelation[] }> {
-    const cacheKey = `anilist:media:v2:${anilistId}`;
+    const cacheKey = `anilist:media:v3:${anilistId}`;
     const cached = await this.prisma.externalCache.findUnique({
       where: { cacheKey },
     });
@@ -517,6 +529,8 @@ function normalize(raw: RawMedia): {
     nextEpisode: raw.nextAiringEpisode?.episode ?? null,
     nextAiringAt: raw.nextAiringEpisode?.airingAt ?? null,
     source: raw.source,
+    trailerUrl: trailerUrl(raw.trailer),
+    officialSite: officialSite(raw.externalLinks),
     manga: mangaEdge
       ? {
           anilistId: mangaEdge.node.id,
@@ -540,6 +554,43 @@ function normalize(raw: RawMedia): {
     }));
 
   return { media, relations };
+}
+
+/**
+ * AniList fragmanı yalnızca site adı + video id veriyor; izlenebilir adresi
+ * biz kuruyoruz. Tanımadığımız bir kaynak gelirse bağlantı hiç gösterilmez —
+ * yarım bir adres üretmektense kart eksik kalsın.
+ */
+function trailerUrl(
+  trailer: { id: string | null; site: string | null } | null | undefined,
+): string | null {
+  if (!trailer?.id || !trailer.site) {
+    return null;
+  }
+  const site = trailer.site.toLowerCase();
+  if (site === 'youtube') {
+    return `https://www.youtube.com/watch?v=${trailer.id}`;
+  }
+  if (site === 'dailymotion') {
+    return `https://www.dailymotion.com/video/${trailer.id}`;
+  }
+  return null;
+}
+
+/**
+ * Resmi site: `externalLinks` içinde yayın platformları (Crunchyroll, Netflix)
+ * ve sosyal hesaplar da geliyor — yalnızca "Official Site" işaretlisi alınır.
+ */
+function officialSite(
+  links:
+    | Array<{ site: string | null; url: string | null; type: string | null }>
+    | null
+    | undefined,
+): string | null {
+  const match = (links ?? []).find(
+    (link) => link.site?.toLowerCase() === 'official site' && link.url,
+  );
+  return match?.url ?? null;
 }
 
 /** İzleme sırası: yayın yılı, sonra format (TV önce), sonra id. */

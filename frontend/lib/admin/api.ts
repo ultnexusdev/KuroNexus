@@ -3,6 +3,7 @@ import type {
   AdminWikiEntrySummary,
   AmbientTrack,
   AnilistSearchResult,
+  AnimeCustomLinks,
   AnimeWatchStatus,
   AuthenticatedUser,
   LoginResult,
@@ -504,6 +505,10 @@ export interface AnimeEntryInput {
   isFavorite?: boolean;
   personalRating?: number;
   personalNote?: string;
+  /** Sabit banner: tam adres ya da yüklenen dosyanın yolu; boş metin temizler */
+  bannerImage?: string;
+  /** Elle girilen dış bağlantılar; boş metin o bağlantıyı temizler */
+  links?: AnimeCustomLinks;
 }
 
 /** Sezon ilerlemesi: `delta` günlük kullanım, `watchedEpisodes` doğrudan atama. */

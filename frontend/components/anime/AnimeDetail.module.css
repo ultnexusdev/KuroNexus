@@ -34,6 +34,9 @@
 .inner {
   position: relative;
   z-index: 1;
+  /* Projede genel bir box-sizing sifirlamasi yok: border-box yazilmazsa yan
+     bosluk genisligin ustune biniyor ve sayfa dar ekranda yatay kayiyordu */
+  box-sizing: border-box;
   width: min(1080px, 100%);
   margin-inline: auto;
   padding: 0 var(--pad-md);
@@ -478,6 +481,97 @@
   margin: 6px 0 0;
   color: var(--text-muted);
   font-size: 0.8rem;
+}
+
+/* --- Dis baglantilar --- */
+
+.linkCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--gap-sm);
+  margin: var(--gap-lg) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.linkCard {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 var(--gap-md);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+  text-decoration: none;
+}
+
+.linkCard:hover {
+  border-color: var(--accent-muted);
+  color: var(--accent);
+}
+
+.linkIcon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.linkLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --- Kurator kunyesi (banner + elle girilen baglantilar) --- */
+
+.dossier {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--gap-md);
+  margin-top: var(--gap-lg);
+}
+
+.dossierField,
+.dossierUpload {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 0.74rem;
+}
+
+.dossierField input {
+  min-height: 40px;
+  padding: 0 10px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text-primary);
+  font-size: 0.82rem;
+}
+
+.dossierUpload input {
+  color: var(--text-secondary);
+  font-size: 0.76rem;
+}
+
+.dossierActions {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-md);
+  margin-top: var(--gap-lg);
+}
+
+.dossierNote {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.dossierError {
+  color: var(--danger);
+  font-size: 0.78rem;
 }
 
 @media (max-width: 640px) {

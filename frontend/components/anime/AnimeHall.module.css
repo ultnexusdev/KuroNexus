@@ -206,6 +206,14 @@
   color: var(--accent);
 }
 
+/* Raf isareti: basligin onunde, ondan kucuk ve solgun — bir gosterge,
+   basligin parcasi degil */
+.shelfIcon {
+  margin-right: 8px;
+  font-size: 0.9rem;
+  opacity: 0.75;
+}
+
 .shelfCount {
   color: var(--text-muted);
   font-size: 0.78rem;
@@ -437,30 +445,6 @@
 .badgePaused {
   border-color: color-mix(in srgb, var(--danger) 45%, transparent);
   color: var(--danger);
-}
-
-/* --- Studyolar --- */
-
-.studios {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--gap-sm);
-  margin-top: var(--gap-lg);
-  padding: 0;
-  list-style: none;
-}
-
-.studio {
-  padding: 6px 12px;
-  border: 0.5px solid var(--border);
-  border-radius: var(--radius);
-  color: var(--text-secondary);
-  font-size: 0.8rem;
-}
-
-.studioCount {
-  margin-left: 6px;
-  color: var(--text-muted);
 }
 
 /* --- Kurator --- */

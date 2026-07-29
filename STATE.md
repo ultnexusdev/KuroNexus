@@ -5,6 +5,29 @@
 
 ## Mevcut Aşama
 
+> **GÜN KAPANIŞI — 29 Temmuz 2026 gecesi, iş yeri makinesi.** Altı push gitti,
+> hepsi canlıda doğrulandı: `7ece552` anime sekmeleri + sabit banner + dış
+> bağlantılar → `8bb5960` film sayfası + "en üste git" + öneriler havuz kadar →
+> `189f7a0` eski film künyeleri kendiliğinden tazelensin → `5e6de24` üç sütunlu
+> film sayfası + tıklanabilir raflar + küratör kısayolları → `000fcf7` "Nexus'u
+> Keşfet" baştan yazıldı (`GET /pulse`) → `720a5d7` film kapısı sayı düzeltmesi.
+> Çalışma dizini temiz, bekleyen değişiklik yok.
+>
+> **Bu turda alınan çalışma tarzı kararı:** kullanıcı lokalde kontrol edemiyor,
+> lokal görsel doğrulamaya token harcanmayacak — build/lint temizse push edilip
+> canlıda `curl` ile doğrulanıyor, kullanıcıya nelere bakacağı söyleniyor.
+>
+> **Kullanıcının canlıda bakacakları (henüz gerçek girişle denenmedi):**
+> 1. Anime ve film sayfalarındaki **küratör künyesi** — banner/RT/IMDb/fragman
+>    adresi kaydediliyor mu, afiş üstündeki hızlı düğmeler (İzledim/İzleyeceğim/
+>    Favori) çalışıyor mu.
+> 2. "En üste git" düğmesinin yumuşak kaydırması (lokal panelde ölçülemedi).
+> 3. Geniş ekranda (≥1500px) film sayfasının üç sütunu.
+>
+> **Açık öneri (kullanıcıya soruldu, yanıt bekliyor):** Dizi salonu tamamen boş
+> (0 evren, kapı altında söyleyecek veri yok) — ya "yakında" rozetiyle
+> işaretlenecek ya da film salonundaki desenle TMDB'li bir dizi arşivi kurulacak.
+>
 > **OTURUM NOTU — 28 Temmuz 2026, iş yeri makinesi.** Gün içinde dört push gitti,
 > hepsi canlıda: `5621ec0` yazım atölyesi adım 1 → `752f773` metin↔lore bağı →
 > `b312d96` film salonu → `ebf9a5f` film düzeltmeleri. Çalışma dizini temiz,

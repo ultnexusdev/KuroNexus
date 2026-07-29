@@ -1,5 +1,5 @@
 import { apiFetch } from "./client";
-import type { MovieArchive, MovieShowcase } from "./types";
+import type { MovieArchive, MovieDetail, MovieShowcase } from "./types";
 
 const EMPTY_SHOWCASE: MovieShowcase = { left: null, right: null };
 
@@ -54,5 +54,18 @@ export async function getMovieArchive(): Promise<MovieArchive> {
     return await fetchMovieArchive();
   } catch {
     return EMPTY_ARCHIVE;
+  }
+}
+
+/** Film sayfası: künye + kadro + fragman + platformlar. Yoksa null (404). */
+export async function getMovieDetail(
+  slug: string,
+): Promise<MovieDetail | null> {
+  try {
+    return await apiFetch<MovieDetail>(`/movies/${encodeURIComponent(slug)}`, {
+      cache: "no-store",
+    });
+  } catch {
+    return null;
   }
 }

@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+import { Link } from "@/lib/i18n/navigation";
 import { tmdbImage } from "@/lib/api/movies";
 import type { ArchiveMovie } from "@/lib/api/types";
 import styles from "./FilmHall.module.css";
@@ -52,10 +53,13 @@ export function MovieCard({
 }) {
   const t = useTranslations("film");
   const rating = movie.personalRating ?? movie.voteAverage;
+  const href = `/dark-stories/category/film/${movie.slug}`;
 
   return (
     <article className={styles.card}>
-      <div className={styles.posterWrap}>
+      {/* Afiş filmin kendi sayfasına açılır; künye örtüsü bağlantının içinde
+          kalıyor ki üstüne gelince hem künye görünsün hem tıklanabilsin */}
+      <Link href={href} className={styles.posterWrap}>
         <Poster
           movie={movie}
           size="w342"
@@ -93,9 +97,13 @@ export function MovieCard({
             ★
           </span>
         ) : null}
-      </div>
+      </Link>
 
-      <h3 className={styles.cardTitle}>{movie.title}</h3>
+      <h3 className={styles.cardTitle}>
+        <Link href={href} className={styles.titleLink}>
+          {movie.title}
+        </Link>
+      </h3>
       <p className={styles.cardMeta}>
         {movie.releaseYear ? <span>{movie.releaseYear}</span> : null}
         {rating ? (

@@ -17,6 +17,19 @@ const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // kural 14: varsayılan 7 gün
 // Popüler/trend listeleri künyeden hızlı eskiyor — bir gün yeterli
 const LIST_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
+export interface TmdbCastMember {
+  name: string;
+  character: string | null;
+  profilePath: string | null;
+}
+
+/** Bir izleme platformu: adı, logosu ve hangi yolla (abonelik/kira/satın alma) */
+export interface TmdbProvider {
+  name: string;
+  logoPath: string | null;
+  kind: 'FLATRATE' | 'RENT' | 'BUY';
+}
+
 export interface TmdbMovie {
   tmdbId: number;
   title: string;
@@ -29,6 +42,18 @@ export interface TmdbMovie {
   genres: string[];
   voteAverage: number | null;
   director: string | null;
+  /** Film sayfası için (v2 künye): liste görünümünde kullanılmaz */
+  tagline: string | null;
+  /** IMDb bağlantısının kaynağı — TMDB künyeyle birlikte veriyor */
+  imdbId: string | null;
+  homepage: string | null;
+  cast: TmdbCastMember[];
+  /** YouTube fragman anahtarı; gömülü oynatıcı bunu kullanır */
+  trailerKey: string | null;
+  /** Türkiye'de nerede izlenir (TMDB'nin JustWatch verisi) */
+  providers: TmdbProvider[];
+  /** JustWatch'un o filme ait sayfası — sağlayıcı rozetleri buraya bağlanır */
+  providerLink: string | null;
 }
 
 interface TmdbGenre {
@@ -41,18 +66,52 @@ interface TmdbCrewMember {
   name?: string;
 }
 
+interface TmdbCastEntry {
+  name?: string;
+  character?: string;
+  profile_path?: string | null;
+  order?: number;
+}
+
+interface TmdbVideo {
+  key?: string;
+  site?: string;
+  type?: string;
+  official?: boolean;
+}
+
+interface TmdbProviderEntry {
+  provider_name?: string;
+  logo_path?: string | null;
+}
+
 interface TmdbMovieResponse {
   id: number;
   title?: string;
   original_title?: string;
   overview?: string;
+  tagline?: string;
+  homepage?: string;
+  imdb_id?: string | null;
   poster_path?: string | null;
   backdrop_path?: string | null;
   release_date?: string;
   runtime?: number | null;
   genres?: TmdbGenre[];
   vote_average?: number;
-  credits?: { crew?: TmdbCrewMember[] };
+  credits?: { crew?: TmdbCrewMember[]; cast?: TmdbCastEntry[] };
+  videos?: { results?: TmdbVideo[] };
+  'watch/providers'?: {
+    results?: Record<
+      string,
+      {
+        link?: string;
+        flatrate?: TmdbProviderEntry[];
+        rent?: TmdbProviderEntry[];
+        buy?: TmdbProviderEntry[];
+      }
+    >;
+  };
 }
 
 interface TmdbSearchResponse {
@@ -81,6 +140,8 @@ export class TmdbService {
   private readonly logger = new Logger(TmdbService.name);
   private readonly apiKey?: string;
   private readonly language: string;
+  /** "Nerede izlenir" hangi ülkeye göre okunacak (TMDB bölge kodu) */
+  private readonly watchRegion: string;
 
   constructor(
     private readonly prisma: PrismaService,
@@ -92,6 +153,7 @@ export class TmdbService {
       config.get<string>('TMDB_READ_ACCESS_TOKEN') ??
       config.get<string>('TMDB_API_KEY');
     this.language = config.get<string>('TMDB_LANGUAGE') ?? 'tr-TR';
+    this.watchRegion = config.get<string>('TMDB_WATCH_REGION') ?? 'TR';
   }
 
   get isConfigured(): boolean {
@@ -124,7 +186,8 @@ export class TmdbService {
    * bayat kayıt kullanılır — kullanıcıya hata gösterilmez (kural 4/14).
    */
   async getMovie(tmdbId: number): Promise<TmdbMovie> {
-    const cacheKey = `tmdb:movie:${tmdbId}:${this.language}`;
+    // v2: künyeye kadro, fragman, IMDb numarası ve izleme platformları eklendi
+    const cacheKey = `tmdb:movie:v2:${tmdbId}:${this.language}`;
     const cached = await this.prisma.externalCache.findUnique({
       where: { cacheKey },
     });
@@ -136,9 +199,11 @@ export class TmdbService {
 
     try {
       const raw = await this.request<TmdbMovieResponse>(`/movie/${tmdbId}`, {
-        append_to_response: 'credits',
+        append_to_response: 'credits,videos,watch/providers',
+        // Türkçe fragman çoğu filmde yok; dil kısıtı konmazsa liste boş döner
+        include_video_language: 'tr,en,null',
       });
-      const movie = normalize(raw);
+      const movie = normalize(raw, this.watchRegion);
       await this.prisma.externalCache.upsert({
         where: { cacheKey },
         create: {
@@ -324,7 +389,10 @@ function isBearerToken(key: string): boolean {
   return key.startsWith('eyJ');
 }
 
-function normalize(raw: TmdbMovieResponse): TmdbMovie {
+// Kadro sayfada tek şeride sığsın diye başrollerle sınırlı
+const CAST_LIMIT = 12;
+
+function normalize(raw: TmdbMovieResponse, watchRegion: string): TmdbMovie {
   const director =
     raw.credits?.crew?.find((member) => member.job === 'Director')?.name ??
     null;
@@ -340,5 +408,66 @@ function normalize(raw: TmdbMovieResponse): TmdbMovie {
     genres: (raw.genres ?? []).map((genre) => genre.name),
     voteAverage: typeof raw.vote_average === 'number' ? raw.vote_average : null,
     director,
+    tagline: raw.tagline || null,
+    imdbId: raw.imdb_id || null,
+    homepage: raw.homepage || null,
+    cast: (raw.credits?.cast ?? []).slice(0, CAST_LIMIT).map((member) => ({
+      name: member.name ?? '',
+      character: member.character || null,
+      profilePath: member.profile_path ?? null,
+    })),
+    trailerKey: pickTrailer(raw.videos?.results),
+    providers: pickProviders(raw['watch/providers']?.results?.[watchRegion]),
+    providerLink: raw['watch/providers']?.results?.[watchRegion]?.link ?? null,
   };
+}
+
+/**
+ * Fragman seçimi: önce resmi YouTube fragmanı, sonra herhangi bir YouTube
+ * fragmanı, en sonda ilk YouTube videosu (teaser/klip). Vimeo ve diğerleri
+ * alınmaz — gömülü oynatıcı yalnızca YouTube ile çalışıyor.
+ */
+function pickTrailer(videos: TmdbVideo[] | undefined): string | null {
+  const youtube = (videos ?? []).filter(
+    (video) => video.site === 'YouTube' && video.key,
+  );
+  const official = youtube.find(
+    (video) => video.type === 'Trailer' && video.official,
+  );
+  const trailer = youtube.find((video) => video.type === 'Trailer');
+  return (official ?? trailer ?? youtube[0])?.key ?? null;
+}
+
+/**
+ * Platform listesi. Aynı platform hem abonelikte hem kirada görünebiliyor;
+ * abonelik önce geliyor ve tekrar edenler eleniyor — "Netflix · Netflix"
+ * gibi bir rozet sırası okunmuyor.
+ */
+function pickProviders(
+  region:
+    | {
+        flatrate?: TmdbProviderEntry[];
+        rent?: TmdbProviderEntry[];
+        buy?: TmdbProviderEntry[];
+      }
+    | undefined,
+): TmdbProvider[] {
+  const groups: Array<[TmdbProvider['kind'], TmdbProviderEntry[]]> = [
+    ['FLATRATE', region?.flatrate ?? []],
+    ['RENT', region?.rent ?? []],
+    ['BUY', region?.buy ?? []],
+  ];
+  const seen = new Set<string>();
+  const providers: TmdbProvider[] = [];
+  for (const [kind, entries] of groups) {
+    for (const entry of entries) {
+      const name = entry.provider_name;
+      if (!name || seen.has(name)) {
+        continue;
+      }
+      seen.add(name);
+      providers.push({ name, logoPath: entry.logo_path ?? null, kind });
+    }
+  }
+  return providers;
 }

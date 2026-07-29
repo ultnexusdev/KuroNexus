@@ -23,6 +23,7 @@ import {
   type AnimeFilter,
   type FilterChip,
 } from "@/lib/anime/filters";
+import { BackToTop } from "@/components/BackToTop";
 import { AnimeCard } from "./AnimeCard";
 import styles from "./AnimeHall.module.css";
 
@@ -277,6 +278,8 @@ export function AnimeHall({
           </>
         )}
       </div>
+
+      <BackToTop />
     </div>
   );
 }

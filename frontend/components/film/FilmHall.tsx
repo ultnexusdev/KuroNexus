@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/lib/i18n/navigation";
 import type { ArchiveMovie, MovieArchive } from "@/lib/api/types";
 import { belongsTo, shelfHref, type ShelfKey } from "@/lib/film/shelves";
+import { BackToTop } from "@/components/BackToTop";
 import { FilmBackdrop } from "./FilmBackdrop";
 import { MovieCard, Poster } from "./MovieCard";
 import styles from "./FilmHall.module.css";
@@ -365,6 +366,8 @@ export function FilmHall({
           </>
         )}
       </div>
+
+      <BackToTop />
     </div>
   );
 }

@@ -1,0 +1,42 @@
+/* "En uste git" — sag altta sabit durur, salonun paletini kullanir
+   (AGENTS.md kural 16: hex yok, yalnizca token). */
+
+.button {
+  position: fixed;
+  right: var(--pad-md);
+  bottom: calc(var(--pad-md) + env(safe-area-inset-bottom, 0px));
+  z-index: 40;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  /* Dokunma alani en az 44px (kural 2) */
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  color: var(--text-secondary);
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+}
+
+.button:hover {
+  border-color: var(--accent-muted);
+  color: var(--accent);
+}
+
+/* Dar ekranda yalnizca ok kalir: metin serit gibi yer kapliyor */
+@media (max-width: 640px) {
+  .label {
+    display: none;
+  }
+
+  .button {
+    justify-content: center;
+    padding: 0;
+  }
+}

@@ -7,6 +7,7 @@ import type {
   AnimeWatchStatus,
   AuthenticatedUser,
   LoginResult,
+  MovieCustomLinks,
   MovieEntryRecord,
   MovieStatus,
   Story,
@@ -341,6 +342,8 @@ export interface MovieEntryInput {
   personalRating?: number;
   personalNote?: string;
   watchedAt?: string;
+  /** Elle girilen adresler (RT, IMDb, fragman); boş metin o bağlantıyı siler */
+  links?: MovieCustomLinks;
 }
 
 export function searchTmdbMovies(query: string): Promise<TmdbSearchResult[]> {

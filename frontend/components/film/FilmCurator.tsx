@@ -33,8 +33,12 @@ import styles from "./FilmCurator.module.css";
 
 const STATUSES: MovieStatus[] = ["WATCHED", "WATCHLIST", "REWATCH"];
 
-// Öneriler rafında aynı anda kaç film durur
-const SUGGESTION_COUNT = 10;
+/**
+ * Öneriler rafı havuzun **tamamını** gösterir (kullanıcı kararı): havuz zaten
+ * arşivde olanlar ve elenenler ayıklanmış hâlde geliyor, onda birini
+ * göstermek listeyi yapay olarak kısaltıyordu. Sıra her açılışta karışıyor —
+ * hep aynı filmlerle karşılaşmamak için.
+ */
 
 function today(): string {
   return new Date().toISOString().slice(0, 10);
@@ -290,14 +294,14 @@ export function SuggestionShelf() {
   const [added, setAdded] = useState<Set<number>>(new Set());
   const [dismissed, setDismissed] = useState<Set<number>>(new Set());
 
-  /** Havuzdan rastgele on film seçer. */
+  /** Havuzun tamamını karışık sırayla dizer. */
   const draw = useCallback((from: TmdbSearchResult[]) => {
     const copy = [...from];
     for (let i = copy.length - 1; i > 0; i -= 1) {
       const j = Math.floor(Math.random() * (i + 1));
       [copy[i], copy[j]] = [copy[j], copy[i]];
     }
-    setShown(copy.slice(0, SUGGESTION_COUNT));
+    setShown(copy);
   }, []);
 
   useEffect(() => {
@@ -368,7 +372,7 @@ export function SuggestionShelf() {
   }
 
   /**
-   * Yenile: elden geçenleri havuzdan düşürüp yeni bir onluk çeker ve arşivi
+   * Yenile: elden geçenleri havuzdan düşürüp kalanı yeniden karar ve arşivi
    * tazeler — eklediğin filmler sayfanın alt bölümlerine burada yansır.
    */
   function refresh() {

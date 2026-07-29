@@ -286,6 +286,8 @@ export type MovieStatus = "WATCHED" | "WATCHLIST" | "REWATCH";
 // Kişisel alanlar bizim, künye alanları TMDB anlık görüntüsünden gelir
 export interface ArchiveMovie {
   id: string;
+  /** Film sayfasının adresi — backend başlıktan türetir */
+  slug: string;
   tmdbId: number;
   status: MovieStatus;
   isFavorite: boolean;
@@ -313,6 +315,53 @@ export interface MovieArchive {
   };
   directors: Array<{ name: string; count: number }>;
   genres: string[];
+}
+
+/** Film sayfasının bağlantı kartları */
+export type MovieLinkKind = "TMDB" | "IMDB" | "RT" | "HOMEPAGE";
+
+export interface MovieLink {
+  kind: MovieLinkKind;
+  url: string;
+  /** Doğrudan filme değil arama sayfasına gidiyorsa true (Rotten Tomatoes) */
+  isSearch: boolean;
+}
+
+/** Yalnızca küratörün elle girdiği adresler (form bunları doldurur) */
+export interface MovieCustomLinks {
+  rt?: string;
+  imdb?: string;
+  trailer?: string;
+}
+
+export interface MovieCastMember {
+  name: string;
+  character: string | null;
+  profilePath: string | null;
+}
+
+export interface MovieProvider {
+  name: string;
+  logoPath: string | null;
+  kind: "FLATRATE" | "RENT" | "BUY";
+}
+
+export interface SimilarMovie extends TmdbSearchResult {
+  /** Arşivde var mı — varsa kart doğrudan o filmin sayfasına gider */
+  inArchive: boolean;
+  slug: string | null;
+}
+
+export interface MovieDetail {
+  movie: ArchiveMovie;
+  tagline: string | null;
+  cast: MovieCastMember[];
+  trailerKey: string | null;
+  providers: MovieProvider[];
+  providerLink: string | null;
+  links: MovieLink[];
+  customLinks: MovieCustomLinks;
+  similar: SimilarMovie[];
 }
 
 export interface ShowcasePoster {

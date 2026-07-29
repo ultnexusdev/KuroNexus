@@ -6,9 +6,12 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import {
   TmdbService,
+  type TmdbCastMember,
   type TmdbMovie,
+  type TmdbProvider,
   type TmdbSearchResult,
 } from './tmdb.service';
+import { slugify } from '../common/utils/slugify';
 import { CreateMovieEntryDto } from './dto/create-movie-entry.dto';
 import { UpdateMovieEntryDto } from './dto/update-movie-entry.dto';
 import type { MovieEntry, Prisma } from '../generated/prisma/client';
@@ -16,6 +19,9 @@ import type { MovieEntry, Prisma } from '../generated/prisma/client';
 // Öneri havuzu: kaç kaynak filmden benzer istenir, havuz kaç film taşır
 const SUGGESTION_SEEDS = 4;
 const SUGGESTION_POOL = 60;
+
+// Film sayfasının sağ rayındaki "benzer filmler" kaç kayıt taşır
+const SIMILAR_LIMIT = 12;
 
 // Keşif ayağı: her istekte bu türlerden kaçı taranır ve hangi sayfaya kadar
 const DISCOVERY_QUERIES = 6;
@@ -80,8 +86,47 @@ export interface MovieArchiveStats {
   watchlist: number;
 }
 
+/** Film sayfasının altındaki bağlantı kartları. */
+export type MovieLinkKind = 'TMDB' | 'IMDB' | 'RT' | 'HOMEPAGE';
+
+export interface MovieLink {
+  kind: MovieLinkKind;
+  url: string;
+  /**
+   * Adres doğrudan filme mi gidiyor yoksa arama sayfasına mı. Rotten
+   * Tomatoes'un ne API'si ne TMDB'de karşılığı var: kart varsayılan olarak
+   * arama adresine gider, küratör doğrusunu yapıştırınca bu bayrak düşer.
+   */
+  isSearch: boolean;
+}
+
+/** Küratörün elle girdiği adresler — `MovieEntry.links` alanının şekli. */
+export interface MovieCustomLinks {
+  rt?: string;
+  imdb?: string;
+  trailer?: string;
+}
+
+/** Elle girilebilen alanlar — kaydetme döngüsü bunları gezer. */
+const MOVIE_LINK_FIELDS = [
+  'rt',
+  'imdb',
+  'trailer',
+] as const satisfies ReadonlyArray<keyof MovieCustomLinks>;
+
+/** Şemasız yapıştırılan adrese `https://` ekler; boş metin null döner. */
+function normalizeUrl(value: string | null | undefined): string | null {
+  const trimmed = (value ?? '').trim();
+  if (!trimmed) {
+    return null;
+  }
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+}
+
 export interface ArchiveMovie {
   id: string;
+  /** Film sayfasının adresi. Başlıktan türetilir, veritabanında tutulmaz. */
+  slug: string;
   tmdbId: number;
   status: MovieEntry['status'];
   isFavorite: boolean;
@@ -97,6 +142,26 @@ export interface ArchiveMovie {
   genres: string[];
   voteAverage: number | null;
   director: string | null;
+}
+
+/**
+ * Film sayfasının verisi. Arşiv kartından farkı: yalnızca burada gereken
+ * ağır alanlar (kadro, fragman, platformlar, benzer filmler) burada duruyor —
+ * salon listesi bunları taşımıyor.
+ */
+export interface MovieDetail {
+  movie: ArchiveMovie;
+  tagline: string | null;
+  cast: TmdbCastMember[];
+  trailerKey: string | null;
+  providers: TmdbProvider[];
+  providerLink: string | null;
+  links: MovieLink[];
+  customLinks: MovieCustomLinks;
+  /** Benzer filmler; arşivde olanlar işaretli gelir */
+  similar: Array<
+    TmdbSearchResult & { inArchive: boolean; slug: string | null }
+  >;
 }
 
 @Injectable()
@@ -123,12 +188,60 @@ export class MoviesService {
       orderBy: [{ watchedAt: 'desc' }, { createdAt: 'desc' }],
     });
 
-    const movies = entries.map((entry) => toArchiveMovie(entry));
+    const movies = withSlugs(entries);
     return {
       movies,
       stats: buildStats(entries, movies),
       directors: topDirectors(movies),
       genres: allGenres(movies),
+    };
+  }
+
+  /**
+   * Film sayfası: künye + kadro + fragman + platformlar + benzerler.
+   *
+   * Kadro ve fragman TMDB künyesinin içinde geldiği için ek istek yok;
+   * yalnızca "benzer filmler" ayrı bir uçtan geliyor ve o da cache'li.
+   * Benzerler alınamazsa sayfa onlarsız açılır (kural 4).
+   */
+  async getDetail(slug: string): Promise<MovieDetail> {
+    const entries = await this.prisma.movieEntry.findMany({
+      where: { isDeleted: false },
+      orderBy: [{ watchedAt: 'desc' }, { createdAt: 'desc' }],
+    });
+    const movies = withSlugs(entries);
+    const index = movies.findIndex((movie) => movie.slug === slug);
+    if (index === -1) {
+      throw new NotFoundException('MOVIES.NOT_FOUND');
+    }
+    const movie = movies[index];
+    const entry = entries[index];
+    const data = (entry.externalData ?? null) as TmdbMovie | null;
+
+    let similar: TmdbSearchResult[] = [];
+    try {
+      similar = await this.tmdb.recommendations(entry.tmdbId);
+    } catch {
+      // Benzerler süs; alınamazsa sayfa eksik değil sade açılır
+    }
+    const bySlug = new Map(movies.map((item) => [item.tmdbId, item.slug]));
+
+    return {
+      movie,
+      tagline: data?.tagline ?? null,
+      cast: data?.cast ?? [],
+      trailerKey: readCustomLinks(entry).trailer
+        ? youtubeKey(readCustomLinks(entry).trailer!)
+        : (data?.trailerKey ?? null),
+      providers: data?.providers ?? [],
+      providerLink: data?.providerLink ?? null,
+      links: buildLinks(entry, data),
+      customLinks: readCustomLinks(entry),
+      similar: similar.slice(0, SIMILAR_LIMIT).map((item) => ({
+        ...item,
+        inArchive: bySlug.has(item.tmdbId),
+        slug: bySlug.get(item.tmdbId) ?? null,
+      })),
     };
   }
 
@@ -402,7 +515,7 @@ export class MoviesService {
   }
 
   async update(id: string, dto: UpdateMovieEntryDto): Promise<MovieEntry> {
-    await this.findByIdOrFail(id);
+    const entry = await this.findByIdOrFail(id);
     const data: Prisma.MovieEntryUncheckedUpdateInput = {
       status: dto.status,
       isFavorite: dto.isFavorite,
@@ -412,6 +525,24 @@ export class MoviesService {
         watchedAt: dto.watchedAt ? new Date(dto.watchedAt) : null,
       }),
     };
+    // Boş metin "temizle" demek: alan silinince TMDB'den geleni (ya da RT'de
+    // arama adresi) yeniden devreye girer
+    if (dto.links !== undefined) {
+      const incoming = dto.links;
+      const merged: MovieCustomLinks = { ...readCustomLinks(entry) };
+      for (const field of MOVIE_LINK_FIELDS) {
+        if (incoming[field] === undefined) {
+          continue;
+        }
+        const url = normalizeUrl(incoming[field]);
+        if (url) {
+          merged[field] = url;
+        } else {
+          delete merged[field];
+        }
+      }
+      data.links = merged as unknown as Prisma.InputJsonValue;
+    }
     return this.prisma.movieEntry.update({ where: { id }, data });
   }
 
@@ -487,6 +618,83 @@ function shuffle<T>(items: T[]): T[] {
   return copy;
 }
 
+/**
+ * Filmlere adres verir (anime salonundaki desen). Slug veritabanında
+ * tutulmuyor: başlıktan türetiliyor, iki film aynı slug'a düşerse sonrakine
+ * yıl, o da yetmezse TMDB numarası ekleniyor. Böylece hem şema sade kalıyor
+ * hem künye tazelenip başlık değişince adres kendini düzeltiyor.
+ */
+function withSlugs(entries: MovieEntry[]): ArchiveMovie[] {
+  const used = new Set<string>();
+  return entries.map((entry) => {
+    const movie = toArchiveMovie(entry);
+    const base = slugify(movie.title) || `film-${entry.tmdbId}`;
+    const withYear = movie.releaseYear ? `${base}-${movie.releaseYear}` : base;
+    const slug = !used.has(base)
+      ? base
+      : !used.has(withYear)
+        ? withYear
+        : `${base}-${entry.tmdbId}`;
+    used.add(slug);
+    return { ...movie, slug };
+  });
+}
+
+function readCustomLinks(entry: MovieEntry): MovieCustomLinks {
+  return (entry.links ?? {}) as MovieCustomLinks;
+}
+
+/**
+ * Bağlantı kartları. TMDB ve IMDb künyeden kesin geliyor; Rotten Tomatoes'un
+ * kaynağı yok, o yüzden varsayılan olarak **arama adresi** üretiliyor ve
+ * `isSearch` ile işaretleniyor — küratör doğru adresi yapıştırınca eziliyor.
+ */
+function buildLinks(entry: MovieEntry, data: TmdbMovie | null): MovieLink[] {
+  const custom = readCustomLinks(entry);
+  const title = data?.originalTitle ?? data?.title ?? '';
+  const links: MovieLink[] = [
+    {
+      kind: 'TMDB',
+      url: `https://www.themoviedb.org/movie/${entry.tmdbId}`,
+      isSearch: false,
+    },
+  ];
+
+  const imdb =
+    custom.imdb ??
+    (data?.imdbId ? `https://www.imdb.com/title/${data.imdbId}/` : null);
+  if (imdb) {
+    links.push({ kind: 'IMDB', url: imdb, isSearch: false });
+  }
+
+  if (custom.rt) {
+    links.push({ kind: 'RT', url: custom.rt, isSearch: false });
+  } else if (title) {
+    links.push({
+      kind: 'RT',
+      url: `https://www.rottentomatoes.com/search?search=${encodeURIComponent(title)}`,
+      isSearch: true,
+    });
+  }
+
+  if (data?.homepage) {
+    links.push({ kind: 'HOMEPAGE', url: data.homepage, isSearch: false });
+  }
+  return links;
+}
+
+/**
+ * Elle girilen fragman adresinden YouTube anahtarı. Gömülü oynatıcı anahtarla
+ * çalışıyor; tanınmayan bir adres verilirse fragman TMDB'ninkine düşer.
+ */
+function youtubeKey(url: string): string | null {
+  const match =
+    /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/.exec(
+      url,
+    );
+  return match?.[1] ?? null;
+}
+
 function toArchiveMovie(entry: MovieEntry): ArchiveMovie {
   const data = (entry.externalData ?? null) as TmdbMovie | null;
   const releaseYear = data?.releaseDate
@@ -494,6 +702,7 @@ function toArchiveMovie(entry: MovieEntry): ArchiveMovie {
     : null;
   return {
     id: entry.id,
+    slug: '',
     tmdbId: entry.tmdbId,
     status: entry.status,
     isFavorite: entry.isFavorite,

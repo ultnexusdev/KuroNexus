@@ -1,6 +1,7 @@
 {
   "common": {
-    "siteName": "KuroNexus"
+    "siteName": "KuroNexus",
+    "backToTop": "En üste git"
   },
   "nav": {
     "darkStories": "Nexus'u Keşfet"
@@ -502,6 +503,47 @@
     },
     "favoritesLede": "Beni en çok etkileyen ve tekrar izlemekten hiç sıkılmadığım filmler.",
     "favorite": "Favori",
+    "statusName": {
+      "WATCHED": "İzledim",
+      "WATCHLIST": "Sırada",
+      "REWATCH": "Tekrar izleyeceğim"
+    },
+    "detail": {
+      "directedBy": "Yönetmen: {name}",
+      "myScore": "Puanım",
+      "tmdbScore": "TMDB",
+      "myNote": "Benim Notum",
+      "overview": "Konu",
+      "trailer": "Fragman",
+      "playTrailer": "Fragmanı oynat",
+      "trailerOf": "{title} fragmanı",
+      "cast": "Oyuncular",
+      "whereToWatch": "Nerede İzlenir",
+      "providerSource": "Platform bilgisi TMDB üzerinden JustWatch'tan geliyor; Türkiye için.",
+      "providerKind": {
+        "FLATRATE": "Abonelik",
+        "RENT": "Kiralık",
+        "BUY": "Satın al"
+      },
+      "links": "Bağlantılar",
+      "linkName": {
+        "HOMEPAGE": "Resmi Site"
+      },
+      "searchLink": "arama",
+      "similar": "Benzer Filmler",
+      "inArchive": "Arşivinde var",
+      "curatorTitle": "Küratör Künyesi",
+      "curatorLede": "Rotten Tomatoes'un açık bir kaynağı yok: kart varsayılan olarak arama sayfasına gider. Doğru adresi buraya yapıştırırsan onu kullanır. IMDb ve fragman için de aynısı geçerli — alanı boşaltırsan TMDB'den geleni gösterilir.",
+      "linkField": {
+        "rt": "Rotten Tomatoes adresi",
+        "imdb": "IMDb adresi",
+        "trailer": "Fragman (YouTube)"
+      },
+      "save": "Kaydet",
+      "saving": "Kaydediliyor…",
+      "saved": "Kaydedildi",
+      "saveError": "Kaydedilemedi. Tekrar deneyin."
+    },
     "tmdbScore": "TMDB",
     "runtime": "Süre",
     "minutes": "{count} dk",

@@ -1,6 +1,7 @@
 {
   "common": {
-    "siteName": "KuroNexus"
+    "siteName": "KuroNexus",
+    "backToTop": "Back to top"
   },
   "nav": {
     "darkStories": "Discover Nexus"
@@ -502,6 +503,47 @@
     },
     "favoritesLede": "The films that moved me most, and that I never tire of watching again.",
     "favorite": "Favourite",
+    "statusName": {
+      "WATCHED": "Watched",
+      "WATCHLIST": "Queued",
+      "REWATCH": "To rewatch"
+    },
+    "detail": {
+      "directedBy": "Directed by {name}",
+      "myScore": "My rating",
+      "tmdbScore": "TMDB",
+      "myNote": "My Note",
+      "overview": "Overview",
+      "trailer": "Trailer",
+      "playTrailer": "Play the trailer",
+      "trailerOf": "{title} trailer",
+      "cast": "Cast",
+      "whereToWatch": "Where To Watch",
+      "providerSource": "Availability comes from JustWatch via TMDB, for Türkiye.",
+      "providerKind": {
+        "FLATRATE": "Streaming",
+        "RENT": "Rent",
+        "BUY": "Buy"
+      },
+      "links": "Links",
+      "linkName": {
+        "HOMEPAGE": "Official Site"
+      },
+      "searchLink": "search",
+      "similar": "Similar Films",
+      "inArchive": "In your archive",
+      "curatorTitle": "Curator Dossier",
+      "curatorLede": "Rotten Tomatoes has no open source of IDs, so the card falls back to a search page. Paste the real address here and it will be used instead. The same goes for IMDb and the trailer — clear a field and the TMDB value comes back.",
+      "linkField": {
+        "rt": "Rotten Tomatoes URL",
+        "imdb": "IMDb URL",
+        "trailer": "Trailer (YouTube)"
+      },
+      "save": "Save",
+      "saving": "Saving…",
+      "saved": "Saved",
+      "saveError": "Could not save. Please try again."
+    },
     "tmdbScore": "TMDB",
     "runtime": "Runtime",
     "minutes": "{count} min",

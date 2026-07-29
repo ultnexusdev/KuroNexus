@@ -284,6 +284,10 @@ model MovieEntry {
   watchedAt             DateTime?
   externalData          Json?
   externalDataFetchedAt DateTime?
+  /// Elle girilen dış bağlantılar: { rt, imdb, trailer }. Rotten Tomatoes'un
+  /// ne API'si ne de TMDB'de karşılığı var — kart varsayılan olarak arama
+  /// adresine gider, doğru adres buraya yazılınca onu kullanır.
+  links                 Json?
   createdAt             DateTime    @default(now())
   updatedAt             DateTime    @updatedAt
   isDeleted             Boolean     @default(false)

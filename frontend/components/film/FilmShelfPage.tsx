@@ -14,6 +14,7 @@ import {
   SORT_KEYS,
 } from "@/lib/film/filters";
 import { belongsTo, type ShelfKey } from "@/lib/film/shelves";
+import { BackToTop } from "@/components/BackToTop";
 import { FilmBackdrop } from "./FilmBackdrop";
 import { MovieCard } from "./MovieCard";
 import styles from "./FilmHall.module.css";
@@ -228,6 +229,9 @@ export function FilmShelfPage({
           </div>
         ) : null}
       </div>
+
+      {/* Liste "Daha fazla" ile uzadıkça başa dönmek zorlaşıyordu */}
+      <BackToTop />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import { Public } from '../common/decorators/public.decorator';
 import { MoviesService } from './movies.service';
 
@@ -18,5 +18,12 @@ export class MoviesController {
   @Get('showcase')
   getShowcase() {
     return this.moviesService.showcase();
+  }
+
+  // Film sayfası. ':slug' en sonda: 'showcase' gibi sabit yollar önce eşleşsin
+  @Public()
+  @Get(':slug')
+  getDetail(@Param('slug') slug: string) {
+    return this.moviesService.getDetail(slug);
   }
 }

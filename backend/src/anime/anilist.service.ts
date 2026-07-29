@@ -116,6 +116,12 @@ export interface AnilistSearchResult {
   episodes: number | null;
   seasonYear: number | null;
   coverImage: string | null;
+  /**
+   * Tam boy kapak. AniList adlandırması yanıltıcı: `large` aslında medium
+   * dosyasını, `extraLarge` gerçek büyük dosyayı veriyor. Lobi afişleri gibi
+   * büyük yerlerde bu kullanılır; 48px küçük resimlerde `coverImage` yeter.
+   */
+  coverImageLarge: string | null;
   averageScore: number | null;
 }
 
@@ -161,7 +167,7 @@ interface RawMedia {
   seasonYear: number | null;
   startDate?: { year: number | null };
   description: string | null;
-  coverImage?: { large?: string };
+  coverImage?: { large?: string; extraLarge?: string };
   bannerImage: string | null;
   genres?: string[];
   tags?: Array<{ name: string; rank: number; isGeneralSpoiler: boolean }>;
@@ -202,7 +208,7 @@ export class AnilistService {
     }>(
       `query($s:String){Page(perPage:20){media(search:$s,type:ANIME,sort:SEARCH_MATCH){
         id title{romaji english} format status episodes seasonYear
-        coverImage{large} averageScore
+        coverImage{large extraLarge} averageScore
       }}}`,
       { s: trimmed },
     );
@@ -214,6 +220,8 @@ export class AnilistService {
       episodes: media.episodes,
       seasonYear: media.seasonYear,
       coverImage: media.coverImage?.large ?? null,
+      coverImageLarge:
+        media.coverImage?.extraLarge ?? media.coverImage?.large ?? null,
       averageScore: media.averageScore,
     }));
   }

@@ -13,6 +13,13 @@ export class AnimeController {
     return this.animeService.getArchive();
   }
 
+  // Salon girişinin dekoratif afişleri; ':slug' rotasından ÖNCE
+  @Public()
+  @Get('showcase')
+  getShowcase() {
+    return this.animeService.showcase();
+  }
+
   // ':slug' rotasından ÖNCE tanımlı olmalı
   @Public()
   @Get('parts/:partId/episodes')

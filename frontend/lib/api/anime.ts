@@ -1,5 +1,10 @@
 import { apiFetch } from "./client";
-import type { AnimeArchive, AnimeDetail, PartEpisodes } from "./types";
+import type {
+  AnimeArchive,
+  AnimeDetail,
+  AnimeShowcase,
+  PartEpisodes,
+} from "./types";
 
 const EMPTY_ARCHIVE: AnimeArchive = {
   entries: [],
@@ -55,4 +60,20 @@ export function fetchPartEpisodes(partId: string): Promise<PartEpisodes> {
   return apiFetch<PartEpisodes>(`/anime/parts/${partId}/episodes`, {
     cache: "no-store",
   });
+}
+
+const EMPTY_SHOWCASE: AnimeShowcase = { left: null, right: null };
+
+/**
+ * Salon girişinin iki yanındaki afişler. Alınamazsa lobi afişsiz açılır.
+ * Günlük önbellek yeterli: afişler ayda bir bile değişmiyor.
+ */
+export async function getAnimeShowcase(): Promise<AnimeShowcase> {
+  try {
+    return await apiFetch<AnimeShowcase>("/anime/showcase", {
+      next: { revalidate: 86400 },
+    });
+  } catch {
+    return EMPTY_SHOWCASE;
+  }
 }

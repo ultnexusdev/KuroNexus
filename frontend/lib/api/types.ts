@@ -489,3 +489,9 @@ export interface PartEpisodes {
   /** Jikan'dan liste gelmediyse false — ızgara çizilir ama filler bilinmez */
   hasSourceData: boolean;
 }
+
+/** Anime salonu girişinin iki yanındaki afişler (film lobisiyle aynı desen) */
+export interface AnimeShowcase {
+  left: { title: string; posterPath: string } | null;
+  right: { title: string; posterPath: string } | null;
+}

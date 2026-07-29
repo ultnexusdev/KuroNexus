@@ -84,6 +84,17 @@ export interface ArchiveAnime {
   manga: AnilistMedia['manga'];
 }
 
+// Salon girişinin iki yanındaki afişler — başlık burada, yol AniList'ten gelir
+const SHOWCASE_LEFT_ANIME = 'One Piece';
+const SHOWCASE_RIGHT_ANIME = 'Naruto';
+const SHOWCASE_CACHE_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+
+export interface ShowcasePoster {
+  title: string;
+  /** AniList kapak URL'i (tam adres, TMDB'deki gibi göreli yol değil) */
+  posterPath: string;
+}
+
 export interface PartEpisode {
   number: number;
   title: string | null;
@@ -134,6 +145,83 @@ export class AnimeService {
       genres: collect(entries, (entry) => entry.genres),
       tags: collect(entries, (entry) => entry.tags),
     };
+  }
+
+  /**
+   * Salon girişinin iki yanındaki afişler (film lobisiyle aynı desen).
+   *
+   * Afiş yolları koda GÖMÜLMEZ: başlıkla AniList'te aranır ve sonuç 30 gün
+   * cache'lenir. Kaynak düşerse boş döner — lobi afişsiz açılır, çökmez.
+   * Afişi değiştirmek = aşağıdaki iki başlık sabitini değiştirmek.
+   */
+  async showcase(): Promise<{
+    left: ShowcasePoster | null;
+    right: ShowcasePoster | null;
+  }> {
+    const cacheKey = 'anime:showcase:v1';
+    const cached = await this.prisma.externalCache.findUnique({
+      where: { cacheKey },
+    });
+    if (
+      cached &&
+      Date.now() - cached.fetchedAt.getTime() < SHOWCASE_CACHE_TTL_MS
+    ) {
+      return cached.payload as unknown as {
+        left: ShowcasePoster | null;
+        right: ShowcasePoster | null;
+      };
+    }
+
+    const resolve = async (query: string): Promise<ShowcasePoster | null> => {
+      try {
+        const results = await this.anilist.search(query);
+        // Arama "One Piece Film" gibi yan yapımları da getiriyor; en çok
+        // bölümü olan TV kaydı serinin kendisidir
+        const match =
+          results.find(
+            (item) =>
+              item.format === 'TV' &&
+              item.title.toLowerCase() === query.toLowerCase(),
+          ) ??
+          results.find((item) => item.format === 'TV') ??
+          results[0];
+        const cover = match?.coverImageLarge ?? match?.coverImage;
+        if (!match || !cover) {
+          return null;
+        }
+        return { title: match.title, posterPath: cover };
+      } catch {
+        return null;
+      }
+    };
+
+    const [left, right] = await Promise.all([
+      resolve(SHOWCASE_LEFT_ANIME),
+      resolve(SHOWCASE_RIGHT_ANIME),
+    ]);
+    const payload = { left, right };
+
+    // İkisi de boşsa cache'leme: kaynak toparlayınca hemen dolsun
+    if (left || right) {
+      await this.prisma.externalCache.upsert({
+        where: { cacheKey },
+        create: {
+          cacheKey,
+          payload: payload as unknown as object,
+          fetchedAt: new Date(),
+        },
+        update: {
+          payload: payload as unknown as object,
+          fetchedAt: new Date(),
+        },
+      });
+    } else if (cached) {
+      return cached.payload as unknown as {
+        left: ShowcasePoster | null;
+        right: ShowcasePoster | null;
+      };
+    }
+    return payload;
   }
 
   /**

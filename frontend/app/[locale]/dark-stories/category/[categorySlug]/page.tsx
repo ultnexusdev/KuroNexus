@@ -10,7 +10,7 @@ import { SportSplit } from "@/components/sport/SportSplit";
 import { FilmLobby } from "@/components/film/FilmLobby";
 import { AnimeLobby } from "@/components/anime/AnimeLobby";
 import { getMovieArchive, getMovieShowcase } from "@/lib/api/movies";
-import { getAnimeArchive } from "@/lib/api/anime";
+import { getAnimeArchive, getAnimeShowcase } from "@/lib/api/anime";
 import { hallLabel, hallNumber } from "@/lib/halls";
 import { apiUrl } from "@/lib/api/client";
 import { Link } from "@/lib/i18n/navigation";
@@ -77,13 +77,17 @@ export default async function CategoryUniversesPage({
 
   // Anime kapısı da salon girişine açılır (film salonuyla aynı desen)
   if (category.slug === "anime") {
-    const archive = await getAnimeArchive();
+    const [archive, showcase] = await Promise.all([
+      getAnimeArchive(),
+      getAnimeShowcase(),
+    ]);
     return (
       <AnimeLobby
         locale={locale}
         hallLabel={hallLabel(hallNumber(categories, category.slug))}
         categoryName={category.name}
         archive={archive}
+        showcase={showcase}
       />
     );
   }

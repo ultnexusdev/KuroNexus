@@ -1,7 +1,8 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
 import { ANIME_SECTIONS } from "@/lib/anime/sections";
-import type { AnimeArchive } from "@/lib/api/types";
+import type { AnimeArchive, AnimeShowcase } from "@/lib/api/types";
+import { LobbyPosters } from "./LobbyPosters";
 import styles from "./AnimeLobby.module.css";
 
 /**
@@ -15,11 +16,13 @@ export async function AnimeLobby({
   hallLabel,
   categoryName,
   archive,
+  showcase,
 }: {
   locale: string;
   hallLabel: string;
   categoryName: string;
   archive: AnimeArchive;
+  showcase: AnimeShowcase;
 }) {
   const t = await getTranslations({ locale, namespace: "anime" });
   const tStories = await getTranslations({ locale, namespace: "stories" });
@@ -38,6 +41,7 @@ export async function AnimeLobby({
 
   return (
     <div data-category="anime" className={styles.lobby}>
+      <LobbyPosters showcase={showcase} />
       <header className={styles.head}>
         <Link href="/dark-stories" className={styles.back}>
           {tStories("backToList")}

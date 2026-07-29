@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link, useRouter } from "@/lib/i18n/navigation";
 import { tmdbImage } from "@/lib/api/movies";
 import { updateMovieEntry } from "@/lib/admin/api";
 import type {
+  ArchiveMovie,
   MovieCastMember,
   MovieDetail as MovieDetailData,
   MovieLink,
@@ -36,6 +37,8 @@ export function MovieDetail({
 }) {
   const t = useTranslations("film.detail");
   const tFilm = useTranslations("film");
+  const locale = useLocale();
+  const [curating, setCurating] = useState(false);
   const { movie } = detail;
   const backdrop = tmdbImage(movie.backdropPath, "w780");
 
@@ -57,12 +60,25 @@ export function MovieDetail({
       ) : null}
 
       <div className={styles.inner}>
-        <Link
-          href="/dark-stories/category/film/arsiv"
-          className={styles.back}
-        >
-          {tFilm("backToArchive")}
-        </Link>
+        <div className={styles.topBar}>
+          <Link
+            href="/dark-stories/category/film/arsiv"
+            className={styles.back}
+          >
+            {tFilm("backToArchive")}
+          </Link>
+
+          {isAdmin ? (
+            <button
+              type="button"
+              className={curating ? styles.curatorOn : styles.curatorOff}
+              aria-pressed={curating}
+              onClick={() => setCurating((value) => !value)}
+            >
+              {curating ? tFilm("curator.off") : tFilm("curator.on")}
+            </button>
+          ) : null}
+        </div>
 
         <header className={styles.head}>
           <div className={styles.posterFrame}>
@@ -78,6 +94,10 @@ export function MovieDetail({
             ) : (
               <span className={styles.posterFallback}>{movie.title}</span>
             )}
+
+            {/* Hızlı işaretleme: küratör modunda afişin üstünde durur —
+                durumu değiştirmek için arşive dönmek gerekmesin */}
+            {isAdmin && curating ? <QuickActions movie={movie} /> : null}
           </div>
 
           <div className={styles.headText}>
@@ -133,6 +153,143 @@ export function MovieDetail({
         </header>
 
         <div className={styles.columns}>
+          {/* Sol sütun: geniş ekranda boş kalan yeri dolduruyor; dar ekranda
+              sağ rayın altına iniyor (CSS grid alanlarıyla) */}
+          <aside className={styles.railLeft}>
+            <section className={styles.railBlock}>
+              <h2 className={styles.railTitle}>{t("dossier")}</h2>
+              <dl className={styles.dossierList}>
+                {detail.originalTitle &&
+                detail.originalTitle !== movie.title ? (
+                  <div>
+                    <dt>{t("originalTitle")}</dt>
+                    <dd>{detail.originalTitle}</dd>
+                  </div>
+                ) : null}
+                {detail.releaseDate ? (
+                  <div>
+                    <dt>{t("releaseDate")}</dt>
+                    <dd>{formatDate(detail.releaseDate, locale)}</dd>
+                  </div>
+                ) : null}
+                {detail.originalLanguage ? (
+                  <div>
+                    <dt>{t("language")}</dt>
+                    <dd>{languageName(detail.originalLanguage, locale)}</dd>
+                  </div>
+                ) : null}
+                {movie.director ? (
+                  <div>
+                    <dt>{t("director")}</dt>
+                    <dd>{movie.director}</dd>
+                  </div>
+                ) : null}
+                {detail.budget ? (
+                  <div>
+                    <dt>{t("budget")}</dt>
+                    <dd>{formatMoney(detail.budget, locale)}</dd>
+                  </div>
+                ) : null}
+                {detail.revenue ? (
+                  <div>
+                    <dt>{t("revenue")}</dt>
+                    <dd>{formatMoney(detail.revenue, locale)}</dd>
+                  </div>
+                ) : null}
+                {movie.watchedAt ? (
+                  <div>
+                    <dt>{t("watchedAt")}</dt>
+                    <dd>{formatDate(movie.watchedAt, locale)}</dd>
+                  </div>
+                ) : null}
+              </dl>
+            </section>
+
+            {detail.providers.length > 0 ? (
+              <section className={styles.railBlock}>
+                <h2 className={styles.railTitle}>{t("whereToWatch")}</h2>
+                <ul className={styles.providers}>
+                  {detail.providers.map((provider) => (
+                    <ProviderChip
+                      key={provider.name}
+                      provider={provider}
+                      href={detail.providerLink}
+                    />
+                  ))}
+                </ul>
+                <p className={styles.railNote}>{t("providerSource")}</p>
+              </section>
+            ) : null}
+
+            {detail.links.length > 0 ? (
+              <section className={styles.railBlock}>
+                <h2 className={styles.railTitle}>{t("links")}</h2>
+                <ul className={styles.links}>
+                  {detail.links.map((link) => (
+                    <li key={link.kind}>
+                      <LinkRow link={link} />
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ) : null}
+
+            {detail.neighbours.byDirector.length > 0 ||
+            detail.neighbours.byGenre.length > 0 ? (
+              <section className={styles.railBlock}>
+                <h2 className={styles.railTitle}>{t("neighbours")}</h2>
+                {detail.neighbours.byDirector.length > 0 ? (
+                  <>
+                    <p className={styles.railLabel}>
+                      {t("sameDirector", { name: movie.director ?? "" })}
+                    </p>
+                    <ul className={styles.similar}>
+                      {detail.neighbours.byDirector.map((item) => (
+                        <ArchiveRow key={item.id} movie={item} />
+                      ))}
+                    </ul>
+                  </>
+                ) : null}
+                {detail.neighbours.byGenre.length > 0 ? (
+                  <>
+                    <p className={styles.railLabel}>{t("sameGenre")}</p>
+                    <ul className={styles.similar}>
+                      {detail.neighbours.byGenre.map((item) => (
+                        <ArchiveRow key={item.id} movie={item} />
+                      ))}
+                    </ul>
+                  </>
+                ) : null}
+              </section>
+            ) : null}
+
+            {/* Sahne kareleri: salonun 35mm şerit kimliğinin sütuna inmiş
+                hâli — perforasyon çizgileri arasında dikey bir şerit */}
+            {detail.stills.length > 0 ? (
+              <section className={styles.railBlock}>
+                <h2 className={styles.railTitle}>{t("stills")}</h2>
+                <div className={styles.stillStrip}>
+                  <span className={styles.perforation} aria-hidden />
+                  <ul className={styles.stills}>
+                    {detail.stills.map((path) => (
+                      <li key={path} className={styles.still}>
+                        <Image
+                          src={tmdbImage(path, "w500")!}
+                          alt=""
+                          fill
+                          sizes="260px"
+                          className={styles.stillImg}
+                          unoptimized
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                  <span className={styles.perforation} aria-hidden />
+                </div>
+              </section>
+            ) : null}
+          </aside>
+
           <div className={styles.main}>
             {/* Kendi notun TMDB özetinden ÖNCE: burası senin arşivin */}
             {movie.personalNote ? (
@@ -167,39 +324,12 @@ export function MovieDetail({
               </section>
             ) : null}
 
-            {isAdmin ? <CuratorLinks detail={detail} /> : null}
+            {/* Adres alanları yalnızca küratör modunda: sayfa normalde temiz
+                kalsın ama Rotten Tomatoes'u düzeltme imkânı kaybolmasın */}
+            {isAdmin && curating ? <CuratorLinks detail={detail} /> : null}
           </div>
 
           <aside className={styles.rail}>
-            {detail.providers.length > 0 ? (
-              <section className={styles.railBlock}>
-                <h2 className={styles.railTitle}>{t("whereToWatch")}</h2>
-                <ul className={styles.providers}>
-                  {detail.providers.map((provider) => (
-                    <ProviderChip
-                      key={provider.name}
-                      provider={provider}
-                      href={detail.providerLink}
-                    />
-                  ))}
-                </ul>
-                <p className={styles.railNote}>{t("providerSource")}</p>
-              </section>
-            ) : null}
-
-            {detail.links.length > 0 ? (
-              <section className={styles.railBlock}>
-                <h2 className={styles.railTitle}>{t("links")}</h2>
-                <ul className={styles.links}>
-                  {detail.links.map((link) => (
-                    <li key={link.kind}>
-                      <LinkRow link={link} />
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            ) : null}
-
             {detail.similar.length > 0 ? (
               <section className={styles.railBlock}>
                 <h2 className={styles.railTitle}>{t("similar")}</h2>
@@ -215,6 +345,132 @@ export function MovieDetail({
       </div>
     </div>
   );
+}
+
+/**
+ * Afişin üstündeki hızlı işaretleme düğmeleri (yalnızca küratör modunda).
+ *
+ * Üçü de tek tıkla kaydeder: "İzledim" tarihi bugüne yazar, "İzleyeceğim"
+ * tarihi temizler (sırada bekleyen film henüz izlenmedi), "Favori" bayrağı
+ * çevirir. Seçili olan düğme dolu görünür.
+ */
+function QuickActions({ movie }: { movie: ArchiveMovie }) {
+  const t = useTranslations("film.detail");
+  const tFilm = useTranslations("film");
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+
+  async function apply(input: Parameters<typeof updateMovieEntry>[1]) {
+    setBusy(true);
+    try {
+      await updateMovieEntry(movie.id, input);
+      router.refresh();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className={styles.quick}>
+      <button
+        type="button"
+        className={movie.status === "WATCHED" ? styles.quickOn : styles.quickBtn}
+        disabled={busy}
+        onClick={() =>
+          void apply({
+            status: "WATCHED",
+            watchedAt: new Date().toISOString(),
+          })
+        }
+      >
+        {tFilm("statusName.WATCHED")}
+      </button>
+      <button
+        type="button"
+        className={
+          movie.status === "WATCHLIST" ? styles.quickOn : styles.quickBtn
+        }
+        disabled={busy}
+        onClick={() => void apply({ status: "WATCHLIST", watchedAt: "" })}
+      >
+        {tFilm("statusName.WATCHLIST")}
+      </button>
+      <button
+        type="button"
+        className={movie.isFavorite ? styles.quickOn : styles.quickBtn}
+        disabled={busy}
+        title={t("toggleFavorite")}
+        onClick={() => void apply({ isFavorite: !movie.isFavorite })}
+      >
+        ★ {tFilm("favorite")}
+      </button>
+    </div>
+  );
+}
+
+/** Arşivdeki bir filme giden küçük satır (sol sütundaki komşu listeleri). */
+function ArchiveRow({ movie }: { movie: ArchiveMovie }) {
+  const poster = tmdbImage(movie.posterPath, "w185");
+  return (
+    <li>
+      <Link
+        href={`/dark-stories/category/film/${movie.slug}`}
+        className={styles.similarRow}
+      >
+        <span className={styles.similarPoster}>
+          {poster ? (
+            <Image
+              src={poster}
+              alt=""
+              fill
+              sizes="48px"
+              className={styles.similarImg}
+              unoptimized
+            />
+          ) : null}
+        </span>
+        <span className={styles.similarText}>
+          <span className={styles.similarTitle}>{movie.title}</span>
+          <span className={styles.similarMeta}>
+            {[
+              movie.releaseYear,
+              movie.personalRating ? movie.personalRating.toFixed(1) : null,
+            ]
+              .filter(Boolean)
+              .join(" · ")}
+          </span>
+        </span>
+      </Link>
+    </li>
+  );
+}
+
+/** Tarihi okunur biçime çevirir; geçersizse ham metni döndürür. */
+function formatDate(value: string, locale: string): string {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? value
+    : new Intl.DateTimeFormat(locale, { dateStyle: "long" }).format(date);
+}
+
+/** Bütçe/hâsılat: dolar, kısaltmasız ama okunur (1.500.000 $ gibi). */
+function formatMoney(value: number, locale: string): string {
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+/** Dil kodunu (en, ja…) okunur ada çevirir; tarayıcı bilmiyorsa kod kalır. */
+function languageName(code: string, locale: string): string {
+  try {
+    return (
+      new Intl.DisplayNames([locale], { type: "language" }).of(code) ?? code
+    );
+  } catch {
+    return code;
+  }
 }
 
 /**

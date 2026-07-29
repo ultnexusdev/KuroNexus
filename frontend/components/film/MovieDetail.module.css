@@ -196,35 +196,149 @@
 
 /* --- Iki sutun --- */
 
+/* Uc sutun. Genis ekranda sayfanin iki yani bos kaliyordu (kullanici
+   geri bildirimi): 1500px ustunde sol ray aciliyor ve icerik ortada kaliyor.
+   Ara genislikte iki ray ayni sutunda alt alta, dar ekranda hepsi tek sutun. */
 .columns {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 300px;
+  grid-template-areas:
+    "main right"
+    "main left";
   gap: var(--pad-lg, 24px);
   margin-top: calc(var(--gap-lg) * 2);
+  align-items: start;
 }
 
 .main {
+  grid-area: main;
   min-width: 0;
 }
 
-.rail {
+.rail,
+.railLeft {
   display: flex;
   flex-direction: column;
   gap: var(--gap-lg);
-  /* Uzun sayfada ray goz hizasinda kalir */
+  min-width: 0;
+  /* Uzun sayfada raylar goz hizasinda kalir */
   position: sticky;
   top: var(--pad-md);
   align-self: start;
 }
 
+.rail {
+  grid-area: right;
+}
+
+.railLeft {
+  grid-area: left;
+}
+
+@media (min-width: 1500px) {
+  .columns {
+    grid-template-columns: 300px minmax(0, 1fr) 300px;
+    grid-template-areas: "left main right";
+  }
+
+  /* Sayfa genisligi de aciliyor: yoksa uc sutun birbirini eziyor */
+  .inner {
+    width: min(1720px, 100%);
+  }
+}
+
 @media (max-width: 900px) {
   .columns {
     grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "main"
+      "left"
+      "right";
   }
 
-  .rail {
+  .rail,
+  .railLeft {
     position: static;
   }
+}
+
+/* --- Ust serit: geri baglantisi + kurator anahtari --- */
+
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-md);
+  margin-bottom: var(--gap-lg);
+}
+
+.topBar .back {
+  margin-bottom: 0;
+}
+
+.curatorOff,
+.curatorOn {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+
+.curatorOn {
+  border-color: var(--accent-muted);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--accent);
+}
+
+/* --- Afis ustundeki hizli isaretleme --- */
+
+.quick {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  left: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 6px;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter: blur(4px);
+}
+
+.quickBtn,
+.quickOn {
+  flex: 1 1 auto;
+  min-height: 32px;
+  padding: 0 8px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+
+.quickOn {
+  border-color: var(--accent-muted);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--accent);
+}
+
+.quickBtn:hover:enabled {
+  border-color: var(--accent-muted);
+  color: var(--accent);
+}
+
+.quickBtn:disabled,
+.quickOn:disabled {
+  opacity: 0.6;
+  cursor: default;
 }
 
 /* --- Bolumler --- */
@@ -571,6 +685,96 @@ a.providerLink:hover {
   margin-left: auto;
   color: var(--accent);
   font-size: 0.8rem;
+}
+
+/* --- Kunye levhasi --- */
+
+.dossierList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+}
+
+.dossierList > div {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.dossierList dt {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.dossierList dd {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  text-align: right;
+}
+
+/* Ray icindeki ara baslik ("Ayni yonetmen", "Ayni turden") */
+.railLabel {
+  margin: var(--gap-md) 0 6px;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+}
+
+.railLabel:first-of-type {
+  margin-top: 0;
+}
+
+/* --- Sahne kareleri seridi --- */
+
+.stillStrip {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* 35mm serit perforasyonu: salonun imzasi, dikey sutuna inmis hali */
+.perforation {
+  height: 8px;
+  border-radius: 2px;
+  background-image: radial-gradient(
+    circle at 4px 4px,
+    var(--border-strong) 0 2px,
+    transparent 2px
+  );
+  background-size: 12px 8px;
+  opacity: 0.7;
+}
+
+.stills {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.still {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--surface);
+}
+
+.stillImg {
+  object-fit: cover;
+  opacity: 0.85;
+}
+
+.still:hover .stillImg {
+  opacity: 1;
 }
 
 /* --- Kurator kunyesi --- */

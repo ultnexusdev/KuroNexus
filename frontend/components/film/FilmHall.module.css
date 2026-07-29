@@ -222,6 +222,7 @@
 
 .framePoster {
   position: relative;
+  display: block;
   aspect-ratio: 2 / 3;
   overflow: hidden;
   background: var(--surface);
@@ -583,6 +584,8 @@
 
 .framedPoster {
   position: relative;
+  /* Artik filmin sayfasina acilan bir baglanti */
+  display: block;
   aspect-ratio: 2 / 3;
   overflow: hidden;
   background: var(--surface);

@@ -162,6 +162,23 @@ export interface MovieDetail {
   similar: Array<
     TmdbSearchResult & { inArchive: boolean; slug: string | null }
   >;
+  /** Sol sütundaki sahne şeridi */
+  stills: string[];
+  /** Künye levhası: TMDB künyesinde zaten olan alanlar */
+  originalTitle: string | null;
+  releaseDate: string | null;
+  originalLanguage: string | null;
+  budget: number | null;
+  revenue: number | null;
+  /**
+   * "Arşivimden komşular": TMDB önerisi DEĞİL, kendi arşivinden. Aynı
+   * yönetmenin filmleri ile aynı türden filmler ayrı ayrı — koleksiyonun
+   * içinde gezinmek için.
+   */
+  neighbours: {
+    byDirector: ArchiveMovie[];
+    byGenre: ArchiveMovie[];
+  };
 }
 
 @Injectable()
@@ -225,7 +242,7 @@ export class MoviesService {
      * tek tek "⟳ tazele" ile geçmek gerekmesin. TMDB yanıtı zaten cache'li,
      * ikinci açılışta dış istek yok.
      */
-    if (!data || data.cast === undefined) {
+    if (!data || data.stills === undefined) {
       try {
         data = await this.tmdb.getMovie(entry.tmdbId);
         await this.prisma.movieEntry.update({
@@ -264,6 +281,13 @@ export class MoviesService {
         inArchive: bySlug.has(item.tmdbId),
         slug: bySlug.get(item.tmdbId) ?? null,
       })),
+      stills: data?.stills ?? [],
+      originalTitle: data?.originalTitle ?? null,
+      releaseDate: data?.releaseDate ?? null,
+      originalLanguage: data?.originalLanguage ?? null,
+      budget: data?.budget ?? null,
+      revenue: data?.revenue ?? null,
+      neighbours: buildNeighbours(movie, movies),
     };
   }
 
@@ -660,6 +684,44 @@ function withSlugs(entries: MovieEntry[]): ArchiveMovie[] {
     used.add(slug);
     return { ...movie, slug };
   });
+}
+
+// Sol sütundaki komşu listeleri kaç film taşır
+const NEIGHBOUR_LIMIT = 6;
+
+/**
+ * "Arşivimden komşular". Aynı yönetmenin filmleri ile aynı türden filmler;
+ * ikinci liste birincide geçenleri tekrar etmez. Dış istek yok — arşiv zaten
+ * bellekte.
+ */
+function buildNeighbours(
+  current: ArchiveMovie,
+  all: ArchiveMovie[],
+): { byDirector: ArchiveMovie[]; byGenre: ArchiveMovie[] } {
+  const others = all.filter((movie) => movie.id !== current.id);
+  const byDirector = current.director
+    ? others
+        .filter((movie) => movie.director === current.director)
+        .slice(0, NEIGHBOUR_LIMIT)
+    : [];
+
+  const picked = new Set(byDirector.map((movie) => movie.id));
+  const genres = new Set(current.genres);
+  const byGenre = others
+    .filter(
+      (movie) =>
+        !picked.has(movie.id) &&
+        movie.genres.some((genre) => genres.has(genre)),
+    )
+    // Aynı türden en çok tür kesişeni önce: rastgele bir liste değil
+    .sort(
+      (a, b) =>
+        b.genres.filter((genre) => genres.has(genre)).length -
+        a.genres.filter((genre) => genres.has(genre)).length,
+    )
+    .slice(0, NEIGHBOUR_LIMIT);
+
+  return { byDirector, byGenre };
 }
 
 function readCustomLinks(entry: MovieEntry): MovieCustomLinks {

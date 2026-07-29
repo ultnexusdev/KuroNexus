@@ -362,6 +362,18 @@ export interface MovieDetail {
   links: MovieLink[];
   customLinks: MovieCustomLinks;
   similar: SimilarMovie[];
+  /** Sol sütundaki sahne şeridi (TMDB backdrop yolları) */
+  stills: string[];
+  originalTitle: string | null;
+  releaseDate: string | null;
+  originalLanguage: string | null;
+  budget: number | null;
+  revenue: number | null;
+  /** Kendi arşivinden komşular — TMDB önerisi değil */
+  neighbours: {
+    byDirector: ArchiveMovie[];
+    byGenre: ArchiveMovie[];
+  };
 }
 
 export interface ShowcasePoster {

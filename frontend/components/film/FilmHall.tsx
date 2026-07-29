@@ -165,13 +165,17 @@ export function FilmHall({
           <ul className={styles.wall}>
             {row.map((movie) => (
               <li key={movie.id} className={styles.framed}>
-                <div className={styles.framedPoster}>
+                {/* Çerçeveli afiş de filmin sayfasına açılır */}
+                <Link
+                  href={`/dark-stories/category/film/${movie.slug}`}
+                  className={styles.framedPoster}
+                >
                   <Poster
                     movie={movie}
                     size="w500"
                     sizes="(max-width: 640px) 45vw, (max-width: 1100px) 30vw, 22vw"
                   />
-                </div>
+                </Link>
                 {/* Pirinç künye levhası */}
                 <div className={styles.plaque}>
                   <p className={styles.plaqueTitle}>{movie.title}</p>
@@ -295,14 +299,25 @@ export function FilmHall({
                   <ul className={styles.stripTrack}>
                     {recent.map((movie) => (
                       <li key={movie.id} className={styles.frame}>
-                        <div className={styles.framePoster}>
+                        {/* Şeritteki kareler de tıklanabilir */}
+                        <Link
+                          href={`/dark-stories/category/film/${movie.slug}`}
+                          className={styles.framePoster}
+                        >
                           <Poster
                             movie={movie}
                             size="w185"
                             sizes="(max-width: 640px) 30vw, 140px"
                           />
-                        </div>
-                        <p className={styles.frameTitle}>{movie.title}</p>
+                        </Link>
+                        <p className={styles.frameTitle}>
+                          <Link
+                            href={`/dark-stories/category/film/${movie.slug}`}
+                            className={styles.titleLink}
+                          >
+                            {movie.title}
+                          </Link>
+                        </p>
                         <p className={styles.frameDate}>
                           {movie.watchedAt
                             ? dateFormatter.format(new Date(movie.watchedAt))

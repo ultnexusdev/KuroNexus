@@ -54,6 +54,12 @@ export interface TmdbMovie {
   providers: TmdbProvider[];
   /** JustWatch'un o filme ait sayfası — sağlayıcı rozetleri buraya bağlanır */
   providerLink: string | null;
+  /** Sahne kareleri (yazısız backdrop'lar) — sol sütundaki şerit */
+  stills: string[];
+  /** Künye levhası alanları; TMDB künyesinde zaten geliyor, ek istek yok */
+  budget: number | null;
+  revenue: number | null;
+  originalLanguage: string | null;
 }
 
 interface TmdbGenre {
@@ -93,6 +99,10 @@ interface TmdbMovieResponse {
   tagline?: string;
   homepage?: string;
   imdb_id?: string | null;
+  budget?: number;
+  revenue?: number;
+  original_language?: string;
+  images?: { backdrops?: Array<{ file_path?: string }> };
   poster_path?: string | null;
   backdrop_path?: string | null;
   release_date?: string;
@@ -186,8 +196,8 @@ export class TmdbService {
    * bayat kayıt kullanılır — kullanıcıya hata gösterilmez (kural 4/14).
    */
   async getMovie(tmdbId: number): Promise<TmdbMovie> {
-    // v2: künyeye kadro, fragman, IMDb numarası ve izleme platformları eklendi
-    const cacheKey = `tmdb:movie:v2:${tmdbId}:${this.language}`;
+    // v3: sahne kareleri, bütçe/hâsılat ve dil de künyeye girdi
+    const cacheKey = `tmdb:movie:v3:${tmdbId}:${this.language}`;
     const cached = await this.prisma.externalCache.findUnique({
       where: { cacheKey },
     });
@@ -199,9 +209,11 @@ export class TmdbService {
 
     try {
       const raw = await this.request<TmdbMovieResponse>(`/movie/${tmdbId}`, {
-        append_to_response: 'credits,videos,watch/providers',
+        append_to_response: 'credits,videos,watch/providers,images',
         // Türkçe fragman çoğu filmde yok; dil kısıtı konmazsa liste boş döner
         include_video_language: 'tr,en,null',
+        // Sahne kareleri yazısız olsun: dili olan görsellerde afiş yazısı var
+        include_image_language: 'null',
       });
       const movie = normalize(raw, this.watchRegion);
       await this.prisma.externalCache.upsert({
@@ -391,6 +403,8 @@ function isBearerToken(key: string): boolean {
 
 // Kadro sayfada tek şeride sığsın diye başrollerle sınırlı
 const CAST_LIMIT = 12;
+// Sol sütundaki sahne şeridi kaç kare taşır
+const STILL_LIMIT = 6;
 
 function normalize(raw: TmdbMovieResponse, watchRegion: string): TmdbMovie {
   const director =
@@ -419,6 +433,15 @@ function normalize(raw: TmdbMovieResponse, watchRegion: string): TmdbMovie {
     trailerKey: pickTrailer(raw.videos?.results),
     providers: pickProviders(raw['watch/providers']?.results?.[watchRegion]),
     providerLink: raw['watch/providers']?.results?.[watchRegion]?.link ?? null,
+    // Sayfanın kendi backdrop'u zaten üstte; şeride ondan sonrakiler girer
+    stills: (raw.images?.backdrops ?? [])
+      .map((image) => image.file_path)
+      .filter((path): path is string => Boolean(path))
+      .filter((path) => path !== raw.backdrop_path)
+      .slice(0, STILL_LIMIT),
+    budget: raw.budget ? raw.budget : null,
+    revenue: raw.revenue ? raw.revenue : null,
+    originalLanguage: raw.original_language ?? null,
   };
 }
 

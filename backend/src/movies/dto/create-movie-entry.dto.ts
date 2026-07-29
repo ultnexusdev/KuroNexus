@@ -11,7 +11,7 @@ import {
   MaxLength,
   Min,
 } from 'class-validator';
-import { ValidateNested } from 'class-validator';
+import { ValidateIf, ValidateNested } from 'class-validator';
 import { MovieStatus } from '../../generated/prisma/client';
 
 /**
@@ -61,7 +61,11 @@ export class CreateMovieEntryDto {
   @MaxLength(500, { message: 'VALIDATION.NOTE_TOO_LONG' })
   personalNote?: string;
 
+  // Boş metin "tarihi temizle" demek (film sıraya alınınca izleme tarihi
+  // kalmamalı); `@IsOptional` yalnızca null/undefined'ı atlar, o yüzden boş
+  // metin ayrıca muaf tutuluyor
   @IsOptional()
+  @ValidateIf((_, value) => value !== '')
   @IsISO8601({}, { message: 'VALIDATION.INVALID_DATE' })
   watchedAt?: string;
 

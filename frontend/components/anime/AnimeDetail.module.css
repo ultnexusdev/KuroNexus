@@ -1,0 +1,495 @@
+/* Anime sayfasi. Palet globals.css'teki [data-category="anime"] blogundan
+   gelir (AGENTS.md kural 16). Bolum izgarasinin renkleri de token'lardan:
+   izlendi = accent, gecildi = kesik cerceve, filler = soluk. */
+
+.page {
+  position: relative;
+  min-height: 100vh;
+  padding-bottom: 120px;
+  background: var(--bg);
+}
+
+.banner {
+  position: relative;
+  height: clamp(180px, 30vw, 340px);
+  overflow: hidden;
+}
+
+.bannerImg {
+  object-fit: cover;
+  opacity: 0.55;
+}
+
+/* Banner asagi dogru zemine karisir: kesik bir kenar birakmaz */
+.bannerFade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--bg) 30%, transparent),
+    var(--bg)
+  );
+}
+
+.inner {
+  position: relative;
+  z-index: 1;
+  width: min(1080px, 100%);
+  margin-inline: auto;
+  padding: 0 var(--pad-md);
+  /* Banner varsa kunye onun uzerine biner */
+  margin-top: -80px;
+}
+
+.back {
+  display: inline-block;
+  margin-bottom: var(--gap-lg);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  text-decoration: none;
+}
+
+.back:hover {
+  color: var(--accent);
+}
+
+/* --- Kunye --- */
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pad-md);
+  align-items: flex-start;
+}
+
+.cover {
+  position: relative;
+  flex-shrink: 0;
+  width: 180px;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+}
+
+.coverImg {
+  object-fit: cover;
+}
+
+.headText {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--gap-sm);
+}
+
+.myStatus {
+  padding: 2px 8px;
+  border: 0.5px solid var(--accent-muted);
+  border-radius: 999px;
+  color: var(--accent);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.favorite {
+  color: var(--gold);
+  font-size: 0.72rem;
+}
+
+.title {
+  margin: var(--gap-sm) 0 0;
+  color: var(--text-primary);
+  font-family: var(--font-cinzel), serif;
+  font-size: clamp(1.6rem, 4vw, 2.6rem);
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.native {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-md) var(--pad-md);
+  margin: var(--gap-lg) 0 0;
+}
+
+.facts dt {
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.facts dd {
+  margin: 3px 0 0;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+/* Sayfanin en cok bakilan satiri */
+.resume {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--gap-sm);
+  margin: var(--gap-lg) 0 0;
+  padding: var(--gap-md);
+  border: 0.5px solid var(--border-strong);
+  border-left: 2px solid var(--accent);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+}
+
+.resumeLabel {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.countdown {
+  color: var(--anime-upcoming-ink);
+}
+
+.tags {
+  margin: var(--gap-md) 0 0;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.note {
+  margin: var(--gap-md) 0 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+/* --- Bolumler --- */
+
+.section {
+  margin-top: var(--pad-lg);
+}
+
+.sectionTitle {
+  margin: 0 0 var(--gap-sm);
+  padding-bottom: var(--gap-sm);
+  border-bottom: 0.5px solid var(--border);
+  color: var(--text-primary);
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.08em;
+}
+
+.sectionLede {
+  margin: 0 0 var(--gap-lg);
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.synopsis {
+  margin: var(--gap-md) 0 0;
+  max-width: 72ch;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+/* --- Izleme sirasi --- */
+
+.timeline {
+  display: grid;
+  gap: var(--gap-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.part,
+.partOpen {
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
+}
+
+.partOpen {
+  border-color: var(--accent-muted);
+}
+
+.partHead {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-md);
+  padding: var(--gap-sm) var(--gap-md);
+}
+
+.partIndex {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.9rem;
+  letter-spacing: 0.1em;
+}
+
+/* Her sezonun kendi afisi */
+.partCover {
+  position: relative;
+  flex-shrink: 0;
+  width: 44px;
+  height: 62px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: var(--surface);
+}
+
+.partCoverImg {
+  object-fit: cover;
+}
+
+.partInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.partToggle {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-primary);
+  font-size: 0.92rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.partToggle:hover {
+  color: var(--accent);
+}
+
+.partMeta {
+  color: var(--text-muted);
+  font-size: 0.76rem;
+}
+
+.partBar {
+  display: block;
+  height: 3px;
+  max-width: 320px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--border);
+}
+
+.partBarFill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+
+.partChevron {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+/* --- Bolum izgarasi --- */
+
+.episodes {
+  padding: 0 var(--gap-md) var(--gap-md) var(--gap-md);
+}
+
+.episodesHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--gap-md);
+  padding: var(--gap-sm) 0;
+  border-top: 0.5px solid var(--border);
+}
+
+.episodesMeta {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.skipFillers {
+  min-height: 30px;
+  margin-left: auto;
+  padding: 0 10px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.skipFillers:hover {
+  border-color: var(--accent-muted);
+  color: var(--accent);
+}
+
+.episodesLoading {
+  padding: var(--gap-md);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.episodeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(38px, 1fr));
+  gap: 4px;
+  margin: var(--gap-sm) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ep,
+.epWatched,
+.epSkipped {
+  width: 100%;
+  min-height: 30px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: 3px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.ep:disabled,
+.epWatched:disabled,
+.epSkipped:disabled {
+  cursor: default;
+}
+
+.epWatched {
+  border-color: var(--accent-muted);
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  color: var(--text-primary);
+}
+
+/* Gecildi: izlenmedi ama ilerlemeyi bozmuyor — kesik cerceve */
+.epSkipped {
+  border-style: dashed;
+  border-color: var(--text-muted);
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+/* Filler bolum soluk kalir; ustteki durum renkleriyle birlesir */
+.epFiller {
+  opacity: 0.45;
+  border-color: var(--warn);
+}
+
+.episodesHint {
+  margin: var(--gap-sm) 0 0;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+/* --- Karakterler --- */
+
+.characters {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: var(--gap-sm);
+  margin: var(--gap-lg) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.character {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  padding: var(--gap-sm);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.characterFace {
+  position: relative;
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--surface);
+}
+
+.characterImg {
+  object-fit: cover;
+}
+
+.characterText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.characterName {
+  overflow: hidden;
+  color: var(--text-primary);
+  font-size: 0.84rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.characterVoice {
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --- Manga --- */
+
+.mangaLine {
+  margin: var(--gap-lg) 0 0;
+  color: var(--text-primary);
+  font-size: 0.92rem;
+}
+
+.mangaHint {
+  margin: 6px 0 0;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+@media (max-width: 640px) {
+  .inner {
+    margin-top: -40px;
+  }
+
+  .cover {
+    width: 120px;
+  }
+
+  .episodeGrid {
+    grid-template-columns: repeat(auto-fill, minmax(34px, 1fr));
+  }
+}

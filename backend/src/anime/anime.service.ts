@@ -4,7 +4,13 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { AnilistService, type AnilistMedia } from './anilist.service';
+import {
+  AnilistService,
+  type AnilistCharacter,
+  type AnilistMedia,
+} from './anilist.service';
+import { JikanService } from './jikan.service';
+import { slugify } from '../common/utils/slugify';
 import { CreateAnimeEntryDto } from './dto/create-anime-entry.dto';
 import { UpdateAnimeEntryDto } from './dto/update-anime-entry.dto';
 import { UpdateAnimePartDto } from './dto/update-anime-part.dto';
@@ -48,6 +54,8 @@ export interface ArchiveAnimePart {
 
 export interface ArchiveAnime {
   id: string;
+  /** Anime sayfasının adresi. Başlıktan türetilir, veritabanında tutulmaz. */
+  slug: string;
   anilistId: number;
   malId: number | null;
   status: AnimeEntry['status'];
@@ -76,6 +84,14 @@ export interface ArchiveAnime {
   manga: AnilistMedia['manga'];
 }
 
+export interface PartEpisode {
+  number: number;
+  title: string | null;
+  filler: boolean;
+  recap: boolean;
+  state: 'WATCHED' | 'SKIPPED' | 'UNWATCHED';
+}
+
 export interface AnimeArchiveStats {
   series: number;
   watching: number;
@@ -91,6 +107,7 @@ export class AnimeService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly anilist: AnilistService,
+    private readonly jikan: JikanService,
   ) {}
 
   // --- Public ---
@@ -109,13 +126,90 @@ export class AnimeService {
       orderBy: { updatedAt: 'desc' },
     });
 
-    const entries = rows.map((row) => toArchiveAnime(row));
+    const entries = withSlugs(rows);
     return {
       entries,
       stats: buildStats(entries),
       studios: topStudios(entries),
       genres: collect(entries, (entry) => entry.genres),
       tags: collect(entries, (entry) => entry.tags),
+    };
+  }
+
+  /**
+   * Anime sayfası: künye + sezon zaman çizelgesi + kadro.
+   *
+   * Bölüm listeleri burada gelmez — her sezon için ayrı Jikan isteği demek
+   * olurdu. Sayfa açıldıktan sonra sezon başına ayrı çekilir.
+   */
+  async getDetail(
+    slug: string,
+  ): Promise<{ anime: ArchiveAnime; characters: AnilistCharacter[] }> {
+    const rows = await this.prisma.animeEntry.findMany({
+      where: { isDeleted: false },
+      include: { parts: { orderBy: { orderIndex: 'asc' } } },
+      orderBy: { updatedAt: 'desc' },
+    });
+    const anime = withSlugs(rows).find((entry) => entry.slug === slug);
+    if (!anime) {
+      throw new NotFoundException('ANIME.NOT_FOUND');
+    }
+    // Kadro alınamazsa sayfa karaktersiz açılır (kural 4 ruhu)
+    const characters = await this.anilist.getCharacters(anime.anilistId);
+    return { anime, characters };
+  }
+
+  /**
+   * Bir sezonun bölüm listesi: filler/recap bayrakları Jikan'dan, izleme
+   * durumu bizden. Kaynak düşerse liste yine kurulur — bölüm sayısı AniList
+   * künyesinde var, yalnızca başlık ve filler bilgisi eksik kalır.
+   */
+  async getPartEpisodes(partId: string): Promise<{
+    episodes: PartEpisode[];
+    fillerCount: number;
+    hasSourceData: boolean;
+  }> {
+    const part = await this.prisma.animePart.findUnique({
+      where: { id: partId },
+    });
+    if (!part) {
+      throw new NotFoundException('ANIME.PART_NOT_FOUND');
+    }
+    const media = (part.externalData ?? null) as AnilistMedia | null;
+    const isAiring = media?.status === 'RELEASING';
+    const source = part.malId
+      ? await this.jikan.episodes(part.malId, isAiring)
+      : [];
+
+    const total = media?.episodes ?? source.length;
+    const marks = (part.episodeMarks ?? {}) as Record<string, string>;
+    const byNumber = new Map(
+      source.map((episode) => [episode.number, episode]),
+    );
+
+    const episodes: PartEpisode[] = [];
+    for (let number = 1; number <= total; number += 1) {
+      const item = byNumber.get(number);
+      const mark = marks[String(number)];
+      episodes.push({
+        number,
+        title: item?.title ?? null,
+        filler: item?.filler ?? false,
+        recap: item?.recap ?? false,
+        // "Geçildi" açık bir işaret; onun dışında sayaç neredeyse orası izlendi
+        state:
+          mark === 'SKIPPED'
+            ? 'SKIPPED'
+            : number <= part.watchedEpisodes
+              ? 'WATCHED'
+              : 'UNWATCHED',
+      });
+    }
+
+    return {
+      episodes,
+      fillerCount: episodes.filter((episode) => episode.filler).length,
+      hasSourceData: source.length > 0,
     };
   }
 
@@ -215,6 +309,27 @@ export class AnimeService {
     // Bölüm sayısı bilinmeyen (devam eden) yapımda üst sınır yok
     const watched = Math.max(0, total === null ? raw : Math.min(raw, total));
 
+    const marks = { ...((part.episodeMarks ?? {}) as Record<string, string>) };
+    if (dto.markEpisode !== undefined) {
+      if (dto.markState === 'SKIPPED') {
+        marks[String(dto.markEpisode)] = 'SKIPPED';
+      } else {
+        delete marks[String(dto.markEpisode)];
+      }
+    }
+    // "Filler'ları geçildi say": kanon ilerlemesi bozulmasın diye toplu işaret
+    if (dto.skipFillers && part.malId) {
+      const source = await this.jikan.episodes(
+        part.malId,
+        media?.status === 'RELEASING',
+      );
+      for (const episode of source) {
+        if (episode.filler) {
+          marks[String(episode.number)] = 'SKIPPED';
+        }
+      }
+    }
+
     await this.prisma.animePart.update({
       where: { id: partId },
       data: {
@@ -223,6 +338,7 @@ export class AnimeService {
           dto.isCompleted ?? (total !== null && watched >= total && total > 0),
         personalRating: dto.personalRating ?? part.personalRating,
         mangaChapter: dto.mangaChapter ?? part.mangaChapter,
+        episodeMarks: marks as unknown as Prisma.InputJsonValue,
       },
     });
 
@@ -354,6 +470,23 @@ export class AnimeService {
   }
 }
 
+/**
+ * Serilere adres verir. Slug veritabanında tutulmuyor: başlıktan türetiliyor,
+ * iki seri aynı slug'a düşerse sonrakine AniList numarası ekleniyor. Böylece
+ * hem şema sade kalıyor hem de künye tazelenip başlık değişse adres kendini
+ * düzeltiyor.
+ */
+function withSlugs(rows: EntryWithParts[]): ArchiveAnime[] {
+  const used = new Set<string>();
+  return rows.map((row) => {
+    const anime = toArchiveAnime(row);
+    const base = slugify(anime.title) || `anime-${anime.anilistId}`;
+    const slug = used.has(base) ? `${base}-${anime.anilistId}` : base;
+    used.add(slug);
+    return { ...anime, slug };
+  });
+}
+
 function toArchiveAnime(entry: EntryWithParts): ArchiveAnime {
   const root = (entry.externalData ?? null) as AnilistMedia | null;
   const parts = [...entry.parts]
@@ -384,6 +517,7 @@ function toArchiveAnime(entry: EntryWithParts): ArchiveAnime {
 
   return {
     id: entry.id,
+    slug: '',
     anilistId: entry.anilistId,
     malId: entry.malId,
     status: entry.status,

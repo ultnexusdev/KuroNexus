@@ -17,6 +17,7 @@ import type {
   AnilistSearchResult,
   AnimeWatchStatus,
   ArchiveAnime,
+  ArchiveAnimePart,
 } from "@/lib/api/types";
 import styles from "./AnimeHall.module.css";
 
@@ -244,6 +245,90 @@ export function CuratorBar() {
         </form>
       ) : null}
     </section>
+  );
+}
+
+/**
+ * Bölüm sayacının elle girilebilen hâli: "14/23" yazısına tıklayınca kutuya
+ * dönüşür, sayıyı yazıp Enter'a basınca ilerleme oraya atlar.
+ *
+ * Neden: 220 bölümlük bir seriyi "+1 bölüm" ile ilerletmek işkence — zaten
+ * izlenmiş uzun seriler tek hamlede işaretlenebilmeli (kullanıcı geri
+ * bildirimi). Sayıyı düşürmek de aynı yoldan yapılıyor.
+ */
+export function EpisodeInput({ part }: { part: ArchiveAnimePart }) {
+  const t = useTranslations("anime");
+  const router = useRouter();
+  const [editing, setEditing] = useState(false);
+  const [value, setValue] = useState(String(part.watchedEpisodes));
+  const [busy, setBusy] = useState(false);
+
+  async function commit() {
+    const parsed = Number.parseInt(value, 10);
+    setEditing(false);
+    if (!Number.isFinite(parsed) || parsed === part.watchedEpisodes) {
+      setValue(String(part.watchedEpisodes));
+      return;
+    }
+    setBusy(true);
+    try {
+      await updateAnimePart(part.id, { watchedEpisodes: Math.max(0, parsed) });
+      router.refresh();
+    } catch {
+      setValue(String(part.watchedEpisodes));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (!editing) {
+    return (
+      <button
+        type="button"
+        className={styles.countButton}
+        disabled={busy}
+        title={t("curator.editCount")}
+        onClick={() => {
+          setValue(String(part.watchedEpisodes));
+          setEditing(true);
+        }}
+      >
+        {part.episodes
+          ? t("episodeOf", {
+              watched: part.watchedEpisodes,
+              total: part.episodes,
+            })
+          : t("episodeCount", { watched: part.watchedEpisodes })}
+      </button>
+    );
+  }
+
+  return (
+    <span className={styles.countEdit}>
+      <input
+        type="number"
+        min={0}
+        max={part.episodes ?? undefined}
+        value={value}
+        autoFocus
+        aria-label={t("curator.editCount")}
+        className={styles.countInput}
+        onChange={(event) => setValue(event.target.value)}
+        onBlur={() => void commit()}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
+            void commit();
+          }
+          if (event.key === "Escape") {
+            setValue(String(part.watchedEpisodes));
+            setEditing(false);
+          }
+        }}
+      />
+      {part.episodes ? (
+        <span className={styles.countTotal}>/{part.episodes}</span>
+      ) : null}
+    </span>
   );
 }
 

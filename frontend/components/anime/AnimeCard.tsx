@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+import { Link } from "@/lib/i18n/navigation";
 import type { ArchiveAnime } from "@/lib/api/types";
 import { daysUntil } from "@/lib/anime/filters";
 import styles from "./AnimeHall.module.css";
@@ -10,6 +11,10 @@ import styles from "./AnimeHall.module.css";
 // Küratör kontrolleri yalnızca mod açıkken iner — ziyaretçi bu JS'i almaz
 const CuratorCardTools = dynamic(
   () => import("./AnimeCurator").then((mod) => mod.CuratorCardTools),
+  { ssr: false },
+);
+const EpisodeInput = dynamic(
+  () => import("./AnimeCurator").then((mod) => mod.EpisodeInput),
   { ssr: false },
 );
 
@@ -74,22 +79,31 @@ export function AnimeCard({
   const days = daysUntil(anime.nextAiringAt);
   const rating = anime.personalRating ?? (anime.averageScore ? anime.averageScore / 10 : null);
 
+  const href = `/dark-stories/category/anime/${anime.slug}`;
+
   return (
     <article className={styles.card}>
-      <div className={styles.coverWrap}>
-        <Cover
-          anime={anime}
-          sizes="(max-width: 640px) 45vw, (max-width: 1100px) 23vw, 15vw"
-        />
-        {anime.isFavorite ? (
-          <span className={styles.favoriteMark} aria-label={t("favorite")}>
-            ★
-          </span>
-        ) : null}
-      </div>
+      {/* Kapak ve başlık anime sayfasına açılır */}
+      <Link href={href} className={styles.coverLink}>
+        <span className={styles.coverWrap}>
+          <Cover
+            anime={anime}
+            sizes="(max-width: 640px) 45vw, (max-width: 1100px) 23vw, 15vw"
+          />
+          {anime.isFavorite ? (
+            <span className={styles.favoriteMark} aria-label={t("favorite")}>
+              ★
+            </span>
+          ) : null}
+        </span>
+      </Link>
 
       <div className={styles.cardHead}>
-        <h3 className={styles.cardTitle}>{anime.title}</h3>
+        <h3 className={styles.cardTitle}>
+          <Link href={href} className={styles.titleLink}>
+            {anime.title}
+          </Link>
+        </h3>
         <AiringBadge anime={anime} />
       </div>
 
@@ -98,11 +112,16 @@ export function AnimeCard({
           <span className={styles.partName}>
             {partLabel(part.title, anime.title)}
           </span>
-          <span className={styles.partCount}>
-            {total
-              ? t("episodeOf", { watched, total })
-              : t("episodeCount", { watched })}
-          </span>
+          {/* Küratör modunda sayaç tıklanınca elle bölüm girilebilir */}
+          {curating ? (
+            <EpisodeInput part={part} />
+          ) : (
+            <span className={styles.partCount}>
+              {total
+                ? t("episodeOf", { watched, total })
+                : t("episodeCount", { watched })}
+            </span>
+          )}
         </p>
       ) : null}
 

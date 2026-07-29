@@ -513,6 +513,11 @@ export interface AnimePartInput {
   isCompleted?: boolean;
   personalRating?: number;
   mangaChapter?: number;
+  /** Bölüm ızgarasından tek bölüm işaretleme */
+  markEpisode?: number;
+  markState?: "SKIPPED" | "NONE";
+  /** Filler bölümlerin hepsini "geçildi" say */
+  skipFillers?: boolean;
 }
 
 export function searchAnilist(query: string): Promise<AnilistSearchResult[]> {

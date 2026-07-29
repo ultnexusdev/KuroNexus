@@ -20,8 +20,18 @@ const ANILIST_URL = 'https://graphql.anilist.co';
 const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 // Devam eden yapımın "sıradaki bölüm"ü her gün değişir — künyeden kısa tutulur
 const AIRING_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
-// Bir serinin zincirinde en fazla kaç yapım gezilir (Gundam gibi devlerde durak)
-const CHAIN_MAX_NODES = 14;
+// Kadro (karakter + seslendiren) neredeyse hiç değişmez
+const CHARACTER_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+/**
+ * Zincir durakları. İlk sürümde tek bir sayı vardı (14) ve **filmler/OVA'lar
+ * kotayı doldurup sezonları dışarıda bırakıyordu**: My Hero Academia'da 7.
+ * sezon, Naruto'da Shippuden sonrası hiç inmedi. Artık TV sezonları önce
+ * geziliyor ve yan yapımların ayrı, küçük bir kotası var.
+ */
+const CHAIN_MAX_NODES = 34;
+const CHAIN_MAX_EXTRAS = 14;
+/** Sezon sayılan formatlar — kotası ayrı, önceliği yüksek. */
+const CHAIN_MAIN_FORMATS = new Set(['TV', 'TV_SHORT']);
 
 /** Sezon zincirine giren ilişki türleri — spin-off/alternatif sürüm alınmaz. */
 const CHAIN_RELATIONS = new Set(['SEQUEL', 'PREQUEL', 'PARENT', 'SIDE_STORY']);
@@ -71,6 +81,14 @@ export interface AnilistMedia {
     volumes: number | null;
     status: string | null;
   } | null;
+}
+
+export interface AnilistCharacter {
+  name: string;
+  image: string | null;
+  role: string | null;
+  voiceActor: string | null;
+  voiceActorImage: string | null;
 }
 
 export interface AnilistRelation {
@@ -270,11 +288,22 @@ export class AnilistService {
    */
   async getFranchise(rootId: number): Promise<AnilistMedia[]> {
     const seen = new Set<number>([rootId]);
-    const queue: number[] = [rootId];
+    // İki sıra: sezonlar (TV) her zaman önce gezilir. Tek sıra kullanılınca
+    // araya giren filmler kotayı doldurup son sezonları dışarıda bırakıyordu.
+    const mainQueue: number[] = [rootId];
+    const extraQueue: number[] = [];
     const found: AnilistMedia[] = [];
+    let extras = 0;
 
-    while (queue.length > 0 && found.length < CHAIN_MAX_NODES) {
-      const current = queue.shift()!;
+    while (
+      (mainQueue.length > 0 || extraQueue.length > 0) &&
+      found.length < CHAIN_MAX_NODES
+    ) {
+      const fromMain = mainQueue.length > 0;
+      if (!fromMain && extras >= CHAIN_MAX_EXTRAS) {
+        break;
+      }
+      const current = fromMain ? mainQueue.shift()! : extraQueue.shift()!;
       let node: { media: AnilistMedia; relations: AnilistRelation[] };
       try {
         node = await this.getMediaWithRelations(current);
@@ -286,6 +315,10 @@ export class AnilistService {
         continue;
       }
       found.push(node.media);
+      if (!fromMain) {
+        extras += 1;
+      }
+
       for (const relation of node.relations) {
         if (
           seen.has(relation.anilistId) ||
@@ -296,11 +329,75 @@ export class AnilistService {
           continue;
         }
         seen.add(relation.anilistId);
-        queue.push(relation.anilistId);
+        if (CHAIN_MAIN_FORMATS.has(relation.format)) {
+          mainQueue.push(relation.anilistId);
+        } else {
+          extraQueue.push(relation.anilistId);
+        }
       }
     }
 
     return found.sort(byAirDate);
+  }
+
+  /**
+   * Karakterler ve seslendirenler (anime sayfası için).
+   *
+   * Ayrı sorgu ve ayrı cache: künye her tazelendiğinde kadroyu da çekmek
+   * gereksiz — kadro neredeyse hiç değişmiyor. Alınamazsa boş döner, sayfa
+   * karaktersiz açılır.
+   */
+  async getCharacters(anilistId: number): Promise<AnilistCharacter[]> {
+    const cacheKey = `anilist:characters:${anilistId}`;
+    const cached = await this.prisma.externalCache.findUnique({
+      where: { cacheKey },
+    });
+    if (cached && Date.now() - cached.fetchedAt.getTime() < CHARACTER_TTL_MS) {
+      return cached.payload as unknown as AnilistCharacter[];
+    }
+
+    try {
+      const data = await this.request<{
+        Media: {
+          characters?: {
+            edges?: Array<{
+              role: string | null;
+              node: { name?: { full?: string }; image?: { medium?: string } };
+              voiceActors?: Array<{
+                name?: { full?: string };
+                image?: { medium?: string };
+              }>;
+            }>;
+          };
+        };
+      }>(
+        `query($id:Int){Media(id:$id,type:ANIME){characters(sort:[ROLE,FAVOURITES_DESC],perPage:12){edges{
+          role
+          node{name{full} image{medium}}
+          voiceActors(language:JAPANESE){name{full} image{medium}}
+        }}}}`,
+        { id: anilistId },
+      );
+      const characters: AnilistCharacter[] = (
+        data.Media?.characters?.edges ?? []
+      ).map((edge) => ({
+        name: edge.node?.name?.full ?? '',
+        image: edge.node?.image?.medium ?? null,
+        role: edge.role,
+        voiceActor: edge.voiceActors?.[0]?.name?.full ?? null,
+        voiceActorImage: edge.voiceActors?.[0]?.image?.medium ?? null,
+      }));
+      await this.writeCache(cacheKey, characters);
+      return characters;
+    } catch (error) {
+      if (cached) {
+        return cached.payload as unknown as AnilistCharacter[];
+      }
+      this.logger.warn(
+        `AniList kadro alınamadı (${anilistId}): ${String(error)}`,
+      );
+      return [];
+    }
   }
 
   private async fetchMedia(

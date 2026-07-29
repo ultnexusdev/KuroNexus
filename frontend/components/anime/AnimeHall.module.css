@@ -239,8 +239,63 @@
   flex-direction: column;
 }
 
+.coverLink {
+  display: block;
+  text-decoration: none;
+}
+
+.titleLink {
+  color: inherit;
+  text-decoration: none;
+}
+
+.titleLink:hover {
+  color: var(--accent);
+}
+
+/* Sayac tiklaninca kutuya donusur: uzun serileri tek hamlede isaretlemek icin */
+.countButton {
+  flex-shrink: 0;
+  padding: 0 4px;
+  border: 0.5px dashed var(--border-strong);
+  border-radius: 3px;
+  background: transparent;
+  color: var(--accent);
+  font-size: 0.76rem;
+  font-variant-numeric: tabular-nums;
+  cursor: text;
+}
+
+.countButton:hover {
+  border-color: var(--accent-muted);
+}
+
+.countEdit {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.countInput {
+  width: 52px;
+  padding: 1px 4px;
+  border: 0.5px solid var(--accent-muted);
+  border-radius: 3px;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-size: 0.76rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.countTotal {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+}
+
 .coverWrap {
   position: relative;
+  display: block;
   aspect-ratio: 2 / 3;
   overflow: hidden;
   border: 0.5px solid var(--border);

@@ -402,6 +402,8 @@ export interface ArchiveAnimePart {
 
 export interface ArchiveAnime {
   id: string;
+  /** Anime sayfasının adresi — backend başlıktan türetir */
+  slug: string;
   anilistId: number;
   malId: number | null;
   status: AnimeWatchStatus;
@@ -457,4 +459,33 @@ export interface AnilistSearchResult {
   seasonYear: number | null;
   coverImage: string | null;
   averageScore: number | null;
+}
+
+export interface AnimeCharacter {
+  name: string;
+  image: string | null;
+  role: string | null;
+  voiceActor: string | null;
+  voiceActorImage: string | null;
+}
+
+export interface AnimeDetail {
+  anime: ArchiveAnime;
+  characters: AnimeCharacter[];
+}
+
+/** Bölüm ızgarasının bir karesi. `filler`/`recap` Jikan'dan, `state` bizden. */
+export interface PartEpisode {
+  number: number;
+  title: string | null;
+  filler: boolean;
+  recap: boolean;
+  state: "WATCHED" | "SKIPPED" | "UNWATCHED";
+}
+
+export interface PartEpisodes {
+  episodes: PartEpisode[];
+  fillerCount: number;
+  /** Jikan'dan liste gelmediyse false — ızgara çizilir ama filler bilinmez */
+  hasSourceData: boolean;
 }

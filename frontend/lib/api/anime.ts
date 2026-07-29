@@ -1,5 +1,5 @@
 import { apiFetch } from "./client";
-import type { AnimeArchive } from "./types";
+import type { AnimeArchive, AnimeDetail, PartEpisodes } from "./types";
 
 const EMPTY_ARCHIVE: AnimeArchive = {
   entries: [],
@@ -31,4 +31,28 @@ export async function getAnimeArchive(): Promise<AnimeArchive> {
   } catch {
     return EMPTY_ARCHIVE;
   }
+}
+
+/** Anime sayfası: künye + sezonlar + kadro. Bulunamazsa null (sayfa 404). */
+export async function getAnimeDetail(
+  slug: string,
+): Promise<AnimeDetail | null> {
+  try {
+    return await apiFetch<AnimeDetail>(`/anime/${encodeURIComponent(slug)}`, {
+      cache: "no-store",
+    });
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Bir sezonun bölüm listesi. Tarayıcıdan çağrılır (sezon açıldığında) —
+ * bütün sezonların listesini sayfa açılışında çekmek gereksiz yavaşlık olurdu;
+ * kaynak (Jikan) hem yavaş hem kırılgan.
+ */
+export function fetchPartEpisodes(partId: string): Promise<PartEpisodes> {
+  return apiFetch<PartEpisodes>(`/anime/parts/${partId}/episodes`, {
+    cache: "no-store",
+  });
 }

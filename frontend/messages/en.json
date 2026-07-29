@@ -684,7 +684,35 @@
         "ON_HOLD": "On hold",
         "DROPPED": "Dropped",
         "REWATCHING": "Rewatching"
-      }
+      },
+      "editCount": "Type the episode count"
+    },
+    "detail": {
+      "studio": "Studio",
+      "year": "Year",
+      "seasons": "Parts",
+      "partCount": "{count} seasons/films",
+      "score": "AniList score",
+      "myScore": "My rating",
+      "resume": "Where I left off",
+      "synopsis": "Synopsis",
+      "watchOrder": "Watch Order",
+      "watchOrderLede": "Seasons, films and OVAs in air-date order. Click a part to open its episodes.",
+      "characters": "Characters",
+      "manga": "Manga",
+      "chapters": "{count} chapters",
+      "volumes": "{count} volumes",
+      "mangaHint": "Record which manga chapter a season ends on and this line will tell you where to pick the manga up.",
+      "mangaResume": "{part} ends at manga chapter {chapter} — continue from chapter {next}.",
+      "loadingEpisodes": "Loading episodes…",
+      "noEpisodes": "The episode list for this part could not be loaded.",
+      "fillerCount": "{filler} filler · {canon} canon episodes",
+      "noFillerData": "No filler data available for this part.",
+      "canonProgress": "Canon progress: {watched}/{total}",
+      "skipFillers": "Mark filler as skipped",
+      "filler": "Filler",
+      "recap": "Recap",
+      "gridHint": "Click an episode to mark everything up to it as watched. Click a watched episode to step back one."
     }
   }
 }

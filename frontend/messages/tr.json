@@ -684,7 +684,35 @@
         "ON_HOLD": "Ara verdim",
         "DROPPED": "Bıraktım",
         "REWATCHING": "Yeniden izliyorum"
-      }
+      },
+      "editCount": "Bölüm sayısını elle gir"
+    },
+    "detail": {
+      "studio": "Stüdyo",
+      "year": "Yıl",
+      "seasons": "Parça",
+      "partCount": "{count} sezon/film",
+      "score": "AniList puanı",
+      "myScore": "Puanım",
+      "resume": "Nerede kaldım",
+      "synopsis": "Konu",
+      "watchOrder": "İzleme Sırası",
+      "watchOrderLede": "Sezonlar, filmler ve OVA'lar yayın tarihine göre sıralı. Bir parçaya tıkla, bölümleri açılsın.",
+      "characters": "Karakterler",
+      "manga": "Manga",
+      "chapters": "{count} bölüm",
+      "volumes": "{count} cilt",
+      "mangaHint": "Bir sezonu bitirdiğinde mangada hangi bölüme denk geldiğini girersen, devamının nereden başladığı burada yazar.",
+      "mangaResume": "{part} mangada {chapter}. bölümde bitiyor — devamı {next}. bölümden.",
+      "loadingEpisodes": "Bölümler yükleniyor…",
+      "noEpisodes": "Bu parçanın bölüm listesi alınamadı.",
+      "fillerCount": "{filler} filler · {canon} kanon bölüm",
+      "noFillerData": "Filler bilgisi bu parça için alınamadı.",
+      "canonProgress": "Kanon ilerlemen: {watched}/{total}",
+      "skipFillers": "Filler'ları geçildi say",
+      "filler": "Filler",
+      "recap": "Özet bölüm",
+      "gridHint": "Bir bölüme tıkla: oraya kadar izlendi sayılır. İzlenmiş bölüme tekrar tıklarsan bir geri alır."
     }
   }
 }

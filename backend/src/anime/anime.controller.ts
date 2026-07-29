@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import { Public } from '../common/decorators/public.decorator';
 import { AnimeService } from './anime.service';
 
@@ -11,5 +11,18 @@ export class AnimeController {
   @Get()
   getArchive() {
     return this.animeService.getArchive();
+  }
+
+  // ':slug' rotasından ÖNCE tanımlı olmalı
+  @Public()
+  @Get('parts/:partId/episodes')
+  getPartEpisodes(@Param('partId') partId: string) {
+    return this.animeService.getPartEpisodes(partId);
+  }
+
+  @Public()
+  @Get(':slug')
+  getDetail(@Param('slug') slug: string) {
+    return this.animeService.getDetail(slug);
   }
 }

@@ -234,8 +234,6 @@ export class PulseService {
       parts: Array<{ watchedEpisodes: number; externalData: unknown }>;
     }>,
   ): PulseHall[] {
-    const currentYear = new Date().getFullYear();
-
     return categories.map((category) => {
       const universeCount = universes.filter(
         (universe) => universe.categoryId === category.id,
@@ -246,10 +244,12 @@ export class PulseService {
 
       if (category.slug === 'film') {
         count = movies.filter((movie) => movie.status !== 'WATCHLIST').length;
-        const thisYear = movies.filter(
-          (movie) => movie.watchedAt?.getFullYear() === currentYear,
-        ).length;
-        line = `${thisYear}`;
+        // İkinci sayı "sırada bekleyen" — canlıda denenen "bu yıl" ölçüsü
+        // toplamla aynı çıkıyordu (her film eklendiği gün izlenmiş sayılıyor),
+        // yani aynı sayıyı iki kez söylüyordu
+        line = String(
+          movies.filter((movie) => movie.status === 'WATCHLIST').length,
+        );
       }
 
       if (category.slug === 'anime') {

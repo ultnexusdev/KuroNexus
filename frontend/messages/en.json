@@ -46,7 +46,7 @@
     "enterUniverse": "Enter the universe",
     "halls": "Halls",
     "hallLine": {
-      "film": "{count} films · {year} this year",
+      "film": "{count} films · {year} queued",
       "anime": "{count} series",
       "animeWatching": "{count} series · watching: {title}",
       "universes": "{count} worlds"

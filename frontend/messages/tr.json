@@ -46,7 +46,7 @@
     "enterUniverse": "Evrene gir",
     "halls": "Salonlar",
     "hallLine": {
-      "film": "{count} film · bu yıl {year}",
+      "film": "{count} film · {year} sırada",
       "anime": "{count} seri",
       "animeWatching": "{count} seri · izliyorum: {title}",
       "universes": "{count} evren"

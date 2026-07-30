@@ -5,6 +5,29 @@
 
 ## Mevcut Aşama
 
+> **OTURUM NOTU — 30 Temmuz 2026.** **Salon 02 · Dizi arşivi** yazıldı —
+> film salonunun bire bir aynısı, kaynak TMDB'nin tv uçları. Backend:
+> `ShowEntry`/`ShowSuggestionDismissal` (migration elle yazıldı, DB'siz
+> makinede `prisma generate` ile doğrulandı), `backend/src/shows/*`
+> (tmdb-tv.service, service, controller, admin controller, dto'lar) —
+> arama/keşif/trend/öneri sonuçlarında **Animasyon + Japonya kökenli**
+> kayıtlar otomatik elenir (anime salonuyla çakışmasın diye). Kore Dramaları
+> bir durum değil rafın kendisi: TMDB `origin_country` "KR" olan her dizi
+> otomatik olarak o rafta da görünür (favoriler gibi diğer raflarla kesişir).
+> Salon girişi afişleri (`GET /shows/showcase`) anime lobisindeki desenle
+> aynı — solda Game of Thrones, sağda Spartacus, TMDB'de aranıp cache'leniyor,
+> yol koda gömülü değil. Frontend: `components/show/*` (ShowHall/ShowCard/
+> ShowDetail/ShowBackdrop/ShowCurator/ShowLobby/ShowShelfPage), `lib/show/*`,
+> `lib/api/shows.ts`, `app/.../category/dizi/*` rotaları, `[categorySlug]`
+> sayfasına dizi dalı. Künye levhasında filmin bütçe/hâsılatının yerini
+> sezon/bölüm sayısı ve yayın durumu aldı (TMDB'de dizide o ikisinin
+> karşılığı yok). "Nexus'u Keşfet" pulse uç noktasına da dizi kapısı sayacı
+> ve `DIZI` künye türü eklendi — dizi kapısı artık "0 evren" değil gerçek
+> sayı gösterecek. Backend+frontend build/lint/tsc temiz. **Kullanıcı onayıyla
+> push edildi, canlıda henüz gerçek girişle denenmedi** — bakılacaklar: dizi
+> kapısı → salon → arşiv → dizi sayfası akışı, küratör modunda TMDB'de dizi
+> arama/ekleme, Kore Dramaları rafının dolması, sol/sağ afişlerin görünmesi.
+>
 > **GÜN KAPANIŞI — 29 Temmuz 2026 gecesi, iş yeri makinesi.** Altı push gitti,
 > hepsi canlıda doğrulandı: `7ece552` anime sekmeleri + sabit banner + dış
 > bağlantılar → `8bb5960` film sayfası + "en üste git" + öneriler havuz kadar →

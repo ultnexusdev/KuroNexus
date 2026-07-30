@@ -22,6 +22,7 @@ import { FootballModule } from './football/football.module';
 import { CategoriesModule } from './categories/categories.module';
 import { MoviesModule } from './movies/movies.module';
 import { AnimeModule } from './anime/anime.module';
+import { ShowsModule } from './shows/shows.module';
 import { PulseModule } from './pulse/pulse.module';
 
 @Module({
@@ -54,6 +55,7 @@ import { PulseModule } from './pulse/pulse.module';
     CategoriesModule,
     MoviesModule,
     AnimeModule,
+    ShowsModule,
     PulseModule,
   ],
   controllers: [AppController],

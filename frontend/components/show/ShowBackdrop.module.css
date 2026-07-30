@@ -1,0 +1,159 @@
+/* Salon 02 · Film — yan duvarlar.
+   Tum renkler token'lardan (AGENTS.md kural 16). Katman sirasi disaridan
+   iceri: mozaik → perde → huzme → perforasyon rayi → vinyet → gren. */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  /* Dekoratif: hicbir tiklamayi yakalamaz */
+  pointer-events: none;
+}
+
+.side {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  /* Icerik sutununun disinda kalan bosluk + 80px: duvar icerigin altina
+     birazcik girer, maske orayi zaten soldurur — kesik bir kenar olusmaz */
+  width: calc((100vw - var(--film-content-w)) / 2 + 80px);
+  overflow: hidden;
+}
+
+.left {
+  left: 0;
+  /* Ice dogru soluklasma */
+  mask-image: linear-gradient(to right, #000 0%, #000 40%, transparent 100%);
+}
+
+.right {
+  right: 0;
+  mask-image: linear-gradient(to left, #000 0%, #000 40%, transparent 100%);
+}
+
+/* --- Mozaik: arsivin kendi posterleri --- */
+
+.mosaic {
+  position: absolute;
+  /* Tasirarak yerlesir: kenarlarda yarim kare gorunmesi duvar hissini verir */
+  inset: -10% -8%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: min-content;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  opacity: 0.22;
+  filter: blur(3px) saturate(0.6);
+  transform: rotate(-2.5deg) scale(1.1);
+}
+
+/* Ikinci sutun kaydirilir — izgara degil, duvara asilmis kareler gibi dursun */
+.mosaic li:nth-child(even) {
+  transform: translateY(-26px);
+}
+
+.tile {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  background: var(--film-frame);
+  border-radius: 2px;
+}
+
+.tileImg {
+  object-fit: cover;
+}
+
+/* --- CSS sahne: mozaik olmasa da duvar dolu gorunur --- */
+
+/* Perde kivrimlari: dar kizil seritler, aralarinda govde karanligi */
+.curtain {
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+      90deg,
+      rgba(61, 18, 21, 0.5) 0 14px,
+      rgba(10, 11, 14, 0.82) 14px 44px
+    ),
+    linear-gradient(180deg, var(--film-frame), var(--bg) 70%);
+  opacity: 0.62;
+}
+
+/* Projeksiyon huzmesi: yukaridan asagi acilan tek, cok soluk isik konisi */
+.beam {
+  position: absolute;
+  inset: -15% -25%;
+  background-image: conic-gradient(
+    from 205deg at 50% -5%,
+    transparent 0deg,
+    var(--film-dust) 16deg,
+    transparent 38deg
+  );
+}
+
+/* Dis kenarda dikey 35 mm perforasyon rayi — seritteki desenin devami */
+.rail {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 26px;
+  background-image: radial-gradient(
+    circle at 13px 11px,
+    var(--bg) 0 4px,
+    transparent 4.5px
+  );
+  background-size: 26px 34px;
+  opacity: 0.65;
+}
+
+.left .rail {
+  left: 0;
+}
+
+.right .rail {
+  right: 0;
+}
+
+.vignette {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+    130% 75% at 50% 45%,
+    transparent 25%,
+    rgba(0, 0, 0, 0.9) 100%
+  );
+}
+
+/* Film greni: tek karelik SVG gurultu, doku olarak tekrarlanir */
+.grain {
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.14;
+  mix-blend-mode: overlay;
+}
+
+/* --- Olcekler --- */
+
+/* Sutunlar daraldikca duvar geri cekilir, icerikle yarismaz */
+@media (max-width: 1440px) {
+  .backdrop {
+    opacity: 0.62;
+  }
+}
+
+/* Dar ekranda yan bosluk zaten yok — duvar hic cizilmez */
+@media (max-width: 1100px) {
+  .backdrop {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mosaic {
+    transform: none;
+  }
+}

@@ -34,6 +34,8 @@ model User {
   movieEntries      MovieEntry[]
   movieDismissals   MovieSuggestionDismissal[]
   animeEntries      AnimeEntry[]
+  showEntries       ShowEntry[]
+  showDismissals    ShowSuggestionDismissal[]
 }
 
 model Story {
@@ -399,6 +401,47 @@ model MovieSuggestionDismissal {
   @@unique([userId, tmdbId])
 }
 
+// Dizi arşivi: film arşivinin bire bir aynısı, kaynağı yalnızca TMDB'nin
+// dizi (tv) uçları. Anime dizileri buraya girmez — Salon 04 · Anime kendi
+// arşivine sahip; TMDB tarafında "Animation" türü + Japonya kökeni taşıyan
+// sonuçlar arama/keşif katmanında elenir (bkz. tmdb-tv.service.ts).
+model ShowEntry {
+  id                    String      @id @default(cuid())
+  tmdbId                Int
+  status                ShowStatus  @default(WATCHED)
+  isFavorite            Boolean     @default(false)
+  personalRating        Float?
+  personalNote          String?     @db.Text
+  watchedAt             DateTime?
+  externalData          Json?
+  externalDataFetchedAt DateTime?
+  /// Elle girilen dış bağlantılar: { rt, imdb, trailer } — film arşivindeki
+  /// aynı mantık (bkz. MovieEntry.links).
+  links                 Json?
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+  isDeleted             Boolean     @default(false)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  // Aynı dizi arşive iki kez girmez
+  @@unique([userId, tmdbId])
+  @@index([userId, status, isDeleted])
+  @@index([userId, isFavorite, isDeleted])
+}
+
+model ShowSuggestionDismissal {
+  id        String   @id @default(cuid())
+  tmdbId    Int
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@unique([userId, tmdbId])
+}
+
 model Review {
   id                     String    @id @default(cuid())
   title                  String
@@ -613,6 +656,12 @@ enum WikiCategory {
 // Film arşivinde bir filmin nerede durduğu. "Favori" bir durum değil bayraktır:
 // izlenmiş bir film aynı anda favori olabilir.
 enum MovieStatus {
+  WATCHED
+  WATCHLIST
+  REWATCH
+}
+
+enum ShowStatus {
   WATCHED
   WATCHLIST
   REWATCH

@@ -288,7 +288,7 @@ async function PulseCard({
   const t = await getTranslations({ locale, namespace: "nexus" });
   // Film posteri TMDB yolu, anime kapağı tam adres, bölüm kapağı bizim yükleme
   const image =
-    entry.kind === "FILM"
+    entry.kind === "FILM" || entry.kind === "DIZI"
       ? tmdbImage(entry.image, "w185")
       : entry.kind === "ANIME"
         ? entry.image

@@ -330,7 +330,7 @@ export interface PulseHall {
 }
 
 export interface PulseEntry {
-  kind: "FILM" | "ANIME" | "CHAPTER" | "WIKI";
+  kind: "FILM" | "DIZI" | "ANIME" | "CHAPTER" | "WIKI";
   title: string;
   subtitle: string | null;
   href: string;
@@ -462,6 +462,121 @@ export interface TmdbSearchResult {
   posterPath: string | null;
   voteAverage: number | null;
   overview: string | null;
+}
+
+// ---- Salon 02 · Dizi arşivi (film arşivinin bire bir aynısı, kaynak TMDB tv) ----
+
+export type ShowStatus = "WATCHED" | "WATCHLIST" | "REWATCH";
+
+export interface ArchiveShow {
+  id: string;
+  /** Dizi sayfasının adresi — backend başlıktan türetir */
+  slug: string;
+  tmdbId: number;
+  status: ShowStatus;
+  isFavorite: boolean;
+  personalRating: number | null;
+  personalNote: string | null;
+  watchedAt: string | null;
+  title: string;
+  overview: string | null;
+  posterPath: string | null;
+  backdropPath: string | null;
+  releaseYear: number | null;
+  runtime: number | null;
+  numberOfSeasons: number | null;
+  numberOfEpisodes: number | null;
+  genres: string[];
+  voteAverage: number | null;
+  director: string | null;
+  /** TMDB köken ülkeleri — Kore Dramaları rafı `includes("KR")` ile süzer */
+  originCountry: string[];
+}
+
+export interface ShowArchive {
+  shows: ArchiveShow[];
+  stats: {
+    total: number;
+    watchedThisYear: number;
+    averageRating: number | null;
+    watchlist: number;
+  };
+  directors: Array<{ name: string; count: number }>;
+  genres: string[];
+}
+
+export type ShowLinkKind = "TMDB" | "IMDB" | "RT" | "HOMEPAGE";
+
+export interface ShowLink {
+  kind: ShowLinkKind;
+  url: string;
+  isSearch: boolean;
+}
+
+export interface ShowCustomLinks {
+  rt?: string;
+  imdb?: string;
+  trailer?: string;
+}
+
+export interface ShowCastMember {
+  name: string;
+  character: string | null;
+  profilePath: string | null;
+}
+
+export interface ShowProvider {
+  name: string;
+  logoPath: string | null;
+  kind: "FLATRATE" | "RENT" | "BUY";
+}
+
+export interface SimilarShow extends TmdbSearchResult {
+  inArchive: boolean;
+  slug: string | null;
+}
+
+export interface ShowDetail {
+  show: ArchiveShow;
+  tagline: string | null;
+  cast: ShowCastMember[];
+  trailerKey: string | null;
+  providers: ShowProvider[];
+  providerLink: string | null;
+  links: ShowLink[];
+  customLinks: ShowCustomLinks;
+  similar: SimilarShow[];
+  stills: string[];
+  originalTitle: string | null;
+  releaseDate: string | null;
+  originalLanguage: string | null;
+  /** Filmdeki bütçe/hâsılatın yerini alır — TMDB durumu: devam ediyor/bitti */
+  airStatus: string | null;
+  neighbours: {
+    byDirector: ArchiveShow[];
+    byGenre: ArchiveShow[];
+  };
+}
+
+export interface ShowShowcase {
+  left: ShowcasePoster | null;
+  right: ShowcasePoster | null;
+}
+
+export interface ShowEntryRecord {
+  id: string;
+  tmdbId: number;
+  status: ShowStatus;
+  isFavorite: boolean;
+  personalRating: number | null;
+  personalNote: string | null;
+  watchedAt: string | null;
+  externalData: {
+    title?: string;
+    posterPath?: string | null;
+    releaseDate?: string | null;
+  } | null;
+  updatedAt: string;
 }
 
 export interface AmbientTrack {

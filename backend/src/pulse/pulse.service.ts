@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import type { AnilistMedia } from '../anime/anilist.service';
 import type { TmdbMovie } from '../movies/tmdb.service';
+import type { TmdbShow } from '../shows/tmdb-tv.service';
 import { slugify } from '../common/utils/slugify';
 
 /**
@@ -33,7 +34,7 @@ export interface PulseHall {
 }
 
 export interface PulseEntry {
-  kind: 'FILM' | 'ANIME' | 'CHAPTER' | 'WIKI';
+  kind: 'FILM' | 'DIZI' | 'ANIME' | 'CHAPTER' | 'WIKI';
   title: string;
   subtitle: string | null;
   href: string;
@@ -79,47 +80,58 @@ export class PulseService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getPulse(): Promise<Pulse> {
-    const [categories, universes, stories, wikiEntries, movies, animeEntries] =
-      await Promise.all([
-        this.prisma.universeCategory.findMany({
-          where: { isDeleted: false },
-        }),
-        this.prisma.wikiUniverse.findMany({
-          where: { isDeleted: false },
-          orderBy: { createdAt: 'asc' },
-        }),
-        this.prisma.story.findMany({
-          where: { isDeleted: false, isPublished: true },
-          orderBy: [{ publishedAt: 'desc' }, { updatedAt: 'desc' }],
-          select: {
-            title: true,
-            slug: true,
-            publishedAt: true,
-            updatedAt: true,
-            universeId: true,
-          },
-        }),
-        this.prisma.wikiEntry.findMany({
-          where: { isDeleted: false },
-          orderBy: { updatedAt: 'desc' },
-          select: {
-            title: true,
-            slug: true,
-            updatedAt: true,
-            universeId: true,
-            category: true,
-          },
-        }),
-        this.prisma.movieEntry.findMany({
-          where: { isDeleted: false },
-          orderBy: [{ watchedAt: 'desc' }, { updatedAt: 'desc' }],
-        }),
-        this.prisma.animeEntry.findMany({
-          where: { isDeleted: false },
-          include: { parts: { orderBy: { orderIndex: 'asc' } } },
-          orderBy: { updatedAt: 'desc' },
-        }),
-      ]);
+    const [
+      categories,
+      universes,
+      stories,
+      wikiEntries,
+      movies,
+      animeEntries,
+      shows,
+    ] = await Promise.all([
+      this.prisma.universeCategory.findMany({
+        where: { isDeleted: false },
+      }),
+      this.prisma.wikiUniverse.findMany({
+        where: { isDeleted: false },
+        orderBy: { createdAt: 'asc' },
+      }),
+      this.prisma.story.findMany({
+        where: { isDeleted: false, isPublished: true },
+        orderBy: [{ publishedAt: 'desc' }, { updatedAt: 'desc' }],
+        select: {
+          title: true,
+          slug: true,
+          publishedAt: true,
+          updatedAt: true,
+          universeId: true,
+        },
+      }),
+      this.prisma.wikiEntry.findMany({
+        where: { isDeleted: false },
+        orderBy: { updatedAt: 'desc' },
+        select: {
+          title: true,
+          slug: true,
+          updatedAt: true,
+          universeId: true,
+          category: true,
+        },
+      }),
+      this.prisma.movieEntry.findMany({
+        where: { isDeleted: false },
+        orderBy: [{ watchedAt: 'desc' }, { updatedAt: 'desc' }],
+      }),
+      this.prisma.animeEntry.findMany({
+        where: { isDeleted: false },
+        include: { parts: { orderBy: { orderIndex: 'asc' } } },
+        orderBy: { updatedAt: 'desc' },
+      }),
+      this.prisma.showEntry.findMany({
+        where: { isDeleted: false },
+        orderBy: [{ watchedAt: 'desc' }, { updatedAt: 'desc' }],
+      }),
+    ]);
 
     const universeById = new Map(universes.map((u) => [u.id, u]));
     const storiesByUniverse = new Map<string, typeof stories>();
@@ -138,10 +150,17 @@ export class PulseService {
         storiesByUniverse,
         wikiEntries.length > 0 ? wikiEntries : [],
       ),
-      halls: this.buildHalls(categories, universes, movies, animeEntries),
+      halls: this.buildHalls(
+        categories,
+        universes,
+        movies,
+        animeEntries,
+        shows,
+      ),
       recent: this.buildRecent(
         movies,
         animeEntries,
+        shows,
         stories,
         universeById,
         universes,
@@ -233,6 +252,7 @@ export class PulseService {
       externalData: unknown;
       parts: Array<{ watchedEpisodes: number; externalData: unknown }>;
     }>,
+    shows: Array<{ status: string; watchedAt: Date | null }>,
   ): PulseHall[] {
     return categories.map((category) => {
       const universeCount = universes.filter(
@@ -260,6 +280,13 @@ export class PulseService {
         );
         const media = (watching?.externalData ?? null) as AnilistMedia | null;
         line = media?.title ?? null;
+      }
+
+      if (category.slug === 'dizi') {
+        count = shows.filter((show) => show.status !== 'WATCHLIST').length;
+        line = String(
+          shows.filter((show) => show.status === 'WATCHLIST').length,
+        );
       }
 
       return {
@@ -296,6 +323,12 @@ export class PulseService {
         externalData: unknown;
       }>;
     }>,
+    shows: Array<{
+      tmdbId: number;
+      watchedAt: Date | null;
+      updatedAt: Date;
+      externalData: unknown;
+    }>,
     stories: Array<{
       title: string;
       slug: string;
@@ -319,6 +352,20 @@ export class PulseService {
         href: `/dark-stories/category/film/${slugify(title) || `film-${lastMovie.tmdbId}`}`,
         image: data?.posterPath ?? null,
         at: (lastMovie.watchedAt ?? lastMovie.updatedAt).toISOString(),
+      });
+    }
+
+    const lastShow = shows[0];
+    if (lastShow) {
+      const data = (lastShow.externalData ?? null) as TmdbShow | null;
+      const title = data?.title ?? `#${lastShow.tmdbId}`;
+      entries.push({
+        kind: 'DIZI',
+        title,
+        subtitle: data?.director ?? null,
+        href: `/dark-stories/category/dizi/${slugify(title) || `dizi-${lastShow.tmdbId}`}`,
+        image: data?.posterPath ?? null,
+        at: (lastShow.watchedAt ?? lastShow.updatedAt).toISOString(),
       });
     }
 

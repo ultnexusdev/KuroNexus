@@ -9,8 +9,10 @@ import { CornerFiligree, RunicMargin } from "@/components/kadim/CodexOrnaments";
 import { SportSplit } from "@/components/sport/SportSplit";
 import { FilmLobby } from "@/components/film/FilmLobby";
 import { AnimeLobby } from "@/components/anime/AnimeLobby";
+import { ShowLobby } from "@/components/show/ShowLobby";
 import { getMovieArchive, getMovieShowcase } from "@/lib/api/movies";
 import { getAnimeArchive, getAnimeShowcase } from "@/lib/api/anime";
+import { getShowArchive, getShowShowcase } from "@/lib/api/shows";
 import { hallLabel, hallNumber } from "@/lib/halls";
 import { apiUrl } from "@/lib/api/client";
 import { Link } from "@/lib/i18n/navigation";
@@ -83,6 +85,23 @@ export default async function CategoryUniversesPage({
     ]);
     return (
       <AnimeLobby
+        locale={locale}
+        hallLabel={hallLabel(hallNumber(categories, category.slug))}
+        categoryName={category.name}
+        archive={archive}
+        showcase={showcase}
+      />
+    );
+  }
+
+  // Dizi kapısı da salon girişine açılır (film salonuyla aynı desen)
+  if (category.slug === "dizi") {
+    const [archive, showcase] = await Promise.all([
+      getShowArchive(),
+      getShowShowcase(),
+    ]);
+    return (
+      <ShowLobby
         locale={locale}
         hallLabel={hallLabel(hallNumber(categories, category.slug))}
         categoryName={category.name}

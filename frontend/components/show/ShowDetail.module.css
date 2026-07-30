@@ -1,0 +1,862 @@
+/* Film sayfasi. Palet globals.css'teki [data-category="film"] blogundan gelir
+   (AGENTS.md kural 16: bilesende hex yok, parlama yok). Duzen iki sutun:
+   solda filmin kendisi, sagda sabit kalan ray. */
+
+.page {
+  position: relative;
+  min-height: 100vh;
+  padding-bottom: 120px;
+  background: var(--bg);
+}
+
+/* --- Ust gorsel --- */
+
+.backdrop {
+  position: relative;
+  height: clamp(220px, 38vw, 460px);
+  overflow: hidden;
+}
+
+.backdropImg {
+  object-fit: cover;
+  /* Sahne gorseli basligin arkasinda kalir: metin okunur kalsin */
+  opacity: 0.5;
+  object-position: center 22%;
+}
+
+.backdropFade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--bg) 25%, transparent) 0%,
+    color-mix(in srgb, var(--bg) 60%, transparent) 55%,
+    var(--bg) 100%
+  );
+}
+
+.inner {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  width: min(1180px, 100%);
+  margin-inline: auto;
+  padding: 0 var(--pad-md);
+  /* Kunye backdrop'un uzerine biner */
+  margin-top: -110px;
+}
+
+.back {
+  display: inline-block;
+  margin-bottom: var(--gap-lg);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  text-decoration: none;
+}
+
+.back:hover {
+  color: var(--accent);
+}
+
+/* --- Kunye --- */
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pad-md);
+  align-items: flex-end;
+}
+
+.posterFrame {
+  position: relative;
+  flex-shrink: 0;
+  width: 200px;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+}
+
+.posterImg {
+  object-fit: cover;
+}
+
+.posterFallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: var(--gap-md);
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+  text-align: center;
+}
+
+.headText {
+  flex: 1 1 340px;
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: var(--font-cinzel), serif;
+  font-size: clamp(1.7rem, 4vw, 2.6rem);
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+}
+
+.year {
+  margin-left: 12px;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.55em;
+  font-weight: 400;
+}
+
+.tagline {
+  margin: var(--gap-sm) 0 0;
+  color: var(--accent);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.05rem;
+  font-style: italic;
+}
+
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin: var(--gap-md) 0 0;
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+}
+
+.facts span + span::before {
+  margin-right: 14px;
+  color: var(--border-strong);
+  content: "|";
+}
+
+.scores {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--gap-md);
+  margin-top: var(--gap-lg);
+}
+
+/* Kendi puanin altin cerceveli, TMDB'ninki sade: arsiv senin */
+.myScore,
+.tmdbScore {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 6px 12px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+}
+
+.myScore {
+  border-color: var(--accent-muted);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+.scoreValue {
+  color: var(--text-primary);
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.1rem;
+}
+
+.myScore .scoreValue {
+  color: var(--accent);
+}
+
+.scoreLabel {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.favorite,
+.status {
+  padding: 5px 10px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+}
+
+.favorite {
+  border-color: var(--accent-muted);
+  color: var(--accent);
+}
+
+/* --- Iki sutun --- */
+
+/* Uc sutun. Genis ekranda sayfanin iki yani bos kaliyordu (kullanici
+   geri bildirimi): 1500px ustunde sol ray aciliyor ve icerik ortada kaliyor.
+   Ara genislikte iki ray ayni sutunda alt alta, dar ekranda hepsi tek sutun. */
+.columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  grid-template-areas:
+    "main right"
+    "main left";
+  gap: var(--pad-lg, 24px);
+  margin-top: calc(var(--gap-lg) * 2);
+  align-items: start;
+}
+
+.main {
+  grid-area: main;
+  min-width: 0;
+}
+
+.rail,
+.railLeft {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-lg);
+  min-width: 0;
+  /* Uzun sayfada raylar goz hizasinda kalir */
+  position: sticky;
+  top: var(--pad-md);
+  align-self: start;
+}
+
+.rail {
+  grid-area: right;
+}
+
+.railLeft {
+  grid-area: left;
+}
+
+@media (min-width: 1500px) {
+  .columns {
+    grid-template-columns: 300px minmax(0, 1fr) 300px;
+    grid-template-areas: "left main right";
+  }
+
+  /* Sayfa genisligi de aciliyor: yoksa uc sutun birbirini eziyor */
+  .inner {
+    width: min(1720px, 100%);
+  }
+}
+
+@media (max-width: 900px) {
+  .columns {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "main"
+      "left"
+      "right";
+  }
+
+  .rail,
+  .railLeft {
+    position: static;
+  }
+}
+
+/* --- Ust serit: geri baglantisi + kurator anahtari --- */
+
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-md);
+  margin-bottom: var(--gap-lg);
+}
+
+.topBar .back {
+  margin-bottom: 0;
+}
+
+.curatorOff,
+.curatorOn {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+
+.curatorOn {
+  border-color: var(--accent-muted);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--accent);
+}
+
+/* --- Afis ustundeki hizli isaretleme --- */
+
+.quick {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  left: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 6px;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter: blur(4px);
+}
+
+.quickBtn,
+.quickOn {
+  flex: 1 1 auto;
+  min-height: 32px;
+  padding: 0 8px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+
+.quickOn {
+  border-color: var(--accent-muted);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--accent);
+}
+
+.quickBtn:hover:enabled {
+  border-color: var(--accent-muted);
+  color: var(--accent);
+}
+
+.quickBtn:disabled,
+.quickOn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* --- Bolumler --- */
+
+.section {
+  margin-bottom: calc(var(--gap-lg) * 2);
+}
+
+.sectionTitle {
+  margin: 0 0 var(--gap-md);
+  padding-bottom: 8px;
+  border-bottom: 0.5px solid var(--border);
+  color: var(--text-secondary);
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.82rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.overview {
+  margin: 0;
+  max-width: 62ch;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  line-height: 1.75;
+}
+
+/* Kendi notun: sayfanin en kisisel yeri, sol kenardan altin bir cizgiyle
+   ayrilir — TMDB metniyle karismasin */
+.noteBlock {
+  margin-bottom: calc(var(--gap-lg) * 2);
+  padding: var(--gap-md) var(--gap-lg);
+  border-left: 2px solid var(--accent-muted);
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
+}
+
+.noteTitle {
+  margin: 0 0 6px;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.note {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.1rem;
+  font-style: italic;
+  line-height: 1.6;
+}
+
+/* --- Fragman --- */
+
+.trailerFrame {
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 720px;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.trailerThumb {
+  object-fit: cover;
+  opacity: 0.75;
+}
+
+.trailerFrame:hover .trailerThumb {
+  opacity: 0.9;
+}
+
+.trailerVideo {
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.trailerPlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  transform: translate(-50%, -50%);
+  border: 1px solid var(--accent-muted);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg) 70%, transparent);
+  color: var(--accent);
+  font-size: 1.2rem;
+}
+
+.trailerLabel {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 10px 14px;
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--bg) 88%, transparent),
+    transparent
+  );
+  color: var(--text-secondary);
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-align: left;
+}
+
+/* --- Kadro --- */
+
+.cast {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: var(--gap-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.castCard {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.castPhoto {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border: 0.5px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+}
+
+.castImg {
+  object-fit: cover;
+  object-position: center 15%;
+}
+
+.castInitial {
+  color: var(--text-muted);
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.4rem;
+}
+
+.castName {
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  line-height: 1.3;
+}
+
+.castRole {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  line-height: 1.3;
+}
+
+/* --- Sag ray --- */
+
+.railBlock {
+  padding: var(--gap-md);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-card);
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+}
+
+.railTitle {
+  margin: 0 0 var(--gap-md);
+  color: var(--text-secondary);
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.76rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.railNote {
+  margin: var(--gap-sm) 0 0;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+}
+
+.providers {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.providerLink {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 8px;
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  text-decoration: none;
+}
+
+a.providerLink:hover {
+  background: var(--surface-hover);
+  color: var(--accent);
+}
+
+.providerLogo {
+  border-radius: 6px;
+}
+
+.providerName {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.providerKind {
+  color: var(--text-muted);
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.links {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.linkRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 8px;
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+  text-decoration: none;
+}
+
+.linkRow:hover {
+  background: var(--surface-hover);
+  color: var(--accent);
+}
+
+.linkName {
+  flex: 1;
+}
+
+.linkSearch {
+  color: var(--text-muted);
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.linkArrow {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.similar {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.similarRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 6px;
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.similarRow:hover {
+  background: var(--surface-hover);
+}
+
+.similarPoster {
+  position: relative;
+  flex-shrink: 0;
+  width: 40px;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border-radius: 4px;
+  background: var(--surface);
+}
+
+.similarImg {
+  object-fit: cover;
+}
+
+.similarText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.similarTitle {
+  overflow: hidden;
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.similarRow:hover .similarTitle {
+  color: var(--accent);
+}
+
+.similarMeta {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+}
+
+.similarMark {
+  margin-left: auto;
+  color: var(--accent);
+  font-size: 0.8rem;
+}
+
+/* --- Kunye levhasi --- */
+
+.dossierList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+}
+
+.dossierList > div {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.dossierList dt {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.dossierList dd {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  text-align: right;
+}
+
+/* Ray icindeki ara baslik ("Ayni yonetmen", "Ayni turden") */
+.railLabel {
+  margin: var(--gap-md) 0 6px;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+}
+
+.railLabel:first-of-type {
+  margin-top: 0;
+}
+
+/* --- Sahne kareleri seridi --- */
+
+.stillStrip {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* 35mm serit perforasyonu: salonun imzasi, dikey sutuna inmis hali */
+.perforation {
+  height: 8px;
+  border-radius: 2px;
+  background-image: radial-gradient(
+    circle at 4px 4px,
+    var(--border-strong) 0 2px,
+    transparent 2px
+  );
+  background-size: 12px 8px;
+  opacity: 0.7;
+}
+
+.stills {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.still {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--surface);
+}
+
+.stillImg {
+  object-fit: cover;
+  opacity: 0.85;
+}
+
+.still:hover .stillImg {
+  opacity: 1;
+}
+
+/* --- Kurator kunyesi --- */
+
+.curatorLede {
+  margin: 0 0 var(--gap-md);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.curatorGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--gap-md);
+}
+
+.curatorField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 0.74rem;
+}
+
+.curatorField input {
+  min-height: 40px;
+  padding: 0 10px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text-primary);
+  font-size: 0.82rem;
+}
+
+.curatorActions {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-md);
+  margin-top: var(--gap-md);
+}
+
+.curatorSave {
+  min-height: 40px;
+  padding: 0 16px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.curatorSave:hover:enabled {
+  border-color: var(--accent-muted);
+  color: var(--accent);
+}
+
+.curatorSave:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.curatorNote {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.curatorError {
+  color: var(--danger);
+  font-size: 0.78rem;
+}
+
+@media (max-width: 640px) {
+  .inner {
+    margin-top: -60px;
+  }
+
+  .posterFrame {
+    width: 130px;
+  }
+
+  .cast {
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  }
+}

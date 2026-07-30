@@ -10,6 +10,9 @@ import type {
   MovieCustomLinks,
   MovieEntryRecord,
   MovieStatus,
+  ShowCustomLinks,
+  ShowEntryRecord,
+  ShowStatus,
   Story,
   StorySummary,
   TmdbSearchResult,
@@ -421,6 +424,85 @@ export function updateMovieEntry(
 
 export function deleteMovieEntry(id: string): Promise<MovieEntryRecord> {
   return apiFetch<MovieEntryRecord>(`/admin/movies/${id}`, {
+    method: "DELETE",
+    headers: authHeaders(),
+  });
+}
+
+// ---- Salon 02 · Dizi arşivi (film arşivinin bire bir aynısı) ----
+
+export interface ShowEntryInput {
+  tmdbId: number;
+  status?: ShowStatus;
+  isFavorite?: boolean;
+  personalRating?: number;
+  personalNote?: string;
+  watchedAt?: string;
+  /** Elle girilen adresler (RT, IMDb, fragman); boş metin o bağlantıyı siler */
+  links?: ShowCustomLinks;
+}
+
+export function searchTmdbShows(query: string): Promise<TmdbSearchResult[]> {
+  return apiFetch<TmdbSearchResult[]>(
+    `/admin/shows/search?q=${encodeURIComponent(query)}`,
+    { headers: authHeaders() },
+  );
+}
+
+export function fetchShowSuggestions(): Promise<TmdbSearchResult[]> {
+  return apiFetch<TmdbSearchResult[]>("/admin/shows/suggestions", {
+    headers: authHeaders(),
+  });
+}
+
+export function dismissShowSuggestion(
+  tmdbId: number,
+): Promise<SuggestionDismissal> {
+  return apiFetch<SuggestionDismissal>("/admin/shows/suggestions/dismiss", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify({ tmdbId }),
+  });
+}
+
+export function restoreShowSuggestion(
+  tmdbId: number,
+): Promise<SuggestionDismissal> {
+  return apiFetch<SuggestionDismissal>(
+    `/admin/shows/suggestions/dismiss/${tmdbId}`,
+    { method: "DELETE", headers: authHeaders() },
+  );
+}
+
+export function fetchAdminShows(): Promise<ShowEntryRecord[]> {
+  return apiFetch<ShowEntryRecord[]>("/admin/shows", {
+    headers: authHeaders(),
+  });
+}
+
+export function createShowEntry(
+  input: ShowEntryInput,
+): Promise<ShowEntryRecord> {
+  return apiFetch<ShowEntryRecord>("/admin/shows", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(input),
+  });
+}
+
+export function updateShowEntry(
+  id: string,
+  input: Partial<Omit<ShowEntryInput, "tmdbId">>,
+): Promise<ShowEntryRecord> {
+  return apiFetch<ShowEntryRecord>(`/admin/shows/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(input),
+  });
+}
+
+export function deleteShowEntry(id: string): Promise<ShowEntryRecord> {
+  return apiFetch<ShowEntryRecord>(`/admin/shows/${id}`, {
     method: "DELETE",
     headers: authHeaders(),
   });

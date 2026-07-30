@@ -1,7 +1,9 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
 import { FILM_SECTIONS } from "@/lib/film/sections";
+import { tmdbImage } from "@/lib/api/movies";
 import type { MovieArchive, MovieShowcase } from "@/lib/api/types";
+import { LobbyBanner } from "@/components/hall/LobbyBanner";
 import { LobbyPosters } from "./LobbyPosters";
 import styles from "./FilmLobby.module.css";
 
@@ -43,6 +45,15 @@ export async function FilmLobby({
   return (
     <div data-category="film" className={styles.lobby}>
       <LobbyPosters showcase={showcase} />
+
+      {/* Dar ekranda yan paneller çizilmiyor; aynı afişler bant olarak üstte.
+          Boyut masaüstü paneliyle aynı (w780) — ikinci bir istek doğmasın */}
+      <LobbyBanner
+        images={[
+          tmdbImage(showcase.left?.posterPath, "w780"),
+          tmdbImage(showcase.right?.posterPath, "w780"),
+        ]}
+      />
 
       <header className={styles.head}>
         <Link href="/dark-stories" className={styles.back}>

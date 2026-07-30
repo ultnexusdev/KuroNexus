@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
 import { fetchCategories } from "@/lib/api/universes";
 import { codeHall, hallLabel, hallName, hallNumber } from "@/lib/halls";
+import { LobbyBanner } from "@/components/hall/LobbyBanner";
 import styles from "./page.module.css";
 
 /**
@@ -78,6 +79,10 @@ export default async function BookLobbyPage({
           <div className={styles.wallFade} />
         </div>
       ) : null}
+
+      {/* Dar ekranda arka duvar çok kısık kalıyor; aynı çizim üstte bant olur.
+          Tek görsel: iki yarıya aynı rafı koymak tekrar gibi görünüyordu */}
+      {art ? <LobbyBanner images={[art]} /> : null}
 
       <header className={styles.head}>
         <Link href="/dark-stories" className={styles.back}>

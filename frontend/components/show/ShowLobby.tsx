@@ -1,7 +1,9 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
 import { SHOW_SECTIONS } from "@/lib/show/sections";
+import { tmdbImage } from "@/lib/api/shows";
 import type { ShowArchive, ShowShowcase } from "@/lib/api/types";
+import { LobbyBanner } from "@/components/hall/LobbyBanner";
 import { LobbyPosters } from "./LobbyPosters";
 import styles from "./ShowLobby.module.css";
 
@@ -39,6 +41,14 @@ export async function ShowLobby({
   return (
     <div data-category="dizi" className={styles.lobby}>
       <LobbyPosters showcase={showcase} />
+
+      {/* Dar ekranda yan paneller çizilmiyor; aynı afişler bant olarak üstte */}
+      <LobbyBanner
+        images={[
+          tmdbImage(showcase.left?.posterPath, "w780"),
+          tmdbImage(showcase.right?.posterPath, "w780"),
+        ]}
+      />
 
       <header className={styles.head}>
         <Link href="/dark-stories" className={styles.back}>

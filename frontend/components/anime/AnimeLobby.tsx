@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
 import { ANIME_SECTIONS } from "@/lib/anime/sections";
 import type { AnimeArchive, AnimeShowcase } from "@/lib/api/types";
+import { LobbyBanner } from "@/components/hall/LobbyBanner";
 import { LobbyPosters } from "./LobbyPosters";
 import styles from "./AnimeLobby.module.css";
 
@@ -42,6 +43,13 @@ export async function AnimeLobby({
   return (
     <div data-category="anime" className={styles.lobby}>
       <LobbyPosters showcase={showcase} />
+
+      {/* Dar ekranda yan paneller çizilmiyor; aynı kapaklar bant olarak üstte.
+          AniList tam adres verdiği için yol dönüştürmeye gerek yok */}
+      <LobbyBanner
+        images={[showcase.left?.posterPath, showcase.right?.posterPath]}
+      />
+
       <header className={styles.head}>
         <Link href="/dark-stories" className={styles.back}>
           {tStories("backToList")}

@@ -176,19 +176,27 @@
   .door {
     min-height: 0;
     height: 100%;
+    /* Yedi kapıda dikey ad + salon numarası sığmaya devam etsin diye taban
+       genişlik; duvar bu sınırın altına inmeye zorlanmaz */
+    min-width: 64px;
   }
 
   /* Asimetri: kapılar eş genişlikte değil — ama fark, etiketleri
-     sıkıştırmayacak kadar yumuşak tutulur */
-  .door:nth-child(5n + 1) { flex: 1.15; }
-  .door:nth-child(5n + 2) { flex: 1; }
-  .door:nth-child(5n + 3) { flex: 1.08; }
-  .door:nth-child(5n + 4) { flex: 0.96; }
-  .door:nth-child(5n + 5) { flex: 1.06; }
+     sıkıştırmayacak kadar yumuşak tutulur. Döngü kapı sayısıyla (7) aynı
+     uzunlukta: her kapı sabit bir paya sahip olur, kadro büyüyünce desen
+     kaymaz. */
+  .door:nth-child(7n + 1) { flex: 1.12; }
+  .door:nth-child(7n + 2) { flex: 1; }
+  .door:nth-child(7n + 3) { flex: 1.06; }
+  .door:nth-child(7n + 4) { flex: 0.96; }
+  .door:nth-child(7n + 5) { flex: 1.04; }
+  .door:nth-child(7n + 6) { flex: 1.1; }
+  .door:nth-child(7n + 7) { flex: 0.98; }
 
+  /* Kapı sayısı arttıkça açılan kapı komşularını fazla ezmesin */
   .door:hover,
   .door:focus-visible {
-    flex: 2.1;
+    flex: 1.9;
   }
 
   /* Salon numarası da kapı adı gibi dikey durur, hover'da yatay döner */
@@ -250,11 +258,12 @@
     animation: doorLight 0.7s ease forwards;
   }
   .door:nth-child(1) { animation-delay: 0.05s; }
-  .door:nth-child(2) { animation-delay: 0.15s; }
-  .door:nth-child(3) { animation-delay: 0.25s; }
-  .door:nth-child(4) { animation-delay: 0.35s; }
-  .door:nth-child(5) { animation-delay: 0.45s; }
-  .door:nth-child(6) { animation-delay: 0.55s; }
+  .door:nth-child(2) { animation-delay: 0.14s; }
+  .door:nth-child(3) { animation-delay: 0.23s; }
+  .door:nth-child(4) { animation-delay: 0.32s; }
+  .door:nth-child(5) { animation-delay: 0.41s; }
+  .door:nth-child(6) { animation-delay: 0.50s; }
+  .door:nth-child(7) { animation-delay: 0.59s; }
 }
 
 @keyframes doorLight {

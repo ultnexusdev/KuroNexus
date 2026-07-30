@@ -25,11 +25,13 @@
     "sealAria": "Balmumu mühür",
     "explore": "Nexus'u Keşfet",
     "enter": "Kapıyı arala",
+    "soonSub": "Yakında",
     "halls": {
       "film": "Sinema",
       "dizi": "Dizi",
       "spor": "Spor",
       "anime": "Anime",
+      "kitap": "Kitap",
       "kadim-dunyalar": "Kadim Dünyalar"
     }
   },
@@ -49,7 +51,8 @@
       "film": "{count} film · {year} sırada",
       "anime": "{count} seri",
       "animeWatching": "{count} seri · izliyorum: {title}",
-      "universes": "{count} evren"
+      "universes": "{count} evren",
+      "soon": "Rafları hazırlanıyor"
     },
     "nowPlaying": "Şu An Nexus'ta",
     "kind": {
@@ -826,6 +829,23 @@
       "duplicate": "Bu dizi zaten arşivde.",
       "error": "İşlem başarısız. Tekrar deneyin."
     }
+  },
+  "book": {
+    "hall": "Salon {num} · {name}",
+    "hallName": "Kitap",
+    "lobbyLede": "Raflar kuruldu, ciltler henüz yerine dizilmedi. Bu salon okuduklarımın ve okumayı beklediklerimin arşivi olacak.",
+    "soon": "Yakında",
+    "sections": {
+      "archive": {
+        "title": "Kitap Arşivi",
+        "desc": "Okuduklarım, yarısında kaldıklarım, sırada bekleyenler ve favorilerim — sayfa ilerlemesiyle birlikte."
+      },
+      "notes": {
+        "title": "Okuma Notları",
+        "desc": "Altını çizdiğim satırlar ve kitap üstüne yazdıklarım; Kadim Dünyalar'daki evrenlere bağlanabilecek."
+      }
+    },
+    "note": "Salonun kapısı şimdiden duvarda: içerik hazır olduğunda bu bölümler tek tek açılacak."
   },
   "lore": {
     "panelAria": "Kayıt künyesi",

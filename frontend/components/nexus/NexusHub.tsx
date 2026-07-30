@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
 import { apiUrl } from "@/lib/api/client";
 import { tmdbImage } from "@/lib/api/movies";
-import { hallLabel, hallWorldCount, HALL_ORDER } from "@/lib/halls";
+import { codeHall, hallLabel, hallWorldCount, mergeCodeHalls } from "@/lib/halls";
 import type { Pulse, PulseEntry, PulseHall } from "@/lib/api/types";
 import styles from "./NexusHub.module.css";
 
@@ -32,12 +32,22 @@ export async function NexusHub({
   locale: string;
 }) {
   const t = await getTranslations({ locale, namespace: "nexus" });
-  // Salon sırası ana sayfadaki kapı duvarıyla aynı kaynaktan okunur
-  const halls = [...pulse.halls].sort((a, b) => {
-    const ia = HALL_ORDER.indexOf(a.slug);
-    const ib = HALL_ORDER.indexOf(b.slug);
-    return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
-  });
+  const tHome = await getTranslations({ locale, namespace: "home" });
+  // Salon sırası ve kadro ana sayfadaki kapı duvarıyla aynı kaynaktan okunur:
+  // veritabanı kategorileri + kod tanımlı salonlar (Kitap gibi)
+  const halls = mergeCodeHalls(
+    pulse.halls,
+    (hall) => hall.slug,
+    (hall) => ({
+      slug: hall.slug,
+      name: tHome(`halls.${hall.slug}`),
+      description: null,
+      coverImage: null,
+      universeCount: 0,
+      line: null,
+      count: null,
+    }),
+  );
 
   return (
     <div className={styles.hub}>
@@ -250,8 +260,15 @@ async function Door({
     const worlds = hallWorldCount(hall.slug, hall.universeCount);
     if (worlds > 0) {
       live = t("hallLine.universes", { count: worlds });
+    } else if (codeHall(hall.slug)?.soon) {
+      // Kapısı açık ama arşivi hazırlanıyor
+      live = t("hallLine.soon");
     }
   }
+
+  // Özel çizim yerel dosyadır; yüklenmiş kapak varsa o kazanır
+  const art = codeHall(hall.slug)?.art ?? null;
+  const image = hall.coverImage ? apiUrl(hall.coverImage) : art;
 
   return (
     <li className={styles.doorItem} data-category={hall.slug}>
@@ -260,9 +277,9 @@ async function Door({
         className={styles.door}
       >
         <span className={styles.doorFrame}>
-          {hall.coverImage ? (
+          {image ? (
             <Image
-              src={apiUrl(hall.coverImage)}
+              src={image}
               alt=""
               fill
               sizes="(max-width: 700px) 100vw, 33vw"

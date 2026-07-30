@@ -5,6 +5,31 @@
 
 ## Mevcut Aşama
 
+> **OTURUM NOTU — 30 Temmuz 2026 (2).** **Salon 05 · Kitap kapısı açıldı.**
+> Salon sırası artık Film·Dizi·Spor·Anime·**Kitap**·Kadim Dünyalar, Temürkan
+> mühürlü baş köşe olarak sonda (07'ye kendiliğinden kaydı — numarası
+> "kategori sayısı + 1" formülünden geliyor). Kitap kategorisinin
+> veritabanında kaydı YOK; `lib/halls.ts` içine **kod tanımlı salon**
+> (`CODE_HALLS` + `mergeCodeHalls`) kavramı eklendi: kapı duvarı ve Nexus
+> kapıları veritabanı kategorileriyle bu listeyi birleştiriyor, kategori
+> sonradan panelden açılırsa veritabanı kazanıyor ve kapı iki kez çizilmiyor.
+> `hallNumber` de merge-aware yapıldı — yoksa Kitap numarasız kalıyordu
+> (lokalde "Salon · Kitap" hatası yakalandı ve düzeltildi).
+> Kapı görseli **elle çizilmiş SVG**: `public/halls/kitap.svg` (loş kütüphane
+> duvarı, dört raf, yaldızlı sırtlar). Palet: `--door-kitap-a/b` ex-libris
+> moru — beş kanadın sarı/turkuaz/kırmızı/turuncu/altın aileleri doluydu, mor
+> boştaydı. `[data-category="kitap"]` derisi mor yüzey + yaldız accent (anime
+> derisi mor accent taşıdığı için burada accent mor DEĞİL). Kapı arkasında
+> gerçek bir sayfa var: `category/kitap` statik lobi ("Kitap Arşivi" ve
+> "Okuma Notları" bölümleri "Yakında" rozetiyle, tıklanamaz) — statik yol
+> `[categorySlug]`ten önce eşleştiği için kategori kaydı olmadan da açılıyor.
+> Yedi kapı sıkışmasın diye orta kolon genişletildi (82rem→94rem, küratör payı
+> %40→%33) ve kapı asimetri döngüsü 5n'den 7n'ye çekildi + 64px taban genişlik.
+> Lokalde uçtan uca doğrulandı (kapı duvarı 01–07 doğru sırada, Nexus kapıları
+> aynı, film/dizi/anime salon numaraları 01/02/04 bozulmadı, SVG 200,
+> lobi 200, konsol temiz). **Kitap arşivinin kendisi (okuma ilerlemesi, dış
+> API) HENÜZ YAPILMADI — kullanıcı kapsamı ayrıca kararlaştıracak.**
+
 > **30 TEMMUZ — ikinci push: dizi kanadına "İzliyorum" + sezon/bölüm
 > ilerlemesi.** Kullanıcının geri bildirimi: dizide filmden farklı olarak
 > *devam eden* yapımlar var, hem ayrı bir durum hem de animedeki gibi bölüm

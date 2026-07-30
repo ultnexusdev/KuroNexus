@@ -20,9 +20,13 @@ export interface Door {
   name: string;
   href: string;
   coverImage?: string | null;
+  /** `public/` altındaki özel kapı çizimi — yüklenmiş kapak yerine kullanılır */
+  art?: string | null;
   hall: number;
   count?: number;
   sealed?: boolean; // Temürkan: balmumu mühürlü baş köşe
+  /** Kapısı açık ama içeriği hazırlanıyor: sayı yerine "yakında" yazılır */
+  soon?: boolean;
 }
 
 // Bilinen kanat atmosferleri (slug → globals.css token anahtarı);
@@ -32,6 +36,7 @@ const ATMOSPHERE_KEYS: Record<string, string> = {
   dizi: "dizi",
   spor: "spor",
   anime: "anime",
+  kitap: "kitap",
   "kadim-dunyalar": "kadim",
 };
 
@@ -90,9 +95,14 @@ export function DoorWall({ doors }: { doors: Door[] }) {
           style={doorAtmosphere(door.sealed ? "kadim-dunyalar" : door.slug)}
           onMouseMove={handleMove}
         >
-          {door.coverImage ? (
+          {/* Özel çizim yerel dosyadır (apiUrl geçmez); yüklenmiş kapak
+              varsa o kazanır — kategoriye panelden kapak eklenince kapı
+              kendiliğinden fotoğrafa geçer */}
+          {door.coverImage || door.art ? (
             <Image
-              src={apiUrl(door.coverImage)}
+              src={
+                door.coverImage ? apiUrl(door.coverImage) : (door.art as string)
+              }
               alt=""
               fill
               sizes="(max-width: 900px) 100vw, 18vw"
@@ -114,9 +124,11 @@ export function DoorWall({ doors }: { doors: Door[] }) {
             <span className={styles.doorSub}>
               {door.sealed
                 ? t("sealedSub")
-                : door.count !== undefined
-                  ? t("worldsCount", { count: door.count })
-                  : t("enter")}
+                : door.soon
+                  ? t("soonSub")
+                  : door.count !== undefined
+                    ? t("worldsCount", { count: door.count })
+                    : t("enter")}
             </span>
           </span>
         </Link>

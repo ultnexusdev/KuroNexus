@@ -164,6 +164,12 @@
   --door-spor-b:  #0a1730;
   --door-anime-a: #f0731e;
   --door-anime-b: #0e2140;
+  /* Kitap: ex-libris moru. Paletteki bes kanat sari/turkuaz/kirmizi/turuncu/
+     altin tonlarini tutmus durumda; mor bosta olan tek aile ve sitenin kendi
+     varsayilan temasiyla da akraba. Doygunluk bilincli olarak dusuk (neon
+     degil, murekkep). */
+  --door-kitap-a: #9179c4;
+  --door-kitap-b: #191524;
   --door-kadim-a: #b08d57;
   --door-kadim-b: #1b211e;
   --door-default-a: #9ba6a0;
@@ -246,6 +252,33 @@
   --accent-muted:   #574f7a;
 
   --gold:           #c2a15e;
+  --warn:           #a6784a;
+  --danger:         #a6584a;
+}
+
+/* Salon 05 — Kitap. Taban palet: kapidan sizan ex-libris moru odanin
+   yuzeylerini boyar, accent ise sirtlardaki yaldiz (kapi gorselindeki
+   altin seritlerin ayni tonu). Kadim Dunyalar'in mat altinindan (#b08d57)
+   bilincli olarak daha kremli: ikisi komsu salon ama ayni sayfa degil.
+   Anime derisi mor bir accent tasidigi icin burada accent MOR DEGIL —
+   morun tamami kapiya ve yuzeylere birakildi. Kanadin tam gorsel kimligi
+   arsivle birlikte gelecek (kural 16). */
+[data-category="kitap"] {
+  --bg:             #12101b;
+  --surface:        #191524;
+  --surface-hover:  #211c30;
+  --border:         #2b2338;
+  --border-strong:  #3b3049;
+
+  --text-primary:   #ece7dc;
+  --text-secondary: #a09aad;
+  --text-muted:     #6f6a7d;
+
+  --accent:         #c9a86a; /* sirt yaldizi */
+  --accent-hover:   #dcbd80;
+  --accent-muted:   #6d5c3d;
+
+  --gold:           #c9a86a;
   --warn:           #a6784a;
   --danger:         #a6584a;
 }

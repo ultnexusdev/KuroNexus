@@ -25,11 +25,13 @@
     "sealAria": "Wax seal",
     "explore": "Discover Nexus",
     "enter": "Step through",
+    "soonSub": "Coming soon",
     "halls": {
       "film": "Cinema",
       "dizi": "Series",
       "spor": "Sports",
       "anime": "Anime",
+      "kitap": "Books",
       "kadim-dunyalar": "Ancient Worlds"
     }
   },
@@ -49,7 +51,8 @@
       "film": "{count} films · {year} queued",
       "anime": "{count} series",
       "animeWatching": "{count} series · watching: {title}",
-      "universes": "{count} worlds"
+      "universes": "{count} worlds",
+      "soon": "Shelves being prepared"
     },
     "nowPlaying": "Right Now In Nexus",
     "kind": {
@@ -826,6 +829,23 @@
       "duplicate": "This show is already in the archive.",
       "error": "Action failed. Please try again."
     }
+  },
+  "book": {
+    "hall": "Hall {num} · {name}",
+    "hallName": "Books",
+    "lobbyLede": "The shelves are built, the volumes not yet arranged. This hall will hold what I have read and what is still waiting.",
+    "soon": "Coming soon",
+    "sections": {
+      "archive": {
+        "title": "Book Archive",
+        "desc": "What I have read, what I left half-finished, what is queued, and my favourites — with page progress."
+      },
+      "notes": {
+        "title": "Reading Notes",
+        "desc": "The lines I underlined and what I wrote about them; linkable to the worlds in Ancient Worlds."
+      }
+    },
+    "note": "The door is already on the wall: these sections will open one by one as the content is ready."
   },
   "lore": {
     "panelAria": "Element details",

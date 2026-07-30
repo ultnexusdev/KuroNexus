@@ -1,0 +1,174 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1200" width="800" height="1200" role="img" aria-label="">
+  <!--
+    Salon 05 · Kitap — kapı görseli.
+    Yüklenmiş bir fotoğraf değil, kanadın kendi çizimi: loş bir kütüphane
+    duvarı. Renkler kapı atmosferiyle aynı aileden (mürekkep moru oda +
+    ex-libris moru sızan ışık); DoorWall görseli zaten kısılmış opaklık ve
+    düşük doygunlukla bastığı için tonlar bilinçli olarak sakin tutuldu.
+  -->
+  <defs>
+    <linearGradient id="room" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#221c33"/>
+      <stop offset="0.55" stop-color="#191524"/>
+      <stop offset="1" stop-color="#12101b"/>
+    </linearGradient>
+
+    <!-- Üstten düşen okuma lambası huzmesi -->
+    <radialGradient id="lamp" cx="0.5" cy="0.02" r="0.85">
+      <stop offset="0" stop-color="#c9a86a" stop-opacity="0.34"/>
+      <stop offset="0.45" stop-color="#9179c4" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="#9179c4" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="board" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3b3049"/>
+      <stop offset="1" stop-color="#241d31"/>
+    </linearGradient>
+
+    <!-- Sırtların üstüne inen gölge: raflar derinlik kazansın -->
+    <linearGradient id="shade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#000" stop-opacity="0.55"/>
+      <stop offset="0.35" stop-color="#000" stop-opacity="0.05"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0.42"/>
+    </linearGradient>
+
+    <radialGradient id="vignette" cx="0.5" cy="0.42" r="0.78">
+      <stop offset="0.55" stop-color="#000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0.62"/>
+    </radialGradient>
+
+    <!-- Bir rafın tek şablonu: farklı x/genişlik/renklerle tekrar kullanılır -->
+    <g id="spineCap">
+      <rect width="100%" height="100%" fill="none"/>
+    </g>
+  </defs>
+
+  <rect width="800" height="1200" fill="url(#room)"/>
+
+  <!-- ================= RAF 1 ================= -->
+  <g>
+    <rect x="70" y="120" width="660" height="196" fill="#0f0d17" opacity="0.55"/>
+    <!-- sırtlar -->
+    <rect x="86"  y="132" width="46" height="184" rx="3" fill="#6d5296"/>
+    <rect x="138" y="146" width="34" height="170" rx="3" fill="#8a4a45"/>
+    <rect x="178" y="128" width="52" height="188" rx="3" fill="#3f5f6b"/>
+    <rect x="236" y="150" width="28" height="166" rx="3" fill="#b08d57"/>
+    <rect x="270" y="136" width="44" height="180" rx="3" fill="#2f3a56"/>
+    <rect x="320" y="142" width="38" height="174" rx="3" fill="#7a4f7d"/>
+    <rect x="364" y="126" width="30" height="190" rx="3" fill="#cabfa6"/>
+    <rect x="400" y="148" width="50" height="168" rx="3" fill="#4a3a63"/>
+    <rect x="456" y="134" width="36" height="182" rx="3" fill="#8f6b3d"/>
+    <rect x="498" y="152" width="42" height="164" rx="3" fill="#3a5a4e"/>
+    <rect x="546" y="130" width="32" height="186" rx="3" fill="#7d3f42"/>
+    <rect x="584" y="144" width="48" height="172" rx="3" fill="#5b4a86"/>
+    <rect x="638" y="138" width="34" height="178" rx="3" fill="#9aa0ae"/>
+    <rect x="678" y="150" width="38" height="166" rx="3" fill="#4d3f2e"/>
+    <!-- yaldız şeritleri -->
+    <g fill="#c9a86a" opacity="0.5">
+      <rect x="92"  y="176" width="34" height="3"/>
+      <rect x="184" y="172" width="40" height="3"/>
+      <rect x="276" y="184" width="32" height="3"/>
+      <rect x="406" y="192" width="38" height="3"/>
+      <rect x="590" y="186" width="36" height="3"/>
+    </g>
+    <rect x="70" y="120" width="660" height="196" fill="url(#shade)"/>
+    <rect x="62" y="316" width="676" height="16" rx="2" fill="url(#board)"/>
+  </g>
+
+  <!-- ================= RAF 2 ================= -->
+  <g>
+    <rect x="70" y="372" width="660" height="196" fill="#0f0d17" opacity="0.55"/>
+    <rect x="86"  y="392" width="38" height="176" rx="3" fill="#3f5f6b"/>
+    <rect x="130" y="380" width="30" height="188" rx="3" fill="#b08d57"/>
+    <rect x="166" y="398" width="52" height="170" rx="3" fill="#5b4a86"/>
+    <rect x="224" y="386" width="34" height="182" rx="3" fill="#8a4a45"/>
+    <rect x="264" y="402" width="44" height="166" rx="3" fill="#2f3a56"/>
+    <!-- yatık duran kitap: rafın ritmini kırar -->
+    <g transform="rotate(-13 330 560)">
+      <rect x="314" y="404" width="40" height="164" rx="3" fill="#cabfa6"/>
+      <rect x="320" y="470" width="28" height="3" fill="#8a6f3c" opacity="0.7"/>
+    </g>
+    <rect x="372" y="390" width="30" height="178" rx="3" fill="#7a4f7d"/>
+    <rect x="408" y="404" width="46" height="164" rx="3" fill="#4d3f2e"/>
+    <rect x="460" y="384" width="36" height="184" rx="3" fill="#3a5a4e"/>
+    <rect x="502" y="400" width="40" height="168" rx="3" fill="#6d5296"/>
+    <rect x="548" y="392" width="32" height="176" rx="3" fill="#9aa0ae"/>
+    <rect x="586" y="406" width="48" height="162" rx="3" fill="#7d3f42"/>
+    <rect x="640" y="388" width="34" height="180" rx="3" fill="#4a3a63"/>
+    <rect x="680" y="400" width="36" height="168" rx="3" fill="#8f6b3d"/>
+    <g fill="#c9a86a" opacity="0.5">
+      <rect x="92"  y="436" width="26" height="3"/>
+      <rect x="172" y="444" width="40" height="3"/>
+      <rect x="466" y="430" width="24" height="3"/>
+      <rect x="592" y="450" width="36" height="3"/>
+      <rect x="686" y="442" width="24" height="3"/>
+    </g>
+    <rect x="70" y="372" width="660" height="196" fill="url(#shade)"/>
+    <rect x="62" y="568" width="676" height="16" rx="2" fill="url(#board)"/>
+  </g>
+
+  <!-- ================= RAF 3 ================= -->
+  <g>
+    <rect x="70" y="624" width="660" height="196" fill="#0f0d17" opacity="0.55"/>
+    <rect x="86"  y="640" width="44" height="180" rx="3" fill="#2f3a56"/>
+    <rect x="136" y="654" width="30" height="166" rx="3" fill="#8f6b3d"/>
+    <rect x="172" y="636" width="40" height="184" rx="3" fill="#7d3f42"/>
+    <rect x="218" y="650" width="52" height="170" rx="3" fill="#4a3a63"/>
+    <rect x="276" y="642" width="32" height="178" rx="3" fill="#cabfa6"/>
+    <rect x="314" y="656" width="38" height="164" rx="3" fill="#3a5a4e"/>
+    <rect x="358" y="638" width="46" height="182" rx="3" fill="#6d5296"/>
+    <rect x="410" y="652" width="30" height="168" rx="3" fill="#8a4a45"/>
+    <rect x="446" y="644" width="42" height="176" rx="3" fill="#3f5f6b"/>
+    <rect x="494" y="658" width="34" height="162" rx="3" fill="#b08d57"/>
+    <rect x="534" y="640" width="48" height="180" rx="3" fill="#5b4a86"/>
+    <rect x="588" y="654" width="30" height="166" rx="3" fill="#9aa0ae"/>
+    <rect x="624" y="646" width="44" height="174" rx="3" fill="#7a4f7d"/>
+    <rect x="674" y="658" width="42" height="162" rx="3" fill="#4d3f2e"/>
+    <g fill="#c9a86a" opacity="0.5">
+      <rect x="92"  y="700" width="32" height="3"/>
+      <rect x="224" y="706" width="40" height="3"/>
+      <rect x="364" y="694" width="34" height="3"/>
+      <rect x="540" y="702" width="36" height="3"/>
+      <rect x="630" y="710" width="32" height="3"/>
+    </g>
+    <rect x="70" y="624" width="660" height="196" fill="url(#shade)"/>
+    <rect x="62" y="820" width="676" height="16" rx="2" fill="url(#board)"/>
+  </g>
+
+  <!-- ================= RAF 4 (yarım — kadraj alta doğru sürsün) ========= -->
+  <g>
+    <rect x="70" y="876" width="660" height="220" fill="#0f0d17" opacity="0.5"/>
+    <rect x="86"  y="900" width="36" height="196" rx="3" fill="#4a3a63"/>
+    <rect x="128" y="912" width="46" height="184" rx="3" fill="#8a4a45"/>
+    <rect x="180" y="896" width="30" height="200" rx="3" fill="#b08d57"/>
+    <rect x="216" y="908" width="42" height="188" rx="3" fill="#3f5f6b"/>
+    <rect x="264" y="920" width="34" height="176" rx="3" fill="#6d5296"/>
+    <rect x="304" y="900" width="48" height="196" rx="3" fill="#2f3a56"/>
+    <rect x="358" y="914" width="30" height="182" rx="3" fill="#cabfa6"/>
+    <!-- üst üste yatan iki cilt -->
+    <rect x="396" y="1042" width="128" height="22" rx="3" fill="#7d3f42"/>
+    <rect x="404" y="1066" width="112" height="20" rx="3" fill="#3a5a4e"/>
+    <rect x="396" y="904" width="34" height="130" rx="3" fill="#8f6b3d"/>
+    <rect x="436" y="918" width="44" height="116" rx="3" fill="#5b4a86"/>
+    <rect x="486" y="906" width="32" height="128" rx="3" fill="#9aa0ae"/>
+    <rect x="530" y="900" width="40" height="196" rx="3" fill="#7a4f7d"/>
+    <rect x="576" y="916" width="34" height="180" rx="3" fill="#4d3f2e"/>
+    <rect x="616" y="902" width="46" height="194" rx="3" fill="#3f5f6b"/>
+    <rect x="668" y="914" width="48" height="182" rx="3" fill="#6d5296"/>
+    <g fill="#c9a86a" opacity="0.45">
+      <rect x="92"  y="968" width="24" height="3"/>
+      <rect x="310" y="962" width="36" height="3"/>
+      <rect x="536" y="974" width="28" height="3"/>
+      <rect x="622" y="966" width="34" height="3"/>
+    </g>
+    <rect x="70" y="876" width="660" height="220" fill="url(#shade)"/>
+  </g>
+
+  <!-- Yan dikmeler: raf gövdesi -->
+  <rect x="52" y="104" width="14" height="1000" fill="#2b2338"/>
+  <rect x="734" y="104" width="14" height="1000" fill="#221c2e"/>
+
+  <!-- Işık ve vignette en üstte -->
+  <rect width="800" height="1200" fill="url(#lamp)"/>
+  <rect width="800" height="1200" fill="url(#vignette)"/>
+</svg>

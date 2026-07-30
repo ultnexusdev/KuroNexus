@@ -12,8 +12,54 @@ export const HALL_ORDER = [
   "dizi",
   "spor",
   "anime",
+  "kitap",
   "kadim-dunyalar",
 ];
+
+/**
+ * Kod tanımlı salonlar: holde kapısı olan ama henüz `UniverseCategory` kaydı
+ * bulunmayan kanatlar. Kitap salonunun kapısı arşivi hazırlanırken de duvarda
+ * durur — kapı duvarı ve Nexus kapıları bu listeyi kendi kayıtlarıyla
+ * birleştirir. Kategori sonradan panelden oluşturulursa **veritabanı kazanır**,
+ * kapı iki kez çizilmez.
+ */
+export interface CodeHall {
+  slug: string;
+  /** `public/` altındaki özel kapı görseli (yüklenmiş kapak değil) */
+  art: string;
+  /** Salon açıldı ama içeriği henüz yok: sayı yerine "yakında" yazılır */
+  soon: boolean;
+}
+
+export const CODE_HALLS: CodeHall[] = [
+  { slug: "kitap", art: "/halls/kitap.svg", soon: true },
+];
+
+export function codeHall(slug: string): CodeHall | undefined {
+  return CODE_HALLS.find((hall) => hall.slug === slug);
+}
+
+/**
+ * Veritabanı salonlarıyla kod tanımlı salonları birleştirip salon sırasına
+ * dizer. `make` yalnızca eksik kod salonları için çağrılır; iki surface (kapı
+ * duvarı ve Nexus kapıları) aynı listeyi üretsin diye tek yerde durur.
+ */
+export function mergeCodeHalls<T>(
+  items: T[],
+  slugOf: (item: T) => string,
+  make: (hall: CodeHall) => T,
+): T[] {
+  const present = new Set(items.map(slugOf));
+  const merged = [
+    ...items,
+    ...CODE_HALLS.filter((hall) => !present.has(hall.slug)).map(make),
+  ];
+  return merged.sort((a, b) => {
+    const ia = HALL_ORDER.indexOf(slugOf(a));
+    const ib = HALL_ORDER.indexOf(slugOf(b));
+    return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+  });
+}
 
 /**
  * Arşiv salonlarının taşıdığı "bölüm" sayısı. Film/Dizi/Anime kanatlarının
@@ -48,14 +94,23 @@ export function sortByHallOrder(
   });
 }
 
-/** Kategorinin salon numarası (01'den başlar); bulunamazsa null. */
+/**
+ * Kategorinin salon numarası (01'den başlar); bulunamazsa null.
+ *
+ * Sayım **kod tanımlı salonları da içerir** — yoksa kategori kaydı olmayan bir
+ * kanat (Kitap) numarasız kalır, ondan sonraki salonlar da kapı duvarındaki
+ * numaradan bir eksik görünür. Kapı duvarı, Nexus kapıları ve salon başlıkları
+ * bu tek kaynaktan okuduğu için üçü her zaman aynı sayıyı söyler.
+ */
 export function hallNumber(
-  categories: UniverseCategory[],
+  categories: Array<{ slug: string }>,
   slug: string,
 ): number | null {
-  const index = sortByHallOrder(categories).findIndex(
-    (category) => category.slug === slug,
-  );
+  const index = mergeCodeHalls(
+    categories.map((category) => ({ slug: category.slug })),
+    (item) => item.slug,
+    (hall) => ({ slug: hall.slug }),
+  ).findIndex((item) => item.slug === slug);
   return index === -1 ? null : index + 1;
 }
 

@@ -1,0 +1,169 @@
+/* Salon 05 · Kitap — salon girişi. Palet globals.css'teki
+   [data-category="kitap"] blogundan gelir (AGENTS.md kural 16). */
+
+.lobby {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--pad-lg) var(--pad-md) 96px;
+  background: var(--bg);
+  /* Ustten dusen okuma lambasi huzmesi — kapi gorselindeki isigin devami */
+  background-image: radial-gradient(
+    120% 70% at 50% -10%,
+    color-mix(in srgb, var(--accent) 8%, transparent),
+    transparent 62%
+  );
+}
+
+/* Kapi gorselinin kendisi arka duvar olur: cok kisik, ustune sis serilmis */
+.wall {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.wallImg {
+  object-fit: cover;
+  opacity: 0.16;
+  filter: saturate(0.7);
+}
+
+.wallFade {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      90% 60% at 50% 0%,
+      transparent 30%,
+      color-mix(in srgb, var(--bg) 72%, transparent) 100%
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--bg) 40%, transparent),
+      var(--bg) 88%
+    );
+}
+
+.head,
+.sections,
+.note {
+  position: relative;
+  z-index: 1;
+}
+
+.head {
+  max-width: 780px;
+  margin: 0 auto var(--pad-lg);
+  text-align: center;
+}
+
+.back {
+  display: inline-block;
+  margin-bottom: var(--pad-lg);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  text-decoration: none;
+}
+
+.back:hover {
+  color: var(--accent);
+}
+
+.eyebrow {
+  display: block;
+  color: var(--gold);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.95rem;
+  letter-spacing: 0.32em;
+}
+
+.title {
+  margin: var(--gap-sm) 0 0;
+  color: var(--text-primary);
+  font-family: var(--font-cinzel), serif;
+  font-size: clamp(2rem, 6vw, 3.4rem);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 1.05;
+}
+
+.rule {
+  display: block;
+  margin: var(--gap-md) 0;
+  color: var(--accent-muted);
+}
+
+.diamond {
+  font-size: 0.8rem;
+}
+
+.lede {
+  max-width: 48ch;
+  margin: 0 auto;
+  color: var(--text-secondary);
+  font-family: var(--font-cormorant), serif;
+  font-size: 1.15rem;
+  line-height: 1.6;
+}
+
+/* --- Hazirlanan bolumler: kapilar henuz tiklanabilir degil --- */
+
+.sections {
+  display: grid;
+  gap: var(--gap-md);
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+.section {
+  position: relative;
+  display: grid;
+  gap: 4px;
+  padding: var(--pad-md) 56px var(--pad-md) var(--pad-md);
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--accent-muted);
+  border-radius: var(--radius-card);
+}
+
+.sectionTitle {
+  color: var(--text-primary);
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.15rem;
+  letter-spacing: 0.04em;
+}
+
+.sectionDesc {
+  color: var(--text-secondary);
+  font-family: var(--font-cormorant), serif;
+  font-size: 1.02rem;
+  line-height: 1.5;
+}
+
+/* "Yakinda" rozeti: okun yerinde durur, kapinin kapali oldugunu soyler */
+.soon {
+  position: absolute;
+  top: var(--pad-md);
+  right: var(--pad-md);
+  padding: 3px 9px;
+  border: 1px solid var(--accent-muted);
+  border-radius: 999px;
+  color: var(--gold);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+}
+
+.note {
+  max-width: 52ch;
+  margin: var(--pad-lg) auto 0;
+  color: var(--text-muted);
+  font-family: var(--font-cormorant), serif;
+  font-size: 1rem;
+  line-height: 1.65;
+  text-align: center;
+}

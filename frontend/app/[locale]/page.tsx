@@ -4,7 +4,13 @@ import { fetchCategories, fetchUniverses } from "@/lib/api/universes";
 import type { UniverseCategory, WikiUniverseSummary } from "@/lib/api/types";
 import { DoorWall, type Door } from "@/components/home/DoorWall";
 import { HeroGlyph } from "@/components/home/HeroGlyph";
-import { HALL_ORDER, hallWorldCount, sortByHallOrder } from "@/lib/halls";
+import {
+  codeHall,
+  HALL_ORDER,
+  hallWorldCount,
+  mergeCodeHalls,
+  sortByHallOrder,
+} from "@/lib/halls";
 import styles from "./page.module.css";
 
 export const dynamic = "force-dynamic";
@@ -50,22 +56,42 @@ export default async function HomePage({
 
   const hasData = ordered.length > 0;
 
-  // Gerçek veri varsa API'den, yoksa statik kadrodan kapıları kur.
-  // Fallback'te count/coverImage yoktur; kanatlar atmosfer rengiyle çizilir.
+  /**
+   * Kapı kadrosu: veritabanı kategorileri + kod tanımlı salonlar (Kitap gibi
+   * kategori kaydı henüz açılmamış kanatlar). Numaralar bu birleşik listenin
+   * sırasından geliyor, o yüzden yeni kapı araya girince Kadim Dünyalar ve
+   * Temürkan kendiliğinden bir aşağı kayar.
+   */
   const doors: Door[] = hasData
-    ? ordered.map((cat, i) => ({
-        slug: cat.slug,
-        name: cat.name,
-        href: `/dark-stories/category/${cat.slug}`,
-        coverImage: cat.coverImage,
-        hall: i + 1,
-        count: countFor(cat.slug, cat.id),
-      }))
+    ? mergeCodeHalls<Door>(
+        ordered.map((cat) => ({
+          slug: cat.slug,
+          name: cat.name,
+          href: `/dark-stories/category/${cat.slug}`,
+          coverImage: cat.coverImage,
+          art: codeHall(cat.slug)?.art ?? null,
+          hall: 0,
+          count: countFor(cat.slug, cat.id),
+          soon: codeHall(cat.slug)?.soon,
+        })),
+        (door) => door.slug,
+        (hall) => ({
+          slug: hall.slug,
+          name: t(`halls.${hall.slug}`),
+          href: `/dark-stories/category/${hall.slug}`,
+          coverImage: null,
+          art: hall.art,
+          hall: 0,
+          soon: hall.soon,
+        }),
+      ).map((door, i) => ({ ...door, hall: i + 1 }))
     : FALLBACK_SLUGS.map((slug, i) => ({
         slug,
         name: t(`halls.${slug}`),
         href: `/dark-stories/category/${slug}`,
+        art: codeHall(slug)?.art ?? null,
         hall: i + 1,
+        soon: codeHall(slug)?.soon,
       }));
 
   // Baş köşe: Temürkan'ın mühürlü kapısı — duvarın en sonunda
@@ -130,7 +156,9 @@ export default async function HomePage({
                 {String(door.hall).padStart(2, "0")}
               </span>
               <span className={styles.indexName}>{door.name}</span>
-              {!door.sealed && door.count !== undefined ? (
+              {door.sealed ? null : door.soon ? (
+                <span className={styles.indexCount}>{t("soonSub")}</span>
+              ) : door.count !== undefined ? (
                 <span className={styles.indexCount}>
                   {t("worldsCount", { count: door.count })}
                 </span>

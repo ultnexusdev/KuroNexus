@@ -45,9 +45,12 @@
   );
 }
 
+/* Kapı sayısı arttıkça (Salon 05 · Kitap ile birlikte yedi kapı) duvarın
+   nefes alacak yere ihtiyacı var: orta kolon genişletildi, küratör sütununun
+   payı biraz kısıldı. */
 .grid {
   position: relative;
-  max-width: 82rem;
+  max-width: 94rem;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -133,7 +136,7 @@
 
 /* --- Arşiv indeksi şeridi --- */
 .index {
-  max-width: 78rem;
+  max-width: 90rem;
   margin: clamp(28px, 5vw, 52px) auto 0;
   padding: 16px 0 22px;
   border-top: 1px solid var(--hub-line);
@@ -180,8 +183,10 @@
   }
 
   .curator {
-    /* Kapı duvarı etiketleri sıkışmasın diye üst sınırı sabitlenmiş pay */
-    flex: 0 0 clamp(320px, 40%, 440px);
+    /* Kapı duvarı etiketleri sıkışmasın diye üst sınırı sabitlenmiş pay.
+       Yedinci kapıyla birlikte pay %40'tan %33'e çekildi: duvara yaklaşık
+       bir kapı genişliği kadar yer açıyor. */
+    flex: 0 0 clamp(300px, 33%, 420px);
     padding-right: clamp(16px, 3vw, 48px);
     /* Küratör bloğu dikeyde ortalanır: eski "sol-alt boşluk" hissi kapanır */
     justify-content: center;

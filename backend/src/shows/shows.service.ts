@@ -197,11 +197,50 @@ export class ShowsService {
     directors: Array<{ name: string; count: number }>;
     genres: string[];
   }> {
-    const entries = await this.prisma.showEntry.findMany({
+    let entries = await this.prisma.showEntry.findMany({
       where: { isDeleted: false },
       include: { seasons: { orderBy: { orderIndex: 'asc' } } },
       orderBy: [{ watchedAt: 'desc' }, { createdAt: 'desc' }],
     });
+
+    /**
+     * Sezon takibinden ÖNCE eklenmiş diziler sezonsuz duruyor. Zincir burada
+     * bir kez kuruluyor: aksi halde salon "0 sezon" gösterir ve kullanıcının
+     * her diziyi tek tek açması gerekir. Bir kez başarılı olduktan sonra bu
+     * dal hiç çalışmaz; TMDB düşerse sessizce atlanır (kural 4).
+     */
+    const unseeded = entries.filter((entry) => entry.seasons.length === 0);
+    if (unseeded.length > 0) {
+      const seeded = await Promise.all(
+        unseeded.map(async (entry) => {
+          try {
+            const show = await this.tmdb.getShow(entry.tmdbId);
+            await this.prisma.showEntry.update({
+              where: { id: entry.id },
+              data: {
+                externalData: show as unknown as Prisma.InputJsonValue,
+                externalDataFetchedAt: new Date(),
+              },
+            });
+            await this.syncSeasons(entry.id, show);
+            // Zaten "izledim" işaretli dizinin sayacı da dolsun
+            if (entry.status === 'WATCHED') {
+              await this.markAllSeasonsWatched(entry.id);
+            }
+            return show.seasons.length > 0;
+          } catch {
+            return false;
+          }
+        }),
+      );
+      if (seeded.some(Boolean)) {
+        entries = await this.prisma.showEntry.findMany({
+          where: { isDeleted: false },
+          include: { seasons: { orderBy: { orderIndex: 'asc' } } },
+          orderBy: [{ watchedAt: 'desc' }, { createdAt: 'desc' }],
+        });
+      }
+    }
 
     const shows = withSlugs(entries);
     return {

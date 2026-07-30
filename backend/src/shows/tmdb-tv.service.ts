@@ -249,9 +249,15 @@ export class TmdbTvService {
       .map(toSearchResult);
   }
 
-  /** Dizi künyesi. TTL dolmadıysa cache'ten döner (kural 4/14). */
+  /**
+   * Dizi künyesi. TTL dolmadıysa cache'ten döner (kural 4/14).
+   *
+   * v2: sezon listesi künyeye girdi. Sürüm numarası ARTMALI — yoksa sezon
+   * takibinden önce cache'lenmiş kayıtlar `seasons` alanı olmadan dönmeye
+   * devam eder ve zincir hiç kurulamaz.
+   */
   async getShow(tmdbId: number): Promise<TmdbShow> {
-    const cacheKey = `tmdb:show:v1:${tmdbId}:${this.language}`;
+    const cacheKey = `tmdb:show:v2:${tmdbId}:${this.language}`;
     const cached = await this.prisma.externalCache.findUnique({
       where: { cacheKey },
     });

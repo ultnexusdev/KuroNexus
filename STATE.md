@@ -5,6 +5,88 @@
 
 ## Mevcut Aşama
 
+> **DEVİR NOTU — 30 Temmuz 2026 akşamı, ev makinesi. İŞ YERİNDEN DEVAM
+> EDİLECEK: ilk iş `git pull`.** Çalışma dizini temiz, her şey `origin/main`de.
+> Bu oturumda altı push gitti: `a011627` kitap Faz A → `c34b696` arama Open
+> Library yedeği → `db31c5e` durum notu → `1f68799` raflar alt alta + süzgeç
+> sadeleşmesi → `b34a62a` Türkçe baskı önceliği → `60e4d82` elle kapak yolu.
+>
+> **İŞ YERİNDE İLK YAPILACAKLAR (kod yazmadan önce, canlı doğrulama):**
+> 1. `/dark-stories/category/kitap/arsiv` → küratör modu → **"bülbülü öldürmek
+>    harper lee"** ara. Türkçe baskı üstte ve yanında **TR** rozetiyle
+>    gelmeli (`b34a62a` bunu düzeltti, canlıda gerçek girişle DENENMEDİ).
+> 2. Arşivdeki iki kitabın (Bülbülü Öldürmek, Hücrenin Şarkısı) sayfasını aç →
+>    küratör modu → künye formundaki **"Kapak adresi"** kutusuna adres yapıştır
+>    ya da **"Ya da kapak yükle"** ile dosya yükle → Kaydet. Kapağın hem
+>    kitaplık rafında hem sağ rayda çıktığını doğrula.
+> 3. Aynı iki kitapta **"Boş alanları tazele"**ye bas: yeni ISBN zinciri
+>    (`60e4d82`) ilk yayım yılını ve orijinal adı doldurabilir. Kapak
+>    muhtemelen yine gelmez — o iki baskının kapağı hiçbir kaynakta yok.
+> 4. Birkaç kitap daha eklendikten sonra rafların gerçek hâline bak: raf
+>    tahtasının kalınlığı, cilt boy farkı, kapak genişliği. Ayar gerekirse
+>    `frontend/components/book/BookHall.module.css` içinde `.spine` yükseklik
+>    kuralları ve `.plank`.
+> 5. Sol raydaki **Tür** ve **Dil** açılır bölümleri kitap eklendikçe dolar
+>    (arşivden türetiliyor) — boşken hiç çizilmiyor, bu beklenen davranış.
+>
+> **KAPAK MESELESİ — kapanmış bir tartışma, tekrar açılmasın.** Türkçe basılı
+> çevirilerin çoğunun kapağı **hiçbir kaynakta yok**: Google Books o ciltler
+> için `imageLinks` döndürmüyor, `books.google.com/books/content` ucu ise 200
+> dönüp 1269 baytlık "kapak yok" görselini veriyor (iki farklı kitapta birebir
+> aynı bayt boyutu — placeholder olduğunun kanıtı). Open Library'de de Türkçe
+> ISBN'ler çoğunlukla kayıtlı değil (9786051983127 → 404). Bu yüzden `content`
+> ucu **bilerek kullanılmıyor**: kullanılsaydı arşiv boş çerçeve yerine aynı
+> gri lekeyle dolar ve küratör hangi kitaba elle kapak koyacağını göremezdi.
+> Çözüm elle kapak (adres kutusu + yükleme, `60e4d82`).
+>
+> **Kitap kanadında bu turda düzeltilen üç şey:**
+> 1. `country=TR` parametresi Google isteklerinden **kaldırıldı**. Dil ipucu
+>    sanılmıştı; oysa Play Kitaplar **mağaza uygunluğu** demek ve TR
+>    mağazasında olmayan Türkçe basılı çevirileri eliyordu — "Bülbülü
+>    Öldürmek" aranınca yalnızca İngilizcesinin gelmesinin sebebi buydu.
+> 2. Arama sonucu artık **tamamı üzerinde** Türkçe-önce sıralanıyor.
+>    `langRestrict=tr` bazı çevirileri hiç bulamıyor (Google o cildin dilini
+>    işaretlememiş oluyor) ama aynı cilt genel aramanın alt sıralarında
+>    duruyor; eski hâlde (iki listeyi arka arkaya ekleme) oradan yukarı
+>    çıkamıyordu. `sort` kararlı olduğu için grup içi alaka sırası bozulmuyor.
+> 3. Open Library zinciri iki adımlı oldu: Türkçe adla eser bulunamazsa
+>    ISBN'den **baskı** kaydına gidiliyor, `translation_of` ile orijinal ad
+>    öğreniliyor ve eser araması onunla tekrarlanıyor. İlk yayım yılının boş
+>    kalmasının sebebi de buydu.
+>
+> **Arayüz bu turda baştan düzenlendi (kullanıcı "sayfa çok amatör görünüyor"
+> dedi):** ortadaki durum **sekmeleri kaldırıldı**, yerine film salonundaki
+> gibi **alt alta raflar** geldi — ama kitaplık hissiyatıyla: bir raftaki
+> ciltler ortak zemine basıyor, boyları birbirini tutmuyor (158–190px,
+> `nth-child` ile sıradan türetiliyor — rastgele DEĞİL ki sunucuyla istemci
+> aynı boyu çizsin ve açılışta kitaplar zıplamasın), kapak sol kenarında cilt
+> sırtı çizgisi var ve altlarında raf tahtası (`.plank`) duruyor. Salonun
+> imzası bu (film salonununki 35mm şerit). Sol raydan **puan** ve **sayfa
+> sayısı** süzgeçleri kaldırıldı (puan rozetleri başlığın üstüne taşıyordu),
+> yıl aralığı kutuları tek bir **Dönem** seçkisine dönüştü — kitap ölçeğinde:
+> yakın onluklar tek tek, sonra 1900–1949, 19. yüzyıl, Daha eski. Tür ve dil
+> artık kapalı açılır bölümler (`<details>`). Raf sayfaları ayrı bileşen
+> değil: `BookHall`a `shelf` verilince bütün rafları dizmek yerine o rafın
+> tamamını ızgara olarak çiziyor.
+>
+> **Lokal doğrulama yöntemi (bu turda kullanıldı, işe yaradı):**
+> `getBookArchive`in catch dalına geçici `DEV_FIXTURE` konup dev sunucu
+> açıldı; `read_page`/`javascript_tool` ile ölçüldü (üç sütun 252/949/312,
+> yatay taşma yok, mobilde tek sütun, 44px altı dokunma alanı yok, cilt
+> boyları 160–190) ve **commit öncesi `git checkout` ile geri alındı.**
+> Ekran görüntüsü alınamıyor (tarayıcı paneli görünmüyor), ölçüm metin
+> araçlarıyla yapılıyor.
+>
+> **FAZ B (sıradaki iş — henüz başlanmadı):** ödüller (Nobel/Pulitzer/Hugo/
+> Nebula/Booker/Locus/World Fantasy/Bram Stoker/Edgar — kodda yıl+kitap
+> listesi, açılışta Google Books ile eşleşip cache'lenecek), Keşfet rafları
+> (Goodreads Top 250, NYT, Türk Edebiyatı, Modern/Antik Klasikler), kitap
+> sayfasında spoilersız/spoiler inceleme + karakterler + farklı baskılar,
+> yazar paneline biyografi/tüm eserler. Kullanıcının ayrıca beğendiği
+> fikirler: "Bu akşam ne okusam?", seri boşluk uyarısı ("Zaman Çarkı'nın 7.
+> cildi arşivde yok"), çevirisi çıkanı haber verme (çevrilmemiş ciltler için
+> ayda bir Türkçe baskı taraması).
+>
 > **OTURUM NOTU — 30 Temmuz 2026 (3). Salon 05 · Kitap arşivi — FAZ A yazıldı.**
 > Ayrıca anime sayfasına **küratör modu anahtarı** eklendi: künye formu ve
 > bölüm ızgarasındaki işaretleme artık admin olmak için değil, **modu açmak**

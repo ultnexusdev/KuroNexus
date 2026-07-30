@@ -790,3 +790,205 @@ export interface AnimeShowcase {
   left: { title: string; posterPath: string } | null;
   right: { title: string; posterPath: string } | null;
 }
+
+// ---- Salon 05 · Kitap arşivi ----
+
+export type BookStatus = "READ" | "READING" | "TO_READ" | "ABANDONED";
+
+/**
+ * Çeviri durumu. Film/dizi kanadında karşılığı yok: beş kitaplık bir serinin
+ * üçü Türkçe çıkmışsa kalan ciltler de arşivde durur, "henüz çevrilmedi"
+ * notuyla (kullanıcı kararı).
+ */
+export type BookTranslation =
+  | "TRANSLATED"
+  | "UNTRANSLATED"
+  | "IN_PROGRESS"
+  | "ORIGINAL";
+
+/**
+ * Kitap künyesi. Film/dizi/animeden farkı: bütün alanlar **kendi
+ * tablomuzdan** gelir, dış kaynağın anlık görüntüsünden değil — Google Books
+ * yalnızca kayıt açılırken bunları tohumlar (kullanıcı kararı).
+ */
+export interface ArchiveBook {
+  id: string;
+  /** Kitap sayfasının adresi — backend başlıktan türetir */
+  slug: string;
+  googleId: string | null;
+  olKey: string | null;
+  isbn13: string | null;
+  title: string;
+  originalTitle: string | null;
+  authors: string[];
+  translator: string | null;
+  publisher: string | null;
+  publishedYear: number | null;
+  firstPublishedYear: number | null;
+  pageCount: number | null;
+  language: string | null;
+  coverImage: string | null;
+  description: string | null;
+  genres: string[];
+  seriesName: string | null;
+  seriesIndex: number | null;
+  status: BookStatus;
+  translationState: BookTranslation;
+  isFavorite: boolean;
+  personalRating: number | null;
+  personalNote: string | null;
+  startedAt: string | null;
+  finishedAt: string | null;
+  currentPage: number;
+  /** Okuma yüzdesi; sayfa sayısı bilinmiyorsa null (çubuk çizilmez) */
+  progress: number | null;
+  universeId: string | null;
+}
+
+export interface BookQuote {
+  id: string;
+  text: string;
+  page: number | null;
+  context: string | null;
+  isFavorite: boolean;
+}
+
+export interface BookSeriesCard {
+  name: string;
+  slug: string;
+  count: number;
+  readCount: number;
+  translatedCount: number;
+  untranslatedCount: number;
+  coverImage: string | null;
+  /** Kadim Dünyalar bağı — evren sayfasının adresi bununla kurulur */
+  universeSlug: string | null;
+}
+
+export interface BookAuthorCard {
+  name: string;
+  count: number;
+  readCount: number;
+  averageRating: number | null;
+  coverImage: string | null;
+}
+
+export interface BookArchiveStats {
+  read: number;
+  readThisYear: number;
+  toRead: number;
+  reading: number;
+  abandoned: number;
+  favorites: number;
+  totalPages: number;
+  pagesThisYear: number;
+  averageRating: number | null;
+  longest: { title: string; pageCount: number } | null;
+  shortest: { title: string; pageCount: number } | null;
+  topGenre: string | null;
+  topAuthor: string | null;
+  goal: {
+    year: number;
+    targetBooks: number;
+    targetPages: number | null;
+    doneBooks: number;
+    donePages: number;
+  } | null;
+}
+
+export interface BookArchive {
+  books: ArchiveBook[];
+  stats: BookArchiveStats;
+  series: BookSeriesCard[];
+  authors: BookAuthorCard[];
+  genres: Array<{ name: string; count: number }>;
+  recent: ArchiveBook[];
+  quoteOfTheDay:
+    | (BookQuote & { bookTitle: string; bookSlug: string })
+    | null;
+}
+
+export type BookLinkKind =
+  | "GOODREADS"
+  | "GOOGLE_BOOKS"
+  | "OPEN_LIBRARY"
+  | "DR"
+  | "IDEFIX"
+  | "OFFICIAL";
+
+export interface BookLink {
+  kind: BookLinkKind;
+  url: string;
+  /** Adres doğrudan kitaba mı gidiyor yoksa arama sayfasına mı */
+  isSearch: boolean;
+}
+
+export interface BookCustomLinks {
+  goodreads?: string;
+  dr?: string;
+  idefix?: string;
+  official?: string;
+}
+
+export interface BookDetail {
+  book: ArchiveBook;
+  quotes: BookQuote[];
+  links: BookLink[];
+  customLinks: BookCustomLinks;
+  series: ArchiveBook[];
+  seriesName: string | null;
+  byAuthor: ArchiveBook[];
+  byGenre: ArchiveBook[];
+  universe: { id: string; name: string; slug: string } | null;
+}
+
+/** Küratör aramasının bir sonucu — arşivde olanlar işaretli gelir. */
+export interface BookSearchResult {
+  googleId: string | null;
+  olKey: string | null;
+  isbn13: string | null;
+  title: string;
+  subtitle: string | null;
+  authors: string[];
+  publisher: string | null;
+  publishedYear: number | null;
+  firstPublishedYear: number | null;
+  pageCount: number | null;
+  language: string | null;
+  coverImage: string | null;
+  description: string | null;
+  genres: string[];
+  seriesName: string | null;
+  seriesIndex: number | null;
+  originalTitle: string | null;
+  provider: "GOOGLE" | "OPENLIBRARY";
+  inArchive: boolean;
+}
+
+export interface BookEntryRecord {
+  id: string;
+  title: string;
+  authors: string[];
+  coverImage: string | null;
+  status: BookStatus;
+  translationState: BookTranslation;
+  isFavorite: boolean;
+  personalRating: number | null;
+  pageCount: number | null;
+  currentPage: number;
+  seriesName: string | null;
+  seriesIndex: number | null;
+  updatedAt: string;
+}
+
+export interface BookShowcase {
+  left: { title: string; coverImage: string } | null;
+  right: { title: string; coverImage: string } | null;
+}
+
+export interface ReadingGoalRecord {
+  id: string;
+  year: number;
+  targetBooks: number;
+  targetPages: number | null;
+}

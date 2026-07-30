@@ -31,8 +31,9 @@ export interface CodeHall {
   soon: boolean;
 }
 
+// Kitap arşivi açıldı: kapının altında artık "yakında" değil evren sayısı var
 export const CODE_HALLS: CodeHall[] = [
-  { slug: "kitap", art: "/halls/kitap.svg", soon: true },
+  { slug: "kitap", art: "/halls/kitap.svg", soon: false },
 ];
 
 export function codeHall(slug: string): CodeHall | undefined {
@@ -73,6 +74,7 @@ const ARCHIVE_SECTIONS: Record<string, number> = {
   film: 1,
   dizi: 1,
   anime: 1,
+  kitap: 1,
 };
 
 /**

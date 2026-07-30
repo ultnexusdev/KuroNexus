@@ -36,6 +36,8 @@ model User {
   animeEntries      AnimeEntry[]
   showEntries       ShowEntry[]
   showDismissals    ShowSuggestionDismissal[]
+  bookEntries       BookEntry[]
+  readingGoals      ReadingGoal[]
 }
 
 model Story {
@@ -112,6 +114,7 @@ model WikiUniverse {
   raceEvents      RaceEvent[]
   driverStandings DriverStanding[]
   transferNews    TransferNews[]
+  bookEntries     BookEntry[]
 }
 
 // Dış API yanıtları için kalıcı cache (kural 4 + 14: her sayfa yüklemesinde
@@ -478,6 +481,149 @@ model ShowSuggestionDismissal {
   @@unique([userId, tmdbId])
 }
 
+/// Salon 05 · Kitap arşivi.
+///
+/// Film/dizi/anime kanatlarından **bilinçli olarak ayrılan** bir yanı var:
+/// orada künye tamamen dış kaynağın anlık görüntüsünden (`externalData`)
+/// okunur, burada okunmaz. Kullanıcı kararı: "Google Books sadece ilk veriyi
+/// doldursun, sonrasını kendi tablona ekle." Bu yüzden gösterilen bütün
+/// alanlar (ad, yazar, çevirmen, yayıncı, sayfa) **kendi sütunlarımız**;
+/// Google Books yalnızca kayıt açılırken bunları tohumlar. Künye tazeleme
+/// yalnızca BOŞ alanları doldurur, dolu olanı asla ezmez.
+///
+/// Sebebi kitaba özgü: Google Books'un Türkçe künyesi eksik ve tutarsız
+/// (çevirmen çoğu baskıda hiç yok, sayfa sayısı baskıya göre değişiyor),
+/// oysa arşivin kendisi Türkçe okunacak.
+model BookEntry {
+  id String @id @default(cuid())
+
+  /// Google Books cilt numarası — kaydın kaynağı. Open Library'den açılan
+  /// kitapta boş kalır.
+  googleId String?
+  /// Open Library work/edition anahtarı ("/works/OL27448W"). Google Books'un
+  /// bilmediği (özellikle çevrilmemiş ya da eski) kitaplar buradan gelir.
+  olKey    String?
+  isbn13   String?
+
+  // --- Künye: ilk veriyi dış kaynak doldurur, sonrası küratörün ---
+  /// Gösterilen ad. Türkçesi varsa Türkçe (kullanıcı kararı).
+  title              String
+  /// Orijinal dildeki ad — çevrilmiş kitapta ikinci satır olarak görünür
+  originalTitle      String?
+  authors            String[]
+  /// Çeviri kitapta künyenin en çok aranan satırı; hiçbir API güvenilir vermiyor
+  translator         String?
+  publisher          String?
+  /// Elimdeki baskının yılı
+  publishedYear      Int?
+  /// Eserin ilk yayımlandığı yıl (Open Library `first_publish_year`) — baskı
+  /// yılıyla karıştırılmaz: "1954'te yazıldı, 2019 baskısını okudum"
+  firstPublishedYear Int?
+  pageCount          Int?
+  /// Okuduğum baskının dili ("tr" / "en") — çeviri durumundan ayrı bir bilgi
+  language           String?
+  coverImage         String?
+  description        String?  @db.Text
+  /// Tür bilgisi (Fantastik, Bilim Kurgu…). Kural 11'deki ilişkisel Tag
+  /// sistemi DEĞİL: arşivin kendi süzgeci için dış kaynaktan tohumlanan,
+  /// küratörün düzelttiği görüntü verisi — çapraz içerik etiketi değil.
+  genres             String[]
+
+  /// Serinin adı ve cilt sırası. Seri ayrı bir tablo değil: bir kitap tek bir
+  /// seriye ait, seri kaydının kendi başına taşıyacağı veri yok — ad üstünden
+  /// gruplamak hem şemayı sade tutuyor hem seri adını düzeltmeyi tek kayda
+  /// indiriyor.
+  seriesName  String?
+  seriesIndex Int?
+
+  status           BookStatus      @default(READ)
+  /// "5 kitaplık seri, 3'ü Türkçe" bilgisinin kaynağı. Çevrilmemiş cilt de
+  /// arşivde durur (seri eksik görünmesin) ama okuma sayılarına girmez.
+  translationState BookTranslation @default(TRANSLATED)
+  isFavorite       Boolean         @default(false)
+  personalRating   Float?
+  personalNote     String?         @db.Text
+  startedAt        DateTime?
+  finishedAt       DateTime?
+
+  /// Okuma ilerlemesi — "şu an okuyorum" rafındaki kitabın kaldığı sayfa.
+  /// Animedeki bölüm sayacının kitap karşılığı; yüzde bundan ve `pageCount`tan
+  /// türetilir, ayrıca tutulmaz (iki sayı birbirini tutmuyor).
+  currentPage Int @default(0)
+
+  /// Elle girilen dış bağlantılar: { goodreads, dr, idefix, official }.
+  /// Film/dizi kanadındaki `links` ile aynı mantık.
+  links Json?
+
+  /// Dış kaynağın ham anlık görüntüsü. Gösterimde kullanılmaz — sütunlar
+  /// tohumlanırken ve "başka baskılar" listesinde okunur (kural 4/14).
+  externalData          Json?
+  externalDataFetchedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean  @default(false)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  /// Kadim Dünyalar bağı: seri bir evrene bağlıysa kitap sayfasından o evrene
+  /// geçilir (kullanıcı isteği: "tıklayınca evren sayfasına atsın")
+  universeId String?
+  universe   WikiUniverse? @relation(fields: [universeId], references: [id])
+
+  quotes BookQuote[]
+
+  // Aynı kitap arşive iki kez girmesin. Google numarası olmayan kayıtlarda
+  // (Open Library'den gelenler) bu kısıt boşa düşer; servis ayrıca olKey ve
+  // ISBN üstünden de kontrol ediyor.
+  @@unique([userId, googleId])
+  @@index([userId, status, isDeleted])
+  @@index([userId, isFavorite, isDeleted])
+  @@index([userId, seriesName, isDeleted])
+  @@index([universeId])
+}
+
+/// Altını çizdiğim satır. Sayfa numarası ve bağlam elle girilir — hiçbir API
+/// vermiyor, zaten kişisel içerik (kural 4: dış veriden ayrı model).
+model BookQuote {
+  id         String  @id @default(cuid())
+  text       String  @db.Text
+  /// Alıntının geçtiği sayfa; baskıya göre değişebildiği için zorunlu değil
+  page       Int?
+  /// "Kim, nerede söyledi" — alıntıyı yalnız bırakmayan tek satır
+  context    String?
+  isFavorite Boolean @default(false)
+  orderIndex Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean  @default(false)
+
+  entryId String
+  entry   BookEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+
+  @@index([entryId, isDeleted, orderIndex])
+}
+
+/// Yıllık okuma hedefi ("2026'da 40 kitap"). Yıl başına tek kayıt; geçmiş
+/// yıllar silinmiyor — hedefin tutup tutmadığı da bir okuma günlüğü.
+model ReadingGoal {
+  id          String @id @default(cuid())
+  year        Int
+  targetBooks Int
+  /// Sayfa hedefi isteğe bağlı: kimi yıl "40 kitap", kimi yıl "12.000 sayfa"
+  targetPages Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@unique([userId, year])
+}
+
 model Review {
   id                     String    @id @default(cuid())
   title                  String
@@ -704,6 +850,24 @@ enum ShowStatus {
   WATCHED
   WATCHLIST
   REWATCH
+}
+
+enum BookStatus {
+  READ
+  READING
+  TO_READ
+  ABANDONED
+}
+
+/// Çeviri durumu. Kullanıcı kararı: beş kitaplık bir serinin üçü Türkçe
+/// çıkmışsa kalan iki cilt de arşivde görünsün, ama "henüz çevrilmedi" notuyla.
+/// ORIGINAL, Türkçe yazılmış kitap için: orada çeviri diye bir kavram yok ve
+/// "çevrildi" demek yanlış olur.
+enum BookTranslation {
+  TRANSLATED
+  UNTRANSLATED
+  IN_PROGRESS
+  ORIGINAL
 }
 
 enum MediaType {

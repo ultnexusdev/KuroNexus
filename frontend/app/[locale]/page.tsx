@@ -82,6 +82,9 @@ export default async function HomePage({
           coverImage: null,
           art: hall.art,
           hall: 0,
+          // Kategori kaydı olmayan salonun evreni de arşiv bölümünden gelir:
+          // kapı altında "Gir" değil gerçek sayı yazsın (bkz. hallWorldCount)
+          count: hallWorldCount(hall.slug, 0),
           soon: hall.soon,
         }),
       ).map((door, i) => ({ ...door, hall: i + 1 }))

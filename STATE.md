@@ -5,6 +5,92 @@
 
 ## Mevcut Aşama
 
+> **OTURUM NOTU — 30 Temmuz 2026 (3). Salon 05 · Kitap arşivi — FAZ A yazıldı.**
+> Ayrıca anime sayfasına **küratör modu anahtarı** eklendi: künye formu ve
+> bölüm ızgarasındaki işaretleme artık admin olmak için değil, **modu açmak**
+> için gerekiyor (film/dizi sayfalarındaki desen; kullanıcı geri bildirimi —
+> sayfa okuma ekranı olarak açılmalı). `AnimeDetail` içindeki `isAdmin`
+> dallarının yerini `editing = isAdmin && curating` aldı.
+>
+> **Kitap kanadında alınan kararlar (kullanıcıya soruldu):**
+> 1. Ödül ve keşfet listeleri **kod içinde küratörlü liste** olacak — Google
+>    Books/Open Library bunların hiçbirini vermiyor. **FAZ B.**
+> 2. Çeviri **cilt bazlı**: `BookTranslation` enum'u (TRANSLATED /
+>    UNTRANSLATED / IN_PROGRESS / ORIGINAL). Çevrilmemiş cilt arşivde durur
+>    ("seri eksik görünmesin"), okuma sayılarına girmez, seri kartında
+>    "5 kitaptan 3'ü Türkçe" satırını besler.
+> 3. İki faz: **Faz A bu oturumda** (veri modeli + kaynak servisi + küratör +
+>    tam genişlikte arşiv + kitap sayfası), Faz B sonra.
+> 4. Ekstralardan seçilenler: sayfa ilerlemesi, yıllık okuma hedefi, alıntı
+>    defteri. (Okuma günlüğü/zaman şeridi seçilmedi.)
+>
+> **Kitap kanadının film/dizi/animeden yapısal farkı (bilinçli):** orada künye
+> tamamen `externalData` anlık görüntüsünden okunur, **burada okunmaz.**
+> Kullanıcı kararı: "Google Books sadece ilk veriyi doldursun, sonrasını kendi
+> tablona ekle." Gösterilen bütün alanlar (`title`, `authors`, `translator`,
+> `publisher`, `pageCount`, `genres`, `seriesName`…) `BookEntry`in kendi
+> sütunları; dış kaynak yalnızca kayıt açılırken tohumluyor ve `refresh`
+> **yalnızca boş alanları** dolduruyor — elle yazılan Türkçe ad/çevirmen asla
+> ezilmiyor. Sebebi kitaba özgü: Google'ın Türkçe künyesi eksik, çevirmen çoğu
+> baskıda hiç yok, sayfa sayısı baskıya göre değişiyor.
+>
+> **Backend:** `BookEntry` + `BookQuote` + `ReadingGoal` modelleri, enum'lar
+> `BookStatus`/`BookTranslation`, migration elle yazıldı
+> (`20260730200000_add_book_entry`, DB'siz makinede `prisma validate` +
+> `generate` ile doğrulandı). `src/books/*`: `google-books.service`
+> (Google Books ana kaynak → `langRestrict=tr` ile önce Türkçe baskı; Open
+> Library `enrich` ile ilk yayım yılı/seri/orijinal ad; ikisi de
+> `ExternalCache`e yazılıyor, kural 4/14), `books.service`, iki controller,
+> beş DTO. Uçlar: `GET /books`, `/books/showcase`, `/books/:slug`;
+> `GET|POST|PATCH|DELETE /admin/books*`, `PATCH /admin/books/:id/refresh`,
+> `POST /admin/books/:id/quotes`, `PATCH|DELETE /admin/books/quotes/:id`,
+> `PUT /admin/books/goal`.
+>
+> **Frontend:** `components/book/*` (BookHall/BookCard/BookDetail/BookCurator)
+> + `lib/book/{filters,shelves}` + `lib/api/books.ts` + rotalar
+> `category/kitap/arsiv`, `arsiv/[shelf]`, `[slug]`. Düzen film salonundan
+> **ayrıldı** (kullanıcı isteği "her şeyi ortada birleştirmeyelim, tüm alanı
+> doldursun"): sabit tek sütun yerine **üç sütun** — sol ray süzgeç (tür,
+> puan, yıl aralığı, sayfa kovaları, dil, çeviri), orta durum sekmeleri +
+> kapak ızgarası + seriler + yazar paneli, sağ ray istatistikler + hedef
+> halkası (`conic-gradient`, hex yok) + son eklenenler + günün alıntısı.
+> Raf sayfaları ayrı bileşen DEĞİL: aynı salon `initialShelf` ile açılıyor.
+> Kitap lobisinde "Kitap Arşivi" kartı artık gerçek bağlantı; `CODE_HALLS`
+> kitap `soon: false` ve `ARCHIVE_SECTIONS`e `kitap: 1` eklendi (kapı altında
+> "yakında" yerine evren sayısı).
+>
+> **FAZ B (yapılacak):** ödüller (Nobel/Pulitzer/Hugo/Nebula/Booker/Locus/
+> World Fantasy/Bram Stoker/Edgar — kodda yıl+kitap listesi, açılışta Google
+> Books ile eşleşip cache'lenecek), Keşfet rafları (Goodreads Top 250, NYT,
+> Türk Edebiyatı, Modern/Antik Klasikler), kitap sayfasında spoilersız/spoiler
+> inceleme + karakterler + farklı baskılar, yazar paneline biyografi/tüm
+> eserler. Ayrıca kitap kanadının `pulse` uçlarına eklenmesi (kitap
+> `UniverseCategory` kaydı olmadığı için "Nexus'u Keşfet"te sayaç kod
+> tarafından geliyor).
+>
+> **DİKKAT — `npm run lint` backend'de `--fix` içeriyor ve zararlı.**
+> Bu oturumda çalıştırıldığında `@typescript-eslint/no-unnecessary-type-assertion`
+> kuralı, dokunulmamış on bir dosyadan (`tmdb-tv.service`, `movies.service`,
+> `shows.service`, `anime.service`…) TypeScript'in **gerçekten gerektirdiği**
+> `as unknown as object` dönüşümlerini sildi ve derleme 16 hatayla kırıldı;
+> hepsi `git checkout` ile geri alındı. Kural ile derleyici bu repoda çelişiyor.
+> Backend'de lint çalıştırılacaksa `npx eslint <yol>` (fix'siz) kullanılmalı.
+> Kitap modülünde bu çelişkiye hiç girilmedi: `BookShowcaseCover` bilinçli
+> olarak `interface` değil **tür takma adı** — örtük index imzası sayesinde
+> Prisma'nın `InputJsonValue`ına dönüşümsüz geçiyor.
+>
+> **Doğrulama:** backend `prisma validate` + `generate` + `nest build` temiz,
+> `npx eslint src/books` temiz; frontend `tsc --noEmit` + `eslint` + `next
+> build` temiz (kitap rotalarının üçü de derlendi). **Gerçek veriyle
+> denenmedi** — lokalde dev sunucusu dışarı çıkamıyor.
+>
+> **Kullanıcının canlıda bakacakları:** (1) kapı duvarında Kitap kapısının
+> altında "yakında" yerine evren sayısı, (2) lobide "Kitap Arşivi" kartının
+> açılması, (3) küratör modunda Google Books araması — Türkçe baskı üstte mi
+> geliyor, dil rozeti doğru mu, (4) kitap eklendikten sonra sekme sayaçları ve
+> sağ ray istatistikleri, (5) anime sayfasında küratör modu kapalıyken künye
+> formunun görünmemesi.
+
 > **OTURUM NOTU — 30 Temmuz 2026 (2).** **Salon 05 · Kitap kapısı açıldı.**
 > Salon sırası artık Film·Dizi·Spor·Anime·**Kitap**·Kadim Dünyalar, Temürkan
 > mühürlü baş köşe olarak sonda (07'ye kendiliğinden kaydı — numarası

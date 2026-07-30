@@ -144,6 +144,32 @@
   line-height: 1.5;
 }
 
+/* Acilmis bolum: ayni kart, ama tiklanabilir ve uzerine gelince canlaniyor */
+.sectionOpen {
+  composes: section;
+  text-decoration: none;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease;
+}
+
+.sectionOpen:hover,
+.sectionOpen:focus-visible {
+  border-left-color: var(--accent);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+}
+
+/* Acik bolumun sag ust kosesindeki ok — "yakinda" rozetinin yerinde durur */
+.enter {
+  position: absolute;
+  top: var(--pad-md);
+  right: var(--pad-md);
+  color: var(--accent);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+}
+
 /* "Yakinda" rozeti: okun yerinde durur, kapinin kapali oldugunu soyler */
 .soon {
   position: absolute;

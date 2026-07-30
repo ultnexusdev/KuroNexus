@@ -47,6 +47,10 @@ export function AnimeDetail({
   const [openPartId, setOpenPartId] = useState<string | null>(
     anime.currentPart?.id ?? parts[0]?.id ?? null,
   );
+  // Kunye formu ve bolum isaretleme yalnizca kurator modunda: sayfa okuma
+  // ekrani olarak acilir, duzenleme anahtarla istenir (film sayfasindaki desen)
+  const [curating, setCurating] = useState(false);
+  const editing = isAdmin && curating;
   const days = daysUntil(anime.nextAiringAt);
   const resume = mangaResume(anime);
 
@@ -68,9 +72,25 @@ export function AnimeDetail({
       ) : null}
 
       <div className={styles.inner}>
-        <Link href="/dark-stories/category/anime/arsiv" className={styles.back}>
-          {t("backToHall")}
-        </Link>
+        <div className={styles.topBar}>
+          <Link
+            href="/dark-stories/category/anime/arsiv"
+            className={styles.back}
+          >
+            {t("backToHall")}
+          </Link>
+
+          {isAdmin ? (
+            <button
+              type="button"
+              className={curating ? styles.curatorOn : styles.curatorOff}
+              aria-pressed={curating}
+              onClick={() => setCurating((value) => !value)}
+            >
+              {curating ? t("curator.on") : t("curator.off")}
+            </button>
+          ) : null}
+        </div>
 
         <header className={styles.head}>
           {anime.coverImage ? (
@@ -188,7 +208,7 @@ export function AnimeDetail({
                 part={part}
                 index={index + 1}
                 isOpen={openPartId === part.id}
-                isAdmin={isAdmin}
+                editing={editing}
                 onToggle={() =>
                   setOpenPartId(openPartId === part.id ? null : part.id)
                 }
@@ -258,7 +278,7 @@ export function AnimeDetail({
 
         <ExternalLinks links={anime.links} />
 
-        {isAdmin ? <CuratorDossier anime={anime} /> : null}
+        {editing ? <CuratorDossier anime={anime} /> : null}
       </div>
     </div>
   );
@@ -459,13 +479,13 @@ function PartRow({
   part,
   index,
   isOpen,
-  isAdmin,
+  editing,
   onToggle,
 }: {
   part: ArchiveAnimePart;
   index: number;
   isOpen: boolean;
-  isAdmin: boolean;
+  editing: boolean;
   onToggle: () => void;
 }) {
   const t = useTranslations("anime");
@@ -535,8 +555,8 @@ function PartRow({
 
       {isOpen ? (
         <>
-          {isAdmin ? <PartTools part={part} /> : null}
-          <EpisodeGrid part={part} isAdmin={isAdmin} />
+          {editing ? <PartTools part={part} /> : null}
+          <EpisodeGrid part={part} editing={editing} />
         </>
       ) : null}
     </li>
@@ -628,10 +648,10 @@ function PartTools({ part }: { part: ArchiveAnimePart }) {
  */
 function EpisodeGrid({
   part,
-  isAdmin,
+  editing,
 }: {
   part: ArchiveAnimePart;
-  isAdmin: boolean;
+  editing: boolean;
 }) {
   const t = useTranslations("anime");
   const router = useRouter();
@@ -713,7 +733,7 @@ function EpisodeGrid({
             })}
           </span>
         ) : null}
-        {isAdmin && data.fillerCount > 0 ? (
+        {editing && data.fillerCount > 0 ? (
           <button
             type="button"
             className={styles.skipFillers}
@@ -757,7 +777,7 @@ function EpisodeGrid({
                 type="button"
                 className={className}
                 title={label}
-                disabled={!isAdmin || busy}
+                disabled={!editing || busy}
                 onClick={() =>
                   void run(() =>
                     updateAnimePart(part.id, {
@@ -778,7 +798,7 @@ function EpisodeGrid({
         })}
       </ol>
 
-      {isAdmin ? (
+      {editing ? (
         <p className={styles.episodesHint}>{t("detail.gridHint")}</p>
       ) : null}
     </div>

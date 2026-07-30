@@ -1,0 +1,430 @@
+/*
+ * Kitap salonunun kurator kontrolleri. Yalnizca kurator modunda yuklenir;
+ * ziyaretcinin tarayicisina bu stiller de inmez.
+ *
+ * Kural 16: hicbir hex deger yok, yalnizca tema token'lari.
+ */
+
+.bar {
+  display: grid;
+  gap: var(--gap-sm);
+  margin-bottom: var(--gap-lg);
+  padding: var(--pad-md);
+  border: 1px solid var(--accent-muted);
+  border-radius: var(--radius-card);
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+}
+
+.barTitle {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.94rem;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.barLede {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.84rem;
+}
+
+.searchForm {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-sm);
+}
+
+.searchForm input {
+  flex: 1 1 220px;
+}
+
+.field input,
+.field select,
+.field textarea,
+.searchForm input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--touch-min, 44px);
+  padding: 8px 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+.field textarea {
+  min-height: 68px;
+  resize: vertical;
+}
+
+.field input:focus-visible,
+.field select:focus-visible,
+.field textarea:focus-visible,
+.searchForm input:focus-visible {
+  border-color: var(--accent-muted);
+  outline: none;
+}
+
+.primary,
+.ghost {
+  min-height: var(--touch-min, 44px);
+  padding: 0 18px;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+
+.primary {
+  border: 1px solid var(--accent-muted);
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  color: var(--accent);
+}
+
+.primary:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent) 24%, transparent);
+}
+
+.primary:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.ghost {
+  border: 1px solid var(--border-strong);
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.ghost:hover {
+  border-color: var(--accent-muted);
+  color: var(--accent);
+}
+
+.error {
+  color: var(--danger);
+  font-size: 0.82rem;
+}
+
+.saved {
+  color: var(--accent);
+  font-size: 0.82rem;
+}
+
+.muted {
+  color: var(--text-muted);
+  font-size: 0.86rem;
+}
+
+/* --- Arama sonuclari --- */
+
+.results {
+  display: grid;
+  gap: 2px;
+  max-height: 380px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.result {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: var(--touch-min, 44px);
+  padding: 6px 8px;
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.result:hover:not(:disabled) {
+  background: var(--surface-hover);
+}
+
+.result:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.resultCover {
+  position: relative;
+  flex-shrink: 0;
+  width: 34px;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--surface);
+}
+
+.resultImg {
+  object-fit: cover;
+}
+
+.resultInfo {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  gap: 1px;
+}
+
+.resultTitle {
+  overflow: hidden;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.resultMeta {
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 0.76rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Dil rozeti: ayni kitabin hangi baskisi oldugunu ayirt etmenin tek yolu */
+.langTr,
+.langOther {
+  flex-shrink: 0;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+}
+
+.langTr {
+  border: 1px solid var(--accent-muted);
+  color: var(--accent);
+}
+
+.langOther {
+  border: 1px solid var(--border-strong);
+  color: var(--text-muted);
+}
+
+.inArchive {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+/* --- Ekleme formu --- */
+
+.addForm,
+.dossier {
+  display: grid;
+  gap: var(--gap-sm);
+}
+
+.picked {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  color: var(--text-primary);
+  font-family: var(--font-cormorant), serif;
+  font-size: 1.05rem;
+}
+
+.fields,
+.goalFields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--gap-sm);
+}
+
+.field {
+  display: grid;
+  gap: 3px;
+  color: var(--text-muted);
+  font-size: 0.74rem;
+}
+
+.checkField {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--touch-min, 44px);
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+}
+
+.addActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--gap-sm);
+}
+
+/* --- Kart ustundeki hizli isaretleme --- */
+
+.tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.favOn,
+.favOff,
+.markRead,
+.remove,
+.stepButton {
+  min-width: 32px;
+  min-height: 32px;
+  padding: 0 6px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.favOn {
+  border-color: var(--accent-muted);
+  color: var(--gold);
+}
+
+.markRead:hover,
+.stepButton:hover {
+  border-color: var(--accent-muted);
+  color: var(--accent);
+}
+
+.remove:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.statusSelect {
+  min-height: 32px;
+  padding: 0 4px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.74rem;
+}
+
+/* --- Sayfa ilerlemesi --- */
+
+.progressTools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--gap-sm);
+  margin-top: var(--gap-sm);
+}
+
+.pageField {
+  display: grid;
+  gap: 3px;
+  width: 120px;
+  color: var(--text-muted);
+  font-size: 0.74rem;
+}
+
+.pageField input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--touch-min, 44px);
+  padding: 8px 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+.stepButton {
+  min-height: var(--touch-min, 44px);
+  padding: 0 12px;
+}
+
+/* --- Yillik hedef --- */
+
+.goalForm {
+  display: grid;
+  gap: var(--gap-sm);
+  padding: var(--pad-sm);
+  border: 1px solid var(--accent-muted);
+  border-radius: var(--radius-card);
+}
+
+.goalTitle {
+  margin: 0;
+  color: var(--text-secondary);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* --- Alinti defteri --- */
+
+.quoteEditor {
+  display: grid;
+  gap: var(--gap-md);
+  margin-top: var(--gap-md);
+  padding-top: var(--gap-md);
+  border-top: 1px solid var(--border);
+}
+
+.quoteForm {
+  display: grid;
+  gap: var(--gap-sm);
+  justify-items: start;
+}
+
+.quoteForm .field {
+  width: 100%;
+}
+
+.quoteAdminList {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.quoteAdminRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
+}
+
+.quoteAdminText {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-secondary);
+  font-family: var(--font-cormorant), serif;
+  font-size: 0.95rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

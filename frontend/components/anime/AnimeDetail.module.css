@@ -44,6 +44,18 @@
   margin-top: -80px;
 }
 
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-md);
+  margin-bottom: var(--gap-lg);
+}
+
+.topBar .back {
+  margin-bottom: 0;
+}
+
 .back {
   display: inline-block;
   margin-bottom: var(--gap-lg);
@@ -53,6 +65,26 @@
 }
 
 .back:hover {
+  color: var(--accent);
+}
+
+/* Kurator anahtari: sayfa varsayilan olarak okuma ekrani, duzenleme istenir */
+.curatorOff,
+.curatorOn {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+
+.curatorOn {
+  border-color: var(--accent-muted);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
   color: var(--accent);
 }
 

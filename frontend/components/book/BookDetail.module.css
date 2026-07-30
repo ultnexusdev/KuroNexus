@@ -1,0 +1,500 @@
+/*
+ * Kitap sayfasi. Film sayfasiyla ayni ruhta iki sutun: solda kitabin kendisi,
+ * sagda sabit kalan bir ray. Ustte backdrop YOK — kitabin genis sahne gorseli
+ * diye bir sey yok, kapagi bulaniklastirip arkaya sermek cirkin duruyordu.
+ *
+ * Kural 16: hicbir hex deger yok, yalnizca tema token'lari.
+ */
+
+.page {
+  min-height: 100vh;
+  padding: var(--pad-lg) 0;
+  background: var(--bg);
+}
+
+.inner {
+  box-sizing: border-box;
+  width: min(1280px, 100%);
+  margin-inline: auto;
+  padding: 0 var(--pad-md);
+}
+
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-md);
+  margin-bottom: var(--gap-lg);
+}
+
+.back {
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  text-decoration: none;
+}
+
+.back:hover {
+  color: var(--accent);
+}
+
+.curatorOff,
+.curatorOn {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+
+.curatorOn {
+  border-color: var(--accent-muted);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--accent);
+}
+
+/* --- Kunye basligi --- */
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pad-md);
+  align-items: flex-start;
+  margin-bottom: var(--pad-lg);
+}
+
+.coverFrame {
+  position: relative;
+  flex-shrink: 0;
+  width: 200px;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+}
+
+.headText {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: var(--font-cinzel), serif;
+  font-size: clamp(1.6rem, 3.4vw, 2.4rem);
+  font-weight: 400;
+  letter-spacing: 0.03em;
+}
+
+.originalTitle {
+  margin: 2px 0 0;
+  color: var(--text-muted);
+  font-family: var(--font-cormorant), serif;
+  font-size: 1.05rem;
+  font-style: italic;
+}
+
+.authors {
+  margin: 6px 0 0;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: var(--gap-sm);
+}
+
+.status,
+.favorite,
+.seriesBadge {
+  padding: 3px 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+}
+
+.status {
+  color: var(--text-secondary);
+}
+
+.favorite {
+  border-color: var(--accent-muted);
+  color: var(--gold);
+}
+
+.seriesBadge {
+  border-color: var(--accent-muted);
+  color: var(--accent);
+}
+
+.rating {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: var(--gap-sm) 0 0;
+}
+
+.ratingValue {
+  color: var(--text-primary);
+  font-size: 1.1rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.ratingLabel {
+  color: var(--text-muted);
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: var(--gap-sm);
+}
+
+.progressBar {
+  flex: 1 1 200px;
+  max-width: 320px;
+  height: 5px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--border);
+}
+
+.progressFill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+
+.progressText {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.note {
+  max-width: 62ch;
+  margin: var(--gap-sm) 0 0;
+  padding-left: 10px;
+  border-left: 2px solid var(--accent-muted);
+  color: var(--text-secondary);
+  font-family: var(--font-cormorant), serif;
+  font-size: 1.05rem;
+  line-height: 1.5;
+}
+
+/* --- Iki sutun --- */
+
+.columns {
+  display: grid;
+  gap: var(--gap-lg);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 1000px) {
+  .columns {
+    grid-template-columns: minmax(0, 1fr) 300px;
+  }
+
+  .rail {
+    position: sticky;
+    top: var(--pad-md);
+    align-self: start;
+  }
+}
+
+.main {
+  min-width: 0;
+}
+
+.section {
+  margin-bottom: var(--pad-lg);
+}
+
+.sectionTitle {
+  margin: 0 0 var(--gap-sm);
+  color: var(--text-primary);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.94rem;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.sectionLede {
+  margin: 0 0 var(--gap-sm);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.synopsis {
+  max-width: 72ch;
+  margin: 0;
+  color: var(--text-secondary);
+  font-family: var(--font-cormorant), serif;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.dossierList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--gap-sm) var(--gap-md);
+  margin: 0;
+}
+
+.dossierList > div {
+  display: grid;
+  gap: 2px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+.dossierList dt {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.dossierList dd {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 0.92rem;
+}
+
+.genres {
+  margin: var(--gap-sm) 0 0;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+/* --- Alintilar --- */
+
+.quoteList {
+  display: grid;
+  gap: var(--gap-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.quote {
+  padding-left: 12px;
+  border-left: 2px solid var(--accent-muted);
+}
+
+.quoteText {
+  margin: 0;
+  color: var(--text-secondary);
+  font-family: var(--font-cormorant), serif;
+  font-size: 1.12rem;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.quoteMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-size: 0.76rem;
+}
+
+.muted {
+  margin: 0;
+  color: var(--text-muted);
+  font-family: var(--font-cormorant), serif;
+  font-size: 1rem;
+}
+
+/* --- Serinin tamami --- */
+
+.seriesList {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.seriesRow,
+.seriesRowCurrent {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: var(--touch-min, 44px);
+  padding: 0 10px;
+  border-radius: var(--radius);
+}
+
+.seriesRowCurrent {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+.seriesIndex {
+  flex-shrink: 0;
+  width: 24px;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.seriesLink {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-primary);
+  font-family: var(--font-cormorant), serif;
+  font-size: 1.02rem;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.seriesLink:hover {
+  color: var(--accent);
+}
+
+.seriesState {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  font-size: 0.74rem;
+}
+
+/* --- Sag ray --- */
+
+.rail {
+  display: grid;
+  gap: var(--gap-md);
+  align-content: start;
+}
+
+.railBlock {
+  display: grid;
+  gap: 8px;
+  padding: var(--pad-md);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+}
+
+.railTitle {
+  margin: 0;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.86rem;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.universeLink {
+  color: var(--accent);
+  font-family: var(--font-cormorant), serif;
+  font-size: 1.05rem;
+  text-decoration: none;
+}
+
+.universeLink:hover {
+  color: var(--accent-hover);
+}
+
+.linkList,
+.neighbourList {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.linkRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--touch-min, 44px);
+  padding: 0 8px;
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+  text-decoration: none;
+}
+
+.linkRow:hover {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+/* Adres kitabin kendisine degil aramaya gidiyorsa soylenir */
+.searchMark {
+  margin-left: auto;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+}
+
+.neighbourRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: var(--touch-min, 44px);
+  padding: 4px;
+  border-radius: var(--radius);
+  text-decoration: none;
+}
+
+.neighbourRow:hover {
+  background: var(--surface-hover);
+}
+
+.neighbourCover {
+  position: relative;
+  flex-shrink: 0;
+  width: 32px;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--surface);
+}
+
+.neighbourImg {
+  object-fit: cover;
+}
+
+.neighbourText {
+  display: grid;
+  min-width: 0;
+  gap: 1px;
+}
+
+.neighbourTitle {
+  overflow: hidden;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.neighbourAuthor {
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

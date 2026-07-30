@@ -6,7 +6,14 @@ import type {
   AnimeCustomLinks,
   AnimeWatchStatus,
   AuthenticatedUser,
+  BookCustomLinks,
+  BookEntryRecord,
+  BookQuote,
+  BookSearchResult,
+  BookStatus,
+  BookTranslation,
   LoginResult,
+  ReadingGoalRecord,
   MovieCustomLinks,
   MovieEntryRecord,
   MovieStatus,
@@ -703,5 +710,161 @@ export function refreshAnimeEntry(id: string): Promise<unknown> {
   return apiFetch<unknown>(`/admin/anime/${id}/refresh`, {
     method: "PATCH",
     headers: authHeaders(),
+  });
+}
+
+// ---- Salon 05 · Kitap arşivi ----
+
+/**
+ * Arşive kitap ekleme. `googleId` zorunlu değil: Google Books'un bilmediği
+ * kitap Open Library anahtarıyla ya da yalnızca adıyla eklenebilir.
+ */
+export interface BookEntryInput {
+  googleId?: string;
+  olKey?: string;
+  title?: string;
+  status?: BookStatus;
+  translationState?: BookTranslation;
+  seriesName?: string;
+  seriesIndex?: number;
+  isFavorite?: boolean;
+  personalRating?: number;
+  personalNote?: string;
+  startedAt?: string;
+  finishedAt?: string;
+}
+
+/**
+ * Künye düzeltme. Film/dizi kanadında künye alanları güncellenemez; kitapta
+ * güncellenir — gösterilen künyenin sahibi arşiv, dış kaynak değil.
+ */
+export interface BookEntryUpdate {
+  title?: string;
+  originalTitle?: string;
+  authors?: string[];
+  translator?: string;
+  publisher?: string;
+  publishedYear?: number;
+  firstPublishedYear?: number;
+  pageCount?: number;
+  language?: string;
+  coverImage?: string;
+  description?: string;
+  genres?: string[];
+  seriesName?: string;
+  seriesIndex?: number;
+  status?: BookStatus;
+  translationState?: BookTranslation;
+  isFavorite?: boolean;
+  personalRating?: number;
+  personalNote?: string;
+  currentPage?: number;
+  startedAt?: string;
+  finishedAt?: string;
+  universeId?: string;
+  /** Elle girilen adresler; boş metin o bağlantıyı siler */
+  links?: BookCustomLinks;
+}
+
+export function searchBooks(query: string): Promise<BookSearchResult[]> {
+  return apiFetch<BookSearchResult[]>(
+    `/admin/books/search?q=${encodeURIComponent(query)}`,
+    { headers: authHeaders() },
+  );
+}
+
+export function fetchAdminBooks(): Promise<BookEntryRecord[]> {
+  return apiFetch<BookEntryRecord[]>("/admin/books", {
+    headers: authHeaders(),
+  });
+}
+
+export function createBookEntry(
+  input: BookEntryInput,
+): Promise<BookEntryRecord> {
+  return apiFetch<BookEntryRecord>("/admin/books", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(input),
+  });
+}
+
+export function updateBookEntry(
+  id: string,
+  input: BookEntryUpdate,
+): Promise<BookEntryRecord> {
+  return apiFetch<BookEntryRecord>(`/admin/books/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(input),
+  });
+}
+
+export function deleteBookEntry(id: string): Promise<BookEntryRecord> {
+  return apiFetch<BookEntryRecord>(`/admin/books/${id}`, {
+    method: "DELETE",
+    headers: authHeaders(),
+  });
+}
+
+/**
+ * Künyeyi dış kaynaktan tazeler — ama yalnızca BOŞ alanları doldurur.
+ * Elle düzeltilmiş Türkçe ad, çevirmen ve sayfa sayısı asla ezilmez.
+ */
+export function refreshBookEntry(id: string): Promise<BookEntryRecord> {
+  return apiFetch<BookEntryRecord>(`/admin/books/${id}/refresh`, {
+    method: "PATCH",
+    headers: authHeaders(),
+  });
+}
+
+// ---- Alıntı defteri ----
+
+export interface BookQuoteInput {
+  text: string;
+  page?: number;
+  context?: string;
+  isFavorite?: boolean;
+}
+
+export function addBookQuote(
+  entryId: string,
+  input: BookQuoteInput,
+): Promise<BookQuote> {
+  return apiFetch<BookQuote>(`/admin/books/${entryId}/quotes`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(input),
+  });
+}
+
+export function updateBookQuote(
+  quoteId: string,
+  input: Partial<BookQuoteInput>,
+): Promise<BookQuote> {
+  return apiFetch<BookQuote>(`/admin/books/quotes/${quoteId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(input),
+  });
+}
+
+export function deleteBookQuote(quoteId: string): Promise<BookQuote> {
+  return apiFetch<BookQuote>(`/admin/books/quotes/${quoteId}`, {
+    method: "DELETE",
+    headers: authHeaders(),
+  });
+}
+
+/** Yıllık okuma hedefi; yıl verilmezse içinde bulunulan yıl kullanılır. */
+export function upsertReadingGoal(input: {
+  year?: number;
+  targetBooks: number;
+  targetPages?: number;
+}): Promise<ReadingGoalRecord> {
+  return apiFetch<ReadingGoalRecord>("/admin/books/goal", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(input),
   });
 }

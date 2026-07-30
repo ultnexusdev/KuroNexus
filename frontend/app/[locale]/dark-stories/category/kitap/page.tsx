@@ -16,13 +16,18 @@ import styles from "./page.module.css";
  * başlar; bu sayfa yine bu dosya kalır (film/dizi salonlarındaki desenin
  * aynısı).
  *
- * Arşiv henüz yok: bölüm kartları "yakında" rozetiyle duruyor ve
- * tıklanabilir değil — kapı, arkasında hiçbir şey olmayan bir bağlantı
- * vermesin diye.
+ * Arşiv açıldı: "Kitap Arşivi" kartı gerçek bir bağlantı. "Okuma Notları"
+ * hâlâ "yakında" rozetiyle ve tıklanamaz — kapı, arkasında hiçbir şey
+ * olmayan bir bağlantı vermesin diye.
  */
 
 const SLUG = "kitap";
-const SECTION_KEYS = ["archive", "notes"] as const;
+
+/** `href` dolu olan bölüm tıklanabilir; boş olan "yakında" rozetiyle durur. */
+const SECTIONS = [
+  { key: "archive", href: "/dark-stories/category/kitap/arsiv" },
+  { key: "notes", href: null },
+] as const;
 
 export const dynamic = "force-dynamic";
 
@@ -99,17 +104,33 @@ export default async function BookLobbyPage({
       </header>
 
       <div className={styles.sections}>
-        {SECTION_KEYS.map((key) => (
-          <article key={key} className={styles.section}>
-            <span className={styles.sectionTitle}>
-              {t(`sections.${key}.title`)}
-            </span>
-            <span className={styles.sectionDesc}>
-              {t(`sections.${key}.desc`)}
-            </span>
-            <span className={styles.soon}>{t("soon")}</span>
-          </article>
-        ))}
+        {SECTIONS.map((section) =>
+          section.href ? (
+            <Link
+              key={section.key}
+              href={section.href}
+              className={styles.sectionOpen}
+            >
+              <span className={styles.sectionTitle}>
+                {t(`sections.${section.key}.title`)}
+              </span>
+              <span className={styles.sectionDesc}>
+                {t(`sections.${section.key}.desc`)}
+              </span>
+              <span className={styles.enter}>{t("enter")}</span>
+            </Link>
+          ) : (
+            <article key={section.key} className={styles.section}>
+              <span className={styles.sectionTitle}>
+                {t(`sections.${section.key}.title`)}
+              </span>
+              <span className={styles.sectionDesc}>
+                {t(`sections.${section.key}.desc`)}
+              </span>
+              <span className={styles.soon}>{t("soon")}</span>
+            </article>
+          ),
+        )}
       </div>
 
       <p className={styles.note}>{t("note")}</p>

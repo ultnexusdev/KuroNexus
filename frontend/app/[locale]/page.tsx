@@ -4,7 +4,7 @@ import { fetchCategories, fetchUniverses } from "@/lib/api/universes";
 import type { UniverseCategory, WikiUniverseSummary } from "@/lib/api/types";
 import { DoorWall, type Door } from "@/components/home/DoorWall";
 import { HeroGlyph } from "@/components/home/HeroGlyph";
-import { HALL_ORDER, sortByHallOrder } from "@/lib/halls";
+import { HALL_ORDER, hallWorldCount, sortByHallOrder } from "@/lib/halls";
 import styles from "./page.module.css";
 
 export const dynamic = "force-dynamic";
@@ -41,8 +41,12 @@ export default async function HomePage({
 
   const ordered = sortByHallOrder(categories);
 
-  const countFor = (categoryId: string) =>
-    universes.filter((u) => u.categoryId === categoryId).length;
+  // Arşiv salonlarının açtığı bölüm de bir evren sayılır (bkz. hallWorldCount)
+  const countFor = (slug: string, categoryId: string) =>
+    hallWorldCount(
+      slug,
+      universes.filter((u) => u.categoryId === categoryId).length,
+    );
 
   const hasData = ordered.length > 0;
 
@@ -55,7 +59,7 @@ export default async function HomePage({
         href: `/dark-stories/category/${cat.slug}`,
         coverImage: cat.coverImage,
         hall: i + 1,
-        count: countFor(cat.id),
+        count: countFor(cat.slug, cat.id),
       }))
     : FALLBACK_SLUGS.map((slug, i) => ({
         slug,

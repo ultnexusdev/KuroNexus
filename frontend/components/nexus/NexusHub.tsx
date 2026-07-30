@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
 import { apiUrl } from "@/lib/api/client";
 import { tmdbImage } from "@/lib/api/movies";
-import { hallLabel, HALL_ORDER } from "@/lib/halls";
+import { hallLabel, hallWorldCount, HALL_ORDER } from "@/lib/halls";
 import type { Pulse, PulseEntry, PulseHall } from "@/lib/api/types";
 import styles from "./NexusHub.module.css";
 
@@ -244,8 +244,13 @@ async function Door({
     live = hall.line
       ? t("hallLine.animeWatching", { count: hall.count, title: hall.line })
       : t("hallLine.anime", { count: hall.count });
-  } else if (hall.universeCount > 0) {
-    live = t("hallLine.universes", { count: hall.universeCount });
+  } else {
+    // Arşiv bölümü de evren sayılır — dizi gibi kendi satırı olmayan
+    // salonlar "0 evren" değil gerçek sayıyı gösterir (bkz. hallWorldCount)
+    const worlds = hallWorldCount(hall.slug, hall.universeCount);
+    if (worlds > 0) {
+      live = t("hallLine.universes", { count: worlds });
+    }
   }
 
   return (

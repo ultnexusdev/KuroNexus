@@ -15,6 +15,29 @@ export const HALL_ORDER = [
   "kadim-dunyalar",
 ];
 
+/**
+ * Arşiv salonlarının taşıdığı "bölüm" sayısı. Film/Dizi/Anime kanatlarının
+ * `WikiUniverse` kaydı yoktur (içerik TMDB/AniList arşivi), ama her biri tek
+ * bir arşiv bölümü açar ("Film Arşivi", "Dizi Arşivi", "Anime Arşivi"). Bu
+ * bölüm keşif sayımında bir evren olarak sayılır (kullanıcı kararı: bir
+ * salonda açılmış her başlık bir evrendir). Spor ve Kadim Dünyalar gerçek
+ * evrenler taşıdığından listede yok — onlar için 0 eklenir.
+ */
+const ARCHIVE_SECTIONS: Record<string, number> = {
+  film: 1,
+  dizi: 1,
+  anime: 1,
+};
+
+/**
+ * Bir salonun keşifte görünen evren sayısı: gerçek `WikiUniverse` sayısına
+ * o salonun açtığı arşiv bölümleri eklenir. Kapı duvarı da Nexus kapıları da
+ * bu tek kaynaktan okur, iki yerde ayrı hesaplanıp birbirini tutmasın diye.
+ */
+export function hallWorldCount(slug: string, universeCount: number): number {
+  return universeCount + (ARCHIVE_SECTIONS[slug] ?? 0);
+}
+
 export function sortByHallOrder(
   categories: UniverseCategory[],
 ): UniverseCategory[] {

@@ -538,6 +538,46 @@
   color: var(--accent);
 }
 
+/* Sezon ilerlemesi: kartın altındaki "S2 · 4/10" satırı ve ince çubuk —
+   anime salonundaki desenin aynısı (devam eden dizide nerede kaldığım
+   afişe bakmadan okunsun) */
+.cardProgress {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--gap-sm);
+  margin: 6px 0 0;
+  font-size: 0.76rem;
+}
+
+.seasonName {
+  overflow: hidden;
+  color: var(--text-secondary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.seasonCount {
+  flex-shrink: 0;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.progressBar {
+  display: block;
+  height: 3px;
+  margin-top: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--border);
+}
+
+.progressFill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+
 .cardMeta {
   display: flex;
   justify-content: space-between;

@@ -74,6 +74,7 @@ export function ShowHall({
     const pick = (key: ShelfKey) =>
       visible.filter((show) => belongsTo(show, key));
     return {
+      watching: pick("watching"),
       watched: pick("watched"),
       watchlist: pick("watchlist"),
       rewatch: pick("rewatch"),
@@ -83,14 +84,17 @@ export function ShowHall({
   }, [visible]);
 
   const cards = useMemo(() => {
-    const favorites = archive.shows.filter((show) => show.isFavorite).length;
-    const episodes = archive.shows
-      .filter((show) => show.status !== "WATCHLIST")
-      .reduce((total, show) => total + (show.numberOfEpisodes ?? 0), 0);
+    // Bölüm sayısı artık gerçek ilerlemeden geliyor: dizinin toplam bölümü
+    // değil, benim izlediğim bölüm sayısı (sezon sayaçlarının toplamı)
+    const episodes = archive.shows.reduce(
+      (total, show) => total + show.watchedEpisodes,
+      0,
+    );
     return {
+      watching: archive.shows.filter((show) => show.status === "WATCHING")
+        .length,
       watched: archive.shows.filter((show) => show.status === "WATCHED")
         .length,
-      favorites,
       episodes,
     };
   }, [archive.shows]);
@@ -233,6 +237,13 @@ export function ShowHall({
         </header>
 
         <section className={styles.statCards}>
+          {/* Dizide baş sayı "izliyorum": film salonunda böyle bir durum yok,
+              burada haftalarca süren asıl hal bu */}
+          <article className={styles.statCard}>
+            <span className={styles.statLabel}>{t("statCard.watching")}</span>
+            <span className={styles.statValue}>{cards.watching}</span>
+            <span className={styles.statSub}>{t("statCard.watchingSub")}</span>
+          </article>
           <article className={styles.statCard}>
             <span className={styles.statLabel}>{t("statCard.watched")}</span>
             <span className={styles.statValue}>{cards.watched}</span>
@@ -248,11 +259,6 @@ export function ShowHall({
             <span className={styles.statLabel}>{t("statCard.watchlist")}</span>
             <span className={styles.statValue}>{stats.watchlist}</span>
             <span className={styles.statSub}>{t("statCard.watchlistSub")}</span>
-          </article>
-          <article className={styles.statCard}>
-            <span className={styles.statLabel}>{t("statCard.favorites")}</span>
-            <span className={styles.statValue}>{cards.favorites}</span>
-            <span className={styles.statSub}>{t("statCard.favoritesSub")}</span>
           </article>
           <article className={styles.statCard}>
             <span className={styles.statLabel}>{t("statCard.episodes")}</span>
@@ -333,6 +339,11 @@ export function ShowHall({
               </div>
             ) : null}
 
+            {/* İzliyorum en üstte: dizide en sık dönülen raf burası —
+                "nerede kaldım" sorusunun cevabı */}
+            {shelves.watching.length > 0
+              ? renderShelf("watching", shelves.watching)
+              : null}
             {renderShelf("watched", shelves.watched)}
             {renderShelf("watchlist", shelves.watchlist)}
             {shelves.rewatch.length > 0

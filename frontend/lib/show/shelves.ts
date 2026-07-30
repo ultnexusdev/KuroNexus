@@ -10,6 +10,7 @@ import type { ArchiveShow } from "@/lib/api/types";
  */
 
 export const SHELF_KEYS = [
+  "watching",
   "watched",
   "watchlist",
   "rewatch",
@@ -20,6 +21,7 @@ export const SHELF_KEYS = [
 export type ShelfKey = (typeof SHELF_KEYS)[number];
 
 export const SHELF_SLUGS: Record<ShelfKey, string> = {
+  watching: "izliyorum",
   watched: "izlediklerim",
   watchlist: "izleyeceklerim",
   rewatch: "tekrar-izlenecekler",
@@ -48,6 +50,9 @@ export function belongsTo(show: ArchiveShow, shelf: ShelfKey): boolean {
   }
   if (shelf === "korean") {
     return show.originCountry.includes("KR");
+  }
+  if (shelf === "watching") {
+    return show.status === "WATCHING";
   }
   if (shelf === "watched") {
     return show.status === "WATCHED";

@@ -10,11 +10,16 @@ import {
   type TmdbShow,
   type TmdbProvider,
   type TmdbSearchResult,
+  type TmdbSeason,
 } from './tmdb-tv.service';
 import { slugify } from '../common/utils/slugify';
 import { CreateShowEntryDto } from './dto/create-show-entry.dto';
 import { UpdateShowEntryDto } from './dto/update-show-entry.dto';
-import type { ShowEntry, Prisma } from '../generated/prisma/client';
+import { UpdateShowSeasonDto } from './dto/update-show-season.dto';
+import type { ShowEntry, ShowSeason, Prisma } from '../generated/prisma/client';
+
+/** Sezonlarıyla birlikte okunan kayıt — ilerleme buradan türetilir. */
+type EntryWithSeasons = ShowEntry & { seasons: ShowSeason[] };
 
 /**
  * Dizi salonu servisi — `movies/movies.service.ts`'in bire bir aynısı, tek
@@ -97,6 +102,29 @@ function normalizeUrl(value: string | null | undefined): string | null {
   return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
 }
 
+/** Bir sezonun arşiv görünümü — anime kanadındaki `ArchiveAnimePart`ın eşi. */
+export interface ArchiveShowSeason {
+  id: string;
+  seasonNumber: number;
+  name: string;
+  episodes: number | null;
+  watchedEpisodes: number;
+  isCompleted: boolean;
+  personalRating: number | null;
+  airDate: string | null;
+  posterPath: string | null;
+  orderIndex: number;
+}
+
+/** Bölüm ızgarasının bir karesi (bölüm künyesi + benim durumum). */
+export interface SeasonEpisode {
+  number: number;
+  title: string | null;
+  airDate: string | null;
+  stillPath: string | null;
+  state: 'WATCHED' | 'SKIPPED' | 'UNWATCHED';
+}
+
 export interface ArchiveShow {
   id: string;
   slug: string;
@@ -119,6 +147,15 @@ export interface ArchiveShow {
   director: string | null;
   /** TMDB köken ülkeleri — Kore Dramaları rafı bunu süzer (`includes("KR")`) */
   originCountry: string[];
+  /** Yapımın kendi durumu ("Ended"/"Returning Series"), benimkinden bağımsız */
+  airStatus: string | null;
+  /** Sezonlardan türetilen toplam ilerleme — iki ayrı sayı tutulmaz */
+  watchedEpisodes: number;
+  /** Takip edilen sezonların bölüm toplamı (özel bölümler hariç) */
+  trackedEpisodes: number;
+  /** Şu an hangi sezondayım — "S2 · 4/10" satırı bundan yazılır */
+  currentSeason: ArchiveShowSeason | null;
+  seasons: ArchiveShowSeason[];
 }
 
 export interface ShowDetail {
@@ -162,6 +199,7 @@ export class ShowsService {
   }> {
     const entries = await this.prisma.showEntry.findMany({
       where: { isDeleted: false },
+      include: { seasons: { orderBy: { orderIndex: 'asc' } } },
       orderBy: [{ watchedAt: 'desc' }, { createdAt: 'desc' }],
     });
 
@@ -177,6 +215,7 @@ export class ShowsService {
   async getDetail(slug: string): Promise<ShowDetail> {
     const entries = await this.prisma.showEntry.findMany({
       where: { isDeleted: false },
+      include: { seasons: { orderBy: { orderIndex: 'asc' } } },
       orderBy: [{ watchedAt: 'desc' }, { createdAt: 'desc' }],
     });
     const shows = withSlugs(entries);
@@ -188,7 +227,7 @@ export class ShowsService {
     const entry = entries[index];
     let data = (entry.externalData ?? null) as TmdbShow | null;
 
-    if (!data || data.stills === undefined) {
+    if (!data || data.stills === undefined || data.seasons === undefined) {
       try {
         data = await this.tmdb.getShow(entry.tmdbId);
         await this.prisma.showEntry.update({
@@ -201,6 +240,16 @@ export class ShowsService {
       } catch {
         // TMDB düşerse sayfa eski künyeyle açılır (kural 4)
       }
+    }
+
+    /**
+     * Sezon takibi eklenmeden önce arşive girmiş diziler sezonsuz duruyor:
+     * sayfa ilk açıldığında zincir kendiliğinden kurulur (film salonundaki
+     * "eski künyeler kendiliğinden tazelensin" davranışının aynısı).
+     */
+    if (entry.seasons.length === 0 && data?.seasons?.length) {
+      await this.syncSeasons(entry.id, data);
+      return this.getDetail(slug);
     }
 
     let similar: TmdbSearchResult[] = [];
@@ -440,11 +489,12 @@ export class ShowsService {
     }
 
     const snapshot = await this.snapshot(dto.tmdbId);
-    return this.prisma.showEntry.upsert({
+    const status = dto.status ?? 'WATCHED';
+    const entry = await this.prisma.showEntry.upsert({
       where: { userId_tmdbId: { userId, tmdbId: dto.tmdbId } },
       create: {
         tmdbId: dto.tmdbId,
-        status: dto.status ?? 'WATCHED',
+        status,
         isFavorite: dto.isFavorite ?? false,
         personalRating: dto.personalRating,
         personalNote: dto.personalNote,
@@ -454,7 +504,7 @@ export class ShowsService {
         userId,
       },
       update: {
-        status: dto.status ?? 'WATCHED',
+        status,
         isFavorite: dto.isFavorite ?? false,
         personalRating: dto.personalRating ?? null,
         personalNote: dto.personalNote ?? null,
@@ -464,6 +514,15 @@ export class ShowsService {
         isDeleted: false,
       },
     });
+
+    // Sezon zinciri künyeyle birlikte geliyor; ekler eklemez kuruluyor
+    await this.syncSeasons(entry.id, snapshot.show);
+    // "İzledim" diyerek eklenen dizi bütün sezonları izlenmiş sayar —
+    // sayaç sıfırda kalıp "0 bölüm izledim" demesin
+    if (status === 'WATCHED') {
+      await this.markAllSeasonsWatched(entry.id);
+    }
+    return entry;
   }
 
   async update(id: string, dto: UpdateShowEntryDto): Promise<ShowEntry> {
@@ -493,7 +552,135 @@ export class ShowsService {
       }
       data.links = merged as unknown as Prisma.InputJsonValue;
     }
-    return this.prisma.showEntry.update({ where: { id }, data });
+    const updated = await this.prisma.showEntry.update({ where: { id }, data });
+    // Durumu "izledim"e çevirmek bütün sezonları izlenmiş sayar (anime
+    // kanadındaki COMPLETED davranışının aynısı)
+    if (dto.status === 'WATCHED') {
+      await this.markAllSeasonsWatched(id);
+    }
+    return updated;
+  }
+
+  /**
+   * Bir sezonun ilerlemesi. `delta` günlük kullanım içindir ("+1 bölüm"),
+   * `watchedEpisodes` doğrudan atama yapar (bölüm ızgarasından işaretleme).
+   */
+  async updateSeason(
+    seasonId: string,
+    dto: UpdateShowSeasonDto,
+  ): Promise<ShowEntry> {
+    const season = await this.prisma.showSeason.findUnique({
+      where: { id: seasonId },
+    });
+    if (!season) {
+      throw new NotFoundException('SHOWS.SEASON_NOT_FOUND');
+    }
+
+    const data = (season.externalData ?? null) as TmdbSeason | null;
+    const total = data?.episodeCount ?? null;
+    const raw =
+      dto.watchedEpisodes !== undefined
+        ? dto.watchedEpisodes
+        : season.watchedEpisodes + (dto.delta ?? 0);
+    // Bölüm sayısı bilinmeyen (yayını süren) sezonda üst sınır yok
+    const watched = Math.max(0, total === null ? raw : Math.min(raw, total));
+
+    const marks = {
+      ...((season.episodeMarks ?? {}) as Record<string, string>),
+    };
+    if (dto.markEpisode !== undefined) {
+      if (dto.markState === 'SKIPPED') {
+        marks[String(dto.markEpisode)] = 'SKIPPED';
+      } else {
+        delete marks[String(dto.markEpisode)];
+      }
+    }
+
+    await this.prisma.showSeason.update({
+      where: { id: seasonId },
+      data: {
+        watchedEpisodes: watched,
+        isCompleted:
+          dto.isCompleted ?? (total !== null && watched >= total && total > 0),
+        personalRating: dto.personalRating ?? season.personalRating,
+        episodeMarks: marks,
+      },
+    });
+
+    await this.syncEntryStatus(season.entryId);
+    return this.findByIdOrFail(season.entryId);
+  }
+
+  /**
+   * "Buraya kadar hepsini izledim": seçilen sezon ve öncekiler tamamlanmış
+   * sayılır. Uzun dizilerde tek hamle (anime kanadındaki desenin aynısı).
+   */
+  async completeThrough(seasonId: string): Promise<ShowEntry> {
+    const season = await this.prisma.showSeason.findUnique({
+      where: { id: seasonId },
+    });
+    if (!season) {
+      throw new NotFoundException('SHOWS.SEASON_NOT_FOUND');
+    }
+    const earlier = await this.prisma.showSeason.findMany({
+      where: {
+        entryId: season.entryId,
+        orderIndex: { lte: season.orderIndex },
+      },
+    });
+    for (const item of earlier) {
+      const data = (item.externalData ?? null) as TmdbSeason | null;
+      const total = data?.episodeCount ?? null;
+      if (total === null || total <= 0) {
+        continue;
+      }
+      await this.prisma.showSeason.update({
+        where: { id: item.id },
+        data: { watchedEpisodes: total, isCompleted: true },
+      });
+    }
+    await this.syncEntryStatus(season.entryId);
+    return this.findByIdOrFail(season.entryId);
+  }
+
+  /**
+   * Bölüm ızgarası: TMDB'nin bölüm listesi + benim durumum. Sayaçtan küçük
+   * numaralar izlenmiş, `episodeMarks`te işaretliler atlanmış sayılır.
+   */
+  async seasonEpisodes(seasonId: string): Promise<{
+    seasonId: string;
+    seasonNumber: number;
+    episodes: SeasonEpisode[];
+  }> {
+    const season = await this.prisma.showSeason.findUnique({
+      where: { id: seasonId },
+      include: { entry: true },
+    });
+    if (!season) {
+      throw new NotFoundException('SHOWS.SEASON_NOT_FOUND');
+    }
+    const marks = (season.episodeMarks ?? {}) as Record<string, string>;
+    const source = await this.tmdb.seasonEpisodes(
+      season.entry.tmdbId,
+      season.seasonNumber,
+    );
+
+    return {
+      seasonId: season.id,
+      seasonNumber: season.seasonNumber,
+      episodes: source.map((episode) => ({
+        number: episode.number,
+        title: episode.title,
+        airDate: episode.airDate,
+        stillPath: episode.stillPath,
+        state:
+          marks[String(episode.number)] === 'SKIPPED'
+            ? 'SKIPPED'
+            : episode.number <= season.watchedEpisodes
+              ? 'WATCHED'
+              : 'UNWATCHED',
+      })),
+    };
   }
 
   async softDelete(id: string): Promise<ShowEntry> {
@@ -504,16 +691,120 @@ export class ShowsService {
     });
   }
 
+  /** Künyeyi TMDB'den tazeler; ilerleme ve kişisel puan korunur (kural 4). */
   async refresh(id: string): Promise<ShowEntry> {
     const entry = await this.findByIdOrFail(id);
     const snapshot = await this.snapshot(entry.tmdbId);
-    return this.prisma.showEntry.update({
+    const updated = await this.prisma.showEntry.update({
       where: { id },
       data: {
         externalData: snapshot.payload,
         externalDataFetchedAt: snapshot.fetchedAt,
       },
     });
+    // Yeni sezon çıkmış olabilir: zincir tazelenir, sayaçlar korunur
+    await this.syncSeasons(id, snapshot.show);
+    return updated;
+  }
+
+  /**
+   * Sezon zincirini TMDB künyesine göre kurar/günceller.
+   *
+   * **İlerleme asla ezilmez**: var olan sezonun yalnızca künyesi (ad, bölüm
+   * sayısı, afiş) tazelenir; `watchedEpisodes` ve işaretler olduğu gibi kalır.
+   * Yeni sezon eklenirse sıfırdan başlar. TMDB'den düşen sezon silinmez —
+   * izlediğin bir sezonun kaydı künye değişti diye kaybolmamalı.
+   */
+  private async syncSeasons(
+    entryId: string,
+    show: TmdbShow | null,
+  ): Promise<void> {
+    const seasons = show?.seasons ?? [];
+    if (seasons.length === 0) {
+      return;
+    }
+    for (const [index, season] of seasons.entries()) {
+      await this.prisma.showSeason.upsert({
+        where: {
+          entryId_seasonNumber: { entryId, seasonNumber: season.seasonNumber },
+        },
+        create: {
+          entryId,
+          seasonNumber: season.seasonNumber,
+          orderIndex: index,
+          externalData: season as unknown as Prisma.InputJsonValue,
+          externalDataFetchedAt: new Date(),
+        },
+        update: {
+          orderIndex: index,
+          externalData: season as unknown as Prisma.InputJsonValue,
+          externalDataFetchedAt: new Date(),
+        },
+      });
+    }
+  }
+
+  /** Bütün sezonlar tamamlanmış sayılır ("izledim" işareti). */
+  private async markAllSeasonsWatched(entryId: string): Promise<void> {
+    const seasons = await this.prisma.showSeason.findMany({
+      where: { entryId },
+    });
+    for (const season of seasons) {
+      const data = (season.externalData ?? null) as TmdbSeason | null;
+      const total = data?.episodeCount ?? null;
+      // Bölüm sayısı bilinmeyen sezonda sayaç uydurulmaz
+      if (total === null || total <= 0) {
+        continue;
+      }
+      await this.prisma.showSeason.update({
+        where: { id: season.id },
+        data: { watchedEpisodes: total, isCompleted: true },
+      });
+    }
+  }
+
+  /**
+   * Durumu ilerlemeye göre kendiliğinden günceller:
+   *  - bütün sezonlar bitti **ve** dizi de bitti → "izledim",
+   *  - sırada bekleyen dizide ilerleme başladı → "izliyorum".
+   *
+   * Yayını süren dizide "izledim" demek yanlış olur: yeni sezon bekleniyor —
+   * o yüzden `airStatus` kontrolü var (anime kanadındaki `airingState`
+   * kontrolünün karşılığı).
+   */
+  private async syncEntryStatus(entryId: string): Promise<void> {
+    const entry = await this.prisma.showEntry.findUnique({
+      where: { id: entryId },
+      include: { seasons: true },
+    });
+    if (!entry) {
+      return;
+    }
+    const data = (entry.externalData ?? null) as TmdbShow | null;
+    const everyDone =
+      entry.seasons.length > 0 &&
+      entry.seasons.every((season) => season.isCompleted);
+    const hasEnded =
+      data?.airStatus === 'Ended' || data?.airStatus === 'Canceled';
+    const watched = entry.seasons.reduce(
+      (total, season) => total + season.watchedEpisodes,
+      0,
+    );
+
+    if (everyDone && hasEnded && entry.status !== 'WATCHED') {
+      await this.prisma.showEntry.update({
+        where: { id: entryId },
+        data: { status: 'WATCHED', watchedAt: entry.watchedAt ?? new Date() },
+      });
+      return;
+    }
+    // Sırada bekleyen diziyi izlemeye başladıysam rafı kendiliğinden değişir
+    if (!everyDone && entry.status === 'WATCHLIST' && watched > 0) {
+      await this.prisma.showEntry.update({
+        where: { id: entryId },
+        data: { status: 'WATCHING' },
+      });
+    }
   }
 
   private async findByIdOrFail(id: string): Promise<ShowEntry> {
@@ -529,15 +820,18 @@ export class ShowsService {
   private async snapshot(tmdbId: number): Promise<{
     payload: Prisma.InputJsonValue | undefined;
     fetchedAt: Date | null;
+    /** Sezon zincirini kurmak için ham künye; TMDB düştüyse null */
+    show: TmdbShow | null;
   }> {
     try {
       const show = await this.tmdb.getShow(tmdbId);
       return {
         payload: show as unknown as Prisma.InputJsonValue,
         fetchedAt: new Date(),
+        show,
       };
     } catch {
-      return { payload: undefined, fetchedAt: null };
+      return { payload: undefined, fetchedAt: null, show: null };
     }
   }
 }
@@ -565,7 +859,7 @@ function shuffle<T>(items: T[]): T[] {
   return copy;
 }
 
-function withSlugs(entries: ShowEntry[]): ArchiveShow[] {
+function withSlugs(entries: EntryWithSeasons[]): ArchiveShow[] {
   const used = new Set<string>();
   return entries.map((entry) => {
     const show = toArchiveShow(entry);
@@ -657,11 +951,55 @@ function youtubeKey(url: string): string | null {
   return match?.[1] ?? null;
 }
 
-function toArchiveShow(entry: ShowEntry): ArchiveShow {
+function toArchiveSeason(season: ShowSeason): ArchiveShowSeason {
+  const data = (season.externalData ?? null) as TmdbSeason | null;
+  return {
+    id: season.id,
+    seasonNumber: season.seasonNumber,
+    name: data?.name ?? '',
+    episodes: data?.episodeCount ?? null,
+    watchedEpisodes: season.watchedEpisodes,
+    isCompleted: season.isCompleted,
+    personalRating: season.personalRating,
+    airDate: data?.airDate ?? null,
+    posterPath: data?.posterPath ?? null,
+    orderIndex: season.orderIndex,
+  };
+}
+
+function toArchiveShow(entry: EntryWithSeasons): ArchiveShow {
   const data = (entry.externalData ?? null) as TmdbShow | null;
   const releaseYear = data?.releaseDate
     ? Number.parseInt(data.releaseDate.slice(0, 4), 10)
     : null;
+
+  const seasons = [...entry.seasons]
+    .sort(
+      (a, b) => a.orderIndex - b.orderIndex || a.seasonNumber - b.seasonNumber,
+    )
+    .map(toArchiveSeason);
+  const totals = seasons.reduce(
+    (acc, season) => {
+      acc.watched += season.watchedEpisodes;
+      acc.tracked += season.episodes ?? 0;
+      return acc;
+    },
+    { watched: 0, tracked: 0 },
+  );
+
+  /**
+   * "Nerede kaldım": önce başlanmış ama bitmemiş sezon, yoksa ilk bitmemiş
+   * sezon, o da yoksa son sezon. Anime kanadındaki `currentPart` seçiminin
+   * aynı mantığı — tamamlanmış dizide sayfa son sezonu göstersin.
+   */
+  const currentSeason =
+    seasons.find(
+      (season) => !season.isCompleted && season.watchedEpisodes > 0,
+    ) ??
+    seasons.find((season) => !season.isCompleted) ??
+    seasons[seasons.length - 1] ??
+    null;
+
   return {
     id: entry.id,
     slug: '',
@@ -683,6 +1021,11 @@ function toArchiveShow(entry: ShowEntry): ArchiveShow {
     voteAverage: data?.voteAverage ?? null,
     director: data?.director ?? null,
     originCountry: data?.originCountry ?? [],
+    airStatus: data?.airStatus ?? null,
+    watchedEpisodes: totals.watched,
+    trackedEpisodes: totals.tracked,
+    currentSeason,
+    seasons,
   };
 }
 

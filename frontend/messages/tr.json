@@ -647,6 +647,8 @@
     "title": "Dizi Arşivim",
     "lede": "İzlediğim, tekrar izlemek istediğim ve sırada bekleyen diziler.",
     "statCard": {
+      "watching": "İzliyorum",
+      "watchingSub": "Devam eden diziler",
       "watched": "İzlediğim Diziler",
       "watchedSub": "Toplam dizi",
       "watchedAvg": "ort. {value} puan",
@@ -654,12 +656,18 @@
       "watchlistSub": "Sıradaki diziler",
       "favorites": "Favorilerim",
       "favoritesSub": "Favori diziler",
-      "episodes": "Toplam Bölüm",
-      "episodesSub": "İzlediğim dizilerde"
+      "episodes": "İzlenen Bölüm",
+      "episodesSub": "Sezon sayaçlarının toplamı"
     },
     "recent": "Son İzlenenler",
     "allGenres": "Tümü",
+    "seasons": "Sezon",
+    "seasonCount": "{count} sezon",
+    "seasonShort": "S{number}",
+    "episodeCount": "{watched} bölüm",
+    "episodeOf": "{watched}/{total} bölüm",
     "shelf": {
+      "watching": "İzliyorum",
       "watched": "İzlediğim Diziler",
       "watchlist": "İzleyeceklerim",
       "rewatch": "Tekrar İzlenecekler",
@@ -709,6 +717,7 @@
     "koreanLede": "Kökeni Kore olan diziler — durumları ne olursa olsun burada bir arada.",
     "favorite": "Favori",
     "statusName": {
+      "WATCHING": "İzliyorum",
       "WATCHED": "İzledim",
       "WATCHLIST": "Sırada",
       "REWATCH": "Tekrar izleyeceğim"
@@ -747,6 +756,19 @@
       "episodes": "Bölüm",
       "episodeCount": "{count} bölüm",
       "airStatus": "Yayın durumu",
+      "seasonsTitle": "Sezonlar",
+      "totalProgress": "{watched}/{total} bölüm izlendi",
+      "totalProgressOpen": "{watched} bölüm izlendi",
+      "finishSeason": "Bu sezonu bitirdim",
+      "seasonDone": "✓ Sezon bitti",
+      "completeThrough": "Buraya kadar hepsini izledim",
+      "completeThroughHint": "Bu sezon ve öncesindeki bütün sezonlar izlenmiş sayılır.",
+      "minusEpisode": "Bir bölüm geri al",
+      "plusEpisode": "Bir bölüm ilerlet",
+      "loadingEpisodes": "Bölümler yükleniyor…",
+      "noEpisodes": "Bu sezonun bölüm listesi alınamadı.",
+      "episodeGridCount": "{count} bölüm",
+      "gridHint": "Bir bölüme tıklamak \"buraya kadar izledim\" demektir; izlenmiş bir bölüme tıklamak bir öncesine geri alır.",
       "watchedAt": "İzlediğim tarih",
       "neighbours": "Arşivimden Komşular",
       "sameDirector": "Aynı yaratıcı: {name}",
@@ -784,6 +806,7 @@
       "searchError": "TMDB araması başarısız. Anahtar tanımlı mı kontrol edin.",
       "status": "Durum",
       "statusLabel": {
+        "WATCHING": "İzliyorum",
         "WATCHED": "İzledim",
         "WATCHLIST": "İzleyeceğim",
         "REWATCH": "Tekrar izleyeceğim"

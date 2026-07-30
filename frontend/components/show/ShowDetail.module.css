@@ -860,3 +860,252 @@ a.providerLink:hover {
     grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
   }
 }
+
+/* --- Sezonlar ve bolum izgarasi (anime kanadindaki desenin dizi karsiligi) --- */
+
+.seasons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.season,
+.seasonOpen {
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
+}
+
+.seasonOpen {
+  border-color: var(--accent-muted);
+}
+
+.seasonHead {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-md);
+  padding: var(--gap-sm) var(--gap-md);
+}
+
+.seasonIndex {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.9rem;
+  letter-spacing: 0.1em;
+}
+
+/* Her sezonun kendi afisi — TMDB sezon basina ayri poster veriyor */
+.seasonCover {
+  position: relative;
+  flex-shrink: 0;
+  width: 44px;
+  height: 62px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: var(--surface);
+}
+
+.seasonCoverImg {
+  object-fit: cover;
+}
+
+.seasonInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.seasonToggle {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-primary);
+  font-size: 0.92rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.seasonToggle:hover {
+  color: var(--accent);
+}
+
+.seasonMeta {
+  color: var(--text-muted);
+  font-size: 0.76rem;
+}
+
+.seasonBar {
+  display: block;
+  height: 3px;
+  max-width: 320px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--border);
+}
+
+.seasonBarFill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+
+.seasonChevron {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.seasonTools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--gap-sm);
+  padding: 0 var(--gap-md) var(--gap-sm) var(--gap-md);
+}
+
+.seasonTool {
+  min-height: 32px;
+  padding: 0 12px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.seasonTool:hover:enabled {
+  border-color: var(--accent-muted);
+  color: var(--accent);
+}
+
+.seasonTool:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* Sayaci elle degistirmek icin: -1 / sayi / +1 */
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.stepBtn {
+  width: 32px;
+  min-height: 32px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.stepBtn:hover:enabled {
+  border-color: var(--accent-muted);
+  color: var(--accent);
+}
+
+.stepBtn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.stepValue {
+  min-width: 56px;
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.episodes {
+  padding: 0 var(--gap-md) var(--gap-md) var(--gap-md);
+}
+
+.episodesHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--gap-md);
+  padding: var(--gap-sm) 0;
+  border-top: 0.5px solid var(--border);
+}
+
+.episodesMeta {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.episodesLoading {
+  padding: var(--gap-md);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.episodeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(38px, 1fr));
+  gap: 4px;
+  margin: var(--gap-sm) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ep,
+.epWatched,
+.epSkipped {
+  width: 100%;
+  min-height: 30px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: 3px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.ep:disabled,
+.epWatched:disabled,
+.epSkipped:disabled {
+  cursor: default;
+}
+
+.epWatched {
+  border-color: var(--accent-muted);
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  color: var(--text-primary);
+}
+
+/* Gecildi: izlenmedi ama ilerlemeyi bozmuyor — kesik cerceve */
+.epSkipped {
+  border-style: dashed;
+  border-color: var(--text-muted);
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+/* Kaldigim yer: sonraki izlenecek bolum vurgulu */
+.epCurrent {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent-muted);
+}
+
+.episodesHint {
+  margin: var(--gap-sm) 0 0;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}

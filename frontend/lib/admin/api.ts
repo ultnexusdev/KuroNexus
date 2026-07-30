@@ -508,6 +508,40 @@ export function deleteShowEntry(id: string): Promise<ShowEntryRecord> {
   });
 }
 
+/**
+ * Sezon ilerlemesi. `delta` günlük kullanım ("+1 bölüm"), `watchedEpisodes`
+ * doğrudan atama (ızgaradan işaretleme) içindir.
+ */
+export interface ShowSeasonInput {
+  delta?: number;
+  watchedEpisodes?: number;
+  isCompleted?: boolean;
+  personalRating?: number;
+  markEpisode?: number;
+  markState?: "SKIPPED" | "CLEAR";
+}
+
+export function updateShowSeason(
+  seasonId: string,
+  input: ShowSeasonInput,
+): Promise<ShowEntryRecord> {
+  return apiFetch<ShowEntryRecord>(`/admin/shows/seasons/${seasonId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(input),
+  });
+}
+
+/** "Buraya kadar hepsini izledim" — seçilen sezon ve öncekiler tamamlanır. */
+export function completeThroughShowSeason(
+  seasonId: string,
+): Promise<ShowEntryRecord> {
+  return apiFetch<ShowEntryRecord>(
+    `/admin/shows/seasons/${seasonId}/complete-through`,
+    { method: "POST", headers: authHeaders() },
+  );
+}
+
 export interface CategoryInput {
   name: string;
   description?: string;

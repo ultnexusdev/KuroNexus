@@ -252,7 +252,11 @@ export class PulseService {
       externalData: unknown;
       parts: Array<{ watchedEpisodes: number; externalData: unknown }>;
     }>,
-    shows: Array<{ status: string; watchedAt: Date | null }>,
+    shows: Array<{
+      status: string;
+      watchedAt: Date | null;
+      externalData: unknown;
+    }>,
   ): PulseHall[] {
     return categories.map((category) => {
       const universeCount = universes.filter(
@@ -284,9 +288,12 @@ export class PulseService {
 
       if (category.slug === 'dizi') {
         count = shows.filter((show) => show.status !== 'WATCHLIST').length;
-        line = String(
-          shows.filter((show) => show.status === 'WATCHLIST').length,
-        );
+        // Kapının satırı anime salonundakiyle aynı: şu an izlediğim dizi.
+        // Dizide "izliyorum" haftalarca sürer, bu yüzden sıradakilerin
+        // sayısından daha canlı bir bilgi.
+        const watching = shows.find((show) => show.status === 'WATCHING');
+        const data = (watching?.externalData ?? null) as TmdbShow | null;
+        line = data?.title ?? null;
       }
 
       return {

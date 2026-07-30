@@ -15,6 +15,7 @@ import type { AuthenticatedUser } from '../common/types/authenticated-user';
 import { ShowsService } from './shows.service';
 import { CreateShowEntryDto } from './dto/create-show-entry.dto';
 import { UpdateShowEntryDto } from './dto/update-show-entry.dto';
+import { UpdateShowSeasonDto } from './dto/update-show-season.dto';
 import { DismissSuggestionDto } from './dto/dismiss-suggestion.dto';
 
 @Roles('ADMIN')
@@ -60,6 +61,21 @@ export class ShowsAdminController {
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.showsService.create(dto, user.id);
+  }
+
+  // Sezon ilerlemesi. 'seasons/…' yolları ':id' rotalarından ÖNCE tanımlı
+  @Patch('seasons/:seasonId')
+  updateSeason(
+    @Param('seasonId') seasonId: string,
+    @Body() dto: UpdateShowSeasonDto,
+  ) {
+    return this.showsService.updateSeason(seasonId, dto);
+  }
+
+  /** "Buraya kadar hepsini izledim" — seçilen sezon ve öncekiler tamamlanır */
+  @Post('seasons/:seasonId/complete-through')
+  completeThrough(@Param('seasonId') seasonId: string) {
+    return this.showsService.completeThrough(seasonId);
   }
 
   @Patch(':id/refresh')

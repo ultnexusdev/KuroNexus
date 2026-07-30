@@ -27,7 +27,12 @@ import styles from "./ShowCurator.module.css";
  * aynısı, tek fark kaynak (TMDB'nin tv uçları, `admin/shows`).
  */
 
-const STATUSES: ShowStatus[] = ["WATCHED", "WATCHLIST", "REWATCH"];
+const STATUSES: ShowStatus[] = [
+  "WATCHING",
+  "WATCHED",
+  "WATCHLIST",
+  "REWATCH",
+];
 
 function today(): string {
   return new Date().toISOString().slice(0, 10);

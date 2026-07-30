@@ -5,6 +5,30 @@
 
 ## Mevcut Aşama
 
+> **30 TEMMUZ — ikinci push: dizi kanadına "İzliyorum" + sezon/bölüm
+> ilerlemesi.** Kullanıcının geri bildirimi: dizide filmden farklı olarak
+> *devam eden* yapımlar var, hem ayrı bir durum hem de animedeki gibi bölüm
+> takibi gerekiyor. Eklenenler: `ShowStatus`a **WATCHING** (migration
+> `ALTER TYPE ... ADD VALUE BEFORE 'WATCHED'`), `AnimePart`ın karşılığı
+> **`ShowSeason`** modeli (sezon başına `watchedEpisodes`/`isCompleted`/
+> `episodeMarks`). Animeden tek yapısal fark: sezon zinciri **elle
+> kurulmuyor** — TMDB künyesi `seasons` dizisini zaten veriyor, dizi arşive
+> eklenince sezonlar kendiliğinden oluşuyor, künye tazelenince yeni sezon
+> ekleniyor (ilerleme asla ezilmiyor, TMDB'den düşen sezon silinmiyor).
+> Özel bölümler (TMDB sezon 0) alınmıyor. Yeni uçlar:
+> `PATCH /admin/shows/seasons/:id` (delta ±1 + doğrudan atama + atlandı
+> işareti), `POST /admin/shows/seasons/:id/complete-through`,
+> `GET /shows/seasons/:id/episodes` (bölüm ızgarası, sezon açılınca iniyor).
+> Durum kendiliğinden güncelleniyor: bütün sezonlar bitti **ve** dizi de
+> bitti (`Ended`/`Canceled`) → "izledim"; sırada bekleyen dizide ilerleme
+> başladı → "izliyorum". Arayüz: İzliyorum rafı (en üstte), kartlarda
+> "S2 · 4/10" satırı + ilerleme çubuğu, dizi sayfasında sezon listesi
+> (kaldığım sezon açık gelir) + tıklanabilir bölüm ızgarası, künye kartı
+> "İzlenen Bölüm" artık gerçek sayaç toplamı. "Nexus'u Keşfet"te dizi
+> kapısının satırı da anime gibi *şu an izlediğim dizinin adı* oldu.
+> Backend+frontend build/lint/tsc temiz. **Canlıda gerçek girişle
+> denenmedi.**
+>
 > **OTURUM NOTU — 30 Temmuz 2026.** **Salon 02 · Dizi arşivi** yazıldı —
 > film salonunun bire bir aynısı, kaynak TMDB'nin tv uçları. Backend:
 > `ShowEntry`/`ShowSuggestionDismissal` (migration elle yazıldı, DB'siz

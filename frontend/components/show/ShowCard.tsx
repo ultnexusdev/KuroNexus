@@ -53,6 +53,14 @@ export function ShowCard({
   const t = useTranslations("show");
   const rating = show.personalRating ?? show.voteAverage;
   const href = `/dark-stories/category/dizi/${show.slug}`;
+  const season = show.currentSeason;
+  const percent =
+    season?.episodes && season.episodes > 0
+      ? Math.min(
+          100,
+          Math.round((season.watchedEpisodes / season.episodes) * 100),
+        )
+      : 0;
 
   return (
     <article className={styles.card}>
@@ -102,6 +110,36 @@ export function ShowCard({
           {show.title}
         </Link>
       </h3>
+
+      {/* "Nerede kaldım": devam eden dizide en çok bakılan satır. Sırada
+          bekleyen dizide anlamsız — henüz başlanmadı */}
+      {season && show.status !== "WATCHLIST" ? (
+        <>
+          <p className={styles.cardProgress}>
+            <span className={styles.seasonName}>
+              {t("seasonShort", { number: season.seasonNumber })}
+            </span>
+            <span className={styles.seasonCount}>
+              {season.episodes
+                ? t("episodeOf", {
+                    watched: season.watchedEpisodes,
+                    total: season.episodes,
+                  })
+                : t("episodeCount", { watched: season.watchedEpisodes })}
+            </span>
+          </p>
+          {/* Çubuk yalnızca bölüm sayısı bilinen sezonda anlamlı */}
+          {season.episodes ? (
+            <span className={styles.progressBar} aria-hidden>
+              <span
+                className={styles.progressFill}
+                style={{ width: `${percent}%` }}
+              />
+            </span>
+          ) : null}
+        </>
+      ) : null}
+
       <p className={styles.cardMeta}>
         {show.releaseYear ? <span>{show.releaseYear}</span> : null}
         {rating ? (

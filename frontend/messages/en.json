@@ -647,6 +647,8 @@
     "title": "My Show Archive",
     "lede": "Shows I have watched, shows I want to see again, and shows still waiting.",
     "statCard": {
+      "watching": "Watching",
+      "watchingSub": "Shows in progress",
       "watched": "Shows Watched",
       "watchedSub": "Total shows",
       "watchedAvg": "avg. {value} rating",
@@ -654,12 +656,18 @@
       "watchlistSub": "Waiting in line",
       "favorites": "Favourites",
       "favoritesSub": "Favourite shows",
-      "episodes": "Total Episodes",
-      "episodesSub": "Across shows watched"
+      "episodes": "Episodes Watched",
+      "episodesSub": "Sum of season counters"
     },
     "recent": "Recently Watched",
     "allGenres": "All",
+    "seasons": "Seasons",
+    "seasonCount": "{count} seasons",
+    "seasonShort": "S{number}",
+    "episodeCount": "{watched} episodes",
+    "episodeOf": "{watched}/{total} episodes",
     "shelf": {
+      "watching": "Watching",
       "watched": "Shows I've Watched",
       "watchlist": "Watchlist",
       "rewatch": "To Rewatch",
@@ -709,6 +717,7 @@
     "koreanLede": "Shows with Korean origin — regardless of status, gathered here together.",
     "favorite": "Favourite",
     "statusName": {
+      "WATCHING": "Watching",
       "WATCHED": "Watched",
       "WATCHLIST": "Queued",
       "REWATCH": "To rewatch"
@@ -747,6 +756,19 @@
       "episodes": "Episodes",
       "episodeCount": "{count} episodes",
       "airStatus": "Air status",
+      "seasonsTitle": "Seasons",
+      "totalProgress": "{watched}/{total} episodes watched",
+      "totalProgressOpen": "{watched} episodes watched",
+      "finishSeason": "I finished this season",
+      "seasonDone": "✓ Season complete",
+      "completeThrough": "Watched everything up to here",
+      "completeThroughHint": "This season and every season before it count as watched.",
+      "minusEpisode": "Step back one episode",
+      "plusEpisode": "Step forward one episode",
+      "loadingEpisodes": "Loading episodes…",
+      "noEpisodes": "Could not load the episode list for this season.",
+      "episodeGridCount": "{count} episodes",
+      "gridHint": "Clicking an episode means \"watched up to here\"; clicking a watched episode steps back one.",
       "watchedAt": "Watched on",
       "neighbours": "From My Archive",
       "sameDirector": "Same creator: {name}",
@@ -784,6 +806,7 @@
       "searchError": "TMDB search failed. Check that the API key is set.",
       "status": "Status",
       "statusLabel": {
+        "WATCHING": "Watching",
         "WATCHED": "Watched",
         "WATCHLIST": "Watchlist",
         "REWATCH": "Rewatch"

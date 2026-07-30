@@ -466,7 +466,38 @@ export interface TmdbSearchResult {
 
 // ---- Salon 02 · Dizi arşivi (film arşivinin bire bir aynısı, kaynak TMDB tv) ----
 
-export type ShowStatus = "WATCHED" | "WATCHLIST" | "REWATCH";
+// Dizide filmden bir durum fazlası var: bir dizi haftalarca "izleniyor"
+// halinde kalabilir (film ya izlendi ya sırada)
+export type ShowStatus = "WATCHING" | "WATCHED" | "WATCHLIST" | "REWATCH";
+
+/** Bir sezonun arşiv görünümü — ilerleme burada tutulur */
+export interface ArchiveShowSeason {
+  id: string;
+  seasonNumber: number;
+  name: string;
+  episodes: number | null;
+  watchedEpisodes: number;
+  isCompleted: boolean;
+  personalRating: number | null;
+  airDate: string | null;
+  posterPath: string | null;
+  orderIndex: number;
+}
+
+/** Bölüm ızgarasının bir karesi */
+export interface SeasonEpisode {
+  number: number;
+  title: string | null;
+  airDate: string | null;
+  stillPath: string | null;
+  state: "WATCHED" | "SKIPPED" | "UNWATCHED";
+}
+
+export interface SeasonEpisodes {
+  seasonId: string;
+  seasonNumber: number;
+  episodes: SeasonEpisode[];
+}
 
 export interface ArchiveShow {
   id: string;
@@ -491,6 +522,15 @@ export interface ArchiveShow {
   director: string | null;
   /** TMDB köken ülkeleri — Kore Dramaları rafı `includes("KR")` ile süzer */
   originCountry: string[];
+  /** Yapımın kendi durumu ("Ended"/"Returning Series"), benimkinden bağımsız */
+  airStatus: string | null;
+  /** Sezonlardan türetilen toplam ilerleme */
+  watchedEpisodes: number;
+  /** Takip edilen sezonların bölüm toplamı (özel bölümler hariç) */
+  trackedEpisodes: number;
+  /** Şu an hangi sezondayım — "S2 · 4/10" satırı bundan yazılır */
+  currentSeason: ArchiveShowSeason | null;
+  seasons: ArchiveShowSeason[];
 }
 
 export interface ShowArchive {

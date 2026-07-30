@@ -1,13 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { Link, useRouter } from "@/lib/i18n/navigation";
-import { tmdbImage } from "@/lib/api/shows";
-import { updateShowEntry } from "@/lib/admin/api";
+import { fetchSeasonEpisodes, tmdbImage } from "@/lib/api/shows";
+import {
+  completeThroughShowSeason,
+  updateShowEntry,
+  updateShowSeason,
+} from "@/lib/admin/api";
 import type {
   ArchiveShow,
+  ArchiveShowSeason,
+  SeasonEpisodes,
   ShowCastMember,
   ShowDetail as ShowDetailData,
   ShowLink,
@@ -35,6 +41,10 @@ export function ShowDetail({
   const [curating, setCurating] = useState(false);
   const { show } = detail;
   const backdrop = tmdbImage(show.backdropPath, "w780");
+  // Sayfa açılınca kaldığım sezon açık gelir — "nerede kaldım" aranmasın
+  const [openSeason, setOpenSeason] = useState<string | null>(
+    show.currentSeason?.id ?? null,
+  );
 
   return (
     <div data-category="dizi" className={styles.page}>
@@ -298,6 +308,43 @@ export function ShowDetail({
               </section>
             ) : null}
 
+            {/* Sezonlar ve bölüm ilerlemesi — dizi sayfasının filmden asıl
+                ayrıldığı yer. Konudan hemen sonra: en sık dönülen bölüm bu */}
+            {show.seasons.length > 0 ? (
+              <section className={styles.section}>
+                <h2 className={styles.sectionTitle}>
+                  {t("seasonsTitle")}
+                  <span className={styles.episodesMeta}>
+                    {"  "}
+                    {show.trackedEpisodes
+                      ? t("totalProgress", {
+                          watched: show.watchedEpisodes,
+                          total: show.trackedEpisodes,
+                        })
+                      : t("totalProgressOpen", {
+                          watched: show.watchedEpisodes,
+                        })}
+                  </span>
+                </h2>
+                <ul className={styles.seasons}>
+                  {show.seasons.map((season, index) => (
+                    <SeasonRow
+                      key={season.id}
+                      season={season}
+                      index={index + 1}
+                      isOpen={openSeason === season.id}
+                      isAdmin={isAdmin}
+                      onToggle={() =>
+                        setOpenSeason(
+                          openSeason === season.id ? null : season.id,
+                        )
+                      }
+                    />
+                  ))}
+                </ul>
+              </section>
+            ) : null}
+
             {detail.trailerKey ? (
               <section className={styles.section}>
                 <h2 className={styles.sectionTitle}>{t("trailer")}</h2>
@@ -355,6 +402,15 @@ function QuickActions({ show }: { show: ArchiveShow }) {
 
   return (
     <div className={styles.quick}>
+      {/* Dizide filmden fazla olan durum: haftalarca sürebilen "izliyorum" */}
+      <button
+        type="button"
+        className={show.status === "WATCHING" ? styles.quickOn : styles.quickBtn}
+        disabled={busy}
+        onClick={() => void apply({ status: "WATCHING" })}
+      >
+        {tShow("statusName.WATCHING")}
+      </button>
       <button
         type="button"
         className={show.status === "WATCHED" ? styles.quickOn : styles.quickBtn}
@@ -387,6 +443,307 @@ function QuickActions({ show }: { show: ArchiveShow }) {
       >
         ★ {tShow("favorite")}
       </button>
+    </div>
+  );
+}
+
+/**
+ * Bir sezon satırı: afiş, "4/10" sayacı, ilerleme çubuğu ve açılınca bölüm
+ * ızgarası. Anime kanadındaki `PartRow`un dizi karşılığı — tek fark sezon
+ * listesinin elle değil TMDB künyesinden gelmesi.
+ */
+function SeasonRow({
+  season,
+  index,
+  isOpen,
+  isAdmin,
+  onToggle,
+}: {
+  season: ArchiveShowSeason;
+  index: number;
+  isOpen: boolean;
+  isAdmin: boolean;
+  onToggle: () => void;
+}) {
+  const t = useTranslations("show");
+  const percent =
+    season.episodes && season.episodes > 0
+      ? Math.min(
+          100,
+          Math.round((season.watchedEpisodes / season.episodes) * 100),
+        )
+      : 0;
+  const poster = tmdbImage(season.posterPath, "w185");
+
+  return (
+    <li className={isOpen ? styles.seasonOpen : styles.season}>
+      <div className={styles.seasonHead}>
+        <span className={styles.seasonIndex}>
+          {String(index).padStart(2, "0")}
+        </span>
+
+        <span className={styles.seasonCover}>
+          {poster ? (
+            <Image
+              src={poster}
+              alt=""
+              fill
+              sizes="60px"
+              className={styles.seasonCoverImg}
+              unoptimized
+            />
+          ) : null}
+        </span>
+
+        <span className={styles.seasonInfo}>
+          <button
+            type="button"
+            className={styles.seasonToggle}
+            onClick={onToggle}
+          >
+            {season.name || t("seasonShort", { number: season.seasonNumber })}
+          </button>
+          <span className={styles.seasonMeta}>
+            {[
+              season.airDate ? season.airDate.slice(0, 4) : null,
+              season.episodes
+                ? t("episodeOf", {
+                    watched: season.watchedEpisodes,
+                    total: season.episodes,
+                  })
+                : t("episodeCount", { watched: season.watchedEpisodes }),
+            ]
+              .filter(Boolean)
+              .join(" · ")}
+          </span>
+          {season.episodes ? (
+            <span className={styles.seasonBar} aria-hidden>
+              <span
+                className={styles.seasonBarFill}
+                style={{ width: `${percent}%` }}
+              />
+            </span>
+          ) : null}
+        </span>
+
+        <button
+          type="button"
+          className={styles.seasonChevron}
+          aria-expanded={isOpen}
+          aria-label={season.name}
+          onClick={onToggle}
+        >
+          {isOpen ? "▾" : "▸"}
+        </button>
+      </div>
+
+      {isOpen ? (
+        <>
+          {isAdmin ? <SeasonTools season={season} /> : null}
+          <EpisodeGrid season={season} isAdmin={isAdmin} />
+        </>
+      ) : null}
+    </li>
+  );
+}
+
+/**
+ * Sezon satırının küratör kontrolleri: tek tıkla bitirme, "buraya kadar
+ * hepsini izledim" ve ±1 sayacı. Uzun dizilerde bölüm bölüm işaretlemekten
+ * kurtarıyor.
+ */
+function SeasonTools({ season }: { season: ArchiveShowSeason }) {
+  const t = useTranslations("show.detail");
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+
+  async function run(action: () => Promise<unknown>) {
+    setBusy(true);
+    try {
+      await action();
+      router.refresh();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const atStart = season.watchedEpisodes <= 0;
+  const atEnd =
+    season.episodes !== null && season.watchedEpisodes >= season.episodes;
+
+  return (
+    <div className={styles.seasonTools}>
+      {season.episodes ? (
+        <button
+          type="button"
+          className={styles.seasonTool}
+          disabled={busy || season.isCompleted}
+          onClick={() =>
+            void run(() =>
+              updateShowSeason(season.id, {
+                watchedEpisodes: season.episodes ?? 0,
+                isCompleted: true,
+              }),
+            )
+          }
+        >
+          {season.isCompleted ? t("seasonDone") : t("finishSeason")}
+        </button>
+      ) : null}
+
+      <button
+        type="button"
+        className={styles.seasonTool}
+        disabled={busy}
+        title={t("completeThroughHint")}
+        onClick={() => void run(() => completeThroughShowSeason(season.id))}
+      >
+        {t("completeThrough")}
+      </button>
+
+      {/* Günlük kullanım: bir bölüm izledim, +1 */}
+      <div className={styles.stepper}>
+        <button
+          type="button"
+          className={styles.stepBtn}
+          aria-label={t("minusEpisode")}
+          disabled={busy || atStart}
+          onClick={() => void run(() => updateShowSeason(season.id, { delta: -1 }))}
+        >
+          −
+        </button>
+        <span className={styles.stepValue}>
+          {season.episodes
+            ? `${season.watchedEpisodes}/${season.episodes}`
+            : season.watchedEpisodes}
+        </span>
+        <button
+          type="button"
+          className={styles.stepBtn}
+          aria-label={t("plusEpisode")}
+          disabled={busy || atEnd}
+          onClick={() => void run(() => updateShowSeason(season.id, { delta: 1 }))}
+        >
+          +
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Bölüm ızgarası. Sayfa açılışında inmez: sezon açılınca istenir. Bir kareye
+ * tıklamak "buraya kadar izledim" demektir (izlenmiş kareye tıklamak bir
+ * öncesine geri alır) — anime kanadındaki davranışın aynısı.
+ */
+function EpisodeGrid({
+  season,
+  isAdmin,
+}: {
+  season: ArchiveShowSeason;
+  isAdmin: boolean;
+}) {
+  const t = useTranslations("show.detail");
+  const router = useRouter();
+  const [data, setData] = useState<SeasonEpisodes | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const result = await fetchSeasonEpisodes(season.id);
+        if (!cancelled) {
+          setData(result);
+        }
+      } catch {
+        // Izgara süs: alınamazsa sezon sayaçla kalır
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [season.id]);
+
+  async function markThrough(episodeNumber: number, isWatched: boolean) {
+    setBusy(true);
+    try {
+      await updateShowSeason(season.id, {
+        watchedEpisodes: isWatched ? episodeNumber - 1 : episodeNumber,
+      });
+      setData(await fetchSeasonEpisodes(season.id));
+      router.refresh();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (loading) {
+    return <p className={styles.episodesLoading}>{t("loadingEpisodes")}</p>;
+  }
+  if (!data || data.episodes.length === 0) {
+    return <p className={styles.episodesLoading}>{t("noEpisodes")}</p>;
+  }
+
+  // Kaldığım yer: bir sonraki izlenecek bölüm vurgulanır
+  const nextUp = data.episodes.find(
+    (episode) => episode.state === "UNWATCHED",
+  )?.number;
+
+  return (
+    <div className={styles.episodes}>
+      <div className={styles.episodesHead}>
+        <span className={styles.episodesMeta}>
+          {t("episodeGridCount", { count: data.episodes.length })}
+        </span>
+      </div>
+
+      <ol className={styles.episodeGrid}>
+        {data.episodes.map((episode) => {
+          const isWatched = episode.state === "WATCHED";
+          const className = [
+            isWatched
+              ? styles.epWatched
+              : episode.state === "SKIPPED"
+                ? styles.epSkipped
+                : styles.ep,
+            episode.number === nextUp ? styles.epCurrent : "",
+          ]
+            .filter(Boolean)
+            .join(" ");
+
+          const label = [
+            `${episode.number}. ${episode.title ?? ""}`.trim(),
+            episode.airDate ? episode.airDate.slice(0, 10) : "",
+          ]
+            .filter(Boolean)
+            .join(" · ");
+
+          return (
+            <li key={episode.number}>
+              <button
+                type="button"
+                className={className}
+                title={label}
+                aria-label={label}
+                disabled={!isAdmin || busy}
+                onClick={() => void markThrough(episode.number, isWatched)}
+              >
+                {episode.number}
+              </button>
+            </li>
+          );
+        })}
+      </ol>
+
+      {isAdmin ? (
+        <p className={styles.episodesHint}>{t("gridHint")}</p>
+      ) : null}
     </div>
   );
 }

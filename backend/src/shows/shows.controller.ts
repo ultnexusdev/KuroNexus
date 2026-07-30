@@ -20,6 +20,13 @@ export class ShowsController {
     return this.showsService.showcase();
   }
 
+  // Bölüm ızgarası. ':slug'tan ÖNCE tanımlı olmalı — sabit yol önce eşleşsin
+  @Public()
+  @Get('seasons/:seasonId/episodes')
+  getSeasonEpisodes(@Param('seasonId') seasonId: string) {
+    return this.showsService.seasonEpisodes(seasonId);
+  }
+
   // Dizi sayfası. ':slug' en sonda: 'showcase' gibi sabit yollar önce eşleşsin
   @Public()
   @Get(':slug')

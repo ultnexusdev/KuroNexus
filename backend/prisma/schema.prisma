@@ -423,12 +423,48 @@ model ShowEntry {
   isDeleted             Boolean     @default(false)
 
   userId String
-  user   User   @relation(fields: [userId], references: [id])
+  user   User        @relation(fields: [userId], references: [id])
+  seasons ShowSeason[]
 
   // Aynı dizi arşive iki kez girmez
   @@unique([userId, tmdbId])
   @@index([userId, status, isDeleted])
   @@index([userId, isFavorite, isDeleted])
+}
+
+/// Bir dizinin sezonu — anime kanadındaki `AnimePart`ın karşılığı. İlerleme
+/// **burada** tutulur (dizinin ilerlemesi sezonlardan türetilir); iki ayrı
+/// sayı tutulursa birbirini tutmaz.
+///
+/// Animeden bir fark var: sezon listesi elle kurulmaz, TMDB künyesiyle
+/// birlikte zaten geliyor — dizi arşive eklenince sezonlar kendiliğinden
+/// oluşur, künye tazelenince yeni sezonlar eklenir (ilerleme korunur).
+/// Özel bölümler (TMDB'de sezon 0) alınmaz: ana akışın sayacını bozuyor.
+model ShowSeason {
+  id              String  @id @default(cuid())
+  /// TMDB sezon numarası (1'den başlar); sıralama da buna göre
+  seasonNumber    Int
+  orderIndex      Int     @default(0)
+  watchedEpisodes Int     @default(0)
+  isCompleted     Boolean @default(false)
+  personalRating  Float?
+
+  /// Bölüm bölüm işaretleme: { "12": "SKIPPED" }. Sayaç günlük kullanım için
+  /// yeterli; bu alan atlanan bölümleri anlatabilmek için var (anime kanadıyla
+  /// aynı desen).
+  episodeMarks Json?
+
+  /// TMDB sezon künyesi anlık görüntüsü: ad, bölüm sayısı, yayın tarihi, afiş
+  externalData          Json?
+  externalDataFetchedAt DateTime?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  entryId String
+  entry   ShowEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+
+  @@unique([entryId, seasonNumber])
+  @@index([entryId, orderIndex])
 }
 
 model ShowSuggestionDismissal {
@@ -661,7 +697,10 @@ enum MovieStatus {
   REWATCH
 }
 
+// Dizide filmden bir durum fazlası var: bir dizi haftalarca "izleniyor"
+// halinde kalabilir — film ya izlendi ya sırada. WATCHING bu yüzden ayrı.
 enum ShowStatus {
+  WATCHING
   WATCHED
   WATCHLIST
   REWATCH

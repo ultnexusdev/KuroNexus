@@ -67,6 +67,31 @@ export interface TmdbShow {
   originalLanguage: string | null;
   /** Kökeni Kore olan dizileri işaretlemek için (Kore Dramaları rafı) */
   originCountry: string[];
+  /**
+   * Sezon listesi. Anime kanadında zincir elle kuruluyordu; TMDB bunu künyeyle
+   * birlikte zaten veriyor — dizi arşive eklenince sezonlar kendiliğinden
+   * oluşur. Özel bölümler (sezon 0) burada elenir: ana akışın sayacını bozuyor.
+   */
+  seasons: TmdbSeason[];
+}
+
+/** Bir sezonun künyesi — `ShowSeason.externalData` bunun anlık görüntüsü. */
+export interface TmdbSeason {
+  seasonNumber: number;
+  name: string;
+  episodeCount: number;
+  airDate: string | null;
+  posterPath: string | null;
+  overview: string | null;
+}
+
+/** Bölüm ızgarasının bir karesi. */
+export interface TmdbEpisode {
+  number: number;
+  title: string | null;
+  airDate: string | null;
+  stillPath: string | null;
+  overview: string | null;
 }
 
 interface TmdbGenre {
@@ -96,6 +121,25 @@ interface TmdbProviderEntry {
   logo_path?: string | null;
 }
 
+interface TmdbSeasonEntry {
+  season_number?: number;
+  name?: string;
+  episode_count?: number;
+  air_date?: string | null;
+  poster_path?: string | null;
+  overview?: string;
+}
+
+interface TmdbSeasonResponse {
+  episodes?: Array<{
+    episode_number?: number;
+    name?: string;
+    air_date?: string | null;
+    still_path?: string | null;
+    overview?: string;
+  }>;
+}
+
 interface TmdbShowResponse {
   id: number;
   name?: string;
@@ -117,6 +161,7 @@ interface TmdbShowResponse {
   vote_average?: number;
   created_by?: TmdbCreator[];
   origin_country?: string[];
+  seasons?: TmdbSeasonEntry[];
   credits?: { cast?: TmdbCastEntry[] };
   videos?: { results?: TmdbVideo[] };
   external_ids?: { imdb_id?: string | null };
@@ -301,6 +346,63 @@ export class TmdbTvService {
     );
   }
 
+  /**
+   * Bir sezonun bölüm listesi — bölüm ızgarası bunu kullanır. Ayrı bir uç
+   * gerekiyor: künye yalnızca sezon başlıklarını veriyor, bölüm adlarını
+   * vermiyor. Cache'li; yayını süren sezonda bölüm adları yeni bölümle
+   * değiştiği için künyeden kısa bir TTL kullanılıyor.
+   */
+  async seasonEpisodes(
+    tmdbId: number,
+    seasonNumber: number,
+  ): Promise<TmdbEpisode[]> {
+    const cacheKey = `tmdb:show:season:${tmdbId}:${seasonNumber}:${this.language}`;
+    const cached = await this.prisma.externalCache.findUnique({
+      where: { cacheKey },
+    });
+    if (cached && Date.now() - cached.fetchedAt.getTime() < LIST_CACHE_TTL_MS) {
+      return cached.payload as unknown as TmdbEpisode[];
+    }
+
+    try {
+      const raw = await this.request<TmdbSeasonResponse>(
+        `/tv/${tmdbId}/season/${seasonNumber}`,
+      );
+      const episodes: TmdbEpisode[] = (raw.episodes ?? [])
+        .filter((episode) => typeof episode.episode_number === 'number')
+        .map((episode) => ({
+          number: episode.episode_number!,
+          title: episode.name || null,
+          airDate: episode.air_date || null,
+          stillPath: episode.still_path ?? null,
+          overview: episode.overview || null,
+        }))
+        .sort((a, b) => a.number - b.number);
+      await this.prisma.externalCache.upsert({
+        where: { cacheKey },
+        create: {
+          cacheKey,
+          payload: episodes as unknown as object,
+          fetchedAt: new Date(),
+        },
+        update: {
+          payload: episodes as unknown as object,
+          fetchedAt: new Date(),
+        },
+      });
+      return episodes;
+    } catch (error) {
+      if (cached) {
+        this.logger.warn(
+          `TMDB tv/${tmdbId}/season/${seasonNumber} yenilenemedi, bayat cache: ${String(error)}`,
+        );
+        return cached.payload as unknown as TmdbEpisode[];
+      }
+      // Izgara süs: alınamazsa sayfa sayaçla açılır, hata göstermez
+      return [];
+    }
+  }
+
   private async cachedList(
     cacheKey: string,
     path: string,
@@ -427,6 +529,24 @@ function normalize(raw: TmdbShowResponse, watchRegion: string): TmdbShow {
       .slice(0, STILL_LIMIT),
     originalLanguage: raw.original_language ?? null,
     originCountry: raw.origin_country ?? [],
+    seasons: (raw.seasons ?? [])
+      // Sezon 0 = özel bölümler; ana akışın sayacını bozduğu için alınmıyor.
+      // Bölümü olmayan (henüz yayınlanmamış) sezon da sayaca girmez.
+      .filter(
+        (season) =>
+          typeof season.season_number === 'number' &&
+          season.season_number > 0 &&
+          (season.episode_count ?? 0) > 0,
+      )
+      .map((season) => ({
+        seasonNumber: season.season_number!,
+        name: season.name ?? '',
+        episodeCount: season.episode_count ?? 0,
+        airDate: season.air_date || null,
+        posterPath: season.poster_path ?? null,
+        overview: season.overview || null,
+      }))
+      .sort((a, b) => a.seasonNumber - b.seasonNumber),
   };
 }
 

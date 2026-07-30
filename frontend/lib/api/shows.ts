@@ -1,5 +1,10 @@
 import { apiFetch } from "./client";
-import type { ShowArchive, ShowDetail, ShowShowcase } from "./types";
+import type {
+  SeasonEpisodes,
+  ShowArchive,
+  ShowDetail,
+  ShowShowcase,
+} from "./types";
 
 const EMPTY_SHOWCASE: ShowShowcase = { left: null, right: null };
 
@@ -59,4 +64,17 @@ export async function getShowDetail(
   } catch {
     return null;
   }
+}
+
+/**
+ * Bir sezonun bölüm ızgarası. Sayfa açılışında inmiyor: ızgara açılınca
+ * isteniyor — her dizi sayfası her sezonun bölüm listesini çekmesin diye.
+ */
+export function fetchSeasonEpisodes(
+  seasonId: string,
+): Promise<SeasonEpisodes> {
+  return apiFetch<SeasonEpisodes>(
+    `/shows/seasons/${encodeURIComponent(seasonId)}/episodes`,
+    { cache: "no-store" },
+  );
 }

@@ -10,7 +10,7 @@ import type {
   BookDetail as BookDetailData,
   BookLinkKind,
 } from "@/lib/api/types";
-import { Cover, Stars, TranslationBadge, bookHref } from "./BookCard";
+import { Cover, Stars, TranslationBadge, bookHref, coverSrc } from "./BookCard";
 import styles from "./BookDetail.module.css";
 
 /**
@@ -392,9 +392,9 @@ function NeighbourBlock({
           <li key={book.id}>
             <Link href={bookHref(book)} className={styles.neighbourRow}>
               <span className={styles.neighbourCover}>
-                {book.coverImage ? (
+                {coverSrc(book) ? (
                   <Image
-                    src={book.coverImage}
+                    src={coverSrc(book)!}
                     alt=""
                     fill
                     sizes="40px"

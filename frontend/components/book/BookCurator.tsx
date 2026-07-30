@@ -13,6 +13,7 @@ import {
   refreshBookEntry,
   searchBooks,
   updateBookEntry,
+  uploadImage,
   upsertReadingGoal,
 } from "@/lib/admin/api";
 import type {
@@ -720,11 +721,21 @@ export function QuoteEditor({
   );
 }
 
-/** Kitap sayfasındaki künye düzeltme formu — Türkçe ad, çevirmen, yayıncı. */
+/**
+ * Kitap sayfasındaki künye düzeltme formu — Türkçe ad, çevirmen, yayıncı ve
+ * **kapak**.
+ *
+ * Kapak alanı süs değil, zorunluluk: Türkçe basılı çevirilerin çoğunun
+ * kapağı ne Google Books'ta ne Open Library'de var (ikisi de o baskıyı
+ * yalnızca künye olarak tutuyor). Kapağı olmayan kitap için tek yol elle
+ * adres yapıştırmak ya da görsel yüklemek.
+ */
 export function DossierEditor({ book }: { book: ArchiveBook }) {
   const t = useTranslations("book.curator");
   const router = useRouter();
   const [title, setTitle] = useState(book.title);
+  const [coverImage, setCoverImage] = useState(book.coverImage ?? "");
+  const [uploading, setUploading] = useState(false);
   const [originalTitle, setOriginalTitle] = useState(book.originalTitle ?? "");
   const [translator, setTranslator] = useState(book.translator ?? "");
   const [publisher, setPublisher] = useState(book.publisher ?? "");
@@ -741,6 +752,20 @@ export function DossierEditor({ book }: { book: ArchiveBook }) {
   const [busy, setBusy] = useState(false);
   const [state, setState] = useState<"idle" | "saved" | "error">("idle");
 
+  /** Yüklenen görselin adresi kutuya düşer; kaydetmek yine "Kaydet" ile. */
+  async function handleUpload(file: File) {
+    setUploading(true);
+    setState("idle");
+    try {
+      const result = await uploadImage(file);
+      setCoverImage(result.url);
+    } catch {
+      setState("error");
+    } finally {
+      setUploading(false);
+    }
+  }
+
   async function handleSave(event: FormEvent) {
     event.preventDefault();
     setBusy(true);
@@ -750,6 +775,7 @@ export function DossierEditor({ book }: { book: ArchiveBook }) {
     try {
       await updateBookEntry(book.id, {
         title: title.trim() || book.title,
+        coverImage: coverImage.trim(),
         originalTitle: originalTitle.trim(),
         translator: translator.trim(),
         publisher: publisher.trim(),
@@ -799,6 +825,32 @@ export function DossierEditor({ book }: { book: ArchiveBook }) {
             value={originalTitle}
             maxLength={300}
             onChange={(event) => setOriginalTitle(event.target.value)}
+          />
+        </label>
+
+        <label className={styles.field}>
+          <span>{t("coverField")}</span>
+          <input
+            type="text"
+            value={coverImage}
+            disabled={uploading}
+            placeholder="https://…"
+            onChange={(event) => setCoverImage(event.target.value)}
+          />
+        </label>
+
+        <label className={styles.field}>
+          <span>{uploading ? t("uploading") : t("coverUpload")}</span>
+          <input
+            type="file"
+            accept="image/*"
+            disabled={uploading}
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              if (file) {
+                void handleUpload(file);
+              }
+            }}
           />
         </label>
         <label className={styles.field}>

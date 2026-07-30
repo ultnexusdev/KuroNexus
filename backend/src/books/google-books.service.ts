@@ -97,6 +97,16 @@ interface OpenLibrarySearchResponse {
   docs?: OpenLibraryDoc[];
 }
 
+/** ISBN ile çekilen **baskı** kaydı (eser değil). */
+interface OpenLibraryEdition {
+  title?: string;
+  /** Çeviri baskılarda eserin orijinal adı — Türkçe kayıtta en değerli alan */
+  translation_of?: string;
+  covers?: number[];
+  works?: Array<{ key?: string }>;
+  number_of_pages?: number;
+}
+
 @Injectable()
 export class GoogleBooksService {
   private readonly logger = new Logger(GoogleBooksService.name);
@@ -210,31 +220,44 @@ export class GoogleBooksService {
 
   /**
    * Google'dan gelen künyeyi Open Library ile tamamlar: ilk yayım yılı, seri
-   * adı/sırası ve orijinal ad. Bulunamazsa künye olduğu gibi döner — eksik
-   * alan sayfayı bozmuyor (kural 4).
+   * adı/sırası, orijinal ad ve (Google'da yoksa) kapak. Bulunamazsa künye
+   * olduğu gibi döner — eksik alan sayfayı bozmuyor (kural 4).
+   *
+   * Çeviri kitapta arama iki adımlı olmak zorunda: Open Library'de eser
+   * çoğunlukla **orijinal adıyla** kayıtlı, "Bülbülü Öldürmek" diye aramak
+   * sonuç vermiyor. O yüzden Türkçe adla bulunamazsa ISBN'den baskı kaydına
+   * gidilip `translation_of` ile orijinal ad öğreniliyor ve arama onunla
+   * tekrarlanıyor.
    */
   async enrich(book: BookSource): Promise<BookSource> {
     const author = book.authors[0] ?? '';
     const title = book.originalTitle ?? book.title;
-    const cacheKey = `books:ol:v1:${slugKey(title)}:${slugKey(author)}`;
-    const cached = await this.prisma.externalCache.findUnique({
-      where: { cacheKey },
-    });
 
-    let doc: OpenLibraryDoc | null = null;
-    if (cached && Date.now() - cached.fetchedAt.getTime() < CACHE_TTL_MS) {
-      doc = cached.payload as unknown as OpenLibraryDoc | null;
-    } else {
-      try {
-        doc = await this.openLibraryLookup(title, author);
-        await this.writeCache(cacheKey, doc);
-      } catch (error) {
-        this.logger.warn(`Open Library okunamadı: ${String(error)}`);
-        doc = (cached?.payload as unknown as OpenLibraryDoc | null) ?? null;
+    let doc = await this.cachedOpenLibraryLookup(title, author);
+    let editionCover: string | null = null;
+    let originalTitle = book.originalTitle;
+
+    if ((!doc || !doc.cover_i) && book.isbn13) {
+      const edition = await this.cachedOpenLibraryIsbn(book.isbn13);
+      if (edition?.covers?.[0]) {
+        editionCover = `${OPENLIBRARY_COVERS}/${edition.covers[0]}-L.jpg`;
+      }
+      // Baskı kaydı orijinal adı biliyorsa hem künyeye yazılır hem de eser
+      // araması onunla tekrarlanır
+      if (edition?.translation_of) {
+        originalTitle = originalTitle ?? edition.translation_of;
+        doc =
+          doc ??
+          (await this.cachedOpenLibraryLookup(edition.translation_of, author));
       }
     }
+
     if (!doc) {
-      return book;
+      return {
+        ...book,
+        originalTitle,
+        coverImage: book.coverImage ?? editionCover,
+      };
     }
 
     const series = readSeries(doc.series?.[0]);
@@ -248,11 +271,12 @@ export class GoogleBooksService {
       // Türkçe baskıda Google'ın verdiği ad zaten Türkçe; orijinali Open
       // Library'nin (İngilizce ağırlıklı) kaydından geliyor
       originalTitle:
-        book.originalTitle ??
+        originalTitle ??
         (doc.title && doc.title !== book.title ? doc.title : null),
       pageCount: book.pageCount ?? doc.number_of_pages_median ?? null,
       coverImage:
         book.coverImage ??
+        editionCover ??
         (doc.cover_i ? `${OPENLIBRARY_COVERS}/${doc.cover_i}-L.jpg` : null),
     };
   }
@@ -340,6 +364,59 @@ export class GoogleBooksService {
 
   // --- Open Library ---
 
+  /** Eser araması, cache'li. Bulunamadı bilgisi de (null) cache'lenir. */
+  private async cachedOpenLibraryLookup(
+    title: string,
+    author: string,
+  ): Promise<OpenLibraryDoc | null> {
+    const cacheKey = `books:ol:v1:${slugKey(title)}:${slugKey(author)}`;
+    const cached = await this.prisma.externalCache.findUnique({
+      where: { cacheKey },
+    });
+    if (cached && Date.now() - cached.fetchedAt.getTime() < CACHE_TTL_MS) {
+      return cached.payload as unknown as OpenLibraryDoc | null;
+    }
+    try {
+      const doc = await this.openLibraryLookup(title, author);
+      await this.writeCache(cacheKey, doc);
+      return doc;
+    } catch (error) {
+      this.logger.warn(`Open Library okunamadı: ${String(error)}`);
+      return (cached?.payload as unknown as OpenLibraryDoc | null) ?? null;
+    }
+  }
+
+  /**
+   * ISBN'den baskı kaydı. Çeviri kitabın orijinal adını (`translation_of`) ve
+   * kimi zaman kapağını buradan öğreniyoruz — eser araması Türkçe adla
+   * sonuç vermediğinde tek köprü bu.
+   *
+   * Kayıt yoksa Open Library 404 döner; bu bir hata değil, "bilmiyorum"
+   * demektir ve null olarak cache'lenir (aynı ISBN her eklemede sorulmasın).
+   */
+  private async cachedOpenLibraryIsbn(
+    isbn: string,
+  ): Promise<OpenLibraryEdition | null> {
+    const cacheKey = `books:ol-isbn:v1:${isbn}`;
+    const cached = await this.prisma.externalCache.findUnique({
+      where: { cacheKey },
+    });
+    if (cached && Date.now() - cached.fetchedAt.getTime() < CACHE_TTL_MS) {
+      return cached.payload as unknown as OpenLibraryEdition | null;
+    }
+    try {
+      const edition = await this.openLibraryRequest<OpenLibraryEdition>(
+        `/isbn/${encodeURIComponent(isbn)}.json`,
+        {},
+      );
+      await this.writeCache(cacheKey, edition);
+      return edition;
+    } catch {
+      await this.writeCache(cacheKey, null);
+      return null;
+    }
+  }
+
   private async openLibrarySearch(query: string): Promise<BookSource[]> {
     try {
       const payload = await this.openLibraryRequest<OpenLibrarySearchResponse>(
@@ -422,8 +499,19 @@ export class GoogleBooksService {
  * `edge=curl` (sahte sayfa kıvrımı) atılıyor ve şema `https`e çekiliyor —
  * karışık içerik uyarısı vermesin.
  */
-function googleCover(links: { thumbnail?: string } | undefined): string | null {
-  const raw = links?.thumbnail;
+function googleCover(
+  links: { thumbnail?: string; smallThumbnail?: string } | undefined,
+): string | null {
+  /**
+   * `books.google.com/books/content?id=…` adresi BİLEREK kullanılmıyor.
+   *
+   * O uç her cilt için 200 dönüyor ama kapağı olmayan kayıtlarda 1269 baytlık
+   * "kapak yok" görselini veriyor (Türkçe basılı baskıların çoğu böyle).
+   * Kullanılsaydı arşiv boş çerçeve yerine aynı gri lekeyle dolardı ve
+   * küratör hangi kitabın kapağını elle koyması gerektiğini göremezdi.
+   * `imageLinks` yoksa kapak gerçekten yoktur: null dönüyoruz.
+   */
+  const raw = links?.thumbnail ?? links?.smallThumbnail;
   if (!raw) {
     return null;
   }

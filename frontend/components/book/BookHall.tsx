@@ -22,7 +22,13 @@ import {
   type ShelfKey,
 } from "@/lib/book/shelves";
 import { BackToTop } from "@/components/BackToTop";
-import { BookCard, bookHref, Stars, TranslationBadge } from "./BookCard";
+import {
+  BookCard,
+  bookHref,
+  coverSrc,
+  Stars,
+  TranslationBadge,
+} from "./BookCard";
 import styles from "./BookHall.module.css";
 
 /**
@@ -401,9 +407,9 @@ export function BookHall({
                           }
                         >
                           <span className={styles.seriesCover}>
-                            {series.coverImage ? (
+                            {coverSrc(series) ? (
                               <Image
-                                src={series.coverImage}
+                                src={coverSrc(series)!}
                                 alt=""
                                 fill
                                 sizes="120px"
@@ -570,9 +576,9 @@ export function BookHall({
                     <li key={book.id}>
                       <Link href={bookHref(book)} className={styles.recentRow}>
                         <span className={styles.recentCover}>
-                          {book.coverImage ? (
+                          {coverSrc(book) ? (
                             <Image
-                              src={book.coverImage}
+                              src={coverSrc(book)!}
                               alt=""
                               fill
                               sizes="40px"
@@ -666,9 +672,9 @@ function Shelf({
             {row.map((book) => (
               <li key={book.id} className={styles.volume}>
                 <Link href={bookHref(book)} className={styles.spine}>
-                  {book.coverImage ? (
+                  {coverSrc(book) ? (
                     <Image
-                      src={book.coverImage}
+                      src={coverSrc(book)!}
                       alt=""
                       fill
                       sizes="(max-width: 640px) 30vw, 150px"

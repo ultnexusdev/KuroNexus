@@ -4,8 +4,21 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/lib/i18n/navigation";
+import { apiUrl } from "@/lib/api/client";
 import type { ArchiveBook } from "@/lib/api/types";
 import styles from "./BookHall.module.css";
+
+/**
+ * Kapak adresi. Google Books ve Open Library mutlak adres veriyor; küratörün
+ * yüklediği görsel ise `/uploads/…` göreli yoluyla geliyor ve onun kendi
+ * sunucumuza bağlanması gerekiyor. `apiUrl` mutlak adrese dokunmadan geçirir,
+ * o yüzden ikisi de aynı yoldan çizilebiliyor.
+ */
+export function coverSrc(book: {
+  coverImage: string | null;
+}): string | null {
+  return book.coverImage ? apiUrl(book.coverImage) : null;
+}
 
 // Salon sayfası ve raf sayfaları aynı kartı kullanır — tek yerde durur
 const CuratorCardTools = dynamic(
@@ -24,7 +37,8 @@ export function Cover({
   book: ArchiveBook;
   sizes: string;
 }) {
-  if (!book.coverImage) {
+  const src = coverSrc(book);
+  if (!src) {
     // Kapağı olmayan kitap: kapağın yerini adın kendisi tutar (boş kare değil)
     return (
       <span className={styles.coverFallback}>
@@ -37,7 +51,7 @@ export function Cover({
   }
   return (
     <Image
-      src={book.coverImage}
+      src={src}
       alt=""
       fill
       sizes={sizes}

@@ -79,17 +79,29 @@
 > olarak `interface` değil **tür takma adı** — örtük index imzası sayesinde
 > Prisma'nın `InputJsonValue`ına dönüşümsüz geçiyor.
 >
+> **GOOGLE BOOKS ANAHTARI GEREKİYOR (canlıda doğrulandı).** Anahtarsız istekler
+> **429 Too Many Requests** dönüyor — aynı sorgu ev makinesinden de 429 verdi,
+> yani sunucuya özgü bir engel değil, Google'ın anonim kotası. Bunun üzerine
+> `c34b696` ile arama **Open Library'ye düşüyor**: kanat anahtarsız da
+> çalışıyor (`/books/showcase` canlıda Open Library kapaklarıyla doldu). Ama
+> **Türkçe baskı önceliği yalnızca Google ile geliyor** — Open Library'de
+> Türkçe baskıların çoğu kayıtlı değil. Coolify'da backend'e
+> `GOOGLE_BOOKS_API_KEY` eklenirse Türkçe adlar kendiliğinden öne geçer;
+> kodda anahtar isteğe bağlı, ek değişiklik gerekmiyor.
+>
 > **Doğrulama:** backend `prisma validate` + `generate` + `nest build` temiz,
 > `npx eslint src/books` temiz; frontend `tsc --noEmit` + `eslint` + `next
-> build` temiz (kitap rotalarının üçü de derlendi). **Gerçek veriyle
-> denenmedi** — lokalde dev sunucusu dışarı çıkamıyor.
+> build` temiz. **Canlıda doğrulandı** (`a011627` + `c34b696`): `GET /books`
+> 200 (migration çalıştı, tablolar var), `/books/showcase` 200 ve dolu,
+> `/dark-stories/category/kitap`, `.../kitap/arsiv`, `.../arsiv/okuduklarim`
+> üçü de 200; arşiv sayfasının başlığı ve sol süzgeç rayı HTML'de görünüyor.
+> **Gerçek girişle (küratör modu) denenmedi.**
 >
 > **Kullanıcının canlıda bakacakları:** (1) kapı duvarında Kitap kapısının
-> altında "yakında" yerine evren sayısı, (2) lobide "Kitap Arşivi" kartının
-> açılması, (3) küratör modunda Google Books araması — Türkçe baskı üstte mi
-> geliyor, dil rozeti doğru mu, (4) kitap eklendikten sonra sekme sayaçları ve
-> sağ ray istatistikleri, (5) anime sayfasında küratör modu kapalıyken künye
-> formunun görünmemesi.
+> altında "yakında" yerine evren sayısı, (2) küratör modunda kitap araması —
+> anahtar yokken Open Library sonuçları geliyor, adlar İngilizce olacak,
+> (3) kitap eklendikten sonra sekme sayaçları ve sağ ray istatistikleri,
+> (4) anime sayfasında küratör modu kapalıyken künye formunun görünmemesi.
 
 > **OTURUM NOTU — 30 Temmuz 2026 (2).** **Salon 05 · Kitap kapısı açıldı.**
 > Salon sırası artık Film·Dizi·Spor·Anime·**Kitap**·Kadim Dünyalar, Temürkan

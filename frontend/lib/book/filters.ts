@@ -3,11 +3,12 @@ import type { ArchiveBook, BookTranslation } from "@/lib/api/types";
 /**
  * Kitap arşivinin süzgeç ve sıralama kuralları.
  *
- * Film kanadından üç fark var, üçü de kitaba özgü:
- *  - **sayfa aralığı** süzgeci (film süresinin karşılığı),
- *  - **çeviri durumu** süzgeci ("henüz çevrilmedi"leri gizle),
- *  - yıl süzgeci baskı yılına değil **ilk yayım yılına** bakar; 1954'te yazılıp
- *    2019'da basılan kitap 1950'lerde aranır.
+ * Film kanadından iki fark var, ikisi de kitaba özgü:
+ *  - dönem listesi **kitap ölçeğinde**: film salonunda 1980'lerden bugüne
+ *    yetiyor, kitapta Dostoyevski de rafta duruyor — 19. yüzyıl ve öncesi
+ *    ayrı kovalar,
+ *  - dönem **baskı yılına değil ilk yayım yılına** bakar; 1866'da yazılıp
+ *    2019'da basılan kitap 19. yüzyılda aranır.
  */
 
 export const SORT_KEYS = [
@@ -16,7 +17,6 @@ export const SORT_KEYS = [
   "yearDesc",
   "yearAsc",
   "pagesDesc",
-  "pagesAsc",
   "title",
   "author",
   "series",
@@ -30,34 +30,31 @@ export function isSortKey(value: string | null): value is SortKey {
   return value !== null && (SORT_KEYS as readonly string[]).includes(value);
 }
 
-/** Sol paneldeki sayfa sayısı kovaları (resimdeki düzen). */
-export const PAGE_BUCKETS = [
-  { value: "0-300", min: 0, max: 300 },
-  { value: "301-500", min: 301, max: 500 },
-  { value: "501-800", min: 501, max: 800 },
-  { value: "801-1200", min: 801, max: 1200 },
-  { value: "1200+", min: 1201, max: Number.MAX_SAFE_INTEGER },
+/**
+ * Dönem kovaları — film salonundaki "Dönem" seçkisinin kitap karşılığı.
+ * Yakın onluklar tek tek, eskiler gitgide genişleyerek: arşivde 1994 ile 1997
+ * arasındaki fark anlamlı, 1840 ile 1870 arasındaki değil.
+ */
+export const PERIOD_OPTIONS = [
+  { value: "2020s", from: 2020, to: 2029 },
+  { value: "2010s", from: 2010, to: 2019 },
+  { value: "2000s", from: 2000, to: 2009 },
+  { value: "1990s", from: 1990, to: 1999 },
+  { value: "1980s", from: 1980, to: 1989 },
+  { value: "1970s", from: 1970, to: 1979 },
+  { value: "1960s", from: 1960, to: 1969 },
+  { value: "1950s", from: 1950, to: 1959 },
+  { value: "1900-1949", from: 1900, to: 1949 },
+  { value: "19c", from: 1800, to: 1899 },
+  { value: "older", from: null, to: 1799 },
 ] as const;
 
-export type PageBucket = (typeof PAGE_BUCKETS)[number]["value"];
-
-/** Sol paneldeki puan eşikleri: "90+" = 9.0 ve üstü (beş yıldız). */
-export const RATING_THRESHOLDS = [
-  { value: "5", min: 9 },
-  { value: "4", min: 7.5 },
-  { value: "3", min: 5 },
-  { value: "2", min: 2.5 },
-  { value: "1", min: 0 },
-] as const;
+export type PeriodValue = (typeof PERIOD_OPTIONS)[number]["value"];
 
 export interface BookFilterState {
   genres: string[];
-  /** Yıldız eşiği ("5", "4"…) — biri seçilir, altındakiler de dahil olmaz */
-  rating: string | null;
-  /** İlk yayım yılı aralığı; null = sınırsız */
-  yearFrom: number | null;
-  yearTo: number | null;
-  pages: PageBucket[];
+  /** Dönem kovası; null = tüm yıllar */
+  period: PeriodValue | null;
   /** Baskı dili ("tr", "en"); boş = hepsi */
   languages: string[];
   translation: BookTranslation | null;
@@ -67,10 +64,7 @@ export interface BookFilterState {
 
 export const EMPTY_FILTERS: BookFilterState = {
   genres: [],
-  rating: null,
-  yearFrom: null,
-  yearTo: null,
-  pages: [],
+  period: null,
   languages: [],
   translation: null,
   search: "",
@@ -82,23 +76,18 @@ export function bookYear(book: ArchiveBook): number | null {
   return book.firstPublishedYear ?? book.publishedYear;
 }
 
-function matchesPages(book: ArchiveBook, buckets: PageBucket[]): boolean {
-  if (buckets.length === 0) {
-    return true;
-  }
-  // Sayfa sayısı bilinmeyen kitap sayfa süzgecinde elenir: aksi halde her
-  // kovada birden görünürdü
-  if (!book.pageCount) {
+function matchesPeriod(book: ArchiveBook, period: PeriodValue): boolean {
+  const year = bookYear(book);
+  // Yılı bilinmeyen kitap dönem süzgecinde elenir: aksi hâlde her kovada
+  // birden görünürdü
+  if (year === null) {
     return false;
   }
-  return buckets.some((value) => {
-    const bucket = PAGE_BUCKETS.find((item) => item.value === value);
-    return (
-      bucket !== undefined &&
-      book.pageCount! >= bucket.min &&
-      book.pageCount! <= bucket.max
-    );
-  });
+  const option = PERIOD_OPTIONS.find((item) => item.value === period);
+  if (!option) {
+    return true;
+  }
+  return (option.from === null || year >= option.from) && year <= option.to;
 }
 
 function matchesSearch(book: ArchiveBook, query: string): boolean {
@@ -139,11 +128,6 @@ export function applyFilters(
   books: ArchiveBook[],
   filters: BookFilterState,
 ): ArchiveBook[] {
-  const threshold = filters.rating
-    ? (RATING_THRESHOLDS.find((item) => item.value === filters.rating)?.min ??
-      null)
-    : null;
-
   const filtered = books.filter((book) => {
     // Türler VEYA ile birleşir: "Fantastik + Bilim Kurgu" ikisinden birini
     // taşıyan her kitabı getirir (VE ile seçim neredeyse hep boş dönüyordu)
@@ -153,20 +137,7 @@ export function applyFilters(
     ) {
       return false;
     }
-    if (
-      threshold !== null &&
-      (book.personalRating === null || book.personalRating < threshold)
-    ) {
-      return false;
-    }
-    const year = bookYear(book);
-    if (filters.yearFrom !== null && (year === null || year < filters.yearFrom)) {
-      return false;
-    }
-    if (filters.yearTo !== null && (year === null || year > filters.yearTo)) {
-      return false;
-    }
-    if (!matchesPages(book, filters.pages)) {
+    if (filters.period !== null && !matchesPeriod(book, filters.period)) {
       return false;
     }
     if (
@@ -199,9 +170,6 @@ export function applyFilters(
       break;
     case "pagesDesc":
       sorted.sort((a, b) => byNumber(a.pageCount, b.pageCount, "desc"));
-      break;
-    case "pagesAsc":
-      sorted.sort((a, b) => byNumber(a.pageCount, b.pageCount, "asc"));
       break;
     case "title":
       // Türkçe sıralama: "İ" ve "ş" doğru yere düşsün

@@ -5,35 +5,38 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/lib/i18n/navigation";
-import type { BookArchive } from "@/lib/api/types";
+import type { ArchiveBook, BookArchive } from "@/lib/api/types";
 import {
   applyFilters,
   EMPTY_FILTERS,
-  PAGE_BUCKETS,
-  RATING_THRESHOLDS,
+  PERIOD_OPTIONS,
   SORT_KEYS,
   type BookFilterState,
-  type PageBucket,
+  type PeriodValue,
   type SortKey,
 } from "@/lib/book/filters";
-import { belongsTo, shelfHref, SHELF_KEYS, type ShelfKey } from "@/lib/book/shelves";
+import {
+  belongsTo,
+  shelfHref,
+  SHELF_KEYS,
+  type ShelfKey,
+} from "@/lib/book/shelves";
 import { BackToTop } from "@/components/BackToTop";
-import { BookCard, bookHref, Stars } from "./BookCard";
+import { BookCard, bookHref, Stars, TranslationBadge } from "./BookCard";
 import styles from "./BookHall.module.css";
 
 /**
  * Salon 05 · Kitap — "Kitap Arşivim".
  *
- * Düzen film/dizi salonundan **bilinçli olarak ayrılıyor** (kullanıcı isteği:
- * "her şeyi ortada birleştirmeyelim, tüm alanı doldursun"): sabit genişlikte
- * tek sütun yerine ekranın tamamını kaplayan üç sütun —
- *  - **sol ray**: süzgeçler (tür, puan, yıl, sayfa, dil, çeviri),
- *  - **orta**: durum sekmeleri + kapak ızgarası + seriler + yazarlar,
- *  - **sağ ray**: okuma istatistikleri, yıllık hedef, son eklenenler, alıntı.
+ * Düzen üç sütun (kullanıcı isteği: "her şeyi ortada birleştirmeyelim, tüm
+ * alanı doldursun"): solda süzgeç rayı, ortada raflar, sağda okuma
+ * istatistikleri.
  *
- * Sebebi kitaba özgü: bir film arşivinde süzgeç birkaç tür, kitapta ise tür +
- * sayfa + dil + çeviri + yıl birlikte kullanılıyor ve bunlar şerit hâlinde
- * üstte durunca ızgarayı ekrandan aşağı itiyordu.
+ * Ortadaki bölümler film salonundaki gibi **alt alta raflar** — sekme değil.
+ * Ama film salonundan bir fark var: burası bir kitaplık. Her rafın kitapları
+ * ortak bir zemine basıyor, boyları birbirini tutmuyor ve altlarında gerçek
+ * bir raf tahtası var. Bir sinema salonunda afişler asılıdır, bir kitaplıkta
+ * ciltler **durur** — salonun imzası bu.
  */
 
 // Küratör kontrolleri yalnızca mod açılınca indirilir — ziyaretçi bu JS'i almaz
@@ -46,8 +49,11 @@ const GoalEditor = dynamic(
   { ssr: false },
 );
 
-// Izgara kaç kitapla açılır; "daha fazlasını yükle" bu kadar daha ekler
-const PAGE_SIZE = 20;
+// Salonda her raf tek sıra: rafa sığan cilt sayısı
+const SHELF_ROW = 7;
+
+// Tek rafın kendi sayfasında ızgara kaç kitapla açılır
+const PAGE_SIZE = 24;
 
 // Orta sütunun altındaki seri şeridi kaç kart taşır
 const SERIES_LIMIT = 6;
@@ -56,7 +62,7 @@ export function BookHall({
   archive,
   hallLabel,
   hallName,
-  initialShelf = "read",
+  shelf,
   isAdmin = false,
 }: {
   archive: BookArchive;
@@ -65,25 +71,29 @@ export function BookHall({
   /** Salon adı da aynı kaynaktan: kategori kaydı (kod içinde sabit yok) */
   hallName: string;
   /**
-   * Açılışta seçili raf. Raf sayfaları (`/arsiv/okuduklarim` gibi) ayrı bir
-   * bileşen değil, bu salonun o rafla açılmış hâli: film kanadında iki ayrı
-   * bileşen tutmak süzgeç davranışının iki yerde ayrışmasına yol açmıştı.
+   * Verilirse sayfa **tek rafın** kendi sayfasıdır: bütün raflar yerine o rafın
+   * tamamı ızgara olarak çizilir. Verilmezse salonun kendisi — raflar alt alta.
    */
-  initialShelf?: ShelfKey;
+  shelf?: ShelfKey;
   /** Küratör modu anahtarını gösterir — yetki her istekte backend'de doğrulanır */
   isAdmin?: boolean;
 }) {
   const t = useTranslations("book");
   const tStories = useTranslations("stories");
-  const [shelf, setShelf] = useState<ShelfKey>(initialShelf);
   const [filters, setFilters] = useState<BookFilterState>(EMPTY_FILTERS);
   const [limit, setLimit] = useState(PAGE_SIZE);
   const [curating, setCurating] = useState(false);
 
   const { books, stats } = archive;
 
-  // Sekme sayıları süzgeçten ETKİLENMEZ: "Okuduklarım 158" hep arşivin
-  // gerçeği olsun, seçili türe göre değişip kafa karıştırmasın
+  // Süzgeçler bütün raflara birden uygulanır
+  const visible = useMemo(
+    () => applyFilters(books, filters),
+    [books, filters],
+  );
+
+  // Raf sayaçları süzgeçten ETKİLENMEZ: "Okuduklarım 158" hep arşivin gerçeği
+  // olsun, seçili türe göre değişip kafa karıştırmasın
   const shelfCounts = useMemo(() => {
     const counts = {} as Record<ShelfKey, number>;
     for (const key of SHELF_KEYS) {
@@ -92,13 +102,25 @@ export function BookHall({
     return counts;
   }, [books]);
 
-  const visible = useMemo(
-    () => applyFilters(books.filter((book) => belongsTo(book, shelf)), filters),
-    [books, shelf, filters],
-  );
+  const languages = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const book of books) {
+      if (book.language) {
+        counts.set(book.language, (counts.get(book.language) ?? 0) + 1);
+      }
+    }
+    return [...counts.entries()]
+      .map(([code, count]) => ({ code, count }))
+      .sort((a, b) => b.count - a.count);
+  }, [books]);
 
-  const shown = visible.slice(0, limit);
   const isEmpty = books.length === 0;
+  const hasFilters =
+    filters.genres.length > 0 ||
+    filters.period !== null ||
+    filters.languages.length > 0 ||
+    filters.translation !== null ||
+    filters.search.trim() !== "";
 
   function patch(next: Partial<BookFilterState>) {
     setFilters((current) => ({ ...current, ...next }));
@@ -113,18 +135,6 @@ export function BookHall({
       : [...list, value];
   }
 
-  const languages = useMemo(() => {
-    const counts = new Map<string, number>();
-    for (const book of books) {
-      if (book.language) {
-        counts.set(book.language, (counts.get(book.language) ?? 0) + 1);
-      }
-    }
-    return [...counts.entries()]
-      .map(([code, count]) => ({ code, count }))
-      .sort((a, b) => b.count - a.count);
-  }, [books]);
-
   return (
     <div data-category="kitap" className={styles.hall}>
       <div className={styles.layout}>
@@ -133,11 +143,21 @@ export function BookHall({
           <div className={styles.railInner}>
             <h2 className={styles.railTitle}>{t("filters.title")}</h2>
 
+            {/* Tür listesi uzun: kapalı açılır bir bölüm olarak duruyor,
+                tıklanınca alt alta iniyor (kullanıcı isteği). `details`
+                kullanılıyor — JavaScript'siz de açılıp kapanır */}
             {archive.genres.length > 0 ? (
-              <section className={styles.filterBlock}>
-                <h3 className={styles.filterHead}>{t("filters.genre")}</h3>
+              <details className={styles.filterFold}>
+                <summary className={styles.filterSummary}>
+                  <span>{t("filters.genre")}</span>
+                  <span className={styles.summaryMeta}>
+                    {filters.genres.length > 0
+                      ? t("filters.selected", { count: filters.genres.length })
+                      : t("filters.all")}
+                  </span>
+                </summary>
                 <ul className={styles.filterList}>
-                  {archive.genres.slice(0, 12).map((genre) => (
+                  {archive.genres.map((genre) => (
                     <li key={genre.name}>
                       <button
                         type="button"
@@ -154,120 +174,50 @@ export function BookHall({
                         }
                       >
                         <span className={styles.filterLabel}>{genre.name}</span>
-                        <span className={styles.filterCount}>{genre.count}</span>
+                        <span className={styles.filterCount}>
+                          {genre.count}
+                        </span>
                       </button>
                     </li>
                   ))}
                 </ul>
-              </section>
+              </details>
             ) : null}
 
-            <section className={styles.filterBlock}>
-              <h3 className={styles.filterHead}>{t("filters.rating")}</h3>
-              <ul className={styles.filterList}>
-                {RATING_THRESHOLDS.map((item) => (
-                  <li key={item.value}>
-                    <button
-                      type="button"
-                      className={
-                        filters.rating === item.value
-                          ? styles.filterRowOn
-                          : styles.filterRow
-                      }
-                      aria-pressed={filters.rating === item.value}
-                      onClick={() =>
-                        patch({
-                          rating:
-                            filters.rating === item.value ? null : item.value,
-                        })
-                      }
-                    >
-                      <span className={styles.filterStars}>
-                        <Stars value={Number(item.value) * 2} />
-                      </span>
-                      <span className={styles.filterCount}>
-                        {t("filters.ratingMin", { value: item.min.toFixed(1) })}
-                      </span>
-                    </button>
-                  </li>
+            {/* Dönem: film salonundaki seçkinin kitap ölçeğindeki karşılığı */}
+            <label className={styles.selectField}>
+              <span className={styles.filterHead}>{t("filters.period")}</span>
+              <select
+                value={filters.period ?? ""}
+                onChange={(event) =>
+                  patch({
+                    period: event.target.value
+                      ? (event.target.value as PeriodValue)
+                      : null,
+                  })
+                }
+              >
+                <option value="">{t("filters.allYears")}</option>
+                {PERIOD_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {t(`filters.periodName.${option.value}`)}
+                  </option>
                 ))}
-              </ul>
-            </section>
-
-            <section className={styles.filterBlock}>
-              <h3 className={styles.filterHead}>{t("filters.year")}</h3>
-              {/* İki sayı kutusu: kaydırıcı dokunmatikte yıl seçimini
-                  imkânsızlaştırıyor, 1954 ile 1955 arasını tutturmak zor */}
-              <div className={styles.yearRange}>
-                <label className={styles.yearField}>
-                  <span>{t("filters.yearFrom")}</span>
-                  <input
-                    type="number"
-                    inputMode="numeric"
-                    value={filters.yearFrom ?? ""}
-                    placeholder="1900"
-                    onChange={(event) =>
-                      patch({
-                        yearFrom: event.target.value
-                          ? Number.parseInt(event.target.value, 10)
-                          : null,
-                      })
-                    }
-                  />
-                </label>
-                <label className={styles.yearField}>
-                  <span>{t("filters.yearTo")}</span>
-                  <input
-                    type="number"
-                    inputMode="numeric"
-                    value={filters.yearTo ?? ""}
-                    placeholder={String(new Date().getFullYear())}
-                    onChange={(event) =>
-                      patch({
-                        yearTo: event.target.value
-                          ? Number.parseInt(event.target.value, 10)
-                          : null,
-                      })
-                    }
-                  />
-                </label>
-              </div>
-            </section>
-
-            <section className={styles.filterBlock}>
-              <h3 className={styles.filterHead}>{t("filters.pages")}</h3>
-              <ul className={styles.filterList}>
-                {PAGE_BUCKETS.map((bucket) => (
-                  <li key={bucket.value}>
-                    <button
-                      type="button"
-                      className={
-                        filters.pages.includes(bucket.value)
-                          ? styles.filterRowOn
-                          : styles.filterRow
-                      }
-                      aria-pressed={filters.pages.includes(bucket.value)}
-                      onClick={() =>
-                        patch({
-                          pages: toggleInList<PageBucket>(
-                            filters.pages,
-                            bucket.value,
-                          ),
-                        })
-                      }
-                    >
-                      <span className={styles.filterLabel}>
-                        {t(`filters.pageBucket.${bucket.value}`)}
-                      </span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </section>
+              </select>
+            </label>
 
             {languages.length > 0 ? (
-              <section className={styles.filterBlock}>
-                <h3 className={styles.filterHead}>{t("filters.language")}</h3>
+              <details className={styles.filterFold}>
+                <summary className={styles.filterSummary}>
+                  <span>{t("filters.language")}</span>
+                  <span className={styles.summaryMeta}>
+                    {filters.languages.length > 0
+                      ? t("filters.selected", {
+                          count: filters.languages.length,
+                        })
+                      : t("filters.all")}
+                  </span>
+                </summary>
                 <ul className={styles.filterList}>
                   {languages.map((item) => (
                     <li key={item.code}>
@@ -296,7 +246,7 @@ export function BookHall({
                     </li>
                   ))}
                 </ul>
-              </section>
+              </details>
             ) : null}
 
             <section className={styles.filterBlock}>
@@ -330,29 +280,42 @@ export function BookHall({
               </ul>
             </section>
 
-            <button
-              type="button"
-              className={styles.clearFilters}
-              onClick={() => {
-                setFilters(EMPTY_FILTERS);
-                setLimit(PAGE_SIZE);
-              }}
-            >
-              {t("filters.clear")}
-            </button>
+            {hasFilters ? (
+              <button
+                type="button"
+                className={styles.clearFilters}
+                onClick={() => {
+                  setFilters(EMPTY_FILTERS);
+                  setLimit(PAGE_SIZE);
+                }}
+              >
+                {t("filters.clear")}
+              </button>
+            ) : null}
           </div>
         </aside>
 
         {/* ---- Orta sütun ---- */}
         <main className={styles.column}>
           <header className={styles.head}>
-            <Link href="/dark-stories/category/kitap" className={styles.back}>
-              {tStories("backToUniverse", { name: hallName })}
+            <Link
+              href={
+                shelf
+                  ? "/dark-stories/category/kitap/arsiv"
+                  : "/dark-stories/category/kitap"
+              }
+              className={styles.back}
+            >
+              {shelf
+                ? t("backToArchive")
+                : tStories("backToUniverse", { name: hallName })}
             </Link>
             <span className={styles.eyebrow}>
               {t("hall", { num: hallLabel, name: hallName })}
             </span>
-            <h1 className={styles.title}>{t("archiveTitle")}</h1>
+            <h1 className={styles.title}>
+              {shelf ? t(`shelf.${shelf}`) : t("archiveTitle")}
+            </h1>
             <p className={styles.epigraph}>{t("epigraph")}</p>
 
             {isAdmin ? (
@@ -368,25 +331,6 @@ export function BookHall({
               </div>
             ) : null}
           </header>
-
-          {/* Durum sekmeleri: raf sayfalarının kısayolu da onlar */}
-          <nav className={styles.tabs}>
-            {SHELF_KEYS.map((key) => (
-              <button
-                key={key}
-                type="button"
-                className={shelf === key ? styles.tabOn : styles.tab}
-                aria-pressed={shelf === key}
-                onClick={() => {
-                  setShelf(key);
-                  setLimit(PAGE_SIZE);
-                }}
-              >
-                <span className={styles.tabLabel}>{t(`shelf.${key}`)}</span>
-                <span className={styles.tabCount}>{shelfCounts[key]}</span>
-              </button>
-            ))}
-          </nav>
 
           {isAdmin && curating ? <CuratorBar /> : null}
 
@@ -420,40 +364,30 @@ export function BookHall({
                     ))}
                   </select>
                 </label>
-
-                <span className={styles.resultCount}>
-                  {t("resultCount", { count: visible.length })}
-                </span>
               </div>
 
-              {visible.length === 0 ? (
-                <p className={styles.empty}>{t("noMatch")}</p>
+              {shelf ? (
+                <SingleShelf
+                  books={visible.filter((book) => belongsTo(book, shelf))}
+                  limit={limit}
+                  curating={curating}
+                  onMore={() => setLimit((value) => value + PAGE_SIZE)}
+                />
               ) : (
-                <ul className={styles.grid}>
-                  {shown.map((book) => (
-                    <li key={book.id}>
-                      <BookCard book={book} curating={curating} />
-                    </li>
-                  ))}
-                </ul>
+                SHELF_KEYS.map((key) => (
+                  <Shelf
+                    key={key}
+                    shelf={key}
+                    books={visible.filter((book) => belongsTo(book, key))}
+                    total={shelfCounts[key]}
+                  />
+                ))
               )}
 
-              {visible.length > shown.length ? (
-                <div className={styles.loadMoreRow}>
-                  <button
-                    type="button"
-                    className={styles.loadMore}
-                    onClick={() => setLimit((value) => value + PAGE_SIZE)}
-                  >
-                    {t("loadMore")}
-                  </button>
-                </div>
-              ) : null}
-
               {/* Seriler: Kadim Dünyalar'a bağlı olan kart evren sayfasına
-                  açılır (kullanıcı isteği), bağlı olmayan seri kendi süzgecini
-                  kurar */}
-              {archive.series.length > 0 ? (
+                  açılır (kullanıcı isteği), bağlı olmayan seri kendi
+                  süzgecini kurar */}
+              {!shelf && archive.series.length > 0 ? (
                 <section className={styles.block}>
                   <h2 className={styles.blockTitle}>{t("seriesTitle")}</h2>
                   <ul className={styles.seriesRow}>
@@ -508,7 +442,7 @@ export function BookHall({
                 </section>
               ) : null}
 
-              {archive.authors.length > 0 ? (
+              {!shelf && archive.authors.length > 0 ? (
                 <section className={styles.block}>
                   <h2 className={styles.blockTitle}>{t("authorsTitle")}</h2>
                   <ul className={styles.authorGrid}>
@@ -601,7 +535,7 @@ export function BookHall({
               </dl>
             </section>
 
-            {/* Yıllık hedef halkası; hedef kurulmamışsa küratöre kurma yolu */}
+            {/* Yıllık hedef halkası; hedef kurulmamışsa çizilmez */}
             {stats.goal ? (
               <section className={styles.statBlock}>
                 <h2 className={styles.railTitle}>
@@ -659,9 +593,6 @@ export function BookHall({
                     </li>
                   ))}
                 </ul>
-                <Link href={shelfHref("read")} className={styles.railLink}>
-                  {t("showAll")}
-                </Link>
               </section>
             ) : null}
 
@@ -698,6 +629,153 @@ export function BookHall({
 }
 
 /**
+ * Bir raf. Ciltler ortak bir zemine basar, boyları birbirini tutmaz ve
+ * altlarında bir raf tahtası vardır — salonun imzası bu.
+ *
+ * Boy farkı rastgele DEĞİL, sıradan türetiliyor (CSS'te `nth-child`): sunucu
+ * ile istemci aynı boyu çizsin, sayfa açılışında kitaplar zıplamasın.
+ */
+function Shelf({
+  shelf,
+  books,
+  total,
+}: {
+  shelf: ShelfKey;
+  books: ArchiveBook[];
+  total: number;
+}) {
+  const t = useTranslations("book");
+  const row = books.slice(0, SHELF_ROW);
+
+  return (
+    <section className={styles.shelfSection}>
+      <div className={styles.shelfHead}>
+        <Link href={shelfHref(shelf)} className={styles.shelfLink}>
+          <h2 className={styles.shelfTitle}>{t(`shelf.${shelf}`)}</h2>
+        </Link>
+        <span className={styles.shelfCount}>
+          {t("shelfCount", { count: total })}
+        </span>
+      </div>
+
+      {row.length === 0 ? (
+        <p className={styles.emptyShelf}>{t("emptyShelf")}</p>
+      ) : (
+        <div className={styles.board}>
+          <ul className={styles.volumes}>
+            {row.map((book) => (
+              <li key={book.id} className={styles.volume}>
+                <Link href={bookHref(book)} className={styles.spine}>
+                  {book.coverImage ? (
+                    <Image
+                      src={book.coverImage}
+                      alt=""
+                      fill
+                      sizes="(max-width: 640px) 30vw, 150px"
+                      className={styles.coverImg}
+                      unoptimized
+                    />
+                  ) : (
+                    <span className={styles.coverFallback}>
+                      <span className={styles.coverFallbackTitle}>
+                        {book.title}
+                      </span>
+                    </span>
+                  )}
+
+                  {book.isFavorite ? (
+                    <span className={styles.favoriteMark} aria-hidden>
+                      ★
+                    </span>
+                  ) : null}
+                  {book.seriesIndex !== null && book.seriesName ? (
+                    <span className={styles.seriesMark}>
+                      {book.seriesIndex}
+                    </span>
+                  ) : null}
+                  <TranslationBadge book={book} />
+                  {book.status === "READING" && book.progress !== null ? (
+                    <span className={styles.cardProgress} aria-hidden>
+                      <span
+                        className={styles.cardProgressFill}
+                        style={{ width: `${book.progress}%` }}
+                      />
+                    </span>
+                  ) : null}
+                </Link>
+
+                <span className={styles.volumeText}>
+                  <Link href={bookHref(book)} className={styles.titleLink}>
+                    {book.title}
+                  </Link>
+                  {book.authors[0] ? (
+                    <span className={styles.volumeAuthor}>
+                      {book.authors[0]}
+                    </span>
+                  ) : null}
+                </span>
+              </li>
+            ))}
+          </ul>
+          {/* Raf tahtası: ciltlerin bastığı zemin */}
+          <span className={styles.plank} aria-hidden />
+        </div>
+      )}
+
+      {total > row.length ? (
+        <div className={styles.shelfFooter}>
+          <Link href={shelfHref(shelf)} className={styles.showAll}>
+            {t("showAll")}
+          </Link>
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+/** Rafın kendi sayfası: tek raf, ızgara olarak ve sayfalanarak. */
+function SingleShelf({
+  books,
+  limit,
+  curating,
+  onMore,
+}: {
+  books: ArchiveBook[];
+  limit: number;
+  curating: boolean;
+  onMore: () => void;
+}) {
+  const t = useTranslations("book");
+  const shown = books.slice(0, limit);
+
+  if (books.length === 0) {
+    return <p className={styles.empty}>{t("noMatch")}</p>;
+  }
+
+  return (
+    <>
+      <p className={styles.resultCount}>
+        {t("resultCount", { count: books.length })}
+      </p>
+      <ul className={styles.grid}>
+        {shown.map((book) => (
+          <li key={book.id}>
+            <BookCard book={book} curating={curating} />
+          </li>
+        ))}
+      </ul>
+      {books.length > shown.length ? (
+        <div className={styles.loadMoreRow}>
+          <button type="button" className={styles.loadMore} onClick={onMore}>
+            {t("loadMore")}
+          </button>
+        </div>
+      ) : null}
+    </>
+  );
+}
+
+/**
  * Hedef halkası. `conic-gradient` ile çiziliyor: SVG'siz, tek elemanla ve
  * tema token'larıyla — kural 16 gereği bileşende hex renk yok.
  */
@@ -710,7 +788,8 @@ function GoalRing({
   target: number;
   label: string;
 }) {
-  const percent = target > 0 ? Math.min(100, Math.round((done / target) * 100)) : 0;
+  const percent =
+    target > 0 ? Math.min(100, Math.round((done / target) * 100)) : 0;
   return (
     <div className={styles.goalRow}>
       <span
@@ -733,10 +812,7 @@ function GoalRing({
  */
 const KNOWN_LANGUAGES = ["tr", "en", "de", "fr", "es", "ru", "ja"];
 
-function languageName(
-  code: string,
-  t: (key: string) => string,
-): string {
+function languageName(code: string, t: (key: string) => string): string {
   return KNOWN_LANGUAGES.includes(code)
     ? t(`languageName.${code}`)
     : code.toLocaleUpperCase("tr");

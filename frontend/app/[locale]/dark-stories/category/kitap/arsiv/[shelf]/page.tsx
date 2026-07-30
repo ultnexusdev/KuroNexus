@@ -11,9 +11,10 @@ import { BookHall } from "@/components/book/BookHall";
 /**
  * Bir rafın kendi sayfası (`/arsiv/okuduklarim` gibi).
  *
- * Ayrı bir bileşen yok: salonun aynısı, yalnızca o rafla açılıyor. Film
- * kanadında raf sayfası ayrı bir bileşendi ve süzgeç davranışı iki yerde
- * ayrışmıştı — burada tekrarlanmıyor.
+ * Ayrı bir bileşen yok: salonun kendisi, `shelf` verilerek açılıyor — o zaman
+ * bütün rafları alt alta dizmek yerine yalnızca o rafın tamamını ızgara olarak
+ * çiziyor. Film kanadında raf sayfası ayrı bir bileşendi ve süzgeç davranışı
+ * iki yerde ayrışmıştı; burada tekrarlanmıyor.
  */
 
 const SLUG = "kitap";
@@ -68,7 +69,7 @@ export default async function BookShelfRoute({
       archive={archive}
       hallLabel={hall.label}
       hallName={hall.name}
-      initialShelf={key}
+      shelf={key}
       isAdmin={isAdmin}
     />
   );

@@ -401,6 +401,7 @@ export class BooksService {
 
     const seed = await this.seed(dto);
     const status = dto.status ?? 'READ';
+    const translationState = await this.resolveTranslation(dto, seed);
     return this.prisma.bookEntry.create({
       data: {
         googleId: dto.googleId ?? null,
@@ -420,8 +421,7 @@ export class BooksService {
         seriesName: dto.seriesName ?? seed?.seriesName ?? null,
         seriesIndex: dto.seriesIndex ?? seed?.seriesIndex ?? null,
         status,
-        translationState:
-          dto.translationState ?? guessTranslation(seed ?? null),
+        translationState,
         isFavorite: dto.isFavorite ?? false,
         personalRating: dto.personalRating ?? null,
         personalNote: dto.personalNote ?? null,
@@ -688,6 +688,39 @@ export class BooksService {
     return this.prisma.bookEntry.findFirst({
       where: { userId, isDeleted: false, OR: or },
     });
+  }
+
+  /**
+   * Çeviri durumunun son hâli.
+   *
+   * Küratörün seçtiği baskı İngilizce olduğu için arayüz "henüz çevrilmedi"
+   * öneriyor — ama bu, **eserin** çevrilmediği anlamına gelmiyor: küratör
+   * çevirisi olan bir kitabın İngilizce baskısını seçmiş de olabilir. Böyle
+   * bir durumda kaynağa bir kez daha sorulup Türkçe baskı gerçekten varsa
+   * damga "Türkçesi var"a çevriliyor.
+   *
+   * Yalnızca UNTRANSLATED yukarı düzeltiliyor: "çevrilmiş" demek kolay,
+   * "çevrilmemiş" demek zor bir iddia ve bu kanadın en görünür satırını
+   * ("5 kitaptan 3'ü Türkçe") yanlış besliyor. Kaynak susarsa (null) hiçbir
+   * şey değişmiyor, küratörün seçimi kalıyor.
+   */
+  private async resolveTranslation(
+    dto: CreateBookEntryDto,
+    seed: BookSource | null,
+  ): Promise<BookEntry['translationState']> {
+    const picked = dto.translationState ?? guessTranslation(seed);
+    if (picked !== 'UNTRANSLATED') {
+      return picked;
+    }
+    const title = seed?.originalTitle ?? seed?.title ?? dto.title ?? '';
+    if (!title) {
+      return picked;
+    }
+    const exists = await this.source.hasTurkishEdition(
+      title,
+      seed?.authors[0] ?? null,
+    );
+    return exists === true ? 'TRANSLATED' : picked;
   }
 
   /**

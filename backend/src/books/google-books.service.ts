@@ -148,6 +148,19 @@ export class GoogleBooksService {
         seen.add(key);
         merged.push(item);
       }
+
+      /**
+       * Türkçe baskılar başa. İki listeyi arka arkaya eklemek yetmiyordu:
+       * `langRestrict=tr` bazı çevirileri hiç bulamıyor (Google o cildin dilini
+       * işaretlememiş olabiliyor), ama aynı cilt genel aramanın alt
+       * sıralarında duruyor. Sıralama listenin **tamamına** uygulanınca
+       * oradan yukarı çıkıyor.
+       *
+       * `sort` kararlı olduğu için grup içindeki Google alaka sırası bozulmaz.
+       */
+      merged.sort(
+        (a, b) => (a.language === 'tr' ? 0 : 1) - (b.language === 'tr' ? 0 : 1),
+      );
     } catch (error) {
       this.logger.warn(
         `Google Books aranamadı, Open Library'ye düşülüyor: ${String(error)}`,
@@ -257,8 +270,14 @@ export class GoogleBooksService {
   ): Promise<boolean | null> {
     const query = author ? `${title} ${author}` : title;
     try {
-      const results = await this.googleSearch(query, 'tr');
-      return results.some((item) => item.language === 'tr');
+      // İki arama birden: `langRestrict` bazı çevirileri hiç bulamıyor (Google
+      // o cildin dilini işaretlememiş olabiliyor), o cilt genel aramanın alt
+      // sıralarında duruyor — tek sorguya güvenilmiyor
+      const [restricted, general] = await Promise.all([
+        this.googleSearch(query, 'tr'),
+        this.googleSearch(query),
+      ]);
+      return [...restricted, ...general].some((item) => item.language === 'tr');
     } catch {
       return null;
     }
@@ -293,8 +312,15 @@ export class GoogleBooksService {
     params: Record<string, string> = {},
   ): Promise<T> {
     const url = new URL(`${GOOGLE_BASE}${path}`);
-    // Türkçe künye alanları (kategori adları vb.) için ülke/dil ipucu
-    url.searchParams.set('country', 'TR');
+    /**
+     * `country` parametresi BİLEREK gönderilmiyor.
+     *
+     * Dil ipucu sanılıp `TR` verilmişti; oysa Google Books'ta `country`
+     * **Play Kitaplar mağaza uygunluğu** demek — o ülkede satışa sunulmuş
+     * ciltlerin dışındaki her şeyi eliyor. Türkçe *basılı* çevirilerin çoğu
+     * TR mağazasında olmadığı için tam da bulunması istenen kayıtlar
+     * düşüyordu ("Bülbülü Öldürmek" aranınca yalnızca İngilizcesi geliyordu).
+     */
     for (const [key, value] of Object.entries(params)) {
       url.searchParams.set(key, value);
     }

@@ -79,11 +79,36 @@
   }
 }
 
-/* Dar ekranda glif sola yaslı, parallax yok (JS tarafında da kapalı) */
+/* Dar ekranda mühür tek başına bir hero değil, mottonun yanında duran
+   kompakt bir logo kilidi: küçülür ve 黒 ile "nexus" birbirine göre
+   ORTALANIR. Eskiden ikisi sola yaslanıyordu ama CJK glifinin yan
+   boşlukları yüzünden mürekkep hizası kaçıyor, yazı glifin solundan
+   başlıyormuş gibi görünüyordu. Parallax burada zaten kapalı. */
 @media (max-width: 560px) {
   .glyphCol {
-    align-items: flex-start;
+    align-items: center;
     margin-left: 0;
+    gap: 0;
+  }
+
+  .glyph {
+    font-size: clamp(3.4rem, 14vw, 4.6rem);
+    -webkit-text-stroke-width: 1px;
+    filter: drop-shadow(
+      0 0 8px color-mix(in srgb, var(--hub-gold) 28%, transparent)
+    );
+  }
+
+  .glyphWord {
+    /* Harf aralığı da küçüldü: 0.55em bu boyutta kelimeyi dağıtıyordu */
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    text-indent: 0.3em;
+  }
+
+  .aura {
+    inset: -18% -24%;
+    filter: blur(6px);
   }
 }
 

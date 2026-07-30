@@ -231,8 +231,10 @@
 
 .suggestionGrid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--gap-lg) var(--gap-md);
+  /* Mobilde uc afis: kuratur modunda oneri afisleri ekrani kapliyordu
+     (kullanici geri bildirimi) */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--pad-md) var(--gap-sm);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -316,7 +318,7 @@
   margin: var(--gap-sm) 0 0;
   overflow: hidden;
   color: var(--text-primary);
-  font-size: 0.82rem;
+  font-size: 0.74rem;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -328,8 +330,8 @@
   margin: 2px 0 0;
   color: var(--text-muted);
   font-family: var(--font-bebas), var(--font-sans);
-  font-size: 0.82rem;
-  letter-spacing: 0.1em;
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
 }
 
 .suggestionScore {
@@ -338,6 +340,8 @@
 
 .suggestionActions {
   display: flex;
+  /* Uc kolonda iki dugme yan yana sigmiyor: dar ekranda alt alta gecerler */
+  flex-wrap: wrap;
   gap: 4px;
   margin-top: 6px;
 }
@@ -387,6 +391,21 @@
 @media (min-width: 640px) {
   .suggestionGrid {
     grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: var(--gap-lg) var(--gap-md);
+  }
+
+  /* Dar ekran icin kisilmis olculer bu genislikten sonra eski haline doner */
+  .suggestionTitle,
+  .suggestionMeta {
+    font-size: 0.82rem;
+  }
+
+  .suggestionMeta {
+    letter-spacing: 0.1em;
+  }
+
+  .suggestionActions {
+    flex-wrap: nowrap;
   }
 }
 

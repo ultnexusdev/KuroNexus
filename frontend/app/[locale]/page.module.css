@@ -194,15 +194,66 @@
   }
 }
 
-/* Dar ekranda glif metnin üstünde durur, sola yaslı (glif hizası HeroGlyph'te) */
+/* --- Dar ekran hero düzeni ---
+   Mühür eskiden mottonun ÜSTÜNDE tek başına duruyordu; ekranın yarısını
+   kaplıyor, altındaki manifesto ekranın dışına itiliyordu. Artık iki kolonlu
+   bir kilit: solda küçültülmüş logo, sağında motto, ikisinin altında tam
+   genişlikte "Kişisel Kültür Arşivi" satırı ve tanıtım metni.
+
+   `.textCol` mobilde `display: contents` alır — böylece eyebrow/manifesto/
+   sub/cta doğrudan bu ızgaranın hücreleri olur ve DOM sırası değişmeden
+   eyebrow mottonun ALTINA inebilir (kaynakta eyebrow önce geliyor). */
 @media (max-width: 560px) {
   .curator {
-    flex-direction: column;
-    gap: 20px;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    column-gap: 14px;
+    row-gap: 0;
+    padding-top: 8px;
+  }
+
+  .textCol {
+    display: contents;
+    /* display:contents kutu üretmediği için giriş animasyonu burada geçersiz */
+    animation: none;
+  }
+
+  .manifesto {
+    grid-column: 2;
+    grid-row: 1;
+    font-size: clamp(1.55rem, 6.6vw, 2.1rem);
+    line-height: 1.12;
+  }
+
+  .eyebrow {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    margin: 20px 0 0;
+    font-size: 0.66rem;
+    letter-spacing: 0.32em;
+  }
+
+  .sub {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    margin-top: 14px;
+    font-size: 0.94rem;
+    line-height: 1.65;
+  }
+
+  .cta {
+    grid-column: 1 / -1;
+    grid-row: 4;
+    margin-top: 22px;
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
+/* Giriş animasyonu yalnızca geniş ekranda: dar ekranda `.textCol`
+   `display: contents` aldığı için kutu üretmiyor, animasyonun tutunacağı bir
+   yüzey yok. Kural buraya kısıtlanmasa dosyada sonra geldiği için mobil
+   bloktaki `animation: none`ı eziyordu. */
+@media (prefers-reduced-motion: no-preference) and (min-width: 561px) {
   .textCol {
     animation: curatorIn 0.8s ease both;
   }

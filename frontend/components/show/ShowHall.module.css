@@ -59,7 +59,7 @@
   margin: var(--gap-sm) 0 0;
   color: var(--text-primary);
   font-family: var(--font-cinzel), serif;
-  font-size: clamp(2rem, 5.5vw, 3.4rem);
+  font-size: clamp(1.65rem, 6.2vw, 3.4rem);
   font-weight: 600;
   letter-spacing: 0.06em;
   line-height: 1.05;
@@ -148,7 +148,7 @@
 .statValue {
   color: var(--text-primary);
   font-family: var(--font-bebas), var(--font-sans);
-  font-size: 2.4rem;
+  font-size: 1.95rem;
   line-height: 1.1;
   letter-spacing: 0.04em;
 }
@@ -210,7 +210,7 @@
 
 .frame {
   flex: 0 0 auto;
-  width: 148px;
+  width: 116px;
   padding: 8px;
   border-left: 1px solid var(--film-curtain);
   scroll-snap-align: start;
@@ -294,7 +294,7 @@
   margin: 0;
   color: var(--text-primary);
   font-family: var(--font-cinzel), serif;
-  font-size: 1.35rem;
+  font-size: 1.15rem;
   font-weight: 600;
   letter-spacing: 0.05em;
 }
@@ -408,8 +408,10 @@
 
 .shelf {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--gap-lg) var(--gap-md);
+  /* Mobilde uc afis: iki afis ekrani kapliyor, rafa bakmak yerine tek tek
+     kaydirmak gerekiyordu (kullanici geri bildirimi) */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--pad-md) var(--gap-sm);
   margin: var(--pad-lg) 0 0;
   padding: 0;
   list-style: none;
@@ -523,7 +525,7 @@
   margin: var(--gap-sm) 0 0;
   overflow: hidden;
   color: var(--text-primary);
-  font-size: 0.86rem;
+  font-size: 0.76rem;
   font-weight: 500;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -585,8 +587,8 @@
   margin: 2px 0 0;
   color: var(--text-muted);
   font-family: var(--font-bebas), var(--font-sans);
-  font-size: 0.85rem;
-  letter-spacing: 0.1em;
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
 }
 
 .cardRating {
@@ -736,6 +738,29 @@
 
   .shelf {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--gap-lg) var(--gap-md);
+  }
+
+  /* Dar ekran icin kisilmis olculer bu genislikten sonra eski haline doner */
+  .cardTitle {
+    font-size: 0.86rem;
+  }
+
+  .cardMeta {
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+  }
+
+  .frame {
+    width: 148px;
+  }
+
+  .statValue {
+    font-size: 2.4rem;
+  }
+
+  .shelfTitle {
+    font-size: 1.35rem;
   }
 
   .wall {

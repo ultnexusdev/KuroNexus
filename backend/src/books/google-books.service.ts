@@ -119,6 +119,11 @@ export class GoogleBooksService {
    * eklemek mümkün kalıyor (kullanıcı kararı).
    *
    * Cache'lenmez: sorgu her seferinde farklı.
+   *
+   * **Google düşerse arama ölmez, Open Library'ye düşer.** Anahtarsız istekleri
+   * Google kotaya takıp `429` veriyor (canlıda doğrulandı) — o durumda hata
+   * fırlatılsaydı kitap eklemenin tek yolu tamamen kapanırdı. Anahtar
+   * (`GOOGLE_BOOKS_API_KEY`) tanımlanınca Türkçe baskılar yine öne geçer.
    */
   async search(query: string): Promise<BookSource[]> {
     const trimmed = query.trim();
@@ -126,24 +131,30 @@ export class GoogleBooksService {
       return [];
     }
 
-    const [turkish, general] = await Promise.all([
-      this.googleSearch(trimmed, 'tr'),
-      this.googleSearch(trimmed),
-    ]);
-
     const merged: BookSource[] = [];
-    const seen = new Set<string>();
-    for (const item of [...turkish, ...general]) {
-      // Aynı baskı iki listede de olabilir; kimlik Google numarası
-      const key = item.googleId ?? `${item.title}|${item.authors[0] ?? ''}`;
-      if (seen.has(key)) {
-        continue;
+    try {
+      const [turkish, general] = await Promise.all([
+        this.googleSearch(trimmed, 'tr'),
+        this.googleSearch(trimmed),
+      ]);
+
+      const seen = new Set<string>();
+      for (const item of [...turkish, ...general]) {
+        // Aynı baskı iki listede de olabilir; kimlik Google numarası
+        const key = item.googleId ?? `${item.title}|${item.authors[0] ?? ''}`;
+        if (seen.has(key)) {
+          continue;
+        }
+        seen.add(key);
+        merged.push(item);
       }
-      seen.add(key);
-      merged.push(item);
+    } catch (error) {
+      this.logger.warn(
+        `Google Books aranamadı, Open Library'ye düşülüyor: ${String(error)}`,
+      );
     }
 
-    // Google'da hiç sonuç yoksa (eski ya da niş kitap) Open Library'ye düşülür
+    // Google susarsa ya da hiç sonuç vermezse (eski/niş kitap) ikinci kaynak
     if (merged.length === 0) {
       return this.openLibrarySearch(trimmed);
     }

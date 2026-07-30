@@ -690,22 +690,32 @@ export class BooksService {
     });
   }
 
-  /** Dış kaynaktan ilk veriyi çeker; erişilemezse null (kayıt yine açılır). */
+  /**
+   * Dış kaynaktan ilk veriyi çeker; erişilemezse null (kayıt yine açılır).
+   *
+   * Google cilt künyesi düşerse (anahtarsız isteklerde `429` görülüyor) kayıt
+   * künyesiz kalmasın diye ada göre aramaya düşülüyor — `search` kendi içinde
+   * zaten Open Library'ye düşebiliyor.
+   */
   private async seed(dto: CreateBookEntryDto): Promise<BookSource | null> {
-    try {
-      if (dto.googleId) {
+    if (dto.googleId) {
+      try {
         return await this.source.enrich(
           await this.source.getVolume(dto.googleId),
         );
+      } catch {
+        // Cilt künyesi alınamadı; aşağıdaki ada göre arama denenir
       }
-      if (dto.title) {
+    }
+    if (dto.title) {
+      try {
         const results = await this.source.search(dto.title);
         return results[0] ? await this.source.enrich(results[0]) : null;
+      } catch {
+        return null;
       }
-      return null;
-    } catch {
-      return null;
     }
+    return null;
   }
 
   /**

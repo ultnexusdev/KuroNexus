@@ -150,7 +150,18 @@ interface BinKitapAbout {
 
 interface BinKitapResult {
   kitap?: BinKitapBookHead;
-  liste?: Array<BinKitapBookHead & { hakkinda?: BinKitapAbout }>;
+  liste?: Array<
+    BinKitapBookHead & {
+      hakkinda?: BinKitapAbout;
+      /** Yazar sayfasında biyografi bu dalda duruyor (ölçüldü) */
+      veri?: { bilgiParse?: { parse?: string[] } };
+    }
+  >;
+  /** Yazar sayfasının kişi kaydı */
+  yazar?: BinKitapPerson & {
+    resimB?: string;
+    kitapSayisi?: string | number;
+  };
 }
 
 interface BinKitapPageProps {
@@ -170,6 +181,11 @@ export interface BinKitapPersonCredit {
    */
   binKitapId: string | null;
   name: string;
+  /**
+   * Kaynağın adres anahtarı — yazar sayfası **yalnızca** bununla açılıyor
+   * (ölçüldü: kimlikli biçimler 200 dönüp boş sayfa veriyor).
+   */
+  seoName: string | null;
   /** Kaynak yazar fotoğrafını da veriyor; indirilip yerelleştirilir */
   photo: string | null;
   role: 'AUTHOR' | 'TRANSLATOR' | 'EDITOR';
@@ -192,6 +208,15 @@ export interface BinKitapCredits {
   genres: BinKitapGenreCredit[];
   publisher: string | null;
   series: { name: string; index: number | null } | null;
+}
+
+/** Yazar/çevirmen sayfasından çekilen kişi bilgisi. */
+export interface BinKitapPersonDetail {
+  binKitapId: string | null;
+  name: string;
+  seoName: string | null;
+  photo: string | null;
+  biography: string | null;
 }
 
 /**
@@ -304,6 +329,41 @@ export class BinKitapService {
     }
 
     const detail = toDetail(data, slug);
+    if (detail) {
+      await this.writeCache(cacheKey, detail);
+    }
+    return detail;
+  }
+
+  /**
+   * Yazar/çevirmen sayfası: biyografi ve fotoğraf.
+   *
+   * Yazar sayfasını elle doldurmak zorunda kalmamak için var — kaynak ikisini
+   * de veriyor (ölçüldü). Kişi başına **bir kez** çekilip cache'e yazılıyor;
+   * biyografi künyeden bile durgun bir veri.
+   *
+   * Adres kişinin `seo_adi` alanı ("harper-lee"). Bulunamazsa `null` döner ve
+   * çağıran kişiyi biyografisiz gösterir — sayfa yine çalışır (kural 4).
+   */
+  async getPerson(seoName: string): Promise<BinKitapPersonDetail | null> {
+    const cacheKey = `books:1k:person:v1:${slugKey(seoName)}`;
+    const cached = await this.readCache<BinKitapPersonDetail>(
+      cacheKey,
+      DETAIL_TTL_MS,
+    );
+    if (cached) {
+      return cached;
+    }
+
+    let data: BinKitapNextData | null;
+    try {
+      data = await this.fetchNextData(`/yazar/${encodeURI(seoName)}`);
+    } catch (error) {
+      this.logger.warn(`1000Kitap yazarı çekilemedi (${seoName}): ${error}`);
+      return null;
+    }
+
+    const detail = toPersonDetail(data);
     if (detail) {
       await this.writeCache(cacheKey, detail);
     }
@@ -597,6 +657,34 @@ function readAuthors(item: BinKitapBookHead): string[] {
 }
 
 /**
+ * Yazar sayfasını kişi kaydına çevirir.
+ *
+ * Biyografi kitap açıklamasıyla **aynı biçimde** geliyor (`bilgiParse.parse`,
+ * paragraf dizisi) — bu yüzden aynı temizleyiciden geçiyor: etiketler
+ * ayıklanıyor, paragraflar korunuyor.
+ */
+export function toPersonDetail(
+  data: BinKitapNextData | null,
+): BinKitapPersonDetail | null {
+  const result = data?.props?.pageProps?.response?._sonuc;
+  const person = result?.yazar;
+  if (!person?.adi) {
+    return null;
+  }
+  const biography = (result?.liste ?? [])
+    .map((item) => item.veri?.bilgiParse?.parse)
+    .find((paragraphs) => paragraphs && paragraphs.length > 0);
+
+  return {
+    binKitapId: person.id ?? null,
+    name: person.adi,
+    seoName: person.seo_adi ?? null,
+    photo: person.resimB ?? person.resim ?? null,
+    biography: readDescription(biography),
+  };
+}
+
+/**
  * Künyedeki bütün kişileri rolleriyle çıkarır — ilişkisel modelin girdisi.
  *
  * Aynı kişi iki rolde birden görünebiliyor (yazar-çevirmen), o yüzden
@@ -620,6 +708,7 @@ function readPeople(item: BinKitapBookHead): BinKitapPersonCredit[] {
       people.push({
         binKitapId: person.id ?? null,
         name: person.adi,
+        seoName: person.seo_adi ?? null,
         photo: person.resim ?? null,
         role,
         orderIndex: index,

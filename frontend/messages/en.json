@@ -281,6 +281,24 @@
       "nameRequired": "Player name is required.",
       "error": "The operation failed."
     },
+    "books": {
+      "title": "Book Archive Maintenance",
+      "maintenance": "Maintenance",
+      "maintenanceHint": "Both are safe to run as often as you like; they skip work that is already done.",
+      "localizeCovers": "Download covers to my server",
+      "backfillCredits": "Migrate older books to the new credit model",
+      "running": "Running…",
+      "coversDone": "Scanned {scanned} books, downloaded {done} covers.",
+      "creditsDone": "Scanned {scanned} books, migrated {done}.",
+      "taskFailed": "The operation failed.",
+      "loadFailed": "Could not load the list.",
+      "pendingGenres": "Genres awaiting approval",
+      "pendingGenresHint": "These came from the source but have no match in the genre dictionary. Until approved they stay out of the filter.",
+      "noPendingGenres": "No genres awaiting approval.",
+      "genreBookCount": "in {count} books",
+      "approve": "Approve",
+      "reject": "Delete"
+    },
     "transferNews": {
       "title": "Transfer News",
       "newsTitle": "Headline",
@@ -840,6 +858,16 @@
       "archive": {
         "title": "Book Archive",
         "desc": "What I have read, abandoned halfway, lined up next and marked as favourite — with page progress."
+      },
+      "person": {
+        "backToHall": "← Back to the book hall",
+        "bookCount": "{count} books in the archive",
+        "noBooks": "No books by this person in the archive.",
+        "role": {
+          "AUTHOR": "Author",
+          "TRANSLATOR": "Translator",
+          "EDITOR": "Editor"
+        }
       },
       "awards": {
         "title": "Awards",

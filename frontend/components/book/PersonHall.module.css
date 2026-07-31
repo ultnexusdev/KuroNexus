@@ -1,0 +1,127 @@
+/* Yazar / çevirmen ve yayınevi sayfaları. Ödül rafıyla aynı iskeleti
+   izliyor: dar bir başlık bloğu ve altında kitap ızgarası. */
+
+.page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: var(--gap-lg) var(--gap-md) var(--gap-xl);
+}
+
+.head {
+  margin-bottom: var(--gap-lg);
+}
+
+.back {
+  display: inline-block;
+  margin-bottom: var(--gap-sm);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+
+.back:hover,
+.back:focus-visible {
+  color: var(--accent);
+}
+
+.eyebrow {
+  display: block;
+  color: var(--text-muted);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.8rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* Fotoğraf ve ad yan yana; dar ekranda alt alta inmiyor çünkü portre küçük
+   ve yanındaki iki satır onunla aynı yüksekliğe sığıyor. */
+.identity {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-md);
+  margin-top: var(--gap-xs);
+}
+
+.portrait {
+  position: relative;
+  flex-shrink: 0;
+  width: 84px;
+  height: 84px;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  background: var(--surface-2);
+}
+
+.portraitImg {
+  object-fit: cover;
+}
+
+.identityText {
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+}
+
+.roles {
+  margin: 2px 0 0;
+  color: var(--accent);
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.count {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* Biyografi okunmak için: ölçü sınırlı, satır aralığı geniş */
+.biography {
+  max-width: 68ch;
+  margin-top: var(--gap-md);
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+.biography p {
+  margin: 0 0 0.9em;
+}
+
+.biography p:last-child {
+  margin-bottom: 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(116px, 1fr));
+  gap: var(--gap-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.empty {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(98px, 1fr));
+    gap: var(--gap-sm);
+  }
+
+  .portrait {
+    width: 64px;
+    height: 64px;
+  }
+}

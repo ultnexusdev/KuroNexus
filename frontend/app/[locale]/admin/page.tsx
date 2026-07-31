@@ -20,6 +20,9 @@ export default function AdminHomePage() {
           <Link href="/admin/film" className="card">
             {t("film.title")}
           </Link>
+          <Link href="/admin/kitap" className="card">
+            {t("books.title")}
+          </Link>
           <Link href="/admin/stories" className="card">
             {t("stories.title")}
           </Link>

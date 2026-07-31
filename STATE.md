@@ -94,11 +94,39 @@
 > Mantolu Madonna → ikisi de yok. Kişiler kimlik + fotoğrafla geliyor
 > (Harper Lee 566, Ülker İnce 35562, Bilge Sancı 72979).
 >
-> **SIRADAKİ — FAZ 2b (YAZILMADI):** okuma yolunu ilişkilere geçir, düz metin
-> sütunlarını (`authors`, `publisher`, `translator`, `genres`, `seriesName`)
-> düşür, `publisherRef` ilişkisini `publisher` olarak yeniden adlandır,
-> ön yüzdeki `lib/book/genres.ts` kopyasını sil ve türleri API'den okut,
-> admin panele "onay bekleyen türler" ekranı ekle, yazar paneline biyografi.
+> **FAZ 2b BİTTİ — yazar sayfası, tıklanabilir künye, admin bakım ekranı.**
+> Kullanıcının canlı geri bildirimi üzerine yapıldı: "kapak da geldi, sadece
+> yazar tıklanmıyor".
+>
+> - **Kitap sayfasında yazar, çevirmen ve yayınevi tıklanabilir.** Bağ ancak
+>   ilişkisi olan kayıtta kuruluyor; olmayanda düz metin gösteriliyor. Böylece
+>   Google/Open Library'den eklenmiş kitaplar eksiksiz görünmeye devam ediyor
+>   (`CreditNames`, `BookDetail.tsx`).
+> - **Yazar/çevirmen sayfası** `/kitap/kisi/<slug>`: fotoğraf, biyografi,
+>   roller ve o kişinin arşivdeki kitapları. **Yayınevi sayfası**
+>   `/kitap/yayinevi/<slug>`. İkisi `PersonHall.tsx`te.
+> - **Biyografi ve fotoğraf kaynaktan otomatik geliyor**, ilk ziyarette bir kez
+>   çekilip DB'ye yazılıyor — kişi eklenirken çekilseydi her kitap eklemesi bir
+>   istek daha atardı ve çoğu yazarın sayfası hiç açılmayacaktı.
+> - **Admin bakım ekranı** `/admin/kitap`: "Kapakları kendi sunucuma indir" ve
+>   "Eski kitapların künyesini yeni düzene aktar" düğmeleri (kullanıcı `curl`
+>   ile uğraşmasın diye) + **onay bekleyen türler** listesi (onayla / sil).
+>
+> **CANLIDA ÖLÇÜLEN HATA — 200 yanıltmıştı.** Yazar sayfası **yalnızca**
+> kaynağın kendi `seo_adi`siyle açılıyor: `/yazar/harper-lee` çalışıyor, ama
+> `/yazar/harper-lee--566` ve `/yazar/566` **200 dönüp BOŞ sayfa** veriyor.
+> İlk doğrulamada yalnızca durum koduna bakıp "üç biçim de çalışıyor" sanmıştım;
+> gerçek istekte biyografi boş gelince ortaya çıktı. Bu yüzden `BookPerson`a
+> `binKitapSeoName` sütunu eklendi (migration
+> `20260731230000_add_person_seo_name`, eklemeli).
+> Doğrulandı: Harper Lee, Ülker İnce ve Sabahattin Ali için biyografi + fotoğraf
+> geliyor. Çevirmenin de biyografisi gelmesi tek kişi tablosu kararının karşılığı.
+>
+> **SIRADAKİ — Faz 2c (YAZILMADI, acil değil):** düz metin sütunlarını
+> (`authors`, `publisher`, `translator`, `genres`, `seriesName`) düşür,
+> `publisherRef` ilişkisini `publisher` olarak yeniden adlandır, ön yüzdeki
+> `lib/book/genres.ts` kopyasını sil ve türleri API'den okut, seri sayfası,
+> salon yazar panelini kişi sayfasına bağla.
 >
 > **EVDE DOĞRULANACAK (lokalden admin API'sine bağlanılamıyor):**
 > 1. Küratörde ara: **"bül"** → `1K` rozetli *Bülbülü Öldürmek* listenin

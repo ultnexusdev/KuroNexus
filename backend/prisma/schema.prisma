@@ -635,6 +635,16 @@ model BookPerson {
   /// "STEVEN ERIKSON" üç ayrı kişi sanılırdı.
   binKitapId String? @unique
 
+  /// Kaynağın kendi adres anahtarı (`yazarlar[].seo_adi`, "harper-lee").
+  ///
+  /// `slug`tan ayrı tutuluyor çünkü **yazar sayfası yalnızca bu biçimle
+  /// açılıyor** (ölçüldü): `/yazar/harper-lee` çalışıyor; `/yazar/harper-lee--566`
+  /// ve `/yazar/566` ise **200 dönüp boş sayfa** veriyor — yalnızca durum
+  /// koduna bakan bir doğrulama bunu "çalışıyor" sanır. Kendi slug'umuz çoğu
+  /// adda aynı çıkıyor ama eşit olduklarını varsaymak biyografiyi sessizce
+  /// kaybettirirdi.
+  binKitapSeoName String?
+
   /// Kaynak fotoğrafı da veriyor (`yazarlar[].resim`); indirilip
   /// `/uploads/books/…` olarak saklanır (hotlink yok).
   photo     String?

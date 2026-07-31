@@ -843,6 +843,43 @@ export interface ArchiveBook {
   /** Okuma yüzdesi; sayfa sayısı bilinmiyorsa null (çubuk çizilmez) */
   progress: number | null;
   universeId: string | null;
+  /**
+   * Tıklanabilir künye. Düz metin alanlarının (`authors`, `publisher`,
+   * `seriesName`) yanında duruyor: ilişkisi olan kayıtta bağ kurulur,
+   * olmayanda düz metin gösterilir — Google/Open Library'den eklenmiş
+   * kitaplar da eksiksiz görünmeye devam etsin.
+   */
+  credits: BookCredits;
+}
+
+export type BookPersonRole = "AUTHOR" | "TRANSLATOR" | "EDITOR";
+
+export interface BookCreditPerson {
+  slug: string;
+  name: string;
+  role: BookPersonRole;
+}
+
+export interface BookCredits {
+  people: BookCreditPerson[];
+  publisher: { slug: string; name: string } | null;
+  series: { slug: string; name: string } | null;
+}
+
+/** Yazar / çevirmen sayfası. */
+export interface BookPersonPage {
+  slug: string;
+  name: string;
+  photo: string | null;
+  biography: string | null;
+  roles: BookPersonRole[];
+  books: ArchiveBook[];
+}
+
+export interface BookPublisherPage {
+  slug: string;
+  name: string;
+  books: ArchiveBook[];
 }
 
 export interface BookQuote {

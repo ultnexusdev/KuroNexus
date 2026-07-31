@@ -1,0 +1,143 @@
+.page {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: var(--pad-lg) var(--pad-md) 56px;
+}
+
+.title {
+  margin: 0 0 1.5rem;
+  font-size: 1.6rem;
+}
+
+.block {
+  padding: var(--pad-md);
+  margin-bottom: 2rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.blockTitle {
+  margin: 0 0 0.35rem;
+  font-size: 1.1rem;
+}
+
+.hint {
+  margin: 0 0 1rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+/* Dokunma hedefi 44px: bakım düğmelerine telefondan da basılıyor */
+.action {
+  min-height: 44px;
+  padding: 0 1rem;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.action:hover:not(:disabled),
+.action:focus-visible:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.action:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.ok,
+.error {
+  margin: 1rem 0 0;
+  font-size: 0.9rem;
+}
+
+.ok {
+  color: var(--accent);
+}
+
+.error {
+  color: var(--danger, #d66);
+}
+
+.empty {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.genreList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.genreRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.genreRow:last-child {
+  border-bottom: none;
+}
+
+.genreName {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 0.95rem;
+}
+
+.genreCount {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.approve,
+.reject {
+  flex-shrink: 0;
+  min-height: 36px;
+  padding: 0 0.75rem;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.approve {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.reject {
+  color: var(--text-muted);
+}
+
+.approve:disabled,
+.reject:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+@media (max-width: 520px) {
+  .genreRow {
+    flex-wrap: wrap;
+  }
+
+  .genreName {
+    flex: 1 1 100%;
+  }
+}

@@ -7,11 +7,57 @@ import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/lib/i18n/navigation";
 import type {
   ArchiveBook,
+  BookCreditPerson,
   BookDetail as BookDetailData,
   BookLinkKind,
+  BookPersonRole,
 } from "@/lib/api/types";
 import { Cover, Stars, TranslationBadge, bookHref, coverSrc } from "./BookCard";
 import styles from "./BookDetail.module.css";
+
+export function personHref(slug: string): string {
+  return `/dark-stories/category/kitap/kisi/${slug}`;
+}
+
+export function publisherHref(slug: string): string {
+  return `/dark-stories/category/kitap/yayinevi/${slug}`;
+}
+
+/**
+ * Künyedeki adları **bağ olarak** çizer; ilişkisi olmayan kayıtta düz metne
+ * düşer.
+ *
+ * Neden iki yol birden: Google/Open Library'den eklenmiş ya da ilişkisel
+ * künye gelmeden önce kaydedilmiş kitaplarda yalnızca düz metin var. Bağ
+ * zorlansaydı o kitapların yazarı hiç görünmezdi; düz metinde kalınsaydı da
+ * 1000Kitap'tan gelen kayıtların yazar sayfası açılamazdı.
+ */
+function CreditNames({
+  people,
+  role,
+  fallback,
+}: {
+  people: BookCreditPerson[];
+  role: BookPersonRole;
+  fallback: string;
+}) {
+  const linked = people.filter((person) => person.role === role);
+  if (linked.length === 0) {
+    return <>{fallback}</>;
+  }
+  return (
+    <>
+      {linked.map((person, index) => (
+        <span key={person.slug}>
+          {index > 0 ? ", " : null}
+          <Link href={personHref(person.slug)} className={styles.creditLink}>
+            {person.name}
+          </Link>
+        </span>
+      ))}
+    </>
+  );
+}
 
 /**
  * Kitap sayfası.
@@ -93,8 +139,14 @@ export function BookDetail({
               <p className={styles.originalTitle}>{book.originalTitle}</p>
             ) : null}
 
-            {book.authors.length > 0 ? (
-              <p className={styles.authors}>{book.authors.join(", ")}</p>
+            {book.authors.length > 0 || book.credits.people.length > 0 ? (
+              <p className={styles.authors}>
+                <CreditNames
+                  people={book.credits.people}
+                  role="AUTHOR"
+                  fallback={book.authors.join(", ")}
+                />
+              </p>
             ) : null}
 
             <div className={styles.badges}>
@@ -168,22 +220,45 @@ export function BookDetail({
             <section className={styles.section}>
               <h2 className={styles.sectionTitle}>{t("detail.dossier")}</h2>
               <dl className={styles.dossierList}>
-                {book.authors.length > 0 ? (
+                {book.authors.length > 0 || book.credits.people.length > 0 ? (
                   <div>
                     <dt>{t("detail.author")}</dt>
-                    <dd>{book.authors.join(", ")}</dd>
+                    <dd>
+                      <CreditNames
+                        people={book.credits.people}
+                        role="AUTHOR"
+                        fallback={book.authors.join(", ")}
+                      />
+                    </dd>
                   </div>
                 ) : null}
                 {book.translator ? (
                   <div>
                     <dt>{t("detail.translator")}</dt>
-                    <dd>{book.translator}</dd>
+                    <dd>
+                      <CreditNames
+                        people={book.credits.people}
+                        role="TRANSLATOR"
+                        fallback={book.translator}
+                      />
+                    </dd>
                   </div>
                 ) : null}
                 {book.publisher ? (
                   <div>
                     <dt>{t("detail.publisher")}</dt>
-                    <dd>{book.publisher}</dd>
+                    <dd>
+                      {book.credits.publisher ? (
+                        <Link
+                          href={publisherHref(book.credits.publisher.slug)}
+                          className={styles.creditLink}
+                        >
+                          {book.credits.publisher.name}
+                        </Link>
+                      ) : (
+                        book.publisher
+                      )}
+                    </dd>
                   </div>
                 ) : null}
                 {book.isbn13 ? (

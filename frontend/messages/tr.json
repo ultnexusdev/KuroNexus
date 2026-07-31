@@ -281,6 +281,24 @@
       "nameRequired": "Oyuncu adı zorunlu.",
       "error": "İşlem başarısız."
     },
+    "books": {
+      "title": "Kitap Arşivi Bakımı",
+      "maintenance": "Bakım",
+      "maintenanceHint": "İkisini de istediğiniz kadar çalıştırabilirsiniz; zaten yapılmış işi tekrar yapmazlar.",
+      "localizeCovers": "Kapakları kendi sunucuma indir",
+      "backfillCredits": "Eski kitapların künyesini yeni düzene aktar",
+      "running": "Çalışıyor…",
+      "coversDone": "{scanned} kitap tarandı, {done} kapak indirildi.",
+      "creditsDone": "{scanned} kitap tarandı, {done} kitabın künyesi aktarıldı.",
+      "taskFailed": "İşlem başarısız.",
+      "loadFailed": "Liste alınamadı.",
+      "pendingGenres": "Onay bekleyen türler",
+      "pendingGenresHint": "Kaynaktan geldi ama tür sözlüğünde karşılığı yok. Onaylamazsanız süzgeçte görünmezler.",
+      "noPendingGenres": "Onay bekleyen tür yok.",
+      "genreBookCount": "{count} kitapta",
+      "approve": "Onayla",
+      "reject": "Sil"
+    },
     "transferNews": {
       "title": "Transfer Haberleri",
       "newsTitle": "Haber başlığı",
@@ -840,6 +858,16 @@
       "archive": {
         "title": "Kitap Arşivi",
         "desc": "Okuduklarım, yarısında kaldıklarım, sırada bekleyenler ve favorilerim — sayfa ilerlemesiyle birlikte."
+      },
+      "person": {
+        "backToHall": "← Kitap salonuna dön",
+        "bookCount": "Arşivde {count} kitap",
+        "noBooks": "Bu kişiye ait arşivde kitap yok.",
+        "role": {
+          "AUTHOR": "Yazar",
+          "TRANSLATOR": "Çevirmen",
+          "EDITOR": "Editör"
+        }
       },
       "awards": {
         "title": "Ödüller",

@@ -26,20 +26,27 @@ function translatedPayload() {
               baskiyili: '2014',
               okuduDuz: 89456,
               yazarGruplari: [
+                // Gerçek yanıtta kişilerin kimliği ve adres anahtarı var
                 {
                   turId: 1,
                   turAdi: 'Yazar',
-                  yazarlar: [{ id: '566', adi: 'Harper Lee' }],
+                  yazarlar: [
+                    { id: '566', adi: 'Harper Lee', seo_adi: 'harper-lee' },
+                  ],
                 },
                 {
                   turId: 2,
                   turAdi: 'Çevirmen',
-                  yazarlar: [{ id: '1201', adi: 'Ülker İnce' }],
+                  yazarlar: [
+                    { id: '1201', adi: 'Ülker İnce', seo_adi: 'ulker-ince' },
+                  ],
                 },
                 {
                   turId: 3,
                   turAdi: 'Editör',
-                  yazarlar: [{ id: '9002', adi: 'Bilge Sancı' }],
+                  yazarlar: [
+                    { id: '9002', adi: 'Bilge Sancı', seo_adi: 'bilge-sanci' },
+                  ],
                 },
               ],
             },
@@ -234,6 +241,7 @@ describe('toDetail', () => {
       {
         binKitapId: '566',
         name: 'Harper Lee',
+        seoName: 'harper-lee',
         photo: null,
         role: 'AUTHOR',
         orderIndex: 0,
@@ -241,6 +249,7 @@ describe('toDetail', () => {
       {
         binKitapId: '1201',
         name: 'Ülker İnce',
+        seoName: 'ulker-ince',
         photo: null,
         role: 'TRANSLATOR',
         orderIndex: 0,
@@ -248,6 +257,7 @@ describe('toDetail', () => {
       {
         binKitapId: '9002',
         name: 'Bilge Sancı',
+        seoName: 'bilge-sanci',
         photo: null,
         role: 'EDITOR',
         orderIndex: 0,

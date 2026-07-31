@@ -38,8 +38,24 @@ export class BooksController {
     return this.awardsService.getAward(key);
   }
 
-  // Kitap sayfası. ':slug' en sonda: 'showcase' ve 'awards' gibi sabit yollar
-  // önce eşleşsin
+  /**
+   * Yazar / çevirmen sayfası. Biyografi ilk ziyarette kaynaktan çekilip
+   * kalıcı saklanıyor, sonraki ziyaretler tamamen kendi veritabanımızdan.
+   */
+  @Public()
+  @Get('kisi/:slug')
+  getPerson(@Param('slug') slug: string) {
+    return this.booksService.getPerson(slug);
+  }
+
+  @Public()
+  @Get('yayinevi/:slug')
+  getPublisher(@Param('slug') slug: string) {
+    return this.booksService.getPublisher(slug);
+  }
+
+  // Kitap sayfası. ':slug' en sonda: 'showcase', 'awards', 'kisi' ve
+  // 'yayinevi' gibi sabit yollar önce eşleşsin
   @Public()
   @Get(':slug')
   getDetail(@Param('slug') slug: string) {

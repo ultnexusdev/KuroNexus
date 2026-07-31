@@ -98,6 +98,7 @@ export class BookCreditsService {
   private async resolvePerson(person: {
     binKitapId: string | null;
     name: string;
+    seoName: string | null;
     photo: string | null;
   }): Promise<string | null> {
     const slug = slugify(person.name);
@@ -120,12 +121,14 @@ export class BookCreditsService {
         existing.photo ?? (await this.covers.download(person.photo));
       const needsUpdate =
         (!existing.binKitapId && person.binKitapId) ||
+        (!existing.binKitapSeoName && person.seoName) ||
         (!existing.photo && photo);
       if (needsUpdate) {
         await this.prisma.bookPerson.update({
           where: { id: existing.id },
           data: {
             binKitapId: existing.binKitapId ?? person.binKitapId,
+            binKitapSeoName: existing.binKitapSeoName ?? person.seoName,
             photo: existing.photo ?? photo,
           },
         });
@@ -139,6 +142,7 @@ export class BookCreditsService {
         name: person.name,
         slug,
         binKitapId: person.binKitapId,
+        binKitapSeoName: person.seoName,
         photo,
       },
     });

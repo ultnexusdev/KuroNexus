@@ -16,6 +16,7 @@ import { UpdateBookQuoteDto } from './dto/update-book-quote.dto';
 import { UpsertReadingGoalDto } from './dto/upsert-reading-goal.dto';
 import type {
   BookEntry,
+  BookPersonRole,
   BookQuote,
   Prisma,
   ReadingGoal,
@@ -122,6 +123,13 @@ export interface ArchiveBook {
   /** Okuma yüzdesi; sayfa sayısı bilinmiyorsa null (çubuk çizilmez) */
   progress: number | null;
   universeId: string | null;
+  /**
+   * Tıklanabilir künye (Faz 2b). Düz metin alanlarının (`authors`,
+   * `publisher`, `seriesName`) yanında duruyor: ilişkisi olan kayıtta bağ
+   * kurulur, olmayanda düz metin gösterilir. Böylece Google/Open Library'den
+   * eklenmiş ya da Faz 2a öncesi kayıtlar da eksiksiz görünmeye devam eder.
+   */
+  credits: BookCredits;
 }
 
 /** Seri kartı: "5 kitaptan 3'ü Türkçe" satırının kaynağı. */
@@ -205,6 +213,35 @@ export interface BookDetail {
   universe: { id: string; name: string; slug: string } | null;
 }
 
+/** Kitap künyesinde tıklanabilir bir kişi (yazar / çevirmen / editör). */
+export interface BookCreditPerson {
+  slug: string;
+  name: string;
+  role: BookPersonRole;
+}
+
+/**
+ * Kitabın ilişkisel künyesi. Faz 2a öncesi eklenmiş ya da Google/Open
+ * Library'den gelen kayıtlarda **boş olabilir** — arayüz o zaman düz metni
+ * gösteriyor, bağ kurmuyor. Geçiş boyunca ikisi bir arada yaşıyor.
+ */
+export interface BookCredits {
+  people: BookCreditPerson[];
+  publisher: { slug: string; name: string } | null;
+  series: { slug: string; name: string } | null;
+}
+
+/** Yazar/çevirmen sayfası. */
+export interface BookPersonPage {
+  slug: string;
+  name: string;
+  photo: string | null;
+  biography: string | null;
+  /** Hangi rollerde görünüyor — "Yazar · Çevirmen" satırı için */
+  roles: BookPersonRole[];
+  books: ArchiveBook[];
+}
+
 @Injectable()
 export class BooksService {
   constructor(
@@ -227,6 +264,7 @@ export class BooksService {
       this.prisma.bookEntry.findMany({
         where: { isDeleted: false },
         orderBy: [{ finishedAt: 'desc' }, { createdAt: 'desc' }],
+        include: CREDITS_INCLUDE,
       }),
       this.currentGoal(),
       this.prisma.wikiUniverse.findMany({
@@ -378,6 +416,99 @@ export class BooksService {
     return payload;
   }
 
+  /**
+   * Yazar / çevirmen sayfası: künye, biyografi ve o kişinin arşivdeki kitapları.
+   *
+   * **Biyografi ilk ziyarette çekilip kalıcı olarak saklanıyor.** Kişi
+   * kaydı eklenirken çekilseydi her kitap eklemesi bir istek daha atardı ve
+   * çoğu yazarın sayfası hiç açılmayacaktı. Kaynak susarsa sayfa
+   * biyografisiz çizilir (kural 4) — kişi ve kitapları zaten bizde.
+   */
+  async getPerson(slug: string): Promise<BookPersonPage> {
+    const person = await this.prisma.bookPerson.findUnique({
+      where: { slug },
+      include: {
+        entries: {
+          where: { entry: { isDeleted: false } },
+          include: { entry: true },
+          orderBy: { orderIndex: 'asc' },
+        },
+      },
+    });
+    if (!person) {
+      throw new NotFoundException('BOOKS.PERSON_NOT_FOUND');
+    }
+
+    const filled = await this.fillBiography(person);
+    const books = withSlugs(person.entries.map((link) => link.entry));
+    return {
+      slug: person.slug,
+      name: person.name,
+      photo: filled.photo,
+      biography: filled.biography,
+      roles: [...new Set(person.entries.map((link) => link.role))],
+      books,
+    };
+  }
+
+  /**
+   * Biyografi ve fotoğraf eksikse kaynaktan bir kez doldurur.
+   *
+   * Adres **kaynağın kendi `seo_adi`si** olmak zorunda: ölçüldü ki
+   * `/yazar/harper-lee` çalışıyor, `/yazar/harper-lee--566` ve `/yazar/566`
+   * ise 200 dönüp BOŞ sayfa veriyor. Kimlik taşıyan biçimlere güvenmek
+   * biyografiyi sessizce kaybettirirdi.
+   *
+   * `seo_adi` yoksa (Faz 2a'da eklenmiş kayıtlarda boş) kendi slug'umuz
+   * deneniyor — çoğu adda aynı çıkıyor, tutmazsa sayfa biyografisiz çizilir.
+   */
+  private async fillBiography(person: {
+    id: string;
+    slug: string;
+    binKitapSeoName: string | null;
+    photo: string | null;
+    biography: string | null;
+  }): Promise<{ photo: string | null; biography: string | null }> {
+    if (person.biography) {
+      return { photo: person.photo, biography: person.biography };
+    }
+
+    const detail = await this.binKitap.getPerson(
+      person.binKitapSeoName ?? person.slug,
+    );
+    if (!detail?.biography && !detail?.photo) {
+      return { photo: person.photo, biography: person.biography };
+    }
+
+    const photo = person.photo ?? (await this.covers.download(detail.photo));
+    const biography = person.biography ?? detail.biography;
+    await this.prisma.bookPerson.update({
+      where: { id: person.id },
+      data: { photo, biography },
+    });
+    return { photo, biography };
+  }
+
+  /** Yayınevi sayfası: o yayınevinden arşivdeki kitaplar. */
+  async getPublisher(
+    slug: string,
+  ): Promise<{ slug: string; name: string; books: ArchiveBook[] }> {
+    const publisher = await this.prisma.bookPublisher.findUnique({
+      where: { slug },
+      include: {
+        books: { where: { isDeleted: false }, orderBy: { title: 'asc' } },
+      },
+    });
+    if (!publisher) {
+      throw new NotFoundException('BOOKS.PUBLISHER_NOT_FOUND');
+    }
+    return {
+      slug: publisher.slug,
+      name: publisher.name,
+      books: withSlugs(publisher.books),
+    };
+  }
+
   // --- Admin ---
 
   /**
@@ -443,6 +574,50 @@ export class BooksService {
   }
 
   /**
+   * Onay bekleyen türler: kaynaktan geldi ama sözlükte karşılığı yok.
+   *
+   * Kullanıcı kararı gereği bunlar otomatik kabul edilmiyor — süzgeçte
+   * görünmüyorlar, burada listelenip elle onaylanıyorlar. Kaç kitapta
+   * geçtikleri birlikte dönüyor: "1 kitapta geçen tür" ile "40 kitapta geçen
+   * tür" farklı kararlar.
+   */
+  async pendingGenres(): Promise<
+    Array<{ id: string; name: string; slug: string; bookCount: number }>
+  > {
+    const genres = await this.prisma.bookGenre.findMany({
+      where: { isApproved: false },
+      include: { _count: { select: { entries: true } } },
+    });
+    return genres
+      .map((genre) => ({
+        id: genre.id,
+        name: genre.name,
+        slug: genre.slug,
+        bookCount: genre._count.entries,
+      }))
+      .sort((a, b) => b.bookCount - a.bookCount);
+  }
+
+  /**
+   * Bir türü onaylar ya da reddeder.
+   *
+   * Reddetmek türü **siliyor**, gizlemiyor: aksi hâlde aynı ad her kitap
+   * eklemesinde yeniden bekleyenlere düşer ve liste hiç boşalmaz. Silinince
+   * kitapla bağı da düşüyor (`onDelete: Cascade`), zaten süzgeçte görünmüyordu.
+   */
+  async reviewGenre(id: string, approve: boolean): Promise<{ id: string }> {
+    if (approve) {
+      await this.prisma.bookGenre.update({
+        where: { id },
+        data: { isApproved: true },
+      });
+    } else {
+      await this.prisma.bookGenre.delete({ where: { id } });
+    }
+    return { id };
+  }
+
+  /**
    * Mevcut kayıtların düz metin künyesinden ilişkileri kurar (Faz 2a geçişi).
    *
    * 1000Kitap'tan önce eklenmiş kitaplarda yazar/yayınevi/tür yalnızca metin
@@ -471,6 +646,9 @@ export class BooksService {
         ...entry.authors.map((name, index) => ({
           binKitapId: null,
           name,
+          // Geri doldurmada kaynak kimliği yok: kayıtta yalnızca düz metin
+          // var. Kitap 1000Kitap'tan tazelenirse kimlikler o zaman dolar.
+          seoName: null,
           photo: null,
           role: 'AUTHOR' as const,
           orderIndex: index,
@@ -479,6 +657,9 @@ export class BooksService {
         ...splitNames(entry.translator).map((name, index) => ({
           binKitapId: null,
           name,
+          // Geri doldurmada kaynak kimliği yok: kayıtta yalnızca düz metin
+          // var. Kitap 1000Kitap'tan tazelenirse kimlikler o zaman dolar.
+          seoName: null,
           photo: null,
           role: 'TRANSLATOR' as const,
           orderIndex: index,
@@ -1143,10 +1324,48 @@ function withSlugs(entries: BookEntry[]): ArchiveBook[] {
   });
 }
 
-function toArchiveBook(entry: BookEntry): ArchiveBook {
+/**
+ * İlişkileri yüklenmiş kayıt. İlişkiler **isteğe bağlı**: yalnızca salon ve
+ * kitap sayfası sorguları onları yüklüyor; yazar/yayınevi sayfasındaki kitap
+ * kartlarının künye bağına ihtiyacı yok, oradaki fazladan `join` boşuna olurdu.
+ */
+type BookEntryWithCredits = BookEntry & {
+  people?: Array<{
+    role: BookPersonRole;
+    orderIndex: number;
+    person: { slug: string; name: string };
+  }>;
+  publisherRef?: { slug: string; name: string } | null;
+  series?: { slug: string; name: string } | null;
+};
+
+/** Salon ve kitap sayfasının künye bağları için ortak `include`. */
+const CREDITS_INCLUDE = {
+  people: {
+    include: { person: { select: { slug: true, name: true } } },
+    orderBy: { orderIndex: 'asc' },
+  },
+  publisherRef: { select: { slug: true, name: true } },
+  series: { select: { slug: true, name: true } },
+} satisfies Prisma.BookEntryInclude;
+
+function toCredits(entry: BookEntryWithCredits): BookCredits {
+  return {
+    people: (entry.people ?? []).map((link) => ({
+      slug: link.person.slug,
+      name: link.person.name,
+      role: link.role,
+    })),
+    publisher: entry.publisherRef ?? null,
+    series: entry.series ?? null,
+  };
+}
+
+function toArchiveBook(entry: BookEntryWithCredits): ArchiveBook {
   return {
     id: entry.id,
     slug: '',
+    credits: toCredits(entry),
     googleId: entry.googleId,
     olKey: entry.olKey,
     isbn13: entry.isbn13,

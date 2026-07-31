@@ -828,6 +828,58 @@ export function refreshBookEntry(id: string): Promise<BookEntryRecord> {
   });
 }
 
+// ---- Kitap bakımı ----
+
+export interface BookMaintenanceResult {
+  scanned: number;
+  localized?: number;
+  linked?: number;
+}
+
+/** Dış adresle duran kapakları kendi sunucumuza indirir (hotlink yok). */
+export function localizeBookCovers(): Promise<BookMaintenanceResult> {
+  return apiFetch<BookMaintenanceResult>("/admin/books/covers/localize", {
+    method: "POST",
+    headers: authHeaders(),
+  });
+}
+
+/** Eski kayıtların düz metin künyesinden yazar/yayınevi/tür bağlarını kurar. */
+export function backfillBookCredits(): Promise<BookMaintenanceResult> {
+  return apiFetch<BookMaintenanceResult>("/admin/books/credits/backfill", {
+    method: "POST",
+    headers: authHeaders(),
+  });
+}
+
+export interface PendingGenre {
+  id: string;
+  name: string;
+  slug: string;
+  bookCount: number;
+}
+
+/** Kaynaktan gelip sözlükte karşılığı olmayan, onay bekleyen türler. */
+export function getPendingGenres(): Promise<PendingGenre[]> {
+  return apiFetch<PendingGenre[]>("/admin/books/genres/pending", {
+    headers: authHeaders(),
+  });
+}
+
+export function approveGenre(id: string): Promise<{ id: string }> {
+  return apiFetch<{ id: string }>(`/admin/books/genres/${id}/approve`, {
+    method: "PATCH",
+    headers: authHeaders(),
+  });
+}
+
+export function rejectGenre(id: string): Promise<{ id: string }> {
+  return apiFetch<{ id: string }>(`/admin/books/genres/${id}`, {
+    method: "DELETE",
+    headers: authHeaders(),
+  });
+}
+
 // ---- Alıntı defteri ----
 
 export interface BookQuoteInput {

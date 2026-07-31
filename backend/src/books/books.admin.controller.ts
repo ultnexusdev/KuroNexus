@@ -54,6 +54,22 @@ export class BooksAdminController {
     return this.booksService.backfillCredits();
   }
 
+  /** Kaynaktan gelip sözlükte karşılığı olmayan, onay bekleyen türler */
+  @Get('genres/pending')
+  pendingGenres() {
+    return this.booksService.pendingGenres();
+  }
+
+  @Patch('genres/:genreId/approve')
+  approveGenre(@Param('genreId') genreId: string) {
+    return this.booksService.reviewGenre(genreId, true);
+  }
+
+  @Delete('genres/:genreId')
+  rejectGenre(@Param('genreId') genreId: string) {
+    return this.booksService.reviewGenre(genreId, false);
+  }
+
   @Put('goal')
   upsertGoal(
     @Body() dto: UpsertReadingGoalDto,

@@ -4,6 +4,8 @@ import type {
   AwardSummary,
   BookArchive,
   BookDetail,
+  BookPersonPage,
+  BookPublisherPage,
   BookShowcase,
 } from "./types";
 
@@ -59,6 +61,37 @@ export async function getBookDetail(slug: string): Promise<BookDetail | null> {
     return await apiFetch<BookDetail>(`/books/${encodeURIComponent(slug)}`, {
       cache: "no-store",
     });
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Yazar / çevirmen sayfası. Önbellek YOK: biyografi ilk ziyarette backend'de
+ * kaynaktan çekilip saklanıyor, `revalidate` konsaydı kullanıcı biyografisiz
+ * hâli görmeye devam ederdi (ödül raflarıyla aynı gerekçe).
+ */
+export async function getBookPerson(
+  slug: string,
+): Promise<BookPersonPage | null> {
+  try {
+    return await apiFetch<BookPersonPage>(
+      `/books/kisi/${encodeURIComponent(slug)}`,
+      { cache: "no-store" },
+    );
+  } catch {
+    return null;
+  }
+}
+
+export async function getBookPublisher(
+  slug: string,
+): Promise<BookPublisherPage | null> {
+  try {
+    return await apiFetch<BookPublisherPage>(
+      `/books/yayinevi/${encodeURIComponent(slug)}`,
+      { cache: "no-store" },
+    );
   } catch {
     return null;
   }

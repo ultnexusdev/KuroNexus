@@ -432,7 +432,15 @@
 .volume {
   display: grid;
   gap: 6px;
-  width: 116px;
+  /* Dar ekranda uc cilt yan yana: sabit 116px telefonda ikide kaliyor ve
+     rafin sagi bos duruyordu. Film/dizi/anime raflariyla ayni olcu (4f5b73f) */
+  width: calc((100% - 2 * var(--gap-md)) / 3);
+}
+
+@media (min-width: 640px) {
+  .volume {
+    width: 116px;
+  }
 }
 
 .spine {
@@ -545,12 +553,19 @@
 
 .grid {
   display: grid;
-  /* Mobil-oncelikli uc kolon; genis ekranda kendiliginden acilir */
-  grid-template-columns: repeat(auto-fill, minmax(126px, 1fr));
+  /* Mobil-oncelikli uc kolon; genis ekranda kendiliginden acilir.
+     minmax(126px) dar ekranda ikide kaliyordu — taban artik sabit uc kolon */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--gap-md);
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+@media (min-width: 640px) {
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(126px, 1fr));
+  }
 }
 
 .card {

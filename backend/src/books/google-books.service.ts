@@ -116,6 +116,25 @@ interface OpenLibraryDoc {
   subject?: string[];
   /** Kaç ayrı baskısı var — popülerliğin en iyi göstergesi (ölçüldü) */
   edition_count?: number;
+  /**
+   * Aramaya `language` verildiğinde o dildeki **baskılar** burada dönüyor.
+   * Eser kaydı hep orijinaldir ("To Kill a Mockingbird"); Türkçe ad ve Türkçe
+   * kapak yalnızca burada.
+   */
+  editions?: { docs?: OpenLibraryEditionDoc[] };
+}
+
+/** Eser aramasında istenen alanlar; iki sorgu da bunları paylaşıyor. */
+const OL_WORK_FIELDS =
+  'key,title,author_name,first_publish_year,cover_i,number_of_pages_median,series,language,subject,edition_count';
+
+/** Arama sonucundaki baskı kaydı (eser değil). */
+interface OpenLibraryEditionDoc {
+  key?: string;
+  title?: string;
+  language?: string[];
+  cover_i?: number;
+  publish_date?: string[];
 }
 
 interface OpenLibrarySearchResponse {
@@ -201,10 +220,15 @@ export class GoogleBooksService {
      * Notos Öykü, Bakî Divanı Sözlüğü) ve bunlar Türkçe oldukları için
      * listenin başına geçiyordu — kullanıcının şikâyeti buydu.
      *
-     * Open Library **bilerek süzülmüyor**: sorgu Türkçe adla yapıldığında o
-     * eseri orijinal adıyla döndürüyor ("bülbülü öldürmek" → "To Kill a
-     * Mockingbird") ve ortak sözcük olmadığı için süzgeç tam da görmek
-     * istediğimiz kaydı elerdi. Zaten az sayıda sonuç veriyor.
+     * Open Library'ye de uygulanıyor — ama **ancak Türkçe baskı desteği
+     * geldikten sonra güvenli oldu.** Önceden Open Library "bülbülü
+     * öldürmek" sorgusuna eseri orijinal adıyla döndürüyordu ("To Kill a
+     * Mockingbird") ve süzgeç tam da görmek istediğimiz kaydı elerdi. Artık
+     * Türkçe baskı Türkçe adıyla geldiği için süzgeç onu tanıyor; karşılığında
+     * Open Library'nin alakasız önerileri ("dune frank herbert" sorgusuna
+     * gelen "Bir Yaz Gecesi Rüyası") temizleniyor. `isRelevant` samanlığa
+     * `originalTitle`ı da katıyor ki çeviri kayıtları orijinal adından da
+     * tutabilsin.
      */
     const tokens = searchTokens(trimmed);
     const googleHits = [
@@ -219,7 +243,9 @@ export class GoogleBooksService {
      */
     const openLibraryHits = (
       openLibrary.status === 'fulfilled' ? openLibrary.value : []
-    ).slice(0, OPENLIBRARY_SLOTS);
+    )
+      .filter((item) => isRelevant(item, tokens))
+      .slice(0, OPENLIBRARY_SLOTS);
 
     const merged: BookSource[] = [];
     const seen = new Set<string>();
@@ -520,20 +546,61 @@ export class GoogleBooksService {
 
   private async openLibrarySearch(query: string): Promise<BookSource[]> {
     try {
-      const payload = await this.openLibraryRequest<OpenLibrarySearchResponse>(
-        '/search.json',
-        {
+      /**
+       * **İki sorgu birden: Türkçe baskılar ve eserin kendisi.**
+       *
+       * Open Library araması `eser` döndürüyor ve eser kaydı hep orijinal
+       * dilde: "Bülbülü Öldürmek" arandığında "To Kill a Mockingbird" ve
+       * onun İngilizce kapağı geliyordu. Kullanıcı Open Library'de Türkçe
+       * kapaklı bir sayfa olduğunu bildirdi — o bir **baskı** kaydı.
+       *
+       * `language=tur` + `editions` alt alanı istenince Open Library o eserin
+       * Türkçe baskısını da veriyor: `Bülbülü Öldürmek`, `cover_i 15153566`
+       * (doğrulandı: 39 KB'lik gerçek kapak). Türkçe baskı bulunursa arama
+       * sonucunda **o** gösteriliyor; bulunamazsa eser kaydı kalıyor, yani
+       * çevrilmemiş kitap yine bulunabiliyor.
+       */
+      const [turkish, works] = await Promise.allSettled([
+        this.openLibraryRequest<OpenLibrarySearchResponse>('/search.json', {
+          q: query,
+          limit: '5',
+          language: 'tur',
+          fields: `${OL_WORK_FIELDS},editions,editions.key,editions.title,editions.language,editions.cover_i,editions.publish_date`,
+        }),
+        this.openLibraryRequest<OpenLibrarySearchResponse>('/search.json', {
           q: query,
           limit: '10',
           // `fields` verilmezse Open Library dev bir belge döndürüyor ve
           // `edition_count` yine de gelmiyor; alanlar açıkça isteniyor
-          fields:
-            'key,title,author_name,first_publish_year,cover_i,number_of_pages_median,series,language,subject,edition_count',
-        },
-      );
-      return (payload.docs ?? [])
-        .map((doc) => normalizeOpenLibrary(doc))
-        .filter((item): item is BookSource => item !== null);
+          fields: OL_WORK_FIELDS,
+        }),
+      ]);
+
+      const merged: BookSource[] = [];
+      const seen = new Set<string>();
+      for (const item of [
+        ...(turkish.status === 'fulfilled'
+          ? (turkish.value.docs ?? []).map((doc) =>
+              normalizeOpenLibraryTurkish(doc),
+            )
+          : []),
+        ...(works.status === 'fulfilled'
+          ? (works.value.docs ?? []).map((doc) => normalizeOpenLibrary(doc))
+          : []),
+      ]) {
+        if (!item) {
+          continue;
+        }
+        // Aynı eser iki sorgudan da gelebilir; Türkçe baskı olan kazanır
+        // çünkü listede önce o duruyor
+        const key = item.olKey ?? `${item.title}|${item.authors[0] ?? ''}`;
+        if (seen.has(key)) {
+          continue;
+        }
+        seen.add(key);
+        merged.push(item);
+      }
+      return merged;
     } catch {
       // İkinci kaynak da düşerse arama boş döner; arayüz "sonuç yok" gösterir
       return [];
@@ -711,11 +778,56 @@ function isRelevant(item: BookSource, tokens: string[]): boolean {
     return true;
   }
   const haystack = foldSearch(
-    [item.title, item.subtitle ?? '', item.seriesName ?? '', ...item.authors]
+    [
+      item.title,
+      // Çeviri kaydı orijinal adından da tutmalı: Open Library'nin Türkçe
+      // baskısında ad "Bülbülü Öldürmek", asıl ad "To Kill a Mockingbird"
+      item.originalTitle ?? '',
+      item.subtitle ?? '',
+      item.seriesName ?? '',
+      ...item.authors,
+    ]
       .join(' ')
       .trim(),
   );
   return tokens.some((token) => haystack.includes(token));
+}
+
+/**
+ * Türkçe **baskı** kaydı. Eser kaydından farkı: ad ve kapak baskıdan gelir,
+ * yazar/yıl/seri gibi eser bilgileri üstteki kayıttan.
+ *
+ * Türkçe baskı yoksa `null` döner ve çağıran eser kaydına düşer — böylece
+ * çevrilmemiş kitap aramadan kaybolmuyor.
+ */
+function normalizeOpenLibraryTurkish(doc: OpenLibraryDoc): BookSource | null {
+  const edition = (doc.editions?.docs ?? []).find((item) =>
+    item.language?.includes('tur'),
+  );
+  if (!edition?.title) {
+    return null;
+  }
+  const base = normalizeOpenLibrary(doc);
+  if (!base) {
+    return null;
+  }
+  const year = Number.parseInt(edition.publish_date?.[0]?.slice(-4) ?? '', 10);
+  return {
+    ...base,
+    // Baskı anahtarı (`/books/OL…M`); yalnızca saklanıp yinelenen kayıt
+    // kontrolünde kullanılıyor, tekrar sorgulanmıyor — güvenli
+    olKey: edition.key ?? base.olKey,
+    title: edition.title,
+    // Eserin orijinal adı ikinci satır olarak duruyor: küratör hangi kitabın
+    // çevirisi olduğunu görebilsin
+    originalTitle: doc.title ?? null,
+    // Kapağı olmayan baskıda eserin kapağına düşülüyor — boş çerçeveden iyi
+    coverImage: edition.cover_i
+      ? `${OPENLIBRARY_COVERS}/${edition.cover_i}-L.jpg`
+      : base.coverImage,
+    publishedYear: Number.isFinite(year) ? year : base.publishedYear,
+    language: 'tr',
+  };
 }
 
 function normalizeOpenLibrary(doc: OpenLibraryDoc): BookSource | null {

@@ -360,21 +360,35 @@
 
 /* --- Kart ustundeki hizli isaretleme --- */
 
+/**
+ * Kart altındaki araç şeridi.
+ *
+ * `min-width: 0` ve `max-width: 100%` şart: bu şerit salon rafında **98px**
+ * genişliğinde bir sütunun içinde duruyor (mobil). Sınır konmayınca durum
+ * seçkisi kendi metnine göre ~190px'e uzayıp sütunun dışına taşıyordu ve
+ * komşu cildin üstüne biniyordu — kullanıcı "✕'e basıyorum kitap silinmiyor"
+ * diye bildirdi, dokunuşlar yanlış öğeye gidiyordu.
+ */
 .tools {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 4px;
+  min-width: 0;
+  max-width: 100%;
   margin-top: 4px;
 }
 
+/* Taban ölçü dokunmatik için: bu düğmeler dar ekranda 98px'lik raf sütununda
+   yan yana duruyor ve 32px'te komşusuna basılıyordu. 640px üstünde küçülüyor
+   (mobil-öncelikli: taban mobil değeri taşır, min-width masaüstünü geri verir) */
 .favOn,
 .favOff,
 .markRead,
 .remove,
 .stepButton {
-  min-width: 32px;
-  min-height: 32px;
+  min-width: var(--touch-min, 44px);
+  min-height: var(--touch-min, 44px);
   padding: 0 6px;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius);
@@ -401,8 +415,39 @@
   color: var(--danger);
 }
 
+/* Silme düğmesi tehlikeli olduğu için diğerlerinden ayrılıyor: dar sütunda
+   ★ ile yan yana dururken yanlışlıkla basılan düğme buydu */
+.remove {
+  margin-left: auto;
+  border-color: color-mix(in srgb, var(--danger) 45%, var(--border-strong));
+  color: color-mix(in srgb, var(--danger) 80%, var(--text-secondary));
+}
+
+@media (min-width: 640px) {
+  .favOn,
+  .favOff,
+  .markRead,
+  .remove,
+  .stepButton {
+    min-width: 32px;
+    min-height: 32px;
+  }
+
+  /* Geniş ekranda seçki kendi satırını almasına gerek yok */
+  .statusSelect {
+    flex: 0 1 auto;
+    min-height: 32px;
+  }
+}
+
+/* Seçki kendi satırını alıyor ve sütunu asla aşmıyor: doğal genişliği en
+   uzun seçeneğe göre hesaplanıyor ve dar sütunda taşmanın kaynağı buydu */
 .statusSelect {
-  min-height: 32px;
+  flex: 1 1 100%;
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+  min-height: var(--touch-min, 44px);
   padding: 0 4px;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius);

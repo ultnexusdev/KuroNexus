@@ -5,6 +5,50 @@
 
 ## Mevcut Aşama
 
+> **OPEN LIBRARY TÜRKÇE BASKI + KÜRATÖR ARAÇLARI — 31 Temmuz 2026 (2).**
+> Kullanıcı iki şey bildirdi: Open Library'de Türkçe kapaklı sayfa varken
+> aramada İngilizce sürüm geliyor; küratör modunda ✕ kitabı kaldırmıyor.
+>
+> **(1) Open Library artık Türkçe BASKIYI getiriyor.** Kritik ayrım:
+> `search.json` **eser** döndürüyor ve eser kaydı hep orijinal dilde ("To
+> Kill a Mockingbird" + İngilizce kapak). Kullanıcının gördüğü Türkçe
+> kapaklı sayfa bir **baskı** kaydı. Çözüm: arama artık **iki sorgu**
+> yapıyor — `language=tur` + `editions,editions.*` alt alanlarıyla Türkçe
+> baskı, bir de düz eser sorgusu. Türkçe baskı bulunursa ad, kapak ve
+> `olKey` ondan alınıyor, eserin adı `originalTitle`a yazılıyor; bulunamazsa
+> eser kaydı kalıyor (çevrilmemiş kitap kaybolmasın).
+> Ölçüldü: "bülbülü öldürmek" → `Bülbülü Öldürmek` + `cover_i 15153566`
+> (39 KB gerçek kapak). "dune frank herbert" → Dune, Dune Mesihi, Dune
+> Sapkınları, Dune Rahibeler Meclisi, hepsi Türkçe adı ve kapağıyla.
+> `olKey` bir **baskı** anahtarı olabiliyor artık (`/books/OL…M`) — sorun
+> değil, yalnızca saklanıp yinelenen kayıt kontrolünde kullanılıyor,
+> tekrar sorgulanmıyor.
+>
+> **Alaka süzgeci artık Open Library'ye de uygulanıyor.** Önce uygulanamıyordu
+> çünkü eser orijinal adıyla dönüyor ve süzgeç tam da istenen kaydı eliyordu;
+> Türkçe baskı desteğiyle bu engel kalktı. `isRelevant` samanlığına
+> `originalTitle` da katıldı. Kazanç: "dune frank herbert" sorgusuna gelen
+> "Bir Yaz Gecesi Rüyası" gürültüsü temizlendi.
+>
+> **(2) ✕ neden çalışmıyordu — kök sebep DÜZEN.** Backend silme, CORS
+> (`OPTIONS` ön kontrolü canlıda sınandı: `DELETE` izinli), i18n anahtarları
+> ve `router.refresh()` zincirinin hepsi doğruydu. Sorun `CuratorCardTools`
+> şeridinin salon rafındaki **98px'lik** sütuna sığmamasıydı: durum seçkisi
+> kendi metnine göre ~190px'e uzayıp sütunun dışına taşıyor, komşu cildin
+> üstüne biniyordu ve dokunuşlar yanlış öğeye gidiyordu. Düzeltme:
+> `.tools`'a `min-width:0; max-width:100%`, `.statusSelect`'e
+> `flex:1 1 100%` + `max-width:100%`, düğmelerin taban ölçüsü **44px**
+> (640px üstünde 32px'e dönüyor), `.remove` ayrı renkle ve `margin-left:auto`
+> ile ayrıldı.
+> **Doğrulandı (375px):** sütun 98px, araçlar 98px, taşma yok, ✕ 44×44 ve
+> `elementFromPoint` düğmenin merkezinde **düğmenin kendisini** döndürüyor
+> (yani dokunuş artık ona gidiyor). 1600px: 116px sütun, ✕ 32px, taşma yok.
+>
+> **NOT:** ✕'in canlıda gerçekten sildiği hâlâ gerçek admin girişiyle
+> denenmedi — lokalden admin API'sine bağlanılamıyor. Düzen hatası kesin ve
+> düzeltildi; sorun sürerse sıradaki şüpheli `router.refresh()` sonrası
+> yeniden çizim.
+
 > **ARAMA DÜZELTMESİ — 31 Temmuz 2026, telefondan gelen geri bildirim.**
 > Kullanıcı canlıda iki sorun bildirdi: (a) listede **hiç Open Library
 > sonucu yok**, (b) alakasız kitaplar üstte (Notos Öykü, ULAK 5. Sayı,

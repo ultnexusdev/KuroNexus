@@ -1,4 +1,5 @@
 import type { ArchiveBook, BookTranslation } from "@/lib/api/types";
+import { matchesGenreKeys } from "./genres";
 
 /**
  * Kitap arşivinin süzgeç ve sıralama kuralları.
@@ -52,6 +53,7 @@ export const PERIOD_OPTIONS = [
 export type PeriodValue = (typeof PERIOD_OPTIONS)[number]["value"];
 
 export interface BookFilterState {
+  /** Tür ADI değil **anahtarı** ("scifi"); bkz. `lib/book/genres.ts` */
   genres: string[];
   /** Dönem kovası; null = tüm yıllar */
   period: PeriodValue | null;
@@ -130,11 +132,11 @@ export function applyFilters(
 ): ArchiveBook[] {
   const filtered = books.filter((book) => {
     // Türler VEYA ile birleşir: "Fantastik + Bilim Kurgu" ikisinden birini
-    // taşıyan her kitabı getirir (VE ile seçim neredeyse hep boş dönüyordu)
-    if (
-      filters.genres.length > 0 &&
-      !book.genres.some((genre) => filters.genres.includes(genre))
-    ) {
+    // taşıyan her kitabı getirir (VE ile seçim neredeyse hep boş dönüyordu).
+    // Eşleşme artık birebir metin değil takma adlı: Google BISAC etiketi
+    // ("Fiction / Science Fiction") ile küratörün yazdığı "Bilimkurgu" aynı
+    // türe düşsün diye (bkz. `lib/book/genres.ts`)
+    if (!matchesGenreKeys(book, filters.genres)) {
       return false;
     }
     if (filters.period !== null && !matchesPeriod(book, filters.period)) {

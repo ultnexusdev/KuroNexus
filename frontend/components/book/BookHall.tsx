@@ -21,6 +21,7 @@ import {
   SHELF_KEYS,
   type ShelfKey,
 } from "@/lib/book/shelves";
+import { BOOK_GENRES, genreCounts } from "@/lib/book/genres";
 import { BackToTop } from "@/components/BackToTop";
 import {
   BookCard,
@@ -121,6 +122,13 @@ export function BookHall({
       .sort((a, b) => b.count - a.count);
   }, [books]);
 
+  /**
+   * Tür sayaçları. Arşivin `genres` özetinden DEĞİL kitapların kendisinden
+   * hesaplanıyor: sabit tür listesi takma adlarla eşleşiyor, "Fiction /
+   * Science Fiction" ile "Bilimkurgu" aynı kovaya düşmeli.
+   */
+  const genreTally = useMemo(() => genreCounts(books), [books]);
+
   const isEmpty = books.length === 0;
   const hasFilters =
     filters.genres.length > 0 ||
@@ -150,47 +158,6 @@ export function BookHall({
           <div className={styles.railInner}>
             <h2 className={styles.railTitle}>{t("filters.title")}</h2>
 
-            {/* Tür listesi uzun: kapalı açılır bir bölüm olarak duruyor,
-                tıklanınca alt alta iniyor (kullanıcı isteği). `details`
-                kullanılıyor — JavaScript'siz de açılıp kapanır */}
-            {archive.genres.length > 0 ? (
-              <details className={styles.filterFold}>
-                <summary className={styles.filterSummary}>
-                  <span>{t("filters.genre")}</span>
-                  <span className={styles.summaryMeta}>
-                    {filters.genres.length > 0
-                      ? t("filters.selected", { count: filters.genres.length })
-                      : t("filters.all")}
-                  </span>
-                </summary>
-                <ul className={styles.filterList}>
-                  {archive.genres.map((genre) => (
-                    <li key={genre.name}>
-                      <button
-                        type="button"
-                        className={
-                          filters.genres.includes(genre.name)
-                            ? styles.filterRowOn
-                            : styles.filterRow
-                        }
-                        aria-pressed={filters.genres.includes(genre.name)}
-                        onClick={() =>
-                          patch({
-                            genres: toggleInList(filters.genres, genre.name),
-                          })
-                        }
-                      >
-                        <span className={styles.filterLabel}>{genre.name}</span>
-                        <span className={styles.filterCount}>
-                          {genre.count}
-                        </span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </details>
-            ) : null}
-
             {/* Dönem: film salonundaki seçkinin kitap ölçeğindeki karşılığı */}
             <label className={styles.selectField}>
               <span className={styles.filterHead}>{t("filters.period")}</span>
@@ -212,6 +179,54 @@ export function BookHall({
                 ))}
               </select>
             </label>
+
+            {/* Tür — Dönem'in hemen altında ve **her zaman** çizili (kullanıcı
+                isteği). Liste arşivden değil koddan geliyor: arşivdeki
+                kitapların `genres` alanı boş olduğunda eski hâli hiç
+                görünmüyordu. Tıklanınca alt alta iniyor; `details` sayesinde
+                JavaScript'siz de açılıp kapanır */}
+            <details className={styles.filterFold}>
+              <summary className={styles.filterSummary}>
+                <span>{t("filters.genre")}</span>
+                <span className={styles.summaryMeta}>
+                  {filters.genres.length > 0
+                    ? t("filters.selected", { count: filters.genres.length })
+                    : t("filters.all")}
+                </span>
+              </summary>
+              <ul className={styles.filterList}>
+                {BOOK_GENRES.map((genre) => {
+                  const count = genreTally.get(genre.key) ?? 0;
+                  return (
+                    <li key={genre.key}>
+                      <button
+                        type="button"
+                        className={
+                          filters.genres.includes(genre.key)
+                            ? styles.filterRowOn
+                            : styles.filterRow
+                        }
+                        aria-pressed={filters.genres.includes(genre.key)}
+                        onClick={() =>
+                          patch({
+                            genres: toggleInList(filters.genres, genre.key),
+                          })
+                        }
+                      >
+                        <span className={styles.filterLabel}>
+                          {t(`genreName.${genre.key}`)}
+                        </span>
+                        {/* Sayı yalnızca doluysa: sıfırlar sütunu gürültüye
+                            boğuyordu, tür yine seçilebilir durumda kalıyor */}
+                        {count > 0 ? (
+                          <span className={styles.filterCount}>{count}</span>
+                        ) : null}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </details>
 
             {languages.length > 0 ? (
               <details className={styles.filterFold}>

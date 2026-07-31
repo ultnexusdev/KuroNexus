@@ -5,6 +5,39 @@
 
 ## Mevcut Aşama
 
+> **TÜR SÜZGECİ SABİT LİSTEYE GEÇTİ — 31 Temmuz 2026 (kullanıcı isteği).**
+> Sol rayda **Tür artık Dönem'in altında ve her zaman çizili.** Eskiden yalnızca
+> arşivden türetiliyordu ve arşivde tür yoksa hiç görünmüyordu — canlıdaki iki
+> kitabın da `genres` alanı boş olduğu için kullanıcı süzgeci hiç göremiyordu.
+> Liste artık `frontend/lib/book/genres.ts` içinde **20 tür**, ödül
+> listelerindeki kararın aynısı (kaynak vermiyorsa liste kodda durur).
+> Süzgeç tür ADIYLA değil **anahtarıyla** çalışıyor (`scifi`), görünen ad
+> `book.genreName.<key>` çevirisinden geliyor.
+>
+> **Eşleştirme takma adlı, çünkü `genres` serbest metin:** ilk değeri Google
+> dolduruyor ve BISAC etiketi geliyor ("Fiction / Science Fiction / General"),
+> küratör ise Türkçe yazıyor ("Bilimkurgu"). Her tür bir anahtar kelime kümesi
+> taşıyor.
+>
+> **Arama KELİME BAŞINDAN yapılıyor — bu ölçümle bulundu, değiştirmeyin:**
+> - düz alt dize: "din" ifadesi "aydınlanma"nın ortasında bulunuyordu,
+> - tam kelime: Türkçe eklemeli olduğu için "Klasikler"→`klasik`,
+>   "Türk Edebiyatı"→`türk edebiyat` eşleşmeleri düşüyordu (Türk Edebiyatı
+>   sayacının sıfırlandığı lokalde görüldü),
+> - kelime başı ikisini de çözüyor. İç içe geçen türler için ayrıca `not`
+>   alanı var: "bilim" ifadesi "bilimkurgu"nun, "science" ise "science
+>   fiction"ın başında da duruyor — o yüzden bilimkurgu kitapları "Bilim"
+>   sayılıyordu (ölçümde yakalandı).
+>
+> Sayacı sıfır olan tür de listede kalır ama **sayı yazılmaz**; sıfırlar sütunu
+> gürültüye boğuyordu. `\b` kullanılmıyor: JavaScript'te yalnızca ASCII harf
+> sayar, "şiir"/"tıp" kenarını yanlış bulur.
+>
+> **Doğrulama (lokal, 10 kitaplık fixture):** sayaçlar birebir doğru
+> (Bilimkurgu 4, Klasik 2, Türk Edebiyatı 2, Roman 2, Korku 2, Distopya 1),
+> Bilimkurgu'ya tıklayınca 12 cilt → 4 cilt. Mobil 375px: taşma yok, özet ve
+> her satır 44px dokunma alanı. `tsc` + `eslint` + `next build` temiz.
+
 > **FAZ B BAŞLADI — 31 Temmuz 2026. İlk parça: ÖDÜLLER (bitti).**
 >
 > Dokuz ödül, **212 kayıt**: Nobel · Pulitzer · Booker · Hugo · Nebula ·

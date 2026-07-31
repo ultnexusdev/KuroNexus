@@ -288,7 +288,8 @@
 /* Kaynak rozetleri. İkisi aynı eseri getirebiliyor ve künyeleri farklı
    oluyor (biri kapaklı, öbürü değil) — hangisinin seçildiği görünmeli */
 .srcGoogle,
-.srcOpenLibrary {
+.srcOpenLibrary,
+.srcBinKitap {
   flex-shrink: 0;
   min-width: 22px;
   padding: 1px 4px;
@@ -307,6 +308,14 @@
 .srcOpenLibrary {
   border: 1px solid var(--gold, var(--accent-muted));
   color: var(--gold, var(--accent));
+}
+
+/* 1000Kitap künyenin ana kaynağı ve listenin başında duruyor: rozeti de en
+   belirgin olan olsun, küratör Türkçe künyeli kaydı bir bakışta ayırsın */
+.srcBinKitap {
+  border: 1px solid var(--accent);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--accent);
 }
 
 /* --- Ekleme formu --- */

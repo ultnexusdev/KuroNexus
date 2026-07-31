@@ -229,6 +229,7 @@ export function CuratorBar() {
       await createBookEntry({
         googleId: picked.googleId ?? undefined,
         olKey: picked.olKey ?? undefined,
+        binKitapSlug: picked.binKitapSlug ?? undefined,
         title: title.trim() || picked.title,
         status,
         translationState: translation,
@@ -299,7 +300,9 @@ export function CuratorBar() {
               <li className={styles.resultEmpty}>{t("noResults")}</li>
             ) : (
               visible.map((result, index) => (
-                <li key={`${result.provider}-${result.googleId ?? result.olKey ?? index}`}>
+                <li
+                  key={`${result.provider}-${result.googleId ?? result.olKey ?? result.binKitapSlug ?? index}`}
+                >
                   <button
                     type="button"
                     id={`book-search-option-${index}`}
@@ -333,10 +336,18 @@ export function CuratorBar() {
                           result.pageCount
                             ? t("pageCount", { count: result.pageCount })
                             : null,
-                          // Popülerlik ipucu: aynı eserin iki kaydı arasında
-                          // seçim yaparken "213 baskı" ayırt edici oluyor
+                          /* Popülerlik ipucu: aynı eserin iki kaydı arasında
+                             seçim yaparken ayırt edici oluyor. Sayının anlamı
+                             kaynağa göre değişiyor — 1000Kitap'ta kaç kişinin
+                             okuduğu, ötekilerde baskı/değerlendirme sayısı;
+                             ikisi aynı etiketle gösterilirse yanıltıcı olur. */
                           result.popularity > 0
-                            ? t("editions", { count: result.popularity })
+                            ? t(
+                                result.provider === "BINKITAP"
+                                  ? "readers"
+                                  : "editions",
+                                { count: result.popularity },
+                              )
                             : null,
                         ]
                           .filter(Boolean)
@@ -349,11 +360,17 @@ export function CuratorBar() {
                       className={
                         result.provider === "OPENLIBRARY"
                           ? styles.srcOpenLibrary
-                          : styles.srcGoogle
+                          : result.provider === "BINKITAP"
+                            ? styles.srcBinKitap
+                            : styles.srcGoogle
                       }
                       title={t(`source.${result.provider}`)}
                     >
-                      {result.provider === "OPENLIBRARY" ? "OL" : "G"}
+                      {result.provider === "OPENLIBRARY"
+                        ? "OL"
+                        : result.provider === "BINKITAP"
+                          ? "1K"
+                          : "G"}
                     </span>
                     {/* Türkçe baskı rozeti: aynı kitabın hangi baskısı olduğunu
                         ayırt etmenin tek yolu */}

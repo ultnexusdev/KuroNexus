@@ -1000,9 +1000,11 @@
       "searchError": "Search failed. Please try again.",
       "noResults": "No results.",
       "editions": "{count} editions",
+      "readers": "{count} readers",
       "source": {
         "GOOGLE": "Google Books",
-        "OPENLIBRARY": "Open Library"
+        "OPENLIBRARY": "Open Library",
+        "BINKITAP": "1000Kitap"
       },
       "inArchive": "In archive",
       "changePick": "pick another",

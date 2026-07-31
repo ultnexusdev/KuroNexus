@@ -35,6 +35,16 @@ export class BooksAdminController {
     return this.booksService.search(query ?? '');
   }
 
+  /**
+   * Arşivde dış adresle duran kapakları tek seferde kendi diskimize indirir.
+   * 1000Kitap öncesi eklenen kayıtlar için; yeni kayıtlarda indirme zaten
+   * ekleme anında oluyor.
+   */
+  @Post('covers/localize')
+  localizeCovers() {
+    return this.booksService.localizeCovers();
+  }
+
   @Put('goal')
   upsertGoal(
     @Body() dto: UpsertReadingGoalDto,

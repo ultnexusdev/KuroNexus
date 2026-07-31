@@ -722,6 +722,8 @@ export function refreshAnimeEntry(id: string): Promise<unknown> {
 export interface BookEntryInput {
   googleId?: string;
   olKey?: string;
+  /** 1000Kitap sayfa anahtarı — künye öncelikle bundan tohumlanır */
+  binKitapSlug?: string;
   title?: string;
   status?: BookStatus;
   translationState?: BookTranslation;

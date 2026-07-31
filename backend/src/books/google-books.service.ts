@@ -6,12 +6,19 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import { slugify } from '../common/utils/slugify';
+import { BinKitapService } from './bin-kitap.service';
 
 /**
- * Kitap künyesinin dış kaynakları: **Google Books** ana kaynak, **Open
- * Library** eksik kalan yerleri doldurur (kullanıcı kararı).
+ * Kitap künyesinin dış kaynakları. Üçü birlikte koşar, hiçbiri diğerinin
+ * yerine geçmez (kullanıcı kararı):
+ *  - **1000Kitap** Türkçe künyenin ana kaynağı; çevirmeni ve gerçek önek
+ *    aramasını yalnız o veriyor (bkz. `bin-kitap.service.ts`). Listede
+ *    ayrılmış kontenjanla başta durur.
+ *  - **Google Books** geniş kapsam, çevrilmemiş yabancı kitaplarda vazgeçilmez.
+ *  - **Open Library** eserin kendisini bilir, eksik kalan yerleri doldurur.
  *
- * İş bölümü rastgele değil, iki kaynağın gerçekten iyi olduğu yerler farklı:
+ * Google ile Open Library arasındaki iş bölümü rastgele değil, ikisinin
+ * gerçekten iyi olduğu yerler farklı:
  *  - Google Books Türkçe **baskıları** biliyor (yayıncı, ISBN, kapak) ama
  *    eserin ilk yayım yılını baskı yılıyla karıştırıyor ve seri bilgisi yok.
  *  - Open Library eserin **kendisini** biliyor (`first_publish_year`, seri,
@@ -48,6 +55,19 @@ const SEARCH_LIMIT = 20;
  */
 const OPENLIBRARY_SLOTS = 5;
 
+/**
+ * 1000Kitap için **ayrılmış** ve listenin BAŞINDA duran sıra sayısı.
+ *
+ * Kullanıcı kararı: "önce 1000Kitap sonuçları görünsün". Kaynak şartlı
+ * çalıştırılmıyor (yani "1000Kitap boş dönerse ötekiler sorulsun" değil) —
+ * bu, daha önce ölçümle terk edilmiş bir davranıştı: Open Library yalnızca
+ * Google boş dönünce sorulduğunda kapağı olan kayıtlar hiç görünmüyordu.
+ * Üç kaynak birlikte koşmaya devam ediyor, 1000Kitap yalnızca SIRALAMADA
+ * öne alınıyor; böylece çevrilmemiş yabancı kitaplarda Google ve Open
+ * Library kapsamı korunuyor.
+ */
+const BINKITAP_SLOTS = 8;
+
 /** Alaka süzgecinde yok sayılacak kadar kısa sözcükler ("ve", "bir"…) */
 const MIN_TOKEN = 3;
 
@@ -71,12 +91,19 @@ export interface BookSource {
   seriesName: string | null;
   seriesIndex: number | null;
   originalTitle: string | null;
-  provider: 'GOOGLE' | 'OPENLIBRARY';
+  provider: 'GOOGLE' | 'OPENLIBRARY' | 'BINKITAP';
+  /**
+   * 1000Kitap kitap sayfasının anahtarı ("bulbulu-oldurmek--939"). Künyenin
+   * tamamı ancak küratör "ekle" dediğinde bununla çekiliyor — arama sonucu
+   * yayınevi/ISBN/sayfa sayısı taşımıyor.
+   */
+  binKitapSlug: string | null;
   /**
    * Kabaca "bu kitap ne kadar biliniyor". Open Library'de **baskı sayısı**,
-   * Google'da değerlendirme sayısı. Ölçüldü: "Bülbülü Öldürmek" aramasında
-   * gerçek eser 213 baskı, aynı sonuçtaki alakasız kitap 1 baskı döndü —
-   * gürültüyü aşağı itmek için en iyi tek sinyal bu. Bilinmiyorsa 0.
+   * Google'da değerlendirme sayısı, 1000Kitap'ta okunma sayısı. Ölçüldü:
+   * "Bülbülü Öldürmek" aramasında gerçek eser 213 baskı, aynı sonuçtaki
+   * alakasız kitap 1 baskı döndü — gürültüyü aşağı itmek için en iyi tek
+   * sinyal bu. Bilinmiyorsa 0.
    */
   popularity: number;
 }
@@ -159,6 +186,7 @@ export class GoogleBooksService {
 
   constructor(
     private readonly prisma: PrismaService,
+    private readonly binKitap: BinKitapService,
     config: ConfigService,
   ) {
     this.apiKey = config.get<string>('GOOGLE_BOOKS_API_KEY');
@@ -198,13 +226,14 @@ export class GoogleBooksService {
      * `allSettled`: bacaklar birbirinden bağımsız. Google'ın anlık bir `503`'ü
      * (ölçümde görüldü) Türkçe bacağı ya da Open Library'yi çöpe atmasın.
      */
-    const [turkish, general, openLibrary] = await Promise.allSettled([
+    const [binKitap, turkish, general, openLibrary] = await Promise.allSettled([
+      this.binKitap.search(trimmed),
       this.googleSearch(trimmed, 'tr'),
       this.googleSearch(trimmed),
       this.openLibrarySearch(trimmed),
     ]);
 
-    for (const leg of [turkish, general, openLibrary]) {
+    for (const leg of [binKitap, turkish, general, openLibrary]) {
       if (leg.status === 'rejected') {
         this.logger.warn(
           `Kitap aramasının bir bacağı düştü: ${String(leg.reason)}`,
@@ -247,11 +276,22 @@ export class GoogleBooksService {
       .filter((item) => isRelevant(item, tokens))
       .slice(0, OPENLIBRARY_SLOTS);
 
+    /**
+     * 1000Kitap kontenjanı listenin başında ayrılıyor; kalan sıraları Google
+     * ve Open Library paylaşıyor. Alaka süzgeci buna da uygulanıyor — kaynak
+     * Türkçe olduğu için süzgecin eleyeceği bir kayıp yok, ama sorguyla
+     * ilgisiz baskılar listeye çıkmasın.
+     */
+    const binKitapHits = (binKitap.status === 'fulfilled' ? binKitap.value : [])
+      .filter((item) => isRelevant(item, tokens))
+      .slice(0, BINKITAP_SLOTS);
+    const remaining = Math.max(0, SEARCH_LIMIT - binKitapHits.length);
+
     const merged: BookSource[] = [];
     const seen = new Set<string>();
     for (const item of [
-      ...googleHits.slice(0, SEARCH_LIMIT - openLibraryHits.length),
-      ...openLibraryHits,
+      ...googleHits.slice(0, Math.max(0, remaining - openLibraryHits.length)),
+      ...openLibraryHits.slice(0, remaining),
     ]) {
       /**
        * Tekilleştirme **kaynak içinde** yapılıyor, kaynaklar ARASINDA değil:
@@ -287,7 +327,12 @@ export class GoogleBooksService {
     merged.sort(
       (a, b) => (a.language === 'tr' ? 0 : 1) - (b.language === 'tr' ? 0 : 1),
     );
-    return merged.slice(0, SEARCH_LIMIT);
+    /**
+     * 1000Kitap bloğu sıralamaya HİÇ girmiyor, doğrudan başa ekleniyor: hem
+     * kullanıcının istediği kaynak önceliği bu, hem de kaynağın kendi alaka
+     * sırası bizim üretebileceğimiz her puandan iyi (yukarıdaki ölçüm).
+     */
+    return [...binKitapHits, ...merged].slice(0, SEARCH_LIMIT);
   }
 
   /**
@@ -709,6 +754,7 @@ function normalizeGoogle(raw: GoogleVolumeRaw): BookSource | null {
   return {
     googleId: raw.id,
     olKey: null,
+    binKitapSlug: null,
     isbn13,
     title: info.title,
     subtitle: info.subtitle ?? null,
@@ -838,6 +884,7 @@ function normalizeOpenLibrary(doc: OpenLibraryDoc): BookSource | null {
   return {
     googleId: null,
     olKey: doc.key ?? null,
+    binKitapSlug: null,
     isbn13: null,
     title: doc.title,
     subtitle: null,

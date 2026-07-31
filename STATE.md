@@ -5,6 +5,71 @@
 
 ## Mevcut Aşama
 
+> **1000KİTAP KAYNAĞI — FAZ 1 BİTTİ, 31 Temmuz 2026 (evden).**
+> Kullanıcı "bu şekilde kitap eklemek yararlı olmadı, yayınevlerinden scrape
+> edelim" dedi; ölçüm sonucu **1000kitap.com** tek kaynakla her şeyi veriyor.
+> Toplu tarama YOK (kullanıcı kararı: "saatlerce sürecek iş istemiyorum") —
+> yalnızca aranan kitap çekiliyor: arama başına 1, ekleme başına 1 istek.
+>
+> **Neden bu kaynak:** (1) **çevirmen** geliyor — şemada "hiçbir API güvenilir
+> vermiyor" diye not düşülen alan; (2) **önek araması** çalışıyor (`"bül"` →
+> Bülbülü Öldürmek, aksan katlıyor) — aşağıda "AÇIK BÜYÜK İŞ" diye duran ve
+> Open Library dump'ı indirmeyi gerektiren madde **bu sayede kapandı**;
+> (3) Türkçe baskı adı/kapağı/ISBN'i doğrudan geliyor.
+>
+> **Scrape değil okuma:** site Next.js, tüm veri `__NEXT_DATA__` etiketinde
+> hazır JSON. HTML ayrıştırıcı yok, **yeni bağımlılık eklenmedi**.
+> `robots.txt` kitap/arama sayfalarına izin veriyor (`Allow: /`).
+>
+> **Yazılanlar:**
+> - `backend/src/books/bin-kitap.service.ts` — arama + künye, `ExternalCache`
+>   (arama 24 sa, künye 30 gün), tek sıralı istek kuyruğu + 1 sn boşluk,
+>   10 sn timeout.
+> - `backend/src/books/book-cover.service.ts` — kapak **indiriliyor**, hotlink
+>   yok. `UPLOAD_DIR/books/` altına, `/uploads/books/…` olarak sunuluyor.
+>   SSRF savunması: beyaz liste sunucu, yönlendirme takibi KAPALI, boyut
+>   sınırı, dosya imzası doğrulaması, rastgele ad.
+> - `google-books.service.ts` — **dördüncü bacak**. Google ve Open Library
+>   AYNEN duruyor, `allSettled` korundu; 1000Kitap `BINKITAP_SLOTS = 8` ile
+>   listenin başında. Şartlı ("bulunamazsa ötekiler") yapılMADI — o davranış
+>   daha önce ölçümle terk edilmişti.
+> - `books.service.ts` — künye önce 1000Kitap'tan tohumlanıyor; tekrar
+>   kontrolü yeni sırayla: kaynak kimliği → **eser** (orijinal ad + yazar) →
+>   ISBN. ISBN bilerek sonda: baskı kimliği, eser kimliği değil.
+> - `bin-kitap.service.spec.ts` — 16 test, ağsız.
+> - Admin ucu: `POST /admin/books/covers/localize` — eski dış adresli
+>   kapakları tek seferde indirir.
+>
+> **CANLIDA ÖLÇÜLDÜ (derlenmiş servisle, sahte cache):** `"bül"` → 15 sonuç,
+> Bülbülü Öldürmek 4. sırada; künye tam (Ülker İnce / Sel Yayınları /
+> 9789755706849 / 355 s. / 1960 / 4 tür); ikinci arama 0 ms (cache);
+> kapak 37.668 bayt geçerli JPEG indi; izinsiz sunucu ve iç ağ adresi
+> reddedildi; sahte seri ("Bülbülü Öldürmek #1") künyeye yazılmadı.
+>
+> **TUZAK — koda da yazıldı:** Node'un `fetch`i (undici) bu sitede
+> **başlıktan bağımsız 403** alıyor; `node:https` + sade başlık şart.
+> `fetch`e çevirmek servisi sessizce öldürür. Kapak CDN'i (`1k-cdn.com`) bu
+> korumanın arkasında değil, orada `fetch` kullanılıyor.
+>
+> **SIRADAKİ — FAZ 2 (kullanıcı onayladı, henüz YAZILMADI):** ilişkisel model.
+> `Author` (isim/foto/biyografi), `Publisher` (isim/logo/website),
+> `Translator`, `Series`, `Genre` tabloları + join'ler + veri taşıma.
+> Kararlaştırılanlar: yazar/yayınevi/çevirmen eşleştirmesi **isimle değil
+> 1000Kitap ID'siyle** yapılacak (`yazarlar[].id`, ölçüldü — "Steven Erikson"
+> / "Erikson, Steven" ayrı yazar sanılmasın); tür eşleşmezse **otomatik
+> oluşturulMAyacak**, admin panelde "eşleşmeyen türler" olarak önerilip
+> onaydan geçecek (yoksa süzgeç varyantlarla dolar). Kural 11 bu değişikliği
+> zaten destekliyor; şemadaki "seri ayrı tablo değil" ve "genres Kural 11
+> DEĞİL" gerekçeleri Faz 2'de güncellenecek.
+>
+> **EVDE DOĞRULANACAK (lokalden admin API'sine bağlanılamıyor):**
+> 1. Küratörde ara: **"bül"** → `1K` rozetli *Bülbülü Öldürmek* listenin
+>    başında görünmeli. Seç ve ekle → çevirmen **Ülker İnce** künyeye
+>    yazılmış mı?
+> 2. Eklenen kitabın kapağı `/uploads/books/…` mi (dış adres değil)?
+> 3. Aynı kitabı tekrar eklemeyi dene → "arşivinizde var" uyarısı gelmeli.
+> 4. `POST /admin/books/covers/localize` → eski kapaklar yerelleşiyor mu?
+
 > **DEVİR NOTU — 31 Temmuz 2026, iş yeri kapanışı. EVDEN DEVAM EDİLECEK:
 > ilk iş `git pull`.** Çalışma dizini temiz, her şey `origin/main`de
 > (`bbe27d9`). Bugün altı push gitti: `f7eb57c` mobil raflar → `5c614b2`

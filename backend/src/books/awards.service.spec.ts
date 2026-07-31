@@ -13,6 +13,7 @@ function source(partial: Partial<BookSource>): BookSource {
   return {
     googleId: 'x',
     olKey: null,
+    binKitapSlug: null,
     isbn13: null,
     title: 'Başlık',
     subtitle: null,
@@ -29,6 +30,7 @@ function source(partial: Partial<BookSource>): BookSource {
     seriesIndex: null,
     originalTitle: null,
     provider: 'GOOGLE',
+    popularity: 0,
     ...partial,
   };
 }

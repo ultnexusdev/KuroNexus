@@ -32,6 +32,16 @@ export class CreateBookEntryDto {
   @MaxLength(120, { message: 'VALIDATION.INVALID_BOOK_ID' })
   olKey?: string;
 
+  /**
+   * 1000Kitap kitap sayfasının anahtarı ("bulbulu-oldurmek--939"). Geldiğinde
+   * künye önce buradan tohumlanıyor: Türkçe ad, çevirmen, yayınevi ve gerçek
+   * kapak en eksiksiz burada.
+   */
+  @IsOptional()
+  @IsString({ message: 'VALIDATION.INVALID_BOOK_ID' })
+  @MaxLength(160, { message: 'VALIDATION.INVALID_BOOK_ID' })
+  binKitapSlug?: string;
+
   // Kaynağı olmayan kayıt için tek zorunlu bilgi; kaynak varsa oradan gelen
   // adı ezer (küratör Türkçe adı elle yazmak isteyebilir)
   @IsOptional()

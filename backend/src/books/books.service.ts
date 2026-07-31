@@ -6,6 +6,8 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { slugify } from '../common/utils/slugify';
 import { GoogleBooksService, type BookSource } from './google-books.service';
+import { BinKitapService, type BinKitapDetail } from './bin-kitap.service';
+import { BookCoverService } from './book-cover.service';
 import { CreateBookEntryDto } from './dto/create-book-entry.dto';
 import { UpdateBookEntryDto } from './dto/update-book-entry.dto';
 import { CreateBookQuoteDto } from './dto/create-book-quote.dto';
@@ -17,6 +19,19 @@ import type {
   Prisma,
   ReadingGoal,
 } from '../generated/prisma/client';
+
+/**
+ * Kayıt açılırken dış kaynaktan toplanan her şey. `translator` ve `raw`
+ * ayrı duruyor çünkü ikisinin de `BookSource`ta karşılığı yok: biri kendi
+ * sütununa, öteki `externalData`ya yazılıyor.
+ */
+interface BookSeed {
+  source: BookSource | null;
+  translator: string | null;
+  raw: BinKitapDetail['raw'] | null;
+}
+
+const EMPTY_SEED: BookSeed = { source: null, translator: null, raw: null };
 
 /** Kitap sayfasındaki "benzer kitaplar" ve seri listeleri kaç kayıt taşır. */
 const NEIGHBOUR_LIMIT = 8;
@@ -187,6 +202,8 @@ export class BooksService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly source: GoogleBooksService,
+    private readonly binKitap: BinKitapService,
+    private readonly covers: BookCoverService,
   ) {}
 
   // --- Public ---
@@ -386,6 +403,37 @@ export class BooksService {
   }
 
   /**
+   * Dış adresle duran kapakları kendi diskimize taşır (kullanıcı kararı:
+   * hotlink yok). 1000Kitap'tan önce eklenmiş kayıtlar için tek seferlik.
+   *
+   * Bir kapak inmezse kayıt olduğu gibi bırakılıp tura devam edilir — tek
+   * kırık adres yüzünden bütün geri doldurma durmasın.
+   */
+  async localizeCovers(): Promise<{ scanned: number; localized: number }> {
+    const entries = await this.prisma.bookEntry.findMany({
+      where: {
+        isDeleted: false,
+        coverImage: { not: null, startsWith: 'http' },
+      },
+      select: { id: true, coverImage: true },
+    });
+
+    let localized = 0;
+    for (const entry of entries) {
+      const local = await this.covers.download(entry.coverImage);
+      if (!local) {
+        continue;
+      }
+      await this.prisma.bookEntry.update({
+        where: { id: entry.id },
+        data: { coverImage: local },
+      });
+      localized += 1;
+    }
+    return { scanned: entries.length, localized };
+  }
+
+  /**
    * Arşive kitap ekler.
    *
    * Kullanıcı kararı gereği künye alanları **kayıt anında** dış kaynaktan
@@ -394,14 +442,26 @@ export class BooksService {
    * başlık DTO'dan gelir, kalan alanlar boş kalır ve küratör doldurur.
    */
   async create(dto: CreateBookEntryDto, userId: string): Promise<BookEntry> {
-    const duplicate = await this.findDuplicate(dto, userId);
+    /**
+     * Künye tekrar kontrolünden ÖNCE çekiliyor: kontrol eserin adına ve
+     * yazarına bakıyor, ikisi de ancak künye gelince biliniyor. Maliyeti yok,
+     * künye zaten `ExternalCache`ten okunuyor. Kapak ise kontrolden SONRA
+     * indiriliyor — zaten arşivde olan kitap için dosya yazılmasın.
+     */
+    const { source: seed, translator, raw } = await this.seed(dto);
+    const duplicate = await this.findDuplicate(dto, userId, seed);
     if (duplicate) {
       throw new ConflictException('BOOKS.ALREADY_IN_ARCHIVE');
     }
 
-    const seed = await this.seed(dto);
     const status = dto.status ?? 'READ';
     const translationState = await this.resolveTranslation(dto, seed);
+    /**
+     * Kapak **indiriliyor**, dış adres saklanmıyor (kullanıcı kararı: hotlink
+     * yok). İndirme başarısızsa dış adres son çare olarak kalıyor — kapaksız
+     * kayıt açmaktansa kırılabilir bir adres iyidir, küratör sonra düzeltir.
+     */
+    const localCover = await this.covers.download(seed?.coverImage);
     return this.prisma.bookEntry.create({
       data: {
         googleId: dto.googleId ?? null,
@@ -410,12 +470,13 @@ export class BooksService {
         title: dto.title ?? seed?.title ?? 'Adsız kitap',
         originalTitle: seed?.originalTitle ?? null,
         authors: seed?.authors ?? [],
+        translator,
         publisher: seed?.publisher ?? null,
         publishedYear: seed?.publishedYear ?? null,
         firstPublishedYear: seed?.firstPublishedYear ?? null,
         pageCount: seed?.pageCount ?? null,
         language: seed?.language ?? null,
-        coverImage: seed?.coverImage ?? null,
+        coverImage: localCover ?? seed?.coverImage ?? null,
         description: seed?.description ?? null,
         genres: seed?.genres ?? [],
         seriesName: dto.seriesName ?? seed?.seriesName ?? null,
@@ -434,7 +495,15 @@ export class BooksService {
               ? new Date()
               : null,
         startedAt: dto.startedAt ? parseDate(dto.startedAt) : null,
-        externalData: (seed ?? undefined) as unknown as Prisma.InputJsonValue,
+        /**
+         * Ham anlık görüntü: künye + `BookSource`a sığmayan 1000Kitap alanları
+         * (ülke, editör, format, orijinal dil, diğer baskı sayısı). Kullanıcı
+         * kararı — şema büyütmek yerine ham veri saklansın, ileride gereken
+         * sütuna terfi ettirilsin.
+         */
+        externalData: (seed
+          ? { ...seed, binKitap: raw ?? undefined }
+          : undefined) as unknown as Prisma.InputJsonValue,
         externalDataFetchedAt: seed ? new Date() : null,
         userId,
       },
@@ -549,6 +618,13 @@ export class BooksService {
       return entry;
     }
 
+    /**
+     * Tazeleme kapağı yalnızca kayıt kapaksızken dolduruyor — ve dolduruyorsa
+     * dış adresi saklamak yerine indiriyor (kullanıcı kararı: hotlink yok).
+     */
+    const filledCover =
+      entry.coverImage ?? (await this.covers.download(fresh.coverImage));
+
     return this.prisma.bookEntry.update({
       where: { id },
       data: {
@@ -559,7 +635,7 @@ export class BooksService {
           entry.firstPublishedYear ?? fresh.firstPublishedYear,
         pageCount: entry.pageCount ?? fresh.pageCount,
         language: entry.language ?? fresh.language,
-        coverImage: entry.coverImage ?? fresh.coverImage,
+        coverImage: filledCover ?? fresh.coverImage,
         description: entry.description ?? fresh.description,
         seriesName: entry.seriesName ?? fresh.seriesName,
         seriesIndex: entry.seriesIndex ?? fresh.seriesIndex,
@@ -671,17 +747,49 @@ export class BooksService {
   private async findDuplicate(
     dto: CreateBookEntryDto,
     userId: string,
+    seed: BookSource | null,
   ): Promise<BookEntry | null> {
     const or: Prisma.BookEntryWhereInput[] = [];
+
+    // 1) Kaynak kimlikleri — kesin eşleşme, aynı kaydın kendisi
     if (dto.googleId) {
       or.push({ googleId: dto.googleId });
     }
     if (dto.olKey) {
       or.push({ olKey: dto.olKey });
     }
-    if (dto.title) {
-      or.push({ title: { equals: dto.title, mode: 'insensitive' } });
+
+    /**
+     * 2) **Eser** seviyesi: orijinal ad + yazar.
+     *
+     * Bu kontrol ISBN'den ÖNCE geliyor ve sırası bilerek böyle (kullanıcı
+     * kararı: "aynı kitap iki kez oluşmasın"). ISBN bir **baskı** kimliği;
+     * aynı eserin iki baskısı iki ayrı ISBN taşır, ISBN'e bakarak karar
+     * verilse *Bülbülü Öldürmek*'in Sel ve Epsilon baskıları iki ayrı kitap
+     * sayılırdı — tam da engellenmek istenen şey.
+     */
+    const author = seed?.authors[0] ?? null;
+    for (const title of [seed?.originalTitle, seed?.title, dto.title]) {
+      if (!title) {
+        continue;
+      }
+      const clause: Prisma.BookEntryWhereInput = author
+        ? {
+            OR: [
+              { title: { equals: title, mode: 'insensitive' } },
+              { originalTitle: { equals: title, mode: 'insensitive' } },
+            ],
+            authors: { has: author },
+          }
+        : { title: { equals: title, mode: 'insensitive' } };
+      or.push(clause);
     }
+
+    // 3) Aynı baskı: ISBN. Eser kontrolü kaçırmışsa son ağ.
+    if (seed?.isbn13) {
+      or.push({ isbn13: seed.isbn13 });
+    }
+
     if (or.length === 0) {
       return null;
     }
@@ -730,12 +838,35 @@ export class BooksService {
    * künyesiz kalmasın diye ada göre aramaya düşülüyor — `search` kendi içinde
    * zaten Open Library'ye düşebiliyor.
    */
-  private async seed(dto: CreateBookEntryDto): Promise<BookSource | null> {
+  private async seed(dto: CreateBookEntryDto): Promise<BookSeed> {
+    /**
+     * 1000Kitap önce denenir: Türkçe ad, çevirmen, yayınevi ve gerçek kapak
+     * en eksiksiz orada. Düşerse aşağıdaki kaynaklara sessizce inilir —
+     * kayıt açılamaması kabul edilemez (kural 4).
+     */
+    if (dto.binKitapSlug) {
+      try {
+        const detail = await this.binKitap.getDetail(dto.binKitapSlug);
+        if (detail) {
+          return {
+            source: detail.source,
+            translator: detail.translator,
+            raw: detail.raw,
+          };
+        }
+      } catch {
+        // Kaynak düştü; Google/Open Library denenir
+      }
+    }
     if (dto.googleId) {
       try {
-        return await this.source.enrich(
-          await this.source.getVolume(dto.googleId),
-        );
+        return {
+          source: await this.source.enrich(
+            await this.source.getVolume(dto.googleId),
+          ),
+          translator: null,
+          raw: null,
+        };
       } catch {
         // Cilt künyesi alınamadı; aşağıdaki ada göre arama denenir
       }
@@ -743,12 +874,16 @@ export class BooksService {
     if (dto.title) {
       try {
         const results = await this.source.search(dto.title);
-        return results[0] ? await this.source.enrich(results[0]) : null;
+        return {
+          source: results[0] ? await this.source.enrich(results[0]) : null,
+          translator: null,
+          raw: null,
+        };
       } catch {
-        return null;
+        return EMPTY_SEED;
       }
     }
-    return null;
+    return EMPTY_SEED;
   }
 
   /**
@@ -832,6 +967,7 @@ function toSourceShape(entry: BookEntry): BookSource {
   return {
     googleId: entry.googleId,
     olKey: entry.olKey,
+    binKitapSlug: null,
     isbn13: entry.isbn13,
     title: entry.title,
     subtitle: null,

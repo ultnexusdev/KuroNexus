@@ -1000,12 +1000,18 @@ export interface BookSearchResult {
   seriesName: string | null;
   seriesIndex: number | null;
   originalTitle: string | null;
-  provider: "GOOGLE" | "OPENLIBRARY";
+  provider: "GOOGLE" | "OPENLIBRARY" | "BINKITAP";
+  /**
+   * 1000Kitap kitap sayfasının anahtarı. Eklerken geri gönderilir; künyenin
+   * tamamı (çevirmen, yayınevi, ISBN) ancak o zaman çekilir — arama sonucu
+   * yalnızca ad, yazar ve kapak taşıyor.
+   */
+  binKitapSlug: string | null;
   /**
    * "Ne kadar biliniyor": Open Library'de baskı sayısı, Google'da
-   * değerlendirme sayısı. **Sıralamada kullanılmıyor** — ölçümde puanla
-   * sıralamanın alakayı bozduğu görüldü; küratöre iki kayıt arasında seçim
-   * yaparken ipucu olarak gösteriliyor.
+   * değerlendirme sayısı, 1000Kitap'ta okunma sayısı. **Sıralamada
+   * kullanılmıyor** — ölçümde puanla sıralamanın alakayı bozduğu görüldü;
+   * küratöre iki kayıt arasında seçim yaparken ipucu olarak gösteriliyor.
    */
   popularity: number;
   inArchive: boolean;

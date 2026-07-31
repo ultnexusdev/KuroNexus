@@ -5,6 +5,42 @@
 
 ## Mevcut Aşama
 
+> **DEVİR NOTU — 31 Temmuz 2026, iş yeri kapanışı. EVDEN DEVAM EDİLECEK:
+> ilk iş `git pull`.** Çalışma dizini temiz, her şey `origin/main`de
+> (`bbe27d9`). Bugün altı push gitti: `f7eb57c` mobil raflar → `5c614b2`
+> allSettled + durum notu → `9febf16` **Faz B · Ödüller** → `5095fa8` tür
+> süzgeci sabit liste → `4424b9e` çift kaynaklı canlı arama → `bbe27d9`
+> Open Library Türkçe baskı + küratör araçları.
+>
+> **EVDE İLK YAPILACAKLAR (gerçek admin girişiyle; hiçbiri lokalden
+> denenemiyor, admin API'sine lokalden bağlanılamıyor):**
+> 1. Küratör modunda ara: **"bülbülü öldürmek"**. Listede `OL` rozetli,
+>    **Türkçe adlı ve Türkçe kapaklı** kayıt görünmeli. Onu seçip ekle →
+>    kapak gerçekten geliyor mu? (Bugünkü işin asıl sınavı bu.)
+> 2. Küratör modunda bir kitabın altındaki **✕** → kitap gerçekten
+>    siliniyor mu? Düzen hatası düzeltildi ama canlıda denenmedi. Silmiyorsa
+>    sıradaki şüpheli `router.refresh()` sonrası yeniden çizim.
+> 3. `/dark-stories/category/kitap/oduller` → dokuz ödül kartı. **İlk
+>    açılışta kapakların çoğu boş gelecek, bu beklenen** (eşleşme arka
+>    planda, her istekte 6 kayıt). Birkaç kez yenileyince dolmalı.
+> 4. Sol raydaki **Tür** süzgeci (Dönem'in altında): 20 tür listeleniyor,
+>    hepsinin sayacı şu an sıfır çünkü iki kitabının da `genres` alanı boş.
+>    Küratörden tür girersen sayaçlar dolmaya başlar.
+>
+> **SIRADAKİ İŞ — Faz B'nin kalanı:** Keşfet rafları (Goodreads Top 250,
+> NYT, Türk Edebiyatı, Modern/Antik Klasikler — ödüllerle **aynı makineyi**
+> kullanacak, ucuza gelir), kitap sayfasında spoilersız/spoiler inceleme +
+> karakterler + farklı baskılar, yazar paneline biyografi/tüm eserler,
+> kitap kanadının `pulse` uçlarına eklenmesi. Ayrıca **ödül ısıtma cron'u**:
+> `awards.service.warm()` hazır, çağıran cron yazılmadı (`anime.cron.ts`
+> deseni izlenecek) — o olmadan ödül kapakları yalnızca sayfa gezildikçe
+> doluyor.
+>
+> **AÇIK BÜYÜK İŞ (kullanıcı istedi, yapılmadı):** gerçek önek araması
+> ("bül" → Bülbülü Öldürmek). Google Books önek motoru değil (ölçüldü),
+> `pg_trgm` de kendi satırlarımızı aradığı için çözmez. Open Library
+> dump'ının kendi Postgres'imize indirilmesi gerekir — ayrı ve büyük bir iş.
+
 > **OPEN LIBRARY TÜRKÇE BASKI + KÜRATÖR ARAÇLARI — 31 Temmuz 2026 (2).**
 > Kullanıcı iki şey bildirdi: Open Library'de Türkçe kapaklı sayfa varken
 > aramada İngilizce sürüm geliyor; küratör modunda ✕ kitabı kaldırmıyor.

@@ -41,10 +41,48 @@
   flex: 1 1 220px;
 }
 
+/* Canlı arama: kutu ile açılır liste tek sarmalayıcıda, liste kutunun
+   üstüne biniyor — form alanlarını aşağı itip sayfayı zıplatmasın */
+.searchBox {
+  position: relative;
+}
+
+/* Yazarken dönen küçük halka; "Ara" düğmesi kalktığı için tek geri bildirim */
+.searchSpinner {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--border-strong);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  transform: translateY(-50%);
+  animation: spin 0.7s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes spin {
+  to {
+    transform: translateY(-50%) rotate(360deg);
+  }
+}
+
+/* Hareket hassasiyeti: dönme kapanır, halka yine görünür durur */
+@media (prefers-reduced-motion: reduce) {
+  .searchSpinner {
+    animation: none;
+  }
+}
+
 .field input,
 .field select,
 .field textarea,
-.searchForm input {
+.searchForm input,
+/* Canlı arama kutusu artık `.searchForm` içinde değil; genişlik ve dokunma
+   yüksekliği kuralı buraya da uygulanmazsa kutu daralıyor (mobilde 177px
+   ölçüldü) */
+.searchBox input {
   box-sizing: border-box;
   width: 100%;
   min-height: var(--touch-min, 44px);
@@ -124,14 +162,31 @@
 
 /* --- Arama sonuclari --- */
 
+/* Açılır sonuç listesi. Mutlak konumlu: sayfa akışını itmiyor, kutunun
+   hemen altında duruyor ve altındaki forma biniyor */
 .results {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 4px);
+  right: 0;
+  left: 0;
   display: grid;
   gap: 2px;
   max-height: 380px;
   margin: 0;
-  padding: 0;
+  padding: 4px;
   overflow-y: auto;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--bg) 70%, transparent);
   list-style: none;
+}
+
+.resultEmpty {
+  padding: 10px 8px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
 }
 
 .result {
@@ -152,6 +207,14 @@
 
 .result:hover:not(:disabled) {
   background: var(--surface-hover);
+}
+
+/* Klavyeyle gezinilen satır. `:hover` ile aynı görünüm: fare ve klavye
+   arasında geçerken vurgunun yeri değişmesin */
+.resultActive {
+  composes: result;
+  background: var(--surface-hover);
+  outline: 1px solid var(--accent-muted);
 }
 
 .result:disabled {
@@ -220,6 +283,30 @@
   flex-shrink: 0;
   color: var(--text-muted);
   font-size: 0.72rem;
+}
+
+/* Kaynak rozetleri. İkisi aynı eseri getirebiliyor ve künyeleri farklı
+   oluyor (biri kapaklı, öbürü değil) — hangisinin seçildiği görünmeli */
+.srcGoogle,
+.srcOpenLibrary {
+  flex-shrink: 0;
+  min-width: 22px;
+  padding: 1px 4px;
+  border-radius: 2px;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-align: center;
+}
+
+.srcGoogle {
+  border: 1px solid var(--border-strong);
+  color: var(--text-muted);
+}
+
+.srcOpenLibrary {
+  border: 1px solid var(--gold, var(--accent-muted));
+  color: var(--gold, var(--accent));
 }
 
 /* --- Ekleme formu --- */

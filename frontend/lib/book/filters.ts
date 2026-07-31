@@ -92,20 +92,43 @@ function matchesPeriod(book: ArchiveBook, period: PeriodValue): boolean {
   return (option.from === null || year >= option.from) && year <= option.to;
 }
 
+/**
+ * Aksan katlaması: "bulbulu" yazınca "Bülbülü" bulunsun.
+ *
+ * Eskiden düz `toLocaleLowerCase("tr")` + `includes` vardı ve Türkçe harfleri
+ * olduğu gibi karşılaştırıyordu — telefonda aksansız yazan (ki çoğunlukla
+ * öyle yazılıyor) kendi arşivindeki kitabı bulamıyordu.
+ *
+ * Önce `ı` elle `i`ye çevriliyor: `ı` ayrı bir HARF, birleşik işaret değil,
+ * bu yüzden NFD ayrıştırması ona dokunmuyor. Kalan aksanlar (ö/ü/ş/ç/ğ)
+ * NFD ile taban harf + işarete ayrılıp işaretler siliniyor.
+ */
+export function foldTr(value: string): string {
+  return value
+    .toLocaleLowerCase("tr")
+    .replaceAll("ı", "i")
+    .normalize("NFD")
+    .replace(/\p{M}+/gu, "");
+}
+
 function matchesSearch(book: ArchiveBook, query: string): boolean {
-  const trimmed = query.trim().toLocaleLowerCase("tr");
+  const trimmed = foldTr(query.trim());
   if (!trimmed) {
     return true;
   }
-  const haystack = [
-    book.title,
-    book.originalTitle ?? "",
-    book.seriesName ?? "",
-    ...book.authors,
-  ]
-    .join(" ")
-    .toLocaleLowerCase("tr");
-  return haystack.includes(trimmed);
+  const haystack = foldTr(
+    [
+      book.title,
+      book.originalTitle ?? "",
+      book.seriesName ?? "",
+      ...book.authors,
+    ].join(" "),
+  );
+  // Yazılan her sözcük ayrı aranıyor: "harper bulbulu" da tutsun, sıra
+  // önemli olmasın (tek parça `includes` bunu kaçırıyordu)
+  return trimmed
+    .split(/\s+/)
+    .every((word) => haystack.includes(word));
 }
 
 /** Puansızlar sona: karşılaştırmada null yerine yön farkı gözetilir. */

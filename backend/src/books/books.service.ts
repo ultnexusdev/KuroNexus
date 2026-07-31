@@ -848,6 +848,9 @@ function toSourceShape(entry: BookEntry): BookSource {
     seriesIndex: entry.seriesIndex,
     originalTitle: entry.originalTitle,
     provider: 'GOOGLE',
+    // Arşivdeki kayıt zaten seçilmiş; popülerlik sıralaması yalnızca arama
+    // sonuçlarını dizmek için var, burada anlamı yok
+    popularity: 0,
   };
 }
 

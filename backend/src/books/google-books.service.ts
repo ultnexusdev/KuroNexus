@@ -58,6 +58,13 @@ export interface BookSource {
   seriesIndex: number | null;
   originalTitle: string | null;
   provider: 'GOOGLE' | 'OPENLIBRARY';
+  /**
+   * Kabaca "bu kitap ne kadar biliniyor". Open Library'de **baskı sayısı**,
+   * Google'da değerlendirme sayısı. Ölçüldü: "Bülbülü Öldürmek" aramasında
+   * gerçek eser 213 baskı, aynı sonuçtaki alakasız kitap 1 baskı döndü —
+   * gürültüyü aşağı itmek için en iyi tek sinyal bu. Bilinmiyorsa 0.
+   */
+  popularity: number;
 }
 
 interface GoogleVolumeRaw {
@@ -74,6 +81,8 @@ interface GoogleVolumeRaw {
     language?: string;
     imageLinks?: { thumbnail?: string; smallThumbnail?: string };
     industryIdentifiers?: Array<{ type?: string; identifier?: string }>;
+    /** Popülerlik sinyali; Google çoğu ciltte vermiyor, o zaman 0 sayılır */
+    ratingsCount?: number;
   };
 }
 
@@ -91,6 +100,8 @@ interface OpenLibraryDoc {
   series?: string[];
   language?: string[];
   subject?: string[];
+  /** Kaç ayrı baskısı var — popülerliğin en iyi göstergesi (ölçüldü) */
+  edition_count?: number;
 }
 
 interface OpenLibrarySearchResponse {
@@ -123,17 +134,16 @@ export class GoogleBooksService {
   /**
    * Küratörün arşive kitap eklerken kullandığı arama.
    *
-   * Önce `langRestrict=tr` ile Türkçe baskılar, sonra genel arama; ikisi
-   * birleştirilir ve Türkçe olanlar başa alınır. Böylece "Dune" araması önce
-   * Türkçe baskıyı, altında da orijinalini gösteriyor — çevrilmemiş kitabı da
-   * eklemek mümkün kalıyor (kullanıcı kararı).
+   * Üç bacak **birlikte** koşar ve hepsi tek listede döner: Google
+   * `langRestrict=tr`, Google genel, Open Library. Sonuç `rank()` ile
+   * sıralanır — Türkçe baskı, sonra kapak, sonra popülerlik.
    *
    * Cache'lenmez: sorgu her seferinde farklı.
    *
-   * **Google düşerse arama ölmez, Open Library'ye düşer.** Anahtarsız istekleri
-   * Google kotaya takıp `429` veriyor (canlıda doğrulandı) — o durumda hata
-   * fırlatılsaydı kitap eklemenin tek yolu tamamen kapanırdı. Anahtar
-   * (`GOOGLE_BOOKS_API_KEY`) tanımlanınca Türkçe baskılar yine öne geçer.
+   * **Hiçbir bacak diğerini düşürmez.** Anahtarsız Google istekleri kotaya
+   * takılıp `429`, ara sıra da `503` veriyor (ikisi de ölçüldü); `allSettled`
+   * sayesinde ayakta kalan bacaklar kullanılıyor. Anahtar
+   * (`GOOGLE_BOOKS_API_KEY`) tanımlıyken Türkçe baskılar öne geçiyor.
    */
   async search(query: string): Promise<BookSource[]> {
     const trimmed = query.trim();
@@ -141,35 +151,49 @@ export class GoogleBooksService {
       return [];
     }
 
-    const merged: BookSource[] = [];
-
     /**
-     * İki bacak birbirinden **bağımsız** olmak zorunda. `Promise.all` ile
-     * genel aramanın anlık bir `503`'ü Türkçe bacağı da çöpe atıyor ve arama
-     * Open Library'ye düşüyordu — yani anahtar tanımlıyken bile küratör ara
-     * sıra Türkçe baskıyı hiç göremiyordu (canlıda görüldü). `allSettled`
-     * ile ayakta kalan bacak kullanılıyor.
+     * **Üç bacak birlikte koşuyor ve hepsi tek listede gösteriliyor.**
+     *
+     * Eskiden Open Library yalnızca Google sıfır sonuç verince devreye
+     * giriyordu. Bu, kullanıcının bildirdiği soruna yol açıyordu: "Bülbülü
+     * Öldürmek" Google'da **kapaksız** dönüyor, Open Library'de aynı eserin
+     * kapağı VAR (`cover_i` dolu), ama Google sonuç verdiği için Open Library
+     * hiç sorulmuyordu. Artık ikisi de sorulup küratöre birlikte gösteriliyor
+     * ve hangi kaydın daha iyi olduğuna **o** karar veriyor (kullanıcı
+     * kararı: "iki yerden neresi iyiyse kendim seçeyim").
+     *
+     * `allSettled`: bacaklar birbirinden bağımsız. Google'ın anlık bir `503`'ü
+     * (ölçümde görüldü) Türkçe bacağı ya da Open Library'yi çöpe atmasın.
      */
-    const [turkish, general] = await Promise.allSettled([
+    const [turkish, general, openLibrary] = await Promise.allSettled([
       this.googleSearch(trimmed, 'tr'),
       this.googleSearch(trimmed),
+      this.openLibrarySearch(trimmed),
     ]);
 
-    for (const leg of [turkish, general]) {
+    for (const leg of [turkish, general, openLibrary]) {
       if (leg.status === 'rejected') {
         this.logger.warn(
-          `Google Books aramasının bir bacağı düştü: ${String(leg.reason)}`,
+          `Kitap aramasının bir bacağı düştü: ${String(leg.reason)}`,
         );
       }
     }
 
+    const merged: BookSource[] = [];
     const seen = new Set<string>();
     for (const item of [
       ...(turkish.status === 'fulfilled' ? turkish.value : []),
       ...(general.status === 'fulfilled' ? general.value : []),
+      ...(openLibrary.status === 'fulfilled' ? openLibrary.value : []),
     ]) {
-      // Aynı baskı iki listede de olabilir; kimlik Google numarası
-      const key = item.googleId ?? `${item.title}|${item.authors[0] ?? ''}`;
+      /**
+       * Tekilleştirme **kaynak içinde** yapılıyor, kaynaklar ARASINDA değil:
+       * aynı eserin Google ve Open Library kaydı bilerek yan yana duruyor,
+       * küratör kapağı olanı seçebilsin diye. Anahtara sağlayıcı ekleniyor.
+       */
+      const identity =
+        item.googleId ?? item.olKey ?? `${item.title}|${item.authors[0] ?? ''}`;
+      const key = `${item.provider}:${identity}`;
       if (seen.has(key)) {
         continue;
       }
@@ -178,22 +202,24 @@ export class GoogleBooksService {
     }
 
     /**
-     * Türkçe baskılar başa. İki listeyi arka arkaya eklemek yetmiyordu:
-     * `langRestrict=tr` bazı çevirileri hiç bulamıyor (Google o cildin dilini
-     * işaretlememiş olabiliyor), ama aynı cilt genel aramanın alt
-     * sıralarında duruyor. Sıralama listenin **tamamına** uygulanınca
-     * oradan yukarı çıkıyor.
+     * **Yalnızca Türkçe baskılar başa alınır; başka hiçbir yeniden sıralama
+     * YAPILMAZ.** Bu kural ölçümle konuldu, tercih değil.
      *
-     * `sort` kararlı olduğu için grup içindeki Google alaka sırası bozulmaz.
+     * Bir ara sıralama "kapak + popülerlik" puanına çevrilmişti ve alakayı
+     * yok etti: "bülbülü öldürmek" aramasında Harper Lee ilk sekizden düştü,
+     * yerine kapağı olan alakasız dergiler (İçtiğim Deniz, Notos Öykü…)
+     * çıktı; "dune frank herbert" aramasında Dune'un kendisi kaybolup
+     * Children of Dune tepeye oturdu. Sebep basit: kaynakların alaka sırası
+     * bizim üretebileceğimiz her puandan iyi, onu ezmek zarar veriyor.
+     *
+     * `sort` kararlı olduğu için her bacağın kendi sırası grup içinde
+     * korunuyor. Popülerlik (`popularity`) sıralamada DEĞİL, arayüzde bilgi
+     * olarak gösteriliyor — küratör iki kayıt arasında seçim yaparken
+     * "213 baskı" bilgisi işe yarıyor.
      */
     merged.sort(
       (a, b) => (a.language === 'tr' ? 0 : 1) - (b.language === 'tr' ? 0 : 1),
     );
-
-    // Google susarsa ya da hiç sonuç vermezse (eski/niş kitap) ikinci kaynak
-    if (merged.length === 0) {
-      return this.openLibrarySearch(trimmed);
-    }
     return merged.slice(0, SEARCH_LIMIT);
   }
 
@@ -434,7 +460,14 @@ export class GoogleBooksService {
     try {
       const payload = await this.openLibraryRequest<OpenLibrarySearchResponse>(
         '/search.json',
-        { q: query, limit: '10' },
+        {
+          q: query,
+          limit: '10',
+          // `fields` verilmezse Open Library dev bir belge döndürüyor ve
+          // `edition_count` yine de gelmiyor; alanlar açıkça isteniyor
+          fields:
+            'key,title,author_name,first_publish_year,cover_i,number_of_pages_median,series,language,subject,edition_count',
+        },
       );
       return (payload.docs ?? [])
         .map((doc) => normalizeOpenLibrary(doc))
@@ -563,7 +596,39 @@ function normalizeGoogle(raw: GoogleVolumeRaw): BookSource | null {
     seriesIndex: null,
     originalTitle: null,
     provider: 'GOOGLE',
+    popularity: info.ratingsCount ?? 0,
   };
+}
+
+/**
+ * Open Library dili **üç harfli** veriyor ("tur", "eng", "pol"), Google ise
+ * iki harfli ("tr", "en"). Aynı alanda iki ayrı alfabe tutmak dil süzgecini
+ * ve "Türkçe önce" kuralını sessizce bozardı; burada tek biçime indiriliyor.
+ * Listede olmayan kod olduğu gibi bırakılıyor — uydurmaktansa görünür kalsın.
+ */
+const OPENLIBRARY_LANGS: Record<string, string> = {
+  tur: 'tr',
+  eng: 'en',
+  ger: 'de',
+  deu: 'de',
+  fre: 'fr',
+  fra: 'fr',
+  spa: 'es',
+  ita: 'it',
+  rus: 'ru',
+  por: 'pt',
+  pol: 'pl',
+  cze: 'cs',
+  jpn: 'ja',
+  chi: 'zh',
+  ara: 'ar',
+};
+
+function openLibraryLanguage(code: string | undefined): string | null {
+  if (!code) {
+    return null;
+  }
+  return OPENLIBRARY_LANGS[code] ?? code;
 }
 
 function normalizeOpenLibrary(doc: OpenLibraryDoc): BookSource | null {
@@ -582,7 +647,7 @@ function normalizeOpenLibrary(doc: OpenLibraryDoc): BookSource | null {
     publishedYear: doc.first_publish_year ?? null,
     firstPublishedYear: doc.first_publish_year ?? null,
     pageCount: doc.number_of_pages_median ?? null,
-    language: doc.language?.[0] === 'tur' ? 'tr' : (doc.language?.[0] ?? null),
+    language: openLibraryLanguage(doc.language?.[0]),
     coverImage: doc.cover_i
       ? `${OPENLIBRARY_COVERS}/${doc.cover_i}-L.jpg`
       : null,
@@ -592,6 +657,7 @@ function normalizeOpenLibrary(doc: OpenLibraryDoc): BookSource | null {
     seriesIndex: series.index,
     originalTitle: null,
     provider: 'OPENLIBRARY',
+    popularity: doc.edition_count ?? 0,
   };
 }
 

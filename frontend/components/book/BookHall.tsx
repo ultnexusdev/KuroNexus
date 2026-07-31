@@ -56,6 +56,10 @@ const GoalEditor = dynamic(
   () => import("./BookCurator").then((mod) => mod.GoalEditor),
   { ssr: false },
 );
+const CuratorCardTools = dynamic(
+  () => import("./BookCurator").then((mod) => mod.CuratorCardTools),
+  { ssr: false },
+);
 
 // Salonda her raf tek sıra: rafa sığan cilt sayısı
 const SHELF_ROW = 7;
@@ -408,6 +412,7 @@ export function BookHall({
                     shelf={key}
                     books={visible.filter((book) => belongsTo(book, key))}
                     total={shelfCounts[key]}
+                    curating={isAdmin && curating}
                   />
                 ))
               )}
@@ -667,10 +672,13 @@ function Shelf({
   shelf,
   books,
   total,
+  curating,
 }: {
   shelf: ShelfKey;
   books: ArchiveBook[];
   total: number;
+  /** Küratör modu: cildin altına silme/durum araçları iner */
+  curating: boolean;
 }) {
   const t = useTranslations("book");
   const row = books.slice(0, SHELF_ROW);
@@ -742,6 +750,12 @@ function Shelf({
                     </span>
                   ) : null}
                 </span>
+
+                {/* Küratör araçları rafta da: yanlışlıkla eklenen kitabı
+                    silmek için raf alt sayfasına gitmek gerekiyordu — salon
+                    rafları `BookCard` kullanmadığı için araçlar buraya hiç
+                    inmiyordu (kullanıcı geri bildirimi) */}
+                {curating ? <CuratorCardTools book={book} /> : null}
               </li>
             ))}
           </ul>

@@ -1001,6 +1001,13 @@ export interface BookSearchResult {
   seriesIndex: number | null;
   originalTitle: string | null;
   provider: "GOOGLE" | "OPENLIBRARY";
+  /**
+   * "Ne kadar biliniyor": Open Library'de baskı sayısı, Google'da
+   * değerlendirme sayısı. **Sıralamada kullanılmıyor** — ölçümde puanla
+   * sıralamanın alakayı bozduğu görüldü; küratöre iki kayıt arasında seçim
+   * yaparken ipucu olarak gösteriliyor.
+   */
+  popularity: number;
   inArchive: boolean;
 }
 

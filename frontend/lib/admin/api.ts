@@ -766,10 +766,18 @@ export interface BookEntryUpdate {
   links?: BookCustomLinks;
 }
 
-export function searchBooks(query: string): Promise<BookSearchResult[]> {
+/**
+ * Küratör araması. `signal` canlı arama için şart: kullanıcı yazmaya devam
+ * ettikçe önceki istek iptal edilmezse geç dönen eski yanıt yenisinin üstüne
+ * yazıyor ve liste yanlış sonuçla donuyor.
+ */
+export function searchBooks(
+  query: string,
+  signal?: AbortSignal,
+): Promise<BookSearchResult[]> {
   return apiFetch<BookSearchResult[]>(
     `/admin/books/search?q=${encodeURIComponent(query)}`,
-    { headers: authHeaders() },
+    { headers: authHeaders(), signal },
   );
 }
 

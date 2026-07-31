@@ -5,6 +5,73 @@
 
 ## Mevcut Aşama
 
+> **ARAMA ÇİFT KAYNAĞA GEÇTİ + CANLI DROPDOWN — 31 Temmuz 2026 (kullanıcı
+> isteği).**
+>
+> **1) Open Library artık her aramada devrede.** Eskiden yalnızca Google
+> sıfır sonuç verince sorulurdu; kullanıcı "Bülbülü Öldürmek"in Google'da
+> kapaksız, Open Library'de kapaklı geldiğini bildirdi (doğrulandı:
+> `cover_i` 14351077, 213 baskı). Üç bacak (`langRestrict=tr`, Google genel,
+> Open Library) `allSettled` ile birlikte koşuyor, hepsi tek listede
+> gösteriliyor. Tekilleştirme **kaynak içinde**, kaynaklar arasında DEĞİL:
+> aynı eserin iki kaydı bilerek yan yana duruyor, küratör kapaklı olanı
+> seçsin diye.
+>
+> **2) PUANLA SIRALAMA DENENDİ VE GERİ ALINDI — tekrar denemeyin.** Kapak +
+> popülerlik puanına göre sıralama alakayı yok etti: "bülbülü öldürmek"te
+> Harper Lee ilk sekizden düştü, yerine kapağı olan alakasız dergiler
+> (İçtiğim Deniz, Notos Öykü) çıktı; "dune frank herbert"te Dune kaybolup
+> Children of Dune tepeye oturdu. Kaynakların alaka sırası bizim
+> üretebileceğimiz her puandan iyi. **Tek sıralama kuralı: Türkçe baskılar
+> başa** (`sort` kararlı, grup içi sıra korunur). `popularity` alanı duruyor
+> ama **yalnızca arayüzde bilgi** ("213 baskı") — sıralamada kullanılmıyor.
+>
+> **3) Canlı arama dropdown'u.** Enter/Ara gerekmiyor: 350ms debounce, önceki
+> istek `AbortController` ile iptal (Google yanıtları 550–2900ms arasında
+> değişiyor, iptal olmazsa geç dönen eski yanıt listeyi yanlış sonuçla
+> donduruyor), `MIN_QUERY = 4`. Satırda kapak + ad + yazar + yıl + sayfa +
+> baskı sayısı, **kaynak rozeti (G / OL)** ve dil rozeti. Klavye: ↑/↓ (başa
+> sarar), Enter, Esc; dışarı tıklayınca kapanır. `role="combobox"` +
+> `aria-activedescendant`.
+>
+> **ÖNEK ARAMASI YAPILAMIYOR — kullanıcı istedi, ölçüldü, mümkün değil.**
+> Google Books bir önek motoru değil: "bül" → koro düzenlemeleri,
+> "bülbülü öl" → Divan şiiri, "tutunamay" → Akkoyunlular tarihi, "dune" →
+> The Science of Dune. Anlamlı sonuç ancak sözcük tamamlanınca geliyor.
+> `MIN_QUERY = 4` bu yüzden var. **`unaccent`/`pg_trgm` bunu çözmez**:
+> o araçlar kendi Postgres satırlarımızı arar, aranan kitaplar dışarıda.
+> Gerçek "bül → Bülbülü Öldürmek" için Open Library dump'ının kendi
+> veritabanımıza indirilmesi gerekir — ayrı ve büyük bir iş, yapılmadı.
+> **Aksan toleransı zaten var:** "bulbulu oldurmek" Google'da doğru sonucu
+> getiriyor (ölçüldü), ek iş gerekmedi.
+>
+> **4) Arşiv aramasına aksan katlaması.** `matchesSearch` düz `includes`
+> yapıyordu, "bulbulu" yazınca "Bülbülü" bulunmuyordu. `foldTr` eklendi
+> (`ı` elle `i`ye, kalan aksanlar NFD ile) ve arama **sözcük sözcük**
+> yapılıyor: "herbert dune" de tutuyor, sıra önemli değil.
+>
+> **5) Salon raflarında silme.** Raflar `BookCard` kullanmadığı için küratör
+> araçları oraya hiç inmiyordu; yanlış eklenen kitabı silmek için raf alt
+> sayfasına gitmek gerekiyordu (kullanıcı bildirdi). `.volume` altına
+> `CuratorCardTools` eklendi — 12 ciltte de doğrulandı.
+>
+> **Doğrulama (lokal, geçici yamalarla):** kısa sorguda istek atılmıyor, tam
+> sorguda liste açılıyor, Open Library kaydı "213 baskı + OL" rozetiyle
+> görünüyor, arşivdeki kitap "Arşivde" ile kilitli; klavye gezinmesi başa
+> sarıyor; Esc kapatıyor. Aksan: "kurk mantolu" ve "suc ceza" buluyor.
+> Mobil 375px: kutu 309px/44px, satırlar 63px, taşma yok.
+> **Yakalanan gerileme:** kutu `.searchForm`dan çıkınca genişlik kuralı
+> düşmüş ve 177px'e inmişti; `.searchBox input` eklendi.
+> Üç geçici yama (arşiv fixture'ı, `isAdmin` zorlaması, `searchBooks` sahte
+> verisi) **commit öncesi geri alındı.**
+> backend `nest build` + `eslint src/books` + 11 test temiz; frontend `tsc` +
+> `eslint` + `next build` temiz.
+>
+> **AÇIK:** küratör araması canlıda gerçek girişle hâlâ denenmedi (lokalden
+> admin API'sine bağlanılamıyor). Ayrıca Google bu oturumda sık sık `503`
+> verdi; `allSettled` sayesinde arama ölmüyor ama tek istek için **yeniden
+> deneme yok** — eklenebilir.
+
 > **TÜR SÜZGECİ SABİT LİSTEYE GEÇTİ — 31 Temmuz 2026 (kullanıcı isteği).**
 > Sol rayda **Tür artık Dönem'in altında ve her zaman çizili.** Eskiden yalnızca
 > arşivden türetiliyordu ve arşivde tür yoksa hiç görünmüyordu — canlıdaki iki

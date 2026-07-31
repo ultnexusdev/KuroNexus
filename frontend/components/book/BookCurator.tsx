@@ -1,6 +1,12 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+  type KeyboardEvent,
+} from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/lib/i18n/navigation";
@@ -49,6 +55,22 @@ function today(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
+/**
+ * Canlı aramanın bekleme süresi. 350ms ölçüme dayanıyor: Google yanıtları
+ * 550–2900ms arasında geliyor, daha kısa bekleme her harfte istek atıp
+ * sonuçları titretiyor, daha uzunu yazmayı bitirmiş kullanıcıyı bekletiyor.
+ */
+const DEBOUNCE_MS = 350;
+
+/**
+ * Bu uzunluğun altında istek atılmıyor. Sebep ölçülmüş bir gerçek: Google
+ * Books bir **önek** motoru değil. "bül" araması koro düzenlemeleri,
+ * "tutunamay" ise Akkoyunlular tarihi getiriyor; anlamlı sonuç ancak sözcük
+ * tamamlanınca geliyor. Kısa sorguyu göndermek kotayı gürültüye harcamak
+ * olurdu.
+ */
+const MIN_QUERY = 4;
+
 /** Arşive kitap ekleme şeridi: ara → seç → künyeyi gir. */
 export function CuratorBar() {
   const t = useTranslations("book.curator");
@@ -68,26 +90,110 @@ export function CuratorBar() {
   const [finishedAt, setFinishedAt] = useState(today());
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /** Klavyeyle gezinilen satır; -1 = hiçbiri seçili değil */
+  const [active, setActive] = useState(-1);
+  const [open, setOpen] = useState(false);
+  const boxRef = useRef<HTMLDivElement | null>(null);
 
-  async function handleSearch(event: FormEvent) {
-    event.preventDefault();
-    if (!query.trim()) {
+  /**
+   * Canlı arama: Enter'a ya da "Ara"ya basmaya gerek yok.
+   *
+   * Üç şeye birden dikkat ediyor:
+   *  - **debounce**: her harfte değil, yazma durunca istek atılır,
+   *  - **iptal**: kullanıcı yazmaya devam edince önceki istek `abort` edilir.
+   *    Yoksa geç dönen eski yanıt yeninin üstüne yazıp listeyi yanlış
+   *    sonuçla dondurur (Google yanıtları 550–2900ms arasında değişiyor),
+   *  - **kısa sorgu**: `MIN_QUERY` altında hiç istek atılmaz.
+   */
+  useEffect(() => {
+    const trimmed = query.trim();
+    if (picked || trimmed.length < MIN_QUERY) {
+      setResults(null);
+      setOpen(false);
       return;
     }
-    setBusy(true);
-    setError(null);
-    try {
-      setResults(await searchBooks(query));
-    } catch {
-      setError(t("searchError"));
-    } finally {
-      setBusy(false);
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => {
+      setBusy(true);
+      setError(null);
+      searchBooks(trimmed, controller.signal)
+        .then((found) => {
+          setResults(found);
+          setActive(-1);
+          setOpen(true);
+        })
+        .catch(() => {
+          // İptal bir hata değil: kullanıcı yazmaya devam etti
+          if (controller.signal.aborted) {
+            return;
+          }
+          setError(t("searchError"));
+        })
+        .finally(() => {
+          if (!controller.signal.aborted) {
+            setBusy(false);
+          }
+        });
+    }, DEBOUNCE_MS);
+
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [query, picked, t]);
+
+  /** Dışarı tıklanınca liste kapanır — açık kalıp formu örtmesin */
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+    function onPointerDown(event: PointerEvent) {
+      if (!boxRef.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, [open]);
+
+  const visible = results?.slice(0, 10) ?? [];
+
+  /** Yukarı/aşağı ile gezinme, Enter ile seçme, Esc ile kapatma. */
+  function onKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+    if (event.key === "Escape") {
+      setOpen(false);
+      return;
+    }
+    if (!open || visible.length === 0) {
+      return;
+    }
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      event.preventDefault();
+      const step = event.key === "ArrowDown" ? 1 : -1;
+      setActive((current) => {
+        const next = current + step;
+        // Uçlarda başa/sona sarılıyor: uzun listede kaybolmayı önlüyor
+        if (next < 0) return visible.length - 1;
+        if (next >= visible.length) return 0;
+        return next;
+      });
+      return;
+    }
+    if (event.key === "Enter" && active >= 0) {
+      event.preventDefault();
+      const choice = visible[active];
+      if (choice && !choice.inArchive) {
+        pick(choice);
+      }
     }
   }
 
   function pick(result: BookSearchResult) {
     setPicked(result);
     setResults(null);
+    setOpen(false);
+    setActive(-1);
     // Türkçe ad kutusu kaynaktan gelenle dolu açılır: küratör çoğu zaman
     // yalnızca düzeltecek, sıfırdan yazmayacak
     setTitle(result.title);
@@ -156,80 +262,122 @@ export function CuratorBar() {
       <h2 className={styles.barTitle}>{t("addTitle")}</h2>
       <p className={styles.barLede}>{t("addLede")}</p>
 
-      <form className={styles.searchForm} onSubmit={handleSearch}>
+      {/* Canlı arama: yazmaya başlayınca liste kendiliğinden açılır, Enter
+          ya da "Ara" gerekmez. Kutu ile liste aynı sarmalayıcıda çünkü liste
+          mutlak konumlu ve dışarı tıklamayı bu sarmalayıcı ölçüyor */}
+      <div className={styles.searchBox} ref={boxRef}>
         <input
           type="search"
           value={query}
           placeholder={t("searchPlaceholder")}
           aria-label={t("searchLabel")}
+          role="combobox"
+          aria-expanded={open}
+          aria-controls="book-search-listbox"
+          aria-autocomplete="list"
+          aria-activedescendant={
+            active >= 0 ? `book-search-option-${active}` : undefined
+          }
+          autoComplete="off"
           onChange={(event) => setQuery(event.target.value)}
+          onKeyDown={onKeyDown}
+          onFocus={() => {
+            if (visible.length > 0) {
+              setOpen(true);
+            }
+          }}
         />
-        <button type="submit" className={styles.primary} disabled={busy}>
-          {busy ? t("searching") : t("search")}
-        </button>
-      </form>
+        {busy ? <span className={styles.searchSpinner} aria-hidden /> : null}
+
+        {open && !picked ? (
+          <ul
+            className={styles.results}
+            id="book-search-listbox"
+            role="listbox"
+          >
+            {visible.length === 0 ? (
+              <li className={styles.resultEmpty}>{t("noResults")}</li>
+            ) : (
+              visible.map((result, index) => (
+                <li key={`${result.provider}-${result.googleId ?? result.olKey ?? index}`}>
+                  <button
+                    type="button"
+                    id={`book-search-option-${index}`}
+                    role="option"
+                    aria-selected={index === active}
+                    className={
+                      index === active ? styles.resultActive : styles.result
+                    }
+                    disabled={result.inArchive}
+                    onPointerEnter={() => setActive(index)}
+                    onClick={() => pick(result)}
+                  >
+                    <span className={styles.resultCover}>
+                      {result.coverImage ? (
+                        <Image
+                          src={result.coverImage}
+                          alt=""
+                          fill
+                          sizes="40px"
+                          className={styles.resultImg}
+                          unoptimized
+                        />
+                      ) : null}
+                    </span>
+                    <span className={styles.resultInfo}>
+                      <span className={styles.resultTitle}>{result.title}</span>
+                      <span className={styles.resultMeta}>
+                        {[
+                          result.authors.join(", "),
+                          result.firstPublishedYear ?? result.publishedYear,
+                          result.pageCount
+                            ? t("pageCount", { count: result.pageCount })
+                            : null,
+                          // Popülerlik ipucu: aynı eserin iki kaydı arasında
+                          // seçim yaparken "213 baskı" ayırt edici oluyor
+                          result.popularity > 0
+                            ? t("editions", { count: result.popularity })
+                            : null,
+                        ]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </span>
+                    </span>
+                    {/* Kaynak rozeti: kullanıcı iki kaynağı ayırt edip
+                        kapağı olanı seçebilsin diye (kullanıcı isteği) */}
+                    <span
+                      className={
+                        result.provider === "OPENLIBRARY"
+                          ? styles.srcOpenLibrary
+                          : styles.srcGoogle
+                      }
+                      title={t(`source.${result.provider}`)}
+                    >
+                      {result.provider === "OPENLIBRARY" ? "OL" : "G"}
+                    </span>
+                    {/* Türkçe baskı rozeti: aynı kitabın hangi baskısı olduğunu
+                        ayırt etmenin tek yolu */}
+                    <span
+                      className={
+                        result.language === "tr"
+                          ? styles.langTr
+                          : styles.langOther
+                      }
+                    >
+                      {(result.language ?? "?").toLocaleUpperCase("tr")}
+                    </span>
+                    {result.inArchive ? (
+                      <span className={styles.inArchive}>{t("inArchive")}</span>
+                    ) : null}
+                  </button>
+                </li>
+              ))
+            )}
+          </ul>
+        ) : null}
+      </div>
 
       {error ? <p className={styles.error}>{error}</p> : null}
-
-      {results !== null && !picked ? (
-        results.length === 0 ? (
-          <p className={styles.muted}>{t("noResults")}</p>
-        ) : (
-          <ul className={styles.results}>
-            {results.slice(0, 10).map((result, index) => (
-              <li key={result.googleId ?? result.olKey ?? index}>
-                <button
-                  type="button"
-                  className={styles.result}
-                  disabled={result.inArchive}
-                  onClick={() => pick(result)}
-                >
-                  <span className={styles.resultCover}>
-                    {result.coverImage ? (
-                      <Image
-                        src={result.coverImage}
-                        alt=""
-                        fill
-                        sizes="40px"
-                        className={styles.resultImg}
-                        unoptimized
-                      />
-                    ) : null}
-                  </span>
-                  <span className={styles.resultInfo}>
-                    <span className={styles.resultTitle}>{result.title}</span>
-                    <span className={styles.resultMeta}>
-                      {[
-                        result.authors.join(", "),
-                        result.firstPublishedYear ?? result.publishedYear,
-                        result.pageCount
-                          ? t("pageCount", { count: result.pageCount })
-                          : null,
-                      ]
-                        .filter(Boolean)
-                        .join(" · ")}
-                    </span>
-                  </span>
-                  {/* Türkçe baskı rozeti: aynı kitabın hangi baskısı olduğunu
-                      ayırt etmenin tek yolu */}
-                  <span
-                    className={
-                      result.language === "tr"
-                        ? styles.langTr
-                        : styles.langOther
-                    }
-                  >
-                    {(result.language ?? "?").toLocaleUpperCase("tr")}
-                  </span>
-                  {result.inArchive ? (
-                    <span className={styles.inArchive}>{t("inArchive")}</span>
-                  ) : null}
-                </button>
-              </li>
-            ))}
-          </ul>
-        )
-      ) : null}
 
       {picked ? (
         <form className={styles.addForm} onSubmit={handleAdd}>

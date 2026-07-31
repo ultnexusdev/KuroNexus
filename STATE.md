@@ -5,6 +5,53 @@
 
 ## Mevcut Aşama
 
+> **OTURUM NOTU — 31 Temmuz 2026, iş yeri makinesi. Kitap kanadı Faz A
+> KAPANDI; sıradaki iş Faz B.**
+>
+> **Google Books anahtarı eklendi ve doğrulandı.** Kullanıcı Coolify'da
+> backend'e `GOOGLE_BOOKS_API_KEY` tanımladı. Doğrulama: anahtarsız istek
+> `429`, anahtarlı istek `200`. `langRestrict=tr` + "bülbülü öldürmek harper
+> lee" aramasında **ilk iki sonuç Türkçe baskılar** — yani `b34a62a`'nın
+> getirdiği Türkçe-önce sıralaması gerçekten çalışıyor. Aşağıdaki eski
+> "anahtar gerekiyor / Open Library'ye düşülüyor" uyarısı **artık geçersiz**,
+> güncellendi.
+>
+> **`Promise.all` → `Promise.allSettled` (arama dayanıklılığı).** Test
+> sırasında genel aramadan bir kez `503` geldi. Eski kodda iki bacak tek
+> `try` içinde `Promise.all` ile çalıştığı için genel bacağın anlık hatası
+> **Türkçe bacağı da çöpe atıyor** ve arama Open Library'ye düşüyordu — yani
+> anahtar tanımlıyken bile küratör ara sıra Türkçe baskıyı hiç göremiyordu.
+> Artık ayakta kalan bacak kullanılıyor, düşen bacak yalnızca loglanıyor.
+>
+> **Mobil düzeltmesi (`f7eb57c`).** Kitap salonu `4f5b73f` sonrasında
+> yazıldığı için afiş ızgaralarının mobil kuralını almamıştı: telefonda rafa
+> **iki cilt** sığıyor, sağda ~95px boşluk kalıyordu. `.volume` tabanda
+> `calc((100% - 2*gap)/3)`, `.grid` tabanda `repeat(3, minmax(0,1fr))`;
+> 640px üstünde ikisi de eski ölçüsüne dönüyor. Ölçüm (375px): kart 98px,
+> satır başına 3 cilt, yatay taşma yok, dokunma alanı 166–190px. 1600px'te
+> salon 116px ve raf sayfası 6 kolon — masaüstü değişmedi.
+>
+> **Görünüm 10 kitapla lokalde denendi (canlı veritabanına DOKUNULMADI).**
+> `getBookArchive` geçici olarak bir fixture'a bağlandı, fixture gerçek Google
+> Books künyeleriyle üretildi (kapaklar tek tek indirilip doğrulandı: 5–26 KB,
+> hiçbiri 1269 baytlık sahte kapak değil). Raflar, cilt boyu farkı, raf
+> tahtası, seriler, yazar paneli, sağ ray istatistikleri (2.233 sayfa, 8.8
+> ortalama, %17 hedef halkası), günün alıntısı ve boş raf metinleri doğru
+> çalışıyor. Puan yıldızları da doğru ölçekleniyor (8.5 → dört dolu + yarım).
+> **Fixture commit'ten önce geri alındı**, `frontend/lib/api/books.ts` el
+> değmemiş hâlinde.
+>
+> **HÂLÂ DENENMEDİ:** küratör modunda **gerçek girişle** kitap ekleme, elle
+> kapak yükleme ve "Boş alanları tazele". Bunlar admin jetonu gerektiriyor;
+> ajan parolayla giriş yapmıyor, kullanıcının kendisinin yapması gerek.
+>
+> **Doğrulama:** backend `prisma validate` + `prisma generate` + `nest build`
+> temiz, `npx eslint src/books` temiz (fix'siz); frontend `tsc --noEmit` +
+> `eslint` + `next build` temiz.
+>
+> **NOT — bu makinede `src/generated/prisma` yoktu**, `nest build` 30 hatayla
+> düşüyordu. `npx prisma generate` çözüyor; yeni makinede ilk iş bu.
+
 > **DEVİR NOTU — 30 Temmuz 2026 akşamı, ev makinesi. İŞ YERİNDEN DEVAM
 > EDİLECEK: ilk iş `git pull`.** Çalışma dizini temiz, her şey `origin/main`de.
 > Bu oturumda altı push gitti: `a011627` kitap Faz A → `c34b696` arama Open
@@ -12,9 +59,10 @@
 > sadeleşmesi → `b34a62a` Türkçe baskı önceliği → `60e4d82` elle kapak yolu.
 >
 > **İŞ YERİNDE İLK YAPILACAKLAR (kod yazmadan önce, canlı doğrulama):**
-> 1. `/dark-stories/category/kitap/arsiv` → küratör modu → **"bülbülü öldürmek
->    harper lee"** ara. Türkçe baskı üstte ve yanında **TR** rozetiyle
->    gelmeli (`b34a62a` bunu düzeltti, canlıda gerçek girişle DENENMEDİ).
+> 1. ~~`/dark-stories/category/kitap/arsiv` → küratör modu → **"bülbülü
+>    öldürmek harper lee"** ara.~~ **31 Temmuz: kaynak tarafı doğrulandı** —
+>    anahtarla Türkçe baskılar aramada başa geliyor. Geriye yalnızca arayüzde
+>    **TR rozetinin** göründüğünü gözle teyit etmek kaldı.
 > 2. Arşivdeki iki kitabın (Bülbülü Öldürmek, Hücrenin Şarkısı) sayfasını aç →
 >    küratör modu → künye formundaki **"Kapak adresi"** kutusuna adres yapıştır
 >    ya da **"Ya da kapak yükle"** ile dosya yükle → Kaydet. Kapağın hem
@@ -161,15 +209,15 @@
 > olarak `interface` değil **tür takma adı** — örtük index imzası sayesinde
 > Prisma'nın `InputJsonValue`ına dönüşümsüz geçiyor.
 >
-> **GOOGLE BOOKS ANAHTARI GEREKİYOR (canlıda doğrulandı).** Anahtarsız istekler
-> **429 Too Many Requests** dönüyor — aynı sorgu ev makinesinden de 429 verdi,
-> yani sunucuya özgü bir engel değil, Google'ın anonim kotası. Bunun üzerine
-> `c34b696` ile arama **Open Library'ye düşüyor**: kanat anahtarsız da
-> çalışıyor (`/books/showcase` canlıda Open Library kapaklarıyla doldu). Ama
-> **Türkçe baskı önceliği yalnızca Google ile geliyor** — Open Library'de
-> Türkçe baskıların çoğu kayıtlı değil. Coolify'da backend'e
-> `GOOGLE_BOOKS_API_KEY` eklenirse Türkçe adlar kendiliğinden öne geçer;
-> kodda anahtar isteğe bağlı, ek değişiklik gerekmiyor.
+> **GOOGLE BOOKS ANAHTARI — EKLENDİ, mesele kapandı (31 Temmuz 2026).**
+> Anahtar Coolify'da backend'e `GOOGLE_BOOKS_API_KEY` olarak tanımlı ve
+> doğrulandı (anahtarsız `429`, anahtarlı `200`, Türkçe baskılar aramada
+> başta). Geçmişi: anahtarsız istekler Google'ın anonim kotasına takılıp
+> **429** dönüyordu, bu yüzden `c34b696` ile arama Open Library'ye düşüyor —
+> o yedek **yerinde duruyor ve durmalı**, ama artık normal yol Google.
+> **Türkçe baskı önceliği yalnızca Google ile geliyor**; Open Library'de
+> Türkçe baskıların çoğu kayıtlı değil, o yüzden anahtar silinirse adlar
+> yeniden İngilizceye döner.
 >
 > **Doğrulama:** backend `prisma validate` + `generate` + `nest build` temiz,
 > `npx eslint src/books` temiz; frontend `tsc --noEmit` + `eslint` + `next

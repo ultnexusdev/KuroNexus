@@ -142,40 +142,53 @@ export class GoogleBooksService {
     }
 
     const merged: BookSource[] = [];
-    try {
-      const [turkish, general] = await Promise.all([
-        this.googleSearch(trimmed, 'tr'),
-        this.googleSearch(trimmed),
-      ]);
 
-      const seen = new Set<string>();
-      for (const item of [...turkish, ...general]) {
-        // Aynı baskı iki listede de olabilir; kimlik Google numarası
-        const key = item.googleId ?? `${item.title}|${item.authors[0] ?? ''}`;
-        if (seen.has(key)) {
-          continue;
-        }
-        seen.add(key);
-        merged.push(item);
+    /**
+     * İki bacak birbirinden **bağımsız** olmak zorunda. `Promise.all` ile
+     * genel aramanın anlık bir `503`'ü Türkçe bacağı da çöpe atıyor ve arama
+     * Open Library'ye düşüyordu — yani anahtar tanımlıyken bile küratör ara
+     * sıra Türkçe baskıyı hiç göremiyordu (canlıda görüldü). `allSettled`
+     * ile ayakta kalan bacak kullanılıyor.
+     */
+    const [turkish, general] = await Promise.allSettled([
+      this.googleSearch(trimmed, 'tr'),
+      this.googleSearch(trimmed),
+    ]);
+
+    for (const leg of [turkish, general]) {
+      if (leg.status === 'rejected') {
+        this.logger.warn(
+          `Google Books aramasının bir bacağı düştü: ${String(leg.reason)}`,
+        );
       }
-
-      /**
-       * Türkçe baskılar başa. İki listeyi arka arkaya eklemek yetmiyordu:
-       * `langRestrict=tr` bazı çevirileri hiç bulamıyor (Google o cildin dilini
-       * işaretlememiş olabiliyor), ama aynı cilt genel aramanın alt
-       * sıralarında duruyor. Sıralama listenin **tamamına** uygulanınca
-       * oradan yukarı çıkıyor.
-       *
-       * `sort` kararlı olduğu için grup içindeki Google alaka sırası bozulmaz.
-       */
-      merged.sort(
-        (a, b) => (a.language === 'tr' ? 0 : 1) - (b.language === 'tr' ? 0 : 1),
-      );
-    } catch (error) {
-      this.logger.warn(
-        `Google Books aranamadı, Open Library'ye düşülüyor: ${String(error)}`,
-      );
     }
+
+    const seen = new Set<string>();
+    for (const item of [
+      ...(turkish.status === 'fulfilled' ? turkish.value : []),
+      ...(general.status === 'fulfilled' ? general.value : []),
+    ]) {
+      // Aynı baskı iki listede de olabilir; kimlik Google numarası
+      const key = item.googleId ?? `${item.title}|${item.authors[0] ?? ''}`;
+      if (seen.has(key)) {
+        continue;
+      }
+      seen.add(key);
+      merged.push(item);
+    }
+
+    /**
+     * Türkçe baskılar başa. İki listeyi arka arkaya eklemek yetmiyordu:
+     * `langRestrict=tr` bazı çevirileri hiç bulamıyor (Google o cildin dilini
+     * işaretlememiş olabiliyor), ama aynı cilt genel aramanın alt
+     * sıralarında duruyor. Sıralama listenin **tamamına** uygulanınca
+     * oradan yukarı çıkıyor.
+     *
+     * `sort` kararlı olduğu için grup içindeki Google alaka sırası bozulmaz.
+     */
+    merged.sort(
+      (a, b) => (a.language === 'tr' ? 0 : 1) - (b.language === 'tr' ? 0 : 1),
+    );
 
     // Google susarsa ya da hiç sonuç vermezse (eski/niş kitap) ikinci kaynak
     if (merged.length === 0) {

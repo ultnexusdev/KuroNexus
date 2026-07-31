@@ -908,6 +908,45 @@ export interface BookArchive {
     | null;
 }
 
+/**
+ * Ödül rafları (Faz B). Liste backend'de kod içi küratörlü; kapak ve kimlik
+ * Google eşleşmesinden geliyor ve **gecikmeli dolabiliyor** — `coverImage`
+ * ile `googleId` null gelebilir, arayüz boş çerçeve çizer.
+ */
+export interface AwardWinnerCard {
+  year: number;
+  title: string;
+  author: string;
+  /** Eşleşen cilt Türkçeyse onun adı; tahmin DEĞİL, yoksa null */
+  titleTr: string | null;
+  /** O yıl ödülü paylaşan birden çok kitap var */
+  shared: boolean;
+  /** Nobel'de yazarın temsilci eseri; kitap ödüllerinde null */
+  notableWork: string | null;
+  googleId: string | null;
+  coverImage: string | null;
+  pageCount: number | null;
+  inArchive: boolean;
+  archiveSlug: string | null;
+}
+
+export interface AwardSummary {
+  key: string;
+  name: string;
+  shortName: string;
+  grantedTo: "BOOK" | "AUTHOR";
+  /** "1990–2024" gibi; listenin hangi yılları kapsadığı dipnot olarak yazılır */
+  coverage: string;
+  blurb: string;
+  total: number;
+  inArchive: number;
+  coverImage: string | null;
+}
+
+export interface AwardDetail extends AwardSummary {
+  winners: AwardWinnerCard[];
+}
+
 export type BookLinkKind =
   | "GOODREADS"
   | "GOOGLE_BOOKS"

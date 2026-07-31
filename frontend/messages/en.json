@@ -841,15 +841,30 @@
         "title": "Book Archive",
         "desc": "What I have read, abandoned halfway, lined up next and marked as favourite — with page progress."
       },
+      "awards": {
+        "title": "Awards",
+        "desc": "Nobel, Pulitzer, Booker, Hugo, Nebula and the rest — which winners are in my archive and which are not."
+      },
       "notes": {
         "title": "Reading Notes",
         "desc": "The lines I underlined and what I wrote about them; they will link to the universes in Ancient Worlds."
       }
     },
-    "note": "The door stands in the wall: the archive is open, reading notes will follow.",
+    "note": "The door stands in the wall: the archive and the awards are open, reading notes will follow.",
     "archiveTitle": "My Book Archive",
     "epigraph": "“A book must be the axe for the frozen sea within us.” — Franz Kafka",
     "backToArchive": "← Back to the archive",
+    "awards": {
+      "title": "Awards",
+      "lede": "The most cited prizes in literature and the books that won them. The marked ones are in my archive.",
+      "backToAwards": "← Back to the awards",
+      "owned": "{owned} of {total} books in my archive",
+      "coverage": "List covers: {range}",
+      "inArchive": "In my archive",
+      "shared": "Shared",
+      "unavailable": "The award list could not be loaded right now.",
+      "railLink": "Awards →"
+    },
     "favorite": "Favourite",
     "emptyArchive": "The archive is still empty. Turn on curator mode to add the first book.",
     "noMatch": "No book matches these filters.",

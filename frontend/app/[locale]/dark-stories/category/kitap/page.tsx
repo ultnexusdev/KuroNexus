@@ -16,9 +16,9 @@ import styles from "./page.module.css";
  * başlar; bu sayfa yine bu dosya kalır (film/dizi salonlarındaki desenin
  * aynısı).
  *
- * Arşiv açıldı: "Kitap Arşivi" kartı gerçek bir bağlantı. "Okuma Notları"
- * hâlâ "yakında" rozetiyle ve tıklanamaz — kapı, arkasında hiçbir şey
- * olmayan bir bağlantı vermesin diye.
+ * Arşiv ve Ödüller açıldı, ikisi de gerçek bağlantı. "Okuma Notları" hâlâ
+ * "yakında" rozetiyle ve tıklanamaz — kapı, arkasında hiçbir şey olmayan bir
+ * bağlantı vermesin diye.
  */
 
 const SLUG = "kitap";
@@ -26,6 +26,7 @@ const SLUG = "kitap";
 /** `href` dolu olan bölüm tıklanabilir; boş olan "yakında" rozetiyle durur. */
 const SECTIONS = [
   { key: "archive", href: "/dark-stories/category/kitap/arsiv" },
+  { key: "awards", href: "/dark-stories/category/kitap/oduller" },
   { key: "notes", href: null },
 ] as const;
 

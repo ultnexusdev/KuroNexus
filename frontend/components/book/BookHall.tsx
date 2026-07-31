@@ -29,6 +29,7 @@ import {
   Stars,
   TranslationBadge,
 } from "./BookCard";
+import { AWARDS_HREF } from "./AwardHall";
 import styles from "./BookHall.module.css";
 
 /**
@@ -298,6 +299,12 @@ export function BookHall({
                 {t("filters.clear")}
               </button>
             ) : null}
+
+            {/* Ödüller rafı süzgeçlerin altında: arşive bakarken "bunlardan
+                kaçı ödüllü" sorusu buradan bir tık uzakta olsun */}
+            <Link href={AWARDS_HREF} className={styles.awardsLink}>
+              {t("awards.railLink")}
+            </Link>
           </div>
         </aside>
 

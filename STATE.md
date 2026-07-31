@@ -5,8 +5,68 @@
 
 ## Mevcut Aşama
 
+> **FAZ B BAŞLADI — 31 Temmuz 2026. İlk parça: ÖDÜLLER (bitti).**
+>
+> Dokuz ödül, **212 kayıt**: Nobel · Pulitzer · Booker · Hugo · Nebula ·
+> World Fantasy · Locus · Bram Stoker · Edgar.
+> `backend/src/books/data/awards.data.ts` (kod içi küratörlü liste, kullanıcı
+> kararı), `awards.service.ts`, `GET /books/awards` + `/books/awards/:key`,
+> `frontend/components/book/AwardHall.tsx` + `category/kitap/oduller[/[key]]`.
+> Salon lobisine "Ödüller" kartı, arşivin sol rayına bağlantı eklendi.
+>
+> **Nobel ayrı modellendi:** ödül yazara veriliyor, kitaba değil
+> (`grantedTo: 'AUTHOR'`). Kartın başlığı yazar, altında temsilci eser.
+>
+> **MİMARİ — sayfa dış isteği BEKLEMEZ, bu bilinçli.** 212 kitabı Google'da
+> eşleştirmek yüzlerce istek; açılışta yapılsaydı sayfa onlarca saniye sürer
+> ve kotayı bir seferde yerdi. Uç `ExternalCache`de ne varsa onu döner, her
+> istek arkada **6** kayıt doldurur, ikinci açılışta kapaklar yerindedir.
+> Eşleşme **kitap başına** cache'lenir (ödül başına değil): Ancillary Justice
+> hem Hugo hem Nebula'da, tek eşleşme iki rafı doldurur. TTL 90 gün.
+>
+> **Ölçümle bulunan üç şey (hepsi düzeltildi):**
+> 1. Sorgu Türkçe addan kuruluyordu → isabet 30/36. `titleTr` yanlışsa Google
+>    sıfır sonuç dönüyor ve kitap 90 gün "eşleşmedi" kalıyordu. Sorgu
+>    **orijinal addan** kurulup Türkçe yedeğe alındı → **33/36**.
+> 2. Geçici Google hatası kalıcı hasara dönüşüyordu: iki kitap bir turda
+>    eşleşip sonrakinde ıskalandı, sorgular aynıyken. Artık "sonuç geldi ama
+>    tutmadı" (yazılır) ile "hiç sonuç gelmedi" (yazılmaz) ayrı.
+> 3. **`titleTr` doğrulanamıyor ve artık EKRANDA GÖSTERİLMİYOR.** 112 Türkçe
+>    ad Google'a denendi, 61'i "yok" döndü — oysa çoğu gerçek çeviri ("İngiliz
+>    Hasta", "Küçük Şeylerin Tanrısı", "Bay Mercedes"). Google Türkçe
+>    baskıların çoğunu indekslemiyor, yani bu adların doğruluğu **ölçülemez**.
+>    Elle derlenmiş doğrulanamaz bir adı künye diye göstermek uydurma veri
+>    olurdu. `titleTr` artık yalnızca **arama ipucu**; ekranda görünen Türkçe
+>    ad eşleşen gerçek cildin adı. Bu kuralı bozmayın.
+>
+> **Kapaksız cilt boş kare DEĞİL**, adı kapağın yerini tutuyor
+> (`BookCard.Cover` ile aynı karar) — ödül rafında ilk açılışta ciltlerin
+> çoğu kapaksız gelir, boş kareler duvarı okunmaz olurdu. Kapaklarda
+> `unoptimized` şart: `next.config.ts` yalnızca kendi sunucumuzu ve TMDB'yi
+> tanıyor, Google/Open Library host'ları kayıtlı değil — lokalde 500 ile
+> yakalandı.
+>
+> **Doğrulama:** backend `nest build` + `npx eslint src/books` temiz,
+> **11 birim testi** geçiyor (`awards.service.spec.ts` — eşleştirme mantığı ve
+> liste tutarlılığı). Frontend `tsc` + `eslint` + `next build` temiz. Görünüm
+> lokalde gerçek ödül verisi ve gerçek kapaklarla fixture üstünden denendi,
+> **fixture commit'ten önce geri alındı.** Ölçüm (375px): ızgara 3 kolon, kart
+> 109px (film salonuyla birebir), yatay taşma yok, dokunma alanı 198–214px;
+> 1600px'te 7 kolon.
+>
+> **Uçlar canlıda DENENMEDİ:** bu makinede veritabanı yok, gerçek yanıt ancak
+> deploy sonrası görülecek. İlk açılışta kapakların çoğu boş gelecek, bu
+> beklenen — birkaç kez yenileyince dolar.
+>
+> **FAZ B'de sırada:** Keşfet rafları (Goodreads Top 250, NYT, Türk Edebiyatı,
+> Modern/Antik Klasikler — ödüllerle aynı makineyi kullanacak), kitap
+> sayfasında spoilersız/spoiler inceleme + karakterler + farklı baskılar,
+> yazar paneline biyografi/tüm eserler, kitap kanadının `pulse` uçlarına
+> eklenmesi. Ayrıca **haftalık ısıtma cron'u** (`awards.service.warm()` hazır,
+> çağıran cron henüz yok — `anime.cron.ts` deseni izlenecek).
+
 > **OTURUM NOTU — 31 Temmuz 2026, iş yeri makinesi. Kitap kanadı Faz A
-> KAPANDI; sıradaki iş Faz B.**
+> KAPANDI.**
 >
 > **Google Books anahtarı eklendi ve doğrulandı.** Kullanıcı Coolify'da
 > backend'e `GOOGLE_BOOKS_API_KEY` tanımladı. Doğrulama: anahtarsız istek

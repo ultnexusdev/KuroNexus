@@ -1,0 +1,362 @@
+/* Salon 05 · Kitap — Ödüller. Kitap salonunun dilini paylaşır (Cinzel
+   başlık, Cormorant epigraf, yaldız accent) ama kitaplık raf tahtası YOK:
+   burası arşivin kendisi değil, arşive bakan bir liste. */
+
+.page {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1180px;
+  margin-inline: auto;
+  padding: var(--pad-lg) var(--pad-md);
+  background: var(--bg);
+}
+
+.head {
+  display: grid;
+  gap: 6px;
+  margin-bottom: var(--pad-lg);
+}
+
+.back {
+  justify-self: start;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  text-decoration: none;
+}
+
+.back:hover {
+  color: var(--accent);
+}
+
+.eyebrow {
+  color: var(--text-muted);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: var(--font-cinzel), serif;
+  font-size: clamp(1.9rem, 4vw, 2.9rem);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+}
+
+.epigraph {
+  max-width: 62ch;
+  margin: 0;
+  color: var(--text-secondary);
+  font-family: var(--font-cormorant), serif;
+  font-size: 1.05rem;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.shelfMeta {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.dot {
+  margin: 0 8px;
+  color: var(--accent-muted);
+}
+
+.empty {
+  margin: 0;
+  color: var(--text-muted);
+  font-family: var(--font-cormorant), serif;
+  font-size: 1.02rem;
+}
+
+/* ---- Ödül listesi ---- */
+
+.awardList {
+  display: grid;
+  /* Kart metin ağırlıklı, afiş değil: dar ekranda tek kolon doğru olan.
+     Uc kolon kuralı (4f5b73f) afiş ızgaraları için, bunun için değil */
+  grid-template-columns: 1fr;
+  gap: var(--gap-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.awardItem {
+  display: block;
+}
+
+.awardCard {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: var(--gap-md);
+  padding: var(--gap-md);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent-muted);
+  border-radius: 2px 4px 4px 2px;
+  background: var(--surface);
+  text-decoration: none;
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.awardCard:hover {
+  border-color: var(--accent-muted);
+  transform: translateY(-2px);
+}
+
+.awardCover {
+  position: relative;
+  display: block;
+  align-self: start;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  border-radius: 2px;
+  background: var(--bg);
+}
+
+.awardCoverImg {
+  object-fit: cover;
+}
+
+/* Kapak henüz eşleşmediyse boş çerçeve — arşivdeki kapaksız kitapla aynı dil */
+.awardCoverEmpty {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--accent) 8%, var(--surface)),
+    var(--surface)
+  );
+}
+
+.awardBody {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.awardName {
+  color: var(--text-primary);
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.06rem;
+  letter-spacing: 0.04em;
+}
+
+.awardCard:hover .awardName {
+  color: var(--accent);
+}
+
+.awardBlurb {
+  color: var(--text-secondary);
+  font-family: var(--font-cormorant), serif;
+  font-size: 0.98rem;
+  line-height: 1.4;
+}
+
+.awardMeter {
+  position: relative;
+  display: block;
+  height: 3px;
+  margin-top: 6px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--text-muted) 22%, transparent);
+}
+
+.awardMeterFill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--accent);
+}
+
+.awardCount {
+  color: var(--text-secondary);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.awardCoverage {
+  color: var(--text-muted);
+  font-size: 0.76rem;
+}
+
+/* ---- Tek ödülün rafı ---- */
+
+.grid {
+  display: grid;
+  /* Afiş ızgarası: dar ekranda uc kolon (4f5b73f/f7eb57c ile aynı kural) */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--pad-md) var(--gap-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+}
+
+.cardLink,
+.cardStatic {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.coverWrap {
+  position: relative;
+  display: block;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  /* Cilt sırtı: kitap salonunun imzası burada da duruyor */
+  border-left: 3px solid var(--accent-muted);
+  border-radius: 2px 3px 3px 2px;
+  background: var(--surface);
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.cardLink:hover .coverWrap {
+  border-color: var(--accent);
+  transform: translateY(-4px);
+}
+
+.coverImg {
+  object-fit: cover;
+}
+
+/* Kapağı eşleşmemiş cilt: adı kapağın yerini tutar (arşivle aynı dil) */
+.coverFallback {
+  display: grid;
+  align-content: center;
+  gap: 6px;
+  height: 100%;
+  padding: var(--pad-sm);
+  text-align: center;
+}
+
+.coverFallbackTitle {
+  overflow: hidden;
+  color: var(--text-primary);
+  font-family: var(--font-cormorant), serif;
+  font-size: 0.86rem;
+  line-height: 1.25;
+}
+
+.coverFallbackAuthor {
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  line-height: 1.2;
+}
+
+@media (min-width: 640px) {
+  .coverFallbackTitle {
+    font-size: 0.92rem;
+  }
+
+  .coverFallbackAuthor {
+    font-size: 0.75rem;
+  }
+}
+
+.year {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  padding: 1px 5px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--bg) 78%, transparent);
+  color: var(--text-secondary);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+}
+
+/* Arşivde olan kitabın işareti — sayfanın asıl cevabı bu */
+.owned {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--bg);
+  font-size: 0.7rem;
+  line-height: 1;
+}
+
+.shared {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  padding: 1px 4px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--bg) 78%, transparent);
+  color: var(--text-muted);
+  font-size: 0.64rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.cardTitle {
+  overflow: hidden;
+  color: var(--text-primary);
+  font-size: 0.76rem;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.cardLink:hover .cardTitle {
+  color: var(--accent);
+}
+
+.cardSub {
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  line-height: 1.3;
+}
+
+@media (min-width: 640px) {
+  .awardList {
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  }
+
+  .awardCard {
+    grid-template-columns: 84px minmax(0, 1fr);
+  }
+
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: var(--pad-md) var(--gap-md);
+  }
+
+  .cardTitle {
+    font-size: 0.84rem;
+  }
+
+  .cardSub {
+    font-size: 0.78rem;
+  }
+}

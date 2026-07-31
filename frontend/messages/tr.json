@@ -841,15 +841,30 @@
         "title": "Kitap Arşivi",
         "desc": "Okuduklarım, yarısında kaldıklarım, sırada bekleyenler ve favorilerim — sayfa ilerlemesiyle birlikte."
       },
+      "awards": {
+        "title": "Ödüller",
+        "desc": "Nobel, Pulitzer, Booker, Hugo, Nebula ve diğerleri — hangi ödüllü kitap arşivimde, hangisi değil."
+      },
       "notes": {
         "title": "Okuma Notları",
         "desc": "Altını çizdiğim satırlar ve kitap üstüne yazdıklarım; Kadim Dünyalar'daki evrenlere bağlanabilecek."
       }
     },
-    "note": "Salonun kapısı duvarda: arşiv açıldı, okuma notları hazır olduğunda o bölüm de açılacak.",
+    "note": "Salonun kapısı duvarda: arşiv ve ödüller açıldı, okuma notları hazır olduğunda o bölüm de açılacak.",
     "archiveTitle": "Kitap Arşivim",
     "epigraph": "“Bir kitap, içimizde donmuş bir denizi kıran bir baltadır.” — Franz Kafka",
     "backToArchive": "← Arşive dön",
+    "awards": {
+      "title": "Ödüller",
+      "lede": "Edebiyatın en çok anılan ödülleri ve kazananları. İşaretli olanlar arşivimde duruyor.",
+      "backToAwards": "← Ödüllere dön",
+      "owned": "{total} kitaptan {owned} tanesi arşivimde",
+      "coverage": "Liste kapsamı: {range}",
+      "inArchive": "Arşivimde",
+      "shared": "Ortak",
+      "unavailable": "Ödül listesi şu anda alınamadı.",
+      "railLink": "Ödüller →"
+    },
     "favorite": "Favori",
     "emptyArchive": "Arşiv henüz boş. Küratör modunu açıp ilk kitabı ekleyebilirsin.",
     "noMatch": "Bu süzgeçle eşleşen kitap yok.",

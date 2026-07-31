@@ -1,5 +1,11 @@
 import { apiFetch } from "./client";
-import type { BookArchive, BookDetail, BookShowcase } from "./types";
+import type {
+  AwardDetail,
+  AwardSummary,
+  BookArchive,
+  BookDetail,
+  BookShowcase,
+} from "./types";
 
 const EMPTY_SHOWCASE: BookShowcase = { left: null, right: null };
 
@@ -53,6 +59,35 @@ export async function getBookDetail(slug: string): Promise<BookDetail | null> {
     return await apiFetch<BookDetail>(`/books/${encodeURIComponent(slug)}`, {
       cache: "no-store",
     });
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Ödül rafları. Önbellek YOK: kapaklar backend'de arka planda dolduğu için
+ * ikinci açılışta sayfanın dolmuş olması gerekiyor — `revalidate` konsaydı
+ * kullanıcı eski, kapaksız hâli görmeye devam ederdi.
+ *
+ * Alınamazsa boş liste: ödüller bölümü "alınamadı" der, salon çökmez (kural 4).
+ */
+export async function getAwards(): Promise<AwardSummary[]> {
+  try {
+    return await apiFetch<AwardSummary[]>("/books/awards", {
+      cache: "no-store",
+    });
+  } catch {
+    return [];
+  }
+}
+
+/** Tek ödülün rafı. Bilinmeyen anahtar için null (sayfa 404 verir). */
+export async function getAward(key: string): Promise<AwardDetail | null> {
+  try {
+    return await apiFetch<AwardDetail>(
+      `/books/awards/${encodeURIComponent(key)}`,
+      { cache: "no-store" },
+    );
   } catch {
     return null;
   }

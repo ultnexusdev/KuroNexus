@@ -223,7 +223,9 @@ describe('toDetail', () => {
       {
         turId: 1,
         turAdi: 'Yazar',
-        yazarlar: [{ id: '5', adi: 'Sabahattin Ali' }],
+        yazarlar: [
+          { id: '5', adi: 'Sabahattin Ali', seo_adi: 'sabahattin-ali' },
+        ],
       },
     ];
     sonuc.liste[0].hakkinda.baskiBilgileri.orijinalAdi = 'Kürk Mantolu Madonna';

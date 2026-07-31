@@ -293,6 +293,7 @@ export class BooksService {
     const entries = await this.prisma.bookEntry.findMany({
       where: { isDeleted: false },
       orderBy: [{ finishedAt: 'desc' }, { createdAt: 'desc' }],
+      include: CREDITS_INCLUDE,
     });
     const books = withSlugs(entries);
     const index = books.findIndex((item) => item.slug === slug);
@@ -430,7 +431,7 @@ export class BooksService {
       include: {
         entries: {
           where: { entry: { isDeleted: false } },
-          include: { entry: true },
+          include: { entry: { include: CREDITS_INCLUDE } },
           orderBy: { orderIndex: 'asc' },
         },
       },
@@ -496,7 +497,11 @@ export class BooksService {
     const publisher = await this.prisma.bookPublisher.findUnique({
       where: { slug },
       include: {
-        books: { where: { isDeleted: false }, orderBy: { title: 'asc' } },
+        books: {
+          where: { isDeleted: false },
+          orderBy: { title: 'asc' },
+          include: CREDITS_INCLUDE,
+        },
       },
     });
     if (!publisher) {
@@ -1306,7 +1311,7 @@ function toArchiveQuote(quote: BookQuote): ArchiveBookQuote {
  * tutulmuyor: başlıktan türetiliyor, çakışırsa yıl, o da yetmezse sıra
  * numarası ekleniyor.
  */
-function withSlugs(entries: BookEntry[]): ArchiveBook[] {
+function withSlugs(entries: BookEntryWithCredits[]): ArchiveBook[] {
   const used = new Set<string>();
   return entries.map((entry, index) => {
     const book = toArchiveBook(entry);
@@ -1325,18 +1330,23 @@ function withSlugs(entries: BookEntry[]): ArchiveBook[] {
 }
 
 /**
- * İlişkileri yüklenmiş kayıt. İlişkiler **isteğe bağlı**: yalnızca salon ve
- * kitap sayfası sorguları onları yüklüyor; yazar/yayınevi sayfasındaki kitap
- * kartlarının künye bağına ihtiyacı yok, oradaki fazladan `join` boşuna olurdu.
+ * İlişkileri yüklenmiş kayıt.
+ *
+ * İlişkiler **zorunlu** ve bu bilinçli bir kısıt: `ArchiveBook.credits`
+ * sözleşmenin parçası, yani bir kaydı arşiv nesnesine çeviren her sorgunun
+ * `CREDITS_INCLUDE` kullanması gerekiyor. Alanlar bir ara isteğe bağlıydı ve
+ * tam da beklenen hata oldu — kitap sayfasının sorgusu `include` almayı
+ * atlayınca künye sessizce boş döndü, yazar adı tıklanamaz hâle geldi ve
+ * derleyici hiçbir şey söylemedi. Zorunlu olunca aynı hata derlemede patlıyor.
  */
 type BookEntryWithCredits = BookEntry & {
-  people?: Array<{
+  people: Array<{
     role: BookPersonRole;
     orderIndex: number;
     person: { slug: string; name: string };
   }>;
-  publisherRef?: { slug: string; name: string } | null;
-  series?: { slug: string; name: string } | null;
+  publisherRef: { slug: string; name: string } | null;
+  series: { slug: string; name: string } | null;
 };
 
 /** Salon ve kitap sayfasının künye bağları için ortak `include`. */
@@ -1351,13 +1361,13 @@ const CREDITS_INCLUDE = {
 
 function toCredits(entry: BookEntryWithCredits): BookCredits {
   return {
-    people: (entry.people ?? []).map((link) => ({
+    people: entry.people.map((link) => ({
       slug: link.person.slug,
       name: link.person.name,
       role: link.role,
     })),
-    publisher: entry.publisherRef ?? null,
-    series: entry.series ?? null,
+    publisher: entry.publisherRef,
+    series: entry.series,
   };
 }
 

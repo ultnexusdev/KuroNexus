@@ -122,6 +122,18 @@
 > Doğrulandı: Harper Lee, Ülker İnce ve Sabahattin Ali için biyografi + fotoğraf
 > geliyor. Çevirmenin de biyografisi gelmesi tek kişi tablosu kararının karşılığı.
 >
+> **2b DÜZELTMESİ — yazar adı tıklanmıyordu (kullanıcı canlıda bildirdi).**
+> Kök sebep: kitap sayfasını `getDetail()` besliyor ve o kendi sorgusunu
+> `CREDITS_INCLUDE` olmadan yapıyordu; `entry.people` boş geliyor, arayüz de
+> tasarım gereği düz metne düşüyordu. Yani hata sessizdi — hiçbir yerde
+> patlamıyor, sadece bağ kurulmuyordu.
+>
+> **Asıl kusur tipteydi:** `BookEntryWithCredits` içinde ilişkiler *isteğe
+> bağlı* tanımlanmıştı, bu yüzden `include` almayan sorgu derlemeden geçiyordu.
+> Alanlar **zorunlu** yapıldı ve derleyici aynı hatanın ÜÇ ayrı yerde
+> olduğunu gösterdi: `getDetail`, `getPerson`, `getPublisher`. Üçü de
+> düzeltildi. Bundan sonra `include` unutulursa derleme kırılır.
+>
 > **SIRADAKİ — Faz 2c (YAZILMADI, acil değil):** düz metin sütunlarını
 > (`authors`, `publisher`, `translator`, `genres`, `seriesName`) düşür,
 > `publisherRef` ilişkisini `publisher` olarak yeniden adlandır, ön yüzdeki

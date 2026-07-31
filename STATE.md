@@ -51,16 +51,54 @@
 > `fetch`e çevirmek servisi sessizce öldürür. Kapak CDN'i (`1k-cdn.com`) bu
 > korumanın arkasında değil, orada `fetch` kullanılıyor.
 >
-> **SIRADAKİ — FAZ 2 (kullanıcı onayladı, henüz YAZILMADI):** ilişkisel model.
-> `Author` (isim/foto/biyografi), `Publisher` (isim/logo/website),
-> `Translator`, `Series`, `Genre` tabloları + join'ler + veri taşıma.
-> Kararlaştırılanlar: yazar/yayınevi/çevirmen eşleştirmesi **isimle değil
-> 1000Kitap ID'siyle** yapılacak (`yazarlar[].id`, ölçüldü — "Steven Erikson"
-> / "Erikson, Steven" ayrı yazar sanılmasın); tür eşleşmezse **otomatik
-> oluşturulMAyacak**, admin panelde "eşleşmeyen türler" olarak önerilip
-> onaydan geçecek (yoksa süzgeç varyantlarla dolar). Kural 11 bu değişikliği
-> zaten destekliyor; şemadaki "seri ayrı tablo değil" ve "genres Kural 11
-> DEĞİL" gerekçeleri Faz 2'de güncellenecek.
+> **FAZ 2a BİTTİ — ilişkisel künye (şema + yazma yolu).**
+> Kullanıcı kararı: yazar/çevirmen/editör **ayrı tablolar değil**, tek
+> `BookPerson` + rollü join (`BookPersonRole`). Sebep: aynı kişi sık sık iki
+> rolde birden (Sabahattin Ali, Can Yücel) ve kaynağın kendi modeli de tek
+> kimlik uzayı kullanıyor — ayrı tablolarda `binKitapId` eşleştirmesi kırılır.
+>
+> Yeni tablolar: `BookPerson`, `BookPersonOnEntry`, `BookPublisher`,
+> `BookSeries`, `BookGenre`, `BookGenreOnEntry`. `BookEntry`ye `publisherId`,
+> `seriesId`, `binKitapSlug` eklendi. Migration:
+> `20260731210000_add_book_relational_credits` — **tamamen eklemeli**, hiçbir
+> sütun düşmüyor. Migration lokalde çalıştırılamadı (DB erişilemiyor),
+> `prisma migrate diff` ile çevrimdışı üretildi; **sunucuda uygulanacak**.
+>
+> Yeni dosyalar: `book-credits.service.ts` (ilişki çözme/kurma),
+> `data/genres.data.ts` (tür sözlüğü + eşleştirme).
+> Admin ucu: `POST /admin/books/credits/backfill` — mevcut kayıtların düz
+> metin künyesinden ilişkileri kurar.
+>
+> **Eşleştirme sırası:** kaynak kimliği (`binKitapId`) → aksan katlanmış ad
+> (`slug`). Kişi ve tür kimlik taşıyor; yayınevi ve seri düz metin (ölçüldü),
+> onlar yalnızca ada göre eşleşiyor.
+>
+> **Tür politikası (kullanıcı kararı):** sözlükte karşılığı olan ad onaylı
+> türe düşer; olmayan `isApproved = false` ile açılır, süzgeçte GÖRÜNMEZ,
+> onay bekler. Bir ad birden çok türe düşebiliyor — "Fiction / Science
+> Fiction / General" hem `novel` hem `scifi` (ölçüldü); ilk eşleşmede
+> durulsaydı o kitap bilimkurgu süzgecinde hiç görünmezdi.
+>
+> **CANLIDA ÖLÇÜLEN İKİ HATA DÜZELTİLDİ (test yazarken çıktı):**
+> 1. Site **iki ayrı seri biçimi** kullanıyor: `"Malazan Yitikler Kitabı #1"`
+>    ve `"Dune 2. Kitap"`. İkincisi tanınmıyordu; *Dune Mesihi* için seri adı
+>    "Dune 2. Kitap" çıkıyor ve **her cilt ayrı seri** oluyordu.
+> 2. `altbaslik` alanı seri bilgisini DE düz alt başlığı DA taşıyor
+>    ("Başkaldıran Bedenler" → "Türkiye'de Transgender, Aktivizm ve
+>    Altkültürel Pratikler"). Artık kural: **cilt işareti yoksa seri yoktur**;
+>    işaretsiz alt başlık `subtitle` alanına gidiyor. Yoksa `BookSeries`
+>    alt başlıklarla dolardı.
+>
+> Doğrulandı (canlı): Ay Bahçeleri → Malazan Yitikler Kitabı #1 · Dune Mesihi
+> → Dune #2 · Başkaldıran Bedenler → seri yok, alt başlık korundu · Kürk
+> Mantolu Madonna → ikisi de yok. Kişiler kimlik + fotoğrafla geliyor
+> (Harper Lee 566, Ülker İnce 35562, Bilge Sancı 72979).
+>
+> **SIRADAKİ — FAZ 2b (YAZILMADI):** okuma yolunu ilişkilere geçir, düz metin
+> sütunlarını (`authors`, `publisher`, `translator`, `genres`, `seriesName`)
+> düşür, `publisherRef` ilişkisini `publisher` olarak yeniden adlandır,
+> ön yüzdeki `lib/book/genres.ts` kopyasını sil ve türleri API'den okut,
+> admin panele "onay bekleyen türler" ekranı ekle, yazar paneline biyografi.
 >
 > **EVDE DOĞRULANACAK (lokalden admin API'sine bağlanılamıyor):**
 > 1. Küratörde ara: **"bül"** → `1K` rozetli *Bülbülü Öldürmek* listenin

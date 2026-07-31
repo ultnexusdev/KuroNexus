@@ -46,10 +46,11 @@ function translatedPayload() {
             liste: [
               {
                 hakkinda: {
+                  // Gerçek yanıtta türlerin kimliği var (ölçüldü)
                   kidDizi: [
-                    { adi: 'Dünya Klasikleri' },
-                    { adi: 'Edebiyat' },
-                    { adi: 'Roman' },
+                    { id: '17', adi: 'Dünya Klasikleri' },
+                    { id: '29', adi: 'Edebiyat' },
+                    { id: '12', adi: 'Roman' },
                   ],
                   bilgiParse: {
                     parse: ['İlk paragraf.', 'İkinci paragraf.'],
@@ -98,9 +99,30 @@ describe('readSeries', () => {
     );
   });
 
-  it('sırasız seri adını sırasız bırakır', () => {
+  it('Türkçe sıra biçimini de tanır', () => {
+    // Canlıda ölçüldü: site iki ayrı biçim kullanıyor. Bu tanınmasaydı
+    // "Dune 2. Kitap" seri ADI olurdu ve her cilt ayrı bir seri sayılırdı.
+    expect(readSeries('Dune 2. Kitap', 'Dune Mesihi')).toEqual({
+      name: 'Dune',
+      index: 2,
+    });
+    expect(readSeries('Yüzüklerin Efendisi 3. Cilt', 'Kralın Dönüşü')).toEqual({
+      name: 'Yüzüklerin Efendisi',
+      index: 3,
+    });
+  });
+
+  it('cilt işareti taşımayan alt başlığı seri saymaz', () => {
+    // `altbaslik` iki ayrı şeyi taşıyor: seri bilgisi ve düz alt başlık.
+    // İşaret aranmasaydı her alt başlık tek kitaplık sahte seri üretirdi.
+    expect(
+      readSeries(
+        "Türkiye'de Transgender, Aktivizm ve Altkültürel Pratikler",
+        'Başkaldıran Bedenler',
+      ),
+    ).toEqual({ name: null, index: null });
     expect(readSeries('Malazan', 'Ay Bahçeleri')).toEqual({
-      name: 'Malazan',
+      name: null,
       index: null,
     });
   });
@@ -202,6 +224,50 @@ describe('toDetail', () => {
     const detail = toDetail(payload, 'kurk-mantolu-madonna--1');
     expect(detail?.source.originalTitle).toBeNull();
     expect(detail?.translator).toBeNull();
+  });
+
+  it('ilişkisel künye için kişileri rolleri ve kimlikleriyle çıkarır', () => {
+    // Kimlik, ilişkisel modelin birincil eşleştirme anahtarı; kaybolursa
+    // "Erikson, Steven" ile "Steven Erikson" ayrı kişi olur
+    const detail = toDetail(translatedPayload(), 'bulbulu-oldurmek--939');
+    expect(detail?.credits.people).toEqual([
+      {
+        binKitapId: '566',
+        name: 'Harper Lee',
+        photo: null,
+        role: 'AUTHOR',
+        orderIndex: 0,
+      },
+      {
+        binKitapId: '1201',
+        name: 'Ülker İnce',
+        photo: null,
+        role: 'TRANSLATOR',
+        orderIndex: 0,
+      },
+      {
+        binKitapId: '9002',
+        name: 'Bilge Sancı',
+        photo: null,
+        role: 'EDITOR',
+        orderIndex: 0,
+      },
+    ]);
+  });
+
+  it('türleri kimlikleriyle, yayınevini adıyla verir', () => {
+    // Kaynak türe kimlik veriyor, yayınevine vermiyor (ölçüldü)
+    const detail = toDetail(translatedPayload(), 'bulbulu-oldurmek--939');
+    expect(detail?.credits.genres[0]).toEqual({
+      binKitapId: '17',
+      name: 'Dünya Klasikleri',
+    });
+    expect(detail?.credits.publisher).toBe('Sel Yayınları');
+  });
+
+  it('sahte seriyi ilişkisel künyeye de yazmaz', () => {
+    const detail = toDetail(translatedPayload(), 'bulbulu-oldurmek--939');
+    expect(detail?.credits.series).toBeNull();
   });
 
   it('boş yanıtta çökmez', () => {

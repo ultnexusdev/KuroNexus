@@ -8,6 +8,7 @@ import { slugify } from '../common/utils/slugify';
 import { GoogleBooksService, type BookSource } from './google-books.service';
 import { BinKitapService, type BinKitapDetail } from './bin-kitap.service';
 import { BookCoverService } from './book-cover.service';
+import { BookCreditsService } from './book-credits.service';
 import { CreateBookEntryDto } from './dto/create-book-entry.dto';
 import { UpdateBookEntryDto } from './dto/update-book-entry.dto';
 import { CreateBookQuoteDto } from './dto/create-book-quote.dto';
@@ -29,9 +30,16 @@ interface BookSeed {
   source: BookSource | null;
   translator: string | null;
   raw: BinKitapDetail['raw'] | null;
+  /** İlişkisel künyenin girdisi (Faz 2a); yalnızca 1000Kitap veriyor */
+  credits: BinKitapDetail['credits'] | null;
 }
 
-const EMPTY_SEED: BookSeed = { source: null, translator: null, raw: null };
+const EMPTY_SEED: BookSeed = {
+  source: null,
+  translator: null,
+  raw: null,
+  credits: null,
+};
 
 /** Kitap sayfasındaki "benzer kitaplar" ve seri listeleri kaç kayıt taşır. */
 const NEIGHBOUR_LIMIT = 8;
@@ -204,6 +212,7 @@ export class BooksService {
     private readonly source: GoogleBooksService,
     private readonly binKitap: BinKitapService,
     private readonly covers: BookCoverService,
+    private readonly credits: BookCreditsService,
   ) {}
 
   // --- Public ---
@@ -434,6 +443,78 @@ export class BooksService {
   }
 
   /**
+   * Mevcut kayıtların düz metin künyesinden ilişkileri kurar (Faz 2a geçişi).
+   *
+   * 1000Kitap'tan önce eklenmiş kitaplarda yazar/yayınevi/tür yalnızca metin
+   * olarak var. Burada aynı `link` yolundan geçiriliyorlar — ayrı bir
+   * dönüştürme kodu yazmamak için düz metin, kaynağın verdiği yapıya
+   * çevriliyor. Kimlik yok, eşleştirme ada göre yapılıyor; kitap sonradan
+   * 1000Kitap'tan tazelenirse kimlik o zaman dolar.
+   */
+  async backfillCredits(): Promise<{ scanned: number; linked: number }> {
+    const entries = await this.prisma.bookEntry.findMany({
+      where: { isDeleted: false },
+      select: {
+        id: true,
+        authors: true,
+        translator: true,
+        publisher: true,
+        genres: true,
+        seriesName: true,
+        seriesIndex: true,
+      },
+    });
+
+    let linked = 0;
+    for (const entry of entries) {
+      const people = [
+        ...entry.authors.map((name, index) => ({
+          binKitapId: null,
+          name,
+          photo: null,
+          role: 'AUTHOR' as const,
+          orderIndex: index,
+        })),
+        // Çevirmen sütunu birden çok adı virgülle taşıyabiliyor
+        ...splitNames(entry.translator).map((name, index) => ({
+          binKitapId: null,
+          name,
+          photo: null,
+          role: 'TRANSLATOR' as const,
+          orderIndex: index,
+        })),
+      ];
+      const credits = {
+        people,
+        genres: entry.genres.map((name) => ({ binKitapId: null, name })),
+        publisher: entry.publisher,
+        series: entry.seriesName
+          ? { name: entry.seriesName, index: entry.seriesIndex }
+          : null,
+      };
+      if (
+        people.length === 0 &&
+        credits.genres.length === 0 &&
+        !credits.publisher &&
+        !credits.series
+      ) {
+        continue;
+      }
+
+      const { publisherId, seriesId } = await this.credits.link(
+        entry.id,
+        credits,
+      );
+      await this.prisma.bookEntry.update({
+        where: { id: entry.id },
+        data: { publisherId, seriesId },
+      });
+      linked += 1;
+    }
+    return { scanned: entries.length, linked };
+  }
+
+  /**
    * Arşive kitap ekler.
    *
    * Kullanıcı kararı gereği künye alanları **kayıt anında** dış kaynaktan
@@ -448,7 +529,7 @@ export class BooksService {
      * künye zaten `ExternalCache`ten okunuyor. Kapak ise kontrolden SONRA
      * indiriliyor — zaten arşivde olan kitap için dosya yazılmasın.
      */
-    const { source: seed, translator, raw } = await this.seed(dto);
+    const { source: seed, translator, raw, credits } = await this.seed(dto);
     const duplicate = await this.findDuplicate(dto, userId, seed);
     if (duplicate) {
       throw new ConflictException('BOOKS.ALREADY_IN_ARCHIVE');
@@ -462,10 +543,11 @@ export class BooksService {
      * kayıt açmaktansa kırılabilir bir adres iyidir, küratör sonra düzeltir.
      */
     const localCover = await this.covers.download(seed?.coverImage);
-    return this.prisma.bookEntry.create({
+    const entry = await this.prisma.bookEntry.create({
       data: {
         googleId: dto.googleId ?? null,
         olKey: dto.olKey ?? seed?.olKey ?? null,
+        binKitapSlug: dto.binKitapSlug ?? seed?.binKitapSlug ?? null,
         isbn13: seed?.isbn13 ?? null,
         title: dto.title ?? seed?.title ?? 'Adsız kitap',
         originalTitle: seed?.originalTitle ?? null,
@@ -507,6 +589,30 @@ export class BooksService {
         externalDataFetchedAt: seed ? new Date() : null,
         userId,
       },
+    });
+
+    /**
+     * İlişkisel künye (Faz 2a) kayıt AÇILDIKTAN sonra kuruluyor: join
+     * tabloları kitabın kimliğini istiyor. Yalnızca 1000Kitap yapısal veri
+     * veriyor (kimlikli kişi ve tür); Google/Open Library'den eklenen kitap
+     * düz metin künyesiyle kalıyor ve küratör isterse elle bağlar.
+     *
+     * Bu adım kaydı **bozamaz**: `link` fırlatmıyor, en kötü ihtimalle
+     * ilişkiler boş kalır ve arayüz zaten hâlâ düz metin sütunlarını okuyor.
+     */
+    if (!credits) {
+      return entry;
+    }
+    const { publisherId, seriesId } = await this.credits.link(
+      entry.id,
+      credits,
+    );
+    if (!publisherId && !seriesId) {
+      return entry;
+    }
+    return this.prisma.bookEntry.update({
+      where: { id: entry.id },
+      data: { publisherId, seriesId },
     });
   }
 
@@ -852,6 +958,7 @@ export class BooksService {
             source: detail.source,
             translator: detail.translator,
             raw: detail.raw,
+            credits: detail.credits,
           };
         }
       } catch {
@@ -861,11 +968,10 @@ export class BooksService {
     if (dto.googleId) {
       try {
         return {
+          ...EMPTY_SEED,
           source: await this.source.enrich(
             await this.source.getVolume(dto.googleId),
           ),
-          translator: null,
-          raw: null,
         };
       } catch {
         // Cilt künyesi alınamadı; aşağıdaki ada göre arama denenir
@@ -875,9 +981,8 @@ export class BooksService {
       try {
         const results = await this.source.search(dto.title);
         return {
+          ...EMPTY_SEED,
           source: results[0] ? await this.source.enrich(results[0]) : null,
-          translator: null,
-          raw: null,
         };
       } catch {
         return EMPTY_SEED;
@@ -924,6 +1029,21 @@ export class BooksService {
 function clamp(value: number, min: number, max: number | null): number {
   const lower = Math.max(min, Math.round(value));
   return max === null ? lower : Math.min(lower, max);
+}
+
+/**
+ * Tek sütunda virgülle duran adları ayırır ("Ülker İnce, Bilge Sancı").
+ * Kaynak birden çok çevirmeni bu biçimde veriyor; ilişkisel modelde her biri
+ * ayrı kişi olmalı.
+ */
+function splitNames(value: string | null): string[] {
+  if (!value) {
+    return [];
+  }
+  return value
+    .split(',')
+    .map((name) => name.trim())
+    .filter((name) => name.length > 0);
 }
 
 function parseDate(value: string | null | undefined): Date | null {

@@ -503,6 +503,10 @@ model BookEntry {
   /// Open Library work/edition anahtarı ("/works/OL27448W"). Google Books'un
   /// bilmediği (özellikle çevrilmemiş ya da eski) kitaplar buradan gelir.
   olKey    String?
+  /// 1000Kitap sayfa anahtarı ("bulbulu-oldurmek--939"). Tekrar ekleme
+  /// kontrolünün en kesin adımı; Faz 1'de yalnızca `externalData` içinde
+  /// duruyordu, sorgulanabilir olması için sütuna alındı.
+  binKitapSlug String?
   isbn13   String?
 
   // --- Künye: ilk veriyi dış kaynak doldurur, sonrası küratörün ---
@@ -524,17 +528,37 @@ model BookEntry {
   language           String?
   coverImage         String?
   description        String?  @db.Text
-  /// Tür bilgisi (Fantastik, Bilim Kurgu…). Kural 11'deki ilişkisel Tag
-  /// sistemi DEĞİL: arşivin kendi süzgeci için dış kaynaktan tohumlanan,
-  /// küratörün düzelttiği görüntü verisi — çapraz içerik etiketi değil.
+  /// Tür bilgisinin **düz metin** hâli. Faz 2a'da ilişkisel `BookGenre`
+  /// eklendi ve gerçek kaynak o oldu; bu sütun geçiş boyunca okunmaya devam
+  /// ediyor, Faz 2b'de düşecek.
   genres             String[]
 
-  /// Serinin adı ve cilt sırası. Seri ayrı bir tablo değil: bir kitap tek bir
-  /// seriye ait, seri kaydının kendi başına taşıyacağı veri yok — ad üstünden
-  /// gruplamak hem şemayı sade tutuyor hem seri adını düzeltmeyi tek kayda
-  /// indiriyor.
+  /// Serinin adı — düz metin hâli. `seriesId` ilişkisi geldiği için artık
+  /// yedek; Faz 2b'de düşecek. Cilt sırası (`seriesIndex`) ilişkiye taşınMAZ:
+  /// o seriye değil, kitabın seri içindeki yerine ait bir bilgi.
   seriesName  String?
   seriesIndex Int?
+
+  // --- Faz 2a: ilişkisel künye (Kural 11) ---
+  // Düz metin sütunları geçiş boyunca korunuyor; yazma yolu ikisini birden
+  // dolduruyor, okuma yolu Faz 2b'de ilişkilere geçecek.
+
+  /// Yazar, çevirmen ve editör — rol join üstünden (bkz. `BookPersonRole`).
+  people BookPersonOnEntry[]
+
+  /// Türler; kaynağın verdiği ama süzgeçte karşılığı olmayanlar
+  /// `BookGenre.isApproved = false` ile bekler (kullanıcı kararı: otomatik
+  /// tür üretilmesin, önerilsin).
+  genreLinks BookGenreOnEntry[]
+
+  /// İlişki alanı geçici olarak `publisherRef` adında: düz metin `publisher`
+  /// sütunu Faz 2b'de düşene kadar ad çakışıyor. 2b'de skaler kalkınca bu
+  /// alan `publisher` olarak yeniden adlandırılacak.
+  publisherId  String?
+  publisherRef BookPublisher? @relation(fields: [publisherId], references: [id])
+
+  seriesId String?
+  series   BookSeries? @relation(fields: [seriesId], references: [id])
 
   status           BookStatus      @default(READ)
   /// "5 kitaplık seri, 3'ü Türkçe" bilgisinin kaynağı. Çevrilmemiş cilt de
@@ -582,6 +606,127 @@ model BookEntry {
   @@index([userId, isFavorite, isDeleted])
   @@index([userId, seriesName, isDeleted])
   @@index([universeId])
+  // Kural 14: foreign key'lere Prisma otomatik index koymuyor
+  @@index([publisherId])
+  @@index([seriesId, seriesIndex])
+}
+
+// ---- Faz 2a: kitap künyesinin ilişkisel modeli (Kural 11) ----
+//
+// Neden düz metin sütunlarından buraya geçiliyor: yazar/yayınevi/çevirmen
+// artık **kendi verisini** taşıyor (biyografi, fotoğraf, logo, site). Şemada
+// daha önce "seri kaydının kendi başına taşıyacağı veri yok" diye ilişkiye
+// gerek görülmemişti; bu gerekçe kullanıcının yeni isteğiyle geçersizleşti.
+//
+// Eşleştirme anahtarı: kaynağın verdiği kimlik varsa O, yoksa aksan katlanmış
+// ad (`slug`). Ölçüldü — 1000Kitap kişiye ve türe kimlik veriyor
+// (`yazarlar[].id`, `kidDizi[].id`), yayınevi ve seri ise düz metin.
+
+/// Yazar / çevirmen / editör. Rol bu tabloda değil, `BookPersonOnEntry`de.
+model BookPerson {
+  id   String @id @default(cuid())
+  name String
+  /// Aksan katlanmış eşleştirme anahtarı: "Ülker İnce" ile "ULKER INCE" ya da
+  /// "ulker ince" aynı kişi sayılsın diye. Kaynak kimliği yoksa tek dayanak.
+  slug String @unique
+
+  /// 1000Kitap kişi kimliği — **en güvenilir eşleştirme anahtarı**.
+  /// Ad üstünden eşleştirme kırılgan: "Steven Erikson" / "Erikson, Steven" /
+  /// "STEVEN ERIKSON" üç ayrı kişi sanılırdı.
+  binKitapId String? @unique
+
+  /// Kaynak fotoğrafı da veriyor (`yazarlar[].resim`); indirilip
+  /// `/uploads/books/…` olarak saklanır (hotlink yok).
+  photo     String?
+  biography String? @db.Text
+
+  entries BookPersonOnEntry[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model BookPersonOnEntry {
+  personId String
+  person   BookPerson @relation(fields: [personId], references: [id], onDelete: Cascade)
+  entryId  String
+  entry    BookEntry  @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  role     BookPersonRole
+  /// Künyede görünme sırası — çok yazarlı kitapta ilk yazar başta kalsın
+  orderIndex Int @default(0)
+
+  /// Aynı kişi aynı kitapta hem yazar hem çevirmen olabilir; kısıt role dahil
+  @@id([entryId, personId, role])
+  @@index([personId])
+  @@index([entryId, role, orderIndex])
+}
+
+/// Yayınevi. Kaynak kimlik vermiyor (`yayinevi` düz metin, ölçüldü) —
+/// eşleştirme yalnızca `slug` üstünden.
+model BookPublisher {
+  id      String  @id @default(cuid())
+  name    String
+  slug    String  @unique
+  logo    String?
+  website String?
+
+  books BookEntry[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// Seri. Cilt sırası burada DEĞİL, `BookEntry.seriesIndex`te: sıra seriye
+/// değil kitabın seri içindeki yerine ait.
+model BookSeries {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String  @unique
+  description String? @db.Text
+  coverImage  String?
+
+  books BookEntry[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// Tür. Süzgeç bunun üstünden çalışacak.
+model BookGenre {
+  id   String @id @default(cuid())
+  name String
+  slug String @unique
+
+  /// Ön yüzdeki sabit tür listesinin anahtarı ("scifi", "fantasy"…). Çeviri
+  /// bu anahtardan okunuyor; kaynaktan gelip listede karşılığı olmayan türde
+  /// boş kalır.
+  key String? @unique
+
+  /// 1000Kitap tür kimliği (`kidDizi[].id`) — ad değişse de eşleşme tutsun
+  binKitapId String? @unique
+
+  /// **Kullanıcı kararı: kaynaktan gelen tür otomatik kabul edilmez.**
+  /// Eşleşmeyen tür `false` ile açılır, süzgeçte görünmez ve admin panelde
+  /// "eşleşmeyen türler" olarak onay bekler. Otomatik kabul edilseydi tür
+  /// listesi aynı kavramın varyantlarıyla dolardı (Roman / Fantastik Roman).
+  isApproved Boolean @default(false)
+
+  entries BookGenreOnEntry[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isApproved])
+}
+
+model BookGenreOnEntry {
+  genreId String
+  genre   BookGenre @relation(fields: [genreId], references: [id], onDelete: Cascade)
+  entryId String
+  entry   BookEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+
+  @@id([entryId, genreId])
+  @@index([genreId])
 }
 
 /// Altını çizdiğim satır. Sayfa numarası ve bağlam elle girilir — hiçbir API
@@ -857,6 +1002,22 @@ enum BookStatus {
   READING
   TO_READ
   ABANDONED
+}
+
+/// Bir kişinin bir kitaptaki rolü. Yazar, çevirmen ve editör AYNI tabloda
+/// (`BookPerson`) duruyor, ayıran şey bu enum.
+///
+/// Neden ayrı tablolar değil: Türk edebiyatında aynı kişi sık sık iki rolde
+/// birden (Sabahattin Ali, Can Yücel, Cemal Süreya hem yazar hem çevirmen).
+/// Ayrı tablolarda o kişi iki kez kayıtlı olur ve biyografisi/fotoğrafı iki
+/// yerde güncellenirdi. Kaynağın kendi modeli de böyle: 1000Kitap'ta
+/// `yazarGruplari[].turId` (1/2/3) üç rolü ayırıyor ama üçü de **aynı kişi
+/// kimlik uzayını** kullanıyor — `binKitapId` eşleştirmesi ancak tek tabloda
+/// güvenilir çalışır.
+enum BookPersonRole {
+  AUTHOR
+  TRANSLATOR
+  EDITOR
 }
 
 /// Çeviri durumu. Kullanıcı kararı: beş kitaplık bir serinin üçü Türkçe

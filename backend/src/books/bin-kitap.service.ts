@@ -161,6 +161,39 @@ interface BinKitapNextData {
   props?: { pageProps?: BinKitapPageProps };
 }
 
+/** Kaynağın kimlik verdiği bir künye kişisi (yazar / çevirmen / editör). */
+export interface BinKitapPersonCredit {
+  /**
+   * 1000Kitap kişi kimliği — ilişkisel modelde **birincil eşleştirme
+   * anahtarı**. Ad üstünden eşleştirme kırılgan ("Erikson, Steven" ile
+   * "Steven Erikson" ayrı kişi sanılırdı).
+   */
+  binKitapId: string | null;
+  name: string;
+  /** Kaynak yazar fotoğrafını da veriyor; indirilip yerelleştirilir */
+  photo: string | null;
+  role: 'AUTHOR' | 'TRANSLATOR' | 'EDITOR';
+  /** Künyede görünme sırası — ilk yazar başta kalsın */
+  orderIndex: number;
+}
+
+/** Kaynağın tür kaydı; kimliği var (`kidDizi[].id`, ölçüldü). */
+export interface BinKitapGenreCredit {
+  binKitapId: string | null;
+  name: string;
+}
+
+/**
+ * İlişkisel künyeyi besleyen yapısal veri. Yayınevi ve seri düz metin
+ * geliyor (kaynak kimlik vermiyor, ölçüldü) — onlar ada göre eşleşecek.
+ */
+export interface BinKitapCredits {
+  people: BinKitapPersonCredit[];
+  genres: BinKitapGenreCredit[];
+  publisher: string | null;
+  series: { name: string; index: number | null } | null;
+}
+
 /**
  * Künyenin tamamı. `BookSource`a sığmayan alanlar (ülke, editör, format,
  * orijinal dil…) burada durur ve `externalData`ya ham olarak yazılır —
@@ -174,6 +207,8 @@ export interface BinKitapDetail {
    * eklenmesinin başlıca sebebi ("hiçbir API güvenilir vermiyor").
    */
   translator: string | null;
+  /** İlişkisel künyeyi (Faz 2) besleyen yapısal hâl — kimlikleriyle birlikte */
+  credits: BinKitapCredits;
   raw: {
     slug: string;
     binKitapId: string | null;
@@ -475,17 +510,26 @@ export function toDetail(
 
   const about = result?.liste?.find((item) => item.hakkinda)?.hakkinda ?? {};
   const info = about.baskiBilgileri ?? {};
-  const genres = (about.kidDizi ?? [])
-    .map((item) => item.adi)
-    .filter((name): name is string => Boolean(name));
+  const genreCredits = (about.kidDizi ?? [])
+    .filter((item): item is { id?: string; adi: string } => Boolean(item.adi))
+    .map((item) => ({ binKitapId: item.id ?? null, name: item.adi }));
+  const genres = genreCredits.map((item) => item.name);
   const series = readSeries(head.altbaslik ?? info.altBaslik, head.adi);
 
+  const rawSubtitle = head.altbaslik ?? info.altBaslik;
   const source: BookSource = {
     googleId: null,
     olKey: null,
     isbn13: head.isbn ?? info.isbn ?? null,
     title: head.adi,
-    subtitle: null,
+    /**
+     * Cilt işareti taşımayan `altbaslik` seri değil, düz alt başlıktır
+     * (bkz. `readSeries`) — kaybolmasın diye buraya yazılıyor.
+     */
+    subtitle:
+      !series.name && rawSubtitle && slugify(rawSubtitle) !== slugify(head.adi)
+        ? rawSubtitle
+        : null,
     authors: readAuthors(head),
     publisher: info.yayinevi ?? null,
     publishedYear: toYear(info.baskiYili ?? head.baskiyili),
@@ -514,6 +558,12 @@ export function toDetail(
   return {
     source,
     translator: readRole(head, 2),
+    credits: {
+      people: readPeople(head),
+      genres: genreCredits,
+      publisher: info.yayinevi ?? null,
+      series: series.name ? { name: series.name, index: series.index } : null,
+    },
     raw: {
       slug,
       binKitapId: head.id ?? null,
@@ -544,6 +594,39 @@ function readAuthors(item: BinKitapBookHead): string[] {
     return flat;
   }
   return item.ilkYazar ? [item.ilkYazar] : [];
+}
+
+/**
+ * Künyedeki bütün kişileri rolleriyle çıkarır — ilişkisel modelin girdisi.
+ *
+ * Aynı kişi iki rolde birden görünebiliyor (yazar-çevirmen), o yüzden
+ * tekilleştirme YAPILMIYOR: `BookPersonOnEntry` kısıtı role dahil.
+ */
+function readPeople(item: BinKitapBookHead): BinKitapPersonCredit[] {
+  const roles: Array<[number, BinKitapPersonCredit['role']]> = [
+    [1, 'AUTHOR'],
+    [2, 'TRANSLATOR'],
+    [3, 'EDITOR'],
+  ];
+  const people: BinKitapPersonCredit[] = [];
+  for (const [turId, role] of roles) {
+    const group = (item.yazarGruplari ?? []).find(
+      (entry) => entry.turId === turId,
+    );
+    (group?.yazarlar ?? []).forEach((person, index) => {
+      if (!person.adi) {
+        return;
+      }
+      people.push({
+        binKitapId: person.id ?? null,
+        name: person.adi,
+        photo: person.resim ?? null,
+        role,
+        orderIndex: index,
+      });
+    });
+  }
+  return people;
 }
 
 /** `turId`: 1 = Yazar, 2 = Çevirmen, 3 = Editör. */
@@ -590,11 +673,32 @@ function readDescription(paragraphs: string[] | undefined): string | null {
 }
 
 /**
- * Seri adı ve cilt sırası — "Malazan Book of the Fallen #1" → ad + 1.
+ * `altbaslik` alanının cilt işareti biçimleri. Site **iki ayrı biçim**
+ * kullanıyor, ikisi de canlıda ölçüldü:
+ *  - `"Malazan Yitikler Kitabı #1"`
+ *  - `"Dune 2. Kitap"` (Türkçe sıra sayısı)
  *
- * **Kitabın kendi adıyla aynı olan seri yok sayılır** (kullanıcı kararı):
- * 1000Kitap tekil kitaplara da "Bülbülü Öldürmek #1" gibi bir alt başlık
- * veriyor, körlemesine alınırsa arşiv tek kitaplık sahte serilerle dolar.
+ * İkincisi tanınmazsa cilt numarası seri adının içinde kalıyordu: *Dune
+ * Mesihi* için seri adı "Dune 2. Kitap" çıkıyor ve her cilt AYRI bir seri
+ * oluyordu — seri gruplaması tamamen bozulurdu.
+ */
+const SERIES_PATTERNS: RegExp[] = [
+  /^(.*?)\s*#\s*(\d+)\s*$/,
+  /^(.*?)\s*(\d+)\s*\.\s*(?:kitap|cilt)\s*$/i,
+];
+
+/**
+ * Seri adı ve cilt sırası.
+ *
+ * **Cilt işareti yoksa seri de yoktur.** `altbaslik` alanı iki ayrı şeyi
+ * taşıyor: seri bilgisi ("Malazan Yitikler Kitabı #1") ve düz alt başlık
+ * ("Türkiye'de Transgender, Aktivizm ve Altkültürel Pratikler" — canlıda
+ * ölçüldü). İşaret aranmasaydı her alt başlık tek kitaplık bir "seri"
+ * üretirdi ve `BookSeries` tablosu çöple dolardı. İşaretsiz alt başlık
+ * `BookSource.subtitle`a gidiyor, serisiz kalıyor.
+ *
+ * **Kitabın kendi adıyla aynı olan seri de yok sayılır** (kullanıcı kararı):
+ * site tekil kitaplara da "Bülbülü Öldürmek #1" diyor.
  */
 export function readSeries(
   subtitle: string | undefined,
@@ -603,13 +707,19 @@ export function readSeries(
   if (!subtitle) {
     return { name: null, index: null };
   }
-  const match = subtitle.match(/^(.*?)\s*#\s*(\d+)\s*$/);
-  const name = (match ? match[1] : subtitle).trim();
-  const index = match ? Number.parseInt(match[2], 10) : null;
-  if (!name || slugify(name) === slugify(title)) {
-    return { name: null, index: null };
+  for (const pattern of SERIES_PATTERNS) {
+    const match = subtitle.match(pattern);
+    if (!match) {
+      continue;
+    }
+    const name = match[1].trim();
+    const index = Number.parseInt(match[2], 10);
+    if (!name || slugify(name) === slugify(title)) {
+      return { name: null, index: null };
+    }
+    return { name, index: Number.isFinite(index) ? index : null };
   }
-  return { name, index: Number.isFinite(index) ? index : null };
+  return { name: null, index: null };
 }
 
 function toYear(value: string | undefined): number | null {

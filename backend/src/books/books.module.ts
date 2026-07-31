@@ -6,6 +6,7 @@ import { BooksService } from './books.service';
 import { GoogleBooksService } from './google-books.service';
 import { BinKitapService } from './bin-kitap.service';
 import { BookCoverService } from './book-cover.service';
+import { BookCreditsService } from './book-credits.service';
 import { AwardsService } from './awards.service';
 
 @Module({
@@ -16,6 +17,7 @@ import { AwardsService } from './awards.service';
     GoogleBooksService,
     BinKitapService,
     BookCoverService,
+    BookCreditsService,
     AwardsService,
   ],
 })

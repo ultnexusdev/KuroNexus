@@ -45,6 +45,15 @@ export class BooksAdminController {
     return this.booksService.localizeCovers();
   }
 
+  /**
+   * Mevcut kayıtların düz metin künyesinden ilişkisel künyeyi kurar
+   * (Faz 2a geçişi). Tekrar çalıştırmak güvenli — bağlar yeniden kurulur.
+   */
+  @Post('credits/backfill')
+  backfillCredits() {
+    return this.booksService.backfillCredits();
+  }
+
   @Put('goal')
   upsertGoal(
     @Body() dto: UpsertReadingGoalDto,

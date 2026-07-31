@@ -5,6 +5,40 @@
 
 ## Mevcut Aşama
 
+> **ARAMA DÜZELTMESİ — 31 Temmuz 2026, telefondan gelen geri bildirim.**
+> Kullanıcı canlıda iki sorun bildirdi: (a) listede **hiç Open Library
+> sonucu yok**, (b) alakasız kitaplar üstte (Notos Öykü, ULAK 5. Sayı,
+> Bakî Divanı Sözlüğü). İkisinin de sebebi ölçüldü ve düzeltildi.
+>
+> **(a) Open Library kesiliyordu.** Google iki bacaktan 40 kayıt döndürüyor,
+> hepsi Türkçe olduğu için "Türkçe önce" sıralamasında başa geçiyor ve Open
+> Library'nin 2 kaydı **40–41. sıraya** düşüyordu; `slice(0, 20)` onları
+> tamamen siliyordu. Çözüm: `OPENLIBRARY_SLOTS = 5` — Open Library'ye
+> **ayrılmış kontenjan**, Google'ın hacminden bağımsız.
+>
+> **(b) Alaka süzgeci eklendi.** Sorgunun anlamlı sözcüklerinden (≥3 harf,
+> aksan katlanmış) en az biri başlık/yazar/seri içinde geçmiyorsa kayıt
+> eleniyor. **Yalnızca Google bacaklarına uygulanıyor** — Open Library
+> bilerek süzülmüyor, çünkü Türkçe adla arandığında eseri orijinal adıyla
+> döndürüyor ("bülbülü öldürmek" → "To Kill a Mockingbird") ve süzgeç tam
+> da görmek istediğimiz kaydı elerdi.
+>
+> **Google'a tek yeniden deneme (429/5xx, 250ms).** Ölçümde `503`'ler çok
+> sık: bir turda "dune frank herbert" sonucundan Dune'un kendisi tamamen
+> kayboldu çünkü iki Google bacağı da o an düşmüştü. Kalıcı hatalarda
+> (`400` vb.) tekrar denenmiyor.
+>
+> **Open Library dil alanı düzeltildi.** Kayıt bir **esere** ait, `language`
+> bütün baskıların dillerini taşıyor ve ilk eleman rastgele — "To Kill a
+> Mockingbird" için `kor` dönüyor ve arayüzde İngilizce esere **KOR** rozeti
+> takılıyordu. Artık tek soruya cevap veriliyor: Türkçe baskısı var mı →
+> `tr`, yoksa `null`.
+>
+> **Ölçüm sonrası:** "bülbülü öldürmek" 42 karışık kayıt yerine **6 temiz
+> sonuç**, hepsi Harper Lee baskısı, Open Library'nin kapaklı kaydı 5.
+> sırada ve TR rozetli. "bulbulu oldurmek" (aksansız) 4 sonuç. "dune frank
+> herbert" 20 sonuç, Dune'un kendisi listede.
+
 > **ARAMA ÇİFT KAYNAĞA GEÇTİ + CANLI DROPDOWN — 31 Temmuz 2026 (kullanıcı
 > isteği).**
 >

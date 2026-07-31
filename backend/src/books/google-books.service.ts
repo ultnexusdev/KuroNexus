@@ -37,6 +37,20 @@ const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 // Arama sonucu kaç kayıt taşır (Türkçe ve genel arama birlikte)
 const SEARCH_LIMIT = 20;
 
+/**
+ * Open Library için **ayrılmış** sıra sayısı.
+ *
+ * Kontenjan olmadan Open Library listede hiç görünmüyordu ve kullanıcı bunu
+ * bildirdi. Sebebi ölçüldü: "bülbülü öldürmek" aramasında Google iki
+ * bacaktan 40 kayıt döndürüyor, hepsi Türkçe olduğu için "Türkçe önce"
+ * sıralamasıyla başa geçiyor ve Open Library'nin 2 kaydı 40–41. sıraya
+ * düşüyordu; `slice(0, 20)` onları tamamen kesiyordu.
+ */
+const OPENLIBRARY_SLOTS = 5;
+
+/** Alaka süzgecinde yok sayılacak kadar kısa sözcükler ("ve", "bir"…) */
+const MIN_TOKEN = 3;
+
 /** Arama sonucu ve künye için ortak biçim — iki kaynak da buna indirgenir. */
 export interface BookSource {
   googleId: string | null;
@@ -179,12 +193,39 @@ export class GoogleBooksService {
       }
     }
 
+    /**
+     * **Alaka süzgeci yalnızca Google bacaklarına uygulanıyor.**
+     *
+     * Google'ın `langRestrict=tr` bacağı sorguyla hiç ilgisi olmayan Türkçe
+     * kayıtlar döndürüyor (ölçüldü: "bülbülü öldürmek" için ULAK 5. Sayı,
+     * Notos Öykü, Bakî Divanı Sözlüğü) ve bunlar Türkçe oldukları için
+     * listenin başına geçiyordu — kullanıcının şikâyeti buydu.
+     *
+     * Open Library **bilerek süzülmüyor**: sorgu Türkçe adla yapıldığında o
+     * eseri orijinal adıyla döndürüyor ("bülbülü öldürmek" → "To Kill a
+     * Mockingbird") ve ortak sözcük olmadığı için süzgeç tam da görmek
+     * istediğimiz kaydı elerdi. Zaten az sayıda sonuç veriyor.
+     */
+    const tokens = searchTokens(trimmed);
+    const googleHits = [
+      ...(turkish.status === 'fulfilled' ? turkish.value : []),
+      ...(general.status === 'fulfilled' ? general.value : []),
+    ].filter((item) => isRelevant(item, tokens));
+
+    /**
+     * Kontenjan: Open Library'ye ayrılan sıralar Google'ın hacmine
+     * bakılmaksızın korunuyor. Aksi hâlde Google 40 kayıt döndürünce Open
+     * Library listeden düşüyor (bkz. `OPENLIBRARY_SLOTS`).
+     */
+    const openLibraryHits = (
+      openLibrary.status === 'fulfilled' ? openLibrary.value : []
+    ).slice(0, OPENLIBRARY_SLOTS);
+
     const merged: BookSource[] = [];
     const seen = new Set<string>();
     for (const item of [
-      ...(turkish.status === 'fulfilled' ? turkish.value : []),
-      ...(general.status === 'fulfilled' ? general.value : []),
-      ...(openLibrary.status === 'fulfilled' ? openLibrary.value : []),
+      ...googleHits.slice(0, SEARCH_LIMIT - openLibraryHits.length),
+      ...openLibraryHits,
     ]) {
       /**
        * Tekilleştirme **kaynak içinde** yapılıyor, kaynaklar ARASINDA değil:
@@ -391,14 +432,35 @@ export class GoogleBooksService {
       url.searchParams.set('key', this.apiKey);
     }
 
-    const response = await fetch(url, {
-      headers: { accept: 'application/json' },
-    });
-    if (!response.ok) {
-      this.logger.warn(`Google Books ${path} → ${response.status}`);
-      throw new ServiceUnavailableException('BOOKS.SOURCE_UNAVAILABLE');
+    /**
+     * Geçici hatalarda **bir kez** yeniden deneniyor.
+     *
+     * Google bu uçta sık sık anlık `503` veriyor (ölçümde arka arkaya
+     * denemelerde görüldü: aynı sorgu bir turda düşüp bir sonrakinde 200
+     * dönüyor). Tek denemede kalınca kullanıcı aramanın yarısını kaybediyor
+     * — bir seferinde "dune frank herbert" sonucundan Dune'un kendisi
+     * tamamen kayboldu, çünkü iki Google bacağı da o an düşmüştü.
+     *
+     * Yalnızca `429` ve `5xx` için: `400` gibi kalıcı hatalarda tekrar
+     * denemek boşuna gecikme olurdu. Tek tekrar ve kısa bekleme, çünkü bu
+     * istek kullanıcı yazarken atılıyor.
+     */
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const response = await fetch(url, {
+        headers: { accept: 'application/json' },
+      });
+      if (response.ok) {
+        return (await response.json()) as T;
+      }
+      const retryable = response.status === 429 || response.status >= 500;
+      if (!retryable || attempt === 1) {
+        this.logger.warn(`Google Books ${path} → ${response.status}`);
+        throw new ServiceUnavailableException('BOOKS.SOURCE_UNAVAILABLE');
+      }
+      await new Promise((resolve) => setTimeout(resolve, 250));
     }
-    return (await response.json()) as T;
+    // Döngü her hâlükârda dönüyor ya da fırlatıyor; derleyici için
+    throw new ServiceUnavailableException('BOOKS.SOURCE_UNAVAILABLE');
   }
 
   // --- Open Library ---
@@ -601,34 +663,59 @@ function normalizeGoogle(raw: GoogleVolumeRaw): BookSource | null {
 }
 
 /**
- * Open Library dili **üç harfli** veriyor ("tur", "eng", "pol"), Google ise
- * iki harfli ("tr", "en"). Aynı alanda iki ayrı alfabe tutmak dil süzgecini
- * ve "Türkçe önce" kuralını sessizce bozardı; burada tek biçime indiriliyor.
- * Listede olmayan kod olduğu gibi bırakılıyor — uydurmaktansa görünür kalsın.
+ * Open Library kaydı bir **esere** ait, tek bir baskıya değil: `language`
+ * alanı o eserin bütün baskılarının dillerini taşıyor ve ilk eleman rastgele.
+ * "To Kill a Mockingbird" için `kor` dönüyordu ve arayüzde İngilizce esere
+ * **KOR** rozeti takılıyordu — yanlış bilgi.
+ *
+ * Bu yüzden yalnızca tek bir soruya cevap veriliyor: bu eserin **Türkçe**
+ * baskısı var mı? Varsa `tr` (ve "Türkçe önce" sıralaması onu kapsıyor),
+ * yoksa `null` — arayüz dil rozetini boş gösteriyor. Uydurulmuş bir dil
+ * yazmaktansa bilinmiyor demek doğru olan.
  */
-const OPENLIBRARY_LANGS: Record<string, string> = {
-  tur: 'tr',
-  eng: 'en',
-  ger: 'de',
-  deu: 'de',
-  fre: 'fr',
-  fra: 'fr',
-  spa: 'es',
-  ita: 'it',
-  rus: 'ru',
-  por: 'pt',
-  pol: 'pl',
-  cze: 'cs',
-  jpn: 'ja',
-  chi: 'zh',
-  ara: 'ar',
-};
+function openLibraryLanguage(codes: string[] | undefined): string | null {
+  return codes?.includes('tur') ? 'tr' : null;
+}
 
-function openLibraryLanguage(code: string | undefined): string | null {
-  if (!code) {
-    return null;
+/**
+ * Karşılaştırma için sadeleştirme. `ı` elle `i`ye çevriliyor çünkü ayrı bir
+ * HARF, birleşik işaret değil — NFD ayrıştırması ona dokunmuyor. Kalan
+ * aksanlar (ö/ü/ş/ç/ğ) taban harfe indiriliyor. Böylece "bulbulu" ile
+ * "Bülbülü" aynı metne dönüyor.
+ */
+function foldSearch(value: string): string {
+  return value
+    .toLocaleLowerCase('tr')
+    .replaceAll('ı', 'i')
+    .normalize('NFD')
+    .replace(/\p{M}+/gu, '');
+}
+
+/** Sorgunun anlamlı sözcükleri; çok kısa olanlar gürültü yapıyor. */
+function searchTokens(query: string): string[] {
+  return foldSearch(query)
+    .split(/[^\p{L}\p{N}]+/u)
+    .filter((word) => word.length >= MIN_TOKEN);
+}
+
+/**
+ * Sonuç sorguyla en az bir sözcüğü paylaşıyor mu.
+ *
+ * "En az bir" (hepsi değil) bilerek: kullanıcı "bülbülü öldürmek harper"
+ * yazdığında yalnızca "Bülbülü Öldürmek" başlıklı cilt de tutmalı, yazar
+ * adı başlıkta geçmese bile. Yazar ve seri adı da samanlığa katılıyor ki
+ * "harper lee" araması eserin adıyla eşleşsin.
+ */
+function isRelevant(item: BookSource, tokens: string[]): boolean {
+  if (tokens.length === 0) {
+    return true;
   }
-  return OPENLIBRARY_LANGS[code] ?? code;
+  const haystack = foldSearch(
+    [item.title, item.subtitle ?? '', item.seriesName ?? '', ...item.authors]
+      .join(' ')
+      .trim(),
+  );
+  return tokens.some((token) => haystack.includes(token));
 }
 
 function normalizeOpenLibrary(doc: OpenLibraryDoc): BookSource | null {
@@ -647,7 +734,7 @@ function normalizeOpenLibrary(doc: OpenLibraryDoc): BookSource | null {
     publishedYear: doc.first_publish_year ?? null,
     firstPublishedYear: doc.first_publish_year ?? null,
     pageCount: doc.number_of_pages_median ?? null,
-    language: openLibraryLanguage(doc.language?.[0]),
+    language: openLibraryLanguage(doc.language),
     coverImage: doc.cover_i
       ? `${OPENLIBRARY_COVERS}/${doc.cover_i}-L.jpg`
       : null,

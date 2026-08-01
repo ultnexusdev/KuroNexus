@@ -19,6 +19,7 @@ function entry(partial: Partial<ReadingOrderEntry>): ReadingOrderEntry {
     position: { track: 'Ara Kitap', index: null },
     originalTitle: 'Foundation',
     titles: ['Vakıf'],
+    sourceSlug: null,
     ...partial,
   };
 }
@@ -88,5 +89,28 @@ describe('okuma sırası verisi', () => {
 
   it('bilinmeyen anahtar için tanım dönmez', () => {
     expect(findReadingOrder('yok-boyle-bir-sey')).toBeUndefined();
+  });
+
+  /**
+   * Kaynak anahtarları tek tek ölçüldü (kaynakta arandı, yazarı doğrulandı).
+   * Biçim bozulursa hem künye sayfası hem "tek tıkla ekle" sessizce düşer.
+   */
+  it('kaynak anahtarları kimlik ekiyle yazılmış', () => {
+    for (const order of READING_ORDERS) {
+      for (const item of order.entries) {
+        if (item.sourceSlug !== null) {
+          expect(item.sourceSlug).toMatch(/^[a-z0-9-]+--\d+$/);
+        }
+      }
+    }
+  });
+
+  it('aynı kaynak anahtarı iki durakta geçmiyor', () => {
+    for (const order of READING_ORDERS) {
+      const slugs = order.entries
+        .map((item) => item.sourceSlug)
+        .filter((slug): slug is string => slug !== null);
+      expect(new Set(slugs).size).toBe(slugs.length);
+    }
   });
 });

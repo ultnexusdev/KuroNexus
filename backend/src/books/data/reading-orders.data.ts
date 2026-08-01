@@ -34,6 +34,18 @@ export interface ReadingOrderEntry {
    * demek — arayüz hepsini gösteriyor, birini seçmiyor.
    */
   titles: string[];
+  /**
+   * 1000Kitap sayfa anahtarı. **Her biri tek tek ölçüldü**, tahmin değil:
+   * kaynakta arandı, yazarı doğrulandı ve dönen anahtar buraya yazıldı.
+   *
+   * İki işi var: (1) arşivde olmayan durak künye sayfasına gidebiliyor,
+   * (2) arşiv eşleşmesinin **en kesin** adımı — ad üstünden eşleştirme
+   * kırılgan (kaynak "Vakıf'ın Sınırı" yazarken liste "Vakfın Sınırı" diyor,
+   * kesme işareti yüzünden anahtarlar tutmuyordu).
+   *
+   * Ölçülemeyen durakta `null` bırakılır; sayfa onsuz da çalışır.
+   */
+  sourceSlug: string | null;
 }
 
 export interface ReadingOrderDefinition {
@@ -95,6 +107,7 @@ const VAKIF_EVRENI: ReadingOrderDefinition = {
       position: at(ARA),
       originalTitle: 'The End of Eternity',
       titles: ['Sonsuzluğun Sonu', 'Evrenin Çanları'],
+      sourceSlug: 'sonsuzlugun-sonu--35383',
     },
     {
       order: 2,
@@ -102,6 +115,7 @@ const VAKIF_EVRENI: ReadingOrderDefinition = {
       position: at(VAKIF, 1),
       originalTitle: 'Foundation',
       titles: ['Vakıf', 'İmparatorluk'],
+      sourceSlug: 'vakif--110835',
     },
     {
       order: 3,
@@ -109,6 +123,7 @@ const VAKIF_EVRENI: ReadingOrderDefinition = {
       position: at(VAKIF, 2),
       originalTitle: 'Foundation and Empire / The Man Who Upset the Universe',
       titles: ['Vakıf ve İmparatorluk', 'Altın Galaksi'],
+      sourceSlug: 'vakif-ve-imparatorluk--20570',
     },
     {
       order: 4,
@@ -116,6 +131,7 @@ const VAKIF_EVRENI: ReadingOrderDefinition = {
       position: at(VAKIF, 3),
       originalTitle: 'Second Foundation',
       titles: ['İkinci Vakıf', 'Gizli Tanrılar'],
+      sourceSlug: 'ikinci-vakif--22986',
     },
     {
       order: 5,
@@ -123,6 +139,7 @@ const VAKIF_EVRENI: ReadingOrderDefinition = {
       position: at(VAKIF, 4),
       originalTitle: "Foundation's Edge",
       titles: ['Vakfın Sınırı', 'Galaksi Çöküyor'],
+      sourceSlug: 'vakifin-siniri--272474',
     },
     {
       order: 6,
@@ -130,6 +147,7 @@ const VAKIF_EVRENI: ReadingOrderDefinition = {
       position: at(ARA),
       originalTitle: 'I, Robot',
       titles: ['Ben, Robot', 'Ben Bir Robotum', 'Robotlar'],
+      sourceSlug: 'ben-robot--24182',
     },
     {
       order: 7,
@@ -137,6 +155,7 @@ const VAKIF_EVRENI: ReadingOrderDefinition = {
       position: at(ARA),
       originalTitle: 'Nemesis',
       titles: ['İntikam Tanrıçası'],
+      sourceSlug: 'intikam-tanricasi--23072',
     },
     {
       order: 8,
@@ -144,6 +163,7 @@ const VAKIF_EVRENI: ReadingOrderDefinition = {
       position: at(ROBOT, 1),
       originalTitle: 'The Caves of Steel',
       titles: ['Çelik Mağaralar', 'Ölü Gezegen'],
+      sourceSlug: 'celik-magaralar--308685',
     },
     {
       order: 9,
@@ -151,6 +171,7 @@ const VAKIF_EVRENI: ReadingOrderDefinition = {
       position: at(ROBOT, 2),
       originalTitle: 'The Naked Sun',
       titles: ['Güneşin Tanrıları', 'Çıplak Güneş'],
+      sourceSlug: 'ciplak-gunes--314638',
     },
     {
       order: 10,
@@ -158,6 +179,7 @@ const VAKIF_EVRENI: ReadingOrderDefinition = {
       position: at(ROBOT, 3),
       originalTitle: 'The Robots of Dawn',
       titles: ['Şafağın Robotları'],
+      sourceSlug: 'safagin-robotlari--320434',
     },
     {
       order: 11,
@@ -165,6 +187,7 @@ const VAKIF_EVRENI: ReadingOrderDefinition = {
       position: at(ROBOT, 4),
       originalTitle: 'Robots and Empire',
       titles: ['Kurtarıcı'],
+      sourceSlug: 'kurtarici--21235',
     },
     {
       order: 12,
@@ -172,6 +195,7 @@ const VAKIF_EVRENI: ReadingOrderDefinition = {
       position: at(IMPARATORLUK, 1),
       originalTitle: 'The Stars Like Dust / The Rebellious Stars',
       titles: ['Sonsuzun Tohumları', 'Asi Gezegen Tyrann'],
+      sourceSlug: 'sonsuzun-tohumlari--193381',
     },
     {
       order: 13,
@@ -179,6 +203,7 @@ const VAKIF_EVRENI: ReadingOrderDefinition = {
       position: at(IMPARATORLUK, 2),
       originalTitle: 'The Currents of Space',
       titles: ['Tanrılar ve İmparatorlar', 'Kainat Fatihi'],
+      sourceSlug: 'tanrilar-ve-imparatorlar--20732',
     },
     {
       order: 14,
@@ -186,6 +211,7 @@ const VAKIF_EVRENI: ReadingOrderDefinition = {
       position: at(IMPARATORLUK, 3),
       originalTitle: 'Pebble in the Sky',
       titles: ['Zamandan Kaçış', 'Uğursuz Gezegen Galactica'],
+      sourceSlug: 'zamandan-kacis--86530',
     },
     {
       order: 15,
@@ -193,6 +219,7 @@ const VAKIF_EVRENI: ReadingOrderDefinition = {
       position: at(VAKIF, 5),
       originalTitle: 'Foundation and Earth',
       titles: ['Vakıf ve Dünya'],
+      sourceSlug: 'vakif-ve-dunya--280610',
     },
     {
       order: 16,
@@ -200,6 +227,7 @@ const VAKIF_EVRENI: ReadingOrderDefinition = {
       position: at(VAKIF, 6),
       originalTitle: 'Prelude to Foundation',
       titles: ['Vakıf Kurulurken', 'İmparatorluk Kurulurken'],
+      sourceSlug: 'vakif-kurulurken--17701',
     },
     {
       order: 17,
@@ -207,6 +235,7 @@ const VAKIF_EVRENI: ReadingOrderDefinition = {
       position: at(VAKIF, 7),
       originalTitle: 'Forward the Foundation',
       titles: ['Vakıf İleri', 'Erişilmez İmparatorluk'],
+      sourceSlug: 'vakif-ileri--22988',
     },
   ],
 };

@@ -450,7 +450,39 @@
 > kaydı açmadan, `ExternalCache`e yazarak (hem hotlink yok, hem her ziyarette
 > yeniden inmiyor, hem arşive sahte kişi kaydı düşmüyor).
 >
+> **FAZ 2f-b — OKUMA SIRASININ DÖRT EKİ (kullanıcı hepsini seçti).**
+>
+> **17 durağın kaynak anahtarı TEK TEK ÖLÇÜLDÜ.** Kaynakta arandı, yazarı
+> doğrulandı, dönen anahtar veri dosyasına yazıldı (`sourceSlug`). İlk turda
+> 15/17 tuttu; kalan ikisi alternatif adla bulundu. Ölçüm bir şeyi daha
+> gösterdi: kaynak *Foundation's Edge*'i **"Vakıf'ın Sınırı"** yazıyor, liste
+> ise "Vakfın Sınırı" — kesme işareti yüzünden ad anahtarları tutmuyordu.
+> Bu yüzden arşiv eşleşmesi artık **iki kademeli**: önce kaynak anahtarı
+> (kesin), sonra adlar. Anahtarların çalıştığı da ölçüldü:
+> `/kitap/sessiz-kilic--308785` biçimi künyeyi veriyor, kimliksiz biçim
+> **200 dönüp boş sayfa**.
+>
+> 1. **"Buradayım" imi.** Yeni tablo `ReadingOrderProgress` (migration elle
+>    yazıldı, lokalde DB yok). Sıra başına tek kayıt; `0` imi kaldırıyor ve
+>    satır **silinmiyor** — im koyup kaldırmak sık yapılan bir şey. İmden
+>    önceki duraklar soluklaşıyor, imin kendisi altın halkayla işaretleniyor.
+>    İm yalnızca **okuma sırası** görünümünde çiziliyor: yayım sırasında
+>    "geçilmiş durak" diye bir şey yok.
+> 2. **Eksik durak → künye sayfası.** Ölçülmüş anahtar sayesinde arşivde
+>    olmayan durak da `/kitap/kaynak/<slug>` sayfasına gidiyor. Arka planda
+>    eşleştirme YOK, yani kuyruğa hiç yük binmiyor (ödül rafından farkı bu).
+> 3. **Kitap sayfasında geri bağ.** `readingOrders` alanı `BookDetail`e
+>    eklendi ama **`BooksService`in içinde değil, controller'da**: kitap
+>    servisi okuma sıralarını bilmiyor ve bilmemeli — bağımlılık tek yönlü
+>    kalsın.
+> 4. **Tek tıkla arşive ekle.** Küratör modunda eksik durakta "Arşive ekle";
+>    künye ölçülmüş anahtardan geliyor, arama yapılmıyor. `status: TO_READ`
+>    gönderiliyor — sıradaki kitap "okudum" olarak eklenmemeli.
+>
 > **YAPILMADI / AÇIK:**
+> - **Migration elle yazıldı ve lokalde ÇALIŞTIRILAMADI** (DB erişimi yok).
+>   Deploy'da `prisma migrate deploy` ile inecek; tablo açılmazsa "buradayım"
+>   düğmesi 500 verir, sayfanın geri kalanı çalışmaya devam eder.
 > - Sayfa canlıda **hiç görülmedi**. Özellikle iki şey ölçülmeli: Asimov'un
 >   `isaac-asimov` slug'ıyla kaynakta bulunup bulunmadığı (bulunmazsa ray
 >   yalnızca adla çizilir) ve arşiv eşleşmesinin hangi duraklarda tuttuğu.

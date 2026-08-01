@@ -133,12 +133,26 @@
 
 .status,
 .favorite,
-.seriesBadge {
+.seriesBadge,
+.orderBadge {
   padding: 3px 10px;
   border: 1px solid var(--border-strong);
   border-radius: 999px;
   font-size: 0.74rem;
   letter-spacing: 0.06em;
+}
+
+/* Okuma sirasi rozeti tiklanabilir: okur yolun tamamini gorebilsin */
+.orderBadge {
+  border-color: color-mix(in srgb, var(--gold) 55%, transparent);
+  color: var(--gold);
+  text-decoration: none;
+}
+
+.orderBadge:hover,
+.orderBadge:focus-visible {
+  border-color: var(--gold);
+  background: color-mix(in srgb, var(--gold) 12%, transparent);
 }
 
 .status {

@@ -166,6 +166,22 @@ export function BookDetail({
                     : book.seriesName}
                 </span>
               ) : null}
+              {/* Okuma sırası bağı: bu kitap bir evrenin yolunda kaçıncı
+                  durak. Rozet tıklanabilir — okur oradan yolun tamamını
+                  görebilsin (kullanıcı isteği) */}
+              {detail.readingOrders.map((entry) => (
+                <Link
+                  key={entry.key}
+                  href={`/dark-stories/category/kitap/okuma-sirasi/${entry.key}`}
+                  className={styles.orderBadge}
+                >
+                  {t("detail.readingOrderStop", {
+                    name: entry.name,
+                    order: entry.order,
+                    total: entry.total,
+                  })}
+                </Link>
+              ))}
             </div>
 
             {book.personalRating !== null ? (

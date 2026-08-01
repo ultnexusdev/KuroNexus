@@ -18,11 +18,16 @@ import { UpdateBookEntryDto } from './dto/update-book-entry.dto';
 import { CreateBookQuoteDto } from './dto/create-book-quote.dto';
 import { UpdateBookQuoteDto } from './dto/update-book-quote.dto';
 import { UpsertReadingGoalDto } from './dto/upsert-reading-goal.dto';
+import { SetReadingProgressDto } from './dto/set-reading-progress.dto';
+import { ReadingOrdersService } from './reading-orders.service';
 
 @Roles('ADMIN')
 @Controller('admin/books')
 export class BooksAdminController {
-  constructor(private readonly booksService: BooksService) {}
+  constructor(
+    private readonly booksService: BooksService,
+    private readonly readingOrders: ReadingOrdersService,
+  ) {}
 
   @Get()
   findAll() {
@@ -78,6 +83,19 @@ export class BooksAdminController {
   @Delete('genres/:genreId')
   rejectGenre(@Param('genreId') genreId: string) {
     return this.booksService.reviewGenre(genreId, false);
+  }
+
+  /**
+   * "Buradayım" imi: okuma sırasında kaçıncı duraktayım. `0` imi kaldırır.
+   * ':id' kalıbından önce tanımlı — 'okuma-sirasi' bir kitap kimliği değil.
+   */
+  @Put('okuma-sirasi/:key/progress')
+  setReadingOrderProgress(
+    @Param('key') key: string,
+    @Body() dto: SetReadingProgressDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.readingOrders.setProgress(key, dto.currentOrder, user.id);
   }
 
   @Put('goal')

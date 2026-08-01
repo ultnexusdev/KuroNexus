@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { readIsAdmin } from "@/lib/auth/session";
 import { fetchCategories } from "@/lib/api/universes";
 import { getReadingOrder } from "@/lib/api/books";
 import { hallLabel, hallName, hallNumber } from "@/lib/halls";
@@ -49,9 +50,10 @@ export default async function ReadingOrderRoute({
 }) {
   const { locale, key } = await params;
   const t = await getTranslations({ locale, namespace: "book" });
-  const [order, hall] = await Promise.all([
+  const [order, hall, isAdmin] = await Promise.all([
     getReadingOrder(key),
     getHall(t("hallName")),
+    readIsAdmin(),
   ]);
 
   // Bilinmeyen anahtar 404; backend de öyle veriyor
@@ -64,6 +66,7 @@ export default async function ReadingOrderRoute({
       order={order}
       hallLabel={hall.label}
       hallName={hall.name}
+      isAdmin={isAdmin}
     />
   );
 }

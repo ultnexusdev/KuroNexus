@@ -861,6 +861,23 @@ export function backfillBookCredits(): Promise<BookMaintenanceResult> {
 }
 
 /**
+ * "Buradayım" imi: okuma sırasında kaçıncı duraktayım. `0` imi kaldırır.
+ */
+export function setReadingOrderProgress(
+  key: string,
+  currentOrder: number,
+): Promise<{ currentOrder: number }> {
+  return apiFetch<{ currentOrder: number }>(
+    `/admin/books/okuma-sirasi/${encodeURIComponent(key)}/progress`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", ...authHeaders() },
+      body: JSON.stringify({ currentOrder }),
+    },
+  );
+}
+
+/**
  * Fotoğrafı olmayan yazar/çevirmenlerin portrelerini kaynaktan indirir.
  * Portre normalde kişi sayfası açıldığında iniyor; salonun yazar paneli de
  * onları gösterdiği için tek seferde kapatmak gerekiyor.

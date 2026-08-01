@@ -3,15 +3,16 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { Link } from "@/lib/i18n/navigation";
+import { Link, useRouter } from "@/lib/i18n/navigation";
 import { apiUrl } from "@/lib/api/client";
+import { createBookEntry, setReadingOrderProgress } from "@/lib/admin/api";
 import type {
   ReadingOrderDetail,
   ReadingOrderEntry,
   ReadingOrderSummary,
 } from "@/lib/api/types";
 import { BackToTop } from "@/components/BackToTop";
-import { personHref } from "./BookCard";
+import { personHref, sourceBookHref } from "./BookCard";
 import styles from "./ReadingOrderHall.module.css";
 
 /**
@@ -137,15 +138,39 @@ export function ReadingOrderPage({
   order,
   hallLabel,
   hallName,
+  isAdmin = false,
 }: {
   order: ReadingOrderDetail;
   hallLabel: string;
   hallName: string;
+  /** Küratör araçları: "buradayım" imi ve eksik durağı arşive ekleme */
+  isAdmin?: boolean;
 }) {
   const t = useTranslations("book");
+  const router = useRouter();
   const [sort, setSort] = useState<SortMode>("order");
   /** Seçili seri süzgeci; null = hepsi */
   const [track, setTrack] = useState<string | null>(null);
+  const [busy, setBusy] = useState<number | null>(null);
+  const [failed, setFailed] = useState(false);
+
+  /**
+   * Küratör işleri aynı kalıpta: kilitle, çalıştır, sayfayı tazele. Yerel
+   * durum güncellenmiyor — im ve arşiv eşleşmesi sunucuda hesaplanıyor ve
+   * tek kaynaktan doğru kalsın (salon kanadıyla aynı karar).
+   */
+  async function run(key: number, task: () => Promise<unknown>) {
+    setBusy(key);
+    setFailed(false);
+    try {
+      await task();
+      router.refresh();
+    } catch {
+      setFailed(true);
+    } finally {
+      setBusy(null);
+    }
+  }
 
   const entries = useMemo(() => {
     const list = track
@@ -250,6 +275,15 @@ export function ReadingOrderPage({
               </span>
             </div>
             <Meter owned={order.inArchive} total={order.total} />
+            {/* "Buradayım": yolun neresinde olduğunu tek satırda söylüyor */}
+            {order.currentOrder > 0 ? (
+              <p className={styles.hereLine}>
+                {t("readingOrder.hereAt", {
+                  order: order.currentOrder,
+                  total: order.total,
+                })}
+              </p>
+            ) : null}
           </section>
 
           <div className={styles.controls}>
@@ -305,10 +339,44 @@ export function ReadingOrderPage({
                 tone={toneFor(order.tracks, entry.position.track)}
                 /* Yayım sırasındayken büyük rakam yıl oluyor: o görünümde
                    okuma sırası numarası yanıltıcı olurdu */
-                lead={sort === "order" ? String(entry.order) : String(entry.year)}
+                lead={
+                  sort === "order" ? String(entry.order) : String(entry.year)
+                }
+                /* İm yalnızca okuma sırası görünümünde anlamlı: yayım
+                   sırasında "geçilmiş duraklar" diye bir şey yok */
+                passed={sort === "order" && entry.order < order.currentOrder}
+                here={sort === "order" && entry.order === order.currentOrder}
+                isAdmin={isAdmin}
+                busy={busy === entry.order}
+                onHere={() =>
+                  void run(entry.order, () =>
+                    setReadingOrderProgress(
+                      order.key,
+                      // Aynı durağa tekrar basmak imi kaldırıyor
+                      entry.order === order.currentOrder ? 0 : entry.order,
+                    ),
+                  )
+                }
+                onAdd={
+                  entry.sourceSlug
+                    ? () =>
+                        void run(entry.order, () =>
+                          createBookEntry({
+                            binKitapSlug: entry.sourceSlug ?? undefined,
+                            /* Sıradaki kitap "okudum" olarak eklenmemeli:
+                               liste okunacakları gösteriyor */
+                            status: "TO_READ",
+                          }),
+                        )
+                    : undefined
+                }
               />
             ))}
           </ol>
+
+          {failed ? (
+            <p className={styles.error}>{t("readingOrder.actionFailed")}</p>
+          ) : null}
 
           {entries.length === 0 ? (
             <p className={styles.empty}>{t("readingOrder.noMatch")}</p>
@@ -328,10 +396,25 @@ function Stop({
   entry,
   tone,
   lead,
+  passed,
+  here,
+  isAdmin,
+  busy,
+  onHere,
+  onAdd,
 }: {
   entry: ReadingOrderEntry;
   tone: string;
   lead: string;
+  /** İmden önceki durak — geride kalmış */
+  passed: boolean;
+  /** İmin kendisi */
+  here: boolean;
+  isAdmin: boolean;
+  busy: boolean;
+  onHere: () => void;
+  /** Kaynak anahtarı yoksa ekleme yapılamaz; o zaman undefined */
+  onAdd?: () => void;
 }) {
   const t = useTranslations("book");
 
@@ -394,23 +477,71 @@ function Stop({
     </>
   );
 
+  /**
+   * Durağın gittiği yer, iki hâl:
+   *  1. **Arşivde** → kendi kitap sayfası (notların, alıntıların orada).
+   *  2. **Arşivde değil** → `/kitap/kaynak/<slug>` künye sayfası. Anahtarlar
+   *     tek tek ölçüldü, o yüzden burada tahmin yok.
+   *
+   * Dışarı mağazaya atmak bilerek yapılmıyor (ödül rafıyla aynı karar).
+   */
+  const href = entry.archiveSlug
+    ? `/dark-stories/category/kitap/${entry.archiveSlug}`
+    : entry.sourceSlug
+      ? sourceBookHref(entry.sourceSlug)
+      : null;
+
+  const classes = [styles.stop, tone];
+  if (passed) {
+    classes.push(styles.stopPassed);
+  }
+  if (here) {
+    classes.push(styles.stopHere);
+  }
+
   return (
-    <li className={`${styles.stop} ${tone}`}>
+    <li className={classes.join(" ")}>
       <span className={styles.stopLead} aria-hidden>
         {lead}
       </span>
-      {/* Arşivdeki durak kendi kitap sayfasına gider; olmayan tıklanmaz —
-          dışarı mağazaya atmak bilerek yapılmıyor (ödül rafıyla aynı karar) */}
-      {entry.archiveSlug ? (
-        <Link
-          href={`/dark-stories/category/kitap/${entry.archiveSlug}`}
-          className={styles.stopLink}
-        >
-          {body}
-        </Link>
-      ) : (
-        <span className={styles.stopStatic}>{body}</span>
-      )}
+
+      <div className={styles.stopMain}>
+        {href ? (
+          <Link href={href} className={styles.stopLink}>
+            {body}
+          </Link>
+        ) : (
+          <span className={styles.stopStatic}>{body}</span>
+        )}
+
+        {isAdmin ? (
+          <div className={styles.stopTools}>
+            <button
+              type="button"
+              className={here ? styles.hereOn : styles.hereOff}
+              aria-pressed={here}
+              disabled={busy}
+              onClick={onHere}
+            >
+              {here ? t("readingOrder.hereRemove") : t("readingOrder.hereSet")}
+            </button>
+            {/* Arşivde olmayan durağı tek tıkla ekler: künye kaynağın
+                ölçülmüş anahtarından geliyor, arama yapmaya gerek yok */}
+            {!entry.inArchive && onAdd ? (
+              <button
+                type="button"
+                className={styles.addStop}
+                disabled={busy}
+                onClick={onAdd}
+              >
+                {busy
+                  ? t("readingOrder.adding")
+                  : t("readingOrder.addToArchive")}
+              </button>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
     </li>
   );
 }

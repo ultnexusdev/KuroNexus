@@ -886,6 +886,12 @@
       "allTracks": "Hepsi",
       "inArchive": "Arşivimde",
       "read": "Okudum",
+      "hereAt": "Şu an {total} duraktan {order}. duraktayım.",
+      "hereSet": "Buradayım",
+      "hereRemove": "İmi kaldır",
+      "addToArchive": "Arşive ekle",
+      "adding": "Ekleniyor…",
+      "actionFailed": "İşlem başarısız. Tekrar deneyin.",
       "noMatch": "Bu süzgeçle eşleşen durak yok.",
       "unavailable": "Okuma sırası listesi şu anda alınamadı.",
       "sort": {
@@ -1157,6 +1163,7 @@
       "quotes": "Favori alıntılar",
       "noQuotes": "Bu kitaptan henüz alıntı eklenmemiş.",
       "seriesTitle": "{name} serisi",
+      "readingOrderStop": "{name} · {order}/{total}. durak",
       "universe": "Evren",
       "links": "Bağlantılar",
       "linkName": {

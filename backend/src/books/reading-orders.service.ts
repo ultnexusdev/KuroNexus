@@ -1,4 +1,5 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
 import { slugify } from '../common/utils/slugify';
 import { BooksService, type ArchiveBook } from './books.service';
 import {
@@ -20,7 +21,11 @@ import {
  * veritabanından, olmayanda kaynağın 30 günlük cache'inden.
  */
 
-/** Tablodaki bir satır — listedeki hâline arşiv karşılığı eklenmiş. */
+/**
+ * Tablodaki bir satır — listedeki hâline arşiv karşılığı eklenmiş.
+ * `sourceSlug` tanımdan geliyor: arşivde olmayan durak onun sayesinde künye
+ * sayfasına gidebiliyor ve küratör tek tıkla ekleyebiliyor.
+ */
 export interface ReadingOrderCard extends ReadingOrderEntry {
   /** Kitap arşivimde mi — sayfanın ilerleme çubuğu bundan */
   inArchive: boolean;
@@ -56,7 +61,21 @@ export interface ReadingOrderDetail extends ReadingOrderSummary {
     photo: string | null;
     biography: string | null;
   };
+  /**
+   * "Buradayım" imi: kaçıncı durakta olduğum. 0 = im konmamış. Küratör
+   * koyuyor, ziyaretçi görüyor — arşivin geri kalanı gibi.
+   */
+  currentOrder: number;
   entries: ReadingOrderCard[];
+}
+
+/** Bir kitabın geçtiği okuma sırası — kitap sayfasındaki geri bağ. */
+export interface BookReadingOrderLink {
+  key: string;
+  name: string;
+  /** Kitabın o sıradaki durak numarası */
+  order: number;
+  total: number;
 }
 
 @Injectable()
@@ -64,6 +83,7 @@ export class ReadingOrdersService {
   private readonly logger = new Logger(ReadingOrdersService.name);
 
   constructor(
+    private readonly prisma: PrismaService,
     /**
      * Arşiv dizini buradan okunuyor, doğrudan Prisma'dan DEĞİL: kitap
      * sayfasının `slug`'ı sütun değil, başlıktan türetiliyor. Aynı gerekçe
@@ -85,13 +105,83 @@ export class ReadingOrdersService {
       throw new NotFoundException('BOOKS.READING_ORDER_NOT_FOUND');
     }
 
-    const index = await this.readArchiveIndex();
+    const [index, progress] = await Promise.all([
+      this.readArchiveIndex(),
+      this.prisma.readingOrderProgress.findFirst({
+        where: { orderKey: key },
+        select: { currentOrder: true },
+      }),
+    ]);
     return {
       ...this.summarize(order, index),
       notes: order.notes,
       author: await this.readAuthor(order),
+      currentOrder: progress?.currentOrder ?? 0,
       entries: order.entries.map((entry) => this.toCard(entry, index)),
     };
+  }
+
+  /**
+   * "Buradayım" imini koyar ya da kaldırır (`0`).
+   *
+   * Kayıt **silinmiyor**, sıfırlanıyor: imi kaldırıp geri koymak sık yapılan
+   * bir şey ve her seferinde satır açıp kapatmanın bir faydası yok.
+   */
+  async setProgress(
+    key: string,
+    currentOrder: number,
+    userId: string,
+  ): Promise<{ currentOrder: number }> {
+    const order = findReadingOrder(key);
+    if (!order) {
+      throw new NotFoundException('BOOKS.READING_ORDER_NOT_FOUND');
+    }
+    // Listenin dışına im konamaz; 0 "im yok" demek
+    const clamped = Math.max(0, Math.min(order.entries.length, currentOrder));
+    const saved = await this.prisma.readingOrderProgress.upsert({
+      where: { userId_orderKey: { userId, orderKey: key } },
+      create: { userId, orderKey: key, currentOrder: clamped },
+      update: { currentOrder: clamped },
+    });
+    return { currentOrder: saved.currentOrder };
+  }
+
+  /**
+   * Bu kitabın geçtiği okuma sıraları — kitap sayfasındaki geri bağ.
+   *
+   * Kitap tarafından çağrılıyor, yani eşleştirme **tersine** çalışıyor: elde
+   * bir kitap var, listelerde yeri aranıyor. Anahtarlar aynı (`titleKeys`),
+   * o yüzden iki yön de aynı sonucu veriyor.
+   */
+  forBook(book: {
+    title: string;
+    originalTitle: string | null;
+    binKitapSlug: string | null;
+  }): BookReadingOrderLink[] {
+    const keys = new Set(
+      [book.title, book.originalTitle]
+        .map((name) => (name ? slugify(name) : ''))
+        .filter((key) => key.length > 0),
+    );
+
+    const found: BookReadingOrderLink[] = [];
+    for (const order of READING_ORDERS) {
+      const hit = order.entries.find(
+        (entry) =>
+          (book.binKitapSlug !== null &&
+            entry.sourceSlug === book.binKitapSlug) ||
+          titleKeys(entry).some((key) => keys.has(key)),
+      );
+      if (hit) {
+        found.push({
+          key: order.key,
+          name: order.name,
+          order: hit.order,
+          total: order.entries.length,
+        });
+      }
+    }
+    return found;
   }
 
   // ---- iç yardımcılar ----
@@ -130,14 +220,26 @@ export class ReadingOrdersService {
     index: ArchiveIndex,
   ): ReadingOrderCard {
     /**
-     * Eşleştirme **bütün adlar** üzerinden: orijinal ad ve Türkçe adların
-     * hepsi. Tek ada bakmak yetmiyor — aynı kitap arşive hangi baskıyla
-     * eklendiyse o adla duruyor ("Çıplak Güneş" ile "Güneşin Tanrıları" aynı
-     * kitap) ve listedeki adların hangisi olduğu bilinmiyor.
+     * İki kademe:
+     *
+     *  1. **Kaynak anahtarı** — kesin. Listedeki `sourceSlug` ölçülmüş bir
+     *     değer ve arşivdeki kayıt da aynı anahtarı taşıyorsa aynı baskıdır.
+     *  2. **Adlar** — orijinal ad(lar) ve Türkçe adların hepsi. Tek ada bakmak
+     *     yetmiyor: aynı kitap arşive hangi baskıyla eklendiyse o adla duruyor
+     *     ("Çıplak Güneş" ile "Güneşin Tanrıları" aynı kitap) ve listedeki
+     *     adların hangisi olduğu bilinmiyor.
+     *
+     * İkinci kademe tek başına yetmiyordu: kaynak "Vakıf'ın Sınırı" yazarken
+     * liste "Vakfın Sınırı" diyor ve kesme işareti yüzünden anahtarlar
+     * tutmuyor.
      */
-    const hit = titleKeys(entry)
-      .map((key) => index.byTitle.get(key))
-      .find((book): book is ArchiveHit => book !== undefined);
+    const hit =
+      (entry.sourceSlug !== null
+        ? index.bySourceSlug.get(entry.sourceSlug)
+        : undefined) ??
+      titleKeys(entry)
+        .map((key) => index.byTitle.get(key))
+        .find((book): book is ArchiveHit => book !== undefined);
 
     return {
       ...entry,
@@ -175,16 +277,20 @@ export class ReadingOrdersService {
     }
   }
 
-  /** Arşivdeki kitapların ad dizini — "sende var" işareti için. */
+  /** Arşivdeki kitapların dizini — "sende var" işareti için. */
   private async readArchiveIndex(): Promise<ArchiveIndex> {
     const { books } = await this.books.getArchive();
     const byTitle = new Map<string, ArchiveHit>();
+    const bySourceSlug = new Map<string, ArchiveHit>();
     for (const book of books) {
       const hit: ArchiveHit = {
         slug: book.slug,
         coverImage: book.coverImage,
         status: book.status,
       };
+      if (book.binKitapSlug) {
+        bySourceSlug.set(book.binKitapSlug, hit);
+      }
       for (const name of [book.title, book.originalTitle]) {
         const key = name ? slugify(name) : '';
         // Boş anahtar atlanıyor: `slugify` ASCII dışı yazıyı tamamen eliyor ve
@@ -194,7 +300,7 @@ export class ReadingOrdersService {
         }
       }
     }
-    return { byTitle };
+    return { byTitle, bySourceSlug };
   }
 }
 
@@ -206,6 +312,7 @@ interface ArchiveHit {
 
 interface ArchiveIndex {
   byTitle: Map<string, ArchiveHit>;
+  bySourceSlug: Map<string, ArchiveHit>;
 }
 
 /**

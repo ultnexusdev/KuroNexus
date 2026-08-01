@@ -973,6 +973,11 @@ export interface ReadingOrderEntry {
   originalTitle: string;
   /** Türkçe yayımlanmış ad(lar); birden çoksa farklı baskılar */
   titles: string[];
+  /**
+   * 1000Kitap sayfa anahtarı — her biri ölçüldü. Arşivde olmayan durak bu
+   * sayede künye sayfasına gidebiliyor ve küratör tek tıkla ekleyebiliyor.
+   */
+  sourceSlug: string | null;
   inArchive: boolean;
   archiveSlug: string | null;
   coverImage: string | null;
@@ -1001,7 +1006,17 @@ export interface ReadingOrderDetail extends ReadingOrderSummary {
     photo: string | null;
     biography: string | null;
   };
+  /** "Buradayım" imi: kaçıncı durak. 0 = im konmamış */
+  currentOrder: number;
   entries: ReadingOrderEntry[];
+}
+
+/** Bir kitabın geçtiği okuma sırası — kitap sayfasındaki geri bağ. */
+export interface BookReadingOrderLink {
+  key: string;
+  name: string;
+  order: number;
+  total: number;
 }
 
 export interface BookQuote {
@@ -1164,6 +1179,8 @@ export interface BookDetail {
   byAuthor: ArchiveBook[];
   byGenre: ArchiveBook[];
   universe: { id: string; name: string; slug: string } | null;
+  /** Bu kitap hangi okuma sıralarında, kaçıncı durak olarak geçiyor */
+  readingOrders: BookReadingOrderLink[];
 }
 
 /** Küratör aramasının bir sonucu — arşivde olanlar işaretli gelir. */

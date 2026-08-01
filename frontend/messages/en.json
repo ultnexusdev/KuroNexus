@@ -886,6 +886,12 @@
       "allTracks": "All",
       "inArchive": "In my archive",
       "read": "Read",
+      "hereAt": "I'm at stop {order} of {total}.",
+      "hereSet": "I'm here",
+      "hereRemove": "Remove marker",
+      "addToArchive": "Add to archive",
+      "adding": "Adding…",
+      "actionFailed": "The action failed. Please try again.",
       "noMatch": "No stop matches this filter.",
       "unavailable": "The reading order list could not be loaded right now.",
       "sort": {
@@ -1157,6 +1163,7 @@
       "quotes": "Favourite quotes",
       "noQuotes": "No quotes from this book yet.",
       "seriesTitle": "The {name} series",
+      "readingOrderStop": "{name} · stop {order}/{total}",
       "universe": "Universe",
       "links": "Links",
       "linkName": {

@@ -502,6 +502,31 @@
   letter-spacing: 0.04em;
 }
 
+.stopMain {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+/* Imden onceki duraklar geride kaldi: soluk ama okunur */
+.stopPassed .stopLink,
+.stopPassed .stopStatic {
+  opacity: 0.55;
+}
+
+/* Imin kendisi: yolun uzerindeki isaret */
+.stopHere .stopLead {
+  border-color: var(--gold);
+  background: var(--gold);
+  color: var(--bg);
+}
+
+.stopHere .stopLink,
+.stopHere .stopStatic {
+  border-color: var(--gold);
+  background: color-mix(in srgb, var(--gold) 12%, transparent);
+}
+
 .stopLink,
 .stopStatic {
   display: grid;
@@ -652,6 +677,62 @@
   height: 14px;
   border: 1px dashed var(--border-strong);
   border-radius: 50%;
+}
+
+/* --- Kurator araclari (yalnizca admin) --- */
+
+.hereLine {
+  margin: 2px 0 0;
+  color: var(--gold);
+  font-size: 0.82rem;
+}
+
+.stopTools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-left: 12px;
+}
+
+.hereOff,
+.hereOn,
+.addStop {
+  min-height: 30px;
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.hereOn {
+  border-color: var(--gold);
+  background: color-mix(in srgb, var(--gold) 16%, transparent);
+  color: var(--text-primary);
+}
+
+.hereOff:hover,
+.addStop:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.hereOff:disabled,
+.hereOn:disabled,
+.addStop:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.error {
+  margin: var(--gap-sm) 0 0;
+  color: var(--danger);
+  font-size: 0.84rem;
 }
 
 @media (max-width: 639px) {

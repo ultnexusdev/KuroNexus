@@ -38,6 +38,7 @@ model User {
   showDismissals    ShowSuggestionDismissal[]
   bookEntries       BookEntry[]
   readingGoals      ReadingGoal[]
+  readingOrders     ReadingOrderProgress[]
 }
 
 model Story {
@@ -777,6 +778,27 @@ model ReadingGoal {
   user   User   @relation(fields: [userId], references: [id])
 
   @@unique([userId, year])
+}
+
+/// Okuma sırasında nerede kaldığım ("buradayım" imi).
+///
+/// Sıranın kendisi kodda (`data/reading-orders.data.ts`); burada yalnızca imin
+/// yeri duruyor. Sıra başına tek kayıt — im bir konum, bir günlük değil.
+model ReadingOrderProgress {
+  id String @id @default(cuid())
+
+  /// Okuma sırasının anahtarı ("vakif")
+  orderKey String
+  /// Kaçıncı duraktayım. 0 = im kaldırıldı (kayıt silmek yerine sıfırlanıyor)
+  currentOrder Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@unique([userId, orderKey])
 }
 
 model Review {

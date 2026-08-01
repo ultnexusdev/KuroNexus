@@ -97,7 +97,16 @@ export class BooksController {
   // önce eşleşsin
   @Public()
   @Get(':slug')
-  getDetail(@Param('slug') slug: string) {
-    return this.booksService.getDetail(slug);
+  async getDetail(@Param('slug') slug: string) {
+    const detail = await this.booksService.getDetail(slug);
+    /**
+     * Okuma sırası bağı burada ekleniyor, `BooksService`in içinde DEĞİL:
+     * kitap servisi okuma sıralarını bilmiyor ve bilmesi de gerekmiyor —
+     * bağımlılık tek yönlü kalsın (okuma sıraları kitapları biliyor).
+     */
+    return {
+      ...detail,
+      readingOrders: this.readingOrders.forBook(detail.book),
+    };
   }
 }

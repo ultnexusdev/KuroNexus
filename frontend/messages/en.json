@@ -872,6 +872,9 @@
       "backToHall": "← Back to the book hall",
       "bookCount": "{count} books in the archive",
       "noBooks": "No books by this person in the archive.",
+      "notInArchive": "No books by this person in my archive. Details come from 1000Kitap.",
+      "noBooksInArchive": "This author's books are not in my archive yet.",
+      "awardsTitle": "Awards",
       "role": {
         "AUTHOR": "Author",
         "TRANSLATOR": "Translator",
@@ -924,6 +927,7 @@
       "inArchive": "In my archive",
       "shared": "Shared",
       "unavailable": "The award list could not be loaded right now.",
+      "filling": "Filling in covers — {count} books queued. The page refreshes itself.",
       "railLink": "Awards →"
     },
     "favorite": "Favourite",
@@ -1007,6 +1011,10 @@
     "seriesCount": "{count} books",
     "seriesTranslated": "{translated} of {total} in Turkish",
     "openUniverse": "Open universe →",
+    "series": {
+      "readCount": "{count} read",
+      "empty": "No volumes of this series in my archive."
+    },
     "authorsTitle": "Authors",
     "authorCount": "{count} books",
     "recentTitle": "Recently added",

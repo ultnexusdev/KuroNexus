@@ -55,6 +55,16 @@ export class BooksController {
   }
 
   /**
+   * Seri sayfası. Seri kartı eskiden arşivi o adla süzüyordu; kullanıcı
+   * serinin kendi sayfasını istedi (ciltler sırayla, eksikleriyle birlikte).
+   */
+  @Public()
+  @Get('seri/:slug')
+  getSeries(@Param('slug') slug: string) {
+    return this.booksService.getSeriesPage(slug);
+  }
+
+  /**
    * Arşivde olmayan kitabın künye sayfası (ödül raflarından gelinir).
    * Adres 1000Kitap'ın kendi anahtarı ("oteki-isim--520400").
    */
@@ -65,7 +75,7 @@ export class BooksController {
   }
 
   // Kitap sayfası. ':slug' en sonda: 'showcase', 'awards', 'kisi',
-  // 'yayinevi' ve 'kaynak' gibi sabit yollar önce eşleşsin
+  // 'yayinevi', 'seri' ve 'kaynak' gibi sabit yollar önce eşleşsin
   @Public()
   @Get(':slug')
   getDetail(@Param('slug') slug: string) {

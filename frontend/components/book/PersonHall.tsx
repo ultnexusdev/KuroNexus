@@ -4,16 +4,21 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/lib/i18n/navigation";
 import { apiUrl } from "@/lib/api/client";
-import type { BookPersonPage, BookPublisherPage } from "@/lib/api/types";
+import type {
+  BookPersonPage,
+  BookPublisherPage,
+  BookSeriesPage,
+} from "@/lib/api/types";
 import { BookCard } from "./BookCard";
+import { awardHref } from "./AwardHall";
 import styles from "./PersonHall.module.css";
 
 /**
- * Yazar / çevirmen ve yayınevi sayfaları.
+ * Yazar / çevirmen, yayınevi ve seri sayfaları.
  *
- * İkisi aynı dosyada çünkü aynı düzeni paylaşıyorlar: bir başlık ve altında
- * o kişiye/yayınevine ait kitapların rafı. Ayrı bileşen olsalardı iki kopya
- * CSS ve iki kopya raf kodu olurdu.
+ * Üçü aynı dosyada çünkü aynı düzeni paylaşıyorlar: bir başlık bloğu ve
+ * altında ilgili kitapların ızgarası. Ayrı bileşen olsalardı üç kopya CSS ve
+ * üç kopya raf kodu olurdu.
  *
  * Biyografi ve fotoğraf backend'de kaynaktan bir kez çekilip saklanıyor;
  * gelmezse sayfa onlarsız çiziliyor — kişi ve kitapları zaten bizde (kural 4).
@@ -59,12 +64,20 @@ export function PersonPage({
           <div className={styles.identityText}>
             <h1 className={styles.title}>{person.name}</h1>
             {/* Roller kaynağın değil ARŞİVİN gerçeği: bu kişi senin
-                arşivinde hangi rollerde geçiyorsa o yazıyor */}
-            <p className={styles.roles}>
-              {person.roles.map((role) => t(`person.role.${role}`)).join(" · ")}
-            </p>
+                arşivinde hangi rollerde geçiyorsa o yazıyor. Arşivde kaydı
+                olmayan yazarda yalnızca ödül listesi rol kanıtlıyor, o da
+                yoksa satır hiç çizilmiyor — uydurulmuyor */}
+            {person.roles.length > 0 ? (
+              <p className={styles.roles}>
+                {person.roles
+                  .map((role) => t(`person.role.${role}`))
+                  .join(" · ")}
+              </p>
+            ) : null}
             <p className={styles.count}>
-              {t("person.bookCount", { count: person.books.length })}
+              {person.inArchive
+                ? t("person.bookCount", { count: person.books.length })
+                : t("person.notInArchive")}
             </p>
           </div>
         </div>
@@ -78,7 +91,103 @@ export function PersonPage({
         ) : null}
       </header>
 
-      <BookShelf books={person.books} empty={t("person.noBooks")} />
+      {/* Ödüller: okur buraya çoğunlukla ödül rafından geliyor. Arşivde kaydı
+          olmayan yazarın sayfası bu olmadan yalnızca biyografiden ibaret
+          kalırdı — bağlam orada kalsın */}
+      {person.awards.length > 0 ? (
+        <section className={styles.block}>
+          <h2 className={styles.blockTitle}>{t("person.awardsTitle")}</h2>
+          <ul className={styles.awardList}>
+            {person.awards.map((award) => (
+              <li key={`${award.key}-${award.year}-${award.title ?? ""}`}>
+                <Link href={awardHref(award.key)} className={styles.awardRow}>
+                  <span className={styles.awardYear}>{award.year}</span>
+                  <span className={styles.awardName}>{award.name}</span>
+                  {award.title ? (
+                    <span className={styles.awardWork}>{award.title}</span>
+                  ) : null}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      {/* Kaynaktan çizilen sayfada boş raf bir eksiklik değil: o kişinin
+          arşivde kitabı yok demek. Mesaj bunu açıkça söylüyor */}
+      <BookShelf
+        books={person.books}
+        empty={
+          person.inArchive ? t("person.noBooks") : t("person.noBooksInArchive")
+        }
+      />
+    </div>
+  );
+}
+
+/**
+ * Seri sayfası (`/kitap/seri/zaman-carki`).
+ *
+ * Seri kartı eskiden arşivi seri adıyla **süzüyordu**; kullanıcı serinin kendi
+ * sayfasını istedi. Ciltler sıraya dizili geliyor ve çevrilmemiş olanlar da
+ * listede — serinin eksiğini görmek bu sayfanın asıl işi.
+ */
+export function SeriesPage({
+  series,
+  hallLabel,
+  hallName,
+}: {
+  series: BookSeriesPage;
+  hallLabel: string;
+  hallName: string;
+}) {
+  const t = useTranslations("book");
+
+  return (
+    <div className={styles.page}>
+      <header className={styles.head}>
+        <Link href={KITAP_HREF} className={styles.back}>
+          {t("person.backToHall")}
+        </Link>
+        <span className={styles.eyebrow}>
+          {t("hall", { num: hallLabel, name: hallName })}
+        </span>
+        <h1 className={styles.title}>{series.name}</h1>
+        <p className={styles.count}>
+          {t("seriesCount", { count: series.count })}
+          {series.readCount > 0 ? (
+            <span className={styles.countSub}>
+              {t("series.readCount", { count: series.readCount })}
+            </span>
+          ) : null}
+        </p>
+        {/* "5 kitaptan 3'ü Türkçe" — seri kartındaki satırın aynısı */}
+        {series.untranslatedCount > 0 ? (
+          <p className={styles.seriesTranslation}>
+            {t("seriesTranslated", {
+              translated: series.translatedCount,
+              total: series.count,
+            })}
+          </p>
+        ) : null}
+
+        {series.description ? (
+          <div className={styles.biography}>
+            <p>{series.description}</p>
+          </div>
+        ) : null}
+
+        {series.universeSlug ? (
+          <Link
+            href={`/dark-stories/${series.universeSlug}`}
+            className={styles.universeLink}
+          >
+            {t("openUniverse")}
+          </Link>
+        ) : null}
+      </header>
+
+      <BookShelf books={series.books} empty={t("series.empty")} />
     </div>
   );
 }
@@ -119,6 +228,7 @@ function BookShelf({
   empty,
 }: {
   books: BookPersonPage["books"];
+  /** Raf boşken yazılacak satır — kişi/seri sayfasında farklı anlama geliyor */
   empty: string;
 }) {
   if (books.length === 0) {

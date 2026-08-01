@@ -226,11 +226,68 @@
 >   sınanamadı.
 > - Ödül ısıtma cron'u hâlâ yazılmadı (`awards.service.warm()` hazır).
 >
+> **FAZ 2d — GEZİNME: YAZAR PANELİ, SERİ SAYFASI, HİZALAMA, ÖDÜL YAZAR BAĞI.**
+> Kullanıcı beş şey bildirdi: salondaki yazar kartları tıklanmıyor, raftaki
+> kitaplar düzensiz duruyor, seri kartı serinin sayfasını açmıyor, ödül
+> kapakları ancak elle yenileyince doluyor, ve ödüldeki yazara tıklanamıyor.
+>
+> **Yazar paneli tıklanmıyordu çünkü iki ayrı kaynaktan besleniyordu.** Panel
+> düz metin `authors` sütunundan kuruluyor, sayfa adresi ise ilişkisel kişi
+> kaydından geliyor — kart hiçbir zaman ikisini birleştirmemişti, yalnızca
+> arşivi o adla süzüyordu. `buildAuthors` artık künyedeki `AUTHOR` rollerinden
+> ad→slug köprüsü kuruyor (anahtar hem adın kendisi hem katlanmış hâli).
+> İlişkisi olmayan yazarda kart **eski davranışta kalıyor**: olmayan kişinin
+> sayfası 404 verirdi.
+>
+> **Raf hizalaması iki ayrı sebepten bozuktu, biri yetmiyordu.** (1) Cilt
+> boyları `nth-child` ile bilerek farklıydı (gerçek kitaplık imzası) — kaldırıldı,
+> hepsi 174px. (2) Asıl sebep buydu: `.volumes` **alt kenardan** hizalıyordu ve
+> iki satırlık adı olan cilt bütün bloğu yukarı çekiyordu. Üst kenardan
+> hizalamaya geçildi ve kitap adı iki satıra kilitlendi (`line-clamp`, sabit
+> 2.375rem) — yazar satırları artık aynı hizada.
+>
+> **Seri sayfası: `/kitap/seri/<slug>`.** Yeni uç `GET /books/seri/:slug`,
+> `BooksService.getSeriesPage`. Ciltler **iki yoldan** toplanıyor: ilişkisel
+> `series.slug` ve düz metin `seriesName`in katlanmış hâli. Yalnızca ilişkiye
+> bakılsaydı Faz 2a öncesi ciltler serilerinin sayfasında görünmezdi. Sayfa
+> `PersonHall.tsx`e eklendi (o dosyanın kendi gerekçesi: aynı düzeni paylaşan
+> sayfalar tek CSS'i paylaşsın).
+>
+> **Ödül kapakları artık kendiliğinden doluyor.** `AwardDetail.pending` eklendi
+> — henüz **hiç denenmemiş** kazanan sayısı (eşleşmesi bulunamayanlar sayılmıyor,
+> yoksa tazeleme sonsuza dönerdi). Ön yüzdeki `AutoFill` 20 sn'de bir
+> `router.refresh()` çağırıyor, en fazla 30 tur (~10 dk). **Tur sayacı şart:**
+> `pending` bir turda hiç azalmayabiliyor (kaynak 429 verince tur boş biter) ve
+> yalnızca ona bakan bir `useEffect` orada sessizce dururdu. `BACKFILL_PER_REQUEST`
+> **3'te bırakıldı** — ölçülmüş hız sınırı bu, tazeleme sıklığı onun altında.
+>
+> **Ödül kartında yazar bağı — üç kademe.** (1) arşivdeki kişi kaydı, (2)
+> kaynağın kendi adres anahtarı (`seo_adi`), (3) adın katlanmış hâli. İkincisi
+> için eşleşme cache'ine `authorSeo` eklendi ama **cache sürümü ARTIRILMADI**:
+> alan eski kayıtlarda yok ve yokluğunda üçüncü kademeye düşüyor — sürüm
+> artsaydı ölçülmüş 90 günlük eşleşmelerin tamamı çöpe giderdi.
+>
+> **Kişi sayfası artık arşiv dışı yazarı da çiziyor** (isteğin gerektirdiği
+> şey buydu: ödüldeki kitap çevrilmemiş olsa bile yazar sayfası açılsın).
+> `getPerson` sırayla: kendi slug'ımız → `binKitapSeoName` → kaynağın yazar
+> sayfası → kod içi ödül listesi; hepsi susarsa 404. Kaydı olmayan kişide
+> **hiçbir şey yazılmıyor** (kayıt da, fotoğraf da — fotoğraf kalıcı yola
+> yazılmadıkça her ziyarette yeniden inerdi). Sayfa boş kalmasın diye ödül
+> listesindeki geçtiği yerler gösteriliyor; **rol uydurulmuyor**, yalnızca
+> ödül listesi yazarlığı kanıtlıyorsa "Yazar" yazıyor.
+>
+> **YAPILMADI / AÇIK:**
+> - Üçüncü kademe yazar bağı bir **tahmin**: kaynağın `seo_adi`si adın
+>   katlanmış hâlinden farklıysa kişi sayfası 404 verir. Kart yine tıklanır
+>   hâlde — hangi adlarda tuttuğu **ölçülmedi** (lokalden kaynağa çıkılamıyor).
+> - `AutoFill` canlıda sınanmadı: turun gerçekten 20 sn'de bittiği ve 429
+>   yemediği ölçülmeli.
+> - Hizalama yalnızca derlemede doğrulandı, ekranda görülmedi.
+>
 > **SIRADAKİ — Faz 2c'nin kalanı (YAZILMADI, acil değil):** düz metin sütunlarını
 > (`authors`, `publisher`, `translator`, `genres`, `seriesName`) düşür,
 > `publisherRef` ilişkisini `publisher` olarak yeniden adlandır, ön yüzdeki
-> `lib/book/genres.ts` kopyasını sil ve türleri API'den okut, seri sayfası,
-> salon yazar panelini kişi sayfasına bağla.
+> `lib/book/genres.ts` kopyasını sil ve türleri API'den okut.
 >
 > **EVDE DOĞRULANACAK (lokalden admin API'sine bağlanılamıyor):**
 > 1. Küratörde ara: **"bül"** → `1K` rozetli *Bülbülü Öldürmek* listenin

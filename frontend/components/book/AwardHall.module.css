@@ -204,9 +204,12 @@
   list-style: none;
 }
 
+/* Kartin satirlari artik dogrudan burada: yazar adi kendi bagini tasiyor ve
+   ic ice bag gecersiz HTML olurdu, o yuzden kapak+ad ayri bir bag */
 .card {
   display: flex;
   flex-direction: column;
+  gap: 4px;
 }
 
 .cardLink,
@@ -336,6 +339,34 @@
   color: var(--text-muted);
   font-size: 0.72rem;
   line-height: 1.3;
+}
+
+/* Yazar satirinin bagli hali — golgesi ayni, yalnizca tiklanabilir oldugu
+   belli olsun diye vurgu rengine gidiyor */
+.cardTitleLink {
+  composes: cardTitle;
+  text-decoration: none;
+}
+
+.cardSubLink {
+  composes: cardSub;
+  text-decoration: none;
+}
+
+.cardTitleLink:hover,
+.cardTitleLink:focus-visible,
+.cardSubLink:hover,
+.cardSubLink:focus-visible {
+  color: var(--accent);
+}
+
+/* "Kapaklar dolduruluyor" satiri: sayfa kendini tazelerken ne oldugunu
+   soyluyor — eskiden kullanici elle yeniliyordu ve sebebini bilmiyordu */
+.filling {
+  margin: 6px 0 0;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-style: italic;
 }
 
 @media (min-width: 640px) {

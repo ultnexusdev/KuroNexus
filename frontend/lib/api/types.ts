@@ -868,6 +868,16 @@ export interface BookCredits {
   series: { slug: string; name: string } | null;
 }
 
+/** Kişi sayfasındaki ödül satırı — kaynağı kod içi ödül listesi. */
+export interface BookPersonAward {
+  /** Ödül rafının adresi (`/kitap/oduller/<key>`) */
+  key: string;
+  name: string;
+  year: number;
+  /** Ödülü getiren eser; yazara verilen ödülde temsilci eseri, yoksa null */
+  title: string | null;
+}
+
 /** Yazar / çevirmen sayfası. */
 export interface BookPersonPage {
   slug: string;
@@ -875,6 +885,30 @@ export interface BookPersonPage {
   photo: string | null;
   biography: string | null;
   roles: BookPersonRole[];
+  books: ArchiveBook[];
+  /** Ödül listesinde geçtiği yerler; arşivde olmayan yazarın tek bağlamı */
+  awards: BookPersonAward[];
+  /**
+   * Kişinin arşivde ilişkisel kaydı var mı. `false` ise sayfa tamamen
+   * kaynaktan çizilmiştir — kitap rafının boş olması bir eksiklik değil.
+   */
+  inArchive: boolean;
+}
+
+/**
+ * Seri sayfası (`/kitap/seri/<slug>`). Ciltler sırasıyla ve çevrilmemişler de
+ * listede: serinin eksiğini görmek bu sayfanın asıl işi.
+ */
+export interface BookSeriesPage {
+  slug: string;
+  name: string;
+  description: string | null;
+  coverImage: string | null;
+  universeSlug: string | null;
+  count: number;
+  readCount: number;
+  translatedCount: number;
+  untranslatedCount: number;
   books: ArchiveBook[];
 }
 
@@ -943,6 +977,11 @@ export interface BookSeriesCard {
 
 export interface BookAuthorCard {
   name: string;
+  /**
+   * Yazar sayfasının adresi — kişinin arşivde ilişkisel kaydı varsa dolu.
+   * Yoksa null ve kart sayfa açmak yerine arşivi o adla süzer.
+   */
+  slug: string | null;
   count: number;
   readCount: number;
   averageRating: number | null;
@@ -1009,6 +1048,12 @@ export interface AwardWinnerCard {
    * tıklanabiliyor; eşleşme Google'dan geldiyse null kalır ve kart tıklanmaz.
    */
   sourceSlug: string | null;
+  /**
+   * Yazar sayfasının adresi. Kitap çevrilmemiş, hatta hiç eşleşmemiş olsa
+   * bile dolu geliyor: kişi sayfası arşivde kaydı olmayan yazarı kaynaktan
+   * çiziyor (kullanıcı isteği).
+   */
+  authorSlug: string | null;
 }
 
 export interface AwardSummary {
@@ -1026,6 +1071,11 @@ export interface AwardSummary {
 
 export interface AwardDetail extends AwardSummary {
   winners: AwardWinnerCard[];
+  /**
+   * Henüz hiç denenmemiş kazanan sayısı. Sayfa bunu görünce kendini
+   * tazeliyor: eşleşme arkada dilim dilim doluyor. Sıfırsa tazeleme durur.
+   */
+  pending: number;
 }
 
 export type BookLinkKind =

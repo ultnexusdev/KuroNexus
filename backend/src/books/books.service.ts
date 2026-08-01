@@ -9,6 +9,7 @@ import { GoogleBooksService, type BookSource } from './google-books.service';
 import { BinKitapService, type BinKitapDetail } from './bin-kitap.service';
 import { BookCoverService } from './book-cover.service';
 import { BookCreditsService } from './book-credits.service';
+import { AWARDS } from './data/awards.data';
 import { CreateBookEntryDto } from './dto/create-book-entry.dto';
 import { UpdateBookEntryDto } from './dto/update-book-entry.dto';
 import { CreateBookQuoteDto } from './dto/create-book-quote.dto';
@@ -158,6 +159,12 @@ export interface BookSeries {
 
 export interface BookAuthorCard {
   name: string;
+  /**
+   * Yazar sayfasının adresi — kişinin **arşivde ilişkisel kaydı varsa** dolu.
+   * Yoksa null ve kart sayfa açmak yerine arşivi o adla süzüyor: olmayan
+   * kişinin sayfası 404 verirdi (künyedeki `BookCredits` ile aynı karar).
+   */
+  slug: string | null;
   count: number;
   readCount: number;
   averageRating: number | null;
@@ -286,6 +293,16 @@ export interface SourceBookPage {
   archiveSlug: string | null;
 }
 
+/** Kişi sayfasındaki ödül satırı — kaynağı kod içi ödül listesi. */
+export interface BookPersonAward {
+  /** Ödül rafının adresi (`/kitap/oduller/<key>`) */
+  key: string;
+  name: string;
+  year: number;
+  /** Ödülü getiren eser; yazara verilen ödülde temsilci eseri, yoksa null */
+  title: string | null;
+}
+
 /** Yazar/çevirmen sayfası. */
 export interface BookPersonPage {
   slug: string;
@@ -294,6 +311,39 @@ export interface BookPersonPage {
   biography: string | null;
   /** Hangi rollerde görünüyor — "Yazar · Çevirmen" satırı için */
   roles: BookPersonRole[];
+  books: ArchiveBook[];
+  /**
+   * Ödül listesindeki geçtiği yerler. Arşivde kaydı olmayan yazarın sayfası
+   * bu olmadan yalnızca biyografiden ibaret kalırdı — okur oraya ödül
+   * rafından geliyor, bağlamı orada kalsın.
+   */
+  awards: BookPersonAward[];
+  /**
+   * Kişinin arşivde ilişkisel kaydı var mı. `false` ise sayfa tamamen
+   * kaynaktan çizilmiştir: kitap rafı boştur ve bu bir eksiklik değil.
+   */
+  inArchive: boolean;
+}
+
+/**
+ * Seri sayfası (`/kitap/seri/<slug>`).
+ *
+ * Seri kartı eskiden arşivi o adla **süzüyordu**; kullanıcı serinin kendi
+ * sayfasını istedi. Ciltler sıraya dizili geliyor ve çevrilmemiş olanlar da
+ * listede: serinin eksiğini görmek bu sayfanın asıl işi.
+ */
+export interface BookSeriesPage {
+  slug: string;
+  name: string;
+  description: string | null;
+  coverImage: string | null;
+  /** Kadim Dünyalar bağı — ciltlerden biri bir evrene bağlıysa dolu */
+  universeSlug: string | null;
+  count: number;
+  readCount: number;
+  translatedCount: number;
+  untranslatedCount: number;
+  /** Ciltler `seriesIndex` sırasında; sırasız olanlar sonda */
   books: ArchiveBook[];
 }
 
@@ -481,8 +531,14 @@ export class BooksService {
    * biyografisiz çizilir (kural 4) — kişi ve kitapları zaten bizde.
    */
   async getPerson(slug: string): Promise<BookPersonPage> {
-    const person = await this.prisma.bookPerson.findUnique({
-      where: { slug },
+    const person = await this.prisma.bookPerson.findFirst({
+      /**
+       * İki anahtar birden aranıyor. Ödül rafındaki yazar bağı kaynağın
+       * kendi adres anahtarıyla (`seo_adi`) kuruluyor ve o bizim slug'ımızla
+       * aynı olmak zorunda değil — arama tek alana baksaydı arşivde kaydı
+       * olan yazar için bile kaynak sayfası çizilirdi (kitapları görünmezdi).
+       */
+      where: { OR: [{ slug }, { binKitapSeoName: slug }] },
       include: {
         entries: {
           where: { entry: { isDeleted: false } },
@@ -492,7 +548,7 @@ export class BooksService {
       },
     });
     if (!person) {
-      throw new NotFoundException('BOOKS.PERSON_NOT_FOUND');
+      return this.sourcePerson(slug);
     }
 
     const filled = await this.fillBiography(person);
@@ -504,6 +560,128 @@ export class BooksService {
       biography: filled.biography,
       roles: [...new Set(person.entries.map((link) => link.role))],
       books,
+      awards: toPersonAwards(awardsForPerson(person.name)),
+      inArchive: true,
+    };
+  }
+
+  /**
+   * Arşivde kaydı **olmayan** kişinin sayfası.
+   *
+   * Kullanıcı isteği: ödül rafında bir kitap Türkçeye çevrilmemiş ya da hiç
+   * arşivde olmasa bile yazarına tıklanınca sayfası açılsın. Bu yüzden 404
+   * son çare oldu — önce kaynağın yazar sayfası, sonra kod içi ödül listesi
+   * deneniyor. İkisi de susarsa 404 (uydurma sayfa çizilmiyor).
+   *
+   * **Kayıt açılmıyor, fotoğraf indirilmiyor.** Arşiv küratörün seçtiği
+   * kitapların yeri (kaynak künye sayfasıyla aynı karar); fotoğraf ise
+   * kalıcı bir yola yazılmadığı sürece her ziyarette yeniden indirilirdi ve
+   * kaynağı hotlink'lemek zaten yapılmıyor.
+   */
+  private async sourcePerson(slug: string): Promise<BookPersonPage> {
+    const awards = awardsForPerson(slug);
+    let detail: Awaited<ReturnType<BinKitapService['getPerson']>> = null;
+    try {
+      detail = await this.binKitap.getPerson(slug);
+    } catch {
+      // Kaynak susarsa ödül listesi tek başına da sayfayı ayakta tutuyor
+      detail = null;
+    }
+
+    const name = detail?.name ?? awards[0]?.personName ?? null;
+    if (!name) {
+      throw new NotFoundException('BOOKS.PERSON_NOT_FOUND');
+    }
+
+    return {
+      slug,
+      name,
+      photo: null,
+      biography: detail?.biography ?? null,
+      // Rol uydurulmuyor: yalnızca ödül listesi yazarlığı kanıtlıyorsa yazılır
+      roles: awards.length > 0 ? ['AUTHOR'] : [],
+      books: [],
+      awards: toPersonAwards(awards),
+      inArchive: false,
+    };
+  }
+
+  /**
+   * Seri sayfası: serinin arşivdeki bütün ciltleri, sırasıyla.
+   *
+   * Ciltler `slug` üzerinden iki yoldan toplanıyor — ilişkisel seri kaydı ve
+   * düz metin `seriesName`. Yalnızca ilişkiye bakılsaydı Faz 2a öncesi
+   * eklenmiş ciltler serilerinin sayfasında görünmezdi; yalnızca düz metne
+   * bakılsaydı ilişkisi kurulmuş ama adı boş kalmış cilt kaybolurdu.
+   */
+  async getSeriesPage(slug: string): Promise<BookSeriesPage> {
+    const [entries, universes, record] = await Promise.all([
+      this.prisma.bookEntry.findMany({
+        where: { isDeleted: false },
+        orderBy: [{ finishedAt: 'desc' }, { createdAt: 'desc' }],
+        include: CREDITS_INCLUDE,
+      }),
+      this.prisma.wikiUniverse.findMany({
+        where: { isDeleted: false },
+        select: { id: true, slug: true },
+      }),
+      this.prisma.bookSeries.findUnique({
+        where: { slug },
+        select: { name: true, description: true, coverImage: true },
+      }),
+    ]);
+
+    const books = withSlugs(entries);
+    const list = books
+      .filter(
+        (book) =>
+          book.credits.series?.slug === slug ||
+          (book.seriesName !== null && slugify(book.seriesName) === slug),
+      )
+      .sort(sortBySeriesIndex);
+
+    if (list.length === 0 && !record) {
+      throw new NotFoundException('BOOKS.SERIES_NOT_FOUND');
+    }
+
+    // Evren bağı ciltlerden herhangi biri bağlıysa kuruluyor (seri kartıyla aynı)
+    const universeSlugs = new Map(
+      universes.map((universe) => [universe.id, universe.slug]),
+    );
+    const universeByEntry = new Map(
+      entries.map((entry) => [entry.id, entry.universeId]),
+    );
+    const universeId =
+      list
+        .map((book) => universeByEntry.get(book.id) ?? null)
+        .find((id): id is string => Boolean(id)) ?? null;
+
+    return {
+      slug,
+      name:
+        record?.name ??
+        list.find((book) => book.seriesName)?.seriesName ??
+        list[0]?.credits.series?.name ??
+        slug,
+      description: record?.description ?? null,
+      coverImage:
+        record?.coverImage ??
+        list.find((book) => book.coverImage)?.coverImage ??
+        null,
+      universeSlug: universeId ? (universeSlugs.get(universeId) ?? null) : null,
+      count: list.length,
+      readCount: list.filter((book) => book.status === 'READ').length,
+      translatedCount: list.filter(
+        (book) =>
+          book.translationState === 'TRANSLATED' ||
+          book.translationState === 'ORIGINAL',
+      ).length,
+      untranslatedCount: list.filter(
+        (book) =>
+          book.translationState === 'UNTRANSLATED' ||
+          book.translationState === 'IN_PROGRESS',
+      ).length,
+      books: list,
     };
   }
 
@@ -1652,6 +1830,28 @@ function buildAuthors(books: ArchiveBook[]): BookAuthorCard[] {
     }
   }
 
+  /**
+   * Düz metin yazar adından kişi sayfasının adresine köprü.
+   *
+   * Panel `authors` **düz metin** sütunundan kuruluyor (Faz 2c'de düşecek),
+   * sayfa adresi ise ilişkisel kayıttan geliyor. İkisini burada birleştirmek
+   * şart: aksi hâlde ilişkisi olan yazarın kartı bile tıklanmıyordu
+   * (kullanıcı bildirimi).
+   *
+   * Anahtar iki biçimde yazılıyor — adın kendisi ve katlanmış hâli: künyedeki
+   * "Robert Jordan" ile düz metindeki "ROBERT JORDAN" aynı kişi.
+   */
+  const personSlugs = new Map<string, string>();
+  for (const book of books) {
+    for (const person of book.credits.people) {
+      if (person.role !== 'AUTHOR') {
+        continue;
+      }
+      personSlugs.set(person.name, person.slug);
+      personSlugs.set(slugify(person.name), person.slug);
+    }
+  }
+
   return [...groups.entries()]
     .map(([name, list]) => {
       const rated = list.filter((book) => book.personalRating !== null);
@@ -1661,6 +1861,7 @@ function buildAuthors(books: ArchiveBook[]): BookAuthorCard[] {
       );
       return {
         name,
+        slug: personSlugs.get(name) ?? personSlugs.get(slugify(name)) ?? null,
         count: list.length,
         readCount: list.filter((book) => book.status === 'READ').length,
         averageRating:
@@ -1670,6 +1871,69 @@ function buildAuthors(books: ArchiveBook[]): BookAuthorCard[] {
     })
     .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'tr'))
     .slice(0, AUTHOR_LIMIT);
+}
+
+/**
+ * Bir adın karşılaştırılabilir anahtarları.
+ *
+ * İki biçim birden üretiliyor çünkü `slugify` kesme işaretini ayraca
+ * çeviriyor: "Flann O'Brien" bizde `flann-o-brien`, ödül listesindeki aynı ad
+ * kesmesiz yazılmış olabiliyor. Tek biçime güvenmek o yazarı sessizce
+ * ıskalatırdı.
+ */
+function nameKeys(value: string): string[] {
+  return [slugify(value), slugify(value.replace(/[’'`]/g, ''))].filter(
+    (key) => key.length > 0,
+  );
+}
+
+/**
+ * Kişinin kod içi ödül listesinde geçtiği yerler.
+ *
+ * `personName` yalnızca **arşivde kaydı olmayan** yazar için gerekli: sayfanın
+ * başlığına yazılacak adın tek kaynağı o zaman bu liste oluyor. Dışarı
+ * dönerken ayıklanıyor.
+ */
+function awardsForPerson(
+  nameOrSlug: string,
+): Array<BookPersonAward & { personName: string }> {
+  const wanted = new Set(nameKeys(nameOrSlug));
+  if (wanted.size === 0) {
+    return [];
+  }
+
+  const found: Array<BookPersonAward & { personName: string }> = [];
+  for (const award of AWARDS) {
+    for (const winner of award.winners) {
+      if (!nameKeys(winner.author).some((key) => wanted.has(key))) {
+        continue;
+      }
+      found.push({
+        key: award.key,
+        name: award.name,
+        year: winner.year,
+        // Nobel yazara verilir: eser satırı temsilci eser, yoksa boş
+        title:
+          award.grantedTo === 'AUTHOR'
+            ? (winner.notableWork ?? null)
+            : winner.title,
+        personName: winner.author,
+      });
+    }
+  }
+  return found.sort((a, b) => b.year - a.year);
+}
+
+/** `personName` yalnızca sayfa başlığını bulmak içindi; dışarı çıkmıyor. */
+function toPersonAwards(
+  awards: Array<BookPersonAward & { personName: string }>,
+): BookPersonAward[] {
+  return awards.map((award) => ({
+    key: award.key,
+    name: award.name,
+    year: award.year,
+    title: award.title,
+  }));
 }
 
 /** Sol süzgeç panelindeki tür listesi — sayılarıyla birlikte. */

@@ -6,6 +6,7 @@ import type {
   BookDetail,
   BookPersonPage,
   BookPublisherPage,
+  BookSeriesPage,
   BookShowcase,
   SourceBookPage,
 } from "./types";
@@ -78,6 +79,23 @@ export async function getBookPerson(
   try {
     return await apiFetch<BookPersonPage>(
       `/books/kisi/${encodeURIComponent(slug)}`,
+      { cache: "no-store" },
+    );
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Seri sayfası. Önbellek YOK: arşive yeni cilt eklendiğinde serinin sayfasında
+ * hemen görünmesi gerekiyor (salonla aynı karar).
+ */
+export async function getBookSeries(
+  slug: string,
+): Promise<BookSeriesPage | null> {
+  try {
+    return await apiFetch<BookSeriesPage>(
+      `/books/seri/${encodeURIComponent(slug)}`,
       { cache: "no-store" },
     );
   } catch {

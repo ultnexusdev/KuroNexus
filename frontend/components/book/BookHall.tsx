@@ -27,6 +27,8 @@ import {
   BookCard,
   bookHref,
   coverSrc,
+  personHref,
+  seriesHref,
   Stars,
   TranslationBadge,
 } from "./BookCard";
@@ -41,10 +43,13 @@ import styles from "./BookHall.module.css";
  * istatistikleri.
  *
  * Ortadaki bölümler film salonundaki gibi **alt alta raflar** — sekme değil.
- * Ama film salonundan bir fark var: burası bir kitaplık. Her rafın kitapları
- * ortak bir zemine basıyor, boyları birbirini tutmuyor ve altlarında gerçek
- * bir raf tahtası var. Bir sinema salonunda afişler asılıdır, bir kitaplıkta
- * ciltler **durur** — salonun imzası bu.
+ * Ama film salonundan bir fark var: burası bir kitaplık. Her rafın altında
+ * gerçek bir raf tahtası var ve ciltlerin sol kenarında sırt çizgisi duruyor.
+ * Bir sinema salonunda afişler asılıdır, bir kitaplıkta ciltler **durur** —
+ * salonun imzası bu.
+ *
+ * Ciltlerin boyu bir ara bilerek farklıydı (gerçek bir kitaplık gibi);
+ * kullanıcı bunu düzensizlik olarak bildirdi ve raf hizalandı.
  */
 
 // Küratör kontrolleri yalnızca mod açılınca indirilir — ziyaretçi bu JS'i almaz
@@ -417,21 +422,19 @@ export function BookHall({
                 ))
               )}
 
-              {/* Seriler: Kadim Dünyalar'a bağlı olan kart evren sayfasına
-                  açılır (kullanıcı isteği), bağlı olmayan seri kendi
-                  süzgecini kurar */}
+              {/* Seriler: kart artık serinin **kendi sayfasına** gidiyor
+                  (kullanıcı isteği) — eskiden arşivi seri adıyla süzüyordu ve
+                  serinin dışındaki kitaplar da listeye karışabiliyordu.
+                  Kadim Dünyalar bağı ayrı satır olarak duruyor */}
               {!shelf && archive.series.length > 0 ? (
                 <section className={styles.block}>
                   <h2 className={styles.blockTitle}>{t("seriesTitle")}</h2>
                   <ul className={styles.seriesRow}>
                     {archive.series.slice(0, SERIES_LIMIT).map((series) => (
                       <li key={series.slug} className={styles.seriesCard}>
-                        <button
-                          type="button"
+                        <Link
+                          href={seriesHref(series.slug)}
                           className={styles.seriesButton}
-                          onClick={() =>
-                            patch({ search: series.name, sort: "series" })
-                          }
                         >
                           <span className={styles.seriesCover}>
                             {coverSrc(series) ? (
@@ -460,7 +463,7 @@ export function BookHall({
                               })}
                             </span>
                           ) : null}
-                        </button>
+                        </Link>
                         {series.universeSlug ? (
                           <Link
                             href={`/dark-stories/${series.universeSlug}`}
@@ -475,17 +478,18 @@ export function BookHall({
                 </section>
               ) : null}
 
+              {/* Yazarlar: ilişkisel kaydı olan yazar **sayfasına** gider
+                  (kullanıcı bildirimi: "yazar isimlerine tıkladığımda sayfa
+                  açılmıyor"). Kaydı olmayan — Google/Open Library'den eklenmiş
+                  ya da Faz 2a öncesi kitapların yazarı — eskisi gibi arşivi
+                  süzer: olmayan kişinin sayfası 404 verirdi */}
               {!shelf && archive.authors.length > 0 ? (
                 <section className={styles.block}>
                   <h2 className={styles.blockTitle}>{t("authorsTitle")}</h2>
                   <ul className={styles.authorGrid}>
-                    {archive.authors.map((author) => (
-                      <li key={author.name}>
-                        <button
-                          type="button"
-                          className={styles.authorCard}
-                          onClick={() => patch({ search: author.name })}
-                        >
+                    {archive.authors.map((author) => {
+                      const body = (
+                        <>
                           <span className={styles.authorName}>
                             {author.name}
                           </span>
@@ -497,9 +501,29 @@ export function BookHall({
                               <Stars value={author.averageRating} />
                             </span>
                           ) : null}
-                        </button>
-                      </li>
-                    ))}
+                        </>
+                      );
+                      return (
+                        <li key={author.name}>
+                          {author.slug ? (
+                            <Link
+                              href={personHref(author.slug)}
+                              className={styles.authorCard}
+                            >
+                              {body}
+                            </Link>
+                          ) : (
+                            <button
+                              type="button"
+                              className={styles.authorCard}
+                              onClick={() => patch({ search: author.name })}
+                            >
+                              {body}
+                            </button>
+                          )}
+                        </li>
+                      );
+                    })}
                   </ul>
                 </section>
               ) : null}
@@ -662,11 +686,12 @@ export function BookHall({
 }
 
 /**
- * Bir raf. Ciltler ortak bir zemine basar, boyları birbirini tutmaz ve
- * altlarında bir raf tahtası vardır — salonun imzası bu.
+ * Bir raf. Ciltler ortak bir zemine basar ve altlarında bir raf tahtası
+ * vardır — salonun imzası bu.
  *
- * Boy farkı rastgele DEĞİL, sıradan türetiliyor (CSS'te `nth-child`): sunucu
- * ile istemci aynı boyu çizsin, sayfa açılışında kitaplar zıplamasın.
+ * **Hizalama CSS'te sabit** (kullanıcı isteği): kapak boyu her ciltte aynı ve
+ * kitabın adı iki satıra kilitli. İkisi birlikte olmadan yetmiyordu — tek
+ * satırlık adı olan cilt yazar satırını yukarı çekiyor, raf kayıyordu.
  */
 function Shelf({
   shelf,

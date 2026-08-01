@@ -89,6 +89,15 @@ export interface AwardWinnerCard {
    * Google'dan geldiyse `null` kalır ve kart yine tıklanmaz.
    */
   sourceSlug: string | null;
+  /**
+   * Yazar sayfasının adresi (`/kitap/kisi/<slug>`).
+   *
+   * Kullanıcı isteği: kitap çevrilmemiş, hatta hiç eşleşmemiş olsa bile
+   * yazarına tıklanabilsin. Bu yüzden **her zaman dolu**: önce arşivdeki kişi
+   * kaydı, sonra kaynağın kendi adres anahtarı, o da yoksa adın katlanmış
+   * hâli. Kişi sayfası arşivde kaydı olmayan yazarı kaynaktan çiziyor.
+   */
+  authorSlug: string | null;
 }
 
 export interface AwardSummary {
@@ -107,6 +116,13 @@ export interface AwardSummary {
 
 export interface AwardDetail extends AwardSummary {
   winners: AwardWinnerCard[];
+  /**
+   * Henüz **hiç denenmemiş** kazanan sayısı. Arayüz bunu görünce sayfayı
+   * kendisi tazeliyor: eşleşme arkada dilim dilim doluyor ve kullanıcı
+   * "kapaklar her yenilemede biraz daha geliyor" diye bildirdi. Sıfırsa
+   * doldurulacak bir şey kalmamış demektir ve tazeleme durur.
+   */
+  pending: number;
 }
 
 @Injectable()
@@ -135,12 +151,15 @@ export class AwardsService {
 
   /** Ödüller sayfasının üst listesi. Dış istek YOK, hep hızlı. */
   async list(): Promise<AwardSummary[]> {
-    const [matches, archive] = await Promise.all([
+    const [matches, archive, people] = await Promise.all([
       this.readMatches(AWARDS.flatMap((award) => award.winners)),
       this.readArchiveIndex(),
+      this.readPersonIndex(),
     ]);
 
-    return AWARDS.map((award) => this.summarize(award, matches, archive));
+    return AWARDS.map((award) =>
+      this.summarize(award, matches, archive, people),
+    );
   }
 
   /** Tek ödülün rafı. Cache'de ne varsa döner, eksikleri arkada doldurur. */
@@ -150,21 +169,33 @@ export class AwardsService {
       throw new NotFoundException('BOOKS.AWARD_NOT_FOUND');
     }
 
-    const [matches, archive] = await Promise.all([
+    const [matches, archive, people, settled] = await Promise.all([
       this.readMatches(award.winners),
       this.readArchiveIndex(),
+      this.readPersonIndex(),
+      this.readSettled(award.winners),
     ]);
 
     const winners = award.winners.map((winner) =>
-      this.toCard(winner, matches, archive),
+      this.toCard(winner, matches, archive, people),
+    );
+
+    /**
+     * `matches` değil `settled` bakılıyor: kaynağın bilmediği kitap da cache'e
+     * yazılıyor ("aradık, bulamadık") ve onu bekleyen saymak sayfayı sonsuza
+     * dek tazeletirdi.
+     */
+    const missing = award.winners.filter(
+      (winner) => !settled.has(cacheKey(winner)),
     );
 
     // Yanıtı bekletmeden arkada devam: bir sonraki açılışta kapaklar yerinde
-    void this.backfill(award.winners);
+    void this.backfill(missing);
 
     return {
-      ...this.summarize(award, matches, archive),
+      ...this.summarize(award, matches, archive, people),
       winners,
+      pending: missing.length,
     };
   }
 
@@ -184,11 +215,12 @@ export class AwardsService {
 
   private summarize(
     award: AwardDefinition,
-    matches: Map<string, BookSource>,
+    matches: Map<string, AwardMatch>,
     archive: ArchiveIndex,
+    people: PersonIndex,
   ): AwardSummary {
     const cards = award.winners.map((winner) =>
-      this.toCard(winner, matches, archive),
+      this.toCard(winner, matches, archive, people),
     );
     const owned = cards.filter((card) => card.inArchive);
     return {
@@ -209,10 +241,12 @@ export class AwardsService {
 
   private toCard(
     winner: AwardWinner,
-    matches: Map<string, BookSource>,
+    matches: Map<string, AwardMatch>,
     archive: ArchiveIndex,
+    people: PersonIndex,
   ): AwardWinnerCard {
-    const match = matches.get(cacheKey(winner)) ?? null;
+    const found = matches.get(cacheKey(winner)) ?? null;
+    const match = found?.book ?? null;
     // Arşiv eşleşmesi iki yoldan: Google kimliği kesin, ad+yazar yedek.
     // Yedek gerekli çünkü kullanıcı kitabı BAŞKA bir baskıyla eklemiş
     // olabilir (Türkçe cilt eklenmişken ödül listesi orijinali arıyor).
@@ -246,18 +280,41 @@ export class AwardsService {
       inArchive: Boolean(entry),
       archiveSlug: entry?.slug ?? null,
       sourceSlug: match?.binKitapSlug ?? null,
+      authorSlug: personSlug(winner.author, found?.authorSeo ?? null, people),
     };
+  }
+
+  /**
+   * Arşivdeki kişilerin adres dizini — yazar bağı önce buraya bakıyor.
+   *
+   * Tablo küçük (arşivdeki kitapların künyesi kadar) ve sorgu tek; kazanan
+   * başına arama yapmak yerine bir kez okunuyor.
+   */
+  private async readPersonIndex(): Promise<PersonIndex> {
+    const people = await this.prisma.bookPerson.findMany({
+      select: { slug: true, name: true, binKitapSeoName: true },
+    });
+    const bySlug = new Map<string, string>();
+    const bySeoName = new Map<string, string>();
+    for (const person of people) {
+      bySlug.set(person.slug, person.slug);
+      bySlug.set(slugify(person.name), person.slug);
+      if (person.binKitapSeoName) {
+        bySeoName.set(person.binKitapSeoName, person.slug);
+      }
+    }
+    return { bySlug, bySeoName };
   }
 
   /** Cache'deki eşleşmeleri tek sorguda okur. */
   private async readMatches(
     winners: AwardWinner[],
-  ): Promise<Map<string, BookSource>> {
+  ): Promise<Map<string, AwardMatch>> {
     const keys = [...new Set(winners.map((winner) => cacheKey(winner)))];
     const rows = await this.prisma.externalCache.findMany({
       where: { cacheKey: { in: keys } },
     });
-    const map = new Map<string, BookSource>();
+    const map = new Map<string, AwardMatch>();
     for (const row of rows) {
       if (Date.now() - row.fetchedAt.getTime() > CACHE_TTL_MS) {
         continue;
@@ -268,7 +325,13 @@ export class AwardsService {
       if (!payload || payload.matched !== true) {
         continue;
       }
-      map.set(row.cacheKey, payload.book);
+      // `authorSeo` sonradan eklendi ve **cache sürümü artırılmadı**: eski
+      // kayıtlarda yok, o zaman yazar bağı adın katlanmış hâline düşüyor.
+      // Sürüm artsaydı ölçülmüş 90 günlük eşleşmelerin tamamı çöpe giderdi.
+      map.set(row.cacheKey, {
+        book: payload.book,
+        authorSeo: payload.authorSeo ?? null,
+      });
     }
     return map;
   }
@@ -316,24 +379,21 @@ export class AwardsService {
     return { byGoogleId, byTitle };
   }
 
-  /** Hiç denenmemiş kayıtlardan bir dilimi arkada doldurur; hata yutulur. */
-  private async backfill(winners: AwardWinner[]): Promise<void> {
-    if (this.backfilling) {
+  /**
+   * Hiç denenmemiş kayıtlardan bir dilimi arkada doldurur; hata yutulur.
+   *
+   * Liste **zaten süzülmüş** geliyor (`getAward`): aynı `settled` sorgusunu
+   * iki kez atmamak için — yanıt da o sayıyı `pending` olarak taşıyor.
+   */
+  private async backfill(missing: AwardWinner[]): Promise<void> {
+    if (this.backfilling || missing.length === 0) {
       return;
     }
-    // `matches` değil `settled` bakılıyor: Google'ın bilmediği kitap da
-    // cache'e yazılmış oluyor, onu her açılışta yeniden aramak kotayı yer
-    const settled = await this.readSettled(winners);
-    const missing = winners
-      .filter((winner) => !settled.has(cacheKey(winner)))
-      .slice(0, BACKFILL_PER_REQUEST);
-    if (missing.length === 0) {
-      return;
-    }
+    const slice = missing.slice(0, BACKFILL_PER_REQUEST);
 
     this.backfilling = true;
     try {
-      await this.resolveMany(missing);
+      await this.resolveMany(slice);
     } catch (error) {
       this.logger.warn(`Ödül eşleştirmesi arkada düştü: ${String(error)}`);
     } finally {
@@ -410,7 +470,11 @@ export class AwardsService {
     try {
       const fromSource = await this.resolveFromSource(winner, wanted);
       if (fromSource) {
-        await this.writeCache(key, { matched: true, book: fromSource });
+        await this.writeCache(key, {
+          matched: true,
+          book: fromSource.book,
+          authorSeo: fromSource.authorSeo,
+        });
         return true;
       }
     } catch (error) {
@@ -503,7 +567,7 @@ export class AwardsService {
   private async resolveFromSource(
     winner: AwardWinner,
     wanted: string,
-  ): Promise<BookSource | null> {
+  ): Promise<AwardMatch | null> {
     const queries = winner.titleTr
       ? [`${winner.titleTr} ${winner.author}`, `${wanted} ${winner.author}`]
       : [`${wanted} ${winner.author}`];
@@ -532,7 +596,16 @@ export class AwardsService {
         if (!detail || !confirmMatch(detail, winner, wanted)) {
           continue;
         }
-        return this.preferTurkish(detail);
+        return {
+          book: await this.preferTurkish(detail),
+          /**
+           * Yazarın **kaynaktaki adres anahtarı**. Doğrulanmış künyeden
+           * alınıyor, tahmin edilmiyor: yazar sayfası yalnızca bu biçimle
+           * açılıyor (ölçüldü, bkz. `BookPerson.binKitapSeoName`) ve adın
+           * katlanmış hâli her zaman aynısını vermiyor.
+           */
+          authorSeo: authorSeoName(detail, winner.author),
+        };
       }
     }
     return null;
@@ -578,7 +651,14 @@ export class AwardsService {
  * `InputJsonValue`ına dönüşümsüz geçiyor (`BookShowcaseCover` ile aynı sebep).
  */
 type AwardMatchPayload =
-  { matched: true; book: BookSource } | { matched: false };
+  | { matched: true; book: BookSource; authorSeo?: string | null }
+  | { matched: false };
+
+/** Cache'ten okunmuş eşleşme — kitap ve (varsa) yazarın adres anahtarı. */
+interface AwardMatch {
+  book: BookSource;
+  authorSeo: string | null;
+}
 
 interface ArchiveHit {
   slug: string;
@@ -588,6 +668,52 @@ interface ArchiveHit {
 interface ArchiveIndex {
   byGoogleId: Map<string, ArchiveHit>;
   byTitle: Map<string, ArchiveHit>;
+}
+
+/** Arşivdeki kişilerin adres dizini: kendi slug'ımız ve kaynağın anahtarı. */
+interface PersonIndex {
+  bySlug: Map<string, string>;
+  bySeoName: Map<string, string>;
+}
+
+/**
+ * Künyeden kazananın yazarını bulup kaynaktaki adres anahtarını döndürür.
+ *
+ * Ad karşılaştırması gerekli: çok yazarlı ya da çevirmenli künyede ilk kişi
+ * her zaman ödülün yazarı değil. Tutan kimse yoksa null döner ve yazar bağı
+ * adın katlanmış hâline düşer.
+ */
+function authorSeoName(detail: BinKitapDetail, author: string): string | null {
+  const wanted = normalize(author);
+  const hit = detail.credits.people.find(
+    (person) => person.role === 'AUTHOR' && normalize(person.name) === wanted,
+  );
+  return hit?.seoName ?? null;
+}
+
+/**
+ * Yazar sayfasının adresi. Üç kademe, bu sırayla:
+ *
+ *  1. **Arşivdeki kişi kaydı** — o sayfada yazarın kitapları da var.
+ *  2. **Kaynağın adres anahtarı** — arşivde yoksa sayfa kaynaktan çiziliyor.
+ *  3. **Adın katlanmış hâli** — hiç eşleşmemiş kazananda tek elimizdeki bu.
+ *
+ * Üçüncü kademe bir tahmin ve tutmayabilir; yine de veriliyor çünkü kullanıcı
+ * isteği açık: kitap çevrilmemiş olsa bile yazara tıklanabilsin. Tutmadığında
+ * kişi sayfası 404 verir, kart tıklanmaz hâle gelmez.
+ */
+function personSlug(
+  author: string,
+  authorSeo: string | null,
+  people: PersonIndex,
+): string | null {
+  const own = slugify(author);
+  return (
+    people.bySlug.get(own) ??
+    (authorSeo ? people.bySeoName.get(authorSeo) : undefined) ??
+    authorSeo ??
+    (own || null)
+  );
 }
 
 /**

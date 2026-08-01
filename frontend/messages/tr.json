@@ -872,6 +872,9 @@
       "backToHall": "← Kitap salonuna dön",
       "bookCount": "Arşivde {count} kitap",
       "noBooks": "Bu kişiye ait arşivde kitap yok.",
+      "notInArchive": "Bu kişinin arşivimde kitabı yok. Künye 1000Kitap'tan geliyor.",
+      "noBooksInArchive": "Bu yazarın kitapları henüz arşivimde değil.",
+      "awardsTitle": "Ödüller",
       "role": {
         "AUTHOR": "Yazar",
         "TRANSLATOR": "Çevirmen",
@@ -924,6 +927,7 @@
       "inArchive": "Arşivimde",
       "shared": "Ortak",
       "unavailable": "Ödül listesi şu anda alınamadı.",
+      "filling": "Kapaklar dolduruluyor — {count} kitap sırada. Sayfa kendini tazeliyor.",
       "railLink": "Ödüller →"
     },
     "favorite": "Favori",
@@ -1007,6 +1011,10 @@
     "seriesCount": "{count} kitap",
     "seriesTranslated": "{total} kitaptan {translated}'ü Türkçe",
     "openUniverse": "Evrene git →",
+    "series": {
+      "readCount": "{count} tanesi okundu",
+      "empty": "Bu serinin arşivimde cildi yok."
+    },
     "authorsTitle": "Yazarlar",
     "authorCount": "{count} kitap",
     "recentTitle": "Son eklediklerim",

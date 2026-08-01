@@ -8,6 +8,7 @@ import { slugify } from '../common/utils/slugify';
 import { GoogleBooksService, type BookSource } from './google-books.service';
 import {
   binKitapSlug,
+  BinKitapRateLimitError,
   BinKitapService,
   type BinKitapDetail,
 } from './bin-kitap.service';
@@ -52,9 +53,6 @@ const NEIGHBOUR_LIMIT = 8;
 
 /** Sağ raydaki "son eklediklerim" şeridi. */
 const RECENT_LIMIT = 6;
-
-/** Yazar panelinde kaç yazar görünür. */
-const AUTHOR_LIMIT = 12;
 
 // Salon girişinin iki yanındaki kapaklar — başlık burada, kapak kaynaktan
 const SHOWCASE_LEFT = 'Dune Frank Herbert';
@@ -169,6 +167,13 @@ export interface BookAuthorCard {
    * kişinin sayfası 404 verirdi (künyedeki `BookCredits` ile aynı karar).
    */
   slug: string | null;
+  /**
+   * Yazarın portresi (`/uploads/books/…`). Kişi sayfası ilk kez açıldığında
+   * kaynaktan indirilip saklanıyor; hiç açılmamış yazarda **null** ve arayüz
+   * baş harflerden bir madalyon çiziyor. Toplu doldurma admin bakım
+   * ekranında (`people/photos`).
+   */
+  photo: string | null;
   count: number;
   readCount: number;
   averageRating: number | null;
@@ -369,7 +374,7 @@ export class BooksService {
    * akıcı bir okuma sağlıyor.
    */
   async getArchive(): Promise<BookArchive> {
-    const [entries, goal, universes] = await Promise.all([
+    const [entries, goal, universes, people] = await Promise.all([
       this.prisma.bookEntry.findMany({
         where: { isDeleted: false },
         orderBy: [{ finishedAt: 'desc' }, { createdAt: 'desc' }],
@@ -380,17 +385,23 @@ export class BooksService {
         where: { isDeleted: false },
         select: { id: true, slug: true },
       }),
+      // Yazar panelindeki portreler; kişi tablosu küçük, tek sorgu yetiyor
+      this.prisma.bookPerson.findMany({
+        where: { photo: { not: null } },
+        select: { slug: true, photo: true },
+      }),
     ]);
     const books = withSlugs(entries);
     const universeSlugs = new Map(
       universes.map((universe) => [universe.id, universe.slug]),
     );
+    const photos = new Map(people.map((person) => [person.slug, person.photo]));
 
     return {
       books,
       stats: buildStats(books, goal),
       series: buildSeries(books, entries, universeSlugs),
-      authors: buildAuthors(books),
+      authors: buildAuthors(books, photos),
       genres: buildGenres(books),
       recent: books.slice(0, RECENT_LIMIT),
       quoteOfTheDay: await this.pickQuoteOfTheDay(books),
@@ -955,6 +966,55 @@ export class BooksService {
       localized += 1;
     }
     return { scanned: entries.length, localized };
+  }
+
+  /**
+   * Fotoğrafı olmayan kişilerin portrelerini kaynaktan indirir.
+   *
+   * Portre normalde **kişi sayfası ilk açıldığında** iniyor (`fillBiography`);
+   * hiç ziyaret edilmemiş yazarın fotoğrafı da yok. Salonun yazar paneline
+   * portreler gelince (kullanıcı isteği) bu görünür oldu: panel çoğunlukla
+   * madalyonla doluyordu. Bu iş onu tek seferde kapatıyor.
+   *
+   * **Elle tetikleniyor, arka planda değil.** Kaynağın kuyruğu paylaşımlı ve
+   * saniyede bir istek geçiyor; onlarca yazarı sayfa açılışında yüklemek
+   * küratör aramasını yine askıya alırdı (bkz. kuyruk açlığı notu).
+   *
+   * Bir kişi düşerse tura devam ediliyor — tek kırık adres bütün işi
+   * durdurmasın. Hız sınırı görülürse tur **biter**: ısrar yeni 429'dan başka
+   * bir şey getirmiyor (ölçüldü).
+   */
+  async backfillPersonPhotos(): Promise<{ scanned: number; filled: number }> {
+    const people = await this.prisma.bookPerson.findMany({
+      where: { photo: null },
+      select: { id: true, slug: true, binKitapSeoName: true },
+    });
+
+    let filled = 0;
+    for (const person of people) {
+      let detail: Awaited<ReturnType<BinKitapService['getPerson']>> = null;
+      try {
+        detail = await this.binKitap.getPerson(
+          person.binKitapSeoName ?? person.slug,
+        );
+      } catch (error) {
+        if (error instanceof BinKitapRateLimitError) {
+          break;
+        }
+        continue;
+      }
+      const photo = await this.covers.download(detail?.photo ?? null);
+      if (!photo) {
+        continue;
+      }
+      await this.prisma.bookPerson.update({
+        where: { id: person.id },
+        // Biyografi de elimizdeyken yazılıyor: aynı isteğin ikinci ürünü
+        data: { photo, biography: detail?.biography ?? undefined },
+      });
+      filled += 1;
+    }
+    return { scanned: people.length, filled };
   }
 
   /**
@@ -1863,8 +1923,18 @@ function buildSeries(
     .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'tr'));
 }
 
-/** Yazar paneli: arşivden türetilir, elle yazılmaz. */
-function buildAuthors(books: ArchiveBook[]): BookAuthorCard[] {
+/**
+ * Yazar paneli: arşivden türetilir, elle yazılmaz.
+ *
+ * Liste **kırpılmıyor**: salon ilk iki sırayı gösterip kalanı kendi yazarlar
+ * sayfasına devrediyor (kullanıcı isteği), o sayfanın da tam listeye ihtiyacı
+ * var. Arşiv zaten bütün kitaplarıyla geliyor, birkaç düzine yazar kartı
+ * yanında hiçbir şey.
+ */
+function buildAuthors(
+  books: ArchiveBook[],
+  photos: Map<string, string | null>,
+): BookAuthorCard[] {
   const groups = new Map<string, ArchiveBook[]>();
   for (const book of books) {
     for (const name of book.authors) {
@@ -1903,9 +1973,12 @@ function buildAuthors(books: ArchiveBook[]): BookAuthorCard[] {
         (total, book) => total + (book.personalRating ?? 0),
         0,
       );
+      const slug =
+        personSlugs.get(name) ?? personSlugs.get(slugify(name)) ?? null;
       return {
         name,
-        slug: personSlugs.get(name) ?? personSlugs.get(slugify(name)) ?? null,
+        slug,
+        photo: slug ? (photos.get(slug) ?? null) : null,
         count: list.length,
         readCount: list.filter((book) => book.status === 'READ').length,
         averageRating:
@@ -1913,8 +1986,7 @@ function buildAuthors(books: ArchiveBook[]): BookAuthorCard[] {
         coverImage: list.find((book) => book.coverImage)?.coverImage ?? null,
       };
     })
-    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'tr'))
-    .slice(0, AUTHOR_LIMIT);
+    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'tr'));
 }
 
 /**
@@ -2118,7 +2190,8 @@ function buildStats(
         }
       : null,
     topGenre: buildGenres(read)[0]?.name ?? null,
-    topAuthor: buildAuthors(read)[0]?.name ?? null,
+    // Yalnızca ada bakılıyor; portre haritası burada gereksiz
+    topAuthor: buildAuthors(read, new Map())[0]?.name ?? null,
     goal: goal
       ? {
           year: goal.year,

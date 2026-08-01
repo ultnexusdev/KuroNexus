@@ -5,7 +5,11 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/lib/i18n/navigation";
 import { apiUrl } from "@/lib/api/client";
-import type { ArchiveBook } from "@/lib/api/types";
+import type {
+  ArchiveBook,
+  BookAuthorCard,
+  BookSeriesCard,
+} from "@/lib/api/types";
 import styles from "./BookHall.module.css";
 
 /**
@@ -182,6 +186,140 @@ export function BookCard({
 
       {curating ? <CuratorCardTools book={book} /> : null}
     </article>
+  );
+}
+
+/**
+ * Yazar kartı. Salonun yazar panelinde ve yazarlar sayfasında **aynı** bileşen
+ * kullanılıyor; iki kopya kart iki ayrı görünüme kayardı.
+ *
+ * İlişkisel kaydı olan yazar kendi sayfasına gider. Olmayan — Google/Open
+ * Library'den eklenmiş ya da Faz 2a öncesi kitapların yazarı — sayfa açamaz
+ * (404 verirdi): salonda arşivi o adla süzer, `onFilter` verilmeyen yerde ise
+ * düz kart olarak durur.
+ */
+export function AuthorCard({
+  author,
+  onFilter,
+}: {
+  author: BookAuthorCard;
+  onFilter?: (name: string) => void;
+}) {
+  const t = useTranslations("book");
+  const photo = author.photo ? apiUrl(author.photo) : null;
+
+  const body = (
+    <>
+      <span className={styles.authorPortrait}>
+        {photo ? (
+          <Image
+            src={photo}
+            alt=""
+            fill
+            sizes="56px"
+            className={styles.authorPortraitImg}
+            unoptimized
+          />
+        ) : (
+          /* Portre henüz inmemiş yazar boş daire değil: baş harfleri duruyor
+             (kapaksız kitapta adın kapağın yerini tutmasıyla aynı karar) */
+          <span className={styles.authorMonogram} aria-hidden>
+            {initials(author.name)}
+          </span>
+        )}
+      </span>
+      <span className={styles.authorText}>
+        <span className={styles.authorName}>{author.name}</span>
+        <span className={styles.authorMeta}>
+          {t("authorCount", { count: author.count })}
+        </span>
+        {author.averageRating !== null ? (
+          <span className={styles.authorRating}>
+            <Stars value={author.averageRating} />
+          </span>
+        ) : null}
+      </span>
+    </>
+  );
+
+  if (author.slug) {
+    return (
+      <Link href={personHref(author.slug)} className={styles.authorCard}>
+        {body}
+      </Link>
+    );
+  }
+  if (onFilter) {
+    return (
+      <button
+        type="button"
+        className={styles.authorCard}
+        onClick={() => onFilter(author.name)}
+      >
+        {body}
+      </button>
+    );
+  }
+  return <span className={styles.authorCard}>{body}</span>;
+}
+
+/** Adın baş harfleri — portresi olmayan yazarın madalyonu. */
+function initials(name: string): string {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0]?.toLocaleUpperCase("tr") ?? "")
+    .join("");
+}
+
+/**
+ * Seri kartı. Salonun seri şeridinde ve seriler sayfasında aynı bileşen.
+ * Kart serinin **kendi sayfasına** gidiyor; Kadim Dünyalar bağı ayrı satır
+ * olarak altında duruyor (iç içe bağ geçersiz HTML olurdu).
+ */
+export function SeriesCard({ series }: { series: BookSeriesCard }) {
+  const t = useTranslations("book");
+  const cover = coverSrc(series);
+
+  return (
+    <>
+      <Link href={seriesHref(series.slug)} className={styles.seriesButton}>
+        <span className={styles.seriesCover}>
+          {cover ? (
+            <Image
+              src={cover}
+              alt=""
+              fill
+              sizes="120px"
+              className={styles.coverImg}
+              unoptimized
+            />
+          ) : null}
+        </span>
+        <span className={styles.seriesName}>{series.name}</span>
+        <span className={styles.seriesMeta}>
+          {t("seriesCount", { count: series.count })}
+        </span>
+        {/* "5 kitaptan 3'ü Türkçe" — serinin eksiğini söyleyen tek satır */}
+        {series.untranslatedCount > 0 ? (
+          <span className={styles.seriesTranslation}>
+            {t("seriesTranslated", {
+              translated: series.translatedCount,
+              total: series.count,
+            })}
+          </span>
+        ) : null}
+      </Link>
+      {series.universeSlug ? (
+        <Link
+          href={`/dark-stories/${series.universeSlug}`}
+          className={styles.seriesUniverse}
+        >
+          {t("openUniverse")}
+        </Link>
+      ) : null}
+    </>
   );
 }
 

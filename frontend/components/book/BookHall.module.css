@@ -418,13 +418,13 @@
   padding-bottom: 18px;
 }
 
+/* Izgara, esnek satir DEGIL: sabit genislikli ciltler genis ekranda rafin
+   sagini bos birakiyordu (kullanici bildirimi). Sutunlar 1fr oldugu icin raf
+   her genislikte tam doluyor; sutun sayisi `SHELF_ROW` ile eslesiyor. */
 .volumes {
-  display: flex;
-  flex-wrap: wrap;
-  /* Ciltler ust kenardan hizali. Eskiden alt kenardan hizalaniyordu ve boylari
-     bilerek farkliydi ("kitaplik" imzasi) — kullanici bunu duzensizlik olarak
-     bildirdi: iki satirlik adi olan cilt digerlerinden yukari kayiyordu */
-  align-items: flex-start;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
   gap: var(--gap-md);
   margin: 0;
   padding: 0 var(--pad-sm);
@@ -435,14 +435,21 @@
   display: grid;
   align-content: start;
   gap: 6px;
-  /* Dar ekranda uc cilt yan yana: sabit 116px telefonda ikide kaliyor ve
-     rafin sagi bos duruyordu. Film/dizi/anime raflariyla ayni olcu (4f5b73f) */
-  width: calc((100% - 2 * var(--gap-md)) / 3);
+  min-width: 0;
 }
 
+/* Sutun sayilari 9'un bolenlerinden secildi (3 ve 9): raf o genisliklerde
+   tam satir oluyor. Aradaki 5'li kademe tabletde kartlarin okunur kalmasi
+   icin — orada son satir yarim kaliyor, telefonda zaten oyleydi. */
 @media (min-width: 640px) {
-  .volume {
-    width: 116px;
+  .volumes {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1100px) {
+  .volumes {
+    grid-template-columns: repeat(9, minmax(0, 1fr));
   }
 }
 
@@ -450,8 +457,10 @@
   position: relative;
   display: block;
   width: 100%;
-  /* Butun ciltler ayni boyda: raf hizali dursun (kullanici istegi) */
-  height: 174px;
+  /* Butun ciltler ayni boyda: raf hizali dursun (kullanici istegi). Sabit
+     yukseklik DEGIL oran — sutun genisligi ekrana gore degisiyor ve sabit
+     yukseklik kapaklari sikistiriyordu */
+  aspect-ratio: 2 / 3;
   overflow: hidden;
   border: 1px solid var(--border-strong);
   border-radius: 2px 3px 3px 2px;
@@ -790,8 +799,18 @@
   border-top: 1px solid var(--border);
 }
 
+/* Baslik satiri: bolumun adi ve toplam sayisi. Ad tiklanabilir — bolumun
+   kendi sayfasina gidiyor (kullanici istegi) */
+.blockHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--gap-sm);
+  margin-bottom: var(--gap-sm);
+}
+
 .blockTitle {
-  margin: 0 0 var(--gap-sm);
+  margin: 0;
   color: var(--text-primary);
   font-family: var(--font-bebas), var(--font-sans);
   font-size: 0.94rem;
@@ -800,18 +819,51 @@
   text-transform: uppercase;
 }
 
+.blockLink {
+  text-decoration: none;
+}
+
+.blockLink:hover .blockTitle {
+  color: var(--accent);
+}
+
+.blockCount {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* Seri seridi de tek satir ve tam dolu; sutun sayisi `SERIES_LIMIT` ile
+   eslesiyor, kalan seriler kendi sayfasinda (kullanici istegi) */
 .seriesRow {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--gap-md);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
+@media (min-width: 640px) {
+  .seriesRow {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1100px) {
+  .seriesRow {
+    grid-template-columns: repeat(9, minmax(0, 1fr));
+  }
+}
+
 .seriesCard {
   display: grid;
+  align-content: start;
   gap: 4px;
+  min-width: 0;
 }
 
 /* Artik bir bag (serinin kendi sayfasi); buton gorunumu korunuyor */
@@ -870,23 +922,49 @@
   color: var(--accent-hover);
 }
 
+/* Satirda sekiz yazar (kullanici istegi); salonda iki satir gorunuyor,
+   kalani yazarlar sayfasinda */
 .authorGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--gap-sm);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-/* Iliskisel kaydi olan yazarda bir bag, olmayanda buton — ikisi de ayni kart */
+@media (min-width: 640px) {
+  .authorGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1100px) {
+  .authorGrid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1400px) {
+  .authorGrid {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+  }
+}
+
+/* Iliskisel kaydi olan yazarda bir bag, olmayanda buton — ikisi de ayni kart.
+   `box-sizing` SART: kart bir <a> oldugunda tarayici varsayilani border-box
+   DEGIL ve dolgu+kenarlik hucreyi tasirip komsu karta biniyordu (kullanici
+   bildirimi). <button> hâlinde tarayici bunu kendiliginden veriyordu. */
 .authorCard {
-  display: grid;
-  align-content: start;
-  gap: 2px;
+  display: flex;
+  box-sizing: border-box;
+  align-items: center;
+  gap: 8px;
   width: 100%;
+  height: 100%;
   min-height: var(--touch-min, 44px);
-  padding: 10px 12px;
+  padding: 8px 10px;
+  overflow: hidden;
   border: 1px solid var(--border);
   border-radius: var(--radius-card);
   background: color-mix(in srgb, var(--surface) 70%, transparent);
@@ -905,19 +983,54 @@
   color: var(--accent);
 }
 
+.authorPortrait {
+  position: relative;
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  background: var(--surface);
+}
+
+.authorPortraitImg {
+  object-fit: cover;
+}
+
+/* Portresi inmemis yazarin madalyonu — bos daire degil, bas harfleri */
+.authorMonogram {
+  color: var(--accent-muted);
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+}
+
+.authorText {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
 .authorName {
+  overflow: hidden;
   color: var(--text-primary);
   font-family: var(--font-cormorant), serif;
-  font-size: 1rem;
+  font-size: 0.95rem;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .authorMeta {
   color: var(--text-muted);
-  font-size: 0.76rem;
+  font-size: 0.74rem;
 }
 
 .authorRating {
-  font-size: 0.8rem;
+  font-size: 0.76rem;
 }
 
 /* --- Sag ray: istatistikler --- */

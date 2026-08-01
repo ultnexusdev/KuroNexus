@@ -373,7 +373,54 @@
 > tıkla iniyor. Kaynaklar 20 kayda kadar dönüyor ve sessizce kesmek "aradığım
 > kitap yok" izlenimi veriyordu.
 >
+> **FAZ 2e — SALON DÜZENİ: PORTRELİ YAZAR PANELİ, DİZİN SAYFALARI, RAF SIRASI.**
+> Kullanıcı bildirimleri: yazar kartı komşusunun üstüne biniyor, yazar
+> panelinde portre yok, yeni kurulan Sissoylu serisi görünmüyor, raflarda
+> satırın sağı boş, "Şu an okuyorum" en altta kalıyor.
+>
+> **Kart taşması bir REGRESYONDU (Faz 2d'de ben yaptım).** Yazar kartı
+> `<button>`ken tarayıcı ona `box-sizing: border-box` veriyordu; sayfaya bağ
+> kurmak için `<a>`ya çevrilince bu kayboldu ve `width:100%` + dolgu +
+> kenarlık hücreyi 26px taşırıp komşu karta bindi. `box-sizing` artık açıkça
+> yazılı.
+>
+> **Sissoylu görünmüyordu çünkü liste altıda kesiliyordu** (`SERIES_LIMIT`),
+> Sissoylu 7. sıradaydı ve **kesildiği hiç söylenmiyordu**. İki taraflı
+> düzeltildi: şerit 9 seri gösteriyor ve kesilme varsa "Tümünü gör" çıkıyor.
+> Yazar paneli de aynı: 16 (8×2), kalanı kendi sayfasında. `AUTHOR_LIMIT`
+> backend'den **kaldırıldı** — dizin sayfasının tam listeye ihtiyacı var,
+> arşiv zaten bütün kitaplarıyla geliyor.
+>
+> **Yeni dizin sayfaları:** `/kitap/yazarlar` ve `/kitap/seriler`
+> (`ArchiveIndex.tsx`). **Yeni uç yok** — arşiv tek istekte zaten hepsini
+> taşıyor. Kartlar salonunkiyle **aynı bileşen** (`AuthorCard`, `SeriesCard`
+> `BookCard.tsx`e taşındı): iki kopya kart iki ayrı görünüme kayardı.
+>
+> **Rafın sağı boştu çünkü ciltler sabit 116px genişlikteydi** ve esnek satır
+> kalanı boş bırakıyordu. Raf artık **ızgara**, sütunlar `1fr` — her genişlikte
+> tam doluyor. `SHELF_ROW` 7 → **9** ve sütun sayıları 9'un bölenlerinden
+> seçildi (3 ve 9) ki satır tam olsun; tabletteki 5'li kademede son satır
+> yarım kalıyor, telefonda zaten öyleydi. `.spine` sabit yükseklikten
+> **orana** (2/3) geçti: sütun genişliği artık ekrana göre değişiyor.
+>
+> **Yazar portreleri.** `BookAuthorCard.photo` eklendi; portresi olmayan
+> yazarda kart baş harflerden madalyon çiziyor (kapaksız kitapta adın kapağın
+> yerini tutmasıyla aynı karar). Portre normalde **kişi sayfası ilk
+> açıldığında** iniyor, yani hiç ziyaret edilmemiş yazarda yok — bakım
+> ekranına üçüncü düğme eklendi (`POST /admin/books/people/photos`).
+> **Elle tetikleniyor, arka planda değil:** kaynağın kuyruğu paylaşımlı ve
+> saniyede bir istek geçiriyor, onlarca yazarı sayfa açılışında yüklemek
+> küratör aramasını yine askıya alırdı.
+>
+> **Raf sırası:** "Şu an okuyorum" en üste alındı (kullanıcı kararı — sayfaya
+> girildiğinde ilk görülmek istenen şey aktif okuma).
+>
 > **YAPILMADI / AÇIK:**
+> - Yazar portrelerinin çoğu canlıda **boş gelecek**; bakım ekranındaki
+>   "Yazar portrelerini indir" bir kez çalıştırılmalı. Kaç kişide tuttuğu
+>   ölçülmedi (kişinin `binKitapSeoName`i yoksa kendi slug'ımız deneniyor).
+> - Yeni ızgaraların gerçek ekranda nasıl durduğu görülmedi, yalnızca derleme
+>   temiz.
 > - "sessiz kılıç" sorgusunun cache'i **canlıda hâlâ boş olabilir** (24 saatlik
 >   TTL). Düzeltme yeni sorguları koruyor ama eskisini silmiyor —
 >   `ExternalCache`ten `books:1k:search:v1:sessiz-kilic` elle silinebilir ya da

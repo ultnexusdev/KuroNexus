@@ -54,6 +54,16 @@ export class BooksAdminController {
     return this.booksService.backfillCredits();
   }
 
+  /**
+   * Fotoğrafı olmayan yazar/çevirmenlerin portrelerini kaynaktan indirir.
+   * Portre normalde kişi sayfası açıldığında iniyor; salonun yazar paneli de
+   * onları gösterdiği için tek seferde kapatmak gerekiyor.
+   */
+  @Post('people/photos')
+  backfillPersonPhotos() {
+    return this.booksService.backfillPersonPhotos();
+  }
+
   /** Kaynaktan gelip sözlükte karşılığı olmayan, onay bekleyen türler */
   @Get('genres/pending')
   pendingGenres() {

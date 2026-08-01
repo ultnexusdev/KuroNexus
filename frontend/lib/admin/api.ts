@@ -840,6 +840,8 @@ export interface BookMaintenanceResult {
   scanned: number;
   localized?: number;
   linked?: number;
+  /** Portre indirmede kaç kişinin fotoğrafı doldu */
+  filled?: number;
 }
 
 /** Dış adresle duran kapakları kendi sunucumuza indirir (hotlink yok). */
@@ -853,6 +855,18 @@ export function localizeBookCovers(): Promise<BookMaintenanceResult> {
 /** Eski kayıtların düz metin künyesinden yazar/yayınevi/tür bağlarını kurar. */
 export function backfillBookCredits(): Promise<BookMaintenanceResult> {
   return apiFetch<BookMaintenanceResult>("/admin/books/credits/backfill", {
+    method: "POST",
+    headers: authHeaders(),
+  });
+}
+
+/**
+ * Fotoğrafı olmayan yazar/çevirmenlerin portrelerini kaynaktan indirir.
+ * Portre normalde kişi sayfası açıldığında iniyor; salonun yazar paneli de
+ * onları gösterdiği için tek seferde kapatmak gerekiyor.
+ */
+export function backfillPersonPhotos(): Promise<BookMaintenanceResult> {
+  return apiFetch<BookMaintenanceResult>("/admin/books/people/photos", {
     method: "POST",
     headers: authHeaders(),
   });

@@ -24,12 +24,11 @@ import {
 import { BOOK_GENRES, genreCounts } from "@/lib/book/genres";
 import { BackToTop } from "@/components/BackToTop";
 import {
+  AuthorCard,
   BookCard,
   bookHref,
   coverSrc,
-  personHref,
-  seriesHref,
-  Stars,
+  SeriesCard,
   TranslationBadge,
 } from "./BookCard";
 import { AWARDS_HREF } from "./AwardHall";
@@ -66,14 +65,25 @@ const CuratorCardTools = dynamic(
   { ssr: false },
 );
 
-// Salonda her raf tek sıra: rafa sığan cilt sayısı
-const SHELF_ROW = 7;
+/**
+ * Salonda her raf tek sıra: rafa sığan cilt sayısı.
+ *
+ * 7'den 9'a çıkarıldı — geniş ekranda rafın sağı boş kalıyordu (kullanıcı
+ * bildirimi). Sıradaki cilt sayısı CSS'teki sütun sayısıyla eşleşiyor.
+ */
+const SHELF_ROW = 9;
 
 // Tek rafın kendi sayfasında ızgara kaç kitapla açılır
 const PAGE_SIZE = 24;
 
-// Orta sütunun altındaki seri şeridi kaç kart taşır
-const SERIES_LIMIT = 6;
+/** Seri şeridi tek sıra; kalanı seriler sayfasında (kullanıcı isteği) */
+const SERIES_LIMIT = 9;
+
+/** Yazar paneli iki sıra (8 × 2); kalanı yazarlar sayfasında */
+const AUTHOR_ROW = 16;
+
+const SERIES_HREF = "/dark-stories/category/kitap/seriler";
+const AUTHORS_HREF = "/dark-stories/category/kitap/yazarlar";
 
 export function BookHall({
   archive,
@@ -422,109 +432,66 @@ export function BookHall({
                 ))
               )}
 
-              {/* Seriler: kart artık serinin **kendi sayfasına** gidiyor
-                  (kullanıcı isteği) — eskiden arşivi seri adıyla süzüyordu ve
-                  serinin dışındaki kitaplar da listeye karışabiliyordu.
-                  Kadim Dünyalar bağı ayrı satır olarak duruyor */}
+              {/* Seriler: tek şerit, kalanı kendi sayfasında. Eskiden altı
+                  seri gösterip kesiyordu ve kullanıcı yeni kurduğu serinin
+                  görünmediğini bildirdi — artık kesildiği de söyleniyor */}
               {!shelf && archive.series.length > 0 ? (
                 <section className={styles.block}>
-                  <h2 className={styles.blockTitle}>{t("seriesTitle")}</h2>
+                  <div className={styles.blockHead}>
+                    <Link href={SERIES_HREF} className={styles.blockLink}>
+                      <h2 className={styles.blockTitle}>{t("seriesTitle")}</h2>
+                    </Link>
+                    <span className={styles.blockCount}>
+                      {t("seriesTotal", { count: archive.series.length })}
+                    </span>
+                  </div>
                   <ul className={styles.seriesRow}>
                     {archive.series.slice(0, SERIES_LIMIT).map((series) => (
                       <li key={series.slug} className={styles.seriesCard}>
-                        <Link
-                          href={seriesHref(series.slug)}
-                          className={styles.seriesButton}
-                        >
-                          <span className={styles.seriesCover}>
-                            {coverSrc(series) ? (
-                              <Image
-                                src={coverSrc(series)!}
-                                alt=""
-                                fill
-                                sizes="120px"
-                                className={styles.coverImg}
-                                unoptimized
-                              />
-                            ) : null}
-                          </span>
-                          <span className={styles.seriesName}>
-                            {series.name}
-                          </span>
-                          <span className={styles.seriesMeta}>
-                            {t("seriesCount", { count: series.count })}
-                          </span>
-                          {/* "5 kitaptan 3'ü Türkçe" — kullanıcının istediği satır */}
-                          {series.untranslatedCount > 0 ? (
-                            <span className={styles.seriesTranslation}>
-                              {t("seriesTranslated", {
-                                translated: series.translatedCount,
-                                total: series.count,
-                              })}
-                            </span>
-                          ) : null}
-                        </Link>
-                        {series.universeSlug ? (
-                          <Link
-                            href={`/dark-stories/${series.universeSlug}`}
-                            className={styles.seriesUniverse}
-                          >
-                            {t("openUniverse")}
-                          </Link>
-                        ) : null}
+                        <SeriesCard series={series} />
                       </li>
                     ))}
                   </ul>
+                  {archive.series.length > SERIES_LIMIT ? (
+                    <div className={styles.shelfFooter}>
+                      <Link href={SERIES_HREF} className={styles.showAll}>
+                        {t("showAll")}
+                      </Link>
+                    </div>
+                  ) : null}
                 </section>
               ) : null}
 
-              {/* Yazarlar: ilişkisel kaydı olan yazar **sayfasına** gider
-                  (kullanıcı bildirimi: "yazar isimlerine tıkladığımda sayfa
-                  açılmıyor"). Kaydı olmayan — Google/Open Library'den eklenmiş
-                  ya da Faz 2a öncesi kitapların yazarı — eskisi gibi arşivi
-                  süzer: olmayan kişinin sayfası 404 verirdi */}
+              {/* Yazarlar: iki sıra, kalanı kendi sayfasında. İlişkisel kaydı
+                  olan yazar sayfasına gider; olmayan arşivi o adla süzer —
+                  olmayan kişinin sayfası 404 verirdi */}
               {!shelf && archive.authors.length > 0 ? (
                 <section className={styles.block}>
-                  <h2 className={styles.blockTitle}>{t("authorsTitle")}</h2>
+                  <div className={styles.blockHead}>
+                    <Link href={AUTHORS_HREF} className={styles.blockLink}>
+                      <h2 className={styles.blockTitle}>{t("authorsTitle")}</h2>
+                    </Link>
+                    <span className={styles.blockCount}>
+                      {t("authorsTotal", { count: archive.authors.length })}
+                    </span>
+                  </div>
                   <ul className={styles.authorGrid}>
-                    {archive.authors.map((author) => {
-                      const body = (
-                        <>
-                          <span className={styles.authorName}>
-                            {author.name}
-                          </span>
-                          <span className={styles.authorMeta}>
-                            {t("authorCount", { count: author.count })}
-                          </span>
-                          {author.averageRating !== null ? (
-                            <span className={styles.authorRating}>
-                              <Stars value={author.averageRating} />
-                            </span>
-                          ) : null}
-                        </>
-                      );
-                      return (
-                        <li key={author.name}>
-                          {author.slug ? (
-                            <Link
-                              href={personHref(author.slug)}
-                              className={styles.authorCard}
-                            >
-                              {body}
-                            </Link>
-                          ) : (
-                            <button
-                              type="button"
-                              className={styles.authorCard}
-                              onClick={() => patch({ search: author.name })}
-                            >
-                              {body}
-                            </button>
-                          )}
-                        </li>
-                      );
-                    })}
+                    {archive.authors.slice(0, AUTHOR_ROW).map((author) => (
+                      <li key={author.name}>
+                        <AuthorCard
+                          author={author}
+                          onFilter={(name) => patch({ search: name })}
+                        />
+                      </li>
+                    ))}
                   </ul>
+                  {archive.authors.length > AUTHOR_ROW ? (
+                    <div className={styles.shelfFooter}>
+                      <Link href={AUTHORS_HREF} className={styles.showAll}>
+                        {t("showAll")}
+                      </Link>
+                    </div>
+                  ) : null}
                 </section>
               ) : null}
             </>

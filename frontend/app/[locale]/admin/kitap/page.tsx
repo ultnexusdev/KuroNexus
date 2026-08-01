@@ -6,9 +6,11 @@ import { AdminGuard } from "@/components/admin/AdminGuard";
 import {
   approveGenre,
   backfillBookCredits,
+  backfillPersonPhotos,
   getPendingGenres,
   localizeBookCovers,
   rejectGenre,
+  type BookMaintenanceResult,
   type PendingGenre,
 } from "@/lib/admin/api";
 import styles from "./page.module.css";
@@ -43,15 +45,11 @@ export default function BookAdminPage() {
     void loadGenres();
   }, [loadGenres]);
 
-  /** İki bakım işi de aynı kalıpta: kilitle, çalıştır, sonucu yaz. */
+  /** Bakım işlerinin hepsi aynı kalıpta: kilitle, çalıştır, sonucu yaz. */
   async function run(
     key: string,
-    task: () => Promise<{ scanned: number; localized?: number; linked?: number }>,
-    format: (result: {
-      scanned: number;
-      localized?: number;
-      linked?: number;
-    }) => string,
+    task: () => Promise<BookMaintenanceResult>,
+    format: (result: BookMaintenanceResult) => string,
   ) {
     setBusy(key);
     setMessage(null);
@@ -118,6 +116,25 @@ export default function BookAdminPage() {
               }
             >
               {busy === "credits" ? t("running") : t("backfillCredits")}
+            </button>
+            {/* Portre normalde kişi sayfası ilk açıldığında iniyor; salonun
+                yazar paneli de onları gösterdiği için tek seferde kapatmak
+                gerekiyor. Kaynağın kuyruğu saniyede bir istek geçiriyor,
+                onlarca yazarda bu iş uzun sürebilir */}
+            <button
+              type="button"
+              className={styles.action}
+              disabled={busy !== null}
+              onClick={() =>
+                run("photos", backfillPersonPhotos, (result) =>
+                  t("photosDone", {
+                    scanned: result.scanned,
+                    done: result.filled ?? 0,
+                  }),
+                )
+              }
+            >
+              {busy === "photos" ? t("running") : t("backfillPhotos")}
             </button>
           </div>
           {message ? <p className={styles.ok}>{message}</p> : null}

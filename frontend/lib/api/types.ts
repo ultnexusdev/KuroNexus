@@ -982,6 +982,11 @@ export interface BookAuthorCard {
    * Yoksa null ve kart sayfa açmak yerine arşivi o adla süzer.
    */
   slug: string | null;
+  /**
+   * Yazarın portresi. Kişi sayfası ilk açıldığında kaynaktan inip saklanıyor;
+   * hiç açılmamış yazarda null ve kart baş harflerden madalyon çiziyor.
+   */
+  photo: string | null;
   count: number;
   readCount: number;
   averageRating: number | null;

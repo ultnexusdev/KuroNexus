@@ -5,10 +5,17 @@ import type { ArchiveBook } from "@/lib/api/types";
  * sayfası hem raf sayfaları buradan okur (film/dizi kanadındaki desen).
  */
 
+/**
+ * Rafların salondaki sırası.
+ *
+ * "Şu an okuyorum" **en üstte** (kullanıcı kararı): sayfaya girildiğinde ilk
+ * görülmek istenen şey aktif okuma. Bitmiş kitaplar arşivin kendisi, onlar
+ * biraz aşağıda durabilir.
+ */
 export const SHELF_KEYS = [
+  "reading",
   "read",
   "toRead",
-  "reading",
   "abandoned",
   "favorites",
 ] as const;

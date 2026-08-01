@@ -1,0 +1,62 @@
+/* Arsivin dizin sayfalari (butun yazarlar / butun seriler). Kartlar salonun
+   CSS'inden geliyor; burada yalnizca sayfa iskeleti var. */
+
+.page {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1180px;
+  margin-inline: auto;
+  padding: var(--pad-lg) var(--pad-md) var(--pad-xl);
+  background: var(--bg);
+}
+
+.head {
+  display: grid;
+  gap: 6px;
+  margin-bottom: var(--pad-lg);
+}
+
+.back {
+  justify-self: start;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  text-decoration: none;
+}
+
+.back:hover,
+.back:focus-visible {
+  color: var(--accent);
+}
+
+.eyebrow {
+  color: var(--text-muted);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: var(--font-cinzel), serif;
+  font-size: clamp(1.9rem, 4vw, 2.9rem);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+}
+
+.count {
+  margin: 0;
+  color: var(--text-muted);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.empty {
+  margin: 0;
+  color: var(--text-muted);
+  font-family: var(--font-cormorant), serif;
+  font-size: 1.02rem;
+}

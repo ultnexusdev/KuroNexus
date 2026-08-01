@@ -865,9 +865,32 @@
         "title": "Ödüller",
         "desc": "Nobel, Pulitzer, Booker, Hugo, Nebula ve diğerleri — hangi ödüllü kitap arşivimde, hangisi değil."
       },
+      "readingOrders": {
+        "title": "Okuma Sıraları",
+        "desc": "Bir evreni hangi kitaptan başlayıp nasıl takip etmeli — hangi durak arşivimde, hangisi değil."
+      },
       "notes": {
         "title": "Okuma Notları",
         "desc": "Altını çizdiğim satırlar ve kitap üstüne yazdıklarım; Kadim Dünyalar'daki evrenlere bağlanabilecek."
+      }
+    },
+    "readingOrder": {
+      "title": "Okuma Sıraları",
+      "lede": "Bir evreni baştan sona takip etmenin yolu. Yayım sırası her zaman okuma sırası değildir.",
+      "backToHall": "← Kitap salonuna dön",
+      "backToOrders": "← Okuma sıralarına dön",
+      "stops": "{count} durak",
+      "owned": "{total} duraktan {owned} tanesi arşivimde",
+      "readCount": "{count} tanesi okundu",
+      "notesTitle": "Bu liste hakkında",
+      "allTracks": "Hepsi",
+      "inArchive": "Arşivimde",
+      "read": "Okudum",
+      "noMatch": "Bu süzgeçle eşleşen durak yok.",
+      "unavailable": "Okuma sırası listesi şu anda alınamadı.",
+      "sort": {
+        "order": "Okuma sırası",
+        "year": "Yayım yılı"
       }
     },
     "person": {

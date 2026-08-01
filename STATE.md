@@ -415,7 +415,45 @@
 > **Raf sırası:** "Şu an okuyorum" en üste alındı (kullanıcı kararı — sayfaya
 > girildiğinde ilk görülmek istenen şey aktif okuma).
 >
+> **FAZ 2f — OKUMA SIRALARI (yeni bölüm).** Kullanıcı internette bulduğu bir
+> "Vakıf Evreni Okuma Sırası" tablosunu getirdi ve **yalnızca oradaki
+> bilgilerle** kendi tablomuzun kurulmasını, benzerinin başka evrenlerde de
+> kullanılabilmesini istedi. Hazırlayan adı bilerek alınmadı.
+>
+> **Liste kod içinde küratörlü** (`data/reading-orders.data.ts`), ödül
+> listeleriyle aynı gerekçe: bu kişisel bir seçki, dış kaynaktan çekilemez.
+> Yeni evren eklemek için oraya bir tanım yazmak yeterli — servis, sayfa,
+> tablo, renk şeridi hepsi ortak.
+>
+> **Servisin tek işi listeyi ARŞİVLE buluşturmak:** hangi durak sende var,
+> hangisini okudun. Sayfanın asıl sorusu bu; yoksa sabit bir tablodan ibaret
+> kalırdı. Eşleştirme **bütün adlar** üzerinden — orijinal ad(lar) ve Türkçe
+> adların hepsi. Tek ada bakmak yetmiyor: aynı kitap arşive hangi baskıyla
+> eklendiyse o adla duruyor ("Çıplak Güneş" ile "Güneşin Tanrıları" aynı
+> kitap) ve listedeki adların hangisi olduğu **bilinmiyor**. Orijinal ad
+> sütunundaki eğik çizgi de iki ayrı İngilizce adı ayırıyor, o da bölünüyor.
+>
+> **Adlar düzeltilmiyor.** Türkçe sütunundaki eğik çizgiler farklı
+> yayınevlerinin ayrı adları; hangisinin hangi baskı olduğu tabloda yazmıyor
+> ve **tahmin edilmiyor** — arayüz hepsini yan yana gösteriyor.
+>
+> **Tablo bir YOL olarak çiziliyor**, ızgara olarak değil: numaralı duraklar,
+> aralarında çizgi, serinin rengi kartın sol kenarında. "Okuma sırası /
+> yayım yılı" düğmesi listenin asıl iddiasını görünür kılıyor (sıra yayım
+> sırası değil); seri rozetleri süzgeç olarak da çalışıyor.
+>
+> **Sol ray: yazar.** Portre ve biyografi **kişi sayfasının kendi yolundan**
+> geliyor (`BooksService.getPerson`), buraya kopyalanmıyor. Asimov arşivde
+> olmadığı için bu kaynağın yazar sayfasına düşüyor — Faz 2d'de yazılan
+> "arşivde olmayan kişiyi kaynaktan çiz" yolu tam da burada işe yaradı.
+> Ek olarak `sourcePerson` artık **portreyi de indiriyor**: `BookPerson`
+> kaydı açmadan, `ExternalCache`e yazarak (hem hotlink yok, hem her ziyarette
+> yeniden inmiyor, hem arşive sahte kişi kaydı düşmüyor).
+>
 > **YAPILMADI / AÇIK:**
+> - Sayfa canlıda **hiç görülmedi**. Özellikle iki şey ölçülmeli: Asimov'un
+>   `isaac-asimov` slug'ıyla kaynakta bulunup bulunmadığı (bulunmazsa ray
+>   yalnızca adla çizilir) ve arşiv eşleşmesinin hangi duraklarda tuttuğu.
 > - Yazar portrelerinin çoğu canlıda **boş gelecek**; bakım ekranındaki
 >   "Yazar portrelerini indir" bir kez çalıştırılmalı. Kaç kişide tuttuğu
 >   ölçülmedi (kişinin `binKitapSeoName`i yoksa kendi slug'ımız deneniyor).

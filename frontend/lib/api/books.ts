@@ -8,6 +8,8 @@ import type {
   BookPublisherPage,
   BookSeriesPage,
   BookShowcase,
+  ReadingOrderDetail,
+  ReadingOrderSummary,
   SourceBookPage,
 } from "./types";
 
@@ -159,6 +161,34 @@ export async function getAward(key: string): Promise<AwardDetail | null> {
   try {
     return await apiFetch<AwardDetail>(
       `/books/awards/${encodeURIComponent(key)}`,
+      { cache: "no-store" },
+    );
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Okuma sıraları. Önbellek YOK: "hangi durak arşivimde" canlı hesaplanıyor,
+ * arşive kitap eklendikten hemen sonra tabloda görünmesi gerekiyor.
+ */
+export async function getReadingOrders(): Promise<ReadingOrderSummary[]> {
+  try {
+    return await apiFetch<ReadingOrderSummary[]>("/books/okuma-sirasi", {
+      cache: "no-store",
+    });
+  } catch {
+    return [];
+  }
+}
+
+/** Tek bir okuma sırası. Bilinmeyen anahtar için null (sayfa 404 verir). */
+export async function getReadingOrder(
+  key: string,
+): Promise<ReadingOrderDetail | null> {
+  try {
+    return await apiFetch<ReadingOrderDetail>(
+      `/books/okuma-sirasi/${encodeURIComponent(key)}`,
       { cache: "no-store" },
     );
   } catch {

@@ -8,6 +8,7 @@ import { BinKitapService } from './bin-kitap.service';
 import { BookCoverService } from './book-cover.service';
 import { BookCreditsService } from './book-credits.service';
 import { AwardsService } from './awards.service';
+import { ReadingOrdersService } from './reading-orders.service';
 
 @Module({
   imports: [PrismaModule],
@@ -19,6 +20,7 @@ import { AwardsService } from './awards.service';
     BookCoverService,
     BookCreditsService,
     AwardsService,
+    ReadingOrdersService,
   ],
 })
 export class BooksModule {}

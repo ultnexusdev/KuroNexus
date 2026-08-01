@@ -865,9 +865,32 @@
         "title": "Awards",
         "desc": "Nobel, Pulitzer, Booker, Hugo, Nebula and the rest — which winners are in my archive and which are not."
       },
+      "readingOrders": {
+        "title": "Reading Orders",
+        "desc": "Where to start a universe and how to follow it — which stop is in my archive and which is not."
+      },
       "notes": {
         "title": "Reading Notes",
         "desc": "The lines I underlined and what I wrote about them; they will link to the universes in Ancient Worlds."
+      }
+    },
+    "readingOrder": {
+      "title": "Reading Orders",
+      "lede": "A path through a universe from beginning to end. Publication order is not always reading order.",
+      "backToHall": "← Back to the book hall",
+      "backToOrders": "← Back to reading orders",
+      "stops": "{count} stops",
+      "owned": "{owned} of {total} stops in my archive",
+      "readCount": "{count} read",
+      "notesTitle": "About this list",
+      "allTracks": "All",
+      "inArchive": "In my archive",
+      "read": "Read",
+      "noMatch": "No stop matches this filter.",
+      "unavailable": "The reading order list could not be loaded right now.",
+      "sort": {
+        "order": "Reading order",
+        "year": "Publication year"
       }
     },
     "person": {

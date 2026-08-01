@@ -588,10 +588,10 @@ export class BooksService {
    * son çare oldu — önce kaynağın yazar sayfası, sonra kod içi ödül listesi
    * deneniyor. İkisi de susarsa 404 (uydurma sayfa çizilmiyor).
    *
-   * **Kayıt açılmıyor, fotoğraf indirilmiyor.** Arşiv küratörün seçtiği
-   * kitapların yeri (kaynak künye sayfasıyla aynı karar); fotoğraf ise
-   * kalıcı bir yola yazılmadığı sürece her ziyarette yeniden indirilirdi ve
-   * kaynağı hotlink'lemek zaten yapılmıyor.
+   * **Kişi kaydı AÇILMIYOR.** Arşiv küratörün seçtiği kitapların yeri (kaynak
+   * künye sayfasıyla aynı karar). Portre indiriliyor ama `BookPerson`a değil,
+   * `ExternalCache`e yazılıyor — böylece hem hotlink yapılmıyor hem de her
+   * ziyarette yeniden inmiyor, hem de arşive sahte bir kişi kaydı düşmüyor.
    */
   private async sourcePerson(slug: string): Promise<BookPersonPage> {
     const awards = awardsForPerson(slug);
@@ -611,7 +611,7 @@ export class BooksService {
     return {
       slug,
       name,
-      photo: null,
+      photo: await this.sourcePersonPhoto(slug, detail?.photo ?? null),
       biography: detail?.biography ?? null,
       // Rol uydurulmuyor: yalnızca ödül listesi yazarlığı kanıtlıyorsa yazılır
       roles: awards.length > 0 ? ['AUTHOR'] : [],
@@ -619,6 +619,42 @@ export class BooksService {
       awards: toPersonAwards(awards),
       inArchive: false,
     };
+  }
+
+  /**
+   * Arşivde kaydı olmayan kişinin portresi.
+   *
+   * İnen dosyanın yolu `ExternalCache`te saklanıyor: `BookPerson` kaydı
+   * açmadan (arşiv küratörün) ama her ziyarette yeniden indirmeden. Kaynak
+   * adresini doğrudan göstermek yapılmıyor — hotlink yok (kullanıcı kararı).
+   */
+  private async sourcePersonPhoto(
+    slug: string,
+    remote: string | null,
+  ): Promise<string | null> {
+    const cacheKey = `books:person-photo:v1:${slugify(slug)}`;
+    const cached = await this.prisma.externalCache.findUnique({
+      where: { cacheKey },
+    });
+    if (cached) {
+      return (cached.payload as { photo: string | null }).photo;
+    }
+    if (!remote) {
+      return null;
+    }
+
+    const photo = await this.covers.download(remote);
+    if (!photo) {
+      return null;
+    }
+    // Yalnızca başarılı indirme yazılıyor: boş cevap cache'lenirse portre
+    // 30 gün gelmezdi (arama bacağında ödenen aynı bedel)
+    await this.prisma.externalCache.upsert({
+      where: { cacheKey },
+      create: { cacheKey, payload: { photo }, fetchedAt: new Date() },
+      update: { payload: { photo }, fetchedAt: new Date() },
+    });
+    return photo;
   }
 
   /**

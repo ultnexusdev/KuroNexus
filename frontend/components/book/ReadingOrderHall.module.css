@@ -1,0 +1,681 @@
+/* Salon 05 · Kitap — Okuma Sıraları.
+   Kitap salonunun dilini paylasir (Cinzel baslik, Cormorant epigraf, yaldiz
+   accent) ama raf tahtasi YOK: burasi bir raf degil, bir yol. */
+
+.page {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1280px;
+  margin-inline: auto;
+  padding: var(--pad-lg) var(--pad-md) var(--pad-lg);
+  background: var(--bg);
+}
+
+.head {
+  display: grid;
+  gap: 6px;
+  margin-bottom: var(--pad-lg);
+}
+
+.back {
+  justify-self: start;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  text-decoration: none;
+}
+
+.back:hover,
+.back:focus-visible {
+  color: var(--accent);
+}
+
+.eyebrow {
+  color: var(--text-muted);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: var(--font-cinzel), serif;
+  font-size: clamp(1.9rem, 4vw, 2.9rem);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+}
+
+.epigraph {
+  max-width: 68ch;
+  margin: 0;
+  color: var(--text-secondary);
+  font-family: var(--font-cormorant), serif;
+  font-size: 1.06rem;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.empty {
+  margin: 0;
+  color: var(--text-muted);
+  font-family: var(--font-cormorant), serif;
+  font-size: 1.02rem;
+}
+
+.dot {
+  margin: 0 8px;
+  color: var(--accent-muted);
+}
+
+/* --- Seri tonlari: dort kova, hepsi tema token'indan (kural 16) --- */
+
+.toneAccent {
+  --tone: var(--accent);
+}
+
+.toneGold {
+  --tone: var(--gold);
+}
+
+.toneWarn {
+  --tone: var(--warn);
+}
+
+.toneMuted {
+  --tone: var(--text-secondary);
+}
+
+/* --- Siralarin listesi --- */
+
+.orderList {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gap-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 720px) {
+  .orderList {
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  }
+}
+
+.orderCard {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr);
+  gap: var(--gap-md);
+  padding: var(--gap-md);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent-muted);
+  border-radius: 2px 4px 4px 2px;
+  background: var(--surface);
+  text-decoration: none;
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.orderCard:hover {
+  border-color: var(--accent-muted);
+  transform: translateY(-2px);
+}
+
+.orderCover {
+  position: relative;
+  display: block;
+  align-self: start;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  border-radius: 2px;
+  background: var(--bg);
+}
+
+.orderCoverImg {
+  object-fit: cover;
+}
+
+.orderCoverEmpty {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--accent) 8%, var(--surface)),
+    var(--surface)
+  );
+}
+
+.orderBody {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.orderName {
+  color: var(--text-primary);
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.06rem;
+  letter-spacing: 0.04em;
+}
+
+.orderCard:hover .orderName {
+  color: var(--accent);
+}
+
+.orderBlurb {
+  color: var(--text-secondary);
+  font-family: var(--font-cormorant), serif;
+  font-size: 0.98rem;
+  line-height: 1.4;
+}
+
+.orderMeta {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.orderCount {
+  color: var(--text-secondary);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* --- Tek siranin sayfasi --- */
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--pad-lg);
+}
+
+@media (min-width: 900px) {
+  .layout {
+    /* Sol ray sabit, yol kalan alani aliyor (kullanici istegi: solda yazar,
+       ortada tablo) */
+    grid-template-columns: 260px minmax(0, 1fr);
+    gap: var(--pad-lg);
+  }
+}
+
+.rail {
+  min-width: 0;
+}
+
+.railInner {
+  display: grid;
+  gap: var(--gap-md);
+}
+
+@media (min-width: 900px) {
+  .railInner {
+    /* Yol uzun; yazar rayi kaydirirken gorunur kalsin */
+    position: sticky;
+    top: var(--pad-lg);
+  }
+}
+
+.portrait {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  max-width: 240px;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  border-left: 3px solid var(--accent-muted);
+  border-radius: 2px 4px 4px 2px;
+  background: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--accent) 10%, var(--surface)),
+    var(--surface)
+  );
+}
+
+.portraitImg {
+  object-fit: cover;
+}
+
+.portraitEmpty {
+  color: var(--accent-muted);
+  font-family: var(--font-cinzel), serif;
+  font-size: 2.4rem;
+  letter-spacing: 0.08em;
+}
+
+.authorLink {
+  text-decoration: none;
+}
+
+.authorName {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.18rem;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+}
+
+.authorLink:hover .authorName {
+  color: var(--accent);
+}
+
+.biography {
+  max-width: 46ch;
+  color: var(--text-secondary);
+  font-family: var(--font-cormorant), serif;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.biography p {
+  margin: 0 0 0.7em;
+}
+
+.biography p:last-child {
+  margin-bottom: 0;
+}
+
+.notes {
+  padding-top: var(--gap-md);
+  border-top: 1px solid var(--border);
+}
+
+.notesTitle {
+  margin: 0 0 var(--gap-sm);
+  color: var(--text-secondary);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.82rem;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.noteList {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  color: var(--text-muted);
+  font-size: 0.86rem;
+  line-height: 1.5;
+  list-style: none;
+}
+
+/* Not maddelerinin basindaki kucuk isaret — madde imi yerine */
+.noteList li {
+  padding-left: 14px;
+  border-left: 1px solid var(--accent-muted);
+}
+
+.main {
+  min-width: 0;
+}
+
+/* --- Ilerleme --- */
+
+.progress {
+  display: grid;
+  gap: 6px;
+  margin-bottom: var(--pad-md);
+}
+
+.progressHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--gap-sm);
+}
+
+.progressLabel {
+  color: var(--text-primary);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.92rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.progressSub {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.meter {
+  position: relative;
+  display: block;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--text-muted) 22%, transparent);
+}
+
+.meterFill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--accent);
+}
+
+/* --- Denetimler --- */
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--gap-md);
+  margin-bottom: var(--pad-md);
+  padding-bottom: var(--gap-md);
+  border-bottom: 1px solid var(--border);
+}
+
+.sortGroup {
+  display: inline-flex;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.sortOff,
+.sortOn {
+  min-height: var(--touch-min, 44px);
+  padding: 6px 12px;
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.sortOn {
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  color: var(--text-primary);
+}
+
+.sortOff:hover {
+  color: var(--accent);
+}
+
+.trackChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip,
+.chipOn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.chipOn {
+  border-color: var(--tone, var(--accent));
+  background: color-mix(in srgb, var(--tone, var(--accent)) 14%, transparent);
+  color: var(--text-primary);
+}
+
+.chip:hover {
+  border-color: var(--tone, var(--accent-muted));
+}
+
+.chipDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--tone, var(--accent));
+}
+
+.chipCount {
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Yol: numarali duraklar --- */
+
+.road {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stop {
+  position: relative;
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr);
+  align-items: center;
+  gap: var(--gap-sm);
+}
+
+/* Duraklari birlestiren cizgi: sira bir yol, kopuk kartlar degil */
+.stop::before {
+  position: absolute;
+  top: 50%;
+  bottom: -10px;
+  left: 23px;
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--tone, var(--accent)) 45%, transparent),
+    transparent
+  );
+  content: "";
+}
+
+.stop:last-child::before {
+  display: none;
+}
+
+/* Buyuk rakam: okuma sirasinda durak numarasi, yayim sirasinda yil */
+.stopLead {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border: 1px solid color-mix(in srgb, var(--tone, var(--accent)) 45%, transparent);
+  border-radius: 50%;
+  background: var(--bg);
+  color: var(--tone, var(--accent));
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+
+.stopLink,
+.stopStatic {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--gap-md);
+  min-width: 0;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  /* Serinin rengi kartin sol kenarinda: hangi seride oldugu tek bakista */
+  border-left: 3px solid color-mix(in srgb, var(--tone, var(--accent)) 65%, transparent);
+  border-radius: 2px var(--radius) var(--radius) 2px;
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+  color: inherit;
+  text-decoration: none;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.stopLink:hover,
+.stopLink:focus-visible {
+  border-color: var(--tone, var(--accent));
+  background: var(--surface-hover);
+  transform: translateX(3px);
+}
+
+.stopCover {
+  position: relative;
+  width: 44px;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  border-radius: 2px;
+  background: var(--surface);
+}
+
+.stopCoverImg {
+  object-fit: cover;
+}
+
+/* Arsivde olmayan durakta kapak yok — bos cerceve bir hata hali degil */
+.stopCoverEmpty {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--text-muted) 12%, transparent),
+    color-mix(in srgb, var(--text-muted) 12%, transparent) 3px,
+    transparent 3px,
+    transparent 7px
+  );
+}
+
+.stopBody {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.stopTop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.trackBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--tone, var(--accent));
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.trackIndex {
+  padding: 0 4px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--tone, var(--accent)) 18%, transparent);
+  font-variant-numeric: tabular-nums;
+}
+
+.stopYear {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.stopTitle {
+  overflow: hidden;
+  color: var(--text-primary);
+  font-family: var(--font-cormorant), serif;
+  font-size: 1.04rem;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+}
+
+.stopLink:hover .stopTitle {
+  color: var(--accent);
+}
+
+/* Turkce adlar: ayni kitabin farkli baskilari, hepsi yan yana */
+.stopNames {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  margin-top: 2px;
+}
+
+.stopName {
+  padding: 1px 7px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  font-size: 0.76rem;
+}
+
+.stopState {
+  display: grid;
+  place-items: center;
+  width: 22px;
+}
+
+.stateRead {
+  color: var(--gold);
+  font-size: 1rem;
+}
+
+.stateOwned {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--bg);
+  font-size: 0.7rem;
+  line-height: 1;
+}
+
+/* Arsivde olmayan durak: bos bir halka, bosluk degil — sutun hizali kalsin */
+.stateMissing {
+  width: 14px;
+  height: 14px;
+  border: 1px dashed var(--border-strong);
+  border-radius: 50%;
+}
+
+@media (max-width: 639px) {
+  .stopLink,
+  .stopStatic {
+    grid-template-columns: 36px minmax(0, 1fr) auto;
+    gap: var(--gap-sm);
+  }
+
+  .stopCover {
+    width: 36px;
+  }
+
+  .stop {
+    grid-template-columns: 36px minmax(0, 1fr);
+  }
+
+  .stopLead {
+    width: 36px;
+    height: 36px;
+    font-size: 0.78rem;
+  }
+
+  .stop::before {
+    left: 18px;
+  }
+}

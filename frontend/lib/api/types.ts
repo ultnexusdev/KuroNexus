@@ -955,6 +955,55 @@ export interface SourceBookPage {
   archiveSlug: string | null;
 }
 
+/**
+ * Okuma sırası — bir evreni hangi kitaptan başlayıp nasıl takip etmeli.
+ * Liste backend'de kod içi küratörlü; arşiv eşleşmesi canlı hesaplanıyor.
+ */
+export interface ReadingOrderEntry {
+  /** Okuma sırasındaki yeri */
+  order: number;
+  /** Yayım yılı — okuma sırasıyla kasten uyuşmuyor */
+  year: number;
+  position: {
+    /** "Vakıf Serisi", "Robot Serisi", "Ara Kitap"… */
+    track: string;
+    /** Seri içindeki cilt sırası; ara kitapta null */
+    index: number | null;
+  };
+  originalTitle: string;
+  /** Türkçe yayımlanmış ad(lar); birden çoksa farklı baskılar */
+  titles: string[];
+  inArchive: boolean;
+  archiveSlug: string | null;
+  coverImage: string | null;
+  status: BookStatus | null;
+}
+
+export interface ReadingOrderSummary {
+  key: string;
+  name: string;
+  blurb: string;
+  author: { name: string; slug: string };
+  total: number;
+  inArchive: number;
+  readCount: number;
+  coverImage: string | null;
+  /** "1950–1993" — listenin kapsadığı yayım yılları */
+  years: string;
+  tracks: Array<{ name: string; count: number }>;
+}
+
+export interface ReadingOrderDetail extends ReadingOrderSummary {
+  notes: string[];
+  author: {
+    name: string;
+    slug: string;
+    photo: string | null;
+    biography: string | null;
+  };
+  entries: ReadingOrderEntry[];
+}
+
 export interface BookQuote {
   id: string;
   text: string;

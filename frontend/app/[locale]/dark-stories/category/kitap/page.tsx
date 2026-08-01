@@ -27,6 +27,7 @@ const SLUG = "kitap";
 const SECTIONS = [
   { key: "archive", href: "/dark-stories/category/kitap/arsiv" },
   { key: "awards", href: "/dark-stories/category/kitap/oduller" },
+  { key: "readingOrders", href: "/dark-stories/category/kitap/okuma-sirasi" },
   { key: "notes", href: null },
 ] as const;
 

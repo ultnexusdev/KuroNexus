@@ -226,18 +226,24 @@ function AutoFill({ pending }: { pending: number }) {
 /**
  * Bir tur ne kadar sürede tazeleniyor.
  *
- * Backend bir istekte üç kazanan dolduruyor ve bir kazanan 2–4 sayfa açıyor;
- * yirmi saniye o turun kaynağın ölçülmüş hız sınırının altında bitmesine
- * yetiyor. Daha sık tazelemek yalnızca 429 getirirdi.
+ * Backend bir istekte üç kazanan dolduruyor, bir kazanan 2–4 sayfa açıyor ve
+ * sayfalar arasında en az bir saniye boşluk var — yani bir tur 12 saniyeye
+ * kadar sürebiliyor.
+ *
+ * Önce 20 saniyeydi ve **az geldi**: kaynağın istek kuyruğu paylaşımlı, tur
+ * bitmeden yenisi eklenince küratör araması o sıranın arkasına düşüp askıda
+ * kalıyordu (kullanıcı bildirimi). Asıl koruma backend'de — soğumadayken tur
+ * hiç başlamıyor — ama tazelemeyi de seyreltmek doğru: bu sayfanın işi arka
+ * planda dolmak, kaynağı meşgul etmek değil.
  */
-const REFRESH_MS = 20_000;
+const REFRESH_MS = 45_000;
 
 /**
  * En fazla kaç tur. 235 kazananın tamamı tek ziyarette dolmuyor ve dolması da
  * gerekmiyor — sayfa açık unutulunca saatlerce istek atmasın diye üst sınır
- * var (30 tur ≈ 10 dakika). Kaldığı yerden bir sonraki ziyarette devam eder.
+ * var (20 tur ≈ 15 dakika). Kaldığı yerden bir sonraki ziyarette devam eder.
  */
-const MAX_ROUNDS = 30;
+const MAX_ROUNDS = 20;
 
 function WinnerCard({
   winner,

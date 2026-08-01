@@ -389,6 +389,15 @@ export class AwardsService {
     if (this.backfilling || missing.length === 0) {
       return;
     }
+    /**
+     * Soğumadayken tur hiç başlamıyor. Başlasaydı kaynağın kuyruğuna bir
+     * dakika beklemekten başka bir şey yapmayacak işler dizilirdi ve
+     * **küratörün kendi araması da o sıranın arkasında kalırdı** — kullanıcı
+     * tam bunu bildirdi ("arama simgesi dönüyor ama sonuç gelmiyor").
+     */
+    if (this.binKitap.isCoolingDown()) {
+      return;
+    }
     const slice = missing.slice(0, BACKFILL_PER_REQUEST);
 
     this.backfilling = true;

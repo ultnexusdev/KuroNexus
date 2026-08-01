@@ -1039,7 +1039,7 @@
       "on": "Curator mode",
       "off": "Leave curator mode",
       "addTitle": "Add a book",
-      "addLede": "Start typing and results open on their own. Google Books and Open Library are searched together — pick whichever record has the better cover.",
+      "addLede": "Start typing and results open on their own. 1000Kitap, Google Books and Open Library are searched together — the badge shows the source, so pick whichever record has the better cover.",
       "searchLabel": "Search books",
       "searchPlaceholder": "Title or author…",
       "search": "Search",

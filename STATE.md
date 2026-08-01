@@ -276,7 +276,38 @@
 > listesindeki geçtiği yerler gösteriliyor; **rol uydurulmuyor**, yalnızca
 > ödül listesi yazarlığı kanıtlıyorsa "Yazar" yazıyor.
 >
+> **HEMEN ARDINDAN ÇIKAN HATA — KUYRUK AÇLIĞI (aynı gün düzeltildi).**
+> Kullanıcı küratörde "buçuk" arayınca **arama simgesi dönüp duruyor, sonuç
+> hiç gelmiyordu.** Sebep tek bir satırda değil, üç kararın birleşiminde:
+>
+> 1. `BinKitapService.queue` **paylaşımlı ve tek sıra** — istekler arasında en
+>    az 1 sn boşluk var.
+> 2. Ödül doldurması bir turda 3 kazanan × 2–4 sayfa açıyor, yani kuyruğa bir
+>    seferde ~12 istek diziyor.
+> 3. Yeni `AutoFill` bunu **20 saniyede bir** tetikliyordu.
+>
+> Kuyruk dolduğundan hızlı büyüyor; küratör aramasının 1000Kitap bacağı sıranın
+> arkasına düşüyor ve `google-books.service` dört bacağı `allSettled` ile
+> beklediği için **HTTP yanıtı hiç dönmüyor**. 429 görülürse daha da beter:
+> kuyruktaki her iş 60 sn soğumayı ayrı ayrı bekliyor.
+>
+> **Üç yerden birden düzeltildi:**
+> - `fetchNextData(path, foreground)` eklendi. Ön plandaki çağrı (küratör
+>   araması, kişi sayfası) soğumada **hiç sıraya girmiyor** ve bekleyişi
+>   `FOREGROUND_DEADLINE_MS` (6 sn) ile sınırlı. Süre dolunca yalnızca
+>   *beklemekten* vazgeçiliyor — sıradaki iş çalışıp cache'i dolduruyor.
+>   Bacak düşünce arama Google + Open Library ile dönüyor (kural 4).
+> - `BinKitapService.isCoolingDown()` eklendi; ödül doldurması soğumadayken
+>   turu **hiç başlatmıyor**.
+> - `AutoFill` 20 sn → **45 sn**, üst sınır 30 tur → 20 tur.
+>
+> Ders: paylaşımlı bir kuyruğa arka plan işi dizerken ön plandaki çağrının o
+> sıranın arkasında kalıp kalmadığı **ayrıca** düşünülmeli. `allSettled`
+> bacakları birbirinden yalıtıyor ama **süreden yalıtmıyor** — en yavaş bacak
+> yanıtın süresini belirlemeye devam ediyor.
+>
 > **YAPILMADI / AÇIK:**
+> - Kuyruk açlığının bu üç düzeltmeyle bittiği **canlıda ölçülmedi**.
 > - Üçüncü kademe yazar bağı bir **tahmin**: kaynağın `seo_adi`si adın
 >   katlanmış hâlinden farklıysa kişi sayfası 404 verir. Kart yine tıklanır
 >   hâlde — hangi adlarda tuttuğu **ölçülmedi** (lokalden kaynağa çıkılamıyor).

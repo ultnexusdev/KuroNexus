@@ -75,6 +75,21 @@ const DETAIL_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 /** Kullanıcı yazarken atılan istek; uzun beklemektense bacağı düşürmek iyi. */
 const REQUEST_TIMEOUT_MS = 10_000;
 
+/**
+ * Kullanıcıyı bekleten bir isteğin **kuyrukta** en fazla duracağı süre.
+ *
+ * `REQUEST_TIMEOUT_MS`ten ayrı ve ondan önemli: o tek bir ağ isteğinin süresini
+ * sınırlıyor, bu ise **sıraya girmenin** süresini. Kuyruk paylaşımlı — ödül
+ * eşleştirmesi arkada onlarca sayfa açabiliyor ve aralarında birer saniye
+ * boşluk var. Küratör araması o sıranın arkasına düştüğünde dakikalarca
+ * bekleyebiliyordu: kullanıcı "arama simgesi dönüyor ama sonuç gelmiyor" diye
+ * bildirdi ve sebebi tam olarak buydu.
+ *
+ * Süre dolunca yalnızca **beklemekten** vazgeçiliyor; sıradaki iş çalışmaya
+ * devam edip cache'i dolduruyor, yani bir sonraki arama hazır buluyor.
+ */
+const FOREGROUND_DEADLINE_MS = 6_000;
+
 /** Nezaket: istekler sıraya girer ve aralarında en az bu kadar boşluk kalır. */
 const MIN_REQUEST_GAP_MS = 1_000;
 
@@ -355,8 +370,10 @@ export class BinKitapService {
       return cached;
     }
 
+    // Küratör yazarken bekliyor: kuyrukta oyalanmak yerine bacağı düşür
     const data = await this.fetchNextData(
       `/ara?q=${encodeURIComponent(trimmed)}&bolum=kitaplar`,
+      true,
     );
     const list = data?.props?.pageProps?.response?._sonuc?.liste ?? [];
     const results = list
@@ -430,7 +447,8 @@ export class BinKitapService {
 
     let data: BinKitapNextData | null;
     try {
-      data = await this.fetchNextData(`/yazar/${encodeURI(seoName)}`);
+      // Kişi sayfası açılırken bekleniyor: burada da kuyruğa takılınmıyor
+      data = await this.fetchNextData(`/yazar/${encodeURI(seoName)}`, true);
     } catch (error) {
       this.logger.warn(`1000Kitap yazarı çekilemedi (${seoName}): ${error}`);
       return null;
@@ -449,10 +467,29 @@ export class BinKitapService {
    * Sayfayı çekip `__NEXT_DATA__` içeriğini çözer.
    *
    * İstekler `queue` üzerinden tek sıraya dizilir ve aralarında en az
-   * `MIN_REQUEST_GAP_MS` boşluk bırakılır; timeout `AbortSignal` ile
-   * uygulanır, çünkü asılı kalan bir istek arama bacağını da askıda tutar.
+   * `MIN_REQUEST_GAP_MS` boşluk bırakılır; ağ isteğinin kendi süresi
+   * `REQUEST_TIMEOUT_MS` ile sınırlı, çünkü asılı kalan bir istek arama
+   * bacağını da askıda tutar.
+   *
+   * `foreground` **kuyruğun paylaşımlı olmasının bedelini** ödemesi gereken
+   * çağıran için: kullanıcı ekran başında beklerken arka plandaki toplu
+   * eşleştirmenin sırası boşalsın diye dakikalarca oyalanmaz. İki farkı var —
+   * soğumada hiç sıraya girmez ve bekleyişi `FOREGROUND_DEADLINE_MS` ile
+   * sınırlıdır.
    */
-  private async fetchNextData(path: string): Promise<BinKitapNextData | null> {
+  private async fetchNextData(
+    path: string,
+    foreground = false,
+  ): Promise<BinKitapNextData | null> {
+    /**
+     * Soğumada bekleyen bir kullanıcı isteği bir dakika asılı kalırdı ve
+     * sonunda büyük olasılıkla yine 429 alırdı. Bacağı hemen düşürmek doğru:
+     * arama zaten Google ve Open Library sonuçlarıyla dönüyor (kural 4).
+     */
+    if (foreground && this.cooldownUntil > Date.now()) {
+      throw new BinKitapRateLimitError(path);
+    }
+
     const run = this.queue.then(async () => {
       // Soğuma önce: 429'dan sonra ısrar etmek yeni 429'dan başka bir şey
       // getirmiyor (ölçüldü)
@@ -470,7 +507,37 @@ export class BinKitapService {
 
     // Kuyruk bir hatada kırılmasın: sıradaki istek yine çalışabilmeli
     this.queue = run.catch(() => undefined);
-    return run;
+    if (!foreground) {
+      return run;
+    }
+
+    /**
+     * Yarışın kaybeden tarafı iptal EDİLMİYOR: `run` çalışmaya devam edip
+     * cache'i dolduruyor. Reddi de yukarıdaki `catch` zinciri yakalıyor, yani
+     * yakalanmamış bir promise kalmıyor.
+     */
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const deadline = new Promise<never>((_resolve, reject) => {
+      timer = setTimeout(
+        () => reject(new Error(`1000Kitap kuyruğu meşgul: ${path}`)),
+        FOREGROUND_DEADLINE_MS,
+      );
+    });
+    try {
+      return await Promise.race([run, deadline]);
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  /**
+   * Kaynak şu anda soğumada mı (429 görüldü). Toplu eşleştirme buna bakıp
+   * turunu hiç başlatmıyor: başlatsaydı kuyruğa bir dakika boyunca beklemek
+   * dışında bir şey yapmayacak işler dizilir ve **kullanıcının kendi
+   * aramaları da o sıranın arkasında kalırdı.**
+   */
+  isCoolingDown(): boolean {
+    return this.cooldownUntil > Date.now();
   }
 
   /**

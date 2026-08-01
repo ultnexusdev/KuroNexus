@@ -1510,12 +1510,24 @@ export class BooksService {
         // Cilt künyesi alınamadı; aşağıdaki ada göre arama denenir
       }
     }
+    /**
+     * Kimlikten çözülemeyen kayıt — başlıca **Open Library** seçimleri, çünkü
+     * o kaynağın tek kayıt ucu yok; bir de kaynaksız elle eklemeler.
+     *
+     * **Yazar sorguya giriyor.** Yalnızca adla aramak genel adlarda felakete
+     * yol açıyor: "Miras" sorgusu 1000Kitap'ta *Kültürel Miras Duyarlılığı ve
+     * Somut Olmayan Kültürel Miras Tutumları* kaydını döndürüyor ve eskiden
+     * bu sonuç **körü körüne** kabul ediliyordu — kullanıcı R. A. Salvatore'un
+     * *Miras*'ını ekledi, arşive o akademik çalışmanın künyesi yazıldı.
+     */
     if (dto.title) {
       try {
-        const results = await this.source.search(dto.title);
+        const query = dto.author ? `${dto.title} ${dto.author}` : dto.title;
+        const results = await this.source.search(query);
+        const picked = pickSeed(results, dto);
         return {
           ...EMPTY_SEED,
-          source: results[0] ? await this.source.enrich(results[0]) : null,
+          source: picked ? await this.source.enrich(picked) : null,
         };
       } catch {
         return EMPTY_SEED;
@@ -1922,6 +1934,75 @@ function awardsForPerson(
     }
   }
   return found.sort((a, b) => b.year - a.year);
+}
+
+/**
+ * Arama sonucundan **küratörün seçtiği** kaydı bulur.
+ *
+ * Eskiden burada körü körüne `results[0]` alınıyordu ve bu gerçek bir hataya
+ * yol açtı: Open Library'den seçilen *Miras* (R. A. Salvatore) eklenirken
+ * `seed` kimlik dalı bulamayıp ada göre arıyor, "Miras" sorgusu bambaşka bir
+ * kitap döndürüyor ve **onun künyesi** yazılıyordu — kapağı, ISBN'i, arka
+ * kapağı, yazarı dahil. Kullanıcı bildirdi.
+ *
+ * İki kademe:
+ *  1. **Kimlik** — kesin. Aynı arama listesi küratöre gösterilmişti, seçilen
+ *     kayıt kimliğiyle içinde duruyor.
+ *  2. **Ad + yazar** — doğrulanmış yedek. Ad **birebir** aranıyor: gevşek
+ *     eşleşme burada *Dune* yerine *Dune Mesihi*'ni getirirdi (ödül
+ *     eşleştirmesinde ölçülmüş tuzağın aynısı).
+ *
+ * Hiçbiri tutmazsa `null`: kayıt yalnızca adıyla açılır, künyeyi küratör
+ * doldurur. **Doğrulanmamış künye yazmaktansa boş bırakmak doğru** — kod
+ * tabanının geri kalanında da geçerli olan kural.
+ *
+ * Sınıfın dışında ve **dışa açık**: saf bir işlev ve arşive yazılan künyenin
+ * doğruluğu buna bağlı — `books.service.spec.ts` bunu doğrudan sınıyor
+ * (ödül eşleştirmesindeki `pickBest` ile aynı gerekçe).
+ */
+export function pickSeed(
+  results: BookSource[],
+  dto: CreateBookEntryDto,
+): BookSource | null {
+  const byIdentity = results.find(
+    (item) =>
+      (dto.olKey !== undefined && item.olKey === dto.olKey) ||
+      (dto.googleId !== undefined && item.googleId === dto.googleId) ||
+      (dto.binKitapSlug !== undefined &&
+        item.binKitapSlug === dto.binKitapSlug),
+  );
+  if (byIdentity) {
+    return byIdentity;
+  }
+
+  // Yazar bilinmiyorsa doğrulanacak bir şey yok; tahmin yürütülmüyor
+  const wantedTitle = dto.title ? slugify(dto.title) : '';
+  const wantedAuthor = dto.author ? slugify(dto.author) : '';
+  if (!wantedTitle || !wantedAuthor) {
+    return null;
+  }
+
+  return (
+    results.find(
+      (item) =>
+        slugify(item.title) === wantedTitle &&
+        item.authors.some((name) => looseMatch(slugify(name), wantedAuthor)),
+    ) ?? null
+  );
+}
+
+/**
+ * Katlanmış iki adın tutup tutmadığı — birebir ya da biri ötekini içeriyor.
+ *
+ * Boş anahtar **her zaman** başarısız: `slugify` ASCII dışı yazıyı tamamen
+ * eliyor ve `''.includes` ile `x.includes('')` sessizce `true` dönerdi
+ * (ödül eşleştirmesinde aynı tuzağa `titleRank` içinde guard konmuştu).
+ */
+function looseMatch(left: string, right: string): boolean {
+  if (!left || !right) {
+    return false;
+  }
+  return left === right || left.includes(right) || right.includes(left);
 }
 
 /** `personName` yalnızca sayfa başlığını bulmak içindi; dışarı çıkmıyor. */

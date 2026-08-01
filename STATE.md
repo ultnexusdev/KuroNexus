@@ -306,8 +306,46 @@
 > bacakları birbirinden yalıtıyor ama **süreden yalıtmıyor** — en yavaş bacak
 > yanıtın süresini belirlemeye devam ediyor.
 >
+> **İKİNCİ HATA — YANLIŞ KİTABIN KÜNYESİ YAZILIYORDU (aynı gün düzeltildi).**
+> Kullanıcı Open Library'den *Miras* (R. A. Salvatore) seçip ekledi; arşive
+> **Kültürel Miras Duyarlılığı ve Somut Olmayan Kültürel Miras Tutumları**
+> (Fatih Dursun, Detay Yayıncılık, 101 sayfa) girdi. Kapak, ISBN, arka kapak,
+> yazar — hepsi o kitabın.
+>
+> **Sebep `seed()`te iki eksik.** (1) `binKitapSlug` ve `googleId` için dal
+> vardı ama **`olKey` için hiç yoktu** — Open Library seçimi hep en alttaki
+> "ada göre ara" dalına düşüyordu. (2) O dal `this.source.search(dto.title)`
+> yapıp **`results[0]`ı körü körüne** alıyordu. Sorgu yalnızca "Miras"tı
+> (yazar DTO'da hiç yoktu) ve 1000Kitap bacağı listenin başında olduğu için
+> ilk sonuç o akademik çalışma çıkıyordu. Hata Faz 1'den beri duruyordu ama
+> 1000Kitap arama sonuçlarına eklenene kadar görünür olmamıştı.
+>
+> **Düzeltme:**
+> - DTO'ya `author` eklendi — künyeye **yazılmıyor**, yalnızca doğru kitabı
+>   bulmak için. Sorgu artık "Miras R. A. Salvatore".
+> - `pickSeed()` (dışa açık, saf, sınanıyor): önce **kimlik**
+>   (`olKey`/`googleId`/`binKitapSlug`), sonra **ad + yazar** doğrulaması. Ad
+>   **birebir** aranıyor — gevşek eşleşme *Dune* yerine *Dune Mesihi*'ni
+>   getirirdi (ödül tarafında ölçülmüş tuzağın aynısı). Hiçbiri tutmazsa
+>   `null`: kayıt yalnızca adıyla açılır, künyeyi küratör doldurur.
+>   **Doğrulanmamış künye yazmaktansa boş bırakmak doğru.**
+> - `books.service.spec.ts` açıldı; ilk sınama kullanıcının bildirdiği
+>   senaryonun kendisi.
+>
+> Ders: "ilk sonucu al" bir eşleştirme değil, bir tahmindir. Kod tabanında
+> ödül tarafı bu dersi zaten öğrenmişti (`pickBest`, `confirmMatch`); kayıt
+> açma yolu aynı dersi almamıştı.
+>
+> **ELDE KALAN BOZUK KAYIT:** Kullanıcının arşivindeki "Miras" kaydı yanlış
+> künyeyle duruyor. "⟳ tazele" yalnızca **boş** alanları doldurduğu için
+> düzeltmez — kayıt silinip yeniden eklenmeli.
+>
 > **YAPILMADI / AÇIK:**
 > - Kuyruk açlığının bu üç düzeltmeyle bittiği **canlıda ölçülmedi**.
+> - Open Library seçiminin artık doğru kitabı getirdiği canlıda ölçülmedi;
+>   kimlik dalı arama sonucunda `olKey`in görünmesine bağlı (arama "ad +
+>   yazar" ile yapılıyor, aynı kayıt listede olmalı). Tutmazsa ad + yazar
+>   doğrulaması devreye giriyor, o da tutmazsa kayıt künyesiz açılıyor.
 > - Üçüncü kademe yazar bağı bir **tahmin**: kaynağın `seo_adi`si adın
 >   katlanmış hâlinden farklıysa kişi sayfası 404 verir. Kart yine tıklanır
 >   hâlde — hangi adlarda tuttuğu **ölçülmedi** (lokalden kaynağa çıkılamıyor).

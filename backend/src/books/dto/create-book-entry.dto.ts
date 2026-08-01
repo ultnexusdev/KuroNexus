@@ -49,6 +49,21 @@ export class CreateBookEntryDto {
   @MaxLength(300, { message: 'VALIDATION.TITLE_TOO_LONG' })
   title?: string;
 
+  /**
+   * Seçilen kaydın yazarı. Künyeye **yazılmıyor** — yalnızca doğru kitabı
+   * bulmak için.
+   *
+   * Gerekliliği bir hatayla anlaşıldı: Open Library'den seçilen *Miras*
+   * (R. A. Salvatore) eklenirken kimlik dalı olmadığı için yalnızca adla
+   * arama yapılıyor, "Miras" sorgusu bambaşka bir kitabı döndürüyor ve onun
+   * künyesi yazılıyordu. Yazar hem sorguyu daraltıyor hem de sonucun
+   * doğrulanmasını mümkün kılıyor (bkz. `BooksService.seed`).
+   */
+  @IsOptional()
+  @IsString({ message: 'VALIDATION.INVALID_AUTHOR' })
+  @MaxLength(300, { message: 'VALIDATION.INVALID_AUTHOR' })
+  author?: string;
+
   @IsOptional()
   @IsEnum(BookStatus, { message: 'VALIDATION.INVALID_BOOK_STATUS' })
   status?: BookStatus;

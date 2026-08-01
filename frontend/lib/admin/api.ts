@@ -725,6 +725,12 @@ export interface BookEntryInput {
   /** 1000Kitap sayfa anahtarı — künye öncelikle bundan tohumlanır */
   binKitapSlug?: string;
   title?: string;
+  /**
+   * Seçilen kaydın yazarı. Künyeye yazılmıyor — backend doğru kitabı bulmak
+   * için kullanıyor: Open Library kaydının tek kayıt ucu yok ve künye ada
+   * göre aranarak tohumlanıyor, yalnızca ad ise yetmiyor.
+   */
+  author?: string;
   status?: BookStatus;
   translationState?: BookTranslation;
   seriesName?: string;

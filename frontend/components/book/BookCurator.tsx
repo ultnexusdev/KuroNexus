@@ -231,6 +231,14 @@ export function CuratorBar() {
         olKey: picked.olKey ?? undefined,
         binKitapSlug: picked.binKitapSlug ?? undefined,
         title: title.trim() || picked.title,
+        /**
+         * Seçilen kaydın yazarı — künyeye yazılmıyor, **doğru kitabı bulmak
+         * için**. Open Library kaydının tek kayıt ucu yok; backend künyeyi
+         * ada göre arayarak tohumluyor ve yalnızca ad yeterli değil:
+         * "Miras" sorgusu bambaşka bir kitap getirip onun künyesini
+         * yazmıştı (kullanıcı bildirimi).
+         */
+        author: picked.authors[0] ?? undefined,
         status,
         translationState: translation,
         seriesName: seriesName.trim() || undefined,

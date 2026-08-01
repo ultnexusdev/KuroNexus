@@ -189,6 +189,29 @@
   font-size: 0.85rem;
 }
 
+/* "Daha fazla goster": liste kesildiyse bunu soyleyen satir. Bir secenek
+   degil, o yuzden kartlardan ayri bir dille ciziliyor */
+.moreResults {
+  width: 100%;
+  min-height: var(--touch-min, 44px);
+  padding: 8px;
+  border: 0;
+  border-top: 1px solid var(--border);
+  border-radius: 0 0 var(--radius) var(--radius);
+  background: transparent;
+  color: var(--accent);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.moreResults:hover {
+  background: var(--surface-hover);
+  color: var(--accent-hover);
+}
+
 .result {
   display: flex;
   align-items: center;

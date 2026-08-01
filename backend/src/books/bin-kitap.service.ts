@@ -381,8 +381,41 @@ export class BinKitapService {
       .filter((item): item is BookSource => item !== null)
       .slice(0, SEARCH_LIMIT);
 
+    /**
+     * **Boş sonuç cache'lenmiyor.** "Aradık, kaynak bilmiyor" ile "sayfa
+     * okunamadı" ekranda aynı görünüyor ama ikisi aynı şey değil: ikincisi
+     * geçici ve cache'lenirse o sorgu **24 saat boyunca** boş kalır.
+     *
+     * Kullanıcı tam bunu bildirdi: "sessiz kılıç" 1000Kitap'ta 20 sonuç
+     * veriyorken bizim listede tek bir `1K` kaydı yoktu (kaynak canlıda
+     * ölçüldü, veri yerindeydi). Aynı ders ödül eşleştirmesinde `sawResults`
+     * ile zaten alınmıştı; arama bacağı almamıştı.
+     */
+    if (results.length === 0) {
+      this.logger.warn(
+        `1000Kitap araması boş döndü, cache'lenmiyor: "${trimmed}"`,
+      );
+      return results;
+    }
+
     await this.writeCache(cacheKey, results);
     return results;
+  }
+
+  /**
+   * Kitap sayfasının adresinden doğrudan künye — küratörün elindeki bağlantıyı
+   * yapıştırıp "detayları buradan al" diyebilmesi için (kullanıcı isteği).
+   *
+   * Aramanın bulamadığı ya da yanlış baskıyı öne çıkardığı durumlarda tek
+   * kesin yol bu: adres eserin değil **o baskının** anahtarını taşıyor.
+   */
+  async getByUrl(reference: string): Promise<BookSource | null> {
+    const slug = binKitapSlug(reference);
+    if (!slug) {
+      return null;
+    }
+    const detail = await this.getDetail(slug);
+    return detail?.source ?? null;
   }
 
   /**
@@ -670,6 +703,27 @@ export function extractNextData(html: string): BinKitapNextData | null {
   } catch {
     return null;
   }
+}
+
+/**
+ * Kitap sayfası anahtarını bir adresten ya da çıplak anahtardan çıkarır.
+ *
+ * **Kimlik eki (`--308785`) zorunlu ve bu ölçülmüş bir kısıt:** `/kitap/
+ * sessiz-kilic--308785` künyeyi veriyor, `/kitap/sessiz-kilic` ise **200
+ * dönüp boş sayfa** veriyor. Yalnızca duruma bakan bir doğrulama bunu
+ * "çalışıyor" sanır — yazar sayfasında da aynı tuzak var
+ * (`BookPerson.binKitapSeoName`).
+ *
+ * Kabul edilen biçimler: tam adres (protokollü ya da protokolsüz, `www`li,
+ * sorgu/çapa ekli) ve çıplak anahtar.
+ */
+export function binKitapSlug(reference: string): string | null {
+  const trimmed = reference.trim();
+  const fromUrl = /(?:^|\/)kitap\/([a-z0-9-]+--\d+)/i.exec(trimmed);
+  if (fromUrl) {
+    return fromUrl[1].toLowerCase();
+  }
+  return /^[a-z0-9-]+--\d+$/i.test(trimmed) ? trimmed.toLowerCase() : null;
 }
 
 /** Arama sonucundaki tek kayıt. Künye alanları burada YOK, yalnız kimlik. */

@@ -340,7 +340,44 @@
 > künyeyle duruyor. "⟳ tazele" yalnızca **boş** alanları doldurduğu için
 > düzeltmez — kayıt silinip yeniden eklenmeli.
 >
+> **ÜÇÜNCÜ HATA — BOŞ ARAMA SONUCU 24 SAAT CACHE'LENİYORDU.**
+> Kullanıcı "sessiz kılıç" arayınca listede **tek bir `1K` kaydı** yoktu, oysa
+> 1000Kitap'ta ilk üç sonuç *Sessiz Kılıç* (R. A. Salvatore).
+>
+> **Kaynak canlıda ölçüldü ve veri yerindeydi:** `/ara?q=sessiz kılıç&
+> bolum=kitaplar` **20 kayıt** dönüyor, ilk üçü *Sessiz Kılıç*, `resim` ve
+> `yazarlar` dolu, `toSearchResult`ın istediği üç alan (`adi`, `seo_adi`,
+> `id`) da yerinde. Yani ayrıştırma değil, **cache** suçluydu:
+>
+> `BinKitapService.search` sonucu **her hâlükârda** yazıyordu — boş listeyi
+> bile. Bacak geçici bir sebeple boş dönerse (kuyruk açlığı, okunamayan sayfa,
+> `fetchNextData` null) o sorgu **24 saat** boyunca boş kalıyordu. Aynı ders
+> ödül eşleştirmesinde `sawResults` ile zaten alınmıştı ("hiç sonuç gelmedi
+> bir cevap değildir"); arama bacağı almamıştı. Artık boş sonuç
+> **cache'lenmiyor**, uyarı basılıyor.
+>
+> **KURATÖRDE DOĞRUDAN ADRES (kullanıcı isteği).** Arama kutusuna 1000Kitap
+> kitap adresi yapıştırılınca künye doğrudan o **baskıdan** geliyor:
+> `binKitapSlug()` adresi çözüyor, `BooksService.searchOrResolve` normal arama
+> yerine `getByUrl` çağırıyor. Gerekliliği ölçümle de doğrulandı — aynı eserin
+> kaynakta birden çok baskısı var (*Sessiz Kılıç*: `--308785` ISBN
+> 9786258487534, `--498745` ISBN 9789758518791) ve arama hangisini öne
+> çıkaracağını küratör adına seçiyor.
+>
+> **Kimlik eki (`--308785`) ZORUNLU, ölçüldü:** `/kitap/sessiz-kilic--308785`
+> künyeyi veriyor, `/kitap/sessiz-kilic` **200 dönüp boş sayfa** veriyor.
+> Yazar sayfasındaki tuzağın aynısı; yalnızca durum koduna bakan bir doğrulama
+> ikisini de "çalışıyor" sanır.
+>
+> **"Daha fazla göster"** eklendi: liste ilk 10 kayıtla açılıyor, kalanı tek
+> tıkla iniyor. Kaynaklar 20 kayda kadar dönüyor ve sessizce kesmek "aradığım
+> kitap yok" izlenimi veriyordu.
+>
 > **YAPILMADI / AÇIK:**
+> - "sessiz kılıç" sorgusunun cache'i **canlıda hâlâ boş olabilir** (24 saatlik
+>   TTL). Düzeltme yeni sorguları koruyor ama eskisini silmiyor —
+>   `ExternalCache`ten `books:1k:search:v1:sessiz-kilic` elle silinebilir ya da
+>   bir gün beklenir.
 > - Kuyruk açlığının bu üç düzeltmeyle bittiği **canlıda ölçülmedi**.
 > - Open Library seçiminin artık doğru kitabı getirdiği canlıda ölçülmedi;
 >   kimlik dalı arama sonucunda `olKey`in görünmesine bağlı (arama "ad +

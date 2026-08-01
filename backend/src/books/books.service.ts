@@ -6,7 +6,11 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { slugify } from '../common/utils/slugify';
 import { GoogleBooksService, type BookSource } from './google-books.service';
-import { BinKitapService, type BinKitapDetail } from './bin-kitap.service';
+import {
+  binKitapSlug,
+  BinKitapService,
+  type BinKitapDetail,
+} from './bin-kitap.service';
 import { BookCoverService } from './book-cover.service';
 import { BookCreditsService } from './book-credits.service';
 import { AWARDS } from './data/awards.data';
@@ -870,7 +874,7 @@ export class BooksService {
   async search(
     query: string,
   ): Promise<Array<BookSource & { inArchive: boolean }>> {
-    const results = await this.source.search(query);
+    const results = await this.searchOrResolve(query);
     const known = await this.prisma.bookEntry.findMany({
       where: { isDeleted: false },
       select: { googleId: true, isbn13: true },
@@ -885,6 +889,34 @@ export class BooksService {
         (item.googleId !== null && googleIds.has(item.googleId)) ||
         (item.isbn13 !== null && isbns.has(item.isbn13)),
     }));
+  }
+
+  /**
+   * Sorgu bir **1000Kitap kitap adresi** ise doğrudan o künyeyi döner, değilse
+   * normal arama yapar.
+   *
+   * Kullanıcı isteği: "istediğim kitabın linkini yapıştırıp detayları buradan
+   * al diyebileyim." Gerekliliği ölçümle de görüldü — aynı eserin kaynakta
+   * birden çok baskısı var (*Sessiz Kılıç* için en az `--308785` ve `--498745`,
+   * ISBN'leri farklı) ve arama hangi baskıyı öne çıkaracağını küratör adına
+   * seçiyor. Adres ise **tam olarak o baskıyı** işaret ediyor.
+   *
+   * Adres çözülemezse (silinmiş kayıt, yanlış anahtar) sessizce normal aramaya
+   * düşülüyor: küratör en azından bir liste görsün.
+   */
+  private async searchOrResolve(query: string): Promise<BookSource[]> {
+    if (!binKitapSlug(query)) {
+      return this.source.search(query);
+    }
+    try {
+      const direct = await this.binKitap.getByUrl(query);
+      if (direct) {
+        return [direct];
+      }
+    } catch {
+      // Kaynak düştü; aşağıdaki normal arama denenir (kural 4)
+    }
+    return this.source.search(query);
   }
 
   findAllForAdmin() {

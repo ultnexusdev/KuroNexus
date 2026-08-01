@@ -1,4 +1,5 @@
 import {
+  binKitapSlug,
   extractNextData,
   pickEdition,
   readSeries,
@@ -470,5 +471,48 @@ describe('extractNextData', () => {
   it('bozuk JSON karşısında fırlatmaz', () => {
     const html = `<script id="__NEXT_DATA__" type="application/json">{bozuk</script>`;
     expect(extractNextData(html)).toBeNull();
+  });
+});
+
+/**
+ * Küratörün yapıştırdığı adresten kitap anahtarı. Yanlış çıkarım sessiz bir
+ * hata olurdu: anahtar tutmazsa künye çekilemez ve arama sonucuna düşülür.
+ */
+describe('binKitapSlug', () => {
+  it('tam adresten anahtarı çıkarır', () => {
+    expect(
+      binKitapSlug('https://1000kitap.com/kitap/sessiz-kilic--308785'),
+    ).toBe('sessiz-kilic--308785');
+  });
+
+  it('protokolsüz ve www li adresi de tanır', () => {
+    expect(binKitapSlug('www.1000kitap.com/kitap/dune--12')).toBe('dune--12');
+  });
+
+  it('sorgu ve çapa ekini atar', () => {
+    expect(
+      binKitapSlug('https://1000kitap.com/kitap/dune--12?utm=x#yorumlar'),
+    ).toBe('dune--12');
+  });
+
+  it('çıplak anahtarı kabul eder', () => {
+    expect(binKitapSlug('sessiz-kilic--308785')).toBe('sessiz-kilic--308785');
+  });
+
+  /**
+   * **Kimlik eki zorunlu ve bu ölçülmüş bir kısıt:** `/kitap/sessiz-kilic`
+   * 200 dönüyor ama sayfada kitap YOK. Kabul edilseydi künye sessizce boş
+   * gelir ve kayıt künyesiz açılırdı.
+   */
+  it('kimliksiz anahtarı reddeder', () => {
+    expect(binKitapSlug('sessiz-kilic')).toBeNull();
+    expect(binKitapSlug('https://1000kitap.com/kitap/sessiz-kilic')).toBeNull();
+  });
+
+  it('kitap adresi olmayan sorguyu reddeder', () => {
+    expect(binKitapSlug('sessiz kılıç')).toBeNull();
+    expect(
+      binKitapSlug('https://1000kitap.com/yazar/r-a-salvatore'),
+    ).toBeNull();
   });
 });

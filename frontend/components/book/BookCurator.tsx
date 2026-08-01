@@ -71,6 +71,14 @@ const DEBOUNCE_MS = 350;
  */
 const MIN_QUERY = 4;
 
+/**
+ * Listede ilk anda kaç sonuç görünür. Kalanı "daha fazla göster" ile açılıyor:
+ * kaynaklar 20 kayda kadar dönebiliyor ve hepsini birden çizmek açılır listeyi
+ * ekranın dışına taşırıyordu — ama kesip atmak da doğru değil, aradığı kitap
+ * 11. sırada olabilir (kullanıcı isteği).
+ */
+const RESULT_PAGE = 10;
+
 /** Arşive kitap ekleme şeridi: ara → seç → künyeyi gir. */
 export function CuratorBar() {
   const t = useTranslations("book.curator");
@@ -93,6 +101,8 @@ export function CuratorBar() {
   /** Klavyeyle gezinilen satır; -1 = hiçbiri seçili değil */
   const [active, setActive] = useState(-1);
   const [open, setOpen] = useState(false);
+  /** "Daha fazla göster"e basıldı mı — her yeni aramada sıfırlanır */
+  const [showAll, setShowAll] = useState(false);
   const boxRef = useRef<HTMLDivElement | null>(null);
 
   /**
@@ -121,6 +131,8 @@ export function CuratorBar() {
         .then((found) => {
           setResults(found);
           setActive(-1);
+          // Yeni sorgu yeni liste: önceki aramanın "hepsini göster"i taşınmasın
+          setShowAll(false);
           setOpen(true);
         })
         .catch(() => {
@@ -157,7 +169,9 @@ export function CuratorBar() {
     return () => document.removeEventListener("pointerdown", onPointerDown);
   }, [open]);
 
-  const visible = results?.slice(0, 10) ?? [];
+  const all = results ?? [];
+  const visible = showAll ? all : all.slice(0, RESULT_PAGE);
+  const hidden = all.length - visible.length;
 
   /** Yukarı/aşağı ile gezinme, Enter ile seçme, Esc ile kapatma. */
   function onKeyDown(event: KeyboardEvent<HTMLInputElement>) {
@@ -398,6 +412,20 @@ export function CuratorBar() {
                 </li>
               ))
             )}
+
+            {/* Kalan sonuçlar. Liste kesilmiş olduğunu söylemeden kesmek
+                "aradığım kitap yok" izlenimi veriyordu (kullanıcı isteği) */}
+            {hidden > 0 ? (
+              <li>
+                <button
+                  type="button"
+                  className={styles.moreResults}
+                  onClick={() => setShowAll(true)}
+                >
+                  {t("moreResults", { count: hidden })}
+                </button>
+              </li>
+            ) : null}
           </ul>
         ) : null}
       </div>

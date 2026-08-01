@@ -1,0 +1,219 @@
+/* Arşivde olmayan kitabın künye sayfası.
+   İskelet yazar/yayınevi sayfasıyla (PersonHall) aynı; künye bloğu kitap
+   sayfasındaki (BookDetail) ölçüleri izliyor ki iki sayfa arasında geçen
+   okur aynı yerde aynı bilgiyi bulsun. */
+
+.page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: var(--gap-lg) var(--gap-md) var(--gap-xl);
+}
+
+.head {
+  margin-bottom: var(--gap-lg);
+}
+
+.back {
+  display: inline-block;
+  margin-bottom: var(--gap-sm);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+
+.back:hover,
+.back:focus-visible {
+  color: var(--accent);
+}
+
+.eyebrow {
+  display: block;
+  color: var(--text-muted);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.8rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.dot {
+  margin: 0 0.5em;
+  opacity: 0.6;
+}
+
+/* Kapak ve künye yan yana; dar ekranda kapak küçülüyor ama alt alta
+   inmiyor — başlık bloğu kapağın yanında okunabilir kalıyor. */
+.identity {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--gap-md);
+  margin-top: var(--gap-xs);
+}
+
+.coverFrame {
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 150px;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-2);
+}
+
+.coverImg {
+  object-fit: cover;
+}
+
+/* Kapaksız cilt boş kare değil: adı kapağın yerini tutuyor (arşivdeki
+   kartlarla ve ödül raflarıyla aynı karar). */
+.coverFallback {
+  padding: var(--gap-sm);
+  color: var(--text-muted);
+  font-family: var(--font-cormorant), serif;
+  font-size: 0.95rem;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.identityText {
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(1.7rem, 4vw, 2.5rem);
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+}
+
+.subtitle {
+  margin: 4px 0 0;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.originalTitle {
+  margin: 2px 0 0;
+  color: var(--text-muted);
+  font-family: var(--font-cormorant), serif;
+  font-size: 1.05rem;
+  font-style: italic;
+}
+
+.authors {
+  margin: 6px 0 0;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+/* Sayfanın sınırını söyleyen şerit — okur ödül rafından geliyor ve buranın
+   kendi arşivi olmadığını görmeli. */
+.sourceNote,
+.archiveNote {
+  margin: var(--gap-sm) 0 0;
+  padding: 8px 10px;
+  border-left: 2px solid var(--border-strong);
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.archiveNote {
+  border-left-color: var(--accent);
+  color: var(--text-secondary);
+}
+
+.archiveLink {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.archiveLink:hover,
+.archiveLink:focus-visible {
+  text-decoration: underline;
+}
+
+.creditLink {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.creditLink:hover,
+.creditLink:focus-visible {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.section {
+  margin-bottom: var(--pad-lg);
+}
+
+.sectionTitle {
+  margin: 0 0 var(--gap-sm);
+  color: var(--text-primary);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.94rem;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* Kaynağın açıklaması paragraflarıyla geliyor; satır sonları korunuyor */
+.synopsis {
+  max-width: 72ch;
+  margin: 0;
+  color: var(--text-secondary);
+  font-family: var(--font-cormorant), serif;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+.dossierList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--gap-sm) var(--gap-md);
+  margin: 0;
+}
+
+.dossierList > div {
+  display: grid;
+  gap: 2px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+.dossierList dt {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.dossierList dd {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 0.92rem;
+}
+
+@media (max-width: 640px) {
+  .identity {
+    gap: var(--gap-sm);
+  }
+
+  .coverFrame {
+    width: 108px;
+  }
+
+  .dossierList {
+    grid-template-columns: 1fr;
+  }
+}

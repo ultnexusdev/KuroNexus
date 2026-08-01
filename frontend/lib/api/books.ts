@@ -7,6 +7,7 @@ import type {
   BookPersonPage,
   BookPublisherPage,
   BookShowcase,
+  SourceBookPage,
 } from "./types";
 
 const EMPTY_SHOWCASE: BookShowcase = { left: null, right: null };
@@ -91,6 +92,27 @@ export async function getBookPublisher(
     return await apiFetch<BookPublisherPage>(
       `/books/yayinevi/${encodeURIComponent(slug)}`,
       { cache: "no-store" },
+    );
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Arşivde olmayan kitabın künye sayfası (ödül raflarından gelinir).
+ *
+ * Künye backend'de 30 gün cache'leniyor, o yüzden burada da bir gün
+ * `revalidate` var: kaynağa her ziyarette gidilmiyor ve sayfa hızlı açılıyor.
+ * Kitap arşive eklendiğinde gecikme sorun değil — kart zaten arşiv sayfasına
+ * gitmeye başlıyor (`inArchive`, ödül rafında canlı hesaplanıyor).
+ */
+export async function getSourceBook(
+  slug: string,
+): Promise<SourceBookPage | null> {
+  try {
+    return await apiFetch<SourceBookPage>(
+      `/books/kaynak/${encodeURIComponent(slug)}`,
+      { next: { revalidate: 86400 } },
     );
   } catch {
     return null;

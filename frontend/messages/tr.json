@@ -859,16 +859,6 @@
         "title": "Kitap Arşivi",
         "desc": "Okuduklarım, yarısında kaldıklarım, sırada bekleyenler ve favorilerim — sayfa ilerlemesiyle birlikte."
       },
-      "person": {
-        "backToHall": "← Kitap salonuna dön",
-        "bookCount": "Arşivde {count} kitap",
-        "noBooks": "Bu kişiye ait arşivde kitap yok.",
-        "role": {
-          "AUTHOR": "Yazar",
-          "TRANSLATOR": "Çevirmen",
-          "EDITOR": "Editör"
-        }
-      },
       "awards": {
         "title": "Ödüller",
         "desc": "Nobel, Pulitzer, Booker, Hugo, Nebula ve diğerleri — hangi ödüllü kitap arşivimde, hangisi değil."
@@ -877,6 +867,27 @@
         "title": "Okuma Notları",
         "desc": "Altını çizdiğim satırlar ve kitap üstüne yazdıklarım; Kadim Dünyalar'daki evrenlere bağlanabilecek."
       }
+    },
+    "person": {
+      "backToHall": "← Kitap salonuna dön",
+      "bookCount": "Arşivde {count} kitap",
+      "noBooks": "Bu kişiye ait arşivde kitap yok.",
+      "role": {
+        "AUTHOR": "Yazar",
+        "TRANSLATOR": "Çevirmen",
+        "EDITOR": "Editör"
+      }
+    },
+    "source": {
+      "eyebrow": "Künye · 1000Kitap",
+      "notInArchive": "Bu kitap arşivimde değil. Künye 1000Kitap'tan geliyor.",
+      "inArchive": "Bu kitap arşivimde.",
+      "openInArchive": "Arşivdeki sayfasına git →",
+      "unavailable": "Bu kitabın künyesi şu anda alınamadı.",
+      "editor": "Editör",
+      "language": "Dil",
+      "genres": "Türler",
+      "subtitle": "Alt başlık"
     },
     "note": "Salonun kapısı duvarda: arşiv ve ödüller açıldı, okuma notları hazır olduğunda o bölüm de açılacak.",
     "archiveTitle": "Kitap Arşivim",

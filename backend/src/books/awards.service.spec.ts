@@ -1,10 +1,12 @@
-import { pickBest } from './awards.service';
+import { confirmMatch, orderCandidates, pickBest } from './awards.service';
 import type { BookSource } from './google-books.service';
+import type { BinKitapDetail, BinKitapEdition } from './bin-kitap.service';
 import { AWARDS } from './data/awards.data';
 import type { AwardWinner } from './data/awards.data';
 
 /**
- * Ödül rafının doğruluğu tek bir saf işleve bağlı: `pickBest`. Yanlış cilt
+ * Ödül rafının doğruluğu üç saf işleve bağlı: `pickBest` (Google bacağı),
+ * `orderCandidates` ve `confirmMatch` (1000Kitap bacağı). Yanlış cilt
  * seçilirse raf sessizce saçmalar — "Dune" yerine "Dreamer of Dune" çizilir
  * ve kimse fark etmez. Bu yüzden burada ağ YOK, sabit örneklerle sınanıyor.
  */
@@ -143,6 +145,220 @@ describe('pickBest', () => {
 
   it('sonuç yoksa null döner', () => {
     expect(pickBest([], winner({}), 'Dune')).toBeNull();
+  });
+});
+
+/** `BinKitapDetail` iskeleti — yalnızca eşleştirmenin okuduğu alanlar dolu. */
+function detail(
+  partial: Partial<BookSource>,
+  editions: BinKitapEdition[] = [],
+): BinKitapDetail {
+  return {
+    source: source({ provider: 'BINKITAP', googleId: null, ...partial }),
+    translator: null,
+    credits: { people: [], genres: [], publisher: null, series: null },
+    raw: {
+      slug: partial.binKitapSlug ?? 'slug',
+      binKitapId: null,
+      editor: null,
+      format: null,
+      country: null,
+      originalCountry: null,
+      originalLanguage: null,
+      printedOn: null,
+      estimatedReadingTime: null,
+      otherEditionCount: editions.length,
+      editions,
+      genres: [],
+      fetchedAt: '2026-08-01T00:00:00.000Z',
+    },
+  };
+}
+
+describe('orderCandidates', () => {
+  it('yazarı tutmayan kaydı hiç listeye almaz', () => {
+    const results = [source({ title: 'Dune', authors: ['Harold Bloom'] })];
+    expect(orderCandidates(results, winner({}), 'Dune')).toHaveLength(0);
+  });
+
+  it('adı birebir tutan kaydı okunma sayısı düşük olsa da öne alır', () => {
+    // "Dune Mesihi" gevşek eşleşmede "Dune"u içeriyor ve o serinin en çok
+    // okunan cildi olabiliyor; tam eşitlik her zaman önce gelmeli
+    const results = [
+      source({
+        binKitapSlug: 'baska',
+        title: 'Dune Mesihi',
+        authors: ['Frank Herbert'],
+        popularity: 9000,
+      }),
+      source({
+        binKitapSlug: 'dogru',
+        title: 'Dune',
+        authors: ['Frank Herbert'],
+        popularity: 10,
+      }),
+    ];
+    expect(orderCandidates(results, winner({}), 'Dune')[0].binKitapSlug).toBe(
+      'dogru',
+    );
+  });
+
+  it('adı tutmayan adayı elemez, sona koyar', () => {
+    // "Septology" araması "The Other Name" döndürüyor: doğru kitap olduğu
+    // ancak künye açılınca anlaşılıyor, o yüzden aday listede kalmalı
+    const results = [
+      source({ title: 'The Other Name', authors: ['Jon Fosse'] }),
+    ];
+    const fosse = winner({ title: 'Jon Fosse', author: 'Jon Fosse' });
+    expect(orderCandidates(results, fosse, 'Septology')).toHaveLength(1);
+  });
+
+  it('ad tutmuyorsa okunma sayısına göre sıralar', () => {
+    const results = [
+      source({
+        binKitapSlug: 'az',
+        title: 'A',
+        authors: ['Jon Fosse'],
+        popularity: 5,
+      }),
+      source({
+        binKitapSlug: 'cok',
+        title: 'B',
+        authors: ['Jon Fosse'],
+        popularity: 500,
+      }),
+    ];
+    const fosse = winner({ title: 'Jon Fosse', author: 'Jon Fosse' });
+    expect(orderCandidates(results, fosse, 'Septology')[0].binKitapSlug).toBe(
+      'cok',
+    );
+  });
+});
+
+describe('confirmMatch', () => {
+  const fosse = winner({ title: 'Jon Fosse', author: 'Jon Fosse' });
+
+  it('alt başlıktan doğrular — adı bambaşka olan baskıyı kurtarır', () => {
+    // Canlıda ölçülen hâl: adı "The Other Name", alt başlığı "Septology I-II"
+    const found = detail({
+      title: 'The Other Name',
+      subtitle: 'Septology I-II',
+      authors: ['Jon Fosse'],
+      language: 'en',
+    });
+    expect(confirmMatch(found, fosse, 'Septology')).toBe(true);
+  });
+
+  it('diğer baskıların adından doğrular', () => {
+    // Türkçe baskının adı ve alt başlığı orijinaliyle hiç örtüşmüyor;
+    // bağ ancak İngilizce baskının adı üzerinden kuruluyor
+    const found = detail(
+      {
+        title: 'Öteki İsim',
+        subtitle: 'Septoloji I-II',
+        authors: ['Jon Fosse'],
+        language: 'tr',
+      },
+      [
+        {
+          slug: 'the-other-name--406406',
+          title: 'The Other Name',
+          subtitle: 'Septology I-II',
+          language: 'en',
+          publisher: 'Fitzcarraldo Editions',
+          isMain: false,
+        },
+      ],
+    );
+    expect(confirmMatch(found, fosse, 'Septology')).toBe(true);
+  });
+
+  it('aynı yazarın alakasız kitabını reddeder', () => {
+    const found = detail({
+      title: 'Sabahtan Akşama',
+      authors: ['Jon Fosse'],
+      language: 'tr',
+    });
+    expect(confirmMatch(found, fosse, 'Septology')).toBe(false);
+  });
+
+  it('yazarı tutmayan künyeyi adı tutsa da reddeder', () => {
+    const found = detail({
+      title: 'Septology',
+      authors: ['Karl Ove Knausgård'],
+    });
+    expect(confirmMatch(found, fosse, 'Septology')).toBe(false);
+  });
+
+  it('seri adı kitabın adıyla aynıysa serinin başka cildini kabul etmez', () => {
+    // Canlı ölçümde yakalandı: "Wolf Hall" (Booker 2009) aynı üçlemenin
+    // ikinci cildi "Bring Up the Bodies"e eşleşiyordu — o cildin seri adı
+    // "Wolf Hall". Iska bile bu yanlış eşleşmeden iyidir.
+    const target = winner({
+      year: 2009,
+      title: 'Wolf Hall',
+      titleTr: 'Kurt Kapanı',
+      author: 'Hilary Mantel',
+    });
+    const found = detail({
+      title: 'Bring Up The Bodies',
+      seriesName: 'Wolf Hall',
+      seriesIndex: 2,
+      authors: ['Hilary Mantel'],
+    });
+    expect(confirmMatch(found, target, 'Wolf Hall')).toBe(false);
+  });
+
+  it('üç harfli adı her şeye tutturmaz', () => {
+    // "It" ya da "Us" gibi adlar gevşek eşleşmede her başlığın içinde
+    // bulunurdu; kısa anahtarda yalnızca tam eşitlik geçerli
+    const target = winner({ title: 'Us', author: 'David Nicholls' });
+    const found = detail({
+      title: 'Bize Güzel Günler Lazım',
+      authors: ['David Nicholls'],
+    });
+    expect(confirmMatch(found, target, 'Us')).toBe(false);
+  });
+
+  it('aksan farkını yazar adında katlar', () => {
+    // Ölçümde ıska sebebi buydu: liste "Kenzaburō Ōe" yazıyor, kaynak
+    // "Kenzaburo Oe". Katlanmasaydı kitap hiç eşleşmezdi.
+    const target = winner({
+      title: 'Kenzaburō Ōe',
+      author: 'Kenzaburō Ōe',
+      titleTr: 'Kişisel Bir Sorun',
+    });
+    const found = detail({
+      title: 'Kişisel Bir Sorun',
+      authors: ['Kenzaburo Oe'],
+      language: 'tr',
+    });
+    expect(confirmMatch(found, target, 'A Personal Matter')).toBe(true);
+  });
+
+  it('ASCII dışı adlar boşa düşünce alakasız kitabı eşleştirmez', () => {
+    // `slugify` Japonca/Kiril yazıyı tamamen eliyor; iki boş anahtar
+    // "birebir aynı" sayılsaydı her ikisi de eşleşirdi
+    const target = winner({ title: '雪国', author: 'Yasunari Kawabata' });
+    const found = detail({
+      title: '伊豆の踊子',
+      authors: ['Yasunari Kawabata'],
+    });
+    expect(confirmMatch(found, target, '雪国')).toBe(false);
+  });
+
+  it('Türkçe ad üzerinden de doğrular', () => {
+    const target = winner({
+      title: 'Flights',
+      titleTr: 'Koşucular',
+      author: 'Olga Tokarczuk',
+    });
+    const found = detail({
+      title: 'Koşucular',
+      authors: ['Olga Tokarczuk'],
+      language: 'tr',
+    });
+    expect(confirmMatch(found, target, 'Flights')).toBe(true);
   });
 });
 

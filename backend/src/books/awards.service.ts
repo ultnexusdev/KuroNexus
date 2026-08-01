@@ -1,6 +1,13 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { slugify } from '../common/utils/slugify';
 import { GoogleBooksService, type BookSource } from './google-books.service';
+import {
+  BinKitapRateLimitError,
+  BinKitapService,
+  pickEdition,
+  type BinKitapDetail,
+} from './bin-kitap.service';
 import { BooksService } from './books.service';
 import {
   AWARDS,
@@ -38,12 +45,27 @@ const CACHE_TTL_MS = 90 * 24 * 60 * 60 * 1000;
 
 /**
  * Bir istekte arkada doldurulacak en fazla kayıt. Düşük tutuluyor: amaç
- * sayfayı hızlandırmak, Google kotasını bir açılışta tüketmek değil.
+ * sayfayı hızlandırmak, kaynakları bir açılışta tüketmek değil.
+ *
+ * 6'dan 3'e indirildi: eşleştirme 1000Kitap'a taşınınca bir kazananın maliyeti
+ * tek Google isteği olmaktan çıkıp 2–4 sayfa açmaya yükseldi (arama + künye
+ * + gerekirse Türkçe baskı). Ölçüldü ki kaynak saniyede bir istekle ~25
+ * istekten sonra 429 dönüyor; 3 kazanan bir turda o sınırın altında kalıyor.
  */
-const BACKFILL_PER_REQUEST = 6;
+const BACKFILL_PER_REQUEST = 3;
 
 /** Eşzamanlı dış istek — Google'ı zorlamamak için bilerek düşük. */
 const BACKFILL_CONCURRENCY = 2;
+
+/**
+ * Bir kazanan için en fazla kaç kitap sayfası açılır.
+ *
+ * Arama sonucu künye taşımıyor: ad tutmadığında eşleşmeyi ancak kitap
+ * sayfasındaki alt başlık ve baskı listesi doğrulayabiliyor (bkz.
+ * `confirmMatch`). Sınır bunun için var — yoksa tek bir kazanan onlarca
+ * sayfa açabilirdi. İki deneme ölçümde yetiyor.
+ */
+const DETAIL_ATTEMPTS = 2;
 
 export interface AwardWinnerCard {
   year: number;
@@ -61,6 +83,12 @@ export interface AwardWinnerCard {
   inArchive: boolean;
   /** Arşivdeyse kitap sayfasının adresi */
   archiveSlug: string | null;
+  /**
+   * 1000Kitap künye sayfasının anahtarı. Arşivde olmayan kitap bu sayede
+   * tıklanabiliyor: kart `/kitap/kaynak/<slug>` sayfasına gidiyor. Eşleşme
+   * Google'dan geldiyse `null` kalır ve kart yine tıklanmaz.
+   */
+  sourceSlug: string | null;
 }
 
 export interface AwardSummary {
@@ -90,6 +118,12 @@ export class AwardsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly source: GoogleBooksService,
+    /**
+     * Ödüllerin **birinci** kaynağı (kullanıcı kararı). Google yedeğe
+     * düştü: kaynağın bilmediği eski/çevrilmemiş kitaplar kapaksız
+     * kalmasın diye o bacak duruyor.
+     */
+    private readonly binKitap: BinKitapService,
     /**
      * Arşiv dizini buradan okunuyor, doğrudan Prisma'dan DEĞİL: kitap
      * sayfasının `slug`'ı sütun değil, başlıktan türetiliyor ve çakışmada
@@ -211,6 +245,7 @@ export class AwardsService {
       pageCount: match?.pageCount ?? null,
       inArchive: Boolean(entry),
       archiveSlug: entry?.slug ?? null,
+      sourceSlug: match?.binKitapSlug ?? null,
     };
   }
 
@@ -306,20 +341,38 @@ export class AwardsService {
     }
   }
 
-  /** Sınırlı eşzamanlılıkla eşleştirir; kaç tanesinin tuttuğunu döner. */
+  /**
+   * Sınırlı eşzamanlılıkla eşleştirir; kaç tanesinin tuttuğunu döner.
+   *
+   * **Hız sınırı görülünce tur biter.** Kalan kazananlar cache'e hiç
+   * yazılmadan bırakılıyor, yani bir sonraki açılışta yeniden denenecekler —
+   * ısrar etmek yeni 429'dan başka bir şey getirmiyor (ölçüldü).
+   */
   private async resolveMany(winners: AwardWinner[]): Promise<number> {
     let filled = 0;
+    let rateLimited = false;
     const queue = [...winners];
     const workers = Array.from(
       { length: Math.min(BACKFILL_CONCURRENCY, queue.length) },
       async () => {
         for (;;) {
           const winner = queue.shift();
-          if (!winner) {
+          if (!winner || rateLimited) {
             return;
           }
-          if (await this.resolveOne(winner)) {
-            filled++;
+          try {
+            if (await this.resolveOne(winner)) {
+              filled++;
+            }
+          } catch (error) {
+            if (!(error instanceof BinKitapRateLimitError)) {
+              throw error;
+            }
+            this.logger.warn(
+              'Ödül eşleştirmesi hız sınırına takıldı, tur bitiriliyor',
+            );
+            rateLimited = true;
+            return;
           }
         }
       },
@@ -329,25 +382,54 @@ export class AwardsService {
   }
 
   /**
-   * Tek kitabı Google'da bulup cache'e yazar.
+   * Tek kitabı eşleştirip cache'e yazar. **Önce 1000Kitap, sonra Google.**
    *
-   * Eşleşme **bulunamazsa da** yazılır (`matched: false`): listede Google'ın
-   * hiç bilmediği eski kitaplar var, onları her açılışta yeniden aramak
-   * kotayı boşa harcar. TTL dolunca yeniden denenir.
+   * Eşleşme **bulunamazsa da** yazılır (`matched: false`): listede hiçbir
+   * kaynağın bilmediği eski kitaplar var, onları her açılışta yeniden aramak
+   * boşa yük. TTL dolunca yeniden denenir.
    *
-   * **Sorgu orijinal addan kurulur, Türkçe addan değil.** Önce tersi
+   * **Google sorgusu orijinal addan kurulur, Türkçe addan değil.** Önce tersi
    * denenmişti ve ölçümde altı kitap birden ıskalandı: `titleTr` listedeki
    * en kırılgan alan (elle derleniyor, yayıncı çevirisi farklı olabiliyor,
    * hiç yayımlanmamış olabiliyor) ve yanlış bir Türkçe adla arama **sıfır
    * sonuç** dönüyor — kitap da 90 gün "eşleşmedi" olarak çakılı kalıyordu.
-   * Orijinal ad Google'da her zaman kayıtlı; Türkçe baskı varsa `search()`
-   * zaten onu başa alıyor. Türkçe ad yalnızca **yedek sorgu** olarak ve
-   * `pickBest`te ikinci bir ad anahtarı olarak kullanılıyor.
+   * 1000Kitap tarafında kural **tersine dönüyor** (bkz. `resolveFromSource`):
+   * orada Türkçe ad birinci sorgu, çünkü kaynak Türkçe bir okur sitesi.
    */
   private async resolveOne(winner: AwardWinner): Promise<boolean> {
     const key = cacheKey(winner);
     // Nobel'de aranan şey yazarın temsilci eseri, yazarın adı değil
     const wanted = winner.notableWork ?? winner.title;
+
+    /**
+     * 1000Kitap bacağı Google'dan **önce** ve ondan bağımsız deneniyor:
+     * tuttuğunda Türkçe baskının adı, kapağı ve künyesi geliyor, üstelik
+     * `binKitapSlug` sayesinde kart tıklanabilir hâle geliyor. Bu bacağın
+     * düşmesi Google denemesini engellemiyor (kural 4).
+     */
+    try {
+      const fromSource = await this.resolveFromSource(winner, wanted);
+      if (fromSource) {
+        await this.writeCache(key, { matched: true, book: fromSource });
+        return true;
+      }
+    } catch (error) {
+      /**
+       * Hız sınırı bir **cevap değil**: yukarı fırlatılıyor ve tur orada
+       * bitiyor. Yutulsaydı iki kötü şey olurdu — (1) Google bacağı devreye
+       * girip Türkçe baskısı olan bir kitabı 90 gün İngilizce cildine
+       * çakardı, (2) turdaki geri kalan kazananlar da sırayla 429 yiyip
+       * aynı şeyi yapardı. Aynı ayrım Google bacağında `sawResults` ile
+       * yapılıyor.
+       */
+      if (error instanceof BinKitapRateLimitError) {
+        throw error;
+      }
+      this.logger.warn(
+        `"${wanted}" 1000Kitap ödül eşleşmesi alınamadı: ${String(error)}`,
+      );
+    }
+
     const queries = [`${wanted} ${winner.author}`];
     if (winner.titleTr) {
       queries.push(`${winner.titleTr} ${winner.author}`);
@@ -389,10 +471,84 @@ export class AwardsService {
       return best !== null;
     } catch (error) {
       this.logger.warn(
-        `"${wanted}" ödül eşleşmesi alınamadı: ${String(error)}`,
+        `"${wanted}" Google ödül eşleşmesi alınamadı: ${String(error)}`,
       );
       return false;
     }
+  }
+
+  /**
+   * Kazananı 1000Kitap'ta bulur ve **Türkçe baskıya kadar iner.**
+   *
+   * Üç adım, üçü de canlıda ölçüldü:
+   *
+   * 1. **Türkçe ad birinci sorgu.** Kaynak Türkçe bir okur sitesi; çeviriler
+   *    orada Türkçe adıyla duruyor ve orijinal adla bağlı olmayabiliyor
+   *    (*Flights* → *Koşucular*, iki ayrı kayıt). Google'da bunun tam tersi
+   *    geçerli — oradaki gerekçe `resolveOne`da.
+   * 2. **Ad tutmasa da kitap sayfası açılıyor.** Arama sonucu künye
+   *    taşımıyor; *Septology* araması "The Other Name" döndürüyor ve bu
+   *    kaydın doğru kitap olduğu ancak künyedeki alt başlıktan anlaşılıyor
+   *    ("Septology I-II"). Bu yüzden yazarı tutan aday, adı tutmasa bile
+   *    açılıyor — doğrulama `confirmMatch`e bırakılıyor.
+   * 3. **Yabancı baskıdan Türkçe baskıya geçiliyor.** Bulunan cilt Türkçe
+   *    değilse aynı eserin baskıları taranıyor (`raw.editions`, ek istek
+   *    gerektirmiyor) ve Türkçe olan açılıyor: *The Other Name* → **Öteki
+   *    İsim** (Monokl). Kullanıcının bildirdiği "Septoloji I-II" sorunu tam
+   *    olarak buydu.
+   *
+   * Türkçe baskı bulunamazsa yabancı cilt olduğu gibi dönüyor — kapak ve
+   * künye yine gerçek veri, yalnızca çevirisi yok demektir.
+   */
+  private async resolveFromSource(
+    winner: AwardWinner,
+    wanted: string,
+  ): Promise<BookSource | null> {
+    const queries = winner.titleTr
+      ? [`${winner.titleTr} ${winner.author}`, `${wanted} ${winner.author}`]
+      : [`${wanted} ${winner.author}`];
+
+    const opened = new Set<string>();
+    for (const query of queries) {
+      // Deneme hakkı bittiyse ikinci sorguyu hiç sorma: yanıtı kullanamayız
+      if (opened.size >= DETAIL_ATTEMPTS) {
+        break;
+      }
+      const results = await this.binKitap.search(query);
+      const candidates = orderCandidates(results, winner, wanted);
+
+      for (const candidate of candidates) {
+        const slug = candidate.binKitapSlug;
+        // Aynı cilt iki sorgudan da gelebiliyor; sayfası iki kez açılmasın
+        if (!slug || opened.has(slug)) {
+          continue;
+        }
+        if (opened.size >= DETAIL_ATTEMPTS) {
+          break;
+        }
+        opened.add(slug);
+
+        const detail = await this.binKitap.getDetail(slug);
+        if (!detail || !confirmMatch(detail, winner, wanted)) {
+          continue;
+        }
+        return this.preferTurkish(detail);
+      }
+    }
+    return null;
+  }
+
+  /** Türkçe değilse aynı eserin Türkçe baskısına geçer; yoksa olduğu gibi. */
+  private async preferTurkish(detail: BinKitapDetail): Promise<BookSource> {
+    if (detail.source.language === 'tr') {
+      return detail.source;
+    }
+    const turkish = pickEdition(detail.raw.editions, 'tr', detail.raw.slug);
+    if (!turkish) {
+      return detail.source;
+    }
+    const translated = await this.binKitap.getDetail(turkish.slug);
+    return translated?.source ?? detail.source;
   }
 
   /**
@@ -434,10 +590,16 @@ interface ArchiveIndex {
   byTitle: Map<string, ArchiveHit>;
 }
 
-/** Kitap başına cache anahtarı — aynı kitap iki ödülde de aynı anahtarı alır */
+/**
+ * Kitap başına cache anahtarı — aynı kitap iki ödülde de aynı anahtarı alır.
+ *
+ * v2: eşleştirme 1000Kitap'a taşındı. Sürüm artmasaydı v1'de "Google böyle
+ * buldu" diye çakılı duran 90 günlük kayıtlar yeni kaynağın önünü keserdi;
+ * kullanıcının bildirdiği yanlış eşleşmeler de düzelmezdi.
+ */
 function cacheKey(winner: AwardWinner): string {
   const wanted = winner.notableWork ?? winner.title;
-  return `books:award:v1:${titleKey(wanted, winner.author)}`;
+  return `books:award:v2:${titleKey(wanted, winner.author)}`;
 }
 
 /** Ad+yazar karşılaştırma anahtarı; noktalama ve büyük/küçük harf elenir. */
@@ -445,12 +607,22 @@ function titleKey(title: string, author: string): string {
   return `${normalize(title)}|${normalize(author)}`;
 }
 
+/**
+ * Karşılaştırma anahtarı — kod tabanının geri kalanıyla **aynı** katlayıcı.
+ *
+ * Eskiden yerel bir gerçekleme vardı ve `\p{L}`yi koruduğu için diakritikleri
+ * katlamıyordu. Ölçümde bunun bedeli görüldü: kaynak "Kenzaburo Oe" yazarken
+ * listede "Kenzaburō Ōe" duruyor ve yazar tutmadığı için kitap hiç
+ * eşleşmiyordu (Szymborska, Kertész, Le Clézio aynı sebeple ıskalanıyordu).
+ * `slugify` hem Türkçe harfleri hem de birleşen aksan işaretlerini katlıyor;
+ * `BookPerson.slug` da zaten onunla üretiliyor, yani ikisi artık aynı dili
+ * konuşuyor.
+ *
+ * Kesme işareti önce siliniyor: `slugify` onu ayraca çevirir ve
+ * "Burger's Daughter" → "burger-s-daughter" olurdu.
+ */
 function normalize(value: string): string {
-  return value
-    .toLocaleLowerCase('tr')
-    .replace(/[’'`]/g, '')
-    .replace(/[^\p{L}\p{N}]+/gu, '-')
-    .replace(/(^-|-$)/g, '');
+  return slugify(value.replace(/[’'`]/g, ''));
 }
 
 /**
@@ -502,4 +674,148 @@ export function pickBest(
     (item.pageCount ? 1 : 0);
 
   return [...plausible].sort((a, b) => score(b) - score(a))[0];
+}
+
+/**
+ * Gevşek (içerme) eşleşmesinin kabul edildiği en kısa anahtar.
+ *
+ * Ödül listesinde üç harfli adlar var (*It*, *Us*, *Ru*). Sınır olmasaydı
+ * "us" anahtarı "kürk mantolu madonna" dışında hemen her Türkçe ada tutardı;
+ * tam eşitlik yine her uzunlukta geçerli.
+ */
+const MIN_LOOSE_KEY = 4;
+
+/**
+ * İki ad kümesinin ne kadar tuttuğu: 2 = birebir, 1 = içerme, 0 = tutmuyor.
+ *
+ * Üç kademe gerekli çünkü içerme tek başına yanıltıyor: "Dune Mesihi" adı
+ * "Dune"u içeriyor ve serinin en çok okunan cildi olabiliyor — kademe
+ * olmasaydı *Dune* ödülüne *Dune Mesihi* eşleşirdi.
+ */
+function titleRank(left: string[], right: string[]): 0 | 1 | 2 {
+  let best: 0 | 1 | 2 = 0;
+  for (const one of left) {
+    for (const other of right) {
+      /**
+       * Boş anahtar atlanıyor. `slugify` ASCII dışı yazıları tamamen
+       * eliyor (Japonca/Kiril bir orijinal ad boş dizeye düşüyor); guard
+       * olmasaydı iki boş anahtar "birebir aynı" sayılır ve alakasız iki
+       * kitap eşleşirdi.
+       */
+      if (!one || !other) {
+        continue;
+      }
+      if (one === other) {
+        return 2;
+      }
+      const [shorter, longer] =
+        one.length <= other.length ? [one, other] : [other, one];
+      if (shorter.length >= MIN_LOOSE_KEY && longer.includes(shorter)) {
+        best = 1;
+      }
+    }
+  }
+  return best;
+}
+
+/** İki ad kümesinden herhangi bir çift örtüşüyor mu (kademe önemsizse). */
+function keysOverlap(left: string[], right: string[]): boolean {
+  return titleRank(left, right) > 0;
+}
+
+/** Kazananın aranabilir adları: orijinal ad ve (varsa) Türkçe ad. */
+function awardTitleKeys(winner: AwardWinner, wanted: string): string[] {
+  return [
+    normalize(wanted),
+    winner.titleTr ? normalize(winner.titleTr) : null,
+  ].filter((value): value is string => value !== null);
+}
+
+/** Yazar adı tutuyor mu; "Erikson, Steven" gibi biçimler için gevşek. */
+function matchesAuthor(authors: string[], author: string): boolean {
+  const authorKey = normalize(author);
+  if (!authorKey) {
+    return false;
+  }
+  return authors.some((name) => {
+    const key = normalize(name);
+    return (
+      key !== '' &&
+      (key === authorKey || key.includes(authorKey) || authorKey.includes(key))
+    );
+  });
+}
+
+/**
+ * 1000Kitap arama sonucunu deneme sırasına dizer.
+ *
+ * Yazarı tutmayan kayıt hiç listeye girmiyor. Kalanlar önce **ad kademesine**
+ * (birebir > içerme > yok), sonra okunma sayısına göre sıralanıyor — ölçüldü ki bu
+ * kaynakta gürültüyü ayıran en iyi tek sinyal okunma sayısı ("The Vegetarian"
+ * 10.108, aynı yazarın alakasız cildi 1.204).
+ *
+ * **Adı tutmayan aday da listede kalıyor**, çünkü arama sonucu alt başlık
+ * taşımıyor: *Septology* araması "The Other Name" döndürüyor ve doğru kitap
+ * olduğu ancak künye açılınca anlaşılıyor. Eleme işini `confirmMatch` yapar.
+ *
+ * Saf işlev ve rafın doğruluğu buna bağlı — `awards.service.spec.ts` doğrudan
+ * sınıyor (`pickBest` ile aynı gerekçe).
+ */
+export function orderCandidates(
+  results: BookSource[],
+  winner: AwardWinner,
+  wanted: string,
+): BookSource[] {
+  const keys = awardTitleKeys(winner, wanted);
+  return results
+    .filter((item) => matchesAuthor(item.authors, winner.author))
+    .map((item) => ({ item, rank: titleRank(keys, [normalize(item.title)]) }))
+    .sort((a, b) => b.rank - a.rank || b.item.popularity - a.item.popularity)
+    .map((entry) => entry.item);
+}
+
+/**
+ * Açılan künye gerçekten bu kazananın kitabı mı.
+ *
+ * Ad birden çok yerde saklanabiliyor, hepsi deneniyor: baskının adı, **alt
+ * başlığı** ("Septoloji I-II"), orijinal adı ve aynı eserin diğer baskılarının
+ * adları. Son madde kritik — Türkçe baskının adı orijinaliyle hiç ilgisiz
+ * olabiliyor (*Septology* → *Öteki İsim*) ve bağ ancak İngilizce baskının adı
+ * üzerinden kuruluyor.
+ *
+ * **Seri adı bilerek DIŞARIDA.** Ölçümde yakalandı: *Wolf Hall* (Booker 2009)
+ * aynı üçlemenin ikinci cildi olan *Bring Up the Bodies*'e eşleşti. Üçlemenin
+ * adı da "Wolf Hall" ve künyeye `altbaslik` alanından giriyor; cilt işareti
+ * taşıdığında `readSeries` onu `seriesName`e yazıyor. Seri adı kitabın adı
+ * değildir ve listede eseriyle aynı adı taşıyan seriler var (Dune, Wolf Hall)
+ * — yani bu anahtar yalnızca yanlış eşleşme üretebiliyor, doğru bir eşleşmeyi
+ * kurtardığı tek bir hâl yok.
+ *
+ * **Doğrulanamayan kalan risk:** kaynak aynı adı cilt işareti OLMADAN
+ * yazarsa `readSeries` onu seri saymıyor ve ad `subtitle`a düşüyor; oradan
+ * yine geçer. Bu ihtimal canlıda sınanamadı (site o sırada 429 veriyordu).
+ * Alt başlık anahtarı korunuyor çünkü Septology eşleşmesi tam da ona bağlı.
+ */
+export function confirmMatch(
+  detail: BinKitapDetail,
+  winner: AwardWinner,
+  wanted: string,
+): boolean {
+  const { source } = detail;
+  if (!matchesAuthor(source.authors, winner.author)) {
+    return false;
+  }
+  const candidateKeys = [
+    source.title,
+    source.subtitle,
+    source.originalTitle,
+    ...detail.raw.editions.flatMap((edition) => [
+      edition.title,
+      edition.subtitle,
+    ]),
+  ]
+    .filter((value): value is string => Boolean(value))
+    .map(normalize);
+
+  return keysOverlap(awardTitleKeys(winner, wanted), candidateKeys);
 }

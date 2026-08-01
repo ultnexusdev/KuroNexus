@@ -817,6 +817,8 @@ export interface ArchiveBook {
   slug: string;
   googleId: string | null;
   olKey: string | null;
+  /** 1000Kitap sayfa anahtarı — kaynak sayfasıyla eşleşme için, gösterilmez */
+  binKitapSlug: string | null;
   isbn13: string | null;
   title: string;
   originalTitle: string | null;
@@ -880,6 +882,43 @@ export interface BookPublisherPage {
   slug: string;
   name: string;
   books: ArchiveBook[];
+}
+
+/** Kaynak künyesindeki kişi; `slug` yalnızca arşivde kaydı varsa dolu. */
+export interface SourceBookCredit {
+  name: string;
+  role: BookPersonRole;
+  slug: string | null;
+}
+
+/**
+ * Arşivde olmayan kitabın künye sayfası (`/kitap/kaynak/<slug>`). Ödül
+ * raflarındaki kartlar buraya gidiyor; veri tamamen 1000Kitap'tan, arşive
+ * hiçbir kayıt açılmıyor.
+ */
+export interface SourceBookPage {
+  slug: string;
+  title: string;
+  subtitle: string | null;
+  originalTitle: string | null;
+  authors: string[];
+  translator: string | null;
+  editor: string | null;
+  publisher: string | null;
+  publisherSlug: string | null;
+  publishedYear: number | null;
+  firstPublishedYear: number | null;
+  pageCount: number | null;
+  language: string | null;
+  isbn13: string | null;
+  coverImage: string | null;
+  description: string | null;
+  genres: string[];
+  seriesName: string | null;
+  seriesIndex: number | null;
+  people: SourceBookCredit[];
+  inArchive: boolean;
+  archiveSlug: string | null;
 }
 
 export interface BookQuote {
@@ -965,6 +1004,11 @@ export interface AwardWinnerCard {
   pageCount: number | null;
   inArchive: boolean;
   archiveSlug: string | null;
+  /**
+   * 1000Kitap künye sayfasının anahtarı. Arşivde olmayan kart bu sayede
+   * tıklanabiliyor; eşleşme Google'dan geldiyse null kalır ve kart tıklanmaz.
+   */
+  sourceSlug: string | null;
 }
 
 export interface AwardSummary {

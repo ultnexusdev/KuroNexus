@@ -1,4 +1,9 @@
-import { extractNextData, readSeries, toDetail } from './bin-kitap.service';
+import {
+  extractNextData,
+  pickEdition,
+  readSeries,
+  toDetail,
+} from './bin-kitap.service';
 
 /**
  * 1000Kitap künyesinin doğruluğu tek bir saf işleve bağlı: `toDetail`. Site
@@ -288,6 +293,167 @@ describe('toDetail', () => {
     expect(
       toDetail({ props: { pageProps: { response: { _sonuc: {} } } } }, 'x'),
     ).toBeNull();
+  });
+});
+
+/**
+ * "The Other Name" (Jon Fosse) sayfasından ölçülen baskı listesi.
+ *
+ * Ödül eşleştirmesinin can damarı: kazanan orijinal adıyla arandığında
+ * kaynak yabancı baskıyı döndürüyor, Türkçe çeviriye ancak bu listeden
+ * geçiliyor. Her girdi kendi künyesini `baskiBilgileriArray` içinde
+ * taşıyor — dil kodu dahil, yani ek istek gerekmiyor.
+ */
+function editionsPayload() {
+  return {
+    props: {
+      pageProps: {
+        response: {
+          _sonuc: {
+            kitap: {
+              id: '406406',
+              adi: 'The Other Name',
+              seo_adi: 'the-other-name',
+              altbaslik: 'Septology I-II',
+              isAnaBaski: 0,
+              ustBaskiId: '520400',
+              anaKitap: {
+                id: '520400',
+                adi: 'Öteki İsim',
+                seo_adi: 'oteki-isim',
+              },
+              yazarGruplari: [
+                {
+                  turId: 1,
+                  yazarlar: [
+                    { id: '27859', adi: 'Jon Fosse', seo_adi: 'jon-fosse' },
+                  ],
+                },
+              ],
+            },
+            liste: [
+              {
+                hakkinda: {
+                  baskiBilgileri: {
+                    dil: { kod: 'en', baslik: 'İngilizce' },
+                    yayinevi: 'Fitzcarraldo Editions',
+                    sayfaSayisi: '352',
+                  },
+                  digerBaskilar: [
+                    {
+                      id: '520400',
+                      adi: 'Öteki İsim',
+                      seo_adi: 'oteki-isim',
+                      isAnaBaski: 1,
+                      baskiBilgileriArray: {
+                        altBaslik: 'Septoloji I-II',
+                        dil: { kod: 'tr', baslik: 'Türkçe' },
+                        yayinevi: 'Monokl Yayınları',
+                      },
+                    },
+                    {
+                      id: '406406',
+                      adi: 'The Other Name',
+                      seo_adi: 'the-other-name',
+                      isAnaBaski: 0,
+                      baskiBilgileriArray: {
+                        altBaslik: 'Septology I-II',
+                        dil: { kod: 'en', baslik: 'İngilizce' },
+                        yayinevi: 'Fitzcarraldo Editions',
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      },
+    },
+  };
+}
+
+describe('baskı listesi', () => {
+  it('künyeden bütün baskıları dilleriyle çıkarır', () => {
+    const detail = toDetail(editionsPayload(), 'the-other-name--406406');
+    expect(detail?.raw.editions).toEqual(
+      [
+        {
+          slug: 'oteki-isim--520400',
+          title: 'Öteki İsim',
+          subtitle: 'Septoloji I-II',
+          language: 'tr',
+          publisher: 'Monokl Yayınları',
+        },
+        {
+          slug: 'the-other-name--406406',
+          title: 'The Other Name',
+          subtitle: 'Septology I-II',
+          language: 'en',
+          publisher: 'Fitzcarraldo Editions',
+        },
+      ].map((edition, index) => ({ ...edition, isMain: index === 0 })),
+    );
+  });
+
+  it('kimliksiz baskıyı listeye almaz', () => {
+    // Gerçek yanıtta yer yer boş girdi geliyor; adressiz baskı işe yaramaz
+    const detail = toDetail(translatedPayload(), 'bulbulu-oldurmek--939');
+    expect(detail?.raw.editions).toEqual([]);
+    // Sayaç ham listeden geliyor, ayıklanmış listeden değil
+    expect(detail?.raw.otherEditionCount).toBe(3);
+  });
+});
+
+describe('pickEdition', () => {
+  const editions = [
+    {
+      slug: 'oteki-isim--520400',
+      title: 'Öteki İsim',
+      subtitle: 'Septoloji I-II',
+      language: 'tr',
+      publisher: 'Monokl Yayınları',
+      isMain: true,
+    },
+    {
+      slug: 'eski-baski--1',
+      title: 'Öteki İsim',
+      subtitle: null,
+      language: 'tr',
+      publisher: 'Eski Yayınevi',
+      isMain: false,
+    },
+    {
+      slug: 'the-other-name--406406',
+      title: 'The Other Name',
+      subtitle: 'Septology I-II',
+      language: 'en',
+      publisher: 'Fitzcarraldo Editions',
+      isMain: false,
+    },
+  ];
+
+  it('yabancı baskıdan Türkçe baskıya geçer', () => {
+    expect(pickEdition(editions, 'tr', 'the-other-name--406406')?.slug).toBe(
+      'oteki-isim--520400',
+    );
+  });
+
+  it('birden çok Türkçe baskıda ana baskıyı seçer', () => {
+    // Ana baskı kaynağın güncel tuttuğu, en çok okunan cilt
+    expect(pickEdition(editions, 'tr')?.isMain).toBe(true);
+  });
+
+  it('kitabın kendisini seçmez', () => {
+    expect(pickEdition(editions, 'tr', 'oteki-isim--520400')?.slug).toBe(
+      'eski-baski--1',
+    );
+  });
+
+  it('o dilde baskı yoksa null döner', () => {
+    // Ölçüldü: "Flights" kaydının hiç Türkçe baskısı bağlı değil
+    expect(pickEdition(editions, 'de')).toBeNull();
+    expect(pickEdition([], 'tr')).toBeNull();
   });
 });
 

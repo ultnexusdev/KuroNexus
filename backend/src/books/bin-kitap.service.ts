@@ -78,6 +78,19 @@ const REQUEST_TIMEOUT_MS = 10_000;
 /** Nezaket: istekler sıraya girer ve aralarında en az bu kadar boşluk kalır. */
 const MIN_REQUEST_GAP_MS = 1_000;
 
+/**
+ * 429 sonrası kuyruğun beklediği süre.
+ *
+ * **Ölçüldü:** saniyede bir istekle ~25 istek atıldıktan sonra site 429
+ * dönmeye başlıyor ve arka arkaya gelen her istek de 429 alıyor. Bu, tek bir
+ * küratör aramasında görülmüyor (o bir-iki istek) ama ödül raflarının toplu
+ * eşleştirmesinde hemen çıkıyor.
+ *
+ * Beklemeden devam etmek işe yaramıyor, üstelik siteye karşı da kaba: bir kez
+ * 429 görüldüğünde kuyruk bir dakika susuyor.
+ */
+const RATE_LIMIT_COOLDOWN_MS = 60_000;
+
 /** Aramadan kaç kayıt alınır (kontenjan `google-books.service` tarafında). */
 const SEARCH_LIMIT = 15;
 
@@ -118,6 +131,23 @@ interface BinKitapBookHead {
   /** Okunma sayısı — popülerlik sinyali olarak kullanılıyor */
   okuduDuz?: number;
   puan?: number;
+  /**
+   * Eserin **ana baskısı**. Kaynak eser/baskı ayrımını burada tutuyor:
+   * "The Other Name" (İngilizce) kaydının `anaKitap`ı "Öteki İsim"dir
+   * (Türkçe) — ölçüldü. Ödül eşleştirmesi bu bağ sayesinde orijinal addan
+   * Türkçe baskıya geçebiliyor.
+   */
+  anaKitap?: { id?: string; adi?: string; seo_adi?: string };
+  ustBaskiId?: string;
+  isAnaBaski?: number;
+}
+
+/**
+ * `digerBaskilar` girdisi. Ek istek gerektirmiyor: künyenin tamamı
+ * `baskiBilgileriArray` içinde hazır geliyor (ölçüldü), dil kodu dahil.
+ */
+interface BinKitapEditionRaw extends BinKitapBookHead {
+  baskiBilgileriArray?: BinKitapEditionInfo;
 }
 
 /** Kitap sayfasındaki "Genel Bakış" künyesi. */
@@ -145,7 +175,7 @@ interface BinKitapAbout {
   kidDizi?: Array<{ adi?: string }>;
   baskiBilgileri?: BinKitapEditionInfo;
   bilgiParse?: { parse?: string[] };
-  digerBaskilar?: unknown[];
+  digerBaskilar?: BinKitapEditionRaw[];
 }
 
 interface BinKitapResult {
@@ -210,7 +240,44 @@ export interface BinKitapCredits {
   series: { name: string; index: number | null } | null;
 }
 
+/**
+ * Aynı eserin bir başka baskısı.
+ *
+ * **Ödül eşleştirmesinin anahtarı bu.** Orijinal adla arandığında kaynak
+ * yabancı baskıyı döndürüyor ("Septology Jon Fosse" → *The Other Name*,
+ * Fitzcarraldo, `dil: en`); okurun beklediği Türkçe baskıya ancak buradan
+ * geçilebiliyor (*Öteki İsim*, Monokl). Open Library tarafında "eser vs.
+ * baskı" ayrımıyla çözülen sorunun bu kaynaktaki karşılığı.
+ *
+ * Liste kitabın **kendisini de içerir** (ölçüldü); ayıklamak çağırana ait.
+ */
+export interface BinKitapEdition {
+  slug: string;
+  title: string;
+  /** `"Septoloji I-II"` gibi — ad tutmadığında ikinci bir eşleşme anahtarı */
+  subtitle: string | null;
+  language: string | null;
+  publisher: string | null;
+  /** Kaynağın "ana baskı" saydığı cilt */
+  isMain: boolean;
+}
+
 /** Yazar/çevirmen sayfasından çekilen kişi bilgisi. */
+/**
+ * Kaynağın hız sınırına takıldık — **geçici** bir durum.
+ *
+ * Ayrı bir tür olması şart: çağıran "aradık, bulamadık" ile "soramadık"
+ * ayrımını yapabilmeli. Ödül eşleştirmesi bunu ayırmasaydı 429 yiyen bir
+ * kitap 90 gün "eşleşmedi" olarak cache'e çakılırdı (aynı hata Google
+ * bacağında bir kez yapılmış ve `sawResults` kontrolüyle düzeltilmişti).
+ */
+export class BinKitapRateLimitError extends Error {
+  constructor(path: string) {
+    super(`1000Kitap hız sınırı (429): ${path}`);
+    this.name = 'BinKitapRateLimitError';
+  }
+}
+
 export interface BinKitapPersonDetail {
   binKitapId: string | null;
   name: string;
@@ -245,6 +312,8 @@ export interface BinKitapDetail {
     printedOn: string | null;
     estimatedReadingTime: string | null;
     otherEditionCount: number;
+    /** Aynı eserin bütün baskıları — kitabın kendisi de listede */
+    editions: BinKitapEdition[];
     genres: string[];
     fetchedAt: string;
   };
@@ -261,6 +330,8 @@ export class BinKitapService {
    */
   private queue: Promise<unknown> = Promise.resolve();
   private lastRequestAt = 0;
+  /** 429 görüldüyse kuyruğun yeniden açılacağı an (bkz. RATE_LIMIT_COOLDOWN_MS) */
+  private cooldownUntil = 0;
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -305,7 +376,9 @@ export class BinKitapService {
    * (kural 14).
    */
   async getDetail(slug: string): Promise<BinKitapDetail | null> {
-    const cacheKey = `books:1k:book:v1:${slugKey(slug)}`;
+    // v2: künyeye `raw.editions` eklendi; v1 kayıtları o alanı taşımıyor ve
+    // Türkçe baskı seçimi sessizce boşa düşerdi
+    const cacheKey = `books:1k:book:v2:${slugKey(slug)}`;
     const cached = await this.readCache<BinKitapDetail>(
       cacheKey,
       DETAIL_TTL_MS,
@@ -381,6 +454,12 @@ export class BinKitapService {
    */
   private async fetchNextData(path: string): Promise<BinKitapNextData | null> {
     const run = this.queue.then(async () => {
+      // Soğuma önce: 429'dan sonra ısrar etmek yeni 429'dan başka bir şey
+      // getirmiyor (ölçüldü)
+      const cooldown = this.cooldownUntil - Date.now();
+      if (cooldown > 0) {
+        await sleep(cooldown);
+      }
       const gap = Date.now() - this.lastRequestAt;
       if (gap < MIN_REQUEST_GAP_MS) {
         await sleep(MIN_REQUEST_GAP_MS - gap);
@@ -427,6 +506,11 @@ export class BinKitapService {
           if (status !== 200) {
             response.resume();
             this.logger.warn(`1000Kitap ${path} → ${status}`);
+            if (status === 429) {
+              this.cooldownUntil = Date.now() + RATE_LIMIT_COOLDOWN_MS;
+              reject(new BinKitapRateLimitError(path));
+              return;
+            }
             reject(new Error(`1000Kitap ${status}`));
             return;
           }
@@ -635,10 +719,58 @@ export function toDetail(
       printedOn: info.baskiYazi ?? null,
       estimatedReadingTime: info.tahminiSure ?? null,
       otherEditionCount: about.digerBaskilar?.length ?? 0,
+      editions: readEditions(about.digerBaskilar),
       genres,
       fetchedAt: new Date().toISOString(),
     },
   };
+}
+
+/**
+ * `digerBaskilar` listesini künyeye çevirir. **Ek istek yok:** her girdi
+ * kendi `baskiBilgileriArray` künyesini taşıyor (ölçüldü), dil kodu dahil.
+ * Bu sayede Türkçe baskıyı seçmek için baskıları tek tek açmak gerekmiyor.
+ */
+function readEditions(
+  editions: BinKitapEditionRaw[] | undefined,
+): BinKitapEdition[] {
+  return (editions ?? [])
+    .filter(
+      (item): item is BinKitapEditionRaw & { seo_adi: string; id: string } =>
+        Boolean(item.seo_adi && item.id && item.adi),
+    )
+    .map((item) => {
+      const info = item.baskiBilgileriArray;
+      return {
+        slug: `${item.seo_adi}--${item.id}`,
+        title: item.adi ?? info?.adi ?? '',
+        subtitle: info?.altBaslik ?? item.altbaslik ?? null,
+        language: info?.dil?.kod ?? null,
+        publisher: info?.yayinevi ?? null,
+        isMain: item.isAnaBaski === 1,
+      };
+    });
+}
+
+/**
+ * Baskılar arasından istenen dildeki cildi seçer; yoksa `null`.
+ *
+ * Ödüller bunu şunun için kullanıyor: orijinal adla bulunan yabancı baskıdan
+ * Türkçe çeviriye geçmek. Birden çok Türkçe baskı varsa kaynağın **ana
+ * baskısı** tercih ediliyor — güncel ve en çok okunan cilt o oluyor.
+ */
+export function pickEdition(
+  editions: BinKitapEdition[],
+  language: string,
+  exceptSlug?: string,
+): BinKitapEdition | null {
+  const matches = editions.filter(
+    (edition) => edition.language === language && edition.slug !== exceptSlug,
+  );
+  if (matches.length === 0) {
+    return null;
+  }
+  return matches.find((edition) => edition.isMain) ?? matches[0];
 }
 
 /** `yazarGruplari` yoksa (aramada olmuyor) düz `yazarlar` listesine düşer. */

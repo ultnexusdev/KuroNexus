@@ -54,8 +54,18 @@ export class BooksController {
     return this.booksService.getPublisher(slug);
   }
 
-  // Kitap sayfası. ':slug' en sonda: 'showcase', 'awards', 'kisi' ve
-  // 'yayinevi' gibi sabit yollar önce eşleşsin
+  /**
+   * Arşivde olmayan kitabın künye sayfası (ödül raflarından gelinir).
+   * Adres 1000Kitap'ın kendi anahtarı ("oteki-isim--520400").
+   */
+  @Public()
+  @Get('kaynak/:slug')
+  getSourceBook(@Param('slug') slug: string) {
+    return this.booksService.getSourceBook(slug);
+  }
+
+  // Kitap sayfası. ':slug' en sonda: 'showcase', 'awards', 'kisi',
+  // 'yayinevi' ve 'kaynak' gibi sabit yollar önce eşleşsin
   @Public()
   @Get(':slug')
   getDetail(@Param('slug') slug: string) {

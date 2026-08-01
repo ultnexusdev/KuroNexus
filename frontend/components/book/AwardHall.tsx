@@ -6,6 +6,7 @@ import { Link } from "@/lib/i18n/navigation";
 import { apiUrl } from "@/lib/api/client";
 import type { AwardDetail, AwardSummary, AwardWinnerCard } from "@/lib/api/types";
 import { BackToTop } from "@/components/BackToTop";
+import { sourceBookHref } from "./BookCard";
 import styles from "./AwardHall.module.css";
 
 /**
@@ -246,15 +247,26 @@ function WinnerCard({
     </>
   );
 
-  // Arşivdeyse kendi kitap sayfasına; değilse kart tıklanmaz. Google'a
-  // dışarı atmak bilinçli olarak yapılmıyor: burası arşiv, mağaza değil.
+  /**
+   * Üç hâl, bu sırayla:
+   *  1. **Arşivde** → kendi kitap sayfası (senin notların, alıntıların orada).
+   *  2. **Arşivde değil ama kaynakta var** → `/kitap/kaynak/<slug>` künye
+   *     sayfası. Liste 235 kitap, arşivde bir avuç: eskiden kartların
+   *     neredeyse tamamı tıklanmıyordu ve okurun gidecek yeri yoktu.
+   *  3. **Hiç eşleşmemiş** → kart tıklanmaz. Dışarı 1000Kitap'a atmak bilerek
+   *     yapılmıyor: burası arşiv, mağaza değil.
+   */
+  const href =
+    winner.inArchive && winner.archiveSlug
+      ? `/dark-stories/category/kitap/${winner.archiveSlug}`
+      : winner.sourceSlug
+        ? sourceBookHref(winner.sourceSlug)
+        : null;
+
   return (
     <li className={styles.card}>
-      {winner.inArchive && winner.archiveSlug ? (
-        <Link
-          href={`/dark-stories/category/kitap/${winner.archiveSlug}`}
-          className={styles.cardLink}
-        >
+      {href ? (
+        <Link href={href} className={styles.cardLink}>
           {body}
         </Link>
       ) : (

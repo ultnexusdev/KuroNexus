@@ -30,6 +30,15 @@ export function bookHref(book: ArchiveBook): string {
   return `/dark-stories/category/kitap/${book.slug}`;
 }
 
+/**
+ * Arşivde **olmayan** kitabın künye sayfası. Adres 1000Kitap'ın kendi
+ * anahtarı ("oteki-isim--520400"); arşiv adresleriyle karışmasın diye ayrı
+ * bir yol altında duruyor.
+ */
+export function sourceBookHref(slug: string): string {
+  return `/dark-stories/category/kitap/kaynak/${slug}`;
+}
+
 export function Cover({
   book,
   sizes,

@@ -134,7 +134,99 @@
 > olduğunu gösterdi: `getDetail`, `getPerson`, `getPublisher`. Üçü de
 > düzeltildi. Bundan sonra `include` unutulursa derleme kırılır.
 >
-> **SIRADAKİ — Faz 2c (YAZILMADI, acil değil):** düz metin sütunlarını
+> **FAZ 2c — ÖDÜLLER 1000KİTAP'A TAŞINDI + KAYNAK KÜNYE SAYFASI.**
+> Kullanıcı iki şey bildirdi: "ödüllerdeki kitaplar tıklanmıyor, bunları da
+> 1000Kitap'tan çekelim" ve "Jon Fosse *Septology* İngilizce görünüyor, oysa
+> sitede *Septoloji I-II* olarak var".
+>
+> **KAYNAĞIN ESER/BASKI MODELİ ÇÖZÜMÜN ANAHTARI (ölçüldü).** Orijinal adla
+> arayınca kaynak **yabancı baskıyı** döndürüyor: `"Septology Jon Fosse"` →
+> *The Other Name* (Fitzcarraldo, `dil: en`). Ama o kaydın `anaKitap`ı
+> **Öteki İsim** (Monokl, `tr`) ve `digerBaskilar` listesindeki her girdi
+> kendi künyesini `baskiBilgileriArray` içinde taşıyor — **dil kodu dahil**,
+> yani Türkçe baskıyı seçmek için baskıları tek tek açmak gerekmiyor. Open
+> Library tarafında "eser vs. baskı" ayrımıyla çözülen sorunun bu kaynaktaki
+> karşılığı. `raw.editions` + `pickEdition()` bunun için eklendi.
+>
+> **`orijinalAdi` bu kayıtta YOK** — yani orijinal adla eşleştirme tek başına
+> yetmiyor. Bağ ancak İngilizce baskının **alt başlığından** kuruluyor:
+> `altBaslik: "Septology I-II"`. `confirmMatch` bu yüzden ada değil, ad
+> kümesine bakıyor: baskının adı + alt başlığı + orijinal adı + **öteki
+> baskıların adları ve alt başlıkları**.
+>
+> **Sorgu sırası Google'ın TERSİ:** 1000Kitap'ta Türkçe ad birinci sorgu.
+> Sebep ölçüldü — çeviriler kaynakta ayrı kayıt olabiliyor ve orijinaliyle
+> bağlı olmayabiliyor (*Flights* → *Koşucular*, iki ayrı kayıt, `digerBaskilar`
+> boş). Google'da gerekçe hâlâ tersine işliyor, o kural değişmedi.
+>
+> **CANLI ÖLÇÜM — 99 tekil kitap** (235 kazananın tamamı denendi, kaynak hız
+> sınırı yüzünden yarısında kesildi): **52 doğrudan Türkçe baskı**, **9 baskı
+> atlama**, 16 yalnızca yabancı baskı, 22 ıska. Yani ölçülenlerin **%62'si**
+> Türkçe baskıya oturuyor. Baskı atlamayla kurtulanlar: Septology → Öteki
+> İsim · The Testaments → Ahitler · Less → Bay Less · Lincoln in the Bardo →
+> Arafta · Prophet Song → Peygamberin Şarkısı · The Birthday Party →
+> Doğumgünü Partisi · The Finkler Question → Finkler Sorunu · Accidental
+> Death of an Anarchist → Bir Anarşistin Kaza Sonucu Ölümü · The Seven Moons
+> of Maali Almeida → Maali Almeida'nın Yedi Ay Dönümü.
+>
+> **ÖLÇÜM İKİ GERÇEK HATA YAKALADI:**
+> 1. **Yanlış eşleşme:** *Wolf Hall* (Booker 2009) aynı üçlemenin ikinci
+>    cildi *Bring Up the Bodies*'e eşleşiyordu — üçlemenin adı da "Wolf Hall"
+>    ve künyeye `altbaslik`ten girip `seriesName`e düşüyor. **Seri adı
+>    `confirmMatch` anahtarlarından çıkarıldı**: seri adı kitabın adı değil ve
+>    listede eseriyle aynı adı taşıyan seriler var (Dune, Wolf Hall).
+> 2. **Aksan katlanmıyordu.** Ödül eşleştirmesinin kendi `normalize`ı
+>    `\p{L}`yi koruyordu; kaynak "Kenzaburo Oe" yazarken liste "Kenzaburō Ōe"
+>    diyor ve yazar tutmuyordu (Szymborska, Kertész, Le Clézio aynı sebeple).
+>    Artık kod tabanının geri kalanıyla aynı katlayıcı kullanılıyor
+>    (`slugify`). **Guard şart:** `slugify` ASCII dışı yazıyı tamamen eliyor,
+>    iki boş anahtar "birebir aynı" sayılmasın diye `titleRank` boşu atlıyor.
+>
+> **HIZ SINIRI — YENİ VE ÖNEMLİ.** Saniyede bir istekle ~25 istekten sonra
+> site **429** dönmeye başlıyor ve ısrar yalnızca yeni 429 getiriyor. Tek bir
+> küratör aramasında görünmez, toplu ödül eşleştirmesinde hemen çıkar.
+> Eklenenler: `BinKitapRateLimitError` (ayrı tür — "aradık bulamadık" ile
+> "soramadık" ayrımı şart), kuyrukta **60 sn soğuma**, ve ödüllerde 429
+> görülünce **tur bitiyor**, cache'e hiçbir şey yazılmıyor. Yutulsaydı 429
+> yiyen kitap Google'ın İngilizce cildine 90 gün çakılırdı.
+> `BACKFILL_PER_REQUEST` 6 → **3** (bir kazanan artık 2–4 sayfa açıyor).
+>
+> **KAYNAK KÜNYE SAYFASI — `/kitap/kaynak/<slug>` (kullanıcı kararı).**
+> Ödül kartı üç hâlli: arşivdeyse kendi kitap sayfası → değilse kaynak künye
+> sayfası → hiç eşleşmemişse tıklanmaz. Sayfa **arşive kayıt AÇMIYOR**
+> (kullanıcı kararı: arşiv küratörün seçtiklerinin yeri) ve kitap sayfasının
+> kopyası değil — puan, not, alıntı, okuma durumu yok. Künye kaynağın kendi
+> 30 günlük cache'inden okunuyor. Yazar/çevirmen/yayınevi bağı **yalnızca o
+> kayıt arşivde varsa** kuruluyor, yoksa düz metin (olmayan kişinin sayfası
+> 404 verirdi — kitap sayfasındaki aynı karar).
+> Yeni: `BooksService.getSourceBook`, `GET /books/kaynak/:slug`,
+> `SourceBook.tsx`, `ArchiveBook.binKitapSlug` (arşiv eşleşmesi için).
+>
+> **Cache sürümleri artırıldı:** `books:award:v1` → **v2** (eşleştirme kaynağı
+> değişti, v1'de çakılı 90 günlük yanlış eşleşmeler yeni kaynağın önünü
+> keserdi), `books:1k:book:v1` → **v2** (`raw.editions` eklendi, v1 kayıtları
+> o alanı taşımıyor ve Türkçe baskı seçimi sessizce boşa düşerdi).
+>
+> **YOL ÜSTÜNDE BULUNAN AYRI HATA:** `book.person.*` çeviri anahtarları
+> `book.sections.person` altına yuvalanmıştı; `PersonHall` `t("person.…")`
+> okuyor. Yazar/çevirmen ve yayınevi sayfası etiketlerini bulamıyordu. tr ve
+> en'de doğru yere taşındı.
+>
+> **YAPILMADI / AÇIK:**
+> - Ölçüm 235 kazananın **99'unda** kesildi (site 429 vermeye başladı, ısrar
+>   edilmedi). Kalanlar canlıda arka planda dolacak — tasarım zaten bu.
+> - **Iska listesi elde:** `titleTr` yazılı olduğu hâlde ıskalayan kitaplar
+>   var (İkinci El Zaman, Açlık Meleği, Çöl, Kadersizlik, Kişisel Bir Sorun,
+>   Oscar Wao'nun Tuhaf Kısa Yaşamı, Kayıp Mirası). Bunların bir kısmı aksan
+>   düzeltmesiyle kendiliğinden düzelmiş olabilir — **ölçülemedi**, site o
+>   sırada 429 veriyordu. `titleTr` uydurulmadı (kural: doğrulanmamış ad
+>   künye gibi davranmaz).
+> - Wolf Hall hatasının `seriesName` üzerinden geldiği **çıkarım**; kaynak
+>   aynı adı cilt işaretsiz yazarsa `subtitle`a düşer ve yine geçer. Canlıda
+>   sınanamadı.
+> - Ödül ısıtma cron'u hâlâ yazılmadı (`awards.service.warm()` hazır).
+>
+> **SIRADAKİ — Faz 2c'nin kalanı (YAZILMADI, acil değil):** düz metin sütunlarını
 > (`authors`, `publisher`, `translator`, `genres`, `seriesName`) düşür,
 > `publisherRef` ilişkisini `publisher` olarak yeniden adlandır, ön yüzdeki
 > `lib/book/genres.ts` kopyasını sil ve türleri API'den okut, seri sayfası,

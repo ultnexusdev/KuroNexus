@@ -97,6 +97,11 @@ export interface ArchiveBook {
   slug: string;
   googleId: string | null;
   olKey: string | null;
+  /**
+   * 1000Kitap sayfa anahtarı. Arayüzde gösterilmiyor; ödül rafından gelen
+   * kaynak sayfasının "bu kitap zaten arşivimde" bağını kurmak için gerekli.
+   */
+  binKitapSlug: string | null;
   isbn13: string | null;
   title: string;
   originalTitle: string | null;
@@ -229,6 +234,56 @@ export interface BookCredits {
   people: BookCreditPerson[];
   publisher: { slug: string; name: string } | null;
   series: { slug: string; name: string } | null;
+}
+
+/**
+ * Kaynak künyesindeki bir kişi. `slug` yalnızca o kişinin **arşivde** kaydı
+ * varsa dolu: olmayan kişinin sayfası 404 verirdi, o yüzden düz metin
+ * gösteriliyor (kitap sayfasındaki `BookCredits` ile aynı karar).
+ */
+export interface SourceBookCredit {
+  name: string;
+  role: BookPersonRole;
+  slug: string | null;
+}
+
+/**
+ * Arşivde **olmayan** bir kitabın künye sayfası (`/kitap/kaynak/<slug>`).
+ *
+ * Ödül rafındaki kartların tıklanabilmesi için var: liste 235 kitap, arşivde
+ * ise bir avuç. Eskiden arşivde olmayan kart hiç tıklanmıyordu — okur ödülü
+ * görüp kitabı merak ettiğinde gidecek yeri yoktu.
+ *
+ * Kayıt AÇILMIYOR: sayfa tamamen kaynağın künyesinden çiziliyor, veritabanına
+ * hiçbir şey yazılmıyor. Arşiv küratörün seçtiği kitapların yeri olarak
+ * kalıyor (kullanıcı kararı).
+ */
+export interface SourceBookPage {
+  /** 1000Kitap sayfa anahtarı; adresin kendisi */
+  slug: string;
+  title: string;
+  subtitle: string | null;
+  originalTitle: string | null;
+  authors: string[];
+  translator: string | null;
+  editor: string | null;
+  publisher: string | null;
+  /** Yayınevinin arşivde kaydı varsa sayfası; yoksa düz metin */
+  publisherSlug: string | null;
+  publishedYear: number | null;
+  firstPublishedYear: number | null;
+  pageCount: number | null;
+  language: string | null;
+  isbn13: string | null;
+  coverImage: string | null;
+  description: string | null;
+  genres: string[];
+  seriesName: string | null;
+  seriesIndex: number | null;
+  people: SourceBookCredit[];
+  /** Kitap arşive sonradan eklendiyse okuru kendi sayfasına göndermek için */
+  inArchive: boolean;
+  archiveSlug: string | null;
 }
 
 /** Yazar/çevirmen sayfası. */
@@ -512,6 +567,120 @@ export class BooksService {
       name: publisher.name,
       books: withSlugs(publisher.books),
     };
+  }
+
+  /**
+   * Arşivde olmayan bir kitabın künye sayfası — ödül raflarının tıklanabilir
+   * olmasını sağlayan uç.
+   *
+   * Künye tamamen kaynaktan geliyor ve kaynağın kendi 30 günlük cache'inden
+   * okunuyor; **veritabanına hiçbir şey yazılmıyor.** Bağlar (yazar, çevirmen,
+   * yayınevi) yalnızca o kayıt arşivde varsa kuruluyor: olmayan kişinin
+   * sayfası 404 verirdi. Aynı ayrım kitap sayfasında da geçerli.
+   */
+  async getSourceBook(slug: string): Promise<SourceBookPage> {
+    const detail = await this.binKitap.getDetail(slug);
+    if (!detail) {
+      throw new NotFoundException('BOOKS.SOURCE_NOT_FOUND');
+    }
+    const { source, credits } = detail;
+
+    const publisherSlug = credits.publisher ? slugify(credits.publisher) : null;
+    const [known, publisher, archived] = await Promise.all([
+      this.prisma.bookPerson.findMany({
+        where: {
+          OR: [
+            {
+              binKitapId: {
+                in: credits.people
+                  .map((person) => person.binKitapId)
+                  .filter((id): id is string => id !== null),
+              },
+            },
+            {
+              slug: {
+                in: credits.people.map((person) => slugify(person.name)),
+              },
+            },
+          ],
+        },
+        select: { slug: true, binKitapId: true },
+      }),
+      publisherSlug
+        ? this.prisma.bookPublisher.findUnique({
+            where: { slug: publisherSlug },
+            select: { slug: true },
+          })
+        : Promise.resolve(null),
+      this.findArchivedBySource(slug, source.isbn13),
+    ]);
+
+    // Eşleştirme sırası kayıt açmadakiyle aynı: kaynak kimliği önce, ad yedek
+    const byBinKitapId = new Map(
+      known
+        .filter((person) => person.binKitapId !== null)
+        .map((person) => [person.binKitapId, person.slug]),
+    );
+    const bySlug = new Set(known.map((person) => person.slug));
+
+    return {
+      slug,
+      title: source.title,
+      subtitle: source.subtitle,
+      originalTitle: source.originalTitle,
+      authors: source.authors,
+      translator: detail.translator,
+      editor: detail.raw.editor,
+      publisher: source.publisher,
+      publisherSlug: publisher?.slug ?? null,
+      publishedYear: source.publishedYear,
+      firstPublishedYear: source.firstPublishedYear,
+      pageCount: source.pageCount,
+      language: source.language,
+      isbn13: source.isbn13,
+      coverImage: source.coverImage,
+      description: source.description,
+      genres: source.genres,
+      seriesName: source.seriesName,
+      seriesIndex: source.seriesIndex,
+      people: credits.people.map((person) => {
+        const ownSlug = slugify(person.name);
+        return {
+          name: person.name,
+          role: person.role,
+          slug:
+            (person.binKitapId
+              ? byBinKitapId.get(person.binKitapId)
+              : undefined) ?? (bySlug.has(ownSlug) ? ownSlug : null),
+        };
+      }),
+      inArchive: archived !== null,
+      archiveSlug: archived,
+    };
+  }
+
+  /**
+   * Bu kaynak kaydının arşivdeki karşılığının adresi.
+   *
+   * Adres sütun değil, başlıktan türetiliyor ve çakışmada yıl/sıra ekleniyor
+   * (`withSlugs`) — bu yüzden arşiv aynı yoldan okunuyor, `slugify` burada
+   * tekrar edilmiyor (ödül servisindeki aynı gerekçe).
+   */
+  private async findArchivedBySource(
+    binKitapSlug: string,
+    isbn13: string | null,
+  ): Promise<string | null> {
+    const entries = await this.prisma.bookEntry.findMany({
+      where: { isDeleted: false },
+      orderBy: [{ finishedAt: 'desc' }, { createdAt: 'desc' }],
+      include: CREDITS_INCLUDE,
+    });
+    const hit = withSlugs(entries).find(
+      (book) =>
+        book.binKitapSlug === binKitapSlug ||
+        (isbn13 !== null && book.isbn13 === isbn13),
+    );
+    return hit?.slug ?? null;
   }
 
   // --- Admin ---
@@ -1378,6 +1547,7 @@ function toArchiveBook(entry: BookEntryWithCredits): ArchiveBook {
     credits: toCredits(entry),
     googleId: entry.googleId,
     olKey: entry.olKey,
+    binKitapSlug: entry.binKitapSlug,
     isbn13: entry.isbn13,
     title: entry.title,
     originalTitle: entry.originalTitle,

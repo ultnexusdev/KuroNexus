@@ -31,6 +31,12 @@ const ALLOWED_HOSTS = new Set([
   'covers.openlibrary.org',
   'books.google.com',
   'books.googleusercontent.com',
+  /**
+   * Open Library kapağı **kendi sunmuyor**: `covers.openlibrary.org/b/id/…`
+   * 302 ile `archive.org/download/olcovers…zip/…jpg` adresine gönderiyor
+   * (canlıda ölçüldü — üç Nobel kapağı tam bu yüzden inmiyordu).
+   */
+  'archive.org',
 ]);
 
 /** Kapak görselleri küçük; bu sınır kötü niyetli bir "sonsuz gövde"ye karşı. */
@@ -116,17 +122,10 @@ export class BookCoverService implements OnModuleInit {
     }
 
     try {
-      const response = await fetch(url, {
-        /**
-         * Yönlendirme **takip edilmiyor**: izin verilen bir sunucu, isteği
-         * iç ağdaki bir adrese (169.254.169.254 gibi) yönlendirerek beyaz
-         * listeyi delebilirdi. Kapak adresleri zaten doğrudan dosyayı
-         * gösteriyor, yönlendirmeye ihtiyaç yok.
-         */
-        redirect: 'error',
-        headers: { accept: 'image/*' },
-        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-      });
+      const response = await this.request(url);
+      if (!response) {
+        return null;
+      }
       if (!response.ok) {
         this.logger.warn(
           `Kapak indirilemedi (${response.status}): ${url.href}`,
@@ -159,6 +158,63 @@ export class BookCoverService implements OnModuleInit {
       this.logger.warn(`Kapak indirilemedi: ${url.href} — ${String(error)}`);
       return null;
     }
+  }
+
+  /**
+   * İsteği atar ve **en fazla bir yönlendirmeyi** takip eder.
+   *
+   * Yönlendirme tarayıcıya bırakılMIYOR (`redirect: 'manual'`): izin verilen
+   * bir sunucu isteği iç ağdaki bir adrese (169.254.169.254 gibi)
+   * yönlendirerek beyaz listeyi delebilirdi. Onun yerine hedef **elle
+   * okunuyor ve aynı süzgeçten yeniden geçiriliyor** — yani beyaz liste her
+   * sıçramada geçerli, SSRF savunması aynen duruyor.
+   *
+   * Neden hiç takip etmemek yetmedi: Open Library kapağı kendi sunmuyor,
+   * `archive.org`a 302 veriyor (canlıda ölçüldü). "Kapak adresleri zaten
+   * doğrudan dosyayı gösteriyor" varsayımı yanlış çıktı.
+   *
+   * Tek sıçrama bilerek: zincir kurdurmak hem zaman aşımını hem de
+   * doğrulanacak yüzeyi büyütür, ölçülen tek gerçek durum ise bir adım.
+   */
+  private async request(url: URL): Promise<Response | null> {
+    const response = await fetch(url, {
+      redirect: 'manual',
+      headers: { accept: 'image/*' },
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    });
+    if (response.status < 300 || response.status > 399) {
+      return response;
+    }
+
+    const location = response.headers.get('location');
+    if (!location) {
+      this.logger.warn(`Kapak yönlendirmesi adressiz: ${url.href}`);
+      return null;
+    }
+
+    let next: URL;
+    try {
+      // Göreli adres olabilir; kaynağa göre çözülüyor
+      next = new URL(location, url);
+    } catch {
+      return null;
+    }
+    if (next.protocol !== 'https:' && next.protocol !== 'http:') {
+      return null;
+    }
+    if (!isAllowedHost(next.hostname)) {
+      this.logger.warn(
+        `Kapak yönlendirmesi izinsiz sunucuya: ${next.hostname}`,
+      );
+      return null;
+    }
+
+    // İkinci sıçrama yok: buradan sonrası artık zincir olurdu
+    return fetch(next, {
+      redirect: 'error',
+      headers: { accept: 'image/*' },
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    });
   }
 
   /**

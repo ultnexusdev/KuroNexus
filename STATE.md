@@ -1202,6 +1202,17 @@
 > Admin ucu: `POST /admin/books/awards/warm?limit=40` — sabırsız olan için
 > tek çağrıda hem eşleştirir hem kapakları indirir.
 >
+> **CANLIDA ÖLÇÜLDÜ, BİR EKSİK ÇIKTI VE KAPATILDI.** Nobel rafında 35
+> kapağın 32'si iki turda (~25 sn) indi, üçü inmedi: Open Library kapağı
+> **kendi sunmuyor**, `covers.openlibrary.org` 302 ile `archive.org`a
+> gönderiyor ve indirici yönlendirmeyi tümden reddediyordu
+> (`redirect: 'error'`, SSRF savunması). Koddaki "kapak adresleri zaten
+> doğrudan dosyayı gösteriyor" varsayımı yanlışmış. Çözüm savunmayı
+> gevşetmeden: `redirect: 'manual'` ile hedef elle okunuyor, **aynı beyaz
+> listeden yeniden geçiriliyor** ve tek sıçrama izleniyor; `archive.org`
+> listeye eklendi. `coverFailures` bu arada doğru çalıştı — üç kapak
+> `pending`i sonsuza dek açık tutmadı.
+>
 > **Doğrulama:** backend `tsc` + `eslint` temiz, `jest src/books` **82 test
 > geçti** (3 yeni: boş ISBN, `remoteCovers` süzgeci ×2); frontend `tsc` temiz.
 > Lokalde görsel doğrulama YOK (dev sunucusu dışarı çıkamıyor) — **canlıda

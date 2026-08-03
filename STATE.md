@@ -1221,10 +1221,22 @@
 >
 > **Doğrulama:** backend `tsc` + `eslint` temiz, `jest src/books` **82 test
 > geçti** (3 yeni: boş ISBN, `remoteCovers` süzgeci ×2); frontend `tsc` temiz.
-> Lokalde görsel doğrulama YOK (dev sunucusu dışarı çıkamıyor) — **canlıda
-> bakılacak**: künye sayfasında kaynak adı geçmemeli, *Doğumgünü Partisi*
-> "arşivimde" dememeli, ödül rafı bir-iki tazelemede dolmalı ve kapak
-> adresleri `/uploads/books/` ile başlamalı.
+> Lokalde görsel doğrulama YOK (dev sunucusu dışarı çıkamıyor), **canlıda
+> ölçüldü ve üçü de geçti**:
+> - Künye sayfasında kaynak adı geçmiyor (şerit "KÜNYE").
+> - `/books/kaynak/dogumgunu-partisi--131112` → `inArchive: false`,
+>   `archiveSlug: null`. (Künye cache'i 30 günlük olduğu için `isbn13` hâlâ
+>   boş dize dönüyor — **savunmanın karşılaştırma tarafında da olmasının
+>   sebebi tam bu**; cache dolunca kaynak tarafı da null verecek.)
+> - **Dokuz rafın tamamında kapakların hepsi yerel**: nobel 35/35,
+>   pulitzer 29/29, booker 9/9, hugo 23/23, nebula 30/30, world-fantasy
+>   19/19, locus-sf 15/15, bram-stoker 10/10, edgar 10/10. Raf başına 2–3
+>   tazeleme yetti.
+>
+> **Kalan `pending` kapak değil, eşleşme:** pulitzer 6, booker 28, hugo 22
+> kazanan hiç eşleştirilmemiş durumda (bu iş önceden de bekliyordu, hız
+> sınırı yüzünden tur başına 3 ilerliyor). Ziyaret ettikçe doluyor;
+> `POST /admin/books/awards/warm?limit=40` ile de kapatılabilir.
 
 
 **Yazım Atölyesi (adım 1+2) ve Salon 02 · Film push edildi (2026-07-28) — ikisi de canlıda doğrulanmayı bekliyor: `/admin/atolye/temurkan-efsaneleri` (bölüm ağacı, tek editör, `@` ile lore bağlama, okuma ekranında künye paneli) ve `/dark-stories/category/film` + `/admin/film` (TMDB'li kişisel film arşivi). Lokalde admin geliştirmesi artık dev proxy ile mümkün. Faz 2 BAŞLADI (2026-07-11): Wiki modülü çekirdeği CANLIDA — evren içi wiki sayfaları (kategori gruplu) + spoiler seviyesi sistemi. Site: https://kuronexus.com + https://api.kuronexus.com. Webhook ile otomatik deploy çalışıyor (push = yayın). Faz 1'den kalan küçük işler: yedekten geri yükleme testi, mobil taşma kontrolü, www DNS kaydı.**

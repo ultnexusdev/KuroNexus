@@ -9,6 +9,7 @@ import {
   type BinKitapDetail,
 } from './bin-kitap.service';
 import { BooksService } from './books.service';
+import { BookCoverService } from './book-cover.service';
 import {
   AWARDS,
   findAward,
@@ -56,6 +57,21 @@ const BACKFILL_PER_REQUEST = 3;
 
 /** Eşzamanlı dış istek — Google'ı zorlamamak için bilerek düşük. */
 const BACKFILL_CONCURRENCY = 2;
+
+/**
+ * Bir istekte kaç kapak **indirilir** (eşleşmesi zaten cache'de olanlardan).
+ *
+ * Eşleştirmeden çok daha yüksek, çünkü bambaşka bir iş: künye çekmek
+ * 1000Kitap'ın hız sınırlı sayfalarını açmak demek, kapak indirmek ise
+ * yalnızca CDN'den (`1k-cdn.com`) bir dosya çekmek — o adres bu korumanın
+ * arkasında değil (bkz. STATE.md'deki tuzak notu). Kullanıcı "kapaklar sayfa
+ * yenilendikçe geliyor" diye bildirdi; tur başına üç kapak 30 kitaplık bir
+ * rafta on tazeleme demekti.
+ */
+const LOCALIZE_PER_REQUEST = 12;
+
+/** Kapak indirmede eşzamanlılık — dosyalar küçük, sunucu tek. */
+const LOCALIZE_CONCURRENCY = 4;
 
 /**
  * Bir kazanan için en fazla kaç kitap sayfası açılır.
@@ -130,6 +146,18 @@ export class AwardsService {
   private readonly logger = new Logger(AwardsService.name);
   /** Aynı anda tek arka plan turu — istek yağmuru olmasın */
   private backfilling = false;
+  /**
+   * Kapağı bu süreçte indirilemeyen kayıtlar.
+   *
+   * Olmasaydı **sonsuz tazeleme** olurdu: kalıcı olarak inmeyen bir adres
+   * (izinsiz sunucu, silinmiş dosya) cache'te `http` ile durmaya devam eder,
+   * her açılışta yeniden kuyruğa girer ve arayüz "kapaklar doldurulıyor"
+   * yazısını yirmi tur boyunca boşuna gösterirdi.
+   *
+   * Kalıcı DEĞİL, bilerek: sunucu her yeniden başladığında sıfırlanıyor, yani
+   * geçici bir CDN arızası yüzünden kapak sonsuza dek dışarıda kalmıyor.
+   */
+  private readonly coverFailures = new Set<string>();
 
   constructor(
     private readonly prisma: PrismaService,
@@ -147,6 +175,14 @@ export class AwardsService {
      * "arşivde var" rozetinin yanlış adrese gitmesi demek olurdu.
      */
     private readonly books: BooksService,
+    /**
+     * Ödül kapakları da **kendi diskimize** iniyor (kullanıcı kararı:
+     * hotlink yok). Eskiden cache'e kaynağın CDN adresi yazılıyordu ve raf
+     * her açılışta o adresleri dışarıdan çekiyordu; kapak kaybolduğunda ya
+     * da CDN referer kontrolü koyduğunda raf boşalırdı. Arşivdeki kitapların
+     * kapağı zaten bu yoldan geçiyor, ödül rafı geride kalmıştı.
+     */
+    private readonly covers: BookCoverService,
   ) {}
 
   /** Ödüller sayfasının üst listesi. Dış istek YOK, hep hızlı. */
@@ -188,27 +224,41 @@ export class AwardsService {
     const missing = award.winners.filter(
       (winner) => !settled.has(cacheKey(winner)),
     );
+    // Eşleşmiş ama kapağı hâlâ dışarıda duran kayıtlar — bunlar da bekleyen iş
+    const remote = this.pendingCovers(matches);
 
     // Yanıtı bekletmeden arkada devam: bir sonraki açılışta kapaklar yerinde
-    void this.backfill(missing);
+    void this.backfill(missing, remote);
 
     return {
       ...this.summarize(award, matches, archive, people),
       winners,
-      pending: missing.length,
+      /**
+       * Sayaç iki işi birden kapsıyor: hiç aranmamış kazananlar **ve** kapağı
+       * hâlâ dışarıda duran eşleşmeler. İkincisi eklenmeseydi arayüz eski
+       * kayıtlarda "her şey hazır" deyip tazelemeyi durdururdu, oysa kapaklar
+       * daha kendi diskimize inmemiş olurdu.
+       */
+      pending: missing.length + remote.length,
     };
   }
 
   /**
-   * Bütün listeyi ısıtır — cron buradan çağırıyor. `limit` ile turu bölmek
-   * mümkün: haftalık cron her turda bir dilim alıyor.
+   * Bütün listeyi ısıtır — cron/admin buradan çağırıyor. `limit` ile turu
+   * bölmek mümkün: her turda bir dilim alınıyor.
    */
-  async warm(limit: number): Promise<{ checked: number; filled: number }> {
+  async warm(
+    limit: number,
+  ): Promise<{ checked: number; filled: number; localized: number }> {
     const all = AWARDS.flatMap((award) => award.winners);
     const settled = await this.readSettled(all);
     const missing = all.filter((winner) => !settled.has(cacheKey(winner)));
     const filled = await this.resolveMany(missing.slice(0, limit));
-    return { checked: all.length, filled };
+    // Isıtma turunun ikinci yarısı: cache'de duran dış adresleri içeri al
+    const localized = await this.localizeCovers(
+      this.pendingCovers(await this.readMatches(all)).slice(0, limit),
+    );
+    return { checked: all.length, filled, localized };
   }
 
   // ---- iç yardımcılar ----
@@ -385,29 +435,96 @@ export class AwardsService {
    * Liste **zaten süzülmüş** geliyor (`getAward`): aynı `settled` sorgusunu
    * iki kez atmamak için — yanıt da o sayıyı `pending` olarak taşıyor.
    */
-  private async backfill(missing: AwardWinner[]): Promise<void> {
-    if (this.backfilling || missing.length === 0) {
+  private async backfill(
+    missing: AwardWinner[],
+    remote: CachedCover[],
+  ): Promise<void> {
+    if (this.backfilling || (missing.length === 0 && remote.length === 0)) {
       return;
     }
-    /**
-     * Soğumadayken tur hiç başlamıyor. Başlasaydı kaynağın kuyruğuna bir
-     * dakika beklemekten başka bir şey yapmayacak işler dizilirdi ve
-     * **küratörün kendi araması da o sıranın arkasında kalırdı** — kullanıcı
-     * tam bunu bildirdi ("arama simgesi dönüyor ama sonuç gelmiyor").
-     */
-    if (this.binKitap.isCoolingDown()) {
-      return;
-    }
-    const slice = missing.slice(0, BACKFILL_PER_REQUEST);
 
     this.backfilling = true;
     try {
-      await this.resolveMany(slice);
+      /**
+       * Kapak indirme **önce ve soğumadan bağımsız** çalışıyor: hedef
+       * `1k-cdn.com`, yani hız sınırının arkasındaki sayfa sunucusu değil.
+       * Aynı `if`in içine konsaydı bir 429 sonrası raf, elde hazır künyeler
+       * dururken kapaksız beklerdi.
+       */
+      if (remote.length > 0) {
+        await this.localizeCovers(remote.slice(0, LOCALIZE_PER_REQUEST));
+      }
+
+      /**
+       * Soğumadayken eşleştirme turu hiç başlamıyor. Başlasaydı kaynağın
+       * kuyruğuna bir dakika beklemekten başka bir şey yapmayacak işler
+       * dizilirdi ve **küratörün kendi araması da o sıranın arkasında
+       * kalırdı** — kullanıcı tam bunu bildirdi ("arama simgesi dönüyor ama
+       * sonuç gelmiyor").
+       */
+      if (missing.length > 0 && !this.binKitap.isCoolingDown()) {
+        await this.resolveMany(missing.slice(0, BACKFILL_PER_REQUEST));
+      }
     } catch (error) {
       this.logger.warn(`Ödül eşleştirmesi arkada düştü: ${String(error)}`);
     } finally {
       this.backfilling = false;
     }
+  }
+
+  /**
+   * Cache'te dış adresle duran ödül kapaklarını kendi diskimize indirir.
+   *
+   * Kayıt `patchCache` ile güncelleniyor, `writeCache` ile değil: eşleşmenin
+   * yaşı olduğu gibi kalmalı (gerekçe orada).
+   *
+   * İnmeyen kapak olduğu gibi bırakılıyor (kural 4): tek kırık adres yüzünden
+   * raf boş kalmasın — kapak hâlâ `http` ile başladığı için bir sonraki turda
+   * yeniden denenir.
+   */
+  /** İndirilebilecek kapaklar: dışarıda duranlardan, denenip düşenler hariç. */
+  private pendingCovers(matches: Map<string, AwardMatch>): CachedCover[] {
+    return remoteCovers(matches).filter(
+      (item) => !this.coverFailures.has(item.cacheKey),
+    );
+  }
+
+  private async localizeCovers(items: CachedCover[]): Promise<number> {
+    let localized = 0;
+    const queue = [...items];
+    const workers = Array.from(
+      { length: Math.min(LOCALIZE_CONCURRENCY, queue.length) },
+      async () => {
+        for (;;) {
+          const item = queue.shift();
+          if (!item) {
+            return;
+          }
+          try {
+            const local = await this.covers.download(item.book.coverImage);
+            if (!local) {
+              // `download` fırlatmaz, `null` döner: adres izinsiz sunucuda ya
+              // da dosya gitmiş olabilir. İkinci kez sıraya girmesin.
+              this.coverFailures.add(item.cacheKey);
+              continue;
+            }
+            const payload: AwardMatchPayload = {
+              matched: true,
+              book: { ...item.book, coverImage: local },
+              authorSeo: item.authorSeo,
+            };
+            await this.patchCache(item.cacheKey, payload);
+            localized += 1;
+          } catch (error) {
+            this.logger.warn(
+              `Ödül kapağı yerelleştirilemedi (${item.cacheKey}): ${String(error)}`,
+            );
+          }
+        }
+      },
+    );
+    await Promise.all(workers);
+    return localized;
   }
 
   /**
@@ -481,7 +598,7 @@ export class AwardsService {
       if (fromSource) {
         await this.writeCache(key, {
           matched: true,
-          book: fromSource.book,
+          book: await this.withLocalCover(fromSource.book),
           authorSeo: fromSource.authorSeo,
         });
         return true;
@@ -538,7 +655,7 @@ export class AwardsService {
        * bulamadık" ile "hiç aranmadı" ayrımı zaten açıkça durmalı.
        */
       const payload: AwardMatchPayload = best
-        ? { matched: true, book: best }
+        ? { matched: true, book: await this.withLocalCover(best) }
         : { matched: false };
       await this.writeCache(key, payload);
       return best !== null;
@@ -643,11 +760,37 @@ export class AwardsService {
    * Dönüşümü `unknown` parametreli bu yardımcının içine almak ikisini de
    * memnun ediyor (bkz. STATE.md'deki lint/derleyici çelişkisi notu).
    */
+  /**
+   * Künyeyi **yerel** kapak adresiyle döner; indirilemezse olduğu gibi.
+   *
+   * Dış adres bilerek korunuyor: kapağı hiç göstermemektense bir tur daha
+   * dışarıdan çekmek yeğ (kural 4). O kayıt bir sonraki turda `localizeCovers`
+   * tarafından yeniden denenir, çünkü kapak hâlâ `http` ile başlıyor.
+   */
+  private async withLocalCover(book: BookSource): Promise<BookSource> {
+    const local = await this.covers.download(book.coverImage);
+    return local ? { ...book, coverImage: local } : book;
+  }
+
   private async writeCache(cacheKey: string, payload: unknown): Promise<void> {
     await this.prisma.externalCache.upsert({
       where: { cacheKey },
       create: { cacheKey, payload: payload as object, fetchedAt: new Date() },
       update: { payload: payload as object, fetchedAt: new Date() },
+    });
+  }
+
+  /**
+   * Var olan kaydın yalnızca payload'ını değiştirir — **`fetchedAt` sabit
+   * kalır.** Kapak indirmek eşleşmeyi tazelemek değildir; tarih güncellenseydi
+   * 90 günlük TTL her kapak turunda baştan başlar ve künye hiç yenilenmezdi.
+   *
+   * Parametre `writeCache` ile aynı sebeple `unknown` (bkz. oradaki not).
+   */
+  private async patchCache(cacheKey: string, payload: unknown): Promise<void> {
+    await this.prisma.externalCache.update({
+      where: { cacheKey },
+      data: { payload: payload as object },
     });
   }
 }
@@ -667,6 +810,28 @@ type AwardMatchPayload =
 interface AwardMatch {
   book: BookSource;
   authorSeo: string | null;
+}
+
+/** Kapağı hâlâ dışarıda duran bir cache kaydı — yerelleştirme kuyruğunun işi. */
+interface CachedCover extends AwardMatch {
+  cacheKey: string;
+}
+
+/**
+ * Kapağı kendi diskimizde **olmayan** eşleşmeler.
+ *
+ * Ölçüt adresin `http` ile başlaması: yerel kapaklar `/uploads/books/…`
+ * biçiminde duruyor, kapağı hiç olmayan kayıt da `null` taşıyor ve ikisinin
+ * de yapılacak bir işi yok.
+ */
+export function remoteCovers(matches: Map<string, AwardMatch>): CachedCover[] {
+  const items: CachedCover[] = [];
+  for (const [cacheKey, match] of matches) {
+    if (match.book.coverImage?.startsWith('http')) {
+      items.push({ cacheKey, ...match });
+    }
+  }
+  return items;
 }
 
 interface ArchiveHit {

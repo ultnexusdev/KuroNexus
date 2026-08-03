@@ -1,4 +1,9 @@
-import { confirmMatch, orderCandidates, pickBest } from './awards.service';
+import {
+  confirmMatch,
+  orderCandidates,
+  pickBest,
+  remoteCovers,
+} from './awards.service';
 import type { BookSource } from './google-books.service';
 import type { BinKitapDetail, BinKitapEdition } from './bin-kitap.service';
 import { AWARDS } from './data/awards.data';
@@ -400,5 +405,40 @@ describe('ödül listesi', () => {
         }
       }
     }
+  });
+});
+
+/**
+ * Kapakların **kendi diskimizde** durması kullanıcı kararı ("hotlink yok").
+ * Ödül rafı bunu geriye dönük de yapmak zorunda: cache'te 90 gün boyunca
+ * kaynağın CDN adresiyle duran eşleşmeler var ve kullanıcı "kapaklar sayfa
+ * yenilendikçe yükleniyor" diye bildirdi. `remoteCovers` o kuyruğu kuruyor —
+ * yanlış süzerse ya iş hiç yapılmaz ya da her açılışta boşuna dönülür.
+ */
+describe('remoteCovers', () => {
+  const match = (coverImage: string | null) => ({
+    book: source({ coverImage }),
+    authorSeo: null,
+  });
+
+  it('yalnızca dış adresli kapakları kuyruğa alır', () => {
+    const queue = remoteCovers(
+      new Map([
+        ['a', match('https://1k-cdn.com/resimler/kitaplar/1_buyuk.jpg')],
+        ['b', match('/uploads/books/abc.jpg')],
+        ['c', match(null)],
+      ]),
+    );
+    expect(queue.map((item) => item.cacheKey)).toEqual(['a']);
+  });
+
+  it('cache anahtarını taşır — güncellenecek satır o', () => {
+    const queue = remoteCovers(
+      new Map([['books:award:v2:dune|herbert', match('http://x/1.jpg')]]),
+    );
+    expect(queue[0]).toMatchObject({
+      cacheKey: 'books:award:v2:dune|herbert',
+      authorSeo: null,
+    });
   });
 });

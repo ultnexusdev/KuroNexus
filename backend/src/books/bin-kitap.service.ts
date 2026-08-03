@@ -736,7 +736,7 @@ function toSearchResult(item: BinKitapBookHead): BookSource | null {
   return {
     googleId: null,
     olKey: null,
-    isbn13: item.isbn ?? null,
+    isbn13: blankToNull(item.isbn),
     title: item.adi,
     subtitle: null,
     authors,
@@ -785,7 +785,7 @@ export function toDetail(
   const source: BookSource = {
     googleId: null,
     olKey: null,
-    isbn13: head.isbn ?? info.isbn ?? null,
+    isbn13: blankToNull(head.isbn) ?? blankToNull(info.isbn),
     title: head.adi,
     /**
      * Cilt işareti taşımayan `altbaslik` seri değil, düz alt başlıktır
@@ -1062,6 +1062,21 @@ export function readSeries(
     return { name, index: Number.isFinite(index) ? index : null };
   }
   return { name: null, index: null };
+}
+
+/**
+ * Boş/boşluklu metni `null`a çevirir.
+ *
+ * ISBN için **şart**: kaynak, numarası olmayan eski baskılarda alanı hiç
+ * atlamak yerine `""` gönderiyor ve `??` bunu yakalamıyor. Boş dize
+ * veritabanına inince ISBN'e bakan her eşleştirme birbirini tutmayan iki
+ * kitabı aynı sayıyordu — kullanıcı bildirdi: *Doğumgünü Partisi*nin künye
+ * sayfası "arşivimde" deyip *Zamandan Kaçış*a gidiyordu, ikisinin de ISBN'i
+ * boş dizeydi (bkz. `BooksService.findArchivedBySource`).
+ */
+function blankToNull(value: string | undefined): string | null {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : null;
 }
 
 function toYear(value: string | undefined): number | null {

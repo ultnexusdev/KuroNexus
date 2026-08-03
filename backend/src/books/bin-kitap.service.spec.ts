@@ -288,6 +288,24 @@ describe('toDetail', () => {
     expect(detail?.credits.series).toBeNull();
   });
 
+  /**
+   * Kullanıcı bildirdi: *Doğumgünü Partisi*nin künye sayfası "bu kitap
+   * arşivimde" deyip bambaşka bir kitaba, *Zamandan Kaçış*a gidiyordu.
+   *
+   * Sebep buradaydı: numarası olmayan eski baskılarda kaynak alanı atlamak
+   * yerine `""` gönderiyor ve `??` boş dizeyi yakalamıyor. O boş dize kayda
+   * inince ISBN'e bakan eşleştirme (`BooksService.findArchivedBySource`)
+   * `'' === ''` diye iki alakasız kitabı aynı baskı sayıyordu.
+   */
+  it('boş ISBN null olur, boş dize değil', () => {
+    const payload = translatedPayload();
+    payload.props.pageProps.response._sonuc.kitap.isbn = '';
+    payload.props.pageProps.response._sonuc.liste[0].hakkinda.baskiBilgileri.isbn =
+      '   ';
+    const detail = toDetail(payload, 'dogumgunu-partisi--1');
+    expect(detail?.source.isbn13).toBeNull();
+  });
+
   it('boş yanıtta çökmez', () => {
     expect(toDetail(null, 'x')).toBeNull();
     expect(toDetail({}, 'x')).toBeNull();

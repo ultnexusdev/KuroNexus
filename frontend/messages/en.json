@@ -903,7 +903,7 @@
       "backToHall": "← Back to the book hall",
       "bookCount": "{count} books in the archive",
       "noBooks": "No books by this person in the archive.",
-      "notInArchive": "No books by this person in my archive. Details come from 1000Kitap.",
+      "notInArchive": "No books by this person in my archive — only their details are shown.",
       "noBooksInArchive": "This author's books are not in my archive yet.",
       "awardsTitle": "Awards",
       "role": {
@@ -913,8 +913,8 @@
       }
     },
     "source": {
-      "eyebrow": "Details · 1000Kitap",
-      "notInArchive": "This book is not in my archive. The details come from 1000Kitap.",
+      "eyebrow": "Details",
+      "notInArchive": "This book is not in my archive — only its details are shown.",
       "inArchive": "This book is in my archive.",
       "openInArchive": "Open its archive page →",
       "unavailable": "The details for this book could not be fetched.",

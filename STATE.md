@@ -1162,6 +1162,54 @@
 > birimi = seri, ilerleme = sayaç + bölüm ızgarası, arc'lar elle) ve **Faz A**
 > yazıldı — bkz. "Salon 04 · Anime — Faz A çekirdeği". **Canlıda doğrulanacak.**
 
+> **3 AĞUSTOS — KULLANICININ CANLIDA BİLDİRDİĞİ ÜÇ HATA DÜZELTİLDİ.**
+>
+> **(1) Kaynağın adı sayfada geçmiyor artık.** Künye sayfası "Bu kitap
+> arşivimde değil. Künye 1000Kitap'tan geliyor." diyor, üst şeritte de
+> "KÜNYE · 1000KİTAP" yazıyordu. Kullanıcı kararı: **dışarıdan okuduğumuz
+> belli olmasın.** Değişen yalnızca üç çeviri anahtarı (`book.source.eyebrow`,
+> `book.source.notInArchive`, `book.person.notInArchive`) — kaynak adı
+> **küratör ekranında duruyor**, orası admin ve adminin hangi kaynaktan
+> geldiğini bilmesi gerekiyor.
+>
+> **(2) "Bu kitap arşivimde" bağı BAŞKA kitaba gidiyordu.** *Doğumgünü
+> Partisi*nin (Pinter, 1965) künye sayfası arşivde olduğunu söyleyip
+> *Zamandan Kaçış*a (Asimov) götürüyordu. **Kök sebep boş dize:** numarası
+> olmayan eski baskılarda kaynak `isbn` alanını atlamak yerine boş dize
+> gönderiyor, `??` bunu yakalamıyor ve boş dize kayda iniyor.
+> `findArchivedBySource` de `isbn13 !== null` diye baktığı için iki boş dize
+> alakasız iki kitabı aynı baskı sayıyordu; sıralama en son biteni öne aldığı
+> için hep aynı yanlış kitaba çıkıyordu. **Üç yerden birden kapatıldı:**
+> `blankToNull` (kaynak okuma, `bin-kitap.service`), boş ISBN'i eleyen
+> karşılaştırma (`findArchivedBySource` — arşivde zaten boş dizeyle duran
+> kayıtlar var, kalıcı savunma burada) ve `refresh`'te `??` yerine `||`
+> (kayıt tazelendikçe kendini onarıyor). Testi yazıldı.
+>
+> **(3) Ödül kapakları artık kendi diskimizde.** Kullanıcı "sayfa yeniledikçe
+> kapaklar yükleniyor, kapakları veritabanımıza indirelim" dedi. Eskiden
+> cache'e kaynağın CDN adresi yazılıyordu ve raf her açılışta dışarıdan
+> çekiyordu. Şimdi eşleşme yazılırken kapak `BookCoverService` ile
+> `/uploads/books/` altına iniyor (arşivdeki kitaplarda zaten böyleydi).
+> **Geriye dönük de çalışıyor:** cache'te 90 gündür dış adresle duran
+> eşleşmeler `localizeCovers` kuyruğuna giriyor; `pending` sayacı bunları da
+> sayıyor, yoksa arayüz "her şey hazır" deyip tazelemeyi durdururdu.
+> Tur başına **12 kapak** (eşleştirmedeki 3 değil): kapak indirmek
+> `1k-cdn.com`'den dosya çekmek, o adres hız sınırının arkasında değil —
+> bu yüzden soğuma sırasında bile çalışıyor. `fetchedAt`e dokunulmuyor
+> (`patchCache`): kapak indirmek eşleşmeyi tazelemek değil, yoksa 90 günlük
+> TTL her turda baştan başlardı. Kalıcı inmeyen adres süreç ömrü boyunca
+> hatırlanıyor (`coverFailures`) — yoksa arayüz yirmi tur boşuna dönerdi.
+> Admin ucu: `POST /admin/books/awards/warm?limit=40` — sabırsız olan için
+> tek çağrıda hem eşleştirir hem kapakları indirir.
+>
+> **Doğrulama:** backend `tsc` + `eslint` temiz, `jest src/books` **82 test
+> geçti** (3 yeni: boş ISBN, `remoteCovers` süzgeci ×2); frontend `tsc` temiz.
+> Lokalde görsel doğrulama YOK (dev sunucusu dışarı çıkamıyor) — **canlıda
+> bakılacak**: künye sayfasında kaynak adı geçmemeli, *Doğumgünü Partisi*
+> "arşivimde" dememeli, ödül rafı bir-iki tazelemede dolmalı ve kapak
+> adresleri `/uploads/books/` ile başlamalı.
+
+
 **Yazım Atölyesi (adım 1+2) ve Salon 02 · Film push edildi (2026-07-28) — ikisi de canlıda doğrulanmayı bekliyor: `/admin/atolye/temurkan-efsaneleri` (bölüm ağacı, tek editör, `@` ile lore bağlama, okuma ekranında künye paneli) ve `/dark-stories/category/film` + `/admin/film` (TMDB'li kişisel film arşivi). Lokalde admin geliştirmesi artık dev proxy ile mümkün. Faz 2 BAŞLADI (2026-07-11): Wiki modülü çekirdeği CANLIDA — evren içi wiki sayfaları (kategori gruplu) + spoiler seviyesi sistemi. Site: https://kuronexus.com + https://api.kuronexus.com. Webhook ile otomatik deploy çalışıyor (push = yayın). Faz 1'den kalan küçük işler: yedekten geri yükleme testi, mobil taşma kontrolü, www DNS kaydı.**
 
 ## Tamamlananlar

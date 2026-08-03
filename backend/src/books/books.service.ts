@@ -904,10 +904,23 @@ export class BooksService {
       orderBy: [{ finishedAt: 'desc' }, { createdAt: 'desc' }],
       include: CREDITS_INCLUDE,
     });
+    /**
+     * ISBN'in **boş olmadığı** ayrıca sınanıyor, `!== null` yetmiyor.
+     *
+     * Kullanıcı bildirdi: *Doğumgünü Partisi*nin künye sayfası "bu kitap
+     * arşivimde" deyip bambaşka bir kitaba, *Zamandan Kaçış*a gidiyordu.
+     * Sebep: numarası olmayan eski baskılarda kaynak ISBN'i `""` gönderiyor,
+     * bu boş dize kayda da öyle iniyordu ve `'' === ''` iki alakasız kitabı
+     * aynı baskı sayıyordu. Sıralama en son biteni öne aldığı için hep aynı
+     * yanlış kitaba çıkıyordu. Kaynak tarafı da düzeltildi
+     * (`blankToNull`), ama arşivde zaten boş dizeyle duran kayıtlar var;
+     * kalıcı savunma burada.
+     */
+    const wantedIsbn = isbn13?.trim() ? isbn13.trim() : null;
     const hit = withSlugs(entries).find(
       (book) =>
         book.binKitapSlug === binKitapSlug ||
-        (isbn13 !== null && book.isbn13 === isbn13),
+        (wantedIsbn !== null && book.isbn13?.trim() === wantedIsbn),
     );
     return hit?.slug ?? null;
   }
@@ -1407,7 +1420,10 @@ export class BooksService {
         seriesName: entry.seriesName ?? fresh.seriesName,
         seriesIndex: entry.seriesIndex ?? fresh.seriesIndex,
         olKey: entry.olKey ?? fresh.olKey,
-        isbn13: entry.isbn13 ?? fresh.isbn13,
+        /* `??` değil `||`: kayıtta boş dize duruyorsa o da "yok" sayılmalı —
+           boş ISBN iki alakasız kitabı aynı baskı gösteriyordu (bkz.
+           `findArchivedBySource`). Tazeleme bu yüzden aynı zamanda onarıyor. */
+        isbn13: entry.isbn13?.trim() || fresh.isbn13,
         ...(entry.authors.length === 0 && { authors: fresh.authors }),
         ...(entry.genres.length === 0 && { genres: fresh.genres }),
         externalData: fresh as unknown as Prisma.InputJsonValue,

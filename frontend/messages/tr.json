@@ -903,7 +903,7 @@
       "backToHall": "← Kitap salonuna dön",
       "bookCount": "Arşivde {count} kitap",
       "noBooks": "Bu kişiye ait arşivde kitap yok.",
-      "notInArchive": "Bu kişinin arşivimde kitabı yok. Künye 1000Kitap'tan geliyor.",
+      "notInArchive": "Bu kişinin arşivimde kitabı yok; yalnızca künyesi gösteriliyor.",
       "noBooksInArchive": "Bu yazarın kitapları henüz arşivimde değil.",
       "awardsTitle": "Ödüller",
       "role": {
@@ -913,8 +913,8 @@
       }
     },
     "source": {
-      "eyebrow": "Künye · 1000Kitap",
-      "notInArchive": "Bu kitap arşivimde değil. Künye 1000Kitap'tan geliyor.",
+      "eyebrow": "Künye",
+      "notInArchive": "Bu kitap arşivimde değil; yalnızca künyesi gösteriliyor.",
       "inArchive": "Bu kitap arşivimde.",
       "openInArchive": "Arşivdeki sayfasına git →",
       "unavailable": "Bu kitabın künyesi şu anda alınamadı.",

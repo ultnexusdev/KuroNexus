@@ -20,6 +20,7 @@ import { UpdateBookQuoteDto } from './dto/update-book-quote.dto';
 import { UpsertReadingGoalDto } from './dto/upsert-reading-goal.dto';
 import { SetReadingProgressDto } from './dto/set-reading-progress.dto';
 import { ReadingOrdersService } from './reading-orders.service';
+import { AwardsService } from './awards.service';
 
 @Roles('ADMIN')
 @Controller('admin/books')
@@ -27,6 +28,7 @@ export class BooksAdminController {
   constructor(
     private readonly booksService: BooksService,
     private readonly readingOrders: ReadingOrdersService,
+    private readonly awards: AwardsService,
   ) {}
 
   @Get()
@@ -48,6 +50,21 @@ export class BooksAdminController {
   @Post('covers/localize')
   localizeCovers() {
     return this.booksService.localizeCovers();
+  }
+
+  /**
+   * Ödül raflarını tek seferde ısıtır: eksik eşleşmeleri arar **ve** cache'te
+   * dış adresle duran kapakları kendi diskimize indirir.
+   *
+   * Sayfa açılışı bunu zaten dilim dilim yapıyor; bu uç sabırsız olan için —
+   * bir çağrı `limit` kadar kaydı birden kapatıyor.
+   */
+  @Post('awards/warm')
+  warmAwards(@Query('limit') limit?: string) {
+    const parsed = Number.parseInt(limit ?? '', 10);
+    return this.awards.warm(
+      Number.isFinite(parsed) && parsed > 0 ? parsed : 40,
+    );
   }
 
   /**

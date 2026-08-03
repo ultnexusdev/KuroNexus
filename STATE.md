@@ -1208,10 +1208,16 @@
 > gönderiyor ve indirici yönlendirmeyi tümden reddediyordu
 > (`redirect: 'error'`, SSRF savunması). Koddaki "kapak adresleri zaten
 > doğrudan dosyayı gösteriyor" varsayımı yanlışmış. Çözüm savunmayı
-> gevşetmeden: `redirect: 'manual'` ile hedef elle okunuyor, **aynı beyaz
-> listeden yeniden geçiriliyor** ve tek sıçrama izleniyor; `archive.org`
-> listeye eklendi. `coverFailures` bu arada doğru çalıştı — üç kapak
-> `pending`i sonsuza dek açık tutmadı.
+> gevşetmeden: `redirect: 'manual'` ile hedef elle okunuyor ve **her sıçrama
+> aynı beyaz listeden yeniden geçiyor**; `archive.org` listeye eklendi.
+> `coverFailures` bu arada doğru çalıştı — üç kapak `pending`i sonsuza dek
+> açık tutmadı.
+>
+> **Zincir tek adım değil, İKİ adımmış** (ilk düzeltme bu yüzden canlıda
+> tutmadı, ölçüm yine yakaladı): `covers.openlibrary.org` →
+> `archive.org/download/…zip/…jpg` → `ia801009.us.archive.org/view_archive.php`.
+> Son adımın sunucu numarası değişken; `.archive.org` soneki karşılıyor.
+> `MAX_REDIRECTS = 3` ile sınırlı döngüye çevrildi.
 >
 > **Doğrulama:** backend `tsc` + `eslint` temiz, `jest src/books` **82 test
 > geçti** (3 yeni: boş ISBN, `remoteCovers` süzgeci ×2); frontend `tsc` temiz.

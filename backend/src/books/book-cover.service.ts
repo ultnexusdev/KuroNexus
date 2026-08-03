@@ -45,6 +45,13 @@ const MAX_COVER_BYTES = 8 * 1024 * 1024;
 const REQUEST_TIMEOUT_MS = 15_000;
 
 /**
+ * En fazla kaç yönlendirme izlenir. Ölçülen en uzun zincir iki adım
+ * (Open Library → archive.org → numaralı archive.org sunucusu); üçüncü adım
+ * bir pay. Sınır, dönüp duran bir zincirin isteği sonsuza dek tutmasına karşı.
+ */
+const MAX_REDIRECTS = 3;
+
+/**
  * Dosya uzantısı **içeriğe** göre seçiliyor, adrese göre değil: uzantı
  * uydurulabilir, imza uydurulamaz.
  */
@@ -169,52 +176,60 @@ export class BookCoverService implements OnModuleInit {
    * okunuyor ve aynı süzgeçten yeniden geçiriliyor** — yani beyaz liste her
    * sıçramada geçerli, SSRF savunması aynen duruyor.
    *
-   * Neden hiç takip etmemek yetmedi: Open Library kapağı kendi sunmuyor,
-   * `archive.org`a 302 veriyor (canlıda ölçüldü). "Kapak adresleri zaten
-   * doğrudan dosyayı gösteriyor" varsayımı yanlış çıktı.
+   * Neden hiç takip etmemek yetmedi: Open Library kapağı kendi sunmuyor.
+   * Canlıda ölçülen zincir **iki adım** — "kapak adresleri zaten doğrudan
+   * dosyayı gösteriyor" varsayımı yanlış çıktı:
    *
-   * Tek sıçrama bilerek: zincir kurdurmak hem zaman aşımını hem de
-   * doğrulanacak yüzeyi büyütür, ölçülen tek gerçek durum ise bir adım.
+   *   `covers.openlibrary.org/b/id/966041-L.jpg`
+   *     → `archive.org/download/olcovers96/olcovers96-L.zip/966041-L.jpg`
+   *     → `ia801009.us.archive.org/view_archive.php?…`   (sunucu numarası değişken)
+   *
+   * Son adımın numaralı alt sunucusunu `.archive.org` soneki karşılıyor;
+   * `isAllowedHost` zaten alt sunucuya izin veriyor.
    */
   private async request(url: URL): Promise<Response | null> {
-    const response = await fetch(url, {
-      redirect: 'manual',
-      headers: { accept: 'image/*' },
-      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-    });
-    if (response.status < 300 || response.status > 399) {
-      return response;
-    }
+    let target = url;
+    for (let hop = 0; ; hop++) {
+      const response = await fetch(target, {
+        redirect: 'manual',
+        headers: { accept: 'image/*' },
+        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      });
+      if (response.status < 300 || response.status > 399) {
+        return response;
+      }
+      if (hop >= MAX_REDIRECTS) {
+        this.logger.warn(`Kapak yönlendirmesi çok uzun: ${url.href}`);
+        return null;
+      }
 
-    const location = response.headers.get('location');
-    if (!location) {
-      this.logger.warn(`Kapak yönlendirmesi adressiz: ${url.href}`);
-      return null;
-    }
+      const location = response.headers.get('location');
+      if (!location) {
+        this.logger.warn(`Kapak yönlendirmesi adressiz: ${target.href}`);
+        return null;
+      }
 
-    let next: URL;
-    try {
-      // Göreli adres olabilir; kaynağa göre çözülüyor
-      next = new URL(location, url);
-    } catch {
-      return null;
+      let next: URL;
+      try {
+        // Göreli adres olabilir; içinde bulunduğumuz adrese göre çözülüyor
+        next = new URL(location, target);
+      } catch {
+        return null;
+      }
+      if (next.protocol !== 'https:' && next.protocol !== 'http:') {
+        return null;
+      }
+      /* Asıl savunma bu satır: **her** sıçrama beyaz listeden yeniden
+         geçiyor, yani zincirin ortasındaki bir sunucu isteği iç ağa
+         (169.254.169.254 gibi) yönlendiremiyor. */
+      if (!isAllowedHost(next.hostname)) {
+        this.logger.warn(
+          `Kapak yönlendirmesi izinsiz sunucuya: ${next.hostname}`,
+        );
+        return null;
+      }
+      target = next;
     }
-    if (next.protocol !== 'https:' && next.protocol !== 'http:') {
-      return null;
-    }
-    if (!isAllowedHost(next.hostname)) {
-      this.logger.warn(
-        `Kapak yönlendirmesi izinsiz sunucuya: ${next.hostname}`,
-      );
-      return null;
-    }
-
-    // İkinci sıçrama yok: buradan sonrası artık zincir olurdu
-    return fetch(next, {
-      redirect: 'error',
-      headers: { accept: 'image/*' },
-      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-    });
   }
 
   /**

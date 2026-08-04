@@ -1,0 +1,104 @@
+#!/bin/sh
+#
+# KuroNexus — sır sızıntısı önleyici (pre-commit)
+#
+# Commit edilmek üzere hazırlanan satırları tarar; bir kimlik bilgisi
+# bulursa commit'i DURDURUR. Amaç, sırrın git geçmişine hiç girmemesi.
+#
+# Neden var: 2026-07-12'de `backend/check.js` içinde canlı PostgreSQL
+# superuser parolası commit edildi ve depo o sırada public'ti. Parola 23 gün
+# internete açık kaldı. GitHub'ın push protection özelliği private depolarda
+# ücretli olduğu için bu hook onun yerini alıyor — ve ondan bir adım önde
+# davranıyor: push'ta değil, commit'te durduruyor.
+#
+# Kurulum (klon başına bir kez):
+#     git config core.hooksPath .githooks
+#
+# Yanlış alarm olursa (nadiren):
+#     git commit --no-verify
+# ...ama önce iki kez düşün. Bu hook seni korumak için var.
+
+set -u
+
+RED=''; YEL=''; GRN=''; OFF=''
+if [ -t 1 ]; then
+  RED='\033[31m'; YEL='\033[33m'; GRN='\033[32m'; OFF='\033[0m'
+fi
+
+fail=0
+
+say_hit() {
+  # $1 = başlık, $2 = eşleşen satırlar
+  printf "${RED}  ✗ %s${OFF}\n" "$1"
+  printf '%s\n' "$2" | sed 's/^/      /'
+  fail=1
+}
+
+# --- 1) .env dosyaları hiç commit edilmez -----------------------------------
+# .env.example serbest: içinde yalnızca yer tutucu bulunur.
+env_files=$(git diff --cached --name-only --diff-filter=ACM \
+            | grep -E '(^|/)\.env(\.|$)' \
+            | grep -vE '\.example$|\.sample$|\.template$' || true)
+if [ -n "$env_files" ]; then
+  say_hit ".env dosyası commit edilmek üzere:" "$env_files"
+fi
+
+# --- 2) Eklenen satırların içeriği ------------------------------------------
+# Yalnızca EKLENEN satırlar (+) taranır; silinen satırlar önemsiz.
+# .env.example ve bu hook'un kendisi hariç tutulur (ikisi de yer tutucu/kalıp içerir).
+added=$(git diff --cached -U0 --diff-filter=ACM -- . \
+        ':(exclude).githooks/pre-commit' \
+        ':(exclude)*.example' \
+        ':(exclude)*lock.yaml' \
+        ':(exclude)*lock.json' \
+        | grep -aE '^\+' | grep -av '^+++' || true)
+
+if [ -n "$added" ]; then
+
+  # Yer tutucu sayılan değerler — bunlar alarm üretmez
+  PLACEHOLDER='your-|your_|change-me|changeme|example\.com|@localhost|:password@|xxxx|<[^>]+>|_HERE|placeholder|dev_password|s3cret|REPLACE'
+
+  # 2a) Kimlik bilgili bağlantı dizesi: proto://kullanici:parola@sunucu
+  hit=$(printf '%s\n' "$added" \
+        | grep -aoE '(postgres(ql)?|mysql|mongodb(\+srv)?|redis|amqp)://[^:/@[:space:]]+:[^@[:space:]]{6,}@[^[:space:]"'"'"']+' \
+        | grep -avE "$PLACEHOLDER" || true)
+  [ -n "$hit" ] && say_hit "Parola içeren veritabanı bağlantı dizesi:" \
+      "$(printf '%s\n' "$hit" | sed -E 's#://([^:]+):[^@]+@#://\1:***@#')"
+
+  # 2b) Bilinen sağlayıcı anahtar biçimleri (öneki olanlar — kesin eşleşme)
+  hit=$(printf '%s\n' "$added" \
+        | grep -aoE '(ghp_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{40,}|sk-[A-Za-z0-9]{30,}|AKIA[0-9A-Z]{16}|xox[baprs]-[A-Za-z0-9-]{10,}|apify_api_[A-Za-z0-9]{20,})' || true)
+  [ -n "$hit" ] && say_hit "Servis anahtarı (GitHub / OpenAI / AWS / Slack / Apify):" \
+      "$(printf '%s\n' "$hit" | cut -c1-12 | sed 's/$/…(kısaltıldı)/')"
+
+  # 2c) Özel anahtar dosyası içeriği
+  hit=$(printf '%s\n' "$added" | grep -aoE '\-\-\-\-\-BEGIN [A-Z ]*PRIVATE KEY\-\-\-\-\-' || true)
+  [ -n "$hit" ] && say_hit "SSH/TLS özel anahtarı:" "$hit"
+
+  # 2d) JWT (üç bölümlü, eyJ ile başlar)
+  hit=$(printf '%s\n' "$added" | grep -aoE 'eyJ[A-Za-z0-9_-]{15,}\.[A-Za-z0-9_-]{15,}\.' || true)
+  [ -n "$hit" ] && say_hit "JWT token:" \
+      "$(printf '%s\n' "$hit" | cut -c1-16 | sed 's/$/…(kısaltıldı)/')"
+
+  # 2e) Bu projeye özgü değişkenlere GERÇEK değer atanmışsa
+  hit=$(printf '%s\n' "$added" \
+        | grep -aoE '(JWT_SECRET|ADMIN_PASSWORD|POSTGRES_PASSWORD|TMDB_API_KEY|TMDB_READ_ACCESS_TOKEN|APIFY_TOKEN|KAGGLE_KEY|KAGGLE_API_TOKEN|GOOGLE_BOOKS_API_KEY)["'"'"']?[[:space:]]*[:=][[:space:]]*["'"'"']?[A-Za-z0-9_\-\.]{12,}' \
+        | grep -avE "$PLACEHOLDER" || true)
+  [ -n "$hit" ] && say_hit "Kod içine gömülmüş anahtar/parola:" \
+      "$(printf '%s\n' "$hit" | sed -E 's/([:=][[:space:]]*["'"'"']?).*/\1***/')"
+
+fi
+
+# --- Sonuç ------------------------------------------------------------------
+if [ "$fail" -eq 1 ]; then
+  printf "\n${RED}COMMIT DURDURULDU — sır sızıntısı şüphesi${OFF}\n\n"
+  printf "  Yukarıdaki değerler gerçek bir kimlik bilgisiyse:\n"
+  printf "    1. Değeri koddan çıkar, ortam değişkenine taşı (.env — gitignore'da)\n"
+  printf "    2. Değer zaten bir yere gönderildiyse ${YEL}mutlaka rotasyona sok${OFF}\n\n"
+  printf "  Yanlış alarm olduğuna eminsen:  ${YEL}git commit --no-verify${OFF}\n"
+  printf "  (Önce iki kez düşün — bu kontrol bir kez atlandığı için 8 saat harcandı.)\n\n"
+  exit 1
+fi
+
+printf "${GRN}✓ sır taraması temiz${OFF}\n"
+exit 0

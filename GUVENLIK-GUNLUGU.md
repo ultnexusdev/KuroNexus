@@ -33,9 +33,9 @@ canlıda doğrulandı. İki iş yarım kaldı, bir de yeni bir olay çıktı.
 ### 2️⃣ `JWT_SECRET`'i değiştir — en acil güvenlik işi ✅
 **4 Ağustos akşamı tamamlandı ve canlıda doğrulandı.** Ayrıntı: "Ev oturumu".
 
-### 3️⃣ CSP konsol turu (7b-2) → sonra 7c 🔄 **SIRADAKİ**
-Chrome `F12` → Console → filtre: `Content Security` → siteyi gez.
-İhlal yoksa `next.config.ts`'te `-Report-Only` ekini kaldır.
+### 3️⃣ CSP konsol turu (7b-2) → sonra 7c ✅
+**4 Ağustos akşamı tamamlandı.** Üç eksik bulundu, eklendi, CSP zorunlu hale
+getirildi ve canlıda doğrulandı. Ayrıntı: "Ev oturumu".
 
 ## Sonrasında devam edilecek yön
 
@@ -354,6 +354,73 @@ genel uçlar `@Controller('football')`, yönetici uçları
 ([football.controller.ts:46](backend/src/football/football.controller.ts:46)).
 Senkron tetikleme adresi `/admin/football/sync`.
 
+### CSP konsol turu ve zorunluluk (maddeler 7b-2, 7c) ✅
+
+#### Ölçüm yöntemi — konsol tek başına yetmiyor
+Planlanan yöntem "F12 → Console → `Content Security` filtresi" idi. Uygulamada
+yetersiz kaldı: **Chrome ihlal mesajlarında adresleri `<URL>` diye gizliyor**,
+yani "img-src ihlali var" diyor ama hangi sunucu olduğunu söylemiyor.
+
+Bunun yerine her sayfada şu ölçüldü — sayfanın **gerçekten yüklediği** her
+kaynağı listeleyip beyaz listeyle karşılaştırır:
+
+```js
+performance.getEntriesByType('resource')
+```
+
+Genel sayfalar tarayıcı panelinden (Node dışarı çıkamıyor ama tarayıcı
+çıkabiliyor), 10 admin sayfası kullanıcı tarafından tarandı.
+
+#### Bulunan üç eksik
+| Kaynak | Nerede | İhlal |
+|---|---|---|
+| `s4.anilist.co` | anime kapak + banner görselleri | 172 |
+| `fonts.googleapis.com` | `globals.css` 1. satırdaki `@import` | — |
+| `fonts.gstatic.com` | o `@import`un çektiği font dosyaları | 29 |
+
+Zorunlu hale getirilseydi **tüm anime görselleri ve üç font kırılırdı.**
+
+⚠️ **Yanlış çıkan varsayım:** `next.config.ts` yorumu *"fontlar
+next/font/google derleme anında self-host ediyor"* diyordu. Bu yalnızca
+`layout.tsx`teki **dört** font için doğruymuş; `globals.css` ayrı bir `@import`
+ile **üç fontu daha** doğrudan Google'dan çekiyor. Projede iki font yöntemi
+var, yorum yalnızca birini biliyordu.
+
+#### Yanlış alarm çıkanlar (kayda geçsin, tekrar araştırılmasın)
+- `1k-cdn.com`, `covers.openlibrary.org`, `books.google.com` → yalnızca
+  **sunucunun** kapak indirdiği kaynaklar ([book-cover.service.ts:30](backend/src/books/book-cover.service.ts:30)).
+  Tarayıcı oralara hiç gitmiyor; kitap kapaklarının 59'u da kendi sunucumuzdan
+  geliyor (ölçüldü).
+- `dailymotion`, `www.youtube.com` → gömü değil, **bağlantı hedefi**. CSP
+  `<a href>`i kısıtlamaz. Gömülen tek şey `youtube-nocookie`.
+- Jikan (MyAnimeList) → serviste görsel alanı yok, MAL CDN'i kullanılmıyor.
+
+#### Zorunluluk ve canlı doğrulama
+Üç eksik eklendi, `Content-Security-Policy-Report-Only` →
+`Content-Security-Policy` yapıldı, tek deploy'da yayına alındı.
+
+Canlıda doğrulandı:
+- Başlık artık `content-security-policy` (report-only eki yok)
+- AniList görseli zorlanarak yüklendi → `YUKLENDI`
+- `document.fonts.load()` ile Cormorant Garamond ve Corinthia → ikisi de
+  `true`
+- `fonts.googleapis.com` (1) ve `fonts.gstatic.com` (4) istekleri ağ kaydında
+  görünüyor — CSP engellese **istek hiç yapılmazdı**
+
+📌 **Geri alış:** `next.config.ts`te başlık anahtarının sonuna `-Report-Only`
+eklemek yeterli. Tek kelimelik düzenleme, bir deploy.
+
+📌 **SONRAKİ İŞ — fontları taşı.** Üç fontu (`Cormorant Garamond`, `Corinthia`,
+`Noto Sans Old Turkic`) `next/font/google`'a taşı, `globals.css` 1. satırdaki
+`@import`u sil, sonra `fonts.googleapis.com` + `fonts.gstatic.com` girdilerini
+CSP'den çıkar. Kazanç: dış istek sıfırlanır, **ziyaretçi IP'si Google'a
+gitmez**, render engelleyen bir tur eksilir, CSP daralır. Bugün yapılmadı:
+fontlar derleme anında indiği için değişiklik ev makinesinde doğrulanamıyor.
+
+📌 **Kalan bilinen zayıflık:** `script-src 'unsafe-inline'`. Next.js hidrasyon
+scriptleri satır içi olduğu için duruyor; nonce'a taşımak ayrı bir adım
+(`next.config.ts` içinde gerekçesiyle yazılı).
+
 ### Coolify arayüz notları (sonraki oturumlar için)
 - Değişken listesi değerleri **maskeliyor** (nokta + göz simgesi). Bu sayfanın
   ekran görüntüsü güvenli. Kaçınılması gereken tek ekran hâlâ `Developer view`.
@@ -441,8 +508,8 @@ olay müdahalesi; tahminle yetinilmeyecek).
 | 6 | Bağımlılık açıkları (Dependabot triyajı) | ✅ Tamamlandı, canlıda doğrulandı |
 | 7a | Güvenlik başlıkları (CSP hariç) — Helmet + Next headers | ✅ Tamamlandı, canlıda doğrulandı |
 | 7b-1 | CSP yazıldı, Report-Only olarak canlıya alındı | ✅ Tamamlandı |
-| 7b-2 | CSP konsol turu — ihlal var mı? | 🔄 **EVDE** (iş yeri PC'sinden yapılamadı) |
-| 7c | CSP'yi zorunlu hale getir | ⬜ 7b-2 sonrası |
+| 7b-2 | CSP konsol turu — ihlal var mı? | ✅ Tamamlandı — 3 eksik bulundu (bkz. "Ev oturumu") |
+| 7c | CSP'yi zorunlu hale getir | ✅ Tamamlandı, canlıda doğrulandı |
 | — | Dış API çağrılarına zaman aşımı *(araya girdi)* | ✅ Tamamlandı — arama 40sn → ~9sn |
 | 8 | JWT'yi HttpOnly + Secure cookie'ye taşı | ⬜ Bekliyor (dinlenmiş kafayla) |
 | 9 | API anahtarlarını Docker ARG'lardan çıkar | ✅ Tamamlandı — 17 değişkende buildtime kapatıldı, temiz imaj derlendi |

@@ -1,5 +1,9 @@
 .env
 .claude/settings.local.json
 
+# Güvenlik çalışmasının yerel günlüğü — sistemin zayıf noktalarının zaman
+# çizelgesini içerir, depoya girmez (bkz. dosyanın kendi başlığı).
+GUVENLIK-GUNLUGU.md
+
 # UI/UX Pro Max skill: canvas render fontları (5MB, kullanmıyoruz — lokalde kalsın)
 .claude/skills/ui-styling/canvas-fonts/

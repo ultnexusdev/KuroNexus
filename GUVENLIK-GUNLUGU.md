@@ -23,19 +23,67 @@ canlıda doğrulandı. İki iş yarım kaldı, bir de yeni bir olay çıktı.
 | Site | ✅ Çalışıyor (kuronexus.com) |
 | Backend + frontend deploy | ✅ İkisi de sağlıklı |
 | Veritabanı | ✅ 250 kitap, yedekleme çalışıyor |
-| Uzak depo `main` | `b390f8a` (4 Ağu akşamı ev PC'si de bu noktaya eşitlendi) |
+| Uzak depo `main` | 4 Ağu akşamı ev oturumu sonrası — CSP zorunlu, sırlar rotate edilmiş |
+| CSP | ✅ **Zorunlu** (report-only değil), canlıda doğrulandı |
+| Sırlar | ✅ `JWT_SECRET`, `DATABASE_URL`, `APIFY_TOKEN`, `KAGGLE_API_TOKEN` rotate |
 
-## ⚡ EVE GİDİNCE İLK ÜÇ İŞ (bu sırayla)
+## ✅ "EVE GİDİNCE İLK ÜÇ İŞ" — ÜÇÜ DE KAPANDI (4 Ağustos akşamı)
 
-### 1️⃣ Depoyu senkronize et — **skilleri kaybetmeden** ✅
-**4 Ağustos akşamı tamamlandı.** Ayrıntı: "Ev oturumu" bölümü.
+1. Depo senkronizasyonu — skiller korundu (442 dosya)
+2. `JWT_SECRET` rotasyonu — canlıda doğrulandı
+3. CSP konsol turu + zorunluluk — üç eksik bulundu, düzeltildi, doğrulandı
 
-### 2️⃣ `JWT_SECRET`'i değiştir — en acil güvenlik işi ✅
-**4 Ağustos akşamı tamamlandı ve canlıda doğrulandı.** Ayrıntı: "Ev oturumu".
+Bunlara ek olarak kapananlar: `DATABASE_URL` rotasyonu, Docker ARG sızıntısı,
+Preview bölümü temizliği, `APIFY_TOKEN` ve `KAGGLE_API_TOKEN` rotasyonu.
+Ayrıntılar: **"Ev oturumu"** bölümü.
 
-### 3️⃣ CSP konsol turu (7b-2) → sonra 7c ✅
-**4 Ağustos akşamı tamamlandı.** Üç eksik bulundu, eklendi, CSP zorunlu hale
-getirildi ve canlıda doğrulandı. Ayrıntı: "Ev oturumu".
+---
+
+## ⚡ İŞ YERİNE DÖNÜNCE — İLK ÜÇ İŞ (5 Ağustos, bu sırayla)
+
+### 0️⃣ Önce depoyu çek — sonra `backend/.env`'i düzelt
+```
+git pull
+```
+Skiller artık gitignore'lu, **pull güvenli** — 4 Ağustos'taki tuzak kalktı.
+Bağımlılık ve şema değişikliği yok, `pnpm install` gerekmiyor.
+
+⚠️ **UNUTULMASI ÇOK MUHTEMEL:** İş yeri PC'sindeki `backend/.env` dosyası
+**eski `DATABASE_URL` parolasını ve eski `JWT_SECRET`'i** taşıyor. İkisi de
+4 Ağustos akşamı değiştirildi. Backend'i lokalde çalıştırmadan önce ikisini de
+parola yöneticisindeki yeni kayıtlardan güncelle — yoksa "bağlantı kurulamıyor"
+hatasıyla vakit kaybedersin. (Doğru kayıt: `KuroNexus Production DB (yeni —
+4 Ağu akşam)`; eski kayıt silindi.)
+
+### 1️⃣ Madde 7 — JWT'yi HttpOnly + Secure cookie'ye taşı
+Listede kalan en değerli güvenlik işi ve **"dinlenmiş kafayla" notu bunun
+içindi.** Şu an token `document.cookie` ile yazılıyor
+([frontend/lib/admin/auth.ts:17](frontend/lib/admin/auth.ts:17)), yani sayfadaki
+**herhangi bir JavaScript onu okuyabiliyor**. Bu 4 Ağustos akşamı canlı olarak
+gözlendi: admin token'ı konsoldan okunup API çağrısı yapıldı. HttpOnly çerez
+bunu imkânsız kılar.
+
+Dokunulacak yerler: `backend/src/auth/auth.controller.ts` (Set-Cookie),
+`frontend/lib/admin/auth.ts`, `frontend/lib/auth/session.ts`, CORS'ta
+`credentials` ayarı. Deploy sonrası herkes bir kez çıkış yapmış olur.
+
+### 2️⃣ Fontları `next/font/google`'a taşı
+`globals.css` 1. satırdaki `@import` üç fontu doğrudan Google'dan çekiyor →
+**her ziyaretçinin IP'si Google'a gidiyor.** Taşındıktan sonra
+`fonts.googleapis.com` + `fonts.gstatic.com` girdileri CSP'den çıkarılacak.
+Ayrıntı: "CSP konsol turu" bölümü. `layout.tsx`te dört font için desen zaten
+kurulu, kopyalanacak.
+
+*(Bu iş **iş yerinde** yapılmalı: fontlar derleme anında iniyor, ev
+makinesinde Node dışarı çıkamadığı için orada doğrulanamıyor.)*
+
+### Sonraki turda ele alınacaklar
+- `script-src 'unsafe-inline'` → nonce tabanlı (bilinen kalan zayıflık)
+- 26 Dependabot uyarısı (19 yüksek, 7 orta) — push çıktısında görünüyor
+- Futbol veri kaynağı kararı: Apify artık uygun değil, Maçkolik fizibilitesi
+  incelenmedi (bkz. "Futbol veri kaynağı" bölümü)
+- `TM_SEASON` kodda `'2024'` varsayılanıyla geliyor, Coolify'da tanımlı değil
+- Kaggle Legacy API Credentials kapatıldı ✅ (4 Ağu akşamı)
 
 ## Sonrasında devam edilecek yön
 

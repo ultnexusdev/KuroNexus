@@ -45,6 +45,30 @@ const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const SEARCH_LIMIT = 20;
 
 /**
+ * Dış isteğin en fazla ne kadar sürebileceği.
+ *
+ * **Bu sınır olmadan ne oluyordu (2026-08-04'te canlıda ölçüldü):**
+ * Open Library cevap vermez hâle geldi (`HTTP 000`, bağlantı düşüyor).
+ * `search()` dört bacağı `Promise.allSettled` ile birlikte bekliyor; Google
+ * yarım saniyede dönse bile arama, asılı kalan Open Library bacağı düşene
+ * kadar bekliyordu — küratör araması **30–40 saniye** sürüyordu.
+ *
+ * `bin-kitap.service.ts`'te bu önlem baştan alınmıştı (`REQUEST_TIMEOUT_MS`,
+ * gerekçesi: *"asılı kalan bir istek arama bacağını da askıda tutar"*);
+ * burada atlanmış.
+ *
+ * Zaman aşımı yalnızca yavaşlık değil, bir **kaynak tükenmesi** meselesi:
+ * sınırsız bekleyen dış istekler soket havuzunu ve olay döngüsünü doldurur,
+ * yani dışarıdan tetiklenebilen bir hizmet reddi yüzeyi açar.
+ *
+ * 8 saniye: küratör yazarken bekliyor, ama yavaş-ama-çalışan bir yanıtı da
+ * kesmeyecek kadar geniş. Google bacağındaki tekrar döngüsü bunu ikiye
+ * katlamaz — tekrar yalnızca **alınmış** bir yanıtta (429/5xx) tetikleniyor,
+ * o da hızlı döner; zaman aşımı ise döngüden çıkıp bacağı düşürür.
+ */
+const REQUEST_TIMEOUT_MS = 8_000;
+
+/**
  * Open Library için **ayrılmış** sıra sayısı.
  *
  * Kontenjan olmadan Open Library listede hiç görünmüyordu ve kullanıcı bunu
@@ -519,6 +543,8 @@ export class GoogleBooksService {
     for (let attempt = 0; attempt < 2; attempt++) {
       const response = await fetch(url, {
         headers: { accept: 'application/json' },
+        // Asılı kalan istek bütün aramayı askıda tutar (bkz. REQUEST_TIMEOUT_MS)
+        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
       });
       if (response.ok) {
         return (await response.json()) as T;
@@ -693,6 +719,9 @@ export class GoogleBooksService {
     }
     const response = await fetch(url, {
       headers: { accept: 'application/json' },
+      // Asılı kalan istek bütün aramayı askıda tutar (bkz. REQUEST_TIMEOUT_MS).
+      // 2026-08-04'te tam olarak bu bacak düştü ve aramayı 40 saniyeye çıkardı.
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     });
     if (!response.ok) {
       this.logger.warn(`Open Library ${path} → ${response.status}`);

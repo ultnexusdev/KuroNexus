@@ -2,6 +2,17 @@ import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 /**
+ * Dış isteğin en fazla süresi.
+ *
+ * Zaman aşımı olmadan asılı kalan bir istek, çağıranı da askıda tutar ve
+ * soket havuzunu doldurur — dışarıdan tetiklenebilen bir kaynak tükenmesi
+ * yüzeyi. 2026-08-04'te tam olarak bu eksiklik Open Library üzerinden kitap
+ * aramasını 40 saniyeye çıkardı; bu kaynak o gün ayakta olduğu için burada
+ * fark edilmemişti.
+ */
+const REQUEST_TIMEOUT_MS = 8_000;
+
+/**
  * Jikan (MyAnimeList'in resmi olmayan API'si) — **yalnızca bölüm listesi**.
  *
  * Neden ayrı kaynak: AniList bölüm bölüm veri vermiyor; filler/recap bayrağı
@@ -95,7 +106,12 @@ export class JikanService {
     while (page <= lastPage && page <= MAX_PAGES) {
       const response = await fetch(
         `${JIKAN_BASE}/anime/${malId}/episodes?page=${page}`,
-        { headers: { accept: 'application/json' } },
+        {
+          headers: { accept: 'application/json' },
+          // Jikan kırılgan bir kaynak (MAL'a bağlı, 504 verebiliyor) —
+          // zaman aşımı burada özellikle gerekli
+          signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+        },
       );
       if (!response.ok) {
         // İlk sayfa düşerse hiç veri yok; sonrakilerde eldekiyle yetinilir

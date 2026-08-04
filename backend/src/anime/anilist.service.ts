@@ -6,6 +6,17 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 
 /**
+ * Dış isteğin en fazla süresi.
+ *
+ * Zaman aşımı olmadan asılı kalan bir istek, çağıranı da askıda tutar ve
+ * soket havuzunu doldurur — dışarıdan tetiklenebilen bir kaynak tükenmesi
+ * yüzeyi. 2026-08-04'te tam olarak bu eksiklik Open Library üzerinden kitap
+ * aramasını 40 saniyeye çıkardı; bu kaynak o gün ayakta olduğu için burada
+ * fark edilmemişti.
+ */
+const REQUEST_TIMEOUT_MS = 8_000;
+
+/**
  * AniList erişimi (GraphQL, anahtar gerektirmez).
  *
  * TMDB servisiyle aynı desen: her yanıt `ExternalCache`e yazılır, TTL dolmadan
@@ -457,6 +468,7 @@ export class AnilistService {
   ): Promise<T> {
     const response = await fetch(ANILIST_URL, {
       method: 'POST',
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
       headers: {
         'content-type': 'application/json',
         accept: 'application/json',

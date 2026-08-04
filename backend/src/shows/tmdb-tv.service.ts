@@ -7,6 +7,17 @@ import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 
 /**
+ * Dış isteğin en fazla süresi.
+ *
+ * Zaman aşımı olmadan asılı kalan bir istek, çağıranı da askıda tutar ve
+ * soket havuzunu doldurur — dışarıdan tetiklenebilen bir kaynak tükenmesi
+ * yüzeyi. 2026-08-04'te tam olarak bu eksiklik Open Library üzerinden kitap
+ * aramasını 40 saniyeye çıkardı; bu kaynak o gün ayakta olduğu için burada
+ * fark edilmemişti.
+ */
+const REQUEST_TIMEOUT_MS = 8_000;
+
+/**
  * TMDB dizi (tv) erişimi — `movies/tmdb.service.ts`'in TV karşılığı. Anahtar
  * ikisi arasında paylaşılır (aynı TMDB hesabı), o yüzden burada da yalnızca
  * backend `.env`'de durur (kural 4). Her yanıt `ExternalCache`e yazılır.
@@ -468,7 +479,10 @@ export class TmdbTvService {
       url.searchParams.set('api_key', this.apiKey);
     }
 
-    const response = await fetch(url, { headers });
+    const response = await fetch(url, {
+      headers,
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    });
     if (!response.ok) {
       this.logger.warn(`TMDB ${path} → ${response.status}`);
       throw new ServiceUnavailableException('SHOWS.TMDB_UNAVAILABLE');

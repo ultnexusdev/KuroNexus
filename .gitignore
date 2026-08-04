@@ -5,5 +5,9 @@
 # çizelgesini içerir, depoya girmez (bkz. dosyanın kendi başlığı).
 GUVENLIK-GUNLUGU.md
 
-# UI/UX Pro Max skill: canvas render fontları (5MB, kullanmıyoruz — lokalde kalsın)
-.claude/skills/ui-styling/canvas-fonts/
+# Claude / agent skill dosyaları — araç yapılandırması, proje kodu değil.
+# Diskte kalır, depoya girmez (7,5 MB / 361 dosya, üstelik ikisi birbirinin kopyası).
+# NOT: .agents/AGENTS.md ve .claude/launch.json bilinçli olarak depoda kalıyor —
+# ilki projenin talimat dosyası, ikincisi geliştirme sunucusu ayarı.
+.agents/skills/
+.claude/skills/

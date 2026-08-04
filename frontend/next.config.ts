@@ -6,21 +6,42 @@ const withNextIntl = createNextIntlPlugin("./lib/i18n/request.ts");
 const apiUrl = new URL(process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001");
 
 /**
- * İçerik Güvenlik Politikası (CSP) — şimdilik **Report-Only**.
+ * İçerik Güvenlik Politikası (CSP) — **ZORUNLU** (2026-08-04 akşamı).
  *
  * Diğer başlıklardan farklı çalışır: onlar "şunu yapma" derken CSP
  * "YALNIZCA şunlara izin var" der — yani beyaz liste. Listeye yazmayı
  * unuttuğun her kaynak engellenir. Bu yüzden önce `-Report-Only` ekiyle
- * yayına alınıyor: tarayıcı kuralları bilir ama **hiçbir şeyi engellemez**,
- * yalnızca ihlalleri konsola yazar. Gerçek trafikle, kimseyi kırmadan ölçüm.
+ * yayına alındı: tarayıcı kuralları bilir ama hiçbir şeyi engellemez,
+ * yalnızca ihlalleri raporlar. Gerçek trafikle, kimseyi kırmadan ölçüm.
  *
  * Liste tahminle değil ÖLÇÜMLE kuruldu (2026-08-04):
  *   image.tmdb.org           → film/dizi afişleri
  *   i.ytimg.com              → YouTube küçük görselleri
  *   www.youtube-nocookie.com → fragman gömüleri (iframe)
- *   apiUrl.origin            → /uploads/* görselleri ve ambient ses dosyaları
+ *   apiUrl.origin            → kitap kapakları, /uploads/*, ambient ses
  *   www.w3.org               → SVG isim uzayı, AĞ YÜKLEMESİ DEĞİL, listede yok
- *   fontlar                  → next/font/google derleme anında self-host ediyor
+ *
+ * Report-Only turunun sonucu (2026-08-04 akşamı) — ölçüm yöntemi: her sayfada
+ * `performance.getEntriesByType('resource')` ile GERÇEKTEN yüklenen kaynaklar
+ * listelenip beyaz listeyle karşılaştırıldı. Konsol ihlal mesajları adresleri
+ * `<URL>` diye gizlediği için tek başına yetmiyor. Genel sayfalar + 10 admin
+ * sayfası tarandı; **üç eksik** bulundu ve eklendi:
+ *
+ *   s4.anilist.co        → anime kapak/banner görselleri (172 ihlal)
+ *   fonts.googleapis.com → globals.css 1. satırdaki @import (stil dosyası)
+ *   fonts.gstatic.com    → o @import'un çektiği font dosyaları (29 ihlal)
+ *
+ * ⚠️ YANLIŞ ÇIKAN ESKİ VARSAYIM: yukarıdaki "fontlar self-host" notu yalnızca
+ * `layout.tsx`teki dört font için doğruydu (next/font/google). `globals.css`
+ * ayrı bir `@import` ile üç fontu daha doğrudan Google'dan çekiyor. Projede
+ * iki font yöntemi var.
+ *
+ * 📌 SONRAKİ İŞ — bu üç fontu da `next/font/google`'a taşı, `globals.css`
+ * 1. satırdaki @import'u sil, sonra `fonts.googleapis.com` +
+ * `fonts.gstatic.com` girdilerini buradan çıkar. Kazanç: dış istek sıfırlanır,
+ * ziyaretçi IP'si Google'a gitmez, render engelleyen bir tur eksilir, CSP
+ * daralır. Bugün yapılmadı çünkü fontlar derleme anında indiği için değişiklik
+ * lokalde doğrulanamıyor (ev makinesinde Node dışarı çıkamıyor).
  *
  * ⚠️ BİLİNEN ZAYIFLIK — `script-src 'unsafe-inline'`
  * Next.js App Router, hidrasyon için satır içi script üretiyor. Bunları
@@ -43,10 +64,12 @@ const CSP_DIRECTIVES = [
   // Next.js hidrasyon scriptleri satır içi; 'unsafe-eval' BİLEREK yok
   "script-src 'self' 'unsafe-inline'",
   // 16 dosyada style={{ }} kullanımı var + Next kendi stillerini satır içi basıyor
-  "style-src 'self' 'unsafe-inline'",
-  `img-src 'self' data: blob: https://image.tmdb.org https://i.ytimg.com ${apiUrl.origin}`,
+  // googleapis: globals.css 1. satırdaki @import — taşınınca buradan çıkacak
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  `img-src 'self' data: blob: https://image.tmdb.org https://i.ytimg.com https://s4.anilist.co ${apiUrl.origin}`,
   `media-src 'self' ${apiUrl.origin}`,
-  "font-src 'self' data:",
+  // gstatic: yukarıdaki @import'un çektiği font dosyaları
+  "font-src 'self' data: https://fonts.gstatic.com",
   `connect-src 'self' ${apiUrl.origin}`,
   "frame-src https://www.youtube-nocookie.com",
   "worker-src 'self' blob:",
@@ -64,9 +87,10 @@ const CSP_DIRECTIVES = [
  */
 const SECURITY_HEADERS = [
   {
-    // ⚠️ "-Report-Only" eki KASITLI. Kaldırıldığı anda kural zorunlu olur.
-    // Kaldırmadan önce: siteyi baştan sona gez, konsolda CSP ihlali kalmasın.
-    key: "Content-Security-Policy-Report-Only",
+    // ZORUNLU (2026-08-04 akşamı). Report-Only turu tamamlandı, üç eksik
+    // bulunup eklendi. Bir şey kırılırsa geri alış: anahtarın sonuna
+    // "-Report-Only" eklemek yeterli — kural yeniden yalnızca raporlar.
+    key: "Content-Security-Policy",
     value: CSP_DIRECTIVES,
   },
   {

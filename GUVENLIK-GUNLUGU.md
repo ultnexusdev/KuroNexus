@@ -85,11 +85,11 @@ Yine de ilke aynı: **sınırının dışına çıkan sır, ele geçirilmiş say
 |---|---|---|---|
 | 1 | ✅ **`JWT_SECRET`** *(4 Ağu akşamı yapıldı, doğrulandı)* | 🔴 En yüksek | Bu anahtarla saldırgan **admin token'ı üretebilir**; API internete açık. *(Hafifletici: guard `sub` alanını DB'den doğruluyor, saldırganın admin cuid'ini de bilmesi gerekir.)* ⚠️ Değişince mevcut admin oturumu düşer, yeniden giriş gerekir. |
 | 2 | ✅ **`DATABASE_URL`** parolası *(4 Ağu akşamı yapıldı, doğrulandı)* | 🔴 Yüksek | Bugün ikinci kez. Prosedür Adım 1'de yazılı, ~10 dk. |
-| 3 | **`APIFY_TOKEN`** | 🟠 | **Ücretli servis** — kötüye kullanım faturaya yansır |
-| 4 | `KAGGLE_API_TOKEN` | 🟠 | Hesap erişimi |
-| 5 | `TMDB_API_KEY` + `TMDB_READ_ACCESS_TOKEN` | 🟡 | Kota kullanımı |
-| 6 | 🔒 `GOOGLE_BOOKS_API_KEY` *(kısıtlandı, rotasyon yapılmadı)* | 🟡 | Kota kullanımı |
-| 7 | `FOOTBALL_API_KEY` | 🟡 | Kota kullanımı |
+| 3 | ✅ **`APIFY_TOKEN`** *(rotate edildi, ardından Apify'dan tamamen çıkıldı)* | 🟠 | **Ücretli servis** — kötüye kullanım faturaya yansır |
+| 4 | ✅ `KAGGLE_API_TOKEN` *(4 Ağu akşamı, doğrulandı; eski token + legacy iptal edildi)* | 🟠 | Hesap erişimi |
+| 5 | ⚖️ `TMDB_API_KEY` + `TMDB_READ_ACCESS_TOKEN` *(kabul edilmiş artık risk)* | 🟡 | Kota kullanımı |
+| 6 | ⚖️🔒 `GOOGLE_BOOKS_API_KEY` *(kısıtlandı; rotasyon: kabul edilmiş artık risk)* | 🟡 | Kota kullanımı |
+| 7 | 🗑️ `FOOTBALL_API_KEY` *(rotate edilmedi — kodda ölü, 4 değişken silindi)* | 🟡 | Kota kullanımı |
 
 3–7 arası anahtarlar ilgili servislerin **kendi panellerinden** yenilenir.
 
@@ -258,6 +258,102 @@ HTTP 200 dönüyor ve sayfalar açılıyor, ama raflar **sessizce boş** geliyor
 (`lib/api/*.ts` içindeki `catch { return [] }`, inceleme raporu bulgu Ö-8).
 Bu projede "hata görmedim" ile "çalışıyor" aynı şey değil.
 
+### Rotasyon turunun kalanı (maddeler 3–7) ✅
+
+#### Madde 3 — `APIFY_TOKEN`: rotate edildi, sonra Apify'dan tamamen çıkıldı
+Yeni token üretilip Coolify'a kondu, ama doğrulama yapılamadı: **Apify ücretsiz
+kotası tükenmişti** (`$5.00/$5.00`, panelde *"Actors and other platform features
+are disabled"*, yenilenme 2026-08-16). Günde bir koşan tek actor ücretsiz
+katmanı tam ay taşımıyor.
+
+Bunun üzerine Apify'dan tamamen çıkıldı: Coolify'daki `APIFY_TOKEN` silindi,
+**Apify panelindeki iki token da** (sızan `Default API token` + yeni üretilen)
+iptal edildi. Kod tarafında `if (!this.apifyToken) return;` koruması olduğu için
+günlük Süper Lig senkronu sessizce atlanıyor, uygulama etkilenmiyor.
+
+⚠️ **ÖNEMLİ DERS — ortam değişkenini silmek anahtarı iptal etmez.**
+Kullanıcı önce yalnızca Coolify'daki `APIFY_TOKEN` değişkenini sildi ve iş
+bitti sandı. Oysa ortam değişkeni anahtarın bir **kopyası**; sızan anahtar
+sağlayıcının veritabanında geçerli kalmaya devam ediyordu. İptal ancak
+sağlayıcının panelinden yapılır. *Kilidi değiştirmek yerine adres defterinden
+kapı numarasını silmek gibi.*
+
+#### Madde 4 — `KAGGLE_API_TOKEN`: rotate edildi ve doğrulandı
+Kaggle'ın yeni arayüzü **üst üste binmeye izin veriyor** (*"Creating a new token
+doesn't expire any existing tokens"*) → yeni token doğrulanmadan eskisi
+silinmedi.
+
+- Kötüye kullanım kontrolü: eski token'ın `Last Use Time` değeri **sızıntıdan
+  önceydi** ("2 days ago") → sızıntı sonrası kullanılmamış, temiz.
+- Doğrulama: `POST /admin/football/sync` ile kadro senkronu elle tetiklendi,
+  `GET` ile sonuç okundu → `ok: true`.
+- Ardından eski `Kuronexus` token'ı silindi ve **Legacy API Credentials** de
+  kapatıldı (kullanıcı Kaggle CLI kullanmadığını teyit etti — kullanılmayan
+  kimlik bilgisi açık kapıdır).
+
+📌 **Mimari not:** "Transfermarkt senkronu" aslında Kaggle üzerinden çalışıyor —
+kod, Transfermarkt verisini barındıran bir **Kaggle veri setini** indiriyor
+([football.service.ts:603](backend/src/football/football.service.ts:603)),
+doğrudan siteyi kazımıyor. Yani Kaggle bağımlılığı canlı ve gerekli.
+
+#### Madde 7 — `FOOTBALL_*`: rotate edilmedi, **silindi**
+`FOOTBALL_API_KEY`, `FOOTBALL_API_HOST`, `FOOTBALL_SEASON`, `FOOTBALL_TEAM_ID`
+için `backend/src` ve `backend/scripts` altında **sıfır kullanım** bulundu —
+API-Football döneminden kalma artıklar. Dördü de Coolify'dan silindi.
+
+Futbol servisi bambaşka değişkenler okuyor: `TM_TEAM_ID`, `TM_SEASON`,
+`APIFY_TR_SEASON`, `KAGGLE_*`. İlk üçü Coolify'da tanımlı değil, kod
+varsayılanlarıyla çalışıyor.
+
+📌 *İşlevsel bulgu (güvenlikle ilgisiz):* `TM_SEASON` kodda `'2024'`
+varsayılanıyla geliyor ve Coolify'da tanımlı değil — 2026'da 2024 sezonuna
+bakıyor olabilir. Futbol turunda kontrol edilmeli.
+
+#### Maddeler 5–6 — ⚖️ Kabul edilmiş artık risk (rotate EDİLMEDİ)
+`TMDB_API_KEY`, `TMDB_READ_ACCESS_TOKEN` ve `GOOGLE_BOOKS_API_KEY` bilinçli
+olarak yenilenmedi. **Bu "güvenli" demek değil — sızdıkları biliniyor.**
+
+Kullanıcının gerekçesi ve değerlendirme:
+- **Etki yalnızca kota.** Para çıkışı yok, hesap ele geçirme yok, veri erişimi
+  yok. Listenin en alt basamağı.
+- **Google Books ayrıca kısıtlı:** `Books API` + tek IP (`65.108.220.5`).
+  Sızsa bile eline geçen kişi yalnızca bu sunucudan kitap arayabilir. Bu
+  anahtar için kısıtlama, rotasyondan daha etkili bir korumadır.
+- **TMDB'de yenileme yolu belirsiz** — bazı kurulumlarda API erişimini silip
+  yeniden talep etmeyi gerektiriyor, bu da film/dizi veri akışını kesebilir.
+  Koruma maliyeti riskten büyük görüldü.
+
+**Doğrulamanın sınırı (kayıt doğruluğu için):** Kaggle ve Apify panellerinde
+sızıntı sonrası kullanım izi olmadığı **doğrulandı**. TMDB ve Google Cloud
+panelleri **kontrol edilmedi** — bu iki anahtar için "kullanılmamış" bir
+gözlem, ölçüm değil.
+
+🔔 **Bu kararı ne bozar:** TMDB'den beklenmedik `429`'lar, Google Cloud'da
+tanımadığın kullanım, ya da kota anormalliği. Böyle bir şey görürsen bu
+maddeyi yeniden aç ve rotate et.
+
+📌 *Ayrıca:* `TMDB_API_KEY` üretimde **hiç okunmuyor** — kod
+`TMDB_READ_ACCESS_TOKEN ?? TMDB_API_KEY` şeklinde okuyor ve ilki tanımlı
+([tmdb.service.ts:174](backend/src/movies/tmdb.service.ts:174)). İleride
+tutulan sır sayısını azaltmak istenirse bu değişken silinebilir; koddaki yedek
+mekanizma yerinde kalır.
+
+#### Futbol veri kaynağı — açık karar
+Apify artık uygun değil (ücretsiz katman bir ayı taşımıyor). Değerlendirilen
+yön: oyuncu/kadro **Transfermarkt-üzerinden-Kaggle** (mevcut, çalışıyor), puan
+durumu + canlı skor **Maçkolik**. Fizibilite **incelenmedi**.
+
+⚠️ İki iş aynı zorlukta değil: puan durumu/fikstür günde bir çekilir (orta),
+**canlı skor maç sırasında sık yoklama** ister (zor — engellenme riski,
+zamanlama, frontend'de canlı güncelleme). Ayrı fazlar olarak ele alınmalı.
+Ayrıca kaynağın kullanım şartları ve `robots.txt` kontrol edilmeli.
+
+📌 *Uç adresi notu:* Futbol denetleyicisinde **iki controller** var —
+genel uçlar `@Controller('football')`, yönetici uçları
+`@Roles('ADMIN') @Controller('admin/football')`
+([football.controller.ts:46](backend/src/football/football.controller.ts:46)).
+Senkron tetikleme adresi `/admin/football/sync`.
+
 ### Coolify arayüz notları (sonraki oturumlar için)
 - Değişken listesi değerleri **maskeliyor** (nokta + göz simgesi). Bu sayfanın
   ekran görüntüsü güvenli. Kaçınılması gereken tek ekran hâlâ `Developer view`.
@@ -351,7 +447,7 @@ olay müdahalesi; tahminle yetinilmeyecek).
 | 8 | JWT'yi HttpOnly + Secure cookie'ye taşı | ⬜ Bekliyor (dinlenmiş kafayla) |
 | 9 | API anahtarlarını Docker ARG'lardan çıkar | ✅ Tamamlandı — 17 değişkende buildtime kapatıldı, temiz imaj derlendi |
 | 10 | Ev bilgisayarı senkronizasyonu | ✅ Tamamlandı — 442 skill korundu, derlemeler temiz |
-| 11 | 🔴 Sır rotasyonu (sohbete yapıştırılan değerler) | 🟡 Kısmen — `JWT_SECRET` ✅ · `DATABASE_URL` ✅ · **3–7 bekliyor** |
+| 11 | 🔴 Sır rotasyonu (sohbete yapıştırılan değerler) | ✅ Tamamlandı — 1–4 rotate edildi/kaldırıldı, 7 silindi, 5–6 kabul edilmiş artık risk |
 | 12 | Mevcut sitenin iyileştirilmesi (mimari rapor bulguları) | ⬜ Sonraki faz |
 | 13 | Yeni web sitesi tasarımı | ⬜ Sonraki faz |
 | 8+ | Sonraki maddeler (Dockerfile sertleştirme, /health, logging…) | ⬜ Bekliyor |

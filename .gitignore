@@ -1,9 +1,10 @@
 .env
 .claude/settings.local.json
 
-# Güvenlik çalışmasının yerel günlüğü — sistemin zayıf noktalarının zaman
-# çizelgesini içerir, depoya girmez (bkz. dosyanın kendi başlığı).
-GUVENLIK-GUNLUGU.md
+# NOT: GUVENLIK-GUNLUGU.md başta buradaydı (zayıf noktaların zaman çizelgesi
+# saldırgana yol gösterir diye). 4 Ağustos 2026'da depoya alındı: kritik
+# açıklar kapandı, depo private ve 0 collaborator var, ve belgenin diğer
+# makinelere ulaşması gerekiyor. Depo public yapılacaksa ÖNCE çıkarılmalı.
 
 # Claude / agent skill dosyaları — araç yapılandırması, proje kodu değil.
 # Diskte kalır, depoya girmez (7,5 MB / 361 dosya, üstelik ikisi birbirinin kopyası).

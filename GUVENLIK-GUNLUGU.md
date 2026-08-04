@@ -84,7 +84,7 @@ Yine de ilke aynı: **sınırının dışına çıkan sır, ele geçirilmiş say
 | # | Sır | Aciliyet | Neden bu sırada |
 |---|---|---|---|
 | 1 | ✅ **`JWT_SECRET`** *(4 Ağu akşamı yapıldı, doğrulandı)* | 🔴 En yüksek | Bu anahtarla saldırgan **admin token'ı üretebilir**; API internete açık. *(Hafifletici: guard `sub` alanını DB'den doğruluyor, saldırganın admin cuid'ini de bilmesi gerekir.)* ⚠️ Değişince mevcut admin oturumu düşer, yeniden giriş gerekir. |
-| 2 | **`DATABASE_URL`** parolası | 🔴 Yüksek | Bugün ikinci kez. Prosedür Adım 1'de yazılı, ~10 dk. |
+| 2 | ✅ **`DATABASE_URL`** parolası *(4 Ağu akşamı yapıldı, doğrulandı)* | 🔴 Yüksek | Bugün ikinci kez. Prosedür Adım 1'de yazılı, ~10 dk. |
 | 3 | **`APIFY_TOKEN`** | 🟠 | **Ücretli servis** — kötüye kullanım faturaya yansır |
 | 4 | `KAGGLE_API_TOKEN` | 🟠 | Hesap erişimi |
 | 5 | `TMDB_API_KEY` + `TMDB_READ_ACCESS_TOKEN` | 🟡 | Kota kullanımı |
@@ -208,10 +208,55 @@ Canlıda kitap araması doğrulandı.
 ile kilitli bir anahtar sızsa bile saldırganın elinde işe yarar bir yetenek
 bırakmaz.
 
-⚠️ **Kayıt çelişkisi:** Kullanıcı bu anahtarı hiçbir yerde paylaşmadığını
-belirtti; bu belgenin "Sır ifşası" bölümü ise 4 Ağustos'ta yapıştırılan değerler
-arasında `GOOGLE_BOOKS_API_KEY`'i listeliyor. Çelişki çözülmediği için rotasyon
-maddesi **açık bırakıldı**.
+⚠️ **Kayıt çelişkisi — çözüldü:** Kullanıcı önce bu anahtarı hiçbir yerde
+paylaşmadığını düşündü. Ardından iş yeri sohbet geçmişini kontrol etti ve
+`Developer view` çıktısının sohbete yapıştırıldığını **doğruladı**. Yani anahtar
+ifşa edilmiş durumda ve bu belgenin "Sır ifşası" bölümü geçerli.
+
+Anahtar şu an kısıtlamalarla korunuyor, ama **rotasyon maddesi geçerliliğini
+koruyor** — yeni anahtar üretilmeli. Aynı teyit, rotasyon listesinin 3–7 arası
+maddelerinin de gerçekten gerekli olduğunu gösteriyor.
+
+### `DATABASE_URL` rotasyonu — ikinci tur (rotasyon listesi madde 2) ✅
+Sabah yapılan rotasyon (Adım 1) öğleden sonraki ifşa yüzünden geçersiz kalmıştı;
+bu, aynı parolanın **aynı gün ikinci kez** değiştirilmesi.
+
+**Sıralama Adım 1'dekinden bilinçli olarak farklı kuruldu.** Adım 1'de önce
+parola değiştirilmiş, sonra `DATABASE_URL` güncellenmişti — bu sıra, aradaki
+sürede çalışan backend'in yeni bağlantı açamamasına yol açıyor. Bu turda:
+
+1. Taze yedek (`Backup Now` → `Success`, **4,54 MB**, DB `Running (healthy)`)
+2. `DATABASE_URL` yeni parolayla **kaydedildi ama uygulanmadı**
+   (Coolify env değişikliğini redeploy'a kadar uygulamıyor — canlı etkilenmedi)
+3. Parola veritabanında değiştirildi
+4. **Hemen** redeploy
+
+Böylece açık pencere dakikalardan saniyelere indi.
+
+**Parola:** 40 karakter, yalnızca `[A-Za-z0-9]` (~238 bit entropi). Alfabe
+bilinçli olarak dar tutuldu: `@ : / ? #` gibi karakterler bağlantı dizesinde
+ayırıcı görevi görür ve URL'yi yanlış yerden böler — üstelik hata mesajı
+"parola yanlış" demez, teşhis saatler alır.
+
+**Yöntem:** Adım 1d'deki gibi `\password postgres`. `ALTER USER` yine
+kullanılmadı. Değişim `md5(rolpassword)` parmak izi karşılaştırmasıyla
+kanıtlandı (öncesi ≠ sonrası).
+
+**Parola yönetimi:** Yeni parola ayrı bir kayda yazıldı, **eski kayıt
+doğrulama bitene kadar korundu**. Emniyet kemeri yine `trust` yetkilendirmesi:
+`psql -U postgres` konteyner içinden parolasız bağlanıyor, yani yanlış parola
+yazılsa bile geri dönülebilir.
+
+**Doğrulama — "site açılıyor" yeterli sayılmadı:**
+- Raflar **dolu** geldi (asıl kanıt)
+- Arama çalışıyor
+- Admin paneli çalışıyor — `jwt-auth.guard.ts` her istekte kullanıcıyı DB'den
+  okuduğu için bu tek test hem kimlik doğrulamayı hem DB bağlantısını kanıtlıyor
+
+📌 Bu ısrarın sebebi Adım 1e'de gözlenen davranış: DB'ye ulaşılamadığında site
+HTTP 200 dönüyor ve sayfalar açılıyor, ama raflar **sessizce boş** geliyor
+(`lib/api/*.ts` içindeki `catch { return [] }`, inceleme raporu bulgu Ö-8).
+Bu projede "hata görmedim" ile "çalışıyor" aynı şey değil.
 
 ### Coolify arayüz notları (sonraki oturumlar için)
 - Değişken listesi değerleri **maskeliyor** (nokta + göz simgesi). Bu sayfanın
@@ -306,7 +351,7 @@ olay müdahalesi; tahminle yetinilmeyecek).
 | 8 | JWT'yi HttpOnly + Secure cookie'ye taşı | ⬜ Bekliyor (dinlenmiş kafayla) |
 | 9 | API anahtarlarını Docker ARG'lardan çıkar | ✅ Tamamlandı — 17 değişkende buildtime kapatıldı, temiz imaj derlendi |
 | 10 | Ev bilgisayarı senkronizasyonu | ✅ Tamamlandı — 442 skill korundu, derlemeler temiz |
-| 11 | 🔴 Sır rotasyonu (sohbete yapıştırılan değerler) | 🟡 Kısmen — `JWT_SECRET` ✅ · **`DATABASE_URL` hâlâ bekliyor** · 3–7 bekliyor |
+| 11 | 🔴 Sır rotasyonu (sohbete yapıştırılan değerler) | 🟡 Kısmen — `JWT_SECRET` ✅ · `DATABASE_URL` ✅ · **3–7 bekliyor** |
 | 12 | Mevcut sitenin iyileştirilmesi (mimari rapor bulguları) | ⬜ Sonraki faz |
 | 13 | Yeni web sitesi tasarımı | ⬜ Sonraki faz |
 | 8+ | Sonraki maddeler (Dockerfile sertleştirme, /health, logging…) | ⬜ Bekliyor |

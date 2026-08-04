@@ -23,19 +23,17 @@ canlıda doğrulandı. İki iş yarım kaldı, bir de yeni bir olay çıktı.
 | Site | ✅ Çalışıyor (kuronexus.com) |
 | Backend + frontend deploy | ✅ İkisi de sağlıklı |
 | Veritabanı | ✅ 250 kitap, yedekleme çalışıyor |
-| Uzak depo `main` | `30e79a5` |
+| Uzak depo `main` | `b390f8a` (4 Ağu akşamı ev PC'si de bu noktaya eşitlendi) |
 
 ## ⚡ EVE GİDİNCE İLK ÜÇ İŞ (bu sırayla)
 
-### 1️⃣ Depoyu senkronize et — **skilleri kaybetmeden**
-Aşağıdaki "Ev bilgisayarı" bölümünde adım adım komutlar var.
-**Sırayı bozma** — yanlış sırada skiller silinir.
+### 1️⃣ Depoyu senkronize et — **skilleri kaybetmeden** ✅
+**4 Ağustos akşamı tamamlandı.** Ayrıntı: "Ev oturumu" bölümü.
 
-### 2️⃣ `JWT_SECRET`'i değiştir — en acil güvenlik işi
-4 Ağustos'ta tüm üretim sırları sohbete düz metin olarak yapıştırıldı
-(bkz. "Sır ifşası" bölümü). Rotasyon listesinin en kritik maddesi bu.
+### 2️⃣ `JWT_SECRET`'i değiştir — en acil güvenlik işi ✅
+**4 Ağustos akşamı tamamlandı ve canlıda doğrulandı.** Ayrıntı: "Ev oturumu".
 
-### 3️⃣ CSP konsol turu (7b-2) → sonra 7c
+### 3️⃣ CSP konsol turu (7b-2) → sonra 7c 🔄 **SIRADAKİ**
 Chrome `F12` → Console → filtre: `Content Security` → siteyi gez.
 İhlal yoksa `next.config.ts`'te `-Report-Only` ekini kaldır.
 
@@ -85,12 +83,12 @@ Yine de ilke aynı: **sınırının dışına çıkan sır, ele geçirilmiş say
 
 | # | Sır | Aciliyet | Neden bu sırada |
 |---|---|---|---|
-| 1 | **`JWT_SECRET`** | 🔴 En yüksek | Bu anahtarla saldırgan **admin token'ı üretebilir**; API internete açık. *(Hafifletici: guard `sub` alanını DB'den doğruluyor, saldırganın admin cuid'ini de bilmesi gerekir.)* ⚠️ Değişince mevcut admin oturumu düşer, yeniden giriş gerekir. |
+| 1 | ✅ **`JWT_SECRET`** *(4 Ağu akşamı yapıldı, doğrulandı)* | 🔴 En yüksek | Bu anahtarla saldırgan **admin token'ı üretebilir**; API internete açık. *(Hafifletici: guard `sub` alanını DB'den doğruluyor, saldırganın admin cuid'ini de bilmesi gerekir.)* ⚠️ Değişince mevcut admin oturumu düşer, yeniden giriş gerekir. |
 | 2 | **`DATABASE_URL`** parolası | 🔴 Yüksek | Bugün ikinci kez. Prosedür Adım 1'de yazılı, ~10 dk. |
 | 3 | **`APIFY_TOKEN`** | 🟠 | **Ücretli servis** — kötüye kullanım faturaya yansır |
 | 4 | `KAGGLE_API_TOKEN` | 🟠 | Hesap erişimi |
 | 5 | `TMDB_API_KEY` + `TMDB_READ_ACCESS_TOKEN` | 🟡 | Kota kullanımı |
-| 6 | `GOOGLE_BOOKS_API_KEY` | 🟡 | Kota kullanımı |
+| 6 | 🔒 `GOOGLE_BOOKS_API_KEY` *(kısıtlandı, rotasyon yapılmadı)* | 🟡 | Kota kullanımı |
 | 7 | `FOOTBALL_API_KEY` | 🟡 | Kota kullanımı |
 
 3–7 arası anahtarlar ilgili servislerin **kendi panellerinden** yenilenir.
@@ -116,6 +114,110 @@ Yine de ilke aynı: **sınırının dışına çıkan sır, ele geçirilmiş say
 
 ⚠️ **Rotasyon sırasında hiçbir değer sohbete yazılmaz.** Doğrulama gerekirse
 "ilk 4 karakteri şu mu?" biçiminde sorulur.
+
+---
+
+## 🏠 Ev oturumu — 4 Ağustos 2026 akşamı
+
+Maddeler 10, 9 ve 11'in `JWT_SECRET` ayağı burada kapandı.
+
+### Depo senkronizasyonu (madde 10) ✅
+Uyarıda yazan sıra aynen uygulandı: **önce** skiller `~/Desktop/skill-yedek`'e
+kopyalandı (442 dosya), **sonra** `git reset --hard origin/main`.
+
+- Ev PC'si 113 ileri / 120 geri ayrışmıştı (force-push nedeniyle). 113 yerel
+  commit'in 108'i zaten uzakta mevcuttu; kalan 5'i yalnızca silinen skill
+  dosyaları, `check.js` ve `kapaklar` gibi 0 baytlık çöpler yüzünden farklıydı.
+  **Kod kaybı yok.** Eski geçmiş `yedek/eve-donus` dalında donduruldu.
+- ⚠️ Düz `git pull` denenseydi merge, kasten temizlenen 361 skill dosyasını ve
+  `check.js`'i **geri diriltecekti**. Reset değil, merge tehlikeliymiş.
+- Skiller geri kondu, artık gitignore'lu → git işlemlerinden etkilenmiyorlar.
+- Ev PC'sinde `pnpm` kurulu değil, `corepack enable` yönetici izni istiyor.
+  Çözüm: `npx --yes pnpm@11.13.1 install` (sürüm `node_modules/.modules.yaml`
+  içindeki `packageManager` alanından okunur; yanlış major node_modules'ü
+  silmek ister). Backend ve frontend derlemeleri temiz.
+
+### `JWT_SECRET` rotasyonu (madde 11/1) ✅
+Sır ev PC'sinde `node -e "…randomBytes(48).toString('base64url')" |
+Set-Clipboard` ile üretildi — **değer hiçbir noktada sohbete düşmedi**, ekrana
+da basılmadı. 48 bayt / 384 bit / 64 karakter.
+
+Canlıda doğrulandı: çıkış → yeniden giriş çalışıyor (yeni anahtarın devrede
+olduğunun tek geçerli kanıtı), admin işlemleri 401 vermiyor, arama sağlam.
+
+Kod tarafı ön kontrolü: uygulamayı **başlamaktan alıkoyan** yalnızca iki
+değişken var — `auth.module.ts` → `JWT_SECRET`, `prisma.service.ts` →
+`DATABASE_URL`. Geri kalanlar `get` ile okunuyor, eksik olsalar da uygulama
+kalkıyor.
+
+### Docker ARG temizliği (madde 9) ✅
+Backend'deki **17 değişkenin tamamında** `Available at Buildtime` kapatıldı,
+`Available at Runtime` doğrulandı. Dockerfile incelendi: derleme aşamasında
+gerçek sır **hiç gerekmiyor** — `prisma generate` için kendi sahte
+`DATABASE_URL`'ini koyuyor. Frontend'e bilinçli olarak dokunulmadı
+(`NEXT_PUBLIC_*` derlemede gömülmek zorunda).
+
+### 🔴 Preview bölümünde iki sızıntı kalıntısı bulundu — silindi
+`Preview Deployments Environment Variables` bölümünde 12 değişken vardı,
+hepsinin Production'da güncel karşılığı doğrulandıktan sonra tamamı silindi.
+İçlerinde **beklenmedik iki kalıntı** çıktı:
+
+- `DATABASE_URL` → 12 Temmuz'da sızan **eski parola**
+- `JWT_SECRET` → 4 Ağustos'ta sızan **eski anahtarın ikinci kopyası**
+
+Yani rotasyon yalnızca Production'da yapılsaydı, sızmış anahtar panelde yazılı
+kalmaya devam edecekti. **Ders: rotasyonda tüm ortam bölümleri taranmalı.**
+
+### ⚠️ ÖNEMLİ TUZAK — "Build step skipped"
+İlk redeploy'un logunda şu satır çıktı:
+
+```
+No build configuration changed & image found (…) with the same Git Commit SHA.
+Build step skipped.
+```
+
+Coolify, git commit'i değişmediği için **imajı yeniden kullandı**. Sonuçları:
+
+- Ortam değişkenleri **yine de uygulandı** (runtime enjeksiyonu) → `JWT_SECRET`
+  rotasyonu gerçekten oldu.
+- Ama buildtime temizliği **imaja yansımadı**; eski imaj kullanımda kaldı.
+- `SecretsUsedInArgOrEnv` uyarısının kaybolması **yanlış pozitifti** — uyarı
+  derleme sırasında üretilir, derleme hiç çalışmadığı için görünmedi.
+
+O imaj bugün iş yerinde, buildtime açıkken ve `DATABASE_URL` rotasyonundan
+**sonra** derlenmişti → geçerli DB parolasını katmanlarında taşıyordu.
+
+Çözüm: `Advanced` menüsünden **zorla yeniden derleme**. İkinci deploy'da gerçek
+derleme koştu (`Building docker image started/completed`, ~94 sn) ve temiz imaj
+eskisinin yerini aldı.
+
+📌 **Kural: ortam değişkeni değişikliği sonrası sırların imajdan çıktığını
+doğrulamak istiyorsan normal redeploy yetmez — zorla yeniden derleme gerekir.**
+
+### `GOOGLE_BOOKS_API_KEY` — kaza ve sonuç 🔒
+Preview temizliği sırasında bu değişken **yanlışlıkla Production'dan da**
+silindi. Etkisi ölçüldü ve sınırlıydı: `get` ile okunuyor, uygulamayı
+düşürmüyor; kitap araması üç bacaklı ve `allSettled` ile korunuyor, yalnızca
+Türkçe baskı sıralaması zayıflıyordu.
+
+Kullanıcı **mevcut anahtarı** geri koymayı tercih etti ve **kısıtlamaları
+uyguladı**: `API restrictions → Books API`, `Application restrictions → IP`.
+Canlıda kitap araması doğrulandı.
+
+📌 Bu anahtar için **kısıtlama, rotasyondan daha değerli**: `Books API` + tek IP
+ile kilitli bir anahtar sızsa bile saldırganın elinde işe yarar bir yetenek
+bırakmaz.
+
+⚠️ **Kayıt çelişkisi:** Kullanıcı bu anahtarı hiçbir yerde paylaşmadığını
+belirtti; bu belgenin "Sır ifşası" bölümü ise 4 Ağustos'ta yapıştırılan değerler
+arasında `GOOGLE_BOOKS_API_KEY`'i listeliyor. Çelişki çözülmediği için rotasyon
+maddesi **açık bırakıldı**.
+
+### Coolify arayüz notları (sonraki oturumlar için)
+- Değişken listesi değerleri **maskeliyor** (nokta + göz simgesi). Bu sayfanın
+  ekran görüntüsü güvenli. Kaçınılması gereken tek ekran hâlâ `Developer view`.
+- Production ve Preview bölümlerini ayırt etmenin pratik yolu: Production'da
+  artık tüm `Available at Buildtime` kutucukları kapalı.
 
 ---
 
@@ -202,9 +304,9 @@ olay müdahalesi; tahminle yetinilmeyecek).
 | 7c | CSP'yi zorunlu hale getir | ⬜ 7b-2 sonrası |
 | — | Dış API çağrılarına zaman aşımı *(araya girdi)* | ✅ Tamamlandı — arama 40sn → ~9sn |
 | 8 | JWT'yi HttpOnly + Secure cookie'ye taşı | ⬜ Bekliyor (dinlenmiş kafayla) |
-| 9 | API anahtarlarını Docker ARG'lardan çıkar | 🔄 **EVDE** — sır rotasyonuyla birlikte |
-| 10 | Ev bilgisayarı senkronizasyonu | 🔄 **EVDE — İLK İŞ** (skiller korunmalı) |
-| 11 | 🔴 Sır rotasyonu (sohbete yapıştırılan değerler) | 🔄 **EVDE** — `JWT_SECRET` en acil |
+| 9 | API anahtarlarını Docker ARG'lardan çıkar | ✅ Tamamlandı — 17 değişkende buildtime kapatıldı, temiz imaj derlendi |
+| 10 | Ev bilgisayarı senkronizasyonu | ✅ Tamamlandı — 442 skill korundu, derlemeler temiz |
+| 11 | 🔴 Sır rotasyonu (sohbete yapıştırılan değerler) | 🟡 Kısmen — `JWT_SECRET` ✅ · **`DATABASE_URL` hâlâ bekliyor** · 3–7 bekliyor |
 | 12 | Mevcut sitenin iyileştirilmesi (mimari rapor bulguları) | ⬜ Sonraki faz |
 | 13 | Yeni web sitesi tasarımı | ⬜ Sonraki faz |
 | 8+ | Sonraki maddeler (Dockerfile sertleştirme, /health, logging…) | ⬜ Bekliyor |

@@ -34,7 +34,9 @@ işler artık "açık güvenlik açığı" değil, iyileştirme sırası.
 1. **Madde 8 — JWT HttpOnly çereze taşındı** (iki fazlı deploy, canlıda doğrulandı)
 2. **Fontlar `next/font`e taşındı, CSP daraltıldı** — ziyaretçi IP'si artık
    Google'a gitmiyor (iki fazlı, ölçümle doğrulandı)
-3. Devir notundaki `backend/.env` maddesi **düştü** — o dosya iş yeri PC'sinde
+3. **Dockerfile sertleştirildi (Ö-4)** — migration hatası artık yutulmuyor,
+   `/health` ucu eklendi, konteyner `root` yerine `node` kullanıcısıyla çalışıyor
+4. Devir notundaki `backend/.env` maddesi **düştü** — o dosya iş yeri PC'sinde
    hiç yokmuş, dolayısıyla bayat sır de yok
 
 Ayrıntılar: **"İş yeri oturumu — 5 Ağustos"** bölümü.
@@ -43,24 +45,7 @@ Ayrıntılar: **"İş yeri oturumu — 5 Ağustos"** bölümü.
 
 ## ⚡ SIRADAKİ İŞLER
 
-### 1️⃣ `USER node` — Dockerfile sertleştirmesinin kalan ayağı
-Ö-4'ün diğer iki ayağı (migration hatasında durma, `/health`) 5 Ağustos'ta
-kapandı. Kalan tek iş: konteynerin `root` yerine `node` kullanıcısıyla
-çalışması.
-
-⚠️ **Önce ölçüm gerekiyor, doğrudan yapılmamalı.** Yüklenen görseller
-`UPLOAD_DIR` altında tutuluyor ve `/uploads/*` olarak servis ediliyor; bu
-klasör Coolify'da kalıcı bir volume olmak zorunda (yoksa her deploy'da kapaklar
-silinirdi, silinmiyor). Docker'da **mevcut bir volume mount edildiğinde
-sahipliği korunur** — imajdaki `chown` ona işlemez. Volume `root`'a aitse
-konteyner `node` kullanıcısına geçtiğinde oraya **yazamaz** ve görsel yükleme
-kırılır. Üstelik sessizce: bir kapak yüklenmeye çalışılana kadar her şey normal
-görünür.
-
-Sıra: **(1)** Coolify → `kuronexus-backend` → Storages sekmesinden mount'un
-yerini gör, **(2)** klasörün sahipliğini ölç, **(3)** ancak ondan sonra karar ver.
-
-### 2️⃣ ⚠️ Slug altyapısı (K-2, K-3, R-1) — ÖNCE PLAN GEREKİR
+### 1️⃣ ⚠️ Slug altyapısı (K-2, K-3, R-1) — ÖNCE PLAN GEREKİR
 `BookEntry.slug` kolonu + `SlugHistory` + 301 yönlendirme, ardından `getDetail`
 in `findUnique({ where: { slug } })`'a çevrilmesi.
 
@@ -605,6 +590,50 @@ Canlı doğrulama: `GET https://api.kuronexus.com/health` → `200`,
 `{"status":"ok","db":"up"}`. Tek istek hem yeni kodun yayında olduğunu hem de
 DB bağlantısının sağlıklı olduğunu kanıtlıyor — kimlik bilgisi gerektirmeden.
 
+### Konteyner artık `root` değil — `USER node` ✅ (`bda644e`)
+
+**Neden değerli:** Uygulamada bir açık bulunursa saldırgan konteyner içinde tam
+yetkiyle değil, sınırlı bir kullanıcıyla başlar.
+
+#### Doğrudan yapılamazdı — önce ölçüldü
+Yüklenen görseller `/app/uploads` altında ve orası **named volume**
+(`xpvhr95pdd3n4orzuoty`, `UPLOAD_DIR=/app/uploads`). Docker'da **mount edilmiş
+bir volume kendi sahipliğini korur** — imajdaki `chown` ona işlemez.
+
+Konteyner terminalinden ölçüldü:
+```
+uid=0(root) gid=0(root)
+drwxr-xr-x 3 root root 4096 Jul 31 19:33 /app/uploads
+```
+Yani doğrudan `USER node` eklenseydi uygulama o klasöre **yazamayacaktı** ve
+görsel yükleme kırılacaktı. Üstelik sessizce: site açılır, `/health` yeşil
+döner, arıza ancak bir kapak yüklenmeye çalışılınca ortaya çıkardı.
+
+#### Sıra: önce volume, sonra imaj
+1. Konteyner içinden **tek seferlik** `chown -R node:node /app/uploads`
+   (volume'de kalıcı; konteyner değişse de kalır — bu, sonraki redeploy'da
+   doğrulandı). Konteyner o an hâlâ root çalıştığı için bu adım hiçbir şeyi
+   bozmadı: root dosya izinlerini dinlemez.
+2. Sonra Dockerfile'a `USER node`.
+
+Dockerfile'a ayrıca iki önlem kondu:
+- `RUN mkdir -p /app/uploads && chown -R node:node /app/uploads` — ileride yeni
+  bir ortam kurulursa volume ilk oluşturulurken sahipliği imajdan kopyalanır
+- `ENV HOME=/home/node` — `npx prisma migrate deploy` ev dizinine yazmak
+  isteyip `/root`'a takılırsa migration patlar ve (yeni kural gereği) konteyner
+  hiç başlamazdı
+
+⚠️ *Bu adım yerelde doğrulanamadı* — iş yeri makinesinde Docker yok, ilk gerçek
+test Coolify derlemesi oldu. Riskin tavanı "bir deploy boşa gider"di: başarısız
+deploy eski konteyneri devirmiyor.
+
+**Doğrulama — üç aşama, üçü de geçti:**
+`/health` → `200 {"status":"ok","db":"up"}` (konteyner kalktı **ve** migration
+`node` kullanıcısıyla çalıştı) · terminalde `id` → `uid=1000(node)` ·
+**admin panelinden gerçek görsel yüklendi** → sorunsuz.
+
+📌 Üçüncüsü şart: yazma izni sorunu diğer iki testin hiçbirinde görünmezdi.
+
 ### Fontlar `next/font`e taşındı, CSP daraltıldı ✅
 
 **Sorun:** `globals.css` 1. satırındaki `@import` üç fontu (Cormorant Garamond,
@@ -777,7 +806,7 @@ olay müdahalesi; tahminle yetinilmeyecek).
 | 12 | Mevcut sitenin iyileştirilmesi (mimari rapor bulguları) | ⬜ Sonraki faz |
 | 13 | Yeni web sitesi tasarımı | ⬜ Sonraki faz |
 | 12a | Dockerfile: migration hatasında dur + `/health` ucu | ✅ Tamamlandı, canlıda doğrulandı (5 Ağu) |
-| 12b | Dockerfile: `USER node` | ⬜ Bekliyor — önce uploads volume sahipliği ölçülmeli |
+| 12b | Dockerfile: `USER node` | ✅ Tamamlandı — volume önce chown'landı, görsel yükleme canlıda doğrulandı (5 Ağu) |
 | 8+ | Sonraki maddeler (yapılandırılmış logging, global exception filter…) | ⬜ Bekliyor |
 
 ### Sonraya not edilenler (bu turda ele alınmıyor)

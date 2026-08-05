@@ -43,10 +43,22 @@ Ayrıntılar: **"İş yeri oturumu — 5 Ağustos"** bölümü.
 
 ## ⚡ SIRADAKİ İŞLER
 
-### 1️⃣ Dockerfile sertleştirme (mimari rapor Ö-4)
-Güvenlik listesinin kalan son maddesi: `USER node` (konteyner root olarak
-çalışmasın), migration hatasında derlemenin durması, `/health` ucu. Orta
-zorlukta ve **iş yerinden doğrulanabilir** — deploy loglarından okunur.
+### 1️⃣ `USER node` — Dockerfile sertleştirmesinin kalan ayağı
+Ö-4'ün diğer iki ayağı (migration hatasında durma, `/health`) 5 Ağustos'ta
+kapandı. Kalan tek iş: konteynerin `root` yerine `node` kullanıcısıyla
+çalışması.
+
+⚠️ **Önce ölçüm gerekiyor, doğrudan yapılmamalı.** Yüklenen görseller
+`UPLOAD_DIR` altında tutuluyor ve `/uploads/*` olarak servis ediliyor; bu
+klasör Coolify'da kalıcı bir volume olmak zorunda (yoksa her deploy'da kapaklar
+silinirdi, silinmiyor). Docker'da **mevcut bir volume mount edildiğinde
+sahipliği korunur** — imajdaki `chown` ona işlemez. Volume `root`'a aitse
+konteyner `node` kullanıcısına geçtiğinde oraya **yazamaz** ve görsel yükleme
+kırılır. Üstelik sessizce: bir kapak yüklenmeye çalışılana kadar her şey normal
+görünür.
+
+Sıra: **(1)** Coolify → `kuronexus-backend` → Storages sekmesinden mount'un
+yerini gör, **(2)** klasörün sahipliğini ölç, **(3)** ancak ondan sonra karar ver.
 
 ### 2️⃣ ⚠️ Slug altyapısı (K-2, K-3, R-1) — ÖNCE PLAN GEREKİR
 `BookEntry.slug` kolonu + `SlugHistory` + 301 yönlendirme, ardından `getDetail`
@@ -559,6 +571,40 @@ yeterli kanıt: token artık yanıt gövdesinde hiç gönderilmiyor ve kodda
 olmadığı **kod düzeyinde kesin** (controller `{ user }` döndürüyor) ama canlıda
 ayrıca ölçülmedi; işlevsel kanıt yeterli görüldü.
 
+### Dockerfile: migration hatası artık yutulmuyor + `/health` ucu ✅ (`98cadb0`)
+
+#### 🔴 Bulgu — başlangıç komutu hatayı gizliyordu
+Konteynerin başlangıç satırı şuydu:
+```sh
+npx prisma migrate deploy || echo 'Migration warning — continuing' && node dist/main
+```
+`sh`de `||` ve `&&` **aynı önceliktedir** ve soldan sağa okunur, yani
+`((A || B) && C)`. Migration patlarsa `echo` çalışıyor, `echo` her zaman
+başarılı oluyor, zincir başarılı sayılıyor ve **uygulama yine de başlıyordu** —
+kodun beklediği tablolar olmadan.
+
+Bu projede o durum en sinsi arıza biçimine dönüşür: site 200 döner, sayfalar
+açılır, **raflar sessizce boş gelir** (`catch { return [] }`, bulgu Ö-8). Daha
+kötüsü, yarım göçmüş bir şemaya yazma yapılabilir.
+
+**Düzeltme:** `npx prisma migrate deploy && node dist/main`. Migration
+başarısız olursa konteyner hiç başlamaz; Coolify başarısız deploy'da eski
+konteyneri devirmediği için site ayakta kalır ve gerçek hata deploy logunda
+görünür. **Sessiz bozulma yerine gürültülü duruş.**
+
+📌 *Bu düzeltme geri alınmamalı.* Eski zincir hatayı çözmüyordu, gizliyordu.
+
+#### `/health` — veritabanına gerçekten dokunan tür
+Boş bir `{ ok: true }` bu sistemde işe yaramazdı: site DB olmadan da 200
+dönüyor. Uç `SELECT 1` ile veritabanına dokunuyor:
+`200 {status:"ok",db:"up"}` / `503 {status:"error",db:"down"}`.
+`@Public()` (izleme aracı giriş yapamaz) + `@SkipThrottle()` (düzenli yoklama
+rate limit'i tüketmesin).
+
+Canlı doğrulama: `GET https://api.kuronexus.com/health` → `200`,
+`{"status":"ok","db":"up"}`. Tek istek hem yeni kodun yayında olduğunu hem de
+DB bağlantısının sağlıklı olduğunu kanıtlıyor — kimlik bilgisi gerektirmeden.
+
 ### Fontlar `next/font`e taşındı, CSP daraltıldı ✅
 
 **Sorun:** `globals.css` 1. satırındaki `@import` üç fontu (Cormorant Garamond,
@@ -730,7 +776,9 @@ olay müdahalesi; tahminle yetinilmeyecek).
 | 11 | 🔴 Sır rotasyonu (sohbete yapıştırılan değerler) | ✅ Tamamlandı — 1–4 rotate edildi/kaldırıldı, 7 silindi, 5–6 kabul edilmiş artık risk |
 | 12 | Mevcut sitenin iyileştirilmesi (mimari rapor bulguları) | ⬜ Sonraki faz |
 | 13 | Yeni web sitesi tasarımı | ⬜ Sonraki faz |
-| 8+ | Sonraki maddeler (Dockerfile sertleştirme, /health, logging…) | ⬜ Bekliyor |
+| 12a | Dockerfile: migration hatasında dur + `/health` ucu | ✅ Tamamlandı, canlıda doğrulandı (5 Ağu) |
+| 12b | Dockerfile: `USER node` | ⬜ Bekliyor — önce uploads volume sahipliği ölçülmeli |
+| 8+ | Sonraki maddeler (yapılandırılmış logging, global exception filter…) | ⬜ Bekliyor |
 
 ### Sonraya not edilenler (bu turda ele alınmıyor)
 

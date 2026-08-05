@@ -28,6 +28,8 @@ işler artık "açık güvenlik açığı" değil, iyileştirme sırası.
 | CSP | ✅ **Zorunlu** (report-only değil), canlıda doğrulandı |
 | Sırlar | ✅ `JWT_SECRET`, `DATABASE_URL`, `APIFY_TOKEN`, `KAGGLE_API_TOKEN` rotate |
 | Oturum | ✅ **HttpOnly + Secure + SameSite=Lax çerez** — token JavaScript'e kapalı |
+| Konteyner | ✅ `root` değil, `node` kullanıcısı |
+| Futbol oyuncu fotoğrafları | ⚠️ **Görünmüyor** — CSP kaynaklı, bilinçli olarak bekletiliyor (aşağıda) |
 
 ## ✅ 5 Ağustos'ta kapananlar
 
@@ -36,6 +38,7 @@ işler artık "açık güvenlik açığı" değil, iyileştirme sırası.
    Google'a gitmiyor (iki fazlı, ölçümle doğrulandı)
 3. **Dockerfile sertleştirildi (Ö-4)** — migration hatası artık yutulmuyor,
    `/health` ucu eklendi, konteyner `root` yerine `node` kullanıcısıyla çalışıyor
+4. **Kadro düzeltme ucuna DTO doğrulaması (Ö-2)** — gövde hiç denetlenmiyordu
 4. Devir notundaki `backend/.env` maddesi **düştü** — o dosya iş yeri PC'sinde
    hiç yokmuş, dolayısıyla bayat sır de yok
 
@@ -54,6 +57,52 @@ değil, yani lokal veritabanı yok → migration **doğrudan üretim veritabanı
 ilk kez çalışacak. 250 kitaplık gerçek veri var. Başlamadan önce: taze yedek,
 yazılı geri alma senaryosu, tercihen bir kopya DB üzerinde prova.
 Aceleye getirilmemeli.
+
+---
+
+## ⚠️ AÇIK ARIZA — futbol oyuncu fotoğrafları görünmüyor (5 Ağustos 2026)
+
+**Belirti:** Kadro ızgarası, transfer haberleri ve oyuncu detay sayfasında
+oyuncu fotoğrafları boş.
+
+**Sebep — ölçüldü, tahmin edilmedi:** Veri sağlam. `/football/squad` ucundan
+alınan 35 oyuncunun **35'inde de** fotoğraf adresi dolu ve güncel:
+`https://img.a.transfermarkt.technology/...`. Sorun tamamen görüntüleme
+tarafında: bu adres CSP'nin `img-src` beyaz listesinde **yok**, tarayıcı
+görselleri engelliyor.
+
+**Ne zamandan beri:** 4 Ağustos akşamı CSP zorunlu hâle geldiğinde. 5 Ağustos
+değişiklikleriyle ilgisi yok.
+
+❌ **İlk tahmin yanlıştı:** "Kaggle API'yi sildiğimiz için" düşünüldü. Kaggle
+token'ı silinmedi, **rotate edildi ve doğrulandı**; tamamen çıkılan servis
+Apify'dı. Veritabanındaki 35 fotoğraf adresi bunun kanıtı.
+
+📌 **Ders — CSP turu rota envanteriyle yapılmalı.** 4 Ağustos'taki tarama
+"genel sayfalar + 10 admin sayfası" olarak yapılmıştı; futbol sayfaları
+listede yoktu ve tek eksik kaynak orada saklıydı. Bir sonraki CSP değişikliğinde
+tarama, sayfa listesi üzerinden değil **tüm rotalar** üzerinden yapılmalı.
+
+*(Aynı hata ikinci kez yapılmasın diye tüm futbol uçlarındaki dış adresler
+toptan tarandı — `img.a.transfermarkt.technology` dışında engellenen başka
+kaynak yok.)*
+
+### İki çözüm — bilinçli olarak ERTELENDİ
+| | Yöntem | Bedeli |
+|---|---|---|
+| **A** | Adresi `img-src`e ekle (tek satır) | Her ziyaretçinin IP'si Transfermarkt'a gider — **aynı gün Google fontları için kapattığımız sızıntının aynısı** |
+| **B** | Fotoğrafları kendi sunucumuza aynala | Doğru çözüm. Desen zaten var: kitap kapakları `book-cover.service.ts` ile indiriliyor. Ama senkron kodunun içine giriyor |
+
+**Karar (kullanıcı, 5 Ağustos):** İkisi de şimdi yapılmayacak. Gerekçe: IP
+sızıntısı aynı gün kapatıldı, aynı gün geri açmak tutarsız olurdu. Fotoğraflar
+birkaç gün eksik kalabilir.
+
+**B, futbol fazının ilk maddelerinden biri olacak** — o kod zaten elden
+geçirilecek, aynalama oraya doğal biçimde girer. Planlanırken: senkron
+sırasında mı indirilecek, mevcut 35 oyuncu için geri dolum nasıl olacak,
+`/uploads` altında hangi klasör.
+
+---
 
 ### Sonraki turda ele alınacaklar
 - `script-src 'unsafe-inline'` → nonce tabanlı (bilinen kalan zayıflık)
@@ -590,6 +639,37 @@ Canlı doğrulama: `GET https://api.kuronexus.com/health` → `200`,
 `{"status":"ok","db":"up"}`. Tek istek hem yeni kodun yayında olduğunu hem de
 DB bağlantısının sağlıklı olduğunu kanıtlıyor — kimlik bilgisi gerektirmeden.
 
+### Kadro düzeltme ucuna DTO doğrulaması ✅ (`bc32f5b`, Ö-2)
+
+`POST /admin/football/squad-overrides` ucunda `@Body()` **satır içi bir
+TypeScript tipiyle** işaretliydi. TS tipleri derlemede yok olduğu için
+`ValidationPipe`in doğrulayacağı bir sınıf kalmıyordu — yani `whitelist` ve
+`forbidNonWhitelisted` açık olmasına rağmen **gövde hiç denetlenmiyordu.**
+Projedeki tek istisna buydu; diğer uçların hepsinde DTO sınıfı var.
+
+Somut sonuçları: `age: "abc"` → Prisma seviyesinde **500** (temiz 400 yerine) ·
+hiçbir alan gönderilmezse şemada tüm alanlar opsiyonel olduğu için **her alanı
+boş bir kadro kaydı sessizce oluşuyordu** · fazladan alanlar reddedilmiyordu.
+
+`CreateSquadOverrideDto` yazıldı. Ucun iki kullanımı ("tmPlayerId verilirse
+gizle / name verilirse ekle") `@ValidateIf` ile doğrulama katmanına taşındı:
+ikisinden biri mutlaka gelmeli. `photo` yalnızca `http(s)://` ya da
+`/uploads/` ile başlayabiliyor (`javascript:`/`data:` reddedilir).
+
+Panelin kırılmadığı önceden kontrol edildi: `admin/squad/page.tsx` `age`i zaten
+`Number()` ile gönderiyor, boş alanları `undefined` yapıyor.
+
+📌 *Yan bulgu, düzeltilmedi:* `DELETE squad-overrides/:id` var olmayan bir id
+ile çağrılırsa Prisma `P2025` fırlatıyor ve **500** dönüyor; doğrusu 404. Nokta
+atışı bir `try/catch` aynı sorunun onlarca uçtaki hâlini gizlerdi — asıl çözüm
+madde 11'deki global exception filter.
+
+📌 *Biçimlendirme notu:* `football.controller.ts` ve `football.service.ts`
+prettier'a uymuyor, **ama bu değişiklikten önce de uymuyordu** (HEAD hâli
+kontrol edildi). `prettier --write` çalıştırılmadı: 3 dosyalık bir düzeltme
+alakasız yüzlerce satırlık biçim değişikliğinin içinde kaybolmasın (4 Ağustos'ta
+alınan kararla aynı çizgi).
+
 ### Konteyner artık `root` değil — `USER node` ✅ (`bda644e`)
 
 **Neden değerli:** Uygulamada bir açık bulunursa saldırgan konteyner içinde tam
@@ -807,6 +887,8 @@ olay müdahalesi; tahminle yetinilmeyecek).
 | 13 | Yeni web sitesi tasarımı | ⬜ Sonraki faz |
 | 12a | Dockerfile: migration hatasında dur + `/health` ucu | ✅ Tamamlandı, canlıda doğrulandı (5 Ağu) |
 | 12b | Dockerfile: `USER node` | ✅ Tamamlandı — volume önce chown'landı, görsel yükleme canlıda doğrulandı (5 Ağu) |
+| 12c | `createSquadOverride` için DTO (Ö-2) | ✅ Tamamlandı (5 Ağu) |
+| 14 | ⚠️ Futbol oyuncu fotoğrafları (CSP) | ⬜ **Bilinçli ertelendi** — futbol fazında aynalama ile çözülecek |
 | 8+ | Sonraki maddeler (yapılandırılmış logging, global exception filter…) | ⬜ Bekliyor |
 
 ### Sonraya not edilenler (bu turda ele alınmıyor)

@@ -8,6 +8,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { FootballService } from './football.service';
+import { CreateSquadOverrideDto } from './dto/create-squad-override.dto';
 import { Public } from '../common/decorators/public.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 
@@ -59,17 +60,8 @@ export class FootballAdminController {
   }
 
   @Post('squad-overrides')
-  createSquadOverride(
-    @Body()
-    body: {
-      tmPlayerId?: string;
-      name?: string;
-      position?: string;
-      age?: number;
-      photo?: string;
-    },
-  ) {
-    return this.football.createSquadOverride(body);
+  createSquadOverride(@Body() dto: CreateSquadOverrideDto) {
+    return this.football.createSquadOverride(dto);
   }
 
   @Delete('squad-overrides/:id')

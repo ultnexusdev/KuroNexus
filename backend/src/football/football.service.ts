@@ -5,6 +5,7 @@ import { Readable } from 'stream';
 import csv = require('csv-parser');
 import * as unzipper from 'unzipper';
 import { PrismaService } from '../prisma/prisma.service';
+import type { CreateSquadOverrideDto } from './dto/create-squad-override.dto';
 import type { Prisma } from '../generated/prisma/client';
 
 // transfermarkt-datasets'in resmî yayın kanalı Kaggle'dır (CSV'ler git'te değil).
@@ -202,14 +203,12 @@ export class FootballService {
     });
   }
 
-  /** tmPlayerId verilirse o oyuncu gizlenir; name verilirse kadroya eklenir. */
-  async createSquadOverride(input: {
-    tmPlayerId?: string;
-    name?: string;
-    position?: string;
-    age?: number;
-    photo?: string;
-  }) {
+  /**
+   * tmPlayerId verilirse o oyuncu gizlenir; name verilirse kadroya eklenir.
+   * Bu iki durumdan birinin geldiğini `CreateSquadOverrideDto` garanti ediyor —
+   * doğrulama tek yerde, burada tekrarlanmıyor.
+   */
+  async createSquadOverride(input: CreateSquadOverrideDto) {
     if (input.tmPlayerId) {
       // Aynı oyuncu iki kez gizlenmeye çalışılırsa sessizce mevcut kaydı döner
       return this.prisma.squadOverride.upsert({

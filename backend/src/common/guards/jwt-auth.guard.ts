@@ -8,6 +8,7 @@ import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import type { Request } from 'express';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import { readAuthCookie } from '../auth-cookie';
 import { PrismaService } from '../../prisma/prisma.service';
 import type {
   AuthenticatedUser,
@@ -34,7 +35,7 @@ export class JwtAuthGuard implements CanActivate {
     const request = context
       .switchToHttp()
       .getRequest<Request & { user?: AuthenticatedUser }>();
-    const token = this.extractBearerToken(request);
+    const token = this.extractToken(request);
     if (!token) {
       throw new UnauthorizedException('AUTH.TOKEN_MISSING');
     }
@@ -60,7 +61,18 @@ export class JwtAuthGuard implements CanActivate {
     return true;
   }
 
-  private extractBearerToken(request: Request): string | undefined {
+  /**
+   * Asıl kaynak HttpOnly çerez. `Authorization: Bearer` yedeği kalıcı olarak
+   * duruyor: Next sunucusu sayfa render'ında çerezi kendisi okuyup `/auth/me`ye
+   * bu başlıkla soruyor, orada çerez otomatik iletilmiyor. Tarayıcıdaki
+   * JavaScript token'ı artık hiçbir yerden okuyamadığı için bu yedek saldırgana
+   * kapı açmıyor — başlığa koyacak token'ı bulamıyor.
+   */
+  private extractToken(request: Request): string | undefined {
+    const fromCookie = readAuthCookie(request.headers.cookie);
+    if (fromCookie) {
+      return fromCookie;
+    }
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
     return type === 'Bearer' ? token : undefined;
   }

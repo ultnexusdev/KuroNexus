@@ -52,7 +52,13 @@ async function bootstrap(): Promise<void> {
       transform: true,
     }),
   );
-  app.enableCors({ origin: process.env.CORS_ORIGIN?.split(',') ?? true });
+  // `credentials: true` olmadan tarayıcı oturum çerezini API'ye göndermez —
+  // giriş yapılır ama sonraki her istek 401 döner. Bu yüzden kaynak listesi de
+  // üretimde mutlaka `CORS_ORIGIN` ile daraltılmış olmalı.
+  app.enableCors({
+    origin: process.env.CORS_ORIGIN?.split(',') ?? true,
+    credentials: true,
+  });
   await app.listen(process.env.PORT ?? 3001);
 }
 void bootstrap();

@@ -37,6 +37,28 @@ COPY --from=build /app/prisma ./prisma
 COPY --from=build /app/prisma.config.ts ./prisma.config.ts
 COPY --from=build /app/package.json ./package.json
 
+# Yuklenen gorsellerin klasoru.
+#
+# Uretimde buraya kalici bir Docker volume mount ediliyor ve MOUNT EDILEN BIR
+# VOLUME KENDI SAHIPLIGINI KORUR — imajdaki chown ona islemez. O yuzden
+# uretimdeki volume 5 Agustos 2026'da konteyner icinden bir kez
+# `chown -R node:node /app/uploads` ile devredildi (olculdu: oncesinde root'tu).
+#
+# Buradaki satir ILERIDE yeni bir ortam kurulursa gecerli: volume ilk kez
+# olusturulurken Docker sahipligi imajdaki klasorden kopyalar.
+RUN mkdir -p /app/uploads && chown -R node:node /app/uploads
+
+# npm/npx ev dizinine yazmak isteyebilir; node kullanicisinin yazabilecegi yeri
+# acikca gosteriyoruz. Tanimsiz birakilirsa arac /root'a yazmayi deneyip
+# migration adiminda patlayabilir.
+ENV HOME=/home/node
+
+# Konteyner artik root DEGIL.
+# Gerekce: uygulamada bir acik bulunursa saldirgan konteyner icinde tam
+# yetkiyle degil, sinirli bir kullaniciyla baslar. Uygulama calisirken yalnizca
+# /app/uploads'a yazmasi gerekiyor, o da yukarida node'a devredildi.
+USER node
+
 EXPOSE 3001
 
 # Container ayaga kalkarken bekleyen migration'lar uygulanir, sonra API baslar.

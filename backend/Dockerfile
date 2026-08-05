@@ -39,5 +39,16 @@ COPY --from=build /app/package.json ./package.json
 
 EXPOSE 3001
 
-# Container ayaga kalkarken bekleyen migration'lar uygulanir, sonra API baslar
-CMD ["sh", "-c", "npx prisma migrate deploy || echo 'Migration warning — continuing' && node dist/main"]
+# Container ayaga kalkarken bekleyen migration'lar uygulanir, sonra API baslar.
+#
+# ONCEKI HALI HATALIYDI:
+#   npx prisma migrate deploy || echo '...' && node dist/main
+# sh'de || ve && ayni oncelikte ve soldan saga okunur, yani ((A || B) && C).
+# Migration patlasa echo calisiyor, echo her zaman basarili oluyor ve uygulama
+# YINE DE basliyordu — kodun bekledigi tablolar olmadan. Bu projede o durum
+# sessiz bir arizaya donusuyor: site 200 doner, raflar bos gelir (bulgu O-8).
+#
+# Artik migration basarisiz olursa konteyner hic baslamaz. Coolify basarisiz
+# deploy'da eski konteyneri devirmedigi icin site ayakta kalir ve gercek hata
+# deploy logunda gorunur — sessiz bozulma yerine gurultulu durus.
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main"]

@@ -39,6 +39,10 @@ işler artık "açık güvenlik açığı" değil, iyileştirme sırası.
 3. **Dockerfile sertleştirildi (Ö-4)** — migration hatası artık yutulmuyor,
    `/health` ucu eklendi, konteyner `root` yerine `node` kullanıcısıyla çalışıyor
 4. **Kadro düzeltme ucuna DTO doğrulaması (Ö-2)** — gövde hiç denetlenmiyordu
+5. **Favicon + apple-icon** — `create-next-app` varsayılanı hâlâ duruyordu
+   (dosya birebir 25931 bayt, framework logosu). `黒` glifi sitenin kendi
+   fontuyla (Yuji Boku) render edilip ikon setine çevrildi. Aynı işte
+   `public/`teki 5 kurulum artığı SVG silindi — hiçbiri kullanılmıyordu
 4. Devir notundaki `backend/.env` maddesi **düştü** — o dosya iş yeri PC'sinde
    hiç yokmuş, dolayısıyla bayat sır de yok
 
@@ -103,6 +107,19 @@ sırasında mı indirilecek, mevcut 35 oyuncu için geri dolum nasıl olacak,
 `/uploads` altında hangi klasör.
 
 ---
+
+### 🔎 Birkaç gün sonra kontrol edilecek — favicon
+5 Ağustos'ta favicon değiştirildi (`ac18388`). **Google sonuçlarında hemen
+görünmez**, favicon'ları kendi takvimine göre yeniden tarar: birkaç gün ile
+birkaç hafta arası. Eski üçgen görünmeye devam ederse yanlış bir şey yok.
+
+Hızlandırmanın tek yolu **Google Search Console** → ana sayfa için "Dizine
+ekleme isteği". Search Console kurulu mu bilinmiyor; kurulu değilse madde 10'daki
+SEO işi (sitemap, robots) için zaten gerekecek — ikisi birlikte yapılabilir.
+
+Tarayıcıda göremezsen sebep büyük ihtimalle **önbellek**: favicon'lar `Ctrl+F5`
+ile bile tazelenmez. Kesin kontrol: `https://kuronexus.com/favicon.ico`
+adresini doğrudan açmak.
 
 ### Sonraki turda ele alınacaklar
 - `script-src 'unsafe-inline'` → nonce tabanlı (bilinen kalan zayıflık)

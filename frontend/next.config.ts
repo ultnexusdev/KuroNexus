@@ -31,17 +31,17 @@ const apiUrl = new URL(process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001
  *   fonts.googleapis.com → globals.css 1. satırdaki @import (stil dosyası)
  *   fonts.gstatic.com    → o @import'un çektiği font dosyaları (29 ihlal)
  *
- * ⚠️ YANLIŞ ÇIKAN ESKİ VARSAYIM: yukarıdaki "fontlar self-host" notu yalnızca
- * `layout.tsx`teki dört font için doğruydu (next/font/google). `globals.css`
- * ayrı bir `@import` ile üç fontu daha doğrudan Google'dan çekiyor. Projede
- * iki font yöntemi var.
+ * ✅ FONT GİRDİLERİ KALDIRILDI (2026-08-05). O üç font (Cormorant Garamond,
+ * Corinthia, Noto Sans Old Turkic) `next/font/google`'a taşındı ve artık
+ * self-host ediliyor; `globals.css` 1. satırdaki `@import` silindi. Projede
+ * artık **tek** font yöntemi var — eskiden ikisi vardı ve buradaki "fontlar
+ * self-host" notu yalnızca `layout.tsx`teki dördü için doğruydu.
  *
- * 📌 SONRAKİ İŞ — bu üç fontu da `next/font/google`'a taşı, `globals.css`
- * 1. satırdaki @import'u sil, sonra `fonts.googleapis.com` +
- * `fonts.gstatic.com` girdilerini buradan çıkar. Kazanç: dış istek sıfırlanır,
- * ziyaretçi IP'si Google'a gitmez, render engelleyen bir tur eksilir, CSP
- * daralır. Bugün yapılmadı çünkü fontlar derleme anında indiği için değişiklik
- * lokalde doğrulanamıyor (ev makinesinde Node dışarı çıkamıyor).
+ * Kaldırmadan önce ölçüldü (tahmin edilmedi): canlı sitede 4 rota
+ * (`/`, `/dark-stories`, `/dark-stories/category/kitap`, `/en`) ve her birinin
+ * yüklediği CSS paketleri indirilip tarandı → `fonts.googleapis.com` ve
+ * `fonts.gstatic.com` için **0 referans**. Kazanç: ziyaretçi IP'si artık
+ * Google'a gitmiyor, render engelleyen bir dış istek turu eksildi.
  *
  * ⚠️ BİLİNEN ZAYIFLIK — `script-src 'unsafe-inline'`
  * Next.js App Router, hidrasyon için satır içi script üretiyor. Bunları
@@ -64,12 +64,11 @@ const CSP_DIRECTIVES = [
   // Next.js hidrasyon scriptleri satır içi; 'unsafe-eval' BİLEREK yok
   "script-src 'self' 'unsafe-inline'",
   // 16 dosyada style={{ }} kullanımı var + Next kendi stillerini satır içi basıyor
-  // googleapis: globals.css 1. satırdaki @import — taşınınca buradan çıkacak
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "style-src 'self' 'unsafe-inline'",
   `img-src 'self' data: blob: https://image.tmdb.org https://i.ytimg.com https://s4.anilist.co ${apiUrl.origin}`,
   `media-src 'self' ${apiUrl.origin}`,
-  // gstatic: yukarıdaki @import'un çektiği font dosyaları
-  "font-src 'self' data: https://fonts.gstatic.com",
+  // Tüm fontlar next/font ile self-host — dış font kaynağı yok
+  "font-src 'self' data:",
   `connect-src 'self' ${apiUrl.origin}`,
   "frame-src https://www.youtube-nocookie.com",
   "worker-src 'self' blob:",

@@ -96,8 +96,11 @@ export interface AuthenticatedUser {
   role: "ADMIN" | "EDITOR" | "VIEWER";
 }
 
+/**
+ * Token bilinçli olarak YOK: giriş yanıtı artık onu gövdede döndürmüyor,
+ * yalnızca HttpOnly çereze yazıyor. Arayüzün ihtiyacı olan tek şey kullanıcı.
+ */
 export interface LoginResult {
-  accessToken: string;
   user: AuthenticatedUser;
 }
 

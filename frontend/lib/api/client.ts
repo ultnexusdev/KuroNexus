@@ -36,11 +36,22 @@ export class ApiError extends Error {
   }
 }
 
+/**
+ * `credentials: "include"` tüm isteklere veriliyor.
+ *
+ * Oturum token'ı HttpOnly çerezde duruyor; JavaScript onu okuyup başlığa
+ * koyamaz (koyamaması zaten amaç). Tarayıcının çerezi kendiliğinden eklemesi
+ * için bu izin şart — API ayrı bir alan adında olduğundan varsayılan davranış
+ * çerezi göndermemek. Sunucu tarafındaki çağrılarda bu alan yok sayılır.
+ */
 export async function apiFetch<T>(
   path: string,
   init?: RequestInit,
 ): Promise<T> {
-  const response = await fetch(apiFetchUrl(path), init);
+  const response = await fetch(apiFetchUrl(path), {
+    ...init,
+    credentials: "include",
+  });
   if (!response.ok) {
     let messageKey = "API.REQUEST_FAILED";
     try {

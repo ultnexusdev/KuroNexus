@@ -3,7 +3,10 @@ import { cookies } from "next/headers";
 import { apiFetch } from "@/lib/api/client";
 import type { AuthenticatedUser } from "@/lib/api/types";
 
-const TOKEN_COOKIE = "kuronexus-token";
+// Backend'in yazdığı HttpOnly çerez (bkz. backend/src/common/auth-cookie.ts).
+// Sunucu bileşeni olduğumuz için okuyabiliyoruz; tarayıcıdaki JavaScript
+// okuyamıyor — değişikliğin bütün amacı bu.
+const TOKEN_COOKIE = "kuronexus-session";
 
 /**
  * "Bu ziyaretçi admin mi?" sorusunun sunucu tarafındaki tek yanıtı.

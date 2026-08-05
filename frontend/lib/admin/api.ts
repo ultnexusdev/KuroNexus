@@ -31,13 +31,15 @@ import type {
   WikiUniverseSummary,
   UniverseCategory,
 } from "../api/types";
-import { getToken } from "./auth";
 
-function authHeaders(): Record<string, string> {
-  const token = getToken();
-  return token ? { Authorization: `Bearer ${token}` } : {};
-}
-
+/**
+ * Kimlik artık isteklere elle eklenmiyor.
+ *
+ * Token HttpOnly çerezde duruyor ve tarayıcı onu her isteğe kendisi ekliyor
+ * (`apiFetch` içindeki `credentials: "include"`). JavaScript çerezi okuyamadığı
+ * için zaten `Authorization` başlığı kuramaz — eski `authHeaders()` yardımcısı
+ * ve `document.cookie` erişimi bu yüzden tamamen kaldırıldı.
+ */
 export function login(email: string, password: string): Promise<LoginResult> {
   return apiFetch<LoginResult>("/auth/login", {
     method: "POST",
@@ -46,10 +48,13 @@ export function login(email: string, password: string): Promise<LoginResult> {
   });
 }
 
+/** Çerezi sunucu yazdı, silmesi de onun işi. */
+export function logout(): Promise<void> {
+  return apiFetch<void>("/auth/logout", { method: "POST" });
+}
+
 export function fetchMe(): Promise<AuthenticatedUser> {
-  return apiFetch<AuthenticatedUser>("/auth/me", {
-    headers: authHeaders(),
-  });
+  return apiFetch<AuthenticatedUser>("/auth/me");
 }
 
 // universeId verilirse liste el yazması sırasına (orderIndex) göre döner
@@ -59,13 +64,11 @@ export function fetchAdminStories(
   const query = universeId
     ? `?universeId=${encodeURIComponent(universeId)}`
     : "";
-  return apiFetch<StorySummary[]>(`/admin/stories${query}`, {
-    headers: authHeaders(),
-  });
+  return apiFetch<StorySummary[]>(`/admin/stories${query}`);
 }
 
 export function fetchAdminStory(id: string): Promise<Story> {
-  return apiFetch<Story>(`/admin/stories/${id}`, { headers: authHeaders() });
+  return apiFetch<Story>(`/admin/stories/${id}`);
 }
 
 export interface StoryInput {
@@ -81,7 +84,7 @@ export interface StoryInput {
 export function createStory(input: StoryInput): Promise<Story> {
   return apiFetch<Story>("/admin/stories", {
     method: "POST",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
 }
@@ -92,7 +95,7 @@ export function updateStory(
 ): Promise<Story> {
   return apiFetch<Story>(`/admin/stories/${id}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
 }
@@ -101,7 +104,7 @@ export function updateStory(
 export function reorderStories(ids: string[]): Promise<{ updated: number }> {
   return apiFetch<{ updated: number }>("/admin/stories/reorder", {
     method: "PATCH",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ ids }),
   });
 }
@@ -109,7 +112,6 @@ export function reorderStories(ids: string[]): Promise<{ updated: number }> {
 export function deleteStory(id: string): Promise<Story> {
   return apiFetch<Story>(`/admin/stories/${id}`, {
     method: "DELETE",
-    headers: authHeaders(),
   });
 }
 
@@ -121,15 +123,11 @@ export interface UniverseInput {
 }
 
 export function fetchAdminUniverses(): Promise<WikiUniverseSummary[]> {
-  return apiFetch<WikiUniverseSummary[]>("/admin/universes", {
-    headers: authHeaders(),
-  });
+  return apiFetch<WikiUniverseSummary[]>("/admin/universes");
 }
 
 export function fetchAdminUniverse(id: string): Promise<WikiUniverseSummary> {
-  return apiFetch<WikiUniverseSummary>(`/admin/universes/${id}`, {
-    headers: authHeaders(),
-  });
+  return apiFetch<WikiUniverseSummary>(`/admin/universes/${id}`);
 }
 
 export function createUniverse(
@@ -137,7 +135,7 @@ export function createUniverse(
 ): Promise<WikiUniverseSummary> {
   return apiFetch<WikiUniverseSummary>("/admin/universes", {
     method: "POST",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
 }
@@ -148,7 +146,7 @@ export function updateUniverse(
 ): Promise<WikiUniverseSummary> {
   return apiFetch<WikiUniverseSummary>(`/admin/universes/${id}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
 }
@@ -156,7 +154,6 @@ export function updateUniverse(
 export function deleteUniverse(id: string): Promise<WikiUniverseSummary> {
   return apiFetch<WikiUniverseSummary>(`/admin/universes/${id}`, {
     method: "DELETE",
-    headers: authHeaders(),
   });
 }
 
@@ -176,15 +173,11 @@ export function fetchAdminWikiEntries(
   const query = universeId
     ? `?universeId=${encodeURIComponent(universeId)}`
     : "";
-  return apiFetch<AdminWikiEntrySummary[]>(`/admin/wiki-entries${query}`, {
-    headers: authHeaders(),
-  });
+  return apiFetch<AdminWikiEntrySummary[]>(`/admin/wiki-entries${query}`);
 }
 
 export function fetchAdminWikiEntry(id: string): Promise<WikiEntryDetail> {
-  return apiFetch<WikiEntryDetail>(`/admin/wiki-entries/${id}`, {
-    headers: authHeaders(),
-  });
+  return apiFetch<WikiEntryDetail>(`/admin/wiki-entries/${id}`);
 }
 
 export function createWikiEntry(
@@ -192,7 +185,7 @@ export function createWikiEntry(
 ): Promise<WikiEntryDetail> {
   return apiFetch<WikiEntryDetail>("/admin/wiki-entries", {
     method: "POST",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
 }
@@ -203,7 +196,7 @@ export function updateWikiEntry(
 ): Promise<WikiEntryDetail> {
   return apiFetch<WikiEntryDetail>(`/admin/wiki-entries/${id}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
 }
@@ -211,7 +204,6 @@ export function updateWikiEntry(
 export function deleteWikiEntry(id: string): Promise<WikiEntryDetail> {
   return apiFetch<WikiEntryDetail>(`/admin/wiki-entries/${id}`, {
     method: "DELETE",
-    headers: authHeaders(),
   });
 }
 
@@ -223,9 +215,7 @@ export interface AmbientTrackInput {
 }
 
 export function fetchAdminAmbientTracks(): Promise<AmbientTrack[]> {
-  return apiFetch<AmbientTrack[]>("/ambient-tracks", {
-    headers: authHeaders(),
-  });
+  return apiFetch<AmbientTrack[]>("/ambient-tracks");
 }
 
 export function createAmbientTrack(
@@ -233,7 +223,7 @@ export function createAmbientTrack(
 ): Promise<AmbientTrack> {
   return apiFetch<AmbientTrack>("/ambient-tracks", {
     method: "POST",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
 }
@@ -244,7 +234,7 @@ export function updateAmbientTrack(
 ): Promise<AmbientTrack> {
   return apiFetch<AmbientTrack>(`/admin/ambient-tracks/${id}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
 }
@@ -264,9 +254,7 @@ export interface SquadOverride {
 }
 
 export function fetchSquadOverrides(): Promise<SquadOverride[]> {
-  return apiFetch<SquadOverride[]>("/admin/football/squad-overrides", {
-    headers: authHeaders(),
-  });
+  return apiFetch<SquadOverride[]>("/admin/football/squad-overrides");
 }
 
 export function createSquadOverride(input: {
@@ -278,7 +266,7 @@ export function createSquadOverride(input: {
 }): Promise<SquadOverride> {
   return apiFetch<SquadOverride>("/admin/football/squad-overrides", {
     method: "POST",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
 }
@@ -286,7 +274,6 @@ export function createSquadOverride(input: {
 export function deleteSquadOverride(id: string): Promise<void> {
   return apiFetch<void>(`/admin/football/squad-overrides/${id}`, {
     method: "DELETE",
-    headers: authHeaders(),
   });
 }
 
@@ -311,9 +298,7 @@ export function fetchAdminTransferNews(
   const qs = universeId
     ? `?universeId=${encodeURIComponent(universeId)}`
     : "";
-  return apiFetch<TransferNewsItem[]>(`/transfer-news${qs}`, {
-    headers: authHeaders(),
-  });
+  return apiFetch<TransferNewsItem[]>(`/transfer-news${qs}`);
 }
 
 // Haber formundaki oyuncu seçici — yerel TM kadrosundan
@@ -321,9 +306,7 @@ export function searchTransferNewsPlayers(
   query?: string,
 ): Promise<TransferNewsPlayer[]> {
   const qs = query ? `?q=${encodeURIComponent(query)}` : "";
-  return apiFetch<TransferNewsPlayer[]>(`/transfer-news/players${qs}`, {
-    headers: authHeaders(),
-  });
+  return apiFetch<TransferNewsPlayer[]>(`/transfer-news/players${qs}`);
 }
 
 export function createTransferNews(
@@ -331,7 +314,7 @@ export function createTransferNews(
 ): Promise<TransferNewsItem> {
   return apiFetch<TransferNewsItem>("/transfer-news", {
     method: "POST",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
 }
@@ -339,7 +322,6 @@ export function createTransferNews(
 export function deleteTransferNews(id: string): Promise<void> {
   return apiFetch<void>(`/transfer-news/${id}`, {
     method: "DELETE",
-    headers: authHeaders(),
   });
 }
 
@@ -359,7 +341,6 @@ export interface MovieEntryInput {
 export function searchTmdbMovies(query: string): Promise<TmdbSearchResult[]> {
   return apiFetch<TmdbSearchResult[]>(
     `/admin/movies/search?q=${encodeURIComponent(query)}`,
-    { headers: authHeaders() },
   );
 }
 
@@ -368,9 +349,7 @@ export function searchTmdbMovies(query: string): Promise<TmdbSearchResult[]> {
  * Onluk seçim istemcide yapılır — "Yenile" her basışta TMDB'ye gitmesin diye.
  */
 export function fetchMovieSuggestions(): Promise<TmdbSearchResult[]> {
-  return apiFetch<TmdbSearchResult[]>("/admin/movies/suggestions", {
-    headers: authHeaders(),
-  });
+  return apiFetch<TmdbSearchResult[]>("/admin/movies/suggestions");
 }
 
 /**
@@ -382,7 +361,7 @@ export function dismissMovieSuggestion(
 ): Promise<SuggestionDismissal> {
   return apiFetch<SuggestionDismissal>("/admin/movies/suggestions/dismiss", {
     method: "POST",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ tmdbId }),
   });
 }
@@ -393,7 +372,7 @@ export function restoreMovieSuggestion(
 ): Promise<SuggestionDismissal> {
   return apiFetch<SuggestionDismissal>(
     `/admin/movies/suggestions/dismiss/${tmdbId}`,
-    { method: "DELETE", headers: authHeaders() },
+    { method: "DELETE" },
   );
 }
 
@@ -403,9 +382,7 @@ export interface SuggestionDismissal {
 }
 
 export function fetchAdminMovies(): Promise<MovieEntryRecord[]> {
-  return apiFetch<MovieEntryRecord[]>("/admin/movies", {
-    headers: authHeaders(),
-  });
+  return apiFetch<MovieEntryRecord[]>("/admin/movies");
 }
 
 export function createMovieEntry(
@@ -413,7 +390,7 @@ export function createMovieEntry(
 ): Promise<MovieEntryRecord> {
   return apiFetch<MovieEntryRecord>("/admin/movies", {
     method: "POST",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
 }
@@ -424,7 +401,7 @@ export function updateMovieEntry(
 ): Promise<MovieEntryRecord> {
   return apiFetch<MovieEntryRecord>(`/admin/movies/${id}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
 }
@@ -432,7 +409,6 @@ export function updateMovieEntry(
 export function deleteMovieEntry(id: string): Promise<MovieEntryRecord> {
   return apiFetch<MovieEntryRecord>(`/admin/movies/${id}`, {
     method: "DELETE",
-    headers: authHeaders(),
   });
 }
 
@@ -452,14 +428,11 @@ export interface ShowEntryInput {
 export function searchTmdbShows(query: string): Promise<TmdbSearchResult[]> {
   return apiFetch<TmdbSearchResult[]>(
     `/admin/shows/search?q=${encodeURIComponent(query)}`,
-    { headers: authHeaders() },
   );
 }
 
 export function fetchShowSuggestions(): Promise<TmdbSearchResult[]> {
-  return apiFetch<TmdbSearchResult[]>("/admin/shows/suggestions", {
-    headers: authHeaders(),
-  });
+  return apiFetch<TmdbSearchResult[]>("/admin/shows/suggestions");
 }
 
 export function dismissShowSuggestion(
@@ -467,7 +440,7 @@ export function dismissShowSuggestion(
 ): Promise<SuggestionDismissal> {
   return apiFetch<SuggestionDismissal>("/admin/shows/suggestions/dismiss", {
     method: "POST",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ tmdbId }),
   });
 }
@@ -477,14 +450,12 @@ export function restoreShowSuggestion(
 ): Promise<SuggestionDismissal> {
   return apiFetch<SuggestionDismissal>(
     `/admin/shows/suggestions/dismiss/${tmdbId}`,
-    { method: "DELETE", headers: authHeaders() },
+    { method: "DELETE" },
   );
 }
 
 export function fetchAdminShows(): Promise<ShowEntryRecord[]> {
-  return apiFetch<ShowEntryRecord[]>("/admin/shows", {
-    headers: authHeaders(),
-  });
+  return apiFetch<ShowEntryRecord[]>("/admin/shows");
 }
 
 export function createShowEntry(
@@ -492,7 +463,7 @@ export function createShowEntry(
 ): Promise<ShowEntryRecord> {
   return apiFetch<ShowEntryRecord>("/admin/shows", {
     method: "POST",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
 }
@@ -503,7 +474,7 @@ export function updateShowEntry(
 ): Promise<ShowEntryRecord> {
   return apiFetch<ShowEntryRecord>(`/admin/shows/${id}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
 }
@@ -511,7 +482,6 @@ export function updateShowEntry(
 export function deleteShowEntry(id: string): Promise<ShowEntryRecord> {
   return apiFetch<ShowEntryRecord>(`/admin/shows/${id}`, {
     method: "DELETE",
-    headers: authHeaders(),
   });
 }
 
@@ -534,7 +504,7 @@ export function updateShowSeason(
 ): Promise<ShowEntryRecord> {
   return apiFetch<ShowEntryRecord>(`/admin/shows/seasons/${seasonId}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
 }
@@ -545,7 +515,7 @@ export function completeThroughShowSeason(
 ): Promise<ShowEntryRecord> {
   return apiFetch<ShowEntryRecord>(
     `/admin/shows/seasons/${seasonId}/complete-through`,
-    { method: "POST", headers: authHeaders() },
+    { method: "POST" },
   );
 }
 
@@ -556,21 +526,17 @@ export interface CategoryInput {
 }
 
 export function fetchAdminCategories(): Promise<UniverseCategory[]> {
-  return apiFetch<UniverseCategory[]>("/admin/universe-categories", {
-    headers: authHeaders(),
-  });
+  return apiFetch<UniverseCategory[]>("/admin/universe-categories");
 }
 
 export function fetchAdminCategory(id: string): Promise<UniverseCategory> {
-  return apiFetch<UniverseCategory>(`/admin/universe-categories/${id}`, {
-    headers: authHeaders(),
-  });
+  return apiFetch<UniverseCategory>(`/admin/universe-categories/${id}`);
 }
 
 export function createCategory(input: CategoryInput): Promise<UniverseCategory> {
   return apiFetch<UniverseCategory>("/admin/universe-categories", {
     method: "POST",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
 }
@@ -581,7 +547,7 @@ export function updateCategory(
 ): Promise<UniverseCategory> {
   return apiFetch<UniverseCategory>(`/admin/universe-categories/${id}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
 }
@@ -589,23 +555,23 @@ export function updateCategory(
 export function deleteCategory(id: string): Promise<UniverseCategory> {
   return apiFetch<UniverseCategory>(`/admin/universe-categories/${id}`, {
     method: "DELETE",
-    headers: authHeaders(),
   });
 }
 
 export function deleteAmbientTrack(id: string): Promise<AmbientTrack> {
   return apiFetch<AmbientTrack>(`/ambient-tracks/${id}`, {
     method: "DELETE",
-    headers: authHeaders(),
   });
 }
 
 export async function uploadImage(file: File): Promise<UploadResult> {
   const formData = new FormData();
   formData.append("file", file);
+  // `apiFetch` kullanılmıyor (gövde FormData), o yüzden çerez izni burada elle
+  // veriliyor — yoksa yükleme 401 döner.
   const response = await fetch(apiFetchUrl("/admin/uploads"), {
     method: "POST",
-    headers: authHeaders(),
+    credentials: "include",
     body: formData,
   });
   if (!response.ok) {
@@ -654,7 +620,6 @@ export interface AnimePartInput {
 export function searchAnilist(query: string): Promise<AnilistSearchResult[]> {
   return apiFetch<AnilistSearchResult[]>(
     `/admin/anime/search?q=${encodeURIComponent(query)}`,
-    { headers: authHeaders() },
   );
 }
 
@@ -662,7 +627,7 @@ export function searchAnilist(query: string): Promise<AnilistSearchResult[]> {
 export function createAnimeEntry(input: AnimeEntryInput): Promise<unknown> {
   return apiFetch<unknown>("/admin/anime", {
     method: "POST",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
 }
@@ -673,7 +638,7 @@ export function updateAnimeEntry(
 ): Promise<unknown> {
   return apiFetch<unknown>(`/admin/anime/${id}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
 }
@@ -685,7 +650,7 @@ export function updateAnimePart(
 ): Promise<unknown> {
   return apiFetch<unknown>(`/admin/anime/parts/${partId}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
 }
@@ -693,7 +658,6 @@ export function updateAnimePart(
 export function deleteAnimeEntry(id: string): Promise<unknown> {
   return apiFetch<unknown>(`/admin/anime/${id}`, {
     method: "DELETE",
-    headers: authHeaders(),
   });
 }
 
@@ -701,7 +665,6 @@ export function deleteAnimeEntry(id: string): Promise<unknown> {
 export function completeAnimeThrough(partId: string): Promise<unknown> {
   return apiFetch<unknown>(`/admin/anime/parts/${partId}/complete-through`, {
     method: "PATCH",
-    headers: authHeaders(),
   });
 }
 
@@ -709,7 +672,6 @@ export function completeAnimeThrough(partId: string): Promise<unknown> {
 export function refreshAnimeEntry(id: string): Promise<unknown> {
   return apiFetch<unknown>(`/admin/anime/${id}/refresh`, {
     method: "PATCH",
-    headers: authHeaders(),
   });
 }
 
@@ -785,14 +747,12 @@ export function searchBooks(
 ): Promise<BookSearchResult[]> {
   return apiFetch<BookSearchResult[]>(
     `/admin/books/search?q=${encodeURIComponent(query)}`,
-    { headers: authHeaders(), signal },
+    { signal },
   );
 }
 
 export function fetchAdminBooks(): Promise<BookEntryRecord[]> {
-  return apiFetch<BookEntryRecord[]>("/admin/books", {
-    headers: authHeaders(),
-  });
+  return apiFetch<BookEntryRecord[]>("/admin/books");
 }
 
 export function createBookEntry(
@@ -800,7 +760,7 @@ export function createBookEntry(
 ): Promise<BookEntryRecord> {
   return apiFetch<BookEntryRecord>("/admin/books", {
     method: "POST",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
 }
@@ -811,7 +771,7 @@ export function updateBookEntry(
 ): Promise<BookEntryRecord> {
   return apiFetch<BookEntryRecord>(`/admin/books/${id}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
 }
@@ -819,7 +779,6 @@ export function updateBookEntry(
 export function deleteBookEntry(id: string): Promise<BookEntryRecord> {
   return apiFetch<BookEntryRecord>(`/admin/books/${id}`, {
     method: "DELETE",
-    headers: authHeaders(),
   });
 }
 
@@ -830,7 +789,6 @@ export function deleteBookEntry(id: string): Promise<BookEntryRecord> {
 export function refreshBookEntry(id: string): Promise<BookEntryRecord> {
   return apiFetch<BookEntryRecord>(`/admin/books/${id}/refresh`, {
     method: "PATCH",
-    headers: authHeaders(),
   });
 }
 
@@ -848,7 +806,6 @@ export interface BookMaintenanceResult {
 export function localizeBookCovers(): Promise<BookMaintenanceResult> {
   return apiFetch<BookMaintenanceResult>("/admin/books/covers/localize", {
     method: "POST",
-    headers: authHeaders(),
   });
 }
 
@@ -856,7 +813,6 @@ export function localizeBookCovers(): Promise<BookMaintenanceResult> {
 export function backfillBookCredits(): Promise<BookMaintenanceResult> {
   return apiFetch<BookMaintenanceResult>("/admin/books/credits/backfill", {
     method: "POST",
-    headers: authHeaders(),
   });
 }
 
@@ -871,7 +827,7 @@ export function setReadingOrderProgress(
     `/admin/books/okuma-sirasi/${encodeURIComponent(key)}/progress`,
     {
       method: "PUT",
-      headers: { "Content-Type": "application/json", ...authHeaders() },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ currentOrder }),
     },
   );
@@ -885,7 +841,6 @@ export function setReadingOrderProgress(
 export function backfillPersonPhotos(): Promise<BookMaintenanceResult> {
   return apiFetch<BookMaintenanceResult>("/admin/books/people/photos", {
     method: "POST",
-    headers: authHeaders(),
   });
 }
 
@@ -898,22 +853,18 @@ export interface PendingGenre {
 
 /** Kaynaktan gelip sözlükte karşılığı olmayan, onay bekleyen türler. */
 export function getPendingGenres(): Promise<PendingGenre[]> {
-  return apiFetch<PendingGenre[]>("/admin/books/genres/pending", {
-    headers: authHeaders(),
-  });
+  return apiFetch<PendingGenre[]>("/admin/books/genres/pending");
 }
 
 export function approveGenre(id: string): Promise<{ id: string }> {
   return apiFetch<{ id: string }>(`/admin/books/genres/${id}/approve`, {
     method: "PATCH",
-    headers: authHeaders(),
   });
 }
 
 export function rejectGenre(id: string): Promise<{ id: string }> {
   return apiFetch<{ id: string }>(`/admin/books/genres/${id}`, {
     method: "DELETE",
-    headers: authHeaders(),
   });
 }
 
@@ -932,7 +883,7 @@ export function addBookQuote(
 ): Promise<BookQuote> {
   return apiFetch<BookQuote>(`/admin/books/${entryId}/quotes`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
 }
@@ -943,7 +894,7 @@ export function updateBookQuote(
 ): Promise<BookQuote> {
   return apiFetch<BookQuote>(`/admin/books/quotes/${quoteId}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
 }
@@ -951,7 +902,6 @@ export function updateBookQuote(
 export function deleteBookQuote(quoteId: string): Promise<BookQuote> {
   return apiFetch<BookQuote>(`/admin/books/quotes/${quoteId}`, {
     method: "DELETE",
-    headers: authHeaders(),
   });
 }
 
@@ -963,7 +913,7 @@ export function upsertReadingGoal(input: {
 }): Promise<ReadingGoalRecord> {
   return apiFetch<ReadingGoalRecord>("/admin/books/goal", {
     method: "PUT",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
 }

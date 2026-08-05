@@ -19,7 +19,9 @@ const ENABLED = process.env.NODE_ENV !== "production";
 
 // Kimlik ve gövde tipi dışındaki başlıklar taşınmaz — kopyalanan Host/Origin
 // başlıkları hedefte yanlış eşleşmelere yol açar.
-const FORWARDED_HEADERS = ["authorization", "content-type"];
+// `cookie` şart: oturum token'ı artık HttpOnly çerezde ve tarayıcı onu bu
+// köprüye gönderiyor; buradan API'ye taşınmazsa lokalde her istek 401 döner.
+const FORWARDED_HEADERS = ["authorization", "content-type", "cookie"];
 
 async function forward(
   request: NextRequest,
@@ -55,6 +57,11 @@ async function forward(
     const contentType = response.headers.get("content-type");
     if (contentType) {
       outHeaders.set("content-type", contentType);
+    }
+    // Giriş/çıkış yanıtındaki çerez tarayıcıya ulaşmalı, yoksa lokalde
+    // oturum hiç açılmaz. `getSetCookie` birden fazla çerezi de korur.
+    for (const cookie of response.headers.getSetCookie()) {
+      outHeaders.append("set-cookie", cookie);
     }
     return new Response(await response.arrayBuffer(), {
       status: response.status,

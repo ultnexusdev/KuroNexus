@@ -2,9 +2,8 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
-import { login } from "@/lib/admin/api";
+import { fetchMe, login, logout } from "@/lib/admin/api";
 import { ApiError } from "@/lib/api/client";
-import { clearToken, getToken, setToken } from "@/lib/admin/auth";
 import styles from "./AdminGuard.module.css";
 
 export function AdminGuard({ children }: { children: React.ReactNode }) {
@@ -19,8 +18,20 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState<"invalid" | "rateLimited" | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
+  // Oturum artık çerezden OKUNAMAZ (HttpOnly) — tek doğru kaynak sunucu.
+  // `/auth/me` 200 dönerse girişliyiz, 401 dönerse değiliz.
   useEffect(() => {
-    setStatus(getToken() ? "authed" : "anonymous");
+    let cancelled = false;
+    fetchMe()
+      .then(() => {
+        if (!cancelled) setStatus("authed");
+      })
+      .catch(() => {
+        if (!cancelled) setStatus("anonymous");
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   async function handleSubmit(event: FormEvent) {
@@ -28,8 +39,8 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
     setSubmitting(true);
     setError(null);
     try {
-      const result = await login(email, password);
-      setToken(result.accessToken);
+      // Çerezi sunucu yazar; burada dönen yanıttan alınacak bir token yok.
+      await login(email, password);
       setStatus("authed");
     } catch (err) {
       setError(err instanceof ApiError && err.status === 429 ? "rateLimited" : "invalid");
@@ -97,8 +108,9 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
           type="button"
           className="btn"
           onClick={() => {
-            clearToken();
-            setStatus("anonymous");
+            // Çıkış isteği başarısız olsa bile arayüzü kilitli bırakmayız;
+            // sunucu tarafındaki çerez bir sonraki denemede yine silinir.
+            void logout().finally(() => setStatus("anonymous"));
           }}
         >
           {t("logout")}

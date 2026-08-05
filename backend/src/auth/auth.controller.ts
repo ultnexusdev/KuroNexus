@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import type { Response } from 'express';
-import { AuthService, LoginResult } from './auth.service';
+import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { Public } from '../common/decorators/public.decorator';
@@ -29,11 +29,9 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   /**
-   * Giriş token'ı HttpOnly çereze yazar.
-   *
-   * ⚠️ FAZ A: token yanıt gövdesinde de dönmeye DEVAM ediyor. Frontend hâlâ
-   * eski yolu kullandığı için bu kaldırılırsa giriş kırılır. Gövdeden çıkarma
-   * işi, frontend çereze geçtiğinde (Faz B) yapılacak — asıl kazanç orada.
+   * Token yanıt gövdesinde DÖNMEZ — yalnızca HttpOnly çereze yazılır, böylece
+   * sayfadaki JavaScript ona hiçbir yoldan ulaşamaz. Arayüzün ihtiyacı olan
+   * tek şey zaten kullanıcının kendisi.
    */
   @Public()
   @Throttle({ default: { limit: 5, ttl: 60_000 } })
@@ -42,13 +40,13 @@ export class AuthController {
   async login(
     @Body() loginDto: LoginDto,
     @Res({ passthrough: true }) response: Response,
-  ): Promise<LoginResult> {
-    const result = await this.authService.login(
+  ): Promise<{ user: AuthenticatedUser }> {
+    const { accessToken, user } = await this.authService.login(
       loginDto.email,
       loginDto.password,
     );
-    response.cookie(AUTH_COOKIE_NAME, result.accessToken, authCookieOptions());
-    return result;
+    response.cookie(AUTH_COOKIE_NAME, accessToken, authCookieOptions());
+    return { user };
   }
 
   /**

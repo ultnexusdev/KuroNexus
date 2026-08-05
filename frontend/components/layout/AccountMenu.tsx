@@ -3,8 +3,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/lib/i18n/navigation";
-import { login } from "@/lib/admin/api";
-import { clearToken, setToken } from "@/lib/admin/auth";
+import { login, logout } from "@/lib/admin/api";
 import { ApiError } from "@/lib/api/client";
 import type { Theme } from "@/lib/theme";
 import { ThemeSwitcher } from "./ThemeSwitcher";
@@ -50,9 +49,9 @@ export function AccountMenu({
     event.preventDefault();
     setSubmitting(true);
     setError(null);
-    let token: string;
     try {
-      token = (await login(email, password)).accessToken;
+      // Çerezi sunucu yazar — burada saklanacak bir token yok.
+      await login(email, password);
     } catch (err) {
       // Yalnızca giriş isteğinin kendisi bu dalda raporlanır. Tazeleme buranın
       // içinde olsaydı, oradaki bir hata "şifren yanlış" gibi görünürdü.
@@ -62,7 +61,6 @@ export function AccountMenu({
       setSubmitting(false);
       return;
     }
-    setToken(token);
     setPassword("");
     // Tam yeniden yükleme: çerez yazıldıktan sonra sayfa sunucudan `isAdmin`
     // ile yeniden gelir. Soft refresh yerine bunun tercih edilme sebebi,
@@ -70,9 +68,10 @@ export function AccountMenu({
     window.location.reload();
   }
 
+  // Çerezi sunucu sildiği için çıkış da bir istek. Hata alınsa bile sayfa
+  // tazelenir: sunucu `isAdmin`i yeniden hesaplar ve gerçek durumu gösterir.
   function handleSignOut() {
-    clearToken();
-    window.location.reload();
+    void logout().finally(() => window.location.reload());
   }
 
   return (

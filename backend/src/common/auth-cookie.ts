@@ -19,9 +19,6 @@ import type { CookieOptions } from 'express';
  */
 export const AUTH_COOKIE_NAME = 'kuronexus-session';
 
-/** Faz B'de silinecek eski çerez — geçiş boyunca yalnızca frontend kullanır. */
-export const LEGACY_AUTH_COOKIE_NAME = 'kuronexus-token';
-
 // JWT'nin kendi ömrüyle aynı olmalı (JWT_EXPIRES_IN varsayılanı '1d').
 // Çerez daha uzun yaşarsa kullanıcı "girişli" görünür ama her istek 401 alır.
 const MAX_AGE_MS = 24 * 60 * 60 * 1000;

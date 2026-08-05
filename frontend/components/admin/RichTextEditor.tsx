@@ -298,8 +298,13 @@ export function RichTextEditor({
         >
           <option value="">Varsayılan Font</option>
           <option value="var(--font-cinzel)">Epik Başlık (Cinzel)</option>
-          <option value="'Corinthia', cursive">Şiirsel/Estetik (Corinthia)</option>
-          <option value="'Noto Sans Old Turkic', sans-serif">Göktürkçe (Orhun)</option>
+          {/* Düz font adı değil değişken: fontlar next/font ile self-host
+              ediliyor ve üretilmiş bir ada sahipler. Eski kayıtlardaki düz
+              adlar globals.css'teki köprü kurallarıyla çalışmaya devam ediyor. */}
+          <option value="var(--font-corinthia), cursive">
+            Şiirsel/Estetik (Corinthia)
+          </option>
+          <option value="var(--font-runic)">Göktürkçe (Orhun)</option>
         </select>
         
         <span className={styles.divider} />

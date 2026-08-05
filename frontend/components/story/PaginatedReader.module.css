@@ -86,8 +86,10 @@
   text-indent: 1.5rem; /* Kitap hissi için paragraf başı boşluğu */
 }
 
-/* Corinthia fontu çok küçük kaldığı için ona özel büyütme */
-.content span[style*="Corinthia"] {
+/* Corinthia fontu çok küçük kaldığı için ona özel büyütme.
+   [i] bayrağı: eski kayıtlar 'Corinthia' yazıyor, editör artık
+   var(--font-corinthia) üretiyor — ikisi de yakalanmalı. */
+.content span[style*="corinthia" i] {
   font-size: 2.2rem;
   line-height: 1.1;
   display: inline-block;

@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Corinthia:wght@400;700&family=Noto+Sans+Old+Turkic&display=swap');
-
 /* ============================================================
    KuroNexus — Design Tokens & Themes
    AGENTS.md kural 16: Bilesenler asla dogrudan hex kullanmaz,
@@ -14,8 +12,10 @@
 
   --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-mono: ui-monospace, "SF Mono", "Cascadia Code", monospace;
-  --font-cormorant: "Cormorant Garamond", Georgia, "Times New Roman", serif;
-  --font-runic: "Noto Sans Old Turkic", var(--font-cinzel), serif;
+  /* --font-cormorant layout.tsx'te next/font tarafından tanımlanıyor
+     (fallback zinciri de orada). Burada tekrar tanımlanırsa iki kural aynı
+     öğeye çarpar ve hangisinin kazandığı sıraya kalır. */
+  --font-runic: var(--font-orhun), var(--font-cinzel), serif;
 
   --gap-sm: 8px;
   --gap-md: 12px;
@@ -374,4 +374,27 @@ a:hover { color: var(--accent-hover); }
 .lore-mention:hover {
   border-bottom-color: var(--accent);
   color: var(--accent-hover);
+}
+
+/* ============================================================
+   Eski hikaye icerigi icin font koprusu (5 Agustos 2026)
+
+   Fontlar next/font'a tasindi; next/font her fonta uretilmis bir ad veriyor
+   (__Corinthia_a1b2c3 gibi), yani duz "Corinthia" adi artik hicbir seye
+   karsilik gelmiyor. Veritabanindaki hikayeler ise o duz adi satir ici
+   style olarak tasiyor: <span style="font-family:'Corinthia', cursive">.
+
+   Asagidaki iki kural o icerigi yeni fonta baglar. Boylece kayitli hikayelere
+   HIC DOKUNULMADAN gecis yapiliyor. Editor artik degisken uretiyor; bu kurallar
+   yalnizca gecmis icerik icin duruyor.
+
+   [i] bayragi: secici buyuk/kucuk harfe duyarsiz calissin — hem eski
+   'Corinthia' hem yeni var(--font-corinthia) yakalanir.
+   ============================================================ */
+[style*="corinthia" i] {
+  font-family: var(--font-corinthia), cursive !important;
+}
+
+[style*="old turkic" i] {
+  font-family: var(--font-runic) !important;
 }

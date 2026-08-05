@@ -32,7 +32,9 @@ işler artık "açık güvenlik açığı" değil, iyileştirme sırası.
 ## ✅ 5 Ağustos'ta kapananlar
 
 1. **Madde 8 — JWT HttpOnly çereze taşındı** (iki fazlı deploy, canlıda doğrulandı)
-2. Devir notundaki `backend/.env` maddesi **düştü** — o dosya iş yeri PC'sinde
+2. **Fontlar `next/font`e taşındı, CSP daraltıldı** — ziyaretçi IP'si artık
+   Google'a gitmiyor (iki fazlı, ölçümle doğrulandı)
+3. Devir notundaki `backend/.env` maddesi **düştü** — o dosya iş yeri PC'sinde
    hiç yokmuş, dolayısıyla bayat sır de yok
 
 Ayrıntılar: **"İş yeri oturumu — 5 Ağustos"** bölümü.
@@ -41,15 +43,20 @@ Ayrıntılar: **"İş yeri oturumu — 5 Ağustos"** bölümü.
 
 ## ⚡ SIRADAKİ İŞLER
 
-### 1️⃣ Fontları `next/font/google`'a taşı
-`globals.css` 1. satırdaki `@import` üç fontu doğrudan Google'dan çekiyor →
-**her ziyaretçinin IP'si Google'a gidiyor.** Taşındıktan sonra
-`fonts.googleapis.com` + `fonts.gstatic.com` girdileri CSP'den çıkarılacak.
-Ayrıntı: "CSP konsol turu" bölümü. `layout.tsx`te dört font için desen zaten
-kurulu, kopyalanacak.
+### 1️⃣ Dockerfile sertleştirme (mimari rapor Ö-4)
+Güvenlik listesinin kalan son maddesi: `USER node` (konteyner root olarak
+çalışmasın), migration hatasında derlemenin durması, `/health` ucu. Orta
+zorlukta ve **iş yerinden doğrulanabilir** — deploy loglarından okunur.
 
-*(Bu iş **iş yerinde** yapılmalı: fontlar derleme anında iniyor, ev
-makinesinde Node dışarı çıkamadığı için orada doğrulanamıyor.)*
+### 2️⃣ ⚠️ Slug altyapısı (K-2, K-3, R-1) — ÖNCE PLAN GEREKİR
+`BookEntry.slug` kolonu + `SlugHistory` + 301 yönlendirme, ardından `getDetail`
+in `findUnique({ where: { slug } })`'a çevrilmesi.
+
+**Bu iş bir Prisma migration'ı içeriyor.** İş yeri makinesinde Docker kurulu
+değil, yani lokal veritabanı yok → migration **doğrudan üretim veritabanında**
+ilk kez çalışacak. 250 kitaplık gerçek veri var. Başlamadan önce: taze yedek,
+yazılı geri alma senaryosu, tercihen bir kopya DB üzerinde prova.
+Aceleye getirilmemeli.
 
 ### Sonraki turda ele alınacaklar
 - `script-src 'unsafe-inline'` → nonce tabanlı (bilinen kalan zayıflık)
@@ -551,6 +558,75 @@ yeterli kanıt: token artık yanıt gövdesinde hiç gönderilmiyor ve kodda
 *Ölçümün sınırı (kayıt doğruluğu için):* Giriş yanıtının gövdesinde token
 olmadığı **kod düzeyinde kesin** (controller `{ user }` döndürüyor) ama canlıda
 ayrıca ölçülmedi; işlevsel kanıt yeterli görüldü.
+
+### Fontlar `next/font`e taşındı, CSP daraltıldı ✅
+
+**Sorun:** `globals.css` 1. satırındaki `@import` üç fontu (Cormorant Garamond,
+Corinthia, Noto Sans Old Turkic) doğrudan Google'dan çekiyordu → **her
+ziyaretçinin IP adresi Google'a gidiyordu.** Ayrıca render'ı engelleyen bir dış
+istek turu ekliyordu.
+
+#### 🔴 Naif taşımanın sessizce bozacağı şey — geç fark edilseydi pahalıydı
+Editördeki font seçicisi ([RichTextEditor.tsx:299](frontend/components/admin/RichTextEditor.tsx:299))
+iki font için **düz font adı** üretiyordu:
+
+| Seçenek | Ürettiği değer |
+|---|---|
+| Cinzel | `var(--font-cinzel)` ✅ zaten değişken |
+| Corinthia | `'Corinthia', cursive` ⚠️ |
+| Orhun | `'Noto Sans Old Turkic', sans-serif` ⚠️ |
+
+Bu değerler **hikâyelerin içine satır içi `style` olarak veritabanına
+kaydedilmiş** durumda. `next/font` ise fontu self-host ederken ona üretilmiş
+bir ad veriyor (`__Corinthia_a1b2c3` gibi) — düz `'Corinthia'` adı hiçbir şeye
+karşılık gelmez hale gelir. Yani doğrudan taşıma, **eski hikâyelerdeki özel
+fontları hata vermeden düşürürdü.**
+
+**Çözüm — veritabanına dokunmadan köprü:** `globals.css`e iki kural eklendi:
+```css
+[style*="corinthia" i]  { font-family: var(--font-corinthia), cursive !important; }
+[style*="old turkic" i] { font-family: var(--font-runic) !important; }
+```
+`i` bayrağı şart: eski kayıtlar `'Corinthia'`, editör artık
+`var(--font-corinthia)` yazıyor — seçici ikisini de yakalamalı. Aynı sebeple
+`PaginatedReader.module.css`teki punto kuralının seçicisi de `i` aldı.
+
+📌 *Ders: bir fontu taşımadan önce "bu font adı kullanıcı içeriğinin içine
+kaydedilmiş olabilir mi?" diye sorulmalı. Cinzel'in doğru desende olması,
+diğer ikisinin geride kaldığını gizlemişti.*
+
+#### Faz 1 — fontlar taşındı, CSP'ye dokunulmadı (`7bbda2b`)
+`layout.tsx`e üç font eklendi (mevcut dört fontun deseni izlendi),
+`globals.css`teki `@import` silindi, `--font-runic` yeni değişkenden besleniyor.
+`--font-cormorant`ın `globals.css`teki tanımı **kaldırıldı** — next/font onu
+zaten tanımlıyor, ikisi aynı öğeye çarpsaydı hangisinin kazandığı CSS sırasına
+kalırdı; eski fallback zinciri (`Georgia, Times New Roman`) next/font'un
+`fallback` alanına taşındı.
+
+Nadir kullanılan iki fontta `preload: false` (ziyaretçilerin çoğu onları hiç
+görmüyor). Derleme **153 woff2 dosyası** üretti — self-host doğrulandı.
+
+CSP bilinçli olarak bu fazda değiştirilmedi: gözden kaçan bir şey varsa site
+kırılmasın, ölçebilelim.
+
+#### Faz 2 — CSP daraltıldı (`60496a9`)
+Önce ölçüldü (tahmin edilmedi): canlı sitede 4 rota (`/`, `/dark-stories`,
+`/dark-stories/category/kitap`, `/en`) ve her birinin yüklediği CSS paketleri
+indirilip tarandı → `fonts.googleapis.com` + `fonts.gstatic.com` için
+**0 referans**. Ardından iki girdi de CSP'den çıkarıldı:
+
+```
+style-src 'self' 'unsafe-inline'      (googleapis çıktı)
+font-src  'self' data:                (gstatic çıktı)
+```
+
+Canlı doğrulama: başlık `Content-Security-Policy` (Report-Only **değil**),
+içinde `googleapis`/`gstatic` **yok**, ve üç yazı tipi de telefonda yerinde
+(gövde yazısı, eski bir hikâyedeki Corinthia, Göktürkçe runik metin).
+
+📌 Bu ölçüm yöntemi tarayıcı gerektirmiyor — iş yeri makinesinde site tarayıcıda
+açılmadığı için değerli: sayfa ve CSS paketleri PowerShell'den indirilip
+taranabiliyor.
 
 #### Kalan bilinen zayıflık — CSRF
 Çerez tabanlı kimlikte asıl risk CSRF'tir. Koruma `SameSite=Lax`: başka bir

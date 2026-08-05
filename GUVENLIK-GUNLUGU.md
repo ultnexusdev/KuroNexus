@@ -30,6 +30,7 @@ işler artık "açık güvenlik açığı" değil, iyileştirme sırası.
 | Oturum | ✅ **HttpOnly + Secure + SameSite=Lax çerez** — token JavaScript'e kapalı |
 | Konteyner | ✅ `root` değil, `node` kullanıcısı |
 | Futbol oyuncu fotoğrafları | ⚠️ **Görünmüyor** — CSP kaynaklı, bilinçli olarak bekletiliyor (aşağıda) |
+| Genel erişim | 🔒 **Basic Auth kapısı açık** — site yapım aşaması boyunca şifreli (aşağıda) |
 
 ## ✅ 5 Ağustos'ta kapananlar
 
@@ -39,7 +40,9 @@ işler artık "açık güvenlik açığı" değil, iyileştirme sırası.
 3. **Dockerfile sertleştirildi (Ö-4)** — migration hatası artık yutulmuyor,
    `/health` ucu eklendi, konteyner `root` yerine `node` kullanıcısıyla çalışıyor
 4. **Kadro düzeltme ucuna DTO doğrulaması (Ö-2)** — gövde hiç denetlenmiyordu
-5. **Favicon + apple-icon** — `create-next-app` varsayılanı hâlâ duruyordu
+5. **`robots.txt` + `sitemap.xml`** (madde 10'un ilk yarısı) — ikisi de hiç yoktu
+6. **Basic Auth kapısı** — site yapım aşaması boyunca şifreli
+7. **Favicon + apple-icon** — `create-next-app` varsayılanı hâlâ duruyordu
    (dosya birebir 25931 bayt, framework logosu). `黒` glifi sitenin kendi
    fontuyla (Yuji Boku) render edilip ikon setine çevrildi. Aynı işte
    `public/`teki 5 kurulum artığı SVG silindi — hiçbiri kullanılmıyordu
@@ -61,6 +64,54 @@ değil, yani lokal veritabanı yok → migration **doğrudan üretim veritabanı
 ilk kez çalışacak. 250 kitaplık gerçek veri var. Başlamadan önce: taze yedek,
 yazılı geri alma senaryosu, tercihen bir kopya DB üzerinde prova.
 Aceleye getirilmemeli.
+
+---
+
+## 🔒 SİTE ŞU AN ŞİFRELİ — kaldırma prosedürü (5 Ağustos 2026)
+
+**Neden kondu:** İş yerindeki kurumsal içerik filtresi `kuronexus.com`'u
+engelliyordu. Teşhis ölçümle yapıldı:
+
+| Ölçüm | Sonuç |
+|---|---|
+| Her iki alan adı da aynı sunucuda mı | Evet — ikisi de `65.108.220.5` |
+| PowerShell'den erişim | ✅ **200** → ağ/DNS engeli YOK, engel tarayıcı katmanında |
+| `chrome://policy` | **Boş** → Chrome kurumsal politikası da değil |
+| `ultnexus.com` neden açılıyor | Çünkü o site **401 döndürüyor** — filtre botu içeriğini hiç göremiyor, kategorilendiremiyor |
+
+Yani iki sitenin farkı içerik değil, **içeriğin taranabilir olması.**
+KuroNexus açık olduğu için botlar anime/film/hikâye içeriğini okuyup
+"Entertainment" benzeri bir kategoriye koymuş; iş yeri politikası o kategoriyi
+kapatıyor.
+
+**Nasıl çalışıyor:** `frontend/middleware.ts` içinde bir kapı. Kimlik bilgileri
+**koda yazılmadı**, `SITE_BASIC_AUTH_USER` + `SITE_BASIC_AUTH_PASSWORD` ortam
+değişkenlerinden okunuyor (Coolify → `kuronexus-frontend`, Buildtime kapalı).
+
+📌 Değişken adlarında `NEXT_PUBLIC_` öneki **bilinçli olarak yok**: o önekli
+değerler tarayıcıya gönderilen pakete gömülür, yani şifre herkese açık olurdu.
+
+📌 Kapı yalnızca **iki değişken de doluysa** devreye giriyor. Yani kaldırmak
+için değişkenleri silmek yeterli — kod değişikliği ve yeni sürüm gerekmez.
+
+**Yerelde üç senaryoyla sınandı** (değişkenler derlemede tanımsız, yalnızca
+çalışma anında verildi — üretimdeki durumun aynısı): şifresiz → 401 ·
+yanlış şifre → 401 · doğru şifre → 200. Canlıda da doğrulandı.
+
+**API bilinçli olarak açık kaldı:** `api.kuronexus.com` şifrelenmedi, çünkü
+sayfaları üreten Next sunucusu veriyi oradan çekiyor. Şifrelenseydi site kendi
+verisine ulaşamaz, sayfalar açılır ama raflar boş gelirdi. Sonuç: içerik
+teknik olarak API üzerinden hâlâ okunabilir. Arama motorları ve içerik
+filtreleri HTML tarar, JSON API taramaz — amaç açısından sorun değil, ama
+"tamamen görünmez" değil.
+
+### ⚠️ SİTEYİ TEKRAR AÇARKEN — aynı gün yapılacaklar
+1. Coolify'da iki değişkeni **sil**, redeploy
+2. **Filtre sağlayıcısına yeniden sınıflandırma başvurusu yap.** Yapılmazsa
+   engel aynı şekilde geri gelir: filtre siteyi yeniden tarar, yine aynı
+   kategoriye koyar. Şifre sorunu çözmedi, **erteledi**
+3. Google'ın yeniden dizine alması **haftalar** sürer (401 gördüğü sürece
+   sayfaları dizinden düşürür). Alan adı genç olduğu için kayıp sınırlı
 
 ---
 
@@ -120,6 +171,35 @@ SEO işi (sitemap, robots) için zaten gerekecek — ikisi birlikte yapılabilir
 Tarayıcıda göremezsen sebep büyük ihtimalle **önbellek**: favicon'lar `Ctrl+F5`
 ile bile tazelenmez. Kesin kontrol: `https://kuronexus.com/favicon.ico`
 adresini doğrudan açmak.
+
+### 🔴 BAŞKA DEPODA BULGU — UltNexus (5 Ağustos 2026)
+
+KuroNexus'a şifre kapısı kurarken, aynı yöntemin UltNexus'ta nasıl yapıldığına
+bakıldı. Orada bulunan durum:
+
+- Kapı `frontend/src/middleware.ts` içinde, Next middleware'iyle kurulmuş
+- **Kullanıcı adı ve şifre bir `if` koşulunun içinde, düz metin olarak kodda**
+- Ölçüldü: **`ultnexusdev/UltNexus` deposu PUBLIC** (`private: false`;
+  KuroNexus ise private)
+
+Yani o şifre GitHub üzerinden internetteki herkesin okuyabileceği yerde.
+ultnexus.com'un "şifreli" olması bir koruma sağlamıyor.
+
+**Bu, `check.js` olayıyla aynı sınıf hata** — bu çalışmayı başlatan olayın
+kendisi (12 Temmuz, public depoya commit edilmiş DB parolası).
+
+*(Dosyadaki yorum satırı başka bir kullanıcı adı/şifre yazıyor: değerler bir
+kez değiştirilmiş, yorum güncellenmemiş. İkisi de git geçmişinde duruyor.)*
+
+**Kullanıcı kararı (5 Ağustos):** UltNexus zaten baştan elden geçirilecek,
+açıklar o turda toplu kapatılacak. Bu bulgu oraya devredildi.
+
+**O tura taşınan iş listesi:**
+1. Şifreyi değiştir, koddan çıkar, ortam değişkenine taşı
+2. **Public depoyu sırlar için tara** — şifreyi koda yazan alışkanlık tek
+   başına gelmez; public depoda duran her sır tamamen ifşadır
+3. Git geçmişi temizliği kararı (KuroNexus'ta 4 Ağustos'ta yapılan işlem)
+4. Commit öncesi sır tarama kancasını oraya da kur (`.githooks/pre-commit`)
 
 ### Sonraki turda ele alınacaklar
 - `script-src 'unsafe-inline'` → nonce tabanlı (bilinen kalan zayıflık)

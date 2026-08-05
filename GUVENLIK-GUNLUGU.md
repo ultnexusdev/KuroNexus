@@ -11,10 +11,11 @@
 
 ---
 
-# 📌 DEVİR NOTU — 4 Ağustos 2026, akşam
+# 📌 DEVİR NOTU — 5 Ağustos 2026, iş yeri oturumu
 
-**Kaldığımız nokta:** Güvenlik listesinin 0–7a maddeleri tamamlandı ve
-canlıda doğrulandı. İki iş yarım kaldı, bir de yeni bir olay çıktı.
+**Kaldığımız nokta:** Madde 8 (JWT → HttpOnly çerez) tamamlandı ve canlıda
+doğrulandı. **Güvenlik listesinin 0–11 arası tüm maddeleri kapandı.** Kalan
+işler artık "açık güvenlik açığı" değil, iyileştirme sırası.
 
 ## Şu an sistemin durumu: 🟢 Çalışıyor ve güvende
 
@@ -23,51 +24,24 @@ canlıda doğrulandı. İki iş yarım kaldı, bir de yeni bir olay çıktı.
 | Site | ✅ Çalışıyor (kuronexus.com) |
 | Backend + frontend deploy | ✅ İkisi de sağlıklı |
 | Veritabanı | ✅ 250 kitap, yedekleme çalışıyor |
-| Uzak depo `main` | 4 Ağu akşamı ev oturumu sonrası — CSP zorunlu, sırlar rotate edilmiş |
+| Uzak depo `main` | `42b13db` — 5 Ağu iş yeri oturumu sonrası |
 | CSP | ✅ **Zorunlu** (report-only değil), canlıda doğrulandı |
 | Sırlar | ✅ `JWT_SECRET`, `DATABASE_URL`, `APIFY_TOKEN`, `KAGGLE_API_TOKEN` rotate |
+| Oturum | ✅ **HttpOnly + Secure + SameSite=Lax çerez** — token JavaScript'e kapalı |
 
-## ✅ "EVE GİDİNCE İLK ÜÇ İŞ" — ÜÇÜ DE KAPANDI (4 Ağustos akşamı)
+## ✅ 5 Ağustos'ta kapananlar
 
-1. Depo senkronizasyonu — skiller korundu (442 dosya)
-2. `JWT_SECRET` rotasyonu — canlıda doğrulandı
-3. CSP konsol turu + zorunluluk — üç eksik bulundu, düzeltildi, doğrulandı
+1. **Madde 8 — JWT HttpOnly çereze taşındı** (iki fazlı deploy, canlıda doğrulandı)
+2. Devir notundaki `backend/.env` maddesi **düştü** — o dosya iş yeri PC'sinde
+   hiç yokmuş, dolayısıyla bayat sır de yok
 
-Bunlara ek olarak kapananlar: `DATABASE_URL` rotasyonu, Docker ARG sızıntısı,
-Preview bölümü temizliği, `APIFY_TOKEN` ve `KAGGLE_API_TOKEN` rotasyonu.
-Ayrıntılar: **"Ev oturumu"** bölümü.
+Ayrıntılar: **"İş yeri oturumu — 5 Ağustos"** bölümü.
 
 ---
 
-## ⚡ İŞ YERİNE DÖNÜNCE — İLK ÜÇ İŞ (5 Ağustos, bu sırayla)
+## ⚡ SIRADAKİ İŞLER
 
-### 0️⃣ Önce depoyu çek — sonra `backend/.env`'i düzelt
-```
-git pull
-```
-Skiller artık gitignore'lu, **pull güvenli** — 4 Ağustos'taki tuzak kalktı.
-Bağımlılık ve şema değişikliği yok, `pnpm install` gerekmiyor.
-
-⚠️ **UNUTULMASI ÇOK MUHTEMEL:** İş yeri PC'sindeki `backend/.env` dosyası
-**eski `DATABASE_URL` parolasını ve eski `JWT_SECRET`'i** taşıyor. İkisi de
-4 Ağustos akşamı değiştirildi. Backend'i lokalde çalıştırmadan önce ikisini de
-parola yöneticisindeki yeni kayıtlardan güncelle — yoksa "bağlantı kurulamıyor"
-hatasıyla vakit kaybedersin. (Doğru kayıt: `KuroNexus Production DB (yeni —
-4 Ağu akşam)`; eski kayıt silindi.)
-
-### 1️⃣ Madde 7 — JWT'yi HttpOnly + Secure cookie'ye taşı
-Listede kalan en değerli güvenlik işi ve **"dinlenmiş kafayla" notu bunun
-içindi.** Şu an token `document.cookie` ile yazılıyor
-([frontend/lib/admin/auth.ts:17](frontend/lib/admin/auth.ts:17)), yani sayfadaki
-**herhangi bir JavaScript onu okuyabiliyor**. Bu 4 Ağustos akşamı canlı olarak
-gözlendi: admin token'ı konsoldan okunup API çağrısı yapıldı. HttpOnly çerez
-bunu imkânsız kılar.
-
-Dokunulacak yerler: `backend/src/auth/auth.controller.ts` (Set-Cookie),
-`frontend/lib/admin/auth.ts`, `frontend/lib/auth/session.ts`, CORS'ta
-`credentials` ayarı. Deploy sonrası herkes bir kez çıkış yapmış olur.
-
-### 2️⃣ Fontları `next/font/google`'a taşı
+### 1️⃣ Fontları `next/font/google`'a taşı
 `globals.css` 1. satırdaki `@import` üç fontu doğrudan Google'dan çekiyor →
 **her ziyaretçinin IP'si Google'a gidiyor.** Taşındıktan sonra
 `fonts.googleapis.com` + `fonts.gstatic.com` girdileri CSP'den çıkarılacak.
@@ -98,7 +72,7 @@ Kullanıcının belirttiği hedef: **mevcut sitenin iyileştirilmesi**, ardında
    - 🟠 Ö-7: sitemap / robots / hreflang / canonical / OG **hiçbiri yok**
    - 🟠 Ö-10, Ö-11: React performans hataları, `unoptimized` 53 yerde
    - 🟡 İ-1: Film/dizi/anime/kitap kanatları birbirinin kopyası (~%60 tekrar)
-2. **30 skill'lik tasarım araç seti** (bugün kuruldu, `~/.claude/skills`)
+2. **30 skill'lik tasarım araç seti** (4 Ağustos'ta kuruldu, `~/.claude/skills`)
 
 ---
 
@@ -469,11 +443,126 @@ fontlar derleme anında indiği için değişiklik ev makinesinde doğrulanamıy
 scriptleri satır içi olduğu için duruyor; nonce'a taşımak ayrı bir adım
 (`next.config.ts` içinde gerekçesiyle yazılı).
 
-### Coolify arayüz notları (sonraki oturumlar için)
+### Coolify arayüz notları (ev oturumundan)
 - Değişken listesi değerleri **maskeliyor** (nokta + göz simgesi). Bu sayfanın
   ekran görüntüsü güvenli. Kaçınılması gereken tek ekran hâlâ `Developer view`.
 - Production ve Preview bölümlerini ayırt etmenin pratik yolu: Production'da
   artık tüm `Available at Buildtime` kutucukları kapalı.
+
+---
+
+## 🏢 İş yeri oturumu — 5 Ağustos 2026
+
+Madde 8 kapandı. Ayrıca ortam hakkında iki kalıcı bulgu çıktı.
+
+### Ortam bulguları (sonraki oturumlar için)
+
+| Bulgu | Sonuç |
+|---|---|
+| `backend/.env` iş yeri PC'sinde **yok** | Devir notundaki "eski sırları güncelle" maddesi geçersiz — güncellenecek bayat sır de yok |
+| Docker **kurulu değil** | Bu makinede lokal veritabanı kurulamaz → **backend lokalde çalıştırılamaz** |
+| Tarayıcıda `kuronexus.com` **engelli** | Canlı doğrulama telefondan yapılıyor (curl/PowerShell erişimi var) |
+| `npx` PowerShell'de engelli | `.ps1` çalıştırma politikası. **Politika değiştirilmedi** — `npx.cmd` kullanılıyor. Bir güvenlik korumasını kolaylık için gevşetmek yanlış olurdu |
+
+Lokal çalıştırma imkânsız olduğu için doğrulama iki katmana bölündü:
+**(1)** her değişiklikten sonra `tsc --noEmit` + gerçek derleme (Coolify'ın
+sunucuda yapacağı işin aynısı), **(2)** küçük parçalar hâlinde deploy +
+telefondan işlevsel test.
+
+### Madde 8 — JWT HttpOnly çereze taşındı ✅
+
+**Sorun:** Token `document.cookie` ile yazılıyordu, yani sayfada çalışan
+**herhangi bir JavaScript** onu okuyabiliyordu. 4 Ağustos akşamı canlı olarak
+gözlenmişti: admin token'ı konsoldan okunup API çağrısı yapıldı.
+
+**Yöntem: iki fazlı deploy.** Giriş mekanizmasını değiştiren bir iş, yanlış
+giderse kullanıcıyı kendi panelinden kilitler. Bu yüzden tek seferde değil,
+geri dönüşü olan iki adımda yapıldı.
+
+#### Faz A — yeni yol açıldı, eskisi kapatılmadı (`d2b1773`)
+Backend `HttpOnly` çerez yazmaya başladı, guard onu okumayı öğrendi, ama giriş
+yanıtı token'ı gövdede **döndürmeye devam etti**. Frontend hiç değişmedi →
+deploy sonrası site tıpatıp aynı çalıştı. "Hiçbir şey değişmedi" bu fazda
+başarı ölçüsüydü.
+
+- `backend/src/common/auth-cookie.ts` *(yeni)* — çerezin tek tanım yeri
+- `auth.controller.ts` — `Set-Cookie` + `POST /auth/logout`
+- `jwt-auth.guard.ts` — önce çerez, sonra `Bearer` yedeği
+- `main.ts` — CORS `credentials: true`
+- Coolify'a `AUTH_COOKIE_DOMAIN=.kuronexus.com` eklendi (Buildtime **kapalı**)
+
+📌 **Çerez adı bilinçli olarak değiştirildi:** `kuronexus-token` →
+`kuronexus-session`. Aynı ad kullanılsaydı geçiş sırasında tarayıcıda iki ayrı
+çerez aynı adı taşıyacaktı (biri JS'in yazdığı host-only, biri sunucunun
+yazdığı alan adı geneli) ve hangisinin okunacağı belirsizleşecekti. Süresi
+dolmuş olanın öne geçmesi, sebebi çok zor bulunan "bazen oturum düşüyor"
+arızası üretirdi.
+
+#### Faz A doğrulaması — şifresiz ölçüm
+Yeni eklenen `POST /auth/logout` ucu deploy'un bittiğini anlamanın parolasız
+göstergesi oldu (eski kodda 404, yenisinde 204). Üstelik o uç çerezi silme
+başlığı gönderdiği için **hiçbir kimlik bilgisi girmeden** tüm çerez ayarları
+okunabildi:
+
+```
+Set-Cookie: kuronexus-session=; Max-Age=86400; Domain=.kuronexus.com; Path=/;
+            HttpOnly; Secure; SameSite=Lax
+```
+
+Ardından tek bir giriş yapılıp `Authorization` başlığı **olmadan**
+`/auth/me` çağrıldı → **HTTP 200**. Yani çerez tek başına kimlik kanıtı olarak
+kabul ediliyor. Bu ölçüm Faz B'nin ön koşuluydu; `401` gelseydi devam
+edilmeyecekti.
+
+CORS ön kontrolü de yapıldı (şifresiz, `OPTIONS`):
+`Allow-Origin: https://kuronexus.com` + `Allow-Credentials: true`.
+
+📌 Şifre gereken tek ölçümde `Read-Host -AsSecureString` kullanıldı — değer
+ekrana basılmadı, komut geçmişine yazılmadı. Çıktıda çerezin **adı ve
+özellikleri** gösterildi, **değeri (token) bilinçli olarak kesildi.**
+
+⚠️ *Süreç notu:* `Read-Host` içeren bir bloğu PowerShell'e toplu yapıştırmak
+çalışmıyor — açılan soru, yapıştırılan sonraki satırı "cevap" sanıp yutuyor.
+Soru satırları tek tek yapıştırılmalı.
+
+#### Faz B — eski yol kapatıldı (`42b13db`)
+10 dosya, **129 satır eklendi / 171 satır silindi.** Açık kapatılırken kod da
+azaldı.
+
+- `frontend/lib/admin/auth.ts` **silindi** — `document.cookie` erişiminin tek
+  kaynağı, yani açığın kendisi
+- `lib/admin/api.ts` — **77** `authHeaders()` çağrısı kaldırıldı; token'ı elle
+  başlığa koymaya gerek kalmadı
+- `lib/api/client.ts` — `apiFetch`e `credentials: "include"` (API ayrı alan
+  adında olduğu için varsayılan davranış çerezi göndermemek)
+- `lib/auth/session.ts` — yeni çerez adını okuyor
+- `AdminGuard.tsx` — "girişli miyim?" sorusu artık `/auth/me`ye soruluyor;
+  çerez okunamadığı için başka yol yok
+- `AccountMenu.tsx` — çıkış `/auth/logout` çağırıyor
+- `dev-proxy` — `cookie` ve `set-cookie` iki yönde taşınıyor *(lokal geliştirme
+  için; bu makinede sınanamadı)*
+- `auth.controller.ts` — `accessToken` gövdeden çıktı: **açığı kapatan satır**
+
+**Doğrulama:** Telefondan giriş ve admin işlemleri çalışıyor. Bu tek başına
+yeterli kanıt: token artık yanıt gövdesinde hiç gönderilmiyor ve kodda
+`document.cookie` erişimi yok — panel çalışıyorsa kimlik ancak HttpOnly
+çerezle doğrulanmış olabilir.
+
+*Ölçümün sınırı (kayıt doğruluğu için):* Giriş yanıtının gövdesinde token
+olmadığı **kod düzeyinde kesin** (controller `{ user }` döndürüyor) ama canlıda
+ayrıca ölçülmedi; işlevsel kanıt yeterli görüldü.
+
+#### Kalan bilinen zayıflık — CSRF
+Çerez tabanlı kimlikte asıl risk CSRF'tir. Koruma `SameSite=Lax`: başka bir
+siteden gelen POST isteğine tarayıcı çerezi eklemez. `kuronexus.com` ve
+`api.kuronexus.com` aynı site sayıldığı için kendi isteklerimiz etkilenmez.
+Ayrı bir CSRF token'ı **eklenmedi** — bu kurulumda gereksiz görüldü.
+🔔 *Bu kararı ne bozar:* API'nin farklı bir siteye taşınması ya da
+`SameSite=None` gerektiren bir entegrasyon.
+
+📌 Eski `kuronexus-token` çerezi tarayıcılarda bir süre daha duracak ama
+**hiçbir kod onu okumuyor** ve 24 saat içinde kendiliğinden ölüyor. Bir
+günlüğüne inert bir çerez için kalıcı temizlik kodu yazılmadı.
 
 ---
 
@@ -559,7 +648,7 @@ olay müdahalesi; tahminle yetinilmeyecek).
 | 7b-2 | CSP konsol turu — ihlal var mı? | ✅ Tamamlandı — 3 eksik bulundu (bkz. "Ev oturumu") |
 | 7c | CSP'yi zorunlu hale getir | ✅ Tamamlandı, canlıda doğrulandı |
 | — | Dış API çağrılarına zaman aşımı *(araya girdi)* | ✅ Tamamlandı — arama 40sn → ~9sn |
-| 8 | JWT'yi HttpOnly + Secure cookie'ye taşı | ⬜ Bekliyor (dinlenmiş kafayla) |
+| 8 | JWT'yi HttpOnly + Secure cookie'ye taşı | ✅ Tamamlandı — iki fazlı deploy, canlıda doğrulandı (5 Ağu) |
 | 9 | API anahtarlarını Docker ARG'lardan çıkar | ✅ Tamamlandı — 17 değişkende buildtime kapatıldı, temiz imaj derlendi |
 | 10 | Ev bilgisayarı senkronizasyonu | ✅ Tamamlandı — 442 skill korundu, derlemeler temiz |
 | 11 | 🔴 Sır rotasyonu (sohbete yapıştırılan değerler) | ✅ Tamamlandı — 1–4 rotate edildi/kaldırıldı, 7 silindi, 5–6 kabul edilmiş artık risk |

@@ -1388,5 +1388,12 @@ export interface CharacterDetail {
   character: CharacterProfile;
   appearances: CharacterAppearance[];
   related: ArchiveCharacter[];
-  images: CharacterImage[];
+  /**
+   * Elle yuklenen gorseller.
+   *
+   * Opsiyonel isaretli cunku alan API'ye SONRADAN eklendi ve getirici yaniti
+   * 24 saat onbellege aliyor: eski bir kayit bu alani hic tasimayabilir.
+   * Tipin durust olmasi, cagiranin `?? []` yazmasini zorunlu kiliyor.
+   */
+  images?: CharacterImage[];
 }

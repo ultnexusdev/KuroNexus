@@ -70,9 +70,24 @@ export async function getCharacterDetail(
     return null;
   }
   try {
+    /*
+     * `no-store` — ÖNBELLEK YOK, bilinçli.
+     *
+     * İlk sürümde 24 saat önbellekliydi. Karakterin AniList künyesi gerçekten
+     * o kadar seyrek değişiyor, ama yanıt artık **kürator tarafından yüklenen
+     * görselleri de** taşıyor. Önbellekle: kürator bir görsel yükler,
+     * `router.refresh()` sunucu bileşenlerini yeniden çizer, ama içerideki
+     * `fetch` önbellekten eski yanıtı döndürür ve görsel 24 saat boyunca
+     * görünmez. Ölçüldü, 6 Ağustos 2026.
+     *
+     * Maliyet düşük: pahalı olan AniList turu backend'de 30 gün cache'li,
+     * buradaki istek yalnızca bir veritabanı okuması. Anime arşivinde de
+     * aynı karar aynı gerekçeyle alınmış ("+1 bölümden sonra ilerlemeyi
+     * anında görmek gerekiyor", `lib/api/anime.ts`).
+     */
     return await apiFetch<CharacterDetail>(
       `/anime/characters/${characterId}`,
-      { next: { revalidate: 86400 } },
+      { cache: "no-store" },
     );
   } catch {
     return null;

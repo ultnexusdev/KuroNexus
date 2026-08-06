@@ -416,7 +416,17 @@ export function Gallery({
     <ul className={styles.gallery}>
       {items.map((item) => (
         <li key={item.key}>
-          <span className={styles.galleryItem}>
+          {/* Kutu bir bağlantı: tıklayınca görselin TAM BOYU açılıyor.
+              Izgaradaki küçük hâl kırpılmış ve küçültülmüş; asıl dosyayı
+              görmek isteyen yeni sekmede tamamını alıyor. Lightbox yerine
+              düz bağlantı seçildi — sayfaya JS eklemeden aynı işi görüyor. */}
+          <a
+            href={apiUrl(item.src)}
+            className={styles.galleryItem}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={item.alt || undefined}
+          >
             <Image
               src={apiUrl(item.src)}
               alt={item.alt}
@@ -425,7 +435,7 @@ export function Gallery({
               className={styles.galleryImg}
               unoptimized={!isLocalUpload(item.src)}
             />
-          </span>
+          </a>
           {item.caption ? (
             <span className={styles.galleryCaption}>{item.caption}</span>
           ) : null}

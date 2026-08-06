@@ -151,6 +151,10 @@
    genisler, contain gorseli ortalar. */
 .abilityShot {
   position: relative;
+  /* Bu da bir <span>. Su an flex cocugu oldugu icin kendiliginden blok
+     davraniyor, ama ebeveyn bir gun flex olmaktan cikarsa galeride yasanan
+     "sifir yukseklik" hatasi burada tekrarlanir. Acik yazmak bedava. */
+  display: block;
   aspect-ratio: 3 / 4;
   max-height: 440px;
   overflow: hidden;
@@ -377,14 +381,39 @@
 /* Galeride `cover` KALIYOR: izgaranin duzeni ancak butun kutular ayni
    olunca okunuyor. Ama oran 3/4'ten 2/3'e cekildi — yuklenen gorsellerin
    olculen orani 0.56-0.68 ve 3/4 (0.75) kutuda yuksekligin dortte biri
-   kirpiliyordu; 2/3 (0.667) kirpmayi neredeyse sifira indiriyor. */
+   kirpiliyordu; 2/3 (0.667) kirpmayi neredeyse sifira indiriyor.
+
+   ⚠️ `display: block` ZORUNLU ve silinmemeli.
+   Bu kutu bir <a>/<span>, yani varsayilan olarak SATIR ICI. Satir ici
+   ogelerde `aspect-ratio` ve yukseklik uygulanmaz: kutu sifir yukseklige
+   duser ve `fill` ile cizilen gorsel hic gorunmez. Canlida tam bu oldu
+   (6 Agustos 2026) — galeride yalnizca ince dikey cizgiler kaldi.
+
+   Sayfadaki diger yuvarlak/kare kutular (savas portresi, yetenek karesi)
+   ayni <span> oldugu halde calisiyor cunku hepsi bir flex kapsayicinin
+   cocugu ve flex cocuklari blok hale getirilir. Bu kutu ise <li> icinde
+   dogrudan duruyor, o yuzden kendi `display`ini yazmak zorunda. */
 .galleryItem {
   position: relative;
+  display: block;
   aspect-ratio: 2 / 3;
   overflow: hidden;
   border: 0.5px solid var(--border);
   border-radius: var(--radius);
   background: var(--surface);
+  transition: border-color 160ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* Kutu artik bir baglanti: tiklayinca gorselin tam boyu aciliyor */
+.galleryItem:hover,
+.galleryItem:focus-visible {
+  border-color: var(--accent-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .galleryItem {
+    transition: none;
+  }
 }
 
 .galleryImg {

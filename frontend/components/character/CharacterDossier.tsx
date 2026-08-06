@@ -60,7 +60,20 @@ export function CharacterDossier({
 }) {
   const t = useTranslations("character");
   const locale = useLocale();
-  const { character, appearances, related, images } = detail;
+  const { character, appearances, related } = detail;
+  /*
+   * `?? []` ZORUNLU, süs değil.
+   *
+   * `images` alanı API'ye sonradan eklendi ve bu getirici yanıtı 24 saat
+   * önbelleğe alıyor: alan eklendikten sonra bile, önceki turdan kalmış bir
+   * kayıt `images`siz dönüyor. Yerelde tam bu oldu (6 Ağustos 2026) ve sayfa
+   * 500 verdi — `undefined.find is not a function`.
+   *
+   * Aynısı üretimde de olabilirdi: backend yeni alanı yayınlar, frontend'in
+   * elindeki sıcak önbellek eski şekli taşır. Dış yanıtın şeklini garanti
+   * saymamak bu yüzden kural, istisna değil.
+   */
+  const images = detail.images ?? [];
   const isMain = appearances.some((item) => item.role === "MAIN");
 
   /*

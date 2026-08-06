@@ -6,9 +6,12 @@ import { Link } from "@/lib/i18n/navigation";
 import { apiUrl, ApiError } from "@/lib/api/client";
 import { fetchUniverseBySlug } from "@/lib/api/universes";
 import { fetchWikiEntries } from "@/lib/api/wiki";
+import { getBookSeries } from "@/lib/api/books";
+import { bookSeriesSlugFor } from "@/lib/universes/book-series";
 import type { WikiEntrySummary, WikiUniverse } from "@/lib/api/types";
 import { ContentCard } from "@/components/ContentCard";
 import { WikiSection } from "@/components/wiki/WikiSection";
+import { CodexCard } from "@/components/kadim/CodexCard";
 import {
   CornerFiligree,
   RunicMargin,
@@ -67,9 +70,17 @@ export default async function UniverseDetailPage({
   params: Promise<{ locale: string; universeSlug: string }>;
 }) {
   const { locale, universeSlug } = await params;
-  const [universe, wikiEntries] = await Promise.all([
+  /*
+   * Kitap serisi üçüncü çağrı olarak buraya girdi: "Kadim Dünyalar"daki
+   * Zaman Çarkı ile kitap arşivindeki Zaman Çarkı aynı şey ve serinin bu
+   * sayfada da görünmesi istendi. Eşleşme kuralı `lib/universes/book-series`
+   * içinde (veri modelinde iki taraf arasında bağ yok, gerekçesi orada).
+   * `getBookSeries` hata durumunda `null` döndüğü için ek try/catch gerekmiyor.
+   */
+  const [universe, wikiEntries, bookSeries] = await Promise.all([
     getUniverse(universeSlug),
     getWikiEntries(universeSlug),
+    getBookSeries(bookSeriesSlugFor(universeSlug)),
   ]);
   if (!universe) {
     notFound();
@@ -168,6 +179,44 @@ export default async function UniverseDetailPage({
             </ul>
           </>
         )}
+
+        {/* Kitap serisi — kanadın kendi dokusuyla: CodexCard, altın ❖ işareti,
+            Cinzel başlık. Kart kitap sayfasına açılıyor, yani tıklanan cildin
+            mevcut künyesi görünüyor. */}
+        {bookSeries && bookSeries.books.length > 0 ? (
+          <>
+            <h2 className={styles.sectionLabel}>{t("bookSeries")}</h2>
+            <p className={styles.sectionNote}>
+              {t("bookSeriesNote", { count: bookSeries.count })}{" "}
+              <Link
+                href={`/dark-stories/category/kitap/seri/${bookSeries.slug}`}
+                className={styles.sectionLink}
+              >
+                {t("bookSeriesAll")}
+              </Link>
+            </p>
+            <ul className={styles.list}>
+              {bookSeries.books.map((book) => (
+                <li key={book.id}>
+                  <CodexCard
+                    href={`/dark-stories/category/kitap/${book.slug}`}
+                    coverImage={book.coverImage}
+                    title={book.title}
+                    subtitle={[
+                      book.seriesIndex
+                        ? t("bookVolume", { index: book.seriesIndex })
+                        : null,
+                      book.authors.join(", ") || null,
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")}
+                    portrait
+                  />
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : null}
 
         <WikiSection universeSlug={universeSlug} entries={wikiEntries} />
       </section>

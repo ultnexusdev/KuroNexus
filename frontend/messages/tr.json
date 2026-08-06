@@ -84,7 +84,11 @@
     "worldCount": "{count} Evren",
     "volumes": "Ciltler",
     "prevPage": "Önceki",
-    "nextPage": "Sonraki"
+    "nextPage": "Sonraki",
+    "bookSeries": "Kitap Serisi",
+    "bookSeriesNote": "Bu evrenin kitap arşivindeki {count} cildi. Bir cilde dokun, künyesi açılsın.",
+    "bookSeriesAll": "Seri sayfasına git →",
+    "bookVolume": "{index}. cilt"
   },
   "sport": {
     "eyebrow": "Salon 03 · Spor",

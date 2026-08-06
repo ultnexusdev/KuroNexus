@@ -39,6 +39,13 @@
   overflow: hidden;
 }
 
+/* Kitap kapagi orani. 16/9 kutuda 2/3'luk bir kapak ustten alttan
+   kirpiliyor ve kitabin adi gorunmuyordu. Yalnizca oran degisiyor;
+   altin cizgi, ❖ isareti, Cinzel baslik ve hover ayni kaliyor. */
+.coverPortrait {
+  aspect-ratio: 2 / 3;
+}
+
 .cover {
   position: absolute;
   inset: 0;

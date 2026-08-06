@@ -176,3 +176,24 @@
     min-height: 460px;
   }
 }
+
+/* Kitap serisi bolumunun alt notu — kanadin Cormorant govde diliyle,
+   sag ustteki "tumunu gor" baglantisiyla birlikte. */
+.sectionNote {
+  margin: -12px 0 22px;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.02rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.sectionLink {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--accent-muted);
+}
+
+.sectionLink:hover {
+  color: var(--accent-hover);
+  border-bottom-color: var(--accent);
+}

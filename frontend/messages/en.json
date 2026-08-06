@@ -84,7 +84,11 @@
     "worldCount": "{count} Worlds",
     "volumes": "Volumes",
     "prevPage": "Previous",
-    "nextPage": "Next"
+    "nextPage": "Next",
+    "bookSeries": "Book Series",
+    "bookSeriesNote": "{count} volumes of this world in the book archive. Pick one to open its record.",
+    "bookSeriesAll": "Go to the series page →",
+    "bookVolume": "Volume {index}"
   },
   "sport": {
     "eyebrow": "Hall 03 · Sport",

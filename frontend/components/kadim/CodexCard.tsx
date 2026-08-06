@@ -13,21 +13,34 @@ export function CodexCard({
   coverImage,
   title,
   subtitle,
+  /**
+   * Kapak dikey mi (kitap kapağı) yatay mı (evren manzarası).
+   *
+   * Kart aslen 16/9 manzara için yazılmıştı. Kitap serisi ciltleri aynı
+   * kartla çizilince 2/3 oranındaki kapaklar üstten alttan kırpılıyor ve
+   * kitabın adı görünmüyordu. Oran dışında hiçbir şey değişmiyor — altın
+   * çizgi, ❖ işareti, Cinzel başlık ve hover aynı kalıyor ki kanadın
+   * dokusu bozulmasın.
+   */
+  portrait = false,
 }: {
   href: string;
   coverImage?: string | null;
   title: string;
   subtitle?: string | null;
+  portrait?: boolean;
 }) {
   return (
     <Link href={href} className={styles.card}>
-      <div className={styles.coverWrap}>
+      <div
+        className={`${styles.coverWrap} ${portrait ? styles.coverPortrait : ""}`}
+      >
         {coverImage ? (
           <Image
             src={apiUrl(coverImage)}
             alt=""
-            width={640}
-            height={360}
+            width={portrait ? 400 : 640}
+            height={portrait ? 600 : 360}
             className={styles.cover}
           />
         ) : (

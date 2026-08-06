@@ -44,7 +44,9 @@
 
 .bannerTitle {
   margin: 0;
-  color: #fff;
+  /* Ham hex kaldirildi (kural 16: bilesenler dogrudan hex yazmaz).
+     Gorsel uzerindeki okunakliligi asagidaki text-shadow zaten sagliyor. */
+  color: var(--text-primary);
   font-size: 2rem;
   letter-spacing: 0.04em;
   font-family: var(--font-heading, var(--font-cinzel));
@@ -52,7 +54,7 @@
 
 .bannerDesc {
   margin: 8px 0 0;
-  color: rgba(255,255,255,0.8);
+  color: var(--text-secondary);
   font-size: 0.95rem;
   max-width: 80%;
   line-height: 1.5;
@@ -95,6 +97,13 @@
    ============================================================ */
 .wing {
   background: var(--bg);
+  /* Runik marj susleri (CodexOrnaments) mutlak konumlu ve -1.9em disari
+     tasiyor. Susleri gizleyen guard 900px'te devreye giriyor ama kapsayici
+     .codex 960px genisliginde — 901-1019px arasi viewport'ta sag sus
+     disari tasip YATAY KAYDIRMA CUBUGU cikariyordu (tablet yatay, kucuk
+     laptop). `clip` secildi, `hidden` degil: hidden bir kaydirma baglami
+     yaratir ve icerideki sticky ogeleri bozar. */
+  overflow-x: clip;
 }
 
 .hero {
@@ -169,7 +178,7 @@
   line-height: 1.04;
   letter-spacing: 0.12em;
   text-indent: 0.12em;
-  color: #f2efe6;
+  color: var(--text-primary);
   text-shadow: 0 3px 24px rgba(0, 0, 0, 0.9), 0 0 2px rgba(0, 0, 0, 0.7);
 }
 

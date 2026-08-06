@@ -221,7 +221,7 @@ export function BookDetail({
         </header>
 
         <div className={styles.columns}>
-          <main className={styles.main}>
+          <div className={styles.main}>
             {book.description ? (
               <section className={styles.section}>
                 <h2 className={styles.sectionTitle}>{t("detail.synopsis")}</h2>
@@ -404,7 +404,7 @@ export function BookDetail({
                 </ol>
               </section>
             ) : null}
-          </main>
+          </div>
 
           <aside className={styles.rail}>
             {detail.universe ? (

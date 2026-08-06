@@ -125,6 +125,8 @@ export default async function LocaleLayout({
   // yerden okunuyor (lib/auth/session.ts, imza doğrulaması neden yok orada yazılı)
   const isAdmin = await readIsAdmin();
 
+  const t = await getTranslations({ locale, namespace: "common" });
+
   return (
     <html
       lang={locale}
@@ -133,8 +135,18 @@ export default async function LocaleLayout({
     >
       <body>
         <NextIntlClientProvider>
+          {/* Klavyeyle gelen biri her sayfada önce header ve footer
+              bağlantılarını geçmek zorunda kalmasın. Yalnızca odaklanınca
+              görünür (globals.css .skipLink). */}
+          <a href="#icerik" className="skipLink">
+            {t("skipToContent")}
+          </a>
           <SiteHeader initialTheme={theme} isAdmin={isAdmin} />
-          <main>{children}</main>
+          {/* tabIndex={-1}: atlama bağlantısı buraya odaklanabilsin —
+              yoksa Safari/Firefox hedefe kaydırır ama odağı taşımaz */}
+          <main id="icerik" tabIndex={-1}>
+            {children}
+          </main>
           <GlobalAmbientPlayer />
           <SiteFooter />
         </NextIntlClientProvider>

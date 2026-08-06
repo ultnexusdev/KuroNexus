@@ -34,7 +34,7 @@ export function AuthorsPage({
   const t = useTranslations("book");
 
   return (
-    <div className={styles.page}>
+    <div data-category="kitap" className={styles.page}>
       <Head
         eyebrow={t("hall", { num: hallLabel, name: hallName })}
         title={t("authorsTitle")}
@@ -73,7 +73,7 @@ export function SeriesIndexPage({
   const t = useTranslations("book");
 
   return (
-    <div className={styles.page}>
+    <div data-category="kitap" className={styles.page}>
       <Head
         eyebrow={t("hall", { num: hallLabel, name: hallName })}
         title={t("seriesTitle")}

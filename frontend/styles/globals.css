@@ -17,13 +17,25 @@
      öğeye çarpar ve hangisinin kazandığı sıraya kalır. */
   --font-runic: var(--font-orhun), var(--font-cinzel), serif;
 
+  /* ⚠️ Bu iki merdivenin ARASINDA delik birakma.
+     6 Agustos 2026'da --gap-xs, --gap-xl ve --pad-xl'in hic tanimlanmadigi,
+     buna ragmen bes dosyada kullanildigi bulundu (ArchiveIndex, PersonHall,
+     SourceBook). Tanimsiz custom property'nin sonucu "gormezden gelinir"
+     DEGIL: bildirim "invalid at computed-value time" olur ve ozellik
+     baslangic degerine duser. padding kalitsal olmadigi icin baslangic
+     degeri 0 — yani `padding: var(--pad-lg) var(--pad-md) var(--pad-xl)`
+     yazan sayfalarda UST/ALT/SAG/SOL butun bosluk siliniyordu ve icerik
+     telefonda ekran kenarina yapisiyordu. */
+  --gap-xs: 4px;
   --gap-sm: 8px;
   --gap-md: 12px;
   --gap-lg: 20px;
+  --gap-xl: 32px;
 
   --pad-sm: 12px;
   --pad-md: 16px;
   --pad-lg: 24px;
+  --pad-xl: 40px;
 
   --touch-min: 44px; /* kural 2: mobil dokunma alani min 44px */
 
@@ -47,7 +59,7 @@
 
   --text-primary:   #d8d6d2;
   --text-secondary: #8a8990;
-  --text-muted:     #5f5c72;
+  --text-muted:     #8a879b;
 
   --accent:         #9d97b8;
   --accent-hover:   #b0aac9;
@@ -71,7 +83,7 @@
 
   --text-primary:   #e2e0da;
   --text-secondary: #8f8f8a;
-  --text-muted:     #68655f;
+  --text-muted:     #8a8781;
 
   --accent:         #d97a3f;
   --accent-hover:   #e28a54;
@@ -95,10 +107,10 @@
 
   --text-primary:   #dcdde0;
   --text-secondary: #868c99;
-  --text-muted:     #5c6270;
+  --text-muted:     #868b99;
 
-  --accent:         #9b4a4a; /* bordo */
-  --accent-hover:   #b05858;
+  --accent:         #c06a6a; /* bordo */
+  --accent-hover:   #d18080;
   --accent-muted:   #5c4448;
 
   --gold:           #b08a5a;
@@ -123,7 +135,7 @@
 
   --text-primary:   #e7e3d8;
   --text-secondary: #a6a89d;
-  --text-muted:     #7c837c;
+  --text-muted:     #969d95;
 
   --accent:         #b08d57; /* altin yaldiz */
   --accent-hover:   #c6a26a;
@@ -192,7 +204,7 @@
 
   --text-primary:   #e8e6df;
   --text-secondary: #9a9ca6;
-  --text-muted:     #6c6f7a;
+  --text-muted:     #93969f;
 
   --accent:         #d9a62e;
   --accent-hover:   #e6b84a;
@@ -221,13 +233,49 @@
 
   --text-primary:   #f2f0ea;
   --text-secondary: #9a9ba6;
-  --text-muted:     #6a6b76;
+  --text-muted:     #92939e;
 
   --accent:         #d9a13f; /* projektor kehribari, doygunlugu dusurulmus */
   --accent-hover:   #e6b355;
   --accent-muted:   #6b5730;
 
   --gold:           #d9a13f;
+  --warn:           #a6584a;
+  --danger:         #a6584a;
+}
+
+/* ============================================================
+   KATEGORI DERISI — Dizi ("Yayin Odasi")
+   Salon 03'un komsusu. 6 Agustos 2026'ya kadar bu deri HIC YOKTU:
+   dizi kanadinin dort giris noktasi da `data-category="dizi"` yaziyordu
+   ama globals.css'te karsiligi olmadigi icin butun dizi sayfalari
+   :root'un varsayilan MOR paletiyle aciliyordu. Ustune ShowHall.module.css
+   film salonundan kopyalandigi icin --film-dust/--film-curtain okuyordu
+   ve mor zemine kehribar toz seriliyordu — gozle gorulur palet catismasi.
+
+   Accent kapidan geliyor (film derisiyle ayni kural): ana sayfadaki dizi
+   kapisindan sizan isik --door-dizi-a (#4fa6c4), ardindaki oda
+   --door-dizi-b (#10242e). Bu deri o kapidan girince gorulen yerdir:
+   soguk, camli, monitor isigi. Film salonunun kehribari sicak, bu soguk —
+   iki komsu salon boylece birbirine karismiyor.
+   Renk kararlari yalnizca bu dosyada (kural 16).
+   ============================================================ */
+[data-category="dizi"] {
+  --bg:             #0d1216;
+  --surface:        #141b21;
+  --surface-hover:  #1a222a;
+  --border:         #223038;
+  --border-strong:  #2f4049;
+
+  --text-primary:   #eef2f4;
+  --text-secondary: #97a3aa;
+  --text-muted:     #939ea3;
+
+  --accent:         #5b9fb8; /* kapidan sizan soguk mavi, doygunlugu dusurulmus */
+  --accent-hover:   #74b3c9;
+  --accent-muted:   #3a5a66;
+
+  --gold:           #b89a63;
   --warn:           #a6584a;
   --danger:         #a6584a;
 }
@@ -245,7 +293,7 @@
 
   --text-primary:   #f0eef7;
   --text-secondary: #9b9aad;
-  --text-muted:     #6b6a7c;
+  --text-muted:     #9493a6;
 
   --accent:         #8f7fd4; /* mürekkep moru, doygunlugu dusurulmus */
   --accent-hover:   #a293e0;
@@ -272,7 +320,7 @@
 
   --text-primary:   #ece7dc;
   --text-secondary: #a09aad;
-  --text-muted:     #6f6a7d;
+  --text-muted:     #9a94a8;
 
   --accent:         #c9a86a; /* sirt yaldizi */
   --accent-hover:   #dcbd80;
@@ -281,6 +329,29 @@
   --gold:           #c9a86a;
   --warn:           #a6784a;
   --danger:         #a6584a;
+}
+
+/* ============================================================
+   TUREV TOKEN — --surface-2
+
+   Yuzey ile zemin ARASI ton. Kapaksiz kitabin cerceve ici, fotografsiz
+   yazarin portre yuvasi, "bu sayfanin siniri" not seridi bunu okuyor.
+   6 Agustos 2026'ya kadar HICBIR temada tanimli degildi: o uc yer saydam
+   kaliyordu (tanimsiz custom property, --pad-xl ile ayni sinif hata).
+
+   Neden sabit deger degil de turev: kural 16 "tum temalar ayni token
+   setini eksiksiz doldurur" diyor. Sekiz palet blogunun her birine elle
+   bir ton yazmak, dokuzuncu palet eklendiginde unutulacak bir madde daha
+   demek. Burada tek kural var ve her paleti kendiliginden kapsiyor —
+   `[data-category]` secicisi kategorinin KENDI --surface/--bg degerlerini
+   okur, cunku bildirim ayni ogenin uzerinde yapiliyor.
+
+   Bu kural butun palet bloklarindan SONRA gelmeli: yukaridaki bloklardan
+   birine tasinirsa kategori derileri onu ezemez.
+   ============================================================ */
+:root,
+[data-category] {
+  --surface-2: color-mix(in srgb, var(--surface) 65%, var(--bg));
 }
 
 :root {
@@ -293,6 +364,13 @@
   --film-curtain: #3d1215; /* kapinin ardindaki perde: serit cercevesi + kunye levhasi */
   --film-frame:   #0a0b0e; /* 35 mm serit govdesi — zeminden koyu */
   --film-dust:    rgba(229, 178, 60, 0.06); /* havadaki isik tozu */
+
+  /* Salon 03 — Yayin Odasi yardimci token'lari.
+     ShowHall.module.css film salonundan kopyalandigi icin --film-dust ve
+     --film-curtain okuyordu; dizi kanadi kendi derisini alinca soguk mavi
+     zemine kehribar toz serilmis oluyordu. Ayni yapi, kendi renkleri. */
+  --show-curtain: #10242e; /* kapinin ardindaki oda — cerceve cizgileri */
+  --show-dust:    rgba(79, 166, 196, 0.06); /* havadaki monitor isigi */
 
   /* Spor kanadi ortak */
   --sport-ink:  #0c0f15;
@@ -397,4 +475,66 @@ a:hover { color: var(--accent-hover); }
 
 [style*="old turkic" i] {
   font-family: var(--font-runic) !important;
+}
+
+/* ============================================================
+   ERISILEBILIRLIK TABANI (6 Agustos 2026)
+
+   Denetimde bulundu: globals.css'te tek bir `:focus-visible` kurali yoktu
+   ve 34 CSS modulu `:hover` tanimlayip `:focus` tanimlamiyordu. Yani
+   klavyeyle gezen biri sitede NEREDE oldugunu goremiyordu.
+
+   `:where()` bilincli: ozgulugu SIFIR yapar. Boylece bu kural mevcut 69
+   modulden hicbirini ezmez — kendi odak stilini yazmis olan kazanir, hicbir
+   sey yazmamis olanlarda bu devreye girer. 34 dosyaya dokunmadan hepsi
+   kapaniyor.
+   ============================================================ */
+:where(
+    a,
+    button,
+    [role="button"],
+    input,
+    select,
+    textarea,
+    summary,
+    [tabindex]
+  ):focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 2px;
+  border-radius: var(--radius);
+}
+
+/* Gorsel olarak gizli, ekran okuyucuda duran metin.
+   Bu yardimci PaginatedReader.module.css icinde modul-yerel olarak zaten
+   vardi; skip-link ve ikon dugmeleri de ihtiyac duydugu icin buraya alindi. */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* "Ana icerige atla" — klavyeyle gelen biri her sayfada once header ve
+   footer baglantilarini gecmek zorunda kalmasin. Yalnizca odaklaninca
+   gorunur; fare kullanicisi hic gormez. */
+.skipLink {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+}
+
+.skipLink:focus {
+  left: var(--pad-md);
+  top: var(--pad-md);
+  min-height: var(--touch-min);
+  padding: 11px var(--pad-md);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text-primary);
 }

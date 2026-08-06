@@ -317,7 +317,12 @@ function Hero({ anime }: { anime: ArchiveAnime }) {
 
       <div className={styles.heroInner}>
         <span className={styles.heroEyebrow}>{t("hero.eyebrow")}</span>
-        <h2 className={styles.heroTitle}>{anime.title}</h2>
+        {/* <h2> DEGIL: bu bant sayfanin gercek <h1>'inden (arsiv basligi)
+            ONCE ciziliyordu, yani baslik agacinda h2 -> h1 sirasi olusuyor
+            ve ekran okuyucuda salonun adi ikinci sirada kaliyordu. Bant
+            zaten dekoratif bir "devam et" seridi, baslik olmasi sart degil.
+            Gorsel olcu degismedi (ayni .heroTitle sinifi). */}
+        <p className={styles.heroTitle}>{anime.title}</p>
 
         {part ? (
           <p className={styles.heroLine}>

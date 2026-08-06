@@ -1,7 +1,8 @@
 {
   "common": {
     "siteName": "KuroNexus",
-    "backToTop": "En üste git"
+    "backToTop": "En üste git",
+    "skipToContent": "Ana içeriğe atla"
   },
   "nav": {
     "darkStories": "Nexus'u Keşfet"

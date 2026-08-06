@@ -51,7 +51,7 @@ export function AwardHall({
   const t = useTranslations("book");
 
   return (
-    <div className={styles.page}>
+    <div data-category="kitap" className={styles.page}>
       <header className={styles.head}>
         <Link href="/dark-stories/category/kitap/arsiv" className={styles.back}>
           {t("backToArchive")}
@@ -141,7 +141,7 @@ export function AwardShelf({
   const winners = award.winners;
 
   return (
-    <div className={styles.page}>
+    <div data-category="kitap" className={styles.page}>
       <header className={styles.head}>
         <Link href={AWARDS_HREF} className={styles.back}>
           {t("awards.backToAwards")}

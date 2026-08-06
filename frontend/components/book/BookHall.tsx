@@ -343,7 +343,7 @@ export function BookHall({
         </aside>
 
         {/* ---- Orta sütun ---- */}
-        <main className={styles.column}>
+        <div className={styles.column}>
           <header className={styles.head}>
             <Link
               href={
@@ -496,7 +496,7 @@ export function BookHall({
               ) : null}
             </>
           )}
-        </main>
+        </div>
 
         {/* ---- Sağ ray: istatistikler ---- */}
         <aside className={styles.railRight}>

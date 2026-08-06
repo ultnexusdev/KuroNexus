@@ -241,7 +241,10 @@
 .searchField input:focus-visible,
 .sortField select:focus-visible {
   border-color: var(--accent-muted);
-  outline: none;
+  /* `outline: none` kaldirildi (6 Agustos 2026): yerine konan kenarlik
+     degisimi 2.7:1 kontrast veriyordu, WCAG 1.4.11 esigi 3:1. Odak halkasi
+     artik globals.css'teki genel :where(...):focus-visible kuralindan
+     geliyor; kenarlik degisimi ikinci sinyal olarak duruyor. */
 }
 
 .clearFilters {

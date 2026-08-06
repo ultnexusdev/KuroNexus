@@ -39,7 +39,7 @@ export function PersonPage({
   const photo = person.photo ? apiUrl(person.photo) : null;
 
   return (
-    <div className={styles.page}>
+    <div data-category="kitap" className={styles.page}>
       <header className={styles.head}>
         <Link href={KITAP_HREF} className={styles.back}>
           {t("person.backToHall")}
@@ -144,7 +144,7 @@ export function SeriesPage({
   const t = useTranslations("book");
 
   return (
-    <div className={styles.page}>
+    <div data-category="kitap" className={styles.page}>
       <header className={styles.head}>
         <Link href={KITAP_HREF} className={styles.back}>
           {t("person.backToHall")}
@@ -204,7 +204,7 @@ export function PublisherPage({
   const t = useTranslations("book");
 
   return (
-    <div className={styles.page}>
+    <div data-category="kitap" className={styles.page}>
       <header className={styles.head}>
         <Link href={KITAP_HREF} className={styles.back}>
           {t("person.backToHall")}

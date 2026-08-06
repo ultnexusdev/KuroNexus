@@ -1,6 +1,13 @@
-/* Salon 02 · Film — "Projeksiyon Salonu".
+﻿/* Salon 03 · Dizi — "Yayin Odasi".
    Renkler yalnizca token'lardan; palet globals.css'teki
-   [data-category="film"] blogunda tanimli (AGENTS.md kural 16).
+   [data-category="dizi"] blogunda tanimli (AGENTS.md kural 16).
+
+   NOT (6 Agustos 2026): bu dosya film salonundan kopyalanmisti ve baslik
+   hala "Salon 02 · Film" diyordu; ustelik --film-dust / --film-curtain
+   okuyordu. [data-category="dizi"] derisi de globals.css'te hic yoktu,
+   yani dizi kanadi varsayilan MOR paletle acilip uzerine film salonunun
+   kehribar tozunu seriyordu. Deri eklendi, token'lar --show-* ile
+   degistirildi.
 
    Duzen: .hall tam genislikte sarmalayici (yan duvarlar burada, fixed),
    .page ortalanmis icerik sutunu. Sutun genisligi tek degiskenden
@@ -16,7 +23,7 @@
   /* Havada asili projektor tozu — tek, genis, sessiz bir hale */
   background-image: radial-gradient(
     120% 70% at 50% -10%,
-    var(--film-dust),
+    var(--show-dust),
     transparent 60%
   );
 }
@@ -176,8 +183,8 @@
 .strip {
   padding: 6px 0;
   background: var(--film-frame);
-  border-top: 1px solid var(--film-curtain);
-  border-bottom: 1px solid var(--film-curtain);
+  border-top: 1px solid var(--show-curtain);
+  border-bottom: 1px solid var(--show-curtain);
 }
 
 /* Perforasyon rayi: esit arali kucuk delikler */
@@ -212,12 +219,12 @@
   flex: 0 0 auto;
   width: 116px;
   padding: 8px;
-  border-left: 1px solid var(--film-curtain);
+  border-left: 1px solid var(--show-curtain);
   scroll-snap-align: start;
 }
 
 .frame:last-child {
-  border-right: 1px solid var(--film-curtain);
+  border-right: 1px solid var(--show-curtain);
 }
 
 .framePoster {
@@ -632,7 +639,7 @@
   overflow: hidden;
   background: var(--surface);
   /* Cerceve: ince ic hat + perde tonunda dis hat */
-  border: 1px solid var(--film-curtain);
+  border: 1px solid var(--show-curtain);
   outline: 1px solid var(--border);
   outline-offset: 4px;
 }

@@ -211,7 +211,9 @@
   text-align: center;
   width: 2.5rem;
   padding: 0;
-  outline: none;
+  /* `outline: none` kaldirildi (6 Agustos 2026): sayfa numarasi alanina
+     klavyeyle gelindiginde hicbir isaret yoktu. Odak halkasi artik
+     globals.css'teki genel :where(...):focus-visible kuralindan geliyor. */
   -moz-appearance: textfield;
 }
 .pageInput::-webkit-outer-spin-button,

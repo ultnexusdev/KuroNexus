@@ -113,3 +113,26 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* Hareket azaltma korumasi (6 Agustos 2026 eklendi).
+   Bu dosya ailenin TEK animasyonlu ama korumasiz uyesiydi: FilmHall,
+   ShowHall, uc lobi, iki backdrop ve NexusHub'in hepsinde bu blok vardi.
+   Hareketten rahatsiz olan kullanici icin hareket duruyor, renk ve
+   kenarlik gecisleri kaliyor - alti cizili altin cizgi de acik konumda
+   sabitleniyor ki kart eksik gorunmesin. */
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .card::before,
+  .cover,
+  .title {
+    transition: none;
+  }
+
+  .card:hover .cover {
+    transform: none;
+  }
+
+  .card:hover::before {
+    transform: scaleX(1);
+  }
+}

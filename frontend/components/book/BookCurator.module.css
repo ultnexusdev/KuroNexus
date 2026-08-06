@@ -105,7 +105,7 @@
 .field textarea:focus-visible,
 .searchForm input:focus-visible {
   border-color: var(--accent-muted);
-  outline: none;
+  /* `outline: none` kaldirildi — gerekcesi BookHall.module.css'te yazili */
 }
 
 .primary,

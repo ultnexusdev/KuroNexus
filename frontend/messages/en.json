@@ -1,7 +1,8 @@
 {
   "common": {
     "siteName": "KuroNexus",
-    "backToTop": "Back to top"
+    "backToTop": "Back to top",
+    "skipToContent": "Skip to main content"
   },
   "nav": {
     "darkStories": "Discover Nexus"

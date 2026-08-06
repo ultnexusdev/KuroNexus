@@ -66,7 +66,7 @@ export function ReadingOrderHall({
   const t = useTranslations("book");
 
   return (
-    <div className={styles.page}>
+    <div data-category="kitap" className={styles.page}>
       <header className={styles.head}>
         <Link href="/dark-stories/category/kitap" className={styles.back}>
           {t("readingOrder.backToHall")}
@@ -190,7 +190,7 @@ export function ReadingOrderPage({
   const photo = order.author.photo ? apiUrl(order.author.photo) : null;
 
   return (
-    <div className={styles.page}>
+    <div data-category="kitap" className={styles.page}>
       <header className={styles.head}>
         <Link href={READING_ORDERS_HREF} className={styles.back}>
           {t("readingOrder.backToOrders")}
@@ -259,7 +259,7 @@ export function ReadingOrderPage({
         </aside>
 
         {/* ---- Orta: yol ---- */}
-        <main className={styles.main}>
+        <div className={styles.main}>
           <section className={styles.progress}>
             <div className={styles.progressHead}>
               <span className={styles.progressLabel}>
@@ -381,7 +381,7 @@ export function ReadingOrderPage({
           {entries.length === 0 ? (
             <p className={styles.empty}>{t("readingOrder.noMatch")}</p>
           ) : null}
-        </main>
+        </div>
       </div>
 
       <BackToTop />

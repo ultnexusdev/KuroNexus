@@ -1,0 +1,113 @@
+/* Salon iskeleti — sayfa veriyi beklerken gorunen sey.
+   Renkler token'lardan (AGENTS.md kural 16); parlama yok, yalnizca cok
+   dusuk genlikli bir opaklik nefesi.
+
+   Neden gerekliydi: dark-stories altindaki 24 sayfanin tamami
+   `force-dynamic` ve agacta hicbir loading.tsx yoktu. Kullanici bir
+   baglantiya basiyor, sunucu API'yi bekliyor ve ekranda HICBIR SEY
+   degismiyordu (olculdu: dizi salonu soguk acilista 9 sn). */
+
+.hall {
+  box-sizing: border-box;
+  min-height: 100vh;
+  padding: var(--pad-lg) var(--pad-md) 120px;
+  background: var(--bg);
+}
+
+.page {
+  width: min(1180px, 100%);
+  margin-inline: auto;
+}
+
+/* Iskelet parcalarinin ortak yuzeyi. Gercek kartlarla ayni kenarlik ve
+   radius: yerine gercek icerik gelince zipla­ma olmasin. */
+.bar,
+.tile {
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.eyebrow {
+  width: 140px;
+  height: 14px;
+  margin-bottom: var(--gap-md);
+}
+
+.title {
+  width: min(420px, 70%);
+  height: 42px;
+  margin-bottom: var(--gap-md);
+  border-radius: var(--radius);
+}
+
+.lede {
+  width: min(560px, 90%);
+  height: 16px;
+  margin-bottom: var(--pad-lg);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--gap-md);
+  margin-bottom: var(--pad-lg);
+}
+
+.stat {
+  height: 76px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--gap-lg) var(--gap-md);
+}
+
+@media (min-width: 640px) {
+  .grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1100px) {
+  .grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+.poster {
+  aspect-ratio: 2 / 3;
+  border-radius: var(--radius);
+}
+
+/* Nefes: parlama DEGIL, opaklik. Genlik bilincli olarak kucuk (0.5 -> 0.85);
+   yuksek kontrastli bir yanip sonme dikkat cekmek yerine rahatsiz ediyor. */
+.pulse {
+  animation: hallBreath 1600ms cubic-bezier(0.23, 1, 0.32, 1) infinite alternate;
+}
+
+@keyframes hallBreath {
+  from {
+    opacity: 0.5;
+  }
+  to {
+    opacity: 0.85;
+  }
+}
+
+/* Sirali gecikme: butun kutular ayni anda yanip sonerse ekran titriyor gibi
+   duruyor. 60ms'lik kayma dalga hissi veriyor. */
+.grid > *:nth-child(2) { animation-delay: 60ms; }
+.grid > *:nth-child(3) { animation-delay: 120ms; }
+.grid > *:nth-child(4) { animation-delay: 180ms; }
+.grid > *:nth-child(5) { animation-delay: 240ms; }
+.grid > *:nth-child(6) { animation-delay: 300ms; }
+.grid > *:nth-child(n + 7) { animation-delay: 360ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse {
+    animation: none;
+    opacity: 0.6;
+  }
+}

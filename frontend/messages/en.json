@@ -1445,5 +1445,17 @@
       "profile": "No profile details were provided for this character.",
       "about": "No description was written for this character."
     }
+  },
+  "pageState": {
+    "notFound": {
+      "title": "This page is not in the archive",
+      "text": "The record may have been removed, or the address may be mistyped. Try again from the Nexus entrance."
+    },
+    "error": {
+      "title": "Something went wrong",
+      "text": "An unexpected error occurred while preparing the page. It is usually temporary — retrying is often enough.",
+      "retry": "Try again",
+      "code": "Error id: {digest}"
+    }
   }
 }

@@ -1445,5 +1445,17 @@
       "profile": "Bu karakter için künye bilgisi verilmemiş.",
       "about": "Bu karakter için açıklama yazılmamış."
     }
+  },
+  "pageState": {
+    "notFound": {
+      "title": "Bu sayfa arşivde yok",
+      "text": "Aradığın kayıt kaldırılmış ya da adres yanlış yazılmış olabilir. Nexus girişinden yeniden bakabilirsin."
+    },
+    "error": {
+      "title": "Bir şey ters gitti",
+      "text": "Sayfa hazırlanırken beklenmeyen bir hata oluştu. Çoğu zaman geçicidir — tekrar denemek yeterli oluyor.",
+      "retry": "Tekrar dene",
+      "code": "Hata kimliği: {digest}"
+    }
   }
 }

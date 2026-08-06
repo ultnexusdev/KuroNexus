@@ -1,0 +1,108 @@
+/* Sayfa mesaji — "bulunamadi" ve "bir sey ters gitti" ekranlarinin ortak
+   kabugu. Renkler token'lardan (AGENTS.md kural 16).
+
+   Neden gerekliydi: agacta hicbir not-found.tsx ve error.tsx yoktu, sekizden
+   fazla notFound() cagrisi Next'in ciplak varsayilan 404'une dusuyordu —
+   kanadin derisi yok, geri baglantisi yok, sayfanin dili yok. */
+
+.wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 70vh;
+  padding: var(--pad-lg) var(--pad-md) 120px;
+  background: var(--bg);
+}
+
+.box {
+  width: min(46ch, 100%);
+  text-align: center;
+}
+
+/* Muhur: kanadin altin/accent isareti. Ikon kullanilmadi - projede ikon
+   sistemi yok, tek bir yerde ikon getirmek yeni bir dil acardi. */
+.mark {
+  display: block;
+  margin-bottom: var(--gap-md);
+  color: var(--accent-muted);
+  font-family: var(--font-cinzel), serif;
+  font-size: 2.6rem;
+  line-height: 1;
+}
+
+.title {
+  margin: 0 0 var(--gap-md);
+  color: var(--text-primary);
+  font-family: var(--font-cinzel), serif;
+  font-size: clamp(1.4rem, 4vw, 2rem);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+
+.text {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.98rem;
+  line-height: 1.7;
+  text-wrap: pretty;
+}
+
+/* Teknik ayrinti: kullaniciya sayfanin ustunde degil, altinda ve soluk.
+   Hatayi bildirirken ise yariyor ama okuma akisinin onune gecmiyor. */
+.detail {
+  margin: var(--gap-md) 0 0;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-md);
+  justify-content: center;
+  margin-top: var(--pad-lg);
+}
+
+.action {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  padding: 0 18px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--accent);
+  font-family: inherit;
+  font-size: 0.88rem;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background 160ms cubic-bezier(0.23, 1, 0.32, 1),
+    border-color 160ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.action:hover {
+  border-color: var(--accent-muted);
+  background: var(--surface-hover);
+}
+
+.action:active {
+  transform: scale(0.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .action {
+    transition: none;
+  }
+
+  .action:active {
+    transform: none;
+  }
+}

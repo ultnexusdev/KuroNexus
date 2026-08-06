@@ -1,4 +1,4 @@
-import type { CharacterOverlay } from "./types";
+﻿import type { CharacterOverlay } from "./types";
 
 /**
  * 更木剣八 — Zaraki Kenpachi (AniList #909).
@@ -118,21 +118,25 @@ export const ZARAKI_KENPACHI: CharacterOverlay = {
       opponent: "Kaname Tōsen",
       arc: { tr: "Soul Society arkı", en: "Soul Society arc" },
       outcome: "WIN",
+      opponentCharacterId: 1085,
     },
     {
       opponent: "Nnoitra Gilga",
       arc: { tr: "Hueco Mundo arkı", en: "Hueco Mundo arc" },
       outcome: "WIN",
+      opponentCharacterId: 3210,
     },
     {
       opponent: "Gremmy Thoumeaux",
       arc: { tr: "Bin Yıllık Kan Savaşı", en: "Thousand-Year Blood War" },
       outcome: "WIN",
+      opponentCharacterId: 189752,
     },
     {
       opponent: "Retsu Unohana",
       arc: { tr: "Bin Yıllık Kan Savaşı", en: "Thousand-Year Blood War" },
       outcome: "WIN",
+      opponentCharacterId: 3845,
     },
   ],
 
@@ -194,6 +198,7 @@ export const ZARAKI_KENPACHI: CharacterOverlay = {
   bonds: [
     {
       name: "Yachiru Kusajishi",
+      characterId: 910,
       summary: {
         tr: "En yakın yol arkadaşı. Kenpachi'nin nadir görülen yumuşak yönünü ortaya çıkaran tek kişi.",
         en: "His closest companion, and the only one who brings out the rare soft side of him.",
@@ -201,6 +206,7 @@ export const ZARAKI_KENPACHI: CharacterOverlay = {
     },
     {
       name: "Retsu Unohana",
+      characterId: 3845,
       summary: {
         tr: "Kenpachi'yi yenebilen kişi ve onun gerçek potansiyeline ulaşmasını sağlayan karakter.",
         en: "The one person able to defeat him — and the reason he reached his true potential.",

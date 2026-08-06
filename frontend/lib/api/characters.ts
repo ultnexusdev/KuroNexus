@@ -1,5 +1,9 @@
 import { apiFetch } from "./client";
-import type { CharacterDetail, CharacterIndex } from "./types";
+import type {
+  CharacterCard,
+  CharacterDetail,
+  CharacterIndex,
+} from "./types";
 
 /**
  * Karakter dizini ve karakter dosyası.
@@ -29,6 +33,29 @@ export async function getCharacterIndex(): Promise<CharacterIndex> {
     });
   } catch {
     return EMPTY_INDEX;
+  }
+}
+
+/**
+ * Adı geçen karakterlerin portreleri (savaş ve ilişki satırları).
+ *
+ * Tek istek: her karakter için ayrı çağrı 6 ayrı AniList turu demekti.
+ * Alınamazsa boş dizi → bölümler adlarla, portresiz çizilir.
+ */
+export async function getCharacterCards(
+  ids: number[],
+): Promise<CharacterCard[]> {
+  const unique = [...new Set(ids)].filter((id) => Number.isInteger(id) && id > 0);
+  if (unique.length === 0) {
+    return [];
+  }
+  try {
+    return await apiFetch<CharacterCard[]>(
+      `/anime/characters/cards?ids=${unique.join(",")}`,
+      { next: { revalidate: 86400 } },
+    );
+  } catch {
+    return [];
   }
 }
 

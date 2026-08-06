@@ -1,10 +1,26 @@
 /* Karakter dosyasi — muzenin portre kanadinda tek bir cerceve ve kunyesi.
    Palet [data-category="anime"] blogundan (AGENTS.md kural 16).
-   Derinlik stratejisi TEK: 0.5px kenarlik + yuzey tonu kaymasi.
+   Derinlik stratejisi TEK: 0.5px kenarlik + yuzey tonu kaymasi, golge yok.
 
-   ODAK: portre + ad. Her sey onlarin altinda ikinci kademe.
-   Kunye solda dar sutunda, okunan metin sagda genis sutunda — goz once
-   yuze, sonra ada, sonra metne gider; kunye satirlari akisi bolmez. */
+   ─────────────────────────────────────────────────────────────────────────
+   DUZEN KARARI (6 Agustos 2026, ikinci tur)
+
+   Ilk surumde dar bir yan sutun (300px kunye) uzun bir ana sutunun yanina
+   konmustu. Kullanici hakli olarak "bosluklar duzensiz" dedi. Kok sebep
+   figur/zemin: bolumlerin ZEMINI YOKTU, icerik dogrudan sayfa zeminine
+   oturuyordu. Kisa kalan sutun "bitmis kart" degil "yarim kalmis alan"
+   gibi okunuyordu.
+
+   Uc degisiklik:
+   1. Her bolum artik bir PANEL: yuzey + 0.5px kenarlik + radius. Kisa panel
+      artik biten bir sey; altindaki bosluk sayfanin nefesi.
+   2. 300px/1fr ayrimi kaldirildi. Sayfa bastan sona tam genislikte bantlar;
+      esler `align-items: stretch` ile ayni yuksekligi paylasiyor, yani
+      ragged alt kenar kalmiyor.
+   3. Panel basliklarindan alt cizgi kaldirildi. Dokuz ozdes yatay cizgi
+      "ayirici cogaliyor ama yapi kurmuyor" hatasiydi; panel kenari zaten
+      ayiriyor.
+   ───────────────────────────────────────────────────────────────────────── */
 
 .hall {
   position: relative;
@@ -22,7 +38,7 @@
 .page {
   position: relative;
   z-index: 1;
-  width: min(1080px, 100%);
+  width: min(1120px, 100%);
   margin-inline: auto;
 }
 
@@ -48,10 +64,8 @@
   gap: var(--pad-lg);
   align-items: flex-start;
   padding-bottom: var(--pad-lg);
-  border-bottom: 0.5px solid var(--border);
 }
 
-/* Cerceve + yanindaki dikey ad tek bir oge gibi durur */
 .portraitBlock {
   display: flex;
   flex-shrink: 0;
@@ -61,7 +75,7 @@
 
 .frame {
   position: relative;
-  width: clamp(150px, 34vw, 220px);
+  width: clamp(150px, 34vw, 230px);
   aspect-ratio: 2 / 3;
   overflow: hidden;
   border: 0.5px solid var(--border-strong);
@@ -93,19 +107,18 @@
 .nativeColumn {
   writing-mode: vertical-rl;
   align-self: flex-start;
-  max-height: clamp(225px, 51vw, 330px);
+  max-height: clamp(225px, 51vw, 345px);
   overflow: hidden;
   color: var(--accent-muted);
   font-family: var(--font-brush), serif;
   font-size: clamp(1.5rem, 4.5vw, 2.1rem);
   letter-spacing: 0.14em;
   line-height: 1;
-  /* Firca yazisi kalin gorunmesin: koyu zeminde kenar yumusatma sart */
   -webkit-font-smoothing: antialiased;
 }
 
 .identity {
-  flex: 1 1 300px;
+  flex: 1 1 320px;
   min-width: 0;
 }
 
@@ -113,11 +126,10 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--gap-sm);
+  gap: var(--gap-md);
   margin-bottom: var(--gap-sm);
 }
 
-/* Rol: renkli rozet degil, harflerin kendisi (kartlarla ayni karar) */
 .rank {
   color: var(--text-muted);
   font-family: var(--font-bebas), var(--font-sans);
@@ -130,7 +142,6 @@
   color: var(--accent);
 }
 
-/* AniList'te kac kisinin favoriledigi — kunyenin tek sayisal vurgusu */
 .favourites {
   display: inline-flex;
   align-items: baseline;
@@ -146,7 +157,6 @@
   font-family: var(--font-cinzel), serif;
   font-size: clamp(1.9rem, 5.5vw, 3.1rem);
   font-weight: 600;
-  /* Buyudukce harf arasi daralir: genis takip 3rem'de dagilmis gorunur */
   letter-spacing: -0.005em;
   line-height: 1.05;
   text-wrap: balance;
@@ -160,7 +170,6 @@
   text-wrap: pretty;
 }
 
-/* Karakterin arsivimizdeki serileri — kapinin geri acildigi yer */
 .seriesRow {
   display: flex;
   flex-wrap: wrap;
@@ -189,35 +198,58 @@
   color: var(--accent-hover);
 }
 
-/* --- Iki sutun --- */
+/* ============================================================
+   PANEL SISTEMI
+   ============================================================ */
 
-.columns {
-  display: grid;
+/* Sayfanin dikey ritmi tek yerden: butun bantlar arasi ayni bosluk. */
+.stack {
+  display: flex;
+  flex-direction: column;
   gap: var(--pad-lg);
-  margin-top: var(--pad-lg);
 }
 
-@media (min-width: 900px) {
-  .columns {
-    /* 300px kunye + kalan hepsi metin: oran "kunye metne hizmet eder" der.
-       Esit iki sutun ikisini akran gosterirdi, oysa sayfaya okumaya gelinir. */
-    grid-template-columns: 300px minmax(0, 1fr);
-    align-items: start;
+/* Ikili bant. `stretch` sart: esler ayni yuksekligi paylasinca alt kenar
+   duz kaliyor ve kisa olan panelin altinda delik olusmuyor. */
+.duo {
+  display: grid;
+  gap: var(--pad-lg);
+  align-items: stretch;
+}
+
+@media (min-width: 820px) {
+  .duo {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-.section {
-  margin-bottom: var(--pad-lg);
+.panel {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: var(--pad-md);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface);
 }
 
-.section:last-child {
-  margin-bottom: 0;
+@media (min-width: 820px) {
+  .panel {
+    padding: var(--pad-lg);
+  }
 }
 
-.sectionTitle {
-  margin: 0 0 var(--gap-md);
-  padding-bottom: var(--gap-sm);
-  border-bottom: 0.5px solid var(--border);
+/* Panelin govdesi kalan yeri doldursun: iki panel ayni yukseklikte olunca
+   kisa olanin icerigi ustte toplanir, altta ise bosluk kalir — o bosluk
+   panelin ICINDE oldugu icin artik "delik" degil kenar payi. */
+.panelBody {
+  flex: 1;
+}
+
+/* Baslik: alt cizgi YOK (panel kenari zaten ayiriyor). Vurgu yalnizca
+   aralikli buyuk harf ve renk. */
+.panelTitle {
+  margin: 0 0 var(--pad-md);
   color: var(--text-secondary);
   font-family: var(--font-bebas), var(--font-sans);
   font-size: 0.95rem;
@@ -263,60 +295,16 @@
   overflow-wrap: anywhere;
 }
 
-/* --- Seslendiren --- */
-
-.voice {
-  display: flex;
-  gap: var(--gap-md);
-  align-items: center;
-  box-sizing: border-box;
-  padding: var(--gap-md);
-  border: 0.5px solid var(--border);
-  border-radius: var(--radius-card);
-  background: var(--surface);
-}
-
-.voiceFace {
-  position: relative;
-  flex-shrink: 0;
-  width: 48px;
-  height: 48px;
-  overflow: hidden;
-  border-radius: 999px;
-  background: var(--surface-hover);
-}
-
-.voiceImg {
-  object-fit: cover;
-}
-
-.voiceText {
-  min-width: 0;
-}
-
-.voiceRole {
-  display: block;
-  color: var(--text-muted);
-  font-size: 0.7rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.voiceName {
-  display: block;
-  margin-top: 2px;
-  color: var(--text-primary);
-  font-size: 0.92rem;
-}
-
 /* --- Hakkinda --- */
 
 .prose {
+  /* Okuma olcusu: 68 karakter. Tam genislikte bir panelde satir 120 karaktere
+     ciksaydi goz satir basini kaybederdi. */
+  max-width: 68ch;
   margin: 0 0 var(--gap-md);
   color: var(--text-primary);
-  font-size: 0.98rem;
-  /* Okuma metni: 1.7 satir araligi sitenin body degeriyle ayni */
-  line-height: 1.7;
+  font-size: 1rem;
+  line-height: 1.75;
   white-space: pre-line;
   text-wrap: pretty;
 }
@@ -329,7 +317,7 @@
 
 .appearances {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
   gap: var(--gap-lg) var(--gap-md);
   margin: 0;
   padding: 0;
@@ -347,7 +335,7 @@
   overflow: hidden;
   border: 0.5px solid var(--border);
   border-radius: var(--radius);
-  background: var(--surface);
+  background: var(--surface-hover);
 }
 
 .appearanceImg {
@@ -356,9 +344,6 @@
   outline-offset: -1px;
 }
 
-/* Arsivde olmayan yapim tiklanabilir degil: disariya link vermek ziyaretcinin
-   IP'sini baska siteye tasir ve sayfadan cikarir. Kart yine gorunur, kunye
-   olarak durur. */
 .appearanceFrameStatic {
   cursor: default;
 }
@@ -367,7 +352,7 @@
   display: block;
   margin-top: var(--gap-sm);
   color: var(--text-primary);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   line-height: 1.35;
 }
 
@@ -388,36 +373,17 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Arsivde olan yapimin isareti: ince bir accent cizgisi. Rozet degil —
-   kartlarin ustune ikinci bir rozet dizisi koymak izgarayi gurultuye bogar. */
+/* Arsivde olan yapimin isareti: ince bir accent cizgisi. */
 .inArchive {
   border-left: 2px solid var(--accent-muted);
   padding-left: var(--gap-sm);
-}
-
-/* --- Uclu bant --- */
-
-/* Referans duzendeki uc sutunlu seritler (savaslar | galeri | replikler).
-   auto-fit + minmax: dar ekranda kendiliginden tek sutuna iniyor, ara
-   genisliklerde ikiye. Sabit `repeat(3, ...)` 900px'te sikisiyordu. */
-.band {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--pad-lg);
-  margin-top: var(--pad-lg);
-  align-items: start;
-}
-
-/* Bant icindeki bolumlerin alt bosluğu dislarindan gelir */
-.band > * {
-  margin-bottom: 0;
 }
 
 /* --- Yakindaki karakterler --- */
 
 .relatedGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
   gap: var(--gap-lg) var(--gap-md);
   margin: 0;
   padding: 0;
@@ -427,12 +393,11 @@
 /* --- Kaynak notu --- */
 
 .source {
-  margin-top: var(--pad-lg);
-  padding-top: var(--gap-md);
-  border-top: 0.5px solid var(--border);
+  margin: var(--pad-lg) 0 0;
   color: var(--text-muted);
   font-size: 0.76rem;
   line-height: 1.6;
+  text-align: center;
 }
 
 .sourceLink {
@@ -443,8 +408,17 @@
   color: var(--accent);
 }
 
-/* Galeri henuz bos: bu bir hata degil, "burasi senin" mesaji. Yalnizca
-   kurator goruyor - ziyaretciye bolum hic cizilmiyor. */
+/* --- Bos durumlar --- */
+
+.sectionEmpty {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.86rem;
+  line-height: 1.6;
+}
+
+/* Galeri henuz bos: hata degil, "burasi senin" mesaji. Yalnizca kurator
+   goruyor — ziyaretciye bolum hic cizilmiyor. */
 .galleryEmptyNote {
   box-sizing: border-box;
   margin: 0;
@@ -455,13 +429,4 @@
   font-size: 0.88rem;
   line-height: 1.65;
   text-wrap: pretty;
-}
-
-/* --- Bos bolum --- */
-
-.sectionEmpty {
-  margin: 0;
-  color: var(--text-muted);
-  font-size: 0.86rem;
-  line-height: 1.6;
 }

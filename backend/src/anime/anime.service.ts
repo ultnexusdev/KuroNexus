@@ -9,6 +9,7 @@ import {
   AnilistService,
   type AnilistCharacter,
   type AnilistCharacterAppearance,
+  type AnilistCharacterCard,
   type AnilistCharacterDetail,
   type AnilistMedia,
 } from './anilist.service';
@@ -477,6 +478,11 @@ export class AnimeService {
       });
     }
     return payload;
+  }
+
+  /** Adı geçen karakterlerin küçük künyeleri — servis yalnızca aktarıyor. */
+  getCharacterCards(ids: number[]): Promise<AnilistCharacterCard[]> {
+    return this.anilist.getCharacterCards(ids);
   }
 
   /**

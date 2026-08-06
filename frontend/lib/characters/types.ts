@@ -43,6 +43,15 @@ export interface CharacterAbility {
   release?: LocalizedText;
   summary: LocalizedText;
   traits: LocalizedText[];
+  /**
+   * O forma ait görsel — Shikai'de shikai hâli, Bankai'de bankai hâli.
+   *
+   * Hiçbir API bunu vermiyor: AniList'te karakterin tek bir portresi var,
+   * dönüşüm hâlleri yok. Dolayısıyla bu görsel **elle yükleniyor** (kürator
+   * modundaki yükleme kutusundan). Boşken kart görselsiz çiziliyor, kürator
+   * ise yerinde bir yükleme yuvası görüyor.
+   */
+  image?: string;
 }
 
 export type BattleOutcome = "WIN" | "DRAW" | "LOSS" | "UNRESOLVED";

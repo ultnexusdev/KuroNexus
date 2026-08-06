@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { readIsAdmin } from "@/lib/auth/session";
-import { getCharacterDetail } from "@/lib/api/characters";
+import { getCharacterCards, getCharacterDetail } from "@/lib/api/characters";
 import { getCharacterOverlay } from "@/lib/characters";
 import { CharacterDossier } from "@/components/character/CharacterDossier";
 
@@ -49,7 +49,23 @@ export default async function CharacterPage({
   // AniList künyesiyle açılır (lib/characters/index.ts)
   const overlay = getCharacterOverlay(detail.character.characterId);
 
+  /*
+   * Savaş ve ilişki satırlarında adı geçen karakterlerin portreleri.
+   * Kimlikler katmandan çıkarılıp TEK istekte çekiliyor; her biri için ayrı
+   * çağrı altı ayrı AniList turu demekti. Katman yoksa istek hiç atılmıyor.
+   */
+  const referencedIds = [
+    ...(overlay?.battles ?? []).map((battle) => battle.opponentCharacterId),
+    ...(overlay?.bonds ?? []).map((bond) => bond.characterId),
+  ].filter((id): id is number => typeof id === "number");
+  const cards = await getCharacterCards(referencedIds);
+
   return (
-    <CharacterDossier detail={detail} overlay={overlay} isAdmin={isAdmin} />
+    <CharacterDossier
+      detail={detail}
+      overlay={overlay}
+      cards={cards}
+      isAdmin={isAdmin}
+    />
   );
 }

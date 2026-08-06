@@ -73,15 +73,20 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Cubugun kendisi: ince, ic hatli. Referanstaki kalin kirmizi serit yerine
-   daha sakin bir cizgi - kural 16 accent'in cart olmamasini istiyor ve bu
-   bes cubuk yan yana durunca kalinlik gurultuye donusuyor. */
+/* Cubuk.
+   Ilk surumde 6px yuksekligindeydi ve zemini `color-mix(--border 70%)`
+   idi — kullanici ekranda GORMEDI ("gucun oranini gosteren bir bar olsun"
+   dedi, oysa vardi). Ders: dusuk kontrastli bir gosterge, olmayan bir
+   gostergedir. Simdi 10px ve zeminin kendi kenarligi var: cubugun tam
+   uzunlugu, dolgu kisa olsa bile goruluyor. */
 .statTrack {
   position: relative;
-  height: 6px;
+  display: block;
+  height: 10px;
   overflow: hidden;
+  border: 0.5px solid var(--border-strong);
   border-radius: 999px;
-  background: color-mix(in srgb, var(--border) 70%, transparent);
+  background: color-mix(in srgb, var(--bg) 55%, var(--surface));
 }
 
 .statFill {
@@ -114,11 +119,37 @@
 }
 
 .ability {
+  display: flex;
+  flex-direction: column;
   box-sizing: border-box;
-  padding: var(--pad-md);
+  overflow: hidden;
   border: 0.5px solid var(--border);
   border-radius: var(--radius-card);
+  /* Kart panelin ICINDE duruyor, o yuzden zemini bir ton daha acik:
+     ust uste iki ayni yuzey kartin sinirini gorunmez yapardi. */
+  background: var(--surface-hover);
+}
+
+/* Formun kendi gorseli — Shikai'de shikai hali, Bankai'de bankai hali.
+   Hicbir API bunu vermiyor, elle yukleniyor. 16/10: genis bir sahne
+   karesi; portre orani (2/3) burada karti gereksiz uzatirdi. */
+.abilityShot {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
   background: var(--surface);
+}
+
+.abilityShotImg {
+  object-fit: cover;
+  outline: 1px solid rgba(255, 255, 255, 0.1);
+  outline-offset: -1px;
+}
+
+.abilityBody {
+  box-sizing: border-box;
+  flex: 1;
+  padding: var(--pad-md);
 }
 
 .abilityName {
@@ -185,9 +216,8 @@
 .battle {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: var(--gap-md);
-  padding: 11px 0;
+  padding: 10px 0;
   border-bottom: 0.5px solid var(--border);
 }
 
@@ -195,7 +225,37 @@
   border-bottom: none;
 }
 
+/* Rakibin portresi. Yuvarlak: kadro satirlarindaki 42px'lik yuzlerle ayni
+   dil — "bu bir kisi" isareti sayfada tek bicimde okunuyor. */
+.battleFace {
+  position: relative;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  overflow: hidden;
+  border: 0.5px solid var(--border-strong);
+  border-radius: 50%;
+  background: var(--surface-hover);
+}
+
+.battleFaceImg {
+  object-fit: cover;
+}
+
+/* Portresi olmayan rakip: bas harf. Bos daire birakmak satiri kirik
+   gosteriyordu. */
+.battleFaceFallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-muted);
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.1rem;
+}
+
 .battleWho {
+  flex: 1;
   min-width: 0;
 }
 
@@ -387,11 +447,45 @@
 }
 
 .bond {
+  display: flex;
+  gap: var(--gap-md);
+  align-items: flex-start;
   box-sizing: border-box;
   padding: var(--pad-md);
   border: 0.5px solid var(--border);
   border-radius: var(--radius-card);
+  background: var(--surface-hover);
+}
+
+/* Iliskideki kisinin portresi — savas satirlariyla ayni yuvarlak dil,
+   bir tik buyuk cunku burada kisi satirin oznesi, yan bilgisi degil. */
+.bondFace {
+  position: relative;
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  overflow: hidden;
+  border: 0.5px solid var(--border-strong);
+  border-radius: 50%;
   background: var(--surface);
+}
+
+.bondFaceImg {
+  object-fit: cover;
+}
+
+.bondFaceFallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-muted);
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.3rem;
+}
+
+.bondText {
+  min-width: 0;
 }
 
 .bondName {

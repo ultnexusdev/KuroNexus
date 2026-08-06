@@ -1286,6 +1286,17 @@ export interface ArchiveCharacter {
   series: CharacterSeriesRef[];
 }
 
+/**
+ * Kucuk karakter kunyesi - yalnizca ad ve portre.
+ * Savas ve iliski satirlarinda adi gecen karakterler icin.
+ */
+export interface CharacterCard {
+  characterId: number;
+  name: string;
+  nameNative: string | null;
+  image: string | null;
+}
+
 /** Dizin suzgecindeki seri secenegi. */
 export interface CharacterSeriesFacet {
   slug: string;

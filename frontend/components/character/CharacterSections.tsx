@@ -103,30 +103,97 @@ export function AbilityCards({ overlay }: { overlay: CharacterOverlay }) {
     <ul className={styles.abilities}>
       {abilities.cards.map((card) => (
         <li key={card.name} className={styles.ability}>
-          <h3 className={styles.abilityName}>{card.name}</h3>
-          {card.release ? (
-            <p className={styles.abilityRelease}>
-              “{pick(card.release, locale)}”
-            </p>
+          {/* Formun kendi görseli. Yoksa kart görselsiz çiziliyor —
+              yer tutucu bir kutu koymak "eksik" hissi verirdi. */}
+          {card.image ? (
+            <span className={styles.abilityShot}>
+              <Image
+                src={apiUrl(card.image)}
+                alt={card.name}
+                fill
+                sizes="(max-width: 820px) 92vw, 46vw"
+                className={styles.abilityShotImg}
+                unoptimized
+              />
+            </span>
           ) : null}
-          <p className={styles.abilitySummary}>{pick(card.summary, locale)}</p>
-          {card.traits.length > 0 ? (
-            <ul className={styles.abilityTraits}>
-              {card.traits.map((trait) => (
-                <li key={trait.tr} className={styles.abilityTrait}>
-                  {pick(trait, locale)}
-                </li>
-              ))}
-            </ul>
-          ) : null}
+          <div className={styles.abilityBody}>
+            <h3 className={styles.abilityName}>{card.name}</h3>
+            {card.release ? (
+              <p className={styles.abilityRelease}>
+                “{pick(card.release, locale)}”
+              </p>
+            ) : null}
+            <p className={styles.abilitySummary}>{pick(card.summary, locale)}</p>
+            {card.traits.length > 0 ? (
+              <ul className={styles.abilityTraits}>
+                {card.traits.map((trait) => (
+                  <li key={trait.tr} className={styles.abilityTrait}>
+                    {pick(trait, locale)}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
         </li>
       ))}
     </ul>
   );
 }
 
+/** Adı geçen karakterlerin portrelerini id'ye göre bulmak için. */
+export type CharacterCardMap = Map<number, CharacterCardLite>;
+
+export interface CharacterCardLite {
+  characterId: number;
+  name: string;
+  image: string | null;
+}
+
+/** Yuvarlak portre; görsel yoksa adın baş harfi. */
+function Face({
+  card,
+  name,
+  faceClass,
+  imgClass,
+  fallbackClass,
+  size,
+}: {
+  card: CharacterCardLite | undefined;
+  name: string;
+  faceClass: string;
+  imgClass: string;
+  fallbackClass: string;
+  size: string;
+}) {
+  return (
+    <span className={faceClass}>
+      {card?.image ? (
+        <Image
+          src={card.image}
+          alt=""
+          fill
+          sizes={size}
+          className={imgClass}
+          unoptimized
+        />
+      ) : (
+        <span className={fallbackClass} aria-hidden>
+          {name.slice(0, 1)}
+        </span>
+      )}
+    </span>
+  );
+}
+
 /** Önemli savaşlar — rakip, ark ve sonuç. */
-export function BattleList({ overlay }: { overlay: CharacterOverlay }) {
+export function BattleList({
+  overlay,
+  cards,
+}: {
+  overlay: CharacterOverlay;
+  cards: CharacterCardMap;
+}) {
   const locale = useLocale();
   const t = useTranslations("character.outcome");
   if (!overlay.battles?.length) {
@@ -137,6 +204,18 @@ export function BattleList({ overlay }: { overlay: CharacterOverlay }) {
     <ul className={styles.battles}>
       {overlay.battles.map((battle) => (
         <li key={battle.opponent} className={styles.battle}>
+          <Face
+            card={
+              battle.opponentCharacterId
+                ? cards.get(battle.opponentCharacterId)
+                : undefined
+            }
+            name={battle.opponent}
+            faceClass={styles.battleFace}
+            imgClass={styles.battleFaceImg}
+            fallbackClass={styles.battleFaceFallback}
+            size="44px"
+          />
           <span className={styles.battleWho}>
             <span className={styles.battleName}>
               {battle.opponentCharacterId ? (
@@ -216,7 +295,13 @@ export function GuideList({
 }
 
 /** İlişkiler. */
-export function BondList({ overlay }: { overlay: CharacterOverlay }) {
+export function BondList({
+  overlay,
+  cards,
+}: {
+  overlay: CharacterOverlay;
+  cards: CharacterCardMap;
+}) {
   const locale = useLocale();
   if (!overlay.bonds?.length) {
     return null;
@@ -226,19 +311,29 @@ export function BondList({ overlay }: { overlay: CharacterOverlay }) {
     <ul className={styles.bonds}>
       {overlay.bonds.map((bond) => (
         <li key={bond.name} className={styles.bond}>
-          <h3 className={styles.bondName}>
-            {bond.characterId ? (
-              <Link
-                href={`${CHARACTER_HREF}/${bond.characterId}`}
-                className={styles.bondLink}
-              >
-                {bond.name}
-              </Link>
-            ) : (
-              bond.name
-            )}
-          </h3>
-          <p className={styles.bondSummary}>{pick(bond.summary, locale)}</p>
+          <Face
+            card={bond.characterId ? cards.get(bond.characterId) : undefined}
+            name={bond.name}
+            faceClass={styles.bondFace}
+            imgClass={styles.bondFaceImg}
+            fallbackClass={styles.bondFaceFallback}
+            size="56px"
+          />
+          <div className={styles.bondText}>
+            <h3 className={styles.bondName}>
+              {bond.characterId ? (
+                <Link
+                  href={`${CHARACTER_HREF}/${bond.characterId}`}
+                  className={styles.bondLink}
+                >
+                  {bond.name}
+                </Link>
+              ) : (
+                bond.name
+              )}
+            </h3>
+            <p className={styles.bondSummary}>{pick(bond.summary, locale)}</p>
+          </div>
         </li>
       ))}
     </ul>

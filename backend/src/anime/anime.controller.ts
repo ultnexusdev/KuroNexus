@@ -1,4 +1,4 @@
-import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { Public } from '../common/decorators/public.decorator';
 import { AnimeService } from './anime.service';
 
@@ -33,6 +33,25 @@ export class AnimeController {
   @Get('characters')
   getCharacterIndex() {
     return this.animeService.getCharacterIndex();
+  }
+
+  /**
+   * Adı geçen karakterlerin küçük künyeleri (portre + ad).
+   *
+   * ':characterId' rotasından ÖNCE tanımlı olmalı: 'cards' sayı olmadığı için
+   * oradaki `ParseIntPipe` 400 döndürürdü.
+   */
+  @Public()
+  @Get('characters/cards')
+  getCharacterCards(@Query('ids') ids?: string) {
+    const parsed = (ids ?? '')
+      .split(',')
+      .map((value) => Number.parseInt(value.trim(), 10))
+      .filter((value) => Number.isInteger(value) && value > 0)
+      // Üst sınır: adres çubuğundan gelen liste sınırsız uzayabilir, tek
+      // AniList sayfası da zaten 50 kayıt veriyor
+      .slice(0, 50);
+    return this.animeService.getCharacterCards(parsed);
   }
 
   /**

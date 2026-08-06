@@ -132,6 +132,20 @@ export interface AnilistCharacter {
   favourites: number | null;
 }
 
+/**
+ * Küçük karakter künyesi — yalnızca ad ve portre.
+ *
+ * Karakter sayfasındaki "önemli savaşlar" ve "ilişkiler" satırlarında adı
+ * geçen karakterler için var: oralarda tam künyeye (açıklama, doğum tarihi,
+ * göründüğü yapımlar) ihtiyaç yok, yalnızca yüz ve ad gerekiyor.
+ */
+export interface AnilistCharacterCard {
+  characterId: number;
+  name: string;
+  nameNative: string | null;
+  image: string | null;
+}
+
 /** Karakterin göründüğü bir yapım (anime ya da manga). */
 export interface AnilistCharacterAppearance {
   anilistId: number;
@@ -573,6 +587,66 @@ export class AnilistService {
       this.logger.warn(
         `AniList kadro alınamadı (${anilistId}): ${String(error)}`,
       );
+      return [];
+    }
+  }
+
+  /**
+   * Birden çok karakterin küçük künyesi — tek istekte.
+   *
+   * Karakter sayfasındaki "önemli savaşlar" ve "ilişkiler" bölümleri, adı
+   * geçen karakterlerin portresini gösteriyor. Her biri için ayrı
+   * `getCharacter()` çağırmak 6 ayrı AniList isteği demekti; AniList'in
+   * `Page.characters(id_in:)` sorgusu hepsini bir turda veriyor.
+   *
+   * Cache anahtarı **sıralanmış** kimlik listesinden türetiliyor: aynı küme
+   * farklı sırayla istendiğinde ikinci bir kayıt açılmasın.
+   */
+  async getCharacterCards(ids: number[]): Promise<AnilistCharacterCard[]> {
+    const unique = [...new Set(ids)].filter((id) => Number.isInteger(id) && id > 0);
+    if (unique.length === 0) {
+      return [];
+    }
+    const sorted = [...unique].sort((a, b) => a - b);
+    const cacheKey = `anilist:character-cards:v1:${sorted.join(',')}`;
+    const cached = await this.prisma.externalCache.findUnique({
+      where: { cacheKey },
+    });
+    if (cached && Date.now() - cached.fetchedAt.getTime() < CHARACTER_TTL_MS) {
+      return cached.payload as unknown as AnilistCharacterCard[];
+    }
+
+    try {
+      const data = await this.request<{
+        Page: {
+          characters?: Array<{
+            id: number;
+            name?: { full?: string; native?: string };
+            image?: { large?: string; medium?: string };
+          }>;
+        };
+      }>(
+        `query($ids:[Int]){Page(perPage:50){characters(id_in:$ids){
+          id name{full native} image{large medium}
+        }}}`,
+        { ids: sorted },
+      );
+      const cards: AnilistCharacterCard[] = (data.Page?.characters ?? []).map(
+        (character) => ({
+          characterId: character.id,
+          name: character.name?.full ?? `#${character.id}`,
+          nameNative: character.name?.native ?? null,
+          image: character.image?.large ?? character.image?.medium ?? null,
+        }),
+      );
+      await this.writeCache(cacheKey, cards);
+      return cards;
+    } catch (error) {
+      if (cached) {
+        return cached.payload as unknown as AnilistCharacterCard[];
+      }
+      // Portreler alınamazsa bölümler adlarla çizilir, sayfa düşmez (kural 4)
+      this.logger.warn(`AniList karakter kartları alınamadı: ${String(error)}`);
       return [];
     }
   }

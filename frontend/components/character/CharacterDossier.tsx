@@ -4,6 +4,7 @@ import { Link } from "@/lib/i18n/navigation";
 import { apiUrl } from "@/lib/api/client";
 import type {
   CharacterAppearance,
+  CharacterCard,
   CharacterDetail,
   CharacterTrait,
 } from "@/lib/api/types";
@@ -20,47 +21,57 @@ import {
   GuideList,
   QuoteList,
   StatBars,
-  TagRow,
+  type CharacterCardMap,
 } from "./CharacterSections";
+import { TagRow } from "./CharacterSections";
 import styles from "./CharacterDossier.module.css";
 
 /**
  * Karakter dosyası.
  *
- * Sunucu bileşeni: sayfada tek bir durum var (spoiler kapısı) ve o da kendi
- * küçük istemci bileşenine ayrıldı. Portreler, künye tablosu ve yapım
- * ızgarası tarayıcıya JS olarak hiç inmiyor.
+ * Sunucu bileşeni: sayfada tek durum spoiler kapısı ve o kendi küçük istemci
+ * bileşeninde. Portreler, künye tablosu ve yapım ızgarası tarayıcıya JS
+ * olarak hiç inmiyor.
  *
  * **Medya-bağımsız kurgu:** bileşen `CharacterDetail` alıyor; içinde AniList'e
  * özgü tek bir alan adı yok. Film/dizi karakterleri TMDB'den geldiğinde aynı
- * şekil doldurulur ve bu dosya değişmez. Sayfaya özgü tek şey, arşiv
- * bağlantılarının anime kanadına çıkması (`archiveHref`).
+ * şekil doldurulur.
+ *
+ * ── SAYFA SIRASI ──────────────────────────────────────────────────────────
+ * Sıra kullanıcı geri bildirimiyle değişti (6 Ağustos 2026): önceden 16
+ * kapaklık "Göründüğü Yapımlar" ızgarası sayfanın ortasındaydı ve en ağır
+ * öğe olduğu için sayfanın ağırlık merkezi oraya kayıyordu — oysa o, dışarıdan
+ * gelen ve en az önemli içerik. Artık elle yazılmış bölümlerin TAMAMI önce
+ * geliyor, dış veri en sona.
+ * ──────────────────────────────────────────────────────────────────────────
  */
 export function CharacterDossier({
   detail,
-  /**
-   * Elle tasarlanmış içerik. `null` ise sayfa yalnızca AniList künyesiyle
-   * açılır — 195 karakterin hepsinin katmanı olması beklenmiyor.
-   */
   overlay = null,
+  /** Adı geçen karakterlerin portreleri (savaş / ilişki satırları) */
+  cards = [],
   isAdmin = false,
 }: {
   detail: CharacterDetail;
   overlay?: CharacterOverlay | null;
+  cards?: CharacterCard[];
   isAdmin?: boolean;
 }) {
   const t = useTranslations("character");
   const locale = useLocale();
   const { character, appearances, related } = detail;
   const isMain = appearances.some((item) => item.role === "MAIN");
-  // Elle yüklenen portre AniList'inkini ezer: kaynağın verdiği en büyük
-  // karakter görseli ~230px ve 220px'lik çerçevede bile sınırda kalıyor
   const portrait = overlay?.portrait ? apiUrl(overlay.portrait) : character.image;
+
+  const cardMap: CharacterCardMap = new Map(
+    cards.map((card) => [card.characterId, card]),
+  );
 
   // Arşivde karşılığı olan yapımlar önce: ziyaretçinin geri dönebileceği
   // kapılar listenin başında dursun
   const orderedAppearances = [...appearances].sort((a, b) => {
-    const inArchive = Number(Boolean(b.archiveSlug)) - Number(Boolean(a.archiveSlug));
+    const inArchive =
+      Number(Boolean(b.archiveSlug)) - Number(Boolean(a.archiveSlug));
     if (inArchive !== 0) {
       return inArchive;
     }
@@ -68,11 +79,14 @@ export function CharacterDossier({
   });
 
   const archiveSeries = dedupeArchiveSeries(appearances);
-  const traits = buildTraits(detail, t, overlay, locale);
   const voice = appearances.find((item) => item.voiceActor);
+  const traits = buildTraits(detail, t, overlay, locale, voice?.voiceActor);
   const guideAnime = overlay?.guide?.anime ?? [];
   const guideManga = overlay?.guide?.manga ?? [];
   const hasGallery = (overlay?.gallery?.length ?? 0) > 0;
+  const hasAbout = Boolean(
+    overlay?.about?.length || character.description.length,
+  );
 
   return (
     <div className={styles.hall} data-category="anime">
@@ -93,9 +107,8 @@ export function CharacterDossier({
                   src={portrait}
                   alt=""
                   fill
-                  sizes="(max-width: 640px) 34vw, 220px"
+                  sizes="(max-width: 640px) 34vw, 230px"
                   className={styles.portrait}
-                  /* Sayfanın LCP görseli — beklemeden inmeli */
                   priority
                   unoptimized
                 />
@@ -162,108 +175,166 @@ export function CharacterDossier({
           </div>
         </header>
 
-        <div className={styles.columns}>
-          {/* --- Sol sütun: künye --- */}
-          <aside>
-            <section className={styles.section}>
-              <h2 className={styles.sectionTitle}>{t("sections.profile")}</h2>
-              {traits.length > 0 ? (
-                <dl className={styles.traits}>
-                  {traits.map((trait) => (
-                    <div
-                      key={`${trait.label}-${trait.value}`}
-                      className={styles.traitRow}
-                    >
-                      <dt className={styles.traitLabel}>{trait.label}</dt>
-                      <dd className={styles.traitValue}>{trait.value}</dd>
-                    </div>
-                  ))}
-                </dl>
-              ) : (
-                <p className={styles.sectionEmpty}>{t("empty.profile")}</p>
-              )}
+        <div className={styles.stack}>
+          {/* --- Künye + güç profili: ikisi de "künye levhası" işi --- */}
+          <div className={styles.duo}>
+            <section className={styles.panel}>
+              <h2 className={styles.panelTitle}>{t("sections.profile")}</h2>
+              <div className={styles.panelBody}>
+                {traits.length > 0 ? (
+                  <dl className={styles.traits}>
+                    {traits.map((trait) => (
+                      <div
+                        key={`${trait.label}-${trait.value}`}
+                        className={styles.traitRow}
+                      >
+                        <dt className={styles.traitLabel}>{trait.label}</dt>
+                        <dd className={styles.traitValue}>{trait.value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                ) : (
+                  <p className={styles.sectionEmpty}>{t("empty.profile")}</p>
+                )}
+              </div>
             </section>
 
             {overlay?.stats?.rows.length ? (
-              <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>
+              <section className={styles.panel}>
+                <h2 className={styles.panelTitle}>
                   {pick(overlay.stats.title, locale)}
                 </h2>
-                <StatBars overlay={overlay} />
-              </section>
-            ) : null}
-
-            {voice?.voiceActor ? (
-              <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>{t("sections.voice")}</h2>
-                <div className={styles.voice}>
-                  {voice.voiceActorImage ? (
-                    <span className={styles.voiceFace}>
-                      <Image
-                        src={voice.voiceActorImage}
-                        alt=""
-                        fill
-                        sizes="48px"
-                        className={styles.voiceImg}
-                        unoptimized
-                      />
-                    </span>
-                  ) : null}
-                  <span className={styles.voiceText}>
-                    <span className={styles.voiceRole}>{t("voiceActor")}</span>
-                    <span className={styles.voiceName}>{voice.voiceActor}</span>
-                  </span>
+                <div className={styles.panelBody}>
+                  <StatBars overlay={overlay} />
                 </div>
               </section>
             ) : null}
-          </aside>
+          </div>
 
-          {/* --- Sağ sütun: metin ve yapımlar --- */}
-          <div>
-            <section className={styles.section}>
-              <h2 className={styles.sectionTitle}>{t("sections.about")}</h2>
-              {/* Elle yazılmış metin varsa AniList'inki HİÇ gösterilmiyor.
-                  İkisini üst üste basmak aynı bilgiyi iki kez, iki üslupla
-                  anlatmak olurdu — üstelik biri Türkçe biri İngilizce. */}
-              {overlay?.about?.length ? (
-                overlay.about.map((paragraph) => (
-                  <p key={paragraph.tr} className={styles.prose}>
-                    {pick(paragraph, locale)}
-                  </p>
-                ))
-              ) : character.description.length > 0 ? (
-                character.description.map((segment, index) =>
-                  segment.spoiler ? (
-                    <SpoilerReveal key={index}>
-                      <p className={styles.prose}>{segment.text}</p>
-                    </SpoilerReveal>
-                  ) : (
-                    <p key={index} className={styles.prose}>
-                      {segment.text}
-                    </p>
-                  ),
-                )
-              ) : (
-                <p className={styles.sectionEmpty}>{t("empty.about")}</p>
-              )}
+          {/* --- Hakkında: tam genişlik, okuma ölçüsü sınırlı --- */}
+          {hasAbout ? (
+            <section className={styles.panel}>
+              <h2 className={styles.panelTitle}>{t("sections.about")}</h2>
+              <div className={styles.panelBody}>
+                {/* Elle yazılmış metin varsa AniList'inki HİÇ gösterilmiyor:
+                    ikisi üst üste aynı bilgiyi iki üslupla, üstelik biri
+                    Türkçe biri İngilizce anlatırdı. */}
+                {overlay?.about?.length
+                  ? overlay.about.map((paragraph) => (
+                      <p key={paragraph.tr} className={styles.prose}>
+                        {pick(paragraph, locale)}
+                      </p>
+                    ))
+                  : character.description.map((segment, index) =>
+                      segment.spoiler ? (
+                        <SpoilerReveal key={index}>
+                          <p className={styles.prose}>{segment.text}</p>
+                        </SpoilerReveal>
+                      ) : (
+                        <p key={index} className={styles.prose}>
+                          {segment.text}
+                        </p>
+                      ),
+                    )}
+              </div>
             </section>
+          ) : null}
 
-            {/* Yetenekler — başlık veriden geliyor: Bleach'te "Zanpakutō",
-                Naruto'da "Jutsu". Bölüm kodu ikisinde de aynı. */}
-            {overlay?.abilities?.cards.length ? (
-              <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>
-                  {pick(overlay.abilities.title, locale)}
-                </h2>
+          {/* --- Yetenekler: başlık veriden (Zanpakutō / Jutsu / Quirk) --- */}
+          {overlay?.abilities?.cards.length ? (
+            <section className={styles.panel}>
+              <h2 className={styles.panelTitle}>
+                {pick(overlay.abilities.title, locale)}
+              </h2>
+              <div className={styles.panelBody}>
                 <AbilityCards overlay={overlay} />
-              </section>
-            ) : null}
+              </div>
+            </section>
+          ) : null}
 
-            {orderedAppearances.length > 0 ? (
-              <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>
-                  {t("sections.appearances")}
-                </h2>
+          {/* --- Savaşlar + replikler --- */}
+          {overlay?.battles?.length || overlay?.quotes?.length ? (
+            <div className={styles.duo}>
+              {overlay.battles?.length ? (
+                <section className={styles.panel}>
+                  <h2 className={styles.panelTitle}>
+                    {t("sections.battles")}
+                  </h2>
+                  <div className={styles.panelBody}>
+                    <BattleList overlay={overlay} cards={cardMap} />
+                  </div>
+                </section>
+              ) : null}
+
+              {overlay.quotes?.length ? (
+                <section className={styles.panel}>
+                  <h2 className={styles.panelTitle}>{t("sections.quotes")}</h2>
+                  <div className={styles.panelBody}>
+                    <QuoteList overlay={overlay} />
+                  </div>
+                </section>
+              ) : null}
+            </div>
+          ) : null}
+
+          {/* --- Rehber + ilişkiler --- */}
+          {guideAnime.length > 0 || guideManga.length > 0 || overlay?.bonds?.length ? (
+            <div className={styles.duo}>
+              {guideAnime.length > 0 ? (
+                <section className={styles.panel}>
+                  <h2 className={styles.panelTitle}>
+                    {t("sections.guideAnime")}
+                  </h2>
+                  <div className={styles.panelBody}>
+                    <GuideList entries={guideAnime} />
+                  </div>
+                </section>
+              ) : null}
+
+              {guideManga.length > 0 ? (
+                <section className={styles.panel}>
+                  <h2 className={styles.panelTitle}>
+                    {t("sections.guideManga")}
+                  </h2>
+                  <div className={styles.panelBody}>
+                    <GuideList entries={guideManga} />
+                  </div>
+                </section>
+              ) : null}
+
+              {overlay?.bonds?.length ? (
+                <section className={styles.panel}>
+                  <h2 className={styles.panelTitle}>{t("sections.bonds")}</h2>
+                  <div className={styles.panelBody}>
+                    <BondList overlay={overlay} cards={cardMap} />
+                  </div>
+                </section>
+              ) : null}
+            </div>
+          ) : null}
+
+          {/* --- Galeri: boşken yalnızca küratöre --- */}
+          {overlay && (hasGallery || isAdmin) ? (
+            <section className={styles.panel}>
+              <h2 className={styles.panelTitle}>{t("sections.gallery")}</h2>
+              <div className={styles.panelBody}>
+                {hasGallery ? (
+                  <Gallery overlay={overlay} />
+                ) : (
+                  <p className={styles.galleryEmptyNote}>{t("empty.gallery")}</p>
+                )}
+                {isAdmin ? <CuratorGallerySlot /> : null}
+              </div>
+            </section>
+          ) : null}
+
+          {/* --- Dış veri en sonda --- */}
+          {orderedAppearances.length > 0 ? (
+            <section className={styles.panel}>
+              <h2 className={styles.panelTitle}>
+                {t("sections.appearances")}
+              </h2>
+              <div className={styles.panelBody}>
                 <ul className={styles.appearances}>
                   {orderedAppearances.map((appearance) => (
                     <li
@@ -294,86 +365,29 @@ export function CharacterDossier({
                     </li>
                   ))}
                 </ul>
-              </section>
-            ) : null}
-          </div>
+              </div>
+            </section>
+          ) : null}
+
+          {related.length > 0 ? (
+            <section className={styles.panel}>
+              <h2 className={styles.panelTitle}>{t("sections.related")}</h2>
+              <div className={styles.panelBody}>
+                <ul className={styles.relatedGrid}>
+                  {related.map((item) => (
+                    <li key={item.characterId}>
+                      <CharacterPlate
+                        character={item}
+                        sizes="(max-width: 640px) 40vw, 120px"
+                        showSeries={false}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </section>
+          ) : null}
         </div>
-
-        {/* --- Üçlü bant: savaşlar · galeri · replikler --- */}
-        {overlay?.battles?.length || hasGallery || isAdmin || overlay?.quotes?.length ? (
-          <div className={styles.band}>
-            {overlay?.battles?.length ? (
-              <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>{t("sections.battles")}</h2>
-                <BattleList overlay={overlay} />
-              </section>
-            ) : null}
-
-            {/* Galeri boşken ziyaretçiye HİÇ çizilmiyor; yalnızca kürator
-                "burası senin" kutusunu ve yükleyiciyi görüyor. */}
-            {overlay && (hasGallery || isAdmin) ? (
-              <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>{t("sections.gallery")}</h2>
-                {hasGallery ? (
-                  <Gallery overlay={overlay} />
-                ) : (
-                  <p className={styles.galleryEmptyNote}>{t("empty.gallery")}</p>
-                )}
-                {isAdmin ? <CuratorGallerySlot /> : null}
-              </section>
-            ) : null}
-
-            {overlay?.quotes?.length ? (
-              <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>{t("sections.quotes")}</h2>
-                <QuoteList overlay={overlay} />
-              </section>
-            ) : null}
-          </div>
-        ) : null}
-
-        {/* --- İkinci bant: rehber · ilişkiler --- */}
-        {guideAnime.length > 0 || guideManga.length > 0 || overlay?.bonds?.length ? (
-          <div className={styles.band}>
-            {guideAnime.length > 0 ? (
-              <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>{t("sections.guideAnime")}</h2>
-                <GuideList entries={guideAnime} />
-              </section>
-            ) : null}
-
-            {guideManga.length > 0 ? (
-              <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>{t("sections.guideManga")}</h2>
-                <GuideList entries={guideManga} />
-              </section>
-            ) : null}
-
-            {overlay?.bonds?.length ? (
-              <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>{t("sections.bonds")}</h2>
-                <BondList overlay={overlay} />
-              </section>
-            ) : null}
-          </div>
-        ) : null}
-
-        {related.length > 0 ? (
-          <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>{t("sections.related")}</h2>
-            <ul className={styles.relatedGrid}>
-              {related.map((item) => (
-                <li key={item.characterId}>
-                  <CharacterPlate
-                    character={item}
-                    sizes="(max-width: 640px) 40vw, 120px"
-                    showSeries={false}
-                  />
-                </li>
-              ))}
-            </ul>
-          </section>
-        ) : null}
 
         <p className={styles.source}>
           {t("source")}
@@ -444,18 +458,23 @@ function dedupeArchiveSeries(
 }
 
 /**
- * Künye tablosu: AniList'in yapısal alanları önce, açıklama metninden
- * ayıklanan satırlar sonra.
+ * Künye tablosu: elle yazılan satırlar önce, AniList'in yapısal alanları
+ * sonra, seslendiren en altta.
  *
- * Spoiler işaretli künye satırları **hiç gösterilmiyor** (tabloya kapı
- * koymak satır hizasını bozar ve bir künye satırı zaten tek kelime — kapıyı
- * açmadan bile "gizli bir şey var" bilgisi sızar).
+ * Seslendiren eskiden ayrı bir kutuydu ve tek satırlık içeriğiyle kolonun
+ * altında kocaman bir boşluk bırakıyordu. Künyenin bir satırı olmak onun
+ * gerçek ağırlığı.
+ *
+ * Spoiler işaretli künye satırları HİÇ gösterilmiyor: tabloya kapı koymak
+ * satır hizasını bozar ve bir künye satırı zaten tek kelime — kapıyı açmadan
+ * bile "gizli bir şey var" bilgisi sızar.
  */
 function buildTraits(
   detail: CharacterDetail,
   t: (key: string) => string,
   overlay: CharacterOverlay | null,
   locale: string,
+  voiceActor: string | null | undefined,
 ): CharacterTrait[] {
   const { character } = detail;
   const rows: CharacterTrait[] = [];
@@ -466,8 +485,6 @@ function buildTraits(
     }
   };
 
-  // Elle yazılan satırlar ÖNCE: "Seri", "Bölük", "Rütbe" gibi künyenin
-  // omurgası onlar; AniList'ten gelen boy/kan grubu ikincil ayrıntı
   for (const fact of overlay?.facts ?? []) {
     push(pick(fact.label, locale), pick(fact.value, locale));
   }
@@ -483,17 +500,17 @@ function buildTraits(
       continue;
     }
     rows.push(trait);
-    // Aynı anahtar kaynakta iki kez yazılmış olabilir; ilki kalır
     known.add(trait.label.toLocaleLowerCase("tr"));
   }
+
+  push(t("voiceActor"), voiceActor);
 
   return rows;
 }
 
 /**
  * Doğum günü. Yıl çoğu karakterde yok (kurgu evreninde takvim başka işler) —
- * o zaman yalnızca gün/ay yazılır. Ay adı yerine sayı kullanılıyor ki çeviri
- * dosyasına on iki ay adı eklemek gerekmesin ve tarih her dilde aynı okunsun.
+ * o zaman yalnızca gün/ay yazılır.
  */
 function formatBirthday(
   date: { year: number | null; month: number | null; day: number | null } | null,

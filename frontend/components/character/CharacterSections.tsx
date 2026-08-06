@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/lib/i18n/navigation";
-import { apiUrl } from "@/lib/api/client";
+import { apiUrl, isLocalUpload } from "@/lib/api/client";
 import { pick, type CharacterOverlay } from "@/lib/characters/types";
 import type { CharacterImage } from "@/lib/api/types";
 import { CuratorSlot } from "./CuratorSlot";
@@ -130,7 +130,10 @@ export function AbilityCards({
                 fill
                 sizes="(max-width: 820px) 92vw, 46vw"
                 className={styles.abilityShotImg}
-                unoptimized
+                /* Kendi yüklememiz `remotePatterns` içinde: Next onu kutuya
+                   göre yeniden boyutlandırabiliyor. AniList adresleri listede
+                   olmadığı için orada `unoptimized` şart. */
+                unoptimized={!isLocalUpload(shot)}
               />
             </span>
           ) : null}
@@ -420,7 +423,7 @@ export function Gallery({
               fill
               sizes="(max-width: 640px) 45vw, 220px"
               className={styles.galleryImg}
-              unoptimized
+              unoptimized={!isLocalUpload(item.src)}
             />
           </span>
           {item.caption ? (

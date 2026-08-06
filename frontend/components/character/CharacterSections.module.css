@@ -131,19 +131,38 @@
 }
 
 /* Formun kendi gorseli — Shikai'de shikai hali, Bankai'de bankai hali.
-   Hicbir API bunu vermiyor, elle yukleniyor. 16/10: genis bir sahne
-   karesi; portre orani (2/3) burada karti gereksiz uzatirdi. */
+   Hicbir API bunu vermiyor, elle yukleniyor.
+
+   ⚠️ `cover` DEGIL `contain` (6 Agustos 2026, kullanici geri bildirimi:
+   "tam oturmadi eksik gorunuyor"). Gorsel disaridan geliyor ve orani
+   bilinmiyor: kimi zaman genis bir sahne karesi, kimi zaman dikey bir
+   karakter cizimi. `cover` sabit bir kutuya doldurdugu icin dikey bir
+   cizimin bas ve ayak kismini kesiyordu. `contain` gorselin TAMAMINI
+   gosteriyor; artan yer kartin kendi zemininde kaliyor.
+
+   Oran OLCUMLE secildi (6 Agustos 2026): yuklenen uc gorselin ucu de dikey
+   (1199x1758, 658x1168, 1150x2048 -> oran 0.56-0.68). Yatay bir kutu bu
+   gorselleri minicik gosterip iki yana kocaman bosluk birakirdi. 3/4 (0.75)
+   onlara yakin; yatay bir gorsel gelirse de tamami gorunur, yalnizca alt-ust
+   pay kalir.
+
+   `max-height`: genis ekranda kart ~500px olunca 3/4 kutu 667px'e cikiyor ve
+   iki yetenek karti sayfayi devirir. Sinir devreye girince kutu 3/4'ten
+   genisler, contain gorseli ortalar. */
 .abilityShot {
   position: relative;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 3 / 4;
+  max-height: 440px;
   overflow: hidden;
-  background: var(--surface);
+  /* Kart yuzeyinden bir ton koyu: gorselin oturdugu levha, kartin kendisi
+     degil. Contain'in biraktigi paylar boylece "bosluk" degil "cerceve"
+     olarak okunuyor. */
+  background: var(--bg);
+  border-bottom: 0.5px solid var(--border);
 }
 
 .abilityShotImg {
-  object-fit: cover;
-  outline: 1px solid rgba(255, 255, 255, 0.1);
-  outline-offset: -1px;
+  object-fit: contain;
 }
 
 .abilityBody {
@@ -355,9 +374,13 @@
   list-style: none;
 }
 
+/* Galeride `cover` KALIYOR: izgaranin duzeni ancak butun kutular ayni
+   olunca okunuyor. Ama oran 3/4'ten 2/3'e cekildi — yuklenen gorsellerin
+   olculen orani 0.56-0.68 ve 3/4 (0.75) kutuda yuksekligin dortte biri
+   kirpiliyordu; 2/3 (0.667) kirpmayi neredeyse sifira indiriyor. */
 .galleryItem {
   position: relative;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 2 / 3;
   overflow: hidden;
   border: 0.5px solid var(--border);
   border-radius: var(--radius);

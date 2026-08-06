@@ -1,6 +1,23 @@
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
+/**
+ * Görsel bizim yükleme klasörümüzde mi?
+ *
+ * Önemi: `next.config.ts` içindeki `images.remotePatterns` yalnızca kendi
+ * sunucumuzun `/uploads/**` yolunu ve TMDB'yi kapsıyor. Oradan gelen bir
+ * görsel `next/image` ile **yeniden boyutlandırılabilir**; AniList görselleri
+ * listede olmadığı için `unoptimized` kalmak zorunda.
+ *
+ * Kürator yüklemeleri (karakter portresi, Shikai/Bankai kareleri, galeri) tam
+ * boy dosyalar — 200 KB'lik bir görseli 300px'lik bir kutuda ham hâliyle
+ * indirmek gereksiz. Bu yardımcı, hangi görselin optimize edilebileceğini tek
+ * yerden söylüyor.
+ */
+export function isLocalUpload(path: string | null | undefined): boolean {
+  return typeof path === "string" && path.startsWith("/uploads/");
+}
+
 // Backend'in döndürdüğü göreli yolları (/uploads/...) mutlak URL'e çevirir.
 // Görsel/ses kaynakları için kullanılır — bunlar CORS'a takılmaz.
 export function apiUrl(path: string): string {

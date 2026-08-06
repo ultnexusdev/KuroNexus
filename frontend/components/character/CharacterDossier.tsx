@@ -1,7 +1,7 @@
 ﻿import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/lib/i18n/navigation";
-import { apiUrl } from "@/lib/api/client";
+import { apiUrl, isLocalUpload } from "@/lib/api/client";
 import type {
   CharacterAppearance,
   CharacterCard,
@@ -130,7 +130,10 @@ export function CharacterDossier({
                   sizes="(max-width: 640px) 34vw, 230px"
                   className={styles.portrait}
                   priority
-                  unoptimized
+                  /* Kürator yüklemesi `remotePatterns` içinde: 230px'lik
+                     çerçeve için yeniden boyutlandırılıyor. AniList portresi
+                     listede olmadığı için ham iniyor. */
+                  unoptimized={!isLocalUpload(portraitSource)}
                 />
               ) : (
                 <span className={styles.portraitFallback} aria-hidden>

@@ -50,17 +50,57 @@ export class UploadsService implements OnModuleInit {
     }
 
     const extension = extname(file.originalname).toLowerCase() || '.bin';
-    const filename = `${Date.now()}-${randomBytes(8).toString('hex')}${extension}`;
-    await writeFile(join(this.uploadDir, filename), file.buffer);
+    return this.store(file.buffer, {
+      extension,
+      mimeType: file.mimetype,
+      originalName: file.originalname,
+      userId,
+    });
+  }
+
+  /**
+   * Adresten indirilmiş görseli kaydeder.
+   *
+   * İndirme işi `RemoteImageService`te (SSRF savunması orada); burada
+   * yalnızca diske yazma ve `MediaAsset` kaydı var. Böylece dosya yükleme ve
+   * adresten alma **aynı depolama yolunu** kullanıyor: iki ayrı kayıt biçimi
+   * doğmuyor.
+   */
+  async saveRemoteImage(
+    image: { buffer: Buffer; mimeType: string; extension: string; originalName: string },
+    userId: string,
+  ) {
+    if (image.buffer.byteLength > this.maxBytes) {
+      throw new BadRequestException('UPLOADS.FILE_TOO_LARGE');
+    }
+    return this.store(image.buffer, {
+      extension: image.extension,
+      mimeType: image.mimeType,
+      originalName: image.originalName,
+      userId,
+    });
+  }
+
+  private async store(
+    buffer: Buffer,
+    meta: {
+      extension: string;
+      mimeType: string;
+      originalName: string;
+      userId: string;
+    },
+  ) {
+    const filename = `${Date.now()}-${randomBytes(8).toString('hex')}${meta.extension}`;
+    await writeFile(join(this.uploadDir, filename), buffer);
 
     try {
       const asset = await this.prisma.mediaAsset.create({
         data: {
           filename,
-          originalName: file.originalname,
-          mimeType: file.mimetype,
-          sizeBytes: file.size,
-          userId,
+          originalName: meta.originalName,
+          mimeType: meta.mimeType,
+          sizeBytes: buffer.byteLength,
+          userId: meta.userId,
         },
       });
       return { id: asset.id, url: `/uploads/${filename}` };

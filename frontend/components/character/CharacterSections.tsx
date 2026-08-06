@@ -3,6 +3,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/lib/i18n/navigation";
 import { apiUrl } from "@/lib/api/client";
 import { pick, type CharacterOverlay } from "@/lib/characters/types";
+import { CuratorSlot } from "./CuratorSlot";
 import styles from "./CharacterSections.module.css";
 
 /**
@@ -92,7 +93,13 @@ export function StatBars({ overlay }: { overlay: CharacterOverlay }) {
 }
 
 /** Yetenek kartları — Zanpakutō / Jutsu / Quirk, başlık veriden gelir. */
-export function AbilityCards({ overlay }: { overlay: CharacterOverlay }) {
+export function AbilityCards({
+  overlay,
+  isAdmin = false,
+}: {
+  overlay: CharacterOverlay;
+  isAdmin?: boolean;
+}) {
   const locale = useLocale();
   const abilities = overlay.abilities;
   if (!abilities?.cards.length) {
@@ -134,6 +141,10 @@ export function AbilityCards({ overlay }: { overlay: CharacterOverlay }) {
                 ))}
               </ul>
             ) : null}
+            {/* Yükleme yuvası kartın ALTINDA: hangi görselin hangi forma ait
+                olduğu ("Shikai — Nozarashi" / "Bankai") yuvanın adında yazılı,
+                böylece iki kart karışmıyor. */}
+            {isAdmin ? <CuratorSlot slot={card.name} /> : null}
           </div>
         </li>
       ))}

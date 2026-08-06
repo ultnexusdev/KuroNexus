@@ -589,6 +589,22 @@ export async function uploadImage(file: File): Promise<UploadResult> {
   return response.json() as Promise<UploadResult>;
 }
 
+/**
+ * Adresten görsel alma.
+ *
+ * Görsel **indirilip kendi sunucumuza yazılıyor**, adres olduğu gibi
+ * saklanmıyor: CSP `img-src` yalnızca sayılı sunucuya izin verdiği için
+ * yabancı bir adres tarayıcıda engellenirdi, üstelik dış adres bir gün ölürse
+ * görsel de ölürdü. Dönen değer bizim `/uploads/…` adresimiz.
+ */
+export function uploadImageFromUrl(url: string): Promise<UploadResult> {
+  return apiFetch<UploadResult>("/admin/uploads/from-url", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ url }),
+  });
+}
+
 // ---- Salon 04 · Anime arşivi ----
 
 export interface AnimeEntryInput {

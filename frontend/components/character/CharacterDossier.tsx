@@ -11,7 +11,8 @@ import type {
 import { pick, type CharacterOverlay } from "@/lib/characters/types";
 import { CharacterPlate } from "./CharacterPlate";
 import { SpoilerReveal } from "./SpoilerReveal";
-import { CuratorGallerySlot } from "./CuratorGallerySlot";
+import { CuratorFrame } from "./CuratorFrame";
+import { CuratorSlot } from "./CuratorSlot";
 import {
   AbilityCards,
   BattleList,
@@ -175,6 +176,13 @@ export function CharacterDossier({
           </div>
         </header>
 
+        {/* Kapak portresi yuvası. AniList'in verdiği en büyük karakter
+            görseli ~230px; bundan iyisi ancak elle yüklenerek gelir.
+            Hero'nun İÇİNE değil altına konuyor: hero iki sütunlu bir esnek
+            kutu ve üçüncü bir çocuk düzeni bozardı. */}
+        <CuratorFrame isAdmin={isAdmin}>
+        {isAdmin ? <CuratorSlot slot={t("slots.portrait")} /> : null}
+
         <div className={styles.stack}>
           {/* --- Künye + güç profili: ikisi de "künye levhası" işi --- */}
           <div className={styles.duo}>
@@ -247,7 +255,7 @@ export function CharacterDossier({
                 {pick(overlay.abilities.title, locale)}
               </h2>
               <div className={styles.panelBody}>
-                <AbilityCards overlay={overlay} />
+                <AbilityCards overlay={overlay} isAdmin={isAdmin} />
               </div>
             </section>
           ) : null}
@@ -323,7 +331,7 @@ export function CharacterDossier({
                 ) : (
                   <p className={styles.galleryEmptyNote}>{t("empty.gallery")}</p>
                 )}
-                {isAdmin ? <CuratorGallerySlot /> : null}
+                {isAdmin ? <CuratorSlot slot={t("slots.gallery")} /> : null}
               </div>
             </section>
           ) : null}
@@ -388,6 +396,7 @@ export function CharacterDossier({
             </section>
           ) : null}
         </div>
+        </CuratorFrame>
 
         <p className={styles.source}>
           {t("source")}

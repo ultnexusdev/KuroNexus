@@ -1459,13 +1459,24 @@
       "UNRESOLVED": "Sonuçsuz"
     },
     "uploader": {
-      "title": "Galeriye görsel yükle",
-      "hint": "Görsel sunucuya kalıcı olarak yüklenir. Dönen adresi kopyalayıp bana ilet — karakterin veri dosyasındaki galeri listesine eklenecek.",
+      "fromFile": "Dosya seç",
+      "fromUrl": "Ya da görsel adresi",
+      "urlPlaceholder": "https://… ile başlayan görsel adresi",
+      "fetch": "Getir",
       "resultLabel": "Yüklenen görselin adresi",
       "copy": "Kopyala",
       "copied": "Kopyalandı",
       "busy": "Yükleniyor…",
-      "error": "Görsel yüklenemedi. Dosya tipini ve boyutunu kontrol edip tekrar deneyin."
+      "error": "Görsel alınamadı. Adresin doğrudan bir görsele işaret ettiğinden ve dosyanın 15 MB'ı geçmediğinden emin ol."
+    },
+    "curator": {
+      "off": "Küratör modu",
+      "on": "Küratör modu açık",
+      "hint": "Yükleme yuvaları açıldı. Görseli yükle, dönen adresi kopyalayıp bana ilet."
+    },
+    "slots": {
+      "portrait": "Kapak portresi",
+      "gallery": "Galeri görseli"
     }
   },
   "pageState": {

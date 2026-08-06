@@ -1,0 +1,55 @@
+/* Kurator modu sarmalayicisi.
+
+   Yuvalar sunucu bileseninin icinde ciziliyor; anahtarin onlara ulasmasi
+   icin React context yerine NITELIK + CSS kullaniliyor. Context bir istemci
+   siniri acar ve sayfanin tamami tarayiciya JS olarak inerdi. */
+
+.frame {
+  display: block;
+}
+
+/* Kapaliyken butun yukleme yuvalari gizli. `:global` sart: yuvalar baska
+   bir CSS modulunun (CharacterDossier) icinde ciziliyor, sinif adi burada
+   bilinmiyor — ortak dil `data-curator-slot` niteligi. */
+.frame[data-curating="false"] :global([data-curator-slot]) {
+  display: none;
+}
+
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--gap-md);
+  margin-bottom: var(--pad-lg);
+}
+
+.off,
+.on {
+  min-height: var(--touch-min);
+  padding: 0 16px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+
+.on {
+  border-color: var(--accent-muted);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--accent);
+}
+
+.off:hover,
+.on:hover {
+  background: var(--surface-hover);
+}
+
+.hint {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}

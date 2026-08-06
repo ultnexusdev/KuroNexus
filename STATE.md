@@ -5,6 +5,35 @@
 
 ## Mevcut Aşama
 
+> **⚠️ AÇIK BRANCH — `feature/2-saat-oturumu`, 6 Ağustos 2026 (evden).**
+> İki saatlik otonom oturum. **`main`'e dokunulmadı, push yapılmadı.**
+> Dört commit branch'te bekliyor; gözden geçirilip birleştirilmesi gerekiyor.
+>
+> **Ne yapıldı:** anime kanadının altına **Karakterler** alt sayfası (dizin +
+> karakter dosyası). Veri AniList'in `Character` API'sinden, mevcut
+> `ExternalCache` üzerinden geliyor — **yeni Prisma modeli açılmadı**, çünkü
+> bu makinede lokal DB yok ve migration ilk kez üretim veritabanında
+> çalışırdı. Bileşenler `frontend/components/character/` altında ve
+> medya-bağımsız: film/dizi karakterleri TMDB `credits`inden aynı şekli
+> doldurabilir.
+>
+> Yeni uçlar: `GET /anime/characters`, `GET /anime/characters/:characterId`.
+> Yeni rotalar: `/dark-stories/category/anime/karakterler[/:characterId]`.
+>
+> **Aynı oturumda kapanan gerçek hatalar:** tanımsız `--pad-xl`/`--gap-xl`/
+> `--gap-xs` (beş sayfada padding tamamen sıfırlanıyordu), tanımsız
+> `--surface-2`, **hiç var olmayan `[data-category="dizi"]` derisi** (bütün
+> dizi kanadı varsayılan mor paletle açılıyordu), kitap kanadının derisiz
+> yedi rotası, 901–1019px'te yatay kaydırma çubuğu. Erişilebilirlik tarafında
+> global `:focus-visible` kuralı, "ana içeriğe atla" bağlantısı ve dokuz
+> palette WCAG AA altında kalan `--text-muted` düzeltildi.
+>
+> ⚠️ **İki renk kararı gözden geçirilmeli** (ikisi de a11y gerekçeli ama
+> görünüşü değiştiriyor): `--text-muted` dokuz palette açıklaştırıldı,
+> lacivert temanın `--accent`i `#9b4a4a` → `#c06a6a` yapıldı.
+>
+> **Ayrıntı ve yapılmayanların gerekçesi:** `docs/2-saat-oturumu.md`.
+
 > **1000KİTAP KAYNAĞI — FAZ 1 BİTTİ, 31 Temmuz 2026 (evden).**
 > Kullanıcı "bu şekilde kitap eklemek yararlı olmadı, yayınevlerinden scrape
 > edelim" dedi; ölçüm sonucu **1000kitap.com** tek kaynakla her şeyi veriyor.

@@ -117,7 +117,14 @@ export interface AnilistCharacter {
   characterId: number;
   name: string;
   nameNative: string | null;
+  /** Büyük portre — karakter dizinindeki 2:3 levhalar için */
   image: string | null;
+  /**
+   * Küçük portre. İki boy birden dönüyor çünkü aynı kadro iki yerde
+   * kullanılıyor: anime sayfasındaki 42px'lik yüzler ve karakter dizinindeki
+   * 220px'lik levhalar. Tek boy dönseydi biri bulanık, öteki israf olurdu.
+   */
+  imageSmall: string | null;
   role: string | null;
   voiceActor: string | null;
   voiceActorImage: string | null;
@@ -300,7 +307,7 @@ interface RawCharacter {
       characterRole: string | null;
       voiceActors?: Array<{
         name?: { full?: string };
-        image?: { medium?: string };
+        image?: { large?: string; medium?: string };
       }>;
       node: {
         id: number;
@@ -308,7 +315,7 @@ interface RawCharacter {
         format: string | null;
         seasonYear: number | null;
         title?: { romaji?: string; english?: string; native?: string };
-        coverImage?: { large?: string };
+        coverImage?: { extraLarge?: string; large?: string };
       };
     }>;
   } | null;
@@ -492,10 +499,16 @@ export class AnilistService {
    * karaktersiz açılır.
    */
   async getCharacters(anilistId: number): Promise<AnilistCharacter[]> {
-    // v2: karakter id'si, ana dildeki ad ve favori sayısı eklendi. Anahtar
-    // sürümlenmedi ise eski cache kayıtları id'siz döner ve karakter sayfasına
-    // link kurulamaz — sürüm eki tam olarak bunun için var.
-    const cacheKey = `anilist:characters:v2:${anilistId}`;
+    /*
+     * v3: portreler `medium` yerine `large` çekiliyor.
+     *
+     * v2'de `image { medium }` isteniyordu — o dosya AniList'te ~100px genişlik
+     * ve kadro listesindeki 56px yüzler için yeterliydi. Karakter dizinindeki
+     * levhalar ise 2:3 oranında ~140-220px; aynı dosya orada gözle görülür
+     * biçimde bulanık çıkıyor. `large` bu kaynağın karakterler için verdiği
+     * EN BÜYÜK boy (medya kapaklarındaki `extraLarge`in karakter karşılığı yok).
+     */
+    const cacheKey = `anilist:characters:v3:${anilistId}`;
     const cached = await this.prisma.externalCache.findUnique({
       where: { cacheKey },
     });
@@ -512,12 +525,12 @@ export class AnilistService {
               node: {
                 id: number;
                 name?: { full?: string; native?: string };
-                image?: { medium?: string };
+                image?: { large?: string; medium?: string };
                 favourites?: number | null;
               };
               voiceActors?: Array<{
                 name?: { full?: string };
-                image?: { medium?: string };
+                image?: { large?: string; medium?: string };
               }>;
             }>;
           };
@@ -525,8 +538,8 @@ export class AnilistService {
       }>(
         `query($id:Int){Media(id:$id,type:ANIME){characters(sort:[ROLE,FAVOURITES_DESC],perPage:12){edges{
           role
-          node{id name{full native} image{medium} favourites}
-          voiceActors(language:JAPANESE){name{full} image{medium}}
+          node{id name{full native} image{large medium} favourites}
+          voiceActors(language:JAPANESE){name{full} image{large medium}}
         }}}}`,
         { id: anilistId },
       );
@@ -540,10 +553,15 @@ export class AnilistService {
           characterId: edge.node.id,
           name: edge.node?.name?.full ?? '',
           nameNative: edge.node?.name?.native ?? null,
-          image: edge.node?.image?.medium ?? null,
+          // `large` yoksa `medium`e düş: eski/eksik kayıtlarda kart boş kalmasın
+          image: edge.node?.image?.large ?? edge.node?.image?.medium ?? null,
+          imageSmall: edge.node?.image?.medium ?? edge.node?.image?.large ?? null,
           role: edge.role,
           voiceActor: edge.voiceActors?.[0]?.name?.full ?? null,
-          voiceActorImage: edge.voiceActors?.[0]?.image?.medium ?? null,
+          voiceActorImage:
+            edge.voiceActors?.[0]?.image?.large ??
+            edge.voiceActors?.[0]?.image?.medium ??
+            null,
           favourites: edge.node?.favourites ?? null,
         }));
       await this.writeCache(cacheKey, characters);
@@ -572,7 +590,10 @@ export class AnilistService {
   async getCharacter(
     characterId: number,
   ): Promise<AnilistCharacterDetail | null> {
-    const cacheKey = `anilist:character:v1:${characterId}`;
+    // v2: göründüğü yapımların kapakları `large` yerine `extraLarge`.
+    // Bu dosyanın 200. satırındaki not zaten uyarıyordu — AniList'te `large`
+    // aslında orta boy dosyayı veriyor, gerçek büyük olan `extraLarge`.
+    const cacheKey = `anilist:character:v2:${characterId}`;
     const cached = await this.prisma.externalCache.findUnique({
       where: { cacheKey },
     });
@@ -595,8 +616,8 @@ export class AnilistService {
           siteUrl
           media(sort:POPULARITY_DESC,perPage:16){edges{
             characterRole
-            voiceActors(language:JAPANESE){name{full} image{medium}}
-            node{id type format seasonYear title{romaji english native} coverImage{large}}
+            voiceActors(language:JAPANESE){name{full} image{large medium}}
+            node{id type format seasonYear title{romaji english native} coverImage{extraLarge large}}
           }}
         }}`,
         { id: characterId },
@@ -824,10 +845,16 @@ function normalizeCharacter(raw: RawCharacter): AnilistCharacterDetail {
         mediaType: edge.node.type,
         format: edge.node.format,
         seasonYear: edge.node.seasonYear,
-        coverImage: edge.node.coverImage?.large ?? null,
+        coverImage:
+          edge.node.coverImage?.extraLarge ??
+          edge.node.coverImage?.large ??
+          null,
         role: edge.characterRole,
         voiceActor: edge.voiceActors?.[0]?.name?.full ?? null,
-        voiceActorImage: edge.voiceActors?.[0]?.image?.medium ?? null,
+        voiceActorImage:
+          edge.voiceActors?.[0]?.image?.large ??
+          edge.voiceActors?.[0]?.image?.medium ??
+          null,
       })),
   };
 }

@@ -368,7 +368,9 @@ export class AnimeService {
       )
       .digest('hex')
       .slice(0, 12);
-    const cacheKey = `anime:character-index:v1:${fingerprint}`;
+    // v2: kadro portreleri büyüdü (anilist.service `characters:v3`), derlenmiş
+    // dizin de o adresleri taşıdığı için birlikte sürümlendi
+    const cacheKey = `anime:character-index:v2:${fingerprint}`;
     const cached = await this.prisma.externalCache.findUnique({
       where: { cacheKey },
     });

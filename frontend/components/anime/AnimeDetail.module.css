@@ -457,12 +457,36 @@
 }
 
 .character {
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  transition: border-color 160ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.character:hover {
+  border-color: var(--border-strong);
+}
+
+/* Kadro satiri artik karakter dosyasina aciliyor. Kart BUTUN olarak
+   tiklaniyor: yuzu ve adi ayri hedefler yapmak 42px'lik bir satirda iki
+   minik dokunma alani uretirdi (AGENTS.md kural 2). */
+.characterLink {
   display: flex;
   align-items: center;
   gap: var(--gap-sm);
+  min-height: var(--touch-min);
   padding: var(--gap-sm);
-  border: 0.5px solid var(--border);
-  border-radius: var(--radius);
+  color: inherit;
+  text-decoration: none;
+}
+
+.characterLink:hover .characterName {
+  color: var(--accent-hover);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .character {
+    transition: none;
+  }
 }
 
 .characterFace {

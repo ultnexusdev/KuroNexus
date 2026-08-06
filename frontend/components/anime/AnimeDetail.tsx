@@ -222,29 +222,41 @@ export function AnimeDetail({
             <h2 className={styles.sectionTitle}>{t("detail.characters")}</h2>
             <ul className={styles.characters}>
               {characters.map((character) => (
-                <li key={character.name} className={styles.character}>
-                  {character.image ? (
-                    <span className={styles.characterFace}>
-                      <Image
-                        src={character.image}
-                        alt=""
-                        fill
-                        sizes="56px"
-                        className={styles.characterImg}
-                        unoptimized
-                      />
-                    </span>
-                  ) : null}
-                  <span className={styles.characterText}>
-                    <span className={styles.characterName}>
-                      {character.name}
-                    </span>
-                    {character.voiceActor ? (
-                      <span className={styles.characterVoice}>
-                        {character.voiceActor}
+                // Anahtar ad değil id: aynı adı taşıyan iki karakter aynı
+                // kadroda bulunabiliyor (aile üyeleri, "Unnamed" kayıtlar)
+                <li key={character.characterId} className={styles.character}>
+                  {/* Kadro artık karakter dosyasına açılıyor. Kart bir bütün
+                      olarak tıklanıyor — yüzü ve adı ayrı hedefler yapmak
+                      56px'lik satırda iki minik dokunma alanı üretirdi. */}
+                  <Link
+                    href={`/dark-stories/category/anime/karakterler/${character.characterId}`}
+                    className={styles.characterLink}
+                  >
+                    {character.imageSmall ?? character.image ? (
+                      <span className={styles.characterFace}>
+                        <Image
+                          /* Küçük boy: bu daire 42px, büyük portre burada
+                             boşuna indirilirdi (dizindeki levhalar `image` alır) */
+                          src={(character.imageSmall ?? character.image)!}
+                          alt=""
+                          fill
+                          sizes="56px"
+                          className={styles.characterImg}
+                          unoptimized
+                        />
                       </span>
                     ) : null}
-                  </span>
+                    <span className={styles.characterText}>
+                      <span className={styles.characterName}>
+                        {character.name}
+                      </span>
+                      {character.voiceActor ? (
+                        <span className={styles.characterVoice}>
+                          {character.voiceActor}
+                        </span>
+                      ) : null}
+                    </span>
+                  </Link>
                 </li>
               ))}
             </ul>

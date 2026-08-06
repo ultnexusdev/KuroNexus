@@ -760,11 +760,18 @@ export interface AnilistSearchResult {
 }
 
 export interface AnimeCharacter {
+  /** AniList karakter numarası — karakter dosyasının adresi */
+  characterId: number;
   name: string;
+  nameNative: string | null;
+  /** Büyük portre (karakter dizinindeki levhalar) */
   image: string | null;
+  /** Küçük portre (anime sayfasındaki 42px yüzler) */
+  imageSmall: string | null;
   role: string | null;
   voiceActor: string | null;
   voiceActorImage: string | null;
+  favourites: number | null;
 }
 
 export interface AnimeDetail {

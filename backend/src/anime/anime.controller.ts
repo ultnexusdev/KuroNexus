@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
 import { Public } from '../common/decorators/public.decorator';
 import { AnimeService } from './anime.service';
 
@@ -25,6 +25,25 @@ export class AnimeController {
   @Get('parts/:partId/episodes')
   getPartEpisodes(@Param('partId') partId: string) {
     return this.animeService.getPartEpisodes(partId);
+  }
+
+  // Karakter dizini: arşivdeki bütün serilerin kadroları tek listede.
+  // ':slug' rotasından ÖNCE — aksi hâlde "characters" bir seri adı sanılır.
+  @Public()
+  @Get('characters')
+  getCharacterIndex() {
+    return this.animeService.getCharacterIndex();
+  }
+
+  /**
+   * Karakter sayfası. Kimlik AniList karakter numarası; `ParseIntPipe`
+   * sayı olmayan her şeyi 400 ile keser — sayısal olmayan bir değer
+   * `Number()` ile `NaN`'a düşer ve AniList'e anlamsız sorgu giderdi.
+   */
+  @Public()
+  @Get('characters/:characterId')
+  getCharacterDetail(@Param('characterId', ParseIntPipe) characterId: number) {
+    return this.animeService.getCharacterDetail(characterId);
   }
 
   @Public()

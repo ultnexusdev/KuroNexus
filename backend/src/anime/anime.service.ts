@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import {
   ConflictException,
   Injectable,
@@ -7,6 +8,8 @@ import { PrismaService } from '../prisma/prisma.service';
 import {
   AnilistService,
   type AnilistCharacter,
+  type AnilistCharacterAppearance,
+  type AnilistCharacterDetail,
   type AnilistMedia,
 } from './anilist.service';
 import { JikanService } from './jikan.service';
@@ -148,6 +151,54 @@ export interface AnimeArchiveStats {
   topTag: string | null;
 }
 
+/* --- Karakter dizini ---------------------------------------------------- */
+
+/**
+ * Arşiv karakteri: AniList kadro kaydının, "hangi serilerimizde görünüyor"
+ * bilgisiyle zenginleştirilmiş hâli.
+ *
+ * Alan adlarında bilinçli olarak `anilist` geçmiyor: bu şekli ileride TMDB
+ * `credits`inden (film/dizi karakterleri) de doldurmak mümkün olsun — arayüz
+ * bileşenleri kaynağı bilmiyor.
+ */
+export interface ArchiveCharacter {
+  characterId: number;
+  name: string;
+  nameNative: string | null;
+  image: string | null;
+  /** MAIN | SUPPORTING | BACKGROUND */
+  role: string | null;
+  voiceActor: string | null;
+  favourites: number | null;
+  series: Array<{ slug: string; title: string }>;
+}
+
+export interface CharacterSeriesFacet {
+  slug: string;
+  title: string;
+  coverImage: string | null;
+  count: number;
+}
+
+/** Karakterin göründüğü yapım + arşivde karşılığı varsa kendi adresimiz. */
+export interface ArchiveCharacterAppearance extends AnilistCharacterAppearance {
+  archiveSlug: string | null;
+}
+
+const EMPTY_CHARACTER_STATS = { characters: 0, series: 0, main: 0 };
+/** Derlenmiş dizin bir gün taze sayılır; kadroların kendi TTL'i 30 gün. */
+const CHARACTER_INDEX_TTL_MS = 24 * 60 * 60 * 1000;
+/**
+ * Soğuk başlangıçta paralel AniList isteği sayısı. AniList dakikada 90 istek
+ * kabul ediyor; dörtte kalmak hem kotanın çok altında hem de 30 serilik bir
+ * arşivi tek sayfa açılışında toplayacak kadar hızlı.
+ */
+const CHARACTER_FETCH_CONCURRENCY = 4;
+/** "Yakındaki karakterler" için taranacak seri sayısı. */
+const RELATED_SERIES_LIMIT = 3;
+/** Şeritte gösterilecek karakter sayısı. */
+const RELATED_LIMIT = 12;
+
 type EntryWithParts = AnimeEntry & { parts: AnimePart[] };
 
 @Injectable()
@@ -280,6 +331,253 @@ export class AnimeService {
     // Kadro alınamazsa sayfa karaktersiz açılır (kural 4 ruhu)
     const characters = await this.anilist.getCharacters(anime.anilistId);
     return { anime, characters };
+  }
+
+  /**
+   * Karakter dizini: arşivdeki bütün serilerin kadroları tek listede.
+   *
+   * Neden ayrı bir cache: liste, seri başına bir kadro kaydından derleniyor.
+   * Kadrolar zaten 30 gün cache'li, yani ısınmış durumda derleme yalnızca N
+   * tane `findUnique` — ucuz. Pahalı olan **soğuk** hâl: arşivde 30 seri
+   * varsa 30 AniList isteği. Derlenmiş liste bu yüzden ayrıca saklanıyor.
+   *
+   * Cache anahtarı arşivdeki seri kimliklerinden türetiliyor: seri eklenince
+   * ya da çıkarılınca anahtar değişir ve liste kendiliğinden tazelenir.
+   */
+  async getCharacterIndex(): Promise<{
+    characters: ArchiveCharacter[];
+    series: CharacterSeriesFacet[];
+    stats: { characters: number; series: number; main: number };
+  }> {
+    const rows = await this.prisma.animeEntry.findMany({
+      where: { isDeleted: false },
+      include: { parts: { orderBy: { orderIndex: 'asc' } } },
+      orderBy: { updatedAt: 'desc' },
+    });
+    const entries = withSlugs(rows);
+    if (entries.length === 0) {
+      return { characters: [], series: [], stats: EMPTY_CHARACTER_STATS };
+    }
+
+    const fingerprint = createHash('sha1')
+      .update(
+        entries
+          .map((entry) => entry.anilistId)
+          .sort((a, b) => a - b)
+          .join(','),
+      )
+      .digest('hex')
+      .slice(0, 12);
+    const cacheKey = `anime:character-index:v1:${fingerprint}`;
+    const cached = await this.prisma.externalCache.findUnique({
+      where: { cacheKey },
+    });
+    if (
+      cached &&
+      Date.now() - cached.fetchedAt.getTime() < CHARACTER_INDEX_TTL_MS
+    ) {
+      return cached.payload as unknown as {
+        characters: ArchiveCharacter[];
+        series: CharacterSeriesFacet[];
+        stats: { characters: number; series: number; main: number };
+      };
+    }
+
+    const casts = await mapWithLimit(
+      entries,
+      CHARACTER_FETCH_CONCURRENCY,
+      (entry) =>
+        this.anilist
+          .getCharacters(entry.anilistId)
+          .then((characters) => ({ entry, characters }))
+          // Tek serinin kadrosu alınamazsa dizin o seri eksik kurulur; bütün
+          // sayfanın düşmesi için sebep değil (kural 4)
+          .catch(() => ({ entry, characters: [] as AnilistCharacter[] })),
+    );
+
+    const merged = new Map<number, ArchiveCharacter>();
+    const seriesCount = new Map<string, CharacterSeriesFacet>();
+
+    for (const { entry, characters } of casts) {
+      for (const character of characters) {
+        const existing = merged.get(character.characterId);
+        const appearance = { slug: entry.slug, title: entry.title };
+        if (existing) {
+          // Aynı karakter iki seride de olabilir (crossover, yan seri).
+          // Rol olarak en yükseği tutulur: bir yerde başrolse başroldür.
+          if (!existing.series.some((item) => item.slug === entry.slug)) {
+            existing.series.push(appearance);
+          }
+          if (roleWeight(character.role) < roleWeight(existing.role)) {
+            existing.role = character.role;
+          }
+          existing.image = existing.image ?? character.image;
+        } else {
+          merged.set(character.characterId, {
+            characterId: character.characterId,
+            name: character.name,
+            nameNative: character.nameNative,
+            image: character.image,
+            role: character.role,
+            voiceActor: character.voiceActor,
+            favourites: character.favourites,
+            series: [appearance],
+          });
+        }
+      }
+      if (characters.length > 0) {
+        seriesCount.set(entry.slug, {
+          slug: entry.slug,
+          title: entry.title,
+          coverImage: entry.coverImage,
+          count: characters.length,
+        });
+      }
+    }
+
+    const characters = [...merged.values()].sort(byRoleThenFame);
+    const payload = {
+      characters,
+      series: [...seriesCount.values()].sort((a, b) =>
+        a.title.localeCompare(b.title),
+      ),
+      stats: {
+        characters: characters.length,
+        series: seriesCount.size,
+        main: characters.filter((item) => item.role === 'MAIN').length,
+      },
+    };
+
+    // Hiç karakter derlenemediyse cache'leme: kaynak toparlayınca ilk istekte
+    // dolsun, boş liste 24 saat çakılı kalmasın (afiş cache'iyle aynı karar)
+    if (characters.length > 0) {
+      /*
+       * ⚠️ Aşağıdaki `as unknown as object` dönüşümü SİLİNMEMELİ.
+       *
+       * `eslint --fix` bunu "gereksiz dönüşüm" diye kaldırmak ister ve
+       * kaldırınca derleme kırılır: Prisma'nın `Json` alanı TypeScript'te
+       * `InputJsonValue` bekliyor, o tip de **index imzası** şart koşuyor.
+       * `ArchiveCharacter` gibi adlandırılmış arayüzlerde index imzası yok,
+       * dolayısıyla doğrudan atanamıyorlar. Aynı desen bu dosyada `showcase`
+       * ve `episodeMarks` yazımlarında da var, aynı sebeple.
+       */
+      await this.prisma.externalCache.upsert({
+        where: { cacheKey },
+        create: {
+          cacheKey,
+          payload: payload as unknown as object,
+          fetchedAt: new Date(),
+        },
+        update: {
+          payload: payload as unknown as object,
+          fetchedAt: new Date(),
+        },
+      });
+    }
+    return payload;
+  }
+
+  /**
+   * Karakter sayfası: AniList künyesi + arşivimizle köprü.
+   *
+   * İki köprü kuruluyor:
+   *  - karakterin göründüğü yapım arşivde varsa `archiveSlug` dolar ve kart
+   *    dışarıya değil kendi sayfamıza gider,
+   *  - aynı serilerdeki diğer karakterler "yakındaki karakterler" şeridini
+   *    doldurur (kadrolar zaten cache'li, ek dış istek yok).
+   */
+  async getCharacterDetail(characterId: number): Promise<{
+    character: AnilistCharacterDetail;
+    appearances: ArchiveCharacterAppearance[];
+    related: ArchiveCharacter[];
+  }> {
+    const character = await this.anilist.getCharacter(characterId);
+    if (!character) {
+      throw new NotFoundException('ANIME.CHARACTER_NOT_FOUND');
+    }
+
+    const rows = await this.prisma.animeEntry.findMany({
+      where: { isDeleted: false },
+      include: { parts: { orderBy: { orderIndex: 'asc' } } },
+      orderBy: { updatedAt: 'desc' },
+    });
+    const entries = withSlugs(rows);
+
+    // Bir yapım arşivde ya serinin kökü ya da bir sezonu olarak duruyor;
+    // ikisi de aynı seri sayfasına çıkar
+    const slugByAnilistId = new Map<number, ArchiveAnime>();
+    for (const entry of entries) {
+      slugByAnilistId.set(entry.anilistId, entry);
+      for (const part of entry.parts) {
+        slugByAnilistId.set(part.anilistId, entry);
+      }
+    }
+
+    const appearances: ArchiveCharacterAppearance[] = character.appearances.map(
+      (appearance) => ({
+        ...appearance,
+        archiveSlug: slugByAnilistId.get(appearance.anilistId)?.slug ?? null,
+      }),
+    );
+
+    const ownSeries = [
+      ...new Set(
+        appearances
+          .map((appearance) => slugByAnilistId.get(appearance.anilistId))
+          .filter((entry): entry is ArchiveAnime => Boolean(entry))
+          .map((entry) => entry.slug),
+      ),
+    ];
+
+    const related = await this.collectRelated(
+      entries.filter((entry) => ownSeries.includes(entry.slug)),
+      characterId,
+    );
+
+    return { character, appearances, related };
+  }
+
+  /** Aynı serilerdeki diğer karakterler — yalnızca cache'ten, dış istek yok. */
+  private async collectRelated(
+    entries: ArchiveAnime[],
+    excludeId: number,
+  ): Promise<ArchiveCharacter[]> {
+    const casts = await mapWithLimit(
+      entries.slice(0, RELATED_SERIES_LIMIT),
+      CHARACTER_FETCH_CONCURRENCY,
+      (entry) =>
+        this.anilist
+          .getCharacters(entry.anilistId)
+          .then((characters) => ({ entry, characters }))
+          .catch(() => ({ entry, characters: [] as AnilistCharacter[] })),
+    );
+
+    const merged = new Map<number, ArchiveCharacter>();
+    for (const { entry, characters } of casts) {
+      for (const character of characters) {
+        if (character.characterId === excludeId) {
+          continue;
+        }
+        const existing = merged.get(character.characterId);
+        if (existing) {
+          if (!existing.series.some((item) => item.slug === entry.slug)) {
+            existing.series.push({ slug: entry.slug, title: entry.title });
+          }
+          continue;
+        }
+        merged.set(character.characterId, {
+          characterId: character.characterId,
+          name: character.name,
+          nameNative: character.nameNative,
+          image: character.image,
+          role: character.role,
+          voiceActor: character.voiceActor,
+          favourites: character.favourites,
+          series: [{ slug: entry.slug, title: entry.title }],
+        });
+      }
+    }
+    return [...merged.values()].sort(byRoleThenFame).slice(0, RELATED_LIMIT);
   }
 
   /**
@@ -671,6 +969,59 @@ export class AnimeService {
     }
     return entry;
   }
+}
+
+/**
+ * Sınırlı paralellikte eşleme.
+ *
+ * `Promise.all` ile hepsini birden atmak, 30 serilik bir arşivde AniList'e tek
+ * anda 30 istek demek — kaynak 429 döndürüp dizini yarım bırakır. Sıra sıra
+ * gitmek ise soğuk başlangıçta sayfayı bekletir. Ortadaki yol bu.
+ */
+async function mapWithLimit<T, R>(
+  items: T[],
+  limit: number,
+  worker: (item: T) => Promise<R>,
+): Promise<R[]> {
+  const results = new Array<R>(items.length);
+  let cursor = 0;
+
+  const runners = Array.from({ length: Math.min(limit, items.length) }, () =>
+    (async () => {
+      while (cursor < items.length) {
+        const index = cursor;
+        cursor += 1;
+        results[index] = await worker(items[index]);
+      }
+    })(),
+  );
+  await Promise.all(runners);
+  return results;
+}
+
+/** Sıralama ağırlığı: başrol önce, arka plan en sonda. */
+function roleWeight(role: string | null): number {
+  if (role === 'MAIN') {
+    return 0;
+  }
+  if (role === 'SUPPORTING') {
+    return 1;
+  }
+  return 2;
+}
+
+/**
+ * Karakter sıralaması: önce rol, sonra AniList favori sayısı, sonra ad.
+ * Ad son basamak çünkü favori sayısı eşit olan (çoğu zaman `null`) karakterler
+ * aksi hâlde her istekte farklı sırada gelir — liste kıpırdıyor gibi görünür.
+ */
+function byRoleThenFame(a: ArchiveCharacter, b: ArchiveCharacter): number {
+  const byRole = roleWeight(a.role) - roleWeight(b.role);
+  if (byRole !== 0) {
+    return byRole;
+  }
+  const fame = (b.favourites ?? 0) - (a.favourites ?? 0);
+  return fame !== 0 ? fame : a.name.localeCompare(b.name);
 }
 
 /**

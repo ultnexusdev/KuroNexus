@@ -110,11 +110,77 @@ export interface AnilistMedia {
 }
 
 export interface AnilistCharacter {
+  /**
+   * AniList karakter id'si. Karakter sayfasının adresi budur — kadro listesi
+   * uzun süre yalnızca ad/görsel döndüğü için karaktere link kurulamıyordu.
+   */
+  characterId: number;
   name: string;
+  nameNative: string | null;
   image: string | null;
   role: string | null;
   voiceActor: string | null;
   voiceActorImage: string | null;
+  /** AniList'te kaç kişinin favorilediği — listeyi sıralamak için */
+  favourites: number | null;
+}
+
+/** Karakterin göründüğü bir yapım (anime ya da manga). */
+export interface AnilistCharacterAppearance {
+  anilistId: number;
+  title: string;
+  /** ANIME | MANGA */
+  mediaType: string | null;
+  format: string | null;
+  seasonYear: number | null;
+  coverImage: string | null;
+  /** MAIN | SUPPORTING | BACKGROUND */
+  role: string | null;
+  voiceActor: string | null;
+  voiceActorImage: string | null;
+}
+
+/**
+ * Açıklama metninin bir parçası. AniList açıklamaları `~!...!~` işaretiyle
+ * spoiler bloğu taşır; metin düz string olarak verilirse o blok ekranda
+ * çıplak kalır. Parçalara bölünmesinin tek sebebi bu: arayüz spoiler'lı
+ * parçayı dokunarak açılan bir kapının ardına koyabilsin (AGENTS.md kural 2/5).
+ */
+export interface AnilistTextSegment {
+  text: string;
+  spoiler: boolean;
+}
+
+/** Açıklamanın başındaki `__Anahtar:__ Değer` satırlarından çıkarılan künye. */
+export interface AnilistCharacterTrait {
+  label: string;
+  value: string;
+  spoiler: boolean;
+}
+
+export interface AnilistCharacterDetail {
+  characterId: number;
+  name: string;
+  nameNative: string | null;
+  /** Takma adlar — spoiler işaretli olanlar alınmaz */
+  alternativeNames: string[];
+  image: string | null;
+  /** Serbest metin (künye satırları ayıklandıktan sonra kalan) */
+  description: AnilistTextSegment[];
+  /** `__Boy:__ 202 cm` biçiminde yazılmış satırlardan türeyen künye tablosu */
+  traits: AnilistCharacterTrait[];
+  gender: string | null;
+  age: string | null;
+  bloodType: string | null;
+  /** Kısmi tarih olabilir (yılsız doğum günü yaygın); biçimlendirme arayüzde */
+  dateOfBirth: {
+    year: number | null;
+    month: number | null;
+    day: number | null;
+  } | null;
+  favourites: number | null;
+  siteUrl: string | null;
+  appearances: AnilistCharacterAppearance[];
 }
 
 export interface AnilistRelation {
@@ -212,6 +278,40 @@ interface RawMedia {
       };
     }>;
   };
+}
+
+interface RawCharacter {
+  id: number;
+  name?: { full?: string; native?: string; alternative?: string[] | null };
+  image?: { large?: string };
+  description: string | null;
+  gender: string | null;
+  age: string | null;
+  bloodType: string | null;
+  dateOfBirth?: {
+    year: number | null;
+    month: number | null;
+    day: number | null;
+  } | null;
+  favourites: number | null;
+  siteUrl: string | null;
+  media?: {
+    edges?: Array<{
+      characterRole: string | null;
+      voiceActors?: Array<{
+        name?: { full?: string };
+        image?: { medium?: string };
+      }>;
+      node: {
+        id: number;
+        type: string | null;
+        format: string | null;
+        seasonYear: number | null;
+        title?: { romaji?: string; english?: string; native?: string };
+        coverImage?: { large?: string };
+      };
+    }>;
+  } | null;
 }
 
 @Injectable()
@@ -392,7 +492,10 @@ export class AnilistService {
    * karaktersiz açılır.
    */
   async getCharacters(anilistId: number): Promise<AnilistCharacter[]> {
-    const cacheKey = `anilist:characters:${anilistId}`;
+    // v2: karakter id'si, ana dildeki ad ve favori sayısı eklendi. Anahtar
+    // sürümlenmedi ise eski cache kayıtları id'siz döner ve karakter sayfasına
+    // link kurulamaz — sürüm eki tam olarak bunun için var.
+    const cacheKey = `anilist:characters:v2:${anilistId}`;
     const cached = await this.prisma.externalCache.findUnique({
       where: { cacheKey },
     });
@@ -406,7 +509,12 @@ export class AnilistService {
           characters?: {
             edges?: Array<{
               role: string | null;
-              node: { name?: { full?: string }; image?: { medium?: string } };
+              node: {
+                id: number;
+                name?: { full?: string; native?: string };
+                image?: { medium?: string };
+                favourites?: number | null;
+              };
               voiceActors?: Array<{
                 name?: { full?: string };
                 image?: { medium?: string };
@@ -417,20 +525,27 @@ export class AnilistService {
       }>(
         `query($id:Int){Media(id:$id,type:ANIME){characters(sort:[ROLE,FAVOURITES_DESC],perPage:12){edges{
           role
-          node{name{full} image{medium}}
+          node{id name{full native} image{medium} favourites}
           voiceActors(language:JAPANESE){name{full} image{medium}}
         }}}}`,
         { id: anilistId },
       );
       const characters: AnilistCharacter[] = (
         data.Media?.characters?.edges ?? []
-      ).map((edge) => ({
-        name: edge.node?.name?.full ?? '',
-        image: edge.node?.image?.medium ?? null,
-        role: edge.role,
-        voiceActor: edge.voiceActors?.[0]?.name?.full ?? null,
-        voiceActorImage: edge.voiceActors?.[0]?.image?.medium ?? null,
-      }));
+      )
+        // id'siz bir kenar gelirse (AniList tarafında silinmiş kayıt) atlanır:
+        // adresi kurulamayan bir kart listede tıklanınca 404 verirdi
+        .filter((edge) => typeof edge.node?.id === 'number')
+        .map((edge) => ({
+          characterId: edge.node.id,
+          name: edge.node?.name?.full ?? '',
+          nameNative: edge.node?.name?.native ?? null,
+          image: edge.node?.image?.medium ?? null,
+          role: edge.role,
+          voiceActor: edge.voiceActors?.[0]?.name?.full ?? null,
+          voiceActorImage: edge.voiceActors?.[0]?.image?.medium ?? null,
+          favourites: edge.node?.favourites ?? null,
+        }));
       await this.writeCache(cacheKey, characters);
       return characters;
     } catch (error) {
@@ -441,6 +556,68 @@ export class AnilistService {
         `AniList kadro alınamadı (${anilistId}): ${String(error)}`,
       );
       return [];
+    }
+  }
+
+  /**
+   * Tek karakterin künyesi (karakter sayfası).
+   *
+   * Kadro sorgusundan ayrı: kadro yalnızca ad/görsel taşır, burada açıklama,
+   * doğum tarihi, kan grubu ve karakterin göründüğü bütün yapımlar var.
+   * Kadro gibi bu da neredeyse hiç değişmez → aynı 30 günlük TTL.
+   *
+   * Kaynak düşerse ve elde bayat kayıt varsa o sunulur; hiç kayıt yoksa `null`
+   * döner ve sayfa 404 verir — yarım bir künye göstermektense sayfa açılmasın.
+   */
+  async getCharacter(
+    characterId: number,
+  ): Promise<AnilistCharacterDetail | null> {
+    const cacheKey = `anilist:character:v1:${characterId}`;
+    const cached = await this.prisma.externalCache.findUnique({
+      where: { cacheKey },
+    });
+    if (cached && Date.now() - cached.fetchedAt.getTime() < CHARACTER_TTL_MS) {
+      return cached.payload as unknown as AnilistCharacterDetail;
+    }
+
+    try {
+      const data = await this.request<{ Character: RawCharacter | null }>(
+        `query($id:Int){Character(id:$id){
+          id
+          name{full native alternative}
+          image{large}
+          description(asHtml:false)
+          gender
+          age
+          bloodType
+          dateOfBirth{year month day}
+          favourites
+          siteUrl
+          media(sort:POPULARITY_DESC,perPage:16){edges{
+            characterRole
+            voiceActors(language:JAPANESE){name{full} image{medium}}
+            node{id type format seasonYear title{romaji english native} coverImage{large}}
+          }}
+        }}`,
+        { id: characterId },
+      );
+      if (!data.Character) {
+        return null;
+      }
+      const detail = normalizeCharacter(data.Character);
+      await this.writeCache(cacheKey, detail);
+      return detail;
+    } catch (error) {
+      if (cached) {
+        this.logger.warn(
+          `AniList karakter ${characterId} yenilenemedi, bayat cache sunuluyor: ${String(error)}`,
+        );
+        return cached.payload as unknown as AnilistCharacterDetail;
+      }
+      this.logger.warn(
+        `AniList karakter alınamadı (${characterId}): ${String(error)}`,
+      );
+      return null;
     }
   }
 
@@ -603,6 +780,157 @@ function officialSite(
     (link) => link.site?.toLowerCase() === 'official site' && link.url,
   );
   return match?.url ?? null;
+}
+
+function normalizeCharacter(raw: RawCharacter): AnilistCharacterDetail {
+  const { traits, description } = parseCharacterDescription(raw.description);
+  const birth = raw.dateOfBirth;
+  const hasBirth = Boolean(birth && (birth.year || birth.month || birth.day));
+
+  return {
+    characterId: raw.id,
+    name: raw.name?.full?.trim() || `#${raw.id}`,
+    nameNative: raw.name?.native ?? null,
+    // AniList'te takma ad listesi bazen onlarca satır oluyor (her dildeki
+    // yazılışı). Künye satırı olmaktan çıkmasın diye sekizle sınırlı.
+    alternativeNames: (raw.name?.alternative ?? [])
+      .map((name) => name.trim())
+      .filter((name) => name.length > 0)
+      .slice(0, 8),
+    image: raw.image?.large ?? null,
+    description,
+    traits,
+    gender: raw.gender,
+    age: raw.age,
+    bloodType: raw.bloodType,
+    dateOfBirth: hasBirth
+      ? {
+          year: birth?.year ?? null,
+          month: birth?.month ?? null,
+          day: birth?.day ?? null,
+        }
+      : null,
+    favourites: raw.favourites,
+    siteUrl: raw.siteUrl,
+    appearances: (raw.media?.edges ?? [])
+      .filter((edge) => typeof edge.node?.id === 'number')
+      .map((edge) => ({
+        anilistId: edge.node.id,
+        title:
+          edge.node.title?.english ??
+          edge.node.title?.romaji ??
+          edge.node.title?.native ??
+          `#${edge.node.id}`,
+        mediaType: edge.node.type,
+        format: edge.node.format,
+        seasonYear: edge.node.seasonYear,
+        coverImage: edge.node.coverImage?.large ?? null,
+        role: edge.characterRole,
+        voiceActor: edge.voiceActors?.[0]?.name?.full ?? null,
+        voiceActorImage: edge.voiceActors?.[0]?.image?.medium ?? null,
+      })),
+  };
+}
+
+/**
+ * AniList karakter açıklamasını künye satırları + serbest metin olarak ayırır.
+ *
+ * Kaynak metin iki şey birden taşıyor ve tek blok olarak basılırsa ikisi de
+ * kötü görünüyor:
+ *   __Height:__ 202 cm          ← aslında bir künye satırı, cümle değil
+ *   __Birthday:__ November 11
+ *
+ *   Zaraki Kenpachi is the captain of…   ← asıl metin
+ *   ~!Bankai'sinde görünümü…!~            ← spoiler
+ *
+ * Bu yüzden künye satırları tabloya, kalanı paragrafa, `~!…!~` blokları da
+ * dokunarak açılan kapının ardına gidiyor. Ayrıştırma burada yapılıyor çünkü
+ * sonuç cache'e yazılıyor: her sayfa açılışında yeniden çözümlenmiyor.
+ */
+function parseCharacterDescription(raw: string | null): {
+  traits: AnilistCharacterTrait[];
+  description: AnilistTextSegment[];
+} {
+  if (!raw) {
+    return { traits: [], description: [] };
+  }
+
+  const traits: AnilistCharacterTrait[] = [];
+  const description: AnilistTextSegment[] = [];
+
+  for (const chunk of splitSpoilerChunks(raw)) {
+    const prose: string[] = [];
+    for (const line of chunk.text.split('\n')) {
+      const trait = TRAIT_LINE.exec(line);
+      if (trait) {
+        const label = stripMarkdown(trait[1]);
+        const value = stripMarkdown(trait[2]);
+        // Anahtarı ya da değeri boş kalan satır künyeye girmez — tabloda
+        // yarım bir satır, hiç olmayan satırdan kötü
+        if (label && value) {
+          traits.push({ label, value, spoiler: chunk.spoiler });
+          continue;
+        }
+      }
+      const clean = stripMarkdown(line);
+      if (clean) {
+        prose.push(clean);
+      }
+    }
+    const text = prose.join('\n');
+    if (text) {
+      description.push({ text, spoiler: chunk.spoiler });
+    }
+  }
+
+  return { traits, description };
+}
+
+/** `__Boy:__ 202 cm` ve `__Boy__: 202 cm` yazımlarının ikisini de yakalar. */
+const TRAIT_LINE =
+  /^\s*(?:__|\*\*)\s*([^:\n]{1,48}?)\s*:?\s*(?:__|\*\*)\s*:?\s*(.+)$/;
+
+/** `~!…!~` blokları metni spoiler'lı/spoiler'sız parçalara böler. */
+function splitSpoilerChunks(
+  raw: string,
+): Array<{ text: string; spoiler: boolean }> {
+  const normalized = raw.replace(/<br\s*\/?>/gi, '\n').replace(/\r\n/g, '\n');
+  const chunks: Array<{ text: string; spoiler: boolean }> = [];
+  const pattern = /~!([\s\S]*?)!~/g;
+  let cursor = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = pattern.exec(normalized)) !== null) {
+    if (match.index > cursor) {
+      chunks.push({
+        text: normalized.slice(cursor, match.index),
+        spoiler: false,
+      });
+    }
+    chunks.push({ text: match[1], spoiler: true });
+    cursor = match.index + match[0].length;
+  }
+  if (cursor < normalized.length) {
+    chunks.push({ text: normalized.slice(cursor), spoiler: false });
+  }
+  return chunks;
+}
+
+/**
+ * AniList markdown'ından düz metin.
+ *
+ * `dangerouslySetInnerHTML` bilinçli olarak kullanılmıyor (kural 6): dış
+ * kaynaktan gelen metin HTML olarak basılırsa XSS yüzeyi açılır. Bu yüzden
+ * biçimlendirme işaretleri **atılıyor**, HTML'e çevrilmiyor.
+ */
+function stripMarkdown(value: string): string {
+  return value
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, '') // görsel
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1') // link → yalnızca metni
+    .replace(/(\*\*|__)(.*?)\1/g, '$2') // kalın
+    .replace(/`([^`]*)`/g, '$1')
+    .replace(/[ \t]+/g, ' ')
+    .trim();
 }
 
 /** İzleme sırası: yayın yılı, sonra format (TV önce), sonra id. */

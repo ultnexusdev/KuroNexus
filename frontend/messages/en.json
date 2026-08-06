@@ -1244,6 +1244,10 @@
       "archive": {
         "title": "My Anime Archive",
         "desc": "Series I'm watching, have finished, or am waiting on — seasons included."
+      },
+      "characters": {
+        "title": "Characters",
+        "desc": "Every series in the archive, one cast list — profiles, voice actors and appearances."
       }
     },
     "archiveTitle": "My Anime Archive",
@@ -1389,6 +1393,56 @@
     "hero": {
       "eyebrow": "Currently watching",
       "resume": "Pick up where you left off →"
+    }
+  },
+  "character": {
+    "title": "Characters",
+    "lede": "Every series in the archive, one cast list. Pick a portrait to open its profile, appearances and voice actor.",
+    "backToArchive": "← Back to the anime hall",
+    "backToGallery": "← Back to characters",
+    "searchLabel": "Search characters",
+    "searchPlaceholder": "Name, native name, voice actor or series…",
+    "random": "Pull a random file",
+    "allSeries": "All",
+    "aliases": "Also known as",
+    "voiceActor": "Voice actor",
+    "source": "Profile data comes from AniList and is stored in our archive; the page keeps working even if the source goes down.",
+    "stats": {
+      "characters": "Characters",
+      "main": "Leads",
+      "series": "Series"
+    },
+    "role": {
+      "MAIN": "Lead",
+      "SUPPORTING": "Supporting",
+      "BACKGROUND": "Background"
+    },
+    "sections": {
+      "profile": "Profile",
+      "about": "About",
+      "appearances": "Appearances",
+      "related": "Nearby Characters",
+      "voice": "Voice actor"
+    },
+    "traits": {
+      "gender": "Gender",
+      "age": "Age",
+      "bloodType": "Blood type",
+      "birthday": "Birthday"
+    },
+    "spoiler": {
+      "warning": "This part gives the story away. You may want to leave it closed if you have not watched the series.",
+      "reveal": "Show anyway",
+      "mark": "Spoiler"
+    },
+    "empty": {
+      "title": "No cast collected yet",
+      "text": "Casts arrive here as series are added to the archive. Add a series to the anime archive and come back.",
+      "filteredTitle": "No characters match this filter",
+      "filteredText": "The search or series selection emptied the list. Clear the filter and try again.",
+      "clear": "Clear filter",
+      "profile": "No profile details were provided for this character.",
+      "about": "No description was written for this character."
     }
   }
 }

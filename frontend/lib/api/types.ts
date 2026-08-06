@@ -1249,3 +1249,103 @@ export interface ReadingGoalRecord {
   targetBooks: number;
   targetPages: number | null;
 }
+
+/* ============================================================
+   Karakterler (Salon 04 - anime kadrosu)
+
+   Alan adlarinda bilincli olarak "anilist" gecmiyor: ayni sekli
+   ileride TMDB `credits`inden (film/dizi karakterleri) doldurmak
+   mumkun olsun. Bilesenler kaynagi bilmiyor.
+   ============================================================ */
+
+/** Karakterin gorundugu serilerden biri - arsivimizdeki adresiyle. */
+export interface CharacterSeriesRef {
+  slug: string;
+  title: string;
+}
+
+/** MAIN | SUPPORTING | BACKGROUND - AniList rol adlari. */
+export type CharacterRole = "MAIN" | "SUPPORTING" | "BACKGROUND";
+
+/** Dizindeki bir kart. */
+export interface ArchiveCharacter {
+  characterId: number;
+  name: string;
+  nameNative: string | null;
+  image: string | null;
+  role: CharacterRole | string | null;
+  voiceActor: string | null;
+  favourites: number | null;
+  series: CharacterSeriesRef[];
+}
+
+/** Dizin suzgecindeki seri secenegi. */
+export interface CharacterSeriesFacet {
+  slug: string;
+  title: string;
+  coverImage: string | null;
+  count: number;
+}
+
+export interface CharacterIndex {
+  characters: ArchiveCharacter[];
+  series: CharacterSeriesFacet[];
+  stats: { characters: number; series: number; main: number };
+}
+
+/**
+ * Aciklama metninin bir parcasi. `spoiler` isaretli parca ekranda
+ * dokunarak acilan kapinin ardinda durur (AGENTS.md kural 2/5).
+ */
+export interface CharacterTextSegment {
+  text: string;
+  spoiler: boolean;
+}
+
+/** Kunye tablosunun bir satiri (`__Boy:__ 202 cm` gibi kaynaklardan). */
+export interface CharacterTrait {
+  label: string;
+  value: string;
+  spoiler: boolean;
+}
+
+/** Karakterin gorundugu yapim; arsivde karsiligi varsa `archiveSlug` dolu. */
+export interface CharacterAppearance {
+  anilistId: number;
+  title: string;
+  mediaType: string | null;
+  format: string | null;
+  seasonYear: number | null;
+  coverImage: string | null;
+  role: CharacterRole | string | null;
+  voiceActor: string | null;
+  voiceActorImage: string | null;
+  archiveSlug: string | null;
+}
+
+export interface CharacterProfile {
+  characterId: number;
+  name: string;
+  nameNative: string | null;
+  alternativeNames: string[];
+  image: string | null;
+  description: CharacterTextSegment[];
+  traits: CharacterTrait[];
+  gender: string | null;
+  age: string | null;
+  bloodType: string | null;
+  dateOfBirth: {
+    year: number | null;
+    month: number | null;
+    day: number | null;
+  } | null;
+  favourites: number | null;
+  siteUrl: string | null;
+  appearances: CharacterAppearance[];
+}
+
+export interface CharacterDetail {
+  character: CharacterProfile;
+  appearances: CharacterAppearance[];
+  related: ArchiveCharacter[];
+}

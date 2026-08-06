@@ -1,0 +1,75 @@
+/* Spoiler kapisi. Wiki'deki SpoilerGate evren bazli calisiyor (kullanicinin
+   o evren icin sectigi seviyeye bakiyor); buradaki metin dis kaynaktan
+   geliyor ve seviyesi yok — tek bilgi "bu parca spoiler". O yuzden ayri,
+   daha basit bir kapi: varsayilan kapali, dokununca aciliyor.
+
+   Yanlislikla acilmasin diye tiklama alani BUTON, blogun tamami degil
+   (AGENTS.md kural 2). */
+
+.gate {
+  box-sizing: border-box;
+  margin: 0 0 var(--gap-md);
+  padding: var(--pad-md);
+  border: 0.5px dashed var(--border-strong);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
+}
+
+.warning {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.84rem;
+  line-height: 1.6;
+}
+
+.reveal {
+  min-height: var(--touch-min);
+  margin-top: var(--gap-sm);
+  padding: 0 14px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--accent);
+  font-family: inherit;
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+.reveal:hover {
+  background: var(--surface-hover);
+}
+
+.reveal:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.reveal:active {
+  transform: scale(0.97);
+}
+
+/* Acildiktan sonra: kesikli cerceve kalir ki bu metnin spoiler oldugu
+   unutulmasin, ama artik uyari degil isaret — rengi soluk. */
+.revealed {
+  box-sizing: border-box;
+  margin: 0 0 var(--gap-md);
+  padding: var(--pad-md);
+  border: 0.5px dashed var(--border);
+  border-radius: var(--radius);
+}
+
+.hint {
+  display: block;
+  margin-bottom: var(--gap-sm);
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal:active {
+    transform: none;
+  }
+}

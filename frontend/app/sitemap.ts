@@ -24,6 +24,7 @@ const STATIC_PATHS = [
   "/dark-stories/category/kitap/oduller",
   "/dark-stories/category/kitap/okuma-sirasi",
   "/dark-stories/category/anime/arsiv",
+  "/dark-stories/category/anime/karakterler",
   "/dark-stories/category/dizi/arsiv",
   "/dark-stories/category/film/arsiv",
 ];

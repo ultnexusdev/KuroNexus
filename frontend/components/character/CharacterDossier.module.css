@@ -1,0 +1,435 @@
+/* Karakter dosyasi — muzenin portre kanadinda tek bir cerceve ve kunyesi.
+   Palet [data-category="anime"] blogundan (AGENTS.md kural 16).
+   Derinlik stratejisi TEK: 0.5px kenarlik + yuzey tonu kaymasi.
+
+   ODAK: portre + ad. Her sey onlarin altinda ikinci kademe.
+   Kunye solda dar sutunda, okunan metin sagda genis sutunda — goz once
+   yuze, sonra ada, sonra metne gider; kunye satirlari akisi bolmez. */
+
+.hall {
+  position: relative;
+  box-sizing: border-box;
+  min-height: 100vh;
+  padding: var(--pad-lg) var(--pad-md) 120px;
+  background: var(--bg);
+  background-image: radial-gradient(
+    120% 60% at 50% -10%,
+    var(--anime-glow),
+    transparent 60%
+  );
+}
+
+.page {
+  position: relative;
+  z-index: 1;
+  width: min(1080px, 100%);
+  margin-inline: auto;
+}
+
+.back {
+  display: inline-block;
+  min-height: var(--touch-min);
+  margin-bottom: var(--gap-sm);
+  padding: 11px 0;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  text-decoration: none;
+}
+
+.back:hover {
+  color: var(--accent);
+}
+
+/* --- Kunye levhasi (hero) --- */
+
+.hero {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pad-lg);
+  align-items: flex-start;
+  padding-bottom: var(--pad-lg);
+  border-bottom: 0.5px solid var(--border);
+}
+
+/* Cerceve + yanindaki dikey ad tek bir oge gibi durur */
+.portraitBlock {
+  display: flex;
+  flex-shrink: 0;
+  gap: var(--gap-md);
+  align-items: stretch;
+}
+
+.frame {
+  position: relative;
+  width: clamp(150px, 34vw, 220px);
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+}
+
+.portrait {
+  object-fit: cover;
+  outline: 1px solid rgba(255, 255, 255, 0.1);
+  outline-offset: -1px;
+}
+
+.portraitFallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-muted);
+  font-family: var(--font-cinzel), serif;
+  font-size: 3.4rem;
+  line-height: 1;
+}
+
+/* IMZA — ana dildeki ad, cercevenin yanindan asagi dogru, sitenin firca
+   fontuyla (Yuji Boku; logodaki 黒 ile ayni el). Asili bir kakemono'nun
+   yanindaki hattat imzasi gibi. Bu font projede baska hicbir yerde
+   yapisal olarak kullanilmiyor — kanadin imzasi bu. */
+.nativeColumn {
+  writing-mode: vertical-rl;
+  align-self: flex-start;
+  max-height: clamp(225px, 51vw, 330px);
+  overflow: hidden;
+  color: var(--accent-muted);
+  font-family: var(--font-brush), serif;
+  font-size: clamp(1.5rem, 4.5vw, 2.1rem);
+  letter-spacing: 0.14em;
+  line-height: 1;
+  /* Firca yazisi kalin gorunmesin: koyu zeminde kenar yumusatma sart */
+  -webkit-font-smoothing: antialiased;
+}
+
+.identity {
+  flex: 1 1 300px;
+  min-width: 0;
+}
+
+.rankRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--gap-sm);
+  margin-bottom: var(--gap-sm);
+}
+
+/* Rol: renkli rozet degil, harflerin kendisi (kartlarla ayni karar) */
+.rank {
+  color: var(--text-muted);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.8rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+}
+
+.rankMain {
+  color: var(--accent);
+}
+
+/* AniList'te kac kisinin favoriledigi — kunyenin tek sayisal vurgusu */
+.favourites {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  color: var(--gold);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.name {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: var(--font-cinzel), serif;
+  font-size: clamp(1.9rem, 5.5vw, 3.1rem);
+  font-weight: 600;
+  /* Buyudukce harf arasi daralir: genis takip 3rem'de dagilmis gorunur */
+  letter-spacing: -0.005em;
+  line-height: 1.05;
+  text-wrap: balance;
+}
+
+.aliases {
+  margin: var(--gap-sm) 0 0;
+  color: var(--text-muted);
+  font-size: 0.84rem;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+/* Karakterin arsivimizdeki serileri — kapinin geri acildigi yer */
+.seriesRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-sm);
+  margin: var(--gap-lg) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.seriesLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 0.5px solid var(--accent-muted);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--accent);
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+}
+
+.seriesLink:hover {
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  color: var(--accent-hover);
+}
+
+/* --- Iki sutun --- */
+
+.columns {
+  display: grid;
+  gap: var(--pad-lg);
+  margin-top: var(--pad-lg);
+}
+
+@media (min-width: 900px) {
+  .columns {
+    /* 300px kunye + kalan hepsi metin: oran "kunye metne hizmet eder" der.
+       Esit iki sutun ikisini akran gosterirdi, oysa sayfaya okumaya gelinir. */
+    grid-template-columns: 300px minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.section {
+  margin-bottom: var(--pad-lg);
+}
+
+.section:last-child {
+  margin-bottom: 0;
+}
+
+.sectionTitle {
+  margin: 0 0 var(--gap-md);
+  padding-bottom: var(--gap-sm);
+  border-bottom: 0.5px solid var(--border);
+  color: var(--text-secondary);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.95rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+/* --- Kunye tablosu --- */
+
+.traits {
+  margin: 0;
+  padding: 0;
+}
+
+.traitRow {
+  display: flex;
+  gap: var(--gap-md);
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 9px 0;
+  border-bottom: 0.5px solid var(--border);
+}
+
+.traitRow:last-child {
+  border-bottom: none;
+}
+
+.traitLabel {
+  flex-shrink: 0;
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.traitValue {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+/* --- Seslendiren --- */
+
+.voice {
+  display: flex;
+  gap: var(--gap-md);
+  align-items: center;
+  box-sizing: border-box;
+  padding: var(--gap-md);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+}
+
+.voiceFace {
+  position: relative;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--surface-hover);
+}
+
+.voiceImg {
+  object-fit: cover;
+}
+
+.voiceText {
+  min-width: 0;
+}
+
+.voiceRole {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.voiceName {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-primary);
+  font-size: 0.92rem;
+}
+
+/* --- Hakkinda --- */
+
+.prose {
+  margin: 0 0 var(--gap-md);
+  color: var(--text-primary);
+  font-size: 0.98rem;
+  /* Okuma metni: 1.7 satir araligi sitenin body degeriyle ayni */
+  line-height: 1.7;
+  white-space: pre-line;
+  text-wrap: pretty;
+}
+
+.prose:last-child {
+  margin-bottom: 0;
+}
+
+/* --- Gorundugu yapimlar --- */
+
+.appearances {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+  gap: var(--gap-lg) var(--gap-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.appearance {
+  min-width: 0;
+}
+
+.appearanceFrame {
+  position: relative;
+  display: block;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.appearanceImg {
+  object-fit: cover;
+  outline: 1px solid rgba(255, 255, 255, 0.1);
+  outline-offset: -1px;
+}
+
+/* Arsivde olmayan yapim tiklanabilir degil: disariya link vermek ziyaretcinin
+   IP'sini baska siteye tasir ve sayfadan cikarir. Kart yine gorunur, kunye
+   olarak durur. */
+.appearanceFrameStatic {
+  cursor: default;
+}
+
+.appearanceTitle {
+  display: block;
+  margin-top: var(--gap-sm);
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.appearanceLink {
+  color: inherit;
+  text-decoration: none;
+}
+
+.appearanceLink:hover {
+  color: var(--accent-hover);
+}
+
+.appearanceMeta {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Arsivde olan yapimin isareti: ince bir accent cizgisi. Rozet degil —
+   kartlarin ustune ikinci bir rozet dizisi koymak izgarayi gurultuye bogar. */
+.inArchive {
+  border-left: 2px solid var(--accent-muted);
+  padding-left: var(--gap-sm);
+}
+
+/* --- Yakindaki karakterler --- */
+
+.relatedGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: var(--gap-lg) var(--gap-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* --- Kaynak notu --- */
+
+.source {
+  margin-top: var(--pad-lg);
+  padding-top: var(--gap-md);
+  border-top: 0.5px solid var(--border);
+  color: var(--text-muted);
+  font-size: 0.76rem;
+  line-height: 1.6;
+}
+
+.sourceLink {
+  color: var(--text-secondary);
+}
+
+.sourceLink:hover {
+  color: var(--accent);
+}
+
+/* --- Bos bolum --- */
+
+.sectionEmpty {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.86rem;
+  line-height: 1.6;
+}

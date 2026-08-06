@@ -17,4 +17,9 @@ export const ANIME_SECTIONS: AnimeSection[] = [
     key: "archive",
     href: "/dark-stories/category/anime/arsiv",
   },
+  {
+    slug: "karakterler",
+    key: "characters",
+    href: "/dark-stories/category/anime/karakterler",
+  },
 ];

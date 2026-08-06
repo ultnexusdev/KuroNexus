@@ -1,0 +1,310 @@
+/* Salon 04 · Anime — "Portre Kanadi".
+   Iskelet AnimeHall ile birebir ayni: .hall tam genislikte sarmalayici,
+   .page ortalanmis sutun, sutun icinde ust uste bolumler. Ayni salonun
+   ikinci odasi oldugu icin ayni zemin, ayni isik (--anime-glow).
+   Renkler yalnizca token'lardan (AGENTS.md kural 16). */
+
+.hall {
+  --character-content-w: 1180px;
+
+  position: relative;
+  box-sizing: border-box;
+  min-height: 100vh;
+  padding: var(--pad-lg) var(--pad-md) 120px;
+  background: var(--bg);
+  background-image: radial-gradient(
+    120% 70% at 50% -10%,
+    var(--anime-glow),
+    transparent 60%
+  );
+}
+
+.page {
+  position: relative;
+  z-index: 1;
+  width: min(var(--character-content-w), 100%);
+  margin-inline: auto;
+}
+
+/* --- Giris --- */
+
+.head {
+  margin-bottom: var(--pad-lg);
+}
+
+.back {
+  display: inline-block;
+  min-height: var(--touch-min);
+  margin-bottom: var(--gap-sm);
+  padding: 11px 0;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  text-decoration: none;
+}
+
+.back:hover {
+  color: var(--accent);
+}
+
+.eyebrow {
+  display: block;
+  color: var(--gold);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.95rem;
+  letter-spacing: 0.32em;
+}
+
+.title {
+  margin: var(--gap-sm) 0 0;
+  color: var(--text-primary);
+  font-family: var(--font-cinzel), serif;
+  font-size: clamp(2rem, 5.5vw, 3.4rem);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  line-height: 1.05;
+  text-wrap: balance;
+}
+
+.lede {
+  max-width: 52ch;
+  margin: var(--gap-md) 0 0;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+/* --- Kunye seridi --- */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--gap-md);
+  margin: var(--pad-md) 0;
+}
+
+.statCard {
+  box-sizing: border-box;
+  padding: var(--gap-md) var(--gap-lg);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+  backdrop-filter: blur(3px);
+}
+
+.statLabel {
+  display: block;
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.statValue {
+  display: block;
+  margin-top: 4px;
+  color: var(--text-primary);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 1.7rem;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  /* Sayilar suzgecle degistikce genislik ziplamasin */
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Suzgec cubugu --- */
+
+.tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--gap-md);
+  margin: var(--pad-md) 0 var(--gap-md);
+}
+
+.searchLabel {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.search {
+  box-sizing: border-box;
+  flex: 1 1 240px;
+  min-height: var(--touch-min);
+  padding: 0 14px;
+  /* Girdi cevresinden KOYU: icine yazi girer, disari isik vermez */
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--bg) 60%, var(--surface));
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+.search::placeholder {
+  color: var(--text-muted);
+}
+
+.search:focus-visible {
+  border-color: var(--accent-muted);
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* Cekmeceden rastgele bir dosya cek — muzenin kendi jesti */
+.dice {
+  min-height: var(--touch-min);
+  padding: 0 16px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition:
+    color 160ms cubic-bezier(0.23, 1, 0.32, 1),
+    border-color 160ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.dice:hover {
+  border-color: var(--accent-muted);
+  color: var(--accent);
+}
+
+.dice:active {
+  transform: scale(0.97);
+}
+
+.dice:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* --- Seri suzgeci --- */
+
+.seriesRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-sm);
+  margin-bottom: var(--pad-md);
+  padding: 0;
+  list-style: none;
+}
+
+.seriesChip {
+  min-height: 36px;
+  padding: 0 12px;
+  border: 0.5px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition:
+    color 160ms cubic-bezier(0.23, 1, 0.32, 1),
+    border-color 160ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.seriesChip:hover {
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+.seriesChip:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.seriesChipOn {
+  border-color: var(--accent-muted);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--accent);
+}
+
+.chipCount {
+  margin-left: 6px;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Izgara --- */
+
+.grid {
+  display: grid;
+  /* Mobilde iki sutun: portre 2:3 oldugu icin tek sutun devasa kartlar uretir */
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--gap-lg) var(--gap-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.gridItem {
+  min-width: 0;
+}
+
+/* --- Bos durumlar --- */
+
+.empty {
+  box-sizing: border-box;
+  margin-top: var(--pad-md);
+  padding: var(--pad-lg);
+  border: 0.5px dashed var(--border-strong);
+  border-radius: var(--radius-card);
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.emptyTitle {
+  margin: 0 0 var(--gap-sm);
+  color: var(--text-primary);
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.emptyText {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+.emptyAction {
+  display: inline-block;
+  min-height: var(--touch-min);
+  margin-top: var(--gap-md);
+  padding: 11px 16px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--accent);
+  font-family: inherit;
+  font-size: 0.84rem;
+  cursor: pointer;
+}
+
+.emptyAction:hover {
+  background: var(--surface-hover);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dice,
+  .seriesChip {
+    transition: none;
+  }
+
+  .dice:active {
+    transform: none;
+  }
+}

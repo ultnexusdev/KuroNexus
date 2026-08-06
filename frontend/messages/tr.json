@@ -1244,6 +1244,10 @@
       "archive": {
         "title": "Anime Arşivim",
         "desc": "İzlediğim, izleyeceğim ve devamını beklediğim seriler — sezonlarıyla birlikte."
+      },
+      "characters": {
+        "title": "Karakterler",
+        "desc": "Arşivdeki bütün serilerin kadrosu tek yerde — künye, seslendiren ve göründüğü yapımlar."
       }
     },
     "archiveTitle": "Anime Arşivim",
@@ -1389,6 +1393,56 @@
     "hero": {
       "eyebrow": "Şu an izliyorum",
       "resume": "Kaldığın yerden devam et →"
+    }
+  },
+  "character": {
+    "title": "Karakterler",
+    "lede": "Arşivdeki her serinin kadrosu tek yerde. Bir portreye dokun; künyesi, göründüğü yapımlar ve seslendireni açılsın.",
+    "backToArchive": "← Anime salonuna dön",
+    "backToGallery": "← Karakterlere dön",
+    "searchLabel": "Karakter ara",
+    "searchPlaceholder": "Ad, ana dildeki ad, seslendiren ya da seri…",
+    "random": "Rastgele bir dosya çek",
+    "allSeries": "Tümü",
+    "aliases": "Diğer adları",
+    "voiceActor": "Seslendiren",
+    "source": "Künye bilgileri AniList'ten alınır ve arşivimizde saklanır; kaynak değişse bile sayfa açılmaya devam eder.",
+    "stats": {
+      "characters": "Karakter",
+      "main": "Başrol",
+      "series": "Seri"
+    },
+    "role": {
+      "MAIN": "Başrol",
+      "SUPPORTING": "Yardımcı",
+      "BACKGROUND": "Arka plan"
+    },
+    "sections": {
+      "profile": "Künye",
+      "about": "Hakkında",
+      "appearances": "Göründüğü Yapımlar",
+      "related": "Yakındaki Karakterler",
+      "voice": "Seslendiren"
+    },
+    "traits": {
+      "gender": "Cinsiyet",
+      "age": "Yaş",
+      "bloodType": "Kan grubu",
+      "birthday": "Doğum günü"
+    },
+    "spoiler": {
+      "warning": "Bu bölüm hikâyeyi ele veriyor. Seriyi izlemediysen kapalı bırakmak isteyebilirsin.",
+      "reveal": "Yine de göster",
+      "mark": "Spoiler"
+    },
+    "empty": {
+      "title": "Kadro henüz derlenmedi",
+      "text": "Arşive seri eklendikçe kadrolar buraya iner. Anime arşivine bir seri ekleyip geri gelebilirsin.",
+      "filteredTitle": "Bu süzgeçle karakter kalmadı",
+      "filteredText": "Arama ya da seri seçimi listeyi tamamen boşalttı. Süzgeci temizleyip yeniden bakabilirsin.",
+      "clear": "Süzgeci temizle",
+      "profile": "Bu karakter için künye bilgisi verilmemiş.",
+      "about": "Bu karakter için açıklama yazılmamış."
     }
   }
 }

@@ -1,13 +1,27 @@
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/lib/i18n/navigation";
+import { apiUrl } from "@/lib/api/client";
 import type {
   CharacterAppearance,
   CharacterDetail,
   CharacterTrait,
 } from "@/lib/api/types";
+import { pick, type CharacterOverlay } from "@/lib/characters/types";
 import { CharacterPlate } from "./CharacterPlate";
 import { SpoilerReveal } from "./SpoilerReveal";
+import { CuratorGallerySlot } from "./CuratorGallerySlot";
+import {
+  AbilityCards,
+  BattleList,
+  BondList,
+  Epigraph,
+  Gallery,
+  GuideList,
+  QuoteList,
+  StatBars,
+  TagRow,
+} from "./CharacterSections";
 import styles from "./CharacterDossier.module.css";
 
 /**
@@ -22,10 +36,26 @@ import styles from "./CharacterDossier.module.css";
  * şekil doldurulur ve bu dosya değişmez. Sayfaya özgü tek şey, arşiv
  * bağlantılarının anime kanadına çıkması (`archiveHref`).
  */
-export function CharacterDossier({ detail }: { detail: CharacterDetail }) {
+export function CharacterDossier({
+  detail,
+  /**
+   * Elle tasarlanmış içerik. `null` ise sayfa yalnızca AniList künyesiyle
+   * açılır — 195 karakterin hepsinin katmanı olması beklenmiyor.
+   */
+  overlay = null,
+  isAdmin = false,
+}: {
+  detail: CharacterDetail;
+  overlay?: CharacterOverlay | null;
+  isAdmin?: boolean;
+}) {
   const t = useTranslations("character");
+  const locale = useLocale();
   const { character, appearances, related } = detail;
   const isMain = appearances.some((item) => item.role === "MAIN");
+  // Elle yüklenen portre AniList'inkini ezer: kaynağın verdiği en büyük
+  // karakter görseli ~230px ve 220px'lik çerçevede bile sınırda kalıyor
+  const portrait = overlay?.portrait ? apiUrl(overlay.portrait) : character.image;
 
   // Arşivde karşılığı olan yapımlar önce: ziyaretçinin geri dönebileceği
   // kapılar listenin başında dursun
@@ -38,8 +68,11 @@ export function CharacterDossier({ detail }: { detail: CharacterDetail }) {
   });
 
   const archiveSeries = dedupeArchiveSeries(appearances);
-  const traits = buildTraits(detail, t);
+  const traits = buildTraits(detail, t, overlay, locale);
   const voice = appearances.find((item) => item.voiceActor);
+  const guideAnime = overlay?.guide?.anime ?? [];
+  const guideManga = overlay?.guide?.manga ?? [];
+  const hasGallery = (overlay?.gallery?.length ?? 0) > 0;
 
   return (
     <div className={styles.hall} data-category="anime">
@@ -55,9 +88,9 @@ export function CharacterDossier({ detail }: { detail: CharacterDetail }) {
         <header className={styles.hero}>
           <div className={styles.portraitBlock}>
             <div className={styles.frame}>
-              {character.image ? (
+              {portrait ? (
                 <Image
-                  src={character.image}
+                  src={portrait}
                   alt=""
                   fill
                   sizes="(max-width: 640px) 34vw, 220px"
@@ -109,6 +142,9 @@ export function CharacterDossier({ detail }: { detail: CharacterDetail }) {
               </p>
             ) : null}
 
+            {overlay ? <Epigraph overlay={overlay} /> : null}
+            {overlay ? <TagRow overlay={overlay} /> : null}
+
             {archiveSeries.length > 0 ? (
               <ul className={styles.seriesRow}>
                 {archiveSeries.map((series) => (
@@ -148,6 +184,15 @@ export function CharacterDossier({ detail }: { detail: CharacterDetail }) {
               )}
             </section>
 
+            {overlay?.stats?.rows.length ? (
+              <section className={styles.section}>
+                <h2 className={styles.sectionTitle}>
+                  {pick(overlay.stats.title, locale)}
+                </h2>
+                <StatBars overlay={overlay} />
+              </section>
+            ) : null}
+
             {voice?.voiceActor ? (
               <section className={styles.section}>
                 <h2 className={styles.sectionTitle}>{t("sections.voice")}</h2>
@@ -177,7 +222,16 @@ export function CharacterDossier({ detail }: { detail: CharacterDetail }) {
           <div>
             <section className={styles.section}>
               <h2 className={styles.sectionTitle}>{t("sections.about")}</h2>
-              {character.description.length > 0 ? (
+              {/* Elle yazılmış metin varsa AniList'inki HİÇ gösterilmiyor.
+                  İkisini üst üste basmak aynı bilgiyi iki kez, iki üslupla
+                  anlatmak olurdu — üstelik biri Türkçe biri İngilizce. */}
+              {overlay?.about?.length ? (
+                overlay.about.map((paragraph) => (
+                  <p key={paragraph.tr} className={styles.prose}>
+                    {pick(paragraph, locale)}
+                  </p>
+                ))
+              ) : character.description.length > 0 ? (
                 character.description.map((segment, index) =>
                   segment.spoiler ? (
                     <SpoilerReveal key={index}>
@@ -193,6 +247,17 @@ export function CharacterDossier({ detail }: { detail: CharacterDetail }) {
                 <p className={styles.sectionEmpty}>{t("empty.about")}</p>
               )}
             </section>
+
+            {/* Yetenekler — başlık veriden geliyor: Bleach'te "Zanpakutō",
+                Naruto'da "Jutsu". Bölüm kodu ikisinde de aynı. */}
+            {overlay?.abilities?.cards.length ? (
+              <section className={styles.section}>
+                <h2 className={styles.sectionTitle}>
+                  {pick(overlay.abilities.title, locale)}
+                </h2>
+                <AbilityCards overlay={overlay} />
+              </section>
+            ) : null}
 
             {orderedAppearances.length > 0 ? (
               <section className={styles.section}>
@@ -233,6 +298,65 @@ export function CharacterDossier({ detail }: { detail: CharacterDetail }) {
             ) : null}
           </div>
         </div>
+
+        {/* --- Üçlü bant: savaşlar · galeri · replikler --- */}
+        {overlay?.battles?.length || hasGallery || isAdmin || overlay?.quotes?.length ? (
+          <div className={styles.band}>
+            {overlay?.battles?.length ? (
+              <section className={styles.section}>
+                <h2 className={styles.sectionTitle}>{t("sections.battles")}</h2>
+                <BattleList overlay={overlay} />
+              </section>
+            ) : null}
+
+            {/* Galeri boşken ziyaretçiye HİÇ çizilmiyor; yalnızca kürator
+                "burası senin" kutusunu ve yükleyiciyi görüyor. */}
+            {overlay && (hasGallery || isAdmin) ? (
+              <section className={styles.section}>
+                <h2 className={styles.sectionTitle}>{t("sections.gallery")}</h2>
+                {hasGallery ? (
+                  <Gallery overlay={overlay} />
+                ) : (
+                  <p className={styles.galleryEmptyNote}>{t("empty.gallery")}</p>
+                )}
+                {isAdmin ? <CuratorGallerySlot /> : null}
+              </section>
+            ) : null}
+
+            {overlay?.quotes?.length ? (
+              <section className={styles.section}>
+                <h2 className={styles.sectionTitle}>{t("sections.quotes")}</h2>
+                <QuoteList overlay={overlay} />
+              </section>
+            ) : null}
+          </div>
+        ) : null}
+
+        {/* --- İkinci bant: rehber · ilişkiler --- */}
+        {guideAnime.length > 0 || guideManga.length > 0 || overlay?.bonds?.length ? (
+          <div className={styles.band}>
+            {guideAnime.length > 0 ? (
+              <section className={styles.section}>
+                <h2 className={styles.sectionTitle}>{t("sections.guideAnime")}</h2>
+                <GuideList entries={guideAnime} />
+              </section>
+            ) : null}
+
+            {guideManga.length > 0 ? (
+              <section className={styles.section}>
+                <h2 className={styles.sectionTitle}>{t("sections.guideManga")}</h2>
+                <GuideList entries={guideManga} />
+              </section>
+            ) : null}
+
+            {overlay?.bonds?.length ? (
+              <section className={styles.section}>
+                <h2 className={styles.sectionTitle}>{t("sections.bonds")}</h2>
+                <BondList overlay={overlay} />
+              </section>
+            ) : null}
+          </div>
+        ) : null}
 
         {related.length > 0 ? (
           <section className={styles.section}>
@@ -330,6 +454,8 @@ function dedupeArchiveSeries(
 function buildTraits(
   detail: CharacterDetail,
   t: (key: string) => string,
+  overlay: CharacterOverlay | null,
+  locale: string,
 ): CharacterTrait[] {
   const { character } = detail;
   const rows: CharacterTrait[] = [];
@@ -339,6 +465,12 @@ function buildTraits(
       rows.push({ label, value, spoiler: false });
     }
   };
+
+  // Elle yazılan satırlar ÖNCE: "Seri", "Bölük", "Rütbe" gibi künyenin
+  // omurgası onlar; AniList'ten gelen boy/kan grubu ikincil ayrıntı
+  for (const fact of overlay?.facts ?? []) {
+    push(pick(fact.label, locale), pick(fact.value, locale));
+  }
 
   push(t("traits.gender"), character.gender);
   push(t("traits.age"), character.age);

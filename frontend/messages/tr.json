@@ -1423,7 +1423,13 @@
       "about": "Hakkında",
       "appearances": "Göründüğü Yapımlar",
       "related": "Yakındaki Karakterler",
-      "voice": "Seslendiren"
+      "voice": "Seslendiren",
+      "battles": "Önemli Savaşlar",
+      "gallery": "Galeri",
+      "quotes": "İkonik Replikler",
+      "guideAnime": "İzleme Rehberi",
+      "guideManga": "Okuma Rehberi",
+      "bonds": "İlişkiler"
     },
     "traits": {
       "gender": "Cinsiyet",
@@ -1443,7 +1449,23 @@
       "filteredText": "Arama ya da seri seçimi listeyi tamamen boşalttı. Süzgeci temizleyip yeniden bakabilirsin.",
       "clear": "Süzgeci temizle",
       "profile": "Bu karakter için künye bilgisi verilmemiş.",
-      "about": "Bu karakter için açıklama yazılmamış."
+      "about": "Bu karakter için açıklama yazılmamış.",
+      "gallery": "Galeri henüz boş. Aşağıdaki kutudan görsel yükleyip dönen adresi bana ilet; karakterin veri dosyasına eklerim."
+    },
+    "outcome": {
+      "WIN": "Zafer",
+      "DRAW": "Berabere",
+      "LOSS": "Yenilgi",
+      "UNRESOLVED": "Sonuçsuz"
+    },
+    "uploader": {
+      "title": "Galeriye görsel yükle",
+      "hint": "Görsel sunucuya kalıcı olarak yüklenir. Dönen adresi kopyalayıp bana ilet — karakterin veri dosyasındaki galeri listesine eklenecek.",
+      "resultLabel": "Yüklenen görselin adresi",
+      "copy": "Kopyala",
+      "copied": "Kopyalandı",
+      "busy": "Yükleniyor…",
+      "error": "Görsel yüklenemedi. Dosya tipini ve boyutunu kontrol edip tekrar deneyin."
     }
   },
   "pageState": {

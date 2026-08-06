@@ -395,6 +395,24 @@
   padding-left: var(--gap-sm);
 }
 
+/* --- Uclu bant --- */
+
+/* Referans duzendeki uc sutunlu seritler (savaslar | galeri | replikler).
+   auto-fit + minmax: dar ekranda kendiliginden tek sutuna iniyor, ara
+   genisliklerde ikiye. Sabit `repeat(3, ...)` 900px'te sikisiyordu. */
+.band {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--pad-lg);
+  margin-top: var(--pad-lg);
+  align-items: start;
+}
+
+/* Bant icindeki bolumlerin alt bosluğu dislarindan gelir */
+.band > * {
+  margin-bottom: 0;
+}
+
 /* --- Yakindaki karakterler --- */
 
 .relatedGrid {
@@ -423,6 +441,20 @@
 
 .sourceLink:hover {
   color: var(--accent);
+}
+
+/* Galeri henuz bos: bu bir hata degil, "burasi senin" mesaji. Yalnizca
+   kurator goruyor - ziyaretciye bolum hic cizilmiyor. */
+.galleryEmptyNote {
+  box-sizing: border-box;
+  margin: 0;
+  padding: var(--pad-md);
+  border: 0.5px dashed var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  line-height: 1.65;
+  text-wrap: pretty;
 }
 
 /* --- Bos bolum --- */

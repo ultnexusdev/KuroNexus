@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { readIsAdmin } from "@/lib/auth/session";
 import { getCharacterDetail } from "@/lib/api/characters";
+import { getCharacterOverlay } from "@/lib/characters";
 import { CharacterDossier } from "@/components/character/CharacterDossier";
 
 // Karakter dosyası. Adres AniList karakter numarası: başlıktan slug türetmek
@@ -35,10 +37,19 @@ export default async function CharacterPage({
   params: Promise<{ characterId: string }>;
 }) {
   const { characterId } = await params;
-  const detail = await getCharacterDetail(characterId);
+  const [detail, isAdmin] = await Promise.all([
+    getCharacterDetail(characterId),
+    readIsAdmin(),
+  ]);
   if (!detail) {
     notFound();
   }
 
-  return <CharacterDossier detail={detail} />;
+  // Elle tasarlanmış katman varsa sayfa onunla zenginleşir; yoksa yalnızca
+  // AniList künyesiyle açılır (lib/characters/index.ts)
+  const overlay = getCharacterOverlay(detail.character.characterId);
+
+  return (
+    <CharacterDossier detail={detail} overlay={overlay} isAdmin={isAdmin} />
+  );
 }

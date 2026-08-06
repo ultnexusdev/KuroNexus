@@ -1423,7 +1423,13 @@
       "about": "About",
       "appearances": "Appearances",
       "related": "Nearby Characters",
-      "voice": "Voice actor"
+      "voice": "Voice actor",
+      "battles": "Notable Battles",
+      "gallery": "Gallery",
+      "quotes": "Iconic Lines",
+      "guideAnime": "Watch Guide",
+      "guideManga": "Reading Guide",
+      "bonds": "Relationships"
     },
     "traits": {
       "gender": "Gender",
@@ -1443,7 +1449,23 @@
       "filteredText": "The search or series selection emptied the list. Clear the filter and try again.",
       "clear": "Clear filter",
       "profile": "No profile details were provided for this character.",
-      "about": "No description was written for this character."
+      "about": "No description was written for this character.",
+      "gallery": "The gallery is still empty. Upload an image below and pass the returned address on — it will be added to this character's data file."
+    },
+    "outcome": {
+      "WIN": "Win",
+      "DRAW": "Draw",
+      "LOSS": "Loss",
+      "UNRESOLVED": "Unresolved"
+    },
+    "uploader": {
+      "title": "Upload a gallery image",
+      "hint": "The image is stored permanently on the server. Copy the returned address and pass it on — it will be added to the gallery list in this character's data file.",
+      "resultLabel": "Address of the uploaded image",
+      "copy": "Copy",
+      "copied": "Copied",
+      "busy": "Uploading…",
+      "error": "The image could not be uploaded. Check the file type and size, then try again."
     }
   },
   "pageState": {

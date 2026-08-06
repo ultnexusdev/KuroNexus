@@ -1,0 +1,501 @@
+/* Karakter sayfasinin elle tasarlanan bolumleri.
+   Palet [data-category="anime"] blogundan (AGENTS.md kural 16).
+   Derinlik stratejisi TEK: 0.5px kenarlik + yuzey tonu kaymasi, golge yok. */
+
+/* --- Hero eki: alinti + etiketler --- */
+
+/* Karakterin kendi sozu. Sayfanin tek italik ogesi - baska hicbir yerde
+   italik yok, o yuzden "bu bir alinti" bilgisini tek basina tasiyabiliyor. */
+.epigraph {
+  max-width: 34ch;
+  margin: var(--gap-md) 0 0;
+  padding-left: var(--gap-md);
+  border-left: 2px solid var(--accent-muted);
+  color: var(--text-secondary);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.15rem;
+  font-style: italic;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+.tagRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-sm);
+  margin: var(--gap-lg) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 11px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+}
+
+/* --- Guc profili --- */
+
+.stats {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-lg);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.statHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--gap-md);
+  margin-bottom: 7px;
+}
+
+.statLabel {
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.statValue {
+  color: var(--text-secondary);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.95rem;
+  letter-spacing: 0.06em;
+  /* Rakamlar satirdan satira kaymasin */
+  font-variant-numeric: tabular-nums;
+}
+
+/* Cubugun kendisi: ince, ic hatli. Referanstaki kalin kirmizi serit yerine
+   daha sakin bir cizgi - kural 16 accent'in cart olmamasini istiyor ve bu
+   bes cubuk yan yana durunca kalinlik gurultuye donusuyor. */
+.statTrack {
+  position: relative;
+  height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--border) 70%, transparent);
+}
+
+.statFill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+/* Tam puan: accent'in acik tonu. Tek fark bu - ayri bir renk getirmek
+   "10/10 baska bir sey" izlenimi verirdi, oysa ayni olcegin ucu. */
+.statFillMax {
+  background: var(--accent-hover);
+}
+
+/* --- Yetenek kartlari (Zanpakuto / Jutsu / Quirk...) --- */
+
+.abilities {
+  display: grid;
+  gap: var(--gap-lg);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 760px) {
+  .abilities {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.ability {
+  box-sizing: border-box;
+  padding: var(--pad-md);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+}
+
+.abilityName {
+  margin: 0;
+  color: var(--accent);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 1.1rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* Serbest birakma komutu - karakterin agzindan cikan tek satir */
+.abilityRelease {
+  margin: var(--gap-sm) 0 0;
+  color: var(--text-muted);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1rem;
+  font-style: italic;
+}
+
+.abilitySummary {
+  margin: var(--gap-md) 0 0;
+  color: var(--text-primary);
+  font-size: 0.92rem;
+  line-height: 1.65;
+  text-wrap: pretty;
+}
+
+.abilityTraits {
+  margin: var(--gap-md) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.abilityTrait {
+  position: relative;
+  padding-left: 16px;
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+  line-height: 1.7;
+}
+
+/* Madde isareti: kucuk bir accent noktasi. Standart <ul> disc'i token
+   okumuyor ve tema degisince metin rengiyle beraber kaymiyor. */
+.abilityTrait::before {
+  position: absolute;
+  top: 0.72em;
+  left: 2px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent-muted);
+  content: "";
+}
+
+/* --- Onemli savaslar --- */
+
+.battles {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.battle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-md);
+  padding: 11px 0;
+  border-bottom: 0.5px solid var(--border);
+}
+
+.battle:last-child {
+  border-bottom: none;
+}
+
+.battleWho {
+  min-width: 0;
+}
+
+.battleName {
+  display: block;
+  color: var(--text-primary);
+  font-size: 0.92rem;
+  line-height: 1.35;
+}
+
+.battleLink {
+  color: inherit;
+  text-decoration: none;
+}
+
+.battleLink:hover {
+  color: var(--accent-hover);
+}
+
+.battleArc {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-muted);
+  font-size: 0.76rem;
+}
+
+/* Sonuc: renkli rozet degil, harflerin kendisi (kartlardaki rutbe karariyla
+   ayni). Yalnizca zafer accent tasiyor. */
+.battleOutcome {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.82rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.battleWin {
+  color: var(--accent);
+}
+
+.battleLoss {
+  color: var(--warn);
+}
+
+/* --- Ikonik replikler --- */
+
+.quotes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-lg);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.quote {
+  position: relative;
+  padding-left: 26px;
+  color: var(--text-primary);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.08rem;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+/* Tirnak isareti metnin parcasi degil sus: secilemesin, okunmasin */
+.quote::before {
+  position: absolute;
+  top: -0.15em;
+  left: 0;
+  color: var(--accent-muted);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 2.2rem;
+  line-height: 1;
+  content: "\201C";
+  user-select: none;
+}
+
+.quoteSource {
+  display: block;
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.76rem;
+  font-style: normal;
+}
+
+/* --- Galeri --- */
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--gap-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.galleryItem {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.galleryImg {
+  object-fit: cover;
+  outline: 1px solid rgba(255, 255, 255, 0.1);
+  outline-offset: -1px;
+}
+
+.galleryCaption {
+  display: block;
+  margin-top: 6px;
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  line-height: 1.4;
+}
+
+/* Galeri bos: bu bir hata degil, "burasi senin" mesaji. Kurator degilse
+   bolum hic cizilmiyor (bkz. bilesende kosul). */
+.galleryEmpty {
+  box-sizing: border-box;
+  padding: var(--pad-lg);
+  border: 0.5px dashed var(--border-strong);
+  border-radius: var(--radius-card);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.7;
+  text-align: center;
+  text-wrap: pretty;
+}
+
+/* --- Izleme rehberi --- */
+
+.guide {
+  margin: 0;
+  padding: 0;
+}
+
+.guideRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--gap-md);
+  padding: 10px 0;
+  border-bottom: 0.5px solid var(--border);
+}
+
+.guideRow:last-child {
+  border-bottom: none;
+}
+
+.guideRange {
+  flex-shrink: 0;
+  min-width: 120px;
+  margin: 0;
+  color: var(--accent);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.92rem;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+}
+
+.guideNote {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+/* --- Iliskiler --- */
+
+.bonds {
+  display: grid;
+  gap: var(--gap-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 760px) {
+  .bonds {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.bond {
+  box-sizing: border-box;
+  padding: var(--pad-md);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+}
+
+.bondName {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.98rem;
+  font-weight: 600;
+}
+
+.bondLink {
+  color: inherit;
+  text-decoration: none;
+}
+
+.bondLink:hover {
+  color: var(--accent-hover);
+}
+
+.bondSummary {
+  margin: var(--gap-sm) 0 0;
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  line-height: 1.65;
+  text-wrap: pretty;
+}
+
+/* --- Kurator yukleme kutusu --- */
+
+.uploader {
+  box-sizing: border-box;
+  margin-top: var(--gap-md);
+  padding: var(--pad-md);
+  border: 0.5px solid var(--accent-muted);
+  border-radius: var(--radius-card);
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+
+.uploaderTitle {
+  margin: 0 0 var(--gap-sm);
+  color: var(--accent);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.9rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.uploaderHint {
+  margin: 0 0 var(--gap-md);
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+  line-height: 1.65;
+  text-wrap: pretty;
+}
+
+.uploaderInput {
+  display: block;
+  width: 100%;
+  min-height: var(--touch-min);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.84rem;
+}
+
+.uploaderResult {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-sm);
+  align-items: center;
+  margin-top: var(--gap-md);
+}
+
+/* Donen adres: secilip kopyalanmak icin var, o yuzden mono ve kirilabilir */
+.uploaderUrl {
+  box-sizing: border-box;
+  flex: 1 1 220px;
+  min-height: var(--touch-min);
+  padding: 10px 12px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+}
+
+.uploaderCopy {
+  min-height: var(--touch-min);
+  padding: 0 14px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--accent);
+  font-family: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.uploaderCopy:hover {
+  background: var(--surface-hover);
+}
+
+.uploaderError {
+  margin: var(--gap-sm) 0 0;
+  color: var(--warn);
+  font-size: 0.82rem;
+}

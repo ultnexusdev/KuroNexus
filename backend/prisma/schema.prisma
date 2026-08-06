@@ -894,6 +894,54 @@ model MediaAsset {
   @@index([userId])
 }
 
+/// Karakter sayfasındaki elle yüklenen görseller.
+///
+/// Neden ayrı tablo: karakter sayfalarının yazılı içeriği (Shikai/Bankai
+/// açıklamaları, replikler, güç profili) bilinçli olarak **kodda** duruyor —
+/// her sayfa kendine özel tasarlandığı için esnek bölüm tiplerini bir forma
+/// sığdırmak tasarımı forma feda etmek olurdu (kullanıcı kararı, 6 Ağustos
+/// 2026). Ama GÖRSELLER için aynı şey geçerli değil: kürator bir görsel
+/// yükleyip anında sayfada görmek istiyor, her seferinde bir geliştiriciye
+/// adres iletmek istemiyor. O yüzden yalnızca görseller veritabanında.
+///
+/// `characterId` bir foreign key DEĞİL, AniList karakter numarası: karakterler
+/// bizim veritabanımızda durmuyor, AniList'ten cache üzerinden geliyor
+/// (bkz. `anilist.service.ts`). Sayfa adresi de bu numara.
+model CharacterImage {
+  id          String             @id @default(cuid())
+  /// AniList karakter numarası — sayfanın adresi
+  characterId Int
+  slot        CharacterImageSlot @default(GALLERY)
+  /// Yalnızca `ABILITY` yuvasında dolu: hangi yetenek kartına ait
+  /// ("Shikai — Nozarashi", "Bankai"). Kart adı koddaki katmandan geliyor.
+  abilityName String?
+  /// Kendi sunucumuzdaki yol (`/uploads/…`). Dış adres saklanmıyor:
+  /// CSP yabancı sunucuya izin vermiyor ve dış adres bir gün ölebilir.
+  url         String
+  altText     String?
+  caption     String?
+  /// Galeride sıralama; küçük olan önce
+  orderIndex  Int                @default(0)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  /// Kural 3: fiziksel silme yok
+  isDeleted   Boolean            @default(false)
+
+  userId String
+
+  @@index([characterId, slot, isDeleted])
+  @@index([userId])
+}
+
+enum CharacterImageSlot {
+  /// Künye levhasındaki büyük portre — tek kayıt beklenir, sonuncusu kazanır
+  PORTRAIT
+  /// Galeri ızgarası — çok kayıt
+  GALLERY
+  /// Bir yetenek kartının görseli (`abilityName` ile eşleşir)
+  ABILITY
+}
+
 // --- Etiket Sistemi (ilişkisel, String[] DEĞİL) ---
 model Tag {
   id   String @id @default(cuid())

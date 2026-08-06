@@ -1,43 +1,71 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { uploadImage, uploadImageFromUrl } from "@/lib/admin/api";
+import {
+  addCharacterImage,
+  uploadImage,
+  uploadImageFromUrl,
+} from "@/lib/admin/api";
+import type { CharacterImageSlotName } from "@/lib/api/types";
 import styles from "./CuratorUpload.module.css";
 
 /**
  * Kürator yükleme yuvası.
  *
- * Sayfada birden çok yerde duruyor — galeri, her yetenek kartının altı,
- * kapak portresi — ve her biri farklı bir alana yazılacak. Bu yüzden bileşen
- * hangi alana ait olduğunu `slot` metniyle söylüyor: dönen adresin nereye
- * gideceği ekranda yazılı, kürator hangi görselin nereye ait olduğunu
- * karıştırmıyor.
+ * Görsel yüklenir yüklenmez **veritabanına bağlanıyor** ve sayfa tazeleniyor;
+ * kürator adresi kopyalayıp kimseye iletmiyor. (İlk sürümde yalnızca adresi
+ * gösteriyordu — kullanıcı haklı olarak "sürekli sana haber mi vermeliyim"
+ * dedi, 6 Ağustos 2026.)
  *
  * İKİ YOL: dosya seçmek ya da bir adres yapıştırmak. İkincisinde görsel
- * sunucuya **indiriliyor**; adres olduğu gibi saklanmıyor çünkü CSP
- * `img-src` yabancı sunucuya izin vermiyor ve dış adres bir gün ölürse
- * görsel de ölürdü.
+ * sunucuya **indiriliyor**; dış adres saklanmıyor çünkü CSP `img-src`
+ * yabancı sunucuya izin vermiyor ve dış adres bir gün ölürse görsel de
+ * ölürdü.
  *
- * İçerik veritabanında değil versiyonlanan bir veri dosyasında durduğu için
- * (kullanıcı kararı, 6 Ağustos 2026) bileşen görseli kendisi eklemiyor:
- * kalıcı adresi kopyalanabilir biçimde veriyor.
+ * Karakterin YAZILI içeriği (Shikai açıklaması, replikler) hâlâ kodda —
+ * yalnızca görseller veritabanında. Ayrım bilinçli: yazılı bölümler her
+ * karaktere özel tasarlanıyor, görseller ise tek biçimli.
  */
-export function CuratorUpload({ slot }: { slot: string }) {
+export function CuratorUpload({
+  characterId,
+  slot,
+  abilityName,
+  label,
+}: {
+  characterId: number;
+  slot: CharacterImageSlotName;
+  /** `ABILITY` yuvasında hangi yetenek kartı */
+  abilityName?: string;
+  /** Yuvanın ekranda görünen adı */
+  label: string;
+}) {
   const t = useTranslations("character.uploader");
-  const [url, setUrl] = useState<string | null>(null);
+  const router = useRouter();
   const [remote, setRemote] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [done, setDone] = useState(false);
+  const [, startTransition] = useTransition();
 
-  async function run(work: () => Promise<{ url: string }>) {
+  async function run(upload: () => Promise<{ url: string }>) {
     setBusy(true);
     setError(null);
-    setCopied(false);
+    setDone(false);
     try {
-      const result = await work();
-      setUrl(result.url);
+      const uploaded = await upload();
+      await addCharacterImage({
+        characterId,
+        slot,
+        abilityName,
+        url: uploaded.url,
+        altText: label,
+      });
+      setRemote("");
+      setDone(true);
+      // Sunucu bileşenlerini yeniden çizdirir: görsel anında yerine oturur
+      startTransition(() => router.refresh());
     } catch {
       setError(t("error"));
     } finally {
@@ -45,9 +73,11 @@ export function CuratorUpload({ slot }: { slot: string }) {
     }
   }
 
+  const inputId = `curator-url-${slot}-${abilityName ?? "main"}`;
+
   return (
     <div className={styles.box}>
-      <p className={styles.slot}>{slot}</p>
+      <p className={styles.slot}>{label}</p>
 
       <div className={styles.ways}>
         <label className={styles.fileWay}>
@@ -67,12 +97,12 @@ export function CuratorUpload({ slot }: { slot: string }) {
         </label>
 
         <div className={styles.urlWay}>
-          <label className={styles.wayLabel} htmlFor={`url-${slot}`}>
+          <label className={styles.wayLabel} htmlFor={inputId}>
             {t("fromUrl")}
           </label>
           <div className={styles.urlRow}>
             <input
-              id={`url-${slot}`}
+              id={inputId}
               type="url"
               inputMode="url"
               className={styles.urlInput}
@@ -99,28 +129,11 @@ export function CuratorUpload({ slot }: { slot: string }) {
       </div>
 
       {busy ? <p className={styles.note}>{t("busy")}</p> : null}
-
-      {url ? (
-        <div className={styles.result}>
-          <input
-            className={styles.resultUrl}
-            value={url}
-            readOnly
-            aria-label={t("resultLabel")}
-            onFocus={(event) => event.currentTarget.select()}
-          />
-          <button
-            type="button"
-            className={styles.copy}
-            onClick={() => {
-              void navigator.clipboard.writeText(url).then(() => setCopied(true));
-            }}
-          >
-            {copied ? t("copied") : t("copy")}
-          </button>
-        </div>
+      {done && !busy ? (
+        <p className={styles.done} role="status">
+          {t("added")}
+        </p>
       ) : null}
-
       {error ? (
         <p className={styles.error} role="alert">
           {error}

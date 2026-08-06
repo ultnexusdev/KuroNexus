@@ -144,3 +144,29 @@
   color: var(--warn);
   font-size: 0.82rem;
 }
+
+/* Galeri gorselini kaldirma dugmesi — yalnizca kurator modunda gorunur */
+.remove {
+  display: block;
+  width: 100%;
+  min-height: 34px;
+  margin-top: 6px;
+  padding: 0 10px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--warn);
+  font-family: inherit;
+  font-size: 0.74rem;
+  cursor: pointer;
+}
+
+.remove:hover {
+  background: var(--surface-hover);
+}
+
+.done {
+  margin: var(--gap-sm) 0 0;
+  color: var(--accent);
+  font-size: 0.82rem;
+}

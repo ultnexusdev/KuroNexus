@@ -1467,11 +1467,10 @@
       "fromUrl": "Ya da görsel adresi",
       "urlPlaceholder": "https://… ile başlayan görsel adresi",
       "fetch": "Getir",
-      "resultLabel": "Yüklenen görselin adresi",
-      "copy": "Kopyala",
-      "copied": "Kopyalandı",
       "busy": "Yükleniyor…",
-      "error": "Görsel alınamadı. Adresin doğrudan bir görsele işaret ettiğinden ve dosyanın 15 MB'ı geçmediğinden emin ol."
+      "error": "Görsel alınamadı. Adresin doğrudan bir görsele işaret ettiğinden ve dosyanın 15 MB'ı geçmediğinden emin ol.",
+      "added": "Eklendi, sayfa tazelendi.",
+      "remove": "Kaldır"
     },
     "curator": {
       "off": "Küratör modu",

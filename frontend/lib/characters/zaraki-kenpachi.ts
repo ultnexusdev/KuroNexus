@@ -164,8 +164,21 @@ export const ZARAKI_KENPACHI: CharacterOverlay = {
     },
   ],
 
-  // Kürator modundaki yükleme kutusundan gelen adresler buraya yazılacak.
-  gallery: [],
+  /*
+   * Kürator modundaki yükleme kutusundan gelen adresler buraya yazılıyor.
+   * Yükleme dosyayı sunucuya koyar ve adresini verir; galeriyi dolduran şey
+   * bu dizi — içerik veritabanında değil kodda tutulduğu için (kullanıcı
+   * kararı, 6 Ağustos 2026) adres elle buraya geçiyor.
+   */
+  gallery: [
+    {
+      src: "/uploads/1786044789064-2d7066e29019e1e6.jpg",
+      alt: {
+        tr: "Zaraki Kenpachi",
+        en: "Zaraki Kenpachi",
+      },
+    },
+  ],
 
   guide: {
     anime: [

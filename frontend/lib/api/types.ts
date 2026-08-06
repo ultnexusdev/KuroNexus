@@ -1362,8 +1362,31 @@ export interface CharacterProfile {
   appearances: CharacterAppearance[];
 }
 
+/** Hangi yuvaya ait: kunye portresi, galeri ya da bir yetenek karti. */
+export type CharacterImageSlotName = "PORTRAIT" | "GALLERY" | "ABILITY";
+
+/**
+ * Elle yuklenen karakter gorseli.
+ *
+ * Karakterlerin YAZILI icerigi kodda (`lib/characters/`), gorseller ise
+ * veritabaninda: kurator yukledigini aninda gormek istiyor, her gorsel icin
+ * kod degisikligi beklemek istemiyor.
+ */
+export interface CharacterImage {
+  id: string;
+  slot: CharacterImageSlotName;
+  /** Yalnizca ABILITY yuvasinda dolu: hangi yetenek karti */
+  abilityName: string | null;
+  /** Kendi sunucumuzdaki yol (`/uploads/...`) */
+  url: string;
+  altText: string | null;
+  caption: string | null;
+  orderIndex: number;
+}
+
 export interface CharacterDetail {
   character: CharacterProfile;
   appearances: CharacterAppearance[];
   related: ArchiveCharacter[];
+  images: CharacterImage[];
 }

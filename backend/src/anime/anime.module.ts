@@ -6,10 +6,22 @@ import { AnimeService } from './anime.service';
 import { AnilistService } from './anilist.service';
 import { JikanService } from './jikan.service';
 import { AnimeCron } from './anime.cron';
+import { CharacterImagesService } from './character-images.service';
+import { CharacterImagesAdminController } from './character-images.admin.controller';
 
 @Module({
   imports: [PrismaModule],
-  controllers: [AnimeController, AnimeAdminController],
-  providers: [AnimeService, AnilistService, JikanService, AnimeCron],
+  controllers: [
+    AnimeController,
+    AnimeAdminController,
+    CharacterImagesAdminController,
+  ],
+  providers: [
+    AnimeService,
+    AnilistService,
+    JikanService,
+    AnimeCron,
+    CharacterImagesService,
+  ],
 })
 export class AnimeModule {}

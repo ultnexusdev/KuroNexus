@@ -1,4 +1,4 @@
-import Image from "next/image";
+﻿import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/lib/i18n/navigation";
 import { apiUrl } from "@/lib/api/client";
@@ -60,9 +60,27 @@ export function CharacterDossier({
 }) {
   const t = useTranslations("character");
   const locale = useLocale();
-  const { character, appearances, related } = detail;
+  const { character, appearances, related, images } = detail;
   const isMain = appearances.some((item) => item.role === "MAIN");
-  const portrait = overlay?.portrait ? apiUrl(overlay.portrait) : character.image;
+
+  /*
+   * Görsel kaynak sırası: kürator yüklemesi (veritabanı) → koddaki varsayılan
+   * → AniList. Kürator sayfada gördüğü şeyi değiştirebilmeli; kodda duran
+   * değer yalnızca hiç yükleme yapılmamışsa devreye giriyor.
+   */
+  const storedPortrait = images.find((image) => image.slot === "PORTRAIT");
+  const storedGallery = images.filter((image) => image.slot === "GALLERY");
+  const abilityImage = (abilityName: string): string | null =>
+    images.find(
+      (image) => image.slot === "ABILITY" && image.abilityName === abilityName,
+    )?.url ?? null;
+
+  const portraitSource =
+    storedPortrait?.url ?? overlay?.portrait ?? character.image;
+  const portrait =
+    portraitSource && portraitSource.startsWith("/uploads/")
+      ? apiUrl(portraitSource)
+      : portraitSource;
 
   const cardMap: CharacterCardMap = new Map(
     cards.map((card) => [card.characterId, card]),
@@ -84,7 +102,8 @@ export function CharacterDossier({
   const traits = buildTraits(detail, t, overlay, locale, voice?.voiceActor);
   const guideAnime = overlay?.guide?.anime ?? [];
   const guideManga = overlay?.guide?.manga ?? [];
-  const hasGallery = (overlay?.gallery?.length ?? 0) > 0;
+  const hasGallery =
+    storedGallery.length > 0 || (overlay?.gallery?.length ?? 0) > 0;
   const hasAbout = Boolean(
     overlay?.about?.length || character.description.length,
   );
@@ -181,7 +200,13 @@ export function CharacterDossier({
             Hero'nun İÇİNE değil altına konuyor: hero iki sütunlu bir esnek
             kutu ve üçüncü bir çocuk düzeni bozardı. */}
         <CuratorFrame isAdmin={isAdmin}>
-        {isAdmin ? <CuratorSlot slot={t("slots.portrait")} /> : null}
+        {isAdmin ? (
+          <CuratorSlot
+            characterId={character.characterId}
+            slot="PORTRAIT"
+            label={t("slots.portrait")}
+          />
+        ) : null}
 
         <div className={styles.stack}>
           {/* --- Künye + güç profili: ikisi de "künye levhası" işi --- */}
@@ -255,7 +280,12 @@ export function CharacterDossier({
                 {pick(overlay.abilities.title, locale)}
               </h2>
               <div className={styles.panelBody}>
-                <AbilityCards overlay={overlay} isAdmin={isAdmin} />
+                <AbilityCards
+                  overlay={overlay}
+                  characterId={character.characterId}
+                  imageFor={abilityImage}
+                  isAdmin={isAdmin}
+                />
               </div>
             </section>
           ) : null}
@@ -327,11 +357,21 @@ export function CharacterDossier({
               <h2 className={styles.panelTitle}>{t("sections.gallery")}</h2>
               <div className={styles.panelBody}>
                 {hasGallery ? (
-                  <Gallery overlay={overlay} />
+                  <Gallery
+                    overlay={overlay}
+                    stored={storedGallery}
+                    isAdmin={isAdmin}
+                  />
                 ) : (
                   <p className={styles.galleryEmptyNote}>{t("empty.gallery")}</p>
                 )}
-                {isAdmin ? <CuratorSlot slot={t("slots.gallery")} /> : null}
+                {isAdmin ? (
+                  <CuratorSlot
+                    characterId={character.characterId}
+                    slot="GALLERY"
+                    label={t("slots.gallery")}
+                  />
+                ) : null}
               </div>
             </section>
           ) : null}

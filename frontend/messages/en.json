@@ -1467,11 +1467,10 @@
       "fromUrl": "Or an image address",
       "urlPlaceholder": "Image address starting with https://",
       "fetch": "Fetch",
-      "resultLabel": "Address of the uploaded image",
-      "copy": "Copy",
-      "copied": "Copied",
       "busy": "Uploading…",
-      "error": "The image could not be fetched. Make sure the address points straight at an image and the file is under 15 MB."
+      "error": "The image could not be fetched. Make sure the address points straight at an image and the file is under 15 MB.",
+      "added": "Added — the page has refreshed.",
+      "remove": "Remove"
     },
     "curator": {
       "off": "Curator mode",

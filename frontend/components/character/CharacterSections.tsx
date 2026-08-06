@@ -3,7 +3,9 @@ import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/lib/i18n/navigation";
 import { apiUrl } from "@/lib/api/client";
 import { pick, type CharacterOverlay } from "@/lib/characters/types";
+import type { CharacterImage } from "@/lib/api/types";
 import { CuratorSlot } from "./CuratorSlot";
+import { CharacterImageDelete } from "./CharacterImageDelete";
 import styles from "./CharacterSections.module.css";
 
 /**
@@ -95,9 +97,14 @@ export function StatBars({ overlay }: { overlay: CharacterOverlay }) {
 /** Yetenek kartları — Zanpakutō / Jutsu / Quirk, başlık veriden gelir. */
 export function AbilityCards({
   overlay,
+  characterId,
+  imageFor,
   isAdmin = false,
 }: {
   overlay: CharacterOverlay;
+  characterId: number;
+  /** Kürator tarafından yüklenmiş görsel; yoksa koddaki varsayılan */
+  imageFor: (abilityName: string) => string | null;
   isAdmin?: boolean;
 }) {
   const locale = useLocale();
@@ -108,14 +115,17 @@ export function AbilityCards({
 
   return (
     <ul className={styles.abilities}>
-      {abilities.cards.map((card) => (
+      {abilities.cards.map((card) => {
+        // Kürator yüklemesi koddaki varsayılanı ezer
+        const shot = imageFor(card.name) ?? card.image ?? null;
+        return (
         <li key={card.name} className={styles.ability}>
           {/* Formun kendi görseli. Yoksa kart görselsiz çiziliyor —
               yer tutucu bir kutu koymak "eksik" hissi verirdi. */}
-          {card.image ? (
+          {shot ? (
             <span className={styles.abilityShot}>
               <Image
-                src={apiUrl(card.image)}
+                src={apiUrl(shot)}
                 alt={card.name}
                 fill
                 sizes="(max-width: 820px) 92vw, 46vw"
@@ -144,10 +154,18 @@ export function AbilityCards({
             {/* Yükleme yuvası kartın ALTINDA: hangi görselin hangi forma ait
                 olduğu ("Shikai — Nozarashi" / "Bankai") yuvanın adında yazılı,
                 böylece iki kart karışmıyor. */}
-            {isAdmin ? <CuratorSlot slot={card.name} /> : null}
+            {isAdmin ? (
+              <CuratorSlot
+                characterId={characterId}
+                slot="ABILITY"
+                abilityName={card.name}
+                label={card.name}
+              />
+            ) : null}
           </div>
         </li>
-      ))}
+        );
+      })}
     </ul>
   );
 }
@@ -351,31 +369,68 @@ export function BondList({
   );
 }
 
-/** Galeri. Boşken yalnızca küratöre görünür — ziyaretçiye boş kutu çizilmez. */
-export function Gallery({ overlay }: { overlay: CharacterOverlay }) {
+/**
+ * Galeri.
+ *
+ * Kaynak öncelikli: kürator veritabanına bir görsel eklediyse galeri
+ * TAMAMEN oradan çiziliyor; hiç eklenmemişse koddaki varsayılan liste
+ * kullanılıyor. İkisini birleştirmek, küratörün sildiği bir görselin
+ * kodda kalıp silinemez görünmesine yol açardı.
+ */
+export function Gallery({
+  overlay,
+  stored,
+  isAdmin = false,
+}: {
+  overlay: CharacterOverlay;
+  stored: CharacterImage[];
+  isAdmin?: boolean;
+}) {
   const locale = useLocale();
-  const images = overlay.gallery ?? [];
-  if (images.length === 0) {
+
+  const items =
+    stored.length > 0
+      ? stored.map((image) => ({
+          key: image.id,
+          id: image.id as string | null,
+          src: image.url,
+          alt: image.altText ?? "",
+          caption: image.caption,
+        }))
+      : (overlay.gallery ?? []).map((image) => ({
+          key: image.src,
+          id: null,
+          src: image.src,
+          alt: pick(image.alt, locale),
+          caption: image.caption ? pick(image.caption, locale) : null,
+        }));
+
+  if (items.length === 0) {
     return null;
   }
 
   return (
     <ul className={styles.gallery}>
-      {images.map((image) => (
-        <li key={image.src}>
+      {items.map((item) => (
+        <li key={item.key}>
           <span className={styles.galleryItem}>
             <Image
-              src={apiUrl(image.src)}
-              alt={pick(image.alt, locale)}
+              src={apiUrl(item.src)}
+              alt={item.alt}
               fill
               sizes="(max-width: 640px) 45vw, 220px"
               className={styles.galleryImg}
               unoptimized
             />
           </span>
-          {image.caption ? (
-            <span className={styles.galleryCaption}>
-              {pick(image.caption, locale)}
+          {item.caption ? (
+            <span className={styles.galleryCaption}>{item.caption}</span>
+          ) : null}
+          {/* Silme yalnızca veritabanı kayıtlarında: koddaki varsayılanlar
+              buradan kaldırılamaz, onlar veri dosyasında duruyor. */}
+          {isAdmin && item.id ? (
+            <span data-curator-slot>
+              <CharacterImageDelete id={item.id} />
             </span>
           ) : null}
         </li>

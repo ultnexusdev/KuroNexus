@@ -605,6 +605,37 @@ export function uploadImageFromUrl(url: string): Promise<UploadResult> {
   });
 }
 
+// ---- Karakter görselleri ----
+
+/**
+ * Yüklenmiş bir görseli karaktere bağlar.
+ *
+ * İki adımlı akışın ikinci adımı: önce `uploadImage` / `uploadImageFromUrl`
+ * dosyayı sunucuya koyup adresini verir, sonra bu çağrı o adresi karakterin
+ * ilgili yuvasına yazar. Ayrı olmalarının sebebi yükleme mantığının
+ * (SSRF savunması, mime/boyut denetimi) tek yerde durması.
+ */
+export function addCharacterImage(input: {
+  characterId: number;
+  slot: "PORTRAIT" | "GALLERY" | "ABILITY";
+  abilityName?: string;
+  url: string;
+  altText?: string;
+}): Promise<{ id: string }> {
+  return apiFetch<{ id: string }>("/admin/character-images", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(input),
+  });
+}
+
+/** Yumuşak silme — diskteki dosyaya dokunulmaz. */
+export function deleteCharacterImage(id: string): Promise<{ id: string }> {
+  return apiFetch<{ id: string }>(`/admin/character-images/${id}`, {
+    method: "DELETE",
+  });
+}
+
 // ---- Salon 04 · Anime arşivi ----
 
 export interface AnimeEntryInput {

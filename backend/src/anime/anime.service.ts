@@ -14,6 +14,10 @@ import {
   type AnilistMedia,
 } from './anilist.service';
 import { JikanService } from './jikan.service';
+import {
+  CharacterImagesService,
+  type CharacterImageRecord,
+} from './character-images.service';
 import { slugify } from '../common/utils/slugify';
 import { CreateAnimeEntryDto } from './dto/create-anime-entry.dto';
 import { UpdateAnimeEntryDto } from './dto/update-anime-entry.dto';
@@ -208,6 +212,7 @@ export class AnimeService {
     private readonly prisma: PrismaService,
     private readonly anilist: AnilistService,
     private readonly jikan: JikanService,
+    private readonly characterImages: CharacterImagesService,
   ) {}
 
   // --- Public ---
@@ -498,8 +503,18 @@ export class AnimeService {
     character: AnilistCharacterDetail;
     appearances: ArchiveCharacterAppearance[];
     related: ArchiveCharacter[];
+    images: CharacterImageRecord[];
   }> {
-    const character = await this.anilist.getCharacter(characterId);
+    /*
+     * Elle yüklenen görseller künyeyle BİRLİKTE dönüyor, ayrı bir istekte
+     * değil: sayfa zaten bu uca gidiyor ve görseller olmadan çizilemiyor
+     * (kapak portresi hero'nun içinde). İkinci bir tur, ilk boyamayı
+     * bekletirdi.
+     */
+    const [character, images] = await Promise.all([
+      this.anilist.getCharacter(characterId),
+      this.characterImages.listFor(characterId),
+    ]);
     if (!character) {
       throw new NotFoundException('ANIME.CHARACTER_NOT_FOUND');
     }
@@ -542,7 +557,7 @@ export class AnimeService {
       characterId,
     );
 
-    return { character, appearances, related };
+    return { character, appearances, related, images };
   }
 
   /** Aynı serilerdeki diğer karakterler — yalnızca cache'ten, dış istek yok. */

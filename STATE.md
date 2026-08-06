@@ -5,34 +5,66 @@
 
 ## Mevcut Aşama
 
-> **⚠️ AÇIK BRANCH — `feature/2-saat-oturumu`, 6 Ağustos 2026 (evden).**
-> İki saatlik otonom oturum. **`main`'e dokunulmadı, push yapılmadı.**
-> Dört commit branch'te bekliyor; gözden geçirilip birleştirilmesi gerekiyor.
+> **6 AĞUSTOS 2026 (evden) — otonom oturum. 15 commit, HEPSİ `main`'de ve
+> CANLIDA.** Kullanıcı oturum sırasında push yetkisi verdi.
+> Geri dönüş noktası: `git reset --hard yedek-oturum-oncesi-2026-08-06`
+> (etiket `origin`'de de duruyor).
 >
-> **Ne yapıldı:** anime kanadının altına **Karakterler** alt sayfası (dizin +
-> karakter dosyası). Veri AniList'in `Character` API'sinden, mevcut
-> `ExternalCache` üzerinden geliyor — **yeni Prisma modeli açılmadı**, çünkü
-> bu makinede lokal DB yok ve migration ilk kez üretim veritabanında
-> çalışırdı. Bileşenler `frontend/components/character/` altında ve
-> medya-bağımsız: film/dizi karakterleri TMDB `credits`inden aynı şekli
-> doldurabilir.
+> **1 · Karakter kanadı (yeni)**
+> `/dark-stories/category/anime/karakterler` (dizin, 195 karakter) ve
+> `…/karakterler/:characterId` (karakter dosyası). Veri AniList'ten,
+> `ExternalCache` üzerinden. Bileşenler `frontend/components/character/`
+> altında ve **medya-bağımsız** — film/dizi karakterleri TMDB'den aynı şekli
+> doldurabilir. Yeni uçlar: `/anime/characters`, `/anime/characters/:id`,
+> `/anime/characters/cards?ids=`.
 >
-> Yeni uçlar: `GET /anime/characters`, `GET /anime/characters/:characterId`.
-> Yeni rotalar: `/dark-stories/category/anime/karakterler[/:characterId]`.
+> **Zaraki Kenpachi (#909) elle tasarlandı.** Yazılı içerik (Zanpakutō,
+> replikler, güç profili, savaşlar, rehber, ilişkiler) `lib/characters/
+> zaraki-kenpachi.ts` içinde, **iki dilli**. Bölümler veriyle sürülüyor:
+> `abilities.title` Bleach'te "Zanpakutō", Naruto'da "Jutsu" olacak, bileşen
+> değişmeyecek. **Yeni karakter = yeni veri dosyası + `index.ts`'e bir satır.**
 >
-> **Aynı oturumda kapanan gerçek hatalar:** tanımsız `--pad-xl`/`--gap-xl`/
-> `--gap-xs` (beş sayfada padding tamamen sıfırlanıyordu), tanımsız
-> `--surface-2`, **hiç var olmayan `[data-category="dizi"]` derisi** (bütün
-> dizi kanadı varsayılan mor paletle açılıyordu), kitap kanadının derisiz
-> yedi rotası, 901–1019px'te yatay kaydırma çubuğu. Erişilebilirlik tarafında
-> global `:focus-visible` kuralı, "ana içeriğe atla" bağlantısı ve dokuz
-> palette WCAG AA altında kalan `--text-muted` düzeltildi.
+> **2 · Görseller veritabanında** — `CharacterImage` tablosu (migration
+> `20260806200000`, üretimde koştu). Kürator modunda yüklenen görsel anında
+> sayfada; kapak portresi, Shikai/Bankai kareleri ve galeri aynı tablodan.
+> Yükleme iki yolla: dosya seçme ya da **adres yapıştırma** (görsel indirilip
+> yerelleştiriliyor, SSRF savunması `remote-image.service.ts`).
+> ⚠️ Yazılı içerik bilinçli olarak KODDA kaldı — her karakter sayfası kendine
+> özel tasarlanıyor, esnek bölümleri forma sığdırmak tasarımı kısıtlardı.
 >
-> ⚠️ **İki renk kararı gözden geçirilmeli** (ikisi de a11y gerekçeli ama
-> görünüşü değiştiriyor): `--text-muted` dokuz palette açıklaştırıldı,
-> lacivert temanın `--accent`i `#9b4a4a` → `#c06a6a` yapıldı.
+> **3 · Kadim Dünyalar ↔ kitap serisi** — evren sayfasının altında kitap
+> serisi bölümü (Zaman Çarkı 15 cilt, Malazan 7, Dune 9, Fırtınaışığı 6).
+> Eşleşme `lib/universes/book-series.ts`'te; veri modelinde iki taraf
+> arasında bağ yok, ölçüldü.
 >
-> **Ayrıntı ve yapılmayanların gerekçesi:** `docs/2-saat-oturumu.md`.
+> **4 · Kapanan gerçek hatalar** — tanımsız `--pad-xl`/`--gap-xl`/`--gap-xs`
+> (beş sayfada padding tamamen sıfırlanıyordu), tanımsız `--surface-2`,
+> **hiç var olmayan `[data-category="dizi"]` derisi**, kitap kanadının
+> derisiz yedi rotası, 901–1019px'te yatay kaydırma çubuğu, raflarda kart
+> hizası. Erişilebilirlik: global `:focus-visible`, "ana içeriğe atla",
+> yükleme iskeleti + 404 + hata ekranı.
+>
+> ⚠️ **Gözden geçirilmeli:** `--text-muted` dokuz palette açıklaştırıldı ve
+> lacivert temanın `--accent`i `#9b4a4a` → `#c06a6a` oldu. İkisi de WCAG
+> gerekçeli ama görünüşü değiştiriyor; ikisi de `1a6ffef` içinde, tek
+> `git revert` ile geri alınır.
+>
+> **YARIN NEREDEN DEVAM:**
+> 1. **Backend düşünce kullanıcı "arşivin boş" yazısı görüyor** — dört
+>    getirici `catch` içinde boş dizi döndürüyor, salon bunu gerçek boşlukla
+>    karıştırıyor. Bugün iki kez yaşandı, en güçlü aday.
+> 2. Yeni karakter sayfaları (kullanıcı talebiyle: "Naruto'yu yap" → jutsu
+>    kartları)
+> 3. Paylaşılan `PosterCard` / `EmptyState` bileşenleri (dört salonun kart
+>    kabuğu dört ayrı görsel dilde)
+> 4. `unoptimized` temizliği (53 yer; `s4.anilist.co`yu `remotePatterns`a
+>    eklemek yeterli)
+>
+> **Ayrıntı:** `docs/2-saat-oturumu.md`.
+>
+> **Altyapı notu:** gün içinde iki Coolify arızası oldu — backend konteyneri
+> `Exited` kaldı, frontend deploy'u `/artifacts` klasörü dolu diye düştü.
+> İkisi de kod kaynaklı değildi. Tekrarlarsa önce `df -h`.
 
 > **1000KİTAP KAYNAĞI — FAZ 1 BİTTİ, 31 Temmuz 2026 (evden).**
 > Kullanıcı "bu şekilde kitap eklemek yararlı olmadı, yayınevlerinden scrape

@@ -7,6 +7,42 @@ sırasında push yetkisi verdi). `feature/2-saat-oturumu` branch'i ve
 Geri dönüş noktası: `git reset --hard yedek-oturum-oncesi-2026-08-06`
 (ya da tek commit için `git revert 1a6ffef`).
 
+> **Not:** Oturum planlanan iki saati aştı ve kullanıcı geri bildirimiyle
+> birkaç tur daha devam etti. Bu dosya ilk turların günlüğü; **günün
+> tamamının özeti `STATE.md`in başında.** Aşağıdaki "yapılmayanlar" tablosu
+> da o turlarda kısmen kapandı (karakter içeriği, galeri, sayfa durumları).
+
+---
+
+## Gün sonu — 15 commit
+
+| # | Commit | Ne |
+|---|---|---|
+| 1 | `9103641` | Oturum planı ve mimari kararlar |
+| 2 | `03820fe` | AniList karakter uçları (dizin + detay) |
+| 3 | `3c14ac9` | Portre kanadı: karakter dizini ve dosyası |
+| 4 | `1a6ffef` | Tanımsız token'lar, eksik dizi derisi, a11y tabanı |
+| 5 | `5b58c8b` | Kapanış özeti + STATE.md |
+| 6 | `01ab67a` | Sayfa durumları: iskelet, 404, hata ekranı |
+| 7 | `87e04e8` | Canlıya alma günlüğü |
+| 8 | `6c6b7ea` | Portre kalitesi + anime kadrosu → karakter bağlantısı |
+| 9 | `bec94ef` | Elle tasarlanan içerik katmanı + **Zaraki Kenpachi** |
+| 10 | `213b26b` | Sayfa düzeni baştan kuruldu + savaş/ilişki portreleri |
+| 11 | `d11eb2c` | Adresten görsel alma, yuva başına küratör yükleyicisi |
+| 12 | `79b9d0f` | Kadim Dünyalar'a kitap serisi bölümü |
+| 13 | `b57f2f1` | **Görseller veritabanına taşındı** (migration) |
+| 14 | `e78fadf` | Görseller kırpılmıyor + yeniden boyutlandırma |
+| 15 | `8ceae2e` | Galeri görsellerinin görünmeme hatası (üç ayrı sebep) |
+
+### Bu turlarda ölçümle yakalanan üç şey
+
+1. **`loading.tsx` sert 404'ü yumuşak 200'e çeviriyordu** — akış, HTTP
+   başlığını `notFound()`a varılmadan gönderiyor. Rota gruplarıyla çözüldü.
+2. **`getCharacterDetail` 24 saat önbellekliydi** — "yüklediğin an görünür"
+   sözü üretimde tutmayacaktı. `no-store` yapıldı.
+3. **Satır içi `<span>`de `aspect-ratio` çalışmıyor** — galeri kutuları sıfır
+   yüksekliğe düşüyordu. `display: block` eklendi.
+
 ---
 
 ## EK TUR — sayfa durumları (push'tan sonra)

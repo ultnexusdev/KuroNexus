@@ -1,11 +1,65 @@
 # 2 Saatlik Otonom Oturum — 6 Ağustos 2026
 
-**Branch:** `feature/2-saat-oturumu` — `main`'e dokunulmadı.
-**Push:** yapılmadı. Beş yerel commit var, hepsi bu branch'te.
+**Durum:** `main`'e merge edildi ve **canlıya alındı** (kullanıcı oturum
+sırasında push yetkisi verdi). `feature/2-saat-oturumu` branch'i ve
+`yedek-oturum-oncesi-2026-08-06` etiketi de `origin`'de duruyor.
 
-```bash
-git log --oneline main..feature/2-saat-oturumu
+Geri dönüş noktası: `git reset --hard yedek-oturum-oncesi-2026-08-06`
+(ya da tek commit için `git revert 1a6ffef`).
+
+---
+
+## EK TUR — sayfa durumları (push'tan sonra)
+
+Oturum, canlıya alındıktan sonra devam etti. Kapanan üç "yüksek" bulgu:
+yükleme iskeleti, 404 ekranı, hata sınırı.
+
+### ⚠️ Ölçümle yakalanan regresyon — yumuşak 404
+
+İlk denemede `loading.tsx` doğrudan `dark-stories/` altına kondu. Sonuç:
+`notFound()` çağıran **19 sayfanın hepsi 404 yerine 200 döndürmeye başladı.**
+
+Sebep: `loading.tsx`, bulunduğu segmentin bütün alt rotalarını Suspense'e
+sarar ve yanıtı akışa (streaming) çevirir. Akışta HTTP başlıkları gövde
+çözülmeden gönderilir — `notFound()` artık durum kodunu değiştiremez.
+
+İzole edildi (aynı adres, aynı an):
+
+| | |
+|---|---|
+| `loading.tsx` VARKEN | `200` |
+| `loading.tsx` YOKKEN | `404` |
+| geri konunca | `200` |
+
+Arama motorları için bu "yumuşak 404": olmayan sayfalar indekslenir. Proje
+bu hafta `robots.txt` + `sitemap.xml` eklemişken bunu yayına göndermek
+doğrudan zarar olurdu.
+
+**Çözüm:** beş dizin sayfası `(dizin)` rota grubuna alındı. Parantezli klasör
+adı adresi değiştirmez ama segment ağacında ayrı bir dal açar; `loading.tsx`
+yalnızca o dalı sarmalar, kardeşi olan dinamik rota (`[shelf]` /
+`[characterId]`) dışarıda kalır ve gerçek 404'ünü korur.
+
+Doğrulama (yerel sunucu, canlı API):
+
 ```
+anime/yok-boyle-x            -> 404      anime/arsiv        -> 200 + iskelet
+anime/karakterler/999999999  -> 404      anime/karakterler  -> 200 + iskelet
+anime/arsiv/yok-raf          -> 404      dizi/arsiv         -> 200 + iskelet
+film/yok-film                -> 404
+kitap/arsiv/yok-raf          -> 404
+```
+
+### 🔓 Lokal doğrulama artık mümkün
+
+`frontend/.env.local` içindeki `NEXT_PUBLIC_API_URL` canlı API'ye çevrilince
+dev sunucusu gerçek veriyle çalışıyor (karakter dizini 195 kayıtla açıldı).
+Eski kayıt "Node sürecinin dışarı erişimi yok" diyordu; 6 Ağustos'ta bu
+tutmadı. Basic Auth kapısı da devreye girmiyor — `middleware.ts`
+`NODE_ENV === "development"` iken kapıyı atlıyor.
+
+Bu, fikstür yöntemini (getirici `catch` dalına veri gömüp `git checkout` ile
+geri alma) gereksiz kılıyor. **Her oturumda yeniden ölç, varsayma.**
 
 ---
 

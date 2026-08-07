@@ -70,45 +70,8 @@ export function HeroGlyph({ word = "nexus" }: { word?: string }) {
     <div ref={wrapRef} className={styles.glyphCol} role="img" aria-label="KuroNexus">
       <span className={styles.aura} aria-hidden />
 
-      <span className={styles.glyphWrap}>
-        <span ref={glyphRef} className={styles.glyph} aria-hidden>
-          黒
-        </span>
-
-        {/* ── KÜNYE MÜHRÜ (落款印) ────────────────────────────────────────
-            Kodda logo üç yerde "mühür" diye anılıyordu ama fiilen yalnızca
-            bir kontur çiziliyordu. Bu onu gerçek bir mühre çeviriyor.
-
-            Salon 07'deki BALMUMU damlası bilerek taklit edilmedi: o damla
-            "burası kilitli" demek. Kare damga ise imza demek — arşivin kendi
-            işareti. İki ayrı mühür türü, iki ayrı anlam; yan yana geldiklerinde
-            karışmıyorlar.
-
-            Kare biçim 黒'nin kültürel karşılığı: hanko/落款印 kare basılır,
-            balmumu ise damlar. Damga glifin DIŞINDA duruyor, yani imleçle
-            eğilen 黒'nin arkasında sabit kalıyor — mühür kâğıda basılmıştır,
-            levhaya değil. */}
-        <svg
-          className={styles.chop}
-          viewBox="0 0 40 40"
-          aria-hidden
-          focusable="false"
-        >
-          {/* Baskı yüzeyi: kenarları hafif düzensiz — makine kesimi değil,
-              elle basılmış bir damga izlenimi */}
-          <path
-            d="M3.4 4.2c0-.6.5-1.1 1.1-1.2C11 2.4 29.4 2.5 35.6 3c.6.1 1.1.6 1.1 1.2.4 6.2.5 25.4 0 31.5-.1.6-.5 1.1-1.1 1.2-6.3.5-24.8.5-31.1 0-.6-.1-1.1-.6-1.1-1.2-.5-6-.5-25.3 0-31.5Z"
-            fill="currentColor"
-          />
-          {/* Oyulmuş işaret: mühür yazısı tavrında bir "N" — iki dikey sütun
-              ve onları bağlayan köşeli bir çapraz. Uçlar kesik, çünkü mühür
-              kazınır, çizilmez. Zemin rengiyle boşaltılıyor. */}
-          <g className={styles.chopMark}>
-            <rect x="11.5" y="10" width="3.4" height="20" />
-            <rect x="25.1" y="10" width="3.4" height="20" />
-            <path d="M14.9 10h3.3l7 12.4V10h3.3v20h-3.3l-7-12.4V30h-3.3z" />
-          </g>
-        </svg>
+      <span ref={glyphRef} className={styles.glyph} aria-hidden>
+        黒
       </span>
 
       {/* Künye levhası mantığı: işaret üstte, ince altın çizgi, adı altında */}

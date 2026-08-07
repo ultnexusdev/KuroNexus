@@ -44,12 +44,15 @@ export async function getShowShowcase(): Promise<ShowShowcase> {
   }
 }
 
-/** Arşiv alınamazsa salon boş açılır, sayfa çökmez (kural 4 ruhu). */
+/**
+ * Arşiv alınamazsa salon boş açılır, sayfa çökmez (kural 4 ruhu).
+ * `unavailable` bayrağının gerekçesi `movies.ts`te yazılı.
+ */
 export async function getShowArchive(): Promise<ShowArchive> {
   try {
     return await fetchShowArchive();
   } catch {
-    return EMPTY_ARCHIVE;
+    return { ...EMPTY_ARCHIVE, unavailable: true };
   }
 }
 

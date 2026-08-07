@@ -48,12 +48,18 @@ export async function getMovieShowcase(): Promise<MovieShowcase> {
   }
 }
 
-/** Arşiv alınamazsa salon boş açılır, sayfa çökmez (kural 4 ruhu). */
+/**
+ * Arşiv alınamazsa salon boş açılır, sayfa çökmez (kural 4 ruhu).
+ *
+ * `unavailable: true` şart: bu bayrak olmadan salon, boş yanıtı "arşivin
+ * gerçekten boş" sanıp öyle yazıyordu. Kullanıcı dolu bir arşivin önünde
+ * "arşiv boş" mesajı görüyor ve yenilemenin yolunu bulamıyordu.
+ */
 export async function getMovieArchive(): Promise<MovieArchive> {
   try {
     return await fetchMovieArchive();
   } catch {
-    return EMPTY_ARCHIVE;
+    return { ...EMPTY_ARCHIVE, unavailable: true };
   }
 }
 

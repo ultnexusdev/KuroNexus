@@ -33,6 +33,7 @@ import {
 } from "./BookCard";
 import { AWARDS_HREF } from "./AwardHall";
 import styles from "./BookHall.module.css";
+import { ArchiveUnavailable } from "@/components/hall/ArchiveUnavailable";
 
 /**
  * Salon 05 · Kitap — "Kitap Arşivim".
@@ -381,7 +382,10 @@ export function BookHall({
 
           {isAdmin && curating ? <CuratorBar /> : null}
 
-          {isEmpty ? (
+          {/* Gerekce FilmHall'da yazili */}
+          {archive.unavailable ? (
+            <ArchiveUnavailable />
+          ) : isEmpty ? (
             <p className={styles.empty}>{t("emptyArchive")}</p>
           ) : (
             <>

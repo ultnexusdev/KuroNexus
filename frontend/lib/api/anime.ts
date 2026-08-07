@@ -28,12 +28,15 @@ export function fetchAnimeArchive(): Promise<AnimeArchive> {
   return apiFetch<AnimeArchive>("/anime", { cache: "no-store" });
 }
 
-/** Arşiv alınamazsa salon boş açılır, sayfa çökmez (kural 4 ruhu). */
+/**
+ * Arşiv alınamazsa salon boş açılır, sayfa çökmez (kural 4 ruhu).
+ * `unavailable` bayrağının gerekçesi `movies.ts`te yazılı.
+ */
 export async function getAnimeArchive(): Promise<AnimeArchive> {
   try {
     return await fetchAnimeArchive();
   } catch {
-    return EMPTY_ARCHIVE;
+    return { ...EMPTY_ARCHIVE, unavailable: true };
   }
 }
 

@@ -50,12 +50,15 @@ export function fetchBookArchive(): Promise<BookArchive> {
   return apiFetch<BookArchive>("/books", { cache: "no-store" });
 }
 
-/** Arşiv alınamazsa salon boş açılır, sayfa çökmez (kural 4 ruhu). */
+/**
+ * Arşiv alınamazsa salon boş açılır, sayfa çökmez (kural 4 ruhu).
+ * `unavailable` bayrağının gerekçesi `movies.ts`te yazılı.
+ */
 export async function getBookArchive(): Promise<BookArchive> {
   try {
     return await fetchBookArchive();
   } catch {
-    return EMPTY_ARCHIVE;
+    return { ...EMPTY_ARCHIVE, unavailable: true };
   }
 }
 

@@ -10,6 +10,7 @@ import { BackToTop } from "@/components/BackToTop";
 import { ShowBackdrop } from "./ShowBackdrop";
 import { ShowCard, Poster } from "./ShowCard";
 import styles from "./ShowHall.module.css";
+import { ArchiveUnavailable } from "@/components/hall/ArchiveUnavailable";
 
 /**
  * Salon 02 · Dizi — film salonundaki `FilmHall`ın aynısı. Rafların yanına
@@ -274,7 +275,10 @@ export function ShowHall({
           </>
         ) : null}
 
-        {isEmpty ? (
+        {/* Gerekce FilmHall'da yazili */}
+        {archive.unavailable ? (
+          <ArchiveUnavailable />
+        ) : isEmpty ? (
           <p className={styles.empty}>{t("emptyArchive")}</p>
         ) : (
           <>

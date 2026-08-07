@@ -26,6 +26,7 @@ import {
 import { BackToTop } from "@/components/BackToTop";
 import { AnimeCard } from "./AnimeCard";
 import styles from "./AnimeHall.module.css";
+import { ArchiveUnavailable } from "@/components/hall/ArchiveUnavailable";
 
 /**
  * Salon 04 · Anime — "Anime Arşivim".
@@ -228,7 +229,10 @@ export function AnimeHall({
           </div>
         </div>
 
-        {isEmpty ? (
+        {/* Gerekce FilmHall'da yazili */}
+        {archive.unavailable ? (
+          <ArchiveUnavailable />
+        ) : isEmpty ? (
           <p className={styles.empty}>{t("empty")}</p>
         ) : (
           <>

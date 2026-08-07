@@ -2,7 +2,14 @@
   "common": {
     "siteName": "KuroNexus",
     "backToTop": "Back to top",
-    "skipToContent": "Skip to main content"
+    "skipToContent": "Skip to main content",
+    "unavailable": {
+      "title": "The archive is unreachable right now",
+      "text": "This is not an empty shelf — the server could not be reached, your records are intact. It is usually temporary.",
+      "stillDown": "Still unreachable. Try again in a few minutes; if it persists, something is wrong on the server side.",
+      "retry": "Try again",
+      "retrying": "Trying…"
+    }
   },
   "nav": {
     "darkStories": "Discover Nexus"

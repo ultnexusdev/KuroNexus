@@ -1,4 +1,4 @@
-export interface StorySummary {
+﻿export interface StorySummary {
   id: string;
   title: string;
   slug: string;
@@ -318,6 +318,17 @@ export interface MovieArchive {
   };
   directors: Array<{ name: string; count: number }>;
   genres: string[];
+
+  /**
+   * Baglanti kurulamadi isareti.
+   *
+   * Bu bayrak olmadan "arsiv gercekten bos" ile "API'ye ulasilamadi" ayirt
+   * edilemiyordu: getirici catch dalinda bos arsiv donduruyor, salon da onu
+   * gorup "arsivin bos" yaziyordu. Kullanici dolu bir arsivin onunde bos
+   * yazisi goruyor ve yenileme yolu bulamiyordu — 6 Agustos 2026'da backend
+   * konteyneri Exited kaldiginda tam bu yasandi.
+   */
+  unavailable?: boolean;
 }
 
 /** "Nexus'u Keşfet" sayfasının tek yanıtı (`GET /pulse`) */
@@ -546,6 +557,17 @@ export interface ShowArchive {
   };
   directors: Array<{ name: string; count: number }>;
   genres: string[];
+
+  /**
+   * Baglanti kurulamadi isareti.
+   *
+   * Bu bayrak olmadan "arsiv gercekten bos" ile "API'ye ulasilamadi" ayirt
+   * edilemiyordu: getirici catch dalinda bos arsiv donduruyor, salon da onu
+   * gorup "arsivin bos" yaziyordu. Kullanici dolu bir arsivin onunde bos
+   * yazisi goruyor ve yenileme yolu bulamiyordu — 6 Agustos 2026'da backend
+   * konteyneri Exited kaldiginda tam bu yasandi.
+   */
+  unavailable?: boolean;
 }
 
 export type ShowLinkKind = "TMDB" | "IMDB" | "RT" | "HOMEPAGE";
@@ -746,6 +768,17 @@ export interface AnimeArchive {
   };
   genres: string[];
   tags: string[];
+
+  /**
+   * Baglanti kurulamadi isareti.
+   *
+   * Bu bayrak olmadan "arsiv gercekten bos" ile "API'ye ulasilamadi" ayirt
+   * edilemiyordu: getirici catch dalinda bos arsiv donduruyor, salon da onu
+   * gorup "arsivin bos" yaziyordu. Kullanici dolu bir arsivin onunde bos
+   * yazisi goruyor ve yenileme yolu bulamiyordu — 6 Agustos 2026'da backend
+   * konteyneri Exited kaldiginda tam bu yasandi.
+   */
+  unavailable?: boolean;
 }
 
 export interface AnilistSearchResult {
@@ -1100,6 +1133,17 @@ export interface BookArchive {
   quoteOfTheDay:
     | (BookQuote & { bookTitle: string; bookSlug: string })
     | null;
+
+  /**
+   * Baglanti kurulamadi isareti.
+   *
+   * Bu bayrak olmadan "arsiv gercekten bos" ile "API'ye ulasilamadi" ayirt
+   * edilemiyordu: getirici catch dalinda bos arsiv donduruyor, salon da onu
+   * gorup "arsivin bos" yaziyordu. Kullanici dolu bir arsivin onunde bos
+   * yazisi goruyor ve yenileme yolu bulamiyordu — 6 Agustos 2026'da backend
+   * konteyneri Exited kaldiginda tam bu yasandi.
+   */
+  unavailable?: boolean;
 }
 
 /**

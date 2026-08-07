@@ -10,6 +10,7 @@ import { BackToTop } from "@/components/BackToTop";
 import { FilmBackdrop } from "./FilmBackdrop";
 import { MovieCard, Poster } from "./MovieCard";
 import styles from "./FilmHall.module.css";
+import { ArchiveUnavailable } from "@/components/hall/ArchiveUnavailable";
 
 /**
  * Salon 02 · Film — "Projeksiyon Salonu".
@@ -286,7 +287,12 @@ export function FilmHall({
           </>
         ) : null}
 
-        {isEmpty ? (
+        {/* Baglanti hatasi ile gercek bosluk AYRI ekranlar: boş yanit
+            "arsivin bos" diye gosterilirse kullanici dolu bir arsivin onunde
+            yanlis bilgi okur ve yenileme yolu bulamaz. */}
+        {archive.unavailable ? (
+          <ArchiveUnavailable />
+        ) : isEmpty ? (
           <p className={styles.empty}>{t("emptyArchive")}</p>
         ) : (
           <>

@@ -1,0 +1,71 @@
+/* "Arsive ulasilamiyor" ekrani. Renkler token'lardan (AGENTS.md kural 16);
+   salonun kendi derisini aldigi icin dort kanatta da yerinde duruyor.
+
+   Kesikli cerceve bilincli: dolu bir kutu "icerik burada" der, kesikli olan
+   "burada bir sey olmali ama simdi yok" der. Ayni dil bos galeri ve bos
+   suzgec ekranlarinda da kullaniliyor. */
+
+.box {
+  box-sizing: border-box;
+  width: min(46ch, 100%);
+  margin: var(--pad-lg) auto;
+  padding: var(--pad-lg);
+  border: 0.5px dashed var(--border-strong);
+  border-radius: var(--radius-card);
+  text-align: center;
+}
+
+.title {
+  margin: 0 0 var(--gap-sm);
+  color: var(--text-primary);
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.text {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+  line-height: 1.7;
+  text-wrap: pretty;
+}
+
+.retry {
+  min-height: var(--touch-min);
+  margin-top: var(--pad-md);
+  padding: 0 18px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--accent);
+  font-family: inherit;
+  font-size: 0.86rem;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background 160ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.retry:hover {
+  background: var(--surface-hover);
+}
+
+.retry:active {
+  transform: scale(0.97);
+}
+
+.retry:disabled {
+  color: var(--text-muted);
+  cursor: progress;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .retry {
+    transition: none;
+  }
+
+  .retry:active {
+    transform: none;
+  }
+}

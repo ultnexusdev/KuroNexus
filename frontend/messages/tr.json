@@ -2,7 +2,14 @@
   "common": {
     "siteName": "KuroNexus",
     "backToTop": "En üste git",
-    "skipToContent": "Ana içeriğe atla"
+    "skipToContent": "Ana içeriğe atla",
+    "unavailable": {
+      "title": "Arşive şu an ulaşılamıyor",
+      "text": "Bu bir boşluk değil — sunucuya bağlanılamadı, kayıtların yerinde duruyor. Çoğu zaman geçicidir.",
+      "stillDown": "Hâlâ bağlanılamıyor. Birkaç dakika sonra tekrar dene; sürerse sunucu tarafında bir sorun var demektir.",
+      "retry": "Tekrar dene",
+      "retrying": "Deneniyor…"
+    }
   },
   "nav": {
     "darkStories": "Nexus'u Keşfet"

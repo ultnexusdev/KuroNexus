@@ -5,6 +5,17 @@
 
 ## Mevcut Aşama
 
+> **📌 7 AĞUSTOS 2026 — DEVİR NOTU: `docs/DEVIR-2026-08-07.md`**
+> Sohbetin bağlamı dolduğu için yazıldı. Sıradaki işler, tuzaklar ve
+> kullanıcıdan bekleyen adımlar orada. **Bu bölümden sonra ilk onu oku.**
+>
+> Kısa özet: karakter kanadı + görsel yükleme + sahne karesi büyütme
+> penceresi + "arşive ulaşılamıyor" ekranı canlıda. Bekleyen: karakter
+> galerisini yeni Lightbox'a taşımak, benzer içerik küratör düğmeleri,
+> kart eşit yüksekliği, `unoptimized` temizliği.
+> ⚠️ Kullanıcıdan bekleyen: Coolify'dan `SITE_BASIC_AUTH_*` değişkenlerini
+> silmek (şifre kapısını kaldırma) + filtre sağlayıcısına başvuru.
+
 > **6 AĞUSTOS 2026 (evden) — otonom oturum. 15 commit, HEPSİ `main`'de ve
 > CANLIDA.** Kullanıcı oturum sırasında push yetkisi verdi.
 > Geri dönüş noktası: `git reset --hard yedek-oturum-oncesi-2026-08-06`

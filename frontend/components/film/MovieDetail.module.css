@@ -629,8 +629,19 @@ a.providerLink:hover {
   list-style: none;
 }
 
+/* Satir kabugu: bagli alan ile kurator dugmeleri KARDES duruyor.
+   Dugmeler bagliligin icine konamazdi (`<a>` icinde etkilesimli oge). */
+.similarItem {
+  display: flex;
+  align-items: center;
+}
+
 .similarRow {
   display: flex;
+  flex: 1;
+  /* `min-width: 0` olmadan uzun film adi flex ogesini tasirir ve
+     `.similarTitle`in ellipsis'i hic devreye girmez */
+  min-width: 0;
   align-items: center;
   gap: 10px;
   min-height: 44px;

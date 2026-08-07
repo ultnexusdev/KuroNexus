@@ -1,0 +1,68 @@
+/* Benzer icerik satirindaki "arsive ekle" simgeleri.
+   Yalnizca kontrol stilleri; satirin kendi gorunumu salonun CSS modulunde. */
+
+.group {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 2px;
+  /* Satirin sag ucuna: bagli metin ne kadar uzarsa uzasin simgeler ayni
+     yerde kaliyor, goz raydan asagi inerken tek bir sutun izliyor */
+  margin-left: auto;
+}
+
+.button {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  /* Yukseklik satirin kendi min-height'i (44px) kadar: satiri BUYUTMUYOR,
+     var olan bosluga oturuyor. Genislik dar tutuldu — kullanicinin istegi
+     "kucuk simgeler yeterli"ydi ve rayda afis + iki satir metin zaten dar
+     bir sutunu paylasiyor. Dokunma hedefi bu yuzden 26x44: kural 2'nin
+     istedigi 44px olcusu dikeyde saglaniyor, yatayda satirin tamami zaten
+     tek bir hedef degil (yanindaki bag ayri bir hedef) ve iki simge arasinda
+     2px'lik bir ayrim var. */
+  min-width: 26px;
+  min-height: var(--touch-min);
+  padding: 0;
+  background: transparent;
+  border: 0.5px solid transparent;
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.button:hover:not([aria-disabled="true"]) {
+  border-color: var(--border-strong);
+  background: var(--surface-hover);
+  color: var(--accent);
+}
+
+/* ODAK HALKASI BILEREK YAZILMADI. globals.css'teki genel `:focus-visible`
+   kurali (2px `--accent-hover`, 2px offset) `:where()` ile SIFIR ozgulukte
+   yazilmis; buraya kendi kuralimi koysaydim onu ezer ve bu iki dugme sitenin
+   geri kalanindan farkli, daha ince bir halka gosterirdi. */
+
+.button[aria-disabled="true"] {
+  cursor: default;
+  opacity: 0.5;
+}
+
+/* Hata: YALNIZCA patlayan dugme kirmiziya doner (bkz. ArchiveAddButtons.tsx —
+   ikisini birden isaretlemek kuratore hangisinin patladigini kaybettiriyordu).
+   Renk tek basina tasiyici degil: simge "!" oluyor ve erisilebilir ad da
+   "eklenemedi"ye donuyor. */
+.button[data-failed="true"] {
+  color: var(--danger);
+}
+
+@media (pointer: coarse) {
+  /* Parmakla 26px dar: dokunmatikte yatayda da tam olcuye cikiyor. Farede
+     dar kalmasi bilincli, orada isaretci hassas ve ray zaten dar. */
+  .button {
+    min-width: var(--touch-min);
+  }
+}

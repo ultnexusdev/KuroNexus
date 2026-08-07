@@ -664,7 +664,10 @@
       "markWatched": "Mark as watched",
       "confirmRemove": "Remove \"{title}\" from the archive?",
       "duplicate": "This film is already in the archive.",
-      "error": "Action failed. Please try again."
+      "error": "Action failed. Please try again.",
+      "addWatched": "Add \"{title}\" to the archive as watched",
+      "addWatchlist": "Add \"{title}\" to the watchlist",
+      "addFailed": "Could not add \"{title}\". Please try again."
     }
   },
   "show": {
@@ -861,7 +864,10 @@
       "markWatched": "Mark as watched",
       "confirmRemove": "Remove \"{title}\" from the archive?",
       "duplicate": "This show is already in the archive.",
-      "error": "Action failed. Please try again."
+      "error": "Action failed. Please try again.",
+      "addWatched": "Add \"{title}\" to the archive as watched",
+      "addWatchlist": "Add \"{title}\" to the watchlist",
+      "addFailed": "Could not add \"{title}\". Please try again."
     }
   },
   "book": {

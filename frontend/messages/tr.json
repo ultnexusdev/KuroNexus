@@ -664,7 +664,10 @@
       "markWatched": "İzledim olarak işaretle",
       "confirmRemove": "\"{title}\" arşivden çıkarılsın mı?",
       "duplicate": "Bu film zaten arşivde.",
-      "error": "İşlem başarısız. Tekrar deneyin."
+      "error": "İşlem başarısız. Tekrar deneyin.",
+      "addWatched": "\"{title}\" filmini izledim olarak arşive ekle",
+      "addWatchlist": "\"{title}\" filmini izleyeceklerime ekle",
+      "addFailed": "\"{title}\" eklenemedi. Tekrar deneyin."
     }
   },
   "show": {
@@ -861,7 +864,10 @@
       "markWatched": "İzledim olarak işaretle",
       "confirmRemove": "\"{title}\" arşivden çıkarılsın mı?",
       "duplicate": "Bu dizi zaten arşivde.",
-      "error": "İşlem başarısız. Tekrar deneyin."
+      "error": "İşlem başarısız. Tekrar deneyin.",
+      "addWatched": "\"{title}\" dizisini izledim olarak arşive ekle",
+      "addWatchlist": "\"{title}\" dizisini izleyeceklerime ekle",
+      "addFailed": "\"{title}\" eklenemedi. Tekrar deneyin."
     }
   },
   "book": {

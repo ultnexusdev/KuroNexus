@@ -5,7 +5,8 @@ import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { Link, useRouter } from "@/lib/i18n/navigation";
 import { tmdbImage } from "@/lib/api/movies";
-import { updateMovieEntry } from "@/lib/admin/api";
+import { ApiError } from "@/lib/api/client";
+import { createMovieEntry, updateMovieEntry } from "@/lib/admin/api";
 import type {
   ArchiveMovie,
   MovieCastMember,
@@ -17,6 +18,7 @@ import type {
 } from "@/lib/api/types";
 import styles from "./MovieDetail.module.css";
 import { Lightbox } from "@/components/hall/Lightbox";
+import { ArchiveAddButtons } from "@/components/hall/ArchiveAddButtons";
 
 /**
  * Film sayfası.
@@ -352,7 +354,11 @@ export function MovieDetail({
                 <h2 className={styles.railTitle}>{t("similar")}</h2>
                 <ul className={styles.similar}>
                   {detail.similar.map((item) => (
-                    <SimilarRow key={item.tmdbId} movie={item} />
+                    <SimilarRow
+                      key={item.tmdbId}
+                      movie={item}
+                      curating={isAdmin && curating}
+                    />
                   ))}
                 </ul>
               </section>
@@ -660,8 +666,30 @@ function LinkRow({ link }: { link: MovieLink }) {
   );
 }
 
-function SimilarRow({ movie }: { movie: SimilarMovie }) {
+/**
+ * Ray'daki benzer film satırı.
+ *
+ * Küratör modunda arşivde OLMAYAN filmin yanında iki simge çıkıyor: aramaya
+ * gitmeden buradan "izledim" ya da "izleyeceğim" olarak eklenebiliyor
+ * (kullanıcı isteği). Öneriler TMDB'den geliyor, arşivden değil; backend her
+ * satırı arşivle karşılaştırıp `inArchive` işaretini koyuyor.
+ */
+function SimilarRow({
+  movie,
+  curating,
+}: {
+  movie: SimilarMovie;
+  /** Küratör modu açık mı — yetki her istekte backend'de ayrıca doğrulanıyor */
+  curating: boolean;
+}) {
   const t = useTranslations("film.detail");
+  const tCurator = useTranslations("film.curator");
+  const router = useRouter();
+  /* Eklenen film ANINDA arşivde sayılıyor: `router.refresh()` sunucuya bir tur
+     ve o dönene kadar düğmeler ekranda kalırsa küratör aynı filmi ikinci kez
+     ekleyebilir (backend "zaten arşivde" der, ama kullanıcı hata görür). */
+  const [added, setAdded] = useState(false);
+  const inArchive = movie.inArchive || added;
   const poster = tmdbImage(movie.posterPath, "w185");
   const year = movie.releaseDate ? movie.releaseDate.slice(0, 4) : null;
 
@@ -687,7 +715,7 @@ function SimilarRow({ movie }: { movie: SimilarMovie }) {
             .join(" · ")}
         </span>
       </span>
-      {movie.inArchive ? (
+      {inArchive ? (
         <span className={styles.similarMark} title={t("inArchive")}>
           ✓
         </span>
@@ -695,26 +723,76 @@ function SimilarRow({ movie }: { movie: SimilarMovie }) {
     </>
   );
 
-  // Arşivdeki film kendi sayfasına, olmayan TMDB'ye gider
+  /* Arşivdeki film kendi sayfasına, olmayan TMDB'ye gider.
+     `movie.slug` şartı duruyor: yeni eklenen filmin adresi ancak tazeleme
+     dönünce geliyor, o ana kadar satır TMDB'ye gitmeye devam ediyor —
+     olmayan bir adrese bağlamak 404 verirdi. */
+  const row =
+    movie.inArchive && movie.slug ? (
+      <Link
+        href={`/dark-stories/category/film/${movie.slug}`}
+        className={styles.similarRow}
+      >
+        {body}
+      </Link>
+    ) : (
+      <a
+        href={`https://www.themoviedb.org/movie/${movie.tmdbId}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={styles.similarRow}
+      >
+        {body}
+      </a>
+    );
+
   return (
-    <li>
-      {movie.inArchive && movie.slug ? (
-        <Link
-          href={`/dark-stories/category/film/${movie.slug}`}
-          className={styles.similarRow}
-        >
-          {body}
-        </Link>
-      ) : (
-        <a
-          href={`https://www.themoviedb.org/movie/${movie.tmdbId}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={styles.similarRow}
-        >
-          {body}
-        </a>
-      )}
+    <li className={styles.similarItem}>
+      {row}
+      {/* Düğmeler bağlantının DIŞINDA: `<a>` içinde etkileşimli öğe geçersiz
+          işaretleme olurdu (aynı karar karakter kartında da alınmıştı) */}
+      {curating && !inArchive ? (
+        <ArchiveAddButtons
+          labels={{
+            watched: tCurator("addWatched", { title: movie.title }),
+            watchlist: tCurator("addWatchlist", { title: movie.title }),
+            failed: tCurator("addFailed", { title: movie.title }),
+          }}
+          onAdd={async (status) => {
+            try {
+              await createMovieEntry({
+                tmdbId: movie.tmdbId,
+                status,
+                /* Tarih damgası ŞART. Yazılmazsa backend kaydı
+                   `watchedAt: null` ile açıyor ve film: "Son İzlenenler"
+                   şeridine hiç girmiyor (şerit `watchedAt` olanları süzüyor),
+                   "bu yıl izlenen" sayacına katılmıyor, kendi sayfasında
+                   izleme tarihi çıkmıyor ve arşiv sıralaması `watchedAt desc`
+                   olduğu için Postgres'te NULL'lar başa geldiğinden dün
+                   izlenen filmlerin de ÜSTÜNE çıkıyor.
+                   Sırada bekleyen film henüz izlenmedi — ona tarih yazmak
+                   yanlış olur (arşivdeki bütün ekleme yolları böyle). */
+                watchedAt:
+                  status === "WATCHLIST"
+                    ? undefined
+                    : new Date().toISOString(),
+              });
+            } catch (error) {
+              /* 409 = "zaten arşivde". Bu bir hata değil, istenen sonuç zaten
+                 gerçekleşmiş demek — küratöre kırmızı ünlem göstermek onu
+                 çıkışsız bir tekrar denemeye sokardı. Satır arşivdeymiş gibi
+                 kapanıyor, tazeleme de rozeti ve kendi adresini getiriyor. */
+              if (!(error instanceof ApiError) || error.status !== 409) {
+                throw error;
+              }
+            }
+            setAdded(true);
+            /* Tazeleme şart: eklenen film artık arşivde ve satırın kendi
+               sayfasına bağlanabilmesi için `slug`a ihtiyacı var. */
+            router.refresh();
+          }}
+        />
+      ) : null}
     </li>
   );
 }

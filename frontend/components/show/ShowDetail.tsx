@@ -5,8 +5,10 @@ import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { Link, useRouter } from "@/lib/i18n/navigation";
 import { fetchSeasonEpisodes, tmdbImage } from "@/lib/api/shows";
+import { ApiError } from "@/lib/api/client";
 import {
   completeThroughShowSeason,
+  createShowEntry,
   updateShowEntry,
   updateShowSeason,
 } from "@/lib/admin/api";
@@ -23,6 +25,7 @@ import type {
 } from "@/lib/api/types";
 import styles from "./ShowDetail.module.css";
 import { Lightbox } from "@/components/hall/Lightbox";
+import { ArchiveAddButtons } from "@/components/hall/ArchiveAddButtons";
 
 /**
  * Dizi sayfası — film salonundaki `MovieDetail`ın aynısı. Künye levhasında
@@ -388,7 +391,11 @@ export function ShowDetail({
                 <h2 className={styles.railTitle}>{t("similar")}</h2>
                 <ul className={styles.similar}>
                   {detail.similar.map((item) => (
-                    <SimilarRow key={item.tmdbId} show={item} />
+                    <SimilarRow
+                      key={item.tmdbId}
+                      show={item}
+                      curating={isAdmin && curating}
+                    />
                   ))}
                 </ul>
               </section>
@@ -977,8 +984,31 @@ function LinkRow({ link }: { link: ShowLink }) {
   );
 }
 
-function SimilarRow({ show }: { show: SimilarShow }) {
+/**
+ * Ray'daki benzer dizi satırı — film salonundaki `SimilarRow`ın aynısı.
+ *
+ * Küratör modunda arşivde OLMAYAN dizinin yanında iki simge çıkıyor
+ * (kullanıcı isteği: "yanında da izledim/izleyeceğim butonları olsun").
+ * Diziye özel `WATCHING` durumu bilerek YOK: buradan eklenen dizinin henüz
+ * sezon ilerlemesi girilmemiş oluyor, "izliyorum" demek kaçıncı bölümde
+ * olduğu bilgisini uydurmak olurdu. İlerleme dizinin kendi sayfasından
+ * giriliyor.
+ */
+function SimilarRow({
+  show,
+  curating,
+}: {
+  show: SimilarShow;
+  /** Küratör modu açık mı — yetki her istekte backend'de ayrıca doğrulanıyor */
+  curating: boolean;
+}) {
   const t = useTranslations("show.detail");
+  const tCurator = useTranslations("show.curator");
+  const router = useRouter();
+  /* Eklenen dizi ANINDA arşivde sayılıyor: tazeleme sunucuya bir tur ve o
+     dönene kadar düğmeler dursa küratör aynı diziyi ikinci kez ekleyebilir. */
+  const [added, setAdded] = useState(false);
+  const inArchive = show.inArchive || added;
   const poster = tmdbImage(show.posterPath, "w185");
   const year = show.releaseDate ? show.releaseDate.slice(0, 4) : null;
 
@@ -1004,7 +1034,7 @@ function SimilarRow({ show }: { show: SimilarShow }) {
             .join(" · ")}
         </span>
       </span>
-      {show.inArchive ? (
+      {inArchive ? (
         <span className={styles.similarMark} title={t("inArchive")}>
           ✓
         </span>
@@ -1012,25 +1042,65 @@ function SimilarRow({ show }: { show: SimilarShow }) {
     </>
   );
 
+  /* `show.slug` şartı duruyor: yeni eklenen dizinin adresi ancak tazeleme
+     dönünce geliyor, o ana kadar satır TMDB'ye gitmeye devam ediyor. */
+  const row =
+    show.inArchive && show.slug ? (
+      <Link
+        href={`/dark-stories/category/dizi/${show.slug}`}
+        className={styles.similarRow}
+      >
+        {body}
+      </Link>
+    ) : (
+      <a
+        href={`https://www.themoviedb.org/tv/${show.tmdbId}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={styles.similarRow}
+      >
+        {body}
+      </a>
+    );
+
   return (
-    <li>
-      {show.inArchive && show.slug ? (
-        <Link
-          href={`/dark-stories/category/dizi/${show.slug}`}
-          className={styles.similarRow}
-        >
-          {body}
-        </Link>
-      ) : (
-        <a
-          href={`https://www.themoviedb.org/tv/${show.tmdbId}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={styles.similarRow}
-        >
-          {body}
-        </a>
-      )}
+    <li className={styles.similarItem}>
+      {row}
+      {/* Düğmeler bağlantının DIŞINDA: `<a>` içinde etkileşimli öğe geçersiz
+          işaretleme olurdu */}
+      {curating && !inArchive ? (
+        <ArchiveAddButtons
+          labels={{
+            watched: tCurator("addWatched", { title: show.title }),
+            watchlist: tCurator("addWatchlist", { title: show.title }),
+            failed: tCurator("addFailed", { title: show.title }),
+          }}
+          onAdd={async (status) => {
+            try {
+              await createShowEntry({
+                tmdbId: show.tmdbId,
+                status,
+                /* Tarih damgası şart — film tarafındaki gerekçenin aynısı.
+                   Dizide fazladan bir tuhaflık var: backend WATCHED gelince
+                   bütün sezonları izlenmiş işaretliyor, yani kayıt "bitirdim"
+                   diyor; tarihsiz bırakılırsa küratör bitirdiği diziyi
+                   "Son İzlenenler" şeridinde göremiyor. */
+                watchedAt:
+                  status === "WATCHLIST"
+                    ? undefined
+                    : new Date().toISOString(),
+              });
+            } catch (error) {
+              // 409 = "zaten arşivde": hata değil, istenen sonuç zaten olmuş
+              if (!(error instanceof ApiError) || error.status !== 409) {
+                throw error;
+              }
+            }
+            setAdded(true);
+            router.refresh();
+          }}
+        />
+      ) : null}
     </li>
   );
 }

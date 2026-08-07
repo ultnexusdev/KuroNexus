@@ -70,10 +70,17 @@ export function ShowHall({
     [locale],
   );
 
-  const recent = useMemo(
-    () => archive.shows.filter((show) => show.watchedAt).slice(0, STRIP_LIMIT),
-    [archive.shows],
-  );
+  /* Şerit: arşive EN SON GİRENLER — film salonundaki gerekçenin aynısı.
+   * `watchedAt` süzülüp sıralandığında şerit "İzlediğim Diziler" rafının
+   * kopyası oluyordu. Durum süzülmüyor: "izleyeceğim" diye eklenen dizi de
+   * arşive yeni girmiştir. `sort` yerinde değiştirdiği için önce kopya. */
+  const recent = useMemo(() => {
+    // Eski backend `addedAt` göndermiyor: o zaman eski davranışa düşülüyor
+    const key = (show: ArchiveShow) => show.addedAt ?? show.watchedAt ?? "";
+    return [...archive.shows]
+      .sort((a, b) => key(b).localeCompare(key(a)))
+      .slice(0, STRIP_LIMIT);
+  }, [archive.shows]);
 
   const visible = useMemo(
     () =>
@@ -333,10 +340,14 @@ export function ShowHall({
                               {show.title}
                             </Link>
                           </p>
+                          {/* Şerit "en son eklenenler": tarih de EKLENME
+                              tarihi, yoksa sıralamayla çelişir */}
                           <p className={styles.frameDate}>
-                            {show.watchedAt
-                              ? dateFormatter.format(new Date(show.watchedAt))
-                              : ""}
+                            {show.addedAt
+                              ? dateFormatter.format(new Date(show.addedAt))
+                              : show.watchedAt
+                                ? dateFormatter.format(new Date(show.watchedAt))
+                                : ""}
                           </p>
                         </li>
                       ))}

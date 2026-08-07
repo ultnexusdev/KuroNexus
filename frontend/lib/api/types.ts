@@ -297,6 +297,15 @@ export interface ArchiveMovie {
   personalRating: number | null;
   personalNote: string | null;
   watchedAt: string | null;
+  /**
+   * Arşive girdiği an — `watchedAt`ten ayrı, "Son Eklenenler" şeridi bunu sıralar.
+   *
+   * `null` olabilir diye yazıldı: backend bu alanı yeni açtı ve Coolify'da iki
+   * uygulama AYRI dağıtılıyor. Frontend backend'den önce inerse alan gelmez;
+   * `new Date(undefined)` "Invalid Date" basardı. Salonlar bu durumda
+   * `watchedAt`e düşüyor.
+   */
+  addedAt: string | null;
   title: string;
   overview: string | null;
   posterPath: string | null;
@@ -523,6 +532,15 @@ export interface ArchiveShow {
   personalRating: number | null;
   personalNote: string | null;
   watchedAt: string | null;
+  /**
+   * Arşive girdiği an — `watchedAt`ten ayrı, "Son Eklenenler" şeridi bunu sıralar.
+   *
+   * `null` olabilir diye yazıldı: backend bu alanı yeni açtı ve Coolify'da iki
+   * uygulama AYRI dağıtılıyor. Frontend backend'den önce inerse alan gelmez;
+   * `new Date(undefined)` "Invalid Date" basardı. Salonlar bu durumda
+   * `watchedAt`e düşüyor.
+   */
+  addedAt: string | null;
   title: string;
   overview: string | null;
   posterPath: string | null;

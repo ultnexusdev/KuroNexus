@@ -134,6 +134,12 @@ export interface ArchiveShow {
   personalRating: number | null;
   personalNote: string | null;
   watchedAt: string | null;
+  /**
+   * Kaydın arşive girdiği an — `watchedAt`ten ayrı. Salondaki "Son Eklenenler"
+   * şeridi bunu sıralıyor; `watchedAt`e göre sıralandığında şerit
+   * "İzlediğim Diziler" rafının kopyası oluyordu.
+   */
+  addedAt: string;
   title: string;
   overview: string | null;
   posterPath: string | null;
@@ -1048,6 +1054,7 @@ function toArchiveShow(entry: EntryWithSeasons): ArchiveShow {
     personalRating: entry.personalRating,
     personalNote: entry.personalNote,
     watchedAt: entry.watchedAt ? entry.watchedAt.toISOString() : null,
+    addedAt: entry.createdAt.toISOString(),
     title: data?.title ?? `#${entry.tmdbId}`,
     overview: data?.overview ?? null,
     posterPath: data?.posterPath ?? null,

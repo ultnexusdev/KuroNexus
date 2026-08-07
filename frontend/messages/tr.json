@@ -524,7 +524,7 @@
       "runtime": "Toplam Süre",
       "runtimeSub": "Saat"
     },
-    "recent": "Son İzlenenler",
+    "recent": "Son Eklenenler",
     "allGenres": "Tümü",
     "shelf": {
       "watched": "İzlediğim Filmler",
@@ -698,7 +698,7 @@
       "episodes": "İzlenen Bölüm",
       "episodesSub": "Sezon sayaçlarının toplamı"
     },
-    "recent": "Son İzlenenler",
+    "recent": "Son Eklenenler",
     "allGenres": "Tümü",
     "seasons": "Sezon",
     "seasonCount": "{count} sezon",
@@ -1243,7 +1243,6 @@
   "theme": {
     "label": "Tema seçimi",
     "purple": "Mor temaya geç",
-    "orange": "Turuncu temaya geç",
     "navy": "Bordo temaya geç"
   },
   "locale": {

@@ -133,6 +133,13 @@ export interface ArchiveMovie {
   personalRating: number | null;
   personalNote: string | null;
   watchedAt: string | null;
+  /**
+   * Kaydın arşive girdiği an. `watchedAt`ten AYRI bir bilgi: 2005'te izlenmiş
+   * bir film bugün eklenmiş olabilir. Salondaki "Son Eklenenler" şeridi bunu
+   * sıralıyor — `watchedAt`e göre sıralandığında şerit "İzlediğim Filmler"
+   * rafının birebir kopyası oluyordu (arşiv zaten `watchedAt desc` geliyor).
+   */
+  addedAt: string;
   title: string;
   overview: string | null;
   posterPath: string | null;
@@ -793,6 +800,7 @@ function toArchiveMovie(entry: MovieEntry): ArchiveMovie {
     personalRating: entry.personalRating,
     personalNote: entry.personalNote,
     watchedAt: entry.watchedAt ? entry.watchedAt.toISOString() : null,
+    addedAt: entry.createdAt.toISOString(),
     // Künye alınamamışsa başlık yerine TMDB numarası gösterilir, sayfa çökmez
     title: data?.title ?? `#${entry.tmdbId}`,
     overview: data?.overview ?? null,

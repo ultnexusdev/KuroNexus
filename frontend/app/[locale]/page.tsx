@@ -129,12 +129,16 @@ export default async function HomePage({
 
           <div className={styles.textCol}>
             <p className={styles.eyebrow}>{t("eyebrow")}</p>
+            {/* Üç satır `<br>` yerine üç BLOK: `text-wrap: balance` zorunlu
+                kırılmaların olduğu bir blokta devre dışı kalıyor ve İngilizcede
+                son satır "own." diye tek kelimeye düşüyordu. Blok başına
+                dengeleme o dul satırı kapatıyor, ölçüldü. */}
             <h1 className={styles.manifesto}>
-              {t("manifestoA")}
-              <br />
-              {t("manifestoB")}
-              <br />
-              <em>{t("manifestoC")}</em>
+              <span className={styles.manifestoLine}>{t("manifestoA")}</span>
+              <span className={styles.manifestoLine}>{t("manifestoB")}</span>
+              <span className={styles.manifestoLine}>
+                <em>{t("manifestoC")}</em>
+              </span>
             </h1>
             <p className={styles.sub}>{t("sub")}</p>
             <Link href="/dark-stories" className={styles.cta}>

@@ -41,7 +41,6 @@
 
   /* Tema secici swatch renkleri — her temanin accent'i, temadan bagimsiz sabit */
   --swatch-purple: #9d97b8;
-  --swatch-orange: #d97a3f;
   --swatch-navy:   #9b4a4a;
 }
 
@@ -71,31 +70,7 @@
 }
 
 /* ============================================================
-   TEMA 2 — Siyah + Turuncu
-   Technopat hissi; turuncu neon degil, toprak tonuna cekilmis.
-   ============================================================ */
-:root[data-theme="orange"] {
-  --bg:             #121212;
-  --surface:        #1a1a1a;
-  --surface-hover:  #202020;
-  --border:         #2b2b2b;
-  --border-strong:  #383838;
-
-  --text-primary:   #e2e0da;
-  --text-secondary: #8f8f8a;
-  --text-muted:     #8a8781;
-
-  --accent:         #d97a3f;
-  --accent-hover:   #e28a54;
-  --accent-muted:   #6e5a48;
-
-  --gold:           #d99b52;
-  --warn:           #c25a3c;
-  --danger:         #c25a3c;
-}
-
-/* ============================================================
-   TEMA 3 — Lacivert + Bordo
+   TEMA 2 — Lacivert + Bordo
    Zemin koyu lacivert; accent cart kirmizi degil, soluk bordo.
    ============================================================ */
 :root[data-theme="navy"] {

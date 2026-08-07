@@ -13,7 +13,9 @@
     radial-gradient(120% 90% at 78% 0%, color-mix(in srgb, var(--hub-soot) 65%, transparent), transparent 55%),
     var(--hub-ink);
   color: var(--hub-paper);
-  padding: clamp(20px, 4vw, 48px) var(--pad-md) 0;
+  /* Yan boşluk artık sabit 16px değil: geniş ekranda kompozisyon kenarlara
+     doğru nefes alıyor, dar ekranda eski değere iniyor. */
+  padding: clamp(20px, 4vw, 48px) clamp(16px, 3vw, 56px) 0;
   min-height: 64vh;
 }
 
@@ -50,7 +52,11 @@
    payı biraz kısıldı. */
 .grid {
   position: relative;
-  max-width: 94rem;
+  /* 94rem'de (1504px) 1760px'lik bir ekranda iki yanda 256px ölü alan
+     kalıyordu; kompozisyon ortada sıkışmış duruyordu. Üst sınır hâlâ var —
+     sınırsız genişlik satır uzunluğunu okunmaz yapardı — ama ekranın
+     kullanılabilir genişliğini bırakmıyor. */
+  max-width: min(108rem, 100%);
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -71,7 +77,19 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  /* `flex: 1` ŞART, `container-type` ile birlikte gelen bir tuzak:
+     `inline-size` containment öğenin genişliğini İÇERİĞİNDEN bağımsız kılar,
+     yani `flex-basis: auto` ile genişlik hesaplanacak bir kaynak kalmaz ve
+     sütun 0px'e çöker (ölçüldü). Genişliği artık kapsayıcı dağıtıyor. */
+  flex: 1;
   min-width: 0;
+  /* Motto puntosunun ölçü kaynağı. Manifesto eskiden `7vw` ile EKRAN
+     genişliğine göre büyüyordu ama içinde durduğu sütun 281px'te sabitti —
+     ikisi birbirinden habersizdi ve punto 75px'e çıkınca satır başına dört
+     karakter kalıyordu. Sütunu bir "container" ilan edince punto kendi
+     kutusuna göre ölçekleniyor: sütun daralsa da dil değişse de aynı hata
+     bir daha oluşamaz. */
+  container-type: inline-size;
 }
 
 .eyebrow {
@@ -87,10 +105,19 @@
   margin: 0;
   font-family: var(--font-cormorant);
   font-weight: 500;
-  font-size: clamp(2.6rem, 7vw, 4.7rem);
+  /* `cqw` = .textCol'un genişliğinin yüzdesi (bkz. .textCol notu) */
+  font-size: clamp(2.4rem, 14.5cqw, 4.9rem);
   line-height: 1.06;
   letter-spacing: 0.005em;
   color: var(--hub-paper);
+}
+
+/* Manifestonun her satırı kendi bloğu: dengeleme satır BAŞINA uygulanıyor.
+   Tek blokta `<br>` ile yazıldığında dengeleme çalışmıyor ve uzun satır
+   "…of its own." → "own." diye dul bırakıyordu. */
+.manifestoLine {
+  display: block;
+  text-wrap: balance;
 }
 
 .manifesto em {
@@ -183,10 +210,10 @@
   }
 
   .curator {
-    /* Kapı duvarı etiketleri sıkışmasın diye üst sınırı sabitlenmiş pay.
-       Yedinci kapıyla birlikte pay %40'tan %33'e çekildi: duvara yaklaşık
-       bir kapı genişliği kadar yer açıyor. */
-    flex: 0 0 clamp(300px, 33%, 420px);
+    /* Pay %33'ten %42'ye çıktı: 420px'lik tavanda mühür (200px) ile motto
+       aynı sütunu paylaşınca metne 281px kalıyordu. Duvar bu genişlemeden
+       kayba uğramıyor çünkü ızgaranın kendisi de 1504 → 1728px büyüdü. */
+    flex: 0 0 clamp(300px, 42%, 720px);
     padding-right: clamp(16px, 3vw, 48px);
     /* Küratör bloğu dikeyde ortalanır: eski "sol-alt boşluk" hissi kapanır */
     justify-content: center;

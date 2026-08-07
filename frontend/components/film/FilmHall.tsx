@@ -80,11 +80,27 @@ export function FilmHall({
     [locale],
   );
 
-  // Şerit: en son izlenenler, tarihi olanlar önce
-  const recent = useMemo(
-    () => archive.movies.filter((movie) => movie.watchedAt).slice(0, STRIP_LIMIT),
-    [archive.movies],
-  );
+  /* Şerit: arşive EN SON GİRENLER.
+   *
+   * Önceden `watchedAt` süzülüp sıralanıyordu ve şerit "İzlediğim Filmler"
+   * rafının birebir kopyası oluyordu: arşiv zaten sunucudan `watchedAt desc`
+   * geliyor, yani ilk 21 kare ile rafın ilk 21 kartı aynı filmlerdi. Aynı
+   * afişleri arka arkaya iki kez göstermenin bir anlamı yoktu.
+   *
+   * Artık `addedAt` sıralanıyor ve DURUM SÜZÜLMÜYOR: "izleyeceğim" diye
+   * eklenen bir film de arşive yeni girmiştir, şeritte görünmeli. Kullanıcının
+   * istediği buydu — "herhangi bir listeye eklenen film o sırada görünsün".
+   *
+   * Kopya değil, sıralama: `sort` diziyi yerinde değiştirir ve `archive.movies`
+   * prop'unu bozardı.
+   */
+  const recent = useMemo(() => {
+    // Eski backend `addedAt` göndermiyor: o zaman eski davranışa düşülüyor
+    const key = (movie: ArchiveMovie) => movie.addedAt ?? movie.watchedAt ?? "";
+    return [...archive.movies]
+      .sort((a, b) => key(b).localeCompare(key(a)))
+      .slice(0, STRIP_LIMIT);
+  }, [archive.movies]);
 
   // Tür süzgeci bütün raflara birden uygulanır
   const visible = useMemo(
@@ -352,10 +368,16 @@ export function FilmHall({
                               {movie.title}
                             </Link>
                           </p>
+                          {/* Şerit "en son eklenenler" olduğuna göre tarih de
+                              EKLENME tarihi: izleme tarihi burada sıralamayla
+                              çelişir (2005'te izlenen film bugün eklenmiş
+                              olabilir) ve şerit rastgele sıralanmış görünürdü */}
                           <p className={styles.frameDate}>
-                            {movie.watchedAt
-                              ? dateFormatter.format(new Date(movie.watchedAt))
-                              : ""}
+                            {movie.addedAt
+                              ? dateFormatter.format(new Date(movie.addedAt))
+                              : movie.watchedAt
+                                ? dateFormatter.format(new Date(movie.watchedAt))
+                                : ""}
                           </p>
                         </li>
                       ))}

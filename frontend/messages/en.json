@@ -524,7 +524,7 @@
       "runtime": "Total Runtime",
       "runtimeSub": "Hours"
     },
-    "recent": "Recently Watched",
+    "recent": "Recently Added",
     "allGenres": "All",
     "shelf": {
       "watched": "Films I've Watched",
@@ -698,7 +698,7 @@
       "episodes": "Episodes Watched",
       "episodesSub": "Sum of season counters"
     },
-    "recent": "Recently Watched",
+    "recent": "Recently Added",
     "allGenres": "All",
     "seasons": "Seasons",
     "seasonCount": "{count} seasons",
@@ -1243,7 +1243,6 @@
   "theme": {
     "label": "Theme selection",
     "purple": "Switch to purple theme",
-    "orange": "Switch to orange theme",
     "navy": "Switch to burgundy theme"
   },
   "locale": {

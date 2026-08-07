@@ -42,10 +42,6 @@
   background: var(--swatch-purple);
 }
 
-.swatch[data-swatch="orange"] {
-  background: var(--swatch-orange);
-}
-
 .swatch[data-swatch="navy"] {
   background: var(--swatch-navy);
 }

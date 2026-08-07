@@ -34,7 +34,10 @@
   position: relative;
   z-index: 1;
   font-family: var(--font-brush), serif;
-  font-size: clamp(7rem, 17vw, 12.5rem);
+  /* Üst sınır 12.5rem (200px) → 9.75rem: mühür küratör sütununun yarısını
+     yiyordu ve mottoya okunabilir bir ölçü bırakmıyordu. Küçülen tek şey
+     ölçü; ağırlık aşağıda arttığı için mühür daha ZAYIF değil daha güçlü. */
+  font-size: clamp(7rem, 13vw, 9.75rem);
   line-height: 1;
   color: transparent;
   -webkit-text-stroke: 1.5px color-mix(in srgb, var(--hub-gold) 88%, var(--hub-paper));

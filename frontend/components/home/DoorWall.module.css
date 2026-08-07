@@ -171,6 +171,14 @@
     flex-direction: row;
     gap: 12px;
     height: min(62vh, 560px);
+    /* Duvar ızgaranın bir flex öğesi. `width: 100%` yüzünden esneme tabanı
+       "kendi genişliğim" oluyordu ve otomatik en-küçük genişlik (min-content)
+       küçülmeyi tamamen kilitliyordu: küratör sütunu genişletilince duvar
+       payına sığmayıp sayfayı 17px yatay kaydırmaya sokuyordu (ölçüldü).
+       Artık kalan alanı alıyor; kapıların kendi 64px tabanı hâlâ geçerli,
+       yani etiketler sıkışmıyor, duvar yalnızca gereği kadar daralıyor. */
+    flex: 1;
+    min-width: 0;
   }
 
   .door {

@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/lib/i18n/navigation";
 import { apiUrl } from "@/lib/api/client";
+import type { CountUnit } from "@/lib/api/types";
 import styles from "./DoorWall.module.css";
 
 /**
@@ -24,6 +25,8 @@ export interface Door {
   art?: string | null;
   hall: number;
   count?: number;
+  /** `count` neyi sayıyor — indeks şeridi metni buradan çevriliyor */
+  countUnit?: CountUnit;
   sealed?: boolean; // Temürkan: balmumu mühürlü baş köşe
   /** Kapısı açık ama içeriği hazırlanıyor: sayı yerine "yakında" yazılır */
   soon?: boolean;

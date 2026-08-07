@@ -349,8 +349,26 @@ export interface PulseHall {
   universeCount: number;
   /** Kapının altındaki canlı satırın ham değeri (salona göre değişir) */
   line: string | null;
+  /** Salonun büyüklüğü — arşivdeki TOPLAM ("izleyeceğim" dahil) */
   count: number | null;
+  /** `count` neyi sayıyor; metin frontend'de çevriliyor (`home.unit.*`) */
+  countUnit: CountUnit | null;
 }
+
+/**
+ * İndeks şeridindeki sayının birimi.
+ *
+ * `bolum` yalnızca FRONTEND'de üretiliyor: Temürkan bir kategori değil bir
+ * evren, bu yüzden `/pulse`in salon listesinde hiç görünmüyor; sayısı
+ * `featured.chapterCount`ten geliyor.
+ */
+export type CountUnit =
+  | "film"
+  | "dizi"
+  | "seri"
+  | "kitap"
+  | "evren"
+  | "bolum";
 
 export interface PulseEntry {
   kind: "FILM" | "DIZI" | "ANIME" | "CHAPTER" | "WIKI";

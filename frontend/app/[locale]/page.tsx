@@ -1,7 +1,13 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
 import { fetchCategories, fetchUniverses } from "@/lib/api/universes";
-import type { UniverseCategory, WikiUniverseSummary } from "@/lib/api/types";
+import { getPulse } from "@/lib/api/pulse";
+import type {
+  CountUnit,
+  Pulse,
+  UniverseCategory,
+  WikiUniverseSummary,
+} from "@/lib/api/types";
 import { DoorWall, type Door } from "@/components/home/DoorWall";
 import { HeroGlyph } from "@/components/home/HeroGlyph";
 import {
@@ -23,16 +29,21 @@ const FALLBACK_SEALED_SLUG = "temurkan-efsaneleri";
 async function getData(): Promise<{
   categories: UniverseCategory[];
   universes: WikiUniverseSummary[];
+  pulse: Pulse | null;
 }> {
   try {
-    const [categories, universes] = await Promise.all([
+    /* `/pulse` üçüncü bir istek değil bir ÖLÇÜ kaynağı: salon başına gerçek
+       arşiv sayısını yalnızca o biliyor. Kendi içinde hata yutuyor
+       (`getPulse` boş nabız döndürür), o yüzden kapıları düşürmüyor. */
+    const [categories, universes, pulse] = await Promise.all([
       fetchCategories(),
       fetchUniverses(),
+      getPulse(),
     ]);
-    return { categories, universes };
+    return { categories, universes, pulse };
   } catch {
     // API erişilemezse hol boş kapılarla değil, yalnızca küratör metniyle açılır
-    return { categories: [], universes: [] };
+    return { categories: [], universes: [], pulse: null };
   }
 }
 
@@ -43,16 +54,38 @@ export default async function HomePage({
 }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "home" });
-  const { categories, universes } = await getData();
+  const { categories, universes, pulse } = await getData();
 
   const ordered = sortByHallOrder(categories);
 
-  // Arşiv salonlarının açtığı bölüm de bir evren sayılır (bkz. hallWorldCount)
-  const countFor = (slug: string, categoryId: string) =>
-    hallWorldCount(
-      slug,
-      universes.filter((u) => u.categoryId === categoryId).length,
-    );
+  /**
+   * Salon başına gerçek ölçü.
+   *
+   * Önceden `hallWorldCount` kullanılıyordu ve o **evren** sayıyordu: arşiv
+   * salonlarında sonuç her zaman 1 çıkıyor, yani indeks şeridinde "01 FİLM ·
+   * 1 evren" yazıyordu — 336 filmlik bir arşivin yanında. Ziyaretçi arşivi
+   * olduğundan küçük sanıyordu.
+   *
+   * Ölçü artık `/pulse`ten: her salon kendi diliyle konuşuyor (film salonunda
+   * film, Kadim Dünyalar'da evren). Nabız alınamazsa eski davranışa düşülüyor
+   * — sayı yanlış olsa da kapı sayısız kalmasın.
+   */
+  const pulseHalls = new Map(pulse?.halls.map((h) => [h.slug, h]) ?? []);
+  const measureFor = (
+    slug: string,
+    categoryId: string,
+  ): { count: number; countUnit?: CountUnit } => {
+    const hall = pulseHalls.get(slug);
+    if (hall?.count != null && hall.countUnit) {
+      return { count: hall.count, countUnit: hall.countUnit };
+    }
+    return {
+      count: hallWorldCount(
+        slug,
+        universes.filter((u) => u.categoryId === categoryId).length,
+      ),
+    };
+  };
 
   const hasData = ordered.length > 0;
 
@@ -71,7 +104,7 @@ export default async function HomePage({
           coverImage: cat.coverImage,
           art: codeHall(cat.slug)?.art ?? null,
           hall: 0,
-          count: countFor(cat.slug, cat.id),
+          ...measureFor(cat.slug, cat.id),
           soon: codeHall(cat.slug)?.soon,
         })),
         (door) => door.slug,
@@ -82,9 +115,9 @@ export default async function HomePage({
           coverImage: null,
           art: hall.art,
           hall: 0,
-          // Kategori kaydı olmayan salonun evreni de arşiv bölümünden gelir:
-          // kapı altında "Gir" değil gerçek sayı yazsın (bkz. hallWorldCount)
-          count: hallWorldCount(hall.slug, 0),
+          // Kategori kaydı olmayan salon (`categoryId` yok): ölçüsü yine
+          // nabızdan gelebilir, gelmezse eski davranışa düşer
+          ...measureFor(hall.slug, ""),
           soon: hall.soon,
         }),
       ).map((door, i) => ({ ...door, hall: i + 1 }))
@@ -107,6 +140,11 @@ export default async function HomePage({
       coverImage: temurkan.coverImage,
       hall: doors.length + 1,
       sealed: true,
+      /* Temürkan bir kategori değil bir evren, o yüzden `/pulse`in salon
+         listesinde yok; ölçüsü baş köşe kaydından geliyor. Mühürlü kapı
+         "yakında" demiyor artık — kaç bölüm yazılmış onu söylüyor. */
+      count: pulse?.featured?.chapterCount,
+      countUnit: pulse?.featured?.chapterCount ? "bolum" : undefined,
     });
   } else if (!hasData) {
     // Fallback: mühürlü baş köşe de gösterilsin (duvar tam hissetsin)
@@ -163,11 +201,17 @@ export default async function HomePage({
                 {String(door.hall).padStart(2, "0")}
               </span>
               <span className={styles.indexName}>{door.name}</span>
-              {door.sealed ? null : door.soon ? (
+              {/* Sayı artık salonun kendi birimiyle: "336 film", "8 evren",
+                  "14 bölüm". Birimi olmayan (nabız alınamamış) salon eski
+                  "N evren" metnine düşüyor — sayısız kalmasın. Mühürlü kapı
+                  da artık sayı gösteriyor, bölümleri varsa. */}
+              {door.soon ? (
                 <span className={styles.indexCount}>{t("soonSub")}</span>
               ) : door.count !== undefined ? (
                 <span className={styles.indexCount}>
-                  {t("worldsCount", { count: door.count })}
+                  {door.countUnit
+                    ? t(`unit.${door.countUnit}`, { count: door.count })
+                    : t("worldsCount", { count: door.count })}
                 </span>
               ) : null}
             </span>

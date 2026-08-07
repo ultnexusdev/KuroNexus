@@ -45,7 +45,9 @@ export async function NexusHub({
       coverImage: null,
       universeCount: 0,
       line: null,
+      // Kod tanımlı salonun nabızda kaydı yok: ölçüsü de yok
       count: null,
+      countUnit: null,
     }),
   );
 

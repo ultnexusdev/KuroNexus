@@ -41,6 +41,14 @@
       "anime": "Anime",
       "kitap": "Books",
       "kadim-dunyalar": "Ancient Worlds"
+    },
+    "unit": {
+      "film": "{count} films",
+      "dizi": "{count} shows",
+      "seri": "{count} series",
+      "kitap": "{count} books",
+      "evren": "{count} worlds",
+      "bolum": "{count} chapters"
     }
   },
   "nexus": {

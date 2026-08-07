@@ -41,6 +41,14 @@
       "anime": "Anime",
       "kitap": "Kitap",
       "kadim-dunyalar": "Kadim Dünyalar"
+    },
+    "unit": {
+      "film": "{count} film",
+      "dizi": "{count} dizi",
+      "seri": "{count} seri",
+      "kitap": "{count} kitap",
+      "evren": "{count} evren",
+      "bolum": "{count} bölüm"
     }
   },
   "nexus": {

@@ -29,8 +29,19 @@ export interface PulseHall {
   universeCount: number;
   /** Kapının altındaki canlı satır; salona göre farklı şeyi anlatır */
   line: string | null;
-  /** Sayı rozeti (ör. film sayısı) — yoksa null */
+  /**
+   * Salonun büyüklüğü. **Arşivdeki TOPLAM** — "izleyeceğim" listesi dahil
+   * (kullanıcı kararı). Önceden `status !== 'WATCHLIST'` süzülüyordu ve
+   * salonun kendi sayfasındaki başlıktan (ör. "316 film") küçük çıkıyordu;
+   * ziyaretçi aynı arşiv için iki farklı sayı görüyordu.
+   */
   count: number | null;
+  /**
+   * `count` neyi sayıyor. Her salon kendi diliyle konuşuyor: film salonunda
+   * film, Kadim Dünyalar'da evren, Temürkan'da bölüm. Metin BURADA
+   * üretilmiyor — frontend bu anahtarı kendi diline çeviriyor (kural 1).
+   */
+  countUnit: 'film' | 'dizi' | 'seri' | 'kitap' | 'evren' | null;
 }
 
 export interface PulseEntry {
@@ -88,6 +99,7 @@ export class PulseService {
       movies,
       animeEntries,
       shows,
+      bookCount,
     ] = await Promise.all([
       this.prisma.universeCategory.findMany({
         where: { isDeleted: false },
@@ -131,6 +143,8 @@ export class PulseService {
         where: { isDeleted: false },
         orderBy: [{ watchedAt: 'desc' }, { updatedAt: 'desc' }],
       }),
+      // Kitap salonunun sayacı için: künye alanları gerekmiyor, yalnızca sayı
+      this.prisma.bookEntry.count({ where: { isDeleted: false } }),
     ]);
 
     const universeById = new Map(universes.map((u) => [u.id, u]));
@@ -156,6 +170,7 @@ export class PulseService {
         movies,
         animeEntries,
         shows,
+        bookCount,
       ),
       recent: this.buildRecent(
         movies,
@@ -257,17 +272,23 @@ export class PulseService {
       watchedAt: Date | null;
       externalData: unknown;
     }>,
+    bookCount: number,
   ): PulseHall[] {
     return categories.map((category) => {
       const universeCount = universes.filter(
         (universe) => universe.categoryId === category.id,
       ).length;
 
-      let count: number | null = null;
+      /* Arşivi olmayan salonlarda (Spor, Kadim Dünyalar) ölçü evren sayısı:
+         o salonların içeriği zaten evrenlerden oluşuyor. Böylece şeritte
+         sayısız kapı kalmıyor ama uydurma bir ölçü de yazılmıyor. */
+      let count: number | null = universeCount > 0 ? universeCount : null;
+      let countUnit: PulseHall['countUnit'] = universeCount > 0 ? 'evren' : null;
       let line: string | null = null;
 
       if (category.slug === 'film') {
-        count = movies.filter((movie) => movie.status !== 'WATCHLIST').length;
+        count = movies.length;
+        countUnit = 'film';
         // İkinci sayı "sırada bekleyen" — canlıda denenen "bu yıl" ölçüsü
         // toplamla aynı çıkıyordu (her film eklendiği gün izlenmiş sayılıyor),
         // yani aynı sayıyı iki kez söylüyordu
@@ -278,6 +299,7 @@ export class PulseService {
 
       if (category.slug === 'anime') {
         count = animeEntries.length;
+        countUnit = 'seri';
         // Kapının satırı: şu an izlediğim serinin adı
         const watching = animeEntries.find(
           (entry) => entry.status === 'WATCHING',
@@ -287,13 +309,21 @@ export class PulseService {
       }
 
       if (category.slug === 'dizi') {
-        count = shows.filter((show) => show.status !== 'WATCHLIST').length;
+        count = shows.length;
+        countUnit = 'dizi';
         // Kapının satırı anime salonundakiyle aynı: şu an izlediğim dizi.
         // Dizide "izliyorum" haftalarca sürer, bu yüzden sıradakilerin
         // sayısından daha canlı bir bilgi.
         const watching = shows.find((show) => show.status === 'WATCHING');
         const data = (watching?.externalData ?? null) as TmdbShow | null;
         line = data?.title ?? null;
+      }
+
+      /* Kitap salonunun kategori kaydı var ama arşivi ayrı bir tabloda;
+         sayı yalnızca `bookEntry.count` ile geliyor (künye gerekmiyor). */
+      if (category.slug === 'kitap') {
+        count = bookCount;
+        countUnit = 'kitap';
       }
 
       return {
@@ -304,6 +334,7 @@ export class PulseService {
         universeCount,
         line,
         count,
+        countUnit,
       };
     });
   }

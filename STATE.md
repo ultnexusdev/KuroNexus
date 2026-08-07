@@ -5,6 +5,52 @@
 
 ## Mevcut Aşama
 
+> **📌 7 AĞUSTOS 2026 (akşam) — GÜN KAPANDI. Hepsi `main`'de ve push edildi.**
+>
+> **Kapanan işler (devir notundaki listeden):**
+> - Kart eşit yükseklik — dizide aynı raftaki kartların tabanı 36px kayıktı,
+>   şimdi 0. Sonra çubuk hizası: `line-clamp` yalnızca ÜST sınır koyuyordu,
+>   tek satırlık başlıkta altındaki blok yukarı kaçıyordu → başlığa sabit iki
+>   satır (`min-height: 2.6em`). Film/dizi/anime/kitap dördü de hizalı.
+> - Karakter galerisi → Lightbox (yeni sekme yerine modal)
+> - Küratör modu kapanınca gizlenen karakter geri geliyordu → gizli kümesi
+>   `CharacterGallery`ye taşındı. Ayrıca dizin isteği `revalidate: 3600` ile
+>   önbellekliydi, sayfa yenilenince karakter bir saate kadar geri geliyordu →
+>   `no-store`.
+> - "Son İzlenenler" şeridi fareyle kaydırılamıyordu (çubuk gizli + tekerlek
+>   yatay kaydırmaz) → paylaşılan `components/hall/ScrollStrip.tsx`: ok
+>   düğmeleri + sürükleme. Dikey tekerlek devralma DENENDİ ve GERİ ALINDI
+>   (sayfayı hapsediyordu).
+> - Benzer içerik rayına küratör düğmeleri (`ArchiveAddButtons`)
+> - Şerit "Son Eklenenler" oldu: `ArchiveMovie/Show.addedAt` eklendi, artık
+>   `createdAt` sıralıyor ve durum süzmüyor. Eskiden "İzlediğim Filmler"
+>   rafının birebir kopyasıydı.
+> - **Üç tema ikiye indi** (mor + lacivert). Turuncunun zemini morunkiyle
+>   neredeyse aynıydı. Açık tema bilinçli olarak yok.
+> - Ana sayfa: motto 6 satırdan 3'e (punto `cqw` ile kendi sütununa bağlandı),
+>   yan ölü alan 256px → 121px, logo gövde + orantılı kontur kazandı,
+>   indeks şeridi "1 evren" yerine gerçek sayıları gösteriyor,
+>   "Son Eklenenler" şeridi + somut CTA satırı + footer salon listesi.
+>
+> **⚠️ CANLIDA DOĞRULANMASI GEREKEN (deploy sırası):** Coolify frontend ve
+> backend'i AYRI dağıtıyor. Backend inene kadar "Son Eklenenler" şeridi, CTA
+> satırı ve gerçek salon sayaçları GÖRÜNMEZ — bu bilinçli (eksik satır yanlış
+> satırdan iyi), bozukluk değil. İndikten sonra bakılacak: şerit kartlarına
+> tıklayınca **404 gelmiyor mu** (slug eşliği ancak canlıda kesinleşir),
+> indeks "336 film" diyor mu, footer salon linkleri çalışıyor mu.
+>
+> **⛔ KARAR: arşiv KİŞİSEL kalıyor.** Kardeşler için çok kullanıcılı yapı
+> araştırıldı, ölçüldü, planlandı ve kullanıcı vazgeçti — gerekçe ve ölçümler
+> `docs/PLAN-cok-kullanicili-arsiv.md`'de. Kendiliğinden yeniden önerme.
+>
+> **➡️ SIRADAKİ İŞ: SPOR SALONU.** Kullanıcı: "orası biraz boş ve eksik kaldı."
+> Henüz keşif yapılmadı; `backend/src/sport/` + `backend/src/football/` ve
+> Salon 03 sayfaları incelenerek başlanacak. Futbol fikstür/canlı skor işi ayrı
+> bir açık madde (kaynak kararı bekliyor).
+>
+> **Kalan eski maddeler:** `unoptimized` temizliği (d), karakter sayfaları (f,
+> talep kullanıcıdan gelecek).
+
 > **📌 7 AĞUSTOS 2026 — DEVİR NOTU: `docs/DEVIR-2026-08-07.md`**
 > Sohbetin bağlamı dolduğu için yazıldı. Sıradaki işler, tuzaklar ve
 > kullanıcıdan bekleyen adımlar orada. **Bu bölümden sonra ilk onu oku.**

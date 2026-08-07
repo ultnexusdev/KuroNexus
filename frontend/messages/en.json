@@ -1482,11 +1482,23 @@
     "curator": {
       "off": "Curator mode",
       "on": "Curator mode on",
-      "hint": "Upload slots are open. Upload an image, copy the returned address and pass it on."
+      "hint": "Upload slots are open. Whatever you upload lands on the page straight away."
     },
     "slots": {
       "portrait": "Cover portrait",
       "gallery": "Gallery image"
+    },
+    "hide": {
+      "hide": "Remove from index",
+      "undo": "Undo",
+      "hideFor": "Remove {name} from the index",
+      "undoFor": "Bring {name} back",
+      "failed": "That did not work — try again"
+    },
+    "indexCurator": {
+      "off": "Curator mode",
+      "on": "Curator mode on",
+      "hint": "Use the ✕ at the top right of each portrait to remove a character from the index. This can be undone."
     }
   },
   "pageState": {

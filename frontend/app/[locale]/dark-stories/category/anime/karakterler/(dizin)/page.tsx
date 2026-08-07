@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { readIsAdmin } from "@/lib/auth/session";
 import { getCharacterIndex } from "@/lib/api/characters";
 import { fetchCategories } from "@/lib/api/universes";
 import { hallLabel, hallName, hallNumber } from "@/lib/halls";
@@ -47,9 +48,10 @@ export default async function CharacterGalleryPage({
 }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "anime" });
-  const [index, hall] = await Promise.all([
+  const [index, hall, isAdmin] = await Promise.all([
     getCharacterIndex(),
     getHall(t("hallName")),
+    readIsAdmin(),
   ]);
 
   return (
@@ -57,6 +59,7 @@ export default async function CharacterGalleryPage({
       index={index}
       hallLabel={hall.label}
       hallName={hall.name}
+      isAdmin={isAdmin}
     />
   );
 }

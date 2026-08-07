@@ -1482,11 +1482,23 @@
     "curator": {
       "off": "Küratör modu",
       "on": "Küratör modu açık",
-      "hint": "Yükleme yuvaları açıldı. Görseli yükle, dönen adresi kopyalayıp bana ilet."
+      "hint": "Yükleme yuvaları açıldı. Yüklediğin görsel doğrudan sayfaya iner."
     },
     "slots": {
       "portrait": "Kapak portresi",
       "gallery": "Galeri görseli"
+    },
+    "hide": {
+      "hide": "Dizinden çıkar",
+      "undo": "Geri al",
+      "hideFor": "{name} karakterini dizinden çıkar",
+      "undoFor": "{name} karakterini geri getir",
+      "failed": "İşlem yapılamadı, tekrar dene"
+    },
+    "indexCurator": {
+      "off": "Küratör modu",
+      "on": "Küratör modu açık",
+      "hint": "Her portrenin sağ üstündeki ✕ ile karakteri dizinden çıkarabilirsin. Geri alınabilir."
     }
   },
   "pageState": {

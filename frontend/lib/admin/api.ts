@@ -636,6 +636,33 @@ export function deleteCharacterImage(id: string): Promise<{ id: string }> {
   });
 }
 
+/**
+ * Karakteri dizinden çıkarır.
+ *
+ * "Silmek" değil **gizlemek**: dizin arşivdeki serilerin AniList
+ * kadrolarından türetiliyor, yani kaynağı silme yetkimiz yok. Kalıcı olan
+ * bizim dışlama listemiz. Geri alınabilir.
+ */
+export function hideCharacter(
+  characterId: number,
+): Promise<{ characterId: number }> {
+  return apiFetch<{ characterId: number }>("/admin/hidden-characters", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ characterId }),
+  });
+}
+
+/** Gizlemeyi geri alır. */
+export function revealCharacter(
+  characterId: number,
+): Promise<{ characterId: number }> {
+  return apiFetch<{ characterId: number }>(
+    `/admin/hidden-characters/${characterId}`,
+    { method: "DELETE" },
+  );
+}
+
 // ---- Salon 04 · Anime arşivi ----
 
 export interface AnimeEntryInput {

@@ -933,6 +933,26 @@ model CharacterImage {
   @@index([userId])
 }
 
+/// Karakter dizininden çıkarılan karakterler.
+///
+/// Dizin, arşivdeki serilerin AniList kadrolarından **türetiliyor** — yani
+/// bir karakteri "silmek" diye bir şey yok, kaynak onu her tazelemede geri
+/// getirir. Kalıcı olan tek şey bizim dışlama listemiz; bu tablo o.
+///
+/// ⚠️ Burada yumuşak silme YOK (AGENTS.md kural 3'ün istisnası, bilinçli):
+/// kayıt zaten "gösterme" demek. Geri almak = kaydı silmek. `isDeleted`
+/// eklemek "gizlemeyi gizlemek" gibi anlamsız bir ikinci katman olurdu.
+model HiddenCharacter {
+  id          String   @id @default(cuid())
+  /// AniList karakter numarası
+  characterId Int      @unique
+  createdAt   DateTime @default(now())
+
+  userId String
+
+  @@index([userId])
+}
+
 enum CharacterImageSlot {
   /// Künye levhasındaki büyük portre — tek kayıt beklenir, sonuncusu kazanır
   PORTRAIT

@@ -2,6 +2,7 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/lib/i18n/navigation";
 import type { ArchiveCharacter } from "@/lib/api/types";
+import { CharacterHideButton } from "./CharacterHideButton";
 import styles from "./CharacterPlate.module.css";
 
 /**
@@ -23,10 +24,13 @@ export function CharacterPlate({
   sizes,
   /** Kartın altında seri adı yazılsın mı (dosya sayfasında zaten belli). */
   showSeries = true,
+  /** Küratör modu açıkken portrenin sağ üstünde "kaldır" düğmesi çıkar. */
+  curating = false,
 }: {
   character: ArchiveCharacter;
   sizes: string;
   showSeries?: boolean;
+  curating?: boolean;
 }) {
   const t = useTranslations("character");
   const href = `/dark-stories/category/anime/karakterler/${character.characterId}`;
@@ -34,6 +38,14 @@ export function CharacterPlate({
 
   return (
     <article className={styles.plate}>
+      {/* Bağlantının DIŞINDA: kart bir <a>, içine ikinci bir tıklanabilir
+          öğe koymak geçersiz işaretleme olurdu */}
+      {curating ? (
+        <CharacterHideButton
+          characterId={character.characterId}
+          name={character.name}
+        />
+      ) : null}
       <Link
         href={href}
         className={styles.frame}

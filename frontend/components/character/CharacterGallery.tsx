@@ -18,15 +18,19 @@ export function CharacterGallery({
   index,
   hallLabel,
   hallName,
+  isAdmin = false,
 }: {
   index: CharacterIndex;
   hallLabel: string;
   hallName: string;
+  /** Küratör anahtarını gösterir — yetki her istekte backend'de doğrulanır */
+  isAdmin?: boolean;
 }) {
   const t = useTranslations("character");
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [series, setSeries] = useState<string | null>(null);
+  const [curating, setCurating] = useState(false);
 
   const visible = useMemo(() => {
     const needle = query.trim().toLocaleLowerCase("tr");
@@ -81,6 +85,26 @@ export function CharacterGallery({
           </span>
           <h1 className={styles.title}>{t("title")}</h1>
           <p className={styles.lede}>{t("lede")}</p>
+
+          {/* Küratör anahtarı: anime salonundaki desenle aynı. Açıkken her
+              portrenin sağ üstünde "kaldır" düğmesi çıkıyor. */}
+          {isAdmin ? (
+            <div className={styles.curatorSwitch}>
+              <button
+                type="button"
+                className={curating ? styles.curatorOn : styles.curatorOff}
+                aria-pressed={curating}
+                onClick={() => setCurating((current) => !current)}
+              >
+                {curating ? t("indexCurator.on") : t("indexCurator.off")}
+              </button>
+              {curating ? (
+                <span className={styles.curatorHint}>
+                  {t("indexCurator.hint")}
+                </span>
+              ) : null}
+            </div>
+          ) : null}
         </header>
 
         <div className={styles.stats}>
@@ -161,6 +185,7 @@ export function CharacterGallery({
                 <CharacterPlate
                   character={character}
                   sizes="(max-width: 640px) 44vw, (max-width: 1100px) 22vw, 14vw"
+                  curating={curating}
                 />
               </li>
             ))}

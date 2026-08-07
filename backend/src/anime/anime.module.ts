@@ -8,6 +8,8 @@ import { JikanService } from './jikan.service';
 import { AnimeCron } from './anime.cron';
 import { CharacterImagesService } from './character-images.service';
 import { CharacterImagesAdminController } from './character-images.admin.controller';
+import { HiddenCharactersService } from './hidden-characters.service';
+import { HiddenCharactersAdminController } from './hidden-characters.admin.controller';
 
 @Module({
   imports: [PrismaModule],
@@ -15,6 +17,7 @@ import { CharacterImagesAdminController } from './character-images.admin.control
     AnimeController,
     AnimeAdminController,
     CharacterImagesAdminController,
+    HiddenCharactersAdminController,
   ],
   providers: [
     AnimeService,
@@ -22,6 +25,7 @@ import { CharacterImagesAdminController } from './character-images.admin.control
     JikanService,
     AnimeCron,
     CharacterImagesService,
+    HiddenCharactersService,
   ],
 })
 export class AnimeModule {}

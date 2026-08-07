@@ -18,6 +18,7 @@ import {
   CharacterImagesService,
   type CharacterImageRecord,
 } from './character-images.service';
+import { HiddenCharactersService } from './hidden-characters.service';
 import { slugify } from '../common/utils/slugify';
 import { CreateAnimeEntryDto } from './dto/create-anime-entry.dto';
 import { UpdateAnimeEntryDto } from './dto/update-anime-entry.dto';
@@ -185,6 +186,13 @@ export interface CharacterSeriesFacet {
   count: number;
 }
 
+/** Karakter dizininin yanıtı — derlenmiş hâli de süzülmüş hâli de bu şekilde. */
+export interface CharacterIndexPayload {
+  characters: ArchiveCharacter[];
+  series: CharacterSeriesFacet[];
+  stats: { characters: number; series: number; main: number };
+}
+
 /** Karakterin göründüğü yapım + arşivde karşılığı varsa kendi adresimiz. */
 export interface ArchiveCharacterAppearance extends AnilistCharacterAppearance {
   archiveSlug: string | null;
@@ -213,6 +221,7 @@ export class AnimeService {
     private readonly anilist: AnilistService,
     private readonly jikan: JikanService,
     private readonly characterImages: CharacterImagesService,
+    private readonly hiddenCharacters: HiddenCharactersService,
   ) {}
 
   // --- Public ---
@@ -350,11 +359,56 @@ export class AnimeService {
    * Cache anahtarı arşivdeki seri kimliklerinden türetiliyor: seri eklenince
    * ya da çıkarılınca anahtar değişir ve liste kendiliğinden tazelenir.
    */
-  async getCharacterIndex(): Promise<{
-    characters: ArchiveCharacter[];
-    series: CharacterSeriesFacet[];
-    stats: { characters: number; series: number; main: number };
-  }> {
+  async getCharacterIndex(): Promise<CharacterIndexPayload> {
+    /*
+     * Gizleme süzgeci ÖNBELLEKTEN SONRA uygulanıyor, önce değil.
+     *
+     * Derlenmiş dizin 24 saat cache'li ve anahtarı arşivdeki seri
+     * kimliklerinden türetiliyor. Gizleme cache'in içine karışsaydı,
+     * küratörün "kaldır" dediği karakter bir gün boyunca listede kalırdı
+     * (ya da her gizlemede anahtarı değiştirip bütün dizini yeniden
+     * derlemek gerekirdi — 17 AniList turu).
+     *
+     * Bu sırayla: pahalı derleme cache'te kalıyor, ucuz süzgeç her istekte
+     * çalışıyor ve gizleme anında etkili oluyor.
+     */
+    const [full, hidden] = await Promise.all([
+      this.buildCharacterIndex(),
+      this.hiddenCharacters.listIds(),
+    ]);
+    if (hidden.size === 0) {
+      return full;
+    }
+
+    const characters = full.characters.filter(
+      (character) => !hidden.has(character.characterId),
+    );
+
+    // Seri süzgecindeki sayılar da düşmeli: "Bleach · 12" yazarken listede
+    // 9 karakter göstermek küratöre yanlış bilgi verir
+    const perSeries = new Map<string, number>();
+    for (const character of characters) {
+      for (const series of character.series) {
+        perSeries.set(series.slug, (perSeries.get(series.slug) ?? 0) + 1);
+      }
+    }
+
+    return {
+      characters,
+      series: full.series
+        .map((facet) => ({ ...facet, count: perSeries.get(facet.slug) ?? 0 }))
+        // Bütün karakterleri gizlenmiş bir seri süzgeçte durmasın
+        .filter((facet) => facet.count > 0),
+      stats: {
+        characters: characters.length,
+        series: perSeries.size,
+        main: characters.filter((item) => item.role === 'MAIN').length,
+      },
+    };
+  }
+
+  /** Dizinin derlenmiş, süzülmemiş hâli — cache burada. */
+  private async buildCharacterIndex(): Promise<CharacterIndexPayload> {
     const rows = await this.prisma.animeEntry.findMany({
       where: { isDeleted: false },
       include: { parts: { orderBy: { orderIndex: 'asc' } } },
@@ -384,11 +438,7 @@ export class AnimeService {
       cached &&
       Date.now() - cached.fetchedAt.getTime() < CHARACTER_INDEX_TTL_MS
     ) {
-      return cached.payload as unknown as {
-        characters: ArchiveCharacter[];
-        series: CharacterSeriesFacet[];
-        stats: { characters: number; series: number; main: number };
-      };
+      return cached.payload as unknown as CharacterIndexPayload;
     }
 
     const casts = await mapWithLimit(
@@ -552,10 +602,15 @@ export class AnimeService {
       ),
     ];
 
-    const related = await this.collectRelated(
-      entries.filter((entry) => ownSeries.includes(entry.slug)),
-      characterId,
-    );
+    // "Yakındaki karakterler" de dizinin bir parçası: küratörün kaldırdığı
+    // bir karakter oradan da çıkmalı, yoksa gizleme yarım kalır
+    const hidden = await this.hiddenCharacters.listIds();
+    const related = (
+      await this.collectRelated(
+        entries.filter((entry) => ownSeries.includes(entry.slug)),
+        characterId,
+      )
+    ).filter((item) => !hidden.has(item.characterId));
 
     return { character, appearances, related, images };
   }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/lib/i18n/navigation";
 import type { CharacterIndex } from "@/lib/api/types";
@@ -31,10 +31,51 @@ export function CharacterGallery({
   const [query, setQuery] = useState("");
   const [series, setSeries] = useState<string | null>(null);
   const [curating, setCurating] = useState(false);
+  /**
+   * Küratörün bu oturumda kaldırdığı karakterler.
+   *
+   * Durum burada duruyor, kartın içinde değil: düğme kendi `hidden` bayrağını
+   * tutarken dizin hangi karakterin gizlendiğini hiç öğrenmiyordu ve küratör
+   * modu kapanınca kart hiç kaldırılmamış gibi geri geliyordu.
+   *
+   * Küme her değişiklikte kopyalanıyor: React referans eşitliğine bakıyor,
+   * aynı `Set`i yerinde değiştirmek yeniden çizim tetiklemezdi.
+   */
+  const [hiddenIds, setHiddenIds] = useState<ReadonlySet<number>>(
+    () => new Set(),
+  );
+
+  /**
+   * Düğmeden gelen bildirim. Yalnızca istek BAŞARILIYSA geliyor
+   * (bkz. `CharacterHideButton`): istek düştüyse karakter gerçekte gizlenmedi,
+   * onu listeden düşürmek küratöre yalan söylemek olurdu.
+   */
+  const markHidden = useCallback((characterId: number, hidden: boolean) => {
+    setHiddenIds((current) => {
+      // Durum değişmediyse eski küme dönüyor — gereksiz yeniden çizim yok
+      if (current.has(characterId) === hidden) {
+        return current;
+      }
+      const next = new Set(current);
+      if (hidden) {
+        next.add(characterId);
+      } else {
+        next.delete(characterId);
+      }
+      return next;
+    });
+  }, []);
 
   const visible = useMemo(() => {
     const needle = query.trim().toLocaleLowerCase("tr");
     return index.characters.filter((character) => {
+      // Kaldırılan kart küratör modu AÇIKKEN yerinde kalıyor (soluyor, düğmesi
+      // "geri al" oluyor) — yanlışlıkla kaldırılan karakter listedeki sırasını
+      // kaybetmesin diye. Mod kapanınca dizin ziyaretçinin göreceği hâline
+      // dönüyor ve gizlenenler ızgaradan düşüyor.
+      if (!curating && hiddenIds.has(character.characterId)) {
+        return false;
+      }
       if (series && !character.series.some((item) => item.slug === series)) {
         return false;
       }
@@ -52,7 +93,46 @@ export function CharacterGallery({
         )
       );
     });
-  }, [index.characters, query, series]);
+  }, [curating, hiddenIds, index.characters, query, series]);
+
+  /**
+   * Ekrandaki sayaçlar.
+   *
+   * Sunucudan geleni olduğu gibi basmak yerine gizlenenler ANINDA düşülüyor:
+   * "195 karakter" yazarken ızgarada 194 kart görmek çelişkili görünür.
+   * Tazelemeye bırakmak yetmez: `router.refresh()` sunucuya bir tur demek ve
+   * ızgara `hiddenIds` sayesinde ANINDA düşüyor — sayaç arkadan gelirse
+   * kullanıcı iki farklı sayı arasında bir an çelişki görür.
+   *
+   * Çıkarma ELDEKİ listeye bakarak yapılıyor: taze liste gizlenenleri zaten
+   * içermediğinde ikinci kez düşülmesin (sayaç eksiye kaymasın).
+   *
+   * Seri sayısı sunucuya bırakıldı: bir karakterin gizlenmesi ancak serisinin
+   * son karakteriyse bu sayıyı oynatır ve o durumda süzgeç şeridinin de
+   * (`index.series`) yeniden kurulması, seçili serinin kaybolması gerekirdi.
+   * Göz bu sayıyı ızgaradan sayamadığı için çelişki de doğurmuyor.
+   */
+  const stats = useMemo(() => {
+    if (curating || hiddenIds.size === 0) {
+      return index.stats;
+    }
+    let removed = 0;
+    let removedMain = 0;
+    for (const character of index.characters) {
+      if (!hiddenIds.has(character.characterId)) {
+        continue;
+      }
+      removed += 1;
+      if (character.role === "MAIN") {
+        removedMain += 1;
+      }
+    }
+    return {
+      characters: index.stats.characters - removed,
+      main: index.stats.main - removedMain,
+      series: index.stats.series,
+    };
+  }, [curating, hiddenIds, index.characters, index.stats]);
 
   /**
    * "Rastgele bir dosya çek" — müzenin kendi jesti: çekmeceden gelişigüzel
@@ -70,6 +150,26 @@ export function CharacterGallery({
   };
 
   const isFiltered = query.trim().length > 0 || series !== null;
+
+  /**
+   * Küratör anahtarı. Mod KAPANIRKEN `router.refresh()` çağrılıyor.
+   *
+   * ⚠️ Kartı ızgaradan gerçekten düşüren şey tazeleme DEĞİL, aşağıdaki
+   * `hiddenIds` istemci süzgeci. Tazeleme yalnızca ikinci bir emniyet:
+   * sunucu listesi eninde sonunda gizlenenleri elenmiş getirir, ama o an
+   * gelmeyebilir (ağ, yarış, uçtaki önbellek). İkisi çakışmıyor — liste
+   * gerçekten tazelendiyse kümedeki kimlikler zaten listede yok.
+   *
+   * Bu yüzden `hiddenIds` süzgeci "gereksiz tekrar" değil: silinirse
+   * düzeltilen hata (mod kapanınca karakter geri geliyor) doğrudan döner.
+   */
+  const toggleCurating = () => {
+    const next = !curating;
+    setCurating(next);
+    if (!next) {
+      router.refresh();
+    }
+  };
 
   return (
     <div className={styles.hall} data-category="anime">
@@ -94,7 +194,7 @@ export function CharacterGallery({
                 type="button"
                 className={curating ? styles.curatorOn : styles.curatorOff}
                 aria-pressed={curating}
-                onClick={() => setCurating((current) => !current)}
+                onClick={toggleCurating}
               >
                 {curating ? t("indexCurator.on") : t("indexCurator.off")}
               </button>
@@ -110,15 +210,15 @@ export function CharacterGallery({
         <div className={styles.stats}>
           <div className={styles.statCard}>
             <span className={styles.statLabel}>{t("stats.characters")}</span>
-            <span className={styles.statValue}>{index.stats.characters}</span>
+            <span className={styles.statValue}>{stats.characters}</span>
           </div>
           <div className={styles.statCard}>
             <span className={styles.statLabel}>{t("stats.main")}</span>
-            <span className={styles.statValue}>{index.stats.main}</span>
+            <span className={styles.statValue}>{stats.main}</span>
           </div>
           <div className={styles.statCard}>
             <span className={styles.statLabel}>{t("stats.series")}</span>
-            <span className={styles.statValue}>{index.stats.series}</span>
+            <span className={styles.statValue}>{stats.series}</span>
           </div>
         </div>
 
@@ -186,6 +286,8 @@ export function CharacterGallery({
                   character={character}
                   sizes="(max-width: 640px) 44vw, (max-width: 1100px) 22vw, 14vw"
                   curating={curating}
+                  hidden={hiddenIds.has(character.characterId)}
+                  onHiddenChange={markHidden}
                 />
               </li>
             ))}

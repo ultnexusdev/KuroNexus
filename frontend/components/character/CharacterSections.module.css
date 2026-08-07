@@ -384,18 +384,41 @@
    kirpiliyordu; 2/3 (0.667) kirpmayi neredeyse sifira indiriyor.
 
    ⚠️ `display: block` ZORUNLU ve silinmemeli.
-   Bu kutu bir <a>/<span>, yani varsayilan olarak SATIR ICI. Satir ici
-   ogelerde `aspect-ratio` ve yukseklik uygulanmaz: kutu sifir yukseklige
-   duser ve `fill` ile cizilen gorsel hic gorunmez. Canlida tam bu oldu
-   (6 Agustos 2026) — galeride yalnizca ince dikey cizgiler kaldi.
+   Satir ici ogelerde `aspect-ratio` ve yukseklik uygulanmaz: kutu sifir
+   yukseklige duser ve `fill` ile cizilen gorsel hic gorunmez. Canlida tam
+   bu oldu (6 Agustos 2026) — galeride yalnizca ince dikey cizgiler kaldi.
 
    Sayfadaki diger yuvarlak/kare kutular (savas portresi, yetenek karesi)
    ayni <span> oldugu halde calisiyor cunku hepsi bir flex kapsayicinin
    cocugu ve flex cocuklari blok hale getirilir. Bu kutu ise <li> icinde
-   dogrudan duruyor, o yuzden kendi `display`ini yazmak zorunda. */
+   dogrudan duruyor, o yuzden kendi `display`ini yazmak zorunda.
+
+   ⚠️ `width: 100%` de ZORUNLU. Kutu artik bir <button> (bkz.
+   CharacterGalleryLightbox) ve dugmeler icerige gore daralir; icerideki tek
+   sey mutlak konumlu `fill` gorseli oldugu icin genislik sifira duserdi —
+   yukaridaki satir ici tuzaginin yatay ikizi.
+
+   `outline` YAZILMIYOR: globals.css'teki genel :focus-visible kurali
+   `:where()` ile ozgullugu sifir tutuyor, buradaki her kural onu ezer ve
+   klavye kullanicisi odak halkasini kaybederdi. */
 .galleryItem {
   position: relative;
   display: block;
+  /* Tarayicinin varsayilan dugme gorunumunu sifirla: yoksa gri bir kutu,
+     kendi kenarligi ve kucuk sistem yazi tipiyle kalir.
+
+     `box-sizing` ozellikle: projede genel bir sifirlama YOK (bkz.
+     globals.css) ve dugmelerin varsayilani `content-box` — `width: 100%` +
+     0.5px kenarlik kutuyu izgara gozunden tasirirdi. Eski <a> (width:auto)
+     bu sorunu hic yasamiyordu. Ayni yerel cozum `.galleryEmpty`de de var. */
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  cursor: zoom-in;
   aspect-ratio: 2 / 3;
   overflow: hidden;
   border: 0.5px solid var(--border);
@@ -404,7 +427,8 @@
   transition: border-color 160ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-/* Kutu artik bir baglanti: tiklayinca gorselin tam boyu aciliyor */
+/* Kutu artik bir dugme: tiklayinca gorselin tam boyu AYNI sayfada,
+   buyutme penceresinde aciliyor (eskiden yeni sekmeye cikan baglantiydi) */
 .galleryItem:hover,
 .galleryItem:focus-visible {
   border-color: var(--accent-muted);

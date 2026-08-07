@@ -11,6 +11,7 @@ import { ShowBackdrop } from "./ShowBackdrop";
 import { ShowCard, Poster } from "./ShowCard";
 import styles from "./ShowHall.module.css";
 import { ArchiveUnavailable } from "@/components/hall/ArchiveUnavailable";
+import { ScrollStrip } from "@/components/hall/ScrollStrip";
 
 /**
  * Salon 02 · Dizi — film salonundaki `FilmHall`ın aynısı. Rafların yanına
@@ -58,6 +59,8 @@ export function ShowHall({
 }) {
   const t = useTranslations("show");
   const tStories = useTranslations("stories");
+  // Gerekçe FilmHall'da yazılı: yön sözcükleri komşu sözlükte hazır duruyor
+  const tNav = useTranslations("player");
   const [genre, setGenre] = useState<string | null>(null);
   const [curating, setCurating] = useState(false);
   const [tonight, setTonight] = useState<ArchiveShow | null>(null);
@@ -294,43 +297,52 @@ export function ShowHall({
             {recent.length > 0 ? (
               <section className={styles.stripSection}>
                 <h2 className={styles.sectionTitle}>{t("recent")}</h2>
-                <div className={styles.strip}>
-                  <ul
-                    className={styles.stripTrack}
-                    /* Klavyeyle kaydırılabilsin: odaklanabilir olmayan bir
-                       kaydırma kutusu fare olmadan erişilemez kalıyordu */
-                    tabIndex={0}
-                    aria-label={t("recent")}
-                  >
-                    {recent.map((show) => (
-                      <li key={show.id} className={styles.frame}>
-                        <Link
-                          href={`/dark-stories/category/dizi/${show.slug}`}
-                          className={styles.framePoster}
-                        >
-                          <Poster
-                            show={show}
-                            size="w185"
-                            sizes="(max-width: 640px) 30vw, 140px"
-                          />
-                        </Link>
-                        <p className={styles.frameTitle}>
+                {/* Kabuğun gerekçesi FilmHall'da: gizli kaydırma çubuğu
+                    yüzünden masaüstünde şeridi fareyle kaydırmanın yolu yoktu */}
+                <ScrollStrip
+                  className={styles.strip}
+                  prevLabel={tNav("previous")}
+                  nextLabel={tNav("next")}
+                >
+                  {(trackRef) => (
+                    <ul
+                      ref={trackRef}
+                      className={styles.stripTrack}
+                      /* Klavyeyle kaydırılabilsin: odaklanabilir olmayan bir
+                         kaydırma kutusu fare olmadan erişilemez kalıyordu */
+                      tabIndex={0}
+                      aria-label={t("recent")}
+                    >
+                      {recent.map((show) => (
+                        <li key={show.id} className={styles.frame}>
                           <Link
                             href={`/dark-stories/category/dizi/${show.slug}`}
-                            className={styles.titleLink}
+                            className={styles.framePoster}
                           >
-                            {show.title}
+                            <Poster
+                              show={show}
+                              size="w185"
+                              sizes="(max-width: 640px) 30vw, 140px"
+                            />
                           </Link>
-                        </p>
-                        <p className={styles.frameDate}>
-                          {show.watchedAt
-                            ? dateFormatter.format(new Date(show.watchedAt))
-                            : ""}
-                        </p>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                          <p className={styles.frameTitle}>
+                            <Link
+                              href={`/dark-stories/category/dizi/${show.slug}`}
+                              className={styles.titleLink}
+                            >
+                              {show.title}
+                            </Link>
+                          </p>
+                          <p className={styles.frameDate}>
+                            {show.watchedAt
+                              ? dateFormatter.format(new Date(show.watchedAt))
+                              : ""}
+                          </p>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </ScrollStrip>
               </section>
             ) : null}
 

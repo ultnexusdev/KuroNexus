@@ -23,13 +23,24 @@ const EMPTY_INDEX: CharacterIndex = {
  * Dizin. Kaynak düşerse salon boş açılır, sayfa çökmez — arşivin geri kalanı
  * (AGENTS.md kural 4) aynı davranışı gösteriyor.
  *
- * Önbellek bir saat: liste backend'de zaten günlük cache'li, buradaki kısa
- * pencere yalnızca aynı dakika içindeki tekrar isteklerini eler.
+ * ── NEDEN `no-store` ──────────────────────────────────────────────────────
+ * Burada bir saatlik önbellek vardı ve küratör modunu ölçülebilir biçimde
+ * bozuyordu: küratör bir karakteri dizinden çıkarıyor, sayfayı yeniliyor ve
+ * karakter geri geliyordu — dışlama listesi backend'de işlese bile Next
+ * önbellekten eski listeyi veriyordu. Bekleme bir saate kadar çıkabiliyordu,
+ * yani "kaldırdım ama duruyor" hatası kullanıcıya rastgele görünüyordu.
+ *
+ * `getCharacterDetail` aynı gerekçeyle zaten `no-store`: küratörün yüklediği
+ * görsel anında görünsün diye. Dizin de aynı hizada.
+ *
+ * Bedeli küçük: liste backend'de günlük cache'li, buradaki istek kendi
+ * API'mize bir tur. Önbelleğin elediği şey yalnızca aynı dakika içindeki
+ * tekrar isteklerdi; küratörün doğru liste görmesi ondan ağır basıyor.
  */
 export async function getCharacterIndex(): Promise<CharacterIndex> {
   try {
     return await apiFetch<CharacterIndex>("/anime/characters", {
-      next: { revalidate: 3600 },
+      cache: "no-store",
     });
   } catch {
     return EMPTY_INDEX;

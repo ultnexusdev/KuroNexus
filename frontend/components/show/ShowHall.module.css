@@ -213,18 +213,23 @@
   /* KAYDIRMA IPUCU. Scrollbar iki motorda da gizli ve serit ekran kenarinda
      duz kesiliyordu: "devami var" bilgisini yalnizca kazara kaydiran
      kullanici ogreniyordu. Kenar solmasi o bilgiyi gorunur kiliyor —
-     JS gerekmiyor, tek kural. */
+     JS gerekmiyor, tek kural.
+
+     Iki yan da 44px: ScrollStrip'in ok dugmeleri tam bu genislikte ve
+     seridin uzerinde duruyorlar. Sol solma eskiden 20px'ti, yani sol ok
+     hic solmamis opak bir posterin uzerine oturuyordu; o posterin
+     yarisi gorunur oldugu halde tiklamasi oka gidiyordu. */
   mask-image: linear-gradient(
     to right,
     transparent 0,
-    #000 20px,
+    #000 44px,
     #000 calc(100% - 44px),
     transparent 100%
   );
   -webkit-mask-image: linear-gradient(
     to right,
     transparent 0,
-    #000 20px,
+    #000 44px,
     #000 calc(100% - 44px),
     transparent 100%
   );
@@ -456,9 +461,22 @@
 
 /* --- Poster karti --- */
 
+/* Kart, izgara hucresinin TAMAMINI kaplar.
+   7 Agustos 2026: bu salonda hizasizlik en gorunur olaniydi, cunku sezon
+   ilerlemesi KOSULLU ciziliyor (ShowCard: `season && status !== WATCHLIST`,
+   cubuk ayrica yalnizca bolum sayisi bilinen sezonda). Yani ayni rafta bir
+   kart iki satir daha tasiyor, komsusu tasimiyor; yukseklik icerikten
+   geldigi surece alt kenarlar zorunlu olarak kayiyordu.
+
+   Cozum anime salonundakinin ayni (bkz. AnimeHall.module.css .card):
+   (1) kart hucre yuksekligini doldurur, (2) kunye satiri `margin-top: auto`
+   ile en alta yapisir. Ilerleme satirlari basligin hemen altinda kalir,
+   artan bosluk kunyenin USTUNDE toplanir — yani cubuk hicbir seyi asagi
+   itmez, sadece o kartta bosluk daha az olur. Rafin alt kenari duz. */
 .card {
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
 .posterWrap {
@@ -564,8 +582,25 @@
   color: var(--text-primary);
   font-size: 0.76rem;
   font-weight: 500;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.3;
+  /* En fazla iki satir. Onceden ad tek satira zorlaniyordu (`nowrap` +
+     ellipsis) ve dar kolonda uzun dizi adlari daha ilk kelimede
+     kesiliyordu. Iki satir adlarin buyuk cogunlugunu tam gosteriyor;
+     tasan azinlik uc noktayla kesilmeye devam ediyor. Satir sayisi karttan
+     karta degistigi icin bu kural tek basina yeterli degil — .card ve
+     .cardMeta ile birlikte calisir. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  /* SABIT IKI SATIR YERI (min-height + clamp = her zaman tam iki satir).
+     Yalnizca clamp yeterli degildi: tek satirlik adi olan kart ("Peacemaker")
+     ile iki satirliginin ("A Knight of the Seven Kingdoms") ALTINDAKI her sey
+     bir satir kayiyordu — sezon satiri ve mavi ilerleme cubugu raf boyunca
+     zikzak ciziyordu. Alt kenar `.cardMeta`nin `auto` marjiyla zaten hizali;
+     eksik olan basligin altindaki blogun ayni yerden baslamasiydi.
+     2.6em = 2 x line-height (1.3); `em` oldugu icin yazi boyutu degisirse
+     birlikte olceklenir. */
+  min-height: 2.6em;
 }
 
 .titleLink {
@@ -621,7 +656,11 @@
   display: flex;
   justify-content: space-between;
   gap: var(--gap-sm);
-  margin: 2px 0 0;
+  /* `auto`: kunye satiri en alta yapisir. Ilerlemesi olan kartla olmayan
+     kart yan yana geldiginde fark buradaki bosluga yaziliyor, alt kenara
+     degil (bkz. .card notu) */
+  margin: auto 0 0;
+  padding-top: 2px;
   color: var(--text-muted);
   font-family: var(--font-bebas), var(--font-sans);
   font-size: 0.76rem;

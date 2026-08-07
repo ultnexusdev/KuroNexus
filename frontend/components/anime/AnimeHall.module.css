@@ -365,6 +365,15 @@
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
+  /* SABIT IKI SATIR YERI (min-height + clamp = her zaman tam iki satir).
+     Clamp tek basina yalnizca UST siniri koyuyordu: "Bleach" tek satir,
+     "Hell's Paradise" iki satir kapliyor ve ikincisinin ALTINDAKI her sey
+     bir satir asagi kaciyordu — bolum satiri ve mor ilerleme cubugu raf
+     boyunca zikzak ciziyordu. Kartin alt satiri `.cardMeta`nin `auto`
+     marjiyla zaten hizaliydi; kayan sey aradaki bloktu.
+     2.6em = 2 x line-height (1.3); `em` oldugu icin yazi boyutuyla
+     birlikte olceklenir. */
+  min-height: 2.6em;
 }
 
 .cardProgress {

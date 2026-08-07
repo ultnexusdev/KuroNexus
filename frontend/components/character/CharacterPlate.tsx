@@ -26,11 +26,24 @@ export function CharacterPlate({
   showSeries = true,
   /** Küratör modu açıkken portrenin sağ üstünde "kaldır" düğmesi çıkar. */
   curating = false,
+  /** Küratör bu karakteri zaten kaldırdıysa düğme "geri al" olarak açılır. */
+  hidden = false,
+  /**
+   * Gizleme/geri alma isteği BAŞARIYLA bittiğinde çağrılır.
+   *
+   * Kart bunu kendi başına kullanmıyor, yalnızca yukarı taşıyor: hangi
+   * karakterin ızgaradan düşeceğine listeyi kuran bileşen karar veriyor
+   * (`CharacterGallery`). Kartın dosya sayfasındaki kullanımı bu prop'u hiç
+   * vermiyor — küratör düğmesi orada zaten çizilmiyor.
+   */
+  onHiddenChange,
 }: {
   character: ArchiveCharacter;
   sizes: string;
   showSeries?: boolean;
   curating?: boolean;
+  hidden?: boolean;
+  onHiddenChange?: (characterId: number, hidden: boolean) => void;
 }) {
   const t = useTranslations("character");
   const href = `/dark-stories/category/anime/karakterler/${character.characterId}`;
@@ -44,6 +57,8 @@ export function CharacterPlate({
         <CharacterHideButton
           characterId={character.characterId}
           name={character.name}
+          defaultHidden={hidden}
+          onChange={onHiddenChange}
         />
       ) : null}
       <Link

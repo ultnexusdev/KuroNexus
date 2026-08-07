@@ -11,6 +11,7 @@ import { FilmBackdrop } from "./FilmBackdrop";
 import { MovieCard, Poster } from "./MovieCard";
 import styles from "./FilmHall.module.css";
 import { ArchiveUnavailable } from "@/components/hall/ArchiveUnavailable";
+import { ScrollStrip } from "@/components/hall/ScrollStrip";
 
 /**
  * Salon 02 · Film — "Projeksiyon Salonu".
@@ -65,6 +66,11 @@ export function FilmHall({
 }) {
   const t = useTranslations("film");
   const tStories = useTranslations("stories");
+  /* Şerit oklarının etiketi komşu sözlükten geliyor: "Önceki/Sonraki" salt
+     yön sözcüğü, alanla ilgisi yok ve çalar sözlüğünde iki dilde de hazır
+     duruyor. Aynı iki kelimeyi ikinci bir anahtar çiftinde tekrarlamak
+     çevirinin iki yerde ayrışmasına açık kapı bırakırdı. */
+  const tNav = useTranslations("player");
   const [genre, setGenre] = useState<string | null>(null);
   const [curating, setCurating] = useState(false);
   const [tonight, setTonight] = useState<ArchiveMovie | null>(null);
@@ -307,45 +313,55 @@ export function FilmHall({
             {recent.length > 0 ? (
               <section className={styles.stripSection}>
                 <h2 className={styles.sectionTitle}>{t("recent")}</h2>
-                {/* İmza: perforasyonlu 35 mm şerit, kareler poster */}
-                <div className={styles.strip}>
-                  <ul
-                    className={styles.stripTrack}
-                    /* Klavyeyle kaydırılabilsin: odaklanabilir olmayan bir
-                       kaydırma kutusu fare olmadan erişilemez kalıyordu */
-                    tabIndex={0}
-                    aria-label={t("recent")}
-                  >
-                    {recent.map((movie) => (
-                      <li key={movie.id} className={styles.frame}>
-                        {/* Şeritteki kareler de tıklanabilir */}
-                        <Link
-                          href={`/dark-stories/category/film/${movie.slug}`}
-                          className={styles.framePoster}
-                        >
-                          <Poster
-                            movie={movie}
-                            size="w185"
-                            sizes="(max-width: 640px) 30vw, 140px"
-                          />
-                        </Link>
-                        <p className={styles.frameTitle}>
+                {/* İmza: perforasyonlu 35 mm şerit, kareler poster.
+                    Kabuk şeride fareyle kaydırma yolu ekliyor (ok, tekerlek,
+                    sürükleme) — kaydırma çubuğu gizli olduğu için masaüstünde
+                    hiçbiri yoktu. Bkz. `components/hall/ScrollStrip.tsx`. */}
+                <ScrollStrip
+                  className={styles.strip}
+                  prevLabel={tNav("previous")}
+                  nextLabel={tNav("next")}
+                >
+                  {(trackRef) => (
+                    <ul
+                      ref={trackRef}
+                      className={styles.stripTrack}
+                      /* Klavyeyle kaydırılabilsin: odaklanabilir olmayan bir
+                         kaydırma kutusu fare olmadan erişilemez kalıyordu */
+                      tabIndex={0}
+                      aria-label={t("recent")}
+                    >
+                      {recent.map((movie) => (
+                        <li key={movie.id} className={styles.frame}>
+                          {/* Şeritteki kareler de tıklanabilir */}
                           <Link
                             href={`/dark-stories/category/film/${movie.slug}`}
-                            className={styles.titleLink}
+                            className={styles.framePoster}
                           >
-                            {movie.title}
+                            <Poster
+                              movie={movie}
+                              size="w185"
+                              sizes="(max-width: 640px) 30vw, 140px"
+                            />
                           </Link>
-                        </p>
-                        <p className={styles.frameDate}>
-                          {movie.watchedAt
-                            ? dateFormatter.format(new Date(movie.watchedAt))
-                            : ""}
-                        </p>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                          <p className={styles.frameTitle}>
+                            <Link
+                              href={`/dark-stories/category/film/${movie.slug}`}
+                              className={styles.titleLink}
+                            >
+                              {movie.title}
+                            </Link>
+                          </p>
+                          <p className={styles.frameDate}>
+                            {movie.watchedAt
+                              ? dateFormatter.format(new Date(movie.watchedAt))
+                              : ""}
+                          </p>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </ScrollStrip>
               </section>
             ) : null}
 

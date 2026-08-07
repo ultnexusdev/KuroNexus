@@ -5,7 +5,10 @@ import { apiUrl, isLocalUpload } from "@/lib/api/client";
 import { pick, type CharacterOverlay } from "@/lib/characters/types";
 import type { CharacterImage } from "@/lib/api/types";
 import { CuratorSlot } from "./CuratorSlot";
-import { CharacterImageDelete } from "./CharacterImageDelete";
+import {
+  CharacterGalleryLightbox,
+  type CharacterGalleryItem,
+} from "./CharacterGalleryLightbox";
 import styles from "./CharacterSections.module.css";
 
 /**
@@ -18,8 +21,9 @@ import styles from "./CharacterSections.module.css";
  * Her bölüm kendi verisi yoksa `null` döndürüyor — bir karakterin yalnızca
  * replikleri varsa sayfada yalnızca replikler görünür, boş başlık kalmaz.
  *
- * Sunucu bileşenleri: hiçbiri durum tutmuyor. Tek istisna galeri yükleyicisi,
- * o kendi dosyasında ve yalnızca kürator modunda iniyor.
+ * Sunucu bileşenleri: hiçbiri durum tutmuyor. İstisnalar kendi dosyalarında —
+ * galeri yükleyicisi (yalnızca kürator modunda iner) ve galerinin büyütme
+ * penceresi (`CharacterGalleryLightbox`, yalnızca "hangi görsel açık" durumu).
  */
 
 const CHARACTER_HREF = "/dark-stories/category/anime/karakterler";
@@ -379,6 +383,14 @@ export function BondList({
  * TAMAMEN oradan çiziliyor; hiç eklenmemişse koddaki varsayılan liste
  * kullanılıyor. İkisini birleştirmek, küratörün sildiği bir görselin
  * kodda kalıp silinemez görünmesine yol açardı.
+ *
+ * Burası yalnızca listeyi HAZIRLIYOR (dil seçimi, tam adres, optimizasyon
+ * bayrağı); çizimi `CharacterGalleryLightbox` yapıyor. Küçük hâller eskiden
+ * yeni sekmeye çıkan düz bağlantılardı ve gerekçe "sayfaya JS eklemeden aynı
+ * işi görüyor" diye yazılıydı. O gerekçe artık geçersiz: film/dizi
+ * salonlarına sahne kareleri için `hall/Lightbox` girdi ve aynı jest sitenin
+ * iki odasında iki farklı şey yapmaya başladı. Galeri de o pencereye bağlandı
+ * — üstelik bu, tam boyu görmek için sayfadan çıkmayı da bitiriyor.
  */
 export function Gallery({
   overlay,
@@ -391,63 +403,32 @@ export function Gallery({
 }) {
   const locale = useLocale();
 
-  const items =
+  /* `unoptimized` bayrağı HAM yoldan hesaplanıyor, `apiUrl`den geçmiş
+     hâlinden değil: `isLocalUpload` "/uploads/" önekine bakıyor ve mutlak
+     adres o testi geçemez — geçseydi kendi yüklemelerimiz de optimizasyon
+     dışında kalırdı. */
+  const items: CharacterGalleryItem[] =
     stored.length > 0
       ? stored.map((image) => ({
           key: image.id,
-          id: image.id as string | null,
-          src: image.url,
+          id: image.id,
+          src: apiUrl(image.url),
           alt: image.altText ?? "",
           caption: image.caption,
+          unoptimized: !isLocalUpload(image.url),
         }))
       : (overlay.gallery ?? []).map((image) => ({
           key: image.src,
           id: null,
-          src: image.src,
+          src: apiUrl(image.src),
           alt: pick(image.alt, locale),
           caption: image.caption ? pick(image.caption, locale) : null,
+          unoptimized: !isLocalUpload(image.src),
         }));
 
   if (items.length === 0) {
     return null;
   }
 
-  return (
-    <ul className={styles.gallery}>
-      {items.map((item) => (
-        <li key={item.key}>
-          {/* Kutu bir bağlantı: tıklayınca görselin TAM BOYU açılıyor.
-              Izgaradaki küçük hâl kırpılmış ve küçültülmüş; asıl dosyayı
-              görmek isteyen yeni sekmede tamamını alıyor. Lightbox yerine
-              düz bağlantı seçildi — sayfaya JS eklemeden aynı işi görüyor. */}
-          <a
-            href={apiUrl(item.src)}
-            className={styles.galleryItem}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={item.alt || undefined}
-          >
-            <Image
-              src={apiUrl(item.src)}
-              alt={item.alt}
-              fill
-              sizes="(max-width: 640px) 45vw, 220px"
-              className={styles.galleryImg}
-              unoptimized={!isLocalUpload(item.src)}
-            />
-          </a>
-          {item.caption ? (
-            <span className={styles.galleryCaption}>{item.caption}</span>
-          ) : null}
-          {/* Silme yalnızca veritabanı kayıtlarında: koddaki varsayılanlar
-              buradan kaldırılamaz, onlar veri dosyasında duruyor. */}
-          {isAdmin && item.id ? (
-            <span data-curator-slot>
-              <CharacterImageDelete id={item.id} />
-            </span>
-          ) : null}
-        </li>
-      ))}
-    </ul>
-  );
+  return <CharacterGalleryLightbox items={items} isAdmin={isAdmin} />;
 }

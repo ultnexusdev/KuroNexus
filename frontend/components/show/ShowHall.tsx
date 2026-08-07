@@ -31,7 +31,16 @@ const SuggestionShelf = dynamic(
   { ssr: false },
 );
 
-const STRIP_LIMIT = 8;
+/*
+ * Şerit kaç kare taşır.
+ *
+ * 8'di, kullanıcı isteğiyle 21'e çıktı (7 Ağustos 2026). Kaydırma zaten
+ * vardı ama kullanıcının göremediği bir kaydırmaydı: kenarda hiçbir işaret
+ * yoktu, son kare ekranın kenarında düz kesiliyordu. Sayıyı artırmak tek
+ * başına yetmezdi — kenar solması ve klavye erişimi onunla birlikte geldi
+ * (bkz. ShowHall.module.css .stripTrack).
+ */
+const STRIP_LIMIT = 21;
 const ROW_LIMIT = 6;
 
 export function ShowHall({
@@ -286,8 +295,13 @@ export function ShowHall({
               <section className={styles.stripSection}>
                 <h2 className={styles.sectionTitle}>{t("recent")}</h2>
                 <div className={styles.strip}>
-                  <span className={styles.perforation} aria-hidden />
-                  <ul className={styles.stripTrack}>
+                  <ul
+                    className={styles.stripTrack}
+                    /* Klavyeyle kaydırılabilsin: odaklanabilir olmayan bir
+                       kaydırma kutusu fare olmadan erişilemez kalıyordu */
+                    tabIndex={0}
+                    aria-label={t("recent")}
+                  >
                     {recent.map((show) => (
                       <li key={show.id} className={styles.frame}>
                         <Link
@@ -316,7 +330,6 @@ export function ShowHall({
                       </li>
                     ))}
                   </ul>
-                  <span className={styles.perforation} aria-hidden />
                 </div>
               </section>
             ) : null}

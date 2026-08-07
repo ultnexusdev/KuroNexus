@@ -1,0 +1,191 @@
+/* Gorsel buyutme penceresi.
+
+   Renkler token'lardan (AGENTS.md kural 16). Karartma saf siyah DEGIL:
+   sitenin kendi murekkep zemini uzerine yuksek opaklik — saf siyah, gecenin
+   icinde ikinci bir "hicligin" gibi duruyor ve gorseli fazla sert cerceveliyor.
+
+   Golge/parlama yok. Pencerenin kenari yok: gorsel bosluga asili duruyor,
+   cerceve cizmek muze duvarina ikinci bir cerceve asmak gibi olurdu. */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Kenarlarda nefes: gorsel ekrana yapismasin, kontroller icin yer kalsin */
+  padding: clamp(48px, 7vw, 88px) clamp(16px, 6vw, 96px);
+  background: color-mix(in srgb, var(--hub-ink) 92%, transparent);
+  backdrop-filter: blur(6px);
+  animation: lightboxIn 200ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* Sahne: gorselin oturdugu alan. `contain` sart — kirpma yok, tam boy. */
+.stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.image {
+  object-fit: contain;
+  /* Gorselin kenari: koyu zeminde saydam beyaz hat, gorseli zeminden ayirir
+     ama cerceve gibi durmaz */
+  outline: 1px solid rgba(255, 255, 255, 0.08);
+  outline-offset: -1px;
+  animation: lightboxImage 240ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* --- Kontroller ---
+   Hepsi ayni dil: dairesel, ince kenarlikli, yari saydam. Ikon degil
+   karakter kullaniliyor (✕ ‹ ›) cunku projede ikon sistemi yok ve tek bir
+   yer icin ikon seti getirmek yeni bir gorsel dil acardi. */
+
+.close,
+.nav {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--touch-min);
+  min-height: var(--touch-min);
+  padding: 0;
+  border: 0.5px solid var(--border-strong);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--hub-soot) 78%, transparent);
+  color: var(--text-secondary);
+  font-family: inherit;
+  line-height: 1;
+  cursor: pointer;
+  backdrop-filter: blur(3px);
+  transition:
+    color 160ms cubic-bezier(0.23, 1, 0.32, 1),
+    border-color 160ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.close:hover,
+.nav:hover {
+  border-color: var(--accent-muted);
+  color: var(--text-primary);
+}
+
+.close:focus-visible,
+.nav:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 2px;
+}
+
+.close:active,
+.nav:active {
+  transform: scale(0.96);
+}
+
+/* Kapatma: sag ust (kullanici istegi) */
+.close {
+  top: clamp(12px, 2.5vw, 28px);
+  right: clamp(12px, 2.5vw, 28px);
+  font-size: 1.05rem;
+}
+
+.nav {
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.8rem;
+  /* Ok karakteri optik olarak yukari kaciyor; asagi cekiyoruz */
+  padding-bottom: 4px;
+}
+
+.nav:active {
+  transform: translateY(-50%) scale(0.96);
+}
+
+.prev {
+  left: clamp(8px, 2vw, 28px);
+}
+
+.next {
+  right: clamp(8px, 2vw, 28px);
+}
+
+/* Sayac: altta ortada, salonlarin etiket diliyle (Bebas + aralikli) */
+.counter {
+  position: absolute;
+  bottom: clamp(14px, 3vw, 30px);
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  color: var(--text-muted);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.9rem;
+  letter-spacing: 0.22em;
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes lightboxIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Gorsel hicten degil, kendi olcusune yakin bir yerden aciliyor:
+   `scale(0)` "yoktan var olma" hissi verir ve ucuz durur. */
+@keyframes lightboxImage {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop,
+  .image {
+    animation: none;
+  }
+
+  .close,
+  .nav {
+    transition: none;
+  }
+
+  .close:active,
+  .nav:active {
+    transform: none;
+  }
+
+  .nav:active {
+    transform: translateY(-50%);
+  }
+}
+
+/* Dar ekran: yan oklar gorseli sikistiriyor, alta aliniyor */
+@media (max-width: 560px) {
+  .backdrop {
+    padding: 56px 12px 84px;
+  }
+
+  .nav {
+    top: auto;
+    bottom: clamp(14px, 3vw, 30px);
+    transform: none;
+  }
+
+  .nav:active {
+    transform: scale(0.96);
+  }
+
+  .prev {
+    left: 18%;
+  }
+
+  .next {
+    right: 18%;
+  }
+}

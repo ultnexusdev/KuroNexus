@@ -34,8 +34,16 @@ const SuggestionShelf = dynamic(
   { ssr: false },
 );
 
-// Şerit kaç kare taşır — fazlası kaydırmayı yorucu yapıyor
-const STRIP_LIMIT = 8;
+/*
+ * Şerit kaç kare taşır.
+ *
+ * 8'di, kullanıcı isteğiyle 21'e çıktı (6 Ağustos 2026). Kaydırma zaten
+ * vardı ama kullanıcının göremediği bir kaydırmaydı: kenarda hiçbir işaret
+ * yoktu, son kare ekranın kenarında düz kesiliyordu. Sayıyı artırmak tek
+ * başına yetmezdi — aşağıdaki kenar solması ve klavye erişimi onunla
+ * birlikte geldi.
+ */
+const STRIP_LIMIT = 21;
 // Salonda her raf tek satır: geniş ekrandaki sütun sayısı kadar
 const ROW_LIMIT = 6;
 
@@ -301,8 +309,13 @@ export function FilmHall({
                 <h2 className={styles.sectionTitle}>{t("recent")}</h2>
                 {/* İmza: perforasyonlu 35 mm şerit, kareler poster */}
                 <div className={styles.strip}>
-                  <span className={styles.perforation} aria-hidden />
-                  <ul className={styles.stripTrack}>
+                  <ul
+                    className={styles.stripTrack}
+                    /* Klavyeyle kaydırılabilsin: odaklanabilir olmayan bir
+                       kaydırma kutusu fare olmadan erişilemez kalıyordu */
+                    tabIndex={0}
+                    aria-label={t("recent")}
+                  >
                     {recent.map((movie) => (
                       <li key={movie.id} className={styles.frame}>
                         {/* Şeritteki kareler de tıklanabilir */}
@@ -332,7 +345,6 @@ export function FilmHall({
                       </li>
                     ))}
                   </ul>
-                  <span className={styles.perforation} aria-hidden />
                 </div>
               </section>
             ) : null}

@@ -625,7 +625,8 @@
       "save": "Kaydet",
       "saving": "Kaydediliyor…",
       "saved": "Kaydedildi",
-      "saveError": "Kaydedilemedi. Tekrar deneyin."
+      "saveError": "Kaydedilemedi. Tekrar deneyin.",
+      "openStill": "Sahne karesini büyüt ({index}/{total})"
     },
     "tmdbScore": "TMDB",
     "runtime": "Süre",
@@ -820,7 +821,8 @@
       "save": "Kaydet",
       "saving": "Kaydediliyor…",
       "saved": "Kaydedildi",
-      "saveError": "Kaydedilemedi. Tekrar deneyin."
+      "saveError": "Kaydedilemedi. Tekrar deneyin.",
+      "openStill": "Sahne karesini büyüt ({index}/{total})"
     },
     "tmdbScore": "TMDB",
     "runtime": "Bölüm süresi",
@@ -1512,5 +1514,12 @@
       "retry": "Tekrar dene",
       "code": "Hata kimliği: {digest}"
     }
+  },
+  "lightbox": {
+    "label": "Görsel görüntüleyici",
+    "close": "Kapat",
+    "prev": "Önceki görsel",
+    "next": "Sonraki görsel",
+    "counter": "{index} / {total}"
   }
 }

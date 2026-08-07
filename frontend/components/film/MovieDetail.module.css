@@ -761,6 +761,16 @@ a.providerLink:hover {
 }
 
 .still {
+  /* Artik bir <button>: tarayicinin varsayilan dugme gorunumu sifirlanmali,
+     yoksa gri bir kutu icinde kalir. `outline` YAZILMIYOR — globals.css'teki
+     genel :focus-visible kurali ozgullugu sifir oldugu icin buradaki her
+     kural onu ezerdi ve klavye kullanicisi odak halkasini kaybederdi. */
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: var(--surface);
+  cursor: zoom-in;
   position: relative;
   aspect-ratio: 16 / 9;
   overflow: hidden;
@@ -773,6 +783,7 @@ a.providerLink:hover {
   opacity: 0.85;
 }
 
+.still:focus-visible .stillImg,
 .still:hover .stillImg {
   opacity: 1;
 }

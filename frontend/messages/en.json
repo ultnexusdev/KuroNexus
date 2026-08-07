@@ -625,7 +625,8 @@
       "save": "Save",
       "saving": "Saving…",
       "saved": "Saved",
-      "saveError": "Could not save. Please try again."
+      "saveError": "Could not save. Please try again.",
+      "openStill": "Enlarge still ({index}/{total})"
     },
     "tmdbScore": "TMDB",
     "runtime": "Runtime",
@@ -820,7 +821,8 @@
       "save": "Save",
       "saving": "Saving…",
       "saved": "Saved",
-      "saveError": "Could not save. Please try again."
+      "saveError": "Could not save. Please try again.",
+      "openStill": "Enlarge still ({index}/{total})"
     },
     "tmdbScore": "TMDB",
     "runtime": "Episode length",
@@ -1512,5 +1514,12 @@
       "retry": "Try again",
       "code": "Error id: {digest}"
     }
+  },
+  "lightbox": {
+    "label": "Image viewer",
+    "close": "Close",
+    "prev": "Previous image",
+    "next": "Next image",
+    "counter": "{index} / {total}"
   }
 }

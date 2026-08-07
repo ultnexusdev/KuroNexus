@@ -52,7 +52,17 @@ export function MovieCard({
   curating: boolean;
 }) {
   const t = useTranslations("film");
-  const rating = movie.personalRating ?? movie.voteAverage;
+  /*
+   * Kartta TMDB puanı gösteriliyor, kişisel puan değil (kullanıcı isteği,
+   * 7 Ağustos 2026). Öncesinde `personalRating ?? voteAverage` yazıyordu:
+   * aynı yerde bazen benim puanım bazen TMDB'ninki çıkıyor, üstelik hiçbir
+   * işaret olmadığı için hangisi olduğu anlaşılmıyordu.
+   *
+   * Kişisel puan kaybolmadı: favoriler duvarındaki plaket (`.plaqueRating`)
+   * ve film sayfasının künyesi onu göstermeye devam ediyor. Rafta aranan
+   * şey "bu film genel olarak nasıl", kendi puanımı zaten biliyorum.
+   */
+  const rating = movie.voteAverage;
   const href = `/dark-stories/category/film/${movie.slug}`;
 
   return (
@@ -106,8 +116,15 @@ export function MovieCard({
       </h3>
       <p className={styles.cardMeta}>
         {movie.releaseYear ? <span>{movie.releaseYear}</span> : null}
-        {rating ? (
-          <span className={styles.cardRating}>{rating.toFixed(1)}</span>
+        {/* `!== null`: 0.0 puanlı bir film de gösterilsin. Öncesinde falsy
+            kontrolü vardı ve sıfır sessizce kayboluyordu. */}
+        {rating !== null ? (
+          <span className={styles.cardRating} title={t("tmdbScore")}>
+            <span className={styles.ratingSource} aria-hidden>
+              TMDB
+            </span>
+            {rating.toFixed(1)}
+          </span>
         ) : null}
       </p>
       {curating ? <CuratorCardTools movie={movie} /> : null}

@@ -22,6 +22,7 @@ import type {
   SimilarShow,
 } from "@/lib/api/types";
 import styles from "./ShowDetail.module.css";
+import { Lightbox } from "@/components/hall/Lightbox";
 
 /**
  * Dizi sayfası — film salonundaki `MovieDetail`ın aynısı. Künye levhasında
@@ -39,6 +40,8 @@ export function ShowDetail({
   const tShow = useTranslations("show");
   const locale = useLocale();
   const [curating, setCurating] = useState(false);
+  /* Açık sahne karesinin sırası; `null` ise pencere kapalı. */
+  const [openStill, setOpenStill] = useState<number | null>(null);
   const { show } = detail;
   const backdrop = tmdbImage(show.backdropPath, "w780");
   // Sayfa açılınca kaldığım sezon açık gelir — "nerede kaldım" aranmasın
@@ -274,16 +277,29 @@ export function ShowDetail({
                 <div className={styles.stillStrip}>
                   <span className={styles.perforation} aria-hidden />
                   <ul className={styles.stills}>
-                    {detail.stills.map((path) => (
-                      <li key={path} className={styles.still}>
-                        <Image
-                          src={tmdbImage(path, "w500")!}
-                          alt=""
-                          fill
-                          sizes="260px"
-                          className={styles.stillImg}
-                          unoptimized
-                        />
+                    {detail.stills.map((path, index) => (
+                      <li key={path}>
+                        {/* Kare artık bir düğme: tıklayınca tam boyu
+                            aynı sayfada açılıyor. Erişilebilir ad burada,
+                            o yüzden görselin alt'ı boş kalabiliyor. */}
+                        <button
+                          type="button"
+                          className={styles.still}
+                          onClick={() => setOpenStill(index)}
+                          aria-label={t("openStill", {
+                            index: index + 1,
+                            total: detail.stills.length,
+                          })}
+                        >
+                          <Image
+                            src={tmdbImage(path, "w500")!}
+                            alt=""
+                            fill
+                            sizes="(max-width: 900px) 90vw, 276px"
+                            className={styles.stillImg}
+                            unoptimized
+                          />
+                        </button>
                       </li>
                     ))}
                   </ul>
@@ -380,6 +396,17 @@ export function ShowDetail({
           </aside>
         </div>
       </div>
+
+      {/* Pencere sayfanın EN DIŞINDA — gerekçesi MovieDetail'de yazılı */}
+      <Lightbox
+        items={detail.stills.map((path, index) => ({
+          src: tmdbImage(path, "w1280")!,
+          alt: t("openStill", { index: index + 1, total: detail.stills.length }),
+        }))}
+        index={openStill}
+        onClose={() => setOpenStill(null)}
+        onMove={setOpenStill}
+      />
     </div>
   );
 }

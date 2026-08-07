@@ -51,7 +51,8 @@ export function ShowCard({
   curating: boolean;
 }) {
   const t = useTranslations("show");
-  const rating = show.personalRating ?? show.voteAverage;
+  // TMDB puanı, kişisel puan değil — gerekçesi MovieCard'da yazılı
+  const rating = show.voteAverage;
   const href = `/dark-stories/category/dizi/${show.slug}`;
   const season = show.currentSeason;
   const percent =
@@ -142,8 +143,13 @@ export function ShowCard({
 
       <p className={styles.cardMeta}>
         {show.releaseYear ? <span>{show.releaseYear}</span> : null}
-        {rating ? (
-          <span className={styles.cardRating}>{rating.toFixed(1)}</span>
+        {rating !== null ? (
+          <span className={styles.cardRating} title={t("tmdbScore")}>
+            <span className={styles.ratingSource} aria-hidden>
+              TMDB
+            </span>
+            {rating.toFixed(1)}
+          </span>
         ) : null}
       </p>
       {curating ? <CuratorCardTools show={show} /> : null}

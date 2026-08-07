@@ -17,10 +17,13 @@ const EMPTY_ARCHIVE: ShowArchive = {
 
 const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p";
 
-/** TMDB görsel yolu → tam URL. Yol yoksa null döner, çağıran boşluğu doldurur. */
+/**
+ * TMDB görsel yolu → tam URL. Yol yoksa null döner, çağıran boşluğu doldurur.
+ * `w1280` gerekçesi `movies.ts`teki ikizinde yazılı.
+ */
 export function tmdbImage(
   path: string | null | undefined,
-  size: "w185" | "w342" | "w500" | "w780" = "w342",
+  size: "w185" | "w342" | "w500" | "w780" | "w1280" = "w342",
 ): string | null {
   if (!path) {
     return null;

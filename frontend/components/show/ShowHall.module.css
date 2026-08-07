@@ -181,38 +181,68 @@
 }
 
 .strip {
-  padding: 6px 0;
+  /* Ic bosluk sifir: perforasyon rayi artik .stripTrack'in kendi
+     padding'inde ve onunla birlikte kayiyor */
+  padding: 0;
   background: var(--film-frame);
   border-top: 1px solid var(--show-curtain);
   border-bottom: 1px solid var(--show-curtain);
-}
-
-/* Perforasyon rayi: esit arali kucuk delikler */
-.perforation {
-  display: block;
-  height: 12px;
-  background-image: radial-gradient(
-    circle at 8px 6px,
-    var(--bg) 0 3.5px,
-    transparent 4px
-  );
-  background-size: 22px 12px;
-  opacity: 0.9;
 }
 
 .stripTrack {
   display: flex;
   gap: 2px;
   overflow-x: auto;
+  /* Perforasyon rayi artik seridin KENDISINDE, kardes span'larda degil.
+     Onceden delikler sabit duruyor, kareler altlarindan kayiyordu — 35 mm
+     illuzyonu tam kaydirirken bozuluyordu. Simdi ray icerikle birlikte akiyor. */
+  padding: 12px 0;
+  background-image:
+    radial-gradient(circle at 8px 6px, var(--bg) 0 3.5px, transparent 4px),
+    radial-gradient(circle at 8px 6px, var(--bg) 0 3.5px, transparent 4px);
+  background-position: 0 0, 0 100%;
+  background-repeat: repeat-x;
+  background-size: 22px 12px;
   margin: 0;
-  padding: 0;
   list-style: none;
   scrollbar-width: none;
   scroll-snap-type: x proximity;
+  scroll-behavior: smooth;
+  /* Yatay kaydirma sayfayi geri/ileri gezdirmesin */
+  overscroll-behavior-x: contain;
+  /* KAYDIRMA IPUCU. Scrollbar iki motorda da gizli ve serit ekran kenarinda
+     duz kesiliyordu: "devami var" bilgisini yalnizca kazara kaydiran
+     kullanici ogreniyordu. Kenar solmasi o bilgiyi gorunur kiliyor —
+     JS gerekmiyor, tek kural. */
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 20px,
+    #000 calc(100% - 44px),
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 20px,
+    #000 calc(100% - 44px),
+    transparent 100%
+  );
 }
 
 .stripTrack::-webkit-scrollbar {
   display: none;
+}
+
+.stripTrack:focus-visible {
+  outline: 1px solid var(--gold);
+  outline-offset: -1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stripTrack {
+    scroll-behavior: auto;
+  }
 }
 
 .frame {
@@ -807,4 +837,14 @@
   .card:hover .posterWrap {
     transform: none;
   }
+}
+
+/* Puanin kaynagi: cipl ak sayi "benim puanim mi TMDB mi" sorusunu birakiyordu.
+   Kucuk, sonuk bir on ek yeterli — ayri bir rozet gorsel gurultu olurdu. */
+.ratingSource {
+  margin-right: 5px;
+  color: var(--text-muted);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
 }

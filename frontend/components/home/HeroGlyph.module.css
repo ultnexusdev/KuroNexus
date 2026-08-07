@@ -8,7 +8,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  /* Aralık `.rule`ın kendi marjlarında: iki kaynak olsaydı çizginin glife ve
+     kelimeye uzaklığı ayrı ayrı ayarlanamazdı */
+  gap: 0;
   flex-shrink: 0;
   /* Sola yaslanma hissi — kullanıcı isteğiyle biraz daha belirgin */
   margin-left: calc(-1 * clamp(6px, 2.4vw, 34px));
@@ -30,21 +32,85 @@
   transition: opacity 0.6s ease;
 }
 
+/* Glif + damga tek kutuda: damga glifin köşesine göre konumlanıyor ama
+   onun 3B eğilmesinden etkilenmiyor (transform glifin KENDİSİNDE). */
+.glyphWrap {
+  position: relative;
+  z-index: 1;
+  display: block;
+  line-height: 0;
+  /* ÖLÇÜ TEK KAYNAKTAN. Glif de damga da `em` kullanıyor, yani ikisi bu tek
+     değere bağlı. Punto glifin kendisinde dursaydı dar ekran kuralı yalnızca
+     onu ezer, damga büyük kalır ve orantı bozulurdu. */
+  font-size: clamp(7rem, 13vw, 9.75rem);
+}
+
 .glyph {
   position: relative;
   z-index: 1;
+  display: block;
   font-family: var(--font-brush), serif;
-  /* Üst sınır 12.5rem (200px) → 9.75rem: mühür küratör sütununun yarısını
-     yiyordu ve mottoya okunabilir bir ölçü bırakmıyordu. Küçülen tek şey
-     ölçü; ağırlık aşağıda arttığı için mühür daha ZAYIF değil daha güçlü. */
-  font-size: clamp(7rem, 13vw, 9.75rem);
+  /* Ölçü `.glyphWrap`tan geliyor (bkz. oradaki not). Üst sınır 12.5rem
+     (200px) → 9.75rem düştü: mühür küratör sütununun yarısını yiyordu ve
+     mottoya okunabilir bir ölçü bırakmıyordu. Küçülen tek şey ölçü;
+     gövde ve kontur aşağıda güçlendiği için mühür daha ZAYIF değil. */
+  font-size: 1em;
   line-height: 1;
-  color: transparent;
-  -webkit-text-stroke: 1.5px color-mix(in srgb, var(--hub-gold) 88%, var(--hub-paper));
-  filter: drop-shadow(0 0 14px color-mix(in srgb, var(--hub-gold) 34%, transparent));
+
+  /* ── GÖVDE ────────────────────────────────────────────────────────────
+     Eskiden dolgu tamamen şeffaftı ve karakter yalnızca 1.5px'lik bir
+     konturdan ibaretti: 156px'lik bir glifte bu %1'lik bir çizgi demek,
+     yani uzaktan bakınca glif kayboluyordu. Şimdi soluk bir altın gövdesi
+     var — karanlıkta kütlesi olan, kenarından ışık alan bir yüzey. */
+  color: color-mix(in srgb, var(--hub-gold) 15%, transparent);
+
+  /* Kontur artık `em`: boyutla ölçekleniyor. Sabit 1.5px'te glif büyüdükçe
+     çizgi orantısal olarak inceliyor ve mühür güçsüzleşiyordu. */
+  -webkit-text-stroke: 0.016em
+    color-mix(in srgb, var(--hub-gold) 92%, var(--hub-paper));
+
+  /* İki katmanlı ışık: yakın ve sıkı olan kenarı ayırıyor, uzak ve yumuşak
+     olan gliflerin arkasındaki hâleyi besliyor */
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--hub-gold) 30%, transparent))
+    drop-shadow(0 0 18px color-mix(in srgb, var(--hub-gold) 26%, transparent));
   user-select: none;
   will-change: transform;
   transform-style: preserve-3d;
+}
+
+/* Künye mührü — glifin sağ alt köşesinde, hafifçe eğik basılmış */
+.chop {
+  position: absolute;
+  right: -0.03em;
+  bottom: 0.1em;
+  z-index: 2;
+  /* `em` → `.glyphWrap`ın puntosu: mühür her ekranda aynı oranda kalıyor */
+  width: 0.23em;
+  height: 0.23em;
+  color: var(--hub-seal);
+  /* Elle basılmış izlenimi; tam dik bir damga matbaa işi gibi durur */
+  transform: rotate(-5deg);
+  filter: drop-shadow(0 1px 3px color-mix(in srgb, #000 55%, transparent));
+}
+
+/* Oyulmuş işaret zemin rengiyle boşaltılıyor: mürekkep değil, kazınmış yer */
+.chopMark {
+  fill: var(--hub-ink);
+}
+
+/* Künye levhası çizgisi: işaretle adı ayıran ince altın hat */
+.rule {
+  display: block;
+  width: 2.6em;
+  height: 1px;
+  margin: 0.9em 0 0.7em;
+  background: linear-gradient(
+    to right,
+    transparent,
+    color-mix(in srgb, var(--hub-gold) 70%, transparent),
+    transparent
+  );
+  font-size: clamp(1rem, 2.4vw, 1.5rem);
 }
 
 /* text-stroke desteklenmiyorsa glif dolgun altın görünsün (nadir fallback) */
@@ -94,12 +160,22 @@
     gap: 0;
   }
 
-  .glyph {
+  /* Tek ölçü kaynağı: glif ve damga birlikte küçülüyor */
+  .glyphWrap {
     font-size: clamp(3.4rem, 14vw, 4.6rem);
-    -webkit-text-stroke-width: 1px;
+  }
+
+  .glyph {
     filter: drop-shadow(
       0 0 8px color-mix(in srgb, var(--hub-gold) 28%, transparent)
     );
+  }
+
+  /* Dar ekranda çizgi ve damga küçülüyor: bu boyutta kazınmış işaret
+     okunmaz hâle geleceği için damga sade bir kızıl pul olarak kalıyor */
+  .rule {
+    width: 2.2em;
+    margin: 0.6em 0 0.5em;
   }
 
   .glyphWord {

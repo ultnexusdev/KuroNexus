@@ -130,7 +130,12 @@ export function DoorWall({ doors }: { doors: Door[] }) {
                 : door.soon
                   ? t("soonSub")
                   : door.count !== undefined
-                    ? t("worldsCount", { count: door.count })
+                    ? /* Kapının altyazısı indeks şeridiyle AYNI dili konuşmak
+                         zorunda: `countUnit` yok sayıldığında film kapısında
+                         "336 evren" yazıyordu — sayı doğru, birim yanlış. */
+                      door.countUnit
+                      ? t(`unit.${door.countUnit}`, { count: door.count })
+                      : t("worldsCount", { count: door.count })
                     : t("enter")}
             </span>
           </span>

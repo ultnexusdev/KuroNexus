@@ -4,6 +4,23 @@ import type { AnilistMedia } from '../anime/anilist.service';
 import type { TmdbMovie } from '../movies/tmdb.service';
 import type { TmdbShow } from '../shows/tmdb-tv.service';
 import { slugify } from '../common/utils/slugify';
+/* "Son eklenenler" şeridinin adresleri salonların KENDİ slug üreticilerinden
+   geliyor; burada yeniden türetilmiyor (gerekçe `buildAdditions`ın başında). */
+import { withSlugs as withMovieSlugs } from '../movies/movies.service';
+import {
+  withSlugs as withShowSlugs,
+  type EntryWithSeasons,
+} from '../shows/shows.service';
+import {
+  withSlugs as withAnimeSlugs,
+  type EntryWithParts,
+} from '../anime/anime.service';
+import {
+  CREDITS_INCLUDE as BOOK_CREDITS_INCLUDE,
+  withSlugs as withBookSlugs,
+  type BookEntryWithCredits,
+} from '../books/books.service';
+import type { MovieEntry } from '../generated/prisma/client';
 
 /**
  * "Nexus'u Keşfet" sayfasının tek veri kaynağı.
@@ -19,6 +36,9 @@ import { slugify } from '../common/utils/slugify';
 
 /** Baş köşedeki mühürlü evren — sitenin kendi eseri. */
 const FEATURED_UNIVERSE_SLUG = 'temurkan-efsaneleri';
+
+/** "Son eklenenler" şeridi kaç kart taşır. */
+const ADDITION_LIMIT = 12;
 
 export interface PulseHall {
   slug: string;
@@ -54,6 +74,29 @@ export interface PulseEntry {
   at: string | null;
 }
 
+/**
+ * Arşive en son giren tek bir kayıt — "son eklenenler" şeridinin kartı.
+ *
+ * `PulseEntry`den ayrı bir tip: o şerit "şu an ne izliyorum"u anlatıyor ve
+ * ölçüsü izleme anı (`at`), buradaki ölçü ise **arşive giriş** anı
+ * (`addedAt`). 2005'te izlenmiş bir film bugün eklenmiş olabilir; iki şerit
+ * bu yüzden aynı veriyi paylaşamıyor.
+ */
+export interface PulseAddition {
+  kind: 'FILM' | 'DIZI' | 'ANIME' | 'KITAP';
+  title: string;
+  /** Kartın ikinci satırı: film/dizi/anime'de yıl, kitapta yazar */
+  meta: string | null;
+  /** Arşivdeki kendi sayfasının TAM yolu, ör. "/dark-stories/category/film/dune" */
+  href: string;
+  /** Kapak. Çözümü `kind`a göre: FILM/DIZI -> TMDB göreli yol,
+      ANIME -> tam adres, KITAP -> bizim /uploads yolumuz.
+      (Var olan `PulseEntry.image` ile AYNI sözleşme.) */
+  image: string | null;
+  /** Arşive giriş anı, ISO (entry.createdAt) */
+  addedAt: string;
+}
+
 export interface PulseFeatured {
   slug: string;
   name: string;
@@ -76,6 +119,8 @@ export interface Pulse {
   featured: PulseFeatured | null;
   halls: PulseHall[];
   recent: PulseEntry[];
+  /** Arşive EN SON giren kayıtlar, createdAt azalan, en fazla 12 */
+  additions: PulseAddition[];
   universes: PulseUniverse[];
   totals: {
     universes: number;
@@ -99,7 +144,7 @@ export class PulseService {
       movies,
       animeEntries,
       shows,
-      bookCount,
+      bookArchive,
     ] = await Promise.all([
       this.prisma.universeCategory.findMany({
         where: { isDeleted: false },
@@ -130,10 +175,33 @@ export class PulseService {
           category: true,
         },
       }),
+      /**
+       * DİKKAT: film/dizi/anime sorgularının üçü de kendi salonlarının ARŞİV
+       * sorgusuyla birebir aynı — süzgeç, `include` ve SIRA dahil.
+       *
+       * Sıra tesadüf değil zorunluluk: "son eklenenler" şeridi kartların
+       * adresini `withSlugs`ten alıyor ve slug listenin tamamına + sırasına
+       * bağlı (`used` kümesi birikiyor). Arşivden farklı sıralarsak aynı adı
+       * taşıyan iki kayıtta slug kayar ve karttan tıklayan 404 alır.
+       *
+       * Bu listeler `buildHalls`, `buildRecent` ve `buildAdditions` tarafından
+       * PAYLAŞILIYOR — ilk yazımda "sıralaması farklı" diye ikinci bir kopya
+       * açılmıştı ve ana sayfa her açılışında film/dizi tablolarını ağır
+       * `externalData` JSON'larıyla ikişer kez okuyordu. Sırayı değiştirmen
+       * gerekiyorsa `buildAdditions` için ayrı sorgu aç, bunu bozma.
+       */
       this.prisma.movieEntry.findMany({
         where: { isDeleted: false },
-        orderBy: [{ watchedAt: 'desc' }, { updatedAt: 'desc' }],
+        orderBy: [{ watchedAt: 'desc' }, { createdAt: 'desc' }],
       }),
+      /**
+       * DİKKAT: bu sorgu anime salonunun arşiv sorgusuyla (`anime.service.ts`,
+       * `getArchive`) BİREBİR aynı — süzgeç, `include` ve sıra dahil. "Son
+       * eklenenler" şeridi serilerin adresini `withSlugs`ten alıyor ve slug
+       * listenin sırasına bağlı olduğu için ikinci bir sorgu açmak yerine bu
+       * liste paylaşılıyor. Sırası değişirse anime kartları yanlış adrese
+       * gider; değiştirmen gerekiyorsa `buildAdditions`a ayrı sorgu aç.
+       */
       this.prisma.animeEntry.findMany({
         where: { isDeleted: false },
         include: { parts: { orderBy: { orderIndex: 'asc' } } },
@@ -141,10 +209,15 @@ export class PulseService {
       }),
       this.prisma.showEntry.findMany({
         where: { isDeleted: false },
-        orderBy: [{ watchedAt: 'desc' }, { updatedAt: 'desc' }],
+        // `seasons` şeridin slug'ı için şart: `toArchiveShow` sezonsuz çalışmaz
+        include: { seasons: { orderBy: { orderIndex: 'asc' } } },
+        orderBy: [{ watchedAt: 'desc' }, { createdAt: 'desc' }],
       }),
-      // Kitap salonunun sayacı için: künye alanları gerekmiyor, yalnızca sayı
-      this.prisma.bookEntry.count({ where: { isDeleted: false } }),
+      this.prisma.bookEntry.findMany({
+        where: { isDeleted: false },
+        orderBy: [{ finishedAt: 'desc' }, { createdAt: 'desc' }],
+        include: BOOK_CREDITS_INCLUDE,
+      }),
     ]);
 
     const universeById = new Map(universes.map((u) => [u.id, u]));
@@ -170,7 +243,9 @@ export class PulseService {
         movies,
         animeEntries,
         shows,
-        bookCount,
+        // Ayrı bir `count` sorgusu vardı; aynı `where` ile bu liste zaten
+        // geldiği için ölü kalıyordu
+        bookArchive.length,
       ),
       recent: this.buildRecent(
         movies,
@@ -179,6 +254,12 @@ export class PulseService {
         stories,
         universeById,
         universes,
+      ),
+      additions: this.buildAdditions(
+        movies,
+        shows,
+        animeEntries,
+        bookArchive,
       ),
       universes: universes.map((universe) => ({
         slug: universe.slug,
@@ -450,5 +531,86 @@ export class PulseService {
     }
 
     return entries.sort((a, b) => ((a.at ?? '') < (b.at ?? '') ? 1 : -1));
+  }
+
+  /**
+   * "Son eklenenler": dört arşivin `createdAt` azalan ortak listesi.
+   *
+   * Adres BURADA türetilmiyor, salonun kendi `withSlugs`i veriyor. Gerekçe:
+   * slug sütunda tutulmuyor, başlıktan türetiliyor ve çakışmada yıl/numara
+   * ekleniyor — yani bir kaydın adresi listenin TAMAMINA ve SIRASINA bağlı.
+   * Aynı liste aynı sırayla okunmazsa aynı adı taşıyan iki kayıtta slug kayar
+   * ve ana sayfadan tıklayan okur 404 alır. Kitap kanadındaki
+   * `findArchivedBySource` aynı gerekçeyle aynı yolu izliyor; slug mantığının
+   * ikinci bir kopyası bu yüzden yazılmıyor.
+   *
+   * Kayıtlar `withSlugs`ten sırası korunarak (1:1) döndüğü için `createdAt`
+   * ham satırdan aynı dizinle okunuyor — `ArchiveAnime`/`ArchiveBook`ta
+   * "arşive giriş" alanı yok, film/dizideki `addedAt`in karşılığı orada
+   * bulunmuyor.
+   */
+  private buildAdditions(
+    movieRows: MovieEntry[],
+    showRows: EntryWithSeasons[],
+    animeRows: EntryWithParts[],
+    bookRows: BookEntryWithCredits[],
+  ): PulseAddition[] {
+    const additions: PulseAddition[] = [];
+
+    withMovieSlugs(movieRows).forEach((movie, index) => {
+      additions.push({
+        kind: 'FILM',
+        title: movie.title,
+        meta: movie.releaseYear ? String(movie.releaseYear) : null,
+        href: `/dark-stories/category/film/${movie.slug}`,
+        image: movie.posterPath,
+        addedAt: movieRows[index].createdAt.toISOString(),
+      });
+    });
+
+    withShowSlugs(showRows).forEach((show, index) => {
+      additions.push({
+        kind: 'DIZI',
+        title: show.title,
+        meta: show.releaseYear ? String(show.releaseYear) : null,
+        href: `/dark-stories/category/dizi/${show.slug}`,
+        image: show.posterPath,
+        addedAt: showRows[index].createdAt.toISOString(),
+      });
+    });
+
+    withAnimeSlugs(animeRows).forEach((anime, index) => {
+      additions.push({
+        kind: 'ANIME',
+        title: anime.title,
+        meta: anime.startYear ? String(anime.startYear) : null,
+        href: `/dark-stories/category/anime/${anime.slug}`,
+        image: anime.coverImage,
+        addedAt: animeRows[index].createdAt.toISOString(),
+      });
+    });
+
+    withBookSlugs(bookRows).forEach((book, index) => {
+      /* Yazar önce düz metin sütunundan okunuyor: ilişkisel künye (Faz 2a)
+         Google/Open Library'den eklenmiş eski kayıtlarda boş olabiliyor. */
+      const author =
+        book.authors[0] ??
+        book.credits.people.find((person) => person.role === 'AUTHOR')?.name ??
+        null;
+      additions.push({
+        kind: 'KITAP',
+        title: book.title,
+        meta: author,
+        href: `/dark-stories/category/kitap/${book.slug}`,
+        image: book.coverImage,
+        addedAt: bookRows[index].createdAt.toISOString(),
+      });
+    });
+
+    // ISO tarihler sözlük sırasıyla zaman sırasına eşit; ayrıca ayrıştırmaya
+    // gerek yok (`buildRecent` ile aynı karar).
+    return additions
+      .sort((a, b) => (a.addedAt < b.addedAt ? 1 : -1))
+      .slice(0, ADDITION_LIMIT);
   }
 }

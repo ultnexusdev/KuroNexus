@@ -676,8 +676,12 @@ function shuffle<T>(items: T[]): T[] {
  * tutulmuyor: başlıktan türetiliyor, iki film aynı slug'a düşerse sonrakine
  * yıl, o da yetmezse TMDB numarası ekleniyor. Böylece hem şema sade kalıyor
  * hem künye tazelenip başlık değişince adres kendini düzeltiyor.
+ *
+ * **Dışa açık** çünkü nabız servisi de ("son eklenenler" şeridi) film
+ * adreslerini buradan alıyor: slug listenin tamamına ve sırasına bağlı, o
+ * yüzden mantık tek yerde kalmalı — kopyası kayan adres üretir.
  */
-function withSlugs(entries: MovieEntry[]): ArchiveMovie[] {
+export function withSlugs(entries: MovieEntry[]): ArchiveMovie[] {
   const used = new Set<string>();
   return entries.map((entry) => {
     const movie = toArchiveMovie(entry);

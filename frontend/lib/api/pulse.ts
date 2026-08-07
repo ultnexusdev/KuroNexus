@@ -6,6 +6,7 @@ const EMPTY_PULSE: Pulse = {
   halls: [],
   recent: [],
   universes: [],
+  additions: [],
   totals: {
     universes: 0,
     chapters: 0,

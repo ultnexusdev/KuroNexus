@@ -25,6 +25,7 @@
     "manifestoC": "bir odası var.",
     "sub": "Sinema, spor, kadim dünyalar — her biri kendi ışığıyla yaşayan salonlar. Kapılardan biri her zaman aralık.",
     "cta": "Nexus'a gir",
+    "ctaMeta": "{halls} salon · {films} film · {universes} evren",
     "hall": "Salon {num}",
     "indexTitle": "Arşiv İndeksi",
     "worldsCount": "{count} evren",
@@ -49,6 +50,16 @@
       "kitap": "{count} kitap",
       "evren": "{count} evren",
       "bolum": "{count} bölüm"
+    },
+    "additions": {
+      "title": "Son Eklenenler",
+      "lede": "Arşive en son giren kayıtlar — kapıdan girmeden önce bir bakış.",
+      "kind": {
+        "FILM": "Film",
+        "DIZI": "Dizi",
+        "ANIME": "Anime",
+        "KITAP": "Kitap"
+      }
     }
   },
   "nexus": {
@@ -175,7 +186,8 @@
     "about": "Kadim dünyalar, fandom wikileri ve derinlemesine karakter analizleri — gölgede kalmış bilgilerin kişisel arşivi.",
     "explore": "Keşfet",
     "home": "Ana Sayfa",
-    "darkStories": "Nexus'u Keşfet",
+    "darkStories": "Nexus'a Gir",
+    "halls": "Salonlar",
     "universes": "Evrenler",
     "tagline": "Gölgede kalmış kadim bilgilerin arşivi."
   },

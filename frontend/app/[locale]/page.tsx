@@ -8,6 +8,7 @@ import type {
   UniverseCategory,
   WikiUniverseSummary,
 } from "@/lib/api/types";
+import { AdditionsRow } from "@/components/home/AdditionsRow";
 import { DoorWall, type Door } from "@/components/home/DoorWall";
 import { HeroGlyph } from "@/components/home/HeroGlyph";
 import {
@@ -157,6 +158,46 @@ export default async function HomePage({
     });
   }
 
+  /**
+   * CTA'nın altındaki somut satır: "7 salon · 336 film · 12 evren".
+   *
+   * "Nexus'a gir" tek başına ziyaretçiyi "girince ne olacak?" sorusuyla
+   * bırakıyordu — kapının ardında ne olduğunu ancak tıklayan öğreniyordu.
+   *
+   * ⚠️ ÜÇ SAYININ DA KAPSAMI, 40 PİKSEL AŞAĞIDAKİ ŞERİTLE AYNI OLMAK ZORUNDA.
+   * Bu satır ilk yazımında `pulse.totals`tan besleniyordu ve üçü de sapıyordu:
+   *  - `totals.films` "izleyeceğim"i SÜZÜYOR, indeks şeridindeki sayı ise
+   *    toplam — aynı sayfada 316 ve 336 yan yana çıkıyordu. Bu, kullanıcının
+   *    az önce düzelttiğimiz şikâyetinin birebir aynısı olurdu.
+   *  - `totals.universes` mühürlü evreni ve hiçbir kanada bağlı olmayanları da
+   *    sayıyor; oysa "salon" sayısı onları saymıyordu.
+   *  - Salon sayısı mühürlü kapıyı dışlıyordu ama duvar onu numaralandırıyor:
+   *    hero "7 salon" derken kapının üstünde "SALON 08" yazıyordu.
+   * Üçü de artık kapı duvarının KENDİ kadrosundan ve `pulseHalls`tan okunuyor —
+   * ziyaretçinin gördüğü kapılarla birebir aynı küme.
+   *
+   * Nabız alınamadıysa satır HİÇ çizilmiyor: sayılar sıfırlanır ve
+   * "0 salon · 0 film" arşivi küçük değil YOK gösterirdi.
+   */
+  const hallCount = doors.length;
+  const filmHall = pulseHalls.get("film");
+  /* Satırın TAMAMI yeni backend'e bağlı. Coolify frontend ve backend'i ayrı
+     dağıtıyor; frontend önce inerse `countUnit` gelmez, evren toplamı sıfır
+     çıkar ve satır canlıda "7 salon · 318 film · 0 evren" yazar (ölçüldü).
+     Eksik satır yanlış satırdan iyidir: birim gelene kadar hiç çizilmiyor. */
+  const ctaMeta =
+    pulse && filmHall?.count != null && filmHall.countUnit
+      ? t("ctaMeta", {
+          halls: hallCount,
+          films: filmHall.count,
+          universes: doors.reduce(
+            (total, door) =>
+              total + (door.countUnit === "evren" ? (door.count ?? 0) : 0),
+            0,
+          ),
+        })
+      : null;
+
   return (
     <section className={styles.hall}>
       <div className={styles.grid}>
@@ -185,12 +226,18 @@ export default async function HomePage({
                 →
               </span>
             </Link>
+            {/* Kapının ardında ne olduğunu söyleyen satır — bkz. `ctaMeta` */}
+            {ctaMeta ? <p className={styles.ctaMeta}>{ctaMeta}</p> : null}
           </div>
         </div>
 
         {/* Sağ: kapı duvarı */}
         {doors.length > 0 ? <DoorWall doors={doors} /> : null}
       </div>
+
+      {/* Arşivin nabzı: en son giren kayıtlar. Kayıt yoksa bölüm hiç çizilmez
+          (kararı bileşenin kendisi veriyor, başlık da onunla birlikte gider). */}
+      <AdditionsRow additions={pulse?.additions ?? []} />
 
       {/* Arşiv indeksi: gerçek verili katalog şeridi */}
       {doors.length > 0 ? (

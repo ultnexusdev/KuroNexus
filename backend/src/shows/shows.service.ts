@@ -19,7 +19,7 @@ import { UpdateShowSeasonDto } from './dto/update-show-season.dto';
 import type { ShowEntry, ShowSeason, Prisma } from '../generated/prisma/client';
 
 /** Sezonlarıyla birlikte okunan kayıt — ilerleme buradan türetilir. */
-type EntryWithSeasons = ShowEntry & { seasons: ShowSeason[] };
+export type EntryWithSeasons = ShowEntry & { seasons: ShowSeason[] };
 
 /**
  * Dizi salonu servisi — `movies/movies.service.ts`'in bire bir aynısı, tek
@@ -904,7 +904,14 @@ function shuffle<T>(items: T[]): T[] {
   return copy;
 }
 
-function withSlugs(entries: EntryWithSeasons[]): ArchiveShow[] {
+/**
+ * Dizilere adres verir (film salonundaki desen).
+ *
+ * **Dışa açık** çünkü nabız servisi de ("son eklenenler" şeridi) dizi
+ * adreslerini buradan alıyor: slug listenin tamamına ve sırasına bağlı, o
+ * yüzden mantık tek yerde kalmalı — kopyası kayan adres üretir.
+ */
+export function withSlugs(entries: EntryWithSeasons[]): ArchiveShow[] {
   const used = new Set<string>();
   return entries.map((entry) => {
     const show = toArchiveShow(entry);

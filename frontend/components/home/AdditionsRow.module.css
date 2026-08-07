@@ -1,0 +1,169 @@
+/* Ana sayfa · "Son Eklenenler" şeridi.
+
+   Görsel dil holün kendisinden (page.module.css) alınıyor: hub token'ları,
+   Cinzel başlık, mono künye satırı. Film salonundaki 35 mm şerit KOPYALANMADI
+   — o salonun imzası, holde tekrarlanınca hem imza olmaktan çıkar hem de
+   kitap/anime kartlarını olmadıkları bir yere (projeksiyon salonuna) bağlar.
+   Buradaki şerit sade bir vitrin: kapaklar, ince çerçeve, altın detay. */
+
+.section {
+  /* `.grid` ile aynı ölçü: şerit hero'nun altında onunla aynı hizada başlar */
+  max-width: min(108rem, 100%);
+  margin: clamp(28px, 5vw, 52px) auto 0;
+  padding-top: clamp(18px, 3vw, 32px);
+  border-top: 1px solid var(--hub-line);
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: clamp(14px, 2vw, 20px);
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--hub-gold);
+}
+
+.lede {
+  margin: 0;
+  max-width: 44rem;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--hub-muted);
+}
+
+/* ScrollStrip kabuğu kendi `position: relative`ini getiriyor; burada yalnızca
+   okların karelerin üstüne düşeceği kadar dikey pay veriliyor. */
+.strip {
+  margin: 0 calc(-1 * clamp(2px, 0.4vw, 6px));
+}
+
+.track {
+  display: flex;
+  gap: clamp(10px, 1.4vw, 18px);
+  margin: 0;
+  padding: 2px clamp(2px, 0.4vw, 6px) 6px;
+  list-style: none;
+  overflow-x: auto;
+  /* Çubuk gizli — kaydırma yolunu ScrollStrip'in okları ve sürüklemesi veriyor */
+  scrollbar-width: none;
+  scroll-snap-type: x proximity;
+  scroll-behavior: smooth;
+  /* Yatay kaydırma sayfayı geri/ileri gezdirmesin */
+  overscroll-behavior-x: contain;
+  /* Kenar solması "devamı var" der. İki yan da 44px: ScrollStrip'in ok
+     düğmeleri tam bu genişlikte ve şeridin ÜZERİNDE duruyorlar; daha dar bir
+     solmada ok, hiç solmamış opak bir kapağın üstüne oturur ve o kapağın
+     tıklaması oka giderdi (film salonunda ölçüldü). */
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 44px,
+    #000 calc(100% - 44px),
+    transparent 100%
+  );
+  /* Safari hâlâ ön ekli yazımı istiyor (film salonunda da böyle) */
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 44px,
+    #000 calc(100% - 44px),
+    transparent 100%
+  );
+}
+
+.track::-webkit-scrollbar {
+  display: none;
+}
+
+.track:focus-visible {
+  outline: 1px solid var(--hub-gold);
+  outline-offset: 2px;
+}
+
+.card {
+  flex: 0 0 auto;
+  width: clamp(104px, 12vw, 132px);
+  scroll-snap-align: start;
+}
+
+.cardLink {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.cover {
+  position: relative;
+  display: block;
+  /* Dört tür de dikey kapak taşıyor (poster / cilt kapağı); tek oran şeridin
+     üst hattını düz tutuyor */
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  background: var(--hub-soot);
+  border: 1px solid var(--hub-line);
+  transition: border-color 0.3s ease;
+}
+
+.cardLink:hover .cover,
+.cardLink:focus-visible .cover {
+  border-color: color-mix(in srgb, var(--hub-gold) 55%, var(--hub-line));
+}
+
+.coverImg {
+  object-fit: cover;
+  /* Hol loş: kapaklar tam parlaklıkta durunca hero'nun karanlığını deliyor */
+  opacity: 0.82;
+  transition:
+    opacity 0.35s ease,
+    transform 0.5s ease;
+}
+
+.cardLink:hover .coverImg,
+.cardLink:focus-visible .coverImg {
+  opacity: 1;
+  transform: scale(1.04);
+}
+
+.cardTitle {
+  color: var(--hub-paper);
+  font-size: 0.8rem;
+  line-height: 1.3;
+  /* İki satır: uzun başlıklar kartı uzatıp şeridin alt hattını kırmasın */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cardMeta {
+  color: var(--hub-muted);
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    scroll-behavior: auto;
+  }
+
+  .coverImg {
+    transition: none;
+  }
+
+  .cardLink:hover .coverImg {
+    transform: none;
+  }
+}

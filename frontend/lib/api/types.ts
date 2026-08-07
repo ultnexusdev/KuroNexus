@@ -397,11 +397,36 @@ export interface PulseUniverse {
   storyCount: number;
 }
 
+/**
+ * "Son Eklenenler" şeridinin bir karesi.
+ *
+ * `PulseEntry`den ayrı bir tip: o "her salonun EN SON hareketi"ni taşıyor
+ * (salon başına bir kayıt, `kind` içinde CHAPTER/WIKI de var). Bu ise arşive
+ * giriş sırasına göre düz bir akış — aynı salondan arka arkaya beş kayıt
+ * gelebilir ve yalnızca dört arşiv türü var.
+ */
+export interface PulseAddition {
+  kind: "FILM" | "DIZI" | "ANIME" | "KITAP";
+  title: string;
+  /** Kartın ikinci satırı: film/dizi/anime'de yıl, kitapta yazar */
+  meta: string | null;
+  /** Arşivdeki kendi sayfasının TAM yolu, ör. "/dark-stories/category/film/dune" */
+  href: string;
+  /** Kapak. Çözümü `kind`a göre: FILM/DIZI -> TMDB göreli yol,
+      ANIME -> tam adres, KITAP -> bizim /uploads yolumuz.
+      (Var olan `PulseEntry.image` ile AYNI sözleşme.) */
+  image: string | null;
+  /** Arşive giriş anı, ISO (entry.createdAt) */
+  addedAt: string;
+}
+
 export interface Pulse {
   featured: PulseFeatured | null;
   halls: PulseHall[];
   recent: PulseEntry[];
   universes: PulseUniverse[];
+  /** Arşive EN SON giren kayıtlar, createdAt azalan, en fazla 12 */
+  additions: PulseAddition[];
   totals: {
     universes: number;
     chapters: number;

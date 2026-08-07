@@ -10,7 +10,8 @@
   margin: 0 auto;
   padding: 3rem 1.5rem 2rem;
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
+  /* Marka sütunu + üç bağlantı sütunu (Keşfet · Salonlar · Evrenler) */
+  grid-template-columns: 2fr 1fr 1fr 1fr;
   gap: 2.5rem;
 }
 
@@ -19,6 +20,17 @@
   flex-direction: column;
   gap: 1rem;
   align-items: flex-start;
+}
+
+/* Baglanti sutunlari. `SiteFooter.tsx` uc yerde `styles.column` cagiriyordu
+   ama kural yoktu: CSS Modules'ta olmayan sinif `undefined` doner ve
+   `className={undefined}` sessizce hicbir sey yapmaz — hata vermez, yalnizca
+   sutun bicimsiz kalir. `min-width: 0` uzun salon adlarinin dar izgarada
+   sutunu tasirmamasi icin. */
+.column {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
 .brandLink {
@@ -72,6 +84,19 @@
   text-align: center;
   font-size: 0.8rem;
   color: var(--text-secondary);
+}
+
+/* Dördüncü sütun eklenince 72rem'lik kutuda bağlantı sütunları 1024px altında
+   sıkışıyordu (uzun salon adları iki satıra kırılıyordu). Ara adım: marka üstte
+   tam genişlikte, üç bağlantı sütunu altında yan yana. */
+@media (max-width: 1024px) {
+  .inner {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .brandColumn {
+    grid-column: 1 / -1;
+  }
 }
 
 @media (max-width: 768px) {

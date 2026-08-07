@@ -212,7 +212,7 @@ const RELATED_SERIES_LIMIT = 3;
 /** Şeritte gösterilecek karakter sayısı. */
 const RELATED_LIMIT = 12;
 
-type EntryWithParts = AnimeEntry & { parts: AnimePart[] };
+export type EntryWithParts = AnimeEntry & { parts: AnimePart[] };
 
 @Injectable()
 export class AnimeService {
@@ -1107,8 +1107,12 @@ function byRoleThenFame(a: ArchiveCharacter, b: ArchiveCharacter): number {
  * iki seri aynı slug'a düşerse sonrakine AniList numarası ekleniyor. Böylece
  * hem şema sade kalıyor hem de künye tazelenip başlık değişse adres kendini
  * düzeltiyor.
+ *
+ * **Dışa açık** çünkü nabız servisi de ("son eklenenler" şeridi) seri
+ * adreslerini buradan alıyor: slug listenin tamamına ve sırasına bağlı, o
+ * yüzden mantık tek yerde kalmalı — kopyası kayan adres üretir.
  */
-function withSlugs(rows: EntryWithParts[]): ArchiveAnime[] {
+export function withSlugs(rows: EntryWithParts[]): ArchiveAnime[] {
   const used = new Set<string>();
   return rows.map((row) => {
     const anime = toArchiveAnime(row);

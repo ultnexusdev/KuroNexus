@@ -25,6 +25,7 @@
     "manifestoC": "has a room of its own.",
     "sub": "Cinema, sport, ancient worlds — halls that each live by their own light. One of the doors is always ajar.",
     "cta": "Enter the Nexus",
+    "ctaMeta": "{halls} halls · {films} films · {universes} worlds",
     "hall": "Hall {num}",
     "indexTitle": "Archive Index",
     "worldsCount": "{count} worlds",
@@ -49,6 +50,16 @@
       "kitap": "{count} books",
       "evren": "{count} worlds",
       "bolum": "{count} chapters"
+    },
+    "additions": {
+      "title": "Recently Added",
+      "lede": "The newest entries in the archive — a look before you step through.",
+      "kind": {
+        "FILM": "Film",
+        "DIZI": "Series",
+        "ANIME": "Anime",
+        "KITAP": "Book"
+      }
     }
   },
   "nexus": {
@@ -175,7 +186,8 @@
     "about": "Ancient worlds, fandom wikis, and in-depth character analyses — a personal archive of knowledge lost to shadow.",
     "explore": "Explore",
     "home": "Home",
-    "darkStories": "Discover Nexus",
+    "darkStories": "Enter the Nexus",
+    "halls": "Halls",
     "universes": "Universes",
     "tagline": "An archive of ancient knowledge lost to shadow."
   },

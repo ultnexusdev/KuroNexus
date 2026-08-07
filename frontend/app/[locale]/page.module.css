@@ -161,6 +161,17 @@
   font-family: var(--font-sans);
 }
 
+/* CTA'nın somut karşılığı: "7 salon · 336 film · 12 evren".
+   Mono ve küçük — indeks şeridiyle aynı dil, çünkü ikisi de ÖLÇÜ söylüyor.
+   CTA'nın altında duruyor ki vaat ile kanıt üst üste okunsun. */
+.ctaMeta {
+  margin: 12px 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: var(--hub-muted);
+}
+
 /* --- Arşiv indeksi şeridi --- */
 .index {
   max-width: 90rem;
@@ -273,6 +284,15 @@
     grid-column: 1 / -1;
     grid-row: 4;
     margin-top: 22px;
+  }
+
+  /* Satır AÇIKÇA veriliyor: `.textCol` burada `display: contents` aldığı için
+     bu paragraf da ızgaranın doğrudan hücresi oluyor. Yeri yazılmazsa otomatik
+     yerleşim onu boş kalan ilk hücreye — mührün yanına — atardı. */
+  .ctaMeta {
+    grid-column: 1 / -1;
+    grid-row: 5;
+    margin-top: 10px;
   }
 }
 

@@ -1813,8 +1813,12 @@ function toArchiveQuote(quote: BookQuote): ArchiveBookQuote {
  * Kitaplara adres verir (film/anime kanadındaki desen). Slug veritabanında
  * tutulmuyor: başlıktan türetiliyor, çakışırsa yıl, o da yetmezse sıra
  * numarası ekleniyor.
+ *
+ * **Dışa açık** çünkü nabız servisi de ("son eklenenler" şeridi) kitap
+ * adreslerini buradan alıyor: slug listenin tamamına ve sırasına bağlı, o
+ * yüzden mantık tek yerde kalmalı — kopyası kayan adres üretir.
  */
-function withSlugs(entries: BookEntryWithCredits[]): ArchiveBook[] {
+export function withSlugs(entries: BookEntryWithCredits[]): ArchiveBook[] {
   const used = new Set<string>();
   return entries.map((entry, index) => {
     const book = toArchiveBook(entry);
@@ -1842,7 +1846,7 @@ function withSlugs(entries: BookEntryWithCredits[]): ArchiveBook[] {
  * atlayınca künye sessizce boş döndü, yazar adı tıklanamaz hâle geldi ve
  * derleyici hiçbir şey söylemedi. Zorunlu olunca aynı hata derlemede patlıyor.
  */
-type BookEntryWithCredits = BookEntry & {
+export type BookEntryWithCredits = BookEntry & {
   people: Array<{
     role: BookPersonRole;
     orderIndex: number;
@@ -1852,8 +1856,14 @@ type BookEntryWithCredits = BookEntry & {
   series: { slug: string; name: string } | null;
 };
 
-/** Salon ve kitap sayfasının künye bağları için ortak `include`. */
-const CREDITS_INCLUDE = {
+/**
+ * Salon ve kitap sayfasının künye bağları için ortak `include`.
+ *
+ * **Dışa açık**: nabız servisi arşivi aynı sorguyla okumak zorunda (slug
+ * listenin sırasına bağlı), `include`u kopyalarsa `withSlugs`in beklediği
+ * künye eksik kalır.
+ */
+export const CREDITS_INCLUDE = {
   people: {
     include: { person: { select: { slug: true, name: true } } },
     orderBy: { orderIndex: 'asc' },

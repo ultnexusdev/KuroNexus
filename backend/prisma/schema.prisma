@@ -116,6 +116,18 @@ model WikiUniverse {
   driverStandings DriverStanding[]
   transferNews    TransferNews[]
   bookEntries     BookEntry[]
+  /// Spor arşivi köprüsü (Salon 06). Sanal ters-ilişki: FK sütunu karşı tarafta
+  /// (FootballClub.universeId). Bu satır tek başına SIFIR SQL üretir.
+  footballClubs   FootballClub[]
+
+  // Kural 14: FK'lere Prisma otomatik index koymuyor.
+  // Bu index üretimde ZATEN VAR (migration geçmişinden geliyor) ama şemada
+  // bildirilmemişti — 8 Ağustos 2026'da yerel veritabanı kurulup sürüklenme
+  // ölçüldüğünde bulundu. Bildirilmemiş olmasının bedeli sessizdi ve büyüktü:
+  // `prisma migrate dev` çalıştıran biri, üretimde çalışan bu indexi DÜŞÜREN
+  // bir migration üretirdi. Satır burada olduğu için artık üretmez; üretime
+  // uygulandığında da hiçbir DDL çıkmaz (index zaten yerinde).
+  @@index([categoryId])
 }
 
 // Dış API yanıtları için kalıcı cache (kural 4 + 14: her sayfa yüklemesinde
@@ -1275,6 +1287,9 @@ model TmPlayer {
 
   transfers    TmTransfer[]
   transferNews TransferNews[]
+  /// Spor arşivi köprüsü (Salon 06). Sanal ters-ilişki: FK sütunu karşı tarafta
+  /// (FootballPlayer.tmPlayerId). Bu satır tek başına SIFIR SQL üretir.
+  archivePlayers FootballPlayer[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1333,4 +1348,1100 @@ model TmTransfer {
   @@index([playerId])
   @@index([fromClubId])
   @@index([toClubId])
+}
+
+
+// ============================================================================
+// SALON 06 · SPOR ARŞİVİ — Faz 1
+//
+// TEZİ TEK CÜMLEDE: bu bir istatistik veritabanı değil, bir müze kaydıdır.
+// Şemanın merkezinde künye değil ANLATI durur. Kronolojik dönem (FootballEra)
+// ve an (FootballMoment) birinci sınıf modellerdir; maç, oyuncu, turnuva
+// künyesi onlara İSTEĞE BAĞLI takılan ikincil kayıttır — tersi değil.
+//
+// TAMAMEN EKLEMELİ: mevcut hiçbir tabloya, kolona ya da veriye dokunulmuyor.
+// SportPlayer · SportLegend · RaceEvent · DriverStanding olduğu gibi duruyor
+// (karar 4). Veri göçü ayrı bir karardır, bu turda yapılmıyor.
+//
+// --- İKİ DİLLİLİK (karar 1) ------------------------------------------------
+// Alan ikizlemesi. Ayrı çeviri tablosu REDDEDİLDİ. Slug TEK ve dilden bağımsız.
+//   ÇEVRİLİR   → küratörün yazdığı her cümle: başlık, alt başlık, anlatı,
+//                tarihsel bağlam, kişisel not, lakap, rol, alıntı, alt yazı
+//   ÇEVRİLMEZ  → özel adlar (kişi, kulüp, pist, takım), sayı, tarih, renk,
+//                SVG path, süre biçimi ("1:21.046")
+//   ANAHTARDIR → ülke (`countryCode`), mevki ("GK"/"DF"), an türü (`kind`) —
+//                bunlar sütun değil çeviri ANAHTARI; karşılığı next-intl'de
+//                durur, veritabanı aynı kelimeyi 40 satırda tekrarlamaz.
+//                Ev bunu zaten böyle yapıyor (SportPlayer.position yorumu).
+// `*Tr` birincil, `*En` opsiyonel: arşiv Türkçe yazılıyor. Ön yüz `en ?? tr`
+// okur — İngilizce ziyaretçi boş duvar değil Türkçe metin görür.
+//
+// --- YAYIN KAPISI · BOŞ ODA YASAĞI (karar 3) --------------------------------
+// TEK `isPublished`. Dil başına ikizlenmiş bayrak (isPublishedTr/En) BİLİNÇLE
+// REDDEDİLDİ: ikisi de false doğduğu için lansman günü İngilizce ziyaretçiye
+// spor kanadının TAMAMI kapalı olurdu — yani boş oda yasağını korumak adına
+// asıl boş odayı bayrak üretirdi. Üstelik bayrak metnin varlığını değil
+// küratörün tıkladığı düğmeyi ölçer.
+//
+// Metnin varlığı bayrağa değil, VERİTABANINA emanet edildi. Elle yazılan
+// migration'da üç CHECK var (Prisma bunları modellemez ama düşürmez de):
+//   FootballEra · FootballLegend · F1Circuit üzerinde
+//     CHECK (NOT "isPublished" OR length(btrim(coalesce("narrativeTr",''))) > 0)
+// Böylece "yayınlandı ama metni boş" hâli servis nezaketine değil DDL'e bağlı.
+// `narrativeTr` bilerek NULLABLE: taslak kaydedilebilsin, yalnızca YAYIN
+// anlatı istesin.
+//
+// `isPublished` YALNIZCA anlatı taşıyan modellerde var. Künye (FootballPlayer,
+// FootballMatch, FootballCompetition) tek başına sayfa olmaz, yayın kararı da
+// taşımaz.
+//
+// --- SIRALAMA: ÜÇ AYRI EKSEN, ÇİFT GÖREV YOK --------------------------------
+//   orderIndex   → küratörün ekran sırası. Sayfayı yeniden dizmek serbesttir.
+//   personalRank → "benim ilk 10'um". null = listede değil. Ekran sırası
+//                  değişince BU DEĞİŞMEZ — brief'in istediği kişisel sıralama.
+//   isFavorite   → tekil rozet. Sıra değil, işaret.
+// Puan alanı YOK: Hagi'ye 8.5 vermek arşivin diliyle çelişir; sıra bir
+// tercihtir, puan bir ölçüm.
+//
+// --- ALAN ADI NOTU ----------------------------------------------------------
+// Brief harfiyen `order` diyor; burada `orderIndex` kullanıldı. Ölçüldü:
+// `orderIndex` yedi modelde (Story, BookPersonOnEntry, BookQuote, ShowSeason,
+// CharacterImage, WikiEntry/BookEntry ilişkileri), `order` yalnızca üç eski
+// kayıtta (SportPlayer, SportLegend, AmbientTrack). Yani `orderIndex` yeni bir
+// desen İCAT ETMEK değil, evin güncel ve baskın dilini kullanmaktır. Brief'in
+// harfine dönüş tek bul-değiştirle mümkün. Aynı gerekçeyle alan adları
+// camelCase (`titleTr`), snake_case değil: 1345 satırın tamamı camelCase.
+// ============================================================================
+
+/// Bir futbol figürünün işlevi. Gerçekten kapalı bir küme, ve `OTHER` kaçış
+/// kapısı var — bu yüzden enum. `FootballMoment.kind` ve turnuva türü ise
+/// String anahtar olarak bırakıldı (karar 5: sonradan `ALTER TYPE` gerektiren
+/// biçimden kaçınılır; ev deseni `SportPlayer.position`).
+enum FootballFigureRole {
+  PLAYER
+  COACH
+  FOUNDER
+  PRESIDENT
+  OTHER
+}
+
+/// Görselin sayfadaki yeri. `CharacterImageSlot` ile birebir aynı desen
+/// (schema.prisma ~965) ve aynı gerekçe: künye portresi ile galeri aynı
+/// tabloda durur, sorguda slot ile ayrışır.
+enum SportImageSlot {
+  /// Sayfanın üst şeridi — tek kayıt beklenir
+  HERO
+  /// Künye portresi
+  PORTRAIT
+  /// Galeri ızgarası — çok kayıt
+  GALLERY
+  /// Pist çizimine eşlik eden raster görsel
+  TRACK
+}
+
+// ---- Futbol · arşiv katmanı (sayfanın özü) ---------------------------------
+
+/// Kulüp dünyası. `/spor/futbol/galatasaray` sayfasının kökü.
+///
+/// `/spor` sayfası için ayrı bir "SportWorld" vitrin tablosu AÇILMADI: elle
+/// açılıp kapanan bir `isPublished` bayrağı, altında tek bir yayınlanmış kulüp
+/// yokken "Futbol" kapısını açık bırakabilirdi — yani karar 3'ün yasakladığı
+/// boş odayı bizzat üretirdi. Kanat kartları iki `count()` ile beslenir
+/// (aşağıdaki indeksler tam bunun için), kanat metinleri next-intl'de durur.
+/// Ev bu problemi zaten türetilmiş çözüyor: ambient-tracks.service.ts:28 →
+/// `ambientTracks: { some: {} }`.
+model FootballClub {
+  id   String @id @default(cuid())
+  /// Rota anahtarı. Dilden bağımsız, TEK.
+  slug String @unique
+
+  /// Özel ad — çevrilmez. "Galatasaray" iki dilde de Galatasaray.
+  name         String
+  /// "Galatasaray Spor Kulübü" — resmî ad da özel ad
+  officialName String?
+  /// "GS" — rozet metni, çevrilmez
+  shortName    String?
+  /// Lakap ÇEVRİLİR: "Cimbom · Aslan" / "The Lions" kültürel taşıyıcıdır
+  nicknameTr String?
+  nicknameEn String?
+
+  foundedYear Int?
+  /// ISO 3166-1 alpha-2 ("TR") — ad değil KOD, çevirisi next-intl'de
+  countryCode String?
+  /// Şehir adı özel ad; yazım farkı ("İstanbul"/"Istanbul") ön yüzde çözülür
+  cityName    String?
+
+  stadiumName     String?
+  stadiumCapacity Int?
+
+  crestImage String?
+  coverImage String?
+  /// Kulübün gerçek dünya renkleri — VERİ, tema token'ı değil
+  /// (DriverStanding.teamColor ile aynı gerekçe)
+  primaryColor   String?
+  secondaryColor String?
+
+  /// Hub kartındaki tek satır
+  taglineTr String?
+  taglineEn String?
+  /// Kulüp sayfasında dönem omurgasından ÖNCEki giriş. Omurga değil, kapı.
+  narrativeTr String? @db.Text
+  narrativeEn String? @db.Text
+
+  /// `/spor/futbol` hub'ındaki "öne çıkan dünya" bu bayrakla seçilir
+  isFeatured  Boolean @default(false)
+  isPublished Boolean @default(false)
+  orderIndex  Int     @default(0)
+
+  /// Kadim Dünyalar köprüsü — BookEntry.universeId ile birebir aynı desen.
+  /// TEK amacı göç ve çapraz geçiş: kulüp sayfası mevcut SportPlayer /
+  /// SportLegend / TransferNews / AmbientTrack verisine VERİ TAŞIMADAN
+  /// ulaşabilsin (karar 4). Faz 1'de boş kalabilir.
+  universeId String?
+  universe   WikiUniverse? @relation(fields: [universeId], references: [id])
+
+  /// Transfermarkt kulüp numarası ("141"). Foreign key DEĞİL, düz metin:
+  /// `TmClub.id` senkronizasyonun kendi anahtarıdır ve arşiv kaydının bir
+  /// senkronizasyon tablosuna bağımlı olması istenmiyor. (Oyuncu tarafında
+  /// karar TERSİ — bkz. FootballPlayer.tmPlayerId; sebebi orada yazılı.)
+  tmClubId String?
+
+  eras        FootballEra[]
+  legends     FootballLegend[]
+  players     FootballPlayer[]
+  homeMatches FootballMatch[]  @relation("FootballHomeClub")
+  awayMatches FootballMatch[]  @relation("FootballAwayClub")
+  quotes      SportQuote[]
+  images      SportImage[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean  @default(false)
+
+  /// Sayfa 1 (`/spor`) sayımı + Sayfa 2 kulüp listesi: süzgeç ve sıralama
+  /// tek indeks taramasından karşılanır, ayrı sort adımı çıkmaz.
+  @@index([isPublished, isDeleted, orderIndex])
+  @@index([isFeatured, isPublished, isDeleted])
+  // Kural 14
+  @@index([universeId])
+}
+
+/// **Kulüp sayfasının omurgası: kronolojik dönem.**
+///
+/// Dönem bir etiket değil, kendi anlatısını taşıyan bir bölümdür: `narrative`
+/// (anlatı), `context` (o yıllarda ülkede/dünyada ne oluyordu), `personalNote`
+/// (küratörün sesi). Efsaneler ve maçlar ayrı bir ızgarada DEĞİL, dönemin
+/// İÇİNDE yaşar:
+///   · anlar (maç, kupa, geliş, ayrılık) → `FootballMoment` (eraId ZORUNLU)
+///   · efsaneler                          → `FootballEraFigure` (döneme özel notla)
+///
+/// Sınırlar SAYI, metin değil. Mevcut `SportLegend.era` alanı "1996–2001" düz
+/// metniydi: kronolojik sıralanamıyor, "bu an hangi döneme düşer" sorusuna
+/// cevap veremiyordu. `endYear` null = süregelen dönem. Görünen etiket ön yüzde
+/// üretilir (tire işareti ve tarih biçimi locale'e göre değişir).
+///
+/// Sıralama iki eksenli: `startYear` kronolojinin gerçeği, `orderIndex`
+/// küratörün üstüne yazdığı sıra (aynı yıl başlayan iki dönem, ya da bir
+/// "önsöz" bölümü için). Ev deseni: Story hem `publishedAt` hem `orderIndex`
+/// taşıyor.
+model FootballEra {
+  id String @id @default(cuid())
+  /// Kulüp içinde tekil. Sayfa içi çapa ve derin bağlantı:
+  /// /spor/futbol/galatasaray#avrupaya-acilan-kapi
+  slug String
+
+  startYear Int
+  /// null = süregelen dönem ("2023–")
+  endYear   Int?
+
+  /// "Avrupa'ya açılan kapı" / "The gateway to Europe"
+  titleTr    String
+  titleEn    String?
+  /// Zaman şeridinde görünen tek satır
+  subtitleTr String?
+  subtitleEn String?
+
+  /// Dönemin anlatısı — sayfanın özü. NULLABLE ki taslak kaydedilebilsin;
+  /// YAYIN için dolu olması migration'daki CHECK ile zorunlu.
+  narrativeTr String? @db.Text
+  narrativeEn String? @db.Text
+  /// Tarihsel bağlam — müze duvarındaki ikinci levha
+  contextTr String? @db.Text
+  contextEn String? @db.Text
+  /// "Bu dönemi ben yaşamadım, babamdan dinledim"
+  personalNoteTr String? @db.Text
+  personalNoteEn String? @db.Text
+
+  coverImage String?
+  /// Dönem şeridinin rengi — VERİ, tema token'ı değil
+  accentColor String?
+
+  isPublished Boolean @default(false)
+  orderIndex  Int     @default(0)
+
+  clubId String
+  club   FootballClub @relation(fields: [clubId], references: [id])
+
+  moments FootballMoment[]
+  figures FootballEraFigure[]
+  quotes  SportQuote[]
+  images  SportImage[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean  @default(false)
+
+  @@unique([clubId, slug])
+  /// Sayfa 3'ün EN KRİTİK indeksi. Hem dönem listesini sıralı verir hem de
+  /// "bu kulübün yazılmış dönemi var mı" EXISTS'ini ilk üç sütunuyla karşılar.
+  @@index([clubId, isPublished, isDeleted, orderIndex])
+  /// "Bu an/kupa hangi döneme düşer" — yıl aralığı taraması
+  @@index([clubId, startYear])
+}
+
+/// **Anlatı atomu: maç değil, AN.**
+///
+/// Kulübün kuruluşu, Ali Sami Yen'e taşınma, Hagi'nin gelişi, 2000 Kopenhag
+/// gecesi, kazanılan kupa — bunların yalnızca biri maçtır. Bu yüzden birinci
+/// sınıf model AN'dır; `FootballMatch` ona İSTEĞE BAĞLI takılan künyedir.
+/// Anlatısız bir maç veridir; an ise müze levhasıdır.
+///
+/// Bu ayrım olmadan "1905-1959 Kuruluş ve okul" dönemi tek bir paragraftan
+/// ibaret kalır (o yıllarda gösterilecek maç kaydı yok) — yani boş oda.
+///
+/// Kupa için AYRI TABLO YOK: `kind = "TROPHY"` bir an türüdür. Ayrı bir
+/// FootballHonour tablosu kupaları anlatısız bir künye listesine düşürürdü;
+/// anlatı öncelikli arşivde kazanılan kupa da bir cümle hak eder.
+///
+/// `eraId` ZORUNLU: kulüp arşivinde döneme ait olmayan an yoktur. Bu, "her
+/// anın bir dönemi vardır" tezinin ve dönem sorgusunun ucuzluğunun bedeli.
+/// İleride kulüpten bağımsız bir an gerekirse `ALTER COLUMN DROP NOT NULL`
+/// güvenli ve geri alınabilir bir DDL'dir (bkz. migration notları).
+model FootballMoment {
+  id String @id @default(cuid())
+
+  /// An türü — ÇEVİRİ ANAHTARI, enum değil (karar 5: sonradan `ALTER TYPE`
+  /// gerekmesin; ev deseni `SportPlayer.position`). İzinli değerler:
+  /// "MILESTONE" · "MATCH" · "TROPHY" · "ARRIVAL" · "DEPARTURE" ·
+  /// "TURNING_POINT" · "OTHER". Liste servis DTO'sunda bir birleşim tipi
+  /// olarak tutulur; yazım hatası yazma anında yakalanır.
+  kind String @default("MILESTONE")
+
+  /// Sıralamanın omurgası — her zaman biliniyor
+  year Int
+  /// Gün biliniyorsa
+  happenedAt DateTime?
+
+  /// Anın başlığı. Bir zaman şeridi satırında BAŞLIK İÇERİKTİR — bu yüzden
+  /// `narrativeTr` üzerinde CHECK yok (bkz. blok başındaki yayın kapısı notu).
+  titleTr String
+  titleEn String?
+  narrativeTr String? @db.Text
+  narrativeEn String? @db.Text
+
+  /// Müze levhasının tek fotoğrafı. Galeri değil — galeri `SportImage`'ta.
+  imageUrl  String?
+  captionTr String?
+  captionEn String?
+
+  /// `/spor/futbol` hub'ının "tarihten" şeridi yalnızca bunları okur
+  isHighlight Boolean @default(false)
+  isPublished Boolean @default(false)
+  orderIndex  Int     @default(0)
+
+  eraId String
+  era   FootballEra @relation(fields: [eraId], references: [id])
+
+  /// Anın kahramanı. Doluysa an, efsanenin kendi sayfasında da görünür —
+  /// böylece efsane sayfası anlarını DÖNEMLER ARASINDAN tek taramada toplar,
+  /// ikinci bir sahip alanına gerek kalmadan.
+  /// Tekil: "Hagi'nin pasında Şükür'ün golü" gibi iki kahramanlı anda
+  /// kahraman biri seçilir, diğeri anlatı metninde yaşar. İleride join
+  /// tablosu eklemek tamamen ekleyicidir.
+  legendId String?
+  legend   FootballLegend? @relation(fields: [legendId], references: [id])
+
+  /// Künye eki: skor, tarih, rakip. **Anlatı burada değil.**
+  matchId String?
+  match   FootballMatch? @relation(fields: [matchId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean  @default(false)
+
+  /// Dönemin içindeki anlar + "bu dönemde gösterilecek bir şey var mı" EXISTS
+  @@index([eraId, isPublished, isDeleted, orderIndex])
+  /// Efsane sayfası: dönemler arası anlar, kronolojik
+  @@index([legendId, isPublished, isDeleted, year])
+  /// Hub'ın tarih şeridi
+  @@index([isHighlight, isPublished, isDeleted, year])
+  /// Dönem şeridinde kupa/geliş süzgeci
+  @@index([eraId, kind, isPublished, isDeleted])
+  // Kural 14
+  @@index([matchId])
+}
+
+/// **Efsanenin BİR DÖNEMDEKİ yeri.**
+///
+/// Neden düz `FootballLegend.eraId` DEĞİL: Fatih Terim aynı kulüpte önce
+/// futbolcu, sonra üç ayrı dönemde teknik direktör. Tek foreign key onu bir
+/// döneme hapsederdi. Dahası "bu dönemde ne yaptı" cümlesi ne efsaneye ne
+/// döneme ait — tam olarak KESİŞİME ait, bu yüzden `roleTr/En` ve `noteTr/En`
+/// join'in üstünde durur. Ev bunu zaten kanıtlamış: `BookPersonOnEntry.role`.
+///
+/// SERT SİLME + Cascade, `isDeleted` YOK — ev desenine birebir uyum
+/// (`BookPersonOnEntry`, schema.prisma:669-682). Join'de yumuşak silme
+/// kullanılsaydı `@@id([eraId, legendId])` bir KİLİDE dönerdi: arayüzde
+/// silinmiş görünen bir satır için `create` P2002 alır ve hatanın sebebi
+/// ekranda görünmez. Brief'in "isDeleted her modelde" kuralından bilinçli ve
+/// tek sapma budur; gerekçesi ev deseni ve onarılabilirlik.
+///
+/// KULÜP TUTARLILIĞI: bu tablo "efsane hangi dönemde" sorusunun yetkilisidir,
+/// "efsane hangi kulübün" sorusunun DEĞİL — o yetki `FootballLegend.clubId`te.
+/// İki yol arasındaki tutarsızlık (Fenerbahçe efsanesini Galatasaray dönemine
+/// bağlamak) veritabanı değil SORGU tarafından kapatılır: Sayfa 3'ün figür
+/// include'u her zaman `legend: { clubId: <o kulüp> }` süzgeciyle yazılır.
+/// Süzgeç `FootballLegend @@index([clubId, isPublished, isDeleted, orderIndex])`
+/// tarafından karşılanır, bedeli yoktur. Servis ayrıca bağ kurulurken
+/// `era.clubId === legend.clubId` doğrular.
+model FootballEraFigure {
+  eraId String
+  era   FootballEra @relation(fields: [eraId], references: [id], onDelete: Cascade)
+
+  legendId String
+  legend   FootballLegend @relation(fields: [legendId], references: [id], onDelete: Cascade)
+
+  /// "dönemin kaptanı" / "captain of the era" — ÇEVRİLİR
+  roleTr String?
+  roleEn String?
+  /// Efsanenin BU dönemdeki tek paragrafı
+  noteTr String? @db.Text
+  noteEn String? @db.Text
+
+  orderIndex Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([eraId, legendId])
+  @@index([eraId, orderIndex])
+  /// Kural 14'ün en net örneği: bileşik PK indeksi `eraId` ile BAŞLIYOR, ters
+  /// yön (efsane sayfasından dönemlere) onu kullanamaz. Elle yazılmasaydı bu
+  /// sorgu seq scan olurdu.
+  @@index([legendId])
+}
+
+/// Efsane. `/spor/futbol/efsaneler/hagi` — rota kulüpten geçmediği için slug
+/// GLOBAL tekil.
+///
+/// `FootballPlayer` ile ayrımı bilinçli ve BookEntry dersinin aynısı:
+/// gösterilen her alan bizim sütunumuz, künye yalnızca tohumlar. Efsane bir
+/// futbolcu olmak zorunda değil (Ali Sami Yen kurucudur), bu yüzden `playerId`
+/// isteğe bağlı.
+///
+/// İstatistik sütunu (appearances/goals/assists) BİLİNÇLE YOK: künye
+/// `FootballPlayer`da durur. Efsane sayfasında istatistik şeridi istenirse
+/// künye üzerinden gelir; anlatı sayfasına sayı yerleştirmek er geç sayfayı
+/// istatistik kartına çevirir.
+model FootballLegend {
+  id   String @id @default(cuid())
+  slug String @unique
+
+  /// Özel ad — çevrilmez
+  name     String
+  /// Künyedeki tam/aksanlı yazım ("Gheorghe Hagi")
+  fullName String?
+  /// Lakap ÇEVRİLİR: "Karpatların Maradonası" / "The Maradona of the
+  /// Carpathians". Lakap bir betimlemedir, özel ad değil.
+  epithetTr String?
+  epithetEn String?
+
+  role FootballFigureRole @default(PLAYER)
+
+  countryCode String?
+  birthYear   Int?
+  deathYear   Int?
+  /// Kulüpteki yılları — sayı, metin değil (kronolojik sıralanabilsin)
+  yearsFrom Int?
+  yearsTo   Int?
+  shirtNumber Int?
+
+  portraitImage String?
+  coverImage    String?
+
+  /// Anlatı — sayfanın özü. Yayın için dolu olması CHECK ile zorunlu.
+  narrativeTr String? @db.Text
+  narrativeEn String? @db.Text
+  contextTr   String? @db.Text
+  contextEn   String? @db.Text
+  personalNoteTr String? @db.Text
+  personalNoteEn String? @db.Text
+  /// Satır satır başarı listesi (SportLegend.achievements deseni)
+  achievementsTr String? @db.Text
+  achievementsEn String? @db.Text
+
+  isFavorite Boolean @default(false)
+  /// "Benim ilk 10'um" — null = listede değil. `orderIndex`ten AYRI: ekran
+  /// sırasını değiştirmek kişisel sıralamayı bozmasın.
+  personalRank Int?
+  isPublished  Boolean @default(false)
+  orderIndex   Int     @default(0)
+
+  /// Efsanenin kulübü — "hangi kulübün efsanesi" sorusunun TEK YETKİLİSİ.
+  /// Nullable: milli takım figürü ya da henüz kulübe bağlanmamış kayıt için.
+  /// Dönem bağı `FootballEraFigure`ta; ikisi arasındaki tutarlılık sorgu ve
+  /// serviste zorlanır (bkz. FootballEraFigure yorumu).
+  clubId String?
+  club   FootballClub? @relation(fields: [clubId], references: [id])
+
+  /// Künye eki (isteğe bağlı, tekil). PostgreSQL NULL'ları ayrı saydığı için
+  /// künyesiz efsane sayısı sınırsız kalır. Yumuşak silmede servis bu alanı
+  /// NULL'lar — yoksa aynı künyeye ikinci bir efsane sayfası açılamazdı.
+  playerId String?         @unique
+  player   FootballPlayer? @relation(fields: [playerId], references: [id])
+
+  eraFigures FootballEraFigure[]
+  moments    FootballMoment[]
+  quotes     SportQuote[]
+  images     SportImage[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean  @default(false)
+
+  /// Hub'ın efsane şeridi
+  @@index([isPublished, isDeleted, orderIndex])
+  /// "Benim ilk 10'um"
+  @@index([isPublished, isDeleted, personalRank])
+  /// Kulübün efsaneleri + dönem figürlerinde kulüp tutarlılık süzgeci
+  @@index([clubId, isPublished, isDeleted, orderIndex])
+}
+
+// ---- Futbol · veri katmanı (Faz 1'de sayfa üretmez) ------------------------
+
+/// Kadro künyesi. Bilinçle İNCE: bir gün API dolduracak, bugün sayfası yok
+/// (karar 2 — API-Football ücretsiz planı 2026'yı vermiyor, ölçüldü).
+/// `isPublished` taşımaz: künye tek başına sayfa olmaz.
+model FootballPlayer {
+  id   String  @id @default(cuid())
+  /// İleride oyuncu sayfası açılırsa diye; şimdilik boş kalabilir
+  slug String? @unique
+  name String
+  fullName String?
+
+  /// "GK" / "DF" / "MF" / "FW" — çeviri ANAHTARI, ikizlenmez
+  /// (SportPlayer.position ile aynı karar)
+  position    String?
+  shirtNumber Int?
+  countryCode String?
+  birthDate   DateTime?
+  photo       String?
+
+  appearances Int @default(0)
+  goals       Int @default(0)
+  assists     Int @default(0)
+
+  noteTr String? @db.Text
+  noteEn String? @db.Text
+
+  orderIndex Int @default(0)
+
+  clubId String?
+  club   FootballClub? @relation(fields: [clubId], references: [id])
+
+  /// Transfermarkt köprüsü — GERÇEK foreign key.
+  ///
+  /// ÖLÇÜLDÜ, varsayılmadı: `football.service.ts:549` senkronizasyonu
+  /// `tmPlayer.upsert` yapıyor ve kadrodan ayrılanların yalnızca
+  /// `currentClubId`sini null'lıyor (satır 558); depoda tek bir
+  /// `tmPlayer.delete` yok. Dahası `TransferNews.tmPlayerId` (schema:1203)
+  /// ZATEN gerçek bir FK. Yani "TmPlayer silinip yeniden yazılıyor, FK
+  /// bağlanamaz" gerekçesi doğru değil — düz metin bırakmak yalnızca bayat
+  /// bir numaranın sessizce hiçbir yeri göstermesine izin verirdi.
+  tmPlayerId String?
+  tmPlayer   TmPlayer? @relation(fields: [tmPlayerId], references: [id])
+
+  /// Dış kaynağın ham anlık görüntüsü. Gösterimde kullanılmaz.
+  externalData          Json?
+  externalDataFetchedAt DateTime?
+
+  legend FootballLegend?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean  @default(false)
+
+  @@index([clubId, isDeleted, orderIndex])
+  // Kural 14
+  @@index([tmPlayerId])
+}
+
+/// Maç künyesi: skor, tarih, rakip. **Anlatı burada değil** — anlatı
+/// `FootballMoment`tedir. Bu ayrım şemanın tezidir.
+///
+/// Döneme BAĞLANMAZ: maçın dönemle ilişkisi onu anan `FootballMoment`
+/// üzerinden kurulur. Böylece "kulüp bağı iki yerde" çelişkisi maç tarafında
+/// hiç doğmaz.
+model FootballMatch {
+  id       String    @id @default(cuid())
+  playedAt DateTime?
+  /// Sezonun BAŞLANGIÇ yılı (1999). "1999-2000" metni türetilir, tutulmaz:
+  /// tire biçimi locale'e göre değişir ve metinle sıralama yanlış çalışır.
+  seasonStartYear Int?
+  /// Tur aşaması ANAHTARI: "FINAL" · "SEMI_FINAL" · "LEAGUE" · "DERBY".
+  /// Enum değil String (karar 5).
+  stage String?
+
+  homeGoals Int?
+  awayGoals Int?
+  /// 2000 UEFA Kupası finali 0-0 bitti, kupa penaltılarla geldi. Galatasaray
+  /// arşivinin en önemli tek maçı bu sütunlar olmadan yazılamaz.
+  homePenalties Int?
+  awayPenalties Int?
+
+  venueName  String?
+  attendance Int?
+
+  competitionId String?
+  competition   FootballCompetition? @relation(fields: [competitionId], references: [id])
+
+  /// Rakip kulüp kaydı VARSA ilişki, yoksa düz ad. `TransferNews.manualPlayerName`
+  /// deseninin aynısı (schema:1193-1198): ilişki doluysa O önceliklidir.
+  /// Bu sütunlar olmadan "1999 Kopenhag" macını yazmak için önce Arsenal'i tam
+  /// bir kulüp kaydı olarak açmak gerekirdi — arşivi öldüren tam bu vergidir.
+  homeClubId String?
+  homeClub   FootballClub? @relation("FootballHomeClub", fields: [homeClubId], references: [id])
+  homeName   String?
+  homeCrest  String?
+  awayClubId String?
+  awayClub   FootballClub? @relation("FootballAwayClub", fields: [awayClubId], references: [id])
+  awayName   String?
+  awayCrest  String?
+
+  /// Dış kaynak numarası. TEKİL DEĞİL, düz indeks: ileride iki farklı
+  /// kaynaktan (API-Football + Transfermarkt) numara gelirse tekil kısıt içe
+  /// aktarmayı sessizce kilitlerdi. Tekrar koruması serviste.
+  externalId            String?
+  externalData          Json?
+  externalDataFetchedAt DateTime?
+
+  moments FootballMoment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean  @default(false)
+
+  // Kural 14
+  @@index([competitionId])
+  @@index([homeClubId, isDeleted, playedAt])
+  @@index([awayClubId, isDeleted, playedAt])
+  @@index([externalId])
+}
+
+/// Turnuva künyesi. Faz 1'de kendi sayfası YOK — anın hangi kulvarda geçtiğini
+/// söylemek için var ("1999-00 UEFA Kupası").
+///
+/// Ad ÇEVRİLİR: "Şampiyonlar Ligi" / "Champions League" özel ad değil, kurumun
+/// yerelleşmiş adıdır — kulüp adının aksine.
+model FootballCompetition {
+  id   String @id @default(cuid())
+  slug String @unique
+
+  nameTr String
+  nameEn String?
+  /// "UCL", "TSL" — rozet altındaki dilsiz kısaltma
+  shortName String?
+
+  /// Tür ANAHTARI: "LEAGUE" · "DOMESTIC_CUP" · "EUROPEAN" · "OTHER"
+  type            String?
+  countryCode     String?
+  isInternational Boolean @default(false)
+  logoImage       String?
+
+  orderIndex Int @default(0)
+
+  externalId String?
+
+  matches FootballMatch[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean  @default(false)
+
+  @@index([isDeleted, orderIndex])
+}
+
+// ---- Formula 1 · arşiv katmanı ---------------------------------------------
+
+/// Pist. `/spor/formula-1/pistler/monza` — sayfanın MERKEZİNDE SVG çizim var.
+///
+/// `trackSvgPath` tek başına işe yaramaz: `trackSvgViewBox` olmadan rastgele
+/// bir path ekrana doğru ölçekte oturmaz. Mevcut `RaceEvent.trackSvgPath` bu
+/// eksikle duruyor; burada tekrarlanmıyor.
+model F1Circuit {
+  id   String @id @default(cuid())
+  slug String @unique
+
+  /// Özel ad — çevrilmez
+  name         String
+  /// "Autodromo Nazionale di Monza" — resmî ad da özel ad
+  officialName String?
+  /// "Hız Tapınağı" / "The Temple of Speed" — ÇEVRİLİR, sayfanın ruhu
+  nicknameTr String?
+  nicknameEn String?
+
+  countryCode        String?
+  cityName           String?
+  firstGrandPrixYear Int?
+  /// Takvimde hâlâ var mı — arşivde duran ölü pistler için
+  isActive Boolean @default(true)
+
+  lengthMeters Int?
+  cornerCount  Int?
+  drsZones     Int?
+  /// Saat yönünde mi — çizimin ok yönü buradan
+  isClockwise Boolean?
+
+  /// Tur rekoru. Süre METİN ("1:21.046"): milisaniyeye çevirmek biçimi
+  /// kaybettirir ve sıralama ihtiyacı yok.
+  lapRecordTime     String?
+  lapRecordYear     Int?
+  /// Rekor sahibi FK — düz ad olsaydı "bu pistin rekoru bende" bağlantısı
+  /// sürücü sayfasından kurulamazdı. Sürücü kaydı yoksa boş kalır.
+  lapRecordDriverId String?
+  lapRecordDriver   F1Driver? @relation("F1CircuitLapRecord", fields: [lapRecordDriverId], references: [id])
+
+  /// Pistin tek çizgi SVG path verisi (d attribute) — RaceEvent.trackSvgPath
+  /// ile aynı desen ve aynı ad.
+  trackSvgPath String? @db.Text
+  /// "0 0 800 600" — path'in ölçek kutusu. Path varsa bu da olmalı.
+  trackSvgViewBox String?
+  /// Başlangıç/bitiş çizgisinin path üstündeki konumu (0-1) — işaret koymak için
+  startLineOffset Float?
+
+  coverImage  String?
+  accentColor String?
+
+  /// Anlatı — sayfanın özü. Yayın için dolu olması CHECK ile zorunlu.
+  narrativeTr String? @db.Text
+  narrativeEn String? @db.Text
+  contextTr   String? @db.Text
+  contextEn   String? @db.Text
+  personalNoteTr String? @db.Text
+  personalNoteEn String? @db.Text
+
+  isFavorite   Boolean @default(false)
+  personalRank Int?
+  isPublished  Boolean @default(false)
+  orderIndex   Int     @default(0)
+
+  corners F1CircuitCorner[]
+  results F1RaceResult[]
+  moments F1Moment[]
+  quotes  SportQuote[]
+  images  SportImage[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean  @default(false)
+
+  /// Sayfa 1 sayımı + Sayfa 5 pist dizini
+  @@index([isPublished, isDeleted, orderIndex])
+  @@index([isPublished, isDeleted, personalRank])
+  // Kural 14
+  @@index([lapRecordDriverId])
+}
+
+/// Adı olan viraj: "Parabolica", "Variante Ascari", "Eau Rouge".
+///
+/// Sayfa 6'yı gerçekten SAYFA yapan parça: SVG çizimi bir resim olmaktan çıkıp
+/// okunabilir bir metne dönüşüyor. `markerX/markerY` pistin `trackSvgViewBox`
+/// koordinat sistemindeki konumdur — etiket oraya konur.
+model F1CircuitCorner {
+  id     String @id @default(cuid())
+  number Int?
+  /// Virajın yerleşik özel adı — çevrilmez
+  name   String?
+  /// Küratörün taktığı ad — ÇEVRİLİR
+  nicknameTr String?
+  nicknameEn String?
+
+  noteTr String? @db.Text
+  noteEn String? @db.Text
+
+  markerX Float?
+  markerY Float?
+
+  isPublished Boolean @default(false)
+  orderIndex  Int     @default(0)
+
+  circuitId String
+  circuit   F1Circuit @relation(fields: [circuitId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean  @default(false)
+
+  @@index([circuitId, isPublished, isDeleted, orderIndex])
+}
+
+/// F1'in anlatı atomu — `FootballMoment`in karşılığı. Simetri kasıtlı: iki
+/// kanadın da omurgası bir anlatı birimi.
+///
+/// Bu model aynı zamanda `F1Season` / `F1Driver` / `F1Team` üçlüsünü Faz 1'in
+/// sayfalarına bağlayan TEK köprüdür; o olmasaydı üç tablo açılıp altı sayfanın
+/// hiçbirine ulaşamazdı.
+///
+/// `seasonYear` HER ZAMAN dolu ve sıralamanın omurgası; `seasonId` yalnızca o
+/// yıl için yazılmış bir sezon kaydı VARSA dolar — küratör 1988 Monza için tek
+/// bir an yazarken önce sezon kaydı açmak zorunda kalmasın (FootballMatch.homeName
+/// ile aynı gerekçe). İkisinin senkron kalması servisin işi: sezon bağlanırken
+/// `seasonYear = season.year` yazılır.
+model F1Moment {
+  id String @id @default(cuid())
+
+  seasonYear Int
+  happenedAt DateTime?
+
+  titleTr String
+  titleEn String?
+  narrativeTr String? @db.Text
+  narrativeEn String? @db.Text
+
+  imageUrl  String?
+  captionTr String?
+  captionEn String?
+
+  isHighlight Boolean @default(false)
+  isPublished Boolean @default(false)
+  orderIndex  Int     @default(0)
+
+  circuitId String?
+  circuit   F1Circuit? @relation(fields: [circuitId], references: [id])
+  seasonId  String?
+  season    F1Season?  @relation(fields: [seasonId], references: [id])
+  driverId  String?
+  driver    F1Driver?  @relation(fields: [driverId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean  @default(false)
+
+  /// Sayfa 6: "burada yaşananlar", kronolojik
+  @@index([circuitId, isPublished, isDeleted, seasonYear])
+  @@index([seasonId, isPublished, isDeleted, orderIndex])
+  @@index([driverId, isPublished, isDeleted, seasonYear])
+  @@index([isHighlight, isPublished, isDeleted, seasonYear])
+}
+
+/// Sezon. F1'de dönem bir yıldır — `FootballEra`nın karşılığı. Faz 1'de kendi
+/// sayfası yok.
+///
+/// `year` TEKİL DEĞİL, düz indeks: yumuşak silinmiş bir sezonu yeniden girmek
+/// `-deleted-{timestamp}` numarasıyla serbestleştirilemeyen bir Int kısıtına
+/// çarpardı ve arayüzden onarılamayan bir P2002 üretirdi. Tekillik `slug`ta
+/// (o serbestleştirilebilir) ve serviste.
+model F1Season {
+  id   String @id @default(cuid())
+  /// "2000" — rota ve tekillik anahtarı
+  slug String @unique
+  year Int
+
+  /// "İki takımın son savaşı" — ÇEVRİLİR
+  titleTr String?
+  titleEn String?
+  narrativeTr String? @db.Text
+  narrativeEn String? @db.Text
+  personalNoteTr String? @db.Text
+  personalNoteEn String? @db.Text
+
+  coverImage String?
+
+  /// Şampiyon FK — düz metin "Michael Schumacher" DEĞİL: sürücü sayfası
+  /// açıldığında "şampiyon olduğu yıllar" bölümü metin taramasıyla kurulamaz.
+  championDriverId String?
+  championDriver   F1Driver? @relation("F1SeasonChampionDriver", fields: [championDriverId], references: [id])
+  championTeamId   String?
+  championTeam     F1Team?   @relation("F1SeasonChampionTeam", fields: [championTeamId], references: [id])
+
+  isPublished Boolean @default(false)
+  orderIndex  Int     @default(0)
+
+  moments F1Moment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean  @default(false)
+
+  @@index([isPublished, isDeleted, year])
+  // Kural 14
+  @@index([championDriverId])
+  @@index([championTeamId])
+}
+
+/// Sürücü. Faz 1'de sayfası yok; rota ve model hazır (brief isteği).
+///
+/// `teamId` diye düz bir alan BİLİNÇLE YOK: Hamilton McLaren, Mercedes ve
+/// Ferrari sürdü — o alan ilk günden yanlış olurdu. Faz 2'de sürücü-takım-sezon
+/// üçlüsü (`F1DriverSeason`) tamamen EKLEYİCİ olarak gelebilir.
+model F1Driver {
+  id   String @id @default(cuid())
+  slug String @unique
+
+  /// Özel ad — çevrilmez
+  name     String
+  fullName String?
+  /// Lakap ÇEVRİLİR: "Yağmur Kralı" / "The Rain Master"
+  nicknameTr String?
+  nicknameEn String?
+
+  countryCode String?
+  birthYear   Int?
+  deathYear   Int?
+  activeFrom  Int?
+  activeTo    Int?
+  /// 2014 sonrası sabit numara
+  permanentNumber Int?
+
+  championships Int @default(0)
+  wins          Int @default(0)
+  poles         Int @default(0)
+
+  photo String?
+
+  /// Jolpica/Ergast sürücü kimliği ("max_verstappen"). Senkronizasyonun
+  /// eşleştirme anahtarı; ad üstünden eşleştirme kırılgan (aksan, "Pérez"
+  /// / "Perez", "Nino Farina" / "Giuseppe Farina").
+  externalId String? @unique
+
+  /// ---- Portre künyesi (Wikimedia Commons) ----
+  /// Görselin kendisi `photo` alanında ve KENDİ sunucumuzda (/uploads/…):
+  /// CSP dış adrese izin vermiyor ve dış adres bir gün ölüyor.
+  ///
+  /// Bu üç alan yasal zorunluluk, süs değil: Commons görsellerinin çoğu
+  /// CC BY / CC BY-SA, yani kaynak ve fotoğrafçı GÖSTERİLMEK ZORUNDA.
+  /// Ölçüldü (8 Ağustos 2026): altı sürücünün beşinde lisans + sanatçı
+  /// eksiksiz geliyor (CC BY-SA 4.0, CC BY 4.0, kamu malı karışık).
+  /// Üçü birden dolu değilse görsel GÖSTERİLMEZ — atıfsız yayın, telifli
+  /// görseli izinsiz kullanmakla aynı kapıya çıkar.
+  portraitSourceUrl String?
+  portraitLicense   String?
+  portraitAuthor    String?
+
+  narrativeTr String? @db.Text
+  narrativeEn String? @db.Text
+  personalNoteTr String? @db.Text
+  personalNoteEn String? @db.Text
+
+  isFavorite   Boolean @default(false)
+  personalRank Int?
+  isPublished  Boolean @default(false)
+  orderIndex   Int     @default(0)
+
+  raceResults     F1RaceResult[]
+  championSeasons F1Season[]   @relation("F1SeasonChampionDriver")
+  lapRecords      F1Circuit[]  @relation("F1CircuitLapRecord")
+  moments         F1Moment[]
+  quotes          SportQuote[]
+  images          SportImage[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean  @default(false)
+
+  @@index([isPublished, isDeleted, orderIndex])
+  @@index([isPublished, isDeleted, personalRank])
+}
+
+/// Takım (constructor). Faz 1'de sayfası yok; rota ve model hazır.
+model F1Team {
+  id   String @id @default(cuid())
+  slug String @unique
+
+  /// Özel ad — çevrilmez
+  name     String
+  fullName String?
+
+  countryCode String?
+  foundedYear Int?
+  /// Takımın gerçek dünya rengi — VERİ, tema token'ı değil
+  teamColor String?
+  logoImage String?
+
+  narrativeTr String? @db.Text
+  narrativeEn String? @db.Text
+
+  isPublished Boolean @default(false)
+  orderIndex  Int     @default(0)
+
+  championSeasons F1Season[] @relation("F1SeasonChampionTeam")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean  @default(false)
+
+  @@index([isPublished, isDeleted, orderIndex])
+}
+
+// ---- Ortak arşiv parçaları --------------------------------------------------
+
+/// Alıntı. `BookQuote`un spor karşılığı — sayfa yerine yıl, bağlam aynı.
+///
+/// Beş nullable sahip: kulüp · dönem · efsane · pist · sürücü. TAM BİRİ dolu
+/// olur. Bu depoda yerleşik desen (`Comment` üç, `Favorite` üç nullable
+/// sahiple çalışıyor); enum ayrımlı `ownerType/ownerId` REDDEDİLDİ, referans
+/// bütünlüğünü kaybettirirdi.
+///
+/// Ev deseninin sağlamadığı güvence migration'a elle yazılan bir CHECK ile
+/// kapatıldı: `num_nonnulls(...) = 1`. Test edilemeyen bir veritabanında
+/// "istenirse" değil ŞART — beş sahibi de boş bir satır hiçbir yerde görünmez
+/// (sessiz yetim), iki sahibi dolu bir satır iki sayfada birden çıkar.
+///
+/// `FootballMoment` sahip listesinde YOK: an zaten kendi anlatısını, tek
+/// görselini ve alt yazısını taşıyor — anın içindeki söz anlatı metninde
+/// yaşar. Alıntı bölümü dönemin ya da efsanenin sayfa öğesidir.
+model SportQuote {
+  id String @id @default(cuid())
+
+  /// Alıntı metni ÇEVRİLİR: bir sözün İngilizcesi çeviridir.
+  textTr String  @db.Text
+  textEn String? @db.Text
+  /// "Kim söyledi" — özel ad, çevrilmez
+  attribution String?
+  /// "Hangi maçtan sonra" — cümle olduğu için çevrilir (BookQuote.context deseni)
+  contextTr String?
+  contextEn String?
+  year      Int?
+
+  isFavorite  Boolean @default(false)
+  isPublished Boolean @default(false)
+  orderIndex  Int     @default(0)
+
+  clubId String?
+  club   FootballClub? @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  eraId  String?
+  era    FootballEra?  @relation(fields: [eraId], references: [id], onDelete: Cascade)
+  legendId String?
+  legend   FootballLegend? @relation(fields: [legendId], references: [id], onDelete: Cascade)
+  circuitId String?
+  circuit   F1Circuit?     @relation(fields: [circuitId], references: [id], onDelete: Cascade)
+  driverId  String?
+  driver    F1Driver?      @relation(fields: [driverId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean  @default(false)
+
+  // Kural 14 — her sahip için ayrı, hepsi sıralı okunuyor
+  @@index([clubId, isPublished, isDeleted, orderIndex])
+  @@index([eraId, isPublished, isDeleted, orderIndex])
+  @@index([legendId, isPublished, isDeleted, orderIndex])
+  @@index([circuitId, isPublished, isDeleted, orderIndex])
+  @@index([driverId, isPublished, isDeleted, orderIndex])
+}
+
+/// Seçilmiş görsel — GALERİ ve künye portresi için. `CharacterImage` deseni.
+///
+/// Tek kapak görselleri sahibin kendi sütununda durur (`coverImage`,
+/// `crestImage`, `portraitImage`); bir görsel için tabloya gitmek gereksiz.
+/// Anın tek fotoğrafı da `FootballMoment.imageUrl`dadır.
+///
+/// Adres her zaman kendi sunucumuz (`/uploads/…`): CSP yabancı sunucuya izin
+/// vermiyor ve dış adres bir gün ölüyor (CharacterImage.url yorumu).
+///
+/// Sahip kuralı ve CHECK'i `SportQuote` ile aynı.
+model SportImage {
+  id   String         @id @default(cuid())
+  slot SportImageSlot @default(GALLERY)
+  url  String
+
+  /// Erişilebilirlik metni ve alt yazı ÇEVRİLİR
+  altTr     String?
+  altEn     String?
+  captionTr String?
+  captionEn String?
+  /// "kaynak: kulüp arşivi" — künye satırı, çevrilmez
+  sourceNote String?
+
+  orderIndex Int @default(0)
+
+  clubId String?
+  club   FootballClub? @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  eraId  String?
+  era    FootballEra?  @relation(fields: [eraId], references: [id], onDelete: Cascade)
+  legendId String?
+  legend   FootballLegend? @relation(fields: [legendId], references: [id], onDelete: Cascade)
+  circuitId String?
+  circuit   F1Circuit?     @relation(fields: [circuitId], references: [id], onDelete: Cascade)
+  driverId  String?
+  driver    F1Driver?      @relation(fields: [driverId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean  @default(false)
+
+  // Kural 14 — `slot` ikinci sırada: CharacterImage @@index([characterId, slot,
+  // isDeleted]) ile birebir aynı desen. Sorgular her zaman slot ile geliyor
+  // ("portreyi ver", "galeriyi ver"); slot'suz sorgu da önekten faydalanır.
+  @@index([clubId, slot, isDeleted, orderIndex])
+  @@index([eraId, slot, isDeleted, orderIndex])
+  @@index([legendId, slot, isDeleted, orderIndex])
+  @@index([circuitId, slot, isDeleted, orderIndex])
+  @@index([driverId, slot, isDeleted, orderIndex])
+}
+
+/// **Bir yarışın podyumu — VERİ katmanı.**
+///
+/// Brief'in §6 kuralı: dış API asla render'da çağrılmaz, günde bir çalışan
+/// senkronizasyon veriyi KENDİ veritabanımıza yazar, sağlayıcı çökse de site
+/// bozulmaz. Bu tablo o kuralın F1 tarafındaki karşılığı.
+///
+/// YALNIZCA İLK ÜÇ tutuluyor (kullanıcı kararı). Tam sonuç tablosu bir
+/// istatistik veritabanının işi; burası arşiv — podyum bir sayfanın
+/// hatırlayacağı şeydir, 20. sıra değil.
+///
+/// `driverName` düz metin olarak DA duruyor (`F1Driver` ilişkisinin yanında):
+/// `FootballMatch.homeName` ile aynı gerekçe — sürücü kaydı henüz açılmamışken
+/// de satır yazılabilsin. İlişki doluysa O önceliklidir.
+model F1RaceResult {
+  id String @id @default(cuid())
+
+  seasonYear Int
+  round      Int?
+  /// "Italian Grand Prix" — kurumun kendi adı, çevrilmez
+  raceName   String?
+  raceDate   DateTime?
+
+  /// 1, 2, 3 — yalnızca podyum
+  position Int
+
+  driverName        String
+  driverNationality String?
+  constructorName   String?
+  /// "1:13:41.143" (kazanan) ya da "+6.064" (fark) — METİN: biçim locale'e
+  /// göre değişmiyor ve milisaniyeye çevirmek gösterimi kaybettiriyor.
+  timeText String?
+
+  circuitId String
+  circuit   F1Circuit @relation(fields: [circuitId], references: [id], onDelete: Cascade)
+
+  /// Sürücü künyesi varsa bağlanır; yoksa `driverName` yeter
+  driverId String?
+  driver   F1Driver? @relation(fields: [driverId], references: [id])
+
+  /// Hangi sağlayıcıdan geldi — sağlayıcı değişirse eski satırlar ayırt edilsin
+  externalSource    String    @default("jolpica")
+  externalFetchedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean  @default(false)
+
+  /// Aynı pistte aynı yılın aynı basamağı bir kez. Senkronizasyon bu anahtar
+  /// üzerinden `upsert` ediyor, yani tekrar çalıştırmak kopya üretmiyor.
+  @@unique([circuitId, seasonYear, position])
+  /// Pist sayfasının tek sorgusu: yıla göre sıralı podyum listesi
+  @@index([circuitId, isDeleted, seasonYear, position])
+  // Kural 14
+  @@index([driverId])
 }

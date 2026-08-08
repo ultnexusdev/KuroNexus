@@ -17,12 +17,12 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from '../src/generated/prisma/client';
+import { PrismaClient } from './_client';
 import {
   CommonsPortraitResolver,
   JolpicaProvider,
   type F1ResultsProvider,
-} from '../src/f1-sync/providers';
+} from './_client';
 
 const prisma = new PrismaClient({
   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),

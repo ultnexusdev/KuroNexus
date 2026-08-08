@@ -25,6 +25,27 @@ Backend ve frontend ayrı servisler olduğu için bu tamamen önlenebilir:
 
 ---
 
+## 0. Push — atlanırsa deploy hiçbir şey yapmaz
+
+⚠️ Bu adım ilk denemede atlandı ve deploy değişmemiş kodu yeniden kurdu; canlıda
+her şey 404 döndü. Commit yerelde durduğu sürece Coolify onu göremiyor.
+
+```bash
+git push -u origin spor-arsivi
+```
+
+Doğrulama — uzak uç yerel uçla aynı olmalı:
+
+```bash
+git rev-parse --short spor-arsivi && git rev-parse --short origin/spor-arsivi
+```
+
+Ardından Coolify'da **her iki servisin de hangi dalı izlediğini kontrol et.**
+Varsayılan genelde `main`; bu dal deploy edilecekse servis ayarındaki branch
+alanı `spor-arsivi` yapılmalı, yoksa deploy yine eski kodu kurar.
+
+---
+
 ## 1. Backend deploy
 
 Coolify'da backend servisini `spor-arsivi` dalından (ya da `main`'e birleştirdikten

@@ -1,0 +1,303 @@
+/* Podyum tarihi — yıl seçmeli kürsü.
+   Veri katmanı: sayfanın alt bölümünde, sessiz tipografiyle, kendi alanında. */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+  min-width: 0;
+}
+
+.title {
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.range,
+.source {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  max-width: 56ch;
+}
+
+.source {
+  margin-top: var(--gap-md);
+}
+
+.wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 6.5rem) minmax(0, 1fr);
+  gap: clamp(1rem, 3vw, 2.5rem);
+  margin-top: var(--gap-sm);
+  border-top: 1px solid var(--f1-red);
+  padding-top: var(--gap-lg);
+  min-width: 0;
+}
+
+/* ---- Sol: yıl sütunu ---- */
+.years {
+  display: flex;
+  flex-direction: column;
+  /* 75 yıl tüm sayfayı uzatmasın — kendi içinde kayıyor */
+  max-height: 22rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-right: 1px solid var(--sport-line);
+  padding-right: var(--gap-sm);
+  scrollbar-width: thin;
+}
+
+.yearLabel {
+  /* ⚠️ BU SATIR OLMAZSA SAYFA FOOTER'IN 3300px ALTINA UZUYOR (ölçüldü).
+     İçindeki radio `position: absolute` ve konumlandırılmamış bir atanın
+     `overflow`'u mutlak konumlu öğeyi KIRPMAZ — kapsayıcı blok en yakın
+     KONUMLANDIRILMIŞ ata olan `.wing`e düşüyordu. 75 görünmez radio
+     kaydırma kabından kaçıp sayfayı uzatıyordu. Etiketi konumlandırmak
+     kapsayıcı bloğu buraya çekiyor; radio artık listeyle birlikte
+     kaydırılıyor ve kırpılıyor. */
+  position: relative;
+  display: block;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--sp-data);
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+  padding: 0.4rem 0.5rem;
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  transition:
+    color 180ms ease,
+    background-color 180ms ease;
+  /* Dokunma alanı: 44px kuralı */
+  min-height: var(--touch-min);
+  display: flex;
+  align-items: center;
+}
+
+.yearLabel:hover {
+  color: var(--text-primary);
+  background: var(--surface);
+}
+
+/* Seçili yıl. Tek kural — radio etiketin İÇİNDE olduğu için `:has` yetiyor. */
+.yearLabel:has(input:checked) {
+  color: var(--f1-white);
+  background: var(--surface);
+  border-left-color: var(--f1-red);
+}
+
+/* Anlatısı yazılmış yıl: veri katmanı anlatıya işaret ediyor.
+   Kırmızı "veri", altın "arşiv" demek — ikisi kasten farklı. */
+.narrated span::after {
+  content: "";
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  margin-left: 0.5rem;
+  background: var(--gs-gold);
+  vertical-align: 0.25em;
+}
+
+.radio {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 1px;
+  height: 1px;
+}
+
+/* Klavye: odak etikete taşınıyor */
+.yearLabel:has(input:focus-visible) {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: -2px;
+}
+
+/* ---- Sağ: kürsü ---- */
+.stage {
+  min-width: 0;
+}
+
+/* Paneller varsayılan olarak kapalı; açılan panel üretilen kuralla geliyor */
+.panel {
+  display: none;
+  grid-template-rows: auto 1fr;
+  gap: var(--gap-lg);
+  min-width: 0;
+}
+
+.raceName {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+/* Gerçek kürsü düzeni: 2 · 1 · 3, birinci ORTADA ve YÜKSEKTE */
+.plinths {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: end;
+  gap: clamp(0.5rem, 2vw, 1.5rem);
+  min-width: 0;
+}
+
+.plinth {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+  text-align: center;
+}
+
+.plinth[data-pos="1"] { order: 2; }
+.plinth[data-pos="2"] { order: 1; }
+.plinth[data-pos="3"] { order: 3; }
+
+/* ---- Portre ---- */
+.face {
+  width: clamp(3.5rem, 8vw, 5rem);
+  aspect-ratio: 1;
+  border: 1px solid var(--sport-line);
+  background: var(--surface-2);
+  overflow: hidden;
+  flex: none;
+}
+
+/* Birinci belirgin şekilde daha büyük — sıralamayı yazıdan önce
+   kompozisyon söylüyor. Kırmızı kenarlık tek vurgu. */
+.plinth[data-pos="1"] .face {
+  width: clamp(5rem, 12vw, 8rem);
+  border-color: var(--f1-red);
+}
+
+.faceImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: grayscale(0.3) contrast(1.05);
+}
+
+/* ---- Künye ---- */
+.who {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.driver {
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.plinth[data-pos="1"] .driver {
+  font-size: clamp(1.0625rem, 1.6vw, 1.375rem);
+}
+
+.team,
+.time {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.credit {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  line-height: 1.4;
+  color: var(--text-secondary);
+  opacity: 0.75;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.credit:hover {
+  opacity: 1;
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+/* ---- Kürsü bloğu ---- */
+.block {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 0.4rem;
+  border-top: 1px solid var(--sport-line);
+  background: linear-gradient(
+    to bottom,
+    var(--surface),
+    color-mix(in srgb, var(--surface) 35%, transparent)
+  );
+}
+
+.plinth[data-pos="1"] .block {
+  height: 4.5rem;
+  border-top-color: var(--f1-red);
+}
+.plinth[data-pos="2"] .block { height: 3rem; }
+.plinth[data-pos="3"] .block { height: 2.25rem; }
+
+.blockNo {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 1.25rem;
+  line-height: 1;
+  color: var(--text-secondary);
+  letter-spacing: 0.04em;
+}
+
+.plinth[data-pos="1"] .blockNo {
+  font-size: 1.75rem;
+  color: var(--f1-red);
+}
+
+/* ---- Mobil ---- */
+@media (max-width: 720px) {
+  .wrap {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--gap-lg);
+  }
+
+  /* Yıl sütunu mobilde yatay şeride dönüyor — dikey liste ekranı yiyor */
+  .years {
+    flex-direction: row;
+    max-height: none;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border-right: 0;
+    border-bottom: 1px solid var(--sport-line);
+    padding: 0 0 var(--gap-sm);
+    gap: 0.25rem;
+  }
+
+  .yearLabel {
+    border-left: 0;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+  }
+
+  .yearLabel:has(input:checked) {
+    border-bottom-color: var(--f1-red);
+  }
+
+  .plinths {
+    gap: 0.4rem;
+  }
+}

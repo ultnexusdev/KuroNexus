@@ -5,6 +5,7 @@ import { Link } from "@/lib/i18n/navigation";
 import { fetchFootballPlayer } from "@/lib/api/football";
 import type { FootballPlayerDetail } from "@/lib/api/types";
 import styles from "./page.module.css";
+import { sportHref } from "@/lib/sport/routes";
 
 export const dynamic = "force-dynamic";
 
@@ -70,7 +71,7 @@ export default async function PlayerProfilePage({
       <header className={styles.hero}>
         <span className={styles.floodlight} aria-hidden />
         <div className={styles.heroInner}>
-          <Link href="/dark-stories/galatasaray" className={styles.back}>
+          <Link href={sportHref.club("galatasaray")} className={styles.back}>
             ← {t("backToTeam")}
           </Link>
           <div className={styles.identity}>

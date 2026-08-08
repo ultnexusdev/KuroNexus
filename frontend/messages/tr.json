@@ -1546,5 +1546,77 @@
     "prev": "Önceki görsel",
     "next": "Sonraki görsel",
     "counter": "{index} / {total}"
+  },
+  "sportArchive": {
+    "eyebrow": "Salon {num} · Spor",
+    "lede": "Oyunların, efsanelerin, rekabetin ve hızın kişisel arşivi.",
+    "enter": "Gir",
+    "backToSport": "Spor",
+    "backToFootball": "Futbol",
+    "backToF1": "Formula 1",
+    "latest": "Son eklenenler",
+    "football": {
+      "name": "Futbol",
+      "tagline": "Güzel oyun.",
+      "lede": "Bir kulübün, bir oyuncunun, bir gecenin neden hatırlandığına dair notlar."
+    },
+    "f1": {
+      "name": "Formula 1",
+      "tagline": "Hızın sanatı.",
+      "lede": "Pistler, sürücüler ve ölçülebilir olanın sınırı."
+    },
+    "hub": {
+      "featured": "Öne çıkan dünya",
+      "legends": "Efsaneler",
+      "history": "Tarihten",
+      "clubs": "Kulüpler",
+      "allLegends": "Tüm efsaneler"
+    },
+    "club": {
+      "founded": "Kuruluş",
+      "city": "Şehir",
+      "stadium": "Stadyum",
+      "capacity": "Kapasite",
+      "eras": "Dönemler",
+      "personalArchive": "Kişisel arşiv",
+      "ongoing": "süregelen"
+    },
+    "era": {
+      "figures": "Bu dönemin isimleri",
+      "moments": "Anlar"
+    },
+    "legend": {
+      "title": "Efsane",
+      "career": "Kariyer",
+      "eras": "Dönemler",
+      "achievements": "Kazanılanlar",
+      "moments": "Unutulmaz anlar",
+      "personalNote": "Kişisel notlar",
+      "context": "Bağlam",
+      "rank": "Sıralamamda {n}."
+    },
+    "circuit": {
+      "index": "Pistler",
+      "colCircuit": "Pist",
+      "colCountry": "Ülke",
+      "colLength": "Uzunluk",
+      "colCorners": "Viraj",
+      "colFirstGp": "İlk GP",
+      "length": "Uzunluk",
+      "corners": "Viraj",
+      "firstGp": "İlk Grand Prix",
+      "lapRecord": "Tur rekoru",
+      "drsZones": "DRS bölgesi",
+      "clockwise": "Saat yönünde",
+      "counterClockwise": "Saat yönünün tersine",
+      "cornerList": "Adı olan virajlar",
+      "moments": "Burada yaşananlar",
+      "podiums": "Podyum tarihi",
+      "podiumRange": "{from}–{to} · {count} yarış",
+      "source": "Kaynak: Jolpica-F1 (Ergast). Portreler Wikimedia Commons, lisansları her görselin yanında.",
+      "narratedYear": "Bu yılın anlatısı yazılmış"
+    },
+    "quotes": "Alıntılar",
+    "gallery": "Görseller"
   }
 }

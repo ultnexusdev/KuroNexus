@@ -1,0 +1,32 @@
+/* Spor kanadının tek hareket türü: aşağıdan hafif yükselerek beliren blok.
+   Yalnızca transform ve opacity — düzen özelliği animate edilmiyor. */
+
+.reveal {
+  /* Başlangıç GÖRÜNÜR: JS gelmezse içerik kaybolmasın. Görünmezlik
+     yalnızca bileşen kendini kurduktan sonra (`data-armed`) başlıyor. */
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 420ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    transform 420ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.reveal[data-armed] {
+  opacity: 0;
+  /* 14px — brief "hafif" diyor; 40px'lik sıçrama sinematik değil huzursuz */
+  transform: translate3d(0, 14px, 0);
+}
+
+.reveal[data-armed][data-shown] {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .reveal[data-armed] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

@@ -1,0 +1,218 @@
+/* ============================================================
+   Salon 06 · Spor — kanat kabuğu ve SPOR-YEREL TİPOGRAFİ ÖLÇEĞİ
+
+   Ölçek bilinçli olarak `globals.css`e DEĞİL buraya yazıldı (kullanıcı
+   kararı, 8 Ağustos 2026): paylaşılan dosyaya dokunmak diğer beş salonu
+   riske atardı. Değişkenler bu sınıfın üzerinde tanımlı, bütün alt
+   bileşenler kalıtımla okuyor — yani spor ağacındaki her modül aynı
+   ölçeği kullanıyor ama kanat dışına tek bir değer sızmıyor.
+
+   ⚠️ PETRONA AĞIRLIK BANDI PAZARLIK KONUSU DEĞİL.
+   Ölçüldü: 400 ağırlıkta Petrona jenerik Times/Georgia bölgesine düşüyor,
+   karakteri 700-900 arasında yaşıyor. Kural: 2rem üstünde ASLA wght < 700.
+   Optik boyut ekseni YOK — font büyüdükçe keskinleşmez; telafi ağırlık ve
+   negatif tracking ile yapılır.
+
+   ⚠️ SATIR YÜKSEKLİĞİ ≥ 1.02.
+   Evin display konvansiyonu 0.92 ama o BEBAS'ın düz kapital kutusuna göre
+   yazılmış. Türkçe diyakritikli bir serifte (İ/Ğ/Ü üstte, Ş/Ç sedillası
+   altta) aynı değer kırpma üretir. Test dizesi: "BEŞİKTAŞ IĞDIR".
+   ============================================================ */
+
+.wing {
+  /* --- tipografi ölçeği (oran ~1,33, üstte marquee için tek sıçrama) ---
+     ⚠️ TAVANLAR 8 Ağustos 2026'da YÜKSELTİLDİ. Önceki değer
+     `clamp(4rem, 12vw, 10rem)` idi ve tavan 10rem = 160px'ti: `12vw` bu boya
+     **1333px genişlikte** ulaşıyor, yani HER normal masaüstü ekranında kelime
+     160px'te kilitleniyor, ekran büyüdükçe yalnızca etrafındaki boşluk
+     büyüyordu. Sonuç "cömert negatif alan" değil terk edilmiş alandı —
+     negatif alan ancak içindekinin ağırlığı varsa kompozisyon olur. */
+  --sp-marquee: clamp(3.5rem, 15vw, 20rem);
+  --sp-world: clamp(2rem, 7vw, 6rem);
+  --sp-title: clamp(1.75rem, 4.5vw, 3rem);
+  --sp-section: clamp(1.375rem, 2.2vw, 1.75rem);
+  --sp-lede: clamp(1.0625rem, 1.4vw, 1.375rem);
+  --sp-body: 1rem;
+  --sp-data: 0.8125rem;
+
+  /* --- kanat ritmi --- */
+  --sp-band: clamp(4rem, 10vw, 8rem);
+  --sp-gutter: clamp(1.25rem, 5vw, 4.5rem);
+  --sp-measure: 64ch;
+
+  /* Yapışkan `SiteHeader`ın yüksekliği (ölçüldü: 69px @1280).
+     Tam ekran kıvrım bunu düşmek ZORUNDA: header akışta yer kaplıyor, yani
+     `min-height: 100svh` veren bir bölüm her zaman viewport'un header kadar
+     altına taşar. Biraz fazla düşülmesi güvenli — kıvrım kısalır, içerik
+     asla kırpılmaz. */
+  --sp-header: 4.5rem;
+
+  background: var(--bg);
+  color: var(--text-primary);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  /* Atmosfer katmanları buraya konumlanıyor */
+  position: relative;
+  isolation: isolate;
+}
+
+/* ============================================================
+   MALZEME KATMANI — "arşiv fotoğrafı dokusu"
+
+   Neden var: ilk sürümde kanat düz siyah zemin + metindi. Brief'in istediği
+   "gece stadyumu atmosferi" ve "arşiv fotoğrafı dokusu" hiç uygulanmamıştı.
+   Tipografi ağırlıklı gitmek FOTOĞRAF yerine tipografi + MALZEME demek;
+   hiçbir şey demek değil. Bu ayrımı ilk turda kaçırdım.
+
+   Doku üretilmiş bir SVG gürültüsü — dosya yok, dış istek yok, CSP dostu.
+   `mix-blend-mode: soft-light` ile zemine gömülüyor: gözle seçilmiyor ama
+   yüzeyin "boyanmış" değil "basılmış" hissetmesini sağlıyor.
+   ============================================================ */
+.wing::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+  opacity: 0.05;
+  mix-blend-mode: soft-light;
+}
+
+/* Üstten aşağı çok yumuşak bir karartma: sayfa başlığının arkası
+   zeminden bir tık daha derin olsun, gövde metnine doğru açılsın.
+   Tek gradient — brief "gradient yığını" yasaklıyor, bu onun tersi. */
+.wing::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 60vh;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, #000 55%, transparent),
+    transparent
+  );
+}
+
+/* Kanadın display sesi: Petrona. Kapital yalnızca 2.25rem ÜSTÜNDE —
+   altında karma harfe geçilir, çünkü Cinzel bu kanatta tracked-out
+   majüskül ETİKET işi yapıyor ve iki ses düzleşmesin. */
+.display {
+  font-family: var(--font-petrona), Georgia, serif;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  /* Türkçe uzun kelime taşmasını kırar (BEŞİKTAŞ, KONYASPOR) */
+  overflow-wrap: anywhere;
+  min-width: 0;
+  text-wrap: balance;
+  margin: 0;
+}
+
+.marquee {
+  font-size: var(--sp-marquee);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+  text-transform: uppercase;
+  /* Diyakritik üst/alt çıkıntıları için açık pay — kırpılmaya karşı */
+  padding-block: 0.06em;
+}
+
+.world {
+  font-size: var(--sp-world);
+  font-weight: 800;
+  text-transform: uppercase;
+  padding-block: 0.05em;
+}
+
+.title {
+  font-size: var(--sp-title);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+}
+
+/* 2.25rem altı: KARMA HARF. Majüskül burada Cinzel etiketiyle çakışır. */
+.section {
+  font-size: var(--sp-section);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.25;
+}
+
+/* Cinzel'in işi korunuyor: tracked-out majüskül etiket */
+.eyebrow {
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Bebas'ın işi korunuyor: sayı/ölçüm. Petrona ile aynı punto bandında
+   yan yana gelmiyor — kütle çatışmasın diye. */
+.figure {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+.data {
+  font-family: var(--font-mono);
+  font-size: var(--sp-data);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
+}
+
+.lede {
+  font-size: var(--sp-lede);
+  line-height: 1.6;
+  color: var(--text-secondary);
+  max-width: 46ch;
+  margin: 0;
+}
+
+.prose {
+  font-size: var(--sp-body);
+  line-height: 1.8;
+  max-width: var(--sp-measure);
+  margin: 0;
+}
+
+.prose + .prose {
+  margin-top: 1.1em;
+}
+
+/* Kanat içi üst şerit — geri bağlantısı ve kırıntı */
+.crumb {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: var(--pad-md) var(--sp-gutter) 0;
+  font-family: var(--font-mono);
+  font-size: var(--sp-data);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  min-height: var(--touch-min);
+}
+
+.crumb a {
+  color: var(--text-secondary);
+}
+
+.crumb a:hover {
+  color: var(--accent);
+}
+
+.sep {
+  opacity: 0.45;
+}

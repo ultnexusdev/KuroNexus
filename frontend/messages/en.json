@@ -1546,5 +1546,77 @@
     "prev": "Previous image",
     "next": "Next image",
     "counter": "{index} / {total}"
+  },
+  "sportArchive": {
+    "eyebrow": "Hall {num} · Sport",
+    "lede": "A personal archive of games, legends, rivalry and speed.",
+    "enter": "Enter",
+    "backToSport": "Sport",
+    "backToFootball": "Football",
+    "backToF1": "Formula 1",
+    "latest": "Recently added",
+    "football": {
+      "name": "Football",
+      "tagline": "The beautiful game.",
+      "lede": "Notes on why a club, a player, a single night is remembered."
+    },
+    "f1": {
+      "name": "Formula 1",
+      "tagline": "The art of speed.",
+      "lede": "Circuits, drivers, and the edge of what can be measured."
+    },
+    "hub": {
+      "featured": "Featured world",
+      "legends": "Legends",
+      "history": "From the history",
+      "clubs": "Clubs",
+      "allLegends": "All legends"
+    },
+    "club": {
+      "founded": "Founded",
+      "city": "City",
+      "stadium": "Stadium",
+      "capacity": "Capacity",
+      "eras": "Eras",
+      "personalArchive": "Personal archive",
+      "ongoing": "ongoing"
+    },
+    "era": {
+      "figures": "Names of this era",
+      "moments": "Moments"
+    },
+    "legend": {
+      "title": "Legend",
+      "career": "Career",
+      "eras": "Eras",
+      "achievements": "Honours",
+      "moments": "Unforgettable moments",
+      "personalNote": "Personal notes",
+      "context": "Context",
+      "rank": "No. {n} in my ranking"
+    },
+    "circuit": {
+      "index": "Circuits",
+      "colCircuit": "Circuit",
+      "colCountry": "Country",
+      "colLength": "Length",
+      "colCorners": "Corners",
+      "colFirstGp": "First GP",
+      "length": "Length",
+      "corners": "Corners",
+      "firstGp": "First Grand Prix",
+      "lapRecord": "Lap record",
+      "drsZones": "DRS zones",
+      "clockwise": "Clockwise",
+      "counterClockwise": "Counter-clockwise",
+      "cornerList": "Named corners",
+      "moments": "What happened here",
+      "podiums": "Podium history",
+      "podiumRange": "{from}–{to} · {count} races",
+      "source": "Source: Jolpica-F1 (Ergast). Portraits from Wikimedia Commons, licence shown next to each image.",
+      "narratedYear": "This year has a written note"
+    },
+    "quotes": "Quotes",
+    "gallery": "Images"
   }
 }

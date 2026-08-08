@@ -4,8 +4,8 @@ import { getTranslations } from "next-intl/server";
 import {
   Yuji_Boku,
   Cinzel,
-  Lora,
   Bebas_Neue,
+  Petrona,
   Cormorant_Garamond,
   Corinthia,
   Noto_Sans_Old_Turkic,
@@ -33,17 +33,52 @@ const cinzel = Cinzel({
   display: "swap",
 });
 
-const lora = Lora({
-  subsets: ["latin", "latin-ext"],
-  variable: "--font-lora",
-  display: "swap",
-});
-
 // Spor kanadı: kondanse skor/numara yazısı (forma numaraları, F1 başlıkları)
 const bebas = Bebas_Neue({
   weight: "400",
   subsets: ["latin", "latin-ext"],
   variable: "--font-bebas",
+  display: "swap",
+});
+
+/*
+ * Spor kanadının display serifi (8 Ağustos 2026).
+ *
+ * NEDEN YENİ BİR AİLE: spordaki büyük başlık işini bugün Bebas tutuyor, ama
+ * Bebas kondanse bir sans — brief'in istediği "editorial, tarihsel, arşivsel"
+ * ses onda yok. Evdeki üç serif de dolu: Cinzel 46 dosyada tracked-out majüskül
+ * ETİKET fontu, Cormorant ~30 modülde gövde. Birini ödünç almak iki kanadı
+ * birbirine karıştırırdı.
+ *
+ * Aynı commit'te Lora DÜŞÜRÜLDÜ: her sayfada preload'la iniyor ama yalnızca
+ * PaginatedReader'da kullanılıyordu, üstelik Petrona'yla aynı türde (çağdaş,
+ * ekran için çizilmiş metin serifi) olduğu için ikisi yan yana ayırt
+ * edilemezdi. Okuma ekranı Petrona'ya devredildi → aile sayısı 7'de kaldı.
+ *
+ * NEDEN PETRONA: yedi aday üç ayrı mercekten (Türkçe/teknik, karakter, sistem
+ * uyumu) değerlendirildi; oybirliği bunda çıktı. Belirleyici olan, paletteki
+ * boşluğa oturması: ev bugün "kondanse kütle + tracked kapital + narin serif +
+ * mono" taşıyor, boşta duran tek bölge GENİŞ ve DÜŞÜK-ORTA KONTRASTLI bölge.
+ * İnce/yüksek kontrastlı adaylar (Instrument Serif, Libre Caslon) Cormorant'ın
+ * bölgesine geri giriyordu, kondanse olanlar "Bebas'a tırnak takılmış hâli"ne.
+ *
+ * ⚠️ AĞIRLIK BANDI PAZARLIK KONUSU DEĞİL: Petrona'nın karakteri 700-900 arasında
+ * yaşıyor. 400'de jenerik Times/Georgia bölgesine düşüyor — ölçüldü. Kural:
+ * 2rem üstünde ASLA wght < 700. Optik boyut (opsz) ekseni YOK, yani font
+ * büyüdükçe keskinleşmez; telafi ağırlık ve negatif tracking ile yapılır
+ * (4rem üstü letter-spacing: -0.02em … -0.03em).
+ *
+ * ⚠️ SATIR YÜKSEKLİĞİ: spor modüllerindeki display leading'i 0.92 — o değer
+ * Bebas'ın düz kapital kutusuna göre yazılmıştı. Türkçe diyakritikli bir serifte
+ * (İ/Ğ/Ü üstte, Ş/Ç sedillası altta) aynı değer kırpma üretir. Bu fontu kullanan
+ * her display kuralı line-height >= 1.02 istemeli; test dizesi "BEŞİKTAŞ IĞDIR".
+ *
+ * İtalik EKLENMEDİ: Petrona'da italik ayrı bir değişken dosya, ikinci bir indirme
+ * demek. vietnamese alt kümesi de istenmedi. Ağırlık verilmiyor → değişken sürüm.
+ */
+const petrona = Petrona({
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-petrona",
   display: "swap",
 });
 
@@ -131,7 +166,7 @@ export default async function LocaleLayout({
     <html
       lang={locale}
       data-theme={theme}
-      className={`${brushFont.variable} ${cinzel.variable} ${lora.variable} ${bebas.variable} ${cormorant.variable} ${corinthia.variable} ${orhun.variable}`}
+      className={`${brushFont.variable} ${cinzel.variable} ${bebas.variable} ${petrona.variable} ${cormorant.variable} ${corinthia.variable} ${orhun.variable}`}
     >
       <body>
         <NextIntlClientProvider>

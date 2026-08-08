@@ -75,10 +75,24 @@
   border: 0;
 }
 
+/* Lora → Petrona devri (8 Ağustos 2026).
+   Lora yalnızca BU kuralda kullanılıyordu ama her sayfada preload'la iniyordu.
+   Spor kanadı için Petrona eklenince aile sayısı 8'e çıkacaktı; devirle 7'de
+   kaldı — yeni font fiilen bedavaya geldi.
+
+   ⚠️ PUNTO TELAFİSİ ÖLÇÜLDÜ, TAHMİN DEĞİL. İki fontun TTF'inden OS/2 tablosu
+   okundu: Lora'nın x-yüksekliği 0.500 em, Petrona'nınki 0.443 em — Petrona
+   aynı puntoda %11,4 DAHA KÜÇÜK görünür. Görünür okuma boyunu korumak için
+   punto 1,1287 katına çıkarıldı (1rem → 1.125rem, sapma %0,3). Bu satır
+   silinirse metin bir anda küçülür ve okuma yorucu hâle gelir.
+
+   Satır aralığı 1.85 olduğu gibi kalıyor: Petrona'nın kendi satır kutusu
+   Lora'dan zaten dar (1.128em / 1.280em), açık line-height onu eziyor. */
 .content {
   color: var(--text-primary);
   line-height: 1.85;
-  font-family: var(--font-lora), serif;
+  font-family: var(--font-petrona), serif;
+  font-size: 1.125rem;
 }
 
 .content p {

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Link } from "@/lib/i18n/navigation";
 import type { FootballSquadPlayer } from "@/lib/api/types";
 import styles from "./GsHall.module.css";
+import { sportHref } from "@/lib/sport/routes";
 
 const PREVIEW_COUNT = 5;
 
@@ -28,7 +29,7 @@ export function SquadGrid({
       <ul className={styles.squad}>
         {visible.map((p) => (
           <li key={p.id}>
-            <Link href={`/futbol/oyuncu/${p.id}`} className={styles.playerCard}>
+            <Link href={sportHref.player(p.id)} className={styles.playerCard}>
               {p.photo ? (
                 /* eslint-disable-next-line @next/next/no-img-element */
                 <img

@@ -133,6 +133,77 @@ const nextConfig: NextConfig = {
   async headers() {
     return [{ source: "/:path*", headers: SECURITY_HEADERS }];
   },
+
+  /**
+   * Spor kanadının taşınması — kalıcı yönlendirmeler (8 Ağustos 2026).
+   *
+   * ── NEDEN BURADA, MIDDLEWARE'DE DEĞİL ────────────────────────────────────
+   * Next istek sırası: headers → **config redirects** → middleware → rewrites
+   * → dosya sistemi. Yani bu yönlendirmeler next-intl middleware'ine HİÇ
+   * ulaşmadan biter; locale mantığıyla temas etmiyorlar ve döngü riski sıfır.
+   * Alternatif (middleware içinde) `/en` önekini elle korumayı gerektirirdi ve
+   * yanlış yazılırsa next-intl'in kendi 307'siyle döngü üretebilirdi:
+   * `/en/spor` → 301 → `/spor` → 307 → `/en/spor`.
+   *
+   * Dahası: `middleware.ts` canlı sitenin www kanonikleştirmesini ve yapım
+   * aşaması kapısını taşıyor — en kırılgan dosya. Bu iş için açılması gerekmiyor.
+   *
+   * ── NEDEN `statusCode: 301`, `permanent: true` DEĞİL ─────────────────────
+   * Next'te `permanent: true` **308** döner. Brief 301 istiyor ve middleware'deki
+   * mevcut www yönlendirmesi de 301; tutarlılık için açıkça yazıldı.
+   * (İkisi aynı anda yazılamaz.)
+   *
+   * ── `/en` SATIRLARI NEDEN AYRI ───────────────────────────────────────────
+   * `/:locale/...` deseni `en` dışındaki HER ŞEYİ de yakalar
+   * (`/foo/dark-stories/galatasaray` gibi). Sekiz satır yazmak, yanlış eşleşen
+   * tek bir joker'den ucuz.
+   *
+   * ── ⚠️ JOKER YASAK ───────────────────────────────────────────────────────
+   * `/dark-stories/galatasaray/:path*` YAZILMAYACAK: o dünyanın altında hâlâ
+   * çalışan wiki girdileri ve bölümler var (`/wiki/[entrySlug]`,
+   * `/[storySlug]`) ve yeni ağaçta karşılıkları YOK — joker onları 404'e
+   * gömerdi. Faz 1'de tek yönlü bir köprü kuruluyor: eski alt sayfalar
+   * çalışmaya devam ediyor, geri bağlantıları yeni dünyaya düşüyor.
+   */
+  async redirects() {
+    return [
+      // Salon kapısı
+      { source: "/dark-stories/category/spor", destination: "/spor", statusCode: 301 },
+      { source: "/en/dark-stories/category/spor", destination: "/en/spor", statusCode: 301 },
+
+      // İki dünya (WikiUniverse kayıtları)
+      {
+        source: "/dark-stories/galatasaray",
+        destination: "/spor/futbol/galatasaray",
+        statusCode: 301,
+      },
+      {
+        source: "/en/dark-stories/galatasaray",
+        destination: "/en/spor/futbol/galatasaray",
+        statusCode: 301,
+      },
+      { source: "/dark-stories/formula-1", destination: "/spor/formula-1", statusCode: 301 },
+      {
+        source: "/en/dark-stories/formula-1",
+        destination: "/en/spor/formula-1",
+        statusCode: 301,
+      },
+
+      // Öksüz kalan üst seviye oyuncu rotası. Brief'te yoktu ama zorunlu:
+      // `/futbol/oyuncu/[playerId]` bugün canlı ve `SquadGrid` her kadro
+      // kartından oraya bağlanıyor — yeni ağaç kurulunca ortada kalırdı.
+      {
+        source: "/futbol/oyuncu/:playerId",
+        destination: "/spor/futbol/oyuncu/:playerId",
+        statusCode: 301,
+      },
+      {
+        source: "/en/futbol/oyuncu/:playerId",
+        destination: "/en/spor/futbol/oyuncu/:playerId",
+        statusCode: 301,
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       {

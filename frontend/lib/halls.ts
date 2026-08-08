@@ -133,3 +133,27 @@ export function hallName(
 export function hallLabel(value: number | null): string {
   return value === null ? "" : String(value).padStart(2, "0");
 }
+
+/**
+ * Salon kapısının açıldığı adres.
+ *
+ * 8 Ağustos 2026'ya kadar üç yüzey de `/dark-stories/category/${slug}` dizesini
+ * ELLE yazıyordu: ana sayfadaki kapı duvarı (üç ayrı yerde — biri backend
+ * düştüğünde devreye giren yedek kadro), Nexus kapıları ve **her sayfanın**
+ * footer'ındaki salon sütunu. Spor kendi ağacına taşınırken bu üç yüzeyi ayrı
+ * ayrı düzeltmek, üç kez unutma şansı demekti — ve yedek kadroyu unutmak en
+ * sinsisi olurdu: hata yalnızca backend çöktüğünde görünürdü.
+ *
+ * `hallNumber`/`mergeCodeHalls` deseninin varlık sebebi tam olarak bu; adres de
+ * artık aynı yerden geliyor.
+ *
+ * Spor adresi değişen İLK salon. İkinci bir salon taşınırsa bu haritaya girer
+ * ve yine hiçbir yüzeye dokunulmaz.
+ */
+const MOVED_HALLS: Record<string, string> = {
+  spor: "/spor",
+};
+
+export function hallHref(slug: string): string {
+  return MOVED_HALLS[slug] ?? `/dark-stories/category/${slug}`;
+}

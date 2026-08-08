@@ -8,6 +8,7 @@ import { legacyPlainTextToHtml } from "@/lib/content/legacyPlainTextToHtml";
 import styles from "./page.module.css";
 import { PaginatedReader } from "@/components/story/PaginatedReader";
 import { LoreDossier } from "@/components/story/LoreDossier";
+import { universeHref } from "@/lib/sport/routes";
 
 async function getStory(slug: string): Promise<Story | null> {
   try {
@@ -55,7 +56,7 @@ export default async function StoryDetailPage({
 
   return (
     <article className={styles.page}>
-      <Link href={`/dark-stories/${universeSlug}`} className={styles.back}>
+      <Link href={universeHref(universeSlug)} className={styles.back}>
         {t("backToUniverse", { name: story.universe.name })}
       </Link>
       

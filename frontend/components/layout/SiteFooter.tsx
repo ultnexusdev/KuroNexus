@@ -2,7 +2,8 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
 import { fetchCategories, fetchUniverses } from "@/lib/api/universes";
 import type { UniverseCategory, WikiUniverseSummary } from "@/lib/api/types";
-import { mergeCodeHalls, sortByHallOrder } from "@/lib/halls";
+import { hallHref, mergeCodeHalls, sortByHallOrder } from "@/lib/halls";
+import { universeHref } from "@/lib/sport/routes";
 import { BrandLogo } from "./BrandLogo";
 import styles from "./SiteFooter.module.css";
 
@@ -87,7 +88,7 @@ export async function SiteFooter() {
               {halls.map((hall) => (
                 <li key={hall.slug}>
                   <Link
-                    href={`/dark-stories/category/${hall.slug}`}
+                    href={hallHref(hall.slug)}
                     className={styles.link}
                   >
                     {hall.name}
@@ -105,7 +106,7 @@ export async function SiteFooter() {
               {universes.slice(0, 8).map((universe) => (
                 <li key={universe.id}>
                   <Link
-                    href={`/dark-stories/${universe.slug}`}
+                    href={universeHref(universe.slug)}
                     className={styles.link}
                   >
                     {universe.name}

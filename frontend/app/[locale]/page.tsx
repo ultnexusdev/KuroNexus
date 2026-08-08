@@ -14,6 +14,7 @@ import { HeroGlyph } from "@/components/home/HeroGlyph";
 import {
   codeHall,
   HALL_ORDER,
+  hallHref,
   hallWorldCount,
   mergeCodeHalls,
   sortByHallOrder,
@@ -101,7 +102,7 @@ export default async function HomePage({
         ordered.map((cat) => ({
           slug: cat.slug,
           name: cat.name,
-          href: `/dark-stories/category/${cat.slug}`,
+          href: hallHref(cat.slug),
           coverImage: cat.coverImage,
           art: codeHall(cat.slug)?.art ?? null,
           hall: 0,
@@ -112,7 +113,7 @@ export default async function HomePage({
         (hall) => ({
           slug: hall.slug,
           name: t(`halls.${hall.slug}`),
-          href: `/dark-stories/category/${hall.slug}`,
+          href: hallHref(hall.slug),
           coverImage: null,
           art: hall.art,
           hall: 0,
@@ -125,7 +126,7 @@ export default async function HomePage({
     : FALLBACK_SLUGS.map((slug, i) => ({
         slug,
         name: t(`halls.${slug}`),
-        href: `/dark-stories/category/${slug}`,
+        href: hallHref(slug),
         art: codeHall(slug)?.art ?? null,
         hall: i + 1,
         soon: codeHall(slug)?.soon,

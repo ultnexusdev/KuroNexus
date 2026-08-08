@@ -3,7 +3,14 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
 import { apiUrl } from "@/lib/api/client";
 import { tmdbImage } from "@/lib/api/movies";
-import { codeHall, hallLabel, hallWorldCount, mergeCodeHalls } from "@/lib/halls";
+import {
+  codeHall,
+  hallHref,
+  hallLabel,
+  hallWorldCount,
+  mergeCodeHalls,
+} from "@/lib/halls";
+import { universeHref } from "@/lib/sport/routes";
 import type { Pulse, PulseEntry, PulseHall } from "@/lib/api/types";
 import styles from "./NexusHub.module.css";
 
@@ -106,7 +113,7 @@ export async function NexusHub({
             {pulse.universes.map((universe) => (
               <li key={universe.slug} className={styles.railItem}>
                 <Link
-                  href={`/dark-stories/${universe.slug}`}
+                  href={universeHref(universe.slug)}
                   className={styles.railCard}
                 >
                   <span className={styles.railCover}>
@@ -275,7 +282,7 @@ async function Door({
   return (
     <li className={styles.doorItem} data-category={hall.slug}>
       <Link
-        href={`/dark-stories/category/${hall.slug}`}
+        href={hallHref(hall.slug)}
         className={styles.door}
       >
         <span className={styles.doorFrame}>

@@ -1,5 +1,7 @@
 import type { MetadataRoute } from "next";
 import { fetchCategories, fetchUniverses } from "@/lib/api/universes";
+import { hallHref } from "@/lib/halls";
+import { isMovedUniverse } from "@/lib/sport/routes";
 import { SITE_URL } from "@/lib/site";
 
 /**
@@ -17,6 +19,10 @@ export const revalidate = 3600;
 const STATIC_PATHS = [
   "",
   "/dark-stories",
+  // Salon 06 · Spor — kendi ağacında (bkz. hallHref)
+  "/spor",
+  "/spor/futbol",
+  "/spor/formula-1",
   "/dark-stories/category/kitap",
   "/dark-stories/category/kitap/arsiv",
   "/dark-stories/category/kitap/seriler",
@@ -70,20 +76,35 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     fetchUniverses(),
   ]);
 
+  /*
+   * ⚠️ TAŞINMIŞ ADRESLER SİTEMAP'E GİRMEZ (8 Ağustos 2026).
+   *
+   * Bu iki döngü kategori ve evren listesinin TAMAMINI dolaşıyor. Spor kanadı
+   * `/spor` ağacına taşınıp `next.config.ts`e kalıcı yönlendirmeler eklendiği
+   * an, süzgeç olmadan sitemap üç adet 301'lenen adres ilan etmeye başlardı
+   * (× 2 dil = altı hatalı girdi): kategori sayfası, Galatasaray ve Formula 1.
+   * Search Console bunları "Yönlendirmeli sayfa" diye işaretler ve sitemap'in
+   * taşıdığı güven düşer.
+   *
+   * Süzgeçler adresin kendisinden değil `hallHref`/`isMovedUniverse` tek
+   * kaynağından okuyor — ikinci bir salon taşındığında burası kendiliğinden
+   * doğru kalsın diye.
+   */
   if (categories.status === "fulfilled") {
     for (const category of categories.value) {
+      const path = hallHref(category.slug);
+      // Taşınmış salonun yeni adresi STATIC_PATHS'te elle duruyor; buradan
+      // ikinci kez (ve eski adresiyle) eklenmesin.
+      if (!path.startsWith("/dark-stories/")) continue;
       entries.push(
-        ...localizedEntries(
-          `/dark-stories/category/${category.slug}`,
-          new Date(category.updatedAt),
-          0.7,
-        ),
+        ...localizedEntries(path, new Date(category.updatedAt), 0.7),
       );
     }
   }
 
   if (universes.status === "fulfilled") {
     for (const universe of universes.value) {
+      if (isMovedUniverse(universe.slug)) continue;
       entries.push(
         ...localizedEntries(
           `/dark-stories/${universe.slug}`,

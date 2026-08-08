@@ -9,6 +9,7 @@ import type { WikiEntryDetail } from "@/lib/api/types";
 import { legacyPlainTextToHtml } from "@/lib/content/legacyPlainTextToHtml";
 import { SpoilerGate } from "@/components/wiki/SpoilerGate";
 import styles from "./page.module.css";
+import { universeHref } from "@/lib/sport/routes";
 
 async function getEntry(
   universeSlug: string,
@@ -50,7 +51,7 @@ export default async function WikiEntryPage({
 
   return (
     <article className={styles.page}>
-      <Link href={`/dark-stories/${universeSlug}`} className={styles.back}>
+      <Link href={universeHref(universeSlug)} className={styles.back}>
         {tStories("backToUniverse", { name: entry.universe?.name ?? "" })}
       </Link>
       <div className={styles.titleRow}>

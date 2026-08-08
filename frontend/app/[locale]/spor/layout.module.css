@@ -27,7 +27,6 @@
      160px'te kilitleniyor, ekran büyüdükçe yalnızca etrafındaki boşluk
      büyüyordu. Sonuç "cömert negatif alan" değil terk edilmiş alandı —
      negatif alan ancak içindekinin ağırlığı varsa kompozisyon olur. */
-  --sp-marquee: clamp(3.5rem, 15vw, 20rem);
   --sp-world: clamp(2rem, 7vw, 6rem);
   --sp-title: clamp(1.75rem, 4.5vw, 3rem);
   --sp-section: clamp(1.375rem, 2.2vw, 1.75rem);
@@ -114,16 +113,6 @@
   margin: 0;
 }
 
-.marquee {
-  font-size: var(--sp-marquee);
-  font-weight: 900;
-  letter-spacing: -0.03em;
-  line-height: 1.02;
-  text-transform: uppercase;
-  /* Diyakritik üst/alt çıkıntıları için açık pay — kırpılmaya karşı */
-  padding-block: 0.06em;
-}
-
 .world {
   font-size: var(--sp-world);
   font-weight: 800;
@@ -205,8 +194,13 @@
   min-height: var(--touch-min);
 }
 
+/* Dokunma alanı 44px'e tamamlanıyor — görünen iz küçük kalıyor, sadece
+   tıklanabilir yükseklik büyüyor (mobilde ölçüldü: 44px'in altındaydı). */
 .crumb a {
   color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
 }
 
 .crumb a:hover {

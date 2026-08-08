@@ -1,106 +1,89 @@
-/* Sayfa 1 · /spor — Marquee Hero.
-   Kıvrım üstü tek ifade, altında iki asimetrik bant. Kart yok, ızgara yok,
-   istatistik sayısı yok, ikon yok. */
+/* Sayfa 1 · /spor
+   Cümle okuma sırasını açar; iki dünya ağırlığını punto yerine ALAN ve
+   IŞIKtan alır. Kart yok, ızgara yok, istatistik sayısı yok, ikon yok. */
 
 .page {
   display: flex;
   flex-direction: column;
 }
 
-/* ---- Kıvrım 1 ---- */
-.fold {
-  /* ⚠️ İKİ AYRI HATA BURADAN ÇIKTI (ölçüldü, 8 Ağustos 2026 · 1280×900):
-     "SPOR" başlığının altı viewport'un 120px dışında kalıyordu.
-
-     1) `box-sizing` — projede genel bir `border-box` sıfırlaması YOK
-        (globals.css'te yok). Varsayılan `content-box`ta padding yüksekliğe
-        EKLENİYOR: min-height 900px iken kutu 900+128+108 = 1136px oluyordu.
-        Bu satır olmadan `100svh` hiçbir zaman 100svh değil.
-
-     2) Yapışkan header — akışta 69px yer kaplıyor, yani bu bölüm viewport'un
-        altından header kadar taşıyor. `--sp-header` onu düşüyor.
-
-     dvh yerine svh: mobil tarayıcı çubuğu kaydıkça yükseklik zıplamasın. */
+/* ---- Açılış ----
+   Tam ekran DEĞİL (önceki sürümde öyleydi ve üstte 461px ölü boşluk
+   bırakıyordu). Şimdi ilk dünya bandı ekranın altından sızıyor: ziyaretçi
+   arşivden bir şey görerek karşılanıyor, boş duvarla değil. */
+.opening {
   box-sizing: border-box;
-  min-height: calc(100svh - var(--sp-header));
+  min-height: calc(60svh - var(--sp-header));
   display: flex;
-  align-items: flex-end;
-  padding: var(--sp-band) var(--sp-gutter) clamp(3rem, 12vh, 8rem);
+  align-items: center;
+  padding: clamp(2.5rem, 7vw, 5rem) var(--sp-gutter) clamp(3rem, 8vw, 6rem);
   position: relative;
   overflow: hidden;
 }
 
-/* Stadyum ışığı: kadrajın DIŞINDAN sızan tek kaynak.
-   Merkezi görünür alanın üstünde-solunda; yani ışığın kaynağı ekranda değil,
-   sadece etkisi var — gece stadyumunda projektörün yaptığı şey bu.
-   Tek radial, düşük yoğunluk (--gs-glow zaten kullanıcının açık isteğiyle
-   konmuş bir token). Kart parlaması DEĞİL, zemin aydınlatması. */
-.fold::before {
+/* Stadyum ışığı: kaynak kadrajın DIŞINDA — ekranda projektörü değil,
+   etkisini görüyorsun. */
+.opening::before {
   content: "";
   position: absolute;
   inset: 0;
   pointer-events: none;
   background: radial-gradient(
-    120% 90% at 18% -25%,
+    110% 100% at 16% -30%,
     var(--gs-glow),
-    transparent 62%
+    transparent 60%
   );
-  opacity: 0.55;
+  opacity: 0.5;
 }
 
-.foldInner {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-lg);
-  /* Kelime büyüdüğü için sütun da büyüdü; sağda hâlâ ciddi boşluk kalıyor
-     ama artık "terk edilmiş" değil, dengeleyen boşluk */
-  max-width: min(58rem, 80%);
-  min-width: 0;
+/* Cümle BAŞLIKTIR. Punto craft floor'un display tavanının (6rem) altında
+   kalıyor — önceki 288px'lik "SPOR" o sınırın üç katıydı ve hiyerarşi
+   yerine uçurum üretiyordu. */
+.statement {
   position: relative;
-}
-
-.word {
+  font-size: clamp(1.75rem, 3.6vw, 3.25rem);
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  /* Ölçü bilinçli dar: cümle üç satıra kırılıp blok hâline gelsin */
+  max-width: 22ch;
   color: var(--text-primary);
-}
-
-.lede {
-  max-width: 28ch;
 }
 
 /* ---- Dünya bantları ---- */
 .band {
   border-top: 1px solid var(--sport-line);
-  min-height: min(62svh, 34rem);
+  /* Bantlar ekranın çoğunu alıyor — ağırlık buradan geliyor, puntodan değil */
+  min-height: min(58svh, 30rem);
   display: flex;
   position: relative;
   overflow: hidden;
 }
 
-/* Futbol bandı: soldan sızan sıcak ışık — kıvrım 1'deki projektörün devamı */
+/* Futbol: soldan sızan sıcak ışık — açılıştaki projektörün devamı */
 .band::before {
   content: "";
   position: absolute;
   inset: 0;
   pointer-events: none;
   background: radial-gradient(
-    90% 120% at 0% 50%,
+    85% 120% at 0% 50%,
     var(--gs-glow),
     transparent 58%
   );
-  opacity: 0.5;
+  opacity: 0.45;
   transition: opacity 420ms ease;
 }
 
 .band:hover::before {
-  opacity: 0.85;
+  opacity: 0.8;
 }
 
-/* F1 bandı: ışık değil ÖLÇÜM. Sağdan soğuk bir aydınlatma + ince ızgara.
-   İki bandın malzemesi de farklı — biri atmosfer, diğeri alet. */
+/* F1: ışık değil ÖLÇÜM. İki bandın malzemesi de farklı — aynı efekti iki
+   yere koymak "aynı sayfanın renk varyantı" hissi üretirdi. */
 .bandRight::before {
-  background:
-    radial-gradient(80% 120% at 100% 50%, var(--f1-glow), transparent 55%);
-  opacity: 0.45;
+  background: radial-gradient(75% 120% at 100% 50%, var(--f1-glow), transparent 55%);
+  opacity: 0.4;
 }
 
 .bandRight::after {
@@ -108,15 +91,13 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  /* Telemetri ızgarası: 1px kılcal dikey çizgiler, çok düşük kontrast */
   background-image: repeating-linear-gradient(
     to right,
     color-mix(in srgb, var(--f1-white) 6%, transparent) 0 1px,
     transparent 1px 5.5rem
   );
-  /* Maske SOLDA güçlü: bu bandın metni sağa dayalı (align-items: flex-end),
-     ızgara metnin arkasına girmesin diye ters yöne yerleşiyor. */
-  mask-image: linear-gradient(to right, #000, transparent 60%);
+  /* Metin sağa dayalı; ızgara ters yöne yerleşiyor ki arkasına girmesin */
+  mask-image: linear-gradient(to right, #000, transparent 55%);
 }
 
 .bandLink {
@@ -124,11 +105,12 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: var(--gap-md);
-  padding: var(--sp-band) var(--sp-gutter);
+  /* Sıkı grup: ad → cümle → çizgi → giriş. Bantlar arası boşluk cömert,
+     grup içi boşluk dar — ritim bu karşıtlıktan geliyor. */
+  gap: 0.6rem;
+  padding: clamp(2.5rem, 6vw, 4.5rem) var(--sp-gutter);
   color: inherit;
   text-decoration: none;
-  /* Bandın TAMAMI bağlantı — brief "kart" istemiyor */
   min-width: 0;
   position: relative;
 }
@@ -138,38 +120,66 @@
   outline-offset: -4px;
 }
 
-/* F1 bandı futbolun aynası DEĞİL: hizalama ters, içerik ölçüm dili */
 .bandRight .bandLink {
   align-items: flex-end;
   text-align: right;
 }
 
-.bandLede {
-  max-width: 32ch;
+/* Dünya adı açılış cümlesinden KÜÇÜK. Ağırlığını punto yerine bandın
+   kapladığı alandan ve ışıktan alıyor. Cümleden büyük olsaydı okuma sırası
+   (yukarıdan aşağı) ile görsel ağırlık (aşağıda) çelişirdi — ölçüldü:
+   52 → 60 → 20 basamağı tersine dönmüş bir hiyerarşiydi. */
+.world {
+  font-size: clamp(1.5rem, 2.9vw, 2.5rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  /* Türkçe diyakritik üst/alt çıkıntısı kırpılmasın */
+  padding-block: 0.05em;
+  color: var(--text-primary);
+  transition: color 260ms ease;
+}
+
+.bandLink:hover .world {
+  color: var(--gs-gold);
+}
+
+.bandRight .bandLink:hover .world {
+  color: var(--f1-white);
+}
+
+/* Ara basamak: başlıkla künye arasındaki 13:1 uçurumunu kapatan ölçek */
+.tagline {
+  margin: 0;
+  font-size: clamp(1rem, 1.5vw, 1.25rem);
+  line-height: 1.5;
+  color: var(--text-secondary);
+  max-width: 30ch;
 }
 
 .rule {
   display: block;
-  width: 3.5rem;
+  width: 3rem;
   height: 2px;
+  margin-top: 0.4rem;
   background: var(--gs-gold);
   transition: width 420ms cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 .ruleF1 {
   background: var(--f1-red);
-  /* Ölçüm estetiği: F1 çizgisi daha ince ve daha uzun */
   height: 1px;
-  width: 6rem;
+  width: 5rem;
 }
 
-/* Hover'da tek şey olur: çizgi uzar. Kart yükselmesi, gölge, ölçek yok. */
+/* Hover'da tek şey olur: çizgi uzar. Yükselme, gölge, ölçek yok. */
 .bandLink:hover .rule {
-  width: 9rem;
+  width: 8rem;
 }
 
 .bandLink:hover .ruleF1 {
-  width: 14rem;
+  width: 12rem;
 }
 
 .enter {
@@ -188,22 +198,16 @@
 
 /* ============================================================
    HAREKET — kaydırmaya bağlı, JS'SİZ.
-
-   `animation-timeline: view()` ile: bant görüş alanından geçerken dünya adı
-   kendi bandının içinde hafifçe kayıyor. Destek yoksa (`@supports`) hiçbir şey
-   olmuyor, içerik yerinde duruyor — yani bozulma riski sıfır. İstemci JS'i
-   gerekmediği için dev modunda CSP engeli de bu hareketi durdurmuyor.
-
-   Brief: "az ve niyetli, aynı ekranda birden fazla animasyon türü çalışmasın."
-   Kanattaki iki hareket bu (kaydırma kayması) ve bölüm belirmesi; ikisi aynı
-   anda aynı öğede çalışmıyor.
+   `animation-timeline: view()`; destek yoksa hiçbir şey olmuyor ve içerik
+   yerinde duruyor. İstemci JS'i gerekmediği için dev modundaki CSP engeli
+   de bu hareketi durdurmuyor.
    ============================================================ */
 @keyframes drift {
   from {
-    transform: translate3d(0, 2rem, 0);
+    transform: translate3d(0, 1.5rem, 0);
   }
   to {
-    transform: translate3d(0, -2rem, 0);
+    transform: translate3d(0, -1.5rem, 0);
   }
 }
 
@@ -220,35 +224,28 @@
 
 /* ---- Mobil: kendi kompozisyonu ----
    Masaüstü bantlarını dikey yığmak yeterli değil; asimetri dikey ofsetle
-   korunuyor. F1 bandının sağa dayalı hizası mobilde sola dönüyor (dar
-   ekranda sağa dayalı metin okumayı zorlaştırır) ama iç yapı farkı —
-   ölçüm satırı ve ızgara — duruyor. */
+   korunuyor. F1'in sağa dayalı hizası mobilde sola dönüyor (dar ekranda
+   sağa dayalı metin okumayı zorlaştırır) ama iç yapı farkı — ölçüm satırı
+   ve ızgara — duruyor. */
 @media (max-width: 760px) {
-  .foldInner {
+  .opening {
+    min-height: calc(46svh - var(--sp-header));
+  }
+
+  .statement {
     max-width: 100%;
   }
 
-  .fold {
-    min-height: 88svh;
-  }
-
   .band {
-    min-height: 52svh;
+    min-height: 44svh;
   }
 
   .bandRight .bandLink {
     align-items: flex-start;
     text-align: left;
-    /* Dikey ofset: iki bant aynı ritimde başlamasın */
-    padding-top: calc(var(--sp-band) * 1.35);
+    padding-top: calc(clamp(2.5rem, 6vw, 4.5rem) * 1.4);
   }
 
-  .lede,
-  .bandLede {
-    max-width: 34ch;
-  }
-
-  /* Dar ekranda ızgara gürültüye dönüyor */
   .bandRight::after {
     background-size: 3rem 100%;
     opacity: 0.6;

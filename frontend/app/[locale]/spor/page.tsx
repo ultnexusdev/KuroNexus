@@ -47,7 +47,8 @@ async function getHallLabel(): Promise<string> {
  *
  * İki dünya bandı birbirinin AYNA GÖRÜNTÜSÜ DEĞİL — futbol sola dayalı ve
  * anlatı diliyle, F1 sağa dayalı ve ölçüm diliyle yazılıyor. Simetri kurmak
- * bugünkü `SportSplit`in (iki eşit kart) daha büyük hâlini üretirdi.
+ * eski `SportSplit`in (iki eşit kart) daha büyük hâlini üretirdi — o bileşen
+ * bu yüzden taşınmadı, silindi.
  */
 export default async function SportLandingPage({
   params,

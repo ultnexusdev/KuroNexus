@@ -6,7 +6,6 @@ import { fetchCategories, fetchUniverses } from "@/lib/api/universes";
 import { ContentCard } from "@/components/ContentCard";
 import { CodexCard } from "@/components/kadim/CodexCard";
 import { CornerFiligree, RunicMargin } from "@/components/kadim/CodexOrnaments";
-import { SportSplit } from "@/components/sport/SportSplit";
 import { FilmLobby } from "@/components/film/FilmLobby";
 import { AnimeLobby } from "@/components/anime/AnimeLobby";
 import { ShowLobby } from "@/components/show/ShowLobby";
@@ -57,7 +56,6 @@ export default async function CategoryUniversesPage({
   const universes = allUniverses.filter((u) => u.categoryId === category.id);
   // Kategori derisi: yalnızca derisi tanımlı kategoriler dönüşür
   const isCodex = category.slug === "kadim-dunyalar";
-  const isSport = category.slug === "spor";
 
   // Film kapısı doğrudan arşive değil, salon girişine açılır — buraya yeni
   // başlıklar eklenebilsin diye (bkz. lib/film/sections.ts)
@@ -108,32 +106,6 @@ export default async function CategoryUniversesPage({
         archive={archive}
         showcase={showcase}
       />
-    );
-  }
-
-  if (isSport) {
-    const tSport = await getTranslations({ locale, namespace: "sport" });
-    const football = universes.find((u) => u.slug === "galatasaray");
-    const f1 = universes.find((u) => u.slug === "formula-1");
-    return (
-      <div data-category="spor" className={styles.sportWing}>
-        <header className={styles.sportHead}>
-          <Link href="/dark-stories" className={styles.back}>
-            {t("backToList")}
-          </Link>
-          <span className={styles.sportEyebrow}>{tSport("eyebrow")}</span>
-        </header>
-        <section className={styles.sportBody}>
-          <SportSplit
-            footballHref={
-              football ? `/dark-stories/${football.slug}` : "/dark-stories"
-            }
-            footballImage={football?.coverImage}
-            f1Href={f1 ? `/dark-stories/${f1.slug}` : "/dark-stories"}
-            f1Image={f1?.coverImage}
-          />
-        </section>
-      </div>
     );
   }
 

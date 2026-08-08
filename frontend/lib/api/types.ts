@@ -109,54 +109,12 @@ export interface UploadResult {
   url: string;
 }
 
-export interface SportPlayer {
-  id: string;
-  name: string;
-  shirtNumber: number | null;
-  position: string;
-  nationality: string | null;
-  imageUrl: string | null;
-  appearances: number;
-  goals: number;
-  assists: number;
-  note: string | null;
-  order: number;
-  universeId: string;
-}
-
-export interface SportLegend {
-  id: string;
-  name: string;
-  era: string | null;
-  title: string | null;
-  story: string;
-  imageUrl: string | null;
-  achievements: string | null;
-  order: number;
-  universeId: string;
-}
-
-export interface RaceEvent {
-  id: string;
-  round: number;
-  name: string;
-  circuit: string;
-  country: string | null;
-  raceDate: string | null;
-  trackSvgPath: string | null;
-  universeId: string;
-}
-
-export interface DriverStanding {
-  id: string;
-  position: number;
-  driver: string;
-  team: string | null;
-  points: number;
-  wins: number;
-  teamColor: string | null;
-  universeId: string;
-}
+/* SportPlayer · SportLegend · RaceEvent · DriverStanding tipleri buradan
+   kaldırıldı (8 Ağustos 2026). Backend'deki modeller ve `/sport/:universeSlug`
+   ucu DURUYOR — kullanıcının elle girdiği veri orada. Kaldırılan yalnızca ön
+   yüzdeki tip tanımları: onları okuyan istemci (`lib/api/sport.ts`) ve salon
+   bileşenleri (GsHall/F1Hall) artık yok, kanat `/spor` ağacına taşındı.
+   Veri göçü yapılırsa tipler git geçmişinden geri alınabilir. */
 
 // ---- API-Football (backend cache üzerinden) ----
 export interface FootballSquadPlayer {
@@ -275,12 +233,6 @@ export interface NextMatchResponse {
   updatedAt: string | null;
 }
 
-export interface SportBundle {
-  players: SportPlayer[];
-  legends: SportLegend[];
-  races: RaceEvent[];
-  standings: DriverStanding[];
-}
 
 // ---- Salon 02 · Film arşivi ----
 

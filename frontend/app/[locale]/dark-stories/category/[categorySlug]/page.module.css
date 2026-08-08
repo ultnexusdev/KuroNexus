@@ -229,34 +229,7 @@
   }
 }
 
-/* ============================================================
-   Spor derisi (Salon 03) — yarı yarıya salon
-   ============================================================ */
-.sportWing {
-  background: var(--bg);
-  min-height: 70vh;
-}
-
-.sportHead {
-  max-width: 78rem;
-  margin: 0 auto;
-  padding: var(--pad-lg) var(--pad-md) var(--gap-md);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--gap-md);
-}
-
-.sportEyebrow {
-  font-family: var(--font-cinzel), serif;
-  font-size: 0.74rem;
-  letter-spacing: 0.4em;
-  text-transform: uppercase;
-  color: var(--accent);
-}
-
-.sportBody {
-  max-width: 78rem;
-  margin: 0 auto;
-  padding: 0 var(--pad-md) var(--pad-lg);
-}
+/* Spor derisi buradan kaldırıldı (8 Ağustos 2026): kanat kendi ağacına
+   taşındı (`/spor`), bu sayfa artık spor kategorisine hiç ulaşmıyor —
+   `/dark-stories/category/spor` kalıcı olarak `/spor`e yönleniyor.
+   `.back` ve `.backLink` KALDI: Kadim Dünyalar dallanması onları kullanıyor. */

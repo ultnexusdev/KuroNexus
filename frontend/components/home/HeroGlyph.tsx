@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type CSSProperties } from "react";
+import { KuroBrush, KURO_TOTAL_S } from "./KuroBrush";
 import styles from "./HeroGlyph.module.css";
 
 /**
@@ -70,15 +71,38 @@ export function HeroGlyph({ word = "nexus" }: { word?: string }) {
     <div ref={wrapRef} className={styles.glyphCol} role="img" aria-label="KuroNexus">
       <span className={styles.aura} aria-hidden />
 
+      {/* Mühür artık metin değil çizim: 黒 vuruş sırasıyla beliriyor.
+          Ref sarmalayıcıda çünkü parallax dönüşümü SVG'nin kendisine değil
+          kutusuna uygulanıyor — filtre ve maske kendi koordinat uzayında
+          kalsın (dönüşüm SVG'ye binseydi parıltı da eğilirdi). */}
       <span ref={glyphRef} className={styles.glyph} aria-hidden>
-        黒
+        <KuroBrush />
       </span>
 
-      {/* Künye levhası mantığı: işaret üstte, ince altın çizgi, adı altında */}
-      <span className={styles.rule} aria-hidden />
+      {/* Künye levhası mantığı: işaret üstte, ince altın çizgi, adı altında.
+          Çizgi de kanjiden SONRA çiziliyor, yoksa mühür yazılırken altında
+          hazır bekleyen bir hat duruyor ve sıra bozuluyor. */}
+      <span
+        className={styles.rule}
+        style={{ "--hg-delay": `${KURO_TOTAL_S}s` } as CSSProperties}
+        aria-hidden
+      />
 
+      {/* Harfler tek tek: kanji bittikten sonra, kendi aralarında 0.09sn */}
       <span className={styles.glyphWord} aria-hidden>
-        {word}
+        {[...word].map((harf, i) => (
+          <span
+            key={i}
+            className={styles.letter}
+            style={
+              {
+                "--hg-delay": `${KURO_TOTAL_S + 0.22 + i * 0.09}s`,
+              } as CSSProperties
+            }
+          >
+            {harf}
+          </span>
+        ))}
       </span>
     </div>
   );

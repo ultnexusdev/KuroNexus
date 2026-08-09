@@ -1,6 +1,7 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
+import compression from 'compression';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
 
@@ -10,6 +11,28 @@ async function bootstrap(): Promise<void> {
   // ThrottlerGuard tüm istekleri tek IP (proxy'nin kendisi) sanır ve
   // rate limit tüm kullanıcılar arasında paylaşılır.
   app.set('trust proxy', 1);
+
+  /**
+   * Yanıt sıkıştırma — ÖLÇÜMLE eklendi (2026-08-09).
+   *
+   * Frontend (Next.js) yanıtlarını kendiliğinden sıkıştırıyordu, API
+   * sıkıştırmıyordu. Ölçüm: `GET /books` **558 KB düz metin JSON** ve
+   * `Content-Encoding` başlığı boş dönüyordu. Kitap salonunun her açılışı bu
+   * gövdeyi bir kez taşıyor (sayfa `force-dynamic`).
+   *
+   * `filter`: `/uploads/*` altındaki JPEG/PNG/WebP ve ses dosyaları ZATEN
+   * sıkıştırılmış biçimler — onları tekrar gzip'lemek CPU harcayıp boyutu
+   * neredeyse hiç düşürmez, üstelik `Content-Length` kaybolduğu için
+   * tarayıcıda ilerleme çubuğu da ölür. `compression`ın kendi varsayılan
+   * süzgeci `Content-Type`a bakıp görselleri zaten eliyor; burada onu açıkça
+   * çağırmak niyeti kodda görünür kılıyor.
+   */
+  app.use(
+    compression({
+      filter: (req, res) =>
+        !req.path.startsWith('/uploads/') && compression.filter(req, res),
+    }),
+  );
 
   /**
    * Güvenlik başlıkları.

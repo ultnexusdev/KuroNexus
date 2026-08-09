@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/lib/i18n/navigation";
-import { apiUrl } from "@/lib/api/client";
+import { apiUrl, isLocalUpload } from "@/lib/api/client";
 import type {
   BookPersonRole,
   SourceBookCredit,
@@ -109,11 +109,25 @@ export function SourceBook({
                 src={cover}
                 alt=""
                 fill
-                sizes="(max-width: 640px) 40vw, 180px"
+                /* `.coverFrame` sabit 150px, ≤640px'te 108px — ikisi de sabit
+                   px, o yüzden vw değil px yazılı (eski 40vw/180px kutudan
+                   belirgin büyüktü) */
+                sizes="(max-width: 640px) 108px, 150px"
                 className={styles.coverImg}
-                /* Kapak kaynağın CDN'inden geliyor; kitap kanadının her
-                   yerinde olduğu gibi optimize edilmiyor */
-                unoptimized
+                /**
+                 * ÖLÇÜMLE koşullu (2026-08-09). Eski yorum "kapak kaynağın
+                 * CDN'inden geliyor" diyordu; kural olarak doğru ama pratikte
+                 * kapağı backend bir kez indirip `/uploads/books/` altına
+                 * kopyalıyor ve `next.config.ts` içindeki `remotePatterns` o
+                 * yolu kapsıyor. `unoptimized` verildiğinde `sizes` **tamamen
+                 * yok sayılıyordu**: 150 px'lik kutuya 249–600 px'lik ham JPEG.
+                 * Dışarıda kalan adres eskisi gibi ham iniyor.
+                 *
+                 * ⚠️ Karar `apiUrl()`den GEÇMEMİŞ ham yoldan veriliyor:
+                 * `isLocalUpload` "/uploads/" önekine bakıyor, mutlak adres
+                 * verilseydi her zaman `false` derdi (sessiz başarısızlık).
+                 */
+                unoptimized={!isLocalUpload(book.coverImage)}
               />
             ) : (
               <span className={styles.coverFallback}>{book.title}</span>

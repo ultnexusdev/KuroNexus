@@ -1136,13 +1136,31 @@ export interface BookArchiveStats {
   } | null;
 }
 
+/**
+ * Listede duran kitap — `description` alanı YOK.
+ *
+ * ÖLÇÜMLE eklendi (2026-08-09). `GET /books` yanıtı 576 KB'tı ve bunun
+ * **277.9 KB'ı (yüzde 48) tek başına `description`**: 253 kitabın tanıtım
+ * metni. Salon ve raf sayfaları bu metni çizmiyor; tanıtım yalnızca künye
+ * sayfasında görünüyor ve orası kendi isteğini (`getBookDetail`) yapıyor.
+ *
+ * Backend'deki `BookListItem`in aynası (`books.service.ts`). Buradaki asıl
+ * kazanç sadece boyut değil: alan tipten silindiği için, listede olmayan bir
+ * metni okumaya kalkan her yeri **derleyici** gösteriyor.
+ *
+ * `ArchiveBook` bu tipe atanabilir durumda (fazladan alan taşımak sorun
+ * değil), o yüzden künye sayfasının tam kaydı liste bileşenlerine geçmeye
+ * devam ediyor.
+ */
+export type BookListItem = Omit<ArchiveBook, "description">;
+
 export interface BookArchive {
-  books: ArchiveBook[];
+  books: BookListItem[];
   stats: BookArchiveStats;
   series: BookSeriesCard[];
   authors: BookAuthorCard[];
   genres: Array<{ name: string; count: number }>;
-  recent: ArchiveBook[];
+  recent: BookListItem[];
   quoteOfTheDay:
     | (BookQuote & { bookTitle: string; bookSlug: string })
     | null;

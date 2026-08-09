@@ -205,14 +205,34 @@ export interface BookArchiveStats {
   } | null;
 }
 
+/**
+ * Listede duran kitap — künyenin `description` alanı YOK.
+ *
+ * ÖLÇÜMLE eklendi (2026-08-09). `GET /books` yanıtı 576 KB'tı ve bunun
+ * **277.9 KB'ı (yüzde 48) tek başına `description`**: 253 kitabın tanıtım
+ * metni. Salon ve raf sayfaları bu metni hiçbir yerde çizmiyor — kitabın
+ * tanıtımı yalnızca künye sayfasında görünüyor ve orası `getDetail` ile
+ * ayrı bir istek yapıyor. Yani metin her salon açılışında boşuna taşınıyordu.
+ *
+ * `Omit` ile yazılmasının sebebi: alan listesi elle kopyalansaydı `ArchiveBook`
+ * büyüdükçe iki tanım sessizce ayrışırdı. Böyle yazıldığında derleyici,
+ * listede olmayan bir alanı okumaya çalışan her yeri gösteriyor.
+ */
+export type BookListItem = Omit<ArchiveBook, 'description'>;
+
+/** Künye metnini listeden düşürür — tek geçiş, `getArchive` dışında kullanılmaz. */
+function toListItem({ description: _unused, ...rest }: ArchiveBook): BookListItem {
+  return rest;
+}
+
 export interface BookArchive {
-  books: ArchiveBook[];
+  books: BookListItem[];
   stats: BookArchiveStats;
   series: BookSeries[];
   authors: BookAuthorCard[];
   genres: Array<{ name: string; count: number }>;
   /** Sağ raydaki şerit */
-  recent: ArchiveBook[];
+  recent: BookListItem[];
   /** Salonun altındaki dönen alıntı — kitap adıyla birlikte */
   quoteOfTheDay:
     (ArchiveBookQuote & { bookTitle: string; bookSlug: string }) | null;
@@ -396,14 +416,18 @@ export class BooksService {
       universes.map((universe) => [universe.id, universe.slug]),
     );
     const photos = new Map(people.map((person) => [person.slug, person.photo]));
+    // Künye metni yalnızca burada düşürülüyor; `buildStats`/`buildSeries` gibi
+    // yardımcılar tam kaydı okumaya devam ediyor (hiçbiri `description`
+    // kullanmıyor ama sözleşmelerini bu değişiklik için daraltmaya gerek yok).
+    const listed = books.map(toListItem);
 
     return {
-      books,
+      books: listed,
       stats: buildStats(books, goal),
       series: buildSeries(books, entries, universeSlugs),
       authors: buildAuthors(books, photos),
       genres: buildGenres(books),
-      recent: books.slice(0, RECENT_LIMIT),
+      recent: listed.slice(0, RECENT_LIMIT),
       quoteOfTheDay: await this.pickQuoteOfTheDay(books),
     };
   }

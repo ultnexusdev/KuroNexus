@@ -117,6 +117,27 @@ const orhun = Noto_Sans_Old_Turkic({
   preload: false,
 });
 
+/*
+ * API kaynağına preconnect (9 Ağustos 2026).
+ *
+ * ÖLÇÜM: canlı sitede kitap rafı sayfasının HTML'inde tek bir `preconnect` ya
+ * da `dns-prefetch` yoktu. Kapaklar `api.kuronexus.com` üzerinde, yani belgeden
+ * AYRI bir origin'de duruyor; tarayıcı HTML'i ayrıştırıp ilk <img>'a gelene
+ * kadar o origin için DNS + TCP + TLS turuna hiç başlamıyor. Bu ipucu turu
+ * <head> okunurken, ilk kapak istenmeden önce başlatıyor.
+ *
+ * ⚠️ crossOrigin="anonymous" SÜS DEĞİL: kapaklar düz <img> ile, yani anonim
+ * modda (CORS'suz) çekiliyor. Öznitelik yazılmazsa tarayıcı bağlantıyı
+ * kimlik-bilgili (credentialed) havuza açar, <img> ise ayrı bir anonim havuz
+ * açar — bağlantı yeniden kullanılmaz ve preconnect tamamen boşa gider.
+ *
+ * Adres sabit yazılmadı: aynı değişken `next.config.ts` ve `lib/api/client.ts`
+ * içinde de okunuyor, üçünün ayrışması sessiz bir hata olurdu. `dns-prefetch`
+ * fallback'i BİLEREK eklenmedi — preconnect'i anlamayan tarayıcı payı ölçülebilir
+ * seviyenin altında, fazladan satır yalnızca bakım yükü.
+ */
+const apiOrigin = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+
 export async function generateMetadata({
   params,
 }: {
@@ -168,6 +189,9 @@ export default async function LocaleLayout({
       data-theme={theme}
       className={`${brushFont.variable} ${cinzel.variable} ${bebas.variable} ${petrona.variable} ${cormorant.variable} ${corinthia.variable} ${orhun.variable}`}
     >
+      <head>
+        <link rel="preconnect" href={apiOrigin} crossOrigin="anonymous" />
+      </head>
       <body>
         <NextIntlClientProvider>
           {/* Klavyeyle gelen biri her sayfada önce header ve footer

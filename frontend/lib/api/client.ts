@@ -32,7 +32,23 @@ export function apiUrl(path: string): string {
  *
  * Geliştirmede tarayıcıdan giden istekler `/api/dev-proxy` üzerinden kendi
  * sunucumuza uğrar (canlı API localhost kaynağını CORS'ta tanımıyor).
- * Sunucu tarafındaki çağrılar ve üretim her zaman doğrudan API'ye gider.
+ * Tarayıcıdan giden üretim istekleri doğrudan `API_BASE_URL`e gider.
+ *
+ * SUNUCU TARAFI AYRI (9 Ağustos 2026): SSR'da `API_BASE_URL` kullanılınca Next
+ * konteyneri veriyi Docker iç ağından değil, internete çıkıp Traefik üzerinden
+ * geri girerek alıyordu — her sayfa render'ında gereksiz bir DNS + TLS el
+ * sıkışması + ters proxy turu, üstelik iki konteyner aynı ağda yan yana
+ * dururken. `API_INTERNAL_URL` tanımlıysa sunucu çağrıları o adrese gider.
+ *
+ * ⚠️ DEĞİŞKEN ADI `NEXT_PUBLIC_` ÖNEKLİ OLMAMALI. Önek olsaydı Next değeri
+ * istemci paketine gömerdi, tarayıcı da `http://backend:3001` gibi yalnızca
+ * Docker ağının çözebildiği bir adrese gitmeye çalışırdı — sitedeki bütün veri
+ * çağrıları ölürdü. Önekin yokluğu bu fonksiyonun doğruluk şartı.
+ *
+ * Env tanımlı değilse davranış birebir eskisi gibi: geriye dönük uyumlu.
+ * `apiUrl()` bilerek dışarıda bırakıldı — o görsel/ses adresleri üretiyor,
+ * onlar HTML'e yazılıp TARAYICIDA çözülüyor; iç ağ adresine çevrilirse bütün
+ * kapaklar kırılır.
  */
 export function apiFetchUrl(path: string): string {
   if (path.startsWith("http://") || path.startsWith("https://")) {
@@ -40,6 +56,12 @@ export function apiFetchUrl(path: string): string {
   }
   if (process.env.NODE_ENV !== "production" && typeof window !== "undefined") {
     return `/api/dev-proxy${path}`;
+  }
+  if (process.env.NODE_ENV === "production" && typeof window === "undefined") {
+    const internalUrl = process.env.API_INTERNAL_URL;
+    if (internalUrl) {
+      return `${internalUrl}${path}`;
+    }
   }
   return `${API_BASE_URL}${path}`;
 }

@@ -41,6 +41,28 @@ import { PulseModule } from './pulse/pulse.module';
             configService.get<string>('UPLOAD_DIR', './uploads'),
           ),
           serveRoot: '/uploads',
+          /**
+           * Bir yıllık, değişmez önbellek — ÖLÇÜMLE eklendi (2026-08-09).
+           *
+           * Varsayılan `Cache-Control: public, max-age=0` idi. "public" kulağa
+           * önbelleklenir gibi geliyor ama `max-age=0` tarayıcıya "her açılışta
+           * bana tekrar sor" dedirtiyor. Ölçüm: kitap rafında 30 kapak için
+           * HER ziyarette 30 koşullu istek gidiyor, hepsi 304 dönüyor —
+           * tek bayt veri inmiyor ama tarayıcıda kapak başına 336–539 ms
+           * bekleniyor. Kullanıcının gördüğü "kapaklar geç geliyor" tam bu.
+           *
+           * `immutable` NEDEN GÜVENLİ: bu klasördeki her dosya
+           * `${Date.now()}-${randomBytes(8)}${uzantı}` ile adlandırılıyor
+           * (`uploads.service.ts:93`, `book-cover.service.ts:161`) ve var olan
+           * bir ada ASLA üzerine yazılmıyor. İçerik değişince yeni dosya, yeni
+           * ad, yeni URL oluşuyor; kayıt eski adı bırakıyor. Yani "bu adres
+           * artık hiç değişmeyecek" sözü doğru. Adlandırma bu kuralı bozarsa
+           * (sabit ada üzerine yazma) bu satır da geri alınmalı.
+           */
+          serveStaticOptions: {
+            maxAge: '365d',
+            immutable: true,
+          },
         },
       ],
     }),

@@ -4,9 +4,12 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/lib/i18n/navigation";
-import { apiUrl } from "@/lib/api/client";
+import { apiUrl, isLocalUpload } from "@/lib/api/client";
+// Kartlar künye metnini çizmiyor, o yüzden sözleşme `BookListItem`
+// (bkz. `types.ts`). `ArchiveBook` bu tipe atanabilir olduğundan künye
+// sayfası aynı kartları tam kayıtla kullanmaya devam ediyor.
 import type {
-  ArchiveBook,
+  BookListItem,
   BookAuthorCard,
   BookSeriesCard,
 } from "@/lib/api/types";
@@ -24,13 +27,40 @@ export function coverSrc(book: {
   return book.coverImage ? apiUrl(book.coverImage) : null;
 }
 
+/**
+ * Bu kapak `next/image` optimizasyonundan geçebilir mi? — ÖLÇÜMLE eklendi
+ * (2026-08-09).
+ *
+ * Kitap kanadındaki her kapak `unoptimized` idi; gerekçe olarak "kapaklar
+ * Google/Open Library gibi keyfi host'lardan geliyor" yazıyordu. Bu, kural
+ * olarak doğru ama BU arşiv için değil: canlıdaki 253 kitabın 253'ünün de
+ * kapağı `/uploads/books/` altında duruyor — `book-cover.service.ts` dış
+ * adresi bir kez indirip bize kopyalıyor, tam da kapak linkleri ölmesin diye.
+ * `next.config.ts` içindeki `remotePatterns` bu yolu zaten kapsıyor.
+ *
+ * Ham `unoptimized`ın ölçülen maliyeti (canlı, `okuduklarim` rafı, 1280 px):
+ * kapaklar CSS'te **32 px** ve **124 px** genişlikte çiziliyor ama diskten
+ * **249–600 px** genişlikte JPEG olarak iniyor. Ortanca fazlalık 12 kat
+ * genişlik, en kötüsü 19 kat — piksel sayısında ~140–360 kat. Tek rafın
+ * kapak yükü 1.69 MB.
+ *
+ * Karar `apiUrl`den GEÇMEMİŞ ham yoldan veriliyor: `isLocalUpload` "/uploads/"
+ * önekine bakıyor, mutlak adres verilirse her zaman `false` derdi
+ * (`CharacterSections.tsx`te aynı tuzak not düşülmüş).
+ */
+export function coverUnoptimized(book: {
+  coverImage: string | null;
+}): boolean {
+  return !isLocalUpload(book.coverImage);
+}
+
 // Salon sayfası ve raf sayfaları aynı kartı kullanır — tek yerde durur
 const CuratorCardTools = dynamic(
   () => import("./BookCurator").then((mod) => mod.CuratorCardTools),
   { ssr: false },
 );
 
-export function bookHref(book: ArchiveBook): string {
+export function bookHref(book: BookListItem): string {
   return `/dark-stories/category/kitap/${book.slug}`;
 }
 
@@ -60,7 +90,7 @@ export function Cover({
   book,
   sizes,
 }: {
-  book: ArchiveBook;
+  book: BookListItem;
   sizes: string;
 }) {
   const src = coverSrc(book);
@@ -82,7 +112,7 @@ export function Cover({
       fill
       sizes={sizes}
       className={styles.coverImg}
-      unoptimized
+      unoptimized={coverUnoptimized(book)}
     />
   );
 }
@@ -91,7 +121,7 @@ export function Cover({
  * Çeviri rozeti. Yalnızca "henüz çevrilmedi" ve "çevriliyor" durumlarında
  * çizilir: çevrilmiş kitaba rozet takmak arşivin tamamını rozetle doldururdu.
  */
-export function TranslationBadge({ book }: { book: ArchiveBook }) {
+export function TranslationBadge({ book }: { book: BookListItem }) {
   const t = useTranslations("book");
   if (
     book.translationState !== "UNTRANSLATED" &&
@@ -116,7 +146,7 @@ export function BookCard({
   book,
   curating,
 }: {
-  book: ArchiveBook;
+  book: BookListItem;
   curating: boolean;
 }) {
   const t = useTranslations("book");
@@ -128,10 +158,17 @@ export function BookCard({
   return (
     <article className={styles.card}>
       <Link href={href} className={styles.coverWrap}>
-        <Cover
-          book={book}
-          sizes="(max-width: 640px) 40vw, (max-width: 1100px) 22vw, 12vw"
-        />
+        {/* `sizes` CANLIDA ÖLÇÜLDÜ (2026-08-09), hesaplanmadı: `.coverWrap`
+            kutusunun gerçek genişliği 375px'te 106, 768'de 135, 1280'de 128,
+            1920'de 130 px. Kart ızgarası `repeat(auto-fill, minmax(126px,1fr))`
+            olduğu için geniş ekranda kart BÜYÜMÜYOR, sayısı artıyor — eski
+            "12vw" değeri 1920'de 230 px istiyordu, yani gerçeğin ~1.8 katı.
+
+            Kutu her ekranda 106–135 px bandında kaldığı için tek sabit değer
+            yetiyor. `vw` BİLEREK kullanılmadı: `sizes` içinde bir yüzde
+            görünürse Next 211 px altındaki bütün basamakları aday listesinden
+            eliyor ve 144'ü seçemez hâle geliyor (bkz. `next.config.ts`). */}
+        <Cover book={book} sizes="136px" />
 
         {/* Seri cildi kapağın köşesinde: "Zaman Çarkı 14" tek bakışta okunsun */}
         {book.seriesIndex !== null && book.seriesName ? (
@@ -216,9 +253,13 @@ export function AuthorCard({
             src={photo}
             alt=""
             fill
-            sizes="56px"
+            /* `.authorPortrait` CSS'te sabit 42px (BookHall.module.css:1008);
+               "56px" bu kutunun üstünde bir istekti. Karar `apiUrl`den
+               geçmemiş HAM yoldan veriliyor — mutlak adres verilseydi
+               `isLocalUpload` her zaman false derdi. */
+            sizes="42px"
             className={styles.authorPortraitImg}
-            unoptimized
+            unoptimized={!isLocalUpload(author.photo)}
           />
         ) : (
           /* Portre henüz inmemiş yazar boş daire değil: baş harfleri duruyor
@@ -291,9 +332,14 @@ export function SeriesCard({ series }: { series: BookSeriesCard }) {
               src={cover}
               alt=""
               fill
-              sizes="120px"
+              /* `.seriesRow` ızgarası 3 / 5 / 9 kolon (640 ve 1100
+                 kırılımları, BookHall.module.css:858-877). Kolon sayısı
+                 ekranla birlikte arttığı için kutu ~110–150 px bandında
+                 kalıyor; tek sabit üst sınır yetiyor ve `vw` yazmanın
+                 basamak eleme cezasından kaçınıyor (bkz. `next.config.ts`). */
+              sizes="150px"
               className={styles.coverImg}
-              unoptimized
+              unoptimized={coverUnoptimized(series)}
             />
           ) : null}
         </span>

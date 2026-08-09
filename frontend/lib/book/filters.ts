@@ -1,4 +1,7 @@
-import type { ArchiveBook, BookTranslation } from "@/lib/api/types";
+// Süzgeçler yalnızca listede duran alanları okuyor, künye metnini değil —
+// `BookListItem` (bkz. `types.ts`) bu sözleşmenin tamamı. `ArchiveBook` bu
+// tipe atanabilir olduğu için künye sayfası da aynı yardımcıları kullanabilir.
+import type { BookListItem, BookTranslation } from "@/lib/api/types";
 import { matchesGenreKeys } from "./genres";
 
 /**
@@ -74,11 +77,11 @@ export const EMPTY_FILTERS: BookFilterState = {
 };
 
 /** Kitabın süzgeçlerde kullanılan yılı: önce ilk yayım, yoksa baskı yılı. */
-export function bookYear(book: ArchiveBook): number | null {
+export function bookYear(book: BookListItem): number | null {
   return book.firstPublishedYear ?? book.publishedYear;
 }
 
-function matchesPeriod(book: ArchiveBook, period: PeriodValue): boolean {
+function matchesPeriod(book: BookListItem, period: PeriodValue): boolean {
   const year = bookYear(book);
   // Yılı bilinmeyen kitap dönem süzgecinde elenir: aksi hâlde her kovada
   // birden görünürdü
@@ -111,7 +114,7 @@ export function foldTr(value: string): string {
     .replace(/\p{M}+/gu, "");
 }
 
-function matchesSearch(book: ArchiveBook, query: string): boolean {
+function matchesSearch(book: BookListItem, query: string): boolean {
   const trimmed = foldTr(query.trim());
   if (!trimmed) {
     return true;
@@ -149,10 +152,13 @@ function byNumber(
   return direction === "desc" ? b - a : a - b;
 }
 
-export function applyFilters(
-  books: ArchiveBook[],
+// Jenerik: ne verilirse aynı tip geri dönüyor. Sabit `BookListItem[]`
+// yazılsaydı künye sayfası süzgeçten geçirdiği tam kaydın `description`ını
+// kaybederdi.
+export function applyFilters<T extends BookListItem>(
+  books: T[],
   filters: BookFilterState,
-): ArchiveBook[] {
+): T[] {
   const filtered = books.filter((book) => {
     // Türler VEYA ile birleşir: "Fantastik + Bilim Kurgu" ikisinden birini
     // taşıyan her kitabı getirir (VE ile seçim neredeyse hep boş dönüyordu).

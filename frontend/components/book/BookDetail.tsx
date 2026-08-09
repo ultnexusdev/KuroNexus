@@ -12,7 +12,14 @@ import type {
   BookLinkKind,
   BookPersonRole,
 } from "@/lib/api/types";
-import { Cover, Stars, TranslationBadge, bookHref, coverSrc } from "./BookCard";
+import {
+  Cover,
+  Stars,
+  TranslationBadge,
+  bookHref,
+  coverSrc,
+  coverUnoptimized,
+} from "./BookCard";
 import styles from "./BookDetail.module.css";
 
 export function personHref(slug: string): string {
@@ -467,7 +474,15 @@ export function BookDetail({
   );
 }
 
-/** Sağ raydaki komşu listeleri — aynı yazardan ve aynı türden. */
+/**
+ * Sağ raydaki komşu listeleri — aynı yazardan ve aynı türden.
+ *
+ * Buradaki kapak artık `next/image` optimizasyonundan geçiyor — ÖLÇÜMLE
+ * (2026-08-09). `unoptimized` verildiğinde `sizes` **tamamen yok sayılıyor**:
+ * 32 px'lik küçük kapağa 249–600 px'lik ham JPEG iniyordu. Kararı
+ * `coverUnoptimized` veriyor ve o, `apiUrl()`den GEÇMEMİŞ ham yola bakıyor
+ * (mutlak adres verilseydi hiçbir kapak optimize edilmezdi).
+ */
 function NeighbourBlock({
   title,
   books,
@@ -488,9 +503,10 @@ function NeighbourBlock({
                     src={coverSrc(book)!}
                     alt=""
                     fill
-                    sizes="40px"
+                    /* `.neighbourCover` sabit 32px (BookDetail.module.css) */
+                    sizes="32px"
                     className={styles.neighbourImg}
-                    unoptimized
+                    unoptimized={coverUnoptimized(book)}
                   />
                 ) : null}
               </span>

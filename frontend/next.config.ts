@@ -219,6 +219,58 @@ const nextConfig: NextConfig = {
         pathname: "/t/p/**",
       },
     ],
+
+    /**
+     * Yalnızca WebP — **AVIF bilerek yok** (2026-08-09).
+     *
+     * AVIF önce eklendi ("genelde daha küçük" kabulüyle), sonra ölçüldü ve
+     * geri alındı. Gerçek bir kapak (350×540 JPEG, 36.5 KB) üretim
+     * derlemesinde her basamakta ikisiyle de üretildi:
+     *
+     *   genişlik │  AVIF  │  WebP  │ kazanan
+     *      32    │   994  │   740  │ WebP
+     *      64    │  2334  │  1954  │ WebP
+     *     128    │  5894  │  5308  │ WebP
+     *     176    │  9043  │  8234  │ WebP
+     *     256    │ 15393  │ 14360  │ WebP
+     *     384    │ 25509  │ 25962  │ AVIF
+     *
+     * AVIF ancak 384 px'te öne geçiyor; kapaklarımız en fazla ~176 px
+     * genişlikte çiziliyor, yani o basamağa hiç çıkmıyoruz. Küçük görsellerde
+     * AVIF'in kap (container) yükü kazancını yiyor.
+     *
+     * Yani AVIF bu arşivde HEM daha büyük dosya HEM daha pahalı kodlama
+     * demekti. Listeye eklemeden önce yeniden ölçün — kapak boyutları
+     * büyürse (örn. künye sayfasında tam boy kapak) cevap değişebilir.
+     */
+    formats: ["image/webp"],
+
+    /**
+     * Üretilen boyut merdiveni. Varsayılan liste 128'den doğrudan 256'ya
+     * atlıyor; ölçülen kutu genişliklerimiz (kart 106–135 px, cilt sırtı
+     * ~150 px'e kadar) tam o boşluğa düşüyordu ve 135 px'lik bir kutu için
+     * 256 px'lik dosya üretiliyordu. 144 ve 176 o boşluğu kapatıyor;
+     * 288, 144'ün retina (DPR 2) karşılığı — o olmadan retina telefon
+     * doğrudan 384'e sıçrıyor (25.9 KB yerine ~18 KB).
+     *
+     * ⚠️ `sizes` prop'larında `vw` KULLANMAYIN (bkz. bileşenlerdeki notlar).
+     * Next, `sizes` içinde bir yüzde görürse aday listesini
+     * `deviceSizes[0] × en_küçük_yüzde` (yani 640 × 0.33 ≈ 211) ALTINDAKİ
+     * bütün basamakları eleyerek kuruyor — buradaki 128/144/176 basamakları
+     * o durumda erişilemez hâle geliyor ve tarayıcı mecburen 256 seçiyor.
+     * Kitap ızgaraları kapakları her ekran genişliğinde dar bir banda
+     * sıkıştırdığı için sabit px yazmak hem doğru hem de bu tuzağı kapatıyor.
+     */
+    imageSizes: [16, 32, 48, 64, 96, 128, 144, 176, 256, 288, 384],
+
+    /**
+     * Optimize edilmiş kopyanın disk önbelleğinde kalma alt sınırı.
+     * Kaynak `/uploads/*` artık `Cache-Control: public, max-age=365d,
+     * immutable` ile geliyor (`backend/src/app.module.ts`) — Next yukarı
+     * akıştaki bu süreyi zaten dikkate alıyor, buradaki alt sınır ikisini
+     * hizalıyor ki tek bir kapak bile gereksiz yere yeniden kodlanmasın.
+     */
+    minimumCacheTTL: 31_536_000,
   },
 };
 

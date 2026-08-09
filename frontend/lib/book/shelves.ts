@@ -1,4 +1,6 @@
-import type { ArchiveBook } from "@/lib/api/types";
+// Raf üyeliği yalnızca `status`/`isFavorite` gibi liste alanlarına bakıyor;
+// künye metnine ihtiyaç yok (bkz. `BookListItem`, `types.ts`).
+import type { BookListItem } from "@/lib/api/types";
 
 /**
  * Salonun rafları. Raf anahtarı ile URL parçası tek yerde eşleşir; hem salon
@@ -45,7 +47,7 @@ export function shelfHref(key: ShelfKey): string {
  * bu yüzden favoriler rafı diğerleriyle kesişir (bilinçli — film kanadıyla
  * aynı karar).
  */
-export function belongsTo(book: ArchiveBook, shelf: ShelfKey): boolean {
+export function belongsTo(book: BookListItem, shelf: ShelfKey): boolean {
   if (shelf === "favorites") {
     return book.isFavorite;
   }

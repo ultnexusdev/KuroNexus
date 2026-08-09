@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/lib/i18n/navigation";
-import { apiUrl } from "@/lib/api/client";
+import { apiUrl, isLocalUpload } from "@/lib/api/client";
 import type { AwardDetail, AwardSummary, AwardWinnerCard } from "@/lib/api/types";
 import { BackToTop } from "@/components/BackToTop";
 import { personHref, sourceBookHref } from "./BookCard";
@@ -36,6 +36,26 @@ export const AWARDS_HREF = "/dark-stories/category/kitap/oduller";
 
 function coverFor(cover: string | null): string | null {
   return cover ? apiUrl(cover) : null;
+}
+
+/**
+ * Kapak `next/image` optimizasyonundan geçebilir mi? — ÖLÇÜMLE koşullu hâle
+ * geldi (2026-08-09).
+ *
+ * Eskiden buradaki her kapak koşulsuz `unoptimized` idi ve gerekçe olarak
+ * "kapaklar keyfi host'lardan geliyor" yazıyordu. Kural olarak doğru ama BU
+ * sayfa için değil: eşleşen kapağı `awards.service.ts` bir kez indirip
+ * `/uploads/books/` altına kopyalıyor, `next.config.ts` içindeki
+ * `remotePatterns` de o yolu zaten kapsıyor. `unoptimized` verildiğinde `sizes`
+ * tamamen yok sayılıyordu — ölçüm: 84 px'lik kutuya 249–600 px'lik ham JPEG.
+ *
+ * ⚠️ Karar **`apiUrl()`den geçmemiş ham yoldan** veriliyor: `isLocalUpload`
+ * "/uploads/" önekine bakıyor, mutlak adres verilirse her zaman `false` derdi
+ * ve hiçbir kapak optimize edilmezdi (sessiz başarısızlık). Aynı tuzak
+ * `BookCard.coverUnoptimized` ve `CharacterSections`ta da not düşülmüş.
+ */
+function coverOptimizable(cover: string | null): boolean {
+  return isLocalUpload(cover);
 }
 
 /** Ödül listesi: her ödül bir kart, arşiv payı çubukla gösteriliyor. */
@@ -81,12 +101,14 @@ export function AwardHall({
                         src={cover}
                         alt=""
                         fill
+                        /* `.awardCard` kolonu 72px, ≥640px'te 84px
+                           (AwardHall.module.css) — kutu sabit, vw yanlış olur */
                         sizes="84px"
                         className={styles.awardCoverImg}
-                        /* Kapaklar Google/Open Library gibi keyfi host'lardan
-                           geliyor; kitap kanadında da bu yüzden optimize
-                           edilmiyor (bkz. BookCard.Cover) */
-                        unoptimized
+                        /* Bizim yüklememizse optimize ediliyor; dışarıda kalan
+                           adres `remotePatterns`ta yok, o ham iniyor
+                           (bkz. coverOptimizable) */
+                        unoptimized={!coverOptimizable(award.coverImage)}
                       />
                     ) : (
                       <span className={styles.awardCoverEmpty} aria-hidden />
@@ -296,9 +318,17 @@ function WinnerCard({
           src={cover}
           alt=""
           fill
-          sizes="(max-width: 639px) 32vw, 150px"
+          /* `.grid`: 640px altında üç sabit kolon (≈30vw ≈ 112px), üstünde
+             `repeat(auto-fill, minmax(140px, 1fr))` — kolon 143 px ile 178 px
+             arasında kalıyor, en genişi ~780 px ekranda. 150px az geliyordu.
+
+             `vw` kaldırıldı: `sizes` içinde yüzde geçince Next 211 px
+             altındaki basamakları aday listesinden eliyor ve 176 seçilemez
+             hâle geliyordu — tam da kazanmak istediğimiz basamak
+             (bkz. `next.config.ts`). Kutu zaten 112–178 px bandında. */
+          sizes="176px"
           className={styles.coverImg}
-          unoptimized
+          unoptimized={!coverOptimizable(winner.coverImage)}
         />
       ) : (
         /**

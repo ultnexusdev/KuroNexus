@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/lib/i18n/navigation";
-import { apiUrl } from "@/lib/api/client";
+import { apiUrl, isLocalUpload } from "@/lib/api/client";
 import { createBookEntry, setReadingOrderProgress } from "@/lib/admin/api";
 import type {
   ReadingOrderDetail,
@@ -53,6 +53,25 @@ function toneFor(tracks: Array<{ name: string }>, track: string): string {
   return TRACK_TONES[(index < 0 ? 0 : index) % TRACK_TONES.length];
 }
 
+/**
+ * Kapak/portre `next/image` optimizasyonundan geçebilir mi? — ÖLÇÜMLE koşullu
+ * hâle geldi (2026-08-09).
+ *
+ * Bu sayfadaki görseller koşulsuz `unoptimized` idi; `unoptimized` verildiğinde
+ * `sizes` prop'u **tamamen yok sayılıyor**, yani 44 px'lik durak kapağına
+ * 249–600 px'lik ham JPEG iniyordu. Görselleri backend bir kez indirip
+ * `/uploads/` altına kopyalıyor ve `next.config.ts` içindeki `remotePatterns`
+ * o yolu kapsıyor — dışarıda kalan tek tük adres eskisi gibi ham iniyor.
+ *
+ * ⚠️ Karar **`apiUrl()`den geçmemiş ham yoldan** veriliyor: `isLocalUpload`
+ * "/uploads/" önekine bakıyor, mutlak adres verilirse her zaman `false` derdi
+ * ve hiçbir görsel optimize edilmezdi (sessiz başarısızlık — bkz.
+ * `BookCard.coverUnoptimized`).
+ */
+function optimizable(path: string | null): boolean {
+  return isLocalUpload(path);
+}
+
 /** Sıraların listesi. Şimdilik tek kayıt var; yenisi veri dosyasından gelir. */
 export function ReadingOrderHall({
   orders,
@@ -94,9 +113,10 @@ export function ReadingOrderHall({
                       src={apiUrl(order.coverImage)}
                       alt=""
                       fill
+                      /* `.orderCard` kapak kolonu sabit 84px — vw yanlış olur */
                       sizes="84px"
                       className={styles.orderCoverImg}
-                      unoptimized
+                      unoptimized={!optimizable(order.coverImage)}
                     />
                   ) : (
                     <span className={styles.orderCoverEmpty} aria-hidden />
@@ -212,9 +232,13 @@ export function ReadingOrderPage({
                   src={photo}
                   alt=""
                   fill
-                  sizes="(max-width: 900px) 40vw, 240px"
+                  /* `.portrait` her ekranda `max-width: 240px` (sol ray ≥900px'te
+                     260px, altında tam genişlik) — yani kutu hiçbir yerde 240
+                     px'i geçmiyor. Eski `40vw` dar ekranda 240px'lik kutuyu
+                     150 px sanıyordu, yani AZ geliyordu */
+                  sizes="240px"
                   className={styles.portraitImg}
-                  unoptimized
+                  unoptimized={!optimizable(order.author.photo)}
                 />
               ) : (
                 /* Portresi olmayan yazar boş çerçeve değil: baş harfleri
@@ -426,9 +450,10 @@ function Stop({
             src={apiUrl(entry.coverImage)}
             alt=""
             fill
-            sizes="64px"
+            /* `.stopCover` sabit 44px, 640px altında 36px */
+            sizes="44px"
             className={styles.stopCoverImg}
-            unoptimized
+            unoptimized={!optimizable(entry.coverImage)}
           />
         ) : (
           <span className={styles.stopCoverEmpty} aria-hidden />

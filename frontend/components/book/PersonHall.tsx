@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/lib/i18n/navigation";
-import { apiUrl } from "@/lib/api/client";
+import { apiUrl, isLocalUpload } from "@/lib/api/client";
 import type {
   BookPersonPage,
   BookPublisherPage,
@@ -51,13 +51,26 @@ export function PersonPage({
         <div className={styles.identity}>
           {photo ? (
             <span className={styles.portrait}>
+              {/**
+               * Portre artık `next/image` optimizasyonundan geçiyor — ÖLÇÜMLE
+               * (2026-08-09). `unoptimized` verildiğinde `sizes` tamamen yok
+               * sayılıyor: 84 px'lik madalyona 249–600 px'lik ham JPEG iniyordu.
+               * Fotoğrafı backend bir kez indirip `/uploads/` altına kopyalıyor,
+               * `next.config.ts` içindeki `remotePatterns` o yolu kapsıyor.
+               *
+               * ⚠️ Karar `apiUrl()`den GEÇMEMİŞ ham yoldan veriliyor:
+               * `isLocalUpload` "/uploads/" önekine bakıyor, mutlak adres
+               * verilirse her zaman `false` derdi (sessiz başarısızlık).
+               *
+               * `sizes`: `.portrait` sabit 84px, ≤640px'te 64px — vw yanlış olur.
+               */}
               <Image
                 src={photo}
                 alt=""
                 fill
-                sizes="120px"
+                sizes="84px"
                 className={styles.portraitImg}
-                unoptimized
+                unoptimized={!isLocalUpload(person.photo)}
               />
             </span>
           ) : null}

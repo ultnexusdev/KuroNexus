@@ -5,7 +5,9 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/lib/i18n/navigation";
-import type { ArchiveBook, BookArchive } from "@/lib/api/types";
+// Salon ve rafları çizen her şey `BookListItem` üzerinden çalışıyor: künye
+// metni bu sayfalara hiç gelmiyor (bkz. `types.ts`, ölçüm notu orada).
+import type { BookArchive, BookListItem } from "@/lib/api/types";
 import {
   applyFilters,
   EMPTY_FILTERS,
@@ -28,6 +30,7 @@ import {
   BookCard,
   bookHref,
   coverSrc,
+  coverUnoptimized,
   SeriesCard,
   TranslationBadge,
 } from "./BookCard";
@@ -603,9 +606,15 @@ export function BookHall({
                               src={coverSrc(book)!}
                               alt=""
                               fill
-                              sizes="40px"
+                              /* Bu kutu her ekran genişliğinde SABİT 32px
+                                 (`.recentCover`, BookHall.module.css:1162 —
+                                 375/768/1280/1920'de ölçüldü, hepsinde 32).
+                                 `unoptimized` yüzünden buraya 600px genişlikte
+                                 JPEG iniyordu: ~19 kat genişlik, ~360 kat
+                                 piksel. Arşivin en israflı noktası burasıydı. */
+                              sizes="32px"
                               className={styles.coverImg}
-                              unoptimized
+                              unoptimized={coverUnoptimized(book)}
                             />
                           ) : null}
                         </span>
@@ -671,7 +680,7 @@ function Shelf({
   curating,
 }: {
   shelf: ShelfKey;
-  books: ArchiveBook[];
+  books: BookListItem[];
   total: number;
   /** Küratör modu: cildin altına silme/durum araçları iner */
   curating: boolean;
@@ -703,9 +712,16 @@ function Shelf({
                       src={coverSrc(book)!}
                       alt=""
                       fill
-                      sizes="(max-width: 640px) 30vw, 150px"
+                      /* `.volumes` ızgarası 3 / 5 / 9 kolon (640 ve 1100
+                         kırılımları, BookHall.module.css:427-457). Kolon
+                         sayısı ekranla arttığı için cilt sırtı her genişlikte
+                         ~110–150 px bandında kalıyor — 375px'te 3 kolon ≈109,
+                         1280'de 9 kolon ≈110, 1920'de ≈145. Sabit üst sınır
+                         hem doğru hem de `vw` yazınca Next'in 211 px altındaki
+                         basamakları elemesini önlüyor (bkz. `next.config.ts`). */
+                      sizes="150px"
                       className={styles.coverImg}
-                      unoptimized
+                      unoptimized={coverUnoptimized(book)}
                     />
                   ) : (
                     <span className={styles.coverFallback}>
@@ -778,7 +794,7 @@ function SingleShelf({
   curating,
   onMore,
 }: {
-  books: ArchiveBook[];
+  books: BookListItem[];
   limit: number;
   curating: boolean;
   onMore: () => void;

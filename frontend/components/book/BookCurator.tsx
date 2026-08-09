@@ -10,7 +10,7 @@ import {
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/lib/i18n/navigation";
-import { ApiError } from "@/lib/api/client";
+import { ApiError, isLocalUpload } from "@/lib/api/client";
 import {
   addBookQuote,
   createBookEntry,
@@ -24,6 +24,7 @@ import {
 } from "@/lib/admin/api";
 import type {
   ArchiveBook,
+  BookListItem,
   BookArchiveStats,
   BookQuote,
   BookSearchResult,
@@ -343,9 +344,24 @@ export function CuratorBar() {
                           src={result.coverImage}
                           alt=""
                           fill
-                          sizes="40px"
+                          /* `.resultCover` sabit 34px (BookCurator.module.css) */
+                          sizes="34px"
                           className={styles.resultImg}
-                          unoptimized
+                          /**
+                           * Kitap kanadının geri kalanıyla aynı kural
+                           * (2026-08-09): karar `apiUrl()`den GEÇMEMİŞ ham
+                           * yoldan veriliyor — `isLocalUpload` "/uploads/"
+                           * önekine bakıyor, mutlak adres verilseydi hep
+                           * `false` derdi (sessiz başarısızlık).
+                           *
+                           * Burada sonuç pratikte `true` kalıyor ve kalmalı:
+                           * arama sonuçları henüz arşive girmemiş kitaplar,
+                           * kapakları 1000Kitap/Google CDN'inde duruyor ve o
+                           * host'lar `next.config.ts` `remotePatterns`ta yok.
+                           * Kapak ancak arşive eklenirken indirilip
+                           * `/uploads/books/` altına kopyalanıyor.
+                           */
+                          unoptimized={!isLocalUpload(result.coverImage)}
                         />
                       ) : null}
                     </span>
@@ -564,7 +580,9 @@ export function CuratorBar() {
 }
 
 /** Kart üstündeki hızlı işaretleme: favori, durum, sayfa ilerlemesi, sil. */
-export function CuratorCardTools({ book }: { book: ArchiveBook }) {
+// Kart araçları listeden açılıyor; künye metnini ne okuyor ne yazıyor.
+// `DossierEditor` ise metni DÜZENLİYOR, o yüzden orada `ArchiveBook` kalıyor.
+export function CuratorCardTools({ book }: { book: BookListItem }) {
   const t = useTranslations("book.curator");
   const router = useRouter();
   const [busy, setBusy] = useState(false);
@@ -665,7 +683,7 @@ export function CuratorCardTools({ book }: { book: ArchiveBook }) {
  * yazılır ya da +10/+25 ile ilerlenir. Sayfa sayısı bilinmiyorsa yalnızca
  * doğrudan yazma kalıyor — yüzde çizilmiyor.
  */
-export function ProgressTools({ book }: { book: ArchiveBook }) {
+export function ProgressTools({ book }: { book: BookListItem }) {
   const t = useTranslations("book.curator");
   const router = useRouter();
   const [page, setPage] = useState(String(book.currentPage));

@@ -1,4 +1,5 @@
-import type { ArchiveBook } from "@/lib/api/types";
+// Tür sayaçları yalnızca `genres` alanını okuyor (bkz. `BookListItem`).
+import type { BookListItem } from "@/lib/api/types";
 
 /**
  * Kitap türlerinin **sabit listesi** ve eşleştirmesi.
@@ -104,7 +105,7 @@ function startsWord(haystack: string, needle: string): boolean {
  * "Fiction / Science Fiction" hem `novel` hem `scifi` sayılır ve ikisinde de
  * listelenir — kitaplarda tür zaten iç içe.
  */
-export function genreKeysOf(book: ArchiveBook): string[] {
+export function genreKeysOf(book: BookListItem): string[] {
   if (book.genres.length === 0) {
     return [];
   }
@@ -118,7 +119,7 @@ export function genreKeysOf(book: ArchiveBook): string[] {
 
 /** Süzgeç eşleşmesi: seçilenlerden **herhangi biri** tutuyorsa kitap geçer. */
 export function matchesGenreKeys(
-  book: ArchiveBook,
+  book: BookListItem,
   selected: string[],
 ): boolean {
   if (selected.length === 0) {
@@ -133,7 +134,7 @@ export function matchesGenreKeys(
  * liste arşivden değil koddan geliyor, "bu arşivde henüz polisiye yok"
  * bilgisi de bir cevaptır ve tür sözlüğünü sabit tutar.
  */
-export function genreCounts(books: ArchiveBook[]): Map<string, number> {
+export function genreCounts(books: BookListItem[]): Map<string, number> {
   const counts = new Map<string, number>();
   for (const genre of BOOK_GENRES) {
     counts.set(genre.key, 0);

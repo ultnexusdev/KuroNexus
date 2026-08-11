@@ -13,7 +13,16 @@ export const HALL_ORDER = [
   "spor",
   "anime",
   "kitap",
-  "kadim-dunyalar",
+  /**
+   * Salon 06 — 11 Ağustos 2026'da Kadim Dünyalar'ın YERİNİ ALDI (kullanıcı
+   * kararı). Kadim kategorisi aynı gün yumuşak silindi; buradan da çıkarıldı.
+   *
+   * ⚠️ Temürkan Efsaneleri bu listeye GİRMEZ ve girmemeli: o bir
+   * `UniverseCategory` değil, `app/[locale]/page.tsx`te listenin sonuna elle
+   * eklenen mühürlü bir kapı (`hall: doors.length + 1`). Buraya yazılırsa
+   * `hallNumber` onu kategori sanar ve bütün salon numaraları kayar.
+   */
+  "muzik",
 ];
 
 /**
@@ -75,6 +84,11 @@ const ARCHIVE_SECTIONS: Record<string, number> = {
   dizi: 1,
   anime: 1,
   kitap: 1,
+  /* Salon 06 · Müzik de tek bir arşiv bölümü açıyor ("Müzik Arşivi") ve hiç
+     `WikiUniverse` taşımıyor — içeriği `Music*` tablolarında. Kapının altındaki
+     ölçü zaten sanatçı sayısı (bkz. `pulse.service.ts`), bu satır yalnızca
+     keşif sayımındaki toplam evren sayısına katkısı için var. */
+  muzik: 1,
 };
 
 /**
@@ -150,8 +164,18 @@ export function hallLabel(value: number | null): string {
  * Spor adresi değişen İLK salon. İkinci bir salon taşınırsa bu haritaya girer
  * ve yine hiçbir yüzeye dokunulmaz.
  */
+/**
+ * Kendi ağacında yaşayan salonlar.
+ *
+ * Ad "MOVED" olarak kaldı ama artık iki tür kayıt tutuyor:
+ *  - `spor` gerçekten TAŞINDI (`/dark-stories/category/spor` → `/spor`,
+ *    8 Ağustos 2026, kalıcı yönlendirmeleriyle)
+ *  - `muzik` hiç `/dark-stories` altında YAŞAMADI: 11 Ağustos'ta doğduğu anda
+ *    kendi ağacında kuruldu, spor göçünün dersi tekrarlanmasın diye
+ */
 const MOVED_HALLS: Record<string, string> = {
   spor: "/spor",
+  muzik: "/muzik",
 };
 
 export function hallHref(slug: string): string {

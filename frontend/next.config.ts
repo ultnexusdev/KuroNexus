@@ -201,6 +201,104 @@ const nextConfig: NextConfig = {
         statusCode: 301,
       },
 
+      /**
+       * ── SALON 06 · KADİM DÜNYALAR KALDIRILDI (11 Ağustos 2026) ───────────
+       *
+       * Kapı kalktı, yerini Müzik aldı. Evrenler üç gruba ayrıldı (ölçüm
+       * `docs/muzik-bolumu-inceleme.md` §3.0):
+       *   temurkan-efsaneleri  1 bölüm + 4 wiki + atölye → DURUYOR
+       *   zaman-carki          2 wiki                    → DURUYOR (kitap kat.)
+       *   kalan altısı         0 bölüm, 0 wiki           → yumuşak silindi
+       *
+       * Altı evrenin üçünün arşivde kitap serisi var, hedef o seri sayfası.
+       * Kalan üçünün yok; hedef Kitap kapısı. İlgisiz bir sayfaya 301 atmak
+       * Google'da soft-404 sayıldığı için tür sayfası ya da müzik salonu
+       * hedef YAPILMADI.
+       *
+       * ⚠️ ALT YOLLAR YÖNLENDİRİLMEDİ (`/dark-stories/dune/wiki` gibi).
+       * Bilinçli: o evrenlerde sıfır wiki girdisi ve sıfır bölüm var, hiçbir
+       * yerden linkli değiller ve sitemap'te hiç yoklardı. Kalıcı olarak
+       * kaldırılmış ince bir sayfa için **404 doğru cevaptır**; joker
+       * yönlendirme ise spor göçünde özellikle kaçınılan şey (aşağıdaki
+       * "JOKER YASAK" notu).
+       *
+       * Evren KÖKLERİ yönlendirildi çünkü onlar her sayfanın footer'ındaki
+       * evren sütununda ve `NexusHub` evren rafında LİNKLİYDİ — taranmış
+       * olma olasılıkları yüksek. Hedefler silme günü doğrulandı (üçü 200).
+       */
+      {
+        source: "/dark-stories/category/kadim-dunyalar",
+        destination: "/dark-stories/category/kitap",
+        statusCode: 301,
+      },
+      {
+        source: "/en/dark-stories/category/kadim-dunyalar",
+        destination: "/en/dark-stories/category/kitap",
+        statusCode: 301,
+      },
+      // Arşivde serisi olan üç evren → kendi seri sayfası
+      {
+        source: "/dark-stories/dune",
+        destination: "/dark-stories/category/kitap/seri/dune-serisi",
+        statusCode: 301,
+      },
+      {
+        source: "/en/dark-stories/dune",
+        destination: "/en/dark-stories/category/kitap/seri/dune-serisi",
+        statusCode: 301,
+      },
+      {
+        source: "/dark-stories/malazan-yitikler",
+        destination: "/dark-stories/category/kitap/seri/malazan-yitikler",
+        statusCode: 301,
+      },
+      {
+        source: "/en/dark-stories/malazan-yitikler",
+        destination: "/en/dark-stories/category/kitap/seri/malazan-yitikler",
+        statusCode: 301,
+      },
+      {
+        source: "/dark-stories/firtinaisigi-arsivi",
+        destination: "/dark-stories/category/kitap/seri/firtinaisigi-arsivi",
+        statusCode: 301,
+      },
+      {
+        source: "/en/dark-stories/firtinaisigi-arsivi",
+        destination: "/en/dark-stories/category/kitap/seri/firtinaisigi-arsivi",
+        statusCode: 301,
+      },
+      // Serisi olmayan üç evren → Kitap kapısı
+      {
+        source: "/dark-stories/buz-ve-atesin-sarkisi",
+        destination: "/dark-stories/category/kitap",
+        statusCode: 301,
+      },
+      {
+        source: "/en/dark-stories/buz-ve-atesin-sarkisi",
+        destination: "/en/dark-stories/category/kitap",
+        statusCode: 301,
+      },
+      {
+        source: "/dark-stories/kral-katili-guncesi",
+        destination: "/dark-stories/category/kitap",
+        statusCode: 301,
+      },
+      {
+        source: "/en/dark-stories/kral-katili-guncesi",
+        destination: "/en/dark-stories/category/kitap",
+        statusCode: 301,
+      },
+      {
+        source: "/dark-stories/yuzuklerin-efendisi",
+        destination: "/dark-stories/category/kitap",
+        statusCode: 301,
+      },
+      {
+        source: "/en/dark-stories/yuzuklerin-efendisi",
+        destination: "/en/dark-stories/category/kitap",
+        statusCode: 301,
+      },
+
       // Öksüz kalan üst seviye oyuncu rotası. Brief'te yoktu ama zorunlu:
       // `/futbol/oyuncu/[playerId]` bugün canlı ve `SquadGrid` her kadro
       // kartından oraya bağlanıyor — yeni ağaç kurulunca ortada kalırdı.

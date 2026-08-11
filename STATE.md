@@ -162,6 +162,26 @@
 > `components/kadim/*` — evren sayfasının görsel dili, `page.tsx:81` o değeri
 > elle yazıyor. Derisiz rota bu projede yaşanmış hata.
 >
+> **FAZ 6 — KADİM KAPISININ KALDIRILMASI: KOD CANLIDA, BETİK BEKLİYOR.**
+> Kod tarafı bitti: `HALL_ORDER` takası (Müzik 06, kadim çıktı), müzik ölçüsü
+> (`pulse.service.ts`, "X sanatçı"), **14 adet 301** (jokersiz, `/en` ayrı),
+> sitemap müzik yolları, ölü `halls.kadim-dunyalar` anahtarı silindi.
+> Kullanıcı `muzik` kategorisini kapağıyla oluşturdu.
+>
+> Üretim ölçümü (11 Ağustos, Postgres terminali) — **gizli taslak YOK:**
+> altı evren gerçekten tamamen boş (0 bölüm/taslak/wiki/ses/kitap);
+> `temurkan-efsaneleri` 1 bölüm + 4 wiki + **7 fon sesi**, `zaman-carki` 2 wiki.
+> `/dark-stories/dune/wiki` bugün bile 404 — alt yolları yönlendirmeme kararı
+> ölçüldü, varsayılmadı.
+>
+> ⚠️ **KALAN TEK ADIM:** `npx ts-node prisma/remove-kadim-hall.ts --apply`
+> (üretim konteynerinde). Betik varsayılan olarak KURU çalışır; `--apply`
+> şart. Silmeden önce her evrenin on ilişkisini sayar (taslaklar dahil) ve
+> içeriği olan evreni ATLAR — "elle kontrol etmeyi unutma" adımı koda gömüldü.
+> Fixture'la sınandı: yalnızca taslak taşıyan bir evren silinmedi, taşındı.
+> Betik koşana kadar kadim kategorisi duruyor ve `HALL_ORDER`'da olmadığı için
+> sona düşüp Salon 07 görünür (Temürkan 08) — kozmetik, kısa süreli.
+>
 > **SIRADAKİ İŞ: ADIM 5 — canlı sınama.** Coolify'a Spotify anahtarları
 > girilip push edilecek, sonra bir sanatçı eklenip (öneri: Linkin Park +
 > Dead by Sunrise + Hans Zimmer — solo/grup ayrımını, `MusicMembership`'i ve

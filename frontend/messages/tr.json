@@ -41,8 +41,7 @@
       "spor": "Spor",
       "anime": "Anime",
       "kitap": "Kitap",
-      "muzik": "Müzik",
-      "kadim-dunyalar": "Kadim Dünyalar"
+      "muzik": "Müzik"
     },
     "unit": {
       "film": "{count} film",

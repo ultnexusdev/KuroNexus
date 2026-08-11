@@ -61,7 +61,14 @@ export interface PulseHall {
    * film, Kadim Dünyalar'da evren, Temürkan'da bölüm. Metin BURADA
    * üretilmiyor — frontend bu anahtarı kendi diline çeviriyor (kural 1).
    */
-  countUnit: 'film' | 'dizi' | 'seri' | 'kitap' | 'evren' | null;
+  countUnit:
+    | 'film'
+    | 'dizi'
+    | 'seri'
+    | 'kitap'
+    | 'evren'
+    | 'sanatci'
+    | null;
 }
 
 export interface PulseEntry {
@@ -145,6 +152,7 @@ export class PulseService {
       animeEntries,
       shows,
       bookArchive,
+      musicActCount,
     ] = await Promise.all([
       this.prisma.universeCategory.findMany({
         where: { isDeleted: false },
@@ -218,6 +226,9 @@ export class PulseService {
         orderBy: [{ finishedAt: 'desc' }, { createdAt: 'desc' }],
         include: BOOK_CREDITS_INCLUDE,
       }),
+      /* Salon 06 · Müzik kapısının ölçüsü. `count` yeterli — kapı yalnızca
+         sayıyı gösteriyor, künyeye ihtiyaç yok (kitap salonunda da öyle). */
+      this.prisma.musicalAct.count({ where: { isDeleted: false } }),
     ]);
 
     const universeById = new Map(universes.map((u) => [u.id, u]));
@@ -246,6 +257,7 @@ export class PulseService {
         // Ayrı bir `count` sorgusu vardı; aynı `where` ile bu liste zaten
         // geldiği için ölü kalıyordu
         bookArchive.length,
+        musicActCount,
       ),
       recent: this.buildRecent(
         movies,
@@ -354,6 +366,7 @@ export class PulseService {
       externalData: unknown;
     }>,
     bookCount: number,
+    musicActCount: number,
   ): PulseHall[] {
     return categories.map((category) => {
       const universeCount = universes.filter(
@@ -405,6 +418,18 @@ export class PulseService {
       if (category.slug === 'kitap') {
         count = bookCount;
         countUnit = 'kitap';
+      }
+
+      /* Müzik salonu (06) kitapla aynı durumda: kategori kaydı yalnızca kapı
+         için var (ad + kapak), içerik `Music*` tablolarında. Ölçü SANATÇI:
+         "albüm" daha büyük bir sayı verirdi ama kapının söylediği şey arşivin
+         genişliği, derinliği değil — ziyaretçi "48 sanatçı" ile ne bulacağını
+         kestirebiliyor, "214 albüm" ile kestiremiyor.
+         ⚠️ Evren sayısı KULLANILMAZ: müzik hiç `WikiUniverse` taşımıyor,
+         yoksa kapının altında "0 evren" yazardı. */
+      if (category.slug === 'muzik') {
+        count = musicActCount;
+        countUnit = 'sanatci';
       }
 
       return {

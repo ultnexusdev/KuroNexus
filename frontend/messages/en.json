@@ -41,8 +41,7 @@
       "spor": "Sports",
       "anime": "Anime",
       "kitap": "Books",
-      "muzik": "Music",
-      "kadim-dunyalar": "Ancient Worlds"
+      "muzik": "Music"
     },
     "unit": {
       "film": "{count} films",

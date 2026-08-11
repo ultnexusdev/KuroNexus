@@ -23,6 +23,10 @@ const STATIC_PATHS = [
   "/spor",
   "/spor/futbol",
   "/spor/formula-1",
+  // Salon 06 · Müzik — kendi ağacında (bkz. hallHref)
+  "/muzik",
+  "/muzik/tur",
+  "/muzik/dinleme",
   "/dark-stories/category/kitap",
   "/dark-stories/category/kitap/arsiv",
   "/dark-stories/category/kitap/seriler",

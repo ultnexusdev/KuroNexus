@@ -681,6 +681,16 @@ export class MusicSyncService {
     mbid: string | null;
     filled: string[];
     genresLinked: number;
+    /**
+     * Başarısızlığın SEBEBİ. `null` ise sorun yok.
+     *
+     * ⚠️ 11 Ağustos 2026 dersi: ilk sürüm yalnızca `matched: false` dönüyordu
+     * ve "neden?" sorusunun cevabı her seferinde konteyner logunda aranmak
+     * zorundaydı. Aynı sessizliğe o gün üç kez düştüm (Spotify 401 dalı,
+     * `!payload?.id` dalı, MusicBrainz `.catch(() => null)`). Kural: dış
+     * servise giden her yolda hata sebebi çağırana kadar taşınır.
+     */
+    reason: string | null;
   }> {
     const act = await this.prisma.musicalAct.findFirst({
       where: { id: actId, isDeleted: false },
@@ -699,15 +709,50 @@ export class MusicSyncService {
       throw new NotFoundException('MUSIC.ACT_NOT_FOUND');
     }
 
-    const mbid = await this.musicbrainz.findMbid(act.spotifyId ?? '', act.name);
+    let mbid: string | null;
+    try {
+      mbid = await this.musicbrainz.findMbid(act.spotifyId ?? '', act.name);
+    } catch (error) {
+      // Servis hatası: sebep çağırana taşınıyor, log da düşüyor
+      return {
+        matched: false,
+        mbid: null,
+        filled: [],
+        genresLinked: 0,
+        reason: String(error instanceof Error ? error.message : error),
+      };
+    }
     if (!mbid) {
       this.logger.log(`MusicBrainz eşleşmesi bulunamadı: ${act.name}`);
-      return { matched: false, mbid: null, filled: [], genresLinked: 0 };
+      return {
+        matched: false,
+        mbid: null,
+        filled: [],
+        genresLinked: 0,
+        reason: 'MUSIC.MUSICBRAINZ_NO_MATCH',
+      };
     }
 
-    const detail = await this.musicbrainz.getArtist(mbid);
+    let detail: Awaited<ReturnType<typeof this.musicbrainz.getArtist>>;
+    try {
+      detail = await this.musicbrainz.getArtist(mbid);
+    } catch (error) {
+      return {
+        matched: false,
+        mbid,
+        filled: [],
+        genresLinked: 0,
+        reason: String(error instanceof Error ? error.message : error),
+      };
+    }
     if (!detail) {
-      return { matched: false, mbid, filled: [], genresLinked: 0 };
+      return {
+        matched: false,
+        mbid,
+        filled: [],
+        genresLinked: 0,
+        reason: 'MUSIC.MUSICBRAINZ_EMPTY_RESPONSE',
+      };
     }
 
     await this.upsertExternalRef('ACT', act.id, mbid, null, 'MUSICBRAINZ');
@@ -749,7 +794,7 @@ export class MusicSyncService {
     this.logger.log(
       `MusicBrainz: ${act.name} → ${mbid} | dolduruldu: ${filled.join(', ') || 'yok'} | tür: ${detail.genres.length}`,
     );
-    return { matched: true, mbid, filled, genresLinked };
+    return { matched: true, mbid, filled, genresLinked, reason: null };
   }
 
   /**

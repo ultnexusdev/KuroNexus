@@ -1,6 +1,7 @@
 import {
   Injectable,
   Logger,
+  NotFoundException,
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
@@ -48,11 +49,32 @@ import type { MusicActKind } from '../generated/prisma/enums';
 const MB_API = 'https://musicbrainz.org/ws/2';
 
 /**
- * İki istek arasındaki en az boşluk. Kural "saniyede bir"; 1100 ms pay
- * bırakıyor çünkü ağ gecikmesi ölçümü sunucu tarafında yapılıyor ve tam
- * 1000 ms sınıra dayanmak zaman zaman 503 getiriyor.
+ * İki istek arasındaki en az boşluk.
+ *
+ * ⚠️ 1100 ms DENENDİ VE YETMEDİ (11 Ağustos 2026). Sürecin attığı ilk iki
+ * istek — yani hiçbir birikmiş yük olmadan — ikincisinde 503 aldı:
+ *   WARN MusicBrainz hız sınırı: …/artist/f59c5520-…?inc=genres&fmt=json
+ * Belgede "saniyede bir" yazıyor ama pratikte daha sıkı davranıyor;
+ * muhtemel sebep sunucunun paylaşımlı bulut IP'si (Hetzner) — MusicBrainz
+ * bilinen bulut aralıklarına daha dar bir pencere uyguluyor.
+ *
+ * Bu yüzden hem boşluk açıldı hem de 503'e karşı geri çekilmeli yeniden
+ * deneme eklendi (bkz. `RETRY_DELAYS_MS`). İkisi birlikte: sınır tahmin
+ * edilmiyor, reddedilince beklenip tekrar deneniyor.
  */
-const MIN_GAP_MS = 1_100;
+const MIN_GAP_MS = 1_500;
+
+/**
+ * 503 alındığında beklenip yeniden denenecek gecikmeler.
+ *
+ * MusicBrainz 503'ü **iki ayrı şey** için kullanıyor: hız sınırı ve sunucu
+ * yoğunluğu. İkisini ayırt etmiyoruz çünkü davranış aynı — bekle ve tekrar
+ * dene. `Retry-After` başlığı gelirse O öncelikli.
+ *
+ * Zenginleştirme arka plan/admin adımı olduğu için toplam ~20 saniye
+ * beklemek kabul edilebilir; alternatifi act'in zenginleşmemiş kalması.
+ */
+const RETRY_DELAYS_MS = [2_000, 5_000, 12_000];
 
 const REQUEST_TIMEOUT_MS = 15_000;
 
@@ -157,11 +179,21 @@ export class MusicBrainzService {
    */
   async findMbid(spotifyId: string, name: string): Promise<string | null> {
     const spotifyUrl = `https://open.spotify.com/artist/${spotifyId}`;
+    /* ⚠️ YALNIZCA "kayıt yok" yutuluyor (404). MusicBrainz'de o Spotify
+       adresine bağlı sanatçı olmaması BEKLENEN bir durum — arşivdeki her
+       sanatçının MusicBrainz'de bağlantısı yok. Ama hız sınırı, ağ hatası ya
+       da 400 YUTULMUYOR: onlar yukarı gidiyor ki çağıran "eşleşme yok" ile
+       "servis çalışmadı"yı ayırt edebilsin. */
     const byUrl = await this.cached<RawUrlLookup>(
       `mb:url:${spotifyId}`,
       'url',
       { resource: spotifyUrl, inc: 'artist-rels' },
-    ).catch(() => null);
+    ).catch((error: unknown) => {
+      if (error instanceof NotFoundException) {
+        return null;
+      }
+      throw error;
+    });
 
     const linked = byUrl?.relations?.find((relation) => relation.artist?.id);
     if (linked?.artist?.id) {
@@ -176,7 +208,12 @@ export class MusicBrainzService {
       `mb:search:${term.toLowerCase()}`,
       'artist',
       { query: `artist:"${term.replace(/"/g, '')}"` },
-    ).catch(() => null);
+    ).catch((error: unknown) => {
+      if (error instanceof NotFoundException) {
+        return null;
+      }
+      throw error;
+    });
 
     const best = search?.artists?.[0];
     if (!best?.id || (best.score ?? 0) < MIN_SEARCH_SCORE) {
@@ -192,6 +229,10 @@ export class MusicBrainzService {
 
   /** MBID'den künye ve türler. */
   async getArtist(mbid: string): Promise<MusicBrainzArtist | null> {
+    /* ⚠️ Hata YUTULMUYOR (11 Ağustos 2026 dersi): önce `.catch(() => null)`
+       vardı ve `matched: false` dönüyordu — çağıran neden başarısız olduğunu
+       bilmiyordu, her seferinde loga bakmak gerekiyordu. Artık sebep
+       yukarıya taşınıyor. */
     const raw = await this.cached<RawArtist>(
       `mb:artist:${mbid}`,
       `artist/${mbid}`,
@@ -200,7 +241,7 @@ export class MusicBrainzService {
         // gürültülü olduğu için İSTENMİYOR
         inc: 'genres',
       },
-    ).catch(() => null);
+    );
 
     if (!raw?.id) {
       return null;
@@ -257,7 +298,42 @@ export class MusicBrainzService {
     }
   }
 
+  /**
+   * İsteği atar; **503 alırsa bekleyip yeniden dener** (`RETRY_DELAYS_MS`).
+   *
+   * MusicBrainz'in kendi tavsiyesi bu: 503 "şu an olmaz, sonra gel" demek.
+   * Denemeler tükenirse hata fırlatılıyor ve sebep çağırana kadar taşınıyor.
+   */
   private async request<T>(
+    path: string,
+    params: Record<string, string>,
+  ): Promise<T> {
+    let lastError: unknown;
+    for (let attempt = 0; attempt <= RETRY_DELAYS_MS.length; attempt++) {
+      if (attempt > 0) {
+        const wait = RETRY_DELAYS_MS[attempt - 1];
+        this.logger.log(
+          `MusicBrainz yeniden deneniyor (${attempt}/${RETRY_DELAYS_MS.length}), ${wait} ms sonra: ${path}`,
+        );
+        await new Promise((resolve) => setTimeout(resolve, wait));
+      }
+      try {
+        return await this.sendOnce<T>(path, params);
+      } catch (error) {
+        lastError = error;
+        // Yalnızca 503 yeniden denenir; 400/404 tekrar denemekle düzelmez
+        if (
+          !(error instanceof ServiceUnavailableException) ||
+          error.message !== 'MUSIC.MUSICBRAINZ_RATE_LIMITED'
+        ) {
+          throw error;
+        }
+      }
+    }
+    throw lastError;
+  }
+
+  private async sendOnce<T>(
     path: string,
     params: Record<string, string>,
   ): Promise<T> {
@@ -293,9 +369,25 @@ export class MusicBrainzService {
     }
 
     if (response.status === 503) {
-      // MusicBrainz hız sınırını 503 ile bildiriyor
-      this.logger.warn(`MusicBrainz hız sınırı: ${url}`);
+      /**
+       * MusicBrainz 503'ü hem hız sınırı hem sunucu yoğunluğu için
+       * kullanıyor; ayırt etmiyoruz çünkü davranış aynı — bekle, tekrar dene.
+       * `Retry-After` gelirse sıradaki isteği o kadar geciktiriyoruz.
+       */
+      const retryAfter = Number(response.headers.get('retry-after') ?? '0');
+      if (Number.isFinite(retryAfter) && retryAfter > 0) {
+        this.lastRequestAt = Date.now() + retryAfter * 1000 - MIN_GAP_MS;
+      }
+      this.logger.warn(
+        `MusicBrainz hız sınırı: ${url}` +
+          (retryAfter > 0 ? ` (Retry-After: ${retryAfter}s)` : ''),
+      );
       throw new ServiceUnavailableException('MUSIC.MUSICBRAINZ_RATE_LIMITED');
+    }
+    if (response.status === 404) {
+      // Beklenen durum: MusicBrainz'de o adres/kimlik kayitli degil.
+      // Servis hatasindan AYRI tutuluyor ki cagiran ikisini ayirt edebilsin.
+      throw new NotFoundException('MUSIC.MUSICBRAINZ_NOT_FOUND');
     }
     if (!response.ok) {
       const body = await response.text().catch(() => '');

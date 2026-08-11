@@ -5,6 +5,69 @@
 
 ## Mevcut Aşama
 
+> **📌 10 AĞUSTOS 2026 — MÜZİK SALONU: MİMARİ İNCELEME BİTTİ, KOD YAZILMADI.**
+>
+> Kadim Dünyalar kaldırılıp yerine Spotify entegrasyonlu bir **Müzik/Ses Arşivi**
+> salonu geliyor. Plan kullanıcıdan geldi (`docs/kuronexus-muzik-bolumu-tasarim-plani.md`),
+> onun 10. bölümündeki inceleme komutu uygulandı → **`docs/muzik-bolumu-inceleme.md`**
+> (eksikler + nihai entity listesi + faz faz uygulama komutu + göç planı).
+>
+> ⚠️ **Çelişkide inceleme dosyası kazanır.** Plan `ultnexus`tan gelen varsayımlar
+> taşıyor; üçü bu projede geçersiz:
+> 1. **`model Role` şemayı DERLETMEZ** — `enum Role { ADMIN EDITOR VIEWER }`
+>    (`schema.prisma:1079`) zaten var. Bütün müzik tabloları `Music*` önekli:
+>    `MusicRole`, `MusicPerson`, `MusicTrack`, `MusicGenre`… (`Track` de çakışıyor:
+>    `AmbientTrack` + F1 pisti).
+> 2. **Redis/Bull bu projede YOK** ve eklenmeyecek (kullanıcı onayladı).
+>    `docker-compose.yml`de yalnız Postgres, `package.json`da bull/ioredis yok.
+>    Sync = `@Cron` + `running` bayrağı (`anime/anime.cron.ts` deseni) +
+>    `MusicSyncState` tablosu. Kuyruk DB'de olunca `pg_dump` yedeğine de giriyor.
+> 3. Kapak görseli `UploadsService`ten DEĞİL, `books/book-cover.service.ts`
+>    deseninden inecek — `MediaAsset.userId` zorunlu, arka plan job'ında kullanıcı yok.
+>
+> 🔴 **Spotify gömülü player şu an CSP tarafından engelli ve arıza SESSİZ:**
+> `next.config.ts:73` `frame-src` yalnızca `youtube-nocookie` diyor,
+> `https://open.spotify.com` eklenmeli. Görsel yerelleştirildiği için `img-src`e
+> ve `remotePatterns`a dokunulMAYACAK.
+>
+> **FAZ 0 ÖLÇÜMÜ YAPILDI** (canlı `api.kuronexus.com`, kamuya açık uçlar):
+> 5 kategori (`kitap` kategorisi YOK — kod salonu, doğrulandı), 10 evren, 8'i
+> kadim-dunyalar'da. **Beklenmeyen sonuç: 8 evrenin 6'sı tamamen boş** —
+> `temurkan-efsaneleri` 1 bölüm + 4 wiki, `zaman-carki` 2 wiki, kalan altısı
+> sıfır/sıfır. Yani planın Bölüm 8'indeki ciddi SEO işi **14 adet 301**'e indi.
+>
+> **Kullanıcı kararları (10 Ağustos):**
+> - **Salon 06 = Müzik** (Kadim Dünyalar'ın yeri), **Salon 07 = Temürkan.**
+>   Temürkan'a yeni salon açılMAYACAK: mühürlü kapısı `app/[locale]/page.tsx:135-150`
+>   içinde kategori sisteminden bağımsız ekleniyor, kendiliğinden 07'de kalıyor.
+>   `HALL_ORDER`'a **eklenmez** (o liste kategori slug'ı tutuyor, numaraları kaydırır).
+> - Salonun adı **"Müzik" / "Music"** — diğer altısı gibi tek kelime.
+> - **Altı boş evren yumuşak silinir**, `zaman-carki` → `kitap` kategorisi,
+>   `temurkan-efsaneleri` → `categoryId: null`. Üç seri sayfası 301 hedefi
+>   canlıda doğrulandı (200). Silinen evrenlerin `/wiki` alt yolu
+>   yönlendirilMEZ — 404 doğru cevap.
+>
+> ⚠️ **Faz 6 ön koşulu:** silmeden önce **yönetici oturumuyla yayımlanmamış
+> taslak kontrolü**. Faz 0 kamuya açık uçtan yapıldı, o uç `isPublished: true`
+> süzüyor (`universes.service.ts:58-61`) — taslağı olan evren silinmez.
+> ⚠️ **Silinmeyecekler:** `globals.css:104` kadim deri bloğu ve
+> `components/kadim/*` — evren sayfasının görsel dili, `page.tsx:81` o değeri
+> elle yazıyor. Derisiz rota bu projede yaşanmış hata.
+>
+> **YARIN NEREDEN DEVAM: FAZ 1 — çekirdek katalog + sync altyapısı.**
+> Uygulama komutu incelemenin 4. bölümünde, adım adım.
+> ⚠️ **Kullanıcıdan bekleyen:** Spotify uygulaması açıp `SPOTIFY_CLIENT_ID` /
+> `SPOTIFY_CLIENT_SECRET` üretmek (Client Credentials — kullanıcı girişi yok).
+> Şema yazımı bunu beklemeden başlayabilir.
+> **Faz 2 öncesi açık iki soru** (inceleme §5.2): İngilizce not zorunlu mu,
+> Faz 1 hangi sanatçılarla sınanacak (öneri: Linkin Park + Dead by Sunrise +
+> Hans Zimmer — solo/grup ayrımını, Membership'i ve çoklu-act'li kişiyi tek
+> turda sınıyor).
+>
+> **Commit edilmedi:** `docs/kuronexus-muzik-bolumu-tasarim-plani.md` (repoya
+> kopyalandı) ve `docs/muzik-bolumu-inceleme.md` (yeni) çalışma ağacında duruyor.
+> Kod dosyası hiç değişmedi.
+
 > **📌 7 AĞUSTOS 2026 (akşam) — GÜN KAPANDI. Hepsi `main`'de ve push edildi.**
 >
 > **Kapanan işler (devir notundaki listeden):**

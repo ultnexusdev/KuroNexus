@@ -51,10 +51,15 @@ const SEARCH_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
  */
 const TOKEN_SAFETY_MARGIN_MS = 60_000;
 
-/** Liste uçlarında tek sayfa boyu. Spotify'ın izin verdiği üst sınır. */
-const PAGE_SIZE_ALBUMS = 50;
-const PAGE_SIZE_TRACKS = 50;
-const PAGE_SIZE_PLAYLIST_TRACKS = 100;
+/*
+ * ⚠️ SAYFA BOYU SABİTLERİ KALDIRILDI (11 Ağustos 2026).
+ *
+ * Eskiden `PAGE_SIZE_ALBUMS = 50` vardı ve `paged()` `limit`/`offset`i kendisi
+ * kuruyordu. Spotify buna 400 "Invalid limit" döndü — belgede üst sınır 50
+ * yazmasına rağmen. Artık sayfa boyu HİÇ gönderilmiyor; ilk sayfa parametresiz
+ * isteniyor ve sonraki sayfalar Spotify'ın verdiği `next` adresiyle alınıyor
+ * (bkz. `paged()`). Sınır tahmin edilmediği için bu sınıf hata kalmadı.
+ */
 
 /**
  * Sayfalanmış uçlarda en fazla kaç sayfa çekilir.
@@ -236,14 +241,23 @@ export class SpotifyService {
       return [];
     }
     const capped = Math.min(Math.max(limit, 1), 50);
+    /**
+     * ⚠️ `limit` GÖNDERİLMİYOR, sonuç BURADA kesiliyor.
+     *
+     * Albüm ucunda `limit=50` 400 "Invalid limit" aldıktan sonra (11 Ağustos
+     * 2026) sayfa boyu göndermeyi tamamen bıraktım. Spotify'ın arama
+     * varsayılanı 20 ve bize 12 yetiyor — yani göndermenin kazancı yok,
+     * riski var. Kesme işi `slice` ile bizde.
+     */
     const payload = await this.cached<RawSearch>(
-      `spotify:search:artist:${capped}:${term.toLowerCase()}`,
+      `spotify:search:artist:${term.toLowerCase()}`,
       'search',
-      { q: term, type: 'artist', limit: String(capped) },
+      { q: term, type: 'artist' },
       SEARCH_CACHE_TTL_MS,
     );
     return (payload.artists?.items ?? [])
       .filter((item): item is RawArtist => Boolean(item?.id))
+      .slice(0, capped)
       .map((item) => mapArtist(item));
   }
 
@@ -286,7 +300,6 @@ export class SpotifyService {
       `spotify:artist-albums:${spotifyId}`,
       `artists/${encodeURIComponent(spotifyId)}/albums`,
       { include_groups: 'album,single,compilation' },
-      PAGE_SIZE_ALBUMS,
     );
     return items
       .filter((item): item is RawAlbum => Boolean(item?.id))
@@ -315,7 +328,6 @@ export class SpotifyService {
       `spotify:album-tracks:${spotifyId}`,
       `albums/${encodeURIComponent(spotifyId)}/tracks`,
       {},
-      PAGE_SIZE_TRACKS,
     );
     return items
       .filter((item): item is RawTrack => Boolean(item?.id))
@@ -375,7 +387,6 @@ export class SpotifyService {
         fields:
           'items(added_at,track(id,name,disc_number,track_number,duration_ms,explicit,external_urls,artists(id,name),album(id))),next',
       },
-      PAGE_SIZE_PLAYLIST_TRACKS,
     );
     const result: SpotifyPlaylistTrack[] = [];
     for (const item of items) {
@@ -405,7 +416,6 @@ export class SpotifyService {
     cacheKey: string,
     path: string,
     params: Record<string, string>,
-    pageSize: number,
   ): Promise<T[]> {
     const cached = await this.prisma.externalCache.findUnique({
       where: { cacheKey },
@@ -416,18 +426,37 @@ export class SpotifyService {
 
     try {
       const collected: T[] = [];
-      for (let page = 0; page < MAX_PAGES; page++) {
-        const payload = await this.request<RawPaged<T>>(path, {
-          ...params,
-          limit: String(pageSize),
-          offset: String(page * pageSize),
-        });
-        const items = payload.items ?? [];
+      /**
+       * ══════════════════════════════════════════════════════════════════
+       * ⚠️ `limit` ve `offset` GÖNDERİLMİYOR — ÖLÇÜLDÜ (11 Ağustos 2026)
+       *
+       * Önceki sürüm sayfa boyunu kendi belirliyordu (`limit=50`) ve Spotify
+       * bunu reddediyordu:
+       *   …/albums?include_groups=album,single,compilation&limit=50&offset=0
+       *   → 400 {"error":{"status":400,"message":"Invalid limit"}}
+       * Belgelerde bu uç için üst sınır 50 yazıyor; pratikte kabul edilmedi.
+       *
+       * Artık sınır TAHMİN EDİLMİYOR: ilk sayfa parametresiz isteniyor
+       * (Spotify kendi varsayılanını uygular, hangi değer olursa olsun
+       * geçerlidir) ve sonraki sayfalar Spotify'ın yanıtta verdiği `next`
+       * adresi AYNEN izlenerek alınıyor. Kendi kurduğumuz bir offset/limit
+       * çifti kalmadığı için bu sınıf hata bir daha çıkamaz.
+       *
+       * Bedeli: varsayılan sayfa boyu 50'den küçük olduğu için birkaç istek
+       * daha atılıyor. Doğruluk bir istekten değerli.
+       * ══════════════════════════════════════════════════════════════════
+       */
+      let nextUrl: string | null = buildUrl(path, params);
+      for (let page = 0; page < MAX_PAGES && nextUrl; page++) {
+        // Açık tip: `T` kısıtsız bir tip parametresi olduğu için tip
+        // çıkarımına bırakıldığında `any` gibi ele alınıyor ve tip güvenliği
+        // sessizce kayboluyor (kural 7: örtülü any yok).
+        const payload: RawPaged<T> = await this.send<RawPaged<T>>(nextUrl);
+        const items: T[] = payload.items ?? [];
         collected.push(...items);
-        if (!payload.next || items.length === 0) {
-          break;
-        }
-        if (page === MAX_PAGES - 1) {
+        // `next` Spotify'ın kendi kurduğu tam adres — yeniden inşa edilmiyor
+        nextUrl = items.length > 0 ? (payload.next ?? null) : null;
+        if (nextUrl && page === MAX_PAGES - 1) {
           this.logger.warn(
             `Sayfa sınırına dayandı, liste kesildi: ${path} (${collected.length} kayıt)`,
           );
@@ -491,12 +520,20 @@ export class SpotifyService {
     }
   }
 
-  private async request<T>(
-    path: string,
-    params: Record<string, string>,
-  ): Promise<T> {
+  /** Yol + parametreden adres kurup gönderir (sayfasız uçlar). */
+  private request<T>(path: string, params: Record<string, string>): Promise<T> {
+    return this.send<T>(buildUrl(path, params));
+  }
+
+  /**
+   * **Tam adrese** istek atar.
+   *
+   * `paged()` bunu doğrudan çağırıyor: Spotify'ın verdiği `next` adresi zaten
+   * eksiksiz ve geçerli, onu parçalayıp yeniden kurmak (offset/limit hesabı)
+   * tam olarak 11 Ağustos'taki "Invalid limit" hatasının kaynağıydı.
+   */
+  private async send<T>(url: string): Promise<T> {
     const token = await this.getToken();
-    const url = buildUrl(path, params);
 
     let response: Response;
     try {
@@ -515,14 +552,14 @@ export class SpotifyService {
       this.tokenExpiresAt = 0;
       // Bu dal 11 Ağustos'a kadar SESSİZDİ ve teşhisi imkânsız kılıyordu.
       this.logger.warn(
-        `Spotify 401 döndü (${path}) — jeton düşürüldü, sonraki çağrı yeniler`,
+        `Spotify 401 döndü: ${url} — jeton düşürüldü, sonraki çağrı yeniler`,
       );
       throw new ServiceUnavailableException('MUSIC.SPOTIFY_UNAVAILABLE');
     }
     if (response.status === 429) {
       const retryAfter = response.headers.get('retry-after');
       this.logger.warn(
-        `Spotify hız sınırı (${path}); Retry-After: ${retryAfter ?? 'yok'}`,
+        `Spotify hız sınırı: ${url}; Retry-After: ${retryAfter ?? 'yok'}`,
       );
       throw new ServiceUnavailableException('MUSIC.SPOTIFY_RATE_LIMITED');
     }

@@ -42,6 +42,29 @@ import { PrismaClient } from './_client';
  *
  * ⚠️ Bu betik `src/` altından import ETMEZ — üretimde yalnızca derlenmiş
  * `dist/` var (bkz. Dockerfile). `seed.ts` ile aynı kısıt.
+ *
+ * ══════════════════════════════════════════════════════════════════════════
+ * ⚠️⚠️ BU BETİK ÜRETİM KONTEYNERİNDE ÇALIŞMIYOR — ÖLÇÜLDÜ (11 Ağustos 2026)
+ *
+ *     $ npx ts-node prisma/remove-kadim-hall.ts
+ *     Error: Cannot find module '/app/prisma/_client'
+ *     code: 'ERR_MODULE_NOT_FOUND'
+ *
+ * Konteynerde Node dosyayı **ES modülü olarak** ayrıştırıyor
+ * (`MODULE_TYPELESS_PACKAGE_JSON` uyarısı: "Reparsing as ES module") ve ESM
+ * çözümleyicisi `'./_client'` gibi uzantısız yolları çözmüyor. Yerelde
+ * CommonJS olarak çözüldüğü için burada sorun görünmüyor.
+ *
+ * ⚠️ AYNI TUZAK `seed.ts` İÇİN DE GEÇERLİ — o da `'./_client'` import ediyor
+ * ve `prisma.config.ts`te `seed: "ts-node prisma/seed.ts"` yazılı. Üretimde
+ * seed çalıştırmak gerekirse aynı hatayı verecek.
+ *
+ * ÜRETİM KARŞILIĞI: **`prisma/sql/remove-kadim-hall.sql`**
+ * Aynı işi yapıyor ve "boş olmayan evreni silme" koruması orada `NOT EXISTS`
+ * yan tümceleri olarak duruyor — üstelik güncellemeyle aynı ifadede, yani
+ * atomik. Bu `.ts` dosyası yerel geliştirme ve okunabilir doküman olarak
+ * kalıyor; ÜRETİMDE SQL kullanılır.
+ * ══════════════════════════════════════════════════════════════════════════
  */
 
 const KADIM_SLUG = 'kadim-dunyalar';

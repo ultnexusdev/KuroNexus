@@ -1,0 +1,48 @@
+/* Kapak kutusu ve kapaksız kayıt için çizgili yer tutucu.
+   Doku tasarımdan ölçüldü: 135° eğimli, 5px'lik iki tonlu şerit.
+   Renkler token — `--music-hatch-a/b` deriden geliyor, tür odasında
+   kendiliğinden odanın tonuna kayıyor (kural 16). */
+
+.box {
+  position: relative;
+  flex: none;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.tile {
+  position: relative;
+  aspect-ratio: 1;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.hatch {
+  background-image: repeating-linear-gradient(
+    135deg,
+    var(--music-hatch-a),
+    var(--music-hatch-a) 5px,
+    var(--music-hatch-b) 5px,
+    var(--music-hatch-b) 10px
+  );
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sm {
+  border-radius: 8px;
+}
+
+.md {
+  border-radius: 8px;
+}
+
+.full {
+  border-radius: 999px;
+}

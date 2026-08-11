@@ -1,0 +1,355 @@
+/* ============================================================
+   Salon 06 · Müzik — kavşak sayfası (tasarım 2a)
+
+   Kompozisyon tasarımdan ölçüldü: asimetrik kıvrım (1fr + 380px),
+   iki sütunlu liste ızgarası, tipografik sanatçı listesi, üç yol kartı.
+   Renkler yalnızca token — hex yok (kural 16). Glow yok.
+   Mobil öncelikli: ızgaralar tek sütuna iniyor (kural 2).
+   ============================================================ */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mz-block);
+  padding: clamp(1.5rem, 4vw, 3rem) var(--mz-pad) clamp(3rem, 6vw, 5rem);
+  max-width: 1280px;
+  margin-inline: auto;
+  width: 100%;
+}
+
+/* ── Kıvrım ───────────────────────────────────────────────────────────── */
+
+.hero {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--mz-block);
+  align-items: end;
+  padding-bottom: var(--mz-block);
+  border-bottom: var(--mz-hairline) solid var(--border);
+  /* Tasarımdaki ışık yıkaması. box-shadow ışıması DEĞİL (kural 16) —
+     zemine boyanmış bir gradyan. */
+  background-image: radial-gradient(
+    90% 65% at 10% -10%,
+    var(--music-wash),
+    transparent 62%
+  );
+}
+
+@media (min-width: 900px) {
+  .hero {
+    grid-template-columns: 1fr 380px;
+    gap: clamp(2rem, 4vw, 3rem);
+  }
+}
+
+.heroMain {
+  min-width: 0;
+}
+
+.back {
+  display: inline-block;
+  margin-bottom: 1.25rem;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.back:hover {
+  color: var(--accent);
+}
+
+.eyebrow {
+  display: block;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.95rem;
+  letter-spacing: 0.32em;
+  color: var(--gold);
+}
+
+.title {
+  margin: 0.5rem 0 0.75rem;
+  font-size: var(--mz-display);
+}
+
+.lede {
+  max-width: 46ch;
+}
+
+.heroSide {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.stat {
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.statValue {
+  font-family: var(--font-cinzel), serif;
+  font-size: var(--mz-stat);
+  line-height: 1.15;
+  color: var(--text-primary);
+}
+
+/* ── Bölümler ─────────────────────────────────────────────────────────── */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mz-gap);
+}
+
+.sectionHead {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.hint {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--accent);
+}
+
+.badge {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border: var(--mz-hairline) solid var(--border);
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.875rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.swatch {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  flex: none;
+}
+
+.empty {
+  margin: 0;
+  padding: var(--mz-pad);
+  border: var(--mz-hairline) dashed var(--border);
+  border-radius: var(--mz-radius);
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* ── Çalma listeleri ──────────────────────────────────────────────────── */
+
+.playlistGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 760px) {
+  .playlistGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.playlistCard {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.875rem 1rem;
+  min-width: 0;
+}
+
+.playlistBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.playlistTop {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.playlistName {
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.03em;
+  color: var(--text-primary);
+}
+
+/* ── Sanatçı listesi ──────────────────────────────────────────────────── */
+
+.actList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.actRow {
+  border-bottom: var(--mz-hairline) solid var(--border);
+}
+
+/* Dokunma hedefi en az 44px (kural 2) */
+.actLink {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: 0.5rem 1.25rem;
+  padding: 0.75rem 0;
+  min-height: 44px;
+  color: inherit;
+}
+
+@media (min-width: 760px) {
+  .actLink {
+    grid-template-columns: 1fr 220px 120px 24px;
+  }
+}
+
+.actLink:hover .actName {
+  color: var(--accent);
+}
+
+.actName {
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.3rem;
+  letter-spacing: 0.02em;
+  color: var(--text-primary);
+  min-width: 0;
+}
+
+.actGenre {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.arrow {
+  color: var(--accent-muted);
+  text-align: right;
+}
+
+/* ── Üç yol ───────────────────────────────────────────────────────────── */
+
+.paths {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+@media (min-width: 760px) {
+  .paths {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.pathCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  /* Sol kenar rengi satır içi style'dan geliyor — token referansı, hex değil */
+  border-left-width: 2px;
+  border-left-style: solid;
+  color: inherit;
+  min-height: 44px;
+}
+
+.pathCard:hover .pathTitle {
+  color: var(--accent);
+}
+
+.pathTitle {
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.15rem;
+  letter-spacing: 0.03em;
+  color: var(--text-primary);
+}
+
+.pathLede {
+  font-size: 1rem;
+}
+
+/* ── Alt şerit ────────────────────────────────────────────────────────── */
+
+.nowBar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  flex-wrap: wrap;
+}
+
+.nowText {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.35;
+  min-width: 0;
+}
+
+.nowTitle {
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.nowMeta {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.spotifyLink {
+  margin-left: auto;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 1rem;
+  border: var(--mz-hairline) solid var(--border-strong);
+  border-radius: 8px;
+  color: var(--accent);
+  font-size: 0.9rem;
+}
+
+.spotifyLink:hover {
+  border-color: var(--accent);
+  background: var(--surface-hover);
+}

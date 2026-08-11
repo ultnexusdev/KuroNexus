@@ -1,0 +1,93 @@
+/* ============================================================
+   Salon 06 · Müzik — kanat kabuğu ve MÜZİK-YEREL TİPOGRAFİ ÖLÇEĞİ
+
+   Ölçek `globals.css`e DEĞİL buraya yazıldı; spor kanadında alınan kararın
+   aynısı (8 Ağustos 2026): paylaşılan dosyaya dokunmak diğer beş salonu
+   riske atar. Değişkenler bu sınıfın üzerinde tanımlı, bütün alt bileşenler
+   kalıtımla okuyor — kanat dışına tek değer sızmıyor.
+
+   ── TİPOGRAFİK ROL DAĞILIMI (tasarım 2a-2d'den ölçüldü) ──────────────────
+   Cinzel      → başlıklar, sayılar, albüm/parça adları (oyulmuş kapitaller)
+   Bebas Neue  → tracked-out ETİKETLER ("FAVORİ LİSTELERİM", "48 ALBÜM")
+   Cormorant   → gövde/anlatı paragrafları (lede, küratör notu)
+   mono        → yalnızca sayısal meta (süre, "1:18 / 3:07")
+   sans        → arayüz metni (gezinme, düğme)
+
+   Beşinin hepsi projede ZATEN kurulu — bu salon için yeni font indirilmiyor.
+   Tasarım "Instrument Sans" ve "JetBrains Mono" istiyordu; birincisi tasarım
+   tuvalinin kendi arayüz fontu (mockup gövdeleri system-ui kullanıyor),
+   ikincisinin karşılığı `--font-mono` sistem yığını.
+
+   ⚠️ SATIR YÜKSEKLİĞİ: Cinzel bir kapital yazısı ama Türkçe diyakritik
+   taşıyor (İ/Ğ/Ü üstte, Ş/Ç sedillası altta). Display kuralları line-height
+   ≥ 1.0 istemeli; test dizesi "MÜZİK ŞARKI ÇAĞ".
+   ============================================================ */
+
+.wing {
+  /* --- tipografi ölçeği (oran ~1,32) --- */
+  --mz-display: clamp(2.75rem, 7vw, 4.5rem); /* salon başlığı: MÜZİK */
+  --mz-title: clamp(2rem, 4.4vw, 3rem); /* sanatçı adı, oda adı */
+  --mz-section: clamp(1.05rem, 1.6vw, 1.35rem); /* bölüm başlığı */
+  --mz-stat: clamp(1.35rem, 2.2vw, 2.1rem); /* sayaç rakamları */
+  --mz-body: clamp(1rem, 1.15vw, 1.15rem); /* gövde/anlatı */
+  --mz-label: 0.8rem; /* Bebas etiketleri */
+  --mz-meta: 0.82rem; /* ikincil satırlar */
+
+  /* --- ritim --- */
+  --mz-gap: clamp(0.75rem, 1.2vw, 1rem);
+  --mz-block: clamp(1.5rem, 3vw, 2.25rem);
+  --mz-pad: clamp(1rem, 3vw, 1.5rem);
+
+  --mz-radius: 12px;
+  /* Tasarım 0.5px kenarlık kullanıyor; 1px'e yuvarlanmasın diye ayrı token */
+  --mz-hairline: 0.5px;
+
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  min-height: 100%;
+}
+
+/* Tasarımdaki tracked-out majüskül etiket. Dört ekranda da aynı ses. */
+.label {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: var(--mz-label);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  line-height: 1.2;
+}
+
+/* Oyulmuş kapital başlık. line-height 1.0 tabanı — diyakritik kırpılmasın. */
+.carved {
+  font-family: var(--font-cinzel), serif;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  line-height: 1.02;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* Anlatı gövdesi — küratör metni ve lede. */
+.prose {
+  font-family: var(--font-cormorant), serif;
+  font-size: var(--mz-body);
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Sayısal meta: süre, saat. Tabular rakam hizalamayı tutuyor. */
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--mz-meta);
+  color: var(--text-muted);
+}
+
+/* Kart / panel yüzeyi. Glow YOK (kural 16) — yalnızca kenarlık ve yüzey. */
+.panel {
+  background: var(--surface);
+  border: var(--mz-hairline) solid var(--border);
+  border-radius: var(--mz-radius);
+}

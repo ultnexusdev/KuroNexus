@@ -5,9 +5,10 @@
 
 ## Mevcut Aşama
 
-> **📌 11 AĞUSTOS 2026 — DEVİR NOTU: `docs/DEVIR-2026-08-11.md`**
-> Bağlam dolduğu için yazıldı. **Bu bölümden sonra İLK ONU OKU.** Sıradaki
-> işler, ölçülen gerçekler, kesinti kaydı ve dersler orada.
+> **📌 DEVİR NOTU: `docs/DEVIR-2026-08-11.md`**
+> **Bu bölümden sonra İLK ONU OKU — ve orada İLK OKUNACAK BÖLÜM `§0`:**
+> "13 Ağustos'ta ilk iş" (canlı doğrulama sırası + sıradaki altı madde).
+> Sıradaki işler, ölçülen gerçekler, kesinti kaydı ve dersler de orada.
 >
 > Kısa özet: Salon 06 · Müzik sıfırdan kurulup canlıya çıktı (1 sanatçı,
 > 63 albüm, 610 parça, kapaklar kendi diskimizde); Kadim Dünyalar kapısı

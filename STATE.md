@@ -5,6 +5,21 @@
 
 ## Mevcut Aşama
 
+> **📌 11 AĞUSTOS 2026 — DEVİR NOTU: `docs/DEVIR-2026-08-11.md`**
+> Bağlam dolduğu için yazıldı. **Bu bölümden sonra İLK ONU OKU.** Sıradaki
+> işler, ölçülen gerçekler, kesinti kaydı ve dersler orada.
+>
+> Kısa özet: Salon 06 · Müzik sıfırdan kurulup canlıya çıktı (1 sanatçı,
+> 63 albüm, 610 parça, kapaklar kendi diskimizde); Kadim Dünyalar kapısı
+> kaldırıldı (Müzik 06, Temürkan 07); MusicBrainz ikinci kaynak olarak devrede
+> (tür + grup/solo + kuruluş yılı + köken — Spotify hiçbirini vermiyor).
+> ⚠️ Yolda **yarım saatlik üretim kesintisi** yaşandı; kaydı ve üç önlemi
+> devir notunun 4. bölümünde.
+> ⚠️ Yarım kalan: küratör servisinin **üç ucu bağlanmadı** (`createGenre`,
+> `setActGenres`, `updateAct`) — servis metotları ve DTO'lar hazır.
+> ⚠️ Kullanıcıdan bekleyen: Spotify "Extended streaming history" dosyası
+> (talep 11 Ağustos'ta başlatıldı, e-postayla gelecek).
+>
 > **📌 11 AĞUSTOS 2026 — MÜZİK SALONU (Salon 06): FAZ 1 KODLANDI.**
 >
 > Kadim Dünyalar kaldırılıp yerine Spotify entegrasyonlu bir **Müzik/Ses Arşivi**

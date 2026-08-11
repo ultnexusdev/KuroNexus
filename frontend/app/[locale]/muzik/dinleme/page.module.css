@@ -1,0 +1,328 @@
+/* ============================================================
+   Dinleme kaydı (tasarım 2d) — veri odaklı ekran.
+   Tür payları odaların renkleriyle, dönem seçici site segmented deseniyle.
+   ============================================================ */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mz-block);
+  padding: clamp(1.5rem, 4vw, 3rem) var(--mz-pad) clamp(3rem, 6vw, 5rem);
+  max-width: 1280px;
+  margin-inline: auto;
+  width: 100%;
+}
+
+.head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--mz-gap);
+  flex-wrap: wrap;
+  padding-bottom: var(--mz-gap);
+  border-bottom: var(--mz-hairline) solid var(--border);
+}
+
+.back {
+  display: inline-block;
+  margin-bottom: 0.75rem;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.back:hover {
+  color: var(--accent);
+}
+
+.eyebrow {
+  display: block;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.9rem;
+  letter-spacing: 0.32em;
+  color: var(--gold);
+}
+
+.title {
+  margin: 0.375rem 0 0;
+  font-size: var(--mz-title);
+}
+
+/* ── Dönem seçicisi ───────────────────────────────────────────────────── */
+
+.ranges {
+  display: flex;
+  gap: 0.25rem;
+  padding: 3px;
+  border: var(--mz-hairline) solid var(--border-strong);
+  border-radius: 8px;
+}
+
+.rangeOption,
+.rangeActive {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 0.875rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.rangeOption:hover {
+  color: var(--text-primary);
+  background: var(--surface-hover);
+}
+
+.rangeActive {
+  background: var(--surface-hover);
+  color: var(--accent);
+}
+
+/* ── Boş durum ────────────────────────────────────────────────────────── */
+
+.emptyState {
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.emptyTitle {
+  margin: 0;
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.15rem;
+  color: var(--text-primary);
+}
+
+.emptyHint {
+  max-width: 62ch;
+}
+
+/* ── Sayaçlar ─────────────────────────────────────────────────────────── */
+
+.statGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 760px) {
+  .statGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.statCard {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  min-width: 0;
+}
+
+.statValue {
+  font-family: var(--font-cinzel), serif;
+  font-size: var(--mz-stat);
+  line-height: 1.2;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+/* ── İki sütun ────────────────────────────────────────────────────────── */
+
+.split {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+@media (min-width: 980px) {
+  .split {
+    grid-template-columns: 1.1fr 1fr;
+  }
+}
+
+.sideStack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.card {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  min-width: 0;
+}
+
+/* ── Çubuk listesi ────────────────────────────────────────────────────── */
+
+.barList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.barRow {
+  min-width: 0;
+}
+
+.barHead {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.barHead a:hover {
+  color: var(--accent);
+}
+
+.barValue {
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.barTrack {
+  height: 6px;
+  margin-top: 0.375rem;
+  background: var(--surface-2);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.barFill {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+}
+
+/* ── Oda payları ──────────────────────────────────────────────────────── */
+
+.shareList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.92rem;
+}
+
+.shareRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-bottom: 0.625rem;
+  border-bottom: var(--mz-hairline) solid var(--border);
+}
+
+.shareRow:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.shareRow a:hover {
+  color: var(--accent);
+}
+
+.shareValue {
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Çalma listeleri ──────────────────────────────────────────────────── */
+
+.playlistList {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.playlistRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: var(--mz-hairline) solid var(--border);
+  min-height: 44px;
+}
+
+.playlistRow:last-child {
+  border-bottom: 0;
+}
+
+.playlistName {
+  font-size: 0.95rem;
+  color: var(--accent);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.playlistRow > :last-child {
+  margin-left: auto;
+}
+
+/* ── Son dinlenenler ──────────────────────────────────────────────────── */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mz-gap);
+}
+
+.recentList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.recentRow {
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  padding: 0.5rem 0;
+  border-bottom: var(--mz-hairline) solid var(--border);
+}
+
+@media (min-width: 900px) {
+  .recentRow {
+    grid-template-columns: 36px 1fr 220px 220px 130px;
+  }
+}
+
+.recentTitle {
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.recentMeta {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+.recentAlbum {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .recentAlbum {
+    display: block;
+  }
+}

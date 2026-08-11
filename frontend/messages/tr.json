@@ -41,6 +41,7 @@
       "spor": "Spor",
       "anime": "Anime",
       "kitap": "Kitap",
+      "muzik": "Müzik",
       "kadim-dunyalar": "Kadim Dünyalar"
     },
     "unit": {
@@ -49,7 +50,9 @@
       "seri": "{count} seri",
       "kitap": "{count} kitap",
       "evren": "{count} evren",
-      "bolum": "{count} bölüm"
+      "bolum": "{count} bölüm",
+      "sanatci": "{count} sanatçı",
+      "album": "{count} albüm"
     },
     "additions": {
       "title": "Son Eklenenler",
@@ -1566,5 +1569,137 @@
     "quotes": "Alıntılar",
     "gallery": "Görseller",
     "name": "Spor"
+  },
+  "music": {
+    "name": "Müzik",
+    "hall": "Salon",
+    "lede": "Bu sayfa bir kavşak: listeler, sanatçılar ve dinleme kaydı buradan açılıyor. Türler ayrı odalarda duruyor ama listeler türe bakmıyor — bir sette hem riff hem r&b olabilir.",
+    "backToNexus": "Nexus'a dön",
+    "lastSync": "Son eşitleme",
+    "neverSynced": "henüz eşitlenmedi",
+    "openInSpotify": "Spotify'da aç",
+    "embedTitle": "Spotify çalar",
+    "embedNote": "Gömülü çalar 30 saniyelik önizleme çalar; Premium hesapta tam parça.",
+    "counts": {
+      "acts": "Sanatçı",
+      "albums": "Albüm",
+      "tracks": "Parça",
+      "playlists": "Liste"
+    },
+    "playlists": {
+      "title": "Favori listelerim",
+      "all": "tüm listeler",
+      "trackCount": "{count} parça",
+      "empty": "Henüz çalma listesi eşitlenmedi.",
+      "mixUnknown": "Tür karışımı hesaplanamadı — listedeki sanatçıların türleri henüz onaylanmadı."
+    },
+    "acts": {
+      "title": "Favori sanatçılarım",
+      "hint": "her isim kendi sayfasını açar",
+      "plays": "{count} dinleme",
+      "count": "{count} sanatçı",
+      "unmeasured": "popülerliğe göre",
+      "measured": "dinlemeye göre",
+      "empty": "Arşivde henüz sanatçı yok."
+    },
+    "paths": {
+      "roomsTitle": "Tür odaları",
+      "roomsLede": "Her oda kendi rengini ve kapak ızgarasını taşır.",
+      "actsTitle": "Sanatçı sayfaları",
+      "actsLede": "Diskografi, en çok dinlediğim parçalar ve kendi notum.",
+      "listeningTitle": "Dinleme kaydı",
+      "listeningLede": "Son dinlenenler, oda payları ve dönem karşılaştırması.",
+      "step": "Yol {index}"
+    },
+    "room": {
+      "label": "Oda",
+      "albums": "Albümler",
+      "favoriteActs": "Favori sanatçılar",
+      "recent": "Bu odadan son dinlenenler",
+      "playlist": "Odanın çalma listesi",
+      "sort": {
+        "plays": "dinlemeye göre",
+        "year": "yıla göre",
+        "alpha": "alfabetik"
+      },
+      "subgenres": "Alt türler",
+      "empty": "Bu odada henüz sanatçı yok."
+    },
+    "act": {
+      "favorite": "Favori sanatçı",
+      "myPlays": "Dinlemem",
+      "roomShare": "Oda payı",
+      "topTracks": "En çok dinlediğim parçalar",
+      "discography": "Diskografi",
+      "singles": "Single ve EP'ler",
+      "roomMates": "Aynı odadan",
+      "members": "Kadro",
+      "eras": "Dönemler",
+      "player": "Gömülü çalar",
+      "formedIn": "{year} —",
+      "activeBetween": "{from} — {to}",
+      "noAlbums": "Diskografi henüz eşitlenmedi."
+    },
+    "listening": {
+      "title": "Dinleme kaydı",
+      "range": {
+        "FOUR_WEEKS": "4 hafta",
+        "SIX_MONTHS": "6 ay",
+        "ALL_TIME": "tüm zamanlar"
+      },
+      "totalTime": "Dinleme süresi",
+      "distinctArtists": "Farklı sanatçı",
+      "busiestDay": "En yoğun gün",
+      "totalPlays": "Dinleme sayısı",
+      "topActs": "En çok dinlenen sanatçılar",
+      "roomShare": "Odaların payı",
+      "playlists": "Çalma listelerim",
+      "recent": "Son dinlenenler",
+      "empty": "Dinleme kaydı henüz aktarılmadı.",
+      "emptyHint": "Spotify hesap ayarlarından \"Extended streaming history\" istenip küratör panelinden aktarıldığında bu sayfa dolar.",
+      "days": {
+        "0": "Pazar",
+        "1": "Pazartesi",
+        "2": "Salı",
+        "3": "Çarşamba",
+        "4": "Perşembe",
+        "5": "Cuma",
+        "6": "Cumartesi"
+      }
+    },
+    "roles": {
+      "primary_artist": "Sanatçı",
+      "featured_artist": "Konuk sanatçı",
+      "vocalist": "Vokal",
+      "guitarist": "Gitar",
+      "bassist": "Bas",
+      "drummer": "Davul",
+      "keyboardist": "Klavye",
+      "dj": "DJ",
+      "turntablist": "Turntable",
+      "composer": "Besteci",
+      "songwriter": "Söz yazarı",
+      "producer": "Prodüktör",
+      "arranger": "Aranjör",
+      "conductor": "Orkestra şefi",
+      "mixing_engineer": "Miks",
+      "mastering_engineer": "Mastering"
+    },
+    "actKind": {
+      "UNCLASSIFIED": "Sınıflandırılmadı",
+      "BAND": "Grup",
+      "SOLO_PROJECT": "Solo proje",
+      "DUO": "İkili",
+      "GROUP": "Topluluk",
+      "ORCHESTRA": "Orkestra"
+    },
+    "albumType": {
+      "ALBUM": "Albüm",
+      "SINGLE": "Single",
+      "EP": "EP",
+      "COMPILATION": "Derleme",
+      "LIVE": "Canlı",
+      "SOUNDTRACK": "Film müziği"
+    }
   }
 }

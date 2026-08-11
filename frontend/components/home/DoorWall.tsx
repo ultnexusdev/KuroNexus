@@ -40,6 +40,7 @@ const ATMOSPHERE_KEYS: Record<string, string> = {
   spor: "spor",
   anime: "anime",
   kitap: "kitap",
+  muzik: "muzik",
   "kadim-dunyalar": "kadim",
 };
 

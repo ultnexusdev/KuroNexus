@@ -1,0 +1,413 @@
+/* ============================================================
+   Sanatçı sayfası (tasarım 2c).
+
+   Kıvrım iki hâlde çalışıyor: banner yüklenmişse görsel bant, yüklenmemişse
+   kare portre + çizgili doku. İkisi de tasarımın kompozisyonunu koruyor;
+   "banner yok" hâli boş bir 300px bant bırakmıyor.
+   ============================================================ */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mz-block);
+  padding: clamp(1.25rem, 3vw, 2rem) var(--mz-pad) clamp(3rem, 6vw, 5rem);
+  max-width: 1280px;
+  margin-inline: auto;
+  width: 100%;
+  background: var(--bg);
+}
+
+.crumbs {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.crumbs a:hover {
+  color: var(--accent);
+}
+
+.crumbCurrent {
+  color: var(--text-primary);
+}
+
+/* ── Kıvrım ───────────────────────────────────────────────────────────── */
+
+.hero {
+  border-radius: var(--mz-radius);
+  border: var(--mz-hairline) solid var(--border);
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+/* Banner varsa metin okunabilirliği için karartma; yoksa deri yıkaması */
+.hero[data-has-banner="true"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    var(--bg) 8%,
+    color-mix(in srgb, var(--bg) 55%, transparent) 55%,
+    transparent 100%
+  );
+}
+
+.hero[data-has-banner="false"] {
+  background-image: radial-gradient(
+    100% 70% at 15% -10%,
+    var(--music-wash),
+    transparent 62%
+  );
+}
+
+.heroInner {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--mz-block);
+  align-items: end;
+  padding: clamp(1.5rem, 4vw, 2.5rem) var(--mz-pad);
+  min-height: 220px;
+}
+
+@media (min-width: 900px) {
+  .heroInner {
+    grid-template-columns: 1fr auto;
+    min-height: 300px;
+  }
+}
+
+.heroMain {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.eyebrow {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.9rem;
+  letter-spacing: 0.32em;
+  color: var(--gold);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--mz-title);
+  overflow-wrap: anywhere;
+}
+
+.chips,
+.chipList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin: 0.25rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chip,
+.chipStatic {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 0.75rem;
+  border: var(--mz-hairline) solid var(--border-strong);
+  border-radius: 8px;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.82rem;
+  letter-spacing: 0.14em;
+  color: var(--text-secondary);
+}
+
+.chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.stats {
+  display: flex;
+  gap: clamp(1.25rem, 3vw, 2.25rem);
+  margin: 0;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 0.25rem;
+  text-align: left;
+}
+
+@media (min-width: 900px) {
+  .stats {
+    text-align: right;
+  }
+
+  .stat {
+    text-align: right;
+  }
+}
+
+.statValue {
+  margin: 0;
+  font-family: var(--font-cinzel), serif;
+  font-size: var(--mz-stat);
+  line-height: 1.15;
+  color: var(--text-primary);
+}
+
+/* ── İki sütun: parçalar + çalar ──────────────────────────────────────── */
+
+.split {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--mz-block);
+}
+
+@media (min-width: 980px) {
+  .split {
+    grid-template-columns: 1fr 380px;
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+  }
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mz-gap);
+  min-width: 0;
+}
+
+.sectionHead {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.badge {
+  margin-left: auto;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border: var(--mz-hairline) solid var(--border);
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+}
+
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  min-width: 0;
+}
+
+.note {
+  margin: 0;
+  padding: 1rem;
+  background: var(--surface);
+  border: var(--mz-hairline) solid var(--border);
+  border-left: 2px solid var(--accent);
+  border-radius: var(--mz-radius);
+}
+
+.spotifyLink {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1rem;
+  border: var(--mz-hairline) solid var(--border-strong);
+  border-radius: 8px;
+  color: var(--accent);
+  font-size: 0.9rem;
+}
+
+.spotifyLink:hover {
+  border-color: var(--accent);
+  background: var(--surface-hover);
+}
+
+.empty {
+  margin: 0;
+  padding: var(--mz-pad);
+  border: var(--mz-hairline) dashed var(--border);
+  border-radius: var(--mz-radius);
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* ── Parça listesi ────────────────────────────────────────────────────── */
+
+.trackList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: track;
+}
+
+.trackRow {
+  display: grid;
+  grid-template-columns: 2rem 44px 1fr auto;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  padding: 0.5rem 0;
+  border-bottom: var(--mz-hairline) solid var(--border);
+  min-height: 44px;
+}
+
+@media (min-width: 760px) {
+  .trackRow {
+    grid-template-columns: 2rem 44px 1fr 220px 60px;
+  }
+}
+
+.trackNo {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.9rem;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+}
+
+.trackTitle {
+  font-size: 1rem;
+  color: var(--text-primary);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.trackAlbum {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  display: none;
+}
+
+@media (min-width: 760px) {
+  .trackAlbum {
+    display: block;
+  }
+}
+
+/* ── Diskografi ───────────────────────────────────────────────────────── */
+
+.discGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 620px) {
+  .discGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1000px) {
+  .discGrid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+.discCell {
+  min-width: 0;
+}
+
+.discLink {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  color: inherit;
+}
+
+.discTitle {
+  font-size: 0.95rem;
+  color: var(--accent);
+  overflow-wrap: anywhere;
+}
+
+.discLink:hover .discTitle {
+  color: var(--accent-hover);
+}
+
+.roomMates {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding-top: 0.5rem;
+}
+
+.chipYear {
+  margin-left: 0.5rem;
+  color: var(--text-muted);
+}
+
+/* ── Dönemler ─────────────────────────────────────────────────────────── */
+
+.eraList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.eraRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.25rem 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: var(--mz-hairline) solid var(--border);
+}
+
+.eraName {
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.05rem;
+  letter-spacing: 0.02em;
+  color: var(--text-primary);
+}
+
+.eraNote {
+  grid-column: 1 / -1;
+  font-size: 1rem;
+}
+
+/* ── Kadro ────────────────────────────────────────────────────────────── */
+
+.memberList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.memberRow {
+  display: grid;
+  grid-template-columns: 40px 1fr auto auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: var(--mz-hairline) solid var(--border);
+  min-height: 44px;
+}
+
+.memberName {
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.memberRole {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}

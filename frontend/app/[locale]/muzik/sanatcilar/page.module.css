@@ -1,0 +1,103 @@
+/* Sanatçı dizini. Düzen tür odaları dizininin (`tur/page.module.css`)
+   kardeşi — iki dizin aynı salonda yan yana duruyor ve farklı görünmeleri
+   için bir sebep yok. Fark: kartta yuvarlak sanatçı görseli var. */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mz-block);
+  padding: clamp(1.5rem, 4vw, 3rem) var(--mz-pad) clamp(3rem, 6vw, 5rem);
+  max-width: 1280px;
+  margin-inline: auto;
+  width: 100%;
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-bottom: var(--mz-gap);
+  border-bottom: var(--mz-hairline) solid var(--border);
+}
+
+.back {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  align-self: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.back:hover {
+  color: var(--accent);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--mz-title);
+}
+
+.lede {
+  max-width: 52ch;
+}
+
+.empty {
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 620px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1000px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: var(--mz-gap);
+  height: 100%;
+  color: inherit;
+  /* Sol kenar sanatçının ilk türünün rengi — dizinde oda ayrımı görünsün */
+  border-left: 3px solid var(--accent);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.card:hover {
+  background: var(--surface-hover);
+}
+
+.cardBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.name {
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.05rem;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.meta {
+  font-size: var(--mz-meta);
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}

@@ -18,9 +18,16 @@ import { Roles } from '../common/decorators/roles.decorator';
 import type { AuthenticatedUser } from '../common/types/authenticated-user';
 import { ListeningService } from './listening.service';
 import { MusicCuratorService } from './music-curator.service';
+import { MusicPlaylistService } from './music-playlist.service';
 import { MusicRolesService } from './music-roles.service';
 import { MusicSyncService } from './music-sync.service';
 import { SpotifyService } from './spotify.service';
+import {
+  AddPlaylistTrackDto,
+  CreatePlaylistDto,
+  ReorderPlaylistDto,
+  UpdatePlaylistDto,
+} from './dto/playlist.dto';
 import {
   CreateGenreDto,
   extractSpotifyId,
@@ -46,6 +53,7 @@ export class MusicAdminController {
     private readonly listening: ListeningService,
     private readonly roles: MusicRolesService,
     private readonly curator: MusicCuratorService,
+    private readonly playlists: MusicPlaylistService,
   ) {}
 
   /** Panelin "Spotify bağlı mı" göstergesi. Anahtar DEĞERİ dönmez. */
@@ -143,10 +151,64 @@ export class MusicAdminController {
     return this.sync.syncAlbum(extractSpotifyId(spotifyId, 'album'));
   }
 
-  /** Herkese açık bir çalma listesini senkronize eder. */
+  /** Herkese açık bir Spotify çalma listesini senkronize eder. */
   @Post('playlists')
   addPlaylist(@Body() dto: SyncSpotifyDto) {
     return this.sync.syncPlaylist(extractSpotifyId(dto.spotifyId, 'playlist'));
+  }
+
+  /* ── Kendi çalma listelerimiz ────────────────────────────────────────────
+     Spotify'dan gelenlerle AYNI tabloda duruyorlar; ayıran tek şey
+     `spotifyId`in null olması ve bu yeterli: sync listeleri `spotifyId` ile
+     buluyor, null olan hiçbir aramaya düşmüyor. Gerekçenin uzunu
+     `music-playlist.service.ts` başlığında.
+     ─────────────────────────────────────────────────────────────────────── */
+
+  /** Panelin liste kutusu: hepsi, parça sayısı ve "bizim mi" bayrağıyla. */
+  @Get('playlists')
+  listPlaylists() {
+    return this.playlists.list();
+  }
+
+  /**
+   * Yeni **yerel** liste. Yol `playlists/local`, çünkü `POST playlists` zaten
+   * Spotify'dan liste çekmeye ayrılmış ve ikisi bambaşka işler: biri dışarıdan
+   * kopyalıyor, öteki sıfırdan kuruyor.
+   */
+  @Post('playlists/local')
+  createPlaylist(@Body() dto: CreatePlaylistDto) {
+    return this.playlists.create(dto);
+  }
+
+  @Patch('playlists/:id')
+  updatePlaylist(@Param('id') id: string, @Body() dto: UpdatePlaylistDto) {
+    return this.playlists.update(id, dto);
+  }
+
+  /** Yumuşak silme — parçalar ve adres korunuyor (gerekçe serviste). */
+  @Delete('playlists/:id')
+  removePlaylist(@Param('id') id: string) {
+    return this.playlists.remove(id);
+  }
+
+  /** Parçayı listenin sonuna ekler. Aynı parça iki kez eklenemez. */
+  @Post('playlists/:id/tracks')
+  addPlaylistTrack(@Param('id') id: string, @Body() dto: AddPlaylistTrackDto) {
+    return this.playlists.addTrack(id, dto.trackId);
+  }
+
+  @Delete('playlists/:id/tracks/:trackId')
+  removePlaylistTrack(
+    @Param('id') id: string,
+    @Param('trackId') trackId: string,
+  ) {
+    return this.playlists.removeTrack(id, trackId);
+  }
+
+  /** Sıranın SON HÂLİ — gönderilen dizi listenin yeni sırası. */
+  @Put('playlists/:id/tracks')
+  reorderPlaylist(@Param('id') id: string, @Body() dto: ReorderPlaylistDto) {
+    return this.playlists.reorder(id, dto.trackIds);
   }
 
   /**

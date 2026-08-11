@@ -277,9 +277,18 @@
   gap: 0.75rem;
 }
 
-@media (min-width: 760px) {
+/* Dört yol var (tür odaları · sanatçılar · listeler · dinleme kaydı).
+   Orta bantta ikişerli, geniş ekranda dördü yan yana — üçlü ızgarada
+   dördüncü kart tek başına alt satıra düşüyordu. */
+@media (min-width: 620px) {
   .paths {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1000px) {
+  .paths {
+    grid-template-columns: repeat(4, 1fr);
   }
 }
 

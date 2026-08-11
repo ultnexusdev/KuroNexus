@@ -163,6 +163,25 @@ export function GlobalAmbientPlayer() {
     }
   }, [volume]);
 
+  /**
+   * Müzik salonunun şerit çaları başlayınca ortam sesi susuyor.
+   *
+   * İkisi ayrı mekanizma (burası `<audio>`, öteki Spotify iframe'i) ve
+   * birbirlerinin durumunu okuyamıyorlar; aynı anda çalarlarsa ziyaretçi iki
+   * sesi üst üste duyar ve hangisini kısacağını bulamaz. Olay tek yönlü:
+   * ortam sesi müziği durdurMUYOR — hikâye okurken ortam sesi açmak müziği
+   * kesmeyi gerektirmiyor, tersi ise gerekiyor.
+   */
+  useEffect(() => {
+    function onMusicStarted() {
+      audioRef.current?.pause();
+      setIsPlaying(false);
+    }
+    window.addEventListener("kuronexus:music-started", onMusicStarted);
+    return () =>
+      window.removeEventListener("kuronexus:music-started", onMusicStarted);
+  }, []);
+
   useEffect(() => {
     if (audioRef.current && isPlaying && tracks.length > 0) {
       audioRef.current.play().catch(() => setIsPlaying(false));

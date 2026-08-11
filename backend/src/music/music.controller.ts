@@ -47,11 +47,50 @@ export class MusicController {
     return this.music.getListening(parseRange(range));
   }
 
+  /**
+   * Sanatçı dizini — `:slug` kalıbıyla çakışmaz (farklı derinlik) ama yine de
+   * ondan ÖNCE duruyor: bu dosyadaki sıra okunma sırası.
+   */
+  @Public()
+  @Get('acts')
+  getActs() {
+    return this.music.getActs();
+  }
+
   /** 2c · `/muzik/:slug` */
   @Public()
   @Get('acts/:slug')
   getAct(@Param('slug') slug: string) {
     return this.music.getAct(slug);
+  }
+
+  /**
+   * Albüm sayfası — `/muzik/:actSlug/:albumSlug`.
+   *
+   * Sanatçı slug'ı adreste ZORUNLU: albüm slug'ı tekil olduğu için tek başına
+   * da bulunurdu, ama o zaman `/muzik/adele/meteora` Meteora'yı açardı.
+   */
+  @Public()
+  @Get('acts/:actSlug/albums/:albumSlug')
+  getAlbum(
+    @Param('actSlug') actSlug: string,
+    @Param('albumSlug') albumSlug: string,
+  ) {
+    return this.music.getAlbum(actSlug, albumSlug);
+  }
+
+  /** Çalma listesi dizini — `/muzik/listeler` */
+  @Public()
+  @Get('playlists')
+  getPlaylists() {
+    return this.music.getPlaylists();
+  }
+
+  /** Tek liste — `/muzik/liste/:slug` */
+  @Public()
+  @Get('playlists/:slug')
+  getPlaylist(@Param('slug') slug: string) {
+    return this.music.getPlaylist(slug);
   }
 }
 

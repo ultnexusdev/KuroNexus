@@ -1,0 +1,204 @@
+/* Albüm sayfası. Kıvrım sanatçı sayfasının kardeşi ama kapak KARE ve büyük:
+   bir albüm sayfasında bakılan ilk şey kapak. Bant görseli yok — albümün
+   bandı olmaz. */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mz-block);
+  padding: clamp(1.5rem, 4vw, 3rem) var(--mz-pad) clamp(3rem, 6vw, 5rem);
+  max-width: 1280px;
+  margin-inline: auto;
+  width: 100%;
+}
+
+.crumbs {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.crumbs a {
+  color: var(--text-secondary);
+}
+
+.crumbs a:hover {
+  color: var(--accent);
+}
+
+.crumbCurrent {
+  color: var(--text-primary);
+}
+
+.hero {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(1rem, 3vw, 2rem);
+  align-items: flex-start;
+  padding-bottom: var(--mz-block);
+  border-bottom: var(--mz-hairline) solid var(--border);
+}
+
+.heroBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1 1 20rem;
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--mz-title);
+  overflow-wrap: anywhere;
+}
+
+.originalTitle {
+  margin: 0;
+  font-family: var(--font-cormorant), serif;
+  font-style: italic;
+  color: var(--text-muted);
+}
+
+.byline {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.actLink {
+  color: var(--accent);
+}
+
+.actLink:hover {
+  color: var(--accent-hover);
+}
+
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(1rem, 3vw, 2rem);
+  margin: 0.5rem 0 0;
+}
+
+.facts div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.facts dd {
+  margin: 0;
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+}
+
+.chip {
+  display: inline-block;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: var(--mz-label);
+  letter-spacing: 0.16em;
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  border: var(--mz-hairline) solid var(--border);
+  color: var(--text-secondary);
+}
+
+.chip:hover {
+  color: var(--text-primary);
+  border-color: var(--accent);
+}
+
+.spotifyLink {
+  align-self: flex-start;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--accent);
+}
+
+.spotifyLink:hover {
+  color: var(--accent-hover);
+}
+
+.split {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--mz-block);
+}
+
+@media (min-width: 1000px) {
+  .split {
+    grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mz-gap);
+  min-width: 0;
+}
+
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mz-gap);
+  min-width: 0;
+}
+
+.empty {
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.otherGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 620px) {
+  .otherGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 1000px) {
+  .otherGrid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+.otherCell {
+  min-width: 0;
+}
+
+.otherLink {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  color: inherit;
+}
+
+.otherTitle {
+  font-size: 0.82rem;
+  line-height: 1.3;
+  color: var(--accent);
+  overflow-wrap: anywhere;
+}
+
+.otherLink:hover .otherTitle {
+  color: var(--accent-hover);
+}

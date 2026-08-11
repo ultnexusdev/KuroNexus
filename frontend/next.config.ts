@@ -61,8 +61,21 @@ const CSP_DIRECTIVES = [
   "object-src 'none'",
   "frame-ancestors 'none'",
   "form-action 'self'",
-  // Next.js hidrasyon scriptleri satır içi; 'unsafe-eval' BİLEREK yok
-  "script-src 'self' 'unsafe-inline'",
+  /**
+   * Next.js hidrasyon scriptleri satır içi; 'unsafe-eval' BİLEREK yok.
+   *
+   * ⚠️ `open.spotify.com` 12 Ağustos 2026'da eklendi ve **kullanıcıya
+   * sorularak** eklendi. Sebebi tek bir dosya: `components/player/
+   * MusicPlayerBar.tsx`. Gömülü çalar başka bir origin'de bir iframe, yani
+   * parçanın bittiğini göremiyoruz; Spotify'ın `embed/iframe-api` betiği bunu
+   * bildiren tek resmî yol ve o olmadan çalma listesi kendiliğinden
+   * ilerleyemiyor (her parçada elle "ileri" gerekirdi).
+   *
+   * Bedeli açık: sayfamızda dış kaynaklı bir betik çalışıyor. Sınırı da açık —
+   * yalnızca bu origin, ve `connect-src` GENİŞLETİLMEDİ: betiğin kendi ağ
+   * trafiği iframe'in içinde, bizim sayfamızın bağlantı izinleri değişmiyor.
+   */
+  "script-src 'self' 'unsafe-inline' https://open.spotify.com",
   // 16 dosyada style={{ }} kullanımı var + Next kendi stillerini satır içi basıyor
   "style-src 'self' 'unsafe-inline'",
   `img-src 'self' data: blob: https://image.tmdb.org https://i.ytimg.com https://s4.anilist.co ${apiUrl.origin}`,

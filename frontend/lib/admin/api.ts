@@ -1322,6 +1322,114 @@ export function updateMusicAct(
  * ⚠️ Yavaş: MusicBrainz istekleri 1500 ms arayla gidiyor (paylaşımlı IP'de
  * 1100 ms 503 aldı), yani üç istek ~5 saniye.
  */
+/* ── Kendi çalma listelerimiz ───────────────────────────────────────────────
+   Spotify'dan gelen listelerle aynı tabloda duruyorlar; ayıran tek şey
+   `spotifyId`in null olması. `isLocal` bayrağı arayüzde onu gösteriyor:
+   Spotify'dan gelen bir listeye parça eklemek çalışır ama bir sonraki
+   tazelemede kaybolur, o yüzden ekleme yalnızca yerel listelerde açık.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+export interface PlaylistRecord {
+  id: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  isFavorite: boolean;
+  orderIndex: number;
+  isLocal: boolean;
+  trackCount: number;
+}
+
+export function listMusicPlaylists(): Promise<PlaylistRecord[]> {
+  return apiFetch<PlaylistRecord[]>("/admin/music/playlists", {
+    cache: "no-store",
+  });
+}
+
+/** Sıfırdan yerel liste. `spotifyId` YAZILMIYOR — sync'ten ayrı kalmasının şartı. */
+export function createMusicPlaylist(input: {
+  name: string;
+  description?: string;
+}): Promise<{
+  id: string;
+  slug: string;
+  name: string;
+  description: string | null;
+}> {
+  return apiFetch("/admin/music/playlists/local", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+}
+
+export function updateMusicPlaylist(
+  id: string,
+  input: {
+    name?: string;
+    description?: string;
+    isFavorite?: boolean;
+    orderIndex?: number;
+  },
+): Promise<PlaylistRecord> {
+  return apiFetch(`/admin/music/playlists/${encodeURIComponent(id)}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+}
+
+/** Yumuşak silme: parçalar ve adres korunuyor. */
+export function deleteMusicPlaylist(id: string): Promise<unknown> {
+  return apiFetch(`/admin/music/playlists/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+  });
+}
+
+/**
+ * Parçayı listenin sonuna ekler. `trackId` **arşiv kimliği**, Spotify kimliği
+ * değil. Aynı parça iki kez eklenemez; ikinci istek hata değil
+ * `added: false` döner.
+ */
+export function addTrackToPlaylist(
+  playlistId: string,
+  trackId: string,
+): Promise<{ position: number; added: boolean }> {
+  return apiFetch(
+    `/admin/music/playlists/${encodeURIComponent(playlistId)}/tracks`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ trackId }),
+    },
+  );
+}
+
+export function removeTrackFromPlaylist(
+  playlistId: string,
+  trackId: string,
+): Promise<unknown> {
+  return apiFetch(
+    `/admin/music/playlists/${encodeURIComponent(playlistId)}/tracks/${encodeURIComponent(trackId)}`,
+    { method: "DELETE" },
+  );
+}
+
+/** Sıranın SON HÂLİ — dizi listenin yeni sırası. */
+export function reorderPlaylist(
+  playlistId: string,
+  trackIds: string[],
+): Promise<{ count: number }> {
+  return apiFetch(
+    `/admin/music/playlists/${encodeURIComponent(playlistId)}/tracks`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ trackIds }),
+    },
+  );
+}
+
 export function enrichMusicAct(actId: string): Promise<{
   matched: boolean;
   mbid: string | null;

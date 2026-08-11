@@ -1,0 +1,71 @@
+/* "Yeni liste" kutusu — küratöre görünüyor, ziyaretçiye hiç render edilmiyor. */
+
+.box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: var(--mz-gap, 0.875rem);
+  background: var(--surface);
+  border: var(--mz-hairline, 0.5px) solid var(--border);
+  border-radius: var(--mz-radius, 12px);
+}
+
+.label {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: var(--mz-label, 0.8rem);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.input {
+  flex: 1 1 12rem;
+  min-width: 0;
+  background: var(--bg);
+  border: var(--mz-hairline, 0.5px) solid var(--border);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  padding: 0.45rem 0.7rem;
+}
+
+.input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.action {
+  flex: none;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: var(--mz-label, 0.8rem);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  background: var(--accent-muted);
+  color: var(--text-primary);
+  border: var(--mz-hairline, 0.5px) solid var(--accent);
+  border-radius: 8px;
+  padding: 0.45rem 1rem;
+  cursor: pointer;
+}
+
+.action:hover:not(:disabled) {
+  background: var(--accent);
+}
+
+.action:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.error {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--danger);
+  overflow-wrap: anywhere;
+}

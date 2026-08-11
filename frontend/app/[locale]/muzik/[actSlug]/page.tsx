@@ -6,9 +6,11 @@ import { apiUrl, ApiError, isLocalUpload } from "@/lib/api/client";
 import { fetchMusicAct, type MusicAct } from "@/lib/api/music";
 import { readIsAdmin } from "@/lib/auth/session";
 import { musicHref, spotifyOpenUrl } from "@/lib/music/routes";
-import { CoverArt, CoverTile } from "@/components/music/CoverArt";
+import { CoverArt } from "@/components/music/CoverArt";
+import { Discography } from "@/components/music/Discography";
 import { MusicCuratorSwitch } from "@/components/music/MusicCuratorSwitch";
 import { SpotifyEmbed } from "@/components/music/SpotifyEmbed";
+import { TrackList } from "@/components/music/TrackList";
 import shell from "../layout.module.css";
 import styles from "./page.module.css";
 
@@ -65,15 +67,8 @@ export async function generateMetadata({
   }
 }
 
-function formatLength(ms: number | null): string {
-  if (!ms || ms <= 0) {
-    return "";
-  }
-  const total = Math.round(ms / 1000);
-  const minutes = Math.floor(total / 60);
-  const seconds = total % 60;
-  return `${minutes}:${String(seconds).padStart(2, "0")}`;
-}
+/* `formatLength` buradan kalktı: parça süresi artık `TrackList` içinde
+   biçimleniyor ve iki kopya bir gün ayrışırdı. */
 
 function releaseYear(date: string | null): string {
   return date ? new Date(date).getUTCFullYear().toString() : "";
@@ -229,21 +224,27 @@ export default async function MusicActPage({
           {act.topTracks.length === 0 ? (
             <p className={styles.empty}>{t("act.noAlbums")}</p>
           ) : (
-            <ol className={styles.trackList}>
-              {act.topTracks.map((track, index) => (
-                <li key={track.id} className={styles.trackRow}>
-                  <span className={styles.trackNo}>
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <CoverArt src={track.album.artwork} alt="" size={44} />
-                  <span className={styles.trackTitle}>{track.title}</span>
-                  <span className={styles.trackAlbum}>{track.album.title}</span>
-                  <span className={shell.mono}>
-                    {formatLength(track.durationMs)}
-                  </span>
-                </li>
-              ))}
-            </ol>
+            /* Satırlar artık çalınabilir ve küratör için "listeye ekle"
+               taşıyor. Kuyruk kök düzende yaşadığı için sayfadan ayrılınca
+               müzik kesilmiyor. */
+            <TrackList
+              tracks={act.topTracks.map((track) => ({
+                id: track.id,
+                title: track.title,
+                spotifyId: track.spotifyId,
+                durationMs: track.durationMs,
+                artist: act.name,
+                album: {
+                  title: track.album.title,
+                  artwork: track.album.artwork,
+                },
+                playCount: track.playCount,
+              }))}
+              context={act.name}
+              isAdmin={isAdmin}
+              showAlbum
+              showPlays={act.topTracks[0]?.measured ?? false}
+            />
           )}
         </section>
 
@@ -255,9 +256,6 @@ export default async function MusicActPage({
             height={352}
             note
           />
-          {act.bio ? (
-            <p className={`${shell.prose} ${styles.note}`}>{act.bio}</p>
-          ) : null}
           {act.spotifyId ? (
             <a
               className={styles.spotifyLink}
@@ -271,28 +269,28 @@ export default async function MusicActPage({
         </aside>
       </div>
 
+      {/* ── Biyografi ──────────────────────────────────────────────────────
+             Eskiden çalar kutusunun altında küçük bir paragraftı ve okunmuyordu
+             (kullanıcı isteği: "biyografi kısmı da olsa güzel olur"). Artık
+             kendi bölümü. Metin küratörün kendi sesi — MusicBrainz de Spotify
+             de biyografi vermiyor, `enrichFromMusicBrainz` bu alana bilerek
+             dokunmuyor. */}
+      {act.bio ? (
+        <section className={styles.section}>
+          <h2 className={shell.label}>{t("act.biography")}</h2>
+          <p className={`${shell.prose} ${styles.bio}`}>{act.bio}</p>
+        </section>
+      ) : null}
+
       {/* ── Diskografi ─────────────────────────────────────────────────── */}
       <section className={styles.section}>
         <h2 className={shell.label}>{t("act.discography")}</h2>
         {act.albums.length === 0 ? (
           <p className={styles.empty}>{t("act.noAlbums")}</p>
         ) : (
-          <ul className={styles.discGrid}>
-            {act.albums.map((album) => (
-              <li key={album.slug} className={styles.discCell}>
-                <Link
-                  href={musicHref.album(act.slug, album.slug)}
-                  className={styles.discLink}
-                >
-                  <CoverTile src={album.artwork} alt={album.title} cellPx={176} />
-                  <span className={styles.discTitle}>{album.title}</span>
-                  <span className={shell.label}>
-                    {releaseYear(album.releaseDate)}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
+          /* Izgara 3/4/6 sütun ve ilk 12 albümle açılıyor; gerekçesi
+             `Discography.tsx` başlığında (iki kullanıcı bildirimi) */
+          <Discography actSlug={act.slug} albums={act.albums} />
         )}
 
         {act.roomMates.length > 0 ? (

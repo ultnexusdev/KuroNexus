@@ -15,6 +15,17 @@
 > (tür + grup/solo + kuruluş yılı + köken — Spotify hiçbirini vermiyor).
 > ⚠️ Yolda **yarım saatlik üretim kesintisi** yaşandı; kaydı ve üç önlemi
 > devir notunun 4. bölümünde.
+> ✅ **ÜÇÜNCÜ OTURUM (12 Ağustos):** salonun gezinme boşlukları kapatıldı —
+> sanatçı dizini (`/muzik/sanatcilar`), **albüm sayfası** (adres vardı rota
+> yoktu, her kapak 404 veriyordu), çalma listeleri (`/muzik/listeler`,
+> `/muzik/liste/[slug]`), sanatçı sayfasında biyografi bölümü ve daha sık
+> diskografi ızgarası (3/4/6 + "tümünü göster"). **Kendi çalma listelerimiz**
+> kuruldu (migration gerekmedi: `spotifyId` zaten nullable) ve her parça
+> satırına "+ listeye ekle" geldi. **Site geneli ince çalar şeridi** kök
+> düzende yaşıyor: film/dizi sayfalarında gezinirken müzik kesilmiyor.
+> 🔴 CSP `script-src`e `https://open.spotify.com` eklendi — kullanıcı onayladı;
+> gerekçesi devir notu §2.2g. Bu tur yerelde uçtan uca sınandı (§2.2h).
+>
 > ✅ **İKİNCİ OTURUM (aynı gün):** küratör uçlarının dördü de bağlandı
 > (`GET/POST /admin/music/genres`, `PUT /admin/music/acts/:id/genres`,
 > `PATCH /admin/music/acts/:id`) ve **küratör modu arayüzü kuruldu** — salon

@@ -102,10 +102,21 @@ export default async function MusicHallPage() {
       key: "acts",
       title: t("paths.actsTitle"),
       lede: t("paths.actsLede"),
-      href: overview.acts[0]?.slug
-        ? musicHref.act(overview.acts[0].slug)
-        : musicHref.root(),
+      /**
+       * ⚠️ Burada `overview.acts[0]` YAZILIYDI, yani kart **her zaman aynı
+       * sanatçıyı** açıyordu. Arşivde tek sanatçı varken fark edilmedi;
+       * ikincisi eklenince yeni sanatçıya ulaşmanın tek yolu tür odası
+       * olurdu (kullanıcı bildirimi, 12 Ağustos 2026). Artık dizine gidiyor.
+       */
+      href: musicHref.acts(),
       accent: "var(--accent)",
+    },
+    {
+      key: "playlists",
+      title: t("paths.playlistsTitle"),
+      lede: t("paths.playlistsLede"),
+      href: musicHref.playlists(),
+      accent: "var(--genre-pop)",
     },
     {
       key: "listening",

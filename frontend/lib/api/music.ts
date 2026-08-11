@@ -193,6 +193,94 @@ export interface MusicAct {
   roomMates: Array<{ slug: string; name: string; image: string | null }>;
 }
 
+/** Sanatçı dizini satırı — `/muzik/sanatcilar` */
+export interface ActCard {
+  slug: string;
+  name: string;
+  image: string | null;
+  actKind: MusicActKind;
+  formedYear: number | null;
+  disbandedYear: number | null;
+  originCountry: string | null;
+  albumCount: number;
+  genres: Array<{ slug: string; name: string; accentKey: string | null }>;
+}
+
+/** Parça satırı — albüm ve liste sayfalarında aynı satır çiziliyor */
+export interface AlbumTrack {
+  id: string;
+  slug: string;
+  title: string;
+  discNumber: number;
+  trackNumber: number;
+  durationMs: number | null;
+  isExplicit: boolean;
+  spotifyId: string | null;
+  playCount: number;
+}
+
+/** Albüm sayfası — `/muzik/[actSlug]/[albumSlug]` */
+export interface MusicAlbum {
+  id: string;
+  slug: string;
+  title: string;
+  originalTitle: string | null;
+  albumType: MusicAlbumType;
+  releaseDate: string | null;
+  releaseDatePrecision: string | null;
+  totalTracks: number | null;
+  label: string | null;
+  artwork: string | null;
+  spotifyId: string | null;
+  era: { slug: string; name: string } | null;
+  act: {
+    slug: string;
+    name: string;
+    image: string | null;
+    genres: Array<{ slug: string; name: string; accentKey: string | null }>;
+  };
+  tracks: AlbumTrack[];
+  /** Dinleme kaydı aktarılmadıysa `false` — ekran sayı sütununu hiç çizmez */
+  measured: boolean;
+  otherAlbums: Array<{
+    slug: string;
+    title: string;
+    artwork: string | null;
+    releaseDate: string | null;
+    albumType: MusicAlbumType;
+  }>;
+}
+
+/** Liste sayfası — `/muzik/liste/[slug]` */
+export interface MusicPlaylistDetail {
+  id: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  artwork: string | null;
+  trackCount: number;
+  durationMs: number | null;
+  isFavorite: boolean;
+  spotifyId: string | null;
+  /** Bizim listemiz mi (Spotify'dan gelmediyse `true`) */
+  isLocal: boolean;
+  tracks: Array<{
+    position: number;
+    addedAt: string | null;
+    id: string;
+    slug: string;
+    title: string;
+    durationMs: number | null;
+    spotifyId: string | null;
+    album: {
+      slug: string;
+      title: string;
+      artwork: string | null;
+      act: { slug: string; name: string };
+    };
+  }>;
+}
+
 export interface MusicListening {
   range: ListeningRange;
   totals: { plays: number; msPlayed: number; distinctArtists: number };
@@ -266,6 +354,37 @@ export function fetchMusicAct(
 ): Promise<MusicAct> {
   return apiFetch<MusicAct>(
     `/music/acts/${encodeURIComponent(slug)}`,
+    freshness(fresh),
+  );
+}
+
+export function fetchMusicActs(fresh?: boolean): Promise<ActCard[]> {
+  return apiFetch<ActCard[]>("/music/acts", freshness(fresh));
+}
+
+export function fetchMusicAlbum(
+  actSlug: string,
+  albumSlug: string,
+  fresh?: boolean,
+): Promise<MusicAlbum> {
+  return apiFetch<MusicAlbum>(
+    `/music/acts/${encodeURIComponent(actSlug)}/albums/${encodeURIComponent(albumSlug)}`,
+    freshness(fresh),
+  );
+}
+
+export function fetchMusicPlaylists(
+  fresh?: boolean,
+): Promise<MusicPlaylistSummary[]> {
+  return apiFetch<MusicPlaylistSummary[]>("/music/playlists", freshness(fresh));
+}
+
+export function fetchMusicPlaylist(
+  slug: string,
+  fresh?: boolean,
+): Promise<MusicPlaylistDetail> {
+  return apiFetch<MusicPlaylistDetail>(
+    `/music/playlists/${encodeURIComponent(slug)}`,
     freshness(fresh),
   );
 }

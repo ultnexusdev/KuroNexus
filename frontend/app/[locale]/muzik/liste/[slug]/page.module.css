@@ -1,0 +1,96 @@
+/* Çalma listesi sayfası — albüm sayfasının kardeşi, kapak daha küçük. */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mz-block);
+  padding: clamp(1.5rem, 4vw, 3rem) var(--mz-pad) clamp(3rem, 6vw, 5rem);
+  max-width: 1280px;
+  margin-inline: auto;
+  width: 100%;
+}
+
+.crumbs {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.crumbs a {
+  color: var(--text-secondary);
+}
+
+.crumbs a:hover {
+  color: var(--accent);
+}
+
+.crumbCurrent {
+  color: var(--text-primary);
+}
+
+.hero {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(1rem, 3vw, 2rem);
+  align-items: flex-start;
+  padding-bottom: var(--mz-block);
+  border-bottom: var(--mz-hairline) solid var(--border);
+}
+
+.heroBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  flex: 1 1 20rem;
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--mz-title);
+  overflow-wrap: anywhere;
+}
+
+.desc {
+  max-width: 60ch;
+}
+
+.spotifyLink {
+  align-self: flex-start;
+  margin-top: 0.35rem;
+  font-size: 0.85rem;
+  color: var(--accent);
+}
+
+.spotifyLink:hover {
+  color: var(--accent-hover);
+}
+
+.split {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--mz-block);
+}
+
+@media (min-width: 1000px) {
+  .split {
+    grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.section,
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mz-gap);
+  min-width: 0;
+}
+
+.empty,
+.sideNote {
+  color: var(--text-muted);
+  margin: 0;
+  font-family: var(--font-cormorant), serif;
+  font-size: var(--mz-body);
+  line-height: 1.5;
+}

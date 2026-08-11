@@ -150,7 +150,12 @@
     "repeat": "Tekrarla",
     "playlist": "Çalma listesi",
     "otherPlaylists": "Diğer çalma listeleri",
-    "volume": "Ses seviyesi"
+    "volume": "Ses seviyesi",
+    "musicBar": "Müzik çalar",
+    "queue": "Sıradakiler",
+    "queueCount": "{done} / {total}",
+    "close": "Çaları kapat",
+    "embedFailed": "Çalar yüklenemedi — ileri/geri çalışıyor, çalmayı elle başlatın."
   },
   "admin": {
     "title": "Yönetim Paneli",
@@ -1590,7 +1595,21 @@
       "all": "tüm listeler",
       "trackCount": "{count} parça",
       "empty": "Henüz çalma listesi eşitlenmedi.",
-      "mixUnknown": "Tür karışımı hesaplanamadı — listedeki sanatçıların türleri henüz onaylanmadı."
+      "mixUnknown": "Tür karışımı hesaplanamadı — listedeki sanatçıların türleri henüz onaylanmadı.",
+      "lede": "Kendi kurduğum listeler ve Spotify'dan eşitlenenler bir arada. Kendi listelerime her albümden parça ekleyebiliyorum.",
+      "localBadge": "Kendi listem",
+      "spotifyBadge": "Spotify'dan",
+      "emptyTracks": "Bu listede henüz parça yok.",
+      "emptyAdmin": "Bu liste boş. Albüm ya da sanatçı sayfalarındaki + düğmesiyle parça ekleyin.",
+      "localPlayerNote": "Bu liste bizde kuruldu, Spotify'da karşılığı yok — gömü yerine alttaki şerit çalar kullanılıyor: “Listeyi çal”a basınca parçalar sırayla çalıyor ve başka sayfalara geçince susmuyor.",
+      "createTitle": "Yeni çalma listesi",
+      "nameLabel": "Liste adı",
+      "namePlaceholder": "Listenin adı…",
+      "descriptionLabel": "Açıklama",
+      "descriptionPlaceholder": "Açıklama (isteğe bağlı)",
+      "create": "Listeyi kur",
+      "creating": "Kuruluyor…",
+      "createError": "Liste kurulamadı."
     },
     "acts": {
       "title": "Favori sanatçılarım",
@@ -1599,6 +1618,8 @@
       "count": "{count} sanatçı",
       "unmeasured": "albüm sayısına göre",
       "measured": "dinlemeye göre",
+      "total": "{count} sanatçı",
+      "albumCount": "{count} albüm",
       "empty": "Arşivde henüz sanatçı yok."
     },
     "paths": {
@@ -1608,6 +1629,8 @@
       "actsLede": "Diskografi, en çok dinlediğim parçalar ve kendi notum.",
       "listeningTitle": "Dinleme kaydı",
       "listeningLede": "Son dinlenenler, oda payları ve dönem karşılaştırması.",
+      "playlistsTitle": "Çalma listeleri",
+      "playlistsLede": "Kendi kurduğum listeler ve Spotify'dan gelenler.",
       "step": "Yol {index}"
     },
     "room": {
@@ -1637,7 +1660,33 @@
       "player": "Gömülü çalar",
       "formedIn": "{year} —",
       "activeBetween": "{from} — {to}",
+      "biography": "Biyografi",
+      "showAll": "{count} albüm daha göster",
+      "showLess": "Daha az göster",
       "noAlbums": "Diskografi henüz eşitlenmedi."
+    },
+    "album": {
+      "tracks": "Parçalar",
+      "noTracks": "Bu albümün parçaları henüz eşitlenmedi.",
+      "duration": "Süre",
+      "label": "Etiket",
+      "more": "{name} — diğer albümler"
+    },
+    "tracks": {
+      "playAll": "Listeyi çal ({count})",
+      "play": "{title} — çal",
+      "noSpotify": "Bu parçanın Spotify kimliği yok, çalınamıyor.",
+      "plays": "{count} dinleme",
+      "addTo": "{title} — listeye ekle",
+      "addToTitle": "Listeye ekle",
+      "removeFromPlaylist": "Listeden çıkar",
+      "loading": "Yükleniyor…",
+      "noPlaylists": "Henüz kendi listeniz yok. Aşağıdan kurabilirsiniz.",
+      "added": "“{playlist}” listesine eklendi.",
+      "alreadyIn": "Zaten “{playlist}” listesinde.",
+      "newPlaylist": "Yeni liste",
+      "newPlaylistPlaceholder": "Yeni listenin adı…",
+      "error": "İşlem yapılamadı."
     },
     "listening": {
       "title": "Dinleme kaydı",

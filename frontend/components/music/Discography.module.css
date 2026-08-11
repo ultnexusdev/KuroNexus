@@ -1,0 +1,77 @@
+/* ============================================================
+   Diskografi ızgarası.
+
+   Sütun sayısı 3 / 4 / 6 (eskiden 2 / 3 / 5). Kullanıcı isteği: "tek satırda
+   5-6 görünebilir". Kapaklar küçüldükçe albüm adı da küçülüyor — ikisi
+   birlikte değişmezse ad kapaktan taşıyor.
+   ============================================================ */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 620px) {
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 1000px) {
+  .grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+.cell {
+  min-width: 0;
+}
+
+.link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  color: inherit;
+}
+
+.title {
+  font-size: 0.82rem;
+  line-height: 1.3;
+  color: var(--accent);
+  overflow-wrap: anywhere;
+}
+
+.link:hover .title {
+  color: var(--accent-hover);
+}
+
+.year {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.more {
+  align-self: flex-start;
+  margin-top: 0.75rem;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: var(--mz-label, 0.8rem);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.4rem 1rem;
+  cursor: pointer;
+}
+
+.more:hover {
+  color: var(--text-primary);
+  border-color: var(--accent);
+}

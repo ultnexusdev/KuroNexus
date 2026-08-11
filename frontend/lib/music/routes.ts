@@ -15,6 +15,12 @@ export const musicHref = {
 
   /** 2c · sanatçı/grup sayfası */
   act: (slug: string) => `/muzik/${slug}`,
+  /**
+   * Sanatçı dizini. Salon kavşağındaki "YOL 02" kartı EskİDEN `acts[0]`e
+   * gidiyordu — yani her zaman aynı sanatçıya. Arşivde tek sanatçı varken
+   * fark edilmiyordu; kart artık buraya bakıyor.
+   */
+  acts: () => "/muzik/sanatcilar",
   /** Album Room — act ağacının altında, çünkü albüm act'e ait */
   album: (actSlug: string, albumSlug: string) =>
     `/muzik/${actSlug}/${albumSlug}`,
@@ -31,6 +37,8 @@ export const musicHref = {
 
   /** Çalma listesi */
   playlist: (slug: string) => `/muzik/liste/${slug}`,
+  /** Çalma listesi dizini */
+  playlists: () => "/muzik/listeler",
 } as const;
 
 /**

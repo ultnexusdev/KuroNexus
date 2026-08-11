@@ -150,7 +150,12 @@
     "repeat": "Repeat",
     "playlist": "Playlist",
     "otherPlaylists": "Other playlists",
-    "volume": "Volume"
+    "volume": "Volume",
+    "musicBar": "Music player",
+    "queue": "Up next",
+    "queueCount": "{done} / {total}",
+    "close": "Close the player",
+    "embedFailed": "The player failed to load — skip still works, start playback manually."
   },
   "admin": {
     "title": "Admin Panel",
@@ -1590,7 +1595,21 @@
       "all": "all playlists",
       "trackCount": "{count} tracks",
       "empty": "No playlist synced yet.",
-      "mixUnknown": "Genre mix unavailable — the genres of these artists are not approved yet."
+      "mixUnknown": "Genre mix unavailable — the genres of these artists are not approved yet.",
+      "lede": "The lists I built here and the ones synced from Spotify, side by side. I can add a track from any album to my own lists.",
+      "localBadge": "My own list",
+      "spotifyBadge": "From Spotify",
+      "emptyTracks": "This list has no tracks yet.",
+      "emptyAdmin": "This list is empty. Add tracks with the + button on album or artist pages.",
+      "localPlayerNote": "This list was built here and has no Spotify counterpart — instead of an embed it uses the player bar below: press “Play the list” and the tracks run in order, and they keep playing when you move to other pages.",
+      "createTitle": "New playlist",
+      "nameLabel": "Playlist name",
+      "namePlaceholder": "Name of the list…",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Description (optional)",
+      "create": "Create the list",
+      "creating": "Creating…",
+      "createError": "The playlist could not be created."
     },
     "acts": {
       "title": "My favourite artists",
@@ -1599,6 +1618,8 @@
       "count": "{count} artists",
       "unmeasured": "by album count",
       "measured": "by play count",
+      "total": "{count} artists",
+      "albumCount": "{count} albums",
       "empty": "No artists in the archive yet."
     },
     "paths": {
@@ -1608,6 +1629,8 @@
       "actsLede": "Discography, my most played tracks and my own note.",
       "listeningTitle": "Listening log",
       "listeningLede": "Recently played, room shares and period comparison.",
+      "playlistsTitle": "Playlists",
+      "playlistsLede": "The lists I built myself and the ones synced from Spotify.",
       "step": "Path {index}"
     },
     "room": {
@@ -1637,7 +1660,33 @@
       "player": "Embedded player",
       "formedIn": "{year} —",
       "activeBetween": "{from} — {to}",
+      "biography": "Biography",
+      "showAll": "Show {count} more albums",
+      "showLess": "Show fewer",
       "noAlbums": "Discography not synced yet."
+    },
+    "album": {
+      "tracks": "Tracks",
+      "noTracks": "This album's tracks are not synced yet.",
+      "duration": "Length",
+      "label": "Label",
+      "more": "{name} — other albums"
+    },
+    "tracks": {
+      "playAll": "Play the list ({count})",
+      "play": "Play {title}",
+      "noSpotify": "This track has no Spotify id, so it cannot be played.",
+      "plays": "{count} plays",
+      "addTo": "Add {title} to a playlist",
+      "addToTitle": "Add to a playlist",
+      "removeFromPlaylist": "Remove from the playlist",
+      "loading": "Loading…",
+      "noPlaylists": "You have no playlists of your own yet. Create one below.",
+      "added": "Added to “{playlist}”.",
+      "alreadyIn": "Already in “{playlist}”.",
+      "newPlaylist": "New playlist",
+      "newPlaylistPlaceholder": "Name of the new playlist…",
+      "error": "The action failed."
     },
     "listening": {
       "title": "Listening log",

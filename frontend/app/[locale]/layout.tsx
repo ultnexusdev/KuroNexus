@@ -156,6 +156,8 @@ export async function generateMetadata({
 
 import { GlobalAmbientPlayer } from "@/components/story/GlobalAmbientPlayer";
 import { SiteFooter } from "@/components/layout/SiteFooter";
+import { MusicQueueProvider } from "@/components/player/MusicQueue";
+import { MusicPlayerBar } from "@/components/player/MusicPlayerBar";
 
 export default async function LocaleLayout({
   children,
@@ -194,20 +196,29 @@ export default async function LocaleLayout({
       </head>
       <body>
         <NextIntlClientProvider>
-          {/* Klavyeyle gelen biri her sayfada önce header ve footer
-              bağlantılarını geçmek zorunda kalmasın. Yalnızca odaklanınca
-              görünür (globals.css .skipLink). */}
-          <a href="#icerik" className="skipLink">
-            {t("skipToContent")}
-          </a>
-          <SiteHeader initialTheme={theme} isAdmin={isAdmin} />
-          {/* tabIndex={-1}: atlama bağlantısı buraya odaklanabilsin —
-              yoksa Safari/Firefox hedefe kaydırır ama odağı taşımaz */}
-          <main id="icerik" tabIndex={-1}>
-            {children}
-          </main>
-          <GlobalAmbientPlayer />
-          <SiteFooter />
+          {/* Müzik kuyruğu KÖK DÜZENDE: sayfalar arası gezinmede bu ağaç
+              yeniden mount edilmediği için çalar iframe'i hayatta kalıyor ve
+              film/dizi sayfalarında gezinirken müzik kesilmiyor (kullanıcı
+              isteği). Bir sayfanın içine konsaydı her bağlantıda susardı. */}
+          <MusicQueueProvider>
+            {/* Klavyeyle gelen biri her sayfada önce header ve footer
+                bağlantılarını geçmek zorunda kalmasın. Yalnızca odaklanınca
+                görünür (globals.css .skipLink). */}
+            <a href="#icerik" className="skipLink">
+              {t("skipToContent")}
+            </a>
+            <SiteHeader initialTheme={theme} isAdmin={isAdmin} />
+            {/* tabIndex={-1}: atlama bağlantısı buraya odaklanabilsin —
+                yoksa Safari/Firefox hedefe kaydırır ama odağı taşımaz */}
+            <main id="icerik" tabIndex={-1}>
+              {children}
+            </main>
+            <GlobalAmbientPlayer />
+            <SiteFooter />
+            {/* Şerit en sonda: sabit konumlu ve içeriğin üstüne biniyor;
+                kuyruk boşken hiçbir şey çizmiyor */}
+            <MusicPlayerBar />
+          </MusicQueueProvider>
         </NextIntlClientProvider>
       </body>
     </html>

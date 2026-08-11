@@ -516,6 +516,258 @@ export class MusicService {
     });
   }
 
+  /* ── Sanatçı dizini ──────────────────────────────────────────────────── */
+
+  /**
+   * Arşivdeki bütün sanatçılar — `/muzik/sanatcilar`.
+   *
+   * ⚠️ Bu dizin OLMADAN yeni eklenen bir sanatçıya ulaşmanın yolu yoktu:
+   * salondaki "YOL 02 · Sanatçı sayfaları" kartı `overview.acts[0]`e, yani
+   * **her zaman aynı sanatçıya** gidiyordu. Arşivde tek sanatçı varken
+   * (Linkin Park) fark edilmiyordu; ikincisi eklendiğinde kart yine birinciyi
+   * açardı ve ikinci sanatçı yalnızca tür odasından bulunabilirdi.
+   *
+   * Sıralama albüm sayısına göre — `popularity` her zaman null (Spotify o
+   * alanı bu uygulamaya vermiyor, 11 Ağustos ölçümü), onunla sıralamak
+   * "sıralamıyorum" demenin süslü hâli olurdu.
+   */
+  async getActs() {
+    const acts = await this.prisma.musicalAct.findMany({
+      where: { isDeleted: false },
+      orderBy: [{ albums: { _count: 'desc' } }, { sortName: 'asc' }],
+      select: {
+        slug: true,
+        name: true,
+        image: true,
+        actKind: true,
+        formedYear: true,
+        disbandedYear: true,
+        originCountry: true,
+        _count: { select: { albums: true } },
+        genres: {
+          where: { genre: { isApproved: true } },
+          orderBy: { genre: { name: 'asc' } },
+          select: {
+            genre: { select: { slug: true, name: true, accentKey: true } },
+          },
+        },
+      },
+    });
+
+    return acts.map((act) => ({
+      slug: act.slug,
+      name: act.name,
+      image: act.image,
+      actKind: act.actKind,
+      formedYear: act.formedYear,
+      disbandedYear: act.disbandedYear,
+      originCountry: act.originCountry,
+      albumCount: act._count.albums,
+      genres: act.genres.map((link) => link.genre),
+    }));
+  }
+
+  /* ── Albüm sayfası ───────────────────────────────────────────────────── */
+
+  /**
+   * Tek albüm — `/muzik/:actSlug/:albumSlug`.
+   *
+   * Sanatçı sayfasındaki diskografi ızgarası bu adrese bağlıydı ama **rota
+   * yoktu**: her kapak tıklaması 404'e gidiyordu (kullanıcı bildirimi).
+   *
+   * Albüm act slug'ıyla BİRLİKTE aranıyor. `albumSlug` zaten tekil, yani act
+   * olmadan da bulunurdu; birlikte aramanın sebebi başka bir sanatçının
+   * albümünü onun adresi altında göstermemek — `/muzik/adele/meteora` 404
+   * vermeli, Meteora'yı değil.
+   */
+  async getAlbum(actSlug: string, albumSlug: string) {
+    const album = await this.prisma.musicAlbum.findFirst({
+      where: {
+        slug: albumSlug,
+        isDeleted: false,
+        act: { slug: actSlug, isDeleted: false },
+      },
+      select: {
+        id: true,
+        actId: true,
+        slug: true,
+        title: true,
+        originalTitle: true,
+        albumType: true,
+        releaseDate: true,
+        releaseDatePrecision: true,
+        totalTracks: true,
+        label: true,
+        artwork: true,
+        spotifyId: true,
+        era: { select: { slug: true, name: true } },
+        act: {
+          select: {
+            slug: true,
+            name: true,
+            image: true,
+            genres: {
+              where: { genre: { isApproved: true } },
+              orderBy: { genre: { name: 'asc' } },
+              select: {
+                genre: { select: { slug: true, name: true, accentKey: true } },
+              },
+            },
+          },
+        },
+        tracks: {
+          where: { isDeleted: false },
+          orderBy: [{ discNumber: 'asc' }, { trackNumber: 'asc' }],
+          select: {
+            id: true,
+            slug: true,
+            title: true,
+            discNumber: true,
+            trackNumber: true,
+            durationMs: true,
+            isExplicit: true,
+            spotifyId: true,
+          },
+        },
+      },
+    });
+    if (!album) {
+      throw new NotFoundException('MUSIC.ALBUM_NOT_FOUND');
+    }
+
+    /**
+     * Parça başına dinleme sayısı. Kayıt aktarılmamışsa hepsi 0 döner ve ön
+     * yüz sütunu hiç çizmez — sıfır dolu bir sütun "hiç dinlemedim" değil
+     * "ölçüm yok" demek olurdu ve ikisi aynı şey değil.
+     */
+    const plays = await this.prisma.musicPlay.groupBy({
+      by: ['trackId'],
+      where: { trackId: { in: album.tracks.map((track) => track.id) } },
+      _count: { _all: true },
+    });
+    const playByTrack = new Map(
+      plays.map((row) => [row.trackId, row._count._all]),
+    );
+
+    /* Aynı sanatçının diğer albümleri — albümden albüme geçiş için */
+    const otherAlbums = await this.prisma.musicAlbum.findMany({
+      where: { actId: album.actId, isDeleted: false, id: { not: album.id } },
+      orderBy: [{ releaseDate: 'asc' }, { title: 'asc' }],
+      take: 12,
+      select: {
+        slug: true,
+        title: true,
+        artwork: true,
+        releaseDate: true,
+        albumType: true,
+      },
+    });
+
+    return {
+      ...album,
+      act: {
+        ...album.act,
+        genres: album.act.genres.map((link) => link.genre),
+      },
+      tracks: album.tracks.map((track) => ({
+        ...track,
+        playCount: playByTrack.get(track.id) ?? 0,
+      })),
+      /** Ölçüm gerçek mi — hiç dinleme yoksa ön yüz sütunu gizliyor */
+      measured: plays.length > 0,
+      otherAlbums,
+    };
+  }
+
+  /* ── Çalma listeleri ─────────────────────────────────────────────────── */
+
+  /**
+   * Bütün çalma listeleri — `/muzik/listeler`.
+   *
+   * Favori şeridiyle aynı hesabı kullanıyor (tür karışımı dahil); fark, orada
+   * salonun kavşağına yalnızca bir şerit sığması. Burada hepsi var.
+   */
+  async getPlaylists() {
+    return this.getFavoritePlaylists();
+  }
+
+  /**
+   * Tek liste ve parçaları — `/muzik/liste/:slug`.
+   *
+   * ⚠️ `spotifyId` null olan listeler **bizim listelerimiz**: küratör elle
+   * kurdu, Spotify'dan gelmedi. Sync onlara asla dokunmuyor (eşleşecek
+   * `spotifyId` yok) — kişisel katmanın sync'ten ayrı tutulması kuralı burada
+   * şemadan bedavaya geliyor, ayrı bir tabloya gerek kalmadı.
+   */
+  async getPlaylist(slug: string) {
+    const playlist = await this.prisma.musicPlaylist.findFirst({
+      where: { slug, isDeleted: false },
+      select: {
+        id: true,
+        slug: true,
+        name: true,
+        description: true,
+        artwork: true,
+        trackCount: true,
+        durationMs: true,
+        isFavorite: true,
+        spotifyId: true,
+        tracks: {
+          orderBy: { position: 'asc' },
+          select: {
+            position: true,
+            addedAt: true,
+            track: {
+              select: {
+                id: true,
+                slug: true,
+                title: true,
+                durationMs: true,
+                spotifyId: true,
+                album: {
+                  select: {
+                    slug: true,
+                    title: true,
+                    artwork: true,
+                    act: { select: { slug: true, name: true } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+    if (!playlist) {
+      throw new NotFoundException('MUSIC.PLAYLIST_NOT_FOUND');
+    }
+
+    /**
+     * Süre listenin kendi sütunundan DEĞİL parçalardan toplanıyor: elle
+     * kurulan listede `durationMs` sütunu boş (onu Spotify dolduruyordu) ve
+     * künyede boş bir süre görünürdü. Sütun doluysa o kazanıyor — Spotify'dan
+     * gelen listede parçaların bir kısmı arşivde olmayabilir ve toplam eksik
+     * çıkardı.
+     */
+    const summed = playlist.tracks.reduce(
+      (total, entry) => total + (entry.track.durationMs ?? 0),
+      0,
+    );
+
+    return {
+      ...playlist,
+      /** Bizim listemiz mi, Spotify'dan mı geldi — ön yüz rozeti buna bakıyor */
+      isLocal: playlist.spotifyId === null,
+      trackCount: playlist.trackCount ?? playlist.tracks.length,
+      durationMs: playlist.durationMs ?? (summed > 0 ? summed : null),
+      tracks: playlist.tracks.map((entry) => ({
+        position: entry.position,
+        addedAt: entry.addedAt,
+        ...entry.track,
+      })),
+    };
+  }
+
   /* ── 2d · Dinleme kaydı ──────────────────────────────────────────────── */
 
   async getListening(range: ListeningRange) {

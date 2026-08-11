@@ -3,6 +3,8 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { ListeningService } from './listening.service';
 import { MusicAdminController } from './music.admin.controller';
 import { MusicArtworkService } from './music-artwork.service';
+import { MusicBrainzService } from './musicbrainz.service';
+import { MusicCuratorService } from './music-curator.service';
 import { MusicController } from './music.controller';
 import { MusicCron } from './music.cron';
 import { MusicRolesService } from './music-roles.service';
@@ -29,6 +31,8 @@ import { SpotifyService } from './spotify.service';
     MusicService,
     MusicSyncService,
     MusicArtworkService,
+    MusicBrainzService,
+    MusicCuratorService,
     MusicRolesService,
     ListeningService,
     SpotifyService,

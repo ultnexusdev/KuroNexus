@@ -248,7 +248,12 @@ export class MusicService {
         isDeleted: false,
         genres: { some: { genreId: genre.id } },
       },
-      orderBy: [{ popularity: 'desc' }, { sortName: 'asc' }],
+      // ⚠️ `popularity` İLE SIRALANMIYOR: bu uygulamanın gördüğü Spotify
+      // sanatçı nesnesi o alanı HİÇ vermiyor (11 Ağustos 2026'da ölçüldü,
+      // bkz. `spotify.service.ts` başlığı) — yani alan her zaman null ve
+      // onunla sıralamak "sıralamıyorum" demenin süslü hâliydi.
+      // Albüm sayısı gerçek bir ölçü: arşivde daha çok yeri olan act önce.
+      orderBy: [{ albums: { _count: 'desc' } }, { sortName: 'asc' }],
       select: {
         id: true,
         slug: true,
@@ -500,7 +505,12 @@ export class MusicService {
         id: { not: actId },
         genres: { some: { genreId: { in: genreLinks.map((l) => l.genreId) } } },
       },
-      orderBy: [{ popularity: 'desc' }, { sortName: 'asc' }],
+      // ⚠️ `popularity` İLE SIRALANMIYOR: bu uygulamanın gördüğü Spotify
+      // sanatçı nesnesi o alanı HİÇ vermiyor (11 Ağustos 2026'da ölçüldü,
+      // bkz. `spotify.service.ts` başlığı) — yani alan her zaman null ve
+      // onunla sıralamak "sıralamıyorum" demenin süslü hâliydi.
+      // Albüm sayısı gerçek bir ölçü: arşivde daha çok yeri olan act önce.
+      orderBy: [{ albums: { _count: 'desc' } }, { sortName: 'asc' }],
       take: 8,
       select: { slug: true, name: true, image: true },
     });
@@ -590,7 +600,12 @@ export class MusicService {
       // Dinleme kaydı yok: popülerliğe göre act listesi (2a boş kalmasın)
       const acts = await this.prisma.musicalAct.findMany({
         where: { isDeleted: false },
-        orderBy: [{ popularity: 'desc' }, { sortName: 'asc' }],
+        // ⚠️ `popularity` İLE SIRALANMIYOR: bu uygulamanın gördüğü Spotify
+        // sanatçı nesnesi o alanı HİÇ vermiyor (11 Ağustos 2026'da ölçüldü,
+        // bkz. `spotify.service.ts` başlığı) — yani alan her zaman null ve
+        // onunla sıralamak "sıralamıyorum" demenin süslü hâliydi.
+        // Albüm sayısı gerçek bir ölçü: arşivde daha çok yeri olan act önce.
+        orderBy: [{ albums: { _count: 'desc' } }, { sortName: 'asc' }],
         take: limit,
         select: {
           slug: true,

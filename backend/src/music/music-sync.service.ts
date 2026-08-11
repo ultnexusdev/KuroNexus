@@ -1,12 +1,8 @@
-import {
-  BadRequestException,
-  Injectable,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { slugify } from '../common/utils/slugify';
 import { MusicArtworkService } from './music-artwork.service';
+import { MusicBrainzService } from './musicbrainz.service';
 import {
   SpotifyService,
   type SpotifyAlbumSummary,
@@ -16,6 +12,7 @@ import {
 import type {
   MusicAlbumType,
   MusicEntityKind,
+  MusicProvider,
 } from '../generated/prisma/enums';
 
 /**
@@ -86,6 +83,7 @@ export class MusicSyncService {
     private readonly prisma: PrismaService,
     private readonly spotify: SpotifyService,
     private readonly artwork: MusicArtworkService,
+    private readonly musicbrainz: MusicBrainzService,
   ) {}
 
   /**
@@ -657,92 +655,111 @@ export class MusicSyncService {
     return { albums, acts, failed };
   }
 
-  /* ── Tür sözlüğü (küratör) ───────────────────────────────────────────── */
-
   /**
-   * Onay bekleyen türler. Spotify'ın `genres` alanı tutarsız olduğu için bu
-   * liste dolu olur ve dolu olması normaldir — küratör hangisinin gerçek bir
-   * oda olduğuna karar verir.
-   */
-  async pendingGenres() {
-    return this.prisma.musicGenre.findMany({
-      where: { isApproved: false },
-      orderBy: [{ acts: { _count: 'desc' } }, { name: 'asc' }],
-      select: {
-        id: true,
-        slug: true,
-        name: true,
-        key: true,
-        accentKey: true,
-        _count: { select: { acts: true } },
-      },
-    });
-  }
-
-  /**
-   * Türü onaylar / adını, i18n anahtarını, oda rengini ve üst türünü ayarlar.
+   * MusicBrainz ile zenginleştirme — Spotify'ın vermediği alanları doldurur.
    *
-   * ⚠️ `accentKey` bir **token anahtarı**, renk değeri DEĞİL. Hex girilirse
-   * reddedilir: veritabanına renk yazmak kural 16'yı veritabanı üzerinden
-   * delmek ve tema değiştiğinde oda rengini sabit bırakmak olurdu.
+   * ══════════════════════════════════════════════════════════════════════
+   * ⚠️ YALNIZCA BOŞ ALANLARI DOLDURUR. DOLU HİÇBİR ALANA DOKUNMAZ.
+   *
+   * Bu, bu servisin başındaki yazma izni kuralına getirilmiş **dar ve
+   * bilinçli** bir istisna: `actKind`, `formedYear`, `disbandedYear`,
+   * `originCity`, `originCountry` normalde küratör alanları ve sync onlara
+   * dokunmuyor. Burada dokunuyor ama tek yönde: `UNCLASSIFIED` ise
+   * sınıflandırır, `null` ise doldurur. Küratörün yazdığı bir değer ASLA
+   * değişmez — yoksa "elle düzelttim, sonra kayboldu" yaşanır.
+   *
+   * `bio` ve `bannerImage` hiç doldurulmuyor: ikisi de küratörün kendi sesi.
+   * ══════════════════════════════════════════════════════════════════════
+   *
+   * Neden `syncArtist`in içinde değil: MusicBrainz saniyede bir istek kabul
+   * ediyor. Diskografi senkronizasyonu zaten uzun sürüyor; üstüne üç yavaş
+   * istek daha koymak ekleme akışını çekilmez yapardı. Ayrı adım olarak
+   * çağrılıyor (admin ucu + haftalık cron taraması).
    */
-  async updateGenre(
-    id: string,
-    dto: {
-      /** Panel formu dize gönderiyor, JSON gövde boolean — ikisi de kabul */
-      isApproved?: boolean | 'true' | 'false';
-      accentKey?: string;
-      key?: string;
-      name?: string;
-      parentId?: string;
-    },
-  ) {
-    const genre = await this.prisma.musicGenre.findUnique({
-      where: { id },
-      select: { id: true },
-    });
-    if (!genre) {
-      throw new NotFoundException('MUSIC.GENRE_NOT_FOUND');
-    }
-
-    if (dto.accentKey !== undefined && !isTokenKey(dto.accentKey)) {
-      throw new BadRequestException('MUSIC.ACCENT_KEY_INVALID');
-    }
-    if (dto.key !== undefined && dto.key !== '' && !isTokenKey(dto.key)) {
-      throw new BadRequestException('MUSIC.GENRE_KEY_INVALID');
-    }
-    if (dto.parentId === id) {
-      throw new BadRequestException('MUSIC.GENRE_PARENT_SELF');
-    }
-
-    return this.prisma.musicGenre.update({
-      where: { id },
-      data: {
-        ...(dto.isApproved !== undefined
-          ? { isApproved: toBoolean(dto.isApproved) }
-          : {}),
-        ...(dto.accentKey !== undefined
-          ? { accentKey: dto.accentKey || null }
-          : {}),
-        ...(dto.key !== undefined ? { key: dto.key || null } : {}),
-        ...(dto.name ? { name: dto.name } : {}),
-        ...(dto.parentId !== undefined
-          ? { parentId: dto.parentId || null }
-          : {}),
-      },
+  async enrichFromMusicBrainz(actId: string): Promise<{
+    matched: boolean;
+    mbid: string | null;
+    filled: string[];
+    genresLinked: number;
+  }> {
+    const act = await this.prisma.musicalAct.findFirst({
+      where: { id: actId, isDeleted: false },
       select: {
         id: true,
-        slug: true,
         name: true,
-        key: true,
-        accentKey: true,
-        isApproved: true,
-        parentId: true,
+        spotifyId: true,
+        actKind: true,
+        formedYear: true,
+        disbandedYear: true,
+        originCity: true,
+        originCountry: true,
       },
     });
+    if (!act) {
+      throw new NotFoundException('MUSIC.ACT_NOT_FOUND');
+    }
+
+    const mbid = await this.musicbrainz.findMbid(act.spotifyId ?? '', act.name);
+    if (!mbid) {
+      this.logger.log(`MusicBrainz eşleşmesi bulunamadı: ${act.name}`);
+      return { matched: false, mbid: null, filled: [], genresLinked: 0 };
+    }
+
+    const detail = await this.musicbrainz.getArtist(mbid);
+    if (!detail) {
+      return { matched: false, mbid, filled: [], genresLinked: 0 };
+    }
+
+    await this.upsertExternalRef('ACT', act.id, mbid, null, 'MUSICBRAINZ');
+
+    /* Yalnızca boş olanlar — dolu alan atlanıyor ve `filled` listesinde de
+       görünmüyor, yani çağıran neyin gerçekten değiştiğini biliyor. */
+    const data: Record<string, unknown> = {};
+    const filled: string[] = [];
+    if (act.actKind === 'UNCLASSIFIED' && detail.actKind) {
+      data.actKind = detail.actKind;
+      filled.push(`actKind=${detail.actKind}`);
+    }
+    if (act.formedYear === null && detail.formedYear !== null) {
+      data.formedYear = detail.formedYear;
+      filled.push(`formedYear=${detail.formedYear}`);
+    }
+    if (act.disbandedYear === null && detail.disbandedYear !== null) {
+      data.disbandedYear = detail.disbandedYear;
+      filled.push(`disbandedYear=${detail.disbandedYear}`);
+    }
+    if (act.originCity === null && detail.originCity) {
+      data.originCity = detail.originCity;
+      filled.push('originCity');
+    }
+    if (act.originCountry === null && detail.originCountry) {
+      data.originCountry = detail.originCountry;
+      filled.push('originCountry');
+    }
+    if (Object.keys(data).length > 0) {
+      await this.prisma.musicalAct.update({ where: { id: act.id }, data });
+    }
+
+    /* Türler yine ONAY KAPISINDAN geçiyor (`isApproved: false`).
+       MusicBrainz türleri Spotify'ınkinden iyi ama hâlâ topluluk etiketi:
+       "nu metal", "rap metal", "alternative rock" üçü birden gelebiliyor ve
+       hangisinin oda olacağına küratör karar verir. */
+    const genresLinked = await this.linkGenres(act.id, detail.genres);
+
+    this.logger.log(
+      `MusicBrainz: ${act.name} → ${mbid} | dolduruldu: ${filled.join(', ') || 'yok'} | tür: ${detail.genres.length}`,
+    );
+    return { matched: true, mbid, filled, genresLinked };
   }
 
-  /** Admin panelinin "son senkronizasyon" tablosu. */
+  /**
+   * Admin panelinin "son senkronizasyon" tablosu.
+   *
+   * ⚠️ Tür onayı/oluşturma metotları 11 Ağustos 2026'da buradan
+   * `MusicCuratorService`e TAŞINDI: bu servisin başındaki yazma izni kuralı
+   * "MusicGenre'a yalnızca `isApproved: false` ile oluşturur" diyor ve tür
+   * onaylamak o sözü bozuyordu.
+   */
   async recentSyncState() {
     return this.prisma.musicSyncState.findMany({
       orderBy: { lastRunAt: 'desc' },
@@ -831,6 +848,8 @@ export class MusicSyncService {
     id: string,
     externalId: string,
     url: string | null,
+    /** Varsayilan Spotify; MusicBrainz zenginlestirmesi 'MUSICBRAINZ' veriyor */
+    provider: MusicProvider = 'SPOTIFY',
   ): Promise<void> {
     const link =
       entityKind === 'ACT'
@@ -844,13 +863,13 @@ export class MusicSyncService {
     await this.prisma.musicExternalRef.upsert({
       where: {
         provider_entityKind_externalId: {
-          provider: 'SPOTIFY',
+          provider,
           entityKind,
           externalId,
         },
       },
       create: {
-        provider: 'SPOTIFY',
+        provider,
         entityKind,
         externalId,
         url,
@@ -1031,25 +1050,6 @@ function mapAlbumType(raw: string, totalTracks: number | null): MusicAlbumType {
  * Eleme ölçütü parça sayısı: deluxe/genişletilmiş baskı daha çok parça
  * taşıyor ve arşivde durması gereken o.
  */
-/**
- * Token anahtarı biçimi: küçük harf, rakam, tire, alt çizgi.
- *
- * Renk değerini reddetmenin yolu bu — `#a6564f`, `oklch(…)` ve `rgb(…)`
- * hiçbiri bu kalıba uymuyor. Kural 16 bileşende hex yasaklıyor; veritabanı da
- * hex taşımamalı, yoksa yasak veritabanı üzerinden delinir.
- */
-function isTokenKey(value: string): boolean {
-  return value === '' || /^[a-z0-9][a-z0-9_-]{0,38}$/.test(value);
-}
-
-/**
- * DTO'dan gelen `isApproved` hem boolean hem dize olabiliyor (form gönderimi
- * "true" yazar). `class-validator` ikisini de geçiriyor; karar burada tekleşiyor.
- */
-function toBoolean(value: boolean | string): boolean {
-  return value === true || value === 'true';
-}
-
 function dedupeAlbums(items: SpotifyAlbumSummary[]): SpotifyAlbumSummary[] {
   const best = new Map<string, SpotifyAlbumSummary>();
   for (const item of items) {

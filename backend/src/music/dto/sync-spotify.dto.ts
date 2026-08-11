@@ -1,9 +1,13 @@
 import { BadRequestException } from '@nestjs/common';
 import {
+  IsArray,
   IsIn,
+  IsInt,
   IsOptional,
   IsString,
+  Max,
   MaxLength,
+  Min,
   MinLength,
 } from 'class-validator';
 
@@ -128,4 +132,99 @@ export function extractSpotifyId(input: string, kind?: SpotifyEntity): string {
     }
     throw new BadRequestException('MUSIC.SPOTIFY_ID_INVALID');
   }
+}
+
+/** Küratörün elle oluşturduğu tür. */
+export class CreateGenreDto {
+  @IsString()
+  @MinLength(2)
+  @MaxLength(120)
+  name!: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  slug?: string;
+
+  /** i18n anahtarı (`music.genres.<key>`); görünen metin tabloda tutulmaz */
+  @IsOptional()
+  @IsString()
+  @MaxLength(60)
+  key?: string;
+
+  /**
+   * `globals.css` içindeki `[data-genre="…"]` anahtarı — **renk değeri değil.**
+   * Bilinen listeye karşı servis katmanında doğrulanıyor.
+   */
+  @IsOptional()
+  @IsString()
+  @MaxLength(40)
+  accentKey?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(40)
+  parentId?: string;
+}
+
+/** Act'in türlerinin SON HÂLİ — ekle/çıkar değil, tam liste. */
+export class SetActGenresDto {
+  @IsArray()
+  @IsString({ each: true })
+  @MaxLength(40, { each: true })
+  genreIds!: string[];
+}
+
+/**
+ * Act künyesinin küratör alanları.
+ *
+ * ⚠️ Sync'in yazdığı alanlar (`name`, `image`, `spotifyId`, `externalData`)
+ * BURADA YOK: bir sonraki tazelemede üzerine yazılırlar ve küratör
+ * "değişikliğim kayboldu" derdi.
+ */
+export class UpdateActDto {
+  @IsOptional()
+  @IsIn(['UNCLASSIFIED', 'BAND', 'SOLO_PROJECT', 'DUO', 'GROUP', 'ORCHESTRA'])
+  actKind?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  sortName?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(4000)
+  bio?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1850)
+  @Max(2200)
+  formedYear?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1850)
+  @Max(2200)
+  disbandedYear?: number;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  originCity?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  originCountry?: string;
+
+  /**
+   * Yalnızca kendi sunucumuzdaki yol (`/uploads/…`). Dış adres kabul edilirse
+   * CSP `img-src` onu engeller ve görsel sessizce çizilmez.
+   */
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  bannerImage?: string;
 }

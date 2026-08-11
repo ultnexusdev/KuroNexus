@@ -27,6 +27,32 @@ import { PrismaService } from '../prisma/prisma.service';
  * Ayrıca Spotify'ın KENDİ editoryal/algoritmik listeleri (Discover Weekly,
  * Today's Top Hits) de kapalı — yalnızca kullanıcının kendi listeleri okunur.
  *
+ * ══════════════════════════════════════════════════════════════════════════
+ * ⚠️ BU UYGULAMANIN GÖRDÜĞÜ SANATÇI NESNESİ SADELEŞTİRİLMİŞ — ÖLÇÜLDÜ
+ * (11 Ağustos 2026, canlı `ExternalCache` kaydından `jsonb_object_keys` ile)
+ *
+ *   GELEN:  external_urls, href, id, images, name, type, uri
+ *   GELMEYEN: genres, popularity, followers
+ *
+ * Yani `GET /artists/{id}` belgelerdeki "tam" nesneyi DEĞİL, iç içe
+ * bağlamlarda dönen sade nesneyi veriyor (Kasım 2024 kısıtlamalarının
+ * parçası). Sonuçları:
+ *
+ *  1. **Tür taksonomisi Spotify'dan HİÇ gelmiyor.** Planın 6. bölümü bu riski
+ *     öngörmüş ve taksonomiyi küratöre bırakmıştı — karar doğrulandı.
+ *     `linkGenres` boş dizi alıyor, `MusicGenre` yalnızca küratör eliyle
+ *     doluyor.
+ *  2. **`popularity` ve `followers` HER ZAMAN null.** Sütunlar şemada
+ *     duruyor (gelecekte MusicBrainz/Discogs doldurabilir) ama hiçbir
+ *     sıralama, süzgeç ya da gösterim onlara DAYANMAMALI. Dayanan üç yer
+ *     11 Ağustos'ta düzeltildi (bkz. `music.service.ts`, sıralama ölçüsü
+ *     artık albüm sayısı).
+ *
+ * Yeni bir alana güvenmeden önce aynı ölçümü yapın:
+ *   SELECT string_agg(k, ', ') FROM "ExternalCache",
+ *     jsonb_object_keys(payload::jsonb) k WHERE "cacheKey" = 'spotify:artist:…';
+ * ══════════════════════════════════════════════════════════════════════════
+ *
  * ── HER YANIT CACHE'LENİR (kural 4/14) ────────────────────────────────────
  * Sayfalar bu servisi HİÇ çağırmaz; onlar veritabanındaki senkronize kopyadan
  * servis edilir (`music.service.ts`). Bu servis yalnızca senkronizasyon ve

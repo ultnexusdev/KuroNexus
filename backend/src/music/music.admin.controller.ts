@@ -16,6 +16,7 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import type { AuthenticatedUser } from '../common/types/authenticated-user';
 import { ListeningService } from './listening.service';
+import { MusicCuratorService } from './music-curator.service';
 import { MusicRolesService } from './music-roles.service';
 import { MusicSyncService } from './music-sync.service';
 import { SpotifyService } from './spotify.service';
@@ -40,6 +41,7 @@ export class MusicAdminController {
     private readonly spotify: SpotifyService,
     private readonly listening: ListeningService,
     private readonly roles: MusicRolesService,
+    private readonly curator: MusicCuratorService,
   ) {}
 
   /** Panelin "Spotify bağlı mı" göstergesi. Anahtar DEĞERİ dönmez. */
@@ -76,7 +78,7 @@ export class MusicAdminController {
   /** Onay bekleyen türler — ':id' kalıbından önce. */
   @Get('genres/pending')
   pendingGenres() {
-    return this.sync.pendingGenres();
+    return this.curator.pendingGenres();
   }
 
   /**
@@ -93,6 +95,17 @@ export class MusicAdminController {
   @Post('acts/:spotifyId/refresh')
   refreshAct(@Param('spotifyId') spotifyId: string) {
     return this.sync.syncArtist(extractSpotifyId(spotifyId, 'artist'));
+  }
+
+  /**
+   * MusicBrainz ile zenginleştirme: tür, grup/solo, kuruluş yılı, köken.
+   * Spotify bunları vermiyor (11 Ağustos 2026 ölçümü).
+   * ⚠️ Yalnızca BOŞ alanları doldurur; küratörün yazdığına dokunmaz.
+   * ⚠️ MusicBrainz saniyede bir istek kabul ediyor — üç istek, ~3 sn.
+   */
+  @Post('acts/:id/enrich')
+  enrichAct(@Param('id') id: string) {
+    return this.sync.enrichFromMusicBrainz(id);
   }
 
   @Post('albums/:spotifyId/refresh')
@@ -130,13 +143,13 @@ export class MusicAdminController {
    */
   @Patch('genres/:id')
   updateGenre(@Param('id') id: string, @Body() dto: UpdateGenreDto) {
-    return this.sync.updateGenre(id, dto);
+    return this.curator.updateGenre(id, dto);
   }
 
   /** Türü reddeder (yumuşak: bağları kalkar, kayıt onaysız kalır). */
   @Delete('genres/:id')
   rejectGenre(@Param('id') id: string) {
-    return this.sync.updateGenre(id, { isApproved: false });
+    return this.curator.updateGenre(id, { isApproved: false });
   }
 
   /* ── Dinleme kaydı ───────────────────────────────────────────────────── */

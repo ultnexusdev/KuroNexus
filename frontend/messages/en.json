@@ -1597,7 +1597,7 @@
       "hint": "each name opens its own page",
       "plays": "{count} plays",
       "count": "{count} artists",
-      "unmeasured": "by popularity",
+      "unmeasured": "by album count",
       "measured": "by play count",
       "empty": "No artists in the archive yet."
     },

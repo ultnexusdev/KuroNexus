@@ -1597,7 +1597,7 @@
       "hint": "her isim kendi sayfasını açar",
       "plays": "{count} dinleme",
       "count": "{count} sanatçı",
-      "unmeasured": "popülerliğe göre",
+      "unmeasured": "albüm sayısına göre",
       "measured": "dinlemeye göre",
       "empty": "Arşivde henüz sanatçı yok."
     },

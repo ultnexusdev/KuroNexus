@@ -162,7 +162,26 @@
 > `components/kadim/*` — evren sayfasının görsel dili, `page.tsx:81` o değeri
 > elle yazıyor. Derisiz rota bu projede yaşanmış hata.
 >
-> **FAZ 6 — KADİM KAPISININ KALDIRILMASI: KOD CANLIDA, BETİK BEKLİYOR.**
+> ✅ **FAZ 6 BİTTİ — 11 Ağustos 2026 akşamı.** Kapı duvarı canlıda:
+> `01 FİLM · 02 DİZİ · 03 SPOR · 04 ANİME · 05 Kitap · 06 MÜZİK · 07 𐱅 Temürkan`
+> SQL koştu: kitap kategorisi açıldı, `temurkan-efsaneleri` kategorisiz kaldı,
+> `zaman-carki` kitaba geçti, **6 boş evren** yumuşak silindi (üretimde hiçbirinde
+> taslak yoktu), `kadim-dunyalar` kategorisi kapandı. Doğrulandı: silinen
+> evrenler 301, duranlar 200, müzik rotaları 200, sitemap'te ölü adres 0.
+>
+> ⚠️ **KALAN KUYRUK — SİTE METİNLERİ HÂLÂ KADİM DÜNYALAR'DAN BAHSEDİYOR.**
+> Kapı ve linkler temiz ama *kopya* temiz değil; şu anahtarlar artık yanlış
+> (salonu tanıtıyorlar, müzikten hiç söz etmiyorlar):
+>   `home.intro`        "Kadim dünyalar, fandom wikileri, anime ve film arşivi…"
+>   `home.tagline`      "Gölgede kalmış kadim bilgilerin arşivi"
+>   `footer.about`      "Kadim dünyalar, fandom wikileri ve derinlemesine…"
+>   `stories.wingAncient` "Kadim Dünyalar" — evren sayfalarının kanat etiketi
+>   kitap okuma notları açıklaması "Kadim Dünyalar'daki evrenlere bağlanabilecek"
+> İnceleme §3.4'teki "iç linkleri tara" maddesi linkleri kapsıyordu, metinleri
+> kapsamıyordu. Küratör kararı gerektiren bir iş: bunlar sitenin manşet
+> cümleleri, sözcük seçimi kullanıcıya ait.
+>
+> **FAZ 6 — kod tarafının dökümü (tamamlandı):**
 > Kod tarafı bitti: `HALL_ORDER` takası (Müzik 06, kadim çıktı), müzik ölçüsü
 > (`pulse.service.ts`, "X sanatçı"), **14 adet 301** (jokersiz, `/en` ayrı),
 > sitemap müzik yolları, ölü `halls.kadim-dunyalar` anahtarı silindi.

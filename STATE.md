@@ -5,63 +5,12 @@
 
 ## Mevcut Aşama
 
-> **📌 11 AĞUSTOS 2026 — MÜZİK SALONU (Salon 06): FAZ 1 KODLANDI.**
+> **📌 10 AĞUSTOS 2026 — MÜZİK SALONU: MİMARİ İNCELEME BİTTİ, KOD YAZILMADI.**
 >
 > Kadim Dünyalar kaldırılıp yerine Spotify entegrasyonlu bir **Müzik/Ses Arşivi**
 > salonu geliyor. Plan kullanıcıdan geldi (`docs/kuronexus-muzik-bolumu-tasarim-plani.md`),
 > onun 10. bölümündeki inceleme komutu uygulandı → **`docs/muzik-bolumu-inceleme.md`**
 > (eksikler + nihai entity listesi + faz faz uygulama komutu + göç planı).
->
-> **BUGÜN YAPILAN — ADIM 1-4 (tasarım `claude.ai/design` projesinden, 2a-2d):**
-> - **ADIM 1** Spotify uygulaması açıldı, anahtarlar `backend/.env`'de.
->   ⚠️ Coolify'da `kuronexus-backend` servisine de girilmeli; "available at
->   buildtime" **işaretlenmez** (çalışma anı değişkeni, derlemeye sızmasın).
-> - **ADIM 2** Şema: 15 tablo + 6 enum, migration
->   `20260811152033_add_music_core` (496 satır). **Mevcut hiçbir tabloya
->   dokunulmuyor** — ölçüldü, her `ALTER TABLE` hedefi bir `Music*` tablosu.
->   ⚠️ Migration **hiçbir veritabanına uygulanmadı.** `backend/.env`
->   `DATABASE_URL` CANLIYI gösteriyor (65.108.220.5:5433), bu yüzden
->   `prisma migrate dev` KOŞULMADI; SQL iki şema dosyası karşılaştırılarak
->   veritabanına hiç bağlanmadan üretildi. Canlıya `Dockerfile:76`
->   (`prisma migrate deploy`) ile push anında uygulanacak.
-> - **ADIM 3** `backend/src/music/` — 11 dosya, 3.882 satır: Spotify Client
->   Credentials, katalog sync, kapak indirme (`book-cover.service.ts` kardeşi,
->   beyaz liste + SSRF), dinleme içe aktarımı, `@Cron` (Pazartesi 06:00 UTC),
->   5 açık + 13 küratör ucu. `app.module.ts`e kayıtlı, rol sözlüğü `seed.ts`te.
-> - **ADIM 4** Ön yüz — 3.660 satır: `[data-category="muzik"]` derisi + dört
->   tür odası accent'i, `lib/music/routes.ts` tek adres kaynağı, 5 rota
->   (`/muzik`, `/muzik/tur`, `/muzik/tur/[genreSlug]`, `/muzik/[actSlug]`,
->   `/muzik/dinleme`), 3 paylaşılan bileşen, `error.tsx` + `loading.tsx`,
->   103 çeviri anahtarı × 2 dil.
->
-> ✅ **YENİ FONT EKLENMEDİ.** Tasarım beş font istiyordu; beşinin de karşılığı
-> evde çıktı (Cinzel, Bebas Neue, Cormorant self-host; mono sistem yığını;
-> "Instrument Sans" tasarım tuvalinin kendi fontu, mockup gövdeleri `system-ui`).
->
-> 🔴 **CSP: `frame-src`'ye `https://open.spotify.com` eklendi.** Eksikliği
-> **sessiz** bir arızaydı — CSP beyaz liste olduğu için gömü hiç çizilmez,
-> sayfa çökmez, ihlal yalnızca konsola düşer. Dört ekranın dördünde de çalar var.
->
-> ⚠️ **HİÇBİR ŞEY CANLI VERİYLE SINANMADI.** Derleme temiz (`tsc`, `eslint`,
-> `next build`) ama veritabanı bağlantısı üretime bakıyor ve migration
-> uygulanmadı; yani hiçbir uç gerçekten çalıştırılmadı. Sınama ADIM 5'te.
->
-> ⚠️ **SALON KAPISI HENÜZ DUVARDA YOK.** `/muzik` adresi çalışıyor ama ana
-> sayfada kapısı görünmüyor: o `HALL_ORDER`'daki kadim slotunun boşalmasına
-> bağlı (**Faz 6**). Deri, `--door-muzik-a/b` ve `DoorWall` eşlemesi hazır.
->
-> **TASARIMDAN BİLİNÇLİ AYRILMALAR** (hepsi "elimde olmayan veriyi uydurmama"
-> gerekçeli, kodda yorumlu): "Salon 07"→06; 2a alt şeridi "şu an çalan" değil
-> **en son dinlenen** (canlı çalma Faz 5, eşitleyici animasyonu yalan söylerdi);
-> 2c "oda payı %34" yerine parça sayısı; 2d "yeni keşif %23" yerine toplam
-> dinleme; 2b'de üç sıralama düğmesi yerine aktif ölçüyü yazan tek rozet
-> (çalışmayan düğme gösterilmedi). Her ekranda **ölçüm rozeti** var: dinleme
-> kaydı yokken listeler popülerliğe göre sıralanıyor ve rozet bunu söylüyor.
->
-> ⚠️ **KULLANICIDAN BEKLEYEN:** Spotify hesap ayarları → Gizlilik →
-> **"Extended streaming history"** talebi (birkaç gün sürüyor, e-postayla
-> geliyor). 2d'nin bütün sayıları o dosyaya bağlı — Spotify Web API'sinde
-> çalma sayısı ucu YOK.
 >
 > ⚠️ **Çelişkide inceleme dosyası kazanır.** Plan `ultnexus`tan gelen varsayımlar
 > taşıyor; üçü bu projede geçersiz:
@@ -87,7 +36,7 @@
 > `temurkan-efsaneleri` 1 bölüm + 4 wiki, `zaman-carki` 2 wiki, kalan altısı
 > sıfır/sıfır. Yani planın Bölüm 8'indeki ciddi SEO işi **14 adet 301**'e indi.
 >
-> **Kullanıcı kararları (11 Ağustos):**
+> **Kullanıcı kararları (10 Ağustos):**
 > - **Salon 06 = Müzik** (Kadim Dünyalar'ın yeri), **Salon 07 = Temürkan.**
 >   Temürkan'a yeni salon açılMAYACAK: mühürlü kapısı `app/[locale]/page.tsx:135-150`
 >   içinde kategori sisteminden bağımsız ekleniyor, kendiliğinden 07'de kalıyor.
@@ -105,20 +54,19 @@
 > `components/kadim/*` — evren sayfasının görsel dili, `page.tsx:81` o değeri
 > elle yazıyor. Derisiz rota bu projede yaşanmış hata.
 >
-> **SIRADAKİ İŞ: ADIM 5 — canlı sınama.** Coolify'a Spotify anahtarları
-> girilip push edilecek, sonra bir sanatçı eklenip (öneri: Linkin Park +
-> Dead by Sunrise + Hans Zimmer — solo/grup ayrımını, `MusicMembership`'i ve
-> çoklu-act'li kişiyi tek turda sınıyor) sync gerçek veriyle doğrulanacak.
-> İlk çağrı: `POST /admin/music/roles/seed` (rol sözlüğü), sonra
-> `POST /admin/music/acts` ile sanatçı.
+> **YARIN NEREDEN DEVAM: FAZ 1 — çekirdek katalog + sync altyapısı.**
+> Uygulama komutu incelemenin 4. bölümünde, adım adım.
+> ⚠️ **Kullanıcıdan bekleyen:** Spotify uygulaması açıp `SPOTIFY_CLIENT_ID` /
+> `SPOTIFY_CLIENT_SECRET` üretmek (Client Credentials — kullanıcı girişi yok).
+> Şema yazımı bunu beklemeden başlayabilir.
+> **Faz 2 öncesi açık iki soru** (inceleme §5.2): İngilizce not zorunlu mu,
+> Faz 1 hangi sanatçılarla sınanacak (öneri: Linkin Park + Dead by Sunrise +
+> Hans Zimmer — solo/grup ayrımını, Membership'i ve çoklu-act'li kişiyi tek
+> turda sınıyor).
 >
-> **Sonra Faz 6** (Kadim kapısının kaldırılması, 14 adet 301 + veri göçü) →
-> `/muzik` ana sayfadan erişilir olur. Plan incelemenin §3'ünde.
-> ⚠️ Faz 6 ön koşulu: silinecek altı evrende **yayımlanmamış taslak** var mı,
-> yönetici oturumuyla kontrol edilecek.
->
-> **Faz 2 öncesi açık soru** (inceleme §5.2): İngilizce not zorunlu mu?
-> (Öneri: hayır — TR yazılır, EN boş kalabilir, gösterimde dolu olana düşülür.)
+> **Commit edilmedi:** `docs/kuronexus-muzik-bolumu-tasarim-plani.md` (repoya
+> kopyalandı) ve `docs/muzik-bolumu-inceleme.md` (yeni) çalışma ağacında duruyor.
+> Kod dosyası hiç değişmedi.
 
 > **📌 7 AĞUSTOS 2026 (akşam) — GÜN KAPANDI. Hepsi `main`'de ve push edildi.**
 >

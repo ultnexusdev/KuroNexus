@@ -1,7 +1,7 @@
 # Müzik Bölümü — Mimari İnceleme (Bölüm 10 komutunun çıktısı)
 
 > Girdi: `docs/kuronexus-muzik-bolumu-tasarim-plani.md`
-> Tarih: 11 Ağustos 2026 · Kod yazılmadı, yalnızca ölçüm ve karar.
+> Tarih: 10 Ağustos 2026 · Kod yazılmadı, yalnızca ölçüm ve karar.
 
 ## 0. Bu inceleme neye dayanıyor
 
@@ -374,51 +374,16 @@ MusicSyncStatus   PENDING | RUNNING | OK | FAILED
 
 **Toplam:** 15 model + 6 enum. Mevcut şemaya hiçbir dokunuş yok — tamamı additive (kural 12).
 
-### 2.6.1 Tasarımdan gelen eklemeler (11 Ağustos 2026)
-
-Kullanıcının `claude.ai/design` projesindeki **2a–2d** ekranları okundu (`Kuronexus müzik sayfası tasarımı`, dosya `Muzik Sayfasi.dc.html`). Tasarım, §2.1–2.6'daki modelin karşılamadığı dört şey istiyor; dördü de Faz 1 migration'ına alındı (migration henüz hiçbir veritabanına uygulanmamıştı, ikinci bir migration açmak yerine aynısı yeniden üretildi):
-
-```
-MusicPlaylist            2a "Favori Listelerim", 2b "Odanın çalma listesi", 2d
-  slug/name/description, trackCount, durationMs, artwork(+source/fetchedAt),
-  orderIndex, isFavorite, spotifyId, externalData
-  ⚠️ Tür karışım yüzdesi SAKLANMAZ, türetilir: parça→albüm→act→tür zinciri
-     zaten var. Sütuna yazmak, tür onayı değişince yanlış kalacak ikinci bir
-     gerçek üretirdi.
-
-MusicPlaylistTrack       position, addedAt  →  @@id([playlistId, trackId])
-
-MusicPlay                2d'nin TEK kaynağı — dinleme kaydı
-  userId, playedAt, msPlayed, spotifyTrackUri,
-  trackName/artistName/albumName (düz metin), source, trackId?
-  @@unique([userId, playedAt, spotifyTrackUri])
-
-MusicalAct.bannerImage   2c'nin 2000×640 üst bandı (kare `image`den ayrı)
-MusicGenre.accentKey     2b'nin oda rengi — TOKEN ANAHTARI, hex değil
-MusicPlaySource enum     IMPORT | RECENTLY_PLAYED
-```
-
-**🔴 Neden `MusicPlay` zorunlu:** Spotify Web API'sinde **çalma sayısı ucu yok.** Tasarımdaki "1.842 dinleme", "61s 24d dinleme süresi", "en yoğun gün: Cuma", "%23 yeni keşif" hiçbir istekle gelmiyor. Gelen iki şey de yetersiz: `/me/top/*` sıralama verir sayı vermez, `/me/player/recently-played` yalnızca son 50 kaydı verir ve geçmişi yoktur. Sayılar ancak kendi biriktirdiğimiz kayıttan çıkar.
-
-**Kullanıcı kararları (11 Ağustos):**
-- **Dinleme verisi:** Spotify hesap ayarlarından istenecek **"Extended streaming history"** dosyaları bir kez içe aktarılır (tüm zamanlar → 2d ilk günden gerçek), sonrası Faz 5'te `recently-played` yoklamasıyla güncel kalır.
-- **Çalma listeleri herkese açık** → Client Credentials ile Faz 1'de okunabiliyor, kullanıcı girişi gerekmiyor. ⚠️ Spotify'ın kendi editoryal/algoritmik listeleri (Discover Weekly vb.) yeni uygulamalara kapalı; yalnızca kullanıcının kendi listeleri.
-- **Fontlar:** Cinzel + Bebas Neue + JetBrains Mono `next/font` ile self-host edilir; tasarımdaki Instrument Sans → mevcut sans, Cormorant → zaten kurulu Cormorant Garamond'a eşlenir. Dış font kaynağı **eklenmez** (CSP `font-src 'self' data:`; bu proje font `@import`'unu ölçerek kaldırmıştı).
-
-**Tasarımın düzeltilecek iki yeri:**
-1. Tasarım "**SALON 07 · MÜZİK**" yazıyor — salon numarası kararından (§3.2.1) önce çizilmiş. **06** olacak; 07 Temürkan.
-2. Renkler sabit hex (`#0d1412`, `#5f9c8a`, `#b89968`) ve tek görünüşe bağlı. Kural 16 bileşende hex yasaklıyor → `[data-category="muzik"]` deri bloğunda **eksiksiz token setiyle** kurulur ve iki temanın (mor/lacivert) altında da çalışır. Tür odası renkleri `[data-genre="rock|pop|rnb|electronic"]` olarak, `MusicGenre.accentKey` üstünden bağlanır.
-
 ### 2.7 Sync'in yazma izni — tek cümlelik değişmez kural
 
-> **Katalog sync'i** (act/album/track/playlist tazeleme) **yalnızca** şu tablolara yazar: `MusicPerson`, `MusicalAct`, `MusicAlbum`, `MusicTrack`, `MusicTrackCredit`, `MusicGenre` (`isApproved: false` ile), `MusicGenreOnAct`, `MusicPlaylist`, `MusicPlaylistTrack`, `MusicExternalRef`, `MusicSyncState`.
-> `MusicRating`, `MusicNote`, `MusicFavorite`, `MusicPersonalEra`, `MusicEra`, `MusicRole`, **`MusicPlay`** tablolarına **hiçbir kod yolundan** yazmaz. `MusicPlay`e yalnızca dinleme içe aktarımı ve `recently-played` yoklaması yazar — o da katalog sync'inden ayrı bir servis. Bu, `music-sync.service.ts` başındaki yorumda ve bir birim testinde (`expect(prisma.musicRating.update).not.toHaveBeenCalled()`, `expect(prisma.musicPlay.deleteMany).not.toHaveBeenCalled()`) sabitlenir.
+> Sync servisi **yalnızca** şu tablolara yazar: `MusicPerson`, `MusicalAct`, `MusicAlbum`, `MusicTrack`, `MusicTrackCredit`, `MusicGenre` (`isApproved: false` ile), `MusicGenreOnAct`, `MusicExternalRef`, `MusicSyncState`.
+> `MusicRating`, `MusicNote`, `MusicFavorite`, `MusicPersonalEra`, `MusicEra`, `MusicRole` tablolarına **hiçbir kod yolundan** yazmaz. Bu, `music-sync.service.ts` başındaki yorumda ve bir birim testinde (`expect(prisma.musicRating.update).not.toHaveBeenCalled()`) sabitlenir.
 
 ---
 
 ## 3. Kadim Dünyalar'ın kaldırılması — URL / redirect / SEO göç planı
 
-### 3.0 Faz 0 — canlı ölçüm sonucu (11 Ağustos 2026)
+### 3.0 Faz 0 — canlı ölçüm sonucu (10 Ağustos 2026)
 
 Kaynak: `https://api.kuronexus.com` — `GET /universe-categories`, `GET /universes`, `GET /universes/:slug`, `GET /universes/:slug/wiki`.
 
@@ -463,7 +428,7 @@ Plan onu "çok-kitaplı evren galerisi (Dune, Wheel of Time)" diye tarif ediyor 
 
 ### 3.2 Kararlaştırılan göç: kapı ölür, adresler yaşar
 
-Salon kapısı kaldırılır. Faz 0 ölçümünden (§3.0) sonra evrenler **üç gruba** ayrıldı — karar §5.3'te verildi (11 Ağustos 2026):
+Salon kapısı kaldırılır. Faz 0 ölçümünden (§3.0) sonra evrenler **üç gruba** ayrıldı — karar §5.3'te verildi (10 Ağustos 2026):
 
 | Evren | İçerik | Ne olur | Yönlendirme hedefi |
 | --- | --- | --- | --- |
@@ -476,7 +441,7 @@ Salon kapısı kaldırılır. Faz 0 ölçümünden (§3.0) sonra evrenler **üç
 | `kral-katili-guncesi` | boş | **yumuşak silinir** | `/dark-stories/category/kitap` |
 | `yuzuklerin-efendisi` | boş | **yumuşak silinir** | `/dark-stories/category/kitap` |
 
-Üç seri sayfası hedefi **canlıda doğrulandı** (11 Ağustos, `curl -o /dev/null -w %{http_code}`): `dune-serisi`, `malazan-yitikler`, `firtinaisigi-arsivi` → 200. Serisi olmayan üç evren için hedef Kitap kapısı; ilgisiz bir sayfaya 301 atmak Google'da soft-404 sayıldığı için tür sayfası ya da müzik salonu hedef **yapılmaz**.
+Üç seri sayfası hedefi **canlıda doğrulandı** (10 Ağustos, `curl -o /dev/null -w %{http_code}`): `dune-serisi`, `malazan-yitikler`, `firtinaisigi-arsivi` → 200. Serisi olmayan üç evren için hedef Kitap kapısı; ilgisiz bir sayfaya 301 atmak Google'da soft-404 sayıldığı için tür sayfası ya da müzik salonu hedef **yapılmaz**.
 
 **Ölen URL ve yönlendirme sayısı:**
 
@@ -494,7 +459,7 @@ Veri tarafı: `kitap` şu an bir **kod salonu** — Faz 0 ölçümü doğruladı
 ⚠️ **Silme öncesi zorunlu adım:** altı evrende **yayımlanmamış taslak** olup olmadığı yönetici oturumuyla kontrol edilir. Faz 0 ölçümü kamuya açık uçtan yapıldı ve o uç `isPublished: true` süzüyor (`universes.service.ts:58-61`) — taslağı olan bir evren silinmez.
 ⚠️ Kural 14: slug'lı bir kayıt yumuşak silinirken slug'a `-deleted-{timestamp}` soneki eklenir. Bu evrenlerin slug'ları yönlendirme hedefi **değil kaynağı** olduğu için sorun yok, ama sonek uygulanmazsa aynı slug ileride yeniden kullanılamaz.
 
-### 3.2.1 Salon numaraları — kullanıcı kararı (11 Ağustos 2026)
+### 3.2.1 Salon numaraları — kullanıcı kararı (10 Ağustos 2026)
 
 Müzik, Kadim Dünyalar'ın **yerini** alır; Temürkan yerinde kalır:
 
@@ -565,7 +530,7 @@ Ayrılmış slug listesi: `RESERVED_ACT_SLUGS = { kisi, tur, albumler, parcalar,
 
 Mevcut Film/Dizi/Anime/Kitap/Spor sistemlerine **hiç dokunmadan**, yalnızca ekleyerek çalış (kural 12: additive). Her fazın sonunda dur, çıktıyı bildir, onay bekle.
 
-**Faz 0 — Ölçüm** ✅ **TAMAMLANDI** (11 Ağustos 2026, §3.0). Sonuç: 5 kategori, 8 kadim evreni, bunların 6'sı tamamen boş. Kararlar §5.1 ve §5.3'te. Tekrar çalıştırılmasına gerek yok — yalnızca Faz 6 öncesi taslak kontrolü (yönetici oturumu) ve seri hedeflerinin gün-içi doğrulaması kaldı.
+**Faz 0 — Ölçüm** ✅ **TAMAMLANDI** (10 Ağustos 2026, §3.0). Sonuç: 5 kategori, 8 kadim evreni, bunların 6'sı tamamen boş. Kararlar §5.1 ve §5.3'te. Tekrar çalıştırılmasına gerek yok — yalnızca Faz 6 öncesi taslak kontrolü (yönetici oturumu) ve seri hedeflerinin gün-içi doğrulaması kaldı.
 
 **Faz 1 — Çekirdek katalog + sync altyapısı**
 1. `schema.prisma`'ya §2.1, §2.4 ve §2.6'daki modeller/enum'lar eklenir. `MusicRole` adı zorunlu — `Role` enum'u `schema.prisma:1079`'da mevcut, `model Role` şemayı derletmez. Her FK'ye açık `@@index`, her entity'de `slug @unique` + `isDeleted` + zaman damgaları.
@@ -601,7 +566,7 @@ Mevcut Film/Dizi/Anime/Kitap/Spor sistemlerine **hiç dokunmadan**, yalnızca ek
 
 ## 5. Kararlar
 
-### 5.1 Verilen kararlar (11 Ağustos 2026, kullanıcı)
+### 5.1 Verilen kararlar (10 Ağustos 2026, kullanıcı)
 
 1. ✅ **Salon numaraları:** Müzik, Kadim Dünyalar'ın yerini alır → **Salon 06**. Temürkan Efsaneleri **Salon 07**'de kalır. Bkz. §3.2.1.
 2. ✅ **Temürkan kendi salonu olarak durur** — ölçüldü: zaten öyle. Mühürlü kapısı `page.tsx:135-150`'de kategori sisteminden bağımsız olarak eklendiği için ek iş gerektirmiyor; yalnızca `categoryId` `null`'a çekilir.
@@ -616,7 +581,7 @@ Faz 2 başlamadan cevaplanmalı:
 6. **İngilizce not zorunlu mu?** Önerim: hayır — TR yazılır, EN boş kalabilir, gösterimde dolu olana düşülür, admin panelde "çeviri bekliyor" rozeti görünür.
 7. **Faz 1'e hangi sanatçılarla başlanacak?** Sync'i 3–5 gerçek sanatçıyla (Linkin Park + Dead by Sunrise + Hans Zimmer gibi) doğrulamak, hem solo/grup ayrımını hem `MusicMembership`'i hem çoklu-act'li kişiyi tek turda sınar.
 
-### 5.3 Yeniden karar: 6 boş evren — ✅ YUMUŞAK SİLME (11 Ağustos 2026)
+### 5.3 Yeniden karar: 6 boş evren — ✅ YUMUŞAK SİLME (10 Ağustos 2026)
 
 Faz 0 ölçümü (§3.0): `dune`, `malazan-yitikler`, `firtinaisigi-arsivi`, `buz-ve-atesin-sarkisi`, `kral-katili-guncesi`, `yuzuklerin-efendisi` → **sıfır bölüm, sıfır wiki girdisi**. Bugün kapı duvarında, `NexusHub` evren rafında ve her sayfanın footer'ındaki evren sütununda görünüyorlar; tıklayan boş bir sayfa buluyor.
 

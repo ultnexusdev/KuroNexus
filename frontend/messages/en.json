@@ -41,7 +41,6 @@
       "spor": "Sports",
       "anime": "Anime",
       "kitap": "Books",
-      "muzik": "Music",
       "kadim-dunyalar": "Ancient Worlds"
     },
     "unit": {
@@ -50,9 +49,7 @@
       "seri": "{count} series",
       "kitap": "{count} books",
       "evren": "{count} worlds",
-      "bolum": "{count} chapters",
-      "sanatci": "{count} artists",
-      "album": "{count} albums"
+      "bolum": "{count} chapters"
     },
     "additions": {
       "title": "Recently Added",
@@ -1569,137 +1566,5 @@
     "quotes": "Quotes",
     "gallery": "Images",
     "name": "Sport"
-  },
-  "music": {
-    "name": "Music",
-    "hall": "Hall",
-    "lede": "This page is a junction: playlists, artists and the listening log open from here. Genres live in separate rooms, but playlists ignore genre — one set can hold both a riff and r&b.",
-    "backToNexus": "Back to Nexus",
-    "lastSync": "Last sync",
-    "neverSynced": "not synced yet",
-    "openInSpotify": "Open in Spotify",
-    "embedTitle": "Spotify player",
-    "embedNote": "The embedded player plays a 30-second preview; full tracks with a Premium account.",
-    "counts": {
-      "acts": "Artists",
-      "albums": "Albums",
-      "tracks": "Tracks",
-      "playlists": "Playlists"
-    },
-    "playlists": {
-      "title": "My playlists",
-      "all": "all playlists",
-      "trackCount": "{count} tracks",
-      "empty": "No playlist synced yet.",
-      "mixUnknown": "Genre mix unavailable — the genres of these artists are not approved yet."
-    },
-    "acts": {
-      "title": "My favourite artists",
-      "hint": "each name opens its own page",
-      "plays": "{count} plays",
-      "count": "{count} artists",
-      "unmeasured": "by popularity",
-      "measured": "by play count",
-      "empty": "No artists in the archive yet."
-    },
-    "paths": {
-      "roomsTitle": "Genre rooms",
-      "roomsLede": "Each room carries its own colour and cover grid.",
-      "actsTitle": "Artist pages",
-      "actsLede": "Discography, my most played tracks and my own note.",
-      "listeningTitle": "Listening log",
-      "listeningLede": "Recently played, room shares and period comparison.",
-      "step": "Path {index}"
-    },
-    "room": {
-      "label": "Room",
-      "albums": "Albums",
-      "favoriteActs": "Favourite artists",
-      "recent": "Recently played from this room",
-      "playlist": "Room playlist",
-      "sort": {
-        "plays": "by plays",
-        "year": "by year",
-        "alpha": "alphabetical"
-      },
-      "subgenres": "Subgenres",
-      "empty": "No artists in this room yet."
-    },
-    "act": {
-      "favorite": "Favourite artist",
-      "myPlays": "My plays",
-      "roomShare": "Room share",
-      "topTracks": "My most played tracks",
-      "discography": "Discography",
-      "singles": "Singles and EPs",
-      "roomMates": "From the same room",
-      "members": "Line-up",
-      "eras": "Eras",
-      "player": "Embedded player",
-      "formedIn": "{year} —",
-      "activeBetween": "{from} — {to}",
-      "noAlbums": "Discography not synced yet."
-    },
-    "listening": {
-      "title": "Listening log",
-      "range": {
-        "FOUR_WEEKS": "4 weeks",
-        "SIX_MONTHS": "6 months",
-        "ALL_TIME": "all time"
-      },
-      "totalTime": "Listening time",
-      "distinctArtists": "Distinct artists",
-      "busiestDay": "Busiest day",
-      "totalPlays": "Plays",
-      "topActs": "Most played artists",
-      "roomShare": "Room shares",
-      "playlists": "My playlists",
-      "recent": "Recently played",
-      "empty": "The listening log has not been imported yet.",
-      "emptyHint": "This page fills up once \"Extended streaming history\" is requested from Spotify account settings and imported from the curator panel.",
-      "days": {
-        "0": "Sunday",
-        "1": "Monday",
-        "2": "Tuesday",
-        "3": "Wednesday",
-        "4": "Thursday",
-        "5": "Friday",
-        "6": "Saturday"
-      }
-    },
-    "roles": {
-      "primary_artist": "Artist",
-      "featured_artist": "Featured artist",
-      "vocalist": "Vocals",
-      "guitarist": "Guitar",
-      "bassist": "Bass",
-      "drummer": "Drums",
-      "keyboardist": "Keyboards",
-      "dj": "DJ",
-      "turntablist": "Turntables",
-      "composer": "Composer",
-      "songwriter": "Songwriter",
-      "producer": "Producer",
-      "arranger": "Arranger",
-      "conductor": "Conductor",
-      "mixing_engineer": "Mixing",
-      "mastering_engineer": "Mastering"
-    },
-    "actKind": {
-      "UNCLASSIFIED": "Unclassified",
-      "BAND": "Band",
-      "SOLO_PROJECT": "Solo project",
-      "DUO": "Duo",
-      "GROUP": "Group",
-      "ORCHESTRA": "Orchestra"
-    },
-    "albumType": {
-      "ALBUM": "Album",
-      "SINGLE": "Single",
-      "EP": "EP",
-      "COMPILATION": "Compilation",
-      "LIVE": "Live",
-      "SOUNDTRACK": "Soundtrack"
-    }
   }
 }

@@ -70,19 +70,7 @@ const CSP_DIRECTIVES = [
   // Tüm fontlar next/font ile self-host — dış font kaynağı yok
   "font-src 'self' data:",
   `connect-src 'self' ${apiUrl.origin}`,
-  /**
-   * Gömü kaynakları.
-   *
-   * ⚠️ `open.spotify.com` 11 Ağustos 2026'da eklendi (Salon 06 · Müzik).
-   * Eksikliği **sessiz** bir arızaydı: CSP bir beyaz liste olduğu için
-   * listede olmayan gömü hiç çizilmez — sayfa çökmez, iframe boş kalır,
-   * ihlal yalnızca konsola düşer. Tasarımın dört ekranının (2a/2b/2c/2d)
-   * dördünde de Spotify çaları var.
-   *
-   * Gömü player Web API'den AYRI bir mekanizma; Kasım 2024'teki uç
-   * kapanmalarından etkilenmiyor ve OAuth istemiyor.
-   */
-  "frame-src https://www.youtube-nocookie.com https://open.spotify.com",
+  "frame-src https://www.youtube-nocookie.com",
   "worker-src 'self' blob:",
   "manifest-src 'self'",
   // Yanlışlıkla http:// kalmış bir alt kaynak varsa tarayıcı https'e yükseltsin

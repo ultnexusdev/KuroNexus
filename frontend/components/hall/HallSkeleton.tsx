@@ -16,14 +16,7 @@ export function HallSkeleton({
   tiles = 12,
   stats = 4,
 }: {
-  category?:
-    | "film"
-    | "dizi"
-    | "anime"
-    | "kitap"
-    | "spor"
-    | "muzik"
-    | "kadim-dunyalar";
+  category?: "film" | "dizi" | "anime" | "kitap" | "spor" | "kadim-dunyalar";
   /** Izgaradaki poster yer tutucusu sayısı */
   tiles?: number;
   /** Künye şeridindeki kutu sayısı; 0 verilirse şerit hiç çizilmez */

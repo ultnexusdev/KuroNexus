@@ -255,6 +255,13 @@ export class SpotifyService {
       CACHE_TTL_MS,
     );
     if (!payload?.id) {
+      // Sessiz fırlatmak, 11 Ağustos'ta hangi dala düşüldüğünü bulmayı
+      // imkânsız hâle getirdi: uç 503 dönüyordu ve logta tek satır yoktu.
+      // Kural: her fırlatma öncesinde ne olduğu yazılır.
+      this.logger.warn(
+        `Spotify sanatçı yanıtı kimliksiz geldi (${spotifyId}); ` +
+          `cache'te bozuk kayıt olabilir — anahtar: spotify:artist:${spotifyId}`,
+      );
       throw new ServiceUnavailableException('MUSIC.SPOTIFY_UNAVAILABLE');
     }
     return mapArtist(payload);
@@ -489,10 +496,7 @@ export class SpotifyService {
     params: Record<string, string>,
   ): Promise<T> {
     const token = await this.getToken();
-    const url = new URL(`${SPOTIFY_API}/${path}`);
-    for (const [key, value] of Object.entries(params)) {
-      url.searchParams.set(key, value);
-    }
+    const url = buildUrl(path, params);
 
     let response: Response;
     try {
@@ -501,7 +505,7 @@ export class SpotifyService {
         signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
       });
     } catch (error) {
-      this.logger.warn(`Spotify isteği başarısız: ${path} — ${String(error)}`);
+      this.logger.warn(`Spotify isteği başarısız: ${url} — ${String(error)}`);
       throw new ServiceUnavailableException('MUSIC.SPOTIFY_UNAVAILABLE');
     }
 
@@ -509,6 +513,10 @@ export class SpotifyService {
       // Jeton beklenmedik şekilde geçersiz: bir sonraki çağrı yenilesin
       this.token = null;
       this.tokenExpiresAt = 0;
+      // Bu dal 11 Ağustos'a kadar SESSİZDİ ve teşhisi imkânsız kılıyordu.
+      this.logger.warn(
+        `Spotify 401 döndü (${path}) — jeton düşürüldü, sonraki çağrı yeniler`,
+      );
       throw new ServiceUnavailableException('MUSIC.SPOTIFY_UNAVAILABLE');
     }
     if (response.status === 429) {
@@ -519,7 +527,19 @@ export class SpotifyService {
       throw new ServiceUnavailableException('MUSIC.SPOTIFY_RATE_LIMITED');
     }
     if (!response.ok) {
-      this.logger.warn(`Spotify ${response.status} döndü: ${path}`);
+      /**
+       * ⚠️ TAM ADRES ve GÖVDE loglanıyor, yalnızca `path` değil.
+       *
+       * 11 Ağustos 2026'da bu satır sadece `path` yazıyordu ve teşhisi
+       * yavaşlattı: log "Spotify 400 döndü: artists/…/albums" diyordu ama
+       * hatanın SORGU DİZESİNDE olduğunu söylemiyordu (bkz. `buildUrl`).
+       * Adres uzun ama içinde gizli bilgi yok — jeton başlıkta gidiyor.
+       */
+      const body = await response.text().catch(() => '');
+      this.logger.warn(
+        `Spotify ${response.status} döndü: ${url}` +
+          (body ? ` — gövde: ${body.slice(0, 300)}` : ''),
+      );
       throw new ServiceUnavailableException('MUSIC.SPOTIFY_UNAVAILABLE');
     }
 
@@ -678,4 +698,46 @@ function decodeEntities(value: string | undefined): string {
     .replace(/&#39;/g, "'")
     .replace(/&amp;/g, '&')
     .trim();
+}
+
+/**
+ * Spotify istek adresini kurar.
+ *
+ * ══════════════════════════════════════════════════════════════════════════
+ * ⚠️ NEDEN `URLSearchParams` KULLANILMIYOR — ÖLÇÜLDÜ (11 Ağustos 2026)
+ *
+ * `url.searchParams.set('include_groups', 'album,single,compilation')`
+ * virgülleri **`%2C`** olarak kodluyor:
+ *     ?include_groups=album%2Csingle%2Ccompilation&limit=50&offset=0
+ * ve Spotify bu isteğe **400 Bad Request** dönüyor. Aynı adres düz virgülle
+ * çalışıyor:
+ *     ?include_groups=album,single,compilation&limit=50&offset=0
+ *
+ * Belirti sinsiydi: sanatçı künyesi (parametresiz istek) 200 dönüyor,
+ * diskografi 400 dönüyordu — yani "Spotify çalışıyor" gibi görünürken sync
+ * her sanatçıda patlıyordu. Canlıda `MUSIC.SPOTIFY_UNAVAILABLE` olarak
+ * görünüyordu; sebep ancak `Logs`ta `Spotify 400 döndü: artists/…/albums`
+ * satırı okununca daraldı.
+ *
+ * Virgül sorgu dizesinde ayrılmış (reserved) bir karakter DEĞİL — RFC 3986'ya
+ * göre `sub-delims` içinde ve kodlanmadan kullanılabilir. Yani burada kural
+ * dışına çıkılmıyor; `URLSearchParams`ın fazla kodlaması düzeltiliyor.
+ *
+ * Diğer her şey normal kodlanıyor: boşluk `%20`, `&` ve `=` kaçırılıyor.
+ * Bu, arama sorgularının ("linkin park") doğru gitmesi için şart.
+ * ══════════════════════════════════════════════════════════════════════════
+ */
+export function buildUrl(path: string, params: Record<string, string>): string {
+  const base = `${SPOTIFY_API}/${path}`;
+  const entries = Object.entries(params);
+  if (entries.length === 0) {
+    return base;
+  }
+  const query = entries
+    .map(
+      ([key, value]) =>
+        `${encodeURIComponent(key)}=${encodeURIComponent(value).replace(/%2C/g, ',')}`,
+    )
+    .join('&');
+  return `${base}?${query}`;
 }

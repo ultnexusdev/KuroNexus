@@ -991,3 +991,216 @@ export function upsertReadingGoal(input: {
     body: JSON.stringify(input),
   });
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   SALON 06 · MÜZİK — küratör uçları
+
+   Hepsi `@Roles('ADMIN')` arkasında. Kimlik elle eklenmiyor: token HttpOnly
+   çerezde ve `apiFetch` `credentials: "include"` gönderiyor.
+
+   ⚠️ Bu uçlar Spotify'a ÇIKAR (sayfa okuma yolları çıkmaz). O yüzden
+   çağıranın beklemeye hazır olması gerekiyor: bir sanatçının diskografisini
+   senkronize etmek albüm başına bir istek + kapak indirmesi demek, gerçek
+   sanatçılarda 30 saniyeyi aşabiliyor.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+export interface MusicAdminStatus {
+  spotifyConfigured: boolean;
+  roleVocabulary: number;
+  syncState: Array<{
+    entityKind: string;
+    entityId: string;
+    status: string;
+    attempts: number;
+    lastError: string | null;
+    lastRunAt: string | null;
+    nextRunAt: string | null;
+  }>;
+}
+
+export interface SpotifyArtistResult {
+  spotifyId: string;
+  name: string;
+  genres: string[];
+  popularity: number | null;
+  followers: number | null;
+  images: Array<{ url: string; width: number | null; height: number | null }>;
+  externalUrl: string | null;
+}
+
+export interface ArtistSyncResult {
+  actId: string;
+  slug: string;
+  name: string;
+  albumsCreated: number;
+  albumsUpdated: number;
+  tracks: number;
+  genresPending: number;
+  artworkDownloaded: number;
+  artworkFailed: number;
+}
+
+export interface PendingGenre {
+  id: string;
+  slug: string;
+  name: string;
+  key: string | null;
+  accentKey: string | null;
+  _count: { acts: number };
+}
+
+/** Panelin "Spotify bağlı mı" göstergesi. Anahtar DEĞERİ dönmez. */
+export function musicStatus(): Promise<MusicAdminStatus> {
+  return apiFetch<MusicAdminStatus>("/admin/music/status", {
+    cache: "no-store",
+  });
+}
+
+/**
+ * Künye rolü sözlüğünü kurar (16 anahtar). Tekrar çalıştırmak güvenli.
+ * Sözlük kurulmazsa sync parça künyelerini sessizce atlar.
+ */
+export function seedMusicRoles(): Promise<{
+  created: number;
+  existing: number;
+}> {
+  return apiFetch("/admin/music/roles/seed", { method: "POST" });
+}
+
+/** Spotify'da sanatçı arar. Sonuç `ExternalCache`ten de gelebilir. */
+export function searchSpotifyArtists(
+  query: string,
+): Promise<SpotifyArtistResult[]> {
+  return apiFetch<SpotifyArtistResult[]>(
+    `/admin/music/search?q=${encodeURIComponent(query)}`,
+    { cache: "no-store" },
+  );
+}
+
+/**
+ * Sanatçıyı arşive ekler ve diskografisini senkronize eder.
+ * `spotifyId` ham kimlik, `spotify:artist:…` URI'si ya da tarayıcı adresi olabilir.
+ */
+export function addMusicAct(spotifyId: string): Promise<ArtistSyncResult> {
+  return apiFetch<ArtistSyncResult>("/admin/music/acts", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ spotifyId }),
+  });
+}
+
+export function refreshMusicAct(spotifyId: string): Promise<ArtistSyncResult> {
+  return apiFetch<ArtistSyncResult>(
+    `/admin/music/acts/${encodeURIComponent(spotifyId)}/refresh`,
+    { method: "POST" },
+  );
+}
+
+/** Herkese açık çalma listesini senkronize eder (adres yapıştırılabilir). */
+export function addMusicPlaylist(spotifyId: string): Promise<{
+  playlistId: string;
+  name: string;
+  tracksLinked: number;
+  tracksMissing: number;
+}> {
+  return apiFetch("/admin/music/playlists", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ spotifyId }),
+  });
+}
+
+/** Onay bekleyen türler — Spotify'ın `genres` alanı tutarsız, liste dolu olur. */
+export function pendingMusicGenres(): Promise<PendingGenre[]> {
+  return apiFetch<PendingGenre[]>("/admin/music/genres/pending", {
+    cache: "no-store",
+  });
+}
+
+/**
+ * Türü onaylar / adını, i18n anahtarını, oda rengini ayarlar.
+ * ⚠️ `accentKey` bir TOKEN ANAHTARI ("rock", "pop"), renk değeri değil —
+ * backend hex girişini reddeder (kural 16).
+ */
+export function updateMusicGenre(
+  id: string,
+  input: {
+    isApproved?: boolean;
+    accentKey?: string;
+    key?: string;
+    name?: string;
+  },
+): Promise<PendingGenre & { isApproved: boolean }> {
+  return apiFetch(`/admin/music/genres/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+}
+
+export function rejectMusicGenre(id: string): Promise<unknown> {
+  return apiFetch(`/admin/music/genres/${id}`, { method: "DELETE" });
+}
+
+/** Kapağı inmemiş kayıtları toplar. Cron da yapıyor; bu uç sabırsız olan için. */
+export function localizeMusicArtwork(limit = 60): Promise<{
+  albums: number;
+  acts: number;
+  failed: number;
+}> {
+  return apiFetch(`/admin/music/artwork/localize?limit=${limit}`, {
+    method: "POST",
+  });
+}
+
+/** İçe aktarılmış dinlemeleri arşivdeki parçalara yeniden bağlar. */
+export function backfillListening(): Promise<{ linked: number }> {
+  return apiFetch("/admin/music/listening/backfill", { method: "POST" });
+}
+
+/**
+ * Spotify "Extended streaming history" dosyasını içe aktarır.
+ *
+ * Gövde FormData olduğu için `apiFetch` kullanılmıyor; çerez izni elle
+ * veriliyor (yükleme uçlarındaki desen, bkz. `uploadImage`).
+ *
+ * Tekrar tekrar yüklemek güvenli: `@@unique([userId, playedAt,
+ * spotifyTrackUri])` kopyayı engelliyor. Zip içindeki dosyalar tek tek
+ * yüklenir.
+ */
+export async function importListeningHistory(file: File): Promise<{
+  read: number;
+  eligible: number;
+  inserted: number;
+  duplicate: number;
+  skipped: number;
+  matched: number;
+}> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const response = await fetch(apiFetchUrl("/admin/music/listening/import"), {
+    method: "POST",
+    credentials: "include",
+    body: formData,
+  });
+  if (!response.ok) {
+    let messageKey = "API.REQUEST_FAILED";
+    try {
+      const body = (await response.json()) as { message?: string };
+      if (typeof body.message === "string") {
+        messageKey = body.message;
+      }
+    } catch {
+      // gövde JSON değilse varsayılan anahtar
+    }
+    throw new ApiError(response.status, messageKey);
+  }
+  return response.json() as Promise<{
+    read: number;
+    eligible: number;
+    inserted: number;
+    duplicate: number;
+    skipped: number;
+    matched: number;
+  }>;
+}

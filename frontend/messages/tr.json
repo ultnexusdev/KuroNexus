@@ -17,13 +17,13 @@
   "home": {
     "title": "KuroNexus",
     "tagline": "Gölgede kalmış kadim bilgilerin arşivi",
-    "intro": "Kadim dünyalar, fandom wikileri, anime ve film arşivi, derinlemesine karakter analizleri — hepsi tek bir kişisel evrende.",
+    "intro": "İzlediklerim, okuduklarım, dinlediklerim ve yazdıklarım — gölgede kalmış her tutkunun kendi odası.",
     "adminLink": "Yönetim Paneli",
     "eyebrow": "Kişisel Kültür Arşivi",
     "manifestoA": "Gölgede kalan",
     "manifestoB": "her tutkunun",
     "manifestoC": "bir odası var.",
-    "sub": "Sinema, spor, kadim dünyalar — her biri kendi ışığıyla yaşayan salonlar. Kapılardan biri her zaman aralık.",
+    "sub": "Her salon kendi ışığıyla yaşıyor. Kapılardan biri her zaman aralık.",
     "cta": "Nexus'a gir",
     "ctaMeta": "{halls} salon · {films} film · {universes} evren",
     "hall": "Salon {num}",
@@ -108,7 +108,7 @@
     "empty": "Henüz hikâye yok.",
     "backToList": "← Tüm evrenler",
     "backToUniverse": "← {name}",
-    "wingAncient": "Kadim Dünyalar",
+    "wingAncient": "Evrenler",
     "worldCount": "{count} Evren",
     "volumes": "Ciltler",
     "prevPage": "Önceki",
@@ -132,7 +132,7 @@
     "tmProfile": "Transfermarkt profili"
   },
   "footer": {
-    "about": "Kadim dünyalar, fandom wikileri ve derinlemesine karakter analizleri — gölgede kalmış bilgilerin kişisel arşivi.",
+    "about": "Gölgede kalmış her tutkunun bir odası olduğu kişisel bir kültür arşivi.",
     "explore": "Keşfet",
     "home": "Ana Sayfa",
     "darkStories": "Nexus'a Gir",

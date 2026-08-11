@@ -17,13 +17,13 @@
   "home": {
     "title": "KuroNexus",
     "tagline": "An archive of ancient knowledge lost to shadow",
-    "intro": "Ancient worlds, fandom wikis, an anime and movie archive, and in-depth character analyses — all in one personal universe.",
+    "intro": "What I watch, read, listen to and write — a room of its own for every passion left in shadow.",
     "adminLink": "Admin Panel",
     "eyebrow": "A Personal Culture Archive",
     "manifestoA": "Every passion",
     "manifestoB": "left in shadow",
     "manifestoC": "has a room of its own.",
-    "sub": "Cinema, sport, ancient worlds — halls that each live by their own light. One of the doors is always ajar.",
+    "sub": "Every hall lives by its own light. One of the doors is always ajar.",
     "cta": "Enter the Nexus",
     "ctaMeta": "{halls} halls · {films} films · {universes} worlds",
     "hall": "Hall {num}",
@@ -108,7 +108,7 @@
     "empty": "No stories yet.",
     "backToList": "← All universes",
     "backToUniverse": "← {name}",
-    "wingAncient": "Ancient Worlds",
+    "wingAncient": "Worlds",
     "worldCount": "{count} Worlds",
     "volumes": "Volumes",
     "prevPage": "Previous",
@@ -132,7 +132,7 @@
     "tmProfile": "Transfermarkt profile"
   },
   "footer": {
-    "about": "Ancient worlds, fandom wikis, and in-depth character analyses — a personal archive of knowledge lost to shadow.",
+    "about": "A personal culture archive where every passion left in shadow has a room of its own.",
     "explore": "Explore",
     "home": "Home",
     "darkStories": "Enter the Nexus",

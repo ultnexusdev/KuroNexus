@@ -1,0 +1,369 @@
+/* ============================================================
+   Salon 06 · Müzik — küratör kontrolleri
+
+   Bu dosya yalnızca küratörün gördüğü yüzeyi çiziyor; ziyaretçi ne bu CSS'i
+   ne de yanındaki JavaScript'i indiriyor (panel `next/dynamic` ile tembel).
+
+   ⚠️ HEX RENK YOK (kural 16). Bütün değerler kanat token'larından geliyor:
+   panel salon derisinin içinde durduğu için tema/oda değiştiğinde kendiliğinden
+   uyuyor. Küratör paneli "yönetim aracı" diye ayrı bir görsel dil kurmuyor —
+   salonun içindeki bir katman, salonun sesiyle konuşuyor.
+
+   Ölçek `layout.module.css`teki `--mz-*` değişkenlerinden geliyor. Panel
+   kanadın DIŞINDA render edilirse (bugün edilmiyor) bu değişkenler tanımsız
+   kalır; o yüzden her birinin `var(..., yedek)` karşılığı yazılı.
+   ============================================================ */
+
+.switchRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mz-gap, 0.875rem);
+  margin: var(--mz-block, 2rem) 0;
+}
+
+/* Anahtar: kapalıyken sessiz, açıkken aksanlı. Kitap salonundaki desen. */
+.switchOff,
+.switchOn {
+  align-self: flex-start;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: var(--mz-label, 0.8rem);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 0.5rem 1.1rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.switchOff {
+  background: transparent;
+  color: var(--text-muted);
+  border: var(--mz-hairline, 0.5px) solid var(--border);
+}
+
+.switchOff:hover {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+.switchOn {
+  background: var(--accent-muted);
+  color: var(--text-primary);
+  border: var(--mz-hairline, 0.5px) solid var(--accent);
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mz-block, 2rem);
+  padding: var(--mz-pad, 1.25rem);
+  background: var(--surface);
+  border: var(--mz-hairline, 0.5px) solid var(--border);
+  border-radius: var(--mz-radius, 12px);
+}
+
+/* ── Durum şeridi ──────────────────────────────────────────────────────── */
+
+.statusStrip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mz-gap, 0.875rem);
+}
+
+.pillOk,
+.pillWarn {
+  display: inline-block;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: var(--mz-label, 0.8rem);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  cursor: default;
+}
+
+.pillOk {
+  color: var(--accent);
+  border: var(--mz-hairline, 0.5px) solid var(--accent-muted);
+}
+
+/* Uyarı rengi `--warn`; kırmızı bir hata değil, "eksik" hâli anlatıyor */
+.pillWarn {
+  color: var(--warn);
+  border: var(--mz-hairline, 0.5px) solid var(--warn);
+  cursor: pointer;
+}
+
+.failBox {
+  flex-basis: 100%;
+}
+
+.failList {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  /* Uzun hata metni paneli yatay kaydırmasın: kutunun içinde kırılıyor */
+  overflow-wrap: anywhere;
+}
+
+/* ── Bölümler ──────────────────────────────────────────────────────────── */
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mz-gap, 0.875rem);
+}
+
+.blockTitle {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: var(--mz-section, 1.15rem);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.blockLede {
+  font-family: var(--font-cormorant), serif;
+  font-size: var(--mz-body, 1rem);
+  line-height: 1.5;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.6rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+/* ── Alanlar ───────────────────────────────────────────────────────────── */
+
+.input,
+.select,
+.textarea {
+  flex: 1 1 12rem;
+  min-width: 0;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  background: var(--bg);
+  border: var(--mz-hairline, 0.5px) solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem 0.7rem;
+}
+
+.textarea {
+  resize: vertical;
+  font-family: var(--font-cormorant), serif;
+  font-size: var(--mz-body, 1rem);
+  line-height: 1.5;
+}
+
+.input:focus-visible,
+.select:focus-visible,
+.textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.fileField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.fileLabel {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: var(--mz-label, 0.8rem);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ── Düğmeler ──────────────────────────────────────────────────────────── */
+
+.action,
+.actionQuiet {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: var(--mz-label, 0.8rem);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 0.45rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  align-self: flex-start;
+  white-space: nowrap;
+}
+
+.action {
+  background: var(--accent-muted);
+  color: var(--text-primary);
+  border: var(--mz-hairline, 0.5px) solid var(--accent);
+}
+
+.action:hover:not(:disabled) {
+  background: var(--accent);
+}
+
+.actionQuiet {
+  background: transparent;
+  color: var(--text-secondary);
+  border: var(--mz-hairline, 0.5px) solid var(--border);
+}
+
+.actionQuiet:hover:not(:disabled) {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+.action:disabled,
+.actionQuiet:disabled {
+  opacity: 0.5;
+  cursor: progress;
+}
+
+/* ── Sonuç listesi ─────────────────────────────────────────────────────── */
+
+.resultList,
+.genreList,
+.chipList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.resultList,
+.genreList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.resultRow,
+.genreRow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  padding: 0.5rem 0.7rem;
+  background: var(--bg);
+  border: var(--mz-hairline, 0.5px) solid var(--border);
+  border-radius: 8px;
+}
+
+.resultName,
+.genreName {
+  flex: 1 1 10rem;
+  min-width: 0;
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.resultId,
+.genreSlug {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.genreMeta {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: var(--mz-label, 0.8rem);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ── Tür çipleri (act paneli) ──────────────────────────────────────────── */
+
+.chipList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.chip,
+.chipOn {
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.chip {
+  background: transparent;
+  color: var(--text-secondary);
+  border: var(--mz-hairline, 0.5px) solid var(--border);
+}
+
+.chip:hover {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+.chipOn {
+  background: var(--accent-muted);
+  color: var(--text-primary);
+  border: var(--mz-hairline, 0.5px) solid var(--accent);
+}
+
+/* ── Geri bildirim satırları ───────────────────────────────────────────── */
+
+.muted,
+.hint,
+.footnote {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.footnote {
+  font-family: var(--font-cormorant), serif;
+  font-size: var(--mz-body, 1rem);
+  line-height: 1.5;
+  border-top: var(--mz-hairline, 0.5px) solid var(--border);
+  padding-top: var(--mz-gap, 0.875rem);
+}
+
+/* Hata ve başarı satırları: sebebi TAŞIYORLAR. Devir notu §4.5 — "işlem
+   yapılamadı" deyip anahtarı yutmak teşhisi her seferinde bir tur uzattı. */
+.error,
+.ok {
+  font-size: 0.85rem;
+  line-height: 1.45;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.error {
+  color: var(--danger);
+}
+
+.ok {
+  color: var(--accent);
+}

@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
 import { ApiError } from "@/lib/api/client";
 import { fetchGenreRoom, type GenreRoom } from "@/lib/api/music";
+import { readIsAdmin } from "@/lib/auth/session";
 import { musicHref } from "@/lib/music/routes";
 import { CoverArt, CoverTile } from "@/components/music/CoverArt";
 import shell from "../../layout.module.css";
@@ -32,9 +33,9 @@ import styles from "./page.module.css";
 
 export const dynamic = "force-dynamic";
 
-async function getRoom(slug: string): Promise<GenreRoom> {
+async function getRoom(slug: string, fresh?: boolean): Promise<GenreRoom> {
   try {
-    return await fetchGenreRoom(slug);
+    return await fetchGenreRoom(slug, fresh);
   } catch (error) {
     // Onay bekleyen ya da var olmayan tür: backend de 404 diyor
     if (error instanceof ApiError && error.status === 404) {
@@ -81,8 +82,11 @@ export default async function GenreRoomPage({
   params: Promise<{ genreSlug: string }>;
 }) {
   const { genreSlug } = await params;
+  /* Küratör odayı taze okuyor: yeni atanan sanatçı beş dakika görünmezdi
+     (gerekçe `lib/api/music.ts`). Ziyaretçi önbellekten alıyor */
+  const isAdmin = await readIsAdmin();
   const [room, t] = await Promise.all([
-    getRoom(genreSlug),
+    getRoom(genreSlug, isAdmin),
     getTranslations("music"),
   ]);
 

@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   Query,
   UploadedFile,
   UseInterceptors,
@@ -21,8 +22,11 @@ import { MusicRolesService } from './music-roles.service';
 import { MusicSyncService } from './music-sync.service';
 import { SpotifyService } from './spotify.service';
 import {
+  CreateGenreDto,
   extractSpotifyId,
+  SetActGenresDto,
   SyncSpotifyDto,
+  UpdateActDto,
   UpdateGenreDto,
 } from './dto/sync-spotify.dto';
 
@@ -98,6 +102,32 @@ export class MusicAdminController {
   }
 
   /**
+   * Act künyesinin küratör alanları — `actKind`, kuruluş yılı, köken, bio,
+   * banner.
+   *
+   * ⚠️ `:id` burada **arşiv kimliği** (cuid), Spotify kimliği DEĞİL. Kardeş
+   * uçlar (`refresh`, `enrich`) Spotify kimliği alıyor; ikisi karışırsa hata
+   * 404 olarak görünür ve teşhis bir tur uzar. Ayrım servis katmanında da
+   * duruyor: `updateAct` `musicalAct.findFirst({ id })` ile bakıyor.
+   */
+  @Patch('acts/:id')
+  updateAct(@Param('id') id: string, @Body() dto: UpdateActDto) {
+    return this.curator.updateAct(id, dto);
+  }
+
+  /**
+   * Act'in türlerini **tümüyle değiştirir** — gönderilen liste son hâl.
+   *
+   * `PUT` bilinçli: gövde kaynağın yeni tam hâli, kısmi yama değil. Küratör
+   * arayüzünde tür seçimi bir çoklu kutu, yani kullanıcının kafasındaki model
+   * zaten "şu anda seçili olanlar" (gerekçenin uzunu serviste).
+   */
+  @Put('acts/:id/genres')
+  setActGenres(@Param('id') id: string, @Body() dto: SetActGenresDto) {
+    return this.curator.setActGenres(id, dto.genreIds);
+  }
+
+  /**
    * MusicBrainz ile zenginleştirme: tür, grup/solo, kuruluş yılı, köken.
    * Spotify bunları vermiyor (11 Ağustos 2026 ölçümü).
    * ⚠️ Yalnızca BOŞ alanları doldurur; küratörün yazdığına dokunmaz.
@@ -133,6 +163,30 @@ export class MusicAdminController {
   }
 
   /* ── Tür sözlüğü ─────────────────────────────────────────────────────── */
+
+  /**
+   * Bütün türler — küratör panelinin tür kutusu bunu okuyor.
+   *
+   * `genres/pending`den ayrı duruyor çünkü iki farklı soruya cevap veriyorlar:
+   * "onay bekleyen var mı" (bildirim) ve "act'e hangi türü atayabilirim"
+   * (seçim kutusu). İkincisi onaylıları da görmek zorunda.
+   */
+  @Get('genres')
+  listGenres() {
+    return this.curator.listGenres();
+  }
+
+  /**
+   * Küratörün eliyle tür oluşturur — **onaylı olarak** (gerekçe serviste).
+   *
+   * Bu uç olmadan tür sözlüğüne hiçbir şey EKLENEMİYORDU: 11 Ağustos ölçümü
+   * Spotify'ın `genres` alanını hiç göndermediğini gösterdi, yani onay
+   * kuyruğuna düşen bir şey de oluşmuyor. Oda kurmanın tek yolu burası.
+   */
+  @Post('genres')
+  createGenre(@Body() dto: CreateGenreDto) {
+    return this.curator.createGenre(dto);
+  }
 
   /**
    * Türü onaylar, adını/anahtarını düzeltir, oda rengini bağlar.

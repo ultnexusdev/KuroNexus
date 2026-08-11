@@ -4,8 +4,10 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
 import { apiUrl, ApiError, isLocalUpload } from "@/lib/api/client";
 import { fetchMusicAct, type MusicAct } from "@/lib/api/music";
+import { readIsAdmin } from "@/lib/auth/session";
 import { musicHref, spotifyOpenUrl } from "@/lib/music/routes";
 import { CoverArt, CoverTile } from "@/components/music/CoverArt";
+import { MusicCuratorSwitch } from "@/components/music/MusicCuratorSwitch";
 import { SpotifyEmbed } from "@/components/music/SpotifyEmbed";
 import shell from "../layout.module.css";
 import styles from "./page.module.css";
@@ -34,9 +36,9 @@ import styles from "./page.module.css";
 
 export const dynamic = "force-dynamic";
 
-async function getAct(slug: string): Promise<MusicAct> {
+async function getAct(slug: string, fresh?: boolean): Promise<MusicAct> {
   try {
-    return await fetchMusicAct(slug);
+    return await fetchMusicAct(slug, fresh);
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) {
       notFound();
@@ -83,8 +85,11 @@ export default async function MusicActPage({
   params: Promise<{ actSlug: string }>;
 }) {
   const { actSlug } = await params;
+  /* Arşiv isteğinden ÖNCE: küratör sayfayı taze okuyor (gerekçe
+     `lib/api/music.ts`), ziyaretçi önbellekten. Çerez yoksa istek yapılmıyor */
+  const isAdmin = await readIsAdmin();
   const [act, t] = await Promise.all([
-    getAct(actSlug),
+    getAct(actSlug, isAdmin),
     getTranslations("music"),
   ]);
 
@@ -183,6 +188,32 @@ export default async function MusicActPage({
           </dl>
         </div>
       </header>
+
+      {/* Küratör anahtarı. Sanatçının türü ve künyesi (grup/solo, kuruluş
+          yılı, köken) Spotify'dan GELMİYOR — bu panel olmadan act'i bir odaya
+          koymanın yolu yok. Ziyaretçiye render edilmiyor */}
+      {isAdmin ? (
+        <MusicCuratorSwitch
+          scope="act"
+          act={{
+            id: act.id,
+            slug: act.slug,
+            name: act.name,
+            actKind: act.actKind,
+            bio: act.bio,
+            formedYear: act.formedYear,
+            disbandedYear: act.disbandedYear,
+            originCity: act.originCity,
+            originCountry: act.originCountry,
+            bannerImage: act.bannerImage,
+            spotifyId: act.spotifyId,
+            /* Sayfa verisi tür KİMLİĞİ değil slug taşıyor (okuma yolunda
+               kimliğe gerek yok). Panel eşlemeyi tür listesi indikten sonra
+               kuruyor */
+            genreSlugs: act.genres.map((genre) => genre.slug),
+          }}
+        />
+      ) : null}
 
       {/* ── Parçalar + çalar ───────────────────────────────────────────── */}
       <div className={styles.split}>

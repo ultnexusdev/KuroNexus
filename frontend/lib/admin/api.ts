@@ -1204,3 +1204,134 @@ export async function importListeningHistory(file: File): Promise<{
     matched: number;
   }>;
 }
+
+/* ── Tür sözlüğü ve act künyesi ─────────────────────────────────────────────
+   Bu dört uç, salonun Spotify'dan ALAMADIĞI her şeyi küratörün eline veriyor:
+   11 Ağustos ölçümüne göre sanatçı nesnesi `genres` alanını hiç göndermiyor,
+   `actKind`/kuruluş yılı/köken de yok. MusicBrainz çoğunu getiriyor ama
+   yalnızca BOŞ alanları dolduruyor — son söz küratörde.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+export interface MusicGenreRecord {
+  id: string;
+  slug: string;
+  name: string;
+  key: string | null;
+  /** `globals.css` içindeki `[data-genre="…"]` anahtarı; renk DEĞİL */
+  accentKey: string | null;
+  isApproved: boolean;
+  parentId: string | null;
+  _count?: { acts: number };
+}
+
+/** Bütün türler (onaylı + bekleyen). Act'in tür kutusu bunu okuyor. */
+export function listMusicGenres(): Promise<MusicGenreRecord[]> {
+  return apiFetch<MusicGenreRecord[]>("/admin/music/genres", {
+    cache: "no-store",
+  });
+}
+
+/**
+ * Küratörün eliyle tür oluşturur — **onaylı olarak** doğar (dış kaynaktan
+ * gelen türler için olan onay kapısı kendi yazdığına uygulanmıyor).
+ *
+ * ⚠️ `accentKey` bir TOKEN ANAHTARI: yalnızca `rock`, `pop`, `rnb`,
+ * `electronic`. Backend bilinmeyen anahtarı reddediyor — `globals.css`te
+ * karşılığı olmayan bir değer yazılsa oda sessizce salonun varsayılan
+ * rengiyle çizilirdi.
+ */
+export function createMusicGenre(input: {
+  name: string;
+  slug?: string;
+  key?: string;
+  accentKey?: string;
+  parentId?: string;
+}): Promise<MusicGenreRecord> {
+  return apiFetch<MusicGenreRecord>("/admin/music/genres", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+}
+
+/**
+ * Act'in türlerini **tümüyle değiştirir** — gönderilen liste son hâl, ekle/
+ * çıkar değil. Boş dizi göndermek act'i türsüz bırakır (ve odalardan düşürür).
+ *
+ * ⚠️ `actId` arşiv kimliği (cuid), Spotify kimliği değil.
+ */
+export function setMusicActGenres(
+  actId: string,
+  genreIds: string[],
+): Promise<{
+  id: string;
+  slug: string;
+  name: string;
+  genres: Array<{ genre: { id: string; slug: string; name: string } }>;
+}> {
+  return apiFetch(`/admin/music/acts/${encodeURIComponent(actId)}/genres`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ genreIds }),
+  });
+}
+
+/**
+ * Act künyesinin küratör alanları.
+ *
+ * ⚠️ Sync'in yazdığı alanlar (`name`, `image`, `spotifyId`) BURADA YOK: bir
+ * sonraki tazelemede üzerine yazılırlardı ve küratör "değişikliğim kayboldu"
+ * derdi. `bannerImage` yalnızca kendi sunucumuzdaki bir yol olabilir
+ * (`/uploads/…`) — dış adresi CSP `img-src` engeller ve görsel sessizce
+ * çizilmez.
+ */
+export function updateMusicAct(
+  actId: string,
+  input: {
+    actKind?: string;
+    sortName?: string;
+    bio?: string;
+    formedYear?: number;
+    disbandedYear?: number;
+    originCity?: string;
+    originCountry?: string;
+    bannerImage?: string;
+  },
+): Promise<{
+  id: string;
+  slug: string;
+  name: string;
+  actKind: string;
+  bio: string | null;
+  formedYear: number | null;
+  disbandedYear: number | null;
+  originCity: string | null;
+  originCountry: string | null;
+  bannerImage: string | null;
+}> {
+  return apiFetch(`/admin/music/acts/${encodeURIComponent(actId)}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+}
+
+/**
+ * MusicBrainz ile zenginleştirme: tür, grup/solo, kuruluş yılı, köken.
+ * ⚠️ Yalnızca BOŞ alanları doldurur; küratörün yazdığına dokunmaz.
+ * ⚠️ Yavaş: MusicBrainz istekleri 1500 ms arayla gidiyor (paylaşımlı IP'de
+ * 1100 ms 503 aldı), yani üç istek ~5 saniye.
+ */
+export function enrichMusicAct(actId: string): Promise<{
+  matched: boolean;
+  mbid: string | null;
+  /** Doldurulan alan adları — hiçbiri boş değilse dizi boş döner */
+  filled: string[];
+  genresLinked: number;
+  /** Eşleşmediyse SEBEBİ; `null` ise sorun yok (11 Ağustos dersi) */
+  reason: string | null;
+}> {
+  return apiFetch(`/admin/music/acts/${encodeURIComponent(actId)}/enrich`, {
+    method: "POST",
+  });
+}

@@ -221,28 +221,53 @@ export interface MusicListening {
  */
 const REVALIDATE = 300;
 
-export function fetchMusicOverview(): Promise<MusicOverview> {
-  return apiFetch<MusicOverview>("/music/overview", {
-    next: { revalidate: REVALIDATE },
-  });
+/**
+ * Önbellek kararı **çağırana göre** değişiyor.
+ *
+ * ⚠️ ÖLÇÜLEN PÜRÜZ (11 Ağustos 2026): beş dakikalık önbellek küratörün
+ * karşısına "kaydedilmedi" gibi görünen bir ekran çıkarıyordu. Bir tür
+ * onaylandıktan ya da sanatçı eklendikten sonra sayfa beş dakikaya kadar eski
+ * hâlinde kalıyor ve panelin "eklendi" yazısıyla salonun gösterdiği şey
+ * çelişiyordu. `router.refresh()` tek başına YETMİYOR: sunucu bileşeni
+ * yeniden çalışıyor ama `revalidate` işaretli `fetch` yine Data Cache'ten
+ * dönüyor.
+ *
+ * Çözüm önbelleği kaldırmak DEĞİL — ziyaretçi için beş dakika hâlâ doğru
+ * denge (katalog haftalık cron'la tazeleniyor). Yalnızca **küratör** taze
+ * okuyor: sayfalar `readIsAdmin()` sonucunu buraya `fresh` olarak geçiriyor.
+ * Böylece arşivin sahibi her zaman gerçeği görüyor, ziyaretçi hızlı sayfa
+ * alıyor ve backend'e gereksiz yük binmiyor.
+ */
+function freshness(fresh?: boolean): RequestInit {
+  return fresh ? { cache: "no-store" } : { next: { revalidate: REVALIDATE } };
 }
 
-export function fetchMusicRooms(): Promise<GenreRoomSummary[]> {
-  return apiFetch<GenreRoomSummary[]>("/music/rooms", {
-    next: { revalidate: REVALIDATE },
-  });
+export function fetchMusicOverview(fresh?: boolean): Promise<MusicOverview> {
+  return apiFetch<MusicOverview>("/music/overview", freshness(fresh));
 }
 
-export function fetchGenreRoom(slug: string): Promise<GenreRoom> {
-  return apiFetch<GenreRoom>(`/music/rooms/${encodeURIComponent(slug)}`, {
-    next: { revalidate: REVALIDATE },
-  });
+export function fetchMusicRooms(fresh?: boolean): Promise<GenreRoomSummary[]> {
+  return apiFetch<GenreRoomSummary[]>("/music/rooms", freshness(fresh));
 }
 
-export function fetchMusicAct(slug: string): Promise<MusicAct> {
-  return apiFetch<MusicAct>(`/music/acts/${encodeURIComponent(slug)}`, {
-    next: { revalidate: REVALIDATE },
-  });
+export function fetchGenreRoom(
+  slug: string,
+  fresh?: boolean,
+): Promise<GenreRoom> {
+  return apiFetch<GenreRoom>(
+    `/music/rooms/${encodeURIComponent(slug)}`,
+    freshness(fresh),
+  );
+}
+
+export function fetchMusicAct(
+  slug: string,
+  fresh?: boolean,
+): Promise<MusicAct> {
+  return apiFetch<MusicAct>(
+    `/music/acts/${encodeURIComponent(slug)}`,
+    freshness(fresh),
+  );
 }
 
 /**

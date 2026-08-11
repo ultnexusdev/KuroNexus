@@ -15,8 +15,14 @@
 > (tür + grup/solo + kuruluş yılı + köken — Spotify hiçbirini vermiyor).
 > ⚠️ Yolda **yarım saatlik üretim kesintisi** yaşandı; kaydı ve üç önlemi
 > devir notunun 4. bölümünde.
-> ⚠️ Yarım kalan: küratör servisinin **üç ucu bağlanmadı** (`createGenre`,
-> `setActGenres`, `updateAct`) — servis metotları ve DTO'lar hazır.
+> ✅ **İKİNCİ OTURUM (aynı gün):** küratör uçlarının dördü de bağlandı
+> (`GET/POST /admin/music/genres`, `PUT /admin/music/acts/:id/genres`,
+> `PATCH /admin/music/acts/:id`) ve **küratör modu arayüzü kuruldu** — salon
+> paneli (arama/ekleme/tür sözlüğü/bakım) + sanatçı paneli (tür ataması +
+> künye). Sayfalar sunucu bileşeni kaldı, araya tek bir istemci adası girdi.
+> Önbellek pürüzü çözüldü: getiriciler `fresh` bayrağı alıyor, küratör
+> `no-store` okuyor, ziyaretçi beş dakikalık önbellekten. ⚠️ Yerelde uçtan uca
+> sınanmadı; canlı doğrulama sırası devir notu §2.2d'de.
 > ⚠️ Kullanıcıdan bekleyen: Spotify "Extended streaming history" dosyası
 > (talep 11 Ağustos'ta başlatıldı, e-postayla gelecek).
 >

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
 import { fetchMusicRooms } from "@/lib/api/music";
+import { readIsAdmin } from "@/lib/auth/session";
 import { genreColorVar, musicHref } from "@/lib/music/routes";
 import shell from "../layout.module.css";
 import styles from "./page.module.css";
@@ -32,8 +33,11 @@ export async function generateMetadata({
 }
 
 export default async function MusicRoomsPage() {
+  /* Küratör dizini taze okuyor: yeni onaylanan oda beş dakika görünmezdi
+     (gerekçe `lib/api/music.ts`). Ziyaretçi önbellekten alıyor */
+  const isAdmin = await readIsAdmin();
   const [rooms, t] = await Promise.all([
-    fetchMusicRooms(),
+    fetchMusicRooms(isAdmin),
     getTranslations("music"),
   ]);
 

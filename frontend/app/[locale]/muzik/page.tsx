@@ -3,10 +3,12 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
 import { fetchCategories } from "@/lib/api/universes";
 import { fetchMusicOverview } from "@/lib/api/music";
+import { readIsAdmin } from "@/lib/auth/session";
 import { hallLabel, hallNumber } from "@/lib/halls";
 import { musicHref, genreColorVar, spotifyOpenUrl } from "@/lib/music/routes";
 import { CoverArt } from "@/components/music/CoverArt";
 import { GenreMixBar } from "@/components/music/GenreMixBar";
+import { MusicCuratorSwitch } from "@/components/music/MusicCuratorSwitch";
 import shell from "./layout.module.css";
 import styles from "./page.module.css";
 
@@ -70,8 +72,20 @@ function formatDuration(ms: number | null): string | null {
 }
 
 export default async function MusicHallPage() {
+  /**
+   * Arşiv isteğinden ÖNCE soruluyor, iki iş için birden:
+   *  - küratör anahtarını göstermek (yetkinin gerçek kapısı bu değil; bütün
+   *    küratör uçları `@Roles('ADMIN')` arkasında ve çerezdeki token her
+   *    istekte veritabanından doğrulanıyor — JWT'de rol YOK),
+   *  - **arşivi taze okumak.** Küratör bir şey kaydettiğinde beş dakikalık
+   *    önbellek yüzünden sayfa eski hâlinde kalıyordu (gerekçesi
+   *    `lib/api/music.ts`te). Ziyaretçi için önbellek yerinde duruyor.
+   *
+   * Çerez yoksa istek hiç yapılmıyor, yani ziyaretçiye bekleme çıkmıyor.
+   */
+  const isAdmin = await readIsAdmin();
   const [overview, hall, t] = await Promise.all([
-    fetchMusicOverview(),
+    fetchMusicOverview(isAdmin),
     getHallLabel(),
     getTranslations("music"),
   ]);
@@ -145,6 +159,11 @@ export default async function MusicHallPage() {
           </div>
         </aside>
       </header>
+
+      {/* Küratör anahtarı kıvrımın hemen altında: mod açılınca panel buraya
+          iniyor ve salonun kalanı yerinde kalıyor. Ziyaretçiye render
+          EDİLMİYOR — dolayısıyla panelin JavaScript'i de hiç istenmiyor */}
+      {isAdmin ? <MusicCuratorSwitch scope="hall" /> : null}
 
       {/* ── Favori listeler ────────────────────────────────────────────── */}
       <section className={styles.section}>

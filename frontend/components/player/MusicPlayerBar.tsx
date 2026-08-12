@@ -145,12 +145,20 @@ function IconVolume({ muted }: { muted: boolean }) {
   );
 }
 
+/**
+ * "Sıradakiler" — liste + oynat üçgeni.
+ *
+ * ⚠️ Liste seçicinin ikonuyla AYNI OLMAMALI. İlk sürümde ikisi de "çizgiler +
+ * nota" siluetindeydi ve şeritte yan yana durdukları için ayırt edilmiyorlardı
+ * (kullanıcı bildirimi, 13 Ağustos). İkisi ayrı kavram: bu "sırada ne var",
+ * öteki "hangi listeyi çalayım". Siluetleri de ayrı: burada üçgen, orada
+ * üst üste yığılmış kartlar (`PlaylistPicker`).
+ */
 function IconQueue() {
   return (
     <svg viewBox="0 0 24 24" width="15" height="15" {...stroke} aria-hidden>
-      <path d="M4 7h11M4 12h11M4 17h7" />
-      <path d="M18 10v7.5" />
-      <circle cx="16.2" cy="17.8" r="1.8" />
+      <path d="M4 7h16M4 12h10M4 17h10" />
+      <path d="M15.5 14.2v6l5-3z" />
     </svg>
   );
 }

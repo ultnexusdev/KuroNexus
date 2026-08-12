@@ -100,12 +100,16 @@ export function PlaylistPicker() {
         title={t("choosePlaylist")}
         onClick={() => setOpen((value) => !value)}
       >
+        {/* Üst üste yığılmış kartlar = "listelerden birini seç".
+            ⚠️ Kuyruk ikonuyla (liste + oynat üçgeni) karışmaması bilinçli:
+            ilk sürümde ikisi de aynı siluetteydi ve şeritte yan yana
+            durdukları için ayırt edilmiyorlardı (kullanıcı bildirimi). */}
         <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden
           fill="none" stroke="currentColor" strokeWidth={1.6}
           strokeLinecap="round" strokeLinejoin="round">
-          <path d="M4 6h10M4 11h10M4 16h6" />
-          <path d="M17 5.5v9.2" />
-          <circle cx="15.2" cy="15.4" r="1.9" />
+          <rect x="4.5" y="9" width="15" height="10.5" rx="1.8" />
+          <path d="M6.8 6.5h10.4" />
+          <path d="M8.6 4h6.8" />
         </svg>
       </button>
 

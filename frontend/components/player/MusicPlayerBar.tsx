@@ -46,6 +46,9 @@ const PLAYER_TAG = "kuronexus-player";
 /** Parça sonu payı: `position` süreye bu kadar yaklaşınca sıradakine geçiliyor. */
 const END_SLACK_MS = 1200;
 
+/** Ses seviyesi kullanıcıya ait, listeye değil — cihazda kalıyor. */
+const VOLUME_KEY = "kuronexus.music.volume";
+
 interface PlayerMessage {
   source?: string;
   type?: "ready" | "update" | "failed";
@@ -53,6 +56,8 @@ interface PlayerMessage {
   duration?: number;
   isPaused?: boolean;
   reason?: string;
+  /** Kontrolcüde `setVolume` gerçekten var mı — bkz. `route.ts` */
+  canSetVolume?: boolean;
 }
 
 /* Çizgi ikonlar — ortam sesi çalarındakiyle aynı dil (`GlobalAmbientPlayer`),
@@ -126,6 +131,19 @@ function IconRepeat({ one }: { one: boolean }) {
   );
 }
 
+function IconVolume({ muted }: { muted: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" width="15" height="15" {...stroke} aria-hidden>
+      <path d="M4 9.5h3L11 6v12l-4-3.5H4z" />
+      {muted ? (
+        <path d="M15 9.5l4.5 5M19.5 9.5l-4.5 5" />
+      ) : (
+        <path d="M15 9.2a4 4 0 0 1 0 5.6M17.6 7a7.5 7.5 0 0 1 0 10" />
+      )}
+    </svg>
+  );
+}
+
 function IconQueue() {
   return (
     <svg viewBox="0 0 24 24" width="15" height="15" {...stroke} aria-hidden>
@@ -174,6 +192,13 @@ export function MusicPlayerBar() {
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
   const [openQueue, setOpenQueue] = useState(false);
+  /**
+   * `null` = henüz bilinmiyor, `false` = kontrolcüde `setVolume` YOK.
+   * Çubuk yalnızca `true` iken çiziliyor: çalışmayan bir kaydırıcı
+   * göstermek, hiç göstermemekten kötü.
+   */
+  const [canSetVolume, setCanSetVolume] = useState<boolean | null>(null);
+  const [volume, setVolume] = useState(1);
 
   const hasTrack = current !== null;
 
@@ -201,6 +226,7 @@ export function MusicPlayerBar() {
       if (data.type === "ready") {
         setFailed(false);
         setReady(true);
+        setCanSetVolume(data.canSetVolume === true);
         return;
       }
       if (data.type === "failed") {
@@ -277,6 +303,21 @@ export function MusicPlayerBar() {
 
   const onToggle = useCallback(() => post({ type: "toggle" }), [post]);
 
+  /* Kayıtlı ses seviyesi — cihaz başına, kuyruktan bağımsız */
+  useEffect(() => {
+    const saved = Number(window.localStorage.getItem(VOLUME_KEY));
+    if (Number.isFinite(saved) && saved >= 0 && saved <= 1) {
+      setVolume(saved);
+    }
+  }, []);
+
+  /* Çalar hazır olunca kayıtlı seviyeyi uygula ve her değişimde ilet */
+  useEffect(() => {
+    if (canSetVolume === true) {
+      post({ type: "volume", value: volume });
+    }
+  }, [volume, canSetVolume, post]);
+
   if (!current) {
     return null;
   }
@@ -339,34 +380,16 @@ export function MusicPlayerBar() {
           </span>
         </div>
 
-        {/* Karantina sayfası. İçinde Spotify'ın kendi gömüsü var: çal/duraklat
-            ve ilerleme çubuğu onun. Kendi kopyamızı çizmek, iframe'in gerçek
-            durumundan sapabilecek ikinci bir gerçek üretirdi.
+        {/* ── Orta bölge: kumanda ─────────────────────────────────────────
+            13 Ağustos'ta sağ uçtan BURAYA alındı (kullanıcı isteği, ekran
+            görüntüsüyle işaretlendi): kumanda en sağda kalıyordu, gömünün
+            ortasındaki geniş boşluk ise boş duruyordu. Spotify'ın kendi düzeni
+            de bu — solda künye, ortada kumanda, sağda ikincil araçlar.
 
-            ⚠️ Bu iframe kuyruk boşalana kadar SÖKÜLMÜYOR — sökülürse ses
-            kesilir. Dar ekranda `display: none` ile gizleniyor, kaldırılmıyor. */}
-        <div className={styles.embed}>
-          <iframe
-            ref={frameRef}
-            src={PLAYER_SRC}
-            title={t("musicBar")}
-            height={80}
-            /* ⚠️ Gerçek sınır bu öznitelik DEĞİL, mini sayfanın kendi CSP'si
-               (`next.config.ts` → `PLAYER_CSP`). Aynı origin'de `allow-scripts`
-               ile `allow-same-origin` birlikte verildiğinde sandbox zaten
-               anlamlı bir hapis kurmuyor — burada işe yarayan tarafı form
-               gönderimini ve üst pencereyi yönlendirmeyi kapatması.
-               `allow-same-origin` postMessage köprüsü için zorunlu. */
-            sandbox="allow-scripts allow-same-origin allow-popups"
-            allow="autoplay; encrypted-media"
-          />
-          {failed ? <span className={styles.warn}>{t("embedFailed")}</span> : null}
-        </div>
-
-        {/* Kumanda sırası Spotify'ınkiyle aynı: karışık · önceki · çal ·
-            sonraki · tekrar. Alışkanlık kasında duran bir sıra; kendi
-            sıramızı icat etmenin kazancı yok. Çal/duraklat düğmesi Spotify
-            gömüsünün içinde de var ve ikisi aynı köprüye bağlı. */}
+            Sıra da Spotify'ınkiyle aynı: karışık · önceki · çal · sonraki ·
+            tekrar. Alışkanlık kasında duran bir sıra; kendi sıramızı icat
+            etmenin kazancı yok. Çal/duraklat gömünün içinde de var ve ikisi
+            aynı köprüye bağlı, yani ayrışamıyorlar. */}
         <div className={styles.controls}>
           <button
             type="button"
@@ -419,6 +442,70 @@ export function MusicPlayerBar() {
           >
             <IconRepeat one={repeat === "one"} />
           </button>
+        </div>
+
+        {/* ── Sağ bölge: gömü + ikincil araçlar ────────────────────────────
+            Karantina sayfası. İçinde Spotify'ın kendi gömüsü var: ilerleme
+            çubuğu ve süre onun. Kendi kopyamızı çizmek, iframe'in gerçek
+            durumundan sapabilecek ikinci bir gerçek üretirdi.
+
+            ⚠️ Bu iframe kuyruk boşalana kadar SÖKÜLMÜYOR — sökülürse ses
+            kesilir. Dar ekranda `display: none` ile gizleniyor, kaldırılmıyor. */}
+        <div className={styles.embed}>
+          <iframe
+            ref={frameRef}
+            src={PLAYER_SRC}
+            title={t("musicBar")}
+            height={80}
+            /* ⚠️ Gerçek sınır bu öznitelik DEĞİL, mini sayfanın kendi CSP'si
+               (`next.config.ts` → `PLAYER_CSP`). Aynı origin'de `allow-scripts`
+               ile `allow-same-origin` birlikte verildiğinde sandbox zaten
+               anlamlı bir hapis kurmuyor — burada işe yarayan tarafı form
+               gönderimini ve üst pencereyi yönlendirmeyi kapatması.
+               `allow-same-origin` postMessage köprüsü için zorunlu. */
+            sandbox="allow-scripts allow-same-origin allow-popups"
+            allow="autoplay; encrypted-media"
+          />
+          {failed ? <span className={styles.warn}>{t("embedFailed")}</span> : null}
+        </div>
+
+        <div className={styles.tools}>
+          {/* ⚠️ SES ÇUBUĞU BUGÜN ÇİZİLMİYOR — ölçüldü (13 Ağustos 2026):
+              Spotify'ın gömü kontrolcüsünde `setVolume` YOK. Yetenek
+              `route.ts` içinde soruluyor ve `false` dönüyor.
+
+              Kod duruyor çünkü ölçümün kendisi bu: yarın Spotify metodu
+              eklerse çubuk kendiliğinden görünür, kaldırıp yeniden yazmak
+              gerekmez. Koşulsuz çizilseydi hiçbir şey yapmayan bir kaydırıcı
+              olurdu — bu projede sessiz bozulma defalarca teşhisi uzattı.
+
+              Gerçek ses denetimi için tek yol Spotify **Web Playback SDK**:
+              Premium hesap + OAuth (Authorization Code) gerektiriyor, yani
+              ayrı bir faz. Bugünkü karşılığı sekme/işletim sistemi sesi. */}
+          {canSetVolume ? (
+            <label className={styles.volume}>
+              <span className={styles.srOnly}>{t("volume")}</span>
+              <IconVolume muted={volume === 0} />
+              <input
+                type="range"
+                min={0}
+                max={1}
+                step={0.01}
+                value={volume}
+                title={t("volume")}
+                onChange={(event) => {
+                  const value = Number(event.target.value);
+                  setVolume(value);
+                  try {
+                    window.localStorage.setItem(VOLUME_KEY, String(value));
+                  } catch {
+                    // Depolama kapalı: seviye yine çalışır, sadece kalıcı olmaz
+                  }
+                }}
+              />
+            </label>
+          ) : null}
+
           <button
             type="button"
             className={styles.control}

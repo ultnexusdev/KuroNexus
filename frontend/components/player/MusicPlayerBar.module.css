@@ -72,11 +72,48 @@
   color: var(--text-muted);
 }
 
-/* Gömü şeridin ortasını dolduruyor; dar ekranda tamamen gizleniyor —
-   80px'lik Spotify kutusu 360px genişlikte satırı üçe bölüyordu */
+/* Gömü artık şeridin SAĞINDA ve daralmış. 13 Ağustos'a kadar ortayı baştan
+   sona dolduruyordu; Spotify'ın kendi düzeninde o alanın ortası boş kaldığı
+   için şerit "ortası bomboş" görünüyordu (kullanıcı ekran görüntüsüyle
+   işaretledi). Kumanda oraya taşındı, gömü bir üst sınıra çekildi.
+   Dar ekranda tamamen gizleniyor — 80px'lik kutu 360px'te satırı üçe bölüyor. */
 .embed {
-  flex: 1 1 320px;
+  flex: 1 1 20rem;
+  max-width: 32rem;
   min-width: 0;
+}
+
+/* Sağ uçtaki ikincil araçlar: ses, kuyruk, kapat */
+.tools {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex: none;
+}
+
+.volume {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--text-secondary);
+  padding: 0 0.25rem;
+}
+
+.volume input[type="range"] {
+  width: 5.5rem;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .embed iframe {

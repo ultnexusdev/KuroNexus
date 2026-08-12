@@ -79,7 +79,16 @@ const PAGE = `<!doctype html>
             isPaused: data.isPaused
           });
         });
-        send({ type: 'ready' });
+        /**
+         * ⚠️ setVolume Spotify'in BELGELENMIS API'sinde yok. Var olduğunu
+         * varsayip cagirsaydik ses cubugu sessizce hicbir sey yapmayan bir
+         * sussuz kalirdi. Yetenek burada SORULUYOR ve ebeveyn cubugu ancak
+         * gercekten varsa ciziyor.
+         */
+        send({
+          type: 'ready',
+          canSetVolume: typeof created.setVolume === 'function'
+        });
       }
     );
   };
@@ -97,6 +106,10 @@ const PAGE = `<!doctype html>
       controller.play();
     } else if (data.type === 'toggle') {
       controller.togglePlay();
+    } else if (data.type === 'volume' && typeof controller.setVolume === 'function') {
+      // 0-1 araligina kilitleniyor: disaridan gelen deger dogrulanmadan
+      // gecirilmez (kural 6)
+      controller.setVolume(Math.min(1, Math.max(0, Number(data.value) || 0)));
     }
   });
 

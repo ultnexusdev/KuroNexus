@@ -68,6 +68,19 @@ export class UpdatePlaylistDto {
   @IsString()
   @MaxLength(40)
   genreId?: string;
+
+  /**
+   * Liste kapağı — yalnızca kendi sunucumuzdaki bir yol (`/uploads/…`).
+   *
+   * ⚠️ Dış adres kabul edilirse CSP `img-src` onu engeller ve görsel
+   * **sessizce** çizilmez; üstelik dış adres bir gün ölür. Küratör görseli
+   * `/admin/uploads` ile yükler, dönen yolu buraya verir. Kalıp serviste
+   * doğrulanıyor (act bant görselindeki kuralın aynısı).
+   */
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  artwork?: string;
 }
 
 /** Listeye eklenecek parça — arşiv kimliği (cuid), Spotify kimliği değil. */

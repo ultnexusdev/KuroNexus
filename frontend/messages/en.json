@@ -1855,7 +1855,27 @@
           "HISTORY_FILE_REQUIRED": "No file selected.",
           "HISTORY_TOO_LARGE": "File too large (64 MB limit). Unzip and upload the JSON files one at a time."
         }
-      }
+      },
+      "playlistInfoTitle": "Playlist details",
+      "playlistName": "Playlist name",
+      "playlistDescription": "Description",
+      "playlistRoom": "Genre room",
+      "playlistNoRoom": "No room (shows only under playlists)",
+      "playlistRoomHint": "The list also appears on the page of the room you pick. Only top-level rooms can be chosen; subgenres do not open their own room.",
+      "playlistCover": "Cover image",
+      "playlistCoverHint": "The cover can only be a path on our own server (/uploads/…). CSP blocks external addresses and the image silently fails to draw.",
+      "playlistFavorite": "Show in the favourites strip on the hall crossroads",
+      "playlistDelete": "Delete the list",
+      "playlistDeleteConfirm": "Delete “{name}”? Tracks and the address are kept; the list is only hidden.",
+      "playlistDeleted": "The list was deleted.",
+      "playlistOrderTitle": "Track order",
+      "playlistOrderSave": "Save the order",
+      "playlistOrderSaved": "The order of {count} tracks was saved.",
+      "playlistFromSpotify": "This list comes from Spotify. Changes here will be overwritten from the source on the next refresh.",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "bannerPosition": "Banner focus point",
+      "bannerPositionHint": "Which point of the image stays centred. If faces are cropped, lower the vertical value."
     }
   }
 }

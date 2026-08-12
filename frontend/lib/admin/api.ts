@@ -1296,6 +1296,11 @@ export function updateMusicAct(
     originCity?: string;
     originCountry?: string;
     bannerImage?: string;
+    /**
+     * Bandın odak noktası — CSS `background-position` ("50% 30%").
+     * Backend kalıbı doğruluyor; serbest dize CSS enjeksiyonu olurdu.
+     */
+    bannerPosition?: string;
   },
 ): Promise<{
   id: string;
@@ -1375,6 +1380,8 @@ export function updateMusicPlaylist(
     orderIndex?: number;
     /** Boş dize odadan ÇIKARIR; `undefined` "dokunma" demek */
     genreId?: string;
+    /** Kapak — yalnızca `/uploads/…`; dış adresi CSP engeller */
+    artwork?: string;
   },
 ): Promise<PlaylistRecord> {
   return apiFetch(`/admin/music/playlists/${encodeURIComponent(id)}`, {

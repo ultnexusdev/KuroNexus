@@ -42,6 +42,7 @@ export class MusicPlaylistService {
         slug: true,
         name: true,
         description: true,
+        artwork: true,
         isFavorite: true,
         orderIndex: true,
         spotifyId: true,
@@ -54,6 +55,7 @@ export class MusicPlaylistService {
       slug: playlist.slug,
       name: playlist.name,
       description: playlist.description,
+      artwork: playlist.artwork,
       isFavorite: playlist.isFavorite,
       orderIndex: playlist.orderIndex,
       /** Bizim listemiz mi — Spotify'dan gelene parça eklemek yanıltıcı olurdu */
@@ -105,9 +107,18 @@ export class MusicPlaylistService {
       isFavorite?: boolean;
       orderIndex?: number;
       genreId?: string;
+      artwork?: string;
     },
   ) {
     await this.assertExists(id);
+    /* Kapak yalnızca kendi sunucumuzda olabilir — gerekçe DTO'da */
+    if (
+      dto.artwork !== undefined &&
+      dto.artwork !== '' &&
+      !dto.artwork.startsWith('/uploads/')
+    ) {
+      throw new BadRequestException('MUSIC.ARTWORK_MUST_BE_LOCAL');
+    }
     if (dto.name !== undefined && dto.name.trim().length === 0) {
       throw new BadRequestException('MUSIC.PLAYLIST_NAME_REQUIRED');
     }
@@ -126,12 +137,23 @@ export class MusicPlaylistService {
         ...(dto.isFavorite !== undefined ? { isFavorite: dto.isFavorite } : {}),
         ...(dto.orderIndex !== undefined ? { orderIndex: dto.orderIndex } : {}),
         ...(dto.genreId !== undefined ? { genreId: dto.genreId || null } : {}),
+        ...(dto.artwork !== undefined
+          ? {
+              artwork: dto.artwork || null,
+              // Kaynak adresi YOK: bu görseli küratör yükledi, dışarıdan
+              // indirilmedi. `artworkSourceUrl` dolu bırakılsaydı cron bir gün
+              // "kaynak değişmiş" diye üzerine yazmayı deneyebilirdi.
+              artworkSourceUrl: null,
+              artworkFetchedAt: dto.artwork ? new Date() : null,
+            }
+          : {}),
       },
       select: {
         id: true,
         slug: true,
         name: true,
         description: true,
+        artwork: true,
         isFavorite: true,
         orderIndex: true,
         genre: { select: { id: true, slug: true, name: true } },

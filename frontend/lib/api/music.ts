@@ -278,6 +278,8 @@ export interface MusicPlaylistDetail {
   spotifyId: string | null;
   /** Bizim listemiz mi (Spotify'dan gelmediyse `true`) */
   isLocal: boolean;
+  /** Küratörün seçtiği oda; `null` ise liste hiçbir tür odasında görünmüyor */
+  genre: { id: string; slug: string; name: string } | null;
   tracks: Array<{
     position: number;
     addedAt: string | null;

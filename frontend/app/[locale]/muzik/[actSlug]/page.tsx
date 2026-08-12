@@ -221,6 +221,7 @@ export default async function MusicActPage({
             originCity: act.originCity,
             originCountry: act.originCountry,
             bannerImage: act.bannerImage,
+            bannerPosition: act.bannerPosition,
             spotifyId: act.spotifyId,
             /* Sayfa verisi tür KİMLİĞİ değil slug taşıyor (okuma yolunda
                kimliğe gerek yok). Panel eşlemeyi tür listesi indikten sonra

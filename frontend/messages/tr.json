@@ -1855,7 +1855,27 @@
           "HISTORY_FILE_REQUIRED": "Dosya seçilmedi.",
           "HISTORY_TOO_LARGE": "Dosya çok büyük (üst sınır 64 MB). Zip'i açıp JSON'ları tek tek yükleyin."
         }
-      }
+      },
+      "playlistInfoTitle": "Liste künyesi",
+      "playlistName": "Liste adı",
+      "playlistDescription": "Açıklama",
+      "playlistRoom": "Tür odası",
+      "playlistNoRoom": "Odasız (yalnızca listelerde görünür)",
+      "playlistRoomHint": "Liste seçtiğiniz odanın sayfasında da görünür. Yalnızca üst düzey odalar seçilebilir; alt türler kendi odalarını açmıyor.",
+      "playlistCover": "Kapak görseli",
+      "playlistCoverHint": "Kapak yalnızca kendi sunucumuzdaki bir yol olabilir (/uploads/…). Dış adresi CSP engeller ve görsel sessizce çizilmez.",
+      "playlistFavorite": "Salon kavşağındaki favori şeridinde göster",
+      "playlistDelete": "Listeyi sil",
+      "playlistDeleteConfirm": "“{name}” listesi silinsin mi? Parçalar ve adres korunur, liste yalnızca gizlenir.",
+      "playlistDeleted": "Liste silindi.",
+      "playlistOrderTitle": "Parça sırası",
+      "playlistOrderSave": "Sırayı kaydet",
+      "playlistOrderSaved": "{count} parçanın sırası kaydedildi.",
+      "playlistFromSpotify": "Bu liste Spotify'dan geliyor. Buradaki değişiklikler bir sonraki tazelemede kaynaktan geri gelir.",
+      "moveUp": "Yukarı taşı",
+      "moveDown": "Aşağı taşı",
+      "bannerPosition": "Bant odak noktası",
+      "bannerPositionHint": "Görselin hangi noktasının ortada kalacağı. Yüzler kırpılıyorsa dikey değeri küçültün."
     }
   }
 }

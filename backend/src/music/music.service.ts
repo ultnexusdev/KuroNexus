@@ -746,6 +746,7 @@ export class MusicService {
         durationMs: true,
         isFavorite: true,
         spotifyId: true,
+        genre: { select: { id: true, slug: true, name: true } },
         tracks: {
           orderBy: { position: 'asc' },
           select: {

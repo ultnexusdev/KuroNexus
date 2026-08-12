@@ -734,6 +734,15 @@ export function ActCurator({ act }: { act: CuratorAct }) {
   const [originCountry, setOriginCountry] = useState(act.originCountry ?? "");
   const [bio, setBio] = useState(act.bio ?? "");
   const [bannerImage, setBannerImage] = useState(act.bannerImage ?? "");
+  /**
+   * Bant odagi iki eksene ayrilmis halde tutuluyor; kaydedilirken
+   * backend`in bekledigi "X% Y%" kalibina birlestiriliyor. Kayitli deger
+   * kaliba uymuyorsa ortaya dusuluyor (50/50) — bozuk bir deger yuzunden
+   * kaydiricilar bos kalmasin.
+   */
+  const savedPosition = /^(\d{1,3})% (\d{1,3})%$/.exec(act.bannerPosition ?? "");
+  const [bannerX, setBannerX] = useState(Number(savedPosition?.[1] ?? 50));
+  const [bannerY, setBannerY] = useState(Number(savedPosition?.[2] ?? 50));
 
   /**
    * Seçili türler act'in slug'larından kuruluyor: sayfa verisi kimlik değil
@@ -936,6 +945,38 @@ export function ActCurator({ act }: { act: CuratorAct }) {
         </label>
         <p className={styles.hint}>{t("bannerHint")}</p>
 
+        {/* BANT ODAK NOKTASI — kullanıcı bildirimi: yüklenen poster ortadan
+            kırpıldığı için yüzler görünmüyordu. İki kaydırıcı, çünkü değer
+            CSS `background-position` ve iki eksenli. Serbest metin kutusu
+            olsaydı backend'in kalıbına uymayan bir dize yazılabilirdi. */}
+        <div className={styles.grid}>
+          <label className={styles.field}>
+            <span className={styles.fileLabel}>
+              {t("bannerPosition")} · X {bannerX}%
+            </span>
+            <input
+              type="range"
+              min={0}
+              max={100}
+              value={bannerX}
+              onChange={(event) => setBannerX(Number(event.target.value))}
+            />
+          </label>
+          <label className={styles.field}>
+            <span className={styles.fileLabel}>
+              {t("bannerPosition")} · Y {bannerY}%
+            </span>
+            <input
+              type="range"
+              min={0}
+              max={100}
+              value={bannerY}
+              onChange={(event) => setBannerY(Number(event.target.value))}
+            />
+          </label>
+        </div>
+        <p className={styles.hint}>{t("bannerPositionHint")}</p>
+
         <div className={styles.row}>
           <button
             type="button"
@@ -951,6 +992,7 @@ export function ActCurator({ act }: { act: CuratorAct }) {
                   originCountry,
                   bio,
                   bannerImage,
+                  bannerPosition: `${bannerX}% ${bannerY}%`,
                 });
                 return t("saved");
               })

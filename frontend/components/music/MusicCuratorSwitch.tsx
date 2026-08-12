@@ -3,6 +3,7 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
+import type { CuratorPlaylist } from "./PlaylistCurator";
 import styles from "./MusicCurator.module.css";
 
 /**
@@ -36,6 +37,12 @@ const ActCurator = dynamic(
   { ssr: false },
 );
 
+/** Çalma listesi paneli — ayrı dosyada, aynı tembellikle */
+const PlaylistCurator = dynamic(
+  () => import("./PlaylistCurator").then((mod) => mod.PlaylistCurator),
+  { ssr: false },
+);
+
 export interface CuratorAct {
   id: string;
   slug: string;
@@ -47,12 +54,16 @@ export interface CuratorAct {
   originCity: string | null;
   originCountry: string | null;
   bannerImage: string | null;
+  bannerPosition: string | null;
   spotifyId: string | null;
   genreSlugs: string[];
 }
 
 export function MusicCuratorSwitch(
-  props: { scope: "hall" } | { scope: "act"; act: CuratorAct },
+  props:
+    | { scope: "hall" }
+    | { scope: "act"; act: CuratorAct }
+    | { scope: "playlist"; playlist: CuratorPlaylist },
 ) {
   const t = useTranslations("music.curator");
   const [curating, setCurating] = useState(false);
@@ -72,8 +83,10 @@ export function MusicCuratorSwitch(
       {curating ? (
         props.scope === "hall" ? (
           <HallCurator />
-        ) : (
+        ) : props.scope === "act" ? (
           <ActCurator act={props.act} />
+        ) : (
+          <PlaylistCurator playlist={props.playlist} />
         )
       ) : null}
     </div>

@@ -7,6 +7,7 @@ import { fetchMusicPlaylist, type MusicPlaylistDetail } from "@/lib/api/music";
 import { readIsAdmin } from "@/lib/auth/session";
 import { musicHref, spotifyOpenUrl } from "@/lib/music/routes";
 import { CoverArt } from "@/components/music/CoverArt";
+import { MusicCuratorSwitch } from "@/components/music/MusicCuratorSwitch";
 import { TrackList } from "@/components/music/TrackList";
 import { NowPlaying } from "@/components/player/NowPlaying";
 import shell from "../../layout.module.css";
@@ -118,6 +119,27 @@ export default async function MusicPlaylistPage({
           ) : null}
         </div>
       </header>
+
+      {/* Küratör anahtarı: ad, açıklama, ODA seçimi, kapak yüklemesi ve parça
+          sırası. Oda seçimi B8'i kullanılabilir yapan tek yer — alan bir
+          önceki turda geldi ama seçim kutusu yoktu. */}
+      {isAdmin ? (
+        <MusicCuratorSwitch
+          scope="playlist"
+          playlist={{
+            id: playlist.id,
+            slug: playlist.slug,
+            name: playlist.name,
+            description: playlist.description,
+            artwork: playlist.artwork,
+            isFavorite: playlist.isFavorite,
+            isLocal: playlist.isLocal,
+            genreSlug: playlist.genre?.slug ?? null,
+            trackIds: playlist.tracks.map((track) => track.id),
+            trackTitles: playlist.tracks.map((track) => track.title),
+          }}
+        />
+      ) : null}
 
       <div className={styles.split}>
         <section className={styles.section}>

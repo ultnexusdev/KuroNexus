@@ -6,6 +6,7 @@ import { apiUrl, ApiError, isLocalUpload } from "@/lib/api/client";
 import { fetchMusicAct, type MusicAct } from "@/lib/api/music";
 import { readIsAdmin } from "@/lib/auth/session";
 import { musicHref, spotifyOpenUrl } from "@/lib/music/routes";
+import { upperProperName } from "@/lib/text";
 import { CoverArt } from "@/components/music/CoverArt";
 import { Discography } from "@/components/music/Discography";
 import { MusicCuratorSwitch } from "@/components/music/MusicCuratorSwitch";
@@ -148,7 +149,7 @@ export default async function MusicActPage({
               {act.genres.slice(0, 3).map((genre) => (
                 <li key={genre.slug}>
                   <Link href={musicHref.room(genre.slug)} className={styles.chip}>
-                    {genre.name.toLocaleUpperCase("tr-TR")}
+                    {upperProperName(genre.name)}
                   </Link>
                 </li>
               ))}

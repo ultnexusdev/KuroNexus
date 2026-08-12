@@ -187,12 +187,26 @@
   }
 }
 
+/* Kart artık bir bağlantı (13 Ağustos): `color: inherit` olmasa metin
+   bağlantı mavisine kayardı, `height: 100%` olmasa da farklı boydaki kartlar
+   ızgarada eşitlenmezdi. */
 .playlistCard {
   display: flex;
   align-items: center;
   gap: 0.875rem;
   padding: 0.875rem 1rem;
   min-width: 0;
+  height: 100%;
+  color: inherit;
+  transition: background 0.15s ease;
+}
+
+.playlistCard:hover {
+  background: var(--surface-hover);
+}
+
+.playlistCard:hover .playlistName {
+  color: var(--accent);
 }
 
 .playlistBody {

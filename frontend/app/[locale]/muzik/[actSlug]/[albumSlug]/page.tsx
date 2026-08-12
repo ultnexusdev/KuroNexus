@@ -6,6 +6,7 @@ import { ApiError } from "@/lib/api/client";
 import { fetchMusicAlbum, type MusicAlbum } from "@/lib/api/music";
 import { readIsAdmin } from "@/lib/auth/session";
 import { musicHref, spotifyOpenUrl } from "@/lib/music/routes";
+import { upperProperName } from "@/lib/text";
 import { CoverArt, CoverTile } from "@/components/music/CoverArt";
 import { TrackList } from "@/components/music/TrackList";
 import { NowPlaying } from "@/components/player/NowPlaying";
@@ -169,7 +170,7 @@ export default async function MusicAlbumPage({
             {album.act.genres.slice(0, 3).map((genre) => (
               <li key={genre.slug}>
                 <Link href={musicHref.room(genre.slug)} className={styles.chip}>
-                  {genre.name.toLocaleUpperCase("tr-TR")}
+                  {upperProperName(genre.name)}
                 </Link>
               </li>
             ))}

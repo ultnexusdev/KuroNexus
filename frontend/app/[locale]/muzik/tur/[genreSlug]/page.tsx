@@ -6,6 +6,7 @@ import { ApiError } from "@/lib/api/client";
 import { fetchGenreRoom, type GenreRoom } from "@/lib/api/music";
 import { readIsAdmin } from "@/lib/auth/session";
 import { musicHref } from "@/lib/music/routes";
+import { upperProperName } from "@/lib/text";
 import { CoverArt, CoverTile } from "@/components/music/CoverArt";
 import shell from "../../layout.module.css";
 import styles from "./page.module.css";
@@ -101,10 +102,10 @@ export default async function GenreRoomPage({
           </Link>
           <span className={styles.eyebrow}>
             {t("room.label").toLocaleUpperCase("tr-TR")} ·{" "}
-            {room.genre.name.toLocaleUpperCase("tr-TR")}
+            {upperProperName(room.genre.name)}
           </span>
           <h1 className={`${shell.carved} ${styles.title}`}>
-            {room.genre.name.toLocaleUpperCase("tr-TR")}
+            {upperProperName(room.genre.name)}
           </h1>
           <ul className={styles.counts}>
             <li className={shell.label}>

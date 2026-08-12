@@ -203,10 +203,15 @@ export default async function MusicHallPage() {
             {overview.playlists.map((playlist) => {
               const duration = formatDuration(playlist.durationMs);
               return (
-                <li
-                  key={playlist.id}
-                  className={`${shell.panel} ${styles.playlistCard}`}
-                >
+                /* ⚠️ Kart 13 Ağustos'a kadar BAĞLANTISIZDI: tıklanınca hiçbir
+                   şey olmuyordu (kullanıcı bildirimi — "SPOR listesi var ama
+                   ona tıklanmıyor"). Liste sayfası ve `musicHref.playlist`
+                   zaten vardı, yalnızca kart onlara bağlanmamıştı. */
+                <li key={playlist.id}>
+                  <Link
+                    href={musicHref.playlist(playlist.slug)}
+                    className={`${shell.panel} ${styles.playlistCard}`}
+                  >
                   <CoverArt src={playlist.artwork} alt={playlist.name} size={56} />
                   <div className={styles.playlistBody}>
                     <div className={styles.playlistTop}>
@@ -222,6 +227,7 @@ export default async function MusicHallPage() {
                     </div>
                     <GenreMixBar mix={playlist.genreMix} />
                   </div>
+                  </Link>
                 </li>
               );
             })}

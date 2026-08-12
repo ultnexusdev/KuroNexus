@@ -6,9 +6,15 @@
 ## Mevcut Aşama
 
 > **📌 DEVİR NOTU: `docs/DEVIR-2026-08-11.md`**
-> **Bu bölümden sonra İLK ONU OKU — ve orada İLK OKUNACAK BÖLÜM `§0`:**
-> "13 Ağustos'ta ilk iş" (canlı doğrulama sırası + sıradaki altı madde).
-> Sıradaki işler, ölçülen gerçekler, kesinti kaydı ve dersler de orada.
+> **Bu bölümden sonra İLK ONU OKU — ve orada İLK OKUNACAK BÖLÜM `§0·`:**
+> "13 Ağustos akşamı — durum: A, B, C kapandı". Güncel durum, canlıda
+> yapılması gereken tek iş ve açık kalan dört madde orada.
+> Ölçülen gerçekler, kesinti kaydı ve dersler de aynı dosyada.
+>
+> 🔴 **CANLIDA TEK EKSİK İŞ:** `/muzik` → küratör modu → Bakım →
+> "Tür taksonomisini kur". Basılmadan salon 7 eski odayla çalışır.
+> ⚠️ `npx prisma db seed` konteynerde ÇALIŞMIYOR (ESM/`_client`);
+> kurulum işleri admin uçlarından yapılıyor.
 >
 > Kısa özet: Salon 06 · Müzik sıfırdan kurulup canlıya çıktı (1 sanatçı,
 > 63 albüm, 610 parça, kapaklar kendi diskimizde); Kadim Dünyalar kapısı

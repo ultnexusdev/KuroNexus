@@ -389,3 +389,55 @@
     grid-template-columns: 2fr 1fr 1.5fr auto;
   }
 }
+
+/* ── Tür sözlüğü: katlanır odalar ────────────────────────────────────────
+   140 satırlık düz liste kullanılamıyordu. Her oda bir `details`; açma
+   durumu tarayıcıda kalıyor, kendi state'imizle yönetseydik her
+   `router.refresh()`ten sonra hepsi kapanırdı. */
+.genreGroup {
+  border: var(--mz-hairline, 0.5px) solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+}
+
+.genreGroup + .genreGroup {
+  margin-top: 0.4rem;
+}
+
+.genreSummary {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  padding: 0.55rem 0.7rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+/* Yerleşik ok Safari'de `summary`nin soluna ayrı bir kutu koyuyor ve
+   hizalamayı bozuyor; kendi işaretimizi çiziyoruz. */
+.genreSummary::-webkit-details-marker {
+  display: none;
+}
+
+.genreSummary::before {
+  content: "▸";
+  flex: none;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  transition: transform 0.15s ease;
+}
+
+.genreGroup[open] > .genreSummary::before {
+  transform: rotate(90deg);
+}
+
+.genreGroup[open] > .genreSummary {
+  border-bottom: var(--mz-hairline, 0.5px) solid var(--border);
+}
+
+/* Açılan gövdedeki liste kutunun içinde nefes alsın */
+.genreGroup > .genreList,
+.genreGroup > .muted {
+  padding: 0.5rem;
+}

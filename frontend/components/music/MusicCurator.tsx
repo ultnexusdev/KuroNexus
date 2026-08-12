@@ -473,6 +473,7 @@ function GenreDictionary() {
   const [name, setName] = useState("");
   const [accentKey, setAccentKey] = useState("");
   const [parentId, setParentId] = useState("");
+  const [query, setQuery] = useState("");
 
   const load = useCallback(() => {
     listMusicGenres()
@@ -521,7 +522,44 @@ function GenreDictionary() {
     }
   }
 
-  const rooms = (genres ?? []).filter((genre) => genre.parentId === null);
+  const all = genres ?? [];
+  /** Üst tür seçim kutusu yalnızca odaları gösteriyor — alt türün altı yok */
+  const rooms = all.filter((genre) => genre.parentId === null);
+  const roomCount = rooms.length;
+
+  /**
+   * Arama hem ada hem adres parçasına bakıyor.
+   *
+   * ⚠️ Küçültme `tr` yerine `en-US` ile: tür adları özel ad ve Türkçe
+   * küçültme "I"yı "ı" yapıyor — "IDM" araması `idm` satırını ıskalardı.
+   * Aynı gerekçenin büyük harf tarafı `lib/text.ts`te yazılı.
+   */
+  const needle = query.trim().toLocaleLowerCase("en-US");
+  const matches = (genre: MusicGenreRecord) =>
+    needle.length === 0 ||
+    genre.name.toLocaleLowerCase("en-US").includes(needle) ||
+    genre.slug.includes(needle);
+
+  /**
+   * Odalar ve altlarındaki türler. Bir oda, KENDİSİ eşleşiyorsa bütün
+   * çocuklarıyla görünüyor; eşleşmiyorsa yalnızca eşleşen çocuklarıyla.
+   * "Rock" aramasında Rock odasının tamamını görmek isteniyor ama "Bebop"
+   * aramasında Jazz'ın kırk alt türü değil yalnızca Bebop.
+   */
+  const visibleRooms = rooms
+    .map((room) => {
+      const children = all.filter((genre) => genre.parentId === room.id);
+      return matches(room)
+        ? { room, children }
+        : { room, children: children.filter(matches) };
+    })
+    .filter(({ room, children }) => matches(room) || children.length > 0);
+
+  /* Üst türü artık var olmayan alt türler — backend de onları sona koyuyor */
+  const roomIds = new Set(rooms.map((room) => room.id));
+  const orphans = all.filter(
+    (genre) => genre.parentId !== null && !roomIds.has(genre.parentId) && matches(genre),
+  );
 
   return (
     <section className={styles.block}>
@@ -591,39 +629,133 @@ function GenreDictionary() {
       ) : genres.length === 0 ? (
         <p className={styles.muted}>{t("genreEmpty")}</p>
       ) : (
-        <ul className={styles.genreList}>
-          {genres.map((genre) => (
-            /* Alt tür GİRİNTİYLE ayrılıyor, karakterle değil. Önce "↳" (U+21B3)
-               kullanılmıştı ama satır başlıkları Cinzel ile çiziliyor ve o
-               fontta bu glif yok — yedek fontta bambaşka bir işaret çıkıyordu
-               (kullanıcı ekran görüntüsü, 13 Ağustos). Girinti her fontta
-               çalışıyor ve hiyerarşiyi zaten daha iyi anlatıyor. */
-            <li
-              key={genre.id}
-              className={styles.genreRow}
-              data-sub={genre.parentId ? "true" : undefined}
+        <>
+          {/* Arama: 140 türlük sözlükte tek tek kaydırmak yerine. Hem ada hem
+              adres parçasına bakıyor — küratör bazen slug'ı hatırlıyor. */}
+          <div className={styles.row}>
+            <input
+              type="search"
+              className={styles.input}
+              value={query}
+              placeholder={t("genreSearchPlaceholder")}
+              aria-label={t("genreSearch")}
+              onChange={(event) => setQuery(event.target.value)}
+            />
+            <span className={styles.genreMeta}>
+              {t("genreTotals", {
+                rooms: roomCount,
+                subgenres: genres.length - roomCount,
+              })}
+            </span>
+          </div>
+
+          {visibleRooms.length === 0 && orphans.length === 0 ? (
+            <p className={styles.muted}>{t("genreNoMatch")}</p>
+          ) : null}
+
+          {/* Her oda katlanır bir blok. `details` seçildi çünkü açma/kapama
+              JavaScript'siz de çalışıyor ve durum tarayıcıda kalıyor —
+              kendi `useState`imizle yönetseydik her `router.refresh()`ten
+              sonra hepsi kapanırdı ve küratör açtığı odayı kaybederdi. */}
+          {visibleRooms.map(({ room, children }) => (
+            <details
+              key={room.id}
+              className={styles.genreGroup}
+              /* Arama varken eşleşen odalar açık gelsin; kullanıcı kutuya
+                 yazdıysa aradığı şeyi görmek istiyor, bir de tıklamak
+                 zorunda kalmasın */
+              open={query.trim().length > 0 || undefined}
             >
-              <span className={styles.genreName}>
-                                {genre.name}
-              </span>
-              <code className={styles.genreSlug}>{genre.slug}</code>
-              <span className={styles.genreMeta}>
-                {t("genreActs", { count: genre._count?.acts ?? 0 })}
-                {genre.accentKey ? ` · ${genre.accentKey}` : ""}
-              </span>
-              <button
-                type="button"
-                className={genre.isApproved ? styles.actionQuiet : styles.action}
-                disabled={busy}
-                onClick={() =>
-                  patch(genre.id, { isApproved: !genre.isApproved })
-                }
-              >
-                {genre.isApproved ? t("unapprove") : t("approve")}
-              </button>
-            </li>
+              <summary className={styles.genreSummary}>
+                <span className={styles.genreName}>{room.name}</span>
+                <code className={styles.genreSlug}>{room.slug}</code>
+                <span className={styles.genreMeta}>
+                  {t("genreActs", { count: room._count?.acts ?? 0 })}
+                  {room.accentKey ? ` · ${room.accentKey}` : ""}
+                  {children.length > 0
+                    ? ` · ${t("genreSubCount", { count: children.length })}`
+                    : ""}
+                </span>
+                <button
+                  type="button"
+                  className={room.isApproved ? styles.actionQuiet : styles.action}
+                  disabled={busy}
+                  /* ⚠️ `preventDefault` ŞART: düğme `summary` içinde ve
+                     tıklama varsayılan olarak bloğu açıp kapatıyor —
+                     onaylamak isteyen küratör odayı da katlardı. */
+                  onClick={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    patch(room.id, { isApproved: !room.isApproved });
+                  }}
+                >
+                  {room.isApproved ? t("unapprove") : t("approve")}
+                </button>
+              </summary>
+
+              {children.length === 0 ? (
+                <p className={styles.muted}>{t("genreNoChildren")}</p>
+              ) : (
+                <ul className={styles.genreList}>
+                  {children.map((genre) => (
+                    <li key={genre.id} className={styles.genreRow} data-sub="true">
+                      <span className={styles.genreName}>{genre.name}</span>
+                      <code className={styles.genreSlug}>{genre.slug}</code>
+                      <span className={styles.genreMeta}>
+                        {t("genreActs", { count: genre._count?.acts ?? 0 })}
+                      </span>
+                      <button
+                        type="button"
+                        className={
+                          genre.isApproved ? styles.actionQuiet : styles.action
+                        }
+                        disabled={busy}
+                        onClick={() =>
+                          patch(genre.id, { isApproved: !genre.isApproved })
+                        }
+                      >
+                        {genre.isApproved ? t("unapprove") : t("approve")}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </details>
           ))}
-        </ul>
+
+          {/* Üst türü silinmiş alt türler. Sessizce gizlemek "türüm nerede"
+              sorusunu doğururdu; backend de onları listenin sonunda tutuyor. */}
+          {orphans.length > 0 ? (
+            <details className={styles.genreGroup} open>
+              <summary className={styles.genreSummary}>
+                <span className={styles.genreName}>{t("genreOrphans")}</span>
+                <span className={styles.genreMeta}>
+                  {t("genreSubCount", { count: orphans.length })}
+                </span>
+              </summary>
+              <ul className={styles.genreList}>
+                {orphans.map((genre) => (
+                  <li key={genre.id} className={styles.genreRow} data-sub="true">
+                    <span className={styles.genreName}>{genre.name}</span>
+                    <code className={styles.genreSlug}>{genre.slug}</code>
+                    <button
+                      type="button"
+                      className={
+                        genre.isApproved ? styles.actionQuiet : styles.action
+                      }
+                      disabled={busy}
+                      onClick={() =>
+                        patch(genre.id, { isApproved: !genre.isApproved })
+                      }
+                    >
+                      {genre.isApproved ? t("unapprove") : t("approve")}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          ) : null}
+        </>
       )}
     </section>
   );

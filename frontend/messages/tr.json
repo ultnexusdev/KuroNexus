@@ -1880,7 +1880,14 @@
       "accentKeyHint": "Odanın rengi. Alt türlerde boş bırakın — üst türün rengini alırlar.",
       "parentGenreHint": "Boş bırakılırsa ODA olur ve kendi sayfasını açar. Bir üst tür seçilirse onun altında alt tür olur.",
       "seedTaxonomy": "Tür taksonomisini kur",
-      "taxonomyDone": "{rooms} oda ve {subgenres} alt tür hazır."
+      "taxonomyDone": "{rooms} oda ve {subgenres} alt tür hazır.",
+      "genreSearch": "Tür ara",
+      "genreSearchPlaceholder": "Tür adı ya da adres parçası…",
+      "genreTotals": "{rooms} oda · {subgenres} alt tür",
+      "genreNoMatch": "Eşleşen tür yok.",
+      "genreSubCount": "{count} alt tür",
+      "genreNoChildren": "Bu odanın alt türü yok.",
+      "genreOrphans": "Üst türü olmayan alt türler"
     }
   }
 }

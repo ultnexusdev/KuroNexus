@@ -1880,7 +1880,14 @@
       "accentKeyHint": "The room colour. Leave empty for subgenres — they inherit the parent colour.",
       "parentGenreHint": "Left empty it becomes a ROOM with its own page. Pick a parent and it becomes a subgenre under it.",
       "seedTaxonomy": "Set up the genre taxonomy",
-      "taxonomyDone": "{rooms} rooms and {subgenres} subgenres are ready."
+      "taxonomyDone": "{rooms} rooms and {subgenres} subgenres are ready.",
+      "genreSearch": "Search genres",
+      "genreSearchPlaceholder": "Genre name or slug…",
+      "genreTotals": "{rooms} rooms · {subgenres} subgenres",
+      "genreNoMatch": "No matching genre.",
+      "genreSubCount": "{count} subgenres",
+      "genreNoChildren": "This room has no subgenres.",
+      "genreOrphans": "Subgenres without a parent"
     }
   }
 }

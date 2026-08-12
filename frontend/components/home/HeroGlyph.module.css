@@ -1,167 +1,113 @@
-/* 黒 mührü — holün ana karakteri. İmlece tepki veren hafif parallax
-   ve arkasında imleci takip eden yumuşak altın ışık (kullanıcının açık
-   isteğiyle, düşük dozda — kural 16 istisnası). Hareket JS'te eased,
-   prefers-reduced-motion'da tamamen kapalı. Renkler token'lardan. */
+/* 黒 mührü — holün ana karakteri (dikey marka kilidi).
+
+   Hareket YOK: parallax, imleç takibi ve giriş animasyonu 12 Ağustos 2026'da
+   kaldırıldı. Yalnızca hover'da altın hâle güçlenir + kilit %3 büyür; bu,
+   kullanıcının açık isteği (kural 16'daki "glow yasak" maddesinin bilinçli,
+   düşük dozlu istisnası — aynı istisna eski dosyada da yazılıydı).
+
+   Renkler token'lardan: --hub-gold / --hub-paper (globals.css). */
 
 .glyphCol {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* Aralık `.rule`ın kendi marjlarında: iki kaynak olsaydı çizginin glife ve
-     kelimeye uzaklığı ayrı ayrı ayarlanamazdı */
-  gap: 0;
   flex-shrink: 0;
-  /* Sola yaslanma hissi — kullanıcı isteğiyle biraz daha belirgin */
-  margin-left: calc(-1 * clamp(6px, 2.4vw, 34px));
+  /* Eskiden burada negatif bir sol boşluk vardı ("sola yaslanma hissi").
+     Metin glifinin sağında/solunda ciddi yan boşluk olduğu için mürekkep
+     yine de hizada kalıyordu. Vektör işaret ise kırpılmış geliyor: aynı
+     negatif değer mührün sol kolunu ekran dışına taşırıyordu. Optik hiza
+     artık kendiliğinden doğru, negatif boşluk kaldırıldı. */
+  margin-left: 0;
 }
 
-/* İmleci takip eden loş altın ışık — glifin arkasında nefes alır */
+/* Mührün arkasındaki loş altın ışık. Sabit duruyor; hover'da güçlenir. */
 .aura {
   position: absolute;
-  inset: -34% -42%;
+  inset: -30% -38%;
   z-index: 0;
   pointer-events: none;
   background: radial-gradient(
-    40% 40% at var(--gx, 50%) var(--gy, 40%),
-    color-mix(in srgb, var(--hub-gold) 24%, transparent),
+    42% 42% at 50% 40%,
+    color-mix(in srgb, var(--hub-gold) 22%, transparent),
     transparent 72%
   );
   opacity: 0.55;
   filter: blur(8px);
-  transition: opacity 0.6s ease;
+  transition: opacity 0.45s ease;
 }
 
-/* Mührün KUTUSU. İçindeki 黒 artık metin değil çizim (bkz. KuroBrush) —
-   yazı tipi, dolgu, kontur ve parıltı oraya taşındı. Burada yalnızca ölçü ve
-   parallax dönüşümü kaldı.
-
-   `font-size` yerine `width`: SVG kendi en-boy oranını taşıyor, punto onu
-   sürmüyor. Ölçü değerleri aynen korundu ki mühür eskisiyle aynı boyda dursun. */
-.glyph {
+/* Kilit: işaret + ayraç + kelime. Hover büyümesi burada uygulanır ki
+   arkadaki hâle onunla birlikte ölçeklenip bulanıklaşmasın. */
+.lockup {
   position: relative;
   z-index: 1;
-  display: block;
-  width: clamp(7rem, 13vw, 9.75rem);
-  line-height: 0;
-  user-select: none;
-  will-change: transform;
-  transform-style: preserve-3d;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform-origin: center;
+  transition:
+    transform 0.4s cubic-bezier(0.22, 0.61, 0.36, 1),
+    filter 0.4s ease;
+  filter: drop-shadow(0 0 14px color-mix(in srgb, var(--hub-gold) 30%, transparent));
 }
 
-/* Künye levhası çizgisi: işaretle adı ayıran ince altın hat */
-.rule {
+.mark {
   display: block;
-  width: 2.6em;
+  width: clamp(5.6rem, 13vw, 9.6rem);
+  height: auto;
+  color: var(--hub-gold);
+  overflow: visible;
+}
+
+/* İşaret ile kelime arasındaki altın ayraç — kenarlara doğru söner.
+   Kimlik paketinde SVG gradyanıydı; burada CSS'e alındı, böylece rengi
+   token'dan okuyor ve id çakışması riski kalmıyor. */
+.rule {
+  width: 62%;
   height: 1px;
-  margin: 0.9em 0 0.7em;
+  margin: clamp(12px, 1.8vw, 24px) 0 clamp(14px, 2.2vw, 28px);
   background: linear-gradient(
-    to right,
+    90deg,
     transparent,
-    color-mix(in srgb, var(--hub-gold) 70%, transparent),
+    color-mix(in srgb, var(--hub-gold) 85%, transparent),
     transparent
   );
-  font-size: clamp(1rem, 2.4vw, 1.5rem);
-  /* Çizgi de mühürden sonra çiziliyor: soldan sağa açılıyor */
-  transform: scaleX(0);
-  transform-origin: center;
-  animation: hgCizgi 0.5s cubic-bezier(0.22, 1, 0.36, 1) var(--hg-delay, 0s) both;
 }
 
-@keyframes hgCizgi {
-  to {
-    transform: scaleX(1);
+.word {
+  display: block;
+  width: clamp(7rem, 16.2vw, 12rem);
+  height: auto;
+  /* Kimlik paketinde kelime, mühürden bir tık açık altındır */
+  color: color-mix(in srgb, var(--hub-gold) 76%, var(--hub-paper));
+}
+
+/* --- Hover: kullanıcının istediği tek etkileşim --- */
+@media (hover: hover) and (pointer: fine) {
+  .glyphCol:hover .lockup {
+    transform: scale(1.03);
+    filter: drop-shadow(0 0 30px color-mix(in srgb, var(--hub-gold) 55%, transparent));
   }
-}
 
-/* Harfler: kanji bittikten sonra sırayla, aşağıdan hafifçe yükselerek */
-.letter {
-  display: inline-block;
-  opacity: 0;
-  animation: hgHarf 0.42s cubic-bezier(0.22, 1, 0.36, 1) var(--hg-delay, 0s) both;
-}
-
-@keyframes hgHarf {
-  from {
-    opacity: 0;
-    transform: translateY(0.28em);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Hareket azaltilmissa hicbiri animasyonlanmiyor — 11 vurus + 5 harf pesi sira
-   belirmek vestibuler rahatsizlik yaratabilecek turden bir hareket. */
-@media (prefers-reduced-motion: reduce) {
-  .rule,
-  .letter {
-    animation: none;
-    opacity: 1;
-    transform: none;
-  }
-}
-
-.glyphWord {
-  position: relative;
-  z-index: 1;
-  font-family: var(--font-cinzel), serif;
-  font-size: clamp(1rem, 2.4vw, 1.5rem);
-  letter-spacing: 0.55em;
-  text-indent: 0.55em;
-  color: var(--hub-gold);
-  text-transform: lowercase; /* Cinzel'de küçük harfler küçük-kapital biçimlidir */
-}
-
-/* Kutu kısa bir solmayla geliyor. 1.1sn'den 0.45sn'ye indirildi: vuruşlar
-   1.87sn boyunca çiziliyor ve uzun bir solma ilk vuruşları yarı saydam
-   bırakıp yazımın başını görünmez kılıyordu. */
-@media (prefers-reduced-motion: no-preference) {
-  .glyphCol {
-    animation: glyphIn 0.45s ease both;
-  }
-}
-
-@keyframes glyphIn {
-  from {
-    opacity: 0;
-    filter: drop-shadow(0 0 0 transparent);
-  }
-  to {
-    opacity: 1;
+  .glyphCol:hover .aura {
+    opacity: 0.95;
   }
 }
 
 /* Dar ekranda mühür tek başına bir hero değil, mottonun yanında duran
-   kompakt bir logo kilidi: küçülür ve 黒 ile "nexus" birbirine göre
-   ORTALANIR. Eskiden ikisi sola yaslanıyordu ama CJK glifinin yan
-   boşlukları yüzünden mürekkep hizası kaçıyor, yazı glifin solundan
-   başlıyormuş gibi görünüyordu. Parallax burada zaten kapalı. */
+   kompakt bir logo kilidi: küçülür ve ortalanır. Hover zaten kapalı. */
 @media (max-width: 560px) {
-  .glyphCol {
-    align-items: center;
-    margin-left: 0;
-    gap: 0;
+  .mark {
+    width: clamp(3.4rem, 13vw, 4.6rem);
   }
 
-  .glyph {
-    /* Ölçü artık `width` (bkz. .glyph notu); değerler aynen korundu */
-    width: clamp(3.4rem, 14vw, 4.6rem);
-  }
-
-  /* Çizgi de küçülüyor: geniş ekran ölçüsü bu boyutta glifin altına
-     orantısız uzun bir hat çiziyordu */
   .rule {
-    width: 2.2em;
-    margin: 0.6em 0 0.5em;
+    margin: 8px 0 9px;
   }
 
-  .glyphWord {
-    /* Harf aralığı da küçüldü: 0.55em bu boyutta kelimeyi dağıtıyordu */
-    font-size: 0.6rem;
-    letter-spacing: 0.3em;
-    text-indent: 0.3em;
+  .word {
+    width: clamp(4.3rem, 16.2vw, 5.8rem);
   }
 
   .aura {
@@ -171,10 +117,11 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .glyphCol {
-    animation: none;
+  .lockup {
+    transition: none;
   }
-  .aura {
-    display: none;
+
+  .glyphCol:hover .lockup {
+    transform: none;
   }
 }

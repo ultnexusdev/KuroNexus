@@ -13,6 +13,7 @@ import {
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { readIsAdmin } from "@/lib/auth/session";
+import { SITE_URL } from "@/lib/site";
 import { routing } from "@/lib/i18n/routing";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { THEMES, DEFAULT_THEME, THEME_COOKIE, type Theme } from "@/lib/theme";
@@ -146,11 +147,44 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "meta" });
   return {
+    /**
+     * Paylaşım görselinin adresi mutlak olmak zorunda — WhatsApp, X ve
+     * Discord göreli yol kabul etmiyor. `metadataBase` verilince Next
+     * aşağıdaki göreli yolları kendisi mutlaklaştırıyor.
+     */
+    metadataBase: new URL(SITE_URL),
     title: {
       default: "KuroNexus",
       template: "%s | KuroNexus",
     },
     description: t("description"),
+    // favicon.ico ve apple-icon.png `app/` altında duruyor; Next onları
+    // kendiliğinden bağlar. Burada yalnızca dosya adı geçmeyenler var.
+    icons: {
+      icon: [{ url: "/brand/icon.svg", type: "image/svg+xml" }],
+    },
+    openGraph: {
+      type: "website",
+      siteName: "KuroNexus",
+      title: "KuroNexus",
+      description: t("description"),
+      locale: locale === "en" ? "en_US" : "tr_TR",
+      url: locale === "en" ? `${SITE_URL}/en` : SITE_URL,
+      images: [
+        {
+          url: "/brand/og.png",
+          width: 1200,
+          height: 630,
+          alt: "KuroNexus",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "KuroNexus",
+      description: t("description"),
+      images: ["/brand/og.png"],
+    },
   };
 }
 

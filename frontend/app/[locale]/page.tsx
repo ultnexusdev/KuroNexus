@@ -204,8 +204,9 @@ export default async function HomePage({
       <div className={styles.grid}>
         {/* Sol: 黒 glifi + küratör sütunu */}
         <div className={styles.curator}>
-          {/* Karanlıkta altın konturuyla beliren mühür — imlece tepki verir */}
-          <HeroGlyph word="nexus" />
+          {/* Kimlik paketinin dikey kilidi: 黒 konturu + ayraç + NEXUS.
+              Sabit durur; yalnızca hover'da altın hâlesi güçlenir. */}
+          <HeroGlyph />
 
           <div className={styles.textCol}>
             <p className={styles.eyebrow}>{t("eyebrow")}</p>

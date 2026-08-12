@@ -1,23 +1,41 @@
+/* Yatay marka kilidi. Renkler token'dan (kural 16): mühür accent,
+   kelime birincil metin rengi. Hover'da ikisi de accent-hover'a döner —
+   eski metin logosunun davranışı korundu. */
+
 .logo {
   display: inline-flex;
   align-items: center;
-  gap: 0.3em;
+  gap: 0.42em;
   line-height: 1;
 }
 
-.kuro {
-  font-family: var(--font-brush), serif;
-  font-size: 1.45em;
-  font-weight: 400;
-  letter-spacing: normal;
+.mark {
+  display: block;
+  /* 1.8em ≈ 33px (header) / 29px (footer). Daha küçüğünde glifin iç
+     boşlukları kapanmaya başlıyor; daha büyüğü 44px'lik başlık şeridini
+     zorluyor. */
+  width: 1.8em;
+  height: 1.8em;
   color: var(--accent);
+  transition: color 0.2s;
 }
 
-.nexus {
-  font-family: var(--font-sans);
-  font-weight: 300;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  /* letter-spacing son harften sonra da boşluk bırakır — görsel denge için */
-  margin-right: -0.22em;
+.divider {
+  width: 1px;
+  height: 1.05em;
+  background: var(--border-strong);
+}
+
+.word {
+  display: block;
+  /* Kelime işaretinin oranı 1000 : 119 — yükseklik 0.6em ise genişlik 5.04em */
+  width: 5.04em;
+  height: 0.6em;
+  color: var(--text-primary);
+  transition: color 0.2s;
+}
+
+.logo:hover .mark,
+.logo:hover .word {
+  color: var(--accent-hover);
 }

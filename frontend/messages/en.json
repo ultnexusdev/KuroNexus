@@ -1875,7 +1875,10 @@
       "moveUp": "Move up",
       "moveDown": "Move down",
       "bannerPosition": "Banner focus point",
-      "bannerPositionHint": "Which point of the image stays centred. If faces are cropped, lower the vertical value."
+      "bannerPositionHint": "Which point of the image stays centred. If faces are cropped, lower the vertical value.",
+      "genreNameHint": "The display name. The URL slug is derived from it.",
+      "accentKeyHint": "The room colour. Leave empty for subgenres — they inherit the parent colour.",
+      "parentGenreHint": "Left empty it becomes a ROOM with its own page. Pick a parent and it becomes a subgenre under it."
     }
   }
 }

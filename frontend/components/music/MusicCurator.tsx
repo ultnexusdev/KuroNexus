@@ -509,41 +509,57 @@ function GenreDictionary() {
       <h3 className={styles.blockTitle}>{t("genreTitle")}</h3>
       <p className={styles.blockLede}>{t("genreLede")}</p>
 
-      <form className={styles.row} onSubmit={create}>
-        <input
-          type="text"
-          className={styles.input}
-          value={name}
-          placeholder={t("genreNamePlaceholder")}
-          aria-label={t("genreName")}
-          onChange={(event) => setName(event.target.value)}
-        />
-        <select
-          className={styles.select}
-          value={accentKey}
-          aria-label={t("accentKey")}
-          onChange={(event) => setAccentKey(event.target.value)}
-        >
-          <option value="">{t("accentNone")}</option>
-          {ACCENT_KEYS.map((key) => (
-            <option key={key} value={key}>
-              {key}
-            </option>
-          ))}
-        </select>
-        <select
-          className={styles.select}
-          value={parentId}
-          aria-label={t("parentGenre")}
-          onChange={(event) => setParentId(event.target.value)}
-        >
-          <option value="">{t("parentNone")}</option>
-          {rooms.map((genre) => (
-            <option key={genre.id} value={genre.id}>
-              {genre.name}
-            </option>
-          ))}
-        </select>
+      {/* ⚠️ Üç kutu 13 Ağustos'a kadar ETİKETSİZDİ ve yan yana duruyordu;
+          kullanıcı "hangisi ne işe yarıyor anlamadım" dedi. `aria-label`
+          vardı — yani ekran okuyucu biliyordu, gözle bakan bilmiyordu.
+          Görünür etiket erişilebilirlik için değil ANLAŞILIRLIK için. */}
+      <form className={styles.createGrid} onSubmit={create}>
+        <label className={styles.field}>
+          <span className={styles.fileLabel}>{t("genreName")}</span>
+          <input
+            type="text"
+            className={styles.input}
+            value={name}
+            placeholder={t("genreNamePlaceholder")}
+            onChange={(event) => setName(event.target.value)}
+          />
+          <span className={styles.hint}>{t("genreNameHint")}</span>
+        </label>
+
+        <label className={styles.field}>
+          <span className={styles.fileLabel}>{t("accentKey")}</span>
+          <select
+            className={styles.select}
+            value={accentKey}
+            onChange={(event) => setAccentKey(event.target.value)}
+          >
+            <option value="">{t("accentNone")}</option>
+            {ACCENT_KEYS.map((key) => (
+              <option key={key} value={key}>
+                {key}
+              </option>
+            ))}
+          </select>
+          <span className={styles.hint}>{t("accentKeyHint")}</span>
+        </label>
+
+        <label className={styles.field}>
+          <span className={styles.fileLabel}>{t("parentGenre")}</span>
+          <select
+            className={styles.select}
+            value={parentId}
+            onChange={(event) => setParentId(event.target.value)}
+          >
+            <option value="">{t("parentNone")}</option>
+            {rooms.map((genre) => (
+              <option key={genre.id} value={genre.id}>
+                {genre.name}
+              </option>
+            ))}
+          </select>
+          <span className={styles.hint}>{t("parentGenreHint")}</span>
+        </label>
+
         <button type="submit" className={styles.action} disabled={busy}>
           {t("createGenre")}
         </button>
@@ -558,10 +574,18 @@ function GenreDictionary() {
       ) : (
         <ul className={styles.genreList}>
           {genres.map((genre) => (
-            <li key={genre.id} className={styles.genreRow}>
+            /* Alt tür GİRİNTİYLE ayrılıyor, karakterle değil. Önce "↳" (U+21B3)
+               kullanılmıştı ama satır başlıkları Cinzel ile çiziliyor ve o
+               fontta bu glif yok — yedek fontta bambaşka bir işaret çıkıyordu
+               (kullanıcı ekran görüntüsü, 13 Ağustos). Girinti her fontta
+               çalışıyor ve hiyerarşiyi zaten daha iyi anlatıyor. */
+            <li
+              key={genre.id}
+              className={styles.genreRow}
+              data-sub={genre.parentId ? "true" : undefined}
+            >
               <span className={styles.genreName}>
-                {genre.parentId ? "↳ " : ""}
-                {genre.name}
+                                {genre.name}
               </span>
               <code className={styles.genreSlug}>{genre.slug}</code>
               <span className={styles.genreMeta}>
@@ -817,8 +841,7 @@ export function ActCurator({ act }: { act: CuratorAct }) {
                   aria-pressed={selected.includes(genre.id)}
                   onClick={() => toggle(genre.id)}
                 >
-                  {genre.parentId ? "↳ " : ""}
-                  {genre.name}
+                                    {genre.name}
                 </button>
               </li>
             ))}

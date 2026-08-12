@@ -367,3 +367,25 @@
 .ok {
   color: var(--accent);
 }
+
+/* Alt tür satırı: girintili ve sol kenarında ince bir çizgi. Karakterle
+   (↳) işaretlemek Cinzel'de bozuluyordu — gerekçesi bileşende yazılı. */
+.genreRow[data-sub="true"] {
+  margin-left: 1.25rem;
+  border-left: 2px solid var(--border-strong, var(--border));
+}
+
+/* Tür oluşturma formu: üç alan artık ETİKETLİ ve alt alta sığabiliyor.
+   Yan yana etiketsiz üç kutu "hangisi ne işe yarıyor" sorusunu doğurmuştu. */
+.createGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  align-items: end;
+}
+
+@media (min-width: 780px) {
+  .createGrid {
+    grid-template-columns: 2fr 1fr 1.5fr auto;
+  }
+}

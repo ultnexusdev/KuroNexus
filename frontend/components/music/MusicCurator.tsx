@@ -76,7 +76,25 @@ const MIN_QUERY = 2;
  * olmasının sebebi bu: karşılığı olmayan bir anahtar yazılsa oda sessizce
  * salonun varsayılan rengiyle çizilirdi — hata görünmezdi.
  */
-const ACCENT_KEYS = ["rock", "pop", "rnb", "electronic"] as const;
+const ACCENT_KEYS = [
+  "pop",
+  "rock",
+  "metal",
+  "hiphop",
+  "electronic",
+  "rnb",
+  "jazz",
+  "blues",
+  "classical",
+  "folk",
+  "country",
+  "latin",
+  "reggae",
+  "world",
+  "gospel",
+  "soundtrack",
+  "experimental",
+] as const;
 
 const ACT_KINDS = [
   "UNCLASSIFIED",

@@ -399,6 +399,130 @@
   --music-wash:     rgba(79, 159, 166, 0.10);
 }
 
+/* ── ONYEDI ODA RENGI (13 Agustos 2026) ──────────────────────────────────
+   Kullanici 17 ana tur + alt turler istedi; onceden yalnizca DORT renk
+   vardi (rock, pop, rnb, electronic).
+
+   ⚠️ ALT TURLERIN KENDI RENGI YOK — ust turun rengini aliyorlar (kullanici
+   karari). Devralma CSS'te degil SERVIS katmaninda: bos `accentKey` ust
+   turden dolduruluyor, boylece rozet/oda/ray hepsi ayni degeri goruyor ve
+   tek yerde cozuluyor.
+
+   Renkler elle secildi ve hepsi ayni bantta: dusuk-orta doygunluk, koyu
+   yesil-siyah zeminde okunur, hicbiri salonun teal accent'ini bogmuyor.
+   `--accent-hover` ve `--accent-muted` ana renkten turetildi. */
+[data-category="muzik"][data-genre="pop"] {
+  --accent:         #b06a8a;
+  --accent-hover:   #c18ba4;
+  --accent-muted:   #613a4c;
+  --music-wash:     rgba(176, 106, 138, 0.10);
+}
+
+[data-category="muzik"][data-genre="metal"] {
+  --accent:         #7d8794;
+  --accent-hover:   #9aa1ac;
+  --accent-muted:   #454a51;
+  --music-wash:     rgba(125, 135, 148, 0.10);
+}
+
+[data-category="muzik"][data-genre="hiphop"] {
+  --accent:         #c08040;
+  --accent-hover:   #ce9c6a;
+  --accent-muted:   #6a4623;
+  --music-wash:     rgba(192, 128, 64, 0.10);
+}
+
+[data-category="muzik"][data-genre="electronic"] {
+  --accent:         #4f9fa6;
+  --accent-hover:   #76b4ba;
+  --accent-muted:   #2b575b;
+  --music-wash:     rgba(79, 159, 166, 0.10);
+}
+
+[data-category="muzik"][data-genre="rnb"] {
+  --accent:         #7f86c9;
+  --accent-hover:   #9ba1d5;
+  --accent-muted:   #464a6f;
+  --music-wash:     rgba(127, 134, 201, 0.10);
+}
+
+[data-category="muzik"][data-genre="jazz"] {
+  --accent:         #bfa14a;
+  --accent-hover:   #cdb672;
+  --accent-muted:   #695929;
+  --music-wash:     rgba(191, 161, 74, 0.10);
+}
+
+[data-category="muzik"][data-genre="blues"] {
+  --accent:         #5b7bb5;
+  --accent-hover:   #7f98c5;
+  --accent-muted:   #324464;
+  --music-wash:     rgba(91, 123, 181, 0.10);
+}
+
+[data-category="muzik"][data-genre="classical"] {
+  --accent:         #c2a878;
+  --accent-hover:   #cfbb96;
+  --accent-muted:   #6b5c42;
+  --music-wash:     rgba(194, 168, 120, 0.10);
+}
+
+[data-category="muzik"][data-genre="folk"] {
+  --accent:         #7f9a63;
+  --accent-hover:   #9bb085;
+  --accent-muted:   #465536;
+  --music-wash:     rgba(127, 154, 99, 0.10);
+}
+
+[data-category="muzik"][data-genre="country"] {
+  --accent:         #b4795a;
+  --accent-hover:   #c5967e;
+  --accent-muted:   #634332;
+  --music-wash:     rgba(180, 121, 90, 0.10);
+}
+
+[data-category="muzik"][data-genre="latin"] {
+  --accent:         #cf7b62;
+  --accent-hover:   #da9885;
+  --accent-muted:   #724436;
+  --music-wash:     rgba(207, 123, 98, 0.10);
+}
+
+[data-category="muzik"][data-genre="reggae"] {
+  --accent:         #6aa06a;
+  --accent-hover:   #8bb58b;
+  --accent-muted:   #3a583a;
+  --music-wash:     rgba(106, 160, 106, 0.10);
+}
+
+[data-category="muzik"][data-genre="world"] {
+  --accent:         #5aa3a0;
+  --accent-hover:   #7eb7b5;
+  --accent-muted:   #325a58;
+  --music-wash:     rgba(90, 163, 160, 0.10);
+}
+
+[data-category="muzik"][data-genre="gospel"] {
+  --accent:         #a58ac0;
+  --accent-hover:   #b9a4ce;
+  --accent-muted:   #5b4c6a;
+  --music-wash:     rgba(165, 138, 192, 0.10);
+}
+
+[data-category="muzik"][data-genre="soundtrack"] {
+  --accent:         #8fa3b8;
+  --accent-hover:   #a8b7c8;
+  --accent-muted:   #4f5a65;
+  --music-wash:     rgba(143, 163, 184, 0.10);
+}
+
+[data-category="muzik"][data-genre="experimental"] {
+  --accent:         #9aa657;
+  --accent-hover:   #b0ba7c;
+  --accent-muted:   #555b30;
+  --music-wash:     rgba(154, 166, 87, 0.10);
+}
+
 /* Tur rozetleri ve karisim cubuklari: oda DISINDA da (2a, 2d) her turun
    kendi rengi gorunuyor. Bu yuzden accent'ten bagimsiz, dogrudan
    okunabilen bir aile de gerekiyor. */

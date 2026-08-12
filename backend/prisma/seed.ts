@@ -2,6 +2,23 @@ import 'dotenv/config';
 import * as bcrypt from 'bcrypt';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from './_client';
+import { MUSIC_TAXONOMY } from './music-taxonomy';
+
+/**
+ * ⚠️ `src/common/utils/slugify.ts`in KOPYASI — prisma betikleri `src/`
+ * altından import edemiyor (bu dosyanın başındaki nota bakın). İkisi
+ * ayrışırsa tür slug'ları seed ile servis arasında farklılaşır; taksonomi
+ * adları ASCII olduğu için bugün fark üretmiyor ama kural aynı.
+ */
+function slugify(input: string): string {
+  return input
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 96);
+}
 
 const BCRYPT_ROUNDS = 12;
 
@@ -82,9 +99,84 @@ async function main(): Promise<void> {
     console.log(
       `Music role vocabulary ready: ${createdRoles} created, ${MUSIC_ROLE_KEYS.length - createdRoles} existing`,
     );
+
+    await seedMusicTaxonomy(prisma);
   } finally {
     await prisma.$disconnect();
   }
+}
+
+/**
+ * Tür taksonomisi — 17 oda ve alt türleri (`music-taxonomy.ts`).
+ *
+ * Tekrar çalıştırmak güvenli: slug üzerinden upsert. Var olan kayıtlar
+ * taksonomiye KATILIYOR — MusicBrainz'den gelmiş "rock", "metal", "nu-metal"
+ * gibi türler aynı slug'a düştüğü için yeni ad/renk/üst tür bilgisini alıyor
+ * ve onaylanıyor. Yani sözlük ikiye bölünmüyor.
+ *
+ * ⚠️ Alt tür ana türle AYNI ada sahipse atlanıyor. Kullanıcının listesinde
+ * dört yerde var ("Pop > Pop", "Hip-Hop > Hip-Hop", "Reggae > Reggae",
+ * "Experimental > Experimental"); ikisi de aynı slug'a düşeceği için ikinci
+ * upsert birincisini kendi çocuğu yapmaya çalışırdı — tür kendi kendinin
+ * üstü olurdu. Ana tür zaten o adı temsil ediyor.
+ */
+async function seedMusicTaxonomy(
+  prisma: InstanceType<typeof PrismaClient>,
+): Promise<void> {
+  let parents = 0;
+  let children = 0;
+  let skipped = 0;
+
+  for (const group of MUSIC_TAXONOMY) {
+    const parentSlug = slugify(group.name);
+    const parent = await prisma.musicGenre.upsert({
+      where: { slug: parentSlug },
+      update: {
+        name: group.name,
+        accentKey: group.accentKey,
+        parentId: null,
+        isApproved: true,
+      },
+      create: {
+        slug: parentSlug,
+        name: group.name,
+        accentKey: group.accentKey,
+        isApproved: true,
+      },
+      select: { id: true },
+    });
+    parents += 1;
+
+    for (const childName of group.children) {
+      const childSlug = slugify(childName);
+      if (childSlug === parentSlug) {
+        skipped += 1;
+        continue;
+      }
+      await prisma.musicGenre.upsert({
+        where: { slug: childSlug },
+        update: {
+          name: childName,
+          // Alt tür ana türün rengini TAŞIYOR — gerekçe `music-taxonomy.ts`
+          accentKey: group.accentKey,
+          parentId: parent.id,
+          isApproved: true,
+        },
+        create: {
+          slug: childSlug,
+          name: childName,
+          accentKey: group.accentKey,
+          parentId: parent.id,
+          isApproved: true,
+        },
+      });
+      children += 1;
+    }
+  }
+
+  console.log(
+    `Music taxonomy ready: ${parents} rooms, ${children} subgenres, ${skipped} skipped (same name as parent)`,
+  );
 }
 
 main().catch((error: unknown) => {

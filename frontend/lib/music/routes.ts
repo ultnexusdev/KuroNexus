@@ -103,7 +103,9 @@ export function spotifyOpenUrl(
  * yerine nötr bir gri.
  */
 export function genreColorVar(accentKey: string | null | undefined): string {
-  const known = ["rock", "pop", "rnb", "electronic"];
+  const known = [
+    "pop", "rock", "metal", "hiphop", "electronic", "rnb", "jazz", "blues", "classical", "folk", "country", "latin", "reggae", "world", "gospel", "soundtrack", "experimental",
+  ];
   return accentKey && known.includes(accentKey)
     ? `var(--genre-${accentKey})`
     : "var(--genre-unknown)";

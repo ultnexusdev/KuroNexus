@@ -32,7 +32,25 @@ import type { MusicActKind } from '../generated/prisma/enums';
  */
 
 /** `globals.css` içinde `[data-genre="…"]` bloğu olan anahtarlar. */
-const KNOWN_ACCENT_KEYS = ['rock', 'pop', 'rnb', 'electronic'];
+const KNOWN_ACCENT_KEYS = [
+  'pop',
+  'rock',
+  'metal',
+  'hiphop',
+  'electronic',
+  'rnb',
+  'jazz',
+  'blues',
+  'classical',
+  'folk',
+  'country',
+  'latin',
+  'reggae',
+  'world',
+  'gospel',
+  'soundtrack',
+  'experimental',
+];
 
 const ACT_KINDS: MusicActKind[] = [
   'UNCLASSIFIED',

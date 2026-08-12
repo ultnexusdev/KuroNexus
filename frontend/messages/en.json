@@ -155,7 +155,16 @@
     "queue": "Up next",
     "queueCount": "{done} / {total}",
     "close": "Close the player",
-    "embedFailed": "The player failed to load — skip still works, start playback manually."
+    "embedFailed": "The player failed to load — skip still works, start playback manually.",
+    "nowPlaying": "Now playing",
+    "idle": "Nothing is playing yet. Press one of the tracks below; what comes next will show here and it will keep playing as you move to other pages.",
+    "playThisPage": "Play this page ({count} tracks)",
+    "openInSpotify": "Open in Spotify",
+    "repeatMode": {
+      "off": "Repeat off",
+      "all": "Repeat the list",
+      "one": "Repeat this track"
+    }
   },
   "admin": {
     "title": "Admin Panel",

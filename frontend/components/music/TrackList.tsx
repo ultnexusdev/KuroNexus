@@ -66,12 +66,15 @@ export function TrackList({
   isAdmin = false,
   showAlbum = false,
   showPlays = false,
+  contextHref,
   playlistId = null,
   numbered = true,
 }: {
   tracks: PlayableTrack[];
   /** Şeritte "nereden çalıyor" yazısı — albüm ya da liste adı */
   context: string;
+  /** Varsa kaynağın adresi; şeritten ve panelden geri dönmek için */
+  contextHref?: string;
   isAdmin?: boolean;
   showAlbum?: boolean;
   /** Dinleme kaydı aktarılmadıysa sütun hiç çizilmiyor (0 ≠ ölçüm yok) */
@@ -90,7 +93,7 @@ export function TrackList({
 
   function startAt(track: PlayableTrack) {
     const index = playable.findIndex((item) => item.id === track.id);
-    play(playable.map(toQueueTrack), Math.max(0, index), context);
+    play(playable.map(toQueueTrack), Math.max(0, index), context, contextHref);
   }
 
   async function remove(track: PlayableTrack) {

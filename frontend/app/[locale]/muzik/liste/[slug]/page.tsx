@@ -7,8 +7,8 @@ import { fetchMusicPlaylist, type MusicPlaylistDetail } from "@/lib/api/music";
 import { readIsAdmin } from "@/lib/auth/session";
 import { musicHref, spotifyOpenUrl } from "@/lib/music/routes";
 import { CoverArt } from "@/components/music/CoverArt";
-import { SpotifyEmbed } from "@/components/music/SpotifyEmbed";
 import { TrackList } from "@/components/music/TrackList";
+import { NowPlaying } from "@/components/player/NowPlaying";
 import shell from "../../layout.module.css";
 import styles from "./page.module.css";
 
@@ -146,21 +146,23 @@ export default async function MusicPlaylistPage({
           )}
         </section>
 
+        {/* Yerel listenin Spotify karşılığı yok, yani gömülecek bir adres de
+            yoktu ve bu sütun bir uyarı metniyle duruyordu. Artık iki liste
+            türü de aynı şeyi gösteriyor: kuyruğun kendisi. */}
         <aside className={styles.side}>
-          <span className={shell.label}>{t("act.player")}</span>
-          {playlist.spotifyId ? (
-            <SpotifyEmbed
-              kind="playlist"
-              spotifyId={playlist.spotifyId}
-              height={352}
-              note
-            />
-          ) : (
-            /* Yerel listenin Spotify karşılığı yok, yani gömülecek bir adres
-               de yok. Çalma işi şerit çalarda: kuyruk parça parça yükleniyor
-               ve sayfadan ayrılınca kesilmiyor. */
-            <p className={styles.sideNote}>{t("playlists.localPlayerNote")}</p>
-          )}
+          <NowPlaying
+            seed={{
+              tracks: playlist.tracks.map((track) => ({
+                spotifyId: track.spotifyId ?? "",
+                title: track.title,
+                artist: track.album.act.name,
+                album: track.album.title,
+                artwork: track.album.artwork,
+              })),
+              context: playlist.name,
+              contextHref: musicHref.playlist(playlist.slug),
+            }}
+          />
         </aside>
       </div>
     </div>

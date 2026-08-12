@@ -111,10 +111,15 @@ const CSP_DIRECTIVES = [
   /**
    * `'self'` 13 Ağustos'ta eklendi: müzik çaları artık kendi origin'imizdeki
    * bir karantina sayfası (`/api/music-player`) ve onu iframe'lememiz gerek.
-   * `open.spotify.com` duruyor çünkü sayfalardaki gömüler (`SpotifyEmbed`)
-   * doğrudan Spotify'a bakan iframe'ler.
+   *
+   * ⚠️ `open.spotify.com` aynı gün BURADAN ÇIKARILDI. Sayfalar artık doğrudan
+   * Spotify gömüsü çizmiyor: `SpotifyEmbed` bileşeni silindi (tek çalar
+   * kararı — iki gömü birbirinden habersiz çalıyordu). Spotify iframe'i
+   * yalnızca karantina sayfasının İÇİNDE kuruluyor ve izni onun kendi
+   * CSP'sinde (`PLAYER_CSP`). Site geneli politikada Spotify'a ait tek bir
+   * satır kalmadı.
    */
-  "frame-src 'self' https://www.youtube-nocookie.com https://open.spotify.com",
+  "frame-src 'self' https://www.youtube-nocookie.com",
   "worker-src 'self' blob:",
   "manifest-src 'self'",
   // Yanlışlıkla http:// kalmış bir alt kaynak varsa tarayıcı https'e yükseltsin

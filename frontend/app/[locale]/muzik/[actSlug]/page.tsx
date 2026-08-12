@@ -9,8 +9,8 @@ import { musicHref, spotifyOpenUrl } from "@/lib/music/routes";
 import { CoverArt } from "@/components/music/CoverArt";
 import { Discography } from "@/components/music/Discography";
 import { MusicCuratorSwitch } from "@/components/music/MusicCuratorSwitch";
-import { SpotifyEmbed } from "@/components/music/SpotifyEmbed";
 import { TrackList } from "@/components/music/TrackList";
+import { NowPlaying } from "@/components/player/NowPlaying";
 import shell from "../layout.module.css";
 import styles from "./page.module.css";
 
@@ -248,13 +248,22 @@ export default async function MusicActPage({
           )}
         </section>
 
+        {/* Sağ sütun kuyruğun görünümü (gerekçe `NowPlaying.tsx`). Sanatçı
+            sayfasında tohum "en çok dinlediğim parçalar" — sayfada çizilen
+            liste neyse çalınan da o olsun. */}
         <aside className={styles.side}>
-          <span className={shell.label}>{t("act.player")}</span>
-          <SpotifyEmbed
-            kind="artist"
-            spotifyId={act.spotifyId}
-            height={352}
-            note
+          <NowPlaying
+            seed={{
+              tracks: act.topTracks.map((track) => ({
+                spotifyId: track.spotifyId ?? "",
+                title: track.title,
+                artist: act.name,
+                album: track.album.title,
+                artwork: track.album.artwork,
+              })),
+              context: act.name,
+              contextHref: musicHref.act(act.slug),
+            }}
           />
           {act.spotifyId ? (
             <a

@@ -1,0 +1,205 @@
+/* ============================================================
+   "Şu an çalan + sıradakiler" paneli.
+
+   Kullanıcı isteği: gömü 352 px'te yalnızca 3 parça gösteriyordu, "en az 10
+   parçayı aynı anda gösterecek uzunlukta olsun". Liste artık bizim olduğu için
+   yükseklik satır sayısıyla hesaplanıyor: `--now-rows` × satır boyu.
+
+   ⚠️ HEX YOK (kural 16): panel tür odalarının içinde de çiziliyor, rengini
+   bulunduğu sayfanın derisinden alıyor.
+   ============================================================ */
+
+.panel {
+  --now-rows: 10;
+  --now-row-h: 2.6rem;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: var(--mz-gap, 0.875rem);
+  background: var(--surface);
+  border: var(--mz-hairline, 0.5px) solid var(--border);
+  border-radius: var(--mz-radius, 12px);
+  /* Sayfa kaydırılırken panel görünürde kalıyor — sağ sütun uzun sayfalarda
+     boşa gitmesin. `align-items: start` üst sayfada zaten verili. */
+  position: sticky;
+  top: 1rem;
+}
+
+.label {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: var(--mz-label, 0.8rem);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.idle {
+  margin: 0;
+  font-family: var(--font-cormorant), serif;
+  font-size: var(--mz-body, 1rem);
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.seedButton {
+  align-self: flex-start;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: var(--mz-label, 0.8rem);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  background: var(--accent-muted);
+  color: var(--text-primary);
+  border: var(--mz-hairline, 0.5px) solid var(--accent);
+  border-radius: 8px;
+  padding: 0.45rem 1rem;
+  cursor: pointer;
+}
+
+.seedButton:hover {
+  background: var(--accent);
+}
+
+/* ── Şu an çalan ───────────────────────────────────────────────────────── */
+
+.head {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  padding-bottom: 0.6rem;
+  border-bottom: var(--mz-hairline, 0.5px) solid var(--border);
+}
+
+.headText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.title {
+  font-family: var(--font-cinzel), serif;
+  font-size: 1rem;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+/* Çalarken başlık aksan rengine geçiyor — durum tek bakışta belli olsun */
+.title[data-playing="true"] {
+  color: var(--accent);
+}
+
+.artist,
+.context {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+a.context:hover {
+  color: var(--accent);
+}
+
+.spotifyLink {
+  margin-top: 0.2rem;
+  font-size: 0.8rem;
+  color: var(--accent);
+}
+
+.spotifyLink:hover {
+  color: var(--accent-hover);
+}
+
+.cover,
+.coverEmpty {
+  flex: none;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.coverEmpty {
+  background: repeating-linear-gradient(
+    45deg,
+    var(--music-hatch-a, var(--surface)),
+    var(--music-hatch-a, var(--surface)) 4px,
+    var(--music-hatch-b, var(--border)) 4px,
+    var(--music-hatch-b, var(--border)) 8px
+  );
+  display: inline-block;
+}
+
+/* ── Sıradakiler ───────────────────────────────────────────────────────── */
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  /* Tam 10 satır görünür, fazlası kaydırılır */
+  max-height: calc(var(--now-rows) * var(--now-row-h));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.row,
+.rowOn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: var(--now-row-h);
+  text-align: left;
+  background: transparent;
+  border: 0;
+  padding: 0.25rem;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+
+.row:hover {
+  background: var(--surface-hover, var(--bg));
+  color: var(--text-primary);
+}
+
+.rowOn {
+  background: var(--surface-hover, var(--bg));
+  color: var(--accent);
+}
+
+.no {
+  flex: none;
+  width: 1.5rem;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.rowOn .no {
+  color: var(--accent);
+}
+
+.rowText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.rowTitle,
+.rowArtist {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rowTitle {
+  font-size: 0.85rem;
+}
+
+.rowArtist {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}

@@ -155,7 +155,16 @@
     "queue": "Sıradakiler",
     "queueCount": "{done} / {total}",
     "close": "Çaları kapat",
-    "embedFailed": "Çalar yüklenemedi — ileri/geri çalışıyor, çalmayı elle başlatın."
+    "embedFailed": "Çalar yüklenemedi — ileri/geri çalışıyor, çalmayı elle başlatın.",
+    "nowPlaying": "Şu an çalan",
+    "idle": "Henüz bir şey çalmıyor. Aşağıdaki parçalardan birine basın; sıradakiler burada görünecek ve başka sayfalara geçtiğinizde susmayacak.",
+    "playThisPage": "Bu sayfayı çal ({count} parça)",
+    "openInSpotify": "Spotify'da aç",
+    "repeatMode": {
+      "off": "Tekrar kapalı",
+      "all": "Listeyi tekrarla",
+      "one": "Bu parçayı tekrarla"
+    }
   },
   "admin": {
     "title": "Yönetim Paneli",

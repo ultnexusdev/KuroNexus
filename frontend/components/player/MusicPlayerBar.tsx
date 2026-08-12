@@ -55,16 +55,121 @@ interface PlayerMessage {
   reason?: string;
 }
 
+/* Çizgi ikonlar — ortam sesi çalarındakiyle aynı dil (`GlobalAmbientPlayer`),
+   iki çalar aynı sitede yan yana görünüyor ve farklı çizilmeleri için sebep yok. */
+const stroke = {
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: 1.6,
+  strokeLinecap: "round" as const,
+  strokeLinejoin: "round" as const,
+};
+
+function IconShuffle() {
+  return (
+    <svg viewBox="0 0 24 24" width="15" height="15" {...stroke} aria-hidden>
+      <path d="M3 7h3.5c1.5 0 2.5.6 3.4 1.8l4.2 6.4c.9 1.2 1.9 1.8 3.4 1.8H21" />
+      <path d="M3 17h3.5c1 0 1.8-.3 2.5-.9M21 7h-3.5c-1 0-1.8.3-2.5.9" />
+      <path d="M18.5 4.5 21 7l-2.5 2.5M18.5 14.5 21 17l-2.5 2.5" />
+    </svg>
+  );
+}
+
+function IconPrev() {
+  return (
+    <svg viewBox="0 0 24 24" width="15" height="15" {...stroke} aria-hidden>
+      <path d="M6 5v14" />
+      <path d="M18 6.5v11L9.5 12z" />
+    </svg>
+  );
+}
+
+function IconNext() {
+  return (
+    <svg viewBox="0 0 24 24" width="15" height="15" {...stroke} aria-hidden>
+      <path d="M18 5v14" />
+      <path d="M6 6.5v11l8.5-5.5z" />
+    </svg>
+  );
+}
+
+function IconPlay() {
+  return (
+    <svg viewBox="0 0 24 24" width="17" height="17" {...stroke} aria-hidden>
+      <path d="M8 5.5v13l10-6.5z" />
+    </svg>
+  );
+}
+
+function IconPause() {
+  return (
+    <svg viewBox="0 0 24 24" width="17" height="17" {...stroke} aria-hidden>
+      <path d="M9 5.5v13M15 5.5v13" />
+    </svg>
+  );
+}
+
+/** Tek parça tekrarında ortaya "1" düşüyor — Spotify'daki ayrım. */
+function IconRepeat({ one }: { one: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" width="15" height="15" {...stroke} aria-hidden>
+      <path d="M4 12V9.5A3.5 3.5 0 0 1 7.5 6H20" />
+      <path d="M17.5 3.5 20 6l-2.5 2.5" />
+      <path d="M20 12v2.5a3.5 3.5 0 0 1-3.5 3.5H4" />
+      <path d="M6.5 20.5 4 18l2.5-2.5" />
+      {one ? (
+        <text x="12" y="14.5" fontSize="8" fill="currentColor" stroke="none" textAnchor="middle">
+          1
+        </text>
+      ) : null}
+    </svg>
+  );
+}
+
+function IconQueue() {
+  return (
+    <svg viewBox="0 0 24 24" width="15" height="15" {...stroke} aria-hidden>
+      <path d="M4 7h11M4 12h11M4 17h7" />
+      <path d="M18 10v7.5" />
+      <circle cx="16.2" cy="17.8" r="1.8" />
+    </svg>
+  );
+}
+
 export function MusicPlayerBar() {
   const t = useTranslations("player");
-  const { current, tracks, index, context, next, previous, jumpTo, clear, autoplay } =
-    useMusicQueue();
+  const {
+    current,
+    tracks,
+    index,
+    context,
+    next,
+    previous,
+    jumpTo,
+    clear,
+    autoplay,
+    shuffle,
+    repeat,
+    toggleShuffle,
+    cycleRepeat,
+    isPlaying,
+    setIsPlaying,
+  } = useMusicQueue();
 
   const frameRef = useRef<HTMLIFrameElement | null>(null);
   /** Aynı parça için "bitti" iki kez tetiklenmesin */
   const endedForRef = useRef<string | null>(null);
+  /**
+   * Köprü dinleyicisi BİR KEZ kuruluyor (iframe'i yeniden yüklememek için),
+   * o yüzden içindeki taze değerlere ref üzerinden bakılıyor. Bağımlılığa
+   * eklenselerdi dinleyici her tekrar/karışık değişiminde sökülüp kurulurdu.
+   */
   const nextRef = useRef(next);
   nextRef.current = next;
+  const repeatRef = useRef(repeat);
+  repeatRef.current = repeat;
+  const currentIdRef = useRef(current?.spotifyId ?? null);
+  currentIdRef.current = current?.spotifyId ?? null;
 
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -79,6 +184,8 @@ export function MusicPlayerBar() {
       window.location.origin,
     );
   }, []);
+  const postRef = useRef(post);
+  postRef.current = post;
 
   /* ── Köprü: mini sayfadan gelen olaylar ───────────────────────────────── */
   useEffect(() => {
@@ -101,6 +208,7 @@ export function MusicPlayerBar() {
         return;
       }
       if (data.type === "update") {
+        setIsPlaying(data.isPaused === false);
         const duration = data.duration ?? 0;
         const position = data.position ?? 0;
         // Parça sonu: Spotify ayrı bir "ended" olayı yayınlamıyor, o yüzden
@@ -109,14 +217,27 @@ export function MusicPlayerBar() {
           const key = `${duration}:${position}`;
           if (endedForRef.current !== key) {
             endedForRef.current = key;
-            nextRef.current();
+            if (repeatRef.current === "one" && currentIdRef.current) {
+              /**
+               * Tek parça tekrarı kuyrukta YAPILAMIYOR: `index` değişmediği
+               * için React hiçbir şey görmez ve tekrar sessizce çalışmazdı.
+               * Parça doğrudan yeniden yükleniyor.
+               */
+              postRef.current({
+                type: "load",
+                spotifyId: currentIdRef.current,
+                autoplay: true,
+              });
+            } else {
+              nextRef.current();
+            }
           }
         }
       }
     }
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
-  }, []);
+  }, [setIsPlaying]);
 
   /* ── Parça değişince yükle ────────────────────────────────────────────── */
   useEffect(() => {
@@ -242,7 +363,21 @@ export function MusicPlayerBar() {
           {failed ? <span className={styles.warn}>{t("embedFailed")}</span> : null}
         </div>
 
+        {/* Kumanda sırası Spotify'ınkiyle aynı: karışık · önceki · çal ·
+            sonraki · tekrar. Alışkanlık kasında duran bir sıra; kendi
+            sıramızı icat etmenin kazancı yok. Çal/duraklat düğmesi Spotify
+            gömüsünün içinde de var ve ikisi aynı köprüye bağlı. */}
         <div className={styles.controls}>
+          <button
+            type="button"
+            className={shuffle ? styles.controlOn : styles.control}
+            onClick={toggleShuffle}
+            aria-pressed={shuffle}
+            aria-label={t("shuffle")}
+            title={t("shuffle")}
+          >
+            <IconShuffle />
+          </button>
           <button
             type="button"
             className={styles.control}
@@ -251,26 +386,38 @@ export function MusicPlayerBar() {
             aria-label={t("previous")}
             title={t("previous")}
           >
-            ‹‹
+            <IconPrev />
           </button>
           <button
             type="button"
-            className={styles.control}
+            className={styles.playButton}
             onClick={onToggle}
-            aria-label={t("play")}
-            title={t("play")}
+            aria-label={isPlaying ? t("pause") : t("play")}
+            title={isPlaying ? t("pause") : t("play")}
           >
-            ⏯
+            {isPlaying ? <IconPause /> : <IconPlay />}
           </button>
           <button
             type="button"
             className={styles.control}
             onClick={next}
-            disabled={index + 1 >= tracks.length}
+            disabled={
+              // "all"/"one" modunda kuyruğun sonu bir duvar değil
+              repeat === "off" && index + 1 >= tracks.length
+            }
             aria-label={t("next")}
             title={t("next")}
           >
-            ››
+            <IconNext />
+          </button>
+          <button
+            type="button"
+            className={repeat === "off" ? styles.control : styles.controlOn}
+            onClick={cycleRepeat}
+            aria-label={t(`repeatMode.${repeat}`)}
+            title={t(`repeatMode.${repeat}`)}
+          >
+            <IconRepeat one={repeat === "one"} />
           </button>
           <button
             type="button"
@@ -280,7 +427,7 @@ export function MusicPlayerBar() {
             aria-label={t("queue")}
             title={t("queue")}
           >
-            ☰
+            <IconQueue />
           </button>
           <button
             type="button"

@@ -7,8 +7,8 @@ import { fetchMusicAlbum, type MusicAlbum } from "@/lib/api/music";
 import { readIsAdmin } from "@/lib/auth/session";
 import { musicHref, spotifyOpenUrl } from "@/lib/music/routes";
 import { CoverArt, CoverTile } from "@/components/music/CoverArt";
-import { SpotifyEmbed } from "@/components/music/SpotifyEmbed";
 import { TrackList } from "@/components/music/TrackList";
+import { NowPlaying } from "@/components/player/NowPlaying";
 import shell from "../../layout.module.css";
 import styles from "./page.module.css";
 
@@ -213,9 +213,24 @@ export default async function MusicAlbumPage({
           )}
         </section>
 
+        {/* Sağ sütun artık AYRI bir Spotify çaları değil, kuyruğun görünümü.
+            Gerekçesi `NowPlaying.tsx` başlığında: iki çalar birbirinden
+            habersizdi ve "gömüde What I've Done çalarken şeritte The Catalyst"
+            hatası oradan çıkıyordu. */}
         <aside className={styles.side}>
-          <span className={shell.label}>{t("act.player")}</span>
-          <SpotifyEmbed kind="album" spotifyId={album.spotifyId} height={352} note />
+          <NowPlaying
+            seed={{
+              tracks: album.tracks.map((track) => ({
+                spotifyId: track.spotifyId ?? "",
+                title: track.title,
+                artist: album.act.name,
+                album: album.title,
+                artwork: album.artwork,
+              })),
+              context: album.title,
+              contextHref: musicHref.album(album.act.slug, album.slug),
+            }}
+          />
         </aside>
       </div>
 

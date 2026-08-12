@@ -39,29 +39,53 @@ export interface QueueTrack {
   artwork: string | null;
 }
 
+/** Kuyruğun sonuna gelince ne olacak. */
+export type RepeatMode = "off" | "all" | "one";
+
 interface QueueState {
   tracks: QueueTrack[];
   index: number;
   /** "Meteora" / "Gece Listesi" — şeritte nereden çalındığı yazıyor */
   context: string | null;
+  /** Varsa listenin adresi — şeritten "listeye git" bağlantısı için */
+  contextHref: string | null;
+  shuffle: boolean;
+  repeat: RepeatMode;
 }
 
 interface MusicQueueValue extends QueueState {
   current: QueueTrack | null;
   /** Kuyruğu değiştirir ve verilen sıradan başlatır */
-  play: (tracks: QueueTrack[], startIndex: number, context: string) => void;
+  play: (
+    tracks: QueueTrack[],
+    startIndex: number,
+    context: string,
+    contextHref?: string,
+  ) => void;
   /** Tek parçayı kuyruğun sonuna ekler (kuyruk boşsa çalmaya başlar) */
   enqueue: (track: QueueTrack, context: string) => void;
   next: () => void;
   previous: () => void;
   jumpTo: (index: number) => void;
   clear: () => void;
+  toggleShuffle: () => void;
+  cycleRepeat: () => void;
   /** Şerit çalar tarafından okunuyor: yeni parça yüklenince kendiliğinden çal */
   autoplay: boolean;
   setAutoplay: (value: boolean) => void;
+  /** Köprüden gelen gerçek durum — kendi tahminimiz değil */
+  isPlaying: boolean;
+  setIsPlaying: (value: boolean) => void;
 }
 
-const EMPTY: QueueState = { tracks: [], index: 0, context: null };
+const EMPTY: QueueState = {
+  tracks: [],
+  index: 0,
+  context: null,
+  contextHref: null,
+  shuffle: false,
+  repeat: "off",
+};
 
 const MusicQueueContext = createContext<MusicQueueValue | null>(null);
 
@@ -78,6 +102,7 @@ export function MusicQueueProvider({ children }: { children: ReactNode }) {
    * `true` oluyor ve kuyruk ilerledikçe öyle kalıyor.
    */
   const [autoplay, setAutoplay] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   /* Yenilemeden sonra kaldığı yeri geri getir — çalmayı BAŞLATMADAN */
   useEffect(() => {
@@ -97,6 +122,14 @@ export function MusicQueueProvider({ children }: { children: ReactNode }) {
               ? parsed.index
               : 0,
           context: typeof parsed.context === "string" ? parsed.context : null,
+          contextHref:
+            typeof parsed.contextHref === "string" ? parsed.contextHref : null,
+          shuffle: parsed.shuffle === true,
+          // Eski kayıtlarda bu alan yok; bilinmeyen değer "off"a düşüyor
+          repeat:
+            parsed.repeat === "all" || parsed.repeat === "one"
+              ? parsed.repeat
+              : "off",
         });
       }
     } catch {
@@ -117,7 +150,12 @@ export function MusicQueueProvider({ children }: { children: ReactNode }) {
   }, [state]);
 
   const play = useCallback(
-    (tracks: QueueTrack[], startIndex: number, context: string) => {
+    (
+      tracks: QueueTrack[],
+      startIndex: number,
+      context: string,
+      contextHref?: string,
+    ) => {
       const playable = tracks
         .filter((track) => Boolean(track.spotifyId))
         .slice(0, MAX_QUEUE);
@@ -134,7 +172,13 @@ export function MusicQueueProvider({ children }: { children: ReactNode }) {
         playable.findIndex((track) => track.spotifyId === wanted),
       );
       setAutoplay(true);
-      setState({ tracks: playable, index, context });
+      setState((previousState) => ({
+        ...previousState,
+        tracks: playable,
+        index,
+        context,
+        contextHref: contextHref ?? null,
+      }));
     },
     [],
   );
@@ -149,6 +193,7 @@ export function MusicQueueProvider({ children }: { children: ReactNode }) {
       }
       const tracks = [...current.tracks, track].slice(0, MAX_QUEUE);
       return {
+        ...current,
         tracks,
         index: current.tracks.length === 0 ? 0 : current.index,
         context: current.context ?? context,
@@ -156,19 +201,55 @@ export function MusicQueueProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  /** Kuyruğun sonunda durur — başa sarmıyor (istemeden tekrar çalmasın). */
+  /**
+   * Sıradaki parça.
+   *
+   * ⚠️ `repeat: "one"` BURADA ele alınMIYOR. Şerit çalar aynı parçayı yeniden
+   * yüklemek zorunda ve `index` değişmediği için React hiçbir şey görmezdi —
+   * tekrar sessizce çalışmazdı. Tek parça tekrarı `MusicPlayerBar` içinde,
+   * parça bittiğinde doğrudan "baştan çal" komutuyla yapılıyor.
+   *
+   * Karışık modda sıradaki **rastgele** seçiliyor; şu anki parça hariç
+   * tutuluyor ki iki kez üst üste aynı şey çalmasın.
+   */
   const next = useCallback(() => {
-    setState((current) =>
-      current.index + 1 < current.tracks.length
-        ? { ...current, index: current.index + 1 }
-        : current,
-    );
+    setState((current) => {
+      const total = current.tracks.length;
+      if (total === 0) {
+        return current;
+      }
+      if (current.shuffle && total > 1) {
+        let pick = current.index;
+        while (pick === current.index) {
+          pick = Math.floor(Math.random() * total);
+        }
+        return { ...current, index: pick };
+      }
+      if (current.index + 1 < total) {
+        return { ...current, index: current.index + 1 };
+      }
+      // Kuyruk bitti: "all" başa sarar, "off" olduğu yerde durur
+      return current.repeat === "all" ? { ...current, index: 0 } : current;
+    });
   }, []);
 
   const previous = useCallback(() => {
     setState((current) =>
       current.index > 0 ? { ...current, index: current.index - 1 } : current,
     );
+  }, []);
+
+  const toggleShuffle = useCallback(() => {
+    setState((current) => ({ ...current, shuffle: !current.shuffle }));
+  }, []);
+
+  /** off → all → one → off. Spotify'daki sıranın aynısı. */
+  const cycleRepeat = useCallback(() => {
+    setState((current) => ({
+      ...current,
+      repeat:
+        current.repeat === "off" ? "all" : current.repeat === "all" ? "one" : "off",
+    }));
   }, []);
 
   const jumpTo = useCallback((index: number) => {
@@ -182,7 +263,14 @@ export function MusicQueueProvider({ children }: { children: ReactNode }) {
 
   const clear = useCallback(() => {
     setAutoplay(false);
-    setState(EMPTY);
+    setIsPlaying(false);
+    /* Karışık/tekrar tercihleri KORUNUYOR: onlar kuyruğa değil kullanıcıya
+       ait, her listede yeniden seçtirmek gereksiz sürtünme olurdu. */
+    setState((current) => ({
+      ...EMPTY,
+      shuffle: current.shuffle,
+      repeat: current.repeat,
+    }));
   }, []);
 
   const value = useMemo<MusicQueueValue>(
@@ -195,10 +283,26 @@ export function MusicQueueProvider({ children }: { children: ReactNode }) {
       previous,
       jumpTo,
       clear,
+      toggleShuffle,
+      cycleRepeat,
       autoplay,
       setAutoplay,
+      isPlaying,
+      setIsPlaying,
     }),
-    [state, play, enqueue, next, previous, jumpTo, clear, autoplay],
+    [
+      state,
+      play,
+      enqueue,
+      next,
+      previous,
+      jumpTo,
+      clear,
+      toggleShuffle,
+      cycleRepeat,
+      autoplay,
+      isPlaying,
+    ],
   );
 
   return (

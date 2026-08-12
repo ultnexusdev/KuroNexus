@@ -1660,7 +1660,8 @@
         "alpha": "alfabetik"
       },
       "subgenres": "Alt türler",
-      "empty": "Bu odada henüz sanatçı yok."
+      "empty": "Bu odada henüz sanatçı yok.",
+      "noPlaylists": "Bu odaya henüz çalma listesi bağlanmadı."
     },
     "act": {
       "favorite": "Favori sanatçı",

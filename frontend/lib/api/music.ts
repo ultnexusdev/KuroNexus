@@ -124,7 +124,19 @@ export interface RecentPlay {
   } | null;
 }
 
+/** Odaya bağlı çalma listesi — küratörün seçtiği oda (`MusicPlaylist.genreId`) */
+export interface GenreRoomPlaylist {
+  id: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  artwork: string | null;
+  trackCount: number;
+  durationMs: number | null;
+}
+
 export interface GenreRoom {
+  playlists: GenreRoomPlaylist[];
   genre: {
     slug: string;
     name: string;
@@ -155,6 +167,8 @@ export interface MusicAct {
   bio: string | null;
   image: string | null;
   bannerImage: string | null;
+  /** CSS `background-position` degeri ("50% 30%"); null ise ortadan kirpiliyor */
+  bannerPosition: string | null;
   formedYear: number | null;
   disbandedYear: number | null;
   originCity: string | null;

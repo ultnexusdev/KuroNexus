@@ -45,6 +45,7 @@ export class MusicPlaylistService {
         isFavorite: true,
         orderIndex: true,
         spotifyId: true,
+        genre: { select: { id: true, slug: true, name: true } },
         _count: { select: { tracks: true } },
       },
     });
@@ -58,6 +59,8 @@ export class MusicPlaylistService {
       /** Bizim listemiz mi — Spotify'dan gelene parça eklemek yanıltıcı olurdu */
       isLocal: playlist.spotifyId === null,
       trackCount: playlist._count.tracks,
+      /** Hangi odada görünüyor — küratörün seçimi, içerikten türetilmiyor */
+      genre: playlist.genre,
     }));
   }
 
@@ -65,18 +68,26 @@ export class MusicPlaylistService {
    * Yeni yerel liste. `spotifyId` yazılMIYOR — listeyi sync'in erişemeyeceği
    * tarafta tutan tek şey o.
    */
-  async create(input: { name: string; description?: string }) {
+  async create(input: {
+    name: string;
+    description?: string;
+    genreId?: string;
+  }) {
     const name = input.name.trim();
     if (name.length === 0) {
       throw new BadRequestException('MUSIC.PLAYLIST_NAME_REQUIRED');
     }
     const slug = await this.uniqueSlug(name);
+    if (input.genreId) {
+      await this.assertGenreExists(input.genreId);
+    }
 
     return this.prisma.musicPlaylist.create({
       data: {
         name,
         slug,
         description: input.description?.trim() || null,
+        genreId: input.genreId || null,
         // Yerel listenin toplamları parçalardan türetiliyor; sütunlar
         // Spotify'ın verdiği künye için ayrılmış ve boş kalmalı
         trackCount: null,
@@ -93,11 +104,16 @@ export class MusicPlaylistService {
       description?: string;
       isFavorite?: boolean;
       orderIndex?: number;
+      genreId?: string;
     },
   ) {
     await this.assertExists(id);
     if (dto.name !== undefined && dto.name.trim().length === 0) {
       throw new BadRequestException('MUSIC.PLAYLIST_NAME_REQUIRED');
+    }
+    // Boş dize "odadan çıkar" demek, o yüzden yalnızca dolu değer doğrulanıyor
+    if (dto.genreId) {
+      await this.assertGenreExists(dto.genreId);
     }
 
     return this.prisma.musicPlaylist.update({
@@ -109,6 +125,7 @@ export class MusicPlaylistService {
           : {}),
         ...(dto.isFavorite !== undefined ? { isFavorite: dto.isFavorite } : {}),
         ...(dto.orderIndex !== undefined ? { orderIndex: dto.orderIndex } : {}),
+        ...(dto.genreId !== undefined ? { genreId: dto.genreId || null } : {}),
       },
       select: {
         id: true,
@@ -117,6 +134,7 @@ export class MusicPlaylistService {
         description: true,
         isFavorite: true,
         orderIndex: true,
+        genre: { select: { id: true, slug: true, name: true } },
       },
     });
   }
@@ -248,6 +266,21 @@ export class MusicPlaylistService {
   }
 
   /* ── Yardımcılar ─────────────────────────────────────────────────────── */
+
+  /**
+   * ⚠️ Onaylı olma şartı ARANMIYOR: küratör bir listeyi henüz onaylanmamış
+   * bir türe bağlayabilir. Oda sayfası zaten yalnızca onaylı türleri
+   * listeliyor, yani liste onay gelene kadar görünmez — ama bağ korunur.
+   */
+  private async assertGenreExists(id: string): Promise<void> {
+    const genre = await this.prisma.musicGenre.findUnique({
+      where: { id },
+      select: { id: true },
+    });
+    if (!genre) {
+      throw new NotFoundException('MUSIC.GENRE_NOT_FOUND');
+    }
+  }
 
   private async assertExists(id: string): Promise<void> {
     const playlist = await this.prisma.musicPlaylist.findFirst({

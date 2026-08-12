@@ -29,6 +29,12 @@ export class CreatePlaylistDto {
   @IsString()
   @MaxLength(2000)
   description?: string;
+
+  /** Listenin odası — hangi tür odasında görüneceğine küratör karar verir. */
+  @IsOptional()
+  @IsString()
+  @MaxLength(40)
+  genreId?: string;
 }
 
 export class UpdatePlaylistDto {
@@ -52,6 +58,16 @@ export class UpdatePlaylistDto {
   @Min(0)
   @Max(9999)
   orderIndex?: number;
+
+  /**
+   * Listenin odası. **Boş dize odadan çıkarır** — `undefined` "dokunma"
+   * demek, `""` ise "bağı kaldır". İkisi ayrı olmasaydı odayı boşaltmanın
+   * yolu kalmazdı.
+   */
+  @IsOptional()
+  @IsString()
+  @MaxLength(40)
+  genreId?: string;
 }
 
 /** Listeye eklenecek parça — arşiv kimliği (cuid), Spotify kimliği değil. */

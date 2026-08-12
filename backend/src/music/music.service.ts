@@ -298,6 +298,29 @@ export class MusicService {
 
     const playCounts = await this.getPlayCountsForActs(actIds, 'ALL_TIME');
 
+    /**
+     * Odanın çalma listeleri — küratörün bu odaya bağladıkları.
+     *
+     * ⚠️ İçerikten TÜRETİLMİYOR: liste hangi odada görünecekse
+     * `MusicPlaylist.genreId` onu söylüyor ve kararı küratör veriyor
+     * (gerekçe şemada). Parçaların türlerinden çoğunluk hesaplasaydık
+     * "yarısı rock yarısı pop" bir listede sonuç keyfî olurdu.
+     */
+    const playlists = await this.prisma.musicPlaylist.findMany({
+      where: { isDeleted: false, genreId: genre.id },
+      orderBy: [{ isFavorite: 'desc' }, { orderIndex: 'asc' }, { name: 'asc' }],
+      select: {
+        id: true,
+        slug: true,
+        name: true,
+        description: true,
+        artwork: true,
+        trackCount: true,
+        durationMs: true,
+        _count: { select: { tracks: true } },
+      },
+    });
+
     return {
       genre: {
         slug: genre.slug,
@@ -306,6 +329,16 @@ export class MusicService {
         accentKey: genre.accentKey,
         subgenres: genre.children,
       },
+      playlists: playlists.map((playlist) => ({
+        id: playlist.id,
+        slug: playlist.slug,
+        name: playlist.name,
+        description: playlist.description,
+        artwork: playlist.artwork,
+        // Sütun Spotify künyesi için; elle kurulan listede parça sayımı gerçek
+        trackCount: playlist.trackCount ?? playlist._count.tracks,
+        durationMs: playlist.durationMs,
+      })),
       counts: {
         acts: acts.length,
         albums: albums.length,
@@ -343,6 +376,7 @@ export class MusicService {
         disbandedYear: true,
         originCity: true,
         originCountry: true,
+        bannerPosition: true,
         popularity: true,
         followers: true,
         spotifyId: true,

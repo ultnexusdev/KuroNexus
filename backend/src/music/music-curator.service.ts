@@ -280,6 +280,7 @@ export class MusicCuratorService {
       originCity?: string;
       originCountry?: string;
       bannerImage?: string;
+      bannerPosition?: string;
     },
   ) {
     const act = await this.prisma.musicalAct.findFirst({
@@ -316,6 +317,19 @@ export class MusicCuratorService {
     ) {
       throw new BadRequestException('MUSIC.BANNER_MUST_BE_LOCAL');
     }
+    /**
+     * Bant odak noktası. **Yalnızca "<sayı>% <sayı>%" kabul ediliyor.**
+     *
+     * ⚠️ Bu değer ön yüzde satır içi stile yazılıyor. Serbest bırakılsaydı
+     * `background-position` alanına başka bir CSS parçası enjekte edilebilirdi
+     * (`url(...)`, `;` ile yeni bildirim…). Kalıp dar tutuldu: iki yüzde, tek
+     * boşluk, başka hiçbir şey.
+     */
+    if (dto.bannerPosition !== undefined && dto.bannerPosition !== '') {
+      if (!/^\d{1,3}% \d{1,3}%$/.test(dto.bannerPosition)) {
+        throw new BadRequestException('MUSIC.BANNER_POSITION_INVALID');
+      }
+    }
 
     return this.prisma.musicalAct.update({
       where: { id },
@@ -343,6 +357,9 @@ export class MusicCuratorService {
               bannerFetchedAt: dto.bannerImage ? new Date() : null,
             }
           : {}),
+        ...(dto.bannerPosition !== undefined
+          ? { bannerPosition: dto.bannerPosition || null }
+          : {}),
       },
       select: {
         id: true,
@@ -356,6 +373,7 @@ export class MusicCuratorService {
         originCity: true,
         originCountry: true,
         bannerImage: true,
+        bannerPosition: true,
       },
     });
   }

@@ -2566,6 +2566,18 @@ model MusicalAct {
   bannerSourceUrl String?
   bannerFetchedAt DateTime?
 
+  /// Bandın odak noktası — CSS `background-position` değeri ("50% 30%").
+  ///
+  /// ⚠️ NEDEN GEREKLİ: bant 2000×640 oranında kırpılıyor ve yüklenen görselin
+  /// neresinin görüneceğine tarayıcı karar veriyordu (varsayılan ortası).
+  /// Grup fotoğraflarında yüzler üst üçte bir bandında olduğu için ortadan
+  /// kırpma **yüzleri kesiyordu** (kullanıcı bildirimi, 13 Ağustos 2026).
+  ///
+  /// Renk DEĞİL konum tutuluyor, yani kural 16 ihlali yok: bu bir düzen
+  /// değeri ve temadan bağımsız. `null` ise CSS varsayılanı ("50% 50%")
+  /// geçerli — mevcut kayıtlar için davranış değişmiyor.
+  bannerPosition  String?
+
   /// Spotify metriği; dış veri sayılır, sync günceller.
   popularity Int?
   followers  Int?
@@ -2815,6 +2827,8 @@ model MusicGenre {
   updatedAt DateTime @updatedAt
 
   acts MusicGenreOnAct[]
+  /// Bu odada görünen çalma listeleri — bkz. `MusicPlaylist.genreId`
+  playlists MusicPlaylist[]
 
   @@index([isApproved])
   // Kural 14
@@ -2973,6 +2987,25 @@ model MusicPlaylist {
   orderIndex Int     @default(0)
   isFavorite Boolean @default(false)
 
+  /// Listenin ODASI — hangi tür odasının altında görünecek.
+  ///
+  /// ⚠️ Kararı KÜRATÖR veriyor, içerikten türetilMİYOR (kullanıcı isteği,
+  /// 13 Ağustos 2026: *"bu ürettiğim listenin hangi tür altında yer alacağına
+  /// ben karar vereyim"*). Parçaların türlerinden çoğunluk hesaplamak
+  /// mümkündü ama "yarısı rock yarısı pop" bir listede sonuç keyfî olurdu ve
+  /// küratörün niyetini ezerdi.
+  ///
+  /// `MusicGenreOnAct` gibi çoka-çok DEĞİL, tek FK: bir liste kavramsal
+  /// olarak tek bir odaya ait ("rock listem"). İki odada birden görünmesi
+  /// istenirse ikinci bir liste kurmak daha dürüst — aynı listeyi iki yerde
+  /// göstermek "hangisi asıl" sorusunu doğururdu.
+  ///
+  /// `onDelete: SetNull`: tür silinirse liste ODASIZ kalır, SİLİNMEZ.
+  /// Cascade olsaydı bir tür temizliği kullanıcının kendi listelerini
+  /// götürürdü — kişisel katman katalog işlemlerinden etkilenmemeli.
+  genreId String?
+  genre   MusicGenre? @relation(fields: [genreId], references: [id], onDelete: SetNull)
+
   spotifyId String? @unique
 
   externalData          Json?
@@ -2985,6 +3018,8 @@ model MusicPlaylist {
   tracks MusicPlaylistTrack[]
 
   @@index([isDeleted, isFavorite, orderIndex])
+  /// Tür odasının "bu odadaki listeler" sorgusu — kural 14
+  @@index([genreId])
 }
 
 model MusicPlaylistTrack {

@@ -1660,7 +1660,8 @@
         "alpha": "alphabetical"
       },
       "subgenres": "Subgenres",
-      "empty": "No artists in this room yet."
+      "empty": "No artists in this room yet.",
+      "noPlaylists": "No playlist is linked to this room yet."
     },
     "act": {
       "favorite": "Favourite artist",

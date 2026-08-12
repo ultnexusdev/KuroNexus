@@ -289,3 +289,61 @@
     display: block;
   }
 }
+
+/* ── Odanın çalma listeleri (13 Ağustos) ──────────────────────────────────
+   Albüm ızgarasının yerini aldı: albümler zaten sanatçı sayfasında
+   diskografi olarak duruyordu ve odada ikinci kez listelenmeleri aynı
+   kapakları iki yerde gösteriyordu (kullanıcı isteği). */
+.playlistGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 620px) {
+  .playlistGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1100px) {
+  .playlistGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.playlistCard {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0.875rem;
+  height: 100%;
+  min-width: 0;
+  color: inherit;
+  transition: background 0.15s ease;
+}
+
+.playlistCard:hover {
+  background: var(--surface-hover);
+}
+
+.playlistBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.playlistName {
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.98rem;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.playlistCard:hover .playlistName {
+  color: var(--accent);
+}

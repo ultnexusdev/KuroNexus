@@ -1338,6 +1338,7 @@ export interface PlaylistRecord {
   orderIndex: number;
   isLocal: boolean;
   trackCount: number;
+  genre: { id: string; slug: string; name: string } | null;
 }
 
 export function listMusicPlaylists(): Promise<PlaylistRecord[]> {
@@ -1350,6 +1351,8 @@ export function listMusicPlaylists(): Promise<PlaylistRecord[]> {
 export function createMusicPlaylist(input: {
   name: string;
   description?: string;
+  /** Listenin odası — hangi tür odasında görüneceğine küratör karar verir */
+  genreId?: string;
 }): Promise<{
   id: string;
   slug: string;
@@ -1370,6 +1373,8 @@ export function updateMusicPlaylist(
     description?: string;
     isFavorite?: boolean;
     orderIndex?: number;
+    /** Boş dize odadan ÇIKARIR; `undefined` "dokunma" demek */
+    genreId?: string;
   },
 ): Promise<PlaylistRecord> {
   return apiFetch(`/admin/music/playlists/${encodeURIComponent(id)}`, {

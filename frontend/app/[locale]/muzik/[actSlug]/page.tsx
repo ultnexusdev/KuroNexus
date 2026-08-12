@@ -129,9 +129,28 @@ export default async function MusicActPage({
       {/* ── Kıvrım ─────────────────────────────────────────────────────── */}
       <header
         className={styles.hero}
+        /**
+         * ⚠️ `backgroundPosition` küratörden geliyor ama satır içi stile
+         * yazılıyor, yani doğrulanmamış bir dize CSS enjeksiyonu olurdu.
+         * Backend `"<sayı>% <sayı>%"` kalıbına karşı doğruluyor
+         * (`music-curator.service.ts`); burada ikinci savunma olarak aynı
+         * kalıp bir kez daha sınanıyor — kalıba uymayan değer görmezden
+         * geliniyor ve CSS varsayılanı ("50% 50%") geçerli kalıyor.
+         *
+         * Neden gerekli: bant 2000×640 oranında kırpılıyor ve grup
+         * fotoğraflarında yüzler üst üçte birde olduğu için ortadan kırpma
+         * yüzleri kesiyordu (kullanıcı bildirimi).
+         */
         style={
           banner
-            ? { backgroundImage: `url(${apiUrl(banner)})` }
+            ? {
+                backgroundImage: `url(${apiUrl(banner)})`,
+                backgroundPosition:
+                  act.bannerPosition &&
+                  /^\d{1,3}% \d{1,3}%$/.test(act.bannerPosition)
+                    ? act.bannerPosition
+                    : undefined,
+              }
             : undefined
         }
         data-has-banner={banner ? "true" : "false"}

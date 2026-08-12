@@ -227,4 +227,16 @@ export class UpdateActDto {
   @IsString()
   @MaxLength(500)
   bannerImage?: string;
+
+  /**
+   * Bandın odak noktası — CSS `background-position` değeri ("50% 30%").
+   *
+   * ⚠️ Bu değer ön yüzde **satır içi stile** giriyor. Serbest bir dize kabul
+   * edilseydi oraya `url(...)` gibi başka bir CSS parçası yazılabilirdi; o
+   * yüzden biçim serviste sıkı bir kalıba karşı doğrulanıyor (kural 6).
+   */
+  @IsOptional()
+  @IsString()
+  @MaxLength(20)
+  bannerPosition?: string;
 }

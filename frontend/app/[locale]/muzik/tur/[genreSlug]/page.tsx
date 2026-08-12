@@ -7,7 +7,7 @@ import { fetchGenreRoom, type GenreRoom } from "@/lib/api/music";
 import { readIsAdmin } from "@/lib/auth/session";
 import { musicHref } from "@/lib/music/routes";
 import { upperProperName } from "@/lib/text";
-import { CoverArt, CoverTile } from "@/components/music/CoverArt";
+import { CoverArt } from "@/components/music/CoverArt";
 import shell from "../../layout.module.css";
 import styles from "./page.module.css";
 
@@ -65,17 +65,8 @@ export async function generateMetadata({
   }
 }
 
-function releaseYear(
-  date: string | null,
-  precision: string | null,
-): string | null {
-  if (!date) {
-    return null;
-  }
-  // Hassasiyet yalnızca yılsa uydurulmuş gün/ay gösterilmez
-  void precision;
-  return new Date(date).getUTCFullYear().toString();
-}
+/* `releaseYear` buradan kalktı: albüm ızgarası kaldırıldığı için tek çağıranı
+   kalmamıştı. Aynı yardımcının çalışan kopyası albüm sayfasında duruyor. */
 
 export default async function GenreRoomPage({
   params,
@@ -177,42 +168,41 @@ export default async function GenreRoomPage({
         )}
       </section>
 
-      {/* ── Albüm ızgarası ─────────────────────────────────────────────── */}
+      {/* ── Odanın çalma listeleri ──────────────────────────────────────────
+             ⚠️ Burada eskiden ALBÜM ızgarası vardı ve kaldırıldı (kullanıcı
+             isteği, 13 Ağustos 2026: *"tür odalarında sanatçılar ve çalma
+             listeleri bulunsun, albümler bulunmasın"*). Gerekçesi de anlaşılır:
+             albümler zaten sanatçı sayfasında diskografi olarak duruyor ve
+             odada ikinci kez listelenmeleri aynı kapakları iki yerde
+             gösteriyordu. Oda artık "kimler ve hangi listeler" sorusunu
+             yanıtlıyor.
+
+             Listenin hangi odada görüneceğine KÜRATÖR karar veriyor
+             (`MusicPlaylist.genreId`); içerikten türetilmiyor. */}
       <section className={styles.section}>
         <div className={styles.sectionHead}>
-          <h2 className={shell.label}>{t("room.albums")}</h2>
-          {/* Faz 1'de gerçek olan tek ölçü yıl; çalışmayan bir süzgeç
-              göstermek yerine aktif ölçü yazılıyor */}
-          <span className={styles.badge}>{t("room.sort.year")}</span>
+          <h2 className={shell.label}>{t("paths.playlistsTitle")}</h2>
         </div>
-        {room.albums.length === 0 ? (
-          <p className={styles.empty}>{t("act.noAlbums")}</p>
+        {room.playlists.length === 0 ? (
+          <p className={styles.empty}>{t("room.noPlaylists")}</p>
         ) : (
-          <ul className={styles.albumGrid}>
-            {room.albums.map((album) => {
-              const year = releaseYear(
-                album.releaseDate,
-                album.releaseDatePrecision,
-              );
-              return (
-                <li key={album.slug} className={styles.albumCell}>
-                  <Link
-                    href={
-                      album.act
-                        ? musicHref.album(album.act.slug, album.slug)
-                        : musicHref.root()
-                    }
-                    className={styles.albumLink}
-                  >
-                    <CoverTile src={album.artwork} alt={album.title} cellPx={176} />
-                    <span className={styles.albumTitle}>{album.title}</span>
-                    <span className={styles.albumMeta}>
-                      {[album.act?.name, year].filter(Boolean).join(" · ")}
+          <ul className={styles.playlistGrid}>
+            {room.playlists.map((playlist) => (
+              <li key={playlist.id}>
+                <Link
+                  href={musicHref.playlist(playlist.slug)}
+                  className={`${shell.panel} ${styles.playlistCard}`}
+                >
+                  <CoverArt src={playlist.artwork} alt={playlist.name} size={56} />
+                  <span className={styles.playlistBody}>
+                    <span className={styles.playlistName}>{playlist.name}</span>
+                    <span className={shell.label}>
+                      {t("playlists.trackCount", { count: playlist.trackCount })}
                     </span>
-                  </Link>
-                </li>
-              );
-            })}
+                  </span>
+                </Link>
+              </li>
+            ))}
           </ul>
         )}
       </section>

@@ -68,10 +68,23 @@ export class MusicCuratorService {
 
   /* ── Türler ──────────────────────────────────────────────────────────── */
 
-  /** Bütün türler — küratör panelinin tür kutusu bunu okuyor. */
+  /**
+   * Bütün türler — küratör panelinin tür kutusu bunu okuyor.
+   *
+   * ⚠️ Sıra HİYERARŞİK: her oda, hemen ardından kendi alt türleri. Önce düz
+   * alfabetikti (`isApproved desc, name asc`) ve alt türler girintili olsa
+   * bile üst türlerinin yanında durmuyordu — "Alternative Rock" listede
+   * "Alternative R&B"nin peşine düşüyordu, Rock'un değil (kullanıcı ekran
+   * görüntüsü, 13 Ağustos). 140 türlük bir sözlükte bu sıra okunmaz.
+   *
+   * Sıralama SQL'de değil burada: `ORDER BY` ile "önce üst tür, sonra onun
+   * çocukları" ancak kendine katılımla (self-join) ya da pencere fonksiyonuyla
+   * yazılabilirdi; sözlük birkaç yüz satır olduğu için bellekte dizmek hem
+   * daha okunur hem yeterince ucuz.
+   */
   async listGenres() {
-    return this.prisma.musicGenre.findMany({
-      orderBy: [{ isApproved: 'desc' }, { name: 'asc' }],
+    const genres = await this.prisma.musicGenre.findMany({
+      orderBy: { name: 'asc' },
       select: {
         id: true,
         slug: true,
@@ -83,6 +96,38 @@ export class MusicCuratorService {
         _count: { select: { acts: true } },
       },
     });
+
+    const childrenOf = new Map<string, typeof genres>();
+    for (const genre of genres) {
+      if (!genre.parentId) {
+        continue;
+      }
+      const bucket = childrenOf.get(genre.parentId);
+      if (bucket) {
+        bucket.push(genre);
+      } else {
+        childrenOf.set(genre.parentId, [genre]);
+      }
+    }
+
+    const ordered: typeof genres = [];
+    for (const genre of genres) {
+      if (genre.parentId) {
+        continue;
+      }
+      ordered.push(genre);
+      ordered.push(...(childrenOf.get(genre.id) ?? []));
+    }
+
+    /**
+     * Üst türü SİLİNMİŞ alt türler (öksüzler) sona ekleniyor. Sessizce
+     * düşürmek listeyi eksik gösterirdi ve küratör "türüm nerede" derdi;
+     * `MusicGenre.parentId` FK'si silmeyi engellemiyor.
+     */
+    const placed = new Set(ordered.map((genre) => genre.id));
+    ordered.push(...genres.filter((genre) => !placed.has(genre.id)));
+
+    return ordered;
   }
 
   /**

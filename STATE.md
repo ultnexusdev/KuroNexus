@@ -11,8 +11,8 @@
 > yapılması gereken tek iş ve açık kalan dört madde orada.
 > Ölçülen gerçekler, kesinti kaydı ve dersler de aynı dosyada.
 >
-> 🔴 **CANLIDA TEK EKSİK İŞ:** `/muzik` → küratör modu → Bakım →
-> "Tür taksonomisini kur". Basılmadan salon 7 eski odayla çalışır.
+> ✅ **Taksonomi canlıda KURULDU** (13 Ağustos akşamı): 17 oda + 123 alt tür,
+> EDM kaldırıldı. Düğmeye yeniden basmak gerekmiyor.
 > ⚠️ `npx prisma db seed` konteynerde ÇALIŞMIYOR (ESM/`_client`);
 > kurulum işleri admin uçlarından yapılıyor.
 >

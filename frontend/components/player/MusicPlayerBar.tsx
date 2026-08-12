@@ -10,106 +10,49 @@ import styles from "./MusicPlayerBar.module.css";
  * Site geneli ince çalar şeridi.
  *
  * ══════════════════════════════════════════════════════════════════════════
- * NEDEN SPOTIFY'IN KENDİ KONTROL BETİĞİ
+ * ÇALAR NEDEN KARANTİNADA BİR IFRAME
  *
- * Gömülü çalar bir iframe ve **başka bir origin'de**: içinde ne olduğunu
- * okuyamıyoruz, parçanın bittiğini de göremiyoruz. Yani düz bir `<iframe src>`
- * ile kuyruk yapılamaz — her parçadan sonra kullanıcı elle "ileri"ye basmak
- * zorunda kalırdı. Spotify'ın `embed/iframe-api` betiği bu boşluğu kapatan tek
- * resmî yol: `loadUri` ile parça değiştiriyor, `playback_update` olayıyla
- * konumu bildiriyor, biz de parça bitince sıradakine geçiyoruz.
+ * Gömülü çalar başka bir origin'de bir iframe: içini okuyamıyoruz, parçanın
+ * bittiğini göremiyoruz. Düz `<iframe src>` ile kuyruk yapılamaz — her
+ * parçadan sonra elle "ileri"ye basmak gerekirdi. Spotify'ın
+ * `embed/iframe-api` betiği bunu bildiren tek resmî yol, **ama `eval`
+ * istiyor** (13 Ağustos ölçümü). Bizim CSP'mizde `'unsafe-eval'` bilerek yok.
  *
- * ⚠️ BEDELİ ÖDENDİ VE YAZILI: `next.config.ts` CSP'sinde `script-src` artık
- * `https://open.spotify.com` içeriyor — sayfamızda dış kaynaklı bir betik
- * çalışıyor. Karar kullanıcıya soruldu ve onaylandı (12 Ağustos 2026).
+ * Çözüm: betik siteye değil, **yalnızca kendi mini sayfasına** alındı —
+ * `app/api/music-player/route.ts`. Bu bileşen o sayfayı iframe'liyor ve
+ * `postMessage` ile konuşuyor. `eval` izni oranın dışına çıkmıyor; sitenin
+ * geri kalanı `script-src 'self' 'unsafe-inline'` ile kalıyor.
+ * (Karar kullanıcıya soruldu ve seçildi, 13 Ağustos 2026.)
  *
- * ⚠️ Betik düşerse ÇALAR SESSİZCE ÖLMEZ: kontrolcü kurulamadığında şerit
- * "çalar yüklenemedi" diyor ve ileri/geri düğmeleri çalışmaya devam ediyor
- * (parça değişir, çalmayı kullanıcı başlatır). Sessiz bozulma bu projede
- * defalarca teşhisi uzattı.
+ * ⚠️ Köprü düşerse ÇALAR SESSİZCE ÖLMEZ: mini sayfa 12 saniye içinde hazır
+ * olmazsa `failed` yolluyor, şerit "çalar yüklenemedi" diyor ve ileri/geri
+ * çalışmaya devam ediyor. Sessiz bozulma bu projede defalarca teşhisi uzattı.
  *
  * ── ÖNİZLEME UYARISI ──────────────────────────────────────────────────────
- * Gömülü çalar, tarayıcıda Spotify oturumu AÇIK ve hesap Premium değilse
- * parçanın yalnızca ~30 saniyesini çalar. Bu bizim tarafımızda çözülebilecek
- * bir şey değil (`MusicTrack.previewUrl` de bilerek yok — Spotify önizleme
- * adreslerini Kasım 2024'te yeni uygulamalara kapattı).
+ * Tarayıcıda Spotify oturumu açık ve hesap Premium değilse gömü parçanın
+ * yalnızca ~30 saniyesini çalar. Bizim tarafımızda çözülemez
+ * (`MusicTrack.previewUrl` de bilerek yok — Spotify önizleme adreslerini
+ * Kasım 2024'te yeni uygulamalara kapattı).
  * ══════════════════════════════════════════════════════════════════════════
  */
 
-const SCRIPT_SRC = "https://open.spotify.com/embed/iframe-api/v1";
-const SCRIPT_ID = "spotify-iframe-api";
+/** Karantina sayfası. `middleware.ts` matcher'ı `/api`yi dışarıda bırakıyor. */
+const PLAYER_SRC = "/api/music-player";
+
+/** Köprü mesajlarının kimliği — `route.ts` içindeki değerlerle aynı olmalı. */
+const HOST_TAG = "kuronexus-host";
+const PLAYER_TAG = "kuronexus-player";
 
 /** Parça sonu payı: `position` süreye bu kadar yaklaşınca sıradakine geçiliyor. */
 const END_SLACK_MS = 1200;
 
-/**
- * Betik yükleme üst sınırı.
- *
- * ⚠️ `onerror` yalnızca istek **başarısız olursa** tetikleniyor; ağ isteği
- * asılı kalırsa (kısıtlı ağ, engelleyici eklenti) hiç çağrılmıyor ve şerit
- * sonsuza kadar "yükleniyor" hâlinde kalırdı — tam olarak bu projede üç kez
- * teşhisi uzatan sessiz bozulma. Süre dolunca uyarı yazılıyor.
- */
-const SCRIPT_TIMEOUT_MS = 10_000;
-
-interface SpotifyController {
-  loadUri: (uri: string) => void;
-  play: () => void;
-  togglePlay: () => void;
-  destroy: () => void;
-  addListener: (
-    event: "playback_update" | "ready",
-    callback: (payload: {
-      data: { position: number; duration: number; isPaused: boolean };
-    }) => void,
-  ) => void;
-}
-
-interface SpotifyIframeApi {
-  createController: (
-    element: HTMLElement,
-    options: { uri: string; width: string | number; height: string | number },
-    callback: (controller: SpotifyController) => void,
-  ) => void;
-}
-
-declare global {
-  interface Window {
-    onSpotifyIframeApiReady?: (api: SpotifyIframeApi) => void;
-    /** Betik bir kez yükleniyor; ikinci mount'ta hazır olan API buradan alınıyor */
-    __spotifyIframeApi?: SpotifyIframeApi;
-  }
-}
-
-function loadIframeApi(): Promise<SpotifyIframeApi> {
-  if (window.__spotifyIframeApi) {
-    return Promise.resolve(window.__spotifyIframeApi);
-  }
-  return new Promise((resolve, reject) => {
-    const timer = setTimeout(
-      () => reject(new Error("SPOTIFY_IFRAME_API_TIMEOUT")),
-      SCRIPT_TIMEOUT_MS,
-    );
-    const previous = window.onSpotifyIframeApiReady;
-    window.onSpotifyIframeApiReady = (api) => {
-      clearTimeout(timer);
-      window.__spotifyIframeApi = api;
-      previous?.(api);
-      resolve(api);
-    };
-    if (document.getElementById(SCRIPT_ID)) {
-      return; // betik zaten yolda; yukarıdaki geri çağırma çözecek
-    }
-    const script = document.createElement("script");
-    script.id = SCRIPT_ID;
-    script.src = SCRIPT_SRC;
-    script.async = true;
-    script.onerror = () => {
-      clearTimeout(timer);
-      reject(new Error("SPOTIFY_IFRAME_API_FAILED"));
-    };
-    document.body.appendChild(script);
-  });
+interface PlayerMessage {
+  source?: string;
+  type?: "ready" | "update" | "failed";
+  position?: number;
+  duration?: number;
+  isPaused?: boolean;
+  reason?: string;
 }
 
 export function MusicPlayerBar() {
@@ -117,8 +60,7 @@ export function MusicPlayerBar() {
   const { current, tracks, index, context, next, previous, jumpTo, clear, autoplay } =
     useMusicQueue();
 
-  const hostRef = useRef<HTMLDivElement | null>(null);
-  const controllerRef = useRef<SpotifyController | null>(null);
+  const frameRef = useRef<HTMLIFrameElement | null>(null);
   /** Aynı parça için "bitti" iki kez tetiklenmesin */
   const endedForRef = useRef<string | null>(null);
   const nextRef = useRef(next);
@@ -130,79 +72,69 @@ export function MusicPlayerBar() {
 
   const hasTrack = current !== null;
 
-  /* ── Kontrolcüyü bir kez kur ──────────────────────────────────────────── */
+  /** Karantina sayfasına komut yollar. Hedef origin AÇIKÇA veriliyor ('*' değil). */
+  const post = useCallback((message: Record<string, unknown>) => {
+    frameRef.current?.contentWindow?.postMessage(
+      { source: HOST_TAG, ...message },
+      window.location.origin,
+    );
+  }, []);
+
+  /* ── Köprü: mini sayfadan gelen olaylar ───────────────────────────────── */
   useEffect(() => {
-    if (!hasTrack || controllerRef.current) {
-      return;
-    }
-    const host = hostRef.current;
-    if (!host) {
-      return;
-    }
-    let cancelled = false;
-
-    loadIframeApi()
-      .then((api) => {
-        if (cancelled || !hostRef.current) {
-          return;
+    function onMessage(event: MessageEvent<PlayerMessage>) {
+      // ⚠️ Origin kontrolü şart: herhangi bir pencere bu sayfaya mesaj atabilir
+      if (event.origin !== window.location.origin) {
+        return;
+      }
+      const data = event.data;
+      if (!data || data.source !== PLAYER_TAG) {
+        return;
+      }
+      if (data.type === "ready") {
+        setFailed(false);
+        setReady(true);
+        return;
+      }
+      if (data.type === "failed") {
+        setFailed(true);
+        return;
+      }
+      if (data.type === "update") {
+        const duration = data.duration ?? 0;
+        const position = data.position ?? 0;
+        // Parça sonu: Spotify ayrı bir "ended" olayı yayınlamıyor, o yüzden
+        // konum süreye yaklaşınca sıradakine geçiliyor.
+        if (duration > 0 && position >= duration - END_SLACK_MS) {
+          const key = `${duration}:${position}`;
+          if (endedForRef.current !== key) {
+            endedForRef.current = key;
+            nextRef.current();
+          }
         }
-        api.createController(
-          hostRef.current,
-          { uri: "", width: "100%", height: 80 },
-          (controller) => {
-            if (cancelled) {
-              controller.destroy();
-              return;
-            }
-            controllerRef.current = controller;
-            controller.addListener("playback_update", ({ data }) => {
-              // Parça sonu: Spotify ayrı bir "ended" olayı yayınlamıyor, o
-              // yüzden konum süreye yaklaşınca sıradakine geçiliyor.
-              if (
-                data.duration > 0 &&
-                data.position >= data.duration - END_SLACK_MS
-              ) {
-                const key = `${data.duration}:${data.position}`;
-                if (endedForRef.current !== key) {
-                  endedForRef.current = key;
-                  nextRef.current();
-                }
-              }
-            });
-            setReady(true);
-          },
-        );
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setFailed(true);
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [hasTrack]);
+      }
+    }
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, []);
 
   /* ── Parça değişince yükle ────────────────────────────────────────────── */
   useEffect(() => {
-    const controller = controllerRef.current;
-    if (!controller || !current) {
+    if (!ready || !current) {
       return;
     }
     endedForRef.current = null;
-    controller.loadUri(`spotify:track:${current.spotifyId}`);
+    /**
+     * `autoplay` ilk "çal" düğmesiyle açılıyor; tarayıcı otomatik oynatma
+     * politikası ilk sefer kullanıcı hareketi istiyor ve o hareket zaten
+     * düğmenin kendisi. Sonraki parçalar aynı iframe içinde devam ettiği için
+     * engellenmiyor.
+     */
+    post({ type: "load", spotifyId: current.spotifyId, autoplay });
     if (autoplay) {
-      /**
-       * `loadUri` hemen ardından `play()`: tarayıcı otomatik oynatma
-       * politikası ilk sefer için kullanıcı hareketi istiyor ve o hareket
-       * zaten "çal" düğmesi. Sonraki parçalar aynı iframe içinde devam
-       * ettiği için engellenmiyor.
-       */
-      controller.play();
       window.dispatchEvent(new CustomEvent("kuronexus:music-started"));
     }
-  }, [current, autoplay, ready]);
+  }, [current, autoplay, ready, post]);
 
   /**
    * Şerit sabit konumlu ve içeriğin üstüne biniyor; sayfanın son satırı
@@ -222,9 +154,7 @@ export function MusicPlayerBar() {
     };
   }, [hasTrack]);
 
-  const onToggle = useCallback(() => {
-    controllerRef.current?.togglePlay();
-  }, []);
+  const onToggle = useCallback(() => post({ type: "toggle" }), [post]);
 
   if (!current) {
     return null;
@@ -288,11 +218,27 @@ export function MusicPlayerBar() {
           </span>
         </div>
 
-        {/* Spotify'ın kendi gömüsü: çal/duraklat ve ilerleme çubuğu onun
-            içinde. Kendi kopyamızı çizmek, iframe'in gerçek durumundan
-            sapabilecek ikinci bir gerçek üretirdi. */}
+        {/* Karantina sayfası. İçinde Spotify'ın kendi gömüsü var: çal/duraklat
+            ve ilerleme çubuğu onun. Kendi kopyamızı çizmek, iframe'in gerçek
+            durumundan sapabilecek ikinci bir gerçek üretirdi.
+
+            ⚠️ Bu iframe kuyruk boşalana kadar SÖKÜLMÜYOR — sökülürse ses
+            kesilir. Dar ekranda `display: none` ile gizleniyor, kaldırılmıyor. */}
         <div className={styles.embed}>
-          <div ref={hostRef} />
+          <iframe
+            ref={frameRef}
+            src={PLAYER_SRC}
+            title={t("musicBar")}
+            height={80}
+            /* ⚠️ Gerçek sınır bu öznitelik DEĞİL, mini sayfanın kendi CSP'si
+               (`next.config.ts` → `PLAYER_CSP`). Aynı origin'de `allow-scripts`
+               ile `allow-same-origin` birlikte verildiğinde sandbox zaten
+               anlamlı bir hapis kurmuyor — burada işe yarayan tarafı form
+               gönderimini ve üst pencereyi yönlendirmeyi kapatması.
+               `allow-same-origin` postMessage köprüsü için zorunlu. */
+            sandbox="allow-scripts allow-same-origin allow-popups"
+            allow="autoplay; encrypted-media"
+          />
           {failed ? <span className={styles.warn}>{t("embedFailed")}</span> : null}
         </div>
 

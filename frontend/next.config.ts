@@ -71,11 +71,24 @@ const CSP_DIRECTIVES = [
    * bildiren tek resmî yol ve o olmadan çalma listesi kendiliğinden
    * ilerleyemiyor (her parçada elle "ileri" gerekirdi).
    *
-   * Bedeli açık: sayfamızda dış kaynaklı bir betik çalışıyor. Sınırı da açık —
-   * yalnızca bu origin, ve `connect-src` GENİŞLETİLMEDİ: betiğin kendi ağ
-   * trafiği iframe'in içinde, bizim sayfamızın bağlantı izinleri değişmiyor.
+   * ⚠️ SPOTIFY BURADA YOK VE OLMAYACAK. 12 Ağustos'ta bir gün için
+   * `https://open.spotify.com` eklenmişti; 13 Ağustos'ta ölçüm iki şey
+   * gösterdi ve karar değişti:
+   *   1. `open.spotify.com/embed/iframe-api/v1` yalnızca **1292 baytlık bir
+   *      önyükleyici** — gerçek API'yi `embed-cdn.spotifycdn.com`dan ikinci
+   *      bir `<script>` ile çekiyor (dosya indirilip okundu).
+   *   2. O betik `eval` istiyor. `'unsafe-eval'` olmadan ilk satırda
+   *      `EvalError` alıp ölüyor, kontrolcü hiç kurulmuyor.
+   * Yani çalışması için siteye `'unsafe-eval'` vermek gerekiyordu. Bunun
+   * yerine çalar karantinaya alındı: `app/api/music-player/route.ts` ve
+   * aşağıdaki `PLAYER_SECURITY_HEADERS`. İzin o mini sayfanın dışına
+   * çıkmıyor, site geneli politika ESKİ KATI HÂLİNDE kaldı.
+   *
+   * (Bu, devir notu §4.5'teki tekrarlayan hata sınıfının dördüncüsüydü:
+   * kendi kurduğum bir değerin dış servis tarafından kabul edileceğini
+   * varsaymak. Bu kez tahmin edilmedi, betik indirilip okundu.)
    */
-  "script-src 'self' 'unsafe-inline' https://open.spotify.com",
+  "script-src 'self' 'unsafe-inline'",
   // 16 dosyada style={{ }} kullanımı var + Next kendi stillerini satır içi basıyor
   "style-src 'self' 'unsafe-inline'",
   `img-src 'self' data: blob: https://image.tmdb.org https://i.ytimg.com https://s4.anilist.co ${apiUrl.origin}`,
@@ -95,7 +108,13 @@ const CSP_DIRECTIVES = [
    * Gömü player Web API'den AYRI bir mekanizma; Kasım 2024'teki uç
    * kapanmalarından etkilenmiyor ve OAuth istemiyor.
    */
-  "frame-src https://www.youtube-nocookie.com https://open.spotify.com",
+  /**
+   * `'self'` 13 Ağustos'ta eklendi: müzik çaları artık kendi origin'imizdeki
+   * bir karantina sayfası (`/api/music-player`) ve onu iframe'lememiz gerek.
+   * `open.spotify.com` duruyor çünkü sayfalardaki gömüler (`SpotifyEmbed`)
+   * doğrudan Spotify'a bakan iframe'ler.
+   */
+  "frame-src 'self' https://www.youtube-nocookie.com https://open.spotify.com",
   "worker-src 'self' blob:",
   "manifest-src 'self'",
   // Yanlışlıkla http:// kalmış bir alt kaynak varsa tarayıcı https'e yükseltsin
@@ -149,6 +168,51 @@ const SECURITY_HEADERS = [
   },
 ];
 
+/**
+ * ÇALAR KARANTİNASI — yalnızca `/api/music-player` için.
+ *
+ * Spotify'ın kontrol betiği `eval` istiyor (ölçüm: `route.ts` başlığı).
+ * Bütün siteye `'unsafe-eval'` vermek yerine izin **tek bir mini sayfaya**
+ * veriliyor: içinde oturum yok, çerez okuyan kod yok, kullanıcı verisi yok —
+ * yalnızca Spotify gömüsü ve on satırlık `postMessage` köprüsü.
+ *
+ * Farklar (global politikaya göre) ve HER BİRİNİN sebebi:
+ *   script-src   + 'unsafe-eval'          → betiğin tek gerçek ihtiyacı
+ *                + spotify origin'leri    → önyükleyici + CDN'deki asıl betik
+ *   frame-src    open.spotify.com         → betiğin kurduğu gömü iframe'i
+ *   frame-ancestors 'self'                → bu sayfayı YALNIZCA biz gömebiliriz
+ *   connect-src  'none'                   → sayfanın kendi ağ isteği yok
+ *   img/font/media 'none' benzeri daralt  → gerekmiyor, kapalı kalsın
+ *
+ * ⚠️ CSP'yi ayrıca `route.ts` içinde YAZMA. İki `Content-Security-Policy`
+ * başlığı olursa tarayıcı ikisinin KESİŞİMİNİ uygular ve `unsafe-eval` yine
+ * engellenir. Tek kaynak burası.
+ */
+const PLAYER_CSP = [
+  "default-src 'none'",
+  "base-uri 'none'",
+  "form-action 'none'",
+  // Yalnızca biz gömebiliriz — X-Frame-Options: SAMEORIGIN'in modern karşılığı
+  "frame-ancestors 'self'",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://open.spotify.com https://embed-cdn.spotifycdn.com",
+  "style-src 'unsafe-inline'",
+  "frame-src https://open.spotify.com",
+  "img-src data: https://i.scdn.co https://image-cdn-ak.spotifycdn.com https://image-cdn-fa.spotifycdn.com",
+].join("; ");
+
+const PLAYER_SECURITY_HEADERS = [
+  { key: "Content-Security-Policy", value: PLAYER_CSP },
+  { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" },
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  // Global kural DENY yazıyor; kendi sayfamıza gömebilmek için gevşetiliyor
+  { key: "X-Frame-Options", value: "SAMEORIGIN" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  {
+    key: "Permissions-Policy",
+    value: "camera=(), microphone=(), geolocation=(), interest-cohort=()",
+  },
+];
+
 const nextConfig: NextConfig = {
   // Docker deploy: yalnizca gerekli dosyalari iceren .next/standalone ciktisi uretir.
   // Yalnizca Docker build'inde acik — Windows'ta pnpm + standalone symlink izni istiyor (EPERM).
@@ -156,7 +220,17 @@ const nextConfig: NextConfig = {
   // "Bu bir Next.js uygulaması" bilgisini vermeye gerek yok
   poweredByHeader: false,
   async headers() {
-    return [{ source: "/:path*", headers: SECURITY_HEADERS }];
+    return [
+      { source: "/:path*", headers: SECURITY_HEADERS },
+      /**
+       * SIRA ÖNEMLİ: aynı başlık anahtarını iki kural da yazıyor ve **sonraki
+       * kazanıyor.** Bu satır yukarıdakinden önce gelirse çalar sayfası
+       * global CSP'yi alır, `eval` engellenir ve çalar sessizce ölür.
+       * Doğrulaması ölçümle: yanıt başlığında TEK bir CSP olmalı ve içinde
+       * `'unsafe-eval'` geçmeli.
+       */
+      { source: "/api/music-player", headers: PLAYER_SECURITY_HEADERS },
+    ];
   },
 
   /**

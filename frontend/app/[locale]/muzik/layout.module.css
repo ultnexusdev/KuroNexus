@@ -91,3 +91,31 @@
   border: var(--mz-hairline) solid var(--border);
   border-radius: var(--mz-radius);
 }
+
+/* ── Kanat kabuğu: sol ray + içerik ───────────────────────────────────────
+   Ray 1100 px altında kendini gizliyor (`PlaylistRail.module.css`), o yüzden
+   burada koşul yok — kabuk tek sütuna kendiliğinden düşüyor.
+
+   `min-width: 0` içerik sütununda ŞART: içindeki ızgaralar ve uzun başlıklar
+   olmasa ray'i ezip taşırıyor (flex öğesi varsayılan olarak içeriğinden küçük
+   olamıyor). */
+.shell {
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(1rem, 2vw, 1.75rem);
+  max-width: 1600px;
+  margin-inline: auto;
+  width: 100%;
+  padding-inline: var(--mz-pad);
+}
+
+.content {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* Sayfaların kendi yan boşluğu kabukta verildiği için içeride tekrarlanmıyor;
+   aksi hâlde ray ile içerik arasında iki kat boşluk oluşuyordu. */
+.content > * {
+  padding-inline: 0;
+}

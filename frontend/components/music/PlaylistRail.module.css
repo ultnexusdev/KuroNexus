@@ -1,0 +1,166 @@
+/* ============================================================
+   Salonun sol rayı (Spotify deseni).
+
+   ⚠️ 1100 px altında GİZLENİYOR, daraltılmıyor. Dar ekranda üç sütun
+   (ray + içerik + çalan paneli) her birini kullanılamaz genişliğe düşürüyordu;
+   telefonda listelere `/muzik/listeler` üzerinden ulaşılıyor ve o sayfa zaten
+   aynı bilgiyi taşıyor.
+
+   Ray kendi içinde kayıyor (`position: sticky` + kendi `overflow`), yani uzun
+   bir albüm sayfasında liste yukarıda kaybolmuyor.
+   ============================================================ */
+
+.rail {
+  display: none;
+}
+
+@media (min-width: 1100px) {
+  .rail {
+    display: block;
+    flex: none;
+    width: 15rem;
+  }
+}
+
+.inner {
+  position: sticky;
+  top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--mz-gap, 0.875rem);
+  background: var(--surface);
+  border: var(--mz-hairline, 0.5px) solid var(--border);
+  border-radius: var(--mz-radius, 12px);
+}
+
+.links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.nav,
+.navOn {
+  display: block;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: var(--mz-label, 0.8rem);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.4rem;
+  border-radius: 6px;
+}
+
+.nav {
+  color: var(--text-muted);
+}
+
+.nav:hover {
+  color: var(--text-primary);
+  background: var(--surface-hover, var(--bg));
+}
+
+.navOn {
+  color: var(--accent);
+  background: var(--surface-hover, var(--bg));
+}
+
+.head {
+  padding-top: 0.5rem;
+  border-top: var(--mz-hairline, 0.5px) solid var(--border);
+}
+
+.headLink {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: var(--mz-label, 0.8rem);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.headLink:hover {
+  color: var(--accent);
+}
+
+.empty {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.row,
+.rowOn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem;
+  border-radius: 6px;
+  color: var(--text-secondary);
+  min-width: 0;
+}
+
+.row:hover {
+  background: var(--surface-hover, var(--bg));
+  color: var(--text-primary);
+}
+
+.rowOn {
+  background: var(--surface-hover, var(--bg));
+  color: var(--accent);
+}
+
+.cover,
+.coverEmpty {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.coverEmpty {
+  background: repeating-linear-gradient(
+    45deg,
+    var(--music-hatch-a, var(--surface)),
+    var(--music-hatch-a, var(--surface)) 4px,
+    var(--music-hatch-b, var(--border)) 4px,
+    var(--music-hatch-b, var(--border)) 8px
+  );
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.name,
+.meta {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.name {
+  font-size: 0.85rem;
+}
+
+.meta {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}

@@ -1,0 +1,99 @@
+/* Şeritteki çalma listesi seçici. Menü YUKARI açılıyor: şerit ekranın
+   dibinde, aşağı açılan bir menü görünmezdi. */
+
+.box {
+  position: relative;
+  flex: none;
+}
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-secondary);
+  padding: 0.35rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.trigger:hover {
+  color: var(--text-primary);
+  border-color: var(--border);
+}
+
+.menu {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 0.4rem);
+  z-index: 20;
+  width: min(20rem, 85vw);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.6rem;
+  background: var(--surface);
+  border: 1px solid var(--border-strong, var(--border));
+  border-radius: 10px;
+}
+
+.head {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.note {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 14rem;
+  overflow-y: auto;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  padding: 0.35rem 0.25rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.row:hover:not(:disabled) {
+  background: var(--surface-hover, var(--bg));
+  color: var(--text-primary);
+}
+
+.row:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.count {
+  flex: none;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { apiUrl, isLocalUpload } from "@/lib/api/client";
 import { useMusicQueue } from "./MusicQueue";
+import { PlaylistPicker } from "./PlaylistPicker";
 import styles from "./MusicPlayerBar.module.css";
 
 /**
@@ -470,6 +471,9 @@ export function MusicPlayerBar() {
         </div>
 
         <div className={styles.tools}>
+          {/* Liste seçici: sayfaya gitmeden başka bir listeye geçmek için */}
+          <PlaylistPicker />
+
           {/* ⚠️ SES ÇUBUĞU BUGÜN ÇİZİLMİYOR — ölçüldü (13 Ağustos 2026):
               Spotify'ın gömü kontrolcüsünde `setVolume` YOK. Yetenek
               `route.ts` içinde soruluyor ve `false` dönüyor.

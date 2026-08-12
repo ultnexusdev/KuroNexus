@@ -22,6 +22,7 @@ import {
   refreshMusicAct,
   searchSpotifyArtists,
   seedMusicRoles,
+  seedMusicTaxonomy,
   setMusicActGenres,
   updateMusicAct,
   updateMusicGenre,
@@ -689,6 +690,27 @@ function Maintenance() {
           }
         >
           {busy === "roles" ? t("working") : t("seedRoles")}
+        </button>
+
+        {/* Taksonomi: 17 oda + alt türler. `prisma/seed.ts` konteynerde
+            çalışmıyor (ts-node betiği ESM olarak ayrıştırıp `./_client`
+            içe aktarımını çözemiyor), o yüzden buradan kuruluyor —
+            rol sözlüğü düğmesiyle aynı gerekçe. Tekrarı güvenli. */}
+        <button
+          type="button"
+          className={styles.actionQuiet}
+          disabled={busy !== null}
+          onClick={() =>
+            run("taxonomy", async () => {
+              const result = await seedMusicTaxonomy();
+              return t("taxonomyDone", {
+                rooms: result.rooms,
+                subgenres: result.subgenres,
+              });
+            })
+          }
+        >
+          {busy === "taxonomy" ? t("working") : t("seedTaxonomy")}
         </button>
 
         <button

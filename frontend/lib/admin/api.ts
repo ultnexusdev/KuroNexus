@@ -1142,6 +1142,20 @@ export function rejectMusicGenre(id: string): Promise<unknown> {
   return apiFetch(`/admin/music/genres/${id}`, { method: "DELETE" });
 }
 
+/**
+ * Sabit tür taksonomisini kurar (17 oda + alt türler).
+ *
+ * ⚠️ Tekrar çalıştırmak güvenli (slug üzerinden upsert). Var olan türler
+ * taksonomiye katılıyor, sözlük ikiye bölünmüyor.
+ */
+export function seedMusicTaxonomy(): Promise<{
+  rooms: number;
+  subgenres: number;
+  skipped: number;
+}> {
+  return apiFetch("/admin/music/genres/seed-taxonomy", { method: "POST" });
+}
+
 /** Kapağı inmemiş kayıtları toplar. Cron da yapıyor; bu uç sabırsız olan için. */
 export function localizeMusicArtwork(limit = 60): Promise<{
   albums: number;

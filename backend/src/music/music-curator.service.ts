@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { slugify } from '../common/utils/slugify';
+import { MUSIC_TAXONOMY } from './music-taxonomy';
 import type { MusicActKind } from '../generated/prisma/enums';
 
 /**
@@ -217,6 +218,76 @@ export class MusicCuratorService {
         parentId: true,
       },
     });
+  }
+
+  /**
+   * Sabit tür taksonomisini kurar — 17 oda ve alt türleri.
+   *
+   * Tekrar çalıştırmak güvenli: slug üzerinden upsert. Var olan kayıtlar
+   * taksonomiye KATILIYOR — MusicBrainz'den gelmiş "rock", "metal",
+   * "nu-metal" aynı slug'a düştüğü için yeni ad/renk/üst tür bilgisini alıyor
+   * ve onaylanıyor. Sözlük ikiye bölünmüyor.
+   *
+   * ⚠️ Alt tür ana türle AYNI ada sahipse ATLANIYOR. Listede dört yerde var
+   * (Pop>Pop, Hip-Hop>Hip-Hop, Reggae>Reggae, Experimental>Experimental);
+   * ikisi de aynı slug'a düşeceği için ikinci upsert birincisini kendi çocuğu
+   * yapmaya çalışırdı — tür kendi kendinin üstü olurdu.
+   *
+   * ⚠️ Alt türler ana türün `accentKey`ini SATIRLARINDA taşıyor (gerekçe ve
+   * bedeli `music-taxonomy.ts` başlığında).
+   */
+  async seedTaxonomy() {
+    let rooms = 0;
+    let subgenres = 0;
+    let skipped = 0;
+
+    for (const group of MUSIC_TAXONOMY) {
+      const parentSlug = slugify(group.name);
+      const parent = await this.prisma.musicGenre.upsert({
+        where: { slug: parentSlug },
+        update: {
+          name: group.name,
+          accentKey: group.accentKey,
+          parentId: null,
+          isApproved: true,
+        },
+        create: {
+          slug: parentSlug,
+          name: group.name,
+          accentKey: group.accentKey,
+          isApproved: true,
+        },
+        select: { id: true },
+      });
+      rooms += 1;
+
+      for (const childName of group.children) {
+        const childSlug = slugify(childName);
+        if (childSlug === parentSlug) {
+          skipped += 1;
+          continue;
+        }
+        await this.prisma.musicGenre.upsert({
+          where: { slug: childSlug },
+          update: {
+            name: childName,
+            accentKey: group.accentKey,
+            parentId: parent.id,
+            isApproved: true,
+          },
+          create: {
+            slug: childSlug,
+            name: childName,
+            accentKey: group.accentKey,
+            parentId: parent.id,
+            isApproved: true,
+          },
+        });
+        subgenres += 1;
+      }
+    }
+
+    return { rooms, subgenres, skipped };
   }
 
   /* ── Act künyesi ─────────────────────────────────────────────────────── */

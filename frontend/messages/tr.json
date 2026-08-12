@@ -1878,7 +1878,9 @@
       "bannerPositionHint": "Görselin hangi noktasının ortada kalacağı. Yüzler kırpılıyorsa dikey değeri küçültün.",
       "genreNameHint": "Görünen ad. Adres parçası bundan türetiliyor.",
       "accentKeyHint": "Odanın rengi. Alt türlerde boş bırakın — üst türün rengini alırlar.",
-      "parentGenreHint": "Boş bırakılırsa ODA olur ve kendi sayfasını açar. Bir üst tür seçilirse onun altında alt tür olur."
+      "parentGenreHint": "Boş bırakılırsa ODA olur ve kendi sayfasını açar. Bir üst tür seçilirse onun altında alt tür olur.",
+      "seedTaxonomy": "Tür taksonomisini kur",
+      "taxonomyDone": "{rooms} oda ve {subgenres} alt tür hazır."
     }
   }
 }

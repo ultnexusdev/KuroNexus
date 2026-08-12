@@ -87,6 +87,19 @@ export class MusicAdminController {
     return this.spotify.searchArtists(query ?? '');
   }
 
+  /**
+   * Sabit tür taksonomisini kurar (17 oda + alt türler).
+   *
+   * ⚠️ `prisma/seed.ts`te DEĞİL burada: konteynerde `ts-node prisma/seed.ts`
+   * ESM olarak ayrıştırılıp `./_client` içe aktarımını çözemiyor
+   * (canlı çıktı, 13 Ağustos). Rol sözlüğü ucuyla aynı gerekçe.
+   * Tekrar çalıştırmak güvenli.
+   */
+  @Post('genres/seed-taxonomy')
+  seedTaxonomy() {
+    return this.curator.seedTaxonomy();
+  }
+
   /** Onay bekleyen türler — ':id' kalıbından önce. */
   @Get('genres/pending')
   pendingGenres() {

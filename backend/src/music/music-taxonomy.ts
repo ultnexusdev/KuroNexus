@@ -5,9 +5,20 @@
  * NEDEN KODDA, VERİTABANINDA DEĞİL
  *
  * Bu liste kullanıcının verdiği sabit taksonomi (13 Ağustos 2026). Elle 130+
- * kayıt açmak makul değildi; seed kuruyor ve tekrar çalıştırmak güvenli
+ * kayıt açmak makul değildi; bir uç kuruyor ve tekrar çalıştırmak güvenli
  * (slug üzerinden upsert). Küratör yine de panelden yeni tür ekleyebilir —
  * bu liste bir başlangıç, kilit değil.
+ *
+ * ── NEDEN `prisma/seed.ts` DEĞİL, `src/` ALTINDA BİR UÇ ───────────────────
+ * Önce seed'e konmuştu ve **yerelde çalıştı, üretimde çalışmadı**: konteynerde
+ * `ts-node prisma/seed.ts` betiği ESM olarak ayrıştırıyor ve `./_client`
+ * uzantısız içe aktarımı çözülemiyor (`ERR_MODULE_NOT_FOUND`, 13 Ağustos
+ * canlı çıktısı). Kovalamak yerine projenin kendi deseni kullanıldı: rol
+ * sözlüğü de aynı sebeple `POST /admin/music/roles/seed` ucundan kuruluyor
+ * ("seed çalıştırmadan kurulmuş bir veritabanı için").
+ *
+ * Kazanç: tek kopya. Rol sözlüğü iki yerde duruyor (seed + servis) ve
+ * ayrışma riski taşıyor; taksonomi yalnızca burada.
  *
  * ── RENK ──────────────────────────────────────────────────────────────────
  * `accentKey` yalnızca ANA türlerde tanımlı. Alt türler kendi renklerini

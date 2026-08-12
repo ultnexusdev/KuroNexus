@@ -16,6 +16,50 @@
 > (tür + grup/solo + kuruluş yılı + köken — Spotify hiçbirini vermiyor).
 > ⚠️ Yolda **yarım saatlik üretim kesintisi** yaşandı; kaydı ve üç önlemi
 > devir notunun 4. bölümünde.
+> ✅ **DÖRDÜNCÜ OTURUM (12 Ağustos, Cowork + yerel):** **marka kimliği
+> uygulandı** ve **iki paralel logo turu birleştirildi** (`ad8e0c5`, `46f6f9f`).
+> - **Hero artık vektör kilit, HAREKET YOK.** `HeroGlyph` fırça fontuyla
+>   yazılan metin olmaktan çıkıp `components/brand/paths.ts`ten okunan vektör
+>   marka kilidi oldu (kontur 黒 + altın ayraç + NEXUS). Parallax, imleç takibi
+>   ve giriş animasyonu kaldırıldı; bileşen `"use client"` olmaktan çıkıp
+>   **server component** oldu. Tek etkileşim hover: altın hâle güçlenir + %3
+>   büyüme, `prefers-reduced-motion`'da kapalı.
+> - **Kontur/dolgu ayrımı bilinçli:** hero'da (masaüstü ~154px, telefonda
+>   54px) **kontur**, header/footer logosunda (33px) **DOLGU**. 33px'te
+>   1.8px'lik kontur çizgileri birbirine değip glifi okunmaz bir lekeye
+>   çeviriyor — ayrımın tek sebebi bu, estetik tercih değil.
+> - **İşaret tek kaynakta:** `components/brand/paths.ts`. Hazır SVG dosyası
+>   `<img>` ile çekilmiyor: kural 16 gereği renk token'dan okunmalı (header'da
+>   `var(--accent)`, holde `var(--hub-gold)`), dosyaya gömülü hex tema
+>   değişimini yutardı. Yerelde ölçüldü — tema mor→lacivert olunca işaret
+>   `#9d97b8`→`#c06a6a` takip ediyor.
+> - **İkon seti tamam:** `favicon.ico` (16/32/48), `apple-icon.png`, SVG
+>   favicon (`/brand/icon.svg`), PWA 192/512 + maskable-512, `app/manifest.ts`,
+>   metadata'ya `metadataBase` + openGraph/twitter görseli (`/brand/og.png`).
+>   Hepsi yerelde 200 dönüyor; marka linkinin dokunma alanı 44px (kural 2).
+>
+> 🔴 **AYNI İŞ İKİ KEZ YAPILDI — KURAL 9'UN VARLIK SEBEBİ.** 6-7 Ağustos'ta
+> evde bir logo turu yapılmıştı (`66da5ed`, `1591e85`, `8f69afd`, `80b7c78`:
+> `KuroBrush.tsx` = 黒'yi vuruş vuruş çizen animasyonlu SVG, `app/icon.svg`,
+> `public/brand/kuronexus-*.svg`) ama **STATE.md'ye YAZILMADI**. Cowork oturumu
+> 5 Ağustos ağacından çalıştığı için bundan habersiz aynı işi baştan yaptı.
+> Rebase'te dört dosya çakıştı (`favicon.ico`, `apple-icon.png`,
+> `HeroGlyph.tsx`, `HeroGlyph.module.css`); kullanıcı **Cowork sürümünü**
+> seçti, evdeki sürümün öksüz kalan sekiz dosyası `46f6f9f`te silindi.
+>
+> ⚠️ **`--font-brush` (Yuji Boku) SİLİNEMEZ.** Cowork oturumu "tüketicisi
+> kalmadı" diye işaretlemişti — 5 Ağustos ağacında öyleydi. Evden gelen
+> `CharacterDossier.module.css:113` ve `CharacterPlate.module.css:226` hâlâ
+> kullanıyor; `layout.tsx`teki import yerinde bırakıldı.
+>
+> 📌 **SIRADAKİ ADIM:** devir notu §0.1'deki dokuz adımlık canlı doğrulama —
+> ama artık logo da canlıda, o yüzden aynı turda şunlar da bakılmalı: `/`
+> hero kilidi, iç sayfalarda header logosu, tarayıcı sekmesi ikonu ve
+> telefonda "ana ekrana ekle" görünümü. Sonra §0.2'deki altı madde.
+>
+> ℹ️ Bu tur ayrıca: `.agents/AGENTS.md` kural 16 hâlâ "üç dark tema" diyor ama
+> `lib/theme.ts` turuncuyu kaldırmış (gerekçesi dosyada) — kural metni bayat.
+>
 > ✅ **ÜÇÜNCÜ OTURUM (12 Ağustos):** salonun gezinme boşlukları kapatıldı —
 > sanatçı dizini (`/muzik/sanatcilar`), **albüm sayfası** (adres vardı rota
 > yoktu, her kapak 404 veriyordu), çalma listeleri (`/muzik/listeler`,

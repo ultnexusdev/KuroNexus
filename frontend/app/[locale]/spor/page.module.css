@@ -1,22 +1,35 @@
-/* Sayfa 1 · /spor
-   Cümle okuma sırasını açar; iki dünya ağırlığını punto yerine ALAN ve
-   IŞIKtan alır. Kart yok, ızgara yok, istatistik sayısı yok, ikon yok. */
+/* ============================================================
+   Sayfa 1 · /spor — ARŞİVİN GİRİŞ SALONU
+
+   Dört hareket, dördü de YAPI olarak farklı. Aynı kart ızgarasını dört kez
+   tekrarlamak "bölüm" üretir, kompozisyon üretmez:
+
+     1. AÇILIŞ     akış metni + kılcal künye şeridi     (sola dayalı, sessiz)
+     2. DÜNYALAR   iki tam-en bant + görsel katmanı     (dönüşümlü, gürültülü)
+     3. KRONOLOJİ  yatay şerit (kendi bileşeninde)      (ölçülü, uzun)
+     4. PANTEON    portre kapakları, ORTALANMIŞ         (kapanış, gürültülü)
+
+   Gölge YOK, yuvarlak köşe YOK, ikon YOK. Kanadın malzemesi ışık (futbol) ve
+   ölçüm (F1); bu iki malzeme dışında bir dil sayfaya girmiyor. Renk yalnızca
+   token'dan okunuyor — kural 16, hex bileşende yasak.
+   ============================================================ */
 
 .page {
   display: flex;
   flex-direction: column;
 }
 
-/* ---- Açılış ----
-   Tam ekran DEĞİL (önceki sürümde öyleydi ve üstte 461px ölü boşluk
-   bırakıyordu). Şimdi ilk dünya bandı ekranın altından sızıyor: ziyaretçi
-   arşivden bir şey görerek karşılanıyor, boş duvarla değil. */
+/* ============================================================
+   1 · AÇILIŞ
+   ============================================================ */
 .opening {
   box-sizing: border-box;
   min-height: calc(60svh - var(--sp-header));
   display: flex;
-  align-items: center;
-  padding: clamp(2.5rem, 7vw, 5rem) var(--sp-gutter) clamp(3rem, 8vw, 6rem);
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(1.75rem, 4vw, 3rem);
+  padding: clamp(2.5rem, 7vw, 5rem) var(--sp-gutter) clamp(2.5rem, 6vw, 4rem);
   position: relative;
   overflow: hidden;
 }
@@ -36,9 +49,6 @@
   opacity: 0.5;
 }
 
-/* Cümle BAŞLIKTIR. Punto craft floor'un display tavanının (6rem) altında
-   kalıyor — önceki 288px'lik "SPOR" o sınırın üç katıydı ve hiyerarşi
-   yerine uçurum üretiyordu. */
 .statement {
   position: relative;
   font-size: clamp(1.75rem, 3.6vw, 3.25rem);
@@ -50,7 +60,72 @@
   color: var(--text-primary);
 }
 
-/* ---- Dünya bantları ---- */
+/* ---- Koleksiyon künyesi ----
+   ⚠️ NEDEN 4'LÜ İSTATİSTİK IZGARASI DEĞİL: bugün değerlerin çoğu "1". Dev
+   puntolu dört kutuda üç tane "1" arşivi büyük değil BOŞ gösterir. Tek
+   satırlık künye ölçüyü dürüstçe verir ve veri arttıkça aynı biçim büyümeyi
+   kendiliğinden taşır. */
+.ledger {
+  position: relative;
+  margin: 0;
+  padding-top: clamp(1rem, 2vw, 1.5rem);
+  border-top: 1px solid var(--sport-line);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 clamp(1.25rem, 3vw, 2.5rem);
+  max-width: 46rem;
+}
+
+.ledgerCell {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  padding-block: 0.35rem;
+}
+
+/* Rakam Bebas'ın işi (kanat kuralı: sayı/ölçüm Bebas, anlatı Petrona).
+   Punto bilinçle küçük — künye bir manşet değil, bir etikettir. */
+.ledgerValue {
+  font-size: clamp(1.375rem, 2.4vw, 1.75rem);
+  line-height: 1;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.ledgerUnit {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.ledgerSpan {
+  margin-left: auto;
+}
+
+.ledgerSpan .ledgerValue {
+  color: var(--accent);
+  font-size: clamp(1.125rem, 1.9vw, 1.375rem);
+}
+
+/* UCU AÇIK ARALIK. "1905–2025" bitmiş bir koleksiyon anlatırdı; arşiv
+   güncelleniyor. Sonsuz işareti bir süs değil, doğru bilgi — ve başlangıç
+   yılından bir tık sönük ki "yıl" sanılmasın. */
+.forever {
+  opacity: 0.75;
+  letter-spacing: 0.04em;
+}
+
+/* ============================================================
+   2 · DÜNYALAR
+   ============================================================ */
+.worldsLabel {
+  padding: clamp(1.5rem, 4vw, 2.5rem) var(--sp-gutter) 0;
+}
+
 .band {
   border-top: 1px solid var(--sport-line);
   /* Bantlar ekranın çoğunu alıyor — ağırlık buradan geliyor, puntodan değil */
@@ -58,13 +133,61 @@
   display: flex;
   position: relative;
   overflow: hidden;
+  isolation: isolate;
 }
 
-/* Futbol: soldan sızan sıcak ışık — açılıştaki projektörün devamı */
+/* ---- GÖRSEL KATMANI ----
+   Görsel metnin KARŞI tarafında duruyor ve metne doğru soluklaşıyor:
+   futbolda sağdan sola, F1'de soldan sağa. Maske gradient'i "fotoğrafın
+   üstüne siyah kutu koymak" değil — görselin kendisi kayboluyor, o yüzden
+   metnin arkasında hiçbir katman kalmıyor ve okunurluk maskeye borçlu
+   değil, kompozisyona borçlu.
+
+   Ton ayarı kasıtlı ağır: doygunluğu düşük, koyulaştırılmış. Renkli bir
+   spor fotoğrafı bu kanadı ESPN'e çevirirdi; brief'in ilk maddesi buydu. */
+.bandArt {
+  position: absolute;
+  inset: 0;
+  /* Metin tarafını hiç örtmüyor: futbolda sol %26, F1'de sağ %26 boş */
+  left: 26%;
+  z-index: 0;
+  background-image: var(--art);
+  background-size: cover;
+  background-position: right center;
+  background-repeat: no-repeat;
+  filter: grayscale(0.45) saturate(0.85) contrast(1.06) brightness(0.6);
+  opacity: 0.9;
+  mask-image: linear-gradient(
+    to left,
+    #000 0%,
+    #000 26%,
+    transparent 82%
+  );
+  transition: filter 500ms ease, opacity 500ms ease;
+  pointer-events: none;
+}
+
+.bandRight .bandArt {
+  left: 0;
+  right: 26%;
+  background-position: left center;
+  mask-image: linear-gradient(to right, #000 0%, #000 26%, transparent 82%);
+}
+
+/* Hover'da görsel bir tık açılıyor — bandın "canlanması" tek hareket */
+.band:hover .bandArt {
+  filter: grayscale(0.25) saturate(0.95) contrast(1.06) brightness(0.72);
+  opacity: 1;
+}
+
+/* Futbol: soldan sızan sıcak ışık — açılıştaki projektörün devamı.
+   Görselin ÜSTÜNDE duruyor: fotoğrafı da aynı ışık yıkıyor, iki katman
+   ayrı ayrı değil birlikte okunuyor. */
 .band::before {
   content: "";
   position: absolute;
   inset: 0;
+  z-index: 1;
   pointer-events: none;
   background: radial-gradient(
     85% 120% at 0% 50%,
@@ -90,6 +213,7 @@
   content: "";
   position: absolute;
   inset: 0;
+  z-index: 1;
   pointer-events: none;
   background-image: repeating-linear-gradient(
     to right,
@@ -102,11 +226,12 @@
 
 .bandLink {
   flex: 1;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  /* Sıkı grup: ad → cümle → çizgi → giriş. Bantlar arası boşluk cömert,
-     grup içi boşluk dar — ritim bu karşıtlıktan geliyor. */
+  /* Sıkı grup: ad → cümle → çizgi → içerik → giriş. Bantlar arası boşluk
+     cömert, grup içi boşluk dar — ritim bu karşıtlıktan geliyor. */
   gap: 0.6rem;
   padding: clamp(2.5rem, 6vw, 4.5rem) var(--sp-gutter);
   color: inherit;
@@ -126,9 +251,7 @@
 }
 
 /* Dünya adı açılış cümlesinden KÜÇÜK. Ağırlığını punto yerine bandın
-   kapladığı alandan ve ışıktan alıyor. Cümleden büyük olsaydı okuma sırası
-   (yukarıdan aşağı) ile görsel ağırlık (aşağıda) çelişirdi — ölçüldü:
-   52 → 60 → 20 basamağı tersine dönmüş bir hiyerarşiydi. */
+   kapladığı alandan ve ışıktan alıyor. */
 .world {
   font-size: clamp(1.5rem, 2.9vw, 2.5rem);
   font-weight: 800;
@@ -139,6 +262,7 @@
   padding-block: 0.05em;
   color: var(--text-primary);
   transition: color 260ms ease;
+  margin: 0;
 }
 
 .bandLink:hover .world {
@@ -149,7 +273,6 @@
   color: var(--f1-white);
 }
 
-/* Ara basamak: başlıkla künye arasındaki 13:1 uçurumunu kapatan ölçek */
 .tagline {
   margin: 0;
   font-size: clamp(1rem, 1.5vw, 1.25rem);
@@ -182,6 +305,18 @@
   width: 12rem;
 }
 
+/* Kapının ardındaki içerik — bandın "fazla boş" hissini bitiren satır */
+.contents {
+  color: var(--text-primary);
+  opacity: 0.62;
+  letter-spacing: 0.06em;
+  transition: opacity 300ms ease;
+}
+
+.bandLink:hover .contents {
+  opacity: 1;
+}
+
 .enter {
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -197,10 +332,251 @@
 }
 
 /* ============================================================
+   3 · KRONOLOJİ — kabuk
+   Şeridin kendisi `components/sport/SportChronology` içinde: süzgeç ve
+   yatay kaydırma istemci durumu gerektiriyor, sayfanın geri kalanı ise
+   saf sunucu bileşeni olarak kalıyor.
+   ============================================================ */
+.chronology {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.75rem, 4vw, 2.75rem);
+  padding: clamp(3.5rem, 9vw, 7rem) 0 clamp(3rem, 8vw, 6rem);
+  border-top: 1px solid var(--sport-line);
+}
+
+.chronoHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  padding: 0 var(--sp-gutter);
+  max-width: 54rem;
+}
+
+.chronoNote {
+  margin: 0;
+}
+
+/* ============================================================
+   4 · PANTEON — kapanış
+
+   Tek yüzey ORTALANMIŞ: kanadın geri kalanı sola/sağa dayalı, bu bölüm
+   simetrik. Bilinçli bir kırılma — sayfanın son sözü bir dizin değil bir
+   duvar; müzede portrelerin asıldığı yer ortadadır.
+   ============================================================ */
+.pantheon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(2rem, 5vw, 3.25rem);
+  padding: clamp(3.5rem, 9vw, 7rem) var(--sp-gutter) clamp(4rem, 10vw, 8rem);
+  border-top: 1px solid var(--sport-line);
+  background: var(--gs-anthracite);
+}
+
+.pantheonHead {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  text-align: center;
+}
+
+.pantheonLede {
+  margin: 0;
+  font-size: var(--sp-lede);
+  line-height: 1.6;
+  color: var(--text-secondary);
+  max-width: 42ch;
+}
+
+/* `data-count` ızgarayı DOLU sayıya göre daraltıyor: iki portre dört
+   sütunluk bir ızgarada "burası boş" der. Sütun sayısı içeriğe uyuyor,
+   içerik sütuna değil. */
+.faces {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  justify-content: center;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  width: 100%;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(min(100%, 11rem), clamp(11rem, 20vw, 15rem))
+  );
+  max-width: 68rem;
+}
+
+.faces[data-count="1"] {
+  max-width: 20rem;
+}
+
+.faces[data-count="2"] {
+  max-width: 38rem;
+}
+
+.faces[data-count="3"] {
+  max-width: 53rem;
+}
+
+.face {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.faceLink {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  text-decoration: none;
+  color: inherit;
+  text-align: center;
+  min-width: 0;
+}
+
+.faceLink:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 4px;
+}
+
+/* Çerçeve: müze levhasının kendisi. Kart değil — zemin yok, gölge yok,
+   yalnızca kılcal bir kenar ve altında ülkenin şeridi. */
+.frame {
+  position: relative;
+  display: block;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border: 1px solid var(--sport-line);
+  background: var(--surface);
+  transition: border-color 300ms ease;
+}
+
+.faceLink:hover .frame[data-world="football"] {
+  border-color: var(--gs-gold);
+}
+
+.faceLink:hover .frame[data-world="f1"] {
+  border-color: var(--f1-red);
+}
+
+/* Portre arşiv fotoğrafı gibi giriyor, hover'da hayata dönüyor. Tek
+   hareket; ölçek büyümesi ya da gölge yok. */
+.portrait {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 22%;
+  display: block;
+  filter: grayscale(0.6) contrast(1.08) brightness(0.82);
+  transition: filter 420ms ease;
+}
+
+.faceLink:hover .portrait {
+  filter: grayscale(0.05) contrast(1.02) brightness(0.98);
+}
+
+/* Portresi inmemiş efsane: boş kutu değil DOKU. Müzik salonundaki "kapağı
+   inmemiş albüm" deseninin aynısı — yuva görünür kalıyor, görsel gelince
+   kod değişmeden yerine oturuyor. */
+.hatch {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    var(--surface) 0 6px,
+    var(--surface-hover) 6px 12px
+  );
+}
+
+.initial {
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: clamp(3rem, 8vw, 4.5rem);
+  font-weight: 800;
+  line-height: 1;
+  color: var(--text-primary);
+  opacity: 0.14;
+}
+
+/* Ülke, sticker bayrak değil ALAN — `lib/sport/flags.ts` deseninin aynısı.
+   Çerçevenin dibinde ince bir şerit. */
+.faceFlag {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 3px;
+  opacity: 0.75;
+}
+
+.faceName {
+  font-size: clamp(1.25rem, 2.2vw, 1.625rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  line-height: 1.05;
+  padding-block: 0.05em;
+  color: var(--text-primary);
+  transition: color 260ms ease;
+  overflow-wrap: anywhere;
+}
+
+.faceLink:hover .faceName {
+  color: var(--gs-gold);
+}
+
+.faceEpithet {
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+
+.faceMeta {
+  opacity: 0.7;
+}
+
+/* Portre künyesi — YASAL ZORUNLULUK, süs değil. Commons görsellerinin çoğu
+   CC BY / CC BY-SA ve kaynak + fotoğrafçı gösterilmek zorunda. */
+.credit {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+  line-height: 1.5;
+  text-align: center;
+  color: var(--text-muted);
+  opacity: 0.7;
+  overflow-wrap: anywhere;
+}
+
+.credit a {
+  color: inherit;
+}
+
+.credit a:hover {
+  color: var(--accent);
+}
+
+/* Küratör kuşağı — yalnızca yönetici görüyor */
+.curator {
+  padding: 0 0 clamp(3rem, 8vw, 5rem);
+  border-top: 1px solid var(--sport-line);
+  padding-top: clamp(2rem, 5vw, 3rem);
+}
+
+/* ============================================================
    HAREKET — kaydırmaya bağlı, JS'SİZ.
    `animation-timeline: view()`; destek yoksa hiçbir şey olmuyor ve içerik
    yerinde duruyor. İstemci JS'i gerekmediği için dev modundaki CSP engeli
    de bu hareketi durdurmuyor.
+
+   ⚠️ İKİ HAREKET AMA AYNI EKRANDA TEK TÜR: başlık düşey sürükleniyor,
+   görsel yavaşça yakınlaşıyor. İkisi de aynı bandın parçası ve aynı yönde
+   okunuyor — kanadın kuralı "bir ekranda tek hareket dili".
    ============================================================ */
 @keyframes drift {
   from {
@@ -211,22 +587,39 @@
   }
 }
 
+/* Görsel kadraj içinde çok yavaş açılıyor: fotoğrafın "durgun" değil
+   "nefes alan" hissetmesi için. Ölçek 1.12 → 1.0 arası; kenarları
+   kırpmadığı için maske hep aynı yerde kalıyor. */
+@keyframes settle {
+  from {
+    transform: scale(1.12);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
-    .band .bandLink > h2 {
+    .band .bandLink > h3 {
       animation: drift linear both;
       animation-timeline: view();
       animation-range: entry 0% exit 100%;
       will-change: transform;
     }
+
+    .bandArt {
+      animation: settle linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 60%;
+      will-change: transform;
+    }
   }
 }
 
-/* ---- Mobil: kendi kompozisyonu ----
-   Masaüstü bantlarını dikey yığmak yeterli değil; asimetri dikey ofsetle
-   korunuyor. F1'in sağa dayalı hizası mobilde sola dönüyor (dar ekranda
-   sağa dayalı metin okumayı zorlaştırır) ama iç yapı farkı — ölçüm satırı
-   ve ızgara — duruyor. */
+/* ============================================================
+   MOBİL — kendi kompozisyonu
+   ============================================================ */
 @media (max-width: 760px) {
   .opening {
     min-height: calc(46svh - var(--sp-header));
@@ -236,8 +629,31 @@
     max-width: 100%;
   }
 
+  /* Yıl aralığı `margin-left: auto` ile sağa kaçarsa kendi satırında
+     yetim kalıyor — mobilde akışa geri dönüyor. */
+  .ledgerSpan {
+    margin-left: 0;
+  }
+
   .band {
     min-height: 44svh;
+  }
+
+  /* Dar ekranda görsel metnin ARKASINA giremez: metin bandın tamamını
+     kullanıyor. Görsel alttan sızıyor ve yukarı doğru soluklaşıyor —
+     yön değişiyor ama fikir aynı: fotoğraf metne doğru kayboluyor. */
+  .bandArt,
+  .bandRight .bandArt {
+    left: 0;
+    right: 0;
+    top: 42%;
+    background-position: center 30%;
+    mask-image: linear-gradient(to top, #000 0%, #000 30%, transparent 92%);
+    opacity: 0.55;
+  }
+
+  .band:hover .bandArt {
+    opacity: 0.65;
   }
 
   .bandRight .bandLink {

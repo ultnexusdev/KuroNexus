@@ -1,0 +1,418 @@
+/* ============================================================
+   Küratör paneli — Salon 06 · Spor
+
+   Panel bir YÖNETİM EKRANI gibi görünmüyor: kanadın kendi dili (kılcal
+   çizgi, mono etiket, dolgusuz düğme) burada da geçerli. Sebep pratik —
+   panel sayfanın İÇİNDE açılıyor ve yabancı bir arayüz dili, küratörün
+   düzenlediği şeyle düzenleme aracını görsel olarak koparırdı.
+
+   Ziyaretçi bu dosyayı hiç indirmiyor: sunucu `isAdmin` false iken anahtarı
+   render etmiyor, panel de `next/dynamic` ile yalnızca mod açılınca iniyor.
+   ============================================================ */
+
+.switchRow {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 0 var(--sp-gutter);
+}
+
+.switchOff,
+.switchOn {
+  appearance: none;
+  align-self: flex-start;
+  background: none;
+  border: 1px solid var(--sport-line);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 0.6rem 1rem;
+  min-height: var(--touch-min);
+  cursor: pointer;
+  transition: border-color 220ms ease, color 220ms ease;
+}
+
+.switchOff:hover,
+.switchOn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.switchOff:focus-visible,
+.switchOn:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 2px;
+}
+
+.switchOn {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  border-top: 1px solid var(--accent-muted);
+  padding-top: 1.5rem;
+}
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  max-width: 46rem;
+  min-width: 0;
+}
+
+.blockTitle {
+  margin: 0;
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.74rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  min-width: 0;
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.input,
+.select,
+.textarea {
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--surface);
+  border: 1px solid var(--sport-line);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.9375rem;
+  padding: 0.6rem 0.7rem;
+  min-height: var(--touch-min);
+  min-width: 0;
+}
+
+.textarea {
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.input:focus-visible,
+.select:focus-visible,
+.textarea:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: -1px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+/* Tek dolgulu düğme paneldeki tek "kaydet" — kanattaki hiçbir yüzeyde
+   dolgulu düğme yok, burada yalnızca birincil eylemi ayırt etmek için var. */
+.primary {
+  appearance: none;
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  color: var(--sport-ink);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 0.6rem 1.2rem;
+  min-height: var(--touch-min);
+  cursor: pointer;
+  transition: background 200ms ease;
+}
+
+.primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.primary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.ghost {
+  appearance: none;
+  align-self: flex-start;
+  background: none;
+  border: 1px solid var(--sport-line);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.45rem 0.8rem;
+  min-height: var(--touch-min);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 200ms ease, color 200ms ease;
+}
+
+.ghost:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.ghost:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.primary:focus-visible,
+.ghost:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 2px;
+}
+
+/* ---- Görsel yuvaları ---- */
+.slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+  gap: 1rem;
+}
+
+.slot {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  border: 1px solid var(--sport-line);
+  padding: 0.85rem;
+  min-width: 0;
+}
+
+.slotName {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.slotOk {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gs-gold);
+}
+
+.slotWays {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.fileWay {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.file {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  min-width: 0;
+  max-width: 100%;
+}
+
+.urlWay {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.urlWay .input {
+  flex: 1 1 10rem;
+  min-width: 0;
+}
+
+/* ---- Mevcut kayıtlar ---- */
+.moments {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--sport-line);
+  /* Uzun şeritte liste paneli sonsuza uzatmasın */
+  max-height: 26rem;
+  overflow-y: auto;
+}
+
+.momentRow {
+  border-bottom: 1px solid var(--sport-line);
+  padding: 0.6rem 0;
+  min-width: 0;
+}
+
+.momentHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 0.85rem;
+  min-width: 0;
+}
+
+.momentYear {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  font-size: 1.125rem;
+  line-height: 1;
+  color: var(--text-secondary);
+  min-width: 2.75rem;
+}
+
+.momentTitle {
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.momentSubject {
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-right: auto;
+  overflow-wrap: anywhere;
+}
+
+/* Açılan yükleme yuvası satırın altına, girintili */
+.momentRow .slot {
+  margin-top: 0.6rem;
+  margin-left: 2.75rem;
+}
+
+/* ---- Panteon ---- */
+.drivers {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--sport-line);
+  /* Uzun aday listesi paneli sonsuza uzatmasın */
+  max-height: 24rem;
+  overflow-y: auto;
+}
+
+.driver {
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--sport-line);
+  min-width: 0;
+}
+
+.driverHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  min-width: 0;
+}
+
+/* Lakap satırı yalnızca panteondakiler için açılıyor — girintili ki
+   listedeki hangi isme ait olduğu tereddütsüz okunsun. */
+.driverEdit {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  padding-left: 0.9rem;
+  border-left: 1px solid var(--accent-muted);
+  min-width: 0;
+}
+
+.driverEdit .input {
+  flex: 1 1 12rem;
+  min-width: 0;
+  font-size: 0.875rem;
+}
+
+.driver[data-on] .driverName {
+  color: var(--gs-gold);
+}
+
+.driverName {
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.driverMeta {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+  margin-right: auto;
+}
+
+/* ---- Durum satırları ---- */
+.note {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+.warn {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: var(--gs-gold);
+}
+
+.done {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gs-gold);
+}
+
+.error {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: var(--danger);
+}

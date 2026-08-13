@@ -55,4 +55,10 @@ export class SportArchiveController {
   getCircuit(@Param('slug') slug: string) {
     return this.archive.getCircuit(slug);
   }
+
+  /** `/spor/formula-1/surucular/[slug]` — sürücü (futbol efsanesinin karşılığı) */
+  @Get('f1/drivers/:slug')
+  getDriver(@Param('slug') slug: string) {
+    return this.archive.getDriver(slug);
+  }
 }

@@ -63,19 +63,399 @@ export class SportArchiveService {
   /**
    * Sayfa 1 — `/spor` girişi.
    *
-   * Landing yalnızca "bu dünyanın içinde gösterilecek bir şey var mı" bilgisine
-   * ihtiyaç duyuyor; kayıtların kendisini çekmiyor. İki `count` yeterli ve
-   * ikisi de kapsayıcı indeksten (`[isPublished, isDeleted, orderIndex]`)
-   * karşılanıyor.
+   * ── GENİŞLETİLDİ (13 Ağustos 2026) ───────────────────────────────────────
+   * Önceki sürüm iki `count` döndürüyordu ve landing bunlarla yalnızca "bandı
+   * çiz / çizme" kararı veriyordu. Sonuç: iki kapı, arkalarında ne olduğuna
+   * dair tek işaret yok. Bir arşiv girişinin söylemesi gereken şey elindeki
+   * kapı sayısı değil, KOLEKSİYONUN ÖLÇÜSÜ ve ŞEKLİ.
+   *
+   * Şimdi dört şey dönüyor ve dördü de zaten yazılmış veriden geliyor —
+   * hiçbiri uydurulmuş bir rozet değil:
+   *   1. `counts`     — koleksiyon künyesi (kaç dünya, kulüp, efsane, pist, an)
+   *   2. `football`   — kapının ardındaki isimler (öne çıkan kulüp + efsane)
+   *   3. `f1`         — kapının ardındaki ölçü (pist + senkronize sezon aralığı)
+   *   4. `chronology` — iki dünyanın anlarını TEK zaman şeridinde birleştiren
+   *                     kronoloji; sayfa 1'de yoktu, çünkü hiçbir uç iki dünyayı
+   *                     birlikte okumuyordu.
+   *
+   * ⚠️ `footballClubs` / `f1Circuits` KALDIRILMADI. Ön yüz iki servisi ayrı
+   * deploy ediyor; eski frontend yeni backend'e bir süre bakacak. Bu iki alan
+   * o pencerede sayfanın çalışmaya devam etmesini sağlıyor.
    *
    * Sayı sıfırsa ön yüz o dünyanın bandını HİÇ çizmiyor — boş oda yasağı.
    */
   async getOverview() {
-    const [footballClubs, f1Circuits] = await Promise.all([
+    const [
+      footballClubs,
+      f1Circuits,
+      legendCount,
+      footballMomentCount,
+      f1MomentCount,
+      featuredClub,
+      featuredLegend,
+      featuredCircuit,
+      raceSpan,
+      raceCount,
+      footballMoments,
+      f1Moments,
+      datedCircuits,
+      driverSpans,
+      f1Legends,
+      footballLegends,
+    ] = await Promise.all([
       this.prisma.footballClub.count({ where: SportArchiveService.LIVE }),
       this.prisma.f1Circuit.count({ where: SportArchiveService.LIVE }),
+      this.prisma.footballLegend.count({ where: SportArchiveService.LIVE }),
+      this.prisma.footballMoment.count({ where: SportArchiveService.LIVE }),
+      this.prisma.f1Moment.count({ where: SportArchiveService.LIVE }),
+
+      this.prisma.footballClub.findFirst({
+        where: { ...SportArchiveService.LIVE, isFeatured: true },
+        orderBy: { orderIndex: 'asc' },
+        select: {
+          slug: true,
+          name: true,
+          foundedYear: true,
+          cityName: true,
+          taglineTr: true,
+          taglineEn: true,
+          // Bandın arkasındaki görsel. Yoksa bant bugünkü hâliyle — yalnız
+          // ışıkla — çiziliyor; yarım bir görsel katmanı gösterilmiyor.
+          coverImage: true,
+        },
+      }),
+      // "Sıralamamda 1." — `personalRank` null olanlar sona (Postgres ASC
+      // varsayılanı), yani küratör sıralaması yoksa küratör düzenine düşüyor.
+      this.prisma.footballLegend.findFirst({
+        where: SportArchiveService.LIVE,
+        orderBy: [{ personalRank: 'asc' }, { orderIndex: 'asc' }],
+        select: {
+          slug: true,
+          name: true,
+          epithetTr: true,
+          epithetEn: true,
+          countryCode: true,
+          yearsFrom: true,
+          yearsTo: true,
+          personalRank: true,
+          club: { select: { slug: true, name: true } },
+        },
+      }),
+      this.prisma.f1Circuit.findFirst({
+        where: SportArchiveService.LIVE,
+        orderBy: [{ personalRank: 'asc' }, { orderIndex: 'asc' }],
+        select: {
+          slug: true,
+          name: true,
+          countryCode: true,
+          cityName: true,
+          nicknameTr: true,
+          nicknameEn: true,
+          lengthMeters: true,
+          cornerCount: true,
+          firstGrandPrixYear: true,
+          coverImage: true,
+        },
+      }),
+
+      // Podyum tarihi OLGU katmanı: `isPublished` süzgeci yok (bkz. getCircuit)
+      this.prisma.f1RaceResult.aggregate({
+        where: { isDeleted: false },
+        _min: { seasonYear: true },
+        _max: { seasonYear: true },
+      }),
+      this.prisma.f1RaceResult.count({
+        where: { isDeleted: false, position: 1 },
+      }),
+
+      this.prisma.footballMoment.findMany({
+        where: { ...SportArchiveService.LIVE, isHighlight: true },
+        orderBy: { year: 'asc' },
+        select: {
+          year: true,
+          titleTr: true,
+          titleEn: true,
+          kind: true,
+          // Kartın üstündeki arşiv fotoğrafı şeridi. Boşsa şerit HİÇ
+          // çizilmiyor ve kart kısalıyor — kartlar eksene yaslandığı için
+          // farklı yükseklikler tırtıklı bir kenar üretmiyor.
+          imageUrl: true,
+          // Kulübün ADI da geliyor: zaman şeridindeki her kayıt kimin kaydı
+          // olduğunu kendi üstünde yazmalı. "1905 · Kuruluş" tek başına
+          // kimin kuruluşu olduğunu söylemiyordu.
+          era: {
+            select: {
+              slug: true,
+              club: { select: { slug: true, name: true } },
+            },
+          },
+        },
+      }),
+      this.prisma.f1Moment.findMany({
+        where: { ...SportArchiveService.LIVE, isHighlight: true },
+        orderBy: { seasonYear: 'asc' },
+        select: {
+          seasonYear: true,
+          titleTr: true,
+          titleEn: true,
+          imageUrl: true,
+          circuit: { select: { slug: true, name: true } },
+        },
+      }),
+      // Pistin ilk Grand Prix'i kronolojinin F1 ucundaki çapa: anlatısı
+      // yazılmamış bir pist bile zaman şeridinde bir yıl tutuyor.
+      this.prisma.f1Circuit.findMany({
+        where: {
+          ...SportArchiveService.LIVE,
+          firstGrandPrixYear: { not: null },
+        },
+        orderBy: { firstGrandPrixYear: 'asc' },
+        select: { slug: true, name: true, firstGrandPrixYear: true },
+      }),
+
+      /**
+       * EFSANELER — İKİ TABLODAN TEK LİSTE.
+       *
+       * Futbol efsanesi `FootballLegend`, F1 sürücüsü `F1Driver`; ortak bir
+       * üst tablo YOK ve olması da gerekmiyor (biri forma numarası ve kulüp
+       * taşıyor, diğeri şampiyonluk ve pol sayısı). Birleştirme burada,
+       * gösterim katmanının ihtiyacı olan alanlara indirgenerek yapılıyor.
+       *
+       * ⚠️ F1 portresinin künyesi (lisans + sanatçı + kaynak) ZORUNLU
+       * taşınıyor: Commons görselleri CC BY / CC BY-SA ve atıfsız gösterim
+       * telif ihlali. Üçü birden dolu değilse ön yüz görseli çizmiyor.
+       */
+      /**
+       * ⚠️ SÜRÜCÜ KÜNYESİ YARIŞ KAYDINDAN TAMAMLANIYOR.
+       *
+       * `sync-f1-results.ts` sürücü satırına yalnızca ad, slug ve portre
+       * yazıyor — `countryCode`, `activeFrom/To` ve `championships` BOŞ
+       * kalıyor. Panteona alınan bir sürücünün kartı bu yüzden çıplak bir
+       * isme düşüyordu: bayrak yok, yıl yok, künye satırı boş.
+       *
+       * Eksik olan bilgi aslında elde: podyum satırları hem uyruğu hem de
+       * sürücünün arşivdeki ilk/son sezonunu taşıyor. Aşağıdaki toplama onu
+       * çıkarıyor. Uydurma değil, YEDEK: küratör alanı doldurduğu an kayıt
+       * kazanıyor (bkz. birleştirmedeki `??` sırası).
+       */
+      this.prisma.f1RaceResult.groupBy({
+        by: ['driverId', 'driverNationality'],
+        where: { isDeleted: false, driverId: { not: null } },
+        _min: { seasonYear: true },
+        _max: { seasonYear: true },
+      }),
+      this.prisma.f1Driver.findMany({
+        where: SportArchiveService.LIVE,
+        orderBy: [{ personalRank: 'asc' }, { orderIndex: 'asc' }],
+        take: 12,
+        select: {
+          id: true,
+          slug: true,
+          name: true,
+          nicknameTr: true,
+          nicknameEn: true,
+          countryCode: true,
+          activeFrom: true,
+          activeTo: true,
+          championships: true,
+          personalRank: true,
+          photo: true,
+          portraitLicense: true,
+          portraitAuthor: true,
+          portraitSourceUrl: true,
+        },
+      }),
+      this.prisma.footballLegend.findMany({
+        where: SportArchiveService.LIVE,
+        orderBy: [{ personalRank: 'asc' }, { orderIndex: 'asc' }],
+        take: 12,
+        select: {
+          slug: true,
+          name: true,
+          epithetTr: true,
+          epithetEn: true,
+          countryCode: true,
+          yearsFrom: true,
+          yearsTo: true,
+          personalRank: true,
+          portraitImage: true,
+          club: { select: { slug: true, name: true } },
+        },
+      }),
     ]);
-    return { footballClubs, f1Circuits };
+
+    /**
+     * TEK ZAMAN ŞERİDİ. İki dünyanın anları burada birleşiyor — ön yüz üç ayrı
+     * diziyi elde birleştirmiyor, çünkü sıralama kararı (aynı yıla düşen iki
+     * kayıtta hangisi önce) veri katmanının işi.
+     *
+     * `world` alanı ön yüzde renk/işaret seçiyor; `*Slug` alanları adresi
+     * ön yüzde `sportHref` ile kuruluyor — adres dizesi backend'e sızmıyor.
+     *
+     * ⚠️ `subject` HER KAYITTA DOLU: kaydın kime ait olduğu. "1905 · Kuruluş"
+     * kimin kuruluşu olduğunu söylemiyordu; "1905 · Kuruluş · Galatasaray"
+     * söylüyor. Başlığın içine gömmek yerine ayrı alan, çünkü ön yüz onu
+     * başlıktan farklı bir tipografiyle (mono künye) yazıyor ve süzgeç de
+     * bu alandan okunabiliyor.
+     */
+    const chronology = [
+      ...footballMoments.map((m) => ({
+        year: m.year,
+        world: 'football' as const,
+        kind: String(m.kind),
+        titleTr: m.titleTr,
+        titleEn: m.titleEn,
+        subject: m.era.club.name,
+        imageUrl: m.imageUrl,
+        clubSlug: m.era.club.slug,
+        eraSlug: m.era.slug,
+        circuitSlug: null as string | null,
+      })),
+      // Sorgu `firstGrandPrixYear: { not: null }` süzüyor ama Prisma bunu TİPE
+      // yansıtmıyor — alan hâlâ `number | null`. Daraltma burada elle yapılıyor;
+      // `as number` yazmak süzgecin bozulduğu gün sessizce `null` geçirirdi.
+      ...datedCircuits
+        .filter(
+          (c): c is typeof c & { firstGrandPrixYear: number } =>
+            c.firstGrandPrixYear !== null,
+        )
+        .map((c) => ({
+          year: c.firstGrandPrixYear,
+          world: 'f1' as const,
+          kind: 'CIRCUIT_FIRST_GP',
+          // Pistin adı artık `subject`te; başlıkta tekrar etmesi kartta aynı
+          // kelimeyi iki kez yazdırıyordu.
+          titleTr: 'Takvime giriyor',
+          titleEn: 'Enters the calendar',
+          subject: c.name,
+          // Pistin kapak görseli BİLİNÇLE kullanılmıyor: aynı fotoğraf hem
+          // bantta hem kartta çıkarsa sayfa kendini tekrar eder. Bu kaydın
+          // kendi fotoğrafı yoksa kart fotoğrafsız kalır.
+          imageUrl: null as string | null,
+          clubSlug: null as string | null,
+          eraSlug: null as string | null,
+          circuitSlug: c.slug,
+        })),
+      ...f1Moments.map((m) => ({
+        year: m.seasonYear,
+        world: 'f1' as const,
+        kind: 'F1_MOMENT',
+        titleTr: m.titleTr,
+        titleEn: m.titleEn,
+        subject: m.circuit?.name ?? 'Formula 1',
+        imageUrl: m.imageUrl,
+        clubSlug: null as string | null,
+        eraSlug: null as string | null,
+        circuitSlug: m.circuit?.slug ?? null,
+      })),
+    ].sort((a, b) => a.year - b.year || a.world.localeCompare(b.world));
+
+    /**
+     * Sürücü → arşivdeki uyruk ve ilk/son sezon. `groupBy` uyruğu da eksene
+     * kattığı için teorik olarak bir sürücü iki satırla dönebilir (kaynakta
+     * uyruk yazımı değişmişse); ilk satır kazanıyor ve yıl aralığı
+     * genişletiliyor — sürücünün iki ayrı kaydı olmuş gibi görünmesindense
+     * eldeki en geniş aralık doğru cevap.
+     */
+    const spanByDriver = new Map<
+      string,
+      { nationality: string | null; from: number | null; to: number | null }
+    >();
+    for (const row of driverSpans) {
+      if (!row.driverId) continue;
+      const current = spanByDriver.get(row.driverId);
+      spanByDriver.set(row.driverId, {
+        nationality: current?.nationality ?? row.driverNationality,
+        from: Math.min(
+          current?.from ?? Number.POSITIVE_INFINITY,
+          row._min.seasonYear ?? Number.POSITIVE_INFINITY,
+        ),
+        to: Math.max(current?.to ?? 0, row._max.seasonYear ?? 0),
+      });
+    }
+
+    return {
+      // ── geriye uyum: eski frontend bu ikisini okuyor ──
+      footballClubs,
+      f1Circuits,
+
+      counts: {
+        worlds: (footballClubs > 0 ? 1 : 0) + (f1Circuits > 0 ? 1 : 0),
+        clubs: footballClubs,
+        legends: legendCount,
+        circuits: f1Circuits,
+        moments: footballMomentCount + f1MomentCount,
+      },
+      football: { featuredClub, featuredLegend },
+
+      /**
+       * Panteon — iki dünyanın efsaneleri tek listede, küratör sırasına göre.
+       *
+       * `spanByDriver` yukarıdaki toplamanın sözlüğe çevrilmiş hâli; F1
+       * sürücüsünün boş künye alanlarını yarış kaydından tamamlıyor.
+       *
+       * `world` alanı ön yüzde ADRESİ seçiyor: futbol efsanesi
+       * `/spor/futbol/efsaneler/…`, F1 sürücüsü `/spor/formula-1/surucular/…`.
+       * İki kanat kendi kapısından giriliyor; ortak bir "efsaneler" ağacı
+       * kurulsaydı kırıntı hangi dünyaya döneceğini bilemezdi.
+       */
+      legends: [
+        ...footballLegends.map((l) => ({
+          world: 'football' as const,
+          slug: l.slug,
+          name: l.name,
+          epithetTr: l.epithetTr,
+          epithetEn: l.epithetEn,
+          countryCode: l.countryCode,
+          yearsFrom: l.yearsFrom,
+          yearsTo: l.yearsTo,
+          personalRank: l.personalRank,
+          nationality: null as string | null,
+          subject: l.club?.name ?? null,
+          championships: null as number | null,
+          portrait: l.portraitImage,
+          // Futbol portresi küratörün kendi yüklediği görsel — künye yok
+          portraitLicense: null as string | null,
+          portraitAuthor: null as string | null,
+          portraitSourceUrl: null as string | null,
+        })),
+        ...f1Legends.map((d) => {
+          // Küratörün yazdığı değer HER ZAMAN önce; yarış kaydı yalnızca yedek
+          const span = spanByDriver.get(d.id);
+          return {
+            world: 'f1' as const,
+            slug: d.slug,
+            name: d.name,
+            epithetTr: d.nicknameTr,
+            epithetEn: d.nicknameEn,
+            countryCode: d.countryCode,
+            /** Ülke kodu yoksa bayrağı uyruk sözcüğünden aramak için */
+            nationality: d.countryCode ? null : (span?.nationality ?? null),
+            yearsFrom: d.activeFrom ?? span?.from ?? null,
+            yearsTo: d.activeTo ?? span?.to ?? null,
+            personalRank: d.personalRank,
+            subject: null as string | null,
+            championships: d.championships,
+            portrait: d.photo,
+            portraitLicense: d.portraitLicense,
+            portraitAuthor: d.portraitAuthor,
+            portraitSourceUrl: d.portraitSourceUrl,
+          };
+        }),
+      ].sort(
+        (a, b) =>
+          (a.personalRank ?? 9999) - (b.personalRank ?? 9999) ||
+          a.name.localeCompare(b.name),
+      ),
+
+      f1: {
+        featuredCircuit,
+        raceCount,
+        seasonFrom: raceSpan._min.seasonYear,
+        seasonTo: raceSpan._max.seasonYear,
+      },
+      chronology,
+    };
   }
 
   /**
@@ -248,22 +628,179 @@ export class SportArchiveService {
   /**
    * Sayfa 5 — `/spor/formula-1` hub'ı. Sayfanın kendisi bir dizin, o yüzden
    * dönen şey de bir dizin: künye satırları, anlatı gövdesi değil.
+   *
+   * ── DEFTER EKLENDİ (13 Ağustos 2026) ─────────────────────────────────────
+   * Hub tek bir pist tablosuydu ve "Formula 1 arşivi" değil "bir pist tablosu"
+   * gibi okunuyordu. Eksik olan şey içerik DEĞİLDİ: `F1RaceResult` senkronize
+   * edilmiş yüzlerce podyum satırı taşıyor ve hiçbir sayfa onu okumuyordu.
+   *
+   * Defter o satırlardan TÜRETİLİYOR — elle yazılmış tek bir sayı yok:
+   *   · kazananlar   — pistlerdeki galibiyet sayısına göre sürücüler
+   *   · takımlar     — aynı sayım, konstrüktör ekseninde
+   *   · kapsam       — kaç yarış, hangi sezon aralığı, kaç isim
+   *
+   * ⚠️ SÜZGEÇ `position: 1`. "Podyum" ve "galibiyet" aynı şey değil; defterin
+   * başlığı galibiyet diyorsa sorgu da galibiyet saymalı. Podyum sayısı ayrı
+   * bir sütun olarak sonradan eklenebilir — uydurulamaz.
+   *
+   * ⚠️ `isPublished` süzgeci YOK ve bilinçli: bu satırlar küratörün yazdığı
+   * anlatı değil senkronizasyonun getirdiği olgu (bkz. getCircuit yorumu).
    */
   async getF1Hub() {
-    const circuits = await this.prisma.f1Circuit.findMany({
-      where: SportArchiveService.LIVE,
-      orderBy: [{ personalRank: 'asc' }, { orderIndex: 'asc' }],
-      select: {
-        slug: true,
-        name: true,
-        countryCode: true,
-        lengthMeters: true,
-        cornerCount: true,
-        firstGrandPrixYear: true,
-        personalRank: true,
+    const WON = { isDeleted: false, position: 1 };
+
+    const [circuits, winners, constructors, podiumNames, span, raceCount] =
+      await Promise.all([
+        this.prisma.f1Circuit.findMany({
+          where: SportArchiveService.LIVE,
+          orderBy: [{ personalRank: 'asc' }, { orderIndex: 'asc' }],
+          select: {
+            slug: true,
+            name: true,
+            countryCode: true,
+            cityName: true,
+            nicknameTr: true,
+            nicknameEn: true,
+            lengthMeters: true,
+            cornerCount: true,
+            firstGrandPrixYear: true,
+            lapRecordTime: true,
+            lapRecordYear: true,
+            personalRank: true,
+          },
+        }),
+
+        this.prisma.f1RaceResult.groupBy({
+          by: ['driverName', 'driverNationality'],
+          where: WON,
+          _count: { _all: true },
+          _min: { seasonYear: true },
+          _max: { seasonYear: true },
+          orderBy: [{ _count: { driverName: 'desc' } }, { driverName: 'asc' }],
+          take: 12,
+        }),
+
+        this.prisma.f1RaceResult.groupBy({
+          by: ['constructorName'],
+          where: { ...WON, constructorName: { not: null } },
+          _count: { _all: true },
+          _min: { seasonYear: true },
+          _max: { seasonYear: true },
+          orderBy: [
+            { _count: { constructorName: 'desc' } },
+            { constructorName: 'asc' },
+          ],
+          take: 10,
+        }),
+
+        // Podyuma çıkmış farklı isim sayısı — kapsamın gerçek genişliği.
+        // `take` yok: sayının kendisi lazım, satırlar değil.
+        this.prisma.f1RaceResult.groupBy({
+          by: ['driverName'],
+          where: { isDeleted: false },
+          _count: { _all: true },
+        }),
+
+        this.prisma.f1RaceResult.aggregate({
+          where: { isDeleted: false },
+          _min: { seasonYear: true },
+          _max: { seasonYear: true },
+        }),
+
+        this.prisma.f1RaceResult.count({ where: WON }),
+      ]);
+
+    return {
+      circuits,
+      ledger: {
+        raceCount,
+        seasonFrom: span._min.seasonYear,
+        seasonTo: span._max.seasonYear,
+        podiumNameCount: podiumNames.length,
+        winners: winners.map((w) => ({
+          name: w.driverName,
+          nationality: w.driverNationality,
+          wins: w._count._all,
+          firstYear: w._min.seasonYear,
+          lastYear: w._max.seasonYear,
+        })),
+        constructors: constructors.map((c) => ({
+          name: c.constructorName as string,
+          wins: c._count._all,
+          firstYear: c._min.seasonYear,
+          lastYear: c._max.seasonYear,
+        })),
       },
+    };
+  }
+
+  /**
+   * Sayfa 7 — `/spor/formula-1/surucular/[slug]` sürücü sayfası.
+   *
+   * Futbol efsanesinin karşılığı ama AYNI SAYFA DEĞİL: futbolda omurga
+   * anlatı ve dönemler, burada omurga KAYIT. Sürücünün arşivdeki podyum
+   * satırları senkronizasyondan geliyor ve sayfanın gövdesini onlar kuruyor;
+   * küratör anlatısı yazıldığında onun ÜSTÜNE oturuyor, yerine değil.
+   *
+   * `isPublished` süzgeci var: 96 sürücü kaydı var ama sayfası olan yalnızca
+   * küratörün panteona aldıkları. Yayınlanmamış sürücünün adresi 404 döner.
+   */
+  async getDriver(slug: string) {
+    const driver = await this.prisma.f1Driver.findFirst({
+      where: { slug, ...SportArchiveService.LIVE },
     });
-    return { circuits };
+    if (!driver) {
+      throw new NotFoundException('SPORT_ARCHIVE.DRIVER_NOT_FOUND');
+    }
+
+    const [results, moments, lapRecords, quotes] = await Promise.all([
+      this.prisma.f1RaceResult.findMany({
+        where: { driverId: driver.id, isDeleted: false },
+        orderBy: [{ seasonYear: 'desc' }, { position: 'asc' }],
+        select: {
+          id: true,
+          seasonYear: true,
+          position: true,
+          raceName: true,
+          constructorName: true,
+          timeText: true,
+          // Sürücünün `countryCode`u boş (sync yazmıyor); bayrak bu alandan
+          // türetiliyor — aynı bilginin başka yazımı, uydurma değil.
+          driverNationality: true,
+          circuit: { select: { slug: true, name: true, countryCode: true } },
+        },
+      }),
+      this.prisma.f1Moment.findMany({
+        where: { driverId: driver.id, ...SportArchiveService.LIVE },
+        orderBy: { seasonYear: 'asc' },
+        select: {
+          id: true,
+          seasonYear: true,
+          titleTr: true,
+          titleEn: true,
+          narrativeTr: true,
+          narrativeEn: true,
+          circuit: { select: { slug: true, name: true } },
+        },
+      }),
+      // "Bu pistin tur rekoru bende" — FK sayesinde sürücü ucundan sorulabiliyor
+      this.prisma.f1Circuit.findMany({
+        where: { lapRecordDriverId: driver.id, ...SportArchiveService.LIVE },
+        orderBy: { lapRecordYear: 'asc' },
+        select: {
+          slug: true,
+          name: true,
+          lapRecordTime: true,
+          lapRecordYear: true,
+        },
+      }),
+      this.prisma.sportQuote.findMany({
+        where: { driverId: driver.id, ...SportArchiveService.LIVE },
+        orderBy: { orderIndex: 'asc' },
+      }),
+    ]);
+
+    return { driver, results, moments, lapRecords, quotes };
   }
 
   /**

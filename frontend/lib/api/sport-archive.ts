@@ -224,9 +224,133 @@ export interface F1Circuit {
 
 // ---- Uç yanıtları ----------------------------------------------------------
 
+/**
+ * Kronoloji satırı — İKİ DÜNYA TEK ŞERİTTE.
+ *
+ * Adres burada kurulmuyor: backend slug taşıyor, ön yüz `sportHref` ile
+ * çeviriyor. `/spor/...` dizesinin tek kaynağı `lib/sport/routes.ts` olmalı.
+ */
+export interface SportChronologyEntry {
+  year: number;
+  world: "football" | "f1";
+  kind: string;
+  titleTr: string;
+  titleEn: string | null;
+  /**
+   * Kaydın SAHİBİ — kulüp ya da pist adı. "1905 · Kuruluş" kimin kuruluşu
+   * olduğunu söylemiyordu; ayrı alan olmasının sebebi ön yüzün onu başlıktan
+   * farklı bir tipografiyle yazması ve süzgecin de buradan okuyabilmesi.
+   * Eski backend yanıtında YOK olabilir.
+   */
+  subject?: string | null;
+  /**
+   * Kartın üstündeki arşiv fotoğrafı şeridi. Boşsa şerit çizilmiyor ve kart
+   * kısalıyor — kartlar eksene yaslandığı için farklı yükseklikler tırtıklı
+   * bir kenar üretmiyor. Eski backend yanıtında YOK olabilir.
+   */
+  imageUrl?: string | null;
+  clubSlug: string | null;
+  eraSlug: string | null;
+  circuitSlug: string | null;
+}
+
+/**
+ * Panteon kartı — iki tablodan (FootballLegend / F1Driver) tek biçime
+ * indirgenmiş efsane.
+ *
+ * ⚠️ PORTRE KÜNYESİ. `portraitLicense` + `portraitAuthor` + `portraitSourceUrl`
+ * üçü birden doluysa görselin ALTINDA gösterilmek ZORUNDA (Commons görselleri
+ * CC BY / CC BY-SA). Küratörün kendi yüklediği portrede üçü de boş gelir ve
+ * künye çizilmez — o görselin sahibi arşivin kendisi.
+ */
+export interface SportLegendCard {
+  world: "football" | "f1";
+  slug: string;
+  name: string;
+  epithetTr: string | null;
+  epithetEn: string | null;
+  countryCode: string | null;
+  /**
+   * Ülke kodu boşken bayrağın aranacağı uyruk sözcüğü ("German").
+   * Senkronizasyon sürücüye `countryCode` yazmıyor; bu alan o boşluğun
+   * yarış kaydından gelen karşılığı. Eski backend yanıtında YOK olabilir.
+   */
+  nationality?: string | null;
+  yearsFrom: number | null;
+  yearsTo: number | null;
+  personalRank: number | null;
+  /** Futbolda kulüp adı, F1'de boş */
+  subject: string | null;
+  /** F1'de şampiyonluk sayısı, futbolda boş */
+  championships: number | null;
+  portrait: string | null;
+  portraitLicense: string | null;
+  portraitAuthor: string | null;
+  portraitSourceUrl: string | null;
+}
+
+/**
+ * ⚠️ `counts` VE ALTINDAKİ HER ŞEY İSTEĞE BAĞLI.
+ *
+ * Backend ve frontend ayrı servisler ve `main`'e tek push ikisini birden
+ * deploy ediyor — yani yeni frontend, eski backend yanıtına bakacağı bir
+ * pencere HER ZAMAN var. Alanlar zorunlu yazılsaydı o pencerede sayfa
+ * `undefined.worlds` ile çökerdi. İsteğe bağlı yazıldıklarında ise yeni
+ * bölümler yalnızca veri geldiğinde çiziliyor — boş oda yasağının tip
+ * katmanındaki karşılığı.
+ */
 export interface SportOverview {
   footballClubs: number;
   f1Circuits: number;
+
+  counts?: {
+    worlds: number;
+    clubs: number;
+    legends: number;
+    circuits: number;
+    moments: number;
+  };
+  football?: {
+    featuredClub: {
+      slug: string;
+      name: string;
+      foundedYear: number | null;
+      cityName: string | null;
+      taglineTr: string | null;
+      taglineEn: string | null;
+      coverImage: string | null;
+    } | null;
+    featuredLegend: {
+      slug: string;
+      name: string;
+      epithetTr: string | null;
+      epithetEn: string | null;
+      countryCode: string | null;
+      yearsFrom: number | null;
+      yearsTo: number | null;
+      personalRank: number | null;
+      club: { slug: string; name: string } | null;
+    } | null;
+  };
+  f1?: {
+    featuredCircuit: {
+      slug: string;
+      name: string;
+      countryCode: string | null;
+      cityName: string | null;
+      nicknameTr: string | null;
+      nicknameEn: string | null;
+      lengthMeters: number | null;
+      cornerCount: number | null;
+      firstGrandPrixYear: number | null;
+      coverImage: string | null;
+    } | null;
+    raceCount: number;
+    seasonFrom: number | null;
+    seasonTo: number | null;
+  };
+  legends?: SportLegendCard[];
+  chronology?: SportChronologyEntry[];
 }
 
 export interface FootballHub {
@@ -268,12 +392,48 @@ export interface LegendPage {
   images: SportImage[];
 }
 
+/**
+ * Defter satırı — `F1RaceResult`ten TÜRETİLMİŞ, elle yazılmamış.
+ * `wins` yalnızca `position: 1` sayıyor; podyum sayısı başka bir şeydir ve
+ * başlığın söylediğiyle sorgunun saydığı aynı olmak zorunda.
+ */
+export interface F1LedgerRow {
+  name: string;
+  nationality?: string | null;
+  wins: number;
+  firstYear: number | null;
+  lastYear: number | null;
+}
+
 export interface F1Hub {
   circuits: Array<
-    Pick<F1Circuit, "slug" | "name" | "countryCode" | "lengthMeters" | "cornerCount" | "firstGrandPrixYear"> & {
+    Pick<
+      F1Circuit,
+      | "slug"
+      | "name"
+      | "countryCode"
+      | "lengthMeters"
+      | "cornerCount"
+      | "firstGrandPrixYear"
+    > & {
       personalRank: number | null;
+      /** Backend'e sonradan eklendi — eski yanıtta YOK olabilir. */
+      cityName?: string | null;
+      nicknameTr?: string | null;
+      nicknameEn?: string | null;
+      lapRecordTime?: string | null;
+      lapRecordYear?: number | null;
     }
   >;
+  /** Backend'e sonradan eklendi — eski yanıtta YOK olabilir (bkz. SportOverview). */
+  ledger?: {
+    raceCount: number;
+    seasonFrom: number | null;
+    seasonTo: number | null;
+    podiumNameCount: number;
+    winners: F1LedgerRow[];
+    constructors: F1LedgerRow[];
+  };
 }
 
 /**
@@ -345,6 +505,73 @@ export function fetchF1Hub(): Promise<F1Hub> {
 export function fetchCircuit(slug: string): Promise<CircuitPage> {
   return apiFetch<CircuitPage>(
     `/sport-archive/f1/circuits/${encodeURIComponent(slug)}`,
+    opts,
+  );
+}
+
+// ---- Sürücü sayfası ---------------------------------------------------------
+
+export interface F1Driver {
+  id: string;
+  slug: string;
+  name: string;
+  fullName: string | null;
+  nicknameTr: string | null;
+  nicknameEn: string | null;
+  countryCode: string | null;
+  birthYear: number | null;
+  deathYear: number | null;
+  activeFrom: number | null;
+  activeTo: number | null;
+  permanentNumber: number | null;
+  championships: number;
+  wins: number;
+  poles: number;
+  photo: string | null;
+  portraitLicense: string | null;
+  portraitAuthor: string | null;
+  portraitSourceUrl: string | null;
+  narrativeTr: string | null;
+  narrativeEn: string | null;
+  personalNoteTr: string | null;
+  personalNoteEn: string | null;
+  personalRank: number | null;
+}
+
+export interface DriverPage {
+  driver: F1Driver;
+  results: Array<{
+    id: string;
+    seasonYear: number;
+    position: number;
+    raceName: string | null;
+    constructorName: string | null;
+    timeText: string | null;
+    /** Sürücünün `countryCode`u boşken bayrağın türetildiği alan */
+    driverNationality: string | null;
+    circuit: { slug: string; name: string; countryCode: string | null };
+  }>;
+  moments: Array<{
+    id: string;
+    seasonYear: number;
+    titleTr: string;
+    titleEn: string | null;
+    narrativeTr: string | null;
+    narrativeEn: string | null;
+    circuit: { slug: string; name: string } | null;
+  }>;
+  lapRecords: Array<{
+    slug: string;
+    name: string;
+    lapRecordTime: string | null;
+    lapRecordYear: number | null;
+  }>;
+  quotes: SportQuote[];
+}
+
+export function fetchDriver(slug: string): Promise<DriverPage> {
+  return apiFetch<DriverPage>(
+    `/sport-archive/f1/drivers/${encodeURIComponent(slug)}`,
     opts,
   );
 }

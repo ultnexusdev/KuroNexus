@@ -6,7 +6,7 @@ import { fetchCircuit, pick } from "@/lib/api/sport-archive";
 import { sportHref } from "@/lib/sport/routes";
 import { Reveal } from "@/components/sport/Reveal";
 import { PodiumStage } from "@/components/sport/PodiumStage";
-import { flagBands } from "@/lib/sport/flags";
+import { flagBands, flagGradient } from "@/lib/sport/flags";
 import shell from "../../../layout.module.css";
 import styles from "./page.module.css";
 import { apiUrl } from "@/lib/api/client";
@@ -149,15 +149,7 @@ export default async function CircuitPage({
             className={styles.flag}
             data-dir={flag.direction}
             aria-hidden
-            style={{
-              backgroundImage: `linear-gradient(${flag.direction === "vertical" ? "to right" : "to bottom"}, ${flag.colors
-                .map((c, i) => {
-                  const from = (i / flag.colors.length) * 100;
-                  const to = ((i + 1) / flag.colors.length) * 100;
-                  return `${c} ${from}%, ${c} ${to}%`;
-                })
-                .join(", ")})`,
-            }}
+            style={{ backgroundImage: flagGradient(flag) }}
           />
         ) : null}
         <h1 className={`${shell.display} ${shell.world}`}>{circuit.name}</h1>

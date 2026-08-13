@@ -1,11 +1,17 @@
+import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
 import { fetchCategories } from "@/lib/api/universes";
-import { fetchSportOverview } from "@/lib/api/sport-archive";
+import { apiUrl } from "@/lib/api/client";
+import { fetchSportOverview, pick } from "@/lib/api/sport-archive";
+import { readIsAdmin } from "@/lib/auth/session";
 import { hallLabel, hallNumber } from "@/lib/halls";
-import { sportHref } from "@/lib/sport/routes";
+import { legendHref, sportHref } from "@/lib/sport/routes";
+import { flagGradient, sportFlag } from "@/lib/sport/flags";
 import { Reveal } from "@/components/sport/Reveal";
+import { SportChronology } from "@/components/sport/SportChronology";
+import { SportCuratorSwitch } from "@/components/sport/SportCuratorSwitch";
 import shell from "./layout.module.css";
 import styles from "./page.module.css";
 
@@ -36,32 +42,35 @@ async function getHallLabel(): Promise<string> {
   }
 }
 
+/** 5793 → "5.793 km". F1 tarafının ölçüm dili — km'ye çevirip yerelleştirir. */
+function km(meters: number | null | undefined, locale: string): string | null {
+  if (meters == null) return null;
+  return `${(meters / 1000).toLocaleString(locale === "en" ? "en-GB" : "tr-TR", {
+    minimumFractionDigits: 3,
+    maximumFractionDigits: 3,
+  })} km`;
+}
+
 /**
  * Sayfa 1 — `/spor`.
  *
- * ── YENİDEN DÜZENLENDİ (8 Ağustos 2026) ──────────────────────────────────
- * Önceki sürüm "SPOR" kelimesini 288px'te tek başına gösteriyordu; üstünde
- * 461px ölü boşluk vardı ve başlıkla alt metin arasındaki oran 13:1'di.
- * Squint testinde tek bir leke görünüyordu — ikincil öğe yok, grup yok.
- * Bu bir kompozisyon değil, büyütülmüş bir etiketti.
+ * ── DÖRT HAREKET, DÖRDÜ DE YAPI OLARAK FARKLI ────────────────────────────
+ *   1. AÇILIŞ      cümle + koleksiyon künyesi   (metin, sola dayalı, sessiz)
+ *   2. DÜNYALAR    iki tam-en bant + görsel     (gürültülü, dönüşümlü hizalı)
+ *   3. KRONOLOJİ   yatay, iki şeritli, süzgeçli (ölçülü, uzun, sakin)
+ *   4. PANTEON     portre kapakları             (kapanış, ortalanmış)
  *
- * Üç yapısal değişiklik:
+ * Ritim bilinçli: sessiz → gürültülü → uzun/sakin → gürültülü.
  *
- * 1. ETİKET GİTTİ. "SALON 03 · SPOR" göz kırpması başlığın üstünden kalktı
- *    (craft floor bunu kesin yasak sayıyor: başlık kendi ağırlığını taşır).
- *    Salon kimliği artık üstteki kırıntıda — dekorasyon değil, gezinme.
+ * ── UCU AÇIK KÜNYE ───────────────────────────────────────────────────────
+ * Künye "1905 – ∞" yazıyor, "1905–2025" değil. Sebep küratörün kendi
+ * cümlesi: arşiv güncelleniyor. Kapalı bir aralık, bitmiş bir koleksiyon
+ * anlamına gelirdi; sonsuz işareti bir süs değil, doğru bilgi.
  *
- * 2. CÜMLE BAŞLIK OLDU. Sayfanın ne olduğunu söyleyen şey "SPOR" değil,
- *    "Oyunların, efsanelerin, rekabetin ve hızın kişisel arşivi." Etiket
- *    zaten sekmede ve kırıntıda duruyor; onu ikinci kez ve dev puntoda
- *    tekrarlamak bilgi taşımıyordu.
- *
- * 3. KIVRIM KISALDI. Artık tam ekran değil — ilk dünya bandı ilk ekrana
- *    sızıyor. Ziyaretçi arşivden bir şey GÖREREK karşılanıyor, boş bir
- *    duvarla değil. Kaydırma daveti kompozisyonun parçası.
- *
- * İki dünya bandı ağırlığını punto yerine ALAN ve IŞIKtan alıyor: cümle
- * okuma sırasını açıyor, bantlar ekranı dolduruyor.
+ * ── BOŞ ODA YASAĞI HER YERDE ─────────────────────────────────────────────
+ * Her hareket kendi verisi geldiyse çiziliyor. Backend eski sürümdeyse
+ * (iki servis tek push'ta deploy oluyor, pencere kaçınılmaz) sayfa sessizce
+ * cümle + iki kapıya düşüyor, çökmüyor.
  */
 export default async function SportLandingPage({
   params,
@@ -71,57 +80,175 @@ export default async function SportLandingPage({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "sportArchive" });
 
-  // Boş oda yasağı: sayım sıfırsa o dünyanın bandı HİÇ çizilmiyor.
-  // Backend düşerse iki dünya da gizlenir — yarım sayfa göstermektense
-  // açılış cümlesiyle yetinmek yeğ.
-  let overview = { footballClubs: 0, f1Circuits: 0 };
+  let overview: Awaited<ReturnType<typeof fetchSportOverview>> = {
+    footballClubs: 0,
+    f1Circuits: 0,
+  };
   try {
     overview = await fetchSportOverview();
   } catch {
-    // sessiz
+    // sessiz — açılış cümlesi tek başına da bir sayfadır
   }
 
-  const label = await getHallLabel();
+  const [label, isAdmin] = await Promise.all([getHallLabel(), readIsAdmin()]);
+
+  const counts = overview.counts;
+  const club = overview.football?.featuredClub ?? null;
+  const legend = overview.football?.featuredLegend ?? null;
+  const circuit = overview.f1?.featuredCircuit ?? null;
+  const chronology = overview.chronology ?? [];
+  const legends = overview.legends ?? [];
+
+  // Koleksiyon künyesi: SIFIR OLAN SATIR HİÇ YAZILMIYOR. "0 efsane" yazan bir
+  // arşiv künyesi, o satırın orada olmamasından daha çok boşluk anlatır.
+  const ledgerRows = counts
+    ? ([
+        [counts.worlds, t("index.worlds")],
+        [counts.clubs, t("index.clubs")],
+        [counts.legends, t("index.legends")],
+        [counts.circuits, t("index.circuits")],
+        [counts.moments, t("index.moments")],
+      ] as const).filter(([n]) => n > 0)
+    : [];
+
+  /**
+   * Arşivin BAŞLANGICI. Ucu bilinçli olarak yazılmıyor — künye "∞" basıyor.
+   * En erken tarih hem kronolojiden hem senkronize sezonlardan hem kulübün
+   * kuruluşundan aranıyor: yalnızca anlatıyı sayan bir başlangıç, elindeki
+   * verinin bir bölümünü görünmez yapardı.
+   */
+  const reach = [
+    chronology.length ? chronology[0].year : null,
+    overview.f1?.seasonFrom ?? null,
+    club?.foundedYear ?? null,
+  ].filter((y): y is number => typeof y === "number");
+  const archiveFrom = reach.length ? Math.min(...reach) : null;
+
+  const clubCover = club?.coverImage ?? null;
+  const circuitCover = circuit?.coverImage ?? null;
 
   return (
     <main className={styles.page}>
-      {/* Kırıntı: salon kimliğini taşıyan gezinme satırı. Diğer beş spor
-          sayfasıyla aynı desen — başlık üstü süs değil. */}
+      {/* Kırıntı: salon kimliğini taşıyan gezinme satırı. Diğer spor
+          sayfalarıyla aynı desen — başlık üstü süs değil. */}
       <nav className={shell.crumb} aria-label="breadcrumb">
         <Link href="/dark-stories">KuroNexus</Link>
         <span className={shell.sep}>/</span>
-        {/* Bulunduğun yerin adı SALONUN adı — Futbol ve Formula 1 onun
-            içindeki iki dünya. Salon numarası alınamazsa numarasız "Spor"a
-            düşüyor; önceki yedek yanlışlıkla "Futbol" yazıyordu. */}
         <span>{label ? t("eyebrow", { num: label }) : t("name")}</span>
       </nav>
 
-      {/* ── Açılış: cümle başlıktır ── */}
+      {/* ══ 1. AÇILIŞ — cümle başlıktır, künye onu ölçer ══ */}
       <header className={styles.opening}>
         <h1 className={`${shell.display} ${styles.statement}`}>{t("lede")}</h1>
+
+        {/* Müze duvarındaki "bu salonda ne var" satırı.
+            ⚠️ 4'lü istatistik ızgarası DEĞİL: bugün değerlerin çoğu "1" ve
+            dev puntolu kutularda üç tane "1" arşivi büyük değil BOŞ gösterir.
+            Tek satırlık künye ölçüyü dürüstçe verir ve veri arttıkça (17
+            efsane, 26 pist) aynı biçim büyümeyi kendiliğinden taşır. */}
+        {ledgerRows.length > 0 ? (
+          <dl className={styles.ledger}>
+            {ledgerRows.map(([value, unit]) => (
+              <div key={unit} className={styles.ledgerCell}>
+                <dt className={`${shell.figure} ${styles.ledgerValue}`}>
+                  {value}
+                </dt>
+                <dd className={styles.ledgerUnit}>{unit}</dd>
+              </div>
+            ))}
+            {archiveFrom != null ? (
+              <div className={`${styles.ledgerCell} ${styles.ledgerSpan}`}>
+                <dt
+                  className={`${shell.figure} ${styles.ledgerValue}`}
+                  aria-label={`${archiveFrom} — ${t("club.ongoing")}`}
+                >
+                  {archiveFrom}
+                  <span className={styles.forever} aria-hidden>
+                    –∞
+                  </span>
+                </dt>
+                <dd className={styles.ledgerUnit}>{t("index.span")}</dd>
+              </div>
+            ) : null}
+          </dl>
+        ) : null}
       </header>
 
-      {/* ── Futbol: sola dayalı, anlatı dili ── */}
+      {/* ══ 2. DÜNYALAR ══ */}
+      {overview.footballClubs > 0 || overview.f1Circuits > 0 ? (
+        <h2 className={`${shell.eyebrow} ${styles.worldsLabel}`}>
+          {t("worlds")}
+        </h2>
+      ) : null}
+
+      {/* Futbol: metin solda, görsel SAĞDA ve sola doğru soluklaşıyor */}
       {overview.footballClubs > 0 ? (
         <Reveal as="section" className={styles.band}>
+          {clubCover ? (
+            <span
+              className={styles.bandArt}
+              aria-hidden
+              style={
+                { "--art": `url("${apiUrl(clubCover)}")` } as CSSProperties
+              }
+            />
+          ) : null}
+
           <Link href={sportHref.football()} className={styles.bandLink}>
-            <h2 className={`${shell.display} ${styles.world}`}>
+            <h3 className={`${shell.display} ${styles.world}`}>
               {t("football.name")}
-            </h2>
+            </h3>
             <p className={styles.tagline}>{t("football.tagline")}</p>
             <span className={styles.rule} aria-hidden />
+
+            {/* Kapının ardındaki İSİMLER. Bant artık "Futbol → Gir" demiyor,
+                ne bulacağını söylüyor. */}
+            {club || legend ? (
+              <span className={`${shell.data} ${styles.contents}`}>
+                {[club?.name, legend?.name].filter(Boolean).join(" · ")}
+              </span>
+            ) : null}
+
             <span className={`${shell.data} ${styles.enter}`}>{t("enter")}</span>
           </Link>
         </Reveal>
       ) : null}
 
-      {/* ── Formula 1: sağa dayalı, ölçüm dili. Ayna değil. ── */}
+      {/* Formula 1: metin sağda, görsel SOLDA ve sağa doğru soluklaşıyor */}
       {overview.f1Circuits > 0 ? (
         <Reveal as="section" className={`${styles.band} ${styles.bandRight}`}>
+          {circuitCover ? (
+            <span
+              className={styles.bandArt}
+              aria-hidden
+              style={
+                { "--art": `url("${apiUrl(circuitCover)}")` } as CSSProperties
+              }
+            />
+          ) : null}
+
           <Link href={sportHref.f1()} className={styles.bandLink}>
-            <h2 className={`${shell.display} ${styles.world}`}>{t("f1.name")}</h2>
+            <h3 className={`${shell.display} ${styles.world}`}>{t("f1.name")}</h3>
             <p className={styles.tagline}>{t("f1.tagline")}</p>
             <span className={`${styles.rule} ${styles.ruleF1}`} aria-hidden />
+
+            {/* Futbol İSİM veriyor, F1 ÖLÇÜ veriyor — iki dünyanın dili
+                burada da ayrışıyor. Sezon aralığı da ucu açık: senkronizasyon
+                her yıl bir satır daha getiriyor. */}
+            {circuit || overview.f1?.seasonFrom ? (
+              <span className={`${shell.data} ${styles.contents}`}>
+                {[
+                  circuit?.name,
+                  km(circuit?.lengthMeters, locale),
+                  overview.f1?.seasonFrom
+                    ? `${overview.f1.seasonFrom}–∞`
+                    : null,
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
+              </span>
+            ) : null}
+
             <span className={`${shell.data} ${styles.enter}`}>
               {overview.f1Circuits}
               <span className={styles.unit}>
@@ -131,6 +258,146 @@ export default async function SportLandingPage({
             </span>
           </Link>
         </Reveal>
+      ) : null}
+
+      {/* ══ 3. KRONOLOJİ — yatay, iki şeritli, süzgeçli ══ */}
+      {chronology.length > 1 ? (
+        <Reveal as="section" className={styles.chronology}>
+          <header className={styles.chronoHead}>
+            <h2 className={`${shell.display} ${shell.section}`}>
+              {t("chronology.title")}
+            </h2>
+            <p className={`${shell.data} ${styles.chronoNote}`}>
+              {t("chronology.note", {
+                count: chronology.length,
+                from: chronology[0].year,
+                to: chronology[chronology.length - 1].year,
+              })}
+            </p>
+          </header>
+
+          <SportChronology entries={chronology} />
+        </Reveal>
+      ) : null}
+
+      {/* ══ 4. PANTEON — kapanış ══ */}
+      {legends.length > 0 ? (
+        <Reveal as="section" className={styles.pantheon}>
+          <header className={styles.pantheonHead}>
+            <h2 className={`${shell.display} ${shell.section}`}>
+              {t("hub.legends")}
+            </h2>
+            <p className={styles.pantheonLede}>{t("pantheon.lede")}</p>
+          </header>
+
+          <ul className={styles.faces} data-count={Math.min(legends.length, 4)}>
+            {legends.map((person) => {
+              // Küratörün ülke kodu yoksa uyruk sözcüğünden aranıyor —
+              // senkronizasyon sürücüye kod yazmıyor (bkz. flags.ts)
+              const bands = sportFlag(person.countryCode, person.nationality);
+              const epithet = pick(locale, person.epithetTr, person.epithetEn);
+              /**
+               * ⚠️ KÜNYESİ EKSİK COMMONS PORTRESİ ÇİZİLMEZ.
+               * Lisans + sanatçı + kaynak üçü birden dolu değilse görsel
+               * gösterilmiyor; atıfsız yayın, telifli görseli izinsiz
+               * kullanmakla aynı kapıya çıkar. Küratörün kendi yüklediği
+               * portrede üçü de boş gelir — o görselin sahibi arşivin kendisi,
+               * `needsCredit` yalnızca lisans alanı DOLUYKEN devreye giriyor.
+               */
+              const needsCredit = Boolean(person.portraitLicense);
+              const creditComplete =
+                Boolean(person.portraitLicense) &&
+                Boolean(person.portraitAuthor) &&
+                Boolean(person.portraitSourceUrl);
+              const showPortrait =
+                Boolean(person.portrait) && (!needsCredit || creditComplete);
+
+              return (
+                <li key={`${person.world}-${person.slug}`} className={styles.face}>
+                  <Link
+                    href={legendHref(person.world, person.slug)}
+                    className={styles.faceLink}
+                  >
+                    <span className={styles.frame} data-world={person.world}>
+                      {showPortrait ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          className={styles.portrait}
+                          src={apiUrl(person.portrait as string)}
+                          alt={person.name}
+                          loading="lazy"
+                        />
+                      ) : (
+                        /* Portresi inmemiş efsane: boş kutu değil DOKU.
+                           Müzik salonundaki "kapağı inmemiş albüm" deseninin
+                           aynısı — yuva görünür kalıyor, görsel gelince
+                           kod değişmeden yerine oturuyor. */
+                        <span className={styles.hatch} aria-hidden>
+                          <span className={styles.initial}>
+                            {person.name.slice(0, 1)}
+                          </span>
+                        </span>
+                      )}
+
+                      {bands ? (
+                        <span
+                          className={styles.faceFlag}
+                          aria-hidden
+                          style={{ backgroundImage: flagGradient(bands) }}
+                        />
+                      ) : null}
+                    </span>
+
+                    <span className={`${shell.display} ${styles.faceName}`}>
+                      {person.name}
+                    </span>
+                    {epithet ? (
+                      <span className={styles.faceEpithet}>{epithet}</span>
+                    ) : null}
+                    <span className={`${shell.data} ${styles.faceMeta}`}>
+                      {[
+                        person.subject,
+                        person.championships
+                          ? t("pantheon.titles", { n: person.championships })
+                          : null,
+                        person.yearsFrom
+                          ? `${person.yearsFrom}–${person.yearsTo ?? ""}`
+                          : null,
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </span>
+                  </Link>
+
+                  {/* Künye görselin ALTINDA ve bağlantının DIŞINDA: kaynağa
+                      giden bağlantı, efsane sayfasına giden bağlantının içine
+                      girerse iç içe iki <a> olur. */}
+                  {showPortrait && creditComplete ? (
+                    <p className={styles.credit}>
+                      <a
+                        href={person.portraitSourceUrl as string}
+                        target="_blank"
+                        rel="noopener noreferrer nofollow"
+                      >
+                        {person.portraitLicense}
+                      </a>
+                      {" · "}
+                      {person.portraitAuthor}
+                    </p>
+                  ) : null}
+                </li>
+              );
+            })}
+          </ul>
+        </Reveal>
+      ) : null}
+
+      {/* Küratör anahtarı — ziyaretçi bu bileşeni HİÇ indirmiyor. Yetkinin
+          gerçek kapısı backend'de (`@Roles('ADMIN')`); bu yalnızca düğme. */}
+      {isAdmin ? (
+        <section className={styles.curator}>
+          <SportCuratorSwitch />
+        </section>
       ) : null}
     </main>
   );

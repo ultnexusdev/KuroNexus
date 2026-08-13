@@ -23,7 +23,23 @@ export const sportHref = {
   f1: () => "/spor/formula-1",
   circuits: () => "/spor/formula-1/pistler",
   circuit: (slug: string) => `/spor/formula-1/pistler/${slug}`,
+  /**
+   * F1 sürücüsü — futbol efsanesinin karşılığı ama KENDİ KANADINDA.
+   * Ortak bir `/spor/efsaneler/[slug]` ağacı ölçüldü ve reddedildi: iki farklı
+   * veri modeli (FootballLegend / F1Driver) tek sayfada birleşmek zorunda
+   * kalırdı ve kırıntı hangi dünyaya döneceğini bilemezdi.
+   */
+  drivers: () => "/spor/formula-1/surucular",
+  driver: (slug: string) => `/spor/formula-1/surucular/${slug}`,
 } as const;
+
+/**
+ * Panteon kartının adresi. İki dünya iki ağaç; `world` alanı hangisi
+ * olduğunu söylüyor ve bu fonksiyon tek karar noktası.
+ */
+export function legendHref(world: "football" | "f1", slug: string): string {
+  return world === "f1" ? sportHref.driver(slug) : sportHref.legend(slug);
+}
 
 /**
  * Kulüp slug'ıyla çakışamayacak yollar.

@@ -1,0 +1,348 @@
+/* ============================================================
+   Sayfa 7 · /spor/formula-1/surucular/[slug]
+
+   F1 kanadının dili: ölçüm. Hizalı rakam, kılcal çizgi, 1px kesin kenar.
+   Futbol efsanesi sayfasının anlatı akışıyla kasten farklı — omurga burada
+   KAYIT, orada anlatı.
+
+   ⚠️ BU SAYFANIN KOMPOZİSYONU HENÜZ YAPILMADI. Bugünkü hâli dürüst bir
+   künye: elde ne varsa gösteren, uydurmayan, boş bölüm açmayan iskelet.
+   ============================================================ */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-band);
+  padding-bottom: var(--sp-band);
+}
+
+/* ---- Baş ---- */
+.head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  padding: clamp(2rem, 6vw, 4rem) var(--sp-gutter) 0;
+  position: relative;
+}
+
+/* Ülke, sticker bayrak değil ALAN — pist hero'sunun aynı deseni */
+.flag {
+  position: absolute;
+  left: 0;
+  top: clamp(2rem, 6vw, 4rem);
+  bottom: 0;
+  width: clamp(0.35rem, 0.8vw, 0.6rem);
+  opacity: 0.55;
+}
+
+.headBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.nickname {
+  margin: 0;
+  font-size: var(--sp-lede);
+  line-height: 1.5;
+  color: var(--text-secondary);
+  max-width: 34ch;
+}
+
+.meta {
+  margin: 0;
+}
+
+/* Portre başlığın YANINDA ve küçük: sayfanın konusu fotoğraf değil kayıt.
+   Büyük bir hero portresi, altındaki 200 satırlık tabloyla yarışırdı. */
+.portraitBox {
+  margin: 0;
+  width: clamp(7rem, 16vw, 10.5rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.portrait {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  object-position: center 20%;
+  display: block;
+  border: 1px solid var(--sport-line);
+  filter: grayscale(0.45) contrast(1.06) brightness(0.9);
+}
+
+/* Künye YASAL ZORUNLULUK, süs değil (Commons: CC BY / CC BY-SA) */
+.credit {
+  font-family: var(--font-mono);
+  font-size: 0.56rem;
+  letter-spacing: 0.06em;
+  line-height: 1.5;
+  color: var(--text-muted);
+  opacity: 0.75;
+  overflow-wrap: anywhere;
+}
+
+.credit a {
+  color: inherit;
+}
+
+.credit a:hover {
+  color: var(--accent);
+}
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-lg);
+  padding: 0 var(--sp-gutter);
+  min-width: 0;
+}
+
+/* ---- Künye rakamları ---- */
+.facts {
+  margin: 0;
+  padding-top: clamp(0.85rem, 1.8vw, 1.25rem);
+  border-top: 1px solid var(--f1-red);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 clamp(1.25rem, 3vw, 2.5rem);
+}
+
+.factCell {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  padding-block: 0.3rem;
+}
+
+.factValue {
+  margin: 0;
+  font-size: clamp(1.5rem, 2.6vw, 2rem);
+  line-height: 1;
+  color: var(--text-primary);
+}
+
+.factUnit {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+/* ---- Tur rekorları ---- */
+.records {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--sport-line);
+}
+
+.record {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: baseline;
+  gap: 0 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--sport-line);
+  min-width: 0;
+}
+
+.recordLink {
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.recordLink:hover {
+  color: var(--f1-red);
+}
+
+.recordLink:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 2px;
+}
+
+.recordTime {
+  font-size: 1.25rem;
+  color: var(--f1-white);
+  white-space: nowrap;
+}
+
+.recordYear {
+  opacity: 0.6;
+  white-space: nowrap;
+}
+
+/* ---- Anlar ---- */
+.moments {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.moment {
+  display: grid;
+  grid-template-columns: clamp(3.5rem, 8vw, 5rem) minmax(0, 1fr);
+  gap: 0 clamp(1rem, 2.5vw, 1.75rem);
+  border-top: 1px solid var(--sport-line);
+  padding-top: 1rem;
+  min-width: 0;
+}
+
+.momentYear {
+  font-size: clamp(1.25rem, 2.4vw, 1.75rem);
+  line-height: 1;
+  color: var(--text-secondary);
+}
+
+.momentBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.momentTitle {
+  font-size: var(--sp-section);
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 0;
+}
+
+.momentCircuit {
+  align-self: flex-start;
+  text-decoration: none;
+  border-bottom: 1px solid var(--sport-line);
+  padding-bottom: 0.15rem;
+  min-height: var(--touch-min);
+  display: inline-flex;
+  align-items: center;
+}
+
+.momentCircuit:hover {
+  color: var(--f1-red);
+  border-bottom-color: var(--f1-red);
+}
+
+/* ---- Podyum kaydı ---- */
+.recordNote {
+  margin: 0;
+}
+
+.tableWrap {
+  overflow-x: auto;
+  border-top: 1px solid var(--f1-red);
+  min-width: 0;
+}
+
+.table {
+  width: 100%;
+  min-width: 34rem;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.table th {
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  text-align: left;
+  padding: 0.85rem 1rem 0.85rem 0;
+  border-bottom: 1px solid var(--sport-line);
+  white-space: nowrap;
+}
+
+.table td {
+  padding: 0.7rem 1rem 0.7rem 0;
+  border-bottom: 1px solid var(--sport-line);
+  font-family: var(--font-mono);
+  font-size: var(--sp-data);
+  color: var(--text-secondary);
+  vertical-align: baseline;
+}
+
+.table th:last-child,
+.table td:last-child {
+  padding-right: 0;
+}
+
+/* Özgüllük çakışması: `.table th` (0,1,1) tek başına `.num`ı (0,1,0)
+   eziyor — eleman adını seçiciye katmak çakışmayı bitiriyor.
+   (Pist tablosunda ölçülerek bulunmuştu, aynı hata burada tekrarlanmasın.) */
+.table th.num,
+.table td.num {
+  text-align: right;
+}
+
+/* Galibiyet satırı sönük değil: tablonun içindeki tek vurgulu satır türü */
+.table tr[data-win] td {
+  color: var(--text-primary);
+}
+
+.muted {
+  color: var(--text-secondary);
+}
+
+.circuitLink {
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+  display: inline-block;
+  min-height: var(--touch-min);
+  padding-block: 0.3rem;
+}
+
+.circuitLink:hover {
+  color: var(--f1-red);
+}
+
+.circuitLink:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 2px;
+}
+
+.provenance {
+  margin: 0;
+  max-width: 60ch;
+  line-height: 1.7;
+  opacity: 0.75;
+}
+
+/* ---- Dar ekran ----
+   Portre başlığın yanından ALTINA inmiyor, küçülüyor: başlık + portre
+   ikilisi bu sayfanın kimliği ve dikey yığmak onu bir kart hâline getirirdi. */
+@media (max-width: 720px) {
+  .head {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 1rem;
+  }
+
+  .portraitBox {
+    width: clamp(5.5rem, 26vw, 8rem);
+  }
+
+  .moment {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.4rem;
+  }
+}

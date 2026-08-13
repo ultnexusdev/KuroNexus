@@ -1469,3 +1469,149 @@ export function enrichMusicAct(actId: string): Promise<{
     method: "POST",
   });
 }
+
+// ============================================================
+// Salon 06 · Spor Arşivi — küratör
+//
+// Bütün uçlar `@Roles('ADMIN')` arkasında; token HttpOnly çerezde ve
+// `apiFetch` onu `credentials: "include"` ile taşıyor (bkz. dosya başlığı).
+// ============================================================
+
+export interface SportCuratorContext {
+  clubs: Array<{
+    id: string;
+    slug: string;
+    name: string;
+    coverImage: string | null;
+    eras: Array<{
+      id: string;
+      slug: string;
+      titleTr: string;
+      startYear: number;
+      endYear: number | null;
+    }>;
+  }>;
+  circuits: Array<{
+    id: string;
+    slug: string;
+    name: string;
+    coverImage: string | null;
+  }>;
+  legends: Array<{
+    id: string;
+    slug: string;
+    name: string;
+    portraitImage: string | null;
+    personalRank: number | null;
+    isPublished: boolean;
+  }>;
+  /** Panteon adayları — podyum sayısına göre ilk 40 sürücü */
+  drivers: Array<{
+    id: string;
+    slug: string;
+    name: string;
+    photo: string | null;
+    portraitLicense: string | null;
+    portraitAuthor: string | null;
+    personalRank: number | null;
+    isPublished: boolean;
+    championships: number;
+    podiums: number;
+  }>;
+  /** Zaman şeridindeki mevcut kayıtlar — taslaklar DA burada */
+  moments: Array<{
+    id: string;
+    world: "football" | "f1";
+    year: number;
+    titleTr: string;
+    subject: string;
+    imageUrl: string | null;
+    isPublished: boolean;
+    isHighlight: boolean;
+  }>;
+}
+
+export interface CreateSportMomentBody {
+  world: "football" | "f1";
+  /** `football` iken zorunlu */
+  eraId?: string;
+  /** `f1` iken zorunlu */
+  circuitId?: string;
+  year: number;
+  titleTr: string;
+  titleEn?: string;
+  narrativeTr?: string;
+  kind?: string;
+  isHighlight?: boolean;
+  isPublished?: boolean;
+  /** Kartın arşiv fotoğrafı — yükleme ucundan dönen yerel adres */
+  imageUrl?: string;
+}
+
+export function fetchSportCuratorContext(): Promise<SportCuratorContext> {
+  return apiFetch("/admin/sport-archive/context");
+}
+
+export function createSportMoment(
+  body: CreateSportMomentBody,
+): Promise<{ id: string }> {
+  return apiFetch("/admin/sport-archive/moments", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}
+
+export function deleteSportMoment(
+  world: "football" | "f1",
+  id: string,
+): Promise<{ ok: boolean }> {
+  return apiFetch(
+    `/admin/sport-archive/moments/${world}/${encodeURIComponent(id)}`,
+    { method: "DELETE" },
+  );
+}
+
+/**
+ * Görseli kayda bağla. `url` boş dize ise görsel KALDIRILIR — silme için ayrı
+ * bir uç açmamak kasıtlı: küratör panelinde "kaldır" düğmesi aynı formu boş
+ * değerle gönderiyor.
+ */
+export type SportImageTarget =
+  | "CLUB_COVER"
+  | "CLUB_CREST"
+  | "CIRCUIT_COVER"
+  | "LEGEND_PORTRAIT"
+  | "DRIVER_PORTRAIT"
+  | "MOMENT_FOOTBALL"
+  | "MOMENT_F1";
+
+export function setSportImage(body: {
+  target: SportImageTarget;
+  /** Kulüp/pist/efsane/sürücüde slug, ANDA `cuid` — anın slug'ı yok */
+  ref: string;
+  url: string;
+}): Promise<unknown> {
+  return apiFetch("/admin/sport-archive/image", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}
+
+/** F1 sürücüsünü panteona al / çıkar. */
+export function featureF1Driver(
+  slug: string,
+  body: {
+    isPublished?: boolean;
+    personalRank?: number;
+    nicknameTr?: string;
+    narrativeTr?: string;
+  },
+): Promise<{ slug: string; isPublished: boolean; personalRank: number | null }> {
+  return apiFetch(`/admin/sport-archive/drivers/${encodeURIComponent(slug)}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}

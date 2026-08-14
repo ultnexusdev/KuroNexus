@@ -83,7 +83,7 @@ deploy edilebilir. Geri alma: kutuyu boşalt, Save.
 koşuyordu — 11 Ağustos'ta yarım saatlik kesintiye yol açan riski hiçbir
 kazanç karşılığı olmadan tekrarlıyordu (bkz. `DEVIR-2026-08-11.md` §4).
 
-### 3c. Backend health check (planlandı)
+### 3c. Backend health check (ÖNERİLDİ — uygulandığı doğrulanmadı)
 
 `kuronexus-backend → Configuration → Healthcheck`
 
@@ -166,3 +166,34 @@ Watch Paths çözdü: backend artık yalnızca backend değiştiğinde derleniyo
   bir kez `/artifacts` dolduğu için frontend deploy'u düşmüştü.
 - **Swap** ölçülmedi. Eşzamanlılık 1'e indiği için acil değil, ama 3.7 GB'da
   tek bir Next.js derlemesi bile tepeye yaklaşıyor olabilir.
+
+---
+
+## 7 · Doğrulama (14 Ağustos, ölçüldü)
+
+Ayarlar girildikten sonra **belge-only** bir commit (`57c7e0d`) push edildi.
+Sonuç: **iki uygulamada da deploy başlamadı.** Watch Paths öncesinde bu push
+iki Docker derlemesi tetikleyecekti.
+
+⚠️ **Bu tek başına yeterli kanıt DEĞİLDİ.** "Deploy başlamadı" iki şeyin
+ikisine de uyuyor:
+
+1. Webhook geldi, Coolify baktı, eşleşme yok, **bilerek** atladı → istenen
+2. Webhook hiç gelmedi, Coolify push'tan haberdar olmadı → sessiz arıza
+
+İkisi dışarıdan aynı görünüyor ve ikincisi bu depoda daha önce yaşandı
+(STATE.md, Temmuz: "Push sonrası Coolify auto-deploy tetiklenmedi").
+
+**Ayırt etme yolu — hiçbir şey deploy etmeden:**
+GitHub → repo **Settings → Webhooks** → payload URL'i
+`http://65.108.220.5:8000/webhooks/source/github/events/manual` olan kanca →
+**Recent Deliveries**. Yeşil tik + `200` = webhook çalıştı ve Coolify
+bilerek atladı. Kırmızı ya da kayıt yok = webhook kırık.
+
+**Ölçülen:** 14.08 11:38, 13.08 23:31 ve 12.08 22:22 teslimatlarının
+üçü de yeşil. Webhook sağlıklı, sessizlik Watch Paths'in eseri.
+Tek kanca var; Coolify onu içeride iki uygulamaya dağıtıyor.
+
+**Tam kanıt gerekirse** (bu tur gerekmedi): `frontend/` içine zararsız bir
+yorum satırı commit'leyip push et. Frontend deploy başlar **ve** backend
+başlamazsa hem webhook hem Watch Paths kanıtlanmış olur.

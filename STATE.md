@@ -11,6 +11,41 @@
 > yapılması gereken tek iş ve açık kalan dört madde orada.
 > Ölçülen gerçekler, kesinti kaydı ve dersler de aynı dosyada.
 >
+> 🟡 **SPOR SALONU — KULLANICI BİLDİRİMİ TURU (14 Ağustos), PUSH EDİLMEDİ.**
+> Beş madde: (A) bayrak şeritleri, (B) panteon levhasında yalnızca ad,
+> (C) kronoloji kenar okları, (D) bant kapağının odak noktası + büyütmesi.
+> A-B-C `cf9a523`te; D şema değişikliği içeriyor.
+>
+> **A · bayrak:** iki ayrı kusur, ikisi de canlı sayfadan ölçülerek bulundu.
+> Almanya `to bottom` çiziliyordu ama şerit 3px — üç bant 1'er piksele
+> eziliyordu; `flagGradient`e `axis` parametresi geldi. Union Jack üç eşit
+> bant yazılıydı, yani ekranda Fransa deseni; beş bantlı yatay kesite
+> çevrildi (ağırlık 3-1-2-1-3). Hagi'nin şeridi DEĞİŞMEDİ (gerileme ölçüldü).
+>
+> **B · levha:** lakap ve künye satırı kalktı. ⛔ Portre künyesi SİLİNMEDİ —
+> CC BY / OGL atfı lisans şartı; çerçeveye filigran olarak taşındı (%34
+> opaklık, hover'da okunur). Bağlantıya `aria-label` eklendi, yoksa ekran
+> okuyucu bağlantıyı "OGL 3 · Number 10 LEWIS HAMILTON" diye okuyordu.
+>
+> **D · bant kırpması:** `FootballClub` ve `F1Circuit`e `coverPosition` +
+> `coverScale`; küratörde üç kaydırıcı + **canlı önizleme** (bandın gerçek
+> 2.2:1 oranında). Müzik kanadındaki `MusicalAct.bannerPosition` deseninin
+> aynısı. Görsel katmanı İKİYE bölündü: maske dışta kaldı, `scale` içte —
+> tek katman olsaydı büyütme maskeyi de büyütüp geçişi bandın dışına atardı.
+>
+> 🔴 **MIGRATION GERÇEK POSTGRESQL'DE KOŞULMADI.** `20260814125841_add_sport_cover_focus`
+> (2 ALTER TABLE, 4 nullable kolon, kısıt yok) `migrate diff --output` ile
+> üretildi ve `check-migrations.mjs` 30/30 temiz dedi — ama kesinti kaydının
+> 3. önlemi "gerçek PostgreSQL'de koş" diyor ve **`K:\postgres` EV
+> MAKİNESİNDE**, iş yerinde yok. Push etmeden önce evde koşulmalı.
+> Bedeli sınırlı: `CMD` zinciri gereği migration patlarsa backend hiç
+> başlamaz, Coolify eski konteyneri devirmez, site ayakta kalır.
+>
+> ⚠️ **KABUK HEREDOC'U TERS BÖLÜYÜ YUTUYOR.** Bu turda iki dosyaya
+> `/^\d{1,3}%…/` yerine `/^d{1,3}%…/` yazıldı; backend'deki hâli **her
+> geçerli konumu reddederdi**. Tarayıcıda ölçülmese fark edilmezdi.
+> Ders: kod düzenlemesini `bash <<'EOF'` ile yazma, dosyaya doğrudan yaz.
+>
 > ✅ **DEPLOY ÇÖKMESİ KAPANDI (14 Ağustos)** — ayrıntı: `docs/deploy-duzeni.md`.
 > "Backend ve frontend aynı anda deploy edilince site çöküyor" arızası
 > ölçüldü: sunucu **2 çekirdek / 3.7 GB RAM**, `concurrent builds` **2** idi.

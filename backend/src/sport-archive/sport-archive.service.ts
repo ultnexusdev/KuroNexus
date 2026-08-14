@@ -122,6 +122,10 @@ export class SportArchiveService {
           // Bandın arkasındaki görsel. Yoksa bant bugünkü hâliyle — yalnız
           // ışıkla — çiziliyor; yarım bir görsel katmanı gösterilmiyor.
           coverImage: true,
+          // Kırpmanın odağı ve büyütmesi — küratör yazıyor, `null` ise
+          // ön yüz CSS varsayılanına düşüyor (bkz. şema notu).
+          coverPosition: true,
+          coverScale: true,
         },
       }),
       // "Sıralamamda 1." — `personalRank` null olanlar sona (Postgres ASC
@@ -155,6 +159,8 @@ export class SportArchiveService {
           cornerCount: true,
           firstGrandPrixYear: true,
           coverImage: true,
+          coverPosition: true,
+          coverScale: true,
         },
       }),
 

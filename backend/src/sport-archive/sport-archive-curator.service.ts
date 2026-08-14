@@ -7,6 +7,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import type {
   CreateSportMomentDto,
   FeatureF1DriverDto,
+  SetSportCoverFocusDto,
   SetSportImageDto,
   UpdateSportMomentDto,
 } from './dto/curator.dto';
@@ -56,6 +57,9 @@ export class SportArchiveCuratorService {
           slug: true,
           name: true,
           coverImage: true,
+          // Kaydırıcılar açılırken kayıtlı değeri göstersin diye
+          coverPosition: true,
+          coverScale: true,
           eras: {
             where: SportArchiveCuratorService.ALIVE,
             orderBy: [{ orderIndex: 'asc' }, { startYear: 'asc' }],
@@ -72,7 +76,14 @@ export class SportArchiveCuratorService {
       this.prisma.f1Circuit.findMany({
         where: SportArchiveCuratorService.ALIVE,
         orderBy: { orderIndex: 'asc' },
-        select: { id: true, slug: true, name: true, coverImage: true },
+        select: {
+          id: true,
+          slug: true,
+          name: true,
+          coverImage: true,
+          coverPosition: true,
+          coverScale: true,
+        },
       }),
       this.prisma.footballLegend.findMany({
         where: SportArchiveCuratorService.ALIVE,
@@ -340,6 +351,54 @@ export class SportArchiveCuratorService {
    * `POST /admin/uploads` ile zaten kendi sunucumuza inmiş oluyor; bu uç
    * yalnızca "hangi kayda ait" bağını kuruyor.
    */
+  /**
+   * Kapağın odak noktası ve büyütmesi.
+   *
+   * ⚠️ GÖRSELDEN AYRI BİR UÇ. `setImage` ile birleştirmek cazipti ama
+   * ikisi farklı zamanlarda kullanılıyor: görsel bir kez yükleniyor,
+   * odak noktası kaydırıcı sürüklendikçe defalarca kaydediliyor. Tek uç
+   * olsaydı her odak kaydında görsel adresi de gönderilmek zorunda
+   * kalırdı ve boş gönderilen bir istek görseli SİLERDİ.
+   *
+   * Boş `position` = ortaya dön (null yazılır). `scale` verilmezse
+   * dokunulmuyor — iki alan birbirinden bağımsız kaydedilebiliyor.
+   */
+  async setCoverFocus(dto: SetSportCoverFocusDto) {
+    const slug = dto.ref.trim();
+    const data: { coverPosition?: string | null; coverScale?: number | null } =
+      {};
+    if (dto.position !== undefined) {
+      data.coverPosition = dto.position.trim() || null;
+    }
+    if (dto.scale !== undefined) data.coverScale = dto.scale;
+
+    if (dto.target === 'CLUB_COVER') {
+      const club = await this.prisma.footballClub.findFirst({
+        where: { slug, isDeleted: false },
+        select: { id: true },
+      });
+      if (!club) throw new NotFoundException('SPORT_ARCHIVE.CLUB_NOT_FOUND');
+      return this.prisma.footballClub.update({
+        where: { id: club.id },
+        data,
+        select: { slug: true, coverPosition: true, coverScale: true },
+      });
+    }
+
+    const circuit = await this.prisma.f1Circuit.findFirst({
+      where: { slug, isDeleted: false },
+      select: { id: true },
+    });
+    if (!circuit) {
+      throw new NotFoundException('SPORT_ARCHIVE.CIRCUIT_NOT_FOUND');
+    }
+    return this.prisma.f1Circuit.update({
+      where: { id: circuit.id },
+      data,
+      select: { slug: true, coverPosition: true, coverScale: true },
+    });
+  }
+
   async setImage(dto: SetSportImageDto) {
     const url = dto.url.trim() || null;
     const slug = dto.ref.trim();

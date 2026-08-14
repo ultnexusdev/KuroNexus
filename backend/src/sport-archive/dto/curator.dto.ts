@@ -235,3 +235,60 @@ export class FeatureF1DriverDto {
   @MaxLength(20000)
   narrativeEn?: string;
 }
+
+/**
+ * Kapağın ODAK NOKTASI ve BÜYÜTMESİ — /spor sayfasındaki iki bant için.
+ *
+ * ⚠️ NEDEN VAR: bant kapağı geniş bir orana kırpıyor ve görselin neresinin
+ * görüneceğine tarayıcı karar veriyordu (varsayılan ortası). Kadro
+ * fotoğraflarında yüzler üstte olduğu için ortadan kırpmak yüzleri
+ * kesiyordu (kullanıcı bildirimi, 14 Ağustos 2026).
+ *
+ * Müzik kanadındaki `UpdateMusicalActDto.bannerPosition` ile AYNI kalıp ve
+ * aynı doğrulama — iki salon aynı işi iki farklı sözleşmeyle yapmasın.
+ *
+ * Hedef yalnızca KAPAK taşıyan iki tablo. Efsane portresi bilerek dışarıda:
+ * o kare bir çerçevede duruyor ve odak sorunu yok.
+ */
+export const COVER_TARGETS = ['CLUB_COVER', 'CIRCUIT_COVER'] as const;
+
+export type SportCoverTarget = (typeof COVER_TARGETS)[number];
+
+export class SetSportCoverFocusDto {
+  @IsIn(COVER_TARGETS)
+  target!: SportCoverTarget;
+
+  /** Kulüp ya da pist slug'ı (bkz. `SetSportImageDto.ref`) */
+  @IsString()
+  @MinLength(1)
+  @MaxLength(120)
+  ref!: string;
+
+  /**
+   * CSS `background-position` — "50% 30%". Boş dize = ORTAYA DÖN (null
+   * yazılır, CSS varsayılanı geçerli olur).
+   *
+   * ⚠️ SERBEST METİN DEĞİL, KALIP ZORUNLU. Doğrulanmadan geçen bir dize
+   * doğrudan `style` niteliğine yazılıyor; kalıp hem CSS'i bozacak değeri
+   * hem de niteliğe sızacak içeriği daha yazma anında reddediyor.
+   */
+  @IsOptional()
+  @IsString()
+  @Matches(/^(\d{1,3}% \d{1,3}%)?$/, {
+    message: 'SPORT_ARCHIVE.COVER_POSITION_FORMAT',
+  })
+  position?: string;
+
+  /**
+   * Büyütme yüzdesi. 100 = kırpma kutusunu tam doldur.
+   *
+   * Alt sınır 100 çünkü daha küçüğü kutuda boşluk bırakır ve bandın
+   * altındaki zemin görünür — küratörün isteyerek yapacağı bir şey değil,
+   * kaydırıcıyı sonuna kadar çekince oluşan bir kaza olurdu.
+   */
+  @IsOptional()
+  @IsInt()
+  @Min(100)
+  @Max(300)
+  scale?: number;
+}

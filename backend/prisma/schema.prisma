@@ -1476,6 +1476,25 @@ model FootballClub {
 
   crestImage String?
   coverImage String?
+  /// Kapağın ODAK NOKTASI — CSS `background-position` değeri ("50% 30%").
+  ///
+  /// ⚠️ NEDEN GEREKLİ: /spor sayfasındaki bant kapağı geniş bant oranında
+  /// kırpıyor ve görselin neresinin görüneceğine tarayıcı karar veriyordu
+  /// (varsayılan ortası). Kadro fotoğraflarında yüzler kesiliyordu (kullanıcı bildirimi, 14 Ağustos 2026).
+  ///
+  /// Müzik kanadındaki `MusicalAct.bannerPosition` ile AYNI desen ve aynı
+  /// kalıp — iki salon aynı sorunu iki farklı biçimde çözmesin.
+  ///
+  /// Renk DEĞİL konum tutuluyor, yani kural 16 ihlali yok: düzen değeri,
+  /// temadan bağımsız. `null` ise CSS varsayılanı geçerli — mevcut
+  /// kayıtların görünümü değişmiyor.
+  coverPosition String?
+
+  /// Kapağın BÜYÜTME oranı, yüzde (100 = kırpma kutusunu tam doldur).
+  /// 100'ün altına inilemiyor: daha küçük değer kutuda boşluk bırakır ve
+  /// bandın altındaki zemin görünür. Üst sınır 300; ötesi görseli
+  /// tanınmaz hâle getiriyor. `null` ise 100 gibi davranır.
+  coverScale Int?
   /// Kulübün gerçek dünya renkleri — VERİ, tema token'ı değil
   /// (DriverStanding.teamColor ile aynı gerekçe)
   primaryColor   String?
@@ -2021,6 +2040,25 @@ model F1Circuit {
 
   coverImage  String?
   accentColor String?
+  /// Kapağın ODAK NOKTASI — CSS `background-position` değeri ("50% 30%").
+  ///
+  /// ⚠️ NEDEN GEREKLİ: /spor sayfasındaki bant kapağı geniş bant oranında
+  /// kırpıyor ve görselin neresinin görüneceğine tarayıcı karar veriyordu
+  /// (varsayılan ortası). Pist fotoğrafının çerçevesi yanlış yerden kesiliyordu (kullanıcı bildirimi, 14 Ağustos 2026).
+  ///
+  /// Müzik kanadındaki `MusicalAct.bannerPosition` ile AYNI desen ve aynı
+  /// kalıp — iki salon aynı sorunu iki farklı biçimde çözmesin.
+  ///
+  /// Renk DEĞİL konum tutuluyor, yani kural 16 ihlali yok: düzen değeri,
+  /// temadan bağımsız. `null` ise CSS varsayılanı geçerli — mevcut
+  /// kayıtların görünümü değişmiyor.
+  coverPosition String?
+
+  /// Kapağın BÜYÜTME oranı, yüzde (100 = kırpma kutusunu tam doldur).
+  /// 100'ün altına inilemiyor: daha küçük değer kutuda boşluk bırakır ve
+  /// bandın altındaki zemin görünür. Üst sınır 300; ötesi görseli
+  /// tanınmaz hâle getiriyor. `null` ise 100 gibi davranır.
+  coverScale Int?
 
   /// Anlatı — sayfanın özü. Yayın için dolu olması CHECK ile zorunlu.
   narrativeTr String? @db.Text

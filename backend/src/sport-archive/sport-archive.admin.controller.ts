@@ -12,6 +12,7 @@ import { SportArchiveCuratorService } from './sport-archive-curator.service';
 import {
   CreateSportMomentDto,
   FeatureF1DriverDto,
+  SetSportCoverFocusDto,
   SetSportImageDto,
   UpdateSportMomentDto,
 } from './dto/curator.dto';
@@ -76,6 +77,15 @@ export class SportArchiveAdminController {
   @Patch('image')
   setImage(@Body() dto: SetSportImageDto) {
     return this.curator.setImage(dto);
+  }
+
+  /**
+   * Kapağın odak noktası + büyütmesi. Görselden AYRI uç — gerekçesi
+   * `SportArchiveCuratorService.setCoverFocus` başlığında.
+   */
+  @Patch('cover-focus')
+  setCoverFocus(@Body() dto: SetSportCoverFocusDto) {
+    return this.curator.setCoverFocus(dto);
   }
 
   /** F1 sürücüsünü panteona al / çıkar */

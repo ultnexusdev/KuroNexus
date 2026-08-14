@@ -11,6 +11,25 @@
 > yapılması gereken tek iş ve açık kalan dört madde orada.
 > Ölçülen gerçekler, kesinti kaydı ve dersler de aynı dosyada.
 >
+> ✅ **DEPLOY ÇÖKMESİ KAPANDI (14 Ağustos)** — ayrıntı: `docs/deploy-duzeni.md`.
+> "Backend ve frontend aynı anda deploy edilince site çöküyor" arızası
+> ölçüldü: sunucu **2 çekirdek / 3.7 GB RAM**, `concurrent builds` **2** idi.
+> İki derleme (Next.js 1.5–2.5 GB + Nest 1–1.5 GB) çalışan konteynerlerin
+> üstüne sığmıyor, OOM killer **derlemeyi değil** backend'i ya da
+> PostgreSQL'i öldürüyordu. Üç panel ayarıyla kapatıldı, **kod değişmedi**:
+> `concurrent builds → 1`; **Watch Paths** (`backend/**` / `frontend/**`);
+> health check `/health` (start period 120 — `migrate deploy` önce koşuyor).
+> Watch Paths bu depoda risksiz: iki taraf da kendi `package.json` +
+> `pnpm-lock.yaml` + `pnpm-workspace.yaml`'ına sahip, kökte paylaşılan
+> derleme girdisi yok. Ölçüm: son 40 push'un **26'sında (%65)** çift derleme
+> tamamen gereksizdi ve her gereksiz backend derlemesi `prisma migrate
+> deploy`'u boşuna yeniden koşuyordu.
+> **➡️ ALIŞKANLIK: iki taraf birlikte değiştiyse TEK push değil İKİ push** —
+> önce backend, yeşile dönsün, sonra frontend. Sıra böylece bedava geliyor.
+> ⛔ **`Dockerfile` `CMD` zinciri AYRILMADI** (devir notu §4.4 kapandı):
+> mevcut hâli sessiz bozulma yerine gürültülü duruş seçiyor ve başarısız
+> deploy'da site ayakta kalıyor. Sorun zincir değil, ne sıklıkta koştuğuydu.
+>
 > ✅ **Taksonomi canlıda KURULDU** (13 Ağustos akşamı): 17 oda + 123 alt tür,
 > EDM kaldırıldı. Düğmeye yeniden basmak gerekmiyor.
 > ⚠️ `npx prisma db seed` konteynerde ÇALIŞMIYOR (ESM/`_client`);

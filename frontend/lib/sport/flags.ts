@@ -18,6 +18,11 @@ export interface FlagBands {
   colors: string[];
   /** Şeritler dikey mi yatay mı — bayrağın kendi yönü */
   direction: "vertical" | "horizontal";
+  /**
+   * Bant payları. Verilmezse renkler EŞİT bölünür — üç renkli bayrakların
+   * çoğu için doğru olan bu. Yalnızca eşit olmayan bayraklar yazar (bkz. GB).
+   */
+  weights?: number[];
 }
 
 const FLAGS: Record<string, FlagBands> = {
@@ -34,7 +39,22 @@ const FLAGS: Record<string, FlagBands> = {
   MX: { colors: ["#006847", "#FFFFFF", "#CE1126"], direction: "vertical" },
   CA: { colors: ["#D80621", "#FFFFFF", "#D80621"], direction: "vertical" },
   JP: { colors: ["#FFFFFF", "#BC002D", "#FFFFFF"], direction: "vertical" },
-  GB: { colors: ["#012169", "#FFFFFF", "#C8102E"], direction: "vertical" },
+  /**
+   * ⚠️ UNION JACK ÜÇ EŞİT BANT DEĞİL. Öyle yazılıydı ve ekranda Hollanda/
+   * Fransa deseni çıkıyordu: aynı sayfada Hagi'nin Romanya şeridiyle BİRE BİR
+   * aynı biçim, yalnızca renkleri başka. Kullanıcı "İngiliz ama renkler
+   * uyumsuz" diye bildirdi (14 Ağustos 2026) — şikâyet biçime dairdi.
+   *
+   * Bu beş bant bayrağın ORTASINDAN alınan yatay kesit: lacivert alan, beyaz
+   * kenarlık, St George haçının kırmızı dikmesi, beyaz, lacivert. Ağırlıklar
+   * eşit değil çünkü dikme dar. Kesit bir kısaltmadır ama uydurma değil —
+   * bayrakta gerçekten o sırayla o renkler var.
+   */
+  GB: {
+    colors: ["#012169", "#FFFFFF", "#C8102E", "#FFFFFF", "#012169"],
+    weights: [3, 1, 2, 1, 3],
+    direction: "vertical",
+  },
   US: { colors: ["#3C3B6E", "#FFFFFF", "#B22234"], direction: "vertical" },
   AU: { colors: ["#012169", "#FFFFFF", "#E4002B"], direction: "vertical" },
   TR: { colors: ["#E30A17", "#FFFFFF", "#E30A17"], direction: "vertical" },
@@ -115,15 +135,38 @@ export function sportFlag(
  * kullanınca tek yere alındı. İki ayrı kopya, bir gün birinde yumuşak
  * gradient bırakma riskiydi.
  */
-export function flagGradient(bands: FlagBands): string {
+export function flagGradient(
+  bands: FlagBands,
+  axis: "own" | "across" = "own",
+): string {
+  const weights = bands.weights ?? bands.colors.map(() => 1);
+  const total = weights.reduce((sum, w) => sum + w, 0);
+
+  let acc = 0;
   const stops = bands.colors
     .map((color, i) => {
-      const from = (i / bands.colors.length) * 100;
-      const to = ((i + 1) / bands.colors.length) * 100;
+      const from = (acc / total) * 100;
+      acc += weights[i] ?? 1;
+      const to = (acc / total) * 100;
       return `${color} ${from}%, ${color} ${to}%`;
     })
     .join(", ");
-  return `linear-gradient(${
-    bands.direction === "vertical" ? "to right" : "to bottom"
-  }, ${stops})`;
+
+  /**
+   * `axis: "across"` — şeridi bayrağın kendi yönüne DEĞİL kabın uzun kenarına
+   * çizer. Panteon levhasındaki şerit **3 piksel** yüksekliğinde; orada
+   * `to bottom` çizilen Almanya bayrağı üç bandı 1'er piksele eziyor ve
+   * okunmaz bir çamura dönüşüyordu (kullanıcı bildirimi, 14 Ağustos 2026).
+   *
+   * 3 pikselde bayrağın YÖNÜ zaten temsil edilemez, RENKLERİ edilebilir; o
+   * yüzden ince şeritte yön feda ediliyor, renk sırası korunuyor. Yüksekliği
+   * olan yerler (pist hero'su) varsayılan `"own"` ile kendi yönünü çizmeye
+   * devam eder — bu yüzden parametre, kalıcı değişiklik değil.
+   */
+  const direction =
+    axis === "across" || bands.direction === "vertical"
+      ? "to right"
+      : "to bottom";
+
+  return `linear-gradient(${direction}, ${stops})`;
 }

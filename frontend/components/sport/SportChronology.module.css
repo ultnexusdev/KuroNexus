@@ -87,44 +87,105 @@
   border-bottom-color: var(--f1-red);
 }
 
-.nudges {
-  display: flex;
-  gap: 0.4rem;
+/* ---- Sahne: şerit + iki kenar oku ----
+   Okların konum kabı. Şeridin İÇİNE konamazlar — kaydırılan içerikle
+   birlikte kayar, ekrandan çıkarlardı. */
+.stage {
+  position: relative;
+  min-width: 0;
 }
 
-.nudge {
+/* Kenar oku: şeridin solunda ve sağında, düşeyde ortalı.
+
+   Kaydırma çubuğu gizlendiği için (bkz. .track) şeridin devam ettiğini
+   söyleyen tek görünür ipucu bu. Dolgusu var — altından kart geçiyor ve
+   çerçevesiz bir ok fotoğrafın üstünde kayboluyordu. */
+.edge {
+  position: absolute;
+  top: 50%;
+  translate: 0 -50%;
+  z-index: 3;
   appearance: none;
-  background: none;
-  border: 1px solid var(--sport-line);
-  color: var(--text-secondary);
   width: var(--touch-min);
   height: var(--touch-min);
   display: grid;
   place-items: center;
+  border: 1px solid var(--sport-line);
+  background: var(--surface);
+  color: var(--text-secondary);
   font-size: 1rem;
   cursor: pointer;
-  transition: border-color 220ms ease, color 220ms ease;
+  transition: opacity 240ms ease, border-color 220ms ease, color 220ms ease;
 }
 
-.nudge:hover {
+.edge[data-side="start"] {
+  inset-inline-start: 0.35rem;
+}
+
+.edge[data-side="end"] {
+  inset-inline-end: 0.35rem;
+}
+
+.edge:hover {
   border-color: var(--accent);
   color: var(--accent);
 }
 
-.nudge:focus-visible {
+.edge:focus-visible {
   outline: 2px solid var(--accent-hover);
   outline-offset: 2px;
+}
+
+/* Uca gelindi: o yöndeki ok GÖRÜNMEZ ve tıklanamaz. Sönük ama duran bir
+   ok, tıklanınca hiçbir şey yapmayan bir düğmedir. */
+.edge:disabled {
+  opacity: 0 !important;
+  pointer-events: none;
+}
+
+/* FARE: oklar durağan hâlde YOK, imleç sahneye girince beliriyor —
+   kullanıcının istediği davranış (14 Ağustos). Klavyeyle odaklanınca da
+   beliriyor, yoksa tab ile ulaşılan görünmez bir düğme kalırdı. */
+@media (hover: hover) and (pointer: fine) {
+  .edge {
+    opacity: 0;
+  }
+
+  .stage:hover .edge,
+  .stage:focus-within .edge {
+    opacity: 1;
+  }
+}
+
+/* DOKUNMATİK: hover diye bir şey yok ve kaydırma çubuğu da gizli. Oklar
+   kalıcı duruyor — parmakla kaydırma zaten çalışıyor ama şeridin devam
+   ettiğini gösteren görsel ipucu başka kalmıyor. */
+@media not all and (hover: hover) {
+  .edge {
+    opacity: 0.85;
+  }
 }
 
 /* ---- Kaydırma kabı ----
    Şerit SAYFA GÖVDESİNİ değil kendini kaydırıyor. `overscroll-behavior-x`
    olmadan şeridin sonuna gelince tarayıcı geri navigasyonunu tetikliyor. */
+/* ⚠️ KAYDIRMA ÇUBUĞU GİZLİ — yerine kenar okları kondu (kullanıcı isteği,
+   14 Ağustos 2026: 'alttaki gri kaydırma çubuğu güzel görünmüyor').
+
+   Çubuğu gizlemek bir AFFORDANCE siliyor, o yüzden yerine bir şey konmadan
+   yapılamaz. Konan üç şey: (1) kenar okları, (2) tabIndex + role=region ile
+   klavye kaydırması (zaten vardı), (3) dokunmatikte okların kalıcı olması.
+   Bu üçü kalkarsa çubuk geri gelmeli. */
 .track {
   overflow-x: auto;
   overflow-y: hidden;
   overscroll-behavior-x: contain;
-  scrollbar-width: thin;
+  scrollbar-width: none;
   min-width: 0;
+}
+
+.track::-webkit-scrollbar {
+  display: none;
 }
 
 .track:focus-visible {

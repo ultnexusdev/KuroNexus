@@ -4,7 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
 import { fetchCategories } from "@/lib/api/universes";
 import { apiUrl } from "@/lib/api/client";
-import { fetchSportOverview, pick } from "@/lib/api/sport-archive";
+import { fetchSportOverview } from "@/lib/api/sport-archive";
 import { readIsAdmin } from "@/lib/auth/session";
 import { hallLabel, hallNumber } from "@/lib/halls";
 import { legendHref, sportHref } from "@/lib/sport/routes";
@@ -295,7 +295,6 @@ export default async function SportLandingPage({
               // Küratörün ülke kodu yoksa uyruk sözcüğünden aranıyor —
               // senkronizasyon sürücüye kod yazmıyor (bkz. flags.ts)
               const bands = sportFlag(person.countryCode, person.nationality);
-              const epithet = pick(locale, person.epithetTr, person.epithetEn);
               /**
                * ⚠️ KÜNYESİ EKSİK COMMONS PORTRESİ ÇİZİLMEZ.
                * Lisans + sanatçı + kaynak üçü birden dolu değilse görsel
@@ -317,6 +316,13 @@ export default async function SportLandingPage({
                   <Link
                     href={legendHref(person.world, person.slug)}
                     className={styles.faceLink}
+                    /* Künye filigranı bağlantının İÇİNDE (çerçeveye
+                       gömülü) — açık ad verilmezse ekran okuyucu
+                       bağlantıyı 'OGL 3 · Number 10 LEWIS HAMILTON' diye
+                       okur. Ölçüldü, 14 Ağustos. Künye DOM'da kalıyor
+                       (lisans şartı), yalnızca bağlantının adı olmaktan
+                       çıkıyor. */
+                    aria-label={person.name}
                   >
                     <span className={styles.frame} data-world={person.world}>
                       {showPortrait ? (
@@ -343,48 +349,36 @@ export default async function SportLandingPage({
                         <span
                           className={styles.faceFlag}
                           aria-hidden
-                          style={{ backgroundImage: flagGradient(bands) }}
+                          style={{
+                            backgroundImage: flagGradient(bands, "across"),
+                          }}
                         />
+                      ) : null}
+
+                      {/* Künye artık kartın altında değil GÖRSELİN ÜSTÜNDE,
+                          filigran gibi. Kart "sadece ad" olsun diye taşındı
+                          (kullanıcı isteği) ama SİLİNEMEZ: CC BY / OGL atfı
+                          lisans şartı. Bağlantı DEĞİL düz metin — çerçeve
+                          zaten bir <a> içinde ve iç içe iki bağlantı geçersiz
+                          HTML olurdu. Kaynağa giden bağlantılı tam künye
+                          efsanenin kendi sayfasında duruyor. */}
+                      {showPortrait && creditComplete ? (
+                        <span className={styles.credit}>
+                          {person.portraitLicense}
+                          {" · "}
+                          {person.portraitAuthor}
+                        </span>
                       ) : null}
                     </span>
 
+                    {/* Levhada YALNIZCA AD. Lakap, kulüp ve yıl aralığı
+                        efsanenin kendi sayfasında zaten var; panteon bir
+                        künye listesi değil, kapanış duvarı. */}
                     <span className={`${shell.display} ${styles.faceName}`}>
                       {person.name}
                     </span>
-                    {epithet ? (
-                      <span className={styles.faceEpithet}>{epithet}</span>
-                    ) : null}
-                    <span className={`${shell.data} ${styles.faceMeta}`}>
-                      {[
-                        person.subject,
-                        person.championships
-                          ? t("pantheon.titles", { n: person.championships })
-                          : null,
-                        person.yearsFrom
-                          ? `${person.yearsFrom}–${person.yearsTo ?? ""}`
-                          : null,
-                      ]
-                        .filter(Boolean)
-                        .join(" · ")}
-                    </span>
                   </Link>
 
-                  {/* Künye görselin ALTINDA ve bağlantının DIŞINDA: kaynağa
-                      giden bağlantı, efsane sayfasına giden bağlantının içine
-                      girerse iç içe iki <a> olur. */}
-                  {showPortrait && creditComplete ? (
-                    <p className={styles.credit}>
-                      <a
-                        href={person.portraitSourceUrl as string}
-                        target="_blank"
-                        rel="noopener noreferrer nofollow"
-                      >
-                        {person.portraitLicense}
-                      </a>
-                      {" · "}
-                      {person.portraitAuthor}
-                    </p>
-                  ) : null}
                 </li>
               );
             })}

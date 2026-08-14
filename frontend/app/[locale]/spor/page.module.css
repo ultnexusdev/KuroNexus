@@ -529,36 +529,51 @@
   color: var(--gs-gold);
 }
 
-.faceEpithet {
-  font-size: 0.9375rem;
-  line-height: 1.45;
-  color: var(--text-secondary);
-}
-
-.faceMeta {
-  opacity: 0.7;
-}
+/* .faceEpithet ve .faceMeta 14 Ağustos'ta kaldırıldı: levhada yalnızca ad
+   kalıyor, lakap/kulüp/yıl efsanenin kendi sayfasında zaten var. */
 
 /* Portre künyesi — YASAL ZORUNLULUK, süs değil. Commons görsellerinin çoğu
    CC BY / CC BY-SA ve kaynak + fotoğrafçı gösterilmek zorunda. */
+/* Künye FİLİGRAN — çerçevenin içinde, fotoğrafın sağ alt köşesinde.
+
+   Levha 'yalnızca ad' olsun diye kartın altından buraya taşındı; SİLİNMEDİ,
+   çünkü CC BY / OGL atfı bir tasarım tercihi değil LİSANS ŞARTI. Yani
+   gizlenmiyor, sessizleştiriliyor: durağan hâlde okunur ama dikkat çekmez,
+   imleç kartın üstüne gelince tam okunur olur.
+
+   İki satırla sınırlı: Schumacher portresinin künyesi üç satır sürüyor ve
+   kırpılmazsa fotoğrafın altını kaplıyordu.
+
+   ⚠️ RENK GEREKÇESİ: --text-primary iki temada da açık renk (bu sitede açık
+   tema bilinçli olarak YOK), yani fotoğrafın üstünde her koşulda okunur.
+   Gölge bir tema rengi değil OKUNURLUK aracı — .bandArt'taki #000 maskesiyle
+   aynı kategori, kural 16 kapsamı dışında. */
 .credit {
-  margin: 0;
+  position: absolute;
+  inset-inline: 0.5rem;
+  bottom: 0.55rem;
+  z-index: 2;
   font-family: var(--font-mono);
-  font-size: 0.58rem;
-  letter-spacing: 0.06em;
-  line-height: 1.5;
-  text-align: center;
-  color: var(--text-muted);
-  opacity: 0.7;
+  font-size: 0.5rem;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  text-align: right;
+  color: var(--text-primary);
+  opacity: 0.34;
+  text-shadow: 0 1px 3px rgb(0 0 0 / 0.85);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow-wrap: anywhere;
+  pointer-events: none;
+  transition: opacity 300ms ease;
 }
 
-.credit a {
-  color: inherit;
-}
-
-.credit a:hover {
-  color: var(--accent);
+.faceLink:hover .credit,
+.faceLink:focus-visible .credit {
+  opacity: 0.8;
 }
 
 /* Küratör kuşağı — yalnızca yönetici görüyor */

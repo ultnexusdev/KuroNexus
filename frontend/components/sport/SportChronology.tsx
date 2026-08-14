@@ -53,6 +53,9 @@ export function SportChronology({ entries }: { entries: SportChronologyEntry[] }
   const [world, setWorld] = useState<World>("all");
   const trackRef = useRef<HTMLDivElement | null>(null);
   const [overflows, setOverflows] = useState(false);
+  // Şeridin uçları: başa/sona gelindiğinde o yöndeki ok sönüyor.
+  const [atStart, setAtStart] = useState(true);
+  const [atEnd, setAtEnd] = useState(false);
 
   const visible = useMemo(
     () => (world === "all" ? entries : entries.filter((e) => e.world === world)),
@@ -92,7 +95,12 @@ export function SportChronology({ entries }: { entries: SportChronologyEntry[] }
   const measure = useCallback(() => {
     const el = trackRef.current;
     if (!el) return;
-    setOverflows(el.scrollWidth > el.clientWidth + 4);
+    const slack = el.scrollWidth - el.clientWidth;
+    setOverflows(slack > 4);
+    // 2px tolerans: tarayıcılar kesirli kaydırma değeri döndürüyor ve tam
+    // sona gelindiğinde scrollLeft sondan bir tık eksik kalabiliyor.
+    setAtStart(el.scrollLeft <= 2);
+    setAtEnd(el.scrollLeft >= slack - 2);
   }, []);
 
   useEffect(() => {
@@ -140,29 +148,11 @@ export function SportChronology({ entries }: { entries: SportChronologyEntry[] }
             </button>
           ))}
         </div>
-
-        {overflows ? (
-          <div className={styles.nudges}>
-            <button
-              type="button"
-              className={styles.nudge}
-              onClick={() => nudge(-1)}
-              aria-label={t("chronology.prev")}
-            >
-              <span aria-hidden>←</span>
-            </button>
-            <button
-              type="button"
-              className={styles.nudge}
-              onClick={() => nudge(1)}
-              aria-label={t("chronology.next")}
-            >
-              <span aria-hidden>→</span>
-            </button>
-          </div>
-        ) : null}
       </div>
 
+      {/* SAHNE: şerit + iki kenar oku. Konumlanma kabı burası — oklar
+          şeridin İÇİNDE olamaz, kaydırılan içerikle birlikte kayarlardı. */}
+      <div className={styles.stage}>
       {/* `tabIndex` + `role="region"`: klavye kullanıcısı şeridi ok tuşlarıyla
           kaydırabilsin. Kaydırılabilir bir kabın odaklanabilir olmaması,
           içeriğin klavyeyle ulaşılamaz kalması demek. */}
@@ -263,6 +253,39 @@ export function SportChronology({ entries }: { entries: SportChronologyEntry[] }
             );
           })}
         </ol>
+      </div>
+
+        {/* Kenar okları. Kaydırma çubuğu gizlendiği için (bkz. .track)
+            şeridin devam ettiğini SÖYLEYEN şey bunlar — süs değil, tek
+            görünür ipucu. O yüzden dokunmatikte kalıcı, farede imleç
+            sahneye girince beliriyor (bkz. modül CSS'i).
+
+            Uca gelince o yöndeki ok `disabled`: görünür duran ama hiçbir
+            şey yapmayan düğme, bozuk düğmedir. */}
+        {overflows ? (
+          <>
+            <button
+              type="button"
+              className={styles.edge}
+              data-side="start"
+              onClick={() => nudge(-1)}
+              disabled={atStart}
+              aria-label={t("chronology.prev")}
+            >
+              <span aria-hidden>←</span>
+            </button>
+            <button
+              type="button"
+              className={styles.edge}
+              data-side="end"
+              onClick={() => nudge(1)}
+              disabled={atEnd}
+              aria-label={t("chronology.next")}
+            >
+              <span aria-hidden>→</span>
+            </button>
+          </>
+        ) : null}
       </div>
     </div>
   );

@@ -1568,8 +1568,6 @@
       "loading": "Panel yükleniyor…",
       "loadError": "Küratör verisi alınamadı.",
       "addMoment": "Zaman şeridine kayıt ekle",
-      "target": "Hangi dünyanın kaydı",
-      "targetPlaceholder": "Seç…",
       "year": "Yıl",
       "kind": "Tür",
       "kinds": {
@@ -1631,7 +1629,18 @@
       "focusReset": "Ortaya döndür",
       "focusSaved": "Kırpma kaydedildi.",
       "focusError": "Kırpma kaydedilemedi.",
-      "focusPreview": "Önizleme"
+      "focusPreview": "Önizleme",
+      "lane": "Hangi şeritte görünsün",
+      "lanePlaceholder": "Seç…",
+      "laneFootball": "Futbol (üst şerit)",
+      "laneF1": "Formula 1 (alt şerit)",
+      "laneHint": "Kayıt bu şeride giriyor. Bir döneme ya da piste bağlamak gerekmiyor.",
+      "month": "Ay (isteğe bağlı)",
+      "day": "Gün (isteğe bağlı)",
+      "dateUnknown": "Belirtilmedi",
+      "labelLine": "Alt satır (isteğe bağlı)",
+      "labelPlaceholder": "GOAT, Silverstone, Galatasaray…",
+      "labelHint": "Açıklamanın altında küçük harflerle görünür. Boş bırakırsan o satır hiç çizilmez. Daha önce yazdıkların öneri olarak çıkar."
     },
     "ledger": {
       "races": "yarış",

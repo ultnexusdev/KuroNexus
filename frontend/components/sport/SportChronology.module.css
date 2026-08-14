@@ -381,6 +381,18 @@
   color: var(--text-primary);
 }
 
+/* Yılın İÇİ — "20 Ekim". Yılın kendisi üstteki dev puntoda; bu satır
+   yalnızca aynı yıla düşen iki kaydı ayırt ettiriyor (kullanıcı isteği).
+   Ay bilinmiyorsa hiç çizilmiyor. */
+.cardDate {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-top: -0.05rem;
+}
+
 /* ---- Arşiv fotoğrafı şeridi ----
    Sinematik oran (≈2.2:1) bilinçli: kare bir küçük resim "kart" hissi
    verirdi. Şerit, fotoğrafın KESİLMİŞ bir parçası gibi okunuyor — arşiv
@@ -388,7 +400,22 @@
 
    Ton kanadın geri kalanıyla aynı: arşivden çıkmış gibi soluk giriyor,
    hover'da hayata dönüyor. Portrelerdeki muamelenin aynısı. */
+/* ⚠️ GÖRSEL ARTIK KIRPILMIYOR — `cover` değil `contain` (kullanıcı isteği,
+   14 Ağustos 2026: 'görselleri mevcut kutu boyutuna sığacak şekilde).
+
+   `cover` kutuyu dolduruyordu ama fotoğrafın kenarlarını kesiyordu; geniş
+   bir afişten yalnızca ortadaki şerit görünüyordu. `contain` fotoğrafın
+   TAMAMINI gösteriyor, karşılığında kutuda boşluk kalıyor.
+
+   O boşluk düz bir renkle DOLDURULMUYOR: aynı fotoğrafın bulanık,
+   koyulaştırılmış bir kopyası zemine seriliyor (`--shot`, bileşenden
+   geliyor). Böylece dolgu her kartta o fotoğrafın kendi tonunu alıyor —
+   sabit bir gri, açık renkli bir afişin yanında delik gibi duruyordu.
+
+   `inset: -12%`: blur kenarlarda saydamlaşıyor ve kutunun kenarında
+   soluk bir çerçeve bırakıyordu; zemini taşırarak o kenar kırpılıyor. */
 .cardArt {
+  position: relative;
   display: block;
   height: var(--art-h);
   overflow: hidden;
@@ -397,10 +424,22 @@
   margin-bottom: 0.2rem;
 }
 
+.cardArt::before {
+  content: "";
+  position: absolute;
+  inset: -12%;
+  background-image: var(--shot);
+  background-size: cover;
+  background-position: center;
+  filter: blur(14px) grayscale(0.7) brightness(0.4) saturate(0.75);
+}
+
 .cardImg {
+  position: relative;
+  z-index: 1;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
   filter: grayscale(0.6) contrast(1.08) brightness(0.78);
   transition: filter 420ms ease;
@@ -427,8 +466,10 @@
   overflow: hidden;
 }
 
-/* Kaydın SAHİBİ — "1905 · Kuruluş" kimin kuruluşu olduğunu söylemiyordu.
-   Başlıktan farklı tipografi: bu bir künye, başlığın devamı değil. */
+/* Küratörün yazdığı serbest satır. Eskiden kulübün/pistin adından
+   TÜRETİLİYORDU; artık ne yazılacağına küratör karar veriyor ('GOAT',
+   'Silverstone', ya da hiç). Başlıktan farklı tipografi: bu bir künye,
+   başlığın devamı değil. */
 .cardSubject {
   font-family: var(--font-mono);
   font-size: 0.66rem;
@@ -444,6 +485,14 @@
 
 .item[data-world="f1"] .card:hover .cardSubject {
   color: var(--f1-white);
+}
+
+/* Kart artık hiçbir yere gitmiyor (bkz. bileşen notu): imleç işaretçiye
+   dönmemeli, yoksa tıklanabilir olduğunu söyleyip hiçbir şey yapmaz.
+   Hover tonlaması DURUYOR — fotoğrafın canlanması bir bağlantı vaadi
+   değil, okunurluk. */
+.card[data-static] {
+  cursor: default;
 }
 
 /* ---- Dar ekran ----

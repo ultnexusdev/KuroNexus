@@ -1568,8 +1568,6 @@
       "loading": "Loading panel…",
       "loadError": "Could not load curator data.",
       "addMoment": "Add an entry to the timeline",
-      "target": "Which world it belongs to",
-      "targetPlaceholder": "Choose…",
       "year": "Year",
       "kind": "Kind",
       "kinds": {
@@ -1631,7 +1629,18 @@
       "focusReset": "Recentre",
       "focusSaved": "Crop saved.",
       "focusError": "Could not save the crop.",
-      "focusPreview": "Preview"
+      "focusPreview": "Preview",
+      "lane": "Which lane",
+      "lanePlaceholder": "Choose…",
+      "laneFootball": "Football (upper lane)",
+      "laneF1": "Formula 1 (lower lane)",
+      "laneHint": "The entry goes into this lane. It does not need to belong to an era or a circuit.",
+      "month": "Month (optional)",
+      "day": "Day (optional)",
+      "dateUnknown": "Not given",
+      "labelLine": "Sub-line (optional)",
+      "labelPlaceholder": "GOAT, Silverstone, Galatasaray…",
+      "labelHint": "Shown in small caps under the description. Leave it empty and the line is not drawn at all. Labels you used before appear as suggestions."
     },
     "ledger": {
       "races": "races",

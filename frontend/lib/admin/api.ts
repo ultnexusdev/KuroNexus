@@ -1529,23 +1529,38 @@ export interface SportCuratorContext {
     id: string;
     world: "football" | "f1";
     year: number;
+    month: number | null;
+    day: number | null;
     titleTr: string;
-    subject: string;
+    /** Küratörün yazdığı serbest satır (türetilmiş DEĞİL) */
+    label: string | null;
     imageUrl: string | null;
     isPublished: boolean;
     isHighlight: boolean;
   }>;
+  /**
+   * Etiket ÖNERİLERİ — daha önce kullanılmış değerlerden türetiliyor.
+   * Ayrı bir sözlük tablosu yok: yazılan etiket anında öneri oluyor,
+   * son kayıt silinince kendiliğinden kayboluyor.
+   */
+  labels: string[];
 }
 
 export interface CreateSportMomentBody {
+  /** Kaydın gireceği ŞERİT. Artık dönem/pist seçmek gerekmiyor. */
   world: "football" | "f1";
-  /** `football` iken zorunlu */
+  /** İsteğe bağlı bağ — ileride sayfaya bağlamak için (bkz. DTO notu) */
   eraId?: string;
-  /** `f1` iken zorunlu */
   circuitId?: string;
   year: number;
+  /** İsteğe bağlı; aynı yıla düşen iki kaydı ayırmak için */
+  month?: number;
+  day?: number;
   titleTr: string;
   titleEn?: string;
+  /** Açıklamanın altındaki serbest satır — boşsa çizilmiyor */
+  labelTr?: string;
+  labelEn?: string;
   narrativeTr?: string;
   kind?: string;
   isHighlight?: boolean;

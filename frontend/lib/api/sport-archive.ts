@@ -237,12 +237,22 @@ export interface SportChronologyEntry {
   titleTr: string;
   titleEn: string | null;
   /**
-   * Kaydın SAHİBİ — kulüp ya da pist adı. "1905 · Kuruluş" kimin kuruluşu
-   * olduğunu söylemiyordu; ayrı alan olmasının sebebi ön yüzün onu başlıktan
-   * farklı bir tipografiyle yazması ve süzgecin de buradan okuyabilmesi.
+   * Kartın küçük alt satırı — KÜRATÖRÜN YAZDIĞI serbest metin.
+   *
+   * Eskiden kulübün/pistin adından türetiliyordu ve F1 şeridinin her
+   * kaydında 'MONZA' yazıyordu (kullanıcı bildirimi, 14 Ağustos 2026).
+   * Boş bırakılabilir; boşsa kartta o satır hiç çizilmiyor.
    * Eski backend yanıtında YOK olabilir.
    */
-  subject?: string | null;
+  labelTr?: string | null;
+  labelEn?: string | null;
+  /**
+   * Yılın içindeki gün — ikisi de isteğe bağlı ve birbirinden bağımsız:
+   * yalnızca yıl / yıl+ay / tam tarih. Bilinmeyen günü uydurmamak için tek
+   * bir tarih alanı kullanılmıyor (gerekçe şemada).
+   */
+  month?: number | null;
+  day?: number | null;
   /**
    * Kartın üstündeki arşiv fotoğrafı şeridi. Boşsa şerit çizilmiyor ve kart
    * kısalıyor — kartlar eksene yaslandığı için farklı yükseklikler tırtıklı

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import {
   createSportMoment,
   deleteSportMoment,
@@ -100,23 +100,42 @@ export function SportCurator() {
   );
 }
 
+/**
+ * Ay numarası → ayın adı. Tek yerde, çünkü hem kayıt formu (açılır liste)
+ * hem mevcut kayıtlar listesi (künye satırı) aynı adı yazıyor.
+ *
+ * `Intl` kullanılıyor, elde yazılmış 12 aylık dizi DEĞİL: dizi ikinci dilde
+ * ikinci bir çeviri anahtarı kümesi demek olurdu ve tarayıcı bu adları
+ * zaten doğru biliyor. `timeZone: "UTC"` şart — yereli UTC'nin gerisinde
+ * olan bir tarayıcıda ayın 1'i bir önceki aya kayıyor.
+ */
+function ayAdi(locale: string, month: number): string {
+  return new Intl.DateTimeFormat(locale, {
+    month: "long",
+    timeZone: "UTC",
+  }).format(new Date(Date.UTC(2000, month - 1, 1)));
+}
+
 /* ══════════════════════════════════════════════════════════════════
    1 · AN EKLE
    ══════════════════════════════════════════════════════════════════ */
 
 /**
- * Hedef seçimi TEK AÇILIR LİSTE.
+ * KAYIT EKLEME — iki şerit, serbest etiket, kısmi tarih.
  *
- * "Önce dünya seç, sonra kulüp seç, sonra dönem seç" üç adımlık bir sihirbaz
- * olurdu; elde iki dünya ve dört hedef varken bu, bir tıklamayı üçe çıkarmak
- * demek. Liste doğrudan hedefleri yazıyor:
+ * ⚠️ ESKİDEN DÖNEM/PİST SEÇTİRİYORDU. Liste şöyleydi:
  *
  *   Galatasaray › Kuruluş ve okul (1905–1959)
- *   Galatasaray › Ali Sami Yen yılları (1964–1995)
- *   Monza  (Formula 1)
+ *   Monza · Formula 1
  *
- * Değer `world:id` biçiminde kodlanıyor; hangi tabloya yazılacağı seçimin
- * kendisinden okunuyor.
+ * Bu, döneme sığmayan kaydı EKLENEMEZ yapıyordu — 2026'da Messi'nin dünya
+ * kupasının hiçbir Galatasaray dönemiyle ilgisi yok — ve Formula 1'i tek
+ * bir pistin adıyla temsil ediyordu (kullanıcı bildirimi, 14 Ağustos 2026:
+ * 'Monza sadece bir pist, dünyanın tamamı gibi görmeyelim').
+ *
+ * Artık soru tek: kayıt HANGİ ŞERİTTE görünecek — üstte futbol mu, altta
+ * Formula 1 mi. Döneme/piste bağlamak ileride tek tek yapılacak ('bu
+ * tarihi bu sayfaya bağla'); bağ alanları API'de duruyor, arayüzü yok.
  */
 function MomentForm({
   context,
@@ -126,9 +145,15 @@ function MomentForm({
   onDone: () => void;
 }) {
   const t = useTranslations("sportArchive.curator");
-  const [target, setTarget] = useState("");
+  const locale = useLocale();
+  const [world, setWorld] = useState<"" | "football" | "f1">("");
   const [year, setYear] = useState("");
+  /** Ay ve gün AYRI ve ikisi de isteğe bağlı — kısmi tarih (bkz. şema) */
+  const [month, setMonth] = useState("");
+  const [day, setDay] = useState("");
   const [titleTr, setTitleTr] = useState("");
+  /** Açıklamanın altındaki serbest satır — 'GOAT' gibi */
+  const [label, setLabel] = useState("");
   const [narrativeTr, setNarrativeTr] = useState("");
   const [kind, setKind] = useState("MILESTONE");
   /** Yüklenmiş fotoğrafın yerel adresi — kayıtla birlikte gidiyor */
@@ -138,39 +163,32 @@ function MomentForm({
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
 
-  const targets: Array<{ value: string; label: string; world: "football" | "f1" }> =
-    [
-      ...context.clubs.flatMap((club) =>
-        club.eras.map((era) => ({
-          value: `football:${era.id}`,
-          world: "football" as const,
-          label: `${club.name} › ${era.titleTr} (${era.startYear}–${era.endYear ?? ""})`,
-        })),
-      ),
-      ...context.circuits.map((circuit) => ({
-        value: `f1:${circuit.id}`,
-        world: "f1" as const,
-        label: `${circuit.name} · Formula 1`,
-      })),
-    ];
-
-  const selected = targets.find((item) => item.value === target);
+  /**
+   * İki şerit. Sıra ekrandaki sırayla aynı: 'Hepsi' görünümünde futbol
+   * eksenin ÜSTÜNDE, Formula 1 ALTINDA duruyor.
+   */
+  const lanes: Array<{ value: "football" | "f1"; label: string }> = [
+    { value: "football", label: t("laneFootball") },
+    { value: "f1", label: t("laneF1") },
+  ];
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
-    if (!selected) return;
+    if (!world) return;
 
     setBusy(true);
     setError(null);
     setDone(false);
     try {
-      const [world, id] = selected.value.split(":");
       await createSportMoment({
-        world: world === "f1" ? "f1" : "football",
-        eraId: world === "football" ? id : undefined,
-        circuitId: world === "f1" ? id : undefined,
+        world,
         year: Number(year),
+        // Boş bırakılan alan GÖNDERİLMİYOR: 0 göndermek 'ocak ayı' ya da
+        // 'ayın sıfırıncı günü' demek olurdu.
+        month: month ? Number(month) : undefined,
+        day: day ? Number(day) : undefined,
         titleTr: titleTr.trim(),
+        labelTr: label.trim() || undefined,
         narrativeTr: narrativeTr.trim() || undefined,
         kind: world === "football" ? kind : undefined,
         imageUrl: imageUrl || undefined,
@@ -180,7 +198,10 @@ function MomentForm({
         isPublished: true,
       });
       setYear("");
+      setMonth("");
+      setDay("");
       setTitleTr("");
+      setLabel("");
       setNarrativeTr("");
       setImageUrl("");
       setDone(true);
@@ -193,7 +214,7 @@ function MomentForm({
   }
 
   const valid =
-    selected != null &&
+    world !== "" &&
     titleTr.trim().length > 0 &&
     /^\d{4}$/.test(year.trim());
 
@@ -202,20 +223,23 @@ function MomentForm({
       <h3 className={styles.blockTitle}>{t("addMoment")}</h3>
 
       <label className={styles.field}>
-        <span className={styles.label}>{t("target")}</span>
+        <span className={styles.label}>{t("lane")}</span>
         <select
           className={styles.select}
-          value={target}
-          onChange={(event) => setTarget(event.target.value)}
+          value={world}
+          onChange={(event) =>
+            setWorld(event.target.value as "" | "football" | "f1")
+          }
           required
         >
-          <option value="">{t("targetPlaceholder")}</option>
-          {targets.map((item) => (
+          <option value="">{t("lanePlaceholder")}</option>
+          {lanes.map((item) => (
             <option key={item.value} value={item.value}>
               {item.label}
             </option>
           ))}
         </select>
+        <span className={styles.note}>{t("laneHint")}</span>
       </label>
 
       <div className={styles.row}>
@@ -232,10 +256,47 @@ function MomentForm({
           />
         </label>
 
-        {/* An türü YALNIZCA futbolda anlamlı: F1Moment'te `kind` alanı yok.
-            F1 hedefi seçiliyken alanı göstermek, kaydedilmeyecek bir veri
-            sormak olurdu. */}
-        {selected?.world === "football" ? (
+        {/* AY ve GÜN isteğe bağlı. Boş bırakılırsa kayıt yalnızca yılıyla
+            duruyor — bilinmeyen günü uydurmuyoruz. Aynı yıla düşen iki
+            kaydı ayırmak için var (kullanıcı isteği, 14 Ağustos 2026). */}
+        <label className={styles.field} style={{ maxWidth: "10rem" }}>
+          <span className={styles.label}>{t("month")}</span>
+          <select
+            className={styles.select}
+            value={month}
+            onChange={(event) => setMonth(event.target.value)}
+          >
+            <option value="">{t("dateUnknown")}</option>
+            {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+              <option key={m} value={m}>
+                {ayAdi(locale, m)}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        {/* Ay seçilmeden gün sorulmuyor: '20' tek başına hangi ayın 20'si
+            olduğunu söylemiyor. */}
+        {month ? (
+          <label className={styles.field} style={{ maxWidth: "6rem" }}>
+            <span className={styles.label}>{t("day")}</span>
+            <select
+              className={styles.select}
+              value={day}
+              onChange={(event) => setDay(event.target.value)}
+            >
+              <option value="">{t("dateUnknown")}</option>
+              {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
+
+        {/* An türü YALNIZCA futbolda anlamlı: F1Moment'te `kind` alanı yok. */}
+        {world === "football" ? (
           <label className={styles.field}>
             <span className={styles.label}>{t("kind")}</span>
             <select
@@ -271,6 +332,30 @@ function MomentForm({
           placeholder={t("titlePlaceholder")}
           required
         />
+      </label>
+
+      {/* ETİKET — açıklamanın altındaki küçük satır.
+
+          `list` ile öneriliyor ama SERBEST metin: kullanıcı 'listede yoksa
+          kendim oluşturayım' dedi. `<datalist>` tam olarak bunu yapıyor —
+          öneri sunar, yazmayı engellemez. Öneriler daha önce kullanılmış
+          etiketlerden geliyor, ayrı bir sözlük yok. */}
+      <label className={styles.field}>
+        <span className={styles.label}>{t("labelLine")}</span>
+        <input
+          className={styles.input}
+          list="sport-moment-labels"
+          value={label}
+          maxLength={60}
+          onChange={(event) => setLabel(event.target.value)}
+          placeholder={t("labelPlaceholder")}
+        />
+        <datalist id="sport-moment-labels">
+          {context.labels.map((item) => (
+            <option key={item} value={item} />
+          ))}
+        </datalist>
+        <span className={styles.note}>{t("labelHint")}</span>
       </label>
 
       <label className={styles.field}>
@@ -354,6 +439,7 @@ function MomentList({
   onDone: () => void;
 }) {
   const t = useTranslations("sportArchive.curator");
+  const locale = useLocale();
   const [openId, setOpenId] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
 
@@ -384,7 +470,18 @@ function MomentList({
               <span className={styles.momentYear}>{moment.year}</span>
               <span className={styles.momentTitle}>{moment.titleTr}</span>
               <span className={styles.momentSubject}>
-                {moment.subject}
+                {/* Tarihin İÇİ ve küratörün etiketi. Ay yoksa hiçbiri
+                    yazılmıyor — bilinmeyen günü uydurmuyoruz. */}
+                {[
+                  moment.month
+                    ? [moment.day, ayAdi(locale, moment.month)]
+                        .filter(Boolean)
+                        .join(" ")
+                    : null,
+                  moment.label,
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
                 {moment.imageUrl ? ` · ${t("hasImage")}` : ""}
                 {!moment.isPublished ? ` · ${t("draft")}` : ""}
               </span>

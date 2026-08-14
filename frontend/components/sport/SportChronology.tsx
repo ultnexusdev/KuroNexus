@@ -9,13 +9,34 @@ import {
   type CSSProperties,
 } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Link } from "@/lib/i18n/navigation";
 import { apiUrl } from "@/lib/api/client";
-import { sportHref } from "@/lib/sport/routes";
 import { pick, type SportChronologyEntry } from "@/lib/api/sport-archive";
 import styles from "./SportChronology.module.css";
 
 type World = "all" | "football" | "f1";
+
+/**
+ * Yılın içindeki gün — "20 Ekim" / "Ekim" / hiç.
+ *
+ * ⚠️ YIL BURADA YOK: kartın kendi satırında zaten dev puntoyla duruyor ve
+ * zaman ekseninin birimi o. Bu satır yalnızca yılın İÇİNİ söylüyor.
+ *
+ * Ay yoksa gün de yazılmıyor: '20' tek başına hangi ayın 20'si olduğunu
+ * söylemiyor. Kısmi tarihin üç hâli de (yıl / yıl+ay / tam) dürüstçe
+ * görünüyor — eksik olanı uydurmuyoruz.
+ */
+function dayMonth(
+  locale: string,
+  month?: number | null,
+  day?: number | null,
+): string | null {
+  if (!month) return null;
+  const ay = new Intl.DateTimeFormat(
+    locale === "en" ? "en-GB" : "tr-TR",
+    { month: "long", timeZone: "UTC" },
+  ).format(new Date(Date.UTC(2000, month - 1, 1)));
+  return day ? `${day} ${ay}` : ay;
+}
 
 /**
  * Zaman şeridi — YATAY, İKİ ŞERİTLİ, SÜZGEÇLİ.
@@ -179,16 +200,10 @@ export function SportChronology({ entries }: { entries: SportChronologyEntry[] }
           <span className={styles.axis} aria-hidden />
 
           {laid.map(({ entry, xMin, xSpan, gapYears }, i) => {
-            const href =
-              entry.world === "football" && entry.clubSlug
-                ? entry.eraSlug
-                  ? `${sportHref.club(entry.clubSlug)}#${entry.eraSlug}`
-                  : sportHref.club(entry.clubSlug)
-                : entry.world === "f1" && entry.circuitSlug
-                  ? sportHref.circuit(entry.circuitSlug)
-                  : null;
 
             const title = pick(locale, entry.titleTr, entry.titleEn);
+            const label = pick(locale, entry.labelTr, entry.labelEn);
+            const tarih = dayMonth(locale, entry.month, entry.day);
             // "Hepsi"de futbol üstte (0), F1 altta (1); süzgeçliyken tek şerit
             const lane = world === "all" && entry.world === "f1" ? 1 : 0;
 
@@ -203,7 +218,19 @@ export function SportChronology({ entries }: { entries: SportChronologyEntry[] }
                     fotoğrafın KESİLMİŞ bir parçası gibi okunuyor — arşiv
                     kutusundan çıkmış bir kupür. */}
                 {entry.imageUrl ? (
-                  <span className={styles.cardArt}>
+                  /* `--shot` ZEMİN İÇİN: görselin kendisi artık kırpılmıyor
+                     (`contain`), yani kutuda boşluk kalıyor. O boşluk düz
+                     bir renkle değil, AYNI fotoğrafın bulanık kopyasıyla
+                     doluyor — böylece dolgu her kartta o fotoğrafın kendi
+                     tonunu alıyor. Ayrıntı modül CSS'inde. */
+                  <span
+                    className={styles.cardArt}
+                    style={
+                      {
+                        "--shot": `url("${apiUrl(entry.imageUrl)}")`,
+                      } as CSSProperties
+                    }
+                  >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={apiUrl(entry.imageUrl)}
@@ -214,9 +241,12 @@ export function SportChronology({ entries }: { entries: SportChronologyEntry[] }
                   </span>
                 ) : null}
                 <span className={styles.cardYear}>{entry.year}</span>
+                {tarih ? (
+                  <span className={styles.cardDate}>{tarih}</span>
+                ) : null}
                 <span className={styles.cardTitle}>{title}</span>
-                {entry.subject ? (
-                  <span className={styles.cardSubject}>{entry.subject}</span>
+                {label ? (
+                  <span className={styles.cardSubject}>{label}</span>
                 ) : null}
               </>
             );
@@ -240,15 +270,15 @@ export function SportChronology({ entries }: { entries: SportChronologyEntry[] }
                 <span className={styles.stem} aria-hidden />
                 <span className={styles.dot} aria-hidden />
 
-                {href ? (
-                  <Link href={href} className={styles.card}>
-                    {body}
-                  </Link>
-                ) : (
-                  <span className={styles.card} data-static="">
-                    {body}
-                  </span>
-                )}
+                {/* ⚠️ KART TIKLANMIYOR — bilinçli (kullanıcı isteği,
+                    14 Ağustos 2026): 'eklediğim tarihler tıklandığında bir
+                    sayfaya götürmesi gerekmiyor'. Bağ alanları (clubSlug,
+                    eraSlug, circuitSlug) yanıtta DURUYOR; ileride tek tek
+                    'bu tarihi şu sayfaya bağla' denecek. O gün burada
+                    koşullu bir sarmalayıcıya dönecek. */}
+                <span className={styles.card} data-static="">
+                  {body}
+                </span>
               </li>
             );
           })}

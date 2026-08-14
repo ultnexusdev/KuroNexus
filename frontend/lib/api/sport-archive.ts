@@ -319,6 +319,13 @@ export interface SportOverview {
       taglineTr: string | null;
       taglineEn: string | null;
       coverImage: string | null;
+      /**
+       * Kırpmanın odağı ("50% 30%") ve büyütmesi (yüzde). Küratör yazıyor.
+       * `null` ise ön yüz dokunmuyor ve CSS varsayılanı geçerli oluyor —
+       * yani eski backend'e bakan yeni ön yüz de doğru çalışıyor.
+       */
+      coverPosition?: string | null;
+      coverScale?: number | null;
     } | null;
     featuredLegend: {
       slug: string;
@@ -344,6 +351,13 @@ export interface SportOverview {
       cornerCount: number | null;
       firstGrandPrixYear: number | null;
       coverImage: string | null;
+      /**
+       * Kırpmanın odağı ("50% 30%") ve büyütmesi (yüzde). Küratör yazıyor.
+       * `null` ise ön yüz dokunmuyor ve CSS varsayılanı geçerli oluyor —
+       * yani eski backend'e bakan yeni ön yüz de doğru çalışıyor.
+       */
+      coverPosition?: string | null;
+      coverScale?: number | null;
     } | null;
     raceCount: number;
     seasonFrom: number | null;

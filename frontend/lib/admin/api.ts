@@ -1483,6 +1483,9 @@ export interface SportCuratorContext {
     slug: string;
     name: string;
     coverImage: string | null;
+    /** Kırpma odağı ("50% 30%") ve büyütme yüzdesi — küratör yazıyor */
+    coverPosition: string | null;
+    coverScale: number | null;
     eras: Array<{
       id: string;
       slug: string;
@@ -1496,6 +1499,9 @@ export interface SportCuratorContext {
     slug: string;
     name: string;
     coverImage: string | null;
+    /** Kırpma odağı ("50% 30%") ve büyütme yüzdesi — küratör yazıyor */
+    coverPosition: string | null;
+    coverScale: number | null;
   }>;
   legends: Array<{
     id: string;
@@ -1593,6 +1599,29 @@ export function setSportImage(body: {
   url: string;
 }): Promise<unknown> {
   return apiFetch("/admin/sport-archive/image", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}
+
+/**
+ * Bant kapağının odak noktası ve büyütmesi.
+ *
+ * ⚠️ `setSportImage`ten AYRI uç — görsel bir kez yükleniyor, odak noktası
+ * kaydırıcı oynatıldıkça defalarca kaydediliyor. Tek uç olsaydı her odak
+ * kaydında görsel adresi de gönderilmek zorunda kalırdı ve boş gönderilen
+ * bir istek görseli SİLERDİ.
+ *
+ * `position` boş dize = ortaya dön.
+ */
+export function setSportCoverFocus(body: {
+  target: "CLUB_COVER" | "CIRCUIT_COVER";
+  ref: string;
+  position?: string;
+  scale?: number;
+}): Promise<unknown> {
+  return apiFetch("/admin/sport-archive/cover-focus", {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),

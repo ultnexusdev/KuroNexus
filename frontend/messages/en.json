@@ -1621,7 +1621,17 @@
       "nickname": "Epithet",
       "nicknamePlaceholder": "Epithet — shown under the name on the card",
       "addToPantheon": "Add to pantheon",
-      "removeFromPantheon": "Remove from pantheon"
+      "removeFromPantheon": "Remove from pantheon",
+      "focusTitle": "Crop settings",
+      "focusNote": "The band image is cropped to a wide ratio. The sliders decide which part of the image stays centred and how far it is zoomed. The preview uses the band's real ratio.",
+      "focusX": "Horizontal",
+      "focusY": "Vertical",
+      "focusZoom": "Zoom",
+      "focusSave": "Save crop",
+      "focusReset": "Recentre",
+      "focusSaved": "Crop saved.",
+      "focusError": "Could not save the crop.",
+      "focusPreview": "Preview"
     },
     "ledger": {
       "races": "races",

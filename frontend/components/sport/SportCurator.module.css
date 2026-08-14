@@ -416,3 +416,81 @@
   letter-spacing: 0.08em;
   color: var(--danger);
 }
+
+/* ============================================================
+   KIRPMA AYARI — bant kapağının odak noktası ve büyütmesi
+   ============================================================ */
+.focus {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border-top: 1px solid var(--sport-line);
+  padding-top: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.focusTitle {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+/* ⚠️ ORAN TAHMİN DEĞİL, BANDIN ÖLÇÜSÜ.
+
+   Sayfadaki bant `min-height: min(58svh, 30rem)` ve görsel katmanı genişliğin
+   %74'ünü kaplıyor (%26'sı metne bırakılıyor). 1400px genişlikte ~480px
+   yükseklikle oran ≈ (1400 × 0.74) / 480 ≈ 2.16. Buradaki 2.2 o ölçü.
+
+   Önizlemenin doğru oranda olması bu bileşenin bütün amacı: yanlış oranda
+   bir kutu, kesilen yüzü tam olarak gizleyen şey olurdu. Bant oranı
+   değişirse BURASI DA DEĞİŞMELİ. */
+.focusPreview {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 2.2 / 1;
+  overflow: hidden;
+  border: 1px solid var(--sport-line);
+  background: var(--surface);
+}
+
+/* Sayfadaki `.bandArtInner` ile AYNI üç kural: cover + position + scale.
+   Ton ayarı (grayscale/brightness) bilerek YOK — küratör kırpmayı
+   ayarlarken görselin kendisini net görmeli; sayfadaki koyulaştırma
+   yüzlerin nerede olduğunu okumayı zorlaştırırdı. */
+.focusPreviewArt {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.focusRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+/* Kaydırıcı dokunma alanı: 44px kuralı (kural 2) — telefonda parmakla
+   ayarlanacak, ince bir çizgi değil. */
+.focusRow input[type="range"] {
+  width: 100%;
+  min-height: var(--touch-min);
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.focusActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* `.ghost` kendini sola yaslıyor; iki düğme yan yanayken bu hizalama
+   satırın kendi düzenine bırakılmalı. */
+.focusActions .ghost {
+  align-self: auto;
+}

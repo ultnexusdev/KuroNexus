@@ -145,16 +145,26 @@
 
    Ton ayarı kasıtlı ağır: doygunluğu düşük, koyulaştırılmış. Renkli bir
    spor fotoğrafı bu kanadı ESPN'e çevirirdi; brief'in ilk maddesi buydu. */
+/* ⚠️ İKİ KATMAN, TEK GÖRSEL — bilerek.
+
+   Dış katman (.bandArt) maskeyi, ton ayarını ve konumu taşıyor.
+   İç katman (.bandArtInner) yalnızca görseli ve onun BÜYÜTMESİNİ taşıyor.
+
+   Ayrımın tek sebebi büyütme: `scale` dış katmana uygulansaydı MASKE DE
+   büyürdü ve metne doğru soluklaşan geçiş bandın dışına taşıp
+   görünmez olurdu. Kırpma `.band { overflow: hidden }` ile zaten yapılıyor.
+
+   Büyütme neden `background-size` ile değil: `cover` bir ölçek değeri
+   almıyor ve `background-size: 150%` genişliği kilitleyip yüksekliği
+   serbest bırakıyor — bandın oranına göre kimi zaman `cover`dan KÜÇÜK
+   kalıyordu. `scale` düzenden sonra uygulanan görsel bir dönüşüm, yani
+   `cover` yine kutuya göre hesaplanıyor ve sonuç her oranda öngörülebilir. */
 .bandArt {
   position: absolute;
   inset: 0;
   /* Metin tarafını hiç örtmüyor: futbolda sol %26, F1'de sağ %26 boş */
   left: 26%;
   z-index: 0;
-  background-image: var(--art);
-  background-size: cover;
-  background-position: right center;
-  background-repeat: no-repeat;
   filter: grayscale(0.45) saturate(0.85) contrast(1.06) brightness(0.6);
   opacity: 0.9;
   mask-image: linear-gradient(
@@ -167,11 +177,27 @@
   pointer-events: none;
 }
 
+/* Odak noktası ve büyütme küratörden geliyor; yazılmadıysa değişkenler
+   tanımsız kalıyor ve `var()` yedeği devreye giriyor — yani mevcut
+   kayıtların görünümü bire bir aynı. */
+.bandArtInner {
+  position: absolute;
+  inset: 0;
+  background-image: var(--art);
+  background-size: cover;
+  background-position: var(--art-pos, right center);
+  background-repeat: no-repeat;
+  scale: var(--art-zoom, 1);
+}
+
 .bandRight .bandArt {
   left: 0;
   right: 26%;
-  background-position: left center;
   mask-image: linear-gradient(to right, #000 0%, #000 26%, transparent 82%);
+}
+
+.bandRight .bandArtInner {
+  background-position: var(--art-pos, left center);
 }
 
 /* Hover'da görsel bir tık açılıyor — bandın "canlanması" tek hareket */

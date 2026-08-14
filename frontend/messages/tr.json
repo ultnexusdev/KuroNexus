@@ -1621,7 +1621,17 @@
       "nickname": "Lakap",
       "nicknamePlaceholder": "Lakap — kartta adın altında görünür",
       "addToPantheon": "Panteona al",
-      "removeFromPantheon": "Panteondan çıkar"
+      "removeFromPantheon": "Panteondan çıkar",
+      "focusTitle": "Kırpma ayarı",
+      "focusNote": "Bant görseli geniş bir orana kırpılıyor. Kaydırıcılar görselin hangi noktasının ortada kalacağını ve ne kadar büyütüleceğini belirler. Önizleme bandın gerçek oranını gösteriyor.",
+      "focusX": "Yatay",
+      "focusY": "Dikey",
+      "focusZoom": "Büyütme",
+      "focusSave": "Kırpmayı kaydet",
+      "focusReset": "Ortaya döndür",
+      "focusSaved": "Kırpma kaydedildi.",
+      "focusError": "Kırpma kaydedilemedi.",
+      "focusPreview": "Önizleme"
     },
     "ledger": {
       "races": "yarış",

@@ -8,12 +8,14 @@ import {
   deleteSportMoment,
   featureF1Driver,
   fetchSportCuratorContext,
+  setSportCoverFocus,
   setSportImage,
   uploadImage,
   uploadImageFromUrl,
   type SportCuratorContext,
   type SportImageTarget,
 } from "@/lib/admin/api";
+import { apiUrl } from "@/lib/api/client";
 import styles from "./SportCurator.module.css";
 
 /**
@@ -456,7 +458,18 @@ function ImageSection({
             label={t("slotClubCover", { name: club.name })}
             current={club.coverImage}
             onDone={onDone}
-          />
+          >
+            {club.coverImage ? (
+              <CoverFocus
+                target="CLUB_COVER"
+                refId={club.slug}
+                cover={club.coverImage}
+                position={club.coverPosition}
+                scale={club.coverScale}
+                onDone={onDone}
+              />
+            ) : null}
+          </ImageSlot>
         ))}
         {context.circuits.map((circuit) => (
           <ImageSlot
@@ -466,7 +479,18 @@ function ImageSection({
             label={t("slotCircuitCover", { name: circuit.name })}
             current={circuit.coverImage}
             onDone={onDone}
-          />
+          >
+            {circuit.coverImage ? (
+              <CoverFocus
+                target="CIRCUIT_COVER"
+                refId={circuit.slug}
+                cover={circuit.coverImage}
+                position={circuit.coverPosition}
+                scale={circuit.coverScale}
+                onDone={onDone}
+              />
+            ) : null}
+          </ImageSlot>
         ))}
         {context.legends.map((legend) => (
           <ImageSlot
@@ -513,6 +537,7 @@ function ImageSlot({
   current,
   warning,
   onDone,
+  children,
 }: {
   target: SportImageTarget;
   /** Kulüp/pist/efsane/sürücüde slug, ANDA `cuid` — anın slug'ı yok */
@@ -521,6 +546,8 @@ function ImageSlot({
   current: string | null;
   warning?: string;
   onDone: () => void;
+  /** Yuvaya ait ek denetimler — bugün yalnızca bant kapaklarının kırpması */
+  children?: React.ReactNode;
 }) {
   const t = useTranslations("sportArchive.curator");
   const [remote, setRemote] = useState("");
@@ -615,6 +642,168 @@ function ImageSlot({
       ) : null}
 
       {busy ? <p className={styles.note}>{t("busy")}</p> : null}
+      {error ? (
+        <p className={styles.error} role="alert">
+          {error}
+        </p>
+      ) : null}
+
+      {children}
+    </div>
+  );
+}
+
+/**
+ * KIRPMA AYARI — bant kapağının odak noktası ve büyütmesi.
+ *
+ * ⚠️ NEDEN ÖNİZLEME VAR (müzik kanadında yok): orada tek bir bant ve iki
+ * eksen vardı, kaydedip bakmak yetiyordu. Burada üç değişken var (X, Y,
+ * büyütme) ve üçü birbirini etkiliyor — büyütünce odak noktasının anlamı
+ * değişiyor. Önizlemesiz üç kaydırıcı, bunu kaydet-bak-geri-gel döngüsüne
+ * çevirirdi.
+ *
+ * Önizleme bandın GERÇEK oranını ve gerçek CSS'ini taşıyor: aynı `cover`,
+ * aynı `background-position`, aynı `scale`. Yaklaşık bir kutu, yanlış yerden
+ * kesilen bir yüzü fark ettirmezdi.
+ *
+ * Yalnızca görsel YÜKLÜYSE çiziliyor — kırpılacak bir şey yokken üç
+ * kaydırıcı göstermek boş oda yasağının ihlali olurdu.
+ */
+function CoverFocus({
+  target,
+  refId,
+  cover,
+  position,
+  scale,
+  onDone,
+}: {
+  target: "CLUB_COVER" | "CIRCUIT_COVER";
+  refId: string;
+  cover: string;
+  position: string | null;
+  scale: number | null;
+  onDone: () => void;
+}) {
+  const t = useTranslations("sportArchive.curator");
+
+  /* Kayıtlı değer kalıba uymuyorsa ortaya düşülüyor — bozuk bir satır
+     yüzünden kaydırıcılar boş kalmasın (müzik küratörünün aynı kararı). */
+  const kayitli = /^(\d{1,3})% (\d{1,3})%$/.exec(position ?? "");
+  const [x, setX] = useState(Number(kayitli?.[1] ?? 50));
+  const [y, setY] = useState(Number(kayitli?.[2] ?? 50));
+  const [zoom, setZoom] = useState(
+    typeof scale === "number" && scale >= 100 && scale <= 300 ? scale : 100,
+  );
+  const [busy, setBusy] = useState(false);
+  const [done, setDone] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function kaydet(gonderilen: { position: string; scale: number }) {
+    setBusy(true);
+    setError(null);
+    setDone(false);
+    try {
+      await setSportCoverFocus({ target, ref: refId, ...gonderilen });
+      setDone(true);
+      onDone();
+    } catch {
+      setError(t("focusError"));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className={styles.focus}>
+      <p className={styles.focusTitle}>{t("focusTitle")}</p>
+      <p className={styles.note}>{t("focusNote")}</p>
+
+      <span
+        className={styles.focusPreview}
+        role="img"
+        aria-label={t("focusPreview")}
+      >
+        <span
+          className={styles.focusPreviewArt}
+          style={{
+            backgroundImage: `url("${apiUrl(cover)}")`,
+            backgroundPosition: `${x}% ${y}%`,
+            scale: String(zoom / 100),
+          }}
+        />
+      </span>
+
+      <label className={styles.focusRow}>
+        <span className={styles.label}>
+          {t("focusX")} · {x}%
+        </span>
+        <input
+          type="range"
+          min={0}
+          max={100}
+          value={x}
+          disabled={busy}
+          onChange={(event) => setX(Number(event.target.value))}
+        />
+      </label>
+
+      <label className={styles.focusRow}>
+        <span className={styles.label}>
+          {t("focusY")} · {y}%
+        </span>
+        <input
+          type="range"
+          min={0}
+          max={100}
+          value={y}
+          disabled={busy}
+          onChange={(event) => setY(Number(event.target.value))}
+        />
+      </label>
+
+      {/* Alt sınır 100: altına inen değer kırpma kutusunda boşluk bırakır ve
+          bandın altındaki zemin görünür. */}
+      <label className={styles.focusRow}>
+        <span className={styles.label}>
+          {t("focusZoom")} · {zoom}%
+        </span>
+        <input
+          type="range"
+          min={100}
+          max={300}
+          step={5}
+          value={zoom}
+          disabled={busy}
+          onChange={(event) => setZoom(Number(event.target.value))}
+        />
+      </label>
+
+      <div className={styles.focusActions}>
+        <button
+          type="button"
+          className={styles.ghost}
+          disabled={busy}
+          onClick={() => void kaydet({ position: `${x}% ${y}%`, scale: zoom })}
+        >
+          {busy ? t("busy") : t("focusSave")}
+        </button>
+        <button
+          type="button"
+          className={styles.ghost}
+          disabled={busy}
+          onClick={() => {
+            setX(50);
+            setY(50);
+            setZoom(100);
+            // Boş `position` = sütuna null yazılır, CSS varsayılanına dönülür
+            void kaydet({ position: "", scale: 100 });
+          }}
+        >
+          {t("focusReset")}
+        </button>
+      </div>
+
+      {done ? <p className={styles.note}>{t("focusSaved")}</p> : null}
       {error ? (
         <p className={styles.error} role="alert">
           {error}

@@ -42,6 +42,36 @@ async function getHallLabel(): Promise<string> {
   }
 }
 
+/**
+ * Bant görselinin kırpma ayarları → CSS değişkenleri.
+ *
+ * ⚠️ KALIP BURADA DA DOĞRULANIYOR. Değer backend'de zaten doğrulanıyor
+ * (`SetSportCoverFocusDto`) ama buraya veritabanından geliyor ve doğrudan
+ * `style` niteliğine yazılıyor. Veriye "nasılsa yazarken denetlendi" diye
+ * güvenmek, denetimin eklendiği tarihten ESKİ satırları ve elle yazılmış
+ * kayıtları atlar. Müzik kanadındaki bant da aynı sebeple iki kez denetliyor.
+ *
+ * Bozuk değer sessizce yok sayılıyor: bant yine çiziliyor, yalnızca
+ * varsayılan kırpmayla. Boş oda yasağının kırpma hâli.
+ */
+function coverVars(
+  cover: string,
+  position?: string | null,
+  scale?: number | null,
+): CSSProperties {
+  const vars: Record<string, string> = {
+    "--art": `url("${apiUrl(cover)}")`,
+  };
+  if (position && /^\d{1,3}% \d{1,3}%$/.test(position)) {
+    vars["--art-pos"] = position;
+  }
+  // 100 = büyütme yok; altına inen değer bandın altını açardı
+  if (typeof scale === "number" && scale >= 100 && scale <= 300) {
+    vars["--art-zoom"] = String(scale / 100);
+  }
+  return vars as CSSProperties;
+}
+
 /** 5793 → "5.793 km". F1 tarafının ölçüm dili — km'ye çevirip yerelleştirir. */
 function km(meters: number | null | undefined, locale: string): string | null {
   if (meters == null) return null;
@@ -185,13 +215,16 @@ export default async function SportLandingPage({
       {overview.footballClubs > 0 ? (
         <Reveal as="section" className={styles.band}>
           {clubCover ? (
-            <span
-              className={styles.bandArt}
-              aria-hidden
-              style={
-                { "--art": `url("${apiUrl(clubCover)}")` } as CSSProperties
-              }
-            />
+            <span className={styles.bandArt} aria-hidden>
+              <span
+                className={styles.bandArtInner}
+                style={coverVars(
+                  clubCover,
+                  club?.coverPosition,
+                  club?.coverScale,
+                )}
+              />
+            </span>
           ) : null}
 
           <Link href={sportHref.football()} className={styles.bandLink}>
@@ -218,13 +251,16 @@ export default async function SportLandingPage({
       {overview.f1Circuits > 0 ? (
         <Reveal as="section" className={`${styles.band} ${styles.bandRight}`}>
           {circuitCover ? (
-            <span
-              className={styles.bandArt}
-              aria-hidden
-              style={
-                { "--art": `url("${apiUrl(circuitCover)}")` } as CSSProperties
-              }
-            />
+            <span className={styles.bandArt} aria-hidden>
+              <span
+                className={styles.bandArtInner}
+                style={coverVars(
+                  circuitCover,
+                  circuit?.coverPosition,
+                  circuit?.coverScale,
+                )}
+              />
+            </span>
           ) : null}
 
           <Link href={sportHref.f1()} className={styles.bandLink}>

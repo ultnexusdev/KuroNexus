@@ -5,13 +5,90 @@
 
 ## Mevcut Aşama
 
+> ══════════════════════════════════════════════════════════════════════════
+> ## 📌 14 AĞUSTOS KAPANIŞI — EVDE BURADAN DEVAM
+>
+> Günün tamamı canlıda. Son commit `66c408f`. Kesinti YOK.
+>
+> ### Bugün canlıya çıkan üç iş
+>
+> 1. **Deploy çökmesi kapandı** (`57c7e0d`, `1a0c6b6`) — ayrıntı
+>    `docs/deploy-duzeni.md`. Sunucu 2 çekirdek / 3.7 GB; eşzamanlı iki
+>    derleme OOM killer'a backend'i ya da PostgreSQL'i öldürtüyordu.
+>    Üç panel ayarı: eşzamanlılık 1, Watch Paths, health check.
+> 2. **Spor arayüz düzeltmeleri** (`cf9a523`, `95d9d75`, `46af8f9`) —
+>    bayrak şeritleri, panteon levhasında yalnızca ad, kronoloji kenar
+>    okları, bant kapağına odak+büyütme denetimi.
+> 3. **Zaman şeridi yeniden kuruldu** (`0717798`, `66c408f`) — serbest
+>    etiket, kısmi tarih (ay/gün), iki şerit, tıklanmayan kartlar,
+>    kırpılmayan kart görselleri.
+>
+> ### ⏭️ EVDE İLK İŞ — İKİSİ DE KÜRATÖRDEN, KOD İŞİ DEĞİL
+>
+> **1) 1950 kaydını ekle.** Türetilen sanal satır kaldırıldı, şeritte artık
+> yok. `/spor` → Küratör modu → Zaman şeridine kayıt ekle:
+>
+> | Alan | Değer |
+> | --- | --- |
+> | Hangi şeritte | Formula 1 (alt şerit) |
+> | Yıl / Ay / Gün | 1950 / Mayıs / 13 |
+> | Başlık | İlk Formula 1 Dünya Şampiyonası yarışı |
+> | Alt satır | Silverstone |
+>
+> ⚠️ Alt satıra **Monza yazma**: o yarış Silverstone'da koşuldu, Monza'nınki
+> 3 Eylül 1950'ydi.
+>
+> **2) 1905 Kuruluş kaydını düzelt** — ay/gün olarak 20 Ekim, alt satır
+> "Galatasaray". Mevcut kayıtlar listesinden düzenlenebiliyor.
+>
+> Ayrıca canlıda **"1951 · Deneme"** diye bir F1 kaydı duruyor (test);
+> istenmiyorsa küratörden silinir.
+>
+> ### Bugün öğrenilen iki şey
+>
+> 🔴 **KABUK HEREDOC'U TERS BÖLÜYÜ YUTUYOR.** `bash <<'EOF'` ile yazılan iki
+> dosyaya `/^\d{1,3}%…/` yerine `/^d{1,3}%…/` gitti; backend'deki hâli **her
+> geçerli konum değerini reddederdi** ve kırpma denetimi hiç çalışmazdı.
+> Yalnızca tarayıcıda ölçüldüğü için yakalandı. **Ders: kod düzenleme
+> betiğini heredoc ile yazma, dosyaya doğrudan yaz.**
+>
+> ⚠️ **Deploy sırasında `/health` birkaç dakika aralıklı 502 veriyor.** Coolify
+> eski konteyneri boşaltırken oluyor; ölçüldü (20 istekte 20×200'e oturdu) ve
+> `overview` ile site o sırada hiç kesilmedi. Arıza değil, geçiş penceresi —
+> bir dahaki deploy'da telaş edilmesin.
+>
+> ### İki migration da üretimde ilk kez koştu ve geçti
+>
+> `20260814125841_add_sport_cover_focus` ve
+> `20260814143000_moment_lane_and_label`. İkisi de yerel PostgreSQL'de
+> KOŞULMADI (`K:\postgres` ev makinesinde, iş yerinde yok) — kullanıcı
+> bilerek onayladı. İkisi de sorunsuz uygulandı, kesinti olmadı.
+> **Kural değişmedi:** evde yerel PostgreSQL varken migration oradan
+> geçirilmeli (kesinti kaydı, 3. önlem).
+>
+> ### Bu turda açılmayan, duran maddeler
+>
+> - **Ölü kod temizliği** — `GsHall`, `F1Hall`, `SportSplit` + 5 bileşen,
+>   `lib/api/sport.ts`, 51 i18n anahtarı, iki dallanma. **13 dosya.**
+>   Spor sayfaları canlıda doğrulandı (14 Ağustos, 9/9 sayfa 200, 4/4
+>   yönlendirme doğru, joker sızıntısı yok) — yani bu iş artık AÇIK.
+>   `docs/spor-uretim-cikis.md` "Sonra ne kaldı".
+> - **Kayıt → sayfa bağı.** Kullanıcı: "ilerleyen süreçte ben ilgili
+>   sayfaları ürettikçe sana derim bu tarihi bu sayfaya bağla gibi."
+>   Şema hazır (`eraId`, `circuitId` nullable ve duruyor), arayüzü yok.
+> - **33 bağımlılık açığı** (23 yüksek) — ayrı tur.
+> - **Sentinel Out Of Sync** — Coolify metrik toplayıcısı; Resources
+>   grafikleri güvenilmez. Docker Cleanup'ın açık olduğu da doğrulanmadı.
+> ══════════════════════════════════════════════════════════════════════════
+>
+
 > **📌 DEVİR NOTU: `docs/DEVIR-2026-08-11.md`**
 > **Bu bölümden sonra İLK ONU OKU — ve orada İLK OKUNACAK BÖLÜM `§0·`:**
 > "13 Ağustos akşamı — durum: A, B, C kapandı". Güncel durum, canlıda
 > yapılması gereken tek iş ve açık kalan dört madde orada.
 > Ölçülen gerçekler, kesinti kaydı ve dersler de aynı dosyada.
 >
-> 🟡 **ZAMAN ŞERİDİ YENİDEN KURULDU (14 Ağustos, ikinci tur) — PUSH EDİLMEDİ.**
+> ✅ **ZAMAN ŞERİDİ YENİDEN KURULDU (14 Ağustos, ikinci tur) — CANLIDA.**
 > Kullanıcının sekiz maddelik bildirimi. Kök sebep tek bir yerdeydi: şeridin
 > F1 ucundaki kayıtlar KAYIT DEĞİLDİ — `F1Circuit.firstGrandPrixYear`'dan
 > türetilen sanal satırlardı. Küratörde görünmemelerinin, silinememelerinin
@@ -44,9 +121,9 @@
 > Galatasaray kuruluşu da 20 Ekim 1905 olarak düzeltilecek — ikisi de
 > küratörden, kod işi değil.
 >
-> 🔴 Bu turun migration'ı da GERÇEK POSTGRESQL'DE KOŞULMADI (K: ev makinesi).
+> ℹ️ Migration üretimde koştu ve GEÇTİ (aşağıdaki kapanış notuna bak).
 >
-> 🟡 **SPOR SALONU — KULLANICI BİLDİRİMİ TURU (14 Ağustos), PUSH EDİLMEDİ.**
+> ✅ **SPOR SALONU — KULLANICI BİLDİRİMİ TURU (14 Ağustos) — CANLIDA.**
 > Beş madde: (A) bayrak şeritleri, (B) panteon levhasında yalnızca ad,
 > (C) kronoloji kenar okları, (D) bant kapağının odak noktası + büyütmesi.
 > A-B-C `cf9a523`te; D şema değişikliği içeriyor.
@@ -68,7 +145,7 @@
 > aynısı. Görsel katmanı İKİYE bölündü: maske dışta kaldı, `scale` içte —
 > tek katman olsaydı büyütme maskeyi de büyütüp geçişi bandın dışına atardı.
 >
-> 🔴 **MIGRATION GERÇEK POSTGRESQL'DE KOŞULMADI.** `20260814125841_add_sport_cover_focus`
+> ℹ️ **MIGRATION ÜRETİMDE KOŞTU VE GEÇTİ.** `20260814125841_add_sport_cover_focus`
 > (2 ALTER TABLE, 4 nullable kolon, kısıt yok) `migrate diff --output` ile
 > üretildi ve `check-migrations.mjs` 30/30 temiz dedi — ama kesinti kaydının
 > 3. önlemi "gerçek PostgreSQL'de koş" diyor ve **`K:\postgres` EV

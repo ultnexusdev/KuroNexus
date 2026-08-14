@@ -54,13 +54,23 @@ export class CreateSportMomentDto {
   @IsIn(['football', 'f1'])
   world!: 'football' | 'f1';
 
-  /** `world = football` iken ZORUNLU — an bir dönemin içinde yaşar */
+  /**
+   * ⚠️ ZORUNLU DEĞİL (14 Ağustos 2026'da gevşetildi).
+   *
+   * Eskiden futbol anı bir DÖNEME bağlanmak zorundaydı; küratör
+   * 'Galatasaray › Kuruluş ve okul (1905–1959)' gibi seçenekler arasından
+   * seçiyordu. Bu, döneme sığmayan kaydı eklenemez yapıyordu: 2026'da
+   * Messi'nin dünya kupasının hiçbir Galatasaray dönemiyle ilgisi yok.
+   *
+   * Artık kayıt doğrudan ŞERİDE giriyor. Bağ alanları duruyor çünkü
+   * kullanıcı ilerideki sayfalara bağlamak isteyecek.
+   */
   @IsOptional()
   @IsString()
   @MaxLength(40)
   eraId?: string;
 
-  /** `world = f1` iken ZORUNLU */
+  /** Aynı gerekçeyle isteğe bağlı — bkz. `eraId` */
   @IsOptional()
   @IsString()
   @MaxLength(40)
@@ -90,6 +100,46 @@ export class CreateSportMomentDto {
   @IsString()
   @MaxLength(8000)
   narrativeEn?: string;
+  /**
+   * Kartta açıklamanın ALTINDAKİ küçük satır — serbest metin.
+   *
+   * Eskiden bu satır kulübün/pistin adından TÜRETİLİYORDU ve Formula 1
+   * şeridinin her kaydında 'MONZA' yazıyordu; tek bir pist bütün bir dünya
+   * gibi görünüyordu (kullanıcı bildirimi, 14 Ağustos 2026). Artık küratör
+   * ne yazacağına kendi karar veriyor — 'GOAT' da yazabilir 'Silverstone' da.
+   */
+  @IsOptional()
+  @IsString()
+  @MaxLength(60)
+  labelTr?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(60)
+  labelEn?: string;
+
+  /**
+   * Yılın içindeki gün. İKİSİ DE İSTEĞE BAĞLI ve birbirinden bağımsız:
+   * yalnızca yıl, yıl+ay, ya da tam tarih. Bilinmeyen günü uydurmamak için
+   * tek bir `Date` alanı KULLANILMIYOR (gerekçe şemada).
+   *
+   * ⚠️ Gün üst sınırı 31 — ayın gerçek uzunluğuna göre daraltılmıyor.
+   * Küratör 31 Şubat yazarsa bu kayıt kabul edilir. Bilinçli: doğrulama
+   * tabloya değil ARŞİVE hizmet ediyor ve buradaki tarihler tarihsel
+   * kayıtlar, takvim randevusu değil; kullanıcıyı yanlış ayda uyarmak
+   * yerine yazdığını kaydediyoruz.
+   */
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(12)
+  month?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(31)
+  day?: number;
 
   /** Yalnızca futbolda anlamlı; F1 tarafında sessizce yok sayılır */
   @IsOptional()
@@ -143,6 +193,46 @@ export class UpdateSportMomentDto {
   @IsString()
   @MaxLength(8000)
   narrativeEn?: string;
+  /**
+   * Kartta açıklamanın ALTINDAKİ küçük satır — serbest metin.
+   *
+   * Eskiden bu satır kulübün/pistin adından TÜRETİLİYORDU ve Formula 1
+   * şeridinin her kaydında 'MONZA' yazıyordu; tek bir pist bütün bir dünya
+   * gibi görünüyordu (kullanıcı bildirimi, 14 Ağustos 2026). Artık küratör
+   * ne yazacağına kendi karar veriyor — 'GOAT' da yazabilir 'Silverstone' da.
+   */
+  @IsOptional()
+  @IsString()
+  @MaxLength(60)
+  labelTr?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(60)
+  labelEn?: string;
+
+  /**
+   * Yılın içindeki gün. İKİSİ DE İSTEĞE BAĞLI ve birbirinden bağımsız:
+   * yalnızca yıl, yıl+ay, ya da tam tarih. Bilinmeyen günü uydurmamak için
+   * tek bir `Date` alanı KULLANILMIYOR (gerekçe şemada).
+   *
+   * ⚠️ Gün üst sınırı 31 — ayın gerçek uzunluğuna göre daraltılmıyor.
+   * Küratör 31 Şubat yazarsa bu kayıt kabul edilir. Bilinçli: doğrulama
+   * tabloya değil ARŞİVE hizmet ediyor ve buradaki tarihler tarihsel
+   * kayıtlar, takvim randevusu değil; kullanıcıyı yanlış ayda uyarmak
+   * yerine yazdığını kaydediyoruz.
+   */
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(12)
+  month?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(31)
+  day?: number;
 
   @IsOptional()
   @IsIn(MOMENT_KINDS)

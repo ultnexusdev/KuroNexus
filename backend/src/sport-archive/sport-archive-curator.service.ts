@@ -133,11 +133,13 @@ export class SportArchiveCuratorService {
         select: {
           id: true,
           year: true,
+          month: true,
+          day: true,
           titleTr: true,
+          labelTr: true,
           imageUrl: true,
           isPublished: true,
           isHighlight: true,
-          era: { select: { club: { select: { name: true } } } },
         },
       }),
       this.prisma.f1Moment.findMany({
@@ -147,11 +149,13 @@ export class SportArchiveCuratorService {
         select: {
           id: true,
           seasonYear: true,
+          month: true,
+          day: true,
           titleTr: true,
+          labelTr: true,
           imageUrl: true,
           isPublished: true,
           isHighlight: true,
-          circuit: { select: { name: true } },
         },
       }),
     ]);
@@ -177,8 +181,11 @@ export class SportArchiveCuratorService {
         id: m.id,
         world: 'football' as const,
         year: m.year,
+        month: m.month,
+        day: m.day,
         titleTr: m.titleTr,
-        subject: m.era.club.name,
+        // Kulübün adı DEĞİL küratörün yazdığı etiket (bkz. şema notu)
+        label: m.labelTr,
         imageUrl: m.imageUrl,
         isPublished: m.isPublished,
         isHighlight: m.isHighlight,
@@ -187,15 +194,47 @@ export class SportArchiveCuratorService {
         id: m.id,
         world: 'f1' as const,
         year: m.seasonYear,
+        month: m.month,
+        day: m.day,
         titleTr: m.titleTr,
-        subject: m.circuit?.name ?? 'Formula 1',
+        label: m.labelTr,
         imageUrl: m.imageUrl,
         isPublished: m.isPublished,
         isHighlight: m.isHighlight,
       })),
-    ].sort((a, b) => a.year - b.year || a.world.localeCompare(b.world));
+    ].sort(
+      (a, b) =>
+        a.year - b.year ||
+        (a.month ?? 0) - (b.month ?? 0) ||
+        (a.day ?? 0) - (b.day ?? 0) ||
+        a.world.localeCompare(b.world),
+    );
 
-    return { clubs, circuits, legends, drivers: driverCandidates, moments };
+    /**
+     * Etiket ÖNERİLERİ — küratörün daha önce yazdıkları.
+     *
+     * Kullanıcı 'listede yoksa kendim oluşturayım' dedi. Ayrı bir etiket
+     * tablosu açmak, yönetilecek ikinci bir sözlük üretirdi; buradaki
+     * liste kullanılmış değerlerden TÜRETİLİYOR, yani etiket yazıldığı an
+     * öneri hâline geliyor ve silinen son kayıtla birlikte kendiliğinden
+     * kayboluyor. Bakımı olmayan bir sözlük.
+     */
+    const labels = [
+      ...new Set(
+        moments
+          .map((m) => m.label?.trim())
+          .filter((x): x is string => Boolean(x)),
+      ),
+    ].sort((a, b) => a.localeCompare(b, 'tr'));
+
+    return {
+      clubs,
+      circuits,
+      legends,
+      drivers: driverCandidates,
+      moments,
+      labels,
+    };
   }
 
   /**
@@ -210,58 +249,64 @@ export class SportArchiveCuratorService {
     const highlight = dto.isHighlight ?? true;
     const published = dto.isPublished ?? true;
 
+    /**
+     * Kayıt artık doğrudan ŞERİDE yaşıyor; döneme/piste bağlamak İSTEĞE
+     * BAĞLI (14 Ağustos 2026, bkz. DTO). Bağ verilmişse yine de
+     * doğrulanıyor — var olmayan bir kimliği sessizce yutmak, küratöre
+     * 'bağladım' deyip bağlamamak olurdu.
+     */
+    const shared = {
+      titleTr: dto.titleTr.trim(),
+      titleEn: dto.titleEn?.trim() || null,
+      narrativeTr: dto.narrativeTr?.trim() || null,
+      narrativeEn: dto.narrativeEn?.trim() || null,
+      labelTr: dto.labelTr?.trim() || null,
+      labelEn: dto.labelEn?.trim() || null,
+      month: dto.month ?? null,
+      day: dto.day ?? null,
+      imageUrl: dto.imageUrl?.trim() || null,
+      isHighlight: highlight,
+      isPublished: published,
+    };
+
     if (dto.world === 'football') {
-      if (!dto.eraId) {
-        throw new BadRequestException('SPORT_ARCHIVE.ERA_REQUIRED');
-      }
-      const era = await this.prisma.footballEra.findFirst({
-        where: { id: dto.eraId, isDeleted: false },
-        select: { id: true },
-      });
-      if (!era) {
-        throw new NotFoundException('SPORT_ARCHIVE.ERA_NOT_FOUND');
+      let eraId: string | null = null;
+      if (dto.eraId) {
+        const era = await this.prisma.footballEra.findFirst({
+          where: { id: dto.eraId, isDeleted: false },
+          select: { id: true },
+        });
+        if (!era) {
+          throw new NotFoundException('SPORT_ARCHIVE.ERA_NOT_FOUND');
+        }
+        eraId = era.id;
       }
 
       return this.prisma.footballMoment.create({
         data: {
-          eraId: era.id,
+          ...shared,
+          eraId,
           year: dto.year,
-          titleTr: dto.titleTr.trim(),
-          titleEn: dto.titleEn?.trim() || null,
-          narrativeTr: dto.narrativeTr?.trim() || null,
-          narrativeEn: dto.narrativeEn?.trim() || null,
           kind: dto.kind ?? 'MILESTONE',
-          imageUrl: dto.imageUrl?.trim() || null,
-          isHighlight: highlight,
-          isPublished: published,
         },
         select: { id: true, year: true, titleTr: true },
       });
     }
 
-    if (!dto.circuitId) {
-      throw new BadRequestException('SPORT_ARCHIVE.CIRCUIT_REQUIRED');
-    }
-    const circuit = await this.prisma.f1Circuit.findFirst({
-      where: { id: dto.circuitId, isDeleted: false },
-      select: { id: true },
-    });
-    if (!circuit) {
-      throw new NotFoundException('SPORT_ARCHIVE.CIRCUIT_NOT_FOUND');
+    let circuitId: string | null = null;
+    if (dto.circuitId) {
+      const circuit = await this.prisma.f1Circuit.findFirst({
+        where: { id: dto.circuitId, isDeleted: false },
+        select: { id: true },
+      });
+      if (!circuit) {
+        throw new NotFoundException('SPORT_ARCHIVE.CIRCUIT_NOT_FOUND');
+      }
+      circuitId = circuit.id;
     }
 
     return this.prisma.f1Moment.create({
-      data: {
-        circuitId: circuit.id,
-        seasonYear: dto.year,
-        titleTr: dto.titleTr.trim(),
-        titleEn: dto.titleEn?.trim() || null,
-        narrativeTr: dto.narrativeTr?.trim() || null,
-        narrativeEn: dto.narrativeEn?.trim() || null,
-        imageUrl: dto.imageUrl?.trim() || null,
-        isHighlight: highlight,
-        isPublished: published,
-      },
+      data: { ...shared, circuitId, seasonYear: dto.year },
       select: { id: true, seasonYear: true, titleTr: true },
     });
   }
@@ -271,11 +316,20 @@ export class SportArchiveCuratorService {
     id: string,
     dto: UpdateSportMomentDto,
   ) {
+    /**
+     * ⚠️ `undefined` = DOKUNMA, `null` = TEMİZLE. Prisma bu ayrımı zaten
+     * yapıyor; `?? null` yazmak, formda boş bırakılan alanı 'silindi'
+     * saymak olurdu ve kısmi güncelleme imkânsızlaşırdı.
+     */
     const shared = {
       titleTr: dto.titleTr?.trim(),
       titleEn: dto.titleEn?.trim() || null,
       narrativeTr: dto.narrativeTr?.trim() || null,
       narrativeEn: dto.narrativeEn?.trim() || null,
+      labelTr: dto.labelTr === undefined ? undefined : dto.labelTr.trim() || null,
+      labelEn: dto.labelEn === undefined ? undefined : dto.labelEn.trim() || null,
+      month: dto.month,
+      day: dto.day,
       isHighlight: dto.isHighlight,
       isPublished: dto.isPublished,
     };

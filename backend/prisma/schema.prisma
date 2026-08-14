@@ -1667,9 +1667,46 @@ model FootballMoment {
   isHighlight Boolean @default(false)
   isPublished Boolean @default(false)
   orderIndex  Int     @default(0)
+  /// Kartta açıklamanın ALTINDAKİ küçük satır. Serbest metin.
+  ///
+  /// ⚠️ ESKİDEN TÜRETİLİYORDU: bu satır kulübün/pistin adını basıyordu
+  /// (`subject`). Sonuç, Formula 1 şeridinin her kaydında 'MONZA' yazması
+  /// oldu — tek bir pist bütün bir dünyaymış gibi göründü (kullanıcı
+  /// bildirimi, 14 Ağustos 2026). Artık küratör ne yazacağına kendi karar
+  /// veriyor: Messi kaydında 'GOAT' yazabilir.
+  ///
+  /// TR zorunlu değil; boşsa kartta o satır HİÇ çizilmiyor (boş oda yasağı).
+  labelTr String?
+  labelEn String?
 
-  eraId String
-  era   FootballEra @relation(fields: [eraId], references: [id])
+  /// Yılın içindeki gün — AY ve GÜN AYRI, `happenedAt` KULLANILMIYOR.
+  ///
+  /// ⚠️ GEREKÇE: `happenedAt` bir `DateTime` ve kısmi tarih tutamıyor.
+  /// 'Ekim 1905, günü bilinmiyor' demek için 1 Ekim yazmak gerekirdi — yani
+  /// bilinmeyen bir günü uydurmak. Bu arşivin her yerinde reddedilen şey bu
+  /// (bkz. boş oda yasağı). İki ayrı kolon üç durumu da dürüstçe anlatıyor:
+  /// yalnızca yıl / yıl+ay / tam tarih.
+  ///
+  /// Sıralama bunun üstünde: (year, month ?? 0, day ?? 0). Aynı yıla düşen iki
+  /// kayıt böylece doğru sırada duruyor (kullanıcı isteği, 14 Ağustos 2026).
+  ///
+  /// `happenedAt` şemada duruyor ama HİÇBİR YERDE OKUNMUYOR (ölçüldü);
+  /// dokunulmadı, silmek gereksiz bir ALTER TABLE olurdu.
+  month Int?
+  day   Int?
+
+  /// ⚠️ ZORUNLU OLMAKTAN ÇIKTI (14 Ağustos 2026).
+  ///
+  /// Eskiden her futbol anı bir DÖNEME bağlanmak zorundaydı ve küratör
+  /// formu 'Galatasaray › Kuruluş ve okul (1905–1959)' gibi seçenekler
+  /// sunuyordu. Kullanıcı istediği kaydı ekleyemiyordu: 2026'da Messi'nin
+  /// dünya kupası hiçbir Galatasaray döneminin içinde değil.
+  ///
+  /// Artık kayıt doğrudan FUTBOL ŞERİDİNE giriyor; döneme bağlamak
+  /// isteğe bağlı. Bağ kolonu SİLİNMEDİ çünkü kullanıcı 'ilerleyen
+  /// süreçte bu tarihi bu sayfaya bağla diyeceğim' dedi — bağın yeri hazır.
+  eraId String?
+  era   FootballEra? @relation(fields: [eraId], references: [id])
 
   /// Anın kahramanı. Doluysa an, efsanenin kendi sayfasında da görünür —
   /// böylece efsane sayfası anlarını DÖNEMLER ARASINDAN tek taramada toplar,
@@ -2153,6 +2190,33 @@ model F1Moment {
   isHighlight Boolean @default(false)
   isPublished Boolean @default(false)
   orderIndex  Int     @default(0)
+  /// Kartta açıklamanın ALTINDAKİ küçük satır. Serbest metin.
+  ///
+  /// ⚠️ ESKİDEN TÜRETİLİYORDU: bu satır kulübün/pistin adını basıyordu
+  /// (`subject`). Sonuç, Formula 1 şeridinin her kaydında 'MONZA' yazması
+  /// oldu — tek bir pist bütün bir dünyaymış gibi göründü (kullanıcı
+  /// bildirimi, 14 Ağustos 2026). Artık küratör ne yazacağına kendi karar
+  /// veriyor: 'Silverstone' ya da yalnızca 'Formula 1' yazabilir.
+  ///
+  /// TR zorunlu değil; boşsa kartta o satır HİÇ çizilmiyor (boş oda yasağı).
+  labelTr String?
+  labelEn String?
+
+  /// Yılın içindeki gün — AY ve GÜN AYRI, `happenedAt` KULLANILMIYOR.
+  ///
+  /// ⚠️ GEREKÇE: `happenedAt` bir `DateTime` ve kısmi tarih tutamıyor.
+  /// 'Ekim 1905, günü bilinmiyor' demek için 1 Ekim yazmak gerekirdi — yani
+  /// bilinmeyen bir günü uydurmak. Bu arşivin her yerinde reddedilen şey bu
+  /// (bkz. boş oda yasağı). İki ayrı kolon üç durumu da dürüstçe anlatıyor:
+  /// yalnızca yıl / yıl+ay / tam tarih.
+  ///
+  /// Sıralama bunun üstünde: (year, month ?? 0, day ?? 0). Aynı yıla düşen iki
+  /// kayıt böylece doğru sırada duruyor (kullanıcı isteği, 14 Ağustos 2026).
+  ///
+  /// `happenedAt` şemada duruyor ama HİÇBİR YERDE OKUNMUYOR (ölçüldü);
+  /// dokunulmadı, silmek gereksiz bir ALTER TABLE olurdu.
+  month Int?
+  day   Int?
 
   circuitId String?
   circuit   F1Circuit? @relation(fields: [circuitId], references: [id])

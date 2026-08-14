@@ -98,7 +98,6 @@ export class SportArchiveService {
       raceCount,
       footballMoments,
       f1Moments,
-      datedCircuits,
       driverSpans,
       f1Legends,
       footballLegends,
@@ -186,13 +185,18 @@ export class SportArchiveService {
           // çizilmiyor ve kart kısalıyor — kartlar eksene yaslandığı için
           // farklı yükseklikler tırtıklı bir kenar üretmiyor.
           imageUrl: true,
-          // Kulübün ADI da geliyor: zaman şeridindeki her kayıt kimin kaydı
-          // olduğunu kendi üstünde yazmalı. "1905 · Kuruluş" tek başına
-          // kimin kuruluşu olduğunu söylemiyordu.
+          // Kartın küçük alt satırı. Eskiden kulübün adından TÜRETİLİYORDU;
+          // artık küratörün yazdığı serbest metin (bkz. şema notu).
+          labelTr: true,
+          labelEn: true,
+          month: true,
+          day: true,
+          // Bağ kolonu duruyor ama kart artık TIKLANMIYOR (kullanıcı
+          // isteği, 14 Ağustos 2026) — ileride sayfaya bağlanacak.
           era: {
             select: {
               slug: true,
-              club: { select: { slug: true, name: true } },
+              club: { select: { slug: true } },
             },
           },
         },
@@ -205,19 +209,29 @@ export class SportArchiveService {
           titleTr: true,
           titleEn: true,
           imageUrl: true,
-          circuit: { select: { slug: true, name: true } },
+          labelTr: true,
+          labelEn: true,
+          month: true,
+          day: true,
+          circuit: { select: { slug: true } },
         },
       }),
-      // Pistin ilk Grand Prix'i kronolojinin F1 ucundaki çapa: anlatısı
-      // yazılmamış bir pist bile zaman şeridinde bir yıl tutuyor.
-      this.prisma.f1Circuit.findMany({
-        where: {
-          ...SportArchiveService.LIVE,
-          firstGrandPrixYear: { not: null },
-        },
-        orderBy: { firstGrandPrixYear: 'asc' },
-        select: { slug: true, name: true, firstGrandPrixYear: true },
-      }),
+      /*
+       * ⚠️ PİSTİN İLK GRAND PRIX'İ ARTIK KRONOLOJİYE GİRMİYOR.
+       *
+       * Buradaki sorgu, `firstGrandPrixYear` dolu her pist için sanal bir
+       * kronoloji satırı üretiyordu ('1950 · Takvime giriyor · MONZA').
+       * İki şeyi birden bozuyordu:
+       *
+       *   1. O satır bir KAYIT DEĞİLDİ. Küratör panelindeki 'Mevcut
+       *      kayıtlar' listesinde görünmüyor, düzenlenemiyor, silinemiyordu
+       *      (kullanıcı bildirimi: '1950 küratör modunda görünmüyor').
+       *   2. Şeridin F1 ucunu tek bir PİSTİN adıyla dolduruyordu. Monza
+       *      bir pist, Formula 1'in tamamı değil (kullanıcı bildirimi).
+       *
+       * Sorgu tamamen kaldırıldı; aynı bilgi istenirse artık normal bir
+       * an kaydı olarak eklenir ve düzenlenebilir olur.
+       */
 
       /**
        * EFSANELER — İKİ TABLODAN TEK LİSTE.
@@ -298,63 +312,53 @@ export class SportArchiveService {
      * `world` alanı ön yüzde renk/işaret seçiyor; `*Slug` alanları adresi
      * ön yüzde `sportHref` ile kuruluyor — adres dizesi backend'e sızmıyor.
      *
-     * ⚠️ `subject` HER KAYITTA DOLU: kaydın kime ait olduğu. "1905 · Kuruluş"
-     * kimin kuruluşu olduğunu söylemiyordu; "1905 · Kuruluş · Galatasaray"
-     * söylüyor. Başlığın içine gömmek yerine ayrı alan, çünkü ön yüz onu
-     * başlıktan farklı bir tipografiyle (mono künye) yazıyor ve süzgeç de
-     * bu alandan okunabiliyor.
+     * ⚠️ `label` KÜRATÖRÜN YAZDIĞI METİN, türetilmiş değil. Eskiden burada
+     * kulübün/pistin adı vardı ve F1 şeridinin her kaydında 'MONZA'
+     * yazıyordu — tek bir pist bütün bir dünya gibi görünüyordu (kullanıcı
+     * bildirimi, 14 Ağustos 2026). Boş bırakılabilir; boşsa kartta o satır
+     * hiç çizilmiyor.
+     *
+     * `month`/`day` de isteğe bağlı: aynı yıla düşen iki kaydı ayırmak için
+     * (kullanıcı isteği). Sıralama (yıl, ay, gün) üçlüsüne göre.
      */
     const chronology = [
       ...footballMoments.map((m) => ({
         year: m.year,
+        month: m.month,
+        day: m.day,
         world: 'football' as const,
         kind: String(m.kind),
         titleTr: m.titleTr,
         titleEn: m.titleEn,
-        subject: m.era.club.name,
+        labelTr: m.labelTr,
+        labelEn: m.labelEn,
         imageUrl: m.imageUrl,
-        clubSlug: m.era.club.slug,
-        eraSlug: m.era.slug,
+        clubSlug: m.era?.club.slug ?? null,
+        eraSlug: m.era?.slug ?? null,
         circuitSlug: null as string | null,
       })),
-      // Sorgu `firstGrandPrixYear: { not: null }` süzüyor ama Prisma bunu TİPE
-      // yansıtmıyor — alan hâlâ `number | null`. Daraltma burada elle yapılıyor;
-      // `as number` yazmak süzgecin bozulduğu gün sessizce `null` geçirirdi.
-      ...datedCircuits
-        .filter(
-          (c): c is typeof c & { firstGrandPrixYear: number } =>
-            c.firstGrandPrixYear !== null,
-        )
-        .map((c) => ({
-          year: c.firstGrandPrixYear,
-          world: 'f1' as const,
-          kind: 'CIRCUIT_FIRST_GP',
-          // Pistin adı artık `subject`te; başlıkta tekrar etmesi kartta aynı
-          // kelimeyi iki kez yazdırıyordu.
-          titleTr: 'Takvime giriyor',
-          titleEn: 'Enters the calendar',
-          subject: c.name,
-          // Pistin kapak görseli BİLİNÇLE kullanılmıyor: aynı fotoğraf hem
-          // bantta hem kartta çıkarsa sayfa kendini tekrar eder. Bu kaydın
-          // kendi fotoğrafı yoksa kart fotoğrafsız kalır.
-          imageUrl: null as string | null,
-          clubSlug: null as string | null,
-          eraSlug: null as string | null,
-          circuitSlug: c.slug,
-        })),
       ...f1Moments.map((m) => ({
         year: m.seasonYear,
+        month: m.month,
+        day: m.day,
         world: 'f1' as const,
         kind: 'F1_MOMENT',
         titleTr: m.titleTr,
         titleEn: m.titleEn,
-        subject: m.circuit?.name ?? 'Formula 1',
+        labelTr: m.labelTr,
+        labelEn: m.labelEn,
         imageUrl: m.imageUrl,
         clubSlug: null as string | null,
         eraSlug: null as string | null,
         circuitSlug: m.circuit?.slug ?? null,
       })),
-    ].sort((a, b) => a.year - b.year || a.world.localeCompare(b.world));
+    ].sort(
+      (a, b) =>
+        a.year - b.year ||
+        (a.month ?? 0) - (b.month ?? 0) ||
+        (a.day ?? 0) - (b.day ?? 0) ||
+        a.world.localeCompare(b.world),
+    );
 
     /**
      * Sürücü → arşivdeki uyruk ve ilk/son sezon. `groupBy` uyruğu da eksene

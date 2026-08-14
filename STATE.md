@@ -11,6 +11,41 @@
 > yapılması gereken tek iş ve açık kalan dört madde orada.
 > Ölçülen gerçekler, kesinti kaydı ve dersler de aynı dosyada.
 >
+> 🟡 **ZAMAN ŞERİDİ YENİDEN KURULDU (14 Ağustos, ikinci tur) — PUSH EDİLMEDİ.**
+> Kullanıcının sekiz maddelik bildirimi. Kök sebep tek bir yerdeydi: şeridin
+> F1 ucundaki kayıtlar KAYIT DEĞİLDİ — `F1Circuit.firstGrandPrixYear`'dan
+> türetilen sanal satırlardı. Küratörde görünmemelerinin, silinememelerinin
+> ve her F1 kaydında 'MONZA' yazmasının sebebi buydu. Türetme kaldırıldı.
+>
+> **Migration `20260814143000_moment_lane_and_label`** — 8 nullable kolon +
+> `FootballMoment.eraId` üzerinde `DROP NOT NULL`. check-migrations 31/31.
+>
+> - **Etiket serbest metin.** Açıklama altındaki satır artık kulüp/pist
+>   adından türetilmiyor: `labelTr`/`labelEn`. Boşsa satır HİÇ çizilmiyor.
+>   Küratörde `<datalist>` ile öneriliyor; öneriler kullanılmış etiketlerden
+>   TÜRETİLİYOR, ayrı bir sözlük tablosu yok.
+> - **Ay ve gün AYRI kolonlar.** Şemadaki kullanılmayan `happenedAt DateTime?`
+>   bilinçle kullanılmadı: 'Ekim 1905, günü bilinmiyor' demek için 1 Ekim
+>   yazmak, bilinmeyen günü uydurmak olurdu. Üç hâl de dürüst: yıl / yıl+ay /
+>   tam tarih. Sıralama (yıl, ay, gün).
+> - **Dönem/pist bağı isteğe bağlı.** Kayıt doğrudan ŞERİDE yaşıyor; küratör
+>   yalnızca Futbol/Formula 1 seçiyor. Bağ kolonları SİLİNMEDİ — kullanıcı
+>   'ilerleyen süreçte bu tarihi bu sayfaya bağla diyeceğim' dedi.
+> - **Kartlar tıklanmıyor** (kullanıcı isteği). `cursor: default`, şeritte
+>   sıfır bağlantı. Bağ alanları yanıtta duruyor.
+> - **Kart görseli `cover` DEĞİL `contain`** — fotoğrafın tamamı görünüyor,
+>   artan yer AYNI fotoğrafın bulanık kopyasıyla doluyor (sabit gri, açık
+>   renkli bir afişin yanında delik gibi duruyordu).
+>
+> ⚠️ **1950 KAYDI DEPLOY SONRASI ŞERİTTEN KAYBOLACAK** — türetilen satırdı.
+> Yerine küratörden gerçek kayıt eklenecek: 13 Mayıs 1950 · 'İlk Formula 1
+> Dünya Şampiyonası yarışı' · etiket 'Silverstone'. **Olgu notu: o yarış
+> Silverstone'da koşuldu, Monza'da DEĞİL** (Monza'nınki 3 Eylül 1950).
+> Galatasaray kuruluşu da 20 Ekim 1905 olarak düzeltilecek — ikisi de
+> küratörden, kod işi değil.
+>
+> 🔴 Bu turun migration'ı da GERÇEK POSTGRESQL'DE KOŞULMADI (K: ev makinesi).
+>
 > 🟡 **SPOR SALONU — KULLANICI BİLDİRİMİ TURU (14 Ağustos), PUSH EDİLMEDİ.**
 > Beş madde: (A) bayrak şeritleri, (B) panteon levhasında yalnızca ad,
 > (C) kronoloji kenar okları, (D) bant kapağının odak noktası + büyütmesi.

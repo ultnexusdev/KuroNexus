@@ -191,6 +191,25 @@
   align-items: center;
 }
 
+/* --- Dar ekran: indeks şeridi ---
+   Şerit BAĞLANTI DEĞİL, `<span>` — yani 44px'lik dokunma tabanı burada hiçbir
+   şeye hizmet etmiyordu, yalnızca yer kaplıyordu. 375px'te ölçüldü: yedi
+   maddelik şerit 257px, yani neredeyse bir ekranın üçte biri, üstelik 40
+   piksel yukarıdaki kapı duvarının söylediğini kelimesi kelimesine tekrar
+   ederek. Taban kalkınca aynı bilgi ~110px'e iniyor; kapı duvarı özet
+   değil ASIL yerinde kalıyor. Masaüstünde hiçbir şey değişmiyor. */
+@media (max-width: 560px) {
+  .index {
+    padding: 14px 0 18px;
+    gap: 10px 22px;
+  }
+
+  .indexItem {
+    min-height: 0;
+    gap: 7px;
+  }
+}
+
 .indexNo {
   font-family: var(--font-mono);
   font-size: 0.68rem;
@@ -260,7 +279,13 @@
   .manifesto {
     grid-column: 2;
     grid-row: 1;
-    font-size: clamp(1.55rem, 6.6vw, 2.1rem);
+    /* Üst sınır 2.1rem'den 2.6rem'e çıktı. 375–480 arasında HİÇBİR ŞEY
+       değişmiyor (orada 6.6vw zaten sınırın altında); değişen tek bant
+       510–560px, yani eski sınırın puntoyu genişleyen ekranda dondurduğu yer.
+       Orada punto donunca 561px'te bir sonraki bandın 57px'ine çarpıyordu —
+       tek pikselde 1.7 katlık bir sıçrama. Sınır yükselince geçiş 37px → 57px
+       oluyor; bant hâlâ mevcut tasarımın kendi eğrisiyle sürüyor. */
+    font-size: clamp(1.55rem, 6.6vw, 2.6rem);
     line-height: 1.12;
   }
 

@@ -411,3 +411,34 @@
   font-size: 0.85rem;
   color: var(--text-secondary);
 }
+
+/* Tur cipleri dokunmatikte 34px olculdu. Anime holundeki ciplerden farkli
+   olarak burada dogrudan buyutuluyor: sanatci sayfasinda uc-bes tane var,
+   serit boyuna etkisi kucuk. */
+@media (pointer: coarse) {
+  .chip,
+  .chipStatic {
+    min-height: var(--touch-min);
+  }
+}
+
+/* Kirinti yolu (breadcrumb) baglantilari dokunmatikte.
+   375px'te olculdu: 36x18 ve 97x18 px — satirin kendisi 23px, baglantilar
+   18px. Bunlar gercek gezinme baglantilari (salona ve tur odasina cikan tek
+   yol), o yuzden "cumle ici baglanti" istisnasina girmiyorlar.
+
+   Buyutme yerine alan genisletmesi: yukseklik verilirse kirinti satirinin
+   kendi yuksekligi 23'ten 44'e ciker ve baslikla arasindaki ritim bozulur.
+   Yatayda genislemiyor, yani yan yana duran kirintilar birbirinin dokunusunu
+   calmiyor; alttaki 24px'lik bosluk 13px'i sorunsuz kaldiriyor (olculdu). */
+@media (pointer: coarse) {
+  .crumbs a {
+    position: relative;
+  }
+
+  .crumbs a::after {
+    content: "";
+    position: absolute;
+    inset: -13px 0;
+  }
+}

@@ -203,3 +203,10 @@ a.context:hover {
   font-size: 0.72rem;
   color: var(--text-muted);
 }
+
+/* Kuyruk baslatma dugmesi dokunmatikte 191x32 px olculdu. */
+@media (pointer: coarse) {
+  .seedButton {
+    min-height: var(--touch-min);
+  }
+}

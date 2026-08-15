@@ -75,3 +75,10 @@
   color: var(--text-primary);
   border-color: var(--accent);
 }
+
+/* "Daha fazla" dugmesi dokunmatikte 168x31 px olculdu. */
+@media (pointer: coarse) {
+  .more {
+    min-height: var(--touch-min);
+  }
+}

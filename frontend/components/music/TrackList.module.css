@@ -268,3 +268,22 @@
     display: none;
   }
 }
+
+/* Parca listesi dokunmatikte.
+   375px'te olculdu: her satirin calma dugmesi 30x30 px ve bir albumde onlarca
+   tanesi alt alta — listenin ASIL etkilesimi bu ve kural 2 tabaninin coktan
+   altinda. "Hepsini cal" dugmesi de 131x31 idi.
+
+   Buyutme dogrudan yapiliyor (alan genisletmesi degil): dugmeler satir icinde
+   kendi sutunlarinda duruyor, 44px olmalari satir yuksekligini buyutuyor ama
+   ustuste binme riski yok. Fareli ekranda olcu degismiyor. */
+@media (pointer: coarse) {
+  .play {
+    width: var(--touch-min);
+    height: var(--touch-min);
+  }
+
+  .playAll {
+    min-height: var(--touch-min);
+  }
+}

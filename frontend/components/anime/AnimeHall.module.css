@@ -784,7 +784,20 @@
   flex-direction: column;
   align-items: flex-start;
   gap: var(--gap-sm);
-  width: min(var(--anime-content-w), 100%);
+  /* ⚠️ `box-sizing` ve `width` BİRLİKTE okunmalı.
+
+     Projede evrensel `border-box` reseti YOK. `width`in `100%` dalı ile iki
+     yandaki `--pad-md` content-box'ta TOPLANIYORDU: 375px'te kutu 343 + 16 +
+     16 = 375px çıkıyor, oysa içinde durduğu `.hero` 343px. `.hero`da
+     `overflow: hidden` olduğu için sayfa yatay kaymıyor ama içerik KIRPILIYOR
+     — ölçüldü: ilerleme çubuğu holün sağ kenarını 13px aşıyor ve kesiliyor,
+     16px'lik sağ iç boşluk tamamen yok oluyor.
+
+     Sınıra iç boşluğun iki katı ekleniyor ki masaüstü ölçüsü aynen kalsın:
+     1440px'te dış kutu 1212px, içerik 1180px — düzeltmeden önceki değerlerin
+     birebir aynısı. Aynı desen spor kanadında da bulunup düzeltildi. */
+  box-sizing: border-box;
+  width: min(calc(var(--anime-content-w) + var(--pad-md) * 2), 100%);
   margin-inline: auto;
   padding: var(--pad-lg) var(--pad-md);
 }
@@ -891,5 +904,63 @@
 @media (max-width: 640px) {
   .filterLabel {
     min-width: 100%;
+  }
+}
+
+/* Geri baglantisi dokunmatikte 44px.
+   Anime kanadinin bes modulunde de 89x22 / 76x22 px olculdu (kural 2 tabani
+   44px). Yalnizca kaba isaretcide buyuyor; fareli ekranda olcu degismiyor.
+   Film, dizi ve kitap kanatlarinda ayni duzeltme yapildi. */
+@media (pointer: coarse) {
+  .back {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--touch-min);
+  }
+
+  /* Suzgec cipleri: 34px yukseklikte, kural 2 tabaninin altinda ve arsivde
+     24 tanesi sekiz satira yayiliyor (olculdu). Cipi buyutmek serit boyunu
+     ~80px uzatirdi; gorunmez alan genisletmesi ayni sonucu ~42px'e mal
+     ediyor ve gorsel yogunlugu bozmuyor — film ve dizi salonlarindaki tur
+     ciplerinde de ayni karar verildi.
+
+     Sayilar bu kanadin kendi olcusune gore: cipin kenarligi 1px, yani sozde
+     ogenin kapsayici blogu 32px'lik padding kutusu; +-6px onu 44'e tamamliyor.
+     Satir araligi 8'den 14'e cikiyor ki alt alta iki satirin alanlari ust uste
+     binmesin (8px'te binerdi ve DOM'da sonra gelen satir kazanirdi). */
+  .filters {
+    row-gap: 14px;
+  }
+
+  .chip,
+  .chipOn,
+  .moreChips {
+    position: relative;
+  }
+
+  .chip::after,
+  .chipOn::after,
+  .moreChips::after {
+    content: "";
+    position: absolute;
+    inset: -6px 0;
+  }
+
+  /* Raf basligi baglantisi 143x31 px'ti ve KANATTA TEK YOL: film, dizi ve
+     kitap salonlarinda rafin altinda ayni adrese giden 44px'lik bir "tumunu
+     goster" dugmesi var, anime holunde YOK (sayfada bu adrese giden baska
+     hicbir baglanti bulunamadi — olculdu). Yani oralardaki "esdeger hedef"
+     gerekcesi burada gecmiyor, gercekten duzeltilmesi gerekiyordu.
+
+     Baslik satirinin hizasi bozulmasin diye alan genisletmesi; yatayda
+     genislemedigi icin yanindaki sayacin dokunusunu calmiyor. */
+  .shelfLink {
+    position: relative;
+  }
+
+  .shelfLink::after {
+    content: "";
+    position: absolute;
+    inset: -7px 0;
   }
 }

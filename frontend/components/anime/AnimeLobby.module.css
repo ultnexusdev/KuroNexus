@@ -149,6 +149,19 @@
   transform: translateY(-50%) translateX(3px);
 }
 
+/* --- Dar ekran ---
+   `min-height: 100vh` dar ekranda iki sebeple yanlis olcu: (1) ustunde 69px'lik
+   yapiskan baslik duruyor, yani icerik sigsa bile kaydirma uretiyor — 375px'te
+   olculdu, lobi 932px; (2) mobil tarayicida `vh`, URL cubugu gizliyken olculen
+   buyuk gorunum alani. `main { flex: 1 }` footer'i zaten asagida tutuyor.
+   Film ve dizi salonlarinda ayni duzeltme yapildi. */
+@media (max-width: 768px) {
+  .lobby {
+    min-height: 0;
+    padding-bottom: 56px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .section,
   .sectionArrow {
@@ -157,5 +170,17 @@
 
   .section:hover .sectionArrow {
     transform: translateY(-50%);
+  }
+}
+
+/* Geri baglantisi dokunmatikte 44px.
+   Anime kanadinin bes modulunde de 89x22 / 76x22 px olculdu (kural 2 tabani
+   44px). Yalnizca kaba isaretcide buyuyor; fareli ekranda olcu degismiyor.
+   Film, dizi ve kitap kanatlarinda ayni duzeltme yapildi. */
+@media (pointer: coarse) {
+  .back {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--touch-min);
   }
 }

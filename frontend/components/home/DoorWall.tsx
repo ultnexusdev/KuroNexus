@@ -102,6 +102,9 @@ export function DoorWall({ doors }: { doors: Door[] }) {
           {/* Özel çizim yerel dosyadır (apiUrl geçmez); yüklenmiş kapak
               varsa o kazanır — kategoriye panelden kapak eklenince kapı
               kendiliğinden fotoğrafa geçer */}
+          {/* `sizes`: 600–899px arasında duvar iki kolona iniyor
+              (DoorWall.module.css), yani kapı orada ekranın yarısı kadar —
+              tek `100vw` basamağı o bantta iki kat büyük görsel indirtiyordu */}
           {door.coverImage || door.art ? (
             <Image
               src={
@@ -109,7 +112,7 @@ export function DoorWall({ doors }: { doors: Door[] }) {
               }
               alt=""
               fill
-              sizes="(max-width: 900px) 100vw, 18vw"
+              sizes="(max-width: 599px) 100vw, (max-width: 899px) 50vw, 18vw"
               className={styles.doorImg}
             />
           ) : null}

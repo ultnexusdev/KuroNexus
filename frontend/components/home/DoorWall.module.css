@@ -165,6 +165,31 @@
   fill: color-mix(in srgb, var(--hub-ink) 82%, var(--hub-seal));
 }
 
+/* --- 600–899px: ara adım, iki kolon ---
+   Duvarın eskiden iki hâli vardı: tam genişlikte tek kolon ve ≥900px'te yedi
+   dikey aralık. Aradaki bant tablette (768px'te ölçüldü) 707px genişliğinde
+   ve yalnızca 86px yüksekliğinde yedi şerit üretiyordu — kapaklar bu oranda
+   ezilir, duvar da 662px'lik bir liste hâline gelir. İki kolon, briften
+   istenen "kontrollü kolon geçişi": 1 → 2 → 7. Kapı sayısı tek olduğu için
+   son kapı (mühürlü baş köşe) satırın tamamını alıyor; kadro büyüyünce bu
+   kendiliğinden doğru kalsın diye kural `:last-child:nth-child(odd)` ile
+   yazıldı, sabit bir sayıya değil. */
+@media (min-width: 600px) and (max-width: 899px) {
+  .wall {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .door {
+    min-height: 104px;
+  }
+
+  .door:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+}
+
 /* ≥900px: dikey kapı aralıkları — asimetrik genişlikler, hover'da açılma */
 @media (min-width: 900px) {
   .wall {

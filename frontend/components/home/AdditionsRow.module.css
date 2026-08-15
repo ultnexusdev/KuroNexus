@@ -154,6 +154,38 @@
   text-overflow: ellipsis;
 }
 
+/* Dokunmatikte kenar solması daralır.
+   Yukarıdaki 44px, okların genişliğine göre seçilmişti — ScrollStrip ise
+   `pointer: coarse` altında okları HİÇ çizmiyor. Yani telefonda solma bir
+   şeyin üstünü örtmüyor, yalnızca 343px'lik şeridin 88px'ini yiyordu.
+   "Devamı var" bilgisi için 20px yetiyor; kalan 68px kapaklara dönüyor. */
+@media (pointer: coarse) {
+  .track {
+    mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      #000 20px,
+      #000 calc(100% - 20px),
+      transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      #000 20px,
+      #000 calc(100% - 20px),
+      transparent 100%
+    );
+  }
+}
+
+/* Künye satırı telefonda 10.2px'te ölçüldü — mono ve harf aralıklı olduğu
+   için o boyutta okunmuyor. Yalnızca dar ekranda bir tık büyüyor. */
+@media (max-width: 560px) {
+  .cardMeta {
+    font-size: 0.7rem;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .track {
     scroll-behavior: auto;

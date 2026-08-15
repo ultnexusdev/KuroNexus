@@ -114,7 +114,20 @@
 /* ---- Gövde ---- */
 .body {
   width: 100%;
-  max-width: 46rem;
+  /* ⚠️ `box-sizing` ve `max-width` birlikte okunmalı — efsane sayfasındaki
+     ile aynı düzeltme, aynı sebep.
+
+     Projede evrensel `border-box` reseti yok; `width: 100%` ile iki yandaki
+     `--sp-gutter` content-box'ta toplanıyordu. 375px'te ölçüldü: kutu 415px
+     çıkıyor, sayfa 40px yatay kayıyor, 61 öğe taşıyordu.
+
+     `border-box` tek başına masaüstünü bozardı (max-width artık dış kutuyu
+     sınırlar, okuma sütunu 736 → 696px'e düşerdi); sınıra gutter'ın iki katı
+     eklenerek içerik genişliği tam 46rem'de tutuluyor.
+
+     1440px'te ölçülen değerler (değişmemeli): dış kutu 880px, içerik 736px. */
+  box-sizing: border-box;
+  max-width: calc(46rem + var(--sp-gutter) * 2);
   margin: 0 auto;
   padding: clamp(2.5rem, 7vw, 4rem) var(--sp-gutter) 0;
   display: flex;

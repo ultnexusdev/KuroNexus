@@ -11,7 +11,25 @@
 .doc {
   /* Tek sütun ve dar ölçü: bu bir okuma sayfası, pano değil */
   width: 100%;
-  max-width: 46rem;
+  /* ⚠️ `box-sizing` ve `max-width` BİRLİKTE okunmalı, biri diğeri olmadan
+     yanlış.
+
+     Projede evrensel bir `border-box` reseti YOK (globals.css'te tek satır
+     `box-sizing` geçmiyor), yani kutular varsayılan `content-box`. Bu kural
+     `width: 100%` + iki yandan `--sp-gutter` kadar iç boşluk yazıyordu;
+     content-box'ta ikisi TOPLANIYOR. 375px'te ölçüldü: kutu 375 + 20 + 20 =
+     415px çıkıyor ve sayfa 40px yatay kayıyordu. Aynı hata pist sayfasında
+     da vardı, `/spor` holünde ise satır 26'da zaten `border-box` yazılarak
+     kapatılmış — yani bu, bir yerde düzeltilip burada unutulmuş bir desen.
+
+     `border-box`a geçmek tek başına masaüstünü BOZARDI: `max-width` artık dış
+     kutuyu sınırlar, okuma sütunu 736 → 696px'e düşerdi. Bu yüzden sınıra
+     gutter'ın iki katı ekleniyor. Sonuç: içerik genişliği her yerde tam
+     46rem, dış kutu ise hiçbir zaman %100'ü aşmıyor.
+
+     1440px'te ölçülen değerler (değişmemeli): dış kutu 880px, içerik 736px. */
+  box-sizing: border-box;
+  max-width: calc(46rem + var(--sp-gutter) * 2);
   margin: 0 auto;
   padding: clamp(2rem, 7vw, 4.5rem) var(--sp-gutter) 0;
   display: flex;

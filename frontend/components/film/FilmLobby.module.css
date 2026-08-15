@@ -42,6 +42,17 @@
   text-decoration: none;
 }
 
+/* Dokunmatikte geri bağlantısı 89x22 px ölçüldü — kural 2'nin (min 44px)
+   altında. Yalnızca kaba işaretçide büyüyor: faresi olan ekranda ölçü
+   değişmiyor, yani masaüstü boşluk düzeni olduğu gibi kalıyor. */
+@media (pointer: coarse) {
+  .back {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--touch-min);
+  }
+}
+
 .back:hover {
   color: var(--accent);
 }
@@ -147,6 +158,22 @@
 .section:hover .sectionArrow {
   color: var(--accent);
   transform: translateY(-50%) translateX(3px);
+}
+
+/* --- Dar ekran ---
+   `min-height: 100vh` iki ayrı sebeple dar ekranda yanlış ölçü:
+   (1) üstünde 69px'lik yapışkan başlık duruyor, yani salon girişi içerik
+       sığsa bile en az 69px kaydırma üretiyordu;
+   (2) mobil tarayıcıda `vh`, URL çubuğu GİZLİYKEN ölçülen büyük görünüm
+       alanı — gerçekte görünenden uzun.
+   Giriş dar ekranda zaten dolu (375px'te bant + künye + bölüm = 552px) ve
+   dikeyde ortalanacak bir boşluğu yok; `main { flex: 1 }` footer'ı yine de
+   aşağıda tutuyor. Geniş ekranda kural aynen duruyor. */
+@media (max-width: 768px) {
+  .lobby {
+    min-height: 0;
+    padding-bottom: 56px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

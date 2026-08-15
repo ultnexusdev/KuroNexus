@@ -335,6 +335,17 @@
   transition: all 0.3s;
 }
 
+/* Parsomen anahtari dokunmatikte 47x30 px olculdu — okuyucunun kendi
+   ileri/geri dugmeleri 40px'i asiyor, yalnizca bu geride kalmisti.
+   Yukseklik verilmesi arac seridinin hizasini bozmuyor cunku serit zaten
+   `align-items: center`. Fareli ekranda olcu degismiyor. */
+@media (pointer: coarse) {
+  .parchmentToggle {
+    min-height: var(--touch-min);
+    min-width: var(--touch-min);
+  }
+}
+
 .parchmentToggle:hover {
   opacity: 1;
   transform: scale(1.1);

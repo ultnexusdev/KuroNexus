@@ -197,3 +197,15 @@
   color: var(--accent-hover);
   border-bottom-color: var(--accent);
 }
+
+/* Geri baglantisi dokunmatikte 44px (kural 2 tabani).
+   Muzik ve Temurkan modullerinde 87x22 px olculdu. Yalnizca kaba isaretcide
+   buyuyor; fareli ekranda olcu degismiyor. Diger bes kanatta ayni duzeltme
+   yapildi. */
+@media (pointer: coarse) {
+  .back {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--touch-min);
+  }
+}

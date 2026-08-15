@@ -704,3 +704,63 @@
   color: var(--text-primary);
   font-size: 0.78rem;
 }
+
+/* Geri baglantisi dokunmatikte 44px.
+   Anime kanadinin bes modulunde de 89x22 / 76x22 px olculdu (kural 2 tabani
+   44px). Yalnizca kaba isaretcide buyuyor; fareli ekranda olcu degismiyor.
+   Film, dizi ve kitap kanatlarinda ayni duzeltme yapildi. */
+/* --- Bolum ve kisim kontrolleri dokunmatikte ---
+
+   Dizi kanadindaki duzeltmenin anime karsiligi; yapi ayni (kisim = sezon),
+   olculer bu kanadin kendi degerleriyle. 375px'te olculdu (izgara gercek
+   sinif adlariyla kurulup olculdu):
+
+     bolum dugmesi   36.1 x 30 px, 8 kolon, aralik 4px   <- dizidekinden dar
+     kisim oku       30 x 30 px
+     kisim basligi   193 x 16 px
+     kisim araclari  32 px, "dolgulari atla" 30 px
+
+   Bolum dugmeleri icin alan genisletmesi KULLANILAMAZ: yan yana duruyorlar
+   ve aralari 4px, sozde ogeler birbirine binerdi. Izgara tabani 38 -> 44px,
+   aralik 4 -> 6px. Kisim basligi ise metin dugmesi oldugu icin orada alan
+   genisletmesi kullaniliyor; yatayda genislemedigi icin sagindaki okun
+   dokunusunu calmiyor. Fareli ekranda hicbiri degismiyor. */
+@media (pointer: coarse) {
+  .back {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--touch-min);
+  }
+
+  .episodeGrid {
+    grid-template-columns: repeat(auto-fill, minmax(var(--touch-min), 1fr));
+    gap: 6px;
+  }
+
+  .ep,
+  .epWatched,
+  .epSkipped,
+  .epFiller {
+    min-height: var(--touch-min);
+  }
+
+  .partChevron {
+    width: var(--touch-min);
+    height: var(--touch-min);
+  }
+
+  .partToggle {
+    position: relative;
+  }
+
+  .partToggle::after {
+    content: "";
+    position: absolute;
+    inset: -14px 0;
+  }
+
+  .partTool,
+  .skipFillers {
+    min-height: var(--touch-min);
+  }
+}

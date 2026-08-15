@@ -349,3 +349,23 @@
   font-size: 0.8rem;
   line-height: 1.5;
 }
+
+/* Geri baglantisi dokunmatikte 44px.
+   Anime kanadinin bes modulunde de 89x22 / 76x22 px olculdu (kural 2 tabani
+   44px). Yalnizca kaba isaretcide buyuyor; fareli ekranda olcu degismiyor.
+   Film, dizi ve kitap kanatlarinda ayni duzeltme yapildi. */
+@media (pointer: coarse) {
+  .back {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--touch-min);
+  }
+
+  /* Seri suzgeci cipleri 36px olculdu. Anime holundeki tur ciplerinden farkli
+     olarak burada dogrudan buyutuluyor: sayilari cok daha az ve tek satirlik
+     bir suzgec seridi olusturuyorlar, yani 8px'lik buyume serit boyunu
+     kayda deger bicimde uzatmiyor. */
+  .seriesChip {
+    min-height: var(--touch-min);
+  }
+}

@@ -430,3 +430,21 @@
   line-height: 1.65;
   text-wrap: pretty;
 }
+
+/* Geri baglantisi dokunmatikte 44px.
+   Anime kanadinin bes modulunde de 89x22 / 76x22 px olculdu (kural 2 tabani
+   44px). Yalnizca kaba isaretcide buyuyor; fareli ekranda olcu degismiyor.
+   Film, dizi ve kitap kanatlarinda ayni duzeltme yapildi. */
+@media (pointer: coarse) {
+  .back {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--touch-min);
+  }
+
+  /* Karakterin bagli oldugu serinin rozeti 128x38 px'ti — tek basina duran,
+     kendi kenarligi olan bir kontrol; buyutulmesi baska hicbir seyi itmiyor. */
+  .seriesLink {
+    min-height: var(--touch-min);
+  }
+}

@@ -295,7 +295,7 @@ export function MovieDetail({
                             src={tmdbImage(path, "w500")!}
                             alt=""
                             fill
-                            sizes="(max-width: 900px) 90vw, 276px"
+                            sizes="(max-width: 640px) 45vw, (max-width: 900px) 30vw, 276px"
                             className={styles.stillImg}
                             unoptimized
                           />

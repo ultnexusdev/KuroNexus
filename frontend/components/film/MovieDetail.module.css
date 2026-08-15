@@ -878,7 +878,67 @@ a.providerLink:hover {
     width: 130px;
   }
 
+  /* `minmax(96px, …)` 320px'lik ekranda üç sütuna yetmiyordu: kullanılabilir
+     288px'e 3x96 + 2x12 = 312px sığmayınca ızgara İKİ sütuna düşüyor ve
+     yuvarlak portreler 138px'e şişiyordu (ölçüldü) — kadro bölümü tek başına
+     1199px oluyordu. `min(96px, 30%)` tabanı dar ekranda kendiliğinden
+     kısılıyor: 320px'te 86px olup üç sütun sığıyor, 375px ve üstünde zaten
+     96px'e dayanıyor, yani o genişliklerde davranış birebir eskisi. */
   .cast {
-    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(96px, 30%), 1fr));
+  }
+}
+
+/* --- Yan raylar dar ve orta ekranda ---
+   Raylar masaüstünde 300px'lik sütunlar; 900px altında tek sütuna inip
+   SAYFA GENİŞLİĞİNE yayılıyorlar. 768px'te ölçülen sonuç: sol ray 3807px,
+   sayfanın tamamı 8046px — yani tablette sayfa telefondakinden UZUN.
+   Sebep, ray içeriğinin 300px'lik bir sütun için tasarlanmış olması:
+   16/9 sahne kareleri 695x391 piksele, tek satırlık bağlantı listeleri de
+   700px'lik satırlara açılıyordu.
+
+   Düzeltme rayları yeniden tasarlamıyor, yalnızca ray İÇERİĞİNİN ölçüsünü
+   bulunduğu genişliğe bağlıyor. */
+
+/* Sahne kareleri: dikey yığın yerine ızgara.
+   Tek sütunda her kare kutunun tam genişliğini alıyor ve 16/9 oranı
+   yüksekliği oradan türetiyor — 300px'lik rayda 169px'lik bir küçük resim,
+   721px'lik rayda 405px'lik bir fotoğraf. Izgara kareyi yeniden küçük
+   resim yapıyor. */
+@media (max-width: 900px) {
+  .stills {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 900px) {
+  .stills {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  /* Tek satırlık listeler (nerede izlenir, bağlantılar, komşular, benzer
+     filmler) tablette iki kolona akıyor. Satırların kendisi 44px'lik dokunma
+     tabanını koruyor; değişen tek şey, 700px'lik bir satırın sağ yarısının
+     boş kalmaması. */
+  .providers,
+  .links,
+  .similar {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--gap-md);
+    align-items: start;
+  }
+}
+
+/* Geri bağlantısı dokunmatikte 85x22 px ölçüldü — kural 2'nin altında.
+   Üst şerit `align-items: center` olduğu için küratör düğmesiyle hizası
+   bozulmuyor; masaüstünde ölçü değişmiyor. */
+@media (pointer: coarse) {
+  .back {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--touch-min);
   }
 }

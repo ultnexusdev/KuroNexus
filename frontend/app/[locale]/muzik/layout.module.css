@@ -107,6 +107,17 @@
   margin-inline: auto;
   width: 100%;
   padding-inline: var(--mz-pad);
+  /* ⚠️ Bu satır olmadan salon HER genişlikte yatay kayıyordu.
+
+     Projede evrensel `border-box` reseti yok. `width: 100%` ile
+     `padding-inline` content-box'ta toplanıyor, yani kabuk kapsayıcısından
+     tam iki gutter kadar geniş oluyordu. Aşağıdaki `.content > *` kuralıyla
+     birlikte hata İKİ KAT birikiyordu (bkz. o kuralın notu).
+
+     Ölçüldü: 375px'te sayfa 48px, 1440px'te 72px yatay kayıyordu — ve
+     1440'ta `scrollLeft` gerçekten 72'ye gidiyordu, yani görünür bir
+     kaydırma çubuğu vardı. Masaüstü de dahil, bu bir hata düzeltmesi. */
+  box-sizing: border-box;
 }
 
 .content {
@@ -115,7 +126,21 @@
 }
 
 /* Sayfaların kendi yan boşluğu kabukta verildiği için içeride tekrarlanmıyor;
-   aksi hâlde ray ile içerik arasında iki kat boşluk oluşuyordu. */
-.content > * {
+   aksi hâlde ray ile içerik arasında iki kat boşluk oluşuyordu.
+
+   ⚠️ SEÇİCİ `.shell` ile başlıyor ve bu ŞART — kural yazıldığı hâliyle
+   ÇALIŞMIYORDU. `.content > *` özgüllüğü (0,1,0) sayfaların kendi `.page`
+   kuralıyla (0,1,0) eşit; eşitlikte kazananı paketteki sıra belirliyor ve
+   ölçüldüğünde kaybeden bu kuraldı: `.page`in `padding-inline: var(--mz-pad)`
+   değeri geçerli kalıyordu.
+
+   Sonuç, yorumda "önlendi" denen şeyin ta kendisiydi — iki kat boşluk — ve
+   ikisi de content-box olduğu için genişliğe de ekleniyorlardı: 375px'te
+   sayfa 48px, 1440px'te 72px yatay kayıyordu.
+
+   `.shell` öneki özgüllüğü 0,2,0 yapıyor, yani sonuç artık sıraya değil
+   kurala bağlı. `.content` zaten her zaman `.shell` içinde, o yüzden
+   eşleşme kümesi değişmiyor. */
+.shell .content > * {
   padding-inline: 0;
 }

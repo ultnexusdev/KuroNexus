@@ -1,5 +1,23 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Dağıtım — bilinmesi gereken tuzak
+
+`main`'e push, Coolify'ın **resmî GitHub App**'i üzerinden dağıtımı tetikler.
+
+15 Ağustos 2026'ya kadar depoda bir de **elle eklenmiş webhook** duruyordu (GitHub
+App'e geçmeden önceki kurulumdan kalma). İkisi birden tetiklendiği için her push
+**aynı servisin iki eşzamanlı build'ini** açıyordu. 4 GB'lık sunucu bunu kaldırmıyor:
+13-14 ve 15 Ağustos'ta site, API, SSH ve Coolify panelinin kendisi aynı anda
+erişilemez oldu. İmza, tek başına teşhis ettiriyor — TCP el sıkışması tamamlanıyor
+ama SSH banner'ı gelmiyor, HTTP zaman aşımına düşüyor, `free -m` swap'i %100 gösteriyor.
+
+Ölçüldüğü hâliyle: normalde ~5 dakika süren frontend build'i, iki kopya RAM için
+boğuştuğu için **23 dakika** sürüyordu.
+
+**Dağıtım yine ikizlenmeye başlarsa** ilk bakılacak yer depo → Settings → Webhooks.
+Orada elle eklenmiş bir kayıt olmamalı; Coolify'ın kendi ekranı da bunu söylüyor
+("You are using an official Git App. You do not need manual webhooks.").
+
 ## Getting Started
 
 First, run the development server:

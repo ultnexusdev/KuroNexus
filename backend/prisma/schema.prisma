@@ -139,8 +139,22 @@ model ExternalCache {
   fetchedAt DateTime @default(now())
 }
 
-// ---- Spor kanadı (Faz A: veriler admin panelden girilir, kural 4'e uygun
-// dış API entegrasyonu Faz B'de bu modellerin üstüne eklenecek) ----
+// ---- Spor kanadının ESKİ, EVREN TABANLI modelleri ----
+//
+// ⛔ ÖKSÜZ: 15 Ağustos 2026 itibarıyla bu dört tabloyu okuyan/yazan HİÇBİR kod
+// yolu yok. Onları besleyen `src/sport/` modülü (SportPublicController +
+// SportAdminController + SportService) o gün silindi; son tüketicileri
+// GsHall/F1Hall bileşenleriydi ve onlar 8 Ağustos'ta gitmişti. Kanat artık
+// `SportArchive*` modelleriyle (FootballClub/FootballLegend/F1Circuit/
+// F1Driver…) çalışıyor.
+//
+// TABLOLAR BİLEREK DURUYOR: içlerinde kullanıcının elle girdiği veri var ve
+// `DROP TABLE` geri alınamaz. Kod silmek `git revert` ile dönülebilir bir
+// karar, tabloyu düşürmek değil. Göç ya da düşürme AYRI bir tur — o tur
+// gelene kadar buraya yeni alan EKLENMEZ, yeni okuma yazılmaz.
+//
+// ℹ️ `prisma/remove-kadim-hall.ts` bu modelleri hâlâ SAYIYOR (evren silmeden
+// önceki güvenlik sayımı). Modeller şemadan çıkarılırsa o betik de düzeltilmeli.
 
 model SportPlayer {
   id          String  @id @default(cuid())

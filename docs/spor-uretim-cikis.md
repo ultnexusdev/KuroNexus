@@ -168,14 +168,27 @@ curl -s -o /dev/null -w '%{http_code}\n' https://kuronexus.com/dark-stories/gala
 
 ## Sonra ne kaldı
 
-**Ölü kod temizliği (Adım 4).** `GsHall`, `F1Hall`, `SportSplit` ve onlara bağlı
-5 bileşen + `lib/api/sport.ts` + 51 i18n anahtarı silinecek; `[categorySlug]` ve
-`[universeSlug]` içindeki iki dallanma düzenlenecek. **Toplam 13 dosya.**
+**✅ Ölü kod temizliği (Adım 4) — BİTTİ, iki turda.**
 
-Bu adım yeni sayfalar canlıda doğrulandıktan SONRA yapılmalı — o zamana kadar
-eski sayfalar erişilemez ama yerinde duruyor, yani bir sorun çıkarsa
-yönlendirmeleri geri alıp eski davranışa dönmek mümkün. Temizlikten sonra o
-kapı kapanıyor.
+*Ön yüz (8 Ağustos, `5ccc1d5`).* `GsHall`, `F1Hall`, `SportSplit` + bağlı 5
+bileşen, `lib/api/sport.ts`, i18n anahtarları ve `[categorySlug]` /
+`[universeSlug]` dallanmaları silindi.
+
+*Arka uç (15 Ağustos).* `backend/src/sport/` — `SportPublicController`
+(`/sport/:universeSlug`), `SportAdminController` (`/admin/sport/*`),
+`SportService` ve 5 DTO. **8 dosya, 493 satır** + `app.module.ts`ten iki satır.
+Ön yüz temizliğinden sonra bu modülün tüketicisi kalmamıştı: `frontend`
+tarafında `/sport/` ya da `/admin/sport` çağrısı ARANDI ve sıfır çıktı
+(kalan bütün eşleşmeler `/sport-archive/...` uçlarına ait). `nest build` temiz.
+
+⛔ **Prisma modelleri SİLİNMEDİ.** `SportPlayer`, `SportLegend`, `RaceEvent`,
+`DriverStanding` şemada duruyor ve tabloları dolu olabilir. Kodu silmek
+`git revert`le dönülebilir; `DROP TABLE` dönülemez. Göç/düşürme ayrı bir tur —
+gerekçesi `schema.prisma`da modellerin üstünde yazılı.
+
+Bu adım yeni sayfalar canlıda doğrulandıktan SONRA yapıldı (14 Ağustos
+doğrulaması: 9/9 sayfa 200, 4/4 yönlendirme doğru, joker sızıntısı yok).
+Yönlendirmeleri geri alıp eski davranışa dönme kapısı artık kapalı.
 
 **Günlük senkronizasyon.** `@nestjs/schedule` kurulu; `sync-f1-results.ts`
 mantığı bir cron job'a bağlanabilir. Faz 1'de gerek yok — podyum tarihi yılda

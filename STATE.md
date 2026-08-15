@@ -5,6 +5,32 @@
 
 ## Mevcut Aşama
 
+> ✅ **ÖLÜ KOD TEMİZLİĞİ KAPANDI (15 Ağustos).** İş, planda yazandan KÜÇÜK
+> çıktı: "13 dosya" maddesi bayattı — ön yüz ayağı (`GsHall`, `F1Hall`,
+> `SportSplit` + 5 bileşen, `lib/api/sport.ts`, i18n anahtarları, iki
+> dallanma) **8 Ağustos'ta `5ccc1d5` ile zaten yapılmıştı**, STATE.md'ye
+> yazılmamıştı. Bu turda kalan tek şey **arka uçtu**.
+>
+> **Silinen:** `backend/src/sport/` — `SportPublicController`
+> (`/sport/:universeSlug`), `SportAdminController` (`/admin/sport/*`),
+> `SportService`, 5 DTO. **8 dosya, 493 satır** + `app.module.ts`ten iki satır.
+> Tüketici araması sıfır döndü (ön yüzdeki bütün `/sport…` eşleşmeleri
+> `/sport-archive/...` uçlarına ait). `nest build` temiz.
+>
+> ⛔ **Dört Prisma modeli SİLİNMEDİ ve bu bilinçli:** `SportPlayer`,
+> `SportLegend`, `RaceEvent`, `DriverStanding`. Kod silmek `git revert`le
+> dönülebilir bir karar, `DROP TABLE` değil — tablolarda kullanıcının elle
+> girdiği veri olabilir ve buradan üretimdeki satır sayısı ÖLÇÜLEMEDİ.
+> Gerekçe `schema.prisma`da modellerin üstünde duruyor. Göç ya da düşürme
+> ayrı bir tur; o güne kadar bu tablolara yeni alan eklenmez.
+> ℹ️ `prisma/remove-kadim-hall.ts` bu modelleri hâlâ sayıyor — modeller
+> şemadan çıkarılırsa o betik de düzeltilmeli.
+>
+> 🔁 **DERS (kural 9'un aynı hatası ikinci kez):** 8 Ağustos'taki temizlik
+> STATE.md'ye yazılmadığı için bir hafta "açık iş" olarak duruyordu ve bu tur
+> onu yeniden yapmaya kalkışabilirdi. Logo turunda aynı şey olmuştu
+> (aşağıda, 12 Ağustos). Bitirilen iş DEFTERE YAZILMAZSA bitmemiş sayılıyor.
+>
 > ══════════════════════════════════════════════════════════════════════════
 > ## 📌 14 AĞUSTOS KAPANIŞI — EVDE BURADAN DEVAM
 >
@@ -68,11 +94,7 @@
 >
 > ### Bu turda açılmayan, duran maddeler
 >
-> - **Ölü kod temizliği** — `GsHall`, `F1Hall`, `SportSplit` + 5 bileşen,
->   `lib/api/sport.ts`, 51 i18n anahtarı, iki dallanma. **13 dosya.**
->   Spor sayfaları canlıda doğrulandı (14 Ağustos, 9/9 sayfa 200, 4/4
->   yönlendirme doğru, joker sızıntısı yok) — yani bu iş artık AÇIK.
->   `docs/spor-uretim-cikis.md` "Sonra ne kaldı".
+> - ~~**Ölü kod temizliği**~~ ✅ **KAPANDI (15 Ağustos).** Aşağıya bak.
 > - **Kayıt → sayfa bağı.** Kullanıcı: "ilerleyen süreçte ben ilgili
 >   sayfaları ürettikçe sana derim bu tarihi bu sayfaya bağla gibi."
 >   Şema hazır (`eraId`, `circuitId` nullable ve duruyor), arayüzü yok.

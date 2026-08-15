@@ -4,10 +4,11 @@ import { PrismaService } from '../prisma/prisma.service';
 /**
  * Salon 06 · Spor Arşivi — okuma servisi.
  *
- * Mevcut `SportService`ten AYRI bir modül: o, evren tabanlı eski spor verisini
- * (SportPlayer/SportLegend/RaceEvent/DriverStanding) sunuyor ve GsHall/F1Hall
- * onunla çalışıyor. Bu modül yeni arşiv modellerini sunuyor. İkisi bir süre
- * yan yana yaşayacak; göç ayrı bir karar (bkz. şema yorumu "karar 4").
+ * Kanadın TEK okuma servisi. Eskiden yanında `SportService` vardı (evren
+ * tabanlı SportPlayer/SportLegend/RaceEvent/DriverStanding, GsHall/F1Hall'a
+ * hizmet ediyordu); salon bileşenleri 8 Ağustos'ta, servisin kendisi
+ * 15 Ağustos'ta silindi. O dört tablo ŞEMADA DURUYOR ama artık hiçbir kod
+ * yolu okumuyor — veri göçü hâlâ ayrı bir karar (bkz. şema yorumu).
  *
  * ── YAYIN KAPISI ──────────────────────────────────────────────────────────
  * Her sorgu `isPublished: true, isDeleted: false` süzüyor. Anlatının GERÇEKTEN

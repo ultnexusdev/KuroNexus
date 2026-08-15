@@ -6,10 +6,10 @@ import { SportArchiveAdminController } from './sport-archive.admin.controller';
 import { PrismaModule } from '../prisma/prisma.module';
 
 /**
- * Salon 06 · Spor Arşivi. Mevcut `SportModule`den ayrı tutuldu: o evren
- * tabanlı eski veriyi sunuyor ve canlıda çalışıyor, bu yeni arşiv modellerini.
- * İkisi bir süre yan yana yaşayacak; ayrı modül, göç günü birini kaldırmayı
- * tek dosyalık bir iş yapıyor.
+ * Salon 06 · Spor Arşivi — kanadın TEK modülü. Kurulurken eski `SportModule`
+ * (evren tabanlı veri) ile yan yana yaşasın diye AYRI tutulmuştu; ayrım işe
+ * yaradı: 15 Ağustos'ta eskisini kaldırmak gerçekten tek dosyalık bir iş oldu
+ * (`app.module.ts`ten iki satır). Bu, ayrı modül tutmanın karşılığıydı.
  *
  * İki controller, iki servis ve ayrımları KURAL: okuma tarafı yalnızca
  * yayınlanmışı görür ve `@Public()`; küratör tarafı taslakları da görür ve

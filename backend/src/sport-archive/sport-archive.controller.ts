@@ -6,9 +6,10 @@ import { Public } from '../common/decorators/public.decorator';
  * Salon 06 · Spor Arşivi — genel uçlar.
  *
  * Altı uç, altı sayfa. Bire bir eşleşme kasıtlı: bir sayfanın ihtiyacı olan
- * her şey tek istekte geliyor, ön yüz parça birleştirmiyor. Mevcut
- * `SportPublicController` (`/sport/:universeSlug`) dokunulmadan duruyor —
- * GsHall/F1Hall hâlâ onunla çalışıyor.
+ * her şey tek istekte geliyor, ön yüz parça birleştirmiyor. Kanadın tek genel
+ * denetleyicisi: eski `SportPublicController` (`/sport/:universeSlug`) ve
+ * `SportAdminController` (`/admin/sport/*`) 15 Ağustos'ta silindi — son
+ * tüketicileri GsHall/F1Hall'du, onlar da 8 Ağustos'ta gitmişti.
  *
  * Yazma uçları (admin CRUD) BİLİNÇLE YOK: şemadaki künye modelleri Faz 1'de
  * hiçbir sayfa beslemiyor, panelde form açmak altı ay sonra "bunlar ne"

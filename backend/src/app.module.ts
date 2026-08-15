@@ -17,7 +17,6 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { AmbientTracksModule } from './ambient-tracks/ambient-tracks.module';
 import { TransferNewsModule } from './transfer-news/transfer-news.module';
-import { SportModule } from './sport/sport.module';
 import { SportArchiveModule } from './sport-archive/sport-archive.module';
 import { FootballModule } from './football/football.module';
 import { CategoriesModule } from './categories/categories.module';
@@ -75,7 +74,6 @@ import { PulseModule } from './pulse/pulse.module';
     UploadsModule,
     AmbientTracksModule,
     TransferNewsModule,
-    SportModule,
     SportArchiveModule,
     FootballModule,
     CategoriesModule,

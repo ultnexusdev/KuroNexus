@@ -58,6 +58,17 @@
   color: var(--accent);
 }
 
+/* Geri baglantisi dokunmatikte 83x22 px olculdu — kural 2'nin altinda.
+   Ust serit `align-items: center` oldugu icin kurator dugmesiyle hizasi
+   bozulmuyor; masaustunde olcu degismiyor. */
+@media (pointer: coarse) {
+  .back {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--touch-min);
+  }
+}
+
 /* --- Kunye --- */
 
 .head {
@@ -878,8 +889,49 @@ a.providerLink:hover {
     width: 130px;
   }
 
+  /* `minmax(96px, …)` 320px'lik ekranda uc sutuna yetmiyor: kullanilabilir
+     288px'e 3x96 + 2x12 = 312px sigmayinca izgara IKI sutuna dusuyor ve
+     yuvarlak portreler 138px'e sisiyor. `min(96px, 30%)` tabani dar ekranda
+     kendiliginden kisiliyor; 375px ve ustunde davranis birebir eskisi.
+     (Film salonunda olculdu, ayni izgara.) */
   .cast {
-    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(96px, 30%), 1fr));
+  }
+}
+
+/* --- Yan raylar dar ve orta ekranda ---
+   Raylar masaustunde 300px'lik sutunlar; 900px altinda tek sutuna inip sayfa
+   genisligine yayiliyorlar. Ray icerigi 300px icin tasarlandigi icin orada
+   sismis oluyor: 16/9 sahne kareleri neredeyse tam genislige aciliyor
+   (375px'te "Sahne Kareleri" blogu tek basina 1177px olculdu), tek satirlik
+   baglanti listeleri de 700px'lik satirlara.
+
+   Duzeltme raylari yeniden tasarlamiyor, yalnizca ray ICERIGININ olcusunu
+   bulundugu genislige bagliyor. Film sayfasinda ayni duzeltme yapildi ve
+   768px'te sayfa 8046px'ten 4873px'e indi. */
+@media (max-width: 900px) {
+  .stills {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 900px) {
+  .stills {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  /* Tek satirlik listeler tablette iki kolona akiyor. Satirlarin kendisi
+     44px'lik dokunma tabanini koruyor; degisen tek sey, 700px'lik bir
+     satirin sag yarisinin bos kalmamasi. */
+  .providers,
+  .links,
+  .similar {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--gap-md);
+    align-items: start;
   }
 }
 
@@ -1130,4 +1182,69 @@ a.providerLink:hover {
   margin: var(--gap-sm) 0 0;
   color: var(--text-muted);
   font-size: 0.72rem;
+}
+
+/* --- Sezon ve bolum kontrolleri dokunmatikte ---
+
+   Bu sayfanin ASIL etkileşimi burasi: sezonu acmak ve bolum isaretlemek.
+   375px'te olculdu (izgara gercek sinif adlariyla kurulup olculdu, tahmin
+   degil):
+
+     bolum dugmesi   41.8 x 30 px, 7 kolon, aralik 4px
+     sezon oku       30 x 30 px
+     sezon basligi   193 x 16 px
+
+   Ucu de kural 2'nin 44px tabaninin altinda ve bolum dugmeleri bir sezonda
+   yirmiden fazla olabiliyor — yani telefonda yanlis bolumu isaretlemek
+   kolay. Bu, film salonundaki tur ciplerinden daha ciddi: cip yanlissa
+   suzgec degisir, bolum yanlissa ARSIV KAYDI bozulur.
+
+   Cozum ciplerdekinden farkli olarak gorunmez alan genisletmesi DEGIL,
+   dogrudan buyutme: bolum dugmeleri yan yana ve aralari 4px oldugu icin
+   sozde ogeler birbirinin uzerine binerdi. Izgara tabani 38 -> 44px,
+   aralik 4 -> 6px olunca 375px'te 7 kolon 6 kolona iniyor ve her dugme
+   48 x 44 px oluyor. Bedeli sezon basina ~60px; ayni anda tek sezon acik
+   oldugu icin sayfa boyuna etkisi sinirli.
+
+   Sezon basligi ise metin dugmesi: onu buyutmek satir yuksekligini
+   bozacagi icin alan genisletmesi kullaniliyor. Yatayda genislemiyor
+   (`inset: -14px 0`), yani sagindaki okun dokunusunu calmiyor; altindaki
+   kunye ve ilerleme cubugu etkilesimli degil, ustune binmesi zararsiz.
+
+   Fareli ekranda hicbiri degismiyor. */
+@media (pointer: coarse) {
+  .episodeGrid {
+    grid-template-columns: repeat(auto-fill, minmax(var(--touch-min), 1fr));
+    gap: 6px;
+  }
+
+  .ep,
+  .epWatched,
+  .epSkipped {
+    min-height: var(--touch-min);
+  }
+
+  .seasonChevron {
+    width: var(--touch-min);
+    height: var(--touch-min);
+  }
+
+  .seasonToggle {
+    position: relative;
+  }
+
+  .seasonToggle::after {
+    content: "";
+    position: absolute;
+    inset: -14px 0;
+  }
+
+  .seasonTool,
+  .stepBtn {
+    min-height: var(--touch-min);
+  }
+
+  .stepBtn {
+    width: var(--touch-min);
+  }
 }

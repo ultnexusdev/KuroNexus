@@ -301,7 +301,13 @@
 /* Kaynak künyesi — türetilmiş sayının nereden geldiğini söyleyen satır. */
 .provenance {
   padding: 0 var(--sp-gutter);
-  max-width: 60ch;
+  /* ⚠️ `--sp-gutter` 1440px'te 72px, yani iki yanda 144px. Global
+     `border-box` sonrasi duz `60ch` birakilirsa bu 144px olcunun ICINE
+     girer: canlida olculdu, metin sutunu 457 -> 313px (-%31) ve kunye bir
+     satir daha kiriliyordu. Kanattaki en buyuk tek daralma buydu.
+     Ayni telafi deseni pistler/[slug]:130 ve efsaneler/[slug]:32'de zaten
+     var — orada elle `box-sizing: border-box` yazildigi icin gerekmisti. */
+  max-width: calc(60ch + var(--sp-gutter) * 2);
   line-height: 1.7;
   opacity: 0.75;
 }

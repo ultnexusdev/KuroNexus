@@ -378,7 +378,12 @@
   justify-content: space-between;
   gap: 0.75rem 1.5rem;
   padding: 0 var(--sp-gutter);
-  max-width: 54rem;
+  /* ⚠️ Telafi `justify-content: space-between` yuzunden zorunlu: global
+     `border-box` sonrasi duz 54rem yazilsaydi kutu 1008 -> 864px'e iner
+     (1440px'te olculdu) ve baslik ile not arasindaki 144px'lik acinim
+     kapanirdi. Ustelik altindaki kronoloji seridi kendi genisligini
+     ayri hesapladigi icin ikisinin hizasi da bozulurdu. */
+  max-width: calc(54rem + var(--sp-gutter) * 2);
 }
 
 .chronoNote {

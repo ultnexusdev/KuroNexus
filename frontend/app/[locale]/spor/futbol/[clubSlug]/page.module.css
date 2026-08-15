@@ -64,6 +64,12 @@
   color: var(--text-secondary);
   border-left: 2px solid var(--sport-line);
   padding-left: var(--pad-md);
+  /* Öge hem `.prose` (layout.module.css, `max-width: var(--sp-measure)`)
+     hem bu sınıfı taşıyor; ölçü oradan geliyor, sol şerit buradan. Dosya
+     bazlı tarama bu birleşimi göremez — canlı ölçümde bulundu.
+     `.personal` ile aynı gerekçe: telafi olmadan okuma ölçüsü 534px'e
+     iner ve `.prose`nin 552'siyle ayrışır. */
+  max-width: calc(var(--sp-measure) + var(--pad-md) + 2px);
 }
 
 /* ---- Dönem içi alt bölümler ---- */
@@ -178,7 +184,13 @@
   margin: var(--gap-lg) 0 0;
   padding: var(--pad-md) 0 var(--pad-md) var(--pad-lg);
   border-left: 2px solid var(--gs-gold);
-  max-width: var(--sp-measure);
+  /* `--sp-measure` (64ch) bu kanatta OKUMA olcusudur ve sayfadaki uc metin
+     blogu onu paylasir. Alinti seridideki sol cizgi + dolgu olcunun DISINDA
+     olculmustu; global `border-box` sonrasi duz `var(--sp-measure)`
+     yazilsaydi bu blok 526px'e, komsusu .context 534px'e inerken dolgusuz
+     .prose 552px'te kalirdi — bugun esit olan uc olcu birbirinden ayrisirdi.
+     Daralmanin buyuklugu degil, ESITLIGIN bozulmasi sorun. */
+  max-width: calc(var(--sp-measure) + var(--pad-lg) + 2px);
 }
 
 .personal p {

@@ -109,6 +109,15 @@
 /* Künyedeki tıklanabilir ad (yazar, çevirmen, yayınevi). Altı çizili DEĞİL:
    künyede yan yana çok sayıda ad var, hepsi çizilince satır okunmaz oluyordu —
    ayırt edici olan renk, üstüne gelince alt çizgi beliriyor. */
+/* Künye bağlantıları (yazar, çevirmen, yayınevi) 375px'te ~100x21 px ölçüldü
+   — kural 2 tabanının altında, üstelik bunlar kitabın kişi/yayınevi
+   sayfalarına açılan ASIL çapraz bağlantıları; yerlerine geçecek daha büyük
+   bir hedef yok.
+
+   Büyütmek yerine görünmez alan genişletmesi kullanılıyor, çünkü bunlar cümle
+   içinde akan satır içi bağlantılar: yükseklik verilirse künye satırının
+   kendi hizası bozulur. `inset: -12px 0` yatayda genişlemiyor, yani aynı
+   satırdaki komşu bağlantının dokunuşunu çalmıyor. */
 .creditLink {
   color: inherit;
   text-decoration: none;
@@ -529,4 +538,28 @@
   font-size: 0.74rem;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Geri baglantisi dokunmatikte 44px.
+   Kitap kanadinin sekiz modulunde de ayni baglanti 22-23px olculdu (kural 2
+   tabani 44px). Yalnizca kaba isaretcide buyuyor; fareli ekranda olcu
+   degismiyor, yani masaustu bosluk duzeni oldugu gibi kaliyor.
+   Film ve dizi kanatlarinda ayni duzeltme yapildi. */
+@media (pointer: coarse) {
+  .back {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--touch-min);
+  }
+
+  /* bkz. `.creditLink` üstündeki not */
+  .creditLink {
+    position: relative;
+  }
+
+  .creditLink::after {
+    content: "";
+    position: absolute;
+    inset: -12px 0;
+  }
 }

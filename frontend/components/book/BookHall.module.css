@@ -577,6 +577,47 @@
   color: var(--accent-hover);
 }
 
+/* "Tumunu goster" ve ray baglantilari dokunmatikte 44px.
+   375px'te 81x21 px olculdu — kural 2 tabaninin yarisi kadar. Film salonunda
+   ayni gorevdeki `.showAll` kenarlikli 44px'lik bir dugme; burada duz bir
+   metin baglantisi oldugu icin gorunumu degistirmeden yalnizca yuksekligi
+   veriliyor. Kendi satirinda durdugu icin (`.shelfFooter` flex, sona
+   hizali) buyumesi komsu bir seyi itmiyor.
+
+   Bu duzeltme ayni zamanda `.shelfTitle`i tasiyan `.shelfLink`in (35px)
+   gerekcesi: rafin altinda AYNI adrese giden 44px'lik bir hedef olusuyor,
+   yani baslik baglantisi WCAG 2.5.8'in "esdeger hedef" istisnasina giriyor. */
+@media (pointer: coarse) {
+  .showAll,
+  .railLink {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--touch-min);
+  }
+
+  /* Odul seridine giden blok baglantisi 309x35 px'ti. `display` ve hizalama
+     BILINCLI olarak degistirilmiyor — kural yalnizca alt sinir koyuyor,
+     boylece metnin kendi ust cizgisine gore konumu kaymiyor. */
+  .awardsLink {
+    min-height: var(--touch-min);
+  }
+
+  /* Blok basligi baglantisi ("Serilerim" vb.) 69x26 px'ti ve kapsayicisinda
+     ayni adrese giden BASKA hicbir hedef yok — yani `.shelfLink`teki
+     "esdeger hedef" gerekcesi burada gecmiyor, gercekten duzeltilmesi
+     gerekiyordu. Baslik satirinin hizasi bozulmasin diye alan genisletmesi;
+     yatayda genislemedigi icin yanindaki sayacin dokunusunu calmiyor. */
+  .blockLink {
+    position: relative;
+  }
+
+  .blockLink::after {
+    content: "";
+    position: absolute;
+    inset: -9px 0;
+  }
+}
+
 /* --- Rafin kendi sayfasindaki izgara --- */
 
 .grid {
@@ -1210,4 +1251,17 @@
 .quotePage {
   color: var(--text-muted);
   font-variant-numeric: tabular-nums;
+}
+
+/* Geri baglantisi dokunmatikte 44px.
+   Kitap kanadinin sekiz modulunde de ayni baglanti 22-23px olculdu (kural 2
+   tabani 44px). Yalnizca kaba isaretcide buyuyor; fareli ekranda olcu
+   degismiyor, yani masaustu bosluk duzeni oldugu gibi kaliyor.
+   Film ve dizi kanatlarinda ayni duzeltme yapildi. */
+@media (pointer: coarse) {
+  .back {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--touch-min);
+  }
 }

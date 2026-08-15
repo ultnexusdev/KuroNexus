@@ -60,3 +60,16 @@
   font-family: var(--font-cormorant), serif;
   font-size: 1.02rem;
 }
+
+/* Geri baglantisi dokunmatikte 44px.
+   Kitap kanadinin sekiz modulunde de ayni baglanti 22-23px olculdu (kural 2
+   tabani 44px). Yalnizca kaba isaretcide buyuyor; fareli ekranda olcu
+   degismiyor, yani masaustu bosluk duzeni oldugu gibi kaliyor.
+   Film ve dizi kanatlarinda ayni duzeltme yapildi. */
+@media (pointer: coarse) {
+  .back {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--touch-min);
+  }
+}

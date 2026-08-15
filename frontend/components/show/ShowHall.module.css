@@ -54,6 +54,17 @@
   color: var(--accent);
 }
 
+/* Geri baglantisi dokunmatikte 39x22 px olculdu — kural 2'nin (44px) altinda.
+   Yalnizca kaba isaretcide buyuyor; masaustu olculeri degismiyor.
+   Film salonunda ayni duzeltme yapildi, ayni gerekce. */
+@media (pointer: coarse) {
+  .back {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--touch-min);
+  }
+}
+
 .eyebrow {
   display: block;
   color: var(--gold);
@@ -235,6 +246,29 @@
   );
 }
 
+/* Dokunmatikte kenar solmasi daralir. Yukaridaki 44px, ScrollStrip'in ok
+   dugmelerinin genisligine gore secilmisti; ScrollStrip ise pointer: coarse
+   altinda oklari HIC cizmiyor. Yani telefonda solma bir seyin ustunu
+   ortmuyordu, yalnizca 343px'lik seridin 88px'ini yiyordu. */
+@media (pointer: coarse) {
+  .stripTrack {
+    mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      #000 20px,
+      #000 calc(100% - 20px),
+      transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      #000 20px,
+      #000 calc(100% - 20px),
+      transparent 100%
+    );
+  }
+}
+
 .stripTrack::-webkit-scrollbar {
   display: none;
 }
@@ -315,6 +349,34 @@
 .chip:hover {
   border-color: var(--border-strong);
   color: var(--text-primary);
+}
+
+/* Tur suzgeci dokunmatikte: cipler 28px yuksekliginde, kural 2'nin (44px)
+   altinda. Cipi buyutmek yerine gorunmez bir sozde ogeyle dokunma alani
+   genisliyor — gorsel yogunluk ayni kaliyor.
+
+   Iki sayi da film salonunda elementFromPoint ile olculerek bulundu:
+   • +-9px, cunku sozde ogenin kapsayici blogu dugmenin PADDING kutusu
+     (28px'lik cipin 1px'lik kenarliklari dusulmus 26px'i); +-8px yazinca
+     alan 42px cikiyor, 44 degil.
+   • Dikey aralik 18px, cunku 8px'lik araliktaki alanlar ust uste binip
+     DOM'da sonra gelen satir kazaniyor ve ustteki cip 36px'e dusuyordu. */
+@media (pointer: coarse) {
+  .chips {
+    row-gap: 18px;
+  }
+
+  .chip,
+  .chipActive {
+    position: relative;
+  }
+
+  .chip::after,
+  .chipActive::after {
+    content: "";
+    position: absolute;
+    inset: -9px 0;
+  }
 }
 
 /* --- Raflar (bolum bolum) --- */

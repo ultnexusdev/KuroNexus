@@ -245,6 +245,10 @@
 
 .tableWrap {
   overflow-x: auto;
+  /* Tablo kendi içinde kayıyor ama parmak sağ uca varınca kaydırma sayfaya,
+     oradan tarayıcının geri/ileri hareketine devrediliyordu. Projedeki diğer
+     yatay şeritlerde bu satır zaten var; tablolarda atlanmış. */
+  overscroll-behavior-x: contain;
   border-top: 1px solid var(--f1-red);
   min-width: 0;
 }

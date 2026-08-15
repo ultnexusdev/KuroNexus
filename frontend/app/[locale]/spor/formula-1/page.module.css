@@ -35,6 +35,11 @@
 /* Geniş içerik kendi kabında kayar; sayfa gövdesi yana kaymaz */
 .tableWrap {
   overflow-x: auto;
+  /* Tablo kendi içinde kayıyor ama parmak sağ uca varınca kaydırma SAYFAYA,
+     oradan da tarayıcının geri/ileri hareketine devrediliyordu. Projedeki
+     diğer yatay şeritlerin hepsinde bu satır zaten var (SportChronology,
+     PodiumStage, film ve dizi şeritleri); tablolarda atlanmış. */
+  overscroll-behavior-x: contain;
   border-top: 1px solid var(--f1-red);
   min-width: 0;
 }

@@ -696,7 +696,10 @@
   position: absolute;
   top: 6px;
   right: 6px;
-  min-width: 20px;
+  /* 30 = 20px sayi alani + 5px x2 dolgu. Global `border-box` sonrasi
+     min-width DIS olcu; 20px birakilsaydi tek haneli ciltlerde etiket
+     30 -> 20px'e duser ve iki haneliyle ayni genislikte durmazdi. */
+  min-width: 30px;
   padding: 2px 5px;
   border-radius: var(--radius);
   background: color-mix(in srgb, var(--bg) 82%, transparent);

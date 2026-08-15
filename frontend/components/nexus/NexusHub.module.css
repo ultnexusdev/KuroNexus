@@ -147,7 +147,11 @@
 
 .featuredInner {
   position: relative;
-  max-width: 46rem;
+  /* Global `border-box` sonrasi max-width DIS olcu. Dolgu 4vw'ye bagli
+     oldugu icin telafi de degiskene bagli olmak zorunda: duz 46rem
+     birakilsaydi metin sutunu 1440px'te 832 -> 736px'e inerdi (-96px,
+     olculdu) — sayfadaki en buyuk tek daralma buydu. */
+  max-width: calc(46rem + 2 * clamp(var(--gap-lg), 4vw, 48px));
   padding: clamp(var(--gap-lg), 4vw, 48px);
 }
 

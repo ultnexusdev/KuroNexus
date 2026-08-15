@@ -243,7 +243,14 @@
     /* Pay %33'ten %42'ye çıktı: 420px'lik tavanda mühür (200px) ile motto
        aynı sütunu paylaşınca metne 281px kalıyordu. Duvar bu genişlemeden
        kayba uğramıyor çünkü ızgaranın kendisi de 1504 → 1728px büyüdü. */
-    flex: 0 0 clamp(300px, 42%, 720px);
+    /* ⚠️ Dolgu flex-basis'e KATILMAK zorunda. Global `border-box` sonrasi
+       flex-basis dis olcudur; duz clamp(300px,42%,720px) birakilsaydi
+       kutunun tamami 42%'ye sigar ve sag dolgu ICERIDEN yerdi. Olcum
+       (1280px): .curator 537 -> 499px, .textCol 263 -> 225px. Zincir orada
+       bitmiyor — .manifesto punto kaynagi `14.5cqw` yani .textCol'un
+       genisligi; sutun daralinca hero BASLIGININ FONTU da ~%14 kuculuyordu
+       ve .eyebrow iki satira kiriliyordu. */
+    flex: 0 0 calc(clamp(300px, 42%, 720px) + clamp(16px, 3vw, 48px));
     padding-right: clamp(16px, 3vw, 48px);
     /* Küratör bloğu dikeyde ortalanır: eski "sol-alt boşluk" hissi kapanır */
     justify-content: center;

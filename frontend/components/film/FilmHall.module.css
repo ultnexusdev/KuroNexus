@@ -279,7 +279,12 @@
 
 .frame {
   flex: 0 0 auto;
-  width: 116px;
+  /* 133 = afis alani 116 + 8px x2 serit dolgusu + 1px perforasyon cizgisi.
+     Global `border-box` (globals.css) sonrasi width DIS olcu; 116px
+     birakilsaydi 35mm karesi 133 -> 116px'e, icindeki .framePoster
+     (aspect-ratio 2/3) 116x174 -> 99x148.5'e duserdi (-%13). Bu serit
+     salonun imzasi, olcusu bilincli secilmisti. */
+  width: 133px;
   padding: 8px;
   border-left: 1px solid var(--film-curtain);
   scroll-snap-align: start;
@@ -849,7 +854,8 @@
   }
 
   .frame {
-    width: 148px;
+    /* 165 = afis alani 148 + 17px serit payi (bkz. .frame taban kurali) */
+    width: 165px;
   }
 
   .statValue {

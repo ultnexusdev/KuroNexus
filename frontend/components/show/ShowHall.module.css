@@ -286,7 +286,11 @@
 
 .frame {
   flex: 0 0 auto;
-  width: 116px;
+  /* 133 = afis alani 116 + 8px x2 serit dolgusu + 1px perforasyon cizgisi.
+     Global `border-box` (globals.css) sonrasi width DIS olcu; 116px
+     birakilsaydi kare 133 -> 116px'e, afis 116x174 -> 99x148.5'e duserdi.
+     FilmHall.module.css:280 ile ayni desen — iki salon ayni olcuyu tasiyor. */
+  width: 133px;
   padding: 8px;
   border-left: 1px solid var(--show-curtain);
   scroll-snap-align: start;
@@ -890,7 +894,8 @@
   }
 
   .frame {
-    width: 148px;
+    /* 165 = afis alani 148 + 17px serit payi (bkz. .frame taban kurali) */
+    width: 165px;
   }
 
   .statValue {

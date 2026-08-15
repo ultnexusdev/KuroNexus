@@ -208,7 +208,12 @@
 
 .codex {
   position: relative;
-  max-width: 60rem;
+  /* ⚠️ Telafi YAPISAL (bkz. [universeSlug]/page.module.css .codex). Duz
+     60rem ic sutunu 960 -> 912px'e indirir; .list izgarasi
+     minmax(220px, 1fr) + 20px gap ile (960+20)/240 = 4,08 -> 4 sutun iken
+     (912+20)/240 = 3,88 -> 3 SUTUNA duser. Kadim Dunyalar kategori
+     sayfasi ~988px ustunde bir sutun kaybederdi. */
+  max-width: calc(60rem + var(--pad-lg) * 2);
   margin: 0 auto;
   padding: clamp(24px, 5vw, 44px) var(--pad-lg) 56px;
 }

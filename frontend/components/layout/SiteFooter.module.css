@@ -6,7 +6,12 @@
 }
 
 .inner {
-  max-width: 72rem;
+  /* 75rem = icerik sutunu 72rem + yatay dolgu 2x1.5rem.
+     Global `border-box` (globals.css) max-width'i DIS olcuye cevirdi; duz
+     72rem yazilsaydi footer izgarasi 1152px'e inip her sutun ~12px
+     kaybederdi (olculdu: 1200 -> 1152). Deger degismis gibi gorunuyor ama
+     cizilen genislik 15 Agustos oncesiyle birebir ayni. */
+  max-width: 75rem;
   margin: 0 auto;
   padding: 3rem 1.5rem 2rem;
   display: grid;

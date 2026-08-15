@@ -115,7 +115,12 @@
 /* --- Codex gövde --- */
 .codex {
   position: relative;
-  max-width: 54rem;
+  /* ⚠️ Telafi YAPISAL, kozmetik degil. Global `border-box` sonrasi duz
+     54rem birakilsaydi ic sutun 864 -> 816px'e inerdi ve icindeki .list
+     izgarasi — repeat(auto-fill, minmax(200px, 1fr)) + 20px gap — geniş
+     ekranda 4 SUTUNDAN 3 SUTUNA duserdi ((864+20)/220 = 4,02 karsi
+     (816+20)/220 = 3,80). Sutun sayisi degisimi goz kacirilmaz. */
+  max-width: calc(54rem + var(--pad-lg) * 2);
   margin: 0 auto;
   padding: clamp(24px, 5vw, 44px) var(--pad-lg) 48px;
 }

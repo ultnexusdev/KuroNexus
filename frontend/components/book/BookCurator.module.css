@@ -314,7 +314,10 @@
 .srcOpenLibrary,
 .srcBinKitap {
   flex-shrink: 0;
-  min-width: 22px;
+  /* 30 = 22px etiket alani + 4px x2 dolgu. Uc rozetin de AYNI genislikte
+     durmasi bu kuralin isi; global `border-box` sonrasi duz 22px
+     birakilsaydi 'G' 22px, 'OL'/'1K' 23px cizilir ve hiza bozulurdu. */
+  min-width: 30px;
   padding: 1px 4px;
   border-radius: 2px;
   font-family: var(--font-bebas), var(--font-sans);

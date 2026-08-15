@@ -150,7 +150,14 @@
 .field textarea,
 .field select {
   width: 100%;
-  min-height: 38px;
+  /* ⚠️ Buradaki deger 38px'ti ve denetimde projedeki TEK gercek kirilma
+     buydu. `content-box`ta dis yukseklik 38 + 16 dolgu + 2 cerceve = 56px
+     oluyordu, yani kural 2'nin 44px tabani KAZAYLA saglaniyordu. Global
+     `border-box` ile 38px dis olcuye donusunce hedef 44'un ALTINA duserdi.
+     Ayrica bu kuraldaki <select>'i tarayici zaten border-box cizdigi icin
+     BUGUN de 38px — yani satir icinde girdi 56px, select 38px duruyordu.
+     44px hem ihlali kapatiyor hem o tutarsizligi gideriyor. */
+  min-height: var(--touch-min);
   padding: var(--gap-sm);
   background: var(--bg);
   border: 1px solid var(--border);

@@ -197,6 +197,16 @@
   --step-min: 13.5rem; /* çakışma sigortası: bir kart + nefes */
   --step-span: 11rem; /* orantının payı: en uzun yıl boşluğu bu kadar açar */
   --card-w: 11.5rem;
+  /* Kartin DIS olcusu = metin sutunu + sap payi (sol 0.7rem + kilcal cizgi
+     1px) + sag nefes (0.75rem). Global `border-box` (globals.css) oncesinde
+     bu ayrim gerekmiyordu: `width: var(--card-w)` ICERIK genisligiydi ve
+     dolgu disariya ekleniyordu. Artik width dis olcu, dolayisiyla ikisi
+     ayri isimlendirildi.
+     Tek kaynak olmasi SART: `.rail`in genislik formulu son karta yer
+     ayirirken de bu olcuyu kullaniyor. Yalnizca `.card`a telafi yazilsaydi
+     serit son karti 24.2px tasitirdi. --card-w'den TUREVDIR, o yuzden dar
+     ekran blogundaki 9.25rem override'i kendiliginden kapsanir. */
+  --card-box: calc(var(--card-w) + 0.7rem + 0.75rem + 1px);
   --rail-pad: var(--sp-gutter);
   /* Şerit yüksekliği: kartın en uzun hâli (yıl + üç satır başlık + künye) +
      sapın boyu. `.track` düşeyde kırpıyor, o yüzden bu ölçü tahmin değil
@@ -210,8 +220,8 @@
   padding: 0;
   position: relative;
   width: calc(
-    var(--rail-pad) * 2 + var(--card-w) + var(--x-count, 0) * var(--step-min) +
-      var(--x-total, 0) * var(--step-span)
+    var(--rail-pad) * 2 + var(--card-box) + var(--x-count, 0) *
+      var(--step-min) + var(--x-total, 0) * var(--step-span)
   );
   /* Kısa şeritte kabın tamamını doldur ki eksen kenardan kenara gitsin */
   min-width: 100%;
@@ -326,7 +336,10 @@
 .card {
   position: absolute;
   left: 0;
-  width: var(--card-w);
+  /* Dis olcu (bkz. .rail'deki --card-box). Duz `var(--card-w)` yazilsaydi
+     24.2px iceri girer, kart 320px'te 172 -> 148px'e duser ve olcumde
+     .cardTitle iki satira kirilirdi. */
+  width: var(--card-box);
   display: flex;
   flex-direction: column;
   gap: 0.2rem;

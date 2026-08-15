@@ -5,6 +5,48 @@
    Uc dark tema ayni token setini override eder.
    ============================================================ */
 
+/* ============================================================
+   KUTU MODELI — tek kaynak (15 Agustos 2026)
+
+   15 Agustos'a kadar projede global bir `box-sizing` sifirlamasi YOKTU:
+   Tailwind yok, PostCSS reset yok, yani her sey tarayici varsayilani olan
+   `content-box`'ti. Sonucu 25 dosyada elle yazilmis 46 `box-sizing:
+   border-box` bildirimi ve UC AYRI dosyada "projede genel sifirlama yok,
+   bunu yazmazsan taşar" diye birakilmis uyari yorumuydu (AnimeDetail:37,
+   CharacterSections:410, BookHall:1013 — sonuncusu gercek bir kullanici
+   hata bildiriminden sonra yazilmis).
+
+   Kararin dayanagi olcumdur, moda degil. Canli sitede sekiz sayfa
+   320/390/1280/1440/1920'de reset ACIK ve KAPALI olcuLdu:
+   - Yatay tasma: iki durumda da YOK (scrollWidth == clientWidth). Yani
+     reset bir mobil tasma hatasini duzeltmiyor; o is zaten yapilmisti.
+   - Mobilde hicbir GENISLIK degismiyor: `max-width` dar ekranda baglayici
+     degil, blok ogenin sinir kutusu zaten ebeveyni dolduruyor.
+   - Kazanc dikeyde ve gizli hatalarda: `min-height:100vh` + 120px dolgu
+     tasiyan dort salon holu (film/dizi/anime/kitap) bugun gorunum
+     alanindan 120px UZUN, yani icerik sigsa bile kaydirma uretiyor;
+     LoreDossier'in mobil paneli 100vw+32px olup metnin solunu ekran
+     disinda birakiyor; muzik izgarasinda `height:100%` + dolgu tasiyan
+     kartlar kendi hucrelerini 30px asiyor.
+
+   `inherit` zinciri bilincli: tek bir yerde `content-box` gerekirse o
+   ogeye yazmak alt agacini da birlikte tasir. Bugun boyle bir istisna YOK.
+
+   ⚠️ YENI BILESEN YAZARKEN: artik `box-sizing` YAZMA. Bu kural her sey
+   icin gecerli. Ayrica `max-width` + yatay dolgu yazdiginda max-width
+   artik DIS olcudur — `calc(X + dolgu)` telafisi YAPMA, dogrudan
+   istedigin dis olcuyu yaz.
+   ============================================================ */
+html {
+  box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
 /* --- Tema-bagimsiz sabitler --- */
 :root {
   --radius: 8px;

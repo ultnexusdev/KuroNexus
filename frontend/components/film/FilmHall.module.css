@@ -47,6 +47,16 @@
   color: var(--accent);
 }
 
+/* Geri bağlantısı dokunmatikte 43x22 px ölçüldü — kural 2'nin altında.
+   Yalnızca kaba işaretçide büyüyor; masaüstü ölçüleri değişmiyor. */
+@media (pointer: coarse) {
+  .back {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--touch-min);
+  }
+}
+
 .eyebrow {
   display: block;
   color: var(--gold);
@@ -228,6 +238,30 @@
   );
 }
 
+/* Dokunmatikte kenar solması daralır. Yukarıdaki 44px, ScrollStrip'in ok
+   düğmelerinin genişliğine göre seçilmişti; ScrollStrip ise `pointer: coarse`
+   altında okları HİÇ çizmiyor. Yani telefonda solma bir şeyin üstünü
+   örtmüyordu, yalnızca 343px'lik şeridin 88px'ini yiyordu — 133px'lik iki
+   kare bile tam sığmıyordu. */
+@media (pointer: coarse) {
+  .stripTrack {
+    mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      #000 20px,
+      #000 calc(100% - 20px),
+      transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      #000 20px,
+      #000 calc(100% - 20px),
+      transparent 100%
+    );
+  }
+}
+
 .stripTrack::-webkit-scrollbar {
   display: none;
 }
@@ -308,6 +342,43 @@
 .chip:hover {
   border-color: var(--border-strong);
   color: var(--text-primary);
+}
+
+/* Tür süzgeci dokunmatikte: çipler 28px yüksekliğinde ölçüldü, kural 2'nin
+   (44px) altında ve 19 tanesi yan yana duruyor — yanlış türe basmak kolay.
+
+   Çözüm çipi BÜYÜTMEK değil, dokunma alanını genişletmek: `min-height: 44px`
+   verilseydi şerit 172px'ten ~232px'e çıkardı, yani süzgeç bandı ekranın
+   üçte birini yerdi. Sözde öğe görünmez bir 44px'lik kutu üretiyor; görsel
+   yoğunluk aynı kalıyor.
+
+   İki sayı da `elementFromPoint` ile ölçülerek bulundu, tahminle değil:
+
+   • ±9px, ±8px değil. Mutlak konumlu sözde öğenin kapsayıcı bloğu düğmenin
+     PADDING kutusu — yani 28px'lik çipin 1px'lik kenarlıkları düşülmüş 26px'i.
+     ±8px yazınca alan 26+16 = 42px çıkıyordu (ölçüldü), 44 değil.
+   • Dikey aralık 8'den 18'e. 8px'lik aralıkta alt alta iki satırın alanları
+     ÜST ÜSTE biniyor ve DOM'da sonra gelen kazanıyor; üstteki çipin alanı
+     44 değil 36px kalıyordu. 18px'te iki alan arasında 2px kalıyor: her çip
+     gerçekten 44px ve hiçbiri komşusunun dokunuşunu çalmıyor.
+
+   Bedeli şeritte ~40px; çiplerin kendisini 44px yapmanın bedeli ~60px'ti. */
+@media (pointer: coarse) {
+  .chips {
+    row-gap: 18px;
+  }
+
+  .chip,
+  .chipActive {
+    position: relative;
+  }
+
+  .chip::after,
+  .chipActive::after {
+    content: "";
+    position: absolute;
+    inset: -9px 0;
+  }
 }
 
 /* --- Raflar (bolum bolum) --- */

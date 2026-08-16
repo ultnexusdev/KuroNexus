@@ -80,6 +80,35 @@ const MANIFEST: ManifestRow[] = [
     sourceUrl: `${WIKI}/4/46/Nagato.png/revision/latest`,
     altText: 'Nagato',
   },
+  /*
+   * v2 güncellemesi (16 Ağustos 2026, akşam): 4K/yüksek çözünürlük bantlar.
+   * SALT EKLEME — uç idempotent kaldığı için canlıda düğmeye bir kez daha
+   * basmak yalnızca bu üçünü indirir, mevcut görsellere dokunmaz.
+   */
+  {
+    characterId: 3180,
+    slot: 'ABILITY',
+    abilityName: 'akatsuki:legion',
+    // 3840x2151 — üyeler bölümünün arka bandı
+    sourceUrl: `${WIKI}/3/39/Nagato%27s_Akatsuki.png/revision/latest`,
+    altText: 'Akatsuki kadrosu bir arada',
+  },
+  {
+    characterId: 3180,
+    slot: 'ABILITY',
+    abilityName: 'akatsuki:horror',
+    // 3424x1572 — ikililer koşarken, Konan'in kagit kanatlari acik
+    sourceUrl: `${WIKI}/f/f8/Horror_of_Akatsuki.png/revision/latest`,
+    altText: 'Akatsuki ikilileri harekatta',
+  },
+  {
+    characterId: 3180,
+    slot: 'ABILITY',
+    abilityName: 'akatsuki:dawn',
+    // 2560x1440 — yagmurun altinda genc Nagato, Rinnegan acik
+    sourceUrl: `${WIKI}/3/33/Origin_of_Pain.png/revision/latest`,
+    altText: 'Yagmurun altinda Nagato',
+  },
   // ── Six Paths (hepsi Pain kaydinda) ───────────────────────────────────
   {
     characterId: 3180,

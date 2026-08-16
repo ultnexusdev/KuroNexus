@@ -191,6 +191,52 @@ Komut: `anime-salonu-4k-parlaklik-glow-muzik-komutu-v2.md`. Commit'ler:
 ⏭ Canlıda: admin **"Görselleri kur"a bir kez daha basar** → yalnızca 3
 yeni bant iner (yerelde ölçüldü: +3 / 23 atlandı / 0 hata).
 
+## 5c · V3 DÜZELTME + YARATICI ZENGİNLEŞTİRME (16 Ağustos gece)
+
+Komut: `anime-salonu-duzeltme-komutu-v3.md` + iki stil referansı görsel
+(taş kabartma "Hakkında" paneli, zigzag dönem kartları). Kullanıcı notu:
+karakter görselleri birebir indirilmek zorunda değil — kendim
+oluşturabilirim (SVG/CSS üretimi serbest).
+
+### A kusurları — düzeltildi + nasıl
+
+- **A1 ✓** Hero ortası: afişler merkeze genişletildi (45%, feather 97%),
+  merkeze ışık havuzu (kızıl sis + mor mürekkep) + %5 opaklıkta asanoha
+  deseni (üretilmiş SVG). Düz siyah dikdörtgen kalmadı. (`e3b8b61`)
+- **A2 ✓** Başlıklarda text-glow; bölüm sınırları ortadan parlayan gradyan
+  çizgi + üstten ışık yıkaması; anime accent/gold ve Akatsuki kızılları
+  canlandırıldı (globals'ta gerekçeli salon-lokal istisna). (`eb77c0b`)
+- **A3 ✓** Kartlarda hover: scale 1.03 + yoğunlaşan glow + nth-child süre/
+  gecikme varyasyonları; KEŞFET/dosya CTA'ları 0.4rem kayıyor; dokunmatikte
+  :active karşılıkları. (`eb77c0b`)
+- **A4 ✓** Bindirmeli iki bulut katmanı kaldırıldı; bulut metin bloğunun
+  rozeti oldu (tam görünür); siluet üstten başlıyor, görsel-metin geçişi
+  alt zemin gradyanı. (`f66d492`)
+- **A5 ✓** Çözünürlük denetimi (aşağıda). Kaynak wiki'de karakter
+  PORTRELERİ 1920'yi geçmiyor — ekran görüntülerinde "düşük çözünürlük"
+  hissinin ana sebebi AniList yedeklerinin (≈230px) kurulum düğmesine
+  basılana dek görünmesiydi; kurulumdan sonra 1440-1540px kaynaklar +
+  next/image basamakları devrede. ≥1920 gereken hero/büyük bantların
+  hepsi ≥1920 kaynaktan:
+
+| Yuva | Kaynak çözünürlük | ≥1920 şartı |
+| --- | --- | --- |
+| Hero gök (sky) | 1920×1080 | ✓ |
+| Six Paths bandı | 1920×1080 | ✓ |
+| Kadro bandı (legion) | 3840×2151 | ✓ |
+| İkililer bandı (horror) | 3424×1572 | ✓ |
+| Miras bandı (dawn) | 2560×1440 | ✓ |
+| Kuruluş (origins) | 1920×1080 | ✓ |
+| Üye portreleri | 1440-1540 genişlik | kart ≤440px çizim — yeterli; daha iyisi A6 kürasyonundan |
+| Path kartları | 1440-1920 | ✓ (kart ~480px) |
+
+  Manuel değiştirilmesi mantıklı olanlar (istenirse, A6 ile): üye
+  portrelerinin resmi sanat/afiş versiyonları.
+
+### B/C durumu
+
+(devam ediyor — bu bölüm C doğrulamasıyla tamamlanacak)
+
 ## 6 · AÇIK RİSKLER
 
 - Kurulum ucu canlıda admin tetiklemesi bekler; o güne kadar sergi AniList

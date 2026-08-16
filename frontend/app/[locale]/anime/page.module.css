@@ -568,14 +568,6 @@
   box-shadow: 0 0 42px var(--aka-glow-strong);
 }
 
-.akatsuki .cloud {
-  filter: drop-shadow(0 0 12px var(--aka-glow-soft));
-}
-
-.akatsuki:hover .cloud {
-  filter: drop-shadow(0 0 18px var(--aka-glow-strong));
-}
-
 .akatsuki .kanji {
   text-shadow: 0 0 20px var(--aka-glow-strong);
 }

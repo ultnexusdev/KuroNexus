@@ -22,6 +22,11 @@ export interface CharacterImageRecord {
   orderIndex: number;
 }
 
+/** Çoklu okuma satırı: hangi karaktere ait olduğu da taşınıyor. */
+export interface CharacterImageRow extends CharacterImageRecord {
+  characterId: number;
+}
+
 @Injectable()
 export class CharacterImagesService {
   constructor(private readonly prisma: PrismaService) {}
@@ -47,6 +52,31 @@ export class CharacterImagesService {
       },
     });
     return rows;
+  }
+
+  /**
+   * Birden çok karakterin görselleri TEK istekte — Akatsuki sergisi gibi
+   * çok karakterli sayfalar için. Karakter başına ayrı istek, 12 karakterlik
+   * bir sergide 12 tur demekti (kards ucundaki gerekçenin aynısı).
+   */
+  async listForMany(characterIds: number[]): Promise<CharacterImageRow[]> {
+    if (characterIds.length === 0) {
+      return [];
+    }
+    return this.prisma.characterImage.findMany({
+      where: { characterId: { in: characterIds }, isDeleted: false },
+      orderBy: [{ orderIndex: 'asc' }, { createdAt: 'asc' }],
+      select: {
+        id: true,
+        characterId: true,
+        slot: true,
+        abilityName: true,
+        url: true,
+        altText: true,
+        caption: true,
+        orderIndex: true,
+      },
+    });
   }
 
   async create(

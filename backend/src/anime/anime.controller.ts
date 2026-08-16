@@ -1,10 +1,14 @@
 import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { Public } from '../common/decorators/public.decorator';
 import { AnimeService } from './anime.service';
+import { CharacterImagesService } from './character-images.service';
 
 @Controller('anime')
 export class AnimeController {
-  constructor(private readonly animeService: AnimeService) {}
+  constructor(
+    private readonly animeService: AnimeService,
+    private readonly characterImages: CharacterImagesService,
+  ) {}
 
   // Anime salonu tek istekte dolar: seriler + künye şeridi + stüdyo/tür/etiket
   @Public()
@@ -52,6 +56,25 @@ export class AnimeController {
       // AniList sayfası da zaten 50 kayıt veriyor
       .slice(0, 50);
     return this.animeService.getCharacterCards(parsed);
+  }
+
+  /**
+   * Verilen karakterlerin küratör görselleri (CharacterImage) tek istekte.
+   *
+   * Akatsuki sergisi gibi çok karakterli sayfalar için: sayfa portreleri
+   * buradan okur, kayıt yoksa AniList portresine düşer. ':characterId'
+   * rotasından ÖNCE — 'images' sayı olmadığı için `ParseIntPipe` 400 verirdi.
+   */
+  @Public()
+  @Get('characters/images')
+  getCharacterImages(@Query('ids') ids?: string) {
+    const parsed = (ids ?? '')
+      .split(',')
+      .map((value) => Number.parseInt(value.trim(), 10))
+      .filter((value) => Number.isInteger(value) && value > 0)
+      // 'cards' ucuyla aynı üst sınır ve aynı gerekçe
+      .slice(0, 50);
+    return this.characterImages.listForMany(parsed);
   }
 
   /**

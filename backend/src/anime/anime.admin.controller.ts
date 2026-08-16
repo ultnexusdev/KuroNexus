@@ -12,6 +12,7 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import type { AuthenticatedUser } from '../common/types/authenticated-user';
 import { AnimeService } from './anime.service';
+import { AkatsukiSetupService } from './akatsuki-setup.service';
 import { CreateAnimeEntryDto } from './dto/create-anime-entry.dto';
 import { UpdateAnimeEntryDto } from './dto/update-anime-entry.dto';
 import { UpdateAnimePartDto } from './dto/update-anime-part.dto';
@@ -19,7 +20,20 @@ import { UpdateAnimePartDto } from './dto/update-anime-part.dto';
 @Roles('ADMIN')
 @Controller('admin/anime')
 export class AnimeAdminController {
-  constructor(private readonly animeService: AnimeService) {}
+  constructor(
+    private readonly animeService: AnimeService,
+    private readonly akatsukiSetup: AkatsukiSetupService,
+  ) {}
+
+  /**
+   * Akatsuki sergisinin görsel kurulumu — idempotent, yeniden koşmak
+   * güvenli (var olan yuva atlanır). Müzik taksonomi kurulumunun kardeşi:
+   * seed konteynerde çalışmadığı için kurulum admin ucundan yapılıyor.
+   */
+  @Post('akatsuki/setup')
+  setupAkatsuki(@CurrentUser() user: AuthenticatedUser) {
+    return this.akatsukiSetup.setupImages(user.id);
+  }
 
   @Get()
   findAll() {

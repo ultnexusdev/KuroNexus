@@ -183,6 +183,18 @@
   opacity: 0.6;
 }
 
+/* v3-A6: hero yuvaları — kürasyon kapalıyken içi boş, yer kaplamaz */
+.heroSlots {
+  position: absolute;
+  right: var(--an-gutter);
+  bottom: 1rem;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 22rem;
+}
+
 /* ============================================================
    HAKKINDA
    ============================================================ */

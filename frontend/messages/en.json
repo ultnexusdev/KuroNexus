@@ -1680,6 +1680,17 @@
         "archive": "Anime Archive",
         "archiveDesc": "Six shelves: watching, waiting, finished"
       }
+    },
+    "slots": {
+      "portraitOf": "{name} — portrait",
+      "exhibitOf": "{name} — exhibit image",
+      "pathOf": "{name} — card image",
+      "sky": "Hero sky band",
+      "six": "Six Paths backdrop",
+      "origins": "Founding image (history)",
+      "legion": "Roster band (members)",
+      "horror": "Duos band (partners)",
+      "dawn": "Legacy closing image"
     }
   },
   "character": {

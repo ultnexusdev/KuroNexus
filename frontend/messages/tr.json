@@ -1680,6 +1680,17 @@
         "archive": "Anime Arşivi",
         "archiveDesc": "Altı raf: izlediğim, beklediğim, bitirdiğim"
       }
+    },
+    "slots": {
+      "portraitOf": "{name} — portre",
+      "exhibitOf": "{name} — sergi görseli",
+      "pathOf": "{name} — kart görseli",
+      "sky": "Hero gökyüzü bandı",
+      "six": "Six Paths arka bandı",
+      "origins": "Kuruluş görseli (tarih)",
+      "legion": "Kadro bandı (üyeler)",
+      "horror": "İkililer bandı (partnerler)",
+      "dawn": "Miras kapanış görseli"
     }
   },
   "character": {

@@ -17,6 +17,8 @@ import {
 } from "@/lib/anime/akatsuki";
 import { animeHref } from "@/lib/anime/routes";
 import { AkatsukiCloud } from "@/components/anime/AkatsukiCloud";
+import { CuratorFrame } from "@/components/character/CuratorFrame";
+import { CuratorSlot } from "@/components/character/CuratorSlot";
 import { AkatsukiAudio } from "./AkatsukiAudio";
 import { AkatsukiSetup } from "./AkatsukiSetup";
 import { RinneganMotif } from "./RinneganMotif";
@@ -57,13 +59,17 @@ function collectSources(
   const portraits = new Map<number, CharacterImageRow>();
   const exhibit = new Map<string, CharacterImageRow>();
   for (const row of images) {
-    if (row.slot === "PORTRAIT" && !portraits.has(row.characterId)) {
+    /*
+     * v3-A6: SON KAZANIR (satırlar orderIndex/createdAt artan sıralı, yani
+     * en yeni yükleme haritada kalır). Kürasyon modunda "Görseli Değiştir"
+     * yeni bir kayıt açar ve deploy'suz, anında görünür olur — şemadaki
+     * PORTRAIT sözleşmesinin ("sonuncusu kazanır") sergi geneline uygulanışı.
+     */
+    if (row.slot === "PORTRAIT") {
       portraits.set(row.characterId, row);
     }
     if (row.slot === "ABILITY" && row.abilityName) {
-      if (!exhibit.has(row.abilityName)) {
-        exhibit.set(row.abilityName, row);
-      }
+      exhibit.set(row.abilityName, row);
     }
   }
   const anilist = new Map<number, string>();
@@ -171,6 +177,11 @@ export async function AkatsukiExhibit({
 
   return (
     <main className={styles.page} data-world="akatsuki">
+      {/* v3-A6 — KÜRASYON MODU: anahtar yalnızca admin'e çizilir; açıkken
+          her görsel yuvasının altında "Görseli Değiştir" (URL + dosya)
+          belirir. Dossier'deki CuratorFrame/CuratorSlot altyapısının
+          aynısı — yuva kimliği characterId+slot+abilityName. */}
+      <CuratorFrame isAdmin={isAdmin}>
       {/* Kaydırma ilerlemesi (kullanıcı fikri, v2): scroll() zaman
           çizelgesiyle JS'siz; desteksiz tarayıcıda hiç görünmez */}
       <span className={styles.progress} aria-hidden />
@@ -249,6 +260,21 @@ export async function AkatsukiExhibit({
         <p className={`${shell.data} ${styles.scrollHint}`} aria-hidden>
           {t("scrollHint")} ↓
         </p>
+
+        {/* v3-A6: hero yuvaları — kürasyon modunda görünür */}
+        <div className={styles.heroSlots}>
+          <CuratorSlot
+            characterId={AKATSUKI_IDS.pain}
+            slot="PORTRAIT"
+            label={t("slots.portraitOf", { name: "Pain" })}
+          />
+          <CuratorSlot
+            characterId={AKATSUKI_IDS.pain}
+            slot="ABILITY"
+            abilityName={EXHIBIT_IMAGE_KEYS.sky}
+            label={t("slots.sky")}
+          />
+        </div>
       </header>
 
       {/* ══ AKATSUKI HAKKINDA ══ */}
@@ -283,6 +309,12 @@ export async function AkatsukiExhibit({
             {t("paths.title")}
           </h2>
           <p className={shell.lede}>{t("paths.lede")}</p>
+          <CuratorSlot
+            characterId={AKATSUKI_IDS.pain}
+            slot="ABILITY"
+            abilityName={EXHIBIT_IMAGE_KEYS.six}
+            label={t("slots.six")}
+          />
         </header>
 
         <ul className={styles.pathGrid}>
@@ -318,6 +350,14 @@ export async function AkatsukiExhibit({
                     {t(`paths.${path.key}.ability`)}
                   </span>
                 </span>
+                <CuratorSlot
+                  characterId={AKATSUKI_IDS.pain}
+                  slot="ABILITY"
+                  abilityName={path.imageKey}
+                  label={t("slots.pathOf", {
+                    name: t(`paths.${path.key}.name`),
+                  })}
+                />
               </li>
             );
           })}
@@ -339,6 +379,12 @@ export async function AkatsukiExhibit({
             {t("members.title")}
           </h2>
           <p className={shell.lede}>{t("members.lede")}</p>
+          <CuratorSlot
+            characterId={AKATSUKI_IDS.pain}
+            slot="ABILITY"
+            abilityName={EXHIBIT_IMAGE_KEYS.legion}
+            label={t("slots.legion")}
+          />
         </header>
 
         <ul className={styles.memberGrid}>
@@ -426,6 +472,11 @@ export async function AkatsukiExhibit({
                     </span>
                   </span>
                 </Link>
+                <CuratorSlot
+                  characterId={member.characterId}
+                  slot="PORTRAIT"
+                  label={t("slots.portraitOf", { name: member.name })}
+                />
               </li>
             );
           })}
@@ -447,6 +498,12 @@ export async function AkatsukiExhibit({
             {t("partners.title")}
           </h2>
           <p className={shell.lede}>{t("partners.lede")}</p>
+          <CuratorSlot
+            characterId={AKATSUKI_IDS.pain}
+            slot="ABILITY"
+            abilityName={EXHIBIT_IMAGE_KEYS.horror}
+            label={t("slots.horror")}
+          />
         </header>
 
         <ul className={styles.partnerGrid}>
@@ -508,6 +565,12 @@ export async function AkatsukiExhibit({
             {t("history.title")}
           </h2>
           <p className={shell.lede}>{t("history.lede")}</p>
+          <CuratorSlot
+            characterId={AKATSUKI_IDS.pain}
+            slot="ABILITY"
+            abilityName={EXHIBIT_IMAGE_KEYS.origins}
+            label={t("slots.origins")}
+          />
         </header>
 
         <ol className={styles.timeline}>
@@ -564,6 +627,20 @@ export async function AkatsukiExhibit({
                   <p className={`${shell.prose} ${styles.relationText}`}>
                     {t(`relations.${relation.key}.text`)}
                   </p>
+                  {relation.imageKey ? (
+                    <CuratorSlot
+                      characterId={relation.imageOwnerId ?? relation.characterId}
+                      slot="ABILITY"
+                      abilityName={relation.imageKey}
+                      label={t("slots.exhibitOf", { name: relation.name })}
+                    />
+                  ) : (
+                    <CuratorSlot
+                      characterId={relation.characterId}
+                      slot="PORTRAIT"
+                      label={t("slots.portraitOf", { name: relation.name })}
+                    />
+                  )}
                 </span>
               </li>
             );
@@ -645,6 +722,12 @@ export async function AkatsukiExhibit({
         </h2>
         <p className={`${shell.serif} ${styles.legacyText}`}>{t("legacy.p1")}</p>
         <p className={`${shell.serif} ${styles.legacyText}`}>{t("legacy.p2")}</p>
+        <CuratorSlot
+          characterId={AKATSUKI_IDS.pain}
+          slot="ABILITY"
+          abilityName={EXHIBIT_IMAGE_KEYS.dawn}
+          label={t("slots.dawn")}
+        />
       </section>
 
       {/* ══ NEXUS DÜĞÜMÜ — İLGİLİ İÇERİK (v2) ══
@@ -692,6 +775,11 @@ export async function AkatsukiExhibit({
                       </span>
                     </span>
                   </Link>
+                  <CuratorSlot
+                    characterId={person.characterId}
+                    slot="PORTRAIT"
+                    label={t("slots.portraitOf", { name: person.name })}
+                  />
                 </li>
               );
             })}
@@ -744,6 +832,7 @@ export async function AkatsukiExhibit({
           <AkatsukiSetup />
         </section>
       ) : null}
+      </CuratorFrame>
     </main>
   );
 }

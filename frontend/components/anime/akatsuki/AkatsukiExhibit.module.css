@@ -1581,6 +1581,81 @@
   color: var(--text-secondary);
 }
 
+/* ── v3-B1: Hakkında — sağ panel + filigran ── */
+.aboutGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: clamp(1.5rem, 3.5vw, 3rem);
+  align-items: stretch;
+  position: relative;
+  z-index: 1;
+}
+
+.aboutText {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.25rem, 3vw, 2rem);
+  min-width: 0;
+}
+
+/* Kadro görseli: sol kenarı metne doğru sönümlenir, üstünde kızıl ışık
+   yıkaması — bölümün atmosferini taşıyor, metinle asla çakışmıyor */
+.aboutArt {
+  position: relative;
+  display: block;
+  min-height: 20rem;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  mask-image: linear-gradient(to right, transparent 0%, #000 26%);
+}
+
+.aboutArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 25%;
+  filter: saturate(1) brightness(0.72) contrast(1.05);
+  transition: filter 500ms ease;
+}
+
+.about:hover .aboutArt img {
+  filter: saturate(1.05) brightness(0.82) contrast(1.02);
+}
+
+.aboutArtWash {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    80% 90% at 70% 80%,
+    var(--aka-mist),
+    transparent 65%
+  );
+}
+
+/* Dev bulut filigranı: arka planda, çok düşük opaklıkta */
+.aboutWatermark {
+  position: absolute;
+  left: -4%;
+  bottom: -8%;
+  width: clamp(18rem, 34vw, 30rem);
+  z-index: 0;
+  opacity: 0.05;
+  pointer-events: none;
+}
+
+@media (max-width: 980px) {
+  /* Mobilde görsel metnin ALTINA iner, üst kenarı sönümlenir */
+  .aboutGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .aboutArt {
+    min-height: 14rem;
+    mask-image: linear-gradient(to bottom, transparent 0%, #000 24%);
+  }
+}
+
 /* ── v3-A2: başlıklarda görünür glow + bölüm geçişlerinde ışık ──
    Sert siyah kesikler yok: her bölümün üst sınırı ortadan parlayan bir
    gradyan çizgi + üstten inen kızıl ışık yıkaması. */

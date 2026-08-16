@@ -277,21 +277,35 @@ export async function AkatsukiExhibit({
         </div>
       </header>
 
-      {/* ══ AKATSUKI HAKKINDA ══ */}
+      {/* ══ AKATSUKI HAKKINDA ══
+          v3-B1: sağ taraf artık boş değil — kadro görseli metne doğru
+          sönümlenerek duruyor, arkada dev bulut filigranı. */}
       <section className={styles.about} aria-labelledby="akatsuki-about">
-        <h2
-          id="akatsuki-about"
-          className={`${shell.display} ${shell.section} ${styles.sectionTitle}`}
-        >
-          {t("about.title")}
-        </h2>
-        <p className={`${shell.lede} ${styles.aboutLede}`}>{t("lede")}</p>
-        <div className={styles.aboutBody}>
-          <p className={shell.prose}>{t("about.p1")}</p>
-          <p className={shell.prose}>{t("about.p2")}</p>
-          <p className={shell.prose}>{t("about.p3")}</p>
+        <AkatsukiCloud className={styles.aboutWatermark} />
+        <div className={styles.aboutGrid}>
+          <div className={styles.aboutText}>
+            <h2
+              id="akatsuki-about"
+              className={`${shell.display} ${shell.section} ${styles.sectionTitle}`}
+            >
+              {t("about.title")}
+            </h2>
+            <p className={`${shell.lede} ${styles.aboutLede}`}>{t("lede")}</p>
+            <div className={styles.aboutBody}>
+              <p className={shell.prose}>{t("about.p1")}</p>
+              <p className={shell.prose}>{t("about.p2")}</p>
+              <p className={shell.prose}>{t("about.p3")}</p>
+            </div>
+            <AkatsukiCloud className={styles.divider} />
+          </div>
+
+          {legion ? (
+            <span className={styles.aboutArt} aria-hidden>
+              <ExhibitImage image={legion} alt="" sizes="900px" />
+              <span className={styles.aboutArtWash} />
+            </span>
+          ) : null}
         </div>
-        <AkatsukiCloud className={styles.divider} />
       </section>
 
       {/* ══ SIX PATHS OF PAIN ══ */}

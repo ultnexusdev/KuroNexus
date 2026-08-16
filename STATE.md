@@ -5,6 +5,34 @@
 
 ## Mevcut Aşama
 
+> ✅ **ANİME SALONU + AKATSUKI SERGİSİ (16 Ağustos 2026).** Plan ve final
+> rapor: kökteki `PLAN.md`. Yedi commit (`15bbbc4`…): salon girişi kendi
+> ağacına taşındı (**`/anime`**, `MOVED_HALLS` + yalnız-lobi 301; derin
+> odalar eski ağaçta — spor Faz 1 deseni), üç hareketli sinematik giriş +
+> ANİME DÜNYALARI kartları (Akatsuki öne çıkan, `data-world="akatsuki"`
+> derisi `globals.css`te), **`/anime/akatsuki`** dijital sergisi (hero Pain
+> — sayfanın açık ara en büyük öğesi; 9 üye, Six Paths, ikililer, zaman
+> şeridi, ilişkiler, sembolizm, miras; bütün metin TR+EN i18n'de).
+> **Migration YOK.** Backend: `GET /anime/characters/images?ids=` +
+> `POST /admin/anime/akatsuki/setup` (idempotent, 23 görsel, Naruto Wiki →
+> RemoteImageService → /uploads → CharacterImage; kaynak listesi PLAN.md).
+>
+> **⏭ CANLIDA TEK MANUEL ADIM:** admin girişiyle `/anime/akatsuki` → en
+> altta **"Görselleri kur"** düğmesi (tek tık, yeniden basmak güvenli).
+> Basılana dek sergi AniList küçük portre fallback'iyle çizilir, kırılmaz.
+>
+> Yerelde ölçüldü (üretim derlemesi 3100 + yerel PG + gerçek admin girişi):
+> kurulum 23/23 indirdi (WebP), sergi 33 görsel 0 kırık, 301 doğru, eski
+> odalar 200, kapı `/anime`e bakıyor. ⚠️ Özel ad dersi ÜÇÜNCÜ kez tekrar
+> etti ve yakalandı: `toLocaleUpperCase(locale)` "PAİN/AKATSUKİ/ONE PİECE"
+> üretiyordu — özel adlarda programatik büyütme kaldırıldı (Bebas kapitali
+> görsel olarak zaten basıyor).
+>
+> Kalan TODO (ayrı tur, PLAN.md §5): eski ağaçtaki elle yazılmış adreslerin
+> `animeHref` süpürmesi; `AnimeLobby` + kategori dalı ölü kod temizliği
+> (canlı doğrulamadan SONRA); kapı turuncusu / salon moru çelişkisi bilinçli
+> korundu.
+
 > ✅ **ÖLÜ KOD TEMİZLİĞİ KAPANDI (15 Ağustos).** İş, planda yazandan KÜÇÜK
 > çıktı: "13 dosya" maddesi bayattı — ön yüz ayağı (`GsHall`, `F1Hall`,
 > `SportSplit` + 5 bileşen, `lib/api/sport.ts`, i18n anahtarları, iki

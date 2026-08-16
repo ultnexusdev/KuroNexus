@@ -104,7 +104,59 @@ Not: AniList kimlik eşlemesi — Nagato AniList'te ayrı kayıt değil, "Pain"
 (3180) içinde; Obito da "Tobi" (3149) içinde. Madara ve Yahiko sergide
 "önemli ilişkiler" bölümü için var.
 
-## 5 · AÇIK RİSKLER
+## 5 · FİNAL RAPOR (16 Ağustos 2026, gün sonu)
+
+### Ne yapıldı
+
+Yedi commit: `15bbbc4` (backend uçları) → `da9fa09` (veri katmanı + i18n) →
+`e105517` (salon girişi + terfi) → `b3f415c` (sergi) → `b68e8e9`
+(mikro-animasyon) → `34640c7` (performans + özel ad düzeltmeleri) + kapanış.
+
+- **Backend:** `GET /anime/characters/images?ids=` (herkese açık, tek istek)
+  ve `POST /admin/anime/akatsuki/setup` (idempotent görsel kurulumu, 23
+  görsel, SSRF savunmalı). Migration YOK.
+- **`/anime`:** kanat kabuğu (deri tek yerde, Bebas display sesi) + üç
+  hareketli sinematik giriş + ANİME DÜNYALARI (Akatsuki öne çıkan kart:
+  kendi derisi, bulut SVG, Pain silüeti, fırça kanjisi). `MOVED_HALLS` +
+  301 (yalnız lobi) + sitemap.
+- **`/anime/akatsuki`:** hero (Pain — sayfanın açık ara en büyük öğesi) →
+  hakkında → Six Paths → 9 üye → 4 ikili → zaman şeridi → ilişkiler →
+  sembolizm → miras. Bütün metin TR+EN i18n'de; görseller DB'den, üç
+  kademeli fallback (kendi disk → AniList → dokulu yuva).
+- **Mikro-animasyon:** yağmur (iki hız), Ken Burns, Rinnegan nabzı, bulut
+  süzülmesi — hepsi CSS, `prefers-reduced-motion`'da tamamen kapalı.
+
+### Ölçülen doğrulama (yerel üretim derlemesi, 3100 + yerel PG)
+
+Kurulum ucu **23/23 indirdi, 0 hata** (8.8 sn; wikia içerik pazarlığıyla
+WebP verdi). Sergi 33 görsel, 0 kırık, hepsi `/_next/image` basamaklı.
+TR+EN içerik tam; `/dark-stories/category/anime` → 301 → `/anime`; arşiv
+ve karakter odaları dokunulmamış (200); ana sayfa kapısı `/anime`e bakıyor.
+
+### Seçilen varsayımlar
+
+K1-K11 (yukarıda) + şunlar: Nagato AniList'te "Pain" (3180), Obito "Tobi"
+(3149) içinde; Zetsu portresi birleşik kare; Konan kağıdı ve Sharingan
+tomoe animasyonları BİLEREK atlandı (ucuz görünme riski, komut §5.3 izni);
+ambans ses eklenmedi (K9).
+
+### ⏭ CANLIDA TEK MANUEL ADIM
+
+**`/anime/akatsuki` → en altta "Küratör — Görsel Kurulumu" → "Görselleri
+kur".** Admin girişiyle tek tık; 23 görseli sunucuya indirir. Basılana dek
+sergi AniList küçük portreleriyle (fallback) çizilir — kırılmaz.
+
+### Kalan TODO'lar (ayrı tur)
+
+1. Eski ağaçtaki ~12 dosyada elle yazılmış `/dark-stories/category/anime/...`
+   adreslerini `animeHref`e süpürmek.
+2. `AnimeLobby` + kategori dalı ölü kod temizliği (canlı doğrulamadan sonra
+   — spor emsali).
+3. Derin odaların (arşiv/karakterler) `/anime` altına tam göçü (istenirse).
+4. Kapı turuncu/deri mor çelişkisi bilinçli korundu (K6) — kullanıcı isterse
+   kapı Akatsuki kızılına çekilebilir.
+
+## 6 · AÇIK RİSKLER
 
 - Kurulum ucu canlıda admin tetiklemesi bekler; o güne kadar sergi AniList
   portre fallback'iyle çizilir (küçük ~230px görseller — kabul edilebilir ilk

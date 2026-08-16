@@ -1,0 +1,83 @@
+/* Fon müziği anahtarı — sabit, kaydırmada görünür, 44px hedef (kural 2).
+   Glow: kural 16'ya salon-lokal v2 istisnası (token gerekçesi globals'ta). */
+.toggle {
+  position: fixed;
+  top: calc(var(--an-header) + 0.75rem);
+  right: 1rem;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  width: var(--touch-min);
+  height: var(--touch-min);
+  border: 1px solid var(--accent-muted);
+  background: color-mix(in srgb, var(--bg) 78%, transparent);
+  color: var(--accent-hover);
+  cursor: pointer;
+  transition: border-color 260ms ease, box-shadow 260ms ease;
+}
+
+.toggle:hover,
+.toggle:focus-visible {
+  border-color: var(--accent);
+  box-shadow: 0 0 18px var(--aka-glow-soft);
+}
+
+.toggle[data-playing] {
+  border-color: var(--accent);
+  box-shadow: 0 0 14px var(--aka-glow-soft);
+}
+
+/* Oynat: küçük üçgen — ikon fontu yok, kenarlıkla çizili */
+.playIcon {
+  display: block;
+  width: 0;
+  height: 0;
+  margin-left: 3px;
+  border-block: 7px solid transparent;
+  border-left: 11px solid currentColor;
+}
+
+/* Çalıyor: üç çubuklu ses dalgası */
+.wave {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 14px;
+}
+
+.wave span {
+  width: 3px;
+  height: 6px;
+  background: currentColor;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .wave span {
+    animation: akaWave 900ms ease-in-out infinite alternate;
+  }
+
+  .wave span:nth-child(2) {
+    animation-delay: 150ms;
+  }
+
+  .wave span:nth-child(3) {
+    animation-delay: 300ms;
+  }
+}
+
+@keyframes akaWave {
+  from {
+    height: 5px;
+  }
+  to {
+    height: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toggle,
+  .wave span {
+    animation: none !important;
+    transition: none !important;
+  }
+}

@@ -233,9 +233,60 @@ oluşturabilirim (SVG/CSS üretimi serbest).
   Manuel değiştirilmesi mantıklı olanlar (istenirse, A6 ile): üye
   portrelerinin resmi sanat/afiş versiyonları.
 
-### B/C durumu
+### A6 · Kürasyon modu ✓
 
-(devam ediyor — bu bölüm C doğrulamasıyla tamamlanacak)
+Dossier'in `CuratorFrame`/`CuratorSlot` altyapısı sergiye taşındı: admin
+anahtarı açınca 29 görsel yuvasının altında "Görseli Değiştir" (URL +
+dosya) beliriyor; yükleme mevcut medya hattından geçiyor (`/admin/uploads`
+→ `CharacterImage`), çözümleyici SON-KAZANIR olduğu için değişiklik
+deploy'suz anında yansıyor. Yuva kimliği `characterId+slot+abilityName`
+(örn. `3180/ABILITY/akatsuki:sky` = hero gökyüzü). ⚠️ İlk sürümde yuvalar
+ziyaretçiye sızıyordu — yerel sonda yakaladı, kapı eklendi ve GERÇEK admin
+girişiyle ölçüldü: ziyaretçi 0 yuva, admin 29 yuva.
+
+### B1 ✓ / B2 ✓ / B3 ✓
+
+- **B1** Hakkında sağ paneli: kadro görseli (legion) sola feather maskeyle
+  sönümleniyor + kızıl ışık yıkaması + arka planda %5 bulut filigranı;
+  mobilde metnin altına iniyor.
+- **B2** Zigzag şerit: beş dönem merkez ekseninin iki yanında; merkez
+  çizgi kaydırmayla doluyor (`view()`, JS'siz; desteksiz/reduced'ta dolu
+  durur); dönem başına malzeme: soğuk taş / amber / Rinnegan halkaları /
+  çatlamış ateş / soluk şafak (token + fraktal gürültü overlay); kartlarda
+  bindirmeli dairesel avatarlar + 2-3 glif; kendi tarafından kayarak giriş;
+  hover'da doku parlar, avatarlar büyür; mobilde eksen solda tek sütun.
+- **B3** Üretim hattı YOK (ölçüldü: repoda Flux/fal/Replicate entegrasyonu
+  bulunamadı) → komutun 2. önceliği: 8 özgün çizgi-stil SVG glif + CSS
+  malzeme dokuları + mevcut portrelerden dairesel avatar kırpımları.
+  Referans görseller (kullanıcının chibi/kabartma mockup'ları) diske
+  kaydedilmemişti — stil hedefi olarak kullanıldı; istenirse kürasyon
+  modundan (A6) gerçek dosyaları herhangi bir yuvaya yüklenebilir.
+
+### C · Doğrulama listesi (nasıl doğrulandı)
+
+- [x] Hero'da boş siyah alan yok — ışık havuzu + asanoha + genişletilmiş
+  afişler; yerel üretim HTML'inde `openingPool` ölçüldü
+- [x] Bölüm başlıklarında glow — `mastTitle`/`sectionTitle`/`roomTitle`
+  text-shadow (CSS'te; snapshot'ta görünür)
+- [x] Kart kenarlarında glow — Akatsuki kartı sürekli, diğerleri hover
+- [x] Kart hover zoom+glow — scale 1.03 + shadow; nth-child süre/gecikme
+  varyasyonları (birebir aynı ritim yok)
+- [x] CTA hover — KEŞFET/dosya bağlantıları 0.4rem kayma + renk
+- [x] Akatsuki bulutu kesik/bindirmeli değil — rozet bulut; `cloudChip`
+  ölçüldü, serbest katmanlar silindi
+- [x] Hero/büyük bantlar ≥1920 — §A5 tablosu (1920/2560/3424/3840)
+- [x] Kürasyonda her görselde kontrol — admin SSR'da 29 yuva ölçüldü
+- [x] Kürasyon public'te görünmüyor — ziyaretçi HTML'inde 0 yuva/çerçeve
+  (gerçek girişle ölçüldü)
+- [x] Hakkında sağında grup görseli — `aboutArt` ölçüldü
+- [x] Zigzag + dönem kimlikleri — `data-era` beş doku, `data-side`
+  dönüşümlü; ölçüldü
+- [x] Scroll animasyonu + merkez çizgi — `zigFill` view() dolgusu (kodda;
+  desteksiz tarayıcıda dolu durur, bilgi kaybolmaz)
+- [x] Mobil — 760/980 kırılımları: tek sütun, eksen solda, paneller alta
+- [x] Portal + güç çubukları korundu — `portal` ve `statFill` ölçüldü
+- [x] `prefers-reduced-motion` — blanket kapatma + zigFill statik dolu
+- [x] Build + typecheck + lint temiz — üç komut da sıfır hata
 
 ## 6 · AÇIK RİSKLER
 

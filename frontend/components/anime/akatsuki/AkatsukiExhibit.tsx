@@ -138,6 +138,19 @@ function ExhibitImage({
   );
 }
 
+/**
+ * v3-A6 yuva kapısı: ziyaretçi kürasyon yuvasını NE DOM'da NE JS'te görür
+ * (dossier'deki `{isAdmin ? <CuratorSlot/> : null}` deseninin toplu hâli —
+ * ilk sürümde kapı unutulmuştu, yerel sondayla yakalandı).
+ */
+function ExhibitSlot({
+  enabled,
+  ...props
+}: { enabled: boolean } & Parameters<typeof CuratorSlot>[0]) {
+  if (!enabled) return null;
+  return <CuratorSlot {...props} />;
+}
+
 /** Dokulu yuva — portresi inmemiş karakter (spor panteonu deseni). */
 function Hatch({ initial }: { initial: string }) {
   return (
@@ -264,12 +277,14 @@ export async function AkatsukiExhibit({
 
         {/* v3-A6: hero yuvaları — kürasyon modunda görünür */}
         <div className={styles.heroSlots}>
-          <CuratorSlot
+          <ExhibitSlot
+            enabled={isAdmin}
             characterId={AKATSUKI_IDS.pain}
             slot="PORTRAIT"
             label={t("slots.portraitOf", { name: "Pain" })}
           />
-          <CuratorSlot
+          <ExhibitSlot
+            enabled={isAdmin}
             characterId={AKATSUKI_IDS.pain}
             slot="ABILITY"
             abilityName={EXHIBIT_IMAGE_KEYS.sky}
@@ -324,7 +339,8 @@ export async function AkatsukiExhibit({
             {t("paths.title")}
           </h2>
           <p className={shell.lede}>{t("paths.lede")}</p>
-          <CuratorSlot
+          <ExhibitSlot
+            enabled={isAdmin}
             characterId={AKATSUKI_IDS.pain}
             slot="ABILITY"
             abilityName={EXHIBIT_IMAGE_KEYS.six}
@@ -365,7 +381,8 @@ export async function AkatsukiExhibit({
                     {t(`paths.${path.key}.ability`)}
                   </span>
                 </span>
-                <CuratorSlot
+                <ExhibitSlot
+                  enabled={isAdmin}
                   characterId={AKATSUKI_IDS.pain}
                   slot="ABILITY"
                   abilityName={path.imageKey}
@@ -394,7 +411,8 @@ export async function AkatsukiExhibit({
             {t("members.title")}
           </h2>
           <p className={shell.lede}>{t("members.lede")}</p>
-          <CuratorSlot
+          <ExhibitSlot
+            enabled={isAdmin}
             characterId={AKATSUKI_IDS.pain}
             slot="ABILITY"
             abilityName={EXHIBIT_IMAGE_KEYS.legion}
@@ -487,7 +505,8 @@ export async function AkatsukiExhibit({
                     </span>
                   </span>
                 </Link>
-                <CuratorSlot
+                <ExhibitSlot
+                  enabled={isAdmin}
                   characterId={member.characterId}
                   slot="PORTRAIT"
                   label={t("slots.portraitOf", { name: member.name })}
@@ -513,7 +532,8 @@ export async function AkatsukiExhibit({
             {t("partners.title")}
           </h2>
           <p className={shell.lede}>{t("partners.lede")}</p>
-          <CuratorSlot
+          <ExhibitSlot
+            enabled={isAdmin}
             characterId={AKATSUKI_IDS.pain}
             slot="ABILITY"
             abilityName={EXHIBIT_IMAGE_KEYS.horror}
@@ -580,7 +600,8 @@ export async function AkatsukiExhibit({
             {t("history.title")}
           </h2>
           <p className={shell.lede}>{t("history.lede")}</p>
-          <CuratorSlot
+          <ExhibitSlot
+            enabled={isAdmin}
             characterId={AKATSUKI_IDS.pain}
             slot="ABILITY"
             abilityName={EXHIBIT_IMAGE_KEYS.origins}
@@ -682,14 +703,16 @@ export async function AkatsukiExhibit({
                     {t(`relations.${relation.key}.text`)}
                   </p>
                   {relation.imageKey ? (
-                    <CuratorSlot
+                    <ExhibitSlot
+                      enabled={isAdmin}
                       characterId={relation.imageOwnerId ?? relation.characterId}
                       slot="ABILITY"
                       abilityName={relation.imageKey}
                       label={t("slots.exhibitOf", { name: relation.name })}
                     />
                   ) : (
-                    <CuratorSlot
+                    <ExhibitSlot
+                      enabled={isAdmin}
                       characterId={relation.characterId}
                       slot="PORTRAIT"
                       label={t("slots.portraitOf", { name: relation.name })}
@@ -776,7 +799,8 @@ export async function AkatsukiExhibit({
         </h2>
         <p className={`${shell.serif} ${styles.legacyText}`}>{t("legacy.p1")}</p>
         <p className={`${shell.serif} ${styles.legacyText}`}>{t("legacy.p2")}</p>
-        <CuratorSlot
+        <ExhibitSlot
+          enabled={isAdmin}
           characterId={AKATSUKI_IDS.pain}
           slot="ABILITY"
           abilityName={EXHIBIT_IMAGE_KEYS.dawn}
@@ -829,7 +853,8 @@ export async function AkatsukiExhibit({
                       </span>
                     </span>
                   </Link>
-                  <CuratorSlot
+                  <ExhibitSlot
+                    enabled={isAdmin}
                     characterId={person.characterId}
                     slot="PORTRAIT"
                     label={t("slots.portraitOf", { name: person.name })}

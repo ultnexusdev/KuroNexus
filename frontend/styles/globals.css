@@ -657,6 +657,20 @@ html {
   --aka-ember:       rgba(217, 166, 46, 0.2);  /* altin kor isigi */
   --aka-ember-hi:    #d9a053;                  /* kor taneciklerinin cekirdegi */
 
+  /* v3-B2 — zigzag donem dokulari (uretim hatti yok; dokular CSS'te,
+     referans gorselin malzeme dili: tas / amber / rinnegan moru /
+     catlamis ates / soluk safak). Yalnizca sergi okur. */
+  --aka-stone:     #262c38; /* kurulus — soguk tas */
+  --aka-stone-hi:  #3b4452;
+  --aka-amber:     #6e5423; /* yahiko — sicak umut isigi */
+  --aka-amber-hi:  #d9a53f;
+  --aka-violet:    #43244a; /* nagato — rinnegan moru */
+  --aka-violet-hi: #8a4a8f;
+  --aka-war:       #6e3018; /* savas — catlamis ates */
+  --aka-war-hi:    #d0722e;
+  --aka-dawn:      #57514c; /* son — soluk safak zemini */
+  --aka-dawn-hi:   #cfc0ae;
+
   /* Salon 02 — Projeksiyon Salonu yardimci token'lari */
   --film-curtain: #3d1215; /* kapinin ardindaki perde: serit cercevesi + kunye levhasi */
   --film-frame:   #0a0b0e; /* 35 mm serit govdesi — zeminden koyu */

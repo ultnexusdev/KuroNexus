@@ -1459,6 +1459,15 @@ export interface CharacterImage {
   orderIndex: number;
 }
 
+/**
+ * Coklu okuma satiri (`GET /anime/characters/images?ids=`): ayni kayit,
+ * hangi karaktere ait oldugu bilgisiyle. Akatsuki sergisi gibi cok
+ * karakterli sayfalar butun gorselleri TEK istekte alir.
+ */
+export interface CharacterImageRow extends CharacterImage {
+  characterId: number;
+}
+
 export interface CharacterDetail {
   character: CharacterProfile;
   appearances: CharacterAppearance[];

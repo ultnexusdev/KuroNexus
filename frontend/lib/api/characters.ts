@@ -2,6 +2,7 @@ import { apiFetch } from "./client";
 import type {
   CharacterCard,
   CharacterDetail,
+  CharacterImageRow,
   CharacterIndex,
 } from "./types";
 
@@ -64,6 +65,33 @@ export async function getCharacterCards(
     return await apiFetch<CharacterCard[]>(
       `/anime/characters/cards?ids=${unique.join(",")}`,
       { next: { revalidate: 86400 } },
+    );
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Verilen karakterlerin küratör görselleri (CharacterImage) tek istekte.
+ *
+ * Akatsuki sergisinin görsel kaynağı: portreler ve sergi görselleri buradan,
+ * kayıt yoksa AniList portresine (`getCharacterCards`) düşülür. `no-store` —
+ * küratörün/kurulum ucunun yüklediği görsel anında görünmeli (dizinle aynı
+ * gerekçe). Alınamazsa boş dizi: sergi portresiz ama ayakta kalır.
+ */
+export async function getCharacterImages(
+  ids: number[],
+): Promise<CharacterImageRow[]> {
+  const unique = [...new Set(ids)].filter(
+    (id) => Number.isInteger(id) && id > 0,
+  );
+  if (unique.length === 0) {
+    return [];
+  }
+  try {
+    return await apiFetch<CharacterImageRow[]>(
+      `/anime/characters/images?ids=${unique.join(",")}`,
+      { cache: "no-store" },
     );
   } catch {
     return [];

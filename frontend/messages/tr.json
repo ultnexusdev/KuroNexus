@@ -1401,6 +1401,239 @@
     "hero": {
       "eyebrow": "Şu an izliyorum",
       "resume": "Kaldığın yerden devam et →"
+    },
+    "worlds": {
+      "title": "Anime Dünyaları",
+      "aria": "Anime dünyaları",
+      "enter": "Keşfet",
+      "akatsuki": {
+        "title": "Akatsuki",
+        "tagline": "Kızıl bulutların altında bir örgüt, yağmurun ardında bir tanrı.",
+        "meter": "Dijital sergi"
+      },
+      "naruto": {
+        "title": "Naruto Evreni",
+        "tagline": "Arşivdeki seri: sezonlar, kanon ilerlemesi, kadro."
+      },
+      "onepiece": {
+        "title": "One Piece",
+        "tagline": "Arşivdeki seri: sezonlar, bölümler, kadro."
+      },
+      "archive": {
+        "title": "Anime Arşivi",
+        "tagline": "Altı raf: izlediğim, beklediğim, bitirdiğim."
+      }
+    }
+  },
+  "akatsuki": {
+    "eyebrow": "Dijital sergi",
+    "title": "Akatsuki",
+    "subtitle": "Şafak Örgütü",
+    "lede": "Yağmur köyünün gölgesinde bir barış sözüyle kuruldu; dünyayı dize getirmeye varan bir plana dönüştü. Bu sergi o dönüşümün arşividir.",
+    "backToHall": "← Anime salonuna dön",
+    "scrollHint": "Aşağı in — sergi açılıyor",
+    "labels": {
+      "ring": "Yüzük",
+      "partner": "Ortak",
+      "dossier": "Dosyayı aç",
+      "era": "Dönem"
+    },
+    "hero": {
+      "eyebrow": "Anlatının merkezi",
+      "name": "Pain",
+      "epigraph": "Dünya, acıyı bildiği gün büyüyecek.",
+      "meta": {
+        "realName": "Gerçek adı",
+        "realNameValue": "Nagato",
+        "village": "Köyü",
+        "villageValue": "Amegakure — Yağmur Köyü",
+        "eye": "Gözü",
+        "eyeValue": "Rinnegan — Altı Yol'un gözü",
+        "role": "Konumu",
+        "roleValue": "Akatsuki'nin yüzü ve lideri",
+        "bodies": "Bedenleri",
+        "bodiesValue": "Altı ceset, tek irade"
+      }
+    },
+    "about": {
+      "title": "Akatsuki Hakkında",
+      "p1": "Akatsuki, savaşın en çok yaktığı toprakta doğdu. Amegakure'nin üç yetimi — Yahiko, Nagato, Konan — Jiraiya'nın gölgesinde büyüdü ve örgütü tek bir söz üstüne kurdu: savaşsız bir dünya.",
+      "p2": "Yahiko'nun ölümü o sözü büktü. Barış arayışı, acıyı öğreterek barışa zorlamaya; umut, dokuz kuyruklu canavarı toplayan bir plana dönüştü. Kızıl bulutlu pelerin, yağmurda dökülen kanın işareti oldu.",
+      "p3": "Merkezde Pain durur; çevresinde ona hizmet eden — ve onu kullanan — herkes. Sergi aşağı doğru bu sırayla açılır."
+    },
+    "paths": {
+      "title": "Six Paths of Pain",
+      "lede": "Altı ceset, tek irade. Nagato'nun Rinnegan'ı her bedene bir yol, her yola bir güç verir.",
+      "deva": {
+        "name": "Deva Yolu",
+        "desc": "Yahiko'nun bedeni; örgütün dünyaya dönük yüzü.",
+        "ability": "Çekim kuvveti — Shinra Tensei, Banshō Ten'in"
+      },
+      "asura": {
+        "name": "Asura Yolu",
+        "desc": "Zırha dönüşmüş beden.",
+        "ability": "Mekanik uzuvlar, füzeler, çelik gövde"
+      },
+      "human": {
+        "name": "İnsan Yolu",
+        "desc": "Sorgunun bedeni.",
+        "ability": "Dokunduğunun aklını okur, ruhunu söker"
+      },
+      "animal": {
+        "name": "Hayvan Yolu",
+        "desc": "Kuşatmanın bedeni.",
+        "ability": "Çağırma mühürleri — dev canavar ordusu"
+      },
+      "preta": {
+        "name": "Preta Yolu",
+        "desc": "Kalkana dönüşmüş beden.",
+        "ability": "Her jutsuyu yutar, chakrayı emer"
+      },
+      "naraka": {
+        "name": "Naraka Yolu",
+        "desc": "Yargının bedeni.",
+        "ability": "Kral Yama'nın huzuru: sorgu ve onarım"
+      }
+    },
+    "members": {
+      "title": "Akatsuki Üyeleri",
+      "lede": "Kızıl bulutu taşıyan dokuz isim — her biri kendi köyünün kaybı.",
+      "itachi": {
+        "alias": "Klanının Katili",
+        "role": "Kisame'nin ortağı; örgütün en sessiz gölgesi",
+        "ability": "Sharingan · Tsukuyomi · Amaterasu · Susanoo",
+        "bio": "Konoha'nın en parlak çocuğu, en ağır görevi üstlendi: kendi klanını silmek ve suçu sırtlanıp sürgünde yaşamak. Akatsuki'de bile sadakati köyüneydi."
+      },
+      "kisame": {
+        "alias": "Sisin Canavarı",
+        "role": "Itachi'nin ortağı",
+        "ability": "Samehada · su jutsuları · dipsiz chakra",
+        "bio": "Kirigakure'nin Yedi Kılıcı'ndan biri. Köpekbalığı derisi Samehada chakra yer; sahibi yorulmaz, düşmanı tükenir."
+      },
+      "deidara": {
+        "alias": "Sanat Bir Patlamadır",
+        "role": "Önce Sasori'nin, sonra Tobi'nin ortağı",
+        "ability": "Patlayıcı kil — C1'den C0'a",
+        "bio": "İwagakure'den kaçmış bir sanatçı. Ona göre sanat bir andır: parlar ve yok olur. Son eseri kendisiydi."
+      },
+      "sasori": {
+        "alias": "Kızıl Kum'un Sasori'si",
+        "role": "Deidara'nın ortağı",
+        "ability": "Kukla ustalığı — kendi bedeni dahil yüz kukla",
+        "bio": "Sunagakure'nin kukla ustası. Ölümsüzlüğü sanatında aradı: bedenini kuklaya çevirdi, kalbini tek bir kapsülde sakladı."
+      },
+      "kakuzu": {
+        "alias": "Köylerin Haznedarı",
+        "role": "Hidan'ın ortağı",
+        "ability": "Beş kalp — beş element",
+        "bio": "Takigakure'den; ödül avcılığıyla örgütün kasasını tutar. Beş kalbi beş ayrı hayat demektir — düşmanı hepsini tek tek durdurmak zorundadır."
+      },
+      "hidan": {
+        "alias": "Jashin'in Kulu",
+        "role": "Kakuzu'nun ortağı",
+        "ability": "Ölümsüzlük — Jashin ritüeli",
+        "bio": "Yugakure'nin dönmesi. Ölemez; acıyı ibadet sayar. Kakuzu'yla eşleşmesinin sebebi basittir: başka kimse ona dayanamaz."
+      },
+      "konan": {
+        "alias": "Tanrının Meleği",
+        "role": "Pain'in ortağı; kurucu üye",
+        "ability": "Kağıt jutsusu — bedeni kağıda çözülür",
+        "bio": "Üç yetimin hayatta kalanı. Amegakure onu melek bilir; kağıttan kanatları yağmurda bile taşır."
+      },
+      "tobi": {
+        "alias": "Maskeli",
+        "role": "Zetsu ile gölgeden yönetir",
+        "ability": "Kamui — uzay-zaman Sharingan'ı",
+        "bio": "Sahnede şaklaban bir çaylak; maskenin ardında örgütün gerçek eli. Adını ölülerden ödünç aldı: Madara."
+      },
+      "zetsu": {
+        "alias": "Gözcü",
+        "role": "Örgütün istihbaratı",
+        "ability": "Yerle bütünleşme · ikiz beden",
+        "bio": "Yarısı beyaz, yarısı siyah; biri kayıt tutar, öteki plan kurar. Akatsuki'nin gördüğü her şeyi önce Zetsu görmüştür."
+      }
+    },
+    "partners": {
+      "title": "Partnerler",
+      "lede": "Örgüt ikili çalışır — güvenden değil, denetimden.",
+      "itachi-kisame": "Gölge ve canavar: en sessiz üyeyle en gürültülüsü, örgütün en uzun ömürlü çifti oldu.",
+      "deidara-sasori": "İki sanatçı, iki zıt okul: anın patlaması ile sonsuzluğun kuklası.",
+      "hidan-kakuzu": "Zombi ikilisi: biri ölemez, öteki öldürmeden duramaz.",
+      "pain-konan": "Yetimhaneden tanrılığa: geriye kalan iki çocuk, örgütün merkezini birlikte tuttu."
+    },
+    "history": {
+      "title": "Akatsuki'nin Tarihi",
+      "lede": "Barış sözünden dünya savaşına — dört dönem, bir son.",
+      "founding": {
+        "era": "Kuruluş",
+        "title": "Üç yetim, tek söz",
+        "text": "Savaşın ortasında Amegakure'nin üç yetimi — Yahiko, Nagato, Konan — Jiraiya'dan öğrendikleriyle örgütü kurar. Amaç tek cümledir: kan dökmeden barış."
+      },
+      "yahiko": {
+        "era": "Yahiko Dönemi",
+        "title": "Umut yılları",
+        "text": "Yahiko'nun karizması örgütü büyütür; Akatsuki bir barış hareketidir. Hanzō ile Danzō'nun kurduğu tuzak dönemi bitirir: Yahiko, Nagato'nun elinde ölür."
+      },
+      "nagato": {
+        "era": "Nagato Dönemi",
+        "title": "Pain doğar",
+        "text": "Nagato, Yahiko'nun bedenini Deva Yolu yapar ve Pain adını alır. Kızıl bulutlu pelerinler giyilir, örgüt ikili ekiplere bölünür; hedef artık dokuz Bijū'dur."
+      },
+      "war": {
+        "era": "Savaş Dönemi",
+        "title": "Dünya sahnesi",
+        "text": "Bijū avı köyleri karşısına alır: Gaara kaçırılır, Konoha yerle bir edilir. Perde arkasında Tobi — Obito — ipleri Madara'nın planına bağlar: Dördüncü Büyük Ninja Savaşı."
+      },
+      "end": {
+        "era": "Son",
+        "title": "Şafak söker",
+        "text": "Nagato, Naruto'yu dinler ve son gücüyle öldürdüklerini geri getirir. Konan pelerini bırakır; savaş Obito'yu da Madara'yı da tüketir. Geriye tek soru kalır: acı, barışı öğretebilir mi?"
+      }
+    },
+    "relations": {
+      "title": "Önemli İlişkiler",
+      "lede": "Pain'in yörüngesindeki beş isim.",
+      "nagato": {
+        "role": "Gözün sahibi",
+        "text": "Pain bir maskeyse Nagato yüzdür: sakat bedeni Gedō Mazō'ya bağlı, iradesi altı cesette gezer."
+      },
+      "konan": {
+        "role": "Son yoldaş",
+        "text": "Nagato'nun kararlarını sorgulamayan tek kişi — ta ki Nagato Naruto'yu seçene dek. O gün Konan da kendi yolunu seçer."
+      },
+      "obito": {
+        "role": "Gölgedeki el",
+        "text": "Tobi maskesi, Nagato'ya yolunu 'gösteren' eli gizler. Pain'in tanrılığı, Obito'nun senaryosunda bir perdedir."
+      },
+      "madara": {
+        "role": "Adın sahibi",
+        "text": "Ölü bir efsane, canlı bir plan: Akatsuki'nin iskeleti Madara'nın vasiyetidir; Obito yalnızca yürütür."
+      },
+      "yahiko": {
+        "role": "İlk lider",
+        "text": "Örgütün ruhu. Deva Yolu onun bedenidir — Pain her göründüğünde, ölmüş bir umut ayakta durur."
+      }
+    },
+    "symbols": {
+      "title": "Sembolizm",
+      "lede": "Örgütün üç işareti — üçü de bir kaybın kaydı.",
+      "cloud": {
+        "name": "Kızıl Bulut",
+        "text": "Amegakure'nin üstüne savaş taşıyan bulutlar ve o yağmurda dökülen kan: pelerindeki bulutlar kurucuların yasıdır."
+      },
+      "rings": {
+        "name": "Yüzükler",
+        "text": "On yüzük, on konum. Yüzük üyeyle ölmez — geri alınır; boş kalan parmak, örgütte bir koltuğun adıdır."
+      },
+      "cloak": {
+        "name": "Pelerin",
+        "text": "Siyah zemin, kızıl bulut, yüksek yaka: kim olduğun değil, neyi taşıdığın. Pelerini giyen, adını kapıda bırakır."
+      }
+    },
+    "legacy": {
+      "title": "Miras",
+      "p1": "Akatsuki bittiğinde geriye ne bir kale ne bir ordu kaldı; kalan, sorusuydu: barış zorla kurulabilir mi? Naruto'nun cevabı, Nagato'nun sorusundan doğdu.",
+      "p2": "Bu sergi o soruyu soran örgütün kaydıdır. Kızıl bulutlar yağmurla birlikte dindi — ama iz bıraktı."
     }
   },
   "character": {

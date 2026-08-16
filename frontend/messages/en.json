@@ -1401,6 +1401,239 @@
     "hero": {
       "eyebrow": "Currently watching",
       "resume": "Pick up where you left off →"
+    },
+    "worlds": {
+      "title": "Anime Worlds",
+      "aria": "Anime worlds",
+      "enter": "Explore",
+      "akatsuki": {
+        "title": "Akatsuki",
+        "tagline": "An organisation under red clouds, a god behind the rain.",
+        "meter": "Digital exhibit"
+      },
+      "naruto": {
+        "title": "Naruto Universe",
+        "tagline": "The archived series: seasons, canon progress, cast."
+      },
+      "onepiece": {
+        "title": "One Piece",
+        "tagline": "The archived series: seasons, episodes, cast."
+      },
+      "archive": {
+        "title": "Anime Archive",
+        "tagline": "Six shelves: watching, waiting, finished."
+      }
+    }
+  },
+  "akatsuki": {
+    "eyebrow": "Digital exhibit",
+    "title": "Akatsuki",
+    "subtitle": "The Dawn",
+    "lede": "Founded on a promise of peace in the shadow of the rain village; twisted into a plan to bring the world to its knees. This exhibit is the archive of that transformation.",
+    "backToHall": "← Back to the anime hall",
+    "scrollHint": "Scroll down — the exhibit unfolds",
+    "labels": {
+      "ring": "Ring",
+      "partner": "Partner",
+      "dossier": "Open dossier",
+      "era": "Era"
+    },
+    "hero": {
+      "eyebrow": "Centre of the narrative",
+      "name": "Pain",
+      "epigraph": "The world will grow the day it learns pain.",
+      "meta": {
+        "realName": "Real name",
+        "realNameValue": "Nagato",
+        "village": "Village",
+        "villageValue": "Amegakure — the Hidden Rain",
+        "eye": "Eye",
+        "eyeValue": "Rinnegan — eye of the Six Paths",
+        "role": "Position",
+        "roleValue": "Face and leader of the Akatsuki",
+        "bodies": "Bodies",
+        "bodiesValue": "Six corpses, one will"
+      }
+    },
+    "about": {
+      "title": "About the Akatsuki",
+      "p1": "The Akatsuki was born on the land war burned hardest. Three orphans of Amegakure — Yahiko, Nagato, Konan — grew up in Jiraiya's shadow and built the organisation on a single promise: a world without war.",
+      "p2": "Yahiko's death bent that promise. The search for peace became forcing peace by teaching pain; hope became a plan to collect the nine Tailed Beasts. The red-cloud cloak became the mark of blood spilled in the rain.",
+      "p3": "Pain stands at the centre; around him, everyone who served him — and everyone who used him. The exhibit unfolds downward in that order."
+    },
+    "paths": {
+      "title": "Six Paths of Pain",
+      "lede": "Six corpses, one will. Nagato's Rinnegan grants each body a path, each path a power.",
+      "deva": {
+        "name": "Deva Path",
+        "desc": "Yahiko's body; the organisation's face to the world.",
+        "ability": "Gravity itself — Shinra Tensei, Banshō Ten'in"
+      },
+      "asura": {
+        "name": "Asura Path",
+        "desc": "A body turned armour.",
+        "ability": "Mechanised limbs, missiles, a steel frame"
+      },
+      "human": {
+        "name": "Human Path",
+        "desc": "The body of interrogation.",
+        "ability": "Reads the mind it touches, tears out the soul"
+      },
+      "animal": {
+        "name": "Animal Path",
+        "desc": "The body of the siege.",
+        "ability": "Summoning seals — an army of giant beasts"
+      },
+      "preta": {
+        "name": "Preta Path",
+        "desc": "A body turned shield.",
+        "ability": "Swallows any jutsu, drains chakra"
+      },
+      "naraka": {
+        "name": "Naraka Path",
+        "desc": "The body of judgement.",
+        "ability": "Before the King of Hell: interrogation and repair"
+      }
+    },
+    "members": {
+      "title": "Members of the Akatsuki",
+      "lede": "Nine names under the red cloud — each one a village's loss.",
+      "itachi": {
+        "alias": "Slayer of his Clan",
+        "role": "Kisame's partner; the quietest shadow in the organisation",
+        "ability": "Sharingan · Tsukuyomi · Amaterasu · Susanoo",
+        "bio": "Konoha's brightest child took its heaviest duty: erase his own clan, shoulder the guilt, live in exile. Even inside the Akatsuki his loyalty belonged to his village."
+      },
+      "kisame": {
+        "alias": "Monster of the Mist",
+        "role": "Itachi's partner",
+        "ability": "Samehada · water jutsu · bottomless chakra",
+        "bio": "One of Kirigakure's Seven Swordsmen. The shark-skin blade Samehada feeds on chakra; its owner never tires, his enemies run dry."
+      },
+      "deidara": {
+        "alias": "Art Is an Explosion",
+        "role": "Sasori's partner, later Tobi's",
+        "ability": "Explosive clay — from C1 to C0",
+        "bio": "An artist who fled Iwagakure. To him art is a moment: it flares and is gone. His final work was himself."
+      },
+      "sasori": {
+        "alias": "Sasori of the Red Sand",
+        "role": "Deidara's partner",
+        "ability": "Puppet mastery — a hundred puppets, his own body included",
+        "bio": "Sunagakure's puppet master. He sought immortality in his craft: turned his body into a puppet and kept his heart in a single capsule."
+      },
+      "kakuzu": {
+        "alias": "Treasurer of the Villages",
+        "role": "Hidan's partner",
+        "ability": "Five hearts — five elements",
+        "bio": "From Takigakure; bounty hunting keeps the organisation's ledger. Five hearts mean five separate lives — an enemy must stop every one of them."
+      },
+      "hidan": {
+        "alias": "Servant of Jashin",
+        "role": "Kakuzu's partner",
+        "ability": "Immortality — the ritual of Jashin",
+        "bio": "The apostate of Yugakure. He cannot die; he counts pain as worship. Why he was paired with Kakuzu is simple: no one else could stand him."
+      },
+      "konan": {
+        "alias": "Angel of God",
+        "role": "Pain's partner; founding member",
+        "ability": "Paper jutsu — her body unfolds into paper",
+        "bio": "The survivor of the three orphans. Amegakure calls her an angel; her paper wings carry even through the rain."
+      },
+      "tobi": {
+        "alias": "The Masked One",
+        "role": "Rules from the shadows with Zetsu",
+        "ability": "Kamui — the space-time Sharingan",
+        "bio": "A clowning rookie on stage; behind the mask, the organisation's true hand. He borrowed his name from the dead: Madara."
+      },
+      "zetsu": {
+        "alias": "The Watcher",
+        "role": "The organisation's intelligence",
+        "ability": "Merging with the earth · a twin body",
+        "bio": "Half white, half black; one keeps the record, the other makes the plan. Everything the Akatsuki has seen, Zetsu saw first."
+      }
+    },
+    "partners": {
+      "title": "Partners",
+      "lede": "The organisation works in pairs — not out of trust, but oversight.",
+      "itachi-kisame": "The shadow and the monster: its quietest member and its loudest became the organisation's longest-lived pair.",
+      "deidara-sasori": "Two artists, two opposing schools: the explosion of the moment against the puppet of eternity.",
+      "hidan-kakuzu": "The zombie duo: one cannot die, the other cannot stop killing.",
+      "pain-konan": "From the orphanage to godhood: the two children left standing held the organisation's centre together."
+    },
+    "history": {
+      "title": "History of the Akatsuki",
+      "lede": "From a promise of peace to a world war — four eras, one end.",
+      "founding": {
+        "era": "Founding",
+        "title": "Three orphans, one promise",
+        "text": "In the middle of a war, Amegakure's three orphans — Yahiko, Nagato, Konan — build the organisation on what Jiraiya taught them. The goal is a single sentence: peace without bloodshed."
+      },
+      "yahiko": {
+        "era": "The Yahiko Era",
+        "title": "The years of hope",
+        "text": "Yahiko's charisma makes the organisation grow; the Akatsuki is a peace movement. A trap laid by Hanzō and Danzō ends the era: Yahiko dies by Nagato's hand."
+      },
+      "nagato": {
+        "era": "The Nagato Era",
+        "title": "Pain is born",
+        "text": "Nagato turns Yahiko's body into the Deva Path and takes the name Pain. The red-cloud cloaks go on, the organisation splits into pairs; the target is now the nine Tailed Beasts."
+      },
+      "war": {
+        "era": "The War Era",
+        "title": "The world stage",
+        "text": "Hunting the Bijū turns every village hostile: Gaara is taken, Konoha is razed. Behind the curtain Tobi — Obito — ties the strings to Madara's design: the Fourth Great Ninja War."
+      },
+      "end": {
+        "era": "The End",
+        "title": "Dawn breaks",
+        "text": "Nagato listens to Naruto and, with his last strength, restores those he killed. Konan lays down the cloak; the war consumes Obito and Madara alike. One question remains: can pain teach peace?"
+      }
+    },
+    "relations": {
+      "title": "Key Relationships",
+      "lede": "Five names in Pain's orbit.",
+      "nagato": {
+        "role": "Owner of the eye",
+        "text": "If Pain is a mask, Nagato is the face: his crippled body bound to the Gedō Mazō, his will walking in six corpses."
+      },
+      "konan": {
+        "role": "The last companion",
+        "text": "The only one who never questioned Nagato's decisions — until Nagato chose Naruto. That day Konan chose her own path too."
+      },
+      "obito": {
+        "role": "The hand in the shadows",
+        "text": "The Tobi mask hides the hand that 'showed' Nagato his path. Pain's godhood is one act in Obito's script."
+      },
+      "madara": {
+        "role": "Owner of the name",
+        "text": "A dead legend, a living plan: the Akatsuki's skeleton is Madara's testament; Obito merely executes it."
+      },
+      "yahiko": {
+        "role": "The first leader",
+        "text": "The organisation's soul. The Deva Path is his body — every time Pain appears, a dead hope stands upright."
+      }
+    },
+    "symbols": {
+      "title": "Symbolism",
+      "lede": "Three marks of the organisation — each the record of a loss.",
+      "cloud": {
+        "name": "The Red Cloud",
+        "text": "The clouds that carried war over Amegakure, and the blood spilled in that rain: the clouds on the cloak are the founders' mourning."
+      },
+      "rings": {
+        "name": "The Rings",
+        "text": "Ten rings, ten seats. A ring does not die with its member — it is reclaimed; an empty finger is the name of a chair in the organisation."
+      },
+      "cloak": {
+        "name": "The Cloak",
+        "text": "Black ground, red clouds, high collar: not who you are, but what you carry. Whoever puts on the cloak leaves their name at the door."
+      }
+    },
+    "legacy": {
+      "title": "Legacy",
+      "p1": "When the Akatsuki ended, no fortress and no army remained; what remained was its question: can peace be built by force? Naruto's answer was born from Nagato's question.",
+      "p2": "This exhibit is the record of the organisation that asked it. The red clouds settled with the rain — but they left a mark."
     }
   },
   "character": {

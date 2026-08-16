@@ -11,7 +11,7 @@ import {
   AKATSUKI_RELATIONS,
   AKATSUKI_STAT_KEYS,
   AKATSUKI_SYMBOL_KEYS,
-  AKATSUKI_TIMELINE_KEYS,
+  AKATSUKI_TIMELINE,
   EXHIBIT_IMAGE_KEYS,
   SIX_PATHS,
 } from "@/lib/anime/akatsuki";
@@ -20,6 +20,7 @@ import { AkatsukiCloud } from "@/components/anime/AkatsukiCloud";
 import { CuratorFrame } from "@/components/character/CuratorFrame";
 import { CuratorSlot } from "@/components/character/CuratorSlot";
 import { AkatsukiAudio } from "./AkatsukiAudio";
+import { AkatsukiGlyph, type AkatsukiGlyphName } from "./AkatsukiGlyphs";
 import { AkatsukiSetup } from "./AkatsukiSetup";
 import { RinneganMotif } from "./RinneganMotif";
 import shell from "@/app/[locale]/anime/layout.module.css";
@@ -587,18 +588,57 @@ export async function AkatsukiExhibit({
           />
         </header>
 
-        <ol className={styles.timeline}>
-          {AKATSUKI_TIMELINE_KEYS.map((key) => (
-            <li key={key} className={styles.era}>
-              <span className={`${shell.data} ${styles.eraLabel}`}>
-                {t(`history.${key}.era`)}
-              </span>
-              <span className={`${shell.display} ${styles.eraTitle}`}>
-                {t(`history.${key}.title`)}
-              </span>
-              <p className={`${shell.prose} ${styles.eraText}`}>
-                {t(`history.${key}.text`)}
-              </p>
+        {/* v3-B2 — ZİGZAG SERGİ ŞERİDİ: dönemler merkez ekseninin iki
+            yanında dönüşümlü; her kartın kendi dokusu (`data-era`),
+            dairesel portreleri ve glifleri var. Merkez çizgi kaydırmayla
+            doluyor (scroll-driven, JS'siz). */}
+        <ol className={styles.zigzag}>
+          <span className={styles.zigLine} aria-hidden>
+            <span className={styles.zigFill} />
+          </span>
+          {AKATSUKI_TIMELINE.map((era, index) => (
+            <li
+              key={era.key}
+              className={styles.zigItem}
+              data-era={era.key}
+              data-side={index % 2 === 0 ? "left" : "right"}
+            >
+              <span className={styles.zigNode} aria-hidden />
+              <article className={styles.zigCard}>
+                <span className={styles.zigTexture} aria-hidden />
+                <div className={styles.zigBody}>
+                  <span className={`${shell.data} ${styles.eraLabel}`}>
+                    {t(`history.${era.key}.era`)}
+                  </span>
+                  <span className={`${shell.display} ${styles.eraTitle}`}>
+                    {t(`history.${era.key}.title`)}
+                  </span>
+                  <p className={`${shell.prose} ${styles.eraText}`}>
+                    {t(`history.${era.key}.text`)}
+                  </p>
+                  <span className={styles.zigMeta}>
+                    <span className={styles.zigFaces} aria-hidden>
+                      {era.faces.map((characterId) => {
+                        const src = portraitSrc(sources, characterId);
+                        return src ? (
+                          <span key={characterId} className={styles.zigFace}>
+                            <ExhibitImage image={src} alt="" sizes="48px" />
+                          </span>
+                        ) : null;
+                      })}
+                    </span>
+                    <span className={styles.zigIcons} aria-hidden>
+                      {era.icons.map((icon) => (
+                        <AkatsukiGlyph
+                          key={icon}
+                          name={icon as AkatsukiGlyphName}
+                          className={styles.zigIcon}
+                        />
+                      ))}
+                    </span>
+                  </span>
+                </div>
+              </article>
             </li>
           ))}
         </ol>

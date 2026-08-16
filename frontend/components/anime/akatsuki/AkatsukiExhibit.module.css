@@ -612,52 +612,359 @@
   mask-image: linear-gradient(to bottom, #000, transparent 90%);
 }
 
-/* Sol raydan inen kılcal çizgi; her dönem bir durak */
-.timeline {
+/* ── v3-B2: ZİGZAG SERGİ ŞERİDİ ─────────────────────────────────────────
+   Dönemler merkez ekseninin solunda/sağında dönüşümlü. Merkezden geçen
+   ince çizgi kaydırmayla "dolar" (scroll-driven, JS'siz). Her kartın
+   dokusu `data-era` ile kendi malzemesini alır — hepsi aynı gri kutu
+   DEĞİL (komut v3-B2). */
+.zigzag {
   list-style: none;
   margin: 0;
-  padding: 0 var(--an-gutter);
+  padding: clamp(1rem, 2vw, 2rem) var(--an-gutter);
   position: relative;
   z-index: 2;
   display: flex;
   flex-direction: column;
-  gap: clamp(1.75rem, 4vw, 2.75rem);
-  max-width: 56rem;
+  gap: clamp(2rem, 4.5vw, 3.25rem);
+  max-width: 72rem;
+  width: 100%;
+  align-self: center;
 }
 
-.era {
+/* Merkez eksen: sönük ray + kaydırmayla dolan parlak kızıl dolgu */
+.zigLine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  translate: -50% 0;
+  background: color-mix(in srgb, var(--accent-muted) 45%, transparent);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.zigFill {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, var(--aka-blood), var(--accent-hover));
+  box-shadow: 0 0 12px var(--aka-glow-strong);
+  transform-origin: 50% 0;
+  scale: 1 0;
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .zigFill {
+      animation: zigFillGrow linear both;
+      animation-timeline: view();
+      animation-range: entry 10% exit 90%;
+    }
+  }
+}
+
+/* Desteksiz/reduced-motion: çizgi dolu durur — bilgi kaybolmaz */
+@media (prefers-reduced-motion: reduce) {
+  .zigFill {
+    scale: 1 1;
+  }
+}
+
+@supports not (animation-timeline: view()) {
+  .zigFill {
+    scale: 1 1;
+  }
+}
+
+@keyframes zigFillGrow {
+  from {
+    scale: 1 0;
+  }
+  to {
+    scale: 1 1;
+  }
+}
+
+.zigItem {
   position: relative;
-  padding-left: clamp(1.5rem, 3vw, 2.25rem);
-  border-left: 1px solid var(--accent-muted);
+  display: flex;
+}
+
+/* Durak mührü: eksenin üstünde parlayan kızıl düğüm */
+.zigNode {
+  position: absolute;
+  left: 50%;
+  top: 1.4rem;
+  width: 0.7rem;
+  height: 0.7rem;
+  translate: -50% 0;
+  rotate: 45deg;
+  background: var(--accent);
+  box-shadow: 0 0 14px var(--aka-glow-strong);
+  z-index: 2;
+}
+
+.zigCard {
+  position: relative;
+  width: min(46%, 32rem);
+  border: 1px solid var(--border-strong);
+  overflow: hidden;
+  isolation: isolate;
+  transition: box-shadow 380ms ease, translate 380ms ease;
+}
+
+.zigItem[data-side="left"] .zigCard {
+  margin-right: auto;
+}
+
+.zigItem[data-side="right"] .zigCard {
+  margin-left: auto;
+}
+
+.zigCard:hover {
+  box-shadow: 0 0 28px var(--aka-glow-soft);
+}
+
+.zigBody {
+  position: relative;
+  z-index: 2;
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-}
-
-/* Durağın mührü: rayın üstünde küçük kızıl kare */
-.era::before {
-  content: "";
-  position: absolute;
-  left: -0.22rem;
-  top: 0.45rem;
-  width: 0.4rem;
-  height: 0.4rem;
-  background: var(--accent);
+  gap: 0.5rem;
+  padding: clamp(1.125rem, 2.2vw, 1.625rem);
 }
 
 .eraLabel {
   text-transform: uppercase;
   letter-spacing: 0.14em;
-  color: var(--accent);
+  color: var(--accent-hover);
 }
 
 .eraTitle {
   font-size: clamp(1.375rem, 2.2vw, 1.875rem);
   color: var(--text-primary);
+  text-shadow: 0 0 18px var(--aka-glow-soft);
 }
 
 .eraText {
   color: var(--text-secondary);
+  font-size: 0.9375rem;
+}
+
+/* ── Dönem dokuları: gürültü + malzeme gradyanı, blend ile ──
+   Ortak taban: fraktal gürültü (üretilmiş SVG) overlay blend'le malzemeye
+   gömülür; malzeme rengi dönem token'larından. */
+.zigTexture {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 140px 140px;
+  opacity: 0.16;
+  mix-blend-mode: overlay;
+  transition: opacity 380ms ease;
+}
+
+.zigCard:hover .zigTexture {
+  opacity: 0.28;
+}
+
+/* Kuruluş — soğuk taş tablet */
+.zigItem[data-era="founding"] .zigCard {
+  background:
+    linear-gradient(160deg, var(--aka-stone-hi), var(--aka-stone) 55%),
+    var(--surface);
+  border-color: color-mix(in srgb, var(--aka-stone-hi) 70%, transparent);
+}
+
+/* Yahiko — amber umut ışığı */
+.zigItem[data-era="yahiko"] .zigCard {
+  background:
+    radial-gradient(
+      110% 130% at 15% 0%,
+      color-mix(in srgb, var(--aka-amber-hi) 34%, transparent),
+      transparent 58%
+    ),
+    linear-gradient(160deg, var(--aka-amber), color-mix(in srgb, var(--aka-amber) 45%, var(--bg)) 62%);
+  border-color: color-mix(in srgb, var(--aka-amber-hi) 55%, transparent);
+}
+
+.zigItem[data-era="yahiko"] .eraLabel {
+  color: var(--aka-amber-hi);
+}
+
+/* Nagato — Rinnegan halkaları */
+.zigItem[data-era="nagato"] .zigCard {
+  background:
+    repeating-radial-gradient(
+      circle at 88% 12%,
+      transparent 0 14px,
+      color-mix(in srgb, var(--aka-violet-hi) 26%, transparent) 14px 15px
+    ),
+    linear-gradient(160deg, var(--aka-violet), color-mix(in srgb, var(--aka-violet) 40%, var(--bg)) 65%);
+  border-color: color-mix(in srgb, var(--aka-violet-hi) 55%, transparent);
+}
+
+.zigItem[data-era="nagato"] .eraLabel {
+  color: var(--aka-violet-hi);
+}
+
+/* Savaş — çatlamış taş, ateş tonu. Çatlaklar keskin açılı ince çizgiler */
+.zigItem[data-era="war"] .zigCard {
+  background:
+    linear-gradient(115deg, transparent 42%, color-mix(in srgb, var(--aka-war-hi) 30%, transparent) 42.5%, transparent 43.5%),
+    linear-gradient(70deg, transparent 68%, color-mix(in srgb, var(--aka-war-hi) 22%, transparent) 68.5%, transparent 69.5%),
+    radial-gradient(
+      120% 140% at 100% 100%,
+      color-mix(in srgb, var(--aka-war-hi) 30%, transparent),
+      transparent 55%
+    ),
+    linear-gradient(160deg, var(--aka-war), color-mix(in srgb, var(--aka-war) 45%, var(--bg)) 60%);
+  border-color: color-mix(in srgb, var(--aka-war-hi) 55%, transparent);
+}
+
+.zigItem[data-era="war"] .eraLabel {
+  color: var(--aka-war-hi);
+}
+
+/* Son — soluk şafak, kağıt tonu; metin koyulaşır */
+.zigItem[data-era="end"] .zigCard {
+  background:
+    radial-gradient(
+      120% 100% at 50% 0%,
+      color-mix(in srgb, var(--aka-dawn-hi) 40%, transparent),
+      transparent 62%
+    ),
+    linear-gradient(160deg, var(--aka-dawn), color-mix(in srgb, var(--aka-dawn) 50%, var(--bg)) 70%);
+  border-color: color-mix(in srgb, var(--aka-dawn-hi) 60%, transparent);
+}
+
+.zigItem[data-era="end"] .eraLabel {
+  color: var(--aka-dawn-hi);
+}
+
+.zigItem[data-era="end"] .eraText {
+  color: color-mix(in srgb, var(--text-primary) 80%, var(--aka-dawn-hi));
+}
+
+/* Avatarlar + glifler */
+.zigMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.zigFaces {
+  display: flex;
+}
+
+.zigFace {
+  position: relative;
+  display: block;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--aka-paper) 45%, transparent);
+  background: var(--surface);
+  transition: scale 320ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.zigFace + .zigFace {
+  margin-left: -0.55rem;
+}
+
+.zigFace img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 12%;
+  filter: saturate(1) brightness(0.95);
+}
+
+.zigCard:hover .zigFace {
+  scale: 1.12;
+}
+
+.zigIcons {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.zigIcon {
+  width: 1.35rem;
+  height: 1.35rem;
+  color: var(--text-primary);
+  opacity: 0.75;
+  transition: opacity 320ms ease;
+}
+
+.zigCard:hover .zigIcon {
+  opacity: 1;
+}
+
+/* Kartlar kendi tarafından kayarak girer */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .zigItem[data-side="left"] .zigCard {
+      animation: zigFromLeft linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 60%;
+    }
+
+    .zigItem[data-side="right"] .zigCard {
+      animation: zigFromRight linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 60%;
+    }
+  }
+}
+
+@keyframes zigFromLeft {
+  from {
+    opacity: 0.1;
+    transform: translate3d(-2.5rem, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes zigFromRight {
+  from {
+    opacity: 0.1;
+    transform: translate3d(2.5rem, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* Mobil: tek sütun, eksen sola yaslanır, kartlar sırayla */
+@media (max-width: 760px) {
+  .zigLine {
+    left: 0.55rem;
+    translate: 0 0;
+  }
+
+  .zigNode {
+    left: 0.55rem;
+    translate: -50% 0;
+  }
+
+  .zigCard,
+  .zigItem[data-side="left"] .zigCard,
+  .zigItem[data-side="right"] .zigCard {
+    width: 100%;
+    margin-left: 1.9rem;
+    margin-right: 0;
+  }
 }
 
 /* ============================================================

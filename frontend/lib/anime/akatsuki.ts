@@ -261,14 +261,46 @@ export const AKATSUKI_RELATIONS: AkatsukiRelation[] = [
   },
 ];
 
-/** Komut §4f: kuruluş → Yahiko → Nagato → savaş → son. */
-export const AKATSUKI_TIMELINE_KEYS = [
-  "founding",
-  "yahiko",
-  "nagato",
-  "war",
-  "end",
-] as const;
+/**
+ * Komut §4f + v3-B2: kuruluş → Yahiko → Nagato → savaş → son.
+ * Her dönem kendi görsel kimliğini (doku CSS'te, `data-era` ile), küçük
+ * dairesel portrelerini ve 2-3 glifini taşır. Glif adları
+ * `AkatsukiGlyphs.tsx` setinden.
+ */
+export interface AkatsukiEra {
+  key: "founding" | "yahiko" | "nagato" | "war" | "end";
+  /** Dairesel avatarlar — AniList kimlikleri, portre çözümlemesi sayfada */
+  faces: number[];
+  icons: string[];
+}
+
+export const AKATSUKI_TIMELINE: AkatsukiEra[] = [
+  {
+    key: "founding",
+    faces: [AKATSUKI_IDS.yahiko, AKATSUKI_IDS.pain, AKATSUKI_IDS.konan],
+    icons: ["droplet", "scroll", "cloud"],
+  },
+  {
+    key: "yahiko",
+    faces: [AKATSUKI_IDS.yahiko, AKATSUKI_IDS.konan],
+    icons: ["flag", "droplet"],
+  },
+  {
+    key: "nagato",
+    faces: [AKATSUKI_IDS.pain, AKATSUKI_IDS.konan, AKATSUKI_IDS.tobi],
+    icons: ["rinnegan", "ring", "cloud"],
+  },
+  {
+    key: "war",
+    faces: [AKATSUKI_IDS.tobi, AKATSUKI_IDS.madara, AKATSUKI_IDS.itachi],
+    icons: ["mask", "flame"],
+  },
+  {
+    key: "end",
+    faces: [AKATSUKI_IDS.pain, AKATSUKI_IDS.konan],
+    icons: ["butterfly", "droplet", "dawn"],
+  },
+];
 
 /** Komut §4h: bulut, yüzükler, pelerin. */
 export const AKATSUKI_SYMBOL_KEYS = ["cloud", "rings", "cloak"] as const;

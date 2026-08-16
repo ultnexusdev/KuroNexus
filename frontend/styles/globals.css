@@ -634,8 +634,8 @@ html {
 
   /* Salon 04 — Akatsuki sergisi yardimci token'lari.
      Deri token'lari [data-world="akatsuki"] blogunda; buradakiler accent'ten
-     bagimsiz okunan sabit malzemeler (bulut, kagit, sis) — --gs-*/--f1-*
-     ailesinin kardesi. */
+     bagimsiz okunan sabit malzemeler (bulut, kagit, sis) — gs/f1 yardimci
+     ailelerinin kardesi. */
   --aka-crimson: #8f2a2e; /* kizil bulut govdesi */
   --aka-blood:   #5c1a1f; /* koyu kirmizi cizgi/vurgu */
   --aka-paper:   #e8e2d9; /* Konan'in kagidi — bulut konturu, acik vurgu */

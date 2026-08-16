@@ -1634,6 +1634,14 @@
       "title": "Miras",
       "p1": "Akatsuki bittiğinde geriye ne bir kale ne bir ordu kaldı; kalan, sorusuydu: barış zorla kurulabilir mi? Naruto'nun cevabı, Nagato'nun sorusundan doğdu.",
       "p2": "Bu sergi o soruyu soran örgütün kaydıdır. Kızıl bulutlar yağmurla birlikte dindi — ama iz bıraktı."
+    },
+    "curator": {
+      "title": "Küratör — Görsel Kurulumu",
+      "hint": "Manifest'teki görselleri kaynak siteden indirir, kendi diskimize koyar ve karakterlere bağlar. Var olan yuva atlanır — yeniden basmak güvenli, elle yüklediğin görsel ezilmez.",
+      "run": "Görselleri kur",
+      "running": "İndiriliyor…",
+      "done": "{created} indi · {exists} zaten vardı · {failed} başarısız",
+      "error": "Kurulum çalıştırılamadı: {reason}"
     }
   },
   "character": {

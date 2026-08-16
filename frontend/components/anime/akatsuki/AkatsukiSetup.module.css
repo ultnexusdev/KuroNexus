@@ -1,0 +1,73 @@
+/* Küratör kuşağı — sergiyle aynı deri, sessiz araç yüzeyi */
+.panel {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.6rem;
+  max-width: 46rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: clamp(1rem, 2vw, 1.5rem);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.hint {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.run {
+  min-height: var(--touch-min);
+  padding: 0 1.25rem;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  color: var(--accent);
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.run:hover:enabled {
+  border-color: var(--accent);
+  background: var(--surface-hover);
+}
+
+.run:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.result {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--text-primary);
+}
+
+.failures {
+  margin: 0;
+  padding-left: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--warn);
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.error {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--danger);
+}

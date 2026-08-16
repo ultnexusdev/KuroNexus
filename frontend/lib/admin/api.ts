@@ -605,6 +605,36 @@ export function uploadImageFromUrl(url: string): Promise<UploadResult> {
   });
 }
 
+// ---- Akatsuki sergisi ----
+
+/** Kurulum ucunun satır raporu — sebep taşınır (devir dersi §4.5). */
+export interface AkatsukiSetupResult {
+  characterId: number;
+  slot: string;
+  abilityName: string | null;
+  status: "created" | "exists" | "failed";
+  reason?: string;
+  url?: string;
+}
+
+export interface AkatsukiSetupSummary {
+  created: number;
+  exists: number;
+  failed: number;
+  results: AkatsukiSetupResult[];
+}
+
+/**
+ * Akatsuki sergisinin görsel kurulumu. İdempotent: var olan yuva backend'de
+ * atlanır, küratörün elle yüklediği ezilmez — yeniden basmak güvenli
+ * (müzik taksonomi kurulumunun kardeşi).
+ */
+export function setupAkatsukiImages(): Promise<AkatsukiSetupSummary> {
+  return apiFetch<AkatsukiSetupSummary>("/admin/anime/akatsuki/setup", {
+    method: "POST",
+  });
+}
+
 // ---- Karakter görselleri ----
 
 /**

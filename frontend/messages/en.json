@@ -1634,6 +1634,14 @@
       "title": "Legacy",
       "p1": "When the Akatsuki ended, no fortress and no army remained; what remained was its question: can peace be built by force? Naruto's answer was born from Nagato's question.",
       "p2": "This exhibit is the record of the organisation that asked it. The red clouds settled with the rain — but they left a mark."
+    },
+    "curator": {
+      "title": "Curator — Image Setup",
+      "hint": "Downloads the manifest images from the source site, stores them on our own disk and binds them to the characters. Existing slots are skipped — re-running is safe, your manual uploads are never overwritten.",
+      "run": "Install images",
+      "running": "Downloading…",
+      "done": "{created} downloaded · {exists} already present · {failed} failed",
+      "error": "Setup could not run: {reason}"
     }
   },
   "character": {

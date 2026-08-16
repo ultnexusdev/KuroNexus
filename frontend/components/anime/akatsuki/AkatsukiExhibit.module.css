@@ -1,0 +1,981 @@
+/* ============================================================
+   AKATSUKI — dijital sergi.
+
+   Deri: kökteki `data-world="akatsuki"` bütün token'ları siyah/kızıla
+   çevirir; bu dosyada tek hex yok (kural 16). Gölge yok, yuvarlak köşe
+   yok, glow yok — ışık yıkamaları gradient, doku maskeyle.
+
+   Hiyerarşi sözleşmesi: HERO Pain'indir ve sayfanın en büyük görsel
+   öğesidir. Alt bölümlerin hiçbir görseli hero ölçüsüne yaklaşmaz.
+   ============================================================ */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text-primary);
+}
+
+.sectionTitle {
+  color: var(--text-primary);
+}
+
+.sectionHead {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0 var(--an-gutter);
+  position: relative;
+  z-index: 2;
+}
+
+/* ============================================================
+   HERO — PAIN
+   ============================================================ */
+.hero {
+  position: relative;
+  min-height: calc(100svh - var(--an-header));
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  isolation: isolate;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Gök: Konoha üstünde Pain — kadraj arka planda, koyulaştırılmış.
+   Ken Burns (çok yavaş açılma) hareket katmanında. */
+.sky {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.sky img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 30%;
+  display: block;
+  filter: grayscale(0.5) saturate(0.7) brightness(0.42) contrast(1.08);
+}
+
+/* Gök görseli metne doğru eriyor: üstte görünür, altta zemine karışır */
+.sky::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--bg) 30%, transparent),
+    color-mix(in srgb, var(--bg) 88%, transparent) 78%,
+    var(--bg)
+  );
+}
+
+/* Yağmur: iki katman ince çizgi deseni — Amegakure'nin dinmeyen yağmuru.
+   Hareketi mikro-animasyon katmanında; desteksiz/kapalıysa durağan doku
+   olarak kalır ve yine çalışır. */
+.rain {
+  position: absolute;
+  inset: -20% 0;
+  z-index: 1;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+      168deg,
+      var(--aka-rain) 0 1px,
+      transparent 1px 26px
+    ),
+    repeating-linear-gradient(172deg, var(--aka-rain) 0 1px, transparent 1px 44px);
+  opacity: 0.5;
+}
+
+/* Pain portresi: sayfanın EN BÜYÜK görseli. Sağdan yükselir, sola ve
+   alta doğru zemine karışır — figür net değil, heykel gibi. */
+.heroPortrait {
+  position: absolute;
+  right: 0;
+  top: 4%;
+  bottom: 0;
+  width: min(60%, 46rem);
+  z-index: 2;
+  pointer-events: none;
+  mask-image: linear-gradient(to left, #000 0%, #000 40%, transparent 96%);
+}
+
+.heroPortrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 12%;
+  display: block;
+  filter: grayscale(0.35) saturate(0.8) brightness(0.72) contrast(1.06);
+  mask-image: linear-gradient(to top, transparent 0%, #000 22%);
+}
+
+.heroInner {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.875rem, 2vw, 1.5rem);
+  padding: clamp(6rem, 16vh, 10rem) var(--an-gutter) clamp(3.5rem, 9vh, 6rem);
+  max-width: 58rem;
+}
+
+.heroEyebrow {
+  color: var(--accent);
+}
+
+/* Ad, afiş kapitali — sayfadaki en ağır tipografik kütle */
+.heroName {
+  font-size: clamp(4.5rem, 16vw, 13rem);
+  color: var(--text-primary);
+  padding-block: 0.03em;
+}
+
+.epigraph {
+  font-size: clamp(1.25rem, 2vw, 1.625rem);
+  font-style: italic;
+  line-height: 1.45;
+  color: var(--text-secondary);
+  max-width: 34ch;
+  margin: 0;
+}
+
+/* Künye: müze etiketi — kılcal çizgili satırlar */
+.heroMeta {
+  margin: clamp(0.75rem, 2vh, 1.5rem) 0 0;
+  display: flex;
+  flex-direction: column;
+  max-width: 30rem;
+  border-top: 1px solid var(--border);
+}
+
+.heroMetaRow {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.heroMetaLabel {
+  flex: 0 0 7.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+}
+
+.heroMetaValue {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--text-primary);
+}
+
+.scrollHint {
+  position: absolute;
+  bottom: 1rem;
+  left: var(--an-gutter);
+  z-index: 3;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+/* ============================================================
+   HAKKINDA
+   ============================================================ */
+.about {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.25rem, 3vw, 2rem);
+  padding: clamp(3.5rem, 9vw, 6.5rem) var(--an-gutter);
+}
+
+.aboutLede {
+  max-width: 56ch;
+}
+
+.aboutBody {
+  display: flex;
+  flex-direction: column;
+}
+
+.aboutBody p + p {
+  margin-top: 1.1em;
+}
+
+/* Bölüm ayracı: tek soluk bulut — ❖ ayracının bu dünyadaki karşılığı */
+.divider {
+  width: 3.5rem;
+  opacity: 0.3;
+  margin-top: clamp(0.5rem, 2vw, 1.25rem);
+}
+
+/* ============================================================
+   SIX PATHS
+   ============================================================ */
+.paths {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.75rem, 4vw, 2.75rem);
+  padding: clamp(3.5rem, 9vw, 6.5rem) 0 clamp(3rem, 8vw, 5.5rem);
+  border-top: 1px solid var(--border);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Altı Path bir arada: bölümün arka bandı — içerik değil atmosfer */
+.pathsBand {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.2;
+}
+
+.pathsBand img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 22%;
+  display: block;
+  filter: grayscale(0.7) brightness(0.5) contrast(1.1);
+  mask-image: linear-gradient(to bottom, #000, transparent 85%);
+}
+
+.pathGrid {
+  list-style: none;
+  margin: 0;
+  padding: 0 var(--an-gutter);
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(0.875rem, 1.8vw, 1.5rem);
+}
+
+.path {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
+  min-width: 0;
+}
+
+.pathArt {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border);
+}
+
+.pathArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: grayscale(0.55) saturate(0.8) brightness(0.62) contrast(1.08);
+  transition: filter 500ms ease;
+}
+
+/* Masaüstünde hover portreyi belirginleştirir (komut §4c); içerik hover'a
+   bağlı DEĞİL — bilgi her durumda görünür, dokunuşta yalnızca görsel canlanır */
+.path:hover .pathArt img {
+  filter: grayscale(0.1) saturate(0.9) brightness(0.85) contrast(1.02);
+}
+
+.pathKanji {
+  position: absolute;
+  right: 0.5rem;
+  bottom: 0.15rem;
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  line-height: 1;
+  color: var(--text-primary);
+  opacity: 0.5;
+  text-shadow: 0 1px 4px rgb(0 0 0 / 0.8);
+  transition: opacity 300ms ease;
+}
+
+.path:hover .pathKanji {
+  opacity: 0.9;
+}
+
+.pathBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.875rem 1rem 1.125rem;
+}
+
+.pathName {
+  font-size: 1.375rem;
+  color: var(--text-primary);
+}
+
+.pathRomaji {
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+}
+
+.pathDesc {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.pathAbility {
+  color: var(--accent);
+  margin-top: 0.2rem;
+}
+
+/* ============================================================
+   ÜYELER
+   ============================================================ */
+.members {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.75rem, 4vw, 2.75rem);
+  padding: clamp(3.5rem, 9vw, 6.5rem) 0;
+  border-top: 1px solid var(--border);
+}
+
+.memberGrid {
+  list-style: none;
+  margin: 0;
+  padding: 0 var(--an-gutter);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(1.25rem, 2.6vw, 2rem);
+}
+
+.member {
+  min-width: 0;
+  display: flex;
+}
+
+.memberLink {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  color: inherit;
+  text-decoration: none;
+  min-width: 0;
+}
+
+.memberLink:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 4px;
+}
+
+/* Çerçeve: müze levhası — zemin yok, gölge yok, kılcal kenar (spor
+   panteonu dili) */
+.memberFrame {
+  position: relative;
+  display: block;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  transition: border-color 300ms ease;
+}
+
+.memberLink:hover .memberFrame {
+  border-color: var(--accent);
+}
+
+.memberPortrait {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 18%;
+  display: block;
+  filter: grayscale(0.6) saturate(0.85) brightness(0.78) contrast(1.06);
+  transition: filter 420ms ease;
+}
+
+.memberLink:hover .memberPortrait {
+  filter: grayscale(0.05) saturate(0.95) brightness(0.96) contrast(1.02);
+}
+
+/* Yüzük: çerçevenin köşesinde mühür gibi */
+.memberRing {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: grid;
+  place-items: center;
+  width: 2.125rem;
+  height: 2.125rem;
+  border: 1px solid var(--accent-muted);
+  background: color-mix(in srgb, var(--bg) 72%, transparent);
+  color: var(--accent);
+  font-size: 1.125rem;
+  line-height: 1;
+}
+
+.memberBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.memberName {
+  font-size: clamp(1.375rem, 2vw, 1.75rem);
+  color: var(--text-primary);
+  transition: color 260ms ease;
+}
+
+.memberLink:hover .memberName {
+  color: var(--accent);
+}
+
+.memberNative {
+  font-size: 1.0625rem;
+  color: var(--text-muted);
+}
+
+.memberAlias {
+  font-size: 1.0625rem;
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+.memberRole {
+  letter-spacing: 0.04em;
+}
+
+.memberAbility {
+  color: var(--accent);
+}
+
+.memberBio {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+}
+
+.memberEnter {
+  margin-top: 0.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  transition: color 300ms ease;
+  /* Dokunma hedefi (kural 2): görünen iz küçük, tıklanabilir alan 44px */
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+}
+
+.memberLink:hover .memberEnter {
+  color: var(--accent);
+}
+
+/* ============================================================
+   PARTNERLER
+   ============================================================ */
+.partners {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.75rem, 4vw, 2.75rem);
+  padding: clamp(3.5rem, 9vw, 6.5rem) 0;
+  border-top: 1px solid var(--border);
+  background: var(--surface-2);
+}
+
+.partnerGrid {
+  list-style: none;
+  margin: 0;
+  padding: 0 var(--an-gutter);
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(1rem, 2vw, 1.5rem);
+}
+
+.pair {
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 2vw, 1.5rem);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: clamp(1rem, 2vw, 1.5rem);
+  min-width: 0;
+}
+
+/* İki portre, hafif bindirmeli — "görsel olarak bağlı çift" (komut §4e) */
+.pairFaces {
+  display: flex;
+  flex: 0 0 auto;
+}
+
+.pairFace {
+  position: relative;
+  display: block;
+  width: clamp(4.5rem, 7vw, 6rem);
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-2);
+}
+
+.pairFace img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 15%;
+  display: block;
+  filter: grayscale(0.6) brightness(0.78) contrast(1.06);
+  transition: filter 420ms ease;
+}
+
+.pairFaceB {
+  margin-left: -0.875rem;
+  translate: 0 0.625rem;
+}
+
+.pair:hover .pairFace img {
+  filter: grayscale(0.15) brightness(0.92) contrast(1.02);
+}
+
+.pairBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.pairNames {
+  font-size: clamp(1.125rem, 1.8vw, 1.5rem);
+  color: var(--text-primary);
+}
+
+.pairX {
+  color: var(--accent);
+  opacity: 0.8;
+}
+
+.pairNote {
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+/* ============================================================
+   TARİH — zaman şeridi
+   ============================================================ */
+.history {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.75rem, 4vw, 2.75rem);
+  padding: clamp(3.5rem, 9vw, 6.5rem) 0;
+  border-top: 1px solid var(--border);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.historyBand {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 60%;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.16;
+}
+
+.historyBand img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 25%;
+  display: block;
+  filter: grayscale(0.75) brightness(0.55);
+  mask-image: linear-gradient(to bottom, #000, transparent 90%);
+}
+
+/* Sol raydan inen kılcal çizgi; her dönem bir durak */
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0 var(--an-gutter);
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.75rem, 4vw, 2.75rem);
+  max-width: 56rem;
+}
+
+.era {
+  position: relative;
+  padding-left: clamp(1.5rem, 3vw, 2.25rem);
+  border-left: 1px solid var(--accent-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+/* Durağın mührü: rayın üstünde küçük kızıl kare */
+.era::before {
+  content: "";
+  position: absolute;
+  left: -0.22rem;
+  top: 0.45rem;
+  width: 0.4rem;
+  height: 0.4rem;
+  background: var(--accent);
+}
+
+.eraLabel {
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+}
+
+.eraTitle {
+  font-size: clamp(1.375rem, 2.2vw, 1.875rem);
+  color: var(--text-primary);
+}
+
+.eraText {
+  color: var(--text-secondary);
+}
+
+/* ============================================================
+   İLİŞKİLER
+   ============================================================ */
+.relations {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.75rem, 4vw, 2.75rem);
+  padding: clamp(3.5rem, 9vw, 6.5rem) 0;
+  border-top: 1px solid var(--border);
+}
+
+.relationList {
+  list-style: none;
+  margin: 0;
+  padding: 0 var(--an-gutter);
+  display: flex;
+  flex-direction: column;
+  max-width: 60rem;
+}
+
+.relation {
+  display: flex;
+  gap: clamp(1rem, 2.5vw, 2rem);
+  padding: clamp(1.25rem, 2.5vw, 1.75rem) 0;
+  border-top: 1px solid var(--border);
+}
+
+.relation:first-child {
+  border-top: 0;
+}
+
+.relationFace {
+  flex: 0 0 clamp(5rem, 9vw, 7.5rem);
+  display: block;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.relationFace img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 15%;
+  display: block;
+  filter: grayscale(0.6) brightness(0.75) contrast(1.06);
+  transition: filter 420ms ease;
+}
+
+.relation:hover .relationFace img {
+  filter: grayscale(0.15) brightness(0.92);
+}
+
+.relationBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.relationName {
+  font-size: clamp(1.25rem, 2vw, 1.625rem);
+  color: var(--text-primary);
+}
+
+.relationRole {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+}
+
+.relationText {
+  color: var(--text-secondary);
+}
+
+/* ============================================================
+   SEMBOLİZM
+   ============================================================ */
+.symbols {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.75rem, 4vw, 2.75rem);
+  padding: clamp(3.5rem, 9vw, 6.5rem) 0;
+  border-top: 1px solid var(--border);
+  background: var(--surface-2);
+}
+
+.symbolGrid {
+  list-style: none;
+  margin: 0;
+  padding: 0 var(--an-gutter);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(1rem, 2vw, 1.5rem);
+}
+
+.symbol {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: clamp(1.25rem, 2.5vw, 1.75rem);
+  min-width: 0;
+}
+
+.symbolArt {
+  display: grid;
+  place-items: center;
+  min-height: 7rem;
+}
+
+.symbolCloud {
+  width: 5.5rem;
+  opacity: 0.9;
+}
+
+.ringRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: center;
+}
+
+.ringChip {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--accent-muted);
+  color: var(--accent);
+  font-size: 1.125rem;
+  line-height: 1;
+}
+
+/* Pelerin: yüksek yakalı siluet — iki küçük bulutla. Fotoğraf değil
+   malzeme; sembol bölümü nesneyi değil işareti anlatıyor. */
+.cloak {
+  position: relative;
+  width: 4.75rem;
+  height: 6.5rem;
+  border: 1px solid var(--border-strong);
+  background: color-mix(in srgb, var(--bg) 85%, var(--accent-muted));
+  clip-path: polygon(18% 0, 82% 0, 100% 18%, 92% 100%, 8% 100%, 0 18%);
+  display: block;
+}
+
+.cloakCloud {
+  position: absolute;
+  left: 12%;
+  top: 22%;
+  width: 2rem;
+}
+
+.cloakCloudB {
+  left: 48%;
+  top: 58%;
+  width: 1.5rem;
+}
+
+.symbolName {
+  font-size: 1.25rem;
+  color: var(--text-primary);
+}
+
+.symbolText {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* ============================================================
+   MİRAS — kapanış. Sayfanın tek ORTALANMIŞ yüzeyi (spor panteonu
+   kırılması): son söz bir dizin değil, bir kitabe.
+   ============================================================ */
+.legacy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: clamp(1rem, 2.5vw, 1.5rem);
+  padding: clamp(4rem, 10vw, 7rem) var(--an-gutter) clamp(4.5rem, 11vw, 8rem);
+  border-top: 1px solid var(--border);
+}
+
+.legacyCloud {
+  width: 4rem;
+  opacity: 0.5;
+}
+
+.legacyText {
+  margin: 0;
+  font-size: clamp(1.125rem, 1.8vw, 1.375rem);
+  line-height: 1.7;
+  color: var(--text-secondary);
+  max-width: 52ch;
+}
+
+/* Küratör kuşağı */
+.curator {
+  padding: clamp(2rem, 5vw, 3rem) var(--an-gutter) clamp(3rem, 8vw, 5rem);
+  border-top: 1px solid var(--border);
+}
+
+/* ============================================================
+   DOKULU YUVA — görseli inmemiş karakter (spor/müzik deseni):
+   boş kutu değil doku; görsel gelince kod değişmeden yerine oturur.
+   ============================================================ */
+.hatch {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    var(--surface) 0 6px,
+    var(--surface-hover) 6px 12px
+  );
+}
+
+.hatchInitial {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  line-height: 1;
+  color: var(--text-primary);
+  opacity: 0.14;
+}
+
+/* Yuva göreli konum ister (hatch absolute) */
+.pathArt,
+.memberFrame,
+.pairFace,
+.relationFace {
+  position: relative;
+}
+
+/* ============================================================
+   HAREKET — kaydırmaya bağlı, JS'siz. Desteksizde içerik yerinde.
+   ============================================================ */
+@keyframes akaRise {
+  from {
+    opacity: 0.15;
+    transform: translate3d(0, 1.25rem, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .path,
+    .member,
+    .pair,
+    .era,
+    .relation,
+    .symbol {
+      animation: akaRise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 55%;
+    }
+  }
+}
+
+/* ============================================================
+   MOBİL — kendi kompozisyonu
+   ============================================================ */
+@media (max-width: 980px) {
+  .pathGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .memberGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .partnerGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .symbolGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero {
+    min-height: calc(88svh - var(--an-header));
+  }
+
+  /* Dar ekranda portre metnin arkasına alınır: figür fon olur, metin
+     bandın tamamını kullanır — yön değişir, hiyerarşi değişmez. */
+  .heroPortrait {
+    width: 100%;
+    top: 0;
+    mask-image: linear-gradient(to top, transparent 8%, #000 45%);
+    opacity: 0.5;
+  }
+
+  .heroName {
+    font-size: clamp(4rem, 22vw, 6.5rem);
+  }
+
+  .heroMetaLabel {
+    flex-basis: 6.5rem;
+  }
+
+  .pathGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .memberGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .pair {
+    align-items: flex-start;
+  }
+
+  .relation {
+    flex-direction: column;
+  }
+
+  .relationFace {
+    flex-basis: auto;
+    width: 5.5rem;
+  }
+}

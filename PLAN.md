@@ -156,6 +156,41 @@ sergi AniList küçük portreleriyle (fallback) çizilir — kırılmaz.
 4. Kapı turuncu/deri mor çelişkisi bilinçli korundu (K6) — kullanıcı isterse
    kapı Akatsuki kızılına çekilebilir.
 
+## 5b · V2 GÜNCELLEMESİ (16 Ağustos akşamı — 4K/glow/müzik + beş kullanıcı fikri)
+
+Komut: `anime-salonu-4k-parlaklik-glow-muzik-komutu-v2.md`. Commit'ler:
+`fea3be9` (manifest +3), `6b7303c` (müzik, ayrı commit — v2 §6), `30bdcf5`
+(görsel+etkileşim katmanı).
+
+- **4K:** kaynak wiki taranarak ölçüldü — gerçek 4K yalnızca sahne
+  karelerinde var. Üç yenisi eklendi (salt ekleme, kurulum idempotent):
+  kadro 3840×2151 (üyeler bandı), ikililer 3424×1572 (partnerler bandı,
+  Konan'ın kağıt kanatları), yağmurda Nagato 2560×1440 (miras kapanışı).
+  Portreler kaynağın tam çözünürlüğü (1440-1540) — daha büyüğü yok;
+  `next/image` responsive basamaklar korunuyor.
+- **Parlaklık/glow:** kural 16'nın glow yasağına **salon-lokal istisna**
+  (kullanıcı kararı, komutta açık). Token'lar `globals.css`te
+  (`--aka-glow-soft/strong`, `--aka-ember*`), kapsam anime kanadı dışına
+  taşınamaz. Filtre parlaklıkları yükseltildi, kırmızı+altın ışık
+  kaynakları ve kor tanecikleri eklendi; hedef ışıklı sinema, neon değil.
+- **Hero sanat yönü** (kullanıcının görsel referansı): kızıl serif
+  AKATSUKI + 暁・あかつき fırça satırı; PAIN metin olarak ikincil ama
+  figür sayfanın en büyük görseli — v1 hiyerarşi kuralı bozulmadı.
+- **Beş kullanıcı fikri:** ① Nexus düğümü (Jiraiya 2423 + Naruto 17
+  dosya kartları + üç kapı), ② portal geçişi (bulut ekranı yutar; orta
+  tık/ctrl/reduced-motion doğrudan gider), ③ imza sözler (9 üye, TR+EN),
+  ④ 4 eksenli güç profili (küratör tahmini rozetli, view() ile dolan
+  çubuklar), ⑤ scroll() zaman çizelgeli ilerleme çubuğu (JS'siz).
+- **Müzik (ayrı commit):** kullanıcının sağladığı parça
+  `public/audio/akatsuki-theme.mp3`; autoplay reddi ilk etkileşimde tek
+  sefer yeniden denenir, durum gerçek oynatma olaylarından okunur; sabit
+  44px toggle (aria-pressed); rota değişiminde unmount sesi keser;
+  `kuronexus:music-started` sözleşmesiyle Spotify şeridi/ambiyansla tek
+  çalar barışı. Yalnızca `/anime/akatsuki`ta.
+
+⏭ Canlıda: admin **"Görselleri kur"a bir kez daha basar** → yalnızca 3
+yeni bant iner (yerelde ölçüldü: +3 / 23 atlandı / 0 hata).
+
 ## 6 · AÇIK RİSKLER
 
 - Kurulum ucu canlıda admin tetiklemesi bekler; o güne kadar sergi AniList

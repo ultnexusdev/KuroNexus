@@ -32,6 +32,15 @@
 > `animeHref` süpürmesi; `AnimeLobby` + kategori dalı ölü kod temizliği
 > (canlı doğrulamadan SONRA); kapı turuncusu / salon moru çelişkisi bilinçli
 > korundu.
+>
+> ✅ **V2 GÜNCELLEMESİ AYNI GÜN AKŞAM** (PLAN.md §5b): 4K bantlar (+3
+> manifest, salt ekleme), parlaklık/glow katmanı (**kural 16'ya salon-lokal
+> istisna — kullanıcı komutu**, token'lar globals'ta `--aka-glow-*`), hero
+> sanat yönü (kızıl serif AKATSUKI + fırça kanji), imza sözler, güç
+> profilleri, Nexus düğümü paneli, portal geçişi, scroll() ilerleme çubuğu,
+> Akatsuki fon müziği (`public/audio/akatsuki-theme.mp3`, yalnız sergi
+> sayfası, ayrı commit `6b7303c`). ⏭ Canlıda admin "Görselleri kur"a BİR
+> KEZ daha basar (üç yeni bant iner; +3/23/0 yerelde ölçüldü).
 
 > ✅ **ÖLÜ KOD TEMİZLİĞİ KAPANDI (15 Ağustos).** İş, planda yazandan KÜÇÜK
 > çıktı: "13 dosya" maddesi bayattı — ön yüz ayağı (`GsHall`, `F1Hall`,

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { getAnimeArchive } from "@/lib/api/anime";
 import { getCharacterCards, getCharacterImages } from "@/lib/api/characters";
 import { readIsAdmin } from "@/lib/auth/session";
 import { akatsukiCharacterIds } from "@/lib/anime/akatsuki";
@@ -36,11 +37,18 @@ export default async function AkatsukiPage({
   const { locale } = await params;
   const ids = akatsukiCharacterIds();
 
-  const [images, cards, isAdmin] = await Promise.all([
+  const [images, cards, isAdmin, archive] = await Promise.all([
     getCharacterImages(ids),
     getCharacterCards(ids),
     readIsAdmin(),
+    // Nexus paneli kapısı: arşivdeki Naruto serisi. Alınamazsa kapı
+    // çizilmez, sergi çökmez (getirici boş arşive düşüyor).
+    getAnimeArchive(),
   ]);
+
+  const naruto = archive.entries
+    .filter((entry) => entry.title.toLowerCase().includes("naruto"))
+    .sort((a, b) => a.title.length - b.title.length)[0];
 
   return (
     <AkatsukiExhibit
@@ -48,6 +56,7 @@ export default async function AkatsukiPage({
       images={images}
       cards={cards}
       isAdmin={isAdmin}
+      narutoSlug={naruto?.slug ?? null}
     />
   );
 }

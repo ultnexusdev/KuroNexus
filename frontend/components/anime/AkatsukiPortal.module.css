@@ -1,0 +1,64 @@
+/* Portal: bulut ekranı yutar, kızıl bir nefes, karanlığa iniş.
+   Yalnızca tıklama sonrası ~500ms yaşar; reduced-motion buraya hiç girmez
+   (bileşen animasyonsuz doğrudan gezinir). */
+.portal {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  background: transparent;
+  animation: portalDarken 460ms ease-in forwards;
+  overflow: hidden;
+}
+
+.portalCloud {
+  width: 7rem;
+  animation: portalCloud 460ms cubic-bezier(0.55, 0, 0.85, 0.4) forwards;
+  filter: drop-shadow(0 0 28px var(--aka-glow-strong));
+}
+
+.flash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    60% 60% at 50% 50%,
+    var(--aka-glow-strong),
+    transparent 70%
+  );
+  opacity: 0;
+  animation: portalFlash 460ms ease-out forwards;
+}
+
+@keyframes portalDarken {
+  to {
+    background: var(--bg);
+  }
+}
+
+@keyframes portalCloud {
+  from {
+    scale: 0.4;
+    opacity: 0.4;
+  }
+  60% {
+    opacity: 1;
+  }
+  to {
+    scale: 16;
+    opacity: 1;
+  }
+}
+
+@keyframes portalFlash {
+  0% {
+    opacity: 0;
+  }
+  55% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0.25;
+  }
+}

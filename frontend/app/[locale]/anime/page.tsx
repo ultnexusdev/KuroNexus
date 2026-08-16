@@ -12,6 +12,7 @@ import { AKATSUKI_IDS } from "@/lib/anime/akatsuki";
 import { ANIME_SECTIONS } from "@/lib/anime/sections";
 import type { ArchiveAnime } from "@/lib/api/types";
 import { AkatsukiCloud } from "@/components/anime/AkatsukiCloud";
+import { AkatsukiPortalLink } from "@/components/anime/AkatsukiPortal";
 import shell from "./layout.module.css";
 import styles from "./page.module.css";
 
@@ -169,12 +170,12 @@ export default async function AnimeHallPage({
         </h2>
 
         <ul className={styles.worldGrid}>
-          {/* Akatsuki — öne çıkan kart, kendi derisiyle */}
+          {/* Akatsuki — öne çıkan kart, kendi derisiyle. Tıklama anı bir
+              portal (v2): bulut ekranı yutar, sonra sergi açılır. */}
           <li className={styles.worldItem} data-featured>
-            <Link
+            <AkatsukiPortalLink
               href={animeHref.akatsuki()}
               className={`${styles.world} ${styles.akatsuki}`}
-              data-world="akatsuki"
             >
               <span className={styles.mist} aria-hidden />
               <AkatsukiCloud className={styles.cloud} />
@@ -211,7 +212,7 @@ export default async function AnimeHallPage({
                   {t("worlds.enter")}
                 </span>
               </span>
-            </Link>
+            </AkatsukiPortalLink>
           </li>
 
           {naruto ? (

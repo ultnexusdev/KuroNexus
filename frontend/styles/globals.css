@@ -639,8 +639,18 @@ html {
   --aka-crimson: #8f2a2e; /* kizil bulut govdesi */
   --aka-blood:   #5c1a1f; /* koyu kirmizi cizgi/vurgu */
   --aka-paper:   #e8e2d9; /* Konan'in kagidi — bulut konturu, acik vurgu */
-  --aka-mist:    rgba(143, 42, 46, 0.1); /* kizil sis yikamasi (gradient icin) */
+  --aka-mist:    rgba(143, 42, 46, 0.16); /* kizil sis yikamasi (gradient icin) */
   --aka-rain:    rgba(232, 226, 217, 0.05); /* yagmur cizgileri */
+
+  /* ⚠️ KURAL 16 GLOW YASAGINA SALON-LOKAL ISTISNA (16 Agustos 2026, v2
+     guncelleme komutu — kullanici karari). Yalnizca ANIME kanadinda
+     (data-category="anime" / data-world="akatsuki" altagaclari) kullanilir;
+     baska hicbir salon bu token'lari OKUYAMAZ. Hedef "isikli sinema",
+     neon degil: dusuk alfa, genis yaricap. */
+  --aka-glow-soft:   rgba(191, 78, 82, 0.22);  /* kart/cerceve nefes isigi */
+  --aka-glow-strong: rgba(191, 78, 82, 0.45);  /* hover/odak tepkisi */
+  --aka-ember:       rgba(217, 166, 46, 0.2);  /* altin kor isigi */
+  --aka-ember-hi:    #d9a053;                  /* kor taneciklerinin cekirdegi */
 
   /* Salon 02 — Projeksiyon Salonu yardimci token'lari */
   --film-curtain: #3d1215; /* kapinin ardindaki perde: serit cercevesi + kunye levhasi */

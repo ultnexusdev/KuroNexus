@@ -1502,55 +1502,64 @@
         "alias": "Slayer of his Clan",
         "role": "Kisame's partner; the quietest shadow in the organisation",
         "ability": "Sharingan · Tsukuyomi · Amaterasu · Susanoo",
-        "bio": "Konoha's brightest child took its heaviest duty: erase his own clan, shoulder the guilt, live in exile. Even inside the Akatsuki his loyalty belonged to his village."
+        "bio": "Konoha's brightest child took its heaviest duty: erase his own clan, shoulder the guilt, live in exile. Even inside the Akatsuki his loyalty belonged to his village.",
+        "quote": "Forgive me, Sasuke… there is no next time."
       },
       "kisame": {
         "alias": "Monster of the Mist",
         "role": "Itachi's partner",
         "ability": "Samehada · water jutsu · bottomless chakra",
-        "bio": "One of Kirigakure's Seven Swordsmen. The shark-skin blade Samehada feeds on chakra; its owner never tires, his enemies run dry."
+        "bio": "One of Kirigakure's Seven Swordsmen. The shark-skin blade Samehada feeds on chakra; its owner never tires, his enemies run dry.",
+        "quote": "It seems we are both monsters — at least I look the part."
       },
       "deidara": {
         "alias": "Art Is an Explosion",
         "role": "Sasori's partner, later Tobi's",
         "ability": "Explosive clay — from C1 to C0",
-        "bio": "An artist who fled Iwagakure. To him art is a moment: it flares and is gone. His final work was himself."
+        "bio": "An artist who fled Iwagakure. To him art is a moment: it flares and is gone. His final work was himself.",
+        "quote": "Art is an explosion!"
       },
       "sasori": {
         "alias": "Sasori of the Red Sand",
         "role": "Deidara's partner",
         "ability": "Puppet mastery — a hundred puppets, his own body included",
-        "bio": "Sunagakure's puppet master. He sought immortality in his craft: turned his body into a puppet and kept his heart in a single capsule."
+        "bio": "Sunagakure's puppet master. He sought immortality in his craft: turned his body into a puppet and kept his heart in a single capsule.",
+        "quote": "True art is what endures forever."
       },
       "kakuzu": {
         "alias": "Treasurer of the Villages",
         "role": "Hidan's partner",
         "ability": "Five hearts — five elements",
-        "bio": "From Takigakure; bounty hunting keeps the organisation's ledger. Five hearts mean five separate lives — an enemy must stop every one of them."
+        "bio": "From Takigakure; bounty hunting keeps the organisation's ledger. Five hearts mean five separate lives — an enemy must stop every one of them.",
+        "quote": "Everything has a price — even a life."
       },
       "hidan": {
         "alias": "Servant of Jashin",
         "role": "Kakuzu's partner",
         "ability": "Immortality — the ritual of Jashin",
-        "bio": "The apostate of Yugakure. He cannot die; he counts pain as worship. Why he was paired with Kakuzu is simple: no one else could stand him."
+        "bio": "The apostate of Yugakure. He cannot die; he counts pain as worship. Why he was paired with Kakuzu is simple: no one else could stand him.",
+        "quote": "Jashin commands me to share the pain. Yours first."
       },
       "konan": {
         "alias": "Angel of God",
         "role": "Pain's partner; founding member",
         "ability": "Paper jutsu — her body unfolds into paper",
-        "bio": "The survivor of the three orphans. Amegakure calls her an angel; her paper wings carry even through the rain."
+        "bio": "The survivor of the three orphans. Amegakure calls her an angel; her paper wings carry even through the rain.",
+        "quote": "Hope is a paper flower — it blooms despite the rain."
       },
       "tobi": {
         "alias": "The Masked One",
         "role": "Rules from the shadows with Zetsu",
         "ability": "Kamui — the space-time Sharingan",
-        "bio": "A clowning rookie on stage; behind the mask, the organisation's true hand. He borrowed his name from the dead: Madara."
+        "bio": "A clowning rookie on stage; behind the mask, the organisation's true hand. He borrowed his name from the dead: Madara.",
+        "quote": "Tobi is a good boy!"
       },
       "zetsu": {
         "alias": "The Watcher",
         "role": "The organisation's intelligence",
         "ability": "Merging with the earth · a twin body",
-        "bio": "Half white, half black; one keeps the record, the other makes the plan. Everything the Akatsuki has seen, Zetsu saw first."
+        "bio": "Half white, half black; one keeps the record, the other makes the plan. Everything the Akatsuki has seen, Zetsu saw first.",
+        "quote": "We only watch… and we forget nothing."
       }
     },
     "partners": {
@@ -1642,6 +1651,35 @@
       "running": "Downloading…",
       "done": "{created} downloaded · {exists} already present · {failed} failed",
       "error": "Setup could not run: {reason}"
+    },
+    "stats": {
+      "title": "Power Profile",
+      "note": "Curator's estimate — not an official measurement",
+      "nin": "Ninjutsu",
+      "gen": "Genjutsu",
+      "tai": "Taijutsu",
+      "int": "Intellect"
+    },
+    "audio": {
+      "play": "Play background music",
+      "pause": "Pause background music",
+      "title": "Loneliness — Trap Remix (Vineet)"
+    },
+    "nexus": {
+      "title": "Continue in the Nexus",
+      "lede": "This exhibit is not a terminus — it is a node in the archive. Threads run from here into other rooms.",
+      "people": {
+        "jiraiya": "Teacher of the three orphans — where the story begins",
+        "naruto": "The answer to Nagato's question"
+      },
+      "doors": {
+        "naruto": "Naruto Universe",
+        "narutoDesc": "The archived series: seasons, episodes, cast",
+        "characters": "Character Index",
+        "charactersDesc": "Every archived cast on a single wall",
+        "archive": "Anime Archive",
+        "archiveDesc": "Six shelves: watching, waiting, finished"
+      }
     }
   },
   "character": {

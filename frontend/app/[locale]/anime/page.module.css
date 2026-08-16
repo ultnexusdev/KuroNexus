@@ -434,6 +434,55 @@
   }
 }
 
+/* ============================================================
+   V2 GLOW KATMANI (16 Ağustos akşamı) — kural 16'ya salon-lokal istisna
+   (kullanıcı komutu; token gerekçesi globals.css'te). Dosya sonu değil
+   ama mobil bloklardan ÖNCE: mobil kendi kararlarını korusun.
+   ============================================================ */
+.room:hover {
+  background: color-mix(in srgb, var(--surface) 40%, transparent);
+}
+
+.room:hover .roomRule {
+  box-shadow: 0 0 14px var(--aka-glow-soft);
+}
+
+.world:hover {
+  box-shadow: 0 0 24px var(--anime-glow), 0 0 10px var(--anime-glow);
+}
+
+/* Akatsuki kartı: kızıl nefes — hover'da güçlenir (v2 §3) */
+.akatsuki {
+  box-shadow: 0 0 22px var(--aka-glow-soft);
+}
+
+.akatsuki:hover {
+  box-shadow: 0 0 42px var(--aka-glow-strong);
+}
+
+.akatsuki .cloud {
+  filter: drop-shadow(0 0 12px var(--aka-glow-soft));
+}
+
+.akatsuki:hover .cloud {
+  filter: drop-shadow(0 0 18px var(--aka-glow-strong));
+}
+
+.akatsuki .kanji {
+  text-shadow: 0 0 20px var(--aka-glow-strong);
+}
+
+/* Dokunmatikte hover karşılığı: basılı tutma aynı ışığı verir */
+@media (hover: none) {
+  .world:active {
+    box-shadow: 0 0 24px var(--anime-glow);
+  }
+
+  .akatsuki:active {
+    box-shadow: 0 0 42px var(--aka-glow-strong);
+  }
+}
+
 @media (max-width: 640px) {
   .opening {
     min-height: calc(48svh - var(--an-header));

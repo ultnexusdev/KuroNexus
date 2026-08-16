@@ -1074,3 +1074,518 @@
     width: 5.5rem;
   }
 }
+
+/* ============================================================
+   V2 KATMANI (16 Ağustos 2026 akşam güncellemesi)
+
+   Dosyanın SONUNDA bilinçli: aynı özgüllükte sonra gelen kazanır, v2
+   parlaklık/glow kararları yukarıdaki taban değerleri buradan eziyor.
+
+   ⚠️ GLOW = KURAL 16'YA SALON-LOKAL İSTİSNA (kullanıcının v2 komutu).
+   Token'lar globals.css'te (--aka-glow-*); bu istisna anime kanadının
+   dışına TAŞINAMAZ. Hedef "ışıklı sinema": düşük alfa, geniş yarıçap,
+   neon yok.
+   ============================================================ */
+
+/* ── Kaydırma ilerlemesi: JS'siz, scroll() zaman çizelgesi ── */
+.progress {
+  position: fixed;
+  top: var(--an-header);
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 70;
+  background: linear-gradient(to right, var(--aka-blood), var(--accent-hover));
+  transform-origin: 0 50%;
+  scale: 0 1;
+  display: none;
+  pointer-events: none;
+}
+
+@supports (animation-timeline: scroll()) {
+  .progress {
+    display: block;
+    animation: akaProgress linear both;
+    animation-timeline: scroll(root);
+  }
+}
+
+@keyframes akaProgress {
+  from {
+    scale: 0 1;
+  }
+  to {
+    scale: 1 1;
+  }
+}
+
+/* ── Hero sanat yönü: kızıl serif AKATSUKI + fırça alt yazı ── */
+.mastTitle {
+  margin: 0;
+  font-size: clamp(3rem, 8vw, 6.25rem);
+  font-weight: 700;
+  line-height: 0.98;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent-hover);
+  text-shadow: 0 0 34px var(--aka-glow-strong);
+  text-wrap: balance;
+}
+
+.mastKanji {
+  margin: 0;
+  font-size: clamp(1.125rem, 2vw, 1.5rem);
+  letter-spacing: 0.3em;
+  color: var(--text-secondary);
+  opacity: 0.85;
+}
+
+/* Pain'in levhası: metin olarak ikincil, figür olarak birincil */
+.heroName {
+  font-size: clamp(2.25rem, 5vw, 4rem);
+  color: var(--text-primary);
+  padding-block: 0.03em;
+}
+
+/* ── Parlaklık: karanlık sinema → ışıklı sinema ── */
+.sky img {
+  filter: grayscale(0.3) saturate(0.9) brightness(0.58) contrast(1.05);
+}
+
+.heroPortrait img {
+  filter: grayscale(0.15) saturate(1) brightness(0.88) contrast(1.04);
+}
+
+.memberPortrait {
+  filter: grayscale(0.35) saturate(1) brightness(0.9) contrast(1.04);
+}
+
+.memberLink:hover .memberPortrait {
+  filter: grayscale(0) saturate(1.08) brightness(1.02) contrast(1);
+}
+
+.pathArt img {
+  filter: grayscale(0.4) saturate(0.95) brightness(0.75) contrast(1.05);
+}
+
+.path:hover .pathArt img {
+  filter: grayscale(0) saturate(1.05) brightness(0.98) contrast(1);
+}
+
+.pairFace img {
+  filter: grayscale(0.45) brightness(0.88) contrast(1.04);
+}
+
+.relationFace img {
+  filter: grayscale(0.45) brightness(0.86) contrast(1.04);
+}
+
+/* Kızıl sis artık daha canlı ve altın bir kor kaynağıyla dengeli */
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(70% 90% at 12% 100%, var(--aka-ember), transparent 60%),
+    radial-gradient(90% 70% at 88% 8%, var(--aka-mist), transparent 62%);
+  opacity: 0.9;
+}
+
+/* Havada süzülen korlar: dört ışık zerresi, tek öğe — video yok, ucuz */
+.embers {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background-image:
+    radial-gradient(3px 3px at 18% 72%, var(--aka-ember-hi) 40%, transparent 70%),
+    radial-gradient(2px 2px at 42% 38%, var(--aka-ember-hi) 40%, transparent 70%),
+    radial-gradient(2.5px 2.5px at 68% 82%, var(--accent-hover) 40%, transparent 70%),
+    radial-gradient(2px 2px at 85% 30%, var(--aka-ember-hi) 40%, transparent 70%);
+  background-repeat: no-repeat;
+  opacity: 0.5;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .embers {
+    animation: akaEmbers 16s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes akaEmbers {
+  from {
+    translate: 0 1.5rem;
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 0.65;
+  }
+  to {
+    translate: 0.5rem -2.5rem;
+    opacity: 0.3;
+  }
+}
+
+/* ── Glow tepkileri (istisna kapsamı: yalnızca bu kanat) ── */
+.memberLink:hover .memberFrame {
+  border-color: var(--accent);
+  box-shadow: 0 0 26px var(--aka-glow-soft);
+}
+
+.memberRing {
+  box-shadow: 0 0 12px var(--aka-glow-soft);
+}
+
+.path:hover {
+  box-shadow: 0 0 24px var(--aka-glow-soft);
+}
+
+.pair:hover {
+  box-shadow: 0 0 22px var(--aka-glow-soft);
+}
+
+.relation:hover .relationFace {
+  box-shadow: 0 0 18px var(--aka-glow-soft);
+}
+
+.kanji,
+.pathKanji {
+  text-shadow: 0 0 18px var(--aka-glow-strong);
+}
+
+.rinnegan {
+  opacity: 0.12;
+  filter: drop-shadow(0 0 10px var(--aka-glow-soft));
+}
+
+/* Dokunma karşılığı (kural 2 + v2 §4): hover'ı olmayan cihazda basılı
+   tutma anı aynı ışığı verir */
+@media (hover: none) {
+  .memberLink:active .memberFrame,
+  .path:active,
+  .pair:active {
+    border-color: var(--accent);
+    box-shadow: 0 0 22px var(--aka-glow-soft);
+  }
+}
+
+/* ── Yeni bantlar ── */
+.membersBand {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 46%;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.14;
+}
+
+.membersBand img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 18%;
+  display: block;
+  filter: saturate(0.9) brightness(0.62);
+  mask-image: linear-gradient(to bottom, #000, transparent 92%);
+}
+
+.members {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.members .sectionHead,
+.members .memberGrid {
+  position: relative;
+  z-index: 2;
+}
+
+.partnersBand {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.18;
+}
+
+.partnersBand img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 40%;
+  display: block;
+  filter: saturate(0.85) brightness(0.55);
+  mask-image: linear-gradient(to bottom, #000 30%, transparent 96%);
+}
+
+.partners {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.partners .sectionHead,
+.partners .partnerGrid {
+  position: relative;
+  z-index: 2;
+}
+
+.legacyBand {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.2;
+}
+
+.legacyBand img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 20%;
+  display: block;
+  filter: saturate(0.7) brightness(0.5);
+  mask-image: linear-gradient(to top, #000 15%, transparent 95%);
+}
+
+.legacy {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.legacy > * {
+  position: relative;
+  z-index: 2;
+}
+
+.legacy .legacyBand {
+  z-index: 0;
+}
+
+/* ── İmza söz + güç profili ── */
+.memberQuote {
+  font-size: 1rem;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--accent-hover);
+  border-left: 2px solid var(--accent-muted);
+  padding-left: 0.7rem;
+  margin-top: 0.35rem;
+}
+
+.memberStats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-top: 0.55rem;
+}
+
+.statRow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.statLabel {
+  flex: 0 0 4.6rem;
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+.statTrack {
+  flex: 1;
+  height: 3px;
+  background: var(--surface-hover);
+  overflow: hidden;
+}
+
+.statFill {
+  display: block;
+  height: 100%;
+  background: linear-gradient(to right, var(--aka-blood), var(--accent-hover));
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .statFill {
+      transform-origin: 0 50%;
+      animation: akaStatGrow linear both;
+      animation-timeline: view();
+      animation-range: entry 20% entry 90%;
+    }
+  }
+}
+
+@keyframes akaStatGrow {
+  from {
+    scale: 0 1;
+  }
+  to {
+    scale: 1 1;
+  }
+}
+
+/* ── Nexus düğümü ── */
+.nexus {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.75rem, 4vw, 2.75rem);
+  padding: clamp(3.5rem, 9vw, 6.5rem) 0;
+  border-top: 1px solid var(--border);
+  background: var(--surface-2);
+}
+
+.nexusGrid {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  gap: clamp(1rem, 2.5vw, 2rem);
+  padding: 0 var(--an-gutter);
+  align-items: start;
+}
+
+.nexusPeople {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.75rem, 1.6vw, 1.25rem);
+}
+
+.nexusPerson {
+  display: flex;
+}
+
+.nexusPersonLink {
+  flex: 1;
+  display: flex;
+  gap: clamp(1rem, 2vw, 1.5rem);
+  align-items: center;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: clamp(1rem, 2vw, 1.25rem);
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 300ms ease, box-shadow 300ms ease;
+}
+
+.nexusPersonLink:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 22px var(--aka-glow-soft);
+}
+
+.nexusPersonLink:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: -4px;
+}
+
+.nexusFace {
+  position: relative;
+  flex: 0 0 clamp(4.5rem, 7vw, 6rem);
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-2);
+  display: block;
+}
+
+.nexusFace img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 15%;
+  filter: grayscale(0.35) brightness(0.9);
+  transition: filter 420ms ease;
+}
+
+.nexusPersonLink:hover .nexusFace img {
+  filter: grayscale(0) brightness(1);
+}
+
+.nexusPersonBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.nexusPersonName {
+  font-size: clamp(1.25rem, 2vw, 1.625rem);
+  color: var(--text-primary);
+}
+
+.nexusPersonRole {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.nexusDoors {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.75rem, 1.6vw, 1rem);
+}
+
+.nexusDoor {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--accent-muted);
+  background: var(--surface);
+  padding: clamp(0.875rem, 1.8vw, 1.125rem) clamp(1rem, 2vw, 1.25rem);
+  color: inherit;
+  text-decoration: none;
+  min-height: var(--touch-min);
+  transition: border-color 300ms ease, box-shadow 300ms ease;
+}
+
+.nexusDoor:hover {
+  border-left-color: var(--accent);
+  box-shadow: 0 0 18px var(--aka-glow-soft);
+}
+
+.nexusDoor:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: -4px;
+}
+
+.nexusDoorName {
+  font-size: 1.125rem;
+  color: var(--text-primary);
+}
+
+.nexusDoorDesc {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+/* ── V2 mobil ── */
+@media (max-width: 980px) {
+  .nexusGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .mastTitle {
+    font-size: clamp(2.5rem, 13vw, 4rem);
+  }
+
+  .heroName {
+    font-size: clamp(1.875rem, 9vw, 2.75rem);
+  }
+
+  .statLabel {
+    flex-basis: 4rem;
+  }
+}

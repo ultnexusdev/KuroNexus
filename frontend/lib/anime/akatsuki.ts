@@ -31,6 +31,19 @@ export const AKATSUKI_IDS = {
   yahiko: 23050,
 } as const;
 
+/**
+ * Güç profili (0-100) — databook ruhunda küratör tahmini, "resmî ölçüm"
+ * iddiası yok. Eksen adları i18n'de (`akatsuki.stats.*`).
+ */
+export interface AkatsukiMemberStats {
+  nin: number;
+  gen: number;
+  tai: number;
+  int: number;
+}
+
+export const AKATSUKI_STAT_KEYS = ["nin", "gen", "tai", "int"] as const;
+
 export interface AkatsukiMember {
   /** i18n anahtarı: `akatsuki.members.<key>.*` */
   key: string;
@@ -43,6 +56,7 @@ export interface AkatsukiMember {
   ring: { kanji: string; romaji: string } | null;
   /** İkili ekip eşleşmesi (`partners` bölümü buradan türetilir) */
   partnerKey: string | null;
+  stats: AkatsukiMemberStats;
 }
 
 /** Komut §4d sırası — canon'a sadık dokuz üye. */
@@ -54,6 +68,7 @@ export const AKATSUKI_MEMBERS: AkatsukiMember[] = [
     characterId: AKATSUKI_IDS.itachi,
     ring: { kanji: "朱", romaji: "shu" },
     partnerKey: "kisame",
+    stats: { nin: 96, gen: 99, tai: 82, int: 95 },
   },
   {
     key: "kisame",
@@ -62,6 +77,7 @@ export const AKATSUKI_MEMBERS: AkatsukiMember[] = [
     characterId: AKATSUKI_IDS.kisame,
     ring: { kanji: "南", romaji: "nan" },
     partnerKey: "itachi",
+    stats: { nin: 92, gen: 60, tai: 88, int: 74 },
   },
   {
     key: "deidara",
@@ -70,6 +86,7 @@ export const AKATSUKI_MEMBERS: AkatsukiMember[] = [
     characterId: AKATSUKI_IDS.deidara,
     ring: { kanji: "青", romaji: "ao" },
     partnerKey: "sasori",
+    stats: { nin: 90, gen: 50, tai: 70, int: 78 },
   },
   {
     key: "sasori",
@@ -78,6 +95,7 @@ export const AKATSUKI_MEMBERS: AkatsukiMember[] = [
     characterId: AKATSUKI_IDS.sasori,
     ring: { kanji: "玉", romaji: "gyoku" },
     partnerKey: "deidara",
+    stats: { nin: 88, gen: 62, tai: 65, int: 90 },
   },
   {
     key: "kakuzu",
@@ -86,6 +104,7 @@ export const AKATSUKI_MEMBERS: AkatsukiMember[] = [
     characterId: AKATSUKI_IDS.kakuzu,
     ring: { kanji: "北", romaji: "hoku" },
     partnerKey: "hidan",
+    stats: { nin: 91, gen: 55, tai: 84, int: 85 },
   },
   {
     key: "hidan",
@@ -94,6 +113,7 @@ export const AKATSUKI_MEMBERS: AkatsukiMember[] = [
     characterId: AKATSUKI_IDS.hidan,
     ring: { kanji: "三", romaji: "san" },
     partnerKey: "kakuzu",
+    stats: { nin: 60, gen: 40, tai: 90, int: 55 },
   },
   {
     key: "konan",
@@ -102,6 +122,7 @@ export const AKATSUKI_MEMBERS: AkatsukiMember[] = [
     characterId: AKATSUKI_IDS.konan,
     ring: { kanji: "白", romaji: "byaku" },
     partnerKey: "pain",
+    stats: { nin: 85, gen: 55, tai: 70, int: 82 },
   },
   {
     key: "tobi",
@@ -111,6 +132,7 @@ export const AKATSUKI_MEMBERS: AkatsukiMember[] = [
     // Sasori'nin ölümünden sonra onun yüzüğünü taşıdı
     ring: { kanji: "玉", romaji: "gyoku" },
     partnerKey: null,
+    stats: { nin: 97, gen: 92, tai: 80, int: 96 },
   },
   {
     key: "zetsu",
@@ -119,6 +141,7 @@ export const AKATSUKI_MEMBERS: AkatsukiMember[] = [
     characterId: AKATSUKI_IDS.zetsu,
     ring: { kanji: "亥", romaji: "gai" },
     partnerKey: null,
+    stats: { nin: 75, gen: 50, tai: 55, int: 88 },
   },
 ];
 
@@ -167,7 +190,31 @@ export const EXHIBIT_IMAGE_KEYS = {
   nagato: "akatsuki:nagato",
   /** İlişkiler: maskenin ardındaki Obito */
   obito: "akatsuki:obito",
+  /** v2 · Üyeler bölümünün arka bandı: kadro bir arada (3840×2151) */
+  legion: "akatsuki:legion",
+  /** v2 · Partnerler bandı: ikililer harekâtta, Konan'ın kanatları (3424×1572) */
+  horror: "akatsuki:horror",
+  /** v2 · Miras kapanışı: yağmurun altında Nagato (2560×1440) */
+  dawn: "akatsuki:dawn",
 } as const;
+
+/**
+ * Nexus düğümü — "İlgili İçerik" paneli (kullanıcı fikri, 16 Ağustos v2).
+ * Sergi bir son durak değil, arşivin içinde bir düğüm: Akatsuki anlatısının
+ * iki ucundaki isimler dosyalarına bağlanır.
+ */
+export const AKATSUKI_NEXUS_PEOPLE = [
+  /** Üç yetimin hocası */
+  { key: "jiraiya", name: "Jiraiya", characterId: 2423 },
+  /** Nagato'nun sorusunun cevabı */
+  { key: "naruto", name: "Naruto Uzumaki", characterId: 17 },
+] as const;
+
+/**
+ * Sergi fon müziği (kullanıcının sağladığı parça, v2 §5). Adres koda
+ * gömülmesin diye tek sabit — dosya `frontend/public/audio/` altında.
+ */
+export const AKATSUKI_THEME_SRC = "/audio/akatsuki-theme.mp3";
 
 export interface AkatsukiRelation {
   /** i18n anahtarı: `akatsuki.relations.<key>.*` */
@@ -233,6 +280,7 @@ export function akatsukiCharacterIds(): number[] {
       AKATSUKI_IDS.pain,
       ...AKATSUKI_MEMBERS.map((member) => member.characterId),
       ...AKATSUKI_RELATIONS.map((relation) => relation.characterId),
+      ...AKATSUKI_NEXUS_PEOPLE.map((person) => person.characterId),
     ]),
   ];
 }

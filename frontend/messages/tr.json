@@ -1502,55 +1502,64 @@
         "alias": "Klanının Katili",
         "role": "Kisame'nin ortağı; örgütün en sessiz gölgesi",
         "ability": "Sharingan · Tsukuyomi · Amaterasu · Susanoo",
-        "bio": "Konoha'nın en parlak çocuğu, en ağır görevi üstlendi: kendi klanını silmek ve suçu sırtlanıp sürgünde yaşamak. Akatsuki'de bile sadakati köyüneydi."
+        "bio": "Konoha'nın en parlak çocuğu, en ağır görevi üstlendi: kendi klanını silmek ve suçu sırtlanıp sürgünde yaşamak. Akatsuki'de bile sadakati köyüneydi.",
+        "quote": "Affet beni Sasuke… bir dahaki sefere yok."
       },
       "kisame": {
         "alias": "Sisin Canavarı",
         "role": "Itachi'nin ortağı",
         "ability": "Samehada · su jutsuları · dipsiz chakra",
-        "bio": "Kirigakure'nin Yedi Kılıcı'ndan biri. Köpekbalığı derisi Samehada chakra yer; sahibi yorulmaz, düşmanı tükenir."
+        "bio": "Kirigakure'nin Yedi Kılıcı'ndan biri. Köpekbalığı derisi Samehada chakra yer; sahibi yorulmaz, düşmanı tükenir.",
+        "quote": "Görünüşe göre ikimiz de canavarız — en azından ben öyle görünüyorum."
       },
       "deidara": {
         "alias": "Sanat Bir Patlamadır",
         "role": "Önce Sasori'nin, sonra Tobi'nin ortağı",
         "ability": "Patlayıcı kil — C1'den C0'a",
-        "bio": "İwagakure'den kaçmış bir sanatçı. Ona göre sanat bir andır: parlar ve yok olur. Son eseri kendisiydi."
+        "bio": "İwagakure'den kaçmış bir sanatçı. Ona göre sanat bir andır: parlar ve yok olur. Son eseri kendisiydi.",
+        "quote": "Sanat bir patlamadır!"
       },
       "sasori": {
         "alias": "Kızıl Kum'un Sasori'si",
         "role": "Deidara'nın ortağı",
         "ability": "Kukla ustalığı — kendi bedeni dahil yüz kukla",
-        "bio": "Sunagakure'nin kukla ustası. Ölümsüzlüğü sanatında aradı: bedenini kuklaya çevirdi, kalbini tek bir kapsülde sakladı."
+        "bio": "Sunagakure'nin kukla ustası. Ölümsüzlüğü sanatında aradı: bedenini kuklaya çevirdi, kalbini tek bir kapsülde sakladı.",
+        "quote": "Gerçek sanat, sonsuza dek kalandır."
       },
       "kakuzu": {
         "alias": "Köylerin Haznedarı",
         "role": "Hidan'ın ortağı",
         "ability": "Beş kalp — beş element",
-        "bio": "Takigakure'den; ödül avcılığıyla örgütün kasasını tutar. Beş kalbi beş ayrı hayat demektir — düşmanı hepsini tek tek durdurmak zorundadır."
+        "bio": "Takigakure'den; ödül avcılığıyla örgütün kasasını tutar. Beş kalbi beş ayrı hayat demektir — düşmanı hepsini tek tek durdurmak zorundadır.",
+        "quote": "Her şeyin bir bedeli var — hayatın bile."
       },
       "hidan": {
         "alias": "Jashin'in Kulu",
         "role": "Kakuzu'nun ortağı",
         "ability": "Ölümsüzlük — Jashin ritüeli",
-        "bio": "Yugakure'nin dönmesi. Ölemez; acıyı ibadet sayar. Kakuzu'yla eşleşmesinin sebebi basittir: başka kimse ona dayanamaz."
+        "bio": "Yugakure'nin dönmesi. Ölemez; acıyı ibadet sayar. Kakuzu'yla eşleşmesinin sebebi basittir: başka kimse ona dayanamaz.",
+        "quote": "Jashin acıyı paylaşmamı buyurur. Önce seninkini."
       },
       "konan": {
         "alias": "Tanrının Meleği",
         "role": "Pain'in ortağı; kurucu üye",
         "ability": "Kağıt jutsusu — bedeni kağıda çözülür",
-        "bio": "Üç yetimin hayatta kalanı. Amegakure onu melek bilir; kağıttan kanatları yağmurda bile taşır."
+        "bio": "Üç yetimin hayatta kalanı. Amegakure onu melek bilir; kağıttan kanatları yağmurda bile taşır.",
+        "quote": "Umut, kağıttan bir çiçektir — yağmura rağmen açar."
       },
       "tobi": {
         "alias": "Maskeli",
         "role": "Zetsu ile gölgeden yönetir",
         "ability": "Kamui — uzay-zaman Sharingan'ı",
-        "bio": "Sahnede şaklaban bir çaylak; maskenin ardında örgütün gerçek eli. Adını ölülerden ödünç aldı: Madara."
+        "bio": "Sahnede şaklaban bir çaylak; maskenin ardında örgütün gerçek eli. Adını ölülerden ödünç aldı: Madara.",
+        "quote": "Tobi iyi bir çocuktur!"
       },
       "zetsu": {
         "alias": "Gözcü",
         "role": "Örgütün istihbaratı",
         "ability": "Yerle bütünleşme · ikiz beden",
-        "bio": "Yarısı beyaz, yarısı siyah; biri kayıt tutar, öteki plan kurar. Akatsuki'nin gördüğü her şeyi önce Zetsu görmüştür."
+        "bio": "Yarısı beyaz, yarısı siyah; biri kayıt tutar, öteki plan kurar. Akatsuki'nin gördüğü her şeyi önce Zetsu görmüştür.",
+        "quote": "Biz yalnızca izleriz… ve hiçbir şeyi unutmayız."
       }
     },
     "partners": {
@@ -1642,6 +1651,35 @@
       "running": "İndiriliyor…",
       "done": "{created} indi · {exists} zaten vardı · {failed} başarısız",
       "error": "Kurulum çalıştırılamadı: {reason}"
+    },
+    "stats": {
+      "title": "Güç Profili",
+      "note": "Küratör tahmini — resmî ölçüm değil",
+      "nin": "Ninjutsu",
+      "gen": "Genjutsu",
+      "tai": "Taijutsu",
+      "int": "Zekâ"
+    },
+    "audio": {
+      "play": "Arka plan müziğini oynat",
+      "pause": "Arka plan müziğini durdur",
+      "title": "Loneliness — Trap Remix (Vineet)"
+    },
+    "nexus": {
+      "title": "Nexus'ta Devam Et",
+      "lede": "Bu sergi bir son durak değil — arşivin içinde bir düğüm. İpler buradan başka odalara uzanır.",
+      "people": {
+        "jiraiya": "Üç yetimin hocası — hikâyenin başladığı yer",
+        "naruto": "Nagato'nun sorusunun cevabı"
+      },
+      "doors": {
+        "naruto": "Naruto Evreni",
+        "narutoDesc": "Arşivdeki seri: sezonlar, bölümler, kadro",
+        "characters": "Karakter Dizini",
+        "charactersDesc": "Arşivdeki bütün kadrolar tek duvarda",
+        "archive": "Anime Arşivi",
+        "archiveDesc": "Altı raf: izlediğim, beklediğim, bitirdiğim"
+      }
     }
   },
   "character": {

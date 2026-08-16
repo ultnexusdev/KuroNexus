@@ -6,8 +6,10 @@ import type { CharacterCard, CharacterImageRow } from "@/lib/api/types";
 import {
   AKATSUKI_IDS,
   AKATSUKI_MEMBERS,
+  AKATSUKI_NEXUS_PEOPLE,
   AKATSUKI_PARTNERS,
   AKATSUKI_RELATIONS,
+  AKATSUKI_STAT_KEYS,
   AKATSUKI_SYMBOL_KEYS,
   AKATSUKI_TIMELINE_KEYS,
   EXHIBIT_IMAGE_KEYS,
@@ -15,6 +17,7 @@ import {
 } from "@/lib/anime/akatsuki";
 import { animeHref } from "@/lib/anime/routes";
 import { AkatsukiCloud } from "@/components/anime/AkatsukiCloud";
+import { AkatsukiAudio } from "./AkatsukiAudio";
 import { AkatsukiSetup } from "./AkatsukiSetup";
 import { RinneganMotif } from "./RinneganMotif";
 import shell from "@/app/[locale]/anime/layout.module.css";
@@ -142,11 +145,14 @@ export async function AkatsukiExhibit({
   images,
   cards,
   isAdmin,
+  narutoSlug,
 }: {
   locale: string;
   images: CharacterImageRow[];
   cards: CharacterCard[];
   isAdmin: boolean;
+  /** Arşivdeki Naruto serisinin slug'ı — Nexus paneli kapısı; yoksa kapı çizilmez */
+  narutoSlug: string | null;
 }) {
   const t = await getTranslations({ locale, namespace: "akatsuki" });
   const sources = collectSources(images, cards);
@@ -155,6 +161,9 @@ export async function AkatsukiExhibit({
   const sky = exhibitSrc(sources, EXHIBIT_IMAGE_KEYS.sky);
   const six = exhibitSrc(sources, EXHIBIT_IMAGE_KEYS.six);
   const origins = exhibitSrc(sources, EXHIBIT_IMAGE_KEYS.origins);
+  const legion = exhibitSrc(sources, EXHIBIT_IMAGE_KEYS.legion);
+  const horror = exhibitSrc(sources, EXHIBIT_IMAGE_KEYS.horror);
+  const dawn = exhibitSrc(sources, EXHIBIT_IMAGE_KEYS.dawn);
 
   const memberByKey = new Map(
     AKATSUKI_MEMBERS.map((member) => [member.key, member]),
@@ -162,6 +171,12 @@ export async function AkatsukiExhibit({
 
   return (
     <main className={styles.page} data-world="akatsuki">
+      {/* Kaydırma ilerlemesi (kullanıcı fikri, v2): scroll() zaman
+          çizelgesiyle JS'siz; desteksiz tarayıcıda hiç görünmez */}
+      <span className={styles.progress} aria-hidden />
+      {/* Sergiye özgü fon müziği (v2 §5) — rota değişince susar */}
+      <AkatsukiAudio />
+
       <nav className={shell.crumb} aria-label="breadcrumb">
         <Link href="/dark-stories">KuroNexus</Link>
         <span className={shell.sep}>/</span>
@@ -178,6 +193,7 @@ export async function AkatsukiExhibit({
           </span>
         ) : null}
         <span className={styles.rain} aria-hidden />
+        <span className={styles.embers} aria-hidden />
         <RinneganMotif className={styles.rinnegan} />
 
         {painPortrait ? (
@@ -188,13 +204,22 @@ export async function AkatsukiExhibit({
 
         <div className={styles.heroInner}>
           <p className={`${shell.eyebrow} ${styles.heroEyebrow}`}>
-            {t("title")} · {t("subtitle")} — {t("eyebrow")}
+            {t("eyebrow")} · {t("subtitle")}
           </p>
-          {/* Özel ad — TR büyütme "PAİN" üretir (LINKIN PARK dersi); Bebas
-              kapitali zaten görsel olarak basıyor */}
-          <h1 className={`${shell.display} ${styles.heroName}`}>
-            {t("hero.name")}
+          {/* Sanat yönü v2: serginin adı kızıl serif kapitalde (kullanıcının
+              görsel referansı); özel ad olduğu için TR büyütme YOK — serif
+              small-caps yerine düz büyük yazımla veriliyor */}
+          <h1 className={`${shell.serif} ${styles.mastTitle}`}>
+            {t("title")}
           </h1>
+          <p className={`${shell.brush} ${styles.mastKanji}`} aria-hidden>
+            暁 ・ あかつき
+          </p>
+          {/* Pain'in adı: figürün levhası — sayfanın EN BÜYÜK görseli
+              portrenin kendisi, hiyerarşi kuralı bozulmuyor */}
+          <p className={`${shell.display} ${styles.heroName}`}>
+            {t("hero.name")}
+          </p>
           <p className={`${shell.serif} ${styles.epigraph}`}>
             {t("hero.epigraph")}
           </p>
@@ -301,6 +326,11 @@ export async function AkatsukiExhibit({
 
       {/* ══ AKATSUKI ÜYELERİ ══ */}
       <section className={styles.members} aria-labelledby="akatsuki-members">
+        {legion ? (
+          <span className={styles.membersBand} aria-hidden>
+            <ExhibitImage image={legion} alt="" sizes="1920px" />
+          </span>
+        ) : null}
         <header className={styles.sectionHead}>
           <h2
             id="akatsuki-members"
@@ -366,6 +396,31 @@ export async function AkatsukiExhibit({
                     <span className={styles.memberBio}>
                       {t(`members.${member.key}.bio`)}
                     </span>
+                    {/* İmza söz (v2) — sergiyi wiki hissinden çıkaran satır */}
+                    <span className={`${shell.serif} ${styles.memberQuote}`}>
+                      &ldquo;{t(`members.${member.key}.quote`)}&rdquo;
+                    </span>
+                    {/* Güç profili (v2) — küratör tahmini, rozeti üstünde */}
+                    <span
+                      className={styles.memberStats}
+                      title={t("stats.note")}
+                    >
+                      {AKATSUKI_STAT_KEYS.map((statKey) => (
+                        <span key={statKey} className={styles.statRow}>
+                          <span
+                            className={`${shell.data} ${styles.statLabel}`}
+                          >
+                            {t(`stats.${statKey}`)}
+                          </span>
+                          <span className={styles.statTrack}>
+                            <span
+                              className={styles.statFill}
+                              style={{ width: `${member.stats[statKey]}%` }}
+                            />
+                          </span>
+                        </span>
+                      ))}
+                    </span>
                     <span className={`${shell.data} ${styles.memberEnter}`}>
                       {t("labels.dossier")}
                     </span>
@@ -379,6 +434,11 @@ export async function AkatsukiExhibit({
 
       {/* ══ PARTNERLER ══ */}
       <section className={styles.partners} aria-labelledby="akatsuki-partners">
+        {horror ? (
+          <span className={styles.partnersBand} aria-hidden>
+            <ExhibitImage image={horror} alt="" sizes="1920px" />
+          </span>
+        ) : null}
         <header className={styles.sectionHead}>
           <h2
             id="akatsuki-partners"
@@ -571,6 +631,11 @@ export async function AkatsukiExhibit({
 
       {/* ══ SON — MİRAS ══ */}
       <section className={styles.legacy} aria-labelledby="akatsuki-legacy">
+        {dawn ? (
+          <span className={styles.legacyBand} aria-hidden>
+            <ExhibitImage image={dawn} alt="" sizes="1920px" />
+          </span>
+        ) : null}
         <AkatsukiCloud className={styles.legacyCloud} />
         <h2
           id="akatsuki-legacy"
@@ -580,6 +645,96 @@ export async function AkatsukiExhibit({
         </h2>
         <p className={`${shell.serif} ${styles.legacyText}`}>{t("legacy.p1")}</p>
         <p className={`${shell.serif} ${styles.legacyText}`}>{t("legacy.p2")}</p>
+      </section>
+
+      {/* ══ NEXUS DÜĞÜMÜ — İLGİLİ İÇERİK (v2) ══
+          Sergi bir son durak değil; ipler arşivin başka odalarına uzanır. */}
+      <section className={styles.nexus} aria-labelledby="akatsuki-nexus">
+        <header className={styles.sectionHead}>
+          <h2
+            id="akatsuki-nexus"
+            className={`${shell.display} ${shell.section} ${styles.sectionTitle}`}
+          >
+            {t("nexus.title")}
+          </h2>
+          <p className={shell.lede}>{t("nexus.lede")}</p>
+        </header>
+
+        <div className={styles.nexusGrid}>
+          <ul className={styles.nexusPeople}>
+            {AKATSUKI_NEXUS_PEOPLE.map((person) => {
+              const src = portraitSrc(sources, person.characterId);
+              return (
+                <li key={person.key} className={styles.nexusPerson}>
+                  <Link
+                    href={animeHref.character(person.characterId)}
+                    className={styles.nexusPersonLink}
+                    aria-label={person.name}
+                  >
+                    <span className={styles.nexusFace}>
+                      {src ? (
+                        <ExhibitImage image={src} alt="" sizes="128px" />
+                      ) : (
+                        <Hatch initial={person.name.slice(0, 1)} />
+                      )}
+                    </span>
+                    <span className={styles.nexusPersonBody}>
+                      <span
+                        className={`${shell.display} ${styles.nexusPersonName}`}
+                      >
+                        {person.name}
+                      </span>
+                      <span className={styles.nexusPersonRole}>
+                        {t(`nexus.people.${person.key}`)}
+                      </span>
+                      <span className={`${shell.data} ${styles.memberEnter}`}>
+                        {t("labels.dossier")}
+                      </span>
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+
+          <ul className={styles.nexusDoors}>
+            {narutoSlug ? (
+              <li>
+                <Link
+                  href={animeHref.series(narutoSlug)}
+                  className={styles.nexusDoor}
+                >
+                  <span className={`${shell.display} ${styles.nexusDoorName}`}>
+                    {t("nexus.doors.naruto")}
+                  </span>
+                  <span className={styles.nexusDoorDesc}>
+                    {t("nexus.doors.narutoDesc")}
+                  </span>
+                </Link>
+              </li>
+            ) : null}
+            <li>
+              <Link href={animeHref.characters()} className={styles.nexusDoor}>
+                <span className={`${shell.display} ${styles.nexusDoorName}`}>
+                  {t("nexus.doors.characters")}
+                </span>
+                <span className={styles.nexusDoorDesc}>
+                  {t("nexus.doors.charactersDesc")}
+                </span>
+              </Link>
+            </li>
+            <li>
+              <Link href={animeHref.archive()} className={styles.nexusDoor}>
+                <span className={`${shell.display} ${styles.nexusDoorName}`}>
+                  {t("nexus.doors.archive")}
+                </span>
+                <span className={styles.nexusDoorDesc}>
+                  {t("nexus.doors.archiveDesc")}
+                </span>
+              </Link>
+            </li>
+          </ul>
+        </div>
       </section>
 
       {/* Küratör kuşağı — ziyaretçi bu adayı hiç indirmiyor; yetkinin

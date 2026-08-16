@@ -363,6 +363,37 @@
   max-width: 26ch;
 }
 
+/* ── Mikro hareket: bulutlar süzülür (komut §5 — CSS, video yok) ────── */
+@keyframes cloudDrift {
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: 0.4rem -0.55rem;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .cloud {
+    animation: cloudDrift 9s ease-in-out infinite alternate;
+  }
+
+  .cloudFar {
+    animation-duration: 13s;
+    animation-delay: -4s;
+  }
+}
+
+/* Reduced-motion: hareket katmanı ve geçişler tamamen kapalı (ev deseni) */
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
 /* ============================================================
    HAREKET — kaydırmaya bağlı, JS'siz (spor deseni).
    Destek yoksa hiçbir şey olmaz, içerik yerinde durur.

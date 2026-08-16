@@ -15,6 +15,7 @@ import {
 import { animeHref } from "@/lib/anime/routes";
 import { AkatsukiCloud } from "@/components/anime/AkatsukiCloud";
 import { AkatsukiSetup } from "./AkatsukiSetup";
+import { RinneganMotif } from "./RinneganMotif";
 import shell from "@/app/[locale]/anime/layout.module.css";
 import styles from "./AkatsukiExhibit.module.css";
 
@@ -136,6 +137,7 @@ export async function AkatsukiExhibit({
           </span>
         ) : null}
         <span className={styles.rain} aria-hidden />
+        <RinneganMotif className={styles.rinnegan} />
 
         {painPortrait ? (
           <span className={styles.heroPortrait} aria-hidden>

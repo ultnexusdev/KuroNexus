@@ -886,6 +886,101 @@
   position: relative;
 }
 
+/* Rinnegan motifi: hero'nun malzeme katmanında, sol üstte, yarısı kadraj
+   dışında — göz değil, gözün geometrisi. Nabzı aşağıdaki hareket
+   katmanında; kapalıysa durağan filigran olarak kalır. */
+.rinnegan {
+  position: absolute;
+  left: clamp(-6rem, -8vw, -3rem);
+  top: 6%;
+  width: clamp(16rem, 30vw, 26rem);
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.08;
+}
+
+/* ============================================================
+   MİKRO-ANİMASYON KATMANI (komut §5 — CSS öncelikli, video yok)
+
+   Bir ekranda tek hareket dili: hero'da her şey "yağmur gibi iner /
+   nefes alır" ailesinden. Konan'ın kağıdı ve Sharingan tomoe'si BİLEREK
+   yok — portre kadrajına bağlı konumlama ucuz görünürdü (komut §5.3
+   "zorla düşük kaliteli animasyon ekleme" izni kullanıldı).
+   Hepsi aşağıdaki no-preference kapısının içinde; reduced-motion'da bu
+   katman TAMAMEN kapalı, doku durağan hâliyle anlamlı.
+   ============================================================ */
+@keyframes akaRain {
+  from {
+    background-position: 0 0, 0 0;
+  }
+  to {
+    /* İki katman farklı hızda düşer — tek örüntü hissi kırılır */
+    background-position: -2.5rem 21rem, -1.5rem 34rem;
+  }
+}
+
+@keyframes akaSky {
+  from {
+    scale: 1;
+  }
+  to {
+    scale: 1.06;
+  }
+}
+
+@keyframes akaBreath {
+  from {
+    opacity: 0.06;
+    scale: 1;
+  }
+  to {
+    opacity: 0.13;
+    scale: 1.02;
+  }
+}
+
+@keyframes akaDrift {
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: 0.35rem -0.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .rain {
+    animation: akaRain 11s linear infinite;
+  }
+
+  /* Ken Burns: çok yavaş, tek yönlü nefes — kesme yok, geri sarma
+     `alternate` ile görünmez */
+  .sky img {
+    animation: akaSky 38s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+
+  .rinnegan {
+    animation: akaBreath 8s ease-in-out infinite alternate;
+  }
+
+  .divider,
+  .legacyCloud {
+    animation: akaDrift 9s ease-in-out infinite alternate;
+  }
+}
+
+/* Reduced-motion: mikro katman + geçişler tamamen kapalı (ev deseni —
+   DoorWall'daki çift taraflı kural) */
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
 /* ============================================================
    HAREKET — kaydırmaya bağlı, JS'siz. Desteksizde içerik yerinde.
    ============================================================ */

@@ -38,16 +38,20 @@
 
 /* Vitrin afişleri: sahne kulisi gibi kenarlardan sızar, merkeze doğru
    kaybolur. Maske görselin KENDİSİNİ eritiyor — metnin arkasında katman
-   kalmıyor, okunurluk kompozisyona borçlu (spor bandı deseni). */
+   kalmıyor, okunurluk kompozisyona borçlu (spor bandı deseni).
+
+   v3-A1: afişler MERKEZE DOĞRU GENİŞLETİLDİ (34%→45%) ve maske kuyruğu
+   uzatıldı — iki görsel ortada yumuşakça birbirine karışıyor, sert kesik
+   kenar kalmıyor. */
 .poster {
   position: absolute;
   top: 0;
   bottom: 0;
-  width: min(34%, 22rem);
+  width: min(45%, 30rem);
   z-index: 0;
   pointer-events: none;
-  filter: grayscale(0.7) saturate(0.8) contrast(1.05) brightness(0.5);
-  opacity: 0.85;
+  filter: grayscale(0.55) saturate(0.9) contrast(1.05) brightness(0.55);
+  opacity: 0.9;
 }
 
 .poster img {
@@ -60,12 +64,12 @@
 
 .posterLeft {
   left: 0;
-  mask-image: linear-gradient(to right, #000 0%, #000 18%, transparent 88%);
+  mask-image: linear-gradient(to right, #000 0%, #000 22%, transparent 97%);
 }
 
 .posterRight {
   right: 0;
-  mask-image: linear-gradient(to left, #000 0%, #000 18%, transparent 88%);
+  mask-image: linear-gradient(to left, #000 0%, #000 22%, transparent 97%);
 }
 
 /* Açılışta mor mürekkep yıkaması — kaynak kadrajın dışında */
@@ -80,6 +84,35 @@
     var(--anime-glow),
     transparent 62%
   );
+}
+
+/* v3-A1 — IŞIK HAVUZU: hero'nun ortası artık ölü siyah değil. Merkezde
+   başlığı taşıyan yumuşak bir ışık kaynağı + çok düşük opaklıkta asanoha
+   (japon deseni) dokusu. Doku üretilmiş SVG — dosya yok, CSP dostu.
+   Kesin kural (komut v3-A1): "hiçbir şey olmayan düz siyah dikdörtgen"
+   kalmayacak. */
+.opening::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='111' viewBox='0 0 64 111'%3E%3Cg fill='none' stroke='%23a293e0' stroke-width='1' opacity='0.5'%3E%3Cpath d='M32 0 L64 18.5 L64 55.5 L32 74 L0 55.5 L0 18.5 Z'/%3E%3Cpath d='M32 37 L32 0 M32 37 L64 18.5 M32 37 L64 55.5 M32 37 L32 74 M32 37 L0 55.5 M32 37 L0 18.5'/%3E%3Cpath d='M32 37 L64 92.5 M32 37 L0 92.5 M32 111 L32 74'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 64px 111px;
+  opacity: 0.05;
+  mask-image: radial-gradient(70% 80% at 50% 45%, #000, transparent 78%);
+}
+
+/* Işık havuzunun kendisi: metnin arkasında, afişlerin ÜSTÜNDE — kenardaki
+   karakterlerden merkeze akan bir sahne ışığı */
+.openingPool {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(52% 68% at 50% 46%, var(--aka-mist), transparent 72%),
+    radial-gradient(38% 50% at 50% 42%, var(--anime-glow), transparent 70%);
 }
 
 /* ============================================================

@@ -132,6 +132,9 @@ export default async function AnimeHallPage({
           </span>
         ) : null}
 
+        {/* v3-A1: merkez ışık havuzu — hero'nun ortası ölü siyah kalmasın */}
+        <span className={styles.openingPool} aria-hidden />
+
         <div className={styles.openingInner}>
           <p className={shell.eyebrow}>
             {t("hall", { num: hall.label, name: hall.name })}

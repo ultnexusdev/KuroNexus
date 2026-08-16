@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
 import { getAnimeArchive, getAnimeShowcase } from "@/lib/api/anime";
@@ -180,8 +181,14 @@ export default async function AnimeHallPage({
               <AkatsukiCloud className={`${styles.cloud} ${styles.cloudFar}`} />
               {painPortrait ? (
                 <span className={styles.silhouette} aria-hidden>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={apiUrl(painPortrait.url)} alt="" loading="lazy" />
+                  {/* Kendi diskimizden — next/image küçültüp WebP'ye çevirir;
+                      sizes SABİT px (vw yasak, next.config.ts ölçümü) */}
+                  <Image
+                    src={apiUrl(painPortrait.url)}
+                    alt=""
+                    fill
+                    sizes="620px"
+                  />
                 </span>
               ) : null}
               <span className={`${shell.brush} ${styles.kanji}`} aria-hidden>
@@ -192,8 +199,10 @@ export default async function AnimeHallPage({
                 <span className={`${shell.data} ${styles.worldMeter}`}>
                   {t("worlds.akatsuki.meter")}
                 </span>
+                {/* Özel ad — TR büyütme İ üretir ("AKATSUKİ", LINKIN PARK
+                    dersi). Bebas kapitali görsel olarak zaten basıyor. */}
                 <span className={`${shell.display} ${styles.worldName}`}>
-                  {t("worlds.akatsuki.title").toLocaleUpperCase(locale)}
+                  {t("worlds.akatsuki.title")}
                 </span>
                 <span className={styles.worldTagline}>
                   {t("worlds.akatsuki.tagline")}
@@ -213,7 +222,7 @@ export default async function AnimeHallPage({
               >
                 <span className={styles.worldBody}>
                   <span className={`${shell.display} ${styles.worldName}`}>
-                    {t("worlds.naruto.title").toLocaleUpperCase(locale)}
+                    {t("worlds.naruto.title")}
                   </span>
                   <span className={styles.worldTagline}>
                     {t("worlds.naruto.tagline")}
@@ -233,8 +242,9 @@ export default async function AnimeHallPage({
                 className={styles.world}
               >
                 <span className={styles.worldBody}>
+                  {/* "One Piece" TR büyütmede "ONE PİECE" olurdu — özel ad */}
                   <span className={`${shell.display} ${styles.worldName}`}>
-                    {t("worlds.onepiece.title").toLocaleUpperCase(locale)}
+                    {t("worlds.onepiece.title")}
                   </span>
                   <span className={styles.worldTagline}>
                     {t("worlds.onepiece.tagline")}
@@ -251,7 +261,7 @@ export default async function AnimeHallPage({
             <Link href={animeHref.archive()} className={styles.world}>
               <span className={styles.worldBody}>
                 <span className={`${shell.display} ${styles.worldName}`}>
-                  {t("worlds.archive.title").toLocaleUpperCase(locale)}
+                  {t("worlds.archive.title")}
                 </span>
                 <span className={styles.worldTagline}>
                   {t("worlds.archive.tagline")}

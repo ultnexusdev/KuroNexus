@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import Image from "next/image";
 import { Link } from "@/lib/i18n/navigation";
 import { apiUrl } from "@/lib/api/client";
 import type { CharacterCard, CharacterImageRow } from "@/lib/api/types";
@@ -71,19 +72,60 @@ function collectSources(
   return { portraits, exhibit, anilist };
 }
 
+/**
+ * Çözülmüş görsel: adres + kaynağı. `local` bayrağı `next/image`
+ * optimizasyonunun kapısı — AniList adresleri `remotePatterns`ta yok,
+ * `unoptimized` çizilmek zorunda (CharacterDossier deseni).
+ */
+interface ResolvedImage {
+  src: string;
+  local: boolean;
+}
+
 /** Portre adresi: kendi diskimiz önce, AniList yedek. `null` → dokulu yuva. */
 function portraitSrc(
   sources: ImageSources,
   characterId: number,
-): string | null {
+): ResolvedImage | null {
   const own = sources.portraits.get(characterId);
-  if (own) return apiUrl(own.url);
-  return sources.anilist.get(characterId) ?? null;
+  if (own) return { src: apiUrl(own.url), local: true };
+  const fallback = sources.anilist.get(characterId);
+  return fallback ? { src: fallback, local: false } : null;
 }
 
-function exhibitSrc(sources: ImageSources, key: string): string | null {
+function exhibitSrc(sources: ImageSources, key: string): ResolvedImage | null {
   const row = sources.exhibit.get(key);
-  return row ? apiUrl(row.url) : null;
+  return row ? { src: apiUrl(row.url), local: true } : null;
+}
+
+/**
+ * Sergi görseli — hepsi kaplama (`fill`) düzeninde, kırpma üstteki kapta.
+ * `sizes` SABİT px (vw yasak — next.config.ts'teki ölçülmüş tuzak).
+ */
+function ExhibitImage({
+  image,
+  alt,
+  sizes,
+  priority,
+  className,
+}: {
+  image: ResolvedImage;
+  alt: string;
+  sizes: string;
+  priority?: boolean;
+  className?: string;
+}) {
+  return (
+    <Image
+      src={image.src}
+      alt={alt}
+      fill
+      sizes={sizes}
+      priority={priority}
+      unoptimized={!image.local}
+      className={className}
+    />
+  );
 }
 
 /** Dokulu yuva — portresi inmemiş karakter (spor panteonu deseni). */
@@ -132,8 +174,7 @@ export async function AkatsukiExhibit({
       <header className={styles.hero}>
         {sky ? (
           <span className={styles.sky} aria-hidden>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={sky} alt="" loading="eager" />
+            <ExhibitImage image={sky} alt="" sizes="1920px" priority />
           </span>
         ) : null}
         <span className={styles.rain} aria-hidden />
@@ -141,8 +182,7 @@ export async function AkatsukiExhibit({
 
         {painPortrait ? (
           <span className={styles.heroPortrait} aria-hidden>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={painPortrait} alt="" loading="eager" />
+            <ExhibitImage image={painPortrait} alt="" sizes="760px" priority />
           </span>
         ) : null}
 
@@ -150,8 +190,10 @@ export async function AkatsukiExhibit({
           <p className={`${shell.eyebrow} ${styles.heroEyebrow}`}>
             {t("title")} · {t("subtitle")} — {t("eyebrow")}
           </p>
+          {/* Özel ad — TR büyütme "PAİN" üretir (LINKIN PARK dersi); Bebas
+              kapitali zaten görsel olarak basıyor */}
           <h1 className={`${shell.display} ${styles.heroName}`}>
-            {t("hero.name").toLocaleUpperCase(locale)}
+            {t("hero.name")}
           </h1>
           <p className={`${shell.serif} ${styles.epigraph}`}>
             {t("hero.epigraph")}
@@ -205,8 +247,7 @@ export async function AkatsukiExhibit({
       <section className={styles.paths} aria-labelledby="akatsuki-paths">
         {six ? (
           <span className={styles.pathsBand} aria-hidden>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={six} alt="" loading="lazy" />
+            <ExhibitImage image={six} alt="" sizes="1920px" />
           </span>
         ) : null}
         <header className={styles.sectionHead}>
@@ -226,11 +267,10 @@ export async function AkatsukiExhibit({
               <li key={path.key} className={styles.path}>
                 <span className={styles.pathArt}>
                   {src ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={src}
+                    <ExhibitImage
+                      image={src}
                       alt={t(`paths.${path.key}.name`)}
-                      loading="lazy"
+                      sizes="480px"
                     />
                   ) : (
                     <Hatch initial={path.kanji.slice(0, 1)} />
@@ -283,12 +323,11 @@ export async function AkatsukiExhibit({
                 >
                   <span className={styles.memberFrame} data-member={member.key}>
                     {src ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        className={styles.memberPortrait}
-                        src={src}
+                      <ExhibitImage
+                        image={src}
                         alt={member.name}
-                        loading="lazy"
+                        sizes="440px"
+                        className={styles.memberPortrait}
                       />
                     ) : (
                       <Hatch initial={member.name.slice(0, 1)} />
@@ -367,16 +406,14 @@ export async function AkatsukiExhibit({
                 <span className={styles.pairFaces} aria-hidden>
                   <span className={styles.pairFace}>
                     {aSrc ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={aSrc} alt="" loading="lazy" />
+                      <ExhibitImage image={aSrc} alt="" sizes="96px" />
                     ) : (
                       <Hatch initial={a.name.slice(0, 1)} />
                     )}
                   </span>
                   <span className={`${styles.pairFace} ${styles.pairFaceB}`}>
                     {bSrc ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={bSrc} alt="" loading="lazy" />
+                      <ExhibitImage image={bSrc} alt="" sizes="96px" />
                     ) : (
                       <Hatch initial={b.name.slice(0, 1)} />
                     )}
@@ -400,8 +437,7 @@ export async function AkatsukiExhibit({
       <section className={styles.history} aria-labelledby="akatsuki-history">
         {origins ? (
           <span className={styles.historyBand} aria-hidden>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={origins} alt="" loading="lazy" />
+            <ExhibitImage image={origins} alt="" sizes="1920px" />
           </span>
         ) : null}
         <header className={styles.sectionHead}>
@@ -453,8 +489,7 @@ export async function AkatsukiExhibit({
               <li key={relation.key} className={styles.relation}>
                 <span className={styles.relationFace} aria-hidden>
                   {src ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={src} alt="" loading="lazy" />
+                    <ExhibitImage image={src} alt="" sizes="128px" />
                   ) : (
                     <Hatch initial={relation.name.slice(0, 1)} />
                   )}

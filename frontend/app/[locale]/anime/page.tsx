@@ -181,8 +181,6 @@ export default async function AnimeHallPage({
               className={`${styles.world} ${styles.akatsuki}`}
             >
               <span className={styles.mist} aria-hidden />
-              <AkatsukiCloud className={styles.cloud} />
-              <AkatsukiCloud className={`${styles.cloud} ${styles.cloudFar}`} />
               {painPortrait ? (
                 <span className={styles.silhouette} aria-hidden>
                   {/* Kendi diskimizden — next/image küçültüp WebP'ye çevirir;
@@ -200,6 +198,11 @@ export default async function AnimeHallPage({
               </span>
 
               <span className={styles.worldBody}>
+                {/* v3-A4: bulut artık serbest katman değil, metin bloğunun
+                    rozeti — tam görünür, hiçbir şeyin üstüne binmiyor */}
+                <span className={styles.cloudChip} aria-hidden>
+                  <AkatsukiCloud className={styles.cloudChipArt} />
+                </span>
                 <span className={`${shell.data} ${styles.worldMeter}`}>
                   {t("worlds.akatsuki.meter")}
                 </span>

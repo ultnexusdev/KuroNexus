@@ -317,43 +317,53 @@
   opacity: 1.6;
 }
 
-.cloud {
-  position: absolute;
-  top: 9%;
-  right: 8%;
-  width: clamp(4.5rem, 7vw, 6.5rem);
-  z-index: 1;
-  opacity: 0.5;
-  transition: opacity 420ms ease, translate 420ms ease;
+/* v3-A4: serbest bulut katmanları KALDIRILDI (Pain'in başına biniyordu).
+   Bulut artık metin bloğunun rozeti (.cloudChip) — tam görünür, temiz. */
+.cloudChip {
+  display: inline-flex;
+  align-items: center;
+  width: 2.4rem;
+  filter: drop-shadow(0 0 10px var(--aka-glow-soft));
 }
 
-.cloudFar {
-  top: 40%;
-  right: 30%;
-  width: clamp(2.5rem, 4vw, 3.5rem);
-  opacity: 0.22;
+.cloudChipArt {
+  width: 100%;
 }
 
-.akatsuki:hover .cloud {
-  opacity: 0.85;
-}
-
-.akatsuki:hover .cloudFar {
-  opacity: 0.4;
+.akatsuki:hover .cloudChip {
+  filter: drop-shadow(0 0 16px var(--aka-glow-strong));
 }
 
 /* Pain silüeti: portre karartılarak siluete indirgeniyor — "net değil,
    gizemli" (komut §2a). Hover'da bir tık aydınlanır ama asla tam
-   görünmez: keşfetme vaadi kartta, cevabı sergide. */
+   görünmez: keşfetme vaadi kartta, cevabı sergide.
+   v3-A4: baş kırpılmasın diye üstten başlıyor; metinle çakışmayı alt
+   gradyan (.akatsuki::after) çözüyor, sert dikey kesik yok. */
 .silhouette {
   position: absolute;
   right: -4%;
   bottom: 0;
-  top: 12%;
+  top: 6%;
   width: 62%;
+  z-index: 1;
+  pointer-events: none;
+  mask-image: linear-gradient(to left, #000 0%, #000 45%, transparent 97%);
+}
+
+/* Görsel ile metin arasında yumuşak geçiş: alttan yükselen zemin gradyanı */
+.akatsuki::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 62%;
   z-index: 2;
   pointer-events: none;
-  mask-image: linear-gradient(to left, #000 0%, #000 45%, transparent 95%);
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--bg) 92%, transparent) 18%,
+    transparent
+  );
 }
 
 .silhouette img {
@@ -396,26 +406,8 @@
   max-width: 26ch;
 }
 
-/* ── Mikro hareket: bulutlar süzülür (komut §5 — CSS, video yok) ────── */
-@keyframes cloudDrift {
-  from {
-    translate: 0 0;
-  }
-  to {
-    translate: 0.4rem -0.55rem;
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .cloud {
-    animation: cloudDrift 9s ease-in-out infinite alternate;
-  }
-
-  .cloudFar {
-    animation-duration: 13s;
-    animation-delay: -4s;
-  }
-}
+/* v3-A4: bulut süzülme animasyonu, serbest bulut katmanlarıyla birlikte
+   kaldırıldı — rozet bulut sabit, sükûnet kartın parçası. */
 
 /* Reduced-motion: hareket katmanı ve geçişler tamamen kapalı (ev deseni) */
 @media (prefers-reduced-motion: reduce) {

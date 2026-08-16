@@ -317,11 +317,15 @@ html {
   --text-secondary: #9b9aad;
   --text-muted:     #9493a6;
 
-  --accent:         #8f7fd4; /* mürekkep moru, doygunlugu dusurulmus */
-  --accent-hover:   #a293e0;
-  --accent-muted:   #574f7a;
+  /* v3-A2 (16 Agustos aksam): kanat paleti CANLANDIRILDI — kullanicinin
+     "bu bolum sitenin geri kalanindan daha isikli" olcusu. Site geneli
+     dusuk doygunluk kurali diger salonlarda gecerililigini koruyor; bu
+     blok bilincli salon-lokal istisna. */
+  --accent:         #9d89ea; /* murekkep moru, bir tik daha canli */
+  --accent-hover:   #b4a2f8;
+  --accent-muted:   #5f5590;
 
-  --gold:           #c2a15e;
+  --gold:           #d4ae66; /* altin vurgular gercekten parlasin */
   --warn:           #a6784a;
   --danger:         #a6584a;
 }
@@ -343,9 +347,10 @@ html {
   --text-secondary: #a89a94;
   --text-muted:     #877a76;
 
-  --accent:         #a63c40; /* kizil bulut — doygunlugu dusurulmus */
-  --accent-hover:   #bf4e52;
-  --accent-muted:   #5c2a2d;
+  /* v3-A2: kirmizilar daha kirmizi (kullanici komutu, salon-lokal istisna) */
+  --accent:         #c24449; /* kizil bulut — canlandirildi */
+  --accent-hover:   #dd575c;
+  --accent-muted:   #6e3236;
 
   --gold:           #a68a5b;
   --warn:           #a6784a;

@@ -472,6 +472,89 @@
    (kullanıcı komutu; token gerekçesi globals.css'te). Dosya sonu değil
    ama mobil bloklardan ÖNCE: mobil kendi kararlarını korusun.
    ============================================================ */
+
+/* v3-A2 — başlıklarda görünür glow + bölüm geçişlerinde yumuşak ışık.
+   Sert siyah kesikler yerine ortadan parlayıp kenara sönen ayraçlar. */
+.roomTitle,
+.worldsLabel {
+  text-shadow: 0 0 22px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.room,
+.worlds {
+  border-top: 1px solid transparent;
+  border-image: linear-gradient(
+      to right,
+      transparent,
+      color-mix(in srgb, var(--accent) 55%, transparent) 50%,
+      transparent
+    )
+    1;
+}
+
+.room::after,
+.worlds::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 5rem;
+  pointer-events: none;
+  background: radial-gradient(
+    50% 100% at 50% 0%,
+    var(--anime-glow),
+    transparent 75%
+  );
+}
+
+.worlds {
+  position: relative;
+}
+
+/* v3-A3 — hover: zoom + glow + KEŞFET kayması; her kart aynı ritimde
+   hareket etmesin diye süre/gecikme varyasyonları */
+.world {
+  transition:
+    border-color 300ms ease,
+    background-color 300ms ease,
+    scale 380ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    box-shadow 380ms ease;
+}
+
+.world:hover {
+  scale: 1.03;
+}
+
+.worldItem:nth-child(2) .world {
+  transition-duration: 300ms, 300ms, 460ms, 460ms;
+}
+
+.worldItem:nth-child(3) .world {
+  transition-delay: 0ms, 0ms, 45ms, 45ms;
+}
+
+.worldItem:nth-child(4) .world {
+  transition-duration: 300ms, 300ms, 520ms, 520ms;
+  transition-delay: 0ms, 0ms, 70ms, 70ms;
+}
+
+.worldEnter {
+  transition: color 300ms ease, translate 320ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.world:hover .worldEnter {
+  translate: 0.4rem 0;
+}
+
+.room {
+  transition: background-color 300ms ease;
+}
+
+.roomRule {
+  transition:
+    width 420ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    box-shadow 420ms ease;
+}
 .room:hover {
   background: color-mix(in srgb, var(--surface) 40%, transparent);
 }

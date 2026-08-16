@@ -27,6 +27,10 @@ const STATIC_PATHS = [
   "/muzik",
   "/muzik/tur",
   "/muzik/dinleme",
+  // Salon 04 · Anime — girişi kendi ağacında (16 Ağustos 2026, bkz. hallHref);
+  // derin odalar aşağıda eski ağaçta duruyor
+  "/anime",
+  "/anime/akatsuki",
   "/dark-stories/category/kitap",
   "/dark-stories/category/kitap/arsiv",
   "/dark-stories/category/kitap/seriler",

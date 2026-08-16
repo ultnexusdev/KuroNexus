@@ -326,6 +326,32 @@ html {
   --danger:         #a6584a;
 }
 
+/* Salon 04 icinde AYRI BIR DUNYA — Akatsuki sergisi (16 Agustos 2026).
+   Muzik kanadindaki [data-genre] deseninin kardesi: salon derisi (mor)
+   bozulmadan, sergi kendi atmosferini tek oznitelikle acar. Siyah zemin +
+   dusuk doygunlukta kizil — kural 16: cart/neon yok, glow yok, isik
+   yikamalari gradient. Oznitelik sayfanin/kartin KOKUNE konur; token'lar
+   kalitimla alt agaca iner. */
+[data-world="akatsuki"] {
+  --bg:             #0a0709;
+  --surface:        #140e10;
+  --surface-hover:  #1b1215;
+  --border:         #2a1c1e;
+  --border-strong:  #3d282b;
+
+  --text-primary:   #f2ece6;
+  --text-secondary: #a89a94;
+  --text-muted:     #877a76;
+
+  --accent:         #a63c40; /* kizil bulut — doygunlugu dusurulmus */
+  --accent-hover:   #bf4e52;
+  --accent-muted:   #5c2a2d;
+
+  --gold:           #a68a5b;
+  --warn:           #a6784a;
+  --danger:         #a6584a;
+}
+
 /* Salon 05 — Kitap. Taban palet: kapidan sizan ex-libris moru odanin
    yuzeylerini boyar, accent ise sirtlardaki yaldiz (kapi gorselindeki
    altin seritlerin ayni tonu). Kadim Dunyalar'in mat altinindan (#b08d57)
@@ -595,7 +621,8 @@ html {
    birine tasinirsa kategori derileri onu ezemez.
    ============================================================ */
 :root,
-[data-category] {
+[data-category],
+[data-world] {
   --surface-2: color-mix(in srgb, var(--surface) 65%, var(--bg));
 }
 
@@ -604,6 +631,16 @@ html {
   --anime-airing-ink:   #6f9c72; /* yayinda */
   --anime-upcoming-ink: #b8894f; /* yeni sezon bekleniyor */
   --anime-glow:         rgba(143, 127, 212, 0.06);
+
+  /* Salon 04 — Akatsuki sergisi yardimci token'lari.
+     Deri token'lari [data-world="akatsuki"] blogunda; buradakiler accent'ten
+     bagimsiz okunan sabit malzemeler (bulut, kagit, sis) — --gs-*/--f1-*
+     ailesinin kardesi. */
+  --aka-crimson: #8f2a2e; /* kizil bulut govdesi */
+  --aka-blood:   #5c1a1f; /* koyu kirmizi cizgi/vurgu */
+  --aka-paper:   #e8e2d9; /* Konan'in kagidi — bulut konturu, acik vurgu */
+  --aka-mist:    rgba(143, 42, 46, 0.1); /* kizil sis yikamasi (gradient icin) */
+  --aka-rain:    rgba(232, 226, 217, 0.05); /* yagmur cizgileri */
 
   /* Salon 02 — Projeksiyon Salonu yardimci token'lari */
   --film-curtain: #3d1215; /* kapinin ardindaki perde: serit cercevesi + kunye levhasi */

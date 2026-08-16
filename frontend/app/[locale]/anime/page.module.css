@@ -1,0 +1,441 @@
+/* ============================================================
+   Salon 04 · /anime — SALON GİRİŞİ
+
+   Üç hareket, üçü de yapı olarak farklı:
+     1. AÇILIŞ    başlık + cümle, kenarlardan sızan iki afiş  (sessiz)
+     2. ODALAR    iki tam-en kapı bandı                        (işlevsel)
+     3. DÜNYALAR  kart sırası, Akatsuki öne çıkan              (gürültülü)
+
+   Gölge yok, yuvarlak köşe yok, ikon yok; renk yalnızca token'dan
+   (kural 16). Hover'da tek jest: çizgi uzar / görsel canlanır.
+   ============================================================ */
+
+.page {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ============================================================
+   1 · AÇILIŞ
+   ============================================================ */
+.opening {
+  position: relative;
+  min-height: calc(64svh - var(--an-header));
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.openingInner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1rem, 2.5vw, 1.75rem);
+  padding: clamp(2.5rem, 7vw, 5rem) var(--an-gutter);
+}
+
+/* Vitrin afişleri: sahne kulisi gibi kenarlardan sızar, merkeze doğru
+   kaybolur. Maske görselin KENDİSİNİ eritiyor — metnin arkasında katman
+   kalmıyor, okunurluk kompozisyona borçlu (spor bandı deseni). */
+.poster {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: min(34%, 22rem);
+  z-index: 0;
+  pointer-events: none;
+  filter: grayscale(0.7) saturate(0.8) contrast(1.05) brightness(0.5);
+  opacity: 0.85;
+}
+
+.poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 20%;
+  display: block;
+}
+
+.posterLeft {
+  left: 0;
+  mask-image: linear-gradient(to right, #000 0%, #000 18%, transparent 88%);
+}
+
+.posterRight {
+  right: 0;
+  mask-image: linear-gradient(to left, #000 0%, #000 18%, transparent 88%);
+}
+
+/* Açılışta mor mürekkep yıkaması — kaynak kadrajın dışında */
+.opening::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(
+    100% 110% at 50% -30%,
+    var(--anime-glow),
+    transparent 62%
+  );
+}
+
+/* ============================================================
+   2 · ODALAR — mevcut iki kapı, bant dilinde
+   ============================================================ */
+.rooms {
+  display: flex;
+  flex-direction: column;
+}
+
+.room {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: clamp(1.75rem, 4.5vw, 3rem) var(--an-gutter);
+  border-top: 1px solid var(--border);
+  color: inherit;
+  text-decoration: none;
+  min-height: var(--touch-min);
+}
+
+.room:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: -4px;
+}
+
+.roomTitle {
+  font-size: clamp(1.625rem, 3.4vw, 2.625rem);
+  color: var(--text-primary);
+  transition: color 260ms ease;
+}
+
+.room:hover .roomTitle {
+  color: var(--accent);
+}
+
+.roomDesc {
+  color: var(--text-secondary);
+  font-size: clamp(0.9375rem, 1.2vw, 1.0625rem);
+  line-height: 1.55;
+  max-width: 52ch;
+}
+
+.roomMeter {
+  color: var(--text-primary);
+  opacity: 0.62;
+  transition: opacity 300ms ease;
+}
+
+.room:hover .roomMeter {
+  opacity: 1;
+}
+
+/* Hover'da tek şey olur: çizgi uzar. */
+.roomRule {
+  display: block;
+  width: 3rem;
+  height: 1px;
+  margin-top: 0.35rem;
+  background: var(--accent);
+  transition: width 420ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.room:hover .roomRule {
+  width: 8rem;
+}
+
+/* ============================================================
+   3 · ANİME DÜNYALARI
+   ============================================================ */
+.worlds {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.5rem, 3.5vw, 2.5rem);
+  padding: clamp(3rem, 8vw, 6rem) var(--an-gutter) clamp(4rem, 10vw, 8rem);
+  border-top: 1px solid var(--border);
+}
+
+.worldsLabel {
+  margin: 0;
+}
+
+.worldGrid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  /* Akatsuki kartı daha geniş — komut §2a: "grid'i bozmadan ayrışsın" */
+  grid-template-columns: 1.7fr 1fr 1fr 1fr;
+  gap: clamp(0.75rem, 1.6vw, 1.25rem);
+  align-items: stretch;
+}
+
+.worldItem {
+  display: flex;
+  min-width: 0;
+}
+
+.world {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: clamp(16rem, 32vw, 22rem);
+  padding: clamp(1.25rem, 2.2vw, 1.75rem);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: inherit;
+  text-decoration: none;
+  overflow: hidden;
+  isolation: isolate;
+  transition: border-color 300ms ease, background-color 300ms ease;
+}
+
+.world:hover {
+  border-color: var(--accent-muted);
+  background: var(--surface-hover);
+}
+
+.world:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: -4px;
+}
+
+.worldBody {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.worldName {
+  font-size: clamp(1.5rem, 2.6vw, 2.25rem);
+  color: var(--text-primary);
+  transition: color 260ms ease;
+}
+
+.world:hover .worldName {
+  color: var(--accent);
+}
+
+.worldTagline {
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  max-width: 34ch;
+}
+
+.worldMeter {
+  color: var(--accent);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.worldEnter {
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 0.35rem;
+  transition: color 300ms ease;
+}
+
+.world:hover .worldEnter {
+  color: var(--accent);
+}
+
+/* ── AKATSUKI — öne çıkan kart ──────────────────────────────────────────
+   Kart kendi derisini taşıyor (`data-world="akatsuki"`): token'lar bu
+   altağaçta siyah/kızıla döner, bileşende tek hex yok. Katmanlar:
+   sis (gradient) → iki bulut → silüet → kanji → metin. */
+.akatsuki {
+  border-color: var(--border-strong);
+  background: var(--bg);
+}
+
+.akatsuki:hover {
+  border-color: var(--accent);
+  background: var(--bg);
+}
+
+/* Kızıl sis: alttan yükselen tek radial yıkama. Glow değil — box-shadow
+   yok, ışık gradient'le (kural 16 sınırı içinde). */
+.mist {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    120% 90% at 78% 100%,
+    var(--aka-mist),
+    transparent 62%
+  );
+  opacity: 0.8;
+  transition: opacity 420ms ease;
+}
+
+.akatsuki:hover .mist {
+  opacity: 1.6;
+}
+
+.cloud {
+  position: absolute;
+  top: 9%;
+  right: 8%;
+  width: clamp(4.5rem, 7vw, 6.5rem);
+  z-index: 1;
+  opacity: 0.5;
+  transition: opacity 420ms ease, translate 420ms ease;
+}
+
+.cloudFar {
+  top: 40%;
+  right: 30%;
+  width: clamp(2.5rem, 4vw, 3.5rem);
+  opacity: 0.22;
+}
+
+.akatsuki:hover .cloud {
+  opacity: 0.85;
+}
+
+.akatsuki:hover .cloudFar {
+  opacity: 0.4;
+}
+
+/* Pain silüeti: portre karartılarak siluete indirgeniyor — "net değil,
+   gizemli" (komut §2a). Hover'da bir tık aydınlanır ama asla tam
+   görünmez: keşfetme vaadi kartta, cevabı sergide. */
+.silhouette {
+  position: absolute;
+  right: -4%;
+  bottom: 0;
+  top: 12%;
+  width: 62%;
+  z-index: 2;
+  pointer-events: none;
+  mask-image: linear-gradient(to left, #000 0%, #000 45%, transparent 95%);
+}
+
+.silhouette img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+  filter: grayscale(1) brightness(0.3) contrast(1.15);
+  transition: filter 500ms ease;
+}
+
+.akatsuki:hover .silhouette img {
+  filter: grayscale(0.6) brightness(0.5) contrast(1.1);
+}
+
+/* 暁 — fırça kanjisi, filigran. Süs; ekran okuyucudan gizli. */
+.kanji {
+  position: absolute;
+  left: 4%;
+  top: 2%;
+  z-index: 1;
+  font-size: clamp(5rem, 9vw, 8rem);
+  line-height: 1;
+  color: var(--accent);
+  opacity: 0.14;
+  pointer-events: none;
+  transition: opacity 420ms ease;
+}
+
+.akatsuki:hover .kanji {
+  opacity: 0.26;
+}
+
+.akatsuki .worldName {
+  font-size: clamp(1.875rem, 3.2vw, 2.75rem);
+}
+
+.akatsuki .worldTagline {
+  max-width: 26ch;
+}
+
+/* ============================================================
+   HAREKET — kaydırmaya bağlı, JS'siz (spor deseni).
+   Destek yoksa hiçbir şey olmaz, içerik yerinde durur.
+   ============================================================ */
+@keyframes rise {
+  from {
+    opacity: 0.2;
+    transform: translate3d(0, 1.25rem, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .room,
+    .worldItem {
+      animation: rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 60%;
+    }
+  }
+}
+
+/* ============================================================
+   MOBİL — kendi kompozisyonu
+   ============================================================ */
+@media (max-width: 980px) {
+  .worldGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* Akatsuki üstte tek başına tam satır — hiyerarşi mobilde de önde */
+  .worldItem[data-featured] {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .opening {
+    min-height: calc(48svh - var(--an-header));
+  }
+
+  /* Dar ekranda afişler metnin arkasına giremez: tek afiş, üstten sızar
+     ve aşağı doğru kaybolur — yön değişir, fikir aynı. */
+  .posterLeft {
+    left: 0;
+    right: 0;
+    width: 100%;
+    bottom: 42%;
+    mask-image: linear-gradient(to bottom, #000 0%, #000 25%, transparent 92%);
+    opacity: 0.45;
+  }
+
+  .posterRight {
+    display: none;
+  }
+
+  .worldGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .world {
+    min-height: 12rem;
+  }
+
+  .akatsuki {
+    min-height: 17rem;
+  }
+
+  .silhouette {
+    width: 78%;
+  }
+}

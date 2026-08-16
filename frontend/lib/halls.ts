@@ -176,6 +176,13 @@ export function hallLabel(value: number | null): string {
 const MOVED_HALLS: Record<string, string> = {
   spor: "/spor",
   muzik: "/muzik",
+  /**
+   * 16 Ağustos 2026 — salon GİRİŞİ taşındı (`/dark-stories/category/anime`
+   * → `/anime`, 301'leriyle). Derin odalar (arşiv, karakterler, seri
+   * sayfaları) spor göçünün Faz 1 deseniyle ŞİMDİLİK eski ağaçta:
+   * bkz. `lib/anime/routes.ts`.
+   */
+  anime: "/anime",
 };
 
 export function hallHref(slug: string): string {

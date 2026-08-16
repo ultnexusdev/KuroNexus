@@ -275,6 +275,19 @@ const nextConfig: NextConfig = {
       { source: "/dark-stories/category/spor", destination: "/spor", statusCode: 301 },
       { source: "/en/dark-stories/category/spor", destination: "/en/spor", statusCode: 301 },
 
+      /**
+       * ── SALON 04 · ANİME GİRİŞİ TAŞINDI (16 Ağustos 2026) ───────────────
+       * Spor deseninin aynısı: yalnızca LOBİ yönlendiriliyor, joker YOK —
+       * derin odalar (arşiv, karakterler, [slug]) eski ağaçta yaşamaya
+       * devam ediyor ve kendi adresleri çalışıyor.
+       */
+      { source: "/dark-stories/category/anime", destination: "/anime", statusCode: 301 },
+      {
+        source: "/en/dark-stories/category/anime",
+        destination: "/en/anime",
+        statusCode: 301,
+      },
+
       // İki dünya (WikiUniverse kayıtları)
       {
         source: "/dark-stories/galatasaray",

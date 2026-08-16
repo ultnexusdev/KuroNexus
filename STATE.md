@@ -33,6 +33,19 @@
 > (canlı doğrulamadan SONRA); kapı turuncusu / salon moru çelişkisi bilinçli
 > korundu.
 >
+> ✅ **V3 DÜZELTME + ZENGİNLEŞTİRME AYNI GECE** (PLAN.md §5c, doğrulama
+> listesi maddeler hâlinde orada): hero ölü alanı kapandı (ışık havuzu +
+> asanoha + genişletilmiş afişler), glow gerçekten görünür (başlık/kart/
+> geçiş gradyanları, palet canlandırıldı), hover zoom+varyasyonlu ritim,
+> Akatsuki kartı bulut rozeti (bindirme kalktı), **kürasyon modu: sergide
+> 29 görsel yuvasında URL+dosya "Görseli Değiştir"** (ziyaretçiye sıfır
+> sızıntı — gerçek admin girişiyle ölçüldü), Hakkında sağ paneli (kadro +
+> filigran), **zigzag zaman şeridi** (5 dönem 5 malzeme: taş/amber/
+> Rinnegan/ateş/şafak; merkez çizgi scroll'la doluyor; avatarlar + 8 özgün
+> SVG glif — üretim hattı repoda YOK, ölçüldü, CSS/SVG ile üretildi).
+> Backend değişmedi; kurulum düğmesine yeniden basmak GEREKMİYOR (v3
+> yalnızca frontend).
+>
 > ✅ **V2 GÜNCELLEMESİ AYNI GÜN AKŞAM** (PLAN.md §5b): 4K bantlar (+3
 > manifest, salt ekleme), parlaklık/glow katmanı (**kural 16'ya salon-lokal
 > istisna — kullanıcı komutu**, token'lar globals'ta `--aka-glow-*`), hero

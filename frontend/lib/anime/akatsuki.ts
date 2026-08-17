@@ -219,6 +219,12 @@ export const EXHIBIT_IMAGE_KEYS = {
   /** v7 · Çerçeve süsleme şeridi: siyah zemin üstüne kızıl bulut frizi
       (screen blend ile çerçeveye işlenir; siyah görünmez olur) */
   ornament: "akatsuki:ornament",
+  /** v8 · Üye duvarı fonu: portreleri ÖNE çıkaran loş galeri sahnesi */
+  wall: "akatsuki:wall",
+  /** v8 · Anime Dünyaları — Naruto Evreni kartının fonu */
+  worldNaruto: "world:naruto",
+  /** v8 · Anime Dünyaları — Anime Arşivi kartının fonu */
+  worldArchive: "world:archive",
 } as const;
 
 /** v6 · Dönem illüstrasyon anahtarı — zigzag kartının tepe paneli */
@@ -274,8 +280,8 @@ export const AKATSUKI_RELATIONS: AkatsukiRelation[] = [
     key: "obito",
     name: "Obito Uchiha",
     characterId: AKATSUKI_IDS.tobi,
-    imageKey: EXHIBIT_IMAGE_KEYS.obito,
-    imageOwnerId: AKATSUKI_IDS.tobi,
+    /* v8: sabit sergi karesi yerine PORTRE — üretilen Tobi portresi
+       (son-kazanır) burada da kullanılsın (kullanıcı isteği) */
   },
   {
     key: "madara",

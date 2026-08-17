@@ -1717,7 +1717,10 @@
       "dawn": "Miras kapanış görseli",
       "about": "Hakkında sahnesi (tam şerit)",
       "hallHero": "Salon girişi hero fonu",
-      "eraOf": "{name} — dönem illüstrasyonu"
+      "eraOf": "{name} — dönem illüstrasyonu",
+      "wall": "Üye duvarı fonu (galeri sahnesi)",
+      "worldNaruto": "Naruto Evreni kartı fonu",
+      "worldArchive": "Anime Arşivi kartı fonu"
     },
     "pathPage": {
       "back": "← Akatsuki sergisine dön",

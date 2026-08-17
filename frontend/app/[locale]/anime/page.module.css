@@ -255,6 +255,26 @@
   outline-offset: -4px;
 }
 
+/* v8: dünya kartı fonu — üretilmiş sahne, metne doğru zemine erir */
+.worldArt {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.worldArt img {
+  object-fit: cover;
+  object-position: center 35%;
+  filter: saturate(1) brightness(0.72) contrast(1.04);
+  mask-image: linear-gradient(to top, transparent 6%, #000 52%);
+  transition: filter 420ms ease;
+}
+
+.world:hover .worldArt img {
+  filter: saturate(1.06) brightness(0.85) contrast(1.02);
+}
+
 .worldBody {
   position: relative;
   z-index: 3;

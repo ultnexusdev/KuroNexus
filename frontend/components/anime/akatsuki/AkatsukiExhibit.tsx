@@ -193,6 +193,11 @@ export async function AkatsukiExhibit({
   const ornament = exhibitSrc(sources, EXHIBIT_IMAGE_KEYS.ornament);
   /* v7: duvar lider + dokuz üye dizer; lider kendi çerçevesini taşır */
   const wallMembers = [AKATSUKI_LEADER, ...AKATSUKI_MEMBERS];
+  /* v8: duvar fonu — portreleri ÖNE çıkaran üretilmiş galeri sahnesi
+     (kullanıcı: kadro görseli portrelerle yarışıyordu). Yoksa legion'a,
+     o da yoksa düz zemine düşer. */
+  const wallScene =
+    exhibitSrc(sources, EXHIBIT_IMAGE_KEYS.wall) ?? legion;
 
   const memberByKey = new Map(
     AKATSUKI_MEMBERS.map((member) => [member.key, member]),
@@ -439,9 +444,9 @@ export async function AkatsukiExhibit({
 
       {/* ══ AKATSUKI ÜYELERİ ══ */}
       <section className={styles.members} aria-labelledby="akatsuki-members">
-        {legion ? (
+        {wallScene ? (
           <span className={styles.membersBand} aria-hidden>
-            <ExhibitImage image={legion} alt="" sizes="1920px" />
+            <ExhibitImage image={wallScene} alt="" sizes="1920px" />
           </span>
         ) : null}
         <header className={styles.sectionHead}>
@@ -462,7 +467,7 @@ export async function AkatsukiExhibit({
         </header>
 
         <ul className={styles.memberGrid}>
-          {wallMembers.map((member) => {
+          {wallMembers.map((member, index) => {
             const src = portraitSrc(sources, member.characterId);
             const isLeader = member.key === AKATSUKI_LEADER.key;
             return (
@@ -470,6 +475,9 @@ export async function AkatsukiExhibit({
                 key={member.key}
                 className={styles.member}
                 data-leader={isLeader || undefined}
+                /* v8 düzeni: Pain + Itachi üstte ortada geniş (2+4+4 —
+                   son sırada yetim kart kalmıyor) */
+                data-wide={index < 2 || undefined}
               >
                 <Link
                   href={animeHref.character(member.characterId)}
@@ -992,6 +1000,27 @@ export async function AkatsukiExhibit({
             slot="ABILITY"
             abilityName={EXHIBIT_IMAGE_KEYS.hallHero}
             label={t("slots.hallHero")}
+          />
+          <ExhibitSlot
+            enabled={isAdmin}
+            characterId={AKATSUKI_IDS.pain}
+            slot="ABILITY"
+            abilityName={EXHIBIT_IMAGE_KEYS.wall}
+            label={t("slots.wall")}
+          />
+          <ExhibitSlot
+            enabled={isAdmin}
+            characterId={AKATSUKI_IDS.pain}
+            slot="ABILITY"
+            abilityName={EXHIBIT_IMAGE_KEYS.worldNaruto}
+            label={t("slots.worldNaruto")}
+          />
+          <ExhibitSlot
+            enabled={isAdmin}
+            characterId={AKATSUKI_IDS.pain}
+            slot="ABILITY"
+            abilityName={EXHIBIT_IMAGE_KEYS.worldArchive}
+            label={t("slots.worldArchive")}
           />
         </section>
       ) : null}

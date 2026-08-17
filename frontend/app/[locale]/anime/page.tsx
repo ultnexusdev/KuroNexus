@@ -95,14 +95,18 @@ export default async function AnimeHallPage({
   /* v6-A1: üretilmiş özgün hero fonu (kürasyonla değiştirilebilir; yuvası
      sergideki küratör kuşağında). Varsa afişlerin yerini tam kadraj alır;
      SON kayıt kazanır (kürasyon sözleşmesi). */
-  const hallHero =
+  const exhibitImage = (key: string) =>
     [...painImages]
       .reverse()
       .find(
-        (image) =>
-          image.slot === "ABILITY" &&
-          image.abilityName === EXHIBIT_IMAGE_KEYS.hallHero,
+        (image) => image.slot === "ABILITY" && image.abilityName === key,
       ) ?? null;
+
+  const hallHero = exhibitImage(EXHIBIT_IMAGE_KEYS.hallHero);
+  /* v8: Naruto Evreni ve Anime Arşivi kartlarının üretilmiş fonları —
+     yoksa kart eski sade hâliyle çizilir */
+  const narutoArt = exhibitImage(EXHIBIT_IMAGE_KEYS.worldNaruto);
+  const archiveArt = exhibitImage(EXHIBIT_IMAGE_KEYS.worldArchive);
 
   const naruto = findSeries(archive.entries, "naruto");
   const onePiece = findSeries(archive.entries, "one piece");
@@ -253,6 +257,16 @@ export default async function AnimeHallPage({
                 href={animeHref.series(naruto.slug)}
                 className={styles.world}
               >
+                {narutoArt ? (
+                  <span className={styles.worldArt} aria-hidden>
+                    <Image
+                      src={apiUrl(narutoArt.url)}
+                      alt=""
+                      fill
+                      sizes="620px"
+                    />
+                  </span>
+                ) : null}
                 <span className={styles.worldBody}>
                   <span className={`${shell.display} ${styles.worldName}`}>
                     {t("worlds.naruto.title")}
@@ -292,6 +306,16 @@ export default async function AnimeHallPage({
 
           <li className={styles.worldItem}>
             <Link href={animeHref.archive()} className={styles.world}>
+              {archiveArt ? (
+                <span className={styles.worldArt} aria-hidden>
+                  <Image
+                    src={apiUrl(archiveArt.url)}
+                    alt=""
+                    fill
+                    sizes="620px"
+                  />
+                </span>
+              ) : null}
               <span className={styles.worldBody}>
                 <span className={`${shell.display} ${styles.worldName}`}>
                   {t("worlds.archive.title")}

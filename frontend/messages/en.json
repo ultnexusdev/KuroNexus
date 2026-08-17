@@ -1717,7 +1717,10 @@
       "dawn": "Legacy closing image",
       "about": "About scene (full band)",
       "hallHero": "Hall entrance hero backdrop",
-      "eraOf": "{name} — era illustration"
+      "eraOf": "{name} — era illustration",
+      "wall": "Member wall backdrop (gallery scene)",
+      "worldNaruto": "Naruto Universe card backdrop",
+      "worldArchive": "Anime Archive card backdrop"
     },
     "pathPage": {
       "back": "← Back to the Akatsuki exhibit",

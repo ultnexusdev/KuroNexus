@@ -81,12 +81,19 @@ export function CharacterDossier({
    * → AniList. Kürator sayfada gördüğü şeyi değiştirebilmeli; kodda duran
    * değer yalnızca hiç yükleme yapılmamışsa devreye giriyor.
    */
-  const storedPortrait = images.find((image) => image.slot === "PORTRAIT");
+  /* Şema sözleşmesi: PORTRAIT'te "sonuncusu kazanır" — `find` İLKİNİ alıyordu
+     ve yeni yüklenen portre dossier'de görünmüyordu (v8'de ölçüldü). */
+  const storedPortrait = images
+    .filter((image) => image.slot === "PORTRAIT")
+    .at(-1);
   const storedGallery = images.filter((image) => image.slot === "GALLERY");
   const abilityImage = (abilityName: string): string | null =>
-    images.find(
-      (image) => image.slot === "ABILITY" && image.abilityName === abilityName,
-    )?.url ?? null;
+    images
+      .filter(
+        (image) =>
+          image.slot === "ABILITY" && image.abilityName === abilityName,
+      )
+      .at(-1)?.url ?? null;
 
   const portraitSource =
     storedPortrait?.url ?? overlay?.portrait ?? character.image;

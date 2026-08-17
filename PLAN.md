@@ -288,6 +288,41 @@ girişiyle ölçüldü: ziyaretçi 0 yuva, admin 29 yuva.
 - [x] `prefers-reduced-motion` — blanket kapatma + zigFill statik dolu
 - [x] Build + typecheck + lint temiz — üç komut da sıfır hata
 
+## 5d · V6 — ÜRETİLMİŞ İLLÜSTRASYON KATMANI (17 Ağustos, gece)
+
+Komut: `anime-salonu-duzeltme-komutu-v6.md` (v3'ün üstüne görsel üretim
+skill'leri). A1-A6/B1/B2 v3'te kapanmıştı; bu turun işi B3'ün gerçek
+üretimi ve yerleşimi.
+
+### Üretim günlüğü
+
+- **Ücretsiz skill (gemini-image-gen):** 3 deneme, 3×429 — günlük kota
+  dolu (0 görsel). Kullanıcı talimatı: "ücretsizden yanıt alamıyorsan
+  ücretliyi kullan."
+- **Ücretli skill (anime-character-gen / fal nano-banana-2):** **7 çağrı,
+  7 başarı, 0 yeniden deneme ≈ $0.56.** `FAL_KEY` kabuğa inmemişti;
+  Windows kullanıcı ortamından okunup geçildi.
+- Ortak stil eki: `"dark cinematic anime illustration style, muted red
+  and black palette, painterly texture, volumetric light"` — set kopuk
+  görünmüyor (komutun tutarlılık şartı).
+
+| Görsel | Boyut | Yerleşim (yuva) |
+| --- | --- | --- |
+| Tapınak sahnesi (taş tomoe + tomar + fener) | 2752×1536 | `akatsuki:about` — Hakkında TAM ŞERİT kadraj, metin solda ışık perdesinde |
+| Özgün salon hero'su (üç siluet, kızıl sis) | 2752×1536 | `akatsuki:hall-hero` — /anime açılışı; afişlerin yerini aldı |
+| Kuruluş (üç yetim yağmurda) | 1200×896 | `era:founding` — zigzag kart paneli |
+| Yahiko (bulut sancağı) | 1200×896 | `era:yahiko` |
+| Nagato (kızıl kristal + altı gölge) | 1200×896 | `era:nagato` |
+| Savaş (spiral maske + yanan alan) | 1200×896 | `era:war` |
+| Son (şafakta veda + kelebek) | 1200×896 | `era:end` |
+
+Hepsi hem yerel hem **üretim** medya sistemine yüklendi ve yuvalara
+bağlandı (7/7; kürasyon akışının otomasyonu — upload → bind). Görseller
+kürasyon modundan değiştirilebilir; görsel silinirse bölümler eski
+düzenlerine (v3) kendiliğinden döner. ≥1920 şartı iki banner'da sağlandı;
+dönem panelleri kart içi (~640px çizim) olduğundan 1200px yeterli.
+Glif çipleri referanstaki gibi dairesel glow rozetlere dönüştü.
+
 ## 6 · AÇIK RİSKLER
 
 - Kurulum ucu canlıda admin tetiklemesi bekler; o güne kadar sergi AniList

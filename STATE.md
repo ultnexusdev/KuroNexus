@@ -33,6 +33,17 @@
 > (canlı doğrulamadan SONRA); kapı turuncusu / salon moru çelişkisi bilinçli
 > korundu.
 >
+> ✅ **V7 — SIX PATHS DETAYLARI + PORTRE YENİLEME CANLIDA** (PLAN.md §5e):
+> altı Path'in tıklanabilir detay sayfası (verilen TR metinler olduğu gibi,
+> EN bu turda yazıldı; bilinmeyen anahtar sergiye redirect — notFound akışta
+> 200 kalıyordu, ölçüldü), üye duvarı 4 sütun + 3px kalıcı-glow'lu çerçeve +
+> köşe bulut mühürleri + üretilmiş kızıl friz, **Pain lider kartıyla
+> duvarda** (AKATSUKI_LEADER ayrı sabit). 14 ücretli üretim (12 portre +
+> friz + canlı gök ≈ $1.12; oturum toplamı 21 çağrı ≈ $1.68) yerel+üretime
+> bağlandı. 🔒 KALICI TALİMAT hafızaya yazıldı: ücretsiz görsel kotası
+> kapalıysa HER ZAMAN ücretli fal skill'i kullanılır (FAL_KEY PowerShell
+> kullanıcı ortamından okunur — kabuğa inmiyor).
+>
 > ✅ **V6 — ÜRETİLMİŞ İLLÜSTRASYON KATMANI CANLIDA** (PLAN.md §5d, üretim
 > günlüğü orada): 7 özgün görsel üretildi (ücretsiz Gemini 3×429 → kullanıcı
 > talimatıyla ücretli fal nano-banana-2, 7 çağrı ≈ $0.56, sıfır yeniden

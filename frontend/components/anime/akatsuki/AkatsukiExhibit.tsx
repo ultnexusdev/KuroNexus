@@ -14,6 +14,7 @@ import {
   AKATSUKI_TIMELINE,
   EXHIBIT_IMAGE_KEYS,
   SIX_PATHS,
+  eraImageKey,
 } from "@/lib/anime/akatsuki";
 import { animeHref } from "@/lib/anime/routes";
 import { AkatsukiCloud } from "@/components/anime/AkatsukiCloud";
@@ -184,6 +185,9 @@ export async function AkatsukiExhibit({
   const legion = exhibitSrc(sources, EXHIBIT_IMAGE_KEYS.legion);
   const horror = exhibitSrc(sources, EXHIBIT_IMAGE_KEYS.horror);
   const dawn = exhibitSrc(sources, EXHIBIT_IMAGE_KEYS.dawn);
+  /* v6: üretilmiş sahneler — yoksa bölümler eski düzenleriyle çizilir,
+     görsel geldiği an (üretim ya da kürasyon) düzen kendiliğinden değişir */
+  const aboutScene = exhibitSrc(sources, EXHIBIT_IMAGE_KEYS.about);
 
   const memberByKey = new Map(
     AKATSUKI_MEMBERS.map((member) => [member.key, member]),
@@ -294,10 +298,22 @@ export async function AkatsukiExhibit({
       </header>
 
       {/* ══ AKATSUKI HAKKINDA ══
-          v3-B1: sağ taraf artık boş değil — kadro görseli metne doğru
-          sönümlenerek duruyor, arkada dev bulut filigranı. */}
-      <section className={styles.about} aria-labelledby="akatsuki-about">
-        <AkatsukiCloud className={styles.aboutWatermark} />
+          v6: üretilmiş taş kabartma sahnesi varsa bölüm TAM ŞERİT sinema
+          kadrajına döner (referans görsel) — metin solda ışık perdesinin
+          üstünde. Sahne yoksa v3-B1 düzeni (kadro paneli) devrede kalır. */}
+      <section
+        className={styles.about}
+        data-scene={aboutScene ? "" : undefined}
+        aria-labelledby="akatsuki-about"
+      >
+        {aboutScene ? (
+          <span className={styles.aboutScene} aria-hidden>
+            <ExhibitImage image={aboutScene} alt="" sizes="1920px" />
+            <span className={styles.aboutSceneScrim} />
+          </span>
+        ) : (
+          <AkatsukiCloud className={styles.aboutWatermark} />
+        )}
         <div className={styles.aboutGrid}>
           <div className={styles.aboutText}>
             <h2
@@ -313,9 +329,16 @@ export async function AkatsukiExhibit({
               <p className={shell.prose}>{t("about.p3")}</p>
             </div>
             <AkatsukiCloud className={styles.divider} />
+            <ExhibitSlot
+              enabled={isAdmin}
+              characterId={AKATSUKI_IDS.pain}
+              slot="ABILITY"
+              abilityName={EXHIBIT_IMAGE_KEYS.about}
+              label={t("slots.about")}
+            />
           </div>
 
-          {legion ? (
+          {!aboutScene && legion ? (
             <span className={styles.aboutArt} aria-hidden>
               <ExhibitImage image={legion} alt="" sizes="900px" />
               <span className={styles.aboutArtWash} />
@@ -617,7 +640,11 @@ export async function AkatsukiExhibit({
           <span className={styles.zigLine} aria-hidden>
             <span className={styles.zigFill} />
           </span>
-          {AKATSUKI_TIMELINE.map((era, index) => (
+          {AKATSUKI_TIMELINE.map((era, index) => {
+            /* v6: dönem illüstrasyonu (üretilmiş) — yoksa kart yalnız
+               dokusuyla çizilir, referanstaki zenginlik görsel gelince */
+            const eraArt = exhibitSrc(sources, eraImageKey(era.key));
+            return (
             <li
               key={era.key}
               className={styles.zigItem}
@@ -627,6 +654,11 @@ export async function AkatsukiExhibit({
               <span className={styles.zigNode} aria-hidden />
               <article className={styles.zigCard}>
                 <span className={styles.zigTexture} aria-hidden />
+                {eraArt ? (
+                  <span className={styles.zigArt} aria-hidden>
+                    <ExhibitImage image={eraArt} alt="" sizes="640px" />
+                  </span>
+                ) : null}
                 <div className={styles.zigBody}>
                   <span className={`${shell.data} ${styles.eraLabel}`}>
                     {t(`history.${era.key}.era`)}
@@ -660,8 +692,18 @@ export async function AkatsukiExhibit({
                   </span>
                 </div>
               </article>
+              <ExhibitSlot
+                enabled={isAdmin}
+                characterId={AKATSUKI_IDS.pain}
+                slot="ABILITY"
+                abilityName={eraImageKey(era.key)}
+                label={t("slots.eraOf", {
+                  name: t(`history.${era.key}.title`),
+                })}
+              />
             </li>
-          ))}
+            );
+          })}
         </ol>
       </section>
 
@@ -909,6 +951,15 @@ export async function AkatsukiExhibit({
       {isAdmin ? (
         <section className={styles.curator}>
           <AkatsukiSetup />
+          {/* Salon girişi hero fonunun yuvası da burada — salonun kendi
+              kürasyon çerçevesi yok, bütün yuvalar sergide toplanıyor */}
+          <ExhibitSlot
+            enabled={isAdmin}
+            characterId={AKATSUKI_IDS.pain}
+            slot="ABILITY"
+            abilityName={EXHIBIT_IMAGE_KEYS.hallHero}
+            label={t("slots.hallHero")}
+          />
         </section>
       ) : null}
       </CuratorFrame>

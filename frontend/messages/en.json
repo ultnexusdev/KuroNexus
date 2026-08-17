@@ -1690,7 +1690,10 @@
       "origins": "Founding image (history)",
       "legion": "Roster band (members)",
       "horror": "Duos band (partners)",
-      "dawn": "Legacy closing image"
+      "dawn": "Legacy closing image",
+      "about": "About scene (full band)",
+      "hallHero": "Hall entrance hero backdrop",
+      "eraOf": "{name} — era illustration"
     }
   },
   "character": {

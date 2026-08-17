@@ -8,7 +8,7 @@ import { fetchCategories } from "@/lib/api/universes";
 import { apiUrl } from "@/lib/api/client";
 import { hallLabel, hallName, hallNumber } from "@/lib/halls";
 import { animeHref } from "@/lib/anime/routes";
-import { AKATSUKI_IDS } from "@/lib/anime/akatsuki";
+import { AKATSUKI_IDS, EXHIBIT_IMAGE_KEYS } from "@/lib/anime/akatsuki";
 import { ANIME_SECTIONS } from "@/lib/anime/sections";
 import type { ArchiveAnime } from "@/lib/api/types";
 import { AkatsukiCloud } from "@/components/anime/AkatsukiCloud";
@@ -92,6 +92,18 @@ export default async function AnimeHallPage({
         image.characterId === AKATSUKI_IDS.pain && image.slot === "PORTRAIT",
     ) ?? null;
 
+  /* v6-A1: üretilmiş özgün hero fonu (kürasyonla değiştirilebilir; yuvası
+     sergideki küratör kuşağında). Varsa afişlerin yerini tam kadraj alır;
+     SON kayıt kazanır (kürasyon sözleşmesi). */
+  const hallHero =
+    [...painImages]
+      .reverse()
+      .find(
+        (image) =>
+          image.slot === "ABILITY" &&
+          image.abilityName === EXHIBIT_IMAGE_KEYS.hallHero,
+      ) ?? null;
+
   const naruto = findSeries(archive.entries, "naruto");
   const onePiece = findSeries(archive.entries, "one piece");
 
@@ -113,16 +125,30 @@ export default async function AnimeHallPage({
 
       {/* ══ 1. AÇILIŞ ══ */}
       <header className={styles.opening}>
+        {/* v6-A1: üretilmiş hero fonu — varsa sahnenin tamamı onun,
+            afişler hiç çizilmez */}
+        {hallHero ? (
+          <span className={styles.heroArt} aria-hidden>
+            <Image
+              src={apiUrl(hallHero.url)}
+              alt=""
+              fill
+              sizes="1920px"
+              priority
+            />
+          </span>
+        ) : null}
+
         {/* Vitrin afişleri: kenarlardan sızar, metne doğru kaybolur.
             AniList adresleri tam URL verir; CSP img-src'de s4.anilist.co
             zaten var. remotePatterns'ta olmadığı için düz <img>. */}
-        {showcase.left?.posterPath ? (
+        {!hallHero && showcase.left?.posterPath ? (
           <span className={`${styles.poster} ${styles.posterLeft}`} aria-hidden>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={showcase.left.posterPath} alt="" loading="eager" />
           </span>
         ) : null}
-        {showcase.right?.posterPath ? (
+        {!hallHero && showcase.right?.posterPath ? (
           <span
             className={`${styles.poster} ${styles.posterRight}`}
             aria-hidden

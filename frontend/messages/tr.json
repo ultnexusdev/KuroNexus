@@ -1690,7 +1690,10 @@
       "origins": "Kuruluş görseli (tarih)",
       "legion": "Kadro bandı (üyeler)",
       "horror": "İkililer bandı (partnerler)",
-      "dawn": "Miras kapanış görseli"
+      "dawn": "Miras kapanış görseli",
+      "about": "Hakkında sahnesi (tam şerit)",
+      "hallHero": "Salon girişi hero fonu",
+      "eraOf": "{name} — dönem illüstrasyonu"
     }
   },
   "character": {

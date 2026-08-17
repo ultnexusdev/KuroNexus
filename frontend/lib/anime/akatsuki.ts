@@ -196,7 +196,16 @@ export const EXHIBIT_IMAGE_KEYS = {
   horror: "akatsuki:horror",
   /** v2 · Miras kapanışı: yağmurun altında Nagato (2560×1440) */
   dawn: "akatsuki:dawn",
+  /** v6 · Hakkında tam-şerit sahnesi (üretilmiş: taş kabartma + tomar + fener) */
+  about: "akatsuki:about",
+  /** v6 · Salon girişi hero fonu (üretilmiş özgün kadraj) */
+  hallHero: "akatsuki:hall-hero",
 } as const;
+
+/** v6 · Dönem illüstrasyon anahtarı — zigzag kartının tepe paneli */
+export function eraImageKey(era: AkatsukiEra["key"]): string {
+  return `era:${era}`;
+}
 
 /**
  * Nexus düğümü — "İlgili İçerik" paneli (kullanıcı fikri, 16 Ağustos v2).

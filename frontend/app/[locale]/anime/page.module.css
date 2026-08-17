@@ -103,6 +103,22 @@
   mask-image: radial-gradient(70% 80% at 50% 45%, #000, transparent 78%);
 }
 
+/* v6-A1 — üretilmiş hero fonu: tam kadraj, alt kenara doğru zemine erir.
+   Işık havuzu ve desen ÜSTÜNDE kalır; başlık yine havuzun içinde okunur. */
+.heroArt {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.heroArt img {
+  object-fit: cover;
+  object-position: center 32%;
+  filter: saturate(1.02) brightness(0.78) contrast(1.04);
+  mask-image: linear-gradient(to bottom, #000 55%, transparent 97%);
+}
+
 /* Işık havuzunun kendisi: metnin arkasında, afişlerin ÜSTÜNDE — kenardaki
    karakterlerden merkeze akan bir sahne ışığı */
 .openingPool {

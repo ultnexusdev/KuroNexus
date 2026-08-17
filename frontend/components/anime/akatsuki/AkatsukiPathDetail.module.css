@@ -1,0 +1,147 @@
+/* Six Paths detay sayfası — sergiyle aynı deri (data-world kökte).
+   Hero, Pain hero'suyla yarışmıyor: 56svh, net ve büyük ama ikincil. */
+.page {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text-primary);
+  min-height: 100vh;
+}
+
+.hero {
+  position: relative;
+  min-height: clamp(20rem, 56svh, 32rem);
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  isolation: isolate;
+  border-bottom: 1px solid transparent;
+  border-image: linear-gradient(
+      to right,
+      transparent,
+      color-mix(in srgb, var(--accent) 60%, transparent) 50%,
+      transparent
+    )
+    1;
+}
+
+.heroArt {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.heroArt img {
+  object-fit: cover;
+  object-position: center 28%;
+  filter: saturate(1.02) brightness(0.7) contrast(1.05);
+  mask-image: linear-gradient(to bottom, #000 45%, transparent 96%);
+}
+
+.heroFallback {
+  position: absolute;
+  right: -4rem;
+  top: -2rem;
+  width: 26rem;
+  opacity: 0.1;
+  z-index: 0;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(
+    70% 90% at 18% 100%,
+    var(--aka-mist),
+    transparent 62%
+  );
+}
+
+.heroInner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: clamp(3rem, 8vh, 5rem) var(--an-gutter) clamp(1.75rem, 4vh, 2.75rem);
+  max-width: 56rem;
+}
+
+.eyebrow {
+  color: var(--accent-hover);
+}
+
+.title {
+  font-size: clamp(2.75rem, 8vw, 5.5rem);
+  color: var(--text-primary);
+  text-shadow: 0 0 30px var(--aka-glow-strong);
+  padding-block: 0.04em;
+}
+
+.kanji {
+  margin: 0;
+  font-size: clamp(1.125rem, 2vw, 1.5rem);
+  letter-spacing: 0.2em;
+  color: var(--text-secondary);
+}
+
+.ability {
+  color: var(--accent);
+  letter-spacing: 0.06em;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1em;
+  padding: clamp(2.5rem, 6vw, 4rem) var(--an-gutter) clamp(4rem, 10vw, 7rem);
+  max-width: calc(var(--an-measure) + var(--an-gutter) * 2);
+}
+
+.paragraph {
+  color: var(--text-secondary);
+}
+
+.paragraph:first-child {
+  color: var(--text-primary);
+  font-size: 1.0625rem;
+}
+
+.influenceTitle {
+  margin-top: clamp(1.5rem, 4vw, 2.5rem);
+  color: var(--text-primary);
+  text-shadow: 0 0 24px var(--aka-glow-soft);
+}
+
+.back {
+  margin-top: clamp(1.5rem, 4vw, 2.5rem);
+  align-self: flex-start;
+  font-family: var(--font-mono);
+  font-size: var(--an-data);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  transition: color 260ms ease, translate 300ms ease;
+}
+
+.back:hover {
+  color: var(--accent-hover);
+  translate: -0.35rem 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

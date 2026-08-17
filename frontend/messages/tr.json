@@ -1467,32 +1467,49 @@
       "deva": {
         "name": "Deva Yolu",
         "desc": "Yahiko'nun bedeni; örgütün dünyaya dönük yüzü.",
-        "ability": "Çekim kuvveti — Shinra Tensei, Banshō Ten'in"
+        "ability": "Çekim kuvveti — Shinra Tensei, Banshō Ten'in",
+        "short": "Deva Yolu (天道, Tendō), kullanıcısına nesneler ve insanlar üzerinde çekici ve itici kuvvetleri yönlendirme yeteneği verir.",
+        "long": "Deva Yolu (天道, Tendō), kullanıcısına nesneler ve insanlar üzerinde çekici ve itici kuvvetleri yönlendirme yeteneği verir.\n\nAncak bu teknikler art arda hızlıca kullanılamaz; kullanımdan sonra yeniden toparlanmak için gereken süre, uygulanan tekniğin ölçeğine göre değişir — en az beş saniye gerekir. Yüksek yoğunlukta kullanıldığında yalnızca uzun bir dinlenme süresi gerektirmekle kalmaz, kullanıcının ömrünü de kısaltabilir. Deva Yolu ayrıca başka bir yetenek daha bahşeder: Chibaku Tensei — bu teknikle salınan siyah bir küreye çekilen çevredeki tüm maddeden devasa, geçici bir gök cismi yaratma yeteneği.\n\nNagato, sakat kalmadan önce Deva Yolu'nun güçlerini bizzat kullanmış olsa da, hayatının geri kalanını bu gücü ölmüş dostu Yahiko'nun bedeni üzerinden yönlendirerek geçirdi; Yahiko'yu Pain kimliğinin yüzü olarak kullandı. Animede, Pain aracılığıyla Nagato'nun havada asılı kalabildiği gösterildi — hem Konoha'yı yerle bir etmeden önce, hem de Naruto'ya karşı onun altı kuyruklu haliyle giriştiği savaş sırasında.",
+        "influence": "Budizm'de Deva alemi, mutluluk alemidir. Deva alemi bazen \"tanrılar alemi\" olarak da anılır, çünkü sakinleri insanlarla karşılaştırıldığında o kadar güçlüdür ki neredeyse ilahi varlıklara benzetilebilirler. Ancak Deva aleminde doğan varlıklar yine de yeniden doğuşa tabidir. Devalar gurur ve uzun ömürleri ile güçlerinin nihayetinde yeniden doğuşlarını engellemeyeceği bilgisinin verdiği acıyla boğuşurlar."
       },
       "asura": {
         "name": "Asura Yolu",
         "desc": "Zırha dönüşmüş beden.",
-        "ability": "Mekanik uzuvlar, füzeler, çelik gövde"
+        "ability": "Mekanik uzuvlar, füzeler, çelik gövde",
+        "short": "Asura Yolu (修羅道, Shuradō), kullanıcısına kendi bedenini güçlendirerek mekanik bir zırh ve çeşitli balistik/mekanik silahlar çağırma yeteneği verir.",
+        "long": "Asura Yolu (修羅道, Shuradō), kullanıcısına kendi bedenini güçlendirerek mekanik bir zırh ve çeşitli balistik/mekanik silahlar çağırma yeteneği verir.\n\nNagato, yaşamı boyunca Asura Yolu'nun gücünü bir ninja kuklacısının bedeni üzerinden yönlendirdi.\n\nAsura Yolu sayesinde kullanıcı, dört ek kol ve iki ek yüz oluşturabilir, bel çevresinde katlanmış, tırtıklı bıçak benzeri bir kuşak taşıyabilir. Bu ek uzuvlar ve kullanıcının bedeninin tamamı, istediği an erişebileceği çeşitli mekanik silahlarla güçlendirilmiştir. Kullanıcı, kollarını uzun menzilli mermiler gibi fırlatabilir ya da onları çıkararak parçalı füze kümeleri ateşleyebilir. Ayrıca kollarından esnek bıçaklar ve matkaplar ya da bir dizi mekanik dokunaç çıkarabilir, ayaklarındaki deliklerden chakra patlaması yayarak hızla ileri fırlayabilir. Kullanıcı ayrıca, ellerinden birini bir topa dönüştürerek ya da başının tepesini açarak, birçok binayı aynı anda yok edebilecek güçte bir chakra patlaması salabilir.\n\nNagato'nun Asura Yolu'nu yönlendirdiği beden, Jiraiya'nın kolunu koparacak ve temel taijutsu ile boğazını ezecek kadar; ayrıca Hayvan Yolu'nu köyün dışından Konohagakure'nin içine fırlatacak kadar ham fiziksel güç sergiledi. Ayrıca Asura Yolu, mekanik iç yapısı sayesinde normalde ölümcül olacak hasarlara dayanabildi. Bütün bu yetenekler, Asura Yolu'nun taşıdığı \"savaşan iblis\" adına yakışırken ona ciddi bir çok yönlülük de kazandırıyordu.",
+        "influence": "Budizm'de Asura alemi, bir önceki yaşamda kıskançlık, mücadele, çatışma ya da mantığa bürünmüş davranışlar yüzünden yeniden doğulan yarı-ilahi, savaşan iblislerin bulunduğu düzlemdir; güçlü olsalar da sürekli bir şiddet ve çözümsüz çatışma içinde yaşarlar. Asura'nın yaygın bir tasvirine uygun olarak, bu yetenek kullanıcıya her biri farklı bir duygu sergileyen altı kol ve üç yüz kazandırır. Deva gibi Asuralar da doğaüstü bir varlık ırkıdır. Hinduizm'de de ilahi varlıklar olarak yer alırlar, güç peşinde koşan, hazcı ve maddi/bedensel zevkleri temsil eden bir yaşam sürdükleri bilinir. Her iki tasvir de Asura Yolu'nun yeteneklerine yansır. Ayrıca Hinduizm'den de ilham alır; mitolojide Asuraların, günümüzün biyolojik füzelerine benzer büyülü araçlar kullanma yeteneğine sahip olduğu anlatılır."
       },
       "human": {
         "name": "İnsan Yolu",
         "desc": "Sorgunun bedeni.",
-        "ability": "Dokunduğunun aklını okur, ruhunu söker"
+        "ability": "Dokunduğunun aklını okur, ruhunu söker",
+        "short": "İnsan Yolu (人間道, Ningendō), bir Rinnegan kullanıcısına, elini hedefin başına ya da göğsüne koyarak zihnini okuma ve en gizli sırlarına dahi ulaşma yeteneği verir.",
+        "long": "İnsan Yolu (人間道, Ningendō), bir Rinnegan kullanıcısına, elini hedefin başına ya da göğsüne koyarak zihnini okuma ve en gizli sırlarına dahi ulaşma yeteneği verir. Bu süreç hedefi öldürür; kullanıcı elini çektiğinde hedefin ruhu bedeninden fiziksel olarak çıkarılır. Bu, yeteneği yakın dövüşte oldukça ölümcül kılar; çünkü çoğu durumda hedeflerin ruhlarının çıkarılmasını engellemek için yapabilecekleri pek bir şey yoktur — tek yol kullanıcıya saldırmaktır, ki diğer Altı Yol teknikleri bunu da oldukça zorlaştırır. Yine de hedef yeterli güce sahipse bu bir süreliğine kısmen fiziksel olarak direnilebilir.\n\nNagato, Altı Pain'inin bir parçası olarak İnsan Yolu'nun gücünü bir Takigakure shinobisinin cesedi üzerinden yönlendirdi."
       },
       "animal": {
         "name": "Hayvan Yolu",
         "desc": "Kuşatmanın bedeni.",
-        "ability": "Çağırma mühürleri — dev canavar ordusu"
+        "ability": "Çağırma mühürleri — dev canavar ordusu",
+        "short": "Hayvan Yolu (畜生道, Chikushōdō), bir Rinnegan kullanıcısına savaşta yardımcı olması için çeşitli hayvan ve yaratıkları çağırma yeteneği verir.",
+        "long": "Hayvan Yolu (畜生道, Chikushōdō), bir Rinnegan kullanıcısına savaşta yardımcı olması için çeşitli hayvan ve yaratıkları çağırma yeteneği verir.\n\nBu yaratıklar ölümsüz görünmektedir; çünkü öldürüldükten sonra tekrar çağrılabilmişlerdir. Dikkat çekici bir nokta, Hayvan Yolu aracılığıyla yaratık çağırmanın kan kurbanı ya da el mühürleri gerektirmemesidir. Hayvan Yolu ayrıca, Nagato'nun Yolları ve Konan örneğinde olduğu gibi, el işaretleriyle insanları da çağırabilir. Taktik açısından, Hayvan Yolu'nun savaştaki asıl rolü, bir çağırma yığınıyla birden fazla rakibi bunaltmak gibi görünmektedir.\n\nNagato'nun durumunda, Hayvan Yolu'nu önce bir Fūma klanı shinobisinin, ardından yaşamı boyunca Ajisai'nin cesedi üzerinden yönlendirmesiyle, çağrılan yaratıkların da tıpkı Pain Yolları gibi bedenlerine chakra alıcıları yerleştirilmiş gibi göründüğü anlaşılır. Nagato ayrıca düşmanları gerçekte kaç düşmanla karşı karşıya olduğu konusunda şaşırtmak için genellikle Hayvan Yolu'nu savaşa önce gönderir. Bu yaratıklar da Rinnegan sergilediğinden, Nagato'nun birer uzantısı olarak hizmet ederler. Dördüncü Shinobi Dünya Savaşı sırasında Nagato, kendi gücüyle hareket edebilecek şekilde canlandırılmadan önce ulaşım için çağrılarını kullandı.",
+        "influence": "Budistler, hayvanların insanlardan mekânsal değil zihinsel olarak ayrılmış farklı bir boyutta yaşadığına inanır; buna \"Tiryagyoni alemi\" denir — korku, içgüdü ve güçlünün hayatta kalması üzerine kurulu, insanlara hizmet eden ve her şeyden önce başlarına gelenin farkında olmayan hayvanların çektiği mutsuz bir yeniden doğuş düzlemidir."
       },
       "preta": {
         "name": "Preta Yolu",
         "desc": "Kalkana dönüşmüş beden.",
-        "ability": "Her jutsuyu yutar, chakrayı emer"
+        "ability": "Her jutsuyu yutar, chakrayı emer",
+        "short": "Preta Yolu (餓鬼道, Gakidō), kullanıcısına her türlü chakrayı emme yeteneği verir.",
+        "long": "Preta Yolu (餓鬼道, Gakidō), kullanıcısına her türlü chakrayı emme yeteneği verir. Pain, Preta Yolu'nun gücünü bir Kusagakure shinobisinin cesedi üzerinden yönlendirdi.\n\nBu yetenek doğası gereği öncelikle savunmaya yöneliktir, çünkü fiziksel temas yoluyla bir kişinin chakrasını emebilir. Bunun yanında Preta Yolu, saf chakra ya da chakra tabanlı ninjutsu tekniklerini emerek etkisiz hale getirebilir. Gaara'nın kumu gibi fiziksel saldırıları emmez, ama kumun chakrasını boşaltabilir. Bu, kullanıcının tüm bedeninin çevresinde bir bariyer oluşturularak yapılır, böylece her yönden gelen saldırılar emilebilir.\n\nBu yetenek senjutsu chakrasını da emebilse de, kullanıcı fazla miktarda emdiğinde taş heykele dönüşme riskiyle hâlâ karşı karşıyadır.\n\nDördüncü Shinobi Dünya Savaşı sırasında Nagato, Preta Yolu'nu kullanarak Killer B'nin Version 2 formundayken chakrasını emdi. Ardından bu chakrayı, bedenini Dış Yol'un İblis Heykeli tarafından zayıflatılmadan önceki haline getirmek için kullandığı görülür. Bu aynı zamanda saç rengini beyazdan kırmızıya geri döndürdü ve bacaklarındaki hasarı onardı. Ancak muhtemelen kas hafızasının kaybı nedeniyle bacaklarını tam olarak kullanamadı.\n\nBu yetenek, rakip kullanıcının hareketlerini ya da chakrasını bastırabilecek belirli tekniklerle etkisiz hale getirilebilir.",
+        "influence": "Budizm'de Preta alemi (Aç Hayalet alemi olarak da bilinir), önceki yaşam ya da yaşamlarda beslenen güçlü sahiplenme ve arzu duygusuna dayalı bir yeniden doğuş biçimidir. Pretalar sürekli aç ve susuz olan, ama bunu asla gideremeyen, doyumsuz açlıklarını bastırmaya çalışan umutsuz bağımlılar gibi bir yaşam süren insansı yaratıklardır. Görünüş olarak Pretalar, Pain'in Preta Yolu'nun iri yapısının aksine, ölü gibi soluk, bitkin figürlerdir. Hinduizm'de Preta aynı zamanda hayalet anlamına da gelebilir, bu da tekniğin kullandığı yetenekle ilişkilidir."
       },
       "naraka": {
         "name": "Naraka Yolu",
         "desc": "Yargının bedeni.",
-        "ability": "Kral Yama'nın huzuru: sorgu ve onarım"
+        "ability": "Kral Yama'nın huzuru: sorgu ve onarım",
+        "short": "Naraka Yolu (地獄道, Jigokudō), kullanıcısına Cehennem Kralı'nı kullanarak iki temel yetenek verir: sorgulama ve iyileştirme.",
+        "long": "Naraka Yolu (地獄道, Jigokudō), kullanıcısına Cehennem Kralı'nı kullanarak iki temel yetenek verir: sorgulama ve iyileştirme. Pain, Naraka Yolu'nun gücünü bir rahibin bedeni üzerinden yönlendirdi.\n\nNaraka Yolu yeteneği, büyük ölçüde Cehennem Kralı'na dayanır. Cehennem Kralı, mor alevlerle çevrili, topraktan yükselen büyük bir kafadır. Ayrıca Rinnegan'a sahiptir ve diğer çağrılmışlarla birlikte ortak bir görüş alanını paylaşır.\n\nSorgulama yapmak için Naraka Yolu'nun sadece bir kişiyi yakalaması yeterlidir, bu da Cehennem Kralı'nın onların önünde belirmesine neden olur. Kurban görünüşte felç olmuş haldeyken, Naraka Yolu sorgulamaya başlar. Cevaplar alındıktan sonra Cehennem Kralı ağzını açarak dokunaç benzeri kollar salar ve kurbanın yaşam gücü enerjisinin büyütülmüş bir dil şeklindeki bir tezahürünü dışarı çeker. Ardından Cehennem Kralı hükmünü verir. Kişi yalan söylüyorsa ya da soruları cevaplamayı reddediyorsa, Cehennem Kralı dilini koparıp yer, bu da görünüşe göre onu öldürür. Ancak doğruyu söylerse bağışlanır, yine de son derece bitkin bir halde bırakılır.\n\nNaraka Yolu'nun sahip olduğu ikinci yetenek, her türlü hasarı onarma yeteneğidir. Bunu yapmak için Naraka Yolu, Cehennem Kralı'na hasarlı bedeni dokunaç benzeri kollarıyla ağzına yutturur, ardından bir süre sonra yok edilmiş beden ağzından tamamen yenilenmiş halde çıkar. Örneğin bunu, Chōji ve Chōza Akimichi tarafından yok edilen Asura Yolu'na uyguladı. Onarıcı yetenekleri sayesinde, Altı Pain'in altı farklı beden üzerinden kullanılması durumunda Naraka Yolu kolayca en değerli beden olarak kabul edilebilir. Oluşum sırasında Nagato, Naraka Yolu'nu duygusal Deva Yolu'nun arkasına, diğer dördü ön saflarda olacak şekilde yerleştirir.\n\nKabuto Yakushi, bir Naraka Yolu kullanıcısının Cehennem Kralı'nı kullanarak bedenleri ve ruhları taşıyabileceğini belirtmiştir.",
+        "influence": "Naraka, Sanskritçede yeraltı dünyası anlamına gelen bir kelimedir. Hinduizm'de ruhların günahlarının kefaretini ödemek için gönderildiği bir yerdir. Yama, Adalet Tanrısı ve Cehennem Kralı'dır. Ölümden sonra canlı varlıklara uygun cezaları o verir; örneğin onları kaynar yağa daldırabilir. Ona yalan söylerseniz dilinizi koparır.\n\nBudizm'de Naraka alemi ya da \"cehennem alemi\", önceki yaşam ya da yaşamlarda biriken Karma'ya (beden, söz ve zihin eylemleri) dayalı bir yeniden doğuş düzlemidir. Çeşitli Naraka'lar vardır, her birinde Karma'ları tam ve tatmin edici sonucuna ulaşana kadar işkence gören varlıklar bulunur. Bu varlıklar daha sonra daha yüksek bir düzleme yeniden doğabilir. En üst katmanda, \"Diriltici\" Naraka'da, günahkârlar birbirine sürekli saldırır, yalnızca soğuk bir rüzgârla iyileştirilirler — bu da muhtemelen Naraka Yolu'nun Cehennem Kralı aracılığıyla sahip olduğu iyileştirme yeteneğine ilham vermiştir.\n\nNaraka, yüzeysel olarak Hristiyanlıktaki cehennem ya da araf kavramına benzer, ancak aralarında birçok önemli fark vardır."
       }
     },
     "members": {
@@ -1694,6 +1711,12 @@
       "about": "Hakkında sahnesi (tam şerit)",
       "hallHero": "Salon girişi hero fonu",
       "eraOf": "{name} — dönem illüstrasyonu"
+    },
+    "pathPage": {
+      "back": "← Akatsuki sergisine dön",
+      "eyebrow": "Six Paths of Pain",
+      "influenceTitle": "Etkiler",
+      "open": "Yolu incele"
     }
   },
   "character": {

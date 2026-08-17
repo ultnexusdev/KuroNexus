@@ -1467,32 +1467,49 @@
       "deva": {
         "name": "Deva Path",
         "desc": "Yahiko's body; the organisation's face to the world.",
-        "ability": "Gravity itself — Shinra Tensei, Banshō Ten'in"
+        "ability": "Gravity itself — Shinra Tensei, Banshō Ten'in",
+        "short": "The Deva Path (天道, Tendō) grants its user the ability to direct attractive and repulsive forces on objects and people.",
+        "long": "The Deva Path (天道, Tendō) grants its user the ability to direct attractive and repulsive forces on objects and people.\n\nThese techniques cannot be used in rapid succession, however; the time needed to recover after use depends on the scale of the technique performed — at least five seconds are required. Used at high intensity it not only demands a long rest, it can also shorten the user's lifespan. The Deva Path grants one further ability: Chibaku Tensei — the power to create a huge, temporary celestial body from all surrounding matter drawn to a released black sphere.\n\nAlthough Nagato wielded the Deva Path's powers himself before he was crippled, he spent the rest of his life channelling this power through the body of his dead friend Yahiko, using Yahiko as the face of the Pain identity. In the anime, Nagato was shown levitating through Pain — both before flattening Konoha and during the battle against Naruto in his six-tailed form.",
+        "influence": "In Buddhism, the Deva realm is the realm of bliss. It is sometimes called the \"realm of the gods\", because its inhabitants are so powerful compared to humans that they can almost be likened to divine beings. Yet beings born into the Deva realm are still subject to rebirth. Devas wrestle with pride, and with the pain of knowing that their long lives and power will not ultimately prevent their rebirth."
       },
       "asura": {
         "name": "Asura Path",
         "desc": "A body turned armour.",
-        "ability": "Mechanised limbs, missiles, a steel frame"
+        "ability": "Mechanised limbs, missiles, a steel frame",
+        "short": "The Asura Path (修羅道, Shuradō) grants its user the ability to augment their own body, summoning mechanised armour and various ballistic and mechanical weaponry.",
+        "long": "The Asura Path (修羅道, Shuradō) grants its user the ability to augment their own body, summoning mechanised armour and various ballistic and mechanical weaponry.\n\nThroughout his life, Nagato channelled the Asura Path's power through the body of a ninja puppeteer.\n\nThrough the Asura Path the user can form four additional arms and two additional faces, and carry a folded, serrated blade-like sash around the waist. These extra limbs and the user's entire body are laced with mechanical weaponry they can access at will. The user can launch their arms as long-range projectiles, or detach them to fire clusters of segmented missiles. They can also extend flexible blades and drills from their arms, or an array of mechanical tentacles, and propel themselves forward at speed by emitting chakra blasts from vents in their feet. The user can further transform a hand into a cannon, or open the crown of their head, to release a chakra blast powerful enough to destroy many buildings at once.\n\nThe body through which Nagato channelled the Asura Path displayed raw physical strength — enough to tear off Jiraiya's arm and crush his throat with basic taijutsu, and to hurl the Animal Path from outside the village into Konohagakure. Thanks to its mechanised innards, the Asura Path could also withstand damage that would normally be fatal. All of these abilities suited the \"warring demon\" name the Asura Path carries, while granting it serious versatility.",
+        "influence": "In Buddhism, the Asura realm is the plane of semi-divine warring demons, into which one is reborn for jealousy, struggle, conflict or rationalised behaviour in a previous life; though powerful, they live in constant violence and unresolvable conflict. In keeping with a common depiction of the Asura, this ability grants the user six arms and three faces, each displaying a different emotion. Like Devas, Asuras are a race of supernatural beings. They also appear in Hinduism as divine beings known to pursue power and to live lives of hedonism and material, bodily pleasure. Both depictions are reflected in the Asura Path's abilities. It also draws on Hinduism in that mythology describes Asuras as capable of wielding magical devices resembling today's biological missiles."
       },
       "human": {
         "name": "Human Path",
         "desc": "The body of interrogation.",
-        "ability": "Reads the mind it touches, tears out the soul"
+        "ability": "Reads the mind it touches, tears out the soul",
+        "short": "The Human Path (人間道, Ningendō) grants a Rinnegan user the ability to read a target's mind — down to their most hidden secrets — by placing a hand on their head or chest.",
+        "long": "The Human Path (人間道, Ningendō) grants a Rinnegan user the ability to read a target's mind — down to their most hidden secrets — by placing a hand on their head or chest. The process kills the target; when the user withdraws their hand, the target's soul is physically pulled from their body. This makes the ability extremely lethal at close quarters, as in most cases targets can do little to prevent the extraction of their souls — the only recourse is to attack the user, which the other Six Paths techniques make very difficult. Still, a target of sufficient strength can partially resist it physically for a time.\n\nAs part of his Six Pains, Nagato channelled the Human Path's power through the corpse of a Takigakure shinobi."
       },
       "animal": {
         "name": "Animal Path",
         "desc": "The body of the siege.",
-        "ability": "Summoning seals — an army of giant beasts"
+        "ability": "Summoning seals — an army of giant beasts",
+        "short": "The Animal Path (畜生道, Chikushōdō) grants a Rinnegan user the ability to summon a variety of animals and creatures to aid them in battle.",
+        "long": "The Animal Path (畜生道, Chikushōdō) grants a Rinnegan user the ability to summon a variety of animals and creatures to aid them in battle.\n\nThese creatures appear to be immortal, as they could be summoned again after being killed. Notably, summoning creatures through the Animal Path requires neither a blood sacrifice nor hand seals. The Animal Path can also summon people with hand signs, as in the case of Nagato's Paths and Konan. Tactically, the Animal Path's main role in battle appears to be overwhelming multiple opponents with a mass of summons.\n\nIn Nagato's case — channelling the Animal Path first through a Fūma clan shinobi and then, for the rest of its service, through Ajisai's corpse — the summoned creatures also appear to have chakra receivers embedded in their bodies, just like the Pain Paths. Nagato also tends to send the Animal Path into battle first, to confuse enemies about how many opponents they truly face. As these creatures display the Rinnegan as well, they serve as extensions of Nagato. During the Fourth Shinobi World War, Nagato used its summons for transport before being reanimated in a form that could move under its own power.",
+        "influence": "Buddhists believe that animals live in a different dimension separated from humans not spatially but mentally — called the \"Tiryagyoni realm\" — an unhappy plane of rebirth built on fear, instinct and survival of the strongest, suffered by animals who serve humans and are, above all, unaware of what befalls them."
       },
       "preta": {
         "name": "Preta Path",
         "desc": "A body turned shield.",
-        "ability": "Swallows any jutsu, drains chakra"
+        "ability": "Swallows any jutsu, drains chakra",
+        "short": "The Preta Path (餓鬼道, Gakidō) grants its user the ability to absorb chakra of any kind.",
+        "long": "The Preta Path (餓鬼道, Gakidō) grants its user the ability to absorb chakra of any kind. Pain channelled the Preta Path's power through the corpse of a Kusagakure shinobi.\n\nBy nature this ability is primarily defensive: it can drain a person's chakra through physical contact. Beyond that, the Preta Path can absorb and thereby neutralise pure chakra or chakra-based ninjutsu techniques. It does not absorb physical attacks such as Gaara's sand, but it can drain the sand's chakra. This is done by forming a barrier around the user's entire body, so that attacks from every direction can be absorbed.\n\nAlthough this ability can also absorb senjutsu chakra, the user still runs the risk of turning into a stone statue when absorbing too much of it.\n\nDuring the Fourth Shinobi World War, Nagato used the Preta Path to absorb Killer B's chakra while B was in his Version 2 form. He is then seen using that chakra to restore his body to its state before it was weakened by the Demonic Statue of the Outer Path. This also returned his hair colour from white to red and repaired the damage to his legs — though, likely due to lost muscle memory, he could not use his legs fully.\n\nThis ability can be neutralised by certain techniques capable of suppressing the opposing user's movements or chakra.",
+        "influence": "In Buddhism, the Preta realm (also known as the Hungry Ghost realm) is a form of rebirth rooted in strong possessiveness and desire nurtured in a previous life or lives. Pretas are humanoid creatures that are perpetually hungry and thirsty yet can never be sated, living like hopeless addicts trying to quiet an insatiable craving. In appearance, Pretas are corpse-pale, exhausted figures — unlike the bulky build of Pain's Preta Path. In Hinduism, Preta can also mean ghost, which relates to the ability the technique employs."
       },
       "naraka": {
         "name": "Naraka Path",
         "desc": "The body of judgement.",
-        "ability": "Before the King of Hell: interrogation and repair"
+        "ability": "Before the King of Hell: interrogation and repair",
+        "short": "The Naraka Path (地獄道, Jigokudō) grants its user two core abilities through the King of Hell: interrogation and restoration.",
+        "long": "The Naraka Path (地獄道, Jigokudō) grants its user two core abilities through the King of Hell: interrogation and restoration. Pain channelled the Naraka Path's power through the body of a priest.\n\nThe Naraka Path's ability rests largely on the King of Hell — a huge head that rises from the earth, wreathed in purple flames. It also possesses the Rinnegan and shares a common field of vision with the other summons.\n\nTo interrogate, the Naraka Path merely needs to seize a person, which causes the King of Hell to appear before them. While the victim is seemingly paralysed, the Naraka Path begins its questioning. Once answers are given, the King of Hell opens its mouth, releases tentacle-like arms, and draws out a manifestation of the victim's life-force energy in the shape of an enlarged tongue. The King of Hell then passes judgement. If the person lies or refuses to answer, the King of Hell tears out and eats their tongue, apparently killing them. If they tell the truth they are spared, though left utterly drained.\n\nThe Naraka Path's second ability is the restoration of any kind of damage. To do this, the Naraka Path has the King of Hell swallow the damaged body with its tentacle-like arms; after a time, the destroyed body emerges from its mouth fully renewed. It applied this, for example, to the Asura Path after it was destroyed by Chōji and Chōza Akimichi. Thanks to its restorative powers, the Naraka Path could easily be considered the most valuable body of the Six Pains when spread across six different bodies. In formation, Nagato places the Naraka Path behind the emotional Deva Path, with the other four on the front lines.\n\nKabuto Yakushi has stated that a Naraka Path user can transport bodies and souls using the King of Hell.",
+        "influence": "Naraka is a Sanskrit word meaning the underworld. In Hinduism it is a place where souls are sent to atone for their sins. Yama is the God of Justice and King of Hell. After death, he metes out fitting punishments to living beings — he may, for instance, plunge them into boiling oil. Lie to him and he tears out your tongue.\n\nIn Buddhism, the Naraka realm or \"hell realm\" is a plane of rebirth based on the Karma (deeds of body, speech and mind) accumulated in a previous life or lives. There are various Narakas, each holding beings who are tormented until their Karma reaches its full and complete result. These beings can then be reborn into a higher plane. On the uppermost level, the \"Reviving\" Naraka, sinners endlessly attack one another and are healed only by a cold wind — likely the inspiration for the healing power the Naraka Path wields through the King of Hell.\n\nNaraka superficially resembles the Christian concepts of hell or purgatory, but there are many important differences between them."
       }
     },
     "members": {
@@ -1694,6 +1711,12 @@
       "about": "About scene (full band)",
       "hallHero": "Hall entrance hero backdrop",
       "eraOf": "{name} — era illustration"
+    },
+    "pathPage": {
+      "back": "← Back to the Akatsuki exhibit",
+      "eyebrow": "Six Paths of Pain",
+      "influenceTitle": "Influences",
+      "open": "Examine the path"
     }
   },
   "character": {

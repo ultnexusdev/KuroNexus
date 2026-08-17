@@ -19,6 +19,8 @@ export const animeHref = {
   hall: () => "/anime",
   /** Akatsuki dijital sergisi */
   akatsuki: () => "/anime/akatsuki",
+  /** Six Paths detay sayfası (deva/asura/human/animal/preta/naraka) */
+  akatsukiPath: (pathKey: string) => `/anime/akatsuki/six-paths/${pathKey}`,
   /** Anime arşivi (altı raf) */
   archive: () => `${OLD_TREE}/arsiv`,
   shelf: (slug: string) => `${OLD_TREE}/arsiv/${slug}`,

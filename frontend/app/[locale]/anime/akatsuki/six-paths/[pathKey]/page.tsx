@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { notFound } from "next/navigation";
+import { redirect } from "@/lib/i18n/navigation";
 import { getCharacterImages } from "@/lib/api/characters";
 import { readIsAdmin } from "@/lib/auth/session";
 import { AKATSUKI_IDS, SIX_PATHS } from "@/lib/anime/akatsuki";
+import { animeHref } from "@/lib/anime/routes";
 import { AkatsukiPathDetail } from "@/components/anime/akatsuki/AkatsukiPathDetail";
 
 /**
@@ -44,7 +45,15 @@ export default async function AkatsukiPathPage({
   const { locale, pathKey } = await params;
   const path = findPath(pathKey);
   if (!path) {
-    notFound();
+    /*
+     * `notFound()` DEĞİL, bilinçli: üst ağaçtaki loading.tsx kabuğu akışla
+     * erken 200 gönderiyor ve not-found ekranı 200 gövdesinde kalıyordu
+     * (yerelde ölçüldü). Bilinmeyen anahtar elle yazılmış bir adrestir —
+     * doğru cevap ziyaretçiyi serginin kendisine götürmek.
+     */
+    redirect({ href: animeHref.akatsuki(), locale });
+    // next-intl'in redirect'i `never` tiplenmediği için TS daraltması elle
+    return null;
   }
 
   const [images, isAdmin] = await Promise.all([

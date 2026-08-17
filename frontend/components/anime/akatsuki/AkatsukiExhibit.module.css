@@ -2279,6 +2279,54 @@
   }
 }
 
+/* ── v7-6: GENEL CANLILIK — arka bantlar soluk kalıyordu; opaklık ve
+   parlaklıklar bir basamak yukarı (Tarihçe'nin KART YAPISI değişmedi,
+   yalnız ışığı arttı). Ücretsiz üretim kotası kapalı olduğu için bu tur
+   CSS'le; kota açılınca istenirse bantlar yeniden üretilebilir. ── */
+.sky img {
+  filter: grayscale(0.2) saturate(1) brightness(0.64) contrast(1.05);
+}
+
+.pathsBand {
+  opacity: 0.28;
+}
+
+.membersBand {
+  opacity: 0.22;
+}
+
+.partnersBand {
+  opacity: 0.26;
+}
+
+.historyBand {
+  opacity: 0.22;
+}
+
+.legacyBand {
+  opacity: 0.28;
+}
+
+.pathsBand img,
+.membersBand img,
+.partnersBand img,
+.historyBand img,
+.legacyBand img {
+  filter: saturate(1) brightness(0.66);
+}
+
+.zigTexture {
+  opacity: 0.2;
+}
+
+.rain {
+  opacity: 0.62;
+}
+
+.embers {
+  opacity: 0.62;
+}
+
 @media (max-width: 640px) {
   .mastTitle {
     font-size: clamp(2.5rem, 13vw, 4rem);

@@ -323,6 +323,33 @@ düzenlerine (v3) kendiliğinden döner. ≥1920 şartı iki banner'da sağland�
 dönem panelleri kart içi (~640px çizim) olduğundan 1200px yeterli.
 Glif çipleri referanstaki gibi dairesel glow rozetlere dönüştü.
 
+## 5e · V7 — SIX PATHS DETAYLARI + PORTRE YENİLEME (17 Ağustos)
+
+Komut: `six-paths-ve-portre-guncelleme-komutu.md`. Tarihçe yapısına
+dokunulmadı (şart).
+
+- **Six Paths detayları:** `/anime/akatsuki/six-paths/[deva…naraka]` —
+  hero=Path görseli (sergiyle AYNI yuva; kürasyon ikisini birden değiştirir),
+  altında verilen uzun metinlerin tamamı + Etkiler. TR metinler olduğu gibi;
+  EN karşılıkları bu turda yazıldı. Kartlar tıklanabilir, kısa cümle kartta,
+  portreler küçüldü (2:1). Bilinmeyen anahtar → sergiye redirect
+  (`notFound()` akış yüzünden 200 gövdesinde kalıyordu — ölçüldü; akışta
+  redirect talimatı doğrulandı, ziyaretçi sergiye iner).
+- **Çerçeve revizyonu:** duvar 4 sütun (portreler küçüldü), 3px kızıl
+  kenar + KALICI glow + köşe bulut mühürleri + üretilmiş kızıl bulut frizi
+  (screen blend). **Pain lider kartıyla duvarda:** `AKATSUKI_LEADER` ayrı
+  sabit; 4px altın-kızıl kenar, çift glow, büyük 零 mührü.
+- **Üretim günlüğü (bu tur):** ücretsiz kota yine kapalıydı (2 deneme
+  429). Kullanıcının KALICI talimatı geldi: "ücretsiz kapalı ise ücretliyi
+  kullan her zaman" (hafızaya yazıldı). Ücretli fal nano-banana-2:
+  **14 çağrı ≈ $1.12** — 12 karakter portresi (Pain 2K, diğerleri 1K,
+  3:4, tutarlı stil eki) + bulut frizi + canlı Amegakure göğü (2K, eski
+  hero göğünün yerine, son-kazanır). Hepsi yerel + üretim medya sistemine
+  bağlandı; kürasyondan değiştirilebilir. Oturum toplamı: 21 ücretli çağrı
+  ≈ $1.68.
+- **Canlılık:** bant opaklık/parlaklıkları bir basamak yukarı (Tarihçe
+  kart yapısı değişmeden).
+
 ## 6 · AÇIK RİSKLER
 
 - Kurulum ucu canlıda admin tetiklemesi bekler; o güne kadar sergi AniList

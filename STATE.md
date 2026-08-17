@@ -33,6 +33,17 @@
 > (canlı doğrulamadan SONRA); kapı turuncusu / salon moru çelişkisi bilinçli
 > korundu.
 >
+> ✅ **V8 — DUVAR SAHNESİ + PATH FİGÜRLERİ + DOSSIER DÜZELTMESİ CANLIDA**
+> (PLAN.md §5f): üye duvarı portreler için üretilmiş loş galeri sahnesinin
+> önünde, düzen 2+4+4 (Pain+Itachi üstte geniş); altı Path figürü, Naruto
+> Evreni + Anime Arşivi kart fonları ve gerçek Nagato ücretli skill ile
+> üretildi (10 çağrı ≈ $0.80; oturum 31 ≈ $2.48). 🔴 **DOSSIER HATASI
+> KAPANDI:** karakter sayfası portreyi İLK kayıttan alıyordu ("sonuncusu
+> kazanır" sözleşmesine aykırı) — `filter().at(-1)`; yetenek kartı
+> görselleri de aynı düzeltmeyi aldı. İlişkilerde Obito üretilen Tobi
+> portresini kullanıyor; Madara v7 üretimiydi, dossier düzeltmesiyle her
+> yerde yeni hâli görünür.
+>
 > ✅ **V7 — SIX PATHS DETAYLARI + PORTRE YENİLEME CANLIDA** (PLAN.md §5e):
 > altı Path'in tıklanabilir detay sayfası (verilen TR metinler olduğu gibi,
 > EN bu turda yazıldı; bilinmeyen anahtar sergiye redirect — notFound akışta

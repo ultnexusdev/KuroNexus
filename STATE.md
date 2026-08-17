@@ -33,6 +33,16 @@
 > (canlı doğrulamadan SONRA); kapı turuncusu / salon moru çelişkisi bilinçli
 > korundu.
 >
+> ✅ **V6 — ÜRETİLMİŞ İLLÜSTRASYON KATMANI CANLIDA** (PLAN.md §5d, üretim
+> günlüğü orada): 7 özgün görsel üretildi (ücretsiz Gemini 3×429 → kullanıcı
+> talimatıyla ücretli fal nano-banana-2, 7 çağrı ≈ $0.56, sıfır yeniden
+> deneme) — tapınak sahnesi (Hakkında TAM ŞERİT kadraja döndü), özgün salon
+> hero fonu (afişlerin yerini aldı), 5 zigzag dönem illüstrasyonu. Hepsi
+> hem yerel hem ÜRETİM medya sistemine bağlandı (upload→bind otomasyonu,
+> 7/7) ve kürasyondan değiştirilebilir; görsel silinirse eski düzenler
+> kendiliğinden döner. `FAL_KEY` kabuğa inmiyor — Windows kullanıcı
+> ortamından okunarak geçildi (gelecek oturum notu).
+>
 > ✅ **V3 DÜZELTME + ZENGİNLEŞTİRME AYNI GECE** (PLAN.md §5c, doğrulama
 > listesi maddeler hâlinde orada): hero ölü alanı kapandı (ışık havuzu +
 > asanoha + genişletilmiş afişler), glow gerçekten görünür (başlık/kart/

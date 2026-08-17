@@ -376,34 +376,47 @@ export async function AkatsukiExhibit({
             const src = exhibitSrc(sources, path.imageKey);
             return (
               <li key={path.key} className={styles.path}>
-                <span className={styles.pathArt}>
-                  {src ? (
-                    <ExhibitImage
-                      image={src}
-                      alt={t(`paths.${path.key}.name`)}
-                      sizes="480px"
-                    />
-                  ) : (
-                    <Hatch initial={path.kanji.slice(0, 1)} />
-                  )}
-                  <span className={`${shell.brush} ${styles.pathKanji}`} aria-hidden>
-                    {path.kanji}
+                {/* v7: kart tıklanabilir — her Path kendi detay sayfasına
+                    açılır; portre küçüldü, kısa cümle karta indi */}
+                <Link
+                  href={animeHref.akatsukiPath(path.key)}
+                  className={styles.pathLink}
+                >
+                  <span className={styles.pathArt}>
+                    {src ? (
+                      <ExhibitImage
+                        image={src}
+                        alt={t(`paths.${path.key}.name`)}
+                        sizes="440px"
+                      />
+                    ) : (
+                      <Hatch initial={path.kanji.slice(0, 1)} />
+                    )}
+                    <span
+                      className={`${shell.brush} ${styles.pathKanji}`}
+                      aria-hidden
+                    >
+                      {path.kanji}
+                    </span>
                   </span>
-                </span>
-                <span className={styles.pathBody}>
-                  <span className={`${shell.display} ${styles.pathName}`}>
-                    {t(`paths.${path.key}.name`)}
+                  <span className={styles.pathBody}>
+                    <span className={`${shell.display} ${styles.pathName}`}>
+                      {t(`paths.${path.key}.name`)}
+                    </span>
+                    <span className={`${shell.data} ${styles.pathRomaji}`}>
+                      {path.romaji}
+                    </span>
+                    <span className={styles.pathDesc}>
+                      {t(`paths.${path.key}.short`)}
+                    </span>
+                    <span className={`${shell.data} ${styles.pathAbility}`}>
+                      {t(`paths.${path.key}.ability`)}
+                    </span>
+                    <span className={`${shell.data} ${styles.pathOpen}`}>
+                      {t("pathPage.open")} →
+                    </span>
                   </span>
-                  <span className={`${shell.data} ${styles.pathRomaji}`}>
-                    {path.romaji}
-                  </span>
-                  <span className={styles.pathDesc}>
-                    {t(`paths.${path.key}.desc`)}
-                  </span>
-                  <span className={`${shell.data} ${styles.pathAbility}`}>
-                    {t(`paths.${path.key}.ability`)}
-                  </span>
-                </span>
+                </Link>
                 <ExhibitSlot
                   enabled={isAdmin}
                   characterId={AKATSUKI_IDS.pain}

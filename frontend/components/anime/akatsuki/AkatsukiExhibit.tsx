@@ -5,6 +5,7 @@ import { apiUrl } from "@/lib/api/client";
 import type { CharacterCard, CharacterImageRow } from "@/lib/api/types";
 import {
   AKATSUKI_IDS,
+  AKATSUKI_LEADER,
   AKATSUKI_MEMBERS,
   AKATSUKI_NEXUS_PEOPLE,
   AKATSUKI_PARTNERS,
@@ -188,6 +189,10 @@ export async function AkatsukiExhibit({
   /* v6: üretilmiş sahneler — yoksa bölümler eski düzenleriyle çizilir,
      görsel geldiği an (üretim ya da kürasyon) düzen kendiliğinden değişir */
   const aboutScene = exhibitSrc(sources, EXHIBIT_IMAGE_KEYS.about);
+  /* v7: çerçeve süsleme frizi (screen blend — siyah zemin görünmez) */
+  const ornament = exhibitSrc(sources, EXHIBIT_IMAGE_KEYS.ornament);
+  /* v7: duvar lider + dokuz üye dizer; lider kendi çerçevesini taşır */
+  const wallMembers = [AKATSUKI_LEADER, ...AKATSUKI_MEMBERS];
 
   const memberByKey = new Map(
     AKATSUKI_MEMBERS.map((member) => [member.key, member]),
@@ -457,16 +462,31 @@ export async function AkatsukiExhibit({
         </header>
 
         <ul className={styles.memberGrid}>
-          {AKATSUKI_MEMBERS.map((member) => {
+          {wallMembers.map((member) => {
             const src = portraitSrc(sources, member.characterId);
+            const isLeader = member.key === AKATSUKI_LEADER.key;
             return (
-              <li key={member.key} className={styles.member}>
+              <li
+                key={member.key}
+                className={styles.member}
+                data-leader={isLeader || undefined}
+              >
                 <Link
                   href={animeHref.character(member.characterId)}
                   className={styles.memberLink}
                   aria-label={member.name}
                 >
                   <span className={styles.memberFrame} data-member={member.key}>
+                    {/* v7: çerçeve süslemesi — köşe bulutları + (üretilince)
+                        kızıl bulut frizi; screen blend siyahı yutar */}
+                    <AkatsukiCloud className={styles.frameCloudA} />
+                    <AkatsukiCloud className={styles.frameCloudB} />
+                    {ornament ? (
+                      <span
+                        className={styles.frameOrnament}
+                        style={{ backgroundImage: `url("${ornament.src}")` }}
+                      />
+                    ) : null}
                     {src ? (
                       <ExhibitImage
                         image={src}

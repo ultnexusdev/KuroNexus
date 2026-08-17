@@ -385,13 +385,15 @@
   border-top: 1px solid var(--border);
 }
 
+/* v7: portreler bilinçli KÜÇÜLDÜ — dört sütunlu daha dengeli duvar
+   (kullanıcı: "çok büyük"). Kart içeriği aynı; ölçü sütundan geliyor. */
 .memberGrid {
   list-style: none;
   margin: 0;
   padding: 0 var(--an-gutter);
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: clamp(1.25rem, 2.6vw, 2rem);
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(1rem, 2vw, 1.75rem);
 }
 
 .member {
@@ -414,16 +416,65 @@
   outline-offset: 4px;
 }
 
-/* Çerçeve: müze levhası — zemin yok, gölge yok, kılcal kenar (spor
-   panteonu dili) */
+/* v7 çerçeve revizyonu: kılcal kenar KALINLAŞTI, kalıcı kızıl nefes ve
+   köşe bulut motifleri geldi (kullanıcı: "glow hâlâ yok" — artık durağan
+   hâlde de görünür). Spor panteonunun sade levhasından bilinçli ayrılık:
+   bu duvar bir örgütün mühürlü kadrosu. */
 .memberFrame {
   position: relative;
   display: block;
   aspect-ratio: 3 / 4;
   overflow: hidden;
-  border: 1px solid var(--border);
+  border: 3px solid color-mix(in srgb, var(--accent) 45%, var(--border));
   background: var(--surface);
+  box-shadow:
+    0 0 18px var(--aka-glow-soft),
+    inset 0 0 22px rgb(0 0 0 / 0.55);
   transition: border-color 300ms ease;
+}
+
+/* Köşe bulutları: sol üst + sağ alt, mühür gibi */
+.frameCloudA,
+.frameCloudB {
+  position: absolute;
+  width: 1.7rem;
+  z-index: 3;
+  opacity: 0.7;
+  filter: drop-shadow(0 0 6px var(--aka-glow-soft));
+  pointer-events: none;
+}
+
+.frameCloudA {
+  top: 0.4rem;
+  left: 0.4rem;
+}
+
+.frameCloudB {
+  right: 0.4rem;
+  bottom: 0.4rem;
+  rotate: 180deg;
+}
+
+/* Üretilmiş kızıl bulut frizi: üst ve alt kenarda ince şerit; screen
+   blend siyah zemini yutar, yalnız kızıl desen kalır */
+.frameOrnament {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+  background-size: auto 1.4rem;
+  background-repeat: repeat-x;
+  background-position: top center, bottom center;
+  mix-blend-mode: screen;
+  opacity: 0.85;
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0 1.4rem,
+    transparent 1.4rem calc(100% - 1.4rem),
+    #000 calc(100% - 1.4rem) 100%
+  );
 }
 
 .memberLink:hover .memberFrame {
@@ -2090,6 +2141,37 @@
   box-shadow: 0 0 16px var(--aka-glow-strong);
 }
 
+/* ── v7: LİDER ÇERÇEVESİ — Pain'in üye kartı sıradan çerçeve kullanmaz.
+   Daha kalın kenar, çift glow, altın-kızıl karışım, büyük yüzük mührü. ── */
+.member[data-leader] .memberFrame {
+  border-width: 4px;
+  border-color: color-mix(in srgb, var(--accent-hover) 70%, var(--gold));
+  box-shadow:
+    0 0 30px var(--aka-glow-strong),
+    0 0 10px var(--aka-ember),
+    inset 0 0 26px rgb(0 0 0 / 0.5);
+}
+
+.member[data-leader] .frameCloudA,
+.member[data-leader] .frameCloudB {
+  opacity: 1;
+  width: 2rem;
+  filter: drop-shadow(0 0 9px var(--aka-glow-strong));
+}
+
+.member[data-leader] .memberRing {
+  width: 2.6rem;
+  height: 2.6rem;
+  font-size: 1.4rem;
+  border-color: var(--accent);
+  box-shadow: 0 0 16px var(--aka-glow-strong);
+}
+
+.member[data-leader] .memberName {
+  color: var(--accent-hover);
+  text-shadow: 0 0 20px var(--aka-glow-strong);
+}
+
 /* ── v3-A2: başlıklarda görünür glow + bölüm geçişlerinde ışık ──
    Sert siyah kesikler yok: her bölümün üst sınırı ortadan parlayan bir
    gradyan çizgi + üstten inen kızıl ışık yıkaması. */
@@ -2187,6 +2269,13 @@
 @media (max-width: 980px) {
   .nexusGrid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* v7: dört sütunlu duvarın ara basamağı (980-1280 arası üç sütun) */
+@media (min-width: 981px) and (max-width: 1280px) {
+  .memberGrid {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 

@@ -59,6 +59,22 @@ export interface AkatsukiMember {
   stats: AkatsukiMemberStats;
 }
 
+/**
+ * v7: Pain artık üyeler duvarında da var (kullanıcı kararı — v1'in "Pain
+ * listede olmaz" kuralını bu komut bilinçli olarak değiştirdi). Ayrı sabit:
+ * partners/ilişki mantığı AKATSUKI_MEMBERS'a dokunmadan çalışmayı sürdürür;
+ * duvar [LEADER, ...MEMBERS] dizer ve lider kartı kendi çerçevesini taşır.
+ */
+export const AKATSUKI_LEADER: AkatsukiMember = {
+  key: "pain",
+  name: "Pain",
+  nativeName: "ペイン",
+  characterId: AKATSUKI_IDS.pain,
+  ring: { kanji: "零", romaji: "rei" },
+  partnerKey: "konan",
+  stats: { nin: 99, gen: 90, tai: 88, int: 94 },
+};
+
 /** Komut §4d sırası — canon'a sadık dokuz üye. */
 export const AKATSUKI_MEMBERS: AkatsukiMember[] = [
   {
@@ -200,6 +216,9 @@ export const EXHIBIT_IMAGE_KEYS = {
   about: "akatsuki:about",
   /** v6 · Salon girişi hero fonu (üretilmiş özgün kadraj) */
   hallHero: "akatsuki:hall-hero",
+  /** v7 · Çerçeve süsleme şeridi: siyah zemin üstüne kızıl bulut frizi
+      (screen blend ile çerçeveye işlenir; siyah görünmez olur) */
+  ornament: "akatsuki:ornament",
 } as const;
 
 /** v6 · Dönem illüstrasyon anahtarı — zigzag kartının tepe paneli */

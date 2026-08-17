@@ -350,6 +350,29 @@ dokunulmadı (şart).
 - **Canlılık:** bant opaklık/parlaklıkları bir basamak yukarı (Tarihçe
   kart yapısı değişmeden).
 
+## 5f · V8 — DUVAR SAHNESİ + PATH FİGÜRLERİ + DOSSIER DÜZELTMESİ (17 Ağustos)
+
+Kullanıcı bildirimleri üzerine; tema serbestliği bu sayfada kullanıldı.
+
+- **Üye duvarı:** kadro görseli portrelerle yarışıyordu → portreler İÇİN
+  üretilmiş loş galeri sahnesi (soluk bulut duvar kağıdı + üç spot havuzu,
+  boş sahne). Düzen **2+4+4**: Pain + Itachi üstte ortada geniş (4:3),
+  yetim kart kalmadı.
+- **Six Paths figürleri:** altı beden ücretli skill ile yeniden üretildi
+  (16:9 2K) — kartlar ve detay hero'ları aynı yuvadan birlikte yenilendi.
+- **Anime Dünyaları:** Naruto Evreni (Konoha kapısı alacakaranlıkta) ve
+  Anime Arşivi (ışıyan tomar rafları) kartlarına üretilmiş fonlar.
+- **İlişkiler:** Obito satırı üretilen Tobi portresine geçti (sabit sergi
+  karesi bırakıldı); gerçek Nagato yeniden üretildi (`akatsuki:nagato`,
+  son-kazanır). Madara v7'de üretilmişti — satır zaten yeni portreyi
+  gösteriyor (ekran görüntüsü deploy öncesine denkti).
+- **🔴 DOSSIER HATASI DÜZELTİLDİ:** karakter sayfası portre çözümlemesi
+  İLK kaydı alıyordu (şema sözleşmesi "sonuncusu kazanır") — yeni portreler
+  dossier'de görünmüyordu. `find` → `filter().at(-1)` (yetenek kartı
+  görselleri dahil). Ölçüldü: Pain dossier'i artık son portreyi basıyor.
+- **Üretim:** 10 çağrı ≈ $0.80 (6 Path + duvar + 2 dünya kartı + Nagato).
+  **Oturum toplamı: 31 ücretli çağrı ≈ $2.48**, ücretsiz 5 deneme 5×429.
+
 ## 6 · AÇIK RİSKLER
 
 - Kurulum ucu canlıda admin tetiklemesi bekler; o güne kadar sergi AniList

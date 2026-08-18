@@ -231,9 +231,17 @@ export async function AkatsukiExhibit({
             <ExhibitImage image={sky} alt="" sizes="1920px" priority />
           </span>
         ) : null}
+        {/* v9: kızıl ay halesi — portrenin arkasında nefes alan ışık
+            kaynağı (referans kompozisyonun ayı); yağmur önünden geçer */}
+        <span className={styles.heroMoon} aria-hidden />
         <span className={styles.rain} aria-hidden />
         <span className={styles.embers} aria-hidden />
         <RinneganMotif className={styles.rinnegan} />
+        {/* v9: dikey kanji şeridi — sağ kenarda, referansın dikey yazısı.
+            Dekoratif kanji çevrilmez (kural 1 istisnası, mastKanji emsali) */}
+        <span className={`${shell.brush} ${styles.heroSide}`} aria-hidden>
+          暁はここに、世界は夢を見る
+        </span>
 
         {painPortrait ? (
           <span className={styles.heroPortrait} aria-hidden>
@@ -283,11 +291,16 @@ export async function AkatsukiExhibit({
               </div>
             ))}
           </dl>
-        </div>
 
-        <p className={`${shell.data} ${styles.scrollHint}`} aria-hidden>
-          {t("scrollHint")} ↓
-        </p>
+          {/* v9: kaydırma ipucunun yerini gerçek bir eylem aldı — tek
+              birincil CTA, çapa Hakkında'ya iner (taste: scroll cue yok) */}
+          <a href="#akatsuki-about" className={`${shell.data} ${styles.heroCta}`}>
+            <span>{t("hero.cta")}</span>
+            <span className={styles.heroCtaArrow} aria-hidden>
+              ↓
+            </span>
+          </a>
+        </div>
 
         {/* v3-A6: hero yuvaları — kürasyon modunda görünür */}
         <div className={styles.heroSlots}>
@@ -306,6 +319,36 @@ export async function AkatsukiExhibit({
           />
         </div>
       </header>
+
+      {/* ══ v9 — YAPIŞKAN BÖLÜM ÇUBUĞU ══
+          Referans tasarımın sekme şeridi: saf çapa bağlantıları, istemci
+          JS yok. Hedef id'ler bölüm başlıklarında zaten duruyor; sticky
+          + arka blur CSS'te. Mobilde yatay kayar (kural 2, 44px hedef). */}
+      <nav className={styles.tabsNav} aria-label={t("nav.label")}>
+        <span className={`${shell.brush} ${styles.tabsMark}`} aria-hidden>
+          暁
+        </span>
+        <ul className={styles.tabsList}>
+          {(
+            [
+              ["about", "akatsuki-about"],
+              ["paths", "akatsuki-paths"],
+              ["members", "akatsuki-members"],
+              ["partners", "akatsuki-partners"],
+              ["history", "akatsuki-history"],
+              ["relations", "akatsuki-relations"],
+              ["symbols", "akatsuki-symbols"],
+              ["legacy", "akatsuki-legacy"],
+            ] as const
+          ).map(([key, target]) => (
+            <li key={key} className={styles.tabsItem}>
+              <a href={`#${target}`} className={`${shell.data} ${styles.tabsLink}`}>
+                {t(`nav.${key}`)}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
 
       {/* ══ AKATSUKI HAKKINDA ══
           v6: üretilmiş taş kabartma sahnesi varsa bölüm TAM ŞERİT sinema
@@ -348,13 +391,74 @@ export async function AkatsukiExhibit({
             />
           </div>
 
-          {!aboutScene && legion ? (
-            <span className={styles.aboutArt} aria-hidden>
-              <ExhibitImage image={legion} alt="" sizes="900px" />
-              <span className={styles.aboutArtWash} />
-            </span>
-          ) : null}
+          {/* v9: sağ sütun — referansın "Amaçları" paneli + Yahiko sözü.
+              Sahne varken paneller ışık perdesinin önünde durur; yokken
+              eski kadro görseli en alta iner. */}
+          <aside className={styles.aboutSide}>
+            <div className={styles.goalsPanel}>
+              <h3 className={`${shell.display} ${styles.goalsTitle}`}>
+                {t("about.goals.title")}
+              </h3>
+              {(
+                [
+                  ["flame", "tails", "tailsText"],
+                  ["rinnegan", "moon", "moonText"],
+                  ["dawn", "peace", "peaceText"],
+                ] as const
+              ).map(([icon, nameKey, textKey]) => (
+                <div key={nameKey} className={styles.goalRow}>
+                  <AkatsukiGlyph
+                    name={icon as AkatsukiGlyphName}
+                    className={styles.goalIcon}
+                  />
+                  <span className={styles.goalBody}>
+                    <span className={`${shell.display} ${styles.goalName}`}>
+                      {t(`about.goals.${nameKey}`)}
+                    </span>
+                    <span className={styles.goalText}>
+                      {t(`about.goals.${textKey}`)}
+                    </span>
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <figure className={styles.quoteCard}>
+              <AkatsukiCloud className={styles.quoteCloud} />
+              <blockquote className={`${shell.serif} ${styles.quoteLine}`}>
+                &ldquo;{t("about.quote")}&rdquo;
+              </blockquote>
+              <figcaption className={`${shell.data} ${styles.quoteBy}`}>
+                Yahiko
+              </figcaption>
+            </figure>
+
+            {!aboutScene && legion ? (
+              <span className={styles.aboutArt} aria-hidden>
+                <ExhibitImage image={legion} alt="" sizes="900px" />
+                <span className={styles.aboutArtWash} />
+              </span>
+            ) : null}
+          </aside>
         </div>
+
+        {/* v9: sayı bandı — örgütün üç ölçüsü tek şeritte (referans) */}
+        <ul className={styles.tallyBand}>
+          {(
+            [
+              ["10+", "members"],
+              ["9", "tails"],
+              ["∞", "plan"],
+            ] as const
+          ).map(([value, key]) => (
+            <li key={key} className={styles.tally}>
+              <span className={styles.tallyValue}>{value}</span>
+              <span className={`${shell.data} ${styles.tallyName}`}>
+                {t(`about.tallies.${key}`)}
+              </span>
+            </li>
+          ))}
+        </ul>
       </section>
 
       {/* ══ SIX PATHS OF PAIN ══ */}
@@ -701,6 +805,14 @@ export async function AkatsukiExhibit({
                   </span>
                 ) : null}
                 <div className={styles.zigBody}>
+                  {/* v9: kronoloji mührü — dönem sırası Roma rakamıyla,
+                      filigran ağırlığında (numara değil, sıra işareti) */}
+                  <span
+                    className={`${shell.display} ${styles.eraIndex}`}
+                    aria-hidden
+                  >
+                    {["I", "II", "III", "IV", "V"][index]}
+                  </span>
                   <span className={`${shell.data} ${styles.eraLabel}`}>
                     {t(`history.${era.key}.era`)}
                   </span>
@@ -894,6 +1006,15 @@ export async function AkatsukiExhibit({
       {/* ══ NEXUS DÜĞÜMÜ — İLGİLİ İÇERİK (v2) ══
           Sergi bir son durak değil; ipler arşivin başka odalarına uzanır. */}
       <section className={styles.nexus} aria-labelledby="akatsuki-nexus">
+        {/* v9: sinematik kapanış bandı (referansın CTA şeridi) — söz burada,
+            kapılar aşağıda; ikinci bir buton yok (çift CTA yasağı) */}
+        <div className={styles.nexusBanner}>
+          <AkatsukiCloud className={styles.nexusBannerCloud} />
+          <p className={`${shell.serif} ${styles.nexusBannerLine}`}>
+            {t("nexus.banner")}
+          </p>
+          <RinneganMotif className={styles.nexusBannerEye} />
+        </div>
         <header className={styles.sectionHead}>
           <h2
             id="akatsuki-nexus"

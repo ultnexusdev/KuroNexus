@@ -33,6 +33,18 @@
 > (canlı doğrulamadan SONRA); kapı turuncusu / salon moru çelişkisi bilinçli
 > korundu.
 >
+> ✅ **V9 — PATH SADAKATİ + REFERANS YOĞUNLUĞU (18 Ağustos)** (PLAN.md
+> §5g): dört Path portresi kullanıcının verdiği gerçek karelerle yeniden
+> üretildi (fal 5 çağrı ≈ $0.60; Preta'da Konoha bandı hatası yakalanıp
+> düzeltildi) ve yerel + üretim medyasına API'den bağlandı — **canlıda
+> düğmeye basmak GEREKMİYOR**, son-kazanır anında gösteriyor. Deva/Hayvan
+> ve üye/ilişki portrelerine dokunulmadı (şart). V9 tasarım katmanı:
+> kızıl ay + dikey kanji + hero CTA + yapışkan bölüm çubuğu + Amaçları
+> paneli + Yahiko sözü + 10+/9/∞ bandı + Roma kronoloji mührü + Nexus
+> kapanış bandı + glow yükseltmesi; istenen 6 tasarım skill'i fiilen
+> yüklendi. Derleme+eslint temiz, SSR yerelde ölçüldü; ekran görüntüsü
+> panel kapalı olduğu için alınamadı — canlı görsel doğrulama sırada.
+>
 > ✅ **V8 — DUVAR SAHNESİ + PATH FİGÜRLERİ + DOSSIER DÜZELTMESİ CANLIDA**
 > (PLAN.md §5f): üye duvarı portreler için üretilmiş loş galeri sahnesinin
 > önünde, düzen 2+4+4 (Pain+Itachi üstte geniş); altı Path figürü, Naruto

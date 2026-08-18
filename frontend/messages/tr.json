@@ -1431,7 +1431,17 @@
     "subtitle": "Şafak Örgütü",
     "lede": "Yağmur köyünün gölgesinde bir barış sözüyle kuruldu; dünyayı dize getirmeye varan bir plana dönüştü. Bu sergi o dönüşümün arşividir.",
     "backToHall": "← Anime salonuna dön",
-    "scrollHint": "Aşağı in — sergi açılıyor",
+    "nav": {
+      "label": "Sergi bölümleri",
+      "about": "Hakkında",
+      "paths": "Six Paths",
+      "members": "Üyeler",
+      "partners": "Ekipler",
+      "history": "Tarihçe",
+      "relations": "İlişkiler",
+      "symbols": "Semboller",
+      "legacy": "Miras"
+    },
     "labels": {
       "ring": "Yüzük",
       "partner": "Ortak",
@@ -1442,6 +1452,7 @@
       "eyebrow": "Anlatının merkezi",
       "name": "Pain",
       "epigraph": "Dünya, acıyı bildiği gün büyüyecek.",
+      "cta": "Sergiyi keşfet",
       "meta": {
         "realName": "Gerçek adı",
         "realNameValue": "Nagato",
@@ -1459,7 +1470,22 @@
       "title": "Akatsuki Hakkında",
       "p1": "Akatsuki, savaşın en çok yaktığı toprakta doğdu. Amegakure'nin üç yetimi — Yahiko, Nagato, Konan — Jiraiya'nın gölgesinde büyüdü ve örgütü tek bir söz üstüne kurdu: savaşsız bir dünya.",
       "p2": "Yahiko'nun ölümü o sözü büktü. Barış arayışı, acıyı öğreterek barışa zorlamaya; umut, dokuz kuyruklu canavarı toplayan bir plana dönüştü. Kızıl bulutlu pelerin, yağmurda dökülen kanın işareti oldu.",
-      "p3": "Merkezde Pain durur; çevresinde ona hizmet eden — ve onu kullanan — herkes. Sergi aşağı doğru bu sırayla açılır."
+      "p3": "Merkezde Pain durur; çevresinde ona hizmet eden — ve onu kullanan — herkes. Sergi aşağı doğru bu sırayla açılır.",
+      "tallies": {
+        "members": "Mühürlü üye",
+        "tails": "Bijū hedefi",
+        "plan": "Sonsuz Tsukuyomi"
+      },
+      "goals": {
+        "title": "Amaçları",
+        "tails": "Bijū'ları toplamak",
+        "tailsText": "Dokuz kuyruklu canavarın çakrası tek elde toplanacak; güç dengesi köylerden örgüte geçecek.",
+        "moon": "Sonsuz Tsukuyomi",
+        "moonText": "Dünya tek bir illüzyona alınacak; savaş, acı ve seçim aynı anda sona erecek.",
+        "peace": "Gerçek barış",
+        "peaceText": "Yahiko'nun ideali: savaşsız, acısız bir dünya. Planın küllerinde kalan ilk söz."
+      },
+      "quote": "Gerçek barış, sadece insanların acıyı anlamasıyla mümkündür."
     },
     "paths": {
       "title": "Six Paths of Pain",
@@ -1691,6 +1717,7 @@
     },
     "nexus": {
       "title": "Nexus'ta Devam Et",
+      "banner": "Karanlıkta bir amaç, kaosta bir düzen.",
       "lede": "Bu sergi bir son durak değil — arşivin içinde bir düğüm. İpler buradan başka odalara uzanır.",
       "people": {
         "jiraiya": "Üç yetimin hocası — hikâyenin başladığı yer",

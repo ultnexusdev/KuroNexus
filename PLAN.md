@@ -373,6 +373,37 @@ Kullanıcı bildirimleri üzerine; tema serbestliği bu sayfada kullanıldı.
 - **Üretim:** 10 çağrı ≈ $0.80 (6 Path + duvar + 2 dünya kartı + Nagato).
   **Oturum toplamı: 31 ücretli çağrı ≈ $2.48**, ücretsiz 5 deneme 5×429.
 
+## 5g · V9 — PATH SADAKATİ + REFERANS YOĞUNLUĞU (18 Ağustos)
+
+Kullanıcı dört Path'in gerçek karakter görünümlerini referans karelerle
+verdi ("karakterleri kendi kararına bırakma") + referans tasarım görseli
+("bu yoğunlukta bilgi mimarisi, bu kalitede hiyerarşi; daha canlı, daha
+glow, daha sinematik"). Talep edilen skill'ler fiilen yüklendi: taste,
+soft, composition-patterns, visual-hierarchy, dark-mode-design,
+motion-system.
+
+- **Path portreleri (ücretli fal, 5 çağrı ≈ $0.60):** Preta (2 deneme —
+  ilkinde alın bandına Konoha sembolü çizildi, Amegakure çentikleri tarif
+  edilerek yeniden üretildi), Naraka, Asura, İnsan. 16:9 2K, v7 stil eki.
+  Deva ve Hayvan yuvalarına DOKUNULMADI (kullanıcı şartı: mevcut üye +
+  ilişki portreleri değişmez). Yerel + üretim medyasına API'den bağlandı
+  (login→upload→bind, 4/4+4/4; kurulum düğmesi gerekmiyor, son-kazanır).
+- **V9 tasarım katmanı** (TSX + module.css sonuna katman + 26 i18n
+  anahtarı × 2 dil): kızıl ay halesi (gradient, nefes), dikey kanji
+  şeridi (暁はここに…), hero CTA (kaydırma ipucunun yerine — taste
+  kuralı), yapışkan bölüm çubuğu (8 çapa, sticky+blur, JS'siz), Hakkında
+  sağ sütunu (Amaçları paneli: flame/rinnegan/dawn glifleriyle 3 satır +
+  Yahiko söz kartı), sayı bandı (10+ / 9 / ∞), zigzag'a Roma rakamı
+  kronoloji mührü, Nexus'a sinematik kapanış bandı (söz + dev Rinnegan;
+  ikinci buton bilinçli YOK — çift CTA yasağı, kapılar hemen altında),
+  glow bir basamak yukarı (çift katman text-shadow, 6 kor zerresi, path
+  kartlarına kızıl vinyet). Hareket token'ları tanımlandı (--aka-dur-*/
+  --aka-ease-*); reduced-motion battaniyesi yeni katmanı da kapsıyor.
+- **Ölçüm:** üretim derlemesi + eslint temiz; yerel 3100'de SSR doğrulandı
+  (yeni bölümler + TR/EN anahtarlar + yeni görsel adresleri sayfada).
+  Tarayıcı paneli kapalı olduğundan ekran görüntüsü alınamadı — canlı
+  doğrulama push sonrası.
+
 ## 6 · AÇIK RİSKLER
 
 - Kurulum ucu canlıda admin tetiklemesi bekler; o güne kadar sergi AniList

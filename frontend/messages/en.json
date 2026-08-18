@@ -1431,7 +1431,17 @@
     "subtitle": "The Dawn",
     "lede": "Founded on a promise of peace in the shadow of the rain village; twisted into a plan to bring the world to its knees. This exhibit is the archive of that transformation.",
     "backToHall": "← Back to the anime hall",
-    "scrollHint": "Scroll down — the exhibit unfolds",
+    "nav": {
+      "label": "Exhibit sections",
+      "about": "About",
+      "paths": "Six Paths",
+      "members": "Members",
+      "partners": "Duos",
+      "history": "History",
+      "relations": "Relations",
+      "symbols": "Symbols",
+      "legacy": "Legacy"
+    },
     "labels": {
       "ring": "Ring",
       "partner": "Partner",
@@ -1442,6 +1452,7 @@
       "eyebrow": "Centre of the narrative",
       "name": "Pain",
       "epigraph": "The world will grow the day it learns pain.",
+      "cta": "Explore the exhibit",
       "meta": {
         "realName": "Real name",
         "realNameValue": "Nagato",
@@ -1459,7 +1470,22 @@
       "title": "About the Akatsuki",
       "p1": "The Akatsuki was born on the land war burned hardest. Three orphans of Amegakure — Yahiko, Nagato, Konan — grew up in Jiraiya's shadow and built the organisation on a single promise: a world without war.",
       "p2": "Yahiko's death bent that promise. The search for peace became forcing peace by teaching pain; hope became a plan to collect the nine Tailed Beasts. The red-cloud cloak became the mark of blood spilled in the rain.",
-      "p3": "Pain stands at the centre; around him, everyone who served him — and everyone who used him. The exhibit unfolds downward in that order."
+      "p3": "Pain stands at the centre; around him, everyone who served him — and everyone who used him. The exhibit unfolds downward in that order.",
+      "tallies": {
+        "members": "Sealed members",
+        "tails": "Tailed beasts hunted",
+        "plan": "Infinite Tsukuyomi"
+      },
+      "goals": {
+        "title": "Their Goals",
+        "tails": "Collect the Bijū",
+        "tailsText": "The chakra of the nine tailed beasts gathered into one hand; the balance of power passes from the villages to the organisation.",
+        "moon": "Infinite Tsukuyomi",
+        "moonText": "The world cast into a single illusion; war, pain and choice ending at the same moment.",
+        "peace": "True peace",
+        "peaceText": "Yahiko's ideal: a world without war or pain. The first promise, left in the ashes of the plan."
+      },
+      "quote": "True peace is only possible when people come to understand pain."
     },
     "paths": {
       "title": "Six Paths of Pain",
@@ -1691,6 +1717,7 @@
     },
     "nexus": {
       "title": "Continue in the Nexus",
+      "banner": "A purpose in the darkness, an order in the chaos.",
       "lede": "This exhibit is not a terminus — it is a node in the archive. Threads run from here into other rooms.",
       "people": {
         "jiraiya": "Teacher of the three orphans — where the story begins",

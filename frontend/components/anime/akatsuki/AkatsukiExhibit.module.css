@@ -173,16 +173,6 @@
   color: var(--text-primary);
 }
 
-.scrollHint {
-  position: absolute;
-  bottom: 1rem;
-  left: var(--an-gutter);
-  z-index: 3;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  opacity: 0.6;
-}
-
 /* v3-A6: hero yuvaları — kürasyon kapalıyken içi boş, yer kaplamaz */
 .heroSlots {
   position: absolute;
@@ -2362,5 +2352,574 @@
 
   .statLabel {
     flex-basis: 4rem;
+  }
+}
+
+/* ============================================================
+   V9 KATMANI (18 Ağustos 2026) — "daha canlı, daha glow, daha sinematik"
+
+   Kullanıcı komutu + referans tasarım (sekme şeridi, amaç paneli, söz
+   kartı, sayı bandı, kapanış bandı). Kural 16 güncel hâliyle: glow token
+   sistemine bağlı ve ölçülü — değerler --aka-glow-* / --aka-* dışına
+   çıkmaz, hex yok.
+
+   Hareket token'ları (motion-system): yeni kurallar bu değişkenleri
+   kullanır; eski kurallar kademeli geçer. Reduced-motion battaniyesi
+   (yukarıda) bu katmanı da tamamen kapatır.
+   ============================================================ */
+.page {
+  --aka-dur-fast: 180ms;
+  --aka-dur: 320ms;
+  --aka-dur-slow: 560ms;
+  --aka-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --aka-ease-out: cubic-bezier(0, 0, 0.2, 1);
+}
+
+/* Çapa hedefleri: yapışkan çubuk + site başlığı payı */
+.sectionTitle {
+  scroll-margin-top: calc(var(--an-header) + 4.5rem);
+}
+
+/* ── HERO: kızıl ay halesi ──
+   Portrenin arkasında (z1 < portre z2), yağmurun gerisinde nefes alan
+   ışık kaynağı. Görsel değil gradient: kürasyondan bağımsız çalışır. */
+.heroMoon {
+  position: absolute;
+  right: clamp(-8rem, -6vw, -3rem);
+  top: -14%;
+  width: clamp(24rem, 46vw, 44rem);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--aka-crimson) 52%, transparent),
+    color-mix(in srgb, var(--aka-blood) 30%, transparent) 58%,
+    transparent 74%
+  );
+  opacity: 0.75;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .heroMoon {
+    animation: akaMoonPulse 9s var(--aka-ease) infinite alternate;
+  }
+}
+
+@keyframes akaMoonPulse {
+  from {
+    opacity: 0.55;
+    scale: 0.98;
+  }
+  to {
+    opacity: 0.9;
+    scale: 1.04;
+  }
+}
+
+/* ── HERO: dikey kanji şeridi (sağ kenar, dekoratif) ── */
+.heroSide {
+  position: absolute;
+  right: clamp(0.75rem, 2vw, 2rem);
+  top: 10%;
+  z-index: 3;
+  writing-mode: vertical-rl;
+  font-size: clamp(1rem, 1.6vw, 1.375rem);
+  letter-spacing: 0.42em;
+  color: var(--accent-hover);
+  opacity: 0.78;
+  text-shadow: 0 0 22px var(--aka-glow-strong);
+  pointer-events: none;
+}
+
+@media (max-width: 760px) {
+  .heroSide {
+    display: none;
+  }
+}
+
+/* ── HERO: birincil CTA — kaydırma ipucunun yerine gerçek eylem ── */
+.heroCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: max-content;
+  margin-top: clamp(0.5rem, 1.5vh, 1rem);
+  padding: 0.85rem 1.6rem;
+  min-height: var(--touch-min);
+  border: 1px solid color-mix(in srgb, var(--accent) 65%, transparent);
+  background: color-mix(in srgb, var(--aka-blood) 38%, transparent);
+  color: var(--text-primary);
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.8125rem;
+  box-shadow:
+    0 0 22px var(--aka-glow-soft),
+    inset 0 0 14px color-mix(in srgb, var(--aka-crimson) 22%, transparent);
+  transition:
+    border-color var(--aka-dur) var(--aka-ease),
+    box-shadow var(--aka-dur) var(--aka-ease),
+    translate var(--aka-dur) var(--aka-ease);
+}
+
+.heroCta:hover {
+  border-color: var(--accent-hover);
+  box-shadow:
+    0 0 36px var(--aka-glow-strong),
+    inset 0 0 18px color-mix(in srgb, var(--aka-crimson) 30%, transparent);
+  translate: 0 -2px;
+}
+
+.heroCta:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 3px;
+}
+
+.heroCtaArrow {
+  transition: translate var(--aka-dur) var(--aka-ease);
+}
+
+.heroCta:hover .heroCtaArrow {
+  translate: 0 3px;
+}
+
+/* ── YAPIŞKAN BÖLÜM ÇUBUĞU ──
+   Blur yalnız sticky öğede (performans kuralı). z60: progress (70) altı,
+   içerik üstü. */
+.tabsNav {
+  position: sticky;
+  top: var(--an-header);
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: clamp(0.5rem, 1.6vw, 1.25rem);
+  padding: 0 var(--an-gutter);
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
+  background: color-mix(in srgb, var(--bg) 84%, transparent);
+  -webkit-backdrop-filter: blur(14px) saturate(1.1);
+  backdrop-filter: blur(14px) saturate(1.1);
+}
+
+.tabsMark {
+  flex: 0 0 auto;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--accent-hover);
+  text-shadow: 0 0 16px var(--aka-glow-strong);
+}
+
+.tabsList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tabsList::-webkit-scrollbar {
+  display: none;
+}
+
+.tabsItem {
+  flex: 0 0 auto;
+}
+
+.tabsLink {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: max(var(--touch-min), 3.25rem);
+  padding: 0 clamp(0.7rem, 1.6vw, 1.1rem);
+  color: var(--text-muted);
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+  transition: color var(--aka-dur-fast) var(--aka-ease);
+}
+
+.tabsLink::after {
+  content: "";
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  bottom: 0;
+  height: 2px;
+  background: linear-gradient(to right, transparent, var(--accent-hover), transparent);
+  box-shadow: 0 0 12px var(--aka-glow-strong);
+  opacity: 0;
+  scale: 0.4 1;
+  transition:
+    opacity var(--aka-dur) var(--aka-ease),
+    scale var(--aka-dur) var(--aka-ease);
+}
+
+.tabsLink:hover,
+.tabsLink:focus-visible {
+  color: var(--accent-hover);
+}
+
+.tabsLink:hover::after,
+.tabsLink:focus-visible::after {
+  opacity: 1;
+  scale: 1 1;
+}
+
+.tabsLink:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: -4px;
+}
+
+/* ── HAKKINDA: sağ sütun panelleri ── */
+.aboutSide {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1rem, 2vw, 1.5rem);
+  min-width: 0;
+}
+
+.goalsPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: clamp(1.125rem, 2.2vw, 1.5rem);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+  background: color-mix(in srgb, var(--bg) 76%, transparent);
+  box-shadow:
+    0 0 24px var(--aka-glow-soft),
+    inset 0 1px 0 color-mix(in srgb, var(--aka-paper) 12%, transparent);
+}
+
+.goalsTitle {
+  margin: 0;
+  font-size: 1.375rem;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+  text-shadow: 0 0 18px var(--aka-glow-soft);
+}
+
+.goalRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+}
+
+.goalRow + .goalRow {
+  padding-top: 1rem;
+  border-top: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+}
+
+.goalIcon {
+  flex: 0 0 auto;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0.52rem;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  background: color-mix(in srgb, var(--aka-blood) 40%, transparent);
+  color: var(--accent-hover);
+  box-shadow: 0 0 14px var(--aka-glow-soft);
+}
+
+.goalBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.goalName {
+  font-size: 1.125rem;
+  color: var(--text-primary);
+}
+
+.goalText {
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.quoteCard {
+  position: relative;
+  margin: 0;
+  padding: clamp(1.25rem, 2.4vw, 1.75rem);
+  border: 1px solid var(--border-strong);
+  border-left: 3px solid var(--accent);
+  background:
+    radial-gradient(
+      120% 120% at 100% 0%,
+      color-mix(in srgb, var(--aka-crimson) 16%, transparent),
+      transparent 60%
+    ),
+    color-mix(in srgb, var(--bg) 80%, transparent);
+  overflow: hidden;
+  isolation: isolate;
+  box-shadow: 0 0 24px var(--aka-glow-soft);
+}
+
+.quoteCloud {
+  position: absolute;
+  right: -1.5rem;
+  bottom: -1.75rem;
+  width: 9rem;
+  opacity: 0.14;
+  z-index: 0;
+}
+
+.quoteLine {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  font-size: clamp(1.0625rem, 1.6vw, 1.25rem);
+  font-style: italic;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+.quoteBy {
+  position: relative;
+  z-index: 1;
+  margin: 0.6rem 0 0;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--accent-hover);
+}
+
+/* Sahne yokken kadro görseli panellerin altında küçük panel olur */
+.aboutSide .aboutArt {
+  min-height: 13rem;
+  mask-image: none;
+}
+
+/* v6'nın "sahnede tek kolon" kararını v9 geri açıyor: sahne artık sağ
+   sütun panellerinin arkasında nefes alıyor (referans yoğunluğu) */
+.about[data-scene] .aboutGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+}
+
+.about[data-scene] .aboutText {
+  max-width: 48ch;
+}
+
+/* ── HAKKINDA: sayı bandı ── */
+.tallyBand {
+  list-style: none;
+  margin: clamp(0.75rem, 2vw, 1.25rem) 0 0;
+  padding: clamp(1.25rem, 2.5vw, 1.75rem) 0 0;
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(0.75rem, 2.5vw, 2rem);
+  border-top: 1px solid transparent;
+  border-image: linear-gradient(
+      to right,
+      transparent,
+      color-mix(in srgb, var(--accent) 55%, transparent) 50%,
+      transparent
+    )
+    1;
+}
+
+.tally {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  text-align: center;
+  min-width: 0;
+}
+
+.tallyValue {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  line-height: 1;
+  color: var(--accent-hover);
+  text-shadow: 0 0 30px var(--aka-glow-strong);
+}
+
+.tallyName {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--text-muted);
+}
+
+/* ── TARİHÇE: kronoloji mührü ── */
+.eraIndex {
+  position: absolute;
+  top: 0.3rem;
+  right: 0.7rem;
+  z-index: 0;
+  font-size: clamp(2.75rem, 5vw, 3.75rem);
+  line-height: 1;
+  color: color-mix(in srgb, var(--text-primary) 16%, transparent);
+  text-shadow: 0 0 24px var(--aka-glow-soft);
+  pointer-events: none;
+}
+
+/* ── NEXUS: sinematik kapanış bandı ── */
+.nexusBanner {
+  position: relative;
+  margin: 0 var(--an-gutter);
+  padding: clamp(2rem, 5vw, 3.5rem) clamp(1.5rem, 4vw, 3rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--border));
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(
+      90% 140% at 8% 50%,
+      color-mix(in srgb, var(--aka-crimson) 26%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      70% 120% at 92% 50%,
+      color-mix(in srgb, var(--aka-violet) 30%, transparent),
+      transparent 60%
+    ),
+    color-mix(in srgb, var(--bg) 90%, transparent);
+  box-shadow:
+    0 0 34px var(--aka-glow-soft),
+    inset 0 0 44px rgb(0 0 0 / 0.4);
+}
+
+.nexusBannerLine {
+  position: relative;
+  z-index: 2;
+  margin: 0;
+  max-width: 26ch;
+  font-size: clamp(1.5rem, 3.4vw, 2.5rem);
+  font-style: italic;
+  line-height: 1.35;
+  text-align: center;
+  text-wrap: balance;
+  color: var(--text-primary);
+  text-shadow: 0 0 30px var(--aka-glow-strong);
+}
+
+.nexusBannerCloud {
+  position: absolute;
+  left: -2rem;
+  top: -2.5rem;
+  width: 11rem;
+  opacity: 0.12;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.nexusBannerEye {
+  position: absolute;
+  right: -4rem;
+  bottom: -6rem;
+  width: 18rem;
+  opacity: 0.14;
+  z-index: 0;
+  pointer-events: none;
+  filter: drop-shadow(0 0 14px var(--aka-glow-soft));
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .nexusBannerEye {
+    animation: akaBreath 8s var(--aka-ease) infinite alternate;
+  }
+}
+
+/* ── GLOW/CANLILIK: bir basamak daha yukarı (v7-6'nın devamı) ── */
+.mastTitle {
+  text-shadow:
+    0 0 34px var(--aka-glow-strong),
+    0 0 90px var(--aka-glow-soft);
+}
+
+.sectionTitle {
+  text-shadow:
+    0 0 26px var(--aka-glow-strong),
+    0 0 70px var(--aka-glow-soft);
+}
+
+.progress {
+  box-shadow: 0 0 12px var(--aka-glow-strong);
+}
+
+.path:hover,
+.pair:hover {
+  box-shadow: 0 0 30px var(--aka-glow-strong);
+}
+
+.pathsBand {
+  opacity: 0.34;
+}
+
+.historyBand {
+  opacity: 0.26;
+}
+
+/* Kor zerreleri: dört → altı */
+.embers {
+  background-image:
+    radial-gradient(3px 3px at 18% 72%, var(--aka-ember-hi) 40%, transparent 70%),
+    radial-gradient(2px 2px at 42% 38%, var(--aka-ember-hi) 40%, transparent 70%),
+    radial-gradient(2.5px 2.5px at 68% 82%, var(--accent-hover) 40%, transparent 70%),
+    radial-gradient(2px 2px at 85% 30%, var(--aka-ember-hi) 40%, transparent 70%),
+    radial-gradient(2px 2px at 30% 55%, var(--accent-hover) 40%, transparent 70%),
+    radial-gradient(2.5px 2.5px at 92% 62%, var(--aka-ember-hi) 40%, transparent 70%);
+}
+
+/* Path kartı: alttan kızıl vinyet — kanji ve romaji ışığın üstünde durur */
+.pathArt::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 46%;
+  pointer-events: none;
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--aka-blood) 55%, transparent),
+    transparent
+  );
+  opacity: 0.7;
+  transition: opacity var(--aka-dur) var(--aka-ease);
+}
+
+.path:hover .pathArt::after {
+  opacity: 0.95;
+}
+
+/* ── V9 MOBİL ── */
+@media (max-width: 980px) {
+  .about[data-scene] .aboutGrid {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .nexusBannerEye {
+    right: -6rem;
+    width: 14rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .tallyValue {
+    font-size: clamp(2rem, 9vw, 2.75rem);
+  }
+
+  .tallyName {
+    font-size: 0.6875rem;
+    letter-spacing: 0.12em;
+  }
+
+  .tabsMark {
+    display: none;
   }
 }

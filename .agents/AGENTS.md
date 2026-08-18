@@ -46,7 +46,7 @@
 
 ## 8. 🤖 Ajan Davranış ve Değişiklik Kuralları
 - **Önce Anla, Sonra Değiştir:** Dosyalarda değişiklik yapmadan önce mevcut yapıyı oku, gereksiz kod eklemekten kaçın.
-- **Kapsam Sınırlarına Sadık Kal:** İstenmeyen hiçbir ek özelliği, şemayı veya karmaşık animasyonu projeye dahil etme. Yalnızca istenen göreve odaklan.
+- **Kapsam Sınırlarına Sadık Kal:** İstenmeyen hiçbir ek özelliği veya şemayı projeye dahil etme. Görsel zenginlik (motion, mikro-etkileşim, glow, kompozisyon çeşitliliği) bu kısıtlamanın kapsamı dışındadır — bir sayfa/bölüm için tasarım skilleri (taste-skill, soft-skill vb.) çağrıldığında veya "zengin/sinematik tasarım" talep edildiğinde bu, görevin doğal bir parçasıdır, kapsam dışı ek özellik sayılmaz.
 - **Kısa, Odaklı Cevaplar [KRİTİK]:** Her işlemden sonra geçmiş turların özetlerini birleştirerek devasa raporlar sunma. Sadece son isteğe doğrudan, net ve sade cevap ver.
 - **Türkçe İletişim [KRİTİK]:** Açıklamalarında ve iletişiminde kesinlikle Türkçe kullan. Kod içi değişkenler İngilizce kalabilir.
 
@@ -102,7 +102,8 @@
 - Site üç dark tema ile gelir: **Mor** (varsayılan, `data-theme="purple"`), **Siyah + Turuncu** (`data-theme="orange"`), **Lacivert + Bordo** (`data-theme="navy"`). Kullanıcı bu üçü arasında geçiş yapabilir.
 - Temalar CSS custom properties ile `<html>` etiketindeki `[data-theme]` attribute'u üzerinden tanımlanır. Bileşenler **asla** doğrudan hex değeri kullanmaz; yalnızca token değişkenlerini (`var(--accent)`, `var(--surface)` vb.) okur.
 - Tüm temalar **aynı token setini** (birebir aynı değişken isimleri) override eder; layout ve bileşen kodu tema değişiminden etkilenmez, yalnızca değişken değerleri değişir.
-- Accent renkleri cart/neon olamaz; göz yormayan, doygunluğu düşük tonlar tercih edilir. **Glow/parlama (box-shadow ışıması) efekti yasaktır.**
+- Accent renkleri temanın kimliğine uygun olmalı; düşük doygunluk zorunlu değildir — bölüme özgü canlılık (Anime Salonu, Akatsuki gibi atmosferik sayfalar) teşvik edilir.
+- Glow/parlama (box-shadow ışıması) efekti varsayılan olarak kısıtlı değildir; token sistemine bağlı, ölçülü ve performansı gözeten şekilde kullanılabilir. Sayfa/bölüm bazında "sinematik" yoğunluk artırılabilir, ancak layout ve bileşen kodu yine token değişkenlerinden bağımsız olmamalıdır.
 - Kullanıcının tema tercihi kalıcı saklanır (cookie tercih edilir) ve SSR'da yanlış tema flash'ı olmaması için `<html>` etiketine ilk boyamadan önce uygulanır.
 - Yeni tema eklemek isteyen ajan mevcut token setini eksiksiz doldurmalıdır; eksik token bırakılamaz.
 - Kanonik token tanımları `frontend/styles/globals.css` dosyasındadır; renk kararı değişiklikleri yalnızca bu dosyada yapılır.

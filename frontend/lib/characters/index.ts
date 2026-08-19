@@ -1,5 +1,6 @@
 import type { CharacterOverlay } from "./types";
 import { ZARAKI_KENPACHI } from "./zaraki-kenpachi";
+import { ITACHI_UCHIHA } from "./itachi-uchiha";
 
 /**
  * Elle tasarlanmış karakter sayfaları.
@@ -10,7 +11,7 @@ import { ZARAKI_KENPACHI } from "./zaraki-kenpachi";
  *
  * Yeni karakter eklemek: `<slug>.ts` dosyası yaz, buraya bir satır ekle.
  */
-const OVERLAYS: CharacterOverlay[] = [ZARAKI_KENPACHI];
+const OVERLAYS: CharacterOverlay[] = [ZARAKI_KENPACHI, ITACHI_UCHIHA];
 
 const BY_ID = new Map(OVERLAYS.map((overlay) => [overlay.characterId, overlay]));
 

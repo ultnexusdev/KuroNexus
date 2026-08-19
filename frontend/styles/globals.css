@@ -357,6 +357,33 @@ html {
   --danger:         #a6584a;
 }
 
+/* Karakter dosyalari icinde AYRI BIR ODA — Itachi deneyim sayfasi
+   (18 Agustos 2026). Akatsuki derisinin kardesi ama daha koyu ve daha
+   keskin: zemin neredeyse saf siyaha yaslanir (sayfanin "karanliktaki
+   gozler" mekanigi bunu ister), accent Sharingan kizili. Oznitelik
+   deneyim sayfasinin kokunde (ItachiExperience/GenjutsuShell). */
+[data-world="itachi"] {
+  --bg:             #060407;
+  --surface:        #0e0a0d;
+  --surface-hover:  #161014;
+  --border:         #251a1e;
+  --border-strong:  #38262c;
+
+  --text-primary:   #f0e7e5;
+  --text-secondary: #b3a3a1;
+  /* Inceleme (18 Agu): #7e706f kucuk metinde AA'yi geciyordu; #92847f
+     surface 5.46:1 / panel 5.07:1 — hepsi AA ustu */
+  --text-muted:     #92847f;
+
+  --accent:         #c8202f; /* Sharingan kizili */
+  --accent-hover:   #e8323f;
+  --accent-muted:   #6e1720;
+
+  --gold:           #caa64a;
+  --warn:           #a6784a;
+  --danger:         #a6584a;
+}
+
 /* Salon 05 — Kitap. Taban palet: kapidan sizan ex-libris moru odanin
    yuzeylerini boyar, accent ise sirtlardaki yaldiz (kapi gorselindeki
    altin seritlerin ayni tonu). Kadim Dunyalar'in mat altinindan (#b08d57)
@@ -670,6 +697,32 @@ html {
   --aka-war-hi:    #d0722e;
   --aka-dawn:      #57514c; /* son — soluk safak zemini */
   --aka-dawn-hi:   #cfc0ae;
+
+  /* Itachi deneyim sayfasi yardimci token'lari (18 Agustos 2026).
+     Yalnizca data-world="itachi" altagaci okur; glow token'lari anime
+     kanadinin salon-lokal istisnasinin sinirlari icinde kalir. */
+  --ita-sharingan:    #e8323f;                    /* accent-hover ile ayni kimlik */
+  --ita-crimson:      #a41f2a;
+  --ita-blood:        #4a0d13;
+  --ita-moon:         rgba(200, 32, 47, 0.4);     /* kizil ay yedegi */
+  --ita-crow:         rgba(196, 54, 62, 0.62);    /* karga cizgisi (canvas + SVG) */
+  --ita-iris:         #b3121f;                    /* SVG goz irisi */
+  --ita-pupil:        #10060a;                    /* tomoe / Mangekyo deseni */
+  --ita-ring:         #33060c;                    /* iris halkasi */
+  --ita-shine:        rgba(240, 231, 229, 0.5);   /* camsi parlama */
+  --ita-glow-soft:    rgba(232, 50, 63, 0.22);
+  --ita-glow-strong:  rgba(232, 50, 63, 0.5);
+  --ita-ember:        rgba(233, 150, 62, 0.6);    /* Susanoo koru */
+  --ita-susanoo-glow: rgba(233, 150, 62, 0.24);
+  --ita-blackflame:   rgba(5, 3, 6, 0.92);        /* Amaterasu govdesi */
+  --ita-aberration:   rgba(96, 178, 214, 0.35);   /* genjutsu sapmasinin soguk kanali */
+  --ita-plus:         #6f9c72;                    /* guclu yon isareti (airing ailesi) */
+  --ita-era-anbu:     #6e8296;                    /* ANBU — celik mavisi ay isigi */
+  --ita-era-dawn:     #cfb98a;                    /* Edo Tensei — safak altini */
+  /* Kenar rengi metin olarak koyu zeminde yetmeyen donemlerin okunur
+     tonlari (inceleme: crimson 2.73:1, ember ~3.6:1 idi) */
+  --ita-crimson-text: #ef5560;
+  --ita-ember-text:   #d98a4a;
 
   /* Salon 02 — Projeksiyon Salonu yardimci token'lari */
   --film-curtain: #3d1215; /* kapinin ardindaki perde: serit cercevesi + kunye levhasi */

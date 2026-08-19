@@ -33,6 +33,21 @@
 > (canlı doğrulamadan SONRA); kapı turuncusu / salon moru çelişkisi bilinçli
 > korundu.
 >
+> ✅ **ITACHI DENEYİM SAYFASI (18-19 Ağustos)** (PLAN.md §5h):
+> /karakterler/14 artık klasik dossier değil — "Interactive Itachi
+> Experience": karanlıkta fener/reveal hero (tek parlak katman + delikli
+> örtü, compositor-only), kalibre SVG Sharingan gözleri (gerçek girdiyle
+> uyanır), karga canvas'ı (3 katman, görünürlük kapılı), Genjutsu modu,
+> Jutsu laboratuvarı, tıklanabilir Sharingan paneli (evrim/yetenekler/
+> ünlü kullanıcılar/güçlü-zayıf), Fedakârlık çizelgesi. İçerik Zaraki
+> deseninde kodda (itachi-experience.ts, TR+EN); 14 görsel (12 üretim
+> ≈ $1.04 + 2 yeniden bağlama) yerel+üretimde `itachi:*` anahtarlarında —
+> düğme gerekmez. Ultracode incelemesi 28 gerçek bulgu verdi, hepsi
+> uygulandı (hidden/display çakışması, koordinat uzayı, layout thrash,
+> maske repaint'i, AA kontrast, müzik çubuğu, iç içe main...). Akatsuki'nin
+> kendi iç içe main'i ayrı iş çipinde. Kalibrasyon notu: hero görseli
+> kürasyondan değiştirilirse ITACHI_HERO_EYES koordinatları güncellenmeli.
+>
 > ✅ **V9 — PATH SADAKATİ + REFERANS YOĞUNLUĞU (18 Ağustos)** (PLAN.md
 > §5g): dört Path portresi kullanıcının verdiği gerçek karelerle yeniden
 > üretildi (fal 5 çağrı ≈ $0.60; Preta'da Konoha bandı hatası yakalanıp

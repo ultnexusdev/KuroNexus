@@ -3,7 +3,9 @@ import { notFound } from "next/navigation";
 import { readIsAdmin } from "@/lib/auth/session";
 import { getCharacterCards, getCharacterDetail } from "@/lib/api/characters";
 import { getCharacterOverlay } from "@/lib/characters";
+import { ITACHI_ID } from "@/lib/characters/itachi-experience";
 import { CharacterDossier } from "@/components/character/CharacterDossier";
+import { ItachiExperience } from "@/components/character/itachi/ItachiExperience";
 
 // Karakter dosyası. Adres AniList karakter numarası: başlıktan slug türetmek
 // burada işe yaramaz — aynı adı taşıyan karakterler yaygın ("Ichigo" hem
@@ -43,6 +45,16 @@ export default async function CharacterPage({
   ]);
   if (!detail) {
     notFound();
+  }
+
+  /*
+   * Itachi (14): klasik dossier'in YERİNE interaktif deneyim sayfası
+   * (kullanıcı komutu, 18 Ağustos 2026). İçerik lib/characters/
+   * itachi-experience.ts'te; görselleri kendi kaydının images alanından
+   * okur, referans kartı istekleri bu dala hiç girmez.
+   */
+  if (detail.character.characterId === ITACHI_ID) {
+    return <ItachiExperience detail={detail} isAdmin={isAdmin} />;
   }
 
   // Elle tasarlanmış katman varsa sayfa onunla zenginleşir; yoksa yalnızca

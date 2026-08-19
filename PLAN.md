@@ -404,6 +404,46 @@ motion-system.
   Tarayıcı paneli kapalı olduğundan ekran görüntüsü alınamadı — canlı
   doğrulama push sonrası.
 
+## 5h · ITACHI DENEYİM SAYFASI (18-19 Ağustos)
+
+Kullanıcı komutu: /karakterler/14 klasik dossier yerine "Interactive Itachi
+Experience" — karanlıkta fener/reveal, dinamik Sharingan gözleri, karga
+katmanları, Genjutsu modu, Jutsu laboratuvarı, tıklanabilir Sharingan
+paneli (referans infografik içeriği, "Sharingan Explained" başlığı YOK),
+Fedakârlık zaman çizelgesi. Ultracode: keşif (4 okuyucu) + inceleme
+(4 boyut × çürütme paneli) workflow'larıyla.
+
+- **Mimari:** rota dalı (page.tsx, characterId 14 → ItachiExperience);
+  içerik lib/characters/itachi-experience.ts (Zaraki deseni, LocalizedText);
+  ince overlay kaydı (itachi-uchiha.ts → OVERLAYS). Üç istemci adası:
+  GenjutsuShell (data-genjutsu), ItachiHero, EyesPanel. Deri
+  [data-world="itachi"] + --ita-* yardımcıları (globals). Repo'nun İLK
+  rAF/canvas kodu (CSP unsafe-eval'siz üretimde serbest; emsal yoktu).
+- **Hero mekaniği:** parlak sahne tek katman + ortası delik "karanlık
+  örtü" (sabit gradient, yalnız transform — compositor-only; ilk maske
+  mimarisi incelemede repaint bulgusuyla değiştirildi). SVG göz katmanı
+  kalibre koordinatlarda (desktop/mobile ayrı; dikey set yalnızca dikey
+  görsel bağlıyken). Aşamalar yalnız GERÇEK girdiyle: karanlık→kor→
+  Sharingan→(bekle/tıkla)→Mangekyō. Kargalar tek canvas, 3 derinlik;
+  hero ekran dışı + sekme gizliyken İKİ rAF döngüsü de durur (paylaşılan
+  IO). Klavye: eyeKey ok tuşlarıyla fener, Enter'la aşama. Dokunmatik:
+  açılış taraması + salınım, dokununca kullanıcı devralır.
+- **Görseller (fal, 12 çağrı ≈ $1.04):** hero 16:9 + 9:16 2K (gözler
+  karanlıkta — SVG katmanı hizalanır), 3 jutsu (Tsukuyomi/Amaterasu/
+  Susanoo), 5 dönem, Sasuke+Shisui portreleri; Itachi/Madara v7 portreleri
+  aynı upload'a yeni ABILITY satırıyla YENİDEN bağlandı (kopya yok).
+  14 anahtar (itachi:*) yerel + üretimde bağlı; kurulum düğmesi gerekmez.
+- **İnceleme (33 ajan, ~3M token):** 2+26 bulgu onaylandı, 19 çürütüldü.
+  Kritikler: hidden'ı ezen display:flex, cursorDot koordinat uzayı,
+  yaz-sonra-oku layout, maske repaint'i, otomatik Mangekyō, role=status
+  spam'i, reduced-motion'da işlevsiz eyeKey, AA kontrast (--text-muted
+  #92847f, --ita-crimson-text/--ita-ember-text), müzik çubuğu çakışması
+  (--music-bar), iç içe main (Itachi'de düzeltildi; Akatsuki'ninki ayrı
+  iş çipi). Hepsi uygulandı.
+- **Ölçüm:** derleme+eslint temiz; 3100'de TR/EN SSR, panel aç/kapa,
+  evrim glif değişimi, Genjutsu modu, mobil 9:16 sanat yönü ve taşmasızlık
+  tarayıcıdan doğrulandı (rAF görselleri panel kısıtı gereği canlıda).
+
 ## 6 · AÇIK RİSKLER
 
 - Kurulum ucu canlıda admin tetiklemesi bekler; o güne kadar sergi AniList

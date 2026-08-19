@@ -113,6 +113,21 @@ export class FootballLiveService {
   private readonly clubKey: string;
   private readonly seasonStartYear: number;
   private readonly seasonLabel: string;
+  /**
+   * TFF hattı açık mı?
+   *
+   * ── NEDEN KAPATILABİLİR OLMASI GEREKTİ ────────────────────────────────
+   * 19 Ağustos 2026 canlı deploy'unda ölçüldü: üretim sunucusundan
+   * tff.org'a ULAŞILAMIYOR (puan durumu sessizce Vikipedi yedeğine düştü,
+   * fikstür ise yedeği olmadığı için 0 maçla açıldı). Yerelden aynı istek
+   * 200 dönüyor — yani engel bizim kodumuzda değil, sunucunun çıkışında.
+   *
+   * Sebep bulunana kadar her senkron TFF'yi deneyip zaman aşımına düşüyor.
+   * `FBL_TFF_ENABLED=false` o boşa beklemeyi kaldırıyor ve doğrudan
+   * Vikipedi'den okuyor. Varsayılan AÇIK: TFF ligin resmî kaynağı ve
+   * erişim geri geldiğinde kendiliğinden tercih edilsin.
+   */
+  private readonly tffEnabled: boolean;
 
   private syncRunning = false;
   private liveRunning = false;
@@ -133,6 +148,8 @@ export class FootballLiveService {
     );
     this.seasonLabel = `${this.seasonStartYear}-${String(this.seasonStartYear + 1).slice(2)}`;
     this.clubKey = this.config.get<string>('FBL_CLUB_KEY', GS_KEY);
+    this.tffEnabled =
+      this.config.get<string>('FBL_TFF_ENABLED', 'true') !== 'false';
 
     this.tff = new TffProvider();
     this.wikipedia = new WikipediaProvider({ seasonLabel: this.seasonLabel });
@@ -397,11 +414,15 @@ export class FootballLiveService {
   }
 
   private async runSync(): Promise<void> {
-    const diag: Record<string, unknown> = { season: this.seasonLabel };
+    const diag: Record<string, unknown> = {
+      season: this.seasonLabel,
+      tffEnabled: this.tffEnabled,
+    };
 
     // --- 1. Puan durumu: TFF, düşerse Vikipedi -----------------------------
     let standings: LiveStandings | null = null;
     try {
+      if (!this.tffEnabled) throw new Error('TFF.DISABLED');
       standings = await this.tff.fetchStandings();
       diag.standingsSource = 'tff';
     } catch (error) {
@@ -437,13 +458,33 @@ export class FootballLiveService {
 
     let matches: LiveMatch[] = [];
     try {
+      if (!this.tffEnabled) throw new Error('TFF.DISABLED');
       matches = await this.tff.fetchClubFixtures(this.clubKey, known);
-      diag.fixtureCount = matches.length;
-      diag.fixtureWithKickoff = matches.filter((m) => m.kickoffAt).length;
-      diag.fixtureWithVenue = matches.filter((m) => m.venue).length;
+      diag.fixtureSource = 'tff';
     } catch (error) {
-      diag.fixtureError = errMsg(error);
+      diag.fixtureTffError = errMsg(error);
     }
+
+    // ── VİKİPEDİ YEDEĞİ — ÜRETİMDE ÖLÇÜLDÜ, TEORİK DEĞİL ──────────────────
+    // 19 Ağustos 2026 canlı deploy'unda TFF'ye ULAŞILAMADI: puan durumu
+    // sessizce Vikipedi yedeğine düştü (`source: wikipedia`) ama fikstürün
+    // yedeği olmadığı için sayfa 0 maçla açıldı. Yedek o gün eklendi.
+    //
+    // Vikipedi şablonu üstelik DAHA dolu: 306 maçın tamamında tarih var
+    // (TFF yalnızca ilk üç haftayı tarihlendirmişti) ve hepsi tek istekte
+    // geliyor. TFF yine de ÖNCE deneniyor — ligin resmî kayıt tutucusu o.
+    if (matches.length === 0) {
+      try {
+        matches = await this.wikipedia.fetchClubFixtures(this.clubKey);
+        diag.fixtureSource = 'wikipedia';
+      } catch (error) {
+        diag.fixtureWikiError = errMsg(error);
+      }
+    }
+
+    diag.fixtureCount = matches.length;
+    diag.fixtureWithKickoff = matches.filter((m) => m.kickoffAt).length;
+    diag.fixtureWithVenue = matches.filter((m) => m.venue).length;
 
     // --- 3. Kadro + oyuncu istatistiği: yalnızca plan kapsıyorsa -----------
     let squad: LiveSquadPlayer[] = [];
@@ -478,8 +519,16 @@ export class FootballLiveService {
     // Ayrı bir istek gerekiyor çünkü `fetchClubFixtures` yalnızca kulübün
     // maçlarını süzüyor; haftalık tablo için ligin tamamı lazım. Tek sayfa
     // isteği, detay çekilmiyor.
+    // Aynı yedek zinciri: TFF'ye ulaşılamazsa ligin tamamı Vikipedi'den.
     try {
-      const league = await this.tff.fetchLeagueFixtures();
+      let league: LiveMatch[] = [];
+      try {
+        if (!this.tffEnabled) throw new Error('TFF.DISABLED');
+        league = await this.tff.fetchLeagueFixtures();
+      } catch {
+        league = await this.wikipedia.fetchLeagueFixtures();
+        diag.leagueSource = 'wikipedia';
+      }
       const history = computePositionHistory(league, this.clubKey);
       await this.writeCache(KEY.positionHistory, history);
       diag.positionHistory = history.length;

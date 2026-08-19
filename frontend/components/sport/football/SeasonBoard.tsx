@@ -136,12 +136,19 @@ function FixtureTimeline({
                 </p>
               ) : (
                 <p className={styles.fixtureWhen}>
+                  {/* Üç kademe, hepsi GERÇEK veri:
+                      1. saat açıklandıysa gün + saat
+                      2. yalnızca gün belliyse gün (sezonun çoğu böyle)
+                      3. ikisi de yoksa açıkça "saat yok" — uydurma tarih yok */}
                   {match.kickoffAt ? (
                     <time dateTime={match.kickoffAt}>
                       {labels.formatShort(match.kickoffAt)}
                     </time>
+                  ) : match.kickoffDate ? (
+                    <time dateTime={match.kickoffDate}>
+                      {labels.formatDay(match.kickoffDate)}
+                    </time>
                   ) : (
-                    // Saat henüz açıklanmadı. Uydurma tarih yerine tire.
                     <span className={styles.tba}>{labels.tba}</span>
                   )}
                 </p>
@@ -472,5 +479,8 @@ export interface BoardLabels {
     goalsForPerMatch: string;
     goalsAgainstPerMatch: string;
   };
+  /** "21/08 21:30" — saat açıklanmış maçlar için */
   formatShort: (iso: string) => string;
+  /** "06 Eyl" — yalnızca gün bilindiğinde; saat gösterilmiyor */
+  formatDay: (iso: string) => string;
 }

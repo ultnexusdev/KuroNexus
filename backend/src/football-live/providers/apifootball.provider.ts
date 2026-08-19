@@ -227,6 +227,9 @@ function toLiveMatch(f: AfFixture): LiveMatch {
   return {
     id: `af:${f.fixture?.id ?? ''}`,
     kickoffAt: f.fixture?.date ?? null,
+    // API-Football tarihi her zaman tam zaman damgası olarak veriyor; gün
+    // ondan türetiliyor. (Vikipedi'de tersi olabiliyor: gün var, saat yok.)
+    kickoffDate: f.fixture?.date ? f.fixture.date.slice(0, 10) : null,
     competition: f.league?.name ?? 'Bilinmiyor',
     round: f.league?.round ?? null,
     home: {

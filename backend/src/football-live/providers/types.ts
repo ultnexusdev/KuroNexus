@@ -50,6 +50,17 @@ export interface LiveMatch {
   id: string;
   /** ISO 8601, UTC. Saat bilinmiyorsa null (tarih varsa gün başı DEĞİL, null) */
   kickoffAt: string | null;
+  /**
+   * `YYYY-MM-DD` — saat bilinmese de GÜN biliniyorsa dolu.
+   *
+   * ⚠️ AYRI BİR ALAN OLMASI ŞART. `kickoffAt`e gün başı yazmak "00:00'da
+   * oynanacak" demek olurdu ve geri sayım saçmalardı. Ölçüm bu ayrımı
+   * gerektirdi: Vikipedi 306 maçın 306'sının TARİHİNİ veriyor ama SAATİNİ
+   * yalnızca 3'ünün (lig maç saatlerini birkaç hafta önce açıklıyor).
+   * Bu alan olmadan fikstür şeridinde 31 maç "saat yok" yazıyordu; artık
+   * günü gösteriyor, saati açıklanınca `kickoffAt` devralıyor.
+   */
+  kickoffDate: string | null;
   /** "Süper Lig", "UEFA Şampiyonlar Ligi", "Türkiye Kupası"… */
   competition: string;
   /** "2. Hafta" / "Ön Eleme" — bilinmiyorsa null */

@@ -2,6 +2,7 @@ import { Logger } from '@nestjs/common';
 import {
   normalizeTeamKey,
   type FootballProvider,
+  type LiveMatch,
   type LiveScorer,
   type LiveStandings,
   type LiveStandingRow,
@@ -62,7 +63,18 @@ export class WikipediaProvider implements FootballProvider {
   capabilities(): ProviderCapabilities {
     return {
       standings: true,
-      fixtures: false,
+      // ── 19 Ağustos 2026: AÇILDI ──────────────────────────────────────────
+      // Burada `false` yazıyordu, gerekçesi "madde elle güncelleniyor"du.
+      // Üretimde TFF'ye ULAŞILAMADIĞI ortaya çıkınca ölçüldü ve gerekçe
+      // çürüdü: `Şablon:<sezon> Süper Lig maçları/maçlar` 306 maçın tamamını
+      // TEK istekte veriyor (TFF'de maç başına ayrı bir detay isteği
+      // gerekiyordu), 306'sında TARİH, 290'ında stadyum var.
+      //
+      // ⚠️ "TFF'den daha dolu" derken TARİH kastediliyor, SAAT değil: saat
+      // ikisinde de yalnızca ilk üç haftada var, çünkü lig maç saatlerini
+      // birkaç hafta önce açıklıyor. `kickoffDate`/`kickoffAt` ayrımı tam
+      // bu yüzden var.
+      fixtures: true,
       liveScore: false,
       squad: false,
       playerSeasonStats: false,
@@ -96,6 +108,29 @@ export class WikipediaProvider implements FootballProvider {
     const page = `${this.options.seasonLabel} Süper Lig`;
     const wikitext = await this.fetchWikitext(page);
     return parseScorerTable(wikitext);
+  }
+
+  /**
+   * Ligin TAMAMININ fikstürü — tek istek.
+   *
+   * Kaynak `Şablon:<sezon> Süper Lig maçları/maçlar`: 198 KB'lık bir
+   * `#switch` bloğu ve her maç için `{{Kapanabilir futbol maçı kutusu}}`
+   * çağrısı taşıyor. İçinde tarih, saat, hafta, iki takım, skor ve stadyum
+   * var (ayrıca gol/kart dakikaları — henüz okunmuyor, ileride maç detayı
+   * bölümünü besleyebilir).
+   *
+   * Ölçüm (19 Ağustos 2026): 306 blok, 306'sı da ayrıştırıldı; 306 tarih,
+   * 290 stadyum, 9 skor (oynanan 1. hafta), Galatasaray için tam 34 maç,
+   * 34 farklı hafta.
+   */
+  async fetchLeagueFixtures(): Promise<LiveMatch[]> {
+    const page = `Şablon:${this.options.seasonLabel} Süper Lig maçları/maçlar`;
+    return parseFixtureTemplate(await this.fetchWikitext(page));
+  }
+
+  async fetchClubFixtures(clubKey: string): Promise<LiveMatch[]> {
+    const all = await this.fetchLeagueFixtures();
+    return all.filter((m) => m.home.key === clubKey || m.away.key === clubKey);
   }
 
   private async fetchWikitext(page: string): Promise<string> {
@@ -303,6 +338,97 @@ export function parseScorerTable(wikitext: string): LiveScorer[] {
   // Gol sayısına göre azalan; kaynak zaten sıralı ama rowspan'lı satırlarda
   // sıra kayabiliyor.
   return out.sort((a, b) => b.goals - a.goals).slice(0, 10);
+}
+
+/**
+ * Fikstür şablonunu maç listesine çevirir.
+ *
+ * Blok biçimi:
+ *   |GAL-ÇFK =
+ *   {{Kapanabilir futbol maçı kutusu
+ *   |tarih   = {{Başlangıç tarihi|2026|8|14}}
+ *   |zaman   = 21.30
+ *   |tur     = 1
+ *   |takım1  = [[Galatasaray (futbol takımı)|Galatasaray]]
+ *   |sonuç   = 2 - 2
+ *   |takım2  = [[Çorum FK|Çorum]]
+ *   |stadyum = [[Ali Sami Yen Spor Kompleksi]]
+ *   ...
+ *
+ * ⚠️ SAAT TÜRKİYE YERELİ ve NOKTALI yazılıyor ("21.30", iki nokta değil).
+ * UTC'ye çevirmek için 3 saat çıkarılıyor — Türkiye 2016'dan beri yaz saati
+ * uygulamıyor, sabit ofset güvenli.
+ *
+ * Saati olmayan maçta `kickoffAt` GÜN BAŞINA ÇEKİLMİYOR, null bırakılıyor:
+ * "00:00'da oynanacak" demek, saatin bilinmediğini söylemekten daha yanlış.
+ */
+export function parseFixtureTemplate(wikitext: string): LiveMatch[] {
+  const out: LiveMatch[] = [];
+
+  const blocks = wikitext.matchAll(
+    /\|\s*([A-ZÇĞİÖŞÜ]{2,4})-([A-ZÇĞİÖŞÜ]{2,4})\s*=\s*([\s\S]*?)(?=\n\|[A-ZÇĞİÖŞÜ]{2,4}-|\n\}\}|$)/g,
+  );
+
+  for (const [, homeCode, awayCode, body] of blocks) {
+    const home = stripWikiLink(readLine(body, 'takım1') ?? '');
+    const away = stripWikiLink(readLine(body, 'takım2') ?? '');
+    if (!home || !away) continue;
+
+    const date =
+      /\{\{Başlangıç tarihi\|(\d{4})\|(\d{1,2})\|(\d{1,2})\}\}/i.exec(
+        readLine(body, 'tarih') ?? '',
+      );
+    const time = /(\d{1,2})[.:](\d{2})/.exec(readLine(body, 'zaman') ?? '');
+
+    // Tarih ve saat AYRI alanlarda ve ayrı doluluk oranlarına sahip:
+    // 306 maçın 306'sında tarih, yalnızca 3'ünde saat var (ölçüldü).
+    const kickoffDate = date
+      ? `${date[1]}-${String(date[2]).padStart(2, '0')}-${String(date[3]).padStart(2, '0')}`
+      : null;
+
+    let kickoffAt: string | null = null;
+    if (date && time) {
+      const utc = Date.UTC(
+        Number(date[1]),
+        Number(date[2]) - 1,
+        Number(date[3]),
+        Number(time[1]) - 3,
+        Number(time[2]),
+      );
+      if (Number.isFinite(utc)) kickoffAt = new Date(utc).toISOString();
+    }
+
+    const score = /^(\d+)\s*-\s*(\d+)$/.exec(
+      (readLine(body, 'sonuç') ?? '').replace(/'''/g, '').trim(),
+    );
+    const round = readLine(body, 'tur');
+    const venue = stripWikiLink(readLine(body, 'stadyum') ?? '') || null;
+
+    out.push({
+      id: `wiki:${homeCode}-${awayCode}`,
+      kickoffAt,
+      kickoffDate,
+      competition: 'Süper Lig',
+      round: round ? `${round}. Hafta` : null,
+      home: { name: home, key: normalizeTeamKey(home), crest: null },
+      away: { name: away, key: normalizeTeamKey(away), crest: null },
+      homeGoals: score ? Number(score[1]) : null,
+      awayGoals: score ? Number(score[2]) : null,
+      status: score ? 'FINISHED' : 'SCHEDULED',
+      minute: null,
+      venue,
+      source: 'wikipedia',
+    });
+  }
+
+  return out;
+}
+
+/** Şablon parametresinin satır sonuna kadarki ham değeri. */
+function readLine(body: string, key: string): string | null {
+  const hit = new RegExp(`\\|\\s*${key}\\s*=([^\\n]*)`).exec(body);
+  const value = hit?.[1]?.trim();
+  return value ? value : null;
 }
 
 function cleanCell(raw: string): string {

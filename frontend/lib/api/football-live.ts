@@ -35,7 +35,15 @@ export interface LiveTeamRef {
 
 export interface LiveMatch {
   id: string;
+  /** Tam ilk vuruş anı (ISO, UTC). Saat açıklanmadıysa null. */
   kickoffAt: string | null;
+  /**
+   * `YYYY-MM-DD` — saat bilinmese de gün biliniyorsa dolu.
+   * Lig maç saatlerini birkaç hafta önce açıklıyor; sezonun büyük kısmında
+   * gün belli, saat değil. Bu alan sayesinde fikstür "saat yok" demek yerine
+   * günü gösteriyor.
+   */
+  kickoffDate: string | null;
   competition: string;
   round: string | null;
   home: LiveTeamRef;

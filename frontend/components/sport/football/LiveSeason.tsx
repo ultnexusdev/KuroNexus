@@ -97,6 +97,12 @@ export async function LiveSeason({
     minute: "2-digit",
     timeZone: "Europe/Istanbul",
   });
+  // Yalnizca gun bilindiginde: "06 Eyl" gibi kisa ve saatsiz.
+  const dayFormat = new Intl.DateTimeFormat(locale, {
+    day: "2-digit",
+    month: "short",
+    timeZone: "Europe/Istanbul",
+  });
   const numberFormat = new Intl.NumberFormat(locale);
 
   return (
@@ -176,6 +182,7 @@ export async function LiveSeason({
             goalsAgainstPerMatch: t("live.stat.goalsAgainstPerMatch"),
           },
           formatShort: (iso) => shortFormat.format(new Date(iso)),
+          formatDay: (iso) => dayFormat.format(new Date(iso)),
         }}
       />
 

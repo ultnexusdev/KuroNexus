@@ -169,6 +169,9 @@ export class TffProvider implements FootballProvider {
       const cached = known?.get(match.id);
       if (cached) {
         match.kickoffAt = cached.kickoffAt;
+        match.kickoffDate = cached.kickoffAt
+          ? cached.kickoffAt.slice(0, 10)
+          : null;
         match.venue = cached.venue;
         if (cached.kickoffAt && cached.venue) continue;
       }
@@ -177,7 +180,10 @@ export class TffProvider implements FootballProvider {
       try {
         const detail = await this.get(`${PAGE_MATCH}${macId}`);
         const parsed = parseTffMatchDetail(detail);
-        if (parsed.kickoffAt) match.kickoffAt = parsed.kickoffAt;
+        if (parsed.kickoffAt) {
+          match.kickoffAt = parsed.kickoffAt;
+          match.kickoffDate = parsed.kickoffAt.slice(0, 10);
+        }
         if (parsed.venue) match.venue = parsed.venue;
         spent += 1;
         // Ardışık isteklerin arasında nefes: resmî siteyi dövmüyoruz.
@@ -371,6 +377,7 @@ export function parseTffFixtures(html: string): LiveMatch[] {
     out.push({
       id: `tff:${macId}`,
       kickoffAt: null, // detay sayfasından dolduruluyor
+      kickoffDate: null,
       competition: 'Süper Lig',
       round: week ? `${week}. Hafta` : null,
       home: { name: homeName, key: normalizeTeamKey(homeName), crest: null },

@@ -776,6 +776,14 @@ html {
   --gs-draw: #8d8878;
   --gs-loss: #8e3b3b;
 
+  /* Kus bakisi saha — kuratorun favori 11'i bunun ustune diziliyor.
+     Iki ton bicilmis cim seridi icin; saf yesil DEGIL, gece stadyumunda
+     projektor altinda gorulen doygunlugu dusuk yesil. Sayfanin koyu
+     paletinin ortasinda tek yesil yuzey olmasi bilincli: burasi bir bolum
+     degil, sayfanin icindeki bir NESNE. */
+  --pitch-green:     #1d4a2b;
+  --pitch-green-alt: #21532f;
+
   /* Formula 1 — Gece Yarisi */
   --f1-carbon:    #0d0f12;
   --f1-carbon-hi: #16191e;

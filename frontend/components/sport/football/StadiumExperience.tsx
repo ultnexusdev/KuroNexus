@@ -26,12 +26,27 @@ import styles from "./StadiumExperience.module.css";
  */
 export function StadiumExperience({
   club,
+  curatorScenes,
   labels,
 }: {
   club: ClubIdentity;
+  /**
+   * Küratörün yüklediği stadyum kareleri. Doluysa TheSportsDB fanart'ı
+   * TAMAMEN devre dışı — karışık bir galeri (bir küratör karesi, bir stok
+   * kare) ne arşiv ne stok olurdu. Küratör bir kare bile koyduysa bölüm
+   * artık onun.
+   */
+  curatorScenes: string[];
   labels: StadiumLabels;
 }) {
-  const scenes = club.fanart.length > 0 ? club.fanart : club.banner ? [club.banner] : [];
+  const scenes =
+    curatorScenes.length > 0
+      ? curatorScenes
+      : club.fanart.length > 0
+        ? club.fanart
+        : club.banner
+          ? [club.banner]
+          : [];
   if (scenes.length === 0) return null;
 
   const facts = [

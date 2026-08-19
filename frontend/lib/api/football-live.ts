@@ -131,6 +131,28 @@ export interface LiveTeamSeasonStats {
   goalsAgainstPerMatch: number | null;
 }
 
+/**
+ * Küratörün favori ilk 11'i.
+ *
+ * ⚠️ Bu GERÇEK maç kadrosu DEĞİL ve sayfada da öyle sunulmuyor. Teknik
+ * direktörün dizilişi elimizde yok (o veri ücretli sağlayıcıda); burada duran
+ * şey küratörün seçimi ve başlığı da bunu söylüyor.
+ */
+export interface ClubLineupSlot {
+  /** "GK" | "LB" | … — ön yüz koordinat tablosunun anahtarı */
+  slot: string;
+  /** null ise yuva sahada boş çiziliyor (seçilmemiş ya da oyuncu ayrılmış) */
+  player: LiveSquadPlayer | null;
+}
+
+export interface ClubLineup {
+  formation: string;
+  slots: ClubLineupSlot[];
+  noteTr: string | null;
+  noteEn: string | null;
+  filled: number;
+}
+
 export interface ClubNewsItem {
   title: string;
   link: string;
@@ -147,6 +169,17 @@ export interface PositionPoint {
 export interface ClubIdentity {
   key: string;
   name: string;
+  /**
+   * Lig şampiyonluğu sayısı, yıldız ve sıradaki hedef.
+   *
+   * Kaynağı bir veri sağlayıcısı DEĞİL, yapılandırma (`FBL_LEAGUE_TITLES`):
+   * hiçbir ücretsiz kaynağımız kupa sayısı vermiyor ve sayı sezonda bir
+   * değişiyor. Yıldız beşe bölünerek türetiliyor (Türkiye kuralı), hedef ise
+   * bir fazlası. Üçü de null olabilir — o zaman bant hiç çizilmiyor.
+   */
+  leagueTitles: number | null;
+  stars: number | null;
+  nextTitle: number | null;
   crest: string | null;
   banner: string | null;
   jersey: string | null;
@@ -177,6 +210,14 @@ export interface ClubLiveOverview {
   /** Kulübün RESMÎ RSS beslemesinden gelen haberler (haber şeridi) */
   news: ClubNewsItem[];
   squad: LiveSquadPlayer[];
+  /** Küratörün favori ilk 11'i; hiç kurulmamışsa null */
+  lineup: ClubLineup | null;
+  /**
+   * Küratörün yüklediği görseller. Boşsa sayfa TheSportsDB karelerine
+   * düşüyor; doluysa ONLAR çiziliyor — arşivin sahibi hangi kareyi
+   * istiyorsa o.
+   */
+  curatorImages: { hero: string[]; stadium: string[] };
   capabilities: { liveScore: boolean; playerSeasonStats: boolean };
   updatedAt: string | null;
 }

@@ -134,6 +134,63 @@
   color: color-mix(in srgb, var(--gs-cream) 62%, transparent);
 }
 
+/* ---- Yıldızlar · şampiyonluk · hedef ----
+   Kulübün en görünür işareti. Yıldızlar altın, hedef kırmızı çerçevede:
+   biri geçmişi, diğeri sıradaki hedefi söylüyor ve ikisi aynı satırda
+   durunca aradaki gerilim okunuyor. */
+.honours {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.9rem;
+  margin: 0;
+}
+
+.stars {
+  font-size: clamp(0.95rem, 2vw, 1.3rem);
+  letter-spacing: 0.12em;
+  line-height: 1;
+  color: var(--gs-brand-yellow);
+  text-shadow: 0 0 0.8rem var(--gs-brand-glow);
+}
+
+.honoursText {
+  font-family: var(--font-mono);
+  font-size: var(--sp-data);
+  letter-spacing: 0.06em;
+  color: color-mix(in srgb, var(--gs-cream) 62%, transparent);
+}
+
+.target {
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.66rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gs-brand-yellow);
+  padding: 0.25rem 0.6rem;
+  border: 1px solid color-mix(in srgb, var(--gs-brand-red) 65%, transparent);
+  background: color-mix(in srgb, var(--gs-brand-red) 16%, transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Hedef rozeti maç günü kipinde nefes alıyor — sürekli değil, yalnızca
+     bir şey olurken. */
+  .hero[data-mode="today"] .target,
+  .hero[data-mode="live"] .target {
+    animation: targetPulse 2.6s ease-in-out infinite;
+  }
+}
+
+@keyframes targetPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+  50% {
+    box-shadow: 0 0 1.2rem 0 var(--gs-brand-blood);
+  }
+}
+
 /* Son maç / sonraki maç yan yana. Tek bir kolon değil çünkü ikisi FARKLI
    zaman yönüne bakıyor; yan yana durunca "geçmiş ↔ gelecek" ekseni
    kendiliğinden okunuyor. */

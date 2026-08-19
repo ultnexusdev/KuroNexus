@@ -52,7 +52,13 @@ export function MatchdayHero({
   labels: HeroLabels;
 }) {
   const mode: MatchdayMode = matchdayMode(overview, now);
-  const backdrop = overview.club?.fanart[0] ?? overview.club?.banner ?? null;
+  // Öncelik KÜRATÖRÜN: yüklediği kare varsa o, yoksa TheSportsDB fanart'ı,
+  // o da yoksa banner. Hiçbiri yoksa katman hiç çizilmiyor.
+  const backdrop =
+    overview.curatorImages.hero[0] ??
+    overview.club?.fanart[0] ??
+    overview.club?.banner ??
+    null;
 
   return (
     <header className={styles.hero} data-mode={mode}>
@@ -87,6 +93,26 @@ export function MatchdayHero({
         {overview.club && overview.club.nicknames.length > 0 ? (
           <p className={styles.nicknames}>
             {overview.club.nicknames.join(" · ")}
+          </p>
+        ) : null}
+
+        {/* ── Yıldızlar ve sıradaki hedef ──
+            Yıldız sayısı kupa sayısından TÜRETİLİYOR (her beş şampiyonluk bir
+            yıldız) — eski görsellerdeki üç/dört yıldız yerine güncel sayı
+            neyse o çiziliyor. Kupa sayısı bilinmiyorsa bant HİÇ görünmüyor;
+            tahmini bir yıldız dizmek kulübün en görünür işaretini yanlış
+            göstermek olurdu. */}
+        {overview.club?.stars && overview.club.nextTitle ? (
+          <p className={styles.honours}>
+            <span className={styles.stars} aria-hidden="true">
+              {"★".repeat(overview.club.stars)}
+            </span>
+            <span className={styles.honoursText}>
+              {labels.titles(overview.club.leagueTitles ?? 0)}
+            </span>
+            <span className={styles.target}>
+              {labels.target(overview.club.nextTitle)}
+            </span>
           </p>
         ) : null}
 
@@ -269,5 +295,9 @@ export interface HeroLabels {
   minutes: string;
   seconds: string;
   resultShort: Record<"W" | "D" | "L", string>;
+  /** 26 → "26 şampiyonluk" */
+  titles: (count: number) => string;
+  /** 27 → "HEDEF 27" */
+  target: (next: number) => string;
   formatDateTime: (iso: string) => string;
 }

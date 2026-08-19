@@ -2169,7 +2169,44 @@
       },
       "dataNote": "Fikstür, sonuçlar ve puan durumu günde bir kez resmî kaynaktan tazelenir.",
       "updatedAt": "Son güncelleme",
-      "newsLabel": "Galatasaray Live"
+      "newsLabel": "Galatasaray Live",
+      "eleven": {
+        "eyebrow": "Küratörün seçimi",
+        "title": "Favori ilk 11",
+        "emptySlot": "Boş",
+        "disclaimer": "Bu bir maç kadrosu değil. Teknik ekibin dizilişi bu sayfada gösterilmiyor; buradaki 11 küratörün mevcut kadrodan yaptığı seçim.",
+        "curatorOn": "Küratör modu",
+        "curatorOff": "Küratör modunu kapat",
+        "curatorHint": "Her mevkiye mevcut kadrodan bir oyuncu seç. Aynı oyuncu iki mevkide görünemez; seçtiğin oyuncu diğer listelerden düşer. Boş bıraktığın mevki sahada boş çizilir.",
+        "noteLabel": "Not",
+        "notePlaceholder": "Bu 11 hakkında kısa bir not (isteğe bağlı)",
+        "save": "Kaydet",
+        "saving": "Kaydediliyor…",
+        "saveError": "Kaydedilemedi. Tekrar dene.",
+        "loadError": "Kadro alınamadı."
+      },
+      "titles": "{count} şampiyonluk",
+      "target": "Hedef {next}",
+      "images": {
+        "title": "Görseller",
+        "hint": "Kendi kareni yükle; yüklediğin an sayfa stok görselleri bırakıp bunları kullanır. Dosya sunucumuza indirilir, dış adres saklanmaz.",
+        "kind": "Nerede",
+        "kindStadium": "Stadyum bölümü",
+        "kindHero": "Hero arka planı",
+        "caption": "Alt yazı",
+        "source": "Kaynak",
+        "sourcePlaceholder": "ör. kaynak: kulüp arşivi",
+        "pickFile": "Dosya seç",
+        "uploading": "Yükleniyor…",
+        "or": "ya da",
+        "urlPlaceholder": "Görsel adresi (https://…)",
+        "fetch": "Getir",
+        "remove": "Kaldır",
+        "confirmRemove": "Bu görsel sayfadan kaldırılsın mı?",
+        "loadError": "Görseller alınamadı.",
+        "uploadError": "Yüklenemedi. Dosya çok büyük ya da biçim desteklenmiyor olabilir.",
+        "removeError": "Kaldırılamadı."
+      }
     }
   },
   "music": {

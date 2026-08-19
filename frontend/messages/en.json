@@ -2169,7 +2169,44 @@
       },
       "dataNote": "Fixtures, results and the league table refresh once a day from the official source.",
       "updatedAt": "Last updated",
-      "newsLabel": "Galatasaray Live"
+      "newsLabel": "Galatasaray Live",
+      "eleven": {
+        "eyebrow": "Curator's pick",
+        "title": "Favourite XI",
+        "emptySlot": "Empty",
+        "disclaimer": "This is not a matchday squad. The coaching staff's line-up is not shown here; this XI is the curator's own pick from the current squad.",
+        "curatorOn": "Curator mode",
+        "curatorOff": "Close curator mode",
+        "curatorHint": "Pick a player from the current squad for each position. The same player cannot appear twice; a picked player drops out of the other lists. Positions you leave empty are drawn empty on the pitch.",
+        "noteLabel": "Note",
+        "notePlaceholder": "A short note about this XI (optional)",
+        "save": "Save",
+        "saving": "Saving…",
+        "saveError": "Could not save. Try again.",
+        "loadError": "Could not load the squad."
+      },
+      "titles": "{count} league titles",
+      "target": "Target {next}",
+      "images": {
+        "title": "Images",
+        "hint": "Upload your own frame; the page switches from stock imagery to yours as soon as you do. Files are downloaded to our server — external URLs are never stored.",
+        "kind": "Where",
+        "kindStadium": "Stadium section",
+        "kindHero": "Hero backdrop",
+        "caption": "Caption",
+        "source": "Source",
+        "sourcePlaceholder": "e.g. source: club archive",
+        "pickFile": "Choose file",
+        "uploading": "Uploading…",
+        "or": "or",
+        "urlPlaceholder": "Image URL (https://…)",
+        "fetch": "Fetch",
+        "remove": "Remove",
+        "confirmRemove": "Remove this image from the page?",
+        "loadError": "Could not load images.",
+        "uploadError": "Upload failed. The file may be too large or an unsupported format.",
+        "removeError": "Could not remove."
+      }
     }
   },
   "music": {

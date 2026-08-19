@@ -1,6 +1,6 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Cron } from '@nestjs/schedule';
 import { PrismaService } from '../prisma/prisma.service';
@@ -14,6 +14,7 @@ import {
   type TsdbTeamAssets,
 } from './providers/thesportsdb.provider';
 import { ApiFootballProvider } from './providers/apifootball.provider';
+import { GsOfficialProvider } from './providers/gs-official.provider';
 import {
   ClubFeedProvider,
   type ClubNewsItem,
@@ -26,6 +27,8 @@ import {
   type LiveStandings,
   type LiveTeamSeasonStats,
 } from './providers/types';
+import { LINEUP_SLOTS, type SetLineupDto } from './dto/set-lineup.dto';
+import type { AddClubImageDto } from './dto/club-image.dto';
 import type { Prisma } from '../generated/prisma/client';
 
 /**
@@ -58,6 +61,7 @@ const KEY = {
   assets: 'fbl:assets',
   scorers: 'fbl:scorers',
   playerPhotos: 'fbl:player-photos',
+  squad: 'fbl:squad',
   news: 'fbl:news',
   positionHistory: 'fbl:position-history',
   live: 'fbl:live',
@@ -82,14 +86,61 @@ export interface ClubLiveOverview {
   /** Kulübün RESMÎ RSS beslemesi — haber şeridinin kaynağı */
   news: ClubNewsItem[];
   squad: LiveSquadPlayer[];
+  /** Küratörün favori ilk 11'i; hiç kurulmamışsa null */
+  lineup: ClubLineup | null;
+  /**
+   * Kuratorun yukledigi gorseller. Bos ise sayfa TheSportsDB karelerine
+   * dusuyor; doluysa ONLAR ciziliyor — arsivin sahibi hangi kareyi istiyorsa o.
+   */
+  curatorImages: { hero: string[]; stadium: string[] };
   /** Ön yüz "bu bölüm neden yok" sorusunu buradan cevaplıyor */
   capabilities: { liveScore: boolean; playerSeasonStats: boolean };
   updatedAt: string | null;
 }
 
+/**
+ * Küratörün 11'indeki tek yuva.
+ *
+ * `player` null ise yuva sahada BOŞ çiziliyor. Bu iki durumu kapsıyor:
+ * küratör orayı henüz doldurmadı, ya da seçtiği oyuncu kadrodan ayrıldı.
+ * İkisinde de doğru davranış aynı: kimlik kodu göstermek yerine boş bırakmak.
+ */
+export interface ClubLineupSlot {
+  slot: string;
+  player: LiveSquadPlayer | null;
+}
+
+export interface ClubLineup {
+  formation: string;
+  slots: ClubLineupSlot[];
+  noteTr: string | null;
+  noteEn: string | null;
+  /** Kaç yuva dolu — ön yüz "henüz kurulmadı" durumunu buradan anlıyor */
+  filled: number;
+}
+
 export interface ClubIdentity {
   key: string;
   name: string;
+  /**
+   * Lig şampiyonluğu sayısı ve yıldız.
+   *
+   * ── NEDEN YAPILANDIRMADAN, VERİ KAYNAĞINDAN DEĞİL ──────────────────────
+   * Hiçbir ücretsiz kaynağımız kupa sayısı vermiyor ve bu sayı SEZONDA BİR
+   * değişiyor. Bir sağlayıcı beklemek yerine `FBL_LEAGUE_TITLES` ile
+   * veriliyor; kulüp şampiyon olduğunda Coolify'da tek sayı güncelleniyor.
+   *
+   * Yıldız TÜRETİLİYOR, ayrıca yazılmıyor: Türkiye'de her beş şampiyonluk
+   * bir yıldız. 26 şampiyonluk → 5 yıldız. İki alanı ayrı ayrı elle girmek,
+   * bir gün birbirini tutmamaları demekti.
+   *
+   * ⚠️ Kullanıcı 19 Ağustos 2026'da uyardı: kulübün artık BEŞ yıldızı var,
+   * eski üç/dört yıldızlı görseller kullanılmamalı.
+   */
+  leagueTitles: number | null;
+  stars: number | null;
+  /** Sıradaki şampiyonluk — "hedef 27" motifinin kaynağı */
+  nextTitle: number | null;
   crest: string | null;
   banner: string | null;
   jersey: string | null;
@@ -108,6 +159,7 @@ export class FootballLiveService {
   private readonly wikipedia: WikipediaProvider;
   private readonly tsdb: TheSportsDbProvider;
   private readonly clubFeed: ClubFeedProvider;
+  private readonly gsOfficial: GsOfficialProvider;
   private readonly apiFootball: ApiFootballProvider | null;
 
   private readonly clubKey: string;
@@ -128,6 +180,8 @@ export class FootballLiveService {
    * erişim geri geldiğinde kendiliğinden tercih edilsin.
    */
   private readonly tffEnabled: boolean;
+  /** Lig sampiyonlugu sayisi — yildiz ve "hedef" sayisi bundan turetiliyor. */
+  private readonly leagueTitles: number | null;
 
   private syncRunning = false;
   private liveRunning = false;
@@ -150,6 +204,10 @@ export class FootballLiveService {
     this.clubKey = this.config.get<string>('FBL_CLUB_KEY', GS_KEY);
     this.tffEnabled =
       this.config.get<string>('FBL_TFF_ENABLED', 'true') !== 'false';
+    // Sifir ya da sayisal olmayan deger 'bilinmiyor' sayiliyor: 0 sampiyonluk
+    // yazmak, bilmemekten farkli ve YANLIS bir iddia olurdu.
+    const titles = Number(this.config.get<string>('FBL_LEAGUE_TITLES', ''));
+    this.leagueTitles = Number.isInteger(titles) && titles > 0 ? titles : null;
 
     this.tff = new TffProvider();
     this.wikipedia = new WikipediaProvider({ seasonLabel: this.seasonLabel });
@@ -164,6 +222,15 @@ export class FootballLiveService {
         'https://www.galatasaray.org/xml/gs.rss',
       ),
     );
+
+    // Resmî kadro sayfası. Kaynak kulübün kendisi olduğu için transferler
+    // açıklandığı gün burada; Transfermarkt seti bir sezon geriden geliyordu.
+    this.gsOfficial = new GsOfficialProvider({
+      squadUrl: this.config.get<string>(
+        'FBL_CLUB_SQUAD_URL',
+        'https://www.galatasaray.org/pl/futbol-takim-kadrosu/9',
+      ),
+    });
 
     const afKey = this.config.get<string>('API_FOOTBALL_KEY');
     this.apiFootball = afKey
@@ -204,6 +271,8 @@ export class FootballLiveService {
       scorers: [],
       news: [],
       squad: [],
+      lineup: null,
+      curatorImages: { hero: [], stadium: [] },
       capabilities: { liveScore: false, playerSeasonStats: false },
       updatedAt: null,
     };
@@ -243,9 +312,21 @@ export class FootballLiveService {
     // ⚠️ İkisi BİRLEŞTİRİLMİYOR, biri seçiliyor. İki listeyi harmanlamak aynı
     // oyuncunun iki kaydını (farklı id, farklı yazım) yan yana koyma riski
     // taşır; istatistikli liste varsa o kazanır, yoksa künyeli liste çizilir.
-    const apiSquad = fixturesRow?.payload?.squad ?? [];
-    const squad =
-      apiSquad.length > 0 ? apiSquad : await this.readTransfermarktSquad();
+    // ── KADRO: üç kaynaklı, öncelik sırası açık ────────────────────────────
+    // 1. API-Football — sezon istatistiğiyle gelir, ama plan bunu kapsamıyorsa boş.
+    // 2. Kulübün RESMÎ kadro sayfası — bugünkü doğru liste (31 oyuncu, numara,
+    //    mevki, resmî portre). Senkronda çekilip cache'e yazılıyor.
+    // 3. Transfermarkt tabloları — en eski yedek.
+    //
+    // ⚠️ SIRA KULLANICI BİLDİRİMİYLE DEĞİŞTİ. Önce Transfermarkt birincildi ve
+    // ölçülmüş bir hata üretti: veri seti 5 Ağustos anlık görüntüsü olduğu için
+    // **Icardi hâlâ kadrodaydı, Uğurcan Çakır hiç yoktu**. Kulübün kendi sayfası
+    // o gecikmeyi tamamen kaldırıyor.
+    //
+    // Kaynaklar BİRLEŞTİRİLMİYOR, biri seçiliyor: aynı oyuncunun iki kaynaktaki
+    // adı farklı yazılıyor ("Wilfried Stephane Singo" / "Wilfried Singo") ve
+    // harmanlamak aynı kişiyi iki kez listeleme riski taşıyor.
+    const squad = await this.resolveSquad(fixturesRow?.payload?.squad ?? []);
 
     // Armaları puan tablosuna ve fikstüre BURADA bağlıyoruz, senkronda değil:
     // görsel seti ayrı tazeleniyor ve iki cache satırını birbirine yazmak
@@ -280,6 +361,15 @@ export class FootballLiveService {
         ? {
             key,
             name: mine.name,
+            leagueTitles: this.leagueTitles,
+            // Türkiye'de her beş şampiyonluk bir yıldız. Sayı bilinmiyorsa
+            // yıldız da bilinmiyor — tahmin edilmiyor.
+            stars:
+              this.leagueTitles !== null
+                ? Math.floor(this.leagueTitles / 5)
+                : null,
+            nextTitle:
+              this.leagueTitles !== null ? this.leagueTitles + 1 : null,
             crest: mine.crest,
             banner: mine.banner,
             jersey: mine.jersey,
@@ -301,6 +391,10 @@ export class FootballLiveService {
       scorers: scorersRow?.payload ?? [],
       news: newsRow?.payload ?? [],
       squad,
+      // 11 kadroyla birlikte çözülüyor: yuvadaki kimlik ancak elimizdeki
+      // kadroda karşılığı varsa oyuncuya dönüşüyor (bkz. readLineup).
+      lineup: await this.readLineup(squad),
+      curatorImages: await this.readCuratorImages(),
       capabilities: {
         liveScore: this.apiFootball?.capabilities().liveScore ?? false,
         playerSeasonStats:
@@ -325,6 +419,28 @@ export class FootballLiveService {
    * "0 gol, 0 asist" yazmak, oynamamış bir oyuncuyla gol atamamış bir
    * oyuncuyu aynı gösterirdi.
    */
+  /**
+   * Resmî kadroyu cache'ten okur ve portre adreslerini yerel yollarla değiştirir.
+   *
+   * Cache'i senkron dolduruyor (`syncOfficialSquad`); burada dış çağrı YOK —
+   * kural 4/14. Portresi inmemiş oyuncu fotoğrafsız çiziliyor, dış adres
+   * sayfaya KONMUYOR (CSP onu engelliyor, kırık görsel olurdu).
+   */
+  private async readOfficialSquad(): Promise<LiveSquadPlayer[]> {
+    const [row, photoRow] = await Promise.all([
+      this.readCache<LiveSquadPlayer[]>(KEY.squad),
+      this.readCache<Record<string, string>>(KEY.playerPhotos),
+    ]);
+    const squad = row?.payload ?? [];
+    if (squad.length === 0) return [];
+
+    const localPhotos = photoRow?.payload ?? {};
+    return squad.map((player) => ({
+      ...player,
+      photo: localPhotos[player.id] ?? null,
+    }));
+  }
+
   private async readTransfermarktSquad(): Promise<LiveSquadPlayer[]> {
     try {
       const [{ players }, photoRow] = await Promise.all([
@@ -358,6 +474,241 @@ export class FootballLiveService {
       this.logger.warn(`Transfermarkt kadrosu okunamadı: ${errMsg(error)}`);
       return [];
     }
+  }
+
+  /**
+   * Kadroyu üç kaynaktan çözer — öncelik sırası ve gerekçesi
+   * `getClubOverview` içindeki blokta yazılı.
+   *
+   * Ayrı bir metot çünkü küratör paneli de aynı listeye ihtiyaç duyuyor
+   * (11'i seçerken); iki yerde iki ayrı sıra yazmak, panelin sayfadan farklı
+   * bir kadro göstermesi demek olurdu.
+   */
+  private async resolveSquad(
+    apiSquad: LiveSquadPlayer[] = [],
+  ): Promise<LiveSquadPlayer[]> {
+    if (apiSquad.length > 0) return apiSquad;
+
+    const official = await this.readOfficialSquad();
+    if (official.length > 0) return official;
+
+    return this.readTransfermarktSquad();
+  }
+
+  // ---- Küratör görselleri --------------------------------------------------
+
+  /**
+   * Kulübün küratör görselleri — `SportImage` (GALLERY) üzerinden.
+   *
+   * ── NEDEN VERİ KAYNAĞININ ÖNÜNDE ─────────────────────────────────────────
+   * Hero arka planı ve stadyum sahneleri şimdiye kadar TheSportsDB'nin
+   * "fanart" karelerinden geliyordu. Onlar iş görüyor ama KÜRATÖRÜN DEĞİL:
+   * hangi kare, hangi gece, hangi koreografi — bunlar arşivin sahibinin
+   * kararı. Küratör görsel yüklediği an sayfa onu tercih ediyor, hiç
+   * yüklemediyse TheSportsDB karesine düşüyor.
+   *
+   * `kind` ayrımı `sourceNote` ile DEĞİL, alt metnin önekiyle taşınıyor mu?
+   * Hayır — ayrı bir sütun açmamak için `orderIndex` bandı kullanılıyor:
+   * HERO görselleri 0-99, STADIUM 100+. Böylece tek slot (GALLERY) iki işi
+   * ayırıyor ve migration gerekmiyor.
+   */
+  private static readonly HERO_ORDER_BASE = 0;
+  private static readonly STADIUM_ORDER_BASE = 100;
+
+  /** Sayfanın kullandığı sade biçim: yalnızca adresler, sırayla. */
+  private async readCuratorImages(): Promise<{
+    hero: string[];
+    stadium: string[];
+  }> {
+    const images = await this.listClubImages();
+    return {
+      hero: images.hero.map((i) => i.url),
+      stadium: images.stadium.map((i) => i.url),
+    };
+  }
+
+  async listClubImages() {
+    const club = await this.prisma.footballClub.findUnique({
+      where: { slug: this.clubKey },
+      select: { id: true },
+    });
+    if (!club) return { hero: [], stadium: [] };
+
+    const rows = await this.prisma.sportImage.findMany({
+      where: { clubId: club.id, slot: 'GALLERY', isDeleted: false },
+      orderBy: { orderIndex: 'asc' },
+    });
+
+    const shape = (r: (typeof rows)[number]) => ({
+      id: r.id,
+      url: r.url,
+      altTr: r.altTr,
+      captionTr: r.captionTr,
+      sourceNote: r.sourceNote,
+    });
+
+    return {
+      hero: rows
+        .filter((r) => r.orderIndex < FootballLiveService.STADIUM_ORDER_BASE)
+        .map(shape),
+      stadium: rows
+        .filter((r) => r.orderIndex >= FootballLiveService.STADIUM_ORDER_BASE)
+        .map(shape),
+    };
+  }
+
+  async addClubImage(dto: AddClubImageDto) {
+    // Dış adres reddediliyor: CSP onu zaten engelliyor, kaydetmek yalnızca
+    // sayfada kırık görsel üretirdi (uploads modülündeki kural).
+    if (!dto.url.startsWith('/uploads/')) {
+      throw new BadRequestException('FBL.IMAGE_MUST_BE_UPLOADED');
+    }
+
+    const club = await this.prisma.footballClub.findUnique({
+      where: { slug: this.clubKey },
+      select: { id: true },
+    });
+    if (!club) throw new BadRequestException('FBL.CLUB_NOT_FOUND');
+
+    const base =
+      dto.kind === 'STADIUM'
+        ? FootballLiveService.STADIUM_ORDER_BASE
+        : FootballLiveService.HERO_ORDER_BASE;
+
+    // Sıradaki indeks: aynı banttaki en büyüğün bir fazlası. Böylece yeni
+    // görsel SONA ekleniyor ve mevcut sıralama bozulmuyor.
+    const last = await this.prisma.sportImage.findFirst({
+      where: {
+        clubId: club.id,
+        slot: 'GALLERY',
+        isDeleted: false,
+        orderIndex: {
+          gte: base,
+          lt: base + FootballLiveService.STADIUM_ORDER_BASE,
+        },
+      },
+      orderBy: { orderIndex: 'desc' },
+      select: { orderIndex: true },
+    });
+
+    const created = await this.prisma.sportImage.create({
+      data: {
+        clubId: club.id,
+        slot: 'GALLERY',
+        url: dto.url,
+        altTr: dto.altTr ?? null,
+        captionTr: dto.captionTr ?? null,
+        sourceNote: dto.sourceNote ?? null,
+        orderIndex: last ? last.orderIndex + 1 : base,
+      },
+    });
+    return { id: created.id, url: created.url };
+  }
+
+  /**
+   * Görseli SOFT SİLİYOR (`isDeleted`), diskteki dosyaya dokunmuyor.
+   *
+   * Gerekçe deponun arşiv modellerinde yerleşik: yanlışlıkla silinen bir
+   * kareyi geri almak tek satırlık bir güncelleme olsun. Dosyayı da silmek
+   * geri dönülemez olurdu ve `/uploads` zaten `immutable` sunuluyor.
+   */
+  async removeClubImage(id: string) {
+    await this.prisma.sportImage.update({
+      where: { id },
+      data: { isDeleted: true },
+    });
+    return { ok: true };
+  }
+
+  // ---- Küratörün favori 11'i -----------------------------------------------
+
+  /**
+   * Kayıtlı 11'i okur ve oyuncu kimliklerini KADRODAN çözer.
+   *
+   * ⚠️ Kimlik çözülemezse yuva BOŞ bırakılıyor, kimlik yazılmıyor. Sebep:
+   * küratör bir oyuncu seçtikten sonra o oyuncu kadrodan ayrılabilir
+   * (transfer). O durumda sahada "gs:3314" gibi bir kod göstermek anlamsız;
+   * boş yuva küratöre "burayı yeniden seç" diyor.
+   */
+  private async readLineup(
+    squad: LiveSquadPlayer[],
+  ): Promise<ClubLineup | null> {
+    const row = await this.prisma.footballLineup.findUnique({
+      where: { clubKey: this.clubKey },
+    });
+    if (!row) return null;
+
+    const byId = new Map(squad.map((p) => [p.id, p]));
+    const raw = (row.slots ?? {}) as Record<string, string>;
+    const slots: ClubLineupSlot[] = [];
+
+    for (const slot of LINEUP_SLOTS) {
+      const playerId = raw[slot];
+      slots.push({
+        slot,
+        player: playerId ? (byId.get(playerId) ?? null) : null,
+      });
+    }
+
+    return {
+      formation: row.formation,
+      slots,
+      noteTr: row.noteTr,
+      noteEn: row.noteEn,
+      /** Kaç yuva dolu — ön yüz "henüz kurulmadı" durumunu buradan anlıyor */
+      filled: slots.filter((s) => s.player).length,
+    };
+  }
+
+  /** Admin: kayıtlı 11 + seçilebilecek kadro (panel tek istekte kurulsun). */
+  async getLineupForCurator() {
+    const squad = await this.resolveSquad();
+    const lineup = await this.readLineup(squad);
+    return {
+      formation: lineup?.formation ?? '4-2-3-1',
+      slots: LINEUP_SLOTS.map((slot) => ({
+        slot,
+        playerId:
+          lineup?.slots.find((s) => s.slot === slot)?.player?.id ?? null,
+      })),
+      noteTr: lineup?.noteTr ?? null,
+      noteEn: lineup?.noteEn ?? null,
+      squad,
+    };
+  }
+
+  async setLineup(dto: SetLineupDto) {
+    // Bilinmeyen yuva anahtarı sessizce atılıyor: bozuk bir gövde yüzünden
+    // küratörün bütün seçimi reddedilmesin.
+    const slots: Record<string, string> = {};
+    for (const slot of LINEUP_SLOTS) {
+      const value = dto.slots?.[slot];
+      if (typeof value === 'string' && value.trim()) {
+        slots[slot] = value.trim();
+      }
+    }
+
+    const row = await this.prisma.footballLineup.upsert({
+      where: { clubKey: this.clubKey },
+      create: {
+        clubKey: this.clubKey,
+        formation: dto.formation,
+        slots,
+        noteTr: dto.noteTr ?? null,
+        noteEn: dto.noteEn ?? null,
+      },
+      update: {
+        formation: dto.formation,
+        slots,
+        noteTr: dto.noteTr ?? null,
+        noteEn: dto.noteEn ?? null,
+      },
+    });
+    return {
+      ok: true,
+      filled: Object.keys(slots).length,
+      updatedAt: row.updatedAt,
+    };
   }
 
   /** Canlı skor için hafif uç — ön yüz maç saatinde bunu yokluyor. */
@@ -546,6 +897,18 @@ export class FootballLiveService {
       diag.scorersError = errMsg(error);
     }
 
+    // --- 3a. RESMÎ KADRO: kulübün kendi sayfasından ------------------------
+    // Sıra önemli: portre indirme adımı bu cache'i okuyor, bu yüzden ondan
+    // ÖNCE koşuyor. Başarısız olursa bir önceki kadro cache'te kalıyor —
+    // eski ama doğru bir liste, boş listeden iyidir.
+    try {
+      const officialSquad = await this.gsOfficial.fetchSquad();
+      await this.writeCache(KEY.squad, officialSquad);
+      diag.officialSquad = officialSquad.length;
+    } catch (error) {
+      diag.officialSquadError = errMsg(error);
+    }
+
     // --- 3c. Oyuncu portreleri: indirilip /uploads'a yazılıyor -------------
     // API-Football kadrosu yoksa (ücretsiz katman) kadro Transfermarkt
     // tablolarından geliyor ve oradaki foto adresi dış origin. CSP onu
@@ -682,9 +1045,19 @@ export class FootballLiveService {
    * geldiğinde yalnızca onun portresi iniyor.
    */
   private async syncPlayerPhotos(): Promise<number> {
-    const { players } = await this.football.getSquad();
-    const withPhoto = players.filter((p) => p.photo);
-    if (withPhoto.length === 0) return 0;
+    // Portreler artık RESMÎ kadrodan geliyor (kulübün kendi sayfası); cache'te
+    // yoksa Transfermarkt tablolarına düşülüyor. Kaynak sırası kadroyla aynı
+    // olmalı, yoksa indirilen portrelerin anahtarları listedeki oyuncularla
+    // eşleşmez ve kartlar fotoğrafsız kalır.
+    const official = (await this.readCache<LiveSquadPlayer[]>(KEY.squad))
+      ?.payload;
+    const withPhoto: Array<{ id: string; photo: string | null }> =
+      official && official.length > 0
+        ? official
+        : (await this.football.getSquad()).players;
+
+    const targets = withPhoto.filter((p) => p.photo);
+    if (targets.length === 0) return 0;
 
     const dir = join(this.uploads.getUploadDir(), 'football', 'players');
     await mkdir(dir, { recursive: true });
@@ -695,14 +1068,16 @@ export class FootballLiveService {
     const next: Record<string, string> = { ...existing };
     let fetched = 0;
 
-    for (const player of withPhoto) {
+    for (const player of targets) {
       if (next[player.id]) continue;
       // Dosya adı oyuncu kimliğinden: `/uploads` 365 gün `immutable`
       // sunuluyor, ama portre yılda bir bile değişmiyor ve değişirse
       // cache anahtarı da silinip yeniden inecek.
+      // ⚠️ `gs:3548` gibi kimliklerdeki iki nokta dosya adında geçersiz —
+      // sadeleştiriliyor.
       const local = await this.ingestImage(
         dir,
-        `p-${player.id}`,
+        `p-${player.id.replace(/[^a-zA-Z0-9_-]/g, '-')}`,
         player.photo,
         'football/players',
       );

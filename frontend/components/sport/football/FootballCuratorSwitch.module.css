@@ -1,0 +1,52 @@
+/* Küratör modu anahtarı — yalnızca admin görüyor. */
+
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: clamp(1rem, 3vw, 1.75rem);
+}
+
+.off,
+.on {
+  align-self: flex-start;
+  min-height: var(--touch-min);
+  padding-inline: 1rem;
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.64rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: var(--radius);
+}
+
+.off {
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px dashed var(--border-strong);
+}
+
+.on {
+  color: var(--sport-ink);
+  background: var(--gs-brand-yellow);
+  border: 1px solid var(--gs-brand-yellow);
+}
+
+.off:focus-visible,
+.on:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .off,
+  .on {
+    transition: color 200ms ease, background-color 200ms ease,
+      border-color 200ms ease;
+  }
+
+  .off:hover {
+    color: var(--gs-brand-yellow);
+    border-color: var(--gs-brand-yellow);
+  }
+}

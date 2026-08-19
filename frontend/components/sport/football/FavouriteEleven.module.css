@@ -1,0 +1,231 @@
+/* ============================================================
+   Küratörün favori 11'i — kuş bakışı saha
+
+   Saha GERÇEK bir çim fotoğrafı değil, çizim: renk token'dan geliyor,
+   çizgiler tek bir SVG. Gerekçe basit — fotoğraf her ekranda farklı kırpılır
+   ve üstündeki portreler okunmaz hâle gelir; çizim her ölçekte aynı kalıyor
+   ve indirilecek dosyası yok.
+
+   Sahanın yeşili sayfanın geri kalanından ayrı bir dünya: kanadın koyu
+   paletinin ortasında tek yeşil yüzey. Bilinçli — burası "sayfanın içindeki
+   saha", bir bölüm değil bir nesne.
+   ============================================================ */
+
+.section {
+  padding-block: var(--sp-band);
+  padding-inline: var(--sp-gutter);
+  border-top: 1px solid var(--sport-line);
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  margin-bottom: clamp(1rem, 3vw, 1.75rem);
+}
+
+.formation {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 1.5rem;
+  letter-spacing: 0.12em;
+  color: var(--gs-brand-yellow);
+}
+
+.note {
+  max-width: 56ch;
+  margin: 0 0 clamp(1.5rem, 4vw, 2.5rem);
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+/* ---- Saha ---- */
+
+.pitchWrap {
+  display: flex;
+  justify-content: center;
+}
+
+.pitch {
+  position: relative;
+  width: 100%;
+  max-width: 44rem;
+  /* 2:3 — gerçek saha oranına yakın ve dikey diziliş için okunaklı. */
+  aspect-ratio: 2 / 3;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--gs-brand-yellow) 22%, transparent);
+  background:
+    /* çim şeritleri — biçilmiş saha izi */
+    repeating-linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--pitch-green) 100%, transparent) 0 6.25%,
+      color-mix(in srgb, var(--pitch-green-alt) 100%, transparent) 6.25% 12.5%
+    );
+}
+
+/* Stadyum ışığı: köşelerden içeri sızan sıcaklık. Tek katman. */
+.pitch::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    120% 90% at 50% 0%,
+    color-mix(in srgb, var(--gs-brand-yellow) 10%, transparent) 0%,
+    transparent 55%
+  ),
+  radial-gradient(
+    100% 80% at 50% 100%,
+    color-mix(in srgb, var(--sport-ink) 45%, transparent) 0%,
+    transparent 60%
+  );
+}
+
+.markings {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: color-mix(in srgb, #fff 42%, transparent);
+  stroke-width: 0.5;
+  vector-effect: non-scaling-stroke;
+}
+
+.spotMark {
+  fill: color-mix(in srgb, #fff 42%, transparent);
+  stroke: none;
+}
+
+/* ---- Oyuncu yuvası ---- */
+
+.spot {
+  position: absolute;
+  z-index: 2;
+  translate: -50% -50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  width: clamp(3.6rem, 11%, 5.5rem);
+  text-align: center;
+}
+
+.badge {
+  position: relative;
+  width: clamp(2.2rem, 7vw, 3rem);
+  height: clamp(2.2rem, 7vw, 3rem);
+}
+
+.photo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 15%;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--sport-ink) 70%, transparent);
+  border: 2px solid var(--gs-brand-yellow);
+}
+
+.spot[data-empty] .photo {
+  border-style: dashed;
+  border-color: color-mix(in srgb, #fff 40%, transparent);
+}
+
+/* Forma numarası rozetin köşesinde — portreyi kapatmıyor. */
+.number {
+  position: absolute;
+  right: -0.35rem;
+  bottom: -0.35rem;
+  min-width: 1.15rem;
+  padding-inline: 0.2rem;
+  font-size: 0.8rem;
+  line-height: 1.2;
+  text-align: center;
+  color: var(--sport-ink);
+  background: var(--gs-brand-yellow);
+  border-radius: 2px;
+}
+
+.name {
+  margin: 0;
+  font-size: 0.66rem;
+  line-height: 1.2;
+  font-weight: 600;
+  /* Sahanın üstünde okunurluk: metin gölgesi renk kararı değil araç. */
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+  overflow-wrap: anywhere;
+}
+
+.empty {
+  font-weight: 400;
+  opacity: 0.65;
+}
+
+.slotLabel {
+  margin: 0;
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.52rem;
+  letter-spacing: 0.14em;
+  color: color-mix(in srgb, #fff 65%, transparent);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .spot {
+    transition: scale 260ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+
+  .spot:hover {
+    scale: 1.08;
+  }
+
+  @supports (animation-timeline: view()) {
+    .pitch {
+      animation: settle linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 70%;
+    }
+  }
+}
+
+@keyframes settle {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 1.5rem, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (max-width: 620px) {
+  .name {
+    font-size: 0.58rem;
+  }
+
+  .slotLabel {
+    display: none;
+  }
+
+  .pitch {
+    /* Telefonda saha daralınca yuvalar çakışıyor; oran uzatılıp
+       yatay sıkışma açılıyor. */
+    aspect-ratio: 3 / 5;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section *,
+  .section *::before,
+  .section *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
 import { fetchClub, pick, type FootballEra } from "@/lib/api/sport-archive";
 import { fetchClubLive } from "@/lib/api/football-live";
+import { readIsAdmin } from "@/lib/auth/session";
 import { sportHref } from "@/lib/sport/routes";
 import { Reveal } from "@/components/sport/Reveal";
 import { LiveSeason } from "@/components/sport/football/LiveSeason";
@@ -79,6 +80,8 @@ export default async function ClubWorldPage({
   // paralel koşsun diye. `.catch()` hemen bağlanıyor: `notFound()` önce
   // fırlarsa bu promise sahipsiz kalmasın (unhandled rejection).
   const livePromise = fetchClubLive(clubSlug).catch(() => null);
+  // Küratör düğmesinin görünürlüğü; yetkinin kapısı backend'de.
+  const isAdmin = await readIsAdmin();
 
   const { club, eras, quotes } = data;
   const t = await getTranslations({ locale, namespace: "sportArchive" });
@@ -134,6 +137,7 @@ export default async function ClubWorldPage({
           kesintisi) `LiveSeason` sade künye hero'sunu çiziyor — sayfanın
           `<h1>`'i her koşulda orada. */}
       <LiveSeason
+        isAdmin={isAdmin}
         overviewPromise={livePromise}
         locale={locale}
         clubSlug={clubSlug}

@@ -2506,6 +2506,44 @@ model SportImage {
   @@index([driverId, slot, isDeleted, orderIndex])
 }
 
+/// **Küratörün favori ilk 11'i — Salon 06 · Futbol.**
+///
+/// Bu tablo GERÇEK bir maç kadrosu DEĞİL ve öyle sunulmuyor. Teknik direktörün
+/// kurduğu dizilişi bilmiyoruz (o veri ücretli sağlayıcıda); burada duran şey
+/// küratörün "benim 11'im" seçimi ve sayfada da o adla çiziliyor.
+///
+/// ── NEDEN ExternalCache DEĞİL ────────────────────────────────────────────
+/// `ExternalCache` dış kaynaktan ÇEKİLEN ve tazelenen veri için. Bu kayıt
+/// küratörün yazdığı içerik: senkron onu ezmemeli, silinmemeli, yedeklenmeli.
+/// Yeri kalıcı bir tablo.
+///
+/// ── NEDEN `slots` Json ───────────────────────────────────────────────────
+/// Diziliş değişebiliyor. 4-2-3-1 için on bir sütun açmak, 3-5-2'ye geçildiği
+/// gün migration gerektirirdi; Json harita (`{"GK": "gs:3548", ...}`) dizilişi
+/// veri hâline getiriyor. Anahtarlar ön yüzdeki yuva adları, değerler oyuncu
+/// kimliği — hangi kaynaktan geldiği kimliğin önekinde yazılı ("gs:" resmî
+/// kadro, "af:" API-Football, "manual:" küratör eklemesi).
+model FootballLineup {
+  id String @id @default(cuid())
+
+  /// Canlı veri katmanının kulüp anahtarı ("galatasaray"). Kulüp başına tek kayıt.
+  clubKey String @unique
+
+  /// "4-2-3-1" — ön yüz yuva düzenini bu ada göre çiziyor.
+  formation String @default("4-2-3-1")
+
+  /// { "GK": "gs:3548", "LB": "gs:3313", … } — yuva → oyuncu kimliği.
+  /// Boş yuva anahtarı HİÇ yazılmıyor; sayfa o yuvayı boş çiziyor.
+  slots Json
+
+  /// Küratörün bu 11 hakkındaki notu — çevrilir.
+  noteTr String?
+  noteEn String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 /// **Bir yarışın podyumu — VERİ katmanı.**
 ///
 /// Brief'in §6 kuralı: dış API asla render'da çağrılmaz, günde bir çalışan

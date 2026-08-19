@@ -1,5 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import type { ClubLiveOverview } from "@/lib/api/football-live";
+import { FavouriteEleven } from "./FavouriteEleven";
+import { FootballCuratorSwitch } from "./FootballCuratorSwitch";
 import { MatchdayHero } from "./MatchdayHero";
 import { NewsTicker } from "./NewsTicker";
 import { SeasonBoard } from "./SeasonBoard";
@@ -36,6 +38,7 @@ export async function LiveSeason({
   clubName,
   clubMeta,
   now,
+  isAdmin,
 }: {
   /**
    * Sayfa tarafında `await` EDİLMEDEN başlatılıp buraya veriliyor (arşiv
@@ -48,6 +51,8 @@ export async function LiveSeason({
   clubName: string;
   /** "Kuruluş 1905 · İstanbul · RAMS Park" parçaları — canlı katman yoksa künye satırı */
   clubMeta: string[];
+  /** Küratör modu düğmesi yalnızca admin için çiziliyor (yetkinin kapısı backend). */
+  isAdmin: boolean;
   /** Sunucunun render anı — geri sayım ve maç günü kipi bununla hesaplanıyor */
   now: number;
 }) {
@@ -132,6 +137,8 @@ export async function LiveSeason({
             D: t("live.resultD"),
             L: t("live.resultL"),
           },
+          titles: (count) => t("live.titles", { count }),
+          target: (next) => t("live.target", { next }),
           formatDateTime: (iso) => dateTimeFormat.format(new Date(iso)),
         }}
       />
@@ -186,6 +193,32 @@ export async function LiveSeason({
         }}
       />
 
+      {/* Küratörün 11'i kadronun ÜSTÜNDE: "kim oynasın" sorusu, "kim var"
+          sorusundan daha ilginç ve sayfanın bu noktasında okuyucu zaten
+          kadroya bakmaya hazır. Kurulmamışsa bileşen null dönüyor. */}
+      {overview.lineup ? (
+        <FavouriteEleven
+          lineup={overview.lineup}
+          labels={{
+            eyebrow: t("live.eleven.eyebrow"),
+            title: t("live.eleven.title"),
+            emptySlot: t("live.eleven.emptySlot"),
+            // Küratörün kendi notu varsa o, yoksa "bu maç kadrosu değil"
+            // uyarısı. İkisinden biri HER ZAMAN yazılıyor — bu bölümün
+            // yanlış anlaşılması en olası yer.
+            note:
+              (locale === "en"
+                ? overview.lineup.noteEn || overview.lineup.noteTr
+                : overview.lineup.noteTr) || t("live.eleven.disclaimer"),
+          }}
+        />
+      ) : null}
+
+      {/* Küratör anahtarı 11'in HEMEN ALTINDA: seçim yapılan yer ile sonucun
+          görüldüğü yer aynı ekranda. 11 henüz kurulmamışsa (yukarısı null
+          dönerken) düğme yine görünüyor — kurmanın tek yolu o. */}
+      {isAdmin ? <FootballCuratorSwitch /> : null}
+
       <SquadBoard
         squad={overview.squad}
         unavailableReason={
@@ -238,6 +271,7 @@ export async function LiveSeason({
       {overview.club ? (
         <StadiumExperience
           club={overview.club}
+          curatorScenes={overview.curatorImages.stadium}
           labels={{
             eyebrow: t("live.stadium.eyebrow"),
             title: t("live.stadium.title"),

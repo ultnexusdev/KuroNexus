@@ -455,6 +455,15 @@ export const ITACHI_SHARINGAN = {
       en: "The Sharingan is not just a power... it is the burden of the Uchiha.",
     },
   },
+  /**
+   * Mangekyō deseninin künyesi. Itachi'nin Mangekyō çizimi Wikimedia
+   * Commons'tan birebir alındı ve CC BY-SA 3.0 atıf ŞARTI taşıyor —
+   * bu satır lisansın gereği, kaldırılamaz (bkz. SharinganEyes.tsx).
+   */
+  credit: {
+    tr: "Mangekyō deseni: ShounenSuki / Narutopedia — CC BY-SA 3.0",
+    en: "Mangekyō pattern: ShounenSuki / Narutopedia — CC BY-SA 3.0",
+  },
 } as const;
 
 /* ── Fedakârlık çizelgesi ───────────────────────────────────────────── */

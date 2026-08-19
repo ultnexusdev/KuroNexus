@@ -1429,6 +1429,16 @@
   text-shadow: 0 0 24px var(--ita-glow-strong);
 }
 
+/* Desen künyesi — CC BY-SA 3.0 atfı (lisans gereği görünür) */
+.sharinganCredit {
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
 /* ============================================================
    5 · FEDAKÂRLIK ÇİZELGESİ
    ============================================================ */

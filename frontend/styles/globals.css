@@ -706,10 +706,13 @@ html {
   --ita-blood:        #4a0d13;
   --ita-moon:         rgba(200, 32, 47, 0.4);     /* kizil ay yedegi */
   --ita-crow:         rgba(196, 54, 62, 0.62);    /* karga cizgisi (canvas + SVG) */
-  --ita-iris:         #b3121f;                    /* SVG goz irisi */
+  /* Iris tonlari — kaynak SVG'nin radyal gradyani (Wikimedia,
+     Mangekyou_Sharingan_Itachi.svg): merkez koyu, orta parlak, kenar mat */
+  --ita-iris-deep:    #6b0409;                    /* gradyan merkezi */
+  --ita-iris:         #c00d1a;                    /* gradyan ortasi + duz yedek */
+  --ita-iris-edge:    #a00a14;                    /* gradyan kenari + goz bebegi */
   --ita-pupil:        #10060a;                    /* tomoe / Mangekyo deseni */
   --ita-ring:         #33060c;                    /* iris halkasi */
-  --ita-shine:        rgba(240, 231, 229, 0.5);   /* camsi parlama */
   --ita-glow-soft:    rgba(232, 50, 63, 0.22);
   --ita-glow-strong:  rgba(232, 50, 63, 0.5);
   --ita-ember:        rgba(233, 150, 62, 0.6);    /* Susanoo koru */

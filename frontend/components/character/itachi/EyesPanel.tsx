@@ -52,6 +52,8 @@ export interface EyesPanelProps {
   weaknessesTitle: string;
   weaknesses: string[];
   closing: string;
+  /** Mangekyō deseninin CC BY-SA 3.0 atfı — lisans gereği görünür kalır */
+  credit: string;
 }
 
 const BURST_MS = 700;
@@ -292,6 +294,7 @@ export function EyesPanel(props: EyesPanelProps) {
         </div>
 
         <p className={styles.sharinganClosing}>&ldquo;{props.closing}&rdquo;</p>
+        <p className={styles.sharinganCredit}>{props.credit}</p>
       </div>
     </div>
   );

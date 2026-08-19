@@ -28,19 +28,27 @@ function Tomoe({ angle }: { angle: number }) {
   );
 }
 
-/** Itachi'nin Mangekyō'su — üç kavisli kanatlı çark. */
+/**
+ * Itachi'nin Mangekyō'su — KANONİK desen.
+ *
+ * Elle çizilmiş yaklaşıklık değil: Wikimedia Commons'taki
+ * "Mangekyou_Sharingan_Itachi.svg" dosyasının yol verisi birebir alındı
+ * (kullanıcı isteği, 19 Ağustos 2026). Kaynak 300×300 kutuda çizilmiş,
+ * burada 100×100 kutuya ölçekleniyor — üç kollu çark tek kapalı yol.
+ *
+ * ⚠️ Eser: ShounenSuki (Narutopedia), CC BY-SA 3.0. Atıf zorunlu ve
+ * sayfada görünür durumda (Gözler bölümünün künye satırı). Yol verisi
+ * değiştirilirse atıf da korunmalı.
+ */
 function ItachiBlades() {
   return (
-    <g>
-      {[0, 120, 240].map((angle) => (
-        <path
-          key={angle}
-          transform={`rotate(${angle} 50 50)`}
-          d="M 50 50 C 42 40 44 24 58 18 C 50 30 56 40 66 42 C 60 50 54 52 50 50 Z"
-          fill="var(--ita-pupil)"
-        />
-      ))}
-      <circle cx="50" cy="50" r="9" fill="var(--ita-pupil)" />
+    <g transform="scale(0.333333)">
+      <path
+        d="M 177.6,10.7 C 135,68.4 155.4,100.7 179.8,118.5 C 260.9,160.6 274.8,214.5 255.9,244.9 C 237.3,191.9 198,172.4 158.5,194.9 C 86.9,238.6 40.7,231.2 15.7,196.6 C 58.2,203.1 109.1,193.5 107.9,128.3 C 109.5,97.6 111.5,16.6 177.6,10.7 z"
+        fill="var(--ita-pupil)"
+      />
+      {/* Merkezdeki kızıl göz bebeği — kaynakta desenin üstünde duruyor */}
+      <circle cx="150" cy="150" r="20" fill="var(--ita-iris-edge)" />
     </g>
   );
 }
@@ -149,6 +157,38 @@ function EyeContent({ glyph }: { glyph: EyeGlyph }) {
 }
 
 /**
+ * İris gradyanının TEK tanımı.
+ *
+ * Sayfa kökünde bir kez çizilir; bütün gözler `url(#…)` ile buna bakar.
+ * Her SVG'ye kendi `<defs>`ini koymak aynı kimliği sayfada onlarca kez
+ * çoğaltırdı (geçersiz HTML). Tanım bulunamazsa `fill` yedeği düz iris
+ * rengine düşer — göz her hâlükârda kızıl çizilir.
+ */
+export const IRIS_GRADIENT_ID = "ita-iris-grad";
+
+export function SharinganDefs() {
+  return (
+    <svg
+      width="0"
+      height="0"
+      aria-hidden
+      focusable="false"
+      style={{ position: "absolute" }}
+    >
+      <defs>
+        <radialGradient id={IRIS_GRADIENT_ID}>
+          <stop offset="0" stopColor="var(--ita-iris-deep)" />
+          <stop offset="0.5" stopColor="var(--ita-iris)" />
+          <stop offset="1" stopColor="var(--ita-iris-edge)" />
+        </radialGradient>
+      </defs>
+    </svg>
+  );
+}
+
+const IRIS_FILL = `url(#${IRIS_GRADIENT_ID}) var(--ita-iris)`;
+
+/**
  * Dairesel göz — iris + desen. `spinClassName` desen grubuna verilir;
  * dönme animasyonu çağıranın CSS modülünde yaşar.
  */
@@ -164,6 +204,10 @@ export function SharinganDisc({
   title?: string;
 }) {
   return (
+    /* Ölçüler kaynak dosyanın 300'lük kutusundan birebir: iris r=145,
+       kontur 10 → 100'lük kutuda 48.33 ve 3.33. Süsleme YOK (dekoratif
+       iç halka ve camsı parlama kaldırıldı — kullanıcı "birebir aynısı"
+       dedi, 19 Ağustos 2026). */
     <svg
       viewBox="0 0 100 100"
       xmlns="http://www.w3.org/2000/svg"
@@ -173,14 +217,18 @@ export function SharinganDisc({
       aria-hidden={title ? undefined : true}
       focusable="false"
     >
-      <circle cx="50" cy="50" r="48" fill="var(--ita-iris)" />
-      <circle cx="50" cy="50" r="48" fill="none" stroke="var(--ita-ring)" strokeWidth="3" />
-      <circle cx="50" cy="50" r="30" fill="none" stroke="var(--ita-ring)" strokeWidth="1.4" opacity="0.55" />
+      <circle cx="50" cy="50" r="48.33" fill={IRIS_FILL} />
+      <circle
+        cx="50"
+        cy="50"
+        r="48.33"
+        fill="none"
+        stroke="var(--ita-ring)"
+        strokeWidth="3.33"
+      />
       <g className={spinClassName}>
         <EyeContent glyph={glyph} />
       </g>
-      {/* Camsı parlama — sol üstte küçük ışık */}
-      <circle cx="36" cy="32" r="7" fill="var(--ita-shine)" opacity="0.5" />
     </svg>
   );
 }
@@ -208,7 +256,7 @@ export function HeroEye({
     >
       {glyph ? (
         <>
-          <circle cx="50" cy="50" r="34" fill="var(--ita-iris)" />
+          <circle cx="50" cy="50" r="34" fill={IRIS_FILL} />
           <g className={spinClassName}>
             <g transform="translate(0 0) scale(0.68) translate(23.5 23.5)">
               <EyeContent glyph={glyph} />

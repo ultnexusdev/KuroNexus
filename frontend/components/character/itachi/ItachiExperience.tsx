@@ -23,7 +23,7 @@ import {
 import { animeHref } from "@/lib/anime/routes";
 import { CuratorFrame } from "@/components/character/CuratorFrame";
 import { CuratorSlot } from "@/components/character/CuratorSlot";
-import { SharinganDisc } from "./SharinganEyes";
+import { SharinganDefs, SharinganDisc } from "./SharinganEyes";
 import { ItachiHero } from "./ItachiHero";
 import { EyesPanel } from "./EyesPanel";
 import { GenjutsuShell } from "./GenjutsuShell";
@@ -126,6 +126,7 @@ export function ItachiExperience({
     weaknessesTitle: pick(sharingan.weaknessesTitle, locale),
     weaknesses: sharingan.weaknesses.map((item) => pick(item, locale)),
     closing: pick(sharingan.closing.text, locale),
+    credit: pick(sharingan.credit, locale),
   };
 
   return (
@@ -134,6 +135,8 @@ export function ItachiExperience({
       exitLabel={pick(ITACHI_GENJUTSU_TEXT.exit, locale)}
     >
       <CuratorFrame isAdmin={isAdmin}>
+        {/* Bütün gözlerin paylaştığı iris gradyanı — sayfada tek tanım */}
+        <SharinganDefs />
         {/* Kaydırma ilerlemesi — kızıl iplik (scroll(), JS'siz) */}
         <span className={styles.progress} aria-hidden />
 

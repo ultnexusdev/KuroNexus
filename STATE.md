@@ -84,6 +84,10 @@
 > maske repaint'i, AA kontrast, müzik çubuğu, iç içe main...). Akatsuki'nin
 > kendi iç içe main'i ayrı iş çipinde. Kalibrasyon notu: hero görseli
 > kürasyondan değiştirilirse ITACHI_HERO_EYES koordinatları güncellenmeli.
+> ⚠️ LİSANS: Itachi'nin Mangekyō deseni Wikimedia Commons'tan birebir
+> alındı (ShounenSuki / Narutopedia, **CC BY-SA 3.0**) — Gözler
+> bölümündeki künye satırı (`ITACHI_SHARINGAN.credit`) atıf şartının
+> gereği, kaldırılamaz. Gözlerin iris gradyanı da kaynağın tonlarından.
 >
 > ✅ **V9 — PATH SADAKATİ + REFERANS YOĞUNLUĞU (18 Ağustos)** (PLAN.md
 > §5g): dört Path portresi kullanıcının verdiği gerçek karelerle yeniden

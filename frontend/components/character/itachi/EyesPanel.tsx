@@ -38,8 +38,8 @@ export interface EyesPanelProps {
     glyph: EyeGlyph;
     name: string;
     user: string;
-    /** Tekniği taşıyan kişinin portresi — adın yanında küçük yüz */
-    userImage: string | null;
+    /** Tekniği taşıyan kişi(ler) — Kamui gibi satırlarda iki portre */
+    userImages: string[];
     text: string;
   }>;
   usersTitle: string;
@@ -239,15 +239,14 @@ export function EyesPanel(props: EyesPanelProps) {
                       <span className={styles.mangekyoText}>{row.text}</span>
                     </span>
                     <span className={styles.mangekyoUser}>
-                      <span className={styles.mangekyoUserFace} aria-hidden>
-                        {row.userImage ? (
-                          <Image
-                            src={row.userImage}
-                            alt=""
-                            fill
-                            sizes="72px"
-                          />
-                        ) : null}
+                      {/* Yuva sabit genişlikte: portreler her satırda aynı
+                          hizada durur, tek ya da çift olması fark etmez */}
+                      <span className={styles.mangekyoFaces} aria-hidden>
+                        {row.userImages.map((image) => (
+                          <span key={image} className={styles.mangekyoUserFace}>
+                            <Image src={image} alt="" fill sizes="120px" />
+                          </span>
+                        ))}
                       </span>
                       <span className={styles.mangekyoUserName}>{row.user}</span>
                     </span>

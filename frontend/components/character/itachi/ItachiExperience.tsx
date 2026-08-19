@@ -107,7 +107,9 @@ export function ItachiExperience({
       glyph: row.glyph,
       name: row.name,
       user: row.user,
-      userImage: src(row.userImageKey),
+      userImages: row.userImageKeys
+        .map((key) => src(key))
+        .filter((url): url is string => url !== null),
       text: pick(row.text, locale),
     })),
     usersTitle: pick(sharingan.usersTitle, locale),
@@ -301,6 +303,7 @@ export function ItachiExperience({
               {[
                 ...sharingan.users.map((user) => user.imageKey),
                 ITACHI_IMAGE_KEYS.userObito,
+                ITACHI_IMAGE_KEYS.userKakashi,
               ].map((key) => (
                 <CuratorSlot
                   key={key}

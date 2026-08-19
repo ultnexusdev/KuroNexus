@@ -1301,40 +1301,58 @@
   color: var(--text-muted);
 }
 
-/* Tekniği taşıyan kişi: küçük portre + ad */
+/* Tekniği taşıyan kişi(ler): portre(ler) + ad.
+   Sütun ve portre yuvası SABİT genişlikte — ad uzunluğu değişse de
+   (tek satır / iki satır) bütün portreler aynı hizada durur; tek portre
+   ile çift portre aynı yuvayı paylaşır (kullanıcı bildirimi). */
 .mangekyoUser {
-  flex: 0 0 auto;
+  flex: 0 0 14.5rem;
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  max-width: 12rem;
+  gap: 0.7rem;
+  min-width: 0;
+}
+
+.mangekyoFaces {
+  flex: 0 0 6.1rem;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
 }
 
 .mangekyoUserFace {
   position: relative;
   flex: 0 0 auto;
   display: block;
-  width: 2.2rem;
+  width: 3.4rem;
   aspect-ratio: 1;
   border-radius: 50%;
   overflow: hidden;
-  border: 1px solid color-mix(in srgb, var(--ita-sharingan) 40%, var(--border-strong));
+  border: 1px solid color-mix(in srgb, var(--ita-sharingan) 45%, var(--border-strong));
   background: var(--bg);
+  box-shadow: 0 0 12px var(--ita-glow-soft);
+}
+
+/* İki portre hafif bindirmeli — "aynı tekniği paylaşan iki kişi" */
+.mangekyoUserFace + .mangekyoUserFace {
+  margin-left: -0.7rem;
 }
 
 .mangekyoUserFace img {
   object-fit: cover;
   object-position: center 12%;
-  filter: grayscale(0.35) brightness(0.9);
+  filter: grayscale(0.3) brightness(0.95);
   transition: filter var(--ita-dur) var(--ita-ease);
 }
 
 .mangekyoHit:hover .mangekyoUserFace img,
 .mangekyoHit:focus-visible .mangekyoUserFace img {
-  filter: grayscale(0) brightness(1);
+  filter: grayscale(0) brightness(1.05);
 }
 
 .mangekyoUserName {
+  flex: 1;
+  min-width: 0;
   font-family: var(--font-mono);
   font-size: 0.6875rem;
   letter-spacing: 0.08em;
@@ -1900,7 +1918,10 @@
 
   .mangekyoUser {
     flex-basis: 100%;
-    max-width: none;
+    justify-content: flex-start;
+  }
+
+  .mangekyoFaces {
     justify-content: flex-start;
   }
 

@@ -35,6 +35,7 @@ export const ITACHI_IMAGE_KEYS = {
   userMadara: "itachi:user-madara",
   userShisui: "itachi:user-shisui",
   userObito: "itachi:user-obito",
+  userKakashi: "itachi:user-kakashi",
   minorKarasu: "itachi:minor-karasu",
   minorIzanami: "itachi:minor-izanami",
   minorKaton: "itachi:minor-katon",
@@ -366,7 +367,7 @@ export const ITACHI_SHARINGAN = {
       glyph: "mangekyoItachi" as EyeGlyph,
       name: "Amaterasu",
       user: "Itachi Uchiha",
-      userImageKey: ITACHI_IMAGE_KEYS.userItachi,
+      userImageKeys: [ITACHI_IMAGE_KEYS.userItachi],
       text: {
         tr: "Her şeyi yakan kara alevler.",
         en: "Black flames that burn everything.",
@@ -377,7 +378,7 @@ export const ITACHI_SHARINGAN = {
       glyph: "mangekyoItachi" as EyeGlyph,
       name: "Tsukuyomi",
       user: "Itachi Uchiha",
-      userImageKey: ITACHI_IMAGE_KEYS.userItachi,
+      userImageKeys: [ITACHI_IMAGE_KEYS.userItachi],
       text: {
         tr: "Zaman algısını büken güçlü genjutsu.",
         en: "A powerful genjutsu that distorts time.",
@@ -388,7 +389,8 @@ export const ITACHI_SHARINGAN = {
       glyph: "mangekyoObito" as EyeGlyph,
       name: "Kamui",
       user: "Obito Uchiha (Kakashi)",
-      userImageKey: ITACHI_IMAGE_KEYS.userObito,
+      /* İki taşıyıcı, iki portre — Kamui'nin iki gözü iki kişide */
+      userImageKeys: [ITACHI_IMAGE_KEYS.userObito, ITACHI_IMAGE_KEYS.userKakashi],
       text: {
         tr: "Başka bir boyuta geçiş.",
         en: "Warping into another dimension.",
@@ -399,7 +401,7 @@ export const ITACHI_SHARINGAN = {
       glyph: "mangekyoSasuke" as EyeGlyph,
       name: "Susano'o",
       user: "Sasuke Uchiha (Madara)",
-      userImageKey: ITACHI_IMAGE_KEYS.userSasuke,
+      userImageKeys: [ITACHI_IMAGE_KEYS.userSasuke, ITACHI_IMAGE_KEYS.userMadara],
       text: {
         tr: "Savunma ve saldırı için dev savaşçı avatar.",
         en: "A giant warrior avatar for defence and attack.",
@@ -410,7 +412,7 @@ export const ITACHI_SHARINGAN = {
       glyph: "mangekyoShisui" as EyeGlyph,
       name: "Kotoamatsukami",
       user: "Shisui Uchiha",
-      userImageKey: ITACHI_IMAGE_KEYS.userShisui,
+      userImageKeys: [ITACHI_IMAGE_KEYS.userShisui],
       text: {
         tr: "Hedefin haberi olmadan zihin kontrolü.",
         en: "Mind control without the target's knowledge.",
@@ -633,6 +635,10 @@ export const ITACHI_SLOT_LABELS: Record<string, LocalizedText> = {
   [ITACHI_IMAGE_KEYS.userMadara]: { tr: "Kullanıcı — Madara", en: "User — Madara" },
   [ITACHI_IMAGE_KEYS.userShisui]: { tr: "Kullanıcı — Shisui", en: "User — Shisui" },
   [ITACHI_IMAGE_KEYS.userObito]: { tr: "Kullanıcı — Obito", en: "User — Obito" },
+  [ITACHI_IMAGE_KEYS.userKakashi]: {
+    tr: "Kullanıcı — Kakashi",
+    en: "User — Kakashi",
+  },
   [ITACHI_IMAGE_KEYS.minorKarasu]: {
     tr: "Teknik — Karasu Bunshin",
     en: "Technique — Karasu Bunshin",

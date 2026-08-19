@@ -1,0 +1,127 @@
+/* Canlı maç merkezi — hero'yu devraldığı tek durum. */
+
+.live {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: clamp(1rem, 3vw, 1.75rem);
+  border: 1px solid color-mix(in srgb, var(--gs-brand-red) 45%, transparent);
+  background: color-mix(in srgb, var(--sport-ink) 62%, transparent);
+  /* Kanadın "kart yok" kuralının bilinçli istisnası: canlı maç sayfadaki
+     diğer her şeyden AYRI bir zaman düzleminde ve o ayrımın görünür bir
+     sınırı olması gerekiyor. Kutu yalnızca maç oynanırken var. */
+  backdrop-filter: blur(6px);
+}
+
+.badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gs-brand-red);
+}
+
+.pulse {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--gs-brand-red);
+  flex: none;
+}
+
+.minute {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  color: var(--gs-brand-yellow);
+}
+
+.score {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(0.75rem, 2vw, 1.5rem);
+  margin: 0;
+  font-size: clamp(0.9rem, 1.6vw, 1.1rem);
+  color: color-mix(in srgb, var(--gs-cream) 65%, transparent);
+}
+
+.score [data-mine] {
+  color: var(--gs-cream);
+}
+
+.score strong {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(2.25rem, 6vw, 4rem);
+  font-weight: 400;
+  line-height: 1;
+  color: var(--gs-cream);
+  white-space: nowrap;
+}
+
+.dash {
+  opacity: 0.3;
+  padding-inline: 0.15em;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pulse {
+    animation: beat 1.8s ease-in-out infinite;
+  }
+
+  /* Gol anı: tek ve kısa parlama. Ekranı kaplayan bir efekt DEĞİL —
+     brief "küçük ama premium" diyor ve maç boyunca defalarca tekrarlanacak
+     bir animasyonun eşiği düşük olmak zorunda. */
+  .live[data-flash] {
+    animation: flash 900ms ease-out;
+  }
+}
+
+@keyframes beat {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(0.82);
+  }
+}
+
+@keyframes flash {
+  0% {
+    border-color: var(--gs-brand-yellow);
+    box-shadow: 0 0 0 0 var(--gs-brand-glow);
+  }
+  40% {
+    box-shadow: 0 0 2.5rem 0.5rem var(--gs-brand-glow);
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+@media (max-width: 620px) {
+  .score {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live,
+  .live *,
+  .live *::before,
+  .live *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

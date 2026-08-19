@@ -1,0 +1,555 @@
+/* ============================================================
+   Sezon panosu — fikstür, istatistik, puan durumu, golcüler
+
+   Hero sinematik; buradan sonrası kanadın SADE diline dönüyor. Bilinçli bir
+   iniş: brief "sayfa tek tek kutuların alt alta dizildiği dashboard gibi
+   görünmesin" diyor ve bunun yolu her bölümü parlatmak değil, ışığı bir
+   yerde toplayıp geri kalanı okunur bırakmak.
+
+   Kart yok, gölge yok, yuvarlak köşe yok — bölüm ayrımı 1px çizgi ve bant
+   boşluğuyla (kanadın yerleşik kuralı). Tek istisna fikstür kartları: yatay
+   eksende yan yana duran öğelerin sınırı olmak zorunda.
+   ============================================================ */
+
+.section {
+  padding-block: var(--sp-band);
+  padding-inline: var(--sp-gutter);
+  border-top: 1px solid var(--sport-line);
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.hint {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ============================================================
+   FİKSTÜR — yatay eksen
+   ============================================================ */
+
+.timeline {
+  display: flex;
+  gap: 1px;
+  margin: 0;
+  padding: 0 0 1rem;
+  list-style: none;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  /* Kenarlarda kesilme ipucu: içerik sağa devam ediyor, bunu scrollbar'a
+     bırakmak yerine maskeyle söylüyoruz. */
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 2rem,
+    #000 calc(100% - 3rem),
+    transparent 100%
+  );
+  padding-inline: 0.5rem;
+  margin-inline: -0.5rem;
+}
+
+.fixture {
+  flex: 0 0 auto;
+  width: clamp(9.5rem, 22vw, 12rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 1rem 1.1rem 1.25rem;
+  scroll-snap-align: start;
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+  border-top: 2px solid var(--sport-line);
+  transition: background-color 240ms ease, border-color 240ms ease;
+}
+
+/* Sonuç rengi ÜST ÇİZGİDE, kartın zemininde değil: 34 kart yan yana
+   duruyor ve her birinin zemininin renkli olması şeridi alacaya çevirir. */
+.fixture[data-result="W"] {
+  border-top-color: var(--gs-win);
+}
+
+.fixture[data-result="D"] {
+  border-top-color: var(--gs-draw);
+}
+
+.fixture[data-result="L"] {
+  border-top-color: var(--gs-loss);
+}
+
+.fixture[data-current] {
+  border-top-color: var(--gs-brand-yellow);
+  background: color-mix(in srgb, var(--gs-brand-yellow) 7%, transparent);
+}
+
+.fixtureRound {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.fixtureFoe {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  min-width: 0;
+}
+
+/* İç/dış saha tek harfle. Renk taşımıyor — bilgi, vurgu değil. */
+.venueFlag {
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  border: 1px solid var(--sport-line);
+  padding: 0.1rem 0.3rem;
+  flex: none;
+}
+
+.fixtureCrest {
+  width: 1.1rem;
+  height: 1.1rem;
+  object-fit: contain;
+  flex: none;
+}
+
+.fixtureFoeName {
+  font-size: 0.85rem;
+  line-height: 1.3;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.fixtureScore {
+  margin: 0.2rem 0 0;
+  font-size: 1.75rem;
+  line-height: 1;
+  color: var(--gs-cream);
+}
+
+.fixtureDash {
+  opacity: 0.3;
+  padding-inline: 0.15em;
+}
+
+.fixtureWhen {
+  margin: 0.2rem 0 0;
+  font-family: var(--font-mono);
+  font-size: var(--sp-data);
+  color: var(--text-secondary);
+}
+
+.tba {
+  color: var(--text-muted);
+}
+
+.fixtureVenue {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .fixture:hover {
+    background: color-mix(in srgb, var(--surface) 90%, transparent);
+  }
+}
+
+/* ============================================================
+   SEZON İSTATİSTİKLERİ
+   ============================================================ */
+
+.statGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  gap: 1px;
+  margin: 0;
+  background: var(--sport-line);
+  border: 1px solid var(--sport-line);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: clamp(1rem, 2.5vw, 1.5rem);
+  background: var(--bg);
+}
+
+.statValue {
+  margin: 0;
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+  line-height: 1;
+  color: var(--gs-cream);
+}
+
+.stat[data-tone="good"] .statValue {
+  color: var(--gs-win);
+}
+
+.stat[data-tone="bad"] .statValue {
+  color: var(--gs-loss);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .statValue {
+      animation: rise linear both;
+      animation-timeline: view();
+      animation-range: entry 20% entry 90%;
+    }
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 0.35em, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ============================================================
+   SIRALAMA EĞRİSİ
+   ============================================================ */
+
+.curve {
+  margin: 0 0 clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.curveCaption {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  align-items: baseline;
+  margin-bottom: 0.75rem;
+}
+
+.curveNow {
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+  color: var(--gs-brand-yellow);
+}
+
+.curveSvg {
+  width: 100%;
+  height: clamp(6rem, 16vw, 9rem);
+  overflow: visible;
+}
+
+.curveLine {
+  fill: none;
+  stroke: var(--gs-brand-yellow);
+  stroke-width: 0.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.curveDot {
+  fill: var(--gs-brand-yellow);
+  opacity: 0.55;
+}
+
+.curveDot[data-latest] {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .curveLine {
+      /* Çizginin kendini çizmesi: stroke-dasharray ile, düzen özelliği
+         animate edilmiyor. */
+      stroke-dasharray: 400;
+      animation: draw linear both;
+      animation-timeline: view();
+      animation-range: entry 10% entry 80%;
+    }
+  }
+}
+
+@keyframes draw {
+  from {
+    stroke-dashoffset: 400;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ============================================================
+   PUAN DURUMU
+   ============================================================ */
+
+.tableWrap {
+  /* Dar ekranda tablo yatay kayıyor — sütun gizlemek yerine. 10 sütunun
+     hepsi bilgi ve hangisinin atılacağına karar vermek kullanıcının işi. */
+  overflow-x: auto;
+  margin-inline: calc(var(--sp-gutter) * -1);
+  padding-inline: var(--sp-gutter);
+}
+
+.table {
+  width: 100%;
+  min-width: 40rem;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.table th,
+.table td {
+  padding: 0.7rem 0.5rem;
+  text-align: right;
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--sport-line);
+}
+
+.table thead th {
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom-color: var(--border-strong);
+}
+
+.colRank {
+  width: 2.5rem;
+  text-align: center !important;
+  color: var(--text-muted) !important;
+}
+
+.colTeam {
+  text-align: left !important;
+  width: 40%;
+}
+
+.colPoints {
+  color: var(--text-primary) !important;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 1.05rem !important;
+  letter-spacing: 0.03em;
+}
+
+.table tbody th.colTeam {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.rowCrest {
+  width: 1.25rem;
+  height: 1.25rem;
+  object-fit: contain;
+  flex: none;
+}
+
+/* Armasız takımda hizanın bozulmaması için aynı genişlikte boşluk. */
+.crestGap {
+  width: 1.25rem;
+  flex: none;
+}
+
+.rowName {
+  overflow-wrap: anywhere;
+  min-width: 0;
+  color: var(--text-primary);
+}
+
+/* ── Galatasaray satırı ──
+   Brief "sarı-kırmızı glow + gradient kenarlık + hafif pulse" istiyor ama
+   "tablo aşırı parlak olmasın" diye de uyarıyor. Uygulanan denge: satırın
+   SOLUNDA gradient bir dikey çubuk + çok düşük yoğunlukta zemin. Bütün
+   satırı parlatmak 18 satırlık bir tabloda okumayı bozuyordu. */
+.table tbody tr[data-mine] {
+  position: relative;
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--gs-brand-yellow) 10%, transparent),
+    transparent 45%
+  );
+}
+
+.table tbody tr[data-mine] th,
+.table tbody tr[data-mine] td {
+  color: var(--gs-cream);
+  border-bottom-color: color-mix(
+    in srgb,
+    var(--gs-brand-yellow) 30%,
+    transparent
+  );
+}
+
+.table tbody tr[data-mine] .colPoints {
+  color: var(--gs-brand-yellow) !important;
+}
+
+.table tbody tr[data-mine] .rowName {
+  color: var(--gs-cream);
+}
+
+.table tbody tr[data-mine] td.colRank {
+  color: var(--gs-brand-yellow) !important;
+  box-shadow: inset 3px 0 0 0 var(--gs-brand-red);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .table tbody tr {
+    transition: background-color 200ms ease;
+  }
+
+  .table tbody tr:hover {
+    background: var(--surface);
+  }
+
+  .table tbody tr[data-mine]:hover {
+    background: linear-gradient(
+      to right,
+      color-mix(in srgb, var(--gs-brand-yellow) 16%, transparent),
+      transparent 55%
+    );
+  }
+}
+
+.attribution {
+  margin: 1rem 0 0;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   GOL KRALLIĞI
+   ============================================================ */
+
+.scorerList {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.scorer {
+  display: grid;
+  grid-template-columns: minmax(0, auto) minmax(0, 1fr) minmax(4rem, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--sport-line);
+}
+
+.scorerName {
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.scorerTeam {
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.scorerBar {
+  height: 2px;
+  background: var(--sport-line);
+  position: relative;
+}
+
+.scorerBar::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--fill, 0%);
+  background: var(--gs-brand-yellow);
+}
+
+.scorerGoals {
+  font-size: 1.5rem;
+  color: var(--gs-cream);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .scorerBar::after {
+      /* Genişlik DEĞİL scale animate ediliyor: düzen özelliği animate
+         etmek kanadın yasaklarından. */
+      transform-origin: 0 50%;
+      animation: grow linear both;
+      animation-timeline: view();
+      animation-range: entry 20% entry 90%;
+    }
+  }
+}
+
+@keyframes grow {
+  from {
+    transform: scale(0, 1);
+  }
+  to {
+    transform: scale(1, 1);
+  }
+}
+
+/* ============================================================
+   MOBİL
+   ============================================================ */
+
+@media (max-width: 620px) {
+  .fixture {
+    width: 11rem;
+  }
+
+  .statGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .scorer {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.25rem 0.75rem;
+  }
+
+  /* Çubuk dar ekranda satırı sıkıştırıyor — bilgi zaten sayıda var. */
+  .scorerBar {
+    display: none;
+  }
+
+  .scorerTeam {
+    grid-column: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section *,
+  .section *::before,
+  .section *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

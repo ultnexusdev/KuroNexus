@@ -1,0 +1,148 @@
+/* ============================================================
+   Haber şeridi — kulübün resmî RSS'i
+
+   Hero ile veri yarısı arasındaki geçiş bandı. Yayın hissi veriyor ama
+   sayfanın sesini yükseltmiyor: tek satır, ince, koyu.
+   ============================================================ */
+
+.ticker {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  border-block: 1px solid color-mix(in srgb, var(--gs-brand-red) 35%, transparent);
+  background: color-mix(in srgb, var(--sport-ink) 70%, transparent);
+  overflow: hidden;
+}
+
+.badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: none;
+  margin: 0;
+  padding: 0.7rem var(--sp-gutter) 0.7rem var(--sp-gutter);
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.64rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--sport-ink);
+  background: var(--gs-brand-red);
+}
+
+.dot {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--gs-brand-yellow);
+  flex: none;
+}
+
+.viewport {
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  /* Kaydırma çubuğu şeridin içinde çirkin duruyor; içerik zaten
+     dokunmatikte parmakla, masaüstünde animasyonla geziliyor. */
+  scrollbar-width: none;
+}
+
+.viewport::-webkit-scrollbar {
+  display: none;
+}
+
+.track {
+  display: flex;
+  width: max-content;
+}
+
+.run {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  flex: none;
+}
+
+/* Haberler arası ayraç — nokta değil ince dikey çizgi; nokta bu punto
+   bandında kayan metinde görünmüyor. */
+.item + .item::before {
+  content: "";
+  width: 1px;
+  height: 0.8rem;
+  margin-inline: 1.25rem;
+  background: color-mix(in srgb, var(--gs-cream) 25%, transparent);
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  /* Dokunma alanı 44px (kural 2) — görünen metin daha kısa. */
+  min-height: var(--touch-min);
+  padding-block: 0.5rem;
+  font-size: 0.82rem;
+  line-height: 1.3;
+  white-space: nowrap;
+  color: color-mix(in srgb, var(--gs-cream) 78%, transparent);
+  text-decoration: none;
+}
+
+.link:hover {
+  color: var(--gs-brand-yellow);
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: -2px;
+}
+
+/* ---- Hareket ----
+   Yalnızca hareket azaltılmamışsa VE ekran dar değilse. `translate3d` ile;
+   düzen özelliği animate edilmiyor. */
+@media (prefers-reduced-motion: no-preference) and (min-width: 761px) {
+  .track {
+    animation: slide 90s linear infinite;
+  }
+
+  /* Okumak isteyen durdurabilsin — fareyle üzerine gelmek ve klavyeyle
+     içindeki bir bağlantıya odaklanmak şeridi dondurur. */
+  .ticker:hover .track,
+  .ticker:focus-within .track {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes slide {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    /* İki özdeş kopya var; birinin tam boyu kadar kayınca desen başa dönüyor
+       ve dikiş görünmüyor. */
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@media (max-width: 760px) {
+  .badge {
+    padding-inline: var(--sp-gutter) 1rem;
+    font-size: 0.58rem;
+  }
+
+  .link {
+    font-size: 0.78rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    animation: none !important;
+  }
+}

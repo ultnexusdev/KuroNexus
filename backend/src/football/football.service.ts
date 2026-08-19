@@ -14,6 +14,26 @@ const KAGGLE_PLAYERS_URL =
   'https://www.kaggle.com/api/v1/datasets/download/davidcariboo/player-scores/players.csv';
 const SYNC_STATUS_KEY = 'football:sync:last';
 
+/**
+ * Forma numaraları — `{ "<tmPlayerId>": 45 }`.
+ *
+ * ── NEDEN AYRI BİR ADIM ──────────────────────────────────────────────────
+ * Numara `players.csv`te YOK; `game_lineups.csv`te var (sütun `number`) ama o
+ * dosya 3,1 milyon satır. Ölçüldü (19 Ağustos 2026): takıma süzülünce 11 061
+ * satır kalıyor, 218 oyuncunun numarası çıkıyor ve mevcut kadronun 36
+ * oyuncusundan 34'ü eşleşiyor (Osimhen 45, Sané 10, Torreira 34 — doğru).
+ *
+ * ── NEDEN HAFTALIK CRON'A BAĞLI ──────────────────────────────────────────
+ * İlk sürümde "dosya çok büyük, elle tetiklensin" denmişti. ÖLÇÜM bunu
+ * çürüttü: tüm iş **15 saniye** sürüyor (akış satır satır süzülüyor, dosya
+ * belleğe alınmıyor). Elle tetiklenen bir adım, unutulduğunda kadronun
+ * numarasız kalması demekti; 15 saniye için o riski almaya değmez.
+ * Yine de ayrı bir uçtan tekil olarak da tetiklenebiliyor.
+ */
+const SHIRT_NUMBERS_KEY = 'football:shirt-numbers';
+const KAGGLE_LINEUPS_URL =
+  'https://www.kaggle.com/api/v1/datasets/download/davidcariboo/player-scores/game_lineups.csv';
+
 // Apify actor: Türkiye Süper Lig maçları + puan tablosu (kullanıcı seçimi).
 // Actor her istekte koşarsa yavaş/pahalı — sonuç ExternalCache'e yazılır,
 // public uçlar cache'ten okur (kural 4/14).
@@ -122,6 +142,16 @@ export interface SquadPlayer {
   number: number | null;
   position: string | null;
   photo: string | null;
+  // ---- 19 Ağustos 2026'da eklendi ----
+  // Alanlar veri setinde ZATEN vardı ve `getPlayer()` bunları okuyordu; kadro
+  // listesi yalnızca beşini döndürüyordu. Yeni kulüp sayfasındaki oyuncu
+  // kartlarının arka yüzü bu künyeyi gösteriyor. Hepsi isteğe bağlı: eksik
+  // alan çizilmiyor, "0" ya da "-" YAZILMIYOR.
+  dateOfBirth: string | null;
+  heightInCm: number | null;
+  foot: string | null;
+  marketValueInEur: number | null;
+  subPosition: string | null;
 }
 
 @Injectable()
@@ -142,7 +172,8 @@ export class FootballService {
     // Sezon başlangıç yılı (2025 = 2025/2026). Coolify'da APIFY_TR_SEASON ile
     // güncellenebilir; verilmezse takvimden mevcut sezon türetilir.
     const now = new Date();
-    const derived = now.getUTCMonth() >= 6 ? now.getUTCFullYear() : now.getUTCFullYear() - 1;
+    const derived =
+      now.getUTCMonth() >= 6 ? now.getUTCFullYear() : now.getUTCFullYear() - 1;
     this.apifySeason = Number(
       this.config.get<string>('APIFY_TR_SEASON', String(derived)),
     );
@@ -152,10 +183,22 @@ export class FootballService {
     // Kadro = TM sync'i + elle düzeltmeler (bkz. SquadOverride). Kaggle veri
     // seti transferleri geç yansıttığı için düzeltmeler olmadan ayrılan
     // oyuncular kadroda kalır, yeni transferler görünmez.
-    const [players, overrides] = await Promise.all([
+    //
+    // ── ÖLÇÜM (19 Ağustos 2026) ────────────────────────────────────────────
+    // Veri setinin son güncellemesi 5 Ağustos; 2026-27 sezonu 14 Ağustos'ta
+    // başladı. Yani set bu sezonu HENÜZ içermiyor (`last_season` en fazla
+    // 2025) ama `current_club_id = 141` süzgeci 36 oyuncu veriyor ve liste
+    // gerçek kadroya oturuyor (Osimhen, Sané, Icardi, Torreira, Singo…),
+    // 36'sının da fotoğrafı var. Eksik olan yalnızca son iki haftanın
+    // transferleri — `SquadOverride` tam olarak o boşluk için var.
+    const [players, overrides, numbers] = await Promise.all([
       this.prisma.tmPlayer.findMany({ where: { currentClubId: this.teamId } }),
       this.prisma.squadOverride.findMany({ where: { teamId: this.teamId } }),
+      this.prisma.externalCache.findUnique({
+        where: { cacheKey: SHIRT_NUMBERS_KEY },
+      }),
     ]);
+    const shirtNumbers = (numbers?.payload ?? {}) as Record<string, number>;
 
     const hiddenIds = new Set(
       overrides.filter((o) => o.tmPlayerId).map((o) => o.tmPlayerId as string),
@@ -169,27 +212,55 @@ export class FootballService {
         number: null,
         position: o.position ?? null,
         photo: o.photo ?? null,
+        // Elle eklenen oyuncuda bu alanlar YOK ve olmamalı: `SquadOverride`
+        // yalnızca ad/mevki/yaş/foto tutuyor. Uydurulmuş bir piyasa değeri
+        // ya da boy, veri setinden gelen gerçek değerlerin yanında ayırt
+        // edilemez hâle gelirdi.
+        dateOfBirth: null,
+        heightInCm: null,
+        foot: null,
+        marketValueInEur: null,
+        subPosition: null,
       }));
 
     const mapped: SquadPlayer[] = players
       .filter((p) => !hiddenIds.has(p.id))
-      .map(p => {
-      let age: number | null = null;
-      if (p.dateOfBirth) {
-        const ageDifMs = Date.now() - p.dateOfBirth.getTime();
-        const ageDate = new Date(ageDifMs);
-        age = Math.abs(ageDate.getUTCFullYear() - 1970);
-      }
+      .map((p) => {
+        let age: number | null = null;
+        if (p.dateOfBirth) {
+          const ageDifMs = Date.now() - p.dateOfBirth.getTime();
+          const ageDate = new Date(ageDifMs);
+          age = Math.abs(ageDate.getUTCFullYear() - 1970);
+        }
 
-      return {
-        id: p.id,
-        name: p.name,
-        age,
-        number: null, // Transfermarkt veri setinde forma numarası yok
-        position: p.position ?? p.subPosition ?? null,
-        photo: p.imageUrl ?? null,
-      };
-    });
+        return {
+          id: p.id,
+          name: p.name,
+          age,
+          // ⚠️ ESKİ NOT YANLIŞTI. Burada "Transfermarkt veri setinde forma
+          // numarası yok" yazıyordu; `players.csv`te yok ama
+          // `game_lineups.csv`te VAR (bkz. SHIRT_NUMBERS_KEY). Numara ayrı bir
+          // senkronla toplanıp cache'ten okunuyor; toplanmamışsa null kalıyor
+          // ve kart numarasız çiziliyor — uydurma numara basılmıyor.
+          number: shirtNumbers[p.id] ?? null,
+          position: p.position ?? p.subPosition ?? null,
+          photo: p.imageUrl ?? null,
+          dateOfBirth: p.dateOfBirth
+            ? p.dateOfBirth.toISOString().split('T')[0]
+            : null,
+          heightInCm: p.heightInCm ?? null,
+          foot: p.foot ?? null,
+          marketValueInEur: p.marketValueInEur ?? null,
+          subPosition: p.subPosition ?? null,
+        };
+      });
+
+    // Piyasa değerine göre azalan: kadro listesinin "önce yıldızlar" sırası
+    // veri setinden geliyor, elle bir hiyerarşi yazılmıyor. Değeri olmayan
+    // (altyapı) oyuncular sona düşüyor.
+    mapped.sort(
+      (a, b) => (b.marketValueInEur ?? 0) - (a.marketValueInEur ?? 0),
+    );
 
     return { teamId: this.teamId, players: [...mapped, ...manual] };
   }
@@ -394,7 +465,8 @@ export class FootballService {
     }
 
     const matches = items.filter(
-      (i): i is ApifyMatchRow => 'matchDate' in i && !!(i as ApifyMatchRow).matchDate,
+      (i): i is ApifyMatchRow =>
+        'matchDate' in i && !!(i as ApifyMatchRow).matchDate,
     );
 
     // Teşhis: ham veri şeklini kayda al (frontend'i doğru kurmak için).
@@ -430,7 +502,8 @@ export class FootballService {
     const actorStandings = items
       .filter(
         (i): i is ApifyStandingRow =>
-          'teamName' in i && typeof (i as ApifyStandingRow).position === 'number',
+          'teamName' in i &&
+          typeof (i as ApifyStandingRow).position === 'number',
       )
       .sort((a, b) => (a.position ?? 99) - (b.position ?? 99));
     const standings =
@@ -464,7 +537,10 @@ export class FootballService {
       : null;
 
     if (standings.length > 0) {
-      await this.upsertCache(STANDINGS_KEY, { season: usedSeason, table: standings });
+      await this.upsertCache(STANDINGS_KEY, {
+        season: usedSeason,
+        table: standings,
+      });
     }
     await this.upsertCache(NEXTMATCH_KEY, nextMatch);
     await this.upsertCache(LEAGUE_SYNC_KEY, {
@@ -510,6 +586,130 @@ export class FootballService {
         fetchedAt: new Date(),
       },
     });
+  }
+
+  // ---- Forma numaraları (admin, sezonda bir kez) ----
+
+  private shirtSyncRunning = false;
+
+  /**
+   * `game_lineups.csv`ten takımın forma numaralarını toplar.
+   *
+   * Haftalık cron'a BAĞLANMADI: dosya ~200 MB / 3,1 milyon satır ve numara
+   * yılda bir değişiyor. Sezon başında bir kez tetiklenir.
+   *
+   * Her oyuncu için EN SON maçtaki numara alınıyor — bir oyuncu sezonlar
+   * içinde numara değiştirdiyse güncel olan kazanıyor.
+   */
+  startShirtNumberSync() {
+    if (this.shirtSyncRunning) return { status: 'ALREADY_RUNNING' };
+    this.shirtSyncRunning = true;
+    void this.runShirtNumberSync()
+      .catch(async (error: unknown) => {
+        const message = error instanceof Error ? error.message : String(error);
+        this.logger.error(`Forma numarası sync hatası: ${message}`);
+        await this.upsertCache(SHIRT_NUMBERS_KEY + ':last', {
+          ok: false,
+          error: message,
+        });
+      })
+      .finally(() => {
+        this.shirtSyncRunning = false;
+      });
+    return { status: 'STARTED' };
+  }
+
+  private async runShirtNumberSync(): Promise<void> {
+    await this.collectShirtNumbers();
+  }
+
+  /** Numaraları toplayıp cache'e yazar; kaç oyuncu bulunduğunu döner. */
+  private async collectShirtNumbers(): Promise<number> {
+    const auth = this.kaggleAuthHeader();
+    const res = await fetch(KAGGLE_LINEUPS_URL, {
+      headers: { Authorization: auth },
+      signal: AbortSignal.timeout(600_000),
+    });
+    if (!res.ok || !res.body) {
+      throw new Error(`SHIRT.HTTP_${res.status}`);
+    }
+
+    const teamId = this.teamId;
+    // playerId → { number, date } — en yeni tarih kazanıyor
+    const latest = new Map<string, { number: number; date: string }>();
+
+    await new Promise<void>((resolve, reject) => {
+      const nodeStream = Readable.fromWeb(
+        res.body as import('stream/web').ReadableStream,
+      );
+      peekStream(nodeStream, 4)
+        .then((head) => {
+          const isZip = head[0] === 0x50 && head[1] === 0x4b;
+          const source = isZip
+            ? nodeStream.pipe(unzipper.ParseOne(/\.csv$/))
+            : nodeStream;
+          source
+            .pipe(csv())
+            .on('data', (row: Record<string, string>) => {
+              if (row.club_id !== teamId) return;
+              const n = Number(row.number);
+              // "not in squad" gibi sayısal olmayan değerler geliyor.
+              if (!Number.isInteger(n) || n <= 0 || n > 99) return;
+              const date = row.date ?? '';
+              const seen = latest.get(row.player_id);
+              if (!seen || date > seen.date) {
+                latest.set(row.player_id, { number: n, date });
+              }
+            })
+            .on('end', () => resolve())
+            .on('error', reject);
+        })
+        .catch(reject);
+    });
+
+    const payload: Record<string, number> = {};
+    for (const [playerId, value] of latest) payload[playerId] = value.number;
+
+    await this.upsertCache(SHIRT_NUMBERS_KEY, payload);
+    await this.upsertCache(SHIRT_NUMBERS_KEY + ':last', {
+      ok: true,
+      players: latest.size,
+    });
+    this.logger.log(`Forma numarası sync bitti: ${latest.size} oyuncu`);
+    return latest.size;
+  }
+
+  async getShirtNumberStatus() {
+    const [numbers, last] = await Promise.all([
+      this.prisma.externalCache.findUnique({
+        where: { cacheKey: SHIRT_NUMBERS_KEY },
+      }),
+      this.prisma.externalCache.findUnique({
+        where: { cacheKey: SHIRT_NUMBERS_KEY + ':last' },
+      }),
+    ]);
+    return {
+      running: this.shirtSyncRunning,
+      count: Object.keys((numbers?.payload ?? {}) as object).length,
+      last: last?.payload ?? null,
+      lastAt: last?.fetchedAt ?? null,
+    };
+  }
+
+  /**
+   * Kaggle kimlik başlığı — yeni tip erişim token'ı (Bearer) tercih edilir,
+   * eski kullanıcıadı+key ikilisi de desteklenir (Basic).
+   * `collectSquadRows` ile aynı mantık; iki yerde tekrarlanmasın diye ayrıldı.
+   */
+  private kaggleAuthHeader(): string {
+    const accessToken = this.config.get<string>('KAGGLE_API_TOKEN');
+    if (accessToken) return `Bearer ${accessToken}`;
+    const username = this.config.get<string>('KAGGLE_USERNAME');
+    const key = this.config.get<string>('KAGGLE_KEY');
+    if (username && key) {
+      return 'Basic ' + Buffer.from(`${username}:${key}`).toString('base64');
+    }
+    throw new Error('SYNC.KAGGLE_CREDENTIALS_MISSING');
   }
 
   startSquadSync() {
@@ -560,8 +760,25 @@ export class FootballService {
       data: { currentClubId: null },
     });
 
-    await this.writeSyncStatus({ ok: true, imported: rows.length });
-    this.logger.log(`Transfermarkt sync bitti: ${rows.length} oyuncu`);
+    // Forma numaraları kadronun hemen ardından tazeleniyor (ölçüldü: 15 sn).
+    // Ayrı bir adım olarak bırakılsaydı unutulduğunda kadro numarasız kalırdı.
+    // Hata ATILMIYOR: numara kozmetik, kadronun kendisi başarılı sayılmalı.
+    let shirtNumbers: number | string = 0;
+    try {
+      shirtNumbers = await this.collectShirtNumbers();
+    } catch (error) {
+      shirtNumbers = error instanceof Error ? error.message : String(error);
+      this.logger.warn(`Forma numaraları alınamadı: ${String(shirtNumbers)}`);
+    }
+
+    await this.writeSyncStatus({
+      ok: true,
+      imported: rows.length,
+      shirtNumbers,
+    });
+    this.logger.log(
+      `Transfermarkt sync bitti: ${rows.length} oyuncu, forma no ${String(shirtNumbers)}`,
+    );
   }
 
   private async collectSquadRows(): Promise<

@@ -74,6 +74,18 @@ export class FootballAdminController {
     return this.football.getSyncStatus();
   }
 
+  // Forma numaraları — sezonda bir kez. Haftalık cron'a bağlı DEĞİL, gerekçesi
+  // `SHIRT_NUMBERS_KEY` başlığında yazılı (~200 MB'lık dosya, yılda bir değişen veri).
+  @Post('shirt-numbers')
+  startShirtNumberSync() {
+    return this.football.startShirtNumberSync();
+  }
+
+  @Get('shirt-numbers')
+  shirtNumberStatus() {
+    return this.football.getShirtNumberStatus();
+  }
+
   // Süper Lig puan tablosu + sonraki maç (Apify)
   // ?season= ile sezon geçici olarak zorlanabilir (teşhis/ilk kurulum)
   @Post('sync-league')

@@ -19,6 +19,7 @@ import { AmbientTracksModule } from './ambient-tracks/ambient-tracks.module';
 import { TransferNewsModule } from './transfer-news/transfer-news.module';
 import { SportArchiveModule } from './sport-archive/sport-archive.module';
 import { FootballModule } from './football/football.module';
+import { FootballLiveModule } from './football-live/football-live.module';
 import { CategoriesModule } from './categories/categories.module';
 import { MoviesModule } from './movies/movies.module';
 import { AnimeModule } from './anime/anime.module';
@@ -76,6 +77,7 @@ import { PulseModule } from './pulse/pulse.module';
     TransferNewsModule,
     SportArchiveModule,
     FootballModule,
+    FootballLiveModule,
     CategoriesModule,
     MoviesModule,
     AnimeModule,

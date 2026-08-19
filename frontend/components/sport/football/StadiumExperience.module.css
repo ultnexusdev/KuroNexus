@@ -1,0 +1,172 @@
+/* ============================================================
+   RAMS Park — sinematik stadyum deneyimi
+
+   Yapı: her fotoğraf `position: sticky` bir panel. Kaydırdıkça paneller
+   üst üste yığılıyor ve bir sonraki sahne bir öncekini örtüyor.
+
+   ⚠️ NEDEN `sticky`, `animation-timeline` DEĞİL:
+   Scroll-driven animasyon bu efekti daha ince yapardı ama desteklenmediği
+   tarayıcıda HİÇBİR ŞEY olmuyor ve paneller üst üste yığılı kalıyordu —
+   yani bozuk bir düzen. `sticky` her yerde çalışıyor ve desteklenmediği
+   yerde bile sonucu sıradan bir dikey dizi, bozuk bir şey değil.
+   ============================================================ */
+
+.experience {
+  padding-block: var(--sp-band) 0;
+  border-top: 1px solid var(--sport-line);
+}
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-inline: var(--sp-gutter);
+  margin-bottom: clamp(2rem, 5vw, 3.5rem);
+}
+
+.title {
+  color: var(--gs-cream);
+  max-width: 20ch;
+}
+
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem 3rem;
+  margin: 0.5rem 0 0;
+}
+
+.fact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.factValue {
+  margin: 0;
+  font-size: clamp(1.5rem, 3.5vw, 2.25rem);
+  line-height: 1;
+  color: var(--gs-brand-yellow);
+}
+
+/* ---- Sahne yığını ---- */
+
+.stage {
+  position: relative;
+}
+
+.scene {
+  position: sticky;
+  /* Yapışkan header'ın altına oturuyor; düşülmezse ilk panel header'ın
+     arkasında kalıyor (kanat kabuğunda yazılı kural). */
+  top: var(--sp-header);
+  height: calc(100svh - var(--sp-header));
+}
+
+.frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: clip;
+}
+
+.photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 45%;
+  /* Fotoğraflar arşiv karesi; sinematik ton için doygunluk hafif düşürülüp
+     kontrast yükseltiliyor. Gece stadyumu hissi renkten değil ışıktan gelir. */
+  filter: saturate(0.8) contrast(1.08) brightness(0.78);
+}
+
+/* Renk derecelendirme katmanı — sarı üstten, kırmızı alttan, ikisi de
+   kadraj dışından. Tek katman; gradient yığını yok. */
+.grade {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      70% 55% at 10% -10%,
+      color-mix(in srgb, var(--gs-brand-yellow) 16%, transparent) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      60% 50% at 95% 110%,
+      color-mix(in srgb, var(--gs-brand-red) 20%, transparent) 0%,
+      transparent 58%
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--sport-ink) 45%, transparent) 0%,
+      transparent 30%,
+      transparent 62%,
+      color-mix(in srgb, var(--sport-ink) 72%, transparent) 100%
+    );
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    /* Sahne içinde çok yavaş bir yakınlaşma — yığılma efektinin üstüne
+       derinlik katıyor. Yalnızca transform animate ediliyor. */
+    .photo {
+      animation: push linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 100%;
+    }
+  }
+}
+
+@keyframes push {
+  from {
+    transform: scale(1.12);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+/* ============================================================
+   MOBİL — yığılma KAPALI
+
+   Telefonda `sticky` yığını iki sorun üretiyor: tam ekran paneller
+   kaydırmayı ele geçiriyor (kullanıcı bölümü geçemiyor gibi hissediyor) ve
+   dört tam ekran fotoğraf ağır. Mobilde paneller normal akışa dönüyor ve
+   yüksekliği yarıya iniyor.
+   ============================================================ */
+@media (max-width: 760px) {
+  .scene {
+    position: static;
+    height: auto;
+  }
+
+  .frame {
+    aspect-ratio: 4 / 3;
+    height: auto;
+  }
+
+  .scene + .scene {
+    margin-top: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .experience *,
+  .experience *::before,
+  .experience *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  /* Hareket azaltılmışsa yığılma da kalkıyor: sticky yığını bir animasyon
+     değil ama etkisi hareket olarak algılanıyor. */
+  .scene {
+    position: static;
+    height: auto;
+  }
+
+  .frame {
+    aspect-ratio: 16 / 9;
+    height: auto;
+  }
+}

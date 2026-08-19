@@ -1,0 +1,444 @@
+/* ============================================================
+   Kadro — saha ve kart görünümleri
+
+   Görünüm değiştirici SALT CSS: gizli radio + `:has()`. Kanattaki
+   `PodiumStage` deseninin aynısı; gerekçesi orada yazılı (dev modunda CSP
+   istemci JS'ini engelliyor).
+   ============================================================ */
+
+.section {
+  padding-block: var(--sp-band);
+  padding-inline: var(--sp-gutter);
+  border-top: 1px solid var(--sport-line);
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem 1.5rem;
+  margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---- Görünüm anahtarı ---- */
+
+.modes {
+  display: flex;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--sport-line);
+}
+
+.mode {
+  cursor: pointer;
+  /* Dokunma alanı 44px'e tamamlanıyor (kural 2) — görünen iz daha kısa. */
+  min-height: var(--touch-min);
+  display: flex;
+  align-items: center;
+  padding-inline: clamp(0.9rem, 2.5vw, 1.4rem);
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.66rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  transition: color 200ms ease, background-color 200ms ease;
+}
+
+.mode:has(input:checked) {
+  color: var(--sport-ink);
+  background: var(--gs-brand-yellow);
+}
+
+/* Odak halkası radio görünmez olduğu için ETİKETE taşınıyor; yoksa klavye
+   kullanıcısı nerede olduğunu göremez. */
+.mode:has(input:focus-visible) {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 2px;
+}
+
+/* ---- Görünüm geçişi ---- */
+
+.views > .cards {
+  display: none;
+}
+
+.section:has(input[value="cards"]:checked) .pitch {
+  display: none;
+}
+
+.section:has(input[value="cards"]:checked) .cards {
+  display: grid;
+}
+
+/* ---- Saha ---- */
+
+.pitch {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.25rem, 3vw, 2rem);
+  padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 3vw, 2.5rem);
+  isolation: isolate;
+  border: 1px solid color-mix(in srgb, var(--gs-brand-yellow) 18%, transparent);
+}
+
+/* Saha çizgileri — dekoratif, tek katman, düşük opaklık. Gerçek bir saha
+   çizimi değil; hatların okunmasına yardım eden bir zemin. */
+.pitchLines {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--gs-brand-yellow) 5%, transparent),
+      transparent 40%,
+      color-mix(in srgb, var(--gs-brand-red) 6%, transparent)
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0 calc(25% - 1px),
+      color-mix(in srgb, var(--gs-cream) 6%, transparent) calc(25% - 1px) 25%
+    );
+}
+
+.line {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.lineLabel {
+  color: color-mix(in srgb, var(--gs-cream) 45%, transparent);
+}
+
+.lineList {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem clamp(0.75rem, 2.5vw, 1.75rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pin {
+  min-width: 0;
+}
+
+.pinBody {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  width: clamp(4.5rem, 10vw, 6rem);
+  padding: 0.5rem 0.25rem;
+  cursor: default;
+}
+
+.pinPhoto {
+  width: clamp(2.5rem, 6vw, 3.5rem);
+  height: clamp(2.5rem, 6vw, 3.5rem);
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--surface);
+  border: 1px solid var(--sport-line);
+}
+
+.pinName {
+  font-size: 0.72rem;
+  line-height: 1.25;
+  text-align: center;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.pinNumber {
+  font-size: 0.9rem;
+  color: var(--gs-brand-yellow);
+}
+
+/* İstatistik balonu — hover ve klavye odağında açılıyor. */
+.pinStats {
+  position: absolute;
+  bottom: calc(100% + 0.4rem);
+  left: 50%;
+  translate: -50% 0;
+  z-index: 3;
+  display: grid;
+  gap: 0.15rem;
+  min-width: 9rem;
+  padding: 0.6rem 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.pinBody:hover .pinStats,
+.pinBody:focus-visible .pinStats {
+  opacity: 1;
+  visibility: visible;
+}
+
+.pinBody:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 2px;
+}
+
+/* ---- Kartlar ---- */
+
+.cards {
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--sport-line);
+  border: 1px solid var(--sport-line);
+}
+
+.cardItem {
+  min-width: 0;
+}
+
+.card {
+  position: relative;
+  height: 100%;
+  min-height: 15rem;
+  perspective: 1000px;
+  cursor: default;
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: -2px;
+}
+
+.cardInner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+.cardFront,
+.cardBack {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+.cardFront {
+  justify-content: flex-end;
+}
+
+.cardPhoto {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 18%;
+  filter: saturate(0.85) contrast(1.05);
+}
+
+.cardMeta {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 2.5rem 0.9rem 0.9rem;
+  background: linear-gradient(
+    to top,
+    var(--sport-ink) 0%,
+    color-mix(in srgb, var(--sport-ink) 80%, transparent) 45%,
+    transparent 100%
+  );
+}
+
+.cardNumber {
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--gs-brand-yellow);
+}
+
+.cardName {
+  font-size: 0.9rem;
+  line-height: 1.25;
+  color: var(--gs-cream);
+  overflow-wrap: anywhere;
+}
+
+.cardPosition {
+  color: color-mix(in srgb, var(--gs-cream) 55%, transparent);
+}
+
+.cardBack {
+  transform: rotateY(180deg);
+  gap: 0.5rem;
+  padding: 1rem 0.9rem;
+  border-top: 2px solid var(--gs-brand-red);
+}
+
+.cardBackTitle {
+  color: var(--gs-brand-yellow);
+}
+
+.cardStats,
+.pinStats {
+  margin: 0;
+}
+
+.statRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.statRow dt {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.statRow dd {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--gs-cream);
+}
+
+/* Metin değerli künye satırı: sayı değil, o yüzden Bebas'a girmiyor —
+   kanadın kuralı Bebas'ı yalnızca sayı/ölçüm için ayırıyor. */
+.statText {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.3;
+  text-align: right;
+  color: var(--gs-cream);
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .cardInner {
+    transition: transform 620ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+
+  .card:hover .cardInner,
+  .card:focus-within .cardInner,
+  .card:focus-visible .cardInner {
+    transform: rotateY(180deg);
+  }
+
+  .pinStats {
+    transition: opacity 200ms ease, visibility 200ms;
+  }
+}
+
+/* Hareket azaltılmışsa kart ÇEVRİLMİYOR — arka yüz erişilemez kalmasın diye
+   istatistikler ön yüzün altına akıyor. */
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    perspective: none;
+    min-height: 0;
+  }
+
+  .cardInner {
+    display: flex;
+    flex-direction: column;
+    transform: none !important;
+    transform-style: flat;
+  }
+
+  .cardFront,
+  .cardBack {
+    position: relative;
+    inset: auto;
+    backface-visibility: visible;
+    transform: none;
+  }
+
+  .cardFront {
+    min-height: 12rem;
+  }
+}
+
+/* ---- Veri yokken ---- */
+
+.unavailable {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  max-width: 52ch;
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  border: 1px solid var(--sport-line);
+  border-left: 2px solid var(--gs-brand-yellow);
+  background: color-mix(in srgb, var(--surface) 45%, transparent);
+}
+
+.unavailableTitle {
+  margin: 0;
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gs-brand-yellow);
+}
+
+.unavailableText {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 620px) {
+  .cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .lineList {
+    /* Dar ekranda hat yatay kayıyor — sarmalayıp üç sıraya bölmek hattı
+       hat olmaktan çıkarıyordu. */
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    justify-content: flex-start;
+    padding-bottom: 0.5rem;
+  }
+
+  /* Balon dar ekranda taşıyor; künyenin altına iniyor. */
+  .pinStats {
+    left: 0;
+    translate: 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section *,
+  .section *::before,
+  .section *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

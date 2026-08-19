@@ -1,0 +1,68 @@
+/* Geri sayım — hero'nun sağ kolonundaki tek "yaşayan" sayı. */
+
+.countdown {
+  display: flex;
+  gap: clamp(0.6rem, 2vw, 1.25rem);
+  margin-bottom: 0.75rem;
+}
+
+.unit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.value {
+  font-family: var(--font-bebas), var(--font-sans);
+  /* Sabit genişlikli rakam ŞART: orantılı rakamlarla saniye her değiştiğinde
+     bütün blok yatay olarak zıplıyor. */
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(1.75rem, 4.5vw, 3rem);
+  line-height: 1;
+  color: var(--gs-brand-yellow);
+  letter-spacing: 0.02em;
+}
+
+.label {
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--gs-cream) 42%, transparent);
+}
+
+.started {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(1.5rem, 3.5vw, 2.25rem);
+  letter-spacing: 0.06em;
+  color: var(--gs-brand-yellow);
+}
+
+/* Maç günü kipinde geri sayım büyüyor — brief "countdown büyüsün" diyor.
+   Seçici hero'nun kökünden geliyor; bu modül onu :global ile okumak yerine
+   kendi ölçüsünü veriyor ve hero CSS'i büyütme kararını uyguluyor. */
+@media (prefers-reduced-motion: no-preference) {
+  .value {
+    transition: color 400ms ease;
+  }
+}
+
+@media (max-width: 760px) {
+  .countdown {
+    gap: 0.9rem;
+  }
+
+  .value {
+    font-size: 1.9rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .countdown *,
+  .started {
+    animation: none !important;
+    transition: none !important;
+  }
+}

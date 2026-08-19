@@ -750,6 +750,32 @@ html {
   --gs-cream:      #efe9dc;
   --gs-glow:       rgba(217, 166, 46, 0.28);
 
+  /* ── Futbol · MAC GUNU (kulup derisi) ──────────────────────────────────
+     Kulubun RESMI markasi: sari #FFC72C, kirmizi #C8102E. Yukaridaki
+     --gs-gold/--gs-red bunlarin "geceye cekilmis" hali ve arsiv anlatisinin
+     sesi; ikisi de duruyor cunku iki AYRI ISI var.
+
+     Ayrim kasitli: arsiv omurgasi (donemler, alintilar, efsaneler) sessiz
+     kalmali, mac gunu yuzeyi (skor, geri sayim, canli) markanin tam
+     doygunlugunda konusmali. Ayni sayfada iki ton yan yana degil, DIKEY
+     olarak ayrilmis duruyor — ust ucte mac gunu, alt ucte arsiv.
+
+     Token'lar :root'ta, yukaridaki --gs-gold / --f1-red ile ayni blokta —
+     evin yerlesik deseni bu (spor yardimci token'lari kategori derisinde
+     degil, kanat-ustu sabitler arasinda duruyor). Kategori derisinin
+     (--accent, --bg ...) HICBIRINI ezmiyorlar, yani F1 ve diger kanatlar
+     etkilenmiyor; yalnizca futbol bilesenleri bu adlari okuyor. */
+  --gs-brand-yellow: #ffc72c;
+  --gs-brand-red:    #c8102e;
+  --gs-brand-glow:   rgba(255, 199, 44, 0.34);
+  --gs-brand-blood:  rgba(200, 16, 46, 0.30);
+  /* Sonuc renkleri — brief galibiyet/beraberlik/maglubiyet icin ayri ton
+     istiyor. Maglubiyet "kontrollu kirmizi": kulubun kendi kirmizisiyla
+     ayni olamaz, yoksa kaybedilen mac kulup rengiyle kutlanmis gorunur. */
+  --gs-win:  #f2c14e;
+  --gs-draw: #8d8878;
+  --gs-loss: #8e3b3b;
+
   /* Formula 1 — Gece Yarisi */
   --f1-carbon:    #0d0f12;
   --f1-carbon-hi: #16191e;

@@ -1,0 +1,41 @@
+/* Canlı sezon katmanının kendi iki stili; geri kalan her şey alt
+   bileşenlerin kendi modüllerinde. */
+
+/* Canlı veri YOKKEN sayfanın başlığı: sade künye hero'su.
+   Arşivdeki başka bir kulüpte ya da uç kesintisinde bu çiziliyor. */
+.plainHeader {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+  padding: clamp(2rem, 7vw, 5rem) var(--sp-gutter) clamp(2.5rem, 7vw, 4.5rem);
+  border-bottom: 1px solid var(--sport-line);
+}
+
+/* Kulüp sayfasının 8 Ağustos 2026'da eklenen atmosferi — buraya TAŞINDI
+   (eski yeri `page.module.css` → `.hero::before`, o sınıf artık yok).
+   Tek radyal kaynak, kadrajın DIŞINDAN sızıyor: ışığın kaynağı ekranda
+   değil, etkisi var. Kanadın "sayfa başına en fazla bir gradient" kuralına
+   uyuyor — canlı hero'nun katmanlı atmosferi ayrı bir bileşende ve ikisi
+   asla aynı anda çizilmiyor. */
+.plainHeader::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    100% 110% at 12% -30%,
+    var(--gs-glow),
+    transparent 60%
+  );
+  opacity: 0.5;
+}
+
+.dataNote {
+  margin: 0;
+  padding: var(--pad-lg) var(--sp-gutter);
+  color: var(--text-muted);
+  border-top: 1px solid var(--sport-line);
+  max-width: 78ch;
+}

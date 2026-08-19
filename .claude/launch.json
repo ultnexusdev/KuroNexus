@@ -12,6 +12,13 @@
       "runtimeExecutable": "corepack",
       "runtimeArgs": ["pnpm", "--dir", "frontend", "run", "start"],
       "port": 3100
+    },
+    {
+      "name": "frontend-prod-alt",
+      "runtimeExecutable": "corepack",
+      "runtimeArgs": ["pnpm", "--dir", "frontend", "run", "start"],
+      "port": 3100,
+      "autoPort": true
     }
   ]
 }

@@ -1,0 +1,462 @@
+/* ============================================================
+   Maç günü hero'su — /spor/futbol/galatasaray
+
+   ⚠️ RENK YOK. Kural 16: bileşende hex yazılmaz. Buradaki her renk
+   `globals.css`teki token'lardan geliyor (--gs-brand-*, --gs-*, --sport-*).
+   Tek istisna okunurluk maskeleri: siyah/şeffaf gradient'ler renk KARARI
+   değil araç sayılıyor (kanadın mevcut kuralı, F1 ve kulüp sayfalarında da
+   böyle uygulanmış).
+
+   ⚠️ ATMOSFER TEK KAYNAK DEĞİL — VE BU BİLİNÇLİ BİR İSTİSNA.
+   Kanadın genel kuralı "sayfa başına EN FAZLA bir radial gradient". O kural
+   editoryal yüzeyler için yazılmış; brief burada açıkça KATMANLI bir stadyum
+   atmosferi istiyor (fotoğraf + karartma + ışık + huzme). Kuralın amacı
+   "gradient yığınıyla derinlik taklidi yapma"; burada derinliğin kaynağı
+   gerçek bir fotoğraf, gradient'ler onun ÜSTÜNDE okunurluk ve renk sıcaklığı
+   işi yapıyor. Sayfanın geri kalanı (fikstür, tablo, istatistik) kanadın
+   sade diline geri dönüyor.
+   ============================================================ */
+
+.hero {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: flex-end;
+  /* Yapışkan header akışta yer kaplıyor; düşülmezse kıvrım her zaman
+     viewport'un header kadar altına taşar (kanat kabuğunda yazılı kural). */
+  min-height: calc(92svh - var(--sp-header));
+  padding: calc(var(--sp-band) * 0.9) var(--sp-gutter) var(--sp-band);
+  overflow: clip;
+}
+
+/* ---- Katman 1-4: atmosfer ---- */
+
+.atmosphere {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.backdrop {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 42%;
+  /* Fotoğraf ARKA PLAN, konu değil: doygunluğu düşürülüp karartılıyor ki
+     tipografi onunla yarışmasın. Ölçüt basit — hero'nun okunması gereken
+     şey skor, fotoğraf ona zemin. */
+  filter: saturate(0.55) brightness(0.42) contrast(1.05);
+  transform: scale(1.06);
+}
+
+/* Katman 2 — sinematik karartma. Üstte ve altta koyu, ortada açık:
+   üstte yapışkan header, altta metin bloğu oturuyor. */
+.veil {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--sport-ink) 88%, transparent) 0%,
+      color-mix(in srgb, var(--sport-ink) 30%, transparent) 38%,
+      color-mix(in srgb, var(--sport-ink) 82%, transparent) 78%,
+      var(--sport-ink) 100%
+    );
+}
+
+/* Katman 3 — sarı ve kırmızı ışık, ikisi de KADRAJ DIŞINDAN sızıyor.
+   Merkeze konan bir glow "spot ışığı" gibi görünür ve ucuzdur; dışarıdan
+   sızan ışık stadyum projektörünün yaptığı şeydir. */
+.lights {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      60% 70% at 8% -18%,
+      var(--gs-brand-glow) 0%,
+      transparent 62%
+    ),
+    radial-gradient(
+      55% 65% at 104% 118%,
+      var(--gs-brand-blood) 0%,
+      transparent 60%
+    );
+  opacity: 0.75;
+}
+
+/* Katman 4 — ışık huzmesi. Varsayılan olarak GÖRÜNMEZ; yalnızca maç günü
+   kiplerinde açılıyor (aşağıdaki [data-mode] blokları). */
+.sweep {
+  position: absolute;
+  inset: -20% -40%;
+  opacity: 0;
+  background: linear-gradient(
+    104deg,
+    transparent 42%,
+    color-mix(in srgb, var(--gs-brand-yellow) 16%, transparent) 50%,
+    transparent 58%
+  );
+}
+
+/* ---- Gövde ---- */
+
+.body {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.25rem, 3vw, 2rem);
+  width: 100%;
+  max-width: 92rem;
+  margin-inline: auto;
+}
+
+.eyebrow {
+  color: var(--gs-brand-yellow);
+  letter-spacing: 0.26em;
+}
+
+.name {
+  /* Kanat ölçeğinin üstüne çıkıyor: hero sayfanın en yüksek sesi ve
+     `--sp-world` bütün spor sayfalarında ortak. Buradaki fark hiyerarşi
+     kararı, yeni bir ölçek değil. */
+  font-size: clamp(2.75rem, 11vw, 9rem);
+  color: var(--gs-cream);
+  text-shadow: 0 0.06em 0.5em color-mix(in srgb, var(--sport-ink) 70%, transparent);
+}
+
+.nicknames {
+  margin: 0;
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--gs-cream) 62%, transparent);
+}
+
+/* Son maç / sonraki maç yan yana. Tek bir kolon değil çünkü ikisi FARKLI
+   zaman yönüne bakıyor; yan yana durunca "geçmiş ↔ gelecek" ekseni
+   kendiliğinden okunuyor. */
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  align-items: start;
+  padding-top: clamp(0.5rem, 2vw, 1.5rem);
+  border-top: 1px solid color-mix(in srgb, var(--gs-brand-yellow) 22%, transparent);
+}
+
+.blockLabel {
+  color: color-mix(in srgb, var(--gs-cream) 55%, transparent);
+  margin-bottom: 0.75rem;
+}
+
+/* ---- Skor ---- */
+
+.scoreline {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(0.75rem, 2.5vw, 2rem);
+}
+
+.side {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.side[data-align="end"] {
+  justify-content: flex-end;
+  text-align: right;
+  flex-direction: row-reverse;
+}
+
+.crest {
+  width: clamp(2rem, 5vw, 3.25rem);
+  height: clamp(2rem, 5vw, 3.25rem);
+  object-fit: contain;
+  flex: none;
+  /* Rakip arması sönük, bizimki tam — hiyerarşi renkle değil ışıkla. */
+  opacity: 0.72;
+}
+
+.side[data-mine] .crest {
+  opacity: 1;
+  filter: drop-shadow(0 0 0.6rem var(--gs-brand-glow));
+}
+
+.sideName {
+  font-size: clamp(0.9rem, 1.6vw, 1.15rem);
+  line-height: 1.25;
+  color: color-mix(in srgb, var(--gs-cream) 70%, transparent);
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.side[data-mine] .sideName {
+  color: var(--gs-cream);
+}
+
+.score {
+  display: flex;
+  align-items: baseline;
+  gap: clamp(0.35rem, 1.2vw, 0.75rem);
+  margin: 0;
+  font-size: clamp(3rem, 9vw, 6.5rem);
+  line-height: 1;
+  color: var(--gs-cream);
+}
+
+.score[data-result="W"] {
+  color: var(--gs-win);
+  text-shadow: 0 0 1.4rem var(--gs-brand-glow);
+}
+
+.score[data-result="L"] {
+  color: var(--gs-loss);
+}
+
+.score[data-result="D"] {
+  color: var(--gs-draw);
+}
+
+.scoreDash {
+  opacity: 0.35;
+  font-size: 0.6em;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+  margin: 0.9rem 0 0;
+  color: color-mix(in srgb, var(--gs-cream) 48%, transparent);
+}
+
+.metaRest {
+  overflow-wrap: anywhere;
+}
+
+/* ---- Sonraki maç ---- */
+
+.next {
+  padding-left: clamp(1rem, 3vw, 2rem);
+  border-left: 1px solid color-mix(in srgb, var(--gs-brand-yellow) 18%, transparent);
+}
+
+.nextTeams {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin: 0 0 1rem;
+  font-size: clamp(1rem, 1.9vw, 1.35rem);
+  line-height: 1.3;
+  color: var(--gs-cream);
+}
+
+.nextVs {
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--gs-brand-yellow) 75%, transparent);
+}
+
+.noKickoff {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-mono);
+  font-size: var(--sp-data);
+  color: color-mix(in srgb, var(--gs-cream) 45%, transparent);
+}
+
+/* ---- Form şeridi ---- */
+
+.form {
+  padding-top: clamp(0.75rem, 2vw, 1.25rem);
+  border-top: 1px solid var(--sport-line);
+}
+
+.formList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.formItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.formChip {
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  flex: none;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+}
+
+.formChip[data-result="W"] {
+  color: var(--gs-win);
+  background: color-mix(in srgb, var(--gs-win) 12%, transparent);
+}
+
+.formChip[data-result="D"] {
+  color: var(--gs-draw);
+}
+
+.formChip[data-result="L"] {
+  color: var(--gs-loss);
+  background: color-mix(in srgb, var(--gs-loss) 12%, transparent);
+}
+
+.formFoe {
+  font-family: var(--font-mono);
+  font-size: var(--sp-data);
+  color: color-mix(in srgb, var(--gs-cream) 45%, transparent);
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+/* ============================================================
+   MAÇ GÜNÜ KİPİ — yoğunluk verinin kendisinden geliyor
+
+   `data-mode` sunucuda ilk vuruş saatinden hesaplanıyor. Elle açılan bir
+   bayrak yok; sezon boyunca kendiliğinden çalışıyor.
+   ============================================================ */
+
+/* Maça 72 saat kaldı: ışık biraz açılıyor. */
+.hero[data-mode="soon"] .lights {
+  opacity: 0.9;
+}
+
+/* Maç günü: fotoğraf görünürleşiyor, ışık güçleniyor. */
+.hero[data-mode="today"] .backdrop,
+.hero[data-mode="live"] .backdrop {
+  filter: saturate(0.75) brightness(0.55) contrast(1.08);
+}
+
+.hero[data-mode="today"] .lights,
+.hero[data-mode="live"] .lights {
+  opacity: 1;
+}
+
+/* Maç bitti: sıcaklık düşüyor, sayfa sakinleşiyor. */
+.hero[data-mode="complete"] .lights {
+  opacity: 0.55;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Işık huzmesi YALNIZCA maç günü ve canlı kipte. Sürekli çalışan bir
+     sweep dekorasyondur; yalnızca bir şey olurken çalışan sweep bilgidir. */
+  .hero[data-mode="today"] .sweep,
+  .hero[data-mode="live"] .sweep {
+    opacity: 1;
+    animation: sweep 7s ease-in-out infinite;
+  }
+
+  /* Fotoğrafın kaydırmayla çok yavaş yakınlaşması — parallax hissi, JS'siz.
+     `view()` desteklenmiyorsa hiçbir şey olmuyor ve fotoğraf yerinde duruyor. */
+  @supports (animation-timeline: view()) {
+    .backdrop {
+      animation: drift linear both;
+      animation-timeline: view();
+      animation-range: entry 0% exit 100%;
+    }
+  }
+}
+
+@keyframes sweep {
+  0%,
+  100% {
+    transform: translate3d(-18%, 0, 0);
+  }
+  50% {
+    transform: translate3d(18%, 0, 0);
+  }
+}
+
+@keyframes drift {
+  from {
+    transform: scale(1.14) translate3d(0, -1.5%, 0);
+  }
+  to {
+    transform: scale(1.02) translate3d(0, 1.5%, 0);
+  }
+}
+
+/* ============================================================
+   MOBİL — küçültülmüş masaüstü DEĞİL, ayrı kompozisyon
+
+   Brief bunu açıkça istiyor. Farklar yalnızca ölçek değil:
+   · son maç / sonraki maç yan yana DEĞİL alt alta (620px'te iki sütun
+     skoru okunmaz hâle getiriyor)
+   · sonraki maçın sol çizgisi üst çizgiye dönüyor (dar kolonda dikey
+     çizgi metni sıkıştırıyor)
+   · hero yüksekliği viewport'u doldurmuyor — telefonda 92svh, içeriğin
+     altında hiçbir ipucu bırakmıyor ve sayfa "bitmiş" görünüyor
+   ============================================================ */
+@media (max-width: 760px) {
+  .hero {
+    min-height: auto;
+    padding-top: calc(var(--sp-band) * 0.6);
+  }
+
+  .split {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.75rem;
+  }
+
+  .next {
+    padding-left: 0;
+    padding-top: 1.5rem;
+    border-left: 0;
+    border-top: 1px solid
+      color-mix(in srgb, var(--gs-brand-yellow) 18%, transparent);
+  }
+
+  .scoreline {
+    /* Takım adları skorun altına iniyor: dar ekranda üç kolon, uzun Türkçe
+       kulüp adlarını ("Gaziantep Futbol Kulübü") tek harfe indiriyordu. */
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    gap: 0.5rem;
+  }
+
+  .side {
+    flex-direction: column;
+    gap: 0.4rem;
+    text-align: center;
+  }
+
+  .side[data-align="end"] {
+    flex-direction: column;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .sideName {
+    font-size: 0.8rem;
+  }
+}
+
+/* Hareketi azalt battaniyesi — ev deseni (her animasyon zaten
+   no-preference kapısında, bu ikinci katman). */
+@media (prefers-reduced-motion: reduce) {
+  .hero *,
+  .hero *::before,
+  .hero *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

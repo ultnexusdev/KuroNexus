@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { getTranslations } from "next-intl/server";
-import { Link } from "@/lib/i18n/navigation";
 import { fetchCategories } from "@/lib/api/universes";
-import { codeHall, hallLabel, hallName, hallNumber } from "@/lib/halls";
-import { LobbyBanner } from "@/components/hall/LobbyBanner";
-import styles from "./page.module.css";
+import { getBookArchive } from "@/lib/api/books";
+import { hallLabel, hallName, hallNumber } from "@/lib/halls";
+import { BookLobby, type LobbyQuote } from "@/components/book/BookLobby";
 
 /**
  * Salon 05 · Kitap — salon girişi.
@@ -16,20 +14,19 @@ import styles from "./page.module.css";
  * başlar; bu sayfa yine bu dosya kalır (film/dizi salonlarındaki desenin
  * aynısı).
  *
- * Arşiv ve Ödüller açıldı, ikisi de gerçek bağlantı. "Okuma Notları" hâlâ
- * "yakında" rozetiyle ve tıklanamaz — kapı, arkasında hiçbir şey olmayan bir
- * bağlantı vermesin diye.
+ * Bu dosya yalnızca veriyi toplar; çizim `BookLobby`de.
+ *
+ * **Neden yeni bir uç eklenmedi:** giriş, arşivin kendi listesini (`GET
+ * /books`) okuyor — canlıda zaten var, salonun arşiv bölümü de aynı yanıtı
+ * kullanıyor, yani ikinci bir sorgu değil aynı sorgunun ikinci tüketicisi.
+ * Yanıttan burada yalnızca üç şey süzülüyor: elimdeki kitap, son eklenen
+ * dört cilt, günün alıntısı.
  */
 
 const SLUG = "kitap";
 
-/** `href` dolu olan bölüm tıklanabilir; boş olan "yakında" rozetiyle durur. */
-const SECTIONS = [
-  { key: "archive", href: "/dark-stories/category/kitap/arsiv" },
-  { key: "awards", href: "/dark-stories/category/kitap/oduller" },
-  { key: "readingOrders", href: "/dark-stories/category/kitap/okuma-sirasi" },
-  { key: "notes", href: null },
-] as const;
+/** Raftaki cilt sayısı — referans kadrajı dört kapak gösteriyor. */
+const SHELF_SIZE = 4;
 
 export const dynamic = "force-dynamic";
 
@@ -66,76 +63,57 @@ export default async function BookLobbyPage({
 }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "book" });
-  const tStories = await getTranslations({ locale, namespace: "stories" });
-  const hall = await getHall(t("hallName"));
-  const art = codeHall(SLUG)?.art;
+  const [archive, hall] = await Promise.all([
+    getBookArchive(),
+    getHall(t("hallName")),
+  ]);
+
+  /**
+   * Elimdeki kitap. Birden fazla "okuyorum" varsa en son başlanan kürsüye
+   * çıkar; tarihi olmayan kayıt sona düşer (uydurma sıra üretilmesin).
+   */
+  const reading =
+    archive.books
+      .filter((book) => book.status === "READING")
+      .sort(
+        (a, b) =>
+          (b.startedAt ? Date.parse(b.startedAt) : 0) -
+          (a.startedAt ? Date.parse(a.startedAt) : 0),
+      )[0] ?? null;
+
+  /**
+   * Raf: son eklenenler. Kürsüdeki kitap ayıklanıyor — aynı kapak iki kez
+   * yan yana durursa raf "yeni" değil "tekrar" gibi okunuyor.
+   */
+  const recent = archive.recent
+    .filter((book) => book.id !== reading?.id)
+    .slice(0, SHELF_SIZE);
+
+  /**
+   * Alıntı. Arşivde işaretli alıntı varsa o, yoksa salonun epigrafı —
+   * masanın alt yarısı hiçbir zaman boş kalmıyor.
+   *
+   * ARŞİVE ULAŞILAMADIYSA masa hiç kurulmuyor (`null`): "şu an elimde açık
+   * kitap yok" cümlesi o durumda YANLIŞ olurdu — bilmiyoruz, okuyamadık.
+   * Salon o dalda eski hâline, tek ortalanmış dizine dönüyor (kural 4).
+   */
+  const quote: LobbyQuote | null = archive.unavailable
+    ? null
+    : archive.quoteOfTheDay
+      ? {
+          text: archive.quoteOfTheDay.text,
+          bookTitle: archive.quoteOfTheDay.bookTitle,
+          bookSlug: archive.quoteOfTheDay.bookSlug,
+        }
+      : { text: t("epigraph"), bookTitle: null, bookSlug: null };
 
   return (
-    <div data-category={SLUG} className={styles.lobby}>
-      {/* Kapı çizimi burada arka duvara dönüşür — eşiğin iki yanı aynı yer */}
-      {art ? (
-        <div className={styles.wall} aria-hidden>
-          <Image
-            src={art}
-            alt=""
-            fill
-            priority
-            sizes="100vw"
-            className={styles.wallImg}
-          />
-          <div className={styles.wallFade} />
-        </div>
-      ) : null}
-
-      {/* Dar ekranda arka duvar çok kısık kalıyor; aynı çizim üstte bant olur.
-          Tek görsel: iki yarıya aynı rafı koymak tekrar gibi görünüyordu */}
-      {art ? <LobbyBanner images={[art]} /> : null}
-
-      <header className={styles.head}>
-        <Link href="/dark-stories" className={styles.back}>
-          {tStories("backToList")}
-        </Link>
-        <span className={styles.eyebrow}>
-          {t("hall", { num: hall.label, name: hall.name })}
-        </span>
-        <h1 className={styles.title}>{hall.name.toLocaleUpperCase(locale)}</h1>
-        <span className={styles.rule}>
-          <span className={styles.diamond}>❖</span>
-        </span>
-        <p className={styles.lede}>{t("lobbyLede")}</p>
-      </header>
-
-      <div className={styles.sections}>
-        {SECTIONS.map((section) =>
-          section.href ? (
-            <Link
-              key={section.key}
-              href={section.href}
-              className={styles.sectionOpen}
-            >
-              <span className={styles.sectionTitle}>
-                {t(`sections.${section.key}.title`)}
-              </span>
-              <span className={styles.sectionDesc}>
-                {t(`sections.${section.key}.desc`)}
-              </span>
-              <span className={styles.enter}>{t("enter")}</span>
-            </Link>
-          ) : (
-            <article key={section.key} className={styles.section}>
-              <span className={styles.sectionTitle}>
-                {t(`sections.${section.key}.title`)}
-              </span>
-              <span className={styles.sectionDesc}>
-                {t(`sections.${section.key}.desc`)}
-              </span>
-              <span className={styles.soon}>{t("soon")}</span>
-            </article>
-          ),
-        )}
-      </div>
-
-      <p className={styles.note}>{t("note")}</p>
-    </div>
+    <BookLobby
+      hallLabel={hall.label}
+      hallName={hall.name}
+      reading={reading}
+      recent={recent}
+      quote={quote}
+    />
   );
 }

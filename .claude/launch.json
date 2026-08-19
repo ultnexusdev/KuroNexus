@@ -3,13 +3,13 @@
   "configurations": [
     {
       "name": "frontend",
-      "runtimeExecutable": "npx",
+      "runtimeExecutable": "corepack",
       "runtimeArgs": ["pnpm", "--dir", "frontend", "run", "dev"],
       "port": 3000
     },
     {
       "name": "frontend-prod",
-      "runtimeExecutable": "npx",
+      "runtimeExecutable": "corepack",
       "runtimeArgs": ["pnpm", "--dir", "frontend", "run", "start"],
       "port": 3100
     }

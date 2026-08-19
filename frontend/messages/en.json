@@ -1060,6 +1060,13 @@
     "authorsTitle": "Authors",
     "authorCount": "{count} books",
     "recentTitle": "Recently added",
+    "lobby": {
+      "hallEyebrow": "Hall {num}",
+      "nowReading": "Currently reading",
+      "progress": "{percent}% complete",
+      "noneReading": "No book open right now — the next ones wait on the shelf.",
+      "openBook": "Open the book →"
+    },
     "quoteTitle": "Quote of the day",
     "stats": {
       "title": "My reading stats",

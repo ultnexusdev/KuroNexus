@@ -5,6 +5,43 @@
 
 ## Mevcut Aşama
 
+> ✅ **KİTAP SALONU GİRİŞİ YENİDEN TASARLANDI (19 Ağustos 2026).**
+> `/dark-stories/category/kitap` artık tek sütunlu kart listesi değil, iki
+> yakalı editorial düzen (kullanıcının verdiği referans kadrajı):
+> **solda** salon dizini — SALON 05 / KİTAP başlığı + dört bölüm kartı,
+> her birinde kanadın kendi kazıma SVG levhası (açık kitap / defne
+> çelengi / duraklı tomar / hokkaya değen tüy — `BookLobbyGlyphs.tsx`,
+> hazır ikon seti YOK); **sağda** okuma masası — ışık havuzunda duran
+> elimdeki kitabın kapağı (sırt gölgesi, sayfa kenarları, sarkan ayraç),
+> altında ilerleme çizgisi + elmas iğne, günün alıntısı, altında da
+> "Son eklediklerim" rafı (4 kapak, raf dudağı çizgisi).
+>
+> **Backend değişmedi, yeni uç yok.** Giriş canlıdaki `GET /books`
+> yanıtını okuyor; sayfada yalnızca üç şey süzülüyor (elimdeki kitap =
+> `status READING`, en son başlanan; son eklenen 4 cilt, kürsüdeki kitap
+> ayıklanmış; `quoteOfTheDay`, yoksa salon epigrafı). **Arşive
+> ulaşılamazsa masa hiç kurulmuyor** (`data-rail="off"` → tek ortalanmış
+> sütun): "şu an elimde kitap yok" cümlesi o durumda yalan olurdu.
+>
+> Dosyalar: `components/book/BookLobby.tsx` + `.module.css` +
+> `BookLobbyGlyphs.tsx` (yeni), `page.tsx` yalnız veri topluyor, eski
+> `page.module.css` silindi. i18n: `book.lobby.*` (TR+EN).
+> `LobbyBanner` kitap salonundan düştü — dar ekrandaki boşluğu artık
+> okuma masası gerçek içerikle dolduruyor (bileşen film/dizi/animede
+> duruyor). Başlık `toLocaleUpperCase` YERİNE CSS `text-transform`:
+> Türkçe özel ad dersinin dördüncü tekrarı önlendi.
+>
+> **Ölçüldü** (yerel dev + canlı API, headless Chrome CDP kadrajları):
+> 360 / 390 / 820 / 1024 / 1280 / 1440
+> — hiçbirinde yatay taşma yok (`scrollWidth == clientWidth`), bütün
+> dokunma alanları ≥44px, iki sütun 1040px'te açılıyor, TR+EN doğru,
+> kapaklar 200. `pnpm build` + eslint + `tsc --noEmit` temiz.
+>
+> ⚠️ İş yeri makinesinde Docker/PG yok; `.env.local` dev sunucusunu canlı
+> API'ye bağlıyor — public sayfalar gerçek veriyle açılıyor. `.claude/
+> launch.json` `npx pnpm` ile takılıyordu (paket indirme sorusu),
+> `corepack pnpm`e çevrildi.
+
 > ✅ **ANİME SALONU + AKATSUKI SERGİSİ (16 Ağustos 2026).** Plan ve final
 > rapor: kökteki `PLAN.md`. Yedi commit (`15bbbc4`…): salon girişi kendi
 > ağacına taşındı (**`/anime`**, `MOVED_HALLS` + yalnız-lobi 301; derin

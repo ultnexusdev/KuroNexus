@@ -2,8 +2,9 @@ import Image from "next/image";
 import styles from "./LobbyBanner.module.css";
 
 /**
- * Salon girişinin dar ekran banner'ı — dört salon (film, dizi, anime, kitap)
- * bunu paylaşır.
+ * Salon girişinin dar ekran banner'ı — üç salon (film, dizi, anime) bunu
+ * paylaşır. Kitap salonu 19 Ağustos 2026'da düştü: dar ekrandaki boşluğu
+ * artık okuma masası gerçek içerikle dolduruyor (bkz. `BookLobby.tsx`).
  *
  * Masaüstünde salonun iki yanında tam boy afişler duruyor (her salonun kendi
  * `LobbyPosters`ı), ama 1100px altında o paneller hiç çizilmiyor ve giriş

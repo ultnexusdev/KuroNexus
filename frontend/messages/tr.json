@@ -1060,6 +1060,13 @@
     "authorsTitle": "Yazarlar",
     "authorCount": "{count} kitap",
     "recentTitle": "Son eklediklerim",
+    "lobby": {
+      "hallEyebrow": "Salon {num}",
+      "nowReading": "Şu anda okunan",
+      "progress": "Tamamlandı: %{percent}",
+      "noneReading": "Şu an elimde açık kitap yok — sıradakiler rafta bekliyor.",
+      "openBook": "Kitabı aç →"
+    },
     "quoteTitle": "Günün alıntısı",
     "stats": {
       "title": "Okuma istatistiklerim",

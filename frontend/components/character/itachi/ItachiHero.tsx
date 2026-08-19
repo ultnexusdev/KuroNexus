@@ -2,11 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getImageProps } from "next/image";
-import {
-  ITACHI_HERO_EYES,
-  type EyeStage,
-} from "@/lib/characters/itachi-experience";
-import { HeroEye } from "./SharinganEyes";
+import { ITACHI_HERO_EYES } from "@/lib/characters/itachi-experience";
 import styles from "./ItachiExperience.module.css";
 
 /**
@@ -14,35 +10,31 @@ import styles from "./ItachiExperience.module.css";
  *
  * Mekanik: parlak sahne TEK katman; üstünde ortası delik bir "karanlık
  * örtü" (sabit radial-gradient) işaretçiyi transform ile izler — fener.
- * (İlk sürüm iki katman + her karede yeniden üretilen mask-image
- * kullanıyordu; inceleme bulgusu üzerine compositor-dostu örtüye
- * çevrildi: sıcak yolda ne layout okuması ne repaint kaldı.)
+ * Compositor-only: sıcak yolda ne layout okuması ne repaint var.
  *
- * Gözler sahnenin üstünde SVG katmanıdır ve KULLANICI girdisiyle uyanır:
- * karanlık → kor → Sharingan → Mangekyō. Açılış taraması ve dokunmatik
- * salınımı yalnızca feneri gezdirir; aşamaları uyandırmaz (inceleme:
- * sayfa kendi kendine Mangekyō'ya ulaşıyordu).
+ * ⚠️ Gözlerin üstüne SVG disk BİNMİYOR (kullanıcı, 19 Ağustos 2026:
+ * "bu 2 hareketli animasyonu kaldıralım"). Sahnedeki yüz zaten kendi
+ * gözlerini taşıyor; fener onlara yaklaştıkça göz çukurlarında kızıl
+ * hale güçleniyor — uyanma hissi yapay bir katmandan değil, ışıktan
+ * geliyor. Sharingan glifleri sayfanın geri kalanında yaşıyor.
  *
- * Mühendislik sınırları (keşif + inceleme turlarının bulguları):
- * - Dinleyiciler bileşene KAPSANIR (HeroGlyph dersi) ve rAF ile seyreltilir.
+ * Mühendislik sınırları (keşif + inceleme turları):
+ * - Dinleyiciler bileşene KAPSANIR ve rAF ile seyreltilir.
  * - Kargalar tek <canvas>; hero ekran dışındayken ve sekme gizliyken
  *   HER İKİ rAF döngüsü de durur (paylaşılan IntersectionObserver).
  * - Görsel bağlanmamışsa hiçbir döngü kurulmaz (fallback şartı).
- * - reduced-motion: dinleyici/döngü yok; sahne yarı açık, gözler durağan —
- *   ama eyeKey ile Sharingan↔Mangekyō statik geçişi yine çalışır.
- * - Klavye: eyeKey ok tuşlarıyla feneri gezdirir (fener keşfinin klavye
- *   eşdeğeri), Enter/Space aşamaları döndürür.
+ * - reduced-motion: dinleyici/döngü yok; sahne açık gelir.
+ * - Klavye: ok tuşları feneri gezdirir, Enter/Space karanlığı kaldırır.
  */
 
 const SWEEP_MS = 2600;
-const HOLD_FOR_MANGEKYO_MS = 900;
 const KEY_STEP = 6;
 
 interface HeroLabels {
   hint: string;
   hintTouch: string;
-  eyesLabel: string;
-  stageNames: Record<EyeStage, string>;
+  revealLabel: string;
+  hideLabel: string;
 }
 
 /** Sahne görseli — <picture> ile sanat yönü: dar ekran dikey kadrajı çeker. */
@@ -99,28 +91,20 @@ export function ItachiHero({
   const [reduced, setReduced] = useState(false);
   const [touchMode, setTouchMode] = useState(false);
   const [narrow, setNarrow] = useState(false);
-  const [stage, setStage] = useState<EyeStage>("dark");
   const [moved, setMoved] = useState(false);
-  const [announce, setAnnounce] = useState("");
+  const [revealed, setRevealed] = useState(false);
 
   /* Değişken durum ref'lerde — rAF döngüleri React'i uyandırmadan okur */
   const pointer = useRef({ x: 50, y: 42, has: false });
-  const holdTimer = useRef<number | null>(null);
-  const stageRef = useRef<EyeStage>("dark");
-  stageRef.current = stage;
   /* Kanvasın IntersectionObserver'ı görünürlüğü buraya yazar; tarama
      döngüsü görünmezken zincirini düşürür, IO `sweepRestart` ile kurar. */
   const heroVisible = useRef(true);
   const sweepRestart = useRef<(() => void) | null>(null);
-  /* Sahne kutusunun ölçüsü — sıcak yolda getBoundingClientRect YOK
-     (inceleme: yaz-sonra-oku her karede zorunlu layout üretiyordu). */
+  /* Sahne kutusunun ölçüsü — sıcak yolda getBoundingClientRect YOK */
   const boxSize = useRef({ width: 0, height: 0 });
-  /* Anons yalnızca kullanıcı eylemiyle (inceleme: role="status" otomatik
-     taramada üç kez kendiliğinden konuşuyordu). */
-  const userActed = useRef(false);
 
-  /* Dikey kadraj YALNIZCA dikey görsel bağlıyken (inceleme: mobil görsel
-     yokken dar ekranda mobil göz koordinatları masaüstü kadraja uyguланıyordu) */
+  /* Dikey kadraj YALNIZCA dikey görsel bağlıyken: mobil görsel yoksa dar
+     ekran 16:9 kalır ve masaüstü göz koordinatları geçerliliğini korur */
   const hasMobile = mobileSrc !== null;
   const vertical = narrow && hasMobile;
   const eyes = vertical ? ITACHI_HERO_EYES.mobile : ITACHI_HERO_EYES.desktop;
@@ -157,8 +141,7 @@ export function ItachiHero({
   }, [desktopSrc, reduced, vertical]);
 
   /* ── Fener + göz yakınlığı ──
-     Sıcak yol yalnız YAZAR: örtü transform'u + px değişkenleri + glow.
-     Aşama ilerletme gerçek girdiye (pointer.has) kilitli. */
+     Sıcak yol yalnız YAZAR: örtü transform'u, imleç px'i, göz halesi. */
   const frame = useRef<number | null>(null);
   const applyPointer = useCallback(() => {
     frame.current = null;
@@ -176,7 +159,7 @@ export function ItachiHero({
     root.style.setProperty("--mx-px", `${((x / 100) * width).toFixed(1)}px`);
     root.style.setProperty("--my-px", `${((y / 100) * height).toFixed(1)}px`);
 
-    /* Göz yakınlığı: piksel uzayında en yakın göze uzaklık → 0..1 parlama */
+    /* Göz halesi: fener göze yaklaştıkça göz çukuru kızıla uyanır */
     const px = (x / 100) * width;
     const py = (y / 100) * height;
     const current = vertical ? ITACHI_HERO_EYES.mobile : ITACHI_HERO_EYES.desktop;
@@ -186,40 +169,9 @@ export function ItachiHero({
       const ey = (eye.y / 100) * height;
       nearest = Math.min(nearest, Math.hypot(px - ex, py - ey));
     }
-    const near = nearest / width;
-    const glow = Math.max(0, Math.min(1, 1 - near / 0.26));
+    const glow = Math.max(0, Math.min(1, 1 - nearest / width / 0.26));
     root.style.setProperty("--eye-glow", glow.toFixed(3));
-
-    /* Aşamaları yalnızca gerçek girdi uyandırır — açılış taraması ve
-       dokunmatik salınım feneri gezdirir ama gözleri açmaz */
-    if (!pointer.current.has) return;
-
-    const hit = near < (current.radius / 100) * 1.7;
-    if (hit) {
-      if (stageRef.current === "dark" || stageRef.current === "ember") {
-        setStage("sharingan");
-      }
-      if (holdTimer.current === null && stageRef.current !== "mangekyo") {
-        holdTimer.current = window.setTimeout(() => {
-          holdTimer.current = null;
-          setStage("mangekyo");
-        }, HOLD_FOR_MANGEKYO_MS);
-      }
-    } else {
-      if (holdTimer.current !== null) {
-        window.clearTimeout(holdTimer.current);
-        holdTimer.current = null;
-      }
-      if (stageRef.current === "dark" && glow > 0.2) {
-        setStage("ember");
-      }
-    }
   }, [vertical]);
-
-  const markActed = useCallback(() => {
-    userActed.current = true;
-    setMoved(true);
-  }, []);
 
   const onPointerMove = useCallback(
     (event: React.PointerEvent) => {
@@ -234,51 +186,15 @@ export function ItachiHero({
         y: clampPercent(((event.clientY - rect.top) / rect.height) * 100),
         has: true,
       };
-      markActed();
+      setMoved(true);
       if (frame.current === null) {
         frame.current = requestAnimationFrame(applyPointer);
       }
     },
-    [applyPointer, markActed, reduced],
+    [applyPointer, reduced],
   );
 
-  /* Göz bölgesine dokunma/tıklama: Mangekyō'yu doğrudan uyandırır */
-  const onPointerDown = useCallback(
-    (event: React.PointerEvent) => {
-      if (reduced) return;
-      const box = stageBoxRef.current;
-      if (!box) return;
-      const rect = box.getBoundingClientRect();
-      if (rect.width === 0) return;
-      const px = event.clientX - rect.left;
-      const py = event.clientY - rect.top;
-      const current = vertical ? ITACHI_HERO_EYES.mobile : ITACHI_HERO_EYES.desktop;
-      for (const eye of [current.left, current.right]) {
-        const ex = (eye.x / 100) * rect.width;
-        const ey = (eye.y / 100) * rect.height;
-        if (Math.hypot(px - ex, py - ey) / rect.width < (current.radius / 100) * 2) {
-          markActed();
-          setStage((value) => (value === "mangekyo" ? "sharingan" : "mangekyo"));
-          return;
-        }
-      }
-    },
-    [markActed, reduced, vertical],
-  );
-
-  /* Klavye: Enter/Space aşama döndürür; ok tuşları feneri gezdirir
-     (fener keşfinin klavye eşdeğeri — inceleme bulgusu) */
-  const cycleStage = useCallback(() => {
-    markActed();
-    setStage((value) =>
-      value === "dark" || value === "ember"
-        ? "sharingan"
-        : value === "sharingan"
-          ? "mangekyo"
-          : "sharingan",
-    );
-  }, [markActed]);
-
+  /* Klavye: ok tuşları feneri gezdirir (fener keşfinin klavye eşdeğeri) */
   const onKeyMove = useCallback(
     (event: React.KeyboardEvent) => {
       if (reduced) return;
@@ -295,17 +211,17 @@ export function ItachiHero({
         y: clampPercent(pointer.current.y + dy),
         has: true,
       };
-      markActed();
+      setMoved(true);
       if (frame.current === null) {
         frame.current = requestAnimationFrame(applyPointer);
       }
     },
-    [applyPointer, markActed, reduced],
+    [applyPointer, reduced],
   );
 
   /* ── Açılış taraması + dokunmatik gezinen fener ──
-     Yalnızca feneri gezdirir. Zincir; gerçek işaretçi devralınca, hero
-     ekran dışına çıkınca ve dokunmatikte kullanıcı dokununca düşer. */
+     Zincir; gerçek işaretçi devralınca, hero ekran dışına çıkınca ve
+     dokunmatikte kullanıcı dokununca düşer. */
   useEffect(() => {
     if (reduced || !desktopSrc) return;
     let raf = 0;
@@ -361,7 +277,7 @@ export function ItachiHero({
     if (!context) return;
 
     /* Renk token'dan (canvas CSS değişkeni çözmez; kural 16 — ham renk
-       fallback'i yok, token boşsa kargalar hiç çizilmez) */
+       yedeği yok, token boşsa kargalar hiç çizilmez) */
     const crowColor = getComputedStyle(box).getPropertyValue("--ita-crow").trim();
     if (!crowColor) return;
 
@@ -459,10 +375,8 @@ export function ItachiHero({
       cancelAnimationFrame(raf);
     };
 
-    /* Hero görünmüyorken ve sekme gizliyken çizim durur. Kesişim durumu
-       yerel değişkende (inceleme: visibilitychange tek başına play()
-       çağırıp ekran dışında döngüyü diriltiyordu) ve heroVisible ref'i
-       üzerinden tarama döngüsüyle paylaşılır. */
+    /* Hero görünmüyorken ve sekme gizliyken çizim durur; kesişim durumu
+       yerel değişkende tutulur ve tarama döngüsüyle paylaşılır */
     let intersecting = false;
     const visibility = new IntersectionObserver(
       (entries) => {
@@ -492,33 +406,10 @@ export function ItachiHero({
 
   useEffect(
     () => () => {
-      if (holdTimer.current !== null) window.clearTimeout(holdTimer.current);
       if (frame.current !== null) cancelAnimationFrame(frame.current);
     },
     [],
   );
-
-  /* reduced-motion'da gözler durağan ama İŞLEVLİ: eyeKey Sharingan ↔
-     Mangekyō arasında statik geçiş yapar (inceleme bulgusu) */
-  const effStage: EyeStage = reduced
-    ? stage === "mangekyo"
-      ? "mangekyo"
-      : "sharingan"
-    : stage;
-
-  /* Ekran okuyucu anonsu yalnızca kullanıcı eyleminden sonra */
-  useEffect(() => {
-    if (userActed.current) {
-      setAnnounce(labels.stageNames[effStage]);
-    }
-  }, [effStage, labels]);
-
-  const eyeGlyph =
-    effStage === "mangekyo"
-      ? ("mangekyoItachi" as const)
-      : effStage === "sharingan"
-        ? ("tomoe3" as const)
-        : null;
 
   const eyeStyle = (eye: { x: number; y: number }) => ({
     left: `${eye.x}%`,
@@ -528,9 +419,9 @@ export function ItachiHero({
 
   if (!desktopSrc) {
     /* Görsel henüz bağlanmadıysa hero sahnesiz ama ayakta kalır; hiçbir
-       döngü/dinleyici kurulmaz (fallback şartı + inceleme bulgusu) */
+       döngü/dinleyici kurulmaz (fallback şartı) */
     return (
-      <section className={styles.hero} data-stage="sharingan" data-fallback="">
+      <section className={styles.hero} data-fallback="">
         <div className={styles.stageBox}>
           <span className={styles.fallbackMoon} aria-hidden />
         </div>
@@ -542,13 +433,12 @@ export function ItachiHero({
     <section
       ref={rootRef}
       className={styles.hero}
-      data-stage={effStage}
       data-reduced={reduced || undefined}
       data-touch={touchMode || undefined}
       data-vertical={vertical || undefined}
       data-moved={moved || undefined}
+      data-revealed={revealed || undefined}
       onPointerMove={onPointerMove}
-      onPointerDown={onPointerDown}
     >
       <div ref={stageBoxRef} className={styles.stageBox}>
         <SceneImage desktopSrc={desktopSrc} mobileSrc={mobileSrc} />
@@ -556,37 +446,34 @@ export function ItachiHero({
             değişir (compositor-only fener) */}
         <span ref={veilRef} className={styles.darkVeil} aria-hidden />
         <canvas ref={canvasRef} className={styles.crowCanvas} aria-hidden />
+        {/* Göz haleleri: sahnedeki gözlerin üstünde YALNIZ ışık — disk yok */}
         {([eyes.left, eyes.right] as const).map((eye, index) => (
-          <span key={index} className={styles.eyeSlot} style={eyeStyle(eye)} aria-hidden>
+          <span
+            key={index}
+            className={styles.eyeSlot}
+            style={eyeStyle(eye)}
+            aria-hidden
+          >
             <span className={styles.eyeAura} />
-            <HeroEye
-              glyph={eyeGlyph}
-              className={styles.eyeDisc}
-              spinClassName={styles.eyeSpin}
-            />
           </span>
         ))}
         <span className={styles.cursorDot} aria-hidden />
       </div>
 
-      {/* Klavye kullanıcısı için görünmez ama odaklanabilir anahtar:
-          Enter/Space aşama döndürür, ok tuşları feneri gezdirir */}
+      {/* Klavye/erişilebilirlik anahtarı: ok tuşları feneri gezdirir,
+          Enter/Space karanlığı tümden kaldırır */}
       <button
         type="button"
         className={styles.eyeKey}
-        onClick={cycleStage}
+        onClick={() => setRevealed((value) => !value)}
         onKeyDown={onKeyMove}
-        aria-label={labels.eyesLabel}
-      />
+        aria-pressed={revealed}
+      >
+        {revealed ? labels.hideLabel : labels.revealLabel}
+      </button>
 
       <p className={styles.heroHint} aria-hidden>
         {touchMode ? labels.hintTouch : labels.hint}
-      </p>
-      <p className={styles.stageTag} aria-hidden>
-        {labels.stageNames[effStage]}
-      </p>
-      <p className={styles.visuallyHidden} role="status">
-        {announce}
       </p>
     </section>
   );

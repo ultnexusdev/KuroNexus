@@ -90,20 +90,43 @@ function ObitoBlades() {
   );
 }
 
-/** Ebedi Mangekyō — altı taçyapraklı yıldız (Sasuke deseni sadeleştirmesi). */
+/**
+ * Ebedi Mangekyō (Sasuke) — KANONİK desen.
+ *
+ * Kaynak: Wikimedia Commons "Mangekyou_Sharingan_Sasuke_(Eternal).svg"
+ * (ShounenSuki / Narutopedia, CC BY-SA 3.0 — atıf künyede). Kaynak dosya
+ * `<use xlink:href>` ile tekrar ediyor; burada geometri satır içine
+ * alındı: aynı kimlikleri sayfada onlarca kez çoğaltmamak için üç kol
+ * doğrudan `rotate` ile çizilir.
+ */
+const EMS_PETAL =
+  "M200,150 C 200,215 170,275 150,295 C 130,275 100,215 100,150 C 100,85 130,25 150,5 C 170,25 200,85 200,150 z";
+const EMS_HOOK =
+  "M 275,77.5 C 260,40 200,0 150,5 C 170,30 183.4,55.1 190,80 C 215,75 244.2,71.7 275,77.5 z";
+const EMS_SPINE =
+  "M 150,258.7 C 141,244 131.5,195.8 128.6,162.4 L 150,150 171.4,162.4 C 168.5,195.8 159,244 150,258.7 z";
+
 function EternalBlades() {
   return (
-    <g>
-      {[0, 60, 120, 180, 240, 300].map((angle) => (
-        <path
-          key={angle}
-          transform={`rotate(${angle} 50 50)`}
-          d="M 50 50 L 44 26 C 47 20 53 20 56 26 Z"
-          fill="var(--ita-pupil)"
-        />
+    <g transform="scale(0.333333)">
+      {[0, 120, -120].map((angle) => (
+        <g key={angle} transform={`rotate(${angle} 150 150)`}>
+          <path
+            d={EMS_PETAL}
+            fill="none"
+            stroke="var(--ita-pupil)"
+            strokeWidth="5"
+          />
+          <path d={EMS_HOOK} fill="var(--ita-pupil)" />
+          <path
+            d={EMS_HOOK}
+            transform="rotate(180 150 150)"
+            fill="var(--ita-pupil)"
+          />
+          <path d={EMS_SPINE} fill="var(--ita-pupil)" />
+        </g>
       ))}
-      <circle cx="50" cy="50" r="10" fill="var(--ita-pupil)" />
-      <circle cx="50" cy="50" r="15" fill="none" stroke="var(--ita-pupil)" strokeWidth="2.5" />
+      <circle cx="150" cy="150" r="20" fill="var(--ita-iris-edge)" />
     </g>
   );
 }
@@ -233,38 +256,5 @@ export function SharinganDisc({
   );
 }
 
-/**
- * Badem göz — hero'daki yüzün üstüne oturan katman. Kapak (sclera) yok:
- * yalnızca iris diski + göz kapağı hattı; alttaki resmin gözüyle hizalanır.
- */
-export function HeroEye({
-  glyph,
-  className,
-  spinClassName,
-}: {
-  glyph: EyeGlyph | null;
-  className?: string;
-  spinClassName?: string;
-}) {
-  return (
-    <svg
-      viewBox="0 0 100 100"
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}
-      aria-hidden
-      focusable="false"
-    >
-      {glyph ? (
-        <>
-          <circle cx="50" cy="50" r="34" fill={IRIS_FILL} />
-          <g className={spinClassName}>
-            <g transform="translate(0 0) scale(0.68) translate(23.5 23.5)">
-              <EyeContent glyph={glyph} />
-            </g>
-          </g>
-          <circle cx="50" cy="50" r="34" fill="none" stroke="var(--ita-ring)" strokeWidth="2.4" />
-        </>
-      ) : null}
-    </svg>
-  );
-}
+/* (HeroEye kaldırıldı — hero'da gözlerin üstünde SVG katmanı yok;
+   sahnedeki yüz kendi gözleriyle, üstünde yalnız ışık halesi var.) */

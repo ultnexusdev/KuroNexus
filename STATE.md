@@ -84,6 +84,12 @@
 > maske repaint'i, AA kontrast, müzik çubuğu, iç içe main...). Akatsuki'nin
 > kendi iç içe main'i ayrı iş çipinde. Kalibrasyon notu: hero görseli
 > kürasyondan değiştirilirse ITACHI_HERO_EYES koordinatları güncellenmeli.
+> 🔧 **Görsel düzeltme turu (19 Ağustos, PLAN.md §5i):** hero'daki iki
+> SVG göz diski kaldırıldı (yüzle uyumsuzdu — artık yalnız ışık halesi),
+> Ebedi Mangekyō da kanonik SVG'den, Susanoo/dönem/minor kadrajları
+> görselin kendi 16:9 oranına oturtuldu (kırpma yok), minor jutsu'lara
+> ve Mangekyō listesine görsel/portre eklendi.
+>
 > ⚠️ LİSANS: Itachi'nin Mangekyō deseni Wikimedia Commons'tan birebir
 > alındı (ShounenSuki / Narutopedia, **CC BY-SA 3.0**) — Gözler
 > bölümündeki künye satırı (`ITACHI_SHARINGAN.credit`) atıf şartının

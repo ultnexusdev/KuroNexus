@@ -74,13 +74,8 @@ export function ItachiExperience({
   const heroLabels = {
     hint: pick(ITACHI_HERO_TEXT.hint, locale),
     hintTouch: pick(ITACHI_HERO_TEXT.hintTouch, locale),
-    eyesLabel: pick(ITACHI_HERO_TEXT.eyesLabel, locale),
-    stageNames: {
-      dark: pick(ITACHI_HERO_TEXT.stageNames.dark, locale),
-      ember: pick(ITACHI_HERO_TEXT.stageNames.ember, locale),
-      sharingan: pick(ITACHI_HERO_TEXT.stageNames.sharingan, locale),
-      mangekyo: pick(ITACHI_HERO_TEXT.stageNames.mangekyo, locale),
-    },
+    revealLabel: pick(ITACHI_HERO_TEXT.revealLabel, locale),
+    hideLabel: pick(ITACHI_HERO_TEXT.hideLabel, locale),
   };
 
   const sharingan = ITACHI_SHARINGAN;
@@ -112,6 +107,7 @@ export function ItachiExperience({
       glyph: row.glyph,
       name: row.name,
       user: row.user,
+      userImage: src(row.userImageKey),
       text: pick(row.text, locale),
     })),
     usersTitle: pick(sharingan.usersTitle, locale),
@@ -260,12 +256,32 @@ export function ItachiExperience({
             })}
           </ul>
           <ul className={styles.minorRow}>
-            {ITACHI_MINOR_JUTSU.map((minor) => (
-              <li key={minor.name} className={styles.minorChip}>
-                <span className={styles.minorName}>{minor.name}</span>
-                <span className={styles.minorNote}>{pick(minor.note, locale)}</span>
-              </li>
-            ))}
+            {ITACHI_MINOR_JUTSU.map((minor) => {
+              const art = src(minor.imageKey);
+              return (
+                <li key={minor.name} className={styles.minorChip}>
+                  <span className={styles.minorArt} aria-hidden>
+                    {art ? (
+                      <Image src={art} alt="" fill sizes="480px" />
+                    ) : null}
+                  </span>
+                  <span className={styles.minorBody}>
+                    <span className={styles.minorName}>{minor.name}</span>
+                    <span className={styles.minorNote}>
+                      {pick(minor.note, locale)}
+                    </span>
+                  </span>
+                  {isAdmin ? (
+                    <CuratorSlot
+                      characterId={ITACHI_ID}
+                      slot="ABILITY"
+                      abilityName={minor.imageKey}
+                      label={pick(ITACHI_SLOT_LABELS[minor.imageKey], locale)}
+                    />
+                  ) : null}
+                </li>
+              );
+            })}
           </ul>
         </section>
 
@@ -282,13 +298,16 @@ export function ItachiExperience({
           <EyesPanel {...eyesPanelProps} />
           {isAdmin ? (
             <div className={styles.slotRow}>
-              {sharingan.users.map((user) => (
+              {[
+                ...sharingan.users.map((user) => user.imageKey),
+                ITACHI_IMAGE_KEYS.userObito,
+              ].map((key) => (
                 <CuratorSlot
-                  key={user.imageKey}
+                  key={key}
                   characterId={ITACHI_ID}
                   slot="ABILITY"
-                  abilityName={user.imageKey}
-                  label={pick(ITACHI_SLOT_LABELS[user.imageKey], locale)}
+                  abilityName={key}
+                  label={pick(ITACHI_SLOT_LABELS[key], locale)}
                 />
               ))}
             </div>

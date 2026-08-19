@@ -444,6 +444,34 @@ Fedakârlık zaman çizelgesi. Ultracode: keşif (4 okuyucu) + inceleme
   evrim glif değişimi, Genjutsu modu, mobil 9:16 sanat yönü ve taşmasızlık
   tarayıcıdan doğrulandı (rAF görselleri panel kısıtı gereği canlıda).
 
+## 5i · ITACHI — GÖRSEL DÜZELTME TURU (19 Ağustos)
+
+Kullanıcı ekran görüntüleriyle altı düzeltme istedi; hepsi uygulandı.
+
+- **Hero'daki iki SVG göz diski KALDIRILDI** ("yüzle uyumlu değil"):
+  sahnedeki yüz zaten kendi gözlerini taşıyor, üstünde artık yalnız
+  `eyeAura` ışığı var — fener yaklaştıkça göz çukurları kızıla uyanıyor.
+  Aşama makinesi (dark→…→mangekyo), durum etiketi ve `HeroEye` bileşeni
+  düştü. Klavye anahtarı artık "Sahneyi aydınlat" düğmesi (ok tuşları
+  feneri gezdirmeye devam ediyor). Sharingan glifleri sayfanın geri
+  kalanında duruyor.
+- **Ebedi Mangekyō kanonik:** Wikimedia'daki Sasuke (Eternal) SVG'sinin
+  geometrisi satır içine alındı (kaynak `<use xlink:href>` kullanıyor;
+  ID çoğaltmamak için üç kol `rotate` ile). Raster karşılaştırmasıyla
+  doğrulandı. Aynı CC BY-SA 3.0 künyesi kapsıyor (aynı çizer).
+- **Susanoo kartı:** görselin kendi oranı (16:9) kadrajı belirliyor —
+  kart metne göre kısalıp figürü kesmiyor (ölçüldü: 1.78, yükseklik 379px).
+- **Dönem çizelgesi yeniden düzenlendi:** tam-şerit kapak yerine iki
+  sütunlu zigzag; görsel kendi 16:9 oranında, daha küçük (577px) ama
+  TAM görünür. Mobilde görsel üstte, metin altta.
+- **Minor jutsu çipleri görselli:** Karasu Bunshin / Izanami / Katon:
+  Gōkakyū / Shurikenjutsu için 4 görsel üretildi (16:9, kırpma yok).
+- **Mangekyō yetenekleri listesine portreler:** Itachi, Obito (yeni
+  üretildi), Sasuke, Shisui — ad yanında dairesel küçük yüz.
+- **Üretim:** 5 fal çağrısı ≈ $0.40 (4 minor + Obito). Toplam Itachi
+  seti: 17 üretim ≈ $1.44. Biri (Izanami) ilk denemede boş yanıt döndü,
+  tekrar yüklendi.
+
 ## 6 · AÇIK RİSKLER
 
 - Kurulum ucu canlıda admin tetiklemesi bekler; o güne kadar sergi AniList

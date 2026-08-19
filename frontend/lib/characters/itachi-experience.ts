@@ -34,6 +34,11 @@ export const ITACHI_IMAGE_KEYS = {
   userSasuke: "itachi:user-sasuke",
   userMadara: "itachi:user-madara",
   userShisui: "itachi:user-shisui",
+  userObito: "itachi:user-obito",
+  minorKarasu: "itachi:minor-karasu",
+  minorIzanami: "itachi:minor-izanami",
+  minorKaton: "itachi:minor-katon",
+  minorShuriken: "itachi:minor-shuriken",
 } as const;
 
 /**
@@ -122,15 +127,18 @@ export const ITACHI_HERO_TEXT = {
     tr: "Karanlığa dokun — gözleri bul",
     en: "Touch the darkness — find the eyes",
   },
-  eyesLabel: {
-    tr: "Itachi'nin gözleri — Sharingan'ı uyandır",
-    en: "Itachi's eyes — awaken the Sharingan",
+  /**
+   * Klavye/erişilebilirlik anahtarı. Fener yalnızca işaretçiyle
+   * sürülebilseydi klavye kullanıcısı sahneyi hiç göremezdi: bu düğme
+   * karanlığı tümden kaldırır (ok tuşları feneri gezdirir).
+   */
+  revealLabel: {
+    tr: "Sahneyi aydınlat",
+    en: "Light up the scene",
   },
-  stageNames: {
-    dark: { tr: "Karanlık", en: "Darkness" },
-    ember: { tr: "Kor", en: "Ember" },
-    sharingan: { tr: "Sharingan", en: "Sharingan" },
-    mangekyo: { tr: "Mangekyō Sharingan", en: "Mangekyō Sharingan" },
+  hideLabel: {
+    tr: "Karanlığa dön",
+    en: "Back to the darkness",
   },
 } as const;
 
@@ -208,22 +216,30 @@ export const ITACHI_JUTSU: ItachiJutsu[] = [
 ];
 
 /** Küçük teknik çipleri — laboratuvarın alt sırası. */
-export const ITACHI_MINOR_JUTSU: Array<{ name: string; note: LocalizedText }> = [
+export const ITACHI_MINOR_JUTSU: Array<{
+  name: string;
+  note: LocalizedText;
+  imageKey: string;
+}> = [
   {
     name: "Karasu Bunshin",
     note: { tr: "Kargalara dağılan klon", en: "A clone that scatters into crows" },
+    imageKey: ITACHI_IMAGE_KEYS.minorKarasu,
   },
   {
     name: "Izanami",
     note: { tr: "Kaderi kilitleyen döngü", en: "The loop that locks fate" },
+    imageKey: ITACHI_IMAGE_KEYS.minorIzanami,
   },
   {
     name: "Katon: Gōkakyū",
     note: { tr: "Uchiha'nın ateş mirası", en: "The Uchiha fire legacy" },
+    imageKey: ITACHI_IMAGE_KEYS.minorKaton,
   },
   {
     name: "Shurikenjutsu",
     note: { tr: "Klanın en keskin eli", en: "The clan's sharpest hand" },
+    imageKey: ITACHI_IMAGE_KEYS.minorShuriken,
   },
 ];
 
@@ -350,6 +366,7 @@ export const ITACHI_SHARINGAN = {
       glyph: "mangekyoItachi" as EyeGlyph,
       name: "Amaterasu",
       user: "Itachi Uchiha",
+      userImageKey: ITACHI_IMAGE_KEYS.userItachi,
       text: {
         tr: "Her şeyi yakan kara alevler.",
         en: "Black flames that burn everything.",
@@ -360,6 +377,7 @@ export const ITACHI_SHARINGAN = {
       glyph: "mangekyoItachi" as EyeGlyph,
       name: "Tsukuyomi",
       user: "Itachi Uchiha",
+      userImageKey: ITACHI_IMAGE_KEYS.userItachi,
       text: {
         tr: "Zaman algısını büken güçlü genjutsu.",
         en: "A powerful genjutsu that distorts time.",
@@ -370,6 +388,7 @@ export const ITACHI_SHARINGAN = {
       glyph: "mangekyoObito" as EyeGlyph,
       name: "Kamui",
       user: "Obito Uchiha (Kakashi)",
+      userImageKey: ITACHI_IMAGE_KEYS.userObito,
       text: {
         tr: "Başka bir boyuta geçiş.",
         en: "Warping into another dimension.",
@@ -380,6 +399,7 @@ export const ITACHI_SHARINGAN = {
       glyph: "mangekyoSasuke" as EyeGlyph,
       name: "Susano'o",
       user: "Sasuke Uchiha (Madara)",
+      userImageKey: ITACHI_IMAGE_KEYS.userSasuke,
       text: {
         tr: "Savunma ve saldırı için dev savaşçı avatar.",
         en: "A giant warrior avatar for defence and attack.",
@@ -390,6 +410,7 @@ export const ITACHI_SHARINGAN = {
       glyph: "mangekyoShisui" as EyeGlyph,
       name: "Kotoamatsukami",
       user: "Shisui Uchiha",
+      userImageKey: ITACHI_IMAGE_KEYS.userShisui,
       text: {
         tr: "Hedefin haberi olmadan zihin kontrolü.",
         en: "Mind control without the target's knowledge.",
@@ -611,4 +632,21 @@ export const ITACHI_SLOT_LABELS: Record<string, LocalizedText> = {
   [ITACHI_IMAGE_KEYS.userSasuke]: { tr: "Kullanıcı — Sasuke", en: "User — Sasuke" },
   [ITACHI_IMAGE_KEYS.userMadara]: { tr: "Kullanıcı — Madara", en: "User — Madara" },
   [ITACHI_IMAGE_KEYS.userShisui]: { tr: "Kullanıcı — Shisui", en: "User — Shisui" },
+  [ITACHI_IMAGE_KEYS.userObito]: { tr: "Kullanıcı — Obito", en: "User — Obito" },
+  [ITACHI_IMAGE_KEYS.minorKarasu]: {
+    tr: "Teknik — Karasu Bunshin",
+    en: "Technique — Karasu Bunshin",
+  },
+  [ITACHI_IMAGE_KEYS.minorIzanami]: {
+    tr: "Teknik — Izanami",
+    en: "Technique — Izanami",
+  },
+  [ITACHI_IMAGE_KEYS.minorKaton]: {
+    tr: "Teknik — Katon: Gōkakyū",
+    en: "Technique — Katon: Gōkakyū",
+  },
+  [ITACHI_IMAGE_KEYS.minorShuriken]: {
+    tr: "Teknik — Shurikenjutsu",
+    en: "Technique — Shurikenjutsu",
+  },
 };

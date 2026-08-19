@@ -17,6 +17,18 @@
   border-top: 1px solid var(--sport-line);
 }
 
+/* ⚠️ İÇERİK SINIRI — bölüm değil, İÇİ sınırlanıyor.
+   Ayrım kasıtlı: `.section` tam genişlikte kalıyor ki üstündeki 1px ayraç
+   çizgisi ekranı baştan sona geçsin (kanadın bölüm ayırma dili bu). Sınır
+   çocuklara veriliyor, böylece çizgi tam genişlik, içerik ortalanmış oluyor.
+
+   Ölçümle geldi: sınır yokken 2185px'lik ekranda tablo da 2185px oluyor ve
+   takım hücresinde 253px ölü boşluk açılıyordu. */
+.section > * {
+  max-width: var(--sp-max);
+  margin-inline: auto;
+}
+
 .head {
   display: flex;
   flex-wrap: wrap;
@@ -49,7 +61,10 @@
 .timeline {
   display: flex;
   gap: 1px;
-  margin: 0;
+  /* Dikey sıfır, yatay ORTALAMA — `margin: 0` kısayolu `.section > *`in
+     verdiği auto'yu eziyordu (aşağıdaki nota bakın). */
+  margin-block: 0;
+  margin-inline: auto;
   padding: 0 0 1rem;
   list-style: none;
   overflow-x: auto;
@@ -63,8 +78,11 @@
     #000 calc(100% - 3rem),
     transparent 100%
   );
+  /* ⚠️ `margin-inline: -0.5rem` KALDIRILDI. `.section > *` kuralı burayı
+     ortalıyor ve negatif margin o ortalamayı eziyordu (ölçüldü: şerit
+     2185px'lik ekranda sola yapışık, sol 64px kalıyordu). Kartların kenarda
+     kırpılmaması için dolgu yeterli. */
   padding-inline: 0.5rem;
-  margin-inline: -0.5rem;
 }
 
 .fixture {
@@ -183,7 +201,11 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
   gap: 1px;
-  margin: 0;
+  /* ⚠️ `margin: 0` DEĞİL — `.section > *` kuralının verdiği yatay auto
+     margin'i eziyordu ve ızgara geniş ekranda sola yapışıyordu. Dikey
+     sıfırlanıyor, yatay ortalama korunuyor. */
+  margin-block: 0;
+  margin-inline: auto;
   background: var(--sport-line);
   border: 1px solid var(--sport-line);
 }
@@ -237,7 +259,8 @@
    ============================================================ */
 
 .curve {
-  margin: 0 0 clamp(1.5rem, 4vw, 2.5rem);
+  margin: 0 auto clamp(1.5rem, 4vw, 2.5rem);
+  max-width: 62rem;
 }
 
 .curveCaption {
@@ -306,17 +329,30 @@
 
 .tableWrap {
   /* Dar ekranda tablo yatay kayıyor — sütun gizlemek yerine. 10 sütunun
-     hepsi bilgi ve hangisinin atılacağına karar vermek kullanıcının işi. */
+     hepsi bilgi ve hangisinin atılacağına karar vermek kullanıcının işi.
+     ⚠️ Negatif margin YOK: `.section > *` kuralı burayı ortalıyor ve
+     `margin-inline: calc(-1 * …)` o ortalamayı bozardı. Kenara taşma
+     ihtiyacı yalnızca dar ekranda var, orası aşağıdaki blokta. */
   overflow-x: auto;
-  margin-inline: calc(var(--sp-gutter) * -1);
-  padding-inline: var(--sp-gutter);
 }
 
 .table {
   width: 100%;
   min-width: 40rem;
+  /* ⚠️ TABLONUN KENDİ TAVANI, bölüm ölçüsünden DAR.
+     10 sütunlu bir puan tablosu 1472px'e yayıldığında her sayı sütunu
+     ~120px oluyor ve sağa hizalı rakamlarla takım adı arasında kocaman bir
+     boşluk açılıyor (ölçüldü: takım hücresinde 199px ölü alan). Tablo
+     yoğun okunan bir nesne; 62rem'de sütunlar birbirine yakın duruyor ve
+     satır tek bakışta taranıyor. */
+  max-width: 46rem;
+  margin-inline: auto;
   border-collapse: collapse;
   font-variant-numeric: tabular-nums;
+  /* Sütun genişlikleri İÇERİĞE göre değil, aşağıdaki `width`lere göre
+     dağıtılıyor. `auto` düzende tarayıcı en uzun takım adına göre karar
+     verip kalan yeri o sütuna yığıyordu. */
+  table-layout: fixed;
 }
 
 .table th,
@@ -339,14 +375,21 @@
 }
 
 .colRank {
-  width: 2.5rem;
+  width: 3rem;
   text-align: center !important;
   color: var(--text-muted) !important;
 }
 
+/* ⚠️ %40 DEĞİL. Önceki değer buydu ve geniş ekranda takım sütununu
+   327px'e şişirip içindeki 36px'lik adın sağında 253px boşluk bırakıyordu
+   (ölçüldü). Takım adı en uzun hâlinde ("Gaziantep Futbol Kulübü") ~16rem;
+   sütun ona göre sabitlendi, artan yer sayı sütunlarına dağılıyor. */
 .colTeam {
   text-align: left !important;
-  width: 40%;
+  /* Ölçüldü: en uzun ad "İstanbul Başakşehir" 114px; arma 20 + boşluk 10 +
+     dolgu 16 ile 160px yetiyor. 11rem (176px) o ihtiyacın üstünde ama
+     boşluk bırakmayacak kadar yakın. */
+  width: 11rem;
 }
 
 .colPoints {
@@ -438,7 +481,8 @@
 }
 
 .attribution {
-  margin: 1rem 0 0;
+  margin: 1rem auto 0;
+  max-width: 62rem;
   color: var(--text-muted);
 }
 
@@ -450,7 +494,9 @@
   display: flex;
   flex-direction: column;
   gap: 1px;
-  margin: 0;
+  margin-block: 0;
+  margin-inline: auto;
+  max-width: 62rem;
   padding: 0;
   list-style: none;
 }
@@ -523,6 +569,20 @@
 
 @media (max-width: 620px) {
   .fixture {
+    width: 11rem;
+  }
+
+  /* Dar ekranda tablo bölüm dolgusunun DIŞINA taşıyor: 10 sütunluk bir
+     tabloyu 320px'e sığdırmanın yolu yok, kaydırma alanının olabildiğince
+     geniş olması gerekiyor. Geniş ekranda bu taşma YAPILMIYOR (yukarıya
+     bakın) çünkü orada içerik zaten ortalanmış. */
+  .tableWrap {
+    margin-inline: calc(var(--sp-gutter) * -1);
+    padding-inline: var(--sp-gutter);
+    max-width: none;
+  }
+
+  .colTeam {
     width: 11rem;
   }
 

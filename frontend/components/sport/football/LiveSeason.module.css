@@ -37,5 +37,6 @@
   padding: var(--pad-lg) var(--sp-gutter);
   color: var(--text-muted);
   border-top: 1px solid var(--sport-line);
-  max-width: 78ch;
+  max-width: min(78ch, var(--sp-max));
+  margin-inline: auto;
 }

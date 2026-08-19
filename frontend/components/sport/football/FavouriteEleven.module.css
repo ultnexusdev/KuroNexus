@@ -17,6 +17,11 @@
   border-top: 1px solid var(--sport-line);
 }
 
+.section > * {
+  max-width: var(--sp-max);
+  margin-inline: auto;
+}
+
 .head {
   display: flex;
   flex-wrap: wrap;

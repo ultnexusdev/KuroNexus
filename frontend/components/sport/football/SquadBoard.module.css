@@ -12,6 +12,13 @@
   border-top: 1px solid var(--sport-line);
 }
 
+/* İçerik sınırlanıyor, bölüm değil — ayraç çizgisi tam genişlikte kalsın
+   diye (gerekçe `SeasonBoard.module.css` içinde ayrıntılı yazılı). */
+.section > * {
+  max-width: var(--sp-max);
+  margin-inline: auto;
+}
+
 .head {
   display: flex;
   flex-wrap: wrap;

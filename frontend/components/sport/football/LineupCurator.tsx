@@ -107,6 +107,8 @@ export function LineupCurator() {
 
   return (
     <div className={styles.panel}>
+      <SyncButton />
+
       <p className={styles.hint}>{t("curatorHint")}</p>
 
       <div className={styles.grid}>
@@ -173,6 +175,85 @@ export function LineupCurator() {
       {error ? <p className={styles.error}>{error}</p> : null}
 
       <ImageSection />
+    </div>
+  );
+}
+
+/**
+ * Veri tazeleme düğmesi.
+ *
+ * ── NEDEN BURADA ─────────────────────────────────────────────────────────
+ * Senkron şimdiye kadar yalnızca cron'la (04:20 UTC) ya da tarayıcı
+ * konsoluna elle `fetch` yazarak tetiklenebiliyordu. Kadro ya da skor
+ * eskidiğinde küratörün DevTools açması gerekiyordu — bir arşiv panelinde
+ * kabul edilebilir bir iş akışı değil.
+ *
+ * ── DURUM YOKLAMASI ──────────────────────────────────────────────────────
+ * Senkron arka planda koşuyor ve uç anında `{status:'STARTED'}` dönüyor
+ * (kanadın uzun iş deseni). Düğme bittiğini anlamak için durum ucunu üç
+ * saniyede bir yokluyor; `running: false` görünce sayfayı yeniliyor ki
+ * küratör yeni veriyi ANINDA görsün.
+ */
+function SyncButton() {
+  const t = useTranslations("sportArchive.live.sync");
+  const router = useRouter();
+  const [, startTransition] = useTransition();
+  const [state, setState] = useState<"idle" | "running" | "done" | "error">(
+    "idle",
+  );
+  const [detail, setDetail] = useState<string | null>(null);
+
+  const run = async () => {
+    setState("running");
+    setDetail(null);
+    try {
+      await apiFetch("/admin/football-live/sync", { method: "POST" });
+
+      // Bitene kadar yokla. Üst sınır var: senkron takılırsa düğme sonsuza
+      // kadar "çalışıyor" demesin.
+      for (let i = 0; i < 60; i += 1) {
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+        const status = await apiFetch<{
+          running: boolean;
+          last?: { ok?: boolean; diag?: Record<string, unknown> } | null;
+        }>("/admin/football-live/sync");
+
+        if (!status.running) {
+          const diag = status.last?.diag ?? {};
+          setDetail(
+            [
+              `${t("squad")}: ${String(diag.officialSquad ?? "–")}`,
+              `${t("fixtures")}: ${String(diag.fixtureCount ?? "–")}`,
+              `${t("standings")}: ${String(diag.standingsRows ?? "–")}`,
+              `${t("news")}: ${String(diag.news ?? "–")}`,
+            ].join(" · "),
+          );
+          setState(status.last?.ok === false ? "error" : "done");
+          startTransition(() => router.refresh());
+          return;
+        }
+      }
+      setState("error");
+      setDetail(t("timeout"));
+    } catch {
+      setState("error");
+      setDetail(t("error"));
+    }
+  };
+
+  return (
+    <div className={styles.syncRow}>
+      <button
+        type="button"
+        className={styles.syncButton}
+        onClick={() => void run()}
+        disabled={state === "running"}
+      >
+        {state === "running" ? t("running") : t("action")}
+      </button>
+      <span className={styles.syncHint}>
+        {detail ?? t("hint")}
+      </span>
     </div>
   );
 }

@@ -2206,6 +2206,17 @@
         "loadError": "Görseller alınamadı.",
         "uploadError": "Yüklenemedi. Dosya çok büyük ya da biçim desteklenmiyor olabilir.",
         "removeError": "Kaldırılamadı."
+      },
+      "sync": {
+        "action": "Veriyi tazele",
+        "running": "Tazeleniyor…",
+        "hint": "Kadro, fikstür, puan durumu, haberler ve görselleri kaynaklardan yeniden çeker. Yaklaşık 30 saniye sürer.",
+        "squad": "kadro",
+        "fixtures": "fikstür",
+        "standings": "tablo",
+        "news": "haber",
+        "timeout": "Senkron beklenenden uzun sürdü; arka planda devam ediyor olabilir.",
+        "error": "Tazelenemedi. Tekrar dene."
       }
     }
   },

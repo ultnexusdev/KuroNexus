@@ -39,6 +39,21 @@
   --sp-gutter: clamp(1.25rem, 5vw, 4.5rem);
   --sp-measure: 64ch;
 
+  /* ⚠️ İÇERİĞİN DIŞ ÖLÇÜSÜ — 19 Ağustos 2026'da eklendi, ÖLÇÜMLE.
+     Kulüp sayfası 2185px genişliğinde bir ekranda açıldı ve şu çıktı:
+     hero 1472px'te sınırlı ve ortalanmışken sezon bölümleri 2185px'e,
+     yani ekranın tamamına yayılıyordu. Sonuç puan tablosunda görüldü —
+     takım hücresi 327px, içindeki ad 36px, arada **253px ölü boşluk**.
+
+     Sınır yalnızca hero'ya yazılmıştı; diğer bölümler hiç almamıştı.
+     Token buraya kondu ki bir daha bölüm bölüm unutulmasın: `.wing`
+     üzerinde tanımlı, bütün spor ağacı kalıtımla okuyor.
+
+     92rem (~1472px) seçimi keyfi değil: 10 sütunlu puan tablosu bu ölçüde
+     sütunlar arası boşluk açmadan sığıyor, fikstür şeridinde aynı anda
+     ~7 hafta görünüyor. */
+  --sp-max: 92rem;
+
   /* Yapışkan `SiteHeader`ın yüksekliği (ölçüldü: 69px @1280).
      Tam ekran kıvrım bunu düşmek ZORUNDA: header akışta yer kaplıyor, yani
      `min-height: 100svh` veren bir bölüm her zaman viewport'un header kadar

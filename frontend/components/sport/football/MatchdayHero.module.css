@@ -107,7 +107,7 @@
   flex-direction: column;
   gap: clamp(1.25rem, 3vw, 2rem);
   width: 100%;
-  max-width: 92rem;
+  max-width: var(--sp-max);
   margin-inline: auto;
 }
 

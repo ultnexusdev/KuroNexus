@@ -10,9 +10,62 @@
    o inişin ilk nefesi. */
 
 .page {
+  position: relative;
+  isolation: isolate;
   display: flex;
   flex-direction: column;
   padding-bottom: var(--sp-band);
+}
+
+/* ============================================================
+   ATMOSFER — sayfanın TAMAMI (19 Ağustos 2026, kullanıcı bildirimi)
+
+   Bildirim aynen: "genel anlamda fazla siyahlık boşluk var, biraz sinematik
+   şekilde renklendirelim."
+
+   Doğruydu ve sebebi yapısaldı: bütün atmosfer HERO'nun içindeydi
+   (`MatchdayHero .atmosphere`). Hero bitince sayfa düz `--bg`ye düşüyor ve
+   fikstür, tablo, istatistik, kadro art arda aynı düz siyah üstünde
+   diziliyordu. Bölümler doğruydu, ARALARINDAKİ hava yoktu.
+
+   Çözüm bölümleri tek tek boyamak DEĞİL — o, on ayrı gradient ve on ayrı
+   karar demekti. Sayfa köküne SABİT bir ışık alanı konuyor; bölümler onun
+   üstünde kayıyor ve derinlik oradan geliyor.
+
+   ⚠️ `position: fixed` — `absolute` DEĞİL. Sayfa 10.000px uzunluğunda;
+   mutlak konumlu bir gradient ya en üstte kalıp altını hiç aydınlatmaz, ya
+   da bütün boya alanına yayılıp bandı görünmez hâle getirir. Sabit katman
+   ekrana bağlı: nerede olursan ol aynı sıcaklık eşlik ediyor.
+
+   ⚠️ `z-index: -1` + `isolation: isolate` — katman sayfanın ARKASINDA ama
+   kanadın kendi doku katmanının (`.wing::before`) ÖNÜNDE. İzolasyon olmadan
+   iki katman aynı yığında yarışıyordu.
+   ============================================================ */
+.page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    /* sol üstten sızan altın — tribün projektörü */
+    radial-gradient(
+      55% 45% at 0% 0%,
+      color-mix(in srgb, var(--gs-brand-yellow) 7%, transparent) 0%,
+      transparent 60%
+    ),
+    /* sağ alttan sızan bordo — sahanın karşı yakası */
+    radial-gradient(
+      60% 50% at 100% 100%,
+      color-mix(in srgb, var(--gs-brand-red) 8%, transparent) 0%,
+      transparent 62%
+    ),
+    /* zemine oturan çok hafif sıcaklık: düz siyahı kırıyor */
+    linear-gradient(
+      to bottom,
+      transparent 0%,
+      color-mix(in srgb, var(--gs-anthracite) 55%, transparent) 100%
+    );
 }
 
 /* ---- Arşiv yarısının girişi ----

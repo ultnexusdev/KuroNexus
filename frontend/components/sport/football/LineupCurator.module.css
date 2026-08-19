@@ -227,3 +227,71 @@
   border-radius: var(--radius);
   cursor: pointer;
 }
+
+/* ---- Veri tazeleme ----
+   Panelin en üstünde ve tek RENKLİ öğesi: küratörün buraya geldiğinde ilk
+   ihtiyacı genelde "veri eski, tazele" oluyor. Sarı-kırmızı geçiş kulübün
+   kendi rengi; paneldeki diğer her şey nötr kalıyor ki bu düğme tek başına
+   öne çıksın. */
+
+.syncRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.syncButton {
+  min-height: var(--touch-min);
+  padding-inline: 1.4rem;
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--sport-ink);
+  border: 0;
+  border-radius: var(--radius);
+  cursor: pointer;
+  /* Kulübün iki rengi tek yüzeyde — sarıdan kırmızıya. Metin koyu kalıyor
+     çünkü sarı üstünde beyaz okunmuyor (kontrast). */
+  background: linear-gradient(
+    100deg,
+    var(--gs-brand-yellow) 0%,
+    var(--gs-brand-yellow) 42%,
+    var(--gs-brand-red) 100%
+  );
+  box-shadow: 0 0 1.2rem color-mix(in srgb, var(--gs-brand-yellow) 30%, transparent);
+}
+
+.syncButton:disabled {
+  opacity: 0.55;
+  cursor: progress;
+}
+
+.syncButton:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 2px;
+}
+
+.syncHint {
+  font-family: var(--font-mono);
+  font-size: var(--sp-data);
+  line-height: 1.5;
+  color: var(--text-secondary);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .syncButton {
+    transition: filter 200ms ease, box-shadow 200ms ease;
+  }
+
+  .syncButton:hover:not(:disabled) {
+    filter: brightness(1.08);
+    box-shadow: 0 0 1.8rem
+      color-mix(in srgb, var(--gs-brand-yellow) 45%, transparent);
+  }
+}

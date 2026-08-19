@@ -2206,6 +2206,17 @@
         "loadError": "Could not load images.",
         "uploadError": "Upload failed. The file may be too large or an unsupported format.",
         "removeError": "Could not remove."
+      },
+      "sync": {
+        "action": "Refresh data",
+        "running": "Refreshing…",
+        "hint": "Re-fetches squad, fixtures, standings, news and images from the sources. Takes about 30 seconds.",
+        "squad": "squad",
+        "fixtures": "fixtures",
+        "standings": "table",
+        "news": "news",
+        "timeout": "The sync is taking longer than expected; it may still be running in the background.",
+        "error": "Could not refresh. Try again."
       }
     }
   },

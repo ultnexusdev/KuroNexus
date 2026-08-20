@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { apiUrl } from "@/lib/api/client";
+import { apiUrl, isLocalUpload } from "@/lib/api/client";
 import { uploadImage, uploadImageFromUrl } from "@/lib/admin/api";
 import type { PlayerImageSlot } from "@/lib/sport/favourite-players";
 import { usePlayerCurator } from "./PlayerCurator";
@@ -61,11 +61,18 @@ export function PlayerImage({
   const override = curator?.overrides[slot.id];
   const [failed, setFailed] = useState(false);
 
-  const source = override
-    ? apiUrl(override)
-    : slot.placeholder
-      ? null
-      : slot.src;
+  /**
+   * ⚠️ İKİ FARKLI ORIGIN. Depodaki kareler (`/assets/…`, `/spor/…`) ÖN YÜZ
+   * sunucusunda; küratörün yüklediği kareler (`/uploads/…`) API sunucusunda.
+   * İkisine de aynı muameleyi yapmak iki ayrı kırılma üretiyor: `/uploads/`
+   * yolunu olduğu gibi basmak onu kuronexus.com'da arar (404), `/assets/`
+   * yolunu `apiUrl()`den geçirmek de onu API'de arar (yine 404).
+   *
+   * `isLocalUpload()` ayrımı tek yerden yapıyor — aynı yardımcıyı kitap
+   * kapakları ve karakter portreleri de bu gerekçeyle kullanıyor.
+   */
+  const raw = override ?? (slot.placeholder ? null : slot.src);
+  const source = raw ? (isLocalUpload(raw) ? apiUrl(raw) : raw) : null;
 
   const showPlaceholder = !source || failed;
 

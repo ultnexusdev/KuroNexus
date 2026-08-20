@@ -80,6 +80,36 @@ export function PlayerImage({
 
   const showPlaceholder = !source || failed;
 
+  /**
+   * ── BOŞ YUVANIN İKİ AYRI YÜZÜ (20 Ağustos 2026) ────────────────────────
+   *
+   * Eskiden tek bir yer tutucu vardı ve KÜRATÖRE ne gösteriyorsa ZİYARETÇİYE
+   * de aynısını gösteriyordu: "FOTO EKLENECEK" etiketi, kadraj notu ve dosya
+   * yolu. Icardi'de bu görünmüyordu çünkü on yedi yuvanın on dördü doluydu.
+   *
+   * Yirmi iki yeni oyuncu fotoğrafsız açılıyor (küratör kareleri sonra
+   * yükleyecek). Aynı düzen sürseydi her sayfa, baştan aşağı dosya yolu
+   * listesi olarak yayına girerdi — kanadın "boş oda yasağı"nın (devir notu
+   * §7.5) tam tersi.
+   *
+   * O yüzden yuva ikiye ayrıldı:
+   *
+   *   ZİYARETÇİ  → `.veil`: tasarlanmış bir boşluk. Oyuncunun kendi paletinde
+   *                ışık, imza motifinin gölgesi ve film graini. TEK HARF YAZI
+   *                YOK, dosya yolu yok, "eksik" hissi yok. Fotoğraf gelince
+   *                yerini sessizce ona bırakıyor.
+   *   KÜRATÖR    → `.holder`: eski iskele olduğu gibi. Kadraj notu, dosya
+   *                yolu ve etiket duruyor; küratörün neyi nereye koyacağını
+   *                bilmesi için gerekli olan bilgi kaybolmadı.
+   *
+   * Ayrım `curating` üzerinden, yani küratör modu KAPALIYKEN admin de
+   * ziyaretçinin gördüğünü görüyor — sayfanın gerçek hâlini denetleyebilmesi
+   * için bu doğru olan.
+   *
+   * ⚠️ İkisinde de ağ isteği yok; `<img>` hâlâ basılmıyor.
+   */
+  const curating = curator?.curating ?? false;
+
   return (
     <span
       className={[styles.frame, className].filter(Boolean).join(" ")}
@@ -89,7 +119,18 @@ export function PlayerImage({
       {/* Kırpma YALNIZCA burada. `.frame` taşmaya izin veriyor ki küratör
           paneli küçük yuvalarda kesilmesin. */}
       <span className={styles.clip}>
-        {showPlaceholder ? (
+        {showPlaceholder && !curating ? (
+          /* ZİYARETÇİNİN GÖRDÜĞÜ BOŞLUK — yazısız, tasarlanmış.
+             Katmanların tamamı saf CSS: hiçbir dosya inmiyor. Motifin şekli
+             sayfanın imzasından (`data-sig`) geliyor, yani Osimhen'in boş
+             yuvası Taffarel'inkine benzemiyor. */
+          <span className={styles.veil} aria-hidden="true">
+            <span className={styles.veilGlow} />
+            <span className={styles.veilMark} />
+            <span className={styles.veilSweep} />
+            <span className={styles.veilGrain} />
+          </span>
+        ) : showPlaceholder ? (
           <span className={styles.holder} aria-hidden="true">
             <span className={styles.holderMark}>
               <svg viewBox="0 0 24 24" aria-hidden="true">

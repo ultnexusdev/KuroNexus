@@ -15,13 +15,126 @@
   flex-direction: column;
   min-width: 0;
   font-family: var(--font-inter), var(--font-sans);
-  background:
+
+  /* Tasarım eksenlerinin varsayılanı — Icardi'nin sayfası bu değerlerde.
+     `data-*` öznitelikleri aşağıda bunları eziyor. */
+  --display: var(--font-anton);
+  --tex: none;
+  --sec-gap: clamp(1rem, 3vw, 2.5rem);
+
+  background-color: #08080b;
+  background-image:
+    var(--tex),
     radial-gradient(
       120% 36% at 86% 0%,
       color-mix(in srgb, var(--warm) 12%, transparent),
       transparent 60%
     ),
     linear-gradient(180deg, var(--ink) 0%, #08080b 100%);
+}
+
+/* ============================================================
+   TASARIM EKSENLERİ — SAYFALAR NEDEN BİRBİRİNE BENZEMİYOR
+
+   Yirmi üç futbolcu bu tek rotadan hizmet alıyor. Aşağıdaki kurallar
+   `player.design` alanını okuyor ve sayfanın iskeletini değiştiriyor.
+   Hiçbiri kulüp rengi ya da oyuncu adı SABİT yazmıyor — yeni bir oyuncu
+   eklemek hâlâ tek bir veri dosyası yazmak demek.
+
+   ⚠️ Öznitelikler `.page` ÜZERİNDE (sayfanın kökü), bileşenlerin içinde
+   değil. Bileşen CSS modülleri bunları `:global([data-hero="..."])` ile
+   okuyor — sınıf adları hash'lendiği için öznitelik tek ortak dil.
+   ============================================================ */
+
+/* ---- SES: hangi tipografi ailesi konuşuyor ----
+   Dördü de layout.tsx içinde ZATEN tanımlı; hiçbiri yeni dosya indirtmiyor.
+   `--display` değişkeni bileşenlerin font-family satırlarına bağlı. */
+
+.page[data-voice="monument"] {
+  --display: var(--font-cinzel);
+}
+
+.page[data-voice="condensed"] {
+  --display: var(--font-bebas);
+}
+
+.page[data-voice="editorial"] {
+  --display: var(--font-petrona);
+}
+
+/* Aile değişince harf aralığı ve kapitalizasyon da değişmeli: Cinzel'in
+   anıtsallığı geniş aralıkta, Petrona'nın editoryal sesi ise BÜYÜK HARFTE
+   değil normal yazımda çıkıyor. Öğe seçicileri (h1/h2/h3) modül sınırını
+   aşıyor — sınıf adları hash'li, öğe adları değil. */
+.page[data-voice="monument"] :is(h1, h2, h3) {
+  letter-spacing: 0.08em;
+  font-weight: 700;
+}
+
+.page[data-voice="condensed"] :is(h1, h2, h3) {
+  letter-spacing: 0.045em;
+}
+
+.page[data-voice="editorial"] :is(h1, h2, h3) {
+  text-transform: none;
+  letter-spacing: -0.005em;
+  font-weight: 700;
+}
+
+/* ---- RİTİM: bölümler arası nefes ----
+   Bölümler `page.tsx` içinde `<div id="...">` ile sarılıyor; aradaki boşluk
+   burada. Yoğun bir sayfa ile sinematik bir sayfa arasındaki fark bu. */
+
+.page > div[id] + div[id] {
+  margin-top: var(--sec-gap);
+}
+
+.page[data-rhythm="tight"] {
+  --sec-gap: 0rem;
+}
+
+.page[data-rhythm="cinematic"] {
+  --sec-gap: clamp(2.5rem, 7vw, 6rem);
+}
+
+/* ---- DOKU: zeminin karakteri ----
+   `--tex` sayfanın background yığınının EN ÜST katmanı. `none` iken hiçbir
+   şey çizilmiyor, yani varsayılan sayfa tek piksel değişmedi. */
+
+/* Arşiv: yatay tarama izi + sıcak leke — efsanelerin dokusu */
+.page[data-texture="archive"] {
+  --tex:
+    repeating-linear-gradient(
+      0deg,
+      color-mix(in srgb, #d9c8a4 4%, transparent) 0 1px,
+      transparent 1px 4px
+    ),
+    radial-gradient(
+      70% 40% at 20% 12%,
+      color-mix(in srgb, #c8a56a 9%, transparent),
+      transparent 70%
+    );
+}
+
+/* Temiz: dokusuz, keskin. Zemin daha koyu ve düz — modern oyuncular. */
+.page[data-texture="clean"] {
+  --tex: none;
+  background-color: #06070a;
+}
+
+/* Halo: yumuşak ışık halkaları */
+.page[data-texture="halo"] {
+  --tex:
+    radial-gradient(
+      50% 26% at 12% 34%,
+      color-mix(in srgb, var(--glow) 40%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      44% 22% at 88% 68%,
+      color-mix(in srgb, var(--accent) 8%, transparent),
+      transparent 72%
+    );
 }
 
 /* Kırıntı hero'nun ÜSTÜNE biniyor: negatif alt boşluk sayfayı yukarı çekiyor
@@ -60,7 +173,7 @@
 
 .sectionTitle {
   margin: 0;
-  font-family: var(--font-anton), var(--font-bebas), sans-serif;
+  font-family: var(--display, var(--font-anton)), var(--font-bebas), sans-serif;
   font-weight: 400;
   font-size: clamp(1.75rem, 4.4vw, 3.25rem);
   line-height: 1;
@@ -174,7 +287,7 @@
 }
 
 .nightYear {
-  font-family: var(--font-anton), var(--font-bebas), sans-serif;
+  font-family: var(--display, var(--font-anton)), var(--font-bebas), sans-serif;
   font-size: 1.5rem;
   line-height: 1;
   letter-spacing: 0.02em;
@@ -184,7 +297,7 @@
 
 .nightTitle {
   margin: 0;
-  font-family: var(--font-anton), var(--font-bebas), sans-serif;
+  font-family: var(--display, var(--font-anton)), var(--font-bebas), sans-serif;
   font-weight: 400;
   font-size: clamp(1.25rem, 2.4vw, 1.625rem);
   line-height: 1.14;
@@ -254,7 +367,7 @@
 
 .noteTitle {
   margin: 0;
-  font-family: var(--font-anton), var(--font-bebas), sans-serif;
+  font-family: var(--display, var(--font-anton)), var(--font-bebas), sans-serif;
   font-weight: 400;
   font-size: clamp(1.375rem, 2.6vw, 1.875rem);
   line-height: 1.1;
@@ -303,7 +416,7 @@
   z-index: -1;
   display: grid;
   place-items: center;
-  font-family: var(--font-anton), var(--font-bebas), sans-serif;
+  font-family: var(--display, var(--font-anton)), var(--font-bebas), sans-serif;
   font-size: min(42vw, 24rem);
   line-height: 1;
   color: transparent;
@@ -315,7 +428,7 @@
 .closingQuote {
   margin: 0;
   max-width: 24ch;
-  font-family: var(--font-anton), var(--font-bebas), sans-serif;
+  font-family: var(--display, var(--font-anton)), var(--font-bebas), sans-serif;
   font-weight: 400;
   font-size: clamp(1.5rem, 4.4vw, 3.25rem);
   line-height: 1.16;

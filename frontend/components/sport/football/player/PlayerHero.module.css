@@ -99,7 +99,7 @@
   z-index: -1;
   right: 4%;
   bottom: -6%;
-  font-family: var(--font-anton), var(--font-bebas), sans-serif;
+  font-family: var(--display, var(--font-anton)), var(--font-bebas), sans-serif;
   font-size: min(44vw, 34rem);
   line-height: 0.74;
   color: transparent;
@@ -241,7 +241,7 @@
   display: flex;
   flex-direction: column;
   margin: 0;
-  font-family: var(--font-anton), var(--font-bebas), sans-serif;
+  font-family: var(--display, var(--font-anton)), var(--font-bebas), sans-serif;
   font-weight: 400;
   font-size: clamp(3.25rem, 9.5vw, 9rem);
   line-height: 0.86;
@@ -326,7 +326,7 @@
 
 .vitals dd {
   margin: 0.2rem 0 0;
-  font-family: var(--font-anton), var(--font-bebas), sans-serif;
+  font-family: var(--display, var(--font-anton)), var(--font-bebas), sans-serif;
   font-size: clamp(1.05rem, 1.8vw, 1.35rem);
   letter-spacing: 0.02em;
   color: var(--accent);
@@ -444,5 +444,195 @@
     max-width: 11rem;
     font-size: 0.6rem;
     letter-spacing: 0.12em;
+  }
+}
+
+/* ============================================================
+   HERO VARYANTLARI
+
+   Yukarıdaki düzen (metin solda, portre sağda, çapraz sash, taşan forma
+   numarası) `sash` varyantı ve Icardi'nin imzası. Aşağıdakiler aynı DOM'u
+   başka bir kompozisyona sokuyor — tek satır JSX değişmeden.
+
+   Öznitelik `.page` üzerinde, yani buradaki `:global(...)` bir ATA seçici.
+   Sınıf adları hash'lendiği için modüller arası ortak dil bu.
+
+   ⚠️ HEPSİ `min-width: 901px` İÇİNDE — ZORUNLU.
+   900 px altındaki sorgu kadrajı tek sütuna düşürüyor ve portreyi metnin
+   arkasına alıyor. Varyant kuralları öznitelik + sınıf taşıdığı için
+   özgüllükleri daha yüksek; medya sorgusunun dışında yazılsalardı MOBİLDE
+   DE uygulanır ve dar kadrajda iki sütunlu düzeni geri getirirlerdi.
+   Mobil düzen bilinçli olarak tek ve ortak: dar ekranda kompozisyon
+   oyunu değil okunurluk kazanıyor.
+   ============================================================ */
+
+@media (min-width: 901px) {
+  /* ---- COLUMN — ortalanmış anıt ----
+     Ad üstte ortada, portre altında. Simetri ve dinginlik; sash yok.
+     Efsaneler ve otorite taşıyan oyuncular için. */
+  :global([data-hero="column"]) .hero {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    align-items: start;
+    text-align: center;
+  }
+
+  :global([data-hero="column"]) .body {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: start;
+    align-items: center;
+    text-align: center;
+    max-width: 54rem;
+  }
+
+  :global([data-hero="column"]) .portrait {
+    grid-column: 1;
+    grid-row: 2;
+    width: min(30rem, 70vw);
+    margin: clamp(1rem, 3vh, 2.5rem) 0 calc(clamp(4rem, 9vh, 6rem) * -1);
+    align-self: end;
+  }
+
+  :global([data-hero="column"]) .sash {
+    display: none;
+  }
+
+  :global([data-hero="column"]) .jersey {
+    right: auto;
+    left: 50%;
+    bottom: 2%;
+    transform: translateX(-50%);
+  }
+
+  :global([data-hero="column"]) .quote,
+  :global([data-hero="column"]) .role,
+  :global([data-hero="column"]) .vitals,
+  :global([data-hero="column"]) .kicker {
+    justify-content: center;
+  }
+
+  /* ---- SPLIT — kadraj tam ortadan ikiye ----
+     Solda tipografi bloğu dikey bir çizgiye yaslanıyor, sağda renk alanı ve
+     portre. Kesin, mimari, tereddütsüz. */
+  :global([data-hero="split"]) .hero {
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+  }
+
+  :global([data-hero="split"]) .body {
+    align-self: center;
+    padding-left: clamp(1rem, 3vw, 2.5rem);
+    border-left: 2px solid color-mix(in srgb, var(--accent) 78%, transparent);
+  }
+
+  :global([data-hero="split"]) .sash {
+    top: 0;
+    right: 0;
+    width: 50%;
+    height: 100%;
+    transform: none;
+    opacity: 0.42;
+  }
+
+  :global([data-hero="split"]) .jersey {
+    display: none;
+  }
+
+  /* ---- FRAME — arşiv çerçevesi ----
+     Portre kadrajı doldurmuyor, bir çerçevenin İÇİNDE duruyor. Bir belgeye,
+     bir vesikaya bakma hissi. */
+  :global([data-hero="frame"]) .hero {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.78fr);
+    align-items: center;
+  }
+
+  :global([data-hero="frame"]) .portrait {
+    align-self: center;
+    height: min(68vh, 38rem);
+    margin: 0;
+    padding: 0.6rem;
+    border: 1px solid color-mix(in srgb, var(--accent) 38%, transparent);
+    background: color-mix(in srgb, #05060a 55%, transparent);
+    box-shadow: 0 30px 90px color-mix(in srgb, #000 55%, transparent);
+  }
+
+  :global([data-hero="frame"]) .sash {
+    display: none;
+  }
+
+  :global([data-hero="frame"]) .jersey {
+    right: 2%;
+    bottom: 4%;
+    font-size: min(30vw, 22rem);
+    opacity: 0.55;
+  }
+
+  /* ---- KINETIC — yön ve hız ----
+     Sash bir banttan çıkıp YÖN ÇİZGİLERİNE dönüşüyor; forma numarası sola
+     kaçıyor. Kadraj sağa doğru itiliyor gibi duruyor. */
+  :global([data-hero="kinetic"]) .hero {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  }
+
+  :global([data-hero="kinetic"]) .sash {
+    top: 0;
+    right: -28%;
+    width: 120%;
+    height: 100%;
+    transform: skewX(-19deg);
+    opacity: 0.5;
+    background: repeating-linear-gradient(
+      100deg,
+      color-mix(in srgb, var(--accent) 30%, transparent) 0 3px,
+      transparent 3px 26px
+    );
+  }
+
+  :global([data-hero="kinetic"]) .jersey {
+    right: auto;
+    left: -3%;
+    bottom: 3%;
+  }
+
+  /* ---- STACK — katmanlı poster ----
+     Ad portrenin ÜSTÜNE biniyor. Tek hücre, üç katman: portre altta, renk
+     ortada, tipografi üstte. Konser afişi dizilimi. */
+  :global([data-hero="stack"]) .hero {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: end;
+  }
+
+  :global([data-hero="stack"]) .portrait {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: center;
+    width: min(34rem, 62vw);
+    margin-block: calc(clamp(5rem, 13vh, 8rem) * -1)
+      calc(clamp(4rem, 9vh, 6rem) * -1);
+    margin-right: 0;
+  }
+
+  :global([data-hero="stack"]) .body {
+    grid-column: 1;
+    grid-row: 1;
+    z-index: 4;
+    align-self: end;
+    max-width: 46rem;
+  }
+
+  /* Ad fotoğrafın üstünde duruyor; okunurluk gradient DEĞİL gölge ile
+     kuruluyor — harflerin içinden geçen bir gradient bu punto bandında
+     kontrastı düşürüyor (aynı gerekçe `.name em` notunda yazılı). */
+  :global([data-hero="stack"]) .name {
+    font-size: clamp(3.5rem, 12vw, 10.5rem);
+    text-shadow: 0 10px 44px color-mix(in srgb, #000 78%, transparent);
+  }
+
+  :global([data-hero="stack"]) .sash {
+    top: -18%;
+    right: -20%;
+    width: 78%;
+    opacity: 0.55;
   }
 }

@@ -5,8 +5,11 @@ import { Link } from "@/lib/i18n/navigation";
 import { sportHref } from "@/lib/sport/routes";
 import { readIsAdmin } from "@/lib/auth/session";
 import {
+  DEFAULT_SECTION_ORDER,
   allSlotsOf,
   findFavouritePlayer,
+  type PlayerImageSlot,
+  type PlayerSection,
 } from "@/lib/sport/favourite-players";
 import { collectCredits } from "@/lib/sport/football-media";
 import { fetchPlayerImages } from "@/lib/api/sport-archive";
@@ -61,33 +64,38 @@ export async function generateMetadata({
  *
  * THESIS: Bir futbolcu künyesi değil, bir POSTER. Kategorinin iki varsayılanı
  *   da reddediliyor: eşit kartların dizildiği "oyuncu profili şablonu" ve
- *   sayı yığan "istatistik panosu". Sayfanın imzası formanın kendi
- *   geometrisi — kadrajı çapraz kesen sash — ve forma numarası.
- * OWN-WORLD: Anton (poster kapitali) + Inter (künye gövdesi). Zemin renkli
- *   bir gece, ASLA #000. Palet VERİDEN (`player.palette`): Icardi'de altın +
- *   crimson. Başka kulübün oyuncusu eklendiğinde sayfa onun rengini giyiyor,
- *   tek satır CSS değişmiyor.
+ *   sayı yığan "istatistik panosu".
  * STORY: Ziyaretçi ismi ve sesi görür, hikâyeyi okur, kariyeri gittikçe
  *   parlayan bir hat üzerinde geçer, gecelerin arasından yürür, kulüp
  *   istatistiklerini armaya basarak açar ve galeride kalır.
- * FIRST VIEWPORT: Solda kicker + iki satır dev ad (ikinci satır altın),
- *   künye ve alıntı; sağda tabana basan dikey fotoğraf; arkada çapraz sash
- *   ve kadrajdan taşan dev "9". Sağ üstte tek tuşluk ses kontrolü.
- * FORM: Kullanıcının mockup'ı (icardi-redesign-mockup.html) + ekran görüntüsü
- *   referans alındı; birebir kopya değil, bu depodaki bileşen sistemine
- *   uyarlandı.
  * ══════════════════════════════════════════════════════════════════════════
  *
- * ── KORUNANLAR ───────────────────────────────────────────────────────────
- * Rota, `sportHref` adresleri, kırıntı, `PlayerRoute` dikey navigasyonu ve
- * `Reveal` (kanadın tek belirme hareketi) olduğu gibi duruyor.
+ * ── YİRMİ ÜÇ SAYFA, TEK BİLEŞEN AĞACI, BENZEMEYEN YÜZLER ─────────────────
  *
- * ── GÖRSELLER YER TUTUCU ─────────────────────────────────────────────────
- * Sayfadaki fotoğrafların tamamı `public/assets/players/icardi/` altında
- * bekliyor ve defterde `placeholder: true`. Gerçek kareler gelene kadar
- * TASARLANMIŞ bir çerçeve çiziliyor (kadraj notu + dosya yolu + "FOTO
- * EKLENECEK"); kırık görsel kutusu hiçbir koşulda görünmüyor. Küratör modu
- * her yuvayı dosyadan ya da adresten anında değiştirebiliyor.
+ * Bu rota yirmi üç futbolcuya birden hizmet ediyor ve sayfaların birbirine
+ * benzememesi bir istek değil, ŞART (kullanıcı kararı, 20 Ağustos 2026).
+ *
+ * Oyuncu başına ayrı bileşen ağacı yazmak ölçüldü ve reddedildi: küratör
+ * modu, yuva sistemi, `/en` rotası ve erişilebilirlik yirmi üç kez yeniden
+ * yazılırdı ve tek bir düzeltme yirmi üç dosyaya elle taşınırdı.
+ *
+ * Onun yerine KOMPOZİSYON DA VERİ oldu. `player.design` altı eksen taşıyor
+ * ve altısı da bu kökten aşağı `data-*` özniteliğiyle iniyor:
+ *
+ *   data-voice    hangi tipografi ailesi konuşuyor (Anton/Cinzel/Bebas/Petrona)
+ *   data-hero     ilk ekranın iskeleti (sash/column/split/frame/kinetic/stack)
+ *   data-sig      bölümlerin ve BOŞ YUVALARIN arkasındaki imza motifi
+ *   data-rhythm   dikey nefes (tight/open/cinematic)
+ *   data-texture  zemin dokusu (grain/archive/clean/halo)
+ *   design.order  bölümlerin SIRASI — dizinin kendisi
+ *
+ * CSS bu öznitelikleri okuyor. Yani yeni bir oyuncu eklemek hâlâ tek bir veri
+ * dosyası yazmak demek; tek satır CSS ya da bileşen kodu gerekmiyor.
+ *
+ * ── GÖRSELLER ────────────────────────────────────────────────────────────
+ * Kareler küratör modundan yükleniyor ve VERİTABANINDA duruyor. Fotoğrafı
+ * olmayan yuvada ziyaretçi tasarlanmış bir boşluk görüyor (yazısız), küratör
+ * ise kadraj notunu ve dosya yolunu. Ayrım `PlayerImage` içinde.
  */
 export default async function FavouritePlayerPage({
   params,
@@ -107,25 +115,166 @@ export default async function FavouritePlayerPage({
    *
    * Böylece sayfa ilk boyamada doğru fotoğrafla geliyor; istemcide bir tur
    * daha atıp yer tutucudan gerçek kareye "zıplamıyor". Uç düşerse sayfa
-   * defterdeki varsayılanlarla (yer tutucularla) açılıyor — bir veri
-   * kaynağının kesintisi sayfayı kırmamalı, kanadın yerleşik kuralı bu.
+   * defterdeki varsayılanlarla açılıyor — bir veri kaynağının kesintisi
+   * sayfayı kırmamalı, kanadın yerleşik kuralı bu.
    */
   const images = await fetchPlayerImages(player.slug).catch(
     () => ({}) as Record<string, string>,
   );
 
-  const stops = [
-    { id: "hikaye", label: t("favourite.story") },
-    { id: "kariyer", label: t("favourite.career") },
-    { id: "geceler", label: t("favourite.nights") },
-    { id: "anlar", label: t("favourite.moments") },
-    { id: "istatistik", label: t("favourite.stats") },
-    { id: "galeri", label: t("favourite.gallery") },
-  ];
+  /**
+   * ── HANGİ BÖLÜM ÇİZİLİYOR ────────────────────────────────────────────
+   *
+   * "Boş oda yasağı" (devir notu §7.5) burada İNCE bir ayrım gerektiriyor.
+   * Fotoğrafı olmayan her bölümü gizlemek yanlış olurdu: geceler ve kariyer
+   * bölümlerinde fotoğrafın YANINDA metin var (yıl, başlık, tek cümle,
+   * maç/gol sayısı). O bölümleri kare gelmedi diye kapatmak, yazılmış
+   * içeriği silmek demek.
+   *
+   * Gerçekten boş kalan tek bölüm GALERİ: içinde fotoğraftan başka bir şey
+   * yok. Fotoğrafsız bir galeri, tanımı gereği boş bir oda.
+   *
+   * ⚠️ KÜRATÖR İSTİSNASI: admin girişliyken galeri fotoğraf olmasa DA
+   * çiziliyor. Yoksa küratörün fotoğrafı yükleyeceği yuva sayfada hiç
+   * görünmezdi — bölümü gizlemek onu doldurmayı imkânsız kılardı.
+   */
+  const hasPhoto = (slot: PlayerImageSlot) =>
+    !slot.placeholder || Boolean(images[slot.id]);
+
+  const drawn: Record<PlayerSection, boolean> = {
+    hikaye: player.story.length > 0,
+    kariyer: player.career.length > 0,
+    geceler: player.nights.length > 0,
+    anlar: player.personal.length > 0,
+    istatistik: true,
+    galeri:
+      player.gallery.length > 0 && (isAdmin || player.gallery.some(hasPhoto)),
+  };
+
+  const order = player.design.order ?? DEFAULT_SECTION_ORDER;
+  const sections = order.filter((id) => drawn[id]);
+
+  const sectionLabel: Record<PlayerSection, string> = {
+    hikaye: t("favourite.story"),
+    kariyer: t("favourite.career"),
+    geceler: t("favourite.nights"),
+    anlar: t("favourite.moments"),
+    istatistik: t("favourite.stats"),
+    galeri: t("favourite.gallery"),
+  };
+
+  /* Dikey bölüm rayı ÇİZİLEN bölümlerden türetiliyor; ikinci bir sıra elle
+     tutulmuyor. Gizlenmiş bir bölüme giden ölü çapa böylece imkânsız. */
+  const stops = sections.map((id) => ({ id, label: sectionLabel[id] }));
 
   // Künye YALNIZCA gerçekten çizilen karelerden toplanıyor; yer tutucuların
   // künyesi olmaz, `collectCredits` onları zaten eliyor.
   const credits = collectCredits(allSlotsOf(player));
+
+  /** Bölümün gövdesi — sıra `design.order` ile değiştiği için haritadan. */
+  const body: Record<PlayerSection, React.ReactNode> = {
+    hikaye: (
+      <PlayerStory player={player} labels={{ eyebrow: t("favourite.story") }} />
+    ),
+
+    kariyer: (
+      <PlayerJourney
+        stops={player.career}
+        labels={{
+          title: t("favourite.career"),
+          lede: t("favourite.careerLede"),
+          matches: t("favourite.matches"),
+          goals: t("favourite.goals"),
+        }}
+      />
+    ),
+
+    /* Açıklama kartın üstünde HER ZAMAN duruyor; hover yalnızca ışığı ve
+       kareyi büyütüyor. Bilgi hover'ın arkasına saklanmıyor — dokunmatik
+       cihazda ulaşılamaz olurdu. */
+    geceler: (
+      <section className={styles.nights} aria-labelledby="geceler-baslik">
+        <header className={styles.sectionHead}>
+          <h2 id="geceler-baslik" className={styles.sectionTitle}>
+            {t("favourite.nights")}
+          </h2>
+          <p className={styles.sectionLede}>{t("favourite.nightsLede")}</p>
+        </header>
+
+        <ul className={styles.nightGrid}>
+          {player.nights.map((night, i) => (
+            <Reveal as="li" key={night.image.id} delay={Math.min(i, 2) * 70}>
+              <article className={styles.night}>
+                <span className={styles.nightShot}>
+                  <PlayerImage
+                    slot={night.image}
+                    position="50% 22%"
+                    decorative
+                  />
+                  <span className={styles.nightLight} aria-hidden="true" />
+                </span>
+
+                <span className={styles.nightBody}>
+                  <span className={styles.nightYear}>{night.year}</span>
+                  <h3 className={styles.nightTitle}>{night.title}</h3>
+                  <span className={styles.nightMeta}>{night.meta}</span>
+                  <p className={styles.nightLine}>{night.line}</p>
+                </span>
+              </article>
+            </Reveal>
+          ))}
+        </ul>
+      </section>
+    ),
+
+    /* Arşivin en kişisel yeri; görsel değil TİPOGRAFİ taşıyor. Bir sahne
+       dolusu ışıktan sonra sessiz bir oda — ritim için gerekli. */
+    anlar: (
+      <section className={styles.personal} aria-labelledby="anlar-baslik">
+        <header className={styles.sectionHead}>
+          <h2 id="anlar-baslik" className={styles.sectionTitle}>
+            {t("favourite.moments")}
+          </h2>
+          <p className={styles.sectionLede}>{t("favourite.momentsLede")}</p>
+        </header>
+
+        <ul className={styles.noteList}>
+          {player.personal.map((note, i) => (
+            <Reveal as="li" key={note.title} delay={Math.min(i, 2) * 70}>
+              <span className={styles.noteLabel}>{note.label}</span>
+              <h3 className={styles.noteTitle}>{note.title}</h3>
+              <p className={styles.noteBody}>{note.body}</p>
+            </Reveal>
+          ))}
+        </ul>
+      </section>
+    ),
+
+    istatistik: (
+      <PlayerStats
+        stats={player.stats}
+        labels={{
+          title: t("favourite.stats"),
+          allTime: t("favourite.allTime"),
+          clubHint: t("favourite.clubStats"),
+        }}
+      />
+    ),
+
+    galeri: (
+      <PlayerGallery
+        images={player.gallery}
+        labels={{
+          title: t("favourite.gallery"),
+          lede: t("favourite.galleryLede"),
+          open: t("favourite.open"),
+          close: t("favourite.close"),
+          prev: t("favourite.prevImage"),
+          next: t("favourite.nextImage"),
+        }}
+      />
+    ),
+  };
 
   return (
     <PlayerCuratorProvider
@@ -155,6 +304,11 @@ export default async function FavouritePlayerPage({
     >
       <main
         className={styles.page}
+        data-voice={player.design.voice}
+        data-hero={player.design.hero}
+        data-sig={player.design.signature}
+        data-rhythm={player.design.rhythm}
+        data-texture={player.design.texture}
         style={
           {
             "--ink": player.palette.ink,
@@ -165,14 +319,19 @@ export default async function FavouritePlayerPage({
           } as React.CSSProperties
         }
       >
-        <PlayerAudio
-          src="/audio/icardi-theme.mp3"
-          labels={{
-            play: t("favourite.audio.play"),
-            pause: t("favourite.audio.pause"),
-            title: t("favourite.audio.title"),
-          }}
-        />
+        {/* Tema müziği YALNIZCA `theme` dolu olan kayıtta. Kullanıcı kararı:
+            müzik Icardi'ye özel. Sessiz bir ses düğmesi çizmek boş oda
+            yasağını ihlal ederdi. */}
+        {player.theme ? (
+          <PlayerAudio
+            src={player.theme}
+            labels={{
+              play: t("favourite.audio.play"),
+              pause: t("favourite.audio.pause"),
+              title: t("favourite.audio.title"),
+            }}
+          />
+        ) : null}
 
         <nav
           className={`${shell.crumb} ${styles.crumb}`}
@@ -193,128 +352,11 @@ export default async function FavouritePlayerPage({
 
         <PlayerRoute stops={stops} label={t("favourite.route")} />
 
-        {/* ══ Hikâyesi ══ */}
-        <div id="hikaye">
-          <PlayerStory
-            player={player}
-            labels={{ eyebrow: t("favourite.story") }}
-          />
-        </div>
-
-        {/* ══ Kariyer yolculuğu ══ */}
-        <div id="kariyer">
-          <PlayerJourney
-            stops={player.career}
-            labels={{
-              title: t("favourite.career"),
-              lede: t("favourite.careerLede"),
-              matches: t("favourite.matches"),
-              goals: t("favourite.goals"),
-            }}
-          />
-        </div>
-
-        {/* ══ Unutulmaz geceler ══
-            Açıklama kartın üstünde HER ZAMAN duruyor; hover yalnızca ışığı ve
-            kareyi büyütüyor. Bilgi hover'ın arkasına saklanmıyor —
-            dokunmatik cihazda ulaşılamaz olurdu. */}
-        {player.nights.length > 0 ? (
-          <section
-            id="geceler"
-            className={styles.nights}
-            aria-labelledby="geceler-baslik"
-          >
-            <header className={styles.sectionHead}>
-              <h2 id="geceler-baslik" className={styles.sectionTitle}>
-                {t("favourite.nights")}
-              </h2>
-              <p className={styles.sectionLede}>{t("favourite.nightsLede")}</p>
-            </header>
-
-            <ul className={styles.nightGrid}>
-              {player.nights.map((night, i) => (
-                <Reveal
-                  as="li"
-                  key={night.image.id}
-                  delay={Math.min(i, 2) * 70}
-                >
-                  <article className={styles.night}>
-                    <span className={styles.nightShot}>
-                      <PlayerImage
-                        slot={night.image}
-                        position="50% 22%"
-                        decorative
-                      />
-                      <span className={styles.nightLight} aria-hidden="true" />
-                    </span>
-
-                    <span className={styles.nightBody}>
-                      <span className={styles.nightYear}>{night.year}</span>
-                      <h3 className={styles.nightTitle}>{night.title}</h3>
-                      <span className={styles.nightMeta}>{night.meta}</span>
-                      <p className={styles.nightLine}>{night.line}</p>
-                    </span>
-                  </article>
-                </Reveal>
-              ))}
-            </ul>
-          </section>
-        ) : null}
-
-        {/* ══ Favori anlar ══
-            Arşivin en kişisel yeri; görsel değil TİPOGRAFİ taşıyor. Bir sahne
-            dolusu ışıktan sonra sessiz bir oda — ritim için gerekli. */}
-        {player.personal.length > 0 ? (
-          <section
-            id="anlar"
-            className={styles.personal}
-            aria-labelledby="anlar-baslik"
-          >
-            <header className={styles.sectionHead}>
-              <h2 id="anlar-baslik" className={styles.sectionTitle}>
-                {t("favourite.moments")}
-              </h2>
-              <p className={styles.sectionLede}>{t("favourite.momentsLede")}</p>
-            </header>
-
-            <ul className={styles.noteList}>
-              {player.personal.map((note, i) => (
-                <Reveal as="li" key={note.title} delay={Math.min(i, 2) * 70}>
-                  <span className={styles.noteLabel}>{note.label}</span>
-                  <h3 className={styles.noteTitle}>{note.title}</h3>
-                  <p className={styles.noteBody}>{note.body}</p>
-                </Reveal>
-              ))}
-            </ul>
-          </section>
-        ) : null}
-
-        {/* ══ İstatistikler ══ */}
-        <div id="istatistik">
-          <PlayerStats
-            stats={player.stats}
-            labels={{
-              title: t("favourite.stats"),
-              allTime: t("favourite.allTime"),
-              clubHint: t("favourite.clubStats"),
-            }}
-          />
-        </div>
-
-        {/* ══ Galeri ══ */}
-        <div id="galeri">
-          <PlayerGallery
-            images={player.gallery}
-            labels={{
-              title: t("favourite.gallery"),
-              lede: t("favourite.galleryLede"),
-              open: t("favourite.open"),
-              close: t("favourite.close"),
-              prev: t("favourite.prevImage"),
-              next: t("favourite.nextImage"),
-            }}
-          />
-        </div>
+        {sections.map((id) => (
+          <div key={id} id={id}>
+            {body[id]}
+          </div>
+        ))}
 
         {/* ══ Kapanış ══ */}
         <section className={styles.closing}>

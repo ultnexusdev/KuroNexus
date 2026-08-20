@@ -34,6 +34,185 @@
   height: 100%;
 }
 
+/* ============================================================
+   ZİYARETÇİNİN GÖRDÜĞÜ BOŞLUK (`.veil`)
+
+   Fotoğrafı olmayan yuvada ziyaretçiye çizilen katman. Kural: TEK HARF
+   YAZI YOK. "FOTO EKLENECEK" bir küratör notudur, ziyaretçiye söylenirse
+   sayfa bitmemiş görünür — oysa boşluk tasarlanmışsa bitmiş görünür.
+
+   Dört katman, hepsi saf CSS (hiçbir dosya inmiyor):
+     .veilGlow   oyuncunun spot ışığı, çok yavaş nefes alıyor
+     .veilMark   sayfanın İMZA MOTİFİ, gölge yoğunluğunda
+     .veilSweep  kadrajı çapraz geçen ışık bandı
+     .veilGrain  film graini
+
+   ⚠️ MOTİF SAYFADAN GELİYOR. `data-sig` özniteliği `<main>` üzerinde ve
+   `player.design.signature` değerini taşıyor. Yani Osimhen'in boş yuvası
+   Taffarel'inkine benzemiyor — boşluk bile oyuncuya özel.
+   ============================================================ */
+
+.veil {
+  position: absolute;
+  inset: 0;
+  display: block;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      120% 100% at 50% 118%,
+      color-mix(in srgb, var(--warm, #c21f31) 15%, transparent),
+      transparent 70%
+    ),
+    linear-gradient(
+      158deg,
+      color-mix(in srgb, var(--ink, #0c0b0e) 74%, #fff 7%) 0%,
+      color-mix(in srgb, var(--ink, #0c0b0e) 97%, #000 8%) 100%
+    );
+}
+
+.veil > span {
+  position: absolute;
+  display: block;
+  pointer-events: none;
+}
+
+.veilGlow {
+  inset: -22%;
+  background: radial-gradient(
+    46% 40% at 33% 25%,
+    var(--glow, rgba(246, 201, 74, 0.34)),
+    transparent 68%
+  );
+  opacity: 0.78;
+  animation: veilBreath 15s ease-in-out infinite;
+}
+
+.veilSweep {
+  inset: -30%;
+  background: linear-gradient(
+    104deg,
+    transparent 37%,
+    color-mix(in srgb, var(--accent, #f6c94a) 13%, transparent) 50%,
+    transparent 63%
+  );
+  animation: veilDrift 19s ease-in-out infinite alternate;
+}
+
+.veilGrain {
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.04) 0 1px,
+    transparent 1px 3px
+  );
+  mix-blend-mode: overlay;
+  opacity: 0.55;
+}
+
+/* ---- İmza motifi ---- */
+
+/* Varsayılan: sash — kadrajı çapraz kesen bant (formanın geometrisi) */
+.veilMark {
+  inset: 0;
+  opacity: 0.62;
+  background: linear-gradient(
+    118deg,
+    transparent 41%,
+    color-mix(in srgb, var(--accent, #f6c94a) 15%, transparent) 41% 51%,
+    transparent 51%
+  );
+}
+
+/* Parabol/yörünge yayı — frikik ustaları, top yörüngesi */
+:global([data-sig="arc"]) .veilMark {
+  background: radial-gradient(
+    circle at 50% 138%,
+    transparent 57%,
+    color-mix(in srgb, var(--accent, #f6c94a) 22%, transparent) 57.6% 59.4%,
+    transparent 60%
+  );
+}
+
+/* Teknik ızgara — modern, ölçülü, minimal */
+:global([data-sig="grid"]) .veilMark {
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--accent, #f6c94a) 10%, transparent) 0 1px,
+      transparent 1px 14%
+    ),
+    repeating-linear-gradient(
+      0deg,
+      color-mix(in srgb, var(--accent, #f6c94a) 7%, transparent) 0 1px,
+      transparent 1px 22%
+    );
+}
+
+/* Projektör huzmeleri — stadyum gecesi */
+:global([data-sig="rays"]) .veilMark {
+  background: repeating-conic-gradient(
+    from 208deg at 50% -12%,
+    color-mix(in srgb, var(--accent, #f6c94a) 11%, transparent) 0deg 3deg,
+    transparent 3deg 11deg
+  );
+}
+
+/* Yatay tarama — arşiv bandı, eski kayıt */
+:global([data-sig="scan"]) .veilMark {
+  background: repeating-linear-gradient(
+    0deg,
+    color-mix(in srgb, var(--accent, #f6c94a) 9%, transparent) 0 2px,
+    transparent 2px 10px
+  );
+}
+
+/* Akışkan dalga — zarafet, pas, akış */
+:global([data-sig="wave"]) .veilMark {
+  background:
+    radial-gradient(
+      82% 30% at 50% 28%,
+      transparent 59%,
+      color-mix(in srgb, var(--accent, #f6c94a) 15%, transparent) 60% 62%,
+      transparent 63%
+    ),
+    radial-gradient(
+      82% 30% at 50% 64%,
+      transparent 59%,
+      color-mix(in srgb, var(--warm, #c21f31) 13%, transparent) 60% 62%,
+      transparent 63%
+    );
+}
+
+@keyframes veilBreath {
+  0%,
+  100% {
+    opacity: 0.62;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes veilDrift {
+  from {
+    transform: translate3d(-6%, 0, 0);
+  }
+  to {
+    transform: translate3d(6%, 0, 0);
+  }
+}
+
+/* Hareket isteği kapalıysa katmanlar duruyor — kompozisyon aynı kalıyor,
+   yalnızca hareket kalkıyor. */
+@media (prefers-reduced-motion: reduce) {
+  .veilGlow,
+  .veilSweep {
+    animation: none;
+  }
+}
+
 /* ---- Yer tutucu ----
    Çirkin gri kutu DEĞİL: köşegen tarama dokusu + kulübün altın çizgisi.
    Kadraj notu ve dosya yolu içinde yazılı, yani küratör ne koyacağını ve

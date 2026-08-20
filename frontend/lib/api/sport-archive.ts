@@ -610,3 +610,27 @@ export function fetchDriver(slug: string): Promise<DriverPage> {
     opts,
   );
 }
+
+// ---- Favori futbolcu görselleri -------------------------------------------
+
+/**
+ * Küratörün bir futbolcu sayfasına yüklediği kareler.
+ *
+ * Yanıt düz bir harita: `{ "hero": "/uploads/…", "gallery-4": "/uploads/…" }`.
+ * Sayfanın METNİ ve paleti depodaki defterden (`lib/sport/favourite-players.ts`)
+ * geliyor; bu uç yalnızca FOTOĞRAFLARI taşıyor. İkisi ayrı çünkü biri tasarım,
+ * diğeri veri.
+ *
+ * ⚠️ `revalidate: 0` — diğer spor uçları 300 sn önbellekli ama burası değil:
+ * küratör bir kare yükledikten sonra sayfayı tazeleyince YENİ kareyi görmeli.
+ * Beş dakika beklemek "kaydettim ama olmadı" hissi verirdi. Uç tek bir indeks
+ * okuması, maliyeti ihmal edilebilir.
+ */
+export function fetchPlayerImages(
+  playerSlug: string,
+): Promise<Record<string, string>> {
+  return apiFetch<Record<string, string>>(
+    `/sport-archive/football/players/${encodeURIComponent(playerSlug)}/images`,
+    { next: { revalidate: 0 } },
+  );
+}

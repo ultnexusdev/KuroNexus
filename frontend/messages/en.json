@@ -2269,20 +2269,20 @@
         "on": "Curator mode",
         "off": "Close curator mode",
         "panelTitle": "Replaced images",
-        "panelNote": "The uploaded file is stored permanently on the server. The slot mapping lives in this browser; to make it visible to everyone, copy the snippet below into the matching slot in lib/sport/favourite-players.ts.",
+        "panelNote": "The uploaded frame is written straight to the database: visible to everyone, on every device. The file itself is permanent on our server — external URLs are downloaded, never stored as links.",
         "edit": "Replace image",
         "fromFile": "Upload a file",
         "fromUrl": "From a URL",
         "urlPlaceholder": "https://…",
         "fetch": "Fetch",
         "reset": "Undo",
-        "resetAll": "Undo all",
         "busy": "Uploading…",
         "error": "The image could not be uploaded.",
-        "copy": "Copy the snippet",
-        "copied": "Copied",
         "empty": "Nothing replaced yet. Use the edit button in the corner of any frame.",
-        "placeholder": "Photo pending"
+        "saving": "Saving…",
+        "migrate": "Move to the database",
+        "migrating": "Moving…",
+        "migrateNote": "This browser still holds edits that were never written to the database. One click moves them; the files are already on the server."
       }
     }
   },

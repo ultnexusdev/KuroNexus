@@ -39,6 +39,21 @@ export class SportArchiveController {
     return this.archive.getClub(slug);
   }
 
+  /**
+   * `/spor/futbol/futbolcular/[slug]` — küratörün yüklediği görsel yuvaları.
+   *
+   * Sayfanın metni, paleti ve bölüm sırası depodaki defterden geliyor; bu uç
+   * yalnızca FOTOĞRAFLARI taşıyor. İkisi ayrı çünkü biri tasarım, diğeri veri.
+   *
+   * Yanıt düz bir harita: `{ "hero": "/uploads/…", "gallery-4": "/uploads/…" }`.
+   * Boşsa `{}` döner — futbolcunun defterde olup olmadığını backend bilmiyor
+   * ve bilmesi gerekmiyor, o yüzden 404 YOK.
+   */
+  @Get('football/players/:slug/images')
+  getPlayerImages(@Param('slug') slug: string) {
+    return this.archive.getPlayerImages(slug);
+  }
+
   /** `/spor/futbol/efsaneler/[slug]` — efsane */
   @Get('football/legends/:slug')
   getLegend(@Param('slug') slug: string) {

@@ -1689,3 +1689,22 @@ export function featureF1Driver(
     body: JSON.stringify(body),
   });
 }
+
+/**
+ * Favori futbolcu sayfasının bir görsel yuvasını bağla / kaldır.
+ *
+ * İki adımlı akışın ikinci adımı: önce `uploadImage` ya da
+ * `uploadImageFromUrl` dosyayı sunucumuza yazıyor, sonra bu çağrı dönen
+ * `/uploads/…` adresini yuvaya bağlıyor. Boş `url` = yuvayı kaldır.
+ */
+export function setFavouritePlayerImage(input: {
+  playerSlug: string;
+  slotId: string;
+  url: string;
+}): Promise<{ playerSlug: string; slotId: string; url: string | null }> {
+  return apiFetch("/admin/sport-archive/player-image", {
+    method: "PATCH",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(input),
+  });
+}

@@ -2506,6 +2506,54 @@ model SportImage {
   @@index([driverId, slot, isDeleted, orderIndex])
 }
 
+/// **Favori futbolcu sayfasının görsel yuvaları — Salon 06 · Futbol.**
+///
+/// ── NEDEN AYRI BİR TABLO ─────────────────────────────────────────────────
+/// Favori futbolcu defterinin kendisi depoda bir TypeScript dosyası
+/// (`frontend/lib/sport/favourite-players.ts`) ve orada kalmalı: her girdi
+/// kendi renk paleti, anlatı ritmi ve bölüm sırasıyla geliyor — bunlar veri
+/// değil TASARIM. Ama FOTOĞRAF veri: küratör bir kare yüklediğinde o kare
+/// herkeste, her cihazda görünmeli.
+///
+/// Önceki tur bu eşleşmeyi `localStorage`da tutuyordu ve dosya sunucuda
+/// kalıcıyken "hangi yuvaya ait olduğu" yalnızca o tarayıcıda duruyordu —
+/// kullanıcı bunu fark etti ve haklıydı. Bu tablo o boşluğu kapatıyor.
+///
+/// ── NEDEN SportImage DEĞİL ───────────────────────────────────────────────
+/// `SportImage` bir KAYDA bağlı (kulüp, dönem, efsane, pist, sürücü) ve
+/// hepsi yabancı anahtar. Favori futbolcunun veritabanında bir kaydı yok;
+/// kimliği defterdeki slug. Ona sahte bir `FootballLegend` satırı açmak,
+/// olmayan bir ilişkiyi var göstermek olurdu.
+///
+/// Desen `CharacterImage`ten alındı (o da AniList numarasına bağlı, yerel
+/// kaydı olmayan bir varlığın görsellerini tutuyor): dış kimlik + yuva adı +
+/// yerel adres.
+model FavouritePlayerImage {
+  id String @id @default(cuid())
+
+  /// Defterdeki futbolcunun slug'ı ("mauro-icardi") — sayfanın adresi
+  playerSlug String
+  /// Yuvanın KARARLI kimliği ("hero", "gallery-4", "career-inter").
+  /// Defterde yeniden adlandırılırsa küratörün o yuvaya yüklediği kare kopar.
+  slotId String
+
+  /// Kendi sunucumuzdaki yol (`/uploads/…`). Dış adres saklanmıyor: CSP
+  /// yabancı sunucuya izin vermiyor ve dış adres bir gün ölebilir.
+  /// Aynı karar `SportImage` ve `CharacterImage`te de alınmıştı.
+  url String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  /// Kural 3: fiziksel silme yok. "Geri al" bunu true yapıyor; aynı yuvaya
+  /// yeni kare yüklenince upsert kaydı diriltiyor.
+  isDeleted Boolean @default(false)
+
+  /// Yuva başına TEK kayıt — upsert'in dayanağı.
+  @@unique([playerSlug, slotId])
+  /// Sayfa açılışının tek sorgusu: "bu futbolcunun silinmemiş yuvaları"
+  @@index([playerSlug, isDeleted])
+}
+
 /// **Küratörün favori ilk 11'i — Salon 06 · Futbol.**
 ///
 /// Bu tablo GERÇEK bir maç kadrosu DEĞİL ve öyle sunulmuyor. Teknik direktörün

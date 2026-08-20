@@ -2269,20 +2269,20 @@
         "on": "Küratör modu",
         "off": "Küratör modunu kapat",
         "panelTitle": "Değiştirilen görseller",
-        "panelNote": "Yüklenen dosya sunucuda kalıcı. Yuva eşleşmesi bu tarayıcıda saklanıyor; herkeste görünmesi için aşağıdaki parçacığı kopyalayıp lib/sport/favourite-players.ts içindeki ilgili yuvaya yapıştır.",
+        "panelNote": "Yüklenen kare doğrudan veritabanına yazılıyor: herkeste, her cihazda görünür. Dosya da sunucumuzda kalıcı — dış adres saklanmıyor, indiriliyor.",
         "edit": "Görseli değiştir",
         "fromFile": "Dosyadan yükle",
         "fromUrl": "Adresten",
         "urlPlaceholder": "https://…",
         "fetch": "Getir",
         "reset": "Geri al",
-        "resetAll": "Hepsini geri al",
         "busy": "Yükleniyor…",
         "error": "Görsel yüklenemedi.",
-        "copy": "Kod parçacığını kopyala",
-        "copied": "Kopyalandı",
         "empty": "Henüz bir görsel değiştirilmedi. Bir karenin köşesindeki düzenle düğmesine bas.",
-        "placeholder": "Foto eklenecek"
+        "saving": "Kaydediliyor…",
+        "migrate": "Veritabanına taşı",
+        "migrating": "Taşınıyor…",
+        "migrateNote": "Bu tarayıcıda, veritabanına yazılmamış eski düzenlemeler duruyor. Tek tuşla taşıyabilirsin; dosyalar zaten sunucuda."
       }
     }
   },

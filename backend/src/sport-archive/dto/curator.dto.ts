@@ -382,3 +382,41 @@ export class SetSportCoverFocusDto {
   @Max(300)
   scale?: number;
 }
+
+/**
+ * Favori futbolcu sayfasının bir görsel yuvasını bağlama.
+ *
+ * ── NEDEN `SetSportImageDto` YETMEDİ ─────────────────────────────────────
+ * O DTO bir KAYDA bağlanıyor (`target` + `ref` → kulüp/efsane/pist satırı).
+ * Favori futbolcunun veritabanında kaydı yok; kimliği depodaki defterin
+ * slug'ı ve hedefi o sayfadaki yuva adı. İki farklı adresleme, iki DTO.
+ *
+ * Adres kuralı ortak: yalnızca kendi `/uploads/…` yolumuz (bkz.
+ * `LOCAL_UPLOAD`). Boş dize = yuvayı KALDIR — silme ayrı bir uç olmasın diye.
+ */
+export class SetFavouritePlayerImageDto {
+  /** Defterdeki slug ("mauro-icardi") */
+  @IsString()
+  @MinLength(1)
+  @MaxLength(120)
+  playerSlug!: string;
+
+  /**
+   * Yuvanın kararlı kimliği ("hero", "gallery-4", "career-inter").
+   * Serbest metin: defter koddan geliyor, backend onun listesini bilmiyor ve
+   * bilmemeli — yeni yuva eklemek backend deploy'u gerektirmesin.
+   */
+  @IsString()
+  @MinLength(1)
+  @MaxLength(80)
+  @Matches(/^[a-z0-9][a-z0-9-]*$/, {
+    message: 'SPORT_ARCHIVE.SLOT_ID_FORMAT',
+  })
+  slotId!: string;
+
+  /** Boş dize = yuvayı kaldır */
+  @IsString()
+  @MaxLength(500)
+  @Matches(LOCAL_UPLOAD, { message: 'SPORT_ARCHIVE.IMAGE_URL_MUST_BE_LOCAL' })
+  url!: string;
+}

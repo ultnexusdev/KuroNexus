@@ -180,12 +180,22 @@ function SlotEditor({ slot }: { slot: PlayerImageSlot }) {
   if (!curator) return null;
   const { labels, setSlot, clearSlot, overrides } = curator;
 
+  /**
+   * İki adım, tek düğme: önce dosya sunucuya iniyor, sonra dönen adres
+   * yuvaya BAĞLANIYOR (veritabanına yazılıyor). İkinci adım başarısız olursa
+   * hata gösteriliyor — dosya yüklendi ama yuvaya bağlanmadıysa küratör
+   * bunu bilmeli, panel sessizce kapanmamalı.
+   */
   async function run(action: () => Promise<{ url: string }>) {
     setBusy(true);
     setError(false);
     try {
       const result = await action();
-      setSlot(slot.id, result.url);
+      const ok = await setSlot(slot.id, result.url);
+      if (!ok) {
+        setError(true);
+        return;
+      }
       setOpen(false);
       setUrl("");
     } catch {
@@ -300,12 +310,18 @@ function SlotEditor({ slot }: { slot: PlayerImageSlot }) {
                 <button
                   type="button"
                   className={styles.popReset}
+                  disabled={busy}
                   onClick={() => {
-                    clearSlot(slot.id);
-                    setOpen(false);
+                    setBusy(true);
+                    void clearSlot(slot.id)
+                      .then((ok) => {
+                        if (ok) setOpen(false);
+                        else setError(true);
+                      })
+                      .finally(() => setBusy(false));
                   }}
                 >
-                  {labels.reset}
+                  {busy ? labels.busy : labels.reset}
                 </button>
               ) : null}
 

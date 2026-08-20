@@ -9,6 +9,7 @@ import {
   findFavouritePlayer,
 } from "@/lib/sport/favourite-players";
 import { collectCredits } from "@/lib/sport/football-media";
+import { fetchPlayerImages } from "@/lib/api/sport-archive";
 import { PlayerCuratorProvider } from "@/components/sport/football/player/PlayerCurator";
 import { PlayerAudio } from "@/components/sport/football/player/PlayerAudio";
 import { PlayerHero } from "@/components/sport/football/player/PlayerHero";
@@ -101,6 +102,16 @@ export default async function FavouritePlayerPage({
   // Küratör düğmesinin görünürlüğü; yetkinin kapısı backend'de.
   const isAdmin = await readIsAdmin();
 
+  /**
+   * Küratörün yüklediği kareler — SUNUCUDA okunuyor.
+   *
+   * Böylece sayfa ilk boyamada doğru fotoğrafla geliyor; istemcide bir tur
+   * daha atıp yer tutucudan gerçek kareye "zıplamıyor". Uç düşerse sayfa
+   * defterdeki varsayılanlarla (yer tutucularla) açılıyor — bir veri
+   * kaynağının kesintisi sayfayı kırmamalı, kanadın yerleşik kuralı bu.
+   */
+  const images = await fetchPlayerImages(player.slug).catch(() => ({}));
+
   const stops = [
     { id: "hikaye", label: t("favourite.story") },
     { id: "kariyer", label: t("favourite.career") },
@@ -118,6 +129,7 @@ export default async function FavouritePlayerPage({
     <PlayerCuratorProvider
       slug={player.slug}
       isAdmin={isAdmin}
+      initialImages={images}
       labels={{
         on: t("favourite.curator.on"),
         off: t("favourite.curator.off"),
@@ -129,14 +141,14 @@ export default async function FavouritePlayerPage({
         urlPlaceholder: t("favourite.curator.urlPlaceholder"),
         fetch: t("favourite.curator.fetch"),
         reset: t("favourite.curator.reset"),
-        resetAll: t("favourite.curator.resetAll"),
         busy: t("favourite.curator.busy"),
         error: t("favourite.curator.error"),
-        copy: t("favourite.curator.copy"),
-        copied: t("favourite.curator.copied"),
         empty: t("favourite.curator.empty"),
         close: t("favourite.close"),
-        placeholderBadge: t("favourite.curator.placeholder"),
+        saving: t("favourite.curator.saving"),
+        migrate: t("favourite.curator.migrate"),
+        migrating: t("favourite.curator.migrating"),
+        migrateNote: t("favourite.curator.migrateNote"),
       }}
     >
       <main

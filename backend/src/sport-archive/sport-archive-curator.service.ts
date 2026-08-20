@@ -7,6 +7,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import type {
   CreateSportMomentDto,
   FeatureF1DriverDto,
+  SetFavouritePlayerImageDto,
   SetSportCoverFocusDto,
   SetSportImageDto,
   UpdateSportMomentDto,
@@ -587,5 +588,44 @@ export class SportArchiveCuratorService {
       },
       select: { slug: true, isPublished: true, personalRank: true },
     });
+  }
+
+  /**
+   * Favori futbolcu sayfasının bir görsel yuvasını bağla / kaldır.
+   *
+   * ⚠️ YUVA KİMLİĞİ DOĞRULANMIYOR ve bu bilinçli. Defter depoda bir
+   * TypeScript dosyası; backend onun yuva listesini bilmiyor. Bilseydi ön
+   * yüze yeni bir yuva eklemek BACKEND DEPLOYU gerektirirdi. Yazım hatası
+   * riski var ama bedeli küçük: yanlış kimlikli kayıt hiçbir yuvaya
+   * düşmüyor, sayfa yer tutucuyla açılıyor ve küratör panelinde görünüyor.
+   *
+   * Boş `url` = kaldır. Fiziksel silme yok (kural 3): kayıt `isDeleted`
+   * ile gizleniyor, aynı yuvaya yeni kare gelince upsert onu diriltiyor.
+   */
+  async setPlayerImage(dto: SetFavouritePlayerImageDto) {
+    const playerSlug = dto.playerSlug.trim();
+    const slotId = dto.slotId.trim();
+    const url = dto.url.trim();
+
+    if (!url) {
+      const existing = await this.prisma.favouritePlayerImage.findUnique({
+        where: { playerSlug_slotId: { playerSlug, slotId } },
+        select: { id: true },
+      });
+      if (!existing) return { playerSlug, slotId, url: null };
+      await this.prisma.favouritePlayerImage.update({
+        where: { id: existing.id },
+        data: { isDeleted: true },
+      });
+      return { playerSlug, slotId, url: null };
+    }
+
+    const saved = await this.prisma.favouritePlayerImage.upsert({
+      where: { playerSlug_slotId: { playerSlug, slotId } },
+      create: { playerSlug, slotId, url },
+      update: { url, isDeleted: false },
+      select: { playerSlug: true, slotId: true, url: true },
+    });
+    return saved;
   }
 }

@@ -12,6 +12,7 @@ import { SportArchiveCuratorService } from './sport-archive-curator.service';
 import {
   CreateSportMomentDto,
   FeatureF1DriverDto,
+  SetFavouritePlayerImageDto,
   SetSportCoverFocusDto,
   SetSportImageDto,
   UpdateSportMomentDto,
@@ -77,6 +78,19 @@ export class SportArchiveAdminController {
   @Patch('image')
   setImage(@Body() dto: SetSportImageDto) {
     return this.curator.setImage(dto);
+  }
+
+  /**
+   * Favori futbolcu sayfasının bir görsel yuvasını bağla (boş `url` = kaldır).
+   *
+   * `image` ucundan AYRI çünkü adresleme farklı: orası bir veritabanı kaydına
+   * (`target` + `ref`) bağlanıyor, burası depodaki defterin slug'ı + sayfadaki
+   * yuva adına. İkisini tek uca sıkıştırmak `target` listesine hiçbir tabloya
+   * karşılık gelmeyen bir değer eklemek olurdu.
+   */
+  @Patch('player-image')
+  setPlayerImage(@Body() dto: SetFavouritePlayerImageDto) {
+    return this.curator.setPlayerImage(dto);
   }
 
   /**

@@ -882,4 +882,26 @@ export class SportArchiveService {
 
     return { circuit, moments, quotes, images, results };
   }
+  /**
+   * Favori futbolcu sayfasının görsel yuvaları — düz harita.
+   *
+   * ── NEDEN HARİTA, DİZİ DEĞİL ─────────────────────────────────────────────
+   * Tüketici tarafta her yuva kendi kimliğiyle aranıyor ("hero" nerede?).
+   * Dizi dönseydi ön yüz her çizimde `find()` yapardı; harita o aramayı
+   * sunucuda bir kez yapıyor ve JSON da daha küçük oluyor.
+   *
+   * Futbolcunun defterde olup olmadığı BURADA bilinmiyor — defter depoda bir
+   * TypeScript dosyası. O yüzden bilinmeyen slug 404 değil boş harita döner:
+   * "kaydı yok" ile "fotoğrafı yok" bu uç için aynı şey.
+   */
+  async getPlayerImages(playerSlug: string): Promise<Record<string, string>> {
+    const rows = await this.prisma.favouritePlayerImage.findMany({
+      where: { playerSlug, isDeleted: false },
+      select: { slotId: true, url: true },
+    });
+
+    const map: Record<string, string> = {};
+    for (const row of rows) map[row.slotId] = row.url;
+    return map;
+  }
 }

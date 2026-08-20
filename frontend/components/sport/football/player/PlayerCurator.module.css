@@ -146,42 +146,56 @@
   cursor: pointer;
 }
 
-.snippet {
-  margin: 0 0 0.6rem;
-  padding: 0.6rem;
-  max-height: 11rem;
-  overflow: auto;
-  border: 1px solid var(--border);
-  border-radius: 2px;
-  background: #070910;
-  font-family: var(--font-mono);
-  font-size: 0.66rem;
-  line-height: 1.6;
-  color: var(--text-secondary);
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-
-.panelActions {
+/* Eski tarayıcı-yerel düzenlemeleri kurtarma teklifi. Sayfa açılışında
+   sessizce yazma yapılmıyor; küratör tek tuşla onaylıyor. */
+.migrate {
   display: flex;
-  gap: 0.4rem;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin-bottom: 0.75rem;
+  padding: 0.6rem;
+  border: 1px solid color-mix(in srgb, var(--accent, #f6c94a) 40%, transparent);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--accent, #f6c94a) 8%, transparent);
 }
 
-.panelActions button {
-  flex: 1;
+.migrate p {
+  margin: 0;
+  font-size: 0.72rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.migrate button {
   padding: 0.5rem;
-  border: 1px solid var(--border-strong);
+  border: 0;
   border-radius: 2px;
-  background: transparent;
-  color: var(--text-primary);
-  font-size: 0.75rem;
+  font-size: 0.76rem;
   cursor: pointer;
 }
 
 .primary {
-  border-color: var(--accent, #f6c94a) !important;
-  background: var(--accent, #f6c94a) !important;
-  color: #14110a !important;
+  background: var(--accent, #f6c94a);
+  color: #14110a;
+  font-weight: 700;
+}
+
+.primary:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Bekleyen eski düzenleme sayısı — mod kapalıyken de görünür. */
+.badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.15rem;
+  height: 1.15rem;
+  padding-inline: 0.3rem;
+  border-radius: 999px;
+  background: #c8102e;
+  color: #fff;
+  font-size: 0.66rem;
   font-weight: 700;
 }
 

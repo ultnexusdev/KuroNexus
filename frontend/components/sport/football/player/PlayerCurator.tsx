@@ -9,6 +9,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { setFavouritePlayerImage } from "@/lib/admin/api";
 import styles from "./PlayerCurator.module.css";
 
 /**
@@ -16,29 +17,28 @@ import styles from "./PlayerCurator.module.css";
  *
  * ── NE YAPIYOR ───────────────────────────────────────────────────────────
  * Mod açıkken sayfadaki HER görsel yuvasının köşesinde bir düzenle düğmesi
- * beliriyor. Düğme iki yol sunuyor: dosya seç (bilgisayardan) ya da adres
- * yapıştır. İkisi de aynı yere gidiyor — `/admin/uploads` — ve dönen
- * `/uploads/…` adresi o yuvaya bağlanıyor.
+ * beliriyor. Düğme iki yol sunuyor: dosya seç ya da adres yapıştır. İkisi de
+ * `/admin/uploads`a gidiyor, dönen `/uploads/…` adresi ise
+ * `PATCH /admin/sport-archive/player-image` ile o yuvaya bağlanıyor.
  *
  * ⚠️ ADRES OLDUĞU GİBİ SAKLANMIYOR, İNDİRİLİYOR. `uploadImageFromUrl` dış
- * görseli bizim sunucumuza yazıyor. Sebebi iki katlı: CSP `img-src` bir beyaz
- * liste (yabancı adres tarayıcıda sessizce engellenir) ve dış adres bir gün
- * ölürse görsel de ölür.
+ * görseli bizim sunucumuza yazıyor. İki sebep: CSP `img-src` bir beyaz liste
+ * (yabancı adres tarayıcıda sessizce engellenir) ve dış adres bir gün ölürse
+ * görsel de ölür.
  *
- * ── KALICILIK: DÜRÜST SINIR ──────────────────────────────────────────────
- * Yüklenen DOSYA kalıcı — sunucumuzda duruyor ve adresi sabit. Yuva → adres
- * EŞLEŞMESİ ise bu tarayıcıda `localStorage`da tutuluyor, çünkü favori
- * futbolcu defteri bir veritabanı tablosu değil, depodaki bir TypeScript
- * dosyası ve üretimdeki konteyner o dosyaya yazamaz.
+ * ── KALICILIK: ARTIK VERİTABANINDA ───────────────────────────────────────
+ * Önceki sürümde yuva → adres eşleşmesi `localStorage`da duruyordu. Dosya
+ * sunucuda kalıcıydı ama HANGİ YUVAYA ait olduğu yalnızca o tarayıcıda —
+ * yani başka bir cihazdan bakınca yuva boş görünüyordu. Kullanıcı bunu fark
+ * etti ve haklıydı.
  *
- * Bu yüzden panel bir de KOD PARÇACIĞI üretiyor: tek tuşla kopyalanıp
- * `lib/sport/favourite-players.ts` içine yapıştırılınca değişiklik herkes
- * için kalıcı oluyor. Yani mod "önizleme + kalıcılaştırma reçetesi" olarak
- * çalışıyor; sessizce yalnızca kendi tarayıcısını değiştiren bir düğme değil.
- * Bu sınır panelin içinde de yazılı — küratör neyin nerede durduğunu bilsin.
+ * Artık eşleşme `FavouritePlayerImage` tablosunda: sunucu tarafında okunuyor
+ * (`fetchPlayerImages`), sayfa ilk boyamada doğru kareyle geliyor ve herkes
+ * aynı şeyi görüyor. `localStorage` yalnızca ESKİ düzenlemeleri kurtarmak
+ * için okunuyor (aşağıdaki taşıma akışı) — yeni bir şey yazılmıyor.
  *
  * ⚠️ `isAdmin` YALNIZCA DÜĞMEYİ gösteriyor. Yetkinin gerçek kapısı backend'de:
- * `/admin/uploads` oturum çerezi olmadan 401 döner.
+ * uç oturum çerezi olmadan 401 döner (ölçüldü).
  */
 
 export interface CuratorLabels {
@@ -52,22 +52,23 @@ export interface CuratorLabels {
   urlPlaceholder: string;
   fetch: string;
   reset: string;
-  resetAll: string;
   busy: string;
   error: string;
-  copy: string;
-  copied: string;
   empty: string;
   close: string;
-  placeholderBadge: string;
+  saving: string;
+  migrate: string;
+  migrating: string;
+  migrateNote: string;
 }
 
 interface CuratorValue {
   curating: boolean;
   overrides: Record<string, string>;
   labels: CuratorLabels;
-  setSlot: (id: string, url: string) => void;
-  clearSlot: (id: string) => void;
+  /** Veritabanına yazıyor. Başarısızsa `false` döner ve çağıran hatayı gösterir. */
+  setSlot: (id: string, url: string) => Promise<boolean>;
+  clearSlot: (id: string) => Promise<boolean>;
 }
 
 const CuratorContext = createContext<CuratorValue | null>(null);
@@ -77,63 +78,75 @@ export function usePlayerCurator(): CuratorValue | null {
   return useContext(CuratorContext);
 }
 
-function storageKey(slug: string) {
+/** Eski sürümün tarayıcı-yerel kayıt anahtarı. Yalnızca OKUNUYOR. */
+function legacyKey(slug: string) {
   return `kuronexus:player-slots:${slug}`;
 }
 
 export function PlayerCuratorProvider({
   slug,
   isAdmin,
+  initialImages,
   labels,
   children,
 }: {
   slug: string;
   isAdmin: boolean;
+  /** Sunucudan gelen yuva → adres haritası (tek doğruluk kaynağı) */
+  initialImages: Record<string, string>;
   labels: CuratorLabels;
   children: ReactNode;
 }) {
   const [curating, setCurating] = useState(false);
-  const [overrides, setOverrides] = useState<Record<string, string>>({});
-  const [copied, setCopied] = useState(false);
+  const [overrides, setOverrides] = useState(initialImages);
+  const [legacy, setLegacy] = useState<Record<string, string>>({});
+  const [migrating, setMigrating] = useState(false);
 
-  // Kayıtlı düzenlemeler yalnızca istemcide okunuyor: sunucu render'ında
-  // `localStorage` yok ve okumaya kalkmak hidrasyon uyuşmazlığı üretirdi.
+  /**
+   * Eski tarayıcı-yerel düzenlemeleri topla — YALNIZCA sunucuda karşılığı
+   * olmayanlar. Amaç tek: küratörün önceki turda yüklediği kareleri
+   * kaybetmemek. Otomatik yazmıyoruz; panelde tek tuşlu bir teklif olarak
+   * duruyor, çünkü sayfa açılışında sessizce yazma yapmak sürpriz olurdu.
+   */
   useEffect(() => {
+    if (!isAdmin) return;
     try {
-      const raw = window.localStorage.getItem(storageKey(slug));
-      if (raw) setOverrides(JSON.parse(raw) as Record<string, string>);
-    } catch {
-      // Bozuk kayıt: yok say, sayfa varsayılan görsellerle açılsın.
-    }
-  }, [slug]);
-
-  const persist = useCallback(
-    (next: Record<string, string>) => {
-      setOverrides(next);
-      try {
-        window.localStorage.setItem(storageKey(slug), JSON.stringify(next));
-      } catch {
-        // Kota dolu / gizli mod: düzenleme bu oturumda yaşamaya devam eder.
+      const raw = window.localStorage.getItem(legacyKey(slug));
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as Record<string, string>;
+      const pending: Record<string, string> = {};
+      for (const [id, url] of Object.entries(parsed)) {
+        if (!initialImages[id] && typeof url === "string") pending[id] = url;
       }
+      setLegacy(pending);
+    } catch {
+      // Bozuk kayıt: yok say.
+    }
+  }, [slug, isAdmin, initialImages]);
+
+  const setSlot = useCallback(
+    async (id: string, url: string) => {
+      try {
+        await setFavouritePlayerImage({
+          playerSlug: slug,
+          slotId: id,
+          url,
+        });
+      } catch {
+        return false;
+      }
+      setOverrides((current) => {
+        const next = { ...current };
+        if (url) next[id] = url;
+        else delete next[id];
+        return next;
+      });
+      return true;
     },
     [slug],
   );
 
-  const setSlot = useCallback(
-    (id: string, url: string) => {
-      persist({ ...overrides, [id]: url });
-    },
-    [overrides, persist],
-  );
-
-  const clearSlot = useCallback(
-    (id: string) => {
-      const next = { ...overrides };
-      delete next[id];
-      persist(next);
-    },
-    [overrides, persist],
-  );
+  const clearSlot = useCallback((id: string) => setSlot(id, ""), [setSlot]);
 
   const value = useMemo<CuratorValue>(
     () => ({ curating, overrides, labels, setSlot, clearSlot }),
@@ -141,14 +154,23 @@ export function PlayerCuratorProvider({
   );
 
   const entries = Object.entries(overrides);
+  const legacyEntries = Object.entries(legacy);
 
-  /** `favourite-players.ts` içine yapıştırılacak parçacık. */
-  const snippet = entries
-    .map(
-      ([id, url]) =>
-        `// yuva: ${id}\nsrc: ${JSON.stringify(url)},\nplaceholder: false,`,
-    )
-    .join("\n\n");
+  async function migrate() {
+    setMigrating(true);
+    for (const [id, url] of legacyEntries) {
+      // Sırayla: yükleme ucu değil, tek satırlık bir yazma — paralel gitmenin
+      // kazancı yok, hata durumunda hangisinde kaldığını görmek daha değerli.
+      await setSlot(id, url);
+    }
+    try {
+      window.localStorage.removeItem(legacyKey(slug));
+    } catch {
+      // Kota/gizli mod: taşıma yine de tamamlandı.
+    }
+    setLegacy({});
+    setMigrating(false);
+  }
 
   return (
     <CuratorContext.Provider value={value}>
@@ -168,6 +190,9 @@ export function PlayerCuratorProvider({
               <path d="M14 6.5 17.5 10" />
             </svg>
             {curating ? labels.off : labels.on}
+            {legacyEntries.length > 0 ? (
+              <span className={styles.badge}>{legacyEntries.length}</span>
+            ) : null}
           </button>
 
           {curating ? (
@@ -185,45 +210,40 @@ export function PlayerCuratorProvider({
 
               <p className={styles.note}>{labels.panelNote}</p>
 
+              {/* Eski tarayıcı-yerel düzenlemeler varsa kurtarma teklifi */}
+              {legacyEntries.length > 0 ? (
+                <div className={styles.migrate}>
+                  <p>{labels.migrateNote}</p>
+                  <button
+                    type="button"
+                    className={styles.primary}
+                    disabled={migrating}
+                    onClick={() => void migrate()}
+                  >
+                    {migrating
+                      ? labels.migrating
+                      : `${labels.migrate} (${legacyEntries.length})`}
+                  </button>
+                </div>
+              ) : null}
+
               {entries.length === 0 ? (
                 <p className={styles.empty}>{labels.empty}</p>
               ) : (
-                <>
-                  <ul className={styles.list}>
-                    {entries.map(([id, url]) => (
-                      <li key={id}>
-                        <code>{id}</code>
-                        <span>{url}</span>
-                        <button type="button" onClick={() => clearSlot(id)}>
-                          {labels.reset}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <pre className={styles.snippet}>{snippet}</pre>
-
-                  <div className={styles.panelActions}>
-                    <button
-                      type="button"
-                      className={styles.primary}
-                      onClick={() => {
-                        void navigator.clipboard
-                          .writeText(snippet)
-                          .then(() => {
-                            setCopied(true);
-                            window.setTimeout(() => setCopied(false), 2000);
-                          })
-                          .catch(() => setCopied(false));
-                      }}
-                    >
-                      {copied ? labels.copied : labels.copy}
-                    </button>
-                    <button type="button" onClick={() => persist({})}>
-                      {labels.resetAll}
-                    </button>
-                  </div>
-                </>
+                <ul className={styles.list}>
+                  {entries.map(([id, url]) => (
+                    <li key={id}>
+                      <code>{id}</code>
+                      <span>{url}</span>
+                      <button
+                        type="button"
+                        onClick={() => void clearSlot(id)}
+                      >
+                        {labels.reset}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
               )}
             </aside>
           ) : null}

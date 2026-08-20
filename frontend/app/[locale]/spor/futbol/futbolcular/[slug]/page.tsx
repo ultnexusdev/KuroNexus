@@ -3,10 +3,7 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
 import { sportHref } from "@/lib/sport/routes";
-import {
-  FAVOURITE_PLAYERS,
-  findFavouritePlayer,
-} from "@/lib/sport/favourite-players";
+import { findFavouritePlayer } from "@/lib/sport/favourite-players";
 import { collectCredits } from "@/lib/sport/football-media";
 import { PlayerStage } from "@/components/sport/football/PlayerStage";
 import { PlayerRoute } from "@/components/sport/football/PlayerRoute";
@@ -18,13 +15,25 @@ import shell from "../../../layout.module.css";
 import styles from "./page.module.css";
 
 /**
- * Defterdeki her futbolcu için bir statik yol. Veri depoda durduğu için
- * (dış istek yok) bütün profiller derleme anında üretilebiliyor — sayfa
- * ziyaretçiye önbellekten geliyor.
+ * ⚠️ `generateStaticParams` YOK — DENENDİ VE GERİ ALINDI (20 Ağustos 2026).
+ *
+ * Veri depoda durduğu için (dış istek yok) profilleri derleme anında üretmek
+ * cazip görünüyordu ve derleme temiz geçti. Canlıda ölçüm başka şey söyledi:
+ *   /spor/futbol/futbolcular/mauro-icardi        → 200
+ *   /en/spor/futbol/futbolcular/mauro-icardi     → 500
+ *
+ * Sebep üst segment: `app/[locale]` katmanının kendi `generateStaticParams`ı
+ * YOK. Çocuk segment yalnızca `{ slug }` üretince Next yolları varsayılan
+ * dille (tr) kuruyor, `/en/...` ise SSG işaretli bir segmentte istek anında
+ * üretilmeye çalışılıyor ve next-intl'in statik render için beklediği
+ * `setRequestLocale` çağrısı olmadığı için patlıyor.
+ *
+ * Çözüm iki yönlüydü: ya `[locale]` katmanına da statik parametre eklemek —
+ * yani PAYLAŞILAN bir dosyayı değiştirip altı salonun tamamını riske atmak —
+ * ya da bu sayfayı depodaki diğer bütün rotalar gibi istek anında üretmek.
+ * İkincisi seçildi: sayfa hiçbir dış uca çıkmıyor, tek maliyeti bellekteki
+ * bir diziden kayıt bulmak.
  */
-export function generateStaticParams() {
-  return FAVOURITE_PLAYERS.map((player) => ({ slug: player.slug }));
-}
 
 export async function generateMetadata({
   params,

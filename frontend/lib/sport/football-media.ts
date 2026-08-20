@@ -211,8 +211,6 @@ export const FOOTBALL_MEDIA = {
   // ayırt edilebilsin diye.
 } satisfies Record<string, MediaAsset>;
 
-export type FootballMediaKey = keyof typeof FOOTBALL_MEDIA;
-
 /**
  * Efsane slug'ı → o efsanenin ATMOSFER plakası.
  *

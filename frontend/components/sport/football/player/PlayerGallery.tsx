@@ -1,8 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { MediaAsset } from "@/lib/sport/football-media";
-import shell from "@/app/[locale]/spor/layout.module.css";
+import { apiUrl } from "@/lib/api/client";
+import type { PlayerImageSlot } from "@/lib/sport/favourite-players";
+import { PlayerImage } from "./PlayerImage";
+import { usePlayerCurator } from "./PlayerCurator";
 import styles from "./PlayerGallery.module.css";
 
 export interface GalleryLabels {
@@ -18,44 +20,56 @@ export interface GalleryLabels {
  * GALERİ + IŞIK KUTUSU.
  *
  * ── NEDEN EŞİT KUTULU IZGARA DEĞİL ───────────────────────────────────────
- * Kareler farklı oranlarda (dikey portre, yatay stadyum, dar kesim). Hepsini
- * aynı kutuya sokmak ya kırpma ya boşluk üretirdi. Izgara `grid-auto-flow:
- * dense` ile çalışıyor ve her karenin span'i KENDİ ORANINDAN hesaplanıyor:
- * yatay kareler iki sütun, dikey kareler iki satır kaplıyor. Kırpma yok.
+ * Kareler farklı oranlarda (dikey portre, yatay maç anı, kare antrenman).
+ * Hepsini aynı kutuya sokmak ya kırpma ya boşluk üretir. Izgara
+ * `grid-auto-flow: dense` ile çalışıyor ve her karenin span'i KENDİ
+ * ORANINDAN hesaplanıyor.
+ *
+ * ── YER TUTUCU KARELER TIKLANMIYOR ───────────────────────────────────────
+ * Henüz fotoğrafı olmayan bir yuvada ışık kutusunun gösterecek şeyi yok;
+ * o kareler `<div>` olarak çiziliyor, `<button>` olarak değil. Klavyeyle
+ * gezen kişi boş bir durağa takılmıyor. Küratör modundaki düzenle düğmesi
+ * yine de orada — `PlayerImage` onu kendisi basıyor.
  *
  * ── IŞIK KUTUSU: NE VAR NE YOK ───────────────────────────────────────────
  * Var: Escape, sol/sağ ok, odak tuzağı, açılışta odak kapatma düğmesinde,
- * kapanışta odak geri açan karede, `aria-modal`, gövde kaydırma kilidi,
- * künye satırı.
- * Yok: kütüphane. Bunların tamamı ~70 satır; bir bağımlılık eklemek bu iş
- * için orantısız olurdu (brief: "Gereksiz dependency ekleme").
- *
- * ⚠️ `<dialog>` KULLANILMADI ve bu ölçülmüş bir tercih değil, bilinçli bir
- * kısıt: `showModal()` yalnızca istemcide çalışır ve JS gelmeden önce hiçbir
- * şey göstermez. Bu bileşen zaten istemci adası, ama ızgaranın KENDİSİ
- * JS'siz de tam çalışıyor (kareler görünür, künye görünür) — yalnızca büyütme
- * çalışmıyor. Kayıp kabul edilebilir, sessiz boş kutu değil.
+ * kapanışta odak geri açan karede, `aria-modal`, gövde kaydırma kilidi.
+ * Yok: kütüphane. Bunların tamamı ~70 satır; bir bağımlılık orantısız olurdu.
  */
 export function PlayerGallery({
   images,
   labels,
 }: {
-  images: MediaAsset[];
+  images: PlayerImageSlot[];
   labels: GalleryLabels;
 }) {
+  const curator = usePlayerCurator();
   const [open, setOpen] = useState<number | null>(null);
   const overlayRef = useRef<HTMLDivElement | null>(null);
   const closeRef = useRef<HTMLButtonElement | null>(null);
   const openerRef = useRef<HTMLButtonElement | null>(null);
 
+  /** Bir yuvanın gösterilebilir kaynağı var mı (küratör kopyası ya da gerçek kare)? */
+  const sourceOf = useCallback(
+    (slot: PlayerImageSlot): string | null => {
+      const override = curator?.overrides[slot.id];
+      if (override) return apiUrl(override);
+      return slot.placeholder ? null : slot.src;
+    },
+    [curator],
+  );
+
+  /** Işık kutusu YALNIZCA gösterilebilir kareler arasında geziniyor. */
+  const openable = images.filter((slot) => sourceOf(slot) !== null);
+
   const step = useCallback(
     (delta: number) => {
       setOpen((current) => {
         if (current === null) return current;
-        return (current + delta + images.length) % images.length;
+        return (current + delta + openable.length) % openable.length;
       });
     },
-    [images.length],
+    [openable.length],
   );
 
   useEffect(() => {
@@ -81,7 +95,6 @@ export function PlayerGallery({
         step(-1);
         return;
       }
-      // Odak tuzağı: Tab kutunun dışına çıkmasın.
       if (event.key !== "Tab") return;
       const root = overlayRef.current;
       if (!root) return;
@@ -102,70 +115,79 @@ export function PlayerGallery({
     return () => {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = previous;
-      // Odak, kutuyu AÇAN kareye geri dönüyor — klavyeyle gezen kişi
-      // listenin başına fırlatılmıyor.
       openerRef.current?.focus();
     };
   }, [open, step]);
 
   if (images.length === 0) return null;
 
-  const current = open === null ? null : images[open];
+  const current = open === null ? null : openable[open];
+  const currentSrc = current ? sourceOf(current) : null;
 
   return (
     <section className={styles.gallery} aria-labelledby="oyuncu-galeri">
       <header className={styles.head}>
-        <h2 id="oyuncu-galeri" className={`${shell.display} ${styles.heading}`}>
+        <h2 id="oyuncu-galeri" className={styles.title}>
           {labels.title}
         </h2>
         <p className={styles.lede}>{labels.lede}</p>
       </header>
 
       <ul className={styles.grid}>
-        {images.map((image, i) => {
-          const wide = image.width > image.height * 1.2;
-          const tall = image.height > image.width * 1.25;
-          return (
-            <li
-              key={`${image.src}-${i}`}
-              data-wide={wide ? "" : undefined}
-              data-tall={tall ? "" : undefined}
-            >
-              <button
-                type="button"
-                className={styles.tile}
-                onClick={(event) => {
-                  openerRef.current = event.currentTarget;
-                  setOpen(i);
-                }}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={image.src}
-                  alt={image.alt}
-                  width={image.width}
-                  height={image.height}
-                  loading="lazy"
-                  decoding="async"
-                />
-                <span className={styles.tileVeil} aria-hidden="true" />
-                {image.caption ? (
-                  <span className={styles.caption}>{image.caption}</span>
-                ) : null}
+        {images.map((slot, i) => {
+          const wide = (slot.width ?? 1) > (slot.height ?? 1) * 1.2;
+          const tall = (slot.height ?? 1) > (slot.width ?? 1) * 1.25;
+          const openIndex = openable.indexOf(slot);
+          const clickable = openIndex >= 0;
+
+          const inner = (
+            <>
+              <PlayerImage slot={slot} position="50% 24%" />
+              <span className={styles.veil} aria-hidden="true" />
+              {slot.caption ? (
+                <span className={styles.caption}>{slot.caption}</span>
+              ) : null}
+              {clickable ? (
                 <span className={styles.zoom} aria-hidden="true">
                   <svg viewBox="0 0 24 24">
                     <circle cx="11" cy="11" r="6.5" />
                     <path d="M15.8 15.8 21 21M11 8.4v5.2M8.4 11h5.2" />
                   </svg>
                 </span>
-                <span className={styles.srOnly}>{labels.open}</span>
-              </button>
+              ) : null}
+            </>
+          );
+
+          return (
+            <li
+              key={slot.id}
+              data-wide={wide ? "" : undefined}
+              data-tall={tall ? "" : undefined}
+              data-lead={i === 0 ? "" : undefined}
+            >
+              {clickable ? (
+                <button
+                  type="button"
+                  className={styles.tile}
+                  onClick={(event) => {
+                    openerRef.current = event.currentTarget;
+                    setOpen(openIndex);
+                  }}
+                >
+                  {inner}
+                  <span className={styles.srOnly}>{labels.open}</span>
+                </button>
+              ) : (
+                <div className={styles.tile} data-static="">
+                  {inner}
+                </div>
+              )}
             </li>
           );
         })}
       </ul>
 
-      {current ? (
+      {current && currentSrc ? (
         <div
           className={styles.overlay}
           ref={overlayRef}
@@ -173,7 +195,6 @@ export function PlayerGallery({
           aria-modal="true"
           aria-label={labels.title}
           onClick={(event) => {
-            // Yalnızca zemine tıklandığında kapansın; görsele tıklamak değil.
             if (event.target === event.currentTarget) setOpen(null);
           }}
         >
@@ -192,29 +213,18 @@ export function PlayerGallery({
           <figure className={styles.lightbox}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={current.src}
+              src={currentSrc}
               alt={current.alt}
               width={current.width}
               height={current.height}
               decoding="async"
             />
-            {current.caption || current.credit ? (
-              <figcaption>
-                {current.caption ? <span>{current.caption}</span> : null}
-                {current.credit ? (
-                  <a
-                    href={current.credit.sourceUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {current.credit.author} · {current.credit.license}
-                  </a>
-                ) : null}
-              </figcaption>
+            {current.caption ? (
+              <figcaption>{current.caption}</figcaption>
             ) : null}
           </figure>
 
-          {images.length > 1 ? (
+          {openable.length > 1 ? (
             <div className={styles.pager}>
               <button
                 type="button"
@@ -225,8 +235,8 @@ export function PlayerGallery({
                   <path d="M15 5l-7 7 7 7" />
                 </svg>
               </button>
-              <span className={shell.figure}>
-                {(open ?? 0) + 1} / {images.length}
+              <span>
+                {(open ?? 0) + 1} / {openable.length}
               </span>
               <button
                 type="button"

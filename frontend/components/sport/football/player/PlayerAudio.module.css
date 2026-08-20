@@ -1,0 +1,142 @@
+/* ============================================================
+   SAYFA TEMASI · tek tuşluk kontrol, sağ üstte
+
+   Konum sabit: yapışkan site başlığının hemen altı. Hero'nun içine
+   yerleştirilseydi kaydırınca kaybolurdu — "tek tuşla durdurma" her an
+   erişilebilir olmak zorunda.
+   ============================================================ */
+
+.toggle {
+  position: fixed;
+  top: calc(var(--sp-header, 4.5rem) + 0.7rem);
+  right: clamp(0.75rem, 2vw, 1.5rem);
+  z-index: 55;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: var(--touch-min);
+  padding: 0.5rem 0.9rem;
+  border: 1px solid color-mix(in srgb, var(--accent, #f6c94a) 46%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, #0b0d13 82%, transparent);
+  color: color-mix(in srgb, var(--accent, #f6c94a) 94%, #fff);
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 14px 34px -20px rgba(0, 0, 0, 0.9);
+  transition:
+    background-color 300ms ease,
+    border-color 300ms ease,
+    box-shadow 300ms ease;
+}
+
+.toggle:hover,
+.toggle:focus-visible {
+  border-color: var(--accent, #f6c94a);
+  background: color-mix(in srgb, var(--accent, #f6c94a) 18%, #0b0d13);
+}
+
+.toggle:focus-visible {
+  outline: 2px solid var(--accent, #f6c94a);
+  outline-offset: 3px;
+}
+
+/* Çalarken kenar hafifçe nefes alıyor — sayfanın sesli olduğunu söyleyen
+   tek işaret bu; ses açıkken kullanıcı nedenini görebilmeli. */
+.toggle[data-playing] {
+  box-shadow:
+    0 14px 34px -20px rgba(0, 0, 0, 0.9),
+    0 0 0 0 color-mix(in srgb, var(--accent, #f6c94a) 40%, transparent);
+  animation: halo 2.8s ease-in-out infinite;
+}
+
+.label {
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+/* ---- Duruyor: üçgen ---- */
+.playIcon {
+  display: block;
+  width: 0;
+  height: 0;
+  margin-left: 2px;
+  border-left: 9px solid currentColor;
+  border-top: 5.5px solid transparent;
+  border-bottom: 5.5px solid transparent;
+}
+
+/* ---- Çalıyor: üç çubuk ---- */
+.wave {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  width: 12px;
+  height: 12px;
+}
+
+.wave span {
+  flex: 1;
+  background: currentColor;
+  border-radius: 1px;
+  animation: bounce 1.1s ease-in-out infinite;
+}
+
+.wave span:nth-child(2) {
+  animation-delay: 0.18s;
+}
+
+.wave span:nth-child(3) {
+  animation-delay: 0.36s;
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    height: 30%;
+  }
+  50% {
+    height: 100%;
+  }
+}
+
+@keyframes halo {
+  0%,
+  100% {
+    box-shadow:
+      0 14px 34px -20px rgba(0, 0, 0, 0.9),
+      0 0 0 0 color-mix(in srgb, var(--accent, #f6c94a) 34%, transparent);
+  }
+  50% {
+    box-shadow:
+      0 14px 34px -20px rgba(0, 0, 0, 0.9),
+      0 0 0 6px color-mix(in srgb, var(--accent, #f6c94a) 0%, transparent);
+  }
+}
+
+/* Dar ekranda yalnızca simge — etiket yer kaplıyor ve düğme
+   "Favorilerime Ekle" benzeri diğer kontrollerle çakışıyor. */
+@media (max-width: 640px) {
+  .label {
+    display: none;
+  }
+
+  .toggle {
+    padding: 0.5rem;
+    width: var(--touch-min);
+    justify-content: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toggle[data-playing] {
+    animation: none;
+  }
+
+  .wave span {
+    animation: none;
+    height: 65%;
+  }
+}

@@ -1,0 +1,420 @@
+/* ============================================================
+   FUTBOLCU HERO'SU
+
+   Renkler sayfanın kökünden (`--accent` / `--warm` / `--neon` / `--ink`),
+   yani veriden. Bu dosyada tek bir kulüp rengi sabit yazılı DEĞİL — başka
+   bir kulübün oyuncusu eklendiğinde kompozisyon onun renklerini giyiyor.
+   ============================================================ */
+
+.hero {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  /* Metin solda, fotoğraf sağda. Tek sütuna düşüş mobil sorgusunda. */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.95fr);
+  align-items: end;
+  min-height: calc(100svh - var(--sp-header));
+  padding: clamp(5rem, 13vh, 8rem) var(--sp-gutter) clamp(4rem, 9vh, 6rem);
+  overflow: hidden;
+  font-family: var(--font-inter), var(--font-sans);
+}
+
+/* ---- Zemin ---- */
+.field {
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+  background:
+    radial-gradient(
+      120% 90% at 78% 8%,
+      color-mix(in srgb, var(--warm) 34%, transparent),
+      transparent 56%
+    ),
+    radial-gradient(
+      90% 70% at 6% 92%,
+      color-mix(in srgb, var(--accent) 16%, transparent),
+      transparent 60%
+    ),
+    linear-gradient(180deg, var(--ink) 0%, #100d10 55%, var(--ink) 100%);
+}
+
+/* ---- SASH: formanın çapraz bölünmesi ----
+   Tek bir `linear-gradient` içinde sarı → kırmızı geçişi; bant kadrajı
+   çaprazlamasına kesiyor ve iki ucundan da dışarı taşıyor. `skewX` bandı
+   dikleştiriyor, blur kenarı yumuşatıyor ki grafik bir şerit değil bir IŞIK
+   gibi dursun. */
+.sash {
+  position: absolute;
+  z-index: -2;
+  top: -22%;
+  right: -12%;
+  width: 62%;
+  height: 150%;
+  transform: skewX(-8deg);
+  background: linear-gradient(
+    115deg,
+    transparent 40%,
+    color-mix(in srgb, var(--accent) 82%, transparent) 41%,
+    color-mix(in srgb, var(--accent) 96%, #fff) 46%,
+    color-mix(in srgb, var(--warm) 92%, #fff) 50%,
+    color-mix(in srgb, var(--warm) 70%, transparent) 58%,
+    transparent 59%
+  );
+  opacity: 0.5;
+  filter: blur(1px);
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    #000 22%,
+    #000 74%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    #000 22%,
+    #000 74%,
+    transparent 100%
+  );
+}
+
+/* Arşiv fotoğrafı dokusu — kanat kabuğundaki grain'e EK bir katman değil,
+   yalnızca sash'in üstünü kıran ince bir tarama. */
+.grain {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background: repeating-linear-gradient(
+    180deg,
+    color-mix(in srgb, #000 16%, transparent) 0 1px,
+    transparent 1px 3px
+  );
+  opacity: 0.5;
+  mix-blend-mode: multiply;
+}
+
+/* ---- Forma numarası ---- */
+.jersey {
+  position: absolute;
+  z-index: -1;
+  right: 4%;
+  bottom: -6%;
+  font-family: var(--font-anton), var(--font-bebas), sans-serif;
+  font-size: min(44vw, 34rem);
+  line-height: 0.74;
+  color: transparent;
+  -webkit-text-stroke: 1.5px
+    color-mix(in srgb, #f3ede2 12%, transparent);
+  user-select: none;
+  pointer-events: none;
+}
+
+/* ---- Üst şerit ---- */
+.top {
+  position: absolute;
+  inset-inline: var(--sp-gutter);
+  top: clamp(1.25rem, 4vh, 2.25rem);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-md);
+}
+
+.crest {
+  display: block;
+  width: clamp(2.25rem, 4vw, 3rem);
+  aspect-ratio: 320 / 397;
+  filter: drop-shadow(0 6px 18px color-mix(in srgb, var(--warm) 60%, transparent));
+}
+
+.crumb {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, #f3ede2 62%, transparent);
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+/* ---- Fotoğraf ----
+   Sağ sütunun tamamını kaplıyor ve tabana basıyor. Alt kenarı gradient
+   maskeyle zemine eriyor: kutu kenarı görünmüyor, figür sahnenin içinde
+   duruyor. */
+.portrait {
+  position: relative;
+  grid-column: 2;
+  grid-row: 1;
+  align-self: stretch;
+  min-height: 0;
+  margin-block: calc(clamp(5rem, 13vh, 8rem) * -1)
+    calc(clamp(4rem, 9vh, 6rem) * -1);
+  margin-right: calc(var(--sp-gutter) * -1);
+}
+
+.portraitImage {
+  height: 100%;
+  border: 0;
+  background: transparent;
+}
+
+.portraitFade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      92deg,
+      var(--ink) 0%,
+      color-mix(in srgb, var(--ink) 40%, transparent) 22%,
+      transparent 48%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--ink) 72%, transparent) 0%,
+      transparent 24%,
+      transparent 62%,
+      var(--ink) 100%
+    );
+}
+
+/* ============================================================
+   METİN
+   ============================================================ */
+
+.body {
+  position: relative;
+  z-index: 2;
+  grid-column: 1;
+  grid-row: 1;
+  align-self: end;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.6rem, 1.6vw, 1.1rem);
+  max-width: 40rem;
+  min-width: 0;
+}
+
+.kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.kickerLine {
+  display: block;
+  width: 2.75rem;
+  height: 2px;
+  background: var(--accent);
+  flex: none;
+}
+
+/* İsim: iki satır, Anton. Poster ağırlığı burada — kanadın Petrona'sı bu
+   boya çıkarılsaydı editoryal serif karakterini kaybederdi. */
+.name {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  font-family: var(--font-anton), var(--font-bebas), sans-serif;
+  font-weight: 400;
+  font-size: clamp(3.25rem, 9.5vw, 9rem);
+  line-height: 0.86;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+  color: #f3ede2;
+  overflow-wrap: anywhere;
+}
+
+/* İkinci satır kulübün altınında — düz renk, gradient DEĞİL.
+   Vurgu ağırlık ve renkle kuruluyor; harflerin içinden geçen bir gradient
+   bu punto bandında okunurluğu düşürüyor (ölçüldü: kontrast harfin
+   solundan sağına 3.1:1'e kadar iniyor). */
+.name em {
+  font-style: normal;
+  color: var(--accent);
+  text-shadow: 0 18px 60px color-mix(in srgb, var(--accent) 26%, transparent);
+}
+
+.role {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.35rem 0 0;
+  font-size: 0.78rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, #f3ede2 74%, transparent);
+}
+
+.role i {
+  display: block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex: none;
+}
+
+.quote {
+  position: relative;
+  margin: 0.4rem 0 0;
+  padding-left: 1rem;
+  border-left: 2px solid var(--warm);
+  max-width: 30rem;
+  font-size: clamp(0.95rem, 1.4vw, 1.0625rem);
+  font-style: italic;
+  line-height: 1.6;
+  color: color-mix(in srgb, #f3ede2 84%, transparent);
+  text-wrap: pretty;
+}
+
+.quote::before {
+  content: "“";
+}
+
+.quote::after {
+  content: "”";
+}
+
+/* ---- Künye ---- */
+.vitals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(1.1rem, 3vw, 2.5rem);
+  margin: clamp(0.75rem, 2vw, 1.25rem) 0 0;
+  padding-top: clamp(0.9rem, 2vw, 1.35rem);
+  border-top: 1px solid color-mix(in srgb, #f3ede2 14%, transparent);
+}
+
+.vitals > div {
+  min-width: 0;
+}
+
+.vitals dt {
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, #f3ede2 48%, transparent);
+}
+
+.vitals dd {
+  margin: 0.2rem 0 0;
+  font-family: var(--font-anton), var(--font-bebas), sans-serif;
+  font-size: clamp(1.05rem, 1.8vw, 1.35rem);
+  letter-spacing: 0.02em;
+  color: var(--accent);
+}
+
+/* ---- Kaydırma işareti ---- */
+.scroll {
+  position: absolute;
+  left: var(--sp-gutter);
+  bottom: clamp(1rem, 3vh, 1.75rem);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  writing-mode: vertical-rl;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, #f3ede2 46%, transparent);
+}
+
+.scroll::after {
+  content: "";
+  width: 1px;
+  height: 2.75rem;
+  background: linear-gradient(var(--accent), transparent);
+}
+
+/* ============================================================
+   UYARLAMA — mobilde kendi düzeni, küçültülmüş masaüstü değil
+   ============================================================ */
+
+@media (max-width: 900px) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: end;
+    min-height: calc(100svh - var(--sp-header));
+    padding-top: clamp(4.5rem, 12vh, 7rem);
+  }
+
+  /* Fotoğraf metnin ARKASINA geçiyor: aynı hücre, düşük opaklık, üstünde
+     daha güçlü bir karartma. Yan yana durmaya çalışmak iki öğeyi de
+     kırpardı. */
+  .portrait {
+    grid-column: 1;
+    grid-row: 1;
+    z-index: 0;
+    margin-inline: calc(var(--sp-gutter) * -1);
+    opacity: 0.4;
+  }
+
+  .portraitFade {
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--ink) 76%, transparent) 0%,
+      color-mix(in srgb, var(--ink) 30%, transparent) 34%,
+      color-mix(in srgb, var(--ink) 88%, transparent) 82%,
+      var(--ink) 100%
+    );
+  }
+
+  /* Sash dikleşiyor ve yukarı çekiliyor: dar kadrajda çapraz bant metnin
+     üstünden geçiyordu. */
+  .sash {
+    top: -10%;
+    right: -30%;
+    width: 120%;
+    height: 70%;
+    transform: skewY(-14deg);
+    opacity: 0.42;
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      #000 0%,
+      #000 55%,
+      transparent 100%
+    );
+    mask-image: linear-gradient(to bottom, #000 0%, #000 55%, transparent 100%);
+  }
+
+  .jersey {
+    right: -4%;
+    bottom: 26%;
+    font-size: min(72vw, 22rem);
+  }
+
+  .name {
+    font-size: clamp(2.75rem, 15vw, 5rem);
+  }
+
+  .scroll {
+    display: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .vitals {
+    gap: 0.75rem 1.25rem;
+  }
+
+  .quote {
+    font-size: 0.9rem;
+  }
+
+  .crumb {
+    max-width: 11rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+  }
+}

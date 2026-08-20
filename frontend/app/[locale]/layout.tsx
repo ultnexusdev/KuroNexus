@@ -9,6 +9,8 @@ import {
   Cormorant_Garamond,
   Corinthia,
   Noto_Sans_Old_Turkic,
+  Anton,
+  Inter,
 } from "next/font/google";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
@@ -119,6 +121,45 @@ const orhun = Noto_Sans_Old_Turkic({
 });
 
 /*
+ * ── FUTBOLCU SAYFALARININ İKİLİSİ (20 Ağustos 2026) ──────────────────────
+ *
+ * Anton + Inter yalnızca `/spor/futbol/futbolcular/*` ağacında kullanılıyor.
+ * İkisi de `preload: false`: ziyaretçilerin büyük çoğunluğu o sayfalara hiç
+ * girmiyor, `<link rel=preload>` yazmak onlara bedava iki dosya indirtirdi.
+ * `next/font` self-host ediyor — dış istek ve Google'a giden IP yok.
+ *
+ * NEDEN YENİ AİLE GEREKTİ: kanadın display sesi Petrona, editoryal bir serif.
+ * Futbolcu sayfası bir arşiv künyesi değil, bir POSTER — istenen ses forma
+ * numarası ve stadyum tabelası ağırlığında, sıkışık ve kapital. Petrona'yı
+ * o boya çıkarmak karakterini bozuyor (ölçüldü: 900 ağırlıkta bile harf
+ * aralıkları poster yoğunluğuna inmiyor). Anton tam olarak o iş için var.
+ *
+ * Inter ise gövde: kanadın geri kalanı Cormorant/sistem sansı kullanıyor ama
+ * bu sayfada rakam yoğun künye satırları var ve Inter'in tabular rakamları
+ * hizalı duruyor. Ağırlıklar 400/600/700 ile sınırlı — 8 ağırlıklı değişken
+ * dosya bu sayfanın ihtiyacının çok üstünde.
+ *
+ * ⚠️ Bu ikili kanat ölçeğini EZMİYOR: `--font-anton` / `--font-inter` yalnızca
+ * futbolcu sayfasının kendi CSS modüllerinden okunuyor. Spor kabuğu
+ * (`layout.module.css`) ve diğer beş salon tek harfle bile etkilenmedi.
+ */
+const anton = Anton({
+  weight: "400",
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-anton",
+  display: "swap",
+  preload: false,
+});
+
+const inter = Inter({
+  weight: ["400", "600", "700"],
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-inter",
+  display: "swap",
+  preload: false,
+});
+
+/*
  * API kaynağına preconnect (9 Ağustos 2026).
  *
  * ÖLÇÜM: canlı sitede kitap rafı sayfasının HTML'inde tek bir `preconnect` ya
@@ -223,7 +264,7 @@ export default async function LocaleLayout({
     <html
       lang={locale}
       data-theme={theme}
-      className={`${brushFont.variable} ${cinzel.variable} ${bebas.variable} ${petrona.variable} ${cormorant.variable} ${corinthia.variable} ${orhun.variable}`}
+      className={`${brushFont.variable} ${cinzel.variable} ${bebas.variable} ${petrona.variable} ${cormorant.variable} ${corinthia.variable} ${orhun.variable} ${anton.variable} ${inter.variable}`}
     >
       <head>
         <link rel="preconnect" href={apiOrigin} crossOrigin="anonymous" />

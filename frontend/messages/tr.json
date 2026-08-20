@@ -2246,14 +2246,44 @@
       "gallery": "Galeri",
       "momentsLede": "Bu bölüm arşivin en kişisel yeri. Golün kendisi değil, nasıl olduğu.",
       "nightsLede": "Arşivin sakladığı geceler — her biri neden hatırlandığıyla birlikte.",
-      "careerLede": "Kaydır. Her durak kendi ışığını getiriyor.",
+      "careerLede": "Hat soldan sağa parlıyor: kariyer ilerledikçe ışık artıyor, bugünkü kulüpte zirveye çıkıyor.",
       "galleryLede": "Bir kareye dokun, tam boy açılsın.",
       "open": "Aç",
       "close": "Kapat",
       "prevImage": "Önceki görsel",
       "nextImage": "Sonraki görsel",
       "credits": "Görsel künyesi",
-      "figure": "Künye"
+      "figure": "Künye",
+      "scroll": "Kaydır",
+      "matches": "maç",
+      "goals": "gol",
+      "stats": "İstatistikler",
+      "allTime": "Tüm zamanlar",
+      "clubStats": "Kulüp istatistikleri",
+      "audio": {
+        "play": "Şarkıyı çal",
+        "pause": "Şarkıyı durdur",
+        "title": "Aşkın Olayım"
+      },
+      "curator": {
+        "on": "Küratör modu",
+        "off": "Küratör modunu kapat",
+        "panelTitle": "Değiştirilen görseller",
+        "panelNote": "Yüklenen dosya sunucuda kalıcı. Yuva eşleşmesi bu tarayıcıda saklanıyor; herkeste görünmesi için aşağıdaki parçacığı kopyalayıp lib/sport/favourite-players.ts içindeki ilgili yuvaya yapıştır.",
+        "edit": "Görseli değiştir",
+        "fromFile": "Dosyadan yükle",
+        "fromUrl": "Adresten",
+        "urlPlaceholder": "https://…",
+        "fetch": "Getir",
+        "reset": "Geri al",
+        "resetAll": "Hepsini geri al",
+        "busy": "Yükleniyor…",
+        "error": "Görsel yüklenemedi.",
+        "copy": "Kod parçacığını kopyala",
+        "copied": "Kopyalandı",
+        "empty": "Henüz bir görsel değiştirilmedi. Bir karenin köşesindeki düzenle düğmesine bas.",
+        "placeholder": "Foto eklenecek"
+      }
     }
   },
   "music": {

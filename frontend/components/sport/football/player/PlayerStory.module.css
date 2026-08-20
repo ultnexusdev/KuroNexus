@@ -1,0 +1,147 @@
+/* ============================================================
+   HİKÂYESİ · iki sütun + tam bant kare
+   ============================================================ */
+
+.story {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.75rem, 4vw, 3rem);
+  padding: clamp(3.5rem, 9vw, 6.5rem) var(--sp-gutter);
+  font-family: var(--font-inter), var(--font-sans);
+  max-width: var(--sp-max);
+  width: 100%;
+  margin-inline: auto;
+  min-width: 0;
+}
+
+.top {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1fr);
+  gap: clamp(1.5rem, 5vw, 4rem);
+  min-width: 0;
+}
+
+.headSide {
+  min-width: 0;
+}
+
+.eyebrow {
+  margin: 0 0 0.75rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+/* İki satır, ikinci satır kadrajın içinde bir tık sağa kaçık — sash'in
+   eğimini tipografiye taşıyan tek hamle. */
+.title {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  font-family: var(--font-anton), var(--font-bebas), sans-serif;
+  font-weight: 400;
+  font-size: clamp(2rem, 5vw, 3.75rem);
+  line-height: 0.98;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: #f3ede2;
+  overflow-wrap: anywhere;
+}
+
+.title span:last-child {
+  margin-left: 0.28em;
+  color: var(--accent);
+}
+
+/* ---- Okuma sütunu ---- */
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1em;
+  /* Okuma ölçüsü 62-70ch bandında; ekran büyüdükçe sütun genişlemiyor. */
+  max-width: 66ch;
+  min-width: 0;
+  /* Sash'in sakin karşılığı: sütunun solunda ince bir altın hat. */
+  padding-left: clamp(0.9rem, 2.2vw, 1.75rem);
+  border-left: 1px solid color-mix(in srgb, var(--accent) 26%, transparent);
+}
+
+.column p {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.78;
+  color: color-mix(in srgb, #f3ede2 78%, transparent);
+  text-wrap: pretty;
+}
+
+.lede {
+  font-size: clamp(1.0625rem, 1.7vw, 1.25rem) !important;
+  font-weight: 600;
+  line-height: 1.6 !important;
+  color: #f3ede2 !important;
+}
+
+.tail {
+  margin-inline: auto;
+  width: 100%;
+}
+
+/* ---- Tam bant kare ---- */
+.band {
+  position: relative;
+  /* Oluğun dışına taşıyor — dergi sayfasındaki tam sayfa fotoğraf. */
+  margin-inline: calc(var(--sp-gutter) * -1);
+  aspect-ratio: 21 / 9;
+  overflow: hidden;
+  border-block: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+.bandLight {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      70% 90% at 84% 6%,
+      color-mix(in srgb, var(--warm) 40%, transparent),
+      transparent 62%
+    ),
+    radial-gradient(
+      70% 90% at 8% 96%,
+      color-mix(in srgb, var(--accent) 30%, transparent),
+      transparent 60%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--ink) 46%, transparent) 0%,
+      transparent 30%,
+      transparent 64%,
+      color-mix(in srgb, var(--ink) 62%, transparent) 100%
+    );
+}
+
+/* ============================================================
+   UYARLAMA
+   ============================================================ */
+
+@media (max-width: 860px) {
+  .top {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.25rem;
+  }
+
+  .column {
+    padding-left: 0.9rem;
+  }
+
+  .band {
+    aspect-ratio: 4 / 3;
+  }
+
+  .title span:last-child {
+    margin-left: 0;
+  }
+}

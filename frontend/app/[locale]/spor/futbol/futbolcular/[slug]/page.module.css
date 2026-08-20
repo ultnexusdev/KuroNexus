@@ -1,38 +1,32 @@
 /* ============================================================
-   FAVORİ FUTBOLCU PROFİLİ
+   FUTBOLCU POSTERİ
 
    Palet sayfanın kökünde (`--ink / --accent / --warm / --glow / --neon`),
-   veriden geliyor. Aşağıdaki hiçbir kural sabit renk yazmıyor — yeni bir
-   futbolcu eklendiğinde bu dosyaya dokunulmuyor.
+   veriden geliyor. Aşağıdaki hiçbir kural kulüp rengi SABİT yazmıyor —
+   başka bir futbolcu eklendiğinde bu dosyaya dokunulmuyor.
 
-   Sayfanın ritmi bilinçli: SAHNE (ışık) → HİKÂYE (sessiz) → KARİYER (hareket)
-   → GECELER (ışık) → ANLAR (sessiz) → GALERİ (yoğun). Yoğun bir bölümden
-   sonra her zaman bir nefes var; yoksa sayfa tek bir uzun gürültü olurdu.
+   Ritim bilinçli: HERO (ışık) → HİKÂYE (sessiz) → KARİYER (hareket) →
+   GECELER (ışık) → ANLAR (sessiz) → İSTATİSTİK (ışık) → GALERİ (yoğun) →
+   KAPANIŞ (tek cümle). Yoğun bir bölümden sonra her zaman bir nefes var.
    ============================================================ */
 
 .page {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  /* Zemin: yalnızca sahne değil, sayfanın tamamı renkli bir gece.
-     Düz #0c0f15 üstünde bölümlerin ışığı "kutu" gibi duruyordu. */
+  font-family: var(--font-inter), var(--font-sans);
   background:
     radial-gradient(
-      120% 40% at 84% 0%,
-      color-mix(in srgb, var(--neon) 14%, transparent),
-      transparent 62%
-    ),
-    radial-gradient(
-      110% 46% at 4% 62%,
+      120% 36% at 86% 0%,
       color-mix(in srgb, var(--warm) 12%, transparent),
       transparent 60%
     ),
-    linear-gradient(180deg, color-mix(in srgb, var(--ink) 60%, #0c0f15), #0a0c12);
+    linear-gradient(180deg, var(--ink) 0%, #08080b 100%);
 }
 
 .crumb {
   position: relative;
-  z-index: 2;
+  z-index: 4;
   margin-bottom: calc(var(--touch-min) * -1);
 }
 
@@ -47,99 +41,23 @@
   min-width: 0;
 }
 
-.sectionHeading {
-  font-size: clamp(1.75rem, 4.2vw, 3.25rem);
-  font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
+.sectionTitle {
+  margin: 0;
+  font-family: var(--font-anton), var(--font-bebas), sans-serif;
+  font-weight: 400;
+  font-size: clamp(1.75rem, 4.4vw, 3.25rem);
+  line-height: 1;
+  letter-spacing: 0.015em;
   text-transform: uppercase;
-  padding-block: 0.05em;
-  color: #f3efe6;
+  color: #f3ede2;
 }
 
 .sectionLede {
   margin: 0;
-  font-size: var(--sp-lede);
-  line-height: 1.55;
   max-width: 46ch;
-  color: var(--text-secondary);
-}
-
-/* ============================================================
-   HİKÂYESİ
-   ============================================================ */
-
-.story {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(1.5rem, 4vw, 2.75rem);
-  padding: clamp(3.5rem, 9vw, 7rem) var(--sp-gutter);
-  max-width: var(--sp-max);
-  width: 100%;
-  margin-inline: auto;
-  min-width: 0;
-}
-
-.column {
-  display: flex;
-  flex-direction: column;
-  gap: 1.15em;
-  /* Okuma ölçüsü: 62-68ch bandı. Ekran genişledikçe sütun genişlemiyor,
-     yalnızca etrafındaki boşluk büyüyor. */
-  max-width: 66ch;
-  min-width: 0;
-}
-
-.column p {
-  margin: 0;
-  font-size: 1.0625rem;
-  line-height: 1.78;
-  color: color-mix(in srgb, #efe9dc 82%, transparent);
-  text-wrap: pretty;
-}
-
-/* İlk paragraf: giriş. Punto ve renk farkı, süs değil hiyerarşi. */
-.column p[data-lede] {
-  font-family: var(--font-petrona), Georgia, serif;
-  font-size: clamp(1.1875rem, 2.1vw, 1.5rem);
-  font-weight: 600;
-  line-height: 1.58;
-  color: #f3efe6;
-}
-
-/* Tam bant kare: sütunun ölçüsünü kırıyor, sayfanın nefesi. */
-.plateBand {
-  position: relative;
-  /* Oluğun dışına taşıyor — dergi sayfasındaki tam sayfa fotoğraf. */
-  margin-inline: calc(var(--sp-gutter) * -1);
-  aspect-ratio: 21 / 9;
-  overflow: hidden;
-  border-block: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
-}
-
-.plateBand img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: 50% 28%;
-  filter: saturate(1.08) contrast(1.1) brightness(0.8);
-}
-
-.plateBand span {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(
-      70% 90% at 82% 8%,
-      color-mix(in srgb, var(--neon) 34%, transparent),
-      transparent 62%
-    ),
-    radial-gradient(
-      70% 90% at 8% 96%,
-      color-mix(in srgb, var(--warm) 40%, transparent),
-      transparent 60%
-    );
-  mix-blend-mode: screen;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: color-mix(in srgb, #f3ede2 60%, transparent);
 }
 
 /* ============================================================
@@ -150,7 +68,7 @@
   display: flex;
   flex-direction: column;
   gap: clamp(1.5rem, 3.5vw, 2.5rem);
-  padding: clamp(3.5rem, 9vw, 7rem) var(--sp-gutter);
+  padding: clamp(3.5rem, 9vw, 6.5rem) var(--sp-gutter);
   min-width: 0;
 }
 
@@ -162,7 +80,7 @@
   width: 100%;
   margin-inline: auto;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(19rem, 100%), 1fr));
   gap: clamp(0.75rem, 2vw, 1.25rem);
   min-width: 0;
 }
@@ -177,8 +95,8 @@
   overflow: hidden;
   background: linear-gradient(
     166deg,
-    color-mix(in srgb, var(--ink) 78%, #fff 2%),
-    #07090f
+    color-mix(in srgb, var(--ink) 78%, #fff 3%),
+    #07080b
   );
   transition:
     border-color 460ms ease,
@@ -201,12 +119,8 @@
 }
 
 .nightShot img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: 50% 22%;
-  filter: saturate(0.94) contrast(1.06) brightness(0.76);
   transform: scale(1.02);
+  filter: saturate(0.96) brightness(0.8);
   transition:
     transform 820ms cubic-bezier(0.22, 1, 0.36, 1),
     filter 520ms ease;
@@ -214,68 +128,67 @@
 
 .night:hover .nightShot img {
   transform: scale(1.08);
-  filter: saturate(1.14) contrast(1.06) brightness(0.95);
+  filter: saturate(1.12) brightness(0.96);
 }
 
-/* Karenin üstünde bölümün ışığı — kare tek başına düz durmasın. */
-.nightShot::after {
-  content: "";
+.nightLight {
   position: absolute;
   inset: 0;
+  pointer-events: none;
   background:
     radial-gradient(
-      80% 70% at 50% 106%,
-      color-mix(in srgb, var(--warm) 48%, transparent),
+      86% 70% at 50% 106%,
+      color-mix(in srgb, var(--warm) 46%, transparent),
       transparent 62%
     ),
     linear-gradient(
       180deg,
-      transparent 44%,
-      color-mix(in srgb, #05070c 72%, transparent) 100%
+      transparent 46%,
+      color-mix(in srgb, #06070a 72%, transparent) 100%
     );
 }
 
 .nightBody {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.28rem;
   padding: clamp(1rem, 2.4vw, 1.5rem);
   min-width: 0;
 }
 
 .nightYear {
+  font-family: var(--font-anton), var(--font-bebas), sans-serif;
   font-size: 1.5rem;
   line-height: 1;
+  letter-spacing: 0.02em;
   color: var(--accent);
-  transition: text-shadow 460ms ease;
-}
-
-.night:hover .nightYear {
-  text-shadow: 0 6px 28px color-mix(in srgb, var(--accent) 60%, transparent);
+  font-variant-numeric: tabular-nums;
 }
 
 .nightTitle {
   margin: 0;
+  font-family: var(--font-anton), var(--font-bebas), sans-serif;
+  font-weight: 400;
   font-size: clamp(1.25rem, 2.4vw, 1.625rem);
-  font-weight: 800;
-  line-height: 1.2;
-  letter-spacing: -0.015em;
-  color: #f3efe6;
+  line-height: 1.14;
+  letter-spacing: 0.015em;
+  text-transform: uppercase;
+  color: #f3ede2;
   overflow-wrap: anywhere;
 }
 
 .nightMeta {
-  color: color-mix(in srgb, #efe9dc 56%, transparent);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: color-mix(in srgb, #f3ede2 52%, transparent);
   overflow-wrap: anywhere;
 }
 
 .nightLine {
   margin: 0.4rem 0 0;
-  font-family: var(--font-petrona), Georgia, serif;
-  font-size: 1rem;
-  font-weight: 600;
-  line-height: 1.6;
-  color: color-mix(in srgb, #efe9dc 76%, transparent);
+  font-size: 0.9rem;
+  line-height: 1.62;
+  color: color-mix(in srgb, #f3ede2 74%, transparent);
   text-wrap: pretty;
 }
 
@@ -287,7 +200,7 @@
   display: flex;
   flex-direction: column;
   gap: clamp(1.5rem, 3.5vw, 2.5rem);
-  padding: clamp(3.5rem, 9vw, 7rem) var(--sp-gutter);
+  padding: clamp(3.5rem, 9vw, 6.5rem) var(--sp-gutter);
   min-width: 0;
 }
 
@@ -315,29 +228,100 @@
 }
 
 .noteLabel {
-  font-family: var(--font-cinzel), serif;
-  font-size: 0.68rem;
+  font-size: 0.66rem;
+  font-weight: 700;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--accent) 90%, #fff);
+  color: var(--accent);
 }
 
 .noteTitle {
   margin: 0;
+  font-family: var(--font-anton), var(--font-bebas), sans-serif;
+  font-weight: 400;
   font-size: clamp(1.375rem, 2.6vw, 1.875rem);
-  font-weight: 800;
-  line-height: 1.16;
-  letter-spacing: -0.02em;
-  color: #f3efe6;
+  line-height: 1.1;
+  letter-spacing: 0.015em;
+  text-transform: uppercase;
+  color: #f3ede2;
   overflow-wrap: anywhere;
 }
 
 .noteBody {
   margin: 0.3rem 0 0;
-  font-size: 1rem;
-  line-height: 1.72;
-  color: color-mix(in srgb, #efe9dc 76%, transparent);
+  font-size: 0.95rem;
+  line-height: 1.75;
+  color: color-mix(in srgb, #f3ede2 74%, transparent);
   text-wrap: pretty;
+}
+
+/* ============================================================
+   KAPANIŞ
+   ============================================================ */
+
+.closing {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: clamp(4.5rem, 12vw, 8.5rem) var(--sp-gutter);
+  text-align: center;
+  border-top: 1px solid color-mix(in srgb, var(--accent) 18%, transparent);
+  background: linear-gradient(
+    180deg,
+    var(--ink) 0%,
+    color-mix(in srgb, var(--warm) 26%, var(--ink)) 52%,
+    var(--ink) 100%
+  );
+}
+
+/* Forma numarası bir kez daha, bu sefer ortada ve daha sönük — sayfa
+   açıldığı işaretle kapanıyor. */
+.closingMark {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-anton), var(--font-bebas), sans-serif;
+  font-size: min(42vw, 24rem);
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1.5px color-mix(in srgb, #f3ede2 8%, transparent);
+  user-select: none;
+  pointer-events: none;
+}
+
+.closingQuote {
+  margin: 0;
+  max-width: 24ch;
+  font-family: var(--font-anton), var(--font-bebas), sans-serif;
+  font-weight: 400;
+  font-size: clamp(1.5rem, 4.4vw, 3.25rem);
+  line-height: 1.16;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: #f3ede2;
+  text-wrap: balance;
+}
+
+.closingQuote::before {
+  content: "“";
+}
+
+.closingQuote::after {
+  content: "”";
+}
+
+.closingSig {
+  margin: 0;
+  font-size: 0.85rem;
+  font-style: italic;
+  letter-spacing: 0.05em;
+  color: var(--accent);
 }
 
 /* ============================================================
@@ -345,10 +329,6 @@
    ============================================================ */
 
 @media (max-width: 760px) {
-  .plateBand {
-    aspect-ratio: 4 / 3;
-  }
-
   .noteList > li {
     border-left: 0;
     border-top: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
@@ -358,8 +338,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .night,
-  .nightShot img,
-  .nightYear {
+  .nightShot img {
     transition: none;
   }
 }

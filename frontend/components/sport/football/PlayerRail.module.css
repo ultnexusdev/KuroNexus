@@ -222,11 +222,14 @@
 }
 
 /* ---- Sahne: spot, huzme, hayalet tipografi ---- */
+/* Sahne katmanı görselin ÜSTÜNDE: gradyanlar kareyi renklendiriyor, hayalet
+   soyad konturu da onun üzerinde duruyor. Görsel z-index 0da kaldı. */
 .scene {
   position: absolute;
   inset: 0;
-  z-index: 0;
+  z-index: 1;
   overflow: hidden;
+  pointer-events: none;
 }
 
 .spot {
@@ -306,26 +309,28 @@
   transform: translate3d(0, -10px, 0);
 }
 
-/* ---- Figür: saydam zeminli kesim ---- */
+/* ---- Kart görseli ----
+   Saydam kesim figür yerine tam kadraj kare: yuvanın fotoğrafı da olabilir,
+   yer tutucu da. İkisi de aynı kutuyu dolduruyor, yani kompozisyon fotoğraf
+   gelmeden de ayakta. */
 .figure {
   position: absolute;
-  z-index: 1;
-  right: -4%;
-  bottom: 0;
-  width: auto;
-  height: 88%;
-  max-width: none;
-  object-fit: contain;
-  object-position: bottom right;
-  filter: drop-shadow(0 24px 34px rgba(0, 0, 0, 0.55));
-  transform: translate3d(0, 2%, 0) scale(1);
-  transform-origin: bottom right;
+  z-index: 0;
+  inset: 0;
+  display: block;
+  overflow: hidden;
+  transform: scale(1.02);
+  transform-origin: 60% 30%;
   transition: transform 720ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.figure img {
+  filter: saturate(1.02) brightness(0.82);
 }
 
 .card:hover .figure,
 .card:focus-visible .figure {
-  transform: translate3d(0, 0, 0) scale(1.055);
+  transform: scale(1.07);
 }
 
 /* Okunurluk: metnin oturduğu alt sol köşe koyulaşıyor. */

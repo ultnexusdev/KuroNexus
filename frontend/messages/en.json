@@ -2246,14 +2246,44 @@
       "gallery": "Gallery",
       "momentsLede": "The most personal part of the archive. Not the goal, but how the goal happened.",
       "nightsLede": "The nights the archive kept — each with the reason it is remembered.",
-      "careerLede": "Scroll. Every stop brings its own light.",
+      "careerLede": "The line brightens from left to right: the further the career runs, the stronger the light, peaking at the current club.",
       "galleryLede": "Tap a frame to open it full size.",
       "open": "Open",
       "close": "Close",
       "prevImage": "Previous image",
       "nextImage": "Next image",
       "credits": "Image credits",
-      "figure": "Details"
+      "figure": "Details",
+      "scroll": "Scroll",
+      "matches": "apps",
+      "goals": "goals",
+      "stats": "Statistics",
+      "allTime": "All time",
+      "clubStats": "Club statistics",
+      "audio": {
+        "play": "Play the theme",
+        "pause": "Stop the theme",
+        "title": "Aşkın Olayım"
+      },
+      "curator": {
+        "on": "Curator mode",
+        "off": "Close curator mode",
+        "panelTitle": "Replaced images",
+        "panelNote": "The uploaded file is stored permanently on the server. The slot mapping lives in this browser; to make it visible to everyone, copy the snippet below into the matching slot in lib/sport/favourite-players.ts.",
+        "edit": "Replace image",
+        "fromFile": "Upload a file",
+        "fromUrl": "From a URL",
+        "urlPlaceholder": "https://…",
+        "fetch": "Fetch",
+        "reset": "Undo",
+        "resetAll": "Undo all",
+        "busy": "Uploading…",
+        "error": "The image could not be uploaded.",
+        "copy": "Copy the snippet",
+        "copied": "Copied",
+        "empty": "Nothing replaced yet. Use the edit button in the corner of any frame.",
+        "placeholder": "Photo pending"
+      }
     }
   },
   "music": {

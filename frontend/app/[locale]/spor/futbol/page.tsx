@@ -124,7 +124,8 @@ export default async function FootballHubPage({
     FOOTBALL_MEDIA.stadiumNight,
     featuredClub?.coverImage ? { credit: null } : FOOTBALL_MEDIA.stadiumAerial,
     ...legendEntries.map((l) => LEGEND_PLATES[l.slug]).filter(Boolean),
-    ...FAVOURITE_PLAYERS.map((p) => p.figure),
+    // Kart yuvaları çoğu zaman yer tutucu; künyesi olan varsa toplanıyor.
+    ...FAVOURITE_PLAYERS.map((p) => p.card),
   ]);
 
   return (

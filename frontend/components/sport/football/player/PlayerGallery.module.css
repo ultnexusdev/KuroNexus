@@ -7,7 +7,8 @@
   display: flex;
   flex-direction: column;
   gap: clamp(1.5rem, 3.5vw, 2.5rem);
-  padding: clamp(3.5rem, 9vw, 7rem) var(--sp-gutter);
+  padding: clamp(3.5rem, 9vw, 6.5rem) var(--sp-gutter);
+  font-family: var(--font-inter), var(--font-sans);
   min-width: 0;
 }
 
@@ -21,27 +22,26 @@
   min-width: 0;
 }
 
-.heading {
-  font-size: clamp(1.75rem, 4.2vw, 3.25rem);
-  font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
+.title {
+  margin: 0;
+  font-family: var(--font-anton), var(--font-bebas), sans-serif;
+  font-weight: 400;
+  font-size: clamp(1.75rem, 4.4vw, 3.25rem);
+  line-height: 1;
+  letter-spacing: 0.015em;
   text-transform: uppercase;
-  padding-block: 0.05em;
-  color: #f3efe6;
+  color: #f3ede2;
 }
 
 .lede {
   margin: 0;
-  font-size: var(--sp-lede);
-  line-height: 1.55;
   max-width: 46ch;
-  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: color-mix(in srgb, #f3ede2 60%, transparent);
 }
 
-/* ---- Izgara ----
-   `dense` yerleşim + orana göre span: yatay kare iki sütun, dikey kare iki
-   satır. Böylece hiçbir kare kırpılmadan sıkı bir kompozisyon çıkıyor. */
+/* ---- Izgara ---- */
 .grid {
   list-style: none;
   margin: 0;
@@ -69,6 +69,12 @@
   grid-row: span 2;
 }
 
+/* İlk kare her zaman büyük: galeri "eşit kutular" gibi başlamasın. */
+.grid > li[data-lead] {
+  grid-column: span 3;
+  grid-row: span 2;
+}
+
 .tile {
   position: relative;
   display: block;
@@ -78,11 +84,15 @@
   border: 1px solid color-mix(in srgb, var(--accent) 14%, transparent);
   border-radius: 2px;
   overflow: hidden;
-  background: linear-gradient(160deg, #141a28, #07090f);
+  background: transparent;
   cursor: zoom-in;
   transition:
     border-color 420ms ease,
     box-shadow 420ms ease;
+}
+
+.tile[data-static] {
+  cursor: default;
 }
 
 .tile:hover,
@@ -97,15 +107,11 @@
 }
 
 .tile img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: 50% 26%;
-  filter: saturate(1.02) brightness(0.88);
   transform: scale(1.01);
   transition:
     transform 780ms cubic-bezier(0.22, 1, 0.36, 1),
     filter 480ms ease;
+  filter: saturate(1.02) brightness(0.9);
 }
 
 .tile:hover img,
@@ -114,15 +120,15 @@
   filter: saturate(1.14) brightness(1);
 }
 
-.tileVeil {
+.veil {
   position: absolute;
   inset: 0;
+  pointer-events: none;
   background: linear-gradient(
     180deg,
-    transparent 42%,
-    color-mix(in srgb, #04060b 78%, transparent) 100%
+    transparent 46%,
+    color-mix(in srgb, #06070a 76%, transparent) 100%
   );
-  opacity: 0.85;
 }
 
 .caption {
@@ -131,11 +137,12 @@
   right: 0.6rem;
   bottom: 0.55rem;
   font-family: var(--font-mono);
-  font-size: 0.66rem;
+  font-size: 0.64rem;
   letter-spacing: 0.06em;
   line-height: 1.35;
-  color: color-mix(in srgb, #efe9dc 82%, transparent);
+  color: color-mix(in srgb, #f3ede2 82%, transparent);
   overflow-wrap: anywhere;
+  pointer-events: none;
 }
 
 .zoom {
@@ -147,7 +154,7 @@
   width: 1.85rem;
   height: 1.85rem;
   border-radius: 50%;
-  background: color-mix(in srgb, #04060b 70%, transparent);
+  background: color-mix(in srgb, #06070a 70%, transparent);
   border: 1px solid color-mix(in srgb, var(--accent) 42%, transparent);
   opacity: 0;
   transform: scale(0.86);
@@ -196,7 +203,7 @@
   place-items: center;
   gap: 1rem;
   padding: clamp(1rem, 4vw, 3rem);
-  background: color-mix(in srgb, #04060b 88%, transparent);
+  background: color-mix(in srgb, #05060a 90%, transparent);
   backdrop-filter: blur(14px);
   animation: fade 260ms ease-out;
 }
@@ -224,25 +231,11 @@
 }
 
 .lightbox figcaption {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.35rem 1rem;
   font-family: var(--font-mono);
   font-size: 0.75rem;
   text-align: center;
-  color: var(--text-secondary);
+  color: color-mix(in srgb, #f3ede2 62%, transparent);
   max-width: 60ch;
-}
-
-.lightbox figcaption a {
-  color: var(--text-muted);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.lightbox figcaption a:hover {
-  color: var(--accent);
 }
 
 .close {
@@ -253,36 +246,39 @@
   place-items: center;
   width: var(--touch-min);
   height: var(--touch-min);
-  border: 1px solid var(--border-strong);
+  border: 1px solid color-mix(in srgb, #f3ede2 24%, transparent);
   border-radius: 50%;
-  background: color-mix(in srgb, #0b0e16 82%, transparent);
-  color: var(--text-primary);
+  background: color-mix(in srgb, #0b0d13 82%, transparent);
+  color: #f3ede2;
   cursor: pointer;
-  transition:
-    border-color 260ms ease,
-    color 260ms ease;
 }
 
 .close:hover,
-.close:focus-visible {
+.close:focus-visible,
+.pager button:hover,
+.pager button:focus-visible {
   border-color: var(--accent);
   color: var(--accent);
 }
 
-.close svg {
+.close svg,
+.pager svg {
   width: 1.15rem;
   height: 1.15rem;
   fill: none;
   stroke: currentColor;
   stroke-width: 1.8;
   stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .pager {
   display: flex;
   align-items: center;
   gap: 1rem;
-  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: color-mix(in srgb, #f3ede2 62%, transparent);
 }
 
 .pager button {
@@ -290,30 +286,11 @@
   place-items: center;
   width: var(--touch-min);
   height: var(--touch-min);
-  border: 1px solid var(--border-strong);
+  border: 1px solid color-mix(in srgb, #f3ede2 24%, transparent);
   border-radius: 50%;
-  background: color-mix(in srgb, #0b0e16 82%, transparent);
-  color: var(--text-primary);
+  background: color-mix(in srgb, #0b0d13 82%, transparent);
+  color: #f3ede2;
   cursor: pointer;
-  transition:
-    border-color 260ms ease,
-    color 260ms ease;
-}
-
-.pager button:hover,
-.pager button:focus-visible {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-.pager svg {
-  width: 1.1rem;
-  height: 1.1rem;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
 }
 
 @keyframes fade {
@@ -340,20 +317,22 @@
    UYARLAMA
    ============================================================ */
 
-@media (max-width: 640px) {
+@media (max-width: 700px) {
   .grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-auto-rows: 8.5rem;
   }
 
-  /* İki sütunlu ızgarada "iki sütun kapla" tam satır demek; yatay kareler
-     zaten öyle daha iyi duruyor. */
+  .grid > li[data-lead] {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+
   .grid > li[data-wide] {
     grid-column: span 2;
   }
 }
 
-/* Dokunmatikte büyüteç kalıcı — hover hiç tetiklenmiyor. */
 @media (hover: none) {
   .zoom {
     opacity: 0.85;

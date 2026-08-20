@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "@/lib/i18n/navigation";
 import { sportHref } from "@/lib/sport/routes";
 import type { FavouritePlayer } from "@/lib/sport/favourite-players";
+import { PlayerImage } from "./player/PlayerImage";
 import shell from "@/app/[locale]/spor/layout.module.css";
 import styles from "./PlayerRail.module.css";
 
@@ -153,16 +154,11 @@ export function PlayerRail({
                 </span>
               </span>
 
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={player.figure.src}
-                alt=""
-                className={styles.figure}
-                width={player.figure.width}
-                height={player.figure.height}
-                loading="lazy"
-                decoding="async"
-              />
+              {/* Kart görseli bir YUVA: fotoğrafı yoksa `PlayerImage`
+                  tasarlanmış yer tutucuyu çiziyor, kırık kutu değil. */}
+              <span className={styles.figure} aria-hidden="true">
+                <PlayerImage slot={player.card} position="50% 20%" decorative />
+              </span>
 
               <span className={styles.shade} aria-hidden="true" />
 
@@ -188,7 +184,7 @@ export function PlayerRail({
 
                 <span className={styles.foot}>
                   <span className={`${shell.data} ${styles.origin}`}>
-                    {player.country} · {player.birthYear}
+                    {player.country}
                   </span>
                   <span className={styles.open}>
                     {labels.open}

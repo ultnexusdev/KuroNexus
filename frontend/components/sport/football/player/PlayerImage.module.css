@@ -1,0 +1,236 @@
+/* ============================================================
+   GÖRSEL YUVASI · gerçek kare ya da tasarlanmış yer tutucu
+   ============================================================ */
+
+.frame {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: linear-gradient(
+    155deg,
+    color-mix(in srgb, var(--ink, #0c0b0e) 82%, #fff 4%),
+    #07080b
+  );
+}
+
+.frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* ---- Yer tutucu ----
+   Çirkin gri kutu DEĞİL: köşegen tarama dokusu + kulübün altın çizgisi.
+   Kadraj notu ve dosya yolu içinde yazılı, yani küratör ne koyacağını ve
+   nereye koyacağını görseli açmadan biliyor. */
+.holder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: clamp(0.75rem, 2.5cqw, 1.5rem);
+  text-align: center;
+  background-image:
+    repeating-linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--accent, #f6c94a) 7%, transparent) 0 2px,
+      transparent 2px 9px
+    ),
+    radial-gradient(
+      80% 70% at 50% 0%,
+      color-mix(in srgb, var(--warm, #c21f31) 22%, transparent),
+      transparent 68%
+    );
+  border: 1px dashed color-mix(in srgb, var(--accent, #f6c94a) 34%, transparent);
+}
+
+.holderMark {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--accent, #f6c94a) 40%, transparent);
+  background: color-mix(in srgb, #05070c 52%, transparent);
+}
+
+.holderMark svg {
+  width: 1.2rem;
+  height: 1.2rem;
+  fill: none;
+  stroke: color-mix(in srgb, var(--accent, #f6c94a) 88%, #fff);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.holderLabel {
+  font-family: var(--font-anton), var(--font-bebas), sans-serif;
+  font-size: clamp(0.7rem, 2.6cqw, 0.9rem);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--accent, #f6c94a) 94%, #fff);
+}
+
+.holderHint {
+  max-width: 26ch;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: color-mix(in srgb, #efe9dc 62%, transparent);
+}
+
+.holderPath {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.02em;
+  color: color-mix(in srgb, #efe9dc 34%, transparent);
+  overflow-wrap: anywhere;
+}
+
+/* Küçük yuvalarda ipucu ve yol satırı taşmasın — kap sorgusu.
+   `.frame` kap olarak işaretleniyor ki ölçü kartın kendi genişliğinden gelsin. */
+.frame {
+  container-type: inline-size;
+}
+
+@container (max-width: 220px) {
+  .holderHint,
+  .holderPath {
+    display: none;
+  }
+
+  .holderMark {
+    width: 1.9rem;
+    height: 1.9rem;
+  }
+}
+
+@container (max-width: 130px) {
+  .holderLabel {
+    display: none;
+  }
+}
+
+/* ============================================================
+   KÜRATÖR DÜZENLEYİCİSİ
+   ============================================================ */
+
+.editor {
+  position: absolute;
+  left: 0.4rem;
+  top: 0.4rem;
+  z-index: 6;
+  display: block;
+}
+
+.editButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.55rem;
+  border: 1px solid color-mix(in srgb, var(--accent, #f6c94a) 55%, transparent);
+  border-radius: 2px;
+  background: color-mix(in srgb, #05070c 82%, transparent);
+  color: color-mix(in srgb, var(--accent, #f6c94a) 94%, #fff);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  backdrop-filter: blur(3px);
+}
+
+.editButton:hover {
+  background: color-mix(in srgb, var(--accent, #f6c94a) 20%, #05070c);
+}
+
+.editButton svg {
+  width: 0.85rem;
+  height: 0.85rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.pop {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 0.35rem);
+  z-index: 8;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  width: max(15rem, 100%);
+  padding: 0.6rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 3px;
+  background: #0e1017;
+  box-shadow: 0 20px 50px -22px rgba(0, 0, 0, 0.95);
+}
+
+.pop button,
+.pop input {
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.75rem;
+}
+
+.popPrimary {
+  padding: 0.45rem 0.6rem;
+  border: 0;
+  border-radius: 2px;
+  background: var(--accent, #f6c94a);
+  color: #14110a;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.popPrimary:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.popRow {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.popRow input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  background: #070910;
+  color: var(--text-primary);
+}
+
+.popRow button {
+  padding: 0.4rem 0.55rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.popReset {
+  padding: 0.35rem;
+  border: 1px solid color-mix(in srgb, #a61c2b 60%, transparent);
+  border-radius: 2px;
+  background: transparent;
+  color: #e7808a;
+  cursor: pointer;
+}
+
+.popError {
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.7rem;
+  color: #e7808a;
+}

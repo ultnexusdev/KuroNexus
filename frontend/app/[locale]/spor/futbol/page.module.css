@@ -1,199 +1,47 @@
-/* Sayfa 2 · /spor/futbol — Ecosystem Index.
-   Her keşif yüzeyinin kendi biçimi var; hepsi aynı kart ızgarası DEĞİL. */
+/* ============================================================
+   Sayfa 2 · /spor/futbol — GECE
+
+   Sayfanın kendi CSS'i az: bölümlerin her biri kendi atmosferini taşıyor.
+   Burada kalan tek iş, sahneleri kesintisiz bir gece hâlinde art arda
+   dizmek — yani bölümler arası boşluk YOK, bantlar birbirine değiyor.
+   Eski sürümdeki `gap: var(--sp-band)` bilerek kaldırıldı: aralarındaki
+   boşluk her sahnenin ışığını kesip sayfayı yeniden "siyah kutu" yapıyordu.
+   ============================================================ */
 
 .page {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-band);
-  padding-bottom: var(--sp-band);
-}
-
-.head {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-md);
-  padding: clamp(2rem, 6vw, 4rem) var(--sp-gutter) 0;
-}
-
-/* ---- Yüzey 1: öne çıkan dünya ----
-   Bandın yüksekliği diğer yüzeylerin belirgin üstünde: hiyerarşi boyutla
-   kuruluyor, "ÖNE ÇIKAN" rozetiyle değil. */
-.featured {
-  border-block: 1px solid var(--sport-line);
-}
-
-.featuredLink {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-md);
-  padding: clamp(2.5rem, 7vw, 5rem) var(--sp-gutter);
-  color: inherit;
-  text-decoration: none;
-  transition: background-color 260ms ease;
   min-width: 0;
 }
 
-.featuredLink:hover {
-  background: var(--surface);
+/* Kırıntı hero'nun ÜSTÜNDE duruyor ama zeminini kendisi boyamıyor —
+   hero'nun renk alanı onun arkasından geçsin diye negatif alt boşlukla
+   sahnenin içine gömülüyor. */
+.crumb {
+  position: relative;
+  z-index: 2;
+  margin-bottom: calc(var(--touch-min) * -1);
 }
 
-.featuredLink:focus-visible {
-  outline: 2px solid var(--accent-hover);
-  outline-offset: -4px;
-}
-
-.featuredName {
-  color: var(--text-primary);
-}
-
-.featuredLink:hover .featuredName {
-  color: var(--gs-gold);
-}
-
-.featuredLede {
-  max-width: 34ch;
-}
-
-/* ---- Ortak bölüm kabı ---- */
-.block {
+/* ---- Kuyruk: diğer kulüpler ---- */
+.rest {
   display: flex;
   flex-direction: column;
   gap: var(--gap-lg);
-  padding: 0 var(--sp-gutter);
-}
-
-/* ---- Yüzey 2: efsaneler ----
-   TEK kayıt: geniş editoryal blok. Yalnız bir kart "burası boş" der. */
-.legendSolo,
-.legendGrid {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+  max-width: var(--sp-max);
+  width: 100%;
+  margin-inline: auto;
+  padding: clamp(3rem, 7vw, 5rem) var(--sp-gutter) 0;
   min-width: 0;
 }
 
-.legendSolo {
-  display: block;
-  border-top: 1px solid var(--sport-line);
-}
-
-.legendSolo .legendLink {
-  padding-block: clamp(1.5rem, 4vw, 2.5rem);
-  gap: var(--gap-sm);
-}
-
-.legendSolo .legendName {
-  font-size: var(--sp-world);
-  font-weight: 800;
-  text-transform: uppercase;
-  line-height: 1.05;
-  padding-block: 0.05em;
-}
-
-.legendSolo .legendEpithet {
-  font-size: var(--sp-lede);
-  max-width: 40ch;
-}
-
-/* İKİ ve üstü: ızgara */
-.legendGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(15rem, 100%), 1fr));
-  gap: 1px;
-  background: var(--sport-line);
-  border: 1px solid var(--sport-line);
-}
-
-.legendGrid > li {
-  background: var(--bg);
-  min-width: 0;
-}
-
-.legendLink {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  padding: var(--pad-lg) var(--pad-md);
-  color: inherit;
-  text-decoration: none;
-  min-height: var(--touch-min);
-  transition: background-color 220ms ease;
-  min-width: 0;
-}
-
-.legendLink:hover {
-  background: var(--surface);
-}
-
-.legendLink:focus-visible {
-  outline: 2px solid var(--accent-hover);
-  outline-offset: -3px;
-}
-
-.legendName {
-  font-family: var(--font-petrona), Georgia, serif;
-  /* 2.25rem altı → KARMA HARF (Cinzel etiketiyle düzleşmesin) */
-  font-size: 1.5rem;
+.restTitle {
+  font-size: var(--sp-section);
   font-weight: 700;
-  line-height: 1.2;
-  overflow-wrap: anywhere;
+  line-height: 1.25;
   color: var(--text-primary);
 }
 
-.legendLink:hover .legendName {
-  color: var(--gs-gold);
-}
-
-.legendEpithet {
-  color: var(--text-secondary);
-  font-size: 0.95rem;
-  line-height: 1.5;
-}
-
-/* ---- Yüzey 3: tarih şeridi — tipografik dizin ---- */
-.timeline {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  border-top: 1px solid var(--sport-line);
-}
-
-.timelineLink {
-  display: grid;
-  grid-template-columns: minmax(0, 4.5rem) minmax(0, 1fr);
-  gap: var(--gap-lg);
-  align-items: baseline;
-  padding: 0.85rem 0;
-  border-bottom: 1px solid var(--sport-line);
-  color: inherit;
-  text-decoration: none;
-  min-height: var(--touch-min);
-  min-width: 0;
-}
-
-.timelineLink:hover .momentTitle {
-  color: var(--gs-gold);
-}
-
-.timelineLink:focus-visible {
-  outline: 2px solid var(--accent-hover);
-  outline-offset: 2px;
-}
-
-.year {
-  font-size: 1.35rem;
-  color: var(--gs-gold);
-  line-height: 1;
-}
-
-.momentTitle {
-  font-size: 1.0625rem;
-  line-height: 1.4;
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-
-/* ---- Kulüp listesi ---- */
 .clubList {
   list-style: none;
   margin: 0;
@@ -213,21 +61,33 @@
   min-height: var(--touch-min);
 }
 
+.clubLink:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 2px;
+}
+
 .clubName {
   font-family: var(--font-petrona), Georgia, serif;
   font-size: 1.25rem;
   font-weight: 700;
   overflow-wrap: anywhere;
   min-width: 0;
+  /* Öne adım `transform` ile — `padding-left` animasyonu her karede yerleşim
+     hesabı tetikliyor (ölçüm: tasarım dedektörü, layout-transition). */
+  transition:
+    color 320ms ease,
+    transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.clubLink:hover .clubName {
+.clubLink:hover .clubName,
+.clubLink:focus-visible .clubName {
   color: var(--gs-gold);
+  transform: translateX(0.6rem);
 }
 
-@media (max-width: 620px) {
-  .timelineLink {
-    grid-template-columns: minmax(0, 3.5rem) minmax(0, 1fr);
-    gap: var(--gap-md);
+@media (prefers-reduced-motion: reduce) {
+  .clubLink,
+  .clubName {
+    transition: none;
   }
 }

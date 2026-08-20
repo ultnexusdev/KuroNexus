@@ -1,0 +1,426 @@
+/* ============================================================
+   /spor/futbol · AÇILIŞ SAHNESİ
+
+   Renk sözü (brief): Deep Yellow + Electric Red + Stadium White.
+   Zemin ASLA #000 değil — üç radyal yıkamanın üst üste bindiği renkli bir
+   gece. Bu bölümün tek işi şu: sayfaya giren kişi ilk saniyede "bu bir arşiv
+   listesi değil" desin.
+   ============================================================ */
+
+.stage {
+  --amber: #f2b230;
+  --ember: #e0402f;
+  --indigo: #1b2a55;
+  --floor: #0b0d13;
+
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* Yapışkan header akışta yer kaplıyor; tam kıvrım onu düşmek zorunda. */
+  min-height: calc(100svh - var(--sp-header));
+  padding: clamp(4rem, 12vh, 8rem) var(--sp-gutter) clamp(6rem, 14vh, 9rem);
+  overflow: hidden;
+}
+
+/* ---- Katman kabı ---- */
+.atmosphere {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.atmosphere > * {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+/* ---- 1 · renk alanı ----
+   Üç yıkama: sol alttan kehribar (saha kenarı), sağdan kızıl (karşı tribün),
+   üstten çivit (gökyüzü). Hiçbiri tam doygun değil; üst üste bindiklerinde
+   ortada sıcak-nötr bir bölge kalıyor ve metin oraya oturuyor. */
+.field {
+  background:
+    radial-gradient(
+      120% 90% at 8% 108%,
+      color-mix(in srgb, var(--amber) 34%, transparent),
+      transparent 62%
+    ),
+    radial-gradient(
+      95% 80% at 104% 62%,
+      color-mix(in srgb, var(--ember) 30%, transparent),
+      transparent 58%
+    ),
+    radial-gradient(
+      130% 70% at 50% -18%,
+      color-mix(in srgb, var(--indigo) 62%, transparent),
+      transparent 70%
+    ),
+    linear-gradient(180deg, #10131c 0%, var(--floor) 100%);
+  /* Çok yavaş bir nefes — 26 sn. Fark edilmez, ama sabit durmadığı hissedilir. */
+  animation: breathe 26s ease-in-out infinite alternate;
+}
+
+/* ---- 2 · fotoğraf plakası ----
+   `screen` karışımı bilinçli: karenin koyu bölgeleri renk alanının içinde
+   kaybolur, YALNIZCA projektör ışıkları ve tribün parıltısı geçer. Yani
+   fotoğraf bir "kutu içindeki resim" değil, alanın içindeki ışık oluyor.
+   Kırpma maskesi alt kenarı çözüyor ki fotoğrafın bittiği yer görünmesin. */
+.plate {
+  overflow: hidden;
+  opacity: 0.62;
+  mix-blend-mode: screen;
+  transform: translate3d(
+    calc(var(--px, 0) * -6px),
+    calc(var(--py, 0) * -4px),
+    0
+  );
+  transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+  -webkit-mask-image: radial-gradient(
+    120% 100% at 50% 30%,
+    #000 30%,
+    transparent 78%
+  );
+  mask-image: radial-gradient(120% 100% at 50% 30%, #000 30%, transparent 78%);
+}
+
+.plate img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 34%;
+  /* Ham kare biraz mor ve düz; kontrast ve doygunluk kanadın sesine çekiliyor */
+  filter: saturate(1.15) contrast(1.18) brightness(0.92);
+}
+
+/* ---- 3 · projektör huzmeleri ----
+   İki koni. `conic-gradient` yerine döndürülmüş `linear-gradient` kullanıldı:
+   koni kenarının sertliği burada istenmiyor, huzmenin sisin içinde dağılması
+   isteniyor. Blur o dağılmayı veriyor. */
+.beams {
+  background:
+    linear-gradient(
+      104deg,
+      transparent 34%,
+      color-mix(in srgb, #fff6de 16%, transparent) 43%,
+      transparent 52%
+    ),
+    linear-gradient(
+      -96deg,
+      transparent 40%,
+      color-mix(in srgb, var(--amber) 20%, transparent) 49%,
+      transparent 58%
+    );
+  filter: blur(26px);
+  opacity: 0.85;
+  transform: translate3d(
+    calc(var(--px, 0) * -22px),
+    calc(var(--py, 0) * -14px),
+    0
+  );
+  transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
+  animation: sweep 19s ease-in-out infinite alternate;
+}
+
+/* ---- 4 · havada asılı toz ----
+   14 zerre. Konum ve süre `--i`den hesaplanıyor — rastgelelik yok, çünkü
+   sunucu/istemci aynı sayıyı üretmek zorunda. */
+.motes i {
+  position: absolute;
+  left: calc(4% + var(--i) * 6.8%);
+  bottom: -6%;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: color-mix(in srgb, #ffe9b8 78%, transparent);
+  box-shadow: 0 0 8px 2px color-mix(in srgb, var(--amber) 34%, transparent);
+  opacity: 0;
+  animation: rise calc(16s + var(--i) * 1.7s) linear infinite;
+  animation-delay: calc(var(--i) * -2.3s);
+}
+
+/* ---- 5 · vinyet ---- */
+.vignette {
+  background:
+    radial-gradient(
+      140% 110% at 50% 42%,
+      transparent 34%,
+      color-mix(in srgb, #05070c 72%, transparent) 100%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, #05070c 55%, transparent) 0%,
+      transparent 26%,
+      transparent 62%,
+      color-mix(in srgb, #05070c 82%, transparent) 100%
+    );
+}
+
+/* ============================================================
+   İÇERİK
+   ============================================================ */
+
+.body {
+  position: relative;
+  max-width: var(--sp-max);
+  width: 100%;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1rem, 2.4vw, 1.75rem);
+  min-width: 0;
+}
+
+/* Kelime bir başlık değil, kompozisyonun kendisi.
+   Satır yüksekliği tek satırlık bir kelimede kırpma üretmiyor; yine de
+   `padding-block` konuldu — kanadın "≥1.02" kuralı iki satır arasındaki
+   diyakritik çakışması içindi, burada geçerli olan tek risk kutu kenarı. */
+.word {
+  font-size: clamp(3.75rem, 15.5vw, 13rem);
+  font-weight: 900;
+  line-height: 0.92;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
+  padding-block: 0.06em;
+  margin: 0;
+  color: #fbf7ee;
+  /* Işığın harflerin arkasından geldiği hissi: yumuşak, ofsetli halo.
+     Sıfır ofsetli renkli halo dekorasyondur; bunun yönü var. */
+  text-shadow:
+    0 2px 0 color-mix(in srgb, #000 28%, transparent),
+    0 18px 60px color-mix(in srgb, var(--amber) 26%, transparent),
+    0 4px 22px color-mix(in srgb, #05070c 62%, transparent);
+}
+
+.statement {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15em;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: clamp(1.25rem, 2.9vw, 2.25rem);
+  font-weight: 700;
+  line-height: 1.24;
+  letter-spacing: -0.015em;
+  max-width: 22ch;
+  text-wrap: balance;
+}
+
+.statement span {
+  color: color-mix(in srgb, #efe9dc 82%, transparent);
+}
+
+/* Vurgu ağırlık ve renkle kuruluyor, gradient metinle değil. */
+.statement strong {
+  font-weight: 900;
+  color: var(--amber);
+}
+
+/* ============================================================
+   TABAN RAYI — künye şeridi
+   ============================================================ */
+
+.rail {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-lg);
+  flex-wrap: wrap;
+  padding: 0.9rem var(--sp-gutter);
+  border-top: 1px solid color-mix(in srgb, var(--amber) 22%, transparent);
+  background: linear-gradient(
+    180deg,
+    transparent,
+    color-mix(in srgb, #05070c 66%, transparent)
+  );
+  backdrop-filter: blur(2px);
+}
+
+.hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, #efe9dc 62%, transparent);
+}
+
+/* Kaydırma işareti: aşağı inen kısa bir çizgi. Emoji/ok karakteri değil,
+   çizilmiş bir işaret. */
+.hint i {
+  display: block;
+  width: 1px;
+  height: 1.5rem;
+  background: linear-gradient(180deg, var(--amber), transparent);
+  animation: drop 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  transform-origin: top;
+}
+
+.index {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: clamp(1rem, 3vw, 2.75rem);
+  min-width: 0;
+}
+
+.index li {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 0.35rem;
+}
+
+.indexLabel {
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, #efe9dc 78%, transparent);
+}
+
+/* Sayı üst simge boyunda: künye rayı bir istatistik kartı değil. */
+.indexCount {
+  font-size: 0.8125rem;
+  line-height: 1;
+  color: var(--amber);
+}
+
+/* ============================================================
+   HAREKET
+   ============================================================ */
+
+@keyframes breathe {
+  from {
+    background-position:
+      0% 100%,
+      100% 60%,
+      50% 0%,
+      0 0;
+  }
+  to {
+    background-position:
+      6% 96%,
+      94% 66%,
+      54% 4%,
+      0 0;
+  }
+}
+
+@keyframes sweep {
+  from {
+    background-position:
+      -12% 0,
+      12% 0;
+  }
+  to {
+    background-position:
+      14% 0,
+      -14% 0;
+  }
+}
+
+@keyframes rise {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0);
+  }
+  12% {
+    opacity: 0.75;
+  }
+  86% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(14px, -104vh, 0);
+  }
+}
+
+@keyframes drop {
+  0%,
+  100% {
+    transform: scaleY(0.3);
+    opacity: 0.35;
+  }
+  50% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+/* ============================================================
+   UYARLAMA
+   ============================================================ */
+
+@media (max-width: 760px) {
+  .stage {
+    min-height: calc(88svh - var(--sp-header));
+    padding-bottom: clamp(5rem, 16vh, 7rem);
+  }
+
+  .word {
+    font-size: clamp(3.25rem, 19vw, 6rem);
+  }
+
+  .statement {
+    font-size: clamp(1.125rem, 5vw, 1.5rem);
+    max-width: 18ch;
+  }
+
+  /* Mobilde blur + karışım katmanı pahalı; huzmeler sadeleşiyor. */
+  .beams {
+    filter: blur(18px);
+    opacity: 0.6;
+  }
+
+  .rail {
+    gap: 0.75rem;
+  }
+
+  .hint {
+    display: none;
+  }
+
+  .index {
+    gap: 1rem;
+    row-gap: 0.4rem;
+  }
+
+  .indexLabel {
+    font-size: 0.66rem;
+    letter-spacing: 0.14em;
+  }
+}
+
+/* Zerreler küçük ekranda hem görülmüyor hem pil yiyor. */
+@media (max-width: 560px), (prefers-reduced-motion: reduce) {
+  .motes {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .field,
+  .beams,
+  .hint i {
+    animation: none;
+  }
+
+  .plate,
+  .beams {
+    transition: none;
+    transform: none;
+  }
+}

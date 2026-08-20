@@ -1,0 +1,439 @@
+/* ============================================================
+   EFSANELER SALONU
+
+   Renk sözü (brief): Burgundy + Antique Gold + Vintage Cream.
+   Bu bölümün ısısı kulüp kapısından FARKLI olmak zorunda — orası bugünün
+   markası, burası arşiv kasedi. Aynı sayfada iki farklı sahne olduğunu
+   anlatan şey renk sıcaklığındaki bu kayma.
+   ============================================================ */
+
+.hall {
+  --burgundy: #5b1420;
+  --antique: #c8a24a;
+  --cream: #efe4cd;
+
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.75rem, 4vw, 3rem);
+  padding: clamp(3.5rem, 9vw, 7rem) var(--sp-gutter);
+  overflow: hidden;
+}
+
+/* ---- Atmosfer ---- */
+.atmosphere {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.plate {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 30%;
+  opacity: 0.24;
+  filter: sepia(0.6) saturate(0.8) contrast(1.05) brightness(0.62);
+}
+
+.wash {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      80% 70% at 16% 12%,
+      color-mix(in srgb, var(--burgundy) 66%, transparent),
+      transparent 62%
+    ),
+    radial-gradient(
+      70% 60% at 92% 88%,
+      color-mix(in srgb, var(--antique) 24%, transparent),
+      transparent 60%
+    ),
+    linear-gradient(180deg, #120a0c 0%, #0c0f15 100%);
+}
+
+/* Analog tarama çizgileri — 3 px'lik ritim, çok düşük opaklıkta.
+   Ekranda tek tek görünmüyor; yüzeyin "yayınlanmış" hissetmesini sağlıyor. */
+.scan {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    180deg,
+    color-mix(in srgb, #000 22%, transparent) 0 1px,
+    transparent 1px 3px
+  );
+  opacity: 0.35;
+  mix-blend-mode: multiply;
+}
+
+/* ---- Başlık ---- */
+.head {
+  max-width: var(--sp-max);
+  width: 100%;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.heading {
+  font-size: clamp(1.75rem, 4.2vw, 3.25rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  padding-block: 0.05em;
+  color: var(--cream);
+}
+
+.lede {
+  margin: 0;
+  font-size: var(--sp-lede);
+  line-height: 1.55;
+  max-width: 44ch;
+  color: color-mix(in srgb, var(--cream) 68%, transparent);
+}
+
+/* ============================================================
+   BAŞ EFSANE
+   ============================================================ */
+
+.lead {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 22rem) minmax(0, 1fr);
+  align-items: stretch;
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  max-width: var(--sp-max);
+  width: 100%;
+  margin-inline: auto;
+  padding: clamp(1.25rem, 3vw, 2.25rem);
+  border: 1px solid color-mix(in srgb, var(--antique) 28%, transparent);
+  border-radius: 2px;
+  background: linear-gradient(
+    128deg,
+    color-mix(in srgb, #1c1013 82%, transparent),
+    color-mix(in srgb, #0d0f16 72%, transparent)
+  );
+  box-shadow: 0 26px 70px -34px color-mix(in srgb, #000 92%, transparent);
+  color: inherit;
+  text-decoration: none;
+  transition:
+    border-color 460ms ease,
+    box-shadow 460ms ease;
+  min-width: 0;
+}
+
+.lead:focus-visible {
+  outline: 2px solid var(--antique);
+  outline-offset: 3px;
+}
+
+.lead:hover,
+.lead:focus-visible {
+  border-color: color-mix(in srgb, var(--antique) 70%, transparent);
+  box-shadow:
+    0 30px 90px -30px color-mix(in srgb, var(--burgundy) 80%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--antique) 22%, transparent);
+}
+
+.leadPortrait {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: 2px;
+  aspect-ratio: 3 / 4;
+  background: linear-gradient(150deg, #2a171b, #0e1016);
+}
+
+.leadPortrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 22%;
+  /* Durgun hâl: arşiv kaseti. */
+  filter: sepia(0.5) saturate(0.62) contrast(1.08) brightness(0.9);
+  transform: scale(1.02);
+  transition:
+    filter 720ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.lead:hover .leadPortrait img,
+.lead:focus-visible .leadPortrait img {
+  filter: sepia(0) saturate(1.12) contrast(1.04) brightness(1);
+  transform: scale(1.07);
+}
+
+/* Portre üstündeki altın ışık + eski film dokusu */
+.grain {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      90% 60% at 50% 108%,
+      color-mix(in srgb, var(--antique) 34%, transparent),
+      transparent 62%
+    ),
+    repeating-linear-gradient(
+      180deg,
+      color-mix(in srgb, #000 18%, transparent) 0 1px,
+      transparent 1px 4px
+    );
+  opacity: 0.6;
+  transition: opacity 620ms ease;
+}
+
+.lead:hover .grain,
+.lead:focus-visible .grain {
+  opacity: 0.3;
+}
+
+.leadBody {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(0.6rem, 1.5vw, 1rem);
+  min-width: 0;
+}
+
+.leadName {
+  font-size: clamp(2.75rem, 9vw, 7.5rem);
+  font-weight: 900;
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+  padding-block: 0.05em;
+  color: var(--cream);
+  transition: color 460ms ease;
+}
+
+.lead:hover .leadName,
+.lead:focus-visible .leadName {
+  color: var(--antique);
+}
+
+.leadEpithet {
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: clamp(1.125rem, 2.2vw, 1.625rem);
+  font-weight: 600;
+  font-style: italic;
+  line-height: 1.4;
+  max-width: 30ch;
+  color: color-mix(in srgb, var(--antique) 92%, #fff);
+}
+
+/* Künye: iki sütun, rakam Bebas ile. Hover'a bağlı DEĞİL. */
+.leadMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(1.25rem, 3vw, 2.5rem);
+  margin-top: 0.4rem;
+  padding-top: clamp(0.75rem, 2vw, 1.1rem);
+  border-top: 1px solid color-mix(in srgb, var(--antique) 24%, transparent);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.stat em {
+  font-style: normal;
+  font-size: clamp(1.25rem, 2.4vw, 1.75rem);
+  line-height: 1;
+  color: var(--cream);
+}
+
+.stat i {
+  font-style: normal;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--cream) 52%, transparent);
+}
+
+.open {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  min-height: var(--touch-min);
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.74rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--antique);
+}
+
+.open svg {
+  width: 1.05rem;
+  height: 1.05rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.lead:hover .open svg,
+.lead:focus-visible .open svg {
+  transform: translateX(4px);
+}
+
+/* ============================================================
+   DİĞER EFSANELER
+   ============================================================ */
+
+.row {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-width: var(--sp-max);
+  width: 100%;
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(14rem, 100%), 1fr));
+  gap: clamp(0.75rem, 2vw, 1.25rem);
+  min-width: 0;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--antique) 18%, transparent);
+  border-radius: 2px;
+  background: color-mix(in srgb, #150c0f 62%, transparent);
+  color: inherit;
+  text-decoration: none;
+  min-width: 0;
+  transition:
+    border-color 380ms ease,
+    background-color 380ms ease,
+    transform 460ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.card:hover,
+.card:focus-visible {
+  border-color: color-mix(in srgb, var(--antique) 58%, transparent);
+  background: color-mix(in srgb, #1d1114 78%, transparent);
+  transform: translateY(-3px);
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--antique);
+  outline-offset: 2px;
+}
+
+.cardPortrait {
+  display: block;
+  overflow: hidden;
+  border-radius: 1px;
+  aspect-ratio: 4 / 5;
+  background: linear-gradient(150deg, #2a171b, #0e1016);
+}
+
+.cardPortrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 22%;
+  filter: sepia(0.5) saturate(0.6) contrast(1.06) brightness(0.9);
+  transition: filter 620ms ease;
+}
+
+.card:hover .cardPortrait img,
+.card:focus-visible .cardPortrait img {
+  filter: sepia(0) saturate(1.1) brightness(1);
+}
+
+/* Portresi olmayan kayıt: boş çerçeve değil, renkli bir doku. */
+.cardFallback {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background:
+    radial-gradient(
+      70% 60% at 50% 18%,
+      color-mix(in srgb, var(--antique) 30%, transparent),
+      transparent 68%
+    ),
+    linear-gradient(150deg, #34191f, #101219);
+}
+
+.cardName {
+  font-size: 1.375rem;
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--cream);
+  overflow-wrap: anywhere;
+}
+
+.cardEpithet {
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  color: color-mix(in srgb, var(--cream) 62%, transparent);
+}
+
+.cardYears {
+  color: color-mix(in srgb, var(--antique) 88%, transparent);
+}
+
+/* ============================================================
+   UYARLAMA
+   ============================================================ */
+
+@media (max-width: 860px) {
+  .lead {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.25rem;
+  }
+
+  .leadPortrait {
+    aspect-ratio: 16 / 11;
+  }
+
+  .leadPortrait img {
+    object-position: 50% 18%;
+  }
+
+  .leadName {
+    font-size: clamp(2.5rem, 13vw, 4rem);
+  }
+}
+
+/* Hover'ı olmayan cihazda portre BAŞTAN renkli — efekt bilgi taşımıyor. */
+@media (hover: none) {
+  .leadPortrait img,
+  .cardPortrait img {
+    filter: sepia(0.12) saturate(1.02) brightness(0.98);
+  }
+
+  .grain {
+    opacity: 0.34;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .leadPortrait img,
+  .cardPortrait img,
+  .card,
+  .open svg,
+  .leadName,
+  .grain {
+    transition: none;
+  }
+}

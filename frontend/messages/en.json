@@ -2026,7 +2026,24 @@
       "legends": "Legends",
       "history": "From the history",
       "clubs": "Clubs",
-      "allLegends": "All legends"
+      "allLegends": "All legends",
+      "statementA": "Some nights are not just played.",
+      "statementB": "They are remembered.",
+      "scroll": "Scroll",
+      "indexClubs": "Clubs",
+      "indexLegends": "Legends",
+      "indexPlayers": "Players",
+      "indexStories": "Stories",
+      "enterClub": "Enter the archive",
+      "legendsLede": "The faces a club's memory keeps. Every portrait opens its own page.",
+      "legendOpen": "Open the legend",
+      "legendYears": "Years",
+      "favourites": "Favourite players",
+      "favouritesLede": "A personal selection. Not who played, but who stayed with me.",
+      "playerOpen": "Open profile",
+      "historyLede": "The light warms as you descend. Every year is a scene.",
+      "credits": "Image credits",
+      "otherClubs": "Other clubs in the archive"
     },
     "club": {
       "founded": "Founded",
@@ -2218,6 +2235,25 @@
         "timeout": "The sync is taking longer than expected; it may still be running in the background.",
         "error": "Could not refresh. Try again."
       }
+    },
+    "favourite": {
+      "back": "Players",
+      "route": "Sections",
+      "story": "The story",
+      "career": "Career journey",
+      "nights": "Unforgettable nights",
+      "moments": "Favourite moments",
+      "gallery": "Gallery",
+      "momentsLede": "The most personal part of the archive. Not the goal, but how the goal happened.",
+      "nightsLede": "The nights the archive kept — each with the reason it is remembered.",
+      "careerLede": "Scroll. Every stop brings its own light.",
+      "galleryLede": "Tap a frame to open it full size.",
+      "open": "Open",
+      "close": "Close",
+      "prevImage": "Previous image",
+      "nextImage": "Next image",
+      "credits": "Image credits",
+      "figure": "Details"
     }
   },
   "music": {

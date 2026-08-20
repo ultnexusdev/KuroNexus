@@ -1,0 +1,442 @@
+/* ============================================================
+   ÖNE ÇIKAN DÜNYA · kulüp kapısı
+
+   Renk sözü (brief): Crimson Red + Golden Yellow + Warm Orange.
+   Bunlar kulübün MARKA renkleri (`--gs-brand-*`), arşivin geceye çekilmiş
+   tonları değil: bu bant sayfanın en yüksek doygunluk noktası ve öyle
+   kalması gerekiyor — hiyerarşi burada renkle kuruluyor.
+   ============================================================ */
+
+.gate {
+  --crimson: var(--gs-brand-red, #c8102e);
+  --golden: var(--gs-brand-yellow, #ffc72c);
+  --orange: #f2782c;
+
+  position: relative;
+  padding-inline: var(--sp-gutter);
+}
+
+.link {
+  position: relative;
+  display: block;
+  max-width: var(--sp-max);
+  margin-inline: auto;
+  min-height: clamp(24rem, 62vh, 40rem);
+  border-radius: 2px;
+  overflow: hidden;
+  color: inherit;
+  text-decoration: none;
+  isolation: isolate;
+  /* Derinlik: ofsetli ve yumuşak. Sıfır ofsetli renkli halo dekorasyondur. */
+  box-shadow:
+    0 24px 70px -30px color-mix(in srgb, var(--crimson) 55%, transparent),
+    0 2px 0 0 color-mix(in srgb, var(--golden) 30%, transparent);
+  transition: box-shadow 520ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--golden);
+  outline-offset: 3px;
+}
+
+.link:hover,
+.link:focus-visible {
+  box-shadow:
+    0 34px 90px -28px color-mix(in srgb, var(--crimson) 72%, transparent),
+    0 2px 0 0 var(--golden);
+}
+
+/* ---- Görsel çerçeve ---- */
+.frame {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  display: block;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      90% 120% at 88% 8%,
+      color-mix(in srgb, var(--crimson) 46%, transparent),
+      transparent 58%
+    ),
+    radial-gradient(
+      80% 100% at 6% 96%,
+      color-mix(in srgb, var(--golden) 30%, transparent),
+      transparent 55%
+    ),
+    linear-gradient(160deg, #1a0d10 0%, #0b0d13 100%);
+}
+
+.cover {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 38%;
+  opacity: 0.5;
+  filter: saturate(1.1) contrast(1.12) brightness(0.78);
+  transform: scale(var(--cover-scale, 1.04));
+  transform-origin: 60% 45%;
+  transition:
+    transform 900ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 520ms ease,
+    filter 520ms ease;
+}
+
+.link:hover .cover,
+.link:focus-visible .cover {
+  transform: scale(calc(var(--cover-scale, 1.04) * 1.07));
+  opacity: 0.62;
+  filter: saturate(1.28) contrast(1.16) brightness(0.86);
+}
+
+/* ---- Işık patlaması: kadraj dışından sızan iki renk ---- */
+.burst {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      44% 62% at 96% 12%,
+      color-mix(in srgb, var(--crimson) 62%, transparent),
+      transparent 68%
+    ),
+    radial-gradient(
+      40% 52% at 2% 92%,
+      color-mix(in srgb, var(--orange) 42%, transparent),
+      transparent 66%
+    );
+  mix-blend-mode: screen;
+  opacity: 0.72;
+  transition: opacity 520ms ease;
+}
+
+.link:hover .burst,
+.link:focus-visible .burst {
+  opacity: 1;
+}
+
+/* ---- Lens parlaması: tek bir eğik huzme, hover'da soldan geçiyor ---- */
+.flare {
+  position: absolute;
+  inset: -30% -10%;
+  background: linear-gradient(
+    102deg,
+    transparent 40%,
+    color-mix(in srgb, var(--golden) 26%, transparent) 48%,
+    color-mix(in srgb, #fff6de 32%, transparent) 50%,
+    transparent 60%
+  );
+  filter: blur(14px);
+  opacity: 0.35;
+  transform: translate3d(-16%, 0, 0);
+  transition:
+    transform 1100ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 520ms ease;
+}
+
+.link:hover .flare,
+.link:focus-visible .flare {
+  opacity: 0.85;
+  transform: translate3d(16%, 0, 0);
+}
+
+/* ---- Duman: çok yavaş sürüklenen düşük kontrastlı bir doku ---- */
+.smoke {
+  position: absolute;
+  inset: -20%;
+  background:
+    radial-gradient(
+      30% 40% at 24% 70%,
+      color-mix(in srgb, #ffd9a0 12%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      36% 30% at 72% 34%,
+      color-mix(in srgb, #ffb3a0 10%, transparent),
+      transparent 70%
+    );
+  filter: blur(30px);
+  animation: drift 34s ease-in-out infinite alternate;
+}
+
+/* ---- Okunurluk maskesi ---- */
+.veil {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+      12deg,
+      color-mix(in srgb, #05070c 88%, transparent) 4%,
+      color-mix(in srgb, #05070c 54%, transparent) 42%,
+      transparent 72%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, #05070c 46%, transparent) 0%,
+      transparent 34%
+    );
+}
+
+/* ---- Kor parçacıkları: yukarı süzülen ışık ---- */
+.embers {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.embers i {
+  position: absolute;
+  left: calc(6% + var(--i) * 9.2%);
+  bottom: -4%;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--golden) 88%, #fff);
+  box-shadow: 0 0 10px 2px color-mix(in srgb, var(--orange) 46%, transparent);
+  opacity: 0;
+  animation: float calc(13s + var(--i) * 1.9s) linear infinite;
+  animation-delay: calc(var(--i) * -1.9s);
+}
+
+/* ============================================================
+   GÖVDE
+   ============================================================ */
+
+.body {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(0.5rem, 1.4vw, 0.9rem);
+  height: 100%;
+  min-height: clamp(24rem, 62vh, 40rem);
+  padding: clamp(1.75rem, 4.5vw, 3.5rem);
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+/* Soyut kulüp işareti — telifli logonun yerine geometri. */
+.crest {
+  display: block;
+  width: clamp(2.25rem, 4vw, 3.25rem);
+  margin-bottom: auto;
+  opacity: 0.55;
+  transition:
+    opacity 520ms ease,
+    transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.crest svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.link:hover .crest,
+.link:focus-visible .crest {
+  opacity: 1;
+  transform: rotate(-8deg);
+}
+
+.ring1,
+.ring2 {
+  fill: none;
+  stroke: var(--golden);
+  stroke-width: 2;
+}
+
+.ring2 {
+  stroke: color-mix(in srgb, var(--crimson) 80%, #fff);
+}
+
+.axis {
+  stroke: color-mix(in srgb, var(--golden) 60%, transparent);
+  stroke-width: 1;
+}
+
+.half {
+  fill: color-mix(in srgb, var(--crimson) 62%, transparent);
+}
+
+.name {
+  font-size: clamp(2.5rem, 8.5vw, 7rem);
+  font-weight: 900;
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
+  padding-block: 0.05em;
+  color: #fbf7ee;
+  text-shadow:
+    0 2px 0 color-mix(in srgb, #000 34%, transparent),
+    0 16px 54px color-mix(in srgb, var(--crimson) 42%, transparent);
+  transition: color 420ms ease;
+}
+
+.link:hover .name,
+.link:focus-visible .name {
+  color: var(--golden);
+}
+
+.nickname {
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--golden) 88%, #fff);
+}
+
+.tagline {
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: clamp(1.0625rem, 1.7vw, 1.375rem);
+  font-weight: 600;
+  line-height: 1.5;
+  max-width: 34ch;
+  color: color-mix(in srgb, #efe9dc 88%, transparent);
+  text-wrap: pretty;
+}
+
+.foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-md);
+  width: 100%;
+  margin-top: clamp(0.75rem, 2vw, 1.5rem);
+  padding-top: clamp(0.75rem, 2vw, 1.25rem);
+  border-top: 1px solid color-mix(in srgb, var(--golden) 26%, transparent);
+  min-width: 0;
+}
+
+.meta {
+  color: color-mix(in srgb, #efe9dc 66%, transparent);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Eylem etiketi HER ZAMAN görünür — hover yalnızca oku ittiriyor. */
+.enter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.5rem 1rem;
+  min-height: var(--touch-min);
+  border: 1px solid color-mix(in srgb, var(--golden) 50%, transparent);
+  border-radius: 2px;
+  background: color-mix(in srgb, #05070c 42%, transparent);
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.74rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--golden);
+  white-space: nowrap;
+  transition:
+    background-color 420ms ease,
+    border-color 420ms ease,
+    color 420ms ease;
+}
+
+.enter svg {
+  width: 1.05rem;
+  height: 1.05rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.link:hover .enter,
+.link:focus-visible .enter {
+  background: var(--golden);
+  border-color: var(--golden);
+  color: #1a0d10;
+}
+
+.link:hover .enter svg,
+.link:focus-visible .enter svg {
+  transform: translateX(4px);
+}
+
+/* ============================================================
+   HAREKET
+   ============================================================ */
+
+@keyframes drift {
+  from {
+    transform: translate3d(-2%, 1%, 0) scale(1);
+  }
+  to {
+    transform: translate3d(3%, -2%, 0) scale(1.08);
+  }
+}
+
+@keyframes float {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0);
+  }
+  14% {
+    opacity: 0.9;
+  }
+  80% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(-18px, -46vh, 0);
+  }
+}
+
+/* ============================================================
+   UYARLAMA
+   ============================================================ */
+
+@media (max-width: 760px) {
+  .gate {
+    padding-inline: 0;
+  }
+
+  .link,
+  .body {
+    min-height: clamp(21rem, 74svh, 30rem);
+  }
+
+  .link {
+    border-radius: 0;
+  }
+
+  .name {
+    font-size: clamp(2.25rem, 12vw, 3.5rem);
+  }
+
+  .foot {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .smoke,
+  .embers {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cover,
+  .flare,
+  .crest,
+  .enter svg,
+  .name {
+    transition: none;
+  }
+
+  .smoke,
+  .embers i {
+    animation: none;
+  }
+
+  .embers {
+    display: none;
+  }
+}

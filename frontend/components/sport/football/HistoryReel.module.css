@@ -1,0 +1,336 @@
+/* ============================================================
+   TARİHTEN · sinematik şerit
+
+   Renk şeridin İÇİNDEN geliyor: her kayıt `--tone` ve `--deep` taşıyor,
+   yıla göre hesaplanmış. Şerit aşağı indikçe ısınıyor — solmuş kâğıttan
+   doygun geceye.
+   ============================================================ */
+
+.reel {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.75rem, 4vw, 3rem);
+  padding: clamp(3.5rem, 9vw, 7rem) var(--sp-gutter);
+  overflow: hidden;
+}
+
+.atmosphere {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.wash {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      70% 46% at 12% 4%,
+      color-mix(in srgb, #3a2c17 66%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      80% 56% at 88% 100%,
+      color-mix(in srgb, #3a0d16 72%, transparent),
+      transparent 62%
+    ),
+    linear-gradient(180deg, #0c0f15 0%, #0a0c12 100%);
+}
+
+/* Eski kâğıt dokusu: iki yönde çok ince çizgi ızgarası. Üstte belirgin,
+   aşağı indikçe kayboluyor — geçmişten bugüne. */
+.paper {
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      color-mix(in srgb, #d8c9a5 6%, transparent) 0 1px,
+      transparent 1px 6px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, #d8c9a5 4%, transparent) 0 1px,
+      transparent 1px 22px
+    );
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, transparent 58%);
+  mask-image: linear-gradient(180deg, #000 0%, transparent 58%);
+}
+
+/* ---- Başlık ---- */
+.head {
+  max-width: var(--sp-max);
+  width: 100%;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.heading {
+  font-size: clamp(1.75rem, 4.2vw, 3.25rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  padding-block: 0.05em;
+  color: #f0e8d8;
+}
+
+.lede {
+  margin: 0;
+  font-size: var(--sp-lede);
+  line-height: 1.55;
+  max-width: 46ch;
+  color: var(--text-secondary);
+}
+
+/* ============================================================
+   ŞERİT
+   ============================================================ */
+
+.frame {
+  position: relative;
+  max-width: var(--sp-max);
+  width: 100%;
+  margin-inline: auto;
+  min-width: 0;
+}
+
+/* Omurga — sol kenarda, kayıt düğümlerinin geçtiği çizgi */
+.spine {
+  position: absolute;
+  left: clamp(3.4rem, 7vw, 6.4rem);
+  top: 1.5rem;
+  bottom: 1.5rem;
+  width: 1px;
+  background: color-mix(in srgb, #d8c9a5 14%, transparent);
+}
+
+/* Doluluk `scaleY` ile büyüyor, `height` ile değil: yükseklik animasyonu her
+   karede yerleşim hesabı tetikliyor, ölçek yalnızca kompozitörü çalıştırıyor.
+   Yükseklik tam boy, oran satır içi `--fill` değişkeninden geliyor. */
+.spine span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-origin: top;
+  transform: scaleY(var(--fill, 0));
+  background: linear-gradient(180deg, #b99a5e, #d9a62e 60%, #ffc72c);
+  box-shadow: 0 0 12px 1px rgba(217, 166, 46, 0.4);
+  transition: transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: none;
+  min-width: 0;
+}
+
+.list > li {
+  position: relative;
+  min-width: 0;
+}
+
+.entry {
+  position: relative;
+  display: grid;
+  grid-template-columns: clamp(3.4rem, 7vw, 6.4rem) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(1.25rem, 3.5vw, 3rem);
+  padding: clamp(1.5rem, 4.2vw, 3rem) 0;
+  color: inherit;
+  text-decoration: none;
+  min-height: var(--touch-min);
+  min-width: 0;
+}
+
+.entry:focus-visible {
+  outline: 2px solid var(--tone);
+  outline-offset: 4px;
+}
+
+/* Kaydın kendi ışığı — durgun hâlde kısık, aktif olunca açılıyor. */
+.glow {
+  position: absolute;
+  inset: -10% -6%;
+  z-index: -1;
+  background:
+    radial-gradient(
+      52% 74% at 6% 50%,
+      color-mix(in srgb, var(--tone) 26%, transparent),
+      transparent 64%
+    ),
+    linear-gradient(
+      92deg,
+      color-mix(in srgb, var(--deep) 62%, transparent),
+      transparent 58%
+    );
+  opacity: 0;
+  transition: opacity 620ms ease;
+  pointer-events: none;
+}
+
+.list > li[data-active] .glow {
+  opacity: 1;
+}
+
+/* Kupa gecesi: ışık zirvede. */
+.list > li[data-peak][data-active] .glow {
+  opacity: 1;
+  background:
+    radial-gradient(
+      64% 92% at 10% 50%,
+      color-mix(in srgb, var(--tone) 44%, transparent),
+      transparent 66%
+    ),
+    radial-gradient(
+      50% 70% at 92% 40%,
+      color-mix(in srgb, #c8102e 34%, transparent),
+      transparent 62%
+    ),
+    linear-gradient(
+      92deg,
+      color-mix(in srgb, var(--deep) 80%, transparent),
+      transparent 62%
+    );
+}
+
+/* Omurga üstündeki düğüm */
+.node {
+  position: absolute;
+  left: clamp(3.4rem, 7vw, 6.4rem);
+  top: 50%;
+  width: 9px;
+  height: 9px;
+  margin-left: -4px;
+  margin-top: -4.5px;
+  border-radius: 50%;
+  background: #0c0f15;
+  border: 1px solid color-mix(in srgb, #d8c9a5 40%, transparent);
+  transition:
+    background-color 460ms ease,
+    border-color 460ms ease,
+    box-shadow 460ms ease,
+    transform 460ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.list > li[data-active] .node {
+  background: var(--tone);
+  border-color: var(--tone);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--tone) 18%, transparent);
+  transform: scale(1.25);
+}
+
+/* ---- Yıl: bölümün en büyük rakamı ---- */
+.year {
+  justify-self: end;
+  font-size: clamp(1.75rem, 4.6vw, 3.5rem);
+  line-height: 0.9;
+  color: color-mix(in srgb, var(--tone) 52%, transparent);
+  transition:
+    color 520ms ease,
+    transform 620ms cubic-bezier(0.22, 1, 0.36, 1),
+    text-shadow 520ms ease;
+  transform-origin: right center;
+}
+
+.list > li[data-active] .year {
+  color: var(--tone);
+  transform: scale(1.1);
+  text-shadow: 0 8px 34px color-mix(in srgb, var(--tone) 46%, transparent);
+}
+
+/* ---- Metin ---- */
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding-left: clamp(1rem, 2.5vw, 2rem);
+  border-left: 1px solid transparent;
+  min-width: 0;
+}
+
+.kind {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--tone) 62%, transparent);
+  transition: color 520ms ease;
+}
+
+.list > li[data-active] .kind {
+  color: color-mix(in srgb, var(--tone) 95%, #fff);
+}
+
+.title {
+  font-size: clamp(1.375rem, 3.4vw, 2.5rem);
+  font-weight: 800;
+  line-height: 1.14;
+  letter-spacing: -0.02em;
+  color: color-mix(in srgb, #f0e8d8 64%, transparent);
+  transition: color 520ms ease;
+  overflow-wrap: anywhere;
+}
+
+.list > li[data-active] .title,
+.entry:hover .title {
+  color: #fbf7ee;
+}
+
+/* ============================================================
+   UYARLAMA
+   ============================================================ */
+
+@media (max-width: 720px) {
+  .spine {
+    left: 2.6rem;
+  }
+
+  .entry {
+    grid-template-columns: 2.6rem minmax(0, 1fr);
+    gap: 1rem;
+    padding: 1.5rem 0;
+  }
+
+  .node {
+    left: 2.6rem;
+  }
+
+  .year {
+    /* Mobilde yıl yatay yerine ölçek olarak küçülüyor; dikey yazı okunmaz. */
+    font-size: 1.25rem;
+    justify-self: start;
+    transform-origin: left center;
+  }
+
+  .list > li[data-active] .year {
+    transform: scale(1.06);
+  }
+
+  .text {
+    padding-left: 1rem;
+  }
+
+  .title {
+    font-size: clamp(1.125rem, 5.4vw, 1.5rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spine span,
+  .glow,
+  .node,
+  .year,
+  .kind,
+  .title {
+    transition: none;
+  }
+}

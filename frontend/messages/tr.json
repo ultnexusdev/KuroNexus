@@ -2026,7 +2026,24 @@
       "legends": "Efsaneler",
       "history": "Tarihten",
       "clubs": "Kulüpler",
-      "allLegends": "Tüm efsaneler"
+      "allLegends": "Tüm efsaneler",
+      "statementA": "Bazı geceler sadece oynanmaz.",
+      "statementB": "Hatırlanır.",
+      "scroll": "Aşağı",
+      "indexClubs": "Kulüpler",
+      "indexLegends": "Efsaneler",
+      "indexPlayers": "Futbolcular",
+      "indexStories": "Hikâyeler",
+      "enterClub": "Arşive gir",
+      "legendsLede": "Bir kulübün hafızasında kalan yüzler. Her portre kendi sayfasını açar.",
+      "legendOpen": "Efsaneye git",
+      "legendYears": "Yıllar",
+      "favourites": "Favori futbolcular",
+      "favouritesLede": "Kişisel seçki. Kimin oynadığı değil, kimin aklımda kaldığı.",
+      "playerOpen": "Profili aç",
+      "historyLede": "Aşağı indikçe ışık ısınıyor. Her yıl bir sahne.",
+      "credits": "Görsel künyesi",
+      "otherClubs": "Arşivdeki diğer kulüpler"
     },
     "club": {
       "founded": "Kuruluş",
@@ -2218,6 +2235,25 @@
         "timeout": "Senkron beklenenden uzun sürdü; arka planda devam ediyor olabilir.",
         "error": "Tazelenemedi. Tekrar dene."
       }
+    },
+    "favourite": {
+      "back": "Futbolcular",
+      "route": "Bölümler",
+      "story": "Hikâyesi",
+      "career": "Kariyer yolculuğu",
+      "nights": "Unutulmaz geceler",
+      "moments": "Favori anlar",
+      "gallery": "Galeri",
+      "momentsLede": "Bu bölüm arşivin en kişisel yeri. Golün kendisi değil, nasıl olduğu.",
+      "nightsLede": "Arşivin sakladığı geceler — her biri neden hatırlandığıyla birlikte.",
+      "careerLede": "Kaydır. Her durak kendi ışığını getiriyor.",
+      "galleryLede": "Bir kareye dokun, tam boy açılsın.",
+      "open": "Aç",
+      "close": "Kapat",
+      "prevImage": "Önceki görsel",
+      "nextImage": "Sonraki görsel",
+      "credits": "Görsel künyesi",
+      "figure": "Künye"
     }
   },
   "music": {

@@ -19,6 +19,15 @@ export const sportHref = {
   legend: (slug: string) => `/spor/futbol/efsaneler/${slug}`,
   /** Eski `/futbol/oyuncu/[id]` rotasının yeni yeri */
   player: (id: string) => `/spor/futbol/oyuncu/${id}`,
+  /**
+   * Favori futbolcu profili — `lib/sport/favourite-players.ts` defterindeki
+   * kayıtların sayfası.
+   *
+   * `player()` ile karıştırma: o, canlı kadro verisinden gelen bir oyuncunun
+   * künyesi (TFF kimliğiyle). Bu, küratörün SEÇTİĞİ bir futbolcunun kendi
+   * atmosferiyle açılan profili. İki farklı kaynak, iki farklı ağaç.
+   */
+  favouritePlayer: (slug: string) => `/spor/futbol/futbolcular/${slug}`,
 
   f1: () => "/spor/formula-1",
   circuits: () => "/spor/formula-1/pistler",
@@ -57,6 +66,10 @@ export const RESERVED_CLUB_SLUGS = new Set([
   "turnuvalar",
   "tarih",
   "oyuncu",
+  // 20 Ağustos 2026'da eklendi — `futbolcular` artık gerçek bir statik segment
+  // (`favouritePlayer()`). Listeye yazılmasaydı bu adda bir kulüp kaydı
+  // açıldığında kulüp sayfası sessizce erişilemez olurdu.
+  "futbolcular",
 ]);
 
 /**

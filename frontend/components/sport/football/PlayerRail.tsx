@@ -1,0 +1,207 @@
+"use client";
+
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Link } from "@/lib/i18n/navigation";
+import { sportHref } from "@/lib/sport/routes";
+import type { FavouritePlayer } from "@/lib/sport/favourite-players";
+import shell from "@/app/[locale]/spor/layout.module.css";
+import styles from "./PlayerRail.module.css";
+
+export interface PlayerRailLabels {
+  title: string;
+  lede: string;
+  open: string;
+  prev: string;
+  next: string;
+}
+
+/**
+ * FAVORİ FUTBOLCULAR — yatay kart rayı.
+ *
+ * ── NEDEN IZGARA DEĞİL ───────────────────────────────────────────────────
+ * Brief açıkça "standart küçük kart grid'i" istemiyor ve haklı: ızgara
+ * kayıtları EŞİT gösterir, bu bölüm ise bir SEÇKİ — eşitlik burada anlam
+ * kaybı. Yatay ray hem seçkinin sırasını görünür kılıyor hem de kartların
+ * poster boyunda kalmasına izin veriyor.
+ *
+ * ── TEK KAYITLA DA ÇALIŞMASI ─────────────────────────────────────────────
+ * Bugün defterde bir futbolcu var. Tek kartlık bir ray "bozuk ray" gibi
+ * görünürdü — efsaneler ızgarasında yaşanan hatanın aynısı. Çözüm: İLK kart
+ * her zaman çift genişlikte. Tek kayıtta bant dolu görünüyor, ikinci kayıt
+ * eklendiğinde ray kendiliğinden ray oluyor.
+ *
+ * ── KAYDIRMA KONTROLLERİ ─────────────────────────────────────────────────
+ * Oklar yalnızca kaydırılacak bir şey VARSA çiziliyor ve durumları gerçek
+ * kaydırma konumundan okunuyor (`scrollLeft`), tahmin edilmiyor. Dokunmatik
+ * cihaz zaten parmakla kaydırıyor; oklar orada gizlenmiyor ama gerekmiyor da.
+ * Klavye: ray `tabindex` almıyor, kartların kendisi odaklanabilir ve tarayıcı
+ * odaklanan kartı görünür alana kendisi getiriyor.
+ */
+export function PlayerRail({
+  players,
+  labels,
+}: {
+  players: FavouritePlayer[];
+  labels: PlayerRailLabels;
+}) {
+  const trackRef = useRef<HTMLUListElement | null>(null);
+  const [overflow, setOverflow] = useState(false);
+  const [atStart, setAtStart] = useState(true);
+  const [atEnd, setAtEnd] = useState(false);
+
+  const measure = useCallback(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    const slack = el.scrollWidth - el.clientWidth;
+    setOverflow(slack > 8);
+    setAtStart(el.scrollLeft <= 8);
+    setAtEnd(el.scrollLeft >= slack - 8);
+  }, []);
+
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    measure();
+    el.addEventListener("scroll", measure, { passive: true });
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => {
+      el.removeEventListener("scroll", measure);
+      observer.disconnect();
+    };
+  }, [measure]);
+
+  const nudge = (direction: 1 | -1) => {
+    const el = trackRef.current;
+    if (!el) return;
+    // Bir kart genişliği kadar: sabit piksel yazmak kart boyu clamp'lendiği
+    // için yanlış olurdu.
+    const card = el.querySelector("li");
+    const step = card ? card.getBoundingClientRect().width + 24 : el.clientWidth * 0.8;
+    el.scrollBy({ left: step * direction, behavior: "smooth" });
+  };
+
+  if (players.length === 0) return null;
+
+  return (
+    <section className={styles.band} aria-labelledby="futbol-favoriler">
+      <div className={styles.atmosphere} aria-hidden="true">
+        <span className={styles.wash} />
+        <span className={styles.grid} />
+      </div>
+
+      <header className={styles.head}>
+        <div className={styles.headText}>
+          <h2
+            id="futbol-favoriler"
+            className={`${shell.display} ${styles.heading}`}
+          >
+            {labels.title}
+          </h2>
+          <p className={styles.lede}>{labels.lede}</p>
+        </div>
+
+        {overflow ? (
+          <div className={styles.controls}>
+            <button
+              type="button"
+              onClick={() => nudge(-1)}
+              disabled={atStart}
+              aria-label={labels.prev}
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M15 5l-7 7 7 7" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              onClick={() => nudge(1)}
+              disabled={atEnd}
+              aria-label={labels.next}
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+        ) : null}
+      </header>
+
+      <ul className={styles.track} ref={trackRef}>
+        {players.map((player, i) => (
+          <li key={player.slug} data-lead={i === 0 ? "" : undefined}>
+            <Link
+              href={sportHref.favouritePlayer(player.slug)}
+              className={styles.card}
+              style={
+                {
+                  "--ink": player.palette.ink,
+                  "--accent": player.palette.accent,
+                  "--warm": player.palette.warm,
+                  "--glow": player.palette.glow,
+                  "--neon": player.palette.neon,
+                } as React.CSSProperties
+              }
+            >
+              <span className={styles.scene} aria-hidden="true">
+                <span className={styles.spot} />
+                <span className={styles.beam} />
+                {/* Dev soyad, figürün ARKASINDA. Bir başlık değil,
+                    kompozisyonun zemin katmanı — o yüzden aria-hidden. */}
+                <span className={`${shell.display} ${styles.ghost}`}>
+                  {player.lastName}
+                </span>
+              </span>
+
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={player.figure.src}
+                alt=""
+                className={styles.figure}
+                width={player.figure.width}
+                height={player.figure.height}
+                loading="lazy"
+                decoding="async"
+              />
+
+              <span className={styles.shade} aria-hidden="true" />
+
+              <div className={styles.body}>
+                {player.shirt !== null ? (
+                  <span
+                    className={`${shell.figure} ${styles.shirt}`}
+                    aria-hidden="true"
+                  >
+                    {player.shirt}
+                  </span>
+                ) : null}
+
+                <span className={styles.role}>
+                  {player.position} · {player.club}
+                </span>
+
+                <h3 className={`${shell.display} ${styles.name}`}>
+                  {player.name}
+                </h3>
+
+                <span className={styles.tagline}>{player.tagline}</span>
+
+                <span className={styles.foot}>
+                  <span className={`${shell.data} ${styles.origin}`}>
+                    {player.country} · {player.birthYear}
+                  </span>
+                  <span className={styles.open}>
+                    {labels.open}
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M4 12h15M13 6l6 6-6 6" />
+                    </svg>
+                  </span>
+                </span>
+              </div>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}

@@ -1,0 +1,365 @@
+/* ============================================================
+   FAVORİ FUTBOLCU PROFİLİ
+
+   Palet sayfanın kökünde (`--ink / --accent / --warm / --glow / --neon`),
+   veriden geliyor. Aşağıdaki hiçbir kural sabit renk yazmıyor — yeni bir
+   futbolcu eklendiğinde bu dosyaya dokunulmuyor.
+
+   Sayfanın ritmi bilinçli: SAHNE (ışık) → HİKÂYE (sessiz) → KARİYER (hareket)
+   → GECELER (ışık) → ANLAR (sessiz) → GALERİ (yoğun). Yoğun bir bölümden
+   sonra her zaman bir nefes var; yoksa sayfa tek bir uzun gürültü olurdu.
+   ============================================================ */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  /* Zemin: yalnızca sahne değil, sayfanın tamamı renkli bir gece.
+     Düz #0c0f15 üstünde bölümlerin ışığı "kutu" gibi duruyordu. */
+  background:
+    radial-gradient(
+      120% 40% at 84% 0%,
+      color-mix(in srgb, var(--neon) 14%, transparent),
+      transparent 62%
+    ),
+    radial-gradient(
+      110% 46% at 4% 62%,
+      color-mix(in srgb, var(--warm) 12%, transparent),
+      transparent 60%
+    ),
+    linear-gradient(180deg, color-mix(in srgb, var(--ink) 60%, #0c0f15), #0a0c12);
+}
+
+.crumb {
+  position: relative;
+  z-index: 2;
+  margin-bottom: calc(var(--touch-min) * -1);
+}
+
+/* ---- Ortak bölüm başlığı ---- */
+.sectionHead {
+  max-width: var(--sp-max);
+  width: 100%;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.sectionHeading {
+  font-size: clamp(1.75rem, 4.2vw, 3.25rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  padding-block: 0.05em;
+  color: #f3efe6;
+}
+
+.sectionLede {
+  margin: 0;
+  font-size: var(--sp-lede);
+  line-height: 1.55;
+  max-width: 46ch;
+  color: var(--text-secondary);
+}
+
+/* ============================================================
+   HİKÂYESİ
+   ============================================================ */
+
+.story {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.5rem, 4vw, 2.75rem);
+  padding: clamp(3.5rem, 9vw, 7rem) var(--sp-gutter);
+  max-width: var(--sp-max);
+  width: 100%;
+  margin-inline: auto;
+  min-width: 0;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15em;
+  /* Okuma ölçüsü: 62-68ch bandı. Ekran genişledikçe sütun genişlemiyor,
+     yalnızca etrafındaki boşluk büyüyor. */
+  max-width: 66ch;
+  min-width: 0;
+}
+
+.column p {
+  margin: 0;
+  font-size: 1.0625rem;
+  line-height: 1.78;
+  color: color-mix(in srgb, #efe9dc 82%, transparent);
+  text-wrap: pretty;
+}
+
+/* İlk paragraf: giriş. Punto ve renk farkı, süs değil hiyerarşi. */
+.column p[data-lede] {
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: clamp(1.1875rem, 2.1vw, 1.5rem);
+  font-weight: 600;
+  line-height: 1.58;
+  color: #f3efe6;
+}
+
+/* Tam bant kare: sütunun ölçüsünü kırıyor, sayfanın nefesi. */
+.plateBand {
+  position: relative;
+  /* Oluğun dışına taşıyor — dergi sayfasındaki tam sayfa fotoğraf. */
+  margin-inline: calc(var(--sp-gutter) * -1);
+  aspect-ratio: 21 / 9;
+  overflow: hidden;
+  border-block: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+.plateBand img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 28%;
+  filter: saturate(1.08) contrast(1.1) brightness(0.8);
+}
+
+.plateBand span {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      70% 90% at 82% 8%,
+      color-mix(in srgb, var(--neon) 34%, transparent),
+      transparent 62%
+    ),
+    radial-gradient(
+      70% 90% at 8% 96%,
+      color-mix(in srgb, var(--warm) 40%, transparent),
+      transparent 60%
+    );
+  mix-blend-mode: screen;
+}
+
+/* ============================================================
+   UNUTULMAZ GECELER
+   ============================================================ */
+
+.nights {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.5rem, 3.5vw, 2.5rem);
+  padding: clamp(3.5rem, 9vw, 7rem) var(--sp-gutter);
+  min-width: 0;
+}
+
+.nightGrid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-width: var(--sp-max);
+  width: 100%;
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr));
+  gap: clamp(0.75rem, 2vw, 1.25rem);
+  min-width: 0;
+}
+
+.night {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  height: 100%;
+  border: 1px solid color-mix(in srgb, var(--accent) 16%, transparent);
+  border-radius: 2px;
+  overflow: hidden;
+  background: linear-gradient(
+    166deg,
+    color-mix(in srgb, var(--ink) 78%, #fff 2%),
+    #07090f
+  );
+  transition:
+    border-color 460ms ease,
+    box-shadow 460ms ease,
+    transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
+  min-width: 0;
+}
+
+.night:hover {
+  transform: translateY(-4px);
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  box-shadow: 0 26px 60px -34px color-mix(in srgb, var(--warm) 84%, transparent);
+}
+
+.nightShot {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+}
+
+.nightShot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 22%;
+  filter: saturate(0.94) contrast(1.06) brightness(0.76);
+  transform: scale(1.02);
+  transition:
+    transform 820ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 520ms ease;
+}
+
+.night:hover .nightShot img {
+  transform: scale(1.08);
+  filter: saturate(1.14) contrast(1.06) brightness(0.95);
+}
+
+/* Karenin üstünde bölümün ışığı — kare tek başına düz durmasın. */
+.nightShot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      80% 70% at 50% 106%,
+      color-mix(in srgb, var(--warm) 48%, transparent),
+      transparent 62%
+    ),
+    linear-gradient(
+      180deg,
+      transparent 44%,
+      color-mix(in srgb, #05070c 72%, transparent) 100%
+    );
+}
+
+.nightBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: clamp(1rem, 2.4vw, 1.5rem);
+  min-width: 0;
+}
+
+.nightYear {
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--accent);
+  transition: text-shadow 460ms ease;
+}
+
+.night:hover .nightYear {
+  text-shadow: 0 6px 28px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+.nightTitle {
+  margin: 0;
+  font-size: clamp(1.25rem, 2.4vw, 1.625rem);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  color: #f3efe6;
+  overflow-wrap: anywhere;
+}
+
+.nightMeta {
+  color: color-mix(in srgb, #efe9dc 56%, transparent);
+  overflow-wrap: anywhere;
+}
+
+.nightLine {
+  margin: 0.4rem 0 0;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.6;
+  color: color-mix(in srgb, #efe9dc 76%, transparent);
+  text-wrap: pretty;
+}
+
+/* ============================================================
+   FAVORİ ANLAR — sessiz oda
+   ============================================================ */
+
+.personal {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.5rem, 3.5vw, 2.5rem);
+  padding: clamp(3.5rem, 9vw, 7rem) var(--sp-gutter);
+  min-width: 0;
+}
+
+.noteList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-width: var(--sp-max);
+  width: 100%;
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(17rem, 100%), 1fr));
+  gap: 0;
+  min-width: 0;
+}
+
+.noteList > li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: clamp(1.25rem, 3vw, 2rem) clamp(1rem, 2.5vw, 2rem);
+  /* Kart değil, sütun: kutu yerine ince bir ayraç. */
+  border-left: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+  min-width: 0;
+}
+
+.noteLabel {
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--accent) 90%, #fff);
+}
+
+.noteTitle {
+  margin: 0;
+  font-size: clamp(1.375rem, 2.6vw, 1.875rem);
+  font-weight: 800;
+  line-height: 1.16;
+  letter-spacing: -0.02em;
+  color: #f3efe6;
+  overflow-wrap: anywhere;
+}
+
+.noteBody {
+  margin: 0.3rem 0 0;
+  font-size: 1rem;
+  line-height: 1.72;
+  color: color-mix(in srgb, #efe9dc 76%, transparent);
+  text-wrap: pretty;
+}
+
+/* ============================================================
+   UYARLAMA
+   ============================================================ */
+
+@media (max-width: 760px) {
+  .plateBand {
+    aspect-ratio: 4 / 3;
+  }
+
+  .noteList > li {
+    border-left: 0;
+    border-top: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+    padding-inline: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .night,
+  .nightShot img,
+  .nightYear {
+    transition: none;
+  }
+}

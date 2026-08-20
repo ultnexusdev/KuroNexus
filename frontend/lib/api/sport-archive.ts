@@ -135,6 +135,17 @@ export interface FootballClub {
   stadiumCapacity: number | null;
   crestImage: string | null;
   coverImage: string | null;
+  /**
+   * Kapağın kırpma odağı ("50% 0%") ve büyütmesi (yüzde) — küratör yazıyor.
+   *
+   * ⚠️ İSTEĞE BAĞLI YAZILDI. Alanlar backend'e sonradan eklendi ve
+   * `SportOverview.football.featuredClub` içinde de aynı gerekçeyle isteğe
+   * bağlı duruyor: iki servis ayrı deploy oluyor, yeni ön yüzün eski backend
+   * yanıtına baktığı bir pencere her zaman var. Zorunlu yazılsalardı o
+   * pencerede tip sözü tutmazdı.
+   */
+  coverPosition?: string | null;
+  coverScale?: number | null;
   taglineTr: string | null;
   taglineEn: string | null;
   narrativeTr: string | null;

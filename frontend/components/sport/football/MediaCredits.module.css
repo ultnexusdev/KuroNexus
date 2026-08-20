@@ -1,0 +1,61 @@
+/* Görsel künyesi — sayfanın dibinde, sessiz ama okunur. */
+
+.credits {
+  max-width: var(--sp-max);
+  width: 100%;
+  margin-inline: auto;
+  padding: clamp(1.5rem, 4vw, 2.5rem) var(--sp-gutter)
+    clamp(2rem, 5vw, 3.5rem);
+  border-top: 1px solid var(--sport-line);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem clamp(1rem, 3vw, 2rem);
+  min-width: 0;
+}
+
+.label {
+  margin: 0;
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.credits ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.25rem;
+  min-width: 0;
+}
+
+.credits li {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.credits a {
+  color: var(--text-secondary);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--accent) 42%, transparent);
+  text-underline-offset: 3px;
+}
+
+.credits a:hover {
+  color: var(--accent);
+}
+
+.credits li span {
+  opacity: 0.72;
+}

@@ -98,6 +98,11 @@ export function PlayerCuratorProvider({
   children: ReactNode;
 }) {
   const [curating, setCurating] = useState(false);
+  /* Panel modun KENDİSİ değil. Eskiden panelin × düğmesi küratör modunu
+     komple kapatıyordu ve panel açıkken sağ alttaki düzenle düğmelerinin
+     üstünü kapatıyordu — ikisi de ölçümde çıktı. Artık × yalnızca paneli
+     katlıyor, mod açık kalıyor; alttaki anahtar modu açıp kapatıyor. */
+  const [panelOpen, setPanelOpen] = useState(true);
   const [overrides, setOverrides] = useState(initialImages);
   const [legacy, setLegacy] = useState<Record<string, string>>({});
   const [migrating, setMigrating] = useState(false);
@@ -183,7 +188,12 @@ export function PlayerCuratorProvider({
             className={styles.toggle}
             data-on={curating || undefined}
             aria-pressed={curating}
-            onClick={() => setCurating((v) => !v)}
+            onClick={() =>
+              setCurating((v) => {
+                if (!v) setPanelOpen(true);
+                return !v;
+              })
+            }
           >
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M4 20h4L19 9a2.5 2.5 0 0 0-3.5-3.5L4 16.5V20z" />
@@ -195,13 +205,13 @@ export function PlayerCuratorProvider({
             ) : null}
           </button>
 
-          {curating ? (
+          {curating && panelOpen ? (
             <aside className={styles.panel}>
               <header>
                 <h2>{labels.panelTitle}</h2>
                 <button
                   type="button"
-                  onClick={() => setCurating(false)}
+                  onClick={() => setPanelOpen(false)}
                   aria-label={labels.close}
                 >
                   ×

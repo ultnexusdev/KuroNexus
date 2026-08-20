@@ -24,10 +24,27 @@
     linear-gradient(180deg, var(--ink) 0%, #08080b 100%);
 }
 
+/* Kırıntı hero'nun ÜSTÜNE biniyor: negatif alt boşluk sayfayı yukarı çekiyor
+   ki hero'nun renk alanı onun arkasından geçsin.
+
+   ⚠️ `pointer-events` ZORUNLU — 20 Ağustos 2026'da ölçüldü. Şerit tam
+   genişlikte bir `nav` ve `min-height: var(--touch-min)`; görsel olarak
+   solda iki bağlantıdan ibaret ama KUTUSU bandın tamamını kaplıyor. Altında
+   kalan hero fotoğrafının küratör düğmesi görünüyor ama tıklanamıyordu —
+   tıklama kırıntıya gidiyordu (kullanıcı bildirimi: "hero kısmına
+   tıklanmıyor", isabet testiyle doğrulandı).
+
+   Şerit artık tıklamayı yutmuyor; gerçekten etkileşimli olan bağlantılar
+   izni geri alıyor. */
 .crumb {
   position: relative;
   z-index: 4;
   margin-bottom: calc(var(--touch-min) * -1);
+  pointer-events: none;
+}
+
+.crumb a {
+  pointer-events: auto;
 }
 
 /* ---- Ortak bölüm başlığı ---- */

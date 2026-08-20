@@ -110,6 +110,20 @@
 }
 
 /* ---- Üst şerit ---- */
+/* ⚠️ `pointer-events: none` ZORUNLU — 20 Ağustos 2026'da ölçüldü.
+   Bu şerit tam genişlikte ve `z-index: 3`. Ortası görsel olarak BOŞ (solda
+   arma, sağda kırıntı) ama kutusu bütün bandı kaplıyor; altında kalan hero
+   fotoğrafının küratör düğmesi GÖRÜNÜYOR ama tıklanamıyordu — tıklama bu
+   şeride gidiyordu (kullanıcı bildirimi: "hero kısmına tıklanmıyor").
+
+   `z-index: 6` olan düğmenin yetmemesinin sebebi: `PlayerImage`in `.frame`i
+   `container-type: inline-size` taşıyor, o da `contain: layout` demek ve
+   layout kuşatması bir YIĞIN BAĞLAMI kuruyor. Düğme o bağlamın içinde
+   hapsoluyor; dışarıdan bakınca `.frame` z-index auto (0) ve şerit 3 ile
+   onun üstünde kalıyor.
+
+   Çözüm olayları geçirmek: şerit tıklamayı yutmuyor, gerçekten etkileşimli
+   olan iki çocuğu izni geri alıyor. */
 .top {
   position: absolute;
   inset-inline: var(--sp-gutter);
@@ -119,6 +133,11 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--gap-md);
+  pointer-events: none;
+}
+
+.top > * {
+  pointer-events: auto;
 }
 
 .crest {

@@ -1,10 +1,11 @@
 /* ============================================================
    EFSANELER SALONU
 
-   Renk sözü (brief): Burgundy + Antique Gold + Vintage Cream.
-   Bu bölümün ısısı kulüp kapısından FARKLI olmak zorunda — orası bugünün
-   markası, burası arşiv kasedi. Aynı sayfada iki farklı sahne olduğunu
-   anlatan şey renk sıcaklığındaki bu kayma.
+   Renk sözü: Burgundy + Antique Gold + Vintage Cream.
+   ⚠️ MAVİ/LACİVERT YOK — zeminde de yok. Eski sürümde bant nötr-mavi griye
+   (#0c0f15) iniyordu ve altta lacivert bir alan bırakıyordu; lacivert rakip
+   kulübün rengi ve bu bir Galatasaray arşivi (kullanıcı kararı, 20 Ağustos
+   2026). Zemin sıcak karanlığa çekildi.
    ============================================================ */
 
 .hall {
@@ -21,7 +22,11 @@
   overflow: hidden;
 }
 
-/* ---- Atmosfer ---- */
+/* ---- Atmosfer ----
+   Fotoğraf plakası KALDIRILDI. Eskiden bir Commons karesi (CC BY) zemin
+   olarak duruyordu ve künye zorunluluğu getiriyordu; sayfadan künye bloğu
+   kalkınca o kare de kalkmak zorundaydı. Bölümün derinliği artık tamamen
+   CSS'ten geliyor. */
 .atmosphere {
   position: absolute;
   inset: 0;
@@ -29,36 +34,29 @@
   pointer-events: none;
 }
 
-.plate {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: 50% 30%;
-  opacity: 0.24;
-  filter: sepia(0.6) saturate(0.8) contrast(1.05) brightness(0.62);
-}
-
 .wash {
   position: absolute;
   inset: 0;
   background:
     radial-gradient(
-      80% 70% at 16% 12%,
-      color-mix(in srgb, var(--burgundy) 66%, transparent),
+      86% 74% at 14% 8%,
+      color-mix(in srgb, var(--burgundy) 78%, transparent),
       transparent 62%
     ),
     radial-gradient(
-      70% 60% at 92% 88%,
-      color-mix(in srgb, var(--antique) 24%, transparent),
+      70% 62% at 94% 90%,
+      color-mix(in srgb, var(--antique) 26%, transparent),
       transparent 60%
     ),
-    linear-gradient(180deg, #120a0c 0%, #0c0f15 100%);
+    radial-gradient(
+      60% 50% at 50% 118%,
+      color-mix(in srgb, #7a1a12 40%, transparent),
+      transparent 66%
+    ),
+    linear-gradient(180deg, #140a0b 0%, #0c0708 100%);
 }
 
-/* Analog tarama çizgileri — 3 px'lik ritim, çok düşük opaklıkta.
-   Ekranda tek tek görünmüyor; yüzeyin "yayınlanmış" hissetmesini sağlıyor. */
+/* Analog tarama çizgileri — yüzeyin "yayınlanmış" hissetmesi için. */
 .scan {
   position: absolute;
   inset: 0;
@@ -102,6 +100,11 @@
 
 /* ============================================================
    BAŞ EFSANE
+
+   ⚠️ KART BİR `<a>` DEĞİL. Portre küratör düğmesi taşıyabiliyor ve bir
+   bağlantının içindeki düğme hem geçersiz HTML hem de yanlış hedefe giden
+   tıklama demek (galeri karelerinde ölçüldü). Onun yerine "uzatılmış
+   bağlantı": addaki tek `<a>` bir sözde-öğeyle kartın tamamını kaplıyor.
    ============================================================ */
 
 .lead {
@@ -118,25 +121,18 @@
   border-radius: 2px;
   background: linear-gradient(
     128deg,
-    color-mix(in srgb, #1c1013 82%, transparent),
-    color-mix(in srgb, #0d0f16 72%, transparent)
+    color-mix(in srgb, #241013 82%, transparent),
+    color-mix(in srgb, #120a0b 72%, transparent)
   );
   box-shadow: 0 26px 70px -34px color-mix(in srgb, #000 92%, transparent);
-  color: inherit;
-  text-decoration: none;
   transition:
     border-color 460ms ease,
     box-shadow 460ms ease;
   min-width: 0;
 }
 
-.lead:focus-visible {
-  outline: 2px solid var(--antique);
-  outline-offset: 3px;
-}
-
 .lead:hover,
-.lead:focus-visible {
+.lead:focus-within {
   border-color: color-mix(in srgb, var(--antique) 70%, transparent);
   box-shadow:
     0 30px 90px -30px color-mix(in srgb, var(--burgundy) 80%, transparent),
@@ -149,14 +145,17 @@
   overflow: hidden;
   border-radius: 2px;
   aspect-ratio: 3 / 4;
-  background: linear-gradient(150deg, #2a171b, #0e1016);
+  background: linear-gradient(150deg, #2a171b, #140c0d);
+}
+
+/* Küratör düğmesi VARSA portre uzatılmış bağlantının üstüne çıkıyor; yoksa
+   altında kalıyor ve fotoğrafa tıklamak da sayfayı açıyor. */
+.leadPortrait:has(button),
+.cardPortrait:has(button) {
+  z-index: 2;
 }
 
 .leadPortrait img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: 50% 22%;
   /* Durgun hâl: arşiv kaseti. */
   filter: sepia(0.5) saturate(0.62) contrast(1.08) brightness(0.9);
   transform: scale(1.02);
@@ -166,7 +165,7 @@
 }
 
 .lead:hover .leadPortrait img,
-.lead:focus-visible .leadPortrait img {
+.lead:focus-within .leadPortrait img {
   filter: sepia(0) saturate(1.12) contrast(1.04) brightness(1);
   transform: scale(1.07);
 }
@@ -175,6 +174,7 @@
 .grain {
   position: absolute;
   inset: 0;
+  pointer-events: none;
   background:
     radial-gradient(
       90% 60% at 50% 108%,
@@ -191,7 +191,7 @@
 }
 
 .lead:hover .grain,
-.lead:focus-visible .grain {
+.lead:focus-within .grain {
   opacity: 0.3;
 }
 
@@ -204,6 +204,7 @@
 }
 
 .leadName {
+  margin: 0;
   font-size: clamp(2.75rem, 9vw, 7.5rem);
   font-weight: 900;
   line-height: 1.02;
@@ -211,12 +212,32 @@
   text-transform: uppercase;
   padding-block: 0.05em;
   color: var(--cream);
+}
+
+.leadName a {
+  color: inherit;
+  text-decoration: none;
   transition: color 460ms ease;
 }
 
-.lead:hover .leadName,
-.lead:focus-visible .leadName {
+/* Uzatılmış bağlantı: kartın tamamı tıklanabilir, tek `<a>` ile. */
+.leadName a::after,
+.cardName a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.lead:hover .leadName a,
+.leadName a:focus-visible {
   color: var(--antique);
+}
+
+.leadName a:focus-visible,
+.cardName a:focus-visible {
+  outline: 2px solid var(--antique);
+  outline-offset: 4px;
 }
 
 .leadEpithet {
@@ -229,7 +250,7 @@
   color: color-mix(in srgb, var(--antique) 92%, #fff);
 }
 
-/* Künye: iki sütun, rakam Bebas ile. Hover'a bağlı DEĞİL. */
+/* Künye: rakam Bebas ile, hover'a bağlı DEĞİL. */
 .leadMeta {
   display: flex;
   flex-wrap: wrap;
@@ -274,6 +295,9 @@
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--antique);
+  text-decoration: none;
+  position: relative;
+  z-index: 2;
 }
 
 .open svg {
@@ -288,7 +312,7 @@
 }
 
 .lead:hover .open svg,
-.lead:focus-visible .open svg {
+.open:focus-visible svg {
   transform: translateX(4px);
 }
 
@@ -298,11 +322,10 @@
 
 .row {
   list-style: none;
-  margin: 0;
+  margin: 0 auto;
   padding: 0;
   max-width: var(--sp-max);
   width: 100%;
-  margin-inline: auto;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(14rem, 100%), 1fr));
   gap: clamp(0.75rem, 2vw, 1.25rem);
@@ -310,15 +333,14 @@
 }
 
 .card {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
   padding: 0.75rem;
   border: 1px solid color-mix(in srgb, var(--antique) 18%, transparent);
   border-radius: 2px;
-  background: color-mix(in srgb, #150c0f 62%, transparent);
-  color: inherit;
-  text-decoration: none;
+  background: color-mix(in srgb, #1a0d0e 62%, transparent);
   min-width: 0;
   transition:
     border-color 380ms ease,
@@ -327,54 +349,33 @@
 }
 
 .card:hover,
-.card:focus-visible {
+.card:focus-within {
   border-color: color-mix(in srgb, var(--antique) 58%, transparent);
-  background: color-mix(in srgb, #1d1114 78%, transparent);
+  background: color-mix(in srgb, #241213 78%, transparent);
   transform: translateY(-3px);
 }
 
-.card:focus-visible {
-  outline: 2px solid var(--antique);
-  outline-offset: 2px;
-}
-
 .cardPortrait {
+  position: relative;
   display: block;
   overflow: hidden;
   border-radius: 1px;
   aspect-ratio: 4 / 5;
-  background: linear-gradient(150deg, #2a171b, #0e1016);
+  background: linear-gradient(150deg, #2a171b, #140c0d);
 }
 
 .cardPortrait img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: 50% 22%;
   filter: sepia(0.5) saturate(0.6) contrast(1.06) brightness(0.9);
   transition: filter 620ms ease;
 }
 
 .card:hover .cardPortrait img,
-.card:focus-visible .cardPortrait img {
+.card:focus-within .cardPortrait img {
   filter: sepia(0) saturate(1.1) brightness(1);
 }
 
-/* Portresi olmayan kayıt: boş çerçeve değil, renkli bir doku. */
-.cardFallback {
-  display: block;
-  width: 100%;
-  height: 100%;
-  background:
-    radial-gradient(
-      70% 60% at 50% 18%,
-      color-mix(in srgb, var(--antique) 30%, transparent),
-      transparent 68%
-    ),
-    linear-gradient(150deg, #34191f, #101219);
-}
-
 .cardName {
+  margin: 0;
   font-size: 1.375rem;
   font-weight: 800;
   line-height: 1.15;
@@ -382,14 +383,26 @@
   overflow-wrap: anywhere;
 }
 
+.cardName a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 380ms ease;
+}
+
+.card:hover .cardName a {
+  color: var(--antique);
+}
+
 .cardEpithet {
+  font-family: var(--font-petrona), Georgia, serif;
+  font-style: italic;
   font-size: 0.9375rem;
   line-height: 1.45;
-  color: color-mix(in srgb, var(--cream) 62%, transparent);
+  color: color-mix(in srgb, var(--antique) 78%, #fff);
 }
 
 .cardYears {
-  color: color-mix(in srgb, var(--antique) 88%, transparent);
+  color: color-mix(in srgb, var(--cream) 58%, transparent);
 }
 
 /* ============================================================
@@ -404,10 +417,6 @@
 
   .leadPortrait {
     aspect-ratio: 16 / 11;
-  }
-
-  .leadPortrait img {
-    object-position: 50% 18%;
   }
 
   .leadName {
@@ -431,8 +440,10 @@
   .leadPortrait img,
   .cardPortrait img,
   .card,
+  .lead,
   .open svg,
-  .leadName,
+  .leadName a,
+  .cardName a,
   .grain {
     transition: none;
   }

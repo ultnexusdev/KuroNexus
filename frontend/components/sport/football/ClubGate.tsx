@@ -61,7 +61,7 @@ export function ClubGate({
 }) {
   const backdrop = coverImage
     ? apiUrl(coverImage)
-    : FOOTBALL_MEDIA.stadiumAerial.src;
+    : FOOTBALL_MEDIA.stadiumInside.src;
 
   const meta = [
     foundedYear ? `${labels.founded} ${foundedYear}` : null,

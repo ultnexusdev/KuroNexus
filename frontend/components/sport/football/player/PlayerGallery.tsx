@@ -52,7 +52,10 @@ export function PlayerGallery({
   /** Bir yuvanın gösterilebilir kaynağı var mı (küratör kopyası ya da gerçek kare)? */
   const sourceOf = useCallback(
     (slot: PlayerImageSlot): string | null => {
-      const override = curator?.overrides[slot.id];
+      const override = curator?.urlOf(
+        slot.owner ?? curator.defaultOwner,
+        slot.id,
+      );
       if (override) return apiUrl(override);
       return slot.placeholder ? null : slot.src;
     },

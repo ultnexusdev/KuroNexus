@@ -10,8 +10,11 @@
 .stage {
   --amber: #f2b230;
   --ember: #e0402f;
-  --indigo: #1b2a55;
-  --floor: #0b0d13;
+  /* Eskiden civit (#1b2a55) idi. Lacivert rakip kulubun rengi ve bu bir
+     Galatasaray arsivi (kullanici karari, 20 Agustos 2026) — gokyuzu
+     yikamasi derin bordoya cevrildi. */
+  --dusk: #3a1119;
+  --floor: #0c0908;
 
   position: relative;
   isolation: isolate;
@@ -56,10 +59,10 @@
     ),
     radial-gradient(
       130% 70% at 50% -18%,
-      color-mix(in srgb, var(--indigo) 62%, transparent),
+      color-mix(in srgb, var(--dusk) 62%, transparent),
       transparent 70%
     ),
-    linear-gradient(180deg, #10131c 0%, var(--floor) 100%);
+    linear-gradient(180deg, #17100f 0%, var(--floor) 100%);
   /* Çok yavaş bir nefes — 26 sn. Fark edilmez, ama sabit durmadığı hissedilir. */
   animation: breathe 26s ease-in-out infinite alternate;
 }
@@ -91,9 +94,18 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 50% 34%;
-  /* Ham kare biraz mor ve düz; kontrast ve doygunluk kanadın sesine çekiliyor */
+  /* Ham kare biraz düz; kontrast ve doygunluk kanadın sesine çekiliyor */
   filter: saturate(1.15) contrast(1.18) brightness(0.92);
+}
+
+/* ⚠️ KÜRATÖR DÜĞMESİ İÇİN İSTİSNA.
+   `.atmosphere` tıklamayı yutuyor (`pointer-events: none`) çünkü katmanları
+   dekoratif. Ama hero plakası artık düzenlenebilir bir yuva ve düğmesi o
+   katmanın içinde. İzin tek bir öğeye geri veriliyor: eleman seçici CSS
+   modülünde karıştırılmıyor, yani bu kural PlayerImage'in düğmesine
+   ulaşabiliyor. */
+.plate button {
+  pointer-events: auto;
 }
 
 /* ---- 3 · projektör huzmeleri ----

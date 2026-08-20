@@ -110,7 +110,9 @@ export default async function FavouritePlayerPage({
    * defterdeki varsayılanlarla (yer tutucularla) açılıyor — bir veri
    * kaynağının kesintisi sayfayı kırmamalı, kanadın yerleşik kuralı bu.
    */
-  const images = await fetchPlayerImages(player.slug).catch(() => ({}));
+  const images = await fetchPlayerImages(player.slug).catch(
+    () => ({}) as Record<string, string>,
+  );
 
   const stops = [
     { id: "hikaye", label: t("favourite.story") },
@@ -127,9 +129,9 @@ export default async function FavouritePlayerPage({
 
   return (
     <PlayerCuratorProvider
-      slug={player.slug}
+      defaultOwner={player.slug}
       isAdmin={isAdmin}
-      initialImages={images}
+      initialImages={{ [player.slug]: images }}
       labels={{
         on: t("favourite.curator.on"),
         off: t("favourite.curator.off"),

@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { FOOTBALL_MEDIA } from "@/lib/sport/football-media";
+import type { PlayerImageSlot } from "@/lib/sport/favourite-players";
+import { PlayerImage } from "./player/PlayerImage";
 import shell from "@/app/[locale]/spor/layout.module.css";
 import styles from "./HubStage.module.css";
 
@@ -43,12 +44,15 @@ export function HubStage({
   lines,
   index,
   scrollHint,
+  plate,
 }: {
   title: string;
   /** İki satırlık editoryal ifade. İkinci satır vurguyu taşıyor. */
   lines: [string, string];
   index: HubStageIndexEntry[];
   scrollHint: string;
+  /** Hero plakasi — kurator modundan degistirilebilir yuva */
+  plate: PlayerImageSlot;
 }) {
   const ref = useRef<HTMLElement | null>(null);
 
@@ -102,25 +106,13 @@ export function HubStage({
     <section ref={ref} className={styles.stage} aria-labelledby="futbol-hero">
       <div className={styles.atmosphere} aria-hidden="true">
         <span className={styles.field} />
-        <picture className={styles.plate}>
-          <source
-            media="(max-width: 720px)"
-            srcSet={FOOTBALL_MEDIA.stadiumNightSmall.src}
-            width={FOOTBALL_MEDIA.stadiumNightSmall.width}
-            height={FOOTBALL_MEDIA.stadiumNightSmall.height}
-          />
-          {/* `<picture>` içindeki `<img>` kuralı tetiklemiyor — burada
-              `next/image` yerine el yazımı bir `<picture>` var, çünkü dar
-              ekranda AYRI ve daha küçük bir plaka indiriliyor. */}
-          <img
-            src={FOOTBALL_MEDIA.stadiumNight.src}
-            alt=""
-            width={FOOTBALL_MEDIA.stadiumNight.width}
-            height={FOOTBALL_MEDIA.stadiumNight.height}
-            fetchPriority="high"
-            decoding="async"
-          />
-        </picture>
+        <PlayerImage
+          slot={plate}
+          className={styles.plate}
+          position="50% 34%"
+          eager
+          decorative
+        />
         <span className={styles.beams} />
         <span className={styles.motes}>
           {/* Sayı SABİT: 14. Rastgele üretilmiyor çünkü sunucu ve istemci

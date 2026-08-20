@@ -13,7 +13,7 @@ import styles from "./PlayerImage.module.css";
  *
  * Sayfadaki her fotoğraf bundan geçiyor ve üç durumdan birinde oluyor:
  *
- *   1 KÜRATÖR KOPYASI  — `overrides[slot.id]` doluysa o çiziliyor.
+ *   1 KÜRATÖR KOPYASI  — veritabanında bu yuva için kayıt varsa o çiziliyor.
  *   2 GERÇEK FOTOĞRAF  — `slot.placeholder` false ise `slot.src` çiziliyor.
  *   3 YER TUTUCU       — ikisi de yoksa TASARLANMIŞ bir çerçeve: köşegen
  *                        tarama dokusu, kadraj notu ve "FOTO EKLENECEK"
@@ -58,7 +58,11 @@ export function PlayerImage({
   noEdit?: boolean;
 }) {
   const curator = usePlayerCurator();
-  const override = curator?.overrides[slot.id];
+  /* Yuva sahibini kendisi söyleyebiliyor; söylemezse sayfanın varsayılan
+     sahibi geçerli. Hub sayfasında ikisi bir arada: sayfanın kendi yuvaları
+     (hero, tarih kareleri) ile defterdeki futbolcuların kart yuvaları. */
+  const owner = slot.owner ?? curator?.defaultOwner ?? "";
+  const override = curator?.urlOf(owner, slot.id);
   const [failed, setFailed] = useState(false);
 
   /**
@@ -116,7 +120,7 @@ export function PlayerImage({
         )}
       </span>
 
-      {curator?.curating && !noEdit ? <SlotEditor slot={slot} /> : null}
+      {curator?.curating && !noEdit ? <SlotEditor slot={slot} owner={owner} /> : null}
     </span>
   );
 }
@@ -137,7 +141,7 @@ export function PlayerImage({
  * kutusuna basınca ışık kutusu açılıyor ve yazmak imkânsız hâle geliyordu
  * (kullanıcı bildirimi). O yüzden panel kökü olayları AÇIKÇA durduruyor.
  */
-function SlotEditor({ slot }: { slot: PlayerImageSlot }) {
+function SlotEditor({ slot, owner }: { slot: PlayerImageSlot; owner: string }) {
   const curator = usePlayerCurator();
   const anchorRef = useRef<HTMLButtonElement | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
@@ -185,7 +189,7 @@ function SlotEditor({ slot }: { slot: PlayerImageSlot }) {
   }, [open]);
 
   if (!curator) return null;
-  const { labels, setSlot, clearSlot, overrides } = curator;
+  const { labels, setSlot, clearSlot, urlOf } = curator;
 
   /**
    * İki adım, tek düğme: önce dosya sunucuya iniyor, sonra dönen adres
@@ -198,7 +202,7 @@ function SlotEditor({ slot }: { slot: PlayerImageSlot }) {
     setError(false);
     try {
       const result = await action();
-      const ok = await setSlot(slot.id, result.url);
+      const ok = await setSlot(owner, slot.id, result.url);
       if (!ok) {
         setError(true);
         return;
@@ -313,14 +317,14 @@ function SlotEditor({ slot }: { slot: PlayerImageSlot }) {
                 </span>
               </label>
 
-              {overrides[slot.id] ? (
+              {urlOf(owner, slot.id) ? (
                 <button
                   type="button"
                   className={styles.popReset}
                   disabled={busy}
                   onClick={() => {
                     setBusy(true);
-                    void clearSlot(slot.id)
+                    void clearSlot(owner, slot.id)
                       .then((ok) => {
                         if (ok) setOpen(false);
                         else setError(true);

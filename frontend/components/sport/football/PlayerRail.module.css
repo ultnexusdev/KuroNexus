@@ -30,7 +30,7 @@
   background:
     radial-gradient(
       70% 60% at 82% 6%,
-      color-mix(in srgb, #2b1a55 62%, transparent),
+      color-mix(in srgb, #4a1220 68%, transparent),
       transparent 62%
     ),
     radial-gradient(
@@ -38,7 +38,7 @@
       color-mix(in srgb, #1d4a2b 44%, transparent),
       transparent 60%
     ),
-    linear-gradient(180deg, #0b0e16 0%, #0c0f15 100%);
+    linear-gradient(180deg, #0e0a0b 0%, #0b0809 100%);
 }
 
 /* Saha çizgisi ritmi — hafif, yalnızca yüzeyin düz olmadığını söylüyor. */
@@ -334,10 +334,13 @@
 }
 
 /* Okunurluk: metnin oturduğu alt sol köşe koyulaşıyor. */
+/* Okunurluk maskesi dekoratif — tiklamayi yutmamali. Kurator dugmesi
+   altinda kaliyordu (isabet testiyle olculdu). */
 .shade {
   position: absolute;
   inset: 0;
   z-index: 2;
+  pointer-events: none;
   background: linear-gradient(
       16deg,
       color-mix(in srgb, #05070c 92%, transparent) 6%,

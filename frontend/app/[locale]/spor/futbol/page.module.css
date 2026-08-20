@@ -17,10 +17,18 @@
 /* Kırıntı hero'nun ÜSTÜNDE duruyor ama zeminini kendisi boyamıyor —
    hero'nun renk alanı onun arkasından geçsin diye negatif alt boşlukla
    sahnenin içine gömülüyor. */
+/* ⚠️ pointer-events — futbolcu sayfasinda olculen hatanin ayni sinifi.
+   Serit tam genislikte bir <nav> ve hero'nun ustune biniyor; altinda kalan
+   hero yuvasinin kurator dugmesi tiklanamaz kalirdi. */
 .crumb {
   position: relative;
   z-index: 2;
   margin-bottom: calc(var(--touch-min) * -1);
+  pointer-events: none;
+}
+
+.crumb a {
+  pointer-events: auto;
 }
 
 /* ---- Kuyruk: diğer kulüpler ---- */

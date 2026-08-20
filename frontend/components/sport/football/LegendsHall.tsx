@@ -1,63 +1,61 @@
 import { Link } from "@/lib/i18n/navigation";
-import { apiUrl } from "@/lib/api/client";
-import { sportHref } from "@/lib/sport/routes";
-import {
-  LEGEND_PLATES,
-  LEGEND_PORTRAIT_FALLBACK,
-} from "@/lib/sport/football-media";
+import type { PlayerImageSlot } from "@/lib/sport/favourite-players";
+import { PlayerImage } from "./player/PlayerImage";
 import shell from "@/app/[locale]/spor/layout.module.css";
 import styles from "./LegendsHall.module.css";
 
 export interface LegendEntry {
-  slug: string;
+  key: string;
   name: string;
   epithet: string;
   countryCode: string | null;
   yearsFrom: number | null;
   yearsTo: number | null;
-  portraitImage: string | null;
+  /** Adres SAYFADA kuruluyor: arşiv efsanesi bir yere, favori futbolcu başka bir yere gider. */
+  href: string;
+  portrait: PlayerImageSlot;
+  /**
+   * Portre küratör modundan değiştirilebilir mi?
+   *
+   * Arşiv efsanelerinin portresi backend'de kendi kaydında duruyor ve kendi
+   * küratör ekranından yönetiliyor — buradan da yazılabilseydi aynı görselin
+   * iki ayrı kaynağı olurdu. Favori futbolcularınki ise bu tablodan geliyor,
+   * o yüzden burada düzenlenebiliyor.
+   */
+  editable: boolean;
 }
 
 export interface LegendsHallLabels {
   title: string;
   lede: string;
-  /** "Efsaneye git" — kart eylemi, dokunmatikte de görünür */
   open: string;
   years: string;
 }
 
 /**
- * Portre kaynağı: ÖNCE küratörün yüklediği kare, sonra depodaki yedek.
- *
- * Küratör yüklemesinin piksel ölçüsü sunucuda bilinmiyor; kutu `aspect-ratio`
- * ile sabitlendiği için `width`/`height` yazılmıyor — yanlış ölçü yazmak
- * yerinden oynatır, hiç yazmamak `aspect-ratio` sayesinde zaten yer ayırıyor.
- */
-function portraitOf(legend: LegendEntry): { src: string; alt: string } | null {
-  if (legend.portraitImage) {
-    return { src: apiUrl(legend.portraitImage), alt: legend.name };
-  }
-  const fallback = LEGEND_PORTRAIT_FALLBACK[legend.slug];
-  return fallback ? { src: fallback.src, alt: fallback.alt } : null;
-}
-
-/**
  * EFSANELER SALONU.
  *
+ * ── İKİ KAYNAK, TEK SALON ────────────────────────────────────────────────
+ * Buradaki yüzlerin bir kısmı arşiv kaydı (`FootballLegend`, backend), bir
+ * kısmı defterdeki favori futbolcu. İkisi aynı salonda görünüyor ama
+ * ADRESLERİ farklı: efsane kendi efsane sayfasına, futbolcu kendi profiline
+ * gidiyor. Bu yüzden `href` bileşende kurulmuyor, sayfadan geliyor.
+ *
  * ── NEDEN İLK KAYIT DAHA BÜYÜK ───────────────────────────────────────────
- * Eski sayfada bu bölüm tek kayıtlıyken bir ızgarada YALNIZ BİR KART olarak
- * duruyordu ve "burası boş" diyordu. Çözüm ızgarayı doldurmak değil,
- * hiyerarşiyi kabul etmek: ilk efsane tam bant bir sahne, sonrakiler onun
- * altında daha sıkı bir sıra. Tek kayıtla da, altı kayıtla da kompozisyon
- * ayakta kalıyor.
+ * Tek kayıtlı bir ızgarada YALNIZ BİR KART "burası boş" der. Çözüm ızgarayı
+ * doldurmak değil, hiyerarşiyi kabul etmek: ilk efsane tam bant bir sahne,
+ * sonrakiler onun altında daha sıkı bir sıra.
+ *
+ * ── FAVORİ ŞERİDİNDEN FARKI ──────────────────────────────────────────────
+ * Favori futbolcular yatay bir POSTER rayı: kart poster boyunda, isim dev,
+ * renk oyuncunun kendi paletinden. Burası bir SALON: portre dikey ve sabit,
+ * ses bordo-altın (arşiv kasedi), lakap italik. Aynı kişi iki yerde de
+ * görünebiliyor ama iki farklı ışıkta.
  *
  * ── ESKİ GÖRÜNTÜDEN RENGE ────────────────────────────────────────────────
- * Portre durgun hâlde sepya + düşük doygunluk (arşiv kasedi), hover/odakta
- * tam renge açılıyor. İki ayrı görsel değil, tek görsel + `filter` geçişi:
- * ikinci bir dosya indirmeden aynı anlatı.
- *
- * Dokunmatikte hover yok; o yüzden `@media (hover: none)` altında portre
- * BAŞTAN renkli geliyor — efekt bir süs, bilgi değil.
+ * Portre durgun hâlde sepya + düşük doygunluk, hover/odakta tam renge
+ * açılıyor. Tek görsel + `filter` geçişi; ikinci bir dosya inmiyor.
+ * Dokunmatikte hover yok, o yüzden orada portre BAŞTAN renkli geliyor.
  */
 export function LegendsHall({
   legends,
@@ -69,29 +67,13 @@ export function LegendsHall({
   if (legends.length === 0) return null;
 
   const [lead, ...rest] = legends;
-  const leadPortrait = portraitOf(lead);
-  const leadPlate = LEGEND_PLATES[lead.slug] ?? null;
 
   const span = (legend: LegendEntry) =>
-    legend.yearsFrom
-      ? `${legend.yearsFrom}–${legend.yearsTo ?? ""}`
-      : null;
+    legend.yearsFrom ? `${legend.yearsFrom}–${legend.yearsTo ?? ""}` : null;
 
   return (
     <section className={styles.hall} aria-labelledby="futbol-efsaneler">
       <div className={styles.atmosphere} aria-hidden="true">
-        {leadPlate ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={leadPlate.src}
-            alt=""
-            className={styles.plate}
-            width={leadPlate.width}
-            height={leadPlate.height}
-            loading="lazy"
-            decoding="async"
-          />
-        ) : null}
         <span className={styles.wash} />
         <span className={styles.scan} />
       </div>
@@ -106,24 +88,23 @@ export function LegendsHall({
         <p className={styles.lede}>{labels.lede}</p>
       </header>
 
-      {/* ---- Baş efsane: tam bant sahne ---- */}
-      <Link href={sportHref.legend(lead.slug)} className={styles.lead}>
-        {leadPortrait ? (
-          <span className={styles.leadPortrait}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={leadPortrait.src}
-              alt={leadPortrait.alt || lead.name}
-              loading="lazy"
-              decoding="async"
-            />
-            <span className={styles.grain} aria-hidden="true" />
-          </span>
-        ) : null}
+      {/* ---- Baş efsane: tam bant sahne ----
+          Portre bağlantının DIŞINDA: küratör düğmesi bir `<a>` içinde
+          kalırsa hem geçersiz HTML olur hem de dosya/adres alanına basınca
+          sayfa değişir (galeri karelerinde ölçülen hata). */}
+      <div className={styles.lead}>
+        <span className={styles.leadPortrait}>
+          <PlayerImage
+            slot={lead.portrait}
+            position="50% 22%"
+            noEdit={!lead.editable}
+          />
+          <span className={styles.grain} aria-hidden="true" />
+        </span>
 
         <div className={styles.leadBody}>
           <h3 className={`${shell.display} ${styles.leadName}`}>
-            {lead.name}
+            <Link href={lead.href}>{lead.name}</Link>
           </h3>
           {lead.epithet ? (
             <span className={styles.leadEpithet}>{lead.epithet}</span>
@@ -144,54 +125,43 @@ export function LegendsHall({
             ) : null}
           </span>
 
-          <span className={styles.open}>
+          <Link href={lead.href} className={styles.open}>
             {labels.open}
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M4 12h15M13 6l6 6-6 6" />
             </svg>
-          </span>
+          </Link>
         </div>
-      </Link>
+      </div>
 
       {/* ---- Diğer efsaneler ---- */}
       {rest.length > 0 ? (
         <ul className={styles.row}>
-          {rest.map((legend) => {
-            const portrait = portraitOf(legend);
-            return (
-              <li key={legend.slug}>
-                <Link
-                  href={sportHref.legend(legend.slug)}
-                  className={styles.card}
-                >
-                  <span className={styles.cardPortrait}>
-                    {portrait ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={portrait.src}
-                        alt=""
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    ) : (
-                      <span className={styles.cardFallback} aria-hidden="true" />
-                    )}
+          {rest.map((legend) => (
+            <li key={legend.key}>
+              <div className={styles.card}>
+                <span className={styles.cardPortrait}>
+                  <PlayerImage
+                    slot={legend.portrait}
+                    position="50% 22%"
+                    decorative
+                    noEdit={!legend.editable}
+                  />
+                </span>
+                <h3 className={`${shell.display} ${styles.cardName}`}>
+                  <Link href={legend.href}>{legend.name}</Link>
+                </h3>
+                {legend.epithet ? (
+                  <span className={styles.cardEpithet}>{legend.epithet}</span>
+                ) : null}
+                {span(legend) ? (
+                  <span className={`${shell.data} ${styles.cardYears}`}>
+                    {span(legend)}
                   </span>
-                  <h3 className={`${shell.display} ${styles.cardName}`}>
-                    {legend.name}
-                  </h3>
-                  {legend.epithet ? (
-                    <span className={styles.cardEpithet}>{legend.epithet}</span>
-                  ) : null}
-                  {span(legend) ? (
-                    <span className={`${shell.data} ${styles.cardYears}`}>
-                      {span(legend)}
-                    </span>
-                  ) : null}
-                </Link>
-              </li>
-            );
-          })}
+                ) : null}
+              </div>
+            </li>
+          ))}
         </ul>
       ) : null}
     </section>

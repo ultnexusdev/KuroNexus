@@ -38,6 +38,14 @@ export interface PlayerImageSlot {
    */
   id: string;
   /**
+   * Yuvanın SAHİBİ — veritabanındaki `playerSlug` sütunu.
+   *
+   * Yazılmazsa sayfanın varsayılan sahibi geçerli. Hub sayfasında ikisi bir
+   * arada duruyor: sayfanın kendi yuvaları (`futbol-hub`) ve defterdeki
+   * futbolcuların kart yuvaları (her biri kendi slug değeriyle).
+   */
+  owner?: string;
+  /**
    * Dosyanın olması GEREKEN yer. Yuva `placeholder` iken bu adres yalnızca
    * küratöre "dosyayı buraya koy" demek için duruyor, ağ isteği yapılmıyor.
    */
@@ -165,6 +173,15 @@ export interface FavouritePlayer {
   weight: string;
   /** Kartın altındaki tek satır */
   tagline: string;
+  /**
+   * EFSANELER salonundaki lakap ("Aşk adamı").
+   *
+   * Favori futbolcu kartındaki `tagline` küratörün gözlemi; bu ise efsane
+   * salonunun sesi — Hagi'nin "Karpatların Maradonası"nın karşılığı. Dolu
+   * olan futbolcu efsaneler salonunda da görünüyor; boş bırakılan yalnızca
+   * favori şeridinde kalıyor.
+   */
+  legendEpithet?: string;
   quote: string;
   /** Sayfanın sonundaki büyük alıntı */
   closingQuote: string;
@@ -216,6 +233,7 @@ export const FAVOURITE_PLAYERS: FavouritePlayer[] = [
     height: "181 cm",
     weight: "75 kg",
     tagline: "Ceza sahasının içinde zamanı yavaşlatan adam.",
+    legendEpithet: "Aşk adamı",
     quote: "Kafamdaki tek şey gol atmak ve Galatasaray için savaşmak.",
     closingQuote:
       "Ben buraya para için değil, sevgi için geldim. Galatasaray benim evim.",
@@ -298,7 +316,7 @@ export const FAVOURITE_PLAYERS: FavouritePlayer[] = [
         club: "Sampdoria",
         country: "İtalya",
         note: "Serie A'ya çıkış. Ceza sahasında durmayı burada öğrendi.",
-        tone: "#2f6fbf",
+        tone: "#8d8778",
         matches: 41,
         goals: 11,
         image: {
@@ -316,7 +334,7 @@ export const FAVOURITE_PLAYERS: FavouritePlayer[] = [
         club: "Inter",
         country: "İtalya",
         note: "İki kez gol kralı, yirmi iki yaşında kaptan.",
-        tone: "#1b3a8f",
+        tone: "#6d6455",
         matches: 188,
         goals: 124,
         image: {

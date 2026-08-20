@@ -13,7 +13,7 @@ import { setFavouritePlayerImage } from "@/lib/admin/api";
 import styles from "./PlayerCurator.module.css";
 
 /**
- * FUTBOLCU SAYFASI · KÜRATÖR MODU.
+ * FUTBOL KANADI · KÜRATÖR MODU.
  *
  * ── NE YAPIYOR ───────────────────────────────────────────────────────────
  * Mod açıkken sayfadaki HER görsel yuvasının köşesinde bir düzenle düğmesi
@@ -26,16 +26,22 @@ import styles from "./PlayerCurator.module.css";
  * (yabancı adres tarayıcıda sessizce engellenir) ve dış adres bir gün ölürse
  * görsel de ölür.
  *
- * ── KALICILIK: ARTIK VERİTABANINDA ───────────────────────────────────────
- * Önceki sürümde yuva → adres eşleşmesi `localStorage`da duruyordu. Dosya
- * sunucuda kalıcıydı ama HANGİ YUVAYA ait olduğu yalnızca o tarayıcıda —
- * yani başka bir cihazdan bakınca yuva boş görünüyordu. Kullanıcı bunu fark
- * etti ve haklıydı.
+ * ── ÇOK SAHİPLİ (20 Ağustos 2026) ────────────────────────────────────────
+ * İlk sürüm tek bir futbolcuya bağlıydı. Hub sayfası (`/spor/futbol`) bunu
+ * kırdı: orada hem SAYFANIN kendi yuvaları var (hero, tarih şeridi kareleri)
+ * hem de defterdeki HER futbolcunun kart yuvası. İkisi farklı "sahip"lere
+ * ait ve aynı tabloda `playerSlug` sütunuyla ayrılıyorlar.
  *
- * Artık eşleşme `FavouritePlayerImage` tablosunda: sunucu tarafında okunuyor
- * (`fetchPlayerImages`), sayfa ilk boyamada doğru kareyle geliyor ve herkes
- * aynı şeyi görüyor. `localStorage` yalnızca ESKİ düzenlemeleri kurtarmak
- * için okunuyor (aşağıdaki taşıma akışı) — yeni bir şey yazılmıyor.
+ * Bu yüzden depo artık iki katlı: `images[sahip][yuvaId] = adres`. Bir yuva
+ * kendi sahibini `slot.owner` ile söylüyor; söylemezse sayfanın varsayılan
+ * sahibi (`defaultOwner`) geçerli. Backend'de yeni bir şey gerekmedi — hub
+ * yuvaları `futbol-hub` sahibiyle aynı tabloya yazılıyor.
+ *
+ * ── KALICILIK: VERİTABANINDA ─────────────────────────────────────────────
+ * Eşleşme `FavouritePlayerImage` tablosunda ve sunucu tarafında okunuyor,
+ * yani sayfa ilk boyamada doğru kareyle geliyor ve herkes aynı şeyi görüyor.
+ * `localStorage` yalnızca ESKİ (tarayıcı-yerel) düzenlemeleri kurtarmak için
+ * okunuyor; yeni bir şey yazılmıyor.
  *
  * ⚠️ `isAdmin` YALNIZCA DÜĞMEYİ gösteriyor. Yetkinin gerçek kapısı backend'de:
  * uç oturum çerezi olmadan 401 döner (ölçüldü).
@@ -62,13 +68,17 @@ export interface CuratorLabels {
   migrateNote: string;
 }
 
+/** Sahip → yuva kimliği → adres */
+export type CuratorImages = Record<string, Record<string, string>>;
+
 interface CuratorValue {
   curating: boolean;
-  overrides: Record<string, string>;
+  defaultOwner: string;
   labels: CuratorLabels;
+  urlOf: (owner: string, slotId: string) => string | undefined;
   /** Veritabanına yazıyor. Başarısızsa `false` döner ve çağıran hatayı gösterir. */
-  setSlot: (id: string, url: string) => Promise<boolean>;
-  clearSlot: (id: string) => Promise<boolean>;
+  setSlot: (owner: string, slotId: string, url: string) => Promise<boolean>;
+  clearSlot: (owner: string, slotId: string) => Promise<boolean>;
 }
 
 const CuratorContext = createContext<CuratorValue | null>(null);
@@ -84,92 +94,101 @@ function legacyKey(slug: string) {
 }
 
 export function PlayerCuratorProvider({
-  slug,
+  defaultOwner,
   isAdmin,
   initialImages,
   labels,
   children,
 }: {
-  slug: string;
+  /** Sahibini söylemeyen yuvaların bağlanacağı slug */
+  defaultOwner: string;
   isAdmin: boolean;
-  /** Sunucudan gelen yuva → adres haritası (tek doğruluk kaynağı) */
-  initialImages: Record<string, string>;
+  /** Sunucudan gelen sahip → yuva → adres haritası (tek doğruluk kaynağı) */
+  initialImages: CuratorImages;
   labels: CuratorLabels;
   children: ReactNode;
 }) {
   const [curating, setCurating] = useState(false);
   /* Panel modun KENDİSİ değil. Eskiden panelin × düğmesi küratör modunu
-     komple kapatıyordu ve panel açıkken sağ alttaki düzenle düğmelerinin
-     üstünü kapatıyordu — ikisi de ölçümde çıktı. Artık × yalnızca paneli
-     katlıyor, mod açık kalıyor; alttaki anahtar modu açıp kapatıyor. */
+     komple kapatıyordu ve panel açıkken düzenle düğmelerinin üstünü
+     kapatıyordu — ikisi de ölçümde çıktı. Artık × yalnızca paneli katlıyor,
+     mod açık kalıyor; alttaki anahtar modu açıp kapatıyor. */
   const [panelOpen, setPanelOpen] = useState(true);
-  const [overrides, setOverrides] = useState(initialImages);
+  const [images, setImages] = useState<CuratorImages>(initialImages);
   const [legacy, setLegacy] = useState<Record<string, string>>({});
   const [migrating, setMigrating] = useState(false);
 
   /**
    * Eski tarayıcı-yerel düzenlemeleri topla — YALNIZCA sunucuda karşılığı
    * olmayanlar. Amaç tek: küratörün önceki turda yüklediği kareleri
-   * kaybetmemek. Otomatik yazmıyoruz; panelde tek tuşlu bir teklif olarak
+   * kaybetmemek. Otomatik yazma YOK; panelde tek tuşlu bir teklif olarak
    * duruyor, çünkü sayfa açılışında sessizce yazma yapmak sürpriz olurdu.
    */
   useEffect(() => {
     if (!isAdmin) return;
     try {
-      const raw = window.localStorage.getItem(legacyKey(slug));
+      const raw = window.localStorage.getItem(legacyKey(defaultOwner));
       if (!raw) return;
       const parsed = JSON.parse(raw) as Record<string, string>;
+      const own = initialImages[defaultOwner] ?? {};
       const pending: Record<string, string> = {};
       for (const [id, url] of Object.entries(parsed)) {
-        if (!initialImages[id] && typeof url === "string") pending[id] = url;
+        if (!own[id] && typeof url === "string") pending[id] = url;
       }
       setLegacy(pending);
     } catch {
       // Bozuk kayıt: yok say.
     }
-  }, [slug, isAdmin, initialImages]);
+  }, [defaultOwner, isAdmin, initialImages]);
+
+  const urlOf = useCallback(
+    (owner: string, slotId: string) => images[owner]?.[slotId],
+    [images],
+  );
 
   const setSlot = useCallback(
-    async (id: string, url: string) => {
+    async (owner: string, slotId: string, url: string) => {
       try {
-        await setFavouritePlayerImage({
-          playerSlug: slug,
-          slotId: id,
-          url,
-        });
+        await setFavouritePlayerImage({ playerSlug: owner, slotId, url });
       } catch {
         return false;
       }
-      setOverrides((current) => {
-        const next = { ...current };
-        if (url) next[id] = url;
-        else delete next[id];
+      setImages((current) => {
+        const next = { ...current, [owner]: { ...(current[owner] ?? {}) } };
+        if (url) next[owner][slotId] = url;
+        else delete next[owner][slotId];
         return next;
       });
       return true;
     },
-    [slug],
+    [],
   );
 
-  const clearSlot = useCallback((id: string) => setSlot(id, ""), [setSlot]);
+  const clearSlot = useCallback(
+    (owner: string, slotId: string) => setSlot(owner, slotId, ""),
+    [setSlot],
+  );
 
   const value = useMemo<CuratorValue>(
-    () => ({ curating, overrides, labels, setSlot, clearSlot }),
-    [curating, overrides, labels, setSlot, clearSlot],
+    () => ({ curating, defaultOwner, labels, urlOf, setSlot, clearSlot }),
+    [curating, defaultOwner, labels, urlOf, setSlot, clearSlot],
   );
 
-  const entries = Object.entries(overrides);
+  /** Panelin listesi: bütün sahiplerin bütün yuvaları, düz. */
+  const entries = Object.entries(images).flatMap(([owner, map]) =>
+    Object.entries(map).map(([id, url]) => ({ owner, id, url })),
+  );
   const legacyEntries = Object.entries(legacy);
 
   async function migrate() {
     setMigrating(true);
     for (const [id, url] of legacyEntries) {
-      // Sırayla: yükleme ucu değil, tek satırlık bir yazma — paralel gitmenin
-      // kazancı yok, hata durumunda hangisinde kaldığını görmek daha değerli.
-      await setSlot(id, url);
+      // Sırayla: tek satırlık yazma, paralel gitmenin kazancı yok; hata
+      // durumunda nerede kalındığını görmek daha değerli.
+      await setSlot(defaultOwner, id, url);
     }
     try {
-      window.localStorage.removeItem(legacyKey(slug));
+      window.localStorage.removeItem(legacyKey(defaultOwner));
     } catch {
       // Kota/gizli mod: taşıma yine de tamamlandı.
     }
@@ -220,7 +239,6 @@ export function PlayerCuratorProvider({
 
               <p className={styles.note}>{labels.panelNote}</p>
 
-              {/* Eski tarayıcı-yerel düzenlemeler varsa kurtarma teklifi */}
               {legacyEntries.length > 0 ? (
                 <div className={styles.migrate}>
                   <p>{labels.migrateNote}</p>
@@ -241,13 +259,17 @@ export function PlayerCuratorProvider({
                 <p className={styles.empty}>{labels.empty}</p>
               ) : (
                 <ul className={styles.list}>
-                  {entries.map(([id, url]) => (
-                    <li key={id}>
-                      <code>{id}</code>
-                      <span>{url}</span>
+                  {entries.map((entry) => (
+                    <li key={`${entry.owner}/${entry.id}`}>
+                      <code>
+                        {entry.owner === defaultOwner
+                          ? entry.id
+                          : `${entry.owner}/${entry.id}`}
+                      </code>
+                      <span>{entry.url}</span>
                       <button
                         type="button"
-                        onClick={() => void clearSlot(id)}
+                        onClick={() => void clearSlot(entry.owner, entry.id)}
                       >
                         {labels.reset}
                       </button>

@@ -5,6 +5,7 @@ import { Link } from "@/lib/i18n/navigation";
 import { sportHref } from "@/lib/sport/routes";
 import type { FavouritePlayer } from "@/lib/sport/favourite-players";
 import { PlayerImage } from "./player/PlayerImage";
+import { usePlayerCurator } from "./player/PlayerCurator";
 import shell from "@/app/[locale]/spor/layout.module.css";
 import styles from "./PlayerRail.module.css";
 
@@ -38,6 +39,33 @@ export interface PlayerRailLabels {
  * Klavye: ray `tabindex` almıyor, kartların kendisi odaklanabilir ve tarayıcı
  * odaklanan kartı görünür alana kendisi getiriyor.
  */
+function CardShell({
+  curating,
+  href,
+  className,
+  style,
+  children,
+}: {
+  curating: boolean;
+  href: string;
+  className: string;
+  style: React.CSSProperties;
+  children: React.ReactNode;
+}) {
+  if (curating) {
+    return (
+      <div className={className} style={style}>
+        {children}
+      </div>
+    );
+  }
+  return (
+    <Link href={href} className={className} style={style}>
+      {children}
+    </Link>
+  );
+}
+
 export function PlayerRail({
   players,
   labels,
@@ -45,6 +73,8 @@ export function PlayerRail({
   players: FavouritePlayer[];
   labels: PlayerRailLabels;
 }) {
+  const curator = usePlayerCurator();
+  const curating = curator?.curating ?? false;
   const trackRef = useRef<HTMLUListElement | null>(null);
   const [overflow, setOverflow] = useState(false);
   const [atStart, setAtStart] = useState(true);
@@ -131,7 +161,11 @@ export function PlayerRail({
       <ul className={styles.track} ref={trackRef}>
         {players.map((player, i) => (
           <li key={player.slug} data-lead={i === 0 ? "" : undefined}>
-            <Link
+            {/* ⚠️ Kürator modunda kart bir <a> DEĞİL: düzenleyicinin dosya ve
+                adres alanları bağlantının içinde kalırsa hem geçersiz HTML olur
+                hem de alana basınca sayfa değişir (galeri karelerinde ölçüldü). */}
+            <CardShell
+              curating={curating}
               href={sportHref.favouritePlayer(player.slug)}
               className={styles.card}
               style={
@@ -194,7 +228,7 @@ export function PlayerRail({
                   </span>
                 </span>
               </div>
-            </Link>
+            </CardShell>
           </li>
         ))}
       </ul>

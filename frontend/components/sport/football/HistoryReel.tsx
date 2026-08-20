@@ -2,6 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@/lib/i18n/navigation";
+import type { PlayerImageSlot } from "@/lib/sport/favourite-players";
+import { PlayerImage } from "./player/PlayerImage";
+import { usePlayerCurator } from "./player/PlayerCurator";
 import shell from "@/app/[locale]/spor/layout.module.css";
 import styles from "./HistoryReel.module.css";
 
@@ -10,6 +13,7 @@ export interface HistoryEntry {
   title: string;
   kind: string;
   href: string;
+  image: PlayerImageSlot;
 }
 
 export interface HistoryReelLabels {
@@ -19,27 +23,25 @@ export interface HistoryReelLabels {
 }
 
 /**
- * Dönemin ışığı — yılın ve türün birlikte belirlediği renk sıcaklığı.
+ * Dönemin ışığı — yılın belirlediği renk sıcaklığı.
  *
  * ── NEDEN TÜRETİLİYOR, YAZILMIYOR ────────────────────────────────────────
  * Küratör şeride yeni bir kayıt eklediğinde onun rengini de seçmek zorunda
- * kalsaydı, ya her kayıt aynı renkte olurdu ya da şerit bir renk çorbasına
+ * kalsaydı ya her kayıt aynı renkte olurdu ya da şerit bir renk çorbasına
  * dönerdi. Renk yıldan geliyor: eski kayıtlar solmuş kâğıt, yakın kayıtlar
- * doygun gece. Yani şerit AŞAĞI indikçe ısınıyor ve bu ısınma anlatının
- * kendisi.
+ * doygun gece. Şerit aşağı indikçe ısınıyor ve bu ısınma anlatının kendisi.
  *
- * `TROPHY` bunun üstüne bir kat daha ekliyor (bileşendeki `data-peak`):
- * kupa kaydında ışık zirveye
- * çıkıyor. Brief'in "2000 — bu noktada sayfanın ışıkları zirveye ulaşsın"
- * cümlesinin kuralı bu; tek bir yıla gömülmedi ki 2000'den başka kupa
- * geceleri eklendiğinde onlar da parlasın.
+ * ⚠️ MAVİ/LACİVERT YOK. Önceki sürümde 1950-1990 bandı çelik mavisiydi
+ * (`#8fa6c4`) ve 1964 satırı sayfada mavi görünüyordu. Kullanıcı kaldırılmasını
+ * istedi ve gerekçesi kesin: lacivert rakip kulübün rengi, bir Galatasaray
+ * arşivinde yeri yok. Bant bronza çevrildi; şerit baştan sona sıcak kalıyor.
  */
 function toneOf(year: number) {
   if (year < 1950) {
     return { tone: "#b99a5e", deep: "#3a2c17" };
   }
   if (year < 1990) {
-    return { tone: "#8fa6c4", deep: "#1a2436" };
+    return { tone: "#c08a4a", deep: "#3a2410" };
   }
   if (year < 2006) {
     return { tone: "#d9a62e", deep: "#3d1119" };
@@ -48,22 +50,29 @@ function toneOf(year: number) {
 }
 
 /**
- * TARİHTEN — sinematik şerit.
+ * TARİHTEN — zikzak şerit.
  *
- * ── NEDEN ESKİ LİSTE GİTTİ ───────────────────────────────────────────────
- * Eski hâli `1905 — Kuruluş` biçiminde dört satırlık bir tipografik dizindi:
- * doğru bilgi, sıfır anlatı. Aynı dört kayıt burada dört SAHNE. Değişen şey
- * veri değil, verinin ne kadar yer kapladığı.
+ * ── NEDEN ZİKZAK ─────────────────────────────────────────────────────────
+ * Önceki sürüm tek sütunluk bir listeydi: yıl solda, başlık sağda, hepsi aynı
+ * hizada. Doğru bilgi ama tek ritim — göz üç kayıttan sonra tarıyor, okumuyor.
+ * Kayıtlar merkezî omurganın iki yanına alternatif dizilince her satır bir
+ * öncekinin aynası oluyor ve göz zikzak çizerek iniyor.
  *
- * ── AKTİFLEŞME ───────────────────────────────────────────────────────────
- * Tek bir `IntersectionObserver` bütün kayıtları izliyor ve ekranın orta
- * bandına giren kayıt "aktif" oluyor: yılı büyüyor, ışığı açılıyor, omurga
- * o noktaya kadar doluyor. Gözlemci `Reveal` gibi kendini SÖKMÜYOR — burada
- * durum yukarı kaydırınca da doğru kalmalı, çünkü aktiflik bir giriş
- * animasyonu değil, bir konum göstergesi.
+ * ── FOTOĞRAF ─────────────────────────────────────────────────────────────
+ * Her kaydın kendi karesi var ve küratör modundan değiştirilebiliyor. Karesi
+ * olmayan kayıt "FOTO EKLENECEK" çerçevesi çiziyor — boş kutu değil.
  *
- * `rootMargin` üst/alt %45: aynı anda yalnızca bir kayıt aktif kalsın diye
- * ekranın ortasında ince bir bant bırakıyor.
+ * ── AKTİFLİK: SCROLL **VE** HOVER ────────────────────────────────────────
+ * Kaydın ışığı iki yoldan açılıyor: ekranın orta bandına girince (okurken
+ * kendiliğinden) ve üstüne gelince (ararken elle). İkincisi kullanıcı isteği:
+ * "o satıra gelince aktifleşsin". Gözlemci `Reveal` gibi kendini SÖKMÜYOR —
+ * aktiflik bir giriş animasyonu değil, bir konum göstergesi.
+ *
+ * ── KÜRATÖR MODUNDA BAĞLANTI KAPALI ──────────────────────────────────────
+ * Kart normalde kulüp sayfasındaki dönem çapasına giden bir `<a>`. Düzenle
+ * düğmesi ve dosya/adres alanları onun içinde kalırsa hem geçersiz HTML olur
+ * hem de adres kutusuna basınca sayfa değişir. Mod açıkken kart `<div>`e
+ * dönüyor; galeri karelerinde alınan dersin aynısı.
  */
 export function HistoryReel({
   entries,
@@ -74,6 +83,8 @@ export function HistoryReel({
 }) {
   const ref = useRef<HTMLOListElement | null>(null);
   const [active, setActive] = useState(0);
+  const curator = usePlayerCurator();
+  const curating = curator?.curating ?? false;
 
   useEffect(() => {
     const el = ref.current;
@@ -99,8 +110,6 @@ export function HistoryReel({
 
   if (entries.length === 0) return null;
 
-  // 0-1 aralığı: omurga `scaleY` ile doluyor (yükseklik animasyonu yerleşim
-  // hesabı tetikliyordu).
   const fill = (active + 1) / entries.length;
 
   return (
@@ -118,8 +127,7 @@ export function HistoryReel({
       </header>
 
       <div className={styles.frame}>
-        {/* Omurga: şeridin ne kadarının geçildiğini gösteren tek dikey çizgi.
-            Süs değil — uzun bir şeritte "neredeyim" sorusunun cevabı. */}
+        {/* Omurga: şeridin ne kadarının geçildiğini gösteren tek dikey çizgi. */}
         <div className={styles.spine} aria-hidden="true">
           <span style={{ "--fill": fill } as React.CSSProperties} />
         </div>
@@ -128,34 +136,51 @@ export function HistoryReel({
           {entries.map((entry, i) => {
             const { tone, deep } = toneOf(entry.year);
             const peak = entry.kind === "TROPHY";
+            const body = (
+              <>
+                <span className={styles.shot}>
+                  <PlayerImage
+                    slot={entry.image}
+                    position="50% 30%"
+                    decorative
+                  />
+                  <span className={styles.shotLight} aria-hidden="true" />
+                </span>
+
+                <span className={styles.text}>
+                  {labels.kinds[entry.kind] ? (
+                    <span className={styles.kind}>
+                      {labels.kinds[entry.kind]}
+                    </span>
+                  ) : null}
+                  <span className={`${shell.display} ${styles.title}`}>
+                    {entry.title}
+                  </span>
+                </span>
+              </>
+            );
+
             return (
               <li
-                key={`${entry.year}-${entry.title}-${i}`}
+                key={entry.image.id}
                 data-active={i === active ? "" : undefined}
                 data-peak={peak ? "" : undefined}
-                style={
-                  { "--tone": tone, "--deep": deep } as React.CSSProperties
-                }
+                data-side={i % 2 === 0 ? "left" : "right"}
+                style={{ "--tone": tone, "--deep": deep } as React.CSSProperties}
               >
-                <Link href={entry.href} className={styles.entry}>
-                  <span className={styles.glow} aria-hidden="true" />
-                  <span className={styles.node} aria-hidden="true" />
+                <span className={styles.glow} aria-hidden="true" />
+                <span className={styles.node} aria-hidden="true" />
+                <span className={`${shell.figure} ${styles.year}`}>
+                  {entry.year}
+                </span>
 
-                  <span className={`${shell.figure} ${styles.year}`}>
-                    {entry.year}
-                  </span>
-
-                  <span className={styles.text}>
-                    {labels.kinds[entry.kind] ? (
-                      <span className={styles.kind}>
-                        {labels.kinds[entry.kind]}
-                      </span>
-                    ) : null}
-                    <span className={`${shell.display} ${styles.title}`}>
-                      {entry.title}
-                    </span>
-                  </span>
-                </Link>
+                {curating ? (
+                  <div className={styles.card}>{body}</div>
+                ) : (
+                  <Link href={entry.href} className={styles.card}>
+                    {body}
+                  </Link>
+                )}
               </li>
             );
           })}

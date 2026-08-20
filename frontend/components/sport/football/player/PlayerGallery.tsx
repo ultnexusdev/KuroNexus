@@ -138,7 +138,17 @@ export function PlayerGallery({
           const wide = (slot.width ?? 1) > (slot.height ?? 1) * 1.2;
           const tall = (slot.height ?? 1) > (slot.width ?? 1) * 1.25;
           const openIndex = openable.indexOf(slot);
-          const clickable = openIndex >= 0;
+          /**
+           * ⚠️ KÜRATÖR MODUNDA IŞIK KUTUSU KAPALI.
+           *
+           * Kare düzenlenebilirken `<button>` olarak çizilirse düzenleyicinin
+           * dosya/adres alanları o düğmenin İÇİNDE kalıyor: hem geçersiz HTML
+           * (button içinde button/input) hem de adres kutusuna basınca ışık
+           * kutusunun açılması — kullanıcı bildirimi, "yeni bağlantı adresi
+           * eklememi engelliyor". Düzenlerken göz atmaya da gerek yok; mod
+           * kapanınca büyütme geri geliyor.
+           */
+          const clickable = openIndex >= 0 && !curator?.curating;
 
           const inner = (
             <>

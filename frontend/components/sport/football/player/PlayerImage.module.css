@@ -1,5 +1,10 @@
 /* ============================================================
    GÖRSEL YUVASI · gerçek kare ya da tasarlanmış yer tutucu
+
+   ⚠️ İKİ KATMAN. Kırpma `.clip` üzerinde, `.frame` üzerinde DEĞİL.
+   Gerekçesi ölçülmüş bir arıza: kırpma dıştaki kaptayken 36 pikselik arma
+   yuvasında küratör düğmesi ve paneli kesiliyordu. Şimdi görsel kırpılıyor,
+   düzenleyici dışarı çıkabiliyor.
    ============================================================ */
 
 .frame {
@@ -7,6 +12,14 @@
   display: block;
   width: 100%;
   height: 100%;
+  /* Kırpma YOK — bkz. yukarıdaki not. */
+  container-type: inline-size;
+}
+
+.clip {
+  position: absolute;
+  inset: 0;
+  display: block;
   overflow: hidden;
   background: linear-gradient(
     155deg,
@@ -15,7 +28,7 @@
   );
 }
 
-.frame img {
+.clip img {
   display: block;
   width: 100%;
   height: 100%;
@@ -93,12 +106,7 @@
   overflow-wrap: anywhere;
 }
 
-/* Küçük yuvalarda ipucu ve yol satırı taşmasın — kap sorgusu.
-   `.frame` kap olarak işaretleniyor ki ölçü kartın kendi genişliğinden gelsin. */
-.frame {
-  container-type: inline-size;
-}
-
+/* Küçük yuvalarda ipucu, yol ve düğme etiketi sığmıyor — kap sorgusu. */
 @container (max-width: 220px) {
   .holderHint,
   .holderPath {
@@ -115,28 +123,35 @@
   .holderLabel {
     display: none;
   }
+
+  /* Arma gibi minik yuvalarda düğme yalnızca simge — yuva adı panelin
+     başlığında zaten yazıyor. */
+  .editButton span {
+    display: none;
+  }
+
+  .editButton {
+    padding: 0.3rem;
+  }
 }
 
 /* ============================================================
    KÜRATÖR DÜZENLEYİCİSİ
    ============================================================ */
 
-.editor {
-  position: absolute;
-  left: 0.4rem;
-  top: 0.4rem;
-  z-index: 6;
-  display: block;
-}
-
 .editButton {
+  position: absolute;
+  left: 0.35rem;
+  top: 0.35rem;
+  z-index: 6;
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
+  max-width: calc(100% - 0.7rem);
   padding: 0.3rem 0.55rem;
-  border: 1px solid color-mix(in srgb, var(--accent, #f6c94a) 55%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent, #f6c94a) 60%, transparent);
   border-radius: 2px;
-  background: color-mix(in srgb, #05070c 82%, transparent);
+  background: color-mix(in srgb, #05070c 86%, transparent);
   color: color-mix(in srgb, var(--accent, #f6c94a) 94%, #fff);
   font-family: var(--font-mono);
   font-size: 0.62rem;
@@ -145,13 +160,22 @@
   backdrop-filter: blur(3px);
 }
 
-.editButton:hover {
-  background: color-mix(in srgb, var(--accent, #f6c94a) 20%, #05070c);
+.editButton:hover,
+.editButton[aria-expanded="true"] {
+  background: var(--accent, #f6c94a);
+  color: #14110a;
+}
+
+.editButton span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .editButton svg {
   width: 0.85rem;
   height: 0.85rem;
+  flex: none;
   fill: none;
   stroke: currentColor;
   stroke-width: 1.7;
@@ -159,34 +183,58 @@
   stroke-linejoin: round;
 }
 
+/* ---- Panel ----
+   `document.body`ye portal ile taşınıyor ve `fixed` konumlanıyor: sayfadaki
+   `overflow: hidden` taşıyan kapların hiçbiri onu kesemiyor. Genişlik JS
+   tarafındaki `POP_WIDTH` ile aynı olmak zorunda (kelepçeleme onu okuyor). */
 .pop {
-  position: absolute;
-  left: 0;
-  top: calc(100% + 0.35rem);
-  z-index: 8;
+  position: fixed;
+  z-index: 120;
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  width: max(15rem, 100%);
-  padding: 0.6rem;
-  border: 1px solid var(--border-strong);
+  gap: 0.45rem;
+  padding: 0.65rem;
+  border: 1px solid color-mix(in srgb, var(--accent, #f6c94a) 45%, transparent);
   border-radius: 3px;
   background: #0e1017;
-  box-shadow: 0 20px 50px -22px rgba(0, 0, 0, 0.95);
+  box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.95);
+  font-family: var(--font-inter), var(--font-sans);
 }
 
-.pop button,
-.pop input {
-  font-family: var(--font-inter), var(--font-sans);
-  font-size: 0.75rem;
+.popHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.popHead code {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  color: color-mix(in srgb, var(--accent, #f6c94a) 94%, #fff);
+  overflow-wrap: anywhere;
+}
+
+.popHead button {
+  width: 1.5rem;
+  height: 1.5rem;
+  flex: none;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
 }
 
 .popPrimary {
-  padding: 0.45rem 0.6rem;
+  padding: 0.5rem 0.6rem;
   border: 0;
   border-radius: 2px;
   background: var(--accent, #f6c94a);
   color: #14110a;
+  font-size: 0.78rem;
   font-weight: 700;
   cursor: pointer;
 }
@@ -194,6 +242,21 @@
 .popPrimary:disabled {
   opacity: 0.55;
   cursor: default;
+}
+
+/* Adres alanı ETİKETLİ: eskiden yalnızca yer tutucu metni vardı ve dar
+   yuvalarda hiç görünmüyordu (kullanıcı bildirimi). */
+.popField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.popField > span:first-child {
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
 }
 
 .popRow {
@@ -204,33 +267,47 @@
 .popRow input {
   flex: 1;
   min-width: 0;
-  padding: 0.4rem 0.5rem;
-  border: 1px solid var(--border);
+  padding: 0.45rem 0.5rem;
+  border: 1px solid var(--border-strong);
   border-radius: 2px;
   background: #070910;
   color: var(--text-primary);
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.78rem;
+}
+
+.popRow input:focus-visible {
+  outline: 2px solid var(--accent, #f6c94a);
+  outline-offset: 1px;
 }
 
 .popRow button {
-  padding: 0.4rem 0.55rem;
+  flex: none;
+  padding: 0.45rem 0.6rem;
   border: 1px solid var(--border-strong);
   border-radius: 2px;
   background: transparent;
   color: var(--text-primary);
+  font-size: 0.78rem;
   cursor: pointer;
 }
 
+.popRow button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
 .popReset {
-  padding: 0.35rem;
+  padding: 0.4rem;
   border: 1px solid color-mix(in srgb, #a61c2b 60%, transparent);
   border-radius: 2px;
   background: transparent;
   color: #e7808a;
+  font-size: 0.76rem;
   cursor: pointer;
 }
 
 .popError {
-  font-family: var(--font-inter), var(--font-sans);
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   color: #e7808a;
 }

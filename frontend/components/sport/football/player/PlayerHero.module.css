@@ -314,6 +314,15 @@
 }
 
 /* ---- Kaydırma işareti ---- */
+/* ⚠️ YATAY, DİKEY DEĞİL — 20 Ağustos 2026'da düzeltildi.
+   Önceki sürüm `writing-mode: vertical-rl` + `bottom` ankrajlıydı: etiket
+   artı 2.75rem'lik çizgi yaklaşık 8rem yukarı BÜYÜYOR ve tam olarak künye
+   satırının (doğum tarihi / uyruk / boy / kilo) üstüne biniyordu — kullanıcı
+   bildirimi, ekran görüntüsüyle doğrulandı.
+
+   Şimdi ipucu yatay ve hero'nun ALT DOLGUSUNUN içinde duruyor. Dolgu en az
+   4rem (`clamp(4rem, 9vh, 6rem)`), ipucu ~1rem: künyeyle bir daha
+   çakışamaz. */
 .scroll {
   position: absolute;
   left: var(--sp-gutter);
@@ -321,8 +330,8 @@
   z-index: 3;
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  writing-mode: vertical-rl;
+  gap: 0.65rem;
+  height: 1rem;
   font-family: var(--font-mono);
   font-size: 0.62rem;
   letter-spacing: 0.2em;
@@ -332,9 +341,9 @@
 
 .scroll::after {
   content: "";
-  width: 1px;
-  height: 2.75rem;
-  background: linear-gradient(var(--accent), transparent);
+  width: 2.75rem;
+  height: 1px;
+  background: linear-gradient(90deg, var(--accent), transparent);
 }
 
 /* ============================================================

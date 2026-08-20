@@ -58,8 +58,17 @@ export function PlayerStats({
             onClick={() => setMode("club")}
             title={labels.clubHint}
           >
+            {/* ⚠️ `noEdit`: bu arma bir `<button>`ın İÇİNDE. Küratör düğmesi
+                burada çizilseydi düğme içinde düğme olurdu — hem geçersiz
+                HTML hem de tıklamanın kümeyi değiştirmesi. Aynı yuva hero'nun
+                üst şeridinde düzenlenebiliyor. */}
             <span className={styles.crestBox}>
-              <PlayerImage slot={stats.club.crest} fit="contain" decorative />
+              <PlayerImage
+                slot={stats.club.crest}
+                fit="contain"
+                decorative
+                noEdit
+              />
             </span>
             <span className={styles.crestLabel}>{stats.club.label}</span>
           </button>

@@ -158,9 +158,17 @@ export function PlayerRail({
         ) : null}
       </header>
 
+      {/* `data-sig` kartın BOŞ hâlini oyuncuya özel kılıyor: fotoğrafı
+          yüklenmemiş yuvada `PlayerImage` tasarlanmış bir boşluk çiziyor ve o
+          boşluğun motifi bu öznitelikten okunuyor. Paletle birlikte yirmi üç
+          kart yirmi üç ayrı boşluk gösteriyor, aynı gri kutu değil. */}
       <ul className={styles.track} ref={trackRef}>
         {players.map((player, i) => (
-          <li key={player.slug} data-lead={i === 0 ? "" : undefined}>
+          <li
+            key={player.slug}
+            data-lead={i === 0 ? "" : undefined}
+            data-sig={player.design.signature}
+          >
             {/* ⚠️ Kürator modunda kart bir <a> DEĞİL: düzenleyicinin dosya ve
                 adres alanları bağlantının içinde kalırsa hem geçersiz HTML olur
                 hem de alana basınca sayfa değişir (galeri karelerinde ölçüldü). */}

@@ -634,3 +634,25 @@ export function fetchPlayerImages(
     { next: { revalidate: 0 } },
   );
 }
+
+/**
+ * BÜTÜN futbolcuların yuvaları — tek istek, iki katlı harita.
+ *
+ * Hub ve efsaneler salonu defterdeki HER futbolcunun kart yuvasını çiziyor.
+ * Futbolcu başına bir istek atmak yirmi üç kayıtta yirmi dört tur demekti ve
+ * her yeni futbolcu sayfayı bir tur daha yavaşlatırdı. Bu uç aynı işi tek
+ * sorguyla yapıyor.
+ *
+ * Yanıt: `{ "mauro-icardi": { "hero": "/uploads/…" }, "osimhen": { … } }`
+ *
+ * `revalidate: 0` — tekil uçtaki gerekçenin aynısı: küratör bir kare
+ * yükledikten sonra sayfayı tazeleyince yeni kareyi görmeli.
+ */
+export function fetchAllPlayerImages(): Promise<
+  Record<string, Record<string, string>>
+> {
+  return apiFetch<Record<string, Record<string, string>>>(
+    "/sport-archive/football/players/images",
+    { next: { revalidate: 0 } },
+  );
+}

@@ -904,4 +904,26 @@ export class SportArchiveService {
     for (const row of rows) map[row.slotId] = row.url;
     return map;
   }
+
+  /**
+   * BÜTÜN futbolcuların yuvaları — tek sorgu, iki katlı harita.
+   *
+   * Hub ve efsaneler salonu defterdeki her futbolcunun kart yuvasını çiziyor;
+   * futbolcu başına bir istek atmak yirmi üç kayıtta yirmi dört tur demekti.
+   * Tablo küçük (yuva başına bir satır) ve `isDeleted` filtresi dışında
+   * daraltılacak bir şey yok, o yüzden tamamı tek seferde okunuyor.
+   */
+  async getAllPlayerImages(): Promise<Record<string, Record<string, string>>> {
+    const rows = await this.prisma.favouritePlayerImage.findMany({
+      where: { isDeleted: false },
+      select: { playerSlug: true, slotId: true, url: true },
+    });
+
+    const out: Record<string, Record<string, string>> = {};
+    for (const row of rows) {
+      const bucket = (out[row.playerSlug] ??= {});
+      bucket[row.slotId] = row.url;
+    }
+    return out;
+  }
 }

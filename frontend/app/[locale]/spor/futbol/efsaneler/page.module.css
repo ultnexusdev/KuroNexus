@@ -1,0 +1,375 @@
+/* ============================================================
+   EFSANELER SALONU · /spor/futbol/efsaneler
+
+   Bireysel futbolcu sayfaları enerjik ve modern: Anton'un poster kapitali,
+   gece rengi, hareket. BURASI ONUN TERSİ — bir madalya vitrini. Cinzel'in
+   kitabe sesi, arşiv sepyası, tarama dokusu ve taş gibi duran bir ızgara.
+   İki sayfa arka arkaya açıldığında aynı sitenin iki farklı odası gibi
+   durmalı, aynı şablonun iki kopyası gibi değil.
+
+   ⚠️ MAVİ YOK. Kanadın tamamında geçerli kural (devir notu §3.2): rakip
+   kulübün rengi ve burası bir Galatasaray arşivi. Buradaki soğukluk maviyle
+   değil TAŞ ve KÜL tonlarıyla kuruluyor.
+
+   Palet sayfanın kendi kökünde: bu rota futbolcu ağacının dışında, oradaki
+   `--ink/--accent` değişkenleri burada tanımlı değil.
+   ============================================================ */
+
+.page {
+  --ink: #0d0b09;
+  --accent: #d8b168;
+  --warm: #8e2b23;
+  --bone: #efe7d8;
+  --stone: #8d8778;
+
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(3rem, 8vw, 6rem);
+  min-width: 0;
+  padding-bottom: clamp(4rem, 10vw, 7rem);
+  font-family: var(--font-inter), var(--font-sans);
+  color: var(--bone);
+  background-color: #08070a;
+  background-image:
+    radial-gradient(
+      110% 40% at 82% 0%,
+      color-mix(in srgb, var(--warm) 14%, transparent),
+      transparent 62%
+    ),
+    linear-gradient(180deg, var(--ink) 0%, #08070a 100%);
+}
+
+/* ---- Atmosfer: arşiv dokusu ----
+   İki katman, ikisi de dekoratif ve tıklamayı yutmuyor. `position: absolute`
+   + `z-index: -1`, yani içeriğin ARKASINDA — görünmez kutu tıklama yutma
+   tuzağı (devir notu §4.3) burada oluşmuyor. */
+.atmosphere {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.atmosphere > span {
+  position: absolute;
+  display: block;
+}
+
+.wash {
+  inset: -10%;
+  background: radial-gradient(
+    46% 32% at 18% 12%,
+    color-mix(in srgb, var(--accent) 13%, transparent),
+    transparent 70%
+  );
+}
+
+/* Tarama izi — eski kayıt bandı. Çok düşük opaklık: doku olarak hissediliyor,
+   desen olarak görünmüyor. */
+.scan {
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    0deg,
+    color-mix(in srgb, var(--bone) 4%, transparent) 0 1px,
+    transparent 1px 4px
+  );
+}
+
+/* ⚠️ `pointer-events` — kırıntı tam genişlikte bir bant ve görsel olarak
+   ortası boş. Altında kalan hiçbir düğmeyi yutmaması için şerit tıklamayı
+   geçiriyor, bağlantılar iznini geri alıyor (aynı arıza futbolcu sayfasında
+   ölçüldü). */
+.crumb {
+  position: relative;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.crumb a {
+  pointer-events: auto;
+}
+
+/* ---- Başlık ---- */
+.head {
+  max-width: var(--sp-max);
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: var(--sp-gutter);
+  padding-top: clamp(1.5rem, 5vw, 3.5rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  min-width: 0;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--accent) 82%, transparent);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-cinzel), serif;
+  font-weight: 700;
+  font-size: clamp(2.25rem, 6.5vw, 5rem);
+  line-height: 1.02;
+  letter-spacing: 0.06em;
+  color: var(--bone);
+}
+
+.lede {
+  margin: 0;
+  max-width: 52ch;
+  font-size: clamp(0.95rem, 1.6vw, 1.1rem);
+  line-height: 1.65;
+  color: color-mix(in srgb, var(--bone) 68%, transparent);
+}
+
+/* ---- Bölüm başlıkları ---- */
+.sectionHead {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+  min-width: 0;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: var(--font-cinzel), serif;
+  font-weight: 700;
+  font-size: clamp(1.1rem, 2.2vw, 1.5rem);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--accent) 90%, #fff);
+}
+
+.sectionLede {
+  margin: 0;
+  max-width: 46ch;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: color-mix(in srgb, var(--bone) 58%, transparent);
+}
+
+/* ============================================================
+   PANTEON — iki isim, yan yana
+
+   Bir kulübün hafızasında bütün isimler eşit ağırlıkta durmaz. Bu bölüm
+   hiyerarşiyi görünür kılıyor: portre alanı büyük, tipografi vurgulu, ad
+   kitabe gibi basılıyor.
+   ============================================================ */
+.pantheon,
+.roll {
+  max-width: var(--sp-max);
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: var(--sp-gutter);
+  min-width: 0;
+}
+
+.pantheonGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1.25rem, 3.5vw, 2.5rem);
+}
+
+/* Tek isim kaldıysa ızgara ortalanıyor ve genişliği sınırlanıyor: yarım
+   dolu iki sütun "burası boş" der. */
+.pantheon[data-single] .pantheonGrid {
+  grid-template-columns: minmax(0, min(30rem, 100%));
+  justify-content: center;
+}
+
+.monument {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  min-width: 0;
+}
+
+.monumentPortrait {
+  position: relative;
+  display: block;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--ink) 88%, #000);
+  box-shadow: 0 30px 90px color-mix(in srgb, #000 62%, transparent);
+}
+
+/* Portre durgun hâlde sepyaya çekiliyor, hover/odakta tam renge açılıyor.
+   Tek görsel + filter geçişi; ikinci bir dosya inmiyor. */
+.monumentPortrait :global(img),
+.plaquePortrait :global(img) {
+  filter: sepia(0.45) saturate(0.72) contrast(1.05);
+  transition: filter 520ms ease, transform 720ms ease;
+}
+
+.monument:hover .monumentPortrait :global(img),
+.monument:focus-within .monumentPortrait :global(img),
+.plaque:hover .plaquePortrait :global(img),
+.plaque:focus-within .plaquePortrait :global(img) {
+  filter: none;
+  transform: scale(1.03);
+}
+
+/* İç çerçeve çizgisi — vitrin camı hissi */
+.frameLine {
+  position: absolute;
+  inset: 0.6rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  pointer-events: none;
+}
+
+.monumentBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.monumentName {
+  margin: 0;
+  font-family: var(--font-cinzel), serif;
+  font-weight: 700;
+  font-size: clamp(1.5rem, 3.4vw, 2.6rem);
+  line-height: 1.05;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.monumentName a,
+.plaqueName a {
+  color: var(--bone);
+  text-decoration: none;
+  background-image: linear-gradient(var(--accent), var(--accent));
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 1px;
+  transition: background-size 420ms ease, color 300ms ease;
+}
+
+.monumentName a:hover,
+.monumentName a:focus-visible,
+.plaqueName a:hover,
+.plaqueName a:focus-visible {
+  color: var(--accent);
+  background-size: 100% 1px;
+}
+
+.monumentEpithet {
+  margin: 0;
+  font-family: var(--font-cormorant), var(--font-petrona), serif;
+  font-style: italic;
+  font-size: clamp(1rem, 1.9vw, 1.25rem);
+  color: color-mix(in srgb, var(--accent) 78%, transparent);
+}
+
+.monumentYears {
+  display: flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  margin: 0.2rem 0 0;
+}
+
+.monumentYears em {
+  font-family: var(--font-bebas), sans-serif;
+  font-style: normal;
+  font-size: 1.15rem;
+  letter-spacing: 0.06em;
+  color: var(--bone);
+}
+
+.monumentYears i {
+  font-style: normal;
+  font-size: 0.66rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--bone) 44%, transparent);
+}
+
+/* ============================================================
+   ONUR LİSTESİ — tekdüze ızgara
+
+   Panteonun aksine burada bütün kartlar EŞİT. Hiyerarşi zaten yukarıda
+   kuruldu; burada tekrar etmek onu zayıflatırdı.
+   ============================================================ */
+.rollGrid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(13rem, 100%), 1fr));
+  gap: clamp(1rem, 2.5vw, 1.75rem);
+}
+
+.plaque {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.plaquePortrait {
+  position: relative;
+  display: block;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--ink) 88%, #000);
+  border: 1px solid color-mix(in srgb, var(--bone) 12%, transparent);
+}
+
+.plaqueBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.plaqueName {
+  margin: 0;
+  font-family: var(--font-cinzel), serif;
+  font-weight: 700;
+  font-size: clamp(0.95rem, 1.6vw, 1.1rem);
+  line-height: 1.2;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.plaqueEpithet {
+  margin: 0;
+  font-family: var(--font-cormorant), var(--font-petrona), serif;
+  font-style: italic;
+  font-size: 0.9rem;
+  color: color-mix(in srgb, var(--accent) 70%, transparent);
+}
+
+/* ---- Dar ekran ----
+   Panteon tek sütuna düşüyor: iki anıtsal portreyi yan yana sıkıştırmak
+   ikisini de küçültür ve bölümün bütün anlamı (ağırlık) kaybolur. */
+@media (max-width: 720px) {
+  .pantheonGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .monumentPortrait :global(img),
+  .plaquePortrait :global(img) {
+    transition: none;
+  }
+
+  .monument:hover .monumentPortrait :global(img),
+  .plaque:hover .plaquePortrait :global(img) {
+    transform: none;
+  }
+}

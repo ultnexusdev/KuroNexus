@@ -2,19 +2,17 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
-import { fetchFootballHub, fetchPlayerImages, pick } from "@/lib/api/sport-archive";
+import { fetchFootballHub, pick } from "@/lib/api/sport-archive";
 import { readIsAdmin } from "@/lib/auth/session";
 import { sportHref } from "@/lib/sport/routes";
+import { readCuratorImages } from "@/lib/sport/curator-images";
 import { FAVOURITE_PLAYERS } from "@/lib/sport/favourite-players";
 import {
   HUB_HERO_SLOT,
   HUB_OWNER,
   historySlot,
 } from "@/lib/sport/football-hub-slots";
-import {
-  PlayerCuratorProvider,
-  type CuratorImages,
-} from "@/components/sport/football/player/PlayerCurator";
+import { PlayerCuratorProvider } from "@/components/sport/football/player/PlayerCurator";
 import { HubStage } from "@/components/sport/football/HubStage";
 import { ClubGate } from "@/components/sport/football/ClubGate";
 import { LegendsHall } from "@/components/sport/football/LegendsHall";
@@ -105,15 +103,7 @@ export default async function FootballHubPage({
    * Uç düşerse boş harita dönüyor ve sayfa varsayılanlarla açılıyor.
    */
   const owners = [HUB_OWNER, ...FAVOURITE_PLAYERS.map((p) => p.slug)];
-  const fetched = await Promise.all(
-    owners.map((owner) =>
-      fetchPlayerImages(owner).catch(() => ({}) as Record<string, string>),
-    ),
-  );
-  const images: CuratorImages = {};
-  owners.forEach((owner, i) => {
-    images[owner] = fetched[i];
-  });
+  const images = await readCuratorImages(owners);
 
   /**
    * EFSANELER — iki kaynak tek salonda.
@@ -251,11 +241,13 @@ export default async function FootballHubPage({
         {/* ══ Sahne 3 · efsaneler ══ */}
         <LegendsHall
           legends={legendEntries}
+          allHref={sportHref.legends()}
           labels={{
             title: t("hub.legends"),
             lede: t("hub.legendsLede"),
             open: t("hub.legendOpen"),
             years: t("hub.legendYears"),
+            all: t("hub.allLegends"),
           }}
         />
 

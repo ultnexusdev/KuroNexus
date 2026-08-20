@@ -2058,6 +2058,18 @@
       "figures": "Bu dönemin isimleri",
       "moments": "Anlar"
     },
+    "legendsIndex": {
+      "eyebrow": "Galatasaray",
+      "title": "Efsaneler Salonu",
+      "lede": "Bir kulübün hafızası isimlerden değil, yüzlerden kurulur. Buradaki her portre kendi sayfasını açar.",
+      "pantheon": "Panteon",
+      "pantheonLede": "Kulübün kimliğini kuran iki isim. Biri onu var etti, diğeri ona bir dil öğretti.",
+      "roll": "Onur listesi",
+      "rollLede": "Aynı formayı taşıyan diğer yüzler.",
+      "open": "Sayfasına git",
+      "years": "Yıllar",
+      "empty": "Salon henüz boş."
+    },
     "legend": {
       "title": "Efsane",
       "career": "Kariyer",

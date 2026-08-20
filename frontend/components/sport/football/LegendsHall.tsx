@@ -30,6 +30,8 @@ export interface LegendsHallLabels {
   lede: string;
   open: string;
   years: string;
+  /** Salonun tamamına giden bağlantının metni */
+  all: string;
 }
 
 /**
@@ -60,9 +62,18 @@ export interface LegendsHallLabels {
 export function LegendsHall({
   legends,
   labels,
+  allHref,
 }: {
   legends: LegendEntry[];
   labels: LegendsHallLabels;
+  /**
+   * Efsaneler salonunun tam sayfası (`/spor/futbol/efsaneler`).
+   *
+   * Hub'daki bu bölüm bir ÖZET: baş efsane büyük, birkaçı yanında. Salonun
+   * tamamı — panteon ayrımı ve onur listesiyle — kendi sayfasında duruyor.
+   * Yazılmazsa bağlantı hiç çizilmiyor.
+   */
+  allHref?: string;
 }) {
   if (legends.length === 0) return null;
 
@@ -163,6 +174,15 @@ export function LegendsHall({
             </li>
           ))}
         </ul>
+      ) : null}
+
+      {allHref ? (
+        <Link href={allHref} className={styles.all}>
+          {labels.all}
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 12h15M13 6l6 6-6 6" />
+          </svg>
+        </Link>
       ) : null}
     </section>
   );

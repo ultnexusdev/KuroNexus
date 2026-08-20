@@ -1,0 +1,351 @@
+import type { FavouritePlayer } from "./types";
+
+/** Kareler bu klasörde bekliyor; küratörün yüklediği dosyalar `/uploads/`de. */
+const BASE = "/assets/players/ugurcan-cakir";
+
+/**
+ * ⚠️ SAYILAR DOĞRULANMADI — dış bir kaynakla karşılaştırılmadı.
+ * Küratör düzeltmesi bu dosyada tek satır.
+ *
+ * Bu kayıtta bilerek EKSİK bırakılan yerler var: kaleci için maç, kurtarış ve
+ * gol yememe sayıları elde yok; uydurmak yerine hiç yazılmadı. Kariyer
+ * duraklarının `matches`/`goals` alanları `null`, kulüp istatistik kümesi
+ * sayı yerine yalnızca emin olunan künyeyi taşıyor. Doğum günü ve kilo da
+ * aynı sebeple dar değil geniş yazıldı.
+ */
+export const ugurcanCakir: FavouritePlayer = {
+  slug: "ugurcan-cakir",
+  name: "Uğurcan Çakır",
+  firstName: "UĞURCAN",
+  lastName: "ÇAKIR",
+  shirt: null,
+  position: "Kaleci",
+  club: "Galatasaray",
+  clubShort: "GS",
+  country: "Türkiye",
+  countryCode: "TR",
+  birthDate: "1996",
+  birthPlace: "Türkiye",
+  height: "191 cm",
+  weight: "—",
+  tagline: "Kalesinde sessiz durur; tehlike yaklaştıkça büyür.",
+  quote:
+    "Bir kalecinin en iyi maçı, bittiğinde kimsenin onu konuşmadığı maçtır.",
+  closingQuote:
+    "Kaleci ancak hata yaptığında görülür. En iyi geceleri, adının hiç anılmadığı gecelerdir.",
+  palette: {
+    ink: "#140b0c",
+    accent: "#e6dccb",
+    warm: "#7d1a2c",
+    glow: "rgba(230, 220, 203, 0.28)",
+    neon: "#9c1f33",
+  },
+  hero: {
+    id: "hero",
+    src: `${BASE}/hero.jpg`,
+    alt: "Uğurcan Çakır, Galatasaray kalesinde",
+    placeholder: true,
+    hint: "Dikey kadraj · GS kaleci forması · eldivenler görünsün · duruş anı, kurtarış değil",
+    width: 1200,
+    height: 1600,
+  },
+  card: {
+    id: "card",
+    src: `${BASE}/kart.jpg`,
+    alt: "Uğurcan Çakır",
+    placeholder: true,
+    hint: "Hub şeridindeki kart için · dikey · üst gövde · yüz net",
+    width: 900,
+    height: 1200,
+  },
+  badges: ["Kaleci", "Galatasaray", "Türkiye"],
+  vitals: [
+    { label: "Doğum yılı", value: "1996" },
+    { label: "Uyruk", value: "Türkiye" },
+    { label: "Boy", value: "191 cm" },
+    { label: "Mevki", value: "Kaleci" },
+  ],
+  storyTitle: ["Karadeniz'den", "İstanbul'a"],
+  storyLede:
+    "Bir kulübün kendi altyapısından çıkan kaleci, o kulübe otuz sekiz yıl sonra şampiyonluk getirdi. Sonra eldivenlerini alıp İstanbul'a geldi.",
+  story: [
+    "Trabzonspor altyapısında büyüdü. Kalecinin en zor okuduğu yer kendi tribünüdür ve Trabzon'da tribün kaleye çok yakın durur; orada yetişen bir çocuk daha ilk yıllarda arkasındaki sesle yaşamayı öğrenir. Uğurcan bu sesi bir baskı değil, bir metronom gibi kullanmayı öğrendi.",
+    "Arada bir kiralık dönem oldu — altyapıdan çıkan kalecilerin çoğu için bu dönem kariyerin biteceği yerdir. O geri döndü ve eldiveni bir daha bırakmadı. Kaleci mevkisinde geri dönmek, forvette gol atmaktan zordur: bir yanlış tercih ve yer bir sezon boyunca kapanır.",
+    "Trabzonspor'un otuz sekiz yıl sonra gelen şampiyonluğunda kalede o vardı. Şampiyonluk anlatılırken golcüler sayılır; oysa uzun bir sezonun tuttuğu yer çoğu zaman kaledir. O sezon Trabzonspor'un kalesi bir tartışma konusu olmadı — bir kaleci için bundan büyük övgü yoktur.",
+    "Millî formada da aynı yeri aldı ve Avrupa Şampiyonası'nda Türkiye'nin kalesini o korudu. 2025 yazında Galatasaray'a geldi. Trabzon'dan İstanbul'a giden bu yol Türkiye futbolunda çok yürünmüştür; ama kaleci olarak yürümek başka bir şey, çünkü kaleci yeni tribünle önce sırtından tanışır.",
+  ],
+  stats: {
+    club: {
+      key: "galatasaray",
+      label: "Galatasaray",
+      crest: {
+        id: "crest-gs",
+        src: `${BASE}/arma-gs.png`,
+        alt: "Galatasaray arması",
+        placeholder: true,
+        hint: "Arma · kare kadraj · zemin temiz, gölge yok",
+        width: 800,
+        height: 800,
+      },
+      entries: [
+        { key: "arrival", label: "Geliş", value: "2025" },
+        { key: "position", label: "Mevki", value: "Kaleci" },
+        { key: "from", label: "Önceki durak", value: "Trabzonspor" },
+      ],
+      note: "Maç, kurtarış ve gol yememe sayıları bu deftere henüz işlenmedi — küratör dokunacak.",
+    },
+    all: {
+      label: "Tüm zamanlar",
+      entries: [
+        { key: "league", label: "Süper Lig", value: "1" },
+        { key: "cup", label: "Türkiye Kupası", value: "1" },
+        { key: "national", label: "Millî takım", value: "Türkiye" },
+      ],
+      note: "Kupalar Trabzonspor'da kazanıldı. Kaleci istatistikleri ayrıca sayılacak.",
+    },
+  },
+  career: [
+    {
+      id: "trabzonspor-altyapi",
+      years: "Altyapı",
+      club: "Trabzonspor Altyapı",
+      country: "Türkiye",
+      note: "Kaleci olmayı, kalenin arkasındaki sesle birlikte öğrendiği yer.",
+      tone: "#6d6455",
+      matches: null,
+      goals: null,
+      image: {
+        id: "career-trabzonspor-altyapi",
+        src: `${BASE}/kariyer-altyapi.jpg`,
+        alt: "Uğurcan Çakır, altyapı yıllarında",
+        placeholder: true,
+        hint: "Yatay · genç yaş karesi · antrenman ya da takım fotoğrafı · arşiv kalitesi kabul",
+        width: 1200,
+        height: 800,
+      },
+    },
+    {
+      id: "1461-trabzon",
+      years: "2010'ların ortası",
+      club: "1461 Trabzon",
+      country: "Türkiye",
+      note: "Alt ligde geçen kiralık dönem: hata affetmeyen sahalarda ilk gerçek maçlar.",
+      tone: "#5f584b",
+      matches: null,
+      goals: null,
+      image: {
+        id: "career-1461-trabzon",
+        src: `${BASE}/kariyer-1461.jpg`,
+        alt: "Uğurcan Çakır, 1461 Trabzon formasıyla",
+        placeholder: true,
+        hint: "Yatay · alt lig sahası · kalabalık az · kadraj dokulu olsun",
+        width: 1200,
+        height: 800,
+      },
+    },
+    {
+      id: "trabzonspor",
+      years: "2010'ların sonu — 2025",
+      club: "Trabzonspor",
+      country: "Türkiye",
+      note: "Bir kulübün kendi çocuğu olarak kaleyi devraldı ve tartışma konusu olmadan tuttu.",
+      tone: "#8d8778",
+      matches: null,
+      goals: null,
+      image: {
+        id: "career-trabzonspor",
+        src: `${BASE}/kariyer-trabzonspor.jpg`,
+        alt: "Uğurcan Çakır, Trabzonspor kalesinde",
+        placeholder: true,
+        hint: "Yatay · kurtarış anı · şeridin en güçlü Trabzonspor karesi burası",
+        width: 1200,
+        height: 800,
+      },
+    },
+    {
+      id: "galatasaray",
+      years: "2025 —",
+      club: "Galatasaray",
+      country: "Türkiye",
+      note: "Karadeniz'den İstanbul'a; aynı mevki, bambaşka bir sırt.",
+      tone: "#e6dccb",
+      matches: null,
+      goals: null,
+      current: true,
+      image: {
+        id: "career-galatasaray",
+        src: `${BASE}/kariyer-galatasaray.jpg`,
+        alt: "Uğurcan Çakır, Galatasaray kalesinde",
+        placeholder: true,
+        hint: "Yatay · GS kaleci forması · projektör ışığı · şeridin zirvesi",
+        width: 1200,
+        height: 800,
+      },
+    },
+  ],
+  nights: [
+    {
+      year: 2020,
+      title: "Kupa gecesi",
+      meta: "Türkiye Kupası · Trabzonspor",
+      line: "Karadeniz'e uzun süre sonra gelen ilk kupa. Kaleci için kupa, tuttuğu topların değil tutmadığı gecelerin toplamıdır.",
+      image: {
+        id: "night-kupa",
+        src: `${BASE}/gece-kupa.jpg`,
+        alt: "Türkiye Kupası kutlaması",
+        placeholder: true,
+        hint: "Yatay · kupa kutlaması · Trabzonspor forması · gece ışığı",
+        width: 1200,
+        height: 800,
+      },
+    },
+    {
+      year: 2022,
+      title: "Otuz sekiz yıl",
+      meta: "Süper Lig · Trabzonspor",
+      line: "Bir şehrin otuz sekiz yıldır beklediği şampiyonluk. Sezon boyunca kale tartışılmadı; şampiyonluğun en sessiz sebebi buydu.",
+      image: {
+        id: "night-sampiyonluk",
+        src: `${BASE}/gece-sampiyonluk.jpg`,
+        alt: "Trabzonspor şampiyonluk kutlaması",
+        placeholder: true,
+        hint: "Yatay · şampiyonluk gecesi · tribün ve kaleci bir arada olursa ideal",
+        width: 1200,
+        height: 800,
+      },
+    },
+    {
+      year: 2024,
+      title: "Son saniye",
+      meta: "Avrupa Şampiyonası · Türkiye — Avusturya",
+      line: "Uzatmanın son saniyelerinde, kalenin ağzında bir kurtarış. Bir turnuvanın devam edip etmeyeceği tek bir el hareketine bağlandı ve el doğru yerdeydi.",
+      image: {
+        id: "night-euro",
+        src: `${BASE}/gece-euro.jpg`,
+        alt: "Uğurcan Çakır, millî takım kalesinde kurtarış anı",
+        placeholder: true,
+        hint: "Yatay · millî forma · havada kurtarış · yüz görünsün",
+        width: 1200,
+        height: 800,
+      },
+    },
+    {
+      year: 2025,
+      title: "İlk çıkış",
+      meta: "İstanbul · Galatasaray",
+      line: "Yeni bir kaleye ilk yürüyüş. Kaleci yeni tribünle önce sırtından tanışır ve o ilk dakikalar bir kalecinin en uzun dakikalarıdır.",
+      image: {
+        id: "night-istanbul",
+        src: `${BASE}/gece-istanbul.jpg`,
+        alt: "Uğurcan Çakır, Galatasaray formasıyla sahada",
+        placeholder: true,
+        hint: "Yatay · GS forması · sahaya çıkış ya da kaleye yürüyüş · tribün arkada",
+        width: 1200,
+        height: 800,
+      },
+    },
+  ],
+  personal: [
+    {
+      label: "Alışkanlık",
+      title: "İlk adım",
+      body: "Şut çıkmadan önce ayaklarını sıfırlar, sonra topa doğru değil topun geleceği yere doğru yarım adım atar. Bu yarım adım kurtarışın kendisinden daha belirleyici. Kalecilerin çoğu geç atar, o erken atıyor.",
+    },
+    {
+      label: "Detay",
+      title: "Tokat değil, yön",
+      body: "Tuttuğu topu önüne düşürmez; bileğini çevirip kale ağzının dışına gönderir. Yorgun bir doksanıncı dakikada bunu düşünmeden yapabilmek, çalışılmış bir refleksin işareti. İkinci top golü yiyen takımların yarısında bu ayrıntı eksiktir.",
+    },
+    {
+      label: "Ses",
+      title: "Duraklardan konuşur",
+      body: "Sürekli bağıran kalecilerden değil. Duran topta, oyun kesildiğinde ve rakip geri paslaşırken konuşuyor; yani savunmanın dinleyebileceği anlarda. Konuşmayı doğru ana koymak, çok konuşmaktan zor.",
+    },
+  ],
+  gallery: [
+    {
+      id: "gallery-1",
+      src: `${BASE}/galeri-1.jpg`,
+      alt: "Uğurcan Çakır, kurtarış anı",
+      placeholder: true,
+      hint: "Ana galeri karesi · geniş · havada kurtarış · en yüksek çözünürlük",
+      width: 1280,
+      height: 720,
+      caption: "Ana kare",
+    },
+    {
+      id: "gallery-2",
+      src: `${BASE}/galeri-2.jpg`,
+      alt: "Eldiven detayı",
+      placeholder: true,
+      hint: "Yakın plan · eldivenler · toz ve çim izi görünsün",
+      width: 1200,
+      height: 800,
+      caption: "Eldiven",
+    },
+    {
+      id: "gallery-3",
+      src: `${BASE}/galeri-3.jpg`,
+      alt: "Uğurcan Çakır portresi",
+      placeholder: true,
+      hint: "Portre · dikey · yüz net · sakin ifade",
+      width: 900,
+      height: 1200,
+      caption: "Portre",
+    },
+    {
+      id: "gallery-4",
+      src: `${BASE}/galeri-4.jpg`,
+      alt: "Ceza sahasında çıkış",
+      placeholder: true,
+      hint: "Yatay · yumrukla ya da elle çıkış · kalabalık ceza sahası",
+      width: 1200,
+      height: 800,
+      caption: "Çıkış",
+    },
+    {
+      id: "gallery-5",
+      src: `${BASE}/galeri-5.jpg`,
+      alt: "Millî formayla",
+      placeholder: true,
+      hint: "Millî takım forması · dikey ya da kare · marş anı olursa ideal",
+      width: 1000,
+      height: 1000,
+      caption: "Millî forma",
+    },
+    {
+      id: "gallery-6",
+      src: `${BASE}/galeri-6.jpg`,
+      alt: "Antrenman",
+      placeholder: true,
+      hint: "Antrenman · yatay · kaleci çalışması, top havada",
+      width: 1200,
+      height: 800,
+      caption: "Antrenman",
+    },
+    {
+      id: "gallery-7",
+      src: `${BASE}/galeri-7.jpg`,
+      alt: "Kupa gecesi",
+      placeholder: true,
+      hint: "Kupa · kutlama gecesi · dikey kadraj",
+      width: 900,
+      height: 1200,
+      caption: "Kupa",
+    },
+  ],
+
+  /**
+   * İmza GRID: kaleci mevkisi bir geometri mevkisi — açı kapatmak, direkle
+   * çizgi kurmak, ceza sahasını bölmek. Bebas'ın skorboard kondansesi, temiz
+   * (dokusuz) zemin ve arşiv çerçevesindeki hero bu teknik sesi taşıyor.
+   * Renk bordo-kemik-kömür: Karadeniz'in bordo tarafı, mavisi olmadan.
+   */
+  design: {
+    voice: "condensed",
+    hero: "frame",
+    signature: "grid",
+    rhythm: "open",
+    texture: "clean",
+  },
+};

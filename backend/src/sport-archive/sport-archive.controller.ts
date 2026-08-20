@@ -54,6 +54,29 @@ export class SportArchiveController {
     return this.archive.getPlayerImages(slug);
   }
 
+  /**
+   * `/spor/futbol` ve `/spor/futbol/efsaneler` — BÜTÜN futbolcuların yuvaları.
+   *
+   * ── NEDEN TOPLU BİR UÇ GEREKTİ (20 Ağustos 2026) ────────────────────────
+   * Hub sayfası defterdeki her futbolcunun kart yuvasını çiziyor ve eskiden
+   * her biri için AYRI bir istek atıyordu. Defterde tek kayıt varken (Icardi)
+   * bu iki istek demekti; yirmi üç kayda çıkınca yirmi dört istek olacaktı ve
+   * her yeni futbolcu hub'ı bir istek daha yavaşlatacaktı.
+   *
+   * Bu uç aynı işi tek sorguyla yapıyor. Yanıt iki katlı bir harita:
+   *   { "mauro-icardi": { "hero": "/uploads/…" }, "osimhen": { … } }
+   *
+   * ⚠️ ROTA SIRASI ÇAKIŞMIYOR: bu yol üç segment (`football/players/images`),
+   * tekil uç dört (`football/players/:slug/images`). Nest ikisini ayrı
+   * eşleştiriyor, `images` bir slug sanılmıyor.
+   *
+   * Boşsa `{}` döner — 404 yok, tekil uçtaki gerekçenin aynısı.
+   */
+  @Get('football/players/images')
+  getAllPlayerImages() {
+    return this.archive.getAllPlayerImages();
+  }
+
   /** `/spor/futbol/efsaneler/[slug]` — efsane */
   @Get('football/legends/:slug')
   getLegend(@Param('slug') slug: string) {

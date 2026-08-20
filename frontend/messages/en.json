@@ -2058,6 +2058,18 @@
       "figures": "Names of this era",
       "moments": "Moments"
     },
+    "legendsIndex": {
+      "eyebrow": "Galatasaray",
+      "title": "Hall of Legends",
+      "lede": "A club's memory is built from faces, not names. Every portrait here opens its own page.",
+      "pantheon": "Pantheon",
+      "pantheonLede": "The two names that built the club's identity. One made it exist, the other taught it a language.",
+      "roll": "Roll of honour",
+      "rollLede": "The other faces who wore the same shirt.",
+      "open": "Open page",
+      "years": "Years",
+      "empty": "The hall is still empty."
+    },
     "legend": {
       "title": "Legend",
       "career": "Career",

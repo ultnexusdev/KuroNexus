@@ -448,3 +448,63 @@
     transition: none;
   }
 }
+
+/* ============================================================
+   SALONUN TAMAMINA GİDEN BAĞLANTI
+
+   Hub'daki bu bölüm bir ÖZET: baş efsane büyük, birkaçı yanında. Panteon
+   ayrımı ve onur listesi kendi sayfasında. Bağlantı bölümün altında,
+   ortalanmış — bir kapı gibi.
+   ============================================================ */
+.all {
+  display: inline-flex;
+  align-items: center;
+  /* `.hall` bir flex sütun; `align-self` olmadan öğe gerilip tam genişliğe
+     yayılır ve "kapı" hissi kaybolur. */
+  align-self: center;
+  gap: 0.6rem;
+  margin: clamp(2rem, 5vw, 3.25rem) auto 0;
+  padding-inline: 1.4rem;
+  min-height: var(--touch-min);
+  position: relative;
+  z-index: 2;
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.76rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--antique);
+  text-decoration: none;
+  border: 1px solid color-mix(in srgb, var(--antique) 34%, transparent);
+  transition:
+    border-color 380ms ease,
+    background-color 380ms ease;
+}
+
+.all:hover,
+.all:focus-visible {
+  border-color: color-mix(in srgb, var(--antique) 76%, transparent);
+  background-color: color-mix(in srgb, var(--antique) 8%, transparent);
+}
+
+.all svg {
+  width: 1.05rem;
+  height: 1.05rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.all:hover svg,
+.all:focus-visible svg {
+  transform: translateX(4px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .all,
+  .all svg {
+    transition: none;
+  }
+}

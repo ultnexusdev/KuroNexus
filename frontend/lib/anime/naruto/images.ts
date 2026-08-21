@@ -1,0 +1,71 @@
+/**
+ * Naruto Evreni — küratör görsel yuvaları.
+ *
+ * Akatsuki sergisindeki `EXHIBIT_IMAGE_KEYS` deseninin aynısı: görsel
+ * `CharacterImage` tablosunda `slot="ABILITY"` + `abilityName=<anahtar>`
+ * olarak durur, sahibi `NARUTO_OWNER_ID`dir. Böylece yeni bir tablo/migration
+ * gerekmeden sayfaya istediğin kadar kadraj bağlanabiliyor.
+ *
+ * ── NEDEN HOTLINK YOK ────────────────────────────────────────────────────
+ * Küratör bir adres yapıştırdığında backend görseli İNDİRİP kendi diskimize
+ * yazıyor (`POST /admin/uploads/from-url`). İki sebep: CSP `img-src`
+ * yalnızca sayılı sunucuya izin veriyor (yabancı adres tarayıcıda sessizce
+ * engellenir) ve dış adres bir gün ölürse görsel de ölür.
+ *
+ * ── YUVA DOLU DEĞİLSE ────────────────────────────────────────────────────
+ * Bölüm görselsiz çizilir; hiçbir yerde boş çerçeve durmaz (boş oda yasağı).
+ * Yani sayfa görsele borçlu değil, görsel geldikçe zenginleşiyor.
+ */
+
+export const NARUTO_IMAGE_KEYS = {
+  /** Açılış — tam kadraj hero fonu */
+  hero: "naruto:hero",
+  /** Shinobi Dünyası — harita bölümünün zemini */
+  atlas: "naruto:atlas",
+  /** Köyler şeridi — Konoha kadrajı */
+  konoha: "naruto:konoha",
+  /** İkonik Mekânlar — Hokage Kayalığı */
+  hokageRock: "naruto:hokage-rock",
+  /** Efsaneler bölümünün arka bandı */
+  legends: "naruto:legends",
+  /** Klanlar — Uchiha / Senju ikili bandı */
+  clans: "naruto:clans",
+  /** Chakra bölümü — doğa dönüşümleri fonu */
+  chakra: "naruto:chakra",
+  /** Dōjutsu bölümü — göz kadrajı */
+  dojutsu: "naruto:dojutsu",
+  /** Kuyruklu Canavarlar bölümünün fonu */
+  bijuu: "naruto:bijuu",
+  /** Hokage Salonu — yedi yüz */
+  hokageHall: "naruto:hokage-hall",
+  /** Tarih bölümü — savaş bandı */
+  history: "naruto:history",
+  /** Efsanevi Savaşlar — Son Vadisi */
+  valley: "naruto:valley",
+  /** Yasak Parşömenler — kapanış bandı */
+  scrolls: "naruto:scrolls",
+} as const;
+
+export type NarutoImageKey =
+  (typeof NARUTO_IMAGE_KEYS)[keyof typeof NARUTO_IMAGE_KEYS];
+
+/** Küratör kuşağında listelenen yuvalar — sıra sayfadaki sırayla aynı */
+export const NARUTO_IMAGE_SLOTS: {
+  key: NarutoImageKey;
+  label: string;
+  hint: string;
+}[] = [
+  { key: NARUTO_IMAGE_KEYS.hero, label: "Açılış fonu", hint: "Tam kadraj, yatay. En az 2560px genişlik." },
+  { key: NARUTO_IMAGE_KEYS.atlas, label: "Shinobi Dünyası", hint: "Harita bölümünün zemini." },
+  { key: NARUTO_IMAGE_KEYS.konoha, label: "Konohagakure", hint: "Köyler şeridindeki Konoha kadrajı." },
+  { key: NARUTO_IMAGE_KEYS.hokageRock, label: "Hokage Kayalığı", hint: "İkonik Mekânlar bölümü." },
+  { key: NARUTO_IMAGE_KEYS.legends, label: "Efsaneler bandı", hint: "Kadro duvarının arka fonu." },
+  { key: NARUTO_IMAGE_KEYS.clans, label: "Klanlar", hint: "Uchiha / Senju ikili bandı." },
+  { key: NARUTO_IMAGE_KEYS.chakra, label: "Chakra", hint: "Doğa dönüşümleri bölümünün fonu." },
+  { key: NARUTO_IMAGE_KEYS.dojutsu, label: "Dōjutsu", hint: "Göz bölümünün kadrajı." },
+  { key: NARUTO_IMAGE_KEYS.bijuu, label: "Kuyruklu Canavarlar", hint: "Bijuu bölümünün fonu." },
+  { key: NARUTO_IMAGE_KEYS.hokageHall, label: "Hokage Salonu", hint: "Yedi Hokage bir arada." },
+  { key: NARUTO_IMAGE_KEYS.history, label: "Tarih", hint: "Savaş dönemleri bandı." },
+  { key: NARUTO_IMAGE_KEYS.valley, label: "Son Vadisi", hint: "Efsanevi Savaşlar bölümü." },
+  { key: NARUTO_IMAGE_KEYS.scrolls, label: "Yasak Parşömenler", hint: "Kapanış bandı." },
+];

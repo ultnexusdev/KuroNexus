@@ -1,0 +1,927 @@
+/* Naruto Evreni — sayfa derisi.
+
+   Zemin/kenarlık/metin token'dan (kural 16). Kayıtlara ait `--rec`, `--tint`,
+   `--left`/`--right` inline geliyor: ateşin kırmızı, suyun mavi olması içerik,
+   tema kararı değil. Gerekçe `lib/anime/naruto/geography.ts` başında.
+
+   Anime kanadının glow istisnası geçerli — parlama kart kenarında ve
+   Gölgeler bölümünde, zeminde değil. */
+
+.page {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ══ AÇILIŞ ══════════════════════════════════════════════════════════ */
+.opening {
+  position: relative;
+  min-height: calc(72svh - var(--an-header));
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.heroArt {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+}
+
+.heroArt img {
+  object-fit: cover;
+  object-position: center 30%;
+}
+
+/* Fon varsa metnin altını karartır, yoksa tek başına atmosfer olur */
+.heroPool {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(70% 60% at 50% 40%, var(--anime-glow), transparent 72%),
+    linear-gradient(
+      to top,
+      var(--bg) 0%,
+      color-mix(in srgb, var(--bg) 72%, transparent) 45%,
+      color-mix(in srgb, var(--bg) 20%, transparent) 100%
+    );
+}
+
+.openingInner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1rem, 2.5vw, 1.75rem);
+  padding: clamp(3rem, 8vw, 6rem) var(--an-gutter) clamp(2.5rem, 6vw, 4.5rem);
+}
+
+/* ══ BÖLÜM KABUĞU ════════════════════════════════════════════════════ */
+.section {
+  position: relative;
+  isolation: isolate;
+  border-top: 1px solid transparent;
+  border-image: linear-gradient(
+      to right,
+      transparent,
+      color-mix(in srgb, var(--accent) 45%, transparent) 50%,
+      transparent
+    )
+    1;
+}
+
+.sectionArt {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.22;
+}
+
+.sectionArt img {
+  object-fit: cover;
+}
+
+/* Fon varsa metnin okunurluğu kompozisyona borçlu kalmasın */
+.sectionArt::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    var(--bg),
+    color-mix(in srgb, var(--bg) 60%, transparent) 40%,
+    var(--bg)
+  );
+}
+
+.sectionInner {
+  padding: clamp(3rem, 7vw, 5.5rem) var(--an-gutter);
+}
+
+.sectionHead {
+  margin-bottom: clamp(1.75rem, 4vw, 3rem);
+}
+
+.sectionTitle {
+  font-size: var(--an-title);
+  margin: 0;
+  text-shadow: 0 0 22px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.sectionLede {
+  margin: 0.75rem 0 0;
+  max-width: var(--an-measure);
+  font-size: var(--an-lede);
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.subhead {
+  margin: clamp(2rem, 4vw, 3rem) 0 1rem;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 1.15rem;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+}
+
+/* ══ ORTAK KART ══════════════════════════════════════════════════════ */
+.village,
+.place,
+.team,
+.jutsu,
+.scroll,
+.battle,
+.kage {
+  padding: clamp(1rem, 2vw, 1.5rem);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  transition: border-color 240ms ease, background-color 240ms ease;
+}
+
+.place:hover,
+.team:hover,
+.jutsu:hover,
+.scroll:hover,
+.battle:hover,
+.kage:hover {
+  border-color: var(--accent-muted);
+  background: var(--surface-hover);
+}
+
+/* ══ KÖYLER ══════════════════════════════════════════════════════════ */
+.villageGrid,
+.placeGrid,
+.teamGrid,
+.jutsuGrid,
+.scrollGrid,
+.battleGrid,
+.kageGrid,
+.legendGrid,
+.clanGrid,
+.minorList,
+.catStrip {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.villageGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: clamp(0.75rem, 1.6vw, 1.25rem);
+}
+
+.village {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  background:
+    linear-gradient(to bottom, var(--tint), transparent 70%), var(--surface);
+}
+
+.villageKanji {
+  font-family: var(--font-brush), serif;
+  font-size: 1.6rem;
+  line-height: 1;
+  color: var(--accent);
+}
+
+.villageName {
+  margin: 0;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 1.35rem;
+  letter-spacing: 0.02em;
+  color: var(--text-primary);
+}
+
+.villageEn {
+  margin: 0;
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+.minorList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 0.5rem;
+}
+
+.minor {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.75rem 0.875rem;
+  border-left: 2px solid var(--rec);
+  background: var(--surface);
+}
+
+.minorName {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+}
+
+.minorTag {
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+/* ══ MEKÂNLAR ════════════════════════════════════════════════════════ */
+.regionBlock + .regionBlock {
+  margin-top: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+.regionLabel {
+  margin: 0 0 0.875rem;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.85rem;
+  letter-spacing: 0.2em;
+  color: var(--accent);
+}
+
+.placeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: clamp(0.75rem, 1.6vw, 1.25rem);
+}
+
+.placeName {
+  margin: 0 0 0.4rem;
+  font-size: 1.05rem;
+  color: var(--text-primary);
+}
+
+.placeDesc {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* ══ EFSANELER ═══════════════════════════════════════════════════════ */
+.legendGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: clamp(0.75rem, 1.6vw, 1.25rem);
+}
+
+.legend {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: clamp(15rem, 26vw, 19rem);
+  padding: clamp(1rem, 2vw, 1.5rem);
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  transition: border-color 300ms ease, box-shadow 300ms ease;
+}
+
+.legend:hover {
+  border-color: color-mix(in srgb, var(--rec) 60%, transparent);
+  box-shadow: 0 0 40px -18px var(--glow);
+}
+
+.legendFace {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
+.legendFace img {
+  object-fit: cover;
+  object-position: center 18%;
+  opacity: 0.55;
+  transition: opacity 400ms ease, scale 500ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.legend:hover .legendFace img {
+  opacity: 0.75;
+  scale: 1.04;
+}
+
+/* Portre varsa metnin altını karart */
+.legendFace::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    var(--bg) 8%,
+    color-mix(in srgb, var(--bg) 55%, transparent) 55%,
+    transparent 100%
+  );
+}
+
+.legendNo {
+  position: absolute;
+  top: clamp(0.75rem, 1.6vw, 1.25rem);
+  right: clamp(0.75rem, 1.6vw, 1.25rem);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 1.5rem;
+  color: color-mix(in srgb, var(--rec) 70%, transparent);
+}
+
+.legendBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.legendName {
+  margin: 0;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 1.6rem;
+  letter-spacing: 0.02em;
+  color: var(--text-primary);
+}
+
+.legendTitle {
+  margin: 0;
+  font-size: 0.82rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--rec);
+}
+
+.legendPower {
+  margin: 0.35rem 0 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+/* ══ TAKIMLAR ════════════════════════════════════════════════════════ */
+.teamGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: clamp(0.75rem, 1.6vw, 1.25rem);
+}
+
+.team {
+  border-top: 2px solid var(--rec);
+}
+
+.teamTag {
+  margin: 0 0 0.35rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  color: var(--rec);
+}
+
+.teamName {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 1.3rem;
+  color: var(--text-primary);
+}
+
+.teamMembers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  list-style: none;
+}
+
+.teamMembers li {
+  padding: 0.22rem 0.5rem;
+  border: 1px solid var(--border);
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.teamSensei {
+  margin: 0;
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+/* ══ GÖLGELER · AKATSUKI KAPISI ══════════════════════════════════════ */
+.shadows {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  border-top: 1px solid color-mix(in srgb, var(--aka-crimson) 45%, transparent);
+  background: radial-gradient(
+    90% 80% at 50% 20%,
+    color-mix(in srgb, var(--aka-crimson) 14%, var(--bg)) 0%,
+    var(--bg) 60%
+  );
+}
+
+.shadowsArt {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+}
+
+.shadowsArt img {
+  object-fit: cover;
+  opacity: 0.4;
+}
+
+.shadowsMist {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(70% 60% at 50% 30%, var(--aka-mist), transparent 70%),
+    linear-gradient(to bottom, transparent, var(--bg) 92%);
+}
+
+.shadowsInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: clamp(4rem, 9vw, 7rem) var(--an-gutter);
+  text-align: center;
+}
+
+.shadowsCloud {
+  display: block;
+  width: clamp(3.5rem, 7vw, 5.5rem);
+  color: var(--aka-crimson);
+}
+
+.shadowsTitle {
+  margin: 0;
+  font-size: clamp(2.5rem, 7vw, 5rem);
+  letter-spacing: 0.06em;
+  color: var(--text-primary);
+  text-shadow: 0 0 60px var(--aka-glow-strong);
+}
+
+.shadowsLede {
+  margin: 0;
+  max-width: 52ch;
+  font-size: var(--an-lede);
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.shadowsEnter {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  margin-top: 0.5rem;
+  padding: 0.65rem 1.5rem;
+  border: 1px solid color-mix(in srgb, var(--aka-crimson) 60%, transparent);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 1rem;
+  letter-spacing: 0.16em;
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: background-color 260ms ease, box-shadow 260ms ease;
+}
+
+.shadowsEnter:hover {
+  background: color-mix(in srgb, var(--aka-crimson) 22%, transparent);
+  box-shadow: 0 0 34px -12px var(--aka-glow-strong);
+}
+
+.shadowsEnter:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 3px;
+}
+
+/* ══ KLANLAR ═════════════════════════════════════════════════════════ */
+.lineages {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: clamp(0.75rem, 2vw, 1.5rem);
+}
+
+.lineage {
+  padding: clamp(1rem, 2vw, 1.5rem);
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.lineage[data-side="uchiha"] {
+  border-top: 2px solid var(--aka-crimson);
+}
+
+.lineage[data-side="senju"] {
+  border-top: 2px solid oklch(0.7 0.1 145);
+}
+
+.lineageName {
+  margin: 0;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 1.5rem;
+  color: var(--text-primary);
+}
+
+.lineageNote {
+  margin: 0.25rem 0 1rem;
+  font-size: 0.84rem;
+  color: var(--text-muted);
+}
+
+.lineageList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.lineageList li {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.clanGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 0.5rem;
+}
+
+.clan {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.75rem 0.875rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.clan[data-noble] {
+  border-color: color-mix(in srgb, var(--gold) 40%, var(--border));
+}
+
+.clanName {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+}
+
+.clanTrait {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.clanNoble {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.7rem;
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  color: var(--gold);
+}
+
+/* ══ JUTSU ═══════════════════════════════════════════════════════════ */
+.catStrip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: clamp(1.25rem, 2.5vw, 2rem);
+}
+
+.catStrip li {
+  padding: 0.3rem 0.65rem;
+  border: 1px solid var(--border);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+}
+
+.jutsuGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: clamp(0.75rem, 1.6vw, 1.25rem);
+}
+
+.jutsu {
+  border-left: 2px solid var(--rec);
+}
+
+.jutsuRank {
+  margin: 0 0 0.35rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  color: var(--rec);
+}
+
+.jutsuName {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 1.3rem;
+  color: var(--text-primary);
+}
+
+.jutsuDesc {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+/* ══ HOKAGE ══════════════════════════════════════════════════════════ */
+.hokageList {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hokage,
+.candidate {
+  display: grid;
+  grid-template-columns: 9rem minmax(0, 1fr);
+  gap: clamp(0.75rem, 2vw, 1.5rem);
+  padding: clamp(1rem, 2.2vw, 1.5rem) 0;
+  border-top: 1px solid var(--border);
+}
+
+/* Aday sıraya katılmıyor: kesik kenarlık onu listeden görsel olarak ayırır */
+.candidate {
+  margin-top: 0.5rem;
+  border-top: 1px dashed color-mix(in srgb, var(--warn) 50%, var(--border));
+  opacity: 0.85;
+}
+
+.hokageOrd {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.9rem;
+  letter-spacing: 0.16em;
+  color: var(--accent);
+}
+
+.hokageBody {
+  min-width: 0;
+}
+
+.hokageName {
+  margin: 0;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 1.5rem;
+  color: var(--text-primary);
+}
+
+.hokageEpithet {
+  margin: 0.15rem 0 0;
+  font-size: 0.84rem;
+  letter-spacing: 0.06em;
+  color: var(--gold);
+}
+
+.hokageEnd {
+  margin: 0.6rem 0 0;
+  max-width: var(--an-measure);
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.kageGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.5rem;
+}
+
+.kage {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.kageVillage {
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  color: var(--text-muted);
+}
+
+.kageTitle {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 1.15rem;
+  color: var(--text-primary);
+}
+
+.kageNames {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+/* ══ SAVAŞLAR ════════════════════════════════════════════════════════ */
+.battleGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: clamp(0.75rem, 1.6vw, 1.25rem);
+}
+
+/* İki yaka: solda bir tarafın rengi, sağda diğerinin — kart karşılaşmanın
+   kendisi gibi ikiye bölünüyor */
+.battle {
+  background:
+    linear-gradient(100deg, var(--left) 0%, transparent 42%),
+    linear-gradient(280deg, var(--right) 0%, transparent 42%),
+    var(--surface);
+}
+
+.battlePlace {
+  margin: 0 0 0.35rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  color: var(--text-muted);
+}
+
+.battleTitle {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 1.35rem;
+  color: var(--text-primary);
+}
+
+.battleNote {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+/* ══ RÜTBE / GÖREV ═══════════════════════════════════════════════════ */
+.twoUp {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: clamp(1.25rem, 3vw, 2.5rem);
+}
+
+.rankList,
+.missionList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rank,
+.mission {
+  display: grid;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 0.875rem;
+  border-left: 3px solid var(--rec);
+  background: var(--surface);
+}
+
+.rank {
+  grid-template-columns: 2rem minmax(0, 1fr);
+  grid-template-areas:
+    "lvl name"
+    "lvl note";
+}
+
+.mission {
+  grid-template-columns: 1.75rem minmax(0, 1fr);
+}
+
+.rankLvl {
+  grid-area: lvl;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 1.1rem;
+  color: var(--text-muted);
+}
+
+.rankName {
+  grid-area: name;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 1rem;
+  letter-spacing: 0.1em;
+  color: var(--text-primary);
+}
+
+.rankNote {
+  grid-area: note;
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+}
+
+.missionLetter {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 1.4rem;
+  color: var(--rec);
+}
+
+.missionDesc {
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+}
+
+/* ══ PARŞÖMENLER ═════════════════════════════════════════════════════ */
+.scrollGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: clamp(0.75rem, 1.6vw, 1.25rem);
+}
+
+.scroll {
+  border-top: 1px solid color-mix(in srgb, var(--gold) 35%, var(--border));
+}
+
+.scrollSeal {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  color: var(--gold);
+}
+
+.scrollName {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+
+.scrollDesc {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+/* ══ KÜRATÖR KUŞAĞI ══════════════════════════════════════════════════ */
+.curatorIndex {
+  padding: clamp(2.5rem, 6vw, 4rem) var(--an-gutter) clamp(4rem, 9vw, 7rem);
+  border-top: 1px dashed var(--border-strong);
+}
+
+.curatorHint {
+  margin: 0 0 1.5rem;
+  max-width: var(--an-measure);
+  font-size: 0.86rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.curatorGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: clamp(0.75rem, 1.6vw, 1.25rem);
+}
+
+.curatorCell {
+  padding: clamp(0.875rem, 1.8vw, 1.25rem);
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.curatorLabel {
+  margin: 0;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+  color: var(--text-primary);
+}
+
+.curatorSub {
+  margin: 0.2rem 0 0.75rem;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+/* ══ MOBİL ═══════════════════════════════════════════════════════════ */
+@media (max-width: 860px) {
+  .hokage,
+  .candidate {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.35rem;
+  }
+
+  .opening {
+    min-height: calc(60svh - var(--an-header));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .legend,
+  .legendFace img,
+  .place,
+  .team,
+  .jutsu,
+  .scroll,
+  .battle,
+  .kage,
+  .shadowsEnter {
+    transition: none;
+  }
+
+  .legend:hover .legendFace img {
+    scale: 1;
+  }
+}

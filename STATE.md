@@ -5,6 +5,95 @@
 
 ## Mevcut Aşama
 
+> ✅ **FUTBOL KANADI DÜZELTME TURU + HAGİ POSTER SAYFASI (21 Ağustos 2026).**
+>
+> **① KÜRATÖR GÖRSELİ HATASI KAPANDI (asıl arıza).** Hub'daki favori
+> futbolcu kartlarının hepsi TEK bir veritabanı satırını okuyordu:
+> `futbol-hub / card`. Kayıtlar yuvalarına sahip yazmıyordu ve
+> `PlayerImage` sahip yokken SAYFANIN varsayılan sahibine düşüyor —
+> profilde doğru, hub'da yanlış. Kullanıcının gördüğü şuydu: Icardi'nin
+> karesi dururken Osimhen'inki yüklendi ve **yirmi üç kartın hepsi Osimhen
+> oldu.** Düzeltme tek yerde: `players/index.ts` defteri kurarken her
+> kaydın her yuvasını kendi slug'ıyla damgalıyor (`slot.owner ??= slug`),
+> yani yeni futbolcuda arıza yeniden doğamaz. Ölçüldü: dört kart artık dört
+> ayrı görsel, kalanlar yer tutucu.
+> **⏭ CANLIDA:** o tek satır hâlâ `futbol-hub / card` olarak duruyor;
+> Osimhen'in karesi kart yuvasından **yeniden yüklenmeli** (dosya sunucuda,
+> kaybolmadı — yalnızca yanlış satıra bağlı).
+>
+> **② DEV İSİM TİPOGRAFİSİ.** İki ayrı arıza, ikisi de ölçülüp veriye
+> çevrildi. (a) `overflow-wrap: anywhere` özel adı KELİME ORTASINDAN
+> kırıyordu (FERNAND/O, MONDR/AGÓN, KORKM/AZ). Kural kaldırıldı; ad artık
+> kırılmıyor, **küçülüyor** — punto `100cqi / (harf sayısı × --advance)`
+> ile sütuna sığdırılıyor. (b) `line-height: 0.86` Ç'nin çengeli ile İ'nin
+> noktası arka arkaya gelince satırları çakıştırıyordu (SELÇUK/İNAN,
+> DAVINSON/SÁNCHEZ); aralık artık ada göre hesaplanıyor ve düz adlarda
+> 0.86'da kalıyor. Dört yazı ailesinin gerçek dosyaları
+> `canvas.measureText` ile ölçüldü; tablolar `PlayerHero.tsx` (yükseklik)
+> ve `page.module.css` (`--advance`, genişlik). Aynı düzeltme hikâye
+> başlığına da uygulandı. 320 / 375 / 1280 / 1440'ta doğrulandı.
+>
+> **③ TÜRKÇE BÜYÜK HARF KURALI ÖZEL ADLARDA.** Sayfanın dili `tr` ve
+> isimler CSS'te büyütülüyor; Türkçe kural `i` → `İ` yapıyor ve yabancı
+> adlar bozuluyordu (**VİCTOR OSİMHEN**, **HAGİ**, **LİLLE**). Çözüm dizede
+> değil ELEMENTTE: adı taşıyan öğeye `lang` yazılıyor, tarayıcı doğru dilin
+> kuralıyla büyütüyor. Dil kayıttan türetiliyor (`countryCode === "TR"`),
+> istisna için `nameLang` / `clubLang` alanları var (bugün yalnız "Bayern
+> Münih" ve "Olympique Marsilya" — adı Türkçeleşmiş iki kulüp). Türkçe
+> adlar aynen kalıyor: SELÇUK İNAN, UĞURCAN ÇAKIR, ABDÜLKERİM BARDAKÇI.
+>
+> **④ HAGİ DEFTERE TAŞINDI.** Eskiden yalnız bir backend kaydıydı ve
+> sayfası "uzun belge" düzenindeydi — salonun tek yabancısı. Artık
+> `players/hagi.ts`: yirmi üç futbolcuyla AYNI poster sistemi, kendine ait
+> eksen bileşimi (monument + kinetic + arc — defterde tek). Depodaki üç
+> Commons karesi (künyeli) hero, kart ve galeride kullanılıyor, yani sayfa
+> ilk günden fotoğraflı açılıyor. Backend kaydı silinmedi; aynı slug iki
+> kaynakta varsa **defter kazanıyor** (`isInNotebook`), eski adres
+> `/spor/futbol/efsaneler/hagi` yeni sayfaya **307** ile yönleniyor (dil
+> ön eki korunuyor).
+>
+> **⑤ SİNEMA BÖLÜMÜ (yeni).** `PlayerFilm` — karanlık salon, üç spot
+> konisi (`clip-path` + `screen` karışımı), zemin ışık havuzu, toz, vizör
+> köşeleri. Perdeye dokununca YouTube gömüsü DOM'a giriyor ve salon
+> kararıyor. **Sayfa açılışında YouTube'a tek istek gitmiyor.**
+> `youtube-nocookie.com` (CSP'de zaten izinli), adres kayıttaki
+> kimlikten kuruluyor. Bugün yalnız Hagi'de dolu; `film` alanı boşsa bölüm
+> hiç çizilmiyor. Yeni bölüm kimliği: `film`.
+>
+> **⑥ DENETİM TURU — 80 ajanlık tarama, 74 bulgu, 42'si doğrulandı.**
+> Düzeltilenler: zikzak tarih şeridinde sol satırların kartı bir alt ızgara
+> satırına düşüyordu (`grid-row: 1` eksik — sol satırlar 50px uzundu);
+> favori ray okları çift genişlikteki ilk kartı ölçüp kart atlıyordu;
+> `PlayerImage` bir kez düşen yuvayı bir daha denemiyordu; tema müziği
+> otomatik oynatma reddedilince üç dinleyiciyi pencerede bırakıyordu;
+> galeri ışık kutusu her ok tuşunda odağı arkadaki karoya atıyordu; saha
+> kadrosunda `<dt>/<dd>` bir `<dl>` olmadan basılıyordu ve künye balonu
+> 620px altında %98 kırpılıyordu; hero plakası ile arma `aria-hidden` bir
+> kabın içinde odaklanabilir düğme taşıyordu; onur listesi bağlantısı
+> 44px dokunma kuralının altındaydı; hub, arşiv ucundaki HER hatayı 404'e
+> çeviriyordu (artık yalnız gerçek 404); istatistik kutusunda `dd` `dt`den
+> önce geliyordu. **Veri:** "milli" → "millî" (46 geçiş, 12 dosya),
+> Icardi'nin geliş yaşı (30 → 29), Davinson'ın Stockholm yaşı (21 → 20),
+> Burak Yılmaz'ın oynamadığı ülke (4 → 3, Hollanda çıkarıldı), Sneijder'in
+> mevkisi ("On saha" → "Ofansif orta saha"), `art arda`, `Ocak 2013'te`,
+> "ve" öncesi virgül ve **Uğurcan Çakır'ın EURO gecesi**: deftere yazılmış
+> "2024 · Türkiye — Avusturya son saniye kurtarışı" ona ait değil, o
+> turnuvada kalede yoktu — kayıt EURO 2020'ye (2021) taşındı ve kronoloji
+> düzeltildi. Ayrıca kodla çelişen beş bayat yorum güncellendi.
+>
+> **⑦ GELİŞTİRME SUNUCUSU CSP.** `next dev` sıcak yenileme için `eval`
+> kullanıyor ve politika onu engelliyordu: yerelde React **hiç hidrasyon
+> yapmıyordu** — küratör modu açılmıyor, ray okları çalışmıyordu. Hata
+> konsola düşüyor ama sayfa "çalışıyor" göründüğü için gözden kaçıyordu.
+> `'unsafe-eval'` YALNIZCA `NODE_ENV !== "production"` iken ekleniyor;
+> üretim başlığı ölçüldü ve **değişmedi**.
+>
+> **Doğrulama:** `corepack pnpm build` + `tsc --noEmit` + eslint temiz;
+> 24 futbolcu × TR/EN = **48 rota 200**; üretim sunucusunda film perdesi,
+> yönlendirme ve CSP başlığı ayrıca ölçüldü.
+>
+> ⚠️ **HENÜZ PUSH EDİLMEDİ** — kullanıcı onayı bekleniyor.
+
 > ✅ **KİTAP SALONU GİRİŞİ YENİDEN TASARLANDI (19 Ağustos 2026).**
 > `/dark-stories/category/kitap` artık tek sütunlu kart listesi değil, iki
 > yakalı editorial düzen (kullanıcının verdiği referans kadrajı):

@@ -88,7 +88,24 @@ const CSP_DIRECTIVES = [
    * kendi kurduğum bir değerin dış servis tarafından kabul edileceğini
    * varsaymak. Bu kez tahmin edilmedi, betik indirilip okundu.)
    */
-  "script-src 'self' 'unsafe-inline'",
+  /**
+   * ⚠️ `'unsafe-eval'` YALNIZCA GELİŞTİRME SUNUCUSUNDA — 21 Ağustos 2026.
+   *
+   * Üretimde eklenmiyor ve eklenmeyecek; yukarıdaki gerekçe aynen geçerli.
+   * Ama `next dev` sıcak yenileme (HMR) için modülleri `eval` ile
+   * çalıştırıyor ve bu politika onu engelliyordu. Sonuç ölçüldü: yerelde
+   * `main-app.js` ilk satırda `EvalError` alıyor, React HİÇ hidrasyon
+   * yapmıyor — yani geliştirme sunucusunda sayfalar tamamen statik
+   * görünüyor. Küratör modu açılmıyor, ray okları çalışmıyor, film perdesi
+   * tıklanmıyor. Hata konsola düşüyor ama sayfa "çalışıyor" göründüğü için
+   * kolayca gözden kaçıyor.
+   *
+   * Koşul derleme anında çözülüyor: `next build` NODE_ENV'i "production"
+   * yapıyor, yani üretim paketine bu dize hiç girmiyor.
+   */
+  `script-src 'self' 'unsafe-inline'${
+    process.env.NODE_ENV === "production" ? "" : " 'unsafe-eval'"
+  }`,
   // 16 dosyada style={{ }} kullanımı var + Next kendi stillerini satır içi basıyor
   "style-src 'self' 'unsafe-inline'",
   `img-src 'self' data: blob: https://image.tmdb.org https://i.ytimg.com https://s4.anilist.co ${apiUrl.origin}`,

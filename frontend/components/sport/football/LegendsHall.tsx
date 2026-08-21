@@ -7,6 +7,8 @@ import styles from "./LegendsHall.module.css";
 export interface LegendEntry {
   key: string;
   name: string;
+  /** Adın büyük harfe çevrilirken uyacağı dil — gerekçe `nameLangOf` */
+  nameLang: "tr" | "en";
   epithet: string;
   countryCode: string | null;
   yearsFrom: number | null;
@@ -114,7 +116,12 @@ export function LegendsHall({
         </span>
 
         <div className={styles.leadBody}>
-          <h3 className={`${shell.display} ${styles.leadName}`}>
+          {/* `lang`: başlık CSS'te büyütülüyor ve sayfanın dili Türkçe;
+              Türkçe büyütme kuralı yabancı adları bozuyordu (HAGİ). */}
+          <h3
+            className={`${shell.display} ${styles.leadName}`}
+            lang={lead.nameLang}
+          >
             <Link href={lead.href}>{lead.name}</Link>
           </h3>
           {lead.epithet ? (
@@ -159,7 +166,10 @@ export function LegendsHall({
                     noEdit={!legend.editable}
                   />
                 </span>
-                <h3 className={`${shell.display} ${styles.cardName}`}>
+                <h3
+                  className={`${shell.display} ${styles.cardName}`}
+                  lang={legend.nameLang}
+                >
                   <Link href={legend.href}>{legend.name}</Link>
                 </h3>
                 {legend.epithet ? (

@@ -245,7 +245,7 @@ export const driesMertens: FavouritePlayer = {
         src: `${BASE}/gece-panama.jpg`,
         alt: "",
         placeholder: true,
-        hint: "Belçika milli forması · vuruş anı ya da hemen sonrası · yatay",
+        hint: "Belçika millî forması · vuruş anı ya da hemen sonrası · yatay",
         width: 1600,
         height: 900,
       },

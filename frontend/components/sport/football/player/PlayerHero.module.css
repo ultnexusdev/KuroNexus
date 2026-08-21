@@ -157,6 +157,12 @@
   overflow-wrap: anywhere;
 }
 
+/* Adın kendisi kırılmıyor: kırıntı dar kalırsa etiketten sonra alt satıra
+   iniyor, ama "MUSLERA" ortadan ikiye bölünmüyor. */
+.crumb > span {
+  overflow-wrap: normal;
+}
+
 /* ---- Fotoğraf ----
    Sağ sütunun tamamını kaplıyor ve tabana basıyor. Alt kenarı gradient
    maskeyle zemine eriyor: kutu kenarı görünmüyor, figür sahnenin içinde
@@ -213,6 +219,23 @@
   gap: clamp(0.6rem, 1.6vw, 1.1rem);
   max-width: 40rem;
   min-width: 0;
+  /* ⚠️ `width: 100%` KUŞATMANIN ŞARTI. Ölçüldü (21 Ağustos 2026): kuşatma
+     açıkken kutunun İÇERİĞİ genişliğe katkı vermiyor, yani `justify-items:
+     center` kullanan varyantlarda (column) kutu 0 piksele çöküyordu ve
+     `100cqi` sıfır dönüyordu — ad taban puntosuna düşüyordu. Genişliği
+     ızgara hücresinden almak bunu kapatıyor; `max-width` yine geçerli ve
+     ortalama `justify-items` ile sürüyor, yani hiçbir varyantın görünümü
+     değişmiyor. */
+  width: 100%;
+  /* Adın puntosu bu kutunun genişliğine göre kısılıyor (`100cqi`, aşağıda).
+     Yazı alanı hero varyantına göre değiştiği için (column ortalıyor, split
+     ikiye bölüyor, stack tek sütuna alıyor) ölçü ekrandan değil KUTUDAN
+     alınmak zorunda — `vw` altı varyantın altısında da yanlış cevap verirdi.
+
+     ⚠️ Kutu zaten `position: relative` + `z-index` taşıyor, yani kuşatmanın
+     kurduğu yığın bağlamı yeni bir şey değil; içeride mutlak konumlu çocuk da
+     yok. Ölçüldü: hiçbir varyantta düzen kaymıyor. */
+  container-type: inline-size;
 }
 
 .kicker {
@@ -236,19 +259,47 @@
 }
 
 /* İsim: iki satır, Anton. Poster ağırlığı burada — kanadın Petrona'sı bu
-   boya çıkarılsaydı editoryal serif karakterini kaybederdi. */
+   boya çıkarılsaydı editoryal serif karakterini kaybederdi.
+
+   ── PUNTO: İDEALİN VE SIĞANIN KÜÇÜĞÜ ────────────────────────────────────
+   Üç değer yarışıyor ve en küçüğü kazanıyor:
+
+     ideal  clamp(3.25rem, 9.5vw, 9rem)     tasarımın istediği boy
+     sığan  100cqi / (harf sayısı × ilerleme) kutuya giren en büyük boy
+     taban  2rem                              okunurluğun alt sınırı
+
+   `--name-len` (en uzun kelimenin harf sayısı) ve `--advance` (o yazı
+   ailesinde harf başına ortalama ilerleme) bileşenden geliyor; ikisi de
+   ölçülmüş değer, gerekçesi `PlayerHero.tsx` başında.
+
+   Sonuç: ad artık KIRILMIYOR, küçülüyor. "FERNANDO" tek parça kalıyor;
+   sığmadığı ölçüde punto iniyor. Kelime ARASINDAN kırılma serbest —
+   "BARIŞ ALPER" gerekirse iki satır olur, doğru olan da bu. */
 .name {
   display: flex;
   flex-direction: column;
   margin: 0;
   font-family: var(--display, var(--font-anton)), var(--font-bebas), sans-serif;
   font-weight: 400;
-  font-size: clamp(3.25rem, 9.5vw, 9rem);
-  line-height: 0.86;
+  font-size: max(
+    2rem,
+    min(
+      clamp(3.25rem, 9.5vw, 9rem),
+      calc(100cqi / (var(--name-len, 9) * var(--advance, 0.58)))
+    )
+  );
+  /* Satır aralığı ada göre: Ç'nin çengeli ile İ'nin noktası arka arkaya
+     gelmedikçe 0.86'da kalıyor (özgün sıkılık), geldiğinde açılıyor.
+     Hesap bileşende — gerekçe orada. */
+  line-height: var(--name-lh, 0.86);
   letter-spacing: 0.005em;
   text-transform: uppercase;
   color: #f3ede2;
-  overflow-wrap: anywhere;
+  /* ⚠️ `overflow-wrap: anywhere` KALDIRILDI — özel adı kelime ortasından
+     kırıyordu (FERNAND/O, MONDR/AGÓN, KORKM/AZ). Sığmayan ad artık
+     küçülüyor; kırılma yalnızca boşluktan. */
+  overflow-wrap: normal;
+  hyphens: none;
 }
 
 /* İkinci satır kulübün altınında — düz renk, gradient DEĞİL.
@@ -422,8 +473,16 @@
     font-size: min(72vw, 22rem);
   }
 
+  /* Mobilde ideal boy düşüyor ama sığdırma kuralı aynı kalıyor: dar ekranda
+     zaten sığan değer kazanıyor. */
   .name {
-    font-size: clamp(2.75rem, 15vw, 5rem);
+    font-size: max(
+      1.85rem,
+      min(
+        clamp(2.75rem, 15vw, 5rem),
+        calc(100cqi / (var(--name-len, 9) * var(--advance, 0.58)))
+      )
+    );
   }
 
   .scroll {
@@ -625,7 +684,13 @@
      kuruluyor — harflerin içinden geçen bir gradient bu punto bandında
      kontrastı düşürüyor (aynı gerekçe `.name em` notunda yazılı). */
   :global([data-hero="stack"]) .name {
-    font-size: clamp(3.5rem, 12vw, 10.5rem);
+    font-size: max(
+      2rem,
+      min(
+        clamp(3.5rem, 12vw, 10.5rem),
+        calc(100cqi / (var(--name-len, 9) * var(--advance, 0.58)))
+      )
+    );
     text-shadow: 0 10px 44px color-mix(in srgb, #000 78%, transparent);
   }
 

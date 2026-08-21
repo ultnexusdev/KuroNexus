@@ -72,7 +72,7 @@ export const ugurcanCakir: FavouritePlayer = {
     "Trabzonspor altyapısında büyüdü. Kalecinin en zor okuduğu yer kendi tribünüdür ve Trabzon'da tribün kaleye çok yakın durur; orada yetişen bir çocuk daha ilk yıllarda arkasındaki sesle yaşamayı öğrenir. Uğurcan bu sesi bir baskı değil, bir metronom gibi kullanmayı öğrendi.",
     "Arada bir kiralık dönem oldu — altyapıdan çıkan kalecilerin çoğu için bu dönem kariyerin biteceği yerdir. O geri döndü ve eldiveni bir daha bırakmadı. Kaleci mevkisinde geri dönmek, forvette gol atmaktan zordur: bir yanlış tercih ve yer bir sezon boyunca kapanır.",
     "Trabzonspor'un otuz sekiz yıl sonra gelen şampiyonluğunda kalede o vardı. Şampiyonluk anlatılırken golcüler sayılır; oysa uzun bir sezonun tuttuğu yer çoğu zaman kaledir. O sezon Trabzonspor'un kalesi bir tartışma konusu olmadı — bir kaleci için bundan büyük övgü yoktur.",
-    "Millî formada da aynı yeri aldı ve Avrupa Şampiyonası'nda Türkiye'nin kalesini o korudu. 2025 yazında Galatasaray'a geldi. Trabzon'dan İstanbul'a giden bu yol Türkiye futbolunda çok yürünmüştür; ama kaleci olarak yürümek başka bir şey, çünkü kaleci yeni tribünle önce sırtından tanışır.",
+    "Millî formada da aynı yeri aldı: EURO 2020'de Türkiye'nin kalesi ona emanetti. 2025 yazında Galatasaray'a geldi. Trabzon'dan İstanbul'a giden bu yol Türkiye futbolunda çok yürünmüştür; ama kaleci olarak yürümek başka bir şey, çünkü kaleci yeni tribünle önce sırtından tanışır.",
   ],
   stats: {
     club: {
@@ -200,6 +200,21 @@ export const ugurcanCakir: FavouritePlayer = {
       },
     },
     {
+      year: 2021,
+      title: "İlk büyük turnuva",
+      meta: "EURO 2020 · A Millî Takım",
+      line: "Türkiye'nin kalesine bir büyük turnuvada ilk kez geçti. Turnuva umulduğu gibi gitmedi; bir kalecinin ilk büyük turnuvası çoğu zaman böyle olur ve asıl ölçü ondan sonra ne yaptığıdır.",
+      image: {
+        id: "night-euro",
+        src: `${BASE}/gece-euro.jpg`,
+        alt: "Uğurcan Çakır, millî takım kalesinde",
+        placeholder: true,
+        hint: "Yatay · millî forma · EURO 2020 · maç anı · yüz görünsün",
+        width: 1200,
+        height: 800,
+      },
+    },
+    {
       year: 2022,
       title: "Otuz sekiz yıl",
       meta: "Süper Lig · Trabzonspor",
@@ -210,21 +225,6 @@ export const ugurcanCakir: FavouritePlayer = {
         alt: "Trabzonspor şampiyonluk kutlaması",
         placeholder: true,
         hint: "Yatay · şampiyonluk gecesi · tribün ve kaleci bir arada olursa ideal",
-        width: 1200,
-        height: 800,
-      },
-    },
-    {
-      year: 2024,
-      title: "Son saniye",
-      meta: "Avrupa Şampiyonası · Türkiye — Avusturya",
-      line: "Uzatmanın son saniyelerinde, kalenin ağzında bir kurtarış. Bir turnuvanın devam edip etmeyeceği tek bir el hareketine bağlandı ve el doğru yerdeydi.",
-      image: {
-        id: "night-euro",
-        src: `${BASE}/gece-euro.jpg`,
-        alt: "Uğurcan Çakır, millî takım kalesinde kurtarış anı",
-        placeholder: true,
-        hint: "Yatay · millî forma · havada kurtarış · yüz görünsün",
         width: 1200,
         height: 800,
       },

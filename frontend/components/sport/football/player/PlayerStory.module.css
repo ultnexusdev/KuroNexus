@@ -24,6 +24,8 @@
 
 .headSide {
   min-width: 0;
+  /* Başlığın puntosu bu sütunun genişliğine göre kelepçeleniyor (aşağıda). */
+  container-type: inline-size;
 }
 
 .eyebrow {
@@ -43,12 +45,23 @@
   margin: 0;
   font-family: var(--display, var(--font-anton)), var(--font-bebas), sans-serif;
   font-weight: 400;
-  font-size: clamp(2rem, 5vw, 3.75rem);
+  /* İdealin ve sığanın küçüğü — hero'daki adla aynı kural, aynı gerekçe.
+     `--story-len` bileşenden (en uzun kelimenin harf sayısı), `--advance`
+     sayfanın kökünden (yazı ailesine göre harf başına pay). */
+  font-size: min(
+    clamp(2rem, 5vw, 3.75rem),
+    calc(100cqi / (var(--story-len, 12) * var(--advance, 0.58)))
+  );
   line-height: 0.98;
   letter-spacing: 0.01em;
   text-transform: uppercase;
   color: #f3ede2;
-  overflow-wrap: anywhere;
+  /* ⚠️ `overflow-wrap: anywhere` KALDIRILDI (21 Ağustos 2026): başlıklar özel
+     ad taşıyor ("Köstence'den", "İskenderun'dan") ve dev puntoda kelime
+     ortasından kırılıyorlardı — hero'daki adla birebir aynı arıza. Sığmayan
+     başlık artık kırılmıyor, küçülüyor. */
+  overflow-wrap: normal;
+  hyphens: none;
 }
 
 .title span:last-child {

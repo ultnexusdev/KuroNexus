@@ -121,7 +121,7 @@ async function main() {
       slug: 'hagi',
       name: 'Hagi',
       fullName: 'Gheorghe Hagi',
-      epithetTr: 'Karpatların Maradonası',
+      epithetTr: 'Karpatlar’ın Maradonası',
       epithetEn: 'The Maradona of the Carpathians',
       role: 'PLAYER',
       countryCode: 'RO',

@@ -161,8 +161,20 @@ export function HistoryReel({
             );
 
             return (
+              /* ⚠️ Anahtara sıra numarası KATILIYOR. `entry.image.id`
+                 kulüp+dönem+yıl üçlüsünden türetiliyor ve o üçlü benzersiz
+                 DEĞİL: şemada (dönem, yıl) üzerinde tekillik kısıtı yok, yani
+                 aynı döneme aynı yıldan ikinci bir an eklendiğinde iki satır
+                 aynı anahtarı alıyor ve React biri güncellendiğinde
+                 diğerini karıştırıyor.
+
+                 ⚠️ ÇÖZÜM YUVA KİMLİĞİNE DOKUNMUYOR. O kimlik küratörün
+                 yüklediği karenin veritabanı anahtarı; sıra numarası
+                 katılsaydı listeye bir an eklendiğinde bütün kareler kayardı
+                 (`football-hub-slots.ts` başındaki uyarı). Sıra yalnızca
+                 React anahtarında. */
               <li
-                key={entry.image.id}
+                key={`${entry.image.id}#${i}`}
                 data-active={i === active ? "" : undefined}
                 data-peak={peak ? "" : undefined}
                 data-side={i % 2 === 0 ? "left" : "right"}

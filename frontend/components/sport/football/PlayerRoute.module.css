@@ -11,14 +11,37 @@
   pointer-events: none;
 }
 
+/* ── RAY BİR PLAKANIN ÜSTÜNDE — 21 Ağustos 2026 düzeltmesi ─────────────
+   Ray `position: fixed` ve zemini YOKTU: etiket doğrudan sayfanın üstüne
+   düşüyordu. Ölçüldü (Bülent Korkmaz sayfası, 1280 px): ray kutusu
+   1122–1239, hero'nun çerçeveli portresi 702–1201 — yani "HİKÂYESİ"
+   etiketi tam da çerçevenin içine biniyordu ve sayfanın kendi metni gibi
+   görünüyordu. Kullanıcı bildirimi birebir buydu: "sağdaki panelde
+   'hikayesi' yazısı kaymış, kutunun dışında".
+
+   Çözüm rayı taşımak değil — kenarda başka yer yok ve `frame` varyantının
+   portresi zaten oraya kadar geliyor. Çözüm rayın KENDİ ZEMİNİNİ almasi:
+   ince, koyu, bulanık bir plaka. Böylece ray içeriğin üstünde duran bir
+   ARAÇ olduğunu söylüyor; altındaki fotoğrafla karışmıyor.
+
+   ⚠️ Plaka etiket açılınca genişliyor ve bu bilinçli: `max-width` geçişi
+   zaten 460 ms sürüyor, plaka onunla birlikte akıyor. Sabit genişlikte bir
+   plaka ya durgun hâlde kocaman durur ya da açılan etiketi keser. */
 .route ol {
   list-style: none;
   margin: 0;
-  padding: 0;
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
   pointer-events: auto;
+  padding: 0.4rem 0.5rem;
+  border-radius: 1.25rem;
+  border: 1px solid color-mix(in srgb, var(--text-primary) 9%, transparent);
+  /* Bulanıklık desteklenmese bile okunur kalsın diye zemin yeterince koyu. */
+  background: color-mix(in srgb, #05050a 68%, transparent);
+  backdrop-filter: blur(8px) saturate(120%);
+  -webkit-backdrop-filter: blur(8px) saturate(120%);
+  box-shadow: 0 18px 44px color-mix(in srgb, #000 45%, transparent);
 }
 
 .route a {
@@ -26,7 +49,7 @@
   align-items: center;
   justify-content: flex-end;
   gap: 0.6rem;
-  padding: 0.4rem 0.25rem;
+  padding: 0.35rem 0.15rem;
   min-height: 2rem;
   color: var(--text-muted);
   text-decoration: none;

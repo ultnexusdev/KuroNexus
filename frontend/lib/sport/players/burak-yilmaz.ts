@@ -71,7 +71,7 @@ export const burakYilmaz: FavouritePlayer = {
     "Antalya'da başladı ve uzun süre bir vaat olarak kaldı. Beşiktaş'a gitti, Manisaspor'a gitti, Fenerbahçe'ye gitti; her yerde iyiydi, hiçbir yerde vazgeçilmez değildi. Uzun gövdeli santrforlar geç olgunlaşır derler — o cümlenin canlı örneği gibiydi.",
     "Trabzonspor'da patladı. Bir sezon boyunca ligin en golcüsü oldu ve getirdiği şey sayı değil bir tavırdı: topu isteyen, sorumluluğu isteyen, kaybedince kimsenin arkasına saklanmayan bir forvet. 'Kral' lakabı o dönemde yapıştı ve bir daha çıkmadı.",
     "Galatasaray'a geldiğinde otuzuna yaklaşıyordu ve kariyerinin en görünür yılları hâlâ önündeydi. Şampiyonlar Ligi geceleri onu Türkiye'nin dışına taşıdı: Türk Telekom'da Manchester United, ardından iki maçlık bir Real Madrid turu. Avrupa adını burada öğrendi.",
-    "Sonrası bir dolaşma daha oldu: Çin, dönüş, Beşiktaş, sonra Fransa. Lille'de otuz beş yaşında Ligue 1 şampiyonu oldu ve aynı dönemde A Milli Takım'ın kaptanıydı. Bir kariyerin en yüksek bölümünün en sona kalması nadirdir; onunki tam olarak öyle oldu.",
+    "Sonrası bir dolaşma daha oldu: Çin, dönüş, Beşiktaş, sonra Fransa. Lille'de otuz beş yaşında Ligue 1 şampiyonu oldu ve aynı dönemde A Millî Takım'ın kaptanıydı. Bir kariyerin en yüksek bölümünün en sona kalması nadirdir; onunki tam olarak öyle oldu.",
   ],
   stats: {
     club: {
@@ -98,10 +98,10 @@ export const burakYilmaz: FavouritePlayer = {
       entries: [
         { key: "topscorer", label: "Süper Lig gol kralı", value: "2" },
         { key: "ligue1", label: "Ligue 1", value: "1" },
-        { key: "countries", label: "Ülke", value: "4" },
-        { key: "national", label: "A Milli", value: "Kaptan" },
+        { key: "countries", label: "Ülke", value: "3" },
+        { key: "national", label: "A Millî", value: "Kaptan" },
       ],
-      note: "Türkiye, Çin, Fransa ve Hollanda. Kariyer toplamları doğrulanmadığı için buraya konmadı.",
+      note: "Türkiye, Çin ve Fransa. Kariyer toplamları doğrulanmadığı için buraya konmadı.",
     },
   },
   career: [
@@ -218,13 +218,13 @@ export const burakYilmaz: FavouritePlayer = {
       year: 2021,
       title: "Hollanda karşısında hat-trick",
       meta: "Dünya Kupası elemeleri · Türkiye — Hollanda",
-      line: "Otuz beşindeydi ve kaptandı. O akşam üç gol attı; milli formayı taşımanın anlamı bir süre daha ona bağlandı.",
+      line: "Otuz beşindeydi ve kaptandı. O akşam üç gol attı; millî formayı taşımanın anlamı bir süre daha ona bağlandı.",
       image: {
         id: "night-hollanda",
         src: `${BASE}/gece-hollanda.jpg`,
         alt: "",
         placeholder: true,
-        hint: "A Milli forma · kaptanlık bandı · gol sevinci · yatay",
+        hint: "A Millî forma · kaptanlık bandı · gol sevinci · yatay",
         width: 1200,
         height: 800,
       },
@@ -308,7 +308,7 @@ export const burakYilmaz: FavouritePlayer = {
       src: `${BASE}/galeri-5.jpg`,
       alt: "Kaptanlık",
       placeholder: true,
-      hint: "Kaptanlık bandı görünen kare · A Milli ya da kulüp · yatay",
+      hint: "Kaptanlık bandı görünen kare · A Millî ya da kulüp · yatay",
       width: 1200,
       height: 800,
       caption: "Kaptan",

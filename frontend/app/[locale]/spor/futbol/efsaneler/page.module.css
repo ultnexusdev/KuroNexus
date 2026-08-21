@@ -334,6 +334,17 @@
   min-width: 0;
 }
 
+/* ⚠️ Kartın TEK dokunulabilir öğesi bu bağlantı ve yüksekliği ~20 px
+   kalıyordu; deponun kendi kuralı (`globals.css`, `--touch-min: 44px`) en az
+   44 px istiyor. Bağlantı `inline-flex` + `min-height` ile büyütüldü;
+   `align-items: center` metni eski yerinde tuttuğu ve kutu zaten sarmalın
+   içinde olduğu için görünüm değişmiyor, yalnızca basılabilir alan büyüyor. */
+.plaqueName a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+}
+
 .plaqueName {
   margin: 0;
   font-family: var(--font-cinzel), serif;

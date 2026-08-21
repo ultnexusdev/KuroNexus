@@ -75,7 +75,7 @@ export const mauroIcardi: FavouritePlayer = {
     "Rosario'da doğdu, ama futbolu Kanarya Adaları'nda öğrendi. Ailesi İspanya'ya taşındığında çocuk yaşta Vecindario'nun altyapısındaydı; oradan Barcelona'nın La Masia'sına geçti. Dünyanın en çok pas veren okulunda, en az pas veren mevkiyi seçti.",
     "Barcelona'da kalmadı. İtalya'ya, Sampdoria'ya gitti ve Serie A'ya orada çıktı. Genç bir santrforun İtalya'ya gitmesi genelde bir gerileme sayılır; onun için bir uzmanlaşmaydı. İtalya, ceza sahası içinde durmayı öğreten ülkedir.",
     "2013'te Inter'e geçti ve iki kez Serie A'nın gol kralı oldu. Yirmi iki yaşında kaptanlık pazubendini taktı. Bir forvet için kaptanlık alışılmadıktır: takımın en bencil mevkisine takımın sorumluluğunu vermek demektir.",
-    "Paris'te iki lig şampiyonluğu, sonra İstanbul. Galatasaray'a geldiğinde otuz yaşındaydı ve kariyerinin en yüksek gol ortalamasını burada tutturdu. Üst üste gelen şampiyonlukların ortasında, kulübün on numarası değil dokuz numarası oldu — ve bu şehirde dokuz numara olmak, on numara olmaktan zordur.",
+    "Paris'te iki lig şampiyonluğu, sonra İstanbul. Galatasaray'a geldiğinde yirmi dokuz yaşındaydı ve kariyerinin en yüksek gol ortalamasını burada tutturdu. Üst üste gelen şampiyonlukların ortasında, kulübün on numarası değil dokuz numarası oldu — ve bu şehirde dokuz numara olmak, on numara olmaktan zordur.",
   ],
   stats: {
     club: {

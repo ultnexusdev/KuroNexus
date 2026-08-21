@@ -206,7 +206,7 @@ export const davinsonSanchez: FavouritePlayer = {
       year: 2017,
       title: "Stockholm",
       meta: "Avrupa Ligi finali · Ajax — Manchester United",
-      line: "Ajax'ın stoper ikilisi o gece yirmi bir ve on yedi yaşındaydı. Kupa gitti, ikisinin de adresi değişti.",
+      line: "Ajax'ın stoper ikilisi o gece yirmi ve on yedi yaşındaydı. Kupa gitti, ikisinin de adresi değişti.",
       image: {
         id: "night-stockholm",
         src: `${BASE}/gece-stockholm.jpg`,
@@ -225,9 +225,9 @@ export const davinsonSanchez: FavouritePlayer = {
       image: {
         id: "night-copa-america",
         src: `${BASE}/gece-copa-america.jpg`,
-        alt: "Davinson Sánchez, Kolombiya milli takım forması",
+        alt: "Davinson Sánchez, Kolombiya millî takım forması",
         placeholder: true,
-        hint: "Kolombiya sarı milli forma · final gecesi · yatay · yüz net",
+        hint: "Kolombiya sarı millî forma · final gecesi · yatay · yüz net",
         width: 1200,
         height: 800,
       },
@@ -309,9 +309,9 @@ export const davinsonSanchez: FavouritePlayer = {
     {
       id: "gallery-5",
       src: `${BASE}/galeri-5.jpg`,
-      alt: "Kolombiya milli takım forması",
+      alt: "Kolombiya millî takım forması",
       placeholder: true,
-      hint: "Milli forma · sarı · yatay",
+      hint: "Millî forma · sarı · yatay",
       width: 1200,
       height: 800,
       caption: "Kolombiya",

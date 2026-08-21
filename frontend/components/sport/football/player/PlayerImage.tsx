@@ -63,7 +63,17 @@ export function PlayerImage({
      (hero, tarih kareleri) ile defterdeki futbolcuların kart yuvaları. */
   const owner = slot.owner ?? curator?.defaultOwner ?? "";
   const override = curator?.urlOf(owner, slot.id);
-  const [failed, setFailed] = useState(false);
+  /**
+   * ⚠️ HANGİ ADRESİN düştüğü tutuluyor, "düştü mü" bayrağı DEĞİL.
+   *
+   * Önceki sürüm `boolean` idi ve bir kez `true` olduktan sonra hiçbir yerde
+   * sıfırlanmıyordu. Küratör o yuvaya yeni bir kare yüklediğinde
+   * `PlayerCurator` haritayı yerinde güncelliyor — bileşen yeniden monte
+   * OLMUYOR — yani bayrak `true` kalıyor ve yeni kare hiç denenmeden yer
+   * tutucu ekranda kalıyordu. Adresi tutmak sorunu kökten kapatıyor: yalnızca
+   * GERÇEKTEN düşen adres elenmiş sayılıyor.
+   */
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
 
   /**
    * ⚠️ İKİ FARKLI ORIGIN. Depodaki kareler (`/assets/…`, `/spor/…`) ÖN YÜZ
@@ -78,7 +88,7 @@ export function PlayerImage({
   const raw = override ?? (slot.placeholder ? null : slot.src);
   const source = raw ? (isLocalUpload(raw) ? apiUrl(raw) : raw) : null;
 
-  const showPlaceholder = !source || failed;
+  const showPlaceholder = !source || failedSrc === source;
 
   /**
    * ── BOŞ YUVANIN İKİ AYRI YÜZÜ (20 Ağustos 2026) ────────────────────────
@@ -155,7 +165,7 @@ export function PlayerImage({
             loading={eager ? "eager" : "lazy"}
             fetchPriority={eager ? "high" : undefined}
             decoding="async"
-            onError={() => setFailed(true)}
+            onError={() => setFailedSrc(source)}
             style={{ objectFit: fit, objectPosition: position }}
           />
         )}

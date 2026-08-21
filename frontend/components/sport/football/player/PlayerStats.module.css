@@ -193,7 +193,10 @@
 
 .cell {
   display: flex;
-  flex-direction: column;
+  /* ⚠️ TERS — bilinçli. İşaret dilinde `dt` (etiket) `dd`den (sayı) önce
+     gelmek ZORUNDA; ekranda ise sayı üstte durmalı. Sıra burada çevriliyor,
+     böylece hem HTML geçerli hem de kompozisyon aynı kalıyor. */
+  flex-direction: column-reverse;
   gap: 0.3rem;
   padding: clamp(1.1rem, 3vw, 2rem) clamp(0.75rem, 2vw, 1.5rem);
   background: color-mix(in srgb, var(--ink) 92%, #000);

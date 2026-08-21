@@ -185,6 +185,35 @@ export type PlayerRhythm = "tight" | "open" | "cinematic";
  */
 export type PlayerTexture = "grain" | "archive" | "clean" | "halo";
 
+/**
+ * SİNEMA BÖLÜMÜNÜN KAYDI.
+ *
+ * ── NEDEN YALNIZCA YouTube KİMLİĞİ SAKLANIYOR ────────────────────────────
+ * Tam adres değil, on bir karakterlik video kimliği. Sebep CSP:
+ * `frame-src` beyaz listesinde yalnızca `www.youtube-nocookie.com` var
+ * (`next.config.ts`). Adresi kaydın içine yazmak, bir gün oraya
+ * `youtube.com` yazılıp gömünün tarayıcıda sessizce engellenmesi demekti.
+ * Kimlikten adresi bileşen kuruyor; yanlış alan adı yazmak imkânsız.
+ *
+ * ⚠️ GÖMÜ SAYFA AÇILIŞINDA YÜKLENMİYOR. Ziyaretçi oynat'a basana kadar
+ * YouTube'a tek istek gitmiyor; bölüm o ana kadar saf CSS bir sahne.
+ * Gerekçesi ikili: bir `<iframe>` yaklaşık yarım megabayt üçüncü taraf
+ * betiği indirir ve ziyaretçi videoyu hiç açmasa bile YouTube ona çerez
+ * yazmayı dener.
+ */
+export interface PlayerFilm {
+  /** YouTube video kimliği — TAM ADRES DEĞİL (bkz. yukarısı) */
+  youtubeId: string;
+  /** Bölüm başlığı — iki satır, ikinci satır vurgu renginde */
+  title: [string, string];
+  /** Başlığın altındaki tek cümle */
+  lede: string;
+  /** Oynatıcının altındaki künye satırı ("1996–2001 · 76 gol") */
+  meta?: string;
+  /** Ekran okuyucu ve `title` için gömünün adı */
+  label: string;
+}
+
 /** Sayfadaki bölümler. Sıra `design.order` ile değişiyor. */
 export type PlayerSection =
   | "hikaye"
@@ -192,7 +221,69 @@ export type PlayerSection =
   | "geceler"
   | "anlar"
   | "istatistik"
+  | "film"
   | "galeri";
+
+/**
+ * BİR KAYDIN BÜTÜN GÖRSEL YUVALARI — tek düz liste.
+ *
+ * ── NEDEN BURADA ─────────────────────────────────────────────────────────
+ * Bu listeyi iki yer okuyor: kayıt defteri (`index.ts`, yuvalara sahibini
+ * damgalamak için) ve künye toplayıcı (`favourite-players.ts` →
+ * `allSlotsOf`). İki ayrı kopya tutulsaydı yeni bir yuva alanı
+ * eklendiğinde biri güncellenip diğeri unutulurdu; unutulan taraf ya
+ * künyesiz bir görsel ya da sahipsiz bir yuva üretirdi. İkisi de sessiz
+ * arıza.
+ *
+ * ⚠️ KAYDA YENİ BİR GÖRSEL ALANI EKLERSEN BURAYA DA EKLE.
+ */
+export function slotsOf(player: FavouritePlayer): PlayerImageSlot[] {
+  return [
+    player.hero,
+    player.card,
+    player.stats.club.crest,
+    ...player.career.map((stop) => stop.image),
+    ...player.nights.map((night) => night.image),
+    ...player.gallery,
+  ];
+}
+
+/**
+ * Kariyer durağındaki kulüp adının büyük harf dili.
+ *
+ * Durak açıkça yazmışsa o; yazmamışsa ülkeden türetiliyor. Gerekçe
+ * `CareerStop.clubLang` başında yazılı.
+ */
+export function clubLangOf(stop: CareerStop): "tr" | "en" {
+  return stop.clubLang ?? (stop.country === "Türkiye" ? "tr" : "en");
+}
+
+/**
+ * Uyruk kodundan isim dili.
+ *
+ * ⚠️ AYNI KURAL DEFTER DIŞINDAKİ KAYITLARA DA GEREKLİ: efsaneler salonu ve
+ * hub şeridi backend'den gelen `FootballLegend` kayıtlarını da basıyor ve
+ * onların adı da CSS'te büyütülüyor ("Hagi" → Türkçe kuralla "HAGİ",
+ * kullanıcı bildirimi). O kayıtlarda `nameLang` alanı yok, yalnızca
+ * `countryCode` var — bu yüzden türetim ayrı bir işlev.
+ *
+ * Kod boş gelebilir (backend'de isteğe bağlı); boşsa Türkçe DEĞİL varsayılıyor.
+ * Yanlış tarafa düşmek daha ucuz: Türkçe olmayan bir ada Türkçe kural
+ * uygulamak gözle görülür bir hata (VİCTOR), tersi görünmez.
+ */
+export function nameLangOfCode(countryCode: string | null | undefined): "tr" | "en" {
+  return countryCode === "TR" ? "tr" : "en";
+}
+
+/**
+ * İsmin büyük harfe çevrilirken uyacağı dil.
+ *
+ * Kayıt açıkça yazmışsa o; yazmamışsa uyruktan türetiliyor. Gerekçe
+ * `FavouritePlayer.nameLang` başında yazılı.
+ */
+export function nameLangOf(player: FavouritePlayer): "tr" | "en" {
+  return player.nameLang ?? nameLangOfCode(player.countryCode);
+}
 
 /** Bölüm sırası yazılmazsa bu geçerli. */
 export const DEFAULT_SECTION_ORDER: PlayerSection[] = [
@@ -201,6 +292,7 @@ export const DEFAULT_SECTION_ORDER: PlayerSection[] = [
   "geceler",
   "anlar",
   "istatistik",
+  "film",
   "galeri",
 ];
 
@@ -238,6 +330,24 @@ export interface CareerStop {
   id: string;
   years: string;
   club: string;
+  /**
+   * KULÜP ADININ BÜYÜK HARFE ÇEVRİLİRKEN UYACAĞI DİL.
+   *
+   * Kariyer şeridi kulüp adını CSS'te büyütüyor ve sayfanın dili Türkçe;
+   * Türkçe kural `i` harfini `İ` yapıyor. Yabancı kulüplerde bu yanlış:
+   * "Lille" → LİLLE, "Sampdoria" → SAMPDORİA, "Sporting Charleroi" →
+   * SPORTİNG CHARLEROİ. Kullanıcı bunu özel adların TAMAMI için istedi
+   * (21 Ağustos 2026).
+   *
+   * ⚠️ YAZILMAZSA `country`den türetiliyor: "Türkiye" → `tr`, diğerleri
+   * → `en`. Otuz iki yabancı kulübün otuzunda doğru sonucu veriyor.
+   *
+   * Alan İSTİSNALAR için var ve bugün ikisi yazılı: "Bayern Münih" ve
+   * "Olympique Marsilya". İkisi de yabancı ülkede ama adı TÜRKÇELEŞMİŞ —
+   * Münih ve Marsilya Türkçe sözcükler, İngilizce kuralla büyütülseler
+   * MÜNIH ve MARSILYA olurlardı. Türetim `clubLangOf`.
+   */
+  clubLang?: "tr" | "en";
   country: string;
   /** Bu duraktan geriye kalan tek cümle */
   note: string;
@@ -305,6 +415,27 @@ export interface PlayerStats {
 export interface FavouritePlayer {
   slug: string;
   name: string;
+  /**
+   * İSMİN BÜYÜK HARFE ÇEVRİLİRKEN UYACAĞI DİL.
+   *
+   * ── NEDEN GEREKLİ ──────────────────────────────────────────────────────
+   * Sayfanın `<html lang>`i `tr` ve isimler CSS'te `text-transform:
+   * uppercase` ile büyütülüyor. Türkçe büyütme kuralı `i` harfini `İ`
+   * yapar — Türkçe adlarda DOĞRU olan bu (Metin → METİN), yabancı adlarda
+   * ise yanlış: "Victor Osimhen" ekranda VİCTOR OSİMHEN oluyordu (kullanıcı
+   * bildirimi, 21 Ağustos 2026).
+   *
+   * Çözüm dize üzerinde değil ELEMENT üzerinde: adı taşıyan öğeye `lang`
+   * yazılıyor, tarayıcı büyütmeyi o dilin kuralıyla yapıyor. Böylece aynı
+   * sayfada "SELÇUK İNAN" ile "VICTOR OSIMHEN" yan yana doğru duruyor.
+   *
+   * ⚠️ YAZILMAZSA `countryCode`tan türetiliyor (`TR` → `tr`, diğerleri
+   * → `en`) — bugünkü yirmi üç kaydın hepsinde doğru sonucu veriyor, o
+   * yüzden hiçbir kayıt bu alanı yazmak zorunda değil. Alan yalnızca
+   * istisnalar için var: Türk vatandaşı olup adı Türkçe okunmayan (ya da
+   * tersi) bir kayıt eklendiğinde elle yazılır. Türetim `nameLangOf()`.
+   */
+  nameLang?: "tr" | "en";
   /** Dev tipografi iki satıra bölünüyor */
   firstName: string;
   lastName: string;
@@ -324,14 +455,21 @@ export interface FavouritePlayer {
    * EFSANELER salonundaki lakap ("Aşk adamı").
    *
    * Favori futbolcu kartındaki `tagline` küratörün gözlemi; bu ise efsane
-   * salonunun sesi — Hagi'nin "Karpatların Maradonası"nın karşılığı. Dolu
+   * salonunun sesi — Hagi'nin "Karpatlar'ın Maradonası"nın karşılığı. Dolu
    * olan futbolcu efsaneler salonunda DA görünüyor ve iki kart da AYNI
    * sayfaya gidiyor; boş bırakılan yalnızca favori şeridinde kalıyor.
    */
   legendEpithet?: string;
   /**
    * Yalnızca efsaneler salonunda kullanılan dönem ("1955 — 1969").
-   * Boşsa kart `career` dizisinin ilk ve son yılından üretiyor.
+   *
+   * ⚠️ BOŞSA HİÇBİR ŞEY ÜRETİLMİYOR, satır çizilmiyor. Bu alanın eski
+   * açıklaması "boşsa `career` dizisinin ilk ve son yılından üretiyor"
+   * diyordu ama böyle bir türetim depoda hiç yoktu — ve yazılamaz da:
+   * `CareerStop.years` serbest metin ("2010'ların başı"), sayı değil.
+   *
+   * ⚠️ TEK TÜKETİCİ efsaneler salonu (`efsaneler/page.tsx`). Hub şeridi bu
+   * alanı OKUMUYOR; oradaki defter kayıtları için yıl alanı sabit `null`.
    */
   legendEra?: string;
   quote: string;
@@ -349,6 +487,15 @@ export interface FavouritePlayer {
    * ederdi.
    */
   theme?: string;
+  /**
+   * SİNEMA BÖLÜMÜ — gömülü video.
+   *
+   * ⚠️ YAZILMAZSA BÖLÜM HİÇ ÇİZİLMİYOR. `theme` (tema müziği) ile aynı
+   * kural: boş bir oynatıcı çizmek "boş oda yasağını" ihlal ederdi.
+   *
+   * Bugün yalnızca Hagi'de dolu (kullanıcı isteği, 21 Ağustos 2026).
+   */
+  film?: PlayerFilm;
   /** Hero'nun taşıyıcı görseli — dikey kadraj */
   hero: PlayerImageSlot;
   /** Hub sayfasındaki kart için (yatay/dikey fark etmez) */

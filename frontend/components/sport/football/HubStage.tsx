@@ -21,7 +21,9 @@ export interface HubStageIndexEntry {
  * kıvrım artık bir GECE: ışığın kendisi malzeme.
  *
  * ── KATMANLAR (arkadan öne) ──────────────────────────────────────────────
- *   1 renk alanı  — üç radyal yıkama (kehribar / kızıl / çivit). ASLA #000.
+ *   1 renk alanı  — üç radyal yıkama (kehribar / kızıl / derin bordo).
+ *                   ASLA #000 ve ASLA lacivert — üstteki yıkama eskiden
+ *                   çivitti, "mavi yok" kararıyla bordoya çevrildi.
  *   2 fotoğraf    — gerçek bir gece stadyumu karesi, maskeyle alana eriyor
  *   3 huzmeler    — projektör konileri; blur + mask, çok yavaş sürükleniyor
  *   4 zerreler    — havada asılı toz; 14 adet, sayısı sabit
@@ -104,8 +106,22 @@ export function HubStage({
 
   return (
     <section ref={ref} className={styles.stage} aria-labelledby="futbol-hero">
-      <div className={styles.atmosphere} aria-hidden="true">
-        <span className={styles.field} />
+      {/* ⚠️ KAP `aria-hidden` DEĞİL, ÇOCUKLARI ÖYLE.
+          Hero plakası küratör modunda içine odaklanabilir bir düzenle düğmesi
+          alıyor (`PlayerImage` → `SlotEditor`); `aria-hidden="true"` bir
+          kabın içinde odaklanabilir öğe bırakmak, erişilebilirlik ağacında var
+          OLMAYAN bir düğmeye klavye odağı vermek demek — ekran okuyucu
+          kullanıcısı sekmeyle oraya düşüp hiçbir şey duymuyor.
+
+          Plakaya `noEdit` vermek çözüm değildi: hero karesinin sayfada başka
+          bir düzenleme yüzeyi yok, düğmeyi kaldırmak küratörün o kareyi
+          değiştirme yeteneğini komple silerdi.
+
+          Bu yüzden gizleme bir seviye aşağı indi: dekoratif katmanların her
+          biri kendi `aria-hidden`ını taşıyor, plaka ise `decorative` ile
+          zaten `alt=""` basıyor. Ekran okuyucuya söylenen değişmedi. */}
+      <div className={styles.atmosphere}>
+        <span className={styles.field} aria-hidden="true" />
         <PlayerImage
           slot={plate}
           className={styles.plate}
@@ -113,7 +129,7 @@ export function HubStage({
           eager
           decorative
         />
-        <span className={styles.beams} />
+        <span className={styles.beams} aria-hidden="true" />
         <span className={styles.motes}>
           {/* Sayı SABİT: 14. Rastgele üretilmiyor çünkü sunucu ve istemci
               farklı sayı üretirse hidrasyon uyuşmazlığı olur. Konumlar CSS'te

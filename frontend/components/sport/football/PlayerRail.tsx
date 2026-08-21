@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "@/lib/i18n/navigation";
 import { sportHref } from "@/lib/sport/routes";
-import type { FavouritePlayer } from "@/lib/sport/favourite-players";
+import { nameLangOf, type FavouritePlayer } from "@/lib/sport/favourite-players";
 import { PlayerImage } from "./player/PlayerImage";
 import { usePlayerCurator } from "./player/PlayerCurator";
 import shell from "@/app/[locale]/spor/layout.module.css";
@@ -105,10 +105,22 @@ export function PlayerRail({
   const nudge = (direction: 1 | -1) => {
     const el = trackRef.current;
     if (!el) return;
-    // Bir kart genişliği kadar: sabit piksel yazmak kart boyu clamp'lendiği
-    // için yanlış olurdu.
-    const card = el.querySelector("li");
-    const step = card ? card.getBoundingClientRect().width + 24 : el.clientWidth * 0.8;
+    /* Bir kart genişliği kadar: sabit piksel yazmak kart boyu clamp'lendiği
+       için yanlış olurdu.
+
+       ⚠️ İLK KART ÖLÇÜLMÜYOR. `li[data-lead]` bilerek çift genişlikte
+       (`clamp(19rem, 88vw, 38rem)` — normal kart `clamp(16rem, 74vw, 21rem)`);
+       onu ölçmek adımı neredeyse iki katına çıkarıyor ve ok her basışta bir
+       kart atlıyordu. Ölçü NORMAL bir karttan alınıyor, yoksa ilkinden.
+
+       Boşluk da sabit yazılmıyor: CSS'te `clamp(0.75rem, 2vw, 1.5rem)`, yani
+       12-24 px arasında değişiyor ve sabit 24 dar ekranda fazla itiyordu. */
+    const card =
+      el.querySelector("li:not([data-lead])") ?? el.querySelector("li");
+    const gap = parseFloat(getComputedStyle(el).columnGap) || 0;
+    const step = card
+      ? card.getBoundingClientRect().width + gap
+      : el.clientWidth * 0.8;
     el.scrollBy({ left: step * direction, behavior: "smooth" });
   };
 
@@ -218,7 +230,16 @@ export function PlayerRail({
                   {player.position} · {player.club}
                 </span>
 
-                <h3 className={`${shell.display} ${styles.name}`}>
+                {/* ⚠️ `lang` SÜS DEĞİL. Bu başlık CSS'te büyütülüyor ve
+                    sayfanın dili Türkçe: Türkçe büyütme kuralı `i` harfini
+                    `İ` yapıyor ve "Victor Osimhen" kartta VİCTOR OSİMHEN
+                    olarak çıkıyordu (kullanıcı bildirimi, 21 Ağustos 2026).
+                    Öznitelik tarayıcıya hangi dilin kuralıyla büyüteceğini
+                    söylüyor; dize hiç değişmiyor. Gerekçe `nameLangOf`. */}
+                <h3
+                  className={`${shell.display} ${styles.name}`}
+                  lang={nameLangOf(player)}
+                >
                   {player.name}
                 </h3>
 

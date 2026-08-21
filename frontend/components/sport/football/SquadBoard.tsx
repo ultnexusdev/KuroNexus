@@ -177,8 +177,14 @@ function PlayerPin({
         </span>
       ) : null}
 
+      {/* ⚠️ `<dl>` — `<div role="note">` DEĞİL. İçindeki `Stat` bileşeni
+          `<dt>`/`<dd>` basıyor ve bu düğümler bir `dl` atası olmadan
+          geçersiz: HTML içerik modeli ihlali ve ekran okuyucu terimle tanımı
+          eşleştiremiyor. Kartın arka yüzündeki aynı küme (`.cardStats`) zaten
+          `<dl>`; niyet baştan buydu, CSS'te de ikisi tek kuralla ele alınıyor
+          (`.cardStats, .pinStats { margin: 0 }`). */}
       {player.season ? (
-        <div className={styles.pinStats} role="note">
+        <dl className={styles.pinStats}>
           <Stat label={labels.stat.appearances} value={player.season.appearances} />
           <Stat label={labels.stat.goals} value={player.season.goals} />
           <Stat label={labels.stat.assists} value={player.season.assists} />
@@ -189,7 +195,7 @@ function PlayerPin({
               value={Number(player.season.rating.toFixed(2))}
             />
           ) : null}
-        </div>
+        </dl>
       ) : null}
     </div>
   );

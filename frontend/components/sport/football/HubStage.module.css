@@ -43,8 +43,12 @@
 
 /* ---- 1 · renk alanı ----
    Üç yıkama: sol alttan kehribar (saha kenarı), sağdan kızıl (karşı tribün),
-   üstten çivit (gökyüzü). Hiçbiri tam doygun değil; üst üste bindiklerinde
-   ortada sıcak-nötr bir bölge kalıyor ve metin oraya oturuyor. */
+   üstten DERİN BORDO (gece göğü). Hiçbiri tam doygun değil; üst üste
+   bindiklerinde ortada sıcak-nötr bir bölge kalıyor ve metin oraya oturuyor.
+
+   ⚠️ ÜSTTEKİ YIKAMA ÇİVİT DEĞİL. Bir kere öyleydi ve bu dosyanın 13-16.
+   satırlarındaki karar onu bilerek bordoya çevirdi (kanadın "mavi/lacivert
+   yok" kuralı). Yorum o turda güncellenmemişti; değer `--dusk` (#3a1119). */
 .field {
   background:
     radial-gradient(

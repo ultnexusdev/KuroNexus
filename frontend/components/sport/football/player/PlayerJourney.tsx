@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { CareerStop } from "@/lib/sport/favourite-players";
+import { clubLangOf, type CareerStop } from "@/lib/sport/favourite-players";
 import { PlayerImage } from "./PlayerImage";
 import styles from "./PlayerJourney.module.css";
 
@@ -115,7 +115,12 @@ export function PlayerJourney({
 
             <span className={styles.info}>
               <span className={styles.years}>{stop.years}</span>
-              <span className={styles.club}>{stop.club}</span>
+              {/* `lang`: kulüp adı CSS'te büyütülüyor ve sayfanın dili
+                  Türkçe — Türkçe kural yabancı kulüpleri bozuyordu
+                  (LİLLE, SAMPDORİA). Gerekçe `clubLangOf`. */}
+              <span className={styles.club} lang={clubLangOf(stop)}>
+                {stop.club}
+              </span>
               <span className={styles.country}>{stop.country}</span>
               {stop.matches !== null && stop.goals !== null ? (
                 <span className={styles.count}>

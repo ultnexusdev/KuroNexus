@@ -71,7 +71,7 @@ export const didierDrogba: FavouritePlayer = {
     "Abidjan'da doğdu, beş yaşında Fransa'ya gönderildi. Onu alan kişi profesyonel futbolcu olan amcasıydı; amcası kulüp değiştirdikçe çocuk da şehir değiştirdi. Bir yıl bir kasaba, ertesi yıl başka bir kasaba. Futbolu bir akademide değil, sürekli yeni olduğu bahçelerde öğrendi.",
     "Profesyonelliğe geç başladı. Le Mans'ta alt ligde oynadı, asıl sıçramayı Guingamp'ta yaptı ve yirmi beş yaşında hâlâ Fransa'nın dışında adı geçmiyordu. Marsilya'da tek sezon kaldı, o tek sezonda takımı Avrupa'da finale kadar taşıdı. Ertesi yaz Chelsea onu kulüp rekoru bir bedelle aldı; bir futbolcunun bir yıl içinde anonimlikten rekor transfere geçmesi nadirdir.",
     "Chelsea'de mevkiyi yeniden tarif etti. Sırtı kaleye dönük topu alır, stoperi kolunun üzerinde tutar ve takımın geri kalanının yetişmesini beklerdi; hücumun saati oydu. Finallerde attığı goller ayrı bir liste hâline geldi. 2012'de Münih'te, seksen sekizinci dakikada bir kornerden gelen kafa vuruşuyla eşitledi ve o gecenin son penaltısını attı.",
-    "Ülkesinde ise futbolcu olmaktan başka bir şeydi. Fildişi Sahili ilk kez Dünya Kupası'na gitmeyi garantilediği gece, kutlama yerine kamerayı çağırdı ve takımıyla birlikte diz çöküp savaşın durmasını istedi. 2013 Ocak'ında Galatasaray'a geldi: bir buçuk sezonda Süper Lig ve Türkiye Kupası kazandı, Şampiyonlar Ligi'nde eski kulübünün karşısına çıktı. Buradan ayrıldıktan sonra Chelsea'ye döndü ve bir lig şampiyonluğu daha ekledi.",
+    "Ülkesinde ise futbolcu olmaktan başka bir şeydi. Fildişi Sahili ilk kez Dünya Kupası'na gitmeyi garantilediği gece, kutlama yerine kamerayı çağırdı ve takımıyla birlikte diz çöküp savaşın durmasını istedi. Ocak 2013'te Galatasaray'a geldi: bir buçuk sezonda Süper Lig ve Türkiye Kupası kazandı, Şampiyonlar Ligi'nde eski kulübünün karşısına çıktı. Buradan ayrıldıktan sonra Chelsea'ye döndü ve bir lig şampiyonluğu daha ekledi.",
   ],
   stats: {
     club: {
@@ -128,6 +128,9 @@ export const didierDrogba: FavouritePlayer = {
       id: "marsilya",
       years: "2003 — 2004",
       club: "Olympique Marsilya",
+      /* Türkçeleşmiş ad: "Marsilya" Türkçe bir sözcük, İngilizce kuralla
+         MARSILYA olurdu. Gerekçe `CareerStop.clubLang`. */
+      clubLang: "tr",
       country: "Fransa",
       note: "Tek sezon kaldı ve o sezonda takımı Avrupa'da finale taşıdı.",
       tone: "#8d8778",
@@ -167,7 +170,7 @@ export const didierDrogba: FavouritePlayer = {
       years: "2013 — 2014",
       club: "Galatasaray",
       country: "Türkiye",
-      note: "Ocak ortasında geldi, gitmeden önce iki kupa bırakıp gitti.",
+      note: "Ocak ortasında geldi, giderken arkasında iki kupa bıraktı.",
       tone: "#f07d21",
       matches: null,
       goals: null,
@@ -207,9 +210,9 @@ export const didierDrogba: FavouritePlayer = {
       image: {
         id: "night-cagri",
         src: `${BASE}/gece-cagri.jpg`,
-        alt: "Drogba, milli takım formasıyla",
+        alt: "Drogba, millî takım formasıyla",
         placeholder: true,
-        hint: "Soyunma odası ya da milli takım forması · o gecenin karesi bulunamazsa turuncu forma portresi",
+        hint: "Soyunma odası ya da millî takım forması · o gecenin karesi bulunamazsa turuncu forma portresi",
         width: 1200,
         height: 800,
       },
@@ -316,7 +319,7 @@ export const didierDrogba: FavouritePlayer = {
     {
       id: "gallery-6",
       src: `${BASE}/galeri-6.jpg`,
-      alt: "Milli takım",
+      alt: "Millî takım",
       placeholder: true,
       hint: "Fildişi Sahili forması · turuncu · yatay ya da kare",
       width: 1200,

@@ -75,12 +75,39 @@ export function PlayerGallery({
     [openable.length],
   );
 
+  /**
+   * ══════════════════════════════════════════════════════════════════════
+   * İKİ AYRI ETKİ — 21 Ağustos 2026'da bölündü.
+   *
+   * Eskiden tek etki vardı ve `[open, step]`e bağlıydı. `open` her OK
+   * TUŞUNDA değiştiği için etki her karede baştan kuruluyordu ve temizleyici
+   * araya giriyordu: gövde kaydırma kilidi bir an açılıyor, odak ışık
+   * kutusunun ARKASINDAKİ karoya (`openerRef`) atlayıp hemen geri dönüyordu.
+   * Klavyeyle gezen biri her ok tuşunda odağı kaybediyordu.
+   *
+   * Ayrım şu: kilit ve odak AÇILIŞ/KAPANIŞA ait, dinleyici ise gezinmeye.
+   * Aşağıdaki ilk etki yalnızca `isOpen` değiştiğinde çalışıyor; ikincisi
+   * dinleyiciyi kuruyor ve `step` kararlı olduğu için ok tuşlarında
+   * yeniden kurulmuyor.
+   * ══════════════════════════════════════════════════════════════════════
+   */
+  const isOpen = open !== null;
+
   useEffect(() => {
-    if (open === null) return;
+    if (!isOpen) return;
 
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     closeRef.current?.focus();
+
+    return () => {
+      document.body.style.overflow = previous;
+      openerRef.current?.focus();
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
 
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -115,12 +142,8 @@ export function PlayerGallery({
     };
 
     document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = previous;
-      openerRef.current?.focus();
-    };
-  }, [open, step]);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [isOpen, step]);
 
   if (images.length === 0) return null;
 

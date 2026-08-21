@@ -81,13 +81,26 @@ export function PlayerAudio({
     let disposed = false;
     const audio = audioRef.current;
 
+    /**
+     * ⚠️ SÖKÜCÜ ETKİNİN GÖVDESİNDE TUTULUYOR.
+     *
+     * Yeniden deneme dinleyicileri (`pointerdown` / `keydown` / `scroll`)
+     * `.then` gövdesinde kuruluyor ve eskiden sökücüleri de orada kalıyordu:
+     * temizleyicinin kapsamı dışında. Sonuç sızıntıydı — ziyaretçi hiç
+     * dokunmadan başka bir rotaya geçtiğinde üç dinleyici pencerede asılı
+     * kalıyor, sonraki tıklamada sökülmüş bir bileşenin sesini çalmaya
+     * çalışıyordu. `disposed` bayrağı yalnızca KURULUMU engelliyor, kurulmuş
+     * olanı sökmüyor.
+     */
+    let removeRetry = () => {};
+
     void tryPlay().then((ok) => {
       if (ok || disposed) return;
       const retry = () => {
         void tryPlay();
-        remove();
+        removeRetry();
       };
-      const remove = () => {
+      removeRetry = () => {
         window.removeEventListener("pointerdown", retry);
         window.removeEventListener("keydown", retry);
         window.removeEventListener("scroll", retry);
@@ -106,6 +119,7 @@ export function PlayerAudio({
     return () => {
       disposed = true;
       clearFade();
+      removeRetry();
       window.removeEventListener("kuronexus:music-started", onForeignMusic);
       audio?.pause();
     };

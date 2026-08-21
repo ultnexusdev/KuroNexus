@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { Link } from "@/lib/i18n/navigation";
+import { Link, redirect } from "@/lib/i18n/navigation";
 import { fetchLegend, pick } from "@/lib/api/sport-archive";
+import { isInNotebook } from "@/lib/sport/favourite-players";
 import { sportHref } from "@/lib/sport/routes";
 import { Reveal } from "@/components/sport/Reveal";
 import shell from "../../../layout.module.css";
@@ -46,6 +47,19 @@ export default async function LegendPage({
 }) {
   const { locale, slug } = await params;
 
+  /**
+   * ⚠️ DEFTER KAZANIYOR. Bir efsane deftere taşındıysa (Hagi, 21 Ağustos
+   * 2026) asıl sayfası artık poster düzenindeki profil; bu belge düzeni onun
+   * eski hâli. Eski adres ölmüyor, yeni sayfaya yönleniyor — dışarıdan
+   * verilmiş bağlantılar ve arama motoru kayıtları kırılmasın diye.
+   *
+   * Yönlendirme `next-intl` üzerinden: dil ön eki korunuyor, yani
+   * `/en/spor/futbol/efsaneler/hagi` de `/en/...` olarak devam ediyor.
+   */
+  if (isInNotebook(slug)) {
+    redirect({ href: sportHref.favouritePlayer(slug), locale });
+  }
+
   let data;
   try {
     data = await fetchLegend(slug);
@@ -66,15 +80,26 @@ export default async function LegendPage({
   );
   const epithet = pick(locale, legend.epithetTr, legend.epithetEn);
 
-  // Künye satırı: ülke · mevki/rol · yıllar. Kutu değil, tek satır.
+  /**
+   * Künye satırı: ülke · doğum—ölüm · kulüpteki yıllar. Kutu değil, tek satır.
+   *
+   * ⚠️ `role` BİLEREK YOK. Alan bir enum ham değeri taşıyor
+   * (`PLAYER | COACH | ...`, `schema.prisma`) ve çevrilmemiş; basılsaydı
+   * künyede İngilizce bir sabit görünürdü. Yorumun eski hâli "mevcut/rol"
+   * diyordu ama kod onu hiç okumuyordu — yorum koda uyduruldu.
+   *
+   * ⚠️ SARKAN TİRE KASITLI: bitiş yılı boşsa "1996–" yazıyor ve bu "devam
+   * ediyor" demek. Burada eskiden bir `.replace(/–$/, "–")` vardı; arama ve
+   * değiştirme dizesi AYNI karakter (U+2013) olduğu için hiçbir şey yapmayan
+   * ölü koddu. Aynı aralık ifadesi efsaneler salonunda ve hub şeridinde de
+   * replace'siz yazılı — kaldırıldı, davranış değişmedi.
+   */
   const meta = [
     legend.countryCode,
     legend.birthYear
       ? `${legend.birthYear} — ${legend.deathYear ?? ""}`.trim()
       : null,
-    legend.yearsFrom
-      ? `${legend.yearsFrom}–${legend.yearsTo ?? ""}`.replace(/–$/, "–")
-      : null,
+    legend.yearsFrom ? `${legend.yearsFrom}–${legend.yearsTo ?? ""}` : null,
   ].filter(Boolean);
 
   return (

@@ -2,11 +2,17 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
+import { ApiError } from "@/lib/api/client";
 import { fetchFootballHub, pick } from "@/lib/api/sport-archive";
 import { readIsAdmin } from "@/lib/auth/session";
 import { sportHref } from "@/lib/sport/routes";
 import { readCuratorImages } from "@/lib/sport/curator-images";
-import { FAVOURITE_PLAYERS } from "@/lib/sport/favourite-players";
+import {
+  FAVOURITE_PLAYERS,
+  isInNotebook,
+  nameLangOf,
+  nameLangOfCode,
+} from "@/lib/sport/favourite-players";
 import {
   HUB_HERO_SLOT,
   HUB_OWNER,
@@ -81,11 +87,22 @@ export default async function FootballHubPage({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "sportArchive" });
 
+  /**
+   * ⚠️ YALNIZCA 404 "bulunamadı"dır.
+   *
+   * Önceki hâl her hatayı yutup `notFound()` çağırıyordu: backend bir saniye
+   * için düşse, ağ takılsa ya da uç 500 dönse ziyaretçi "sayfa yok" görüyordu
+   * — oysa sayfa var, veri gelmedi. Hata sınıfını ayırmak müzik kanadındaki
+   * yerleşik desenin aynısı (`muzik/liste/[slug]/page.tsx`): 404 gerçekten
+   * yok demek, kalan her şey yukarı fırlatılıp Next'in hata sınırına gidiyor
+   * ve orada yeniden denenebiliyor.
+   */
   let hub;
   try {
     hub = await fetchFootballHub();
-  } catch {
-    notFound();
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) notFound();
+    throw error;
   }
 
   const { featuredClub, clubs, legends, moments } = hub;
@@ -115,9 +132,15 @@ export default async function FootballHubPage({
    * defterdeki kart yuvası (burada düzenlenebilir).
    */
   const legendEntries = [
-    ...legends.map((legend) => ({
+    /* ⚠️ Defterde karşılığı olan arşiv kaydı ELENİYOR — yoksa aynı kişi
+       şeritte iki kez çıkar ve iki kart farklı sayfalara gider (Hagi,
+       21 Ağustos 2026). Gerekçesi `isInNotebook` başında. */
+    ...legends
+      .filter((legend) => !isInNotebook(legend.slug))
+      .map((legend) => ({
       key: `arsiv-${legend.slug}`,
       name: legend.name,
+      nameLang: nameLangOfCode(legend.countryCode),
       epithet: pick(locale, legend.epithetTr, legend.epithetEn),
       countryCode: legend.countryCode,
       yearsFrom: legend.yearsFrom,
@@ -137,6 +160,7 @@ export default async function FootballHubPage({
       (player) => ({
         key: `favori-${player.slug}`,
         name: player.name,
+        nameLang: nameLangOf(player),
         epithet: player.legendEpithet ?? "",
         countryCode: player.countryCode,
         yearsFrom: null,

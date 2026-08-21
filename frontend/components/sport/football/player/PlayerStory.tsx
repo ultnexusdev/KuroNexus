@@ -26,11 +26,29 @@ export function PlayerStory({
   labels: { eyebrow: string };
 }) {
   const plate = player.career.find((stop) => stop.current)?.image;
+
+  /**
+   * Başlığın en uzun KELİMESİ — puntoyu sütuna sığdırmak için.
+   *
+   * Hero'daki adla aynı arıza buradaydı: `overflow-wrap: anywhere` dev
+   * puntoda özel adı kelime ortasından kırıyordu ("Köstence'de / n").
+   * Kural kaldırıldı; sığmama artık kırılmayla değil KÜÇÜLMEYLE çözülüyor.
+   * Hesabın gerekçesi `PlayerHero.tsx` başında, pay tablosu sayfanın
+   * kökünde (`--advance`).
+   */
+  const enUzun = Math.max(
+    1,
+    ...player.storyTitle.flatMap((p) => p.split(/\s+/).map((w) => w.length)),
+  );
   const head = player.story.slice(0, 2);
   const tail = player.story.slice(2);
 
   return (
-    <section className={styles.story} aria-labelledby="oyuncu-hikaye">
+    <section
+      className={styles.story}
+      aria-labelledby="oyuncu-hikaye"
+      style={{ "--story-len": enUzun } as React.CSSProperties}
+    >
       <div className={styles.top}>
         <div className={styles.headSide}>
           <p className={styles.eyebrow}>{labels.eyebrow}</p>

@@ -434,10 +434,29 @@
     padding-bottom: 0.5rem;
   }
 
-  /* Balon dar ekranda taşıyor; künyenin altına iniyor. */
+  /**
+   * ⚠️ BALON DAR EKRANDA HİÇ ÇİZİLMİYOR — 21 Ağustos 2026'da ölçüldü.
+   *
+   * Eski kural balonu yalnızca yatayda kaydırıyordu ("künyenin altına iniyor"
+   * diyordu ama dikey konuma hiç dokunmuyordu). Bu genişlikte `.lineList`
+   * `overflow-x: auto` alıyor; bu, kabı İKİ eksende birden kırpan bir
+   * kaydırma kabı yapıyor ve balon künyenin ÜSTÜNDE durduğu için tamamına
+   * yakını kesiliyordu — ölçülen görünürlük %1,2.
+   *
+   * Balonu aşağı almak da çözmüyordu: kırpma alttan da geçerli, sığması için
+   * hattın altına yaklaşık 9 rem boş alan bırakmak gerekirdi ve o boşluk
+   * hattı hat olmaktan çıkarırdı.
+   *
+   * Kaybedilen bir şey yok: balon zaten yalnızca imleç üzerine gelince
+   * açılıyor ve dokunmatik cihazda "üzerine gelme" diye bir şey yok. Aynı
+   * sayılar KART GÖRÜNÜMÜNDE (`.cardStats`) tam boy duruyor ve iki görünüm
+   * arasındaki anahtar bu genişlikte de çalışıyor.
+   *
+   * `display: none` seçildi, `visibility` değil: görünmez ama yer kaplayan
+   * bir kutu kaydırma taşmasına katkı veriyordu (hat başına ~136 px hayalet).
+   */
   .pinStats {
-    left: 0;
-    translate: 0 0;
+    display: none;
   }
 }
 

@@ -1,0 +1,492 @@
+/* ============================================================
+   SİNEMA BÖLÜMÜ · karanlık salon + üç spot + perde
+
+   Renkler sayfanın kökünden (`--ink / --accent / --warm / --glow / --neon`).
+   Bu dosyada tek bir kulüp rengi SABİT yazılı değil — başka bir kaydın filmi
+   eklenirse sahne onun renklerini giyiyor.
+   ============================================================ */
+
+.film {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.5rem, 4vw, 2.75rem);
+  padding: clamp(4rem, 10vw, 7.5rem) var(--sp-gutter) clamp(3.5rem, 8vw, 6rem);
+  font-family: var(--font-inter), var(--font-sans);
+  background:
+    radial-gradient(
+      120% 80% at 50% -10%,
+      color-mix(in srgb, var(--warm) 10%, transparent),
+      transparent 60%
+    ),
+    linear-gradient(180deg, #05050a 0%, var(--ink) 42%, #05050a 100%);
+}
+
+/* ============================================================
+   SALON — ışıklar
+   ============================================================ */
+
+.house {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Havadaki sis: ışığın görünür olması için gereken zemin. */
+.haze {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    80% 60% at 50% 74%,
+    color-mix(in srgb, var(--accent) 12%, transparent),
+    transparent 70%
+  );
+}
+
+/* ---- SPOT ----
+   Bir "ışık şeridi" değil gerçek bir KONİ: `clip-path` tepede dar, tabanda
+   geniş bir yamuk kesiyor; gradient yukarıdan aşağı sönüyor; blur kenarı
+   havaya karıştırıyor. `screen` karışımı ışığın altındaki katmanı
+   söndürmeden aydınlatmasını sağlıyor.
+
+   ⚠️ Dönme açısı `--tilt` değişkeninde ve `sway` animasyonu onu KORUYOR.
+   Açı doğrudan `transform`a yazılsaydı animasyon her spotu dikleştirirdi —
+   animasyonun `transform`u öğedeki `transform`u tamamen ezer. */
+.beam {
+  position: absolute;
+  top: -14%;
+  height: 116%;
+  width: 46%;
+  clip-path: polygon(47% 0%, 53% 0%, 100% 100%, 0% 100%);
+  filter: blur(16px);
+  mix-blend-mode: screen;
+  opacity: 0.5;
+  transform-origin: 50% 0%;
+  transform: rotate(var(--tilt, 0deg));
+  will-change: transform;
+}
+
+.beamLeft {
+  --tilt: 15deg;
+  left: -6%;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--warm) 62%, transparent) 0%,
+    color-mix(in srgb, var(--warm) 22%, transparent) 42%,
+    transparent 82%
+  );
+  animation: sway 11s ease-in-out infinite alternate;
+}
+
+.beamMid {
+  --tilt: 0deg;
+  left: 27%;
+  opacity: 0.42;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, #fff 46%, transparent) 0%,
+    color-mix(in srgb, var(--accent) 26%, transparent) 40%,
+    transparent 80%
+  );
+  animation: sway 14s ease-in-out infinite alternate-reverse;
+}
+
+.beamRight {
+  --tilt: -15deg;
+  right: -6%;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--accent) 58%, transparent) 0%,
+    color-mix(in srgb, var(--accent) 20%, transparent) 44%,
+    transparent 82%
+  );
+  animation: sway 13s ease-in-out infinite alternate;
+  animation-delay: -4s;
+}
+
+/* Işıkların perdenin önünde toplandığı zemin havuzu. */
+.pool {
+  position: absolute;
+  left: 50%;
+  bottom: 6%;
+  width: min(62rem, 84%);
+  height: 34%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  filter: blur(40px);
+  opacity: 0.42;
+  background: radial-gradient(
+    50% 50% at 50% 50%,
+    color-mix(in srgb, var(--glow, var(--accent)) 60%, transparent),
+    transparent 72%
+  );
+}
+
+/* Işığın içindeki toz — sahnenin "hava"sı. Tek bir tekrar eden desen,
+   dosya indirmiyor. */
+.dust {
+  position: absolute;
+  inset: 0;
+  opacity: 0.5;
+  background-image:
+    radial-gradient(
+      1.5px 1.5px at 12% 28%,
+      color-mix(in srgb, #fff 46%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      1px 1px at 34% 62%,
+      color-mix(in srgb, #fff 38%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      1.5px 1.5px at 58% 22%,
+      color-mix(in srgb, #fff 30%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      1px 1px at 74% 54%,
+      color-mix(in srgb, #fff 40%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      1.5px 1.5px at 88% 34%,
+      color-mix(in srgb, #fff 28%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      1px 1px at 22% 78%,
+      color-mix(in srgb, #fff 32%, transparent),
+      transparent 60%
+    );
+  animation: drift 24s linear infinite;
+}
+
+@keyframes sway {
+  from {
+    transform: rotate(var(--tilt, 0deg)) translateX(-1.5%);
+  }
+  to {
+    transform: rotate(var(--tilt, 0deg)) translateX(1.5%);
+  }
+}
+
+@keyframes drift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(0, -14%, 0);
+  }
+}
+
+/* ============================================================
+   BAŞLIK
+   ============================================================ */
+
+.head {
+  position: relative;
+  z-index: 1;
+  max-width: var(--sp-max);
+  width: 100%;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.eyebrow {
+  margin: 0 0 0.75rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0;
+  font-family: var(--display, var(--font-anton)), var(--font-bebas), sans-serif;
+  font-weight: 400;
+  font-size: clamp(2rem, 6vw, 4.5rem);
+  line-height: 1.02;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: #f6f1e6;
+  text-shadow: 0 0 60px color-mix(in srgb, var(--warm) 34%, transparent);
+  /* Özel ad kırılmaz — kanadın kuralı (bkz. `PlayerHero.module.css`). */
+  overflow-wrap: normal;
+}
+
+.title span:last-child {
+  color: var(--accent);
+}
+
+.lede {
+  max-width: 44rem;
+  margin: clamp(0.75rem, 2vw, 1.15rem) auto 0;
+  font-size: clamp(0.95rem, 1.4vw, 1.0625rem);
+  line-height: 1.7;
+  color: color-mix(in srgb, #f3ede2 74%, transparent);
+  text-wrap: pretty;
+}
+
+/* ============================================================
+   PERDE
+   ============================================================ */
+
+.stage {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: min(72rem, 100%);
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.screen {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 1px solid color-mix(in srgb, var(--accent) 42%, transparent);
+  background: #04040a;
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, #000 60%, transparent),
+    0 40px 120px color-mix(in srgb, #000 72%, transparent),
+    0 0 90px color-mix(in srgb, var(--accent) 26%, transparent);
+}
+
+.frame {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* ---- Kapalı perde (oynatmadan önce) ---- */
+.curtain {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.1rem;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  background:
+    radial-gradient(
+      60% 70% at 50% 46%,
+      color-mix(in srgb, var(--warm) 16%, transparent),
+      transparent 70%
+    ),
+    linear-gradient(180deg, #0a0a12 0%, #05050b 100%);
+  color: inherit;
+}
+
+.curtainGlow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.65;
+  background: radial-gradient(
+    38% 46% at 50% 44%,
+    color-mix(in srgb, var(--accent) 24%, transparent),
+    transparent 72%
+  );
+  transition: opacity 520ms ease;
+}
+
+/* Tarama izi — perdenin dokusu, projeksiyonun kendisi gibi. */
+.curtainScan {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.35;
+  background: repeating-linear-gradient(
+    180deg,
+    color-mix(in srgb, #000 40%, transparent) 0 1px,
+    transparent 1px 4px
+  );
+}
+
+.curtain:hover .curtainGlow,
+.curtain:focus-visible .curtainGlow {
+  opacity: 1;
+}
+
+.curtain:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -4px;
+}
+
+/* ---- Oynat düğmesi ---- */
+.knob {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(3.75rem, 8vw, 5.5rem);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 92%, #000);
+  box-shadow: 0 18px 60px color-mix(in srgb, var(--accent) 46%, transparent);
+  transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.knob svg {
+  width: 46%;
+  height: 46%;
+  fill: #0a0a10;
+  /* Üçgen optik olarak sola kaçık durur; hafif sağa itiliyor. */
+  transform: translateX(4%);
+}
+
+/* Düğmenin etrafındaki nabız halkası — perdedeki tek hareketli öğe. */
+.knobRing {
+  position: absolute;
+  inset: -18%;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  animation: pulse 2.8s ease-out infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.86);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.28);
+    opacity: 0;
+  }
+}
+
+.curtain:hover .knob,
+.curtain:focus-visible .knob {
+  transform: scale(1.07);
+}
+
+.cta {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, #f3ede2 76%, transparent);
+}
+
+/* ---- Vizör köşeleri ---- */
+.corners i {
+  position: absolute;
+  width: clamp(1rem, 2vw, 1.6rem);
+  height: clamp(1rem, 2vw, 1.6rem);
+  border: 1px solid color-mix(in srgb, var(--accent) 70%, transparent);
+  transition: opacity 420ms ease;
+}
+
+.corners i:nth-child(1) {
+  top: -1px;
+  left: -1px;
+  border-right: 0;
+  border-bottom: 0;
+}
+.corners i:nth-child(2) {
+  top: -1px;
+  right: -1px;
+  border-left: 0;
+  border-bottom: 0;
+}
+.corners i:nth-child(3) {
+  bottom: -1px;
+  left: -1px;
+  border-right: 0;
+  border-top: 0;
+}
+.corners i:nth-child(4) {
+  bottom: -1px;
+  right: -1px;
+  border-left: 0;
+  border-top: 0;
+}
+
+/* Film oynarken salon kararıyor: ışıklar kısılıyor, köşeler siliniyor.
+   Dikkat perdeye toplanıyor — sinemada ışıkların sönmesi. */
+.beam,
+.pool,
+.dust {
+  transition: opacity 900ms ease;
+}
+
+.film[data-playing] .beam,
+.film[data-playing] .dust {
+  opacity: 0.14;
+}
+
+.film[data-playing] .pool {
+  opacity: 0.18;
+}
+
+.film[data-playing] .corners i {
+  opacity: 0;
+}
+
+/* ---- Künye ---- */
+.meta {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.note {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  color: color-mix(in srgb, #f3ede2 42%, transparent);
+  text-align: center;
+  text-wrap: pretty;
+}
+
+/* ============================================================
+   UYARLAMA
+   ============================================================ */
+
+@media (max-width: 720px) {
+  /* Dar ekranda üç spot birbirine giriyor ve sahne bulanıklaşıyordu;
+     ortadaki kalıyor, yandakiler kısılıyor. */
+  .beamLeft,
+  .beamRight {
+    opacity: 0.3;
+  }
+
+  .cta {
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .beam,
+  .dust,
+  .knobRing {
+    animation: none;
+  }
+
+  .knob,
+  .curtainGlow,
+  .beam,
+  .pool,
+  .dust,
+  .corners i {
+    transition: none;
+  }
+}

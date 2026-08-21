@@ -173,8 +173,15 @@
     text-shadow 520ms ease;
 }
 
+/* ⚠️ `grid-row: 1` ZORUNLU ve sağ varyantla simetrik. DOM sırası `.year`
+   sonra `.card`; sol satırda yıl açıkça 2. sütuna gidiyor ve kart otomatik
+   yerleşimle 1. sütuna dönmek istiyor. Yerleşim imleci geriye gidemediği için
+   satırı bir artırıyordu: kart İKİNCİ ızgara satırına düşüyor, yıl da kartın
+   ortası yerine tepesinde kalıyordu. Yılı 1. satıra kilitlemek kartın da aynı
+   satırda kalmasını sağlıyor. */
 .list > li[data-side="left"] .year {
   grid-column: 2;
+  grid-row: 1;
   justify-self: start;
   transform-origin: left center;
 }

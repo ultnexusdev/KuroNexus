@@ -19,6 +19,30 @@
   /* Tasarım eksenlerinin varsayılanı — Icardi'nin sayfası bu değerlerde.
      `data-*` öznitelikleri aşağıda bunları eziyor. */
   --display: var(--font-anton);
+  /**
+   * Büyük harf başına ilerleme (em) — harf aralığı DAHİL.
+   *
+   * Dev tipografi taşıyan başlıklar (hero'daki ad, hikâye başlığı) puntolarını
+   * bu paya göre kısıyor: sığmayan bir özel ad KIRILMIYOR, küçülüyor.
+   * Gerekçenin tamamı ve nasıl ölçüldüğü `PlayerHero.tsx` başında.
+   *
+   * Değerler ORTALAMA DEĞİL EN KÖTÜ DURUM: defterdeki yirmi dört adın her
+   * kelimesi tek tek ölçüldü (`canvas.measureText`, gerçek webfont
+   * dosyaları, 21 Ağustos 2026) ve her ailede en geniş çıkan kelime alındı;
+   * üstüne ~%6 pay eklendi ki sonradan eklenecek bir ad da sığsın.
+   *
+   *   poster     ölçülen 0.539  MAURO      (Anton)
+   *   condensed  ölçülen 0.455  MELO       (Bebas Neue)
+   *   monument   ölçülen 0.852  GHEORGHE   (Cinzel 700)
+   *   editorial  ölçülen 0.731  MONDRAGÓN  (Petrona 700)
+   *
+   * Ortalama kullanılsaydı geniş harfli adlar taşardı: MONDRAGÓN ortalamayla
+   * hesaplanan puntoda kutudan 8 piksel dışarı çıkıyordu (ölçüldü).
+   *
+   * ⚠️ AİLE İLE BİRLİKTE DEĞİŞİR. Aşağıdaki her `--display` atamasının
+   * yanında bir `--advance` var; biri değişirse diğeri de ölçülmeli.
+   */
+  --advance: 0.58; /* Anton */
   --tex: none;
   --sec-gap: clamp(1rem, 3vw, 2.5rem);
 
@@ -52,14 +76,17 @@
 
 .page[data-voice="monument"] {
   --display: var(--font-cinzel);
+  --advance: 0.9;
 }
 
 .page[data-voice="condensed"] {
   --display: var(--font-bebas);
+  --advance: 0.49;
 }
 
 .page[data-voice="editorial"] {
   --display: var(--font-petrona);
+  --advance: 0.78;
 }
 
 /* Aile değişince harf aralığı ve kapitalizasyon da değişmeli: Cinzel'in

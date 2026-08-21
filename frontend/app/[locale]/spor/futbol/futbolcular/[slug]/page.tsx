@@ -17,6 +17,7 @@ import { PlayerCuratorProvider } from "@/components/sport/football/player/Player
 import { PlayerAudio } from "@/components/sport/football/player/PlayerAudio";
 import { PlayerHero } from "@/components/sport/football/player/PlayerHero";
 import { PlayerStory } from "@/components/sport/football/player/PlayerStory";
+import { PlayerFilm } from "@/components/sport/football/player/PlayerFilm";
 import { PlayerJourney } from "@/components/sport/football/player/PlayerJourney";
 import { PlayerStats } from "@/components/sport/football/player/PlayerStats";
 import { PlayerGallery } from "@/components/sport/football/player/PlayerGallery";
@@ -147,6 +148,9 @@ export default async function FavouritePlayerPage({
     geceler: player.nights.length > 0,
     anlar: player.personal.length > 0,
     istatistik: true,
+    /* Film YALNIZCA kayıt taşıyorsa. Boş bir oynatıcı çizmek "boş oda
+       yasağını" ihlal ederdi — tema müziğiyle aynı kural. */
+    film: Boolean(player.film),
     galeri:
       player.gallery.length > 0 && (isAdmin || player.gallery.some(hasPhoto)),
   };
@@ -160,6 +164,7 @@ export default async function FavouritePlayerPage({
     geceler: t("favourite.nights"),
     anlar: t("favourite.moments"),
     istatistik: t("favourite.stats"),
+    film: t("favourite.film"),
     galeri: t("favourite.gallery"),
   };
 
@@ -261,6 +266,20 @@ export default async function FavouritePlayerPage({
       />
     ),
 
+    /* `player.film` burada kesin dolu: bölüm `drawn.film` false iken
+       `sections` dizisine hiç girmiyor. Yine de tip daraltması gerekiyor,
+       `body` haritası koşulsuz kuruluyor. */
+    film: player.film ? (
+      <PlayerFilm
+        film={player.film}
+        labels={{
+          eyebrow: t("favourite.film"),
+          play: t("favourite.filmPlay"),
+          note: t("favourite.filmNote"),
+        }}
+      />
+    ) : null,
+
     galeri: (
       <PlayerGallery
         images={player.gallery}
@@ -346,7 +365,10 @@ export default async function FavouritePlayerPage({
           player={player}
           labels={{
             scroll: t("favourite.scroll"),
-            crumb: `${t("favourite.back")} / ${player.name}`,
+            /* Ad burada eklenmiyor: `PlayerHero` onu kendi `lang`i olan
+                ayrı bir `span` içinde basıyor (Türkçe büyütme kuralı
+                yabancı adları bozuyordu). */
+            crumb: `${t("favourite.back")} / `,
           }}
         />
 

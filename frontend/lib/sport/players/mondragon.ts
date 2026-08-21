@@ -10,7 +10,7 @@ const BASE = "/assets/players/mondragon";
  * Küratör düzeltmesi bu dosyada tek satır.
  *
  * Bu kayıtta bilerek YAZILMAYAN sayılar var: maç, kurtarış, kalesini gole
- * kapattığı maç, milli maç sayısı ve kulüp kırılımlarının hiçbiri yok. Uzun
+ * kapattığı maç, millî maç sayısı ve kulüp kırılımlarının hiçbiri yok. Uzun
  * ve çok ülkeli bir kariyerin toplamlarını hafızadan yazmak, uydurmakla aynı
  * şey olurdu; `matches` ve `goals` alanları bu yüzden `null` bırakıldı.
  * Boy değeri (190 cm) yaygın künyelerden alındı, doğrulanmadı.
@@ -258,7 +258,7 @@ export const farydMondragon: FavouritePlayer = {
     {
       label: "Alışkanlık",
       title: "Ceza sahasının önünde durmak",
-      body: "Kaleciler çizgide durmayı sever; o, tehlikeyi kendi sahasının önünde karşılamayı seçerdi. Arkaya atılan topun düşeceği yeri, forvet koşmaya başlamadan hesaplamış olurdu. Bu cesaret değil aritmetikti, ve öğrenilmesi yıllar alır.",
+      body: "Kaleciler çizgide durmayı sever; o, tehlikeyi kendi sahasının önünde karşılamayı seçerdi. Arkaya atılan topun düşeceği yeri, forvet koşmaya başlamadan hesaplamış olurdu. Bu cesaret değil, aritmetikti ve öğrenilmesi yıllar alır.",
     },
     {
       label: "Hareket",
@@ -305,12 +305,12 @@ export const farydMondragon: FavouritePlayer = {
     {
       id: "gallery-4",
       src: `${BASE}/galeri-4.jpg`,
-      alt: "Kolombiya milli forması",
+      alt: "Kolombiya millî forması",
       placeholder: true,
-      hint: "Kolombiya milli forması · sarı belirgin · yatay ya da dikey",
+      hint: "Kolombiya millî forması · sarı belirgin · yatay ya da dikey",
       width: 900,
       height: 1200,
-      caption: "Milli forma",
+      caption: "Millî forma",
     },
     {
       id: "gallery-5",

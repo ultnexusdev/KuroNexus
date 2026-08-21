@@ -14,13 +14,20 @@
   /* ⚠️ `box-sizing` ve `max-width` BİRLİKTE okunmalı, biri diğeri olmadan
      yanlış.
 
-     Projede evrensel bir `border-box` reseti YOK (globals.css'te tek satır
-     `box-sizing` geçmiyor), yani kutular varsayılan `content-box`. Bu kural
-     `width: 100%` + iki yandan `--sp-gutter` kadar iç boşluk yazıyordu;
-     content-box'ta ikisi TOPLANIYOR. 375px'te ölçüldü: kutu 375 + 20 + 20 =
-     415px çıkıyor ve sayfa 40px yatay kayıyordu. Aynı hata pist sayfasında
-     da vardı, `/spor` holünde ise satır 26'da zaten `border-box` yazılarak
-     kapatılmış — yani bu, bir yerde düzeltilip burada unutulmuş bir desen.
+     Bu kural yazıldığında projede evrensel bir `border-box` reseti YOKTU:
+     kutular varsayılan `content-box`tu, `width: 100%` ile iki yandaki
+     `--sp-gutter` TOPLANIYORDU ve 375px'te sayfa 40px yatay kayıyordu.
+
+     ⚠️ O PREMİS ARTIK GEÇERSİZ. `globals.css` bugün evrensel reset taşıyor
+     (`html { box-sizing: border-box }` + `*, *::before, *::after
+     { box-sizing: inherit }`), yani aşağıdaki `box-sizing` satırı miras
+     zincirinden zaten geliyor — açıkça yazılması artık yalnızca niyeti
+     görünür kılıyor, davranışı değiştirmiyor. Kaldırılabilir; bırakılması
+     da zararsız.
+
+     ⚠️ `max-width` HESABI İSE HÂLÂ ZORUNLU ve bu asıl mesele: `border-box`ta
+     sınır DIŞ kutuyu bağlıyor, yani gutter'ın iki katı eklenmezse okuma
+     sütunu 736 → 696px'e düşerdi.
 
      `border-box`a geçmek tek başına masaüstünü BOZARDI: `max-width` artık dış
      kutuyu sınırlar, okuma sütunu 736 → 696px'e düşerdi. Bu yüzden sınıra

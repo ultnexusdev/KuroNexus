@@ -74,7 +74,7 @@ export const selcukInan: FavouritePlayer = {
     "İskenderun'da büyüdü, futbolu Anadolu'nun küçük sahalarında öğrendi. Manisaspor'da Süper Lig'e çıktı ve orada bir şey fark edildi: topu hızlı oynamıyordu, doğru oynuyordu. Henüz frikik kullanan çocuk değildi; frikiği bekleyen çocuktu.",
     "2007'de Trabzonspor'a gitti ve dört yıl kaldı. Orta sahanın metronomu oldu; tempoyu ayağıyla değil kafasıyla kuruyordu. 2010-11 sezonu o şehirde hâlâ konuşulur — puanlar eşitlendi, şampiyonluk averajla gitti. O sezon takımın en çok koşan adamı değildi, en çok bakan adamıydı.",
     "2011'de Galatasaray'a geçti ve bu transfer uzun süre affedilmedi. Trabzon'a her gidişinde ıslıklandı, hiçbirine cevap vermedi. İstanbul'da sekiz sezon kaldı, pazubendi taktı, kupaları üst üste kaldırdı. Bir orta sahanın kulübe verebileceği en pahalı şey süredir; o süreyi verdi.",
-    "Milli formada asıl işi 2015 sonbaharında yaptı. Konya'da, İzlanda maçının son dakikasında topu duvarın üstünden aşırdı ve bir ülkeyi Avrupa Şampiyonası'na gönderdi. O geceden sonra Türkiye'de frikik kelimesi tek bir ismi çağırır oldu. Vuruşun kendisi bile sakindi: koşu kısa, gövde dik, ayak temiz.",
+    "Millî formada asıl işi 2015 sonbaharında yaptı. Konya'da, İzlanda maçının son dakikasında topu duvarın üstünden aşırdı ve bir ülkeyi Avrupa Şampiyonası'na gönderdi. O geceden sonra Türkiye'de frikik kelimesi tek bir ismi çağırır oldu. Vuruşun kendisi bile sakindi: koşu kısa, gövde dik, ayak temiz.",
   ],
   stats: {
     club: {
@@ -208,7 +208,7 @@ export const selcukInan: FavouritePlayer = {
         src: `${BASE}/gece-izlanda.jpg`,
         alt: "",
         placeholder: true,
-        hint: "Konya · A Milli Takım forması · frikik anı ya da vuruştan sonraki koşu · defterin en önemli karesi",
+        hint: "Konya · A Millî Takım forması · frikik anı ya da vuruştan sonraki koşu · defterin en önemli karesi",
         width: 1200,
         height: 800,
       },
@@ -280,12 +280,12 @@ export const selcukInan: FavouritePlayer = {
     {
       id: "gallery-4",
       src: `${BASE}/galeri-4.jpg`,
-      alt: "Milli forma",
+      alt: "Millî forma",
       placeholder: true,
-      hint: "A Milli Takım forması · maç anı · yatay",
+      hint: "A Millî Takım forması · maç anı · yatay",
       width: 1200,
       height: 800,
-      caption: "Milli forma",
+      caption: "Millî forma",
     },
     {
       id: "gallery-5",

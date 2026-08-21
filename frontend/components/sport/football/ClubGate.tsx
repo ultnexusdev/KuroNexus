@@ -22,9 +22,14 @@ export interface ClubGateLabels {
  *
  * ── GÖRSEL ÖNCELİĞİ KÜRATÖRÜN ────────────────────────────────────────────
  * Arka plandaki kare önce küratörün yüklediği kapak (`club.coverImage`),
- * yoksa depodaki kuş bakışı stadyum plakası. İkisi de yoksa katman hiç
+ * yoksa depodaki stadyum içi plakası (`stadiumInside`, CC0). İkisi de yoksa katman hiç
  * çizilmiyor ve CSS atmosferi tek başına çalışıyor — "kırık görsel çerçevesi"
  * hiçbir koşulda görünmüyor.
+ *
+ * ⚠️ YEDEK KUŞ BAKIŞI DEĞİL, ARTIK. Eskiden `stadiumAerial` kullanılıyordu ve
+ * o kare CC BY künyeli; hub sayfasından atıf isteyen bütün görseller
+ * kaldırılırken bu da CC0 bir kareyle değiştirildi (`page.tsx` başındaki
+ * künye notu). Yorum o turda güncellenmemişti.
  *
  * `coverPosition` / `coverScale` küratörün kırpma tercihi; `null` ise CSS
  * varsayılanı geçerli (eski backend yanıtıyla da uyumlu).

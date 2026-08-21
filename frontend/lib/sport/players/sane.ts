@@ -154,6 +154,9 @@ export const leroySane: FavouritePlayer = {
       id: "bayern",
       years: "2020 — 2025",
       club: "Bayern Münih",
+      /* Türkçeleşmiş ad: "Münih" Türkçe bir sözcük, İngilizce kuralla
+         MÜNIH olurdu. Gerekçe `CareerStop.clubLang`. */
+      clubLang: "tr",
       country: "Almanya",
       note: "Beş yıl, üst üste ligler ve sağdan içeri kesen aynı hareket.",
       tone: "#9b2430",

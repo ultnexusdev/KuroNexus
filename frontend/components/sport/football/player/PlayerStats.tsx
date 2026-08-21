@@ -86,9 +86,17 @@ export function PlayerStats({
 
       <dl className={styles.grid} aria-live="polite">
         {active.entries.map((entry) => (
+          /* ⚠️ `dt` ÖNCE, `dd` SONRA — HTML böyle zorunlu kılıyor: bir
+             `dl` grubunda terim tanımdan önce gelir; tersi geçersiz işaret
+             dili ve ekran okuyucular ikisini eşleştiremiyor.
+
+             Ekranda ise SAYI üstte, etiket altta durmalı. İkisi çelişmiyor:
+             kutunun sırası CSS'te `column-reverse` ile çevriliyor
+             (`PlayerStats.module.css`), yani görünüm tek piksel bile
+             değişmedi. */
           <div key={entry.key} className={styles.cell}>
-            <dd className={styles.value}>{entry.value}</dd>
             <dt className={styles.label}>{entry.label}</dt>
+            <dd className={styles.value}>{entry.value}</dd>
           </div>
         ))}
       </dl>

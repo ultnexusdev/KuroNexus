@@ -36,17 +36,40 @@ export type {
   PersonalNote,
   StatEntry,
   PlayerStats,
+  PlayerFilm,
   FavouritePlayer,
 } from "./players/types";
 
-export { DEFAULT_SECTION_ORDER } from "./players/types";
+export {
+  DEFAULT_SECTION_ORDER,
+  clubLangOf,
+  nameLangOf,
+  nameLangOfCode,
+} from "./players/types";
 export { FAVOURITE_PLAYERS } from "./players/index";
 
-import type { FavouritePlayer, PlayerImageSlot } from "./players/types";
+import { slotsOf, type FavouritePlayer, type PlayerImageSlot } from "./players/types";
 import { FAVOURITE_PLAYERS } from "./players/index";
 
 export function findFavouritePlayer(slug: string): FavouritePlayer | undefined {
   return FAVOURITE_PLAYERS.find((player) => player.slug === slug);
+}
+
+/**
+ * Bu slug defterde var mı?
+ *
+ * ── NİYE GEREKLİ ─────────────────────────────────────────────────────────
+ * Efsaneler İKİ kaynaktan geliyor: backend kayıtları (`FootballLegend`) ve
+ * defterdeki futbolcular. Hagi 21 Ağustos 2026'da deftere taşındı ama
+ * backend kaydı da yerinde duruyor — yani aynı kişi iki kaynakta birden
+ * var. Süzülmezse salonda iki kez görünür ve iki kart FARKLI sayfalara
+ * gider (biri eski belge düzenine, biri yeni postere).
+ *
+ * Kural: aynı slug iki kaynakta varsa DEFTER kazanır. Defter kaydı tasarım
+ * eksenlerini taşıyor, yani asıl sayfa o.
+ */
+export function isInNotebook(slug: string): boolean {
+  return FAVOURITE_PLAYERS.some((player) => player.slug === slug);
 }
 
 /**
@@ -63,16 +86,10 @@ export function legendaryPlayers(): FavouritePlayer[] {
 /**
  * Sayfadaki BÜTÜN görsel yuvaları, tek düz liste.
  *
- * Küratör paneli ve künye toplayıcı bunu okuyor; yuva eklendiğinde iki yerde
- * birden güncellemek gerekmesin diye burada türetiliyor.
+ * ⚠️ Sayım burada DEĞİL, `players/types.ts` içinde (`slotsOf`). Kayıt
+ * defteri de aynı listeyi okuyup yuvalara sahibini damgalıyor; iki kopya
+ * tutulsaydı biri güncellenip diğeri unutulabilirdi. Bu ad yalnızca
+ * dışarıya bakan yüz — çağıran hiçbir sayfa değişmedi.
  */
-export function allSlotsOf(player: FavouritePlayer): PlayerImageSlot[] {
-  return [
-    player.hero,
-    player.card,
-    player.stats.club.crest,
-    ...player.career.map((stop) => stop.image),
-    ...player.nights.map((night) => night.image),
-    ...player.gallery,
-  ];
-}
+export const allSlotsOf: (player: FavouritePlayer) => PlayerImageSlot[] =
+  slotsOf;

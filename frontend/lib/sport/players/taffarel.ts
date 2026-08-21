@@ -79,9 +79,9 @@ export const claudioTaffarel: FavouritePlayer = {
     "Brezilya'nın güneyinden İtalya'ya, oradan İstanbul'a. Bir kalecinin kariyeri boyunca hep aynı yerde sınandığı hikâye: on bir metrede.",
   story: [
     "Rio Grande do Sul'un küçük bir kentinde, Santa Rosa'da doğdu. Kaleciliği Porto Alegre'de, Internacional'in altyapısında öğrendi. Brezilya kaleci yetiştirmekle değil, kaleciyi affetmemekle tanınan bir ülkedir; orada kalede büyümek, ilk günden itibaren suçlanmaya alışmak demektir.",
-    "Yirmili yaşlarının başında milli takımın kalesine geçti ve kariyeri boyunca oradan inmedi. Avrupa'ya İtalya üzerinden açıldı: önce Parma, sonra Reggiana. Serie A o yıllarda dünyanın en zor ligiydi ve bir Brezilyalı kaleciden en çok istenen şey golü kurtarmak değil, sakin görünmekti.",
+    "Yirmili yaşlarının başında millî takımın kalesine geçti ve kariyeri boyunca oradan inmedi. Avrupa'ya İtalya üzerinden açıldı: önce Parma, sonra Reggiana. Serie A o yıllarda dünyanın en zor ligiydi ve bir Brezilyalı kaleciden en çok istenen şey golü kurtarmak değil, sakin görünmekti.",
     "Kariyerinin ortası penaltılarla geçti. Önce Pasadena'da, ülkesinin yirmi dört yıllık beklemesini bitiren gecede; dört yıl sonra Marsilya'da, aynı turnuvanın yarı finalinde. İki seferinde de kalede o vardı ve iki seferinde de kimse ondan bir kurtarış beklemiyordu — beklenmeyen kurtarış, kalecinin tek gerçek sermayesidir.",
-    "1998 yazında İstanbul'a geldi ve otuz iki yaşında bir kalecinin kariyerinin en görünür işini burada yaptı. Kulüp ard arda şampiyon oldu, ardından Kopenhag'da Türkiye'nin ilk Avrupa kupası geldi. Yıllar sonra aynı kulübe kaleci antrenörü olarak döndü; bu arşivde onun iki kaydı var, ikisi de aynı çizginin arkasında.",
+    "1998 yazında İstanbul'a geldi ve otuz iki yaşında bir kalecinin kariyerinin en görünür işini burada yaptı. Kulüp art arda şampiyon oldu, ardından Kopenhag'da Türkiye'nin ilk Avrupa kupası geldi. Yıllar sonra aynı kulübe kaleci antrenörü olarak döndü; bu arşivde onun iki kaydı var, ikisi de aynı çizginin arkasında.",
   ],
   stats: {
     club: {
@@ -121,7 +121,7 @@ export const claudioTaffarel: FavouritePlayer = {
       years: "1985 — 1990",
       club: "Internacional",
       country: "Brezilya",
-      note: "Kalede büyüdüğü yer; milli takıma buradan çağrıldı.",
+      note: "Kalede büyüdüğü yer; millî takıma buradan çağrıldı.",
       tone: "#a5322a",
       matches: null,
       goals: null,
@@ -197,7 +197,7 @@ export const claudioTaffarel: FavouritePlayer = {
       years: "1998 — 2001",
       club: "Galatasaray",
       country: "Türkiye",
-      note: "Üç yıl, iki şampiyonluk ve bir kupanın penaltılarda kalındığı gece.",
+      note: "Üç yıl, iki şampiyonluk ve bir kupanın penaltılara kaldığı gece.",
       tone: "#d9b23c",
       matches: null,
       goals: null,
@@ -328,10 +328,10 @@ export const claudioTaffarel: FavouritePlayer = {
       src: `${BASE}/galeri-4.jpg`,
       alt: "Brezilya kalesi",
       placeholder: true,
-      hint: "Yatay · milli takım karesi · Dünya Kupası dönemi · kaleci kiti belirgin",
+      hint: "Yatay · millî takım karesi · Dünya Kupası dönemi · kaleci kiti belirgin",
       width: 1400,
       height: 900,
-      caption: "Milli takım",
+      caption: "Millî takım",
     },
     {
       id: "gallery-5",

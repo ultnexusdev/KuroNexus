@@ -85,7 +85,7 @@ export const yunusAkgun: FavouritePlayer = {
     "Galatasaray'ın altyapısı bir kulüpten çok bir bekleme salonudur: her yıl onlarca çocuk girer, birkaçı kapının öbür tarafına geçer. Yunus, Florya'da geçen yılların sonunda geçenlerden biri oldu. İlk takımın soyunma odasına girdiğinde adını zaten biliyorlardı; asıl mesele orada kalmaktı.",
     "Kalmak için önce gitmesi gerekti. Adana'ya kiralandı ve hayatında ilk kez her hafta doksan dakika oynadı. Alt liglerde futbol kimseye nazik davranmaz; oradaki bir sezon bir kanat oyuncusuna topu ne zaman tutacağını, daha önemlisi ne zaman bırakacağını öğretir.",
     "Dönüşü kolay olmadı. Kadronun kenarında geçen sezonlar, arada İngiltere'de ısınmadan biten kısa bir kiralık. Bu tür yıllar bir futbolcuyu ya bitirir ya sabırlı yapar; onu ikincisi yaptı. Kulübede oturmayı öğrenmek de bir iştir ve kimse bunu antrenmanda çalıştırmaz.",
-    "2023'ten sonra artık kimse ondan 'altyapıdan çıkan çocuk' diye söz etmiyor. Oyuna girdiğinde tempoyu yükselten, dar alanda topu kaybetmeyen, geri koşusunu ihmal etmeyen bir kanat oldu. Milli forma da bu dönemde geldi ve bir kasım gecesi Berlin'de adı Türkiye'nin çok dışına çıktı.",
+    "2023'ten sonra artık kimse ondan 'altyapıdan çıkan çocuk' diye söz etmiyor. Oyuna girdiğinde tempoyu yükselten, dar alanda topu kaybetmeyen, geri koşusunu ihmal etmeyen bir kanat oldu. Millî forma da bu dönemde geldi ve bir kasım gecesi Berlin'de adı Türkiye'nin çok dışına çıktı.",
   ],
   stats: {
     club: {
@@ -111,7 +111,7 @@ export const yunusAkgun: FavouritePlayer = {
       label: "Tüm zamanlar",
       entries: [
         { key: "kulup", label: "Kulüp", value: "4" },
-        { key: "milli", label: "Milli forma", value: "A Milli" },
+        { key: "millî", label: "Millî forma", value: "A Millî" },
         { key: "turnuva", label: "Turnuva", value: "EURO 2024" },
       ],
       note: "Sayı yerine güzergâh: Florya, Adana, kısa bir İngiltere ve geri dönüş.",
@@ -222,7 +222,7 @@ export const yunusAkgun: FavouritePlayer = {
         src: `${BASE}/gece-berlin.jpg`,
         alt: "",
         placeholder: true,
-        hint: "Yatay · milli forma · deplasman gecesi · gol sevinci · arkada kalabalık tribün bulanık",
+        hint: "Yatay · millî forma · deplasman gecesi · gol sevinci · arkada kalabalık tribün bulanık",
         width: 1200,
         height: 800,
       },
@@ -245,14 +245,14 @@ export const yunusAkgun: FavouritePlayer = {
     {
       year: 2024,
       title: "Almanya'da yaz",
-      meta: "EURO 2024 · A Milli Takım",
-      line: "Büyük turnuvada milli forma. Florya'da top süren bir çocuğun aklından geçen en uzak yer muhtemelen tam olarak burasıydı.",
+      meta: "EURO 2024 · A Millî Takım",
+      line: "Büyük turnuvada millî forma. Florya'da top süren bir çocuğun aklından geçen en uzak yer muhtemelen tam olarak burasıydı.",
       image: {
         id: "night-euro",
         src: `${BASE}/gece-euro.jpg`,
         alt: "",
         placeholder: true,
-        hint: "Yatay · milli takım · turnuva karesi · yaz ışığı · forma ve arma net görünsün",
+        hint: "Yatay · millî takım · turnuva karesi · yaz ışığı · forma ve arma net görünsün",
         width: 1200,
         height: 800,
       },
@@ -319,12 +319,12 @@ export const yunusAkgun: FavouritePlayer = {
     {
       id: "gallery-5",
       src: `${BASE}/galeri-5.jpg`,
-      alt: "Milli forma",
+      alt: "Millî forma",
       placeholder: true,
-      hint: "Yatay · A Milli Takım forması · maç anı ya da marş sırası",
+      hint: "Yatay · A Millî Takım forması · maç anı ya da marş sırası",
       width: 1200,
       height: 800,
-      caption: "Milli forma",
+      caption: "Millî forma",
     },
     {
       id: "gallery-6",

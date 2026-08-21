@@ -12,7 +12,7 @@ const BASE = "/assets/players/torreira";
  * duraklarının `matches` ve `goals` alanları bu yüzden `null`.
  *
  * ⚠️ Uruguay'ın açık mavisi paletin dışında bırakıldı; burası bir Galatasaray
- * arşivi. Milli takım ve mavi formalı kulüpler nötr taş tonuyla temsil ediliyor.
+ * arşivi. Millî takım ve mavi formalı kulüpler nötr taş tonuyla temsil ediliyor.
  */
 export const lucasTorreira: FavouritePlayer = {
   slug: "torreira",
@@ -195,7 +195,7 @@ export const lucasTorreira: FavouritePlayer = {
         src: `${BASE}/gece-dunya-kupasi.jpg`,
         alt: "",
         placeholder: true,
-        hint: "Uruguay forması · yatay · milli takım maçı · mümkünse mücadele anı",
+        hint: "Uruguay forması · yatay · millî takım maçı · mümkünse mücadele anı",
         width: 1200,
         height: 800,
       },

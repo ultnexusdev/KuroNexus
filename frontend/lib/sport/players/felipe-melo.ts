@@ -119,7 +119,7 @@ export const felipeMelo: FavouritePlayer = {
       label: "Tüm zamanlar",
       entries: [
         { key: "countries", label: "Ülke", value: "4" },
-        { key: "national", label: "Milli takım", value: "Brezilya" },
+        { key: "national", label: "Millî takım", value: "Brezilya" },
         { key: "worldcup", label: "Dünya Kupası", value: "2010" },
         { key: "libertadores", label: "Libertadores", value: "2" },
       ],

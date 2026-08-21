@@ -5,7 +5,10 @@ import { Link } from "@/lib/i18n/navigation";
 import { sportHref } from "@/lib/sport/routes";
 import { readIsAdmin } from "@/lib/auth/session";
 import {
+  isInNotebook,
   legendaryPlayers,
+  nameLangOf,
+  nameLangOfCode,
   type PlayerImageSlot,
 } from "@/lib/sport/favourite-players";
 import { HUB_OWNER } from "@/lib/sport/football-hub-slots";
@@ -79,6 +82,8 @@ interface HallEntry {
   key: string;
   slug: string;
   name: string;
+  /** Adın büyük harfe çevrilirken uyacağı dil — gerekçe `nameLangOf` */
+  nameLang: "tr" | "en";
   epithet: string;
   countryCode: string | null;
   years: string | null;
@@ -104,10 +109,17 @@ export default async function LegendsIndexPage({
   const notebook = legendaryPlayers();
 
   const entries: HallEntry[] = [
-    ...archive.map((legend) => ({
+    /* ⚠️ Defterde karşılığı olan arşiv kaydı ELENİYOR: aynı kişi salonda iki
+       kez görünmemeli ve iki kart farklı sayfalara gitmemeli. Hagi
+       21 Ağustos 2026'da deftere taşındı ve ikisi de var — gerekçenin
+       tamamı `isInNotebook` başında. */
+    ...archive
+      .filter((legend) => !isInNotebook(legend.slug))
+      .map((legend) => ({
       key: `arsiv-${legend.slug}`,
       slug: legend.slug,
       name: legend.name,
+      nameLang: nameLangOfCode(legend.countryCode),
       epithet: pick(locale, legend.epithetTr, legend.epithetEn),
       countryCode: legend.countryCode,
       years: legend.yearsFrom
@@ -128,6 +140,7 @@ export default async function LegendsIndexPage({
       key: `favori-${player.slug}`,
       slug: player.slug,
       name: player.name,
+      nameLang: nameLangOf(player),
       epithet: player.legendEpithet ?? "",
       countryCode: player.countryCode,
       years: player.legendEra ?? null,
@@ -238,7 +251,10 @@ export default async function LegendsIndexPage({
                     </span>
 
                     <div className={styles.monumentBody}>
-                      <h3 className={styles.monumentName}>
+                      {/* `lang`: bu başlık CSS'te büyütülüyor ve sayfanın
+                          dili Türkçe — Türkçe kural yabancı adları bozuyordu
+                          ("Hagi" → HAGİ, kullanıcı bildirimi). */}
+                      <h3 className={styles.monumentName} lang={entry.nameLang}>
                         <Link href={entry.href}>{entry.name}</Link>
                       </h3>
                       {entry.epithet ? (
@@ -283,7 +299,7 @@ export default async function LegendsIndexPage({
                     </span>
 
                     <div className={styles.plaqueBody}>
-                      <h3 className={styles.plaqueName}>
+                      <h3 className={styles.plaqueName} lang={entry.nameLang}>
                         <Link href={entry.href}>{entry.name}</Link>
                       </h3>
                       {entry.epithet ? (

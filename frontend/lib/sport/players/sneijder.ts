@@ -22,7 +22,7 @@ export const wesleySneijder: FavouritePlayer = {
   firstName: "WESLEY",
   lastName: "SNEIJDER",
   shirt: 10,
-  position: "On saha",
+  position: "Ofansif orta saha",
   club: "Galatasaray",
   clubShort: "GS",
   country: "Hollanda",

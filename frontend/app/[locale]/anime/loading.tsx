@@ -1,10 +1,13 @@
-import { HallSkeleton } from "@/components/hall/HallSkeleton";
+import { AnimeHallSkeleton } from "@/components/anime/AnimeHallSkeleton";
 
 /**
- * Anime kanadının yükleme iskeleti. Paylaşılan `HallSkeleton`,
- * `category="anime"` ile — iskelet salonun derisinde çizilsin, yükleme
- * sırasında tema atlaması olmasın (müzik kanadındaki kararın aynısı).
+ * Anime kanadının yükleme iskeleti.
+ *
+ * Eskiden paylaşılan `HallSkeleton` (poster ızgarası) çiziliyordu; salonun
+ * gerçek düzeni poster ızgarası olmadığı için veri indiğinde sayfa
+ * zıplıyordu. Artık kanadın kendi iskeleti — ölçüler `page.module.css`ten.
+ * `HallSkeleton` diğer salonlarda olduğu gibi duruyor.
  */
 export default function AnimeHallLoading() {
-  return <HallSkeleton category="anime" tiles={8} stats={0} />;
+  return <AnimeHallSkeleton />;
 }

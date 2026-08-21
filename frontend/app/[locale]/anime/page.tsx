@@ -108,7 +108,8 @@ export default async function AnimeHallPage({
   const narutoArt = exhibitImage(EXHIBIT_IMAGE_KEYS.worldNaruto);
   const archiveArt = exhibitImage(EXHIBIT_IMAGE_KEYS.worldArchive);
 
-  const naruto = findSeries(archive.entries, "naruto");
+  /* Naruto artık aranmıyor: kartı arşivdeki seri kaydına değil kendi evren
+     sayfasına gidiyor. One Piece hâlâ arşive bağlı — onun evren sayfası yok. */
   const onePiece = findSeries(archive.entries, "one piece");
 
   const archiveMeter =
@@ -251,12 +252,12 @@ export default async function AnimeHallPage({
             </AkatsukiPortalLink>
           </li>
 
-          {naruto ? (
-            <li className={styles.worldItem}>
-              <Link
-                href={animeHref.series(naruto.slug)}
-                className={styles.world}
-              >
+          {/* Naruto Evreni kendi sayfasına gidiyor (`/anime/naruto`), arşivdeki
+              seri kaydına DEĞİL: biri "izlediğim seri", diğeri evrenin
+              ansiklopedisi. Kart artık arşive de bağlı değil — evren sayfası
+              her hâlükârda var, koşullu çizim gereksizdi. */}
+          <li className={styles.worldItem}>
+            <Link href={animeHref.naruto()} className={styles.world}>
                 {narutoArt ? (
                   <span className={styles.worldArt} aria-hidden>
                     <Image
@@ -278,9 +279,8 @@ export default async function AnimeHallPage({
                     {t("worlds.enter")}
                   </span>
                 </span>
-              </Link>
-            </li>
-          ) : null}
+            </Link>
+          </li>
 
           {onePiece ? (
             <li className={styles.worldItem}>

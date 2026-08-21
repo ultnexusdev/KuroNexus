@@ -1,0 +1,397 @@
+/* Naruto Evreni — seçicilerin ortak derisi.
+
+   Zemin/kenarlık/metin token'dan (kural 16). `--rec` yalnızca SEÇİLİ kaydın
+   kendi rengi: ateş kırmızı, su mavi — içeriğe ait, temaya değil. Bileşen
+   onu inline style ile alıyor, CSS burada sadece nereye uygulanacağını
+   söylüyor.
+
+   Anime kanadının glow istisnası geçerli (globals.css kural 16 dipnotu):
+   parlama kart kenarında ve seçili iğnede, zeminde değil. */
+
+/* ── ORTAK: iki sütun (ray + künye) ─────────────────────────────────── */
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: clamp(1.25rem, 3vw, 2.5rem);
+  align-items: start;
+}
+
+/* ── RAY ────────────────────────────────────────────────────────────── */
+.rail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+/* Yoğun ray (8 göz, 9 bijuu): tek sütun çok uzuyordu */
+.rail[data-dense] {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.railItem {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    "mark name"
+    "mark meta";
+  align-items: center;
+  gap: 0 0.75rem;
+  width: 100%;
+  min-height: var(--touch-min);
+  padding: 0.75rem 0.875rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 220ms ease,
+    background-color 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.railItem:hover {
+  border-color: var(--accent-muted);
+  background: var(--surface-hover);
+}
+
+.railItem:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: -3px;
+}
+
+/* Seçili: kaydın kendi rengi kenarlığa ve sol şeride geçer */
+.railItem[data-active] {
+  border-color: color-mix(in srgb, var(--rec, var(--accent)) 60%, transparent);
+  background: var(--surface-hover);
+  box-shadow: inset 3px 0 0 0 var(--rec, var(--accent));
+}
+
+.railKanji {
+  grid-area: mark;
+  font-family: var(--font-brush), serif;
+  font-size: 1.75rem;
+  line-height: 1;
+  color: var(--rec, var(--accent));
+}
+
+.railTails {
+  grid-area: mark;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--text-muted);
+}
+
+.railItem[data-active] .railTails {
+  color: var(--accent);
+}
+
+.railName {
+  grid-area: name;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.railMeta {
+  grid-area: meta;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+}
+
+/* Göz motifi — saf CSS, görsel beklemez */
+.iris {
+  grid-area: mark;
+  display: block;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 50%, #000 0 22%, transparent 23%),
+    radial-gradient(circle at 50% 50%, var(--mid) 0 46%, transparent 47%),
+    radial-gradient(circle at 50% 50%, var(--iris) 0 100%);
+  box-shadow: 0 0 14px -4px var(--iris);
+}
+
+/* ── KÜNYE ──────────────────────────────────────────────────────────── */
+.dossier {
+  min-width: 0;
+  padding: clamp(1.25rem, 2.6vw, 2rem);
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--rec, var(--accent));
+  background: var(--surface);
+}
+
+.dossierCode {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.8125rem;
+  letter-spacing: 0.18em;
+  color: var(--rec, var(--accent));
+}
+
+.dossierName {
+  margin: 0;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  letter-spacing: 0.02em;
+  color: var(--text-primary);
+}
+
+.dossierEn {
+  margin: 0.25rem 0 0;
+  font-size: 0.85rem;
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+.dossierNote {
+  margin: 1rem 0 0;
+  max-width: var(--an-measure);
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+.spec {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1.5rem 0 0;
+}
+
+.spec > div {
+  display: grid;
+  grid-template-columns: 8.5rem minmax(0, 1fr);
+  gap: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+
+.spec dt {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.8125rem;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+}
+
+.spec dd {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.figures {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.figures li {
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--border);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+}
+
+/* ── 1 · HARİTA ─────────────────────────────────────────────────────── */
+.atlas {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: clamp(1.25rem, 3vw, 2.5rem);
+  align-items: start;
+}
+
+.map {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  border: 1px solid var(--border);
+  /* Şematik arazi: iki ışık havuzu, harita görseli değil. Gerçek bir canon
+     koordinat sistemi olmadığı için harita ÇİZMEK yanlış olurdu — bu bir
+     şema ve öyle görünüyor. */
+  background:
+    radial-gradient(60% 50% at 30% 30%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 70%),
+    radial-gradient(50% 60% at 70% 65%, color-mix(in srgb, var(--gold) 8%, transparent), transparent 70%),
+    var(--surface);
+}
+
+.mapLabel {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0.75rem;
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.pin {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.pin:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 2px;
+}
+
+.pinDot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--rec);
+  opacity: 0.45;
+  transition: opacity 220ms ease, box-shadow 220ms ease;
+}
+
+.pin:hover .pinDot {
+  opacity: 0.8;
+}
+
+.pin[data-active] .pinDot {
+  opacity: 1;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--rec) 22%, transparent);
+}
+
+.pinName {
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.pin[data-active] .pinName {
+  color: var(--text-primary);
+}
+
+/* ── 5 · ZAMAN ÇİZELGESİ ────────────────────────────────────────────── */
+.timeline {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.era {
+  position: relative;
+  display: grid;
+  grid-template-columns: 2.25rem 1.25rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: var(--touch-min);
+  padding: 0.5rem 0.5rem 0.5rem 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.era:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: -2px;
+}
+
+.eraNo {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+/* Dikey çizgi: dönemleri bir hat gibi bağlar */
+.eraDot {
+  position: relative;
+  justify-self: center;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--border-strong);
+  transition: background-color 220ms ease, box-shadow 220ms ease;
+}
+
+.eraDot::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 7px;
+  width: 1px;
+  height: calc(var(--touch-min) - 7px);
+  transform: translateX(-50%);
+  background: var(--border);
+}
+
+.timeline li:last-child .eraDot::before {
+  display: none;
+}
+
+.eraName {
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+}
+
+.era:hover .eraName {
+  color: var(--text-primary);
+}
+
+.era[data-active] .eraDot {
+  background: var(--accent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+.era[data-active] .eraNo,
+.era[data-active] .eraName {
+  color: var(--text-primary);
+}
+
+/* ── MOBİL ──────────────────────────────────────────────────────────── */
+@media (max-width: 860px) {
+  .split,
+  .atlas {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .rail[data-dense] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .spec > div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.25rem;
+  }
+
+  .map {
+    aspect-ratio: 1 / 1;
+  }
+
+  .pinName {
+    font-size: 0.62rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .railItem,
+  .pinDot,
+  .eraDot {
+    transition: none;
+  }
+}

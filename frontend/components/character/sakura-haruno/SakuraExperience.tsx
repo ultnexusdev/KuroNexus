@@ -1,0 +1,37 @@
+import Image from "next/image";
+import {
+  isUploadedPortrait,
+  primaryPortrait,
+  type CharacterExperienceProps,
+} from "@/lib/characters/experiences";
+
+/**
+ * Sakura Haruno — deneyim sayfası. **İSKELET SÜRÜM.**
+ *
+ * Bu dosya 22 Ağustos 2026'da rota dağıtıcısıyla birlikte açıldı ve
+ * sayfanın tasarımı ayrı bir dalda (`sakura-haruno-redesign`) yazılıyor.
+ * İskelet bilerek ayakta: dal birleşmeden önce adres açılırsa ziyaretçi
+ * kırık sayfa değil, en azından künye portresini görür.
+ *
+ * Dalda yerine geçecek olan sürüm bu imzayı korumalı
+ * (`CharacterExperienceProps`) — rota dosyası bu adı ve bu propları
+ * bekliyor.
+ */
+export function SakuraExperience({ detail }: CharacterExperienceProps) {
+  const portrait = primaryPortrait(detail);
+  return (
+    <div data-world="sakura-haruno">
+      {portrait ? (
+        <Image
+          src={portrait}
+          alt={detail.character.name}
+          width={230}
+          height={345}
+          unoptimized={!isUploadedPortrait(detail)}
+        />
+      ) : null}
+      <h1>{detail.character.name}</h1>
+      {detail.character.nameNative ? <p>{detail.character.nameNative}</p> : null}
+    </div>
+  );
+}

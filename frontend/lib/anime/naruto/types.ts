@@ -52,6 +52,30 @@ export interface NarutoPlace {
   desc: string;
 }
 
+/**
+ * Kadro kaydındaki bir kişi. Portresi `CharacterImage` tablosunda
+ * `PORTRAIT` yuvasında, `characterId` (AniList numarası) adresinde durur —
+ * efsane kartı, takım çipi, chakra kullanıcısı, dönem figürü hepsi AYNI
+ * kaydı okur: portre bir kez yüklenir, her yerde görünür.
+ */
+export interface NarutoPerson {
+  name: string;
+  /** AniList karakter numarası — PORTRAIT yuvasının adresi */
+  characterId: number;
+}
+
+/**
+ * Kişi/klan çipi: `label` ekranda görünen metin (eski serbest metinlerle
+ * birebir aynı kalabilsin diye ayrı), `person` kadro kaydına, `clan` klan
+ * amblemine bağlar. İkisi de yoksa çip harfle çizilir — kayıt dışı adlar
+ * (Shinju, Ten-Tails) sayfayı kırmaz.
+ */
+export interface NarutoFigureRef {
+  label: string;
+  person?: string;
+  clan?: string;
+}
+
 /** Efsane kadrosu — kart açılışında künye */
 export interface NarutoLegend {
   no: string;
@@ -68,11 +92,15 @@ export interface NarutoTeam {
   name: string;
   tag: string;
   color: string;
-  members: string[];
+  members: NarutoFigureRef[];
   sensei: string;
+  /** Sensei satırındaki adların kadro bağları — küçük portreler */
+  senseiRefs?: NarutoFigureRef[];
 }
 
 export interface NarutoClan {
+  /** Amblem anahtarı (`ClanEmblem` bileşeni bu kimlikle çizer) */
+  id: string;
   name: string;
   trait: string;
   /** Konoha'nın dört soylu klanı (Fandom: Aburame, Akimichi, Hyūga, Uchiha) */
@@ -87,7 +115,7 @@ export interface NarutoElement {
   release: string;
   bar: string;
   desc: string;
-  users: string[];
+  users: NarutoFigureRef[];
   jutsu: string[];
 }
 
@@ -128,13 +156,13 @@ export interface NarutoHokage {
 export interface NarutoKage {
   village: string;
   title: string;
-  names: string;
+  people: NarutoFigureRef[];
 }
 
 export interface NarutoEra {
   name: string;
   desc: string;
-  figures: string[];
+  figures: NarutoFigureRef[];
 }
 
 export interface NarutoBattle {
@@ -150,12 +178,18 @@ export interface NarutoRank {
   name: string;
   note: string;
   bar: string;
+  /** Rütbenin mühür kanjisi — merdiven görünümündeki fırça işareti */
+  kanji: string;
+  /** Yol üzerindeki konum (0-100) — merdiven çubuğunun doluluk yüzdesi */
+  climb: number;
 }
 
 export interface NarutoMission {
   letter: string;
   desc: string;
   bar: string;
+  /** Görevin risk yüzdesi (0-100) — derece kartındaki ölçek çubuğu */
+  risk: number;
 }
 
 export interface NarutoArchive {

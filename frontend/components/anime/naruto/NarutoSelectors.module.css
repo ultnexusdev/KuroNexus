@@ -185,21 +185,61 @@
   color: var(--text-secondary);
 }
 
-.figures {
+/* Çip sırası — chakra kullanıcıları ve dönem figürleri aynı dili konuşur */
+.chipRow {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
-  margin: 1.5rem 0 0;
-  padding: 0;
-  list-style: none;
 }
 
-.figures li {
-  padding: 0.3rem 0.6rem;
-  border: 1px solid var(--border);
-  font-size: 0.78rem;
-  letter-spacing: 0.06em;
-  color: var(--text-secondary);
+/* ── ELEMENT KADRAJI ────────────────────────────────────────────────── */
+.dossierScene {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  margin: 0 0 1.25rem;
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid color-mix(in srgb, var(--rec, var(--accent)) 35%, var(--border));
+}
+
+.dossierScene img {
+  object-fit: cover;
+  animation: narutoSceneIn 600ms ease both;
+}
+
+/* Kadraj kartın metnine erimesin: altta ince karartma */
+.dossierScene::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--bg) 55%, transparent),
+    transparent 38%
+  );
+}
+
+.sceneKanji {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.35rem;
+  z-index: 1;
+  font-family: var(--font-brush), serif;
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  line-height: 1;
+  color: color-mix(in srgb, var(--rec, var(--accent)) 85%, #fff);
+  text-shadow: 0 0 18px color-mix(in srgb, var(--rec, var(--accent)) 60%, transparent);
+}
+
+@keyframes narutoSceneIn {
+  from {
+    opacity: 0;
+    scale: 1.04;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
 }
 
 /* ── 1 · HARİTA ─────────────────────────────────────────────────────── */
@@ -298,12 +338,36 @@
   gap: 0.5rem;
   width: 100%;
   min-height: var(--touch-min);
-  padding: 0.5rem 0.5rem 0.5rem 0;
+  padding: 0.5rem 0.75rem 0.5rem 0;
   border: 0;
   background: transparent;
   color: inherit;
   text-align: left;
   cursor: pointer;
+  isolation: isolate;
+}
+
+/* Seçili satır: soldan sağa akan altın süpürme — kartın kendisi hattın
+   üstünde yanıyor (22 Ağustos görsel turu) */
+.era::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--gold) 14%, transparent),
+    transparent 70%
+  );
+  opacity: 0;
+  scale: 0.6 1;
+  transform-origin: left center;
+  transition: opacity 260ms ease, scale 320ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.era[data-active]::before {
+  opacity: 1;
+  scale: 1 1;
 }
 
 .era:focus-visible {
@@ -344,6 +408,16 @@
   display: none;
 }
 
+/* Geçilmiş dönemler: hat dolu, nokta sönük altın — ray "neredeyim"
+   sorusunu kendisi cevaplar */
+.era[data-passed] .eraDot {
+  background: color-mix(in srgb, var(--gold) 55%, var(--border-strong));
+}
+
+.era[data-passed] .eraDot::before {
+  background: color-mix(in srgb, var(--gold) 35%, var(--border));
+}
+
 .eraName {
   font-size: 0.92rem;
   color: var(--text-secondary);
@@ -361,6 +435,55 @@
 .era[data-active] .eraNo,
 .era[data-active] .eraName {
   color: var(--text-primary);
+}
+
+/* Dönem künyesi: filigran numara + fırça mühürü taşıyan zengin kart */
+.eraDossier {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(
+      120% 90% at 100% 0%,
+      color-mix(in srgb, var(--accent) 7%, transparent),
+      transparent 55%
+    ),
+    var(--surface);
+}
+
+.eraWatermark {
+  position: absolute;
+  top: -0.18em;
+  right: 0.05em;
+  z-index: -1;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(7rem, 14vw, 11rem);
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1px color-mix(in srgb, var(--accent) 26%, transparent);
+  pointer-events: none;
+  user-select: none;
+}
+
+.eraBrush {
+  position: absolute;
+  right: 1rem;
+  bottom: 0.75rem;
+  z-index: -1;
+  font-family: var(--font-brush), serif;
+  font-size: 2rem;
+  line-height: 1;
+  color: color-mix(in srgb, var(--accent) 22%, transparent);
+  pointer-events: none;
+  user-select: none;
+}
+
+.figuresLabel {
+  margin: 1.5rem 0 0.6rem;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.8125rem;
+  letter-spacing: 0.18em;
+  color: var(--text-muted);
 }
 
 /* ── MOBİL ──────────────────────────────────────────────────────────── */
@@ -391,7 +514,12 @@
 @media (prefers-reduced-motion: reduce) {
   .railItem,
   .pinDot,
-  .eraDot {
+  .eraDot,
+  .era::before {
     transition: none;
+  }
+
+  .dossierScene img {
+    animation: none;
   }
 }

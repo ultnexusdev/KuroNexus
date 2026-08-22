@@ -98,6 +98,29 @@ export async function getCharacterImages(
   }
 }
 
+/**
+ * 50'den fazla karakterin görselleri. Uç, `ids` listesini 50'de kesiyor
+ * (`anime.controller.ts` — cards ucuyla aynı üst sınır); Naruto Evreni'nin
+ * kadro kaydı ~60 kişi olduğu için liste 50'lik parçalara bölünüp paralel
+ * istenir. Sınırı backend'de gevşetmek yerine burada bölmek seçildi:
+ * uç herkese açık ve üst sınırın bir savunma değeri var.
+ */
+export async function getCharacterImagesBulk(
+  ids: number[],
+): Promise<CharacterImageRow[]> {
+  const unique = [...new Set(ids)].filter(
+    (id) => Number.isInteger(id) && id > 0,
+  );
+  const chunks: number[][] = [];
+  for (let i = 0; i < unique.length; i += 50) {
+    chunks.push(unique.slice(i, i + 50));
+  }
+  const results = await Promise.all(
+    chunks.map((chunk) => getCharacterImages(chunk)),
+  );
+  return results.flat();
+}
+
 /** Karakter dosyası. Bulunamazsa `null` → sayfa 404 verir. */
 export async function getCharacterDetail(
   characterId: string,

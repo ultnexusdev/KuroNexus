@@ -30,6 +30,9 @@ export const NARUTO_IMAGE_KEYS = {
   legends: "naruto:legends",
   /** Klanlar — Uchiha / Senju ikili bandı */
   clans: "naruto:clans",
+  /** Gölgeler — Akatsuki kapısının kendi fonu (yoksa serginin
+      `akatsuki:legion` kadrajı ödünç alınır, eski davranış) */
+  shadows: "naruto:shadows",
   /** Chakra bölümü — doğa dönüşümleri fonu */
   chakra: "naruto:chakra",
   /** Dōjutsu bölümü — göz kadrajı */
@@ -49,9 +52,25 @@ export const NARUTO_IMAGE_KEYS = {
 export type NarutoImageKey =
   (typeof NARUTO_IMAGE_KEYS)[keyof typeof NARUTO_IMAGE_KEYS];
 
+/**
+ * Doğa dönüşümü panellerinin görsel anahtarları — künyenin içindeki
+ * element kadrajı (`NarutoChakra` çizer). Aynı ABILITY yuvası deseni.
+ */
+export function narutoElementKey(elementId: string): string {
+  return `naruto:element:${elementId}`;
+}
+
+export const NARUTO_ELEMENT_IDS = [
+  "fire",
+  "wind",
+  "lightning",
+  "water",
+  "earth",
+] as const;
+
 /** Küratör kuşağında listelenen yuvalar — sıra sayfadaki sırayla aynı */
 export const NARUTO_IMAGE_SLOTS: {
-  key: NarutoImageKey;
+  key: string;
   label: string;
   hint: string;
 }[] = [
@@ -61,7 +80,13 @@ export const NARUTO_IMAGE_SLOTS: {
   { key: NARUTO_IMAGE_KEYS.hokageRock, label: "Hokage Kayalığı", hint: "İkonik Mekânlar bölümü." },
   { key: NARUTO_IMAGE_KEYS.legends, label: "Efsaneler bandı", hint: "Kadro duvarının arka fonu." },
   { key: NARUTO_IMAGE_KEYS.clans, label: "Klanlar", hint: "Uchiha / Senju ikili bandı." },
+  { key: NARUTO_IMAGE_KEYS.shadows, label: "Gölgeler · Akatsuki fonu", hint: "Akatsuki kapısının kendi kadrajı; boşsa sergiden ödünç alınır." },
   { key: NARUTO_IMAGE_KEYS.chakra, label: "Chakra", hint: "Doğa dönüşümleri bölümünün fonu." },
+  { key: narutoElementKey("fire"), label: "Element · Ateş", hint: "Katon panelinin kadrajı (16:9)." },
+  { key: narutoElementKey("wind"), label: "Element · Rüzgâr", hint: "Fūton panelinin kadrajı (16:9)." },
+  { key: narutoElementKey("lightning"), label: "Element · Yıldırım", hint: "Raiton panelinin kadrajı (16:9)." },
+  { key: narutoElementKey("water"), label: "Element · Su", hint: "Suiton panelinin kadrajı (16:9)." },
+  { key: narutoElementKey("earth"), label: "Element · Toprak", hint: "Doton panelinin kadrajı (16:9)." },
   { key: NARUTO_IMAGE_KEYS.dojutsu, label: "Dōjutsu", hint: "Göz bölümünün kadrajı." },
   { key: NARUTO_IMAGE_KEYS.bijuu, label: "Kuyruklu Canavarlar", hint: "Bijuu bölümünün fonu." },
   { key: NARUTO_IMAGE_KEYS.hokageHall, label: "Hokage Salonu", hint: "Yedi Hokage bir arada." },

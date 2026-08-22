@@ -2,8 +2,16 @@ import type {
   NarutoBijuu,
   NarutoElement,
   NarutoEye,
+  NarutoFigureRef,
   NarutoJutsu,
 } from "./types";
+import { NARUTO_PEOPLE, type NarutoPersonSlug } from "./people";
+
+/** Kullanıcı çipi — ad kadro kaydından, portresi sayfada çözülür */
+const user = (person: NarutoPersonSlug, label?: string): NarutoFigureRef => ({
+  label: label ?? NARUTO_PEOPLE[person].name,
+  person,
+});
 
 /**
  * Naruto Evreni — güç kaydı (doğa dönüşümleri, dōjutsu, jutsu, bijuu).
@@ -25,11 +33,11 @@ export const NARUTO_ELEMENTS: NarutoElement[] = [
       "Uchiha klanının damgası. Nefesle şekillenen, geniş bir alanı bir anda " +
       "yakan doğa dönüşümü. Konoha shinobi'lerinin çoğu bu hattı kullanır.",
     users: [
-      "Sasuke Uchiha",
-      "Itachi Uchiha",
-      "Madara Uchiha",
-      "Hiruzen Sarutobi",
-      "Asuma Sarutobi",
+      user("sasuke-uchiha"),
+      user("itachi-uchiha"),
+      user("madara-uchiha"),
+      user("hiruzen-sarutobi"),
+      user("asuma-sarutobi"),
     ],
     jutsu: ["Büyük Ateş Topu", "Amaterasu", "Ateş Ejderi Mermisi"],
   },
@@ -43,7 +51,12 @@ export const NARUTO_ELEMENTS: NarutoElement[] = [
     desc:
       "Chakrayı keskinleştirip kesici hâle getirir. Rüzgâr Ülkesi'nin ve " +
       "Naruto'nun doğası; yıldırıma karşı üstün, ateşi besler.",
-    users: ["Naruto Uzumaki", "Temari", "Asuma Sarutobi", "Danzō Shimura"],
+    users: [
+      user("naruto-uzumaki"),
+      user("temari"),
+      user("asuma-sarutobi"),
+      user("danzo-shimura"),
+    ],
     jutsu: ["Rasenshuriken", "Rüzgâr Tırpanı", "Vakum Küresi"],
   },
   {
@@ -56,7 +69,12 @@ export const NARUTO_ELEMENTS: NarutoElement[] = [
     desc:
       "Delici, hızlı ve doğrudan. Kumogakure'nin imzası ve Kakashi hattının " +
       "temeli; toprağa karşı üstün, rüzgâra karşı zayıf.",
-    users: ["Kakashi Hatake", "Sasuke Uchiha", "A (Dördüncü Raikage)", "Darui"],
+    users: [
+      user("kakashi-hatake"),
+      user("sasuke-uchiha"),
+      user("a-raikage"),
+      user("darui"),
+    ],
     jutsu: ["Chidori", "Kirin", "Yıldırım Zırhı"],
   },
   {
@@ -70,10 +88,10 @@ export const NARUTO_ELEMENTS: NarutoElement[] = [
       "Kirigakure'nin doğası. Kaynak olmadan da chakradan üretilebilen en " +
       "akışkan element; ateşi söndürür, yıldırıma karşı savunmasız.",
     users: [
-      "Tobirama Senju",
-      "Zabuza Momochi",
-      "Kisame Hoshigaki",
-      "Suigetsu Hōzuki",
+      user("tobirama-senju"),
+      user("zabuza-momochi"),
+      user("kisame-hoshigaki"),
+      user("suigetsu-hozuki"),
     ],
     jutsu: ["Su Ejderi Mermisi", "Büyük Şelale", "Su Hapishanesi"],
   },
@@ -87,7 +105,12 @@ export const NARUTO_ELEMENTS: NarutoElement[] = [
     desc:
       "Savunmanın temeli. Iwagakure'nin hattı ve Hashirama'nın Ahşap " +
       "Salım'ını doğuran iki yarımdan biri (diğeri su).",
-    users: ["Hashirama Senju", "Ōnoki", "Kakuzu", "Jiraiya"],
+    users: [
+      user("hashirama-senju"),
+      user("onoki"),
+      user("kakuzu"),
+      user("jiraiya"),
+    ],
     jutsu: ["Çamur Duvarı", "Toprak Kubbe", "Kaya Golemi"],
   },
 ];

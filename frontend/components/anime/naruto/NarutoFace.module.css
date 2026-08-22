@@ -1,0 +1,70 @@
+/* Kadro yüzleri ve figür çipleri — Naruto Evreni'nin ortak küçük portresi.
+   Zemin/kenarlık token'dan; renk vurgusu taşıyan tek şey portrenin kendisi. */
+
+.face {
+  position: relative;
+  display: inline-block;
+  flex: none;
+  overflow: hidden;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-hover);
+}
+
+.face img {
+  object-fit: cover;
+  /* Portreler 3:4 büst — yüz karenin üst yarısında */
+  object-position: center 18%;
+}
+
+.initial {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.72em;
+  color: var(--text-muted);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.22rem 0.6rem 0.22rem 0.28rem;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+  transition: border-color 220ms ease, background-color 220ms ease;
+}
+
+.chip:hover {
+  border-color: var(--accent-muted);
+  background: var(--surface-hover);
+}
+
+.chipEmblem {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  flex: none;
+  color: var(--text-secondary);
+}
+
+.chipEmblem svg {
+  width: 18px;
+  height: 18px;
+}
+
+.chipLabel {
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chip {
+    transition: none;
+  }
+}

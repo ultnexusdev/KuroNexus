@@ -472,6 +472,47 @@ Kullanıcı ekran görüntüleriyle altı düzeltme istedi; hepsi uygulandı.
   seti: 17 üretim ≈ $1.44. Biri (Izanami) ilk denemede boş yanıt döndü,
   tekrar yüklendi.
 
+## 5j · NARUTO EVRENİ — KADRO PORTRELERİ + GÖRSEL BÜYÜK TUR (22 Ağustos)
+
+Kullanıcı komutu: efsanelerin eksik portreleri + klan amblemleri + her
+görselli bölüme küratör yuvası + Akatsuki bölümüne göz alıcı fon + hero'nun
+Akatsuki gibi sinematik olması (Sage/Kurama/Rasengan) + adı geçen HERKESİN
+portresi (takım/chakra çiplerinde küçük yüz, sonradan erişilebilir) +
+Dönemler ve Rütbeler'in görsel zenginleşmesi.
+
+- **Kadro kaydı:** `NARUTO_PEOPLE` (people.ts) — 61 kişi, AniList
+  numaraları GraphQL'den medya doğrulamalı çekildi (Naruto/Boruto süzgeci;
+  "Kurama" YuYu Hakusho'ya, "Karin" Chibi Vampire'a çarpıyordu). Takım,
+  element, dönem, Kage, soy hattı kayıtları `NarutoFigureRef` ile bu kayda
+  bağlandı; portre `PORTRAIT` yuvasında bir kez durur, her yerde görünür.
+- **Üretim (ücretli fal nano-banana-2, ücretsiz kota 429):** 54 portre
+  (3:4 1K) + hero (16:9 4K, Altı Yol Sage Naruto + Kurama silueti +
+  Rasengan) + Gölgeler panoraması (16:9 2K, kan ayı altında dokuz pelerin)
+  + 5 element paneli (16:9 1K) = **61 çağrı ≈ $5.00**. Tek atış, sıfır
+  tekrar. Kontak levhayla denetlendi — 54/54 kullanılabilir.
+- **Yükleme:** WebP'e çevrilip (sharp; 17.8MB hero → 550KB) gerçek admin
+  girişiyle `/admin/uploads` + `/admin/character-images` üzerinden canlıya
+  bağlandı: 61 kayıt, 0 hata. Akatsuki'nin elle kürasyonlu portrelerine
+  (Itachi/Madara/Pain/Tobi/Konan/Kisame/Kakuzu) DOKUNULMADI — idempotens
+  kuralı akatsuki-setup ile aynı.
+- **Klan amblemleri:** raster değil el çizimi SVG seti (`ClanEmblems.tsx`,
+  14 klan) — 16px çipten 160px filigrana ölçeklenir, `currentColor`;
+  Uchiha/Uzumaki kanonik renklerini taşır. Soy hattı panellerinde filigran,
+  klan kartlarında mühür, dönem çiplerinde küçük işaret.
+- **Sinematik hero:** Ken Burns fon (42s), yükselen chakra korları,
+  nefes alan Uzumaki girdabı, dikey fırça yazısı (九尾の力・螺旋丸) —
+  Akatsuki hero'sunun hareket ailesinin "yükselen" lehçesi. Gölgeler:
+  kendi fonu (`naruto:shadows`, yoksa legion'a düşer) + kızıl yağmur +
+  ay halesi nabzı + süzülen iki bulut.
+- **Dönemler:** ray "neredeyim"i kendisi söylüyor (geçilmiş dönemler dolu
+  altın hat), künye filigran numara + 歴史 mühürü + portreli figür çipleri.
+  **Rütbeler:** kanji mühürlü merdiven + doluluk çubuğu (`climb`);
+  görev dereceleri damga mühür + risk ölçeği; S nabız gibi parlıyor.
+- **Küratör:** her yeni görsel noktası yuva aldı (takım kartı içi portre
+  yuvaları, 5 element yuvası, Gölgeler fonu) + kuşağa "kadro portreleri"
+  bölümü eklendi (61 kişi, dolu/boş göstergeli). `images` ucu 50 kimlikte
+  kestiği için `getCharacterImagesBulk` 50'lik parçalara bölüyor.
+
 ## 6 · AÇIK RİSKLER
 
 - Kurulum ucu canlıda admin tetiklemesi bekler; o güne kadar sergi AniList

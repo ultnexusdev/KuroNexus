@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { Link } from "@/lib/i18n/navigation";
 import { apiUrl } from "@/lib/api/client";
-import { getCharacterImages } from "@/lib/api/characters";
+import { getCharacterImagesBulk } from "@/lib/api/characters";
 import { readIsAdmin } from "@/lib/auth/session";
 import { AKATSUKI_IDS, EXHIBIT_IMAGE_KEYS } from "@/lib/anime/akatsuki";
 import { animeHref } from "@/lib/anime/routes";
@@ -26,16 +26,24 @@ import {
   NARUTO_NATIONS,
   NARUTO_OTHER_KAGE,
   NARUTO_OWNER_ID,
+  NARUTO_PEOPLE,
   NARUTO_PLACES,
   NARUTO_RANKS,
   NARUTO_SENJU_LINE,
   NARUTO_TEAMS,
   NARUTO_UCHIHA_LINE,
   NARUTO_VILLAGES,
+  NARUTO_ELEMENT_IDS,
+  narutoElementKey,
+  narutoPeopleIds,
+  narutoPerson,
+  type NarutoFigureRef,
 } from "@/lib/anime/naruto";
 import { CuratorFrame } from "@/components/character/CuratorFrame";
 import { CuratorSlot } from "@/components/character/CuratorSlot";
 import { AkatsukiCloud } from "@/components/anime/AkatsukiCloud";
+import { ClanEmblem, UzumakiSpiral } from "@/components/anime/naruto/ClanEmblems";
+import { NarutoFace, NarutoFigureChip } from "@/components/anime/naruto/NarutoFace";
 import {
   NarutoAtlas,
   NarutoBijuuPicker,
@@ -71,22 +79,26 @@ export const metadata: Metadata = {
  * yükleme hem adres yapıştırma çalışır — adres verildiğinde backend görseli
  * İNDİRİP kendi diskimize yazıyor, hotlink yok (CSP zaten engellerdi).
  *
+ * ── KADRO PORTRELERİ (22 Ağustos 2026) ───────────────────────────────────
+ * Adı geçen herkes `NARUTO_PEOPLE` kaydında; portresi `PORTRAIT` yuvasında
+ * AniList numarasının adresinde durur. Takım çipi, chakra kullanıcısı,
+ * dönem figürü, Hokage satırı hepsi AYNI kaydı okur — portre bir kez
+ * yüklenir/değiştirilir, her yerde birden değişir. İlk set nano-banana-2
+ * ile üretilip kurulum betiğiyle yüklendi; küratör istediğini üstüne
+ * yükleyerek ezer (son kayıt kazanır, eski satır silinmez).
+ *
  * ── AKATSUKI ─────────────────────────────────────────────────────────────
- * Gölgeler bölümü kendi sergisine kapı açıyor (`/anime/akatsuki`) ve oradaki
- * mevcut görselleri okuyor — bu sayfa Akatsuki için ikinci bir görsel seti
- * TUTMUYOR, sergininkini ödünç alıyor.
+ * Gölgeler bölümü kendi sergisine kapı açıyor (`/anime/akatsuki`). Artık
+ * kendi fonu var (`naruto:shadows`); yuva boşsa eski davranışa dönüp
+ * serginin `akatsuki:legion` kadrajını ödünç alıyor.
  */
 export default async function NarutoUniversePage() {
   const [images, akatsukiImages, isAdmin] = await Promise.all([
-    // Sayfanın kendi kadrajları + kadro portreleri tek istekte
-    getCharacterImages([
-      NARUTO_OWNER_ID,
-      ...NARUTO_LEGENDS.map((legend) => legend.characterId).filter(
-        (id): id is number => typeof id === "number",
-      ),
-    ]),
-    // Akatsuki sergisinin görselleri — Gölgeler bölümü bunları ödünç alıyor
-    getCharacterImages([AKATSUKI_IDS.pain]),
+    // Sayfanın kendi kadrajları + BÜTÜN kadro portreleri tek turda
+    // (uç 50 kimlikte kesiyor; bulk yardımcı listeyi bölüp birleştiriyor)
+    getCharacterImagesBulk([NARUTO_OWNER_ID, ...narutoPeopleIds()]),
+    // Akatsuki sergisinin görselleri — Gölgeler yuvası boşsa ödünç alınır
+    getCharacterImagesBulk([AKATSUKI_IDS.pain]),
     readIsAdmin(),
   ]);
 
@@ -107,17 +119,40 @@ export default async function NarutoUniversePage() {
           ) ?? null)
       : null;
 
-  /** Akatsuki kadro bandı — sergideki `akatsuki:legion` kadrajı */
-  const akatsukiBand =
-    [...akatsukiImages]
+  /** Kadro yüz haritası: slug → mutlak portre adresi. Çipler veri bilmez,
+      hazır adres alır — istemci bileşenlerine de bu harita iner. */
+  const faces = Object.fromEntries(
+    Object.entries(NARUTO_PEOPLE).map(([slug, person]) => {
+      const row = portrait(person.characterId);
+      return [slug, row ? apiUrl(row.url) : null];
+    }),
+  ) as Record<string, string | null>;
+
+  const faceOf = (figure: NarutoFigureRef) =>
+    figure.person ? (faces[figure.person] ?? null) : null;
+
+  /** Element kadrajları: elementId → mutlak adres (yoksa panel görselsiz) */
+  const elementArt = Object.fromEntries(
+    NARUTO_ELEMENT_IDS.map((id) => {
+      const row = art(narutoElementKey(id));
+      return [id, row ? apiUrl(row.url) : null];
+    }),
+  ) as Record<string, string | null>;
+
+  /** Gölgeler fonu: kendi yuvası → yoksa serginin kadro bandı */
+  const shadowsArt =
+    art(NARUTO_IMAGE_KEYS.shadows) ??
+    ([...akatsukiImages]
       .reverse()
       .find(
         (row) =>
           row.slot === "ABILITY" &&
           row.abilityName === EXHIBIT_IMAGE_KEYS.legion,
-      ) ?? null;
+      ) ??
+      null);
 
   const hero = art(NARUTO_IMAGE_KEYS.hero);
+  const candidateFace = portrait(NARUTO_HOKAGE_CANDIDATE.characterId);
 
   /** Mekânlar bölgeye göre gruplanıyor — kayıt sırası korunuyor */
   const placeRegions = NARUTO_PLACES.reduce<Record<string, typeof NARUTO_PLACES>>(
@@ -139,7 +174,11 @@ export default async function NarutoUniversePage() {
           <span>Naruto Evreni</span>
         </nav>
 
-        {/* ══ AÇILIŞ ══════════════════════════════════════════════════ */}
+        {/* ══ AÇILIŞ — SİNEMATİK KADRAJ ═══════════════════════════════
+            Akatsuki hero'sunun hareket ailesi: Ken Burns fon, yükselen
+            chakra korları, nefes alan girdap motifi, dikey fırça yazısı.
+            Hepsi no-preference kapısının içinde; reduced-motion'da katman
+            durağan hâliyle anlamlı. */}
         <header className={styles.opening}>
           {hero ? (
             <span className={styles.heroArt} aria-hidden>
@@ -147,9 +186,18 @@ export default async function NarutoUniversePage() {
             </span>
           ) : null}
           <span className={styles.heroPool} aria-hidden />
+          <span className={styles.heroEmbers} aria-hidden />
+          <span className={styles.heroSpiral} aria-hidden>
+            <UzumakiSpiral />
+          </span>
+          <span className={`${shell.brush} ${styles.heroSide}`} aria-hidden>
+            九尾の力 ・ 螺旋丸
+          </span>
 
           <div className={styles.openingInner}>
-            <p className={shell.eyebrow}>Anime · Evren Kaydı</p>
+            <p className={`${shell.eyebrow} ${styles.heroEyebrow}`}>
+              Anime · Evren Kaydı
+            </p>
             <h1 className={`${shell.display} ${shell.world}`}>NARUTO EVRENİ</h1>
             <p className={shell.lede}>
               Chakranın bir armağan olarak bırakıldığı, klanların köye
@@ -301,38 +349,102 @@ export default async function NarutoUniversePage() {
         {/* ══ 5 · TAKIMLAR ═══════════════════════════════════════════ */}
         <Section title="Takımlar" lede="Üç kişi ve bir sensei — evrenin temel birimi.">
           <ul className={styles.teamGrid}>
-            {NARUTO_TEAMS.map((team) => (
-              <li
-                key={team.name}
-                className={styles.team}
-                style={{ "--rec": team.color } as React.CSSProperties}
-              >
-                <p className={styles.teamTag}>{team.tag}</p>
-                <h3 className={styles.teamName}>{team.name}</h3>
-                <ul className={styles.teamMembers}>
-                  {team.members.map((member) => (
-                    <li key={member}>{member}</li>
-                  ))}
-                </ul>
-                <p className={styles.teamSensei}>{team.sensei}</p>
-              </li>
-            ))}
+            {NARUTO_TEAMS.map((team) => {
+              /* Kartın küratör yuvaları: üyeler + sensei satırı, tek sefer */
+              const slotPeople = [
+                ...team.members,
+                ...(team.senseiRefs ?? []),
+              ].filter(
+                (figure, i, all) =>
+                  figure.person &&
+                  all.findIndex((f) => f.person === figure.person) === i,
+              );
+              return (
+                <li
+                  key={team.name}
+                  className={styles.team}
+                  style={{ "--rec": team.color } as React.CSSProperties}
+                >
+                  <p className={styles.teamTag}>{team.tag}</p>
+                  <h3 className={styles.teamName}>{team.name}</h3>
+                  <ul className={styles.teamMembers}>
+                    {team.members.map((member) => (
+                      <li key={member.label}>
+                        <NarutoFace
+                          src={faceOf(member)}
+                          label={member.label}
+                          size={26}
+                        />
+                        <span>{member.label}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <p className={styles.teamSensei}>
+                    {team.senseiRefs?.length ? (
+                      <span className={styles.senseiFaces} aria-hidden>
+                        {team.senseiRefs.map((figure) => (
+                          <NarutoFace
+                            key={figure.label}
+                            src={faceOf(figure)}
+                            label={figure.label}
+                            size={22}
+                          />
+                        ))}
+                      </span>
+                    ) : null}
+                    <span>{team.sensei}</span>
+                  </p>
+
+                  {/* Kürasyon: karttaki herkesin portre yuvası bir arada.
+                      `data-curator-slot` — anahtar kapalıyken tamamı gizli */}
+                  {isAdmin && slotPeople.length > 0 ? (
+                    <div data-curator-slot className={styles.teamSlots}>
+                      {slotPeople.map((figure) => {
+                        const person = narutoPerson(figure.person ?? "");
+                        if (!person) return null;
+                        return (
+                          <CuratorSlot
+                            key={figure.person}
+                            characterId={person.characterId}
+                            slot="PORTRAIT"
+                            label={`${figure.label} portresi`}
+                          />
+                        );
+                      })}
+                    </div>
+                  ) : null}
+                </li>
+              );
+            })}
           </ul>
         </Section>
 
-        {/* ══ 6 · GÖLGELER — AKATSUKI KAPISI ═════════════════════════ */}
+        {/* ══ 6 · GÖLGELER — AKATSUKI KAPISI ═════════════════════════
+            Kendi üretilmiş fonu + dinmeyen yağmur + süzülen kızıl
+            bulutlar + kan kırmızısı ay halesi. Kapı artık sahne. */}
         <section id="golgeler" className={styles.shadows}>
-          {akatsukiBand ? (
+          {shadowsArt ? (
             <span className={styles.shadowsArt} aria-hidden>
               <Image
-                src={apiUrl(akatsukiBand.url)}
+                src={apiUrl(shadowsArt.url)}
                 alt=""
                 fill
                 sizes="1920px"
               />
             </span>
           ) : null}
+          <span className={styles.shadowsMoon} aria-hidden />
+          <span className={styles.shadowsRain} aria-hidden />
           <span className={styles.shadowsMist} aria-hidden />
+          <span className={styles.shadowsDrift} aria-hidden>
+            <AkatsukiCloud />
+          </span>
+          <span
+            className={`${styles.shadowsDrift} ${styles.shadowsDriftB}`}
+            aria-hidden
+          >
+            <AkatsukiCloud />
+          </span>
 
           <div className={styles.shadowsInner}>
             <span className={styles.shadowsCloud} aria-hidden>
@@ -350,6 +462,13 @@ export default async function NarutoUniversePage() {
             <Link href={animeHref.akatsuki()} className={styles.shadowsEnter}>
               Sergiye gir →
             </Link>
+            <CuratorSlotIf
+              enabled={isAdmin}
+              characterId={NARUTO_OWNER_ID}
+              slot="ABILITY"
+              abilityName={NARUTO_IMAGE_KEYS.shadows}
+              label="Gölgeler fonu"
+            />
           </div>
         </section>
 
@@ -364,24 +483,44 @@ export default async function NarutoUniversePage() {
         >
           <div className={styles.lineages}>
             <div className={styles.lineage} data-side="uchiha">
+              <span className={styles.lineageEmblem} aria-hidden>
+                <ClanEmblem clan="uchiha" />
+              </span>
               <h3 className={styles.lineageName}>Uchiha</h3>
               <p className={styles.lineageNote}>
                 {"Indra'nın hattı — göz ve ateş."}
               </p>
               <ol className={styles.lineageList}>
-                {NARUTO_UCHIHA_LINE.map((name) => (
-                  <li key={name}>{name}</li>
+                {NARUTO_UCHIHA_LINE.map((figure) => (
+                  <li key={figure.label}>
+                    <NarutoFace
+                      src={faceOf(figure)}
+                      label={figure.label}
+                      size={24}
+                    />
+                    <span>{figure.label}</span>
+                  </li>
                 ))}
               </ol>
             </div>
             <div className={styles.lineage} data-side="senju">
+              <span className={styles.lineageEmblem} aria-hidden>
+                <ClanEmblem clan="senju" />
+              </span>
               <h3 className={styles.lineageName}>Senju</h3>
               <p className={styles.lineageNote}>
                 {"Ashura'nın hattı — beden ve yaşam."}
               </p>
               <ol className={styles.lineageList}>
-                {NARUTO_SENJU_LINE.map((name) => (
-                  <li key={name}>{name}</li>
+                {NARUTO_SENJU_LINE.map((figure) => (
+                  <li key={figure.label}>
+                    <NarutoFace
+                      src={faceOf(figure)}
+                      label={figure.label}
+                      size={24}
+                    />
+                    <span>{figure.label}</span>
+                  </li>
                 ))}
               </ol>
             </div>
@@ -395,8 +534,13 @@ export default async function NarutoUniversePage() {
                 className={styles.clan}
                 data-noble={clan.noble ? "" : undefined}
               >
-                <span className={styles.clanName}>{clan.name}</span>
-                <span className={styles.clanTrait}>{clan.trait}</span>
+                <span className={styles.clanEmblem} aria-hidden>
+                  <ClanEmblem clan={clan.id} />
+                </span>
+                <span className={styles.clanBody}>
+                  <span className={styles.clanName}>{clan.name}</span>
+                  <span className={styles.clanTrait}>{clan.trait}</span>
+                </span>
                 {clan.noble ? (
                   <span className={styles.clanNoble}>SOYLU</span>
                 ) : null}
@@ -415,7 +559,26 @@ export default async function NarutoUniversePage() {
           slotLabel="Chakra fonu"
           isAdmin={isAdmin}
         >
-          <NarutoChakra elements={NARUTO_ELEMENTS} />
+          <NarutoChakra
+            elements={NARUTO_ELEMENTS}
+            art={elementArt}
+            faces={faces}
+          />
+
+          {/* Kürasyon: beş element kadrajının yuvaları bölümün içinde */}
+          {isAdmin ? (
+            <div data-curator-slot className={styles.elementSlots}>
+              {NARUTO_ELEMENTS.map((element) => (
+                <CuratorSlot
+                  key={element.id}
+                  characterId={NARUTO_OWNER_ID}
+                  slot="ABILITY"
+                  abilityName={narutoElementKey(element.id)}
+                  label={`Element kadrajı · ${element.tr}`}
+                />
+              ))}
+            </div>
+          ) : null}
         </Section>
 
         {/* ══ 9 · DŌJUTSU ════════════════════════════════════════════ */}
@@ -475,21 +638,34 @@ export default async function NarutoUniversePage() {
           isAdmin={isAdmin}
         >
           <ol className={styles.hokageList}>
-            {NARUTO_HOKAGE.map((kage) => (
-              <li key={kage.ord} className={styles.hokage}>
-                <span className={styles.hokageOrd}>{kage.ord}</span>
-                <div className={styles.hokageBody}>
-                  <h3 className={styles.hokageName}>{kage.name}</h3>
-                  <p className={styles.hokageEpithet}>{kage.epithet}</p>
-                  <p className={styles.hokageEnd}>{kage.end}</p>
-                </div>
-              </li>
-            ))}
+            {NARUTO_HOKAGE.map((kage) => {
+              const face = portrait(kage.characterId);
+              return (
+                <li key={kage.ord} className={styles.hokage}>
+                  <NarutoFace
+                    src={face ? apiUrl(face.url) : null}
+                    label={kage.name}
+                    size={52}
+                  />
+                  <span className={styles.hokageOrd}>{kage.ord}</span>
+                  <div className={styles.hokageBody}>
+                    <h3 className={styles.hokageName}>{kage.name}</h3>
+                    <p className={styles.hokageEpithet}>{kage.epithet}</p>
+                    <p className={styles.hokageEnd}>{kage.end}</p>
+                  </div>
+                </li>
+              );
+            })}
           </ol>
 
           {/* Göreve hiç başlayamayan aday — listeyi eksik bırakmak tarihi
               yanlış anlatmak olurdu, ama sıraya da katılamaz */}
           <div className={styles.candidate}>
+            <NarutoFace
+              src={candidateFace ? apiUrl(candidateFace.url) : null}
+              label={NARUTO_HOKAGE_CANDIDATE.name}
+              size={52}
+            />
             <span className={styles.hokageOrd}>
               {NARUTO_HOKAGE_CANDIDATE.ord}
             </span>
@@ -510,7 +686,15 @@ export default async function NarutoUniversePage() {
               <li key={kage.village} className={styles.kage}>
                 <span className={styles.kageVillage}>{kage.village}</span>
                 <span className={styles.kageTitle}>{kage.title}</span>
-                <span className={styles.kageNames}>{kage.names}</span>
+                <span className={styles.kagePeople}>
+                  {kage.people.map((figure) => (
+                    <NarutoFigureChip
+                      key={figure.label}
+                      figure={figure}
+                      faces={faces}
+                    />
+                  ))}
+                </span>
               </li>
             ))}
           </ul>
@@ -526,7 +710,7 @@ export default async function NarutoUniversePage() {
           slotLabel="Tarih bandı"
           isAdmin={isAdmin}
         >
-          <NarutoChronicle eras={NARUTO_ERAS} />
+          <NarutoChronicle eras={NARUTO_ERAS} faces={faces} />
         </Section>
 
         {/* ══ 14 · EFSANEVİ SAVAŞLAR ═════════════════════════════════ */}
@@ -558,7 +742,9 @@ export default async function NarutoUniversePage() {
           </ul>
         </Section>
 
-        {/* ══ 15 · RÜTBELER VE GÖREVLER ══════════════════════════════ */}
+        {/* ══ 15 · RÜTBELER VE GÖREVLER ══════════════════════════════
+            Görsel dil: rütbeler yolun kendisi (kanji mühürlü merdiven,
+            doluluk çubuğu), dereceler mühür damgalı risk kartları. */}
         <Section title="Rütbeler ve Görev Dereceleri" lede="Bir shinobi'nin yolu ve önüne konan işin ağırlığı.">
           <div className={styles.twoUp}>
             <div>
@@ -568,11 +754,22 @@ export default async function NarutoUniversePage() {
                   <li
                     key={rank.lvl}
                     className={styles.rank}
-                    style={{ "--rec": rank.bar } as React.CSSProperties}
+                    style={
+                      {
+                        "--rec": rank.bar,
+                        "--climb": `${rank.climb}%`,
+                      } as React.CSSProperties
+                    }
                   >
+                    <span className={styles.rankKanji} aria-hidden>
+                      {rank.kanji}
+                    </span>
                     <span className={styles.rankLvl}>{rank.lvl}</span>
                     <span className={styles.rankName}>{rank.name}</span>
                     <span className={styles.rankNote}>{rank.note}</span>
+                    <span className={styles.rankMeter} aria-hidden>
+                      <span className={styles.rankFill} />
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -585,12 +782,27 @@ export default async function NarutoUniversePage() {
                   <li
                     key={mission.letter}
                     className={styles.mission}
-                    style={{ "--rec": mission.bar } as React.CSSProperties}
+                    data-letter={mission.letter}
+                    style={
+                      {
+                        "--rec": mission.bar,
+                        "--risk": `${mission.risk}%`,
+                      } as React.CSSProperties
+                    }
                   >
-                    <span className={styles.missionLetter}>
+                    <span className={styles.missionSeal} aria-hidden>
                       {mission.letter}
                     </span>
-                    <span className={styles.missionDesc}>{mission.desc}</span>
+                    <span className={styles.missionBody}>
+                      <span className={styles.missionDesc}>{mission.desc}</span>
+                      <span className={styles.missionMeter} aria-hidden>
+                        <span className={styles.missionFill} />
+                      </span>
+                    </span>
+                    <span className={styles.missionRisk}>
+                      {mission.risk}
+                      <small>/100</small>
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -639,6 +851,39 @@ export default async function NarutoUniversePage() {
                     slot="ABILITY"
                     abilityName={slot.key}
                     label={slot.label}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Kadro portreleri: adı geçen herkesin PORTRAIT yuvası tek
+                yerden. Küçük yüz o anki kaydı gösterir — hangisi dolu,
+                hangisi boş, liste kendisi söylüyor. */}
+            <h2 className={styles.subhead}>Küratör · kadro portreleri</h2>
+            <p className={styles.curatorHint}>
+              Portre karakterin kaydına (AniList numarası) bağlanır; takım
+              çipi, dönem figürü ve karakter dosyası aynı görseli okur. Yeni
+              yükleme eskisini görsel olarak ezer, eski kayıt silinmez.
+            </p>
+            <div className={styles.curatorGrid}>
+              {Object.entries(NARUTO_PEOPLE).map(([slug, person]) => (
+                <div key={slug} className={styles.curatorCell}>
+                  <p className={styles.curatorPerson}>
+                    <NarutoFace
+                      src={faces[slug]}
+                      label={person.name}
+                      size={30}
+                    />
+                    <span className={styles.curatorLabel}>{person.name}</span>
+                  </p>
+                  <p className={styles.curatorSub}>
+                    AniList #{person.characterId}
+                    {faces[slug] ? " · portre yüklü" : " · portre boş"}
+                  </p>
+                  <CuratorSlot
+                    characterId={person.characterId}
+                    slot="PORTRAIT"
+                    label={`${person.name} portresi`}
                   />
                 </div>
               ))}

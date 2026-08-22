@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
+import Image from "next/image";
 import type {
   NarutoBijuu,
   NarutoElement,
@@ -8,6 +9,7 @@ import type {
   NarutoEye,
   NarutoNation,
 } from "@/lib/anime/naruto";
+import { NarutoFigureChip } from "./NarutoFace";
 import styles from "./NarutoSelectors.module.css";
 
 /**
@@ -124,11 +126,23 @@ export function NarutoAtlas({ nations }: { nations: NarutoNation[] }) {
 /* ══════════════════════════════════════════════════════════════════════
    2 · CHAKRA — doğa dönüşümleri
    ══════════════════════════════════════════════════════════════════════ */
-export function NarutoChakra({ elements }: { elements: NarutoElement[] }) {
+export function NarutoChakra({
+  elements,
+  art,
+  faces,
+}: {
+  elements: NarutoElement[];
+  /** elementId → küratör kadrajı (mutlak adres) — yoksa panel görselsiz */
+  art: Record<string, string | null>;
+  /** kadro slug → portre adresi (kullanıcı çipleri) */
+  faces: Record<string, string | null>;
+}) {
   const [id, setId] = useState(elements[0]?.id ?? "");
   const sel = elements.find((e) => e.id === id) ?? elements[0];
 
   if (!sel) return null;
+
+  const scene = art[sel.id] ?? null;
 
   return (
     <div className={styles.split}>
@@ -154,6 +168,18 @@ export function NarutoChakra({ elements }: { elements: NarutoElement[] }) {
         aria-live="polite"
         style={{ "--rec": sel.bar } as React.CSSProperties}
       >
+        {/* Element kadrajı: küratör yüklediyse çizilir (boş oda yasağı).
+            key={sel.id} — element değişince eski kare yenisinin altından
+            görünmesin diye kadraj baştan kurulur */}
+        {scene ? (
+          <figure key={sel.id} className={styles.dossierScene}>
+            <Image src={scene} alt="" fill sizes="720px" />
+            <span className={styles.sceneKanji} aria-hidden>
+              {sel.kanji}
+            </span>
+          </figure>
+        ) : null}
+
         <p className={styles.dossierCode}>{sel.release}</p>
         <h3 className={styles.dossierName}>{sel.tr}</h3>
         <p className={styles.dossierNote}>{sel.desc}</p>
@@ -161,7 +187,17 @@ export function NarutoChakra({ elements }: { elements: NarutoElement[] }) {
         <dl className={styles.spec}>
           <div>
             <dt>Kullananlar</dt>
-            <dd>{sel.users.join(" · ")}</dd>
+            <dd>
+              <span className={styles.chipRow}>
+                {sel.users.map((figure) => (
+                  <NarutoFigureChip
+                    key={figure.label}
+                    figure={figure}
+                    faces={faces}
+                  />
+                ))}
+              </span>
+            </dd>
           </div>
           <div>
             <dt>Teknikler</dt>
@@ -273,7 +309,14 @@ export function NarutoBijuuPicker({ bijuu }: { bijuu: NarutoBijuu[] }) {
 /* ══════════════════════════════════════════════════════════════════════
    5 · TARİH — dönem zaman çizelgesi
    ══════════════════════════════════════════════════════════════════════ */
-export function NarutoChronicle({ eras }: { eras: NarutoEra[] }) {
+export function NarutoChronicle({
+  eras,
+  faces,
+}: {
+  eras: NarutoEra[];
+  /** kadro slug → portre adresi — figür çipleri */
+  faces: Record<string, string | null>;
+}) {
   /* Açılışta SON dönem seçili: sayfaya gelen kişi evrenin bugününü görsün,
      sonra geriye doğru gezsin. */
   const [index, setIndex] = useState(eras.length - 1);
@@ -282,7 +325,7 @@ export function NarutoChronicle({ eras }: { eras: NarutoEra[] }) {
   if (!sel) return null;
 
   return (
-    <div className={styles.split}>
+    <div className={`${styles.split} ${styles.chronicle}`}>
       <ol className={styles.timeline}>
         {eras.map((era, i) => (
           <li key={era.name}>
@@ -290,6 +333,9 @@ export function NarutoChronicle({ eras }: { eras: NarutoEra[] }) {
               type="button"
               className={styles.era}
               data-active={i === index ? "" : undefined}
+              /* Geçilmiş dönemler hat üzerinde dolu görünür — çizelge
+                 "neredeyim" sorusunu raydan cevaplar */
+              data-passed={i < index ? "" : undefined}
               aria-pressed={i === index}
               onClick={() => setIndex(i)}
             >
@@ -303,18 +349,34 @@ export function NarutoChronicle({ eras }: { eras: NarutoEra[] }) {
         ))}
       </ol>
 
-      <div className={styles.dossier} aria-live="polite">
+      <div
+        className={`${styles.dossier} ${styles.eraDossier}`}
+        aria-live="polite"
+      >
+        {/* Dönem numarası — künyenin filigran katmanı */}
+        <span className={styles.eraWatermark} aria-hidden>
+          {String(index + 1).padStart(2, "0")}
+        </span>
+        <span className={styles.eraBrush} aria-hidden>
+          歴史
+        </span>
+
         <p className={styles.dossierCode}>
           DÖNEM {String(index + 1).padStart(2, "0")} / {eras.length}
         </p>
         <h3 className={styles.dossierName}>{sel.name}</h3>
         <p className={styles.dossierNote}>{sel.desc}</p>
 
-        <ul className={styles.figures}>
+        <p className={styles.figuresLabel}>DÖNEMİN YÜZLERİ</p>
+        <div className={styles.chipRow}>
           {sel.figures.map((figure) => (
-            <li key={figure}>{figure}</li>
+            <NarutoFigureChip
+              key={figure.label}
+              figure={figure}
+              faces={faces}
+            />
           ))}
-        </ul>
+        </div>
       </div>
     </div>
   );

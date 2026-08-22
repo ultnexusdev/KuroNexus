@@ -1,5 +1,3 @@
-"use client";
-
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/lib/i18n/navigation";

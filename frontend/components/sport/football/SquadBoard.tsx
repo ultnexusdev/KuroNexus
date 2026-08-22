@@ -1,4 +1,5 @@
-import { apiUrl } from "@/lib/api/client";
+import Image from "next/image";
+import { apiUrl, isLocalUpload } from "@/lib/api/client";
 import type { LiveSquadPlayer } from "@/lib/api/football-live";
 import { Reveal } from "@/components/sport/Reveal";
 import shell from "@/app/[locale]/spor/layout.module.css";
@@ -159,13 +160,18 @@ function PlayerPin({
   return (
     <div className={styles.pinBody} tabIndex={0}>
       {player.photo ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
+        /* next/image'e 2026-08-22'de çevrildi: portreler backend'e indirilen
+           /uploads/football/players/* dosyaları ve ham <img> orijinali
+           indiriyordu. Kutu 40-56 px'lik daire (.pinPhoto) — sizes sabit px,
+           ev kuralı (bkz. next.config.ts vw tuzağı). */
+        <Image
           src={apiUrl(player.photo)}
           alt=""
+          width={112}
+          height={112}
+          sizes="56px"
           className={styles.pinPhoto}
-          loading="lazy"
-          decoding="async"
+          unoptimized={!isLocalUpload(player.photo)}
         />
       ) : (
         <span className={styles.pinPhoto} aria-hidden="true" />
@@ -224,13 +230,15 @@ function PlayerCard({
       <div className={styles.cardInner}>
         <div className={styles.cardFront}>
           {player.photo ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            /* next/image'e 2026-08-22'de çevrildi (gerekçe pin'dekiyle aynı).
+               Kart sütunu minmax(11rem, 1fr) → ~176-240 px bandı; sabit px. */
+            <Image
               src={apiUrl(player.photo)}
               alt=""
+              fill
+              sizes="240px"
               className={styles.cardPhoto}
-              loading="lazy"
-              decoding="async"
+              unoptimized={!isLocalUpload(player.photo)}
             />
           ) : (
             <span className={styles.cardPhoto} aria-hidden="true" />

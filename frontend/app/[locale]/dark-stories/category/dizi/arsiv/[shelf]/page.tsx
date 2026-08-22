@@ -7,6 +7,7 @@ import { getShowArchive } from "@/lib/api/shows";
 import { hallLabel, hallName, hallNumber } from "@/lib/halls";
 import { shelfFromSlug } from "@/lib/show/shelves";
 import { ShowShelfPage } from "@/components/show/ShowShelfPage";
+import { shareCard } from "@/lib/seo";
 
 // Tek bir rafın tam sayfası (izlediklerim, izleyeceklerim, Kore Dramaları…).
 // Süzgeçler URL'de olduğu için sayfa dinamik.
@@ -21,7 +22,15 @@ export async function generateMetadata({
   const { locale, shelf } = await params;
   const key = shelfFromSlug(shelf);
   const t = await getTranslations({ locale, namespace: "show" });
-  return { title: key ? t(`shelf.${key}`) : t("title") };
+  const title = key ? t(`shelf.${key}`) : t("title");
+  return {
+    title,
+    ...shareCard({
+      title,
+      locale,
+      path: `/dark-stories/category/dizi/arsiv/${shelf}`,
+    }),
+  };
 }
 
 async function getHall(

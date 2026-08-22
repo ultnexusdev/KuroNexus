@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { shareCard } from "@/lib/seo";
+import { apiUrl } from "@/lib/api/client";
 import { fetchCategories } from "@/lib/api/universes";
 import { getSourceBook } from "@/lib/api/books";
 import { hallLabel, hallName, hallNumber } from "@/lib/halls";
@@ -27,7 +29,16 @@ export async function generateMetadata({
   const { locale, slug } = await params;
   const t = await getTranslations({ locale, namespace: "book" });
   const book = await getSourceBook(slug);
-  return { title: book?.title ?? t("hallName") };
+  const title = book?.title ?? t("hallName");
+  return {
+    title,
+    ...shareCard({
+      title,
+      locale,
+      path: `/dark-stories/category/kitap/kaynak/${slug}`,
+      image: book?.coverImage ? apiUrl(book.coverImage) : null,
+    }),
+  };
 }
 
 async function getHall(

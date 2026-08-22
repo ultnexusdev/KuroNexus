@@ -80,7 +80,12 @@ export function AkatsukiAudio() {
     // Cleanup anında ref değişmiş olabilir — efekt içinde sabitle
     const audio = audioRef.current;
 
-    // Mount'ta dene; reddedilirse ilk etkileşimde TEK SEFER tekrar dene
+    // Mount'ta dene; reddedilirse ilk etkileşimde TEK SEFER tekrar dene.
+    // `removeRetry` dışarıda tutuluyor ki unmount temizliği de dinleyicileri
+    // söksün (2026-08-22 denetimi) — eskiden rota değişince üç dinleyici
+    // arkada kalıyor ve sonraki ilk etkileşimde ölü bileşen için ateşleniyordu
+    // (PlayerAudio'da daha önce kapatılan sızıntı sınıfının aynısı).
+    let removeRetry: (() => void) | null = null;
     void tryPlay().then((ok) => {
       if (ok || disposed) return;
       const retry = () => {
@@ -88,10 +93,12 @@ export function AkatsukiAudio() {
         remove();
       };
       const remove = () => {
+        removeRetry = null;
         window.removeEventListener("pointerdown", retry);
         window.removeEventListener("keydown", retry);
         window.removeEventListener("scroll", retry);
       };
+      removeRetry = remove;
       window.addEventListener("pointerdown", retry, { once: true });
       window.addEventListener("keydown", retry, { once: true });
       window.addEventListener("scroll", retry, { once: true, passive: true });
@@ -107,6 +114,7 @@ export function AkatsukiAudio() {
     return () => {
       disposed = true;
       clearFade();
+      removeRetry?.();
       window.removeEventListener("kuronexus:music-started", onForeignMusic);
       // Rota değişimi = unmount = sessizlik
       audio?.pause();

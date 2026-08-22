@@ -83,8 +83,11 @@ export function AnimeCard({
 
   return (
     <article className={styles.card}>
-      {/* Kapak ve başlık anime sayfasına açılır */}
-      <Link href={href} className={styles.coverLink}>
+      {/* Kapak ve başlık anime sayfasına açılır. Kapak bağlantısı erişilebilirlik
+          ağacında YOK: erişilebilir adı boştu (görselin alt=""), üstelik aşağıdaki
+          başlık bağlantısıyla aynı yere gidiyor — ekran okuyucuya kart başına tek
+          ve adlı bir durak kalıyor (2026-08-22 denetim). */}
+      <Link href={href} className={styles.coverLink} aria-hidden="true" tabIndex={-1}>
         <span className={styles.coverWrap}>
           <Cover
             anime={anime}

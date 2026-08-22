@@ -7,6 +7,7 @@ import {
   type MusicListening,
 } from "@/lib/api/music";
 import { genreColorVar, musicHref } from "@/lib/music/routes";
+import { shareCard } from "@/lib/seo";
 import { CoverArt } from "@/components/music/CoverArt";
 import { GenreMixBar } from "@/components/music/GenreMixBar";
 import shell from "../layout.module.css";
@@ -48,7 +49,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "music.listening" });
-  return { title: t("title") };
+  const title = t("title");
+  return {
+    title,
+    ...shareCard({ title, locale, path: musicHref.listening() }),
+  };
 }
 
 function parseRange(value: string | undefined): ListeningRange {

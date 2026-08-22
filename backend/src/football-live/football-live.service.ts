@@ -303,15 +303,6 @@ export class FootballLiveService {
     const fixtures = fixturesRow?.payload?.matches ?? [];
     const assets = assetsRow?.payload ?? {};
 
-    // ── KADRO: iki kaynaklı, öncelik sırası açık ────────────────────────────
-    // 1. API-Football (senkronda yazılmış) — sezon istatistiğiyle birlikte
-    //    gelir, ama plan bunu kapsamıyorsa boş olur.
-    // 2. Transfermarkt tabloları + küratör düzeltmeleri — ücretsiz katmanda
-    //    ÇALIŞAN yol. Ölçüm: 36 oyuncu, 36 fotoğraf, 34 forma numarası.
-    //
-    // ⚠️ İkisi BİRLEŞTİRİLMİYOR, biri seçiliyor. İki listeyi harmanlamak aynı
-    // oyuncunun iki kaydını (farklı id, farklı yazım) yan yana koyma riski
-    // taşır; istatistikli liste varsa o kazanır, yoksa künyeli liste çizilir.
     // ── KADRO: üç kaynaklı, öncelik sırası açık ────────────────────────────
     // 1. API-Football — sezon istatistiğiyle gelir, ama plan bunu kapsamıyorsa boş.
     // 2. Kulübün RESMÎ kadro sayfası — bugünkü doğru liste (31 oyuncu, numara,

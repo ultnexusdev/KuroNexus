@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
-import { apiUrl } from "@/lib/api/client";
+import Image from "next/image";
+import { apiUrl, isLocalUpload } from "@/lib/api/client";
 import { fetchDriver, pick } from "@/lib/api/sport-archive";
 import { sportHref } from "@/lib/sport/routes";
+import { shareCard } from "@/lib/seo";
 import { flagGradient, sportFlag } from "@/lib/sport/flags";
 import { Reveal } from "@/components/sport/Reveal";
 import shell from "../../../layout.module.css";
@@ -20,10 +22,24 @@ export async function generateMetadata({
   const { locale, slug } = await params;
   try {
     const { driver } = await fetchDriver(slug);
+    const title = driver.name;
+    const description =
+      pick(locale, driver.nicknameTr, driver.nicknameEn) || undefined;
+    // Sayfadaki portre kuralının aynısı: künyesi eksik Commons karesi karta da çıkmaz
+    const portraitOk =
+      Boolean(driver.photo) &&
+      (!driver.portraitLicense ||
+        (Boolean(driver.portraitAuthor) && Boolean(driver.portraitSourceUrl)));
     return {
-      title: driver.name,
-      description:
-        pick(locale, driver.nicknameTr, driver.nicknameEn) || undefined,
+      title,
+      description,
+      ...shareCard({
+        title,
+        description,
+        locale,
+        path: sportHref.driver(slug),
+        ...(portraitOk ? { image: apiUrl(driver.photo as string) } : {}),
+      }),
     };
   } catch {
     return {};
@@ -143,11 +159,18 @@ export default async function DriverPage({
 
         {showPortrait ? (
           <figure className={styles.portraitBox}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            {/* next/image'e 2026-08-22'de çevrildi: Commons kaynaklı portreler
+                1000px+ orijinal olarak iniyordu, kutu en fazla 168 px.
+                Oran ipucu CSS'teki 3/4 ile aynı; karar ham yoldan
+                (PersonHall deseni). */}
+            <Image
               className={styles.portrait}
               src={apiUrl(driver.photo as string)}
               alt={driver.name}
+              width={336}
+              height={448}
+              sizes="168px"
+              unoptimized={!isLocalUpload(driver.photo as string)}
             />
             {creditComplete ? (
               <figcaption className={styles.credit}>

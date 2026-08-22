@@ -7,6 +7,7 @@ import { getMovieArchive } from "@/lib/api/movies";
 import { hallLabel, hallName, hallNumber } from "@/lib/halls";
 import { shelfFromSlug } from "@/lib/film/shelves";
 import { FilmShelfPage } from "@/components/film/FilmShelfPage";
+import { shareCard } from "@/lib/seo";
 
 // Tek bir rafın tam sayfası (izlediklerim, izleyeceklerim, favorilerim…).
 // Süzgeçler URL'de olduğu için sayfa dinamik.
@@ -21,7 +22,15 @@ export async function generateMetadata({
   const { locale, shelf } = await params;
   const key = shelfFromSlug(shelf);
   const t = await getTranslations({ locale, namespace: "film" });
-  return { title: key ? t(`shelf.${key}`) : t("title") };
+  const title = key ? t(`shelf.${key}`) : t("title");
+  return {
+    title,
+    ...shareCard({
+      title,
+      locale,
+      path: `/dark-stories/category/film/arsiv/${shelf}`,
+    }),
+  };
 }
 
 /** Salon numarası ve adı tek kaynaktan: kategori kaydı. */

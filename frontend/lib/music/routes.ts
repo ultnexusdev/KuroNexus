@@ -69,23 +69,14 @@ export const RESERVED_ACT_SLUGS = new Set([
 /** Spotify gömülü çalar adresi. */
 export type SpotifyEmbedKind = "track" | "album" | "artist" | "playlist";
 
-/**
- * `open.spotify.com/embed/...` adresi.
- *
- * ⚠️ Bu adres `next.config.ts` içindeki CSP `frame-src` listesinde olmak
- * ZORUNDA; yoksa iframe **sessizce** boş kalır (sayfa çökmez, konsolda ihlal
- * görünür). Liste 11 Ağustos 2026'da `https://open.spotify.com` ile
- * genişletildi.
- *
- * `theme=0` koyu gömü demek — salonun kendi zeminiyle uyumlu.
- * `utm_source` EKLENMİYOR: gereksiz izleme parametresi.
+/*
+ * spotifyEmbedSrc 2026-08-22 denetiminde SİLİNDİ: doğrudan Spotify gömüsü
+ * 13 Ağustos'ta kaldırılmıştı (SpotifyEmbed bileşeni silindi, embed izni
+ * yalnızca /api/music-player karantina sayfasının kendi CSP'sinde — bkz.
+ * next.config.ts) ama bu adres kurucusu arkada kalmıştı; tek referansı
+ * kendi tanımıydı. `SpotifyEmbedKind` tipi duruyor — aşağıdaki
+ * `spotifyOpenUrl` hâlâ kullanıyor.
  */
-export function spotifyEmbedSrc(
-  kind: SpotifyEmbedKind,
-  spotifyId: string,
-): string {
-  return `https://open.spotify.com/embed/${kind}/${encodeURIComponent(spotifyId)}?theme=0`;
-}
 
 /** Spotify'ın kendi sayfası — "Spotify'da aç" düğmesi. */
 export function spotifyOpenUrl(

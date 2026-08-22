@@ -4,6 +4,7 @@ import { readIsAdmin } from "@/lib/auth/session";
 import { fetchCategories } from "@/lib/api/universes";
 import { getAnimeArchive } from "@/lib/api/anime";
 import { hallLabel, hallName, hallNumber } from "@/lib/halls";
+import { shareCard } from "@/lib/seo";
 import { AnimeHall } from "@/components/anime/AnimeHall";
 
 // Anime salonunun bir bölümü. Statik yol, [categorySlug] dinamik yolundan
@@ -18,7 +19,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "anime" });
-  return { title: t("archiveTitle") };
+  const title = t("archiveTitle");
+  return {
+    title,
+    ...shareCard({ title, locale, path: "/dark-stories/category/anime/arsiv" }),
+  };
 }
 
 /** Salon numarası ve adı tek kaynaktan: kategori kaydı. */

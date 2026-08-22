@@ -4,6 +4,7 @@ import { Link } from "@/lib/i18n/navigation";
 import { fetchMusicPlaylists } from "@/lib/api/music";
 import { readIsAdmin } from "@/lib/auth/session";
 import { musicHref } from "@/lib/music/routes";
+import { shareCard } from "@/lib/seo";
 import { CoverArt } from "@/components/music/CoverArt";
 import { GenreMixBar } from "@/components/music/GenreMixBar";
 import { PlaylistCreator } from "@/components/music/PlaylistCreator";
@@ -30,7 +31,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "music" });
-  return { title: t("paths.playlistsTitle") };
+  const title = t("paths.playlistsTitle");
+  return {
+    title,
+    ...shareCard({ title, locale, path: musicHref.playlists() }),
+  };
 }
 
 function formatDuration(ms: number | null): string {

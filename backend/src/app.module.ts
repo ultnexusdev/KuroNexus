@@ -6,7 +6,6 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { StoriesModule } from './stories/stories.module';
@@ -88,7 +87,6 @@ import { PulseModule } from './pulse/pulse.module';
   ],
   controllers: [AppController],
   providers: [
-    AppService,
     // Guard sırası önemli: önce rate limit, sonra kimlik, sonra rol.
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_GUARD, useClass: JwtAuthGuard },

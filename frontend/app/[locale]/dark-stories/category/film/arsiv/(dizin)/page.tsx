@@ -5,6 +5,7 @@ import { fetchCategories } from "@/lib/api/universes";
 import { getMovieArchive } from "@/lib/api/movies";
 import { hallLabel, hallName, hallNumber } from "@/lib/halls";
 import { FilmHall } from "@/components/film/FilmHall";
+import { shareCard } from "@/lib/seo";
 
 // Film salonunun bir bölümü. Statik yol, [categorySlug] dinamik yolundan
 // önce eşleşir; salon girişi (lobi) bir üst seviyede kalır.
@@ -18,7 +19,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "film" });
-  return { title: t("title") };
+  const title = t("title");
+  return {
+    title,
+    ...shareCard({ title, locale, path: "/dark-stories/category/film/arsiv" }),
+  };
 }
 
 /** Salon numarası ve adı tek kaynaktan: kategori kaydı. */

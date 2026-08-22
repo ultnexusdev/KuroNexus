@@ -119,12 +119,24 @@ export function GlobalAmbientPlayer() {
     if (el) el.volume = volumeRef.current;
   }, []);
 
-  // Parça içeren evrenler = seçilebilir çalma listeleri
+  /**
+   * Parça içeren evrenler = seçilebilir çalma listeleri.
+   *
+   * İstek İLK dark-stories evren ziyaretine ertelendi (2026-08-22 denetimi):
+   * eskiden mount'ta atılıyordu, yani ana sayfa/spor/müzik dahil HER sayfada,
+   * her ziyaretçi için bir API turu — oysa liste menüsü yalnızca çalar
+   * görünürken açılabiliyor ve çalar yalnızca evren sayfalarında kuruluyor.
+   * Ref tek-atış garantisi: hiç liste yoksa her gezinmede yeniden istenmesin.
+   */
+  const playlistsRequested = useRef(false);
   useEffect(() => {
+    if (playlistsRequested.current) return;
+    if (!/\/dark-stories\/.+/.test(pathname ?? "")) return;
+    playlistsRequested.current = true;
     apiFetch<Playlist[]>("/ambient-tracks/playlists")
       .then(setPlaylists)
       .catch(console.error);
-  }, []);
+  }, [pathname]);
 
   const loadPlaylist = useCallback(
     (slug: string, autoplay: boolean) => {
@@ -242,11 +254,35 @@ export function GlobalAmbientPlayer() {
     }
   };
 
-  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
+  const seekTo = (time: number) => {
     if (!audioRef.current || duration === 0) return;
+    audioRef.current.currentTime = Math.min(Math.max(time, 0), duration);
+  };
+
+  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (duration === 0) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const percent = (e.clientX - rect.left) / rect.width;
-    audioRef.current.currentTime = percent * duration;
+    seekTo(percent * duration);
+  };
+
+  // Klavye erişimi (2026-08-22 denetimi): çubuk eskiden yalnızca tıklanabilir
+  // bir div'di — klavye kullanıcısı parça içinde hiç gezinemiyordu.
+  const handleProgressKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (duration === 0) return;
+    if (e.key === "ArrowRight" || e.key === "ArrowUp") {
+      e.preventDefault();
+      seekTo(currentTime + 5);
+    } else if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
+      e.preventDefault();
+      seekTo(currentTime - 5);
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      seekTo(0);
+    } else if (e.key === "End") {
+      e.preventDefault();
+      seekTo(duration - 0.5);
+    }
   };
 
   return (
@@ -263,7 +299,18 @@ export function GlobalAmbientPlayer() {
         onEnded={handleEnded}
       />
 
-      <div className={styles.progressBar} onClick={handleProgressClick}>
+      <div
+        className={styles.progressBar}
+        onClick={handleProgressClick}
+        onKeyDown={handleProgressKeyDown}
+        role="slider"
+        tabIndex={0}
+        aria-label={t("seek")}
+        aria-valuemin={0}
+        aria-valuemax={Math.round(duration)}
+        aria-valuenow={Math.round(currentTime)}
+        aria-valuetext={`${formatTime(currentTime)} / ${formatTime(duration)}`}
+      >
         <div
           className={styles.progressFill}
           style={{ width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%` }}

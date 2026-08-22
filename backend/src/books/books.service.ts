@@ -54,22 +54,8 @@ const NEIGHBOUR_LIMIT = 8;
 /** Sağ raydaki "son eklediklerim" şeridi. */
 const RECENT_LIMIT = 6;
 
-// Salon girişinin iki yanındaki kapaklar — başlık burada, kapak kaynaktan
-const SHOWCASE_LEFT = 'Dune Frank Herbert';
-const SHOWCASE_RIGHT = 'Yüzüklerin Efendisi Tolkien';
-const SHOWCASE_CACHE_TTL_MS = 30 * 24 * 60 * 60 * 1000;
-
-/**
- * `interface` DEĞİL tür takma adı: cache'e yazılırken Prisma'nın
- * `InputJsonValue`ına doğrudan geçebilmesi için örtük index imzası gerekiyor
- * ve TypeScript bunu yalnızca tür takma adlarına veriyor. Aksi hâlde her
- * yazmada tip dönüşümü gerekiyor, o dönüşümü de ESLint gereksiz sayıp
- * siliyor — ikisinin ortasında kalmamak için.
- */
-export type BookShowcaseCover = {
-  title: string;
-  coverImage: string;
-};
+// Vitrin (showcase) sabitleri ve BookShowcaseCover tipi 2026-08-22'de
+// showcase() metoduyla birlikte kaldırıldı — uç öksüzdü (books.controller.ts).
 
 /** Elle girilen adresler — `BookEntry.links` alanının şekli. */
 export interface BookCustomLinks {
@@ -243,13 +229,16 @@ export interface BookDetail {
   quotes: ArchiveBookQuote[];
   links: Array<{ kind: string; url: string; isSearch: boolean }>;
   customLinks: BookCustomLinks;
-  /** Aynı serinin ciltleri, sıraya dizili — çevrilmemişler de burada */
-  series: ArchiveBook[];
+  /** Aynı serinin ciltleri, sıraya dizili — çevrilmemişler de burada.
+      2026-08-22'den beri `BookListItem`: komşu listeleri künye metni
+      taşımıyor — arşiv listesindeki ölçülmüş karar (satır ~208) komşulara
+      da uygulandı; ön yüz komşularda yalnızca kapak+başlık çiziyor. */
+  series: BookListItem[];
   seriesName: string | null;
   /** Aynı yazarın arşivdeki diğer kitapları */
-  byAuthor: ArchiveBook[];
+  byAuthor: BookListItem[];
   /** Aynı türden komşular; yazar listesinde geçenler tekrar etmez */
-  byGenre: ArchiveBook[];
+  byGenre: BookListItem[];
   /** Bağlı evren (Kadim Dünyalar) — yoksa null */
   universe: { id: string; name: string; slug: string } | null;
 }
@@ -399,6 +388,7 @@ export class BooksService {
         where: { isDeleted: false },
         orderBy: [{ finishedAt: 'desc' }, { createdAt: 'desc' }],
         include: CREDITS_INCLUDE,
+        omit: ARCHIVE_OMIT,
       }),
       this.currentGoal(),
       this.prisma.wikiUniverse.findMany({
@@ -438,6 +428,7 @@ export class BooksService {
       where: { isDeleted: false },
       orderBy: [{ finishedAt: 'desc' }, { createdAt: 'desc' }],
       include: CREDITS_INCLUDE,
+      omit: ARCHIVE_OMIT,
     });
     const books = withSlugs(entries);
     const index = books.findIndex((item) => item.slug === slug);
@@ -495,70 +486,12 @@ export class BooksService {
       quotes: quotes.map(toArchiveQuote),
       links: buildLinks(entry),
       customLinks: readCustomLinks(entry),
-      series,
+      series: series.map(toListItem),
       seriesName: book.seriesName,
-      byAuthor,
-      byGenre,
+      byAuthor: byAuthor.map(toListItem),
+      byGenre: byGenre.map(toListItem),
       universe: universe ?? null,
     };
-  }
-
-  /**
-   * Salon girişinin iki yanındaki kapaklar. Adres koda GÖMÜLMEZ: başlıkla
-   * aranır ve sonuç cache'lenir. Arama düşerse boş döner — lobi kapı
-   * çizimiyle açılır, hata göstermez.
-   */
-  async showcase(): Promise<{
-    left: BookShowcaseCover | null;
-    right: BookShowcaseCover | null;
-  }> {
-    const cacheKey = 'books:showcase:v1';
-    const cached = await this.prisma.externalCache.findUnique({
-      where: { cacheKey },
-    });
-    if (
-      cached &&
-      Date.now() - cached.fetchedAt.getTime() < SHOWCASE_CACHE_TTL_MS
-    ) {
-      return cached.payload as unknown as {
-        left: BookShowcaseCover | null;
-        right: BookShowcaseCover | null;
-      };
-    }
-
-    const resolve = async (
-      query: string,
-    ): Promise<BookShowcaseCover | null> => {
-      try {
-        const results = await this.source.search(query);
-        const match = results.find((item) => item.coverImage);
-        return match?.coverImage
-          ? { title: match.title, coverImage: match.coverImage }
-          : null;
-      } catch {
-        return null;
-      }
-    };
-
-    const [left, right] = await Promise.all([
-      resolve(SHOWCASE_LEFT),
-      resolve(SHOWCASE_RIGHT),
-    ]);
-    const payload = { left, right };
-
-    if (left || right) {
-      await this.prisma.externalCache.upsert({
-        where: { cacheKey },
-        create: { cacheKey, payload, fetchedAt: new Date() },
-        update: { payload, fetchedAt: new Date() },
-      });
-    } else if (cached) {
-      return cached.payload as unknown as {
-        left: BookShowcaseCover | null;
-        right: BookShowcaseCover | null;
-      };
-    }
-    return payload;
   }
 
   /**
@@ -581,7 +514,9 @@ export class BooksService {
       include: {
         entries: {
           where: { entry: { isDeleted: false } },
-          include: { entry: { include: CREDITS_INCLUDE } },
+          include: {
+            entry: { include: CREDITS_INCLUDE, omit: ARCHIVE_OMIT },
+          },
           orderBy: { orderIndex: 'asc' },
         },
       },
@@ -695,6 +630,7 @@ export class BooksService {
         where: { isDeleted: false },
         orderBy: [{ finishedAt: 'desc' }, { createdAt: 'desc' }],
         include: CREDITS_INCLUDE,
+        omit: ARCHIVE_OMIT,
       }),
       this.prisma.wikiUniverse.findMany({
         where: { isDeleted: false },
@@ -809,6 +745,7 @@ export class BooksService {
           where: { isDeleted: false },
           orderBy: { title: 'asc' },
           include: CREDITS_INCLUDE,
+          omit: ARCHIVE_OMIT,
         },
       },
     });
@@ -927,6 +864,7 @@ export class BooksService {
       where: { isDeleted: false },
       orderBy: [{ finishedAt: 'desc' }, { createdAt: 'desc' }],
       include: CREDITS_INCLUDE,
+      omit: ARCHIVE_OMIT,
     });
     /**
      * ISBN'in **boş olmadığı** ayrıca sınanıyor, `!== null` yetmiyor.
@@ -1714,17 +1652,32 @@ export class BooksService {
   ): Promise<
     (ArchiveBookQuote & { bookTitle: string; bookSlug: string }) | null
   > {
-    const quotes = await this.prisma.bookQuote.findMany({
-      where: { isDeleted: false, entry: { isDeleted: false } },
-      orderBy: { createdAt: 'asc' },
-    });
-    if (quotes.length === 0) {
+    /* 2026-08-22 denetimi: eskiden HER istekte bütün alıntı satırları çekilip
+       biri seçiliyordu. Seçim kuralı aynen korunuyor (favori varsa favori
+       havuzu, yoksa hepsi; createdAt sırasında gün numarası kadar atla) —
+       ama artık yalnızca iki küçük sorgu: havuz sayısı + tek satır. */
+    const liveWhere = { isDeleted: false, entry: { isDeleted: false } };
+    let poolWhere: Prisma.BookQuoteWhereInput = {
+      ...liveWhere,
+      isFavorite: true,
+    };
+    let poolSize = await this.prisma.bookQuote.count({ where: poolWhere });
+    if (poolSize === 0) {
+      poolWhere = liveWhere;
+      poolSize = await this.prisma.bookQuote.count({ where: poolWhere });
+    }
+    if (poolSize === 0) {
       return null;
     }
-    const favorites = quotes.filter((quote) => quote.isFavorite);
-    const pool = favorites.length > 0 ? favorites : quotes;
     const dayNumber = Math.floor(Date.now() / (24 * 60 * 60 * 1000));
-    const quote = pool[dayNumber % pool.length];
+    const quote = await this.prisma.bookQuote.findFirst({
+      where: poolWhere,
+      orderBy: { createdAt: 'asc' },
+      skip: dayNumber % poolSize,
+    });
+    if (!quote) {
+      return null;
+    }
     const book = books.find((item) => item.id === quote.entryId);
     if (!book) {
       return null;
@@ -1776,7 +1729,7 @@ function normalizeUrl(value: string | null | undefined): string | null {
   return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
 }
 
-function readCustomLinks(entry: BookEntry): BookCustomLinks {
+function readCustomLinks(entry: ArchiveBookEntry): BookCustomLinks {
   return (entry.links ?? {}) as BookCustomLinks;
 }
 
@@ -1870,7 +1823,32 @@ export function withSlugs(entries: BookEntryWithCredits[]): ArchiveBook[] {
  * atlayınca künye sessizce boş döndü, yazar adı tıklanamaz hâle geldi ve
  * derleyici hiçbir şey söylemedi. Zorunlu olunca aynı hata derlemede patlıyor.
  */
-export type BookEntryWithCredits = BookEntry & {
+/**
+ * Arşiv OKUMALARININ ortak `omit`i (2026-08-22 denetimi).
+ *
+ * `externalData` ham 1000Kitap/Google anlık görüntüsü ve `BookEntry` için
+ * YALNIZCA YAZILIYOR (1284/1453'teki seed + refresh); repo genelinde tek bir
+ * okuma yolu yok — film/dizi/anime kendi externalData'larını okur, kitap
+ * okumaz. Buna rağmen her salon/nabız isteği ~253 kitabın tam JSON'unu
+ * Postgres'ten taşıyıp ayrıştırıyordu (istek başına ~0.5 MB). Saklama kararı
+ * (1278'deki yorum) değişmedi — yalnızca liste okumaları artık taşımıyor.
+ *
+ * **Dışa açık**: nabız servisi arşivi aynı sorguyla okumak zorunda —
+ * `CREDITS_INCLUDE` ile aynı gerekçe.
+ */
+export const ARCHIVE_OMIT = {
+  externalData: true,
+  externalDataFetchedAt: true,
+} satisfies Prisma.BookEntryOmit;
+
+/** Liste okumalarının satır tipi: `ARCHIVE_OMIT` sonrası `BookEntry`.
+    Tam `BookEntry` bu tipe atanabilir — admin yolları etkilenmez. */
+export type ArchiveBookEntry = Omit<
+  BookEntry,
+  'externalData' | 'externalDataFetchedAt'
+>;
+
+export type BookEntryWithCredits = ArchiveBookEntry & {
   people: Array<{
     role: BookPersonRole;
     orderIndex: number;
@@ -1960,7 +1938,7 @@ function sortBySeriesIndex(a: ArchiveBook, b: ArchiveBook): number {
  */
 function buildSeries(
   books: ArchiveBook[],
-  entries: BookEntry[],
+  entries: ArchiveBookEntry[],
   universeSlugs: Map<string, string>,
 ): BookSeries[] {
   const groups = new Map<string, ArchiveBook[]>();
@@ -2296,7 +2274,7 @@ function buildStats(
  * işaretlenir (film kanadındaki Rotten Tomatoes deseni).
  */
 function buildLinks(
-  entry: BookEntry,
+  entry: ArchiveBookEntry,
 ): Array<{ kind: string; url: string; isSearch: boolean }> {
   const custom = readCustomLinks(entry);
   const query = encodeURIComponent(

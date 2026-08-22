@@ -8,6 +8,7 @@ import { apiUrl, isLocalUpload } from "@/lib/api/client";
 import type { AwardDetail, AwardSummary, AwardWinnerCard } from "@/lib/api/types";
 import { BackToTop } from "@/components/BackToTop";
 import { personHref, sourceBookHref } from "./BookCard";
+import { awardHref, AWARDS_HREF } from "@/lib/book/routes";
 import styles from "./AwardHall.module.css";
 
 /**
@@ -27,12 +28,9 @@ import styles from "./AwardHall.module.css";
  * kayıt kaldığı sürece kendini tazeliyor (`AutoFill`).
  */
 
-/** Ödül sayfasının kendi adresi; iki görünüm de buradan kuruluyor. */
-export function awardHref(key: string): string {
-  return `/dark-stories/category/kitap/oduller/${key}`;
-}
-
-export const AWARDS_HREF = "/dark-stories/category/kitap/oduller";
+// Adres yardımcıları `lib/book/routes.ts`e taşındı (2026-08-22): bu dosya
+// "use client" olduğu için buradaki fonksiyon export'ları sunucu bileşenlerince
+// çağrılamıyordu ve PersonHall'u gereksiz yere istemci paketinde tutuyordu.
 
 function coverFor(cover: string | null): string | null {
   return cover ? apiUrl(cover) : null;

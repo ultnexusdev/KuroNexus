@@ -4,6 +4,7 @@ import { readIsAdmin } from "@/lib/auth/session";
 import { getCharacterIndex } from "@/lib/api/characters";
 import { fetchCategories } from "@/lib/api/universes";
 import { hallLabel, hallName, hallNumber } from "@/lib/halls";
+import { shareCard } from "@/lib/seo";
 import { CharacterGallery } from "@/components/character/CharacterGallery";
 
 // Portre kanadı — anime salonunun ikinci odası. Statik yol, `[slug]` dinamik
@@ -19,9 +20,17 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "character" });
+  const title = t("title");
+  const description = t("lede");
   return {
-    title: t("title"),
-    description: t("lede"),
+    title,
+    description,
+    ...shareCard({
+      title,
+      description,
+      locale,
+      path: "/dark-stories/category/anime/karakterler",
+    }),
   };
 }
 

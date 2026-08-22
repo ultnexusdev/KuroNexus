@@ -6,6 +6,7 @@ import { ApiError } from "@/lib/api/client";
 import { fetchGenreRoom, type GenreRoom } from "@/lib/api/music";
 import { readIsAdmin } from "@/lib/auth/session";
 import { musicHref } from "@/lib/music/routes";
+import { shareCard } from "@/lib/seo";
 import { upperProperName } from "@/lib/text";
 import { CoverArt } from "@/components/music/CoverArt";
 import shell from "../../layout.module.css";
@@ -55,9 +56,17 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: "music" });
   try {
     const room = await fetchGenreRoom(genreSlug);
+    const title = `${room.genre.name} · ${t("name")}`;
+    const description = t("paths.roomsLede");
     return {
-      title: `${room.genre.name} · ${t("name")}`,
-      description: t("paths.roomsLede"),
+      title,
+      description,
+      ...shareCard({
+        title,
+        description,
+        locale,
+        path: musicHref.room(genreSlug),
+      }),
     };
   } catch {
     // Künye alınamazsa sayfa yine açılır; başlık salonun adına düşer

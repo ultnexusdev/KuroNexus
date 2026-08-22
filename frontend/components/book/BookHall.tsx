@@ -34,7 +34,7 @@ import {
   SeriesCard,
   TranslationBadge,
 } from "./BookCard";
-import { AWARDS_HREF } from "./AwardHall";
+import { AWARDS_HREF } from "@/lib/book/routes";
 import styles from "./BookHall.module.css";
 import { ArchiveUnavailable } from "@/components/hall/ArchiveUnavailable";
 

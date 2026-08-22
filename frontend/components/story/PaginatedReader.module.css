@@ -335,6 +335,19 @@
   transition: all 0.3s;
 }
 
+/* "Sayfaya git" sayısı: eskiden tıklanabilir bir span'dı, klavye için
+   button'a çevrildi (2026-08-22). Bu sınıf button'un varsayılan görünümünü
+   sıfırlayıp span'ın metin görünümünü bire bir korur. */
+.pageJump {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
 /* Parsomen anahtari dokunmatikte 47x30 px olculdu — okuyucunun kendi
    ileri/geri dugmeleri 40px'i asiyor, yalnizca bu geride kalmisti.
    Yukseklik verilmesi arac seridinin hizasini bozmuyor cunku serit zaten

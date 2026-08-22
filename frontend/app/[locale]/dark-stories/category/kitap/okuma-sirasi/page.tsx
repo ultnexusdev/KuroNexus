@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { shareCard } from "@/lib/seo";
 import { fetchCategories } from "@/lib/api/universes";
 import { getReadingOrders } from "@/lib/api/books";
 import { hallLabel, hallName, hallNumber } from "@/lib/halls";
@@ -23,7 +24,15 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "book" });
-  return { title: t("readingOrder.title") };
+  const title = t("readingOrder.title");
+  return {
+    title,
+    ...shareCard({
+      title,
+      locale,
+      path: "/dark-stories/category/kitap/okuma-sirasi",
+    }),
+  };
 }
 
 async function getHall(

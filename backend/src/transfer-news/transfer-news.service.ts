@@ -112,15 +112,6 @@ export class TransferNewsService {
     return items.map((i) => this.shape(i));
   }
 
-  async findAllByUniverse(slug: string) {
-    const universe = await this.prisma.wikiUniverse.findUnique({
-      where: { slug },
-      select: { id: true },
-    });
-    if (!universe) return [];
-    return this.findAll(universe.id);
-  }
-
   async findOne(id: string) {
     const item = await this.prisma.transferNews.findUnique({
       where: { id },

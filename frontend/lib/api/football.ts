@@ -1,11 +1,5 @@
 import { apiFetch } from "./client";
-import type {
-  FootballPlayerDetail,
-  FootballSquad,
-  NextMatchResponse,
-  SuperLigStandings,
-  TransferNewsItem,
-} from "./types";
+import type { FootballPlayerDetail, FootballSquad } from "./types";
 
 // Kadro/oyuncu verisi backend'in yerel Transfermarkt tablolarından gelir ve
 // yalnızca admin sync'inde değişir. Kaynak-doğruluk backend'de olduğundan
@@ -18,30 +12,15 @@ export function fetchFootballSquad(): Promise<FootballSquad> {
   });
 }
 
-// Puan tablosu + sonraki maç: backend günlük cron'la tazeler, cache'ten okur.
-// Frontend cache'lemez ki bir sync sonrası değişiklik anında görünsün.
-export function fetchSuperLigStandings(): Promise<SuperLigStandings> {
-  return apiFetch<SuperLigStandings>("/football/standings", {
-    cache: "no-store",
-  });
-}
-
-export function fetchNextMatch(): Promise<NextMatchResponse> {
-  return apiFetch<NextMatchResponse>("/football/next-match", {
-    cache: "no-store",
-  });
-}
-
-// Transfer haberleri admin panelinden girilir; yeni haber anında görünsün diye
-// cache'lenmez.
-export function fetchTransferNews(
-  universeSlug: string,
-): Promise<TransferNewsItem[]> {
-  return apiFetch<TransferNewsItem[]>(
-    `/transfer-news/universe/${encodeURIComponent(universeSlug)}`,
-    { cache: "no-store" },
-  );
-}
+/*
+ * fetchSuperLigStandings, fetchNextMatch ve fetchTransferNews 2026-08-22
+ * denetiminde SİLİNDİ: kulüp sayfası puan tablosunu, sonraki maçı ve
+ * haberleri artık tek istekte `lib/api/football-live.ts`teki
+ * `fetchClubLive`ten alıyor; üçünün de repo genelinde tek referansı kendi
+ * tanımıydı. Karşılık gelen backend uçları (GET /football/standings,
+ * GET /football/next-match, GET /transfer-news/universe/:slug) hâlâ duruyor
+ * — kaldırma kararı sahibinin (denetim raporunda listeli).
+ */
 
 export function fetchFootballPlayer(
   id: string,

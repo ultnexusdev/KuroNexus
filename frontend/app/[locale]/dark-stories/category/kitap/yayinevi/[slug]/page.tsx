@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { shareCard } from "@/lib/seo";
 import { fetchCategories } from "@/lib/api/universes";
 import { getBookPublisher } from "@/lib/api/books";
 import { hallLabel, hallName, hallNumber } from "@/lib/halls";
@@ -20,7 +21,15 @@ export async function generateMetadata({
   const { locale, slug } = await params;
   const t = await getTranslations({ locale, namespace: "book" });
   const publisher = await getBookPublisher(slug);
-  return { title: publisher?.name ?? t("hallName") };
+  const title = publisher?.name ?? t("hallName");
+  return {
+    title,
+    ...shareCard({
+      title,
+      locale,
+      path: `/dark-stories/category/kitap/yayinevi/${slug}`,
+    }),
+  };
 }
 
 async function getHall(

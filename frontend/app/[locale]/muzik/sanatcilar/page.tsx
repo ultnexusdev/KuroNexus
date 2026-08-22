@@ -4,6 +4,7 @@ import { Link } from "@/lib/i18n/navigation";
 import { fetchMusicActs } from "@/lib/api/music";
 import { readIsAdmin } from "@/lib/auth/session";
 import { genreColorVar, musicHref } from "@/lib/music/routes";
+import { shareCard } from "@/lib/seo";
 import { CoverArt } from "@/components/music/CoverArt";
 import shell from "../layout.module.css";
 import styles from "./page.module.css";
@@ -29,7 +30,13 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "music" });
-  return { title: t("paths.actsTitle"), description: t("paths.actsLede") };
+  const title = t("paths.actsTitle");
+  const description = t("paths.actsLede");
+  return {
+    title,
+    description,
+    ...shareCard({ title, description, locale, path: musicHref.acts() }),
+  };
 }
 
 export default async function MusicActsPage() {

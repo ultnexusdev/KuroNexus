@@ -5,6 +5,7 @@ import { getCharacterImages } from "@/lib/api/characters";
 import { readIsAdmin } from "@/lib/auth/session";
 import { AKATSUKI_IDS, SIX_PATHS } from "@/lib/anime/akatsuki";
 import { animeHref } from "@/lib/anime/routes";
+import { shareCard } from "@/lib/seo";
 import { AkatsukiPathDetail } from "@/components/anime/akatsuki/AkatsukiPathDetail";
 
 /**
@@ -31,9 +32,17 @@ export async function generateMetadata({
   const path = findPath(pathKey);
   if (!path) return {};
   const t = await getTranslations({ locale, namespace: "akatsuki" });
+  const title = `${t(`paths.${path.key}.name`)} · ${t("pathPage.eyebrow")}`;
+  const description = t(`paths.${path.key}.short`);
   return {
-    title: `${t(`paths.${path.key}.name`)} · ${t("pathPage.eyebrow")}`,
-    description: t(`paths.${path.key}.short`),
+    title,
+    description,
+    ...shareCard({
+      title,
+      description,
+      locale,
+      path: `/anime/akatsuki/six-paths/${pathKey}`,
+    }),
   };
 }
 

@@ -15,6 +15,7 @@ import { getShowArchive, getShowShowcase } from "@/lib/api/shows";
 import { hallLabel, hallNumber } from "@/lib/halls";
 import { apiUrl } from "@/lib/api/client";
 import { Link } from "@/lib/i18n/navigation";
+import { shareCard } from "@/lib/seo";
 import styles from "./page.module.css";
 
 export async function generateMetadata({
@@ -22,12 +23,21 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string; categorySlug: string }>;
 }): Promise<Metadata> {
-  const { categorySlug } = await params;
+  const { locale, categorySlug } = await params;
   try {
     const categories = await fetchCategories();
     const category = categories.find((c) => c.slug === categorySlug);
     if (!category) return {};
-    return { title: category.name };
+    const title = category.name;
+    return {
+      title,
+      ...shareCard({
+        title,
+        locale,
+        path: `/dark-stories/category/${categorySlug}`,
+        image: category.coverImage ? apiUrl(category.coverImage) : undefined,
+      }),
+    };
   } catch {
     return {};
   }
@@ -197,6 +207,13 @@ export default async function CategoryUniversesPage({
                 src={apiUrl(category.coverImage)}
                 alt={category.name}
                 fill
+                /* Kap `.page` içinde 52rem (832px) ile sınırlı; `sizes` yokken
+                   `fill` varsayılanı 100vw sayıp 1920'lik ekrana ~2048px'lik
+                   dosya indiriyordu (2026-08-22 denetimi). Dar ekranda kutu
+                   zaten ekran genişliğinde — 100vw orada gerçeğin kendisi;
+                   next.config'teki basamak-eleme tuzağı 640px altını etkiler,
+                   bu afiş o banda hiç inmiyor. */
+                sizes="(min-width: 56rem) 832px, 100vw"
                 className={styles.bannerImage}
                 priority
               />

@@ -800,7 +800,8 @@ export class AwardsService {
  * bu da bir sonuç ve saklanıyor, yoksa o kitap her açılışta yeniden aranırdı.
  *
  * `interface` değil **tür takma adı**: örtük index imzası sayesinde Prisma'nın
- * `InputJsonValue`ına dönüşümsüz geçiyor (`BookShowcaseCover` ile aynı sebep).
+ * `InputJsonValue`ına dönüşümsüz geçiyor — interface olsaydı her yazmada
+ * ESLint'in gereksiz sayıp sildiği bir tip dönüşümü gerekirdi.
  */
 type AwardMatchPayload =
   | { matched: true; book: BookSource; authorSeo?: string | null }

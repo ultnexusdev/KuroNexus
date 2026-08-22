@@ -5,6 +5,7 @@ import { fetchCategories } from "@/lib/api/universes";
 import { getShowArchive } from "@/lib/api/shows";
 import { hallLabel, hallName, hallNumber } from "@/lib/halls";
 import { ShowHall } from "@/components/show/ShowHall";
+import { shareCard } from "@/lib/seo";
 
 // Dizi salonunun bir bölümü — film salonundaki aynı desen. Statik yol,
 // [categorySlug] dinamik yolundan önce eşleşir; salon girişi (lobi) bir üst
@@ -19,7 +20,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "show" });
-  return { title: t("title") };
+  const title = t("title");
+  return {
+    title,
+    ...shareCard({ title, locale, path: "/dark-stories/category/dizi/arsiv" }),
+  };
 }
 
 /** Salon numarası ve adı tek kaynaktan: kategori kaydı. */

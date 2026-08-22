@@ -66,8 +66,10 @@ export function ShowCard({
   return (
     <article className={styles.card}>
       {/* Afiş dizinin kendi sayfasına açılır; künye örtüsü bağlantının
-          içinde kalıyor ki üstüne gelince hem künye görünsün hem tıklanabilsin */}
-      <Link href={href} className={styles.posterWrap}>
+          içinde kalıyor ki üstüne gelince hem künye görünsün hem tıklanabilsin.
+          Erişilebilirlik ağacında YOK: adı yoktu (örtü metni gürültü üretiyordu)
+          ve başlık bağlantısıyla aynı yere gidiyor (2026-08-22 denetim). */}
+      <Link href={href} className={styles.posterWrap} aria-hidden="true" tabIndex={-1}>
         <Poster
           show={show}
           size="w342"

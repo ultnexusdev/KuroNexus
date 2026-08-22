@@ -394,32 +394,10 @@ export class FootballService {
     };
   }
 
-  // ---- Süper Lig: puan tablosu + sonraki maç (Apify) ----
-
-  async getStandings() {
-    const row = await this.prisma.externalCache.findUnique({
-      where: { cacheKey: STANDINGS_KEY },
-    });
-    const payload = row?.payload as {
-      season?: number;
-      table?: ApifyStandingRow[];
-    } | null;
-    return {
-      season: payload?.season ?? null,
-      table: payload?.table ?? [],
-      updatedAt: row?.fetchedAt ?? null,
-    };
-  }
-
-  async getNextMatch() {
-    const row = await this.prisma.externalCache.findUnique({
-      where: { cacheKey: NEXTMATCH_KEY },
-    });
-    return {
-      match: row?.payload ?? null,
-      updatedAt: row?.fetchedAt ?? null,
-    };
-  }
+  // ---- Süper Lig (Apify) ----
+  // getStandings/getNextMatch okuma metodları 2026-08-22'de kaldırıldı —
+  // uçlarıyla birlikte (gerekçe football.controller.ts). Senkron cache'i
+  // yazmaya devam ediyor.
 
   private leagueSyncRunning = false;
 

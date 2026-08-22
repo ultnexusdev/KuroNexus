@@ -7,6 +7,7 @@ import { getCharacterImages } from "@/lib/api/characters";
 import { fetchCategories } from "@/lib/api/universes";
 import { apiUrl } from "@/lib/api/client";
 import { hallLabel, hallName, hallNumber } from "@/lib/halls";
+import { shareCard } from "@/lib/seo";
 import { animeHref } from "@/lib/anime/routes";
 import { AKATSUKI_IDS, EXHIBIT_IMAGE_KEYS } from "@/lib/anime/akatsuki";
 import { ANIME_SECTIONS } from "@/lib/anime/sections";
@@ -25,7 +26,13 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "anime" });
-  return { title: t("hallName"), description: t("lobbyLede") };
+  const title = t("hallName");
+  const description = t("lobbyLede");
+  return {
+    title,
+    description,
+    ...shareCard({ title, description, locale, path: "/anime" }),
+  };
 }
 
 /** Salon numarası ve adı tek kaynaktan: kategori kaydı (eski lobiyle aynı). */

@@ -1,4 +1,5 @@
-import { apiUrl } from "@/lib/api/client";
+import Image from "next/image";
+import { apiUrl, isLocalUpload } from "@/lib/api/client";
 import type { ClubIdentity } from "@/lib/api/football-live";
 import shell from "@/app/[locale]/spor/layout.module.css";
 import styles from "./StadiumExperience.module.css";
@@ -87,13 +88,20 @@ export function StadiumExperience({
         {scenes.map((scene, index) => (
           <div key={scene} className={styles.scene} data-index={index}>
             <div className={styles.frame}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              {/* next/image'e 2026-08-22'de çevrildi: sahneler backend'e
+                  indirilen /uploads/* kareleri (remotePatterns kapsıyor) ve
+                  ham <img> orijinal dosyayı indiriyordu. Tam ekran sahne →
+                  sizes 100vw; lazy next/image'in varsayılanı. Animasyon
+                  .photo sınıfında, aynen geçerli. */}
+              <Image
                 src={apiUrl(scene)}
                 alt={`${club.stadium ?? club.name} — ${index + 1}`}
+                fill
+                sizes="100vw"
                 className={styles.photo}
-                loading="lazy"
-                decoding="async"
+                /* Karar ham yoldan (PersonHall deseni): /uploads dışı adres
+                   optimizer'ı atlar, sayfa çökmez. */
+                unoptimized={!isLocalUpload(scene)}
               />
               <span className={styles.grade} aria-hidden="true" />
             </div>

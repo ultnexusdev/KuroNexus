@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { readIsAdmin } from "@/lib/auth/session";
+import { shareCard } from "@/lib/seo";
 import { fetchCategories } from "@/lib/api/universes";
 import { getBookArchive } from "@/lib/api/books";
 import { hallLabel, hallName, hallNumber } from "@/lib/halls";
@@ -20,7 +21,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "book" });
-  return { title: t("archiveTitle") };
+  const title = t("archiveTitle");
+  return {
+    title,
+    ...shareCard({ title, locale, path: "/dark-stories/category/kitap/arsiv" }),
+  };
 }
 
 /** Salon numarası ve adı tek kaynaktan: kategori kaydı (yoksa kod adı). */

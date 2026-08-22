@@ -16,6 +16,7 @@ import {
   CornerFiligree,
   RunicMargin,
 } from "@/components/kadim/CodexOrnaments";
+import { shareCard } from "@/lib/seo";
 import styles from "./page.module.css";
 
 async function getUniverse(slug: string): Promise<WikiUniverse | null> {
@@ -43,9 +44,21 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string; universeSlug: string }>;
 }): Promise<Metadata> {
-  const { universeSlug } = await params;
+  const { locale, universeSlug } = await params;
   const universe = await getUniverse(universeSlug);
-  return { title: universe?.name ?? "KuroNexus" };
+  const title = universe?.name ?? "KuroNexus";
+  return {
+    title,
+    // Evren yoksa jenerik başlık kalır, kart üretilmez
+    ...(universe
+      ? shareCard({
+          title,
+          locale,
+          path: `/dark-stories/${universeSlug}`,
+          image: universe.coverImage ? apiUrl(universe.coverImage) : undefined,
+        })
+      : {}),
+  };
 }
 
 export default async function UniverseDetailPage({

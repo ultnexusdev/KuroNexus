@@ -1,5 +1,3 @@
-"use client";
-
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/lib/i18n/navigation";
@@ -10,7 +8,7 @@ import type {
   BookSeriesPage,
 } from "@/lib/api/types";
 import { BookCard } from "./BookCard";
-import { awardHref } from "./AwardHall";
+import { awardHref } from "@/lib/book/routes";
 import styles from "./PersonHall.module.css";
 
 /**

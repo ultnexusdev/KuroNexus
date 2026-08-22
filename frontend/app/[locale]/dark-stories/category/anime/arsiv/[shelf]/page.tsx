@@ -6,6 +6,7 @@ import { fetchCategories } from "@/lib/api/universes";
 import { getAnimeArchive } from "@/lib/api/anime";
 import { hallLabel, hallName, hallNumber } from "@/lib/halls";
 import { shelfFromSlug } from "@/lib/anime/shelves";
+import { shareCard } from "@/lib/seo";
 import { AnimeShelfPage } from "@/components/anime/AnimeShelfPage";
 
 export const dynamic = "force-dynamic";
@@ -21,7 +22,15 @@ export async function generateMetadata({
     return {};
   }
   const t = await getTranslations({ locale, namespace: "anime" });
-  return { title: t(`shelf.${key}`) };
+  const title = t(`shelf.${key}`);
+  return {
+    title,
+    ...shareCard({
+      title,
+      locale,
+      path: `/dark-stories/category/anime/arsiv/${shelf}`,
+    }),
+  };
 }
 
 export default async function AnimeShelfRoute({

@@ -5,6 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
 import { fetchF1Hub, pick, type F1LedgerRow } from "@/lib/api/sport-archive";
 import { sportHref } from "@/lib/sport/routes";
+import { shareCard } from "@/lib/seo";
 import { Reveal } from "@/components/sport/Reveal";
 import shell from "../layout.module.css";
 import styles from "./page.module.css";
@@ -18,7 +19,13 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "sportArchive" });
-  return { title: t("f1.name"), description: t("f1.lede") };
+  const title = t("f1.name");
+  const description = t("f1.lede");
+  return {
+    title,
+    description,
+    ...shareCard({ title, description, locale, path: sportHref.f1() }),
+  };
 }
 
 /** 5793 → "5.793 km" — km'ye çevirip yerel ayırıcıyla yazar. */

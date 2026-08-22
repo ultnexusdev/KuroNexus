@@ -1,4 +1,5 @@
-import { apiUrl } from "@/lib/api/client";
+import Image from "next/image";
+import { apiUrl, isLocalUpload } from "@/lib/api/client";
 import type { ClubLineup, ClubLineupSlot } from "@/lib/api/football-live";
 import { Reveal } from "@/components/sport/Reveal";
 import shell from "@/app/[locale]/spor/layout.module.css";
@@ -137,13 +138,17 @@ function Spot({
     >
       <div className={styles.badge}>
         {player?.photo ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          /* next/image'e 2026-08-22'de çevrildi: portre /uploads/* dosyası,
+             ham <img> orijinali indiriyordu. Rozet 35-48 px'lik daire —
+             sizes sabit px (ev kuralı). */
+          <Image
             src={apiUrl(player.photo)}
             alt=""
+            width={96}
+            height={96}
+            sizes="48px"
             className={styles.photo}
-            loading="lazy"
-            decoding="async"
+            unoptimized={!isLocalUpload(player.photo)}
           />
         ) : (
           <span className={styles.photo} aria-hidden="true" />

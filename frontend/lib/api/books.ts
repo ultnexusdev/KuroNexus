@@ -7,13 +7,10 @@ import type {
   BookPersonPage,
   BookPublisherPage,
   BookSeriesPage,
-  BookShowcase,
   ReadingOrderDetail,
   ReadingOrderSummary,
   SourceBookPage,
 } from "./types";
-
-const EMPTY_SHOWCASE: BookShowcase = { left: null, right: null };
 
 const EMPTY_ARCHIVE: BookArchive = {
   books: [],
@@ -199,13 +196,10 @@ export async function getReadingOrder(
   }
 }
 
-/** Salon girişinin iki yanındaki kapaklar; alınamazsa lobi onlarsız açılır. */
-export async function getBookShowcase(): Promise<BookShowcase> {
-  try {
-    return await apiFetch<BookShowcase>("/books/showcase", {
-      next: { revalidate: 86400 },
-    });
-  } catch {
-    return EMPTY_SHOWCASE;
-  }
-}
+/*
+ * getBookShowcase 2026-08-22 denetiminde SİLİNDİ: kitap lobisi vitrin
+ * kapaklarını artık bu uçtan almıyor ve fonksiyonun repo genelinde tek
+ * referansı kendi tanımıydı (film/dizi/anime kanatlarının kendi showcase
+ * getiricileri kullanımda ve DURUYOR). Backend'deki GET /books/showcase
+ * ucunun kaldırılması sahibinin kararı (denetim raporunda listeli).
+ */

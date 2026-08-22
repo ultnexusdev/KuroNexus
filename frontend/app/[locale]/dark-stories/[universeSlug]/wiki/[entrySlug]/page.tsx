@@ -8,6 +8,7 @@ import { fetchWikiEntry } from "@/lib/api/wiki";
 import type { WikiEntryDetail } from "@/lib/api/types";
 import { legacyPlainTextToHtml } from "@/lib/content/legacyPlainTextToHtml";
 import { SpoilerGate } from "@/components/wiki/SpoilerGate";
+import { shareCard } from "@/lib/seo";
 import styles from "./page.module.css";
 import { universeHref } from "@/lib/sport/routes";
 
@@ -30,9 +31,24 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string; universeSlug: string; entrySlug: string }>;
 }): Promise<Metadata> {
-  const { universeSlug, entrySlug } = await params;
+  const { locale, universeSlug, entrySlug } = await params;
   const entry = await getEntry(universeSlug, entrySlug);
-  return { title: entry?.title ?? "KuroNexus" };
+  const title = entry?.title ?? "KuroNexus";
+  return {
+    title,
+    // Künye yoksa jenerik başlık kalır; spoiler kapılı kapak karta sızmaz
+    ...(entry
+      ? shareCard({
+          title,
+          locale,
+          path: `/dark-stories/${universeSlug}/wiki/${entrySlug}`,
+          image:
+            entry.coverImage && entry.spoilerTier === null
+              ? apiUrl(entry.coverImage)
+              : undefined,
+        })
+      : {}),
+  };
 }
 
 export default async function WikiEntryPage({

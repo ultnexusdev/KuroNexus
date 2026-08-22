@@ -3,7 +3,9 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/lib/i18n/navigation";
-import { login, logout } from "@/lib/admin/api";
+// Kimlik uçları kendi modülünden: admin monolitini header'a çekmemek için
+// (gerekçe lib/api/auth.ts başında, 2026-08-22 denetimi).
+import { login, logout } from "@/lib/api/auth";
 import { ApiError } from "@/lib/api/client";
 import type { Theme } from "@/lib/theme";
 import { ThemeSwitcher } from "./ThemeSwitcher";

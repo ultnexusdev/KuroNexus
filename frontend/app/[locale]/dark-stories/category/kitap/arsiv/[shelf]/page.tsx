@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { readIsAdmin } from "@/lib/auth/session";
+import { shareCard } from "@/lib/seo";
 import { fetchCategories } from "@/lib/api/universes";
 import { getBookArchive } from "@/lib/api/books";
 import { hallLabel, hallName, hallNumber } from "@/lib/halls";
@@ -29,7 +30,15 @@ export async function generateMetadata({
   const { locale, shelf } = await params;
   const t = await getTranslations({ locale, namespace: "book" });
   const key = shelfFromSlug(shelf);
-  return { title: key ? t(`shelf.${key}`) : t("archiveTitle") };
+  const title = key ? t(`shelf.${key}`) : t("archiveTitle");
+  return {
+    title,
+    ...shareCard({
+      title,
+      locale,
+      path: `/dark-stories/category/kitap/arsiv/${shelf}`,
+    }),
+  };
 }
 
 async function getHall(

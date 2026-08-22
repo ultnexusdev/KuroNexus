@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { readIsAdmin } from "@/lib/auth/session";
+import { shareCard } from "@/lib/seo";
+import { apiUrl } from "@/lib/api/client";
 import { fetchCategories } from "@/lib/api/universes";
 import { getReadingOrder } from "@/lib/api/books";
 import { hallLabel, hallName, hallNumber } from "@/lib/halls";
@@ -26,7 +28,16 @@ export async function generateMetadata({
   const { locale, key } = await params;
   const t = await getTranslations({ locale, namespace: "book" });
   const order = await getReadingOrder(key);
-  return { title: order?.name ?? t("readingOrder.title") };
+  const title = order?.name ?? t("readingOrder.title");
+  return {
+    title,
+    ...shareCard({
+      title,
+      locale,
+      path: `/dark-stories/category/kitap/okuma-sirasi/${key}`,
+      image: order?.coverImage ? apiUrl(order.coverImage) : null,
+    }),
+  };
 }
 
 async function getHall(

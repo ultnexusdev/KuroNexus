@@ -6,6 +6,7 @@ import { fetchFootballPlayer } from "@/lib/api/football";
 import type { FootballPlayerDetail } from "@/lib/api/types";
 import styles from "./page.module.css";
 import { sportHref } from "@/lib/sport/routes";
+import { shareCard } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -20,11 +21,21 @@ async function getPlayer(id: string): Promise<FootballPlayerDetail | null> {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ playerId: string }>;
+  params: Promise<{ locale: string; playerId: string }>;
 }): Promise<Metadata> {
-  const { playerId } = await params;
+  const { locale, playerId } = await params;
   const detail = await getPlayer(playerId);
-  return { title: detail?.player?.name ?? "KuroNexus" };
+  if (!detail?.player) return { title: "KuroNexus" };
+  const title = detail.player.name;
+  return {
+    title,
+    ...shareCard({
+      title,
+      locale,
+      path: sportHref.player(playerId),
+      ...(detail.player.photo ? { image: detail.player.photo } : {}),
+    }),
+  };
 }
 
 function marketValue(eur: number | null, locale: string) {

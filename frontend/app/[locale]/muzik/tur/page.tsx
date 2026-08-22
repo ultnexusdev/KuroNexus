@@ -4,6 +4,7 @@ import { Link } from "@/lib/i18n/navigation";
 import { fetchMusicRooms } from "@/lib/api/music";
 import { readIsAdmin } from "@/lib/auth/session";
 import { genreColorVar, musicHref } from "@/lib/music/routes";
+import { shareCard } from "@/lib/seo";
 import shell from "../layout.module.css";
 import styles from "./page.module.css";
 
@@ -29,7 +30,13 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "music" });
-  return { title: t("paths.roomsTitle"), description: t("paths.roomsLede") };
+  const title = t("paths.roomsTitle");
+  const description = t("paths.roomsLede");
+  return {
+    title,
+    description,
+    ...shareCard({ title, description, locale, path: musicHref.rooms() }),
+  };
 }
 
 export default async function MusicRoomsPage() {

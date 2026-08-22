@@ -5,14 +5,12 @@ import type {
   AnilistSearchResult,
   AnimeCustomLinks,
   AnimeWatchStatus,
-  AuthenticatedUser,
   BookCustomLinks,
   BookEntryRecord,
   BookQuote,
   BookSearchResult,
   BookStatus,
   BookTranslation,
-  LoginResult,
   ReadingGoalRecord,
   MovieCustomLinks,
   MovieEntryRecord,
@@ -33,29 +31,12 @@ import type {
 } from "../api/types";
 
 /**
- * Kimlik artık isteklere elle eklenmiyor.
- *
- * Token HttpOnly çerezde duruyor ve tarayıcı onu her isteğe kendisi ekliyor
- * (`apiFetch` içindeki `credentials: "include"`). JavaScript çerezi okuyamadığı
- * için zaten `Authorization` başlığı kuramaz — eski `authHeaders()` yardımcısı
- * ve `document.cookie` erişimi bu yüzden tamamen kaldırıldı.
+ * Kimlik üçlüsü `lib/api/auth.ts`e taşındı (2026-08-22 denetimi): header'daki
+ * AccountMenu bu modülden import edince 1710 satırlık admin monoliti her
+ * ziyaretçinin paylaşılan parçasına giriyordu. Admin sayfaları için adlar
+ * buradan aynen yeniden export ediliyor — çağıran kod değişmedi.
  */
-export function login(email: string, password: string): Promise<LoginResult> {
-  return apiFetch<LoginResult>("/auth/login", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
-  });
-}
-
-/** Çerezi sunucu yazdı, silmesi de onun işi. */
-export function logout(): Promise<void> {
-  return apiFetch<void>("/auth/logout", { method: "POST" });
-}
-
-export function fetchMe(): Promise<AuthenticatedUser> {
-  return apiFetch<AuthenticatedUser>("/auth/me");
-}
+export { fetchMe, login, logout } from "../api/auth";
 
 // universeId verilirse liste el yazması sırasına (orderIndex) göre döner
 export function fetchAdminStories(
@@ -223,17 +204,6 @@ export function createAmbientTrack(
 ): Promise<AmbientTrack> {
   return apiFetch<AmbientTrack>("/ambient-tracks", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(input),
-  });
-}
-
-export function updateAmbientTrack(
-  id: string,
-  input: { title?: string; universeId?: string },
-): Promise<AmbientTrack> {
-  return apiFetch<AmbientTrack>(`/admin/ambient-tracks/${id}`, {
-    method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
@@ -452,10 +422,6 @@ export function restoreShowSuggestion(
     `/admin/shows/suggestions/dismiss/${tmdbId}`,
     { method: "DELETE" },
   );
-}
-
-export function fetchAdminShows(): Promise<ShowEntryRecord[]> {
-  return apiFetch<ShowEntryRecord[]>("/admin/shows");
 }
 
 export function createShowEntry(
@@ -855,10 +821,6 @@ export function searchBooks(
   );
 }
 
-export function fetchAdminBooks(): Promise<BookEntryRecord[]> {
-  return apiFetch<BookEntryRecord[]>("/admin/books");
-}
-
 export function createBookEntry(
   input: BookEntryInput,
 ): Promise<BookEntryRecord> {
@@ -987,17 +949,6 @@ export function addBookQuote(
 ): Promise<BookQuote> {
   return apiFetch<BookQuote>(`/admin/books/${entryId}/quotes`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(input),
-  });
-}
-
-export function updateBookQuote(
-  quoteId: string,
-  input: Partial<BookQuoteInput>,
-): Promise<BookQuote> {
-  return apiFetch<BookQuote>(`/admin/books/quotes/${quoteId}`, {
-    method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
@@ -1140,13 +1091,6 @@ export function addMusicPlaylist(spotifyId: string): Promise<{
   });
 }
 
-/** Onay bekleyen türler — Spotify'ın `genres` alanı tutarsız, liste dolu olur. */
-export function pendingMusicGenres(): Promise<PendingGenre[]> {
-  return apiFetch<PendingGenre[]>("/admin/music/genres/pending", {
-    cache: "no-store",
-  });
-}
-
 /**
  * Türü onaylar / adını, i18n anahtarını, oda rengini ayarlar.
  * ⚠️ `accentKey` bir TOKEN ANAHTARI ("rock", "pop"), renk değeri değil —
@@ -1168,9 +1112,13 @@ export function updateMusicGenre(
   });
 }
 
-export function rejectMusicGenre(id: string): Promise<unknown> {
-  return apiFetch(`/admin/music/genres/${id}`, { method: "DELETE" });
-}
+/*
+ * 2026-08-22 denetimi: fetchAdminBooks, fetchAdminShows, updateAmbientTrack,
+ * updateBookQuote, pendingMusicGenres ve rejectMusicGenre bu dosyadan
+ * SİLİNDİ — altısının da repo genelinde tek referansı kendi tanımıydı;
+ * admin sayfaları aynı dosyadaki kardeş fonksiyonları kullanıyor.
+ * Backend uçlarına dokunulmadı.
+ */
 
 /**
  * Sabit tür taksonomisini kurar (17 oda + alt türler).

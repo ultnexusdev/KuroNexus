@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { readIsAdmin } from "@/lib/auth/session";
-import { getMovieDetail } from "@/lib/api/movies";
+import { getMovieDetail, tmdbImage } from "@/lib/api/movies";
 import { MovieDetail } from "@/components/film/MovieDetail";
+import { shareCard } from "@/lib/seo";
 
 // Film sayfası. `arsiv` statik yolu bundan önce eşleşir (Next statik segmenti
 // dinamik segmentten önce dener), o yüzden çakışma yok — anime salonundaki
@@ -13,11 +14,23 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
+  const { locale, slug } = await params;
   const detail = await getMovieDetail(slug);
-  return detail ? { title: detail.movie.title } : {};
+  if (!detail) {
+    return {};
+  }
+  const title = detail.movie.title;
+  return {
+    title,
+    ...shareCard({
+      title,
+      locale,
+      path: `/dark-stories/category/film/${slug}`,
+      image: tmdbImage(detail.movie.posterPath, "w780"),
+    }),
+  };
 }
 
 export default async function MoviePage({

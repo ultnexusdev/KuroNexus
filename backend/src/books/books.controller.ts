@@ -19,12 +19,10 @@ export class BooksController {
     return this.booksService.getArchive();
   }
 
-  // Salon girişinin iki yanındaki kapaklar
-  @Public()
-  @Get('showcase')
-  getShowcase() {
-    return this.booksService.showcase();
-  }
+  /* GET /showcase 2026-08-22'de KALDIRILDI (kullanıcı onayı): kitap lobisi
+     vitrin kapaklarını bu uçtan almayı bırakmıştı, frontend'deki
+     getBookShowcase de silindi. Film/dizi/anime showcase uçları KULLANIMDA
+     ve duruyor. */
 
   // Ödül rafları (Faz B). Liste kodda, kapaklar cache'ten — dış istek
   // beklenmiyor, eksik kapak boş çerçeve olarak çiziliyor.

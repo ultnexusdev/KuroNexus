@@ -3,11 +3,13 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
 import { fetchCategories } from "@/lib/api/universes";
-import { apiUrl } from "@/lib/api/client";
+import Image from "next/image";
+import { apiUrl, isLocalUpload } from "@/lib/api/client";
 import { fetchSportOverview } from "@/lib/api/sport-archive";
 import { readIsAdmin } from "@/lib/auth/session";
 import { hallLabel, hallNumber } from "@/lib/halls";
 import { legendHref, sportHref } from "@/lib/sport/routes";
+import { shareCard } from "@/lib/seo";
 import { flagGradient, sportFlag } from "@/lib/sport/flags";
 import { Reveal } from "@/components/sport/Reveal";
 import { SportChronology } from "@/components/sport/SportChronology";
@@ -24,9 +26,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "sportArchive" });
+  const title = t("football.name") + " · " + t("f1.name");
+  const description = t("lede");
   return {
-    title: t("football.name") + " · " + t("f1.name"),
-    description: t("lede"),
+    title,
+    description,
+    ...shareCard({ title, description, locale, path: sportHref.root() }),
   };
 }
 
@@ -110,17 +115,19 @@ export default async function SportLandingPage({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "sportArchive" });
 
-  let overview: Awaited<ReturnType<typeof fetchSportOverview>> = {
-    footballClubs: 0,
-    f1Circuits: 0,
-  };
-  try {
-    overview = await fetchSportOverview();
-  } catch {
-    // sessiz — açılış cümlesi tek başına da bir sayfadır
-  }
-
-  const [label, isAdmin] = await Promise.all([getHallLabel(), readIsAdmin()]);
+  // Üç kaynak birbirinden bağımsız — tek turda, paralel (2026-08-22; eskiden
+  // overview bitmeden etiket ve admin okuması başlamıyordu).
+  const [overview, label, isAdmin] = await Promise.all([
+    fetchSportOverview().catch(
+      (): Awaited<ReturnType<typeof fetchSportOverview>> => ({
+        // sessiz — açılış cümlesi tek başına da bir sayfadır
+        footballClubs: 0,
+        f1Circuits: 0,
+      }),
+    ),
+    getHallLabel(),
+    readIsAdmin(),
+  ]);
 
   const counts = overview.counts;
   const club = overview.football?.featuredClub ?? null;
@@ -362,12 +369,17 @@ export default async function SportLandingPage({
                   >
                     <span className={styles.frame} data-world={person.world}>
                       {showPortrait ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
+                        /* next/image'e 2026-08-22'de çevrildi: ham <img>
+                           orijinal dosyayı indiriyordu. Çerçeve 3/4 oranlı
+                           ~150-200 px kutu → sizes sabit px (ev kuralı);
+                           karar ham yoldan (PersonHall deseni). */
+                        <Image
                           className={styles.portrait}
                           src={apiUrl(person.portrait as string)}
                           alt={person.name}
-                          loading="lazy"
+                          fill
+                          sizes="200px"
+                          unoptimized={!isLocalUpload(person.portrait as string)}
                         />
                       ) : (
                         /* Portresi inmemiş efsane: boş kutu değil DOKU.

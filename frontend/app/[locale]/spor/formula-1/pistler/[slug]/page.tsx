@@ -4,12 +4,14 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
 import { fetchCircuit, pick } from "@/lib/api/sport-archive";
 import { sportHref } from "@/lib/sport/routes";
+import { shareCard } from "@/lib/seo";
 import { Reveal } from "@/components/sport/Reveal";
 import { PodiumStage } from "@/components/sport/PodiumStage";
 import { flagBands, flagGradient } from "@/lib/sport/flags";
 import shell from "../../../layout.module.css";
 import styles from "./page.module.css";
-import { apiUrl } from "@/lib/api/client";
+import Image from "next/image";
+import { apiUrl, isLocalUpload } from "@/lib/api/client";
 
 export const dynamic = "force-dynamic";
 
@@ -20,10 +22,24 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale, slug } = await params;
   try {
-    const { circuit } = await fetchCircuit(slug);
+    const { circuit, images } = await fetchCircuit(slug);
+    const title = circuit.name;
+    const description =
+      pick(locale, circuit.nicknameTr, circuit.nicknameEn) || undefined;
+    // Kart karesi: küratör HERO'su, yoksa pist çizimi (TRACK)
+    const cover =
+      (images ?? []).find((image) => image.slot === "HERO") ??
+      (images ?? []).find((image) => image.slot === "TRACK");
     return {
-      title: circuit.name,
-      description: pick(locale, circuit.nicknameTr, circuit.nicknameEn) || undefined,
+      title,
+      description,
+      ...shareCard({
+        title,
+        description,
+        locale,
+        path: sportHref.circuit(slug),
+        ...(cover ? { image: apiUrl(cover.url) } : {}),
+      }),
     };
   } catch {
     return {};
@@ -162,11 +178,20 @@ export default async function CircuitPage({
         <Reveal as="section" className={styles.diagram}>
           <figure className={styles.figure}>
             {trackImage ? (
-              /* eslint-disable-next-line @next/next/no-img-element */
-              <img
+              /* next/image'e 2026-08-22'de çevrildi: pist kareleri kullanıcı
+                 yüklemesi (add-track-image.ts) ve ham <img> orijinali
+                 indiriyordu; kutu en fazla 44rem (704px). width/height bir
+                 ORAN İPUCU (4:3): CSS `height: auto` olduğundan yüklenince
+                 gerçek oran geçerli — eski hâlde hiç ipucu yoktu, kutu 0
+                 yükseklikten açılıyordu, bu daha iyisi. */
+              <Image
                 src={apiUrl(trackImage.url)}
                 alt={pick(locale, trackImage.altTr, trackImage.altEn) || circuit.name}
                 className={styles.trackPhoto}
+                width={1408}
+                height={1056}
+                sizes="(min-width: 46rem) 704px, 100vw"
+                unoptimized={!isLocalUpload(trackImage.url)}
               />
             ) : (
             <svg

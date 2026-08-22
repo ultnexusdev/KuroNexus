@@ -30,8 +30,11 @@ const brushFont = Yuji_Boku({
   preload: false,
 });
 
+// latin-ext 2026-08-22'de eklendi: Cinzel 46 dosyada Türkçe ETİKET fontu
+// (İ/Ğ/Ş/Ç/Ö/Ü majüskülleri) ama yalnızca latin dilimi yükleniyordu — Türkçe
+// glifler ikinci bir gecikmeli dilimden geliyordu. Diğer aileler zaten latin-ext.
 const cinzel = Cinzel({
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
   variable: "--font-cinzel",
   display: "swap",
 });

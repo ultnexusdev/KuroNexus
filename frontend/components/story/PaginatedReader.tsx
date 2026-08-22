@@ -146,15 +146,25 @@ export function PaginatedReader({
 
   useEffect(() => {
     calculatePages();
-    
+
     const timer = setTimeout(calculatePages, 200);
     const timer2 = setTimeout(calculatePages, 1000);
-    
-    window.addEventListener("resize", calculatePages);
+
+    // Yeniden sayfalama pahalı (çok sütunlu ölçüm + DOM okuma) ve resize
+    // olayı sürükleme boyunca saniyede onlarca kez düşüyor — her olayda
+    // koşturmak pencereyi sürüklerken takılma üretiyordu (2026-08-22
+    // denetimi). 150 ms'lik sükûnet beklemesi: boyut oturunca TEK hesap.
+    let resizeDebounce: number | undefined;
+    const onResize = () => {
+      window.clearTimeout(resizeDebounce);
+      resizeDebounce = window.setTimeout(calculatePages, 150);
+    };
+    window.addEventListener("resize", onResize);
     return () => {
       clearTimeout(timer);
       clearTimeout(timer2);
-      window.removeEventListener("resize", calculatePages);
+      window.clearTimeout(resizeDebounce);
+      window.removeEventListener("resize", onResize);
     };
   }, [calculatePages, coverImage]);
 
@@ -240,13 +250,15 @@ export function PaginatedReader({
           </button>
         </div>
         <span className={styles.pageIndicator}>
-          <button 
-            type="button" 
-            className={styles.parchmentToggle} 
+          <button
+            type="button"
+            className={styles.parchmentToggle}
             onClick={() => setIsParchmentMode(!isParchmentMode)}
             title="Parşömen Modu"
+            aria-label="Parşömen Modu"
+            aria-pressed={isParchmentMode}
           >
-            📜
+            <span aria-hidden>📜</span>
           </button>
           {isEditingPage ? (
             <input
@@ -266,13 +278,17 @@ export function PaginatedReader({
               className={styles.pageInput}
             />
           ) : (
-            <span
+            // Eskiden tıklanabilir bir <span>'dı: klavye kullanıcısı sayfaya
+            // gitme kutusunu HİÇ açamıyordu (2026-08-22 denetimi). Görünüm
+            // .pageJump ile bire bir korunuyor.
+            <button
+              type="button"
+              className={styles.pageJump}
               onClick={() => setIsEditingPage(true)}
               title="Sayfaya gitmek için tıklayın"
-              style={{ cursor: "pointer" }}
             >
               {globalCurrentPage + 1}
-            </span>
+            </button>
           )}
           {" / " + totalPages}
         </span>

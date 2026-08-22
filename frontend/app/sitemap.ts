@@ -1,5 +1,12 @@
 import type { MetadataRoute } from "next";
 import { fetchCategories, fetchUniverses } from "@/lib/api/universes";
+import { getMovieArchive } from "@/lib/api/movies";
+import { getShowArchive } from "@/lib/api/shows";
+import { getAnimeArchive } from "@/lib/api/anime";
+import { getBookArchive } from "@/lib/api/books";
+import { fetchMusicActs } from "@/lib/api/music";
+import { fetchF1Hub, fetchFootballHub } from "@/lib/api/sport-archive";
+import { FAVOURITE_PLAYERS, isInNotebook } from "@/lib/sport/favourite-players";
 import { hallHref } from "@/lib/halls";
 import { isMovedUniverse } from "@/lib/sport/routes";
 import { SITE_URL } from "@/lib/site";
@@ -22,15 +29,19 @@ const STATIC_PATHS = [
   // Salon 06 · Spor — kendi ağacında (bkz. hallHref)
   "/spor",
   "/spor/futbol",
+  "/spor/futbol/efsaneler",
   "/spor/formula-1",
   // Salon 06 · Müzik — kendi ağacında (bkz. hallHref)
   "/muzik",
   "/muzik/tur",
   "/muzik/dinleme",
+  "/muzik/sanatcilar",
+  "/muzik/listeler",
   // Salon 04 · Anime — girişi kendi ağacında (16 Ağustos 2026, bkz. hallHref);
   // derin odalar aşağıda eski ağaçta duruyor
   "/anime",
   "/anime/akatsuki",
+  "/anime/naruto",
   "/dark-stories/category/kitap",
   "/dark-stories/category/kitap/arsiv",
   "/dark-stories/category/kitap/seriler",
@@ -122,6 +133,67 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       );
     }
   }
+
+  /**
+   * ── YAPRAK İÇERİK SAYFALARI (2026-08-22 denetimi) ────────────────────────
+   *
+   * Sitemap bugüne kadar yalnızca salon kapılarını listeliyordu; asıl uzun
+   * kuyruk — film/dizi/anime/kitap detayları, sanatçılar, kulüpler, pistler,
+   * futbolcular — ancak raf sayfalarından taranarak bulunabiliyordu. Aynı
+   * `allSettled` sözleşmesi geçerli: bir koleksiyonun ucu düşerse sitemap o
+   * koleksiyonsuz yayınlanır, boş dönmez.
+   *
+   * BİLE BİLE EKLENMEYENLER (uç ya da liste yok / N+1 gerektirir):
+   * evren içi hikâye ve wiki sayfaları (evren başına ayrı istek isterdi),
+   * müzik albüm/liste/tür odaları, kitap kişi/yayınevi/seri/kaynak alt
+   * ağaçları, anime karakter dosyaları, F1 sürücüleri (hiçbir uç sürücü
+   * LİSTESİ vermiyor — denetim raporunda not).
+   *
+   * `lastModified` olarak `now` basılıyor: arşiv uçları kayıt başına
+   * güncellenme tarihi taşımıyor; yanlış (bayat) bir tarih basmaktansa
+   * üretim anı basılıyor.
+   */
+  const [movies, shows, anime, books, acts, f1, football] =
+    await Promise.allSettled([
+      getMovieArchive(),
+      getShowArchive(),
+      getAnimeArchive(),
+      getBookArchive(),
+      fetchMusicActs(),
+      fetchF1Hub(),
+      fetchFootballHub(),
+    ]);
+
+  const leaf = (path: string) => entries.push(...localizedEntries(path, now, 0.6));
+
+  if (movies.status === "fulfilled") {
+    for (const m of movies.value.movies) leaf(`/dark-stories/category/film/${m.slug}`);
+  }
+  if (shows.status === "fulfilled") {
+    for (const s of shows.value.shows) leaf(`/dark-stories/category/dizi/${s.slug}`);
+  }
+  if (anime.status === "fulfilled") {
+    for (const a of anime.value.entries) leaf(`/dark-stories/category/anime/${a.slug}`);
+  }
+  if (books.status === "fulfilled") {
+    for (const b of books.value.books) leaf(`/dark-stories/category/kitap/${b.slug}`);
+  }
+  if (acts.status === "fulfilled") {
+    for (const act of acts.value) leaf(`/muzik/${act.slug}`);
+  }
+  if (f1.status === "fulfilled") {
+    for (const c of f1.value.circuits) leaf(`/spor/formula-1/pistler/${c.slug}`);
+  }
+  if (football.status === "fulfilled") {
+    for (const c of football.value.clubs) leaf(`/spor/futbol/${c.slug}`);
+    /* Defterde karşılığı olan arşiv efsanesi ELENİYOR — salonlarla aynı
+       kural: o kişinin kanonik sayfası artık futbolcu profili. */
+    for (const l of football.value.legends) {
+      if (!isInNotebook(l.slug)) leaf(`/spor/futbol/efsaneler/${l.slug}`);
+    }
+  }
+  // Futbolcu defteri tamamen yerel veri — ağ isteği yok.
+  for (const p of FAVOURITE_PLAYERS) leaf(`/spor/futbol/futbolcular/${p.slug}`);
 
   // Kategori listesi sabit yollarla çakışabilir (ör. "kitap" hem elle yazılı
   // hem API'den geliyor); son yazan kazanır, tekrar eden adres kalmaz.

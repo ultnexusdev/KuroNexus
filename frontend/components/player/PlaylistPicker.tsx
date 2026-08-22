@@ -50,7 +50,9 @@ export function PlaylistPicker() {
     }
   }, [open, playlists, load]);
 
-  /* Dışarı tıklanınca kapanır — şeridin üstünde açık kalıp sayfayı örtmesin */
+  /* Dışarı tıklanınca ya da Escape ile kapanır — şeridin üstünde açık kalıp
+     sayfayı örtmesin. Escape 2026-08-22 denetiminde eklendi: klavye
+     kullanıcısının menüyü kapatmak için tek yolu Tab'la uzaklaşmaktı. */
   useEffect(() => {
     if (!open) {
       return;
@@ -60,8 +62,17 @@ export function PlaylistPicker() {
         setOpen(false);
       }
     }
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setOpen(false);
+      }
+    }
     document.addEventListener("pointerdown", onPointerDown);
-    return () => document.removeEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
   }, [open]);
 
   async function pick(playlist: MusicPlaylistSummary) {

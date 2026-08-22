@@ -37,11 +37,9 @@ export class TransferNewsController {
     return this.transferNews.searchPlayers(q);
   }
 
-  @Public()
-  @Get('universe/:slug')
-  findAllByUniverse(@Param('slug') slug: string) {
-    return this.transferNews.findAllByUniverse(slug);
-  }
+  /* GET /universe/:slug 2026-08-22'de KALDIRILDI (kullanıcı onayı): tek
+     tüketicisi olan fetchTransferNews frontend'den silindi — kulüp sayfası
+     haberleri football-live yanıtının içinde alıyor. */
 
   @Roles('ADMIN')
   @Get(':id')

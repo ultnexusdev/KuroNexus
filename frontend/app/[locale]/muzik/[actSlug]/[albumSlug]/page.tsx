@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
-import { ApiError } from "@/lib/api/client";
+import { apiUrl, ApiError } from "@/lib/api/client";
 import { fetchMusicAlbum, type MusicAlbum } from "@/lib/api/music";
 import { readIsAdmin } from "@/lib/auth/session";
 import { musicHref, spotifyOpenUrl } from "@/lib/music/routes";
+import { shareCard } from "@/lib/seo";
 import { upperProperName } from "@/lib/text";
 import { CoverArt, CoverTile } from "@/components/music/CoverArt";
 import { TrackList } from "@/components/music/TrackList";
@@ -51,7 +52,16 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: "music" });
   try {
     const album = await fetchMusicAlbum(actSlug, albumSlug);
-    return { title: `${album.title} · ${album.act.name}` };
+    const title = `${album.title} · ${album.act.name}`;
+    return {
+      title,
+      ...shareCard({
+        title,
+        locale,
+        path: musicHref.album(actSlug, albumSlug),
+        image: album.artwork ? apiUrl(album.artwork) : undefined,
+      }),
+    };
   } catch {
     return { title: t("name") };
   }

@@ -1,5 +1,3 @@
-"use client";
-
 import { useTranslations } from "next-intl";
 import { Link } from "@/lib/i18n/navigation";
 import type { BookAuthorCard, BookSeriesCard } from "@/lib/api/types";

@@ -1,7 +1,6 @@
 import { Controller, Get, HttpCode, HttpStatus, Res } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
 import type { Response } from 'express';
-import { AppService } from './app.service';
 import { PrismaService } from './prisma/prisma.service';
 import { Public } from './common/decorators/public.decorator';
 
@@ -10,17 +9,15 @@ interface HealthResult {
   db: 'up' | 'down';
 }
 
+/*
+ * İskeleden kalma `GET /` ("Hello World!") ve AppService 2026-08-22'de
+ * KALDIRILDI (kullanıcı onayı). Güvenli olduğu ölçüldü: rota @Public()
+ * DEĞİLDİ, yani anonim istek zaten 401 alıyordu — hiçbir dış sağlık
+ * yoklaması ona bağlı olamazdı. Gerçek sağlık ucu aşağıdaki /health.
+ */
 @Controller()
 export class AppController {
-  constructor(
-    private readonly appService: AppService,
-    private readonly prisma: PrismaService,
-  ) {}
-
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
-  }
+  constructor(private readonly prisma: PrismaService) {}
 
   /**
    * Sağlık ucu — veritabanına GERÇEKTEN dokunur.

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "@/lib/i18n/navigation";
 import { sportHref } from "@/lib/sport/routes";
-import { nameLangOf, type FavouritePlayer } from "@/lib/sport/favourite-players";
+import { nameLangOf, type FavouritePlayer } from "@/lib/sport/players/types";
 import { PlayerImage } from "./player/PlayerImage";
 import { usePlayerCurator } from "./player/PlayerCurator";
 import shell from "@/app/[locale]/spor/layout.module.css";

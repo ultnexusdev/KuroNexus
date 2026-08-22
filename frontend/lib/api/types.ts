@@ -1259,10 +1259,12 @@ export interface BookDetail {
   quotes: BookQuote[];
   links: BookLink[];
   customLinks: BookCustomLinks;
-  series: ArchiveBook[];
+  // 2026-08-22: komşu listeleri artık künye metni (description) taşımıyor —
+  // backend'deki BookListItem aynası; komşu bloklar yalnızca kapak+başlık çizer.
+  series: BookListItem[];
   seriesName: string | null;
-  byAuthor: ArchiveBook[];
-  byGenre: ArchiveBook[];
+  byAuthor: BookListItem[];
+  byGenre: BookListItem[];
   universe: { id: string; name: string; slug: string } | null;
   /** Bu kitap hangi okuma sıralarında, kaçıncı durak olarak geçiyor */
   readingOrders: BookReadingOrderLink[];

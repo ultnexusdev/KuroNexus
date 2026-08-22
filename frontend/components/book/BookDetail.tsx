@@ -10,6 +10,7 @@ import type {
   BookCreditPerson,
   BookDetail as BookDetailData,
   BookLinkKind,
+  BookListItem,
   BookPersonRole,
 } from "@/lib/api/types";
 import {
@@ -488,7 +489,9 @@ function NeighbourBlock({
   books,
 }: {
   title: string;
-  books: ArchiveBook[];
+  // 2026-08-22: komşular künye metinsiz geliyor (BookListItem) — bu blok
+  // zaten yalnızca kapak+başlık çiziyor, künyeye hiç dokunmuyordu.
+  books: BookListItem[];
 }) {
   return (
     <section className={styles.railBlock}>

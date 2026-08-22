@@ -29,17 +29,14 @@ export class FootballController {
     return this.football.getPlayer(id);
   }
 
-  @Public()
-  @Get('standings')
-  getStandings() {
-    return this.football.getStandings();
-  }
-
-  @Public()
-  @Get('next-match')
-  getNextMatch() {
-    return this.football.getNextMatch();
-  }
+  /*
+   * GET /standings ve GET /next-match 2026-08-22'de KALDIRILDI (kullanıcı
+   * onayı): kulüp sayfası puan tablosunu ve sonraki maçı artık tek istekte
+   * football-live'dan alıyor ve iki ucun frontend'de tek bir tüketicisi
+   * kalmamıştı. Apify lig senkronu cache'i hâlâ YAZIYOR (admin tetikli hat,
+   * getLeagueSyncStatus onunla yaşıyor) — o hattın komple emekliliği ayrı
+   * bir karar.
+   */
 }
 
 // Transfermarkt veri seti senkronizasyonu — yalnızca admin tetikler

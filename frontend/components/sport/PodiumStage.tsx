@@ -1,4 +1,5 @@
-import { apiUrl } from "@/lib/api/client";
+import Image from "next/image";
+import { apiUrl, isLocalUpload } from "@/lib/api/client";
 import type { F1RaceResult } from "@/lib/api/sport-archive";
 import styles from "./PodiumStage.module.css";
 
@@ -121,12 +122,25 @@ export function PodiumStage({
                       >
                         <span className={styles.face}>
                           {portrait ? (
-                            /* eslint-disable-next-line @next/next/no-img-element */
-                            <img
+                            /* next/image'e 2026-08-22'de çevrildi: portreler
+                               /uploads/* dosyaları ve ham <img> orijinali
+                               indiriyordu. Yüz kutusu 56-128 px'lik kare —
+                               sizes sabit px (ev kuralı). */
+                            <Image
                               src={apiUrl(portrait.photo as string)}
                               alt=""
-                              loading="lazy"
+                              width={128}
+                              height={128}
+                              sizes="128px"
                               className={styles.faceImg}
+                              /* ⚠️ Karar apiUrl()'den GEÇMEMİŞ ham yoldan:
+                                 küratör ucu DB'ye dış URL de yazabiliyor
+                                 (setImage dto.url) ve öyle bir adres
+                                 optimizer'a girerse sayfa çöker — kitap
+                                 kanadındaki desenle aynı (PersonHall). */
+                              unoptimized={
+                                !isLocalUpload(portrait.photo as string)
+                              }
                             />
                           ) : null}
                         </span>

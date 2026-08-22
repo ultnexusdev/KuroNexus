@@ -6,6 +6,7 @@ import { apiUrl, ApiError, isLocalUpload } from "@/lib/api/client";
 import { fetchMusicAct, type MusicAct } from "@/lib/api/music";
 import { readIsAdmin } from "@/lib/auth/session";
 import { musicHref, spotifyOpenUrl } from "@/lib/music/routes";
+import { shareCard } from "@/lib/seo";
 import { upperProperName } from "@/lib/text";
 import { CoverArt } from "@/components/music/CoverArt";
 import { Discography } from "@/components/music/Discography";
@@ -59,9 +60,18 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: "music" });
   try {
     const act = await fetchMusicAct(actSlug);
+    const title = `${act.name} · ${t("name")}`;
+    const description = act.bio ?? t("lede");
     return {
-      title: `${act.name} · ${t("name")}`,
-      description: act.bio ?? t("lede"),
+      title,
+      description,
+      ...shareCard({
+        title,
+        description,
+        locale,
+        path: musicHref.act(actSlug),
+        image: act.image ? apiUrl(act.image) : undefined,
+      }),
     };
   } catch {
     return { title: t("name") };

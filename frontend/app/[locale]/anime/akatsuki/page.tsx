@@ -4,6 +4,7 @@ import { getAnimeArchive } from "@/lib/api/anime";
 import { getCharacterCards, getCharacterImages } from "@/lib/api/characters";
 import { readIsAdmin } from "@/lib/auth/session";
 import { akatsukiCharacterIds } from "@/lib/anime/akatsuki";
+import { shareCard } from "@/lib/seo";
 import { AkatsukiExhibit } from "@/components/anime/akatsuki/AkatsukiExhibit";
 
 /**
@@ -23,9 +24,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "akatsuki" });
+  const title = `${t("title")} · ${t("subtitle")}`;
+  const description = t("lede");
   return {
-    title: `${t("title")} · ${t("subtitle")}`,
-    description: t("lede"),
+    title,
+    description,
+    ...shareCard({ title, description, locale, path: "/anime/akatsuki" }),
   };
 }
 

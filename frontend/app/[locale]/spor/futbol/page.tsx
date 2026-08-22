@@ -6,6 +6,7 @@ import { ApiError } from "@/lib/api/client";
 import { fetchFootballHub, pick } from "@/lib/api/sport-archive";
 import { readIsAdmin } from "@/lib/auth/session";
 import { sportHref } from "@/lib/sport/routes";
+import { shareCard } from "@/lib/seo";
 import { readCuratorImages } from "@/lib/sport/curator-images";
 import {
   FAVOURITE_PLAYERS,
@@ -36,7 +37,13 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "sportArchive" });
-  return { title: t("football.name"), description: t("football.lede") };
+  const title = t("football.name");
+  const description = t("football.lede");
+  return {
+    title,
+    description,
+    ...shareCard({ title, description, locale, path: sportHref.football() }),
+  };
 }
 
 /**
@@ -97,6 +104,19 @@ export default async function FootballHubPage({
    * yok demek, kalan her şey yukarı fırlatılıp Next'in hata sınırına gidiyor
    * ve orada yeniden denenebiliyor.
    */
+  /**
+   * Küratör görselleri hub isteğiyle AYNI ANDA yola çıkıyor (2026-08-22):
+   * yuva sahibi listesi tamamen yerel (hub sahibi + defter slug'ları), hub
+   * yanıtına bağlı değil — eskiden hub bitene kadar bekletilip ikinci bir
+   * ağ turu ekliyordu. `readCuratorImages` hiçbir koşulda reject etmez
+   * (bkz. lib/sport/curator-images.ts), yarıda kalan promise sızıntısı yok.
+   * Uç düşerse boş harita döner ve sayfa varsayılanlarla açılır.
+   */
+  const imagesPromise = readCuratorImages([
+    HUB_OWNER,
+    ...FAVOURITE_PLAYERS.map((p) => p.slug),
+  ]);
+
   let hub;
   try {
     hub = await fetchFootballHub();
@@ -115,12 +135,9 @@ export default async function FootballHubPage({
 
   const isAdmin = await readIsAdmin();
 
-  /**
-   * Küratör görselleri: sayfanın kendi yuvaları + her futbolcunun kart yuvası.
-   * Uç düşerse boş harita dönüyor ve sayfa varsayılanlarla açılıyor.
-   */
-  const owners = [HUB_OWNER, ...FAVOURITE_PLAYERS.map((p) => p.slug)];
-  const images = await readCuratorImages(owners);
+  // Küratör görselleri: sayfanın kendi yuvaları + her futbolcunun kart
+  // yuvası. İstek yukarıda, hub'la paralel başlatıldı.
+  const images = await imagesPromise;
 
   /**
    * EFSANELER — iki kaynak tek salonda.

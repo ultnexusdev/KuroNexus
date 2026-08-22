@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
 import { fetchCategories, fetchUniverses } from "@/lib/api/universes";
 import { getPulse } from "@/lib/api/pulse";
+import { readIsAdmin } from "@/lib/auth/session";
 import type {
   CountUnit,
   Pulse,
@@ -28,7 +29,7 @@ export const dynamic = "force-dynamic";
 const FALLBACK_SLUGS = HALL_ORDER;
 const FALLBACK_SEALED_SLUG = "temurkan-efsaneleri";
 
-async function getData(): Promise<{
+async function getData(fresh: boolean): Promise<{
   categories: UniverseCategory[];
   universes: WikiUniverseSummary[];
   pulse: Pulse | null;
@@ -36,11 +37,13 @@ async function getData(): Promise<{
   try {
     /* `/pulse` üçüncü bir istek değil bir ÖLÇÜ kaynağı: salon başına gerçek
        arşiv sayısını yalnızca o biliyor. Kendi içinde hata yutuyor
-       (`getPulse` boş nabız döndürür), o yüzden kapıları düşürmüyor. */
+       (`getPulse` boş nabız döndürür), o yüzden kapıları düşürmüyor.
+       `fresh`: küratör taze okur, ziyaretçi 300 sn önbellekten
+       (gerekçe lib/api/pulse.ts). */
     const [categories, universes, pulse] = await Promise.all([
       fetchCategories(),
       fetchUniverses(),
-      getPulse(),
+      getPulse(fresh),
     ]);
     return { categories, universes, pulse };
   } catch {
@@ -56,7 +59,7 @@ export default async function HomePage({
 }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "home" });
-  const { categories, universes, pulse } = await getData();
+  const { categories, universes, pulse } = await getData(await readIsAdmin());
 
   const ordered = sortByHallOrder(categories);
 

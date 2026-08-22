@@ -46,6 +46,7 @@ export function Lightbox({
   const open = index !== null && items.length > 0;
   const total = items.length;
   const closeRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
   // Kapanınca odağın geri döneceği yer — pencereyi açan düğme
   const openerRef = useRef<Element | null>(null);
 
@@ -61,7 +62,7 @@ export function Lightbox({
     [index, total, onMove],
   );
 
-  /* Klavye: Escape kapatır, ok tuşları gezinir.
+  /* Klavye: Escape kapatır, ok tuşları gezinir, Tab pencere İÇİNDE döner.
      Dinleyici yalnızca pencere AÇIKKEN bağlanıyor — kapalıyken sayfanın
      ok tuşlarını yutmasın. */
   useEffect(() => {
@@ -78,6 +79,33 @@ export function Lightbox({
       } else if (event.key === "ArrowRight") {
         event.preventDefault();
         move(1);
+      } else if (event.key === "Tab") {
+        /* Odak tuzağı (2026-08-22 denetimi): `aria-modal` arkadaki içeriği
+           yalnızca ekran okuyucudan gizler, Tab tuşundan GİZLEMEZ — tuzaksız
+           hâlde klavye kullanıcısı pencerenin altındaki sayfaya kaçıyordu.
+           Penceredeki odaklanabilirler yalnızca düğmeler (kapat + oklar). */
+        const dialog = dialogRef.current;
+        if (!dialog) {
+          return;
+        }
+        const focusables = dialog.querySelectorAll<HTMLElement>(
+          "button:not([disabled])",
+        );
+        if (focusables.length === 0) {
+          return;
+        }
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        const active = document.activeElement;
+        if (event.shiftKey) {
+          if (active === first || !dialog.contains(active)) {
+            event.preventDefault();
+            last.focus();
+          }
+        } else if (active === last || !dialog.contains(active)) {
+          event.preventDefault();
+          first.focus();
+        }
       }
     }
     document.addEventListener("keydown", onKey);
@@ -125,6 +153,7 @@ export function Lightbox({
 
   return (
     <div
+      ref={dialogRef}
       className={styles.backdrop}
       role="dialog"
       aria-modal="true"

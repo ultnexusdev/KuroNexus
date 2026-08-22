@@ -78,6 +78,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  /* span'dan button'a çevrildi (2026-08-22); bu üç satır tarayıcının düğme
+     görünümünü sıfırlayıp eski span görünümünü aynen korur */
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font: inherit;
   color: var(--text-secondary);
   font-size: 0.9rem;
   letter-spacing: 0.08em;

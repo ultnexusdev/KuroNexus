@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { clubLangOf, type CareerStop } from "@/lib/sport/favourite-players";
+import { clubLangOf, type CareerStop } from "@/lib/sport/players/types";
 import { PlayerImage } from "./PlayerImage";
 import styles from "./PlayerJourney.module.css";
 

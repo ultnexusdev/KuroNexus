@@ -16,6 +16,7 @@ import {
   type EntryWithParts,
 } from '../anime/anime.service';
 import {
+  ARCHIVE_OMIT as BOOK_ARCHIVE_OMIT,
   CREDITS_INCLUDE as BOOK_CREDITS_INCLUDE,
   withSlugs as withBookSlugs,
   type BookEntryWithCredits,
@@ -225,6 +226,9 @@ export class PulseService {
         where: { isDeleted: false },
         orderBy: [{ finishedAt: 'desc' }, { createdAt: 'desc' }],
         include: BOOK_CREDITS_INCLUDE,
+        // Kitap salonunun sorgusuyla AYNI kalmak zorunda (üstteki yorum);
+        // salon 2026-08-22'de hiç okunmayan externalData'yı taşımayı bıraktı.
+        omit: BOOK_ARCHIVE_OMIT,
       }),
       /* Salon 06 · Müzik kapısının ölçüsü. `count` yeterli — kapı yalnızca
          sayıyı gösteriyor, künyeye ihtiyaç yok (kitap salonunda da öyle). */

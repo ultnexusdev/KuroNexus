@@ -1,4 +1,5 @@
-import { apiUrl } from "@/lib/api/client";
+import Image from "next/image";
+import { apiUrl, isLocalUpload } from "@/lib/api/client";
 import {
   isHomeGame,
   matchdayMode,
@@ -65,13 +66,23 @@ export function MatchdayHero({
       {/* ── Atmosfer katmanları ── */}
       <div className={styles.atmosphere} aria-hidden="true">
         {backdrop ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          /* next/image'e 2026-08-22'de çevrildi: üç backdrop kaynağı da
+             (küratör karesi, fanart, banner) backend'e indirilen /uploads/*
+             yolları — remotePatterns kapsıyor. Ham <img> orijinal dosyayı
+             olduğu gibi indiriyordu (yeniden boyutlandırma yok, WebP yok);
+             kulüp sayfasının LCP görseli buydu. `priority` eski
+             fetchPriority="high"ın karşılığı + preload. Filtre/animasyon
+             .backdrop sınıfında, aynen geçerli. */
+          <Image
             src={apiUrl(backdrop)}
             alt=""
+            fill
+            sizes="100vw"
             className={styles.backdrop}
-            fetchPriority="high"
-            decoding="async"
+            priority
+            /* Karar ham yoldan (PersonHall deseni): /uploads dışı bir adres
+               DB'ye girerse optimizer'ı atla, sayfa çökmesin. */
+            unoptimized={!isLocalUpload(backdrop)}
           />
         ) : null}
         <span className={styles.veil} />

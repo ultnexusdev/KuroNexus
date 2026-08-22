@@ -6,6 +6,7 @@ import { fetchMusicOverview } from "@/lib/api/music";
 import { readIsAdmin } from "@/lib/auth/session";
 import { hallLabel, hallNumber } from "@/lib/halls";
 import { musicHref, genreColorVar, spotifyOpenUrl } from "@/lib/music/routes";
+import { shareCard } from "@/lib/seo";
 import { CoverArt } from "@/components/music/CoverArt";
 import { GenreMixBar } from "@/components/music/GenreMixBar";
 import { MusicCuratorSwitch } from "@/components/music/MusicCuratorSwitch";
@@ -46,7 +47,13 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "music" });
-  return { title: t("name"), description: t("lede") };
+  const title = t("name");
+  const description = t("lede");
+  return {
+    title,
+    description,
+    ...shareCard({ title, description, locale, path: musicHref.root() }),
+  };
 }
 
 /**

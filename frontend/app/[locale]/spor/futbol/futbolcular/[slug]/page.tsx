@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
 import { sportHref } from "@/lib/sport/routes";
+import { shareCard } from "@/lib/seo";
 import { readIsAdmin } from "@/lib/auth/session";
 import {
   DEFAULT_SECTION_ORDER,
@@ -53,10 +54,21 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
+  const { locale, slug } = await params;
   const player = findFavouritePlayer(slug);
   if (!player) return {};
-  return { title: player.name, description: player.tagline };
+  const title = player.name;
+  const description = player.tagline;
+  return {
+    title,
+    description,
+    ...shareCard({
+      title,
+      description,
+      locale,
+      path: sportHref.favouritePlayer(slug),
+    }),
+  };
 }
 
 /**

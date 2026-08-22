@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
 import { sportHref } from "@/lib/sport/routes";
+import { shareCard } from "@/lib/seo";
 import { readIsAdmin } from "@/lib/auth/session";
 import {
   isInNotebook,
@@ -27,9 +28,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "sportArchive" });
+  const title = t("legendsIndex.title");
+  const description = t("legendsIndex.lede");
   return {
-    title: t("legendsIndex.title"),
-    description: t("legendsIndex.lede"),
+    title,
+    description,
+    ...shareCard({ title, description, locale, path: sportHref.legends() }),
   };
 }
 
@@ -101,12 +105,20 @@ export default async function LegendsIndexPage({
   const t = await getTranslations({ locale, namespace: "sportArchive" });
   const isAdmin = await readIsAdmin();
 
-  /* Arşiv kayıtları. Uç düşerse sayfa defterdeki futbolcularla açılıyor —
-     bir veri kaynağının kesintisi sayfayı kırmamalı. */
-  const hub = await fetchFootballHub().catch(() => null);
-  const archive = hub?.legends ?? [];
-
   const notebook = legendaryPlayers();
+
+  /* Arşiv kayıtları. Uç düşerse sayfa defterdeki futbolcularla açılıyor —
+     bir veri kaynağının kesintisi sayfayı kırmamalı.
+
+     Küratör görselleri hub'la PARALEL yola çıkıyor (2026-08-22): sahip
+     listesi tamamen yerel (hub sahibi + defter), hub yanıtını beklemek
+     ikinci bir ağ turu ekliyordu. `readCuratorImages` hiçbir koşulda
+     reject etmez (bkz. lib/sport/curator-images.ts). */
+  const [hub, images] = await Promise.all([
+    fetchFootballHub().catch(() => null),
+    readCuratorImages([HUB_OWNER, ...notebook.map((player) => player.slug)]),
+  ]);
+  const archive = hub?.legends ?? [];
 
   const entries: HallEntry[] = [
     /* ⚠️ Defterde karşılığı olan arşiv kaydı ELENİYOR: aynı kişi salonda iki
@@ -161,12 +173,8 @@ export default async function LegendsIndexPage({
 
   const roll = entries.filter((entry) => !PANTHEON.includes(entry.slug));
 
-  /**
-   * Küratör görselleri: arşiv portreleri hub sahibinde, defterdeki
-   * futbolcuların kart yuvaları kendi slug'larında. İstekler paralel.
-   */
-  const owners = [HUB_OWNER, ...notebook.map((player) => player.slug)];
-  const images = await readCuratorImages(owners);
+  // Küratör görselleri (arşiv portreleri hub sahibinde, defter kartları kendi
+  // slug'larında) yukarıda hub'la paralel getirildi.
 
   const curatorLabels = {
     on: t("favourite.curator.on"),

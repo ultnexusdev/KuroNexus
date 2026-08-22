@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type MouseEvent } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { WikiCategory, WikiEntrySummary } from "@/lib/api/types";
 import {
@@ -35,19 +35,22 @@ function SpoilerCard({
   const [revealed, setRevealed] = useState(false);
   const blurred = hidden && !revealed;
 
-  // Seviye yükseltilirse tekil reveal sıfırlanır (kart yeniden gizlenmez —
-  // yalnızca hidden=false olduğunda blur zaten kalkar)
-  function handleClickCapture(event: MouseEvent) {
-    if (blurred) {
-      event.preventDefault();
-      event.stopPropagation();
-      setRevealed(true);
-    }
-  }
-
+  /*
+   * Perde artık gerçek bir DÜĞME (2026-08-22 denetimi). Eski hâlin iki açığı
+   * vardı: (1) açma jesti yalnızca mouse'a bağlı bir onClickCapture'dı —
+   * klavye kullanıcısı perdeyi HİÇ kaldıramıyordu; (2) bulanıklık salt
+   * görseldi — ekran okuyucu spoiler başlığını perdesiz okuyor, "spoiler"
+   * rozeti ise aria-hidden'dı. Rozet zaten kartın tamamını kaplıyordu
+   * (inset: 0); düğmeye çevrilince aynı yüzey mouse + klavye + okuyucu için
+   * tek kapı oldu. `inert` bulanık içeriği hem odaktan hem erişilebilirlik
+   * ağacından düşürüyor — perde kalkınca ikisi de geri geliyor.
+   */
   return (
-    <div className={styles.cardWrap} onClickCapture={handleClickCapture}>
-      <div className={blurred ? styles.blurred : undefined}>
+    <div className={styles.cardWrap}>
+      <div
+        className={blurred ? styles.blurred : undefined}
+        inert={blurred || undefined}
+      >
         <ContentCard
           href={href}
           coverImage={entry.coverImage}
@@ -55,9 +58,13 @@ function SpoilerCard({
         />
       </div>
       {blurred ? (
-        <span className={styles.badge} aria-hidden>
+        <button
+          type="button"
+          className={styles.badge}
+          onClick={() => setRevealed(true)}
+        >
           {t("badge")}
-        </span>
+        </button>
       ) : null}
     </div>
   );

@@ -5,6 +5,7 @@ import { Link } from "@/lib/i18n/navigation";
 import { apiFetch, apiUrl, ApiError } from "@/lib/api/client";
 import type { Story } from "@/lib/api/types";
 import { legacyPlainTextToHtml } from "@/lib/content/legacyPlainTextToHtml";
+import { shareCard } from "@/lib/seo";
 import styles from "./page.module.css";
 import { PaginatedReader } from "@/components/story/PaginatedReader";
 import { LoreDossier } from "@/components/story/LoreDossier";
@@ -28,9 +29,27 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string; universeSlug: string; storySlug: string }>;
 }): Promise<Metadata> {
-  const { storySlug } = await params;
+  const { locale, universeSlug, storySlug } = await params;
   const story = await getStory(storySlug);
-  return { title: story?.title ?? "KuroNexus" };
+  const title = story?.title ?? "KuroNexus";
+  // Açıklama kaydın kendi özeti (2026-08-22 denetimi): eskiden hikâye
+  // sayfaları yalnızca başlık taşıyordu ve Google açıklamayı metinden
+  // kendisi uyduruyordu.
+  const description = story?.excerpt ?? undefined;
+  return {
+    title,
+    description,
+    // Hikâye yoksa jenerik başlık kalır, kart üretilmez
+    ...(story
+      ? shareCard({
+          title,
+          description,
+          locale,
+          path: `/dark-stories/${universeSlug}/${storySlug}`,
+          image: story.coverImage ? apiUrl(story.coverImage) : undefined,
+        })
+      : {}),
+  };
 }
 
 export default async function StoryDetailPage({

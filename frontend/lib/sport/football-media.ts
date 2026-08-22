@@ -211,22 +211,15 @@ export const FOOTBALL_MEDIA = {
   // ayırt edilebilsin diye.
 } satisfies Record<string, MediaAsset>;
 
-/**
- * Efsane slug'ı → o efsanenin ATMOSFER plakası.
- *
- * Portre küratörün (backend'de); bu, portrenin ARKASINDAKİ karedir. Kayıt
- * yoksa bölüm yalnızca CSS atmosferiyle çiziliyor — yer tutucu görsel yok.
- * Yeni efsane eklendiğinde buraya bir satır yazmak yeterli, hiçbir bileşen
- * değişmiyor.
+/*
+ * LEGEND_PLATES ve LEGEND_PORTRAIT_FALLBACK haritaları 2026-08-22'de
+ * KALDIRILDI (kullanıcı onayı): hiçbir bileşen bu haritaları okumuyordu —
+ * üstlerindeki "buraya satır yazmak yeterli" mekanizması, Hagi 21 Ağustos'ta
+ * deftere taşınınca fiilen ölmüştü (kareleri artık `lib/sport/players/hagi.ts`
+ * doğrudan `FOOTBALL_MEDIA`dan okuyor; o kayıtlar CANLI ve duruyor). Yeni bir
+ * arşiv efsanesine plaka gerekirse doğru yer defter dosyası ya da küratör
+ * yuvası — slug haritası değil.
  */
-export const LEGEND_PLATES: Record<string, MediaAsset> = {
-  hagi: FOOTBALL_MEDIA.hagiPitch,
-};
-
-/** Efsane slug'ı → portre yedeği (küratör portresi yoksa). */
-export const LEGEND_PORTRAIT_FALLBACK: Record<string, MediaAsset> = {
-  hagi: FOOTBALL_MEDIA.hagiPortrait,
-};
 
 /**
  * Bir yüzeyde kullanılan görsellerin künyelerini tekilleştirip döndürür.

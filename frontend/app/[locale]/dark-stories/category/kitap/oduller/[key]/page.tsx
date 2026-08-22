@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { shareCard } from "@/lib/seo";
+import { apiUrl } from "@/lib/api/client";
 import { fetchCategories } from "@/lib/api/universes";
 import { getAward } from "@/lib/api/books";
 import { hallLabel, hallName, hallNumber } from "@/lib/halls";
@@ -26,7 +28,16 @@ export async function generateMetadata({
   const { locale, key } = await params;
   const t = await getTranslations({ locale, namespace: "book" });
   const award = await getAward(key);
-  return { title: award?.name ?? t("awards.title") };
+  const title = award?.name ?? t("awards.title");
+  return {
+    title,
+    ...shareCard({
+      title,
+      locale,
+      path: `/dark-stories/category/kitap/oduller/${key}`,
+      image: award?.coverImage ? apiUrl(award.coverImage) : null,
+    }),
+  };
 }
 
 async function getHall(

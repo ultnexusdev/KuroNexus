@@ -3,9 +3,11 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
 import { fetchClub, pick, type FootballEra } from "@/lib/api/sport-archive";
+import { apiUrl } from "@/lib/api/client";
 import { fetchClubLive } from "@/lib/api/football-live";
 import { readIsAdmin } from "@/lib/auth/session";
 import { sportHref } from "@/lib/sport/routes";
+import { shareCard } from "@/lib/seo";
 import { Reveal } from "@/components/sport/Reveal";
 import { LiveSeason } from "@/components/sport/football/LiveSeason";
 import shell from "../../layout.module.css";
@@ -21,9 +23,21 @@ export async function generateMetadata({
   const { locale, clubSlug } = await params;
   try {
     const { club } = await fetchClub(clubSlug);
+    const title = club.name;
+    const description =
+      pick(locale, club.taglineTr, club.taglineEn) || undefined;
+    // Kart karesi: kapak, yoksa arma
+    const cover = club.coverImage ?? club.crestImage;
     return {
-      title: club.name,
-      description: pick(locale, club.taglineTr, club.taglineEn) || undefined,
+      title,
+      description,
+      ...shareCard({
+        title,
+        description,
+        locale,
+        path: sportHref.club(clubSlug),
+        ...(cover ? { image: apiUrl(cover) } : {}),
+      }),
     };
   } catch {
     return {};

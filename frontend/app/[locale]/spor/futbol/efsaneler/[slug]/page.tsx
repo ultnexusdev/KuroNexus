@@ -3,8 +3,10 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Link, redirect } from "@/lib/i18n/navigation";
 import { fetchLegend, pick } from "@/lib/api/sport-archive";
+import { apiUrl } from "@/lib/api/client";
 import { isInNotebook } from "@/lib/sport/favourite-players";
 import { sportHref } from "@/lib/sport/routes";
+import { shareCard } from "@/lib/seo";
 import { Reveal } from "@/components/sport/Reveal";
 import shell from "../../../layout.module.css";
 import styles from "./page.module.css";
@@ -19,9 +21,21 @@ export async function generateMetadata({
   const { locale, slug } = await params;
   try {
     const { legend } = await fetchLegend(slug);
+    const title = legend.name;
+    const description =
+      pick(locale, legend.epithetTr, legend.epithetEn) || undefined;
     return {
-      title: legend.name,
-      description: pick(locale, legend.epithetTr, legend.epithetEn) || undefined,
+      title,
+      description,
+      ...shareCard({
+        title,
+        description,
+        locale,
+        path: sportHref.legend(slug),
+        ...(legend.portraitImage
+          ? { image: apiUrl(legend.portraitImage) }
+          : {}),
+      }),
     };
   } catch {
     return {};

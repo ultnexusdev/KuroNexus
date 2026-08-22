@@ -157,7 +157,10 @@ export function BookCard({
 
   return (
     <article className={styles.card}>
-      <Link href={href} className={styles.coverWrap}>
+      {/* Kapak bağlantısı erişilebilirlik ağacında YOK: erişilebilir adı boştu
+          (görselin alt=""), üstelik aşağıdaki başlık bağlantısıyla aynı yere
+          gidiyor — ekran okuyucuya kart başına tek durak (2026-08-22 denetim). */}
+      <Link href={href} className={styles.coverWrap} aria-hidden="true" tabIndex={-1}>
         {/* `sizes` CANLIDA ÖLÇÜLDÜ (2026-08-09), hesaplanmadı: `.coverWrap`
             kutusunun gerçek genişliği 375px'te 106, 768'de 135, 1280'de 128,
             1920'de 130 px. Kart ızgarası `repeat(auto-fill, minmax(126px,1fr))`

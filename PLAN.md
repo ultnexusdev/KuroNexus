@@ -513,6 +513,32 @@ Dönemler ve Rütbeler'in görsel zenginleşmesi.
   bölümü eklendi (61 kişi, dolu/boş göstergeli). `images` ucu 50 kimlikte
   kestiği için `getCharacterImagesBulk` 50'lik parçalara bölüyor.
 
+## 5k · KUYRUKLU CANAVARLAR — SİNEMATİK SAHNE (22 Ağustos, ikinci tur)
+
+Kullanıcı dokuz jinchūriki+bijuu illüstrasyonunu (Downloads'tan, 1408×768
++ Kurama 1536×1024) verdi ve ayrıntılı bir yeniden tasarım komutu yazdı;
+otonom uygulandı (81404c6).
+
+- **BijuuStage** (`components/anime/naruto/`): küçük künye paneli kalktı —
+  görsel tam kadraj hero (min 74vh), %100 opaklık, karartma yalnız alt
+  metin gradient'i (komut §7 "görsel fona düşürülmez" kuralı CSS'te
+  yorumla işaretli). `focus` alanı görsel başına elle yazıldı.
+- **Kademeli ray:** satır boyu/glow `--t=(n-1)/8` ile ölçeklenir, solda
+  kuyruk sayısı kadar çentik; seçili satır kendi chakra rengine bürünür,
+  bölüm accent'i (`--beast-accent`) 350ms'de döner. Renkler komuttaki
+  dokuz hex (Kokuō koyu zemin varyantı #A8A9C8 seçildi).
+- **Geçiş:** AkatsukiPortal dili — eski kadraj merkeze daralır
+  (bijuuContract), yenisi radyal chakra flaşıyla girer (bijuuFlash);
+  hover'da soldan sağa chakra sızıntısı çizgisi. Komşu sahneler
+  `window.Image` ile ısıtılır; yüklenene dek chakra perdesi (blur-up
+  yerine renk perdesi — uzak görselde base64 placeholder üretmemek için).
+- **Jūbi kapanışı:** saf SVG — dokuz renkli şerit + küre, ortada gölge
+  kütle ve dokuz tomoe'li halkalı göz; gerçek Jūbi görseli bilinçli yok.
+- **Kürasyon:** 9 sahne `naruto:bijuu:<slug>` ABILITY yuvası (bölüm içi
+  şerit + kuşak kaydı). WebP'ler yüklendi (9/9, ilk deneme ECONNRESET
+  yedi, done-log'la ikinci deneme tamamladı); orijinaller
+  `K:\KURONEXUS-uretim\bijuu-2026-08-22\orijinal\`.
+
 ## 6 · AÇIK RİSKLER
 
 - Kurulum ucu canlıda admin tetiklemesi bekler; o güne kadar sergi AniList

@@ -137,11 +137,17 @@ export interface NarutoJutsu {
 
 export interface NarutoBijuu {
   n: number;
+  /** Görsel yuvası anahtarının parçası (`naruto:bijuu:<slug>`) */
+  slug: string;
   tails: string;
   name: string;
   jin: string;
   power: string;
   desc: string;
+  /** Chakra rengi — seçiliyken bölümün bütün accent'i buna döner */
+  accent: string;
+  /** Hero kadrajının odağı (object-position); jinchūriki + bijuu ikisi de kadrajda kalsın */
+  focus: string;
 }
 
 export interface NarutoHokage {

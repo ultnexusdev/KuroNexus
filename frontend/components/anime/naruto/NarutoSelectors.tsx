@@ -3,7 +3,6 @@
 import { useId, useState } from "react";
 import Image from "next/image";
 import type {
-  NarutoBijuu,
   NarutoElement,
   NarutoEra,
   NarutoEye,
@@ -259,52 +258,9 @@ export function NarutoDojutsu({ eyes }: { eyes: NarutoEye[] }) {
   );
 }
 
-/* ══════════════════════════════════════════════════════════════════════
-   4 · KUYRUKLU CANAVARLAR
-   ══════════════════════════════════════════════════════════════════════ */
-export function NarutoBijuuPicker({ bijuu }: { bijuu: NarutoBijuu[] }) {
-  const [n, setN] = useState(bijuu[bijuu.length - 1]?.n ?? 1);
-  const sel = bijuu.find((b) => b.n === n) ?? bijuu[0];
-
-  if (!sel) return null;
-
-  return (
-    <div className={styles.split}>
-      <div className={styles.rail} data-dense>
-        {bijuu.map((b) => (
-          <RailButton
-            key={b.n}
-            active={b.n === sel.n}
-            onSelect={() => setN(b.n)}
-          >
-            <span className={styles.railTails} aria-hidden>
-              {String(b.n).padStart(2, "0")}
-            </span>
-            <span className={styles.railName}>{b.name}</span>
-            <span className={styles.railMeta}>{b.jin}</span>
-          </RailButton>
-        ))}
-      </div>
-
-      <div className={styles.dossier} aria-live="polite">
-        <p className={styles.dossierCode}>{sel.tails}</p>
-        <h3 className={styles.dossierName}>{sel.name}</h3>
-        <p className={styles.dossierNote}>{sel.desc}</p>
-
-        <dl className={styles.spec}>
-          <div>
-            <dt>Jinchūriki</dt>
-            <dd>{sel.jin}</dd>
-          </div>
-          <div>
-            <dt>Güç</dt>
-            <dd>{sel.power}</dd>
-          </div>
-        </dl>
-      </div>
-    </div>
-  );
-}
+/* Bijuu seçicisi buradan taşındı: Kuyruklu Canavarlar artık kendi
+   sinematik sahnesinde (`BijuuStage.tsx`) — tam kadraj illüstrasyon,
+   kademeli ray ve chakra renk teması küçük künye kalıbına sığmıyordu. */
 
 /* ══════════════════════════════════════════════════════════════════════
    5 · TARİH — dönem zaman çizelgesi

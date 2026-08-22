@@ -68,6 +68,14 @@ export const NARUTO_ELEMENT_IDS = [
   "earth",
 ] as const;
 
+/**
+ * Kuyruklu canavar sahnesinin görsel anahtarı — jinchūriki + bijuu
+ * illüstrasyonu (`BijuuStage` tam kadraj çizer). Aynı ABILITY deseni.
+ */
+export function narutoBijuuKey(slug: string): string {
+  return `naruto:bijuu:${slug}`;
+}
+
 /** Küratör kuşağında listelenen yuvalar — sıra sayfadaki sırayla aynı */
 export const NARUTO_IMAGE_SLOTS: {
   key: string;
@@ -89,6 +97,15 @@ export const NARUTO_IMAGE_SLOTS: {
   { key: narutoElementKey("earth"), label: "Element · Toprak", hint: "Doton panelinin kadrajı (16:9)." },
   { key: NARUTO_IMAGE_KEYS.dojutsu, label: "Dōjutsu", hint: "Göz bölümünün kadrajı." },
   { key: NARUTO_IMAGE_KEYS.bijuu, label: "Kuyruklu Canavarlar", hint: "Bijuu bölümünün fonu." },
+  { key: narutoBijuuKey("shukaku"), label: "Bijuu · Shukaku", hint: "Gaara + Shukaku sahnesi (16:9)." },
+  { key: narutoBijuuKey("matatabi"), label: "Bijuu · Matatabi", hint: "Yugito + Matatabi sahnesi (16:9)." },
+  { key: narutoBijuuKey("isobu"), label: "Bijuu · Isobu", hint: "Yagura + Isobu sahnesi (16:9)." },
+  { key: narutoBijuuKey("son-goku"), label: "Bijuu · Son Gokū", hint: "Rōshi + Son Gokū sahnesi (16:9)." },
+  { key: narutoBijuuKey("kokuo"), label: "Bijuu · Kokuō", hint: "Han + Kokuō sahnesi (16:9)." },
+  { key: narutoBijuuKey("saiken"), label: "Bijuu · Saiken", hint: "Utakata + Saiken sahnesi (16:9)." },
+  { key: narutoBijuuKey("chomei"), label: "Bijuu · Chōmei", hint: "Fū + Chōmei sahnesi (16:9)." },
+  { key: narutoBijuuKey("gyuki"), label: "Bijuu · Gyūki", hint: "Killer B + Gyūki sahnesi (16:9)." },
+  { key: narutoBijuuKey("kurama"), label: "Bijuu · Kurama", hint: "Naruto + Kurama sahnesi (3:2)." },
   { key: NARUTO_IMAGE_KEYS.hokageHall, label: "Hokage Salonu", hint: "Yedi Hokage bir arada." },
   { key: NARUTO_IMAGE_KEYS.history, label: "Tarih", hint: "Savaş dönemleri bandı." },
   { key: NARUTO_IMAGE_KEYS.valley, label: "Son Vadisi", hint: "Efsanevi Savaşlar bölümü." },

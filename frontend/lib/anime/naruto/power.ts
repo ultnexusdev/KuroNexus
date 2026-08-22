@@ -260,74 +260,106 @@ export const NARUTO_JUTSU: NarutoJutsu[] = [
   },
 ];
 
-/** Dokuz kuyruklu canavar ve jinchūriki'leri */
+/**
+ * Dokuz kuyruklu canavar ve jinchūriki'leri.
+ *
+ * `accent` her canavarın chakra rengi — sahne seçiliyken bütün bölümün
+ * accent'i buna döner (22 Ağustos sinematik turu). `focus` üretilen
+ * illüstrasyonun kadraj odağı: karakter ile bijuu'nun İKİSİ de görünür
+ * kalacak nokta, görsel tek tek denetlenerek yazıldı.
+ */
 export const NARUTO_BIJUU: NarutoBijuu[] = [
   {
     n: 1,
+    slug: "shukaku",
     tails: "01 TAILS",
     name: "Shukaku",
     jin: "Gaara",
     power: "Kum · Manyetik Salım",
     desc: "Uykusuz, tetikte ve kavgacı. Kum kalkanının ve Manyetik Salım'ın kaynağı.",
+    accent: "#C9A660",
+    focus: "center 30%",
   },
   {
     n: 2,
+    slug: "matatabi",
     tails: "02 TAILS",
     name: "Matatabi",
     jin: "Yugito Nii",
     power: "Mavi ateş",
     desc: "İki kuyruklu kedi. Sönmeyen mavi alevle savaşır.",
+    accent: "#3FA9F5",
+    focus: "center 32%",
   },
   {
     n: 3,
+    slug: "isobu",
     tails: "03 TAILS",
     name: "Isobu",
     jin: "Yagura Karatachi",
     power: "Mercan · Su",
     desc: "Kabuğuna çekilen dev kaplumbağa. Mercan hastalığı yayar.",
+    accent: "#7C6FCB",
+    focus: "center 35%",
   },
   {
     n: 4,
+    slug: "son-goku",
     tails: "04 TAILS",
     name: "Son Gokū",
     jin: "Rōshi",
     power: "Lav Salımı",
     desc: "Maymun kral. Kızgın lavı püskürtür; adını Naruto'ya kendi söyler.",
+    accent: "#E8542A",
+    focus: "center 30%",
   },
   {
     n: 5,
+    slug: "kokuo",
     tails: "05 TAILS",
     name: "Kokuō",
     jin: "Han",
     power: "Buhar · Yōton",
     desc: "Beş kuyruklu delfin-at. Kaynayan buharla ham güç üretir.",
+    accent: "#A8A9C8",
+    focus: "center 32%",
   },
   {
     n: 6,
+    slug: "saiken",
     tails: "06 TAILS",
     name: "Saiken",
     jin: "Utakata",
     power: "Asit · Sabun",
     desc: "Sümüklü böcek. Eriten asit ve zehirli sis salar.",
+    accent: "#A8D8B9",
+    focus: "center 35%",
   },
   {
     n: 7,
+    slug: "chomei",
     tails: "07 TAILS",
     name: "Chōmei",
     jin: "Fū",
     power: "Uçuş · Toz",
     desc: "Yedi kuyruklu böcek. Kanatlarıyla havada süzülür.",
+    accent: "#D4B24C",
+    focus: "center 35%",
   },
   {
     n: 8,
+    slug: "gyuki",
     tails: "08 TAILS",
     name: "Gyūki",
     jin: "Killer B",
     power: "Mürekkep · Boğa gücü",
     desc: "Ahtapot-boğa. Jinchūriki'siyle tam uyum kuran ilk bijuu'lardan.",
+    accent: "#6B4FA0",
+    focus: "center 28%",
   },
   {
     n: 9,
+    slug: "kurama",
     tails: "09 TAILS",
     name: "Kurama",
     jin: "Naruto Uzumaki",
@@ -335,5 +367,7 @@ export const NARUTO_BIJUU: NarutoBijuu[] = [
     desc:
       "Dokuz kuyruklu tilki. Kaguya'nın gücünün en büyük parçası ve " +
       "nefretten dostluğa dönen bağın adı.",
+    accent: "#F0A030",
+    focus: "center 38%",
   },
 ];

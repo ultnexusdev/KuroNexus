@@ -78,18 +78,6 @@
   color: var(--rec, var(--accent));
 }
 
-.railTails {
-  grid-area: mark;
-  font-family: var(--font-bebas), var(--font-sans);
-  font-size: 1.5rem;
-  line-height: 1;
-  color: var(--text-muted);
-}
-
-.railItem[data-active] .railTails {
-  color: var(--accent);
-}
-
 .railName {
   grid-area: name;
   font-size: 0.95rem;

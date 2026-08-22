@@ -34,6 +34,7 @@ import {
   NARUTO_UCHIHA_LINE,
   NARUTO_VILLAGES,
   NARUTO_ELEMENT_IDS,
+  narutoBijuuKey,
   narutoElementKey,
   narutoPeopleIds,
   narutoPerson,
@@ -44,9 +45,9 @@ import { CuratorSlot } from "@/components/character/CuratorSlot";
 import { AkatsukiCloud } from "@/components/anime/AkatsukiCloud";
 import { ClanEmblem, UzumakiSpiral } from "@/components/anime/naruto/ClanEmblems";
 import { NarutoFace, NarutoFigureChip } from "@/components/anime/naruto/NarutoFace";
+import { BijuuStage } from "@/components/anime/naruto/BijuuStage";
 import {
   NarutoAtlas,
-  NarutoBijuuPicker,
   NarutoChakra,
   NarutoChronicle,
   NarutoDojutsu,
@@ -136,6 +137,14 @@ export default async function NarutoUniversePage() {
     NARUTO_ELEMENT_IDS.map((id) => {
       const row = art(narutoElementKey(id));
       return [id, row ? apiUrl(row.url) : null];
+    }),
+  ) as Record<string, string | null>;
+
+  /** Bijuu sahneleri: slug → mutlak adres (jinchūriki + canavar kadrajı) */
+  const bijuuArt = Object.fromEntries(
+    NARUTO_BIJUU.map((beast) => {
+      const row = art(narutoBijuuKey(beast.slug));
+      return [beast.slug, row ? apiUrl(row.url) : null];
     }),
   ) as Record<string, string | null>;
 
@@ -616,7 +625,11 @@ export default async function NarutoUniversePage() {
           </ul>
         </Section>
 
-        {/* ══ 11 · BIJUU ═════════════════════════════════════════════ */}
+        {/* ══ 11 · BIJUU — SİNEMATİK SAHNE ═══════════════════════════
+            Üretilen dokuz jinchūriki + bijuu illüstrasyonu bölümün ana
+            görsel kahramanı: tam kadraj, %100 opaklık. Ray kuyruk
+            sayısına göre kademeli; seçim bütün accent'i o canavarın
+            chakra rengine döndürür. */}
         <Section
           title="Kuyruklu Canavarlar"
           lede="Ten-Tails'in dokuz parçası ve onları taşıyanlar."
@@ -625,7 +638,34 @@ export default async function NarutoUniversePage() {
           slotLabel="Bijuu fonu"
           isAdmin={isAdmin}
         >
-          <NarutoBijuuPicker bijuu={NARUTO_BIJUU} />
+          <BijuuStage bijuu={NARUTO_BIJUU} art={bijuuArt} />
+
+          {/* Kürasyon: dokuz sahnenin yuvaları bölümün içinde */}
+          {isAdmin ? (
+            <div data-curator-slot className={styles.elementSlots}>
+              {NARUTO_BIJUU.map((beast) => (
+                <CuratorSlot
+                  key={beast.slug}
+                  characterId={NARUTO_OWNER_ID}
+                  slot="ABILITY"
+                  abilityName={narutoBijuuKey(beast.slug)}
+                  label={`Bijuu sahnesi · ${beast.name}`}
+                />
+              ))}
+            </div>
+          ) : null}
+
+          {/* Kapanış: dokuz parça tek gövdede — sembolik Jūbi mührü.
+              Gerçek bir Jūbi görseli bilinçli olarak YOK; dokuz chakra
+              şeridi ortadaki gölge kütleye akar (komut §5). */}
+          <div className={styles.jubi}>
+            <h3 className={styles.jubiTitle}>{"TEN-TAILS'İN DOKUZ PARÇASI"}</h3>
+            <p className={styles.jubiLede}>
+              Dokuz chakra ayrı bedenlerde gezer; mühür çözülürse hepsi tek
+              gölgede birleşir.
+            </p>
+            <JubiSeal beasts={NARUTO_BIJUU} />
+          </div>
         </Section>
 
         {/* ══ 12 · HOKAGE SALONU ═════════════════════════════════════ */}
@@ -957,4 +997,91 @@ function CuratorSlotIf({
 }: { enabled: boolean } & Parameters<typeof CuratorSlot>[0]) {
   if (!enabled) return null;
   return <CuratorSlot {...props} />;
+}
+
+/**
+ * Jūbi mührü — dokuz chakra şeridinin ortadaki gölge kütleye aktığı
+ * sembolik kapanış. Sunucuda çizilen saf SVG: görsel dosyası yok, istek
+ * yok; her şerit/küre kendi canavarının chakra rengini taşır. Gerçek bir
+ * Jūbi illüstrasyonu bilinçli olarak üretilmedi — kapanış soyut (komut §5).
+ */
+function JubiSeal({ beasts }: { beasts: typeof NARUTO_BIJUU }) {
+  const orbX = (i: number) => 90 + i * 90;
+  return (
+    <svg
+      viewBox="0 0 900 320"
+      className={styles.jubiSvg}
+      role="img"
+      aria-label="Dokuz bijuu chakrasının Jūbi gölgesinde birleşişi"
+    >
+      {/* Gölge kütle: belirsiz gövde + boynuz hatları */}
+      <path
+        d="M310 190 C310 120 360 78 415 70 L432 40 L448 66 L470 34 L484 64
+           C548 68 592 118 592 182 C592 232 540 258 450 258 C360 258 310 236 310 190 Z"
+        fill="#07080d"
+        stroke="rgba(146,64,78,0.35)"
+        strokeWidth="1.5"
+      />
+      {/* Göz: halkalar + dokuz tomoe (Rinne Sharingan'ın gölgesi) */}
+      <g className={styles.jubiEye}>
+        <circle cx="450" cy="152" r="46" fill="#16090d" stroke="#8f3c47" strokeWidth="2" />
+        <circle cx="450" cy="152" r="33" fill="none" stroke="#a5454f" strokeWidth="1.4" opacity="0.85" />
+        <circle cx="450" cy="152" r="20" fill="none" stroke="#a5454f" strokeWidth="1.2" opacity="0.7" />
+        <circle cx="450" cy="152" r="8" fill="#a5454f" />
+        {beasts.map((beast, i) => {
+          const a = (i / beasts.length) * Math.PI * 2 - Math.PI / 2;
+          return (
+            <circle
+              key={beast.slug}
+              cx={450 + Math.cos(a) * 26.5}
+              cy={152 + Math.sin(a) * 26.5}
+              r="3.6"
+              fill="#7e2f3a"
+            />
+          );
+        })}
+      </g>
+      {/* Dokuz şerit: her küreden merkeze akan chakra */}
+      {beasts.map((beast, i) => {
+        const x = orbX(i);
+        const cx = x + (450 - x) * 0.22;
+        return (
+          <path
+            key={`strand-${beast.slug}`}
+            className={styles.jubiStrand}
+            d={`M${x} 268 Q ${cx} 224 450 186`}
+            fill="none"
+            stroke={beast.accent}
+            strokeWidth="2.4"
+            strokeLinecap="round"
+            opacity="0.7"
+          />
+        );
+      })}
+      {/* Dokuz küre: kendi renginde ince glow + kuyruk numarası */}
+      {beasts.map((beast, i) => {
+        const x = orbX(i);
+        return (
+          <g
+            key={`orb-${beast.slug}`}
+            className={styles.jubiOrb}
+            style={{ animationDelay: `${i * 0.35}s` } as React.CSSProperties}
+          >
+            <circle cx={x} cy="272" r="12" fill={beast.accent} opacity="0.2" />
+            <circle cx={x} cy="272" r="5.5" fill={beast.accent} />
+            <text
+              x={x}
+              y="300"
+              textAnchor="middle"
+              fontSize="11"
+              fontFamily="var(--font-mono)"
+              fill="rgba(214,210,200,0.55)"
+            >
+              {String(beast.n).padStart(2, "0")}
+            </text>
+          </g>
+        );
+      })}
+    </svg>
+  );
 }

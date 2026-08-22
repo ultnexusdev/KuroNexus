@@ -1,0 +1,426 @@
+/* Kuyruklu Canavarlar — sinematik sahne derisi.
+
+   `--beast-accent` sahnenin köküne inline gelir (seçili canavarın chakra
+   rengi); tüketen her özellik kendi transition'ını taşıdığı için renk
+   değişimi 350ms'de akar. Satırların kendi rengi `--row-accent`.
+
+   Kural (komut §7): görsel HİÇBİR koşulda soluklaştırılmaz; karartma
+   yalnızca alt kenardaki yerel metin gradient'i. */
+
+.stage {
+  display: grid;
+  grid-template-columns: minmax(15rem, 0.38fr) minmax(0, 1fr);
+  gap: clamp(1rem, 2.5vw, 2rem);
+  align-items: stretch;
+}
+
+/* ── KADEMELİ RAY ───────────────────────────────────────────────────── */
+.rail {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-width: 0;
+}
+
+.row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.35rem 2.1rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  min-height: var(--touch-min);
+  /* Kademeli ağırlık: 01 en sade, 09 en iri (—t: 0→1) */
+  padding: calc(0.45rem + var(--t) * 0.5rem) 0.75rem;
+  border: 1px solid var(--border);
+  border-left: 3px solid transparent;
+  background: var(--surface);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  opacity: calc(0.62 + var(--t) * 0.16);
+  isolation: isolate;
+  overflow: hidden;
+  transition:
+    opacity 260ms ease,
+    border-color 350ms ease,
+    background-color 350ms ease,
+    translate 320ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    box-shadow 350ms ease;
+}
+
+.row:hover {
+  opacity: 1;
+  border-color: color-mix(in srgb, var(--row-accent) 40%, var(--border));
+}
+
+/* Chakra sızıntısı: hover'da soldan sağa kayan ince renk çizgisi */
+.row::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 2px;
+  background: linear-gradient(
+    to right,
+    var(--row-accent),
+    color-mix(in srgb, var(--row-accent) 30%, transparent) 70%,
+    transparent
+  );
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 420ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.row:hover::after {
+  transform: scaleX(1);
+}
+
+.row:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: -2px;
+}
+
+/* Seçili satır: kendi chakra rengine bürünür, hafif sağa kayar */
+.row[data-active] {
+  opacity: 1;
+  translate: 6px 0;
+  border-color: color-mix(in srgb, var(--row-accent) 55%, var(--border));
+  border-left-color: var(--row-accent);
+  background: color-mix(in srgb, var(--row-accent) 9%, var(--surface));
+  box-shadow: 0 0 26px -10px var(--row-accent);
+}
+
+/* Kuyruk sayacı: canavarın kuyruğu kadar çentik */
+.ticks {
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: center;
+  gap: 2px;
+}
+
+.ticks i {
+  display: block;
+  width: calc(0.5rem + var(--t) * 0.25rem);
+  height: 2px;
+  background: color-mix(in srgb, var(--row-accent) 45%, var(--border-strong));
+  transition: background-color 350ms ease;
+}
+
+.row[data-active] .ticks i {
+  background: var(--row-accent);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--row-accent) 60%, transparent);
+}
+
+.rowNo {
+  font-family: var(--font-mono);
+  font-size: calc(0.68rem + var(--t) * 0.14rem);
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.row[data-active] .rowNo {
+  color: var(--row-accent);
+}
+
+.rowBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.rowName {
+  font-family: var(--font-bebas), var(--font-sans);
+  /* 01 → ~1.02rem, 09 → ~1.65rem: hiyerarşi puntodan */
+  font-size: calc(1rem + var(--t) * 0.66rem);
+  letter-spacing: 0.03em;
+  line-height: 1;
+  color: var(--text-primary);
+  transition: text-shadow 350ms ease;
+}
+
+.row[data-active] .rowName {
+  text-shadow: 0 0 calc(8px + var(--t) * 14px)
+    color-mix(in srgb, var(--row-accent) calc(35% + var(--t) * 40%), transparent);
+}
+
+.rowJin {
+  font-size: calc(0.66rem + var(--t) * 0.08rem);
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+}
+
+/* ── TAM KADRAJ SAHNE ───────────────────────────────────────────────── */
+.hero {
+  position: relative;
+  min-height: clamp(26rem, 74vh, 46rem);
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid color-mix(in srgb, var(--beast-accent) 40%, var(--border));
+  background: var(--surface);
+  box-shadow: 0 0 60px -28px var(--beast-accent);
+  transition: border-color 350ms ease, box-shadow 350ms ease;
+}
+
+.heroCur,
+.heroPrev {
+  position: absolute;
+  inset: 0;
+}
+
+/* Görsel: %100 opaklık, tam kadraj. Karartma YOK. */
+.heroCur img,
+.heroPrev img {
+  object-fit: cover;
+}
+
+.heroCur img {
+  opacity: 0;
+  transition: opacity 420ms ease;
+}
+
+.heroCur[data-loaded] img {
+  opacity: 1;
+}
+
+/* Yüklenene kadar (ya da yuva boşsa) chakra perdesi; görsel açılınca
+   tamamen çekilir */
+.veil {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(
+      70% 60% at 50% 40%,
+      color-mix(in srgb, var(--beast-accent) 16%, transparent),
+      transparent 75%
+    ),
+    var(--surface);
+}
+
+/* Portal dili: yeni kadraj chakra renginde radyal flaşla girer
+   (AkatsukiPortal.portalFlash'in bu sayfadaki karşılığı) */
+.flash {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    60% 60% at 50% 50%,
+    color-mix(in srgb, var(--beast-accent) 55%, transparent),
+    transparent 70%
+  );
+  opacity: 0;
+}
+
+/* Eski kadraj merkeze daralarak kaybolur */
+@media (prefers-reduced-motion: no-preference) {
+  .heroPrev {
+    animation: bijuuContract 460ms cubic-bezier(0.55, 0, 0.85, 0.4) forwards;
+  }
+
+  .heroCur {
+    animation: bijuuEnter 520ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  }
+
+  .flash {
+    animation: bijuuFlash 520ms ease-out forwards;
+  }
+}
+
+@keyframes bijuuContract {
+  from {
+    scale: 1;
+    opacity: 1;
+  }
+  to {
+    scale: 0.78;
+    opacity: 0;
+  }
+}
+
+@keyframes bijuuEnter {
+  from {
+    scale: 1.07;
+  }
+  to {
+    scale: 1;
+  }
+}
+
+@keyframes bijuuFlash {
+  0% {
+    opacity: 0;
+  }
+  45% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* ── KÜNYE — alt kenar, yerel gradient ──────────────────────────────── */
+.plate {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: clamp(3rem, 7vw, 5rem) clamp(1.25rem, 2.5vw, 2rem)
+    clamp(1rem, 2.2vw, 1.5rem);
+  background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.85) 72%);
+}
+
+.plateCode {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  color: var(--beast-accent);
+  transition: color 350ms ease;
+}
+
+.plateName {
+  margin: 0;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(2.25rem, 5vw, 3.75rem);
+  line-height: 0.95;
+  letter-spacing: 0.02em;
+  color: #f2efe8;
+  text-shadow: 0 0 34px color-mix(in srgb, var(--beast-accent) 55%, transparent);
+  transition: text-shadow 350ms ease;
+}
+
+.plateDesc {
+  margin: 0.15rem 0 0;
+  max-width: 56ch;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: rgba(238, 235, 228, 0.86);
+}
+
+.plateSpec {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 2rem;
+  margin: 0.6rem 0 0;
+}
+
+.plateSpec > div {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+
+.plateSpec dt {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--beast-accent) 75%, #fff);
+  transition: color 350ms ease;
+}
+
+.plateSpec dd {
+  margin: 0;
+  font-size: 0.88rem;
+  color: rgba(238, 235, 228, 0.92);
+}
+
+/* ── MOBİL: sahne üstte, ray yatay çip şeridi ───────────────────────── */
+@media (max-width: 860px) {
+  .stage {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .hero {
+    order: -1;
+    min-height: 64svh;
+  }
+
+  .rail {
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 0.4rem;
+    padding-bottom: 0.4rem;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .rail li {
+    flex: none;
+    scroll-snap-align: start;
+  }
+
+  .row,
+  .row[data-active] {
+    translate: 0 0;
+  }
+
+  .row {
+    grid-template-columns: auto auto;
+    grid-template-areas:
+      "no name"
+      "ticks ticks";
+    gap: 0.2rem 0.5rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .ticks {
+    grid-area: ticks;
+    flex-direction: row;
+  }
+
+  .rowNo {
+    grid-area: no;
+  }
+
+  .rowBody {
+    grid-area: name;
+  }
+
+  .rowName {
+    font-size: calc(0.95rem + var(--t) * 0.35rem);
+    white-space: nowrap;
+  }
+
+  .rowJin {
+    display: none;
+  }
+
+  .plateDesc {
+    font-size: 0.84rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .row,
+  .row::after,
+  .ticks i,
+  .hero,
+  .heroCur,
+  .heroPrev,
+  .heroCur img,
+  .flash,
+  .plateCode,
+  .plateName,
+  .plateSpec dt {
+    transition: none;
+    animation: none;
+  }
+
+  .heroCur img {
+    opacity: 1;
+  }
+
+  .heroPrev {
+    display: none;
+  }
+}

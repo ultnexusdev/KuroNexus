@@ -1,0 +1,53 @@
+/* ============================================================
+   BIR KATMAN
+
+   Tema degisimi tamamen `globals.css`te ve nitelik uzerinden; burada
+   duran sey yalnizca katmanin ritmi ve yerlesimi.
+   ============================================================ */
+
+.layer {
+  position: relative;
+  isolation: isolate;
+  /* Katman en az bir tam ekran: "boyut degistirdim" hissi yuksekligin
+     kendisinden geliyor. `min-height` — icerik tasarsa buyuyor. */
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  padding-block: clamp(4rem, 12vh, 9rem);
+  /* Ray sag kenarda; govde onun altina girmiyor */
+  padding-inline-end: var(--rail);
+
+  background: var(--bg);
+  color: var(--text-primary);
+
+  /* ⚠️ Yalnizca RENK animasyonu — layout'a dokunan hicbir ozellik yok,
+     yani katman gecisinde CLS = 0. Sayfa kokundeki gecisin ayni degeri. */
+  transition: background-color 600ms ease-in-out, color 600ms ease-in-out;
+}
+
+.inner {
+  position: relative;
+  z-index: 1;
+  width: var(--band);
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1rem, 2vw, 1.75rem);
+}
+
+.eyebrow {
+  margin: 0;
+}
+
+/* Mobilde ray 4px'e iniyor, govde nefes alsin */
+@media (max-width: 900px) {
+  .layer {
+    padding-inline-end: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .layer {
+    transition: none;
+  }
+}

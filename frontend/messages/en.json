@@ -1496,7 +1496,21 @@
         "lede": "Every soul leaves a shadow. Every blade has a name.",
         "note": "This page is under construction. Only the curator infrastructure is in place for now: the slot manifest, individually editable frames and the missing-images panel. The sections arrive once the design system is set.",
         "slotsTitle": "Slot trial",
-        "slotsLede": "The three frames below are real slots. Turn on curator mode and fill them."
+        "slotsLede": "The three frames below are real slots. Turn on curator mode and fill them.",
+        "playgroundLink": "Open the design system trial →"
+      },
+      "world": {
+        "railAria": "Spiritual layers",
+        "layers": {
+          "living": "Karakura",
+          "soul-society": "Seireitei",
+          "hueco-mundo": "Las Noches",
+          "royal": "Reiōkyū",
+          "wandenreich": "Silbern"
+        },
+        "playgroundTitle": "Design system trial",
+        "playgroundNote": "This route carries no content: it exercises the five world palettes, the depth rail and the Senkaimon transition together. The sections arrive in a separate pass.",
+        "scaleTitle": "Type scale"
       }
     }
   },

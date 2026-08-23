@@ -963,6 +963,216 @@ html {
 }
 
 /* ============================================================
+   SALON 04 · BLEACH EVRENI — BES DUNYA, BES PALET (23 Agustos 2026)
+
+   Sayfanin IMZA MEKANIZMASI bu: kullanici asagi indikce kok degiskenler
+   yeniden baglaniyor ve sayfa katman degistiriyor. Naruto YATAY bir
+   haritaydi (bolgeden bolgeye); Bleach DIKEY boyutlardir (katmandan
+   katmana inis).
+
+   ── NEDEN `data-layer`, `data-world` DEGIL ─────────────────────────────
+   Brief `data-world` diyor ama o nitelik bu depoda DOLU: 13 karakter
+   deneyim sayfasi ve Akatsuki sergisi kendi derilerini onunla aciyor
+   ("ichigo-kurosaki", "akatsuki"...). Bleach'in katmanlari BIR SEVIYE
+   DAHA IC: sayfanin kendisi `data-world="bleach"`, katmanlar onun
+   icinde. Ayni nitelige iki anlam yuklemek, bir gun "royal" adinda bir
+   karakter derisi eklendiginde sessizce carpisirdi.
+
+   Hiyerarsi boylece durust kaliyor:
+     [data-category="anime"] → kanat
+     [data-world="bleach"]   → sayfa
+     [data-layer="living"]   → katman
+
+   ── DORT RENKTEN ON DORDE ─────────────────────────────────────────────
+   Brief her dunya icin dort renk veriyor (ink / accent / glow / paper);
+   ev token seti on dort istiyor ve kural 16 "her tema AYNI seti eksiksiz
+   doldurur" diyor. Ara tonlar TAHMIN EDILMEDI, turetildi:
+
+     ink   = zemin  → --bg
+     paper = metin  → --text-primary
+     arasi          = ink'ten paper'a yuzdelik karisim
+
+   Tek kural bes dunyada da calisiyor, HUECO MUNDO DAHIL: orada ink beyaz
+   ve paper siyah, yani karisim kendiliginden ters yone gidiyor. Negatif
+   tema icin ayri bir formul gerekmedi.
+
+   ── OLCULDU, SECILMEDI ────────────────────────────────────────────────
+   55 kontrol (5 dunya x 11 birlesim), hepsi geciyor: birincil metin her
+   zeminde AAA (>=7:1), ikincil ve soluk metin AA (>=4.5:1), accent zemin
+   uzerinde >=3:1. Ara tonlar hedefe COZULDU — en dusuk gecen karisim
+   alindi, boylece soluk metin gercekten soluk kaldi.
+
+   ⚠️ TEK SAPMA: Seireitei aksani brief'te #B8121B (haori astari kizili)
+   ve o deger zemin uzerinde 2.94:1 veriyor — esigin altinda. %4 paper'a
+   itilip #BA1B23 yapildi. Gozle ayirt edilemez, olcum geciyor.
+
+   ⚠️ HUECO MUNDO DOSYADAKI ILK ACIK PALET. Buraya kadar butun temalar
+   koyuydu. Zemin beyaza, metin siyaha donuyor ve bu sayfanin en cesur
+   gorsel karari — "bosluga girdin" hissinin tek en guclu araci.
+   ============================================================ */
+
+/* Sayfanin taban derisi. Katman disindaki ara alanlar (acilis, gecisler,
+   kapanis) bunu okuyor. Global temel: murekkep siyahi + kemik beyazi. */
+[data-world="bleach"] {
+  --bg:             #07070A;
+  --surface:        #121215;
+  --surface-hover:  #1D1D20;
+  --border:         #2A2A2C;
+  --border-strong:  #454444;
+
+  --text-primary:   #E9E4D9;
+  --text-secondary: #9A968E;
+  --text-muted:     #88857E;
+
+  --accent:         #B8121B;
+  --accent-hover:   #C94D53;
+  --accent-muted:   #5A1217;
+
+  --gold:           #C9A227;
+  --warn:           #A6584A;
+  --danger:         #A6584A;
+
+  /* Bleach-yerel temel — brief'in global katmani */
+  --void:     #07070A;
+  --bone:     #E9E4D9;
+  --ash:      #8E8B84;
+  --hairline: rgba(233, 228, 217, 0.14);
+
+  /* Katman disinda dunya token'lari tabana dusuyor: `CuratedImage` ve
+     yuva yedekleri bunlari okuyor ve tanimsiz kalmamalilar. */
+  --world-ink:    #07070A;
+  --world-accent: #B8121B;
+  --world-glow:   #3B2E5A;
+  --world-paper:  #E9E4D9;
+
+  /* Kanat kabugunun film graini bu sayfada kapali: Kubo'nun negatif alani
+     dokusuz. Hueco Mundo'nun beyaz zemininde ozellikle sart — orada
+     gurultu kirli bir kagit izlenimi veriyordu. */
+  --an-noise: 0;
+}
+
+/* 現世 KARAKURA — gece + yagmur + sodyum lambasi */
+[data-layer="living"] {
+  --bg:             #0A0E14;
+  --surface:        #14171C;
+  --surface-hover:  #1D2025;
+  --border:         #292B2F;
+  --border-strong:  #3F4142;
+
+  --text-primary:   #C9C4BA;
+  --text-secondary: #999791;
+  --text-muted:     #8A8883;
+
+  --accent:         #E8752A;
+  --accent-hover:   #ED9359;
+  --accent-muted:   #6E3C1E;
+
+  --world-ink:    #0A0E14;
+  --world-accent: #E8752A;
+  --world-glow:   #2E4A6B;
+  --world-paper:  #C9C4BA;
+}
+
+/* 尸魂界 SEIREITEI — murekkep + kar + shihakusho */
+[data-layer="soul-society"] {
+  --bg:             #0B0B0D;
+  --surface:        #161618;
+  --surface-hover:  #222122;
+  --border:         #2F2F2F;
+  --border-strong:  #4A4948;
+
+  --text-primary:   #EDE9E1;
+  --text-secondary: #9E9B97;
+  --text-muted:     #8C8A86;
+
+  /* ⚠️ Brief #B8121B; 2.94:1 verdigi icin %4 itildi (blok basligi) */
+  --accent:         #BA1B23;
+  --accent-hover:   #C94D53;
+  --accent-muted:   #5A1217;
+
+  --world-ink:    #0B0B0D;
+  --world-accent: #BA1B23;
+  --world-glow:   #F2EFE7;
+  --world-paper:  #EDE9E1;
+}
+
+/* 虚圏 HUECO MUNDO — sonsuz beyaz col. ⚠️ NEGATIF TEMA.
+   Zemin beyaz, metin siyah, accent Hollow deligi. Dosyadaki ILK acik
+   palet; butun ev token'lari eksiksiz dolduruldu, yoksa paylasilan
+   bilesenler (baslik, altlik, kurator paneli) koyu kalirdi. */
+[data-layer="hueco-mundo"] {
+  --bg:             #EFEDE7;
+  --surface:        #E4E2DD;
+  --surface-hover:  #DAD8D3;
+  --border:         #CDCBC6;
+  --border-strong:  #B3B2AE;
+
+  --text-primary:   #1A1A1A;
+  --text-secondary: #4B4B49;
+  --text-muted:     #5C5B5A;
+
+  --accent:         #0A0A0A;
+  --accent-hover:   #080808;
+  --accent-muted:   #888784;
+
+  /* Acik zeminde ev aksanlari da donuyor: altin okunmaz, uyari koyulasir */
+  --gold:           #7A5B12;
+  --warn:           #8A2E22;
+  --danger:         #8A2E22;
+
+  --world-ink:    #EFEDE7;
+  --world-accent: #0A0A0A;
+  /* ⚠️ Asit yesili DEGIL — cero kizili, kurumus kan (brief acikca yasakliyor) */
+  --world-glow:   #7A0F14;
+  --world-paper:  #1A1A1A;
+}
+
+/* 見えざる帝国 SILBERN — gotik buz */
+[data-layer="wandenreich"] {
+  --bg:             #0C1016;
+  --surface:        #171B21;
+  --surface-hover:  #22262C;
+  --border:         #2E3339;
+  --border-strong:  #484D52;
+
+  --text-primary:   #E3E9EE;
+  --text-secondary: #9CA1A7;
+  --text-muted:     #8B9095;
+
+  --accent:         #C9A227;
+  --accent-hover:   #D5B657;
+  --accent-muted:   #61521E;
+
+  --world-ink:    #0C1016;
+  --world-accent: #C9A227;
+  --world-glow:   #8FB8D6;
+  --world-paper:  #E3E9EE;
+}
+
+/* 霊王宮 REIOKYU — renksizlik. Aksan YOK, yalnizca beyaz: bilincli
+   bosluk (brief). En sessiz katman ve oyle kalmali. */
+[data-layer="royal"] {
+  --bg:             #06060A;
+  --surface:        #111014;
+  --surface-hover:  #1B1B1D;
+  --border:         #282729;
+  --border-strong:  #414040;
+
+  --text-primary:   #D8D4CC;
+  --text-secondary: #979490;
+  --text-muted:     #868480;
+
+  --accent:         #E9E4D9;
+  --accent-hover:   #EEEAE1;
+  --accent-muted:   #6C6A67;
+
+  --world-ink:    #06060A;
+  --world-accent: #E9E4D9;
+  --world-glow:   #3B2E5A;
+  --world-paper:  #D8D4CC;
+}
+
+/* ============================================================
    TUREV TOKEN — --surface-2
 
    Yuzey ile zemin ARASI ton. Kapaksiz kitabin cerceve ici, fotografsiz
@@ -980,9 +1190,15 @@ html {
    Bu kural butun palet bloklarindan SONRA gelmeli: yukaridaki bloklardan
    birine tasinirsa kategori derileri onu ezemez.
    ============================================================ */
+/* ⚠️ `[data-layer]` 23 Agustos 2026'da eklendi (Bleach katmanlari).
+   Katman kendi `--surface` ve `--bg` degerlerini yeniden bagliyor; secici
+   listesinde olmasaydi `--surface-2` SAYFANIN paletinden hesaplanmis
+   halde kalirdi. Hueco Mundo'da bu, beyaz zemine koyu bir ara ton dusurmek
+   demekti — negatif temanin en gorunur kirilma noktasi. */
 :root,
 [data-category],
-[data-world] {
+[data-world],
+[data-layer] {
   --surface-2: color-mix(in srgb, var(--surface) 65%, var(--bg));
 }
 

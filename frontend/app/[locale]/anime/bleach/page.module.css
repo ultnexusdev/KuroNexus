@@ -65,3 +65,15 @@
   display: block;
   width: 100%;
 }
+
+/* Gecici: tasarim sistemi denemesine kapi. Bolumler gelince gidiyor. */
+.trialLink {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid var(--accent-muted);
+}
+
+.trialLink:hover {
+  color: var(--accent-hover);
+  border-bottom-color: var(--accent);
+}

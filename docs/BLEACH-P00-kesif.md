@@ -603,7 +603,82 @@ görsel ortadan **dikey olarak yarılıyor** ve aradan ince bir ışık geçiyor
 Senkaimon'un mikro hâli. Diğer kartlar ölçekleniyor, bu yarılıyor;
 `prefers-reduced-motion`'da yarık yok, yalnızca aydınlanma.
 
-### 8.6 Sırada
+### 8.6 P-TOKENS — tasarım sistemi (23 Ağustos 2026) ✅
+
+**BEŞ PALET, ÖLÇÜLEREK.** Brief her dünya için dört renk veriyor
+(ink / accent / glow / paper); ev token seti on dört istiyor ve kural 16
+"her tema aynı seti eksiksiz doldurur" diyor. Ara tonlar tahmin edilmedi,
+**türetildi**: `ink` = zemin, `paper` = metin, arası yüzdelik karışım. Tek
+kural beş dünyada da çalışıyor — Hueco Mundo dahil, çünkü orada ink beyaz
+ve paper siyah, karışım kendiliğinden ters yöne gidiyor. Negatif tema için
+ayrı formül gerekmedi.
+
+Ara tonlar hedefe **çözüldü** (eşiği geçen en düşük karışım), böylece soluk
+metin gerçekten soluk kaldı. `scripts/check-bleach-contrast.mjs`
+`globals.css`i okuyup 60 kontrol yapıyor: birincil metin AAA, ikincil ve
+soluk AA, accent ≥3:1. Hepsi geçiyor.
+
+⚠️ **Tek sapma:** Seireitei aksanı brief'te `#B8121B` ve zemin üzerinde
+2.94:1 veriyor — eşiğin altında. `#BA1B23` yapıldı (gözle ayırt edilemez).
+
+⚠️ **`data-layer`, `data-world` değil.** Brief `data-world` diyor ama o
+nitelik dolu: 13 karakter deneyim sayfası ve Akatsuki sergisi kendi
+derilerini onunla açıyor. Bleach katmanları bir seviye daha iç
+(`[data-category="anime"]` → `[data-world="bleach"]` → `[data-layer="living"]`).
+Aynı niteliğe iki anlam yüklemek, bir gün "royal" adlı bir karakter derisi
+eklendiğinde sessizce çarpışırdı.
+
+⚠️ **`--surface-2` türev kuralına `[data-layer]` eklendi.** Katman kendi
+`--surface`/`--bg` değerlerini bağlıyor; seçici listesinde olmasaydı ara ton
+SAYFANIN paletinden hesaplanırdı ve Hueco Mundo'da beyaz zemine koyu bir
+ton düşerdi.
+
+**DÖRT FONT.** Shippori Mincho B1 (`--font-shippori`), Jost (`--font-jost`),
+Archivo Black (`--font-numeral`), UnifrakturMaguntia (`--font-gothic`).
+Dördü de `preload: false` — yalnızca Bleach'te kullanılıyorlar ve kök düzen
+siteyi sarıyor; brief "Jost'u preload et" diyor ama o karar Bleach'i tek
+başına bir site sanıyor, bedeli diğer altı salon öderdi. Ölçüldü: hiçbir
+sayfada `<link rel="preload">` sızmıyor.
+
+Türkçe kapsamı `font-data.json`dan **ölçüldü**: Shippori, Jost ve Archivo
+`latin-ext` taşıyor (Türkçe güvenli); **yalnızca UnifrakturMaguntia
+`latin`** — ş/ğ/İ/ı yok. Yani brief'in uyarısı yalnız sonuncusu için
+geçerli. `scripts/check-bleach-fonts.mjs` gotik aileye Türkçe dize
+geçmesini denetliyor; denetimin gerçekten düştüğü sınandı.
+
+Shippori kanji taşıyor: `subsets` bilinçli yazılmadı (Yuji Boku deseni) →
+245 unicode-range dilimi, tarayıcı yalnızca geçen karakterin dilimini
+indiriyor.
+
+**ÜÇ BİLEŞEN.**
+- `WorldSection` — sunucu bileşeni. Katman kendi `data-layer`ını taşıyor,
+  tema değişimi tamamen CSS: JS kapalıyken de çalışıyor.
+- `DepthRail` — küçük istemci adası. ⚠️ Aktif katman `threshold: 0.5` ile
+  DEĞİL, görünür alanın ortasındaki sıfır yükseklikli bantla bulunuyor
+  (`rootMargin: -50% 0px -50% 0px`): katmanlar ekrandan uzun olacak ve
+  uzun bir bölümün kesişme oranı 0.5'e hiç ulaşmaz — ray o katmanı hiç
+  görmezdi. Ray aktif katmanın `data-layer`ını kendi üzerinde taşıyor,
+  yani rengini token'dan alıyor; ikinci bir renk haritası yok.
+  `theme-color` metası bölümün hesaplanmış `--bg` değerinden güncelleniyor.
+- `Senkaimon` — **sıfır JS**. `animation-timeline: view()` destekleniyorsa
+  yarık kaydırmaya bağlı açılıyor; desteklenmiyorsa (bugün Firefox) yarık
+  açık hâlde duruyor. `prefers-reduced-motion`'da sahne kısalıyor ve yarık
+  doğrudan açık — brief'in kendi kararı ("kesme de güzel durur").
+
+**GEÇİŞ CLS = 0.** Hem sayfa kökü hem katman yalnızca `background-color` ve
+`color` geçişi taşıyor; layout'a dokunan tek özellik yok.
+
+⚠️ **`playground`, `_playground` değil.** Brief alt çizgi öneriyor ama App
+Router'da `_` önekli klasör ÖZEL KLASÖRDÜR ve rotadan tamamen çıkarılır —
+ölçüldü, derleme çıktısında rota hiç görünmedi. Ön ek düşürüldü; "kalıcı
+değil" mesajını `robots: noindex` taşıyor.
+
+**Kanat dokusu token'a alındı** (`--an-noise`). Sabit değer alt ağaçtan
+ezilemiyordu (pseudo-element ebeveynde). Bleach dokuyu kapatıyor: Kubo'nun
+negatif alanı dokusuz ve Hueco Mundo'nun beyaz zemininde gürültü kirli bir
+kâğıt izlenimi veriyordu.
+
+### 8.7 Sırada
 
 `/anime/bleach` iskelet olarak duruyor ve **hiçbir yerden linkli değil**
 (`robots: noindex`). Sıradaki tur **P-TOKENS**: beş dünya paleti, derinlik

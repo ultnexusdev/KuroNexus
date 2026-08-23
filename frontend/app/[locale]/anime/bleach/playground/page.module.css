@@ -1,0 +1,72 @@
+/* ============================================================
+   /anime/bleach/_playground — TASARIM SISTEMI DENEMESI
+
+   ⚠️ GECICI ROTA. Bolumler oturduktan sonra siliniyor. Burada yalnizca
+   denemenin kendi yerlesimi var; olcek ve renk `world.module.css` ile
+   `globals.css`ten geliyor.
+   ============================================================ */
+
+.page {
+  min-height: 100svh;
+  /* Kanat kabugu `.wing` bir flex sutunu; sayfa boyunca uzasin */
+  flex: 1;
+}
+
+.opening {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(1rem, 2.4vw, 2rem);
+  padding-block: clamp(4rem, 12vh, 8rem);
+  padding-inline-end: var(--rail);
+}
+
+.note {
+  margin: 0;
+}
+
+.scale {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.75rem, 1.6vw, 1.25rem);
+  margin-top: clamp(1.5rem, 4vh, 3rem);
+  padding-top: clamp(1.5rem, 4vh, 3rem);
+  border-top: 1px solid var(--hairline);
+}
+
+.scale p {
+  margin: 0;
+}
+
+/* Espada/Bolük rakamlari icin dev tipografik zemin — Archivo Black */
+.numerals {
+  font-size: clamp(2.5rem, 8vw, 6rem);
+  color: var(--world-paper, var(--text-primary));
+  opacity: 0.22;
+  letter-spacing: 0.02em;
+}
+
+/* Yuzey ve kenarlik token'larinin katmanla dondugunu goren tek ornek */
+.swatch {
+  display: block;
+  width: min(360px, 100%);
+  padding: 1px;
+  background: var(--border-strong);
+}
+
+.swatchInner {
+  display: block;
+  padding: clamp(1rem, 2vw, 1.5rem);
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+}
+
+@media (max-width: 900px) {
+  .opening {
+    padding-inline-end: 0;
+  }
+}

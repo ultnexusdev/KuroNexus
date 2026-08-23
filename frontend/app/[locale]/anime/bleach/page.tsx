@@ -73,6 +73,14 @@ export default async function BleachUniversePage({
           <h1 className={`${shell.display} ${shell.world}`}>{t("title")}</h1>
           <p className={shell.lede}>{t("lede")}</p>
           <p className={styles.note}>{t("note")}</p>
+          {/* Tasarım sistemi ayrı bir rotada deneniyor. Buradan link
+              veriliyor çünkü aksi hâlde adresi elle yazmak gerekiyor;
+              bölümler geldiğinde ikisi de gidiyor. */}
+          <p className={styles.note}>
+            <Link href="/anime/bleach/playground" className={styles.trialLink}>
+              {t("playgroundLink")}
+            </Link>
+          </p>
         </header>
 
         {/* Yuva denemesi: üç farklı oran, üç farklı yedek davranışı.

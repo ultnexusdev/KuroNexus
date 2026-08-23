@@ -67,9 +67,40 @@
 > Senkaimon'un mikro hâli.
 > ⚠️ İki görsel üreticisi de kapalıydı: Gemini kotası 429, fal 403 `TOP_UP`.
 >
-> **⏭ SIRADAKİ: P-TOKENS.** Beş dünya paleti (Hueco Mundo negatif — dosyadaki
-> ilk açık palet), derinlik rayı, Senkaimon geçişi, dört yeni font
-> (Shippori Mincho B1, Jost, Archivo Black, UnifrakturMaguntia).
+> **⑧ P-TOKENS · TASARIM SİSTEMİ.** Beş dünya paleti, derinlik rayı,
+> Senkaimon geçişi ve dört yeni font kuruldu.
+>
+> **Paletler ÖLÇÜLEREK yapıldı.** Brief dört renk veriyor, ev token seti on
+> dört istiyor; ara tonlar türetildi (`ink` = zemin, `paper` = metin, arası
+> yüzdelik karışım) ve eşiğe **çözüldü**. `scripts/check-bleach-contrast.mjs`
+> `globals.css`i okuyup 60 kontrol yapıyor, hepsi geçiyor. Hueco Mundo
+> dosyadaki **ilk açık palet** — negatif tema için ayrı formül gerekmedi,
+> aynı karışım kuralı ters yöne gidiyor.
+> ⚠️ Tek sapma: Seireitei aksanı 2.94:1 verdiği için `#B8121B` → `#BA1B23`.
+> ⚠️ `data-layer` kullanıldı, `data-world` değil: o nitelik 13 karakter
+> deneyim sayfasında dolu, katmanlar bir seviye daha iç.
+> ⚠️ `--surface-2` türev kuralına `[data-layer]` eklendi — yoksa Hueco
+> Mundo'nun beyaz zeminine koyu bir ara ton düşüyordu.
+>
+> **Dört font `preload: false`** (Shippori, Jost, Archivo Black,
+> UnifrakturMaguntia). Kök düzen siteyi sardığı için preload açık olsaydı
+> ana sayfayı açan biri hiç görmeyeceği fontları indirirdi; ölçüldü, hiçbir
+> sayfada preload sızmıyor. Türkçe kapsamı `font-data.json`dan ölçüldü:
+> **yalnızca UnifrakturMaguntia `latin`**, ş/ğ/İ/ı yok.
+> `scripts/check-bleach-fonts.mjs` gotik aileye Türkçe dize geçmesini
+> yakalıyor (denetimin düştüğü sınandı). `pnpm check:bleach` ikisini koşar.
+>
+> **Senkaimon SIFIR JS:** `animation-timeline: view()` varsa kaydırmaya
+> bağlı, yoksa yarık açık. **Derinlik rayı** aktif katmanı ekran ortasındaki
+> bantla buluyor (`threshold: 0.5` uzun bölümlerde hiç tetiklenmezdi) ve
+> `theme-color` metasını bölümün hesaplanmış `--bg`sinden güncelliyor.
+>
+> ⚠️ **`/anime/bleach/playground`** — brief `_playground` diyor ama App
+> Router'da `_` önekli klasör rotadan çıkarılıyor (ölçüldü). `noindex`.
+> İskelet sayfadan link veriliyor.
+>
+> **⏭ SIRADAKİ: BÖLÜMLER.** P01 hero → P02 üç dünya → paralel worktree'lerde
+> P03–P16. Manifesto bölüm bölüm büyüyecek.
 >
 > ⚠️ `/anime/bleach` hiçbir yerden linkli değil ve `robots: noindex`. Hub
 > kartı P17 turunda ekleniyor.

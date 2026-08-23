@@ -1,0 +1,143 @@
+/* ============================================================
+   SENKAIMON — katmanlar arasi gecis sahnesi
+
+   Ekranin ortasinda dikey bir yarik aciliyor ve icinden bir sonraki
+   dunyanin rengi siziyor. Yarik tamamen acilinca yeni katman basliyor.
+
+   ⚠️ SIFIR JS. Destekleyen tarayicida kaydirmaya bagli
+   (`animation-timeline: view()`), desteklemeyende ACIK halde duruyor.
+   Iki dalda da sahne anlamli.
+
+   ⚠️ KURAL 16: tek hex yok. Yariktan sizan renk GIDILEN katmanin
+   token'i — gecit onun `data-layer` niteligini tasiyor.
+   ============================================================ */
+
+.gate {
+  position: relative;
+  /* Tam ekran bir durak: gecis bir olay, bir ayrac degil */
+  height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  /* ⚠️ Zemin GIDILEN dunyanin degil, ONCEKININ devami: yarik acilmadan
+     once hicbir sey degismemeli. `--void` sayfanin taban zemini. */
+  background: var(--void, #000);
+  padding-inline-end: var(--rail, 4.5rem);
+}
+
+/* Yarigin kendisi. Kapaliyken sifir yukseklikte bir cizgi, aciliyken tam
+   boy. `clip-path` kullaniliyor cunku yukseklik animasyonu layout'a
+   dokunur ve bu sahnede CLS = 0 sarti var. */
+.rift {
+  position: relative;
+  display: block;
+  width: clamp(2px, 0.35vw, 5px);
+  height: 74vh;
+  clip-path: inset(50% 0 50% 0);
+}
+
+.bleed {
+  position: absolute;
+  inset: 0;
+  /* Gidilen dunyanin zemini ve aksani: yariktan sizan sey bu */
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--world-accent, var(--accent)) 18%,
+    var(--world-paper, var(--text-primary)) 50%,
+    var(--world-accent, var(--accent)) 82%,
+    transparent
+  );
+}
+
+/* Yarigin iki yanina dusen isik — yarik acildikca genisliyor.
+   Ayri bir eleman degil: gecidin kendi pseudo'su, tek boyama. */
+.gate::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    18% 60% at 50% 50%,
+    color-mix(in srgb, var(--world-glow, var(--accent)) 30%, transparent),
+    transparent 70%
+  );
+  opacity: 0;
+}
+
+.label {
+  position: absolute;
+  bottom: clamp(2rem, 8vh, 5rem);
+  color: var(--world-accent, var(--accent));
+  opacity: 0.55;
+}
+
+/* ── KAYDIRMAYA BAGLI ACILMA ─────────────────────────────────
+   Gecit gorunur alana girdikce yarik aciliyor. `entry 10% → entry 70%`:
+   sahne ekranin altindan girerken basliyor, ortaya gelmeden bitiyor —
+   yani kullanici yarigi TAMAMEN acilmis gorup oyle geciyor. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .rift {
+      animation: split linear both;
+      animation-timeline: view();
+      animation-range: entry 10% entry 70%;
+    }
+
+    .gate::after {
+      animation: seep linear both;
+      animation-timeline: view();
+      animation-range: entry 20% entry 80%;
+    }
+  }
+}
+
+@keyframes split {
+  from {
+    clip-path: inset(50% 0 50% 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes seep {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ── YEDEK DAL ───────────────────────────────────────────────
+   Kaydirma zaman cizelgesi yoksa (bugun Firefox) yarik ACIK duruyor ve
+   isik sizmis halde. Hareket yok ama sahne eksik degil. */
+@supports not (animation-timeline: view()) {
+  .rift {
+    clip-path: inset(0 0 0 0);
+  }
+
+  .gate::after {
+    opacity: 1;
+  }
+}
+
+/* ── HAREKETI AZALT ──────────────────────────────────────────
+   Yarik yok, dogrudan kesme — brief'in kendi karari ("ki bu da guzel
+   durur"). Sahne kisaliyor: hareketsiz bir tam ekran durak, iceriksiz
+   bir ekran yuksekligi demek olurdu. */
+@media (prefers-reduced-motion: reduce) {
+  .gate {
+    height: 38svh;
+  }
+
+  .rift {
+    clip-path: inset(0 0 0 0);
+  }
+
+  .gate::after {
+    opacity: 1;
+  }
+}

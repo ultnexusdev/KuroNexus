@@ -1496,7 +1496,21 @@
         "lede": "Her ruh bir gölge bırakır. Her kılıcın bir adı vardır.",
         "note": "Bu sayfa inşa hâlinde. Şu an yalnızca küratör altyapısı yerinde: yuva manifestosu, tek tek düzenlenebilir kadrajlar ve eksik görseller paneli. Bölümler tasarım sistemi kurulduktan sonra geliyor.",
         "slotsTitle": "Yuva denemesi",
-        "slotsLede": "Aşağıdaki üç kadraj gerçek yuvalar. Küratör modunu açıp doldurabilirsin."
+        "slotsLede": "Aşağıdaki üç kadraj gerçek yuvalar. Küratör modunu açıp doldurabilirsin.",
+        "playgroundLink": "Tasarım sistemi denemesini aç →"
+      },
+      "world": {
+        "railAria": "Ruhsal katmanlar",
+        "layers": {
+          "living": "Karakura",
+          "soul-society": "Seireitei",
+          "hueco-mundo": "Las Noches",
+          "royal": "Reiōkyū",
+          "wandenreich": "Silbern"
+        },
+        "playgroundTitle": "Tasarım sistemi denemesi",
+        "playgroundNote": "Bu rota içerik taşımıyor: beş dünya paletini, derinlik rayını ve Senkaimon geçişini bir arada sınıyor. Bölümler ayrı turda geliyor.",
+        "scaleTitle": "Tipografi ölçeği"
       }
     }
   },

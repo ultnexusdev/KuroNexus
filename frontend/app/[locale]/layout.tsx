@@ -11,6 +11,10 @@ import {
   Noto_Sans_Old_Turkic,
   Anton,
   Inter,
+  Shippori_Mincho_B1,
+  Jost,
+  Archivo_Black,
+  UnifrakturMaguntia,
 } from "next/font/google";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
@@ -163,6 +167,74 @@ const inter = Inter({
 });
 
 /*
+ * SALON 04 · BLEACH EVRENİ — dört aile (23 Ağustos 2026).
+ *
+ * ⚠️ DÖRDÜ DE `preload: false`. Yalnızca `/anime/bleach` altında
+ * kullanılıyorlar ve kök düzen SİTENİN TAMAMINI sarıyor: preload açık
+ * olsaydı ana sayfayı açan biri hiç görmeyeceği dört fontu indirirdi.
+ * Brief "Jost'u preload et" diyor (hero'da kullanılıyor) ama o karar
+ * Bleach'i tek başına bir site sanıyor; burada bedeli diğer altı salon
+ * ödüyor. `display: swap` ile ilk boyama zaten engellenmiyor.
+ *
+ * ⚠️ TÜRKÇE KAPSAMI ÖLÇÜLDÜ, tahmin edilmedi (`font-data.json`):
+ *   Shippori Mincho B1 → latin + latin-ext  ✅ Türkçe GÜVENLİ
+ *   Jost               → latin + latin-ext  ✅ Türkçe GÜVENLİ
+ *   Archivo Black      → latin + latin-ext  ✅ (zaten yalnız rakam)
+ *   UnifrakturMaguntia → latin              ❌ ş/ğ/İ/ı YOK
+ *
+ * Yani brief'in uyarısı yalnızca SONUNCUSU için geçerli. Gotik aile
+ * Wandenreich wordmark'ı ve Schrift harfleri dışında hiçbir yerde
+ * kullanılmayacak; `scripts/check-bleach-fonts.mjs` bunu denetliyor.
+ */
+
+/* Ruh dünyasının mürekkep/hat sesi: bölüm başlıkları, karakter adları,
+   卍 gibi tekil işaretler.
+
+   `subsets` BİLİNÇLİ olarak yazılmadı — Yuji Boku ile aynı desen: liste
+   verilmeyince next/font Google'ın unicode-range dilimli CSS'ini alıyor ve
+   tarayıcı yalnızca sayfada geçen karakterlerin dilimini indiriyor. Japon
+   bir ailede subset listelemek ya kanji'yi dışarıda bırakır ya da megabaytlık
+   tek bir dosya indirtir. */
+const shippori = Shippori_Mincho_B1({
+  weight: ["600", "700"],
+  variable: "--font-shippori",
+  display: "swap",
+  preload: false,
+});
+
+/* Sayfanın imza sesi: SADECE büyük harf, geniş harf aralığı. Eyebrow'lar,
+   İngilizce alt başlıklar, "THE WORLD OF THE HOLLOW" gibi sinematik
+   satırlar. Naruto'nun ağır blok başlıklarının tam tersi — zıtlık kasıtlı. */
+const jost = Jost({
+  weight: ["200", "300"],
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-jost",
+  display: "swap",
+  preload: false,
+});
+
+/* Espada numaraları ve Bölük rakamları için dev tipografik zemin.
+   Yalnızca 0–9 basılıyor; ailenin geri kalanı hiç çizilmiyor. */
+const archivoBlack = Archivo_Black({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-numeral",
+  display: "swap",
+  preload: false,
+});
+
+/* ⚠️ YALNIZCA Wandenreich wordmark'ı ve Schrift harfleri. Başka hiçbir
+   yerde kullanma — aşırıya kaçarsa bölüm ucuzlar (brief). Ayrıca Türkçe
+   diyakritikleri YOK: bu aileye Türkçe dize geçemez. */
+const unifraktur = UnifrakturMaguntia({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-gothic",
+  display: "swap",
+  preload: false,
+});
+
+/*
  * API kaynağına preconnect (9 Ağustos 2026).
  *
  * ÖLÇÜM: canlı sitede kitap rafı sayfasının HTML'inde tek bir `preconnect` ya
@@ -267,7 +339,7 @@ export default async function LocaleLayout({
     <html
       lang={locale}
       data-theme={theme}
-      className={`${brushFont.variable} ${cinzel.variable} ${bebas.variable} ${petrona.variable} ${cormorant.variable} ${corinthia.variable} ${orhun.variable} ${anton.variable} ${inter.variable}`}
+      className={`${brushFont.variable} ${cinzel.variable} ${bebas.variable} ${petrona.variable} ${cormorant.variable} ${corinthia.variable} ${orhun.variable} ${anton.variable} ${inter.variable} ${shippori.variable} ${jost.variable} ${archivoBlack.variable} ${unifraktur.variable}`}
     >
       <head>
         <link rel="preconnect" href={apiOrigin} crossOrigin="anonymous" />

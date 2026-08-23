@@ -22,6 +22,8 @@ export const animeHref = {
   /** Naruto Evreni — kendi ağacında, arşivdeki seri sayfasından AYRI:
       biri "izlediğim seri" kaydı, bu ise evrenin ansiklopedisi */
   naruto: () => "/anime/naruto",
+  /** Bleach Evreni — Naruto ile aynı ayrım: evrenin kendisi, izlediğim seri değil */
+  bleach: () => "/anime/bleach",
   /** Six Paths detay sayfası (deva/asura/human/animal/preta/naraka) */
   akatsukiPath: (pathKey: string) => `/anime/akatsuki/six-paths/${pathKey}`,
   /** Anime arşivi (altı raf) */
@@ -40,4 +42,4 @@ export const animeHref = {
  * rezervedir — App Router statik bölümü önce dener ve çakışan kayıt
  * sessizce erişilmez olur (spor/müzik ölçümü).
  */
-export const RESERVED_ANIME_SLUGS = new Set(["akatsuki", "naruto"]);
+export const RESERVED_ANIME_SLUGS = new Set(["akatsuki", "naruto", "bleach"]);

@@ -12,6 +12,7 @@ import { StoriesModule } from './stories/stories.module';
 import { UniversesModule } from './universes/universes.module';
 import { WikiModule } from './wiki/wiki.module';
 import { UploadsModule } from './uploads/uploads.module';
+import { CuratedImagesModule } from './curated-images/curated-images.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { AmbientTracksModule } from './ambient-tracks/ambient-tracks.module';
@@ -72,6 +73,7 @@ import { PulseModule } from './pulse/pulse.module';
     UniversesModule,
     WikiModule,
     UploadsModule,
+    CuratedImagesModule,
     AmbientTracksModule,
     TransferNewsModule,
     SportArchiveModule,

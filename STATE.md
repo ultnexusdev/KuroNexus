@@ -5,6 +5,64 @@
 
 ## Mevcut Aşama
 
+> ✅ **BLEACH EVRENİ · KÜRATÖR ALTYAPISI (23 Ağustos 2026).**
+>
+> `/anime/bleach` sayfasının inşası başladı. Bu tur **yalnızca küratör
+> altyapısını** kurdu; sayfanın tasarımı henüz yok ve bilinçli olarak yok.
+>
+> **📄 YENİ OTURUMDA İLK OKU: `docs/BLEACH-P00-kesif.md`** — keşif raporu,
+> onaylanmış kararlar ve bu turun ölçüm tablosu orada.
+>
+> **① YENİ TABLO: `CuratedImage`.** Depodaki iki görsel tablosu da yetmedi.
+> `CharacterImage` sahibini bir AniList numarasına asıyor ve tek dilli bir
+> `altText` taşıyor; `FavouritePlayerImage` doğru adresliyor ama `playerSlug`
+> adı onu futbol defterine kilitliyor ve satırda yalnızca `url` var. Bleach'in
+> şartı her yuvanın TEK TEK düzenlenebilmesi: odak noktası, kırpma oranı,
+> iki dilli alt metin, künye, işlem biçimi, opaklık, blend, geçici gizle —
+> bu sekiz alanın altısı ikisinde de yoktu. Yeni tablo `surface` + `slotId`
+> ile adresleniyor ("anime/bleach"), yani One Piece evreni geldiğinde yeni
+> bir tablo değil yeni bir dize gerekiyor. Migration `K:\postgres`te
+> koşturuldu, sürüklenme yok.
+>
+> **② `<CuratedImage>` SUNUCU BİLEŞENİ.** Sayfada çıplak `<Image>` yok ve
+> olmayacak. Futbolun `PlayerImage`ı `"use client"` ve her görseli istemci
+> yaprağına çeviriyor; Bleach'in şartı "küratör modu kapalıyken sıfır ekstra
+> JS" olduğu için o desen alınamazdı. Yuva sunucuda çiziliyor, düzenleme
+> yeteneği ayrı bir istemci adasında ve o ada yalnızca `isAdmin` iken
+> çiziliyor. Prop drilling de context de yok: `readCuratedImages` ve
+> `readIsAdmin` ikisi de `cache()`li, altmış yuva tek istek ediyor.
+>
+> **③ BEŞ SEKMELİ DÜZENLEYİCİ + ODAK SÜRÜKLEME.** Kalem düğmesi portal panel
+> açıyor: görsel · odak · kadraj · metin · görünüm. Odak sekmesinde artı
+> imleci sürükleniyor (klavye: ok %1, Shift+ok %10) — spor kanadındaki üç
+> slider'ın yuva ölçeğindeki karşılığı. Kaydetme optimistik (yeni kare
+> sunucu yeniden çizene kadar önizleme katmanı) ve on saniye geri alınabilir.
+>
+> **④ EKSİK GÖRSELLER PANELİ.** 65 yuva bölüm bölüm listeleniyor; her satırda
+> önerilen boyut, oran, kadraj notu ve sayfadaki yuvaya çapa. Naruto'daki
+> küratör kuşağının eksiği buydu: bütün yuvaları listeliyordu ama hangisinin
+> BOŞ olduğunu söylemiyordu.
+>
+> **⑤ DÜZELTİLEN HATA.** `reset` yalnızca `isDeleted` işaretliyordu ve upsert
+> satırı diriltirken gönderilmeyen alanlar kalıyordu — "geçici gizle" açıkken
+> sıfırlanan bir yuva, yeni görsel yüklenince GİZLİ geri geliyordu. Artık
+> bütün alanlar boşaltılıyor.
+>
+> **⏭ SIRADAKİ: P-TOKENS.** Beş dünya paleti (Hueco Mundo negatif — dosyadaki
+> ilk açık palet), derinlik rayı, Senkaimon geçişi, dört yeni font
+> (Shippori Mincho B1, Jost, Archivo Black, UnifrakturMaguntia).
+>
+> ⚠️ `/anime/bleach` hiçbir yerden linkli değil ve `robots: noindex`. Hub
+> kartı P17 turunda ekleniyor.
+>
+> ⚠️ Düzenleyicinin tarayıcı etkileşimi lokalde doğrulanamadı: tarayıcı
+> paneli akışlı sayfalarda Suspense sınırını açmıyor. Sunucu çıktısı curl ile
+> eksiksiz ölçüldü; etkileşim canlıda doğrulanacak.
+
+---
+
+## Önceki Aşama
+
 > ✅ **FUTBOL KANADI DÜZELTME TURU + HAGİ POSTER SAYFASI (21 Ağustos 2026).**
 >
 > **① KÜRATÖR GÖRSELİ HATASI KAPANDI (asıl arıza).** Hub'daki favori

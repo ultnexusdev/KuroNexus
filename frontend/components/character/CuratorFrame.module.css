@@ -15,6 +15,21 @@
   display: none;
 }
 
+/* Bunun AYNASI: mod ACIKKEN ziyaretcinin gordugu tasarlanmis bosluk
+   gizleniyor, yerine kadraj iskelesi geciyor (`CuratedImage` → `.holder`).
+
+   Neden gerekli: bos yuvanin iki ayri yuzu var. Ziyaretci yazisiz bir
+   bosluk goruyor, kurator ise "ne konacak" bilgisini — kadraj notu,
+   onerilen boyut, yuva kimligi. Ayrim `data-curating` uzerinden, yani
+   kurator modu KAPALIYKEN admin de ziyaretcinin gordugunu goruyor ve
+   sayfanin gercek halini denetleyebiliyor.
+
+   `:global` sart: yuvalar baska bir CSS modulunun icinde ciziliyor,
+   ortak dil nitelik. */
+.frame[data-curating="true"] :global([data-curator-veil]) {
+  display: none;
+}
+
 .bar {
   display: flex;
   flex-wrap: wrap;

@@ -2554,6 +2554,117 @@ model FavouritePlayerImage {
   @@index([playerSlug, isDeleted])
 }
 
+/// **Küratör görsel yuvası — YÜZEY bazlı, kanattan bağımsız.**
+///
+/// ── NEDEN ÜÇÜNCÜ BİR GÖRSEL TABLOSU ──────────────────────────────────────
+/// Depoda zaten iki tane var ve ikisi de yetmiyor:
+///
+///   `CharacterImage`        — anime kanadı. Sahibi bir AniList NUMARASI, yani
+///                             yuva bir karaktere asılıyor. Naruto Evreni bunu
+///                             `slot=ABILITY` + `abilityName="naruto:hero"` ile
+///                             sayfa kadrajı olarak kullanıyor: işe yarıyor ama
+///                             taşıdığı tek metin `altText` ve o da tek dilli.
+///   `FavouritePlayerImage`  — futbol kanadı. Adresleme DOĞRU (`playerSlug` +
+///                             `slotId`) ama `playerSlug` adı tabloyu futbol
+///                             defterine kilitliyor ve satırda yalnızca `url`
+///                             var.
+///
+/// Bleach sayfasının şartı (kullanıcı komutu, 23 Ağustos 2026) her yuvanın
+/// TEK TEK düzenlenebilmesi: odak noktası, kırpma oranı, iki dilli alt metin,
+/// künye satırı, işlem biçimi, opaklık, blend ve "geçici gizle". Bu sekiz
+/// alanın altısı yukarıdaki iki tabloda YOK.
+///
+/// Bu tablo `FavouritePlayerImage`ın genelleştirilmiş hâli: `playerSlug`
+/// yerine `surface` ("anime/bleach"). Böylece One Piece evreni geldiğinde
+/// yeni bir tablo değil yeni bir dize gerekiyor.
+///
+/// ── NEDEN `userId` YOK ───────────────────────────────────────────────────
+/// `FavouritePlayerImage` ile aynı gerekçe: bu satırlar kullanıcı İÇERİĞİ
+/// değil, sayfanın KÜRASYONU. Yazma ucu `@Roles('ADMIN')` ve arşivin tek
+/// küratörü var; satıra kimlik yazmak, hiçbir sorgunun süzmediği bir sütun
+/// üretirdi. Çok kullanıcılı faza geçilirse (kural 12) sütun additive olarak
+/// eklenir, mevcut satırlar bozulmaz.
+model CuratedImage {
+  id String @id @default(cuid())
+
+  /// Hangi sayfa — "anime/bleach". `FavouritePlayerImage.playerSlug`ın işi,
+  /// kanada bağlı olmayan adı.
+  surface String
+  /// Yuvanın KARARLI kimliği ("bleach:gotei:8").
+  ///
+  /// ⚠️ Koddaki manifestoda (`lib/anime/bleach/slots.ts`) yeniden
+  /// adlandırılırsa küratörün o yuvaya yüklediği kare KOPAR. Yeniden
+  /// adlandırma yapma.
+  slotId String
+
+  /// Kendi sunucumuzdaki yol (`/uploads/…`). Dış adres saklanmıyor: CSP
+  /// `img-src` yabancı sunucuya izin vermiyor ve dış adres bir gün ölebilir.
+  /// Aynı karar `SportImage`, `CharacterImage` ve `FavouritePlayerImage`te de
+  /// alınmıştı.
+  ///
+  /// `null` olabilir: küratör görseli kaldırıp yuvanın DİĞER ayarlarını
+  /// (oran, işlem biçimi) yerinde bırakabilsin diye.
+  url String?
+
+  /// Odak noktası — CSS `object-position` değeri ("50% 30%").
+  ///
+  /// `FootballClub.coverPosition` ile aynı desen ve aynı gerekçe: kırpma
+  /// kutusu görseli kesiyor ve neresinin görüneceğine tarayıcı karar
+  /// veriyordu. Fark: orası KAYIT başına, burası YUVA başına — Bleach'te aynı
+  /// portre üç ayrı orandaki üç yuvada görünebiliyor.
+  ///
+  /// Renk değil konum tutuluyor, yani kural 16 ihlali yok. `null` ise CSS
+  /// varsayılanı (ortası) geçerli.
+  position String?
+
+  /// Büyütme oranı, yüzde (100 = kırpma kutusunu tam doldur).
+  /// 100'ün altına inilemiyor: daha küçük değer kutuda boşluk bırakır ve
+  /// altındaki zemin görünür. Üst sınır 300. `null` ise 100 gibi davranır.
+  scale Int?
+
+  /// Kırpma oranı ("16:9") — yuvanın manifestoda İZİN VERDİĞİ oranlardan
+  /// biri. Doğrulama ön yüzde: hangi oranların geçerli olduğunu yalnızca
+  /// manifesto bilir ve o kodda duruyor. Tanınmayan değer çizimde yok
+  /// sayılıp yuvanın varsayılanına düşülür.
+  ratio String?
+
+  /// Erişilebilirlik metni ÇEVRİLİR — `SportImage.altTr/altEn` deseni.
+  altTr String?
+  altEn String?
+
+  /// Künye satırı ("Getty Images", "Shueisha resmî arşiv"). ÇEVRİLMEZ:
+  /// kaynağın adı bir özel addır. `SportImage.sourceNote` ile aynı iş.
+  credit String?
+
+  /// İşlem biçimi: `photo` | `silhouette` | `duotone`. Duotone renklerini
+  /// yuvanın bağlı olduğu DÜNYA paleti veriyor, satır renk taşımıyor
+  /// (kural 16).
+  treatment String?
+
+  /// Opaklık, yüzde (0–100). `null` ise 100.
+  opacity Int?
+
+  /// CSS `mix-blend-mode` değeri. Serbest metin DEĞİL, ön yüzdeki sayılı
+  /// listeden biri; tanınmayan değer çizimde yok sayılır.
+  blend String?
+
+  /// "Geçici gizle" — görsel yerine yuvanın tasarlanmış yedeği (silüet /
+  /// tipografik dolgu) devreye girer. Satır DURUYOR: küratör tek tuşla geri
+  /// açıyor. `isDeleted`ten farkı bu — orası "bu yuvayı unut", burası
+  /// "şimdilik gösterme".
+  isHidden Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  /// Kural 3: fiziksel silme yok
+  isDeleted Boolean @default(false)
+
+  /// Yuva başına TEK kayıt — upsert'in dayanağı
+  @@unique([surface, slotId])
+  /// Sayfa açılışının TEK sorgusu: "bu yüzeyin silinmemiş yuvaları"
+  @@index([surface, isDeleted])
+}
+
 /// **Küratörün favori ilk 11'i — Salon 06 · Futbol.**
 ///
 /// Bu tablo GERÇEK bir maç kadrosu DEĞİL ve öyle sunulmuyor. Teknik direktörün

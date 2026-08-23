@@ -10,9 +10,23 @@
 **Durum:** Küratör altyapısı + P-TOKENS + **P01–P17 canlıda.** On altı
 anlatı bölümü ve hub kartı bitti.
 **Sıradaki ve SON:** **P18 · QA / performans / entegrasyon.**
-⚠️ **P18'de `robots: noindex` KALKACAK** — sayfa bugüne kadar arama
-motoruna kapalı ve bu kilit `page.tsx` içinde `generateMetadata`da
-yazılı. Kaldırmadan önce brief'in P18 listesini uygula.
+
+⚠️ **P18 TEK OTURUMA SIĞMAZ — ÜÇE BÖLÜNDÜ** (23 Ağustos 2026'da karar
+verildi; brief'in altı maddesi tek turda bitecek hacimde değil, altıncı
+madde tek başına bir oturum):
+
+| Tur | Kapsam |
+|---|---|
+| **P18-a** | Performans: altı ağır bölümü `dynamic import` + IntersectionObserver ile geç montaj (Bankai, Espada, Sternritter ızgarası, Hollow evrimi, Zanpakutō iç dünyaları, Kılıç çizelgesi — hero/Üç Dünya/Gotei 13 eager kalır), font subset stratejisi, tekrar eden SVG'ler için `<symbol>`+`<use>`, hedefler: bundle <220KB gzip, LCP <2,5s, CLS <0,05, TBT <200ms |
+| **P18-b** | Erişilebilirlik + i18n + SEO: "bölümlere atla" landmark listesi, on altı bölümde buton/`div` denetimi, `prefers-reduced-motion` tam tarama, ekran okuyucu geçiş raporu, hreflang, meta/OG/JSON-LD — **ve en sonda `robots: noindex` kalkar** |
+| **P18-c** | Brief'in "son kritik"i: sayfayı baştan sona gez, "bu Naruto'nun Bleach'le doldurulmuş hâli mi?" sorusunu bölüm bölüm cevapla, **en zayıf üç bölümü yeniden yaz** |
+
+⚠️ **`robots: noindex` P18-b'nin SONUNDA kalkar**, önce değil — kilit
+`page.tsx` içinde `generateMetadata`da yazılı.
+
+⚠️ Kontrast betiği brief'in istediği 15 kontrolü çoktan aşıyor:
+`check-bleach-contrast.mjs` bugün **80 kontrol / 8 palet** yapıyor.
+P18-b'de yeniden yazma, mevcut olanı genişlet.
 ⚠️ **Bölüm hakkında tahmin yazma.** P15'te bu blokta duran "görsel
 ağırlıklı olacak" tahmini, brief'in "görsel yok, burası nefes alma alanı"
 kararıyla çelişti. Önce brief'i oku, sonra karar ver.

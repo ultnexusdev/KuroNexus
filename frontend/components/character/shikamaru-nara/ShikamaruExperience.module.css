@@ -1,0 +1,1726 @@
+/* ============================================================
+   SHIKAMARU NARA — "200 Hamlelik Tahta"
+
+   Deri: kökteki `data-world="shikamaru-nara"` bütün standart token'ları
+   duman grisine çevirir; yardımcılar `--shk-*` (globals.css). Bu dosyada
+   TEK HEX YOK — ara tonların hepsi color-mix ile token'lardan türetildi.
+
+   ── SAYFANIN FİKRİ ──────────────────────────────────────────────────────
+   BOŞLUK. Diğer karakter sayfaları doldurur; bu sayfa boşaltır. Bütün
+   düzen 9 sütunluk bir shogi tahtasının üstüne oturuyor: `--shk-cell`
+   hem ızgaranın hücresi hem de sayfanın tek boşluk birimi. Bölüm arası
+   mesafe, içerik genişliği, kart aralığı — hepsi bu hücrenin katı. Böylece
+   "tembellik" bir metin iddiası değil, ölçülebilir bir düzen kararı.
+
+   Sıcak nokta TEK: `--shk-ember`. Kor, hamle etiketleri ve tahtadaki
+   yanıcı etiketler dışında hiçbir yerde turuncu yok. Altın (`--accent`)
+   yalnızca tahta taşı ve odak halkası için.
+
+   ── TİPOGRAFİ ───────────────────────────────────────────────────────────
+   Display + gövde: Petrona (geniş, düşük-orta kontrastlı metin serifi).
+   ⚠️ Ev kuralı (layout.tsx): 2rem üstünde ASLA wght < 700, display
+   line-height >= 1.02, 4rem üstünde negatif tracking. İtalik YOK — aile
+   italik dosyasıyla yüklenmiyor, tarayıcı eğerdi.
+   Notasyon (etiket, hamle sayısı, künye değerleri): Inter + tabular-nums —
+   kifu (oyun kaydı) sesi. Kanji: Yuji Boku fırça ailesi.
+
+   ── HAREKET ─────────────────────────────────────────────────────────────
+   Tek yazılmış an var: hamle değiştiğinde gölge bağının tahtada ÇİZİLMESİ
+   (`--shk-draw`). Geri kalan her şey ya durağan ya da nefes alacak kadar
+   yavaş. Süre/easing değişkenleri `.page`de; animasyonlar no-preference
+   kapısında, dosyanın sonunda reduce battaniyesi var.
+   ============================================================ */
+
+.page {
+  /* Süre ve easing — hareket sözlüğü */
+  --shk-dur-fast: 160ms;
+  --shk-dur: 320ms;
+  --shk-dur-slow: 760ms;
+  --shk-draw: 1150ms;
+  --shk-ease: cubic-bezier(0.16, 1, 0.3, 1); /* üstel yavaşlama */
+  --shk-ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Geometri — tahtanın hücresi sayfanın tek boşluk birimi */
+  --shk-cell: clamp(2.4rem, 9.4vw, 7.4rem);
+  --shk-board-w: calc(var(--shk-cell) * 9);
+  --shk-gutter: clamp(1rem, 4vw, 2rem);
+  --shk-content: min(100% - var(--shk-gutter) * 2, var(--shk-board-w));
+  --shk-measure: 62ch;
+  --shk-lift: 0px; /* gölge modunda uzayan gölgenin ofseti */
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text-primary);
+  overflow-x: clip;
+}
+
+/* Geniş ekranda içerik 9 sütunun ORTADAKİ 7'sine oturur: iki kenarda
+   birer boş sütun kalır ve tahta içeriğin altından taşar. Dar ekranda
+   böyle bir lüks yok — içerik kenar boşluğuna kadar açılır. */
+@media (min-width: 900px) {
+  .page {
+    --shk-content: calc(var(--shk-cell) * 7);
+  }
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Tahta: 9 sütunluk ızgara + yıldız noktaları ──────────────────────
+   Sayfanın zemini. Üç katman: dikey çizgiler, yatay çizgiler, 3-3
+   kesişimlerindeki noktalar. Üstte ve altta maskeyle söner ki sayfa bir
+   "tablo" gibi değil, üstünde durulan bir yüzey gibi okunsun. */
+.board {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: var(--shk-board-w);
+  translate: -50% 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      var(--shk-grid) 0 1px,
+      transparent 1px var(--shk-cell)
+    ),
+    repeating-linear-gradient(
+      180deg,
+      var(--shk-grid) 0 1px,
+      transparent 1px var(--shk-cell)
+    ),
+    radial-gradient(
+      circle at 0 0,
+      color-mix(in srgb, var(--shk-piece) 34%, transparent) 0 1.6px,
+      transparent 1.7px
+    );
+  background-size:
+    auto auto,
+    auto auto,
+    calc(var(--shk-cell) * 3) calc(var(--shk-cell) * 3);
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    black 4rem,
+    black calc(100% - 6rem),
+    transparent 100%
+  );
+  transition: opacity var(--shk-dur-slow) var(--shk-ease);
+}
+
+/* ── Breadcrumb ──────────────────────────────────────────────────────── */
+.crumb {
+  position: relative;
+  z-index: 1;
+  width: var(--shk-content);
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-block: 0.75rem;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.crumb a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--shk-dur-fast) var(--shk-ease-soft);
+}
+
+.crumb a:hover {
+  color: var(--text-primary);
+}
+
+.crumb a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.crumbSep {
+  color: var(--border-strong);
+}
+
+/* ── Mod düğmesi: "Gölge modu" ───────────────────────────────────────── */
+.shadowToggle {
+  position: fixed;
+  right: clamp(0.75rem, 3vw, 1.75rem);
+  bottom: calc(clamp(0.75rem, 3vw, 1.75rem) + var(--music-bar, 0px));
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: var(--touch-min);
+  padding: 0.5rem 1rem 0.5rem 0.6rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: blur(6px);
+  color: var(--text-secondary);
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 10px 26px -14px var(--shk-tether);
+  transition:
+    color var(--shk-dur) var(--shk-ease-soft),
+    border-color var(--shk-dur) var(--shk-ease-soft),
+    box-shadow var(--shk-dur) var(--shk-ease-soft);
+}
+
+.shadowToggle:hover {
+  color: var(--text-primary);
+  border-color: var(--accent-muted);
+}
+
+.shadowToggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.shadowToggle[aria-pressed="true"] {
+  color: var(--text-primary);
+  border-color: var(--accent-muted);
+  box-shadow:
+    18px 22px 0 -20px var(--shk-shadow),
+    0 16px 34px -16px var(--shk-tether);
+}
+
+.shadowToggleGlyph {
+  width: 1.4rem;
+  height: 1.4rem;
+  flex: none;
+  transition: rotate var(--shk-dur-slow) var(--shk-ease);
+}
+
+.shadowToggle[aria-pressed="true"] .shadowToggleGlyph {
+  rotate: 180deg;
+}
+
+.shadowToggleLabel {
+  white-space: nowrap;
+}
+
+.shadowHint {
+  position: fixed;
+  right: clamp(0.75rem, 3vw, 1.75rem);
+  bottom: calc(clamp(0.75rem, 3vw, 1.75rem) + var(--music-bar, 0px) + 3.5rem);
+  z-index: 59;
+  max-width: min(20rem, calc(100vw - 2rem));
+  margin: 0;
+  text-align: right;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.shadowHint:empty {
+  display: none;
+}
+
+/* ============================================================
+   1 · HERO — BOŞ GÖKYÜZÜ
+   İçerik kadrajın ALTINA yaslanır; üstteki boşluk bilerek boş.
+   ============================================================ */
+.hero {
+  position: relative;
+  z-index: 1;
+  width: var(--shk-content);
+  margin-inline: auto;
+  min-height: min(88svh, 54rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: var(--shk-gutter);
+  padding-block: calc(var(--shk-cell) * 0.8) calc(var(--shk-cell) * 1.4);
+}
+
+.heroScene {
+  position: absolute;
+  inset: calc(var(--shk-cell) * -0.5) calc(var(--shk-gutter) * -1);
+  z-index: -1;
+  overflow: hidden;
+  border-radius: 2px;
+}
+
+.heroScene img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.35) brightness(0.6);
+}
+
+.heroScrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    var(--bg) 4%,
+    color-mix(in srgb, var(--bg) 55%, transparent) 55%,
+    color-mix(in srgb, var(--bg) 82%, transparent) 100%
+  );
+}
+
+/* Filigran: dikey kanji sütunu, gökyüzünün sağ kenarında */
+.heroMark {
+  position: absolute;
+  top: 0;
+  right: calc(var(--shk-cell) * -0.35);
+  margin: 0;
+  writing-mode: vertical-rl;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(2.4rem, 8vw, 5.5rem);
+  line-height: 1;
+  letter-spacing: 0.14em;
+  color: color-mix(in srgb, var(--text-primary) 7%, transparent);
+  user-select: none;
+  pointer-events: none;
+}
+
+.heroBody {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  max-width: 34ch;
+}
+
+.heroClan {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.heroName {
+  margin: 0;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: clamp(2.75rem, 10vw, 6.5rem);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+  color: var(--text-primary);
+  transition: text-shadow var(--shk-dur-slow) var(--shk-ease);
+}
+
+.heroNative {
+  margin: 0.15rem 0 0;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(1.05rem, 2.6vw, 1.5rem);
+  letter-spacing: 0.24em;
+  color: var(--text-muted);
+}
+
+.heroEpigraph {
+  margin: calc(var(--shk-cell) * 0.4) 0 0;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: clamp(1.1rem, 2.1vw, 1.4rem);
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  text-wrap: pretty;
+}
+
+.heroLede {
+  margin: 0.4rem 0 0;
+  max-width: 40ch;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1rem;
+  line-height: 1.75;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.heroAside {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.75rem;
+  width: clamp(8.5rem, 20vw, 13rem);
+}
+
+/* Portre KÜÇÜK ve kenarda (BRIEF §3.1): dar kadraj, etrafı tipografi */
+.heroPortrait {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  filter: grayscale(0.5) contrast(1.05);
+  box-shadow: 0 24px 48px -32px var(--shk-tether);
+  transition: filter var(--shk-dur-slow) var(--shk-ease);
+}
+
+.heroPortrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 18%;
+}
+
+.hero:hover .heroPortrait {
+  filter: grayscale(0.15) contrast(1.05);
+}
+
+/* Duman: portrenin üstünden boş gökyüzüne yükselir */
+.smokeWrap {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% - 6.5rem);
+  translate: -50% 0;
+  width: min(10rem, 100%);
+  height: clamp(11rem, 32vh, 24rem);
+  pointer-events: none;
+}
+
+.smoke {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  mask-image: linear-gradient(to top, black 8%, transparent 94%);
+}
+
+.ember {
+  position: absolute;
+  left: 50%;
+  bottom: -0.25rem;
+  translate: -50% 0;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--shk-ember);
+  box-shadow:
+    0 0 10px var(--shk-ember),
+    0 0 30px color-mix(in srgb, var(--shk-ember) 45%, transparent);
+}
+
+.emberCaption {
+  margin: 0;
+  max-width: 18ch;
+  text-align: right;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .smokeLine {
+    stroke-dasharray: 30 150;
+    animation: shkSmoke 16s linear infinite;
+  }
+
+  .smokeLine[data-strand="2"] {
+    animation-duration: 21s;
+    animation-delay: -4s;
+  }
+
+  .smokeLine[data-strand="3"] {
+    animation-duration: 13s;
+    animation-delay: -8s;
+  }
+
+  .smokeLine[data-strand="4"] {
+    animation-duration: 25s;
+    animation-delay: -2s;
+  }
+
+  .ember {
+    animation: shkEmber 5.5s var(--shk-ease-soft) infinite alternate;
+  }
+}
+
+@keyframes shkSmoke {
+  from {
+    stroke-dashoffset: 360;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes shkEmber {
+  from {
+    opacity: 0.55;
+    box-shadow:
+      0 0 8px var(--shk-ember),
+      0 0 20px color-mix(in srgb, var(--shk-ember) 30%, transparent);
+  }
+  to {
+    opacity: 1;
+    box-shadow:
+      0 0 12px var(--shk-ember),
+      0 0 38px color-mix(in srgb, var(--shk-ember) 50%, transparent);
+  }
+}
+
+/* ============================================================
+   BÖLÜM İSKELETİ
+   ============================================================ */
+.section,
+.chainSection {
+  position: relative;
+  z-index: 1;
+  width: var(--shk-content);
+  margin-inline: auto;
+  padding-block: calc(var(--shk-cell) * 1.15);
+}
+
+.sectionHead {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: calc(var(--shk-cell) * 0.7);
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: clamp(1.75rem, 4.2vw, 3rem);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  text-wrap: balance;
+  transition: text-shadow var(--shk-dur-slow) var(--shk-ease);
+}
+
+.sectionLede {
+  margin: 0;
+  max-width: 48ch;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1rem;
+  line-height: 1.75;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* Kurator yuvaları — ziyaretçide hiç çizilmiyor */
+.slotRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+/* ============================================================
+   2 · KÜNYE
+   Kifu satırları: etiket Inter, değer Petrona. Izgaraya değil, tahtanın
+   sütunlarına oturuyor.
+   ============================================================ */
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 1px;
+  margin: 0;
+  background: var(--border);
+  border-block: 1px solid var(--border);
+}
+
+.fact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 1.15rem 1.1rem;
+  background: var(--bg);
+  transition: background var(--shk-dur) var(--shk-ease-soft);
+}
+
+.fact:hover {
+  background: var(--surface);
+}
+
+.fact dt {
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.fact dd {
+  margin: 0;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+}
+
+/* ============================================================
+   3 · TAHTADAKİ TAŞLAR
+   Portreler shogi taşının beşgenine kırpılıyor; karşı tarafın taşı ters
+   yönde (tahtanın öbür ucundan bakan taş).
+   ============================================================ */
+.pieces {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+  gap: calc(var(--shk-cell) * 0.55) 1.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.piece {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  transition: filter var(--shk-dur-slow) var(--shk-ease);
+}
+
+/* Taşın ahşap gövdesi. Kenar payı `border` ile DEĞİL, portrenin kendi
+   (biraz daha küçük) beşgen kırpmasıyla veriliyor: `next/image fill`
+   satır içi stille inset:0 yazıyor, CSS'ten inset vermek işe yaramaz —
+   kırpma ise satır içi stille çakışmıyor. */
+.pieceArt {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  background: color-mix(in srgb, var(--shk-piece) 62%, var(--bg));
+  clip-path: polygon(50% 0%, 84% 11%, 100% 100%, 0% 100%, 16% 11%);
+}
+
+.piece[data-side="enemy"] .pieceArt {
+  background: color-mix(in srgb, var(--shk-board) 85%, var(--bg));
+  clip-path: polygon(0% 0%, 100% 0%, 84% 89%, 50% 100%, 16% 89%);
+}
+
+.pieceArt img {
+  object-fit: cover;
+  object-position: 50% 22%;
+  clip-path: polygon(50% 3.5%, 81% 14%, 96.5% 96%, 3.5% 96%, 19% 14%);
+  filter: grayscale(0.55) contrast(1.06) brightness(0.92);
+  transition: filter var(--shk-dur) var(--shk-ease-soft);
+}
+
+.piece[data-side="enemy"] .pieceArt img {
+  clip-path: polygon(3.5% 4%, 96.5% 4%, 81% 86%, 50% 96.5%, 19% 86%);
+  filter: grayscale(0.85) contrast(1.1) brightness(0.7);
+}
+
+.piece:hover .pieceArt img {
+  filter: grayscale(0.1) contrast(1.02) brightness(1);
+}
+
+.pieceBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.pieceRole {
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.piece[data-side="enemy"] .pieceRole {
+  color: color-mix(in srgb, var(--shk-ember-text) 70%, var(--text-muted));
+}
+
+.pieceName {
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.pieceNote {
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* ============================================================
+   4 · GÖLGENİN ÜÇ BİÇİMİ
+   Üç büyük kart tek sütunda, alternatif hizalı: kanji sütunu solda,
+   metin sağda. Kart değil, tahtanın üstünde duran üç blok.
+   ============================================================ */
+.forms {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--shk-cell) * 0.9);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.form {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.formArt {
+  position: absolute;
+  inset: 1.5rem 0 auto auto;
+  width: min(16rem, 38%);
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  opacity: 0.5;
+  mask-image: linear-gradient(to left, black 30%, transparent 100%);
+  transition: opacity var(--shk-dur-slow) var(--shk-ease);
+}
+
+.formArt:empty {
+  display: none;
+}
+
+.formArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.6) contrast(1.05);
+}
+
+.form:hover .formArt {
+  opacity: 0.72;
+}
+
+.formKanji {
+  writing-mode: vertical-rl;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(1.4rem, 3.4vw, 2.1rem);
+  line-height: 1;
+  letter-spacing: 0.1em;
+  color: color-mix(in srgb, var(--text-primary) 34%, transparent);
+  transition: color var(--shk-dur) var(--shk-ease-soft);
+}
+
+.form:hover .formKanji {
+  color: color-mix(in srgb, var(--accent) 80%, transparent);
+}
+
+.formBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+.formName {
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: clamp(1.35rem, 3vw, 1.9rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.formTurkish {
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.formTagline {
+  margin-top: 0.35rem;
+  max-width: 40ch;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--accent);
+}
+
+.formText {
+  max-width: var(--shk-measure);
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.formTraits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.trait {
+  padding: 0.3rem 0.65rem;
+  border: 1px solid var(--border);
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   5 · ÇANTADAKİLER — dört küçük
+   ============================================================ */
+.pouch {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+
+.pouchItem {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 1.4rem 1.25rem 1.5rem;
+  background: var(--bg);
+  overflow: hidden;
+  transition: background var(--shk-dur) var(--shk-ease-soft);
+}
+
+.pouchItem:hover {
+  background: var(--surface);
+}
+
+.pouchArt {
+  position: absolute;
+  inset: auto 0 0 auto;
+  width: 60%;
+  aspect-ratio: 1;
+  opacity: 0.18;
+  mask-image: radial-gradient(circle at 80% 90%, black 20%, transparent 72%);
+  transition: opacity var(--shk-dur-slow) var(--shk-ease);
+}
+
+.pouchArt:empty {
+  display: none;
+}
+
+.pouchArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.7);
+}
+
+.pouchItem:hover .pouchArt {
+  opacity: 0.3;
+}
+
+.pouchName {
+  position: relative;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.pouchNote {
+  position: relative;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* ============================================================
+   6 · HAMLE ZİNCİRİ — SAYFANIN KALBİ
+   Solda tahta şeması, sağda hamlenin metni. Tahta yapışkan: metin
+   okunurken bağın nereye ulaştığı gözden kaybolmuyor.
+   ============================================================ */
+.chainSection {
+  padding-block: calc(var(--shk-cell) * 1.4);
+}
+
+.chain {
+  display: grid;
+  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1fr);
+  gap: calc(var(--shk-cell) * 0.6);
+  align-items: start;
+}
+
+.chainBoard {
+  position: sticky;
+  top: calc(var(--shk-cell) * 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.boardArt {
+  width: 100%;
+  max-width: 30rem;
+  aspect-ratio: 94 / 96;
+  overflow: visible;
+}
+
+.boardGrid {
+  transition: stroke var(--shk-dur-slow) var(--shk-ease);
+}
+
+/* Gölge bağı: hamle değiştikçe ÇİZİLİR — sayfanın tek yazılmış anı */
+.strand {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset var(--shk-draw) var(--shk-ease);
+}
+
+.strand[data-on] {
+  stroke-dashoffset: 0;
+}
+
+.strand[data-step="1"] {
+  transition-delay: 60ms;
+}
+
+.strand[data-step="2"] {
+  transition-delay: 110ms;
+}
+
+.strand[data-step="3"] {
+  transition-delay: 150ms;
+}
+
+.strand[data-step="4"] {
+  transition-delay: 220ms;
+}
+
+.koma {
+  transition:
+    transform var(--shk-dur-slow) var(--shk-ease),
+    translate var(--shk-dur-slow) var(--shk-ease),
+    opacity var(--shk-dur-slow) var(--shk-ease);
+}
+
+.koma[data-away] {
+  translate: 26px 0;
+  opacity: 0.16;
+}
+
+/* ⚠️ Burada `rotate` KULLANILMIYOR: SVG öğelerinde transform-origin
+   varsayılanı kullanıcı uzayının başlangıcı (0 0), yani bağımsız bir
+   dönüş taşı tahtanın dışına fırlatırdı. Yer değiştirme (translate)
+   başlangıç noktasından bağımsız olduğu için güvenli. */
+.koma[data-state="broken"] {
+  opacity: 0.5;
+}
+
+.koma[data-state="buried"] {
+  opacity: 0.22;
+  translate: 0 2px;
+}
+
+.boardEmber {
+  opacity: 0;
+  transition: opacity var(--shk-dur-slow) var(--shk-ease);
+}
+
+.boardEmber[data-on] {
+  opacity: 1;
+}
+
+.chainCount {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  font-family: var(--font-inter), var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+.chainCountNumber {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--shk-ember-text);
+}
+
+.chainCountTotal {
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+}
+
+.chainPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  min-width: 0;
+}
+
+/* Sekmeler: beş hamlenin kareleri */
+.moveTabs {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.moveTab {
+  display: grid;
+  place-items: center;
+  min-width: var(--touch-min);
+  min-height: var(--touch-min);
+  padding: 0;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition:
+    color var(--shk-dur-fast) var(--shk-ease-soft),
+    border-color var(--shk-dur-fast) var(--shk-ease-soft),
+    background var(--shk-dur-fast) var(--shk-ease-soft),
+    box-shadow var(--shk-dur) var(--shk-ease-soft);
+}
+
+.moveTab:hover {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+.moveTab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.moveTab[aria-selected="true"] {
+  color: var(--bg);
+  background: var(--shk-ember);
+  border-color: var(--shk-ember);
+  box-shadow: 0 10px 24px -14px var(--shk-ember);
+}
+
+.movePanel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  min-height: 21rem;
+  padding: 1.5rem 1.4rem 1.6rem;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 60%, var(--bg));
+  overflow: hidden;
+  box-shadow: 0 24px 50px -40px var(--shk-tether);
+}
+
+.movePanel:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.moveArt {
+  position: absolute;
+  inset: 0;
+  opacity: 0.16;
+  mask-image: linear-gradient(to top, transparent 20%, black 100%);
+}
+
+.moveArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.7);
+}
+
+.moveNumber {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  margin: 0;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--shk-ember-text);
+}
+
+.moveWord {
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.moveTitle {
+  position: relative;
+  margin: 0 0 0.4rem;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: clamp(1.4rem, 3.2vw, 2rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.moveBlock {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.moveBlock[data-kind="answer"] {
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--border);
+  margin-top: 0.3rem;
+}
+
+.moveLabel {
+  margin: 0;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.moveText {
+  margin: 0;
+  max-width: 56ch;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1rem;
+  line-height: 1.75;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.moveNav {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.navButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: var(--touch-min);
+  padding: 0 1.05rem;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    color var(--shk-dur-fast) var(--shk-ease-soft),
+    border-color var(--shk-dur-fast) var(--shk-ease-soft),
+    background var(--shk-dur-fast) var(--shk-ease-soft);
+}
+
+.navButton:hover:not(:disabled) {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+  background: var(--surface);
+}
+
+.navButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.navButton:disabled {
+  opacity: 0.32;
+  cursor: default;
+}
+
+.chainHint {
+  margin: 0;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   7 · ÖMÜR ÇİZELGESİ
+   Yaş sütunu solda dikey bir hatta dizili; kayıtlar hattın sağında.
+   ============================================================ */
+.fate {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--shk-cell) * 0.75);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: shk-fate;
+}
+
+.fateItem {
+  position: relative;
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr);
+  gap: 1.5rem;
+  padding-left: 0;
+}
+
+/* Kayıtları birbirine bağlayan dikey hat — gölge modunda kalınlaşır */
+.fateItem::before {
+  content: "";
+  position: absolute;
+  left: calc(6.5rem - 0.75rem);
+  top: 0.65rem;
+  bottom: calc(var(--shk-cell) * -0.75);
+  width: 1px;
+  background: var(--border);
+  transition: background var(--shk-dur-slow) var(--shk-ease);
+}
+
+.fateItem:last-child::before {
+  bottom: 0.5rem;
+}
+
+.fateItem::after {
+  content: "";
+  position: absolute;
+  left: calc(6.5rem - 0.75rem - 3px);
+  top: 0.5rem;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--shk-piece);
+}
+
+.fateAge {
+  margin: 0;
+  padding-top: 0.1rem;
+  text-align: right;
+  padding-right: 1.5rem;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+.fateBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+.fateTitle {
+  margin: 0;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: clamp(1.2rem, 2.6vw, 1.6rem);
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.fateText {
+  margin: 0;
+  max-width: var(--shk-measure);
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.fateQuote {
+  margin: 0.5rem 0 0;
+  padding-left: 1.1rem;
+  border-left: 1px solid var(--accent-muted);
+}
+
+.fateQuote blockquote {
+  margin: 0;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+.fateQuote figcaption {
+  margin-top: 0.4rem;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.fateArt {
+  position: relative;
+  grid-column: 2;
+  display: block;
+  width: 100%;
+  max-width: 32rem;
+  aspect-ratio: 21 / 9;
+  margin-top: 0.35rem;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.fateArt:empty {
+  display: none;
+}
+
+.fateArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.55) contrast(1.05) brightness(0.85);
+  transition: filter var(--shk-dur-slow) var(--shk-ease);
+}
+
+.fateItem:hover .fateArt img {
+  filter: grayscale(0.2) contrast(1.02) brightness(0.95);
+}
+
+/* ============================================================
+   8 · KAPANIŞ
+   ============================================================ */
+.closing {
+  position: relative;
+  z-index: 1;
+  width: var(--shk-content);
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--shk-cell) * 0.6);
+  padding-block: calc(var(--shk-cell) * 1.6) calc(var(--shk-cell) * 1.9);
+  text-align: center;
+}
+
+.closingArt {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.14;
+  mask-image: radial-gradient(ellipse at 50% 50%, black 10%, transparent 70%);
+}
+
+.closingArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.8);
+}
+
+.closingQuote {
+  margin: 0;
+  max-width: 46ch;
+}
+
+.closingQuote blockquote {
+  margin: 0;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: clamp(1.4rem, 3.4vw, 2.25rem);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.closingQuote figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 0.9rem;
+}
+
+.quoteBy {
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.quoteNote {
+  max-width: 44ch;
+  margin-inline: auto;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+.motto {
+  margin: 0;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(2rem, 7vw, 3.75rem);
+  line-height: 1.1;
+  letter-spacing: 0.1em;
+  color: color-mix(in srgb, var(--text-primary) 26%, transparent);
+}
+
+.mottoNote {
+  margin: -0.35rem 0 0;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+}
+
+.credit {
+  max-width: 54ch;
+  margin: 0;
+  padding-top: calc(var(--shk-cell) * 0.5);
+  border-top: 1px solid var(--border);
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.75rem;
+  line-height: 1.75;
+  color: var(--text-muted);
+}
+
+.credit a {
+  color: var(--text-secondary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--accent-muted);
+  transition: color var(--shk-dur-fast) var(--shk-ease-soft);
+}
+
+.credit a:hover {
+  color: var(--accent);
+}
+
+.credit a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ============================================================
+   GÖLGE MODU
+   Bütün öğe gölgeleri uzar ve birbirine bağlanır; tahta belirginleşir.
+   Etkinin tamamı burada — JS yalnızca bir niteliği çeviriyor.
+   ============================================================ */
+.page[data-shadow] {
+  --shk-lift: calc(var(--shk-cell) * 0.34);
+}
+
+.page[data-shadow] .board {
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--text-primary) 15%, transparent) 0 1px,
+      transparent 1px var(--shk-cell)
+    ),
+    repeating-linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--text-primary) 15%, transparent) 0 1px,
+      transparent 1px var(--shk-cell)
+    ),
+    radial-gradient(
+      circle at 0 0,
+      color-mix(in srgb, var(--shk-piece) 70%, transparent) 0 2px,
+      transparent 2.1px
+    );
+}
+
+/* Uzayan gölgeler: ofset + yumuşak bulanıklık (düz blok gölge değil) */
+.page[data-shadow] .movePanel,
+.page[data-shadow] .fateArt,
+.page[data-shadow] .heroPortrait {
+  box-shadow:
+    var(--shk-lift) var(--shk-lift) calc(var(--shk-lift) * 1.4)
+      calc(var(--shk-lift) * -0.55) var(--shk-tether),
+    calc(var(--shk-lift) * 2) calc(var(--shk-lift) * 2)
+      calc(var(--shk-lift) * 2.6) calc(var(--shk-lift) * -1)
+      color-mix(in srgb, var(--shk-shadow) 70%, transparent);
+}
+
+/* Taşlar beşgene kırpılı: box-shadow kırpmanın dışında kalır ve hiç
+   görünmez. drop-shadow kırpılmış SİLUETİ takip ediyor — koma gölgesi
+   gerçekten koma biçiminde düşüyor. */
+.page[data-shadow] .piece {
+  filter: drop-shadow(
+    calc(var(--shk-lift) * 0.5) calc(var(--shk-lift) * 0.6)
+      calc(var(--shk-lift) * 0.5) var(--shk-tether)
+  );
+}
+
+/* Çantanın ızgara çizgileri gölgeye dönüşür: dört kutu tek bir bağla
+   birbirine dikilmiş gibi okunur */
+.page[data-shadow] .pouch {
+  background: var(--shk-shadow);
+  border-color: var(--shk-shadow);
+}
+
+/* Başlıklar da gölge düşürür — sayfa tek ışık kaynağı altında */
+.page[data-shadow] .heroName,
+.page[data-shadow] .sectionTitle {
+  text-shadow: 0.14em 0.14em 0.02em color-mix(in srgb, var(--shk-shadow) 85%, transparent);
+}
+
+/* Bağ çizgileri: her blok bir sonrakine gölgeyle bağlanır.
+   Çizgi transform-origin'den büyüyor — mod açılınca "uzuyor".
+   Yalnızca üç jutsu bloğunda var: aralarındaki boşluk bir hücreden
+   büyük, çizginin uzayacağı yer orada. Bitişik ızgaralarda (çanta,
+   taşlar) bağ, gölgenin kendisiyle kuruluyor. */
+.form::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: calc(var(--shk-cell) * -0.45);
+  width: calc(var(--shk-cell) * 1.1);
+  height: 2px;
+  background: linear-gradient(
+    to right,
+    var(--shk-shadow),
+    color-mix(in srgb, var(--shk-shadow) 20%, transparent)
+  );
+  transform-origin: 0 50%;
+  rotate: 34deg;
+  scale: 0 1;
+  opacity: 0;
+  transition:
+    scale var(--shk-dur-slow) var(--shk-ease),
+    opacity var(--shk-dur) var(--shk-ease);
+  pointer-events: none;
+}
+
+.page[data-shadow] .form::after {
+  scale: 1 1;
+  opacity: 0.85;
+}
+
+/* Zincirin son halkasından çıkan bağ yok — bağ bir SONRAKİNE gider */
+.page[data-shadow] .forms .form:last-child::after {
+  opacity: 0;
+}
+
+.page[data-shadow] .fateItem::before {
+  background: var(--shk-shadow);
+  width: 2px;
+}
+
+.page[data-shadow] .heroPortrait {
+  filter: grayscale(0.8) contrast(1.15) brightness(0.82);
+}
+
+.page[data-shadow] .boardGrid {
+  stroke: color-mix(in srgb, var(--text-primary) 22%, transparent);
+}
+
+/* ============================================================
+   MOBİL — 360 pikselde taşma yok, ızgaraların hepsi tek sütuna iner
+   ============================================================ */
+@media (max-width: 900px) {
+  .chain {
+    grid-template-columns: 1fr;
+    gap: calc(var(--shk-cell) * 0.7);
+  }
+
+  /* Tahta yapışkanlıktan çıkar: dar ekranda metnin üstünde durur */
+  .chainBoard {
+    position: static;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .boardArt {
+    max-width: min(20rem, 70%);
+  }
+
+  .movePanel {
+    min-height: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .hero {
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: calc(var(--shk-cell) * 0.7);
+    min-height: min(82svh, 46rem);
+  }
+
+  /* Portre ve duman ÜSTTE: dumanın yükseleceği boşluk başlıkların
+     üstünde kalsın diye (masaüstünde bu boşluk kadrajın kendisi) */
+  .heroAside {
+    order: -1;
+    align-items: flex-start;
+    margin-top: calc(var(--shk-cell) * 2.4);
+    width: clamp(7.5rem, 34vw, 10rem);
+  }
+
+  .emberCaption {
+    text-align: left;
+  }
+
+  .heroMark {
+    right: calc(var(--shk-gutter) * -0.5);
+    opacity: 0.75;
+  }
+
+  .form {
+    grid-template-columns: 1fr;
+    gap: 0.9rem;
+  }
+
+  .formKanji {
+    writing-mode: horizontal-tb;
+    letter-spacing: 0.14em;
+  }
+
+  .formArt {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    max-width: none;
+    aspect-ratio: 16 / 9;
+    order: -1;
+    opacity: 0.62;
+    mask-image: linear-gradient(to top, transparent 2%, black 60%);
+  }
+
+  .fateItem {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    padding-left: 1.4rem;
+  }
+
+  .fateItem::before {
+    left: 0;
+    top: 1.5rem;
+  }
+
+  .fateItem::after {
+    left: -3px;
+    top: 1.35rem;
+  }
+
+  .fateAge {
+    text-align: left;
+    padding-right: 0;
+  }
+
+  .fateArt {
+    grid-column: 1;
+  }
+
+  .shadowHint {
+    display: none;
+  }
+}
+
+@media (max-width: 460px) {
+  .pieces {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .facts {
+    grid-template-columns: 1fr;
+  }
+
+  .moveTabs {
+    flex-wrap: wrap;
+  }
+
+  .moveNav {
+    flex-wrap: wrap;
+  }
+
+  .navButton {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+
+  .shadowToggleLabel {
+    display: none;
+  }
+
+  .shadowToggle {
+    padding: 0.5rem;
+    min-width: var(--touch-min);
+    justify-content: center;
+  }
+}
+
+/* Yüksek kontrast / zorunlu renk modunda dekoratif katmanlar susar */
+@media (forced-colors: active) {
+  .board,
+  .heroMark,
+  .smokeWrap,
+  .closingArt {
+    display: none;
+  }
+}
+
+/* ============================================================
+   REDUCED-MOTION BATTANİYESİ — ev deseni (çift katman):
+   yukarıdaki her animasyon no-preference kapısında; burada kalan
+   geçişler de tamamen kapanır. Gölge bağı yine çizili görünür,
+   yalnızca çizilme HAREKETİ yok.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

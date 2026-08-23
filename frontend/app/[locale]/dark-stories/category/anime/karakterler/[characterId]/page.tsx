@@ -4,13 +4,20 @@ import { readIsAdmin } from "@/lib/auth/session";
 import { getCharacterCards, getCharacterDetail } from "@/lib/api/characters";
 import { getCharacterOverlay } from "@/lib/characters";
 import { shareCard } from "@/lib/seo";
-import { ITACHI_ID } from "@/lib/characters/itachi-experience";
 import { CharacterDossier } from "@/components/character/CharacterDossier";
-import { ItachiExperience } from "@/components/character/itachi/ItachiExperience";
 
 // Karakter dosyası. Adres AniList karakter numarası: başlıktan slug türetmek
 // burada işe yaramaz — aynı adı taşıyan karakterler yaygın ("Ichigo" hem
 // Bleach'te hem başka yapımlarda) ve numara kaynağın kendi kimliği.
+//
+// ⚠️ ELLE TASARLANMIŞ SAYFALAR BURADA DEĞİL. On dört karakterin (Itachi,
+// Naruto, Sasuke, Ichigo, Kakashi, Sakura, Urahara, Shikamaru, Aizen,
+// Jiraiya, Hinata, Kenpachi, Rock Lee ve kap sayfasının iki adresi) kendi
+// rota klasörü var — `karakterler/17/`, `karakterler/13/` gibi. Statik parça
+// dinamik parçadan önce eşleştiği için adresler aynı; ayrılmalarının sebebi
+// stil dosyalarının rota başına toplanması (ölçüm:
+// lib/characters/experience-page.tsx). Bu dosya artık YALNIZCA künye
+// dossier'i çiziyor.
 
 export const dynamic = "force-dynamic";
 
@@ -54,11 +61,10 @@ export default async function CharacterPage({
    * haritasının anahtarı adresteki AniList numarasının kendisi, yani detay
    * yanıtına gerek yok. Eskiden kartlar detaydan SONRA çekiliyordu — katmanlı
    * karakter sayfalarında ikinci bir tam ağ turu. `getCharacterCards` hiçbir
-   * koşulda reject etmez ve boş listeyle hiç istek atmaz (lib/api/characters.ts),
-   * Itachi dalı için de aynı güvence geçerli (ITACHI_ID katmanı yok sayılıyor).
+   * koşulda reject etmez ve boş listeyle hiç istek atmaz (lib/api/characters.ts).
    */
   const numericId = Number(characterId);
-  const overlay = numericId === ITACHI_ID ? null : getCharacterOverlay(numericId);
+  const overlay = getCharacterOverlay(numericId);
   const referencedIds = [
     ...(overlay?.battles ?? []).map((battle) => battle.opponentCharacterId),
     ...(overlay?.bonds ?? []).map((bond) => bond.characterId),
@@ -71,16 +77,6 @@ export default async function CharacterPage({
   ]);
   if (!detail) {
     notFound();
-  }
-
-  /*
-   * Itachi (14): klasik dossier'in YERİNE interaktif deneyim sayfası
-   * (kullanıcı komutu, 18 Ağustos 2026). İçerik lib/characters/
-   * itachi-experience.ts'te; görselleri kendi kaydının images alanından
-   * okur, referans kartı istekleri bu dala hiç girmez.
-   */
-  if (detail.character.characterId === ITACHI_ID) {
-    return <ItachiExperience detail={detail} isAdmin={isAdmin} />;
   }
 
   /*

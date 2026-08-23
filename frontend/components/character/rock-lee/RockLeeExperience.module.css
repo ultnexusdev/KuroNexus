@@ -1,0 +1,2076 @@
+/* ============================================================
+   ROCK LEE — "Sekiz Kapı" deneyim sayfası.
+
+   Deri: kökteki `data-world="rock-lee"` bütün standart token'ları şafak
+   paletine çevirir (toprak zemin, gün doğumu turuncusu accent).
+   Yardımcılar `--lee-*` (globals.css). Bu dosyada TEK HEX YOK — ara ton
+   gerektiğinde `color-mix(in srgb, …)` ile mevcut token'lardan türetiliyor
+   (kural 16, Itachi modülünün ölçütü).
+
+   ── SAYFANIN MEKANİĞİ: TEK SAYI ──────────────────────────────────────
+   Kökte `data-gates="0…8"` var (GateShell). Bu dosya o sayıyı bir ÖLÇÜ
+   rampasına çeviriyor:
+
+     --lee-mix    accent → --lee-gate karışım oranı (yüzde)
+     --lee-fire   ısı yıkamasının görünürlüğü (oran)
+     --lee-steam  buhar katmanı (oran)
+     --lee-chakra yeşil chakra halesi (altıncı–yedinci kapı, oran)
+     --lee-wght   tipografi ağırlığı (Inter: 400/600/700)
+     --lee-track  etiketlerin harf aralığı — ısındıkça sıkışır
+
+   Hiçbiri renk değişkeni değil (BRIEF kural 4): `.page` yalnızca ölçü
+   tanımlıyor, renkler her kullanım yerinde token'lardan karışıyor.
+
+   ── TİPOGRAFİ ────────────────────────────────────────────────────────
+   Anton (display) + Inter (gövde) + Yuji Boku (kanji). Serif YOK: bu
+   sayfa editoryal bir deneme değil, bir DİSİPLİN BELGESİ — poster
+   kapitalleri ve tabular rakamlar onun sesi. Itachi'nin Bebas+Cormorant
+   ikilisinden bilinçli olarak uzak.
+
+   ── HAREKET ──────────────────────────────────────────────────────────
+   Sayfanın tek yazılmış anı KAPININ AÇILMASI: kanatlar menteşesinden
+   döner, panel açılır, basamak yanar, sayfanın ısısı --lee-dur-slow
+   boyunca yükselir. Geri kalan her şey (güneşin nefesi, tozun sürüklenmesi)
+   fark edilmeyecek kadar yavaş. Hepsi ya no-preference kapısında ya da
+   dosya sonundaki reduce battaniyesinde.
+   ============================================================ */
+
+.page {
+  /* ── ölçü ve süre ── */
+  --lee-dur-fast: 160ms;
+  --lee-dur: 320ms;
+  --lee-dur-slow: 760ms;
+  --lee-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --lee-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --lee-pad: clamp(1.125rem, 5vw, 4rem);
+  --lee-max: 76rem;
+  --lee-rail: clamp(1.75rem, 4vw, 3rem);
+  --lee-hair: 1px;
+
+  /* ── ısı rampası (0 kapı) ── */
+  --lee-mix: 0%;
+  --lee-fire: 0;
+  --lee-steam: 0;
+  --lee-chakra: 0;
+  --lee-wght: 400;
+  --lee-track: 0.16em;
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-inter), var(--font-sans);
+  overflow-x: clip;
+}
+
+/* Kapı sayısı arttıkça sayfa ısınır. Değerler doğrusal değil: ilk üç kapı
+   ölçülü, altıncıdan sonra tırmanış sertleşiyor — kanonun kendi eğrisi. */
+.page[data-gates="1"] {
+  --lee-mix: 10%;
+  --lee-fire: 0.1;
+}
+
+.page[data-gates="2"] {
+  --lee-mix: 22%;
+  --lee-fire: 0.18;
+}
+
+.page[data-gates="3"] {
+  --lee-mix: 34%;
+  --lee-fire: 0.28;
+  --lee-steam: 0.12;
+}
+
+.page[data-gates="4"] {
+  --lee-mix: 46%;
+  --lee-fire: 0.4;
+  --lee-steam: 0.22;
+  --lee-track: 0.14em;
+}
+
+.page[data-gates="5"] {
+  --lee-mix: 58%;
+  --lee-fire: 0.52;
+  --lee-steam: 0.34;
+  --lee-chakra: 0.12;
+  --lee-wght: 600;
+  --lee-track: 0.13em;
+}
+
+.page[data-gates="6"] {
+  --lee-mix: 70%;
+  --lee-fire: 0.66;
+  --lee-steam: 0.48;
+  --lee-chakra: 0.4;
+  --lee-wght: 600;
+  --lee-track: 0.12em;
+}
+
+.page[data-gates="7"] {
+  --lee-mix: 84%;
+  --lee-fire: 0.82;
+  --lee-steam: 0.66;
+  --lee-chakra: 0.78;
+  --lee-wght: 700;
+  --lee-track: 0.11em;
+}
+
+/* Sekizinci kapı: chakra halesi söner, yerini kızıl buhar alır. */
+.page[data-gates="8"] {
+  --lee-mix: 100%;
+  --lee-fire: 1;
+  --lee-steam: 1;
+  --lee-chakra: 0.22;
+  --lee-wght: 700;
+  --lee-track: 0.09em;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ============================================================
+   ISI KATMANLARI — üçü de sabit, hiçbiri tıklama geçirmiyor
+   ============================================================ */
+
+/* Aşağıdan yükselen ısı yıkaması. Kaynağı sayfanın altı: kapılar
+   bedenden yukarı doğru açılıyor, ısı da öyle. */
+.heatWash {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: var(--lee-fire);
+  background:
+    radial-gradient(
+      120% 70% at 50% 118%,
+      var(--lee-heat) 0%,
+      color-mix(in srgb, var(--lee-heat) 55%, transparent) 42%,
+      transparent 74%
+    ),
+    radial-gradient(
+      90% 55% at 50% -12%,
+      color-mix(in srgb, var(--lee-gate) 12%, transparent),
+      transparent 70%
+    );
+  transition: opacity var(--lee-dur-slow) var(--lee-ease);
+}
+
+/* Buhar: yatay dalgalar hâlinde yukarı sürüklenen ince şeritler.
+   Rengi ısıyla birlikte yeşilden (chakra) kızıla (kan) geçiyor. */
+.steam {
+  position: fixed;
+  inset: -24% 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: calc(var(--lee-steam) * 0.55);
+  background: repeating-linear-gradient(
+    172deg,
+    transparent 0 26px,
+    color-mix(in srgb, var(--lee-gate) var(--lee-mix), var(--lee-jumpsuit)) 26px
+      28px,
+    transparent 28px 62px
+  );
+  filter: blur(6px);
+  mix-blend-mode: screen;
+  transition: opacity var(--lee-dur-slow) var(--lee-ease);
+}
+
+/* Kenarlardaki kor: sayfa ısındıkça çerçeve kızarır. */
+.emberEdge {
+  position: fixed;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  opacity: var(--lee-fire);
+  box-shadow:
+    inset 0 0 clamp(3rem, 9vw, 8rem) var(--lee-glow-soft),
+    inset 0 0 clamp(1rem, 3vw, 2.5rem)
+      color-mix(in srgb, var(--lee-gate) 45%, transparent);
+  transition: opacity var(--lee-dur-slow) var(--lee-ease);
+}
+
+/* Yedinci kapının yeşil halesi — kızıl buharın ALTINDA duruyor ki
+   sekizinci kapıda kızıl onu bastırsın. */
+.page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: var(--lee-chakra);
+  background: radial-gradient(
+    100% 60% at 50% 100%,
+    color-mix(in srgb, var(--lee-jumpsuit) 34%, transparent),
+    transparent 68%
+  );
+  transition: opacity var(--lee-dur-slow) var(--lee-ease);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .steam {
+    animation: leeSteam 14s linear infinite;
+  }
+}
+
+@keyframes leeSteam {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 0 -124px;
+  }
+}
+
+@media (forced-colors: active) {
+  .heatWash,
+  .steam,
+  .emberEdge,
+  .page::before {
+    display: none;
+  }
+}
+
+/* ============================================================
+   MOD DÜĞMESİ — "Sekizinci Kapı"
+   ============================================================ */
+.modeToggle {
+  position: fixed;
+  right: clamp(0.75rem, 3vw, 2rem);
+  bottom: calc(clamp(0.75rem, 3vw, 2rem) + var(--music-bar, 0px));
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: var(--touch-min);
+  padding: 0.55rem 1rem 0.55rem 0.75rem;
+  border: var(--lee-hair) solid
+    color-mix(in srgb, var(--lee-gate) var(--lee-mix), var(--accent-muted));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: blur(8px);
+  color: var(--text-secondary);
+  cursor: pointer;
+  box-shadow:
+    0 10px 30px -18px var(--lee-glow-strong),
+    0 2px 6px -3px color-mix(in srgb, var(--bg) 80%, transparent);
+  transition:
+    color var(--lee-dur) var(--lee-ease),
+    border-color var(--lee-dur) var(--lee-ease),
+    background-color var(--lee-dur) var(--lee-ease);
+}
+
+.modeToggle:hover,
+.modeToggle:focus-visible {
+  color: var(--text-primary);
+  background: var(--surface-hover);
+  border-color: color-mix(in srgb, var(--lee-gate) var(--lee-mix), var(--accent));
+}
+
+.modeToggle:focus-visible {
+  outline: 2px solid
+    color-mix(in srgb, var(--lee-gate) var(--lee-mix), var(--accent));
+  outline-offset: 3px;
+}
+
+.modeToggle[aria-pressed="true"] {
+  color: var(--text-primary);
+  border-color: var(--lee-gate);
+  background: color-mix(in srgb, var(--lee-gate) 22%, var(--surface));
+}
+
+.modeLabel {
+  font-family: var(--font-anton), var(--font-sans);
+  font-size: 0.9375rem;
+  letter-spacing: var(--lee-track);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.modeGlyph {
+  width: 1.5rem;
+  height: 1.5rem;
+  flex: none;
+  color: color-mix(in srgb, var(--lee-gate) var(--lee-mix), var(--accent));
+}
+
+/* ============================================================
+   KAPI KANATLARI — GateGlyph'in ortak davranışı
+   Kanatlar menteşelerinden (dış kenarlarından) açılır: sağdaki sağa,
+   soldaki sola. Kilit halkası açık kapıda söner.
+   ============================================================ */
+.modeGlyph [data-leaf],
+.gateGlyph [data-leaf] {
+  transform-box: fill-box;
+  transition:
+    transform var(--lee-dur) var(--lee-ease-out),
+    opacity var(--lee-dur) var(--lee-ease);
+}
+
+.modeGlyph [data-leaf="left"],
+.gateGlyph [data-leaf="left"] {
+  transform-origin: left center;
+}
+
+.modeGlyph [data-leaf="right"],
+.gateGlyph [data-leaf="right"] {
+  transform-origin: right center;
+}
+
+.modeGlyph [data-lock],
+.gateGlyph [data-lock] {
+  transition: opacity var(--lee-dur) var(--lee-ease);
+}
+
+.modeToggle[aria-pressed="true"] .modeGlyph [data-leaf],
+.gate[data-open="true"] .gateGlyph [data-leaf] {
+  transform: scaleX(0.16);
+  opacity: 0.75;
+}
+
+.modeToggle[aria-pressed="true"] .modeGlyph [data-lock],
+.gate[data-open="true"] .gateGlyph [data-lock] {
+  opacity: 0;
+}
+
+/* ============================================================
+   ÜST ŞERİT
+   ============================================================ */
+.crumb {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.9rem var(--lee-pad);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.crumb a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--lee-dur-fast) var(--lee-ease);
+}
+
+.crumb a:hover,
+.crumb a:focus-visible {
+  color: color-mix(in srgb, var(--lee-gate) var(--lee-mix), var(--accent));
+}
+
+.crumb a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.crumbSep {
+  color: var(--border-strong);
+}
+
+/* ============================================================
+   1 · ŞAFAK (HERO)
+   Sayfanın en aydınlık yeri burası: gün doğumu gradyanı ekranın
+   yarısını kaplıyor, siluet güneşin önünde duruyor, zemin toz.
+   ============================================================ */
+.hero {
+  position: relative;
+  z-index: 10;
+  min-height: min(92svh, 54rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  isolation: isolate;
+  overflow: hidden;
+  padding: clamp(3rem, 8vw, 6rem) var(--lee-pad) clamp(2.5rem, 6vw, 5rem);
+}
+
+.heroSky {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+  /* Gökyüzü: tepede gece, ufuk hizasında şafak. Renkler yalnızca
+     token karışımı — gradyanın hiçbir durağı elle yazılmış değil. */
+  background:
+    linear-gradient(
+      to bottom,
+      var(--bg) 0%,
+      color-mix(in srgb, var(--lee-sunrise) 6%, var(--bg)) 34%,
+      color-mix(in srgb, var(--lee-sunrise) 20%, var(--bg)) 58%,
+      color-mix(in srgb, var(--lee-sunrise) 34%, var(--bg)) 70%,
+      color-mix(in srgb, var(--lee-dust) 60%, var(--bg)) 78%,
+      var(--bg) 100%
+    );
+}
+
+/* Küratör yüklerse şafak bandı gradyanın üstüne, ölçülü bir karışımla
+   oturur — sahne gradyanı EZMEZ, onunla birleşir. */
+.heroBand {
+  object-fit: cover;
+  object-position: center 62%;
+  opacity: 0.5;
+  filter: saturate(1.05) contrast(1.02);
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 22%,
+    black 76%,
+    transparent 96%
+  );
+}
+
+/* Güneş: ufkun hemen üstünde, siluetin arkasında. */
+.heroSun {
+  position: absolute;
+  left: 50%;
+  bottom: 20%;
+  z-index: -1;
+  width: clamp(18rem, 44vw, 34rem);
+  aspect-ratio: 1;
+  translate: -50% 40%;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--lee-sunrise) 78%, transparent) 0%,
+    color-mix(in srgb, var(--lee-sunrise) 34%, transparent) 46%,
+    color-mix(in srgb, var(--accent) 16%, transparent) 68%,
+    transparent 82%
+  );
+}
+
+/* Ufuk çizgisi: tek bir ince ışık şeridi. */
+.heroHorizon {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 20%;
+  height: 1px;
+  z-index: -1;
+  background: linear-gradient(
+    to right,
+    transparent,
+    color-mix(in srgb, var(--lee-sunrise) 55%, transparent) 22%,
+    color-mix(in srgb, var(--lee-sunrise) 75%, transparent) 50%,
+    color-mix(in srgb, var(--lee-sunrise) 55%, transparent) 78%,
+    transparent
+  );
+  box-shadow: 0 0 22px var(--lee-glow-soft);
+}
+
+/* Zemin tozu: ufkun altında dağılan zerreler. */
+.heroDust {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 30%;
+  z-index: -1;
+  background-image:
+    radial-gradient(1.5px 1.5px at 12% 24%, var(--lee-bandage), transparent 60%),
+    radial-gradient(1px 1px at 27% 62%, var(--lee-bandage), transparent 60%),
+    radial-gradient(2px 2px at 41% 38%, var(--lee-bandage), transparent 60%),
+    radial-gradient(1px 1px at 58% 74%, var(--lee-bandage), transparent 60%),
+    radial-gradient(1.5px 1.5px at 71% 30%, var(--lee-bandage), transparent 60%),
+    radial-gradient(1px 1px at 86% 56%, var(--lee-bandage), transparent 60%),
+    radial-gradient(1.5px 1.5px at 94% 18%, var(--lee-bandage), transparent 60%),
+    linear-gradient(to top, var(--lee-dust), transparent 70%);
+  opacity: 0.75;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .heroSun {
+    animation: leeBreathe 11s var(--lee-ease) infinite alternate;
+  }
+
+  .heroDust {
+    animation: leeDrift 26s linear infinite alternate;
+  }
+}
+
+@keyframes leeBreathe {
+  from {
+    opacity: 0.82;
+    scale: 0.98;
+  }
+  to {
+    opacity: 1;
+    scale: 1.03;
+  }
+}
+
+@keyframes leeDrift {
+  from {
+    background-position:
+      0 0,
+      0 0,
+      0 0,
+      0 0,
+      0 0,
+      0 0,
+      0 0,
+      0 0;
+  }
+  to {
+    background-position:
+      2rem -0.5rem,
+      -1.5rem 0.4rem,
+      1.2rem 0.6rem,
+      -2rem -0.4rem,
+      1.6rem 0.3rem,
+      -1.2rem -0.6rem,
+      2.4rem 0.2rem,
+      0 0;
+  }
+}
+
+/* 努力 — sayfanın filigranı. Fırça yazısı, ölçülü opaklık, sağ üstte. */
+.heroWatermark {
+  position: absolute;
+  top: clamp(-2rem, -4vw, 0rem);
+  right: clamp(-2rem, -3vw, 1rem);
+  z-index: -1;
+  margin: 0;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(11rem, 34vw, 30rem);
+  line-height: 0.78;
+  letter-spacing: -0.04em;
+  color: color-mix(in srgb, var(--lee-sunrise) 13%, transparent);
+  pointer-events: none;
+  user-select: none;
+}
+
+.heroInner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: var(--lee-max);
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 22rem) minmax(0, 1fr);
+  align-items: end;
+  gap: clamp(1.5rem, 5vw, 4rem);
+}
+
+.heroFigure {
+  position: relative;
+  align-self: end;
+}
+
+/* Portre dar bir kadrajda: küçük gelen AniList portresi büyük kutuya
+   yayılmıyor (BRIEF kural 3.1), etrafını tipografi ve toz kuruyor. */
+.heroPortrait {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4.4;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.heroPortrait img {
+  object-fit: cover;
+  object-position: center 18%;
+  /* Şafağa karşı duran gövde: gölge tarafı koyulaşıyor ama yüz okunur
+     kalıyor — tam siluet, portrenin kendisini çöpe atmak olurdu. */
+  filter: contrast(1.06) saturate(0.96) brightness(0.92);
+  mask-image: linear-gradient(
+    to bottom,
+    black 0%,
+    black 68%,
+    color-mix(in srgb, black 55%, transparent) 88%,
+    transparent 100%
+  );
+}
+
+/* Bandajlı yumruk: portrenin sol alt köşesinden taşar. */
+.heroFist {
+  position: absolute;
+  left: clamp(-3.5rem, -6vw, -1rem);
+  bottom: clamp(-1.5rem, -3vw, 0rem);
+  width: clamp(9rem, 20vw, 15rem);
+  height: auto;
+  color: var(--lee-bandage);
+  opacity: 0.92;
+  rotate: -8deg;
+  filter: drop-shadow(0 10px 26px color-mix(in srgb, var(--bg) 85%, transparent));
+  pointer-events: none;
+}
+
+.heroText {
+  min-width: 0;
+  padding-bottom: clamp(0rem, 2vw, 1.5rem);
+}
+
+.heroName {
+  margin: 0;
+  font-family: var(--font-anton), var(--font-sans);
+  font-size: clamp(3.25rem, 12vw, 8.5rem);
+  line-height: 0.86;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.heroNative {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(1.125rem, 3vw, 1.75rem);
+  letter-spacing: 0.14em;
+  color: color-mix(in srgb, var(--lee-gate) var(--lee-mix), var(--lee-sunrise));
+}
+
+.heroAliases {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1.1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.heroAlias {
+  padding: 0.3rem 0.7rem;
+  border: var(--lee-hair) solid
+    color-mix(in srgb, var(--lee-jumpsuit) 45%, var(--border));
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: var(--lee-wght);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--lee-jumpsuit-text);
+  background: color-mix(in srgb, var(--lee-jumpsuit) 10%, transparent);
+}
+
+.heroEpigraph {
+  max-width: 34ch;
+  margin: 1.5rem 0 0;
+  font-size: clamp(1.125rem, 2.4vw, 1.5rem);
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  text-wrap: pretty;
+}
+
+.heroStandfirst {
+  max-width: 58ch;
+  margin: 1rem 0 0;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.heroReading {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin: 1.4rem 0 0;
+  font-size: 0.75rem;
+  letter-spacing: var(--lee-track);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.heroReading span {
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: 1.375rem;
+  letter-spacing: 0;
+  text-transform: none;
+  color: color-mix(in srgb, var(--lee-sunrise) 80%, var(--text-primary));
+}
+
+/* ============================================================
+   BÖLÜM BAŞLIKLARI — ortak
+   ============================================================ */
+.identity,
+.lab,
+.gates,
+.timeline,
+.closing {
+  position: relative;
+  z-index: 10;
+  padding: clamp(3.5rem, 9vw, 7rem) var(--lee-pad);
+}
+
+.sectionHead {
+  max-width: var(--lee-max);
+  margin: 0 auto clamp(2rem, 5vw, 3.25rem);
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: var(--font-anton), var(--font-sans);
+  font-size: clamp(2rem, 6vw, 3.75rem);
+  line-height: 0.94;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--lee-gate) var(--lee-mix), var(--text-primary));
+  transition: color var(--lee-dur-slow) var(--lee-ease);
+  text-wrap: balance;
+}
+
+.sectionLede {
+  max-width: 68ch;
+  margin: 0.9rem 0 0;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* Küratör yuvalarının satırı — ziyaretçide hiç çizilmiyor */
+.slotRow {
+  position: relative;
+  z-index: 20;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  max-width: var(--lee-max);
+  margin: 1.5rem auto 0;
+}
+
+/* ============================================================
+   2 · KÜNYE + TAKIM
+   ============================================================ */
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: var(--lee-hair);
+  max-width: var(--lee-max);
+  margin: 0 auto;
+  padding: 0;
+  background: color-mix(in srgb, var(--lee-bandage) 10%, transparent);
+  border: var(--lee-hair) solid
+    color-mix(in srgb, var(--lee-bandage) 12%, var(--border));
+}
+
+/* Künye bir tablo gibi okunmalı: hücreler ince çizgilerle ayrılıyor,
+   kart yığını değil. Ayraçlar ızgaranın `gap`inden geliyor. */
+.fact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: clamp(0.9rem, 2vw, 1.25rem) clamp(1rem, 2.2vw, 1.5rem);
+  background: var(--surface);
+  transition: background-color var(--lee-dur) var(--lee-ease);
+}
+
+.fact:hover {
+  background: var(--surface-hover);
+}
+
+.fact dt {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: var(--lee-track);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.fact dd {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.45;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.team {
+  max-width: var(--lee-max);
+  margin: clamp(2.5rem, 6vw, 4rem) auto 0;
+}
+
+.teamTitle {
+  margin: 0;
+  font-family: var(--font-anton), var(--font-sans);
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--lee-jumpsuit-text);
+}
+
+.teamNote {
+  max-width: 56ch;
+  margin: 0.5rem 0 1.75rem;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.teamRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: clamp(1rem, 3vw, 2rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.teamMember {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: 0.9rem;
+  row-gap: 0.15rem;
+}
+
+.teamFace {
+  position: relative;
+  grid-row: 1 / span 2;
+  width: 3.75rem;
+  height: 3.75rem;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--surface-hover);
+  border: var(--lee-hair) solid
+    color-mix(in srgb, var(--lee-jumpsuit) 40%, var(--border));
+}
+
+.teamFace img {
+  object-fit: cover;
+  object-position: center 22%;
+}
+
+.teamName {
+  align-self: end;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.teamRole {
+  align-self: start;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   TEKRAR — ceza satırları
+   Kart değil SATIR: sayfayı boydan boya kesen bir defter kaydı.
+   ============================================================ */
+.tally {
+  position: relative;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: clamp(1rem, 4vw, 3rem);
+  row-gap: 0.3rem;
+  max-width: var(--lee-max);
+  margin: 0 auto;
+  padding: clamp(1.5rem, 4vw, 2.5rem) var(--lee-pad);
+  border-block: var(--lee-hair) solid
+    color-mix(in srgb, var(--lee-bandage) 14%, transparent);
+}
+
+.tallyCondition {
+  grid-column: 1;
+  grid-row: 1;
+  margin: 0;
+  font-size: clamp(0.9375rem, 2vw, 1.125rem);
+  line-height: 1.45;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.tallyMarks {
+  grid-column: 1;
+  grid-row: 2;
+  width: clamp(5rem, 12vw, 7.5rem);
+  height: auto;
+  margin-top: 0.6rem;
+  color: color-mix(in srgb, var(--lee-sweat) 60%, transparent);
+}
+
+.tallyCadence {
+  grid-column: 1;
+  grid-row: 3;
+  margin: 0.5rem 0 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.tallyCount {
+  grid-column: 2;
+  grid-row: 1 / span 3;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 0;
+  justify-self: end;
+}
+
+.tallyNum {
+  font-family: var(--font-anton), var(--font-sans);
+  font-size: clamp(3rem, 10vw, 6rem);
+  line-height: 0.82;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: color-mix(in srgb, var(--lee-gate) var(--lee-mix), var(--lee-sunrise));
+  transition: color var(--lee-dur-slow) var(--lee-ease);
+}
+
+.tallyUnit {
+  font-size: 0.75rem;
+  font-weight: var(--lee-wght);
+  letter-spacing: var(--lee-track);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   3 · NİLÜFER — teknik laboratuvarı
+   Asimetrik ızgara: Omote iki satır boyu sol sütunda, Ura ve Hirudora
+   sağda üst üste. Eşit kartlardan kurulu bir şablon değil.
+   ============================================================ */
+.labLotus {
+  display: block;
+  width: clamp(3.5rem, 8vw, 5.5rem);
+  height: auto;
+  margin-bottom: 1rem;
+  color: color-mix(in srgb, var(--lee-gate) var(--lee-mix), var(--accent));
+  transition: color var(--lee-dur-slow) var(--lee-ease);
+}
+
+.labGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: clamp(1rem, 2.5vw, 1.75rem);
+  max-width: var(--lee-max);
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+}
+
+.tech {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--surface);
+  border: var(--lee-hair) solid var(--border);
+  transition:
+    border-color var(--lee-dur) var(--lee-ease),
+    background-color var(--lee-dur) var(--lee-ease);
+}
+
+.tech:hover {
+  border-color: color-mix(
+    in srgb,
+    var(--lee-gate) var(--lee-mix),
+    var(--border-strong)
+  );
+  background: var(--surface-hover);
+}
+
+.tech[data-tech="omote"] {
+  grid-row: span 2;
+}
+
+.techArt {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--lee-dust) 70%, var(--surface-hover));
+}
+
+.tech[data-tech="omote"] .techArt {
+  aspect-ratio: 4 / 5;
+}
+
+.techArt img {
+  object-fit: cover;
+  transition:
+    scale var(--lee-dur-slow) var(--lee-ease),
+    filter var(--lee-dur-slow) var(--lee-ease);
+}
+
+.tech:hover .techArt img {
+  scale: 1.04;
+  filter: saturate(1.08) brightness(1.03);
+}
+
+/* Görsel yokken bölüm çökmüyor: nilüfer işareti sahneyi tutuyor. */
+.techFallback {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  width: 44%;
+  height: auto;
+  color: color-mix(in srgb, var(--lee-bandage) 22%, transparent);
+}
+
+.techVeil {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    to top,
+    var(--surface) 0%,
+    color-mix(in srgb, var(--surface) 55%, transparent) 32%,
+    transparent 62%
+  );
+}
+
+/* Her tekniğin kendi ışığı: ön nilüfer şafak, ters nilüfer kan,
+   Hirudora ise altıncı kapının yeşil buharı. */
+.tech[data-tech="omote"] .techArt::after,
+.tech[data-tech="ura"] .techArt::after,
+.tech[data-tech="hirudora"] .techArt::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.55;
+  transition: opacity var(--lee-dur-slow) var(--lee-ease);
+}
+
+.tech[data-tech="omote"] .techArt::after {
+  background: radial-gradient(
+    70% 50% at 50% 92%,
+    var(--lee-glow-soft),
+    transparent 70%
+  );
+}
+
+.tech[data-tech="ura"] .techArt::after {
+  background: radial-gradient(
+    70% 60% at 50% 100%,
+    color-mix(in srgb, var(--lee-gate) 30%, transparent),
+    transparent 72%
+  );
+}
+
+.tech[data-tech="hirudora"] .techArt::after {
+  background: radial-gradient(
+    60% 60% at 50% 100%,
+    color-mix(in srgb, var(--lee-jumpsuit) 32%, transparent),
+    transparent 70%
+  );
+}
+
+.tech:hover .techArt::after {
+  opacity: 0.9;
+}
+
+.techBody {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: clamp(1.1rem, 2.4vw, 1.75rem);
+  min-width: 0;
+}
+
+.techKanji {
+  position: absolute;
+  top: 0.2rem;
+  right: 0.9rem;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(2rem, 4.5vw, 3.25rem);
+  line-height: 1;
+  color: color-mix(in srgb, var(--lee-sunrise) 16%, transparent);
+  pointer-events: none;
+  transition: color var(--lee-dur) var(--lee-ease);
+}
+
+.tech:hover .techKanji {
+  color: color-mix(in srgb, var(--lee-sunrise) 34%, transparent);
+}
+
+.techName {
+  font-family: var(--font-anton), var(--font-sans);
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  line-height: 1;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.techGloss {
+  font-size: 0.75rem;
+  font-weight: var(--lee-wght);
+  letter-spacing: var(--lee-track);
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--lee-gate) var(--lee-mix), var(--accent));
+  transition: color var(--lee-dur-slow) var(--lee-ease);
+}
+
+.techTagline {
+  margin-top: 0.4rem;
+  font-size: 1.0625rem;
+  line-height: 1.4;
+  color: var(--text-primary);
+}
+
+.techQuote {
+  padding-top: 0.5rem;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--lee-jumpsuit-text);
+}
+
+.techText {
+  font-size: 0.9375rem;
+  line-height: 1.68;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.techTraits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+.techTrait {
+  padding: 0.25rem 0.6rem;
+  border: var(--lee-hair) solid var(--border-strong);
+  border-radius: 2px;
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ── Dört küçük: kart değil, dizin satırı ── */
+.minorRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+  gap: 0 clamp(1.5rem, 4vw, 3rem);
+  max-width: var(--lee-max);
+  margin: clamp(2rem, 5vw, 3rem) auto 0;
+  padding: 0;
+  list-style: none;
+}
+
+.minor {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 1rem;
+  padding: clamp(1rem, 2.2vw, 1.4rem) 0;
+  border-top: var(--lee-hair) solid var(--border);
+}
+
+.minorArt {
+  position: relative;
+  width: 4.5rem;
+  height: 4.5rem;
+  overflow: hidden;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--lee-dust) 80%, var(--surface));
+  border: var(--lee-hair) solid var(--border);
+}
+
+.minorArt img {
+  object-fit: cover;
+}
+
+.minorBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.minorName {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.minorKanji {
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: 0.9375rem;
+  color: color-mix(in srgb, var(--lee-sunrise) 60%, transparent);
+}
+
+.minorGloss {
+  font-size: 0.6875rem;
+  font-weight: var(--lee-wght);
+  letter-spacing: var(--lee-track);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.minorNote {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* ============================================================
+   4 · SEKİZ KAPI — sayfanın kalbi
+   ============================================================ */
+.gates {
+  background:
+    linear-gradient(
+      to bottom,
+      transparent,
+      color-mix(in srgb, var(--lee-dust) 55%, transparent) 12%,
+      color-mix(in srgb, var(--lee-dust) 55%, transparent) 88%,
+      transparent
+    ),
+    var(--bg);
+}
+
+.gatesHead {
+  position: relative;
+  max-width: var(--lee-max);
+  margin: 0 auto clamp(2rem, 5vw, 3.25rem);
+}
+
+.gatesKanji {
+  margin: 0 0 0.4rem;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  letter-spacing: 0.16em;
+  color: color-mix(in srgb, var(--lee-gate) var(--lee-mix), var(--lee-sunrise));
+  transition: color var(--lee-dur-slow) var(--lee-ease);
+}
+
+.gatesStatus {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin: 1.5rem 0 0;
+  padding-top: 1rem;
+  border-top: var(--lee-hair) solid
+    color-mix(in srgb, var(--lee-bandage) 14%, transparent);
+}
+
+.gatesStatusLabel {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: var(--lee-track);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.gatesStatusValue {
+  font-family: var(--font-anton), var(--font-sans);
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: color-mix(in srgb, var(--lee-gate) var(--lee-mix), var(--accent));
+  transition: color var(--lee-dur-slow) var(--lee-ease);
+}
+
+.ladderWrap {
+  display: grid;
+  grid-template-columns: var(--lee-rail) minmax(0, 1fr);
+  gap: clamp(1rem, 3vw, 2.25rem);
+  max-width: var(--lee-max);
+  margin: 0 auto;
+}
+
+/* ── Termometre: aşağıdan yukarı dolan sekiz basamak ── */
+.meter {
+  position: sticky;
+  top: clamp(4rem, 14vh, 9rem);
+  align-self: start;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 0.4rem;
+  width: 0.625rem;
+  height: min(56svh, 32rem);
+  margin-inline: auto;
+}
+
+.rung {
+  flex: 1;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--lee-bandage) 10%, var(--surface-hover));
+  border: var(--lee-hair) solid var(--border);
+  transition:
+    background-color var(--lee-dur) var(--lee-ease),
+    box-shadow var(--lee-dur) var(--lee-ease),
+    border-color var(--lee-dur) var(--lee-ease);
+}
+
+.rung[data-lit] {
+  background: color-mix(in srgb, var(--lee-gate) var(--lee-mix), var(--accent));
+  border-color: transparent;
+  box-shadow: 0 0 14px var(--lee-glow-soft);
+}
+
+.rung[data-lit][data-fatal] {
+  background: var(--lee-gate);
+  box-shadow: 0 0 22px var(--lee-glow-strong);
+}
+
+/* ── Merdiven ──
+   `column-reverse`: birinci kapı EN ALTTA, sekizinci en üstte — merdiven
+   aşağıdan yukarı çıkıyor. DOM ve klavye sırası 1→8 kalıyor, yani ekran
+   okuyucu ve Tab tuşu merdiveni anlamlı sırasında geziyor (WCAG 1.3.2);
+   her düğme "Basamak n / 8" etiketini görünmez metin olarak taşıyor. */
+.ladder {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: clamp(0.6rem, 1.6vw, 1rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.gate {
+  position: relative;
+  background: var(--surface);
+  border: var(--lee-hair) solid var(--border);
+  transition:
+    border-color var(--lee-dur) var(--lee-ease),
+    background-color var(--lee-dur) var(--lee-ease),
+    box-shadow var(--lee-dur) var(--lee-ease);
+}
+
+.gate[data-open="true"] {
+  border-color: color-mix(
+    in srgb,
+    var(--lee-gate) var(--lee-mix),
+    var(--accent-muted)
+  );
+  background: color-mix(in srgb, var(--lee-heat) 40%, var(--surface));
+  box-shadow: 0 0 34px -20px var(--lee-glow-strong);
+}
+
+.gate[data-open="true"][data-fatal] {
+  border-color: var(--lee-gate);
+  background: color-mix(in srgb, var(--lee-gate) 16%, var(--surface));
+  box-shadow: 0 0 60px -22px var(--lee-glow-strong);
+}
+
+.gateBtn {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr) auto auto;
+  grid-template-areas: "no glyph names site action";
+  align-items: center;
+  gap: clamp(0.7rem, 2vw, 1.4rem);
+  width: 100%;
+  min-height: 5rem;
+  padding: clamp(0.75rem, 2vw, 1.1rem) clamp(0.9rem, 2.2vw, 1.5rem);
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.gateBtn:focus-visible {
+  outline: 2px solid
+    color-mix(in srgb, var(--lee-gate) var(--lee-mix), var(--accent));
+  outline-offset: -4px;
+}
+
+.gateNo {
+  grid-area: no;
+  font-family: var(--font-anton), var(--font-sans);
+  font-size: clamp(2.25rem, 6vw, 3.5rem);
+  line-height: 0.8;
+  font-variant-numeric: tabular-nums;
+  color: color-mix(in srgb, var(--text-muted) 42%, transparent);
+  transition: color var(--lee-dur) var(--lee-ease);
+}
+
+.gate[data-open="true"] .gateNo {
+  color: color-mix(in srgb, var(--lee-gate) var(--lee-mix), var(--accent));
+}
+
+.gateGlyph {
+  grid-area: glyph;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex: none;
+  color: color-mix(in srgb, var(--lee-bandage) 45%, transparent);
+  transition: color var(--lee-dur) var(--lee-ease);
+}
+
+.gate[data-open="true"] .gateGlyph {
+  color: var(--lee-bandage);
+}
+
+.gateNames {
+  grid-area: names;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.6rem;
+  min-width: 0;
+}
+
+.gateName {
+  font-family: var(--font-anton), var(--font-sans);
+  font-size: clamp(1.25rem, 3vw, 1.875rem);
+  line-height: 1.05;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.gateKanji {
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: 1.0625rem;
+  color: color-mix(in srgb, var(--lee-sunrise) 70%, transparent);
+}
+
+.gateGloss {
+  flex-basis: 100%;
+  font-size: 0.75rem;
+  font-weight: var(--lee-wght);
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.gateSite {
+  grid-area: site;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.gateSiteLabel {
+  font-size: 0.625rem;
+  letter-spacing: var(--lee-track);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.gateAction {
+  grid-area: action;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 4.5rem;
+  min-height: 2.25rem;
+  padding: 0 0.9rem;
+  border: var(--lee-hair) solid var(--border-strong);
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: var(--lee-track);
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  transition:
+    color var(--lee-dur) var(--lee-ease),
+    border-color var(--lee-dur) var(--lee-ease),
+    background-color var(--lee-dur) var(--lee-ease);
+}
+
+.gateBtn:hover .gateAction {
+  color: var(--text-primary);
+  border-color: color-mix(
+    in srgb,
+    var(--lee-gate) var(--lee-mix),
+    var(--accent)
+  );
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.gate[data-open="true"] .gateAction {
+  color: var(--text-primary);
+  border-color: color-mix(
+    in srgb,
+    var(--lee-gate) var(--lee-mix),
+    var(--accent)
+  );
+}
+
+/* ── Açılan panel ── */
+.gatePanel {
+  display: grid;
+  gap: clamp(0.75rem, 2vw, 1.1rem);
+  padding: 0 clamp(0.9rem, 2.2vw, 1.5rem) clamp(1.1rem, 2.6vw, 1.6rem);
+  border-top: var(--lee-hair) solid
+    color-mix(in srgb, var(--lee-bandage) 12%, transparent);
+  padding-top: clamp(1rem, 2.4vw, 1.4rem);
+  margin-top: 0.2rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .gatePanel {
+    animation: leeOpen var(--lee-dur) var(--lee-ease-out) both;
+  }
+}
+
+@keyframes leeOpen {
+  from {
+    opacity: 0;
+    clip-path: inset(0 0 100% 0);
+    translate: 0 -0.5rem;
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+    translate: 0 0;
+  }
+}
+
+.gateFact {
+  display: grid;
+  gap: 0.35rem;
+  max-width: 74ch;
+}
+
+/* Bedel bloğu bir MÜHÜR gibi: kalın renkli kenar yerine kendi zemini
+   ve kendi etiketi var (kalın border-left kart klişesi — kaçınıldı). */
+.gateFact[data-kind="cost"] {
+  max-width: none;
+  padding: clamp(0.75rem, 2vw, 1rem) clamp(0.85rem, 2vw, 1.1rem);
+  background: color-mix(in srgb, var(--lee-gate) 9%, transparent);
+  border: var(--lee-hair) solid
+    color-mix(in srgb, var(--lee-gate) 32%, var(--border));
+}
+
+.gateFactLabel {
+  margin: 0;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: var(--lee-track);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.gateFact[data-kind="cost"] .gateFactLabel {
+  color: color-mix(in srgb, var(--lee-gate) 82%, var(--text-primary));
+}
+
+.gateFactText {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.68;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.gateUnlock {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  font-family: var(--font-anton), var(--font-sans);
+  font-size: 1.125rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--lee-jumpsuit-text);
+}
+
+.gateUnlockLabel {
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: var(--lee-track);
+  color: var(--text-muted);
+}
+
+/* ── Sekizinci kapının uyarısı ── */
+.deathWarn {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(1rem, 2.6vw, 1.5rem);
+  background: color-mix(in srgb, var(--lee-gate) 15%, var(--bg));
+  border: var(--lee-hair) solid var(--lee-gate);
+}
+
+.deathWarn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    166deg,
+    transparent 0 18px,
+    color-mix(in srgb, var(--lee-gate) 30%, transparent) 18px 20px,
+    transparent 20px 44px
+  );
+  opacity: 0.5;
+  filter: blur(5px);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .deathWarn::after {
+    animation: leeSteam 9s linear infinite;
+  }
+}
+
+.deathWarnTitle {
+  position: relative;
+  margin: 0 0 0.5rem;
+  font-family: var(--font-anton), var(--font-sans);
+  font-size: clamp(1.375rem, 4vw, 2rem);
+  line-height: 1.05;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  text-shadow: 0 0 24px var(--lee-glow-strong);
+}
+
+.deathWarnText {
+  position: relative;
+  max-width: 68ch;
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: color-mix(in srgb, var(--text-primary) 78%, var(--lee-bandage));
+  text-wrap: pretty;
+}
+
+.deathScene {
+  position: relative;
+  margin: 0;
+  aspect-ratio: 21 / 9;
+  overflow: hidden;
+  border: var(--lee-hair) solid
+    color-mix(in srgb, var(--lee-gate) 40%, var(--border));
+}
+
+.deathScene img {
+  object-fit: cover;
+  filter: saturate(1.1) contrast(1.04);
+}
+
+/* ============================================================
+   5 · KADER ÇİZELGESİ
+   Sol rayda kesintisiz bir çizgi, her kayıt bir düğüm. Kartlar değil,
+   bir defterin sayfaları.
+   ============================================================ */
+.eraList {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2.5rem, 6vw, 4.5rem);
+  max-width: var(--lee-max);
+  margin: 0 auto;
+  padding: 0 0 0 clamp(1.5rem, 4vw, 3rem);
+  list-style: none;
+}
+
+/* Rayın kendisi: listeyi boydan boya kesen tek çizgi. */
+.eraList::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.75rem;
+  bottom: 3rem;
+  width: var(--lee-hair);
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--lee-sunrise) 45%, transparent),
+    color-mix(in srgb, var(--lee-bandage) 16%, transparent) 45%,
+    transparent
+  );
+}
+
+.era {
+  position: relative;
+}
+
+.eraNode {
+  position: absolute;
+  left: calc(clamp(1.5rem, 4vw, 3rem) * -1);
+  top: 0.9rem;
+  width: 0.6875rem;
+  height: 0.6875rem;
+  translate: -45% 0;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 2px solid
+    color-mix(in srgb, var(--lee-gate) var(--lee-mix), var(--lee-sunrise));
+  transition: border-color var(--lee-dur-slow) var(--lee-ease);
+}
+
+.eraBody {
+  min-width: 0;
+}
+
+.eraMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 0 0.5rem;
+}
+
+.eraFace {
+  position: relative;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  overflow: hidden;
+  border: var(--lee-hair) solid var(--border-strong);
+  background: var(--surface-hover);
+}
+
+.eraFace img {
+  object-fit: cover;
+  object-position: center 20%;
+}
+
+.eraAge {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: var(--lee-track);
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  color: color-mix(in srgb, var(--lee-gate) var(--lee-mix), var(--accent));
+  transition: color var(--lee-dur-slow) var(--lee-ease);
+}
+
+.eraTitle {
+  margin: 0 0 1rem;
+  font-family: var(--font-anton), var(--font-sans);
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  line-height: 1.02;
+  letter-spacing: -0.005em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.eraArt {
+  position: relative;
+  display: block;
+  aspect-ratio: 21 / 9;
+  margin-bottom: 1.1rem;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--lee-dust) 70%, var(--surface));
+  border: var(--lee-hair) solid var(--border);
+}
+
+.eraArt img {
+  object-fit: cover;
+}
+
+.eraScrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--bg) 78%, transparent),
+    transparent 55%
+  );
+}
+
+.eraText {
+  max-width: 70ch;
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.75;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.eraQuote {
+  max-width: 52ch;
+  margin: 1.25rem 0 0;
+  padding-top: 1rem;
+  border-top: var(--lee-hair) solid
+    color-mix(in srgb, var(--lee-bandage) 16%, transparent);
+}
+
+.eraQuote blockquote {
+  margin: 0;
+  font-size: clamp(1.125rem, 2.6vw, 1.5rem);
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  text-wrap: pretty;
+}
+
+.eraQuote figcaption {
+  margin-top: 0.5rem;
+  font-size: 0.6875rem;
+  letter-spacing: var(--lee-track);
+  text-transform: uppercase;
+  color: var(--lee-jumpsuit-text);
+}
+
+/* ============================================================
+   6 · KAPANIŞ — güneş tepede
+   Sayfa şafakta açıldı, burada gün doğmuş oluyor.
+   ============================================================ */
+.closing {
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  padding-bottom: clamp(5rem, 12vw, 9rem);
+}
+
+.closingSun {
+  position: absolute;
+  left: 50%;
+  top: 12%;
+  z-index: -1;
+  width: clamp(22rem, 60vw, 46rem);
+  aspect-ratio: 1;
+  translate: -50% 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--lee-sunrise) 24%, transparent),
+    color-mix(in srgb, var(--accent) 10%, transparent) 55%,
+    transparent 76%
+  );
+  pointer-events: none;
+}
+
+.closingQuote {
+  max-width: 46ch;
+  margin: 0 auto clamp(2.5rem, 6vw, 4rem);
+}
+
+.closingQuote blockquote {
+  margin: 0;
+  font-size: clamp(1.5rem, 4.5vw, 2.75rem);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.closingQuote figcaption {
+  margin-top: 0.9rem;
+  font-size: 0.6875rem;
+  letter-spacing: var(--lee-track);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.closingMotto {
+  margin: clamp(1.5rem, 4vw, 2.5rem) 0 0;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(3.5rem, 14vw, 8rem);
+  line-height: 1;
+  letter-spacing: 0.06em;
+  color: color-mix(in srgb, var(--lee-gate) var(--lee-mix), var(--lee-sunrise));
+  transition: color var(--lee-dur-slow) var(--lee-ease);
+}
+
+.closingReading {
+  margin: 0.75rem 0 0;
+  font-size: 0.75rem;
+  letter-spacing: var(--lee-track);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.closingLotus {
+  display: block;
+  width: clamp(4.5rem, 12vw, 7rem);
+  height: auto;
+  margin: clamp(2rem, 5vw, 3rem) auto 0;
+  color: color-mix(in srgb, var(--lee-bandage) 40%, transparent);
+}
+
+.closingCoda {
+  max-width: 44ch;
+  margin: clamp(1.5rem, 4vw, 2.25rem) auto 0;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* ── Kaynak künyesi ── */
+.credit {
+  max-width: 62ch;
+  margin: clamp(3.5rem, 9vw, 6rem) auto 0;
+  padding-top: clamp(1.5rem, 4vw, 2.25rem);
+  border-top: var(--lee-hair) solid
+    color-mix(in srgb, var(--lee-bandage) 14%, transparent);
+  text-align: left;
+}
+
+.creditTitle {
+  margin: 0 0 0.6rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: var(--lee-track);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.creditText {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+  text-wrap: pretty;
+}
+
+.creditLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  margin-top: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  transition: color var(--lee-dur-fast) var(--lee-ease);
+}
+
+.creditLink:hover,
+.creditLink:focus-visible {
+  color: var(--accent-hover);
+}
+
+.creditLink:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ============================================================
+   MOBİL — 360 pikselde taşma yok, ızgaralar tek sütuna iner
+   ============================================================ */
+@media (max-width: 980px) {
+  .heroInner {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .heroFigure {
+    width: min(60%, 18rem);
+  }
+
+  .heroFist {
+    left: auto;
+    right: clamp(-4rem, -12vw, -2rem);
+    bottom: clamp(-1rem, -2vw, 0rem);
+  }
+
+  .labGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tech[data-tech="omote"] {
+    grid-row: auto;
+  }
+
+  .tech[data-tech="omote"] .techArt {
+    aspect-ratio: 16 / 10;
+  }
+
+  /* Termometre yatay bir şeride dönüşüp bölümün üstüne yapışır. */
+  .ladderWrap {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+  }
+
+  .meter {
+    position: sticky;
+    top: 0.5rem;
+    z-index: 12;
+    flex-direction: row;
+    width: 100%;
+    height: 0.5rem;
+    gap: 0.3rem;
+  }
+
+  .gateBtn {
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      "no names"
+      "glyph site"
+      "action action";
+    row-gap: 0.65rem;
+  }
+
+  .gateAction {
+    justify-self: stretch;
+    min-height: var(--touch-min);
+  }
+
+  .gateSite {
+    white-space: normal;
+  }
+}
+
+@media (max-width: 640px) {
+  .facts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .teamRow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .minorRow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Ceza satırı tek sütuna iner: sayı önce, koşul altında. */
+  .tally {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tallyCount {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: start;
+    margin-bottom: 0.4rem;
+  }
+
+  .tallyCondition {
+    grid-row: 2;
+  }
+
+  .tallyMarks {
+    grid-row: 3;
+  }
+
+  .tallyCadence {
+    grid-row: 4;
+  }
+
+  .heroFigure {
+    width: min(72%, 15rem);
+  }
+
+  .modeLabel {
+    font-size: 0.8125rem;
+  }
+}
+
+/* ============================================================
+   REDUCED-MOTION BATTANİYESİ — ev deseni (çift katman):
+   yukarıdaki her animasyon no-preference kapısında; burada kalanlar
+   (geçişler dahil) tamamen kapanır.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

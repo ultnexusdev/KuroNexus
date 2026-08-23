@@ -7,6 +7,7 @@ import { getBookArchive } from "@/lib/api/books";
 import { fetchMusicActs } from "@/lib/api/music";
 import { fetchF1Hub, fetchFootballHub } from "@/lib/api/sport-archive";
 import { FAVOURITE_PLAYERS, isInNotebook } from "@/lib/sport/favourite-players";
+import { EXPERIENCE_IDS } from "@/lib/characters/experiences";
 import { hallHref } from "@/lib/halls";
 import { isMovedUniverse } from "@/lib/sport/routes";
 import { SITE_URL } from "@/lib/site";
@@ -194,6 +195,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
   // Futbolcu defteri tamamen yerel veri — ağ isteği yok.
   for (const p of FAVOURITE_PLAYERS) leaf(`/spor/futbol/futbolcular/${p.slug}`);
+
+  /*
+   * Elle tasarlanmış karakter deneyim sayfaları (22 Ağustos 2026).
+   *
+   * Yukarıdaki notta "anime karakter dosyaları" bile bile dışarıda
+   * bırakılmıştı — 195 karakterin tamamı için doğru karar, çünkü çoğu
+   * yalnızca AniList künyesi. Ama BU on dört adres öyle değil: her biri
+   * elle yazılmış, kendi bileşen setiyle çizilen bir sayfa. Liste kodda
+   * ve sabit, yani ek ağ isteği yok.
+   */
+  for (const id of Object.values(EXPERIENCE_IDS)) {
+    leaf(`/dark-stories/category/anime/karakterler/${id}`);
+  }
 
   // Kategori listesi sabit yollarla çakışabilir (ör. "kitap" hem elle yazılı
   // hem API'den geliyor); son yazan kazanır, tekrar eden adres kalmaz.

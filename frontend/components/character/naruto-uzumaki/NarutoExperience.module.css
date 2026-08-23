@@ -1,0 +1,2076 @@
+/* ============================================================
+   NARUTO UZUMAKI — interaktif deneyim sayfası.
+
+   Deri: kökteki `data-world="naruto-uzumaki"` bütün standart token'ları
+   gece göğü + chakra turuncusuna çevirir; yardımcı aile `--nrt-*`
+   (globals.css `:root`). Bu dosyada TEK HEX YOK — ara tonların hepsi
+   `color-mix()` ile token'lardan türetiliyor (kural 16).
+
+   ── SAYFANIN GÖRSEL TEZİ ─────────────────────────────────────────────
+   Itachi'nin sayfası neredeyse saf siyahtı ve ışığı yalnızca gözlerden
+   alıyordu. Burası onun tam tersi: zemin LACİVERT bir gece (köyün üstü),
+   ışık her yerden sızıyor ve sayfa kullanıcının seçimiyle ISINIYOR.
+   Sayfanın duygusu umut; on üç deneyim sayfasının en sıcağı burası.
+
+   ── ISI MERDİVENİ (sayfanın kalbi) ───────────────────────────────────
+   `ChakraShell` seçili kademeyi köke `data-tail` olarak yazıyor. CSS
+   ondan `--nrt-heat` SAYISINI okuyup canlı vurgu rengini üretiyor:
+   chakra turuncusundan Kurama kızılına doğru bir karışım. Eğri bilinçli
+   olarak monoton DEĞİL — dokuzuncu kuyrukta tepe yapıp Bijuu Modu'nda
+   düşüyor, çünkü sayfanın tezi "kontrol daha çok ısı değil, ortaklık"
+   (veri dosyasının başındaki nota bak). Bijuu ve Baryon kademeleri
+   merdivenden ayrıca renk de sapıyor: biri altına, öteki spiral
+   mavisine. JS hiçbir renk hesaplamıyor.
+
+   ── HAREKET SÖZLÜĞÜ ──────────────────────────────────────────────────
+   --nrt-dur-fast / --nrt-dur / --nrt-dur-slow / --nrt-dur-drift ve iki
+   easing. Her animasyon ya `prefers-reduced-motion: no-preference`
+   kapısında ya da dosya sonundaki `reduce` battaniyesinde kapanıyor
+   (ev deseni: çift katman).
+
+   ── KATMAN DÜZENİ (z-index) ──────────────────────────────────────────
+    0  sayfa zemini
+    1  hero sahne görseli / bölüm dekorları
+    2  metin ve kartlar
+    3  hero portresi, mühür işareti
+   60  mühür kafesi (Kurama modu örtüsü, tıklama geçirmez)
+   80  mod düğmesi
+   ============================================================ */
+
+/* Isı sayısı KAYITLI: `@property` olmadan `--nrt-heat` bir dizeden
+   ibaret olur ve kademe değişince renk zıplayarak atlar. Kayıtlı hâlde
+   sayı olarak geçişebiliyor, dolayısıyla sayfa gerçekten "ısınıyor".
+   Kayıt genel ad alanına yazılır (CSS Modules yalnızca sınıf ve keyframe
+   adlarını yerelleştirir) — ad bu sayfaya özgü olduğu için sorun değil. */
+@property --nrt-heat {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+/* ============================================================
+   KÖK — yalnız ölçü/süre/easing değişkeni (renk yok)
+   ============================================================ */
+.page {
+  /* süre + easing */
+  --nrt-dur-fast: 160ms;
+  --nrt-dur: 320ms;
+  --nrt-dur-slow: 640ms;
+  --nrt-dur-drift: 26s;
+  --nrt-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --nrt-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ölçü */
+  --nrt-gut: clamp(1rem, 4vw, 2.75rem);
+  --nrt-max: 78rem;
+  --nrt-rail-pad: 1rem;
+  --nrt-node-w: 2.25rem;
+  --nrt-stop-w: clamp(4.75rem, 9vw, 7.5rem);
+  --nrt-spine: 1.15rem;
+
+  /* ısı: RENK DEĞİL, 0–1 arası sayı. Merdiveni aşağıdaki
+     `[data-tail]` blokları kuruyor. */
+  --nrt-heat: 0;
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text-primary);
+  overflow-x: clip;
+  isolation: isolate;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Kademe değişince ısı basamak basamak değil, akarak geçsin */
+  .page {
+    transition: --nrt-heat var(--nrt-dur-slow) var(--nrt-ease);
+  }
+}
+
+/* Glif setinin ortak davranışı: hepsi `currentColor` ile boyanıyor,
+   ton kararını kuşatan kural veriyor (bkz. NarutoGlyphs.tsx). */
+.heroSpiral svg,
+.heroFrameGlyph,
+.heroSeal,
+.modeIcon,
+.fan,
+.stopNode,
+.stageArtGlyph,
+.bandGlyph,
+.tagGlyph,
+.eraNode svg,
+.personGlyph {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ============================================================
+   ISI MERDİVENİ
+
+   `--nrt-live`      → grafik/kenar/ışıma rengi (büyük yüzeyler)
+   `--nrt-live-text` → aynı kimliğin KÜÇÜK METİN türevi. Kurama kızılının
+                       kendisi koyu yüzeyde AA'yı geçmiyor; globals.css
+                       bunun için `--nrt-kurama-text` tanımlamış, karışımın
+                       sıcak ucu oradan geliyor.
+
+   ⚠️ Bu iki renk `.page` bloğunda DEĞİL, `[data-tail]` DURUM bloğunda
+   tanımlı: canlı ton yalnızca bir kademe seçiliyken vardır, kökün
+   kendisinin sabit bir rengi yoktur.
+   ============================================================ */
+.page[data-tail] {
+  --nrt-live: color-mix(
+    in srgb,
+    var(--nrt-kurama) calc(var(--nrt-heat) * 100%),
+    var(--nrt-chakra)
+  );
+  --nrt-live-text: color-mix(
+    in srgb,
+    var(--nrt-kurama-text) calc(var(--nrt-heat) * 100%),
+    var(--nrt-chakra)
+  );
+}
+
+/* Dokuz basamak. Kademe sırası veri dosyasındaki `NARUTO_STAGES` ile
+   birebir; sıra değişirse burası da değişmeli. */
+.page[data-tail="human"] { --nrt-heat: 0; }
+.page[data-tail="one"] { --nrt-heat: 0.14; }
+.page[data-tail="three"] { --nrt-heat: 0.3; }
+.page[data-tail="four"] { --nrt-heat: 0.48; }
+.page[data-tail="six"] { --nrt-heat: 0.66; }
+.page[data-tail="eight"] { --nrt-heat: 0.85; }
+.page[data-tail="full"] { --nrt-heat: 1; }
+
+/* ── TEPEDEN SONRAKİ İKİ KADEME ──────────────────────────────────────
+   Sayı hâlâ dokuz ama ilişki değişti; bu yüzden ısı düşüyor VE renk
+   merdivenden sapıyor. Sıra önemli: bu iki blok yukarıdaki
+   `.page[data-tail]` kuralıyla aynı özgüllükte (0,2,0), sonra geldiği
+   için kazanıyor. */
+
+/* Bijuu Modu: chakra artık çekilmiyor, veriliyor — manto ALTIN. */
+.page[data-tail="bijuu"] {
+  --nrt-heat: 0.34;
+  --nrt-live: var(--nrt-sage);
+  --nrt-live-text: var(--nrt-sage);
+}
+
+/* Baryon: iki enerji tek yeni enerjiye dönüşüyor — ton da yabancılaşıyor. */
+.page[data-tail="baryon"] {
+  --nrt-heat: 0.55;
+  --nrt-live: color-mix(in srgb, var(--nrt-rasengan) 55%, var(--nrt-sage));
+  --nrt-live-text: color-mix(in srgb, var(--nrt-rasengan) 55%, var(--nrt-sage));
+}
+
+/* Kurama modu her şeyi kızıla çeker: mührün içinden bakıldığında ölçek
+   yok, yalnız tilki var. En sonda tanımlı — kademe sapmalarını da ezer. */
+.page[data-kurama] {
+  --nrt-live: var(--nrt-kurama);
+  --nrt-live-text: var(--nrt-kurama-text);
+}
+
+/* ============================================================
+   MOD DÜĞMESİ + MÜHÜR KAFESİ
+   ============================================================ */
+.modeToggle {
+  position: fixed;
+  top: 5rem;
+  right: clamp(0.75rem, 2.5vw, 2rem);
+  z-index: 80;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: var(--touch-min);
+  padding: 0.5rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--nrt-live) 45%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg) 80%, transparent);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 0 20px var(--nrt-glow-soft);
+  transition:
+    border-color var(--nrt-dur) var(--nrt-ease),
+    box-shadow var(--nrt-dur) var(--nrt-ease),
+    color var(--nrt-dur) var(--nrt-ease);
+}
+
+.modeToggle:hover {
+  border-color: var(--nrt-live);
+  box-shadow: 0 0 30px var(--nrt-glow-strong);
+}
+
+.modeToggle:focus-visible {
+  outline: 2px solid var(--nrt-live-text);
+  outline-offset: 3px;
+}
+
+/* Basılı hâl: düğme "mührün içinde" — kızıl dolgu */
+.modeToggle[aria-pressed="true"] {
+  border-color: var(--nrt-kurama-text);
+  color: var(--nrt-kurama-text);
+  background: color-mix(in srgb, var(--nrt-seal) 70%, var(--bg));
+}
+
+.modeIcon {
+  flex: 0 0 1.4rem;
+  width: 1.4rem;
+}
+
+/* Tilki gözü modda yavaşça kısılıp açılır */
+@media (prefers-reduced-motion: no-preference) {
+  .modeToggle[aria-pressed="true"] .modeIcon {
+    animation: nrtBlink 4.5s var(--nrt-ease) infinite;
+  }
+}
+
+@keyframes nrtBlink {
+  0%,
+  88%,
+  100% {
+    scale: 1 1;
+  }
+  93% {
+    scale: 1 0.08;
+  }
+}
+
+/* Mühür kafesi: yalnız Kurama modunda görünen tam ekran örtü. Dikey
+   parmaklıklar + kızıl vinyet; tıklama geçirmez. */
+.sealCage {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 5.5rem,
+      color-mix(in srgb, var(--nrt-kurama) 34%, transparent) 5.5rem 5.6rem,
+      transparent 5.6rem 5.9rem
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--nrt-seal) 85%, transparent) 0,
+      transparent 14%,
+      transparent 86%,
+      color-mix(in srgb, var(--nrt-seal) 85%, transparent) 100%
+    ),
+    radial-gradient(
+      120% 90% at 50% 50%,
+      transparent 45%,
+      color-mix(in srgb, var(--nrt-kurama) 30%, transparent) 100%
+    );
+  transition: opacity var(--nrt-dur-slow) var(--nrt-ease);
+}
+
+.page[data-kurama] .sealCage {
+  opacity: 0.85;
+}
+
+/* Zorunlu renk kipinde dekoratif örtü tamamen susar — sistem paleti
+   zaten kendi kontrastını dayatıyor. */
+@media (forced-colors: active) {
+  .sealCage {
+    display: none;
+  }
+}
+
+/* ============================================================
+   KIRINTI YOLU
+   ============================================================ */
+.crumb {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.9rem var(--nrt-gut);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  flex-wrap: wrap;
+}
+
+.crumb a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--nrt-dur-fast) var(--nrt-ease);
+}
+
+.crumb a:hover {
+  color: var(--nrt-live-text);
+}
+
+.crumb a:focus-visible {
+  outline: 2px solid var(--nrt-live-text);
+  outline-offset: 3px;
+}
+
+.crumbSep {
+  color: var(--border-strong);
+}
+
+.crumbHere {
+  color: var(--text-secondary);
+}
+
+/* ============================================================
+   1 · HERO — SARMAL FİLİGRAN
+
+   Katmanlar (arkadan öne): gece gradyanı → küratör sahnesi →
+   Uzumaki sarmalı → portre + tipografi.
+   ============================================================ */
+.hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: min(46rem, calc(100svh - 5rem));
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(2.5rem, 7vw, 5rem) var(--nrt-gut) clamp(3rem, 8vw, 5.5rem);
+  /* Konoha gecesi: tepede lacivert, dipte sayfa zemini */
+  background:
+    radial-gradient(
+      120% 80% at 50% 0%,
+      color-mix(in srgb, var(--nrt-night) 85%, transparent) 0%,
+      transparent 68%
+    ),
+    radial-gradient(
+      70% 55% at 78% 18%,
+      var(--nrt-glow-soft) 0%,
+      transparent 60%
+    ),
+    var(--bg);
+}
+
+/* Sayfanın en büyük grafiği — tamamen dekoratif, metnin arkasında. */
+.heroSpiral {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: 50%;
+  width: min(140vw, 62rem);
+  translate: -50% -50%;
+  color: var(--nrt-spiral);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .heroSpiral {
+    animation: nrtSpin var(--nrt-dur-drift) linear infinite;
+  }
+}
+
+@keyframes nrtSpin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+/* Küratörün yüklediği geniş gece sahnesi — yoksa bölüm gradyanla kalır. */
+.heroScene {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: block;
+  pointer-events: none;
+}
+
+.heroScene img {
+  object-fit: cover;
+  filter: brightness(0.42) saturate(1.1);
+}
+
+/* Sahneyi sayfaya bağlayan perde: kenarlar zemine erir. */
+.heroScene::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to bottom, transparent 30%, var(--bg) 100%),
+    radial-gradient(110% 85% at 50% 40%, transparent 42%, var(--bg) 100%);
+}
+
+.heroInner {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: var(--nrt-max);
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(1.75rem, 5vw, 3.5rem);
+}
+
+/* Portre kadrajı: köşesi kesilmiş bir levha — mühür kâğıdının kıvrımı. */
+.heroFrame {
+  position: relative;
+  z-index: 3;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--nrt-live) 40%, var(--border-strong));
+  background: color-mix(in srgb, var(--nrt-night) 60%, var(--surface));
+  clip-path: polygon(0 0, calc(100% - 1.6rem) 0, 100% 1.6rem, 100% 100%, 0 100%);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--bg) 80%, transparent),
+    0 24px 60px color-mix(in srgb, var(--bg) 85%, transparent),
+    0 0 46px var(--nrt-glow-soft);
+}
+
+.heroFrame img {
+  object-fit: cover;
+  object-position: center 18%;
+}
+
+/* Portre kaydı yoksa bölüm çökmez: mühür deseni kadrajı doldurur. */
+.heroFrameGlyph {
+  width: 62%;
+  color: color-mix(in srgb, var(--nrt-live) 45%, transparent);
+}
+
+/* Karnındaki sekiz uçlu desen — kadrajın alt köşesinde.
+   ⚠️ Dışarı TAŞIRILAMAZ: `.heroFrame` hem `overflow: hidden` hem
+   `clip-path` taşıyor, negatif kaydırma sessizce kırpılırdı. */
+.heroSeal {
+  position: absolute;
+  z-index: 3;
+  right: 0.85rem;
+  bottom: 0.85rem;
+  width: clamp(3.5rem, 8vw, 5.25rem);
+  color: var(--nrt-live);
+  filter: drop-shadow(0 0 18px var(--nrt-glow-strong));
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .heroSeal {
+    animation: nrtSealPulse 5.5s var(--nrt-ease) infinite;
+  }
+}
+
+@keyframes nrtSealPulse {
+  0%,
+  100% {
+    opacity: 0.75;
+    scale: 1;
+  }
+  50% {
+    opacity: 1;
+    scale: 1.05;
+  }
+}
+
+.heroType {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+/* Display sesi Petrona 800: geniş, düşük-orta kontrastlı, poster gövdeli.
+   ⚠️ Ev kuralı — 2rem üstünde asla wght < 700, satır yüksekliği >= 1.02
+   (Türkçe diyakritikleri kırpmasın). */
+.heroName {
+  margin: 0;
+  font-family: var(--font-petrona), serif;
+  font-weight: 800;
+  font-size: clamp(2.75rem, 9vw, 6rem);
+  line-height: 1.03;
+  letter-spacing: -0.025em;
+  color: var(--text-primary);
+  text-shadow:
+    0 0 30px var(--nrt-glow-strong),
+    0 0 90px var(--nrt-glow-soft);
+  transition: text-shadow var(--nrt-dur-slow) var(--nrt-ease);
+}
+
+.heroNative {
+  margin: 0;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(1.125rem, 2.4vw, 1.625rem);
+  letter-spacing: 0.3em;
+  color: var(--nrt-live-text);
+  opacity: 0.85;
+}
+
+/* Arşivin kendi cümlesi — replik değil, bu yüzden tırnaksız ve düz. */
+.heroEpigraph {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-sans);
+  font-size: clamp(1rem, 1.6vw, 1.1875rem);
+  line-height: 1.68;
+  color: var(--text-secondary);
+  max-width: 48ch;
+}
+
+.heroTags {
+  list-style: none;
+  margin: 0.6rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.heroTags li {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  padding: 0.4rem 0.7rem;
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--nrt-live);
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+}
+
+/* Küratör yuvası sırası — hero'nun altında, tam genişlikte */
+.slotRow {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: var(--nrt-max);
+  margin: clamp(1.5rem, 4vw, 2.5rem) auto 0;
+}
+
+/* ============================================================
+   BÖLÜM İSKELETİ
+
+   Ortak kural: her bölüm kendi iç boşluğunu taşır, çocuklar tam
+   genişlikte kalır. Bölüm ayracı Itachi'nin ortalanmış saç teli
+   değil — sol üstte kısa bir MÜHÜR ŞERİDİ: canlı tondan zemine
+   eriyen iki piksellik bir bant.
+   ============================================================ */
+.gauge,
+.scale,
+.lab,
+.chronicle,
+.closing {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.5rem, 3.5vw, 2.5rem);
+  padding: clamp(3rem, 8vw, 5.25rem) var(--nrt-gut);
+  border-top: 1px solid var(--border);
+}
+
+.gauge::before,
+.scale::before,
+.lab::before,
+.chronicle::before,
+.closing::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: var(--nrt-gut);
+  width: clamp(3.5rem, 14vw, 8rem);
+  height: 2px;
+  background: linear-gradient(to right, var(--nrt-live), transparent);
+  transition: background var(--nrt-dur-slow) var(--nrt-ease);
+}
+
+.sectionHead {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  width: 100%;
+  max-width: var(--nrt-max);
+  margin-inline: auto;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: var(--font-petrona), serif;
+  font-weight: 800;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  text-shadow:
+    0 0 26px var(--nrt-glow-strong),
+    0 0 70px var(--nrt-glow-soft);
+}
+
+.sectionLede {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: clamp(1rem, 1.6vw, 1.125rem);
+  line-height: 1.7;
+  color: var(--text-secondary);
+  max-width: 60ch;
+}
+
+/* ============================================================
+   2 · KÜNYE — CANLI ÖLÇÜ ŞERİDİ
+
+   Sekiz sabit hücre + bir CANLI hücre. Canlı hücrenin değeri kuyruk
+   rayından geliyor; altındaki çubuk `--nrt-heat`i doğrudan okuyor.
+   ============================================================ */
+.gaugeRow {
+  margin: 0;
+  width: 100%;
+  max-width: var(--nrt-max);
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+
+.gaugeCell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: clamp(0.85rem, 2vw, 1.15rem);
+  background: var(--bg);
+  min-width: 0;
+}
+
+.gaugeCell dt {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.gaugeCell dd {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+/* Canlı hücre: seçili kademeyle değişen tek satır — vurgulu zemin,
+   canlı etiket, altında ısı çubuğu. */
+.gaugeCell[data-live="true"] {
+  background: color-mix(in srgb, var(--nrt-night) 55%, var(--surface));
+  box-shadow: inset 2px 0 0 var(--nrt-live);
+  transition: box-shadow var(--nrt-dur-slow) var(--nrt-ease);
+}
+
+.gaugeCell[data-live="true"] dt {
+  color: var(--nrt-live-text);
+}
+
+.gaugeCell[data-live="true"] dd {
+  color: var(--text-primary);
+}
+
+.gaugeBar {
+  display: block;
+  position: relative;
+  margin-top: 0.6rem;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--border-strong);
+  overflow: hidden;
+}
+
+.gaugeBar::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  /* Alt sınır 4%: sıfır ısıda bile çubuğun var olduğu görünsün */
+  width: clamp(4%, calc(var(--nrt-heat) * 100%), 100%);
+  border-radius: inherit;
+  background: linear-gradient(to right, var(--nrt-chakra), var(--nrt-live));
+  box-shadow: 0 0 12px var(--nrt-glow-strong);
+  transition:
+    width var(--nrt-dur-slow) var(--nrt-ease),
+    background var(--nrt-dur-slow) var(--nrt-ease);
+}
+
+/* ============================================================
+   3 · KUYRUK RAYI — SAYFANIN KALBİ
+   ============================================================ */
+
+/* ── Kuyruk yelpazesi ──
+   Dokuz kuyruk SVG'de hep basılı; hangisinin görüneceğini CSS söylüyor.
+   `--tails` (aktif kademe, svg üstünde) ile `--i` (kuyruk sırası, her
+   yolun üstünde) karşılaştırılıyor:
+     görünürlük = clamp(0, tails - i + 1, 1)
+   tails=3 iken i=3 → 1 (açık), i=4 → 0 (kapalı). JS tek tek kuyruk
+   yönetmiyor, yalnızca bir sayı yazıyor. */
+.fanStage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: var(--nrt-max);
+  margin-inline: auto;
+  padding-block: clamp(0.5rem, 2vw, 1.25rem);
+}
+
+.fan {
+  width: clamp(13rem, 44vw, 26rem);
+  color: var(--nrt-live);
+  filter: drop-shadow(0 6px 26px var(--nrt-glow-soft));
+  transition:
+    color var(--nrt-dur-slow) var(--nrt-ease),
+    filter var(--nrt-dur-slow) var(--nrt-ease);
+}
+
+.tail {
+  opacity: clamp(0, calc(var(--tails) - var(--i) + 1), 1);
+  transition: opacity var(--nrt-dur) var(--nrt-ease);
+  /* Ortadaki kuyruk önce, dıştakiler sırayla — simetrik açılma */
+  transition-delay: calc(var(--i) * 45ms);
+}
+
+/* Yelpaze bütün olarak çok hafif salınır — canlı ama dikkat çalmayan */
+@media (prefers-reduced-motion: no-preference) {
+  .fan {
+    animation: nrtSway 7s var(--nrt-ease) infinite alternate;
+  }
+}
+
+@keyframes nrtSway {
+  from {
+    rotate: -1.6deg;
+  }
+  to {
+    rotate: 1.6deg;
+  }
+}
+
+/* ── Ray ──
+   Duraklar SABİT genişlikte (`--nrt-stop-w`). Bu bilinçli: dolgu
+   çizgisinin boyu `--pos * --nrt-stop-w` ile PİKSELİ PİKSELİNE
+   hesaplanabiliyor, esnek genişlikte bu mümkün olmazdı. Dar ekranda
+   dokuz durak 360 px'e sığmaz — bu yüzden ray kendi görüntüsünde yatay
+   kayar; SAYFA taşmaz. */
+.railViewport {
+  width: 100%;
+  max-width: var(--nrt-max);
+  margin-inline: auto;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+  /* Odak bir durağa geçtiğinde kenara yapışmasın */
+  scroll-padding-inline: 1.5rem;
+  padding-bottom: 0.25rem;
+}
+
+.rail {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  width: calc(var(--nrt-stop-w) * 9);
+  margin-inline: auto;
+}
+
+/* Çizgi ve dolgu, ilk durağın merkezinden son durağın merkezine uzanır. */
+.railLine,
+.railFill {
+  position: absolute;
+  top: calc(var(--nrt-rail-pad) + var(--nrt-node-w) / 2);
+  left: calc(var(--nrt-stop-w) / 2);
+  pointer-events: none;
+}
+
+.railLine {
+  right: calc(var(--nrt-stop-w) / 2);
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    var(--border),
+    var(--border-strong) 12%,
+    var(--border-strong) 88%,
+    var(--border)
+  );
+}
+
+.railFill {
+  width: calc(var(--pos, 0) * var(--nrt-stop-w));
+  height: 2px;
+  translate: 0 -0.5px;
+  background: linear-gradient(to right, var(--nrt-chakra), var(--nrt-live));
+  box-shadow: 0 0 14px var(--nrt-glow-strong);
+  transition:
+    width var(--nrt-dur-slow) var(--nrt-ease),
+    background var(--nrt-dur-slow) var(--nrt-ease);
+}
+
+.stop {
+  position: relative;
+  flex: 0 0 var(--nrt-stop-w);
+  width: var(--nrt-stop-w);
+  min-height: var(--touch-min);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: var(--nrt-rail-pad) 0.35rem 0.75rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: translate var(--nrt-dur) var(--nrt-ease);
+}
+
+/* Düğüm glifinin tonu kademenin TÜRÜNÜ anlatır: kapalı mühür soğuk,
+   kor turuncu, manto vurgu, canavar kızıl, sennin altın, füzyon mavi. */
+.stopNode {
+  width: var(--nrt-node-w);
+  color: var(--node-tint, var(--text-muted));
+  background: var(--bg);
+  border-radius: 50%;
+  transition:
+    color var(--nrt-dur) var(--nrt-ease),
+    filter var(--nrt-dur) var(--nrt-ease),
+    scale var(--nrt-dur) var(--nrt-ease);
+}
+
+.stop[data-node="seal"] { --node-tint: var(--text-muted); }
+.stop[data-node="ember"] { --node-tint: var(--nrt-chakra); }
+.stop[data-node="cloak"] { --node-tint: var(--accent); }
+.stop[data-node="beast"] { --node-tint: var(--nrt-kurama-text); }
+.stop[data-node="sage"] { --node-tint: var(--nrt-sage); }
+.stop[data-node="fusion"] { --node-tint: var(--nrt-rasengan); }
+
+.stopMark {
+  font-family: var(--font-petrona), serif;
+  font-weight: 800;
+  font-size: 1.25rem;
+  line-height: 1.1;
+  color: var(--text-muted);
+  transition: color var(--nrt-dur) var(--nrt-ease);
+}
+
+.stopName {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
+  line-height: 1.35;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--text-muted);
+  transition: color var(--nrt-dur) var(--nrt-ease);
+}
+
+.stop:hover .stopNode,
+.stop:focus-visible .stopNode {
+  scale: 1.08;
+  filter: drop-shadow(0 0 12px var(--nrt-glow-strong));
+}
+
+.stop:hover .stopName,
+.stop:focus-visible .stopName {
+  color: var(--text-secondary);
+}
+
+.stop:focus-visible {
+  /* Negatif kaydırma bilinçli: ray kaydırılabilir bir kutunun içinde,
+     dışa taşan halka kenarda kırpılırdı. */
+  outline: 2px solid var(--nrt-live-text);
+  outline-offset: -2px;
+}
+
+.stop[aria-selected="true"] {
+  translate: 0 -3px;
+}
+
+.stop[aria-selected="true"] .stopNode {
+  filter: drop-shadow(0 0 16px var(--nrt-glow-strong));
+  scale: 1.14;
+}
+
+.stop[aria-selected="true"] .stopMark {
+  color: var(--text-primary);
+}
+
+.stop[aria-selected="true"] .stopName {
+  color: var(--nrt-live-text);
+}
+
+/* ── ÖLÇEĞİN ÖTESİ ──
+   Son iki durak (Bijuu, Baryon) da dokuz kuyruk taşıyor ama artık sayıyı
+   değil ilişkiyi anlatıyor. Ray burada kesikli devam ediyor ve araya
+   ince bir eşik çizgisi giriyor. */
+.stop[data-beyond="true"] .stopMark {
+  opacity: 0.55;
+}
+
+.stop:not([data-beyond]) + .stop[data-beyond="true"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.35rem;
+  bottom: 0.35rem;
+  width: 1px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--border-strong) 30%,
+    var(--border-strong) 70%,
+    transparent
+  );
+}
+
+.railHint {
+  margin: 0;
+  width: 100%;
+  max-width: var(--nrt-max);
+  margin-inline: auto;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ── Kademe paneli ── */
+.stagePanel {
+  position: relative;
+  width: 100%;
+  max-width: var(--nrt-max);
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: clamp(1.25rem, 3vw, 2.25rem);
+  padding: clamp(1.1rem, 2.5vw, 1.75rem);
+  border: 1px solid var(--border-strong);
+  background:
+    radial-gradient(
+      85% 60% at 0% 0%,
+      color-mix(in srgb, var(--nrt-live) 12%, transparent),
+      transparent 65%
+    ),
+    var(--surface);
+  box-shadow: 0 24px 60px color-mix(in srgb, var(--bg) 70%, transparent);
+  transition: background var(--nrt-dur-slow) var(--nrt-ease);
+}
+
+.stagePanel:focus-visible {
+  outline: 2px solid var(--nrt-live-text);
+  outline-offset: 3px;
+}
+
+.stagePanel > [data-curator-slot] {
+  grid-column: 1 / -1;
+}
+
+.stageArt {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--nrt-night) 45%, var(--bg));
+}
+
+.stageArt img {
+  object-fit: cover;
+  filter: brightness(0.9) saturate(1.05);
+}
+
+/* Görsel inmemişse kadraj boş kalmıyor: kademenin kendi düğüm glifi
+   büyütülüp merkeze konuyor (her kadrajın elle çizilmiş yedeği var). */
+.stageArtGlyph {
+  width: 42%;
+  color: color-mix(in srgb, var(--nrt-live) 55%, transparent);
+  filter: drop-shadow(0 0 24px var(--nrt-glow-soft));
+}
+
+/* Kademeye bağlı yoldaş portresi — kadrajın alt köşesinde madalyon */
+.stageFace {
+  position: absolute;
+  left: 0.75rem;
+  bottom: 0.75rem;
+  display: block;
+  width: clamp(3.25rem, 8vw, 4.5rem);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--nrt-live) 55%, var(--border-strong));
+  background: var(--bg);
+  box-shadow: 0 0 18px var(--nrt-glow-soft);
+}
+
+.stageFace img {
+  object-fit: cover;
+  object-position: center 14%;
+}
+
+.stageBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-width: 0;
+  justify-content: center;
+}
+
+.stageNative {
+  margin: 0;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: 0.9375rem;
+  letter-spacing: 0.32em;
+  color: var(--nrt-live-text);
+  opacity: 0.9;
+  overflow-wrap: anywhere;
+}
+
+.stageName {
+  margin: 0;
+  font-family: var(--font-petrona), serif;
+  font-weight: 800;
+  font-size: clamp(1.5rem, 3.4vw, 2.375rem);
+  line-height: 1.06;
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
+  text-shadow: 0 0 24px var(--nrt-glow-soft);
+}
+
+.stageWhen {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.stageWhen span {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--nrt-live-text);
+}
+
+.stageText {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  line-height: 1.72;
+  color: var(--text-secondary);
+  max-width: 58ch;
+}
+
+.stageMeta {
+  margin: 0.4rem 0 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.75rem;
+}
+
+.stageMeta > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding-left: 0.75rem;
+  border-left: 2px solid color-mix(in srgb, var(--nrt-live) 60%, transparent);
+  min-width: 0;
+}
+
+.stageMeta dt {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.stageMeta dd {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--text-primary);
+}
+
+.stageFaceName {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ── Panelin yeniden girişi ──
+   React panelin DOM düğümünü kademe değişince YENİDEN KURMUYOR (key
+   yok), dolayısıyla tek bir `animation` yalnızca ilk açılışta koşardı.
+   Çözüm: aynı görünen üç keyframe'i kademelere sırayla dağıtmak —
+   animation-name değişince tarayıcı animasyonu baştan başlatır.
+   Bilinen tek sınır: aynı harfi taşıyan iki kademe arasında doğrudan
+   sıçranırsa (ör. human → four) geçiş oynamaz; komşu kademelerde
+   harfler daima farklı olduğu için ok tuşu ve tıklama akışında görünmez.
+   ------------------------------------------------------------------- */
+@media (prefers-reduced-motion: no-preference) {
+  .page[data-tail="human"] .stagePanel,
+  .page[data-tail="four"] .stagePanel,
+  .page[data-tail="full"] .stagePanel {
+    animation: nrtPanelA var(--nrt-dur-slow) var(--nrt-ease-out) both;
+  }
+
+  .page[data-tail="one"] .stagePanel,
+  .page[data-tail="six"] .stagePanel,
+  .page[data-tail="bijuu"] .stagePanel {
+    animation: nrtPanelB var(--nrt-dur-slow) var(--nrt-ease-out) both;
+  }
+
+  .page[data-tail="three"] .stagePanel,
+  .page[data-tail="eight"] .stagePanel,
+  .page[data-tail="baryon"] .stagePanel {
+    animation: nrtPanelC var(--nrt-dur-slow) var(--nrt-ease-out) both;
+  }
+}
+
+@keyframes nrtPanelA {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 1.1rem, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes nrtPanelB {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 1.1rem, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes nrtPanelC {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 1.1rem, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* ============================================================
+   4 · AVUCUNDA TAŞIDIKLARI — LABORATUVAR
+
+   Üç büyük teknik geniş şeritler hâlinde, kadraj bir yanda metin
+   öteki yanda; şeritler dönüşümlü olarak taraf değiştirir. Dört
+   mühür etiketi altta kâğıt fişler olarak dizilir.
+   ============================================================ */
+.bands {
+  width: 100%;
+  max-width: var(--nrt-max);
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.25rem, 3vw, 2rem);
+}
+
+.band {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  align-items: stretch;
+  gap: 0;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  overflow: hidden;
+  isolation: isolate;
+  transition:
+    border-color var(--nrt-dur) var(--nrt-ease),
+    box-shadow var(--nrt-dur-slow) var(--nrt-ease);
+}
+
+.band:hover {
+  border-color: color-mix(in srgb, var(--band-tint) 55%, var(--border-strong));
+  box-shadow: 0 0 34px color-mix(in srgb, var(--band-tint) 18%, transparent);
+}
+
+/* Şeritler dönüşümlü taraf değiştirir — sayfa aşağı inerken ritim kurar */
+.band:nth-child(even) .bandArt {
+  order: 2;
+}
+
+.band > [data-curator-slot] {
+  grid-column: 1 / -1;
+  padding: 0.75rem clamp(1rem, 2.2vw, 1.5rem) 1rem;
+}
+
+/* Her tekniğin kendi ışığı: Rasengan spiral mavisi, Kage Bunshin
+   chakra turuncusu, Sennin Modo doğa altını. */
+.band[data-jutsu="rasengan"] { --band-tint: var(--nrt-rasengan); }
+.band[data-jutsu="kagebunshin"] { --band-tint: var(--nrt-chakra); }
+.band[data-jutsu="sennin"] { --band-tint: var(--nrt-sage); }
+
+.bandArt {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--nrt-night) 50%, var(--bg));
+  min-width: 0;
+}
+
+.bandArt img {
+  object-fit: cover;
+  filter: brightness(0.7) saturate(1.02);
+  transition:
+    filter var(--nrt-dur-slow) var(--nrt-ease),
+    scale var(--nrt-dur-slow) var(--nrt-ease);
+}
+
+.band:hover .bandArt img {
+  filter: brightness(0.9) saturate(1.12);
+  scale: 1.04;
+}
+
+/* Glif HER ZAMAN çizilir — görselin üstünde de duruyor. `screen`
+   karışımı onu hem koyu boş kadrajda hem fotoğrafın üstünde ışık
+   olarak okutuyor, ikinci bir yedek kural gerekmiyor. */
+.bandGlyph {
+  position: relative;
+  z-index: 2;
+  width: 34%;
+  color: var(--band-tint);
+  mix-blend-mode: screen;
+  filter: drop-shadow(0 0 26px color-mix(in srgb, var(--band-tint) 45%, transparent));
+}
+
+@media (forced-colors: active) {
+  .bandGlyph,
+  .tagGlyph {
+    mix-blend-mode: normal;
+  }
+}
+
+/* Rasengan'ın dönen kabuğu */
+@media (prefers-reduced-motion: no-preference) {
+  .orbSpin {
+    transform-origin: 50% 50%;
+    animation: nrtSpin 9s linear infinite;
+  }
+}
+
+/* Kadrajı metin sütununa bağlayan perde — vinyet + iç kenar geçişi */
+.bandScrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      120% 100% at 50% 50%,
+      transparent 48%,
+      color-mix(in srgb, var(--bg) 72%, transparent) 100%
+    ),
+    linear-gradient(
+      to right,
+      transparent 60%,
+      color-mix(in srgb, var(--surface) 90%, transparent) 100%
+    );
+}
+
+.band:nth-child(even) .bandScrim {
+  background:
+    radial-gradient(
+      120% 100% at 50% 50%,
+      transparent 48%,
+      color-mix(in srgb, var(--bg) 72%, transparent) 100%
+    ),
+    linear-gradient(
+      to left,
+      transparent 60%,
+      color-mix(in srgb, var(--surface) 90%, transparent) 100%
+    );
+}
+
+.bandBody {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.55rem;
+  padding: clamp(1.25rem, 3vw, 2.25rem);
+  min-width: 0;
+}
+
+/* Kanji filigranı: gövdenin üst köşesinde, metnin arkasında */
+.bandNative {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.9rem;
+  margin: 0;
+  z-index: 0;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(2.25rem, 5vw, 3.75rem);
+  line-height: 1;
+  color: var(--band-tint);
+  opacity: 0.14;
+  pointer-events: none;
+  transition: opacity var(--nrt-dur) var(--nrt-ease);
+}
+
+.band:hover .bandNative {
+  opacity: 0.28;
+}
+
+.bandName {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  font-family: var(--font-petrona), serif;
+  font-weight: 800;
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  line-height: 1.06;
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
+}
+
+.bandTagline {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  font-family: var(--font-cormorant), serif;
+  font-style: italic;
+  font-size: clamp(1.0625rem, 1.8vw, 1.25rem);
+  line-height: 1.45;
+  color: var(--band-tint);
+}
+
+.bandText {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  line-height: 1.72;
+  color: var(--text-secondary);
+  max-width: 56ch;
+}
+
+.bandTraits {
+  position: relative;
+  z-index: 1;
+  list-style: none;
+  margin: 0.4rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.bandTraits li {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--border-strong);
+  background: color-mix(in srgb, var(--bg) 55%, transparent);
+}
+
+/* ── Dört mühür etiketi (ofuda) ──
+   Kâğıt fişler: alt ucu sivri, üst kenarı canlı tonla çizili. */
+.tags {
+  list-style: none;
+  width: 100%;
+  max-width: var(--nrt-max);
+  margin: clamp(0.5rem, 2vw, 1.25rem) auto 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: clamp(0.75rem, 2vw, 1.25rem);
+}
+
+.tag {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--nrt-live);
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--nrt-seal) 30%, var(--surface)),
+    var(--surface) 40%
+  );
+  /* Ofuda ucu: alt kenar ortadan aşağı sivrilir */
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 1.1rem), 50% 100%, 0 calc(100% - 1.1rem));
+  padding-bottom: 1.4rem;
+  transition:
+    border-color var(--nrt-dur) var(--nrt-ease),
+    translate var(--nrt-dur) var(--nrt-ease);
+}
+
+.tag:hover {
+  border-color: color-mix(in srgb, var(--nrt-live) 45%, var(--border-strong));
+  border-top-color: var(--nrt-live);
+  translate: 0 -3px;
+}
+
+.tag > [data-curator-slot] {
+  padding: 0.5rem 0.9rem 0;
+}
+
+.tagArt {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--nrt-night) 45%, var(--bg));
+}
+
+.tagArt img {
+  object-fit: cover;
+  filter: brightness(0.75) saturate(1.02);
+  transition: filter var(--nrt-dur-slow) var(--nrt-ease);
+}
+
+.tag:hover .tagArt img {
+  filter: brightness(0.95) saturate(1.1);
+}
+
+.tagGlyph {
+  position: relative;
+  z-index: 2;
+  width: 46%;
+  color: var(--nrt-live);
+  mix-blend-mode: screen;
+  filter: drop-shadow(0 0 18px var(--nrt-glow-soft));
+}
+
+.tagBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.85rem 0.9rem 0.6rem;
+  min-width: 0;
+}
+
+.tagNative {
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: 0.8125rem;
+  letter-spacing: 0.26em;
+  color: var(--nrt-live-text);
+  opacity: 0.9;
+  overflow-wrap: anywhere;
+}
+
+.tagName {
+  font-family: var(--font-petrona), serif;
+  font-weight: 700;
+  font-size: 1.0625rem;
+  line-height: 1.25;
+  color: var(--text-primary);
+}
+
+.tagNote {
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   5 · REDDEDİLMİŞTEN KABUL EDİLMİŞE — KADER ÇİZELGESİ
+
+   Dikey omurga: solda tek bir çizgi, üstünde beş mühür düğümü.
+   Itachi'nin zikzak kadrajının aksine burada zaman TEK YÖNDE akıyor —
+   köyün bakışının değiştiği doğrultu.
+   ============================================================ */
+.eras {
+  list-style: none;
+  position: relative;
+  width: 100%;
+  max-width: var(--nrt-max);
+  margin-inline: auto;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.5rem, 4vw, 2.75rem);
+}
+
+/* Omurga — ilk düğümde başlar, sonuncuda söner */
+.eras::before {
+  content: "";
+  position: absolute;
+  left: var(--nrt-spine);
+  top: 1.5rem;
+  bottom: 1.5rem;
+  width: 1px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--border-strong) 8%,
+    var(--border-strong) 92%,
+    transparent
+  );
+  pointer-events: none;
+}
+
+.era {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  padding-left: calc(var(--nrt-spine) * 2 + 1.5rem);
+  min-width: 0;
+}
+
+/* Dönemin kendi ışığı: kızıl gece → Konoha yeşili → spiral mavisi →
+   chakra turuncusu → savaşın altını. Beşi de koyu yüzeyde AA üstü. */
+.era[data-era="sealed"] { --era-tint: var(--nrt-kurama-text); }
+.era[data-era="team7"] { --era-tint: var(--nrt-leaf); }
+.era[data-era="jiraiya"] { --era-tint: var(--nrt-rasengan); }
+.era[data-era="pain"] { --era-tint: var(--nrt-chakra); }
+.era[data-era="war"] { --era-tint: var(--nrt-sage); }
+
+.era > [data-curator-slot] {
+  grid-column: 1 / -1;
+  padding-top: 0.75rem;
+}
+
+/* Omurganın üstündeki mühür — zemin rengi çizgiyi deler */
+.eraNode {
+  position: absolute;
+  left: 0;
+  top: 1.15rem;
+  z-index: 2;
+  display: block;
+  width: calc(var(--nrt-spine) * 2);
+  padding: 0.2rem;
+  border-radius: 50%;
+  background: var(--bg);
+  color: var(--era-tint);
+  filter: drop-shadow(0 0 12px color-mix(in srgb, var(--era-tint) 40%, transparent));
+}
+
+.eraCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  padding: clamp(1rem, 2.5vw, 1.75rem);
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--era-tint);
+  background: var(--surface);
+  min-width: 0;
+  transition:
+    border-color var(--nrt-dur) var(--nrt-ease),
+    box-shadow var(--nrt-dur-slow) var(--nrt-ease);
+}
+
+.era:hover .eraCard {
+  box-shadow: 0 0 30px color-mix(in srgb, var(--era-tint) 16%, transparent);
+}
+
+.eraAge {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--era-tint);
+}
+
+.eraTitle {
+  margin: 0;
+  font-family: var(--font-petrona), serif;
+  font-weight: 800;
+  font-size: clamp(1.5rem, 3.2vw, 2.375rem);
+  line-height: 1.06;
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
+  text-shadow: 0 0 24px color-mix(in srgb, var(--era-tint) 22%, transparent);
+}
+
+.eraArt {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-bottom: 2px solid var(--era-tint);
+  background: color-mix(in srgb, var(--nrt-night) 45%, var(--bg));
+}
+
+.eraArt img {
+  object-fit: cover;
+  filter: brightness(0.78) saturate(1);
+  transition:
+    filter var(--nrt-dur-slow) var(--nrt-ease),
+    scale 1.2s var(--nrt-ease);
+}
+
+.era:hover .eraArt img {
+  filter: brightness(0.95) saturate(1.08);
+  scale: 1.03;
+}
+
+.eraArtScrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    120% 100% at 50% 50%,
+    transparent 52%,
+    color-mix(in srgb, var(--bg) 68%, transparent) 100%
+  );
+}
+
+.eraText {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  line-height: 1.72;
+  color: var(--text-secondary);
+  max-width: 68ch;
+}
+
+/* Kanon replik — tırnak içinde, dönemin ışığında */
+.eraQuote {
+  margin: 0.2rem 0 0;
+  padding-left: 1rem;
+  border-left: 2px solid var(--era-tint);
+  font-family: var(--font-cormorant), serif;
+  font-style: italic;
+  font-size: clamp(1.125rem, 2vw, 1.4375rem);
+  line-height: 1.5;
+  color: var(--text-primary);
+  text-shadow: 0 0 18px color-mix(in srgb, var(--era-tint) 22%, transparent);
+}
+
+/* Arşivin kendi notu — REPLİK DEĞİL: tırnak yok, kesikli kenar,
+   küçük punto. Okur ikisini karıştırmasın diye görsel dil ayrı. */
+.eraNote {
+  margin: 0;
+  padding-left: 1rem;
+  border-left: 1px dashed var(--border-strong);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+  max-width: 64ch;
+}
+
+.eraPeople {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.9rem;
+  margin-top: 0.35rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--border);
+}
+
+.eraPeopleLabel {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.eraPeople ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(0.6rem, 2vw, 1.1rem);
+}
+
+.person {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  width: 4.75rem;
+}
+
+.personFace {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 3.25rem;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  background: var(--bg);
+  transition:
+    border-color var(--nrt-dur) var(--nrt-ease),
+    box-shadow var(--nrt-dur) var(--nrt-ease);
+}
+
+.person:hover .personFace {
+  border-color: var(--era-tint);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--era-tint) 35%, transparent);
+}
+
+.personFace img {
+  object-fit: cover;
+  object-position: center 12%;
+  filter: grayscale(0.35) brightness(0.92);
+  transition: filter var(--nrt-dur) var(--nrt-ease);
+}
+
+.person:hover .personFace img {
+  filter: grayscale(0) brightness(1.05);
+}
+
+/* Portre kaydı yoksa yüz yerine mühür çizilir — bölüm çökmez */
+.personGlyph {
+  width: 58%;
+  color: color-mix(in srgb, var(--era-tint) 55%, transparent);
+}
+
+.personName {
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  letter-spacing: 0.08em;
+  line-height: 1.3;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+/* Kaydırmayla giriş — kartlar omurgadan açılır */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .eraCard {
+      animation: nrtEraIn linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 50%;
+    }
+
+    .band {
+      animation: nrtBandIn linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 45%;
+    }
+  }
+}
+
+@keyframes nrtEraIn {
+  from {
+    opacity: 0.15;
+    transform: translate3d(-1.25rem, 1rem, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes nrtBandIn {
+  from {
+    opacity: 0.2;
+    transform: translate3d(0, 2rem, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* ============================================================
+   6 · KAPANIŞ — NİNDŌ
+   ============================================================ */
+.closing {
+  align-items: center;
+  text-align: center;
+  padding-bottom: clamp(4rem, 10vw, 7rem);
+  overflow: hidden;
+  background:
+    radial-gradient(
+      100% 70% at 50% 100%,
+      color-mix(in srgb, var(--nrt-night) 70%, transparent),
+      transparent 70%
+    ),
+    var(--bg);
+}
+
+/* 忍道 — sayfanın son büyük grafiği, metnin arkasında filigran */
+.mottoMark {
+  display: block;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(5rem, 24vw, 14rem);
+  line-height: 0.9;
+  letter-spacing: 0.1em;
+  color: var(--nrt-live);
+  opacity: 0.14;
+  pointer-events: none;
+  margin-bottom: clamp(-4rem, -8vw, -2rem);
+  transition: color var(--nrt-dur-slow) var(--nrt-ease);
+}
+
+.closingQuote {
+  position: relative;
+  z-index: 2;
+  margin: 0;
+  max-width: 54ch;
+}
+
+.closingQuote blockquote {
+  margin: 0;
+  font-family: var(--font-cormorant), serif;
+  font-style: italic;
+  font-size: clamp(1.375rem, 3.4vw, 2.125rem);
+  line-height: 1.45;
+  color: var(--text-primary);
+  text-shadow: 0 0 28px var(--nrt-glow-soft);
+}
+
+.closingQuote figcaption {
+  margin-top: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--nrt-live-text);
+}
+
+.mottoGloss {
+  position: relative;
+  z-index: 2;
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.credit {
+  position: relative;
+  z-index: 2;
+  margin: clamp(1rem, 3vw, 2rem) 0 0;
+  max-width: 64ch;
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+
+.creditLink {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+  text-decoration-color: color-mix(in srgb, var(--accent) 50%, transparent);
+  transition:
+    color var(--nrt-dur-fast) var(--nrt-ease),
+    text-decoration-color var(--nrt-dur-fast) var(--nrt-ease);
+}
+
+.creditLink:hover {
+  color: var(--accent-hover);
+  text-decoration-color: var(--accent-hover);
+}
+
+.creditLink:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ============================================================
+   KURAMA MODU — MÜHRÜN İÇİNDEN
+
+   Kafes örtüsünün yanında sayfanın kendisi de sertleşiyor: başlıklar
+   kızıla döner, kadraj görselleri doygunlaşır, kenarlar ısınır.
+   Renk değişkenlerinin kendisi yukarıdaki `.page[data-kurama]`
+   bloğunda kayıyor — buradakiler yalnızca ek dokunuşlar.
+   ============================================================ */
+.page[data-kurama] .sectionTitle,
+.page[data-kurama] .heroName,
+.page[data-kurama] .stageName {
+  color: var(--nrt-kurama-text);
+  text-shadow:
+    0 0 30px color-mix(in srgb, var(--nrt-kurama) 60%, transparent),
+    0 0 90px var(--nrt-glow-strong);
+}
+
+.page[data-kurama] .heroScene img,
+.page[data-kurama] .stageArt img,
+.page[data-kurama] .bandArt img,
+.page[data-kurama] .eraArt img {
+  filter: brightness(0.78) saturate(1.35) hue-rotate(-12deg) contrast(1.06);
+}
+
+.page[data-kurama] .heroSpiral {
+  color: color-mix(in srgb, var(--nrt-kurama) 22%, transparent);
+}
+
+.page[data-kurama] .stagePanel,
+.page[data-kurama] .band,
+.page[data-kurama] .eraCard {
+  border-color: color-mix(in srgb, var(--nrt-kurama) 45%, var(--border));
+}
+
+/* ============================================================
+   MOBİL — 360 px'te hiçbir yerde yatay taşma yok, ızgaralar tek sütun
+   ============================================================ */
+@media (max-width: 980px) {
+  .heroInner {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    text-align: center;
+  }
+
+  .heroFrame {
+    width: min(100%, 17rem);
+  }
+
+  .heroType {
+    align-items: center;
+  }
+
+  .heroTags {
+    justify-content: center;
+  }
+
+  /* Ortalanmış metin sütunlarında max-width'in kendi kenarları hizalansın */
+  .heroEpigraph {
+    margin-inline: auto;
+  }
+
+  /* Şeritler: kadraj üstte, metin altta — figür kırpılmadan görünür */
+  .band,
+  .band:nth-child(even) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .band:nth-child(even) .bandArt {
+    order: 0;
+  }
+
+  .bandScrim,
+  .band:nth-child(even) .bandScrim {
+    background:
+      radial-gradient(
+        120% 100% at 50% 50%,
+        transparent 48%,
+        color-mix(in srgb, var(--bg) 72%, transparent) 100%
+      ),
+      linear-gradient(
+        to bottom,
+        transparent 65%,
+        color-mix(in srgb, var(--surface) 90%, transparent) 100%
+      );
+  }
+
+  .stagePanel {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Mod düğmesi site geneli müzik çubuğunun üstünde kalsın; şerit
+     yokken 0px yedeği onu ekranın altına oturtur. */
+  .modeToggle {
+    top: auto;
+    bottom: calc(1rem + var(--music-bar, 0px));
+  }
+}
+
+@media (max-width: 640px) {
+  .era {
+    /* Omurga daralır ama kaybolmaz — düğümler kartın soluna yaslanır */
+    padding-left: calc(var(--nrt-spine) * 2 + 0.75rem);
+  }
+
+  .gaugeRow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tags {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Ofuda ucu tek sütunda gereksiz yer kaplıyor — düz kesilir */
+  .tag {
+    clip-path: none;
+    padding-bottom: 0.4rem;
+  }
+
+  .stageMeta {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .person {
+    width: 4.25rem;
+  }
+}
+
+/* 360 px sınırı: sarmal filigranı küçülür (yatay kaydırma üretmesin),
+   kapanış filigranı taşmadan kırpılır. */
+@media (max-width: 420px) {
+  .heroSpiral {
+    width: 150vw;
+  }
+
+  .mottoMark {
+    font-size: clamp(4.5rem, 26vw, 8rem);
+    margin-bottom: -2rem;
+  }
+
+  .heroSeal {
+    right: 0.5rem;
+    bottom: 0.5rem;
+  }
+}
+
+/* ============================================================
+   AZALTILMIŞ HAREKET BATTANİYESİ — ev deseni (çift katman):
+   yukarıdaki her animasyon zaten `no-preference` kapısında; burada
+   kalan her şey (geçişler ve kaydırma güdümlü animasyonlar dahil)
+   tamamen kapanıyor. Kökün kendisi de listede: ısı geçişi `.page`
+   üstünde yaşıyor ve `.page *` onu yakalamazdı.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .page,
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

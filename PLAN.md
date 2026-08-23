@@ -513,6 +513,57 @@ Dönemler ve Rütbeler'in görsel zenginleşmesi.
   bölümü eklendi (61 kişi, dolu/boş göstergeli). `images` ucu 50 kimlikte
   kestiği için `getCharacterImagesBulk` 50'lik parçalara bölüyor.
 
+## 5k · KUYRUKLU CANAVARLAR — SİNEMATİK SAHNE (22 Ağustos, ikinci tur)
+
+Kullanıcı dokuz jinchūriki+bijuu illüstrasyonunu (Downloads'tan, 1408×768
++ Kurama 1536×1024) verdi ve ayrıntılı bir yeniden tasarım komutu yazdı;
+otonom uygulandı (81404c6).
+
+- **BijuuStage** (`components/anime/naruto/`): küçük künye paneli kalktı —
+  görsel tam kadraj hero (min 74vh), %100 opaklık, karartma yalnız alt
+  metin gradient'i (komut §7 "görsel fona düşürülmez" kuralı CSS'te
+  yorumla işaretli). `focus` alanı görsel başına elle yazıldı.
+- **Kademeli ray:** satır boyu/glow `--t=(n-1)/8` ile ölçeklenir, solda
+  kuyruk sayısı kadar çentik; seçili satır kendi chakra rengine bürünür,
+  bölüm accent'i (`--beast-accent`) 350ms'de döner. Renkler komuttaki
+  dokuz hex (Kokuō koyu zemin varyantı #A8A9C8 seçildi).
+- **Geçiş:** AkatsukiPortal dili — eski kadraj merkeze daralır
+  (bijuuContract), yenisi radyal chakra flaşıyla girer (bijuuFlash);
+  hover'da soldan sağa chakra sızıntısı çizgisi. Komşu sahneler
+  `window.Image` ile ısıtılır; yüklenene dek chakra perdesi (blur-up
+  yerine renk perdesi — uzak görselde base64 placeholder üretmemek için).
+- **Jūbi kapanışı:** saf SVG — dokuz renkli şerit + küre, ortada gölge
+  kütle ve dokuz tomoe'li halkalı göz; gerçek Jūbi görseli bilinçli yok.
+- **Kürasyon:** 9 sahne `naruto:bijuu:<slug>` ABILITY yuvası (bölüm içi
+  şerit + kuşak kaydı). WebP'ler yüklendi (9/9, ilk deneme ECONNRESET
+  yedi, done-log'la ikinci deneme tamamladı); orijinaller
+  `K:\KURONEXUS-uretim\bijuu-2026-08-22\orijinal\`.
+
+## 5l · 13 KARAKTER DENEYİM SAYFASI (23 Ağustos, otonom tur)
+
+Kullanıcı komutu: Itachi (14) sayfasını referans al, on iki tekil + bir ikili
+sayfa yaz, her biri ayrı worktree/dalda, şablon paylaşımı yasak.
+
+- **Sayfalar**: Naruto 17, Sasuke 13, Ichigo 5, Kakashi 85, Sakura 145,
+  Urahara 210, Shikamaru 2007, Aizen 1086, Jiraiya 2423, Hinata 1555,
+  Kenpachi 909, Rock Lee 306 + **kap sayfası** (Sukuna 133701 & Itadori
+  127212 → tek sayfa, iki adres, açılış modu adrese bağlı).
+- **Rota**: her deneyim karakteri kendi **statik** rota klasöründe
+  (`karakterler/17/`); `[characterId]` yeniden yalnız künye dossier'i.
+  Sebep ölçüldü — tek rotada toplandıklarında App Router bütün CSS
+  modüllerini o rotaya `<link>`liyordu: sayfa başına 19 stil dosyası /
+  718 KB, üstelik sade künye sayfaları da aynı yükü taşıyordu. `import()`
+  çözmedi; statik parça çözdü. Adresler değişmedi, sayı 7'ye indi.
+- **Renk**: 13 `[data-world]` derisi `globals.css`te, hepsi kontrast
+  ölçülerek; sayfa CSS'lerinde tek hex yok (kural 16).
+- **Görsel**: hero AniList portresi ya da kendi yüklediğimiz portre;
+  motifler elle çizilmiş SVG; dış raster yok. Sahne görselleri
+  üretilmedi — **188 `ABILITY` yuvası küratör modunu bekliyor**.
+- ⚠️ AniList GraphQL o gün kapalıydı (403); künyeler kendi 30 günlük
+  önbelleğimizden alındı. `getCharacter` bayat önbellek sunduğu için
+  canlıda sorun yok; `getCharacterCards` sunmuyor (bkz. devir notu).
+- Devir notu: `docs/DEVIR-2026-08-23-karakter-deneyim-sayfalari.md`
+
 ## 6 · AÇIK RİSKLER
 
 - Kurulum ucu canlıda admin tetiklemesi bekler; o güne kadar sergi AniList

@@ -1,0 +1,1729 @@
+/* ============================================================
+   KAKASHI HATAKE — "KOPYA KÜTÜĞÜ"
+
+   Deri: kökteki `data-world="kakashi-hatake"` bütün standart token'ları
+   çelik grisine çevirir; yardımcılar `--kks-*` (globals.css). Bu dosyada
+   TEK HEX YOK — ara tonların hepsi color-mix ile token'lardan türetildi.
+
+   ── FİKİR ─────────────────────────────────────────────────────────────
+   Sayfa bir arşiv kartoteksi: ince çizgili fişler, damga izleri, çekmece
+   etiketleri, fotoğraf beklenen boş köşelikler. Sıcaklık yok, düzen var.
+   Itachi'nin sayfası karanlıkta parlar; bu sayfa aydınlıkta soğuk durur —
+   kızıl yalnızca damgada ve ateş çekmecesinde görünür.
+
+   ── İKİ SES ───────────────────────────────────────────────────────────
+   Petrona (700–800) düzyazının ve başlıkların sesi; `--font-mono` ise
+   kütüğün APARATI — fiş numaraları, alan etiketleri, ölçüler, sekme
+   adları. Mono burada "teknik görünsün" diye değil, gerçekten katalog
+   verisi olduğu için var. Japonca `--font-brush`.
+   Bu sayfada İTALİK YOK: Petrona'nın italiği yüklenmiyor, tarayıcı
+   yapaylaştırırdı — vurgu ağırlıkla ve boşlukla veriliyor.
+
+   ── HAREKET ───────────────────────────────────────────────────────────
+   Tek yazılı an var: çekmece açılınca fişlerin yeniden dizilmesi
+   (kksDeal — bulanıklıktan netliğe, kademeli). Geri kalan her şey
+   durum geçişi. Bütün animasyonlar no-preference kapısında, ayrıca
+   dosya sonunda reduce battaniyesi var.
+   ============================================================ */
+
+.page {
+  --kks-dur-fast: 160ms;
+  --kks-dur: 300ms;
+  --kks-dur-slow: 620ms;
+  --kks-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --kks-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Ölçü sözlüğü — sayfanın bütün payları buradan okunur */
+  --kks-gut: clamp(1rem, 4vw, 2.75rem);
+  --kks-max: 78rem;
+  --kks-rule: 1.35rem; /* fiş çizgi aralığı */
+
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text-primary);
+  overflow-x: clip;
+  transition: background var(--kks-dur-slow) var(--kks-ease);
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Kırıntı yolu ── */
+.crumb {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.9rem var(--kks-gut);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.crumb a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--kks-dur-fast) var(--kks-ease);
+}
+
+.crumb a:hover {
+  color: var(--accent);
+}
+
+.crumb a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.crumbSep {
+  color: var(--border-strong);
+}
+
+/* ============================================================
+   1 · HERO — KÜTÜĞÜN KAPAĞI
+   ============================================================ */
+.hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: clamp(30rem, 76svh, 46rem);
+  padding-bottom: clamp(2.5rem, 6vw, 4.5rem);
+  isolation: isolate;
+}
+
+/* Üst bant: Kamui girdabı. Kenarları maskeyle zemine karışıyor —
+   SVG `<mask>` parlaklıkla çalıştığı için maske CSS'te (bkz. LedgerMarks
+   dosyasındaki not). */
+.heroBand {
+  position: absolute;
+  inset: 0 0 auto;
+  height: clamp(11rem, 42%, 22rem);
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  mask-image:
+    linear-gradient(to bottom, black 0 52%, transparent 100%),
+    linear-gradient(to right, transparent 0, black 18%, black 82%, transparent 100%);
+  mask-composite: intersect;
+  -webkit-mask-image:
+    linear-gradient(to bottom, black 0 52%, transparent 100%),
+    linear-gradient(to right, transparent 0, black 18%, black 82%, transparent 100%);
+  -webkit-mask-composite: source-in;
+}
+
+.heroVortex {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.85;
+  transition: opacity var(--kks-dur-slow) var(--kks-ease);
+}
+
+/* Sahne görseli bağlıysa girdabın ALTINDA, gri ve kısık: kapak
+   fotoğrafı değil, kütüğün üstüne düşmüş bir gölge gibi durmalı */
+.heroSceneImg {
+  object-fit: cover;
+  object-position: center 32%;
+  filter: grayscale(0.5) brightness(0.5) contrast(1.05);
+}
+
+/* Filigran: dikey yazılan lakap, sağ kenarda */
+.heroWatermark {
+  position: absolute;
+  top: clamp(1rem, 4vw, 3rem);
+  right: var(--kks-gut);
+  margin: 0;
+  z-index: -1;
+  writing-mode: vertical-rl;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(2.25rem, 6vw, 4.75rem);
+  letter-spacing: 0.16em;
+  line-height: 1;
+  color: color-mix(in srgb, var(--kks-steel) 24%, transparent);
+  pointer-events: none;
+  user-select: none;
+}
+
+.heroInner {
+  display: grid;
+  grid-template-columns: minmax(0, 19rem) minmax(0, 1fr);
+  align-items: end;
+  gap: clamp(1.5rem, 4vw, 3.25rem);
+  width: 100%;
+  max-width: var(--kks-max);
+  margin-inline: auto;
+  padding-inline: var(--kks-gut);
+}
+
+/* ── Dosya kartı: portre, zımba delikleri, kütük numarası ── */
+.dossier {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0.8rem 0.8rem 0.9rem 2.5rem;
+  border: 1px solid var(--border-strong);
+  background:
+    linear-gradient(var(--kks-paper), var(--kks-paper)),
+    var(--surface);
+  box-shadow:
+    0 18px 40px -28px var(--kks-void),
+    0 2px 0 0 color-mix(in srgb, var(--border) 60%, transparent);
+  transition: border-color var(--kks-dur) var(--kks-ease);
+}
+
+/* Klasör delikleri — kartın sol payında, gerçek bir dosya sırtı gibi */
+.dossierHoles {
+  position: absolute;
+  left: 0.85rem;
+  top: 1.6rem;
+  bottom: 1.6rem;
+  width: 0.72rem;
+  background-image: radial-gradient(
+    circle at 50% 0.36rem,
+    var(--bg) 0 0.34rem,
+    color-mix(in srgb, var(--border-strong) 70%, transparent) 0.34rem 0.4rem,
+    transparent 0.41rem
+  );
+  background-size: 100% 2.9rem;
+  background-repeat: repeat-y;
+  pointer-events: none;
+}
+
+.dossierFrame {
+  position: relative;
+  display: block;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.dossierImg {
+  object-fit: cover;
+  object-position: center 16%;
+  filter: grayscale(0.28) contrast(1.04);
+  transition: filter var(--kks-dur-slow) var(--kks-ease);
+}
+
+.dossier:hover .dossierImg {
+  filter: grayscale(0) contrast(1);
+}
+
+.dossierMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.dossierNo {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  letter-spacing: 0.14em;
+  color: var(--text-primary);
+}
+
+.dossierNoLabel {
+  font-size: 0.625rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.dossierAliases {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
+}
+
+.dossierAlias {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--kks-steel);
+}
+
+.dossierAlias + .dossierAlias::before {
+  content: "·";
+  margin-right: 0.75rem;
+  color: var(--border-strong);
+}
+
+/* ── Başlık ── */
+.heroText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  min-width: 0;
+  padding-bottom: 0.4rem;
+}
+
+.heroName {
+  margin: 0;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-weight: 800;
+  font-size: clamp(2.5rem, 7.5vw, 5.25rem);
+  line-height: 1.03;
+  letter-spacing: -0.022em;
+  color: var(--text-primary);
+  text-wrap: balance;
+  transition: color var(--kks-dur-slow) var(--kks-ease);
+}
+
+.heroNative {
+  margin: 0;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(1rem, 2vw, 1.375rem);
+  letter-spacing: 0.3em;
+  color: var(--kks-steel);
+}
+
+.heroEpigraph {
+  margin: 0.5rem 0 0;
+  max-width: 42ch;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-weight: 500;
+  font-size: clamp(1.0625rem, 1.7vw, 1.3125rem);
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+/* ============================================================
+   BÖLÜM İSKELETİ — her bölüm bir dosya sayfası gibi açılır
+   ============================================================ */
+.identity,
+.lab,
+.index,
+.timeline,
+.closing {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.5rem, 3.2vw, 2.5rem);
+  width: 100%;
+  max-width: var(--kks-max);
+  margin-inline: auto;
+  padding: clamp(3rem, 7vw, 5rem) var(--kks-gut);
+  border-top: 1px solid var(--border);
+}
+
+/* Bölüm başlangıcının kısa çelik çentiği — dolap etiketinin izi */
+.identity::before,
+.lab::before,
+.index::before,
+.timeline::before,
+.closing::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: var(--kks-gut);
+  width: 3.5rem;
+  height: 2px;
+  background: var(--kks-steel);
+  transition: background var(--kks-dur-slow) var(--kks-ease);
+}
+
+.sectionHead {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-weight: 800;
+  font-size: clamp(1.875rem, 4.2vw, 3.125rem);
+  line-height: 1.06;
+  letter-spacing: -0.018em;
+  color: var(--text-primary);
+  text-wrap: balance;
+  transition: color var(--kks-dur-slow) var(--kks-ease);
+}
+
+.sectionLede {
+  margin: 0;
+  max-width: 62ch;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(1rem, 1.5vw, 1.125rem);
+  line-height: 1.68;
+  color: var(--text-secondary);
+}
+
+.slotRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 1.25rem var(--kks-gut) 0;
+}
+
+/* Fotoğraf beklenen boşluk: kesik çizgili köşelik + eğik tarama.
+   Görsel inmemiş bölüm ÇÖKMEZ — arşiv boşluğu ilan eder. */
+.mountEmpty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent 0 9px,
+    var(--kks-paper) 9px 10px
+  );
+}
+
+.mountEmpty::before {
+  content: "";
+  position: absolute;
+  inset: 0.7rem;
+  border: 1px dashed color-mix(in srgb, var(--kks-steel) 38%, transparent);
+}
+
+.mountMask {
+  position: relative;
+  width: clamp(3.5rem, 9vw, 5.5rem);
+  color: color-mix(in srgb, var(--kks-steel) 62%, transparent);
+}
+
+/* ============================================================
+   2 · KÜTÜK KÜNYESİ
+   ============================================================ */
+.identityHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+/* Damga izi: eğik, çift çerçeveli mühür */
+.identityStamp {
+  margin: 0;
+  padding: 0.4rem 0.85rem;
+  rotate: -5deg;
+  border: 2px solid color-mix(in srgb, var(--kks-sharingan) 55%, transparent);
+  box-shadow: inset 0 0 0 1px
+    color-mix(in srgb, var(--kks-sharingan) 22%, transparent);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--kks-sharingan-text);
+  opacity: 0.85;
+  user-select: none;
+}
+
+/* Künye ızgarası: doldurulmuş bir form — değerin altında noktalı satır */
+.facts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(0.75rem, 2vw, 1.5rem) clamp(1rem, 3vw, 2.5rem);
+  margin: 0;
+  transition: clip-path var(--kks-dur-slow) var(--kks-ease);
+}
+
+.fact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+  padding-bottom: 0.55rem;
+  border-bottom: 1px dashed color-mix(in srgb, var(--border-strong) 85%, transparent);
+}
+
+.fact dt {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.fact dd {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.9375rem;
+  line-height: 1.35;
+  color: var(--text-primary);
+}
+
+/* ============================================================
+   3 · LABORATUVAR — ÜÇ AĞIR DOSYA
+   Kartlar ızgara değil, üst üste konmuş KLASÖR SATIRLARI: her satırın
+   sol üstünde bir etiket dili var, görsel bir satırda solda bir satırda
+   sağda. Dolabın içinden çekilmiş üç dosya gibi.
+   ============================================================ */
+.labGrid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.25rem, 3vw, 2.25rem);
+}
+
+.labCard {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  align-items: stretch;
+  gap: clamp(1rem, 2.5vw, 2rem);
+  padding: clamp(1rem, 2.2vw, 1.5rem);
+  padding-top: clamp(1.75rem, 3vw, 2.25rem);
+  border: 1px solid var(--border-strong);
+  background:
+    linear-gradient(var(--kks-paper), var(--kks-paper)),
+    var(--surface);
+  transition:
+    border-color var(--kks-dur) var(--kks-ease),
+    box-shadow var(--kks-dur) var(--kks-ease),
+    clip-path var(--kks-dur-slow) var(--kks-ease),
+    transform var(--kks-dur-slow) var(--kks-ease);
+}
+
+/* Klasör dili: kartın üst kenarından çıkan yamuk etiket.
+   Kenarlık YOK — clip-path konturu keser ve yarım çerçeve bırakırdı;
+   dilin kenarı zeminin kendi tonuyla çiziliyor. */
+.labCard::before {
+  content: "";
+  position: absolute;
+  top: -0.75rem;
+  left: clamp(1rem, 2.2vw, 1.5rem);
+  width: 6.5rem;
+  height: 0.8rem;
+  background: color-mix(in srgb, var(--kks-steel) 26%, var(--surface));
+  clip-path: polygon(0.55rem 0, calc(100% - 0.55rem) 0, 100% 100%, 0 100%);
+  transition: background var(--kks-dur) var(--kks-ease);
+}
+
+.labCard:hover::before {
+  background: color-mix(in srgb, var(--accent) 40%, var(--surface));
+}
+
+.labCard:hover {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border-strong));
+  box-shadow: 0 22px 46px -34px var(--kks-glow-strong);
+}
+
+.labCard:nth-child(even) .labArt {
+  order: 2;
+}
+
+.labArt {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.labImg {
+  object-fit: cover;
+  filter: grayscale(0.42) brightness(0.86) contrast(1.04);
+  transition:
+    filter var(--kks-dur-slow) var(--kks-ease),
+    scale var(--kks-dur-slow) var(--kks-ease);
+}
+
+.labCard:hover .labImg {
+  filter: grayscale(0.05) brightness(1) contrast(1);
+  scale: 1.03;
+}
+
+.labBody {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+  justify-content: center;
+}
+
+.labKanji {
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(0.9375rem, 1.6vw, 1.125rem);
+  letter-spacing: 0.24em;
+  color: var(--kks-steel);
+}
+
+.labName {
+  font-family: var(--font-petrona), Georgia, serif;
+  font-weight: 700;
+  font-size: clamp(1.5rem, 2.8vw, 2.125rem);
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.labTagline {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.labText {
+  margin-top: 0.35rem;
+  max-width: 54ch;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-weight: 400;
+  font-size: 0.9375rem;
+  line-height: 1.72;
+  color: var(--text-secondary);
+}
+
+.labTraits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.65rem;
+}
+
+.labTrait {
+  padding: 0.3rem 0.55rem;
+  border: 1px solid var(--border-strong);
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Kütüğün tek özgün dosyası ayrı işaretli: Chidori'nin çelik yerine
+   kendi ışığı var (bilgi taşıyan tek renk vurgusu) */
+.labCard[data-technique="chidori"] .labTagline {
+  color: var(--kks-chidori);
+}
+
+.labCard[data-technique="kamui"] .labTagline {
+  color: var(--kks-kamui);
+}
+
+/* ── Dört küçük fiş ── */
+.minorRow {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(0.6rem, 1.5vw, 1rem);
+}
+
+.minorCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  transition:
+    border-color var(--kks-dur) var(--kks-ease),
+    translate var(--kks-dur) var(--kks-ease),
+    clip-path var(--kks-dur-slow) var(--kks-ease);
+}
+
+.minorCard:hover {
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--border-strong));
+  translate: 0 -2px;
+}
+
+.minorArt {
+  position: relative;
+  display: block;
+  aspect-ratio: 5 / 3;
+  overflow: hidden;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.minorImg {
+  object-fit: cover;
+  filter: grayscale(0.45) brightness(0.82);
+  transition: filter var(--kks-dur-slow) var(--kks-ease);
+}
+
+.minorCard:hover .minorImg {
+  filter: grayscale(0.05) brightness(1);
+}
+
+.minorBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.8rem 0.9rem 0.95rem;
+  min-width: 0;
+}
+
+.minorKanji {
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: 0.8125rem;
+  letter-spacing: 0.18em;
+  color: color-mix(in srgb, var(--kks-steel) 75%, transparent);
+}
+
+.minorName {
+  font-family: var(--font-petrona), Georgia, serif;
+  font-weight: 700;
+  font-size: 1.0625rem;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+.minorNote {
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   4 · DOĞA TÜRÜ KARTOTEKSİ — SAYFANIN KALBİ
+   ============================================================ */
+.cabinet {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Beş çekmece etiketi. Etiketler çekmeceye YAPIŞIK: seçili olanın alt
+   kenarı yok, gövdeye açılıyor (gerçek klasör dili). */
+.tabRail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  padding-left: clamp(0.5rem, 2vw, 1.5rem);
+}
+
+.tab {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  flex: 1 1 8.5rem;
+  min-width: 0;
+  min-height: var(--touch-min);
+  margin-bottom: -1px;
+  padding: 0.6rem 0.85rem 0.7rem;
+  border: 1px solid var(--border);
+  border-bottom-color: var(--border-strong);
+  border-radius: 0.55rem 0.55rem 0 0;
+  background: color-mix(in srgb, var(--surface) 70%, var(--bg));
+  color: var(--text-muted);
+  cursor: pointer;
+  text-align: left;
+  transition:
+    background var(--kks-dur-fast) var(--kks-ease),
+    border-color var(--kks-dur-fast) var(--kks-ease),
+    color var(--kks-dur-fast) var(--kks-ease),
+    translate var(--kks-dur-fast) var(--kks-ease);
+}
+
+.tab:hover {
+  background: var(--surface);
+  color: var(--text-secondary);
+  translate: 0 -2px;
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--nature-text, var(--accent));
+  outline-offset: 2px;
+  z-index: 2;
+}
+
+/* Açık çekmecenin etiketi: gövdeyle aynı zemin, alt kenar açık */
+.tab[data-open] {
+  background: var(--surface-hover);
+  border-color: var(--border-strong);
+  border-bottom-color: var(--surface-hover);
+  color: var(--text-primary);
+  translate: 0;
+  z-index: 1;
+}
+
+.tab[data-open]::after {
+  content: "";
+  position: absolute;
+  inset: -1px -1px auto;
+  height: 2px;
+  background: var(--nature-tint);
+  border-radius: 0.55rem 0.55rem 0 0;
+}
+
+.tabSeal {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--nature-text, var(--kks-steel));
+  opacity: 0.6;
+  transition: opacity var(--kks-dur-fast) var(--kks-ease);
+}
+
+.tab[data-open] .tabSeal,
+.tab:hover .tabSeal {
+  opacity: 1;
+}
+
+.tabKanji {
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: 0.8125rem;
+  letter-spacing: 0.2em;
+  color: color-mix(in srgb, var(--kks-steel) 70%, transparent);
+}
+
+.tabName {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  color: inherit;
+  overflow-wrap: anywhere;
+}
+
+.tabCount {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ── Açık çekmecenin gövdesi ── */
+.drawer {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.25rem, 2.5vw, 1.75rem);
+  padding: clamp(1.25rem, 3vw, 2rem) clamp(1rem, 2.5vw, 1.75rem)
+    clamp(1.5rem, 3.5vw, 2.25rem);
+  border: 1px solid var(--border-strong);
+  background: var(--surface-hover);
+  box-shadow: inset 0 2px 0 var(--nature-tint);
+  transition:
+    border-color var(--kks-dur) var(--kks-ease),
+    clip-path var(--kks-dur-slow) var(--kks-ease);
+}
+
+.drawerHead {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.drawerTitle {
+  margin: 0;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-weight: 700;
+  font-size: clamp(1.375rem, 2.6vw, 1.875rem);
+  line-height: 1.12;
+  color: var(--text-primary);
+}
+
+.drawerLabel {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--nature-text, var(--kks-steel));
+}
+
+.drawerLede {
+  margin: 0;
+  max-width: 60ch;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+.drawerHint {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ── Fişler ── */
+.ficheGrid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16.5rem, 1fr));
+  gap: clamp(0.6rem, 1.4vw, 1rem);
+  transition: transform var(--kks-dur-slow) var(--kks-ease);
+  transform-origin: 50% 100%;
+}
+
+/*
+  Fiş: ince çizgili karton. Üç katman —
+  (1) yatay çizgiler, (2) dikey pay çizgisi (fiş kenarındaki kırmızı
+  marj), (3) kartonun kendi zemini. Kod pay çizgisinin solunda DİKEY
+  yazılır: gerçek kartoteks fişlerinde numara böyle basılır.
+*/
+.fiche {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+  min-height: 9.5rem;
+  padding: 0.85rem 1rem 1rem 2.9rem;
+  border: 1px solid var(--border);
+  background-image:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0 calc(var(--kks-rule) - 1px),
+      var(--kks-paper) calc(var(--kks-rule) - 1px) var(--kks-rule)
+    ),
+    linear-gradient(
+      to right,
+      transparent 0 2.35rem,
+      color-mix(in srgb, var(--nature-tint) 42%, transparent) 2.35rem
+        calc(2.35rem + 1px),
+      transparent calc(2.35rem + 1px)
+    ),
+    linear-gradient(var(--surface), var(--surface));
+  transition:
+    border-color var(--kks-dur) var(--kks-ease),
+    box-shadow var(--kks-dur) var(--kks-ease),
+    transform var(--kks-dur-slow) var(--kks-ease),
+    clip-path var(--kks-dur-slow) var(--kks-ease);
+}
+
+.fiche:hover {
+  border-color: color-mix(in srgb, var(--nature-tint) 55%, var(--border-strong));
+  box-shadow: 0 14px 30px -24px var(--kks-glow-strong);
+}
+
+.fiche[data-kind="kopya"] {
+  padding-right: 3.5rem;
+}
+
+.ficheCode {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2.35rem;
+  display: flex;
+  justify-content: center;
+  padding-top: 0.9rem;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.22em;
+  color: var(--nature-text, var(--nature-tint));
+  user-select: none;
+}
+
+/* Kopya damgası: fişin sağ üst köşesine eğik basılmış mürekkep izi.
+   Yazılı karşılığı `.ficheFlag`te — damga bir doku, etiket bir veri. */
+.ficheStamp {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.55rem;
+  width: 2.6rem;
+  height: 2.6rem;
+  rotate: -9deg;
+  color: var(--kks-sharingan);
+  opacity: 0.42;
+  pointer-events: none;
+}
+
+.ficheKanji {
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  line-height: 1.4;
+  color: color-mix(in srgb, var(--kks-steel) 70%, transparent);
+}
+
+.ficheName {
+  margin: 0;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-weight: 700;
+  font-size: 1.0625rem;
+  line-height: 1.25;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.ficheSource {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem;
+  margin: 0.15rem 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.ficheSourceLabel {
+  font-size: 0.625rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* "Kopyalandı" — damganın okunur karşılığı, kaynağın hemen yanında */
+.ficheFlag {
+  padding: 0.15rem 0.4rem;
+  border: 1px solid color-mix(in srgb, var(--kks-sharingan) 45%, transparent);
+  font-size: 0.625rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--kks-sharingan-text);
+}
+
+.ficheNote {
+  margin: 0.2rem 0 0;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+/* Boş fiş: kütüğün kendi itirafı */
+.fiche[data-kind="kayip"] {
+  justify-content: center;
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--border-strong) 90%, transparent);
+  background-image: linear-gradient(
+    var(--kks-paper),
+    var(--kks-paper)
+  );
+  background-color: transparent;
+}
+
+.fiche[data-kind="kayip"]:hover {
+  box-shadow: none;
+  border-color: color-mix(in srgb, var(--kks-steel) 45%, transparent);
+}
+
+.ficheBlank {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin: 0;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+}
+
+.ficheBlankLabel {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--kks-steel);
+}
+
+/* Doğa tonları: her çekmece kendi rengini taşır, metin için ayrı ve
+   ölçülmüş ton (kızıl zeminde 4.24:1 kalıyor, metinde -text kullanılır) */
+.tab[data-nature="katon"],
+.drawer[data-nature="katon"] {
+  --nature-tint: var(--kks-sharingan);
+  --nature-text: var(--kks-sharingan-text);
+}
+
+.tab[data-nature="suiton"],
+.drawer[data-nature="suiton"] {
+  --nature-tint: var(--accent);
+  --nature-text: var(--accent-hover);
+}
+
+.tab[data-nature="doton"],
+.drawer[data-nature="doton"] {
+  --nature-tint: var(--gold);
+  --nature-text: var(--gold);
+}
+
+.tab[data-nature="raiton"],
+.drawer[data-nature="raiton"] {
+  --nature-tint: var(--kks-chidori);
+  --nature-text: var(--kks-chidori);
+}
+
+.tab[data-nature="yin"],
+.drawer[data-nature="yin"] {
+  --nature-tint: var(--kks-kamui);
+  --nature-text: var(--kks-kamui);
+}
+
+/* ── Sayfanın TEK yazılı hareketi: fişlerin yeniden dizilmesi ──
+   Bulanıktan nete, kademeli ve hafif eğik: elden bırakılmış kartların
+   yerine oturması. Çekmece değişince liste yeniden takıldığı için
+   (key={open.key}) her açılışta baştan koşar. */
+@media (prefers-reduced-motion: no-preference) {
+  .fiche {
+    animation: kksDeal 460ms var(--kks-ease-out) both;
+    animation-delay: calc(var(--i, 0) * 55ms);
+  }
+}
+
+@keyframes kksDeal {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 0.85rem, 0) rotate(-1.1deg);
+    filter: blur(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    filter: blur(0);
+  }
+}
+
+/* ============================================================
+   5 · KADER ÇİZELGESİ
+   Kronolojik kayıt defteri: solda dikey yaş rayı, ortada gövde,
+   sağda küçük kadraj. Laboratuvarın zikzağından bilerek farklı bir
+   ritim — burası düzenli, tek yönlü, defter gibi ilerliyor.
+   ============================================================ */
+.eraList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.era {
+  position: relative;
+  display: grid;
+  grid-template-columns: 3.25rem minmax(0, 1fr) minmax(0, 17rem);
+  gap: clamp(1rem, 2.5vw, 2rem);
+  padding: clamp(1.75rem, 3.5vw, 2.75rem) 0;
+  border-top: 1px solid var(--border);
+  transition: clip-path var(--kks-dur-slow) var(--kks-ease);
+}
+
+.era:first-child {
+  border-top: 0;
+}
+
+/* Ray: kesintisiz dikey çizgi + dönemin çentiği */
+.eraRail {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.eraRail::before {
+  content: "";
+  position: absolute;
+  top: 0.35rem;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  background: linear-gradient(
+    to bottom,
+    var(--border-strong),
+    color-mix(in srgb, var(--border-strong) 20%, transparent)
+  );
+}
+
+.eraRail::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  translate: -50% 0;
+  width: 0.5rem;
+  height: 0.5rem;
+  rotate: 45deg;
+  background: var(--kks-steel);
+  transition: background var(--kks-dur-slow) var(--kks-ease);
+}
+
+.eraAge {
+  position: relative;
+  margin-top: 1.5rem;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--kks-steel);
+  white-space: nowrap;
+}
+
+.eraBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  min-width: 0;
+}
+
+.eraTitle {
+  margin: 0;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-weight: 700;
+  font-size: clamp(1.375rem, 2.8vw, 2rem);
+  line-height: 1.12;
+  letter-spacing: -0.012em;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.eraText {
+  margin: 0;
+  max-width: 68ch;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 0.9375rem;
+  line-height: 1.75;
+  color: var(--text-secondary);
+}
+
+.eraQuote {
+  margin: 0.2rem 0 0;
+  padding-left: 1.1rem;
+  max-width: 60ch;
+  border-left: 1px solid var(--kks-steel);
+  font-family: var(--font-petrona), Georgia, serif;
+  font-weight: 500;
+  font-size: clamp(1rem, 1.6vw, 1.1875rem);
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+.eraQuote::before {
+  content: "\201C";
+}
+
+.eraQuote::after {
+  content: "\201D";
+}
+
+/* Dönemde adı geçenler — portreler kendi arşivimizden */
+.eraPeople {
+  list-style: none;
+  margin: 0.4rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+}
+
+.person {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.personFace {
+  position: relative;
+  flex: 0 0 auto;
+  display: block;
+  width: 2.6rem;
+  height: 2.6rem;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  background: var(--bg);
+}
+
+.personImg {
+  object-fit: cover;
+  object-position: center 12%;
+  filter: grayscale(0.6) contrast(1.05);
+  transition: filter var(--kks-dur) var(--kks-ease);
+}
+
+.person:hover .personImg {
+  filter: grayscale(0) contrast(1);
+}
+
+.personText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.personName {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+}
+
+.personRole {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.eraArt {
+  position: relative;
+  align-self: start;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--bg);
+}
+
+/* Kürator yuvası kadrajın İÇİNDE değil altında dursun: `CuratorSlot`
+   kendi kutusunu çiziyor, taşmasın diye kadraj sınırının dışına
+   konumlanıyor (yalnızca yönetici görür) */
+.eraArt > [data-curator-slot] {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 2;
+}
+
+.eraImg {
+  object-fit: cover;
+  filter: grayscale(0.5) brightness(0.85) contrast(1.04);
+  transition:
+    filter var(--kks-dur-slow) var(--kks-ease),
+    scale var(--kks-dur-slow) var(--kks-ease);
+}
+
+.era:hover .eraImg {
+  filter: grayscale(0.08) brightness(1) contrast(1);
+  scale: 1.03;
+}
+
+/* ANBU dönemi: kaydı tutulmayan yıllar — kadraj bilerek boş, içinde
+   yalnız maske duruyor */
+.era[data-era="anbu"] .eraArt {
+  border-style: dashed;
+}
+
+/* ============================================================
+   6 · KAPANIŞ — KIRILAN CÜMLE
+   İki replik aslında tek cümle: ilk yarısını 13 yaşındaki Kakashi,
+   ikinci yarısını Obito söyler. Tipografi bu kırılmayı gösteriyor —
+   ikinci yarı içeriden başlıyor ve kendi dikey çizgisini taşıyor.
+   ============================================================ */
+.closing {
+  padding-bottom: clamp(4rem, 9vw, 6.5rem);
+}
+
+.quotes {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.25rem, 3vw, 2.25rem);
+  max-width: 58rem;
+}
+
+.quote {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.quote blockquote {
+  margin: 0;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-weight: 700;
+  font-size: clamp(1.375rem, 3.4vw, 2.375rem);
+  line-height: 1.24;
+  letter-spacing: -0.012em;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.quote figcaption {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* İkinci yarı: cevabın kendisi — içeriden başlar, kendi çizgisini taşır */
+.quote[data-half="second"] {
+  padding-left: clamp(1rem, 6vw, 4rem);
+  border-left: 1px solid color-mix(in srgb, var(--kks-steel) 45%, transparent);
+  margin-left: clamp(0.5rem, 3vw, 2rem);
+}
+
+.quote[data-half="second"] blockquote {
+  color: var(--kks-steel);
+}
+
+.motto {
+  margin: clamp(1.5rem, 4vw, 3rem) 0 0;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(0.9375rem, 1.9vw, 1.3125rem);
+  letter-spacing: 0.28em;
+  line-height: 1.9;
+  color: var(--kks-steel);
+  overflow-wrap: anywhere;
+}
+
+.credit {
+  margin: clamp(1.5rem, 4vw, 2.5rem) 0 0;
+  max-width: 76ch;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  line-height: 1.85;
+  color: var(--text-muted);
+}
+
+.creditLink {
+  color: var(--accent);
+  text-underline-offset: 3px;
+}
+
+.creditLink:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ============================================================
+   KAMUI MODU
+   Kol sayfanın sağ kenarına yaslanmış dikey bir plaka — dolap kolu.
+   Mod açıldığında kenarlar merkeze doğru emiliyormuş gibi kırpılıyor
+   (clip-path) ve kartlar merkeze dönüyor (perspective + rotateY).
+   Titreşim, tarama çizgisi, kromatik sapma YOK: Kakashi sessiz.
+   ============================================================ */
+.kamuiPull {
+  position: fixed;
+  top: 50%;
+  right: 0;
+  translate: 0 -50%;
+  z-index: 80;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: var(--touch-min);
+  min-height: var(--touch-min);
+  padding: 1rem 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--kks-kamui) 45%, var(--border-strong));
+  border-right: 0;
+  border-radius: 0.5rem 0 0 0.5rem;
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: var(--text-secondary);
+  cursor: pointer;
+  box-shadow: -10px 0 30px -22px var(--kks-void);
+  transition:
+    color var(--kks-dur) var(--kks-ease),
+    border-color var(--kks-dur) var(--kks-ease),
+    background var(--kks-dur) var(--kks-ease);
+}
+
+.kamuiPull:hover {
+  color: var(--text-primary);
+  border-color: var(--kks-kamui);
+}
+
+.kamuiPull:focus-visible {
+  outline: 2px solid var(--kks-kamui);
+  outline-offset: 3px;
+}
+
+.kamuiPullText {
+  writing-mode: vertical-rl;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.kamuiPullMark {
+  width: 1.15rem;
+  height: 1.15rem;
+  color: var(--kks-kamui);
+  transition: rotate var(--kks-dur-slow) var(--kks-ease);
+}
+
+.page[data-kamui] .kamuiPull {
+  color: var(--text-primary);
+  border-color: var(--kks-kamui);
+  background: color-mix(in srgb, var(--kks-kamui) 14%, var(--bg));
+}
+
+.page[data-kamui] .kamuiPullMark {
+  rotate: 150deg;
+}
+
+/* Girdap örtüsü: kenarlardan merkeze çekilen boşluk */
+.kamuiVeil {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    radial-gradient(120% 90% at 50% 46%, transparent 38%, var(--kks-void) 100%),
+    radial-gradient(
+      52% 40% at 50% 46%,
+      color-mix(in srgb, var(--kks-kamui) 10%, transparent),
+      transparent 70%
+    );
+  transition: opacity var(--kks-dur-slow) var(--kks-ease);
+}
+
+.page[data-kamui] .kamuiVeil {
+  opacity: 1;
+}
+
+/* ── Modun geometrisi ── */
+.page[data-kamui] {
+  background: color-mix(in srgb, var(--kks-kamui) 7%, var(--bg));
+}
+
+.page[data-kamui] .heroVortex {
+  opacity: 1;
+}
+
+/* Köşeler merkeze doğru kesiliyor: kâğıdın kenarı emiliyor */
+.page[data-kamui] .labCard,
+.page[data-kamui] .minorCard,
+.page[data-kamui] .fiche,
+.page[data-kamui] .drawer,
+.page[data-kamui] .facts {
+  clip-path: polygon(
+    0 0.7rem,
+    0.7rem 0,
+    calc(100% - 0.7rem) 0,
+    100% 0.7rem,
+    100% calc(100% - 0.7rem),
+    calc(100% - 0.7rem) 100%,
+    0.7rem 100%,
+    0 calc(100% - 0.7rem)
+  );
+}
+
+/* Kartlar merkeze dönüyor: soldakiler sağa, sağdakiler sola */
+.page[data-kamui] .ficheGrid > *:nth-child(odd),
+.page[data-kamui] .minorRow > *:nth-child(odd) {
+  transform: perspective(1000px) rotateY(2.6deg);
+}
+
+.page[data-kamui] .ficheGrid > *:nth-child(even),
+.page[data-kamui] .minorRow > *:nth-child(even) {
+  transform: perspective(1000px) rotateY(-2.6deg);
+}
+
+.page[data-kamui] .ficheGrid {
+  transform: perspective(1400px) rotateX(3deg);
+}
+
+/* Palet mora kayıyor — ara tonların hepsi color-mix ile token'lardan */
+.page[data-kamui] .heroName,
+.page[data-kamui] .sectionTitle {
+  color: color-mix(in srgb, var(--kks-kamui) 42%, var(--text-primary));
+}
+
+.page[data-kamui] .identity::before,
+.page[data-kamui] .lab::before,
+.page[data-kamui] .index::before,
+.page[data-kamui] .timeline::before,
+.page[data-kamui] .closing::before,
+.page[data-kamui] .eraRail::after {
+  background: var(--kks-kamui);
+}
+
+.page[data-kamui] .labCard,
+.page[data-kamui] .minorCard,
+.page[data-kamui] .dossier,
+.page[data-kamui] .drawer,
+.page[data-kamui] .eraArt,
+.page[data-kamui] .personFace {
+  border-color: color-mix(in srgb, var(--kks-kamui) 40%, var(--border-strong));
+}
+
+/* Çekmecelerin kendi renkleri Kamui'de tek tona iniyor: girdap
+   ayrımları da yutuyor */
+.page[data-kamui] .drawer,
+.page[data-kamui] .tab {
+  --nature-tint: var(--kks-kamui);
+  --nature-text: var(--kks-kamui);
+}
+
+/* ============================================================
+   MOBİL — 360 pikselde taşma yok, ızgaralar tek sütuna iner
+   ============================================================ */
+@media (max-width: 1024px) {
+  .era {
+    grid-template-columns: 3rem minmax(0, 1fr);
+  }
+
+  .eraArt {
+    grid-column: 2;
+    max-width: 26rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .heroInner {
+    grid-template-columns: minmax(0, 15rem);
+    justify-content: start;
+  }
+
+  .heroName {
+    font-size: clamp(2.25rem, 10vw, 3.5rem);
+  }
+
+  .labCard,
+  .labCard:nth-child(even) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .labCard:nth-child(even) .labArt {
+    order: 0;
+  }
+
+  .minorRow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Kol aşağı iniyor: site geneli müzik şeridinin üstünde kalsın */
+  .kamuiPull {
+    top: auto;
+    bottom: calc(1rem + var(--music-bar, 0px));
+    right: 0.75rem;
+    translate: 0;
+    flex-direction: row;
+    border-right: 1px solid
+      color-mix(in srgb, var(--kks-kamui) 45%, var(--border-strong));
+    border-radius: 0.5rem;
+    padding: 0.55rem 0.9rem;
+  }
+
+  .page[data-kamui] .kamuiPull {
+    border-color: var(--kks-kamui);
+  }
+
+  .kamuiPullText {
+    writing-mode: horizontal-tb;
+  }
+}
+
+@media (max-width: 620px) {
+  .heroWatermark {
+    font-size: clamp(1.75rem, 11vw, 2.75rem);
+    opacity: 0.75;
+  }
+
+  .heroInner {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dossier {
+    max-width: 17rem;
+  }
+
+  /* Ray yatay: dar ekranda dikey yaş etiketi satırı gereksiz uzatıyordu */
+  .era {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.9rem;
+  }
+
+  .eraRail {
+    justify-content: flex-start;
+  }
+
+  .eraRail::before {
+    display: none;
+  }
+
+  .eraRail::after {
+    left: 0;
+    translate: 0 0;
+  }
+
+  .eraAge {
+    margin-top: 0;
+    margin-left: 1rem;
+    writing-mode: horizontal-tb;
+  }
+
+  .eraArt {
+    grid-column: 1;
+    max-width: none;
+  }
+
+  .facts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .minorRow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ficheGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tab {
+    flex: 1 1 7rem;
+  }
+
+  .quote[data-half="second"] {
+    margin-left: 0;
+  }
+}
+
+/* ============================================================
+   REDUCED-MOTION BATTANİYESİ — ev deseni (çift katman):
+   yukarıdaki animasyonlar zaten no-preference kapısında; burada
+   kalan geçişler de tamamen kapanır.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Zorunlu renk kipinde dekoratif katmanlar susar */
+@media (forced-colors: active) {
+  .kamuiVeil,
+  .heroBand {
+    display: none;
+  }
+
+  .fiche,
+  .labCard,
+  .minorCard,
+  .tab,
+  .drawer {
+    border: 1px solid;
+  }
+}

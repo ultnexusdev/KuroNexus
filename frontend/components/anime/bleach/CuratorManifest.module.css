@@ -1,0 +1,198 @@
+/* ============================================================
+   BLEACH EVRENI · EKSIK GORSELLER PANELI
+
+   Yalnizca yoneticinin DOM'unda. Kurator anahtari kapaliyken de
+   gorunuyor (panelin kendisi `[data-curator-slot]` DEGIL) — cunku
+   "ne eksik" sorusu duzenleme moduna girmeden de sorulan bir soru.
+   Icindeki duzenleyiciler ise yuvalarla ayni kurala tabi.
+
+   ⚠️ KURAL 16: tek hex yok.
+   ============================================================ */
+
+.panel {
+  margin-block-start: var(--an-band, 5rem);
+  padding: var(--pad-xl) var(--pad-lg);
+  border-top: 0.5px solid var(--border-strong);
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+}
+
+.head {
+  max-width: 68ch;
+  margin-bottom: var(--pad-xl);
+}
+
+.title {
+  margin: 0 0 var(--gap-sm);
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.meter {
+  margin: 0 0 var(--gap-sm);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--accent);
+}
+
+.note {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.group {
+  margin-bottom: var(--pad-xl);
+}
+
+.groupTitle {
+  display: flex;
+  align-items: baseline;
+  gap: var(--gap-md);
+  margin: 0 0 var(--gap-lg);
+  padding-bottom: var(--gap-xs);
+  border-bottom: 0.5px solid var(--border);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+}
+
+.groupMeter {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+.list {
+  display: grid;
+  /* Kart genisligi icerige gore: 280px altinda kadraj notu okunmuyor */
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--gap-lg);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xs);
+  padding: var(--pad-md);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--bg);
+}
+
+.itemHead {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  margin: 0;
+}
+
+/* Bos / dolu ayrimi tek bakista: yanip sonmeyen sabit bir isaret.
+   Renk TEK basina tasiyici degil — yanindaki durum etiketi de yazili
+   (renk korlugu icin gerekli). */
+.dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+}
+
+.item[data-filled] .dot {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.itemLabel {
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.itemState {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+.item[data-filled] .itemState {
+  color: var(--accent);
+}
+
+.itemMeta {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+}
+
+.itemHint {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.itemFoot {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  margin: var(--gap-xs) 0 0;
+}
+
+.jump {
+  min-height: var(--touch-min);
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.74rem;
+  color: var(--accent);
+}
+
+.itemId {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+/* Duzenleyici satirin icinde. Kalem mutlak konumlu ve bu kap gorece
+   konumlu olmali ki karta yapissin. */
+.editor {
+  position: relative;
+  display: block;
+  min-height: 30px;
+}
+
+.orphans {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+  margin: var(--gap-lg) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.orphans li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-sm);
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+.orphans code {
+  font-family: var(--font-mono);
+  color: var(--warn);
+}

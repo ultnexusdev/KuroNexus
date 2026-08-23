@@ -1,4 +1,5 @@
 import { apiFetch, apiFetchUrl, ApiError } from "../api/client";
+import type { CuratedImageRecord } from "../api/curated-images";
 import type {
   AdminWikiEntrySummary,
   AmbientTrack,
@@ -1651,6 +1652,47 @@ export function setFavouritePlayerImage(input: {
   url: string;
 }): Promise<{ playerSlug: string; slotId: string; url: string | null }> {
   return apiFetch("/admin/sport-archive/player-image", {
+    method: "PATCH",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(input),
+  });
+}
+
+// ---- Küratör görsel yuvaları (yüzey bazlı) ----
+
+/**
+ * Bir yuvanın herhangi bir alanını yaz.
+ *
+ * ── KISMİ GÜNCELLEME: `undefined` ≠ boş dize ─────────────────────────────
+ * Panel beş sekmeli (görsel, odak, kadraj, metin, görünüm) ve her sekme
+ * YALNIZCA kendi alanlarını gönderiyor. Gönderilmeyen alan sunucuda
+ * DEĞİŞMEDEN kalıyor; boş dize göndermek ise "temizle" demek. Bu ayrım
+ * olmasaydı odak sekmesini kaydetmek alt metni sessizce silerdi.
+ *
+ * `reset: true` yuvayı tümden sıfırlar (satır soft-delete). `url: ""` ondan
+ * farklı: görseli kaldırır ama oran/işlem biçimi gibi ayarları bırakır.
+ */
+export interface SetCuratedImageInput {
+  surface: string;
+  slotId: string;
+  url?: string;
+  position?: string;
+  scale?: number;
+  ratio?: string;
+  altTr?: string;
+  altEn?: string;
+  credit?: string;
+  treatment?: string;
+  opacity?: number;
+  blend?: string;
+  isHidden?: boolean;
+  reset?: boolean;
+}
+
+export function setCuratedImage(
+  input: SetCuratedImageInput,
+): Promise<CuratedImageRecord> {
+  return apiFetch("/admin/curated-images", {
     method: "PATCH",
     headers: { "content-type": "application/json" },
     body: JSON.stringify(input),

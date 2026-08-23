@@ -1,0 +1,375 @@
+/* ============================================================
+   BLEACH EVRENI · YUVA DUZENLEYICISI
+
+   Panel `document.body`ye portal ediliyor, o yuzden bu dosyadaki
+   `.panel` ve alti hicbir yuvanin `overflow`/`clip-path` baglaminda
+   degil. Kalem dugmesi ve onizleme katmani ise yuvanin ICINDE.
+
+   ⚠️ KURAL 16: tek hex yok.
+   ============================================================ */
+
+/* ── ONIZLEME ────────────────────────────────────────────────
+   Kaydedilen kare, sunucu bileseni yeniden cizilene kadar burada
+   duruyor. `pointer-events: none` — altindaki icerik tiklanabilir
+   kaliyor, yani onizleme sayfayi kilitlemiyor. */
+.preview {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background-size: cover;
+  background-repeat: no-repeat;
+  outline: 1px solid var(--accent-muted);
+  outline-offset: -1px;
+}
+
+/* ── KALEM ───────────────────────────────────────────────────
+   Yuvanin sag ust kosesinde. `.frame` tasmaya izin verdigi icin
+   kucuk yuvalarda disari cikabiliyor. */
+.pencil {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 60%;
+  min-height: 24px;
+  padding: 2px 7px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* Dolu yuva ile bos yuva bir bakista ayirt edilsin */
+.pencil[data-filled] {
+  border-color: var(--accent-muted);
+  color: var(--accent);
+}
+
+.pencil:hover,
+.pencil:focus-visible {
+  background: var(--surface-hover);
+  color: var(--accent);
+}
+
+.pencil svg {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+
+.pencil span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── PANEL ───────────────────────────────────────────────────
+   `position: fixed` — portal `body`de ve konum JS'ten geliyor
+   (gorunur alanin disina tasmasin diye kelepceleniyor). */
+.panel {
+  position: fixed;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+  padding: var(--pad-md);
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  box-shadow: 0 18px 44px color-mix(in srgb, #000 55%, transparent);
+  font-size: 0.8rem;
+  color: var(--text-primary);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-sm);
+}
+
+.headLabel {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.head button {
+  min-width: var(--touch-min);
+  min-height: 28px;
+  border: 0;
+  background: none;
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.hint {
+  margin: 0;
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+/* ── SEKMELER ────────────────────────────────────────────────
+   Bes is, bes sekme. Tek panelde toplandi cunku hepsi AYNI satiri
+   yaziyor; sekme basina ayri uc acmak bes DTO ve bes kez tekrarlanan
+   yetki kontrolu demekti. */
+.tabs {
+  display: flex;
+  gap: 2px;
+  padding-bottom: var(--gap-xs);
+  border-bottom: 0.5px solid var(--border);
+}
+
+.tab {
+  flex: 1;
+  min-height: 26px;
+  padding: 0 4px;
+  border: 0;
+  border-radius: var(--radius);
+  background: none;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.66rem;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+.tab[data-on] {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+  /* En uzun sekme (gorunum) panelin altindan tasmasin */
+  max-height: 46vh;
+  overflow-y: auto;
+}
+
+.foot {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  min-height: 20px;
+}
+
+/* ── ALANLAR ─────────────────────────────────────────────────── */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field > span,
+.label {
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+}
+
+.field input[type="text"],
+.field input[type="url"],
+.field select {
+  min-height: 30px;
+  width: 100%;
+  min-width: 0;
+  padding: 0 8px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.76rem;
+}
+
+.field input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.row input {
+  flex: 1;
+  min-width: 0;
+}
+
+.row button,
+.primary,
+.ghost {
+  min-height: 30px;
+  padding: 0 10px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface-hover);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.74rem;
+  cursor: pointer;
+}
+
+.primary {
+  border-color: var(--accent-muted);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--accent);
+}
+
+.ghost {
+  background: none;
+  color: var(--text-secondary);
+}
+
+.row button:disabled,
+.primary:disabled,
+.ghost:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.note {
+  margin: 0;
+  font-size: 0.68rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+/* ── ODAK KUTUSU ─────────────────────────────────────────────
+   Surukle-birak arti imleci. Klavye de calisiyor: arti bir <button>
+   ve ok tuslari %1, Shift+ok %10 kaydiriyor. */
+.focusBox {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  background-size: cover;
+  background-position: center;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.crosshair {
+  position: absolute;
+  width: var(--touch-min);
+  height: var(--touch-min);
+  margin: calc(var(--touch-min) / -2) 0 0 calc(var(--touch-min) / -2);
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: grab;
+}
+
+/* Arti isareti: iki cizgi, ortada halka. Kendi golgesi var cunku
+   hem acik hem koyu fotografin uzerinde okunmasi gerekiyor. */
+.crosshair::before,
+.crosshair::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  background: var(--hub-paper, #fff);
+  box-shadow: 0 0 0 1px color-mix(in srgb, #000 65%, transparent);
+}
+
+.crosshair::before {
+  width: 2px;
+  height: 22px;
+  transform: translate(-50%, -50%);
+}
+
+.crosshair::after {
+  width: 22px;
+  height: 2px;
+  transform: translate(-50%, -50%);
+}
+
+.crosshair:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 50%;
+}
+
+/* ── CIPLER (oran ve islem bicimi) ───────────────────────────── */
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 26px;
+  padding: 0 8px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: none;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+
+.chip[data-on] {
+  border-color: var(--accent-muted);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+}
+
+.chipTag {
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+/* ── DURUM ───────────────────────────────────────────────────── */
+
+.busy {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.error {
+  font-size: 0.7rem;
+  color: var(--warn);
+}
+
+/* On saniyelik teklif. Kalici bir geri alma yigini yok: her kayit
+   zaten veritabaninda ve ayni yuva yeniden duzenlenebiliyor. */
+.undo {
+  margin-left: auto;
+  min-height: 26px;
+  padding: 0 10px;
+  border: 0.5px solid var(--accent-muted);
+  border-radius: var(--radius);
+  background: none;
+  color: var(--accent);
+  font-family: inherit;
+  font-size: 0.72rem;
+  cursor: pointer;
+}

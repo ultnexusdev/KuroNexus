@@ -1,0 +1,222 @@
+/* ============================================================
+   BLEACH EVRENI · TEK GORSEL YUVASI
+
+   Iki katman, bilincli olarak ayri:
+     .frame  → tasmaya IZIN VERIR. Kurator kalemi ve paneli kucuk
+               yuvalarda (maske 64px, arma 72px) kesilmesin diye.
+     .clip   → kirpma YALNIZCA burada. Gorselin kendisi kirpiliyor,
+               yani hicbir duzen bozulmuyor.
+
+   Ayrimin gerekcesi olculmus: futbol kanadinda panel `.frame` icinde
+   duruyordu ve 36 piksellik arma yuvasinda adres kutusu gorunmuyordu
+   (kullanici bildirimi, 20 Agustos 2026).
+
+   ⚠️ KURAL 16: tek hex yok. Bleach dunya paletleri (--world-*) P-TOKENS
+   turunda globals.css'e gelecek; bugun var() yedekleri ev token'larina
+   dusuyor, yani yuva paletler gelmeden de dogru cizilyor.
+   ============================================================ */
+
+.frame {
+  position: relative;
+  display: block;
+  /* Karisim kipleri (mix-blend-mode) yuvanin DISINA tasmasin */
+  isolation: isolate;
+}
+
+.clip {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  /* Oran yuvadan geliyor (`--slot-ratio: 16 / 9`). Boyut once bilindigi
+     icin CLS 0: gorsel inerken satir ziplamiyor. */
+  aspect-ratio: var(--slot-ratio, 16 / 9);
+  background: color-mix(in srgb, var(--bg) 88%, #000);
+}
+
+.clip img {
+  object-fit: cover;
+}
+
+/* ── ISLEM BICIMLERI ─────────────────────────────────────────
+   `photo` varsayilan ve filtre uygulamiyor. Digerleri kaydin
+   `treatment` alanindan geliyor; renkler dunyanin paletinden. */
+
+/* Siluet: sekil kaliyor, kimlik gidiyor. Seffaf zeminli PNG/WebP
+   bekleniyor — yuva ipucunda yazili. */
+.clip[data-treatment="silhouette"] img {
+  filter: grayscale(1) contrast(2.2) brightness(0);
+}
+
+/* Duotone: once renk sokuluyor, sonra dunyanin iki tonu `color`
+   karisimiyla geri basiliyor. Tek `filter` zincirinin yapabilecegi
+   bir sey degil, o yuzden ustte bir katman var. */
+.clip[data-treatment="duotone"] img {
+  filter: grayscale(1) contrast(1.15);
+}
+
+.clip[data-treatment="duotone"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    var(--world-glow, var(--accent-muted)),
+    var(--world-accent, var(--accent))
+  );
+  mix-blend-mode: color;
+}
+
+/* ── ZIYARETCININ GORDUGU BOSLUK ─────────────────────────────
+   Yazisiz, tasarlanmis. Katmanlarin tamami saf CSS: hicbir dosya
+   inmiyor, hicbir istek gitmiyor. Fotograf gelince yerini sessizce
+   ona birakiyor.
+
+   Futbol kanadindaki `.veil` karari, ayni gerekce: yirmi iki futbolcu
+   sayfasi fotografsiz yayina girdi ve hicbiri "eksik" gorunmedi. */
+.veil {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      120% 90% at 50% 15%,
+      color-mix(in srgb, var(--world-glow, var(--accent)) 14%, transparent),
+      transparent 70%
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--bg) 70%, #000),
+      color-mix(in srgb, var(--bg) 95%, #000)
+    );
+}
+
+.glow {
+  position: absolute;
+  inset-inline: -20%;
+  bottom: -40%;
+  height: 80%;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--world-accent, var(--accent)) 18%, transparent),
+    transparent
+  );
+  pointer-events: none;
+}
+
+/* Uretilmis SVG gurultusu — dosya yok, dis istek yok, CSP dostu.
+   Kanat kabugundaki dokunun kardesi, ayni gerekceyle: zemin
+   "boyanmis" degil "basilmis" hissetsin. */
+.grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.06;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+
+/* Bolume ozel siluet (SVG) — `fallback` prop'uyla geliyor */
+.mark {
+  position: relative;
+  display: block;
+  width: min(62%, 320px);
+  color: var(--world-paper, var(--text-secondary));
+  opacity: 0.22;
+}
+
+.mark svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Tipografik yedek: bosluk tasarimin kendisi. Dev kanji, cok dusuk
+   opaklik — Kubo'nun negatif alan estetigi. */
+.glyph {
+  position: relative;
+  font-family: var(--font-brush), var(--font-serif), serif;
+  font-size: clamp(3rem, 22cqi, 9rem);
+  line-height: 1;
+  color: var(--world-paper, var(--text-primary));
+  opacity: 0.12;
+  user-select: none;
+}
+
+/* `cqi` birimi icin: yuva kendi kap sorgusu olsun */
+.clip {
+  container-type: inline-size;
+}
+
+/* ── KURATORUN GORDUGU ISKELE ────────────────────────────────
+   Kadraj notu, onerilen boyut, oran ve yuva kimligi. YALNIZCA
+   yoneticinin DOM'unda; anahtar kapaliyken CuratorFrame gizliyor.
+
+   Ayrim `data-curating` uzerinden, yani kurator modu KAPALIYKEN admin
+   de ziyaretcinin gordugunu goruyor — sayfanin gercek halini
+   denetleyebilmesi icin bu dogru olan. */
+.holder {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--gap-sm);
+  padding: var(--pad-md);
+  text-align: center;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  outline: 1px dashed var(--border-strong);
+  outline-offset: -4px;
+}
+
+.holderMeta {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+}
+
+.holderHint {
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  /* Kucuk yuvalarda not tasmasin: iki satirdan sonra kesiliyor,
+     tamami zaten kurator panelinde ve manifestoda duruyor. */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.holderId {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+/* Cok kucuk yuvalarda (maske, arma) not ve kimlik sigmiyor: yalnizca
+   olcu kaliyor. Kap sorgusu, medya sorgusu DEGIL — belirleyici olan
+   ekran genisligi degil yuvanin kendi genisligi. */
+@container (max-width: 220px) {
+  .holderHint,
+  .holderId {
+    display: none;
+  }
+}
+
+/* ── KUNYE ───────────────────────────────────────────────────
+   Kaynagin adi bir ozel ad: cevrilmiyor, kayittan aynen basiliyor. */
+.credit {
+  display: block;
+  margin-top: var(--gap-xs);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}

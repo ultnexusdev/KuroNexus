@@ -1,0 +1,67 @@
+/* ============================================================
+   /anime/bleach — INSA ISKELETI
+
+   ⚠️ BU DOSYA GECICI. Sayfanin gorsel dili (bes dunya paleti, derinlik
+   rayi, Senkaimon gecisi, Jost/Shippori tipografisi) tasarim sistemi
+   turunda kuruluyor. Buradaki her sey kanat kabugunun mevcut olcegini
+   kullaniyor; yeni bir gorsel karar VERILMIYOR — bolum promptlarinin
+   isini simdiden baglamamak icin.
+
+   ⚠️ KURAL 16: tek hex yok.
+   ============================================================ */
+
+.page {
+  flex: 1;
+  width: min(1400px, 100% - 2 * var(--an-gutter));
+  margin-inline: auto;
+  padding-block: var(--pad-lg) var(--an-band);
+}
+
+.opening {
+  max-width: var(--an-measure);
+  padding-block: var(--an-band) var(--pad-xl);
+}
+
+.note {
+  max-width: 68ch;
+  margin: var(--gap-lg) 0 0;
+  font-size: 0.86rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+
+.trial {
+  padding-block: var(--pad-xl);
+  border-top: 0.5px solid var(--border);
+}
+
+.trialTitle {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.trialGrid {
+  display: grid;
+  gap: var(--gap-xl);
+  margin-top: var(--pad-xl);
+  grid-template-columns: 1fr;
+}
+
+/* Tek sutundan uc sutuna: 900px alti tek, ustu 1fr 2fr 1fr.
+   Genis kadraj ortada duruyor ki uc farkli oran yan yana okunabilsin. */
+@media (min-width: 900px) {
+  .trialGrid {
+    grid-template-columns: 1fr 2fr 1fr;
+    align-items: start;
+  }
+}
+
+.trialTall,
+.trialWide {
+  display: block;
+  width: 100%;
+}

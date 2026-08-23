@@ -1493,9 +1493,9 @@
       "scaffold": {
         "title": "BLEACH EVRENİ",
         "lede": "Her ruh bir gölge bırakır. Her kılıcın bir adı vardır.",
-        "note": "Hero ve beş katman yerinde. On üç kapı, Zanpakutō arşivi, Bankai salonu ve kalan bölümler sırayla geliyor.",
+        "note": "Hero, beş katman, on üç kapı, Zanpakutō arşivi, Bankai salonu ve ruh hiyerarşisi yerinde. Kalan bölümler sırayla geliyor.",
         "playgroundLink": "Tasarım sistemi denemesini aç →",
-        "pendingSections": "P03 · GOTEI 13 — YAPIM AŞAMASINDA"
+        "pendingSections": "P07 · HUECO MUNDO — YAPIM AŞAMASINDA"
       },
       "world": {
         "railAria": "Ruhsal katmanlar",
@@ -1509,7 +1509,7 @@
         "playgroundTitle": "Tasarım sistemi denemesi",
         "playgroundNote": "Bu rota içerik taşımıyor: beş dünya paletini, derinlik rayını ve Senkaimon geçişini bir arada sınıyor. Bölümler ayrı turda geliyor.",
         "scaleTitle": "Tipografi ölçeği",
-        "moreComing": "GOTEI 13 · ZANPAKUTŌ ARŞİVİ · ESPADA — SIRADA"
+        "moreComing": "HUECO MUNDO · ESPADA · WANDENREICH — SIRADA"
       },
       "hero": {
         "eyebrow": "EVERY SOUL LEAVES A SHADOW",
@@ -1568,6 +1568,12 @@
         "corridorAria": "Bankai koridoru",
         "advance": "İlerle",
         "reveal": "Nişi aydınlat"
+      },
+      "hierarchy": {
+        "eyebrow": "THE SOUL HIERARCHY",
+        "title": "Ruh Hiyerarşisi",
+        "lede": "Ruh dünyasında güç yatay dağılmaz, dikey dizilir. Tepede kimsenin dokunamadığı bir mühür var; dipte seksen numaralı bölge. Aradaki her kat bir üstüne hesap veriyor — aşağı in.",
+        "descentAria": "Ruh hiyerarşisi, tepeden dibe"
       }
     }
   },

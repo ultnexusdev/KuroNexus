@@ -7,8 +7,11 @@
 
 ## ⌂ DEVİR — SIRADAKİ OTURUM BURADAN BAŞLASIN (23 Ağustos 2026)
 
-**Durum:** Küratör altyapısı + P-TOKENS + **P01–P05 canlıda.**
-**Sıradaki:** **P06 · Ruh Hiyerarşisi.** Brief'in kendi metni ana kaynak.
+**Durum:** Küratör altyapısı + P-TOKENS + **P01–P06 canlıda.**
+**Sıradaki:** **P07 · Hueco Mundo + Hollow Evrimi.** Brief'in kendi metni
+ana kaynak. ⚠️ P07 sayfanın **ilk açık paleti** — `[data-layer="hueco-mundo"]`
+zaten `globals.css`te dolu ve kontrastı ölçülü; negatif temayı yeniden
+icat etme, orada duranı kullan.
 
 ### Yerleşik konvansiyonlar — bunları yeniden keşfetme
 
@@ -38,6 +41,10 @@
    sahibine yönleniyor, sayfa HTML'i 403 veriyor. Emin olmadığını
    **uydurma**, `null` bırak; arayüz "kayıt yok" çiziyor.
 5. **`prefers-reduced-motion` her bölümde ayrıca ele alınıyor.**
+5b. **Konum göstergesini içerik yüksekliği varsayımıyla kurma.** P06'da ray
+   önceden hesaplanmış yüzdelere oturtulmuştu; içerik taştığı için üçüncü
+   kattan sonra bir durak kayıyordu. Doğru yol: göstergeyi **yapıya** bağla
+   (`position: sticky` + öğenin kendi içinde duran durak), hesaba değil.
 6. **Deploy:** Consistent Container Names AÇIK, rolling update yok, ~14 sn.
    Sorun çıkarsa `docs/deploy-duzeni.md` §8–§10.
 
@@ -989,7 +996,81 @@ düzenlenebiliyor.
 %8, ışık düşünce %70 olmalı. Sabit bir değer iç içe opaklıklarla çarpılıp
 hesaplanamaz hâle gelirdi.
 
-### 8.12 Sırada
+### 8.12 P06 — RUH HİYERARŞİSİ (23 Ağustos 2026) ✅
+
+**TEZ.** Bir liste değil, **yukarıdan aşağı bir iniş**: 霊王 → 零番隊 →
+中央四十六 → 護廷十三隊 → 隠密機動 → 鬼道衆 → 真央霊術院 → 流魂街.
+Aşağı indikçe görsel kalite **bilinçli olarak bozuluyor** — tepede kusursuz
+hiza, bol boşluk ve fısıltı gibi bir tipografi; dipte sıkışık aralık, kaymış
+hiza, kaba bir aile ve kirli bir doku. Eşitsizlik metinle söylenmiyor,
+tipografiyle gösteriliyor (brief'in kendi talimatı).
+
+Bütün bozulma tek bir sayıdan açılıyor: `--decay` (0 tepe, 1 dip). Kaydın
+kendi **sesi** de veride: `voice: "fine" | "plain" | "coarse"` → Jost 200 /
+Jost 300 / Inter 700. Hangi katın ince, hangisinin kaba konuştuğu bir CSS
+indeksinden değil kayıttan geliyor.
+
+**DERİ KATIN İÇİNDE DEĞİŞİYOR.** Bölüm `data-layer="royal"` ile açılıyor;
+Central 46'dan itibaren her `<li>` `data-layer="soul-society"` taşıyor.
+Aksan kemik beyazından haori kızılına döndüğü an, iktidarın el değiştirdiği
+yer. Ölçüldü: ilk iki kat `rgb(6,6,10)`, kalan altısı `rgb(11,11,13)`.
+
+⚠️ **RAY HESAPLA KURULDU, TUTMADI — YENİDEN YAZILDI.** İlk kurulumda kat
+başına `svh` cinsinden pay veriliyor, kümülatif yüzdeler çıkarılıyor ve
+duraklar yapışkan rayda o yüzdelere oturuyordu. Matematik doğruydu ama
+**varsayım yanlıştı**: katın gerçek yüksekliği içeriğe bağlı (Royal Guard
+beş kayıt taşıyor, Rukongai dört) ve `min-height` çoğu katta bağlayıcı
+olmuyor. Ölçüm: beklenen `414/370/327/…`, gerçek `487/682/368/…` →
+**üçüncü kattan sonra ray bir durak ileri kayıyordu.**
+
+Yeni kurulum hiçbir şey hesaplamıyor:
+- **Durak katın kendi içinde** (mutlak konumlu, rayın çizgisine oturuyor).
+  Kat nereye düşerse durak da oraya düşüyor.
+- **Kayan işaret düz `position: sticky; top: 50svh`** — ekranın ortasına
+  çakılı, duraklar önünden geçiyor. Kaydırmaya bağlı zaman çizelgesi
+  gerektirmiyor, Firefox'ta da çalışıyor.
+- Kat sola kayarken durağın çizgide kalması için tek bir `--drift`
+  değişkeni hem `margin-inline-start`'ta hem durağın `left`inde kullanılıyor
+  (sekiz durağın hepsi ölçüldü: aynı 116.0px'te).
+
+**DERS:** Ekranda konum gösteren bir şeyi **içerik yüksekliğine dair bir
+varsayımla** kurma. Yapıyla doğru olan, hesapla doğru olandan üstün.
+
+**`@property --hier-lit`** — "şu an bu kattasın" anahtarı. Kat başına tek
+bir `animation-timeline: view()` animasyonu bu sayıyı 0→1 sürüyor; durak,
+durak kanjisi ve bağlantı çizgisi üçü de onu okuyor. Üç ayrı animasyon
+yazılsaydı birbirinden kayabilirlerdi. Desteklenmeyen tarayıcıda başlangıç
+değeri 0'da kalıyor (`var(--hier-lit, 0)` yazımı `@property` desteği
+olmayanı da kapsıyor) — her şey sönük ama görünür.
+
+⚠️ **CANON YİNE ÜÇ HATA YAKALADI** (`api.php?action=parse&prop=wikitext`):
+1. Junrinan kuzey değil **batı** Rukongai 1. bölge (Hitsugaya, Hinamori).
+2. Central 46 → **中央四十六**; brief'in yazdığı 中央四十六**室** külliyenin
+   adı, kurumun değil.
+3. Royal Guard'ın resmî adı **王属特務** (Ōzokutokumu); 零番隊 ikinci ad.
+
+Central 46'nın kırk bilgesi ve altı yargıcı canon'da **hiç adlandırılmadı**
+→ `figures: []` ve arayüz o satırı hiç çizmiyor. Kidō Birliği'nin
+Tessai'den sonraki komutası bilinmiyor ve künye bunu açıkça yazıyor.
+
+⚠️ **BRIEF'TEN TEK SAPMA.** Brief Ruh Kralı katı için "opacity .35 —
+dokunulmazlık" diyor. Değer yalnızca **kanjiye ve durak noktasına**
+uygulandı; katın açıklaması tam kontrastta bırakıldı. Aksi hâlde brief'in
+kendi kalite tabanı ("hiçbir içerik erişilemez hâle gelmez") çiğnenirdi.
+
+**GÖRSEL YOK, BİLEREK.** Bölümün argümanı tipografik; bir portre onu
+hiyerarşi olmaktan çıkarıp kadro listesine indirgerdi.
+
+**SIFIR JS.** Sunucu bileşeni, sarmalayıcı gerekmedi (`WorldLayers` gibi).
+Rota paketi 20.5 kB → 20.4 kB.
+
+**900px altı:** ray kalkıyor, düz dikey akış, `--decay` gradyanı duruyor.
+360px'te yatay taşma yok (ölçüldü).
+
+`READY_SECTIONS` defterine `zanpakuto`, `bankai` ve `hierarchy` eklendi;
+Reiōkyū katmanı artık `#hierarchy`ye kapı açıyor.
+
+### 8.13 Sırada
 
 `/anime/bleach` iskelet olarak duruyor ve **hiçbir yerden linkli değil**
 (`robots: noindex`). Sıradaki tur **P-TOKENS**: beş dünya paleti, derinlik

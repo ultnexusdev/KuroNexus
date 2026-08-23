@@ -55,6 +55,14 @@ export interface WorldRecord {
 export const READY_SECTIONS = new Set<string>([
   /* P03 · Gotei 13 — 23 Ağustos 2026 */
   "gotei",
+  /* P04 · Zanpakutō arşivi, P05 · Bankai salonu — 23 Ağustos 2026.
+     Bugün hiçbir katman bunlara kapı açmıyor ama defter "sayfada
+     gerçekten bulunan bölümler" defteri; eksik tutmak onu yalancı
+     yapardı. `SoulHierarchy` de aynı listeye soruyor. */
+  "zanpakuto",
+  "bankai",
+  /* P06 · Ruh hiyerarşisi — 23 Ağustos 2026 */
+  "hierarchy",
 ]);
 
 export const BLEACH_WORLDS: readonly WorldRecord[] = [
@@ -132,6 +140,12 @@ export const BLEACH_WORLDS: readonly WorldRecord[] = [
       { kanji: "零番隊", name: { tr: "Sıfırıncı Bölük", en: "Zero Division" } },
       { kanji: "霊王鍵", name: { tr: "Ōken", en: "Ōken" } },
     ],
+    /* İniş buradan başlıyor: hiyerarşi sütununun tepesi Reiōkyū'dur ve
+       kullanıcı oradan Rukongai'ye kadar düşüyor (P06). */
+    enter: {
+      anchor: "#hierarchy",
+      label: { tr: "İktidar sütununa in", en: "Descend the column of power" },
+    },
   },
   {
     id: "wandenreich",

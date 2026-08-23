@@ -1,0 +1,503 @@
+/* ============================================================
+   P06 · RUH HIYERARSISI
+
+   Bir liste degil, YUKARIDAN ASAGI BIR INIS. Bolumun tezi tek cumle:
+   asagi indikce gorsel kalite BILINCLI OLARAK bozulur. Esitsizlik
+   metinle soylenmiyor, tipografiyle gosteriliyor.
+
+   Butun bozulma tek bir sayidan turuyor: `--decay` (0 = tepe, kusursuz;
+   1 = dip, bozuk). Bilesen onu satir ici yaziyor, burada BOSLUK,
+   HIZALAMA, HARF ARALIGI, CIZGI ve DOKU olarak aciliyor.
+
+   ⚠️ KURAL 16: tek hex yok. Katin derisi `data-layer` ile geliyor --
+   ilk iki kat Reiokyu (aksan kemik beyazi), gerisi Seireitei (aksan
+   haori kizili). Aksanin donduugu yer, iktidarin el degistirdigi yer.
+
+   ⚠️ BU DOSYADA `overflow: hidden` YOK ve OLMAYACAK. Ray `position:
+   sticky` ve ustundeki herhangi bir tasma kirpmasi onu kaydirma
+   kabina cevirip yapiskanligi oldururdu.
+   ============================================================ */
+
+.section {
+  position: relative;
+  isolation: isolate;
+  padding-block: clamp(4rem, 12vh, 9rem) clamp(4rem, 10vh, 7rem);
+  background: var(--bg);
+  color: var(--text-primary);
+  /* Yalnizca RENK animasyonu -- katman gecisinde CLS = 0 (sayfa koku
+     ve `WorldSection` ile ayni deger). */
+  transition: background-color 600ms ease-in-out, color 600ms ease-in-out;
+}
+
+.head {
+  width: var(--band);
+  margin-inline: auto;
+  padding-inline-end: var(--rail);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(0.6rem, 1.6vw, 1.1rem);
+  margin-bottom: clamp(2.5rem, 8vh, 5rem);
+}
+
+.head p {
+  margin: 0;
+}
+
+.lede {
+  max-width: calc(var(--measure) / 1.4);
+}
+
+/* ── ISIK ANAHTARI ───────────────────────────────────────────
+   `--hier-lit`: o an okunan kat 1, digerleri 0. Kayit basina TEK bir
+   kaydirma animasyonu bunu suruyor; durak, durak kanjisi ve baglanti
+   cizgisi hepsi ondan besleniyor. Ayri ayri animasyon yazilsaydi ucu
+   birbirinden kayabilirdi.
+
+   Desteklenmeyen tarayicida baslangic degeri 0'da kaliyor: her sey
+   sonuk ama gorunur durumda: icerik hicbir sekilde etkilenmiyor. */
+@property --hier-lit {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+/* ── SUTUN ───────────────────────────────────────────────────
+   Ray + katlar. Ray HICBIR SEY HESAPLAMIYOR: duraklar katlarin kendi
+   icinde (asagida), kayan isaret duz `position: sticky`. Onceki kurulum
+   duraklari onceden hesaplanmis yuzdelere oturtuyordu ve katlarin
+   gercek yuksekligi icerige bagli oldugu icin ucuncu kattan sonra bir
+   durak ileri kayiyordu (olculdu, 23 Agustos 2026).
+   ------------------------------------------------------------ */
+.column {
+  position: relative;
+  width: var(--band);
+  margin-inline: auto;
+  padding-inline-end: var(--rail);
+  display: grid;
+  grid-template-columns: var(--spine-w) minmax(0, 1fr);
+  column-gap: var(--spine-gap);
+
+  --spine-w: clamp(3rem, 7vw, 5.5rem);
+  --spine-gap: clamp(1rem, 3vw, 2.5rem);
+}
+
+/* Sutunun tam boyunca uzanan ray govdesi. Yapiskan olan ray DEGIL,
+   icindeki isaret. */
+.spine {
+  position: relative;
+}
+
+/* Ince dikey cizgi -- brief'in "sol tarafta ince bir cizgi"si */
+.line {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  translate: -50% 0;
+  background: var(--hairline);
+}
+
+/* ── KAYAN ISARET ────────────────────────────────────────────
+   Yanindaki kata denk gelen imlec. Hesap yok: ekranin ortasina
+   cakiliyor ve duraklar onunden geciyor, yani hangi iki durak
+   arasindaysa gercekten oradasin. Kaydirmaya bagli zaman cizelgesi
+   olmadan calisiyor -- Firefox dahil her yerde. */
+.marker {
+  position: sticky;
+  top: 50svh;
+  display: block;
+  height: 0;
+  color: var(--world-accent);
+}
+
+.marker::before {
+  content: "";
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  top: 0;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.7;
+}
+
+/* Kucuk elmas: Bleach'te yuvarlak kose yok, 45 derece dondurulmus kare */
+.marker::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 7px;
+  height: 7px;
+  translate: -50% -50%;
+  rotate: 45deg;
+  background: currentColor;
+}
+
+/* ── KATLAR ──────────────────────────────────────────────────
+   Duz bir `<ol>`. Gorsel bozulmanin TAMAMI burada; ekran okuyucu icin
+   sekiz esit madde (brief'in kabul olcutu). */
+.tiers {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.tier {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* Bozulmanin en guclu tasiyicisi: tepede yarim ekran, dipte icerigi
+     kadar. `min-height` -- icerik tasarsa kat buyuyor ve buyumeli. */
+  min-height: calc(var(--span) * 1svh);
+  gap: calc((1.5 - 1.05 * var(--decay)) * 1rem);
+  padding-block: calc((3.6 - 2.9 * var(--decay)) * 1rem);
+
+  /* Hiza asagi indikce kayiyor -- karesel, yani yalnizca dipte gorunur.
+     Tek degisken: durak da bunu okuyup GERI ekliyor, yoksa dipteki
+     duraklar rayin cizgisinden kayardi. */
+  --drift: calc(var(--decay) * var(--decay) * -1.6rem);
+  margin-inline-start: var(--drift);
+  padding-inline-end: calc(var(--drift) * -1);
+
+  color: var(--text-primary);
+  transition: background-color 600ms ease-in-out, color 600ms ease-in-out;
+
+  /* "Su an bu kattasin" anahtari. Kat ekranin ortasindan gecerken 1'e
+     cikiyor; durak, kanji ve baglanti cizgisi hep bunu okuyor.
+
+     ⚠️ KISAYOL DEGIL, UZUN YAZIM. `animation: ...` kisayolu sureyi
+     0s'e sabitler; ilerleme tabanli zaman cizelgesinde sure `auto`
+     kalmali ki animasyon araligi doldursun. */
+  animation-name: litOn;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+  animation-timeline: view();
+  animation-range: cover 32% cover 68%;
+
+  /* ── DOKU ─────────────────────────────────────────────────
+     Dip katlarin uzerinde ince, egik, kirli bir tarama. Tepede tamamen
+     yok: karisim orani `--decay` ile 0'dan basliyor, yani sifir opaklik
+     ayri bir kural gerektirmiyor.
+
+     ⚠️ Katmanin ZEMINI olarak cizildi, ustune serilen bir katman
+     olarak DEGIL. Mutlak konumlu bir kaplama metnin uzerine binip
+     kontrasti dusururdu; burada doku metnin altinda kaliyor. */
+  --grain: color-mix(
+    in srgb,
+    var(--world-paper) calc(var(--decay) * 5%),
+    transparent
+  );
+  background-color: var(--bg);
+  background-image: repeating-linear-gradient(
+      27deg,
+      var(--grain) 0 1px,
+      transparent 1px 4px
+    ),
+    repeating-linear-gradient(-63deg, var(--grain) 0 1px, transparent 1px 9px);
+}
+
+/* Katin ust ayraci. Tepede kesintisiz bir hairline; asagi indikce
+   cizgi kirilip kesik kesik oluyor. */
+.tier::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background-image: repeating-linear-gradient(
+    to right,
+    var(--hairline) 0 calc(26px - var(--decay) * 12px),
+    transparent calc(26px - var(--decay) * 12px)
+      calc(26px - var(--decay) * 12px + var(--decay) * 11px)
+  );
+}
+
+@keyframes litOn {
+  0%,
+  100% {
+    --hier-lit: 0;
+  }
+  38%,
+  62% {
+    --hier-lit: 1;
+  }
+}
+
+/* ── DURAK ───────────────────────────────────────────────────
+   Rayin dugumu, ama rayin ICINDE DEGIL: katin icinde duruyor ve
+   solundaki cizgiye oturuyor. Boylece yeri icerikten geliyor --
+   kat ne kadar buyurse buyusun durak dogru yerde kaliyor.
+
+   `--drift` geri ekleniyor: kat sola kayarken durak cizgide kalmali. */
+.station {
+  position: absolute;
+  top: 0;
+  left: calc(
+    var(--spine-gap) * -1 - var(--spine-w) / 2 - var(--drift)
+  );
+  translate: -50% -50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  opacity: calc(0.3 + 0.7 * var(--hier-lit, 0));
+}
+
+.dot {
+  width: 5px;
+  height: 5px;
+  background: var(--world-accent);
+  /* Dip duraklar kabalasiyor: kare buyuyor ve merkezden kayiyor */
+  scale: calc(1 + var(--decay) * 0.5 + var(--hier-lit, 0) * 0.4);
+  translate: calc(var(--decay) * var(--decay) * 2px) 0;
+}
+
+/* Durak kanjisi: sonukken bir harita, kat okunurken bir konum. */
+.stationKanji {
+  font-family: var(--b-display);
+  font-weight: 600;
+  font-size: 0.58rem;
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+  text-align: center;
+  color: var(--world-paper);
+  opacity: calc(0.2 + 0.7 * var(--hier-lit, 0));
+}
+
+/* Duragi katin govdesine baglayan kisa cizgi. Kat okunurken uzuyor. */
+.tick {
+  position: absolute;
+  top: 0;
+  left: calc(var(--spine-gap) * -1);
+  width: calc((0.45 + 0.9 * var(--hier-lit, 0)) * 1rem);
+  height: 1px;
+  background: var(--world-accent);
+  opacity: calc(0.2 + 0.8 * var(--hier-lit, 0));
+}
+
+.tierHead {
+  display: flex;
+  align-items: baseline;
+  gap: clamp(0.75rem, 2vw, 1.5rem);
+}
+
+.kanji {
+  flex: none;
+  font-family: var(--b-display);
+  font-weight: 700;
+  line-height: 0.9;
+  /* Tepede buyuk ve tek basina; dipte kuculup satirin icine karisiyor */
+  font-size: calc(clamp(2rem, 5vw, 3.6rem) * (1 - 0.45 * var(--decay)));
+  color: var(--world-accent);
+  opacity: calc(0.9 - 0.25 * var(--decay));
+}
+
+/* ⚠️ BRIEF'IN ACIK TALIMATI: Ruh Krali "neredeyse gorunmez, opacity .35
+   -- dokunulmazlik". Deger yalnizca KANJI'ye ve durak noktasina
+   uygulandi; katin metni tam kontrastta birakildi. Aciklamayi .35'e
+   dusurmek onu okunamaz yapardi ve brief'in kendi kalite tabani
+   ("hicbir icerik erisilemez hale gelmez") bunu yasakliyor. */
+.tier[data-tier="soul-king"] .kanji {
+  color: var(--world-glow);
+  opacity: 0.35;
+}
+
+.names {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+/* Katin adi -- bozulmanin SESI. Aile ve agirlik `data-voice`tan
+   geliyor: hangi katin ince, hangisinin kaba konustugu bir tasarim
+   karari ve `hierarchy.ts` kaydinda yaziyor. */
+.name {
+  margin: 0;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+/* Reiokyu: cok ince, cok genis aralikli, neredeyse fisilti */
+.tier[data-voice="fine"] .name {
+  font-family: var(--b-kubo);
+  font-weight: 200;
+  font-size: clamp(1.1rem, 2.4vw, 1.85rem);
+  letter-spacing: 0.5em;
+  margin-inline-end: -0.5em;
+}
+
+/* Seireitei kurumlari: olculu, duzenli, burokratik */
+.tier[data-voice="plain"] .name {
+  font-family: var(--b-kubo);
+  font-weight: 300;
+  font-size: clamp(1rem, 2vw, 1.45rem);
+  letter-spacing: 0.26em;
+  margin-inline-end: -0.26em;
+}
+
+/* Dip: baska bir aile, agir ve sikisik. Tasarlanmamis gibi gorunmesi
+   bu bolumun butun argumani. */
+.tier[data-voice="coarse"] .name {
+  font-family: var(--b-body);
+  font-weight: 700;
+  font-size: clamp(0.95rem, 1.7vw, 1.2rem);
+  letter-spacing: -0.005em;
+}
+
+.romaji {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem;
+  letter-spacing: calc(0.2em - var(--decay) * 0.16em);
+}
+
+.dotSep {
+  opacity: 0.5;
+}
+
+.text {
+  margin: 0;
+  max-width: calc(var(--measure) / 1.25);
+}
+
+.scale {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+/* ── BAGLI ADLAR ─────────────────────────────────────────────
+   Kart degil: hairline ayracli satirlar (`WorldLayers.places` ile ayni
+   gerekce -- bunlar icerik parcasi degil, katin envanteri). */
+.figures {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-width: calc(var(--measure) / 1.25);
+  border-top: 1px solid var(--hairline);
+}
+
+.figure {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem clamp(0.6rem, 1.6vw, 1.25rem);
+  padding-block: calc((0.85 - 0.4 * var(--decay)) * 1rem);
+  border-bottom: 1px solid var(--hairline);
+}
+
+.figureName {
+  flex: none;
+  min-width: 14ch;
+  font-family: var(--b-kubo);
+  font-weight: 300;
+  font-size: 0.8rem;
+  letter-spacing: calc(0.16em - var(--decay) * 0.13em);
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.figureNote {
+  font-family: var(--b-body);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+/* Derin bolume kapi -- `WorldLayers.enter` ile ayni dil */
+.enter {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: var(--touch-min);
+  padding-left: 0.9rem;
+  border-left: 1px solid var(--world-accent);
+  color: var(--world-accent);
+  text-decoration: none;
+  transition: gap 320ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.enter:hover,
+.enter:focus-visible {
+  gap: 1.1rem;
+  color: var(--text-primary);
+}
+
+/* Dipteki iki katta hizalar bilincli olarak KAYIK. Tek tek yaziliyor
+   cunku duzensizlik hesaplanabilir olsa duzen olurdu. */
+.tier[data-voice="coarse"] .kanji {
+  translate: 0 3px;
+}
+
+.tier:last-child .name {
+  translate: -2px 0;
+}
+
+.tier:last-child .romaji {
+  translate: 3px 0;
+}
+
+/* ── 900px ALTI ──────────────────────────────────────────────
+   Brief'in kabul olcutu: yapiskan sutun kalkar, duz dikey akisa
+   donulur -- AMA kalite bozulma gradyani korunur. Bozulma `--decay`
+   uzerinden geldigi icin tek satir bile silinmiyor. */
+@media (max-width: 900px) {
+  .column {
+    display: block;
+    padding-inline-end: 0;
+  }
+
+  .head {
+    padding-inline-end: 0;
+  }
+
+  .spine,
+  .station,
+  .tick {
+    display: none;
+  }
+
+  .tier {
+    /* Dar ekranda sikisan yuksekligi zorlamak metni tasirdi */
+    min-height: 0;
+    --drift: 0rem;
+  }
+
+  .tierHead {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
+
+/* ── DESTEK YEDEGI ───────────────────────────────────────────
+   Kaydirmaya bagli zaman cizelgesi yoksa `--hier-lit` baslangic
+   degerinde (0) kaliyor: duraklar sonuk ama gorunur, ray ve kayan
+   isaret calismaya devam ediyor (ikisi de yalnizca `position: sticky`).
+   Ayrica bir yedek kural gerekmiyor; `var(--hier-lit, 0)` yazimlari
+   `@property` desteklemeyen tarayiciyi da kapsiyor. */
+
+@media (prefers-reduced-motion: reduce) {
+  .section,
+  .tier {
+    transition: none;
+  }
+
+  .enter {
+    transition: none;
+  }
+
+  /* Kaydirmaya bagli surekli vurgu kalkiyor. Ray ve isaret KALIYOR:
+     ikisi de bir animasyon degil, kaydirmanin kendisi. */
+  .tier {
+    animation-name: none;
+  }
+}

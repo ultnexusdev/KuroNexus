@@ -7,10 +7,10 @@
 
 ## ⌂ DEVİR — SIRADAKİ OTURUM BURADAN BAŞLASIN (23 Ağustos 2026)
 
-**Durum:** Küratör altyapısı + P-TOKENS + **P01–P12 canlıda.**
-**Sıradaki:** **P13 · Bleach Efsaneleri.** Brief'in kendi metni ana
-kaynak. ⚠️ Kadro listesini fandom'dan doğrula: P08'de üç, P09'da dört,
-P10'da iki hata çıktı ve hepsi brief'in listesindeydi.
+**Durum:** Küratör altyapısı + P-TOKENS + **P01–P13 canlıda.**
+**Sıradaki:** **P14 · Asil Haneler.** Brief'in kendi metni ana kaynak.
+⚠️ Yuvalar manifestoda hazır (`houses` bölümü). Kadroyu fandom'dan
+doğrula — brief'in listelerinde bugüne kadar dokuz hata çıktı.
 
 ### Yerleşik konvansiyonlar — bunları yeniden keşfetme
 
@@ -1479,7 +1479,67 @@ Sıfır JS; 360px'te taşma yok.
 
 Rota paketi 26 kB → 26,2 kB.
 
-### 8.19 Sırada
+### 8.19 P13 — EFSANELER (23 Ağustos 2026) ✅
+
+**TEZ.** Naruto Evreni'nde bunun karşılığı **numaralı** bir kart dizisi
+(01, 02, 03…). Burada numara yok, kart da yok: on isim arasında bir sıra
+değil bir **denge** var. Tam genişlik satırlar, aralarında yalnızca birer
+hairline.
+
+**İMZA ETKİLEŞİM.** Bir isme gelindiğinde satır değil **bütün bölüm**
+değişiyor: zemin o karakterin reiatsu rengine kayıyor (%12), diğerleri
+geriye çekiliyor, satırın arkasında dev kanji beliriyor, sağdaki yapışkan
+panelde portresi ve biyografisi açılıyor. Geçiş asimetrik — gelmesi
+500ms, gitmesi 900ms (brief'in değerleri).
+
+⚠️ **SIFIR JS, VE BUNU MÜMKÜN KILAN ŞEY SEMANTİK.** Satırlar bir yere
+gitmiyor (`<a>` olamaz) ve tıklanınca bir şey yapmayan `<button>` de
+yanlış olurdu. Doğru semantik **seçim**: gizli radyo grubu + `<label>`.
+Klavye desteği, dokunmatik ve "aynı anda yalnızca biri" kuralı üçü de
+tarayıcıdan bedava geliyor. P10'daki Blut anahtarının aynı deseni —
+o turda öğrenilen şey burada bütün bölümü taşıdı.
+
+⚠️ **%25 DEĞİL %55.** Brief seçili olmayan isimlerin %25 opaklığa
+düşmesini istiyor. Hesaplandı: kemik beyazı metin siyah zeminde %25'te
+~2,4:1, yani okunmuyor. %55'te 4,95:1 — hâlâ belirgin biçimde geride ama
+okunabilir. Geri çekilme hissinin ağırlığı **künyeye** yüklendi; o metin
+değil bir etiket ve kırpılabilir.
+
+⚠️ **İKİ HATA SSR ÇIKTISINDA VE DOĞRULAMADA YAKALANDI:**
+1. **Türkçe, İngilizce sayfaya sızmıştı.** Kenpachi'nin etiketine
+   "Bankai · kayıt yok" yazılmıştı; `tags` alanı çevrilmeyen özel adlar
+   için ve oraya Türkçe bir ibare koymak `/en` sayfasında Türkçe basmak
+   demek. Etiket kaldırıldı — bilgi zaten iki dilde de biyografide.
+   **Denetim yöntemi devralınabilir:** `/en` çıktısında bölümü kesip
+   Türkçe diyakritik ara, kanji içerenleri ele.
+2. **Ichibē'nin tekniği 白打 değil しら筆一文字.** Hafızadan yazılmıştı;
+   白打 Hakuda'nın kanjisi. Fandom düzeltti.
+
+**Brief'in "Sonsuz Hüzün" unvanı canon'da bulunamadı** → yerine Kyōka
+Suigetsu'nun canon'daki yeteneği kondu: **完全催眠**, tam hipnoz. Uydurma
+bir unvan, doğru bir yetenekten zayıftır.
+
+**İki "kayıt yok" gizlenmedi:** Aizen'in Bankai'ı canon'da hiç
+açıklanmadı, Kenpachi'ninki adsız. İkisi de biyografide açıkça yazıyor.
+
+**Reiatsu renklerinden ikisi neredeyse siyah** (Yhwach `#1A1A20`, Ichibē
+`#0A0A0A`) ve koyu zeminde atmosfer onlarda neredeyse susuyor. Arıza
+değil: biri gölge, diğeri mürekkep.
+
+**Portreler küratör yuvasında** — on yuva manifestoda zaten tanımlıydı
+(`bleach:legend:<slug>`), boşken `typographic` yedeği çiziliyor.
+
+⚠️ **DOĞRULAMA YÖNTEMİ (P10'un dersi uygulandı):** tarayıcı panelinde
+durum değişiminden sonra `getComputedStyle` bayat. Onun yerine
+`element.matches(seçici)` kullanıldı ve şunlar kanıtlandı: 13 `:has()`
+kuralı ayrıştı, Yamamoto seçiliyken `panel[2]` gösterme kuralına uyuyor
+ve `panel[0]` uymuyor, `row[0]` sönme kuralına uyuyor, `row[2]` etkin
+kuralına uyuyor.
+
+360px'te tek sütun, panel yapışkanlıktan çıkıyor, etiket yüksekliği
+113px (dokunma hedefi tamam), taşma yok. Rota paketi 26,2 → 26,5 kB.
+
+### 8.20 Sırada
 
 `/anime/bleach` iskelet olarak duruyor ve **hiçbir yerden linkli değil**
 (`robots: noindex`). Sıradaki tur **P-TOKENS**: beş dünya paleti, derinlik

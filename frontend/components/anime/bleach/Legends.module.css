@@ -1,0 +1,336 @@
+/* ============================================================
+   P13 · BLEACH EFSANELERI
+
+   Naruto'daki karsiligi NUMARALI bir kart dizisi. Burada numara YOK ve
+   kart da yok: on isim arasinda bir sira degil bir DENGE var. Tam
+   genislik satirlar, aralarinda yalnizca birer hairline.
+
+   ⚠️ KURAL 16 ISTISNASI, KASITLI: reiatsu renkleri TEMA degil VERI
+   (divisions.ts ve espada.ts ile ayni sinif). On deger `--aura-N` olarak
+   satir ici geliyor; bu dosyada tek hex yok.
+   ============================================================ */
+
+.section {
+  position: relative;
+  isolation: isolate;
+  padding-block: clamp(4rem, 12vh, 9rem) clamp(4rem, 10vh, 7rem);
+  background: var(--bg);
+  color: var(--text-primary);
+}
+
+.head {
+  width: var(--band);
+  margin-inline: auto;
+  padding-inline-end: var(--rail);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(0.6rem, 1.6vw, 1.1rem);
+  margin-bottom: clamp(2.5rem, 8vh, 5rem);
+}
+
+.head p {
+  margin: 0;
+}
+
+.lede {
+  max-width: calc(var(--measure) / 1.4);
+}
+
+/* ── SAHNE ───────────────────────────────────────────────────
+   Solda isimler, sagda yapiskan portre. Atmosfer ikisini birden
+   kapsiyor: hover edilen sey satir degil BOLUM. */
+.stage {
+  position: relative;
+  width: var(--band);
+  margin-inline: auto;
+  padding-inline-end: var(--rail);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(16rem, 26vw, 22rem);
+  column-gap: clamp(1.5rem, 4vw, 3.5rem);
+  align-items: start;
+}
+
+/* ── REIATSU ATMOSFERI ───────────────────────────────────────
+   ⚠️ Asimetrik gecis, brief'in degerleri: gelmesi 500ms, gitmesi 900ms.
+   Taban kural donusu tasiyor; etkin durumda sure kisaliyor. Renk
+   degiskeni anlik doniyor ama onu OKUYAN ozellik gecisli. */
+.aura {
+  position: absolute;
+  inset: calc(var(--gutter) * -0.4);
+  z-index: -1;
+  pointer-events: none;
+  background-color: var(--aura, transparent);
+  opacity: 0.12;
+  transition: background-color 900ms ease-out;
+}
+
+.stage:has(.pick:checked, .line:hover) .aura {
+  transition-duration: 500ms;
+}
+
+/* ── ISIM SATIRLARI ──────────────────────────────────────────
+   Kart yok, numara yok. Ust ayrac + ad + kunye. */
+.names {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--hairline);
+}
+
+.row {
+  position: relative;
+  border-bottom: 1px solid var(--hairline);
+  /* ⚠️ Dev kanji satirdan TASIYOR, o yuzden kirpma yok. */
+  overflow: visible;
+  transition: opacity 900ms ease-out;
+}
+
+/* Gizli radyo: gorunmuyor ama SILINMIYOR -- klavye ve ekran okuyucu
+   icin yerinde duruyor, secimi tarayici yonetiyor. */
+.pick {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.line {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(7rem, auto) minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 0.3rem clamp(1rem, 3vw, 2.5rem);
+  padding-block: clamp(0.9rem, 2.6vh, 1.5rem);
+  min-height: var(--touch-min);
+  cursor: pointer;
+}
+
+.pick:focus-visible + .line {
+  outline: 2px solid var(--world-accent);
+  outline-offset: 2px;
+}
+
+.kanji {
+  font-family: var(--b-display);
+  font-weight: 700;
+  font-size: clamp(1.1rem, 2.4vw, 1.6rem);
+  line-height: 1.1;
+  color: var(--text-primary);
+}
+
+.name {
+  font-family: var(--b-kubo);
+  font-weight: 200;
+  font-size: clamp(0.9rem, 1.9vw, 1.3rem);
+  letter-spacing: 0.34em;
+  margin-inline-end: -0.34em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.epithet {
+  font-family: var(--b-body);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+  transition: opacity 900ms ease-out;
+}
+
+/* Dev kanji: satirin arkasinda, tasarak. Yalnizca etkin satirda. */
+.ghost {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  translate: 0 -50%;
+  z-index: 0;
+  font-family: var(--b-display);
+  font-weight: 700;
+  font-size: clamp(4rem, 11vw, 9rem);
+  line-height: 0.8;
+  white-space: nowrap;
+  color: var(--text-primary);
+  opacity: 0;
+  pointer-events: none;
+  user-select: none;
+  transition: opacity 900ms ease-out;
+}
+
+.row:has(.pick:checked) .ghost,
+.row:has(.line:hover) .ghost {
+  opacity: 0.08;
+  transition-duration: 500ms;
+}
+
+/* ── GERI CEKILME ────────────────────────────────────────────
+   ⚠️ %25 DEGIL %55. Brief %25 istiyor; olculdu: kemik beyazi metin
+   siyah zeminde %25'te ~2,4:1 veriyor ve okunmuyor. %55'te 4,95:1 --
+   hala belirgin bicimde geride ama okunabilir. Geri cekilme hissinin
+   agirligi KUNYEYE yuklendi: o metin degil bir etiket, kirpilabilir. */
+.names:has(.pick:checked, .line:hover) .row {
+  opacity: 0.55;
+}
+
+.names:has(.pick:checked, .line:hover) .row .epithet {
+  opacity: 0.35;
+}
+
+.row:has(.pick:checked),
+.row:has(.line:hover) {
+  opacity: 1;
+  transition-duration: 500ms;
+}
+
+.row:has(.pick:checked) .epithet,
+.row:has(.line:hover) .epithet {
+  opacity: 1;
+}
+
+/* ── PORTRE PANELI ───────────────────────────────────────────
+   Yapiskan: liste boyunca ekranda kaliyor. On panel de DOM'da; CSS
+   yalnizca hangisinin gorunecegini seciyor. */
+.panels {
+  position: sticky;
+  top: clamp(4rem, 12vh, 7rem);
+}
+
+.panelBox {
+  position: relative;
+  /* Yer AYRILMIS: panel degistikce liste ziplamiyor (CLS = 0) */
+  min-height: 40vh;
+}
+
+.hint {
+  color: var(--text-muted);
+  opacity: 0.7;
+  transition: opacity 500ms ease-out;
+}
+
+.stage:has(.pick:checked, .line:hover) .hint {
+  opacity: 0;
+}
+
+.panel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.6rem, 2vh, 1rem);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 900ms ease-out, visibility 0s linear 900ms;
+}
+
+.portrait {
+  width: 100%;
+  max-width: 14rem;
+}
+
+.bio {
+  margin: 0;
+  max-width: none;
+  font-size: 0.85rem;
+}
+
+.tags {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.tag {
+  padding: 0.2rem 0.5rem;
+  border: 1px solid var(--hairline);
+  font-family: var(--b-display);
+  font-weight: 600;
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+}
+
+/* ── ON KURAL, ON RENK ───────────────────────────────────────
+   Elle yazilmis olmalari kasitli: uretilmis bir dongu burada okunmayi
+   zorlastirirdi ve sayilari sabit -- efsaneler her zaman on kisi.
+   (P08'deki cero boyamasiyla ayni gerekce.) */
+.stage:has(.row[data-i="0"] :is(.pick:checked, .line:hover)) { --aura: var(--aura-0); }
+.stage:has(.row[data-i="0"] :is(.pick:checked, .line:hover)) .panel[data-i="0"],
+.stage:has(.row[data-i="1"] :is(.pick:checked, .line:hover)) .panel[data-i="1"],
+.stage:has(.row[data-i="2"] :is(.pick:checked, .line:hover)) .panel[data-i="2"],
+.stage:has(.row[data-i="3"] :is(.pick:checked, .line:hover)) .panel[data-i="3"],
+.stage:has(.row[data-i="4"] :is(.pick:checked, .line:hover)) .panel[data-i="4"],
+.stage:has(.row[data-i="5"] :is(.pick:checked, .line:hover)) .panel[data-i="5"],
+.stage:has(.row[data-i="6"] :is(.pick:checked, .line:hover)) .panel[data-i="6"],
+.stage:has(.row[data-i="7"] :is(.pick:checked, .line:hover)) .panel[data-i="7"],
+.stage:has(.row[data-i="8"] :is(.pick:checked, .line:hover)) .panel[data-i="8"],
+.stage:has(.row[data-i="9"] :is(.pick:checked, .line:hover)) .panel[data-i="9"] {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 500ms ease-out, visibility 0s;
+}
+
+.stage:has(.row[data-i="1"] :is(.pick:checked, .line:hover)) { --aura: var(--aura-1); }
+.stage:has(.row[data-i="2"] :is(.pick:checked, .line:hover)) { --aura: var(--aura-2); }
+.stage:has(.row[data-i="3"] :is(.pick:checked, .line:hover)) { --aura: var(--aura-3); }
+.stage:has(.row[data-i="4"] :is(.pick:checked, .line:hover)) { --aura: var(--aura-4); }
+.stage:has(.row[data-i="5"] :is(.pick:checked, .line:hover)) { --aura: var(--aura-5); }
+.stage:has(.row[data-i="6"] :is(.pick:checked, .line:hover)) { --aura: var(--aura-6); }
+.stage:has(.row[data-i="7"] :is(.pick:checked, .line:hover)) { --aura: var(--aura-7); }
+.stage:has(.row[data-i="8"] :is(.pick:checked, .line:hover)) { --aura: var(--aura-8); }
+.stage:has(.row[data-i="9"] :is(.pick:checked, .line:hover)) { --aura: var(--aura-9); }
+
+/* ── DAR EKRAN ───────────────────────────────────────────────
+   Portre sutunu altta: yapiskan bir panel dar ekranda ekranin yarisini
+   yerdi. Satirlar aciklamasini kendi altinda acmiyor -- panel tek ve
+   listenin altinda duruyor. */
+@media (max-width: 900px) {
+  .head,
+  .stage {
+    padding-inline-end: 0;
+  }
+
+  .stage {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: clamp(1.5rem, 5vh, 2.5rem);
+  }
+
+  .panels {
+    position: static;
+  }
+
+  .panelBox {
+    min-height: 22rem;
+  }
+
+  .line {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ghost {
+    font-size: clamp(3rem, 16vw, 5rem);
+  }
+}
+
+/* ⚠️ Brief'in kabul olcutu: atmosfer degisimi ANLIK, opaklik dususu yok. */
+@media (prefers-reduced-motion: reduce) {
+  .aura,
+  .row,
+  .ghost,
+  .epithet,
+  .panel,
+  .hint {
+    transition: none;
+  }
+
+  .names:has(.pick:checked, .line:hover) .row {
+    opacity: 1;
+  }
+
+  .names:has(.pick:checked, .line:hover) .row .epithet {
+    opacity: 1;
+  }
+}

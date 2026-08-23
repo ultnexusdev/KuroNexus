@@ -1493,9 +1493,9 @@
       "scaffold": {
         "title": "BLEACH EVRENİ",
         "lede": "Her ruh bir gölge bırakır. Her kılıcın bir adı vardır.",
-        "note": "Hero, beş katman ve on iki bölüm yerinde. Kalan bölümler sırayla geliyor.",
+        "note": "Hero, beş katman ve on üç bölüm yerinde. Kalan bölümler sırayla geliyor.",
         "playgroundLink": "Tasarım sistemi denemesini aç →",
-        "pendingSections": "P13 · BLEACH EFSANELERİ — YAPIM AŞAMASINDA"
+        "pendingSections": "P14 · ASİL HANELER — YAPIM AŞAMASINDA"
       },
       "world": {
         "railAria": "Ruhsal katmanlar",
@@ -1636,6 +1636,13 @@
         "lede": "Bin yıl önce yarım kalan bir vuruşun faturası. Bu bölümde sayfa dört durakta siyahtan kana dönüyor: mürekkep, kemik beyazı, koyu kan ve kan. Aşağı indikçe soldaki çizgi de parçalanıyor.",
         "timelineAria": "Bin Yıllık Kan Savaşı, dokuz olay",
         "goTo": "İlgili bölüme git"
+      },
+      "legends": {
+        "eyebrow": "BLEACH LEGENDS",
+        "title": "Efsaneler",
+        "lede": "On isim, üç dünyayı tutan on ağırlık. Aralarında bir sıra yok — o yüzden burada numara da yok. Bir isme gel: bölümün tamamı onun reiatsu'suna döner.",
+        "listAria": "On efsane",
+        "hint": "Bir isme gel ya da klavyeyle seç"
       }
     }
   },

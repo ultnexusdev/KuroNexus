@@ -95,7 +95,11 @@ export function BankaiHall({
   }, []);
 
   return (
-    <section id="bankai" data-layer="soul-society" className={styles.section}>
+    <section
+      id="bankai"
+      data-layer="soul-society"
+      className={`${styles.section} ${world.deferPaint}`}
+    >
       <div className={styles.head}>
         <p className={world.eyebrow} lang="en">
           {labels.eyebrow}

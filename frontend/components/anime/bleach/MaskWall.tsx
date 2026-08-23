@@ -139,7 +139,7 @@ export async function MaskWall({ locale }: { locale: string }) {
       id="masks"
       /* Nötr: duvar bir dünyaya ait değil, hepsinin sınırında duruyor
          (brief). Deri sayfanın tabanı. */
-      className={styles.section}
+      className={`${styles.section} ${world.deferPaint}`}
       aria-labelledby="masks-title"
     >
       <div className={styles.head}>

@@ -178,3 +178,34 @@
   margin: 0;
   background: var(--hairline);
 }
+
+/* ── EKRAN DISI BOLUMLERIN BOYAMASI ────────────────────────── */
+
+/* P18-a. Sayfa on alti bolum, 3161 dugum: hepsi ilk yuklemede duzenlenip
+   boyaniyor. `content-visibility: auto` ekran disindaki bolumun ICERIGINI
+   atliyor -- kutu ve zemini yerinde duruyor, HTML HIC DEGISMIYOR (sunucu
+   ciktisi aynen basiliyor: arama motoru ve JS'siz okuma etkilenmiyor),
+   yalnizca duzen/boyama isi bolume yaklasilinca yapiliyor.
+
+   ⚠️ Neden `ssr: false` + dynamic import DEGIL: brief P18'in istedigi
+   yol altı bolumu sunucu ciktisindan tamamen cikariyordu. P18-b'nin
+   sonunda `robots: noindex` kalkiyor; o an o bolumler aranmaz ve JS
+   gelmezse gorunmez olurdu. Olculen kazanc (~15KB gzip JS) bu bedeli
+   odemiyordu -- paket zaten hedefin altinda (150,2KB / 220KB).
+
+   `auto 140vh` -- `auto` anahtar kelimesi bolum BIR KEZ cizildikten sonra
+   GERCEK yuksekligini hatirliyor; 140vh yalnizca o ilk gecise kadar
+   gecerli bir tahmin ve kaydirma cubugunun boyunu belirliyor. Yanlis
+   olmasi duzen kaymasi URETMIYOR (ustteki bolumler yerinden oynamiyor),
+   cubuk ilk inisde kendini duzeltiyor.
+   ⚠️ Gercek yukseklikler canlida olculup buraya yazilacak (P18-b).
+
+   ⚠️ ALTI BOLUME BILEREK VERILMEDI: BleachHero, WorldLayers (Senkaimon),
+   SoulHierarchy, HollowEvolution, Legends ve StoryTimeline yapiskan sahne
+   ya da `animation-timeline: view()` kullaniyor; ikisi de boyut
+   sinirlamasiyla takisiyor. Yeni bir bolume eklemeden once o bolumde
+   `position: sticky` ya da `animation-timeline` var mi diye BAK. */
+.deferPaint {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 140vh;
+}

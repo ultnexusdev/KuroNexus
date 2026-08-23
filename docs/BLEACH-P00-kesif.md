@@ -7,9 +7,10 @@
 
 ## ⌂ DEVİR — SIRADAKİ OTURUM BURADAN BAŞLASIN (23 Ağustos 2026)
 
-**Durum:** Küratör altyapısı + P-TOKENS + **P01–P17 canlıda.** On altı
-anlatı bölümü ve hub kartı bitti.
-**Sıradaki ve SON:** **P18 · QA / performans / entegrasyon.**
+**Durum:** Küratör altyapısı + P-TOKENS + **P01–P17 canlıda** + **P18-a
+bitti.** On altı anlatı bölümü, hub kartı ve performans turu tamam.
+**Sıradaki:** **P18-b · erişilebilirlik + i18n + SEO** — sonunda
+`robots: noindex` kalkıyor. Ardından **P18-c**.
 
 ⚠️ **P18 TEK OTURUMA SIĞMAZ — ÜÇE BÖLÜNDÜ** (23 Ağustos 2026'da karar
 verildi; brief'in altı maddesi tek turda bitecek hacimde değil, altıncı
@@ -17,7 +18,7 @@ madde tek başına bir oturum):
 
 | Tur | Kapsam |
 |---|---|
-| **P18-a** | Performans: altı ağır bölümü `dynamic import` + IntersectionObserver ile geç montaj (Bankai, Espada, Sternritter ızgarası, Hollow evrimi, Zanpakutō iç dünyaları, Kılıç çizelgesi — hero/Üç Dünya/Gotei 13 eager kalır), font subset stratejisi, tekrar eden SVG'ler için `<symbol>`+`<use>`, hedefler: bundle <220KB gzip, LCP <2,5s, CLS <0,05, TBT <200ms |
+| **P18-a** ✅ | **BİTTİ — 23 Ağustos 2026.** Ölçüldü: brief'in dört hedefinden üçü zaten tutuyordu, üç optimizasyon maddesinin ikisi ölçümde karşılıksız çıktı. Yapılan: on bölüme `content-visibility`, `pnpm check:bleach`e bütçe bekçisi. **Tutanak aşağıda — yeniden ölçme.** |
 | **P18-b** | Erişilebilirlik + i18n + SEO: "bölümlere atla" landmark listesi, on altı bölümde buton/`div` denetimi, `prefers-reduced-motion` tam tarama, ekran okuyucu geçiş raporu, hreflang, meta/OG/JSON-LD — **ve en sonda `robots: noindex` kalkar** |
 | **P18-c** | Brief'in "son kritik"i: sayfayı baştan sona gez, "bu Naruto'nun Bleach'le doldurulmuş hâli mi?" sorusunu bölüm bölüm cevapla, **en zayıf üç bölümü yeniden yaz** |
 
@@ -30,6 +31,67 @@ P18-b'de yeniden yazma, mevcut olanı genişlet.
 ⚠️ **Bölüm hakkında tahmin yazma.** P15'te bu blokta duran "görsel
 ağırlıklı olacak" tahmini, brief'in "görsel yok, burası nefes alma alanı"
 kararıyla çelişti. Önce brief'i oku, sonra karar ver.
+
+### P18-a · ölçüm tutanağı (23 Ağustos 2026) — YENİDEN ÖLÇME, OKU
+
+Üretim derlemesi + `next start` 3100, backend kapalı (yuvalar yedekte).
+
+| Hedef (brief) | Ölçülen | |
+|---|---|---|
+| JS < 220KB gzip | **150,2KB** — 104KB'ı her rotanın paylaştığı çerçeve, 26,8KB sayfanın kendi parçası | ✅ |
+| CLS < 0,05 | **0** | ✅ |
+| TBT < 200ms | uzun görev **yok** | ✅ |
+| LCP < 2,5s | **ölçülemedi** — panel görünmediği için sayfa hiç kare üretmiyor, `paint`/LCP girdisi doğmuyor. TTFB 44ms, DOMContentLoaded 89ms, load 109ms | — |
+
+Belge: **645KB ham / 140KB gzip**; bunun 372KB'ı RSC flight yükü, 257KB
+gerçek DOM. Sayfanın en ağır tek kalemi JS değil, **HTML**.
+
+**Brief'in üç performans maddesi ölçüldüğünde:**
+
+1. **Altı bölümü `ssr: false` ile geç montaj — YAPILMADI.** Kazanç ~15KB
+   gzip JS + ~19KB gzip HTML; bedeli o altı bölümün sunucu çıktısından
+   tamamen çıkması. P18-b'nin sonunda `noindex` kalkıyor — o an Espada,
+   Zanpakutō, Bankai, Sternritter, Hollow ve Kılıç çizelgesi aranmaz ve
+   JS gelmezse görünmez olurdu. Paket zaten hedefin 70KB altında.
+   Yerine `content-visibility` kondu (aşağıda).
+2. **`<symbol>` + `<use>` — YAPILMADI.** Tekrar eden BÜTÜN SVG yolları
+   tekilleştirildiğinde ham kazanç 15,3KB, ama **kablodaki kazanç 0,3KB
+   gzip**: gzip o tekrarı zaten yiyor. (En büyük tekrar Bleach'in bile
+   değil — header+footer'daki marka logosu, 12,9KB.) Ölçüldü, reddedildi.
+3. **Font stratejisi — ZATEN YAPILMIŞ.** Dört Bleach fontu da
+   `preload: false`, `latin`/`latin-ext` dilimli, `display: swap`;
+   gerekçeleri `app/[locale]/layout.tsx` içinde yazılı. Yapacak iş yoktu.
+
+**Yapılan iki şey:**
+
+- **`world.deferPaint`** (`world.module.css`) — `content-visibility: auto`
+  + `contain-intrinsic-size: auto 140vh`. HTML değişmiyor (sunucu çıktısı
+  aynen yerinde), yalnızca ekran dışı bölümün düzen/boyama işi erteleniyor.
+  On bölüme verildi: gotei, zanpakuto, bankai, espada, empire, powers,
+  masks, war, houses, locations.
+  ⚠️ Altısına **bilerek verilmedi** — hero, WorldLayers/Senkaimon,
+  hierarchy, hueco, legends, story: yapışkan sahne ya da
+  `animation-timeline: view()` boyut sınırlamasıyla takışıyor. Yeni bir
+  bölüme eklemeden önce o bölümde `position: sticky` ya da
+  `animation-timeline` var mı diye BAK.
+  ⚠️ `140vh` bir **ilk geçiş tahmini**; `auto` anahtar kelimesi bölüm bir
+  kez çizildikten sonra gerçek yüksekliği hatırlıyor, o yüzden yanlış
+  olması düzen kayması üretmiyor — yalnızca kaydırma çubuğu ilk inişte
+  kendini düzeltiyor. **Gerçek yükseklikler canlıda ölçülüp yazılmalı.**
+- **`scripts/check-bleach-budget.mjs`** — `pnpm check:bleach`in üçüncü
+  adımı. JS 220KB gzip **sert** sınır (aşarsa çıkış 1); CSS 40KB ve HTML
+  168KB **yumuşak** (yalnızca uyarı — brief'in hedefi değil, gerileme
+  görülsün diye konmuş çizgiler). ⚠️ `next build` koşmamışsa atlıyor.
+  HTML'i de ölçmek için:
+  `BLEACH_URL=http://localhost:3100/anime/bleach node scripts/check-bleach-budget.mjs`
+
+⚠️ **Tarayıcı paneli DÜZEN ölçemiyor.** `document.hidden` sürekli `true`,
+ekran görüntüsü "pane is not displayed" diyor, her
+`getBoundingClientRect` 0 dönüyor ve `paint` girdisi hiç doğmuyor.
+Panelden alınabilen tek şey **hesaplanmış stil ve DOM sayımı** — bunlar
+güvenilir (P18-a'da on bölümün `content-visibility`si böyle doğrulandı).
+Yükseklik, LCP ve görsel doğrulama ya sunucu çıktısı üzerinden ya canlıda.
+
 
 ### Yerleşik konvansiyonlar — bunları yeniden keşfetme
 

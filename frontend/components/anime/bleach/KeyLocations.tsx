@@ -34,7 +34,7 @@ export async function KeyLocations({ locale }: { locale: string }) {
   return (
     <section
       id="locations"
-      className={styles.section}
+      className={`${styles.section} ${world.deferPaint}`}
       aria-labelledby="locations-title"
     >
       <div className={styles.head}>

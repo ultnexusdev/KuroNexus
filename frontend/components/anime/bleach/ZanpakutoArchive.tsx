@@ -60,7 +60,11 @@ export function ZanpakutoArchive({
   }, []);
 
   return (
-    <section id="zanpakuto" data-layer="soul-society" className={styles.section}>
+    <section
+      id="zanpakuto"
+      data-layer="soul-society"
+      className={`${styles.section} ${world.deferPaint}`}
+    >
       <div className={styles.inner}>
         <header className={styles.head}>
           <p className={world.eyebrow} lang="en">

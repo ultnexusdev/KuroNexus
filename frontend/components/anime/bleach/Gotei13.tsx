@@ -117,7 +117,11 @@ export function Gotei13({
   };
 
   return (
-    <section id="gotei" data-layer="soul-society" className={styles.section}>
+    <section
+      id="gotei"
+      data-layer="soul-society"
+      className={`${styles.section} ${world.deferPaint}`}
+    >
       <div className={styles.inner}>
         <header className={styles.head}>
           <p className={world.eyebrow} lang="en">

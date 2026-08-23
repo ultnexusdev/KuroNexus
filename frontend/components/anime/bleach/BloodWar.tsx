@@ -49,7 +49,7 @@ export async function BloodWar({ locale }: { locale: string }) {
   return (
     <section
       id="war"
-      className={styles.section}
+      className={`${styles.section} ${world.deferPaint}`}
       aria-labelledby="war-title"
     >
       <div className={styles.head}>

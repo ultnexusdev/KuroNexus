@@ -50,7 +50,7 @@ export async function EspadaSection({ locale }: { locale: string }) {
       /* P07'nin negatif derisi burada devam ediyor: Las Noches Hueco
          Mundo'nun içinde ve tema katman değiştirmiyor. */
       data-layer="hueco-mundo"
-      className={styles.section}
+      className={`${styles.section} ${world.deferPaint}`}
       aria-labelledby="espada-title"
     >
       <div className={styles.head}>

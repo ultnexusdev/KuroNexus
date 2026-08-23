@@ -90,7 +90,7 @@ export async function NobleHouses({ locale }: { locale: string }) {
     <section
       id="houses"
       data-layer="soul-society"
-      className={styles.section}
+      className={`${styles.section} ${world.deferPaint}`}
       aria-labelledby="houses-title"
     >
       <div className={styles.head}>

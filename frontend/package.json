@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "check:bleach": "node scripts/check-bleach-fonts.mjs && node scripts/check-bleach-contrast.mjs"
+    "check:bleach": "node scripts/check-bleach-fonts.mjs && node scripts/check-bleach-contrast.mjs && node scripts/check-bleach-budget.mjs"
   },
   "dependencies": {
     "@tiptap/extension-font-family": "^3.27.3",

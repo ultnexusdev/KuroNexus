@@ -52,7 +52,7 @@ export async function WandenreichSection({ locale }: { locale: string }) {
     <section
       id="empire"
       data-layer="wandenreich"
-      className={styles.section}
+      className={`${styles.section} ${world.deferPaint}`}
       aria-labelledby="empire-title"
     >
       <div className={styles.head}>

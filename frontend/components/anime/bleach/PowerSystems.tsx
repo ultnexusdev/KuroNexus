@@ -55,7 +55,7 @@ export async function PowerSystems({ locale }: { locale: string }) {
     <section
       id="powers"
       /* ⚠️ `data-layer` YOK: bölüm nötr, deri sütunların kendisinde. */
-      className={styles.section}
+      className={`${styles.section} ${world.deferPaint}`}
       aria-labelledby="powers-title"
     >
       <div className={styles.head}>

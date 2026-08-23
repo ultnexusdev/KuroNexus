@@ -141,7 +141,13 @@ export async function PowerSystems({ locale }: { locale: string }) {
 
                 {/* Kidō'ya özel: numaralı formüller. Geniş ekranda
                     hover/odakla açılıyor, dokunmatikte baştan açık. */}
+                {/* ⚠️ SARMALAYICI ŞART. Kapanmayı taşıyan ızgaranın TEK
+                    çocuğu olmalı: `grid-template-rows: 0fr` yalnızca ilk
+                    satırı boyutlandırıyor, üç `<li>`nin diğer ikisi örtük
+                    satır olarak açık kalıyordu (ölçüldü: kapalı olması
+                    gereken liste 102px yüksekliğindeydi). */}
                 {art.romaji === "Kidō" ? (
+                  <div className={styles.spellsWrap}>
                   <ul className={styles.spells}>
                     {KIDO_SPELLS.map((spell) => (
                       <li key={spell.romaji} className={styles.spell}>
@@ -161,6 +167,7 @@ export async function PowerSystems({ locale }: { locale: string }) {
                       </li>
                     ))}
                   </ul>
+                  </div>
                 ) : null}
               </li>
             ))}

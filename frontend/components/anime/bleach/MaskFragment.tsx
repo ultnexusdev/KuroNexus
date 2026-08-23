@@ -72,7 +72,12 @@ const CAPSULE =
   "M46 26h10v10H46ZM64 26h10v10H64ZM46 48h10v10H46ZM64 48h10v10H64Z" +
   "M46 70h10v10H46ZM64 70h10v10H64ZM46 92h10v10H46ZM64 92h10v10H64Z";
 
-const FRAGMENTS: Record<string, string> = {
+/**
+ * ⚠️ DIŞA AÇIK. P11'in maske duvarı Ulquiorra ve Grimmjow için bu
+ * yolları AYNEN kullanıyor: aynı kalıntı iki bölümde iki farklı biçimde
+ * çizilseydi "kalan parça kimin ne olduğunu söyler" cümlesi bozulurdu.
+ */
+export const FRAGMENTS: Record<string, string> = {
   "jaw-chin": JAW_CHIN,
   "jaw-neck": JAW_NECK,
   crown: CROWN,

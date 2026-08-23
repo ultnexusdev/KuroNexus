@@ -34,8 +34,11 @@ const n = (value: number) => Number(value.toFixed(1));
  *
  * `evenodd` sayesinde bant oyuk (zemin rengi), dişler tekrar dolu oluyor —
  * yani klasik Hollow sırıtışı tek bir alt-yol dizisiyle çiziliyor.
+ *
+ * ⚠️ DIŞA AÇIK. P11'in maske duvarı bu ilkeli aynen kullanıyor; ikinci bir
+ * ağız çizme yöntemi yazmak sayfada iki ayrı maske grameri demekti.
  */
-function mouth(x0: number, x1: number, top: number, bottom: number, count: number) {
+export function mouth(x0: number, x1: number, top: number, bottom: number, count: number) {
   const step = (x1 - x0) / count;
   let d = `M${n(x0)} ${n(top)}H${n(x1)}V${n(bottom)}H${n(x0)}Z`;
   for (let i = 0; i < count; i += 1) {
@@ -45,8 +48,8 @@ function mouth(x0: number, x1: number, top: number, bottom: number, count: numbe
   return d;
 }
 
-/** Göz oyuğu — eğik bir dörtgen. `dir` 1 sol, -1 sağ. */
-function eye(cx: number, cy: number, w: number, h: number, dir: number) {
+/** Göz oyuğu — eğik bir dörtgen. `dir` 1 sol, -1 sağ. ⚠️ P11 de kullanıyor. */
+export function eye(cx: number, cy: number, w: number, h: number, dir: number) {
   return (
     `M${n(cx - (dir * w) / 2)} ${n(cy + h / 2)}` +
     `L${n(cx + (dir * w) / 2)} ${n(cy - h / 2)}` +

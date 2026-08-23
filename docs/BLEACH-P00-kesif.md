@@ -7,11 +7,11 @@
 
 ## ⌂ DEVİR — SIRADAKİ OTURUM BURADAN BAŞLASIN (23 Ağustos 2026)
 
-**Durum:** Küratör altyapısı + P-TOKENS + **P01–P10 canlıda.**
-**Sıradaki:** **P11 · Maskeler.** Brief'in kendi metni ana kaynak.
-⚠️ P07 zaten yedi maske durumu çizdi (`HollowMask.tsx`) ve P08 on maske
-parçası (`MaskFragment.tsx`). P11'e başlamadan **ikisine bak**: Visored
-maskeleri o dille devam etmeli, üçüncü bir maske grameri icat etme.
+**Durum:** Küratör altyapısı + P-TOKENS + **P01–P11 canlıda.**
+**Sıradaki:** **P12 · Bin Yıllık Kan Savaşı.** Brief'in kendi metni ana
+kaynak. ⚠️ P12 bir zaman çizelgesi bölümü ve sayfada zaten çok uzun bir
+dikey akış var; P06'nın dersini hatırla — konum göstergesini içerik
+yüksekliği varsayımıyla kurma.
 
 ### Yerleşik konvansiyonlar — bunları yeniden keşfetme
 
@@ -1361,7 +1361,74 @@ gerçek yükseklikte). BankaiHall'de öğrenilen ders.
 Rota paketi 25,1 kB → 25,8 kB — artışın tamamı sunucu tarafı; bölüm
 istemciye tek satır JS eklemiyor.
 
-### 8.17 Sırada
+### 8.17 P11 — MASKE DUVARI (23 Ağustos 2026) ✅
+
+**TEZ.** Bleach denince akla maske gelir. Bu bölüm bir kadro değil bir
+**duvar**: bir çizgiye asılı sekiz maske, altlarında kısa gölgeler. Küçük
+(748px masaüstünde) ama sayfanın en fotojenik parçası.
+
+⚠️ **ÜÇÜNCÜ BİR MASKE GRAMERİ İCAT EDİLMEDİ** — devir notunun kendi
+uyarısı. `eye()` ve `mouth()` ilkelleri `HollowMask`tan **dışa açıldı** ve
+buradan kullanıldı; Ulquiorra ile Grimmjow'un kalıntıları ise
+`MaskFragment`taki path'lerin **ta kendisi**. Aynı kalıntıyı iki bölümde
+iki farklı biçimde çizmek, P07'nin "kalan parça kimin ne olduğunu söyler"
+cümlesini yalanlardı.
+
+⚠️ **İTHAL PATH'LER YENİDEN ÇİZİLMEDİ, YENİDEN ÇERÇEVELENDİ.** Ölçüldü:
+P08'de dev bir rakamın üstüne oturmak üzere yazılmış oldukları için
+Ulquiorra'nın boynuzu kadrajın 8 birim dışında kalıp kırpılıyor,
+Grimmjow'un çenesi sağa yaslanıyordu. Çözüm bir `transform` — aynı çizim,
+farklı çerçeve. Doğrulandı: sekiz maskenin sekizi de 120×120 kutunun
+içinde.
+
+**MASKELER CANON'DAN ÇİZİLDİ.** Dört Visored maskesinin tarifi fandom'dan
+alındı ve her biri gerçekten ayırt edilebilir oldu: Ichigo'nun **sol**
+yanındaki üç şerit, Shinji'nin firavun başlığı, Kensei'nin **iki sütun
+hâlinde altı yarık gözü**, Hiyori'nin alnının **ortasındaki** tek boynuzu
+ve kaş üstü baklava dizisi, Nelliel'in **sol** çatlağı ve **kırılmış dört
+dişi**. Hafızadan çizilseydi hiçbiri bu kadar belirgin olmazdı.
+
+⚠️ **NELLIEL'İN AĞZI `mouth()` İLE ÜRETİLMEDİ** ve bu bilinçli: yardımcı
+dişleri eşit dağıtıyor, oysa maskesinin ayırt edici yanı dişlerin **sol
+yarıda olmaması**. Bant elle yazıldı.
+
+**SEKİZİNCİ MASKENİN SAHİBİ YOK.** 名も無き — Rukongai'de ölen ve kimsenin
+aramadığı ruhlar. Yedi tanınmış yüzün yanına bir isimsiz koymak duvarı bir
+hayran vitrininden bir kayda çeviriyor. Künyesi **hep açık**: bölümün alt
+metni bir hover'ın arkasında beklemez.
+
+**AD HOVER'DA BELİRMİYOR, HEP DURUYOR.** Brief adı hover'a saklıyor; sekiz
+maskede bu, kimin kim olduğunu öğrenmek için hepsinin üstünden geçmek ve
+dokunmatikte hiç öğrenememek demekti. Hover yalnızca parlatıyor.
+
+**Bağlantı yalnızca hedef varsa:** üçünün `#espada` karşılığı var, kalan
+beşi bağlantısız `<div>` — tıklanınca hiçbir yere gitmeyen bir `<a>`,
+bağlantı olmayan bir şeyden kötüdür.
+
+**Sıfır JS.** Sallanma (0 → −2° → 1,5° → 0, 900ms) ve dolgu CSS hover/odak;
+`prefers-reduced-motion`'da sallanma yok, dolgu kalıyor. Masaüstü 8'li tek
+sıra → 1100px altında 4×2 → 640px altında **yatay kaydırmalı duvar**
+(sayfa taşmıyor, duvar kendi içinde kayıyor: 1381px içerik, 320px pencere).
+
+⚠️ **İKİ CSS HATASI ÖLÇÜMLE YAKALANDI — biri P10'da.**
+1. `grid-template-rows: 0fr` ile kapanma, çocuğa **`min-height: 0`**
+   yazılmadan çalışmıyor: ızgara ögesinin otomatik en-az boyutu blok
+   ekseninde içeriğe göre hesaplanıyor ve `overflow: hidden` tek başına
+   onu sıfırlamıyor. Kapalı olması gereken künye 89px duruyordu.
+2. **Daha kötüsü P10'daydı:** `grid-template-rows: 0fr` yalnızca **ilk**
+   satırı boyutlandırıyor. Kidō formüllerinin üç `<li>`si doğrudan ızgara
+   ögesiydi, diğer ikisi **örtük** satır olarak `auto` boyutta açık
+   kalıyordu — liste hiç kapanmıyordu (102px). Kapanmayı taşıyan ızgaranın
+   **tek çocuğu** olmalı; bir sarmalayıcı eklendi.
+
+**DERS:** `0fr` daralması iki şart istiyor — kapanan ızgaranın tek çocuğu
+olacak ve o çocukta `min-height: 0` bulunacak. İkisinden biri eksikse
+kapanma sessizce olmuyor; gözle fark edilmiyor, `getBoundingClientRect`
+ile fark ediliyor.
+
+Rota paketi 25,8 kB → 26 kB.
+
+### 8.18 Sırada
 
 `/anime/bleach` iskelet olarak duruyor ve **hiçbir yerden linkli değil**
 (`robots: noindex`). Sıradaki tur **P-TOKENS**: beş dünya paleti, derinlik

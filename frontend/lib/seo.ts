@@ -20,6 +20,14 @@ import { SITE_URL } from "@/lib/site";
  *
  * `image` mutlak URL (API kapakları) ya da site-göreli yol olabilir —
  * göreliyi layout'taki `metadataBase` mutlaklaştırır.
+ *
+ * ── NEDEN `alternates` DE BURADA (2026-08-23) ────────────────────────────
+ * hreflang/canonical sitede tek sayfada (bleach, elle) vardı; sitemap
+ * doğru bildirse de sayfa `<head>`'leri boştu. Kural sitemap'takiyle aynı:
+ * her adres KENDİSİ DAHİL bütün dil eşlerini bildirir, `x-default`
+ * varsayılan dile — öneksiz TR adresine — gider. Yol zaten parametre
+ * olarak elimizde; tek kaynak yine bu yardımcı, sayfa başına elle yazım
+ * sınıfı kapanır.
  */
 export function shareCard({
   title,
@@ -35,11 +43,16 @@ export function shareCard({
   /** Locale ÖNEKSİZ yol, örn. `/muzik/sanatcilar` ya da `/spor/futbol`. */
   path: string;
   image?: string | null;
-}): Pick<Metadata, "openGraph" | "twitter"> {
-  const url =
-    locale === "en" ? `${SITE_URL}/en${path}` : `${SITE_URL}${path}`;
+}): Pick<Metadata, "openGraph" | "twitter" | "alternates"> {
+  const tr = `${SITE_URL}${path}`;
+  const en = `${SITE_URL}/en${path}`;
+  const url = locale === "en" ? en : tr;
   const img = image ?? "/brand/og.png";
   return {
+    alternates: {
+      canonical: url,
+      languages: { tr, en, "x-default": tr },
+    },
     openGraph: {
       type: "website",
       siteName: "KuroNexus",

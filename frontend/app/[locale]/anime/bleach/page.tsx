@@ -3,7 +3,6 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
 import { readIsAdmin } from "@/lib/auth/session";
 import { animeHref } from "@/lib/anime/routes";
-import { SITE_URL } from "@/lib/site";
 import { shareCard } from "@/lib/seo";
 import { CuratorFrame } from "@/components/character/CuratorFrame";
 import { BleachHero } from "@/components/anime/bleach/BleachHero";
@@ -78,23 +77,11 @@ export async function generateMetadata({
   const title = t("title");
   const description = t("description");
 
-  /**
-   * hreflang — P18-b.
-   *
-   * ⚠️ Her iki adres de KENDİSİ DAHİL bütün dil eşlerini bildiriyor;
-   * hreflang'in doğru kullanımı bu (aynı kural `app/sitemap.ts` içinde de
-   * yazılı). `x-default` varsayılan dile, yani öneksiz TR adresine gidiyor.
-   */
-  const tr = `${SITE_URL}${BLEACH_PATH}`;
-  const en = `${SITE_URL}/en${BLEACH_PATH}`;
+  /* hreflang/canonical (P18-b) artık `shareCard` üretiyor — gerekçe `lib/seo.ts` başlığında. */
 
   return {
     title,
     description,
-    alternates: {
-      canonical: locale === "en" ? en : tr,
-      languages: { tr, en, "x-default": tr },
-    },
     /* Kök düzenin openGraph'ı sığ birleşmeyle olduğu gibi kalırdı: kart
        "KuroNexus" başlığı ve ana sayfa adresiyle paylaşılırdı. `shareCard`
        bütün alanları yeniden yazıyor (gerekçe `lib/seo.ts` başlığında). */

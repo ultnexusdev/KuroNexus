@@ -122,7 +122,13 @@ const EXPERIENCE_ID_SET: ReadonlySet<number> = new Set<number>(
   Object.values(EXPERIENCE_IDS),
 );
 
-/** Bu numara elle tasarlanmış bir deneyim sayfasına mı çıkıyor? */
+/**
+ * Bu numara elle tasarlanmış bir deneyim sayfasına mı çıkıyor?
+ *
+ * Sayfalar birbirine bağ verirken kullanıyor: adı geçen karakterin elle
+ * yazılmış bir sayfası varsa kart bağlantılı çizilir, yoksa düz künye
+ * dosyasına göndermek yerine sadece ad gösterilir.
+ */
 export function isExperienceCharacter(characterId: number): boolean {
   return EXPERIENCE_ID_SET.has(characterId);
 }

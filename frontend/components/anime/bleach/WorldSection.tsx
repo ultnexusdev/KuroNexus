@@ -65,6 +65,7 @@ export const DEEP_SECTION_LAYERS: Record<string, LayerId> = {
   bankai: "soul-society",
   hierarchy: "royal",
   hueco: "hueco-mundo",
+  espada: "hueco-mundo",
 };
 
 /** Rayda ve başlıklarda kullanılan kanji — katman başına tek kaynak */

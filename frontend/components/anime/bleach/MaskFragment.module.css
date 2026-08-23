@@ -1,0 +1,17 @@
+/* ============================================================
+   MASKE PARCASI
+
+   ⚠️ KURAL 16: renk YOK. Parca `currentColor` ile boyaniyor, yani
+   ustune bindigi numaranin rengini aliyor. Hover'da bolum o Espada'nin
+   cero rengine dondugunde parca da onunla donuyor -- ikinci bir renk
+   haritasi tutulmuyor.
+   ============================================================ */
+
+.fragment {
+  display: block;
+  width: 100%;
+  height: auto;
+  fill: currentColor;
+  /* Bleach'te yuvarlak kose yok; kesim keskin kalsin */
+  shape-rendering: geometricPrecision;
+}

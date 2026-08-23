@@ -1493,9 +1493,9 @@
       "scaffold": {
         "title": "BLEACH EVRENİ",
         "lede": "Her ruh bir gölge bırakır. Her kılıcın bir adı vardır.",
-        "note": "Hero, beş katman, on üç kapı, Zanpakutō arşivi, Bankai salonu, ruh hiyerarşisi ve Hueco Mundo yerinde. Kalan bölümler sırayla geliyor.",
+        "note": "Hero, beş katman, on üç kapı, Zanpakutō arşivi, Bankai salonu, ruh hiyerarşisi, Hueco Mundo ve Espada yerinde. Kalan bölümler sırayla geliyor.",
         "playgroundLink": "Tasarım sistemi denemesini aç →",
-        "pendingSections": "P08 · ESPADA — YAPIM AŞAMASINDA"
+        "pendingSections": "P09 · WANDENREICH — YAPIM AŞAMASINDA"
       },
       "world": {
         "railAria": "Ruhsal katmanlar",
@@ -1581,6 +1581,25 @@
         "lede": "Hollow evrimi bir soyağacı değil: tek bir maskenin başına gelenler. Takılır, devleşir, daralır, çatlar ve sonunda kırılır — altından çıkan şey artık bir insan yüzüdür. Yedi aşama, her biri bir yasakla korunuyor.",
         "indexAria": "Evrim aşamaları",
         "stagesAria": "Hollow evriminin yedi aşaması"
+      },
+      "espada": {
+        "eyebrow": "ESPADA — THE TEN WHO ANSWER",
+        "title": "Cevap Veren On",
+        "lede": "Aizen'in ordusundaki en güçlü on Arrancar. Ama bu bir güç listesi değil: Baraggan'ın cümlesiyle her biri ölümün ayrı bir yüzüne hükmediyor. Merkezde portre değil numara olmasının sebebi bu — kadro bir galeri değil, bir tipoloji.",
+        "throneName": "Sōsuke Aizen",
+        "throneRole": "onları toplayan",
+        "courtAria": "Espada, güç sırasına göre",
+        "aspectOf": "ASPECT OF DEATH",
+        "cero": "Cero rengi",
+        "ceroUnknown": "canon yazmıyor — cero'ların varsayılanı kızıl",
+        "tattoo": "Numaranın yeri",
+        "unknown": "Kayıt yok",
+        "fragmentLabel": "Maske kalıntısı",
+        "close": "Kapat",
+        "sceneOpen": "sahneyi aç",
+        "sceneAria": "Ulquiorra Cifer — son sahne",
+        "sceneLine": "Elimde tutabilseydim, görebilseydim…",
+        "sceneClose": "Kapat"
       }
     }
   },

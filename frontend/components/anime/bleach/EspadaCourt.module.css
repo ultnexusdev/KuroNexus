@@ -1,0 +1,676 @@
+/* ============================================================
+   P08 · ESPADA — CEVAP VEREN ON
+
+   Merkez PORTRE degil NUMARA. Akatsuki sergisinin kart izgarasi burada
+   bilincli olarak reddedildi: Espada bir esitler meclisi degil bir
+   hiyerarsi ve tahtin cevresinde ASIMETRIK duruyorlar.
+
+   ⚠️ KURAL 16: tek hex yok. Bolum P07'nin negatif derisinde
+   (`[data-layer="hueco-mundo"]`). Espada'ya ozel tek renk cero rengi ve
+   o bir TOKEN DEGIL VERI -- `--cero-N` olarak satir ici geliyor
+   (`divisions.ts` reiatsu'su ile ayni sinif, gerekcesi espada.ts'te).
+   ============================================================ */
+
+.section {
+  position: relative;
+  isolation: isolate;
+  padding-block: clamp(4rem, 12vh, 9rem) clamp(4rem, 10vh, 7rem);
+  background: var(--bg);
+  color: var(--text-primary);
+  transition: background-color 600ms ease-in-out, color 600ms ease-in-out;
+}
+
+.head {
+  width: var(--band);
+  margin-inline: auto;
+  padding-inline-end: var(--rail);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(0.6rem, 1.6vw, 1.1rem);
+  margin-bottom: clamp(2.5rem, 8vh, 5rem);
+}
+
+.head p {
+  margin: 0;
+}
+
+.lede {
+  max-width: calc(var(--measure) / 1.4);
+}
+
+/* ── DIVAN ───────────────────────────────────────────────────
+   `--cero-1` … `--cero-10` bu ogede satir ici duruyor; asagidaki
+   `:has()` kurallari hangi kartin etkin oldugunu okuyup bolumun
+   `--world-glow`unu o degere ceviriyor. JS yok. */
+.courtWrap {
+  position: relative;
+  width: var(--band);
+  margin-inline: auto;
+  padding-inline-end: var(--rail);
+}
+
+/* Butun bolume yayilan hafif boyama. Degisken aninda donuyor ama bu
+   katman gecisli, yani boyanma 400ms'de oturuyor (brief'in degeri). */
+.courtWrap::before {
+  content: "";
+  position: absolute;
+  inset: calc(var(--gutter) * -0.5);
+  z-index: -1;
+  pointer-events: none;
+  background: var(--world-glow);
+  opacity: 0.05;
+  transition: background-color 400ms ease-out, opacity 400ms ease-out;
+}
+
+.court {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  /* ⚠️ Yerlesim TAMAMEN gorsel. DOM sirasi guc sirasi (Primera → Diez);
+     klavyeyle gezen biri kadroyu sirali okuyor. */
+  grid-template-areas:
+    ".   s5     s4     s3     ."
+    "s6  throne throne throne s2"
+    "s7  throne throne throne s1"
+    ".   s8     s9     s10    .";
+  gap: clamp(0.75rem, 2vw, 1.75rem);
+  align-items: center;
+}
+
+.slot {
+  display: flex;
+  justify-content: center;
+}
+
+.card {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: clamp(0.5rem, 1.4vw, 1rem) 0.4rem;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  color: inherit;
+  text-align: center;
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--world-glow);
+  outline-offset: 4px;
+}
+
+/* ── NUMARA ──────────────────────────────────────────────────
+   Bolumun merkezi. Archivo Black yalnizca 0-9 icin yukleniyor
+   (kok duzende yazili) ve tam olarak burada kullaniliyor. */
+.numberWrap {
+  position: relative;
+  display: block;
+  line-height: 0.8;
+  transition: scale 320ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.number {
+  display: block;
+  font-size: clamp(4rem, 9vw, 9rem);
+  color: var(--world-paper);
+  opacity: 0.22;
+  transition: opacity 320ms ease-out, color 400ms ease-out;
+}
+
+/* Maske parcasi numaranin USTUNE biniyor: kimligin iki yarisi ust uste. */
+.fragment {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 62%;
+  translate: -50% -50%;
+  color: var(--world-glow);
+  opacity: 0;
+  transition: opacity 320ms ease-out, color 400ms ease-out;
+  pointer-events: none;
+}
+
+.card:hover .numberWrap,
+.card:focus-visible .numberWrap {
+  scale: 1.08;
+}
+
+.card:hover .number,
+.card:focus-visible .number {
+  opacity: 1;
+}
+
+.card:hover .fragment,
+.card:focus-visible .fragment {
+  opacity: 0.85;
+}
+
+.cardName {
+  color: var(--text-secondary);
+  transition: color 400ms ease-out;
+}
+
+.card:hover .cardName,
+.card:focus-visible .cardName {
+  color: var(--text-primary);
+}
+
+/* ⚠️ YER AYRILMIS. Hover'da beliren metin duzeni itseydi kadro her fare
+   hareketinde ziplardi; burada CLS = 0. */
+.reveal {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-height: 3.1em;
+  opacity: 0;
+  transition: opacity 320ms ease-out;
+}
+
+.card:hover .reveal,
+.card:focus-visible .reveal {
+  opacity: 1;
+}
+
+.aspect {
+  font-family: var(--b-kubo);
+  font-weight: 300;
+  font-size: 0.64rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--world-glow);
+  transition: color 400ms ease-out;
+}
+
+.res {
+  font-family: var(--b-display);
+  font-weight: 600;
+  font-size: 0.86rem;
+  color: var(--text-primary);
+}
+
+/* ── TAHT ────────────────────────────────────────────────────
+   Dolu dikdortgen, icinde tek kanji. Bolumun boyanmayan tek ogesi:
+   Aizen'in cero rengi yok, cunku o bir Espada degil. */
+.throne {
+  grid-area: throne;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: clamp(7rem, 18vw, 14rem);
+  background: var(--world-paper);
+  color: var(--world-ink);
+}
+
+.throneKanji {
+  font-family: var(--b-display);
+  font-weight: 700;
+  font-size: clamp(3rem, 9vw, 7rem);
+  line-height: 1;
+}
+
+.throneCaption {
+  margin: clamp(0.6rem, 1.6vh, 1rem) 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.throneRole {
+  opacity: 0.7;
+}
+
+/* ── CERO BOYAMASI ───────────────────────────────────────────
+   On kural, on renk. Elle yazilmis olmalari kasitli: uretilmis bir
+   dongu burada okunmayi zorlastirirdi ve sayilari sabit -- Espada
+   her zaman on kisi. */
+.courtWrap:has([data-rank="1"] .card:is(:hover, :focus-visible)),
+.court[data-open="1"] {
+  --world-glow: var(--cero-1);
+}
+.courtWrap:has([data-rank="2"] .card:is(:hover, :focus-visible)),
+.court[data-open="2"] {
+  --world-glow: var(--cero-2);
+}
+.courtWrap:has([data-rank="3"] .card:is(:hover, :focus-visible)),
+.court[data-open="3"] {
+  --world-glow: var(--cero-3);
+}
+.courtWrap:has([data-rank="4"] .card:is(:hover, :focus-visible)),
+.court[data-open="4"] {
+  --world-glow: var(--cero-4);
+}
+.courtWrap:has([data-rank="5"] .card:is(:hover, :focus-visible)),
+.court[data-open="5"] {
+  --world-glow: var(--cero-5);
+}
+.courtWrap:has([data-rank="6"] .card:is(:hover, :focus-visible)),
+.court[data-open="6"] {
+  --world-glow: var(--cero-6);
+}
+.courtWrap:has([data-rank="7"] .card:is(:hover, :focus-visible)),
+.court[data-open="7"] {
+  --world-glow: var(--cero-7);
+}
+.courtWrap:has([data-rank="8"] .card:is(:hover, :focus-visible)),
+.court[data-open="8"] {
+  --world-glow: var(--cero-8);
+}
+.courtWrap:has([data-rank="9"] .card:is(:hover, :focus-visible)),
+.court[data-open="9"] {
+  --world-glow: var(--cero-9);
+}
+.courtWrap:has([data-rank="10"] .card:is(:hover, :focus-visible)),
+.court[data-open="10"] {
+  --world-glow: var(--cero-10);
+}
+
+/* ── DONUSUM PANELI ──────────────────────────────────────────
+   On sayfa da DOM'da; JS yalnizca hangisinin gorunecegini seciyor
+   (sayfanin "JS olmadan bos gorunmez" kurali). */
+.panel {
+  width: var(--band);
+  margin-inline: auto;
+  padding-inline-end: var(--rail);
+  margin-top: clamp(1.5rem, 5vh, 3rem);
+}
+
+.panel:focus {
+  outline: none;
+}
+
+.sheet {
+  display: none;
+  border-top: 2px solid var(--cero);
+  padding-top: clamp(1rem, 3vh, 1.75rem);
+}
+
+.sheet[data-on] {
+  display: block;
+}
+
+.sheetHead {
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(0.9rem, 2.5vw, 2rem);
+  flex-wrap: wrap;
+}
+
+.sheetRank {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.sheetNumber {
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  line-height: 0.8;
+  color: var(--cero);
+}
+
+.sheetOrdinal {
+  color: var(--text-muted);
+}
+
+.sheetName {
+  margin: 0;
+  font-family: var(--b-kubo);
+  font-weight: 200;
+  font-size: clamp(1.1rem, 2.4vw, 1.8rem);
+  letter-spacing: 0.34em;
+  margin-inline-end: -0.34em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.sheetAspect {
+  margin: 0.35rem 0 0;
+  color: var(--text-secondary);
+}
+
+.closeButton {
+  margin-inline-start: auto;
+  appearance: none;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--hairline);
+  padding: 0.3rem 0;
+  min-height: var(--touch-min);
+  cursor: pointer;
+  font-family: var(--b-kubo);
+  font-weight: 300;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.closeButton:hover,
+.closeButton:focus-visible {
+  color: var(--cero);
+  border-bottom-color: var(--cero);
+}
+
+/* Kunye satirlari: kart degil, hairline ayracli satirlar */
+.facts {
+  margin: clamp(1rem, 3vh, 1.75rem) 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 0 clamp(1rem, 3vw, 2.5rem);
+  border-top: 1px solid var(--hairline);
+}
+
+.fact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding-block: 0.8rem;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.fact dt {
+  color: var(--text-muted);
+}
+
+.fact dd {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-family: var(--b-body);
+  font-size: 0.86rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.swatch {
+  width: 0.8rem;
+  height: 0.8rem;
+  flex: none;
+  background: var(--cero);
+}
+
+/* "Canon bu kisinin cero rengini yazmiyor" notu. Arsivin en guvenilir
+   yani bilmedigini soylemesi. */
+.footnote {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  opacity: 0.9;
+}
+
+/* ── YATAY DURAKLAR ──────────────────────────────────────────
+   BASE → RESURRECCION → (SEGUNDA). Ucu de ayni anda gorunuyor:
+   donusum bir animasyon degil bir SIRA ve sira okunmali. */
+.stops {
+  list-style: none;
+  margin: clamp(1.25rem, 4vh, 2.25rem) 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: clamp(1rem, 3vw, 2.5rem);
+}
+
+.stop {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-left: clamp(0.8rem, 2vw, 1.2rem);
+  border-left: 1px solid var(--hairline);
+}
+
+.stopMark {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  min-height: 3.2rem;
+}
+
+.stopIndex {
+  font-size: 1.6rem;
+  line-height: 0.8;
+  color: var(--cero);
+  opacity: 0.55;
+}
+
+.stopKanji {
+  font-family: var(--b-display);
+  font-weight: 700;
+  font-size: clamp(1.2rem, 3vw, 1.9rem);
+  line-height: 1.05;
+  color: var(--text-primary);
+}
+
+.stopFragment {
+  width: 2.6rem;
+  color: var(--cero);
+  opacity: 0.8;
+}
+
+.stopName {
+  margin: 0;
+  font-family: var(--b-kubo);
+  font-weight: 300;
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--cero);
+}
+
+.stopText {
+  margin: 0;
+  max-width: none;
+  font-size: 0.9rem;
+}
+
+/* ── TEKIL SAHNEYI ACAN DUGME ────────────────────────────────
+   Sahne kendiliginden acilmiyor. Habersiz bir tam ekran devralma
+   klavye ve ekran okuyucu icin tuzaktir; brief'in kendi kalite tabani
+   da "hicbir icerik erisilemez hale gelmez" diyor. Kapi acikca burada. */
+.sceneButton {
+  appearance: none;
+  background: none;
+  border: 0;
+  border-left: 2px solid var(--cero);
+  padding: 0.5rem 0 0.5rem 0.9rem;
+  margin-top: clamp(1.25rem, 4vh, 2.25rem);
+  min-height: var(--touch-min);
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.9rem;
+  cursor: pointer;
+  color: var(--text-primary);
+  transition: gap 320ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sceneButton span:first-child {
+  font-family: var(--b-display);
+  font-weight: 700;
+  font-size: clamp(1.1rem, 2.6vw, 1.5rem);
+}
+
+.sceneButton:hover,
+.sceneButton:focus-visible {
+  gap: 1.3rem;
+  color: var(--cero);
+}
+
+/* ── TEKIL SAHNE ─────────────────────────────────────────────
+   Sayfanin tek duygusal doruk noktasi: tam ekran, TEK RENK.
+
+   ⚠️ Brief burada iki hex veriyor (#0A0A0A / #E9E4D9). Kural 16
+   geregi token karsiliklari kullanildi: `--void` ve `--bone` zaten
+   `[data-world="bleach"]` derisinde tanimli ve ayni degerler
+   civarinda. Boylece sahne sayfanin geri kalaniyla ayni kaynaktan
+   besleniyor.
+
+   ⚠️ ZAMAN ASIMI YOK. Brief "4 saniye sonra otomatik cikis" diyor;
+   kul dagilma animasyonu o suredeetkisini tamamliyor ama sahne
+   KAPANMIYOR. Kendiliginden kaybolan metin yavas okuyani disarida
+   birakir. Cikis uc yoldan: tikla, Escape, kapat dugmesi. */
+.scene {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(1rem, 4vh, 2.5rem);
+  padding: var(--gutter);
+  background: var(--void);
+  color: var(--bone);
+  cursor: pointer;
+  animation: sceneIn 520ms ease-out both;
+}
+
+@keyframes sceneIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.scene:focus {
+  outline: none;
+}
+
+.sceneKanji {
+  margin: 0;
+  font-family: var(--b-display);
+  font-weight: 700;
+  font-size: clamp(2.4rem, 9vw, 6rem);
+  line-height: 1;
+  letter-spacing: 0.04em;
+}
+
+.sceneLine {
+  margin: 0;
+  max-width: 34ch;
+  text-align: center;
+  font-family: var(--b-body);
+  font-size: clamp(0.95rem, 1.6vw, 1.15rem);
+  line-height: 1.9;
+  opacity: 0.8;
+}
+
+.sceneCloseButton {
+  appearance: none;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid currentColor;
+  padding: 0.3rem 0;
+  min-height: var(--touch-min);
+  cursor: pointer;
+  font-family: var(--b-kubo);
+  font-weight: 300;
+  font-size: 0.72rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: inherit;
+  opacity: 0.6;
+}
+
+.sceneCloseButton:hover,
+.sceneCloseButton:focus-visible {
+  opacity: 1;
+}
+
+/* ── 900px ALTI ──────────────────────────────────────────────
+   Asimetrik divan duz bir listeye iniyor ve sira DOM'daki sira:
+   Primera'dan Diez'e, yani GUC sirasi (brief'in kendi kurali). */
+@media (max-width: 900px) {
+  .head,
+  .courtWrap,
+  .panel {
+    padding-inline-end: 0;
+  }
+
+  .court {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.5rem, 2vh, 1rem);
+  }
+
+  .slot {
+    width: 100%;
+  }
+
+  .card {
+    flex-direction: row;
+    align-items: center;
+    gap: clamp(0.8rem, 4vw, 1.5rem);
+    text-align: left;
+    border-bottom: 1px solid var(--hairline);
+    padding-block: 0.6rem;
+  }
+
+  .numberWrap {
+    flex: none;
+    width: 4.5ch;
+  }
+
+  .number {
+    font-size: clamp(2.6rem, 12vw, 3.6rem);
+    /* Dar ekranda hover yok: numara bastan okunur olmali */
+    opacity: 0.55;
+  }
+
+  .reveal {
+    /* Dokunmatikte hover yok -- olum yuzu bastan acik duruyor ve
+       ayrilmis bos yere gerek kalmiyor. */
+    opacity: 1;
+    min-height: 0;
+  }
+
+  .throne {
+    order: -1;
+    min-height: 8rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .stop {
+    border-left: 0;
+    padding-left: 0;
+    border-top: 1px solid var(--hairline);
+    padding-top: 0.8rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section,
+  .courtWrap::before,
+  .numberWrap,
+  .number,
+  .fragment,
+  .cardName,
+  .reveal,
+  .aspect,
+  .sceneButton {
+    transition: none;
+  }
+
+  .scene {
+    animation: none;
+  }
+
+  /* Buyume kalkiyor; opaklik degisimi kaliyor cunku o bir hareket
+     degil bir DURUM degisimi. */
+  .card:hover .numberWrap,
+  .card:focus-visible .numberWrap {
+    scale: 1;
+  }
+}

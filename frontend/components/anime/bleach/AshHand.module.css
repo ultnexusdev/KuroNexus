@@ -1,0 +1,59 @@
+/* ============================================================
+   KULE DONEN EL
+
+   Sahne tek renkli: her sey `currentColor`. Renk sahnenin kokunden
+   geliyor (`EspadaCourt.module.css` icindeki `.scene`), burada tek bir
+   deger yazili degil -- kural 16.
+   ============================================================ */
+
+.ash {
+  display: block;
+  width: min(16rem, 42vw);
+  height: auto;
+  margin-inline: auto;
+  color: inherit;
+  overflow: visible;
+}
+
+.hand {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.75;
+}
+
+/* Kul zerresi. Bleach'te yuvarlak kose yok: zerreler kare. */
+.mote {
+  fill: currentColor;
+  opacity: 0.55;
+  animation: rise 5.5s ease-out infinite;
+  animation-delay: var(--delay);
+}
+
+@keyframes rise {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.6;
+  }
+  100% {
+    /* Yatay kayma zerre basina degisiyor: dumduz yukselen bir toz
+       bulutu sahte gorunuyordu. */
+    transform: translate(calc(var(--drift) * 6px), -70px);
+    opacity: 0;
+  }
+}
+
+/* ⚠️ Brief'in kabul olcutu: hareket kisitli kipte parcalanma
+   ANIMASYONSUZ. Zerreler dagilmis halleriyle sabit kaliyor -- sahne
+   hareketsizken de ayni seyi soyluyor. */
+@media (prefers-reduced-motion: reduce) {
+  .mote {
+    animation: none;
+    opacity: 0.45;
+  }
+}

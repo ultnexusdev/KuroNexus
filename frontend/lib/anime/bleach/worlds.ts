@@ -65,6 +65,8 @@ export const READY_SECTIONS = new Set<string>([
   "hierarchy",
   /* P07 · Hueco Mundo, maskenin kırılışı — 23 Ağustos 2026 */
   "hueco",
+  /* P08 · Espada — 23 Ağustos 2026 */
+  "espada",
 ]);
 
 export const BLEACH_WORLDS: readonly WorldRecord[] = [

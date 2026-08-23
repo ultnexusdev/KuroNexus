@@ -7,12 +7,12 @@
 
 ## ⌂ DEVİR — SIRADAKİ OTURUM BURADAN BAŞLASIN (23 Ağustos 2026)
 
-**Durum:** Küratör altyapısı + P-TOKENS + **P01–P07 canlıda.**
-**Sıradaki:** **P08 · Espada — Cevap Veren On.** Brief'in kendi metni ana
-kaynak. ⚠️ P08 da Hueco Mundo'nun negatif derisinde geçiyor
-(`data-layer="hueco-mundo"`) ve P07'nin son karesi ona hazırlık: maskeden
-kalan parça + on kılıç. Numaralar orada anlatılacak, P07'de bilerek
-çizilmedi.
+**Durum:** Küratör altyapısı + P-TOKENS + **P01–P08 canlıda.**
+**Sıradaki:** **P09 · Wandenreich — Görünmez İmparatorluk.** Brief'in kendi
+metni ana kaynak. ⚠️ P09 `[data-layer="wandenreich"]` derisinde: gotik buz,
+altın aksan. **UnifrakturMaguntia yalnızca orada** kullanılabilir (wordmark
++ Schrift harfleri) ve aile Türkçe diyakritik taşımıyor —
+`pnpm check:bleach` bunu denetliyor, commit öncesi koştur.
 
 ### Yerleşik konvansiyonlar — bunları yeniden keşfetme
 
@@ -1156,7 +1156,78 @@ Vasto Lorde'a nasıl çıktığı canon'da **hiç açıklanmadı** → `rule` bu
 açıkça yazıyor. Espada karesine **rakam dövmesi çizilmedi**: herhangi bir
 rakam belirli bir Espada'yı işaret ederdi, kadro ayrı bir kayıt (P08).
 
-### 8.14 Sırada
+### 8.14 P08 — ESPADA · CEVAP VEREN ON (23 Ağustos 2026) ✅
+
+**TEZ.** Naruto Evreni'ndeki karşılığı Akatsuki sergisi ve karar ona göre
+**ters** kuruldu: orada merkez portre, burada merkez **numara**. Baraggan'ın
+cümlesi bölümün tamamını taşıyor — her Espada ölümün ayrı bir yüzüne
+hükmediyor, yani kadro bir galeri değil bir **tipoloji**.
+
+**ASİMETRİ BİR SÜS DEĞİL ARGÜMAN.** Espada bir eşitler meclisi değil;
+çembere dizmek "hepsi eşit uzaklıkta" derdi. Taht ortada (5×4 ızgarada
+3×2 alan), Bir ve İki tahtın hemen yanında, Dokuz ve On en dışarıda.
+Ölçüldü: satır 1 → 5·4·3, satır 2 → 6 … 2, satır 3 → 7 … 1, satır 4 →
+8·9·10; taht 319–1033 px arasında ortalanmış.
+
+⚠️ **GÖRSEL SIRA CSS'TE, OKUMA SIRASI DOM'DA.** `grid-area` yerleşimi
+tamamen görsel; DOM güç sırası (Primera → Diez). Klavyeyle gezen kadroyu
+sıralı okuyor. 900px altında ızgara düz listeye iniyor ve sıra DOM sırası
+kalıyor — brief'in "1'den 0'a" kuralı kendiliğinden sağlanıyor.
+
+**CERO BOYAMASI SAF CSS.** Hover/odakta bölümün `--world-glow`u o
+Espada'nın cero rengine dönüyor. JS yok: on `--cero-N` kökte satır içi,
+on `:has()` kuralı hangi kartın etkin olduğunu söylüyor. Ölçüldü:
+`data-open="4"` → `--world-glow` `#7A0F14` iken `#1C7A3C` oluyor. Fare
+çıkınca kendiliğinden geri alınıyor, temizlenecek durum kalmıyor
+(brief'in kabul ölçütü). Geçiş 400ms — değişken anında dönüyor ama onu
+**okuyan özellikler** geçişli.
+
+⚠️ **CANON YİNE ÜÇ HATA YAKALADI:**
+1. **Yammy 0 değil 10.** Dövmesi sol omzunda "10"; Resurrección'da "1"
+   eriyor ve "0" kalıyor. Kayıt ikisini birden tutuyor (`rank` /
+   `releasedRank`) — brief onu doğrudan 0 yazmıştı.
+2. **Ulquiorra'nın yüzü "boşluk" değil 虚無 — hiçlik.**
+3. **Sıra adları canon'un kendi içinde tutarsız:** Primera, Segunda,
+   *Tres*, *Cuatro*, Quinta… Üç ve dört sıra sayısı değil asıl sayı.
+   Düzeltilmedi.
+
+**“reiatsuColor” DİYE BİR CANON VERİSİ YOK.** Brief onu istiyor ama canon
+reiatsu rengini kaydetmiyor; kaydettiği şey **cero rengi** ve on kişinin
+yedisi için yazılı (`Template:CeroColors`). Kalan üçü `attested: false` ve
+arayüz bunu açıkça söylüyor: "canon yazmıyor — cero'ların varsayılanı
+kızıl". Renk **adları** canon'dan, **değerleri** koyulaştırıldı: bölüm
+beyaz zeminde geçiyor ve altın sarısı bir cero orada okunmuyordu.
+
+**ON AYRI MASKE PARÇASI.** P07'nin son cümlesi "kalan parça hâlâ kimin ne
+olduğunu söyler"di; o cümle parçalar gerçekten farklıysa doğru olur. Canon
+her biri için ayrı bir yer yazıyor ve hepsi çizildi: Starrk'ın boynundaki
+dişli çene, Baraggan'ın beş uçlu tacı, Nnoitra'nın göz bandı altındaki diş
+halkası, Szayelaporro'nun gözlüğü, Aaroniero'nun sekiz delikli kapsülü.
+**Dövmenin yeri de kayıtta** — Nnoitra'nınki dilinin üstünde, Starrk'ınki
+sol elinin sırtında, Baraggan ve Szayelaporro'nunki bilinmiyor (`null`).
+
+⚠️ **TEKİL SAHNE KENDİLİĞİNDEN AÇILMIYOR.** Brief "Ulquiorra'ya
+tıklandığında" diyor; habersiz bir tam ekran devralma klavye ve ekran
+okuyucu için tuzaktır. Kapı Ulquiorra panelinin sonunda açık bir düğme:
+`「心か」`. Escape ile kapanıyor, odak düğmeye dönüyor.
+
+⚠️ **4 SANİYELİK OTOMATİK ÇIKIŞ UYGULANMADI.** Kül dağılma animasyonu o
+sürede etkisini tamamlıyor ama sahne kapanmıyor. Kendiliğinden kaybolan
+metin yavaş okuyanı dışarıda bırakır ve brief'in kendi kalite tabanına
+("hiçbir içerik erişilemez hâle gelmez") aykırı. Çıkış üç yoldan: tıkla,
+Escape, kapat düğmesi.
+
+**Sahnenin iki hex'i token'a çevrildi** (`--void` / `--bone`). Ölçüldü:
+`rgb(7,7,10)` zemin + `rgb(233,228,217)` metin ≈ 16:1.
+
+**On panel de DOM'da**, JS yalnızca hangisinin görüneceğini seçiyor —
+sayfanın "JS olmadan boş görünmez" kuralı. Kül zerreleri `Math.random()`
+ile değil deterministik bir karışımla üretiliyor (hidrasyon uyuşmazlığı
+olmasın); `prefers-reduced-motion`'da dağılmış hâlleriyle sabit.
+
+Rota paketi 21 kB → 24 kB (bölümün etkileşim adası).
+
+### 8.15 Sırada
 
 `/anime/bleach` iskelet olarak duruyor ve **hiçbir yerden linkli değil**
 (`robots: noindex`). Sıradaki tur **P-TOKENS**: beş dünya paleti, derinlik

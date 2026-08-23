@@ -7,10 +7,12 @@
 
 ## ⌂ DEVİR — SIRADAKİ OTURUM BURADAN BAŞLASIN (23 Ağustos 2026)
 
-**Durum:** Küratör altyapısı + P-TOKENS + **P01–P17 canlıda** + **P18-a
-bitti.** On altı anlatı bölümü, hub kartı ve performans turu tamam.
-**Sıradaki:** **P18-b · erişilebilirlik + i18n + SEO** — sonunda
-`robots: noindex` kalkıyor. Ardından **P18-c**.
+**Durum:** Küratör altyapısı + P-TOKENS + **P01–P17 canlıda** + **P18-a ve
+P18-b bitti.** On altı anlatı bölümü, hub kartı, performans turu ve
+erişilebilirlik/i18n/SEO turu tamam. **Sayfa yayında — `noindex` kalktı.**
+**Sıradaki ve SON:** **P18-c** — brief'in "son kritik"i: sayfayı baştan
+sona gez, "bu Naruto'nun Bleach'le doldurulmuş hâli mi?" sorusunu bölüm
+bölüm cevapla, **en zayıf üç bölümü yeniden yaz.**
 
 ⚠️ **P18 TEK OTURUMA SIĞMAZ — ÜÇE BÖLÜNDÜ** (23 Ağustos 2026'da karar
 verildi; brief'in altı maddesi tek turda bitecek hacimde değil, altıncı
@@ -19,7 +21,7 @@ madde tek başına bir oturum):
 | Tur | Kapsam |
 |---|---|
 | **P18-a** ✅ | **BİTTİ — 23 Ağustos 2026.** Ölçüldü: brief'in dört hedefinden üçü zaten tutuyordu, üç optimizasyon maddesinin ikisi ölçümde karşılıksız çıktı. Yapılan: on bölüme `content-visibility`, `pnpm check:bleach`e bütçe bekçisi. **Tutanak aşağıda — yeniden ölçme.** |
-| **P18-b** | Erişilebilirlik + i18n + SEO: "bölümlere atla" landmark listesi, on altı bölümde buton/`div` denetimi, `prefers-reduced-motion` tam tarama, ekran okuyucu geçiş raporu, hreflang, meta/OG/JSON-LD — **ve en sonda `robots: noindex` kalkar** |
+| **P18-b** ✅ | **BİTTİ — 23 Ağustos 2026.** Atla listesi, iç içe `<main>` düzeltmesi, hreflang, OG kartı, JSON-LD, iki i18n sızıntısı ve `robots: noindex`in kalkması. **Tutanak aşağıda.** |
 | **P18-c** | Brief'in "son kritik"i: sayfayı baştan sona gez, "bu Naruto'nun Bleach'le doldurulmuş hâli mi?" sorusunu bölüm bölüm cevapla, **en zayıf üç bölümü yeniden yaz** |
 
 ⚠️ **`robots: noindex` P18-b'nin SONUNDA kalkar**, önce değil — kilit
@@ -91,6 +93,66 @@ ekran görüntüsü "pane is not displayed" diyor, her
 Panelden alınabilen tek şey **hesaplanmış stil ve DOM sayımı** — bunlar
 güvenilir (P18-a'da on bölümün `content-visibility`si böyle doğrulandı).
 Yükseklik, LCP ve görsel doğrulama ya sunucu çıktısı üzerinden ya canlıda.
+
+
+### P18-b · erişilebilirlik + i18n + SEO (23 Ağustos 2026) — BİTTİ
+
+**`robots: noindex` KALKTI.** Sayfa yayında ve `app/sitemap.ts` içinde
+listeli (`/anime/bleach`, iki dil). `/anime/bleach/playground` kapalı
+kaldı — kendi `generateMetadata`sında kendi `noindex`ini taşıyor.
+
+**Yapılanlar:**
+
+| | |
+|---|---|
+| Bölümlere atla | `SectionNav` — görünmez `<nav>`, odaklanınca açılıyor (`:focus-within`), on altı bağlantı. ⚠️ `.srOnly` kullanılamadı: `clip-path` çocukları da kırpıyor, odaklanan bağlantı görünmez kalırdı |
+| Çapa defteri | `lib/anime/bleach/anchors.ts` — atla listesi, JSON-LD ve denetim aynı listeyi okuyor |
+| İç içe `<main>` | DÜZELTİLDİ: sayfa `<main>` açıyordu, kök düzen zaten `<main id="icerik">` veriyor. Artık `<div>` |
+| hreflang | `alternates.languages` tr / en / x-default + locale başına `canonical` |
+| Paylaşım kartı | `shareCard()` + **`public/og/bleach.png`** (1200×630). Üreten: `scripts/build-bleach-og.mjs` |
+| JSON-LD | `CollectionPage` + `ItemList` (16 bölüm), iki dilde ayrı |
+| Durum bloğu | "P18 · SON GEÇİŞ" satırı ve tasarım denemesi bağlantısı KALDIRILDI — `noindex` altındayken doğruydu, kilit kalkınca ziyaretçiye iç yapım durumu gösteriyordu. `anime.bleach.scaffold` sözlük bloğu da silindi (kullanan kalmadı) |
+
+**Bulunan iki gerçek hata:**
+
+1. **İngilizce sayfaya Türkçe sızmıştı.** `timeline.ts` içinde
+   `blade: "斬月 · bandajlı"` ve `"斬月 · iki bıçak"`. Alan **ÇEVRİLMEZ**
+   diye işaretliydi ve işaret yanlış değildi — kılıcın adı gerçekten
+   çevrilmez; aynı dizeye bir de NİTELEME sıkıştırılmıştı. Ad `blade`de
+   kaldı, niteleme `bladeNote: Localized` oldu.
+2. **İki künyede Türkçe:** "Himeji Kalesi", "kamu malı". Lisans atfı tek
+   dilde durmalı; İngilizce seçildi (lisans adları zaten İngilizce).
+
+**Ekran okuyucu geçiş raporu** (sunucu çıktısından, iki dilde aynı):
+
+```
+h1: 1 ✓            seviye atlama: yok ✓
+<button>: 115, adsız: 0 ✓        <img>: 1, alt'sız: 0 ✓
+adlandırılmış sınır: 5 nav (Bölümlere atla · breadcrumb · Ruhsal
+  katmanlar · Evrim aşamaları · Beş arc) + 16 section aria-labelledby
+lang="ja": 255 · lang="en": 115  aria-hidden: 394 (dekoratif katmanlar)
+```
+
+⚠️ İki "adsız bağlantı" uyarısı YANLIŞ ALARM: header ve footer'daki marka
+bağlantıları adı torundaki `role="img" aria-label="KuroNexus"`ten alıyor.
+Bir denetim betiği yazacaksan erişilebilir adı torunlarda da ara.
+
+⚠️ Başlık ağacında h1'den ÖNCE iki `h2` var ("Keşfet", "Salonlar") —
+site başlığı ve altbilgisinden geliyor, Bleach'in değil. Site geneli.
+
+**`pnpm check:bleach` artık ALTI denetim:**
+`fonts → contrast → anchors → motion → i18n → budget`.
+Üçü bu turda eklendi ve üçü de gerçek bir regresyon sınıfını kapatıyor:
+ölü sayfa içi çapa, `prefers-reduced-motion` unutulması, `tr:` dışında
+Türkçe dize. ⚠️ Bütçe denetimi `next build` ister, koşmamışsa atlar.
+
+⚠️ **AYRI TURA BIRAKILAN İKİ SİTE GENELİ SORUN** (Bleach'te düzeltildi,
+başka sayfalarda duruyor):
+- **İç içe `<main>`** — Naruto, spor, müzik, `/anime` holü… hepsi kök
+  düzenin `<main>`i içinde ikinci bir `<main>` açıyor.
+- **hreflang hiçbir sayfada yok** — `lib/seo.ts` içindeki `shareCard()`
+  zaten `locale` ve `path` alıyor; `alternates`ı oraya eklemek bütün
+  siteyi tek hamlede düzeltir.
 
 
 ### Yerleşik konvansiyonlar — bunları yeniden keşfetme

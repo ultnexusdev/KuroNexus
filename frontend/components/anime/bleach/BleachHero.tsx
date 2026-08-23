@@ -74,7 +74,7 @@ export async function BleachHero({ locale }: { locale: string }) {
   const t = await getTranslations({ locale, namespace: "anime.bleach.hero" });
 
   return (
-    <header className={styles.hero}>
+    <header id="hero" className={styles.hero}>
       {/* ── ARKA SAHNE ─────────────────────────────────────────────
           Üç katman TEK yapışkan kutunun içinde: dünya siluetleri,
           Garganta yarığı ve reishi. Ayrı ayrı yapışkan yapılsaydı üçü

@@ -42,36 +42,6 @@
   color: var(--bone);
 }
 
-/* P02 gelene kadarki durak. Bilincli olarak SESSIZ: yarim bir sayfa
-   oldugunu gizlemek yerine soyleyip geciyor. */
-.pending {
-  position: relative;
-  z-index: 2;
-  width: var(--band);
-  margin-inline: auto;
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-lg);
-  padding-block: clamp(5rem, 16vh, 10rem);
-  border-top: 1px solid var(--hairline);
-  background: var(--void);
-}
-
-.pending p {
-  margin: 0;
-}
-
-.note {
-  margin: 0;
-}
-
-.trialLink {
-  color: var(--accent);
-  text-decoration: none;
-  border-bottom: 1px solid var(--accent-muted);
-}
-
-.trialLink:hover {
-  color: var(--accent-hover);
-  border-bottom-color: var(--accent);
-}
+/* ⚠️ `.pending` / `.note` / `.trialLink` P18-b'de SİLİNDİ — sayfanin
+   "yarim" oldugunu soyleyen durum blogu `noindex` kalkarken kaldirildi
+   (gerekce `page.tsx` icinde). */

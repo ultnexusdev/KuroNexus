@@ -1490,12 +1490,29 @@
         "manifestPlaceholders": "{count} yuvada geçici kare",
         "placeholderNote": "Yer tutucu — kendi karenle değiştir"
       },
-      "scaffold": {
-        "title": "BLEACH EVRENİ",
-        "lede": "Her ruh bir gölge bırakır. Her kılıcın bir adı vardır.",
-        "note": "On altı bölümün hepsi yerinde. Kalan tek iş son geçiş: performans, erişilebilirlik ve sayfanın arama motoruna açılması.",
-        "playgroundLink": "Tasarım sistemi denemesini aç →",
-        "pendingSections": "P18 · SON GEÇİŞ — QA VE ENTEGRASYON"
+      "meta": {
+        "title": "Bleach Evreni",
+        "description": "Üç dünya, Gotei 13, Zanpakutō arşivi, Espada, Wandenreich ve Bin Yıllık Kan Savaşı — ruh dünyalarının tam arşivi.",
+        "ogAlt": "Bleach Evreni — dört kimlik, dört deri"
+      },
+      "toc": {
+        "aria": "Bölümlere atla",
+        "hero": "Ruhların Dengesi",
+        "worlds": "Üç Dünya",
+        "gotei": "Gotei 13",
+        "zanpakuto": "Zanpakutō Arşivi",
+        "bankai": "Bankai Salonu",
+        "hierarchy": "Ruh Hiyerarşisi",
+        "hueco": "Hueco Mundo",
+        "espada": "Espada",
+        "wandenreich": "Wandenreich",
+        "powers": "Ruhsal Güç Sistemi",
+        "masks": "Maske Duvarı",
+        "war": "Bin Yıllık Kan Savaşı",
+        "legends": "Efsaneler",
+        "houses": "Asil Haneler",
+        "locations": "Mekânlar",
+        "timeline": "Kılıcın Çizelgesi"
       },
       "world": {
         "railAria": "Ruhsal katmanlar",

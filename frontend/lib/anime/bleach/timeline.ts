@@ -31,8 +31,18 @@ export interface ArcRecord {
   id: string;
   /** ÇEVRİLMEZ — arc'ın canon adı */
   name: string;
-  /** Kılıcın o dönemki adı; ÇEVRİLMEZ */
+  /** Kılıcın o dönemki adı; ÇEVRİLMEZ (kanji + romaji) */
   blade: string;
+  /**
+   * Adın yanındaki NİTELEME — "bandajlı", "iki bıçak".
+   *
+   * ⚠️ P18-b'de ayrıldı: bu iki değer `blade` içinde düz metin olarak
+   * duruyordu ve alan "ÇEVRİLMEZ" diye işaretliydi, yani İngilizce sayfada
+   * Türkçe çıkıyorlardı. Ad çevrilmez, niteleme çevrilir — ikisi tek
+   * dizede birleşince kural yanlış tarafa uygulanmıştı. (Sayfadaki tek
+   * i18n sızıntısı buydu; `check-bleach-i18n.mjs` artık gözlüyor.)
+   */
+  bladeNote?: Localized;
   /** Zeminin derisi */
   layer: LayerId;
   /** ⚠️ VERİ: arc'ın rengi, temanın değil */
@@ -59,7 +69,8 @@ export const STORY_ARCS: readonly ArcRecord[] = [
   {
     id: "soul-society",
     name: "SOUL SOCIETY",
-    blade: "斬月 · bandajlı",
+    blade: "斬月",
+    bladeNote: { tr: "bandajlı", en: "bandaged" },
     layer: "soul-society",
     color: "#B8121B",
     text: {
@@ -95,7 +106,8 @@ export const STORY_ARCS: readonly ArcRecord[] = [
   {
     id: "blood-war",
     name: "THOUSAND-YEAR BLOOD WAR",
-    blade: "斬月 · iki bıçak",
+    blade: "斬月",
+    bladeNote: { tr: "iki bıçak", en: "two blades" },
     layer: "wandenreich",
     color: "#7A0F14",
     text: {

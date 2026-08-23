@@ -114,7 +114,11 @@ export async function StoryTimeline({ locale }: { locale: string }) {
                 <h3 className={styles.arcName} lang="en">
                   {arc.name}
                 </h3>
-                <p className={`${world.meta} ${styles.arcBlade}`}>{arc.blade}</p>
+                <p className={`${world.meta} ${styles.arcBlade}`}>
+                  {arc.bladeNote
+                    ? `${arc.blade} · ${pick(arc.bladeNote, locale)}`
+                    : arc.blade}
+                </p>
                 <p className={`${world.body} ${styles.arcText}`}>
                   {pick(arc.text, locale)}
                 </p>

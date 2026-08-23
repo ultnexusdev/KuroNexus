@@ -1490,12 +1490,29 @@
         "manifestPlaceholders": "{count} slots on a temporary frame",
         "placeholderNote": "Placeholder — replace with your own frame"
       },
-      "scaffold": {
-        "title": "THE WORLD OF BLEACH",
-        "lede": "Every soul leaves a shadow. Every blade has a name.",
-        "note": "All sixteen sections are in place. What remains is the final pass: performance, accessibility, and opening the page to search engines.",
-        "playgroundLink": "Open the design system trial →",
-        "pendingSections": "P18 · FINAL PASS — QA AND INTEGRATION"
+      "meta": {
+        "title": "The Bleach Universe",
+        "description": "Three worlds, Gotei 13, the Zanpakutō archives, Espada, Wandenreich and the Thousand-Year Blood War — the complete archive of the soul realms.",
+        "ogAlt": "The Bleach Universe — four identities, four skins"
+      },
+      "toc": {
+        "aria": "Skip to a section",
+        "hero": "The Balance of Souls",
+        "worlds": "The Three Worlds",
+        "gotei": "Gotei 13",
+        "zanpakuto": "Zanpakutō Archives",
+        "bankai": "Bankai Hall",
+        "hierarchy": "The Soul Hierarchy",
+        "hueco": "Hueco Mundo",
+        "espada": "Espada",
+        "wandenreich": "Wandenreich",
+        "powers": "Spiritual Power System",
+        "masks": "The Wall of Masks",
+        "war": "Thousand-Year Blood War",
+        "legends": "The Legends",
+        "houses": "The Noble Houses",
+        "locations": "Key Locations",
+        "timeline": "The Timeline of the Blade"
       },
       "world": {
         "railAria": "Spiritual layers",

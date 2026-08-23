@@ -43,6 +43,10 @@ const STATIC_PATHS = [
   "/anime",
   "/anime/akatsuki",
   "/anime/naruto",
+  /* Bleach Evreni — P18-b'de `noindex` kalktı, sayfa artık indekslenebilir.
+     ⚠️ `/anime/bleach/playground` BİLEREK YOK: tasarım denemesi, kendi
+     `generateMetadata`sında `noindex` taşıyor. */
+  "/anime/bleach",
   "/dark-stories/category/kitap",
   "/dark-stories/category/kitap/arsiv",
   "/dark-stories/category/kitap/seriler",

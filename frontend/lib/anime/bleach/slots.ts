@@ -276,6 +276,15 @@ const WORLD_LAYERS: {
   kanji: string;
   name: Localized;
   src?: string;
+  /**
+   * Künye satırı — ÇEVRİLMEZ, ve dili İNGİLİZCE.
+   *
+   * ⚠️ P18-b: iki künyede Türkçe vardı ("Himeji Kalesi", "kamu malı") ve
+   * alan çevrilmediği için İngilizce sayfada aynen çıkıyorlardı. Lisans
+   * atfının tek dilde durması gerekiyor; İngilizce seçildi çünkü lisans
+   * adları (CC BY-SA, public domain) ve kaynak adları zaten İngilizce.
+   * `check-bleach-i18n.mjs` bu alanı da tarıyor.
+   */
   srcCredit?: string;
 }[] = [
   {
@@ -290,14 +299,14 @@ const WORLD_LAYERS: {
     kanji: "尸魂界",
     name: { tr: "Seireitei", en: "Seireitei" },
     src: "/assets/bleach/world-soul-society.webp",
-    srcCredit: "Himeji Kalesi · Lowell Silverman · CC BY-SA 3.0 · Wikimedia Commons",
+    srcCredit: "Himeji Castle · Lowell Silverman · CC BY-SA 3.0 · Wikimedia Commons",
   },
   {
     id: "hueco-mundo",
     kanji: "虚圏",
     name: { tr: "Las Noches", en: "Las Noches" },
     src: "/assets/bleach/world-hueco-mundo.webp",
-    srcCredit: "Little Sahara · BLM Utah · kamu malı · Wikimedia Commons",
+    srcCredit: "Little Sahara · BLM Utah · public domain · Wikimedia Commons",
   },
   { id: "royal", kanji: "霊王宮", name: { tr: "Reiōkyū", en: "Reiōkyū" } },
   {

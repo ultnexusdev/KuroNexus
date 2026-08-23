@@ -11,6 +11,7 @@ import { Gotei13Section } from "@/components/anime/bleach/Gotei13Section";
 import { ZanpakutoSection } from "@/components/anime/bleach/ZanpakutoSection";
 import { BankaiSection } from "@/components/anime/bleach/BankaiSection";
 import { SoulHierarchy } from "@/components/anime/bleach/SoulHierarchy";
+import { HollowEvolution } from "@/components/anime/bleach/HollowEvolution";
 import { LAYER_IDS, type LayerId } from "@/components/anime/bleach/WorldSection";
 import { CuratorManifest } from "@/components/anime/bleach/CuratorManifest";
 import shell from "../layout.module.css";
@@ -21,9 +22,9 @@ import styles from "./page.module.css";
  * `/anime/bleach` — BLEACH EVRENİ.
  *
  * ── BUGÜN NE VAR ─────────────────────────────────────────────────────────
- * Küratör altyapısı, tasarım sistemi ve **P01–P06**: Ruhların Dengesi, Üç
- * Dünya, Gotei 13, Zanpakutō Arşivi, Bankai Salonu, Ruh Hiyerarşisi.
- * Kalan on iki bölüm sırayla geliyor.
+ * Küratör altyapısı, tasarım sistemi ve **P01–P07**: Ruhların Dengesi, Üç
+ * Dünya, Gotei 13, Zanpakutō Arşivi, Bankai Salonu, Ruh Hiyerarşisi ve
+ * Hueco Mundo. Kalan on bir bölüm sırayla geliyor.
  *
  * ⚠️ SAYFA HÂLÂ LİNKLİ DEĞİL — `/anime` hub'ındaki kart duruyor ama sayfa
  * `noindex`. Bölümler oturana kadar arama motoruna girmiyor.
@@ -108,6 +109,8 @@ export default async function BleachUniversePage({
         <BankaiSection locale={locale} />
 
         <SoulHierarchy locale={locale} />
+
+        <HollowEvolution locale={locale} />
 
         {/* Kalan bölümlerin durağı. Bilinçli olarak sessiz: yarım bir
             sayfa olduğunu gizlemek yerine söyleyip geçiyor. */}

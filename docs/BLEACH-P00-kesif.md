@@ -7,11 +7,12 @@
 
 ## ⌂ DEVİR — SIRADAKİ OTURUM BURADAN BAŞLASIN (23 Ağustos 2026)
 
-**Durum:** Küratör altyapısı + P-TOKENS + **P01–P06 canlıda.**
-**Sıradaki:** **P07 · Hueco Mundo + Hollow Evrimi.** Brief'in kendi metni
-ana kaynak. ⚠️ P07 sayfanın **ilk açık paleti** — `[data-layer="hueco-mundo"]`
-zaten `globals.css`te dolu ve kontrastı ölçülü; negatif temayı yeniden
-icat etme, orada duranı kullan.
+**Durum:** Küratör altyapısı + P-TOKENS + **P01–P07 canlıda.**
+**Sıradaki:** **P08 · Espada — Cevap Veren On.** Brief'in kendi metni ana
+kaynak. ⚠️ P08 da Hueco Mundo'nun negatif derisinde geçiyor
+(`data-layer="hueco-mundo"`) ve P07'nin son karesi ona hazırlık: maskeden
+kalan parça + on kılıç. Numaralar orada anlatılacak, P07'de bilerek
+çizilmedi.
 
 ### Yerleşik konvansiyonlar — bunları yeniden keşfetme
 
@@ -45,6 +46,14 @@ icat etme, orada duranı kullan.
    önceden hesaplanmış yüzdelere oturtulmuştu; içerik taştığı için üçüncü
    kattan sonra bir durak kayıyordu. Doğru yol: göstergeyi **yapıya** bağla
    (`position: sticky` + öğenin kendi içinde duran durak), hesaba değil.
+5c. **Kaydırma zaman çizelgesinde yedeği ÖNCE seç.** `@property`nin
+   `initial-value`ı destek yokken tek gerçek: P06'da 0 doğru (sönük ama
+   görünür), P07'de 1 doğru (maske görünmezse bölüm yok olur). Kardeş bir
+   öğeye "hangisi aktif" sormak `timeline-scope` gerektirir ve yedeği
+   sessiz kayıptır — bunun yerine öğeyi kendi kapsayıcısının içine koy.
+5d. **Yapışkan bir sahne, kapsayıcısı ekrandan UZUNSA durur.** `100svh`
+   bölüm + `100svh` yapışkan kutu = sıfır pencere. P07'de aşamalar
+   `130svh`.
 6. **Deploy:** Consistent Container Names AÇIK, rolling update yok, ~14 sn.
    Sorun çıkarsa `docs/deploy-duzeni.md` §8–§10.
 
@@ -1070,7 +1079,84 @@ Rota paketi 20.5 kB → 20.4 kB.
 `READY_SECTIONS` defterine `zanpakuto`, `bankai` ve `hierarchy` eklendi;
 Reiōkyū katmanı artık `#hierarchy`ye kapı açıyor.
 
-### 8.13 Sırada
+### 8.13 P07 — HUECO MUNDO · MASKENİN KIRILIŞI (23 Ağustos 2026) ✅
+
+**TEZ.** Brief'in cümlesi: *"Evrim şeması bir ağaç değil, bir maskenin
+kırılmasıdır."* Yedi aşama dallanmıyor, tek bir nesnenin başına gelenler
+gibi sıralanıyor: 整 (zincir, maske yok) → 虚 → 最下大虚 → 中級大虚 →
+最上大虚 → 破面 → 十刃.
+
+**SAYFA NEGATİFE DÖNÜYOR.** Bölüm `data-layer="hueco-mundo"` taşıyor; zemin
+`#EFEDE7`, metin `#1A1A1A` (ölçüldü). Buraya kadar her şey koyuydu.
+
+⚠️ **BRIEF'İN "ÜST BÖLÜM"Ü ZATEN VARDI.** P07 promptu boş beyaz ekran + kum
+çizgisi + kemik ağacı + konturlu ay + mekân listesi istiyor — bunların
+hepsi **P02'deki `hueco-mundo` katmanı**. İkinci bir kopya sayfayı iki kez
+aynı şeyi söyler hâle getirirdi. Bu bölüm katmanın açtığı kapının ardı;
+katmanın "Boşluğa in" bağlantısı artık çiziliyor (`READY_SECTIONS`).
+
+**KANJİ'LER BİR TASARIM HEDİYESİ ÇIKTI.** Üç Menos sınıfı aynı 大虚
+çekirdeğini paylaşıp önüne derece ekliyor: **最下**大虚 → **中級**大虚 →
+**最上**大虚. Hiyerarşi kelimenin kendi içinde yazılı; punto onu görünür
+kılıyor. ⚠️ Doğrulama düzeltti: Gillian'ın kanji'si ギリアン değil
+**最下大虚** (katakana yalnızca okunuş). Aynısı Adjuchas ve Vasto Lorde'da.
+
+**MASKE TEK PARÇA PATH.** Göz ve ağız ayrı renkli parçalar değil, aynı `d`
+dizesinde `fill-rule="evenodd"` ile açılan oyuklar. İki faydası var:
+maske gerçekten tek siluet (zemin neyse gözün içi de o) ve negatif temada
+iki rengi elle takip etmek gerekmiyor (kural 16). Ağız — beyaz bant +
+içinden yukarı bakan dişler — tek bir alt-yol dizisiyle üretiliyor.
+
+⚠️ **`overflow: visible` DENENDİ, GERİ ALINDI.** Gillian kadraja bilerek
+sığmıyor; taşma serbest bırakılınca maske komşu sütuna bindi (ölçüldü:
+446px genişlik, 300 birimlik viewBox'ta). SVG'nin varsayılan kırpması geri
+konuldu — Gillian artık gerçekten **kesiliyor**, ki "devleşir" cümlesi
+zaten bu.
+
+⚠️ **`timeline-scope` DÜŞÜNÜLDÜ, KULLANILMADI.** Tek yapışkan bir maske
+kutusuna yedi durumu yığmak daha az kod olurdu ama "hangi durum şu an"
+sorusunu **kardeş** bir öğeye sormayı gerektirirdi. Desteklemeyen bir
+tarayıcıda hiçbir maske görünmezdi — sessiz ve tam bir kayıp. Bunun yerine
+**her aşama kendi maskesini kendi içinde `position: sticky` ile taşıyor.**
+P06'nın dersinin devamı: göstergeyi yapıya bağla.
+
+⚠️ **AŞAMA EKRANDAN UZUN OLMAK ZORUNDA.** `min-height: 130svh`. 100svh'de
+yapışkan pencere sıfır olur ve maske içerikle birlikte kayar — 30svh'lik
+fazlalık maskeyi okuma süresince ortada tutuyor. Bölüm bu yüzden ~9,8
+ekran; başlıktaki yedi çapa atlama yolu.
+
+**`@property --hollow-lit` başlangıç değeri 1, 0 DEĞİL.** P06'daki
+`--hier-lit` 0'da başlıyor çünkü orada yedek "sönük ama görünür". Burada
+yedek "tam opak" olmalı: 0'da başlasaydı kaydırma zaman çizelgesi
+desteklenmeyen tarayıcıda **yedi maske birden görünmez** olurdu.
+
+⚠️ **DERİNLİK RAYI ONARILDI (P07 görünür kıldı).** Ray yalnızca beş katmanı
+gözlüyordu; okuyucu derin bir bölümdeyken son katmanın (Wandenreich)
+derisini giyiyordu. Sayfa beyaza döndüğünde ray koyu tema token'larıyla
+çizilip **okunmaz hâle geldi**. `DEEP_SECTION_LAYERS` eklendi
+(`WorldSection.tsx`): gotei/zanpakuto/bankai → soul-society, hierarchy →
+royal, hueco → hueco-mundo. `theme-color` da doğru katmandan okunuyor.
+Bu düzeltme P03–P06'yı da kapsıyor.
+
+**HAREKET KISITLI KİP.** Brief "7 aşamalı yatay adım göstergesi, kullanıcı
+tıklayarak değiştirir" diyor. Karşılığı: başlıktaki **yedi düz sayfa içi
+çapa**. JS yok, hareket yok, her kipte aynı şekilde çalışıyor ve
+`reduce`ta maskeler tam opaklıkta duruyor.
+
+**METİN HİÇBİR ZAMAN SÖNMÜYOR.** Maske kaydırmayla yanıp sönüyor, okunacak
+şey değişmiyor — P06'nın kuralı.
+
+**GÖRSEL YOK.** Maske bir fotoğraf değil bir ŞEMA; yedi durumu aynı çizim
+diliyle yan yana koymanın tek yolu onları çizmek. Sıfır istemci JS; rota
+paketi 20,4 kB → 21 kB (artış rayın haritası).
+
+Canon: Plus 整, Chain of Fate 因果の鎖, çürüme 侵食, Hollow 虚, Arrancar 破面
+"yırtılmış maske", Espada 十刃 "on kılıç" (numara 0–9, dövme). Adjuchas'ın
+Vasto Lorde'a nasıl çıktığı canon'da **hiç açıklanmadı** → `rule` bunu
+açıkça yazıyor. Espada karesine **rakam dövmesi çizilmedi**: herhangi bir
+rakam belirli bir Espada'yı işaret ederdi, kadro ayrı bir kayıt (P08).
+
+### 8.14 Sırada
 
 `/anime/bleach` iskelet olarak duruyor ve **hiçbir yerden linkli değil**
 (`robots: noindex`). Sıradaki tur **P-TOKENS**: beş dünya paleti, derinlik

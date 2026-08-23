@@ -1,7 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { LAYER_IDS, LAYER_KANJI, type LayerId } from "./WorldSection";
+import {
+  DEEP_SECTION_LAYERS,
+  LAYER_IDS,
+  LAYER_KANJI,
+  type LayerId,
+} from "./WorldSection";
 import styles from "./DepthRail.module.css";
 
 /**
@@ -45,17 +50,31 @@ export function DepthRail({
   const [active, setActive] = useState<LayerId | null>(null);
   const navRef = useRef<HTMLElement | null>(null);
 
+  /**
+   * ⚠️ Gözlenen küme beş katmandan İBARET DEĞİL: derin bölümler de
+   * (`#gotei`, `#hueco`…) sayılıyor ve hangi katmanın derisini
+   * giydikleri `DEEP_SECTION_LAYERS`te yazılı. Böyle olmasaydı okuyucu
+   * derin bir bölümdeyken ray son katmanın rengini giyerdi — Hueco
+   * Mundo'nun beyaz zemininde ray okunmuyordu (ölçüldü, 23 Ağustos 2026).
+   */
   useEffect(() => {
-    const sections = LAYER_IDS.map((id) => document.getElementById(id)).filter(
-      (el): el is HTMLElement => el !== null,
-    );
+    const owner = new Map<string, LayerId>();
+    for (const id of LAYER_IDS) owner.set(id, id);
+    for (const [id, layer] of Object.entries(DEEP_SECTION_LAYERS)) {
+      owner.set(id, layer);
+    }
+
+    const sections = [...owner.keys()]
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => el !== null);
     if (sections.length === 0) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
           if (entry.isIntersecting) {
-            setActive(entry.target.id as LayerId);
+            const layer = owner.get(entry.target.id);
+            if (layer) setActive(layer);
           }
         }
       },

@@ -1,0 +1,72 @@
+/* ============================================================
+   HOLLOW MASKESI — yedi durumun ortak boyasi
+
+   ⚠️ KURAL 16: tek hex yok. Maske `--world-paper` (Hueco Mundo'da
+   siyah), oyuklar zeminden geliyor, tek renkli isaret `--world-glow`
+   (cero kizili -- brief asit yesilini acikca yasakliyor).
+
+   Renk ADI degil ROL yaziliyor: sayfa negatife dondugu icin "siyah
+   maske" demek yanlis olurdu. Maske metin rengindedir; katman hangi
+   temayi giyerse maske onu giyer.
+   ============================================================ */
+
+.mask {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: min(30rem, 62vh);
+  margin-inline: auto;
+  /* ⚠️ TASMA KIRPILIYOR (svg'nin varsayilani) ve bu bir tercih:
+     Gillian kadraja SIGMIYOR -- tepesi ve iki yanindaki kopyalari
+     cerceveden tasip kesiliyor. "Devlesir" cumlesi boyle kuruluyor;
+     `overflow: visible` olsaydi maske komsu sutuna tasardi. */
+  color: var(--world-paper);
+}
+
+/* Dolu plaka: maskenin kendisi. Oyuklar `fill-rule: evenodd` ile
+   aciliyor, yani ic renk zeminin ta kendisi. */
+.plate {
+  fill: currentColor;
+}
+
+/* Kontur cizimler: zincir ve Arrancar'in insan yuzu. Bolum boyunca
+   dolu siyah olan sey burada ilk kez icini gosteriyor. */
+.line {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Gillian'in arkasindaki iki soluk kopya: "hepsi birbirinin aynisidir" */
+.echo {
+  fill: currentColor;
+  opacity: 0.14;
+}
+
+/* Adjuchas'in gozundeki bilinc izi -- bolumun tek renkli isareti */
+.spark {
+  fill: var(--world-glow);
+}
+
+/* Vasto Lorde'un ilk catlaklari: maskeden EKSILEN yerler, o yuzden
+   zemin renginde. Ustune boya surulmuyor, maske yariliyor. */
+.crack {
+  fill: none;
+  stroke: var(--world-ink);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+/* Savrulan parcalar */
+.shard {
+  fill: currentColor;
+  opacity: 0.75;
+}
+
+/* 十刃 -- on kilic. Ilki kalin: numara kuculdukce guc buyuyor. */
+.blades {
+  fill: currentColor;
+  opacity: 0.85;
+}

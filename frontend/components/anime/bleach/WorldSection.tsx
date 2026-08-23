@@ -43,6 +43,30 @@ export const LIGHT_LAYERS: ReadonlySet<LayerId> = new Set<LayerId>([
   "hueco-mundo",
 ]);
 
+/**
+ * DERİN BÖLÜM → hangi katmanın derisini giyiyor.
+ *
+ * Beş katmanın altında, sayfanın devamında derin bölümler var (`#gotei`,
+ * `#hueco`…) ve onlar `WorldSection` kullanmıyor — kendi kabuklarını
+ * kuruyorlar. Ama hepsi bir katmanın içinde geçiyor ve derinlik rayı bunu
+ * bilmeli.
+ *
+ * ⚠️ 23 Ağustos 2026'ya kadar bilmiyordu: ray yalnızca beş katmanı
+ * gözlüyordu, yani okuyucu derin bölümlerdeyken ray son katmanın
+ * (Wandenreich) rengini giyiyordu. P07'de bu görünür bir arıza oldu —
+ * sayfa beyaza dönüyor ve ray hâlâ koyu tema token'larıyla çiziliyordu,
+ * yani beyaz zeminde okunmuyordu.
+ *
+ * Liste küçük ve elle tutuluyor: bir bölüm eklendiğinde buraya bir satır.
+ */
+export const DEEP_SECTION_LAYERS: Record<string, LayerId> = {
+  gotei: "soul-society",
+  zanpakuto: "soul-society",
+  bankai: "soul-society",
+  hierarchy: "royal",
+  hueco: "hueco-mundo",
+};
+
 /** Rayda ve başlıklarda kullanılan kanji — katman başına tek kaynak */
 export const LAYER_KANJI: Record<LayerId, string> = {
   living: "現世",

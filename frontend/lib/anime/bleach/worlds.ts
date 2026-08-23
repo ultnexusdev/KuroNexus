@@ -63,6 +63,8 @@ export const READY_SECTIONS = new Set<string>([
   "bankai",
   /* P06 · Ruh hiyerarşisi — 23 Ağustos 2026 */
   "hierarchy",
+  /* P07 · Hueco Mundo, maskenin kırılışı — 23 Ağustos 2026 */
+  "hueco",
 ]);
 
 export const BLEACH_WORLDS: readonly WorldRecord[] = [

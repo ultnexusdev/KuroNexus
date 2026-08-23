@@ -1493,9 +1493,9 @@
       "scaffold": {
         "title": "THE WORLD OF BLEACH",
         "lede": "Every soul leaves a shadow. Every blade has a name.",
-        "note": "The hero, the five layers, the thirteen gates, the Zanpakutō archive, the Bankai hall and the soul hierarchy are in place. The remaining sections arrive in turn.",
+        "note": "The hero, the five layers, the thirteen gates, the Zanpakutō archive, the Bankai hall, the soul hierarchy and Hueco Mundo are in place. The remaining sections arrive in turn.",
         "playgroundLink": "Open the design system trial →",
-        "pendingSections": "P07 · HUECO MUNDO — UNDER CONSTRUCTION"
+        "pendingSections": "P08 · ESPADA — UNDER CONSTRUCTION"
       },
       "world": {
         "railAria": "Spiritual layers",
@@ -1574,6 +1574,13 @@
         "title": "The Soul Hierarchy",
         "lede": "In the spirit world power is not spread out, it is stacked. At the top sits a seal no one may touch; at the bottom, the eightieth district. Every floor in between answers to the one above it — go down.",
         "descentAria": "The soul hierarchy, top to bottom"
+      },
+      "hollow": {
+        "eyebrow": "HOLLOW EVOLUTION",
+        "title": "The Breaking of the Mask",
+        "lede": "Hollow evolution is not a family tree: it is what happens to a single mask. It is put on, it swells, it narrows, it cracks, and in the end it breaks — and what comes out from under it is a human face. Seven stages, each of them guarded by a prohibition.",
+        "indexAria": "Evolution stages",
+        "stagesAria": "The seven stages of Hollow evolution"
       }
     }
   },

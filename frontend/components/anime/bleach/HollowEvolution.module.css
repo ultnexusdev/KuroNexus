@@ -1,0 +1,370 @@
+/* ============================================================
+   P07 · HUECO MUNDO — MASKENIN KIRILISI
+
+   Sayfanin en cesur gorsel karari: buraya kadar her sey koyuydu, burada
+   zemin BEYAZA doner ve icerik siyahlasir. "Bosluga girdin."
+
+   ⚠️ KURAL 16: tek hex yok. Negatif tema `globals.css`teki
+   [data-layer="hueco-mundo"] blogundan geliyor ve kontrasti olculu
+   (birincil metin AAA, ikincil AA). Burada yalnizca yerlesim var.
+
+   ⚠️ BU DOSYADA `overflow: hidden` YOK ve OLMAYACAK. Her asamanin maskesi
+   `position: sticky` ve ustundeki bir tasma kirpmasi onu kaydirma kabina
+   cevirip yapiskanligi oldururdu (P06'da ayni not).
+   ============================================================ */
+
+/* ── ISIK ANAHTARI ───────────────────────────────────────────
+   `--hollow-lit`: ekranin ortasindaki asama 1, digerleri 0. Maskenin
+   opakligi ve olcegi bunu okuyor.
+
+   ⚠️ BASLANGIC DEGERI 1, 0 DEGIL. Kaydirmaya bagli zaman cizelgesi
+   desteklenmiyorsa maske TAM opaklikta kalmali; 0'da baslasaydi destek
+   olmayan tarayicida yedi maske birden gorunmez olurdu. Yedek sessiz
+   degil, dogru olan. */
+@property --hollow-lit {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 1;
+}
+
+.section {
+  position: relative;
+  isolation: isolate;
+  padding-block: clamp(4rem, 12vh, 9rem) clamp(4rem, 10vh, 7rem);
+  background: var(--bg);
+  color: var(--text-primary);
+  /* Yalnizca RENK animasyonu -- negatife donus 600ms, layout'a dokunan
+     hicbir ozellik yok, yani CLS = 0 (brief'in kabul olcutu). */
+  transition: background-color 600ms ease-in-out, color 600ms ease-in-out;
+}
+
+.head {
+  width: var(--band);
+  margin-inline: auto;
+  padding-inline-end: var(--rail);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(0.6rem, 1.6vw, 1.1rem);
+  margin-bottom: clamp(2.5rem, 8vh, 5rem);
+}
+
+.head p {
+  margin: 0;
+}
+
+.lede {
+  max-width: calc(var(--measure) / 1.4);
+}
+
+/* ── ASAMA DIZINI ────────────────────────────────────────────
+   Yedi duz sayfa ici capa. Kart degil, dugme degil, JS degil: yatay bir
+   serit. Hareket kisitli kipte bolumde gezinmenin yolu bu. */
+.index {
+  margin-top: clamp(1rem, 3vh, 2rem);
+  width: 100%;
+  /* Serit dar ekranda kendi icinde kayiyor; sayfa yatay tasmiyor */
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.index::-webkit-scrollbar {
+  display: none;
+}
+
+.indexList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: flex-end;
+  gap: clamp(0.9rem, 2.4vw, 2rem);
+  border-top: 1px solid var(--hairline);
+  padding-top: 0.9rem;
+}
+
+.indexLink {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-height: var(--touch-min);
+  padding-block: 0.2rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 200ms ease-out;
+}
+
+.indexLink:hover,
+.indexLink:focus-visible {
+  color: var(--world-glow);
+}
+
+.indexKanji {
+  font-family: var(--b-display);
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.indexName {
+  color: inherit;
+  opacity: 0.7;
+}
+
+/* ── ASAMALAR ────────────────────────────────────────────────
+   Duz bir `<ol>`. Her asama iki sutun: solda yapiskan maske, sagda
+   kayan metin. */
+.stages {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: var(--band);
+  margin-inline: auto;
+  padding-inline-end: var(--rail);
+}
+
+.stage {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  column-gap: clamp(1.5rem, 5vw, 4rem);
+  align-items: start;
+
+  /* ⚠️ EKRANDAN UZUN OLMAK ZORUNDA. Yapiskan maskenin "sabit durdugu"
+     bir pencere ancak asama ekrandan uzunsa olusur; 100svh'de pencere
+     sifir olur ve maske icerikle birlikte kayar. 30svh'lik fazlalik
+     okuma suresi boyunca maskeyi ortada tutuyor. */
+  min-height: 130svh;
+
+  /* Capa atlayislarinda yapiskan sayfa basligi asamanin tepesini
+     ortmesin */
+  scroll-margin-top: 4.5rem;
+
+  /* "Su an bu asamadasin" anahtari.
+     ⚠️ KISAYOL DEGIL, UZUN YAZIM: `animation: ...` sureyi 0s'e sabitler;
+     ilerleme tabanli zaman cizelgesinde sure `auto` kalmali. */
+  animation-name: stageOn;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+  animation-timeline: view();
+  animation-range: cover 22% cover 78%;
+}
+
+@keyframes stageOn {
+  0%,
+  100% {
+    --hollow-lit: 0;
+  }
+  30%,
+  70% {
+    --hollow-lit: 1;
+  }
+}
+
+/* Asamalar arasi ince ayrac. Hueco Mundo'da her sey ince ve tek katman. */
+.stage + .stage::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: var(--hairline);
+}
+
+/* ── MASKE ───────────────────────────────────────────────────
+   Ekranin ortasinda duruyor ve asama boyunca orada kaliyor. */
+.art {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Yapiskan sayfa basligi maskeyi tepeden kirpmasin */
+  padding-block: clamp(3rem, 7vh, 5rem) clamp(1rem, 4vh, 3rem);
+}
+
+/* Gecis yumusakligi burada. Yapiskan kutuya DEGIL icine uygulaniyor:
+   olcek/opaklik yapiskan konumlandirmayi etkilemesin. */
+.artInner {
+  width: 100%;
+  opacity: calc(0.05 + 0.95 * var(--hollow-lit, 1));
+  scale: calc(0.93 + 0.07 * var(--hollow-lit, 1));
+  transform-origin: center;
+}
+
+/* ── METIN ───────────────────────────────────────────────────
+   ⚠️ Metin HICBIR ZAMAN sonmuyor. Maske kaydirmayla yanip sonuyor ama
+   okunacak sey degismiyor: P06'nin dersi -- gorsel efekt kontrastin
+   uzerine cikamaz. */
+.copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(0.7rem, 1.8vh, 1.2rem);
+  /* Metin blogu asamanin dikey ortasina yakin dursun */
+  padding-block: clamp(6rem, 24vh, 16rem) clamp(4rem, 16vh, 12rem);
+}
+
+.copy p {
+  margin: 0;
+}
+
+.counter {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  font-family: var(--b-numeral);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+}
+
+.counterSep {
+  opacity: 0.5;
+}
+
+/* Kanji buyuk ve tek basina: sinifin adi once Japonca soyleniyor.
+   ⚠️ 最下 / 中級 / 最上 ayni 大虚 cekirdegini paylasiyor -- hiyerarsi
+   kelimenin kendi icinde yazili ve bu punto onu gorunur kiliyor. */
+.kanji {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.8rem;
+  font-family: var(--b-display);
+  font-weight: 700;
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  line-height: 1;
+  color: var(--text-primary);
+}
+
+.kana {
+  font-family: var(--b-display);
+  font-weight: 400;
+  font-size: 0.9rem;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+.name {
+  margin: 0;
+  font-family: var(--b-kubo);
+  font-weight: 200;
+  font-size: clamp(1.05rem, 2.2vw, 1.7rem);
+  letter-spacing: 0.42em;
+  margin-inline-end: -0.42em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.romaji {
+  color: var(--text-muted);
+}
+
+.text {
+  max-width: calc(var(--measure) / 1.25);
+}
+
+/* Evrimin bedeli. Sol kenardan bir hairline ile ayriliyor: aciklama
+   anlatir, bu KURAL koyar. */
+.rule {
+  max-width: calc(var(--measure) / 1.3);
+  padding-left: clamp(0.8rem, 2vw, 1.2rem);
+  border-left: 2px solid var(--world-glow);
+  font-family: var(--b-body);
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+/* ── BAGLI ADLAR ─────────────────────────────────────────────
+   Kart degil: hairline ayracli satirlar (sayfanin her yerinde ayni dil). */
+.figures {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  max-width: calc(var(--measure) / 1.25);
+  border-top: 1px solid var(--hairline);
+}
+
+.figure {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.3rem clamp(0.6rem, 1.6vw, 1.25rem);
+  padding-block: 0.75rem;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.figureName {
+  flex: none;
+  min-width: 14ch;
+  font-family: var(--b-kubo);
+  font-weight: 300;
+  font-size: 0.8rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.figureNote {
+  font-family: var(--b-body);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+/* ── 900px ALTI ──────────────────────────────────────────────
+   Tek sutun: maske metnin ustunde, yapiskanlik kalkiyor. Dokuz ekranlik
+   bir inisi telefona tasimanin anlami yok -- asamalar kendi boylarina
+   iniyor. */
+@media (max-width: 900px) {
+  .head,
+  .stages {
+    padding-inline-end: 0;
+  }
+
+  .stage {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+    row-gap: clamp(1rem, 3vh, 2rem);
+    padding-block: clamp(2.5rem, 8vh, 4rem);
+  }
+
+  .art {
+    position: static;
+    height: auto;
+    padding-block: 0;
+  }
+
+  .artInner {
+    max-width: 18rem;
+    margin-inline: auto;
+  }
+
+  .copy {
+    padding-block: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section {
+    transition: none;
+  }
+
+  .indexLink {
+    transition: none;
+  }
+
+  /* Maskenin yanip sonmesi kalkiyor: `--hollow-lit` baslangic degerinde
+     (1) kaliyor, yani yedi maske de tam opaklikta. Aralarinda gezinmenin
+     yolu basliktaki yedi capa. */
+  .stage {
+    animation-name: none;
+  }
+}

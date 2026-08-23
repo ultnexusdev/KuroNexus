@@ -225,6 +225,15 @@ export const EXHIBIT_IMAGE_KEYS = {
   worldNaruto: "world:naruto",
   /** v8 · Anime Dünyaları — Anime Arşivi kartının fonu */
   worldArchive: "world:archive",
+  /**
+   * Anime Dünyaları — Bleach Evreni kartının fonu (23 Ağustos 2026).
+   *
+   * Kart, Bleach sayfasının kendi `CuratedImage` yüzeyini DEĞİL bu
+   * mekanizmayı kullanıyor: `/anime` sayfasında iki ayrı görsel sistemi
+   * yan yana çalışmasın (kullanıcı kararı). Yuva boşsa kart depodaki
+   * geçici kareye düşüyor.
+   */
+  worldBleach: "world:bleach",
 } as const;
 
 /** v6 · Dönem illüstrasyon anahtarı — zigzag kartının tepe paneli */

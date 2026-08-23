@@ -76,13 +76,38 @@ export function CuratedSlotEditor({
   const [draft, setDraft] = useState<CuratedImageRecord | null>(record);
   /** Kaydetmeden ÖNCEKİ kayıt — "geri al" bunu geri yazıyor */
   const [undoable, setUndoable] = useState<CuratedImageRecord | null>(null);
+  /**
+   * YALNIZCA kaydetme uçuştayken dolu olan önizleme adresi.
+   *
+   * ⚠️ Eskiden önizleme `draft.url` varken HER ZAMAN çiziliyordu ve bu,
+   * küratör modunun en tehlikeli hatasıydı: katman gerçek çizimin ÜSTÜNE
+   * biniyor ve filtresiz olduğu için küratöre "her şey yolunda" gösteriyordu.
+   * Mod kapatılınca altındaki gerçek sonuç ortaya çıkıyordu — siyah bir
+   * dikdörtgen (kullanıcı bildirimi, 23 Ağustos 2026).
+   *
+   * Artık önizleme yalnızca sunucu yeniden çizene kadarki boşluğu
+   * kapatıyor; `record` tazelendiği anda kalkıyor ve küratör GERÇEK sonucu
+   * görüyor.
+   */
+  const [pendingPreview, setPendingPreview] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
 
-  /* Sunucu yeniden çizdiğinde (router.refresh sonrası) taslak tazeleniyor.
-     Bunu atlamak, kaydettikten sonra panelin eski değerleri göstermesi
-     demekti — spor panelinde bir kez yaşanmış hata. */
-  useEffect(() => setDraft(record), [record]);
+  /* Sunucu yeniden çizdiğinde (router.refresh sonrası) taslak tazeleniyor
+     ve önizleme kalkıyor. Tazelemeyi atlamak, kaydettikten sonra panelin
+     eski değerleri göstermesi demekti — spor panelinde yaşanmış hata. */
+  useEffect(() => {
+    setDraft(record);
+    setPendingPreview(null);
+  }, [record]);
+
+  /* Tazeleme hiç dönmezse (ağ hatası) önizleme sonsuza kadar kalmasın:
+     altı saniye sonra kendiliğinden kalkıyor ve gerçek çizim görünüyor. */
+  useEffect(() => {
+    if (!pendingPreview) return;
+    const timer = window.setTimeout(() => setPendingPreview(null), 6000);
+    return () => window.clearTimeout(timer);
+  }, [pendingPreview]);
 
   /* "Geri al" penceresi on saniye. Süre dolunca teklif kayboluyor; kalıcı
      bir geri alma yığını tutmuyoruz çünkü her kayıt zaten veritabanında ve
@@ -145,6 +170,9 @@ export function CuratedSlotEditor({
       const next = await setCuratedImage({ surface, slotId: slot.id, ...patch });
       setDraft(next);
       setUndoable(before);
+      /* Sunucu yeniden çizene kadarki boşluk: yalnızca bu aralıkta önizleme
+         var. Adres yoksa (görsel kaldırıldı) önizleme de yok. */
+      setPendingPreview(next.url && !next.isHidden ? next.url : null);
       router.refresh();
       return true;
     } catch {
@@ -201,16 +229,23 @@ export function CuratedSlotEditor({
     onKeyDown: (e: React.KeyboardEvent) => e.stopPropagation(),
   };
 
-  const preview =
+  /** Panelin ODAK sekmesinde gösterilen kare — her zaman güncel kayıttan */
+  const source =
     draft?.url && !draft.isHidden
       ? isLocalUpload(draft.url)
         ? apiUrl(draft.url)
         : draft.url
       : null;
 
+  const preview = pendingPreview
+    ? isLocalUpload(pendingPreview)
+      ? apiUrl(pendingPreview)
+      : pendingPreview
+    : null;
+
   return (
     <>
-      {/* Kaydedilen kare sunucu yeniden çizene kadar burada duruyor.
+      {/* Kaydedilen kare YALNIZCA sunucu yeniden çizene kadar burada duruyor.
           `pointer-events: none` — altındaki içerik tıklanabilir kalıyor. */}
       {preview ? (
         <span
@@ -300,7 +335,10 @@ export function CuratedSlotEditor({
                 {tab === "focus" ? (
                   <FocusTab
                     busy={busy}
-                    preview={preview}
+                    /* Odak kutusu KAYDIN karesini gösteriyor, uçuştaki
+                       önizlemeyi değil: küratör var olan görselin odağını
+                       ayarlıyor. */
+                    preview={source}
                     position={draft?.position ?? null}
                     scale={draft?.scale ?? 100}
                     onSave={(position, scale) => void save({ position, scale })}

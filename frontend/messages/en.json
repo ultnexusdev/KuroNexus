@@ -1430,6 +1430,11 @@
       "archive": {
         "title": "Anime Archive",
         "tagline": "Six shelves: watching, waiting, finished."
+      },
+      "bleach": {
+        "title": "The World of Bleach",
+        "tagline": "Three worlds, thirteen gates, and a name for every blade.",
+        "meter": "Under construction"
       }
     },
     "bleach": {
@@ -1474,13 +1479,16 @@
         "manifestTitle": "Curator · image slots",
         "manifestMeter": "{done} / {total} slots filled · {missing} images missing",
         "manifestNote": "The slots also sit inside their sections; you can fill them straight from here. Every row states the suggested size, ratio and framing note.",
-        "stateFilled": "FILLED",
-        "stateEmpty": "EMPTY",
-        "stateHidden": "HIDDEN",
         "ratioOverridden": "ratio changed",
         "jump": "Show on page →",
         "orphanTitle": "Records with no slot in the manifest",
-        "orphanNote": "These slot ids no longer exist in the code. The record survives but is drawn nowhere — the slot may have been renamed."
+        "orphanNote": "These slot ids no longer exist in the code. The record survives but is drawn nowhere — the slot may have been renamed.",
+        "state_filled": "FILLED",
+        "state_empty": "EMPTY",
+        "state_hidden": "HIDDEN",
+        "state_default": "DEFAULT",
+        "manifestPlaceholders": "{count} slots on a temporary frame",
+        "placeholderNote": "Placeholder — replace with your own frame"
       },
       "scaffold": {
         "eyebrow": "Anime · Universe Record",

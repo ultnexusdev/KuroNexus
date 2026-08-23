@@ -196,3 +196,27 @@
   font-family: var(--font-mono);
   color: var(--warn);
 }
+
+/* Depodaki gecici kare — kurator bunu KENDISININ koymadigini bilmeli.
+   Dolu yuvadan ayri bir isaret tasiyor: nokta ici bos, cerceve kesikli. */
+.item[data-state="default"] .dot {
+  border-color: var(--gold);
+  background: none;
+}
+
+.item[data-state="default"] .itemState {
+  color: var(--gold);
+}
+
+.item[data-state="hidden"] .itemState {
+  color: var(--warn);
+}
+
+.itemPlaceholder {
+  margin: 0;
+  padding-top: var(--gap-xs);
+  border-top: 0.5px dashed var(--border-strong);
+  font-size: 0.7rem;
+  line-height: 1.5;
+  color: var(--gold);
+}

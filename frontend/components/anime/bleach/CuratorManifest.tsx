@@ -41,13 +41,27 @@ export async function CuratorManifest() {
     getTranslations("anime.bleach.curator"),
   ]);
 
-  const filled = (id: string) => {
-    const row = images[id];
-    return Boolean(row?.url) && !row?.isHidden;
+  /**
+   * Yuvanın üç durumu — ikisi değil.
+   *
+   * `default` durumu 23 Ağustos 2026'da eklendi: depoya konan geçici kareler
+   * (`slot.src`) olmadan sayaç "0 / 65 dolu" diyordu ve ekranda dört görsel
+   * duruyordu. Küratörün bilmesi gereken şey "dolu mu" değil, **kimin
+   * doldurduğu**: kendi yüklediği kare mi, yoksa yer tutucu mu.
+   */
+  const stateOf = (slot: (typeof BLEACH_SLOTS)[number]) => {
+    const row = images[slot.id];
+    if (row?.isHidden) return "hidden" as const;
+    if (row?.url) return "filled" as const;
+    if (slot.src) return "default" as const;
+    return "empty" as const;
   };
 
   const total = BLEACH_SLOTS.length;
-  const done = BLEACH_SLOTS.filter((slot) => filled(slot.id)).length;
+  const done = BLEACH_SLOTS.filter((slot) => stateOf(slot) === "filled").length;
+  const placeholders = BLEACH_SLOTS.filter(
+    (slot) => stateOf(slot) === "default",
+  ).length;
 
   /* Manifestoda karşılığı olmayan kayıtlar. Yetim satır hiçbir şeyi
      kırmıyor (çizim manifestoyu okuyor, veritabanını değil) ama küratörün
@@ -62,13 +76,25 @@ export async function CuratorManifest() {
           {t("manifestTitle")}
         </h2>
         <p className={styles.meter}>
-          {t("manifestMeter", { done, total, missing: total - done })}
+          {/* `missing` = HİÇBİR karesi olmayan yuva. Yer tutucular ayrı
+              sayılıyor: "65 eksik · 4 geçici" demek, "65 eksik ama 4'ünde
+              görsel var" demekten daha az kafa karıştırıyor. */}
+          {t("manifestMeter", {
+            done,
+            total,
+            missing: total - done - placeholders,
+          })}
+          {placeholders > 0
+            ? ` · ${t("manifestPlaceholders", { count: placeholders })}`
+            : ""}
         </p>
         <p className={styles.note}>{t("manifestNote")}</p>
       </header>
 
       {slotsBySection().map(({ section, slots }) => {
-        const sectionDone = slots.filter((slot) => filled(slot.id)).length;
+        const sectionDone = slots.filter(
+          (slot) => stateOf(slot) !== "empty",
+        ).length;
         return (
           <div key={section} className={styles.group}>
             <h3 className={styles.groupTitle}>
@@ -81,24 +107,23 @@ export async function CuratorManifest() {
             <ul className={styles.list}>
               {slots.map((slot) => {
                 const row = images[slot.id] ?? null;
-                const isFilled = filled(slot.id);
+                const state = stateOf(slot);
                 return (
                   <li
                     key={slot.id}
                     className={styles.item}
-                    data-filled={isFilled ? "" : undefined}
+                    data-state={state}
+                    data-filled={state === "filled" ? "" : undefined}
                   >
                     <p className={styles.itemHead}>
                       <span className={styles.dot} aria-hidden />
                       <span className={styles.itemLabel}>
                         {pick(slot.label, locale)}
                       </span>
+                      {/* ⚠️ Durum RENKLE değil YAZIYLA taşınıyor; nokta
+                          yalnızca ikinci bir işaret (renk körlüğü). */}
                       <span className={styles.itemState}>
-                        {row?.isHidden
-                          ? t("stateHidden")
-                          : isFilled
-                            ? t("stateFilled")
-                            : t("stateEmpty")}
+                        {t(`state_${state}` as never)}
                       </span>
                     </p>
 
@@ -112,6 +137,15 @@ export async function CuratorManifest() {
                     </p>
 
                     <p className={styles.itemHint}>{pick(slot.hint, locale)}</p>
+
+                    {/* Yer tutucu olduğunu AÇIKÇA söyle: küratör bu kareyi
+                        kendisinin koymadığını bilmeli, yoksa "bu yuva tamam"
+                        diye geçer. */}
+                    {state === "default" && slot.srcCredit ? (
+                      <p className={styles.itemPlaceholder}>
+                        {t("placeholderNote")} — {slot.srcCredit}
+                      </p>
+                    ) : null}
 
                     <p className={styles.itemFoot}>
                       {/* Sayfadaki yuvaya çapa — küratör tıklayınca bölüme iner */}

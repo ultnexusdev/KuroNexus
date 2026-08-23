@@ -41,10 +41,19 @@
    `photo` varsayilan ve filtre uygulamiyor. Digerleri kaydin
    `treatment` alanindan geliyor; renkler dunyanin paletinden. */
 
-/* Siluet: sekil kaliyor, kimlik gidiyor. Seffaf zeminli PNG/WebP
-   bekleniyor — yuva ipucunda yazili. */
+/* Siluet: sekil kaliyor, kimlik gidiyor.
+
+   ⚠️ `brightness(0)` DEGIL — 23 Agustos 2026'da olculdu ve geri alindi.
+   Sifir parlaklik seffaf zeminli bir PNG'de dogru sonucu veriyor (saf
+   siyah sekil) ama OPAK bir fotografta tuvalin tamamini siyaha ceviriyor:
+   kurator bir kare yukluyor ve sayfada SIYAH BIR DIKDORTGEN goruyor.
+   Sebebi hicbir yerde yazmiyor, cunku hata degil "tasarim" gibi gorunuyor.
+
+   Yeni deger opak fotografta da okunur bir golge birakiyor: sekil
+   seciliyor, detay ve renk gidiyor. Seffaf PNG'de sonuc pratikte
+   degismiyor — zaten koyu zemin uzerinde duruyor. */
 .clip[data-treatment="silhouette"] img {
-  filter: grayscale(1) contrast(2.2) brightness(0);
+  filter: grayscale(1) contrast(1.9) brightness(0.3);
 }
 
 /* Duotone: once renk sokuluyor, sonra dunyanin iki tonu `color`

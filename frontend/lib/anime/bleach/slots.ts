@@ -152,6 +152,21 @@ export interface CuratedSlotDef {
   treatment: SlotTreatment;
   /** Görsel yokken devreye giren tasarım */
   fallback: SlotFallback;
+  /**
+   * DEPODAKİ varsayılan kare (`/assets/…`).
+   *
+   * Futbol defterindeki `PlayerImageSlot.src` deseni: sayfa ilk günden
+   * görselli açılabiliyor. Küratörün yüklediği kayıt DAİMA bunu eziyor —
+   * varsayılan bir kilit değil, bir başlangıç.
+   */
+  src?: string;
+  /**
+   * `src` için künye. Kayıt kendi künyesini taşımıyorsa bu basılıyor.
+   *
+   * ⚠️ Depoya konan her serbest lisanslı kare için ZORUNLU: CC BY-SA
+   * atıf istiyor ve atfın görselle birlikte seyahat etmesi gerekiyor.
+   */
+  srcCredit?: string;
   /** İlk kıvrım: `priority` + `fetchPriority="high"` */
   eager?: boolean;
 }
@@ -242,17 +257,56 @@ const LEGENDS: { slug: string; name: string }[] = [
   { slug: "ichibe-hyosube", name: "Ichibē Hyōsube" },
 ];
 
-/** Beş katman — P02'nin dünya sırası */
+/**
+ * Beş katman — P02'nin dünya sırası.
+ *
+ * ── DEPODAKİ GEÇİCİ KARELER (23 Ağustos 2026) ────────────────────────────
+ * Dördünde serbest lisanslı bir Commons fotoğrafı duruyor. Bunlar YER
+ * TUTUCU: küratör kendi karesini yükleyince kayıt bunları eziyor. Depoya
+ * konmalarının sebebi hotlink'in imkânsız olması (CSP `img-src` beyaz
+ * liste) ve iki görsel üreticisinin de o gün kapalı olması (Gemini kotası
+ * doldu, fal hesabı kilitli).
+ *
+ * ⚠️ REİŌKYŪ BİLİNÇLİ OLARAK BOŞ. Brief'te "renksiz, en sessiz katman —
+ * kasıtlı olarak" yazıyor. Uygun bir fotoğraf bulunamadı ve zorlamak
+ * yerine yuvanın tasarlanmış boşluğu bırakıldı; zaten istenen o.
+ */
 const WORLD_LAYERS: {
   id: BleachSlotWorld;
   kanji: string;
   name: Localized;
+  src?: string;
+  srcCredit?: string;
 }[] = [
-  { id: "living", kanji: "現世", name: { tr: "Karakura", en: "Karakura" } },
-  { id: "soul-society", kanji: "尸魂界", name: { tr: "Seireitei", en: "Seireitei" } },
-  { id: "hueco-mundo", kanji: "虚圏", name: { tr: "Las Noches", en: "Las Noches" } },
+  {
+    id: "living",
+    kanji: "現世",
+    name: { tr: "Karakura", en: "Karakura" },
+    src: "/assets/bleach/world-living.webp",
+    srcCredit: "Tokyo · imuttoo · CC BY-SA 2.0 · Wikimedia Commons",
+  },
+  {
+    id: "soul-society",
+    kanji: "尸魂界",
+    name: { tr: "Seireitei", en: "Seireitei" },
+    src: "/assets/bleach/world-soul-society.webp",
+    srcCredit: "Himeji Kalesi · Lowell Silverman · CC BY-SA 3.0 · Wikimedia Commons",
+  },
+  {
+    id: "hueco-mundo",
+    kanji: "虚圏",
+    name: { tr: "Las Noches", en: "Las Noches" },
+    src: "/assets/bleach/world-hueco-mundo.webp",
+    srcCredit: "Little Sahara · BLM Utah · kamu malı · Wikimedia Commons",
+  },
   { id: "royal", kanji: "霊王宮", name: { tr: "Reiōkyū", en: "Reiōkyū" } },
-  { id: "wandenreich", kanji: "見えざる帝国", name: { tr: "Silbern", en: "Silbern" } },
+  {
+    id: "wandenreich",
+    kanji: "見えざる帝国",
+    name: { tr: "Silbern", en: "Silbern" },
+    src: "/assets/bleach/world-wandenreich.webp",
+    srcCredit: "St.-Paulus-Dom, Münster · Dietmar Rabich · CC BY-SA 4.0 · Wikimedia Commons",
+  },
 ];
 
 // ---------------------------------------------------------------------------
@@ -306,8 +360,17 @@ export const BLEACH_SLOTS: readonly CuratedSlotDef[] = [
     size: { w: 2560, h: 1200 },
     ratios: ["21:9", "2:1", "16:9"],
     world: layer.id,
-    treatment: "silhouette",
+    /* ⚠️ `photo`, `silhouette` DEGIL (23 Agustos 2026). Katman fonu gercek
+       bir manzara: Karakura'nin gece silueti, Seireitei'nin duvarlari.
+       Siluete cevirmek onlari tanınmaz kiliyordu ve kurator bir kare
+       yukledigi anda ekranda koyu bir blok goruyordu. Katmanin atmosferi
+       zaten CSS'ten geliyor (yagmur, kar, kum); fotografin kendisi
+       okunabilir kalmali. Kurator isterse GORUNUM sekmesinden siluete
+       cevirebiliyor. */
+    treatment: "photo",
     fallback: "silhouette",
+    src: layer.src,
+    srcCredit: layer.srcCredit,
   })),
 
   /* ══ P03 · GOTEI 13 ══════════════════════════════════════════════════ */

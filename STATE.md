@@ -48,6 +48,25 @@
 > sıfırlanan bir yuva, yeni görsel yüklenince GİZLİ geri geliyordu. Artık
 > bütün alanlar boşaltılıyor.
 >
+> **⑥ DÜZELTME TURU (canlı geri bildirim).** Küratör bir kare yükleyip modu
+> kapatınca yerinde **siyah bir dikdörtgen** buluyordu. İki hata üst üste:
+> (a) `silhouette` işlem biçimi `brightness(0)` uyguluyordu — şeffaf PNG'de
+> doğru, **opak fotoğrafta tuvalin tamamı siyah**; dünya katmanlarının
+> varsayılanı da `silhouette` idi. (b) Düzenleyicinin optimistik önizlemesi
+> kalıcı olarak çiziliyor ve filtresiz olduğu için gerçek sonucu
+> MASKELİYORDU — hatayı görünmez kılan asıl mekanizma buydu. Düzeltme:
+> filtre `brightness(.3)`, katman varsayılanı `photo`, önizleme yalnızca
+> kaydetme uçuştayken.
+>
+> **⑦ DEPODAKİ VARSAYILAN KARE + HUB KARTI.** `slot.src` artık çizimde
+> kullanılıyor (küratör kaydı → depo varsayılanı → tasarlanmış yedek). Dört
+> dünya katmanına serbest lisanslı Commons karesi kondu, künye `srcCredit`
+> ile görselle birlikte seyahat ediyor; **Reiōkyū bilinçli olarak boş**.
+> Manifesto üç durumlu oldu (`0 / 65 dolu · 61 eksik · 4 geçici kare`).
+> `/anime` hub'ına Bleach kartı eklendi — hover'da görsel dikey yarılıyor,
+> Senkaimon'un mikro hâli.
+> ⚠️ İki görsel üreticisi de kapalıydı: Gemini kotası 429, fal 403 `TOP_UP`.
+>
 > **⏭ SIRADAKİ: P-TOKENS.** Beş dünya paleti (Hueco Mundo negatif — dosyadaki
 > ilk açık palet), derinlik rayı, Senkaimon geçişi, dört yeni font
 > (Shippori Mincho B1, Jost, Archivo Black, UnifrakturMaguntia).

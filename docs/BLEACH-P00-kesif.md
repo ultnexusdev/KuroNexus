@@ -559,7 +559,51 @@ durum değil — `character.curator`, `sportArchive.curator` ve müzik anahtarla
 zaten aynı yoldan iniyor. Kapsam dışı bırakıldı; sağlayıcıyı daraltmak bütün
 salonlara dokunur ve ayrı bir tur ister.
 
-### 8.5 Sırada
+### 8.5 Düzeltme turu — canlı geri bildirim (23 Ağustos 2026)
+
+**① SİYAH KUTU (asıl arıza).** Küratör bir kare yüklüyor, modu kapatıyor ve
+yerinde **siyah bir dikdörtgen** buluyordu. İki hata üst üste binmişti:
+
+- `silhouette` işlem biçimi `brightness(0)` uyguluyordu. Şeffaf zeminli bir
+  PNG'de doğru sonuç (saf siyah şekil), **opak bir fotoğrafta tuvalin
+  tamamı siyah**. Dünya katmanlarının varsayılanı `silhouette` idi, yani
+  yüklenen her manzara siyaha dönüyordu.
+- Düzenleyicinin optimistik önizlemesi `draft.url` varken **her zaman**
+  çiziliyordu. Filtresiz olduğu için küratöre "her şey yolunda" gösteriyor,
+  gerçek çizimi maskeliyordu. Mod kapanınca altındaki sonuç ortaya
+  çıkıyordu — bu, hatayı görünmez kılan asıl mekanizmaydı.
+
+Düzeltme: filtre `brightness(.3)` (opak fotoğrafta da okunur bir gölge),
+dünya katmanlarının varsayılanı `photo`, önizleme yalnızca kaydetme
+uçuştayken (`pendingPreview`, altı saniyelik güvenlik zaman aşımı).
+
+**② DEPODAKİ VARSAYILAN KARE.** `CuratedSlotDef.src` tipte vardı ama çizimde
+kullanılmıyordu. Artık üç basamaklı sıra işliyor: küratör kaydı → depo
+varsayılanı → tasarlanmış yedek. Futbol defterindeki `PlayerImageSlot.src`
+deseninin aynısı.
+
+Dört dünya katmanına serbest lisanslı Commons karesi kondu (Tokyo gecesi,
+Himeji Kalesi, Little Sahara, Münster Katedrali). ⚠️ **Reiōkyū bilinçli
+olarak boş** — brief'te "renksiz, en sessiz katman, kasıtlı olarak" yazıyor.
+Künye `srcCredit` ile görselle birlikte seyahat ediyor (CC BY-SA atıf
+istiyor).
+
+⚠️ İki görsel üreticisi de o gün kapalıydı: Gemini ücretsiz kotası 429, fal
+hesabı 403 `TOP_UP`. Commons'a geçildi ve beş katmanın hepsi zaten MEKÂN
+olduğu için gerçek fotoğraf iş gördü.
+
+**③ MANİFESTO ÜÇ DURUMLU OLDU.** `default` durumu eklendi: sayaç dört görsel
+ekranda dururken "0 / 65 dolu" diyordu. Küratörün bilmesi gereken "dolu mu"
+değil **kimin doldurduğu**. Artık `0 / 65 dolu · 61 eksik · 4 geçici kare`
+ve yer tutucu satırlarda "kendi karenle değiştir" notu duruyor.
+
+**④ HUB KARTI.** `/anime` → Bleach Evreni kartı eklendi (`world:bleach`
+anahtarı, boşsa depodaki Seireitei karesine düşüyor). Kartın ayrımı: hover'da
+görsel ortadan **dikey olarak yarılıyor** ve aradan ince bir ışık geçiyor —
+Senkaimon'un mikro hâli. Diğer kartlar ölçekleniyor, bu yarılıyor;
+`prefers-reduced-motion`'da yarık yok, yalnızca aydınlanma.
+
+### 8.6 Sırada
 
 `/anime/bleach` iskelet olarak duruyor ve **hiçbir yerden linkli değil**
 (`robots: noindex`). Sıradaki tur **P-TOKENS**: beş dünya paleti, derinlik

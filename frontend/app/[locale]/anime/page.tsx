@@ -19,6 +19,15 @@ import styles from "./page.module.css";
 
 export const dynamic = "force-dynamic";
 
+/**
+ * Bleach kartının depodaki geçici karesi.
+ *
+ * Küratör `world:bleach` yuvasını doldurana kadar geçerli. Bleach sayfasının
+ * Seireitei katmanıyla AYNI dosya: kart ile sayfa arasında görsel bir bağ
+ * kuruyor ve tarayıcı ikisini tek kez indiriyor.
+ */
+const BLEACH_CARD_FALLBACK = "/assets/bleach/world-soul-society.webp";
+
 export async function generateMetadata({
   params,
 }: {
@@ -114,6 +123,10 @@ export default async function AnimeHallPage({
      yoksa kart eski sade hâliyle çizilir */
   const narutoArt = exhibitImage(EXHIBIT_IMAGE_KEYS.worldNaruto);
   const archiveArt = exhibitImage(EXHIBIT_IMAGE_KEYS.worldArchive);
+  /* Bleach kartı: küratör yuvası boşsa depodaki geçici kareye düşüyor.
+     Kartın hiçbir koşulda görselsiz kalmaması gerekiyor — yarılma etkisi
+     görsele bağlı ve boş bir kartta anlamsız kalırdı. */
+  const bleachArt = exhibitImage(EXHIBIT_IMAGE_KEYS.worldBleach);
 
   /* Naruto artık aranmıyor: kartı arşivdeki seri kaydına değil kendi evren
      sayfasına gidiyor. One Piece hâlâ arşive bağlı — onun evren sayfası yok. */
@@ -286,6 +299,65 @@ export default async function AnimeHallPage({
                     {t("worlds.enter")}
                   </span>
                 </span>
+            </Link>
+          </li>
+
+          {/* Bleach Evreni — Naruto'nun kardeşi: evrenin kendisi, izlediğim
+              seri kaydı değil. Sayfa inşa hâlinde ama kart bugünden duruyor
+              (kullanıcı isteği, 23 Ağustos 2026); "İnşa hâlinde" ölçüsü bunu
+              açıkça söylüyor, ziyaretçi yarım bir sayfaya sürpriz girmiyor.
+
+              KARTIN AYRIMI: hover'da görsel ortadan DİKEY OLARAK yarılıyor ve
+              aradan ince bir ışık geçiyor — Senkaimon'un mikro hâli. Sayfanın
+              dili kullanıcıya girmeden önce haber veriliyor. Diğer kartlar
+              ölçekleniyor, bu yarılıyor. */}
+          <li className={styles.worldItem}>
+            <Link
+              href={animeHref.bleach()}
+              className={`${styles.world} ${styles.bleach}`}
+            >
+              <span className={styles.riftArt} aria-hidden>
+                {/* Aynı kare iki kez: her yarı kendi clip-path'iyle duruyor
+                    ve hover'da ters yönlere kayıyor. Tek görsel dosyası —
+                    ikinci kopya ağdan yeniden inmiyor. */}
+                <span className={styles.riftHalf} data-side="left">
+                  <Image
+                    src={bleachArt ? apiUrl(bleachArt.url) : BLEACH_CARD_FALLBACK}
+                    alt=""
+                    fill
+                    sizes="620px"
+                  />
+                </span>
+                <span className={styles.riftHalf} data-side="right">
+                  <Image
+                    src={bleachArt ? apiUrl(bleachArt.url) : BLEACH_CARD_FALLBACK}
+                    alt=""
+                    fill
+                    sizes="620px"
+                  />
+                </span>
+                <span className={styles.riftSeam} />
+              </span>
+
+              <span className={styles.worldBody}>
+                <span className={`${shell.data} ${styles.worldMeter}`}>
+                  {t("worlds.bleach.meter")}
+                </span>
+                {/* Özel ad — TR büyütme "BLEACH" üzerinde sorun üretmiyor
+                    ama kural gereği `lang` yazılı: İngilizce bir ad. */}
+                <span
+                  lang="en"
+                  className={`${shell.display} ${styles.worldName}`}
+                >
+                  {t("worlds.bleach.title")}
+                </span>
+                <span className={styles.worldTagline}>
+                  {t("worlds.bleach.tagline")}
+                </span>
+                <span className={`${shell.data} ${styles.worldEnter}`}>
+                  {t("worlds.enter")}
+                </span>
+              </span>
             </Link>
           </li>
 

@@ -655,3 +655,112 @@
     width: 78%;
   }
 }
+
+/* ============================================================
+   BLEACH KARTI — DIKEY YARILMA (23 Agustos 2026)
+
+   Digger kartlar hover'da olcekleniyor (`.world:hover { scale: 1.03 }`).
+   Bleach karti YARILIYOR: gorsel ortadan ikiye ayriliyor ve aradan ince
+   bir isik geciyor. Senkaimon'un mikro hali.
+
+   Neden bu kadraja bu kadar yer: Bleach sayfasinin tezi "katman katman
+   inis" ve o dilin ilk cumlesi kartta soyleniyor. Ziyaretci sayfaya
+   girmeden once ne bekleyecegini biliyor. Tek bir karta harcanan cesaret,
+   digerlerini oldugu gibi birakiyor.
+
+   ⚠️ KURAL 16: tek hex yok.
+   ============================================================ */
+
+.riftArt {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Ayni kare iki kez; her yari kendi clip-path'inde duruyor. Tek dosya —
+   ikinci kopya agdan yeniden inmiyor, tarayici onbellekten veriyor. */
+.riftHalf {
+  position: absolute;
+  inset: 0;
+  transition: translate 420ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.riftHalf[data-side="left"] {
+  clip-path: inset(0 50% 0 0);
+}
+
+.riftHalf[data-side="right"] {
+  clip-path: inset(0 0 0 50%);
+}
+
+.riftHalf img {
+  object-fit: cover;
+  object-position: center 40%;
+  filter: saturate(0.9) brightness(0.68) contrast(1.06);
+  mask-image: linear-gradient(to top, transparent 6%, #000 52%);
+  transition: filter 420ms ease;
+}
+
+.bleach:hover .riftHalf[data-side="left"],
+.bleach:focus-visible .riftHalf[data-side="left"] {
+  translate: -8px 0;
+}
+
+.bleach:hover .riftHalf[data-side="right"],
+.bleach:focus-visible .riftHalf[data-side="right"] {
+  translate: 8px 0;
+}
+
+.bleach:hover .riftHalf img,
+.bleach:focus-visible .riftHalf img {
+  filter: saturate(1) brightness(0.82) contrast(1.02);
+}
+
+/* Yariktan sizan isik. Kapaliyken 0 genislikte, yani hicbir sey cizmiyor. */
+.riftSeam {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  translate: -50% 0;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--hub-paper),
+    transparent
+  );
+  opacity: 0;
+  transition: width 420ms cubic-bezier(0.16, 1, 0.3, 1), opacity 420ms ease;
+}
+
+.bleach:hover .riftSeam,
+.bleach:focus-visible .riftSeam {
+  width: 1px;
+  opacity: 0.55;
+}
+
+/* Yarilma karti olceklemenin YERINE geciyor: ikisi ayni anda calisirsa
+   hareket bulanik bir "buyuyup acilma"ya donusuyor ve yarik okunmuyor. */
+.bleach:hover {
+  scale: 1;
+}
+
+/* Hareketi azalt: yarik yok, yalnizca aydinlanma. Kesme de guzel durur —
+   brief'in Senkaimon notundaki ayni karar. */
+@media (prefers-reduced-motion: reduce) {
+  .riftHalf,
+  .riftSeam,
+  .riftHalf img {
+    transition: none;
+  }
+
+  .bleach:hover .riftHalf[data-side="left"],
+  .bleach:focus-visible .riftHalf[data-side="left"],
+  .bleach:hover .riftHalf[data-side="right"],
+  .bleach:focus-visible .riftHalf[data-side="right"] {
+    translate: none;
+  }
+}

@@ -109,8 +109,21 @@ export async function CuratedImage({
   /* ⚠️ İKİ FARKLI ORIGIN. Küratörün yüklediği kareler (`/uploads/…`) API
      sunucusunda, depodaki varlıklar (`/assets/…`) ön yüzde. `isLocalUpload`
      ayrımı tek yerden yapıyor — kitap kapakları ve futbolcu kareleri de aynı
-     yardımcıyı bu gerekçeyle kullanıyor. */
-  const raw = record?.isHidden ? null : (record?.url ?? null);
+     yardımcıyı bu gerekçeyle kullanıyor.
+
+     ── ÜÇ KAYNAK, TEK SIRA ────────────────────────────────────────────────
+       1. Küratörün yüklediği kare  (veritabanı)
+       2. DEPODAKİ varsayılan       (`slot.src`)
+       3. Hiçbiri                   → tasarlanmış yedek
+
+     İkinci basamak, futbol defterindeki `PlayerImageSlot.src` deseninin
+     aynısı: sayfa ilk günden görselli açılabiliyor ve küratör beğenmezse
+     üstüne yazıyor. Küratör kaydı DAİMA kazanıyor — depoya konan kare bir
+     varsayılan, bir kilit değil.
+
+     ⚠️ "Geçici gizle" ikisini birden susturuyor: niyet "bu yuvayı şimdilik
+     gösterme", "veritabanı kaydını atla" değil. */
+  const raw = record?.isHidden ? null : (record?.url ?? slot.src ?? null);
   const source = raw ? (isLocalUpload(raw) ? apiUrl(raw) : raw) : null;
 
   const shownRatio = ratio ?? resolveRatio(slot, record?.ratio);
@@ -182,9 +195,14 @@ export async function CuratedImage({
         )}
       </span>
 
-      {/* Künye satırı — kaynak adı bir özel ad, çevrilmiyor */}
-      {source && record?.credit ? (
-        <span className={styles.credit}>{record.credit}</span>
+      {/* Künye satırı — kaynak adı bir özel ad, çevrilmiyor.
+          Küratörün yazdığı künye önce gelir; yoksa depodaki varsayılan
+          karenin künyesi basılır. ⚠️ Serbest lisanslı kareler atıf
+          istiyor ve atıf görselle birlikte seyahat etmeli. */}
+      {source && (record?.credit ?? (raw === slot.src ? slot.srcCredit : null)) ? (
+        <span className={styles.credit}>
+          {record?.credit ?? slot.srcCredit}
+        </span>
       ) : null}
 
       {isAdmin && !noEdit ? (

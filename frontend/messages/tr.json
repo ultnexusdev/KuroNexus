@@ -1430,6 +1430,11 @@
       "archive": {
         "title": "Anime Arşivi",
         "tagline": "Altı raf: izlediğim, beklediğim, bitirdiğim."
+      },
+      "bleach": {
+        "title": "Bleach Evreni",
+        "tagline": "Üç dünya, on üç kapı, bir isim taşıyan her kılıç.",
+        "meter": "İnşa hâlinde"
       }
     },
     "bleach": {
@@ -1474,13 +1479,16 @@
         "manifestTitle": "Küratör · görsel yuvaları",
         "manifestMeter": "{done} / {total} yuva dolu · {missing} görsel eksik",
         "manifestNote": "Yuvalar bölümlerin içinde de duruyor; buradan doğrudan da doldurabilirsin. Her satırda önerilen boyut, oran ve kadraj notu yazılı.",
-        "stateFilled": "DOLU",
-        "stateEmpty": "BOŞ",
-        "stateHidden": "GİZLİ",
         "ratioOverridden": "oran değiştirildi",
         "jump": "Sayfada göster →",
         "orphanTitle": "Manifestoda karşılığı olmayan kayıtlar",
-        "orphanNote": "Bu yuva kimlikleri kodda artık yok. Kayıt duruyor ama hiçbir yerde çizilmiyor — yuva yeniden adlandırılmış olabilir."
+        "orphanNote": "Bu yuva kimlikleri kodda artık yok. Kayıt duruyor ama hiçbir yerde çizilmiyor — yuva yeniden adlandırılmış olabilir.",
+        "state_filled": "DOLU",
+        "state_empty": "BOŞ",
+        "state_hidden": "GİZLİ",
+        "state_default": "VARSAYILAN",
+        "manifestPlaceholders": "{count} yuvada geçici kare",
+        "placeholderNote": "Yer tutucu — kendi karenle değiştir"
       },
       "scaffold": {
         "eyebrow": "Anime · Evren Kaydı",

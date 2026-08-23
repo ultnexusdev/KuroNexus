@@ -8,6 +8,7 @@ import { BleachHero } from "@/components/anime/bleach/BleachHero";
 import { DepthRail } from "@/components/anime/bleach/DepthRail";
 import { WorldLayers } from "@/components/anime/bleach/WorldLayers";
 import { Gotei13Section } from "@/components/anime/bleach/Gotei13Section";
+import { ZanpakutoSection } from "@/components/anime/bleach/ZanpakutoSection";
 import { LAYER_IDS, type LayerId } from "@/components/anime/bleach/WorldSection";
 import { CuratorManifest } from "@/components/anime/bleach/CuratorManifest";
 import shell from "../layout.module.css";
@@ -98,6 +99,8 @@ export default async function BleachUniversePage({
         <WorldLayers locale={locale} />
 
         <Gotei13Section locale={locale} />
+
+        <ZanpakutoSection locale={locale} />
 
         {/* Kalan bölümlerin durağı. Bilinçli olarak sessiz: yarım bir
             sayfa olduğunu gizlemek yerine söyleyip geçiyor. */}

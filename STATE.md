@@ -172,8 +172,30 @@
 > (b) Kapatma düğmesi `sr-only` sınıfı kullanıyordu ama **depoda öyle bir
 > sınıf yok** — etiket ekrana basılırdı, `aria-label`e alındı.
 >
-> **⏭ SIRADAKİ: P04 · ZANPAKUTŌ ARŞİVİ** (dönüşüm şeridi + altı iç dünya) ve
-> P05 Bankai Salonu. Sonra paralel worktree'lerde P06–P16.
+> **⑫ P04 · ZANPAKUTŌ ARŞİVİ.** Bir teknik listesi değil bir **canlılar
+> kataloğu**: on kılıcın dönüşüm hattı, altısının kendi iç dünyası.
+>
+> **Komutlar fandom'dan doğrulandı** (Zanpakutō sayfaları sahiplerine
+> yönleniyor; veri `===Zanpakutō===` bölümünde). Onu da hafızayla uyuştu.
+> ⚠️ Zangetsu'nun komutu YOK — brief'in yazdığı 「月牙天衝」 bir saldırı adı,
+> serbest bırakma komutu değil. Kenpachi'nin Bankai adı da canon'da yok.
+>
+> ⚠️ **Silüet parametreden üretiliyor** — morph için iki path'in aynı düğüm
+> dizisine sahip olması şart; kırk aşama elle çizilseydi hiçbiri diğerine
+> dönüşemezdi. Şablon tek, aşamalar altı sayıyla ayrışıyor. Morph CSS'te
+> (`transition: d`), JS'te değil. Bedeli açıkça yazıldı: silüet bir şema.
+>
+> ⚠️ **Ölçülüp geri alındı:** komut ilk sürümde shikai durağına saklanıyordu
+> ve varsayılan durak "mühürlü" olduğu için **SSR'da on komutun hiçbiri
+> görünmüyordu**. Bölümün en ikonik verisi JS'e bağımlıydı. Komut kılıcın
+> kendisine ait — şimdi hep duruyor, shikai'de vurgulanıyor.
+>
+> **İç dünya:** kart açılmıyor, sayfa ruh dünyasına giriyor. Altı sahne, her
+> biri kılıcın canon paletiyle. `aria-modal` kullanıldı, elle `aria-hidden`
+> değil (temizlenmezse sayfayı kalıcı okunamaz bırakır).
+>
+> **⏭ SIRADAKİ: P05 · BANKAI SALONU** (karanlık koridor, yatay scroll).
+> Sonra paralel worktree'lerde P06–P16.
 >
 > ⚠️ `/anime/bleach` hiçbir yerden linkli değil ve `robots: noindex`. Hub
 > kartı P17 turunda ekleniyor.

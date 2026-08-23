@@ -1,0 +1,136 @@
+/* ============================================================
+   IC DUNYA SAHNELERI
+
+   Renk sahnenin kendisinden GELMIYOR: `--iw-ink` / `--iw-accent` /
+   `--iw-paper` disaridan iniyor (kilicin canon paleti, veri olarak).
+   Ayni cizim farkli bir palette farkli bir dunya oluyor.
+
+   ⚠️ KURAL 16 ISTISNASI, KASITLI: bu uc degisken tema token'i degil
+   VERI. Gerekcesi `zanpakuto.ts` icinde yazili.
+   ============================================================ */
+
+.scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  color: var(--iw-paper);
+}
+
+.art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* ── ZANGETSU · YAN YATMIS SEHIR ─────────────────────────────
+   Ufuk DIKEY. Ichigo'nun ic dunyasinda yercekimi doksan derece
+   donmustur ve o bunu tuhaf bulmaz; cizimin de bulmamasi gerekiyor. */
+.scene[data-scene="city"] .art {
+  rotate: 90deg;
+  /* Donme sonrasi kare disina tasmasin: kisa kenara gore olcekleniyor */
+  scale: 1.35;
+  transform-origin: 50% 50%;
+  opacity: 0.5;
+}
+
+/* ── SENBONZAKURA · DUSEN BICAKLAR ───────────────────────────
+   Her yaprak aslinda bir bicak: yuvarlak degil, iki ucu sivri. */
+.petalField {
+  position: absolute;
+  inset: 0;
+}
+
+.petal {
+  position: absolute;
+  width: 10px;
+  height: 4px;
+  background: var(--iw-accent);
+  opacity: 0.55;
+  /* Yaprak degil BICAK: iki ucu sivri bir mercek */
+  clip-path: polygon(0% 50%, 50% 0%, 100% 50%, 50% 100%);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .petal {
+    animation: fall 14s linear infinite;
+  }
+}
+
+@keyframes fall {
+  from {
+    translate: 0 -20vh;
+  }
+  to {
+    translate: -6vw 120vh;
+  }
+}
+
+/* ── HYORINMARU · DONMUS GOKYUZU ────────────────────────────── */
+.scene[data-scene="ice"] .art {
+  opacity: 0.7;
+}
+
+/* ── NOZARASHI · YIKIK SAVAS ALANI ─────────────────────────── */
+.scene[data-scene="ruins"] .art {
+  opacity: 0.75;
+}
+
+/* Kirmizi gokyuzu: sahnenin ustunden inen tek gradient */
+.scene[data-scene="ruins"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--iw-accent) 45%, transparent),
+    transparent 62%
+  );
+}
+
+/* ── SODE NO SHIRAYUKI · KAR ────────────────────────────────── */
+.snowField {
+  position: absolute;
+  inset: 0;
+}
+
+.flake {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--iw-paper);
+  opacity: 0.5;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .flake {
+    animation: drift 22s linear infinite;
+  }
+}
+
+@keyframes drift {
+  from {
+    translate: 0 -20vh;
+  }
+  to {
+    translate: 3vw 120vh;
+  }
+}
+
+/* Kar hatti: tek yatay iz. Gradient degil duz cizgi -- burada
+   yumusak gecis yok (Hueco Mundo'daki ayni karar). */
+.snowLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 18%;
+  height: 1px;
+  background: var(--iw-paper);
+  opacity: 0.28;
+}
+
+/* ── BENIHIME · KIRMIZI PERDE ───────────────────────────────── */
+.scene[data-scene="curtain"] .art {
+  color: var(--iw-accent);
+  opacity: 0.9;
+}

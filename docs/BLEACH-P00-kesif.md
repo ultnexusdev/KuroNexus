@@ -840,7 +840,60 @@ kipi başlığı ve (hover'da) kaptan adları çiziliyor — bölüm boş değil
 Panelin açılması JS gerektiriyor; bu bilinçli, brief'in tasarımı bir JS
 etkileşimi.
 
-### 8.10 Sırada
+### 8.10 P04 — ZANPAKUTŌ ARŞİVİ (23 Ağustos 2026) ✅
+
+**TEZ.** Naruto Evreni'nde bunun karşılığı bir teknik listesi. Burada tez
+farklı: **Zanpakutō bir silah değil, yaşayan bir ruhtur.** O yüzden bu bir
+katalog değil bir *canlılar* kataloğu — on kılıcın dönüşüm hattı, altısının
+kendi iç dünyası.
+
+**KOMUTLAR FANDOM'DAN DOĞRULANDI.** Zanpakutō sayfaları sahiplerine
+yönleniyor; veri `===Zanpakutō===` bölümünde
+`{{translation|"..."|kanji|romaji}}` biçiminde duruyor. Onun onu da
+hafızadakiyle birebir uyuştu — ama Gotei 13 turunda üç hata çıktığı için
+doğrulama atlanmadı.
+
+⚠️ **Zangetsu'nun komutu yok** ve bu bir eksiklik değil: Ichigo'nun kılıcı
+sürekli serbest hâlde. Brief'in şeması bu noktada 「月牙天衝」 yazıyor ama o
+bir **saldırı** adı (Getsuga Tenshō), serbest bırakma komutu değil.
+`command: null`, arayüz "komut yok" çiziyor. Aynı biçimde Kenpachi'nin
+Bankai adı da canon'da yok → `name: null`.
+
+⚠️ **SİLÜET ÜRETİLİYOR, ELLE ÇİZİLMİYOR — teknik zorunluluk.** Morph için
+iki path'in **aynı düğüm dizisine** sahip olması şart. Kırk aşama (on kılıç
+× dört durak) elle çizilseydi hiçbiri diğerine dönüşemezdi. Şablon tek ve
+sabit; aşamalar yalnızca **altı sayıyla** ayrışıyor (`BladeForm`), böylece
+her geçiş kendiliğinden morph edilebilir oluyor.
+
+Bedeli açıkça yazıldı: silüet bir **şema**, illüstrasyon değil.
+Senbonzakura'nın bin bıçağı ve Ryūjin Jakka'nın alevi burada soyut bir
+biçim değişimi. Anlatıyı ad, komut ve tek cümlelik not taşıyor.
+
+Morph **CSS'te** (`transition: d`), JS'te değil — kompozisyon katmanında,
+ana iş parçacığına dokunmadan. Desteklemeyen tarayıcıda geçiş anlık olur;
+brief'in izin verdiği yedek de zaten buydu.
+
+⚠️ **ÖLÇÜLDÜ VE GERİ ALINDI: komut artık her zaman görünür.** İlk sürüm
+brief'i harfiyen uygulayıp komutu shikai durağına saklıyordu. Varsayılan
+durak "mühürlü" olduğu için sunucu çıktısında **on komutun hiçbiri
+görünmüyordu** — bölümün en ikonik canon verisi ("Chire, Senbonzakura") JS
+gelmeden hiç okunmuyordu ve JS gelse bile her şerit için ayrı tıklama
+istiyordu. Komut kılıcın kendisine ait, bir aşamaya değil: şimdi hep
+duruyor, shikai durağı seçiliyken vurgulanıyor.
+
+**İÇ DÜNYA — imza etkileşim.** Kart açılmıyor: sayfa ruh dünyasına giriyor.
+Tam ekran, o kılıcın **canon paleti** (veri olarak, kural 16 istisnası),
+ruhun adı, iki üç cümle ve tek bir çıkış. Altı sahne: yan yatmış gökdelen
+şehri (Zangetsu — sahne 90° döndürülüyor), düşen bıçaklar (Senbonzakura),
+donmuş gökyüzü, kar, yıkık savaş alanı, kırmızı perde.
+
+⚠️ `aria-modal="true"` kullanıldı, elle `aria-hidden` **değil**: brief
+ikincisini söylüyor ama elle yazılan `aria-hidden` kapanışta
+temizlenmezse sayfayı kalıcı olarak okunamaz bırakır. Escape kapatıyor,
+odak açan düğmeye dönüyor, gövde kaydırması kilitlenip **eski değerine**
+geri veriliyor (boş dizeye sıfırlamak sayfanın kendi ayarını ezerdi).
+
+### 8.11 Sırada
 
 `/anime/bleach` iskelet olarak duruyor ve **hiçbir yerden linkli değil**
 (`robots: noindex`). Sıradaki tur **P-TOKENS**: beş dünya paleti, derinlik

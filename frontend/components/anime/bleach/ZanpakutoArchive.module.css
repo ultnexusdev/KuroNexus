@@ -1,0 +1,399 @@
+/* ============================================================
+   P04 · ZANPAKUTO ARSIVI
+
+   Bir teknik listesi degil bir CANLILAR katalogu: her kilic yatay bir
+   serit, seridin uzerinde dort durak, altisinda kendi ic dunyasi.
+
+   ⚠️ KURAL 16: tek hex yok. Ic dunya paleti (--iw-*) satir ici
+   degisken olarak geliyor ve VERI -- gerekcesi zanpakuto.ts'te.
+   ============================================================ */
+
+.section {
+  position: relative;
+  isolation: isolate;
+  padding-block: clamp(4rem, 12vh, 9rem);
+  background: var(--bg);
+  color: var(--text-primary);
+  transition: background-color 600ms ease-in-out, color 600ms ease-in-out;
+}
+
+.inner {
+  width: var(--band);
+  margin-inline: auto;
+  padding-inline-end: var(--rail);
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.75rem, 1.8vw, 1.25rem);
+  margin-bottom: clamp(2rem, 6vh, 4rem);
+}
+
+.head p {
+  margin: 0;
+}
+
+.lede {
+  max-width: calc(var(--measure) / 1.4);
+}
+
+/* ── SERITLER ─────────────────────────────────────────────────
+   Kart DEGIL: tam genislik satirlar, hairline ayracli. Kutu koymak
+   onlari "on kart" yapardi; bunlar bir katalogun satirlari. */
+.strips {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--hairline);
+}
+
+.strip {
+  display: grid;
+  grid-template-columns: clamp(76px, 9vw, 128px) 1fr;
+  gap: clamp(1rem, 3vw, 2.5rem);
+  align-items: center;
+  padding-block: clamp(1.5rem, 4vh, 2.75rem);
+  border-bottom: 1px solid var(--hairline);
+}
+
+/* Siluet: seridin solunda, sabit yukseklikte. Brief 180px diyor;
+   akiskan tutuldu ki 360px'te de nefes alsin. */
+.art {
+  display: block;
+  height: clamp(130px, 20vh, 190px);
+  color: var(--world-paper);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.4rem, 1.2vh, 0.75rem);
+  min-width: 0;
+}
+
+.owner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 0.9rem;
+  margin: 0;
+}
+
+.name {
+  font-family: var(--b-display);
+  font-weight: 700;
+  font-size: clamp(1.2rem, 2.6vw, 1.9rem);
+  line-height: 1;
+  color: var(--world-paper);
+}
+
+.romaji {
+  font-size: 0.6rem;
+}
+
+.ownerName {
+  font-family: var(--b-body);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* ── DURAKLAR ─────────────────────────────────────────────────
+   Soldan saga bir ray: muhurlu → shikai → bankai → gercek. */
+.stops {
+  display: flex;
+  align-items: stretch;
+  margin-block: clamp(0.3rem, 1vh, 0.6rem);
+  border-top: 1px solid var(--hairline);
+}
+
+.stop {
+  flex: 1;
+  min-width: 0;
+  min-height: var(--touch-min);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+  padding: 0.5rem 0.6rem 0.5rem 0;
+  border: 0;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  text-align: left;
+  transition: color 260ms ease;
+}
+
+.stop:hover,
+.stop:focus-visible {
+  color: var(--text-primary);
+}
+
+.stop[data-on] {
+  color: var(--world-accent);
+}
+
+/* Durak isareti: ray uzerinde bir dugum. Bleach'te yuvarlak kose yok,
+   o yuzden kare 45 derece dondurulmus -- elmas, daire degil. */
+.stopDot {
+  width: 7px;
+  height: 7px;
+  rotate: 45deg;
+  translate: 0 -4px;
+  background: currentColor;
+  opacity: 0.5;
+  transition: scale 260ms cubic-bezier(0.16, 1, 0.3, 1), opacity 260ms ease;
+}
+
+.stop[data-on] .stopDot {
+  scale: 1.7;
+  opacity: 1;
+}
+
+.stopLabel {
+  font-family: var(--b-kubo);
+  font-weight: 300;
+  font-size: 0.56rem;
+  letter-spacing: 0.2em;
+  margin-inline-end: -0.2em;
+  text-transform: uppercase;
+}
+
+/* ── ASAMANIN KIMLIGI ────────────────────────────────────────── */
+
+.stageName {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 0.75rem;
+  margin: 0;
+  font-family: var(--b-body);
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.stageKanji {
+  font-family: var(--b-display);
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--world-accent);
+}
+
+/* Canon'da kayit yoksa: uydurma degil, bosluk. Kesikli alt cizgi
+   "burada bir sey EKSIK degil, YOK" diyor. */
+.unnamed {
+  font-family: var(--b-kubo);
+  font-weight: 300;
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: 1px dashed var(--border-strong);
+  padding-bottom: 2px;
+}
+
+/* ── KOMUT ────────────────────────────────────────────────────
+   Kilicin kendisine ait, bir asamaya degil: HER ZAMAN duruyor.
+   Shikai duragi seciliyken vurgulaniyor -- brief'in "gecisde belirir"
+   niyeti korunuyor ama bilgi saklanmiyor (gerekce bilesende yazili). */
+.command {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem 0.75rem;
+  margin: 0;
+  opacity: 0.55;
+  transition: opacity 320ms ease;
+}
+
+.command[data-active] {
+  opacity: 1;
+}
+
+.commandKanji {
+  font-family: var(--b-display);
+  font-weight: 600;
+  font-size: clamp(0.95rem, 1.6vw, 1.15rem);
+  color: var(--world-accent);
+}
+
+.commandRomaji {
+  font-family: var(--b-body);
+  font-size: 0.78rem;
+  font-style: italic;
+  color: var(--text-muted);
+}
+
+.note {
+  margin: 0;
+  max-width: calc(var(--measure) / 1.5);
+}
+
+/* ── IC DUNYA KAPISI ──────────────────────────────────────────
+   Bir kart acmiyor: sayfa ruh dunyasina giriyor. Kapinin kendisi de
+   oyle duruyor -- kutu degil, sol kenardan bir hairline. */
+.enterInner {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: var(--touch-min);
+  margin-top: 0.4rem;
+  padding-left: 0.9rem;
+  border: 0;
+  border-left: 1px solid var(--world-accent);
+  background: none;
+  color: var(--world-accent);
+  font-family: var(--b-display);
+  font-weight: 600;
+  font-size: 0.92rem;
+  cursor: pointer;
+  transition: gap 320ms cubic-bezier(0.16, 1, 0.3, 1), color 260ms ease;
+}
+
+.enterInner:hover,
+.enterInner:focus-visible {
+  gap: 1.1rem;
+  color: var(--text-primary);
+}
+
+/* ── IC DUNYA · TAM EKRAN ─────────────────────────────────────
+   Brief: "Bu ekranda ruhun adi, iki uc cumle ve tek bir cikis.
+   Baska hicbir sey. Bosluk = guc." */
+.innerWorld {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: var(--iw-ink);
+  color: var(--iw-paper);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .innerWorld {
+    animation: enter 420ms ease-out both;
+  }
+}
+
+/* reduced-motion'da gecis fade yerine ANLIK (brief) */
+@keyframes enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.innerBody {
+  position: relative;
+  z-index: 1;
+  width: min(var(--measure), 100% - 2 * var(--gutter));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.9rem, 2.4vh, 1.75rem);
+  text-align: center;
+}
+
+.innerEyebrow {
+  margin: 0;
+  color: var(--iw-accent);
+  opacity: 0.85;
+}
+
+.innerTitle {
+  margin: 0;
+  font-family: var(--b-display);
+  font-weight: 700;
+  font-size: clamp(1.75rem, 5vw, 3.25rem);
+  line-height: 1.15;
+  color: var(--iw-paper);
+}
+
+.innerSpirit {
+  margin: 0;
+  font-family: var(--b-kubo);
+  font-weight: 300;
+  font-size: 0.7rem;
+  letter-spacing: 0.42em;
+  margin-inline-end: -0.42em;
+  text-transform: uppercase;
+  color: var(--iw-accent);
+}
+
+.innerText {
+  margin: 0;
+  max-width: 54ch;
+  font-family: var(--b-body);
+  font-size: clamp(0.95rem, 1.1vw, 1.05rem);
+  line-height: 1.8;
+  color: color-mix(in srgb, var(--iw-paper) 82%, transparent);
+}
+
+/* Tek cikis. Baska hicbir sey. */
+.back {
+  min-height: var(--touch-min);
+  margin-top: clamp(1rem, 4vh, 2.5rem);
+  padding: 0 1.5rem;
+  border: 1px solid color-mix(in srgb, var(--iw-paper) 40%, transparent);
+  background: none;
+  color: var(--iw-paper);
+  font-family: var(--b-kubo);
+  font-weight: 300;
+  font-size: 0.66rem;
+  letter-spacing: 0.28em;
+  margin-inline-end: -0.28em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 260ms ease, color 260ms ease;
+}
+
+.back:hover,
+.back:focus-visible {
+  border-color: var(--iw-accent);
+  color: var(--iw-accent);
+}
+
+/* ── MOBIL ───────────────────────────────────────────────────
+   Siluet ustte, govde altta: 360px'te yan yana ikisi de sigmiyordu. */
+@media (max-width: 760px) {
+  .inner {
+    padding-inline-end: 0;
+  }
+
+  .strip {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .art {
+    height: 120px;
+  }
+
+  .stops {
+    /* Dort durak dar ekranda tasiyordu: yatay kaydirilabilir */
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .stop {
+    flex: 0 0 auto;
+    min-width: 8.5ch;
+  }
+}
+
+/* ── HAREKETI AZALT ───────────────────────────────────────────
+   Morph yok (BladeSilhouette kendi tarafinda kapatiyor), asamalar
+   arasi gecis anlik, ic dunyaya girisde fade yok. */
+@media (prefers-reduced-motion: reduce) {
+  .section,
+  .stop,
+  .stopDot,
+  .enterInner,
+  .back {
+    transition: none;
+  }
+}

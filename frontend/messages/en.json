@@ -1542,6 +1542,24 @@
         "close": "Close the gate",
         "center": "Sōkyoku Hill",
         "gateLabel": "Gate of Division {n}"
+      },
+      "zanpakuto": {
+        "eyebrow": "ZANPAKUTŌ ARCHIVES",
+        "title": "Zanpakutō Archives",
+        "lede": "A Zanpakutō is not a weapon but a living soul. So this is not a list of techniques but a catalogue of living things: every blade has a line of transformation, and six of them have an inner world. The release commands were verified against canon.",
+        "command": "Release command",
+        "noCommand": "no command",
+        "unnamed": "no record",
+        "stages": {
+          "sealed": "Sealed",
+          "shikai": "Shikai",
+          "bankai": "Bankai",
+          "true": "True form"
+        },
+        "enterInner": "Enter the inner world",
+        "back": "Go back",
+        "innerAria": "Inner world",
+        "stripAria": "Zanpakutō transformation strips"
       }
     }
   },

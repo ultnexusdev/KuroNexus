@@ -1542,6 +1542,24 @@
         "close": "Kapıyı kapat",
         "center": "Sōkyoku Tepesi",
         "gateLabel": "{n}. Bölük kapısı"
+      },
+      "zanpakuto": {
+        "eyebrow": "ZANPAKUTŌ ARCHIVES",
+        "title": "Zanpakutō Arşivi",
+        "lede": "Zanpakutō bir silah değil, yaşayan bir ruhtur. Bu yüzden burası bir teknik listesi değil bir canlılar kataloğu: her kılıcın bir dönüşüm hattı, altısının kendi iç dünyası var. Serbest bırakma komutları canon'dan doğrulandı.",
+        "command": "Serbest bırakma",
+        "noCommand": "komut yok",
+        "unnamed": "kayıt yok",
+        "stages": {
+          "sealed": "Mühürlü",
+          "shikai": "Shikai",
+          "bankai": "Bankai",
+          "true": "Gerçek hâl"
+        },
+        "enterInner": "İç dünyaya gir",
+        "back": "Geri dön",
+        "innerAria": "İç dünya",
+        "stripAria": "Zanpakutō dönüşüm şeritleri"
       }
     }
   },

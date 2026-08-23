@@ -7,10 +7,11 @@
 
 ## ⌂ DEVİR — SIRADAKİ OTURUM BURADAN BAŞLASIN (23 Ağustos 2026)
 
-**Durum:** Küratör altyapısı + P-TOKENS + **P01–P13 canlıda.**
-**Sıradaki:** **P14 · Asil Haneler.** Brief'in kendi metni ana kaynak.
-⚠️ Yuvalar manifestoda hazır (`houses` bölümü). Kadroyu fandom'dan
-doğrula — brief'in listelerinde bugüne kadar dokuz hata çıktı.
+**Durum:** Küratör altyapısı + P-TOKENS + **P01–P14 canlıda.**
+**Sıradaki:** **P15 · Mekânlar.** Brief'in kendi metni ana kaynak.
+⚠️ Yuvalar manifestoda hazır (`locations` bölümü) ve bu bölüm **görsel
+ağırlıklı** olacak: küratör sözleşmesini hatırla — çıplak `<Image>` yok,
+her kadraj `<CuratedImage slotId>`.
 
 ### Yerleşik konvansiyonlar — bunları yeniden keşfetme
 
@@ -1539,7 +1540,62 @@ kuralına uyuyor.
 360px'te tek sütun, panel yapışkanlıktan çıkıyor, etiket yüksekliği
 113px (dokunma hedefi tamam), taşma yok. Rota paketi 26,2 → 26,5 kB.
 
-### 8.20 Sırada
+### 8.20 P14 — ASİL HANELER (23 Ağustos 2026) ✅
+
+**TEZ.** Naruto Evreni'ndeki "Klanlar"ın karşılığı ama **bilinçli olarak
+daha küçük**. Bleach'te klanlar o kadar merkezi değil ve bölüm bunu
+tasarımla itiraf ediyor: altı işaret, tek satır, kısa. Büyük bir soy
+ağacı yok.
+
+⚠️ **BRIEF'İN ALT BLOĞU İKİ YERDE YANLIŞTI — VE DÜZELTMESİ HİKÂYEYİ DAHA
+İYİ YAPTI.**
+1. Canon'da **五大貴族 değil 四大貴族**: beş değil **DÖRT** Büyük Asil Hane.
+2. Brief üçünü adlandırıp ikisini redakte ediyor. Canon yalnızca **ikisini**
+   adlandırıyor (Kuchiki, Shihōin); üçüncü ve dördüncü için wiki'nin tek
+   cümlesi var: *"No information about this house has been revealed."*
+
+Ve sayı meselesinin canon'daki çözümü brief'in sezgisini haklı çıkarıyor:
+**Shiba hanesi bir zamanlar BEŞİNCİ büyük haneydi** ve Kaien'in ölümünden
+sonra düştü. Beş vardı, dördü kaldı, o dördün ikisinin adı arşivde yok.
+Redakte blok bir üslup numarası değil, kaydın gerçek hâli — ve hover'da
+titriyor ama **açılmıyor**, çünkü açılacak bir şey yok.
+
+⚠️ Tsunayashiro'nun kanji'si 津奈木代 değil **綱彌代**; ayrıca ana seride
+değil yan eserlerde geçiyor ve kayıt bunu söylüyor.
+
+⚠️ **ARMALAR CANON DEĞİL VE BÖLÜM BUNU YAZIYOR.** Canon bu haneler için
+mon yayımlamıyor. Altı işaret her hanenin **canon'daki uzmanlığından**
+türetildi (Kuchiki'nin kayıt tutuculuğu, Shiba'nın havai fişeği, Ise'nin
+şinto ayinleri…) ve bölümün altında tek satırlık bir künye bunu söylüyor.
+Arşiv uydurmaz; uydurduğunda da söyler.
+
+⚠️ **`0fr` DARALMASI BURADA TUTMADI.** P10 ve P11'de çalışan
+`grid-template-rows: 0fr` yöntemi — tek çocuk ve `min-height: 0` şartları
+sağlandığı hâlde — künyeleri **119–155px açık** bıraktı (ölçüldü,
+`getBoundingClientRect`). Sebebi aranmadı: bu bölümün yüksekliği tezin
+parçası, yani kapanmanın çalıştığı **kesin** olmalı. `max-height` kaba ama
+belirlenimci; tavan ölçülerek seçildi (en uzun künye 155px → 16rem).
+Fixten sonra altı kutunun altısı da **0px**.
+
+⚠️ **70vh ŞARTI TAM TUTTURULAMADI — sayı olduğu gibi:** bölüm 1440×900'de
+**732px = 81vh**. Başlangıçta 1089px (121vh) idi; kapanma düzeltmesi ve
+metin/boşluk sıkılaştırmasıyla buraya indi. Daha aşağısı ya sayfanın on
+dört bölümde paylaştığı başlık ölçeğini bozmayı ya da armaların canon
+olmadığını söyleyen satırı atmayı gerektiriyordu; ikisi de yapılmadı.
+1080px yüksekliğinde aynı bölüm 68vh, yani ölçüt ekran boyuna bağlı.
+Sayfadaki **en kısa bölüm** olması hedefi tutturuyor.
+
+⚠️ **ÖLÇÜM TUZAĞI (yeni ve yazılmalı):** tarayıcı paneli **yeniden
+boyutlandırmadan sonra medya sorgusu kurallarını her özellik için
+yeniden uygulamıyor.** 360px'e küçültünce sütun sayısı değişti ama
+`max-height` eski değerinde kaldı; **sayfayı o genişlikte yeniden
+yükleyince** doğru değer (256px) geldi. Dar ekran doğrulaması yaparken
+resize değil **yeniden yükleme** kullan.
+
+360px'te iki sütun, künyeler baştan açık (hover yok), taşma yok.
+Rota paketi 26,5 → 26,8 kB. Sıfır JS.
+
+### 8.21 Sırada
 
 `/anime/bleach` iskelet olarak duruyor ve **hiçbir yerden linkli değil**
 (`robots: noindex`). Sıradaki tur **P-TOKENS**: beş dünya paleti, derinlik

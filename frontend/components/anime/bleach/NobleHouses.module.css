@@ -1,0 +1,304 @@
+/* ============================================================
+   P14 · ASIL HANELER
+
+   Naruto'daki "Klanlar"in karsiligi ama BILINCLI OLARAK DAHA KUCUK.
+   Bleach'te klanlar o kadar merkezi degil ve bolum bunu tasarimla itiraf
+   ediyor: yatay, kompakt, alti isaret. Buyuk bir soy agaci YOK ve
+   bolumun kisa kalmasi tezin parcasi.
+
+   ⚠️ KURAL 16: tek hex yok. Bolum `soul-society` derisinde (murekkep +
+   haori kizili) ve alt blok o derinin daha karanlik bir kesiti.
+   ============================================================ */
+
+.section {
+  position: relative;
+  isolation: isolate;
+  padding-block: clamp(2rem, 5vh, 3.25rem);
+  background: var(--bg);
+  color: var(--text-primary);
+  transition: background-color 600ms ease-in-out, color 600ms ease-in-out;
+}
+
+.head {
+  width: var(--band);
+  margin-inline: auto;
+  padding-inline-end: var(--rail);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(0.5rem, 1.4vw, 0.9rem);
+  margin-bottom: clamp(1rem, 3vh, 1.5rem);
+}
+
+.head p {
+  margin: 0;
+}
+
+.lede {
+  max-width: calc(var(--measure) / 1.4);
+}
+
+/* ── ALTI ISARET ─────────────────────────────────────────────
+   Tek satir, kompakt. Kart yok: yalnizca arma, ad ve kanji. */
+.row {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: var(--band);
+  margin-inline: auto;
+  padding-inline-end: var(--rail);
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: clamp(0.75rem, 2vw, 1.5rem);
+  align-items: start;
+}
+
+.house {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  text-align: center;
+  padding: clamp(0.6rem, 1.6vw, 1rem) 0.3rem;
+  border-top: 1px solid var(--hairline);
+}
+
+.house p {
+  margin: 0;
+}
+
+/* Arma: varsayilan LINE-ART, hover/odakta doluyor. Sayfanin maske
+   duvariyla ayni dil (P11). */
+.mon {
+  display: block;
+  width: 72px;
+  height: 72px;
+  color: var(--world-accent);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linejoin: round;
+  opacity: 0.45;
+  transition: opacity 260ms ease-out, fill 260ms ease-out,
+    stroke-width 260ms ease-out;
+}
+
+.house:hover .mon,
+.house:focus-within .mon {
+  fill: currentColor;
+  stroke-width: 0;
+  opacity: 1;
+}
+
+.houseName {
+  font-family: var(--b-kubo);
+  font-weight: 300;
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  margin-inline-end: -0.2em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.houseKanji {
+  font-family: var(--b-display);
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* ── KUNYE ───────────────────────────────────────────────────
+   Genis ekranda kapali, hover/odakla aciliyor.
+
+   ⚠️ `0fr` DEGIL `max-height`. P10 ve P11'de kullanilan `grid-template-
+   rows: 0fr` daralmasi burada TUTMADI: tek cocuk ve `min-height: 0`
+   sartlarinin ikisi de saglandigi halde kutular 119-155px acik kaldi
+   (olculdu, `getBoundingClientRect`). Sebebi bulunamadi ve aranmasi da
+   dogru degil: bu bolumun toplam yuksekligi tezin parcasi, yani
+   kapanmanin CALISTIGI kesin olmali.
+
+   `max-height` kaba ama belirlenimci. Deger olculdu: en uzun kunye
+   155px, tavan 16rem (256px) -- rahat bir pay. */
+.detailWrap {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 320ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.detail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding-top: 0.5rem;
+}
+
+.house:hover .detailWrap,
+.house:focus-within .detailWrap {
+  max-height: 16rem;
+}
+
+.role {
+  font-family: var(--b-body);
+  font-size: 0.72rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.note {
+  font-family: var(--b-body);
+  font-size: 0.68rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.members {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-family: var(--b-body);
+  font-size: 0.68rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+/* ── ALT BLOK ────────────────────────────────────────────────
+   Ayri, daha KARANLIK ve daha kucuk. Bolumun asil sebebi burada. */
+.great {
+  width: min(34rem, var(--band));
+  margin: clamp(1.25rem, 4vh, 2rem) auto 0;
+  padding: clamp(1rem, 2.4vw, 1.5rem);
+  /* Katmanin zemininden daha koyu: arsivin kapali cekmecesi */
+  background: color-mix(in srgb, var(--void) 88%, #000);
+  border: 1px solid var(--hairline);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  text-align: center;
+}
+
+.great p {
+  margin: 0;
+}
+
+.greatKanji {
+  font-family: var(--b-display);
+  font-weight: 700;
+  font-size: clamp(1.5rem, 4vw, 2.4rem);
+  line-height: 1;
+  color: var(--world-accent);
+}
+
+.greatTitle {
+  color: var(--text-secondary);
+}
+
+.greatList {
+  list-style: none;
+  margin: clamp(0.4rem, 1.4vh, 0.7rem) 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem clamp(0.8rem, 2.5vw, 1.6rem);
+}
+
+.greatName {
+  font-family: var(--b-kubo);
+  font-weight: 300;
+  font-size: 0.78rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+/* ── REDAKTE ─────────────────────────────────────────────────
+   ⚠️ Hover'da TITRIYOR ama ACILMIYOR. Acilacak bir sey yok: canon o iki
+   hane icin hicbir sey soylemiyor ve bunu numaradan ibaret bir gizem
+   gibi gostermek yalan olurdu. */
+.redacted {
+  font-family: var(--b-body);
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  opacity: 0.55;
+  cursor: not-allowed;
+  user-select: none;
+}
+
+.redacted:hover {
+  animation: jitter 220ms steps(2, end) 3;
+}
+
+@keyframes jitter {
+  0% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 1px -1px;
+  }
+  100% {
+    translate: 0 0;
+  }
+}
+
+.greatNote {
+  margin-top: clamp(0.4rem, 1.4vh, 0.7rem);
+  max-width: 42ch;
+  font-size: 0.8rem;
+}
+
+/* Armalarin canon olmadigini soyleyen tek satir. Arsiv uydurmaz; ne
+   uydurdugunu da soyler. */
+.monNote {
+  width: var(--band);
+  margin: clamp(0.9rem, 2.5vh, 1.4rem) auto 0;
+  padding-inline-end: var(--rail);
+  color: var(--text-muted);
+  opacity: 0.75;
+  text-align: center;
+}
+
+/* ── DAR EKRAN ───────────────────────────────────────────────
+   Alti sutun ikiye iniyor; bolum yine de kisa kaliyor. */
+@media (max-width: 900px) {
+  .head,
+  .row,
+  .monNote {
+    padding-inline-end: 0;
+  }
+
+  .row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  /* Dokunmatikte hover yok: kunye bastan acik (BankaiHall dersi) */
+  .detailWrap {
+    max-height: 16rem;
+  }
+}
+
+@media (max-width: 560px) {
+  .row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (hover: none) {
+  .detailWrap {
+    max-height: 16rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section,
+  .mon,
+  .detailWrap {
+    transition: none;
+  }
+
+  .redacted:hover {
+    animation: none;
+  }
+}

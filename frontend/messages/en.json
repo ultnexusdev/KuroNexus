@@ -1493,9 +1493,9 @@
       "scaffold": {
         "title": "THE WORLD OF BLEACH",
         "lede": "Every soul leaves a shadow. Every blade has a name.",
-        "note": "The hero, the five layers and thirteen sections are in place. The remaining sections arrive in turn.",
+        "note": "The hero, the five layers and fourteen sections are in place. The remaining sections arrive in turn.",
         "playgroundLink": "Open the design system trial →",
-        "pendingSections": "P14 · THE NOBLE HOUSES — UNDER CONSTRUCTION"
+        "pendingSections": "P15 · KEY LOCATIONS — UNDER CONSTRUCTION"
       },
       "world": {
         "railAria": "Spiritual layers",
@@ -1643,6 +1643,17 @@
         "lede": "Ten names, ten weights holding up three worlds. There is no ranking between them — which is why there are no numbers here. Point at a name: the whole section turns to their reiatsu.",
         "listAria": "The ten legends",
         "hint": "Point at a name, or choose one with the keyboard"
+      },
+      "houses": {
+        "eyebrow": "THE NOBLE HOUSES",
+        "title": "The Noble Houses",
+        "lede": "In Bleach the clans matter less than they do in Naruto, and this section does not hide it: six marks, one row, short.",
+        "rowAria": "The noble houses",
+        "members": "Known members",
+        "greatTitle": "THE FOUR GREAT NOBLE FAMILIES",
+        "redactedAria": "Record not revealed",
+        "greatNote": "Two of the four have no name in canon. There was a fifth: the Shiba, and they fell.",
+        "monNote": "The crests are not canon — each is derived from the house's canonical specialty."
       }
     }
   },

@@ -1493,9 +1493,9 @@
       "scaffold": {
         "title": "BLEACH EVRENİ",
         "lede": "Her ruh bir gölge bırakır. Her kılıcın bir adı vardır.",
-        "note": "Hero, beş katman ve on üç bölüm yerinde. Kalan bölümler sırayla geliyor.",
+        "note": "Hero, beş katman ve on dört bölüm yerinde. Kalan bölümler sırayla geliyor.",
         "playgroundLink": "Tasarım sistemi denemesini aç →",
-        "pendingSections": "P14 · ASİL HANELER — YAPIM AŞAMASINDA"
+        "pendingSections": "P15 · MEKÂNLAR — YAPIM AŞAMASINDA"
       },
       "world": {
         "railAria": "Ruhsal katmanlar",
@@ -1643,6 +1643,17 @@
         "lede": "On isim, üç dünyayı tutan on ağırlık. Aralarında bir sıra yok — o yüzden burada numara da yok. Bir isme gel: bölümün tamamı onun reiatsu'suna döner.",
         "listAria": "On efsane",
         "hint": "Bir isme gel ya da klavyeyle seç"
+      },
+      "houses": {
+        "eyebrow": "THE NOBLE HOUSES",
+        "title": "Asil Haneler",
+        "lede": "Bleach'te klanlar Naruto'dakiler kadar merkezi değil ve bu bölüm bunu saklamıyor: altı işaret, tek satır, kısa.",
+        "rowAria": "Asil haneler",
+        "members": "Bilinen üyeler",
+        "greatTitle": "DÖRT BÜYÜK ASİL HANE",
+        "redactedAria": "Kayıt açıklanmamış",
+        "greatNote": "Dördün ikisinin adı canon'da yok. Beşinci hane vardı: Shiba, düştü.",
+        "monNote": "Armalar canon değil — her biri hanenin canon'daki uzmanlığından türetildi."
       }
     }
   },

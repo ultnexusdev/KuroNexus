@@ -24,7 +24,15 @@ import { readFileSync } from "node:fs";
 
 const CSS = readFileSync("styles/globals.css", "utf8");
 
-/** Denetlenen bloklar — sayfa derisi + beş katman */
+/**
+ * Denetlenen bloklar — sayfa derisi + beş katman + iki kan zemini.
+ *
+ * ⚠️ P12 (23 Ağustos 2026) iki zemin daha ekledi: bölüm sayfayı siyahtan
+ * kana çeviriyor ve iki ara durak `[data-layer]` değil `[data-blood]`
+ * kimliğinde (gerekçesi `globals.css`te). Denetime dahil edilmeselerdi
+ * sayfanın en riskli iki zemini ölçüm dışında kalırdı — kırmızı üzerine
+ * metin, gözle "olur gibi" görünüp 4.5:1'in altına düşmesi en kolay yer.
+ */
 const BLOCKS = [
   '[data-world="bleach"]',
   '[data-layer="living"]',
@@ -32,6 +40,8 @@ const BLOCKS = [
   '[data-layer="hueco-mundo"]',
   '[data-layer="wandenreich"]',
   '[data-layer="royal"]',
+  '[data-world="bleach"] [data-blood="dark"]',
+  '[data-world="bleach"] [data-blood="full"]',
 ];
 
 /** Seçicinin gövdesindeki token'ları oku */

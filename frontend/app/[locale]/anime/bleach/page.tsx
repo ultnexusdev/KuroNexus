@@ -16,6 +16,7 @@ import { EspadaSection } from "@/components/anime/bleach/EspadaSection";
 import { WandenreichSection } from "@/components/anime/bleach/WandenreichSection";
 import { PowerSystems } from "@/components/anime/bleach/PowerSystems";
 import { MaskWall } from "@/components/anime/bleach/MaskWall";
+import { BloodWar } from "@/components/anime/bleach/BloodWar";
 import { LAYER_IDS, type LayerId } from "@/components/anime/bleach/WorldSection";
 import { CuratorManifest } from "@/components/anime/bleach/CuratorManifest";
 import shell from "../layout.module.css";
@@ -26,10 +27,10 @@ import styles from "./page.module.css";
  * `/anime/bleach` — BLEACH EVRENİ.
  *
  * ── BUGÜN NE VAR ─────────────────────────────────────────────────────────
- * Küratör altyapısı, tasarım sistemi ve **P01–P11**: Ruhların Dengesi, Üç
+ * Küratör altyapısı, tasarım sistemi ve **P01–P12**: Ruhların Dengesi, Üç
  * Dünya, Gotei 13, Zanpakutō Arşivi, Bankai Salonu, Ruh Hiyerarşisi,
- * Hueco Mundo, Espada, Wandenreich, Ruhsal Güç Sistemi ve Maskeler.
- * Kalan yedi bölüm sırayla geliyor.
+ * Hueco Mundo, Espada, Wandenreich, Ruhsal Güç Sistemi, Maskeler ve
+ * Bin Yıllık Kan Savaşı. Kalan altı bölüm sırayla geliyor.
  *
  * ⚠️ SAYFA HÂLÂ LİNKLİ DEĞİL — `/anime` hub'ındaki kart duruyor ama sayfa
  * `noindex`. Bölümler oturana kadar arama motoruna girmiyor.
@@ -124,6 +125,8 @@ export default async function BleachUniversePage({
         <PowerSystems locale={locale} />
 
         <MaskWall locale={locale} />
+
+        <BloodWar locale={locale} />
 
         {/* Kalan bölümlerin durağı. Bilinçli olarak sessiz: yarım bir
             sayfa olduğunu gizlemek yerine söyleyip geçiyor. */}

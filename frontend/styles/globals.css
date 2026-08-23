@@ -1193,6 +1193,76 @@ html {
 }
 
 /* ============================================================
+   KAN — P12'nin iki ek zemini (23 Agustos 2026)
+
+   Bin Yillik Kan Savasi bolumu sayfayi dort durakta siyahtan KANA
+   ceviriyor: #0B0B0D → #EFEDE7 → #4A0D12 → #7A0F14. Ilk ikisinin
+   token seti zaten var (soul-society ve hueco-mundo katmanlari);
+   son ikisi burada.
+
+   ⚠️ NEDEN KATMAN DEGIL. `[data-layer]` bir DUNYAYI anlatiyor ve kan
+   bir dunya degil, bir bolumun ilerleyisi. Kimlik `data-blood` ve
+   secici `[data-world="bleach"]` altina kilitli: sayfanin disina tek
+   deger sizmiyor.
+
+   ⚠️ Kural 16: her tema AYNI seti eksiksiz dolduruyor. Degerler
+   `scripts/check-bleach-contrast.mjs` tarafindan olculuyor -- iki blok
+   da denetim listesinde.
+   ============================================================ */
+
+/* 血 KOYU KAN — savasin donduugu yer */
+[data-world="bleach"] [data-blood="dark"] {
+  --bg:             #4A0D12;
+  --surface:        #5A1418;
+  --surface-hover:  #6B1D21;
+  --border:         #86353A;
+  --border-strong:  #A85A5E;
+
+  --text-primary:   #F6EAE8;
+  --text-secondary: #E0BDBA;
+  --text-muted:     #D7B0AD;
+
+  --accent:         #E9E4D9;
+  --accent-hover:   #F7F3EC;
+  --accent-muted:   #9A5A5E;
+
+  --gold:           #D9B84A;
+  --warn:           #E8A79C;
+  --danger:         #E8A79C;
+
+  --world-ink:    #4A0D12;
+  --world-accent: #E9E4D9;
+  --world-glow:   #E0BDBA;
+  --world-paper:  #F6EAE8;
+}
+
+/* 血 KAN — son durak */
+[data-world="bleach"] [data-blood="full"] {
+  --bg:             #7A0F14;
+  --surface:        #8C1A1F;
+  --surface-hover:  #9E2429;
+  --border:         #B44B4F;
+  --border-strong:  #CE7276;
+
+  --text-primary:   #FDF6F4;
+  --text-secondary: #F2D6D3;
+  --text-muted:     #EDCAC7;
+
+  --accent:         #FBF2EC;
+  --accent-hover:   #FFFFFF;
+  --accent-muted:   #BE6A6E;
+
+  --gold:           #E9CE6A;
+  --warn:           #F6C6BD;
+  --danger:         #F6C6BD;
+
+  --world-ink:    #7A0F14;
+  --world-accent: #FBF2EC;
+  --world-glow:   #F2D6D3;
+  --world-paper:  #FDF6F4;
+}
+
+/* ============================================================
    TUREV TOKEN — --surface-2
 
    Yuzey ile zemin ARASI ton. Kapaksiz kitabin cerceve ici, fotografsiz

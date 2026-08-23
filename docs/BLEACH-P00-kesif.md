@@ -7,11 +7,10 @@
 
 ## ⌂ DEVİR — SIRADAKİ OTURUM BURADAN BAŞLASIN (23 Ağustos 2026)
 
-**Durum:** Küratör altyapısı + P-TOKENS + **P01–P11 canlıda.**
-**Sıradaki:** **P12 · Bin Yıllık Kan Savaşı.** Brief'in kendi metni ana
-kaynak. ⚠️ P12 bir zaman çizelgesi bölümü ve sayfada zaten çok uzun bir
-dikey akış var; P06'nın dersini hatırla — konum göstergesini içerik
-yüksekliği varsayımıyla kurma.
+**Durum:** Küratör altyapısı + P-TOKENS + **P01–P12 canlıda.**
+**Sıradaki:** **P13 · Bleach Efsaneleri.** Brief'in kendi metni ana
+kaynak. ⚠️ Kadro listesini fandom'dan doğrula: P08'de üç, P09'da dört,
+P10'da iki hata çıktı ve hepsi brief'in listesindeydi.
 
 ### Yerleşik konvansiyonlar — bunları yeniden keşfetme
 
@@ -1428,7 +1427,59 @@ ile fark ediliyor.
 
 Rota paketi 25,8 kB → 26 kB.
 
-### 8.18 Sırada
+### 8.18 P12 — BİN YILLIK KAN SAVAŞI (23 Ağustos 2026) ✅
+
+**TEZ.** Naruto Evreni'ndeki "Dönemler" halkasının karşılığı ama bir halka
+değil bir savaş. Asıl fikir renk: bölüm boyunca sayfa **siyahtan kana**
+dönüyor — `#0B0B0D` → `#EFEDE7` → `#4A0D12` → `#7A0F14`. Soldaki çizgi
+aynı sırada parçalanıyor (40/0 → 22/6 → 12/10 → 5/14 px) ve düğüm biçim
+değiştiriyor: **nokta → çentik → çatlak → yarık** (8 → 14 → 14 → 18px).
+Hepsi ölçüldü.
+
+⚠️ **BRIEF'İN İNTERPOLASYONU MATEMATİKSEL OLARAK İMKÂNSIZ.** Brief geçişin
+scroll ilerlemesine bağlı olarak ara kareleri interpole etmesini istiyor
+**ve** aynı listede "hiçbir noktada kontrast 4.5:1'in altına düşmez"
+diyor. İkisi bir arada olamaz: siyah zeminde metin açık, beyaz zeminde
+koyu olmak zorunda; ikisini eşzamanlı çapraz geçirirseniz yolun ortasında
+hem zemin hem metin orta griye gelir ve kontrast **1:1**'e iner. Ara
+değer seçmek bunu kurtarmıyor — geçişin kendisi kurtarılamaz.
+
+**Karar:** zemin **dört durakta sert kesiliyor**, her durağın kendi
+eksiksiz token seti var. Kayıp yalnızca yumuşaklık; kazanç, okunmayan
+bir metnin İMKÂNSIZ olması. Sert kesme zaten sayfanın P10'da verdiği
+karar. Brief'in `reduced-motion` yedeği de tam olarak bu ("4 sabit adım"),
+yani ayrı bir dal bile gerekmedi.
+
+⚠️ **YENİ PALETLER DENETİME BAĞLANDI.** İlk iki durak için yeni renk
+yazılmadı: `#0B0B0D` ve beyaz zaten `soul-society` ile `hueco-mundo`
+katmanları. Yalnızca iki kan zemini yeni ve `[data-layer]` değil
+**`[data-blood]`** kimliğinde — kan bir dünya değil, bir bölümün
+ilerleyişi; seçici `[data-world="bleach"]` altına kilitli.
+
+**`scripts/check-bleach-contrast.mjs` genişletildi: 60 kontrol / 6 palet →
+80 kontrol / 8 palet.** Sayfanın en riskli iki zemini (kırmızı üzerine
+metin) artık gözle değil betikle garanti. İlk çalıştırmada temiz geçti.
+
+⚠️ **`<time>` KULLANILMADI.** Brief `<ol>` + `<time>` istiyor. `<ol>`
+yerinde; `<time>` ise ya makine okur bir `datetime` ister ya da içeriğinin
+geçerli bir tarih dizesi olmasını. Buradaki değerler göreli ("bin yıl
+önce") ya da sayı bile değil (九〇〇 · 九〇 · 九). Uydurma bir `datetime`
+etiketi yalancı yapardı; sıralamayı `<ol>` zaten taşıyor.
+
+**CANON — sayılar üslup değil kayıt.** Yhwach mühürlendikten sonra **900**
+yılda nabzını, **90** yılda aklını, **9** yılda gücünü geri aldı; Kaiser
+Gesang'ın ikinci kıtası "**9 günde** dünyayı" diyor. Bölümün ritmi bu
+diziden çıkıyor. ⚠️ Brief Yamamoto–Yhwach karşılaşmasıyla Quincy
+soykırımını aynı satırda anıyor; kayıt ayırıyor — biri **bin yıl** önce,
+diğeri **iki yüz yıldan fazla** önce, aralarında sekiz yüz yıl var.
+
+**Düğüm ve çizgi hizası ölçüldü:** dokuz düğümün merkezi de tek bir
+dikeyde (masaüstünde 81px, 360px'te 29px) ve çizginin merkeziyle aynı.
+Sıfır JS; 360px'te taşma yok.
+
+Rota paketi 26 kB → 26,2 kB.
+
+### 8.19 Sırada
 
 `/anime/bleach` iskelet olarak duruyor ve **hiçbir yerden linkli değil**
 (`robots: noindex`). Sıradaki tur **P-TOKENS**: beş dünya paleti, derinlik

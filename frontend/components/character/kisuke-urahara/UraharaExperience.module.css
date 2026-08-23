@@ -1,0 +1,1895 @@
+/* ============================================================
+   KISUKE URAHARA — "Urahara Dükkânı: kapalı çekmeceler".
+
+   Deri: kökteki `data-world="kisuke-urahara"` bütün standart token'ları
+   dükkân sepyasına çeviriyor; yardımcılar `--urh-*` (globals.css).
+   BU DOSYADA TEK HEX YOK (kural 16) — ara ton gerekince color-mix ile
+   mevcut token'lardan türetiliyor.
+
+   ── SAYFANIN FİKRİ ───────────────────────────────────────────────────
+   On üç karakter sayfasının hiçbiri MEKÂN değil; bu sayfanın ayırt edici
+   özelliği bir ODA olması. Dolayısıyla buradaki her grafik bir mobilya:
+     · noren  — kapının üstündeki perde; şapkanın yeşil-beyaz şeridi
+     · raf    — bölümleri ayıran yatay tahtalar ve altlarındaki gölge
+     · hasır  — künye ızgarası; komşu matlar TERS yönde dokunuyor
+     · tansu  — dokuz çekmeceli dolap, gövdesi ahşap damarlı
+     · fener  — açık çekmece sayısıyla güçlenen sıcak ışık
+   Işık ve toz sahte derinlik değil, odanın kendisi: `--urh-lantern`
+   yukarıdan düşüyor, `--urh-shadow` aşağıda birikiyor.
+
+   ── KONTRAST NOTU ────────────────────────────────────────────────────
+   `--urh-tatami` koyu zeminde ~3.7:1 → yalnız çizgi, kenar ve doku için
+   kullanılıyor, METİN için asla. Küçük etiketlerde `--urh-lantern`
+   (~10:1) ve `--urh-hat-text` var; `--accent` (~4.4:1) yalnız büyük
+   tipografide ve kenarlarda.
+
+   ── HAREKET SÖZLÜĞÜ ──────────────────────────────────────────────────
+   --urh-dur-* / --urh-ease; her animasyon ya no-preference kapısında ya
+   da dosya sonundaki reduce battaniyesinde. Sayfanın TEK yazılmış
+   hareket anı Benihime modunun kızıl kesiği; kalanı geçiş.
+   ============================================================ */
+
+.page {
+  /* Yalnız ölçü/süre/geometri — renk değişkeni tanımlanmıyor (BRIEF §4) */
+  --urh-dur-fast: 170ms;
+  --urh-dur: 330ms;
+  --urh-dur-slow: 620ms;
+  --urh-ease: cubic-bezier(0.2, 0.65, 0.3, 1);
+  --urh-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --urh-pad: clamp(1rem, 4vw, 2.75rem);
+  --urh-max: 76rem;
+  /* Şapkanın/noren'in şerit genişliği */
+  --urh-stripe: clamp(13px, 2.1vw, 21px);
+  /* Raf tahtalarının arası */
+  --urh-shelf: clamp(3rem, 7vw, 5rem);
+  /* Çizelgenin sol rayı — işaret çapı ve rayın merkezi bundan çıkıyor */
+  --urh-rail: clamp(2.75rem, 5vw, 3.5rem);
+  /* Durakların dikey nefesi — ray uçları bu ölçüden hizalanıyor */
+  --urh-stop-pad: clamp(1.25rem, 3vw, 2rem);
+
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  color: var(--text-primary);
+  overflow-x: clip;
+  background:
+    /* tavandan düşen fener ışığı */
+    radial-gradient(
+      110% 46% at 50% 0%,
+      color-mix(in srgb, var(--urh-lantern) 7%, transparent),
+      transparent 62%
+    ),
+    /* duvardaki dikey ahşap damar */
+    repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--urh-tatami) 6%, transparent) 0 1px,
+      transparent 1px 13px
+    ),
+    var(--bg);
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Kırıntı yolu ── */
+.crumb {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.9rem var(--urh-pad);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.crumb a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--urh-dur-fast) var(--urh-ease);
+}
+
+.crumb a:hover {
+  color: var(--urh-lantern);
+}
+
+.crumb a:focus-visible {
+  outline: 2px solid var(--urh-lantern);
+  outline-offset: 3px;
+}
+
+.crumbSep {
+  color: var(--border-strong);
+}
+
+.crumbHere {
+  font-family: var(--font-brush), var(--font-sans);
+  letter-spacing: 0.24em;
+  text-transform: none;
+  color: var(--urh-hat-text);
+}
+
+/* ============================================================
+   MOD DÜĞMESİ — "Benihime modu"
+   ============================================================ */
+.modeDock {
+  position: fixed;
+  top: 5rem;
+  right: clamp(0.75rem, 2.5vw, 2rem);
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.45rem;
+  max-width: min(18rem, calc(100vw - 1.5rem));
+}
+
+.modeToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: var(--touch-min);
+  padding: 0.5rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--urh-hat-light) 28%, transparent);
+  background: color-mix(in srgb, var(--bg) 84%, transparent);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 12px 26px -14px color-mix(in srgb, var(--urh-shadow) 95%, transparent);
+  transition:
+    border-color var(--urh-dur) var(--urh-ease),
+    color var(--urh-dur) var(--urh-ease),
+    box-shadow var(--urh-dur) var(--urh-ease);
+}
+
+.modeToggle:hover {
+  border-color: var(--urh-lantern);
+  color: var(--urh-lantern);
+}
+
+.modeToggle:focus-visible {
+  outline: 2px solid var(--urh-lantern);
+  outline-offset: 3px;
+}
+
+.modeIcon {
+  width: 1.5rem;
+  flex: 0 0 auto;
+  color: var(--urh-hat-text);
+}
+
+.page[data-benihime] .modeToggle {
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+  color: var(--accent-hover);
+}
+
+.page[data-benihime] .modeIcon {
+  color: var(--accent-hover);
+}
+
+/* Kapıya asılan levha — yalnız mod açıkken */
+.modePlate {
+  margin: 0;
+  padding: 0.4rem 0.65rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  background: color-mix(in srgb, var(--urh-shadow) 82%, var(--accent));
+  color: var(--accent-hover);
+  font-family: var(--font-cormorant), serif;
+  font-style: italic;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  text-align: right;
+}
+
+.modePlate[hidden] {
+  display: none;
+}
+
+/* Kepenk: mod kapalıyken tamamen saydam. z-index -1 → içeriğin ARKASINDA
+   kalıyor, yani metin kontrastına dokunmadan odayı karartıyor. */
+.shutter {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  overflow: hidden;
+  background:
+    repeating-linear-gradient(
+      102deg,
+      transparent 0 26px,
+      color-mix(in srgb, var(--accent) 7%, transparent) 26px 28px
+    ),
+    radial-gradient(
+      130% 95% at 50% 42%,
+      color-mix(in srgb, var(--accent) 24%, transparent),
+      color-mix(in srgb, var(--urh-shadow) 92%, transparent) 76%
+    );
+  transition: opacity var(--urh-dur-slow) var(--urh-ease);
+}
+
+.page[data-benihime] .shutter {
+  opacity: 0.94;
+}
+
+/* Sayfanın TEK yazılmış hareket anı: ışıklar sönerken odayı bir kesik
+   geçiyor. Bir kez oynar, iz bırakmaz. */
+.shutter::after {
+  content: "";
+  position: absolute;
+  inset: -25%;
+  opacity: 0;
+  background: linear-gradient(
+    102deg,
+    transparent 47%,
+    color-mix(in srgb, var(--accent-hover) 85%, transparent) 49%,
+    color-mix(in srgb, var(--urh-hat-light) 55%, transparent) 50%,
+    color-mix(in srgb, var(--accent-hover) 70%, transparent) 51%,
+    transparent 53%
+  );
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .page[data-benihime] .shutter::after {
+    animation: urhSlash var(--urh-dur-slow) var(--urh-ease-out) 1 both;
+  }
+}
+
+@keyframes urhSlash {
+  0% {
+    opacity: 0;
+    translate: -45% 0;
+  }
+  22% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    translate: 45% 0;
+  }
+}
+
+/* ============================================================
+   BÖLÜM İSKELETİ — her bölüm bir raf katı
+   ============================================================ */
+.record,
+.lab,
+.drawers,
+.ledger,
+.road,
+.closing {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.5rem, 3.5vw, 2.5rem);
+  padding: clamp(3rem, 7vw, 5.25rem) 0;
+  border-top: 1px solid transparent;
+  border-image: linear-gradient(
+      to right,
+      transparent,
+      color-mix(in srgb, var(--urh-tatami) 65%, transparent) 10%,
+      color-mix(in srgb, var(--urh-tatami) 65%, transparent) 90%,
+      transparent
+    )
+    1;
+}
+
+/* Rafın altındaki gölge — tahtanın kalınlığı */
+.record::before,
+.lab::before,
+.drawers::before,
+.ledger::before,
+.road::before,
+.closing::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1.75rem;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--urh-shadow) 70%, transparent),
+    transparent
+  );
+}
+
+.sectionHead {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  padding: 0 var(--urh-pad);
+  max-width: var(--urh-max);
+  width: 100%;
+  margin-inline: auto;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(2rem, 4.6vw, 3.25rem);
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  line-height: 1.04;
+  color: var(--text-primary);
+  text-shadow: 0 0 30px color-mix(in srgb, var(--urh-lantern) 22%, transparent);
+}
+
+.sectionLede {
+  margin: 0;
+  max-width: 54ch;
+  font-family: var(--font-cormorant), serif;
+  font-style: italic;
+  font-size: clamp(1.0625rem, 1.7vw, 1.3125rem);
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.slotRow {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 1rem var(--urh-pad) 0;
+}
+
+/* Kürator yuvaları kartların İÇİNE düşüyor (CuratorSlot kendi `<div>`ünü
+   çiziyor). Izgara/flex çocuğu olarak sıkışmasınlar diye tam satır
+   alıyorlar; ziyaretçide bu düğümler hiç çizilmiyor. */
+.crate > [data-curator-slot] {
+  grid-column: 1 / -1;
+  padding: 0 clamp(1.1rem, 2.4vw, 1.75rem) clamp(1.1rem, 2.4vw, 1.75rem);
+}
+
+.stop > [data-curator-slot] {
+  flex: 1 1 100%;
+}
+
+.jar > [data-curator-slot] {
+  padding: 0 0.85rem 0.85rem;
+}
+
+/* ============================================================
+   1 · DÜKKÂNIN ÖNÜ
+   ============================================================ */
+.hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(1.5rem, 4vw, 2.5rem);
+  min-height: min(100svh, 44rem);
+  padding: calc(clamp(2.5rem, 6.5vw, 4rem) + clamp(2rem, 6vw, 4rem))
+    var(--urh-pad) clamp(3rem, 7vw, 5rem);
+}
+
+/* Noren: kapının üstündeki perde. Şerit deseni ŞAPKANIN kendisi —
+   yeşil ve beyaz, dikey, elle kurulmuş repeating-linear-gradient. */
+.noren {
+  position: absolute;
+  inset: 0 0 auto;
+  height: clamp(2.5rem, 6.5vw, 4rem);
+  z-index: 4;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--urh-hat-dark) 0 var(--urh-stripe),
+    var(--urh-hat-light) var(--urh-stripe) calc(var(--urh-stripe) * 2)
+  );
+  box-shadow:
+    inset 0 -0.9rem 1.2rem -0.9rem color-mix(in srgb, var(--urh-shadow) 85%, transparent),
+    0 0.75rem 1.75rem -0.6rem color-mix(in srgb, var(--urh-shadow) 92%, transparent);
+}
+
+/* Perdenin ortadaki yarığı — noren iki kanat hâlinde asılır */
+.norenSlit {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 3px;
+  translate: -50% 0;
+  background: var(--bg);
+  box-shadow: 0 0 8px 2px color-mix(in srgb, var(--urh-shadow) 90%, transparent);
+}
+
+.page[data-benihime] .noren {
+  background: repeating-linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--urh-shadow) 78%, var(--accent)) 0 var(--urh-stripe),
+    color-mix(in srgb, var(--accent) 72%, var(--urh-shadow)) var(--urh-stripe)
+      calc(var(--urh-stripe) * 2)
+  );
+}
+
+/* ── Sahne: dükkânın içi ── */
+.heroScene {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.heroScene img {
+  object-fit: cover;
+  opacity: 0.32;
+  filter: sepia(0.35) brightness(0.55) saturate(0.95);
+}
+
+/* Görsel bağlı olmasa da oda ayakta: raflar CSS ile çiziliyor */
+.heroShelves {
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(
+      180deg,
+      transparent 0 calc(var(--urh-shelf) - 2px),
+      color-mix(in srgb, var(--urh-tatami) 30%, transparent) calc(var(--urh-shelf) - 2px)
+        var(--urh-shelf)
+    ),
+    repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--urh-tatami) 14%, transparent) 0 1px,
+      transparent 1px 15px
+    );
+  -webkit-mask-image: linear-gradient(to bottom, black, transparent 82%);
+  mask-image: linear-gradient(to bottom, black, transparent 82%);
+  opacity: 0.6;
+}
+
+.heroLantern {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      36% 44% at 78% 4%,
+      color-mix(in srgb, var(--urh-lantern) 30%, transparent),
+      transparent 66%
+    ),
+    radial-gradient(
+      95% 65% at 50% 118%,
+      color-mix(in srgb, var(--urh-shadow) 92%, transparent),
+      transparent 72%
+    );
+  transition: opacity var(--urh-dur-slow) var(--urh-ease);
+}
+
+.page[data-benihime] .heroLantern {
+  opacity: 0.15;
+}
+
+/* Fener huzmesindeki toz — `--urh-dust` zaten çok seyreltik */
+.dust {
+  position: absolute;
+  inset: -12%;
+  background-image:
+    radial-gradient(2px 2px at 14% 26%, var(--urh-dust), transparent 62%),
+    radial-gradient(1.5px 1.5px at 28% 62%, var(--urh-dust), transparent 62%),
+    radial-gradient(2.5px 2.5px at 41% 18%, var(--urh-dust), transparent 62%),
+    radial-gradient(1.5px 1.5px at 55% 74%, var(--urh-dust), transparent 62%),
+    radial-gradient(2px 2px at 63% 38%, var(--urh-dust), transparent 62%),
+    radial-gradient(1.5px 1.5px at 72% 58%, var(--urh-dust), transparent 62%),
+    radial-gradient(2.5px 2.5px at 84% 22%, var(--urh-dust), transparent 62%),
+    radial-gradient(2px 2px at 91% 66%, var(--urh-dust), transparent 62%),
+    radial-gradient(1.5px 1.5px at 8% 84%, var(--urh-dust), transparent 62%),
+    radial-gradient(2px 2px at 47% 92%, var(--urh-dust), transparent 62%);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .dust {
+    animation: urhDust 34s var(--urh-ease) infinite alternate;
+  }
+}
+
+@keyframes urhDust {
+  from {
+    translate: 0 0;
+    opacity: 0.55;
+  }
+  to {
+    translate: 1.6% -3.5%;
+    opacity: 1;
+  }
+}
+
+.heroInner {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(0, 15rem) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(1.75rem, 4.5vw, 3.5rem);
+  max-width: var(--urh-max);
+  width: 100%;
+  margin-inline: auto;
+}
+
+/* Portre DAR bir kadrajda: AniList görseli ~230px, büyütülmüyor (BRIEF §3) */
+.portraitFrame {
+  position: relative;
+  width: 100%;
+  max-width: 15rem;
+  aspect-ratio: 230 / 345;
+  border-style: solid;
+  border-width: clamp(7px, 1.1vw, 11px);
+  border-image: linear-gradient(
+      152deg,
+      color-mix(in srgb, var(--urh-tatami) 72%, var(--urh-shadow)),
+      color-mix(in srgb, var(--urh-tatami) 26%, var(--urh-shadow)) 58%,
+      color-mix(in srgb, var(--urh-tatami) 58%, var(--urh-shadow))
+    )
+    1;
+  background: color-mix(in srgb, var(--urh-shadow) 68%, var(--surface));
+  box-shadow: 0 26px 48px -22px color-mix(in srgb, var(--urh-shadow) 95%, transparent);
+}
+
+.portraitImg {
+  object-fit: cover;
+  object-position: center 14%;
+  filter: sepia(0.22) contrast(1.04) brightness(0.94);
+}
+
+.portraitFallback {
+  position: absolute;
+  inset: 26%;
+  color: color-mix(in srgb, var(--urh-hat-text) 55%, transparent);
+}
+
+/* Şapkanın altındaki gölge: portrenin üst bandı ve sağ yarısı karanlıkta
+   kalıyor — yüzün yarısı hep saklı. */
+.brimShadow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      178deg,
+      color-mix(in srgb, var(--urh-shadow) 94%, transparent) 0 18%,
+      color-mix(in srgb, var(--urh-shadow) 55%, transparent) 30%,
+      transparent 48%
+    ),
+    linear-gradient(
+      104deg,
+      transparent 32%,
+      color-mix(in srgb, var(--urh-shadow) 45%, transparent) 62%,
+      color-mix(in srgb, var(--urh-shadow) 82%, transparent) 100%
+    );
+}
+
+/* Kapıdaki tahta levha: 営業中 */
+.portraitPlate {
+  position: absolute;
+  left: -0.5rem;
+  bottom: 1.4rem;
+  rotate: -4deg;
+  padding: 0.28rem 0.55rem;
+  border: 1px solid color-mix(in srgb, var(--urh-lantern) 42%, transparent);
+  background: color-mix(in srgb, var(--urh-tatami) 42%, var(--urh-shadow));
+  color: var(--urh-lantern);
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: 0.8125rem;
+  letter-spacing: 0.2em;
+  box-shadow: 0 8px 16px -8px color-mix(in srgb, var(--urh-shadow) 95%, transparent);
+}
+
+/* `isolation` şart: tabela filigranı z-index -1 ile metnin ARKASINA
+   geçiyor. Yalıtım olmasaydı -1 sahnenin de altına düşer, filigran
+   raflarla fener gradyanının arkasında kaybolurdu. */
+.heroText {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+/* Tabela filigranı — 浦原商店 */
+.signWatermark {
+  position: absolute;
+  z-index: -1;
+  right: -0.04em;
+  top: -0.42em;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(4.5rem, 15vw, 11rem);
+  line-height: 0.78;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  pointer-events: none;
+  color: color-mix(in srgb, var(--urh-hat-text) 11%, transparent);
+}
+
+.name {
+  margin: 0;
+  font-family: var(--font-petrona), serif;
+  font-weight: 800;
+  font-size: clamp(2.5rem, 7vw, 4.75rem);
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+  color: var(--text-primary);
+  text-shadow: 0 0 42px color-mix(in srgb, var(--urh-lantern) 20%, transparent);
+}
+
+.native {
+  margin: 0;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(1.05rem, 2vw, 1.4rem);
+  letter-spacing: 0.32em;
+  color: var(--urh-hat-text);
+}
+
+.alias {
+  margin: 0.2rem 0 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.epigraph {
+  margin: 0.5rem 0 0;
+  max-width: 44ch;
+  font-family: var(--font-cormorant), serif;
+  font-style: italic;
+  font-size: clamp(1.125rem, 2.2vw, 1.5rem);
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.openRow {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 0.5rem;
+  margin: 0.9rem 0 0;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--urh-lantern) 35%, transparent);
+  background: color-mix(in srgb, var(--urh-lantern) 7%, transparent);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--urh-lantern);
+}
+
+.openIcon {
+  width: 1.15rem;
+  color: var(--urh-lantern);
+}
+
+/* ============================================================
+   2 · KÜNYE — HASIR ZEMİN
+   Hasır matlar gerçekte komşusuyla TERS yönde dokunur; ızgara da öyle.
+   ============================================================ */
+.tatami {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 3px;
+  margin: 0;
+  padding: 0 var(--urh-pad);
+  max-width: var(--urh-max);
+  width: 100%;
+  margin-inline: auto;
+}
+
+.mat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: clamp(0.9rem, 2vw, 1.25rem);
+  min-width: 0;
+  border: 1px solid color-mix(in srgb, var(--urh-tatami) 48%, transparent);
+  background-color: var(--surface);
+  background-image: repeating-linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--urh-tatami) 11%, transparent) 0 1px,
+    transparent 1px 6px
+  );
+}
+
+.mat:nth-child(even) {
+  background-image: repeating-linear-gradient(
+    0deg,
+    color-mix(in srgb, var(--urh-tatami) 11%, transparent) 0 1px,
+    transparent 1px 6px
+  );
+}
+
+/* Son mat "kayıtta olmayan" satırı: künyenin boş bıraktığı üç alan.
+   Kasıtlı olarak diğerlerinden ayrı görünüyor — dükkânın eksik defteri. */
+.mat:last-child {
+  border-style: dashed;
+  background-image: none;
+}
+
+.mat:last-child dd {
+  color: var(--text-muted);
+}
+
+.mat dt {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--urh-lantern);
+}
+
+.mat dd {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  color: var(--text-primary);
+}
+
+/* ============================================================
+   3 · ARKA ODA — LABORATUVAR
+   ============================================================ */
+.shelf {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0 var(--urh-pad);
+  max-width: var(--urh-max);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1rem, 2.4vw, 1.75rem);
+}
+
+.crate {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+  min-width: 0;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  overflow: hidden;
+  transition:
+    border-color var(--urh-dur) var(--urh-ease),
+    box-shadow var(--urh-dur-slow) var(--urh-ease);
+}
+
+.crate:hover {
+  border-color: color-mix(in srgb, var(--urh-lantern) 45%, var(--border-strong));
+  box-shadow: 0 20px 40px -26px color-mix(in srgb, var(--urh-shadow) 95%, transparent);
+}
+
+/* Sandıklar raf boyunca zikzak diziliyor */
+.crate:nth-child(even) .crateArt {
+  order: 2;
+}
+
+.crateArt {
+  position: relative;
+  display: block;
+  min-height: clamp(11rem, 24vw, 16rem);
+  overflow: hidden;
+  background: color-mix(in srgb, var(--urh-shadow) 55%, var(--surface));
+}
+
+.crateArt img {
+  object-fit: cover;
+  filter: sepia(0.28) brightness(0.7) saturate(0.95);
+  transition:
+    filter var(--urh-dur-slow) var(--urh-ease),
+    scale var(--urh-dur-slow) var(--urh-ease);
+}
+
+.crate:hover .crateArt img {
+  filter: sepia(0.16) brightness(0.92) saturate(1.05);
+  scale: 1.03;
+}
+
+/* Görsel yokken kadraj boş kutu değil: sandığın kendi tahtası görünüyor */
+.crateGrain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--urh-tatami) 12%, transparent) 0 1px,
+      transparent 1px 12px
+    ),
+    repeating-linear-gradient(
+      180deg,
+      transparent 0 calc(var(--urh-shelf) - 2px),
+      color-mix(in srgb, var(--urh-tatami) 22%, transparent) calc(var(--urh-shelf) - 2px)
+        var(--urh-shelf)
+    ),
+    radial-gradient(
+      80% 70% at 30% 0%,
+      color-mix(in srgb, var(--urh-lantern) 9%, transparent),
+      transparent 70%
+    );
+}
+
+.crateKanji {
+  position: absolute;
+  right: 0.6rem;
+  bottom: 0.1rem;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(2.25rem, 5vw, 3.5rem);
+  line-height: 1.1;
+  letter-spacing: 0.08em;
+  color: color-mix(in srgb, var(--urh-hat-light) 16%, transparent);
+  pointer-events: none;
+  transition: color var(--urh-dur) var(--urh-ease);
+}
+
+.crate:hover .crateKanji {
+  color: color-mix(in srgb, var(--urh-hat-light) 32%, transparent);
+}
+
+.crateBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: clamp(1.1rem, 2.4vw, 1.75rem);
+  min-width: 0;
+}
+
+.crateName {
+  margin: 0;
+  font-family: var(--font-petrona), serif;
+  font-weight: 700;
+  font-size: clamp(1.375rem, 2.6vw, 1.875rem);
+  line-height: 1.14;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.crateTagline {
+  margin: 0;
+  font-family: var(--font-cormorant), serif;
+  font-style: italic;
+  font-size: 1.0625rem;
+  color: var(--urh-lantern);
+}
+
+.release {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.8rem;
+  margin: 0.15rem 0;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--urh-lantern) 28%, transparent);
+  background: color-mix(in srgb, var(--urh-lantern) 6%, transparent);
+}
+
+.releaseNative {
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: 1.0625rem;
+  letter-spacing: 0.16em;
+  color: var(--urh-lantern);
+}
+
+.releaseText {
+  font-family: var(--font-cormorant), serif;
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--text-secondary);
+}
+
+.crateText {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+.tagRow {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.35rem 0 0;
+  padding: 0;
+}
+
+.tag {
+  padding: 0.3rem 0.55rem;
+  border: 1px solid var(--border-strong);
+  background: color-mix(in srgb, var(--urh-tatami) 12%, transparent);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+/* ── Küçük dört kavanoz ── */
+.jarRow {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0 var(--urh-pad);
+  max-width: var(--urh-max);
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(0.6rem, 1.5vw, 1rem);
+}
+
+.jar {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  overflow: hidden;
+  transition:
+    border-color var(--urh-dur) var(--urh-ease),
+    translate var(--urh-dur) var(--urh-ease);
+}
+
+.jar:hover {
+  border-color: color-mix(in srgb, var(--urh-lantern) 40%, var(--border));
+  translate: 0 -2px;
+}
+
+.jarArt {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      70% 70% at 50% 0%,
+      color-mix(in srgb, var(--urh-lantern) 10%, transparent),
+      transparent 70%
+    ),
+    color-mix(in srgb, var(--urh-shadow) 60%, var(--surface));
+}
+
+.jarArt img {
+  object-fit: cover;
+  filter: sepia(0.28) brightness(0.68) saturate(0.95);
+  transition: filter var(--urh-dur-slow) var(--urh-ease);
+}
+
+.jar:hover .jarArt img {
+  filter: sepia(0.14) brightness(0.9) saturate(1.05);
+}
+
+/* Kavanozun etiketi — görsel gelse de gelmese de yerinde */
+.jarKanji {
+  position: absolute;
+  inset: auto 0 0;
+  padding: 0.3rem 0.6rem;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: 1.0625rem;
+  letter-spacing: 0.12em;
+  color: var(--urh-hat-text);
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--urh-shadow) 88%, transparent),
+    transparent
+  );
+}
+
+.jarBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.75rem 0.85rem 0.95rem;
+  min-width: 0;
+}
+
+.jarName {
+  margin: 0;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 1.0625rem;
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+.jarNote {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   4 · KAPALI ÇEKMECELER — sayfanın kalbi
+   ============================================================ */
+.cabinet {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.85rem, 2vw, 1.35rem);
+  padding: 0 var(--urh-pad);
+  max-width: var(--urh-max);
+  width: 100%;
+  margin-inline: auto;
+}
+
+/* Fener yıkaması: açık çekmece arttıkça dükkânın tamamı aydınlanıyor.
+   z-index -1 → içeriğin ARKASINDA; metin kontrastı hiç etkilenmiyor. */
+.lampWash {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      120% 78% at 50% -12%,
+      color-mix(in srgb, var(--urh-lantern) 38%, transparent),
+      transparent 62%
+    ),
+    radial-gradient(
+      80% 60% at 50% 108%,
+      color-mix(in srgb, var(--urh-lantern) 18%, transparent),
+      transparent 66%
+    );
+  opacity: calc(0.02 + var(--shop-open, 0) * 0.026);
+  transition: opacity var(--urh-dur-slow) var(--urh-ease);
+}
+
+.page[data-benihime] .lampWash {
+  opacity: 0;
+}
+
+/* Tansu gövdesi */
+.drawerGrid {
+  list-style: none;
+  margin: 0;
+  padding: clamp(0.7rem, 1.6vw, 1.15rem);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+  gap: clamp(0.55rem, 1.4vw, 1rem);
+  border: 1px solid color-mix(in srgb, var(--urh-tatami) 55%, var(--border-strong));
+  background:
+    repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--urh-tatami) 14%, transparent) 0 1px,
+      transparent 1px 13px
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--urh-shadow) 62%, var(--surface)),
+      var(--surface)
+    );
+  box-shadow:
+    inset 0 2px 20px color-mix(in srgb, var(--urh-shadow) 82%, transparent),
+    0 26px 52px -30px color-mix(in srgb, var(--urh-shadow) 95%, transparent);
+  transition: border-color var(--urh-dur-slow) var(--urh-ease);
+}
+
+.drawer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* <h3> düğmeyi taşıyor ama tipografiyi değil */
+.drawerHeading {
+  margin: 0;
+  font: inherit;
+  font-weight: inherit;
+}
+
+.drawerFront {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  min-height: calc(var(--touch-min) + 1.5rem);
+  padding: 0.8rem 0.85rem;
+  border: 1px solid color-mix(in srgb, var(--urh-tatami) 50%, var(--border-strong));
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--urh-tatami) 24%, var(--surface)),
+    color-mix(in srgb, var(--urh-shadow) 42%, var(--surface))
+  );
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--urh-hat-light) 9%, transparent),
+    0 6px 12px -9px color-mix(in srgb, var(--urh-shadow) 92%, transparent);
+  transition:
+    translate var(--urh-dur) var(--urh-ease),
+    border-color var(--urh-dur) var(--urh-ease),
+    box-shadow var(--urh-dur) var(--urh-ease),
+    background var(--urh-dur) var(--urh-ease);
+}
+
+.drawerFront:hover {
+  translate: 0 -1px;
+  border-color: color-mix(in srgb, var(--urh-lantern) 55%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--urh-hat-light) 14%, transparent),
+    0 12px 20px -12px color-mix(in srgb, var(--urh-shadow) 92%, transparent);
+}
+
+.drawerFront:focus-visible {
+  outline: 2px solid var(--urh-lantern);
+  outline-offset: 3px;
+}
+
+/* Açık çekmece dışarı çekilmiş duruyor */
+.drawer[data-open] .drawerFront {
+  translate: 0 4px;
+  border-color: color-mix(in srgb, var(--urh-lantern) 62%, transparent);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--urh-tatami) 34%, var(--surface)),
+    color-mix(in srgb, var(--urh-shadow) 30%, var(--surface))
+  );
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--urh-hat-light) 16%, transparent),
+    0 16px 24px -12px color-mix(in srgb, var(--urh-shadow) 95%, transparent);
+}
+
+.drawerNumeral {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid color-mix(in srgb, var(--urh-lantern) 42%, transparent);
+  background: color-mix(in srgb, var(--urh-lantern) 10%, transparent);
+  color: var(--urh-lantern);
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.drawerFace {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.drawerKanji {
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: 1.0625rem;
+  letter-spacing: 0.1em;
+  line-height: 1.25;
+  color: var(--text-primary);
+}
+
+.drawerTeaser {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.drawerPull {
+  width: 2.1rem;
+  flex: 0 0 auto;
+  color: color-mix(in srgb, var(--urh-lantern) 72%, transparent);
+  transition:
+    rotate var(--urh-dur) var(--urh-ease),
+    color var(--urh-dur) var(--urh-ease);
+}
+
+.drawer[data-open] .drawerPull {
+  rotate: 7deg;
+  color: var(--urh-lantern);
+}
+
+/* Çekmecenin İÇİ */
+.drawerBox {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 4px;
+  padding: clamp(0.85rem, 1.8vw, 1.15rem);
+  border: 1px solid color-mix(in srgb, var(--urh-tatami) 38%, var(--border));
+  background: color-mix(in srgb, var(--urh-shadow) 74%, var(--surface));
+  box-shadow: inset 0 12px 20px -14px color-mix(in srgb, var(--urh-shadow) 98%, transparent);
+}
+
+/* `hidden` niteliğinin UA kuralı sınıfın display:flex'ine yenilir */
+.drawerBox[hidden] {
+  display: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .drawerBox:not([hidden]) {
+    animation: urhDrawerOut var(--urh-dur) var(--urh-ease-out) both;
+  }
+}
+
+@keyframes urhDrawerOut {
+  from {
+    opacity: 0;
+    clip-path: inset(0 0 100% 0);
+    transform: translate3d(0, -6px, 0);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.drawerObject {
+  display: grid;
+  place-items: center;
+  padding: 0.55rem;
+  border: 1px dashed color-mix(in srgb, var(--urh-tatami) 45%, transparent);
+  background: radial-gradient(
+    62% 62% at 50% 38%,
+    color-mix(in srgb, var(--urh-lantern) 13%, transparent),
+    transparent 72%
+  );
+}
+
+.drawerObjectMark {
+  width: clamp(3.25rem, 7vw, 4.25rem);
+  color: var(--urh-lantern);
+  filter: drop-shadow(
+    0 0 12px color-mix(in srgb, var(--urh-lantern) 35%, transparent)
+  );
+}
+
+.drawerName {
+  margin: 0.15rem 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--urh-hat-text);
+}
+
+.drawerTitle {
+  margin: 0;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(1.125rem, 2vw, 1.375rem);
+  letter-spacing: 0.04em;
+  line-height: 1.15;
+  color: var(--text-primary);
+}
+
+.drawerText {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.62;
+  color: var(--text-secondary);
+}
+
+/* ── Fener göstergesi ── */
+.lamp {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  align-self: flex-end;
+  padding: 0.4rem 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--urh-tatami) 45%, transparent);
+  background: color-mix(in srgb, var(--urh-shadow) 55%, var(--surface));
+}
+
+.lampGlyph {
+  width: 1.85rem;
+  flex: 0 0 auto;
+  color: var(--urh-lantern);
+  opacity: calc(0.34 + var(--shop-open, 0) * 0.073);
+  filter: drop-shadow(
+    0 0 calc(3px + var(--shop-open, 0) * 1.6px)
+      color-mix(in srgb, var(--urh-lantern) 40%, transparent)
+  );
+  transition:
+    opacity var(--urh-dur-slow) var(--urh-ease),
+    filter var(--urh-dur-slow) var(--urh-ease);
+}
+
+.lampMeter {
+  display: flex;
+  gap: 3px;
+}
+
+.lampTick {
+  width: 7px;
+  height: 14px;
+  border: 1px solid color-mix(in srgb, var(--urh-tatami) 60%, transparent);
+  background: transparent;
+  transition: background var(--urh-dur) var(--urh-ease);
+}
+
+.lampTick[data-lit] {
+  background: var(--urh-lantern);
+  border-color: var(--urh-lantern);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--urh-lantern) 55%, transparent);
+}
+
+.lampLabel {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Benihime modu: dolap kapanır, ahşap kararır */
+.page[data-benihime] .drawerGrid {
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--accent) 9%, var(--urh-shadow)),
+    var(--urh-shadow)
+  );
+}
+
+.page[data-benihime] .drawerFront {
+  border-color: color-mix(in srgb, var(--accent) 42%, transparent);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--accent) 13%, var(--urh-shadow)),
+    var(--urh-shadow)
+  );
+}
+
+.page[data-benihime] .drawerNumeral,
+.page[data-benihime] .drawerPull,
+.page[data-benihime] .lampGlyph {
+  color: var(--accent-hover);
+}
+
+.page[data-benihime] .drawerNumeral {
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.page[data-benihime] .lampTick[data-lit] {
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 8px var(--urh-glow-strong);
+}
+
+/* ============================================================
+   5 · DÜKKÂNIN DEFTERİ
+   ============================================================ */
+.ledgerList {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0 var(--urh-pad);
+  max-width: var(--urh-max);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.ledgerRow {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(0.9rem, 2vw, 1.5rem);
+  padding: clamp(0.85rem, 2vw, 1.2rem) 0;
+  border-top: 1px solid color-mix(in srgb, var(--urh-tatami) 34%, transparent);
+}
+
+.ledgerRow:first-child {
+  border-top: 0;
+}
+
+.ledgerFace {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(3rem, 7vw, 4rem);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--urh-tatami) 60%, transparent);
+  background: color-mix(in srgb, var(--urh-shadow) 62%, var(--surface));
+}
+
+.ledgerFace img {
+  object-fit: cover;
+  object-position: center 12%;
+  filter: sepia(0.25) brightness(0.92);
+}
+
+/* Portre kaydımız yoksa: tahta künyede adın kendisi */
+.ledgerTag {
+  padding: 0.2rem;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: 0.66rem;
+  line-height: 1.2;
+  text-align: center;
+  color: var(--urh-hat-text);
+}
+
+.ledgerBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.ledgerName {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.55rem;
+  margin: 0;
+  font-family: var(--font-petrona), serif;
+  font-weight: 700;
+  font-size: 1.125rem;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+.ledgerNative {
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  color: color-mix(in srgb, var(--urh-hat-text) 78%, transparent);
+}
+
+.ledgerNote {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.ledgerEntry {
+  justify-self: end;
+  padding: 0.32rem 0.6rem;
+  border: 1px solid color-mix(in srgb, var(--urh-lantern) 32%, transparent);
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--urh-lantern);
+}
+
+/* ============================================================
+   6 · DÜKKÂNA GİDEN YOL
+   ============================================================ */
+.roadList {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0 var(--urh-pad);
+  max-width: var(--urh-max);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.stop {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: clamp(1rem, 2.5vw, 2rem);
+  padding: var(--urh-stop-pad) 0;
+}
+
+/* Durakları birbirine bağlayan ray — işaretin tam ortasından geçiyor.
+   İşaret üste hizalı olduğu için ilk ve son rayın ucu de oradan başlıyor. */
+.stop::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--urh-rail) / 2);
+  width: 1px;
+  background: color-mix(in srgb, var(--urh-tatami) 55%, transparent);
+}
+
+.stop:first-child::before {
+  top: calc(var(--urh-stop-pad) + var(--urh-rail) / 2);
+}
+
+.stop:last-child::before {
+  bottom: calc(100% - var(--urh-stop-pad) - var(--urh-rail) / 2);
+}
+
+.stopMark {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  flex: 0 0 var(--urh-rail);
+  width: var(--urh-rail);
+  aspect-ratio: 1;
+  align-self: flex-start;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--urh-lantern) 38%, transparent);
+  background: color-mix(in srgb, var(--urh-shadow) 70%, var(--surface));
+  color: var(--urh-lantern);
+  box-shadow: 0 0 22px -6px color-mix(in srgb, var(--urh-lantern) 45%, transparent);
+}
+
+.stopGlyph {
+  width: 58%;
+}
+
+.stopBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1 1 22rem;
+  min-width: 0;
+}
+
+.stopAge {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--urh-lantern);
+}
+
+.stopTitle {
+  margin: 0;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  line-height: 1.08;
+  color: var(--text-primary);
+}
+
+.stopText {
+  margin: 0;
+  max-width: 62ch;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+.stopQuote {
+  margin: 0.35rem 0 0;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid color-mix(in srgb, var(--urh-lantern) 26%, transparent);
+  background: color-mix(in srgb, var(--urh-lantern) 6%, transparent);
+}
+
+.stopQuote blockquote {
+  margin: 0;
+  font-family: var(--font-cormorant), serif;
+  font-style: italic;
+  font-size: 1.125rem;
+  line-height: 1.45;
+  color: var(--text-primary);
+}
+
+.stopQuote figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin-top: 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--urh-hat-text);
+}
+
+.stopQuote figcaption span:first-child {
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: 0.9375rem;
+  letter-spacing: 0.18em;
+  text-transform: none;
+  color: var(--urh-lantern);
+}
+
+.stopArt {
+  position: relative;
+  display: block;
+  flex: 0 1 clamp(12rem, 26vw, 20rem);
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  background: color-mix(in srgb, var(--urh-shadow) 60%, var(--surface));
+}
+
+.stopArt img {
+  object-fit: cover;
+  filter: sepia(0.3) brightness(0.72) saturate(0.95);
+  transition: filter var(--urh-dur-slow) var(--urh-ease);
+}
+
+.stop:hover .stopArt img {
+  filter: sepia(0.16) brightness(0.94) saturate(1.04);
+}
+
+.stopScrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    115% 100% at 50% 50%,
+    transparent 52%,
+    color-mix(in srgb, var(--urh-shadow) 72%, transparent)
+  );
+}
+
+/* Kaydırmayla giriş — duraklar rayın üstünde belirir */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .stopBody {
+      animation: urhStopIn linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 55%;
+    }
+  }
+}
+
+@keyframes urhStopIn {
+  from {
+    opacity: 0.15;
+    transform: translate3d(0, 1.5rem, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* ============================================================
+   7 · KAPANIŞ
+   ============================================================ */
+.closing {
+  align-items: center;
+  text-align: center;
+  gap: clamp(1rem, 2.5vw, 1.75rem);
+  padding-bottom: clamp(4rem, 10vw, 7rem);
+}
+
+.finalQuote {
+  margin: 0;
+  max-width: 48ch;
+  padding: 0 var(--urh-pad);
+}
+
+.finalQuote blockquote {
+  margin: 0;
+  font-family: var(--font-cormorant), serif;
+  font-style: italic;
+  font-size: clamp(1.25rem, 2.6vw, 1.75rem);
+  line-height: 1.5;
+  color: var(--text-primary);
+  text-shadow: 0 0 30px color-mix(in srgb, var(--urh-lantern) 18%, transparent);
+}
+
+.finalQuote figcaption {
+  margin-top: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+}
+
+.motto {
+  margin: 0.5rem 0 0;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(2rem, 6vw, 3.25rem);
+  line-height: 1.2;
+  letter-spacing: 0.26em;
+  text-indent: 0.26em;
+  color: color-mix(in srgb, var(--urh-hat-text) 70%, transparent);
+}
+
+.mottoText {
+  margin: 0;
+  max-width: 54ch;
+  padding: 0 var(--urh-pad);
+  font-family: var(--font-cormorant), serif;
+  font-style: italic;
+  font-size: 1.0625rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.credit {
+  margin: clamp(1rem, 3vw, 2rem) 0 0;
+  max-width: 68ch;
+  padding: 0 var(--urh-pad);
+  font-size: 0.75rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+
+.creditLink {
+  color: var(--urh-lantern);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-style: dotted;
+}
+
+.creditLink:focus-visible {
+  outline: 2px solid var(--urh-lantern);
+  outline-offset: 3px;
+}
+
+/* ============================================================
+   BENİHİME MODU — ortak devirmeler
+   ============================================================ */
+.page[data-benihime] .sectionTitle,
+.page[data-benihime] .name,
+.page[data-benihime] .stopTitle,
+.page[data-benihime] .crateName {
+  color: var(--accent-hover);
+  text-shadow: 0 0 34px var(--urh-glow-strong);
+}
+
+.page[data-benihime] .native,
+.page[data-benihime] .motto,
+.page[data-benihime] .signWatermark {
+  color: color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.page[data-benihime] .heroScene img,
+.page[data-benihime] .crateArt img,
+.page[data-benihime] .jarArt img,
+.page[data-benihime] .stopArt img,
+.page[data-benihime] .ledgerFace img,
+.page[data-benihime] .portraitImg {
+  filter: grayscale(1) sepia(1) hue-rotate(-24deg) saturate(2.4) brightness(0.52);
+}
+
+.page[data-benihime] .mat {
+  border-color: color-mix(in srgb, var(--accent) 28%, transparent);
+  background-image: none;
+}
+
+.page[data-benihime] .mat dt,
+.page[data-benihime] .stopAge,
+.page[data-benihime] .ledgerEntry,
+.page[data-benihime] .openRow,
+.page[data-benihime] .crateTagline,
+.page[data-benihime] .drawerObjectMark,
+.page[data-benihime] .creditLink,
+.page[data-benihime] .portraitPlate {
+  color: var(--accent-hover);
+}
+
+.page[data-benihime] .crate,
+.page[data-benihime] .jar,
+.page[data-benihime] .stopMark,
+.page[data-benihime] .ledgerFace {
+  border-color: color-mix(in srgb, var(--accent) 32%, var(--border-strong));
+}
+
+.page[data-benihime] .stopMark {
+  color: var(--accent-hover);
+  box-shadow: 0 0 22px -6px var(--urh-glow-strong);
+}
+
+/* ============================================================
+   MOBİL — 360 pikselde taşma yok, ızgaralar tek sütuna iniyor
+   ============================================================ */
+@media (max-width: 980px) {
+  .heroInner {
+    grid-template-columns: 1fr;
+    justify-items: start;
+  }
+
+  .portraitFrame {
+    max-width: 12rem;
+  }
+
+  .tatami {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .crate,
+  .crate:nth-child(even) {
+    grid-template-columns: 1fr;
+  }
+
+  .crate:nth-child(even) .crateArt {
+    order: 0;
+  }
+
+  .crateArt {
+    min-height: 0;
+    aspect-ratio: 16 / 9;
+  }
+
+  .jarRow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .drawerGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .stopArt {
+    flex: 1 1 100%;
+    margin-left: calc(var(--urh-rail) + clamp(1rem, 2.5vw, 2rem));
+    aspect-ratio: 16 / 9;
+  }
+
+  .modeDock {
+    top: auto;
+    /* Site geneli müzik çubuğunun üstünde kal; çubuk yokken 0px */
+    bottom: calc(1rem + var(--music-bar, 0px));
+  }
+
+  .modePlate {
+    max-width: 13rem;
+  }
+}
+
+@media (max-width: 620px) {
+  .tatami {
+    grid-template-columns: 1fr;
+  }
+
+  .jarRow {
+    grid-template-columns: 1fr;
+  }
+
+  .drawerGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .signWatermark {
+    font-size: clamp(4rem, 26vw, 7rem);
+    top: -0.3em;
+  }
+
+  /* Defter satırı: portre + ad üstte, kalem etiketi altta */
+  .ledgerRow {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .ledgerEntry {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .stopArt {
+    margin-left: 0;
+  }
+
+  .lamp {
+    align-self: stretch;
+    justify-content: space-between;
+  }
+}
+
+/* ============================================================
+   REDUCED-MOTION BATTANİYESİ — ev deseni (çift katman):
+   yukarıdaki her animasyon no-preference kapısında; burada kalan
+   geçişler de kapanıyor.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

@@ -1,0 +1,2265 @@
+/* ============================================================
+   KENPACHI ZARAKI — ÇENTİK SAYACI
+
+   Deri: kökteki `data-world="kenpachi-zaraki"` bütün standart token'ları
+   kan-siyahına çeviriyor; yardımcılar `--knp-*` (globals.css).
+   BU DOSYADA TEK HEX YOK — ara ton gerektiğinde `color-mix(in srgb, …)`
+   ile token'lardan türetiliyor.
+
+   ── SAYFANIN KURALI ─────────────────────────────────────────────────
+   Bu sayfa bilerek HİZASIZ. Bloklar aynı sol kenardan başlamıyor,
+   köşeler `clip-path` ile kesik, kenarlar kalın ve tek taraflı — kaynak
+   yapılmış çelik levhalar gibi. Ama okunaklı: gövde metni 66ch'i
+   geçmiyor, dokunma hedefleri 44px, 360px'te taşma yok.
+
+   Malzeme sırası (en çoktan en aza): çelik → is → kan → kıvılcım.
+   Kıvılcım (`--knp-spark`) ÖDÜL rengi: yalnızca aktif çentikte, serbest
+   bırakma komutunda ve Kenpachi modunda görünüyor.
+
+   Hareket sözlüğü: --knp-dur-* / --knp-ease. Yazılı tek "an" var —
+   çentiğin derinleşmesi ve kıvılcım. Geri kalan hareket ölçülü.
+   Her animasyon ya no-preference kapısında ya da dosya sonundaki
+   reduce battaniyesinde.
+   ============================================================ */
+
+.page {
+  /* Süre ve eğri */
+  --knp-dur-fast: 160ms;
+  --knp-dur: 320ms;
+  --knp-dur-slow: 720ms;
+  --knp-ease: cubic-bezier(0.2, 0.7, 0.3, 1);
+  --knp-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  /* Geometri */
+  --knp-gut: clamp(1rem, 4vw, 3rem);
+  --knp-cut: clamp(14px, 2.6vw, 32px);
+  --knp-cut-sm: clamp(8px, 1.4vw, 16px);
+  --knp-plate: 2px;
+  --knp-blade-h: clamp(54px, 7vw, 82px);
+  --knp-measure: 66ch;
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(3.5rem, 9vw, 8rem);
+  padding-bottom: clamp(3rem, 8vw, 6rem);
+  background: var(--bg);
+  color: var(--text-primary);
+  overflow-x: clip;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Kesik köşeli çelik levha deseni:
+   `clip-path` kenarlığı da kestiği için hiçbir levhada `border` yok.
+   Levhanın kendi zemini KENAR rengi, içerideki `::before` gövde rengi;
+   `::before`in `inset`i tek taraftan kalınlaştırılıyor. Sayfadaki bütün
+   kalın kenarlar bu yolla geliyor (bkz. `.power`, `.panel`). */
+
+/* ── Breadcrumb ──────────────────────────────────────────────── */
+.crumb {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 1rem var(--knp-gut) 0;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.crumb a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  color: var(--knp-steel-text);
+  text-decoration: none;
+  transition: color var(--knp-dur-fast) var(--knp-ease);
+}
+
+.crumb a:hover {
+  color: var(--knp-spark);
+}
+
+.crumb a:focus-visible {
+  outline: 2px solid var(--knp-spark);
+  outline-offset: 3px;
+}
+
+.crumbSep {
+  color: var(--knp-notch);
+}
+
+.crumbHere {
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   MOD DÜĞMESİ — "Kenpachi modu"
+   ============================================================ */
+.modeToggle {
+  position: fixed;
+  top: 5rem;
+  right: clamp(0.75rem, 2.5vw, 2rem);
+  z-index: 80;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: var(--touch-min);
+  padding: 0.5rem 1.1rem;
+  border: 0;
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: var(--knp-steel-text);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 1rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  clip-path: polygon(
+    var(--knp-cut-sm) 0,
+    100% 0,
+    100% calc(100% - var(--knp-cut-sm)),
+    calc(100% - var(--knp-cut-sm)) 100%,
+    0 100%,
+    0 var(--knp-cut-sm)
+  );
+  box-shadow: inset 0 0 0 2px var(--knp-notch);
+  transition:
+    color var(--knp-dur) var(--knp-ease),
+    box-shadow var(--knp-dur) var(--knp-ease);
+}
+
+.modeToggle:hover {
+  color: var(--knp-spark);
+  box-shadow: inset 0 0 0 2px var(--knp-steel);
+}
+
+.modeToggle:focus-visible {
+  outline: 2px solid var(--knp-spark);
+  outline-offset: 3px;
+}
+
+.modeIcon {
+  width: 2rem;
+  height: auto;
+  transition:
+    translate var(--knp-dur-slow) var(--knp-ease-out),
+    rotate var(--knp-dur-slow) var(--knp-ease-out),
+    opacity var(--knp-dur-slow) var(--knp-ease);
+}
+
+/* Bant düşüyor: mod açıkken düğmenin ikonu da yere iniyor */
+.page[data-kenpachi] .modeIcon {
+  translate: 0 0.7rem;
+  rotate: -14deg;
+  opacity: 0.35;
+}
+
+.page[data-kenpachi] .modeToggle {
+  color: var(--knp-spark);
+  box-shadow:
+    inset 0 0 0 2px var(--knp-spark),
+    0 0 26px color-mix(in srgb, var(--knp-spark) 30%, transparent);
+}
+
+.modeNote {
+  margin: 0;
+  grid-area: note;
+  align-self: end;
+  max-width: 30ch;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  line-height: 1.6;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+/* ── Çatlaklar: yalnızca Kenpachi modunda ── */
+.crackLayer {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--knp-dur-slow) var(--knp-ease);
+}
+
+.page[data-kenpachi] .crackLayer {
+  opacity: 0.8;
+}
+
+/* Mod açıkken sayfanın kenarlarından reiatsu sızıyor */
+.page[data-kenpachi]::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  pointer-events: none;
+  background: radial-gradient(
+    120% 85% at 50% 50%,
+    transparent 46%,
+    color-mix(in srgb, var(--knp-spark) 9%, transparent) 78%,
+    color-mix(in srgb, var(--accent) 22%, transparent) 100%
+  );
+}
+
+/* ============================================================
+   1 · HERO
+   ============================================================ */
+.hero {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(0, 0.85fr);
+  grid-template-areas:
+    "type portrait"
+    "marks portrait"
+    "note  slots";
+  align-items: end;
+  gap: clamp(1.5rem, 3vw, 3rem);
+  /* Asimetri: sol kenar dar, sağ kenar geniş */
+  padding: clamp(2rem, 6vw, 5rem) calc(var(--knp-gut) * 1.8) clamp(2rem, 5vw, 4rem)
+    var(--knp-gut);
+  min-height: min(92svh, 900px);
+}
+
+.heroBand {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+}
+
+.heroBandImg {
+  object-fit: cover;
+  object-position: center 22%;
+  filter: grayscale(0.55) brightness(0.4) contrast(1.15);
+}
+
+/* Bant varsa da yoksa da hero kendi isini taşır */
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(
+      70% 60% at 18% 40%,
+      color-mix(in srgb, var(--knp-blood) 70%, transparent),
+      transparent 70%
+    ),
+    linear-gradient(
+      to bottom,
+      transparent 30%,
+      color-mix(in srgb, var(--bg) 92%, transparent) 100%
+    ),
+    repeating-linear-gradient(
+      104deg,
+      transparent 0 11px,
+      var(--knp-grit) 11px 12px
+    );
+}
+
+.heroType {
+  grid-area: type;
+  position: relative;
+  min-width: 0;
+}
+
+/* Filigran: adın kaligrafi hâli, dikey, sağ kenarda değil SOL blokta —
+   hizasızlık bilerek */
+.heroWatermark {
+  position: absolute;
+  top: -0.4em;
+  left: -0.14em;
+  z-index: -1;
+  margin: 0;
+  font-family: var(--font-brush), serif;
+  font-size: clamp(6rem, 22vw, 15rem);
+  line-height: 0.82;
+  letter-spacing: -0.06em;
+  color: var(--knp-steel);
+  opacity: 0.07;
+  pointer-events: none;
+  user-select: none;
+}
+
+.heroName {
+  margin: 0;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(3rem, 11vw, 6rem);
+  line-height: 0.9;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+/* Aşınmış tipografi: harflerin üstünden taşlama izleri geçiyor.
+   Gradyan METNE renk vermiyor — üstüne zemin renginde çizikler
+   bindiriyor; ağırlık ve boyut hâlâ tek vurgu aracı. */
+.heroNameInk {
+  position: relative;
+  display: inline-block;
+  text-shadow:
+    2px 0 0 color-mix(in srgb, var(--knp-notch) 70%, transparent),
+    -2px 2px 0 color-mix(in srgb, var(--accent-muted) 55%, transparent);
+}
+
+.heroNameInk::after {
+  content: "";
+  position: absolute;
+  inset: -0.06em -0.02em;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    97deg,
+    transparent 0 9px,
+    color-mix(in srgb, var(--bg) 88%, transparent) 9px 11px,
+    transparent 11px 22px
+  );
+}
+
+.heroNative {
+  margin: 0.5rem 0 0;
+  font-family: var(--font-brush), serif;
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  letter-spacing: 0.24em;
+  color: var(--knp-steel-text);
+  opacity: 0.75;
+}
+
+.heroEpigraph {
+  margin: clamp(1rem, 2.4vw, 1.75rem) 0 0;
+  max-width: 46ch;
+  font-family: var(--font-petrona), serif;
+  font-size: clamp(1.0625rem, 1.5vw, 1.3125rem);
+  line-height: 1.62;
+  color: var(--text-secondary);
+  border-inline-start: 2px solid var(--knp-scar);
+  padding-inline-start: clamp(0.9rem, 1.6vw, 1.4rem);
+}
+
+/* ── Portre: DAR kadraj (BRIEF 3.1 — küçük portreyi büyük kutuya yayma) ── */
+.heroPortrait {
+  grid-area: portrait;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.9rem;
+  justify-self: end;
+  width: min(100%, 380px);
+}
+
+.portraitFrame {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--surface) 70%, var(--bg));
+  /* Kesik köşe: sol üst ve sağ alt — çerçeve de kırık */
+  clip-path: polygon(
+    var(--knp-cut) 0,
+    100% 0,
+    100% calc(100% - var(--knp-cut)),
+    calc(100% - var(--knp-cut)) 100%,
+    0 100%,
+    0 var(--knp-cut)
+  );
+  box-shadow: 0 24px 60px color-mix(in srgb, var(--bg) 80%, transparent);
+}
+
+.portraitImg {
+  object-fit: cover;
+  object-position: center top;
+  filter: grayscale(0.25) contrast(1.06);
+  transition: filter var(--knp-dur-slow) var(--knp-ease);
+}
+
+.page[data-kenpachi] .portraitImg {
+  filter: grayscale(0) contrast(1.16) saturate(1.15);
+}
+
+/* Yara izi — portrenin üstünde, sol üçte bir hizasında */
+.scar {
+  position: absolute;
+  top: -2%;
+  left: 14%;
+  width: 34%;
+  height: 104%;
+  pointer-events: none;
+  filter: drop-shadow(0 0 10px var(--knp-glow-soft));
+}
+
+.scarStroke {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .scarStroke {
+    animation: knpScarDraw 1.6s var(--knp-ease-out) both;
+  }
+}
+
+@keyframes knpScarDraw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.divisionBadge {
+  margin: 0;
+  font-family: var(--font-brush), serif;
+  font-size: clamp(1.1rem, 2vw, 1.6rem);
+  letter-spacing: 0.3em;
+  color: var(--knp-steel);
+  opacity: 0.5;
+}
+
+/* ── İşaret listesi: yara izi · göz bandı · çıngıraklar ── */
+.markList {
+  grid-area: marks;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(0.75rem, 1.6vw, 1.4rem);
+  margin: 0;
+  padding: 0;
+  max-width: 62rem;
+}
+
+.markItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  padding: clamp(0.9rem, 1.6vw, 1.25rem);
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  box-shadow: inset 0 2px 0 0 var(--knp-notch);
+}
+
+/* Üç levhanın hiçbiri aynı hizada değil */
+.markItem[data-mark="patch"] {
+  translate: 0 clamp(0.5rem, 1.4vw, 1.4rem);
+}
+
+.markItem[data-mark="bells"] {
+  translate: 0 clamp(-1.2rem, -2vw, -0.5rem);
+}
+
+.markArt {
+  display: block;
+  height: 3.25rem;
+}
+
+.markPatch,
+.markBells {
+  height: 100%;
+  width: auto;
+  transition:
+    translate var(--knp-dur-slow) var(--knp-ease-out),
+    rotate var(--knp-dur-slow) var(--knp-ease-out),
+    opacity var(--knp-dur-slow) var(--knp-ease);
+}
+
+/* Kenpachi modu: bant düşer, çıngıraklar susar */
+.page[data-kenpachi] .markPatch {
+  translate: -0.4rem 1.4rem;
+  rotate: -22deg;
+  opacity: 0.3;
+}
+
+.markScar {
+  height: 100%;
+  width: auto;
+  rotate: 10deg;
+  opacity: 0.9;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .bellSwing {
+    animation: knpBellSwing 5.5s var(--knp-ease) infinite alternate;
+  }
+
+  .bellSwing[data-bell="2"] {
+    animation-duration: 7s;
+    animation-delay: 0.4s;
+  }
+
+  .bellSwing[data-bell="3"] {
+    animation-duration: 4.6s;
+    animation-delay: 0.9s;
+  }
+}
+
+@keyframes knpBellSwing {
+  from {
+    rotate: -5deg;
+  }
+  to {
+    rotate: 5deg;
+  }
+}
+
+.markBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.markLabel {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 1.125rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--knp-steel-text);
+}
+
+.markNote {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.slotRow {
+  grid-area: slots;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+/* ============================================================
+   BÖLÜM BAŞLIKLARI — hizası bölümden bölüme kayıyor
+   ============================================================ */
+.sectionHead {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin-bottom: clamp(1.75rem, 4vw, 3rem);
+  max-width: var(--knp-measure);
+}
+
+.sectionHead[data-align="right"] {
+  margin-inline-start: auto;
+  text-align: right;
+  align-items: flex-end;
+}
+
+.sectionTitle {
+  position: relative;
+  margin: 0;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(2rem, 5.5vw, 3.5rem);
+  line-height: 0.94;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+/* Başlığın altındaki çelik çizgi — bir ucu kesik */
+.sectionTitle::after {
+  content: "";
+  display: block;
+  width: clamp(4rem, 12vw, 9rem);
+  height: 3px;
+  margin-top: 0.75rem;
+  background: linear-gradient(
+    to right,
+    var(--knp-steel),
+    color-mix(in srgb, var(--knp-steel) 20%, transparent)
+  );
+  clip-path: polygon(0 0, 100% 0, 92% 100%, 0 100%);
+}
+
+.sectionHead[data-align="right"] .sectionTitle::after {
+  margin-left: auto;
+  background: linear-gradient(
+    to left,
+    var(--knp-steel),
+    color-mix(in srgb, var(--knp-steel) 20%, transparent)
+  );
+  clip-path: polygon(8% 0, 100% 0, 100% 100%, 0 100%);
+}
+
+.sectionLede {
+  margin: 0;
+  max-width: var(--knp-measure);
+  font-family: var(--font-petrona), serif;
+  font-size: clamp(1rem, 1.35vw, 1.1875rem);
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+/* Kenpachi modu: başlıklar ağırlaşır ve kıvılcım alır */
+.page[data-kenpachi] .sectionTitle,
+.page[data-kenpachi] .heroName {
+  color: var(--knp-spark);
+  letter-spacing: 0.055em;
+  text-shadow:
+    1px 0 0 currentColor,
+    -1px 0 0 currentColor,
+    0 0 34px color-mix(in srgb, var(--knp-spark) 34%, transparent);
+}
+
+/* ============================================================
+   2 · KÜNYE ŞERİDİ
+   ============================================================ */
+.identity {
+  /* Sağ kenar geniş bırakıldı: blok sola yaslı duruyor */
+  padding-inline: var(--knp-gut) calc(var(--knp-gut) * 2.6);
+}
+
+.factGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  background: var(--border);
+}
+
+.fact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: clamp(0.9rem, 1.8vw, 1.3rem);
+  background: var(--surface);
+  transition: background var(--knp-dur-fast) var(--knp-ease);
+}
+
+.fact:hover {
+  background: var(--surface-hover);
+}
+
+/* Kaynakta boş olan satırlar solgun ve çizgili — uydurulmadıkları
+   görünüyor */
+.fact[data-missing="true"] {
+  background: repeating-linear-gradient(
+    128deg,
+    var(--surface) 0 8px,
+    color-mix(in srgb, var(--bg) 60%, var(--surface)) 8px 16px
+  );
+}
+
+.factLabel {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.factValue {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+.fact[data-missing="true"] .factValue {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ============================================================
+   3 · ARŞİV KARELERİ
+   ============================================================ */
+.frames {
+  padding-inline: calc(var(--knp-gut) * 2.2) var(--knp-gut);
+}
+
+.frameRow {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: start;
+  gap: clamp(0.6rem, 1.6vw, 1.25rem);
+  margin: 0;
+  padding: 0;
+}
+
+.frameItem {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: var(--surface);
+  box-shadow: 0 18px 36px color-mix(in srgb, var(--bg) 75%, transparent);
+  transition:
+    translate var(--knp-dur) var(--knp-ease),
+    box-shadow var(--knp-dur) var(--knp-ease);
+}
+
+/* Dördü de farklı kırpım, farklı yükseklik — duvara çakılmış kareler */
+.frameItem:nth-child(1) {
+  aspect-ratio: 3 / 4;
+  clip-path: polygon(0 0, 100% 3%, 96% 100%, 2% 96%);
+  translate: 0 clamp(0.5rem, 2vw, 1.75rem);
+}
+
+.frameItem:nth-child(2) {
+  aspect-ratio: 4 / 5;
+  clip-path: polygon(2% 2%, 100% 0, 100% 97%, 0 100%);
+  translate: 0 clamp(-1.5rem, -3vw, -0.5rem);
+}
+
+.frameItem:nth-child(3) {
+  aspect-ratio: 1 / 1;
+  clip-path: polygon(0 2%, 98% 0, 100% 100%, 3% 98%);
+  translate: 0 clamp(1rem, 3.5vw, 2.75rem);
+}
+
+.frameItem:nth-child(4) {
+  aspect-ratio: 5 / 6;
+  clip-path: polygon(0 0, 97% 2%, 100% 98%, 1% 100%);
+}
+
+.frameItem:hover {
+  translate: 0 0;
+  box-shadow: 0 22px 46px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+.frameImg {
+  object-fit: cover;
+  filter: grayscale(0.4) contrast(1.08) brightness(0.86);
+  transition: filter var(--knp-dur-slow) var(--knp-ease);
+}
+
+.frameItem:hover .frameImg {
+  filter: grayscale(0) contrast(1.1) brightness(1);
+}
+
+/* ============================================================
+   4 · KESME ODASI
+   ============================================================ */
+.lab {
+  padding-inline: calc(var(--knp-gut) * 1.6) var(--knp-gut);
+}
+
+.powerStack {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.5rem, 3.5vw, 3rem);
+  margin: 0;
+  padding: 0;
+}
+
+.power {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  align-items: stretch;
+  background: var(--knp-notch);
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--knp-cut)) 0,
+    100% var(--knp-cut),
+    100% 100%,
+    var(--knp-cut) 100%,
+    0 calc(100% - var(--knp-cut))
+  );
+}
+
+/* Levhanın gövdesi — kalın kenar tek tarafta, her kartta başka tarafta */
+.power::before {
+  content: "";
+  position: absolute;
+  inset: 2px 2px 2px 7px;
+  z-index: -1;
+  background: var(--surface);
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--knp-cut)) 0,
+    100% var(--knp-cut),
+    100% 100%,
+    var(--knp-cut) 100%,
+    0 calc(100% - var(--knp-cut))
+  );
+}
+
+/* Hizasızlık: kartlar sırayla sağa ve sola kayıyor */
+.power[data-power="bankai"] {
+  margin-inline-start: clamp(0rem, 6vw, 5rem);
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+}
+
+.power[data-power="bankai"] .powerArt {
+  order: 2;
+}
+
+.power[data-power="bankai"]::before {
+  inset: 2px 7px 2px 2px;
+}
+
+.power[data-power="reiatsu"] {
+  margin-inline-end: clamp(0rem, 4vw, 3.5rem);
+}
+
+.power[data-power="reiatsu"]::before {
+  inset: 7px 2px 2px;
+}
+
+.powerArt {
+  position: relative;
+  min-height: clamp(230px, 30vw, 380px);
+  overflow: hidden;
+  background: color-mix(in srgb, var(--bg) 60%, var(--surface));
+  display: grid;
+  place-items: center;
+}
+
+.powerImg {
+  object-fit: cover;
+  filter: contrast(1.08) saturate(0.92);
+  transition:
+    filter var(--knp-dur-slow) var(--knp-ease),
+    scale var(--knp-dur-slow) var(--knp-ease);
+}
+
+.power:hover .powerImg {
+  filter: contrast(1.14) saturate(1.05);
+  scale: 1.035;
+}
+
+/* Görsel yokken kanji büyür ve boşluğu tutar — bölüm çökmez */
+.powerEmpty {
+  font-family: var(--font-brush), serif;
+  font-size: clamp(3.5rem, 9vw, 7rem);
+  line-height: 1;
+  color: var(--knp-steel);
+  opacity: 0.16;
+  user-select: none;
+}
+
+.powerScrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      to right,
+      transparent 55%,
+      color-mix(in srgb, var(--surface) 90%, transparent) 100%
+    ),
+    repeating-linear-gradient(
+      102deg,
+      transparent 0 14px,
+      var(--knp-grit) 14px 15px
+    );
+}
+
+.powerBody {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: clamp(1.1rem, 2.4vw, 2rem);
+  min-width: 0;
+  justify-content: center;
+}
+
+.powerKanji {
+  position: absolute;
+  top: 0.2rem;
+  right: 0.8rem;
+  margin: 0;
+  font-family: var(--font-brush), serif;
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  line-height: 1;
+  color: var(--knp-steel);
+  opacity: 0.12;
+  pointer-events: none;
+  user-select: none;
+}
+
+.powerName {
+  margin: 0;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(1.5rem, 3vw, 2.375rem);
+  line-height: 1;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.powerTagline {
+  margin: 0;
+  font-family: var(--font-petrona), serif;
+  font-style: italic;
+  font-size: clamp(1rem, 1.4vw, 1.125rem);
+  color: var(--knp-steel-text);
+}
+
+.powerRelease {
+  margin: 0.2rem 0 0;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(1.125rem, 2vw, 1.5rem);
+  letter-spacing: 0.08em;
+  color: var(--knp-spark);
+  text-shadow: 0 0 22px color-mix(in srgb, var(--knp-spark) 28%, transparent);
+}
+
+.powerText {
+  margin: 0.3rem 0 0;
+  max-width: 56ch;
+  font-family: var(--font-petrona), serif;
+  font-size: 1rem;
+  line-height: 1.68;
+  color: var(--text-secondary);
+}
+
+.traitRow {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.6rem 0 0;
+  padding: 0;
+}
+
+.trait {
+  padding: 0.32rem 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--knp-steel-text);
+  background: color-mix(in srgb, var(--knp-grit) 60%, transparent);
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+  clip-path: polygon(
+    var(--knp-cut-sm) 0,
+    100% 0,
+    100% calc(100% - var(--knp-cut-sm)),
+    calc(100% - var(--knp-cut-sm)) 100%,
+    0 100%,
+    0 var(--knp-cut-sm)
+  );
+}
+
+/* ── Dört kısıt ── */
+.restraints {
+  margin-top: clamp(2.5rem, 6vw, 4.5rem);
+}
+
+.restraintTitle {
+  margin: 0;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(1.4rem, 2.6vw, 2rem);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--knp-steel-text);
+}
+
+.restraintNote {
+  margin: 0.4rem 0 clamp(1.25rem, 2.5vw, 2rem);
+  max-width: var(--knp-measure);
+  font-family: var(--font-petrona), serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* Dördü aynı ölçüde DEĞİL: ızgara payları elle bozuldu */
+.restraintRow {
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1.15fr 0.9fr 1.05fr 0.9fr;
+  align-items: start;
+  gap: clamp(0.6rem, 1.4vw, 1.1rem);
+  margin: 0;
+  padding: 0;
+}
+
+.restraint {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: clamp(0.9rem, 1.8vw, 1.35rem);
+  min-width: 0;
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+
+.restraint[data-restraint="onehand"] {
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - var(--knp-cut)),
+    calc(100% - var(--knp-cut)) 100%,
+    0 100%
+  );
+  translate: 0 clamp(0.5rem, 1.6vw, 1.5rem);
+}
+
+.restraint[data-restraint="bells"] {
+  clip-path: polygon(
+    0 var(--knp-cut),
+    var(--knp-cut) 0,
+    100% 0,
+    100% 100%,
+    0 100%
+  );
+}
+
+.restraint[data-restraint="patch"] {
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--knp-cut)) 0,
+    100% var(--knp-cut),
+    100% 100%,
+    0 100%
+  );
+  translate: 0 clamp(0.75rem, 2.4vw, 2.25rem);
+}
+
+.restraint[data-restraint="title"] {
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% 100%,
+    var(--knp-cut) 100%,
+    0 calc(100% - var(--knp-cut))
+  );
+}
+
+.restraintMark {
+  width: clamp(2.75rem, 5vw, 3.5rem);
+  height: auto;
+}
+
+.restraintName {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 1.1875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.restraintText {
+  font-size: 0.875rem;
+  line-height: 1.62;
+  color: var(--text-secondary);
+}
+
+/* ============================================================
+   5 · ÇENTİK SAYACI — sayfanın kalbi
+   ============================================================ */
+.railSection {
+  padding-inline: var(--knp-gut) calc(var(--knp-gut) * 1.4);
+}
+
+.rail {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1rem, 2.2vw, 1.75rem);
+}
+
+.counter {
+  display: flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  margin: 0;
+  font-family: var(--font-mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.counterWord {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+}
+
+.counterNow {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(2.25rem, 6vw, 3.75rem);
+  line-height: 0.9;
+  letter-spacing: 0.02em;
+  color: var(--knp-spark);
+  font-variant-numeric: tabular-nums;
+}
+
+.counterSlash,
+.counterAll {
+  font-size: clamp(1rem, 2vw, 1.375rem);
+  color: var(--knp-notch);
+}
+
+/* ── Sahne: kılıç + çentikler ── */
+/* Ray ile çentiklerin üst kenarı AYNI hizada olmak zorunda: `.blade`in
+   yüksekliği ile `.notchArt`in yüksekliği tek değişkenden geliyor ve
+   sahnede dikey dolgu YOK — dolgu olsaydı ağız çentiklerden kayardı. */
+.railStage {
+  position: relative;
+}
+
+.blade {
+  position: absolute;
+  top: 0;
+  left: calc(var(--knp-blade-h) * -0.4);
+  right: calc(var(--knp-blade-h) * -0.4);
+  height: var(--knp-blade-h);
+  pointer-events: none;
+  /* Ağız üstte: çentikler oradan ısırıyor. Kenarlar kırpık, çünkü bu
+     kılıç hiç bakım görmedi. */
+  clip-path: polygon(
+    0 16%,
+    2% 4%,
+    38% 2%,
+    64% 5%,
+    97% 0,
+    100% 30%,
+    100% 72%,
+    96% 100%,
+    46% 97%,
+    2% 100%,
+    0 84%
+  );
+  background:
+    linear-gradient(
+      to bottom,
+      var(--knp-steel) 0 4%,
+      color-mix(in srgb, var(--knp-steel) 62%, var(--knp-notch)) 4% 30%,
+      var(--knp-notch) 30% 78%,
+      color-mix(in srgb, var(--knp-notch) 55%, var(--bg)) 78% 100%
+    );
+  box-shadow: 0 18px 40px color-mix(in srgb, var(--bg) 70%, transparent);
+}
+
+/* Taşlama izleri — çeliğin dokusu */
+.bladeSpine {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    92deg,
+    transparent 0 5px,
+    color-mix(in srgb, var(--knp-steel) 18%, transparent) 5px 6px,
+    transparent 6px 13px
+  );
+  opacity: 0.7;
+}
+
+/* Ağzın parlaması — mod açıkken kıvılcım rengine kayıyor */
+.bladeEdge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--knp-steel) 12%,
+    color-mix(in srgb, var(--knp-steel) 40%, transparent) 52%,
+    var(--knp-steel) 88%,
+    transparent
+  );
+  transition: background var(--knp-dur-slow) var(--knp-ease);
+}
+
+.page[data-kenpachi] .bladeEdge {
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--knp-spark) 12%,
+    color-mix(in srgb, var(--knp-spark) 45%, transparent) 52%,
+    var(--knp-spark) 88%,
+    transparent
+  );
+}
+
+.tablist {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: clamp(0.25rem, 1vw, 1rem);
+}
+
+.notch {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1 1 0;
+  min-width: 44px;
+  min-height: var(--touch-min);
+  padding: 0 0 0.75rem;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  text-align: center;
+  transition: color var(--knp-dur) var(--knp-ease);
+}
+
+.notch:hover {
+  color: var(--knp-steel-text);
+}
+
+.notch:focus-visible {
+  outline: 2px solid var(--knp-spark);
+  outline-offset: 4px;
+}
+
+.notch[data-active] {
+  color: var(--knp-spark);
+}
+
+.notchArt {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: var(--knp-blade-h);
+}
+
+.notchGlyph {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  translate: -50% 0;
+  width: min(100%, 3.75rem);
+  height: 100%;
+}
+
+/* Çentik derinleşiyor — sayfanın yazılı tek hareket "anı" */
+.notchBite {
+  scale: 1 0.72;
+  transition: scale var(--knp-dur) var(--knp-ease-out);
+}
+
+.notch:hover .notchBite {
+  scale: 1.06 0.9;
+}
+
+.notch[data-active] .notchBite {
+  scale: 1.12 1.34;
+}
+
+.spark {
+  position: absolute;
+  top: 46%;
+  left: 50%;
+  width: clamp(4.5rem, 8vw, 7rem);
+  height: auto;
+  translate: -50% -50%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.notch[data-active] .spark {
+  opacity: 1;
+}
+
+/* Kıvılcımlar burcun MERKEZİNDEN saçılıyor: ölçek başlangıcı her
+   parçanın kendi kutusu değil, viewBox'ın orta noktası (32 32). */
+.sparkShard,
+.sparkDot {
+  opacity: 0;
+  transform-box: view-box;
+  transform-origin: 32px 32px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .notch[data-active] .sparkShard {
+    animation: knpSpark 620ms var(--knp-ease-out) both;
+    animation-delay: calc(var(--spark-i, 0) * 22ms);
+  }
+
+  .notch[data-active] .sparkDot {
+    animation: knpSparkDot 760ms var(--knp-ease-out) both;
+    animation-delay: calc(var(--spark-i, 0) * 26ms);
+  }
+}
+
+@keyframes knpSpark {
+  0% {
+    opacity: 0;
+    scale: 0.2;
+  }
+  22% {
+    opacity: 1;
+    scale: 1.05;
+  }
+  100% {
+    opacity: 0;
+    scale: 1.5;
+  }
+}
+
+@keyframes knpSparkDot {
+  0% {
+    opacity: 0;
+    translate: 0 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    translate: 0 10px;
+  }
+}
+
+.notchIndex {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.18em;
+  font-variant-numeric: tabular-nums;
+  color: currentColor;
+}
+
+.notchName {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(0.8125rem, 1.3vw, 1.0625rem);
+  line-height: 1.1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: currentColor;
+  text-wrap: balance;
+}
+
+.railHint {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+/* ── Panel: aktif savaş ── */
+.panel {
+  position: relative;
+  isolation: isolate;
+  background: var(--border-strong);
+  padding: 3px;
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--knp-cut)) 0,
+    100% var(--knp-cut),
+    100% 100%,
+    var(--knp-cut) 100%,
+    0 calc(100% - var(--knp-cut))
+  );
+}
+
+.panel::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  z-index: -1;
+  background: var(--surface);
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--knp-cut)) 0,
+    100% var(--knp-cut),
+    100% 100%,
+    var(--knp-cut) 100%,
+    0 calc(100% - var(--knp-cut))
+  );
+}
+
+.panel[data-outcome="LOSS"] {
+  background: var(--accent-muted);
+}
+
+.panel:focus-visible {
+  outline: 2px solid var(--knp-spark);
+  outline-offset: 3px;
+}
+
+.panelHead {
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(0.75rem, 2vw, 1.5rem);
+  padding: clamp(1rem, 2.2vw, 1.6rem) clamp(1rem, 2.4vw, 1.9rem) 0;
+}
+
+.panelIndex {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  line-height: 0.8;
+  color: var(--knp-notch);
+  font-variant-numeric: tabular-nums;
+}
+
+.panelWho {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.panelName {
+  margin: 0;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(1.375rem, 3.2vw, 2.25rem);
+  line-height: 1.02;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.panelLink {
+  color: inherit;
+  text-decoration: none;
+  box-shadow: inset 0 -2px 0 0 color-mix(in srgb, var(--accent) 60%, transparent);
+  transition: box-shadow var(--knp-dur-fast) var(--knp-ease);
+}
+
+.panelLink:hover {
+  box-shadow: inset 0 -0.7em 0 0 color-mix(in srgb, var(--accent) 28%, transparent);
+}
+
+.panelLink:focus-visible {
+  outline: 2px solid var(--knp-spark);
+  outline-offset: 3px;
+}
+
+.panelArc {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Damga: sonucun kendisi. Kesik köşe + hafif eğik — mühür gibi. */
+.stamp {
+  flex: 0 0 auto;
+  align-self: flex-start;
+  padding: 0.4rem 0.9rem;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(0.875rem, 1.6vw, 1.125rem);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  rotate: -3.5deg;
+  color: var(--knp-steel-text);
+  box-shadow: inset 0 0 0 2px var(--knp-notch);
+  clip-path: polygon(
+    var(--knp-cut-sm) 0,
+    100% 0,
+    calc(100% - var(--knp-cut-sm)) 100%,
+    0 100%
+  );
+}
+
+.stamp[data-outcome="LOSS"] {
+  color: var(--accent-hover);
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+.panelBody {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  align-items: start;
+  gap: clamp(1rem, 2.4vw, 2rem);
+  padding: clamp(1rem, 2.2vw, 1.6rem) clamp(1rem, 2.4vw, 1.9rem)
+    clamp(1.2rem, 2.4vw, 1.9rem);
+}
+
+.panelText {
+  min-width: 0;
+}
+
+.panelLabel {
+  margin: 1.2rem 0 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--knp-steel);
+}
+
+.panelLabel:first-child {
+  margin-top: 0;
+}
+
+.panelWhat {
+  margin: 0;
+  max-width: var(--knp-measure);
+  font-family: var(--font-petrona), serif;
+  font-size: clamp(1rem, 1.35vw, 1.125rem);
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+.panelLearned {
+  margin: 0;
+  max-width: 52ch;
+  font-family: var(--font-petrona), serif;
+  font-style: italic;
+  font-size: clamp(1.0625rem, 1.6vw, 1.25rem);
+  line-height: 1.6;
+  color: var(--knp-steel-text);
+  padding-inline-start: clamp(0.8rem, 1.5vw, 1.2rem);
+  border-inline-start: 2px solid var(--knp-scar);
+}
+
+.panelArt {
+  position: relative;
+  margin: 0;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--bg) 55%, var(--surface));
+  clip-path: polygon(
+    var(--knp-cut) 0,
+    100% 0,
+    100% calc(100% - var(--knp-cut)),
+    calc(100% - var(--knp-cut)) 100%,
+    0 100%,
+    0 var(--knp-cut)
+  );
+}
+
+.panelArt img {
+  object-fit: cover;
+  filter: contrast(1.08) saturate(0.94);
+}
+
+.panelScrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    100deg,
+    transparent 0 12px,
+    var(--knp-grit) 12px 13px
+  );
+}
+
+/* Sahne görseli yoksa ve rakibin portresi varsa: dar portre kadrajı */
+.panelFace {
+  position: relative;
+  margin: 0;
+  width: min(100%, 13.75rem);
+  aspect-ratio: 3 / 4;
+  justify-self: end;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--bg) 55%, var(--surface));
+  box-shadow: inset 0 0 0 2px var(--knp-notch);
+}
+
+.panelFace img {
+  object-fit: cover;
+  object-position: center top;
+  filter: grayscale(0.35) contrast(1.05);
+}
+
+/* ============================================================
+   6 · KADER ÇİZELGESİ
+   ============================================================ */
+.fate {
+  padding-inline: calc(var(--knp-gut) * 1.3) var(--knp-gut);
+}
+
+.eraList {
+  list-style: none;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.5rem, 3.5vw, 2.75rem);
+  margin: 0;
+  padding: 0;
+}
+
+/* Omurga: çizelgenin ortasından geçen çelik şerit */
+.eraList::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 3px;
+  translate: -50% 0;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--knp-notch) 6%,
+    var(--knp-notch) 94%,
+    transparent
+  );
+}
+
+.era {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: start;
+  gap: clamp(0.75rem, 2vw, 1.75rem);
+}
+
+.eraMarker {
+  grid-column: 1;
+  justify-self: end;
+  padding-top: 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-align: right;
+  color: var(--knp-steel);
+}
+
+/* Omurgadaki çentik işareti */
+.eraNotch {
+  grid-column: 2;
+  width: 1.1rem;
+  height: 1.1rem;
+  margin-top: 0.35rem;
+  background: var(--knp-steel);
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  box-shadow: 0 0 18px var(--knp-glow-soft);
+}
+
+.eraBody {
+  grid-column: 3;
+  min-width: 0;
+  padding: clamp(0.9rem, 1.8vw, 1.35rem) clamp(1rem, 2vw, 1.5rem);
+  background: var(--surface);
+  box-shadow: inset 2px 0 0 0 var(--knp-notch);
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - var(--knp-cut-sm)),
+    calc(100% - var(--knp-cut-sm)) 100%,
+    0 100%
+  );
+}
+
+/* Tek numaralı adımlar öbür tarafta — çizelge zikzak ilerliyor */
+.era[data-side="right"] .eraMarker {
+  grid-column: 3;
+  justify-self: start;
+  text-align: left;
+}
+
+.era[data-side="right"] .eraBody {
+  grid-column: 1;
+  box-shadow: inset -2px 0 0 0 var(--knp-notch);
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% 100%,
+    var(--knp-cut-sm) 100%,
+    0 calc(100% - var(--knp-cut-sm))
+  );
+}
+
+.eraTitle {
+  margin: 0;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(1.25rem, 2.6vw, 1.875rem);
+  line-height: 1.05;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.eraText {
+  margin: 0.5rem 0 0;
+  max-width: var(--knp-measure);
+  font-family: var(--font-petrona), serif;
+  font-size: 1rem;
+  line-height: 1.68;
+  color: var(--text-secondary);
+}
+
+.eraQuote {
+  margin: 1rem 0 0;
+  padding-inline-start: clamp(0.8rem, 1.5vw, 1.2rem);
+  border-inline-start: 2px solid var(--knp-spark);
+}
+
+.eraQuote blockquote {
+  margin: 0;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(1.25rem, 2.4vw, 1.75rem);
+  letter-spacing: 0.06em;
+  color: var(--knp-spark);
+}
+
+.eraQuote figcaption {
+  margin-top: 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   7 · YANINDAKİLER
+   ============================================================ */
+.bonds {
+  padding-inline: var(--knp-gut) calc(var(--knp-gut) * 2);
+}
+
+.bondRow {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  gap: clamp(0.75rem, 1.8vw, 1.25rem);
+  margin: 0;
+  padding: 0;
+}
+
+.bond {
+  display: flex;
+  gap: 1rem;
+  padding: clamp(0.9rem, 1.8vw, 1.25rem);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--border);
+  transition: box-shadow var(--knp-dur) var(--knp-ease);
+}
+
+.bond:nth-child(even) {
+  translate: 0 clamp(0.5rem, 1.6vw, 1.25rem);
+}
+
+.bond:hover {
+  box-shadow: inset 0 0 0 1px var(--knp-steel);
+}
+
+.bondFace {
+  position: relative;
+  flex: 0 0 auto;
+  width: 4.5rem;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.bondFace img {
+  object-fit: cover;
+  object-position: center top;
+}
+
+/* Portre kaydı yoksa: adın ilk harfi çelik levhada */
+.bondInitial {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 4.5rem;
+  aspect-ratio: 3 / 4;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 2.25rem;
+  color: var(--knp-notch);
+  background: color-mix(in srgb, var(--bg) 55%, var(--surface));
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - var(--knp-cut-sm)),
+    calc(100% - var(--knp-cut-sm)) 100%,
+    0 100%
+  );
+}
+
+.bondBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.bondName {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 1.1875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.bondLink {
+  color: inherit;
+  text-decoration: none;
+  box-shadow: inset 0 -1px 0 0 var(--knp-notch);
+  transition: box-shadow var(--knp-dur-fast) var(--knp-ease);
+}
+
+.bondLink:hover {
+  box-shadow: inset 0 -1px 0 0 var(--knp-spark);
+}
+
+.bondLink:focus-visible {
+  outline: 2px solid var(--knp-spark);
+  outline-offset: 3px;
+}
+
+.bondRole {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.bondNote {
+  margin-top: 0.3rem;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* ============================================================
+   8 · KAPANIŞ
+   ============================================================ */
+.closing {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2rem, 5vw, 3.5rem);
+  padding: clamp(2rem, 6vw, 5rem) var(--knp-gut) 0;
+}
+
+.bigQuote {
+  margin: 0;
+  max-width: 24ch;
+}
+
+/* İki replik iki farklı kenara yaslı — kapanış da hizasız */
+.bigQuote:nth-of-type(even) {
+  margin-inline-start: auto;
+  text-align: right;
+}
+
+.bigQuote blockquote {
+  margin: 0;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(2.25rem, 8vw, 5rem);
+  line-height: 0.94;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.bigQuote:nth-of-type(even) blockquote {
+  color: var(--knp-spark);
+}
+
+.bigQuote figcaption {
+  margin-top: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.motto {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding-block: clamp(1.5rem, 4vw, 3rem);
+  text-align: center;
+}
+
+.mottoGlyph {
+  margin: 0;
+  font-family: var(--font-brush), serif;
+  font-size: clamp(5rem, 20vw, 12rem);
+  line-height: 0.9;
+  color: var(--knp-steel);
+  opacity: 0.14;
+  user-select: none;
+}
+
+.mottoReading {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin: -0.5em 0 0;
+  font-family: var(--font-brush), serif;
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
+  letter-spacing: 0.16em;
+  color: var(--knp-steel-text);
+}
+
+.mottoLatin {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.7em;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--knp-spark);
+}
+
+.mottoMeaning {
+  margin: 0.4rem 0 0;
+  max-width: 44ch;
+  font-family: var(--font-petrona), serif;
+  font-size: clamp(1rem, 1.4vw, 1.125rem);
+  line-height: 1.62;
+  color: var(--text-secondary);
+}
+
+.closingLine {
+  margin: 0;
+  max-width: 34ch;
+  font-family: var(--font-petrona), serif;
+  font-style: italic;
+  font-size: clamp(1.125rem, 2.4vw, 1.625rem);
+  line-height: 1.5;
+  color: var(--knp-steel-text);
+  padding-inline-start: clamp(0.9rem, 1.8vw, 1.5rem);
+  border-inline-start: 3px solid var(--knp-scar);
+}
+
+.credit {
+  margin: 0;
+  max-width: var(--knp-measure);
+  padding-top: clamp(1.5rem, 3vw, 2.5rem);
+  border-top: 1px solid var(--border);
+  font-size: 0.8125rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+}
+
+.creditLink {
+  color: var(--knp-steel-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--knp-notch);
+}
+
+.creditLink:hover {
+  color: var(--knp-spark);
+  text-decoration-color: var(--knp-spark);
+}
+
+.creditLink:focus-visible {
+  outline: 2px solid var(--knp-spark);
+  outline-offset: 3px;
+}
+
+/* ============================================================
+   MOBİL — 980px altında hizasızlık düzleşiyor, ray dikey duruyor
+   ============================================================ */
+@media (max-width: 980px) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "portrait"
+      "type"
+      "marks"
+      "note"
+      "slots";
+    align-items: start;
+    padding-inline: var(--knp-gut);
+    min-height: 0;
+  }
+
+  .heroPortrait {
+    justify-self: start;
+    width: min(100%, 320px);
+  }
+
+  .heroWatermark {
+    font-size: clamp(5rem, 30vw, 11rem);
+    top: -0.3em;
+  }
+
+  /* Bütün bloklar aynı payda: dar ekranda hizasızlık taşma üretirdi */
+  .identity,
+  .frames,
+  .lab,
+  .railSection,
+  .fate,
+  .bonds {
+    padding-inline: var(--knp-gut);
+  }
+
+  .markList {
+    grid-template-columns: 1fr;
+  }
+
+  .markItem,
+  .markItem[data-mark="patch"],
+  .markItem[data-mark="bells"] {
+    translate: none;
+  }
+
+  .markItem {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .markArt {
+    flex: 0 0 auto;
+    width: 3.5rem;
+    height: 3rem;
+  }
+
+  .frameRow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .frameItem:nth-child(n) {
+    translate: none;
+  }
+
+  .power,
+  .power[data-power="bankai"] {
+    grid-template-columns: minmax(0, 1fr);
+    margin-inline: 0;
+  }
+
+  .power[data-power="bankai"] .powerArt {
+    order: 0;
+  }
+
+  .power::before,
+  .power[data-power="bankai"]::before,
+  .power[data-power="reiatsu"]::before {
+    inset: 2px 2px 7px;
+  }
+
+  .powerArt {
+    min-height: 0;
+    aspect-ratio: 16 / 10;
+  }
+
+  .restraintRow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .restraint[data-restraint="onehand"],
+  .restraint[data-restraint="patch"] {
+    translate: none;
+  }
+
+  /* ── Ray dikey: ağız solda, çentikler dışarıdan içeri ısırıyor ── */
+  .railStage {
+    padding-block: 0;
+  }
+
+  .blade {
+    top: calc(var(--knp-blade-h) * -0.3);
+    bottom: calc(var(--knp-blade-h) * -0.3);
+    left: 0;
+    right: auto;
+    width: var(--knp-blade-h);
+    height: auto;
+    clip-path: polygon(
+      84% 0,
+      96% 2%,
+      100% 46%,
+      97% 100%,
+      72% 100%,
+      30% 100%,
+      0 97%,
+      2% 38%,
+      4% 2%,
+      30% 2%
+    );
+    background: linear-gradient(
+      to right,
+      var(--knp-steel) 0 4%,
+      color-mix(in srgb, var(--knp-steel) 62%, var(--knp-notch)) 4% 30%,
+      var(--knp-notch) 30% 78%,
+      color-mix(in srgb, var(--knp-notch) 55%, var(--bg)) 78% 100%
+    );
+  }
+
+  .bladeSpine {
+    background: repeating-linear-gradient(
+      2deg,
+      transparent 0 5px,
+      color-mix(in srgb, var(--knp-steel) 18%, transparent) 5px 6px,
+      transparent 6px 13px
+    );
+  }
+
+  .bladeEdge {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: auto;
+    width: 2px;
+    height: auto;
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      var(--knp-steel) 12%,
+      color-mix(in srgb, var(--knp-steel) 40%, transparent) 52%,
+      var(--knp-steel) 88%,
+      transparent
+    );
+  }
+
+  .page[data-kenpachi] .bladeEdge {
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      var(--knp-spark) 12%,
+      color-mix(in srgb, var(--knp-spark) 45%, transparent) 52%,
+      var(--knp-spark) 88%,
+      transparent
+    );
+  }
+
+  .tablist {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.25rem;
+  }
+
+  .notch {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0.25rem 0.5rem 0.25rem 0;
+    text-align: left;
+  }
+
+  .notchArt {
+    flex: 0 0 auto;
+    width: var(--knp-blade-h);
+    height: var(--knp-blade-h);
+  }
+
+  .notchGlyph {
+    top: 50%;
+    left: 0;
+    translate: 0 -50%;
+    width: 100%;
+    height: min(100%, 3.75rem);
+    rotate: -90deg;
+  }
+
+  .spark {
+    left: 46%;
+    top: 50%;
+  }
+
+  .notchName {
+    text-align: left;
+  }
+
+  .panelBody {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .panelFace {
+    justify-self: start;
+  }
+
+  /* Çizelge tek sütuna iniyor, omurga sola geçiyor */
+  .eraList::before {
+    left: 0.55rem;
+  }
+
+  .era,
+  .era[data-side="right"] {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.9rem;
+  }
+
+  .era .eraNotch,
+  .era[data-side="right"] .eraNotch {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .era .eraMarker,
+  .era[data-side="right"] .eraMarker {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: start;
+    text-align: left;
+    padding-top: 0.4rem;
+  }
+
+  .era .eraBody,
+  .era[data-side="right"] .eraBody {
+    grid-column: 2;
+    grid-row: 2;
+    box-shadow: inset 2px 0 0 0 var(--knp-notch);
+    clip-path: polygon(
+      0 0,
+      100% 0,
+      100% calc(100% - var(--knp-cut-sm)),
+      calc(100% - var(--knp-cut-sm)) 100%,
+      0 100%
+    );
+  }
+
+  .bond:nth-child(even) {
+    translate: none;
+  }
+
+  .bigQuote,
+  .bigQuote:nth-of-type(even) {
+    max-width: none;
+    margin-inline: 0;
+    text-align: left;
+  }
+
+  /* Site geneli müzik çubuğunun üstünde kal */
+  .modeToggle {
+    top: auto;
+    bottom: calc(1rem + var(--music-bar, 0px));
+  }
+}
+
+@media (max-width: 620px) {
+  .frameRow {
+    grid-template-columns: 1fr;
+  }
+
+  .restraintRow {
+    grid-template-columns: 1fr;
+  }
+
+  .panelHead {
+    flex-wrap: wrap;
+  }
+
+  .stamp {
+    order: 3;
+    flex-basis: 100%;
+    align-self: flex-start;
+    justify-self: start;
+    width: max-content;
+  }
+
+  .heroEpigraph {
+    font-size: 1rem;
+  }
+}
+
+/* ============================================================
+   REDUCED-MOTION BATTANİYESİ — çift katman: yukarıdaki her animasyon
+   zaten no-preference kapısında, burada kalan geçişler de kapanıyor.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

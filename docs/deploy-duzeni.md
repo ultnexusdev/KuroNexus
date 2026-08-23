@@ -200,13 +200,18 @@ başlamazsa hem webhook hem Watch Paths kanıtlanmış olur.
 
 ---
 
-# 4 · Rolling update takılması → BÖLÜNMÜŞ SÜRÜM (23 Ağustos 2026)
+# 8 · Rolling update takılması → BÖLÜNMÜŞ SÜRÜM (23 Ağustos 2026)
+
+> ⚠️ **BU BÖLÜM ARTIK TARİHÎ.** Kök sebep aynı gün bulundu ve kapatıldı —
+> rolling update bu makinenin bellek bütçesine sığmıyordu. Çözüm **§10**'da.
+> Aşağısı teşhis zincirinin kaydı olarak duruyor: aynı belirtiyi bir daha
+> görürsen önce §10'a bak.
 
 > ⚠️ Bu, §1–2'deki RAM çöküşünden **farklı bir arıza sınıfı.** Sunucu
 > sağlıklıydı: site 0.7 saniyede cevap veriyordu, iki konteyner de
 > milisaniyelerde `Ready` oluyordu. Bellekle ilgisi yok.
 
-## 4.1 Belirti
+## 8.1 Belirti
 
 `8f8fb76` (P03) push'unda deployment logu şurada durdu ve 22 dakika hiç
 ilerlemedi:
@@ -219,7 +224,7 @@ ilerlemedi:
 
 Dışarıdan bakınca "deploy çok uzun sürüyor" gibi görünüyor. Değil.
 
-## 4.2 Gerçekte olan
+## 8.2 Gerçekte olan
 
 Coolify yeni konteyneri başlattı, konteyner sorunsuz ayağa kalktı
 (`Ready in 508ms`), **ama Coolify trafiği ona çevirip eskisini durdurmadı.**
@@ -232,7 +237,7 @@ qy5pumcarapuqr90z6ljcry8-111637833943   ← eski (11:16, P02)
 qy5pumcarapuqr90z6ljcry8-114907800612   ← yeni (11:49, P03)
 ```
 
-## 4.3 ⚠️ EN ÖNEMLİ KISIM — Cancel yetmiyor
+## 8.3 ⚠️ EN ÖNEMLİ KISIM — Cancel yetmiyor
 
 `Cancel` yalnızca **yardımcı** konteyneri siliyor:
 
@@ -256,7 +261,7 @@ kimliği taşıyor: A konteynerinden gelen HTML, B'nin
 CSS'siz ve JS'siz görüyor. Yani bölünmüş durum rastgele bozuk sayfa üretiyor
 ve bu, tek bir eski sürüm servis etmekten kötü.
 
-## 4.4 Çözüm
+## 8.4 Çözüm
 
 **1. Stop** — bütün konteynerleri kaldırır.
 
@@ -274,7 +279,7 @@ yolunu hiç kullanmaz; takılan adım tamamen devre dışı kalır.
 **Ölçülen sonuç (23.08):** tek konteyner, altı ardışık istek aynı sürüm,
 CSS + JS chunk + woff2 üçü de 200, dokuz rota 200 / ~0.7s.
 
-## 4.5 Nasıl tespit edilir — panele bakmadan
+## 8.5 Nasıl tespit edilir — panele bakmadan
 
 ```bash
 for i in 1 2 3; do curl -s https://kuronexus.com/anime/bleach | grep -c "THE THIRTEEN GATES"; done
@@ -283,7 +288,7 @@ for i in 1 2 3; do curl -s https://kuronexus.com/anime/bleach | grep -c "THE THI
 Üç satır aynı değilse bölünmüş sürüm var. (Belirteci o an canlıda olması
 gereken en yeni bölümden seç.)
 
-## 4.6 Tekrarlarsa
+## 8.6 Tekrarlarsa
 
 Bir kez yaşandı ve `Stop → Redeploy` ile kapandı; ayar değiştirilmedi.
 İkinci kez olursa `Configuration → Advanced` altındaki rolling update
@@ -291,7 +296,7 @@ kapatılacak. 3.7 GB'lık ve tek konteynerli bir kurulumda rolling update'in
 kazancı zaten küçük: karşılığında birkaç saniyelik kesinti alınır ama
 bellek tepesi yarıya iner ve bu arıza sınıfı kökten kalkar.
 
-## 4.7 Healthcheck notu
+## 8.7 Healthcheck notu
 
 Frontend healthcheck'i **kapalı** ve bu arızanın sebebi o değildi
 (kontrol edildi). İleride açılırsa:
@@ -305,3 +310,180 @@ Frontend healthcheck'i **kapalı** ve bu arızanın sebebi o değildi
   ```
   node -e "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
   ```
+
+---
+
+# 9 · Disk dolması → Coolify Redis MISCONF (23 Ağustos 2026)
+
+## 9.1 Belirti
+
+Coolify **paneli** 500 veriyor:
+
+```
+MISCONF Redis is configured to save RDB snapshots, but it's currently unable
+to persist to disk. Commands that may modify the data set are disabled…
+```
+
+⚠️ **Site bundan etkilenmiyor.** Panel Coolify'ın kendi Redis'ine bağlı;
+Traefik ve uygulama konteynerleri ayrı. Ölçüldü: panel ölüyken site 200 /
+0.65s veriyordu ve API `db:up` dönüyordu. Yani panik gerekmiyor — ama
+deploy da yapılamıyor, çünkü Coolify'ın iş kuyruğu o Redis'te.
+
+## 9.2 Sebep
+
+Neredeyse her zaman tek şey: **kök disk dolmuş.** Redis'in
+`stop-writes-on-bgsave-error` ayarı, RDB yazması başarısız olunca bütün
+yazma komutlarını reddediyor.
+
+Ölçülen: `/dev/sda1` 38G, **36G kullanılmış, 0 bayt boş.**
+
+⚠️ 0 bayt boş bir kökte PostgreSQL de yazamaz. Site o an ayaktaydı ama bu
+hâlde bırakılırsa veritabanı yazma hatası vermeye başlar.
+
+## 9.3 Teşhis ve çözüm
+
+```bash
+df -h /
+```
+
+`Use%` %95 üstüyse teşhis kesin. Sonra sırayla:
+
+```bash
+docker builder prune -af
+```
+
+Yalnızca **derleme önbelleğini** siler. Kullanılan imajlara, çalışan ya da
+durmuş konteynerlere, hacimlere dokunmaz. **Ölçülen kazanç: 5.86 GB.**
+
+```bash
+docker image prune -af
+```
+
+Hiçbir konteynerin referans vermediği imajları siler (durmuş konteynerlerin
+imajları da korunur). Bedeli: Coolify'ın rollback için sakladığı eski
+imajlar gider. **Ölçülen kazanç: 623 MB.**
+
+Toplam ~6.5 GB → disk %80'e ve 7.4 GB boşa döndü. Panel yenilenince
+kendiliğinden açıldı; açılmazsa `docker restart coolify-redis` (o Redis
+kuyruk ve önbellek, kalıcı veri değil).
+
+## 9.4 ⚠️ ASLA
+
+**`docker system prune` komutuna `--volumes` bayrağı EKLENMEYECEK.**
+O bayrak PostgreSQL veri hacmini siler — sitenin bütün içeriği orada.
+Temizlik `builder prune` + `image prune` ile yapılır; ikisi de hacimlere
+dokunmaz.
+
+## 9.5 Neden dolmuştu
+
+Zamanlanmış Docker temizliği koşmuyordu ve 35 deployment'lık imaj +
+derleme önbelleği birikmişti. Katkı eden ikinci şey: §8'deki takılmayı
+çözerken Stop diyaloğundaki "Run Docker Cleanup" kutusu **bilerek**
+kaldırılmıştı (imajı koruyup redeploy'u hızlandırmak için) — o an doğru
+karardı ama temizliğin hiç koşmadığı anlamına da geliyordu.
+
+**Kalıcı çözüm:** Coolify'da zamanlanmış Docker temizliğini aç. Elle
+temizlik bir arıza müdahalesi olmalı, rutin değil.
+
+---
+
+# 10 · KÖK SEBEP: rolling update bu makineye sığmıyor — ÇÖZÜLDÜ
+
+## 10.1 Kanıt
+
+Rolling update **iki kez** aynı satırda takıldı: `Rolling update started`,
+sonrası yok.
+
+| | disk | sonuç |
+|---|---|---|
+| 1. deneme (11:53) | doluydu | takıldı |
+| 2. deneme (12:46) | **7.4 GB boştu** | **yine takıldı** |
+
+İkinci ölçüm disk teorisini çürüttü. Geriye tek açıklama kaldı ve
+belirtilerle birebir örtüşüyor.
+
+## 10.2 Mekanizma
+
+Rolling update **eski ve yeni konteyneri aynı anda** çalıştırmayı
+gerektiriyor. Bu makinede (§1) 3.7 GB RAM var; ölçüm anında 3220 MB
+kullanımda, 599 MB boş ve **2.3 GB swap dolu**. İki Next sunucusunu birden
+ayakta tutmak bu bütçeye sığmıyor: yeni konteyner açılıyor (`Ready in
+508ms`) ama sistem yerine oturamıyor ve Coolify geçişi tamamlayamıyor.
+
+Konteyner logları da bunu doğruladı — bellek baskısı belirtileri:
+
+```
+Failed to write image to cache … could not be tracked by lru cache
+Error: Internal server error  at .next/server/app/sitemap.xml/route.js
+```
+
+⚠️ Bunlar **kod hatası değil**. Canlıdaki `/sitemap.xml` 200 dönüyor ve
+674 KB geçerli XML üretiyor; 674 KB'lık bir sitemap üretilirken bellek
+sıkışırsa arada bir düşüyor.
+
+## 10.3 Çözüm — "Consistent Container Names"
+
+`Configuration → Advanced → Container → **Consistent Container Names**` → **AÇIK**
+
+Ayrı bir "rolling update" anahtarı **yok**; bu onun kapısı. Kanıt konteyner
+adlarında duruyor:
+
+```
+qy5pumcarapuqr90z6ljcry8-121944168696   ← zaman damgalı: her deploy benzersiz ad
+qy5pumcarapuqr90z6ljcry8                ← sabit ad
+```
+
+Ad benzersiz olduğu sürece eski ve yeni konteyner **birlikte var olabiliyor**
+— rolling update tam olarak buna dayanıyor. Ad sabitlenince Docker aynı adla
+iki konteyner çalıştıramıyor, dolayısıyla Coolify mecburen eskisini durdurup
+yenisini başlatıyor. Coolify bunu logda açıkça yazıyor:
+
+```
+Consistent container name feature enabled, rolling update is not supported.
+Removing old containers.
+New container started.
+Deployment is Finished
+```
+
+## 10.4 ⚠️ AYARI AÇTIKTAN SONRA: eski konteynerler kalıyor
+
+Ayar geçmişe dönük çalışmıyor. "Removing old containers" yalnızca kendi
+beklediği ada uyanları kaldırıyor; başarısız rolling update'lerden kalan
+**zaman damgalı yetimler ayakta kalıyor** ve Traefik onlara yönlenmeye devam
+ediyor. Sonuç: deploy `Finished` diyor ama site eski sürümü servis ediyor.
+
+Ölçülen: deploy bittikten sonra Logs sekmesinde **üç** konteyner vardı ve
+canlıdaki CSS parmak izi hiç değişmemişti.
+
+**Temizlik — cerrahi, kesintisiz:**
+
+```bash
+docker rm -f <eski-ad-1> <eski-ad-2>
+```
+
+Yalnızca yetimleri kaldırır, yeni sabit adlı konteynere dokunmaz. Traefik
+birkaç saniye içinde tek kalana yönelir. Adlar Logs sekmesinde yazılı.
+
+(Alternatif: panelden Stop → Redeploy. Aynı sonuç, bir dakikaya kadar
+kesinti ve fazladan bir tur.)
+
+## 10.5 Sonuç
+
+**Ölçülen (23.08, P04 deploy'u):**
+
+| | |
+|---|---|
+| Deploy süresi | **14 saniye** (imaj SHA ile bulundu, derleme atlandı) |
+| Konteyner | **tek**, sabit adlı |
+| Sürüm tutarlılığı | 6 ardışık istek, hepsi aynı |
+| Varlıklar | CSS + JS chunk + woff2 → 200 |
+| Rotalar | 8 rota 200 / 0.68–1.17s |
+| API | `db:up` |
+
+**Bedel:** sıfır kesintili deploy yok — eski durur, yeni başlar. Bu
+makinede sıfır kesinti zaten hiç çalışmıyordu.
+
+**Yan fayda:** §8'deki "Cancel yetim konteyner bırakıyor → site iki sürümü
+birden servis ediyor" arıza sınıfı **kökten yok oldu** — ikinci bir
+konteyner artık hiç var olmuyor. Ayrıca konteyner adı sabit olduğu için log
+okurken hangi konteynere baktığını aramak gerekmiyor.

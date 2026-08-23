@@ -31,6 +31,18 @@ export const LAYER_IDS = [
 
 export type LayerId = (typeof LAYER_IDS)[number];
 
+/**
+ * AÇIK ZEMİNLİ katmanlar.
+ *
+ * Bugün tek üye var ve öyle kalması bekleniyor: Hueco Mundo sayfanın tek
+ * negatif katmanı ve o cesaret tekil olduğu için değerli. Yine de bir küme
+ * — çünkü "açık mı" sorusunu soran her yer (geçit yarığı, ileride ray ve
+ * gölgeler) tek bir kaynağa sormalı, kendi listesini tutmamalı.
+ */
+export const LIGHT_LAYERS: ReadonlySet<LayerId> = new Set<LayerId>([
+  "hueco-mundo",
+]);
+
 /** Rayda ve başlıklarda kullanılan kanji — katman başına tek kaynak */
 export const LAYER_KANJI: Record<LayerId, string> = {
   living: "現世",
@@ -44,6 +56,7 @@ export function WorldSection({
   layer,
   eyebrow,
   title,
+  atmosphere,
   children,
   className,
 }: {
@@ -52,6 +65,14 @@ export function WorldSection({
   eyebrow?: string;
   /** Shippori — katmanın adı ("Karakura") */
   title?: string;
+  /**
+   * Katmanın kendi görsel grameri (yağmur, mürekkep, boşluk…).
+   *
+   * Kabuğun DIŞINDA tutuluyor: `WorldSection` beş katmanın ortak
+   * iskeleti, atmosfer ise her katmanı diğerlerinden ayıran şey. İkisini
+   * birleştirmek, kabuğu beş dallı bir koşula çevirirdi.
+   */
+  atmosphere?: ReactNode;
   children?: ReactNode;
   className?: string;
 }) {
@@ -66,6 +87,8 @@ export function WorldSection({
          gereksiz bir durak yaşamasın. */
       tabIndex={-1}
     >
+      {atmosphere}
+
       {/* Dev kanji katmanın arkasında: okunması değil hissedilmesi için */}
       <span className={world.ghostKanji} aria-hidden="true">
         {LAYER_KANJI[layer]}

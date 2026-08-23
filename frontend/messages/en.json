@@ -1493,9 +1493,9 @@
       "scaffold": {
         "title": "THE WORLD OF BLEACH",
         "lede": "Every soul leaves a shadow. Every blade has a name.",
-        "note": "The hero is in place. The five layers, Gotei 13, the Zanpakutō archive and the remaining sections arrive in turn. The design system can be tried on its own route.",
+        "note": "The hero and the five layers are in place. The thirteen gates, the Zanpakutō archive, the Bankai hall and the remaining sections arrive in turn.",
         "playgroundLink": "Open the design system trial →",
-        "pendingSections": "P02 · THE THREE WORLDS — UNDER CONSTRUCTION"
+        "pendingSections": "P03 · GOTEI 13 — UNDER CONSTRUCTION"
       },
       "world": {
         "railAria": "Spiritual layers",
@@ -1508,7 +1508,8 @@
         },
         "playgroundTitle": "Design system trial",
         "playgroundNote": "This route carries no content: it exercises the five world palettes, the depth rail and the Senkaimon transition together. The sections arrive in a separate pass.",
-        "scaleTitle": "Type scale"
+        "scaleTitle": "Type scale",
+        "moreComing": "GOTEI 13 · ZANPAKUTŌ ARCHIVES · ESPADA — NEXT"
       },
       "hero": {
         "eyebrow": "EVERY SOUL LEAVES A SHADOW",

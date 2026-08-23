@@ -118,9 +118,36 @@
 > Tek istemci adası imleç paralaksı; kaba işaretçide ve `reduced-motion`'da
 > hiç kurulmuyor. JS gelmezse hero eksiksiz çiziliyor.
 >
-> **⏭ SIRADAKİ: P02 · ÜÇ DÜNYA.** Beş katman + Senkaimon geçitleri; derinlik
-> rayı o turda ana sayfaya bağlanacak (bugün yalnızca playground'da).
-> Sonra paralel worktree'lerde P03–P16.
+> **⑩ P02 · ÜÇ DÜNYA.** Beş katman üst üste, aralarında geçitler. Yerleşim
+> ortak (`WorldSection`), **atmosfer ayrı** (`Atmospheres`): Karakura'da
+> yağmur + elektrik direği + kader zincirleri, Seireitei'de sumi mürekkep +
+> kaligrafi fırçası, Hueco Mundo'da **tam boşluk** (ay + kırık kemik ağacı +
+> tek kum çizgisi, doku YOK), Reiōkyū'da yalnız geometri, Silbern'de gotik
+> sivri kemer. Hepsi saf CSS + inline SVG.
+>
+> ⚠️ **Geçit sırası canon'a göre düzeltildi:** brief Garganta'yı Hueco Mundo
+> ile Reiōkyū arasına koyuyor; canon'da Garganta Hueco Mundo'ya GİRERKEN
+> kullanılır, Reiōkyū'ya Ōken ile çıkılır.
+>
+> ⚠️ **Açık katmanın yarığı ters çalışıyordu.** Senkaimon "gidilen dünyanın
+> rengini" `--world-accent`/`--world-paper`dan alıyordu; Hueco Mundo negatif
+> olduğu için ikisi de KOYU ve yarık karanlık geçitte siyah üstüne siyah
+> kalıyordu — Garganta hiç görünmüyordu. Açık katmanda artık `--world-ink`
+> sızıyor. `LIGHT_LAYERS` kümesi tek doğruluk kaynağı.
+>
+> **"Dünyaya gir" bağlantısı koşullu** (`READY_SECTIONS`): derin bölüm
+> sayfada yoksa bağlantı hiç çizilmiyor. Ölü çapa, olmayan bağlantıdan kötü.
+>
+> **Derinlik rayı ana sayfaya bağlandı** — artık gerçek katmanlara işaret
+> ediyor, `theme-color` katmanla dönüyor.
+>
+> **Gotik font denetimi körlükten kurtarıldı:** `.gothic` sınıf adını arıyordu
+> ve `.gothicMark` denetimin dışında kalmıştı. Artık gotik aileyi UYGULAYAN
+> sınıflar CSS'ten türetiliyor; çıktı hangilerinin izlendiğini yazıyor.
+>
+> **⏭ SIRADAKİ: P03 · GOTEI 13.** On üç kapı, Seireitei'nin dairesel planı,
+> bölük çiçekleri ve klasik/TYBW zaman kipi anahtarı. Sonra paralel
+> worktree'lerde P04–P16.
 >
 > ⚠️ `/anime/bleach` hiçbir yerden linkli değil ve `robots: noindex`. Hub
 > kartı P17 turunda ekleniyor.

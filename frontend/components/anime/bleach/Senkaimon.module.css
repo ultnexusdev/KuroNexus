@@ -51,6 +51,33 @@
   );
 }
 
+/* ⚠️ ACIK KATMAN — yarik TERS calisiyor.
+
+   Olculdu (23 Agustos 2026): Hueco Mundo negatif oldugu icin aksani ve
+   kagidi KOYU, zemini beyaz. Yukaridaki gradient siyah zemin uzerinde
+   siyah siziyordu — Garganta yarigi hic gorunmuyordu.
+
+   Acik katmanda "bir sonraki dunyanin rengi" zeminin KENDISI. */
+.gate[data-polarity="light"] .bleed {
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--world-ink) 16%,
+    var(--world-ink) 84%,
+    transparent
+  );
+}
+
+/* Isik sizmasi da zeminden geliyor: `--world-glow` orada cero kizili
+   (koyu) ve karanlik bir gecitte kaybolurdu. */
+.gate[data-polarity="light"]::after {
+  background: radial-gradient(
+    18% 60% at 50% 50%,
+    color-mix(in srgb, var(--world-ink) 26%, transparent),
+    transparent 70%
+  );
+}
+
 /* Yarigin iki yanina dusen isik — yarik acildikca genisliyor.
    Ayri bir eleman degil: gecidin kendi pseudo'su, tek boyama. */
 .gate::after {

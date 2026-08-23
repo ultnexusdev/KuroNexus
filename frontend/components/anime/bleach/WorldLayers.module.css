@@ -1,0 +1,89 @@
+/* ============================================================
+   P02 · BES KATMAN — katman ICERIGI
+
+   Katmanin kabugu `WorldSection.module.css`te, gorsel grameri
+   `Atmospheres.module.css`te. Burada duran sey icerigin kendi
+   yerlesimi: aciklama, mekan listesi, kapi.
+
+   ⚠️ KURAL 16: tek hex yok.
+   ============================================================ */
+
+.description {
+  /* Brief: --measure/1.4. Katman metni hero'nunkinden genis ama govde
+     olcusunden dar — okunurluk ile atmosfer arasinda. */
+  max-width: calc(var(--measure) / 1.4);
+  margin: 0;
+}
+
+/* Mekan listesi: KART DEGIL. Kutu koymak onlari "icerik parcasi"
+   yapardi; bunlar katmanin envanteri — hairline ayracli satirlar. */
+.places {
+  list-style: none;
+  margin: clamp(1rem, 2.5vh, 2rem) 0 0;
+  padding: 0;
+  max-width: calc(var(--measure) / 1.4);
+  border-top: 1px solid var(--hairline);
+}
+
+.place {
+  display: flex;
+  align-items: baseline;
+  gap: clamp(0.6rem, 1.6vw, 1.25rem);
+  padding-block: clamp(0.5rem, 1.2vh, 0.85rem);
+  border-bottom: 1px solid var(--hairline);
+}
+
+.placeKanji {
+  flex: none;
+  min-width: 6ch;
+  font-family: var(--b-display);
+  font-weight: 600;
+  font-size: 0.92rem;
+  line-height: 1;
+  color: var(--world-accent);
+  opacity: 0.75;
+}
+
+.placeName {
+  color: var(--text-secondary);
+}
+
+/* Derin bolume kapi. Alt cizgi yerine sol kenardan bir hairline:
+   Bleach'te her sey kesik ve dikey. */
+.enter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: var(--touch-min);
+  margin-top: clamp(1rem, 3vh, 2rem);
+  padding-left: 0.9rem;
+  border-left: 1px solid var(--world-accent);
+  color: var(--world-accent);
+  text-decoration: none;
+  transition: gap 320ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.enter:hover,
+.enter:focus-visible {
+  gap: 1.1rem;
+  color: var(--text-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .enter {
+    transition: none;
+  }
+}
+
+/* Katmanlarin bittigini soyleyen tek satir. Bilincli olarak sessiz:
+   yarim bir sayfa oldugunu gizlemek yerine soyleyip geciyor. */
+.next {
+  position: relative;
+  z-index: 2;
+  width: var(--band);
+  margin: 0 auto;
+  padding-block: clamp(4rem, 12vh, 8rem);
+  text-align: center;
+  background: var(--void);
+  color: var(--ash);
+}

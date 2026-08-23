@@ -1,4 +1,4 @@
-import type { LayerId } from "./WorldSection";
+import { LIGHT_LAYERS, type LayerId } from "./WorldSection";
 import styles from "./Senkaimon.module.css";
 import world from "./world.module.css";
 
@@ -44,6 +44,18 @@ export function Senkaimon({
       className={styles.gate}
       data-layer={to}
       data-kind={kind}
+      /**
+       * ⚠️ AÇIK KATMANIN YARIĞI TERS ÇALIŞIR.
+       *
+       * Yarıktan sızan renk normalde gidilen dünyanın `--world-accent` ve
+       * `--world-paper`ı. Hueco Mundo NEGATİF: zemini beyaz, aksanı ve
+       * kâğıdı koyu. Sonuç ölçüldü — Garganta yarığı siyah zemin üzerinde
+       * SİYAH sızıyordu, yani hiç görünmüyordu.
+       *
+       * Açık katmanda sızan şey `--world-ink` (beyaz zemin) olmalı: "bir
+       * sonraki dünyanın rengi" orada zeminin kendisi.
+       */
+      data-polarity={LIGHT_LAYERS.has(to) ? "light" : undefined}
       /* Saf dekor: ekran okuyucu iki katman arasında boş bir durak
          duymamalı. Anlatıyı katmanların kendisi taşıyor. */
       aria-hidden="true"

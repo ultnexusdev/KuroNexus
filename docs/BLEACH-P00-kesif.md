@@ -728,7 +728,61 @@ donuyor; kırık ayna kayması **kalıyor** — o hareket değil, kompozisyon.
 ⚠️ **LCP:** yuva `eager: true` taşıyor, yani görsel geldiğinde `priority`
 ile inecek. Bugün yuva boş; LCP elemanı wordmark.
 
-### 8.8 Sırada
+### 8.8 P02 — ÜÇ DÜNYA (23 Ağustos 2026) ✅
+
+**TEZ.** Naruto Evreni'nde bunun karşılığı "Köyler ve Bölgeler" ızgarası:
+yan yana kartlar, hepsi eşit, hepsi aynı anda görünür. Bleach'te dünyalar
+eşit değil ve aynı anda görünmemeliler. Beş katman üst üste istifleniyor,
+kullanıcı aralarından geçerek **iniyor**; her geçiş bir kapı olayı.
+
+**BEŞ AYRI GÖRSEL GRAMER.** Yerleşim ortak (`WorldSection`), atmosfer ayrı
+(`Atmospheres`). Beşi aynı şablonu paylaşıp yalnız renk değiştirseydi sayfa
+"beş kez aynı bölüm" olurdu:
+
+| Katman | Gramer |
+|---|---|
+| 現世 Karakura | eğik yağmur (tek kaplama, kırk damla elemanı değil), elektrik direği, üç soluk kader zinciri, sodyum lambası havuzu |
+| 尸魂界 Seireitei | sumi mürekkep dokusu, haori dokuması, yatay kaligrafi fırça vuruşu |
+| 虚圏 Hueco Mundo | **TAM BOŞLUK** — ay (dolgusuz daire), kırık kemik ağacı, tek yatay kum çizgisi. Doku yok, gradient yok |
+| 霊王宮 Reiōkyū | yalnızca geometri: ince çizgilerden bir tapınak planı, çok az mor sis |
+| 見えざる帝国 Silbern | gotik sivri kemer (`clip-path`), altın hairline, soldan sağa uzayan gölgeler |
+
+Hepsi saf CSS + inline SVG: tek dosya inmiyor, tek istek gitmiyor.
+
+⚠️ **GEÇİT SIRASI CANON'A GÖRE DÜZELTİLDİ.** Brief'in şeması Garganta'yı
+Hueco Mundo ile Reiōkyū arasına koyuyor. Canon'da Garganta Hollow geçididir
+ve Hueco Mundo'ya **girerken** kullanılır; Reiōkyū'ya Ōken ile çıkılır.
+Sıra: 現世 →senkaimon→ 尸魂界 →garganta→ 虚圏 →ōken→ 霊王宮 →schatten→ 見えざる帝国.
+
+⚠️ **AÇIK KATMANIN YARIĞI TERS ÇALIŞIYORDU — ölçülüp düzeltildi.** Senkaimon
+yarığı "gidilen dünyanın rengini" sızdırıyor ve bunu `--world-accent` +
+`--world-paper`dan alıyordu. Hueco Mundo negatif: zemini beyaz, aksanı ve
+kâğıdı **koyu**. Sonuç, karanlık geçitte siyah üstüne siyah — Garganta
+yarığı hiç görünmüyordu. Açık katmanda sızan şey artık `--world-ink`
+(zeminin kendisi). `LIGHT_LAYERS` kümesi tek doğruluk kaynağı; "bu katman
+açık mı" sorusunu soran her yer oraya soruyor.
+
+**"DÜNYAYA GİR" BAĞLANTISI KOŞULLU.** Derin bölümler (Gotei 13, Hueco,
+Wandenreich) henüz yok. Bağlantı yalnızca hedef sayfada varsa çiziliyor
+(`READY_SECTIONS`) — ölü bir sayfa içi çapası, olmayan bir bağlantıdan
+kötüdür. Bölüm yayına girdiğinde kümeye tek satır ekleniyor.
+
+**DERİNLİK RAYI ANA SAYFAYA BAĞLANDI.** P-TOKENS'ta yalnızca playground'da
+duruyordu; artık gerçek katmanlara işaret ediyor ve `theme-color` metası
+katmanla dönüyor.
+
+**Denetim betiği körlükten kurtarıldı.** Gotik font kontrolü `.gothic`
+sınıf adını arıyordu ve `Atmospheres.module.css` içindeki `.gothicMark`
+denetimin **dışında** kalmıştı (`\b` sınırı eşleşmiyor). Artık sınıf adı
+sabit yazılmıyor: gotik aileyi *uygulayan* sınıflar CSS'ten türetiliyor ve
+çıktı hangilerinin izlendiğini yazıyor. Bir yan bulgu: seçici yakalaması
+önündeki yorumu yutup `.mjs` diye hayalî bir sınıf üretiyordu — yorumlar
+artık önce ayıklanıyor.
+
+**Bu bölümde tek satır istemci kodu yok.** Tema değişimi nitelik + kalıtım,
+geçitler CSS.
+
+### 8.9 Sırada
 
 `/anime/bleach` iskelet olarak duruyor ve **hiçbir yerden linkli değil**
 (`robots: noindex`). Sıradaki tur **P-TOKENS**: beş dünya paleti, derinlik

@@ -5,9 +5,12 @@ import { readIsAdmin } from "@/lib/auth/session";
 import { animeHref } from "@/lib/anime/routes";
 import { CuratorFrame } from "@/components/character/CuratorFrame";
 import { BleachHero } from "@/components/anime/bleach/BleachHero";
+import { DepthRail } from "@/components/anime/bleach/DepthRail";
+import { WorldLayers } from "@/components/anime/bleach/WorldLayers";
+import { LAYER_IDS, type LayerId } from "@/components/anime/bleach/WorldSection";
 import { CuratorManifest } from "@/components/anime/bleach/CuratorManifest";
-import world from "@/components/anime/bleach/world.module.css";
 import shell from "../layout.module.css";
+import world from "@/components/anime/bleach/world.module.css";
 import styles from "./page.module.css";
 
 /**
@@ -57,10 +60,17 @@ export default async function BleachUniversePage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const [t, isAdmin] = await Promise.all([
+  const [t, tw, isAdmin] = await Promise.all([
     getTranslations({ locale, namespace: "anime.bleach.scaffold" }),
+    getTranslations({ locale, namespace: "anime.bleach.world" }),
     readIsAdmin(),
   ]);
+
+  /* Rayın etiketleri: katman adı ÇEVRİLİYOR ama kanji çevrilmiyor
+     (`DepthRail` kanjiyi kendisi biliyor). */
+  const railLabels = Object.fromEntries(
+    LAYER_IDS.map((id) => [id, tw(`layers.${id}`)]),
+  ) as Record<LayerId, string>;
 
   return (
     <CuratorFrame isAdmin={isAdmin}>
@@ -77,11 +87,18 @@ export default async function BleachUniversePage({
           <span>Bleach</span>
         </nav>
 
+        {/* Derinlik rayı: sayfanın tamamı bir dikey iniş olduğu için
+            kullanıcı hangi katmanda olduğunu her an görüyor. Katmanlar
+            geldiği için ray artık gerçek hedeflere bağlı. */}
+        <DepthRail labels={railLabels} ariaLabel={tw("railAria")} />
+
         <BleachHero locale={locale} />
 
-        {/* P02 gelene kadar iniş bağlantısının hedefi burası. Bölüm
-            geldiğinde `#living` gerçek katmana bağlanacak. */}
-        <section id="living" className={styles.pending}>
+        <WorldLayers locale={locale} />
+
+        {/* Kalan bölümlerin durağı. Bilinçli olarak sessiz: yarım bir
+            sayfa olduğunu gizlemek yerine söyleyip geçiyor. */}
+        <section className={styles.pending}>
           <p className={world.meta}>{t("pendingSections")}</p>
           <p className={`${world.body} ${styles.note}`}>{t("note")}</p>
           <p>

@@ -64,15 +64,53 @@ for (const file of files) {
   }
 }
 
-// ── 2 · Gotik sınıfı taşıyan satırlarda Türkçe harf var mı ────────────────
+// ── 2 · Gotik aileyi UYGULAYAN sınıfları CSS'ten türet ────────────────────
+//
+// ⚠️ Sınıf adı SABİT YAZILMIYOR. İlk sürüm `.gothic` arıyordu ve
+// `Atmospheres.module.css` içindeki `.gothicMark` denetimin dışında kaldı:
+// `\b` sınırı "gothicM"de eşleşmiyor. Sınıf adı bir gün `.wordmark` olsa
+// denetim yine sessizce körleşirdi.
+//
+// Doğru soru "hangi sınıf `gothic` diye adlandırılmış" değil, "hangi sınıf
+// gotik aileyi UYGULUYOR". Cevap CSS'te yazılı; oradan okunuyor.
+const gothicClasses = new Set();
+for (const file of files) {
+  if (!file.endsWith(".css")) continue;
+  /* ⚠️ Yorumlar ÖNCE ayıklanıyor. Seçici yakalaması `[^{}]+` olduğu için
+     kuralın önündeki yorum bloğunu da yutuyordu ve oradaki
+     "check-bleach-fonts.mjs" metninden `.mjs` diye hayalî bir sınıf
+     türüyordu (ölçüldü). Zararsız görünüyordu ama denetimin neyi
+     izlediğini okunmaz kılıyor. */
+  const text = readFileSync(file, "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+  for (const [, selector] of text.matchAll(
+    /([^{}]+)\{[^{}]*font-family:\s*var\(--(?:b|font)-gothic[^{}]*\}/g,
+  )) {
+    for (const [, name] of selector.matchAll(/\.([A-Za-z_][\w-]*)/g)) {
+      gothicClasses.add(name);
+    }
+  }
+}
+
+if (gothicClasses.size === 0) {
+  problems.push(
+    "gotik aileyi uygulayan HİÇBİR sınıf bulunamadı — denetim körleşmiş olabilir",
+  );
+}
+
+// ── 3 · O sınıfları taşıyan satırlarda Türkçe harf var mı ─────────────────
+const gothicPattern = new RegExp(
+  `\\.(?:${[...gothicClasses].join("|")})\\b`,
+);
+
 for (const file of files) {
   if (!file.endsWith(".tsx")) continue;
   const rel = file.slice(ROOT.length + 1).replace(/\\/g, "/");
   const lines = readFileSync(file, "utf8").split("\n");
 
   lines.forEach((line, i) => {
-    // `world.gothic` ya da `styles.gothic` geçen JSX satırı
-    if (!/\.gothic\b/.test(line)) return;
+    if (gothicClasses.size === 0) return;
+    // `world.gothic`, `styles.gothicMark` … CSS'ten türetilen her ad
+    if (!gothicPattern.test(line)) return;
     // Aynı satırdaki metin içeriği: >...< arası
     const inline = [...line.matchAll(/>([^<>{}]+)</g)].map((m) => m[1]);
     for (const text of inline) {
@@ -93,7 +131,11 @@ for (const file of files) {
 }
 
 if (problems.length === 0) {
-  console.log("✓ gotik font denetimi temiz");
+  // Hangi siniflarin izlendigi YAZILIYOR: denetimin kor kalmadigi
+  // ciktidan gorulsun, "temiz" cikmasi tek basina yetmesin.
+  console.log(
+    `✓ gotik font denetimi temiz — izlenen sınıf: ${[...gothicClasses].join(", ") || "yok"}`,
+  );
   process.exit(0);
 }
 

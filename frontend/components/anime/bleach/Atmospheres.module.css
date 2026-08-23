@@ -1,0 +1,311 @@
+/* ============================================================
+   KATMAN ATMOSFERLERI — bes dunya, bes ayri gorsel gramer
+
+   Hepsi saf CSS + inline SVG: tek dosya inmiyor, tek istek gitmiyor.
+   Hepsi `pointer-events: none` ve `aria-hidden` — dekor, icerik degil.
+
+   ⚠️ KURAL 16: tek hex yok. Renkler katmanin kendi token'larindan.
+   ============================================================ */
+
+.living,
+.soulSociety,
+.hueco,
+.royal,
+.wandenreich {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   現世 KARAKURA — gece + yagmur
+   ══════════════════════════════════════════════════════════════ */
+
+/* Yagmur: kirk ayri damla elemani yerine TEK kaplama. Egik cizgiler
+   bir `repeating-linear-gradient`, hareket `translateY` — kompozisyon
+   katmaninda kaliyor, boyama yok. */
+.rain,
+.rainFar {
+  position: absolute;
+  inset: -30% -10%;
+  background-image: repeating-linear-gradient(
+    108deg,
+    transparent 0 7px,
+    color-mix(in srgb, var(--world-paper) 22%, transparent) 7px 8px,
+    transparent 8px 22px
+  );
+}
+
+.rainFar {
+  /* Uzak perde: daha sik, daha soluk, daha yavas — derinlik hissi */
+  background-image: repeating-linear-gradient(
+    104deg,
+    transparent 0 4px,
+    color-mix(in srgb, var(--world-paper) 10%, transparent) 4px 5px,
+    transparent 5px 13px
+  );
+  opacity: 0.6;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .rain {
+    animation: pour 0.9s linear infinite;
+  }
+
+  .rainFar {
+    animation: pour 2.1s linear infinite;
+  }
+}
+
+@keyframes pour {
+  to {
+    translate: -22px 60px;
+  }
+}
+
+/* Kader zincirleri: gogusten sarkan halkalar. Uzakta, cok soluk —
+   Karakura'nin asil anlatisi bu: olum burada gorunmuyor ama var. */
+.chains {
+  position: absolute;
+  top: 12%;
+  left: 6%;
+  width: min(38%, 420px);
+  color: var(--world-glow);
+  opacity: 0.16;
+}
+
+/* Elektrik diregi sag altta, ufuk cizgisini kesiyor */
+.pole {
+  position: absolute;
+  right: 4%;
+  bottom: 0;
+  height: min(62%, 460px);
+  width: auto;
+  color: var(--world-ink);
+  opacity: 0.85;
+}
+
+/* Sodyum lambasinin isik havuzu — diregin tepesinden asagi */
+.living::after {
+  content: "";
+  position: absolute;
+  right: 4%;
+  bottom: 0;
+  width: min(40%, 380px);
+  height: min(70%, 520px);
+  translate: 50% 0;
+  background: radial-gradient(
+    50% 40% at 50% 12%,
+    color-mix(in srgb, var(--world-accent) 20%, transparent),
+    transparent 70%
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════
+   尸魂界 SEIREITEI — sumi murekkep + haori kumasi
+   ══════════════════════════════════════════════════════════════ */
+
+/* Uretilmis murekkep dokusu: dosya yok, dis istek yok */
+.sumi {
+  position: absolute;
+  inset: 0;
+  opacity: 0.14;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012 0.04' numOctaves='4' seed='7'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23s)'/%3E%3C/svg%3E");
+  background-size: 620px 620px;
+}
+
+/* Beyaz haori kumasi: cok dusuk opaklikta dikey dokuma */
+.haori {
+  position: absolute;
+  inset: 0;
+  opacity: 0.05;
+  background-image: repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--world-glow) 60%, transparent) 0 1px,
+      transparent 1px 6px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      color-mix(in srgb, var(--world-glow) 40%, transparent) 0 1px,
+      transparent 1px 9px
+    );
+}
+
+/* Yatay kaligrafi firca vurusu — basligin altini ciziyormus gibi.
+   Dikdortgen DEGIL: iki ucu inceliyor, kenarlari duzensiz. */
+.brush {
+  position: absolute;
+  left: 0;
+  top: 46%;
+  width: 100%;
+  height: auto;
+  color: var(--world-accent);
+  opacity: 0.18;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   虚圏 HUECO MUNDO — TAM BOSLUK
+
+   ⚠️ BURADA HICBIR DOKU YOK VE OLMAYACAK. Ne gurultu, ne gradient,
+   ne isik havuzu. Diger dort atmosfer katman katman insa edilirken bu
+   bilincli olarak fakir: "hicbir sey yok" cumlesini dokuyla
+   yumusatmak onu yalan yapar.
+   ══════════════════════════════════════════════════════════════ */
+
+/* Ay: MUKEMMEL bir daire, tek piksel kontur, dolgusuz */
+.moon {
+  position: absolute;
+  top: 12%;
+  right: 12%;
+  width: min(22vw, 190px);
+  height: auto;
+  color: var(--world-paper);
+  opacity: 0.55;
+}
+
+/* Kirik kemik agaci — tek parca path, sagda */
+.boneTree {
+  position: absolute;
+  right: 8%;
+  bottom: 0;
+  height: min(64%, 480px);
+  width: auto;
+  color: var(--world-paper);
+  opacity: 0.82;
+}
+
+/* Kum cizgisi: ekranin altinda TEK yatay iz. Gradient degil, duz
+   cizgi — burada yumusak gecis yok. */
+.sand {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 14%;
+  height: 1px;
+  background: var(--world-paper);
+  opacity: 0.35;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   霊王宮 REIOKYU — renksizlik
+   ══════════════════════════════════════════════════════════════ */
+
+/* Tapinak plani: dolgu yok, doku yok, renk yok — yalnizca geometri.
+   Bir bina degil bir SEMA: yukaridan bakilmis, olcekli, insansiz. */
+.temple {
+  position: absolute;
+  top: 50%;
+  right: 6%;
+  translate: 0 -50%;
+  width: min(46vw, 520px);
+  height: auto;
+  color: var(--world-paper);
+  opacity: 0.13;
+}
+
+/* Mor sis — brief'in tek renk izni, "cok az" */
+.royal::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    70% 50% at 70% 50%,
+    color-mix(in srgb, var(--world-glow) 22%, transparent),
+    transparent 72%
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════
+   見えざる帝国 SILBERN — gotik buz
+   ══════════════════════════════════════════════════════════════ */
+
+/* Sivri kemer maskesi: gotik ark biciminde kesilmis bir blok.
+   `clip-path` ile — gercek bir kemer, yuvarlatilmis bir dikdortgen
+   degil. Tepe noktasi sivri: gotigin tanimi bu. */
+.arch {
+  position: absolute;
+  left: 50%;
+  top: 8%;
+  translate: -50% 0;
+  width: min(52vw, 520px);
+  height: 78%;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--world-glow) 14%, transparent),
+    transparent 62%
+  );
+  clip-path: polygon(
+    50% 0%,
+    100% 34%,
+    100% 100%,
+    0% 100%,
+    0% 34%
+  );
+  border-top: 1px solid color-mix(in srgb, var(--world-accent) 55%, transparent);
+}
+
+/* Golgeler soldan saga uzuyor — Schatten Bereich */
+.frost {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    92deg,
+    transparent 0 60px,
+    color-mix(in srgb, var(--world-ink) 55%, transparent) 60px 92px
+  );
+  opacity: 0.4;
+}
+
+/* ⚠️ GOTIK AILE YALNIZCA BURADA. Almanca ozel ad; Turkce dize bu
+   aileye asla gecmiyor (denetim betigi bunu kontrol ediyor). */
+.gothicMark {
+  position: absolute;
+  left: 50%;
+  bottom: 8%;
+  translate: -50% 0;
+  font-family: var(--b-gothic);
+  font-size: clamp(2.5rem, 9vw, 7rem);
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--world-accent);
+  opacity: 0.14;
+}
+
+/* ── HAREKETI AZALT ──────────────────────────────────────────
+   Yagmur duruyor. Geri kalan atmosferler zaten duragan — hareket
+   yalnizca Karakura'da vardi. */
+@media (prefers-reduced-motion: reduce) {
+  .rain,
+  .rainFar {
+    animation: none;
+  }
+}
+
+/* ── MOBIL ───────────────────────────────────────────────────
+   Sagdaki buyuk motifler (direk, agac, tapinak plani) govdenin altina
+   giriyordu. Kucultuluyor ve opaklik dusuyor: atmosfer kaliyor, metin
+   okunuyor. */
+@media (max-width: 720px) {
+  .pole,
+  .boneTree {
+    height: min(42%, 300px);
+    opacity: 0.5;
+  }
+
+  .temple {
+    width: 70vw;
+    opacity: 0.08;
+  }
+
+  .chains {
+    width: 52%;
+    opacity: 0.1;
+  }
+
+  .arch {
+    width: 90vw;
+  }
+}

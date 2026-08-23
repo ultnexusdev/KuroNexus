@@ -339,6 +339,14 @@ export default async function AnimeHallPage({
                 <span className={styles.riftSeam} />
               </span>
 
+              {/* Kanji rozeti — Akatsuki kartındaki `.kanji` deseninin
+                  aynısı ve bilinçli olarak aynısı: hub'ın kart dili tek
+                  olmalı, ayrımı yapan şey yarılma. 卍 sayfanın da tek
+                  büyük işareti (Bankai salonu aynı karakteri taşıyor). */}
+              <span className={`${shell.brush} ${styles.kanji}`} aria-hidden>
+                卍
+              </span>
+
               <span className={styles.worldBody}>
                 <span className={`${shell.data} ${styles.worldMeter}`}>
                   {t("worlds.bleach.meter")}

@@ -430,6 +430,13 @@
   transition: opacity 420ms ease;
 }
 
+/* Bleach karti da ayni rozeti tasiyor: 卍. Hub'in kart dili tek olmali,
+   ayrimi yapan sey yarilma (asagida). */
+.bleach:hover .kanji,
+.bleach:focus-visible .kanji {
+  opacity: 0.26;
+}
+
 .akatsuki:hover .kanji {
   opacity: 0.26;
 }

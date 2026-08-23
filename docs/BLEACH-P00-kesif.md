@@ -7,13 +7,12 @@
 
 ## ⌂ DEVİR — SIRADAKİ OTURUM BURADAN BAŞLASIN (23 Ağustos 2026)
 
-**Durum:** Küratör altyapısı + P-TOKENS + **P01–P16 canlıda.** Sayfanın
-bütün anlatı bölümleri bitti; kalan ikisi entegrasyon işi.
-**Sıradaki:** **P17 · Anime Hub Giriş Kartı**, sonra **P18 · QA /
-performans / entegrasyon.**
-⚠️ **P18'de `robots: noindex` KALKACAK** — sayfa o güne kadar arama
-motoruna kapalı (`page.tsx` içinde yazılı). P17 hub kartını bağlarken
-bunu unutma.
+**Durum:** Küratör altyapısı + P-TOKENS + **P01–P17 canlıda.** On altı
+anlatı bölümü ve hub kartı bitti.
+**Sıradaki ve SON:** **P18 · QA / performans / entegrasyon.**
+⚠️ **P18'de `robots: noindex` KALKACAK** — sayfa bugüne kadar arama
+motoruna kapalı ve bu kilit `page.tsx` içinde `generateMetadata`da
+yazılı. Kaldırmadan önce brief'in P18 listesini uygula.
 ⚠️ **Bölüm hakkında tahmin yazma.** P15'te bu blokta duran "görsel
 ağırlıklı olacak" tahmini, brief'in "görsel yok, burası nefes alma alanı"
 kararıyla çelişti. Önce brief'i oku, sonra karar ver.
@@ -1683,7 +1682,45 @@ kalıtım, arc'lar arası geçiş başlıktaki beş çapa — brief'in
 `reduced-motion` yedeği ("beş sabit görsel, tıklayarak arc değiştirme")
 her kipte zaten karşılanıyor. Rota paketi 27 → 27,4 kB.
 
-### 8.23 Sırada
+### 8.23 P17 — ANİME HUB GİRİŞ KARTI (23 Ağustos 2026) ✅
+
+⚠️ **BU BÖLÜMÜN BÜYÜK KISMI ZATEN YAPILMIŞTI.** Kart, altyapı turunda
+(23 Ağustos, kullanıcı isteğiyle) `/anime` hub'ına konmuştu ve brief'in
+istediklerinin çoğunu zaten karşılıyordu. Bu tur bir **denetim** turu
+oldu: brief madde madde mevcut kodla karşılaştırıldı.
+
+**Zaten yerinde olanlar** (ölçüldü, değiştirilmedi):
+- Dikey yarılma: iki yarı `clip-path: inset(0 50% 0 0)` / `inset(0 0 0 50%)`,
+  hover'da ±8px ters yönlere kayıyor.
+- Yarıktan sızan ışık: `riftSeam`, kapalıyken 0 genişlik ve 0 opaklık,
+  geçiş süresi **0,42s** — brief'in 420ms değeri, `cubic-bezier(.16,1,.3,1)`.
+- Yarılma ölçeklemenin YERİNE geçiyor (`.bleach:hover { scale: 1 }`):
+  ikisi aynı anda çalışırsa hareket bulanık bir "büyüyüp açılma"ya
+  dönüşüyor ve yarık okunmuyor.
+- `prefers-reduced-motion`: kayma yok, yalnızca aydınlanma.
+- Metinler brief'le birebir aynı (TR ve EN), her iki dilde de doğru
+  adrese bağlı (`/anime/bleach`, `/en/anime/bleach`).
+
+**Eksik olan tek şey ve bu turda eklendi: 卍 rozeti.** Akatsuki kartındaki
+`.kanji` deseninin aynısı kullanıldı (fırça ailesi, %14 → hover %26) —
+hub'ın kart dili tek olmalı; Bleach kartını ayıran şey rozet değil
+yarılma. Doğrulandı: rozet iki dilde de basılıyor, Yuji Boku ile
+diziliyor, 128px.
+
+⚠️ **BRIEF'İN İKİ MADDESİ ARAŞTIRILDI VE İŞ ÇIKMADI:**
+1. *"Görsel: Ichigo'nun hero görselinin kırpılmış hâli (aynı varlığı
+   yeniden kullan — LCP avantajı)."* Hero **bir küratör yuvası** ve
+   depoda karşılığı yok (`bleach:hero:ichigo` içinde `src` tanımlı değil),
+   yani yeniden kullanılacak bir dosya yok. Kart bunun yerine Bleach
+   sayfasının **Seireitei katmanıyla aynı** depo karesini kullanıyor —
+   brief'in asıl amacı (tek indirme + kart ile sayfa arasında görsel bağ)
+   zaten sağlanmış durumda.
+2. *"Sol menüdeki 'Evrenler' listesine ekleme YAPMA — önce mevcut
+   konvansiyonu doğrula."* Doğrulandı: o liste `SiteFooter` içinde ve
+   **`fetchUniverses()` ile backend'den** geliyor, elle tutulan bir menü
+   değil. Yani eklenecek bir şey yok; konvansiyon kararı kendisi veriyor.
+
+### 8.24 Sırada
 
 `/anime/bleach` iskelet olarak duruyor ve **hiçbir yerden linkli değil**
 (`robots: noindex`). Sıradaki tur **P-TOKENS**: beş dünya paleti, derinlik

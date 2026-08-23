@@ -50,3 +50,8 @@ pids
 
 /src/generated/prisma
 /uploads
+
+# Yanlis dizinde kosturulmus bir Next derlemesinin cikti klasoru.
+# Backend bir NestJS servisi; burada .next OLUSMAMALI ama olusursa depoya
+# girmesin (23 Agustos 2026, bir kez girdi).
+/.next

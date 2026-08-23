@@ -5,6 +5,51 @@
 
 ---
 
+## ⌂ DEVİR — SIRADAKİ OTURUM BURADAN BAŞLASIN (23 Ağustos 2026)
+
+**Durum:** Küratör altyapısı + P-TOKENS + **P01–P05 canlıda.**
+**Sıradaki:** **P06 · Ruh Hiyerarşisi.** Brief'in kendi metni ana kaynak.
+
+### Yerleşik konvansiyonlar — bunları yeniden keşfetme
+
+| | |
+|---|---|
+| Sayfa | `app/[locale]/anime/bleach/page.tsx` — `force-dynamic`, `robots: noindex` |
+| Bölüm deseni | `XSection.tsx` (sunucu, i18n çözer) → `X.tsx` (istemci ya da sunucu) + `X.module.css` |
+| Veri | `lib/anime/bleach/<konu>.ts`, konu başına bir dosya |
+| Tipografi | `world.module.css` — `.hero .section .eyebrow .body .meta .kubo .numeral .gothic .band .rule .ghostKanji` |
+| Renk | `globals.css` — `[data-world="bleach"]` + beş `[data-layer="..."]`. **Bileşende hex YOK** (kural 16) |
+| Görsel | **Çıplak `<Image>` yasak.** Her kadraj `<CuratedImage slotId>`; yuva `lib/anime/bleach/slots.ts` manifestosunda |
+| Denetim | `pnpm check:bleach` — gotik font + 60 kontrast kontrolü. Commit öncesi koştur |
+
+### Tekrarlayan tuzaklar (hepsi bir kez yaşandı)
+
+1. **Sunucu bileşeni istemciye import edilemez.** `CuratedImage` `next/headers`
+   okuyor; bir `"use client"` dosyasına import edersen derleme durur.
+   Çözüm: sunucu sarmalayıcıda çizip **prop olarak** geçir (`BankaiSection`).
+2. **Sunucudan istemciye işlev geçirilemez** (RSC serileştirme). Hazır dizi
+   ya da dize geçir (`Gotei13Section.gateLabels`).
+3. **Varsayılan durumda görünmeyen veri = SSR'da yok.** P04'te komutlar
+   shikai durağına saklanmıştı ve sunucu çıktısında hiçbiri görünmüyordu.
+   Bir bilgi JS'e bağımlıysa dur ve yeniden düşün.
+4. **Canon'u fandom'dan doğrula.** Üç turda üç kez hata yakalandı (bölük
+   çiçekleri, Zangetsu'nun "komutu", Renji'nin Bankai adı). Yöntem:
+   `api.php?action=parse&page=<SAHİP>&prop=wikitext` — Zanpakutō sayfaları
+   sahibine yönleniyor, sayfa HTML'i 403 veriyor. Emin olmadığını
+   **uydurma**, `null` bırak; arayüz "kayıt yok" çiziyor.
+5. **`prefers-reduced-motion` her bölümde ayrıca ele alınıyor.**
+6. **Deploy:** Consistent Container Names AÇIK, rolling update yok, ~14 sn.
+   Sorun çıkarsa `docs/deploy-duzeni.md` §8–§10.
+
+### Doğrulama alışkanlığı
+
+Tarayıcı paneli akışlı sayfaları açmıyor (Suspense sınırı çözülmüyor), o
+yüzden doğrulama **sunucu çıktısı üzerinden**: yerel PG + yerel backend
+(3099) + `next start` (3100), sonra `curl` ile belirteç sayımı. Görsel
+teslim için sayfa tek dosyaya gömülüp gönderiliyor.
+
+---
+
 ## 0 · ÜÇ CÜMLELİK ÖZET
 
 1. Naruto Evreni **tek dosyalık bir sunucu bileşeni** (1087 satır) + tek CSS modülü (1560 satır); veri `lib/anime/naruto/` altında yedi dosyada, görseller `CharacterImage` tablosunda "sahte yetenek" anahtarlarıyla duruyor.

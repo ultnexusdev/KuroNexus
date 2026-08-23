@@ -336,9 +336,24 @@ Bir push canlıda görünmüyorsa §8.5'i koştur ve iki sonucu ayır:
 - **"Sürüm sürümden farklı"** (istekler farklı) → §8.1'deki bölünmüş sürüm.
   Yapılacak: **§8.4 — Stop → Redeploy**, cleanup kutusu KAPALI.
 
-⚠️ **"Deploy 14 saniye" ifadesi (§10.5) yalnızca konteyner takasını
-anlatıyor.** Toplam süre derlemeyi de içeriyor ve bu makinede (2 çekirdek)
-uzun; "birkaç dakika geçti, bir şey bozuldu" diye karar verme, önce §8.5.
+### ⚠️ AYNI AKŞAM DÜZELTİLDİ: sebep "yavaş derleme" değildi
+
+Yukarıdaki paragrafta önce "toplam süre derlemeyi de içeriyor, 2 çekirdekte
+uzun" yazıyordu. Panel açılınca **kanıt bunu çürüttü**: Deployments
+listesinde o turun başarılı kaydı **00m 14s** sürmüştü. Yani 17 dakikanın
+tamamı **kuyrukta bekleme**ydi, derleme değil.
+
+Doğru tablo şöyle:
+
+| Durum | Süre |
+|---|---|
+| Katman önbelleği sıcak deploy | **~14 sn** |
+| `docker builder prune` sonrası sıfırdan derleme | **~4 dk** |
+| Kuyruk tıkalı (Redis yazamıyor) | **sınırsız** — hiç başlamaz |
+
+Ders: bir push canlıda görünmüyorsa **süreye bakma, kuyruğa bak.** §8.5'i
+koştur; "eski ama tutarlı" çıkıyorsa sorun derlemenin yavaşlığı değil,
+işin hiç başlamamış olmasıdır.
 
 ---
 
@@ -417,6 +432,57 @@ karardı ama temizliğin hiç koşmadığı anlamına da geliyordu.
 
 **Kalıcı çözüm:** Coolify'da zamanlanmış Docker temizliğini aç. Elle
 temizlik bir arıza müdahalesi olmalı, rutin değil.
+## 9.6 Tam kurtarma zinciri — 23 Ağustos 2026 akşamı (ölçüldü)
+
+Bu arıza tek bir komutla bitmedi; sıra önemliydi. Yaşanan tam dizi:
+
+| # | Belirti / işlem | Ölçüm |
+|---|---|---|
+| 1 | Push canlıya çıkmıyor | site 200/0,9s, API 200, §8.5 **tutarlı** → bölünmüş sürüm YOK, iş hiç başlamamış |
+| 2 | Coolify paneli 500 | `MISCONF Redis … unable to persist to disk` → §9.1 |
+| 3 | `docker image prune -af` | 622,6 MB |
+| 4 | `df -h /` | 7,4G boş / %80 — **ama saniyeler sonra 1019M / %98** |
+| 5 | `docker ps` | **derleme konteyneri YOK** → "In Progress" kaydı zombi |
+| 6 | Panelden **Cancel** | takılı kayıt kapandı, kuyruk açıldı |
+| 7 | `docker builder prune -af` | **6,297 GB** → 6,2G boş / %83 |
+| 8 | Redeploy #1 | **Failed**, 3m 47s, `Linting and checking validity of types` satırında |
+| 9 | Redeploy #2 | **başarılı** — aynı commit, değişiklik yok |
+
+### 9.6.1 Derleme düşerse: disk mi bellek mi
+
+8. adımdaki hata iki sebepten gelebilir ve ikisinin çözümü farklı.
+**Ayırt etmenin yolu, derleme SÜRERKEN diske bakmak:**
+
+\`\`\`bash
+df -h /
+\`\`\`
+
+O tur ölçüldü: derleme boyunca 6,2G → 5,1G, yani yalnızca ~1,1 GB yendi ve
+%86'da durdu. **Disk elendi, geriye bellek kaldı** — `next build`in tip
+kontrolü adımı 3,7 GB'lık makinenin tepe noktası.
+
+⚠️ Ama ikinci deneme **hiçbir şey değiştirmeden** geçti. Yani bu OOM
+kalıcı bir sınır değil, makine hâlâ toparlanırken (Redis yeni açılmış,
+prune yeni bitmiş) oluşan geçici bir tepe. **Önce bir kez daha dene.**
+
+Tekrar tekrar aynı satırda düşerse kalıcı çözüm hazır: `next.config.ts`
+zaten `NEXT_OUTPUT_STANDALONE === "1"` ile "yalnızca Docker derlemesinde"
+deseni kullanıyor (`output: standalone`). Aynı bayrağa bağlanacak iki satır
+tip kontrolünü sunucuda kapatır:
+
+\`\`\`
+typescript: { ignoreBuildErrors: isDockerBuild },
+eslint:     { ignoreDuringBuilds: isDockerBuild },
+\`\`\`
+
+Güvenlik kaybı sanıldığı kadar değil: aynı kontrolü yerel `next build`
+tam olarak yapıyor ve push öncesi `npx tsc --noEmit` + `npx eslint` zaten
+koşuluyor. 3,7 GB'lık sunucuda ikinci kez yapmanın tek getirisi deploy'u
+düşürmek. **Yine de ölçmeden uygulama** — bu turda gerekmedi.
+
+---
+
+
 
 ---
 

@@ -539,6 +539,31 @@ otonom uygulandı (81404c6).
   yedi, done-log'la ikinci deneme tamamladı); orijinaller
   `K:\KURONEXUS-uretim\bijuu-2026-08-22\orijinal\`.
 
+## 5l · 13 KARAKTER DENEYİM SAYFASI (23 Ağustos, otonom tur)
+
+Kullanıcı komutu: Itachi (14) sayfasını referans al, on iki tekil + bir ikili
+sayfa yaz, her biri ayrı worktree/dalda, şablon paylaşımı yasak.
+
+- **Sayfalar**: Naruto 17, Sasuke 13, Ichigo 5, Kakashi 85, Sakura 145,
+  Urahara 210, Shikamaru 2007, Aizen 1086, Jiraiya 2423, Hinata 1555,
+  Kenpachi 909, Rock Lee 306 + **kap sayfası** (Sukuna 133701 & Itadori
+  127212 → tek sayfa, iki adres, açılış modu adrese bağlı).
+- **Rota**: her deneyim karakteri kendi **statik** rota klasöründe
+  (`karakterler/17/`); `[characterId]` yeniden yalnız künye dossier'i.
+  Sebep ölçüldü — tek rotada toplandıklarında App Router bütün CSS
+  modüllerini o rotaya `<link>`liyordu: sayfa başına 19 stil dosyası /
+  718 KB, üstelik sade künye sayfaları da aynı yükü taşıyordu. `import()`
+  çözmedi; statik parça çözdü. Adresler değişmedi, sayı 7'ye indi.
+- **Renk**: 13 `[data-world]` derisi `globals.css`te, hepsi kontrast
+  ölçülerek; sayfa CSS'lerinde tek hex yok (kural 16).
+- **Görsel**: hero AniList portresi ya da kendi yüklediğimiz portre;
+  motifler elle çizilmiş SVG; dış raster yok. Sahne görselleri
+  üretilmedi — **188 `ABILITY` yuvası küratör modunu bekliyor**.
+- ⚠️ AniList GraphQL o gün kapalıydı (403); künyeler kendi 30 günlük
+  önbelleğimizden alındı. `getCharacter` bayat önbellek sunduğu için
+  canlıda sorun yok; `getCharacterCards` sunmuyor (bkz. devir notu).
+- Devir notu: `docs/DEVIR-2026-08-23-karakter-deneyim-sayfalari.md`
+
 ## 6 · AÇIK RİSKLER
 
 - Kurulum ucu canlıda admin tetiklemesi bekler; o güne kadar sergi AniList

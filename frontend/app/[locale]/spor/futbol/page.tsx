@@ -229,7 +229,7 @@ export default async function FootballHubPage({
         migrateNote: t("favourite.curator.migrateNote"),
       }}
     >
-      <main className={styles.page}>
+      <div className={styles.page}>
         <nav
           className={`${shell.crumb} ${styles.crumb}`}
           aria-label="breadcrumb"
@@ -346,7 +346,7 @@ export default async function FootballHubPage({
             </ul>
           </section>
         ) : null}
-      </main>
+      </div>
     </PlayerCuratorProvider>
   );
 }

@@ -165,7 +165,7 @@ export default async function SportLandingPage({
   const circuitCover = circuit?.coverImage ?? null;
 
   return (
-    <main className={styles.page}>
+    <div className={styles.page}>
       {/* Kırıntı: salon kimliğini taşıyan gezinme satırı. Diğer spor
           sayfalarıyla aynı desen — başlık üstü süs değil. */}
       <nav className={shell.crumb} aria-label="breadcrumb">
@@ -441,6 +441,6 @@ export default async function SportLandingPage({
           <SportCuratorSwitch />
         </section>
       ) : null}
-    </main>
+    </div>
   );
 }

@@ -141,7 +141,7 @@ export default async function AnimeHallPage({
         });
 
   return (
-    <main className={styles.page}>
+    <div className={styles.page}>
       <nav className={shell.crumb} aria-label="breadcrumb">
         <Link href="/dark-stories">KuroNexus</Link>
         <span className={shell.sep}>/</span>
@@ -418,6 +418,6 @@ export default async function AnimeHallPage({
           </li>
         </ul>
       </section>
-    </main>
+    </div>
   );
 }

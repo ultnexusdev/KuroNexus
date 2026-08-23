@@ -333,7 +333,7 @@ export default async function FavouritePlayerPage({
         migrateNote: t("favourite.curator.migrateNote"),
       }}
     >
-      <main
+      <div
         className={styles.page}
         data-voice={player.design.voice}
         data-hero={player.design.hero}
@@ -404,7 +404,7 @@ export default async function FavouritePlayerPage({
         </section>
 
         <MediaCredits credits={credits} label={t("favourite.credits")} />
-      </main>
+      </div>
     </PlayerCuratorProvider>
   );
 }

@@ -44,7 +44,7 @@ export async function AkatsukiPathDetail({
   const influence = hasInfluence ? t(`paths.${path.key}.influence`) : null;
 
   return (
-    <main className={styles.page} data-world="akatsuki">
+    <div className={styles.page} data-world="akatsuki">
       <CuratorFrame isAdmin={isAdmin}>
         <nav className={shell.crumb} aria-label="breadcrumb">
           <Link href="/dark-stories">KuroNexus</Link>
@@ -123,6 +123,6 @@ export async function AkatsukiPathDetail({
           ) : null}
         </section>
       </CuratorFrame>
-    </main>
+    </div>
   );
 }

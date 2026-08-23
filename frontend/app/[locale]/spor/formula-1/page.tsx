@@ -93,7 +93,7 @@ export default async function F1HubPage({
   const topWins = Math.max(1, ...winners.map((w) => w.wins));
 
   return (
-    <main className={styles.page}>
+    <div className={styles.page}>
       <nav className={shell.crumb} aria-label="breadcrumb">
         <Link href={sportHref.root()}>{t("backToSport")}</Link>
       </nav>
@@ -274,6 +274,6 @@ export default async function F1HubPage({
           {t("ledger.derived")} {t("circuit.source")}
         </p>
       ) : null}
-    </main>
+    </div>
   );
 }

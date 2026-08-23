@@ -47,7 +47,9 @@
      .veilSweep  kadrajı çapraz geçen ışık bandı
      .veilGrain  film graini
 
-   ⚠️ MOTİF SAYFADAN GELİYOR. `data-sig` özniteliği `<main>` üzerinde ve
+   ⚠️ MOTİF SAYFADAN GELİYOR. `data-sig` özniteliği sayfa kökündeki
+   sarmalayıcı `div` üzerinde (eskiden `<main>`di; iç içe main hatası
+   yüzünden değişti) ve
    `player.design.signature` değerini taşıyor. Yani Osimhen'in boş yuvası
    Taffarel'inkine benzemiyor — boşluk bile oyuncuya özel.
    ============================================================ */

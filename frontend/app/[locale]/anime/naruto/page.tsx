@@ -174,7 +174,7 @@ export default async function NarutoUniversePage() {
 
   return (
     <CuratorFrame isAdmin={isAdmin}>
-      <main className={styles.page}>
+      <div className={styles.page}>
         <nav className={shell.crumb} aria-label="breadcrumb">
           <Link href="/dark-stories">KuroNexus</Link>
           <span className={shell.sep}>/</span>
@@ -930,7 +930,7 @@ export default async function NarutoUniversePage() {
             </div>
           </section>
         ) : null}
-      </main>
+      </div>
     </CuratorFrame>
   );
 }

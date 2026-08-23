@@ -152,7 +152,7 @@ export default async function CircuitPage({
   );
 
   return (
-    <main className={styles.page}>
+    <div className={styles.page}>
       <nav className={shell.crumb} aria-label="breadcrumb">
         <Link href={sportHref.root()}>{t("backToSport")}</Link>
         <span className={shell.sep}>/</span>
@@ -388,6 +388,6 @@ export default async function CircuitPage({
           </Reveal>
         ) : null}
       </div>
-    </main>
+    </div>
   );
 }

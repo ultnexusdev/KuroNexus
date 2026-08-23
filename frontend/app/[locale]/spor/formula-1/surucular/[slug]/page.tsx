@@ -123,7 +123,7 @@ export default async function DriverPage({
   ).filter(([value]) => value > 0);
 
   return (
-    <main className={styles.page}>
+    <div className={styles.page}>
       <nav className={shell.crumb} aria-label="breadcrumb">
         <Link href={sportHref.root()}>{t("backToSport")}</Link>
         <span className={shell.sep}>/</span>
@@ -331,6 +331,6 @@ export default async function DriverPage({
           <p className={shell.prose}>{personalNote}</p>
         </Reveal>
       ) : null}
-    </main>
+    </div>
   );
 }

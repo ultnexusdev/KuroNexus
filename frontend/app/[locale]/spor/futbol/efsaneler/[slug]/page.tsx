@@ -117,7 +117,7 @@ export default async function LegendPage({
   ].filter(Boolean);
 
   return (
-    <main className={styles.page}>
+    <div className={styles.page}>
       <nav className={shell.crumb} aria-label="breadcrumb">
         <Link href={sportHref.root()}>{t("backToSport")}</Link>
         <span className={shell.sep}>/</span>
@@ -280,6 +280,6 @@ export default async function LegendPage({
           </Reveal>
         ) : null}
       </article>
-    </main>
+    </div>
   );
 }

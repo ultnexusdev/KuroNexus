@@ -204,7 +204,7 @@ export default async function LegendsIndexPage({
       initialImages={images}
       labels={curatorLabels}
     >
-      <main className={styles.page}>
+      <div className={styles.page}>
         <div className={styles.atmosphere} aria-hidden="true">
           <span className={styles.wash} />
           <span className={styles.scan} />
@@ -320,7 +320,7 @@ export default async function LegendsIndexPage({
             </ul>
           </section>
         ) : null}
-      </main>
+      </div>
     </PlayerCuratorProvider>
   );
 }

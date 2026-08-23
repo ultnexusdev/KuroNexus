@@ -82,7 +82,10 @@ export default async function BleachPlayground({
   ) as Record<LayerId, string>;
 
   return (
-    <main className={`${world.page} ${styles.page}`} data-world="bleach">
+    // `<main>` DEĞİL: kök düzen sayfayı zaten `<main id="icerik">` içine
+    // alıyor; ikinci bir main ekran okuyucunun sınır listesini bozuyordu.
+    // Site genelindeki aynı desen bu turda `div`e çevrildi.
+    <div className={`${world.page} ${styles.page}`} data-world="bleach">
       <DepthRail labels={labels} ariaLabel={t("railAria")} />
 
       <header className={`${world.band} ${styles.opening}`}>
@@ -139,6 +142,6 @@ export default async function BleachPlayground({
           </div>
         );
       })}
-    </main>
+    </div>
   );
 }

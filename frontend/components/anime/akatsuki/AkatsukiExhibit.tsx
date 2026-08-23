@@ -204,7 +204,7 @@ export async function AkatsukiExhibit({
   );
 
   return (
-    <main className={styles.page} data-world="akatsuki">
+    <div className={styles.page} data-world="akatsuki">
       {/* v3-A6 — KÜRASYON MODU: anahtar yalnızca admin'e çizilir; açıkken
           her görsel yuvasının altında "Görseli Değiştir" (URL + dosya)
           belirir. Dossier'deki CuratorFrame/CuratorSlot altyapısının
@@ -1146,6 +1146,6 @@ export async function AkatsukiExhibit({
         </section>
       ) : null}
       </CuratorFrame>
-    </main>
+    </div>
   );
 }

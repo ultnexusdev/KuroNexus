@@ -117,7 +117,7 @@ export default async function ClubWorldPage({
   const intro = pick(locale, club.narrativeTr, club.narrativeEn);
 
   return (
-    <main className={styles.page} data-club={clubSlug.toLowerCase()}>
+    <div className={styles.page} data-club={clubSlug.toLowerCase()}>
       <nav className={shell.crumb} aria-label="breadcrumb">
         <Link href={sportHref.root()}>{t("backToSport")}</Link>
         <span className={shell.sep}>/</span>
@@ -327,6 +327,6 @@ export default async function ClubWorldPage({
           </ul>
         </Reveal>
       ) : null}
-    </main>
+    </div>
   );
 }

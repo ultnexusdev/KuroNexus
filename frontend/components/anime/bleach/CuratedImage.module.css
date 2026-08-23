@@ -229,3 +229,20 @@
   letter-spacing: 0.08em;
   color: var(--text-muted);
 }
+
+/* ── KADRAJ DISARIDAN ─────────────────────────────────────────
+   `fill` verilince yuvanin orani yok sayiliyor ve cerceve ebeveyni
+   dolduruyor. Ilk kullanici hero: tek gorsel dort dikey seride
+   bolunuyor ve seridin orani yuvanin orani DEGIL.
+
+   ⚠️ Acik yukseklik verildigi icin `aspect-ratio` devre disi kaliyor
+   (CSS kurali: iki eksen de belliyse oran yok sayilir). Yine de acikca
+   `auto` yaziliyor — niyet okunur kalsin. */
+.frame[data-fill] {
+  height: 100%;
+}
+
+.frame[data-fill] .clip {
+  aspect-ratio: auto;
+  height: 100%;
+}

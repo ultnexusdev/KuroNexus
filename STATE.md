@@ -99,8 +99,28 @@
 > Router'da `_` önekli klasör rotadan çıkarılıyor (ölçüldü). `noindex`.
 > İskelet sayfadan link veriliyor.
 >
-> **⏭ SIRADAKİ: BÖLÜMLER.** P01 hero → P02 üç dünya → paralel worktree'lerde
-> P03–P16. Manifesto bölüm bölüm büyüyecek.
+> **⑨ P01 · RUHLARIN DENGESİ.** Hero yerinde. Naruto bir karakter görseliyle
+> açılıyor; Bleach bir **denge tablosuyla**: tek bedende dört ruhsal kimlik.
+> Dört `<CuratedImage>` **aynı yuvayı** çiziyor ve her şerit görselin dörtte
+> birini gösteriyor (şerit %25, çerçeve %400, kendi payı kadar kaydırılmış) —
+> tarayıcı tek dosya indiriyor. Bunun için `CuratedImage`'a **`fill`** eklendi:
+> kadraj dışarıdan gelince yuvanın oranı yok sayılıyor.
+>
+> Görsel yokken dört şerit dört **ışık kolonuna** dönüyor. İlk sürüm düz renk
+> dolgusuydu ve "dört gri kutu" gibi okunuyordu.
+>
+> ⚠️ **İki tasarım hatası yakalandı:** (a) dünya evrimi `scroll()` çizelgesi
+> kullanıyordu — o BELGENİN kaydırmasını ölçüyor, hero'nunkini değil; hero'ya
+> adlandırılmış `view-timeline: --hero` verildi. (b) Reishi konumları CSS
+> `mod()` ile türetiliyordu; desteklenmeyen tarayıcıda kırk parçacık aynı
+> noktaya yığılırdı — konum artık bileşende, deterministik formülle.
+>
+> Tek istemci adası imleç paralaksı; kaba işaretçide ve `reduced-motion`'da
+> hiç kurulmuyor. JS gelmezse hero eksiksiz çiziliyor.
+>
+> **⏭ SIRADAKİ: P02 · ÜÇ DÜNYA.** Beş katman + Senkaimon geçitleri; derinlik
+> rayı o turda ana sayfaya bağlanacak (bugün yalnızca playground'da).
+> Sonra paralel worktree'lerde P03–P16.
 >
 > ⚠️ `/anime/bleach` hiçbir yerden linkli değil ve `robots: noindex`. Hub
 > kartı P17 turunda ekleniyor.

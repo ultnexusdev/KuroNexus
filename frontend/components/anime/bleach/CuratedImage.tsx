@@ -61,6 +61,7 @@ export async function CuratedImage({
   decorative,
   noEdit,
   fallback,
+  fill,
 }: {
   /** `BLEACH_SLOTS` içindeki kimlik */
   slotId: string;
@@ -75,6 +76,18 @@ export async function CuratedImage({
   sizes?: string;
   /** Yuvanın varsayılan oranını BU çizimde ez (aynı görsel iki farklı kutuda) */
   ratio?: SlotRatio;
+  /**
+   * Oranı YOK SAY, ebeveyni doldur.
+   *
+   * Kadrajı dışarıdaki düzen belirlediğinde gerekiyor. İlk kullanıcı hero:
+   * tek görsel dört dikey şeride bölünüyor ve her şerit görselin dörtte
+   * birini gösteriyor — yani şeridin oranı yuvanın oranı DEĞİL. Aynı
+   * ihtiyaç Bankai nişlerinde ve Espada maske parçalarında da olacak.
+   *
+   * ⚠️ CLS sorumluluğu çağırana geçiyor: oran artık yuvadan gelmediği için
+   * ebeveynin kendi yüksekliğini bilmesi gerekiyor.
+   */
+  fill?: boolean;
   /** `typographic` yedeğinde basılacak işaret — kanji ya da tek harf */
   glyph?: string;
   /** `alt` boş basılır: yanında zaten okunabilir metin var */
@@ -144,6 +157,7 @@ export async function CuratedImage({
       style={{ "--slot-ratio": shownRatio.replace(":", " / ") } as React.CSSProperties}
       data-slot={slot.id}
       data-empty={source ? undefined : ""}
+      data-fill={fill ? "" : undefined}
       id={`slot-${slugify(slot.id)}`}
     >
       {/* Kırpma YALNIZCA burada. `.frame` taşmaya izin veriyor ki küratör

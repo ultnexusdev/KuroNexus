@@ -4,8 +4,9 @@ import { Link } from "@/lib/i18n/navigation";
 import { readIsAdmin } from "@/lib/auth/session";
 import { animeHref } from "@/lib/anime/routes";
 import { CuratorFrame } from "@/components/character/CuratorFrame";
-import { CuratedImage } from "@/components/anime/bleach/CuratedImage";
+import { BleachHero } from "@/components/anime/bleach/BleachHero";
 import { CuratorManifest } from "@/components/anime/bleach/CuratorManifest";
+import world from "@/components/anime/bleach/world.module.css";
 import shell from "../layout.module.css";
 import styles from "./page.module.css";
 
@@ -13,18 +14,22 @@ import styles from "./page.module.css";
  * `/anime/bleach` — BLEACH EVRENİ.
  *
  * ── BUGÜN NE VAR ─────────────────────────────────────────────────────────
- * Yalnızca KÜRATÖR ALTYAPISI (23 Ağustos 2026). Sayfanın tasarımı henüz
- * yok ve bilinçli olarak yok: tasarım sistemi (beş dünya paleti, derinlik
- * rayı, Senkaimon geçişi) ayrı bir turda kuruluyor. Bu iskelet altyapının
- * yaşayacağı yüzeyi veriyor ve yuva sözleşmesini gerçek bir sayfada sınıyor.
+ * Küratör altyapısı, tasarım sistemi ve **P01 · Ruhların Dengesi**.
+ * Kalan on yedi bölüm sırayla geliyor.
  *
- * ⚠️ SAYFA HİÇBİR YERDEN LİNKLİ DEĞİL. `/anime` hub'ındaki Bleach kartı P17
- * turunda ekleniyor; o güne kadar rota yalnızca adresi bilene açık.
+ * ⚠️ SAYFA HÂLÂ LİNKLİ DEĞİL — `/anime` hub'ındaki kart duruyor ama sayfa
+ * `noindex`. Bölümler oturana kadar arama motoruna girmiyor.
  *
  * ── KÜRATÖR SÖZLEŞMESİ ───────────────────────────────────────────────────
  * Sayfada çıplak `<Image>` YOK ve olmayacak. Her kadraj `<CuratedImage>`
  * üzerinden geçiyor; yuvanın oranı, işlem biçimi ve boşken ne çizeceği
  * manifestoda (`lib/anime/bleach/slots.ts`) yazılı.
+ *
+ * ── NEDEN `data-world="bleach"` KÖKTE ────────────────────────────────────
+ * Sayfanın taban derisi burada açılıyor; katmanlar kendi `data-layer`ını
+ * içeride taşıyor. Kanadın Bebas ölçeği de burada eziliyor
+ * (`world.module.css`) — Bleach'in sesi ince ve geniş aralıklı, kanadınki
+ * afiş kapitali; ikisi aynı sayfada duramaz.
  *
  * `force-dynamic` — küratör okumaları `no-store` ve yüklenen kare sayfa
  * tazelenince ANINDA görünmeli (Naruto Evreni'ndeki aynı karar).
@@ -41,7 +46,7 @@ export async function generateMetadata({
   return {
     title: t("title"),
     description: t("lede"),
-    /* Sayfa inşa hâlinde: arama motoruna girmesin. P18'de kaldırılacak. */
+    /* Bölümler tamamlanana kadar arama motoruna girmesin. P18'de kalkacak. */
     robots: { index: false, follow: false },
   };
 }
@@ -59,8 +64,12 @@ export default async function BleachUniversePage({
 
   return (
     <CuratorFrame isAdmin={isAdmin}>
-      <main className={styles.page} data-world="bleach">
-        <nav className={shell.crumb} aria-label="breadcrumb">
+      <main className={`${world.page} ${styles.page}`} data-world="bleach">
+        {/* Kırıntı yolu hero'nun ÜSTÜNDE değil içinde duramaz: hero tam
+            ekran bir sahne ve üstüne bir gezinme şeridi koymak onu
+            "sayfa başlığı"na indirger. Mutlak konumlu, sahnenin üzerinde
+            yüzüyor. */}
+        <nav className={styles.crumb} aria-label="breadcrumb">
           <Link href="/dark-stories">KuroNexus</Link>
           <span className={shell.sep}>/</span>
           <Link href={animeHref.hall()}>Anime</Link>
@@ -68,52 +77,18 @@ export default async function BleachUniversePage({
           <span>Bleach</span>
         </nav>
 
-        <header className={styles.opening}>
-          <p className={shell.eyebrow}>{t("eyebrow")}</p>
-          <h1 className={`${shell.display} ${shell.world}`}>{t("title")}</h1>
-          <p className={shell.lede}>{t("lede")}</p>
-          <p className={styles.note}>{t("note")}</p>
-          {/* Tasarım sistemi ayrı bir rotada deneniyor. Buradan link
-              veriliyor çünkü aksi hâlde adresi elle yazmak gerekiyor;
-              bölümler geldiğinde ikisi de gidiyor. */}
-          <p className={styles.note}>
+        <BleachHero locale={locale} />
+
+        {/* P02 gelene kadar iniş bağlantısının hedefi burası. Bölüm
+            geldiğinde `#living` gerçek katmana bağlanacak. */}
+        <section id="living" className={styles.pending}>
+          <p className={world.meta}>{t("pendingSections")}</p>
+          <p className={`${world.body} ${styles.note}`}>{t("note")}</p>
+          <p>
             <Link href="/anime/bleach/playground" className={styles.trialLink}>
               {t("playgroundLink")}
             </Link>
           </p>
-        </header>
-
-        {/* Yuva denemesi: üç farklı oran, üç farklı yedek davranışı.
-            Amaç süs değil ölçüm — manifestodaki sözleşmenin gerçek bir
-            sayfada tuttuğunu görmek. Bölümler geldiğinde bu blok gidiyor. */}
-        <section className={styles.trial} aria-labelledby="bleach-trial">
-          <h2 id="bleach-trial" className={styles.trialTitle}>
-            {t("slotsTitle")}
-          </h2>
-          <p className={styles.note}>{t("slotsLede")}</p>
-
-          {/* `decorative` YOK: bu üç kadrajın yanında onları anlatan bir metin
-              durmuyor, yani alt metin gerçekten gerekli. Küratör alt metni
-              yazmadıysa yuvanın adı kullanılıyor — boş `alt` bırakmaktan
-              iyisi, çünkü ekran okuyucu en azından ne olduğunu söylüyor. */}
-          <div className={styles.trialGrid}>
-            <CuratedImage
-              slotId="bleach:hero:ichigo"
-              className={styles.trialTall}
-              sizes="480px"
-            />
-            <CuratedImage
-              slotId="bleach:world:soul-society"
-              className={styles.trialWide}
-              sizes="960px"
-            />
-            <CuratedImage
-              slotId="bleach:legend:ichigo-kurosaki"
-              className={styles.trialTall}
-              sizes="480px"
-              glyph="護"
-            />
-          </div>
         </section>
 
         {/* Eksik görseller paneli — yalnızca yöneticide çiziliyor */}

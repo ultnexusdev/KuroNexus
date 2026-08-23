@@ -678,7 +678,57 @@ ezilemiyordu (pseudo-element ebeveynde). Bleach dokuyu kapatıyor: Kubo'nun
 negatif alanı dokusuz ve Hueco Mundo'nun beyaz zemininde gürültü kirli bir
 kâğıt izlenimi veriyordu.
 
-### 8.7 Sırada
+### 8.7 P01 — RUHLARIN DENGESİ (23 Ağustos 2026) ✅
+
+**TEZ.** Naruto Evreni bir karakter görseliyle açılıyor; Bleach böyle
+açılmıyor. Hero bir **denge tablosu**: tek bedende dört ruhsal kimlik.
+Görsel dört dikey şeride bölünüyor, her şerit bir kimliğin rengini alıyor
+ve şeritler hafifçe kaymış (0 / −6 / +4 / −2 px) — kırık ayna.
+
+**TEK GÖRSEL, DÖRT ŞERİT.** Dört `<CuratedImage>` **aynı yuvayı** çiziyor
+(`bleach:hero:ichigo`); her şerit %25 genişlikte, içindeki çerçeve %400 ve
+kendi payı kadar sola kaydırılmış. Tarayıcı tek dosya indiriyor. Kalem
+düğmesi yalnızca ilk şeritte — dört kalem aynı yuvayı düzenlerdi.
+
+Bunun için `CuratedImage`'a **`fill`** eklendi: yuvanın oranını yok say,
+ebeveyni doldur. Kadraj dışarıdan geldiğinde gerekiyor; aynı ihtiyaç
+Bankai nişlerinde ve Espada maske parçalarında da olacak.
+
+**GÖRSEL YOKKEN.** Dört şerit dört **ışık kolonuna** dönüyor: kimlik rengi
+üstte, dibe doğru boşluğa karışıyor. İlk sürüm düz renk dolgusuydu ve
+sonuç "dört gri kutu" gibi okunuyordu — renkler doğruydu ama yan yana dört
+dikdörtgen bir kompozisyon kurmuyordu.
+
+**ARKA SAHNE.** Üç katman tek yapışkan kutunun içinde: dört dünya silüeti
+(Karakura → Seireitei → Las Noches → Silbern, inline SVG), Garganta yarığı
+ve 40 reishi parçacığı. Ayrı ayrı yapışkan yapılsalardı üçü birbirinden
+bağımsız kayardı.
+
+⚠️ **İki tasarım hatası yakalandı ve düzeltildi:**
+1. Dünya evrimi `animation-timeline: scroll()` kullanıyordu — o çizelge
+   **belgenin** kaydırmasını ölçüyor, hero'nunkini değil; dört dünya sayfanın
+   tamamına yayılıyor ve hero'dan çıkıldıktan sonra hâlâ geçiş yapıyorlardı.
+   Hero'ya adlandırılmış `view-timeline: --hero` verildi.
+2. Reishi konumları CSS'te `mod()` ile türetiliyordu. `mod()` desteklenmeyen
+   tarayıcıda bildirim tümden geçersiz olur ve **kırk parçacık aynı noktaya
+   yığılır**. Konum/süre artık bileşende hesaplanıyor — deterministik
+   formül, `Math.random` yok (hidrasyon uyuşmazlığı).
+
+**TEK İSTEMCİ ADASI** imleç paralaksı: `pointermove` → rAF ile kısılmış iki
+CSS değişkeni. React state'i kullanılmadı; her harekette dört `<Image>`
+taşıyan bir ağacı yeniden çizmek anlamsızdı. Kaba işaretçide ve
+`prefers-reduced-motion`'da **hiç kurulmuyor**.
+
+**Kabul ölçütleri.** JS gelmezse hero eksiksiz çiziliyor (paralaks
+değişkenleri 0 kalır). Boş yuvada `<img>` hiç basılmıyor — sayfada tek
+`<img>` var, o da site logosu. 360px'te şerit ~80px (alt sınır 44px).
+`reduced-motion`'da paralaks yok, partikül yok, dünya evrimi ilk silüette
+donuyor; kırık ayna kayması **kalıyor** — o hareket değil, kompozisyon.
+
+⚠️ **LCP:** yuva `eager: true` taşıyor, yani görsel geldiğinde `priority`
+ile inecek. Bugün yuva boş; LCP elemanı wordmark.
+
+### 8.8 Sırada
 
 `/anime/bleach` iskelet olarak duruyor ve **hiçbir yerden linkli değil**
 (`robots: noindex`). Sıradaki tur **P-TOKENS**: beş dünya paleti, derinlik

@@ -1049,6 +1049,26 @@ html {
      dokusuz. Hueco Mundo'nun beyaz zemininde ozellikle sart — orada
      gurultu kirli bir kagit izlenimi veriyordu. */
   --an-noise: 0;
+
+  /* ── DORT RUHSAL KIMLIK (P01) ────────────────────────────────────
+     Hero bir DENGE tablosu: tek bedende dort kimlik. Her serit kendi
+     rengini buradan aliyor.
+
+     Renkler dunyalardan ODUNC ALINIYOR ve bu kasitli — kimlik ile
+     dunya ayni sey degil ama ayni palette konusuyorlar:
+       shinigami → Seireitei aksani (haori astari kizili)
+       hollow    → Hueco Mundo zemini (kemik beyazi)
+       quincy    → Wandenreich parlamasi (buz mavisi)
+       human     → kul; renksizlik kimligin KENDISI, eksiklik degil
+
+     ⚠️ Katman bloklarindaki degerler kopyalandi, `var()` ile
+     baglanmadi: hero HICBIR katmanin icinde degil (sayfanin acilisi,
+     `[data-world="bleach"]` derisinde) ve oradan katman token'lari
+     okunamaz. Deger degisirse iki yerde birden degismeli. */
+  --soul-shinigami: #BA1B23;
+  --soul-hollow:    #EFEDE7;
+  --soul-quincy:    #8FB8D6;
+  --soul-human:     #8E8B84;
 }
 
 /* 現世 KARAKURA — gece + yagmur + sodyum lambasi */

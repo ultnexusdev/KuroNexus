@@ -1491,13 +1491,11 @@
         "placeholderNote": "Yer tutucu — kendi karenle değiştir"
       },
       "scaffold": {
-        "eyebrow": "Anime · Evren Kaydı",
         "title": "BLEACH EVRENİ",
         "lede": "Her ruh bir gölge bırakır. Her kılıcın bir adı vardır.",
-        "note": "Bu sayfa inşa hâlinde. Şu an yalnızca küratör altyapısı yerinde: yuva manifestosu, tek tek düzenlenebilir kadrajlar ve eksik görseller paneli. Bölümler tasarım sistemi kurulduktan sonra geliyor.",
-        "slotsTitle": "Yuva denemesi",
-        "slotsLede": "Aşağıdaki üç kadraj gerçek yuvalar. Küratör modunu açıp doldurabilirsin.",
-        "playgroundLink": "Tasarım sistemi denemesini aç →"
+        "note": "Hero yerinde. Beş katman, Gotei 13, Zanpakutō arşivi ve kalan bölümler sırayla geliyor. Tasarım sistemi ayrı bir rotada denenebilir.",
+        "playgroundLink": "Tasarım sistemi denemesini aç →",
+        "pendingSections": "P02 · ÜÇ DÜNYA — YAPIM AŞAMASINDA"
       },
       "world": {
         "railAria": "Ruhsal katmanlar",
@@ -1511,6 +1509,19 @@
         "playgroundTitle": "Tasarım sistemi denemesi",
         "playgroundNote": "Bu rota içerik taşımıyor: beş dünya paletini, derinlik rayını ve Senkaimon geçişini bir arada sınıyor. Bölümler ayrı turda geliyor.",
         "scaleTitle": "Tipografi ölçeği"
+      },
+      "hero": {
+        "eyebrow": "EVERY SOUL LEAVES A SHADOW",
+        "title": "BLEACH",
+        "subtitle": "THE CYCLE OF SOULS",
+        "lede": "Yaşam ve ölüm arasındaki denge, binlerce yıldır görünmeyen bir savaşın üzerinde duruyor.",
+        "descend": "Aşağı in",
+        "identities": {
+          "shinigami": "Shinigami",
+          "hollow": "Hollow",
+          "quincy": "Quincy",
+          "human": "İnsan"
+        }
       }
     }
   },

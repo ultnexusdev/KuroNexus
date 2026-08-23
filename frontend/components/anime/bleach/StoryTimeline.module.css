@@ -1,0 +1,298 @@
+/* ============================================================
+   P16 · HIKAYE CIZELGESI — sayfanin kapanisi
+
+   Klasik bir arc zaman cizelgesi degil: hikaye Ichigo'nun KILICININ
+   degisimi uzerinden anlatiliyor. Bes arc, bes kilic, bes renk.
+
+   ⚠️ KURAL 16: bu dosyada tek hex yok. Zemin `[data-layer]`den,
+   kilicin rengi ise satir ici `--arc-N` degiskenlerinden geliyor --
+   arc rengi bir tema token'i degil VERI (gerekcesi timeline.ts'te).
+
+   ⚠️ BU DOSYADA `overflow: hidden` YOK: kilic `position: sticky` ve
+   ustundeki bir tasma kirpmasi onu kaydirma kabina cevirirdi.
+   ============================================================ */
+
+.section {
+  position: relative;
+  isolation: isolate;
+  padding-block: clamp(4rem, 12vh, 9rem) 0;
+  background: var(--bg);
+  color: var(--text-primary);
+}
+
+.head {
+  width: var(--band);
+  margin-inline: auto;
+  padding-inline-end: var(--rail);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(0.6rem, 1.6vw, 1.1rem);
+  margin-bottom: clamp(2rem, 6vh, 4rem);
+}
+
+.head p {
+  margin: 0;
+}
+
+.lede {
+  max-width: calc(var(--measure) / 1.4);
+}
+
+/* Bes arc'a duz capalar */
+.index {
+  width: 100%;
+  margin-top: clamp(0.6rem, 2vh, 1rem);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.index::-webkit-scrollbar {
+  display: none;
+}
+
+.indexList {
+  list-style: none;
+  margin: 0;
+  padding: 0.8rem 0 0;
+  display: flex;
+  gap: clamp(0.8rem, 2.5vw, 2rem);
+  border-top: 1px solid var(--hairline);
+}
+
+.indexLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  white-space: nowrap;
+  font-family: var(--b-kubo);
+  font-weight: 300;
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 200ms ease-out;
+}
+
+.indexLink:hover,
+.indexLink:focus-visible {
+  color: var(--text-primary);
+}
+
+/* ── SAHNE ───────────────────────────────────────────────────
+   Solda yapiskan kilic, sagda kayan arc metinleri. */
+.stage {
+  position: relative;
+  width: var(--band);
+  margin-inline: auto;
+  padding-inline-end: var(--rail);
+  display: grid;
+  grid-template-columns: clamp(9rem, 22vw, 16rem) minmax(0, 1fr);
+  column-gap: clamp(1.5rem, 5vw, 4rem);
+  align-items: start;
+
+  /* Kilicin morph zaman cizelgesi: sahnenin tamami boyunca */
+  view-timeline-name: --story;
+  view-timeline-axis: block;
+}
+
+.bladeCol {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Yapiskan sayfa basligi kilici tepeden kirpmasin */
+  padding-block: clamp(3rem, 8vh, 5rem);
+}
+
+.bladeBox {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.blade {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* ── MORPH ───────────────────────────────────────────────────
+   ⚠️ TEK PATH, BES BICIM. `d` CSS'ten gecislenebiliyor ve bes bicim
+   ayni komut dizisinden uretildigi icin tarayici ara kareleri kendisi
+   cikariyor (`bladePath`, P04).
+
+   ⚠️ KISAYOL DEGIL UZUN YAZIM: `animation: ...` kisayolu sureyi 0s'e
+   sabitler; ilerleme tabanli zaman cizelgesinde sure `auto` kalmali. */
+.bladePath {
+  fill: var(--arc-0);
+  animation-name: forge;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+  animation-timeline: --story;
+  animation-range: contain 0% contain 100%;
+}
+
+@keyframes forge {
+  0% {
+    d: var(--blade-0);
+    fill: var(--arc-0);
+  }
+  25% {
+    d: var(--blade-1);
+    fill: var(--arc-1);
+  }
+  50% {
+    d: var(--blade-2);
+    fill: var(--arc-2);
+  }
+  75% {
+    d: var(--blade-3);
+    fill: var(--arc-3);
+  }
+  100% {
+    d: var(--blade-4);
+    fill: var(--arc-4);
+  }
+}
+
+/* ── ARC'LAR ─────────────────────────────────────────────────
+   ⚠️ Ekrandan uzun olmak ZORUNDA: yapiskan kilicin sabit durdugu bir
+   pencere ancak arc ekrandan uzunsa olusur (P07'de olculdu). */
+.arcs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.arc {
+  position: relative;
+  min-height: 120svh;
+  display: flex;
+  align-items: center;
+  background: var(--bg);
+  color: var(--text-primary);
+  /* Zemin degisimi arc'in kenarinda SERT: ara ton "hangi arc'tayim"
+     sorusunu bulaniklastirirdi (P12 ve P15'in ayni karari). */
+  padding-block: clamp(2.5rem, 8vh, 5rem);
+  /* Kilic sutunu solda; arc kutusu kendi zeminini tam genislikte
+     boyayabilsin diye tasma ile disari cikiyor. */
+  margin-left: calc(clamp(9rem, 22vw, 16rem) * -1 - clamp(1.5rem, 5vw, 4rem));
+  padding-left: calc(clamp(9rem, 22vw, 16rem) + clamp(1.5rem, 5vw, 4rem));
+}
+
+.arcInner {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.4rem, 1.4vh, 0.8rem);
+  max-width: var(--measure);
+}
+
+.arc p {
+  margin: 0;
+}
+
+.arcIndex {
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  line-height: 0.8;
+  color: var(--arc);
+  opacity: 0.8;
+}
+
+.arcName {
+  margin: 0;
+  font-family: var(--b-kubo);
+  font-weight: 200;
+  font-size: clamp(1rem, 2.4vw, 1.8rem);
+  letter-spacing: 0.36em;
+  margin-inline-end: -0.36em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.arcBlade {
+  color: var(--text-muted);
+}
+
+.arcText {
+  margin-top: clamp(0.4rem, 1.4vh, 0.8rem);
+}
+
+/* ── MOTTO ───────────────────────────────────────────────────
+   ⚠️ Brief: "Motto ekrani en az 60vh bosluk tasir. Doldurmaya calisma."
+   Burada baska hicbir sey yok ve olmayacak. */
+.motto {
+  min-height: 78svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  text-align: center;
+  padding-inline: var(--gutter);
+  background: var(--bg);
+}
+
+.mottoLine {
+  margin: 0;
+  font-family: var(--b-kubo);
+  font-weight: 200;
+  font-size: clamp(0.85rem, 2vw, 1.35rem);
+  letter-spacing: 0.4em;
+  margin-inline-end: -0.4em;
+  line-height: 2.1;
+  color: var(--text-secondary);
+}
+
+/* ── DAR EKRAN ───────────────────────────────────────────────
+   Kilic metnin ustune geciyor ve yapiskanliktan cikiyor: dar ekranda
+   yarim ekranlik bir kilic metne yer birakmiyordu. */
+@media (max-width: 900px) {
+  .head,
+  .stage {
+    padding-inline-end: 0;
+  }
+
+  .stage {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: clamp(1rem, 3vh, 2rem);
+  }
+
+  .bladeCol {
+    position: static;
+    height: auto;
+    padding-block: 0;
+  }
+
+  .bladeBox {
+    height: clamp(12rem, 34vh, 18rem);
+  }
+
+  .arc {
+    min-height: 0;
+    margin-left: 0;
+    padding-left: 0;
+  }
+
+  .motto {
+    min-height: 62svh;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .indexLink {
+    transition: none;
+  }
+
+  /* Kilic tek bir bicimde duruyor; arc'lar arasinda gezinmenin yolu
+     basliktaki bes capa (brief'in kendi yedegi). */
+  .bladePath {
+    animation-name: none;
+  }
+}

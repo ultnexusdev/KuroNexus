@@ -7,8 +7,13 @@
 
 ## ⌂ DEVİR — SIRADAKİ OTURUM BURADAN BAŞLASIN (23 Ağustos 2026)
 
-**Durum:** Küratör altyapısı + P-TOKENS + **P01–P15 canlıda.**
-**Sıradaki:** **P16 · Hikâye Çizelgesi.** Brief'in kendi metni ana kaynak.
+**Durum:** Küratör altyapısı + P-TOKENS + **P01–P16 canlıda.** Sayfanın
+bütün anlatı bölümleri bitti; kalan ikisi entegrasyon işi.
+**Sıradaki:** **P17 · Anime Hub Giriş Kartı**, sonra **P18 · QA /
+performans / entegrasyon.**
+⚠️ **P18'de `robots: noindex` KALKACAK** — sayfa o güne kadar arama
+motoruna kapalı (`page.tsx` içinde yazılı). P17 hub kartını bağlarken
+bunu unutma.
 ⚠️ **Bölüm hakkında tahmin yazma.** P15'te bu blokta duran "görsel
 ağırlıklı olacak" tahmini, brief'in "görsel yok, burası nefes alma alanı"
 kararıyla çelişti. Önce brief'i oku, sonra karar ver.
@@ -1636,7 +1641,49 @@ koymak okuyucuyu kaybettirirdi.
 iniyor, beş deri aynen kalıyor (tema kayması bölümün tezi), taşma yok.
 Rota paketi 26,8 → 27 kB.
 
-### 8.22 Sırada
+### 8.22 P16 — KILICIN ÇİZELGESİ (23 Ağustos 2026) ✅
+
+**TEZ.** Klasik bir arc zaman çizelgesi DEĞİL. Hikâye **Ichigo'nun
+kılıcının değişimi** üzerinden anlatılıyor: zaman çizelgesi ve karakter
+gelişimi tek tasarımda birleşiyor. Beş arc, beş kılıç, beş renk — ve
+sayfanın kapanışı.
+
+⚠️ **KILIÇ GERÇEKTEN MORPH EDİYOR VE BUNU MÜMKÜN KILAN ŞEY P04'TÜ.**
+Ekranın ortasında **tek bir path** var; `d` özelliği kaydırmaya bağlı bir
+animasyonla beş biçim arasında geçiyor. Beş biçimi ayrı ayrı çizmek bunu
+imkânsız kılardı — iki path ancak **aynı komut dizisine** sahipse
+birbirine dönüşür. Bu yüzden yeni bir kılıç grameri yazılmadı:
+`BladeSilhouette`in `bladePath()` şablonu (dokuz düğüm, altı sayı) aynen
+kullanıldı. **O dosya tam olarak bunun için vardı.**
+
+⚠️ **VERİ `@keyframes`E SATIR İÇİ DEĞİŞKENLE GİRDİ.** Arc renkleri bir
+tema token'ı değil VERİ ve veri CSS dosyasına yazılmaz (kural 16). Çözüm:
+`--blade-0…4` ve `--arc-0…4` bileşenden satır içi geliyor, keyframes
+`var()` ile okuyor. Doğrulandı — beş keyframe de
+`d: var(--blade-N); fill: var(--arc-N)` olarak ayrıştı, `--blade-0`
+gerçek bir `path("M46.6 200 …")` değerine çözüldü ve path'e **bir
+animasyon bağlandı**.
+
+**Zemin arc'a göre kayıyor** ve geçişler sert (P12/P15'in aynı kararı).
+Ölçüldü: living → soul-society → hueco (beyaz) → **living** →
+wandenreich. ⚠️ Dördüncüsü tekrar `living` ve bu bir hata değil arc'ın
+kendisi: The Lost Agent baştan sona Karakura'da geçiyor — Ichigo gücünü
+kaybediyor ve hikâye eve dönüyor.
+
+⚠️ **ARC'LAR EKRANDAN UZUN OLMAK ZORUNDA** (`min-height: 120svh`):
+yapışkan kılıcın sabit durduğu bir pencere ancak öyle oluşuyor. P07'de
+ölçülen aynı kural.
+
+**MOTTO EKRANI DOLDURULMADI.** Brief: "en az 60vh boşluk taşır,
+doldurmaya çalışma." Ölçüldü: masaüstünde **78vh**, 360px'te **62vh**, ve
+içinde iki satırdan başka hiçbir şey yok.
+
+**Sıfır JS.** Morph `animation-timeline: view()`, zemin nitelik +
+kalıtım, arc'lar arası geçiş başlıktaki beş çapa — brief'in
+`reduced-motion` yedeği ("beş sabit görsel, tıklayarak arc değiştirme")
+her kipte zaten karşılanıyor. Rota paketi 27 → 27,4 kB.
+
+### 8.23 Sırada
 
 `/anime/bleach` iskelet olarak duruyor ve **hiçbir yerden linkli değil**
 (`robots: noindex`). Sıradaki tur **P-TOKENS**: beş dünya paleti, derinlik

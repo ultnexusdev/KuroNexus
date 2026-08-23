@@ -1493,9 +1493,9 @@
       "scaffold": {
         "title": "BLEACH EVRENİ",
         "lede": "Her ruh bir gölge bırakır. Her kılıcın bir adı vardır.",
-        "note": "Hero, beş katman ve on beş bölüm yerinde. Kalan bölümler sırayla geliyor.",
+        "note": "Hero, beş katman ve on altı bölüm yerinde. Kalan iki bölüm sırayla geliyor.",
         "playgroundLink": "Tasarım sistemi denemesini aç →",
-        "pendingSections": "P16 · HİKÂYE ÇİZELGESİ — YAPIM AŞAMASINDA"
+        "pendingSections": "P17 · ANİME HUB KARTI — YAPIM AŞAMASINDA"
       },
       "world": {
         "railAria": "Ruhsal katmanlar",
@@ -1659,6 +1659,13 @@
         "eyebrow": "KEY LOCATIONS",
         "title": "Mekânlar",
         "lede": "Mekânlar dünyalarına göre duruyor ve her grup kendi dünyasının derisini giyiyor. Aşağı inerken sayfa beş kez daha renk değiştiriyor — bu bölüm sayfanın kendi özeti."
+      },
+      "timeline": {
+        "eyebrow": "THE STORY TIMELINE",
+        "title": "Kılıcın Çizelgesi",
+        "lede": "Bir arc listesi değil. Hikâyeyi Ichigo'nun kılıcının değişimi anlatıyor: aşağı indikçe ekranın ortasındaki bıçak biçim değiştiriyor ve zemin o dönemin rengine geçiyor.",
+        "indexAria": "Beş arc",
+        "arcsAria": "Hikâyenin beş arc'ı, sırayla"
       }
     }
   },

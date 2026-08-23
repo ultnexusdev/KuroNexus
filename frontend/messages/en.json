@@ -1493,9 +1493,9 @@
       "scaffold": {
         "title": "THE WORLD OF BLEACH",
         "lede": "Every soul leaves a shadow. Every blade has a name.",
-        "note": "The hero, the five layers and fifteen sections are in place. The remaining sections arrive in turn.",
+        "note": "The hero, the five layers and sixteen sections are in place. The remaining two sections arrive in turn.",
         "playgroundLink": "Open the design system trial →",
-        "pendingSections": "P16 · THE STORY TIMELINE — UNDER CONSTRUCTION"
+        "pendingSections": "P17 · ANIME HUB CARD — UNDER CONSTRUCTION"
       },
       "world": {
         "railAria": "Spiritual layers",
@@ -1659,6 +1659,13 @@
         "eyebrow": "KEY LOCATIONS",
         "title": "Key Locations",
         "lede": "The places are kept in their own worlds, and each group wears that world's skin. Scrolling down, the page changes colour five more times — this section is the page's own summary."
+      },
+      "timeline": {
+        "eyebrow": "THE STORY TIMELINE",
+        "title": "The Timeline of the Blade",
+        "lede": "Not a list of arcs. The story is told through the change in Ichigo's sword: as you descend, the blade at the centre of the screen changes shape and the ground turns the colour of that era.",
+        "indexAria": "The five arcs",
+        "arcsAria": "The five arcs of the story, in order"
       }
     }
   },

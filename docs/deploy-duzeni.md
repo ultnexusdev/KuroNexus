@@ -197,3 +197,111 @@ Tek kanca var; Coolify onu içeride iki uygulamaya dağıtıyor.
 **Tam kanıt gerekirse** (bu tur gerekmedi): `frontend/` içine zararsız bir
 yorum satırı commit'leyip push et. Frontend deploy başlar **ve** backend
 başlamazsa hem webhook hem Watch Paths kanıtlanmış olur.
+
+---
+
+# 4 · Rolling update takılması → BÖLÜNMÜŞ SÜRÜM (23 Ağustos 2026)
+
+> ⚠️ Bu, §1–2'deki RAM çöküşünden **farklı bir arıza sınıfı.** Sunucu
+> sağlıklıydı: site 0.7 saniyede cevap veriyordu, iki konteyner de
+> milisaniyelerde `Ready` oluyordu. Bellekle ilgisi yok.
+
+## 4.1 Belirti
+
+`8f8fb76` (P03) push'unda deployment logu şurada durdu ve 22 dakika hiç
+ilerlemedi:
+
+```
+11:53:17  Building docker image completed.
+11:53:19  Rolling update started.
+          (bundan sonrası yok)
+```
+
+Dışarıdan bakınca "deploy çok uzun sürüyor" gibi görünüyor. Değil.
+
+## 4.2 Gerçekte olan
+
+Coolify yeni konteyneri başlattı, konteyner sorunsuz ayağa kalktı
+(`Ready in 508ms`), **ama Coolify trafiği ona çevirip eskisini durdurmadı.**
+İş orada asılı kaldı.
+
+Bu aşamada uygulama Logs sekmesinde **iki konteyner** görünür:
+
+```
+qy5pumcarapuqr90z6ljcry8-111637833943   ← eski (11:16, P02)
+qy5pumcarapuqr90z6ljcry8-114907800612   ← yeni (11:49, P03)
+```
+
+## 4.3 ⚠️ EN ÖNEMLİ KISIM — Cancel yetmiyor
+
+`Cancel` yalnızca **yardımcı** konteyneri siliyor:
+
+```
+[CMD]: docker rm -f dx0j33r6cgdhazkbsu2alyrf
+Deployment cancelled by user.
+```
+
+Uygulama konteyneri **yerinde kalıyor** ve Traefik ikisine birden yük
+dağıtmaya devam ediyor. Ölçüldü — aynı adrese üç ardışık istek:
+
+```
+istek1: P03 yok   (eski konteyner)
+istek2: P03 VAR   (yeni konteyner)
+istek3: P03 yok   (eski konteyner)
+```
+
+**Bu sadece "tutarsız içerik" değil.** Next.js varlık adresleri build
+kimliği taşıyor: A konteynerinden gelen HTML, B'nin
+`/_next/static/…` dosyasını isteyip **404 alıyor**. O ziyaretçi sayfayı
+CSS'siz ve JS'siz görüyor. Yani bölünmüş durum rastgele bozuk sayfa üretiyor
+ve bu, tek bir eski sürüm servis etmekten kötü.
+
+## 4.4 Çözüm
+
+**1. Stop** — bütün konteynerleri kaldırır.
+
+> ⚠️ **"Run Docker Cleanup (remove unused images and builder cache)"
+> kutusunun işaretini KALDIR.** Konteyner durduğu anda az önce derlenmiş
+> imaj "kullanılmıyor" sayılır ve cleanup onu siler. Builder cache de
+> gittiği için sonraki derleme katman önbelleği olmadan sıfırdan koşar:
+> bir dakikanın altında bitecek kesinti beş-altı dakikaya çıkar.
+
+**2. Redeploy** — imaj diskte durduğu için derleme adımı atlanır.
+
+Stop'tan sonra ortada eski konteyner kalmadığı için Coolify rolling update
+yolunu hiç kullanmaz; takılan adım tamamen devre dışı kalır.
+
+**Ölçülen sonuç (23.08):** tek konteyner, altı ardışık istek aynı sürüm,
+CSS + JS chunk + woff2 üçü de 200, dokuz rota 200 / ~0.7s.
+
+## 4.5 Nasıl tespit edilir — panele bakmadan
+
+```bash
+for i in 1 2 3; do curl -s https://kuronexus.com/anime/bleach | grep -c "THE THIRTEEN GATES"; done
+```
+
+Üç satır aynı değilse bölünmüş sürüm var. (Belirteci o an canlıda olması
+gereken en yeni bölümden seç.)
+
+## 4.6 Tekrarlarsa
+
+Bir kez yaşandı ve `Stop → Redeploy` ile kapandı; ayar değiştirilmedi.
+İkinci kez olursa `Configuration → Advanced` altındaki rolling update
+kapatılacak. 3.7 GB'lık ve tek konteynerli bir kurulumda rolling update'in
+kazancı zaten küçük: karşılığında birkaç saniyelik kesinti alınır ama
+bellek tepesi yarıya iner ve bu arıza sınıfı kökten kalkar.
+
+## 4.7 Healthcheck notu
+
+Frontend healthcheck'i **kapalı** ve bu arızanın sebebi o değildi
+(kontrol edildi). İleride açılırsa:
+
+- **Port `3000` yazılmalı.** Coolify'ın alandaki `80` yalnızca yer
+  tutucudur; olduğu gibi bırakılırsa kontrol her seferinde düşer.
+- İmaj `node:24-slim` ve içinde **`curl` da `wget` de yok**. Konteyner içi
+  komut tipi bir kontrol çalışmaz; HTTP tipi (Coolify'ın kendi tarafından
+  attığı) çalışır. Konteyner içi kontrol şart olursa `node` ile yazılmalı:
+
+  ```
+  node -e "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+  ```

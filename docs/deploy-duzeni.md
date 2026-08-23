@@ -310,6 +310,39 @@ Frontend healthcheck'i **kapalı** ve bu arızanın sebebi o değildi
   ```
   node -e "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
   ```
+## 8.8 Deploy TAKILDI ama bölünmüş sürüm YOKTU (23 Ağustos 2026, akşam)
+
+§10'daki "Consistent Container Names" ayarı açıkken de bir push canlıya
+çıkmadı. Bu **§8.1'deki arıza değil** — ayırt etmek önemli, çünkü çözümleri
+farklı.
+
+**Ölçülen (dışarıdan, panele bakmadan):**
+
+| | |
+|---|---|
+| Push | 21:19:36, `3d086c7` (P18-a). Yalnızca `frontend/**` + `docs/` → Watch Paths gereği **tek** derleme |
+| 17 dakika sonra | site **200 / 0,9s**, API **200 / 0,4s** — yani OOM yok, §1–§2 senaryosu değil |
+| §8.5 testi | üç ardışık istek **aynı** (667325 B, yeni belirteç 0) → **bölünmüş sürüm YOK**, tek ve eski sürüm |
+
+**Çözüm:** panelden **Cancel → elle Deploy**. Sonrası temiz ölçüldü: altı
+ardışık istek aynı build, CSS + JS chunk + woff2 üçü de 200.
+
+### Ayırt etme kuralı — bu bölümün asıl kazancı
+
+Bir push canlıda görünmüyorsa §8.5'i koştur ve iki sonucu ayır:
+
+- **"Eski sürüm ama TUTARLI"** (bütün istekler aynı) → derleme sürüyor ya da
+  takılmış. Yapılacak: bekle, geçmiyorsa **Cancel → Deploy**.
+- **"Sürüm sürümden farklı"** (istekler farklı) → §8.1'deki bölünmüş sürüm.
+  Yapılacak: **§8.4 — Stop → Redeploy**, cleanup kutusu KAPALI.
+
+⚠️ **"Deploy 14 saniye" ifadesi (§10.5) yalnızca konteyner takasını
+anlatıyor.** Toplam süre derlemeyi de içeriyor ve bu makinede (2 çekirdek)
+uzun; "birkaç dakika geçti, bir şey bozuldu" diye karar verme, önce §8.5.
+
+---
+
+
 
 ---
 

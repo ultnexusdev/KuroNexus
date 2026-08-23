@@ -1560,6 +1560,14 @@
         "back": "Go back",
         "innerAria": "Inner world",
         "stripAria": "Zanpakutō transformation strips"
+      },
+      "bankai": {
+        "eyebrow": "BANKAI HALL",
+        "title": "Bankai Hall",
+        "lede": "A dark corridor. Closed silhouettes stand in the wall niches and none of them is named — a Bankai is a secret. The name appears only when light falls on it. Walk to the right.",
+        "corridorAria": "Bankai corridor",
+        "advance": "Advance",
+        "reveal": "Light the niche"
       }
     }
   },

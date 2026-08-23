@@ -893,7 +893,58 @@ temizlenmezse sayfayı kalıcı olarak okunamaz bırakır. Escape kapatıyor,
 odak açan düğmeye dönüyor, gövde kaydırması kilitlenip **eski değerine**
 geri veriliyor (boş dizeye sıfırlamak sayfanın kendi ayarını ezerdi).
 
-### 8.11 Sırada
+### 8.11 P05 — BANKAI SALONU (23 Ağustos 2026) ✅
+
+**TEZ.** Karanlık bir koridor, duvarlarda kapalı silüetler. Sayfanın en
+sinematik ve en **sessiz** yeri: az eleman, çok gerilim. **Bankai bir
+sırdır** ve bölüm bunu bilgi mimarisiyle söylüyor — niş kapalıyken kimin
+durduğu belli değil, ad ancak ışık düşünce beliriyor.
+
+Sayfanın tamamı dikey bir iniş; burası **tek yatay ada**. On yedi bölüm
+boyunca aşağı inen bir okuma, bir kez yana yürüyor.
+
+⚠️ **ADLAR DOĞRULANDI — ve yine bir şey çıktı.** Renji'nin Bankai'ı canon'un
+şu anki hâlinde **双王蛇尾丸 Sōō Zabimaru**; brief'in yazdığı *Hihiō
+Zabimaru* TYBW öncesi form. İkisi de doğru, farklı dönemler — Zabimaru
+TYBW'de yeniden dövüldü. Koridorda serinin çoğunda geçerli olan form
+duruyor, ikinci ad not olarak yanında. Ayrıca romanizasyon düzeltildi:
+Kokujō Tengen **Myō'ō** (kesme işaretiyle), hem burada hem `divisions.ts`te.
+
+⚠️ **SCROLL HIJACK YOK.** Tekerlek yatayı sürüyor ama **yalnızca koridorda
+yer varken**; uçlara gelindiğinde olay serbest bırakılıyor ve sayfa normal
+dikey akışına devam ediyor. Dinleyici elle bağlanıyor (`{ passive: false }`)
+çünkü `preventDefault` gerekiyor ve pasif bir dinleyicide sessizce yok
+sayılır. Yatay tekerleğe (trackpad) hiç karışılmıyor.
+
+**IŞIK: giriş 260ms, çıkış 900ms.** Asimetri kasıtlı — fare hızlı geçerse
+arkasında sönen bir iz bırakıyor ve aynı anda birden fazla niş yanıyor
+görünüyor. Tek bir süreyle bu his elde edilemez. Tamamı CSS; JS yok.
+
+**DOKUNMATİKTE HOVER YOK** — nişler `<button>` ve tıklamayla sabitleniyor.
+Hover'a bağlı bir tasarım dokunmatikte adları tamamen erişilemez
+bırakırdı; buton hem onu, hem klavyeyi, hem odak halkasını çözüyor.
+Odaklanan niş `scrollIntoView({ block: "nearest", inline: "center" })` ile
+kendiliğinden ortalanıyor — `block: nearest` dikey konumu bozmuyor.
+
+**SON NİŞ ÖZEL.** Tensa Zangetsu iki kat büyük ve aydınlandığında koridorun
+tamamı sönüyor. `:has()` ile — çocuktan ebeveyne çıkan tek CSS yolu.
+
+⚠️ **SUNUCU/İSTEMCİ SINIRI İHLALİ — derleme yakaladı.** `BankaiHall` bir
+istemci bileşeni ve `CuratedImage`ı import ediyordu; o ise `next/headers`
+okuyan bir **sunucu** bileşeni. Derleme durdu. React'in izin verdiği yol
+onu **prop olarak** geçirmek: on silüet `BankaiSection`da (sunucu)
+çizilip diziyle aşağı iniyor. Küratör sözleşmesi korunuyor, sınır ihlal
+edilmiyor.
+
+`noEdit` zorunlu: niş bir `<button>` ve içine küratör kalemi (ikinci bir
+`<button>`) koymak geçersiz HTML olurdu. Yuvalar manifesto panelinden
+düzenlenebiliyor.
+
+**`--slot-mark-opacity` eklendi** (`CuratedImage`): niş kapalıyken silüet
+%8, ışık düşünce %70 olmalı. Sabit bir değer iç içe opaklıklarla çarpılıp
+hesaplanamaz hâle gelirdi.
+
+### 8.12 Sırada
 
 `/anime/bleach` iskelet olarak duruyor ve **hiçbir yerden linkli değil**
 (`robots: noindex`). Sıradaki tur **P-TOKENS**: beş dünya paleti, derinlik

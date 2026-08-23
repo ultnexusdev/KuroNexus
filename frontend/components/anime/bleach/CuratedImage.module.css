@@ -129,13 +129,19 @@
   background-size: 160px 160px;
 }
 
-/* Bolume ozel siluet (SVG) — `fallback` prop'uyla geliyor */
+/* Bolume ozel siluet (SVG) — `fallback` prop'uyla geliyor.
+
+   ⚠️ Opaklik DISARIDAN ayarlanabilir (`--slot-mark-opacity`). Bankai
+   Salonu'nda gerekti: nis kapaliyken siluet %8, isik dusunce %70 olmali
+   (brief P05). Sabit bir deger orada iki kez ezilmek zorunda kalirdi ve
+   ic ice opaklikar carpilarak hesaplanamaz hale gelirdi. */
 .mark {
   position: relative;
   display: block;
   width: min(62%, 320px);
   color: var(--world-paper, var(--text-secondary));
-  opacity: 0.22;
+  opacity: var(--slot-mark-opacity, 0.22);
+  transition: opacity var(--slot-mark-fade, 0ms) ease;
 }
 
 .mark svg {

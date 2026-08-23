@@ -1,0 +1,301 @@
+/* ============================================================
+   P05 · BANKAI SALONU
+
+   Karanlik bir koridor, duvarlarda kapali siluetler. Sayfanin en
+   sinematik ve en SESSIZ yeri: az eleman, cok gerilim.
+
+   ⚠️ KURAL 16: tek hex yok. Nisi aydinlatan renk sahibinin reiatsu'su
+   ve satir ici `--reiatsu` ile geliyor -- VERI, token degil
+   (gerekcesi bankai.ts icinde).
+   ============================================================ */
+
+.section {
+  position: relative;
+  isolation: isolate;
+  padding-block: clamp(4rem, 12vh, 9rem) clamp(3rem, 8vh, 6rem);
+  /* Kendi karanlik alt-temasi: katmanin zemininden DAHA koyu.
+     Koridor Soul Society'nin icinde ama isik almiyor. */
+  background: color-mix(in srgb, var(--void) 88%, #000);
+  color: var(--text-primary);
+  overflow: hidden;
+}
+
+.head {
+  width: var(--band);
+  margin-inline: auto;
+  padding-inline-end: var(--rail);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(0.6rem, 1.6vw, 1.1rem);
+  margin-bottom: clamp(2rem, 6vh, 4rem);
+}
+
+.head p {
+  margin: 0;
+}
+
+/* Tek buyuk isaret. Bolumun adi bile ondan sonra geliyor. */
+.manji {
+  font-family: var(--b-display);
+  font-weight: 700;
+  font-size: clamp(3rem, 10vw, 7rem);
+  line-height: 0.9;
+  color: var(--world-paper);
+  opacity: 0.16;
+}
+
+.lede {
+  max-width: calc(var(--measure) / 1.4);
+}
+
+/* ── KORIDOR ─────────────────────────────────────────────────
+   Tam genislik, yatay kaydirmali. `overflow-x: auto` + scroll-snap:
+   dokunmatikte dogal swipe, farede tekerlek eslemesi (bilesende).
+
+   ⚠️ Scroll hijack YOK: kullanici koridorda kilitlenmiyor. */
+.corridor {
+  position: relative;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x proximity;
+  /* Kaydirma cubugu koridorun karanligini bozuyordu */
+  scrollbar-width: none;
+  padding-block: clamp(1rem, 3vh, 2rem);
+}
+
+.corridor::-webkit-scrollbar {
+  display: none;
+}
+
+.corridor:focus-visible {
+  outline: 2px solid var(--world-accent);
+  outline-offset: -4px;
+}
+
+.niches {
+  display: flex;
+  align-items: flex-end;
+  gap: clamp(1rem, 3vw, 2.5rem);
+  /* Ilk ve son nis kenara yapismasin: koridorun agzi ve dibi */
+  padding-inline: var(--gutter);
+  margin: 0;
+  list-style: none;
+}
+
+.slot {
+  flex: none;
+  scroll-snap-align: center;
+}
+
+/* ── NIS ─────────────────────────────────────────────────────
+   Dar ve yuksek bir oyuk. Kapaliyken yalnizca bir siluet var ve
+   o da neredeyse gorunmez. */
+.niche {
+  position: relative;
+  display: block;
+  width: clamp(84px, 11vw, 140px);
+  height: clamp(230px, 38vh, 380px);
+  padding: 0;
+  border: 0;
+  border-top: 1px solid var(--hairline);
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--void) 70%, #000),
+    color-mix(in srgb, var(--void) 96%, #000)
+  );
+  cursor: pointer;
+  overflow: visible;
+
+  /* Siluet kapaliyken %8 -- brief'in degeri. `CuratedImage` bu iki
+     degiskeni okuyor. */
+  --slot-mark-opacity: 0.08;
+  --slot-mark-fade: 900ms;
+}
+
+/* Koridorun sonundaki tek buyuk nis: digerlerinin iki kati */
+.niche[data-final] {
+  width: clamp(168px, 22vw, 280px);
+  height: clamp(280px, 46vh, 460px);
+}
+
+.art {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+/* ── ISIK ────────────────────────────────────────────────────
+   Nisi ICERIDEN aydinlatiyor: radial, sahibinin reiatsu rengiyle.
+
+   ⚠️ GIRIS 260ms, CIKIS 900ms. Asimetri kasitli: fare hizli gecerse
+   arkasinda sonen bir iz birakiyor ve ayni anda birden fazla nis
+   yaniyor gorunuyor (brief). Tek bir sureyle bu his elde edilemez. */
+.glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    72% 52% at 50% 38%,
+    color-mix(in srgb, var(--reiatsu) 55%, transparent),
+    transparent 72%
+  );
+  opacity: 0;
+  transition: opacity 900ms ease;
+}
+
+.niche:hover,
+.niche:focus-visible,
+.niche[data-pinned] {
+  --slot-mark-opacity: 0.7;
+  --slot-mark-fade: 260ms;
+  border-top-color: var(--reiatsu);
+}
+
+.niche:hover .glow,
+.niche:focus-visible .glow,
+.niche[data-pinned] .glow {
+  opacity: 1;
+  transition-duration: 260ms;
+}
+
+/* ── AD LEVHASI ──────────────────────────────────────────────
+   Alttan yukari yukseliyor. Kapaliyken DOM'da ama gorunmez: ekran
+   okuyucu her zaman okuyabiliyor, goz ancak isik dusunce goruyor.
+
+   `visibility` DEGIL `opacity` + `translate`: visibility gecise
+   girmiyor ve levha zipliyordu. */
+.plate {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 0.75rem);
+  translate: -50% 8px;
+  width: max(160px, 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 900ms ease, translate 900ms ease;
+}
+
+.niche:hover .plate,
+.niche:focus-visible .plate,
+.niche[data-pinned] .plate {
+  opacity: 1;
+  translate: -50% 0;
+  transition-duration: 260ms;
+}
+
+.plateKanji {
+  font-family: var(--b-display);
+  font-weight: 700;
+  font-size: clamp(0.95rem, 1.8vw, 1.25rem);
+  line-height: 1.1;
+  color: var(--reiatsu);
+}
+
+.plateName {
+  font-family: var(--b-kubo);
+  font-weight: 300;
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  margin-inline-end: -0.2em;
+  text-transform: uppercase;
+  color: var(--world-paper);
+  overflow-wrap: anywhere;
+}
+
+.plateOwner {
+  font-family: var(--b-body);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.plateNote {
+  max-width: 26ch;
+  font-family: var(--b-body);
+  font-size: 0.64rem;
+  line-height: 1.4;
+  color: var(--text-muted);
+  opacity: 0.8;
+}
+
+/* Zemin cizgisi: nislerin oturdugu tek yatay iz */
+.floor {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: clamp(1rem, 3vh, 2rem);
+  height: 1px;
+  background: var(--hairline);
+  pointer-events: none;
+}
+
+/* ── SON NIS OZEL ────────────────────────────────────────────
+   Tensa Zangetsu aydinlandiginda koridorun tamami bir an icin
+   siyaha doner ve yalnizca o kalir.
+
+   `:has()` ile: cocuktan ebeveyne cikan tek CSS yolu bu. */
+.corridor:has(.niche[data-final]:hover) .slot:not([data-final]),
+.corridor:has(.niche[data-final]:focus-visible) .slot:not([data-final]),
+.corridor:has(.niche[data-final][data-pinned]) .slot:not([data-final]) {
+  opacity: 0.06;
+}
+
+.corridor:has(.niche[data-final]:hover) .floor,
+.corridor:has(.niche[data-final]:focus-visible) .floor,
+.corridor:has(.niche[data-final][data-pinned]) .floor {
+  opacity: 0;
+}
+
+.slot {
+  transition: opacity 620ms ease;
+}
+
+.floor {
+  transition: opacity 620ms ease;
+}
+
+/* ── ILERLE ──────────────────────────────────────────────────── */
+
+.advance {
+  width: var(--band);
+  margin: clamp(1.5rem, 4vh, 3rem) auto 0;
+  padding-inline-end: var(--rail);
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  color: var(--ash);
+  font-family: var(--b-display);
+  font-size: 0.9rem;
+}
+
+/* ── MOBIL ───────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .head,
+  .advance {
+    padding-inline-end: 0;
+  }
+}
+
+/* ── HAREKETI AZALT ──────────────────────────────────────────
+   Aydinlanma ANLIK, iz birakma yok (brief). Kaydirma da yumusak
+   degil: `scroll-behavior` bilesendeki `scrollIntoView` cagrisinda
+   `smooth` istiyor ama tarayici reduced-motion'da onu kendisi
+   anlik yapiyor. */
+@media (prefers-reduced-motion: reduce) {
+  .glow,
+  .plate,
+  .slot,
+  .floor {
+    transition: none;
+  }
+
+  .niche {
+    --slot-mark-fade: 0ms;
+  }
+}

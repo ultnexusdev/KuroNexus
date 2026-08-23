@@ -1560,6 +1560,14 @@
         "back": "Geri dön",
         "innerAria": "İç dünya",
         "stripAria": "Zanpakutō dönüşüm şeritleri"
+      },
+      "bankai": {
+        "eyebrow": "BANKAI HALL",
+        "title": "Bankai Salonu",
+        "lede": "Karanlık bir koridor. Duvarlardaki nişlerde kapalı silüetler duruyor ve hiçbirinin adı yazmıyor — Bankai bir sırdır. Ad ancak ışık düşünce beliriyor. Sağa doğru yürü.",
+        "corridorAria": "Bankai koridoru",
+        "advance": "İlerle",
+        "reveal": "Nişi aydınlat"
       }
     }
   },

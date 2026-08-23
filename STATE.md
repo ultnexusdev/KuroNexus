@@ -194,8 +194,32 @@
 > biri kılıcın canon paletiyle. `aria-modal` kullanıldı, elle `aria-hidden`
 > değil (temizlenmezse sayfayı kalıcı okunamaz bırakır).
 >
-> **⏭ SIRADAKİ: P05 · BANKAI SALONU** (karanlık koridor, yatay scroll).
-> Sonra paralel worktree'lerde P06–P16.
+> **⑬ P05 · BANKAI SALONU.** Karanlık koridor, duvarlarda kapalı silüetler,
+> hiçbirinin adı yazmıyor — **Bankai bir sırdır** ve bölüm bunu bilgi
+> mimarisiyle söylüyor. Sayfanın tek yatay adası (bilinçli ritim kırılması).
+>
+> ⚠️ **Adlar doğrulandı, yine bir şey çıktı:** Renji'nin Bankai'ı canon'un
+> şu anki hâlinde **双王蛇尾丸 Sōō Zabimaru**; brief'in yazdığı *Hihiō
+> Zabimaru* TYBW öncesi form. İkisi de doğru, farklı dönemler — koridorda
+> ilki duruyor, ikincisi not olarak. Kokujō Tengen **Myō'ō** romanizasyonu
+> da düzeltildi (`divisions.ts` dahil).
+>
+> ⚠️ **Scroll hijack YOK:** tekerlek yatayı yalnızca koridorda yer varken
+> sürüyor; uçlarda serbest bırakılıyor. Dinleyici elle bağlanıyor
+> (`passive: false`) — pasif dinleyicide `preventDefault` sessizce yok
+> sayılır.
+>
+> **Işık: giriş 260ms, çıkış 900ms.** Asimetri kasıtlı; hızlı geçişte iz
+> bırakıyor. Tamamı CSS. Nişler `<button>` — dokunmatikte hover olmadığı
+> için tıklamayla sabitleniyor.
+>
+> ⚠️ **Sunucu/istemci sınırı ihlali derleme tarafından yakalandı:**
+> `BankaiHall` (istemci) `CuratedImage`ı (sunucu, `next/headers`) import
+> ediyordu. Silüetler artık `BankaiSection`da çizilip **prop olarak**
+> iniyor.
+>
+> **⏭ SIRADAKİ: P06 · RUH HİYERARŞİSİ** (dikey iniş, bilinçli bozulan
+> tasarım kalitesi). Sonra P07–P16.
 >
 > ⚠️ `/anime/bleach` hiçbir yerden linkli değil ve `robots: noindex`. Hub
 > kartı P17 turunda ekleniyor.

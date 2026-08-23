@@ -264,7 +264,7 @@ export const DIVISIONS: readonly DivisionRecord[] = [
       captain: {
         name: "Sajin Komamura",
         zanpakuto: "天譴 Tenken",
-        bankai: "黒縄天譴明王 Kokujō Tengen Myōō",
+        bankai: "黒縄天譴明王 Kokujō Tengen Myō'ō",
       },
       lieutenant: "Tetsuzaemon Iba",
     },

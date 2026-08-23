@@ -1,0 +1,520 @@
+/* ============================================================
+   P10 · RUHSAL GUC SISTEMI
+
+   Uc irk, uc guc sistemi, UC AYRI TASARIM DILI. Ayni bolumde uc farkli
+   gorsel gramerin bulunmasi bolumun tezi.
+
+   ⚠️ KURAL 16: tek hex yok ve YENI PALET DE YOK. Sutunlar sayfanin
+   zaten olculmus katmanlarini giyiyor -- soul-society, hueco-mundo
+   (negatif), wandenreich. Bolumun kendisi katmansiz: taban deri
+   [data-world="bleach"].
+
+   ⚠️ ORTAK RITIM. Uc sutunun uc ayri paleti var ama olcu, satir araligi
+   ve dikey bosluklari AYNI degiskenlerden geliyor (asagida `--rhythm`).
+   Brief'in sarti: kaos degil, disiplinli farklilik.
+   ============================================================ */
+
+.section {
+  position: relative;
+  isolation: isolate;
+  padding-block: clamp(4rem, 12vh, 9rem) clamp(4rem, 10vh, 7rem);
+  background: var(--bg);
+  color: var(--text-primary);
+
+  /* Uc sutunun paylastigi dikey ritim */
+  --rhythm: clamp(1rem, 2.6vh, 1.6rem);
+}
+
+.head {
+  width: var(--band);
+  margin-inline: auto;
+  padding-inline-end: var(--rail);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(0.6rem, 1.6vw, 1.1rem);
+  margin-bottom: clamp(2rem, 6vh, 4rem);
+}
+
+.head p {
+  margin: 0;
+}
+
+.lede {
+  max-width: calc(var(--measure) / 1.4);
+}
+
+/* ── OMURGA: UC SOZCUK ───────────────────────────────────────
+   Sutunlardan ONCE geliyorlar: ucu karistirildiginda geri kalan her sey
+   bulaniklasiyor. */
+.trio {
+  width: var(--band);
+  margin: 0 auto clamp(2.5rem, 8vh, 5rem);
+  padding-inline-end: var(--rail);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 0 clamp(1.25rem, 4vw, 3rem);
+  border-top: 1px solid var(--hairline);
+}
+
+.trioItem {
+  padding-block: var(--rhythm);
+  border-bottom: 1px solid var(--hairline);
+}
+
+.trioItem dt {
+  display: flex;
+  align-items: baseline;
+  gap: 0.7rem;
+  margin-bottom: 0.4rem;
+}
+
+.trioKanji {
+  font-family: var(--b-display);
+  font-weight: 700;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  line-height: 1;
+  color: var(--world-accent);
+}
+
+.trioRomaji {
+  color: var(--text-muted);
+}
+
+.trioText {
+  margin: 0;
+  max-width: none;
+  font-size: 0.9rem;
+}
+
+/* ── UC ADA ──────────────────────────────────────────────────
+   ⚠️ Aralarinda dikey hairline YOK. Birbirine degmeyen uc ayri ada,
+   aralarinda bosluk (brief'in acik sarti). */
+.columns {
+  width: var(--band);
+  margin-inline: auto;
+  padding-inline-end: var(--rail);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(1.25rem, 3.5vw, 3rem);
+  align-items: start;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rhythm);
+  padding: clamp(1.1rem, 2.5vw, 2rem);
+  background: var(--bg);
+  color: var(--text-primary);
+  /* ⚠️ GECIS YOK. Sayfa koku 600ms renk gecisi tanimliyor ama burada
+     uc deri YAN YANA duruyor, birbirine donusmuyor. Brief: "sutunlar
+     arasi tema gecisi ani -- kesme daha iyi." */
+  transition: none;
+}
+
+.columnHead {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding-bottom: var(--rhythm);
+  border-bottom: 1px solid var(--world-accent);
+}
+
+.columnKanji {
+  font-family: var(--b-display);
+  font-weight: 700;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  line-height: 1;
+  color: var(--world-accent);
+}
+
+.columnName {
+  margin: 0;
+  font-family: var(--b-kubo);
+  font-weight: 200;
+  font-size: clamp(0.9rem, 1.8vw, 1.2rem);
+  letter-spacing: 0.4em;
+  margin-inline-end: -0.4em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.columnNote {
+  color: var(--text-muted);
+}
+
+/* ── ORTAK GUC SATIRI ────────────────────────────────────────
+   Uc sutun da bunu kullaniyor; ayiran sey renk ve DOKU, yerlesim degil. */
+.powers {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--rhythm);
+}
+
+.power,
+.blade {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.powerHead {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.15rem 0.6rem;
+}
+
+.powerKanji {
+  font-family: var(--b-display);
+  font-weight: 700;
+  font-size: 1.15rem;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+.powerRomaji {
+  font-family: var(--b-kubo);
+  font-weight: 300;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--world-accent);
+}
+
+.powerText {
+  margin: 0;
+  font-family: var(--b-body);
+  font-size: 0.85rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+/* ── 死神 · MUREKKEP ─────────────────────────────────────────
+   Arka planda dikey Japon yazi dokusu. Gercek metin degil: dikey
+   cizgilerden orulmus bir ritim -- yazilmis bir sayfanin izlenimi. */
+.column[data-race="shinigami"] {
+  position: relative;
+  background-image: repeating-linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--world-paper) 5%, transparent) 0 1px,
+    transparent 1px 14px
+  );
+}
+
+/* Kilic ayri duruyor: bir sanat degil bir silah. */
+.blade {
+  padding-bottom: var(--rhythm);
+  border-bottom: 1px dashed var(--hairline);
+}
+
+.artsLabel {
+  color: var(--world-accent);
+}
+
+/* Kido formulleri. Genis ekranda kapali, hover/odakla aciliyor. */
+.spells {
+  list-style: none;
+  margin: 0.4rem 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 320ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.spells > * {
+  overflow: hidden;
+}
+
+.power:hover .spells,
+.power:focus-within .spells {
+  grid-template-rows: 1fr;
+}
+
+.spell {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.15rem 0.5rem;
+  padding: 0.35rem 0 0.35rem 0.7rem;
+  border-left: 1px solid var(--world-accent);
+  font-size: 0.78rem;
+}
+
+.spellNo {
+  font-size: 0.95rem;
+  color: var(--world-accent);
+}
+
+.spellBranch {
+  font-family: var(--b-display);
+  color: var(--text-muted);
+}
+
+.spellKanji {
+  font-family: var(--b-display);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.spellName {
+  font-family: var(--b-kubo);
+  font-weight: 300;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.spellMeaning {
+  font-family: var(--b-body);
+  color: var(--text-muted);
+}
+
+/* ⚠️ Hover'i olmayan cihazda formuller BASTAN ACIK. Yalnizca hover'la
+   gorunen bilgi dokunmatikte hic yok demektir (BankaiHall dersi). */
+@media (hover: none) {
+  .spells {
+    grid-template-rows: 1fr;
+  }
+}
+
+/* ── 虚 · BOSLUK ─────────────────────────────────────────────
+   Sutun NEGATIF kalir: beyaz zemin, siyah metin. Kasitli carpisma.
+   ⚠️ Doku YOK -- Hueco Mundo'nun boslugu doldurulmaz (P02'deki ayni
+   karar). Guclerin solunda birer Hollow deligi duruyor ve ad ondan
+   dogmus gibi konumlaniyor. */
+.holes .powerHead {
+  align-items: center;
+}
+
+.hole {
+  flex: none;
+  width: 0.85rem;
+  height: 0.85rem;
+  border-radius: 50%;
+  background: var(--world-paper);
+  /* Delik gercekten DELIK: ortasi zemin rengi */
+  box-shadow: inset 0 0 0 2px var(--world-paper),
+    inset 0 0 0 5px var(--world-ink);
+}
+
+/* ── 滅却師 · GEOMETRI ───────────────────────────────────────
+   Bes dugum, bir pentagram, ince altin cizgiler. */
+.star {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  max-width: 22rem;
+  margin-inline: auto;
+}
+
+.starLines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.starPentagon,
+.starPentagram {
+  fill: none;
+  stroke: var(--world-accent);
+  vector-effect: non-scaling-stroke;
+}
+
+.starPentagon {
+  stroke-width: 1;
+  opacity: 0.4;
+}
+
+.starPentagram {
+  stroke-width: 1;
+  opacity: 0.75;
+}
+
+.nodes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.node {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  translate: -50% -50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.nodeDot {
+  width: 7px;
+  height: 7px;
+  rotate: 45deg;
+  background: var(--world-accent);
+  margin-bottom: 0.2rem;
+}
+
+.nodeKanji {
+  font-family: var(--b-display);
+  font-weight: 700;
+  font-size: 0.8rem;
+  line-height: 1;
+  color: var(--text-primary);
+}
+
+.nodeName {
+  font-family: var(--b-kubo);
+  font-weight: 300;
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--world-glow);
+}
+
+/* ── BLUT ANAHTARI ───────────────────────────────────────────
+   ⚠️ Canon kurali dogrudan semantige birakildi: radyo grubunda ikisi
+   ayni anda acik olamaz. Tarayici zaten boyle calisiyor; JS ile taklit
+   etmek hem fazladan kod hem de klavye desteginin elle yazilmasi
+   demekti. Ok tuslariyla gezinme bedava geliyor. */
+.blut {
+  margin: 0;
+  padding: var(--rhythm);
+  border: 1px solid color-mix(in srgb, var(--world-accent) 45%, transparent);
+  /* Schatten Bereich: sert, blursuz golge -- P09 ile ayni dil */
+  box-shadow: 6px 6px 0 -1px
+    color-mix(in srgb, var(--world-ink) 70%, transparent);
+}
+
+.blutLegend {
+  padding-inline: 0.4rem;
+  color: var(--world-accent);
+}
+
+.blutModes {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.blutMode {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: baseline;
+  gap: 0.15rem 0.6rem;
+  padding: 0.5rem 0.6rem;
+  min-height: var(--touch-min);
+  cursor: pointer;
+  border: 1px solid transparent;
+  opacity: 0.4;
+  transition: opacity 260ms ease-out, border-color 260ms ease-out;
+}
+
+/* Biri acikken digeri soner -- canon kurali gozle gorunur hale geliyor.
+
+   ⚠️ `:has()` DEGIL kardes secici. Ilk yazimda girdi etiketin icindeydi
+   ve etiketi boyamak `:has(:checked)` gerektiriyordu. Ikisi de dogru
+   calisiyor; kardes yazim TERCIH edildi cunku hicbir yeni secici
+   ozelligine dayanmiyor. (Not: gecis once bu ortamda stilin
+   guncellenmedigi gorulduğu icin yapildi, sonra anlasildi ki sorun
+   `:has()` degil tarayici panelinin stil tazelememesiydi -- iki yazim
+   da ayni sekilde davraniyordu. Karar yine de dogru: daha az bagimlilik.) */
+.blutInput:checked + .blutMode {
+  opacity: 1;
+  border-color: var(--world-glow);
+  background: color-mix(in srgb, var(--world-glow) 12%, transparent);
+}
+
+.blutMode:hover {
+  opacity: 0.75;
+}
+
+.blutInput:focus-visible + .blutMode {
+  outline: 2px solid var(--world-glow);
+  outline-offset: 2px;
+}
+
+/* Radyo dugmesinin kendisi gizli DEGIL, yalnizca gorsel olarak
+   cikarilmis: klavye ve ekran okuyucu icin yerinde duruyor. */
+.blutInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.blutKanji {
+  grid-row: span 2;
+  font-family: var(--b-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--text-primary);
+}
+
+.blutName {
+  font-family: var(--b-kubo);
+  font-weight: 300;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.blutRole {
+  font-family: var(--b-body);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.blutRule {
+  margin: var(--rhythm) 0 0;
+  font-family: var(--b-body);
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* ── DAR EKRAN ───────────────────────────────────────────────
+   Uc sutun uc yigilmis bloga iniyor. Deri gecisi yine ANI: bloklar
+   birbirine donusmuyor, kesiliyor. */
+@media (max-width: 900px) {
+  .head,
+  .trio,
+  .columns {
+    padding-inline-end: 0;
+  }
+
+  .columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .star {
+    max-width: 18rem;
+  }
+}
+
+/* Pentagram cok dar ekranda okunmaz hale geliyor: sema kalkiyor,
+   dugumlerin metni zaten asagida duruyor. */
+@media (max-width: 480px) {
+  .star {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spells,
+  .blutMode {
+    transition: none;
+  }
+}

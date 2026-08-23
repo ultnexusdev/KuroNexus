@@ -1493,9 +1493,9 @@
       "scaffold": {
         "title": "BLEACH EVRENİ",
         "lede": "Her ruh bir gölge bırakır. Her kılıcın bir adı vardır.",
-        "note": "Hero, beş katman ve dokuz bölüm yerinde: on üç kapı, Zanpakutō arşivi, Bankai salonu, ruh hiyerarşisi, Hueco Mundo, Espada ve Wandenreich. Kalan bölümler sırayla geliyor.",
+        "note": "Hero, beş katman ve on bölüm yerinde. Kalan bölümler sırayla geliyor.",
         "playgroundLink": "Tasarım sistemi denemesini aç →",
-        "pendingSections": "P10 · RUHSAL GÜÇ SİSTEMİ — YAPIM AŞAMASINDA"
+        "pendingSections": "P11 · MASKELER — YAPIM AŞAMASINDA"
       },
       "world": {
         "railAria": "Ruhsal katmanlar",
@@ -1611,6 +1611,17 @@
         "hint": "Bir harfe gel ya da klavyeyle A–Z tuşlarına bas",
         "gridAria": "Sternritter alfabesi, A'dan Z'ye",
         "bearerLabel": "Taşıyıcı"
+      },
+      "powers": {
+        "eyebrow": "SPIRITUAL POWER SYSTEM",
+        "title": "Ruhsal Güç Sistemi",
+        "lede": "Üç ırk, üç güç sistemi ve üç ayrı tasarım dili. Bu güçler birbirine benzemiyor, o yüzden burada benzer de görünmüyorlar: mürekkep, boşluk ve geometri yan yana duruyor ama birbirine değmiyor.",
+        "zankensoki": "dört temel sanat, tek adla",
+        "shinigamiNote": "mürekkep · dikey disiplin",
+        "hollowNote": "boşluk · negatif",
+        "quincyNote": "geometri · altın çizgi",
+        "blutLegend": "血装 Blut",
+        "blutRule": "Saldırı ve savunma iki ayrı reishi sistemi üzerinden çalışıyor ve Urahara'nın söylediği gibi ikisi aynı anda açılamıyor. Yukarıdaki seçim de öyle: biri açılınca diğeri kendiliğinden sönüyor."
       }
     }
   },

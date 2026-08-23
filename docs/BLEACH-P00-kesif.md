@@ -7,11 +7,11 @@
 
 ## ⌂ DEVİR — SIRADAKİ OTURUM BURADAN BAŞLASIN (23 Ağustos 2026)
 
-**Durum:** Küratör altyapısı + P-TOKENS + **P01–P09 canlıda.**
-**Sıradaki:** **P10 · Ruhsal Güç Sistemi.** Brief'in kendi metni ana kaynak.
-⚠️ P10 bir kadro değil bir ŞEMA bölümü (reiryoku/reiatsu/reishi ayrımı) —
-sayfanın dünya derisi dışında, `[data-world="bleach"]` tabanında geçmesi
-muhtemel; katman seçimini brief'i okuyunca ver.
+**Durum:** Küratör altyapısı + P-TOKENS + **P01–P10 canlıda.**
+**Sıradaki:** **P11 · Maskeler.** Brief'in kendi metni ana kaynak.
+⚠️ P07 zaten yedi maske durumu çizdi (`HollowMask.tsx`) ve P08 on maske
+parçası (`MaskFragment.tsx`). P11'e başlamadan **ikisine bak**: Visored
+maskeleri o dille devam etmeli, üçüncü bir maske grameri icat etme.
 
 ### Yerleşik konvansiyonlar — bunları yeniden keşfetme
 
@@ -1299,7 +1299,69 @@ edemiyor. Tip denetimi ve lint temiz, riskli kısım olan sütun ölçümü
 gerçek DOM'da iki kırılmada doğrulandı; ok tuşlarının canlıda elle
 sınanması gerekiyor.
 
-### 8.16 Sırada
+### 8.16 P10 — RUHSAL GÜÇ SİSTEMİ (23 Ağustos 2026) ✅
+
+**TEZ.** Naruto Evreni'nde karşılığı tek bir şema (chakra + doğa
+dönüşümü). Bleach'te **üç ırk, üç sistem, üç ayrı tasarım dili** ve aynı
+bölümde üç görsel gramerin bulunması bölümün tezi.
+
+⚠️ **YENİ PALET İCAT EDİLMEDİ.** Sütunlar sayfanın zaten ölçülmüş
+katmanlarını giyiyor: 死神 → `soul-society` (mürekkep + haori kızılı),
+虚 → `hueco-mundo` (**negatif**: beyaz zemin, siyah metin),
+滅却師 → `wandenreich` (gotik buz + altın). Bölümün kendisi **katmansız**
+(brief'in "dünya: nötr" şartı) ve taban deri `[data-world="bleach"]`.
+Ölçüldü: bölüm `rgb(7,7,10)`, sütunlar sırasıyla `#0B0B0D` / `#EFEDE7` /
+`#0C1016`, aksanlar `#BA1B23` / `#0A0A0A` / `#C9A227`.
+
+**ORTAK RİTİM.** Üç ayrı palet ama tek `--rhythm` değişkeni ve tek
+`--measure`: kaos değil disiplinli farklılık (brief'in kabul ölçütü).
+Sütunlar arasında **dikey hairline yok** — birbirine değmeyen üç ada.
+`transition: none` ölçüldü: geçiş ani, fade yok.
+
+**ÜÇ SÖZCÜK OMURGA.** Bölümün adı "ruhsal güç" ve canon bunu üçe ayırıyor:
+霊力 gücün kendisi, 霊子 maddesi, 霊圧 dışarı vuran ağırlığı. Üçü
+sütunlardan önce geliyor çünkü karıştırıldıklarında geri kalan her şey
+bulanıklaşıyor.
+
+⚠️ **BRIEF'İN BİRİNCİ SÜTUNU DÜZELTİLDİ.** Brief 斬魄刀'yu dört sanattan
+biri gibi listeliyor; Zanpakutō bir **silah**, sanat değil. Dört sanat
+斬術 · 白打 · 歩法 · 鬼道 ve kılıç ayrı bir blokta duruyor. Kazanç:
+canon'da dördünün toplu adı var — **「斬」「拳」「走」「鬼」 Zankensoki**.
+
+⚠️ **Blut Arterie 滅血装 DEĞİL 動血装.** Hafızadan yazılsaydı yanlış kanji
+girecekti.
+
+**⚡ BÖLÜMÜN EN İYİ KARARI: CANON KURALINI SEMANTİĞE BIRAKMAK.** Brief
+Blut için "iki düğümlü toggle, biri açıkken diğeri söner" istiyor. Canon
+kuralı (Urahara, ch. 499): saldırı ve savunma iki ayrı reishi sistemi ve
+**aynı anda açılamıyorlar**. Bu, bir `<input type="radio">` grubunun
+tanımının ta kendisi. JS ile taklit edilmedi: tarayıcı zaten böyle
+çalışıyor, klavye gezinmesi (ok tuşları) bedava geliyor ve **bölümde tek
+satır istemci kodu yok**.
+
+⚠️ **YANLIŞ SİNYALLE BİR DEĞİŞİKLİK YAPILDI, SONRA DOĞRUSU ANLAŞILDI.**
+İlk yazımda girdi etiketin içindeydi ve `:has(:checked)` gerekiyordu;
+panelde stil güncellenmediği görülünce kardeş yazıma (`input:checked +
+label`) geçildi. Sonra ölçüldü: **kardeş yazım da aynı şekilde
+güncellenmiyordu** — sorun `:has()` değil, tarayıcı panelinin durum
+değişiminde stili tazelememesi. Yani sinyal bir ortam artefaktıydı.
+Karar yine de korundu (daha az seçici bağımlılığı), ama koddaki yorum
+gerçeğe göre düzeltildi. **Ders: bu panelde `getComputedStyle` durum
+değişiminden sonra bayat; doğrulamayı `element.matches()` ile yap.**
+Öyle yapıldı: kural metni ve her iki durumda doğru etiketin eşleştiği
+doğrulandı.
+
+**DOKUNMATİK:** Kidō formülleri geniş ekranda hover/odakla açılıyor,
+`hover: none` cihazlarda **baştan açık** (ölçüldü: 360px'te üç satır da
+gerçek yükseklikte). BankaiHall'de öğrenilen ders.
+
+**360px:** üç sütun yığılıyor, pentagram 480px altında gizleniyor
+(düğümlerin metni zaten şemanın altında ayrı duruyor), taşma yok.
+
+Rota paketi 25,1 kB → 25,8 kB — artışın tamamı sunucu tarafı; bölüm
+istemciye tek satır JS eklemiyor.
+
+### 8.17 Sırada
 
 `/anime/bleach` iskelet olarak duruyor ve **hiçbir yerden linkli değil**
 (`robots: noindex`). Sıradaki tur **P-TOKENS**: beş dünya paleti, derinlik

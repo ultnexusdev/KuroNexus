@@ -7,11 +7,11 @@
 
 ## ⌂ DEVİR — SIRADAKİ OTURUM BURADAN BAŞLASIN (23 Ağustos 2026)
 
-**Durum:** Küratör altyapısı + P-TOKENS + **P01–P14 canlıda.**
-**Sıradaki:** **P15 · Mekânlar.** Brief'in kendi metni ana kaynak.
-⚠️ Yuvalar manifestoda hazır (`locations` bölümü) ve bu bölüm **görsel
-ağırlıklı** olacak: küratör sözleşmesini hatırla — çıplak `<Image>` yok,
-her kadraj `<CuratedImage slotId>`.
+**Durum:** Küratör altyapısı + P-TOKENS + **P01–P15 canlıda.**
+**Sıradaki:** **P16 · Hikâye Çizelgesi.** Brief'in kendi metni ana kaynak.
+⚠️ **Bölüm hakkında tahmin yazma.** P15'te bu blokta duran "görsel
+ağırlıklı olacak" tahmini, brief'in "görsel yok, burası nefes alma alanı"
+kararıyla çelişti. Önce brief'i oku, sonra karar ver.
 
 ### Yerleşik konvansiyonlar — bunları yeniden keşfetme
 
@@ -1595,7 +1595,48 @@ resize değil **yeniden yükleme** kullan.
 360px'te iki sütun, künyeler baştan açık (hover yok), taşma yok.
 Rota paketi 26,5 → 26,8 kB. Sıfır JS.
 
-### 8.21 Sırada
+### 8.21 P15 — MEKÂNLAR (23 Ağustos 2026) ✅
+
+**TEZ.** Mekânlar dünyalarına göre gruplanıyor ve **her grup kendi
+dünyasının derisini giyiyor**: tek bölümde beş tema kayması, yani sayfanın
+mini bir özeti. Ölçüldü — beş grubun beş ayrı zemini var (`#0A0E14` /
+`#0B0B0D` / `#06060A` / `#EFEDE7` / `#0C1016`), aksanlar sırasıyla sodyum
+turuncusu, haori kızılı, kemik beyazı, siyah ve altın. 23 mekân.
+
+⚠️ **DEVİR NOTUM YANLIŞTI, BRIEF DÜZELTTİ.** Not "bu bölüm görsel
+ağırlıklı olacak, küratör sözleşmesini hatırla" diyordu. Brief'in kendi
+kabul ölçütü tam tersi: **"Görsel yok (bilinçli): bu bölüm tamamen
+tipografik. Sayfada zaten çok görsel var; burası nefes alma alanı."**
+Manifestoya `locations` yuvası **eklenmedi** — eklenseydi küratör
+panelinde sonsuza kadar "eksik görsel" satırı olarak dururdu.
+**Ders: devir notundaki tahmini brief'e sormadan uygulama.**
+
+**RAY KRİTERİ SIFIR YENİ KODLA KARŞILANDI.** Brief: "Grup geçişlerinde
+tema kayması Depth Rail'i de günceller." Beş grubun kimliği
+`DEEP_SECTION_LAYERS`e yazıldı; ray zaten o defteri gözlüyor (P07'de
+kurulan mekanizma). Bölüm kendini deftere yazdırdı, o kadar.
+
+⚠️ **BRIEF'İN REIŌKYŪ LİSTESİNDE BİR SARAY OLMAYAN AD VARDI:**
+**Ichimonji bir saray değil**, Ichibē Hyōsube'nin Zanpakutō'su (P13'te de
+öyle kayıtlı). Kraliyet katındaki üç saray canon'da: **麒麟殿** (Kirinji,
+şifa kaplıcaları) · **臥豚殿** (Hikifune, mutfak) · **鳳凰殿** (Nimaiya,
+her Zanpakutō'nun doğduğu yer).
+
+⚠️ **İki ad daha düzeldi:**
+  • Karakura Lisesi 空座高校 değil **空座一校** (Karakura Ikkō).
+  • Kurosaki Kliniği'nin tabelası kanji değil **katakana**: クロサキ医院.
+    (Bu bir hata değil canon'un kendi ayrıntısı ve metne girdi.)
+
+⚠️ **Wahrwelt bir Wandenreich şehri değil, REIŌKYŪ'NUN KENDİSİ:** Yhwach
+kraliyet sarayını ele geçirip 真世界城'e dönüştürdü. Kayıt onu Wandenreich
+grubunda tutuyor ama bunu açıkça söylüyor — aynı sarayı iki gruba birden
+koymak okuyucuyu kaybettirirdi.
+
+**Sıfır JS.** Tema değişimi nitelik + kalıtım. 900px altında iki sütun teke
+iniyor, beş deri aynen kalıyor (tema kayması bölümün tezi), taşma yok.
+Rota paketi 26,8 → 27 kB.
+
+### 8.22 Sırada
 
 `/anime/bleach` iskelet olarak duruyor ve **hiçbir yerden linkli değil**
 (`robots: noindex`). Sıradaki tur **P-TOKENS**: beş dünya paleti, derinlik

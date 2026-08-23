@@ -69,6 +69,14 @@ export const DEEP_SECTION_LAYERS: Record<string, LayerId> = {
   /* ⚠️ `wandenreich` DEĞİL: o kimlik katmanın kendisinde. Derin bölüm
      `empire` adını taşıyor, yoksa belgede iki `id="wandenreich"` olurdu. */
   empire: "wandenreich",
+  /* P15 · Mekânlar — beş grup, beş deri. Brief'in kabul ölçütü "grup
+     geçişlerinde tema kayması rayı da günceller" ve karşılığı tam olarak
+     bu beş satır: ray zaten bu defteri gözlüyor, yeni kod gerekmedi. */
+  "loc-living": "living",
+  "loc-soul-society": "soul-society",
+  "loc-royal": "royal",
+  "loc-hueco": "hueco-mundo",
+  "loc-wandenreich": "wandenreich",
 };
 
 /** Rayda ve başlıklarda kullanılan kanji — katman başına tek kaynak */

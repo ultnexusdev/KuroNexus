@@ -1,0 +1,144 @@
+/* ============================================================
+   P15 · MEKANLAR
+
+   Her grup KENDI dunyasinin derisini giyiyor: tek bolumde bes tema
+   kaymasi. Sayfanin mini bir ozeti.
+
+   ⚠️ KURAL 16: tek hex yok. Bes deri de `[data-layer]` uzerinden ve
+   hepsi olculu (check-bleach-contrast, 8 palet / 80 kontrol).
+
+   ⚠️ GORSEL YOK ve bu bilincli: brief'in kendi karari, "burasi nefes
+   alma alani". Bolum tamamen tipografik.
+   ============================================================ */
+
+.section {
+  position: relative;
+  isolation: isolate;
+  padding-block: clamp(4rem, 12vh, 9rem) 0;
+  background: var(--bg);
+  color: var(--text-primary);
+}
+
+.head {
+  width: var(--band);
+  margin-inline: auto;
+  padding-inline-end: var(--rail);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(0.6rem, 1.6vw, 1.1rem);
+  margin-bottom: clamp(2rem, 6vh, 4rem);
+}
+
+.head p {
+  margin: 0;
+}
+
+.lede {
+  max-width: calc(var(--measure) / 1.4);
+}
+
+/* ── GRUP ────────────────────────────────────────────────────
+   Kendi zeminini boyuyor. Gecisler bolum icinde SERT: bes deri yan
+   yana degil UST USTE duruyor ve arada ara ton olmasi "hangi
+   dunyadayim" sorusunu bulaniklastirirdi (P12'nin ayni karari). */
+.group {
+  background: var(--bg);
+  color: var(--text-primary);
+  padding-block: clamp(2.5rem, 8vh, 4.5rem);
+}
+
+.groupInner {
+  width: var(--band);
+  margin-inline: auto;
+  padding-inline-end: var(--rail);
+}
+
+.groupHead {
+  display: flex;
+  align-items: baseline;
+  gap: clamp(0.8rem, 2.5vw, 1.6rem);
+  padding-bottom: clamp(0.8rem, 2.5vh, 1.25rem);
+  border-bottom: 1px solid var(--world-accent);
+  margin-bottom: clamp(1rem, 3vh, 1.75rem);
+}
+
+.groupKanji {
+  font-family: var(--b-display);
+  font-weight: 700;
+  font-size: clamp(1.6rem, 4.5vw, 2.8rem);
+  line-height: 1;
+  color: var(--world-accent);
+}
+
+.groupName {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+/* ── MEKANLAR ────────────────────────────────────────────────
+   Kart YOK: iki sutun, hairline ayracli liste. */
+.places {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 clamp(1.5rem, 5vw, 4rem);
+  border-top: 1px solid var(--hairline);
+}
+
+.place {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding-block: clamp(0.8rem, 2.4vh, 1.25rem);
+  border-bottom: 1px solid var(--hairline);
+}
+
+.place p {
+  margin: 0;
+}
+
+.placeHead {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.7rem;
+}
+
+.placeKanji {
+  font-family: var(--b-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  line-height: 1.2;
+  color: var(--world-accent);
+}
+
+.placeName {
+  font-family: var(--b-kubo);
+  font-weight: 300;
+  font-size: 0.74rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.placeText {
+  max-width: none;
+  font-size: 0.85rem;
+}
+
+/* ── DAR EKRAN ───────────────────────────────────────────────
+   Iki sutun teke iniyor; grup derileri aynen kaliyor cunku tema
+   kaymasi bolumun tezi. */
+@media (max-width: 900px) {
+  .head,
+  .groupInner {
+    padding-inline-end: 0;
+  }
+
+  .places {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

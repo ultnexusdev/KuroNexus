@@ -1493,9 +1493,9 @@
       "scaffold": {
         "title": "BLEACH EVRENİ",
         "lede": "Her ruh bir gölge bırakır. Her kılıcın bir adı vardır.",
-        "note": "Hero, beş katman ve on dört bölüm yerinde. Kalan bölümler sırayla geliyor.",
+        "note": "Hero, beş katman ve on beş bölüm yerinde. Kalan bölümler sırayla geliyor.",
         "playgroundLink": "Tasarım sistemi denemesini aç →",
-        "pendingSections": "P15 · MEKÂNLAR — YAPIM AŞAMASINDA"
+        "pendingSections": "P16 · HİKÂYE ÇİZELGESİ — YAPIM AŞAMASINDA"
       },
       "world": {
         "railAria": "Ruhsal katmanlar",
@@ -1654,6 +1654,11 @@
         "redactedAria": "Kayıt açıklanmamış",
         "greatNote": "Dördün ikisinin adı canon'da yok. Beşinci hane vardı: Shiba, düştü.",
         "monNote": "Armalar canon değil — her biri hanenin canon'daki uzmanlığından türetildi."
+      },
+      "locations": {
+        "eyebrow": "KEY LOCATIONS",
+        "title": "Mekânlar",
+        "lede": "Mekânlar dünyalarına göre duruyor ve her grup kendi dünyasının derisini giyiyor. Aşağı inerken sayfa beş kez daha renk değiştiriyor — bu bölüm sayfanın kendi özeti."
       }
     }
   },

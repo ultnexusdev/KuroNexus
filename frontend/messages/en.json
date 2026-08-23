@@ -1493,9 +1493,9 @@
       "scaffold": {
         "title": "THE WORLD OF BLEACH",
         "lede": "Every soul leaves a shadow. Every blade has a name.",
-        "note": "The hero, the five layers and fourteen sections are in place. The remaining sections arrive in turn.",
+        "note": "The hero, the five layers and fifteen sections are in place. The remaining sections arrive in turn.",
         "playgroundLink": "Open the design system trial →",
-        "pendingSections": "P15 · KEY LOCATIONS — UNDER CONSTRUCTION"
+        "pendingSections": "P16 · THE STORY TIMELINE — UNDER CONSTRUCTION"
       },
       "world": {
         "railAria": "Spiritual layers",
@@ -1654,6 +1654,11 @@
         "redactedAria": "Record not revealed",
         "greatNote": "Two of the four have no name in canon. There was a fifth: the Shiba, and they fell.",
         "monNote": "The crests are not canon — each is derived from the house's canonical specialty."
+      },
+      "locations": {
+        "eyebrow": "KEY LOCATIONS",
+        "title": "Key Locations",
+        "lede": "The places are kept in their own worlds, and each group wears that world's skin. Scrolling down, the page changes colour five more times — this section is the page's own summary."
       }
     }
   },

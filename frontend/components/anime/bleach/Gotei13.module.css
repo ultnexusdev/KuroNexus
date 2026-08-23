@@ -1,0 +1,531 @@
+/* ============================================================
+   P03 · GOTEI 13 — ON UC KAPI
+
+   Masaustu: Seireitei'nin dairesel plani. On uc kapi bir daire
+   uzerinde, ortada Sokyoku Tepesi.
+   Mobil: daire cokuyor, kapilar dikey bir koridora donuyor.
+
+   ⚠️ KURAL 16: tek hex yok. Kaptanin reiatsu rengi VERI olarak
+   satir ici `--reiatsu` ile geliyor (bkz. divisions.ts).
+   ============================================================ */
+
+.section {
+  position: relative;
+  isolation: isolate;
+  padding-block: clamp(4rem, 12vh, 9rem);
+  background: var(--bg);
+  color: var(--text-primary);
+  transition: background-color 600ms ease-in-out, color 600ms ease-in-out;
+}
+
+.inner {
+  width: var(--band);
+  margin-inline: auto;
+  padding-inline-end: var(--rail);
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.75rem, 1.8vw, 1.25rem);
+  margin-bottom: clamp(2rem, 6vh, 4rem);
+}
+
+.head p {
+  margin: 0;
+}
+
+.lede {
+  max-width: calc(var(--measure) / 1.4);
+}
+
+/* ── ZAMAN KIPI ANAHTARI ─────────────────────────────────────
+   Iki durum, tek cizgi. Kutu degil: secili olan alt cizgiyle
+   isaretleniyor — Bleach'te yuvarlak kose ve kutu yok. */
+.era {
+  display: inline-flex;
+  gap: 0;
+  margin-top: clamp(0.5rem, 1.5vh, 1rem);
+  border-bottom: 1px solid var(--hairline);
+  align-self: flex-start;
+}
+
+.eraOption {
+  min-height: var(--touch-min);
+  padding: 0 clamp(0.75rem, 2vw, 1.5rem);
+  border: 0;
+  border-bottom: 1px solid transparent;
+  background: none;
+  color: var(--text-muted);
+  font-family: var(--b-kubo);
+  font-weight: 300;
+  font-size: 0.68rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 260ms ease, border-color 260ms ease;
+}
+
+.eraOption[data-on] {
+  border-bottom-color: var(--world-accent);
+  color: var(--world-accent);
+}
+
+.eraOption:hover,
+.eraOption:focus-visible {
+  color: var(--text-primary);
+}
+
+/* ── DAIRESEL PLAN ───────────────────────────────────────────
+   Kare bir alan; kapilar `--x` / `--y` ile daire uzerine
+   yerlestiriliyor. Konumlar bilesende ONCEDEN hesaplaniyor. */
+.plan {
+  position: relative;
+  width: min(100%, 62rem);
+  margin-inline: auto;
+  aspect-ratio: 1;
+}
+
+/* Sokyoku Tepesi — dairenin merkezi ve sessiz gogsu */
+.sokyoku {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  text-align: center;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.sokyokuKanji {
+  font-family: var(--b-display);
+  font-weight: 700;
+  font-size: clamp(2rem, 6vw, 4.5rem);
+  line-height: 1;
+  color: var(--world-paper);
+  opacity: 0.14;
+}
+
+/* Merkezden disari uzanan cok soluk isinlar: kapilarin bir DAIRE
+   uzerinde durdugunu, rastgele dagilmadigini soyluyor. */
+.plan::before {
+  content: "";
+  position: absolute;
+  inset: 10%;
+  border: 1px solid var(--hairline);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.slot {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  translate: -50% -50%;
+}
+
+/* ── KAPI ────────────────────────────────────────────────────
+   Uc durum: kapali (yalnizca kanji), hover/odak (aralaniyor,
+   kaptan gorunuyor, reiatsu halkasi yayiliyor), acik (tam
+   aciliyor ve panel geliyor). */
+.gate {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  width: clamp(72px, 9vw, 116px);
+  height: clamp(96px, 12vw, 152px);
+  padding: 0;
+  border: 1px solid var(--hairline);
+  background: var(--world-ink);
+  color: var(--text-secondary);
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color 320ms ease, color 320ms ease;
+}
+
+.gate:hover,
+.gate:focus-visible {
+  border-color: var(--reiatsu);
+  color: var(--text-primary);
+}
+
+.gate:focus-visible {
+  outline: 2px solid var(--world-accent);
+  outline-offset: 3px;
+}
+
+/* Iki kanat: hover'da ortadan 6px aralaniyor, acikta tamamen
+   cekiliyor. Kapinin ARDINDA duran sey boylece goruluyor. */
+.leaf {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  background: var(--world-ink);
+  border-inline: 1px solid transparent;
+  transition: translate 420ms cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 1;
+}
+
+.leaf[data-side="left"] {
+  left: 0;
+  border-right-color: var(--hairline);
+}
+
+.leaf[data-side="right"] {
+  right: 0;
+  border-left-color: var(--hairline);
+}
+
+.gate:hover .leaf[data-side="left"],
+.gate:focus-visible .leaf[data-side="left"] {
+  translate: -3px 0;
+}
+
+.gate:hover .leaf[data-side="right"],
+.gate:focus-visible .leaf[data-side="right"] {
+  translate: 3px 0;
+}
+
+.gate[data-open] .leaf[data-side="left"] {
+  translate: -100% 0;
+}
+
+.gate[data-open] .leaf[data-side="right"] {
+  translate: 100% 0;
+}
+
+/* Reiatsu halkasi — box-shadow DEGIL kenarlik: blur yok, ayri bir
+   kompozisyon katmani yok. Brief'in tercihi, ayni gerekce. */
+.ring {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border: 1px solid var(--reiatsu);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.gate:hover .ring,
+.gate:focus-visible .ring,
+.gate[data-open] .ring {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .gate:hover .ring,
+  .gate:focus-visible .ring {
+    animation: reiatsu 2200ms ease-out infinite;
+  }
+}
+
+@keyframes reiatsu {
+  0% {
+    opacity: 0.9;
+    scale: 1;
+  }
+  70% {
+    opacity: 0;
+    scale: 1.18;
+  }
+  100% {
+    opacity: 0;
+    scale: 1.18;
+  }
+}
+
+/* Kanji numara: kapinin yuzunde, kanatlarin USTUNDE */
+.number {
+  position: relative;
+  z-index: 2;
+  font-family: var(--b-display);
+  font-weight: 700;
+  font-size: clamp(1.5rem, 3.4vw, 2.4rem);
+  line-height: 1;
+  color: var(--world-paper);
+}
+
+.roman {
+  position: relative;
+  z-index: 2;
+  font-size: 0.5rem;
+  letter-spacing: 0.24em;
+  margin-inline-end: -0.24em;
+  text-align: center;
+  /* Dar kapida iki kelime alt alta sigsin */
+  line-height: 1.3;
+}
+
+/* Araliktan gorunen kaptan adi: alttan yukari kayarak beliriyor.
+   Kanatlarin ALTINDA, yani gercekten "kapinin ardinda". */
+.peek {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  bottom: 6px;
+  z-index: 0;
+  font-family: var(--b-body);
+  font-size: 0.56rem;
+  line-height: 1.25;
+  text-align: center;
+  color: var(--reiatsu);
+  opacity: 0;
+  translate: 0 8px;
+  transition: opacity 320ms ease, translate 320ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.gate:hover .peek,
+.gate:focus-visible .peek,
+.gate[data-open] .peek {
+  opacity: 1;
+  translate: 0 0;
+}
+
+/* ── PANEL ───────────────────────────────────────────────────
+   Masaustunde dairenin MERKEZINDE: daire gezinme, merkez icerik.
+   Dialog DEGIL — satir ici genisleme (brief karari). */
+.panel {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  z-index: 5;
+  width: min(30rem, 74vw);
+  max-height: 74%;
+  overflow-y: auto;
+  padding: clamp(1rem, 2.2vw, 1.75rem);
+  border: 1px solid var(--reiatsu);
+  background: color-mix(in srgb, var(--world-ink) 94%, transparent);
+  backdrop-filter: blur(2px);
+}
+
+.panelHead {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: start;
+  gap: 0.5rem 0.9rem;
+  padding-bottom: clamp(0.6rem, 1.4vh, 1rem);
+  border-bottom: 1px solid var(--hairline);
+}
+
+.panelNumber {
+  grid-row: span 2;
+  font-family: var(--b-display);
+  font-weight: 700;
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 0.9;
+  color: var(--reiatsu);
+}
+
+.panelRoman {
+  align-self: end;
+  font-size: 0.58rem;
+}
+
+/* Cicek panelin sag ustunde — bolumu ozel yapan isaret */
+.flower {
+  grid-column: 2 / -1;
+  grid-row: 2;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--reiatsu);
+}
+
+.flowerArt {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  opacity: 0.9;
+}
+
+.flowerText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.flowerJa {
+  font-family: var(--b-display);
+  font-weight: 600;
+  font-size: 0.92rem;
+  line-height: 1.2;
+}
+
+.flowerMeaning {
+  font-family: var(--b-body);
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: var(--text-secondary);
+}
+
+.close {
+  grid-row: 1;
+  grid-column: 3;
+  min-width: var(--touch-min);
+  min-height: var(--touch-min);
+  border: 0;
+  background: none;
+  color: var(--text-muted);
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.close:hover,
+.close:focus-visible {
+  color: var(--text-primary);
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.3rem 1rem;
+  padding-block: clamp(0.4rem, 1vh, 0.7rem);
+  border-bottom: 1px solid var(--hairline);
+}
+
+.row:last-child {
+  border-bottom: 0;
+}
+
+.rowLabel {
+  flex: none;
+  min-width: 9ch;
+  margin: 0;
+  font-size: 0.58rem;
+}
+
+.rowValue {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-family: var(--b-body);
+  font-size: 0.86rem;
+  line-height: 1.45;
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.rowValue[data-strong] {
+  font-family: var(--b-display);
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+/* ── MOBIL: DAIRE COKUYOR, KORIDOR OLUYOR ────────────────────
+   Brief: "koridorda yurume" hissi mobilde daha da iyi calisiyor.
+   Kapilar tek sutun, tam genislik; panel kapinin ALTINDA aciliyor
+   (masaustundeki merkez yerlesimi burada anlamsiz olurdu). */
+@media (max-width: 900px) {
+  .inner {
+    padding-inline-end: 0;
+  }
+
+  .plan {
+    aspect-ratio: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: 100%;
+  }
+
+  .plan::before {
+    display: none;
+  }
+
+  /* Sokyoku koridorun BASINDA duruyor: merkez kavrami mobilde yok */
+  .sokyoku {
+    position: static;
+    translate: none;
+    flex-direction: row;
+    gap: 0.75rem;
+    align-items: baseline;
+    justify-content: flex-start;
+    margin-bottom: 1rem;
+  }
+
+  .sokyokuKanji {
+    font-size: 1.6rem;
+    opacity: 0.4;
+  }
+
+  .slot {
+    position: static;
+    translate: none;
+  }
+
+  .gate {
+    width: 100%;
+    height: 22vh;
+    min-height: 128px;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 1rem;
+    padding-inline: clamp(1rem, 5vw, 2rem);
+  }
+
+  .roman {
+    text-align: left;
+  }
+
+  /* Koridorda kanatlar YATAY aralaniyor: dar ekranda dikey kanat
+     ayrimi gorunmuyordu. */
+  .peek {
+    left: auto;
+    right: clamp(1rem, 5vw, 2rem);
+    bottom: auto;
+    top: 50%;
+    translate: 0 -50%;
+    text-align: right;
+    font-size: 0.72rem;
+  }
+
+  .gate:hover .peek,
+  .gate:focus-visible .peek,
+  .gate[data-open] .peek {
+    translate: 0 -50%;
+  }
+
+  .panel {
+    position: static;
+    translate: none;
+    width: 100%;
+    max-height: none;
+    backdrop-filter: none;
+  }
+}
+
+/* ── HAREKETI AZALT ──────────────────────────────────────────
+   Kapi animasyonu yok, dogrudan acik/kapali. Reiatsu halkasi
+   yaniyor ama yayilmiyor. */
+@media (prefers-reduced-motion: reduce) {
+  .section,
+  .leaf,
+  .peek,
+  .gate,
+  .eraOption {
+    transition: none;
+  }
+
+  .gate:hover .ring,
+  .gate:focus-visible .ring {
+    animation: none;
+  }
+}

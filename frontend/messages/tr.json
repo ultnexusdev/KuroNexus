@@ -1523,6 +1523,25 @@
           "quincy": "Quincy",
           "human": "İnsan"
         }
+      },
+      "gotei": {
+        "eyebrow": "THE THIRTEEN GATES",
+        "title": "Gotei 13",
+        "lede": "On üç bölük, on üç kapı. Seireitei'nin dairesel planına sadık: ortada Sōkyoku Tepesi, çevresinde bir ruh ordusunun kapıları. Her bölüğün canon'da bir çiçeği ve o çiçeğin bir anlamı var.",
+        "eraClassic": "Klasik dizilim",
+        "eraTybw": "TYBW sonrası",
+        "eraAria": "Zaman kipi",
+        "gatesAria": "On üç bölük kapısı",
+        "captain": "Kaptan",
+        "lieutenant": "Vekil",
+        "zanpakuto": "Zanpakutō",
+        "bankai": "Bankai",
+        "specialty": "Uzmanlık",
+        "flower": "Çiçek",
+        "unknown": "kayıt yok",
+        "close": "Kapıyı kapat",
+        "center": "Sōkyoku Tepesi",
+        "gateLabel": "{n}. Bölük kapısı"
       }
     }
   },

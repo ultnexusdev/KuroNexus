@@ -52,7 +52,10 @@ export interface WorldRecord {
  * ilgili katmanın "dünyaya gir" bağlantısı hiç çizilmiyor. Tek satırlık
  * bir liste, beş katmanda beş ölü çapaya bedel.
  */
-export const READY_SECTIONS = new Set<string>();
+export const READY_SECTIONS = new Set<string>([
+  /* P03 · Gotei 13 — 23 Ağustos 2026 */
+  "gotei",
+]);
 
 export const BLEACH_WORLDS: readonly WorldRecord[] = [
   {

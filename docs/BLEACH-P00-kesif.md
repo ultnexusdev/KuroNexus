@@ -782,7 +782,65 @@ artık önce ayıklanıyor.
 **Bu bölümde tek satır istemci kodu yok.** Tema değişimi nitelik + kalıtım,
 geçitler CSS.
 
-### 8.9 Sırada
+### 8.9 P03 — GOTEI 13 (23 Ağustos 2026) ✅
+
+**TEZ.** On üç bölük, on üç kart değil on üç **kapı**. Seireitei'nin dairesel
+planına sadık: ortada Sōkyoku Tepesi, çevresinde bir daire üzerinde on üç
+kapı. Mobilde daire çöküyor, kapılar dikey bir koridora dönüyor.
+
+⚠️ **ÇİÇEKLER FANDOM'DAN DOĞRULANDI — ve doğrulama işe yaradı.** Brief'in
+kuralı gereği `bleach.fandom.com/wiki/Gotei_13` okundu. Sayfanın HTML'i 403
+veriyor; MediaWiki API'si (`api.php?action=parse&prop=wikitext`) veriyor.
+Hafızadan yazılsaydı **en az üçü yanlış olurdu**:
+
+| | hafıza | canon |
+|---|---|---|
+| 11. bölük | porsuk ağacı (yew) | **civanperçemi (yarrow)** |
+| 2. bölük | mor erik | **dağ lalesi (pasque flower)** |
+| 9. bölüğün anlamı | "boşluk" | **"unutuş" (oblivion)** |
+
+On üç çiçek, anlamları ve TYBW kadrosu artık `divisions.ts` içinde.
+
+**BİLİNMEYEN `null`.** Aizen'in Bankai'ı, Ukitake'nin Bankai'ı, Kenpachi'nin
+Bankai adı, Iba'nın kılıcı canon'da açıklanmadı — uydurulmadı, `null`
+bırakıldı ve panel "kayıt yok" gösteriyor. Brief'in kendi kuralı.
+
+**İKİ ZAMAN KİPİ.** Klasik dizilim ↔ TYBW sonrası. Hiçbir wiki bu iki
+tabloyu yan yana göstermiyor; sayfanın "arşivci" kimliğini kanıtlayan şey
+bu. 13. bölük Ukitake → Rukia, 5. bölük Aizen → Shinji, 1. bölük Yamamoto →
+Kyōraku.
+
+⚠️ **SVG DEĞİL, HTML.** Brief bir SVG koordinat sistemi öneriyor. Kapılar
+gerçek `<button>` ve daire üzerine CSS custom property ile yerleştirildi
+(konumlar `gatePosition()` ile önceden, deterministik olarak hesaplanıyor —
+hidrasyon uyuşmazlığı yok). Klavye gezinmesi, odak halkası, `aria-expanded`
+ve dokunma hedefi kendiliğinden geliyor; SVG içinde etkileşimli öğe kurmak
+üçünü de elle yeniden yazmak ve birini unutmak demekti.
+
+**Kapının üç durumu:** kapalı (yalnız kanji), hover/odak (kanatlar ortadan
+6px aralanıyor, ardından kaptan adı yükseliyor, reiatsu halkası yayılıyor —
+`box-shadow` değil kenarlık), açık (kanatlar tamamen çekiliyor, panel
+merkezde). Aynı anda tek kapı açık; adres `#gotei-8` olarak güncelleniyor
+(`replaceState` — `location.hash` yazmak sayfayı zıplatırdı).
+
+**Klavye:** gezinen sekme indeksi. Kapı grubu sekme sırasında TEK durak,
+içinde ok tuşlarıyla dolaşılıyor — on üç ayrı durak, sayfayı klavyeyle
+gezen birini bölümün içinde on üç kez durdururdu. Home/End uçlara,
+Escape kapatıyor ve odak kapıya dönüyor.
+
+⚠️ **İki hata yakalandı:**
+1. `gateLabel` bir **işlev** olarak sunucudan istemciye geçiriliyordu — RSC
+   sınırında serileştirilemez. On üç dize sunucuda üretilip dizi olarak
+   iniyor.
+2. Kapatma düğmesi `className="sr-only"` kullanıyordu ve **depoda öyle bir
+   yardımcı sınıf yok** — etiket ekrana basılırdı. `aria-label`e alındı.
+
+**No-JS durumu:** on üç kapı, kanji numaraları, İngilizce satırları, zaman
+kipi başlığı ve (hover'da) kaptan adları çiziliyor — bölüm boş değil.
+Panelin açılması JS gerektiriyor; bu bilinçli, brief'in tasarımı bir JS
+etkileşimi.
+
+### 8.10 Sırada
 
 `/anime/bleach` iskelet olarak duruyor ve **hiçbir yerden linkli değil**
 (`robots: noindex`). Sıradaki tur **P-TOKENS**: beş dünya paleti, derinlik

@@ -145,9 +145,35 @@
 > ve `.gothicMark` denetimin dışında kalmıştı. Artık gotik aileyi UYGULAYAN
 > sınıflar CSS'ten türetiliyor; çıktı hangilerinin izlendiğini yazıyor.
 >
-> **⏭ SIRADAKİ: P03 · GOTEI 13.** On üç kapı, Seireitei'nin dairesel planı,
-> bölük çiçekleri ve klasik/TYBW zaman kipi anahtarı. Sonra paralel
-> worktree'lerde P04–P16.
+> **⑪ P03 · GOTEI 13.** On üç bölük, on üç kart değil on üç **kapı**.
+> Seireitei'nin dairesel planı: ortada Sōkyoku Tepesi, çevresinde on üç kapı;
+> mobilde daire çöküp dikey koridora dönüyor.
+>
+> ⚠️ **ÇİÇEKLER FANDOM'DAN DOĞRULANDI ve doğrulama işe yaradı.** Hafızadan
+> yazılsaydı en az üçü yanlış olurdu: 11. bölük porsuk değil **civanperçemi**,
+> 2. bölük mor erik değil **dağ lalesi**, 9. bölüğün anlamı "boşluk" değil
+> **"unutuş"**. Kaynak: `bleach.fandom.com` — HTML'i 403 veriyor, MediaWiki
+> API'si (`api.php?action=parse&prop=wikitext`) veriyor.
+>
+> **Bilinmeyen `null`:** Aizen'in ve Ukitake'nin Bankai'ı, Kenpachi'nin
+> Bankai adı, Iba'nın kılıcı canon'da yok — uydurulmadı, panel "kayıt yok"
+> gösteriyor.
+>
+> **İki zaman kipi** (klasik ↔ TYBW): hiçbir wiki bu iki tabloyu yan yana
+> göstermiyor.
+>
+> ⚠️ **SVG değil HTML:** kapılar gerçek `<button>`, daire üzerine CSS custom
+> property ile yerleştirildi. Klavye, odak halkası, `aria-expanded` ve
+> dokunma hedefi kendiliğinden geliyor. Gezinen sekme indeksi: grup tek
+> durak, içinde ok tuşları.
+>
+> ⚠️ **İki hata yakalandı:** (a) `gateLabel` işlev olarak sunucudan istemciye
+> geçiriliyordu — RSC sınırında serileştirilemez, hazır diziye çevrildi.
+> (b) Kapatma düğmesi `sr-only` sınıfı kullanıyordu ama **depoda öyle bir
+> sınıf yok** — etiket ekrana basılırdı, `aria-label`e alındı.
+>
+> **⏭ SIRADAKİ: P04 · ZANPAKUTŌ ARŞİVİ** (dönüşüm şeridi + altı iç dünya) ve
+> P05 Bankai Salonu. Sonra paralel worktree'lerde P06–P16.
 >
 > ⚠️ `/anime/bleach` hiçbir yerden linkli değil ve `robots: noindex`. Hub
 > kartı P17 turunda ekleniyor.

@@ -1523,6 +1523,25 @@
           "quincy": "Quincy",
           "human": "Human"
         }
+      },
+      "gotei": {
+        "eyebrow": "THE THIRTEEN GATES",
+        "title": "Gotei 13",
+        "lede": "Thirteen divisions, thirteen gates. Faithful to Seireitei's circular plan: Sōkyoku Hill at the centre, the gates of a soul army around it. In canon every division has a flower, and every flower a meaning.",
+        "eraClassic": "Classic lineup",
+        "eraTybw": "After TYBW",
+        "eraAria": "Era",
+        "gatesAria": "Thirteen division gates",
+        "captain": "Captain",
+        "lieutenant": "Lieutenant",
+        "zanpakuto": "Zanpakutō",
+        "bankai": "Bankai",
+        "specialty": "Specialty",
+        "flower": "Flower",
+        "unknown": "no record",
+        "close": "Close the gate",
+        "center": "Sōkyoku Hill",
+        "gateLabel": "Gate of Division {n}"
       }
     }
   },

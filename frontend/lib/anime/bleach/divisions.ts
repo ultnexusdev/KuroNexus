@@ -57,6 +57,16 @@ export interface DivisionRecord {
   };
   /** Canon'da açıkça yazılıysa; yoksa `null` (panelde "—") */
   specialty: Localized | null;
+  /**
+   * Bölüğün KAYDI — panelde adların üstünde duran iki-üç cümle (P18-c).
+   *
+   * ⚠️ `specialty` etiketinin tekrarı değil: etiket "ne"yi, bu alan
+   * "neden hatırlanıyor"u söylüyor. Canon çapaları bölük sayfalarının
+   * "Special Duties" bölümlerinden (fandom, 23 Ağustos 2026); özel görevi
+   * olmayan bölüklerde cümle, kadro kayıtlarındaki DOĞRULANMIŞ olaylara
+   * yaslanıyor (Gin'in gidişi, Kyōraku'nun yükselişi, Rukia'nın ihlali).
+   */
+  about: Localized;
   /** Kaptanın reiatsu rengi — VERİ, token değil */
   reiatsu: string;
   classic: { captain: DivisionOfficer; lieutenant: string | null };
@@ -89,6 +99,10 @@ export const DIVISIONS: readonly DivisionRecord[] = [
       shape: "chrysanthemum",
     },
     specialty: { tr: "Komuta", en: "Command" },
+    about: {
+      tr: "Başkomutanın bölüğü ve ordunun ölçütü: sıradan üyeleri bile örnek Shinigami sayılır. Gerçek değeri kayıtlara şöyle geçti — emir daha verilmeden durumu okur ve harekete geçer.",
+      en: "The Head-Captain's own division and the army's measure: even its rank and file are held up as model Shinigami. Its true worth is on record — it reads a crisis and moves before the order is ever given.",
+    },
     reiatsu: "#C4341A",
     classic: {
       captain: {
@@ -117,6 +131,10 @@ export const DIVISIONS: readonly DivisionRecord[] = [
       shape: "pasque",
     },
     specialty: { tr: "Onmitsukidō — gizli harekât", en: "Onmitsukidō — covert ops" },
+    about: {
+      tr: "Yüz on yılı aşkın süredir Onmitsukidō ile tek gövde: Yoruichi Shihōin iki makamı birden tuttuğundan beri gizli harekât bu kapıdan yürütülüyor. Ordunun görünen yüzü değil, görünmeyen eli.",
+      en: "One body with the Onmitsukidō for over a hundred and ten years — ever since Yoruichi Shihōin held both offices at once, covert operations have run through this gate. Not the army's visible face; its unseen hand.",
+    },
     reiatsu: "#D8B94A",
     classic: {
       captain: {
@@ -145,6 +163,10 @@ export const DIVISIONS: readonly DivisionRecord[] = [
       shape: "marigold",
     },
     specialty: null,
+    about: {
+      tr: "Kayıtlı bir özel görevi yok; kayda geçen şey bir gece. Kaptanı Gin Ichimaru'nun Aizen'le birlikte çekip gittiği, üç bölüğün aynı anda kaptansız kaldığı gece. Bölük kendini o geceden sonra yeniden kurdu.",
+      en: "No special duty on record; what the record keeps is a single night. The night its captain, Gin Ichimaru, walked out with Aizen and three divisions lost their captains at once. The division rebuilt itself from that night on.",
+    },
     reiatsu: "#8FB8D6",
     classic: {
       captain: {
@@ -176,6 +198,10 @@ export const DIVISIONS: readonly DivisionRecord[] = [
       shape: "bellflower",
     },
     specialty: { tr: "Tıp ve ikmal", en: "Medicine and supply" },
+    about: {
+      tr: "Herkes ruhsal gücünü savaşmak için kullanır; bu bölük iyileştirmek için. Yaralıları o taşır, Seireitei'nin görünmeyen emeğini o çeker. Savaş herkes için bittiğinde, bu bölük için daha yeni başlamıştır.",
+      en: "Everyone else spends their spiritual power on fighting; this division spends it on healing. It carries the wounded and does the Seireitei's invisible labor. When the fighting is over for everyone else, its work has only begun.",
+    },
     reiatsu: "#C9C4BA",
     classic: {
       captain: {
@@ -203,6 +229,10 @@ export const DIVISIONS: readonly DivisionRecord[] = [
       shape: "lily",
     },
     specialty: null,
+    about: {
+      tr: "Üyeleri her alanda ustalaşmış bir kaptanın elinde yetişti — kayıt bunu övgüyle yazmıştı. Sonra o kusursuz kaptanın adı Sōsuke Aizen çıktı ve bölük, en büyük ihanetin doğduğu yer olarak anılır oldu.",
+      en: "Its members were trained by a captain who excelled at everything — the record wrote that down as praise. Then the flawless captain turned out to be Sōsuke Aizen, and the division became known as the birthplace of the greatest betrayal.",
+    },
     reiatsu: "#6B4E9E",
     classic: {
       captain: {
@@ -231,6 +261,10 @@ export const DIVISIONS: readonly DivisionRecord[] = [
       shape: "camellia",
     },
     specialty: null,
+    about: {
+      tr: "Her Shinigami'nin örnek gösterdiği bölük: kural neyse o. Kuchiki hanesinin reisi tarafından yönetilir ve yasaya bağlılığı, kaptanının kendi kız kardeşinin idamına karşı çıkmayışına kadar vardı.",
+      en: "The division every Shinigami points to as the model: the rule is the rule. Led by the head of the Kuchiki house, its devotion to law once went as far as its captain refusing to oppose his own sister's execution.",
+    },
     reiatsu: "#C2536B",
     classic: {
       captain: {
@@ -259,6 +293,10 @@ export const DIVISIONS: readonly DivisionRecord[] = [
       shape: "iris",
     },
     specialty: null,
+    about: {
+      tr: "Gösterişsiz ve sözünün eri insanların bölüğü. Komamura'dan Iba'ya geçen şey bir teknik değil bir ahlak: vefa borcu ve merhamet, bu kapıda kılıçtan önce gelir.",
+      en: "A division of plain, sincere people who mean what they say. What passed from Komamura to Iba was not a technique but an ethic: obligation and compassion come before the sword at this gate.",
+    },
     reiatsu: "#8A5A2B",
     classic: {
       captain: {
@@ -283,6 +321,10 @@ export const DIVISIONS: readonly DivisionRecord[] = [
       shape: "strelitzia",
     },
     specialty: null,
+    about: {
+      tr: "Kayıtlı bir özel görevi yok; kaydı taşıyan şey kaptanları. Shunsui Kyōraku bin yıllık savaşın ortasında başkomutanlığa çağrıldı ve koltuk, yüzyılı sürgünde geçirmiş bir Visored'a — Lisa Yadōmaru'ya — kaldı.",
+      en: "No special duty on record; its captains carry the record. Shunsui Kyōraku was called to Head-Captain in the middle of the thousand-year war, and the seat passed to Lisa Yadōmaru — a Visored who had spent the century in exile.",
+    },
     reiatsu: "#C88A2E",
     classic: {
       captain: {
@@ -311,6 +353,10 @@ export const DIVISIONS: readonly DivisionRecord[] = [
       shape: "poppy",
     },
     specialty: null,
+    about: {
+      tr: "Seireitei'nin güvenlik gücü: sürekli savaşa hazır bekleyen bölük. Aynı zamanda sanatın ve kültürün geleneksel bekçisi — Seireitei dergisini o çıkarır. Kılıç ve kalem bu kapıda aynı çekmecede durur.",
+      en: "The Seireitei's security force, on permanent standby for combat. Also the traditional keeper of arts and culture — it publishes the Seireitei journal. Sword and pen share a drawer at this gate.",
+    },
     reiatsu: "#4A7C59",
     classic: {
       captain: {
@@ -339,6 +385,10 @@ export const DIVISIONS: readonly DivisionRecord[] = [
       shape: "daffodil",
     },
     specialty: null,
+    about: {
+      tr: "Yaşayanlar dünyasındaki yetki alanı Naruki şehri; kayıttaki asıl istisna kaptanı. Tōshirō Hitsugaya bu koltuğa tarihin en genç kaptanı olarak oturdu.",
+      en: "Its jurisdiction in the living world is Naruki City; the real exception in its record is its captain. Tōshirō Hitsugaya took the seat as the youngest captain in history.",
+    },
     reiatsu: "#7FC7D9",
     classic: {
       captain: {
@@ -367,6 +417,10 @@ export const DIVISIONS: readonly DivisionRecord[] = [
       shape: "yarrow",
     },
     specialty: { tr: "Yakın dövüş", en: "Direct combat" },
+    about: {
+      tr: "Yalnızca kılıç: Kidō'yu ve öteki sanatları bilerek dışarıda bırakan tek bölük. Üyeleri Zanpakutō'larını her an yanında taşır ve doktrin tek cümledir — savaşmak, yaşamayı değerli kılan şeydir.",
+      en: "The sword and nothing else: the only division that deliberately forgoes Kidō and the other arts. Its members carry their Zanpakutō at all times, and the doctrine is a single sentence — fighting is what makes life worth living.",
+    },
     reiatsu: "#D9C89A",
     classic: {
       captain: { name: "Kenpachi Zaraki", zanpakuto: "野晒 Nozarashi", bankai: null },
@@ -392,6 +446,10 @@ export const DIVISIONS: readonly DivisionRecord[] = [
     specialty: {
       tr: "Teknoloji Geliştirme Bürosu",
       en: "Shinigami Research Institute",
+    },
+    about: {
+      tr: "Yüz yılı aşkın süredir Shinigami Araştırma-Geliştirme Enstitüsü'nün evi; kapıyı bilime Kisuke Urahara açtı. O günden beri bölüğün ölçüsü kılıç değil veri — toplanan, ayrıştırılan ve bazen yaratılan.",
+      en: "Home of the Shinigami Research and Development Institute for over a century; it was Kisuke Urahara who opened this gate to science. Since then the division's measure has not been the sword but data — gathered, dissected, and sometimes created.",
     },
     reiatsu: "#9BC53D",
     classic: {
@@ -421,6 +479,10 @@ export const DIVISIONS: readonly DivisionRecord[] = [
       shape: "snowdrop",
     },
     specialty: null,
+    about: {
+      tr: "Karakura kasabası bu bölüğün yetki alanı. Oraya gönderilen bir asker — Rukia Kuchiki — gücünü bir insana devretti ve bu arşivdeki her şey o ihlalle başladı.",
+      en: "Karakura Town falls under this division's jurisdiction. A soldier sent there — Rukia Kuchiki — handed her power to a human, and everything in this archive began with that violation.",
+    },
     reiatsu: "#DCEAF2",
     classic: {
       captain: {

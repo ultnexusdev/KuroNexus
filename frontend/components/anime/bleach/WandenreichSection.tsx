@@ -45,6 +45,7 @@ export async function WandenreichSection({ locale }: { locale: string }) {
       name: bearer.name,
       epithet: bearer.epithet,
       note: bearer.note ? pick(bearer.note, locale) : null,
+      power: bearer.power ? pick(bearer.power, locale) : null,
     })),
   }));
 

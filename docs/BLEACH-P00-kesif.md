@@ -7,12 +7,12 @@
 
 ## ⌂ DEVİR — SIRADAKİ OTURUM BURADAN BAŞLASIN (23 Ağustos 2026)
 
-**Durum:** Küratör altyapısı + P-TOKENS + **P01–P17 canlıda** + **P18-a ve
-P18-b bitti.** On altı anlatı bölümü, hub kartı, performans turu ve
-erişilebilirlik/i18n/SEO turu tamam. **Sayfa yayında — `noindex` kalktı.**
-**Sıradaki ve SON:** **P18-c** — brief'in "son kritik"i: sayfayı baştan
-sona gez, "bu Naruto'nun Bleach'le doldurulmuş hâli mi?" sorusunu bölüm
-bölüm cevapla, **en zayıf üç bölümü yeniden yaz.**
+**Durum: BLEACH EVRENİ TAMAM.** P01–P17 + P18-a/b/c bitti — on altı
+bölüm, hub kartı, performans, erişilebilirlik/i18n/SEO ve son kritik.
+**Sayfa yayında, indekslenebilir, brief kapandı.** Bundan sonrası bakım:
+küratör görselleri yüklendikçe doluyor, `npm run check:bleach` altı
+denetimiyle bekçilik ediyor. One Piece gibi yeni bir evren açılırsa bu
+belge + `CuratedImage` altyapısı devralınacak şablonun kendisi.
 
 ⚠️ **P18 TEK OTURUMA SIĞMAZ — ÜÇE BÖLÜNDÜ** (23 Ağustos 2026'da karar
 verildi; brief'in altı maddesi tek turda bitecek hacimde değil, altıncı
@@ -22,7 +22,7 @@ madde tek başına bir oturum):
 |---|---|
 | **P18-a** ✅ | **BİTTİ — 23 Ağustos 2026.** Ölçüldü: brief'in dört hedefinden üçü zaten tutuyordu, üç optimizasyon maddesinin ikisi ölçümde karşılıksız çıktı. Yapılan: on bölüme `content-visibility`, `pnpm check:bleach`e bütçe bekçisi. **Tutanak aşağıda — yeniden ölçme.** |
 | **P18-b** ✅ | **BİTTİ — 23 Ağustos 2026.** Atla listesi, iç içe `<main>` düzeltmesi, hreflang, OG kartı, JSON-LD, iki i18n sızıntısı ve `robots: noindex`in kalkması. **Tutanak aşağıda.** |
-| **P18-c** | Brief'in "son kritik"i: sayfayı baştan sona gez, "bu Naruto'nun Bleach'le doldurulmuş hâli mi?" sorusunu bölüm bölüm cevapla, **en zayıf üç bölümü yeniden yaz** |
+| **P18-c** ✅ | **BİTTİ — 23 Ağustos 2026.** On altı bölüm tek tek değerlendirildi: on dördü kendi tezini kuruyor. En zayıf İKİ bölüm yeniden yazıldı (üçüncü aday ölçümde çıkmadı — bilinçli sapma): Gotei 13 panellerine bölük kayıtları, Wandenreich plakasına 27 güç cümlesi. Canon düzeltmesi: S harfinin gerçek taşıyıcısı James. **Tutanak aşağıda.** |
 
 ⚠️ **`robots: noindex` P18-b'nin SONUNDA kalkar**, önce değil — kilit
 `page.tsx` içinde `generateMetadata`da yazılı.
@@ -153,6 +153,55 @@ başka sayfalarda duruyor):
 - **hreflang hiçbir sayfada yok** — `lib/seo.ts` içindeki `shareCard()`
   zaten `locale` ve `path` alıyor; `alternates`ı oraya eklemek bütün
   siteyi tek hamlede düzeltir.
+
+
+### P18-c · son kritik (23 Ağustos 2026) — BİTTİ, SAYFA TAMAM
+
+**Brief'in sorusu bölüm bölüm cevaplandı: "Bu, Naruto'nun Bleach'le
+doldurulmuş hâli mi?"** On dört bölüm için net **hayır** — her bölüm kendi
+tezini kuruyor ve brief'ten sapmaların hepsi gerekçeli (opaklık ölçümleri,
+`<time>` reddi, interpolasyon yerine dört durak). Teşhis iki eksende
+yapıldı: düzen ilkelleri tarandı (grid/kart/radius sayımı) ve bölüm başına
+taşınan metin ölçüldü (`tr:` alanlarının toplamı).
+
+**"En zayıf ÜÇ" değil İKİ bölüm yeniden yazıldı — bilinçli sapma.**
+Üçüncü aday ölçümde çıkmadı: Bankai Salonu'nun sessizliği tezin kendisi,
+Asil Haneler ve Maskeler brief'in "küçük tut" dediği bölümler. Canlıya
+yeni çıkmış bir sayfada sağlam bir bölümü "üç olsun" diye açmak
+karşılıksız çalkantı olurdu.
+
+İki zayıf bölümde de sorun YAPI değil İÇERİKTİ (ikisi de metin
+derinliğinde son sıradaydı: divisions.ts ort. 16 karakter, wandenreich.ts
+rol etiketlerinden ibaret):
+
+| | Yapılan |
+|---|---|
+| **P03 · Gotei 13** | 13 bölüğe `about: Localized` — panel artık isim kartı değil: önce bölüğün NEDEN hatırlandığı, sonra künye. Canon: bölük sayfalarının "Special Duties" bölümleri; özel görevi olmayanlarda cümle kadro kayıtlarındaki doğrulanmış olaylara yaslanıyor (Gin'in gidişi, Kyōraku'nun yükselişi, Rukia'nın ihlali) |
+| **P09 · Wandenreich** | 27 taşıyıcıya `power: Localized` — plakada harfin gücü tek cümle. Canon: `Schrift` sayfasının Ability sütunu. **K ve N'ye bilerek yazılmadı**: güç de epithet gibi hiç açıklanmadı; cümle uydurmak "mühür açılmadı" kaydını yalanlardı |
+
+**Turda yakalanan canon düzeltmesi:** S harfinin gerçek taşıyıcısı
+**James** — Mask De Masculine, James'in "ideal kahraman" tasavvurunun
+tezahürü (Kubo, Klub Outside Q&A #185 + Schrift tablosu). Kayıt ters
+duruyordu; sıra ve not düzeltildi.
+
+**Erişilebilirlik/SSR kararı (tuzak 3 düşünüldü):** Schrift güçleri
+hücrenin `<li>`sinde görünmez ama GERÇEK DOM'da — plaka kalıcı
+`aria-hidden` olduğu için oraya konsaydı ekran okuyucu hiç duyamazdı;
+düğme adına eklense odak anonsu paragrafa dönerdi. İki dilde 24 güç kaydı
+SSR çıktısında doğrulandı. Gotei'nin `about`ı ise panelde, yani
+etkileşim arkasında — bölümün BÜTÜN veri katmanı P03'ten beri böyle
+(kaptanlar, Zanpakutō'lar); yeni cümleyi özel-durum yapmak bölümün
+gramerini bozardı.
+
+**Plaka yüksekliği:** `readout` min-height 6.5→12rem (mobil 8→17rem) —
+en uzun harf (A: iki taşıyıcı, iki cümle) eskisine sığmıyordu. Yer yine
+ayrılmış: harf değişince ızgara zıplamıyor.
+
+⚠️ Doğrulama notu: `about` ve `power` alanları varsayılan durumda
+GÖRÜNMEZ (panel kapalı, plaka boş). SSR belirteç sayımı Gotei için hep 0
+verir — Gotei'yi tarayıcıda kapı tıklayarak, Schrift'i hem srOnly DOM'dan
+hem plakadan doğrula. Bu turda ikisi de yapıldı (5. kapı + A ve K
+hücreleri, üretim derlemesi 3100).
 
 
 ### Yerleşik konvansiyonlar — bunları yeniden keşfetme

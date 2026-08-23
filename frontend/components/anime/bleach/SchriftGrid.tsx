@@ -44,6 +44,8 @@ export interface GridBearer {
   name: string;
   epithet: string | null;
   note: string | null;
+  /** Gücün tek cümlelik kaydı (P18-c); K ve N'de `null` — mühür açılmadı */
+  power: string | null;
 }
 
 export interface GridLetter {
@@ -179,6 +181,20 @@ export function SchriftGrid({
                 </span>
                 <span className={styles.srOnly}>{name}</span>
               </button>
+              {/* Gücün kaydı (P18-c) — görünmez ama GERÇEK DOM: plaka
+                  kalıcı `aria-hidden` olduğu için güç cümlesi oraya
+                  konsaydı ekran okuyucu onu HİÇ duyamazdı. Düğmenin
+                  erişilebilir adına da eklenmedi — ad kısa bir künye,
+                  odak anonsunu bir paragrafa çevirmek yanlış olurdu.
+                  Doğrusal gezen okuyucu düğmeden sonra kaydı duyuyor. */}
+              {item.bearers.some((bearer) => bearer.power) ? (
+                <span className={styles.srOnly}>
+                  {item.bearers
+                    .filter((bearer) => bearer.power)
+                    .map((bearer) => `${bearer.name}: ${bearer.power}`)
+                    .join(" ")}
+                </span>
+              ) : null}
             </li>
           );
         })}
@@ -201,6 +217,9 @@ export function SchriftGrid({
                   <span className={styles.readName}>{bearer.name}</span>
                   {bearer.note ? (
                     <span className={styles.readNote}>{bearer.note}</span>
+                  ) : null}
+                  {bearer.power ? (
+                    <span className={styles.readPower}>{bearer.power}</span>
                   ) : null}
                 </p>
               ))}

@@ -316,6 +316,12 @@ function DivisionPanel({
         </button>
       </header>
 
+      {/* Bölüğün KAYDI (P18-c). Adlardan ÖNCE geliyor: panel artık
+          önce bölüğün ne olduğunu söylüyor, sonra kimlerden oluştuğunu.
+          Kart-hissini kıran şey tam olarak bu cümle — altındaki liste bir
+          künye, anlatı yükünü bu paragraf taşıyor. */}
+      <p className={styles.panelAbout}>{pickText(division.about)}</p>
+
       <dl className={styles.rows}>
         <Row label={labels.captain} value={officers.captain.name} strong />
         <Row label={labels.lieutenant} value={orNone(officers.lieutenant)} />

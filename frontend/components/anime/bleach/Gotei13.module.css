@@ -384,6 +384,16 @@
   color: var(--text-primary);
 }
 
+/* Bolugun kaydi (P18-c) — kunye listesinin ustunde anlati sesi.
+   world.body ODUNC ALINMADI: panel dar (min 30rem) ve world.body'nin
+   olcusu bandin genisligine gore; burada punto bir kademe kucuk. */
+.panelAbout {
+  margin: 0 0 clamp(0.9rem, 2vh, 1.3rem);
+  font-size: 0.86rem;
+  line-height: 1.62;
+  color: var(--text-secondary);
+}
+
 .rows {
   display: flex;
   flex-direction: column;

@@ -105,7 +105,10 @@
   display: flex;
   align-items: flex-start;
   gap: clamp(0.9rem, 3vw, 2rem);
-  min-height: 6.5rem;
+  /* P18-c'de 6.5rem -> 12rem: plakaya guc cumleleri geldi ve en uzun
+     harf (A: iki tasiyici, iki cumle) eskisine sigmiyordu. Yer yine
+     AYRILMIS — harf degistikce izgara ziplamiyor. */
+  min-height: 12rem;
   margin-top: clamp(1rem, 3vh, 1.75rem);
   padding-top: clamp(0.8rem, 2.5vh, 1.25rem);
   border-top: 1px solid color-mix(in srgb, var(--world-accent) 45%, transparent);
@@ -158,6 +161,18 @@
   color: var(--text-muted);
 }
 
+/* Gucun kaydi (P18-c) — plakadaki anlati satiri. Kunyeden (readNote)
+   farki: bu metin cumle, o etiket; punto ayni ama satir yuksekligi
+   okumaya gore. */
+.readPower {
+  display: block;
+  max-width: 46ch;
+  margin-top: 0.3rem;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
 .readHint {
   align-self: center;
   color: var(--text-muted);
@@ -179,7 +194,7 @@
   }
 
   .readout {
-    min-height: 8rem;
+    min-height: 17rem;
   }
 }
 

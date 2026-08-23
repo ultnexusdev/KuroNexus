@@ -13,6 +13,7 @@ import { BankaiSection } from "@/components/anime/bleach/BankaiSection";
 import { SoulHierarchy } from "@/components/anime/bleach/SoulHierarchy";
 import { HollowEvolution } from "@/components/anime/bleach/HollowEvolution";
 import { EspadaSection } from "@/components/anime/bleach/EspadaSection";
+import { WandenreichSection } from "@/components/anime/bleach/WandenreichSection";
 import { LAYER_IDS, type LayerId } from "@/components/anime/bleach/WorldSection";
 import { CuratorManifest } from "@/components/anime/bleach/CuratorManifest";
 import shell from "../layout.module.css";
@@ -114,6 +115,8 @@ export default async function BleachUniversePage({
         <HollowEvolution locale={locale} />
 
         <EspadaSection locale={locale} />
+
+        <WandenreichSection locale={locale} />
 
         {/* Kalan bölümlerin durağı. Bilinçli olarak sessiz: yarım bir
             sayfa olduğunu gizlemek yerine söyleyip geçiyor. */}

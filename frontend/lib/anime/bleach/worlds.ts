@@ -67,6 +67,8 @@ export const READY_SECTIONS = new Set<string>([
   "hueco",
   /* P08 · Espada — 23 Ağustos 2026 */
   "espada",
+  /* P09 · Wandenreich — 23 Ağustos 2026 */
+  "empire",
 ]);
 
 export const BLEACH_WORLDS: readonly WorldRecord[] = [
@@ -165,8 +167,13 @@ export const BLEACH_WORLDS: readonly WorldRecord[] = [
       { name: { tr: "Schatten Bereich", en: "Schatten Bereich" } },
       { name: { tr: "Wahrwelt", en: "Wahrwelt" } },
     ],
+    /* ⚠️ ÇAPA `#wandenreich` DEĞİL. Katmanın kendi kimliği zaten
+       `wandenreich`; derin bölüme aynı adı vermek belgede çift kimlik
+       yaratır ve bağlantı katmanın kendisine dönerdi (23 Ağustos 2026'da
+       P09 yazılırken yakalandı — o güne kadar görünmüyordu çünkü hedef
+       `READY_SECTIONS`te değildi). */
     enter: {
-      anchor: "#wandenreich",
+      anchor: "#empire",
       label: { tr: "İmparatorluğa gir", en: "Enter the empire" },
     },
   },

@@ -7,12 +7,11 @@
 
 ## ⌂ DEVİR — SIRADAKİ OTURUM BURADAN BAŞLASIN (23 Ağustos 2026)
 
-**Durum:** Küratör altyapısı + P-TOKENS + **P01–P08 canlıda.**
-**Sıradaki:** **P09 · Wandenreich — Görünmez İmparatorluk.** Brief'in kendi
-metni ana kaynak. ⚠️ P09 `[data-layer="wandenreich"]` derisinde: gotik buz,
-altın aksan. **UnifrakturMaguntia yalnızca orada** kullanılabilir (wordmark
-+ Schrift harfleri) ve aile Türkçe diyakritik taşımıyor —
-`pnpm check:bleach` bunu denetliyor, commit öncesi koştur.
+**Durum:** Küratör altyapısı + P-TOKENS + **P01–P09 canlıda.**
+**Sıradaki:** **P10 · Ruhsal Güç Sistemi.** Brief'in kendi metni ana kaynak.
+⚠️ P10 bir kadro değil bir ŞEMA bölümü (reiryoku/reiatsu/reishi ayrımı) —
+sayfanın dünya derisi dışında, `[data-world="bleach"]` tabanında geçmesi
+muhtemel; katman seçimini brief'i okuyunca ver.
 
 ### Yerleşik konvansiyonlar — bunları yeniden keşfetme
 
@@ -1227,7 +1226,80 @@ olmasın); `prefers-reduced-motion`'da dağılmış hâlleriyle sabit.
 
 Rota paketi 21 kB → 24 kB (bölümün etkileşim adası).
 
-### 8.15 Sırada
+### 8.15 P09 — WANDENREICH · GÖRÜNMEZ İMPARATORLUK (23 Ağustos 2026) ✅
+
+**TEZ.** Sayfanın geri kalanı Japon estetiği; burası Avrupa gotiği ve
+**çarpışmanın kendisi tasarım kararı**. Sivri kemer (`clip-path`, aynı
+reçete `Atmospheres.arch` ile paylaşılıyor), altın hairline `#C9A227`, buz
+mavisi `#8FB8D6`, derin lacivert zemin `#0C1016` — üçü de token, tek hex
+bileşende yok. Her blokta soldan sağa uzayan **sert, blursuz gölge**
+(Schatten Bereich).
+
+Yapı yatay bir kadro değil **dikey bir hiyerarşi**: tepede Yhwach tek
+başına, ortada beş kişilik Schutzstaffel, altta yirmi altı harf.
+
+⚠️ **BRIEF'İN SCHRIFT LİSTESİ DÖRT YERDE YANLIŞTI.** Doğrulama olmasa
+dördü de sayfaya girecekti:
+1. **C · The Compulsory** PePe Waccabrada değil **Pernida Parnkgjas**.
+2. **L · The Love** NaNaNa Najahkoop değil **PePe Waccabrada**.
+3. **U · The Underbelly** brief'te hiç yok; taşıyıcısı **NaNaNa
+   Najahkoop** — yani ikisi yer değiştirmiş.
+4. Berenike değil **Berenice** Gabrielli.
+
+⚠️ **"BOŞ HÜCRE" VARSAYIMI DA YANLIŞTI.** Brief K, N, R, W'nin boş
+kalacağını varsayıyor. Oysa **yirmi altı harfin hepsinin taşıyıcısı
+biliniyor**; açıklanmamış olan yalnızca **K ve N'nin Schrift ADI** (BG9 ve
+Robert Accutrone). Yani hücre boş değil: taşıyıcı var, mührün adı yok.
+Arayüz bunu kesikli çerçeve + "Mühür açılmadı" olarak çiziyor. Ölçüldü:
+kesikli çerçeveli tam iki hücre var, K ve N.
+
+⚠️ **ALFABE BİR EŞLEME DEĞİL.** Dört harfin iki taşıyıcısı var: A (Yhwach
+*The Almighty* **ve** Uryū *Antithesis*), S (Mask + James), V (Gremmy +
+Guenael), Y (Loyd + Royd). Kayıt bunu düzeltmiyor, gösteriyor.
+
+⚠️ **KİMLİK ÇAKIŞMASI YAKALANDI.** Derin bölüm `#wandenreich` olamazdı —
+o kimlik P02'deki **katmanın** kendisinde. Katmanın "İmparatorluğa gir"
+bağlantısı da `#wandenreich`e, yani kendisine işaret ediyordu; hedef
+`READY_SECTIONS`te olmadığı için bugüne kadar hiç çizilmemişti ve hata
+görünmemişti. Bölüm **`#empire`** adını aldı, çapa düzeltildi,
+`DEEP_SECTION_LAYERS`e eklendi.
+
+**KLAVYE — brief'in "bu bölümü gerçekten kullanılır yapan" ayrıntısı.**
+Roving tabindex (ızgaranın tamamı TEK sekme durağı; yirmi altı ayrı durak
+sayfayı gezen birini boğardı), ok tuşlarıyla gezinme, Home/End ve **A–Z
+tuşuyla doğrudan o mühre atlama**.
+
+⚠️ **SÜTUN SAYISI SABİT YAZILMADI.** Izgara 13 → 7 → 4 sütuna iniyor ve
+yukarı/aşağı ok tuşları o anki sütun sayısını **DOM'dan ölçüyor** (ilk
+hücreyle aynı `offsetTop`u paylaşan hücreleri sayarak). Ölçüm iki
+kırılmada da doğrulandı: 1440px'te 13, 360px'te 4. Sabit yazılsaydı dar
+ekranda ok tuşları yanlış hücreye giderdi — P06'daki dersin aynısı.
+
+⚠️ **OKUMA PLAKASI HÜCRENİN İÇİNDE DEĞİL.** Brief Schrift adını ve
+taşıyıcıyı hücreye koyuyor; on üç sütunda hücre 84px ve o metin 7px'e
+düşüyordu. Kayıt ızgaranın altındaki sabit plakada açılıyor (yer ayrılmış,
+CLS = 0). Plaka `aria-hidden`: her hücre zaten kendi kaydını **erişilebilir
+adı** olarak taşıyor ("F · The Fear · Äs Nödt"), yoksa ekran okuyucu her
+harfte aynı şeyi iki kez duyardı.
+
+**DOKUNMATİK:** hücre `<button>` ve tıklamayla sabitleniyor
+(`aria-pressed`) — `BankaiHall`de öğrenilen ders.
+
+**GOTİK DENETİM KENDİ YORUMUMU KIRMIZIYA DÜŞÜRDÜ.** `check-bleach-fonts`
+gotik sınıfı **anan** her satırda Türkçe karakter arıyor ve yorum olup
+olmadığına bakmıyor; `WandenreichSection` başlığındaki açıklama satırı
+düştü. Yorum yeniden yazıldı. Betik işini yapıyor — commit öncesi koştur.
+
+Hücreler 1440px'te 84×84, 360px'te 77×77 — ikisi de 44px dokunma hedefinin
+üstünde. Rota paketi 24 kB → 25,1 kB.
+
+⚠️ **DOĞRULANAMAYAN TEK ŞEY:** klavye gezinmesinin kendisi. Anlık görüntü
+statik HTML (React yok) ve tarayıcı paneli gerçek uygulamayı hidre
+edemiyor. Tip denetimi ve lint temiz, riskli kısım olan sütun ölçümü
+gerçek DOM'da iki kırılmada doğrulandı; ok tuşlarının canlıda elle
+sınanması gerekiyor.
+
+### 8.16 Sırada
 
 `/anime/bleach` iskelet olarak duruyor ve **hiçbir yerden linkli değil**
 (`robots: noindex`). Sıradaki tur **P-TOKENS**: beş dünya paleti, derinlik

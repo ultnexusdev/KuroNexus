@@ -66,6 +66,9 @@ export const DEEP_SECTION_LAYERS: Record<string, LayerId> = {
   hierarchy: "royal",
   hueco: "hueco-mundo",
   espada: "hueco-mundo",
+  /* ⚠️ `wandenreich` DEĞİL: o kimlik katmanın kendisinde. Derin bölüm
+     `empire` adını taşıyor, yoksa belgede iki `id="wandenreich"` olurdu. */
+  empire: "wandenreich",
 };
 
 /** Rayda ve başlıklarda kullanılan kanji — katman başına tek kaynak */

@@ -1,0 +1,222 @@
+/* ============================================================
+   P09 · WANDENREICH — GORUNMEZ IMPARATORLUK
+
+   Sayfanin geri kalani Japon estetigi; burasi Avrupa gotigi ve
+   CARPISMANIN KENDISI tasarim karari. Sivri kemer, altin hairline, buz
+   mavisi parlama, soldan saga uzayan sert golgeler (Schatten Bereich).
+
+   ⚠️ KURAL 16: tek hex yok. Altin `--world-accent`, buz mavisi
+   `--world-glow`, derin lacivert `--bg` -- ucu de
+   [data-layer="wandenreich"] blogunda ve kontrasti olculu.
+
+   ⚠️ Brief "altin uzerine METIN degil" diyor: altin yalnizca cizgi,
+   cerceve ve harf; okunan metin her zaman --world-paper ailesinde.
+   ============================================================ */
+
+.section {
+  position: relative;
+  isolation: isolate;
+  padding-block: clamp(4rem, 12vh, 9rem) clamp(4rem, 10vh, 7rem);
+  background: var(--bg);
+  color: var(--text-primary);
+  transition: background-color 600ms ease-in-out, color 600ms ease-in-out;
+}
+
+.head {
+  width: var(--band);
+  margin-inline: auto;
+  padding-inline-end: var(--rail);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(0.6rem, 1.6vw, 1.1rem);
+  margin-bottom: clamp(2.5rem, 8vh, 5rem);
+}
+
+.head p {
+  margin: 0;
+}
+
+.lede {
+  max-width: calc(var(--measure) / 1.4);
+}
+
+.divide {
+  width: var(--band);
+  margin-inline: auto;
+  margin-block: clamp(2.5rem, 8vh, 5rem);
+  background: var(--world-accent);
+  opacity: 0.45;
+}
+
+/* ── TEPE: IMPARATOR ─────────────────────────────────────────
+   Tek basina, ortada. Hiyerarsinin en ustunde kimse yok. */
+.emperor {
+  position: relative;
+  width: var(--band);
+  margin-inline: auto;
+  padding-inline-end: var(--rail);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: clamp(0.4rem, 1.2vh, 0.8rem);
+}
+
+/* Sivri kemer: blogun ARKASINDA duran bir yikama. `clip-path` icerigin
+   uzerine uygulansaydi kose metinleri kirpilirdi -- ayni recete
+   `Atmospheres.module.css` icindeki `.arch` ile paylasiliyor. */
+.emperor::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -6%;
+  translate: -50% 0;
+  z-index: -1;
+  width: min(34rem, 80%);
+  height: 118%;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--world-glow) 16%, transparent),
+    transparent 66%
+  );
+  clip-path: polygon(50% 0%, 100% 34%, 100% 100%, 0% 100%, 0% 34%);
+  pointer-events: none;
+}
+
+.emperor p {
+  margin: 0;
+}
+
+/* ⚠️ GOTIK AILE. Almanca ozel ad; Turkce dize bu aileye asla gecmiyor.
+   Golge Schatten Bereich: sert, blursuz, soldan saga. */
+.wordmark {
+  font-size: clamp(2.2rem, 8vw, 5.5rem);
+  line-height: 1.05;
+  color: var(--world-accent);
+  text-shadow: 0.14em 0 0 color-mix(in srgb, var(--world-glow) 22%, transparent);
+}
+
+.emperorName {
+  font-family: var(--b-kubo);
+  font-weight: 200;
+  font-size: clamp(1.2rem, 3vw, 2.2rem);
+  letter-spacing: 0.5em;
+  margin-inline-end: -0.5em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.emperorLetter {
+  color: var(--world-glow);
+}
+
+.emperorTitle {
+  color: var(--text-muted);
+}
+
+.emperorText {
+  margin-top: clamp(0.6rem, 2vh, 1.2rem);
+  max-width: calc(var(--measure) / 1.3);
+  text-align: left;
+}
+
+/* ── ORTA: MUHAFIZ ───────────────────────────────────────────
+   Bes isim, yatay. Alfabenin ustunde duruyorlar: hepsi Sternritter
+   ama hepsi esit degil. */
+.guard {
+  width: var(--band);
+  margin-inline: auto;
+  padding-inline-end: var(--rail);
+}
+
+.guard p {
+  margin: 0;
+}
+
+.guardTitle {
+  color: var(--world-accent);
+}
+
+.guardKanji {
+  margin-top: 0.3rem;
+  color: var(--text-muted);
+}
+
+.guardList {
+  list-style: none;
+  margin: clamp(1rem, 3vh, 1.75rem) 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: clamp(0.75rem, 2vw, 1.5rem);
+}
+
+.guardItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: clamp(0.7rem, 2vw, 1.1rem);
+  border: 1px solid color-mix(in srgb, var(--world-accent) 45%, transparent);
+  /* Schatten Bereich: sert, blursuz, saga uzayan golge */
+  box-shadow: 7px 7px 0 -1px
+    color-mix(in srgb, var(--world-ink) 70%, transparent);
+}
+
+.guardLetter {
+  font-size: 1.9rem;
+  line-height: 1;
+  color: var(--world-accent);
+}
+
+.guardName {
+  font-family: var(--b-kubo);
+  font-weight: 300;
+  font-size: 0.82rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.guardRole {
+  font-family: var(--b-body);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+/* ── ALT: ALFABE ─────────────────────────────────────────────
+   Sayfadaki tek izgara ve master brief'in verdigi tek istisna. */
+.alphabet {
+  width: var(--band);
+  margin-inline: auto;
+  padding-inline-end: var(--rail);
+}
+
+.alphabet p {
+  margin: 0;
+}
+
+.alphabetTitle {
+  color: var(--world-accent);
+}
+
+.alphabetKanji {
+  margin-top: 0.35rem;
+  color: var(--text-muted);
+}
+
+@media (max-width: 900px) {
+  .head,
+  .emperor,
+  .guard,
+  .alphabet {
+    padding-inline-end: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section {
+    transition: none;
+  }
+}

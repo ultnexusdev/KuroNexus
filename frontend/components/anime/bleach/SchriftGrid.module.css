@@ -1,0 +1,191 @@
+/* ============================================================
+   STERNRITTER ALFABESI — 26 harf, 26 muhur
+
+   ⚠️ KURAL 16: tek hex yok. Altin cerceve `--world-accent`, iceriden
+   aydinlanma `--world-glow`, harf `--world-paper`.
+
+   ⚠️ Brief "altin uzerine metin degil" diyor ve burada da oyle: altin
+   yalnizca cerceve; harf ve okunan her sey --world-paper ailesinde.
+   ============================================================ */
+
+.wrap {
+  margin-top: clamp(1rem, 3vh, 1.75rem);
+}
+
+.grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  /* 13x2 -- brief'in imza duzeni */
+  grid-template-columns: repeat(13, minmax(0, 1fr));
+  gap: clamp(0.25rem, 0.7vw, 0.6rem);
+}
+
+.slot {
+  display: flex;
+}
+
+.cell {
+  appearance: none;
+  position: relative;
+  width: 100%;
+  /* Kare hucre; dokunma hedefi 44px'in altina dusmuyor */
+  aspect-ratio: 1;
+  min-height: var(--touch-min);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  background: none;
+  border: 1px solid color-mix(in srgb, var(--world-accent) 55%, transparent);
+  color: var(--world-paper);
+  /* Schatten Bereich: sert, blursuz, saga uzayan golge */
+  box-shadow: 4px 4px 0 -1px
+    color-mix(in srgb, var(--world-ink) 65%, transparent);
+  transition: background-color 260ms ease-out, border-color 260ms ease-out,
+    box-shadow 260ms ease-out;
+}
+
+/* ⚠️ Muhrun adi canon'da acilmadiysa cerceve KESIKLI. Bu bir eksiklik
+   degil, kaydin kendisi: imparatorlugun hala sirri var. */
+.cell[data-sealed] {
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--world-accent) 32%, transparent);
+}
+
+/* Harf. Gotik aile YALNIZCA burada ve wordmark'ta. */
+.cell > span:first-child {
+  font-size: clamp(1.1rem, 2.6vw, 2.1rem);
+  line-height: 1;
+  opacity: 0.3;
+  transition: opacity 260ms ease-out;
+}
+
+/* Iceriden aydinlanma: harf beyaza doner, hucre buz mavisi yanar. */
+.cell:hover,
+.cell:focus-visible,
+.cell[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--world-glow) 16%, transparent);
+  border-color: var(--world-accent);
+  border-style: solid;
+  box-shadow: 6px 6px 0 -1px
+    color-mix(in srgb, var(--world-glow) 30%, transparent);
+}
+
+.cell:hover > span:first-child,
+.cell:focus-visible > span:first-child,
+.cell[aria-pressed="true"] > span:first-child {
+  opacity: 1;
+}
+
+.cell:focus-visible {
+  outline: 2px solid var(--world-glow);
+  outline-offset: 3px;
+}
+
+/* Ekran okuyucuya giden tam kayit. Gorunmuyor ama SILINMIYOR: hucrenin
+   erisilebilir adi bu ve okuma plakasi `aria-hidden`. */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── OKUMA PLAKASI ───────────────────────────────────────────
+   Yer AYRILMIS: harf degistikce izgara ziplamiyor (CLS = 0). */
+.readout {
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(0.9rem, 3vw, 2rem);
+  min-height: 6.5rem;
+  margin-top: clamp(1rem, 3vh, 1.75rem);
+  padding-top: clamp(0.8rem, 2.5vh, 1.25rem);
+  border-top: 1px solid color-mix(in srgb, var(--world-accent) 45%, transparent);
+}
+
+.readout p {
+  margin: 0;
+}
+
+.readLetter {
+  flex: none;
+  font-size: clamp(2.6rem, 8vw, 4.5rem);
+  line-height: 0.9;
+  color: var(--world-accent);
+  text-shadow: 0.1em 0 0 color-mix(in srgb, var(--world-glow) 26%, transparent);
+}
+
+.readBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+.readLine {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.readEpithet {
+  font-family: var(--b-kubo);
+  font-weight: 300;
+  font-size: clamp(0.78rem, 1.5vw, 0.95rem);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--world-glow);
+}
+
+.readName {
+  font-family: var(--b-display);
+  font-weight: 600;
+  font-size: clamp(0.95rem, 2vw, 1.25rem);
+  color: var(--text-primary);
+}
+
+.readNote {
+  font-family: var(--b-body);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.readHint {
+  align-self: center;
+  color: var(--text-muted);
+}
+
+/* ── DAR EKRAN ───────────────────────────────────────────────
+   ⚠️ Sutun sayisi burada degisiyor ve ok tuslari bunu DOM'dan olcuyor
+   (`SchriftGrid.tsx`); sabit bir sayi yazilsaydi dar ekranda klavye
+   yanlis hucreye giderdi. */
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .readout {
+    min-height: 8rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cell,
+  .cell > span:first-child {
+    transition: none;
+  }
+}

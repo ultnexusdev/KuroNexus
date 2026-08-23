@@ -159,6 +159,15 @@
     opacity var(--knp-dur-slow) var(--knp-ease);
 }
 
+/* Düğmenin yazısı. Sabit konumlu bir hap içinde duruyor ve iki durumda iki
+   farklı uzunlukta metin taşıyor ("Kenpachi modu" / "Bandı geri tak") —
+   sarmasına izin verilirse hap iki satıra çıkıp altındaki içeriğin üstüne
+   biner. 360 px'te ikon + yazı + iç boşluk hâlâ sığıyor, o yüzden gizlemeye
+   gerek yok (gizlemek düğmenin erişilebilir adını da götürürdü). */
+.modeLabel {
+  white-space: nowrap;
+}
+
 /* Bant düşüyor: mod açıkken düğmenin ikonu da yere iniyor */
 .page[data-kenpachi] .modeIcon {
   translate: 0 0.7rem;

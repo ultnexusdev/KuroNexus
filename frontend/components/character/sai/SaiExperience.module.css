@@ -40,3 +40,1979 @@
   --sai-glow-soft:  color-mix(in srgb, #ded6c4 20%, transparent);
   --sai-glow-strong: color-mix(in srgb, #ded6c4 45%, transparent);
 }
+
+/* ============================================================
+   SAI — "MÜREKKEP VE DUYGU"
+
+   Deri yukarıda. Bu noktadan sonra dosyada TEK HEX YOK: her ara ton
+   `color-mix()` ile yukarıdaki token'lardan türetildi (BRIEF §3).
+
+   ── SAYFANIN FİKRİ ──────────────────────────────────────────────────────
+   RENKSİZLİK, ve ışığın nerede olduğu.
+
+   On beş kardeşinin en renksizi bilerek bu sayfa. Ama asıl karar palet
+   değil, IŞIĞIN DAĞILIMI: sayfa karanlık bir oda; içinde yalnızca İKİ
+   aydınlık yüzey var — canlanan çizim tomarı ve duygu sözlüğünün kâğıt
+   fişleri. İkisi de Sai'nin kendi ürettiği ya da okuduğu şeyler. Geri
+   kalan her şey (künye, teknikler, çanta, çizelge) odanın karanlığında
+   duruyor. Bir bölümün "kâğıt" olup olmadığı bu sayfada bir süs kararı
+   değil, anlatının kendisi.
+
+   Mürekkep bu sayfada KARANLIKTIR (`--sai-ink`, bg'den daha koyu): Sai
+   çizerken ışık eklemiyor, ışığı kapatıyor. Tek sıcak nokta mühür kızılı
+   (`--sai-seal`) ve o da sayaç gibi kullanılıyor — bir çizim canlandığında
+   kâğıda basılıyor, Sumi modunda griye düşüyor.
+
+   ── TİPOGRAFİ ───────────────────────────────────────────────────────────
+   Üç ses, üçü de karakterin bir yanı:
+     Display  → Shippori Mincho B1 (600/700). Minçō: fırçayla yazılıp
+                kalemle kesilmiş Japon serifi. Ad, bölüm başlıkları,
+                teknik adları. ⚠️ Ailede YALNIZCA 600 ve 700 yüklü;
+                başka ağırlık yazılırsa tarayıcı sentezler.
+     Gövde    → Cormorant Garamond. İnce, yüksek kontrastlı; Sai'nin
+                okuduğu kitabın sesi.
+     Notasyon → Jost (200/300). Geometrik, soğuk, aralıklı kapital:
+                Kök'ün künye/etiket dili. ⚠️ 200 ve 300 dışında ağırlık
+                YOK. 4.5:1 altına düşmemesi için hep en az 0.6875rem.
+     Kanji    → Yuji Boku (`--font-brush`), yalnızca TEK karakterlik
+                işaretler: 根, bölüm gliffleri, figür adları, 無題.
+
+   ⚠️ Shippori/Jost ikilisi Bleach salonu için yüklenmişti; ikisi de
+   `preload: false` olduğu için burada kullanmak hiçbir sayfaya ek yük
+   getirmiyor (emsal: futbolcu sayfası için yüklenen Inter, Shikamaru
+   sayfasında da okunuyor). layout.tsx'e dokunulmadı.
+
+   ── HAREKET ─────────────────────────────────────────────────────────────
+   Tek yazılmış an var ve sayfanın kalbi tam olarak o: bir çizimin
+   ÇİZİLMESİ. Sıra Sai'nin tekniğinin sırası — çizgi iner (`--sai-draw`,
+   `stroke-dashoffset`), gövde mürekkebini alır (`--sai-ink-in`), mühür
+   vurulur ve göz açılır. Geri kalan her şey ya durağan ya da tek
+   kademelik bir ton değişimi.
+
+   Süre/easing değişkenleri `.page`de; animasyonların tamamı dosyanın
+   sonundaki reduce battaniyesiyle kapanıyor — kapandığında figür
+   ÇİZİLMİŞ hâlde duruyor, hiçbir şey görünmez kalmıyor.
+   ============================================================ */
+
+.page {
+  /* Süre ve easing — hareket sözlüğü */
+  --sai-dur-fast: 170ms;
+  --sai-dur: 340ms;
+  --sai-dur-slow: 720ms;
+  --sai-draw: 720ms;      /* tek bir fırça darbesinin inmesi */
+  --sai-stagger: 55ms;    /* darbeler arası gecikme */
+  --sai-ink-in: 420ms;    /* gövdenin mürekkebini alması */
+  --sai-seal-at: 1450ms;  /* mührün vurulduğu an (çizim bitince) */
+  --sai-slide: 760ms;     /* tomarın bir durak kayması */
+  --sai-ease: cubic-bezier(0.16, 1, 0.3, 1); /* üstel yavaşlama */
+  --sai-ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+  --sai-ease-brush: cubic-bezier(0.62, 0.02, 0.3, 1); /* fırçanın ivmesi */
+
+  /* Geometri */
+  --sai-gutter: clamp(1rem, 4vw, 2.25rem);
+  --sai-unit: clamp(1.5rem, 5.2vw, 3.4rem);
+  --sai-content: min(100% - var(--sai-gutter) * 2, 72rem);
+  --sai-measure: 66ch;
+  /* Hat kalınlığı: Sumi modunda sertleşen tek ölçü */
+  --sai-rule: 1px;
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text-primary);
+  overflow-x: clip;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Mürekkep yıkaması ───────────────────────────────────────────────────
+   Sayfanın üst ve alt kenarından içeri sızan iki leke. Normalde zar zor
+   görülüyor; Sumi modunda büyüyüp koyulaşıyor — "mürekkep yayıldı"
+   cümlesinin görsel karşılığı bu katman. */
+.wash {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  background:
+    radial-gradient(78% 34% at 50% 0%, var(--sai-blot), transparent 72%),
+    radial-gradient(86% 40% at 50% 100%, var(--sai-blot), transparent 74%);
+  transition:
+    opacity var(--sai-dur-slow) var(--sai-ease),
+    scale var(--sai-dur-slow) var(--sai-ease);
+}
+
+/* ── Breadcrumb ──────────────────────────────────────────────────────── */
+.crumb {
+  position: relative;
+  z-index: 1;
+  width: var(--sai-content);
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-block: 0.5rem;
+  font-family: var(--font-jost), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 300;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.crumb a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--sai-dur-fast) var(--sai-ease-soft);
+}
+
+.crumb a:hover {
+  color: var(--text-primary);
+}
+
+.crumb a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.crumbSep {
+  color: var(--border-strong);
+}
+
+/* ── Mod düğmesi: "Sumi modu" ────────────────────────────────────────── */
+.sumiToggle {
+  position: fixed;
+  right: clamp(0.75rem, 3vw, 1.75rem);
+  bottom: calc(clamp(0.75rem, 3vw, 1.75rem) + var(--music-bar, 0px));
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: var(--touch-min);
+  padding: 0.5rem 1.1rem 0.5rem 0.65rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: blur(6px);
+  color: var(--text-secondary);
+  font-family: var(--font-jost), var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 12px 30px -16px var(--sai-blot);
+  transition:
+    color var(--sai-dur) var(--sai-ease-soft),
+    border-color var(--sai-dur) var(--sai-ease-soft),
+    background var(--sai-dur) var(--sai-ease-soft);
+}
+
+.sumiToggle:hover {
+  color: var(--text-primary);
+  border-color: var(--accent-muted);
+}
+
+.sumiToggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.sumiToggle[aria-pressed="true"] {
+  color: var(--text-primary);
+  border-color: var(--accent-muted);
+  background: color-mix(in srgb, var(--surface-hover) 92%, transparent);
+}
+
+/* Fırça, mod açıkken kâğıda batıyor */
+.sumiToggleGlyph {
+  width: 1.45rem;
+  height: 1.45rem;
+  flex: none;
+  transition:
+    rotate var(--sai-dur-slow) var(--sai-ease),
+    translate var(--sai-dur-slow) var(--sai-ease);
+}
+
+.sumiToggle[aria-pressed="true"] .sumiToggleGlyph {
+  rotate: -22deg;
+  translate: 0 2px;
+}
+
+.sumiToggleLabel {
+  white-space: nowrap;
+}
+
+.sumiHint {
+  position: fixed;
+  right: clamp(0.75rem, 3vw, 1.75rem);
+  bottom: calc(clamp(0.75rem, 3vw, 1.75rem) + var(--music-bar, 0px) + 3.6rem);
+  z-index: 59;
+  max-width: min(22rem, calc(100vw - 2rem));
+  margin: 0;
+  text-align: right;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.sumiHint:empty {
+  display: none;
+}
+
+/* ============================================================
+   1 · HERO — LEKE VE AD
+
+   Portre lekenin İÇİNDEN çıkıyor: önce mürekkep, sonra figür. Metin solda
+   dar bir sütunda; leke sağda ve kutusunun dışına taşıyor (sayfa
+   `overflow-x: clip` ile kesiyor). Filigran 根 en arkada, adın
+   ölçüsünden büyük.
+   ============================================================ */
+.hero {
+  position: relative;
+  z-index: 1;
+  width: var(--sai-content);
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.92fr);
+  align-items: center;
+  gap: var(--sai-unit);
+  padding-block: calc(var(--sai-unit) * 1.1) calc(var(--sai-unit) * 1.8);
+  min-height: min(86svh, 52rem);
+}
+
+.heroArt {
+  position: relative;
+  z-index: 0;
+  order: 2;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+}
+
+/* Kurator yuvası ızgaranın altına, tam genişlikte — yoksa `order: 0` ile
+   ilk sütuna girip portreyi aşağı iterdi */
+.hero .slotRow {
+  grid-column: 1 / -1;
+  order: 3;
+}
+
+/* Leke kutusundan taşıyor: mürekkep bir çerçeveye sığmaz */
+.blot {
+  position: absolute;
+  inset: -14%;
+  width: 128%;
+  height: 128%;
+  pointer-events: none;
+}
+
+.strokes {
+  position: absolute;
+  inset: 6% -8% auto -8%;
+  width: 116%;
+  height: 62%;
+  pointer-events: none;
+}
+
+/* Kurator sahnesi: lekenin altında, neredeyse tamamen soğurulmuş */
+.heroScene {
+  position: absolute;
+  inset: 8%;
+  border-radius: 50%;
+  overflow: hidden;
+  opacity: 0.3;
+  mask-image: radial-gradient(circle at 50% 45%, black 30%, transparent 74%);
+}
+
+.heroScene img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.1) brightness(0.7);
+}
+
+/* Portre DAR kadraj (BRIEF §4.1): küçük portre büyük kutuya yayılmıyor */
+.heroPortrait {
+  position: relative;
+  display: block;
+  width: clamp(8.5rem, 26vw, 14rem);
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--accent) 26%, transparent);
+  background: var(--surface);
+  filter: grayscale(1) contrast(1.06);
+  box-shadow:
+    0 30px 60px -40px var(--sai-ink),
+    0 0 60px -28px var(--sai-glow-soft);
+  transition: filter var(--sai-dur-slow) var(--sai-ease);
+}
+
+.heroPortrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 16%;
+}
+
+.hero:hover .heroPortrait {
+  filter: grayscale(0.55) contrast(1.06);
+}
+
+/* Filigran 根 — "kök". Kadrajın sağ kenarında, her şeyin arkasında. */
+.heroMark {
+  position: absolute;
+  right: calc(var(--sai-unit) * -0.6);
+  top: 50%;
+  translate: 0 -50%;
+  z-index: -1;
+  margin: 0;
+  font-family: var(--font-brush), var(--font-shippori), serif;
+  font-size: clamp(9rem, 30vw, 22rem);
+  line-height: 0.8;
+  color: color-mix(in srgb, var(--text-primary) 5%, transparent);
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Leke kutusunun dışına taştığı için metin sütunuyla ÇAKIŞABİLİR:
+   konumlandırılmış `.heroArt` normalde akıştaki metnin üstüne biner.
+   `z-index: 2` metni her koşulda üste alıyor. */
+.heroBody {
+  position: relative;
+  z-index: 2;
+  order: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+  max-width: 38ch;
+}
+
+.heroName {
+  margin: 0;
+  font-family: var(--font-shippori), Georgia, serif;
+  font-size: clamp(3rem, 11vw, 6rem);
+  font-weight: 700;
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.heroNative {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.15rem 0 0;
+}
+
+.heroNativeText {
+  font-family: var(--font-brush), var(--font-shippori), serif;
+  font-size: clamp(1.15rem, 2.8vw, 1.65rem);
+  letter-spacing: 0.28em;
+  color: var(--text-secondary);
+}
+
+/* Mühür: sayfanın ilk kızılı, adın hemen yanında */
+.heroSeal {
+  width: 1.5rem;
+  height: 1.5rem;
+  flex: none;
+  transition: filter var(--sai-dur-slow) var(--sai-ease);
+}
+
+.heroDivision {
+  margin: 0.85rem 0 0;
+  font-family: var(--font-jost), var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 300;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.heroEpigraph {
+  margin: calc(var(--sai-unit) * 0.5) 0 0;
+  font-family: var(--font-shippori), Georgia, serif;
+  font-size: clamp(1.15rem, 2.2vw, 1.6rem);
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  text-wrap: pretty;
+}
+
+.heroLede {
+  margin: 0.65rem 0 0;
+  max-width: 46ch;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.1875rem;
+  line-height: 1.72;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* ============================================================
+   BÖLÜM İSKELETİ
+
+   Başlık bloğu iki sütun: metin solda, tek karakterlik fırça işareti
+   sağda, dikey yazılmış ve kendi hattına yaslanmış. Japon kitap
+   sayfasının kenar sütunu; sayfanın her bölümünde tekrar ediyor ve
+   sayfanın imzası bu.
+   ============================================================ */
+.section,
+.scrollSection,
+.lexiconSection {
+  position: relative;
+  z-index: 1;
+  width: var(--sai-content);
+  margin-inline: auto;
+  padding-block: calc(var(--sai-unit) * 1.3);
+}
+
+.sectionHead {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: var(--sai-unit);
+  margin-bottom: calc(var(--sai-unit) * 1.05);
+}
+
+.sectionHeadText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  min-width: 0;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: var(--font-shippori), Georgia, serif;
+  font-size: clamp(1.7rem, 4vw, 2.85rem);
+  font-weight: 700;
+  line-height: 1.14;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.sectionLede {
+  margin: 0;
+  max-width: 54ch;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.125rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.sectionGlyph {
+  margin: 0;
+  padding-left: 1.15rem;
+  border-left: var(--sai-rule) solid var(--border);
+  writing-mode: vertical-rl;
+  font-family: var(--font-brush), var(--font-shippori), serif;
+  font-size: clamp(2.4rem, 6vw, 4.2rem);
+  line-height: 1;
+  color: color-mix(in srgb, var(--text-primary) 14%, transparent);
+  user-select: none;
+  transition:
+    color var(--sai-dur-slow) var(--sai-ease),
+    border-color var(--sai-dur) var(--sai-ease-soft);
+}
+
+/* Kurator yuvaları — ziyaretçide hiç çizilmiyor */
+.slotRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+/* ============================================================
+   2 · KAYIT (KÜNYE)
+   Kart ızgarası değil, bir DOSYA: etiket solda sabit sütunda, değer
+   sağda, satırlar ince hatlarla ayrılmış.
+   ============================================================ */
+.facts {
+  margin: 0;
+  border-top: var(--sai-rule) solid var(--border);
+}
+
+.fact {
+  display: grid;
+  grid-template-columns: minmax(8rem, 15rem) minmax(0, 1fr);
+  gap: 0.35rem 2rem;
+  padding: 1.05rem 0.25rem;
+  border-bottom: var(--sai-rule) solid var(--border);
+  transition: background var(--sai-dur) var(--sai-ease-soft);
+}
+
+.fact:hover {
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+}
+
+.fact dt {
+  padding-top: 0.3rem;
+  font-family: var(--font-jost), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 300;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.fact dd {
+  margin: 0;
+  font-family: var(--font-shippori), Georgia, serif;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.55;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  text-wrap: pretty;
+}
+
+/* ============================================================
+   3 · ADLARINI ÖĞRENDİĞİ YÜZLER
+   Asılı tomar kadrajı: dar, uzun, ince çerçeveli. Portreler tamamen
+   gri; sayfanın renksizlik kuralı yüzlerde de geçerli. Kök tarafındaki
+   tek kart daha karanlık basılıyor.
+   ============================================================ */
+.people {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: calc(var(--sai-unit) * 0.9) 1.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.person {
+  min-width: 0;
+}
+
+.personLink {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.personLink:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 6px;
+}
+
+.personArt {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: var(--surface);
+  border: var(--sai-rule) solid var(--border);
+  transition: border-color var(--sai-dur) var(--sai-ease-soft);
+}
+
+/* Portre kaydı yoksa çerçeve hiç çizilmez: kart adla ayakta kalır */
+.personArt:empty {
+  display: none;
+}
+
+.personArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 18%;
+  filter: grayscale(1) contrast(1.05) brightness(0.9);
+  transition: filter var(--sai-dur-slow) var(--sai-ease);
+}
+
+.person[data-side="root"] .personArt img {
+  filter: grayscale(1) contrast(1.2) brightness(0.55);
+}
+
+.personLink:hover .personArt img {
+  filter: grayscale(0.6) contrast(1.02) brightness(1);
+}
+
+.personLink:hover .personArt {
+  border-color: var(--accent-muted);
+}
+
+.personBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.personCallsign {
+  font-family: var(--font-jost), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.person[data-side="root"] .personCallsign {
+  color: color-mix(in srgb, var(--sai-seal) 60%, var(--text-muted));
+}
+
+.personName {
+  font-family: var(--font-shippori), Georgia, serif;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  transition: color var(--sai-dur-fast) var(--sai-ease-soft);
+}
+
+.personLink:hover .personName {
+  color: var(--accent);
+}
+
+.personLink[data-static="true"]:hover .personName {
+  color: var(--text-primary);
+}
+
+.personNote {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* ============================================================
+   4 · MÜREKKEBİN ÜÇ ÖLÇEĞİ
+   Üç asılı şerit. Solda tek karakterlik fırça işareti kendi sütununda,
+   ortada metin, sağda (varsa) dar dikey bir görsel paneli.
+   ============================================================ */
+.forms {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--sai-unit) * 1.1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.form {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 1.75rem;
+  padding-top: 1.6rem;
+  border-top: var(--sai-rule) solid var(--border);
+}
+
+.form > [data-curator-slot] {
+  grid-column: 1 / -1;
+  margin-top: 0.5rem;
+}
+
+.formGlyph {
+  writing-mode: vertical-rl;
+  font-family: var(--font-brush), var(--font-shippori), serif;
+  font-size: clamp(2rem, 4.6vw, 3.2rem);
+  line-height: 1;
+  color: color-mix(in srgb, var(--text-primary) 26%, transparent);
+  transition: color var(--sai-dur) var(--sai-ease-soft);
+}
+
+.form:hover .formGlyph {
+  color: var(--accent);
+}
+
+.formBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.formName {
+  font-family: var(--font-shippori), Georgia, serif;
+  font-size: clamp(1.3rem, 2.8vw, 1.8rem);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
+}
+
+.formTurkish {
+  font-family: var(--font-jost), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 300;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.formTagline {
+  margin-top: 0.45rem;
+  max-width: 42ch;
+  font-family: var(--font-shippori), Georgia, serif;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.55;
+  color: var(--accent);
+}
+
+.formText {
+  max-width: var(--sai-measure);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.125rem;
+  line-height: 1.75;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.formTraits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+
+.trait {
+  padding: 0.32rem 0.7rem;
+  border: var(--sai-rule) solid var(--border);
+  font-family: var(--font-jost), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 300;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.formArt {
+  position: relative;
+  display: block;
+  width: clamp(6rem, 14vw, 10.5rem);
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  opacity: 0.55;
+  mask-image: linear-gradient(to left, black 40%, transparent 100%);
+  transition: opacity var(--sai-dur-slow) var(--sai-ease);
+}
+
+.formArt:empty {
+  display: none;
+}
+
+.formArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.08);
+}
+
+.form:hover .formArt {
+  opacity: 0.8;
+}
+
+/* ============================================================
+   5 · ÇANTANIN İÇİ — dört küçük
+   İnce hatlarla ayrılmış dört kutu; her kutunun sağ altında karakterin
+   fırça işareti filigran olarak duruyor.
+   ============================================================ */
+.kit {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: var(--sai-rule);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--border);
+  border: var(--sai-rule) solid var(--border);
+}
+
+.kitItem {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1.5rem 1.35rem 1.6rem;
+  background: var(--bg);
+  overflow: hidden;
+  transition: background var(--sai-dur) var(--sai-ease-soft);
+}
+
+.kitItem:hover {
+  background: var(--surface);
+}
+
+.kitArt {
+  position: absolute;
+  inset: auto 0 0 auto;
+  width: 62%;
+  aspect-ratio: 1;
+  opacity: 0.16;
+  mask-image: radial-gradient(circle at 80% 88%, black 18%, transparent 70%);
+  transition: opacity var(--sai-dur-slow) var(--sai-ease);
+}
+
+.kitArt:empty {
+  display: none;
+}
+
+.kitArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1);
+}
+
+.kitItem:hover .kitArt {
+  opacity: 0.28;
+}
+
+.kitGlyph {
+  position: absolute;
+  right: 0.6rem;
+  bottom: 0.1rem;
+  font-family: var(--font-brush), var(--font-shippori), serif;
+  font-size: 4.5rem;
+  line-height: 1;
+  color: color-mix(in srgb, var(--text-primary) 7%, transparent);
+  user-select: none;
+  pointer-events: none;
+  transition: color var(--sai-dur-slow) var(--sai-ease);
+}
+
+.kitItem:hover .kitGlyph {
+  color: color-mix(in srgb, var(--accent) 16%, transparent);
+}
+
+.kitName {
+  position: relative;
+  font-family: var(--font-shippori), Georgia, serif;
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.32;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.kitNote {
+  position: relative;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* ============================================================
+   6 · CANLANAN ÇİZİM TOMARI — SAYFANIN KALBİ
+
+   Karanlık odadaki BİRİNCİ ışık: parşömen şeridi. Tomar yatay
+   kaydırılmıyor, adım adım AÇILIYOR — `.track` her durakta bir figür
+   genişliği kayıyor.
+
+   ── KÂĞIT NEDEN BURADA TANIMLANIYOR ──────────────────────────────────
+   `--paper` ve arkadaşları `.page` bloğunda DEĞİL (BRIEF §3: derinin
+   yanına renk değişkeni eklenmiyor), yalnızca kâğıt yüzeylerinin kendi
+   seçicisinde. İkisi de mevcut token'lardan `color-mix` ile türetildi.
+
+   ── KONTRAST ÖLÇÜMÜ ──────────────────────────────────────────────────
+   `--sai-ink` "yalnızca dolgu" etiketiyle geldi çünkü koyu zeminde
+   ölçülmemişti. Kâğıt üstünde ölçüldü (24 Ağustos 2026):
+     mürekkep (#050505) / kâğıt (accent 93% + ink 7%) → 12,2:1  (AAA)
+     %70 mürekkep karışımı / aynı kâğıt              →  5,6:1  (AA)
+   Kâğıt üstündeki bütün metin bu iki değerden birini kullanıyor;
+   mühür kızılı kâğıtta yalnızca GRAFİK (1,98:1 — metin taşımıyor).
+   ============================================================ */
+.scrollSection {
+  padding-block: calc(var(--sai-unit) * 1.9);
+}
+
+.scroll {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--sai-unit) * 0.75);
+}
+
+.paper {
+  --paper: color-mix(in srgb, var(--accent) 93%, var(--sai-ink));
+  --paperEdge: color-mix(in srgb, var(--accent) 70%, var(--sai-ink));
+  --paperInk: var(--sai-ink);
+  --paperInkSoft: color-mix(in srgb, var(--sai-ink) 70%, var(--accent));
+
+  position: relative;
+  overflow: hidden;
+  /* Kurator sahnesi `multiply` ile kâğıda basılıyor; `isolation` olmadan
+     harman kâğıdın DEĞİL, sayfanın zeminiyle yapılırdı */
+  isolation: isolate;
+  aspect-ratio: 16 / 7;
+  border: var(--sai-rule) solid var(--paperEdge);
+  /* Elyaf: kâğıdın dokusu, çok ince dikey çizgiler */
+  background-image: repeating-linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--sai-ink) 4%, transparent) 0 1px,
+    transparent 1px 7px
+  );
+  background-color: var(--paper);
+  /* Işık gerçekten yayılıyor: yumuşak sıcak hale + gerçek gölge */
+  box-shadow:
+    0 0 100px -24px var(--sai-glow-soft),
+    0 44px 80px -52px var(--sai-ink);
+  transition:
+    background-color var(--sai-dur-slow) var(--sai-ease),
+    border-color var(--sai-dur-slow) var(--sai-ease);
+}
+
+/* Tomarın iki ucundaki rulo: silindir okuması için üç kademeli gradyan */
+.rollStart,
+.rollEnd {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 3;
+  width: clamp(0.9rem, 2.4vw, 1.7rem);
+  pointer-events: none;
+}
+
+.rollStart {
+  left: 0;
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--sai-ink) 55%, var(--paperEdge)),
+    var(--paperEdge) 30%,
+    color-mix(in srgb, var(--accent) 98%, transparent) 56%,
+    var(--paperEdge) 82%,
+    color-mix(in srgb, var(--sai-ink) 40%, var(--paperEdge))
+  );
+  box-shadow: 8px 0 18px -10px var(--sai-ink);
+}
+
+.rollEnd {
+  right: 0;
+  background: linear-gradient(
+    to left,
+    color-mix(in srgb, var(--sai-ink) 55%, var(--paperEdge)),
+    var(--paperEdge) 30%,
+    color-mix(in srgb, var(--accent) 98%, transparent) 56%,
+    var(--paperEdge) 82%,
+    color-mix(in srgb, var(--sai-ink) 40%, var(--paperEdge))
+  );
+  box-shadow: -8px 0 18px -10px var(--sai-ink);
+}
+
+.track {
+  display: flex;
+  height: 100%;
+  translate: 0 0;
+  transition: translate var(--sai-slide) var(--sai-ease);
+}
+
+.scroll[data-step="1"] .track {
+  translate: -100% 0;
+}
+
+.scroll[data-step="2"] .track {
+  translate: -200% 0;
+}
+
+.scroll[data-step="3"] .track {
+  translate: -300% 0;
+}
+
+.scroll[data-step="4"] .track {
+  translate: -400% 0;
+}
+
+.slide {
+  position: relative;
+  flex: 0 0 100%;
+  display: grid;
+  place-items: center;
+  padding: clamp(1rem, 3vw, 2.5rem) clamp(2rem, 5vw, 4rem);
+}
+
+/* Kurator sahnesi kâğıda BASILMIŞ gibi: multiply, çok soluk */
+.slideGhost {
+  position: absolute;
+  inset: 0;
+  opacity: 0.16;
+  mix-blend-mode: multiply;
+  mask-image: radial-gradient(ellipse at 50% 50%, black 25%, transparent 78%);
+}
+
+.slideGhost img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.1);
+}
+
+/* Figürün adı kâğıdın sol üstünde, fırçayla — imza değil, başlık */
+.slideGlyph {
+  position: absolute;
+  left: clamp(1.6rem, 4vw, 3rem);
+  top: clamp(0.4rem, 2vw, 1.2rem);
+  font-family: var(--font-brush), var(--font-shippori), serif;
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  line-height: 1;
+  color: color-mix(in srgb, var(--sai-ink) 14%, transparent);
+  user-select: none;
+  pointer-events: none;
+}
+
+.beast {
+  position: relative;
+  width: min(100%, 40rem);
+  height: auto;
+  aspect-ratio: 3 / 2;
+  transition: filter var(--sai-dur-slow) var(--sai-ease);
+}
+
+/* ── ÇİZİM: sayfanın tek yazılmış anı ────────────────────────────────
+   Her darbe `pathLength=1` ile normalize edildi, yani uzunluğu ne olursa
+   olsun aynı sürede iniyor — gerçek bir elin ritmi bu. Gecikmeler
+   `data-step` ile: darbeler sırayla düşüyor, hepsi birden değil. */
+.beastStroke {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset var(--sai-draw) var(--sai-ease-brush);
+}
+
+.beastStroke[data-on] {
+  stroke-dashoffset: 0;
+}
+
+.beastStroke[data-step="1"] { transition-delay: calc(var(--sai-stagger) * 1); }
+.beastStroke[data-step="2"] { transition-delay: calc(var(--sai-stagger) * 2); }
+.beastStroke[data-step="3"] { transition-delay: calc(var(--sai-stagger) * 3); }
+.beastStroke[data-step="4"] { transition-delay: calc(var(--sai-stagger) * 4); }
+.beastStroke[data-step="5"] { transition-delay: calc(var(--sai-stagger) * 5); }
+.beastStroke[data-step="6"] { transition-delay: calc(var(--sai-stagger) * 6); }
+.beastStroke[data-step="7"] { transition-delay: calc(var(--sai-stagger) * 7); }
+.beastStroke[data-step="8"] { transition-delay: calc(var(--sai-stagger) * 8); }
+.beastStroke[data-step="9"] { transition-delay: calc(var(--sai-stagger) * 9); }
+.beastStroke[data-step="10"] { transition-delay: calc(var(--sai-stagger) * 10); }
+.beastStroke[data-step="11"] { transition-delay: calc(var(--sai-stagger) * 11); }
+
+/* Gövde mürekkebi: çizgi bittikten sonra akıyor */
+.beastFill {
+  opacity: 0;
+  transition: opacity var(--sai-ink-in) var(--sai-ease-soft);
+}
+
+.slide[data-on] .beastFill {
+  opacity: 0.92;
+  transition-delay: calc(var(--sai-seal-at) - var(--sai-ink-in));
+}
+
+/* Göz çizilmez: mühür vurulunca açılır. `fill-box` olmadan SVG'de
+   ölçek kullanıcı uzayının başlangıcından büyür ve göz tuvalin dışına
+   fırlar (Shikamaru modülündeki aynı tuzağın kardeşi). */
+.beastEye {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  scale: 0.3;
+  transition:
+    opacity var(--sai-dur) var(--sai-ease-soft),
+    scale var(--sai-dur) var(--sai-ease);
+}
+
+.slide[data-on] .beastEye {
+  opacity: 1;
+  scale: 1;
+  transition-delay: var(--sai-seal-at);
+}
+
+/* Mühür: kâğıda BASILIYOR — büyükten gelip yerine oturuyor */
+.slideSeal {
+  position: absolute;
+  right: clamp(1.6rem, 4vw, 3rem);
+  bottom: clamp(0.8rem, 2.5vw, 1.6rem);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  opacity: 0;
+  scale: 1.6;
+  transition:
+    opacity var(--sai-dur-fast) var(--sai-ease-soft),
+    scale var(--sai-dur) var(--sai-ease);
+}
+
+.slide[data-on] .slideSeal {
+  opacity: 1;
+  scale: 1;
+  transition-delay: var(--sai-seal-at);
+}
+
+.slideSealStone {
+  width: 1.65rem;
+  height: 1.65rem;
+  flex: none;
+  transition: filter var(--sai-dur-slow) var(--sai-ease);
+}
+
+.slideSealLabel {
+  font-family: var(--font-jost), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 300;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--paperInkSoft);
+}
+
+/* ── Duraklar ───────────────────────────────────────────────────────── */
+.scrollBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.stops {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.stop {
+  display: grid;
+  place-items: center;
+  min-width: var(--touch-min);
+  min-height: var(--touch-min);
+  padding: 0;
+  border: var(--sai-rule) solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition:
+    color var(--sai-dur-fast) var(--sai-ease-soft),
+    border-color var(--sai-dur-fast) var(--sai-ease-soft),
+    background var(--sai-dur-fast) var(--sai-ease-soft);
+}
+
+.stopGlyph {
+  font-family: var(--font-brush), var(--font-shippori), serif;
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.stop:hover {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+.stop:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* Etkin durak KÂĞIT olur: hangi sayfanın açık olduğunu renk değil,
+   malzeme söylüyor */
+.stop[aria-selected="true"] {
+  color: var(--sai-ink);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.count {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  margin: 0;
+  font-family: var(--font-jost), var(--font-sans);
+  font-weight: 300;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+.countNumber {
+  font-size: 1.5rem;
+  color: var(--sai-seal);
+  transition: color var(--sai-dur-slow) var(--sai-ease);
+}
+
+.countTotal {
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+}
+
+/* ── Çizimin metni ──────────────────────────────────────────────────── */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  padding: 1.6rem 1.5rem 1.7rem;
+  border: var(--sai-rule) solid var(--border);
+  background: color-mix(in srgb, var(--surface) 65%, var(--bg));
+}
+
+.panel:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.panelTitle {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-shippori), Georgia, serif;
+  font-size: clamp(1.35rem, 3vw, 1.9rem);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.panelBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.panelBlock[data-kind="purpose"] {
+  margin-top: 0.45rem;
+  padding-top: 0.95rem;
+  border-top: var(--sai-rule) solid var(--border);
+}
+
+.panelLabel {
+  margin: 0;
+  font-family: var(--font-jost), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 300;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.panelText {
+  margin: 0;
+  max-width: var(--sai-measure);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.125rem;
+  line-height: 1.72;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.panelNav {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.1rem;
+}
+
+.navButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: var(--touch-min);
+  padding: 0 1.1rem;
+  border: var(--sai-rule) solid var(--border);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-jost), var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 300;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    color var(--sai-dur-fast) var(--sai-ease-soft),
+    border-color var(--sai-dur-fast) var(--sai-ease-soft),
+    background var(--sai-dur-fast) var(--sai-ease-soft);
+}
+
+.navButton:hover:not(:disabled) {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+  background: var(--surface);
+}
+
+.navButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.navButton:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.scrollHint {
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   7 · DUYGU SÖZLÜĞÜ — SAYFANIN DUYGUSAL MERKEZİ
+
+   Karanlık odadaki İKİNCİ (ve son) ışık: kitaptan koparılmış kâğıt
+   fişler. Üst kenarları düzgün değil — `clip-path` ile yırtık.
+   Gölge `box-shadow` değil `drop-shadow`, çünkü kırpılmış bir kutuda
+   box-shadow kırpmanın dışında kalır ve hiç görünmez.
+
+   Kartın tipografik iddiası: Kök'ün öğrettiği tarif SOLUK basılıyor
+   (%70 mürekkep, 5,6:1), yaşayarak öğrendiği ise TAM SİYAH (12,2:1).
+   Hiyerarşi bir süs değil, sayfanın söylediği şeyin kendisi.
+   ============================================================ */
+.lexiconSection {
+  padding-block: calc(var(--sai-unit) * 1.6);
+}
+
+.lexicon {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+  gap: calc(var(--sai-unit) * 0.8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.slip {
+  --paper: color-mix(in srgb, var(--accent) 90%, var(--sai-ink));
+  --paperInk: var(--sai-ink);
+  --paperInkSoft: color-mix(in srgb, var(--sai-ink) 70%, var(--accent));
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 1.9rem 1.4rem 1.6rem;
+  background-color: var(--paper);
+  background-image: repeating-linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--sai-ink) 4%, transparent) 0 1px,
+    transparent 1px 7px
+  );
+  color: var(--paperInk);
+  /* Yırtık üst kenar: fiş kitaptan koparılmış */
+  clip-path: polygon(
+    0 1.4%,
+    7% 0.2%,
+    16% 1.5%,
+    28% 0.3%,
+    39% 1.6%,
+    52% 0.4%,
+    64% 1.7%,
+    77% 0.3%,
+    88% 1.5%,
+    100% 0.4%,
+    100% 100%,
+    0 100%
+  );
+  filter: drop-shadow(0 24px 30px color-mix(in srgb, var(--sai-blot) 75%, transparent));
+  transition: background-color var(--sai-dur-slow) var(--sai-ease);
+}
+
+.slipHead {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin: 0;
+}
+
+.slipGlyph {
+  font-family: var(--font-brush), var(--font-shippori), serif;
+  font-size: 2.6rem;
+  line-height: 1;
+  color: color-mix(in srgb, var(--sai-ink) 34%, var(--paper));
+  user-select: none;
+}
+
+.slipNames {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.slipName {
+  font-family: var(--font-shippori), Georgia, serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--paperInk);
+}
+
+.slipReading {
+  font-family: var(--font-jost), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 300;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--paperInkSoft);
+}
+
+.slipBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+/* Fişteki TEK renk: yaşanmış yarıyı ayıran mühür hattı */
+.slipBlock[data-kind="learned"] {
+  padding-top: 0.95rem;
+  border-top: 2px solid var(--sai-seal);
+  transition: border-color var(--sai-dur-slow) var(--sai-ease);
+}
+
+.slipLabel {
+  margin: 0;
+  font-family: var(--font-jost), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 300;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--paperInkSoft);
+}
+
+.slipTaught {
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: var(--paperInkSoft);
+  text-wrap: pretty;
+}
+
+.slipLearned {
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.125rem;
+  line-height: 1.65;
+  color: var(--paperInk);
+  text-wrap: pretty;
+}
+
+/* ============================================================
+   8 · KADER ÇİZELGESİ
+   Asılı bir tomar gibi: solda tek dikey hat, kayıtlar hattın sağında.
+   İşaret nokta değil KARE — mürekkep damlası değil, mühür izi.
+   ============================================================ */
+.fate {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--sai-unit) * 0.95);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fateItem {
+  position: relative;
+  padding-left: calc(var(--sai-unit) * 1.15);
+}
+
+.fateItem::before {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 0.9rem;
+  bottom: calc(var(--sai-unit) * -0.95);
+  width: var(--sai-rule);
+  background: var(--border);
+  transition: background var(--sai-dur-slow) var(--sai-ease);
+}
+
+.fateItem:last-child::before {
+  bottom: 0.5rem;
+}
+
+.fateItem::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.5rem;
+  width: 7px;
+  height: 7px;
+  background: var(--sai-seal);
+  transition: background var(--sai-dur-slow) var(--sai-ease);
+}
+
+.fateAge {
+  margin: 0 0 0.4rem;
+  font-family: var(--font-jost), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 300;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+.fateBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.fateTitle {
+  margin: 0;
+  font-family: var(--font-shippori), Georgia, serif;
+  font-size: clamp(1.2rem, 2.6vw, 1.6rem);
+  font-weight: 700;
+  line-height: 1.28;
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.fateText {
+  margin: 0;
+  max-width: var(--sai-measure);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.125rem;
+  line-height: 1.75;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.fateQuote {
+  margin: 0.35rem 0 0;
+  padding-left: 1.1rem;
+  border-left: var(--sai-rule) solid var(--accent-muted);
+}
+
+.fateQuote blockquote {
+  margin: 0;
+  font-family: var(--font-shippori), Georgia, serif;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+.fateQuote figcaption {
+  margin-top: 0.45rem;
+  font-family: var(--font-jost), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 300;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.fateArt {
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 30rem;
+  aspect-ratio: 21 / 9;
+  margin-top: 0.4rem;
+  overflow: hidden;
+  border: var(--sai-rule) solid var(--border);
+}
+
+.fateArt:empty {
+  display: none;
+}
+
+.fateArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.06) brightness(0.85);
+  transition: filter var(--sai-dur-slow) var(--sai-ease);
+}
+
+.fateItem:hover .fateArt img {
+  filter: grayscale(0.55) contrast(1.02) brightness(0.96);
+}
+
+/* ============================================================
+   9 · KAPANIŞ
+   ============================================================ */
+.closing {
+  position: relative;
+  z-index: 1;
+  width: var(--sai-content);
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--sai-unit) * 0.75);
+  padding-block: calc(var(--sai-unit) * 1.8) calc(var(--sai-unit) * 2.2);
+  text-align: center;
+}
+
+.closingArt {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.12;
+  mask-image: radial-gradient(ellipse at 50% 50%, black 8%, transparent 68%);
+}
+
+.closingArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1);
+}
+
+.closingQuote {
+  margin: 0;
+  max-width: 48ch;
+}
+
+.closingQuote blockquote {
+  margin: 0;
+  font-family: var(--font-shippori), Georgia, serif;
+  font-size: clamp(1.3rem, 3.2vw, 2.1rem);
+  font-weight: 700;
+  line-height: 1.36;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.closingQuote figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.95rem;
+}
+
+.quoteBy {
+  font-family: var(--font-jost), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 300;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.quoteNote {
+  max-width: 46ch;
+  margin-inline: auto;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+/* 無題 — "adsız". Sayfanın son sözü ve Sai'nin bütün resimlerinin başlığı */
+.motto {
+  margin: calc(var(--sai-unit) * 0.4) 0 0;
+  font-family: var(--font-brush), var(--font-shippori), serif;
+  font-size: clamp(2.6rem, 9vw, 5rem);
+  line-height: 1.1;
+  letter-spacing: 0.12em;
+  color: color-mix(in srgb, var(--text-primary) 28%, transparent);
+}
+
+.mottoNote {
+  margin: -0.2rem 0 0;
+  font-family: var(--font-jost), var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 300;
+  letter-spacing: 0.18em;
+  color: var(--text-muted);
+}
+
+.credit {
+  max-width: 58ch;
+  margin: 0;
+  padding-top: calc(var(--sai-unit) * 0.6);
+  border-top: var(--sai-rule) solid var(--border);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1rem;
+  line-height: 1.75;
+  color: var(--text-muted);
+}
+
+.credit a {
+  color: var(--text-secondary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--accent-muted);
+  transition: color var(--sai-dur-fast) var(--sai-ease-soft);
+}
+
+.credit a:hover {
+  color: var(--accent);
+}
+
+.credit a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ============================================================
+   SUMI MODU
+
+   "Mürekkep sayfaya yayılır, kontrastlar sertleşir, kalan renk de
+   çekilir." Üçü de burada, JS'te değil:
+     yayılma  → `.wash` büyüyüp koyulaşıyor
+     sertleşme → `--sai-rule` 2px, hatlar `--border-strong`, kâğıt
+                 ısısını kaybedip beyaza yaklaşıyor (mürekkep/kâğıt
+                 kontrastı 12,2:1 → ~15:1)
+     renk     → mühür kızılının geçtiği HER yer griye düşüyor
+   Kök'ün gördüğü sayfa bu: kontrast var, renk yok.
+   ============================================================ */
+.page[data-sumi] {
+  --sai-rule: 2px;
+}
+
+.page[data-sumi] .wash {
+  opacity: 1;
+  scale: 1.3;
+}
+
+/* Hatlar sertleşiyor */
+.page[data-sumi] .facts,
+.page[data-sumi] .fact,
+.page[data-sumi] .form,
+.page[data-sumi] .kit,
+.page[data-sumi] .personArt,
+.page[data-sumi] .panel,
+.page[data-sumi] .panelBlock[data-kind="purpose"],
+.page[data-sumi] .stop,
+.page[data-sumi] .navButton,
+.page[data-sumi] .trait,
+.page[data-sumi] .fateArt,
+.page[data-sumi] .credit,
+.page[data-sumi] .sectionGlyph {
+  border-color: var(--border-strong);
+}
+
+.page[data-sumi] .fateItem::before {
+  background: var(--border-strong);
+}
+
+/* Kâğıt ısısını kaybediyor — daha soğuk, daha yüksek kontrast */
+.page[data-sumi] .paper {
+  --paper: color-mix(in srgb, var(--text-primary) 97%, var(--sai-ink));
+  --paperEdge: color-mix(in srgb, var(--text-primary) 62%, var(--sai-ink));
+}
+
+.page[data-sumi] .slip {
+  --paper: color-mix(in srgb, var(--text-primary) 95%, var(--sai-ink));
+  --paperInkSoft: color-mix(in srgb, var(--sai-ink) 72%, var(--text-primary));
+}
+
+/* Kalan renk çekiliyor: mühür, göz ve sayaç griye düşüyor */
+.page[data-sumi] .heroSeal,
+.page[data-sumi] .slideSealStone,
+.page[data-sumi] .sumiToggleGlyph,
+.page[data-sumi] .beast {
+  filter: grayscale(1);
+}
+
+.page[data-sumi] .countNumber {
+  color: var(--text-primary);
+}
+
+.page[data-sumi] .slipBlock[data-kind="learned"] {
+  border-top-color: var(--sai-ink);
+}
+
+.page[data-sumi] .fateItem::after {
+  background: var(--text-secondary);
+}
+
+.page[data-sumi] .person[data-side="root"] .personCallsign {
+  color: var(--text-muted);
+}
+
+/* Portreler tamamen mürekkebe dönüyor */
+.page[data-sumi] .heroPortrait,
+.page[data-sumi] .hero:hover .heroPortrait {
+  filter: grayscale(1) contrast(1.4) brightness(0.8);
+}
+
+.page[data-sumi] .personArt img,
+.page[data-sumi] .personLink:hover .personArt img {
+  filter: grayscale(1) contrast(1.35) brightness(0.72);
+}
+
+/* Bölüm gliffleri koyulaşıyor — kenar sütunu artık okunuyor */
+.page[data-sumi] .sectionGlyph {
+  color: color-mix(in srgb, var(--text-primary) 26%, transparent);
+}
+
+/* ============================================================
+   MOBİL — 360 pikselde yatay taşma YOK, bütün ızgaralar tek sütuna iner
+   ============================================================ */
+@media (max-width: 900px) {
+  .hero {
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: calc(var(--sai-unit) * 0.5);
+    min-height: 0;
+    padding-block: var(--sai-unit) calc(var(--sai-unit) * 1.4);
+  }
+
+  /* Leke ve portre ÜSTTE: sayfa mürekkeple açılsın */
+  .heroArt {
+    order: 0;
+    width: min(100%, 24rem);
+    margin-inline: auto;
+  }
+
+  .heroBody {
+    order: 1;
+    max-width: none;
+  }
+
+  .heroMark {
+    right: calc(var(--sai-gutter) * -0.5);
+    top: 26%;
+    font-size: clamp(8rem, 42vw, 15rem);
+  }
+
+  .form {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 1.1rem;
+  }
+
+  .formArt {
+    grid-column: 1 / -1;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    mask-image: linear-gradient(to top, transparent 2%, black 62%);
+  }
+
+  .paper {
+    aspect-ratio: 4 / 3;
+  }
+
+  .sumiHint {
+    display: none;
+  }
+}
+
+@media (max-width: 620px) {
+  .sectionHead {
+    grid-template-columns: 1fr;
+    gap: 0.9rem;
+  }
+
+  /* Kenar sütunu yatayına dönüyor: dar ekranda dikey kanji yer yiyor */
+  .sectionGlyph {
+    order: -1;
+    writing-mode: horizontal-tb;
+    padding: 0 0 0 0.85rem;
+    font-size: 2.4rem;
+  }
+
+  .fact {
+    grid-template-columns: 1fr;
+    gap: 0.3rem;
+    padding: 0.95rem 0.15rem;
+  }
+
+  .fact dt {
+    padding-top: 0;
+  }
+
+  .form {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+
+  .formGlyph {
+    writing-mode: horizontal-tb;
+    line-height: 1;
+  }
+
+  .paper {
+    aspect-ratio: 1;
+  }
+
+  .slide {
+    padding-inline: clamp(1.5rem, 8vw, 3rem);
+  }
+
+  .scrollBar {
+    justify-content: flex-start;
+  }
+
+  .panelNav {
+    flex-wrap: wrap;
+  }
+
+  .navButton {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 460px) {
+  .people {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: calc(var(--sai-unit) * 0.7) 0.9rem;
+  }
+
+  .personNote {
+    font-size: 1rem;
+  }
+
+  .stops {
+    flex-wrap: wrap;
+  }
+
+  .sumiToggleLabel {
+    display: none;
+  }
+
+  .sumiToggle {
+    padding: 0.5rem;
+    min-width: var(--touch-min);
+    justify-content: center;
+  }
+}
+
+/* Yüksek kontrast / zorunlu renk modunda dekoratif katmanlar susar */
+@media (forced-colors: active) {
+  .wash,
+  .blot,
+  .strokes,
+  .heroMark,
+  .kitGlyph,
+  .slideGlyph,
+  .closingArt {
+    display: none;
+  }
+}
+
+/* ============================================================
+   REDUCED-MOTION BATTANİYESİ — ev deseni.
+
+   Çizim animasyonu tamamen kapanıyor. Geçiş kapandığı anda
+   `stroke-dashoffset` doğrudan 0'a düşüyor, yani ETKİN figür tam
+   çizilmiş, mürekkebi akmış ve mührü vurulmuş hâlde duruyor; hiçbir
+   şey görünmez kalmıyor. Tomar da kaymadan doğru durağa oturuyor.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

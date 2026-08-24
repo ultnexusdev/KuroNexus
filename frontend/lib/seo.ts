@@ -29,6 +29,29 @@ import { SITE_URL } from "@/lib/site";
  * olarak elimizde; tek kaynak yine bu yardımcı, sayfa başına elle yazım
  * sınıfı kapanır.
  */
+/**
+ * Yalnızca `alternates`: canonical + hreflang üçlüsü.
+ *
+ * `shareCard` bunu içeriden çağırıyor, yani adres kuralı tek yerde. Ayrıca
+ * dışa açık, çünkü paylaşım kartını KENDİ yazan sayfalar var ve onlara
+ * `shareCard`ı dayatmak kartı bozardı: site kökünün `openGraph`ı kök
+ * düzende tanımlı ve görsel ölçülerini (1200×630) taşıyor; `shareCard`
+ * onu yeniden yazsaydı o ölçüler düşerdi (sığ birleşme).
+ *
+ * ⚠️ Yol locale ÖNEKSİZ. Site kökü için boş dize geç.
+ */
+export function localeAlternates(
+  locale: string,
+  path: string,
+): NonNullable<Metadata["alternates"]> {
+  const tr = `${SITE_URL}${path}`;
+  const en = `${SITE_URL}/en${path}`;
+  return {
+    canonical: locale === "en" ? en : tr,
+    languages: { tr, en, "x-default": tr },
+  };
+}
+
 export function shareCard({
   title,
   description,
@@ -49,10 +72,7 @@ export function shareCard({
   const url = locale === "en" ? en : tr;
   const img = image ?? "/brand/og.png";
   return {
-    alternates: {
-      canonical: url,
-      languages: { tr, en, "x-default": tr },
-    },
+    alternates: localeAlternates(locale, path),
     openGraph: {
       type: "website",
       siteName: "KuroNexus",

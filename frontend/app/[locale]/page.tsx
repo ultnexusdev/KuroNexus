@@ -1,5 +1,7 @@
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
+import { localeAlternates } from "@/lib/seo";
 import { fetchCategories, fetchUniverses } from "@/lib/api/universes";
 import { getPulse } from "@/lib/api/pulse";
 import { readIsAdmin } from "@/lib/auth/session";
@@ -51,6 +53,27 @@ async function getData(fresh: boolean): Promise<{
     // API erişilemezse hol boş kapılarla değil, yalnızca küratör metniyle açılır
     return { categories: [], universes: [], pulse: null };
   }
+}
+
+/**
+ * Site kökünün metadata'sı — YALNIZCA `alternates`.
+ *
+ * ⚠️ `shareCard` BİLEREK kullanılmadı. Kök düzen (`app/[locale]/layout.tsx`)
+ * bu sayfanın başlığını, açıklamasını ve paylaşım kartını zaten tam olarak
+ * tanımlıyor ve o kartın görseli ölçüleriyle birlikte veriliyor (1200×630).
+ * Next'in metadata birleşmesi ÜST ANAHTAR bazında sığ: burada `openGraph`
+ * yazsaydık layout'unki tamamen düşer, ölçüler kaybolurdu. Eksik olan tek
+ * şey hreflang'di — o da `localeAlternates`ten geliyor, yani adres kuralı
+ * yine `lib/seo.ts`te tek kaynakta.
+ */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  /* Site kökü: locale ÖNEKSİZ yol boş dize */
+  return { alternates: localeAlternates(locale, "") };
 }
 
 export default async function HomePage({

@@ -6,6 +6,7 @@ import { getCharacterImagesBulk } from "@/lib/api/characters";
 import { readIsAdmin } from "@/lib/auth/session";
 import { AKATSUKI_IDS, EXHIBIT_IMAGE_KEYS } from "@/lib/anime/akatsuki";
 import { animeHref } from "@/lib/anime/routes";
+import { shareCard } from "@/lib/seo";
 import {
   NARUTO_ARCHIVES,
   NARUTO_BATTLES,
@@ -57,12 +58,42 @@ import styles from "./page.module.css";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Naruto Evreni",
-  description:
-    "Shinobi dünyasının kaydı: uluslar, klanlar, chakra, dōjutsu, kuyruklu " +
-    "canavarlar, Hokage'ler ve evreni bugüne getiren savaşlar.",
-};
+const TITLE = "Naruto Evreni";
+const DESCRIPTION =
+  "Shinobi dünyasının kaydı: uluslar, klanlar, chakra, dōjutsu, kuyruklu " +
+  "canavarlar, Hokage'ler ve evreni bugüne getiren savaşlar.";
+
+/**
+ * ⚠️ STATİK `metadata` EXPORT'UNDAN `generateMetadata`YA ÇEVRİLDİ (P18
+ * sonrası SEO turu): hreflang locale'i bilmek zorunda, statik export ise
+ * `params`a erişemiyor. Kart da `shareCard`a bağlandı — sayfa kendi
+ * `openGraph`ını hiç yazmıyordu, yani WhatsApp/X/Discord'da "KuroNexus"
+ * başlığı ve ana sayfa adresiyle paylaşılıyordu (`lib/seo.ts` başlığındaki
+ * sığ birleşme tuzağının ta kendisi).
+ *
+ * ⚠️ Başlık ve açıklama TÜRKÇE SABİT ve öyle kaldı: bu sayfanın İÇERİĞİ de
+ * baştan sona Türkçe gömülü (bilinen çatlak, `docs/BLEACH-P00-kesif.md`
+ * §1.3'te yazılı — sayfada tek bir `t()` çağrısı yok). Metadata'yı tek
+ * başına çevirmek, İngilizce bir kartın Türkçe bir sayfaya açılması demekti;
+ * dürüst olan, sayfa çevrilene kadar kartın da Türkçe kalması.
+ */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return {
+    title: TITLE,
+    description: DESCRIPTION,
+    ...shareCard({
+      title: TITLE,
+      description: DESCRIPTION,
+      locale,
+      path: "/anime/naruto",
+    }),
+  };
+}
 
 /**
  * `/anime/naruto` — Naruto Evreni.

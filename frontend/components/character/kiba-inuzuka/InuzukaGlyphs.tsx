@@ -170,45 +170,15 @@ export function ScentThread({
    çizildi; ayrılığı yalnızca CSS'teki yatay ötelemeler üretiyor. */
 
 /**
- * Ortadaki dikişler — kademe yükseldikçe biri daha bağlanır.
+ * Ortadaki dikişlerin y konumları — kademe yükseldikçe biri daha bağlanır.
  *
- * ⚠️ Her dikiş TEK parça değil, iki YARIM: biri Kiba'nın bağ grubunun,
- * diğeri Akamaru'nunkinin içinde. İki grup birbirine yaklaştıkça yarımlar
- * kavuşup tek bir bağ hâline geliyor. Tek parça bir çizgi olsaydı,
- * yakınlaşmayla birlikte onu da ayrıca ölçeklendirmek gerekirdi ve
- * `transform-origin`i SVG kullanıcı uzayına oturtmak kırılgan bir iş.
+ * Dikişler tek parça çiziliyor ve iki sütunun ortasında duruyor; yakınlaşma
+ * hissi sütunların kendi `translate`iyle veriliyor, dikişin uzunluğuyla
+ * değil. (Önce her dikiş iki YARIM olarak çizilmişti — her bağ grubunun
+ * içinde bir yarım — ama o kurgu `transform-origin`i SVG kullanıcı uzayına
+ * oturtmayı gerektiriyordu ve kırılgandı.)
  */
 const STITCHES = [118, 178, 238, 298];
-
-/** Bir bağın kendi yarım dikişleri; `reach` içeri doğru uzanma yönü. */
-function HalfStitches({
-  stage,
-  reach,
-  className,
-}: {
-  stage: number;
-  reach: number;
-  className?: string;
-}) {
-  return (
-    <g strokeLinecap="round">
-      {STITCHES.map((y, index) => (
-        <line
-          key={y}
-          className={className}
-          data-tie={index + 1}
-          data-on={stage >= index + 1 ? "true" : undefined}
-          x1="36"
-          y1={y}
-          x2={36 + reach}
-          y2={y}
-          stroke="var(--accent)"
-          strokeWidth="1.6"
-        />
-      ))}
-    </g>
-  );
-}
 
 function KibaHead() {
   return (

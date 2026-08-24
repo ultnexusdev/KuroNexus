@@ -724,6 +724,15 @@
   width: 1.6rem;
 }
 
+/* Cetvelin ÜZERİNDEKİ iki künye işareti (ChojiGlyphs → MeasureRule).
+   Çizgiler SVG'de accent rengiyle geliyor; buradaki iş onları diğer
+   çentiklerden ayırmak: ince bir ışık ve tam opaklık. Çentikler
+   `.ruleArt` içinde soluk kalır, bu ikisi okunacak sayıya bağlı. */
+.ruleMark {
+  opacity: 1;
+  filter: drop-shadow(0 0 3px var(--cho-warm));
+}
+
 .ruleList {
   margin: 0;
   padding: 0;

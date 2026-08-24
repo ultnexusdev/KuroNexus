@@ -127,8 +127,11 @@ export function MindWeb({
     buttons.current[clamped]?.focus();
   };
 
+  /* Tip `HTMLButtonElement`: bu işleyici düğüm DÜĞMELERİNE bağlanıyor,
+     sarmalayıcı `div`e değil. `HTMLDivElement` yazılırsa TS olayı
+     kabul etmez (div'in `align` alanı button'da yok). */
   const onKeyDown = (
-    event: React.KeyboardEvent<HTMLDivElement>,
+    event: React.KeyboardEvent<HTMLButtonElement>,
     index: number,
   ) => {
     switch (event.key) {

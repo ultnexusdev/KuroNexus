@@ -1,0 +1,41 @@
+/* ============================================================
+   DÜNYA DERİSİ — Yamato (AniList #2006)
+
+   Palet kontrast ÖLÇÜLEREK seçildi (24 Ağustos 2026): metin ailesi
+   bg/surface/surface-hover üzerinde AA (4.5:1) üstü, birincil metin
+   AAA üstü, accent zeminde en az 3:1, yardımcı düz renkler de AA üstü.
+   Değiştirmek istersen ÖNCE yeniden ölç.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı
+   gereği bir yerel sınıf şart. Kök öğe ikisini birlikte taşır.
+   Bu blok globals.css'e KONMAZ — 35 palet her sayfada inerdi.
+   ============================================================ */
+.page[data-world="yamato"] {
+  --bg:             #060907;
+  --surface:        #0d1310;
+  --surface-hover:  #141c18;
+  --border:         #1e2822;
+  --border-strong:  #2d3b32;
+
+  --text-primary:   #eaf1ec;
+  --text-secondary: #a6b6ac;
+  --text-muted:     #94a49a;
+
+  --accent:         #4f9c6a;
+  --accent-hover:   #6cba86;
+  --accent-muted:   #2b5a3d;
+
+  --gold:           #b39a63;
+  --warn:           #a6784a;
+  --danger:         #a6584a;
+
+  /* ── Yardımcı malzeme ailesi — yalnızca bu ağaç okur ── */
+  --yam-bark:       #a2855f;
+  --yam-leaf:       #6cba86;
+  --yam-sap:        #c9d97a;
+  /* Yıkamalar ve ışıklar — dekoratif, metin taşımaz */
+  --yam-grain:      rgba(79, 156, 106, 0.12);
+  --yam-mist:       rgba(234, 241, 236, 0.05);
+  --yam-glow-soft:  color-mix(in srgb, #4f9c6a 20%, transparent);
+  --yam-glow-strong: color-mix(in srgb, #4f9c6a 45%, transparent);
+}

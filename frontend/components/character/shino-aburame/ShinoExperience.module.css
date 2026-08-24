@@ -1,0 +1,41 @@
+/* ============================================================
+   DÜNYA DERİSİ — Shino Aburame (AniList #3428)
+
+   Palet kontrast ÖLÇÜLEREK seçildi (24 Ağustos 2026): metin ailesi
+   bg/surface/surface-hover üzerinde AA (4.5:1) üstü, birincil metin
+   AAA üstü, accent zeminde en az 3:1, yardımcı düz renkler de AA üstü.
+   Değiştirmek istersen ÖNCE yeniden ölç.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı
+   gereği bir yerel sınıf şart. Kök öğe ikisini birlikte taşır.
+   Bu blok globals.css'e KONMAZ — 35 palet her sayfada inerdi.
+   ============================================================ */
+.page[data-world="shino-aburame"] {
+  --bg:             #070806;
+  --surface:        #0f110d;
+  --surface-hover:  #171a14;
+  --border:         #22261d;
+  --border-strong:  #32372a;
+
+  --text-primary:   #eef0e9;
+  --text-secondary: #a9ada1;
+  --text-muted:     #989d90;
+
+  --accent:         #bf9a35;
+  --accent-hover:   #d9b350;
+  --accent-muted:   #665012;
+
+  --gold:           #94a068;
+  --warn:           #a6784a;
+  --danger:         #a6584a;
+
+  /* ── Yardımcı malzeme ailesi — yalnızca bu ağaç okur ── */
+  --shi-chitin:     #8f9a5e;
+  --shi-swarm:      #c9c07a;
+  --shi-carapace:   #a8a898;
+  /* Yıkamalar ve ışıklar — dekoratif, metin taşımaz */
+  --shi-hive:       rgba(191, 154, 53, 0.1);
+  --shi-drone:      rgba(143, 154, 94, 0.14);
+  --shi-glow-soft:  color-mix(in srgb, #bf9a35 20%, transparent);
+  --shi-glow-strong: color-mix(in srgb, #bf9a35 45%, transparent);
+}

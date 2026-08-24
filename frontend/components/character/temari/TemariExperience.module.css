@@ -1,0 +1,41 @@
+/* ============================================================
+   DÜNYA DERİSİ — Temari (AniList #2174)
+
+   Palet kontrast ÖLÇÜLEREK seçildi (24 Ağustos 2026): metin ailesi
+   bg/surface/surface-hover üzerinde AA (4.5:1) üstü, birincil metin
+   AAA üstü, accent zeminde en az 3:1, yardımcı düz renkler de AA üstü.
+   Değiştirmek istersen ÖNCE yeniden ölç.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı
+   gereği bir yerel sınıf şart. Kök öğe ikisini birlikte taşır.
+   Bu blok globals.css'e KONMAZ — 35 palet her sayfada inerdi.
+   ============================================================ */
+.page[data-world="temari"] {
+  --bg:             #06080a;
+  --surface:        #0d1114;
+  --surface-hover:  #14191d;
+  --border:         #1f2529;
+  --border-strong:  #2d3439;
+
+  --text-primary:   #ecf1f3;
+  --text-secondary: #a6b0b5;
+  --text-muted:     #96a0a5;
+
+  --accent:         #5fb0a8;
+  --accent-hover:   #7dccc4;
+  --accent-muted:   #2f665f;
+
+  --gold:           #c0a06a;
+  --warn:           #a6784a;
+  --danger:         #a6584a;
+
+  /* ── Yardımcı malzeme ailesi — yalnızca bu ağaç okur ── */
+  --tem-wind:       #8fd8d0;
+  --tem-fan:        #a88fd8;
+  --tem-moon:       #e0dcc8;
+  /* Yıkamalar ve ışıklar — dekoratif, metin taşımaz */
+  --tem-gust:       rgba(95, 176, 168, 0.12);
+  --tem-slash:      rgba(143, 216, 208, 0.16);
+  --tem-glow-soft:  color-mix(in srgb, #5fb0a8 20%, transparent);
+  --tem-glow-strong: color-mix(in srgb, #5fb0a8 45%, transparent);
+}

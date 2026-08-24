@@ -1,0 +1,41 @@
+/* ============================================================
+   DÜNYA DERİSİ — Chōji Akimichi (AniList #2008)
+
+   Palet kontrast ÖLÇÜLEREK seçildi (24 Ağustos 2026): metin ailesi
+   bg/surface/surface-hover üzerinde AA (4.5:1) üstü, birincil metin
+   AAA üstü, accent zeminde en az 3:1, yardımcı düz renkler de AA üstü.
+   Değiştirmek istersen ÖNCE yeniden ölç.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı
+   gereği bir yerel sınıf şart. Kök öğe ikisini birlikte taşır.
+   Bu blok globals.css'e KONMAZ — 35 palet her sayfada inerdi.
+   ============================================================ */
+.page[data-world="choji-akimichi"] {
+  --bg:             #0b0805;
+  --surface:        #15110a;
+  --surface-hover:  #1e1911;
+  --border:         #2c2418;
+  --border-strong:  #3f3524;
+
+  --text-primary:   #f4ebdb;
+  --text-secondary: #b8a892;
+  --text-muted:     #a39380;
+
+  --accent:         #e2a13c;
+  --accent-hover:   #fbb955;
+  --accent-muted:   #7c5316;
+
+  --gold:           #c8b47a;
+  --warn:           #a6784a;
+  --danger:         #a6584a;
+
+  /* ── Yardımcı malzeme ailesi — yalnızca bu ağaç okur ── */
+  --cho-wing:       #f0c05a;
+  --cho-pillGreen:  #7fc45e;
+  --cho-pillRed:    #e0604c;
+  /* Yıkamalar ve ışıklar — dekoratif, metin taşımaz */
+  --cho-warm:       rgba(226, 161, 60, 0.12);
+  --cho-scale:      rgba(240, 192, 90, 0.1);
+  --cho-glow-soft:  color-mix(in srgb, #e2a13c 20%, transparent);
+  --cho-glow-strong: color-mix(in srgb, #e2a13c 45%, transparent);
+}

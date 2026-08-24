@@ -1,0 +1,41 @@
+/* ============================================================
+   DÜNYA DERİSİ — Obito Uchiha (AniList #3149)
+
+   Palet kontrast ÖLÇÜLEREK seçildi (24 Ağustos 2026): metin ailesi
+   bg/surface/surface-hover üzerinde AA (4.5:1) üstü, birincil metin
+   AAA üstü, accent zeminde en az 3:1, yardımcı düz renkler de AA üstü.
+   Değiştirmek istersen ÖNCE yeniden ölç.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı
+   gereği bir yerel sınıf şart. Kök öğe ikisini birlikte taşır.
+   Bu blok globals.css'e KONMAZ — 35 palet her sayfada inerdi.
+   ============================================================ */
+.page[data-world="obito-uchiha"] {
+  --bg:             #08060a;
+  --surface:        #110c12;
+  --surface-hover:  #1a141c;
+  --border:         #271e29;
+  --border-strong:  #382d3b;
+
+  --text-primary:   #f2eaef;
+  --text-secondary: #b4a5ae;
+  --text-muted:     #a2939c;
+
+  --accent:         #9b5fd8;
+  --accent-hover:   #b87cf2;
+  --accent-muted:   #52306f;
+
+  --gold:           #c9a86a;
+  --warn:           #a6784a;
+  --danger:         #a6584a;
+
+  /* ── Yardımcı malzeme ailesi — yalnızca bu ağaç okur ── */
+  --obi-mask:       #e8934a;
+  --obi-rubble:     #9a9aa2;
+  --obi-hope:       #d8d0b8;
+  /* Yıkamalar ve ışıklar — dekoratif, metin taşımaz */
+  --obi-swirl:      rgba(155, 95, 216, 0.14);
+  --obi-crush:      rgba(154, 154, 162, 0.08);
+  --obi-glow-soft:  color-mix(in srgb, #9b5fd8 20%, transparent);
+  --obi-glow-strong: color-mix(in srgb, #9b5fd8 45%, transparent);
+}

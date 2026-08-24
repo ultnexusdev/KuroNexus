@@ -1,0 +1,41 @@
+/* ============================================================
+   DÜNYA DERİSİ — Kiba Inuzuka (AniList #3495)
+
+   Palet kontrast ÖLÇÜLEREK seçildi (24 Ağustos 2026): metin ailesi
+   bg/surface/surface-hover üzerinde AA (4.5:1) üstü, birincil metin
+   AAA üstü, accent zeminde en az 3:1, yardımcı düz renkler de AA üstü.
+   Değiştirmek istersen ÖNCE yeniden ölç.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı
+   gereği bir yerel sınıf şart. Kök öğe ikisini birlikte taşır.
+   Bu blok globals.css'e KONMAZ — 35 palet her sayfada inerdi.
+   ============================================================ */
+.page[data-world="kiba-inuzuka"] {
+  --bg:             #0a0908;
+  --surface:        #13110f;
+  --surface-hover:  #1c1a17;
+  --border:         #282521;
+  --border-strong:  #3a3630;
+
+  --text-primary:   #f2ece5;
+  --text-secondary: #b4a99d;
+  --text-muted:     #a2978c;
+
+  --accent:         #c04358;
+  --accent-hover:   #dc5f73;
+  --accent-muted:   #68202c;
+
+  --gold:           #c2a266;
+  --warn:           #a6784a;
+  --danger:         #a6584a;
+
+  /* ── Yardımcı malzeme ailesi — yalnızca bu ağaç okur ── */
+  --kib-fang:       #e8e2d4;
+  --kib-fur:        #b8875e;
+  --kib-claw:       #d8756a;
+  /* Yıkamalar ve ışıklar — dekoratif, metin taşımaz */
+  --kib-dust:       rgba(232, 226, 212, 0.07);
+  --kib-scent:      rgba(192, 67, 88, 0.12);
+  --kib-glow-soft:  color-mix(in srgb, #c04358 20%, transparent);
+  --kib-glow-strong: color-mix(in srgb, #c04358 45%, transparent);
+}

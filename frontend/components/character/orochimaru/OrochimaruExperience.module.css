@@ -1,0 +1,41 @@
+/* ============================================================
+   DÜNYA DERİSİ — Orochimaru (AniList #2455)
+
+   Palet kontrast ÖLÇÜLEREK seçildi (24 Ağustos 2026): metin ailesi
+   bg/surface/surface-hover üzerinde AA (4.5:1) üstü, birincil metin
+   AAA üstü, accent zeminde en az 3:1, yardımcı düz renkler de AA üstü.
+   Değiştirmek istersen ÖNCE yeniden ölç.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı
+   gereği bir yerel sınıf şart. Kök öğe ikisini birlikte taşır.
+   Bu blok globals.css'e KONMAZ — 35 palet her sayfada inerdi.
+   ============================================================ */
+.page[data-world="orochimaru"] {
+  --bg:             #060806;
+  --surface:        #0d110d;
+  --surface-hover:  #141a14;
+  --border:         #1e261e;
+  --border-strong:  #2c372c;
+
+  --text-primary:   #eef2ec;
+  --text-secondary: #a8b0a5;
+  --text-muted:     #979f94;
+
+  --accent:         #8fbf46;
+  --accent-hover:   #a9d963;
+  --accent-muted:   #4a6b1f;
+
+  --gold:           #c0b07a;
+  --warn:           #a6784a;
+  --danger:         #a6584a;
+
+  /* ── Yardımcı malzeme ailesi — yalnızca bu ağaç okur ── */
+  --oro-scale:      #a8c46a;
+  --oro-glass:      #b8d0dc;
+  --oro-shed:       #cfc8b0;
+  /* Yıkamalar ve ışıklar — dekoratif, metin taşımaz */
+  --oro-venom:      rgba(143, 191, 70, 0.12);
+  --oro-coil:       rgba(168, 196, 106, 0.14);
+  --oro-glow-soft:  color-mix(in srgb, #8fbf46 20%, transparent);
+  --oro-glow-strong: color-mix(in srgb, #8fbf46 45%, transparent);
+}

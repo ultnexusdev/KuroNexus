@@ -1,0 +1,41 @@
+/* ============================================================
+   DÜNYA DERİSİ — Neji Hyūga (AniList #1694)
+
+   Palet kontrast ÖLÇÜLEREK seçildi (24 Ağustos 2026): metin ailesi
+   bg/surface/surface-hover üzerinde AA (4.5:1) üstü, birincil metin
+   AAA üstü, accent zeminde en az 3:1, yardımcı düz renkler de AA üstü.
+   Değiştirmek istersen ÖNCE yeniden ölç.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı
+   gereği bir yerel sınıf şart. Kök öğe ikisini birlikte taşır.
+   Bu blok globals.css'e KONMAZ — 35 palet her sayfada inerdi.
+   ============================================================ */
+.page[data-world="neji-hyuga"] {
+  --bg:             #06070a;
+  --surface:        #0d0f14;
+  --surface-hover:  #14171e;
+  --border:         #1f2229;
+  --border-strong:  #2d323b;
+
+  --text-primary:   #edf0f4;
+  --text-secondary: #a8aeb8;
+  --text-muted:     #979da7;
+
+  --accent:         #86c2b0;
+  --accent-hover:   #a3ddca;
+  --accent-muted:   #3f6e61;
+
+  --gold:           #c0b083;
+  --warn:           #a6784a;
+  --danger:         #a6584a;
+
+  /* ── Yardımcı malzeme ailesi — yalnızca bu ağaç okur ── */
+  --nej-seal:       #6fbf9a;
+  --nej-vein:       #a8bfd8;
+  --nej-byaku:      #e4eaf0;
+  /* Yıkamalar ve ışıklar — dekoratif, metin taşımaz */
+  --nej-cage:       rgba(111, 191, 154, 0.12);
+  --nej-trigram:    rgba(228, 234, 240, 0.06);
+  --nej-glow-soft:  color-mix(in srgb, #86c2b0 20%, transparent);
+  --nej-glow-strong: color-mix(in srgb, #86c2b0 45%, transparent);
+}

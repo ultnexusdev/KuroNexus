@@ -2089,6 +2089,12 @@
       "added": "Eklendi, sayfa tazelendi.",
       "remove": "Kaldır"
     },
+    "curated": {
+      "title": "Elle Tasarlanmış Dosyalar",
+      "lede": "Bu karakterler için künye yeterli görülmedi: her birinin kendi evrenine göre yazılmış, kendi renk ve mekaniğiyle kurulmuş bağımsız bir sayfası var.",
+      "count": "{count} dosya",
+      "badge": "Kendi sayfası var"
+    },
     "curator": {
       "off": "Küratör modu",
       "on": "Küratör modu açık",

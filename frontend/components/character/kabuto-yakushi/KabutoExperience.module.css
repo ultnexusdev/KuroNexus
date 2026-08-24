@@ -1,0 +1,41 @@
+/* ============================================================
+   DÜNYA DERİSİ — Kabuto Yakushi (AniList #2405)
+
+   Palet kontrast ÖLÇÜLEREK seçildi (24 Ağustos 2026): metin ailesi
+   bg/surface/surface-hover üzerinde AA (4.5:1) üstü, birincil metin
+   AAA üstü, accent zeminde en az 3:1, yardımcı düz renkler de AA üstü.
+   Değiştirmek istersen ÖNCE yeniden ölç.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı
+   gereği bir yerel sınıf şart. Kök öğe ikisini birlikte taşır.
+   Bu blok globals.css'e KONMAZ — 35 palet her sayfada inerdi.
+   ============================================================ */
+.page[data-world="kabuto-yakushi"] {
+  --bg:             #07070c;
+  --surface:        #0e0f16;
+  --surface-hover:  #15171f;
+  --border:         #20232d;
+  --border-strong:  #2f3340;
+
+  --text-primary:   #eef0f5;
+  --text-secondary: #a9adbb;
+  --text-muted:     #999daa;
+
+  --accent:         #7f8fe0;
+  --accent-hover:   #9dabf7;
+  --accent-muted:   #414a80;
+
+  --gold:           #b8b49a;
+  --warn:           #a6784a;
+  --danger:         #a6584a;
+
+  /* ── Yardımcı malzeme ailesi — yalnızca bu ağaç okur ── */
+  --kab-scalpel:    #c8d0dc;
+  --kab-snake:      #7fc48a;
+  --kab-lens:       #a8c0d8;
+  /* Yıkamalar ve ışıklar — dekoratif, metin taşımaz */
+  --kab-card:       rgba(127, 143, 224, 0.14);
+  --kab-chart:      rgba(200, 208, 220, 0.06);
+  --kab-glow-soft:  color-mix(in srgb, #7f8fe0 20%, transparent);
+  --kab-glow-strong: color-mix(in srgb, #7f8fe0 45%, transparent);
+}

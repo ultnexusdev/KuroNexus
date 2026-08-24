@@ -1,0 +1,41 @@
+/* ============================================================
+   DÜNYA DERİSİ — Kankurō (AniList #4694)
+
+   Palet kontrast ÖLÇÜLEREK seçildi (24 Ağustos 2026): metin ailesi
+   bg/surface/surface-hover üzerinde AA (4.5:1) üstü, birincil metin
+   AAA üstü, accent zeminde en az 3:1, yardımcı düz renkler de AA üstü.
+   Değiştirmek istersen ÖNCE yeniden ölç.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı
+   gereği bir yerel sınıf şart. Kök öğe ikisini birlikte taşır.
+   Bu blok globals.css'e KONMAZ — 35 palet her sayfada inerdi.
+   ============================================================ */
+.page[data-world="kankuro"] {
+  --bg:             #08060a;
+  --surface:        #100c14;
+  --surface-hover:  #18131d;
+  --border:         #241d2a;
+  --border-strong:  #342a3c;
+
+  --text-primary:   #f0ebf2;
+  --text-secondary: #b0a7b6;
+  --text-muted:     #9f96a6;
+
+  --accent:         #7a4fc4;
+  --accent-hover:   #976ee0;
+  --accent-muted:   #3e2867;
+
+  --gold:           #b89a6a;
+  --warn:           #a6784a;
+  --danger:         #a6584a;
+
+  /* ── Yardımcı malzeme ailesi — yalnızca bu ağaç okur ── */
+  --kan-thread:     #c0a0e0;
+  --kan-poison:     #a8cf68;
+  --kan-joint:      #c9ad7a;
+  /* Yıkamalar ve ışıklar — dekoratif, metin taşımaz */
+  --kan-lacquer:    rgba(42, 26, 42, 0.7);
+  --kan-string:     rgba(192, 160, 224, 0.14);
+  --kan-glow-soft:  color-mix(in srgb, #7a4fc4 20%, transparent);
+  --kan-glow-strong: color-mix(in srgb, #7a4fc4 45%, transparent);
+}

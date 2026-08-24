@@ -1,0 +1,41 @@
+/* ============================================================
+   DÜNYA DERİSİ — Ino Yamanaka (AniList #2009)
+
+   Palet kontrast ÖLÇÜLEREK seçildi (24 Ağustos 2026): metin ailesi
+   bg/surface/surface-hover üzerinde AA (4.5:1) üstü, birincil metin
+   AAA üstü, accent zeminde en az 3:1, yardımcı düz renkler de AA üstü.
+   Değiştirmek istersen ÖNCE yeniden ölç.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı
+   gereği bir yerel sınıf şart. Kök öğe ikisini birlikte taşır.
+   Bu blok globals.css'e KONMAZ — 35 palet her sayfada inerdi.
+   ============================================================ */
+.page[data-world="ino-yamanaka"] {
+  --bg:             #0a060c;
+  --surface:        #140e18;
+  --surface-hover:  #1d1522;
+  --border:         #2a1f31;
+  --border-strong:  #3d2e47;
+
+  --text-primary:   #f2eaf6;
+  --text-secondary: #b4a6bd;
+  --text-muted:     #a294ab;
+
+  --accent:         #cf5ba8;
+  --accent-hover:   #ec78c2;
+  --accent-muted:   #70255a;
+
+  --gold:           #c9b08a;
+  --warn:           #a6784a;
+  --danger:         #a6584a;
+
+  /* ── Yardımcı malzeme ailesi — yalnızca bu ağaç okur ── */
+  --ino-petal:      #ef9ac8;
+  --ino-stem:       #7fc482;
+  --ino-mind:       #c58ce8;
+  /* Yıkamalar ve ışıklar — dekoratif, metin taşımaz */
+  --ino-bloom:      rgba(207, 91, 168, 0.12);
+  --ino-link:       rgba(197, 140, 232, 0.14);
+  --ino-glow-soft:  color-mix(in srgb, #cf5ba8 20%, transparent);
+  --ino-glow-strong: color-mix(in srgb, #cf5ba8 45%, transparent);
+}

@@ -53,6 +53,39 @@ export const EXPERIENCE_IDS = {
   /** Kap sayfasının iki adresi — ikisi de AYNI bileşene çıkar */
   yuujiItadori: 127212,
   sukuna: 133701,
+
+  /* ── İkinci tur (24 Ağustos 2026): Naruto evreninden 22 kişi daha.
+     Numaralar AniList GraphQL'den doğrulandı; ad tek başına güvenilmez
+     olduğu için her aramada medya listesinde Naruto/Boruto süzgeci
+     uygulandı (Kurama'nın YuYu Hakusho'ya çarpması emsali).
+
+     İki numara AniList'te BAŞKA ADLA kayıtlı ve bu bilinçli korunuyor:
+       obitoUchiha → #3149, AniList'teki adı "Tobi" (maskeli hâli)
+       nagato      → #3180, AniList'teki adı "Pain" (altı yolun personası)
+     Sitedeki `NARUTO_PEOPLE` kaydı da yıllardır bu eşleşmeyi kullanıyor;
+     sayfa başlığı karakterin gerçek adını taşıyor, künye AniList'inkini. ── */
+  sai: 1901,
+  yamato: 2006,
+  irukaUmino: 2011,
+  konohamaruSarutobi: 3889,
+  chojiAkimichi: 2008,
+  inoYamanaka: 2009,
+  kibaInuzuka: 3495,
+  shinoAburame: 3428,
+  nejiHyuga: 1694,
+  tenten: 3710,
+  gaara: 1662,
+  temari: 2174,
+  kankuro: 4694,
+  tsunade: 2767,
+  orochimaru: 2455,
+  kabutoYakushi: 2405,
+  obitoUchiha: 3149,
+  madaraUchiha: 53901,
+  nagato: 3180,
+  konan: 3179,
+  minatoNamikaze: 2535,
+  kushinaUzumaki: 7302,
 } as const;
 
 /**
@@ -116,6 +149,52 @@ export const EXPERIENCE_COMPANIONS: Record<number, number[]> = {
   [EXPERIENCE_IDS.sukuna]: [
     127212, 127691, 126635, 133700, 133704, 133702, 157116,
   ],
+
+  /* ── İkinci tur (24 Ağustos 2026) ── */
+  // Sai: Takım 7'nin sonradan geleni + Kök
+  [EXPERIENCE_IDS.sai]: [17, 13, 145, 2006, 23424, 85],
+  // Yamato: Kakashi'nin yerine geçen ANBU + Hashirama hücresi zinciri
+  [EXPERIENCE_IDS.yamato]: [85, 17, 1901, 12464, 2455, 23424],
+  // Iruka: öğrencisi ve öğretmeni
+  [EXPERIENCE_IDS.irukaUmino]: [17, 7571, 3889, 85],
+  // Konohamaru: dede, amca, usta
+  [EXPERIENCE_IDS.konohamaruSarutobi]: [17, 7571, 4775, 13],
+  // Chōji: Ino-Shika-Chō + sensei
+  [EXPERIENCE_IDS.chojiAkimichi]: [2007, 2009, 4775, 17],
+  // Ino: Ino-Shika-Chō + rakip/dost + Sai
+  [EXPERIENCE_IDS.inoYamanaka]: [2007, 2008, 145, 4775, 1901],
+  // Kiba: Takım 8
+  [EXPERIENCE_IDS.kibaInuzuka]: [1555, 3428, 4773, 17],
+  // Shino: Takım 8
+  [EXPERIENCE_IDS.shinoAburame]: [1555, 3495, 4773, 17],
+  // Neji: Takım Guy + Hyūga kanadı
+  [EXPERIENCE_IDS.nejiHyuga]: [1555, 306, 3710, 307, 17],
+  // Tenten: Takım Guy + silah dostu
+  [EXPERIENCE_IDS.tenten]: [306, 1694, 307, 2174],
+  // Gaara: kardeşleri, babası, onu değiştiren çocuk
+  [EXPERIENCE_IDS.gaara]: [17, 2174, 4694, 22920],
+  // Temari: kardeşleri, babası, gölge
+  [EXPERIENCE_IDS.temari]: [1662, 4694, 2007, 22920],
+  // Kankurō: kardeşleri, kukla ustası
+  [EXPERIENCE_IDS.kankuro]: [1662, 2174, 1900, 22920],
+  // Tsunade: Sannin + çırağı + öğrettiği köy
+  [EXPERIENCE_IDS.tsunade]: [2423, 2455, 145, 17, 7571],
+  // Orochimaru: Sannin + kaplar + öğrencisi
+  [EXPERIENCE_IDS.orochimaru]: [2423, 2767, 13, 2405, 7571, 14],
+  // Kabuto: efendisi, dirilttikleri
+  [EXPERIENCE_IDS.kabutoYakushi]: [2455, 13, 14, 53901, 17],
+  // Obito: takımı ve onu kullanan
+  [EXPERIENCE_IDS.obitoUchiha]: [85, 14082, 2535, 53901, 17],
+  // Madara: rakibi, kaplarını kullandığı, kardeşi
+  [EXPERIENCE_IDS.madaraUchiha]: [12464, 3149, 3180, 16406, 17],
+  // Nagato: Ame yetimleri + ustası + onu ikna eden
+  [EXPERIENCE_IDS.nagato]: [23050, 3179, 2423, 17, 3149],
+  // Konan: Ame yetimleri + ustası
+  [EXPERIENCE_IDS.konan]: [3180, 23050, 2423, 3149],
+  // Minato: eşi, oğlu, ustası, öğrencileri
+  [EXPERIENCE_IDS.minatoNamikaze]: [7302, 17, 2423, 85, 3149, 14082],
+  // Kushina: eşi, oğlu, önceki jinchūriki hattı
+  [EXPERIENCE_IDS.kushinaUzumaki]: [2535, 17, 2767, 7407],
 };
 
 const EXPERIENCE_ID_SET: ReadonlySet<number> = new Set<number>(

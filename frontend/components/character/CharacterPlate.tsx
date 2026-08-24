@@ -37,6 +37,15 @@ export function CharacterPlate({
    * vermiyor — küratör düğmesi orada zaten çizilmiyor.
    */
   onHiddenChange,
+  /**
+   * Bu karakterin elle tasarlanmış kendi sayfası var mı?
+   *
+   * Dizinde yüzlerce kart var ve çoğu yalnızca AniList künyesi; üzerine
+   * gerçekten sayfa yazılmış olanlar aradan seçilebilmeli. Rozet METİN
+   * DEĞİL bir işaret: kart zaten adı taşıyor, ikinci bir satır kalabalık
+   * yapardı. Erişilebilir ad `title`/`aria-label` üzerinden veriliyor.
+   */
+  curated = false,
 }: {
   character: ArchiveCharacter;
   sizes: string;
@@ -44,6 +53,7 @@ export function CharacterPlate({
   curating?: boolean;
   hidden?: boolean;
   onHiddenChange?: (characterId: number, hidden: boolean) => void;
+  curated?: boolean;
 }) {
   const t = useTranslations("character");
   const href = `/dark-stories/category/anime/karakterler/${character.characterId}`;
@@ -91,6 +101,20 @@ export function CharacterPlate({
             className={`${styles.rank} ${isMain ? styles.rankMain : ""}`}
           >
             {t(`role.${character.role}`)}
+          </span>
+        ) : null}
+        {curated ? (
+          <span
+            className={styles.curatedMark}
+            title={t("curated.badge")}
+            aria-label={t("curated.badge")}
+            role="img"
+          >
+            <svg viewBox="0 0 16 16" aria-hidden focusable="false">
+              {/* Mürekkep damlası + fırça ucu: "bu sayfa elle yazıldı" */}
+              <path d="M8 1.6c2.2 2.9 3.6 4.9 3.6 6.7A3.6 3.6 0 0 1 8 11.9a3.6 3.6 0 0 1-3.6-3.6c0-1.8 1.4-3.8 3.6-6.7Z" />
+              <path d="M4.6 13.4h6.8" />
+            </svg>
           </span>
         ) : null}
       </Link>

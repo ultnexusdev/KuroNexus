@@ -1,0 +1,41 @@
+/* ============================================================
+   DÜNYA DERİSİ — Minato Namikaze (AniList #2535)
+
+   Palet kontrast ÖLÇÜLEREK seçildi (24 Ağustos 2026): metin ailesi
+   bg/surface/surface-hover üzerinde AA (4.5:1) üstü, birincil metin
+   AAA üstü, accent zeminde en az 3:1, yardımcı düz renkler de AA üstü.
+   Değiştirmek istersen ÖNCE yeniden ölç.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı
+   gereği bir yerel sınıf şart. Kök öğe ikisini birlikte taşır.
+   Bu blok globals.css'e KONMAZ — 35 palet her sayfada inerdi.
+   ============================================================ */
+.page[data-world="minato-namikaze"] {
+  --bg:             #05070d;
+  --surface:        #0c1018;
+  --surface-hover:  #131822;
+  --border:         #1d2431;
+  --border-strong:  #2b3446;
+
+  --text-primary:   #eef1f7;
+  --text-secondary: #a8b0be;
+  --text-muted:     #98a0ad;
+
+  --accent:         #f5c84f;
+  --accent-hover:   #ffdd74;
+  --accent-muted:   #7d6116;
+
+  --gold:           #d8b45e;
+  --warn:           #a6784a;
+  --danger:         #a6584a;
+
+  /* ── Yardımcı malzeme ailesi — yalnızca bu ağaç okur ── */
+  --min-cloak:      #e8e4dc;
+  --min-seal:       #e0604c;
+  --min-mark:       #f5c84f;
+  /* Yıkamalar ve ışıklar — dekoratif, metin taşımaz */
+  --min-flash:      rgba(245, 200, 79, 0.16);
+  --min-night:      rgba(12, 24, 48, 0.7);
+  --min-glow-soft:  color-mix(in srgb, #f5c84f 20%, transparent);
+  --min-glow-strong: color-mix(in srgb, #f5c84f 45%, transparent);
+}

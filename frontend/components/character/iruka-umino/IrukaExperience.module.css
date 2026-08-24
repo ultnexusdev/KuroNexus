@@ -1,0 +1,41 @@
+/* ============================================================
+   DÜNYA DERİSİ — Iruka Umino (AniList #2011)
+
+   Palet kontrast ÖLÇÜLEREK seçildi (24 Ağustos 2026): metin ailesi
+   bg/surface/surface-hover üzerinde AA (4.5:1) üstü, birincil metin
+   AAA üstü, accent zeminde en az 3:1, yardımcı düz renkler de AA üstü.
+   Değiştirmek istersen ÖNCE yeniden ölç.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı
+   gereği bir yerel sınıf şart. Kök öğe ikisini birlikte taşır.
+   Bu blok globals.css'e KONMAZ — 35 palet her sayfada inerdi.
+   ============================================================ */
+.page[data-world="iruka-umino"] {
+  --bg:             #0b0908;
+  --surface:        #141110;
+  --surface-hover:  #1d1918;
+  --border:         #292321;
+  --border-strong:  #3b3330;
+
+  --text-primary:   #f3ece5;
+  --text-secondary: #b6a89c;
+  --text-muted:     #a1948a;
+
+  --accent:         #c98a2e;
+  --accent-hover:   #e3a445;
+  --accent-muted:   #6d4a12;
+
+  --gold:           #d4b168;
+  --warn:           #a6784a;
+  --danger:         #a6584a;
+
+  /* ── Yardımcı malzeme ailesi — yalnızca bu ağaç okur ── */
+  --iru-chalk:      #e8e4d8;
+  --iru-ramen:      #e0904c;
+  --iru-scar:       #c4695c;
+  /* Yıkamalar ve ışıklar — dekoratif, metin taşımaz */
+  --iru-board:      rgba(22, 33, 28, 0.85);
+  --iru-dusk:       rgba(201, 138, 46, 0.12);
+  --iru-glow-soft:  color-mix(in srgb, #c98a2e 20%, transparent);
+  --iru-glow-strong: color-mix(in srgb, #c98a2e 45%, transparent);
+}

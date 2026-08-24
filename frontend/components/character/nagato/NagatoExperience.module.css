@@ -1,0 +1,41 @@
+/* ============================================================
+   DÜNYA DERİSİ — Nagato (AniList #3180)
+
+   Palet kontrast ÖLÇÜLEREK seçildi (24 Ağustos 2026): metin ailesi
+   bg/surface/surface-hover üzerinde AA (4.5:1) üstü, birincil metin
+   AAA üstü, accent zeminde en az 3:1, yardımcı düz renkler de AA üstü.
+   Değiştirmek istersen ÖNCE yeniden ölç.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı
+   gereği bir yerel sınıf şart. Kök öğe ikisini birlikte taşır.
+   Bu blok globals.css'e KONMAZ — 35 palet her sayfada inerdi.
+   ============================================================ */
+.page[data-world="nagato"] {
+  --bg:             #070809;
+  --surface:        #0e1012;
+  --surface-hover:  #16181a;
+  --border:         #212427;
+  --border-strong:  #303539;
+
+  --text-primary:   #edeff0;
+  --text-secondary: #a8adb0;
+  --text-muted:     #989da0;
+
+  --accent:         #8a7fc4;
+  --accent-hover:   #a79cdf;
+  --accent-muted:   #473f70;
+
+  --gold:           #a9a89c;
+  --warn:           #a6784a;
+  --danger:         #a6584a;
+
+  /* ── Yardımcı malzeme ailesi — yalnızca bu ağaç okur ── */
+  --nag-rain:       #b8c0c8;
+  --nag-rust:       #c48a6a;
+  --nag-rod:        #c8ccd0;
+  /* Yıkamalar ve ışıklar — dekoratif, metin taşımaz */
+  --nag-downpour:   rgba(184, 192, 200, 0.08);
+  --nag-pulse:      rgba(138, 127, 196, 0.14);
+  --nag-glow-soft:  color-mix(in srgb, #8a7fc4 20%, transparent);
+  --nag-glow-strong: color-mix(in srgb, #8a7fc4 45%, transparent);
+}

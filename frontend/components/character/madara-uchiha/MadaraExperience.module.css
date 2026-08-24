@@ -1,0 +1,41 @@
+/* ============================================================
+   DÜNYA DERİSİ — Madara Uchiha (AniList #53901)
+
+   Palet kontrast ÖLÇÜLEREK seçildi (24 Ağustos 2026): metin ailesi
+   bg/surface/surface-hover üzerinde AA (4.5:1) üstü, birincil metin
+   AAA üstü, accent zeminde en az 3:1, yardımcı düz renkler de AA üstü.
+   Değiştirmek istersen ÖNCE yeniden ölç.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı
+   gereği bir yerel sınıf şart. Kök öğe ikisini birlikte taşır.
+   Bu blok globals.css'e KONMAZ — 35 palet her sayfada inerdi.
+   ============================================================ */
+.page[data-world="madara-uchiha"] {
+  --bg:             #08080b;
+  --surface:        #101015;
+  --surface-hover:  #17181e;
+  --border:         #232430;
+  --border-strong:  #333443;
+
+  --text-primary:   #eeeef3;
+  --text-secondary: #a9aab6;
+  --text-muted:     #9a9ba7;
+
+  --accent:         #5f6bb8;
+  --accent-hover:   #7d89d6;
+  --accent-muted:   #333a66;
+
+  --gold:           #b0aa96;
+  --warn:           #a6784a;
+  --danger:         #a6584a;
+
+  /* ── Yardımcı malzeme ailesi — yalnızca bu ağaç okur ── */
+  --mad-ash:        #a8a8b0;
+  --mad-ember:      #e0685c;
+  --mad-susanoo:    #7f8ad8;
+  /* Yıkamalar ve ışıklar — dekoratif, metin taşımaz */
+  --mad-dream:      rgba(95, 107, 184, 0.14);
+  --mad-ruin:       rgba(168, 168, 176, 0.07);
+  --mad-glow-soft:  color-mix(in srgb, #5f6bb8 20%, transparent);
+  --mad-glow-strong: color-mix(in srgb, #5f6bb8 45%, transparent);
+}

@@ -1,0 +1,41 @@
+/* ============================================================
+   DÜNYA DERİSİ — Tenten (AniList #3710)
+
+   Palet kontrast ÖLÇÜLEREK seçildi (24 Ağustos 2026): metin ailesi
+   bg/surface/surface-hover üzerinde AA (4.5:1) üstü, birincil metin
+   AAA üstü, accent zeminde en az 3:1, yardımcı düz renkler de AA üstü.
+   Değiştirmek istersen ÖNCE yeniden ölç.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı
+   gereği bir yerel sınıf şart. Kök öğe ikisini birlikte taşır.
+   Bu blok globals.css'e KONMAZ — 35 palet her sayfada inerdi.
+   ============================================================ */
+.page[data-world="tenten"] {
+  --bg:             #090809;
+  --surface:        #121113;
+  --surface-hover:  #1a191c;
+  --border:         #262428;
+  --border-strong:  #373539;
+
+  --text-primary:   #f0eeee;
+  --text-secondary: #aeaaab;
+  --text-muted:     #9c9899;
+
+  --accent:         #d13f63;
+  --accent-hover:   #ee5a7c;
+  --accent-muted:   #74203a;
+
+  --gold:           #b9a06a;
+  --warn:           #a6784a;
+  --danger:         #a6584a;
+
+  /* ── Yardımcı malzeme ailesi — yalnızca bu ağaç okur ── */
+  --ten-steel:      #aab4bc;
+  --ten-scroll:     #ddd0b0;
+  --ten-edge:       #e0798f;
+  /* Yıkamalar ve ışıklar — dekoratif, metin taşımaz */
+  --ten-spark:      rgba(209, 63, 99, 0.14);
+  --ten-unroll:     rgba(221, 208, 176, 0.08);
+  --ten-glow-soft:  color-mix(in srgb, #d13f63 20%, transparent);
+  --ten-glow-strong: color-mix(in srgb, #d13f63 45%, transparent);
+}

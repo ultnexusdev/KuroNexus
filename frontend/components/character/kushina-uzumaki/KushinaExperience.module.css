@@ -1,0 +1,41 @@
+/* ============================================================
+   DÜNYA DERİSİ — Kushina Uzumaki (AniList #7302)
+
+   Palet kontrast ÖLÇÜLEREK seçildi (24 Ağustos 2026): metin ailesi
+   bg/surface/surface-hover üzerinde AA (4.5:1) üstü, birincil metin
+   AAA üstü, accent zeminde en az 3:1, yardımcı düz renkler de AA üstü.
+   Değiştirmek istersen ÖNCE yeniden ölç.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı
+   gereği bir yerel sınıf şart. Kök öğe ikisini birlikte taşır.
+   Bu blok globals.css'e KONMAZ — 35 palet her sayfada inerdi.
+   ============================================================ */
+.page[data-world="kushina-uzumaki"] {
+  --bg:             #0a0607;
+  --surface:        #140c0e;
+  --surface-hover:  #1d1316;
+  --border:         #2a1c1f;
+  --border-strong:  #3c292d;
+
+  --text-primary:   #f6eae9;
+  --text-secondary: #bda6a5;
+  --text-muted:     #ab9492;
+
+  --accent:         #e0495f;
+  --accent-hover:   #fb6478;
+  --accent-muted:   #7a2130;
+
+  --gold:           #cfa96a;
+  --warn:           #a6784a;
+  --danger:         #a6584a;
+
+  /* ── Yardımcı malzeme ailesi — yalnızca bu ağaç okur ── */
+  --kus-hair:       #e8687a;
+  --kus-chain:      #e0c86a;
+  --kus-whirl:      #d89aa6;
+  /* Yıkamalar ve ışıklar — dekoratif, metin taşımaz */
+  --kus-bind:       rgba(224, 200, 106, 0.14);
+  --kus-warm:       rgba(224, 73, 95, 0.12);
+  --kus-glow-soft:  color-mix(in srgb, #e0495f 20%, transparent);
+  --kus-glow-strong: color-mix(in srgb, #e0495f 45%, transparent);
+}

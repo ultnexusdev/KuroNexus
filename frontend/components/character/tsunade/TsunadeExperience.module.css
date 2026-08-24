@@ -1,0 +1,41 @@
+/* ============================================================
+   DÜNYA DERİSİ — Tsunade Senju (AniList #2767)
+
+   Palet kontrast ÖLÇÜLEREK seçildi (24 Ağustos 2026): metin ailesi
+   bg/surface/surface-hover üzerinde AA (4.5:1) üstü, birincil metin
+   AAA üstü, accent zeminde en az 3:1, yardımcı düz renkler de AA üstü.
+   Değiştirmek istersen ÖNCE yeniden ölç.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı
+   gereği bir yerel sınıf şart. Kök öğe ikisini birlikte taşır.
+   Bu blok globals.css'e KONMAZ — 35 palet her sayfada inerdi.
+   ============================================================ */
+.page[data-world="tsunade"] {
+  --bg:             #070a08;
+  --surface:        #0e1310;
+  --surface-hover:  #151c18;
+  --border:         #202a24;
+  --border-strong:  #2f3c34;
+
+  --text-primary:   #ecf2ee;
+  --text-secondary: #a8b4ac;
+  --text-muted:     #97a49b;
+
+  --accent:         #3fae9a;
+  --accent-hover:   #5fcbb6;
+  --accent-muted:   #23615a;
+
+  --gold:           #d4a83c;
+  --warn:           #a6784a;
+  --danger:         #a6584a;
+
+  /* ── Yardımcı malzeme ailesi — yalnızca bu ağaç okur ── */
+  --tsu-seal:       #b98ce0;
+  --tsu-slug:       #dcd4c8;
+  --tsu-luck:       #e06a7a;
+  /* Yıkamalar ve ışıklar — dekoratif, metin taşımaz */
+  --tsu-chip:       rgba(212, 168, 60, 0.14);
+  --tsu-felt:       rgba(63, 174, 154, 0.1);
+  --tsu-glow-soft:  color-mix(in srgb, #3fae9a 20%, transparent);
+  --tsu-glow-strong: color-mix(in srgb, #3fae9a 45%, transparent);
+}

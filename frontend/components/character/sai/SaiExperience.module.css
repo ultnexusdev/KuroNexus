@@ -1,0 +1,42 @@
+/* ============================================================
+   DÜNYA DERİSİ — Sai (AniList #1901)
+
+   Palet kontrast ÖLÇÜLEREK seçildi (24 Ağustos 2026): metin ailesi
+   bg/surface/surface-hover üzerinde AA (4.5:1) üstü, birincil metin
+   AAA üstü, accent zeminde en az 3:1, yardımcı düz renkler de AA üstü.
+   Değiştirmek istersen ÖNCE yeniden ölç.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı
+   gereği bir yerel sınıf şart. Kök öğe ikisini birlikte taşır.
+   Bu blok globals.css'e KONMAZ — 35 palet her sayfada inerdi.
+   ============================================================ */
+.page[data-world="sai"] {
+  --bg:             #0a0a09;
+  --surface:        #131312;
+  --surface-hover:  #1c1c1a;
+  --border:         #272725;
+  --border-strong:  #3a3a37;
+
+  --text-primary:   #f2f0ea;
+  --text-secondary: #b0aea6;
+  --text-muted:     #9e9c93;
+
+  --accent:         #ded6c4;
+  --accent-hover:   #f0e9da;
+  --accent-muted:   #6e685a;
+
+  --gold:           #b8863f;
+  --warn:           #a6784a;
+  --danger:         #a6584a;
+
+  /* ── Yardımcı malzeme ailesi — yalnızca bu ağaç okur ── */
+  --sai-seal:       #e06a5c;
+  --sai-brushTip:   #8f867a;
+  /* Yalnızca DOLGU: küçük metinde kullanma, kontrastı ölçülmedi */
+  --sai-ink:        #050505;
+  /* Yıkamalar ve ışıklar — dekoratif, metin taşımaz */
+  --sai-brush:      rgba(222, 214, 196, 0.12);
+  --sai-blot:       rgba(5, 5, 5, 0.55);
+  --sai-glow-soft:  color-mix(in srgb, #ded6c4 20%, transparent);
+  --sai-glow-strong: color-mix(in srgb, #ded6c4 45%, transparent);
+}

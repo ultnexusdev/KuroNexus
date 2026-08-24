@@ -19,12 +19,29 @@ export function CharacterGallery({
   hallLabel,
   hallName,
   isAdmin = false,
+  curatedIds,
+  shelf,
 }: {
   index: CharacterIndex;
   hallLabel: string;
   hallName: string;
   /** Küratör anahtarını gösterir — yetki her istekte backend'de doğrulanır */
   isAdmin?: boolean;
+  /**
+   * Elle tasarlanmış kendi sayfası olan karakterler — kartlarına işaret
+   * konur.
+   *
+   * ⚠️ Aşağıdaki `curating` durumuyla KARIŞTIRMA: o "küratör modu açık mı"
+   * demek (yönetici, karakteri dizinden çıkarabiliyor). Bu ise içeriğe dair
+   * kalıcı bir gerçek: o karakterin yazılmış bir sayfası var.
+   */
+  curatedIds?: ReadonlySet<number>;
+  /**
+   * Üstteki "Elle Tasarlanmış Dosyalar" rafı. SUNUCUDA çizilmiş bir düğüm
+   * olarak geçiyor: bu bileşen istemci tarafında ama rafın kendisi istemci
+   * paketine girmiyor.
+   */
+  shelf?: React.ReactNode;
 }) {
   const t = useTranslations("character");
   const router = useRouter();
@@ -222,6 +239,8 @@ export function CharacterGallery({
           </div>
         </div>
 
+        {shelf}
+
         {index.characters.length > 0 ? (
           <>
             <div className={styles.tools}>
@@ -288,6 +307,7 @@ export function CharacterGallery({
                   curating={curating}
                   hidden={hiddenIds.has(character.characterId)}
                   onHiddenChange={markHidden}
+                  curated={curatedIds?.has(character.characterId) ?? false}
                 />
               </li>
             ))}

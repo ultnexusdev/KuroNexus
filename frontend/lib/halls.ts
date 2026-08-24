@@ -1,4 +1,5 @@
 import type { UniverseCategory } from "./api/types";
+import { routing } from "./i18n/routing";
 
 /**
  * Gece Müzesi'ndeki salon sırası. Kapı duvarı da salon başlıkları da bu tek
@@ -131,16 +132,47 @@ export function hallNumber(
 }
 
 /**
- * Salonun görünen adı: veritabanındaki kategori adı. Kod içinde sabit bir ad
- * TUTULMAZ — kategori `/admin/universe-categories`ten yeniden adlandırılınca
- * ana sayfadaki kapı, salon girişi ve salon başlıkları birlikte değişsin diye.
+ * Salonun görünen adı — DİLE GÖRE İKİ FARKLI KAYNAK.
+ *
+ * ── VARSAYILAN DİLDE (tr): VERİTABANI KAZANIR ────────────────────────────
+ * Kod içinde sabit bir ad TUTULMAZ — kategori `/admin/universe-categories`ten
+ * yeniden adlandırılınca ana sayfadaki kapı, salon girişi ve salon başlıkları
+ * birlikte değişsin diye. Bu kural 8 Ağustos 2026'dan beri geçerli ve
+ * bozulmadı.
+ *
+ * ── ÖTEKİ DİLLERDE (en): SÖZLÜK KAZANIR ──────────────────────────────────
+ * ⚠️ Veritabanındaki ad YALNIZCA TÜRKÇE: panelden giriliyor ve çeviri alanı
+ * yok (`ANİME`, `FİLM`, `MÜZİK`…). Varsayılan dildeki kural körü körüne
+ * uygulanınca `/en` sayfalarında salon adları Türkçe kalıyordu — 23 Ağustos
+ * 2026'da altbilgide fark edildi, ölçüldüğünde altı yüzeye daha yayılmıştı
+ * (ana sayfa kapı duvarı, Nexus kapıları, kategori sayfası başlığı/metası ve
+ * `hallName` çağıran yirmi sayfa).
+ *
+ * Sözlük yoksa DB adına düşülür: yanlış dilde bir ad, boş bir başlıktan
+ * yeğdir. Panelden açılan yepyeni bir kategori sözlüğe girene kadar `/en`de
+ * Türkçe adıyla görünür — bilinçli.
+ *
+ * ── ⚠️ `locale` ZORUNLU PARAMETRE, İSTEĞE BAĞLI DEĞİL ────────────────────
+ * Varsayılan değer verilseydi (`locale = "tr"`) güncellenmemiş her çağrı
+ * sessizce eski hatayı sürdürürdü. Zorunlu olduğu için derleyici yirmi
+ * çağrı yerinin hepsini tek tek gösteriyor — bu dosyadaki `hallHref`
+ * notunun anlattığı "üç kez unutma şansı" sınıfı böyle kapanıyor.
+ *
+ * @param translated Çağıranın sözlükten çözdüğü ad; yoksa `null`. Salon
+ *   sayfaları bunu kendi ad alanlarından verir (`anime.hallName`,
+ *   `book.hallName`…), jenerik yüzeyler `home.halls.<slug>`ten.
  */
 export function hallName(
   categories: Array<{ slug: string; name: string }>,
   slug: string,
-  fallback: string,
+  translated: string | null,
+  locale: string,
 ): string {
-  return categories.find((category) => category.slug === slug)?.name ?? fallback;
+  const dbName =
+    categories.find((category) => category.slug === slug)?.name ?? null;
+  return locale === routing.defaultLocale
+    ? (dbName ?? translated ?? slug)
+    : (translated ?? dbName ?? slug);
 }
 
 /** "01", "02" … — başlıklarda iki haneli gösterilir. */

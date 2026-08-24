@@ -35,12 +35,13 @@ export async function generateMetadata({
 
 async function getHall(
   fallbackName: string,
+  locale: string,
 ): Promise<{ label: string; name: string }> {
   try {
     const categories = await fetchCategories();
     return {
       label: hallLabel(hallNumber(categories, "dizi")),
-      name: hallName(categories, "dizi", fallbackName),
+      name: hallName(categories, "dizi", fallbackName, locale),
     };
   } catch {
     return { label: "", name: fallbackName };
@@ -61,7 +62,7 @@ export default async function ShelfPage({
   const t = await getTranslations({ locale, namespace: "show" });
   const [archive, hall, isAdmin] = await Promise.all([
     getShowArchive(),
-    getHall(t("hallName")),
+    getHall(t("hallName"), locale),
     readIsAdmin(),
   ]);
 

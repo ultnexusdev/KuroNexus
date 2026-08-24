@@ -41,12 +41,13 @@ export async function generateMetadata({
 
 async function getHall(
   fallbackName: string,
+  locale: string,
 ): Promise<{ label: string; name: string }> {
   try {
     const categories = await fetchCategories();
     return {
       label: hallLabel(hallNumber(categories, SLUG)),
-      name: hallName(categories, SLUG, fallbackName),
+      name: hallName(categories, SLUG, fallbackName, locale),
     };
   } catch {
     return { label: "", name: fallbackName };
@@ -62,7 +63,7 @@ export default async function PersonRoute({
   const t = await getTranslations({ locale, namespace: "book" });
   const [person, hall] = await Promise.all([
     getBookPerson(slug),
-    getHall(t("hallName")),
+    getHall(t("hallName"), locale),
   ]);
 
   // Arşivde olmayan kişi 404; backend de bilmediği slug'a 404 veriyor

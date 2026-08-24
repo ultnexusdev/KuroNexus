@@ -43,12 +43,13 @@ export async function generateMetadata({
 
 async function getHall(
   fallbackName: string,
+  locale: string,
 ): Promise<{ label: string; name: string }> {
   try {
     const categories = await fetchCategories();
     return {
       label: hallLabel(hallNumber(categories, SLUG)),
-      name: hallName(categories, SLUG, fallbackName),
+      name: hallName(categories, SLUG, fallbackName, locale),
     };
   } catch {
     return { label: "", name: fallbackName };
@@ -64,7 +65,7 @@ export default async function SourceBookRoute({
   const t = await getTranslations({ locale, namespace: "book" });
   const [book, hall] = await Promise.all([
     getSourceBook(slug),
-    getHall(t("hallName")),
+    getHall(t("hallName"), locale),
   ]);
 
   // Kaynağın bilmediği anahtar 404; backend de bilmediğine 404 veriyor

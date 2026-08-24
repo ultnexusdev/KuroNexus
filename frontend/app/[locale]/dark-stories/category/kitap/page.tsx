@@ -48,12 +48,13 @@ export async function generateMetadata({
 /** Salon numarası ve adı tek kaynaktan: kategori kaydı (yoksa kod adı). */
 async function getHall(
   fallbackName: string,
+  locale: string,
 ): Promise<{ label: string; name: string }> {
   try {
     const categories = await fetchCategories();
     return {
       label: hallLabel(hallNumber(categories, SLUG)),
-      name: hallName(categories, SLUG, fallbackName),
+      name: hallName(categories, SLUG, fallbackName, locale),
     };
   } catch {
     // Kategori listesi alınamazsa başlık numarasız görünür, sayfa çökmez
@@ -70,7 +71,7 @@ export default async function BookLobbyPage({
   const t = await getTranslations({ locale, namespace: "book" });
   const [archive, hall] = await Promise.all([
     getBookArchive(),
-    getHall(t("hallName")),
+    getHall(t("hallName"), locale),
   ]);
 
   /**

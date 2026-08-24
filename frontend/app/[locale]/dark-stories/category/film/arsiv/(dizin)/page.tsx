@@ -29,12 +29,13 @@ export async function generateMetadata({
 /** Salon numarası ve adı tek kaynaktan: kategori kaydı. */
 async function getHall(
   fallbackName: string,
+  locale: string,
 ): Promise<{ label: string; name: string }> {
   try {
     const categories = await fetchCategories();
     return {
       label: hallLabel(hallNumber(categories, "film")),
-      name: hallName(categories, "film", fallbackName),
+      name: hallName(categories, "film", fallbackName, locale),
     };
   } catch {
     // Kategori listesi alınamazsa başlık numarasız görünür, sayfa çökmez
@@ -51,7 +52,7 @@ export default async function FilmArchivePage({
   const t = await getTranslations({ locale, namespace: "film" });
   const [archive, hall, isAdmin] = await Promise.all([
     getMovieArchive(),
-    getHall(t("hallName")),
+    getHall(t("hallName"), locale),
     readIsAdmin(),
   ]);
 

@@ -12,7 +12,7 @@ import { ShowLobby } from "@/components/show/ShowLobby";
 import { getMovieArchive, getMovieShowcase } from "@/lib/api/movies";
 import { getAnimeArchive, getAnimeShowcase } from "@/lib/api/anime";
 import { getShowArchive, getShowShowcase } from "@/lib/api/shows";
-import { hallLabel, hallNumber } from "@/lib/halls";
+import { hallLabel, hallName, hallNumber } from "@/lib/halls";
 import { apiUrl } from "@/lib/api/client";
 import { Link } from "@/lib/i18n/navigation";
 import { shareCard } from "@/lib/seo";
@@ -28,7 +28,13 @@ export async function generateMetadata({
     const categories = await fetchCategories();
     const category = categories.find((c) => c.slug === categorySlug);
     if (!category) return {};
-    const title = category.name;
+    const tHome = await getTranslations({ locale, namespace: "home" });
+    const title = hallName(
+      categories,
+      category.slug,
+      tHome.has(`halls.${category.slug}`) ? tHome(`halls.${category.slug}`) : null,
+      locale,
+    );
     return {
       title,
       ...shareCard({
@@ -52,6 +58,7 @@ export default async function CategoryUniversesPage({
 }) {
   const { locale, categorySlug } = await params;
   const t = await getTranslations({ locale, namespace: "stories" });
+  const tHome = await getTranslations({ locale, namespace: "home" });
 
   const [categories, allUniverses] = await Promise.all([
     fetchCategories(),
@@ -64,6 +71,18 @@ export default async function CategoryUniversesPage({
   }
 
   const universes = allUniverses.filter((u) => u.categoryId === category.id);
+
+  /* Salonun görünen adı: varsayılan dilde veritabanı, İngilizcede sözlük
+     (gerekçe `lib/halls.ts` → `hallName`). Bir kez çözülüyor — bu sayfa adı
+     beş yerde basıyor (üç salon girişi + başlık + banner) ve beşi de aynı
+     şeyi söylemeli. */
+  const displayName = hallName(
+    categories,
+    category.slug,
+    tHome.has(`halls.${category.slug}`) ? tHome(`halls.${category.slug}`) : null,
+    locale,
+  );
+
   // Kategori derisi: yalnızca derisi tanımlı kategoriler dönüşür
   const isCodex = category.slug === "kadim-dunyalar";
 
@@ -78,7 +97,7 @@ export default async function CategoryUniversesPage({
       <FilmLobby
         locale={locale}
         hallLabel={hallLabel(hallNumber(categories, category.slug))}
-        categoryName={category.name}
+        categoryName={displayName}
         archive={archive}
         showcase={showcase}
       />
@@ -95,7 +114,7 @@ export default async function CategoryUniversesPage({
       <AnimeLobby
         locale={locale}
         hallLabel={hallLabel(hallNumber(categories, category.slug))}
-        categoryName={category.name}
+        categoryName={displayName}
         archive={archive}
         showcase={showcase}
       />
@@ -112,7 +131,7 @@ export default async function CategoryUniversesPage({
       <ShowLobby
         locale={locale}
         hallLabel={hallLabel(hallNumber(categories, category.slug))}
-        categoryName={category.name}
+        categoryName={displayName}
         archive={archive}
         showcase={showcase}
       />
@@ -142,7 +161,7 @@ export default async function CategoryUniversesPage({
                   {t("worldCount", { count: universes.length })}
                 </span>
                 <h1 className={styles.title}>
-                  {category.name.toLocaleUpperCase(locale)}
+                  {displayName.toLocaleUpperCase(locale)}
                 </h1>
                 <span className={styles.rule}>
                   <span className={styles.diamond}>❖</span>
@@ -156,7 +175,7 @@ export default async function CategoryUniversesPage({
                   {t("backToList")}
                 </Link>
                 <h1 className={styles.title}>
-                  {category.name.toLocaleUpperCase(locale)}
+                  {displayName.toLocaleUpperCase(locale)}
                 </h1>
                 <span className={styles.rule}>
                   <span className={styles.diamond}>❖</span>
@@ -205,7 +224,7 @@ export default async function CategoryUniversesPage({
             <div className={styles.bannerWrapper}>
               <Image
                 src={apiUrl(category.coverImage)}
-                alt={category.name}
+                alt={displayName}
                 fill
                 /* Kap `.page` içinde 52rem (832px) ile sınırlı; `sizes` yokken
                    `fill` varsayılanı 100vw sayıp 1920'lik ekrana ~2048px'lik
@@ -218,7 +237,7 @@ export default async function CategoryUniversesPage({
                 priority
               />
               <div className={styles.bannerOverlay}>
-                <h1 className={styles.bannerTitle}>{category.name}</h1>
+                <h1 className={styles.bannerTitle}>{displayName}</h1>
                 {category.description && (
                   <p className={styles.bannerDesc}>{category.description}</p>
                 )}
@@ -227,7 +246,7 @@ export default async function CategoryUniversesPage({
           )}
 
           {!category.coverImage && (
-            <h1 className={styles.heading}>{category.name}</h1>
+            <h1 className={styles.heading}>{displayName}</h1>
           )}
 
           {universes.length === 0 ? (

@@ -47,12 +47,13 @@ export async function generateMetadata({
 /** Salon numarası ve adı tek kaynaktan: kategori kaydı (eski lobiyle aynı). */
 async function getHall(
   fallbackName: string,
+  locale: string,
 ): Promise<{ label: string; name: string }> {
   try {
     const categories = await fetchCategories();
     return {
       label: hallLabel(hallNumber(categories, "anime")),
-      name: hallName(categories, "anime", fallbackName),
+      name: hallName(categories, "anime", fallbackName, locale),
     };
   } catch {
     return { label: "", name: fallbackName };
@@ -96,7 +97,7 @@ export default async function AnimeHallPage({
   const [archive, showcase, hall, painImages] = await Promise.all([
     getAnimeArchive(),
     getAnimeShowcase(),
-    getHall(t("hallName")),
+    getHall(t("hallName"), locale),
     // Silüet için yalnızca Pain'in kayıtları; kurulum koşmadıysa boş döner
     // ve kart bulut motifiyle çizilir — sayfa görsele borçlu değil.
     getCharacterImages([AKATSUKI_IDS.pain]),

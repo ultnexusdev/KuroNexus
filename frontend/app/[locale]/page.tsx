@@ -16,6 +16,7 @@ import {
   codeHall,
   HALL_ORDER,
   hallHref,
+  hallName,
   hallWorldCount,
   mergeCodeHalls,
   sortByHallOrder,
@@ -104,7 +105,15 @@ export default async function HomePage({
     ? mergeCodeHalls<Door>(
         ordered.map((cat) => ({
           slug: cat.slug,
-          name: cat.name,
+          /* Veritabanı adı yalnızca Türkçe; İngilizcede sözlük kazanıyor
+             (gerekçe `lib/halls.ts` → `hallName`). Kod tanımlı salonlar
+             aşağıda zaten `t()`ten okuyordu — iki dal artık aynı kuralda. */
+          name: hallName(
+            ordered,
+            cat.slug,
+            t.has(`halls.${cat.slug}`) ? t(`halls.${cat.slug}`) : null,
+            locale,
+          ),
           href: hallHref(cat.slug),
           coverImage: cat.coverImage,
           art: codeHall(cat.slug)?.art ?? null,

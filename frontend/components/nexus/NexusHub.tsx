@@ -7,6 +7,7 @@ import {
   codeHall,
   hallHref,
   hallLabel,
+  hallName,
   hallWorldCount,
   mergeCodeHalls,
 } from "@/lib/halls";
@@ -43,7 +44,18 @@ export async function NexusHub({
   // Salon sırası ve kadro ana sayfadaki kapı duvarıyla aynı kaynaktan okunur:
   // veritabanı kategorileri + kod tanımlı salonlar (Kitap gibi)
   const halls = mergeCodeHalls(
-    pulse.halls,
+    /* Nabızdan gelen salon adı veritabanınınki, yani yalnızca Türkçe;
+       İngilizcede sözlük kazanıyor (gerekçe `lib/halls.ts` → `hallName`).
+       Kod tanımlı salonlar aşağıda zaten `tHome`dan okuyordu. */
+    pulse.halls.map((hall) => ({
+      ...hall,
+      name: hallName(
+        pulse.halls,
+        hall.slug,
+        tHome.has(`halls.${hall.slug}`) ? tHome(`halls.${hall.slug}`) : null,
+        locale,
+      ),
+    })),
     (hall) => hall.slug,
     (hall) => ({
       slug: hall.slug,

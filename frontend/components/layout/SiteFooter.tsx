@@ -1,9 +1,8 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
-import { routing } from "@/lib/i18n/routing";
 import { fetchCategories, fetchUniverses } from "@/lib/api/universes";
 import type { UniverseCategory, WikiUniverseSummary } from "@/lib/api/types";
-import { hallHref, mergeCodeHalls, sortByHallOrder } from "@/lib/halls";
+import { hallHref, hallName, mergeCodeHalls, sortByHallOrder } from "@/lib/halls";
 import { universeHref } from "@/lib/sport/routes";
 import { BrandLogo } from "./BrandLogo";
 import styles from "./SiteFooter.module.css";
@@ -12,17 +11,6 @@ export async function SiteFooter() {
   const t = await getTranslations("footer");
   const tHome = await getTranslations("home");
   const locale = await getLocale();
-
-  /* Veritabanındaki kategori adı TÜRKÇE (panelden verilen ad). Varsayılan
-     dilde kaynak o kalıyor — panelden yeniden adlandırma footer'a da yansısın
-     diye (bkz. lib/halls.ts `hallName` notu). İngilizcede ise DB adı
-     çevrilemez: sözlükte karşılığı olan salonlar `home.halls.*`ten okunur;
-     sözlüğe henüz girmemiş yepyeni bir kategori Türkçe adıyla düşer — yanlış
-     dilde bir ad, boş satırdan yeğ. */
-  const localizedHallName = (slug: string, dbName: string): string =>
-    locale === routing.defaultLocale || !tHome.has(`halls.${slug}`)
-      ? dbName
-      : tHome(`halls.${slug}`);
 
   /* İki istek AYRI değerlendiriliyor (`Promise.all` değil): kategori isteği
      düşerse evren sütunu da kaybolurdu, oysa ikisinin birbiriyle işi yok.
@@ -41,9 +29,20 @@ export async function SiteFooter() {
      birleştiriliyor. Kategori isteği düştüyse liste boş kalır ve sütun hiç
      çizilmez — uydurma bağlantı üretmektense eksik kalmak yeğ. */
   const halls = mergeCodeHalls(
+    /* Ad kuralı `lib/halls.ts` → `hallName`de: varsayılan dilde veritabanı
+       (panelden yeniden adlandırma yansısın), İngilizcede sözlük. Bu kural
+       23 Ağustos 2026'da burada doğdu, ertesi gün altı yüzeye daha yayılınca
+       ortak yardımcıya taşındı — yerel kopya kaldırıldı. */
     sortByHallOrder(categories).map((category) => ({
       slug: category.slug,
-      name: localizedHallName(category.slug, category.name),
+      name: hallName(
+        categories,
+        category.slug,
+        tHome.has(`halls.${category.slug}`)
+          ? tHome(`halls.${category.slug}`)
+          : null,
+        locale,
+      ),
     })),
     (hall) => hall.slug,
     (hall) => ({

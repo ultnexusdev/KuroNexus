@@ -56,7 +56,7 @@ export default async function AnimeShelfRoute({
       archive={archive}
       shelf={key}
       hallLabel={hallLabel(hallNumber(categories, "anime"))}
-      hallName={hallName(categories, "anime", t("hallName"))}
+      hallName={hallName(categories, "anime", t("hallName"), locale)}
       isAdmin={isAdmin}
     />
   );

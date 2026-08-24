@@ -34,12 +34,13 @@ export async function generateMetadata({
 
 async function getHall(
   fallbackName: string,
+  locale: string,
 ): Promise<{ label: string; name: string }> {
   try {
     const categories = await fetchCategories();
     return {
       label: hallLabel(hallNumber(categories, SLUG)),
-      name: hallName(categories, SLUG, fallbackName),
+      name: hallName(categories, SLUG, fallbackName, locale),
     };
   } catch {
     return { label: "", name: fallbackName };
@@ -55,7 +56,7 @@ export default async function PublisherRoute({
   const t = await getTranslations({ locale, namespace: "book" });
   const [publisher, hall] = await Promise.all([
     getBookPublisher(slug),
-    getHall(t("hallName")),
+    getHall(t("hallName"), locale),
   ]);
 
   if (!publisher) {

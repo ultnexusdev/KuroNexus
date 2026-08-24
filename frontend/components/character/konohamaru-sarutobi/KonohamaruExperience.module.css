@@ -39,3 +39,2071 @@
   --knh-glow-soft:  color-mix(in srgb, #58bf5f 20%, transparent);
   --knh-glow-strong: color-mix(in srgb, #58bf5f 45%, transparent);
 }
+
+/* ============================================================
+   KONOHAMARU SARUTOBI — "Devralınan Ateş"
+
+   Deri: kökteki `data-world="konohamaru-sarutobi"` bütün standart
+   token'ları yukarıdaki bloktan alıyor. Bu bloğun ALTINDA TEK HEX YOK —
+   ara tonların hepsi color-mix ile token'lardan türetildi.
+
+   ── SAYFANIN FİKRİ ──────────────────────────────────────────────────────
+   DEVİR. Sayfadaki hiçbir şey kendinin değil: teknik ustadan, ateş dededen,
+   ad köyden geliyor. Bu yüzden düzenin taşıyıcı motifi bir KUTU değil, bir
+   HAT: bölümleri yatay kıllar ayırıyor, tekniklerin başında "kimden kaldığı"
+   satırı bir çizgiyle bitiyor (HandoverMark), zincirin halkaları bir halatla
+   birbirine bağlı. Kart yığını yok; kutu yalnızca zincirin panelinde var,
+   orada da bir tane.
+
+   ── IŞIK ────────────────────────────────────────────────────────────────
+   İki kaynak. Üstte soğuk gökyüzü (`--knh-sky`, .sky) — çocukluk tarafı.
+   Altta meşale (`--knh-torch`, .torchWash) — miras tarafı. Zincirde bir
+   halka ilerledikçe kök `data-lit` değişiyor ve meşale ışığı sayfada YUKARI
+   çıkıyor: 5. halkada ateş gökyüzünün olduğu yere ulaşıyor. Işığın yeri
+   sayfanın tek "durum" göstergesi.
+
+   ── TİPOGRAFİ ───────────────────────────────────────────────────────────
+   Display: Petrona (geniş, düşük-orta kontrastlı metin serifi).
+   ⚠️ Ev kuralı (layout.tsx): 2rem üstünde ASLA wght < 700, display
+   line-height >= 1.02, 4rem üstünde negatif tracking. İtalik YOK.
+   Etiket/unvan: Cinzel — sitenin tracked-out majüskül etiket ailesi.
+   Gövde: Cormorant Garamond, evin okuma sesi.
+   Kanji ve motto: Yuji Boku fırça ailesi.
+
+   MOD DÜĞMESİNİN ASIL İŞİ TİPOGRAFİK: "Hokage'nin torunu" açıldığında
+   `--knh-display` Petrona'dan CINZEL'e dönüyor, başlıklar majüskülleşiyor
+   ve unvan satırları öne çıkıyor. Sayfa bir çocuğun odasından bir künye
+   levhasına dönüşüyor — bölümün anlattığı şeyin kendisi.
+
+   ── HAREKET ─────────────────────────────────────────────────────────────
+   Tek yazılmış an: ateşin halatı TIRMANMASI (`--knh-climb`). Geri kalan
+   iki şey ambiyans (düşen yapraklar, atkının salınımı) ve ikisi de
+   no-preference kapısında. Dosyanın sonunda reduce battaniyesi var.
+   ============================================================ */
+
+.page {
+  /* Süre ve easing — hareket sözlüğü */
+  --knh-dur-fast: 160ms;
+  --knh-dur: 340ms;
+  --knh-dur-slow: 820ms;
+  --knh-climb: 1100ms;
+  --knh-ease: cubic-bezier(0.16, 1, 0.3, 1); /* üstel yavaşlama */
+  --knh-ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Geometri */
+  --knh-step: clamp(1.7rem, 4.6vw, 3.4rem); /* dikey ritim birimi */
+  --knh-gutter: clamp(1rem, 4vw, 2rem);
+  --knh-content: min(100% - var(--knh-gutter) * 2, 72rem);
+  --knh-measure: 64ch;
+  --knh-ring: clamp(3.5rem, 12vw, 6rem);
+  --knh-cord: clamp(2.2rem, 6vw, 3.6rem);
+
+  /* Tipografi — mod düğmesi bu üçünü çeviriyor */
+  --knh-display: var(--font-petrona), Georgia, serif;
+  --knh-label: var(--font-cinzel), Georgia, serif;
+  --knh-body: var(--font-cormorant), Georgia, serif;
+  --knh-brush: var(--font-brush), var(--font-sans);
+  --knh-caps: none;
+  --knh-track: -0.02em;
+  --knh-scale: 1;
+
+  /* Meşalenin yeri ve gücü — zincir bunları çeviriyor */
+  --knh-lit-y: 88%;
+  --knh-lit-base: 0.4;
+  --knh-formal-boost: 1;
+  --knh-lit-power: calc(var(--knh-lit-base) * var(--knh-formal-boost));
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text-primary);
+  overflow-x: clip;
+}
+
+/* Zincirin beş kademesi: ateş yükseldikçe ışık sayfada yukarı çıkıyor */
+.page[data-lit="1"] {
+  --knh-lit-y: 70%;
+  --knh-lit-base: 0.55;
+}
+
+.page[data-lit="2"] {
+  --knh-lit-y: 52%;
+  --knh-lit-base: 0.7;
+}
+
+.page[data-lit="3"] {
+  --knh-lit-y: 32%;
+  --knh-lit-base: 0.85;
+}
+
+.page[data-lit="4"] {
+  --knh-lit-y: 10%;
+  --knh-lit-base: 1;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── İki ışık katmanı ──────────────────────────────────────────────────
+   .sky sayfanın üstüne yapışık (çocukluk), .torchWash görüntü alanına
+   sabit (miras). İkisi de dekoratif ve tıklanamaz. */
+.sky {
+  position: absolute;
+  inset: 0 0 auto;
+  height: min(120vh, 70rem);
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      120% 70% at 50% -12%,
+      color-mix(in srgb, var(--knh-sky) 20%, transparent) 0%,
+      color-mix(in srgb, var(--knh-sky) 7%, transparent) 42%,
+      transparent 72%
+    );
+  transition: opacity var(--knh-dur-slow) var(--knh-ease);
+}
+
+/* ⚠️ Işığın yeri gradyanın İÇİNDE bir değişkenle verilmiyor: özel
+   özellikler gradyan içinde ara değer üretmez (kayıtlı olmadıkça), ışık
+   halkadan halkaya ZIPLARDI. Bunun yerine katmanın kendisi `top` ile
+   taşınıyor — uzunluk olduğu için tarayıcı yumuşak geçiriyor. */
+.torchWash {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: var(--knh-lit-y);
+  height: 68vh;
+  translate: 0 -50%;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    60% 50% at 50% 50%,
+    var(--knh-torch) 0%,
+    transparent 72%
+  );
+  opacity: var(--knh-lit-power);
+  transition:
+    top var(--knh-dur-slow) var(--knh-ease),
+    opacity var(--knh-dur-slow) var(--knh-ease);
+}
+
+/* ── Breadcrumb ──────────────────────────────────────────────────────── */
+.crumb {
+  position: relative;
+  z-index: 1;
+  width: var(--knh-content);
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-block: 0.75rem;
+  font-family: var(--knh-label);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.crumb a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--knh-dur-fast) var(--knh-ease-soft);
+}
+
+.crumb a:hover {
+  color: var(--text-primary);
+}
+
+.crumb a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.crumbSep {
+  color: var(--border-strong);
+}
+
+/* ── Mod düğmesi: "Hokage'nin torunu" ────────────────────────────────── */
+.modeToggle {
+  position: fixed;
+  right: clamp(0.75rem, 3vw, 1.75rem);
+  bottom: calc(clamp(0.75rem, 3vw, 1.75rem) + var(--music-bar, 0px));
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: var(--touch-min);
+  padding: 0.5rem 1.05rem 0.5rem 0.65rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: blur(6px);
+  color: var(--text-secondary);
+  font-family: var(--knh-label);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 12px 28px -18px color-mix(in srgb, var(--bg) 90%, transparent);
+  transition:
+    color var(--knh-dur) var(--knh-ease-soft),
+    border-color var(--knh-dur) var(--knh-ease-soft),
+    box-shadow var(--knh-dur) var(--knh-ease-soft);
+}
+
+.modeToggle:hover {
+  color: var(--text-primary);
+  border-color: color-mix(in srgb, var(--knh-flame) 55%, var(--border-strong));
+}
+
+.modeToggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.modeToggle[aria-pressed="true"] {
+  color: var(--text-primary);
+  border-color: color-mix(in srgb, var(--gold) 60%, var(--border-strong));
+  box-shadow: 0 14px 34px -18px color-mix(in srgb, var(--knh-flame) 60%, transparent);
+}
+
+.modeGlyph {
+  width: 1.35rem;
+  height: 1.35rem;
+  flex: none;
+  transition: scale var(--knh-dur) var(--knh-ease);
+}
+
+.modeToggle[aria-pressed="true"] .modeGlyph {
+  scale: 1.08;
+}
+
+.modeLabel {
+  white-space: nowrap;
+}
+
+.modeHint {
+  position: fixed;
+  right: clamp(0.75rem, 3vw, 1.75rem);
+  bottom: calc(clamp(0.75rem, 3vw, 1.75rem) + var(--music-bar, 0px) + 3.5rem);
+  z-index: 59;
+  max-width: min(22rem, calc(100vw - 2rem));
+  margin: 0;
+  text-align: right;
+  font-family: var(--knh-body);
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  pointer-events: none;
+}
+
+.modeHint:empty {
+  display: none;
+}
+
+/* ============================================================
+   1 · HERO — GÖKYÜZÜ, ATKI, DÜŞEN YAPRAKLAR
+   ============================================================ */
+.hero {
+  position: relative;
+  z-index: 1;
+  width: var(--knh-content);
+  margin-inline: auto;
+  min-height: min(84svh, 50rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--knh-gutter);
+  padding-block: calc(var(--knh-step) * 0.8) calc(var(--knh-step) * 1.8);
+}
+
+.heroScene {
+  position: absolute;
+  inset: calc(var(--knh-step) * -0.6) calc(var(--knh-gutter) * -1);
+  z-index: -1;
+  overflow: hidden;
+}
+
+.heroScene img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.8) brightness(0.5);
+}
+
+.heroScrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    var(--bg) 3%,
+    color-mix(in srgb, var(--bg) 62%, transparent) 52%,
+    color-mix(in srgb, var(--bg) 84%, transparent) 100%
+  );
+}
+
+/* Düşen yapraklar — hero kadrajı boyunca, sekiz iplik */
+.leaves {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.leaf {
+  position: absolute;
+  top: -3rem;
+  width: clamp(0.85rem, 2vw, 1.35rem);
+  opacity: 0;
+}
+
+.leaf svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Filigran: dikey kanji sütunu, kadrajın sağ kenarında */
+.heroMark {
+  position: absolute;
+  top: calc(var(--knh-step) * 0.5);
+  right: calc(var(--knh-gutter) * -0.4);
+  margin: 0;
+  writing-mode: vertical-rl;
+  font-family: var(--knh-brush);
+  font-size: clamp(3rem, 11vw, 8rem);
+  line-height: 1;
+  letter-spacing: 0.12em;
+  color: color-mix(in srgb, var(--text-primary) 7%, transparent);
+  user-select: none;
+  pointer-events: none;
+}
+
+.heroBody {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.45rem;
+  max-width: 40ch;
+}
+
+/* Ev satırı ↔ unvan satırı: modun ilk ve en anlamlı takası */
+.heroHouse {
+  margin: 0 0 0.4rem;
+  font-family: var(--knh-label);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  transition: color var(--knh-dur) var(--knh-ease-soft);
+}
+
+.plainOnly {
+  display: inline;
+}
+
+.formalOnly {
+  display: none;
+}
+
+.heroName {
+  margin: 0;
+  font-family: var(--knh-display);
+  font-size: calc(clamp(2.6rem, 9.5vw, 5.75rem) * var(--knh-scale));
+  font-weight: 800;
+  line-height: 1.03;
+  letter-spacing: var(--knh-track);
+  text-transform: var(--knh-caps);
+  text-wrap: balance;
+  color: var(--text-primary);
+}
+
+.heroNative {
+  margin: 0.2rem 0 0;
+  font-family: var(--knh-brush);
+  font-size: clamp(1.05rem, 2.6vw, 1.5rem);
+  letter-spacing: 0.22em;
+  color: var(--text-muted);
+}
+
+.heroEpigraph {
+  margin: calc(var(--knh-step) * 0.5) 0 0;
+  font-family: var(--knh-display);
+  font-size: clamp(1.15rem, 2.2vw, 1.45rem);
+  font-weight: 700;
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  text-wrap: pretty;
+}
+
+.heroLede {
+  margin: 0.5rem 0 0;
+  max-width: 44ch;
+  font-family: var(--knh-body);
+  font-size: 1.0625rem;
+  font-weight: 500;
+  line-height: 1.75;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.heroAside {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.9rem;
+  width: clamp(8.5rem, 22vw, 13rem);
+}
+
+.heroPortraitWrap {
+  position: relative;
+  width: 100%;
+}
+
+/* Portre KÜÇÜK ve dar kadrajlı (BRIEF §3.1): AniList künye görseli
+   ~230 piksel, büyük kutuya yayılmıyor. */
+.heroPortrait {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: 0 26px 52px -34px color-mix(in srgb, var(--bg) 92%, transparent);
+  transition: filter var(--knh-dur-slow) var(--knh-ease);
+}
+
+.heroPortrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 16%;
+}
+
+/* Atkı: portrenin ARKASINDAN çıkar, sağa doğru sayfadan sarkar.
+   Kırpma işini .page'in overflow-x: clip'i yapıyor. */
+.scarf {
+  position: absolute;
+  top: 46%;
+  left: 34%;
+  z-index: 0;
+  width: max(30rem, 70vw);
+  height: clamp(7rem, 17vw, 11.5rem);
+  pointer-events: none;
+  transform-origin: 0% 50%;
+  transition: filter var(--knh-dur-slow) var(--knh-ease);
+}
+
+.scarfCaption {
+  margin: 0;
+  max-width: 24ch;
+  text-align: right;
+  font-family: var(--knh-body);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .leaf {
+    animation: knhLeafFall 24s linear infinite;
+  }
+
+  .leaf[data-leaf="1"] {
+    animation-duration: 31s;
+  }
+
+  .leaf[data-leaf="2"] {
+    animation-duration: 19s;
+  }
+
+  .leaf[data-leaf="3"] {
+    animation-duration: 27s;
+  }
+
+  .scarfBand,
+  .scarfTail {
+    animation: knhScarfSway 11s var(--knh-ease-soft) infinite alternate;
+    transform-origin: 0% 50%;
+  }
+
+  .scarfTail {
+    animation-duration: 7.5s;
+    animation-delay: -2s;
+  }
+}
+
+@keyframes knhLeafFall {
+  0% {
+    opacity: 0;
+    translate: 0 0;
+    rotate: -12deg;
+  }
+
+  10% {
+    opacity: 0.85;
+  }
+
+  90% {
+    opacity: 0.6;
+  }
+
+  100% {
+    opacity: 0;
+    translate: -3.5rem 86svh;
+    rotate: 268deg;
+  }
+}
+
+@keyframes knhScarfSway {
+  from {
+    translate: 0 -0.35rem;
+  }
+
+  to {
+    translate: 0 0.55rem;
+  }
+}
+
+/* ============================================================
+   BÖLÜM İSKELETİ — kutu değil, hat
+   ============================================================ */
+.section,
+.chainSection,
+.nameSection {
+  position: relative;
+  z-index: 1;
+  width: var(--knh-content);
+  margin-inline: auto;
+  padding-block: calc(var(--knh-step) * 1.15);
+}
+
+.sectionHead {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-bottom: calc(var(--knh-step) * 0.85);
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: var(--knh-display);
+  font-size: calc(clamp(1.7rem, 4.4vw, 2.9rem) * var(--knh-scale));
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: var(--knh-track);
+  text-transform: var(--knh-caps);
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.sectionLede {
+  margin: 0;
+  max-width: 52ch;
+  font-family: var(--knh-body);
+  font-size: 1.0625rem;
+  font-weight: 500;
+  line-height: 1.75;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* Kurator yuvaları — ziyaretçide hiç çizilmiyor */
+.slotRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+/* ============================================================
+   2 · KÜNYE — hatlarla ayrılmış künye şeridi
+   ============================================================ */
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13.5rem, 1fr));
+  gap: 0;
+  margin: 0;
+  border-top: 1px solid var(--border-strong);
+}
+
+.fact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 1.1rem 1.15rem 1.25rem 0;
+  border-bottom: 1px solid var(--border);
+  transition: border-color var(--knh-dur) var(--knh-ease-soft);
+}
+
+.fact:hover {
+  border-bottom-color: color-mix(in srgb, var(--knh-flame) 55%, var(--border));
+}
+
+.fact dt {
+  font-family: var(--knh-label);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  transition: color var(--knh-dur) var(--knh-ease-soft);
+}
+
+.fact dd {
+  margin: 0;
+  font-family: var(--knh-display);
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.45;
+  color: var(--text-primary);
+}
+
+/* ============================================================
+   3 · ADIN YÜKÜ — sayfanın duygusal merkezi
+   Solda ad kanjilere ayrılıyor, sağda ona nasıl seslenildiği ve
+   adını ilk kullanan kişi. Bölümün ışığı diğerlerinden sıcak.
+   ============================================================ */
+.nameSection {
+  overflow: hidden;
+}
+
+.nameArt {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.12;
+  mask-image: radial-gradient(ellipse at 70% 30%, black 5%, transparent 68%);
+}
+
+.nameArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.7);
+}
+
+.nameGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: calc(var(--knh-step) * 0.9);
+  align-items: start;
+}
+
+.nameBreak {
+  position: relative;
+  padding-inline-start: calc(var(--knh-step) * 0.5);
+  border-inline-start: 1px solid var(--border);
+}
+
+.glyphs {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--knh-step) * 0.55);
+}
+
+.glyphRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.glyphChar {
+  font-family: var(--knh-brush);
+  font-size: clamp(2.6rem, 9vw, 4.5rem);
+  line-height: 1;
+  letter-spacing: 0.06em;
+  color: var(--text-primary);
+  text-shadow: 0 0 42px var(--knh-glow-soft);
+}
+
+.glyphBody {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.glyphReading {
+  font-family: var(--knh-label);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--knh-sky);
+}
+
+.glyphGloss {
+  max-width: 34ch;
+  font-family: var(--knh-body);
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+.glyphNote {
+  margin: calc(var(--knh-step) * 0.6) 0 0;
+  max-width: 38ch;
+  font-family: var(--knh-body);
+  font-size: 1rem;
+  line-height: 1.75;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.addressed {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.addressedLabel {
+  margin: 0;
+  font-family: var(--knh-label);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.addressList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Üç hitap: soluk, yatay hatların arasında sıkışmış — hepsi aynı
+   yükseklikte, hiçbiri öne çıkmıyor. Vurgu bir alttaki blokta. */
+.addressItem {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  padding-block: 0.85rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.addressPhrase {
+  font-family: var(--knh-display);
+  font-size: clamp(1.15rem, 2.6vw, 1.6rem);
+  font-weight: 700;
+  line-height: 1.25;
+  color: color-mix(in srgb, var(--text-primary) 62%, var(--bg));
+}
+
+.addressBy {
+  font-family: var(--knh-label);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Dönüm noktası: adının ilk kez kullanıldığı yer. Sayfanın en sıcak
+   tipografik anı — meşale ışığı burada metnin arkasına giriyor. */
+.turn {
+  position: relative;
+  margin-top: calc(var(--knh-step) * 0.6);
+  padding: calc(var(--knh-step) * 0.7) 0 0;
+  border-top: 2px solid color-mix(in srgb, var(--knh-flame) 70%, transparent);
+}
+
+.turnLabel {
+  margin: 0 0 0.5rem;
+  font-family: var(--knh-label);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--knh-flame);
+}
+
+.turnName {
+  margin: 0 0 0.75rem;
+  font-family: var(--knh-display);
+  font-size: calc(clamp(1.9rem, 6vw, 3.1rem) * var(--knh-scale));
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: var(--knh-track);
+  text-transform: var(--knh-caps);
+  color: var(--text-primary);
+  text-shadow: 0 0 60px color-mix(in srgb, var(--knh-flame) 32%, transparent);
+}
+
+.turnText {
+  margin: 0;
+  max-width: var(--knh-measure);
+  font-family: var(--knh-body);
+  font-size: 1.0625rem;
+  font-weight: 500;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.turnNote {
+  margin: 0.9rem 0 0;
+  max-width: 42ch;
+  font-family: var(--knh-body);
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   4 · DEVRALDIKLARI — üç büyük
+   Her blok "kimden kaldığı" satırıyla AÇILIYOR; teknik adı ondan sonra
+   geliyor. Sıra bilinçli: sayfanın iddiası önce kaynağı yazmak.
+   ============================================================ */
+.jutsuList {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--knh-step) * 1.1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.jutsu {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.62fr);
+  grid-template-areas:
+    "from  art"
+    "head  art"
+    "sub   art"
+    "tag   art"
+    "text  text"
+    "foot  foot"
+    "traits traits";
+  column-gap: calc(var(--knh-step) * 0.8);
+  padding-top: calc(var(--knh-step) * 0.7);
+  border-top: 1px solid var(--border);
+  transition: border-color var(--knh-dur) var(--knh-ease-soft);
+}
+
+.jutsu:hover {
+  border-top-color: color-mix(in srgb, var(--knh-flame) 45%, var(--border));
+}
+
+.jutsuFrom {
+  grid-area: from;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin: 0 0 0.7rem;
+  font-family: var(--knh-label);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--knh-flame);
+}
+
+.jutsuMark {
+  width: 2.6rem;
+  height: 0.8rem;
+  flex: none;
+}
+
+.jutsuHead {
+  grid-area: head;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem 1rem;
+}
+
+.jutsuName {
+  margin: 0;
+  font-family: var(--knh-display);
+  font-size: calc(clamp(1.5rem, 3.6vw, 2.35rem) * var(--knh-scale));
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: var(--knh-track);
+  text-transform: var(--knh-caps);
+  color: var(--text-primary);
+}
+
+.jutsuKanji {
+  font-family: var(--knh-brush);
+  font-size: clamp(1.05rem, 2.4vw, 1.5rem);
+  letter-spacing: 0.1em;
+  color: color-mix(in srgb, var(--text-primary) 38%, transparent);
+  transition: color var(--knh-dur) var(--knh-ease-soft);
+}
+
+.jutsu:hover .jutsuKanji {
+  color: color-mix(in srgb, var(--knh-flame) 85%, transparent);
+}
+
+.jutsuTurkish {
+  grid-area: sub;
+  margin: 0.35rem 0 0;
+  font-family: var(--knh-label);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.jutsuArt {
+  grid-area: art;
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  opacity: 0.55;
+  mask-image: linear-gradient(to left, black 35%, transparent 100%);
+  transition: opacity var(--knh-dur-slow) var(--knh-ease);
+}
+
+.jutsuArt:empty {
+  display: none;
+}
+
+.jutsuArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.75) brightness(0.8);
+}
+
+.jutsu:hover .jutsuArt {
+  opacity: 0.8;
+}
+
+.jutsuTagline {
+  grid-area: tag;
+  margin: 0.9rem 0 0;
+  max-width: 42ch;
+  font-family: var(--knh-display);
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--accent);
+}
+
+.jutsuText {
+  grid-area: text;
+  margin: 1rem 0 0;
+  max-width: var(--knh-measure);
+  font-family: var(--knh-body);
+  font-size: 1.0625rem;
+  font-weight: 500;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* Rasengan kartındaki dipnot: 螺旋丸 ile 木ノ葉丸 aynı ekle bitiyor */
+.jutsuFootnote {
+  grid-area: foot;
+  margin: 0.9rem 0 0;
+  max-width: 46ch;
+  padding-inline-start: 0.9rem;
+  border-inline-start: 1px solid color-mix(in srgb, var(--gold) 60%, transparent);
+  font-family: var(--knh-body);
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--gold);
+}
+
+.jutsuTraits {
+  grid-area: traits;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1.1rem 0 0;
+}
+
+.trait {
+  padding: 0.32rem 0.7rem;
+  border: 1px solid var(--border);
+  font-family: var(--knh-label);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   5 · YANINDA TAŞIDIKLARI — dört küçük
+   ============================================================ */
+.keepsakes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: calc(var(--knh-step) * 0.8) calc(var(--knh-step) * 0.9);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.keepsake {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--border);
+  overflow: hidden;
+  transition: border-color var(--knh-dur) var(--knh-ease-soft);
+}
+
+.keepsake:hover {
+  border-top-color: color-mix(in srgb, var(--knh-scarf) 60%, var(--border));
+}
+
+.keepsakeArt {
+  position: absolute;
+  inset: auto -8% -12% auto;
+  width: 62%;
+  aspect-ratio: 1;
+  opacity: 0.16;
+  mask-image: radial-gradient(circle at 80% 88%, black 18%, transparent 70%);
+  transition: opacity var(--knh-dur-slow) var(--knh-ease);
+}
+
+.keepsakeArt:empty {
+  display: none;
+}
+
+.keepsakeArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.keepsake:hover .keepsakeArt {
+  opacity: 0.3;
+}
+
+.keepsakeName {
+  position: relative;
+  margin: 0;
+  font-family: var(--knh-display);
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.keepsakeNote {
+  position: relative;
+  margin: 0;
+  font-family: var(--knh-body);
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* ============================================================
+   6 · MEŞALE ZİNCİRİ — SAYFANIN KALBİ
+   Solda halkalar (aşağıdan yukarı), sağda devir paneli. Panel yapışkan:
+   zincirde gezerken devraldığı şey gözden kaybolmuyor.
+   ============================================================ */
+.chainSection {
+  padding-block: calc(var(--knh-step) * 1.4);
+}
+
+.chain {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: calc(var(--knh-step) * 0.9);
+  align-items: start;
+}
+
+.rings {
+  display: flex;
+  flex-direction: column-reverse; /* Üçüncü zeminde, boş halka tepede */
+  align-items: flex-start;
+}
+
+.ringItem {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Halat: halkanın ÜSTÜNDE, yani bir sonraki ele uzanıyor */
+.cord {
+  display: block;
+  width: var(--knh-ring);
+  height: var(--knh-cord);
+  flex: none;
+}
+
+.cordStrand {
+  opacity: 0.85;
+}
+
+.cordFire {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  opacity: 0;
+  filter: drop-shadow(
+    0 0 6px color-mix(in srgb, var(--knh-flame) 55%, transparent)
+  );
+  transition:
+    stroke-dashoffset var(--knh-climb) var(--knh-ease),
+    opacity var(--knh-dur) var(--knh-ease-soft);
+}
+
+.cordFire[data-on] {
+  stroke-dashoffset: 0;
+  opacity: 1;
+}
+
+.ringButton {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  min-height: var(--touch-min);
+  padding: 0.3rem 0.7rem 0.3rem 0;
+  border: 0;
+  background: transparent;
+  text-align: start;
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+
+.ringButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.ringDisc {
+  position: relative;
+  display: block;
+  width: var(--knh-ring);
+  height: var(--knh-ring);
+  flex: none;
+  border-radius: 50%;
+  transition: box-shadow var(--knh-dur) var(--knh-ease);
+}
+
+.ringArt {
+  position: absolute;
+  inset: 15%;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.ringArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 18%;
+  filter: grayscale(0.65) brightness(0.65);
+  transition: filter var(--knh-dur) var(--knh-ease-soft);
+}
+
+.ringGlyph {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.ringBand {
+  transition: opacity var(--knh-dur) var(--knh-ease-soft);
+}
+
+/* Alev yalnızca ateşin uğradığı halkalarda yanıyor */
+.ringFlame {
+  opacity: 0;
+  transition:
+    opacity var(--knh-dur) var(--knh-ease-soft),
+    scale var(--knh-dur) var(--knh-ease);
+  transform-origin: 50% 24%;
+  scale: 0.72;
+}
+
+.ringButton[data-reached] .ringFlame {
+  opacity: 0.6;
+  scale: 0.88;
+}
+
+.ringButton[aria-selected="true"] .ringFlame {
+  opacity: 1;
+  scale: 1;
+}
+
+.ringButton[data-reached] .ringArt img {
+  filter: grayscale(0.15) brightness(0.95);
+}
+
+.ringButton[aria-selected="true"] .ringDisc {
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--knh-flame) 60%, transparent),
+    0 20px 44px -24px var(--knh-flame);
+}
+
+.ringButton:hover .ringArt img {
+  filter: grayscale(0) brightness(1);
+}
+
+.ringText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.ringRole {
+  font-family: var(--knh-label);
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.ringName {
+  font-family: var(--knh-display);
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: color-mix(in srgb, var(--text-primary) 68%, var(--bg));
+  transition: color var(--knh-dur) var(--knh-ease-soft);
+}
+
+.ringButton[data-reached] .ringName {
+  color: var(--text-primary);
+}
+
+.ringRank {
+  font-family: var(--knh-body);
+  font-size: 0.9375rem;
+  line-height: 1.4;
+  color: var(--text-muted);
+  transition: color var(--knh-dur) var(--knh-ease-soft);
+}
+
+.ringButton[data-empty] .ringName {
+  font-style: normal;
+  color: var(--text-muted);
+}
+
+/* ── Devir paneli ───────────────────────────────────────────────────── */
+.relaySide {
+  position: sticky;
+  top: calc(var(--knh-step) * 0.6);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.relayPanel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: clamp(1.2rem, 3vw, 2rem);
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 70%, var(--bg));
+  overflow: hidden;
+  box-shadow: 0 26px 56px -46px color-mix(in srgb, var(--bg) 92%, transparent);
+}
+
+.relayPanel:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.relayPanel[data-empty] {
+  border-style: dashed;
+  background: transparent;
+}
+
+.relayArt {
+  position: absolute;
+  inset: 0;
+  opacity: 0.14;
+  mask-image: linear-gradient(to top, transparent 18%, black 100%);
+}
+
+.relayArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.7);
+}
+
+.relayCount {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  margin: 0 0 0.2rem;
+  font-family: var(--knh-label);
+  color: var(--text-muted);
+}
+
+.relayCountNumber {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--knh-flame);
+}
+
+.relayCountTotal {
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.relayMeta {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.9rem;
+  margin: 0;
+}
+
+.relayRole {
+  font-family: var(--knh-label);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.relayRank {
+  font-family: var(--knh-body);
+  font-size: 1rem;
+  color: var(--text-secondary);
+  transition: color var(--knh-dur) var(--knh-ease-soft);
+}
+
+.relayName {
+  position: relative;
+  margin: 0.15rem 0 0;
+  font-family: var(--knh-display);
+  font-size: calc(clamp(1.5rem, 3.6vw, 2.35rem) * var(--knh-scale));
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: var(--knh-track);
+  text-transform: var(--knh-caps);
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.relayLede {
+  position: relative;
+  margin: 0.35rem 0 0;
+  max-width: 56ch;
+  font-family: var(--knh-body);
+  font-size: 1.0625rem;
+  font-weight: 500;
+  line-height: 1.75;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.emptyText {
+  position: relative;
+  margin: 0.9rem 0 0;
+  max-width: 56ch;
+  padding-top: 0.9rem;
+  border-top: 1px dashed var(--border-strong);
+  font-family: var(--knh-body);
+  font-size: 1.0625rem;
+  line-height: 1.8;
+  color: var(--text-muted);
+  text-wrap: pretty;
+}
+
+.gifts {
+  position: relative;
+  margin: calc(var(--knh-step) * 0.55) 0 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.gift {
+  display: grid;
+  grid-template-columns: 9.5rem minmax(0, 1fr);
+  gap: 0.4rem 1.2rem;
+  padding-block: 0.85rem;
+  border-top: 1px solid var(--border);
+}
+
+.giftLabel {
+  font-family: var(--knh-label);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding-top: 0.22rem;
+}
+
+.giftValue {
+  margin: 0;
+  font-family: var(--knh-body);
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  color: var(--text-primary);
+  text-wrap: pretty;
+}
+
+.giftQuote {
+  margin: 0;
+  padding-inline-start: 0.9rem;
+  border-inline-start: 1px solid color-mix(in srgb, var(--knh-flame) 60%, transparent);
+}
+
+.giftQuote blockquote {
+  margin: 0;
+  font-family: var(--knh-display);
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+.giftQuote figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-top: 0.5rem;
+}
+
+.giftQuoteBy {
+  font-family: var(--knh-label);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.giftQuoteNote {
+  font-family: var(--knh-body);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.relayNav {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.navButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: var(--touch-min);
+  padding: 0 1.05rem;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--knh-label);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    color var(--knh-dur-fast) var(--knh-ease-soft),
+    border-color var(--knh-dur-fast) var(--knh-ease-soft),
+    background var(--knh-dur-fast) var(--knh-ease-soft);
+}
+
+.navButton:hover:not(:disabled) {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+  background: var(--surface);
+}
+
+.navButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.navButton:disabled {
+  opacity: 0.32;
+  cursor: default;
+}
+
+.chainHint {
+  margin: 0;
+  font-family: var(--knh-body);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   7 · ÖMRÜN BEŞ DURAĞI
+   Her kayıt sönen bir yatay hatla açılıyor; yaş etiketi hattın hemen
+   altında, amber. Dikey omurga YOK — bu sayfanın omurgası zincirde.
+   ============================================================ */
+.fate {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--knh-step) * 1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fateItem {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.5fr);
+  gap: 0.6rem calc(var(--knh-step) * 0.8);
+  padding-top: calc(var(--knh-step) * 0.55);
+  background-image: linear-gradient(
+    to right,
+    var(--border-strong),
+    color-mix(in srgb, var(--border) 40%, transparent) 72%,
+    transparent
+  );
+  background-size: 100% 1px;
+  background-repeat: no-repeat;
+}
+
+.fateAge {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-family: var(--knh-label);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--knh-flame);
+}
+
+.fateBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.fateTitle {
+  margin: 0;
+  font-family: var(--knh-display);
+  font-size: calc(clamp(1.25rem, 2.9vw, 1.75rem) * var(--knh-scale));
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: var(--knh-track);
+  text-transform: var(--knh-caps);
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.fateText {
+  margin: 0;
+  max-width: var(--knh-measure);
+  font-family: var(--knh-body);
+  font-size: 1.0625rem;
+  font-weight: 500;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.fateQuote {
+  margin: 0.4rem 0 0;
+  padding-inline-start: 1.1rem;
+  border-inline-start: 1px solid var(--accent-muted);
+}
+
+.fateQuote blockquote {
+  margin: 0;
+  font-family: var(--knh-display);
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+.fateQuote figcaption {
+  margin-top: 0.4rem;
+  font-family: var(--knh-label);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.fateAside {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.9rem;
+  min-width: 0;
+}
+
+/* O durağa ait yüz: küçük, dairesel, adı altında yazılı */
+.fateFace {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin: 0;
+}
+
+.fateFaceArt {
+  position: relative;
+  display: block;
+  width: 3.25rem;
+  height: 3.25rem;
+  flex: none;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+}
+
+.fateFaceArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 18%;
+  filter: grayscale(0.5) brightness(0.85);
+  transition: filter var(--knh-dur) var(--knh-ease-soft);
+}
+
+.fateItem:hover .fateFaceArt img {
+  filter: grayscale(0.1) brightness(1);
+}
+
+.fateFace figcaption {
+  font-family: var(--knh-label);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.fateArt {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.fateArt:empty {
+  display: none;
+}
+
+.fateArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.75) brightness(0.8);
+  transition: filter var(--knh-dur-slow) var(--knh-ease);
+}
+
+.fateItem:hover .fateArt img {
+  filter: saturate(0.95) brightness(0.95);
+}
+
+/* ============================================================
+   8 · KAPANIŞ
+   ============================================================ */
+.closing {
+  position: relative;
+  z-index: 1;
+  width: var(--knh-content);
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--knh-step) * 0.75);
+  padding-block: calc(var(--knh-step) * 1.6) calc(var(--knh-step) * 2);
+  text-align: center;
+}
+
+.closingArt {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.15;
+  mask-image: radial-gradient(ellipse at 50% 45%, black 8%, transparent 68%);
+}
+
+.closingArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.6);
+}
+
+.closingQuotes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
+  gap: calc(var(--knh-step) * 0.9);
+  width: 100%;
+  text-align: start;
+}
+
+.closingQuote {
+  margin: 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-strong);
+}
+
+.closingQuote blockquote {
+  margin: 0;
+  font-family: var(--knh-display);
+  font-size: clamp(1.25rem, 2.8vw, 1.75rem);
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
+  text-wrap: pretty;
+}
+
+.closingQuote figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.9rem;
+}
+
+.quoteBy {
+  font-family: var(--knh-label);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.quoteNote {
+  font-family: var(--knh-body);
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+.motto {
+  margin: calc(var(--knh-step) * 0.5) 0 0;
+  font-family: var(--knh-brush);
+  font-size: clamp(2.4rem, 8vw, 4.5rem);
+  line-height: 1.1;
+  letter-spacing: 0.12em;
+  color: color-mix(in srgb, var(--knh-flame) 42%, transparent);
+  text-shadow: 0 0 70px color-mix(in srgb, var(--knh-flame) 28%, transparent);
+}
+
+.mottoNote {
+  margin: -0.25rem 0 0;
+  font-family: var(--knh-label);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+}
+
+.credit {
+  max-width: 58ch;
+  margin: 0;
+  padding-top: calc(var(--knh-step) * 0.6);
+  border-top: 1px solid var(--border);
+  font-family: var(--knh-body);
+  font-size: 0.9375rem;
+  line-height: 1.75;
+  color: var(--text-muted);
+  text-align: start;
+}
+
+.credit a {
+  color: var(--text-secondary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--accent-muted);
+  transition: color var(--knh-dur-fast) var(--knh-ease-soft);
+}
+
+.credit a:hover {
+  color: var(--accent);
+}
+
+.credit a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ============================================================
+   "HOKAGE'NİN TORUNU" MODU
+   Sayfa resmîleşiyor. En büyük değişiklik TİPOGRAFİK: başlık ailesi
+   Petrona'dan Cinzel'e geçiyor, majüskülleşiyor ve harf aralığı açılıyor —
+   bir çocuğun adı bir künye levhasına dönüşüyor. Yanında: gökyüzü sönüyor,
+   meşale güçleniyor, atkının mavisi gidiyor, unvanlar altına çıkıyor.
+   Etkinin tamamı burada; JS yalnızca bir niteliği çeviriyor.
+   ============================================================ */
+.page[data-formal] {
+  --knh-display: var(--font-cinzel), Georgia, serif;
+  --knh-caps: uppercase;
+  --knh-track: 0.045em;
+  --knh-scale: 0.82;
+  --knh-formal-boost: 1.5;
+}
+
+/* Ev satırı yerini unvana bırakıyor */
+.page[data-formal] .plainOnly {
+  display: none;
+}
+
+.page[data-formal] .formalOnly {
+  display: inline;
+}
+
+.page[data-formal] .heroHouse {
+  color: var(--gold);
+}
+
+/* Gökyüzü çekiliyor, ışık meşaleye kalıyor */
+.page[data-formal] .sky {
+  opacity: 0.22;
+}
+
+/* Sepya: bütün görseller aynı meşale ışığının altına giriyor */
+.page[data-formal] img {
+  filter: sepia(0.45) saturate(0.7) brightness(0.82) contrast(1.02);
+}
+
+/* Atkının mavisi soluyor — resmî ışıkta çocuğun rengi kalmıyor */
+.page[data-formal] .scarf {
+  filter: grayscale(0.9) brightness(0.8);
+}
+
+/* Unvanlar öne çıkıyor */
+.page[data-formal] .ringRank,
+.page[data-formal] .relayRank,
+.page[data-formal] .fact dt {
+  color: var(--gold);
+}
+
+.page[data-formal] .ringRank,
+.page[data-formal] .relayRank {
+  font-family: var(--knh-label);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* ============================================================
+   MOBİL — 360 pikselde yatay taşma yok, ızgaralar tek sütuna iner
+   ============================================================ */
+@media (max-width: 1000px) {
+  .chain {
+    grid-template-columns: 1fr;
+    gap: calc(var(--knh-step) * 0.9);
+  }
+
+  /* Zincir dar ekranda da dikey kalıyor (aşağıdan yukarı okunuşu
+     sayfanın fikri); panel onun ALTINA iniyor ve yapışkanlıktan çıkıyor. */
+  .relaySide {
+    position: static;
+  }
+
+  .nameGrid {
+    grid-template-columns: 1fr;
+    gap: calc(var(--knh-step) * 0.8);
+  }
+
+  .nameBreak {
+    padding-inline-start: 0;
+    border-inline-start: 0;
+    border-block-end: 1px solid var(--border);
+    padding-block-end: calc(var(--knh-step) * 0.6);
+  }
+}
+
+@media (max-width: 780px) {
+  .hero {
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: calc(var(--knh-step) * 0.9);
+    min-height: 0;
+    padding-block: calc(var(--knh-step) * 0.6) calc(var(--knh-step) * 1.4);
+  }
+
+  /* Portre ve atkı ÜSTTE: atkının sarkacağı kenar başlıkların üstünde */
+  .heroAside {
+    order: -1;
+    align-items: flex-start;
+    width: clamp(7.5rem, 38vw, 11rem);
+  }
+
+  .scarfCaption {
+    text-align: start;
+    max-width: 32ch;
+  }
+
+  .heroMark {
+    top: auto;
+    bottom: calc(var(--knh-step) * -0.4);
+    opacity: 0.8;
+  }
+
+  .jutsu {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "from"
+      "art"
+      "head"
+      "sub"
+      "tag"
+      "text"
+      "foot"
+      "traits";
+  }
+
+  .jutsuArt {
+    margin-block: 0.9rem 0.2rem;
+    aspect-ratio: 16 / 9;
+    opacity: 0.7;
+    mask-image: linear-gradient(to top, transparent 2%, black 55%);
+  }
+
+  .fateItem {
+    grid-template-columns: 1fr;
+  }
+
+  .fateAside {
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 0.4rem;
+  }
+
+  .fateArt {
+    max-width: 14rem;
+  }
+
+  .modeHint {
+    display: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .facts {
+    grid-template-columns: 1fr;
+  }
+
+  .gift {
+    grid-template-columns: 1fr;
+    gap: 0.3rem;
+  }
+
+  .relayNav {
+    flex-wrap: wrap;
+  }
+
+  .navButton {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+
+  .ringRank {
+    font-size: 0.875rem;
+  }
+
+  .modeLabel {
+    display: none;
+  }
+
+  .modeToggle {
+    padding: 0.5rem;
+    min-width: var(--touch-min);
+    justify-content: center;
+  }
+}
+
+/* Yüksek kontrast / zorunlu renk modunda dekoratif katmanlar susar */
+@media (forced-colors: active) {
+  .sky,
+  .torchWash,
+  .leaves,
+  .heroMark,
+  .scarf,
+  .closingArt,
+  .nameArt {
+    display: none;
+  }
+}
+
+/* ============================================================
+   REDUCED-MOTION BATTANİYESİ — ev deseni (çift katman):
+   yukarıdaki her animasyon no-preference kapısında; burada kalan
+   geçişler de tamamen kapanır. Ateş yine yanmış görünür, yalnızca
+   TIRMANMA hareketi yok. Yapraklar da sabit konumlarda durur.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .leaf {
+    opacity: 0.4;
+  }
+
+  .leaf[data-leaf="0"] {
+    top: 14%;
+  }
+
+  .leaf[data-leaf="1"] {
+    top: 38%;
+  }
+
+  .leaf[data-leaf="2"] {
+    top: 62%;
+  }
+
+  .leaf[data-leaf="3"] {
+    top: 26%;
+  }
+}

@@ -39,3 +39,2004 @@
   --iru-glow-soft:  color-mix(in srgb, #c98a2e 20%, transparent);
   --iru-glow-strong: color-mix(in srgb, #c98a2e 45%, transparent);
 }
+
+/* ============================================================
+   IRUKA UMINO — "SINIF DEFTERİ"
+
+   Deri: kökteki `data-world="iruka-umino"` bütün standart token'ları
+   sıcak kahve/altına çevirir; yardımcılar `--iru-*` (yukarıdaki blok).
+   Bu bloktan SONRASINDA tek hex yok — ara tonların hepsi color-mix ile
+   token'lardan türetildi.
+
+   ── SAYFANIN FİKRİ ──────────────────────────────────────────────────────
+   Bu bir dövüş sayfası değil, bir ODA. Yirmi iki karakter sayfasının en
+   sakini. Düzenin omurgası bir savaş şeması değil, bir YOKLAMA DEFTERİNİN
+   ÇİZGİLERİ:
+
+     · `--iru-line` defterin satır yüksekliği ve sayfanın TEK boşluk birimi.
+       Bölüm arası, kart aralığı, panel dolgusu — hepsi bu satırın katı.
+     · `--iru-margin` defterin sol kenar payı. Bütün bölümler bu payın
+       sağından başlar; boşta kalan sütun sayfanın nefesi.
+     · Sol kenardaki KIRMIZI ÇİZGİ ile Iruka'nın burnundaki YARA aynı
+       token (`--iru-scar`) — sayfanın tek iddiası bu görsel eşitlik.
+       Kırmızı ikinci bir işi daha var: öğretmenin kalemi. "Sınıfın
+       dışında" etiketleri ve yoklama işaretleri hep o renkte.
+
+   ── TİPOGRAFİ ───────────────────────────────────────────────────────────
+   Display: Petrona (geniş, düşük-orta kontrastlı metin serifi).
+   ⚠️ Ev kuralı (layout.tsx): 2rem üstünde ASLA wght < 700, display
+   line-height >= 1.02, 4rem üstünde negatif tracking. İtalik YOK.
+   Gövde: Cormorant Garamond — arşivin okuma sesi; Petrona'dan daha dar ve
+   daha yüksek kontrastlı olduğu için başlıkla karışmıyor. Küçük çizildiği
+   için taban boyu 1.0625rem'den başlıyor.
+   Notasyon (etiket, künye değeri, ders numarası): Inter + tabular-nums.
+   TAHTA YAZISI: Corinthia. Sayfanın tek "el yazısı" ailesi ve yalnızca
+   tahtada kullanılıyor — matbaa harfi deftere, el yazısı tahtaya. Küçük
+   x-yüksekliği yüzünden hiçbir yerde 1.5rem'in altına inmiyor.
+   Japonca: Yuji Boku fırça ailesi (先生, 卒業おめでとう).
+
+   ── HAREKET ─────────────────────────────────────────────────────────────
+   Sayfanın hareket sözlüğü tek kelime: YAZMAK. İki yazılmış an var ve
+   ikisi de aynı jest — açılışta yara çizgisinin çekilmesi, ders
+   seçildiğinde tebeşir çiziminin tahtaya inmesi (`--iru-draw`). Geri
+   kalan her şey ya durağan ya da ortam dokusu (toz, buhar). Süre/easing
+   değişkenleri `.page`de; animasyonlar no-preference kapısında ve dosyanın
+   sonunda reduce battaniyesi var — o battaniye altında çizim ANINDA tam
+   görünür, yalnızca yazılma hareketi kalkar.
+   ============================================================ */
+
+.page {
+  /* Süre ve easing — hareket sözlüğü */
+  --iru-dur-fast: 170ms;
+  --iru-dur: 330ms;
+  --iru-dur-slow: 720ms;
+  --iru-draw: 980ms;
+  --iru-ease: cubic-bezier(0.16, 1, 0.3, 1); /* üstel yavaşlama */
+  --iru-ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Geometri — defterin satırı sayfanın tek boşluk birimi */
+  --iru-line: clamp(1.9rem, 3.4vw, 2.6rem);
+  --iru-gutter: clamp(1rem, 4vw, 2.25rem);
+  --iru-margin: clamp(1.5rem, 6vw, 5.5rem);
+  --iru-content: min(100% - var(--iru-gutter) * 2, 68rem);
+  --iru-measure: 68ch;
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text-primary);
+  overflow-x: clip;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ============================================================
+   ZEMİN — DEFTERİN ÇİZGİLERİ
+   Üç katman: yatay satırlar, sol kenar payının kırmızı çizgisi ve
+   pencereden giren akşam ışığı. Hiçbiri metin taşımıyor.
+   ============================================================ */
+
+/* Yatay satırlar. Alfa bilerek çok düşük: bunlar TABAN IZGARASI DEĞİL,
+   dokudur — metin satırlarının üstüne oturması garanti edilemez, o yüzden
+   fark edilecek kadar koyu olmamalı. */
+.ruling {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: var(--iru-content);
+  translate: -50% 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--text-primary) 6%, transparent) 0 1px,
+    transparent 1px var(--iru-line)
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    black 3rem,
+    black calc(100% - 5rem),
+    transparent 100%
+  );
+  transition: opacity var(--iru-dur-slow) var(--iru-ease);
+}
+
+/* Kenar payı çizgisi — sayfanın omurgası ve yaranın devamı. */
+.marginRule {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: var(--iru-content);
+  translate: -50% 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.marginRule::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--iru-margin);
+  width: 1.5px;
+  background: linear-gradient(
+    to bottom,
+    transparent 0,
+    var(--iru-scar) 3%,
+    var(--iru-scar) 94%,
+    transparent 100%
+  );
+  opacity: 0.42;
+  transition: opacity var(--iru-dur-slow) var(--iru-ease);
+}
+
+/* Pencere ışığı: sağ üstten giren geç öğleden sonra. Mod açıldığında
+   aşağı iner, genişler ve turuncuya kayar — gün biter. */
+.dusk {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    120% 68% at 82% 4%,
+    var(--iru-dusk) 0,
+    transparent 62%
+  );
+  transition:
+    background var(--iru-dur-slow) var(--iru-ease),
+    opacity var(--iru-dur-slow) var(--iru-ease);
+}
+
+/* ── Breadcrumb ──────────────────────────────────────────────────────── */
+.crumb {
+  position: relative;
+  z-index: 1;
+  width: var(--iru-content);
+  margin-inline: auto;
+  padding-left: calc(var(--iru-margin) + 1.25rem);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-block: 0.6rem;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.crumb a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--iru-dur-fast) var(--iru-ease-soft);
+}
+
+.crumb a:hover {
+  color: var(--text-primary);
+}
+
+.crumb a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.crumbSep {
+  color: var(--border-strong);
+}
+
+/* ============================================================
+   MOD DÜĞMESİ — "DERS BİTTİ"
+   ============================================================ */
+.dismissToggle {
+  position: fixed;
+  right: clamp(0.75rem, 3vw, 1.75rem);
+  bottom: calc(clamp(0.75rem, 3vw, 1.75rem) + var(--music-bar, 0px));
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: var(--touch-min);
+  padding: 0.5rem 1.05rem 0.5rem 0.65rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+  backdrop-filter: blur(6px);
+  color: var(--text-secondary);
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 12px 28px -16px color-mix(in srgb, var(--bg) 92%, black);
+  transition:
+    color var(--iru-dur) var(--iru-ease-soft),
+    border-color var(--iru-dur) var(--iru-ease-soft),
+    background var(--iru-dur) var(--iru-ease-soft);
+}
+
+.dismissToggle:hover {
+  color: var(--text-primary);
+  border-color: var(--accent-muted);
+  background: var(--surface-hover);
+}
+
+.dismissToggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.dismissToggle[aria-pressed="true"] {
+  color: var(--text-primary);
+  border-color: var(--accent-muted);
+  background: color-mix(in srgb, var(--iru-board) 70%, var(--surface));
+}
+
+.dismissGlyph {
+  width: 1.45rem;
+  height: 1.45rem;
+  flex: none;
+  transition: translate var(--iru-dur-slow) var(--iru-ease);
+}
+
+/* Silgi, mod açılınca tahtanın üstünden bir kez geçmiş gibi kayar */
+.dismissToggle[aria-pressed="true"] .dismissGlyph {
+  translate: 0.28rem 0;
+}
+
+.dismissLabel {
+  white-space: nowrap;
+}
+
+.dismissHint {
+  position: fixed;
+  right: clamp(0.75rem, 3vw, 1.75rem);
+  bottom: calc(clamp(0.75rem, 3vw, 1.75rem) + var(--music-bar, 0px) + 3.5rem);
+  z-index: 59;
+  max-width: min(21rem, calc(100vw - 2rem));
+  margin: 0;
+  text-align: right;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.75rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.dismissHint:empty {
+  display: none;
+}
+
+/* ============================================================
+   1 · HERO — AKŞAM IŞIĞINDA BİR ODA
+   Portre KÜÇÜK ve dar kadrajlı: kaynağı AniList (~230 px), büyütülüp
+   yayılmıyor (BRIEF §3.1). Kadrajın işini tipografi ve tek bir çizgi
+   yapıyor.
+   ============================================================ */
+.hero {
+  position: relative;
+  z-index: 1;
+  width: var(--iru-content);
+  margin-inline: auto;
+  padding-left: calc(var(--iru-margin) + 1.25rem);
+  min-height: min(82svh, 50rem);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(1.5rem, 5vw, 3.25rem);
+  padding-block: calc(var(--iru-line) * 1.4) calc(var(--iru-line) * 2);
+}
+
+.heroScene {
+  position: absolute;
+  inset: calc(var(--iru-line) * -0.5) calc(var(--iru-gutter) * -1);
+  z-index: -1;
+  overflow: hidden;
+}
+
+.heroScene img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.3) brightness(0.55) sepia(0.18);
+}
+
+.heroScrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to right,
+    var(--bg) 6%,
+    color-mix(in srgb, var(--bg) 72%, transparent) 58%,
+    color-mix(in srgb, var(--bg) 45%, transparent) 100%
+  );
+}
+
+/* Tebeşir tozu: ışığın içinde asılı duran zerreler */
+.heroDust {
+  position: absolute;
+  inset: 8% 0 12% 20%;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.55;
+}
+
+/* Filigran: 先生 — kadrajın sağ üstünde, neredeyse görünmez */
+.heroMark {
+  position: absolute;
+  top: calc(var(--iru-line) * 0.6);
+  right: 0;
+  margin: 0;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(4rem, 15vw, 10rem);
+  line-height: 0.9;
+  letter-spacing: 0.06em;
+  color: color-mix(in srgb, var(--text-primary) 6%, transparent);
+  user-select: none;
+  pointer-events: none;
+}
+
+/* ── Portre levhası: deftere iliştirilmiş bir fotoğraf ───────────────── */
+.heroPlate {
+  position: relative;
+  width: clamp(8.5rem, 24vw, 13.5rem);
+  rotate: -1.6deg;
+}
+
+.heroPortrait {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  box-shadow:
+    0 2px 0 0 color-mix(in srgb, var(--iru-chalk) 6%, transparent) inset,
+    0 26px 46px -30px color-mix(in srgb, var(--bg) 92%, black);
+  filter: sepia(0.22) contrast(1.04) brightness(0.94);
+  transition: filter var(--iru-dur-slow) var(--iru-ease);
+}
+
+.heroPortrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 22%;
+}
+
+.hero:hover .heroPortrait {
+  filter: sepia(0.08) contrast(1.02) brightness(1);
+}
+
+/* Yara: portrenin üzerinden geçer ve İKİ YANDAN DA taşar. Soldaki uç
+   kenar payındaki kırmızı çizgiye doğru uzanıyor — sayfanın fikri o
+   buluşmada. Portre yüklenmemişse de çizilir, levhanın yerini tutar. */
+.heroScar {
+  position: absolute;
+  left: -22%;
+  width: 144%;
+  top: 34%;
+  height: 2.4rem;
+  rotate: 1.6deg;
+  pointer-events: none;
+}
+
+/* ── Hero metni ─────────────────────────────────────────────────────── */
+.heroBody {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.heroName {
+  margin: 0;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: clamp(2.6rem, 8.4vw, 5.25rem);
+  font-weight: 800;
+  line-height: 1.03;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+  color: var(--text-primary);
+  transition: color var(--iru-dur-slow) var(--iru-ease);
+}
+
+.heroNative {
+  margin: 0.1rem 0 0;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(1rem, 2.4vw, 1.4rem);
+  letter-spacing: 0.22em;
+  color: var(--text-muted);
+}
+
+/* Görev satırı BAŞLIKTAN SONRA geliyor — üstüne konan bir etiket değil.
+   Bir künye satırı gibi okunsun diye Inter ve tracked. */
+.heroPost {
+  margin: 0.55rem 0 0;
+  padding-top: 0.55rem;
+  border-top: 1px solid var(--border);
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.heroEpigraph {
+  margin: calc(var(--iru-line) * 0.5) 0 0;
+  max-width: 26ch;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: clamp(1.25rem, 2.6vw, 1.75rem);
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: -0.015em;
+  color: var(--gold);
+  text-wrap: balance;
+}
+
+.heroLede {
+  margin: 0.5rem 0 0;
+  max-width: 44ch;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.1875rem;
+  line-height: 1.68;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.heroScarNote {
+  margin: calc(var(--iru-line) * 0.55) 0 0;
+  max-width: 34ch;
+  padding-left: 0.9rem;
+  border-left: 1px solid var(--iru-scar);
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.75rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   BÖLÜM İSKELETİ
+   Her bölüm kenar payının sağından başlar; sola bakan boşluk defterin
+   kendi payı ve sayfanın nefesi.
+   ============================================================ */
+.section,
+.boardSection,
+.counter {
+  position: relative;
+  z-index: 1;
+  width: var(--iru-content);
+  margin-inline: auto;
+  padding-left: calc(var(--iru-margin) + 1.25rem);
+  padding-block: calc(var(--iru-line) * 1.5);
+}
+
+.sectionHead {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin-bottom: calc(var(--iru-line) * 0.95);
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: clamp(1.7rem, 4vw, 2.75rem);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.sectionLede {
+  margin: 0;
+  max-width: 52ch;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.125rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* Kurator yuvaları — ziyaretçide hiç çizilmiyor */
+.slotRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+/* ============================================================
+   2 · KÜNYE — DEFTERİN İLK SAYFASI
+   Her satır bir defter satırı: etiket solda, değer sağda, altında çizgi.
+   Üstüne gelince satır aydınlanıyor — parmağı listede aşağı sürmek gibi.
+   ============================================================ */
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
+  column-gap: clamp(1.5rem, 5vw, 3.5rem);
+  margin: 0;
+  border-top: 1px solid var(--border-strong);
+}
+
+.fact {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding: 0.8rem 0.5rem 0.7rem 0.15rem;
+  border-bottom: 1px solid var(--border);
+  transition: background var(--iru-dur) var(--iru-ease-soft);
+}
+
+.fact:hover {
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+}
+
+.fact dt {
+  flex: none;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.fact dd {
+  margin: 0;
+  text-align: right;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.35;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+}
+
+/* ============================================================
+   3 · SIRALAR
+   Dört portre, deftere yapıştırılmış vesikalıklar gibi. Öğrenciler
+   (`back`) sıcak kalıyor, yetişkinler (`front`) daha soluk — sınıfın
+   kendi hiyerarşisi renk sıcaklığıyla anlatılıyor.
+   ============================================================ */
+.desks {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: calc(var(--iru-line) * 0.9) clamp(1.25rem, 3.5vw, 2rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.desk {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: opacity var(--iru-dur-slow) var(--iru-ease);
+}
+
+.deskArt {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: 0 16px 30px -26px color-mix(in srgb, var(--bg) 92%, black);
+}
+
+.deskArt img {
+  object-fit: cover;
+  object-position: 50% 20%;
+  filter: sepia(0.3) contrast(1.05) brightness(0.9);
+  transition: filter var(--iru-dur-slow) var(--iru-ease);
+}
+
+.desk[data-seat="front"] .deskArt img {
+  filter: grayscale(0.6) contrast(1.04) brightness(0.78);
+}
+
+.desk:hover .deskArt img {
+  filter: sepia(0.08) contrast(1.02) brightness(1);
+}
+
+/* Öğrenci sırasının üstünde ince bir altın çizgi: tahtaya en uzak sıra,
+   sayfanın en yakın iki ismi. */
+.desk[data-seat="back"] .deskArt {
+  border-top: 2px solid var(--accent-muted);
+}
+
+.deskBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.deskRow {
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.desk[data-seat="back"] .deskRow {
+  color: color-mix(in srgb, var(--accent) 78%, var(--text-muted));
+}
+
+.deskName {
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.deskNote {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.0625rem;
+  line-height: 1.62;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* ============================================================
+   4 · DERS PROGRAMI — ÜÇ BÜYÜK
+   Ders programı çizelgesinin satırları: solda kanji hücresi (tahtanın
+   yeşiliyle boyalı), sağda dersin kendisi. Hücre kenarlığı çizelgenin
+   kendisi — kart değil, tablo.
+   ============================================================ */
+.crafts {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--iru-line) * 0.7);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.craft {
+  position: relative;
+  display: grid;
+  grid-template-columns: clamp(3.75rem, 11vw, 6.5rem) minmax(0, 1fr);
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 55%, var(--bg));
+  overflow: hidden;
+  transition:
+    border-color var(--iru-dur) var(--iru-ease-soft),
+    background var(--iru-dur) var(--iru-ease-soft);
+}
+
+.craft:hover {
+  border-color: var(--border-strong);
+  background: color-mix(in srgb, var(--surface) 85%, var(--bg));
+}
+
+.craftArt {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: min(24rem, 46%);
+  opacity: 0.17;
+  mask-image: linear-gradient(to left, black 24%, transparent 100%);
+  transition: opacity var(--iru-dur-slow) var(--iru-ease);
+}
+
+.craftArt:empty {
+  display: none;
+}
+
+.craftArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: sepia(0.3) contrast(1.05);
+}
+
+.craft:hover .craftArt {
+  opacity: 0.28;
+}
+
+/* Çizelge hücresi — tahtanın yeşili burada, sayfanın başka hiçbir
+   yerinde bu ölçüde kullanılmıyor. */
+.craftKanji {
+  display: grid;
+  place-items: center;
+  padding-block: 1.25rem;
+  border-right: 1px solid var(--border);
+  background: color-mix(in srgb, var(--iru-board) 55%, transparent);
+  writing-mode: vertical-rl;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(1.15rem, 3vw, 1.65rem);
+  line-height: 1;
+  letter-spacing: 0.12em;
+  color: color-mix(in srgb, var(--iru-chalk) 62%, transparent);
+  transition: color var(--iru-dur) var(--iru-ease-soft);
+}
+
+.craft:hover .craftKanji {
+  color: var(--iru-chalk);
+}
+
+.craftBody {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+  padding: calc(var(--iru-line) * 0.6) clamp(1.1rem, 3vw, 1.85rem)
+    calc(var(--iru-line) * 0.7);
+}
+
+.craftName {
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: clamp(1.3rem, 2.9vw, 1.85rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.craftTurkish {
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.craftTagline {
+  margin-top: 0.45rem;
+  max-width: 42ch;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--accent);
+}
+
+.craftText {
+  max-width: var(--iru-measure);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.125rem;
+  line-height: 1.72;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.craftTraits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.65rem;
+}
+
+.trait {
+  padding: 0.28rem 0.62rem;
+  border: 1px solid var(--border-strong);
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   5 · ÇEKMECE — DÖRT KÜÇÜK
+   Açılmış bir çekmecenin dört bölmesi: üst kenardan içeri düşen gölge
+   bölmelerin bir KUTUNUN İÇİNDE olduğunu söylüyor.
+   ============================================================ */
+.drawer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14.5rem, 1fr));
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--border);
+  border: 1px solid var(--border-strong);
+  border-bottom-width: 3px;
+}
+
+.drawerItem {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: calc(var(--iru-line) * 0.62) 1.2rem calc(var(--iru-line) * 0.7);
+  background: var(--bg);
+  overflow: hidden;
+  box-shadow: 0 7px 12px -10px color-mix(in srgb, var(--bg) 96%, black) inset;
+  transition: background var(--iru-dur) var(--iru-ease-soft);
+}
+
+.drawerItem:hover {
+  background: color-mix(in srgb, var(--surface) 80%, var(--bg));
+}
+
+.drawerArt {
+  position: absolute;
+  inset: auto 0 0 auto;
+  width: 62%;
+  aspect-ratio: 1;
+  opacity: 0.16;
+  mask-image: radial-gradient(circle at 82% 92%, black 18%, transparent 70%);
+  transition: opacity var(--iru-dur-slow) var(--iru-ease);
+}
+
+.drawerArt:empty {
+  display: none;
+}
+
+.drawerArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: sepia(0.35);
+}
+
+.drawerItem:hover .drawerArt {
+  opacity: 0.3;
+}
+
+.drawerName {
+  position: relative;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.drawerNote {
+  position: relative;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* ============================================================
+   6 · KARA TAHTA — SAYFANIN KALBİ
+   ============================================================ */
+.boardSection {
+  padding-block: calc(var(--iru-line) * 1.9);
+}
+
+.boardScene {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.1;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    black 22%,
+    black 78%,
+    transparent 100%
+  );
+}
+
+.boardScene img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: sepia(0.4) brightness(0.7);
+}
+
+.board {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Tahtanın gövdesi ─────────────────────────────────────────────────
+   Ahşap çerçeve `--warn` (kahve) ile, yüzey `--iru-board` yıkamasıyla.
+   Üstteki iki soluk yıkama eski tebeşirin izi: bir tahta hiçbir zaman
+   tamamen temiz değildir. */
+.slate {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(8rem, 26%, 15rem);
+  gap: clamp(1rem, 3vw, 2rem);
+  padding: clamp(1.1rem, 3.4vw, 2.1rem) clamp(1rem, 3vw, 1.9rem);
+  border: clamp(0.45rem, 1.1vw, 0.75rem) solid
+    color-mix(in srgb, var(--warn) 52%, var(--bg));
+  border-bottom: none;
+  background:
+    radial-gradient(
+      70% 55% at 22% 18%,
+      color-mix(in srgb, var(--iru-chalk) 5%, transparent) 0,
+      transparent 70%
+    ),
+    radial-gradient(
+      60% 50% at 78% 74%,
+      color-mix(in srgb, var(--iru-chalk) 4%, transparent) 0,
+      transparent 68%
+    ),
+    var(--iru-board);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--iru-chalk) 8%, transparent) inset,
+    0 30px 60px -44px color-mix(in srgb, var(--bg) 94%, black);
+  overflow: hidden;
+}
+
+/* Silgi izi — yalnızca "Ders bitti" modunda görünür */
+.slate::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    104deg,
+    transparent 0 14%,
+    color-mix(in srgb, var(--iru-chalk) 13%, transparent) 34%,
+    color-mix(in srgb, var(--iru-chalk) 5%, transparent) 48%,
+    transparent 66%
+  );
+  opacity: 0;
+  transition: opacity var(--iru-dur-slow) var(--iru-ease);
+}
+
+/* ── Tahtadaki beş satır ─────────────────────────────────────────────── */
+.slateList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.slateRow {
+  position: relative;
+  display: grid;
+  grid-template-columns: 2.1rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.5rem;
+  min-height: var(--touch-min);
+  padding: 0.35rem 0.5rem 0.75rem 0.15rem;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--iru-dur-fast) var(--iru-ease-soft);
+}
+
+.slateRow:hover {
+  background: color-mix(in srgb, var(--iru-chalk) 5%, transparent);
+}
+
+.slateRow:focus-visible {
+  outline: 2px solid var(--iru-chalk);
+  outline-offset: 2px;
+}
+
+.rowNumber {
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: color-mix(in srgb, var(--iru-chalk) 38%, transparent);
+  transition: color var(--iru-dur) var(--iru-ease-soft);
+}
+
+.slateRow[aria-selected="true"] .rowNumber {
+  color: var(--iru-ramen);
+}
+
+/* Tahta yazısı — sayfanın tek el yazısı. Seçili olmayan satırlar
+   yarı silik: yazılmış ama üstünden geçilmemiş. */
+.rowChalk {
+  font-family: var(--font-corinthia), var(--font-petrona), cursive;
+  font-size: clamp(1.75rem, 5.2vw, 2.75rem);
+  font-weight: 400;
+  line-height: 1.05;
+  color: color-mix(in srgb, var(--iru-chalk) 48%, transparent);
+  transition: color var(--iru-dur) var(--iru-ease-soft);
+}
+
+.slateRow:hover .rowChalk {
+  color: color-mix(in srgb, var(--iru-chalk) 72%, transparent);
+}
+
+.slateRow[aria-selected="true"] .rowChalk {
+  color: var(--iru-chalk);
+  text-shadow: 0 0 8px color-mix(in srgb, var(--iru-chalk) 22%, transparent);
+}
+
+/* Beşinci satır: tahtada yeri var, yazısı yok. */
+.rowBlank {
+  display: block;
+  height: clamp(1.75rem, 5.2vw, 2.75rem);
+  border-bottom: 1.5px solid
+    color-mix(in srgb, var(--iru-chalk) 26%, transparent);
+  transition: border-color var(--iru-dur) var(--iru-ease-soft);
+}
+
+.slateRow[aria-selected="true"] .rowBlank {
+  border-color: color-mix(in srgb, var(--iru-chalk) 45%, transparent);
+}
+
+/* Altını çizme — seçili satırın altına tek hamlede çekilen tebeşir */
+.rowUnderline {
+  position: absolute;
+  left: 2.6rem;
+  right: 14%;
+  bottom: 0.15rem;
+  height: 0.55rem;
+  pointer-events: none;
+}
+
+/* ── Tahtanın sağı: dersin çizimi ────────────────────────────────────── */
+.slateArt {
+  position: relative;
+  align-self: center;
+  width: 100%;
+  aspect-ratio: 200 / 150;
+}
+
+.slateArtLayer {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--iru-dur-slow) var(--iru-ease);
+}
+
+.slateArtLayer[data-on] {
+  opacity: 1;
+}
+
+.lessonDrawing {
+  width: 100%;
+  height: 100%;
+  /* Tebeşirin dağılması: sert kenar yerine yumuşak bir hâle */
+  filter: drop-shadow(
+    0 0 3px color-mix(in srgb, var(--iru-chalk) 26%, transparent)
+  );
+}
+
+/* ── ÇİZİM: sayfanın yazılmış anı ─────────────────────────────────────
+   Bütün çizgiler `pathLength=1` taşıyor, yani tek bir dasharray formülü
+   hepsine yetiyor. `data-order` merdiveni çizgileri sırayla indiriyor:
+   bir öğretmen de tahtaya her şeyi aynı anda çizmez. */
+.chalkStroke {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset var(--iru-draw) var(--iru-ease);
+}
+
+.chalkStroke[data-on] {
+  stroke-dashoffset: 0;
+}
+
+.chalkStroke[data-order="1"] {
+  transition-delay: 70ms;
+}
+.chalkStroke[data-order="2"] {
+  transition-delay: 140ms;
+}
+.chalkStroke[data-order="3"] {
+  transition-delay: 210ms;
+}
+.chalkStroke[data-order="4"] {
+  transition-delay: 280ms;
+}
+.chalkStroke[data-order="5"] {
+  transition-delay: 350ms;
+}
+.chalkStroke[data-order="6"] {
+  transition-delay: 420ms;
+}
+.chalkStroke[data-order="7"] {
+  transition-delay: 490ms;
+}
+.chalkStroke[data-order="8"] {
+  transition-delay: 560ms;
+}
+
+/* ── Tebeşir oluğu — tahtanın altındaki ahşap raf ────────────────────── */
+.tray {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.75rem, 2.5vw, 1.5rem);
+  padding: 0.5rem clamp(0.85rem, 2.5vw, 1.5rem);
+  border: 1px solid color-mix(in srgb, var(--warn) 42%, var(--bg));
+  border-top: none;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--warn) 46%, var(--bg)),
+    color-mix(in srgb, var(--warn) 26%, var(--bg))
+  );
+  box-shadow: 0 14px 26px -22px color-mix(in srgb, var(--bg) 94%, black);
+}
+
+.trayArt {
+  flex: none;
+  width: clamp(6.5rem, 20vw, 10rem);
+  height: auto;
+}
+
+.trayNote {
+  margin: 0;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--iru-chalk) 68%, transparent);
+}
+
+/* ── Dersin altı: defterin sayfası ────────────────────────────────────
+   Tahtanın altında bir sıra var ve orada bir defter açık. Zemininde de
+   aynı satır çizgileri geçiyor — üstteki tahtayla arasındaki fark bu:
+   biri silinir, öteki kalır. */
+.lessonPanel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin-top: calc(var(--iru-line) * 0.9);
+  padding: calc(var(--iru-line) * 0.75) clamp(1.1rem, 3vw, 1.9rem)
+    calc(var(--iru-line) * 0.85);
+  border: 1px solid var(--border);
+  background:
+    repeating-linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--text-primary) 5%, transparent) 0 1px,
+      transparent 1px var(--iru-line)
+    ),
+    color-mix(in srgb, var(--surface) 72%, var(--bg));
+}
+
+.lessonPanel:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.lessonCount {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 0 0 0.35rem;
+  font-family: var(--font-inter), var(--font-sans);
+  font-variant-numeric: tabular-nums;
+}
+
+.lessonCountNumber {
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--iru-ramen);
+}
+
+.lessonCountWord {
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.lessonBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+/* İkinci blok öğretmenin kırmızı kalemi: kenar payındaki çizgiyle aynı
+   renk. Kalın renkli bir sol kenarlık DEĞİL — vurgu etiketin kendisinde. */
+.lessonBlock[data-kind="real"] {
+  margin-top: 0.55rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--border);
+}
+
+.lessonLabel {
+  margin: 0;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.lessonBlock[data-kind="real"] .lessonLabel {
+  color: var(--iru-scar);
+}
+
+.lessonText {
+  margin: 0;
+  max-width: var(--iru-measure);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.1875rem;
+  line-height: 1.72;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.lessonBlock[data-kind="real"] .lessonText {
+  color: var(--text-primary);
+}
+
+.lessonNav {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: calc(var(--iru-line) * 0.55);
+}
+
+.navButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: var(--touch-min);
+  padding: 0 1.05rem;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    color var(--iru-dur-fast) var(--iru-ease-soft),
+    border-color var(--iru-dur-fast) var(--iru-ease-soft),
+    background var(--iru-dur-fast) var(--iru-ease-soft);
+}
+
+.navButton:hover:not(:disabled) {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+  background: var(--surface);
+}
+
+.navButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.navButton:disabled {
+  opacity: 0.32;
+  cursor: default;
+}
+
+.boardHint {
+  margin: 0.85rem 0 0;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   7 · ICHIRAKU MASASI
+   Sayfanın duygusal merkezi ve bilerek en KISA bölümü. Ortalanmış, dar,
+   sıcak; tek ışık kaynağı dükkânın feneri.
+   ============================================================ */
+.counter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding-block: calc(var(--iru-line) * 1.9);
+}
+
+.counter .sectionHead {
+  align-items: center;
+}
+
+.counter .sectionLede {
+  max-width: 46ch;
+}
+
+/* Fener: kâselerin üstünde duran tek sıcak ışık */
+.counter::before {
+  content: "";
+  position: absolute;
+  top: calc(var(--iru-line) * 0.6);
+  left: 50%;
+  translate: -50% 0;
+  width: min(34rem, 88%);
+  height: 22rem;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    50% 46% at 50% 40%,
+    var(--iru-glow-soft) 0,
+    transparent 72%
+  );
+}
+
+.counterScene {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.13;
+  mask-image: radial-gradient(ellipse at 50% 55%, black 8%, transparent 68%);
+}
+
+.counterScene img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: sepia(0.45) brightness(0.8);
+}
+
+.bowls {
+  width: min(32rem, 100%);
+  height: auto;
+  margin-top: calc(var(--iru-line) * 0.3);
+}
+
+.bowlCaption {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+.lines {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: clamp(1.5rem, 5vw, 3rem);
+  width: min(46rem, 100%);
+  margin: calc(var(--iru-line) * 1.1) 0 0;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+}
+
+.line {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--border-strong);
+}
+
+.lineWho {
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--iru-ramen);
+}
+
+/* İki cümle. Sayfadaki en büyük gövde metni bunlar — bölüm kısa olduğu
+   için ağırlığı ölçüyle taşıyor, uzunlukla değil. */
+.lineText {
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: clamp(1.25rem, 3vw, 1.7rem);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.lineNote {
+  margin-top: 0.15rem;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.counterClose {
+  max-width: 42ch;
+  margin: calc(var(--iru-line) * 0.9) 0 0;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.75rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   8 · BEŞ SATIRLIK YOKLAMA
+   Defter satırları: solda yaş, satırın başında kırmızı bir yoklama
+   işareti. Işaret bir glif değil, iki kenarlıktan çizilmiş bir onay.
+   ============================================================ */
+.fate {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--border-strong);
+}
+
+.fateItem {
+  position: relative;
+  display: grid;
+  grid-template-columns: 7.5rem minmax(0, 1fr);
+  gap: 1.5rem;
+  padding: calc(var(--iru-line) * 0.75) 0 calc(var(--iru-line) * 0.85);
+  border-bottom: 1px solid var(--border);
+}
+
+/* Yoklama işareti — kırmızı kalem */
+.fateItem::before {
+  content: "";
+  position: absolute;
+  left: -1.5rem;
+  top: calc(var(--iru-line) * 0.75 + 0.35rem);
+  width: 0.55rem;
+  height: 0.3rem;
+  border-left: 1.5px solid var(--iru-scar);
+  border-bottom: 1.5px solid var(--iru-scar);
+  rotate: -45deg;
+  opacity: 0.85;
+}
+
+.fateAge {
+  margin: 0;
+  padding-top: 0.15rem;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+.fateBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.fateTitle {
+  margin: 0;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: clamp(1.2rem, 2.6vw, 1.6rem);
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.fateText {
+  margin: 0;
+  max-width: var(--iru-measure);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.125rem;
+  line-height: 1.74;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.fateQuote {
+  margin: 0.55rem 0 0;
+  padding-left: 1.05rem;
+  border-left: 1px solid var(--iru-scar);
+}
+
+.fateQuote blockquote {
+  margin: 0;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.45;
+  color: var(--text-primary);
+}
+
+.fateQuote figcaption {
+  margin-top: 0.4rem;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.fateArt {
+  position: relative;
+  grid-column: 2;
+  display: block;
+  width: 100%;
+  max-width: 32rem;
+  aspect-ratio: 21 / 9;
+  margin-top: 0.5rem;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.fateArt:empty {
+  display: none;
+}
+
+.fateArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: sepia(0.35) contrast(1.05) brightness(0.85);
+  transition: filter var(--iru-dur-slow) var(--iru-ease);
+}
+
+.fateItem:hover .fateArt img {
+  filter: sepia(0.12) contrast(1.02) brightness(0.96);
+}
+
+/* ============================================================
+   9 · KAPANIŞ
+   ============================================================ */
+.closing {
+  position: relative;
+  z-index: 1;
+  width: var(--iru-content);
+  margin-inline: auto;
+  padding-left: calc(var(--iru-margin) + 1.25rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--iru-line) * 0.75);
+  padding-block: calc(var(--iru-line) * 2) calc(var(--iru-line) * 2.4);
+  text-align: center;
+}
+
+.closingArt {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.12;
+  mask-image: radial-gradient(ellipse at 50% 50%, black 8%, transparent 68%);
+}
+
+.closingArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: sepia(0.45);
+}
+
+.closingQuote {
+  margin: 0;
+  max-width: 46ch;
+}
+
+.closingQuote blockquote {
+  margin: 0;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: clamp(1.4rem, 3.4vw, 2.2rem);
+  font-weight: 700;
+  line-height: 1.32;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.closingQuote figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 0.85rem;
+}
+
+.quoteBy {
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.quoteNote {
+  max-width: 44ch;
+  margin-inline: auto;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.0625rem;
+  line-height: 1.66;
+  color: var(--text-secondary);
+}
+
+.motto {
+  margin: calc(var(--iru-line) * 0.35) 0 0;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(1.9rem, 6.5vw, 3.5rem);
+  line-height: 1.15;
+  letter-spacing: 0.08em;
+  color: color-mix(in srgb, var(--gold) 42%, transparent);
+}
+
+.mottoNote {
+  margin: -0.25rem 0 0;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+}
+
+.credit {
+  max-width: 56ch;
+  margin: 0;
+  padding-top: calc(var(--iru-line) * 0.6);
+  border-top: 1px solid var(--border);
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.75rem;
+  line-height: 1.75;
+  color: var(--text-muted);
+}
+
+.credit a {
+  color: var(--text-secondary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--accent-muted);
+  transition: color var(--iru-dur-fast) var(--iru-ease-soft);
+}
+
+.credit a:hover {
+  color: var(--accent);
+}
+
+.credit a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ============================================================
+   "DERS BİTTİ" MODU
+   Tahta silinir, sıralar boşalır, ışık aşağı iner. Etkinin tamamı
+   burada — JS yalnızca bir niteliği çeviriyor.
+   ============================================================ */
+
+/* Işık pencereden aşağı kayar, genişler ve ısınır: akşam */
+.page[data-dusk] .dusk {
+  background:
+    radial-gradient(
+      150% 78% at 88% 42%,
+      var(--iru-dusk) 0,
+      transparent 66%
+    ),
+    linear-gradient(
+      to bottom,
+      transparent 0,
+      color-mix(in srgb, var(--iru-scar) 7%, transparent) 62%,
+      color-mix(in srgb, var(--bg) 55%, transparent) 100%
+    );
+}
+
+/* Defterin çizgileri söner — sayfa kapanıyor */
+.page[data-dusk] .ruling {
+  opacity: 0.35;
+}
+
+/* Kenar payı çizgisi KALIR ve biraz güçlenir: gün biter, yara kalır */
+.page[data-dusk] .marginRule::before {
+  opacity: 0.62;
+}
+
+/* Tahta silinir: tebeşir solar, üstünden silgi izi geçer */
+.page[data-dusk] .slate::after {
+  opacity: 1;
+}
+
+.page[data-dusk] .rowChalk {
+  color: color-mix(in srgb, var(--iru-chalk) 20%, transparent);
+  text-shadow: none;
+}
+
+.page[data-dusk] .slateRow[aria-selected="true"] .rowChalk {
+  color: color-mix(in srgb, var(--iru-chalk) 34%, transparent);
+}
+
+.page[data-dusk] .slateArtLayer[data-on] {
+  opacity: 0.3;
+}
+
+.page[data-dusk] .rowBlank {
+  border-color: color-mix(in srgb, var(--iru-chalk) 14%, transparent);
+}
+
+/* Sıralar boşalır. Öğretmenler önce, öğrenciler sonra — sınıftan en son
+   çıkan, en arka sıradaki çocuktur. */
+.page[data-dusk] .desk {
+  opacity: 0.42;
+  transition-delay: 0ms;
+}
+
+.page[data-dusk] .desk[data-seat="back"] {
+  opacity: 0.68;
+  transition-delay: 220ms;
+}
+
+.page[data-dusk] .deskArt img {
+  filter: grayscale(0.75) brightness(0.62);
+}
+
+/* Portre akşam ışığını alır */
+.page[data-dusk] .heroPortrait {
+  filter: sepia(0.42) contrast(1.06) brightness(0.7);
+}
+
+/* Kâseler soğur, buhar seyrelir */
+.page[data-dusk] .bowls {
+  opacity: 0.55;
+}
+
+/* ============================================================
+   HAREKET — İKİ YAZILMIŞ AN VE İKİ ORTAM DOKUSU
+   Yazılmış an: yara çizgisinin açılışta çekilmesi ve tebeşir çizimi
+   (yukarıda, geçişle). Ortam: toz ve buhar.
+   ============================================================ */
+.scarStroke {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Yara: sayfa açılırken tek hamlede çekilir. Sayfanın ilk jesti. */
+  .scarStroke {
+    animation: iruScar 1400ms var(--iru-ease) both;
+  }
+
+  .scarStroke[data-layer="over"] {
+    animation-delay: 160ms;
+  }
+
+  /* Toz: ışığın içinde yavaşça yükselir */
+  .mote {
+    animation: iruDrift 26s var(--iru-ease-soft) infinite alternate;
+  }
+
+  .mote[data-mote="1"] {
+    animation-duration: 34s;
+    animation-delay: -6s;
+  }
+
+  .mote[data-mote="2"] {
+    animation-duration: 21s;
+    animation-delay: -13s;
+  }
+
+  .mote[data-mote="3"] {
+    animation-duration: 40s;
+    animation-delay: -3s;
+  }
+
+  /* Buhar: kısa kesikler yukarı doğru akar */
+  .steam {
+    stroke-dasharray: 14 46;
+    animation: iruSteam 13s linear infinite;
+  }
+
+  .steam[data-strand="2"] {
+    animation-duration: 17s;
+    animation-delay: -5s;
+  }
+
+  .steam[data-strand="3"] {
+    animation-duration: 10s;
+    animation-delay: -8s;
+  }
+}
+
+@keyframes iruScar {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes iruDrift {
+  from {
+    translate: 0 0;
+    opacity: 0.28;
+  }
+  to {
+    translate: 0 -7%;
+    opacity: 0.7;
+  }
+}
+
+@keyframes iruSteam {
+  from {
+    stroke-dashoffset: 120;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ============================================================
+   MOBİL — 360 pikselde yatay taşma YOK, ızgaraların hepsi tek sütuna
+   iner. Kenar payı daralır ama kaybolmaz: defter, defter kalır.
+   ============================================================ */
+@media (max-width: 900px) {
+  .slate {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Çizim satırların ALTINA iner ve alanı sınırlanır: dar ekranda tahta
+     bir tabloya değil, gerçek bir tahtaya benzemeli. */
+  .slateArt {
+    width: min(16rem, 62%);
+    margin-inline: auto;
+  }
+
+  .fateItem {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.5rem;
+  }
+
+  .fateArt {
+    grid-column: 1;
+  }
+}
+
+@media (max-width: 760px) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    gap: calc(var(--iru-line) * 0.9);
+    min-height: min(78svh, 44rem);
+    padding-block: calc(var(--iru-line) * 1.1) calc(var(--iru-line) * 1.5);
+  }
+
+  .heroPlate {
+    width: clamp(7.5rem, 38vw, 11rem);
+  }
+
+  /* Dar ekranda yara sola taşmaz: kenar payı zaten dar, çizgi ekranın
+     dışına çıkardı. */
+  .heroScar {
+    left: -8%;
+    width: 116%;
+  }
+
+  .heroMark {
+    font-size: clamp(4.5rem, 30vw, 9rem);
+    top: auto;
+    bottom: calc(var(--iru-line) * 0.5);
+    opacity: 0.85;
+  }
+
+  .heroDust {
+    inset: 6% 0 10% 0;
+  }
+
+  .craft {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .craftKanji {
+    writing-mode: horizontal-tb;
+    padding-block: 0.6rem;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    letter-spacing: 0.16em;
+  }
+
+  .craftArt {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    order: -1;
+    opacity: 0.5;
+    mask-image: linear-gradient(to top, transparent 2%, black 62%);
+  }
+
+  .dismissHint {
+    display: none;
+  }
+}
+
+@media (max-width: 460px) {
+  .facts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .desks {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .drawer {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .slateRow {
+    grid-template-columns: 1.5rem minmax(0, 1fr);
+  }
+
+  .rowUnderline {
+    left: 2rem;
+    right: 6%;
+  }
+
+  .slateArt {
+    width: min(14rem, 78%);
+  }
+
+  .lines {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .lessonNav {
+    flex-wrap: wrap;
+  }
+
+  .navButton {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+
+  .dismissLabel {
+    display: none;
+  }
+
+  .dismissToggle {
+    padding: 0.5rem;
+    min-width: var(--touch-min);
+    justify-content: center;
+  }
+}
+
+/* Yüksek kontrast / zorunlu renk modunda dekoratif katmanlar susar */
+@media (forced-colors: active) {
+  .ruling,
+  .marginRule,
+  .dusk,
+  .heroDust,
+  .heroMark,
+  .closingArt,
+  .counterScene,
+  .boardScene {
+    display: none;
+  }
+}
+
+/* ============================================================
+   REDUCED-MOTION BATTANİYESİ — ev deseni (çift katman):
+   yukarıdaki her animasyon no-preference kapısında; burada kalan
+   geçişler de tamamen kapanır. Tebeşir çizimi yine TAM görünür
+   (nitelik değişince dashoffset anında 0 olur), yalnızca yazılma
+   HAREKETİ yok. Yara da aynı sebeple çizili duruyor: `.scarStroke`
+   varsayılanı dashoffset 0.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

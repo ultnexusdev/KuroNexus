@@ -1,4 +1,56 @@
 /* ============================================================
+   DÜNYA DERİSİ — Hinata Hyuuga
+
+   Bu blok 24 Ağustos 2026'da globals.css'ten BURAYA taşındı. Sebep
+   ölçüldü: karakter deneyim sayfası sayısı 35'e çıkınca globals'taki
+   palet yığını ~14,5 KB gzip'e ulaşıyordu ve sitenin HER sayfasında
+   iniyordu — hâlbuki her palet yalnızca tek bir sayfada okunuyor.
+   Rotalar sayfa başına ayrıldığı için (bkz. lib/characters/
+   experience-page.tsx) bu blok artık yalnızca bu sayfayla birlikte
+   yükleniyor.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı gereği
+   bir yerel sınıf şart (çıplak `:global([data-world])` derlemede reddedilir).
+   Kök öğe zaten ikisini birlikte taşıyor (bkz. kabuk bileşeni), yani seçici
+   tam olarak o düğüme oturuyor ve özgüllüğü kategori derisini de geçiyor.
+
+   Değerler kontrast ÖLÇÜLEREK seçildi: metin ailesi bg/surface/
+   surface-hover üzerinde AA (4.5:1) üstü, birincil metin AAA üstü,
+   accent zeminde en az 3:1. Değiştirirken yeniden ölç.
+   ============================================================ */
+.page[data-world="hinata-hyuuga"] {
+  --bg:             #07060c;
+  --surface:        #0f0e17;
+  --surface-hover:  #171520;
+  --border:         #221f2e;
+  --border-strong:  #322d42;
+
+  --text-primary:   #efecf5;
+  --text-secondary: #b0aac0;
+  --text-muted:     #9d96ae;
+
+  --accent:         #ab9ae2;
+  --accent-hover:   #c6b6f8;
+  --accent-muted:   #5b4e87;
+
+  --gold:           #c9b98a;
+  --warn:           #a6784a;
+  --danger:         #a6584a;
+
+  /* ── Yardımcı malzeme ailesi — yalnızca bu ağaç okur ── */
+  --hnt-byakugan:    #e8e4f2; /* solgun goz */
+  --hnt-vein:        #8f6fa8; /* damar cizgisi */
+  --hnt-water:       #7fb8d8;
+  --hnt-water-text:  #9acbe6;
+  --hnt-lion:        #8fd0ea; /* Ikiz Aslan Yumrugu */
+  --hnt-moon:        #d8d2e8;
+  --hnt-tenketsu:    rgba(171, 154, 226, 0.5); /* 361 nokta */
+  --hnt-ripple:      rgba(127, 184, 216, 0.12);
+  --hnt-glow-soft:   rgba(171, 154, 226, 0.2);
+  --hnt-glow-strong: rgba(171, 154, 226, 0.45);
+}
+
+/* ============================================================
    HINATA HYŪGA — "360 derece ve bir kör nokta".
 
    Deri: kökteki `data-world="hinata-hyuuga"` bütün standart token'ları

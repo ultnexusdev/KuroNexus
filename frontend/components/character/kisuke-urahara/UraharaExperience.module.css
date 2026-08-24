@@ -1,4 +1,56 @@
 /* ============================================================
+   DÜNYA DERİSİ — Kisuke Urahara
+
+   Bu blok 24 Ağustos 2026'da globals.css'ten BURAYA taşındı. Sebep
+   ölçüldü: karakter deneyim sayfası sayısı 35'e çıkınca globals'taki
+   palet yığını ~14,5 KB gzip'e ulaşıyordu ve sitenin HER sayfasında
+   iniyordu — hâlbuki her palet yalnızca tek bir sayfada okunuyor.
+   Rotalar sayfa başına ayrıldığı için (bkz. lib/characters/
+   experience-page.tsx) bu blok artık yalnızca bu sayfayla birlikte
+   yükleniyor.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı gereği
+   bir yerel sınıf şart (çıplak `:global([data-world])` derlemede reddedilir).
+   Kök öğe zaten ikisini birlikte taşıyor (bkz. kabuk bileşeni), yani seçici
+   tam olarak o düğüme oturuyor ve özgüllüğü kategori derisini de geçiyor.
+
+   Değerler kontrast ÖLÇÜLEREK seçildi: metin ailesi bg/surface/
+   surface-hover üzerinde AA (4.5:1) üstü, birincil metin AAA üstü,
+   accent zeminde en az 3:1. Değiştirirken yeniden ölç.
+   ============================================================ */
+.page[data-world="kisuke-urahara"] {
+  --bg:             #0b0906;
+  --surface:        #14110c;
+  --surface-hover:  #1d1913;
+  --border:         #2a241a;
+  --border-strong:  #3d3427;
+
+  --text-primary:   #f1e9dc;
+  --text-secondary: #b6a995;
+  --text-muted:     #a29584;
+
+  --accent:         #c9503a;
+  --accent-hover:   #e2694f;
+  --accent-muted:   #6b271a;
+
+  --gold:           #d9b166;
+  --warn:           #a6784a;
+  --danger:         #a6584a;
+
+  /* ── Yardımcı malzeme ailesi — yalnızca bu ağaç okur ── */
+  --urh-hat-dark:    #3f5a46; /* sapkanin yesil seridi */
+  --urh-hat-light:   #e7e2d4; /* sapkanin beyaz seridi */
+  --urh-hat-text:    #9fbfa8;
+  --urh-lantern:     #e8b45c;
+  --urh-tatami:      #7a6a45;
+  --urh-shadow:      #050403; /* sapkanin altindaki golge */
+  --urh-dust:        rgba(232, 180, 92, 0.1);
+  --urh-drawer:      rgba(122, 106, 69, 0.16); /* kapali cekmece */
+  --urh-glow-soft:   rgba(201, 80, 58, 0.2);
+  --urh-glow-strong: rgba(201, 80, 58, 0.45);
+}
+
+/* ============================================================
    KISUKE URAHARA — "Urahara Dükkânı: kapalı çekmeceler".
 
    Deri: kökteki `data-world="kisuke-urahara"` bütün standart token'ları

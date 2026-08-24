@@ -1,4 +1,56 @@
 /* ============================================================
+   DÜNYA DERİSİ — Shikamaru Nara
+
+   Bu blok 24 Ağustos 2026'da globals.css'ten BURAYA taşındı. Sebep
+   ölçüldü: karakter deneyim sayfası sayısı 35'e çıkınca globals'taki
+   palet yığını ~14,5 KB gzip'e ulaşıyordu ve sitenin HER sayfasında
+   iniyordu — hâlbuki her palet yalnızca tek bir sayfada okunuyor.
+   Rotalar sayfa başına ayrıldığı için (bkz. lib/characters/
+   experience-page.tsx) bu blok artık yalnızca bu sayfayla birlikte
+   yükleniyor.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı gereği
+   bir yerel sınıf şart (çıplak `:global([data-world])` derlemede reddedilir).
+   Kök öğe zaten ikisini birlikte taşıyor (bkz. kabuk bileşeni), yani seçici
+   tam olarak o düğüme oturuyor ve özgüllüğü kategori derisini de geçiyor.
+
+   Değerler kontrast ÖLÇÜLEREK seçildi: metin ailesi bg/surface/
+   surface-hover üzerinde AA (4.5:1) üstü, birincil metin AAA üstü,
+   accent zeminde en az 3:1. Değiştirirken yeniden ölç.
+   ============================================================ */
+.page[data-world="shikamaru-nara"] {
+  --bg:             #08090a;
+  --surface:        #101214;
+  --surface-hover:  #181b1e;
+  --border:         #232729;
+  --border-strong:  #343a3e;
+
+  --text-primary:   #eceeef;
+  --text-secondary: #a8aeb1;
+  --text-muted:     #949b9d;
+
+  --accent:         #d0a04a;
+  --accent-hover:   #eaba5f;
+  --accent-muted:   #71531d;
+
+  --gold:           #d0a04a;
+  --warn:           #a6784a;
+  --danger:         #a6584a;
+
+  /* ── Yardımcı malzeme ailesi — yalnızca bu ağaç okur ── */
+  --shk-shadow:      #040506; /* golge bagi govdesi */
+  --shk-board:       #2a2f33; /* shogi tahtasi */
+  --shk-piece:       #c9a06a; /* ahsap tas */
+  --shk-ember:       #e07a3c;
+  --shk-ember-text:  #ef8f52;
+  --shk-smoke:       rgba(236, 238, 239, 0.09);
+  --shk-grid:        rgba(236, 238, 239, 0.07);
+  --shk-tether:      rgba(4, 5, 6, 0.85);
+  --shk-glow-soft:   rgba(208, 160, 74, 0.18);
+  --shk-glow-strong: rgba(208, 160, 74, 0.4);
+}
+
+/* ============================================================
    SHIKAMARU NARA — "200 Hamlelik Tahta"
 
    Deri: kökteki `data-world="shikamaru-nara"` bütün standart token'ları

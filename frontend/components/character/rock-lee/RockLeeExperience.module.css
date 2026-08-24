@@ -1,4 +1,56 @@
 /* ============================================================
+   DÜNYA DERİSİ — Rock Lee
+
+   Bu blok 24 Ağustos 2026'da globals.css'ten BURAYA taşındı. Sebep
+   ölçüldü: karakter deneyim sayfası sayısı 35'e çıkınca globals'taki
+   palet yığını ~14,5 KB gzip'e ulaşıyordu ve sitenin HER sayfasında
+   iniyordu — hâlbuki her palet yalnızca tek bir sayfada okunuyor.
+   Rotalar sayfa başına ayrıldığı için (bkz. lib/characters/
+   experience-page.tsx) bu blok artık yalnızca bu sayfayla birlikte
+   yükleniyor.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı gereği
+   bir yerel sınıf şart (çıplak `:global([data-world])` derlemede reddedilir).
+   Kök öğe zaten ikisini birlikte taşıyor (bkz. kabuk bileşeni), yani seçici
+   tam olarak o düğüme oturuyor ve özgüllüğü kategori derisini de geçiyor.
+
+   Değerler kontrast ÖLÇÜLEREK seçildi: metin ailesi bg/surface/
+   surface-hover üzerinde AA (4.5:1) üstü, birincil metin AAA üstü,
+   accent zeminde en az 3:1. Değiştirirken yeniden ölç.
+   ============================================================ */
+.page[data-world="rock-lee"] {
+  --bg:             #0a0806;
+  --surface:        #131009;
+  --surface-hover:  #1c1810;
+  --border:         #28221a;
+  --border-strong:  #3a3226;
+
+  --text-primary:   #f3ece1;
+  --text-secondary: #b6aa97;
+  --text-muted:     #a29784;
+
+  --accent:         #e88a37;
+  --accent-hover:   #ffa452;
+  --accent-muted:   #804417;
+
+  --gold:           #d4b05e;
+  --warn:           #a6784a;
+  --danger:         #a6584a;
+
+  /* ── Yardımcı malzeme ailesi — yalnızca bu ağaç okur ── */
+  --lee-jumpsuit:      #4f8f3f;
+  --lee-jumpsuit-text: #7fc46a;
+  --lee-sunrise:       #f2b04a;
+  --lee-gate:          #e04a2a; /* acilan kapinin kizili */
+  --lee-sweat:         #8fc8d8;
+  --lee-bandage:       #e0d6c2;
+  --lee-dust:          rgba(243, 236, 225, 0.07);
+  --lee-heat:          rgba(224, 74, 42, 0.18);
+  --lee-glow-soft:     rgba(232, 138, 55, 0.2);
+  --lee-glow-strong:   rgba(232, 138, 55, 0.45);
+}
+
+/* ============================================================
    ROCK LEE — "Sekiz Kapı" deneyim sayfası.
 
    Deri: kökteki `data-world="rock-lee"` bütün standart token'ları şafak

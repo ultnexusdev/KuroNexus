@@ -1,4 +1,57 @@
 /* ============================================================
+   DÜNYA DERİSİ — Sasuke Uchiha
+
+   Bu blok 24 Ağustos 2026'da globals.css'ten BURAYA taşındı. Sebep
+   ölçüldü: karakter deneyim sayfası sayısı 35'e çıkınca globals'taki
+   palet yığını ~14,5 KB gzip'e ulaşıyordu ve sitenin HER sayfasında
+   iniyordu — hâlbuki her palet yalnızca tek bir sayfada okunuyor.
+   Rotalar sayfa başına ayrıldığı için (bkz. lib/characters/
+   experience-page.tsx) bu blok artık yalnızca bu sayfayla birlikte
+   yükleniyor.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı gereği
+   bir yerel sınıf şart (çıplak `:global([data-world])` derlemede reddedilir).
+   Kök öğe zaten ikisini birlikte taşıyor (bkz. kabuk bileşeni), yani seçici
+   tam olarak o düğüme oturuyor ve özgüllüğü kategori derisini de geçiyor.
+
+   Değerler kontrast ÖLÇÜLEREK seçildi: metin ailesi bg/surface/
+   surface-hover üzerinde AA (4.5:1) üstü, birincil metin AAA üstü,
+   accent zeminde en az 3:1. Değiştirirken yeniden ölç.
+   ============================================================ */
+.page[data-world="sasuke-uchiha"] {
+  --bg:             #07060b;
+  --surface:        #0f0d16;
+  --surface-hover:  #171420;
+  --border:         #221d2e;
+  --border-strong:  #332b44;
+
+  --text-primary:   #ece9f2;
+  --text-secondary: #a89fb8;
+  --text-muted:     #988ea9;
+
+  --accent:         #8a68e4;
+  --accent-hover:   #a888f7;
+  --accent-muted:   #4a3568;
+
+  --gold:           #c9a86a;
+  --warn:           #a6784a;
+  --danger:         #a6584a;
+
+  /* ── Yardımcı malzeme ailesi — yalnızca bu ağaç okur ── */
+  --sas-sharingan:      #d43a45; /* intikam kanadi */
+  --sas-sharingan-text: #e85a63;
+  --sas-rinnegan:       #a37ff0; /* kefaret kanadi */
+  --sas-chidori:        #8fd8f2;
+  --sas-amaterasu:      #0b0510; /* kara alev govdesi */
+  --sas-curse:          #6a4a8a; /* lanet muhru */
+  --sas-storm:          #141024;
+  --sas-blood:          rgba(212, 58, 69, 0.16);
+  --sas-crest:          rgba(212, 58, 69, 0.12); /* Uchiha yelpazesi filigrani */
+  --sas-glow-soft:      rgba(138, 104, 228, 0.2);
+  --sas-glow-strong:    rgba(138, 104, 228, 0.45);
+}
+
+/* ============================================================
    SASUKE UCHIHA — "İki göz, iki yol"
 
    Deri: kökteki `data-world="sasuke-uchiha"` bütün standart token'ları

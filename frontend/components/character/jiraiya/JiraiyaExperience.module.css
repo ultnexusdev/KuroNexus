@@ -1,4 +1,56 @@
 /* ============================================================
+   DÜNYA DERİSİ — Jiraiya
+
+   Bu blok 24 Ağustos 2026'da globals.css'ten BURAYA taşındı. Sebep
+   ölçüldü: karakter deneyim sayfası sayısı 35'e çıkınca globals'taki
+   palet yığını ~14,5 KB gzip'e ulaşıyordu ve sitenin HER sayfasında
+   iniyordu — hâlbuki her palet yalnızca tek bir sayfada okunuyor.
+   Rotalar sayfa başına ayrıldığı için (bkz. lib/characters/
+   experience-page.tsx) bu blok artık yalnızca bu sayfayla birlikte
+   yükleniyor.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı gereği
+   bir yerel sınıf şart (çıplak `:global([data-world])` derlemede reddedilir).
+   Kök öğe zaten ikisini birlikte taşıyor (bkz. kabuk bileşeni), yani seçici
+   tam olarak o düğüme oturuyor ve özgüllüğü kategori derisini de geçiyor.
+
+   Değerler kontrast ÖLÇÜLEREK seçildi: metin ailesi bg/surface/
+   surface-hover üzerinde AA (4.5:1) üstü, birincil metin AAA üstü,
+   accent zeminde en az 3:1. Değiştirirken yeniden ölç.
+   ============================================================ */
+.page[data-world="jiraiya"] {
+  --bg:             #0a0806;
+  --surface:        #12100c;
+  --surface-hover:  #1a1712;
+  --border:         #26211a;
+  --border-strong:  #372f25;
+
+  --text-primary:   #f2ebdd;
+  --text-secondary: #b7ab97;
+  --text-muted:     #a39885;
+
+  --accent:         #d1553c;
+  --accent-hover:   #ea6e52;
+  --accent-muted:   #722a1b;
+
+  --gold:           #d2b36b;
+  --warn:           #a6784a;
+  --danger:         #a6584a;
+
+  /* ── Yardımcı malzeme ailesi — yalnızca bu ağaç okur ── */
+  --jir-ink:         #050403;
+  --jir-paper:       #e6dbc2; /* parsomen */
+  --jir-frog:        #7a9c4a;
+  --jir-frog-text:   #a3c46f;
+  --jir-mount:       #4a5f3a; /* Myoubokuzan */
+  --jir-brush:       rgba(230, 219, 194, 0.12); /* firca izi */
+  --jir-oil:         rgba(122, 156, 74, 0.14); /* sennin yagi */
+  --jir-scroll:      rgba(210, 179, 107, 0.12);
+  --jir-glow-soft:   rgba(209, 85, 60, 0.2);
+  --jir-glow-strong: rgba(209, 85, 60, 0.45);
+}
+
+/* ============================================================
    JIRAIYA — "YAZARIN EL YAZMASI"
 
    Deri: kökteki `data-world="jiraiya"` bütün standart token'ları sıcak

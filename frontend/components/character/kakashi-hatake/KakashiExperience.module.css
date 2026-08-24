@@ -1,4 +1,56 @@
 /* ============================================================
+   DÜNYA DERİSİ — Kakashi Hatake
+
+   Bu blok 24 Ağustos 2026'da globals.css'ten BURAYA taşındı. Sebep
+   ölçüldü: karakter deneyim sayfası sayısı 35'e çıkınca globals'taki
+   palet yığını ~14,5 KB gzip'e ulaşıyordu ve sitenin HER sayfasında
+   iniyordu — hâlbuki her palet yalnızca tek bir sayfada okunuyor.
+   Rotalar sayfa başına ayrıldığı için (bkz. lib/characters/
+   experience-page.tsx) bu blok artık yalnızca bu sayfayla birlikte
+   yükleniyor.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı gereği
+   bir yerel sınıf şart (çıplak `:global([data-world])` derlemede reddedilir).
+   Kök öğe zaten ikisini birlikte taşıyor (bkz. kabuk bileşeni), yani seçici
+   tam olarak o düğüme oturuyor ve özgüllüğü kategori derisini de geçiyor.
+
+   Değerler kontrast ÖLÇÜLEREK seçildi: metin ailesi bg/surface/
+   surface-hover üzerinde AA (4.5:1) üstü, birincil metin AAA üstü,
+   accent zeminde en az 3:1. Değiştirirken yeniden ölç.
+   ============================================================ */
+.page[data-world="kakashi-hatake"] {
+  --bg:             #070a0c;
+  --surface:        #101519;
+  --surface-hover:  #182027;
+  --border:         #222c33;
+  --border-strong:  #334049;
+
+  --text-primary:   #e9eef1;
+  --text-secondary: #a5b1b9;
+  --text-muted:     #919da5;
+
+  --accent:         #5aa9d0;
+  --accent-hover:   #79c5e9;
+  --accent-muted:   #2f6280;
+
+  --gold:           #b9a06a;
+  --warn:           #a6784a;
+  --danger:         #a6584a;
+
+  /* ── Yardımcı malzeme ailesi — yalnızca bu ağaç okur ── */
+  --kks-kamui:          #8f6fd0; /* portal moru */
+  --kks-chidori:        #8fd8f2;
+  --kks-steel:          #8f9ba3;
+  --kks-sharingan:      #d0403f;
+  --kks-sharingan-text: #e75a58;
+  --kks-mask:           #1a2229;
+  --kks-void:           rgba(143, 111, 208, 0.14); /* Kamui girdabi */
+  --kks-paper:          rgba(233, 238, 241, 0.06); /* kopya kutugu fisi */
+  --kks-glow-soft:      rgba(90, 169, 208, 0.2);
+  --kks-glow-strong:    rgba(90, 169, 208, 0.45);
+}
+
+/* ============================================================
    KAKASHI HATAKE — "KOPYA KÜTÜĞÜ"
 
    Deri: kökteki `data-world="kakashi-hatake"` bütün standart token'ları

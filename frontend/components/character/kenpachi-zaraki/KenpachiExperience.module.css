@@ -1,4 +1,56 @@
 /* ============================================================
+   DÜNYA DERİSİ — Kenpachi Zaraki
+
+   Bu blok 24 Ağustos 2026'da globals.css'ten BURAYA taşındı. Sebep
+   ölçüldü: karakter deneyim sayfası sayısı 35'e çıkınca globals'taki
+   palet yığını ~14,5 KB gzip'e ulaşıyordu ve sitenin HER sayfasında
+   iniyordu — hâlbuki her palet yalnızca tek bir sayfada okunuyor.
+   Rotalar sayfa başına ayrıldığı için (bkz. lib/characters/
+   experience-page.tsx) bu blok artık yalnızca bu sayfayla birlikte
+   yükleniyor.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı gereği
+   bir yerel sınıf şart (çıplak `:global([data-world])` derlemede reddedilir).
+   Kök öğe zaten ikisini birlikte taşıyor (bkz. kabuk bileşeni), yani seçici
+   tam olarak o düğüme oturuyor ve özgüllüğü kategori derisini de geçiyor.
+
+   Değerler kontrast ÖLÇÜLEREK seçildi: metin ailesi bg/surface/
+   surface-hover üzerinde AA (4.5:1) üstü, birincil metin AAA üstü,
+   accent zeminde en az 3:1. Değiştirirken yeniden ölç.
+   ============================================================ */
+.page[data-world="kenpachi-zaraki"] {
+  --bg:             #090707;
+  --surface:        #121010;
+  --surface-hover:  #1b1717;
+  --border:         #272020;
+  --border-strong:  #3a2f2f;
+
+  --text-primary:   #f2eceb;
+  --text-secondary: #b3a7a5;
+  --text-muted:     #9e9290;
+
+  --accent:         #cd3f36;
+  --accent-hover:   #e6564c;
+  --accent-muted:   #6f1e19;
+
+  --gold:           #d0a744;
+  --warn:           #a6784a;
+  --danger:         #a6584a;
+
+  /* ── Yardımcı malzeme ailesi — yalnızca bu ağaç okur ── */
+  --knp-steel:       #9aa2a8; /* centikli celik */
+  --knp-steel-text:  #adb5bb;
+  --knp-notch:       #5f6669; /* centik golgesi */
+  --knp-scar:        #8f3a33;
+  --knp-eyepatch:    #1a1414;
+  --knp-spark:       #e8c44a; /* celige vuran kivilcim */
+  --knp-blood:       rgba(205, 63, 54, 0.16);
+  --knp-grit:        rgba(154, 162, 168, 0.08);
+  --knp-glow-soft:   rgba(205, 63, 54, 0.2);
+  --knp-glow-strong: rgba(205, 63, 54, 0.45);
+}
+
+/* ============================================================
    KENPACHI ZARAKI — ÇENTİK SAYACI
 
    Deri: kökteki `data-world="kenpachi-zaraki"` bütün standart token'ları

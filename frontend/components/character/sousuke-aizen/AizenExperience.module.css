@@ -1,4 +1,56 @@
 /* ============================================================
+   DÜNYA DERİSİ — Sousuke Aizen
+
+   Bu blok 24 Ağustos 2026'da globals.css'ten BURAYA taşındı. Sebep
+   ölçüldü: karakter deneyim sayfası sayısı 35'e çıkınca globals'taki
+   palet yığını ~14,5 KB gzip'e ulaşıyordu ve sitenin HER sayfasında
+   iniyordu — hâlbuki her palet yalnızca tek bir sayfada okunuyor.
+   Rotalar sayfa başına ayrıldığı için (bkz. lib/characters/
+   experience-page.tsx) bu blok artık yalnızca bu sayfayla birlikte
+   yükleniyor.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı gereği
+   bir yerel sınıf şart (çıplak `:global([data-world])` derlemede reddedilir).
+   Kök öğe zaten ikisini birlikte taşıyor (bkz. kabuk bileşeni), yani seçici
+   tam olarak o düğüme oturuyor ve özgüllüğü kategori derisini de geçiyor.
+
+   Değerler kontrast ÖLÇÜLEREK seçildi: metin ailesi bg/surface/
+   surface-hover üzerinde AA (4.5:1) üstü, birincil metin AAA üstü,
+   accent zeminde en az 3:1. Değiştirirken yeniden ölç.
+   ============================================================ */
+.page[data-world="sousuke-aizen"] {
+  --bg:             #06070c;
+  --surface:        #0e1018;
+  --surface-hover:  #161922;
+  --border:         #212533;
+  --border-strong:  #313749;
+
+  --text-primary:   #eef0f6;
+  --text-secondary: #a9afc0;
+  --text-muted:     #959bad;
+
+  --accent:         #9c86e2;
+  --accent-hover:   #b8a4f7;
+  --accent-muted:   #514282;
+
+  --gold:           #bcb9ab;
+  --warn:           #a6784a;
+  --danger:         #a6584a;
+
+  /* ── Yardımcı malzeme ailesi — yalnızca bu ağaç okur ── */
+  --azn-mirror:      #c8cede; /* ayna gumusu */
+  --azn-mirror-text: #d4d9e6;
+  --azn-hogyoku:     #7f4fd0; /* Hougyoku kuresi */
+  --azn-hollow:      #e8e4dd;
+  --azn-cold:        #5f83b8;
+  --azn-glass:       rgba(200, 206, 222, 0.1);
+  --azn-fracture:    rgba(200, 206, 222, 0.35); /* kirik cizgisi */
+  --azn-lie:         rgba(95, 131, 184, 0.14); /* ikinci gerceklik yikamasi */
+  --azn-glow-soft:   rgba(156, 134, 226, 0.18);
+  --azn-glow-strong: rgba(156, 134, 226, 0.42);
+}
+
+/* ============================================================
    SŌSUKE AIZEN — iki gerçeklik katmanı.
 
    Deri: kökteki `data-world="sousuke-aizen"` bütün standart token'ları

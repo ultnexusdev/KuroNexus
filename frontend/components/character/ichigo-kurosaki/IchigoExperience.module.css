@@ -1,4 +1,56 @@
 /* ============================================================
+   DÜNYA DERİSİ — Ichigo Kurosaki
+
+   Bu blok 24 Ağustos 2026'da globals.css'ten BURAYA taşındı. Sebep
+   ölçüldü: karakter deneyim sayfası sayısı 35'e çıkınca globals'taki
+   palet yığını ~14,5 KB gzip'e ulaşıyordu ve sitenin HER sayfasında
+   iniyordu — hâlbuki her palet yalnızca tek bir sayfada okunuyor.
+   Rotalar sayfa başına ayrıldığı için (bkz. lib/characters/
+   experience-page.tsx) bu blok artık yalnızca bu sayfayla birlikte
+   yükleniyor.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı gereği
+   bir yerel sınıf şart (çıplak `:global([data-world])` derlemede reddedilir).
+   Kök öğe zaten ikisini birlikte taşıyor (bkz. kabuk bileşeni), yani seçici
+   tam olarak o düğüme oturuyor ve özgüllüğü kategori derisini de geçiyor.
+
+   Değerler kontrast ÖLÇÜLEREK seçildi: metin ailesi bg/surface/
+   surface-hover üzerinde AA (4.5:1) üstü, birincil metin AAA üstü,
+   accent zeminde en az 3:1. Değiştirirken yeniden ölç.
+   ============================================================ */
+.page[data-world="ichigo-kurosaki"] {
+  --bg:             #08080a;
+  --surface:        #101115;
+  --surface-hover:  #191a20;
+  --border:         #24262e;
+  --border-strong:  #363944;
+
+  --text-primary:   #f3f3f0;
+  --text-secondary: #adafb6;
+  --text-muted:     #9799a1;
+
+  --accent:         #e04a48;
+  --accent-hover:   #f76664;
+  --accent-muted:   #7a2422;
+
+  --gold:           #c2b280;
+  --warn:           #a6784a;
+  --danger:         #a6584a;
+
+  /* ── Yardımcı malzeme ailesi — yalnızca bu ağaç okur ── */
+  --ich-hollow:      #e8e6df; /* maske beyazi */
+  --ich-hollow-text: #efece5;
+  --ich-bone:        #ddd8cc;
+  --ich-void:        #050506; /* maskenin ardindaki bosluk */
+  --ich-getsuga:     #4a7ce0;
+  --ich-quincy:      #7fc7e8;
+  --ich-crack:       rgba(232, 230, 223, 0.5); /* maske catlagi cizgisi */
+  --ich-ash:         rgba(232, 230, 223, 0.08);
+  --ich-glow-soft:   rgba(224, 74, 72, 0.2);
+  --ich-glow-strong: rgba(224, 74, 72, 0.45);
+}
+
+/* ============================================================
    ICHIGO KUROSAKI — "MASKENİN ÇATLAĞI"
 
    Deri: kökteki `data-world="ichigo-kurosaki"` bütün standart token'ları

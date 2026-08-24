@@ -1,4 +1,58 @@
 /* ============================================================
+   DÜNYA DERİSİ — Naruto Uzumaki
+
+   Bu blok 24 Ağustos 2026'da globals.css'ten BURAYA taşındı. Sebep
+   ölçüldü: karakter deneyim sayfası sayısı 35'e çıkınca globals'taki
+   palet yığını ~14,5 KB gzip'e ulaşıyordu ve sitenin HER sayfasında
+   iniyordu — hâlbuki her palet yalnızca tek bir sayfada okunuyor.
+   Rotalar sayfa başına ayrıldığı için (bkz. lib/characters/
+   experience-page.tsx) bu blok artık yalnızca bu sayfayla birlikte
+   yükleniyor.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı gereği
+   bir yerel sınıf şart (çıplak `:global([data-world])` derlemede reddedilir).
+   Kök öğe zaten ikisini birlikte taşıyor (bkz. kabuk bileşeni), yani seçici
+   tam olarak o düğüme oturuyor ve özgüllüğü kategori derisini de geçiyor.
+
+   Değerler kontrast ÖLÇÜLEREK seçildi: metin ailesi bg/surface/
+   surface-hover üzerinde AA (4.5:1) üstü, birincil metin AAA üstü,
+   accent zeminde en az 3:1. Değiştirirken yeniden ölç.
+   ============================================================ */
+.page[data-world="naruto-uzumaki"] {
+  --bg:             #06090f;
+  --surface:        #0d131c;
+  --surface-hover:  #141c28;
+  --border:         #1d2836;
+  --border-strong:  #2c3c4f;
+
+  --text-primary:   #eef2f7;
+  --text-secondary: #a8b4c2;
+  --text-muted:     #95a1af;
+
+  --accent:         #f2801f;
+  --accent-hover:   #ff9b3d;
+  --accent-muted:   #8a4a12;
+
+  --gold:           #e0b14b;
+  --warn:           #a6784a;
+  --danger:         #a6584a;
+
+  /* ── Yardımcı malzeme ailesi — yalnızca bu ağaç okur ── */
+  --nrt-chakra:       #f5a03c; /* manto chakrasi */
+  --nrt-kurama:       #d9522a; /* kuyruklu canavarin kizili */
+  --nrt-kurama-text:  #f0714a; /* ayni kimligin kucuk metin turevi */
+  --nrt-sage:         #e6c15a; /* sennin modu altini */
+  --nrt-rasengan:     #7ec8e8; /* spiral chakra mavisi */
+  --nrt-leaf:         #5f9c6a; /* Konoha yesili */
+  --nrt-night:        #0d1830; /* gece gogu — hero gradyani */
+  --nrt-seal:         #2a1c12; /* muhur murekkebi */
+  --nrt-spiral:       rgba(242, 128, 31, 0.12); /* filigran spiral */
+  --nrt-mist:         rgba(126, 200, 232, 0.1);
+  --nrt-glow-soft:    rgba(242, 128, 31, 0.2);
+  --nrt-glow-strong:  rgba(242, 128, 31, 0.45);
+}
+
+/* ============================================================
    NARUTO UZUMAKI — interaktif deneyim sayfası.
 
    Deri: kökteki `data-world="naruto-uzumaki"` bütün standart token'ları

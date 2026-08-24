@@ -1,4 +1,55 @@
 /* ============================================================
+   DÜNYA DERİSİ — Sakura Haruno
+
+   Bu blok 24 Ağustos 2026'da globals.css'ten BURAYA taşındı. Sebep
+   ölçüldü: karakter deneyim sayfası sayısı 35'e çıkınca globals'taki
+   palet yığını ~14,5 KB gzip'e ulaşıyordu ve sitenin HER sayfasında
+   iniyordu — hâlbuki her palet yalnızca tek bir sayfada okunuyor.
+   Rotalar sayfa başına ayrıldığı için (bkz. lib/characters/
+   experience-page.tsx) bu blok artık yalnızca bu sayfayla birlikte
+   yükleniyor.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı gereği
+   bir yerel sınıf şart (çıplak `:global([data-world])` derlemede reddedilir).
+   Kök öğe zaten ikisini birlikte taşıyor (bkz. kabuk bileşeni), yani seçici
+   tam olarak o düğüme oturuyor ve özgüllüğü kategori derisini de geçiyor.
+
+   Değerler kontrast ÖLÇÜLEREK seçildi: metin ailesi bg/surface/
+   surface-hover üzerinde AA (4.5:1) üstü, birincil metin AAA üstü,
+   accent zeminde en az 3:1. Değiştirirken yeniden ölç.
+   ============================================================ */
+.page[data-world="sakura-haruno"] {
+  --bg:             #0a070a;
+  --surface:        #130f14;
+  --surface-hover:  #1b161d;
+  --border:         #271f29;
+  --border-strong:  #392e3c;
+
+  --text-primary:   #f4ecf0;
+  --text-secondary: #b6a6b0;
+  --text-muted:     #a1929c;
+
+  --accent:         #4cbc88;
+  --accent-hover:   #6bd7a2;
+  --accent-muted:   #2a6849;
+
+  --gold:           #c9a86a;
+  --warn:           #a6784a;
+  --danger:         #a6584a;
+
+  /* ── Yardımcı malzeme ailesi — yalnızca bu ağaç okur ── */
+  --skr-blossom:      #ef85ab;
+  --skr-blossom-text: #f79cbc;
+  --skr-seal:         #9a5f86; /* Byakugou muhru */
+  --skr-medic:        #8fe8c8;
+  --skr-strength:     #e0574e; /* yumrugun kefesi */
+  --skr-petal:        rgba(239, 133, 171, 0.14);
+  --skr-crack:        rgba(224, 87, 78, 0.2); /* yarilan zemin */
+  --skr-glow-soft:    rgba(76, 188, 136, 0.2);
+  --skr-glow-strong:  rgba(76, 188, 136, 0.45);
+}
+
+/* ============================================================
    SAKURA HARUNO — "Byakugō · Üç Yıllık Birikim"
 
    Deri: kökteki `data-world="sakura-haruno"` bütün standart token'ları

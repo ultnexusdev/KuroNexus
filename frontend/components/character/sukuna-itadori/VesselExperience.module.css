@@ -1,4 +1,79 @@
 /* ============================================================
+   DÜNYA DERİSİ — Sukuna & Yuuji Itadori
+
+   Bu blok 24 Ağustos 2026'da globals.css'ten BURAYA taşındı. Sebep
+   ölçüldü: karakter deneyim sayfası sayısı 35'e çıkınca globals'taki
+   palet yığını ~14,5 KB gzip'e ulaşıyordu ve sitenin HER sayfasında
+   iniyordu — hâlbuki her palet yalnızca tek bir sayfada okunuyor.
+   Rotalar sayfa başına ayrıldığı için (bkz. lib/characters/
+   experience-page.tsx) bu blok artık yalnızca bu sayfayla birlikte
+   yükleniyor.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı gereği
+   bir yerel sınıf şart (çıplak `:global([data-world])` derlemede reddedilir).
+   Kök öğe zaten ikisini birlikte taşıyor (bkz. kabuk bileşeni), yani seçici
+   tam olarak o düğüme oturuyor ve özgüllüğü kategori derisini de geçiyor.
+
+   Değerler kontrast ÖLÇÜLEREK seçildi: metin ailesi bg/surface/
+   surface-hover üzerinde AA (4.5:1) üstü, birincil metin AAA üstü,
+   accent zeminde en az 3:1. Değiştirirken yeniden ölç.
+   ============================================================ */
+.page[data-world="sukuna-itadori"] {
+  --bg:             #0a0708;
+  --surface:        #130f10;
+  --surface-hover:  #1c1618;
+  --border:         #281f21;
+  --border-strong:  #3a2d30;
+
+  --text-primary:   #f4ece9;
+  --text-secondary: #b7a8a5;
+  --text-muted:     #a2938f;
+
+  --accent:         #e2645f;
+  --accent-hover:   #f97e78;
+  --accent-muted:   #7c2f2b;
+
+  --gold:           #cfa96a;
+  --warn:           #a6784a;
+  --danger:         #a6584a;
+
+  /* ── Yardımcı malzeme ailesi — yalnızca bu ağaç okur ── */
+  --vsl-human:              #e88a7a; /* Itadori: sicak ten */
+  --vsl-blossom:            #f2a6a0;
+  --vsl-curse:              #e01b2b; /* Sukuna: lanet kizili */
+  --vsl-curse-text:         #f4404e;
+  --vsl-mark:               #2a1418; /* yuzdeki lanet cizgileri */
+  --vsl-shrine:             #c9954a; /* Malevolent Shrine altini */
+  --vsl-cleave:             rgba(224, 27, 43, 0.55); /* kesik izi */
+  --vsl-veil:               rgba(10, 7, 8, 0.7);
+  --vsl-glow-soft:          rgba(226, 100, 95, 0.2);
+  --vsl-glow-strong:        rgba(226, 100, 95, 0.45);
+  --vsl-curse-glow-soft:    rgba(224, 27, 43, 0.22);
+  --vsl-curse-glow-strong:  rgba(224, 27, 43, 0.5);
+}
+
+/* Kontrol Sukuna'ya geçtiğinde AYNI ağaç soğuyor ve kararır. Nitelik
+   sayfanın kökünde (`data-vessel`), yani tek durum değişimi bütün
+   sayfayı çeviriyor — ikinci bir deri sınıfı gerekmiyor. */
+.page[data-world="sukuna-itadori"][data-vessel="sukuna"] {
+  --bg:             #070405;
+  --surface:        #0f090a;
+  --surface-hover:  #170f11;
+  --border:         #241618;
+  --border-strong:  #382124;
+
+  --text-primary:   #f6e9e7;
+  --text-secondary: #bda3a1;
+  --text-muted:     #a98f8d;
+
+  --accent:         #e01b2b;
+  --accent-hover:   #fa3a48;
+  --accent-muted:   #7a0d16;
+
+  --gold:           #c9954a;
+}
+
+/* ============================================================
    SUKUNA & YUUJI ITADORI — "KAP" deneyim sayfası.
 
    Deri: kökteki `data-world="sukuna-itadori"` bütün standart token'ları

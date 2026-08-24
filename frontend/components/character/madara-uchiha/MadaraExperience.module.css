@@ -39,3 +39,2025 @@
   --mad-glow-soft:  color-mix(in srgb, #5f6bb8 20%, transparent);
   --mad-glow-strong: color-mix(in srgb, #5f6bb8 45%, transparent);
 }
+
+/* ============================================================
+   MADARA UCHIHA — "YÜKSELEN ÖLÇEK"
+
+   Deri: kökteki `data-world="madara-uchiha"` bütün standart token'ları
+   soğuk griye çevirir; yardımcılar `--mad-*` (yukarıdaki blok). Bu
+   bloğun ALTINDA tek hex yok — ara tonların hepsi color-mix ile
+   token'lardan türetildi.
+
+   ── SAYFANIN FİKRİ ──────────────────────────────────────────────────────
+   ÖLÇEK. Sasuke'nin sayfası göz ve dikey yarık üstüne kurulu; bu sayfa
+   göz temalı DEĞİL. Madara'nın meselesi her aşamada dünyanın ona biraz
+   daha küçük gelmesi. Bu yüzden sayfanın kalbi altı basamaklı bir
+   tırmanış ve tırmanışta değişen şey içerik değil ÖLÇÜ: `--mad-scale`
+   tek bir çarpan olarak panelin `font-size`ına giriyor, panelin içindeki
+   her şey `em` ile ölçüldüğü için tek geçişte birlikte büyüyor. Aynı
+   çarpan satır aralığını açıyor (`line-height` calc'ı), boşluğu
+   genişletiyor (`--mad-air`), kart ızgarasını daraltıyor (`--mad-cols`)
+   ve kalan sıcaklığı söndürüyor (`--mad-warm`). Yukarı çıkıldıkça sayfa
+   seyreliyor ve soğuyor; en üstte tek cümle ve kül kalıyor.
+
+   ── SICAKLIK BÜTÇESİ ────────────────────────────────────────────────────
+   Sayfanın zemini soğuk ve gri. TEK sıcak renk `--mad-ember` ve o da
+   yalnızca üç yerde: hero'daki kor noktası, tırmanışta bulunduğun
+   basamağın treadı, kader çizelgesinin ilk noktası. `--mad-susanoo`
+   mavisi rüya moduna ve Susanoo iskeletine ayrıldı. `--accent` yalnızca
+   odak halkası ve bağlantı altı çizgisi.
+
+   ── TİPOGRAFİ ───────────────────────────────────────────────────────────
+   Display: Cinzel — Roma yazıt majüskülü. Seçim sebebi ölçek: bir anıtın
+   üstündeki harf küçükken de büyükken de aynı sesle okunur, bu sayfada
+   başlık 1 rem'den 5 rem'e çıkıyor. Kapital ailede negatif tracking
+   YOK; yazıt harfi hafif AÇILARAK büyür (letter-spacing .01em….05em).
+   Gövde: Petrona (geniş, düşük-orta kontrastlı metin serifi).
+   ⚠️ Ev kuralı: Petrona 2rem üstünde ASLA wght < 700.
+   Notasyon (etiket, künye değeri, basamak numarası): Inter + tabular-nums.
+   Japonca (filigran, kanji, motto): Yuji Boku fırça ailesi.
+
+   ── HAREKET ─────────────────────────────────────────────────────────────
+   Tek yazılmış an var: basamak değişince sayfanın nefes alması
+   (`--mad-climb` süresi + üstel yavaşlama). Geri kalanı ya durağan ya
+   da külün süzülmesi kadar yavaş. Bütün animasyonlar no-preference
+   kapısında; dosyanın sonunda reduce battaniyesi var.
+   ============================================================ */
+
+.page {
+  /* Süre ve easing — hareket sözlüğü */
+  --mad-dur-fast: 150ms;
+  --mad-dur: 300ms;
+  --mad-dur-slow: 720ms;
+  --mad-climb: 780ms; /* basamak geçişi: sayfanın nefes alma süresi */
+  --mad-ease: cubic-bezier(0.16, 1, 0.3, 1); /* üstel yavaşlama */
+  --mad-ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Geometri */
+  --mad-gutter: clamp(1rem, 4vw, 2.25rem);
+  --mad-content: min(100% - var(--mad-gutter) * 2, 74rem);
+  --mad-rise: clamp(1.5rem, 4.2vw, 3rem); /* sayfanın tek boşluk birimi */
+  --mad-measure: 64ch;
+  --mad-base: clamp(0.95rem, 1.5vw, 1.0625rem); /* tırmanışın taban ölçüsü */
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text-primary);
+  overflow-x: clip;
+  transition: background var(--mad-dur-slow) var(--mad-ease-soft);
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ============================================================
+   RÜYA KATMANI — SONSUZ TSUKUYOMI
+   Mod kapalıyken opaklık sıfır: DOM'da duruyor, hiç görünmüyor.
+   ============================================================ */
+.dreamLayer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    radial-gradient(
+      ellipse 120% 70% at 50% -10%,
+      var(--mad-dream) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 90% 60% at 50% 110%,
+      var(--mad-glow-soft) 0%,
+      transparent 72%
+    );
+  transition: opacity var(--mad-dur-slow) var(--mad-ease-soft);
+}
+
+.page[data-dream] .dreamLayer {
+  opacity: 1;
+}
+
+.dreamRootsStart,
+.dreamRootsEnd {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: clamp(3.5rem, 13vw, 12rem);
+  color: var(--mad-susanoo);
+  opacity: 0.42;
+}
+
+.dreamRootsStart {
+  left: 0;
+}
+
+/* Aynı çizim aynalanıyor — ikinci bir SVG yok */
+.dreamRootsEnd {
+  right: 0;
+  scale: -1 1;
+}
+
+/* ── Mod düğmesi ─────────────────────────────────────────────────────── */
+.dreamToggle {
+  position: fixed;
+  right: clamp(0.75rem, 3vw, 1.75rem);
+  bottom: calc(clamp(0.75rem, 3vw, 1.75rem) + var(--music-bar, 0px));
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: var(--touch-min);
+  padding: 0.5rem 1.1rem 0.5rem 0.65rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: blur(7px);
+  color: var(--text-secondary);
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 12px 30px -16px color-mix(in srgb, var(--bg) 90%, transparent);
+  transition:
+    color var(--mad-dur) var(--mad-ease-soft),
+    border-color var(--mad-dur) var(--mad-ease-soft),
+    box-shadow var(--mad-dur) var(--mad-ease-soft);
+}
+
+.dreamToggle:hover {
+  color: var(--text-primary);
+  border-color: var(--accent-muted);
+}
+
+.dreamToggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.dreamToggle[aria-pressed="true"] {
+  color: var(--text-primary);
+  border-color: color-mix(in srgb, var(--mad-susanoo) 55%, var(--border-strong));
+  box-shadow:
+    0 0 0 1px var(--mad-glow-soft),
+    0 18px 40px -18px var(--mad-glow-strong);
+}
+
+.dreamToggleGlyph {
+  width: 1.5rem;
+  height: 1.5rem;
+  flex: none;
+  color: var(--text-muted);
+  transition:
+    color var(--mad-dur) var(--mad-ease-soft),
+    rotate var(--mad-dur-slow) var(--mad-ease);
+}
+
+.dreamToggle[aria-pressed="true"] .dreamToggleGlyph {
+  color: var(--mad-susanoo);
+  rotate: -18deg;
+}
+
+.dreamToggleLabel {
+  white-space: nowrap;
+}
+
+.dreamNotice {
+  position: fixed;
+  right: clamp(0.75rem, 3vw, 1.75rem);
+  bottom: calc(clamp(0.75rem, 3vw, 1.75rem) + var(--music-bar, 0px) + 3.6rem);
+  z-index: 59;
+  max-width: min(24rem, calc(100vw - 2rem));
+  margin: 0;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid color-mix(in srgb, var(--mad-susanoo) 32%, transparent);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: blur(7px);
+  text-align: right;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.75rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  pointer-events: none;
+}
+
+.dreamNotice:empty {
+  display: none;
+}
+
+/* ── Rüya satırı: yalnızca modda görünür, HER ZAMAN etiketli ─────────── */
+.dreamLine {
+  display: none;
+  margin: 0.9rem 0 0;
+  padding-left: 0.9rem;
+  border-left: 1px solid color-mix(in srgb, var(--mad-susanoo) 45%, transparent);
+  max-width: 46ch;
+}
+
+.page[data-dream] .dreamLine {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.dreamTag {
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--mad-susanoo) 70%, var(--text-primary));
+}
+
+.dreamText {
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: color-mix(in srgb, var(--text-secondary) 82%, var(--mad-susanoo));
+  text-wrap: pretty;
+}
+
+/* ============================================================
+   BREADCRUMB
+   ============================================================ */
+.crumb {
+  position: relative;
+  z-index: 1;
+  width: var(--mad-content);
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-block: 0.75rem;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.crumb a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--mad-dur-fast) var(--mad-ease-soft);
+}
+
+.crumb a:hover {
+  color: var(--text-primary);
+}
+
+.crumb a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.crumbSep {
+  color: var(--border-strong);
+}
+
+/* ============================================================
+   1 · HERO — KÜL YAĞARKEN
+   Sol sütun metin, sağ sütun portre. Uzun saç silueti portrenin
+   üstünden inip kadrajı kesiyor; arkada kül süzülüyor.
+   ============================================================ */
+.hero {
+  position: relative;
+  z-index: 1;
+  width: var(--mad-content);
+  margin-inline: auto;
+  min-height: min(86svh, 52rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--mad-gutter);
+  padding-block: calc(var(--mad-rise) * 1.1) calc(var(--mad-rise) * 1.6);
+  isolation: isolate;
+}
+
+.heroScene {
+  position: absolute;
+  inset: calc(var(--mad-rise) * -0.5) calc(var(--mad-gutter) * -1);
+  z-index: -2;
+  overflow: hidden;
+}
+
+.heroScene img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.72) contrast(1.05) brightness(0.52);
+}
+
+.heroScrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    var(--bg) 3%,
+    color-mix(in srgb, var(--bg) 62%, transparent) 52%,
+    color-mix(in srgb, var(--bg) 86%, transparent) 100%
+  );
+}
+
+/* Kül serpintisi. `--mad-ruin` bu ailenin yıkama tonu (mad-ash %7);
+   noktalar aynı aileden ama görünürlük eşiğine çekildi — %7'de
+   serpinti hiç çizilmemiş gibi okunuyordu. */
+.heroAsh {
+  position: absolute;
+  inset: calc(var(--mad-rise) * -1) calc(var(--mad-gutter) * -1) 0;
+  z-index: -1;
+  width: auto;
+  height: auto;
+  color: var(--mad-ash);
+  pointer-events: none;
+  mask-image: linear-gradient(to bottom, black 0%, black 62%, transparent 100%);
+}
+
+.fleck {
+  opacity: 0.2;
+}
+
+.fleck[data-band="2"] {
+  opacity: 0.13;
+}
+
+.fleck[data-band="3"] {
+  opacity: 0.28;
+}
+
+/* Üç bant üç ayrı yön ve hızda süzülüyor: tek katman gibi değil,
+   derinliği olan bir serpinti okunsun diye. Kül "düşmüyor", asılı
+   kalıp ağır ağır kayıyor — sayfanın hızı bu. */
+@media (prefers-reduced-motion: no-preference) {
+  .fleck {
+    animation: madDriftNear 26s var(--mad-ease-soft) infinite alternate;
+  }
+
+  .fleck[data-band="2"] {
+    animation: madDriftFar 41s var(--mad-ease-soft) -9s infinite alternate;
+  }
+
+  .fleck[data-band="3"] {
+    animation: madDriftCross 19s var(--mad-ease-soft) -4s infinite alternate;
+  }
+}
+
+@keyframes madDriftNear {
+  from {
+    translate: 0 -14px;
+  }
+  to {
+    translate: -6px 16px;
+  }
+}
+
+@keyframes madDriftFar {
+  from {
+    translate: 4px -6px;
+  }
+  to {
+    translate: -2px 9px;
+  }
+}
+
+@keyframes madDriftCross {
+  from {
+    translate: -9px -18px;
+  }
+  to {
+    translate: 7px 20px;
+  }
+}
+
+/* Filigran: klan adı, kadrajın sol üstünde, gövdenin ardında */
+.heroMark {
+  position: absolute;
+  top: calc(var(--mad-rise) * -0.2);
+  left: calc(var(--mad-gutter) * -0.4);
+  z-index: -1;
+  margin: 0;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(5rem, 22vw, 16rem);
+  line-height: 0.85;
+  letter-spacing: 0.02em;
+  color: color-mix(in srgb, var(--text-primary) 5%, transparent);
+  user-select: none;
+  pointer-events: none;
+}
+
+.heroBody {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.45rem;
+  max-width: 40ch;
+}
+
+.heroName {
+  margin: 0;
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: clamp(2.4rem, 7.6vw, 5.25rem);
+  font-weight: 700;
+  line-height: 1.04;
+  letter-spacing: 0.012em;
+  text-wrap: balance;
+  color: var(--text-primary);
+  transition: color var(--mad-dur-slow) var(--mad-ease-soft);
+}
+
+/* Ad altındaki künye satırı: ana dildeki ad · klan */
+.heroMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.7rem;
+  margin: 0.55rem 0 0;
+}
+
+.heroNative {
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(1rem, 2.4vw, 1.4rem);
+  letter-spacing: 0.26em;
+  color: var(--text-muted);
+}
+
+.heroSep {
+  color: var(--border-strong);
+}
+
+.heroClan {
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.heroEpigraph {
+  margin: calc(var(--mad-rise) * 0.55) 0 0;
+  max-width: 34ch;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: clamp(1.1rem, 2.1vw, 1.45rem);
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--text-primary);
+  text-wrap: pretty;
+}
+
+.heroLede {
+  margin: 0.5rem 0 0;
+  max-width: 44ch;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.heroAside {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1rem;
+  width: clamp(9rem, 24vw, 15rem);
+}
+
+/* Saç silueti: portrenin üstünden başlayıp kadrajın altına iniyor.
+   Zemin rengiyle aynı aileden bir ton — çizim gibi değil, kadrajın
+   kesildiği yer gibi okunsun. */
+.heroHair {
+  position: absolute;
+  top: calc(var(--mad-rise) * -1.8);
+  right: calc(var(--mad-gutter) * -1.2);
+  width: 132%;
+  height: calc(100% + var(--mad-rise) * 3.4);
+  color: color-mix(in srgb, var(--bg) 78%, var(--mad-ash));
+  pointer-events: none;
+  mask-image: linear-gradient(to bottom, black 46%, transparent 96%);
+}
+
+.heroPortrait {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  filter: grayscale(0.62) contrast(1.08) brightness(0.92);
+  box-shadow: 0 30px 60px -40px color-mix(in srgb, var(--bg) 92%, transparent);
+  transition: filter var(--mad-dur-slow) var(--mad-ease);
+}
+
+.heroPortrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 16%;
+}
+
+.hero:hover .heroPortrait {
+  filter: grayscale(0.2) contrast(1.04) brightness(1);
+}
+
+.emberNote {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  margin: 0;
+  max-width: 24ch;
+  text-align: right;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+}
+
+.ember {
+  flex: none;
+  margin-top: 0.45rem;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--mad-ember);
+  box-shadow:
+    0 0 9px var(--mad-ember),
+    0 0 26px color-mix(in srgb, var(--mad-ember) 45%, transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ember {
+    animation: madEmber 6s var(--mad-ease-soft) infinite alternate;
+  }
+}
+
+@keyframes madEmber {
+  from {
+    opacity: 0.5;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ============================================================
+   BÖLÜM İSKELETİ
+   ============================================================ */
+.section,
+.climbSection,
+.closing {
+  position: relative;
+  z-index: 1;
+  width: var(--mad-content);
+  margin-inline: auto;
+  padding-block: calc(var(--mad-rise) * 1.35);
+}
+
+/* Bölümler arası tek çizgi: ölçü şeridinin devamı gibi okunsun diye
+   soldan başlayıp sağa doğru sönüyor. */
+.section::before,
+.climbSection::before,
+.closing::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    var(--border-strong),
+    color-mix(in srgb, var(--border) 40%, transparent) 70%,
+    transparent
+  );
+}
+
+.sectionHead {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin-bottom: calc(var(--mad-rise) * 0.85);
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: clamp(1.6rem, 3.6vw, 2.6rem);
+  font-weight: 700;
+  line-height: 1.14;
+  letter-spacing: 0.016em;
+  color: var(--text-primary);
+  text-wrap: balance;
+  transition: color var(--mad-dur-slow) var(--mad-ease-soft);
+}
+
+.sectionLede {
+  margin: 0;
+  max-width: 52ch;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* Kurator yuvaları — ziyaretçide hiç çizilmiyor */
+.slotRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+/* ============================================================
+   2 · KÜNYE
+   Etiket Inter, değer Petrona. Hücreler tek piksellik bir ızgarayla
+   ayrılıyor — künye bir tablo değil, bir tutanak.
+   ============================================================ */
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 1px;
+  margin: 0;
+  background: var(--border);
+  border-block: 1px solid var(--border);
+}
+
+.fact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 1.2rem 1.15rem;
+  background: var(--bg);
+  transition: background var(--mad-dur) var(--mad-ease-soft);
+}
+
+.fact:hover {
+  background: var(--surface);
+}
+
+.fact dt {
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.fact dd {
+  margin: 0;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.45;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+}
+
+.factsNote {
+  margin: 1rem 0 0;
+  max-width: var(--mad-measure);
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.75rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   3 · ÖLÇÜSÜ OLANLAR
+   Beş portre yatay bir ölçü şeridinde. Portreler dikdörtgen ve
+   üstten kırpılı; ağırlığı olan (denk / bedel) iki isim daha uzun
+   kadraja oturuyor — ölçek burada da düzenle anlatılıyor.
+   ============================================================ */
+.measures {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: calc(var(--mad-rise) * 0.6) 1.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.measure {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  transition: border-color var(--mad-dur) var(--mad-ease-soft);
+}
+
+.measure:hover {
+  border-color: var(--border-strong);
+}
+
+.measure[data-weight="equal"] {
+  border-top-color: color-mix(in srgb, var(--mad-ash) 55%, transparent);
+}
+
+.measure[data-weight="price"] {
+  border-top-color: color-mix(in srgb, var(--mad-ember) 45%, transparent);
+}
+
+.measure[data-weight="break"] {
+  border-top-color: color-mix(in srgb, var(--mad-susanoo) 45%, transparent);
+}
+
+.measureArt {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.measure[data-weight="equal"] .measureArt,
+.measure[data-weight="price"] .measureArt {
+  aspect-ratio: 3 / 4;
+}
+
+.measureArt img {
+  object-fit: cover;
+  object-position: 50% 20%;
+  filter: grayscale(0.78) contrast(1.05) brightness(0.85);
+  transition: filter var(--mad-dur) var(--mad-ease-soft);
+}
+
+.measure:hover .measureArt img {
+  filter: grayscale(0.25) contrast(1.02) brightness(0.98);
+}
+
+.measureBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.measureRole {
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.measure[data-weight="price"] .measureRole {
+  color: color-mix(in srgb, var(--mad-ember) 62%, var(--text-muted));
+}
+
+.measure[data-weight="break"] .measureRole {
+  color: color-mix(in srgb, var(--mad-susanoo) 62%, var(--text-muted));
+}
+
+.measureName {
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 0.012em;
+  color: var(--text-primary);
+}
+
+.measureNote {
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* ============================================================
+   4 · ÜÇ BÜYÜK ÖLÇEK
+   Kart değil: her teknik kendi sahnesiyle birlikte tam genişlikte
+   bir blok. Sahne solda, metin sağda; sahne yüksek çünkü anlatılan
+   şey büyüklük.
+   ============================================================ */
+.arsenal {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--mad-rise) * 1.1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.arsenalItem {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 0.55fr) minmax(0, 1fr);
+  gap: calc(var(--mad-rise) * 0.8);
+  align-items: start;
+}
+
+/* Sahne bir dikilitaş oranında: anlatılan şey büyüklük olduğu için
+   kadraj yatay değil DİKEY. Yüksekliği yine de sınırlı — metnin yanında
+   boş bir sütun bırakmasın. */
+.arsenalStage {
+  position: relative;
+  display: block;
+  aspect-ratio: 3 / 4;
+  max-height: 30rem;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--surface) 70%, var(--bg)),
+    var(--bg)
+  );
+}
+
+.arsenalGlyph {
+  position: absolute;
+  inset: 8% 12%;
+  width: 76%;
+  height: 84%;
+  color: var(--mad-susanoo);
+  opacity: 0.5;
+  mask-image: linear-gradient(to bottom, black 55%, transparent 98%);
+  transition: opacity var(--mad-dur-slow) var(--mad-ease);
+}
+
+.arsenalItem:hover .arsenalGlyph {
+  opacity: 0.75;
+}
+
+.arsenalArt {
+  position: absolute;
+  inset: 0;
+}
+
+.arsenalArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.6) contrast(1.06) brightness(0.8);
+  transition: filter var(--mad-dur-slow) var(--mad-ease);
+}
+
+.arsenalItem:hover .arsenalArt img {
+  filter: grayscale(0.25) contrast(1.02) brightness(0.94);
+}
+
+.arsenalBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+/* Kanji sahnenin İÇİNDE, dikey sütun hâlinde: görsel yuvası boşken
+   sahneyi tek başına taşıyor, doluyken görselin üstünde imza gibi
+   duruyor. */
+.arsenalKanji {
+  position: absolute;
+  left: 6%;
+  bottom: 5%;
+  writing-mode: vertical-rl;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(1.8rem, 5.5vw, 3.2rem);
+  line-height: 1;
+  letter-spacing: 0.12em;
+  color: color-mix(in srgb, var(--text-primary) 30%, transparent);
+  transition: color var(--mad-dur) var(--mad-ease-soft);
+}
+
+.arsenalItem:hover .arsenalKanji {
+  color: color-mix(in srgb, var(--mad-susanoo) 70%, transparent);
+}
+
+.arsenalName {
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: clamp(1.3rem, 2.8vw, 1.85rem);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.014em;
+  color: var(--text-primary);
+}
+
+.arsenalTurkish {
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.arsenalTagline {
+  margin-top: 0.45rem;
+  max-width: 42ch;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.55;
+  color: color-mix(in srgb, var(--mad-ash) 82%, var(--text-primary));
+}
+
+.arsenalText {
+  max-width: var(--mad-measure);
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1rem;
+  line-height: 1.85;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.traits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.65rem;
+}
+
+.trait {
+  padding: 0.32rem 0.7rem;
+  border: 1px solid var(--border);
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   5 · DÖRT KÜÇÜK ÖLÇEK
+   Üç büyüğün ardından bilinçli olarak KÜÇÜK: dört kutu, tek piksellik
+   ızgarada, metin kısa.
+   ============================================================ */
+.tools {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+
+.tool {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 1.45rem 1.3rem 1.6rem;
+  background: var(--bg);
+  overflow: hidden;
+  transition: background var(--mad-dur) var(--mad-ease-soft);
+}
+
+.tool:hover {
+  background: var(--surface);
+}
+
+.toolArt {
+  position: absolute;
+  inset: auto 0 0 auto;
+  width: 62%;
+  aspect-ratio: 1;
+  opacity: 0.16;
+  mask-image: radial-gradient(circle at 80% 90%, black 18%, transparent 70%);
+  transition: opacity var(--mad-dur-slow) var(--mad-ease);
+}
+
+.toolArt:empty {
+  display: none;
+}
+
+.toolArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.7);
+}
+
+.tool:hover .toolArt {
+  opacity: 0.28;
+}
+
+/* Gunbai çizimi: kutunun sağ alt köşesinde, metnin altında */
+.toolGlyph {
+  position: absolute;
+  right: -1.4rem;
+  bottom: -1.8rem;
+  width: 8.5rem;
+  height: 11.5rem;
+  color: var(--mad-ash);
+  opacity: 0.14;
+  rotate: -12deg;
+  pointer-events: none;
+  transition:
+    opacity var(--mad-dur-slow) var(--mad-ease),
+    rotate var(--mad-dur-slow) var(--mad-ease);
+}
+
+.tool:hover .toolGlyph {
+  opacity: 0.24;
+  rotate: -6deg;
+}
+
+/* Ay Gözü Planı kutusunun işareti — kutunun sağ üstünde, küçük */
+.toolMoon {
+  position: absolute;
+  top: 1.35rem;
+  right: 1.2rem;
+  width: 1.6rem;
+  height: 1.6rem;
+  color: color-mix(in srgb, var(--mad-susanoo) 55%, transparent);
+  pointer-events: none;
+  transition: color var(--mad-dur) var(--mad-ease-soft);
+}
+
+.tool:hover .toolMoon {
+  color: var(--mad-susanoo);
+}
+
+.toolName {
+  position: relative;
+  padding-right: 2.4rem; /* sağ üst köşedeki işaretin payı */
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: 0.014em;
+  color: var(--text-primary);
+}
+
+.toolNote {
+  position: relative;
+  max-width: 38ch;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 0.9375rem;
+  line-height: 1.75;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* ============================================================
+   6 · YÜKSELEN BASAMAKLAR — SAYFANIN KALBİ
+
+   Bütün bölüm tek bir çarpandan besleniyor:
+     --mad-scale : tipografi ölçeği (panelin font-size'ı)
+     --mad-air   : boşluk çarpanı (gap + padding)
+     --mad-cols  : kart ızgarasının sütun sayısı
+     --mad-warm  : kalan sıcaklık (kor → kül)
+   Panelin içindeki her ölçü `em` cinsinden, yani tek bir font-size
+   geçişi bütün paneli birlikte büyütüyor. Sayfanın tek yazılmış anı bu.
+   ============================================================ */
+.climbSection {
+  padding-block: calc(var(--mad-rise) * 1.6);
+}
+
+.climb {
+  --mad-scale: 1;
+  --mad-air: 1;
+  --mad-cols: 3;
+  --mad-warm: 100%;
+
+  display: grid;
+  grid-template-columns: minmax(0, 17rem) minmax(0, 1fr);
+  gap: calc(var(--mad-rise) * 0.9);
+  align-items: start;
+}
+
+.climb[data-step="2"] {
+  --mad-scale: 1.14;
+  --mad-air: 1.25;
+  --mad-cols: 2;
+  --mad-warm: 74%;
+}
+
+.climb[data-step="3"] {
+  --mad-scale: 1.3;
+  --mad-air: 1.55;
+  --mad-cols: 2;
+  --mad-warm: 52%;
+}
+
+.climb[data-step="4"] {
+  --mad-scale: 1.5;
+  --mad-air: 1.9;
+  --mad-cols: 2;
+  --mad-warm: 32%;
+}
+
+.climb[data-step="5"] {
+  --mad-scale: 1.74;
+  --mad-air: 2.3;
+  --mad-cols: 1;
+  --mad-warm: 14%;
+}
+
+.climb[data-step="6"] {
+  --mad-scale: 2;
+  --mad-air: 2.8;
+  --mad-cols: 1;
+  --mad-warm: 0%;
+}
+
+/* ── Merdiven: basamaklar yukarı doğru hem uzuyor hem aralanıyor ──────
+   Görsel sıra DOM sırasının tersi (column-reverse): tırmanış aşağıdan
+   başlar. Okuma sırası 1 → 6 kalıyor, her sekmenin erişilebilir adı
+   kendi numarasını söylüyor. */
+.rail {
+  position: sticky;
+  top: calc(var(--mad-rise) * 0.6);
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 0.35rem;
+  padding-left: 0.9rem;
+  border-left: 1px solid var(--border);
+}
+
+.rung {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: var(--touch-min);
+  padding: 0.35rem 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  transition: opacity var(--mad-dur) var(--mad-ease-soft);
+}
+
+.rung:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+/* Basamak arası mesafe yukarı çıktıkça açılıyor: merdivenin kendisi de
+   ölçek anlatıyor */
+.rung[data-rung="2"] {
+  padding-block: 0.45rem;
+}
+
+.rung[data-rung="3"] {
+  padding-block: 0.6rem;
+}
+
+.rung[data-rung="4"] {
+  padding-block: 0.8rem;
+}
+
+.rung[data-rung="5"] {
+  padding-block: 1.05rem;
+}
+
+.rung[data-rung="6"] {
+  padding-block: 1.35rem;
+}
+
+/* Tread: basamağın kendisi. Uzunluğu o basamaktaki ölçüyü gösteriyor. */
+.tread {
+  display: block;
+  height: 2px;
+  background: var(--border-strong);
+  transition:
+    width var(--mad-climb) var(--mad-ease),
+    height var(--mad-dur) var(--mad-ease-soft),
+    background var(--mad-dur) var(--mad-ease-soft),
+    box-shadow var(--mad-dur) var(--mad-ease-soft);
+}
+
+.rung[data-rung="1"] .tread {
+  width: 17%;
+}
+
+.rung[data-rung="2"] .tread {
+  width: 31%;
+}
+
+.rung[data-rung="3"] .tread {
+  width: 46%;
+}
+
+.rung[data-rung="4"] .tread {
+  width: 63%;
+}
+
+.rung[data-rung="5"] .tread {
+  width: 81%;
+}
+
+.rung[data-rung="6"] .tread {
+  width: 100%;
+}
+
+.rung[data-state="ahead"] .tread {
+  background: var(--border);
+}
+
+.rung[data-state="climbed"] .tread {
+  background: color-mix(in srgb, var(--mad-ash) 42%, transparent);
+}
+
+/* Bulunduğun basamak: kalan sıcaklık kadar kor, gerisi kül. En üstte
+   `--mad-warm: 0%` olduğu için son basamak tamamen soğuk yanar. */
+.rung[data-state="here"] .tread {
+  height: 3px;
+  background: color-mix(in srgb, var(--mad-ember) var(--mad-warm), var(--mad-ash));
+  box-shadow: 0 0 18px -3px
+    color-mix(in srgb, var(--mad-ember) calc(var(--mad-warm) * 0.5), transparent);
+}
+
+.rungText {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.rungIndex {
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  transition: color var(--mad-dur) var(--mad-ease-soft);
+}
+
+.rungReach {
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
+  color: var(--text-muted);
+  transition: color var(--mad-dur) var(--mad-ease-soft);
+}
+
+.rung[data-state="ahead"] .rungIndex,
+.rung[data-state="ahead"] .rungReach {
+  color: color-mix(in srgb, var(--text-muted) 52%, transparent);
+}
+
+.rung[data-state="here"] .rungIndex,
+.rung[data-state="here"] .rungReach {
+  color: var(--text-primary);
+}
+
+.rung:hover .rungIndex,
+.rung:hover .rungReach {
+  color: var(--text-secondary);
+}
+
+/* ── Panel: ölçeği taşıyan gövde ─────────────────────────────────────── */
+.climbBody {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--mad-rise) * 0.7);
+  min-width: 0;
+}
+
+.panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: calc(0.5em * var(--mad-air));
+  min-height: calc(20rem + var(--mad-air) * 3.4rem);
+  padding: calc(1.25em * var(--mad-air)) calc(1.3em * var(--mad-air));
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 55%, var(--bg));
+  overflow: hidden;
+  font-size: calc(var(--mad-base) * var(--mad-scale));
+  line-height: calc(1.55 + (var(--mad-scale) - 1) * 0.45);
+  box-shadow: 0 30px 60px -50px color-mix(in srgb, var(--bg) 95%, transparent);
+  transition:
+    font-size var(--mad-climb) var(--mad-ease),
+    gap var(--mad-climb) var(--mad-ease),
+    padding var(--mad-climb) var(--mad-ease),
+    min-height var(--mad-climb) var(--mad-ease),
+    background var(--mad-climb) var(--mad-ease);
+}
+
+/* `hidden` niteliğini geri kazandır: display:flex onu ezerdi */
+.panel[hidden] {
+  display: none;
+}
+
+.panel:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* Basamak görseli: ölçek büyüdükçe soluyor — yukarısı seyrek ve soğuk */
+.panelArt {
+  position: absolute;
+  inset: 0;
+  opacity: calc(0.3 - (var(--mad-scale) - 1) * 0.26);
+  mask-image: linear-gradient(to top, transparent 12%, black 100%);
+  transition: opacity var(--mad-climb) var(--mad-ease);
+}
+
+.panelArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.72) contrast(1.05) brightness(0.72);
+}
+
+/* Dönem satırı: başlığın altında, künye sesiyle. Kalan sıcaklığı
+   taşıyan tek metin — yukarı çıkıldıkça kül rengine iniyor. */
+.panelEra {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  margin: 0;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6em;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: color-mix(
+    in srgb,
+    var(--mad-ember) calc(var(--mad-warm) * 0.55),
+    var(--text-muted)
+  );
+  transition: color var(--mad-climb) var(--mad-ease);
+}
+
+.panelTitle {
+  position: relative;
+  margin: 0.05em 0 0;
+  font-family: var(--font-cinzel), Georgia, serif;
+  /* Ölçek büyürken de dar ekranda taşmasın: em ile vw'nin küçüğü */
+  font-size: min(2.25em, 12.5vw);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.012em;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.panelText {
+  position: relative;
+  margin: 0;
+  max-width: min(100%, 33em);
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1em;
+  font-weight: 400;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* En üst basamakta tek cümle kalıyor ve o cümle gövde değil bir levha:
+   büyüyen ölçeğe uygun ağırlık (ev kuralı: 2rem üstü Petrona >= 700). */
+.climb[data-step="6"] .panelText {
+  max-width: 22em;
+  font-size: 1.5em;
+  font-weight: 700;
+  line-height: 1.45;
+  color: var(--text-primary);
+}
+
+.panelCards {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--mad-cols), minmax(0, 1fr));
+  gap: calc(0.75em * var(--mad-air));
+  margin: calc(0.7em * var(--mad-air)) 0 0;
+  padding: 0;
+  list-style: none;
+  transition:
+    gap var(--mad-climb) var(--mad-ease),
+    margin var(--mad-climb) var(--mad-ease);
+}
+
+.panelCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3em;
+  padding-top: 0.7em;
+  border-top: 1px solid var(--border);
+}
+
+.panelCardTitle {
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.62em;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.panelCardNote {
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 0.82em;
+  line-height: 1.7;
+  color: var(--text-muted);
+  text-wrap: pretty;
+}
+
+/* ── Tırmanışın ayağı: ölçü okuması, düğmeler, klavye notu ──────────── */
+.climbFoot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.9rem 1.5rem;
+}
+
+.climbScale {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin: 0;
+  margin-right: auto;
+}
+
+.climbScaleLabel {
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.climbScaleValue {
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: clamp(1.05rem, 2.4vw, 1.5rem);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--text-primary);
+}
+
+.climbNav {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.navButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: var(--touch-min);
+  padding: 0 1.05rem;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    color var(--mad-dur-fast) var(--mad-ease-soft),
+    border-color var(--mad-dur-fast) var(--mad-ease-soft),
+    background var(--mad-dur-fast) var(--mad-ease-soft);
+}
+
+.navButton:hover:not(:disabled) {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+  background: var(--surface);
+}
+
+.navButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.navButton:disabled {
+  opacity: 0.32;
+  cursor: default;
+}
+
+.climbHint {
+  flex: 1 0 100%;
+  margin: 0;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   7 · KADER ÇİZELGESİ
+   Dönem sütunu solda dikey bir hatta dizili; kayıtlar hattın sağında.
+   İlk noktada kor var, sonrakiler küle iniyor — çizelge de soğuyor.
+   ============================================================ */
+.fate {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--mad-rise) * 0.9);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fateItem {
+  position: relative;
+  display: grid;
+  grid-template-columns: 8.5rem minmax(0, 1fr);
+  gap: 1.5rem;
+}
+
+.fateItem::before {
+  content: "";
+  position: absolute;
+  left: calc(8.5rem - 0.75rem);
+  top: 0.7rem;
+  bottom: calc(var(--mad-rise) * -0.9);
+  width: 1px;
+  background: var(--border);
+}
+
+.fateItem:last-child::before {
+  bottom: 0.5rem;
+}
+
+.fateItem::after {
+  content: "";
+  position: absolute;
+  left: calc(8.5rem - 0.75rem - 3px);
+  top: 0.55rem;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--mad-ash);
+}
+
+.fateItem:first-child::after {
+  background: var(--mad-ember);
+  box-shadow: 0 0 14px -2px color-mix(in srgb, var(--mad-ember) 60%, transparent);
+}
+
+.fateAge {
+  margin: 0;
+  padding-top: 0.15rem;
+  padding-right: 1.5rem;
+  text-align: right;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+.fateBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.fateTitle {
+  margin: 0;
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: clamp(1.15rem, 2.5vw, 1.55rem);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 0.014em;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.fateText {
+  margin: 0;
+  max-width: var(--mad-measure);
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1rem;
+  line-height: 1.85;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.fateQuote {
+  margin: 0.6rem 0 0;
+  padding-left: 1.15rem;
+  border-left: 1px solid var(--accent-muted);
+}
+
+.fateQuote blockquote {
+  margin: 0;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.55;
+  color: var(--text-primary);
+}
+
+.fateQuote figcaption {
+  margin-top: 0.45rem;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.fateArt {
+  position: relative;
+  grid-column: 2;
+  display: block;
+  width: 100%;
+  max-width: 34rem;
+  aspect-ratio: 21 / 9;
+  margin-top: 0.4rem;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.fateArt:empty {
+  display: none;
+}
+
+.fateArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.7) contrast(1.05) brightness(0.8);
+  transition: filter var(--mad-dur-slow) var(--mad-ease);
+}
+
+.fateItem:hover .fateArt img {
+  filter: grayscale(0.28) contrast(1.02) brightness(0.92);
+}
+
+/* ============================================================
+   8 · KAPANIŞ
+   Sayfanın en seyrek yeri: ortalanmış, geniş boşluklu, tek işaret.
+   ============================================================ */
+.closing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--mad-rise) * 0.75);
+  padding-block: calc(var(--mad-rise) * 2) calc(var(--mad-rise) * 2.4);
+  text-align: center;
+  /* Kapanış görselinin z-index: -1 katmanı bu bloğun İÇİNDE kalsın:
+     yığın bağlamı olmadan sayfanın zemininin altına düşerdi. */
+  isolation: isolate;
+}
+
+/* Ortalanmış kapanışta rüya satırı da ortalanır: sol kenar çizgisi
+   yerine üst çizgi. */
+.closing .dreamLine {
+  align-items: center;
+  max-width: 40ch;
+  padding: 0.9rem 0 0;
+  border-left: 0;
+  border-top: 1px solid
+    color-mix(in srgb, var(--mad-susanoo) 45%, transparent);
+  text-align: center;
+}
+
+.closingArt {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.12;
+  mask-image: radial-gradient(ellipse at 50% 50%, black 8%, transparent 68%);
+}
+
+.closingArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.85);
+}
+
+.closingMoon {
+  width: clamp(2.5rem, 7vw, 4rem);
+  height: clamp(2.5rem, 7vw, 4rem);
+  color: color-mix(in srgb, var(--mad-ash) 45%, transparent);
+  transition: color var(--mad-dur-slow) var(--mad-ease-soft);
+}
+
+.closingQuote {
+  margin: 0;
+  max-width: 44ch;
+}
+
+.closingQuote blockquote {
+  margin: 0;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: clamp(1.35rem, 3.2vw, 2.1rem);
+  font-weight: 700;
+  line-height: 1.38;
+  letter-spacing: -0.012em;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.closingQuote figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.95rem;
+}
+
+.quoteBy {
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.quoteNote {
+  max-width: 44ch;
+  margin-inline: auto;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 0.9375rem;
+  line-height: 1.75;
+  color: var(--text-secondary);
+}
+
+.motto {
+  margin: 0;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(2rem, 7vw, 3.5rem);
+  line-height: 1.15;
+  letter-spacing: 0.12em;
+  color: color-mix(in srgb, var(--text-primary) 24%, transparent);
+}
+
+.mottoNote {
+  margin: -0.4rem 0 0;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+}
+
+.credit {
+  max-width: 58ch;
+  margin: 0;
+  padding-top: calc(var(--mad-rise) * 0.6);
+  border-top: 1px solid var(--border);
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.75rem;
+  line-height: 1.8;
+  color: var(--text-muted);
+}
+
+.credit a {
+  color: var(--text-secondary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--accent-muted);
+  transition: color var(--mad-dur-fast) var(--mad-ease-soft);
+}
+
+.credit a:hover {
+  color: var(--accent-hover);
+}
+
+.credit a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ============================================================
+   RÜYA MODU — PALET MOR-MAVİYE KAYIYOR
+
+   Token TANIMLANMIYOR (deri bloğu ölçülerek yazıldı): renkler mevcut
+   token'lardan color-mix ile türetiliyor, yani kontrast tabanı aynı
+   ailede kalıyor. Rüyanın sınırı da burada: rüya satırları ancak bu
+   modda görünüyor ve hepsi etiketli.
+   ============================================================ */
+.page[data-dream] {
+  background: color-mix(in srgb, var(--bg) 90%, var(--accent-muted));
+}
+
+.page[data-dream] .heroName,
+.page[data-dream] .sectionTitle,
+.page[data-dream] .panelTitle,
+.page[data-dream] .fateTitle,
+.page[data-dream] .measureName,
+.page[data-dream] .toolName,
+.page[data-dream] .arsenalName {
+  color: color-mix(in srgb, var(--text-primary) 84%, var(--mad-susanoo));
+}
+
+.page[data-dream] .heroLede,
+.page[data-dream] .sectionLede,
+.page[data-dream] .fateText,
+.page[data-dream] .arsenalText,
+.page[data-dream] .panelText,
+.page[data-dream] .measureNote,
+.page[data-dream] .toolNote {
+  color: color-mix(in srgb, var(--text-secondary) 86%, var(--mad-susanoo));
+}
+
+.page[data-dream] .heroMark,
+.page[data-dream] .motto,
+.page[data-dream] .arsenalKanji {
+  color: color-mix(in srgb, var(--mad-susanoo) 26%, transparent);
+}
+
+.page[data-dream] .closingMoon {
+  color: color-mix(in srgb, var(--mad-susanoo) 78%, transparent);
+}
+
+/* Rüyada kül düşmüyor, asılı kalıyor */
+.page[data-dream] .heroAsh {
+  color: var(--mad-susanoo);
+}
+
+.page[data-dream] .heroPortrait {
+  filter: grayscale(0.25) contrast(1.02) brightness(1);
+  box-shadow: 0 30px 70px -40px var(--mad-glow-strong);
+}
+
+.page[data-dream] .panel,
+.page[data-dream] .arsenalStage {
+  border-color: color-mix(in srgb, var(--mad-susanoo) 26%, var(--border));
+}
+
+/* ============================================================
+   MOBİL — 360 pikselde yatay taşma yok, ızgaralar tek sütuna iner
+   ============================================================ */
+@media (max-width: 1000px) {
+  .climb {
+    grid-template-columns: 1fr;
+    gap: calc(var(--mad-rise) * 0.7);
+  }
+
+  /* Merdiven yapışkanlıktan çıkıyor: dar ekranda panelin üstünde durur */
+  .rail {
+    position: static;
+    padding-left: 0.75rem;
+  }
+
+  .arsenalItem {
+    grid-template-columns: 1fr;
+    gap: calc(var(--mad-rise) * 0.5);
+  }
+
+  .arsenalStage {
+    aspect-ratio: 16 / 10;
+    max-height: 22rem;
+  }
+
+  .arsenalGlyph {
+    inset: 4% 22%;
+    width: 56%;
+    height: 92%;
+  }
+}
+
+@media (max-width: 760px) {
+  .hero {
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: calc(var(--mad-rise) * 0.9);
+    min-height: min(80svh, 44rem);
+  }
+
+  /* Portre ÜSTTE: saç silueti başlıkların üstünden inip metne değsin */
+  .heroAside {
+    order: -1;
+    align-items: flex-start;
+    width: clamp(8.5rem, 42vw, 12rem);
+    margin-top: calc(var(--mad-rise) * 1.2);
+  }
+
+  .emberNote {
+    text-align: left;
+  }
+
+  .heroMark {
+    font-size: clamp(4rem, 34vw, 9rem);
+    top: calc(var(--mad-rise) * -0.6);
+  }
+
+  .fateItem {
+    grid-template-columns: 1fr;
+    gap: 0.55rem;
+    padding-left: 1.4rem;
+  }
+
+  .fateItem::before {
+    left: 0;
+    top: 1.6rem;
+  }
+
+  .fateItem::after {
+    left: -3px;
+    top: 1.45rem;
+  }
+
+  .fateAge {
+    text-align: left;
+    padding-right: 0;
+  }
+
+  .fateArt {
+    grid-column: 1;
+  }
+
+  .dreamNotice {
+    left: clamp(0.75rem, 3vw, 1.75rem);
+    text-align: left;
+  }
+}
+
+@media (max-width: 560px) {
+  .measures {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .facts {
+    grid-template-columns: 1fr;
+  }
+
+  /* Ölçek dar ekranda kartları ikiden fazla sütuna bölemez */
+  .climb {
+    --mad-cols: 1;
+  }
+
+  .climb[data-step="1"],
+  .climb[data-step="2"] {
+    --mad-cols: 2;
+  }
+
+  .climbNav {
+    flex: 1 0 100%;
+  }
+
+  .navButton {
+    flex: 1 1 auto;
+    justify-content: center;
+    padding: 0 0.75rem;
+  }
+
+  .dreamToggleLabel {
+    display: none;
+  }
+
+  .dreamToggle {
+    padding: 0.5rem;
+    min-width: var(--touch-min);
+    justify-content: center;
+  }
+
+  .dreamNotice {
+    bottom: calc(clamp(0.75rem, 3vw, 1.75rem) + var(--music-bar, 0px) + 3.9rem);
+  }
+}
+
+/* Yüksek kontrast / zorunlu renk modunda dekoratif katmanlar susar */
+@media (forced-colors: active) {
+  .heroAsh,
+  .heroHair,
+  .heroMark,
+  .dreamLayer,
+  .closingArt,
+  .toolGlyph,
+  .arsenalGlyph {
+    display: none;
+  }
+
+  .tread {
+    background: CanvasText;
+  }
+}
+
+/* ============================================================
+   REDUCED-MOTION BATTANİYESİ — ev deseni (çift katman):
+   yukarıdaki animasyonların hepsi no-preference kapısında; burada
+   kalan geçişler de kapanıyor. Basamak değişince ölçek yine
+   değişiyor, yalnızca ARADAKİ hareket yok.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

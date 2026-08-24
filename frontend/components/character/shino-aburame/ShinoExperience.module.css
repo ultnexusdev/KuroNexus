@@ -39,3 +39,1940 @@
   --shi-glow-soft:  color-mix(in srgb, #bf9a35 20%, transparent);
   --shi-glow-strong: color-mix(in srgb, #bf9a35 45%, transparent);
 }
+
+/* ============================================================
+   SHINO ABURAME — "KOVAN"
+
+   Deri yukarıdaki blokta; yardımcılar `--shi-*`. Bu bloğun ALTINDA
+   tek hex yok — ara tonların hepsi color-mix ile token'lardan türetildi
+   (BRIEF §3).
+
+   ── SAYFANIN FİKRİ ──────────────────────────────────────────────────────
+   SESSİZLİK. Yirmi iki kardeşi içinde en az hareket eden, en çok boşluk
+   bırakan sayfa bu. Ama sessizlik "okunması zor" demek değil: DEKOR
+   kontrastı yerlerde 0.04 alfaya kadar iniyorken METİN kontrastı hiçbir
+   yerde AA'nın altına düşmüyor. Gürültü kalkıyor, bilgi kalıyor.
+
+   Sayfanın tek geometrisi ALTIGEN. Ölçü zinciri tek bir değişkenden
+   çıkıyor: `--shi-hex` altıgenin genişliği, `--shi-row` iki petek satırı
+   arasındaki dikey mesafe (genişliğin 0.866 katı). Bölüm arası boşluk,
+   kart aralığı, çizelge girintisi — hepsi bu satırın katı. Yani "kovan"
+   bir motif değil, sayfanın ölçü sistemi.
+
+   Altıgenin oranı her yerde aynı: 100 / 115.47 (sivri tepeli, düzgün
+   altıgen). `aspect-ratio` bu oranı, `clip-path` da kenarları veriyor.
+
+   ── TİPOGRAFİ ───────────────────────────────────────────────────────────
+   Display + gövde + etiketler: Cormorant Garamond. Dar, yüksek kontrastlı,
+   kitabi bir Garamond — bir doğa tarihi monografisinin sesi, Aburame'lerin
+   böcek kataloğu için doğru ses. Etiketler aynı aileden, majüskül ve geniş
+   harf aralığıyla: müze künyesi.
+   Rakam ve künye kodları: sistem mono ailesi ve YALNIZCA ölçüm için —
+   hücre numarası (01…06), plaka numarası ve çizelgedeki yaş. Başka hiçbir
+   yerde mono yok; mono burada "teknik görünsün" diye değil, sayı hizalansın
+   diye var.
+   Kanji: Yuji Boku fırça ailesi, üç yerde — 油女 filigranı, petek
+   çekirdeğindeki 巣 ve kapanıştaki 蟲.
+
+   ── HAREKET ─────────────────────────────────────────────────────────────
+   Tek yazılmış an var: petekte bir hücre seçilince UYANMA DALGASI'nın
+   komşulara yayılması (`--shi-spread` gecikme merdiveni; halka mesafesi
+   0 → 1 → 2 → 3). Geri kalan her şey ya durağan ya da nefes alacak kadar
+   yavaş. Süre/easing değişkenleri `.page`de; animasyonlar no-preference
+   kapısında, dosyanın sonunda reduce battaniyesi var.
+   ============================================================ */
+
+.page {
+  /* Süre ve easing — hareket sözlüğü */
+  --shi-dur-fast: 180ms;
+  --shi-dur: 360ms;
+  --shi-dur-slow: 820ms;
+  --shi-spread: 190ms; /* komşu kademeleri arasındaki gecikme */
+  --shi-ease: cubic-bezier(0.16, 1, 0.3, 1); /* üstel yavaşlama */
+  --shi-ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Geometri — altıgen sayfanın tek ölçü birimi */
+  --shi-hex: clamp(3rem, 8.4vw, 6.25rem);
+  --shi-row: calc(var(--shi-hex) * 0.866);
+  --shi-gutter: clamp(1.1rem, 4.5vw, 2.25rem);
+  --shi-content: min(100% - var(--shi-gutter) * 2, 62rem);
+  --shi-measure: 62ch;
+
+  /* Kovan modunun ölçüleri — RENK DEĞİL, sayı ve uzunluk */
+  --shi-veil-op: 0; /* dekoru matlaştıran perdenin opaklığı */
+  --shi-comb-op: 0.34; /* zemin peteğinin opaklığı */
+  --shi-margin-op: 0; /* kenar böcek şeritlerinin opaklığı */
+
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text-primary);
+  overflow-x: clip;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Zemin: sayfanın altındaki petek ──────────────────────────────────
+   Sabit konumlu, tam ekran, `slice` ile kırpılıyor: altıgenler hiçbir
+   ekran oranında ezilmiyor. Normalde neredeyse görünmez. */
+.lattice,
+.veil,
+.margins {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.latticeArt {
+  width: 100%;
+  height: 100%;
+  opacity: var(--shi-comb-op);
+  /* Üstte ve altta söner: sayfa bir "tablo" gibi değil, üstünde
+     durulan bir yüzey gibi okunsun */
+  mask-image: radial-gradient(
+    ellipse 78% 68% at 50% 46%,
+    black 18%,
+    transparent 100%
+  );
+  transition: opacity var(--shi-dur-slow) var(--shi-ease);
+}
+
+/* Kenarlardan içeri sürüklenen böcek şeritleri — yalnızca kovan modunda */
+.marginBand {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: clamp(3rem, 11vw, 9rem);
+  opacity: var(--shi-margin-op);
+  background-image: radial-gradient(
+    circle,
+    var(--shi-drone) 0 1.7px,
+    transparent 1.8px
+  );
+  background-size: 21px 25px;
+  transition: opacity var(--shi-dur-slow) var(--shi-ease);
+}
+
+.marginBand[data-edge="left"] {
+  left: 0;
+  mask-image: linear-gradient(to right, black 0%, transparent 100%);
+}
+
+.marginBand[data-edge="right"] {
+  right: 0;
+  mask-image: linear-gradient(to left, black 0%, transparent 100%);
+}
+
+/* Zemini matlaştıran perde: `--surface` `--bg`den bir tık açık, yani bu
+   katman açıldığında sayfanın toprağı sütlenip peteğin kontrastı düşüyor —
+   "sesler kısılmış" hissi buradan geliyor.
+
+   DOM sırası önemli: petek ve kenar şeritleri BU KATMANIN ALTINDA kalıyor
+   (ikisi de bu düğümden önce çiziliyor). Metnin ve bütün içeriğin ÜSTÜNDE
+   ise hiçbir şey yok — içerik z-index 1'de, perde 0'da. Yani okunabilirlik
+   moddan hiç etkilenmiyor. */
+.veil {
+  background: var(--surface);
+  opacity: var(--shi-veil-op);
+  transition: opacity var(--shi-dur-slow) var(--shi-ease);
+}
+
+/* ── Breadcrumb ──────────────────────────────────────────────────────── */
+.crumb {
+  position: relative;
+  z-index: 1;
+  width: var(--shi-content);
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding-block: 0.75rem;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.crumb a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--shi-dur-fast) var(--shi-ease-soft);
+}
+
+.crumb a:hover {
+  color: var(--text-primary);
+}
+
+.crumb a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.crumbSep {
+  color: var(--border-strong);
+}
+
+/* ── Mod düğmesi: "Kovan modu" ───────────────────────────────────────── */
+.hiveToggle {
+  position: fixed;
+  right: clamp(0.75rem, 3vw, 1.75rem);
+  bottom: calc(clamp(0.75rem, 3vw, 1.75rem) + var(--music-bar, 0px));
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: var(--touch-min);
+  padding: 0.5rem 1.05rem 0.5rem 0.6rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+  backdrop-filter: blur(7px);
+  color: var(--text-secondary);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 12px 30px -18px color-mix(in srgb, var(--bg) 92%, transparent);
+  transition:
+    color var(--shi-dur) var(--shi-ease-soft),
+    border-color var(--shi-dur) var(--shi-ease-soft),
+    background var(--shi-dur) var(--shi-ease-soft);
+}
+
+.hiveToggle:hover {
+  color: var(--text-primary);
+  border-color: var(--accent-muted);
+}
+
+.hiveToggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.hiveToggle[aria-pressed="true"] {
+  color: var(--text-primary);
+  border-color: var(--accent-muted);
+  background: color-mix(in srgb, var(--surface-hover) 92%, transparent);
+}
+
+.hiveToggleGlyph {
+  width: 1.45rem;
+  height: 1.45rem;
+  flex: none;
+  transition: rotate var(--shi-dur-slow) var(--shi-ease);
+}
+
+.hiveToggle[aria-pressed="true"] .hiveToggleGlyph {
+  rotate: 60deg; /* altıgenin bir kenarı kadar: petek bir hücre kayıyor */
+}
+
+.hiveToggleLabel {
+  white-space: nowrap;
+}
+
+.hiveHint {
+  position: fixed;
+  right: clamp(0.75rem, 3vw, 1.75rem);
+  bottom: calc(clamp(0.75rem, 3vw, 1.75rem) + var(--music-bar, 0px) + 3.6rem);
+  z-index: 59;
+  max-width: min(21rem, calc(100vw - 2rem));
+  margin: 0;
+  text-align: right;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.hiveHint:empty {
+  display: none;
+}
+
+/* ============================================================
+   1 · HERO — BİR HÜCREDEKİ YÜZ
+   Portre altıgene kırpılı ve alt kenarı sayfaya karışıyor: yaka
+   nerede bitiyor, karanlık nerede başlıyor belli değil. Arkada
+   dağılan böcek bulutu, sağ üstte klan adı.
+   ============================================================ */
+.hero {
+  position: relative;
+  z-index: 1;
+  width: var(--shi-content);
+  margin-inline: auto;
+  min-height: min(88svh, 50rem);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: calc(var(--shi-hex) * 0.7);
+  padding-block: calc(var(--shi-row) * 0.9) calc(var(--shi-row) * 1.5);
+}
+
+.heroScene {
+  position: absolute;
+  inset: calc(var(--shi-row) * -0.5) calc(var(--shi-gutter) * -1);
+  z-index: -1;
+  overflow: hidden;
+}
+
+.heroScene img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.45) brightness(0.5);
+  transition: filter var(--shi-dur-slow) var(--shi-ease);
+}
+
+.heroScrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    var(--bg) 3%,
+    color-mix(in srgb, var(--bg) 62%, transparent) 58%,
+    color-mix(in srgb, var(--bg) 86%, transparent) 100%
+  );
+}
+
+/* Filigran: klan adı, sağ üstte, neredeyse görünmez */
+.heroMark {
+  position: absolute;
+  top: calc(var(--shi-row) * 0.1);
+  right: calc(var(--shi-hex) * -0.2);
+  margin: 0;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(4rem, 17vw, 12rem);
+  line-height: 0.9;
+  letter-spacing: 0.06em;
+  color: color-mix(in srgb, var(--text-primary) 5%, transparent);
+  user-select: none;
+  pointer-events: none;
+}
+
+/* ── Portre ve bulut ── */
+.heroFigure {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  width: clamp(10.5rem, 27vw, 17rem);
+}
+
+/* Portrenin yanındaki BOŞ hücre: kovanda her zaman bir tane fazla
+   vardır ve o hücre kimseye ait değildir */
+.heroFigure::after {
+  content: "";
+  position: absolute;
+  top: calc(50% - var(--shi-hex) * 0.52);
+  right: calc(var(--shi-hex) * -0.62);
+  width: calc(var(--shi-hex) * 0.86);
+  aspect-ratio: 100 / 115.47;
+  border: 1px solid color-mix(in srgb, var(--shi-carapace) 22%, transparent);
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
+  pointer-events: none;
+}
+
+.heroCloud {
+  position: absolute;
+  left: calc(var(--shi-hex) * -1.1);
+  right: calc(var(--shi-hex) * -1.5);
+  top: calc(var(--shi-row) * -1.2);
+  bottom: calc(var(--shi-row) * -1);
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.heroCloudArt {
+  width: 100%;
+  height: 100%;
+  mask-image: radial-gradient(
+    ellipse 70% 70% at 32% 74%,
+    black 6%,
+    transparent 92%
+  );
+}
+
+/* Portre altıgen: Shino da peteğin bir hücresi. Alt kenar maskeyle
+   sayfaya karışıyor — yakanın bittiği yer görünmüyor. */
+.heroPortrait {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 100 / 115.47;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  background: var(--surface);
+}
+
+.heroPortrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 16%;
+  filter: grayscale(0.42) contrast(1.08) brightness(0.94);
+  mask-image: linear-gradient(
+    to bottom,
+    black 0%,
+    black 58%,
+    color-mix(in srgb, black 22%, transparent) 96%
+  );
+  transition: filter var(--shi-dur-slow) var(--shi-ease);
+}
+
+.hero:hover .heroPortrait img {
+  filter: grayscale(0.1) contrast(1.04) brightness(1);
+}
+
+.heroCaption {
+  margin: 0;
+  max-width: 26ch;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+  text-wrap: pretty;
+}
+
+/* ── Metin sütunu ── */
+.heroBody {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+  max-width: 38ch;
+}
+
+.heroClan {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.heroName {
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(2.4rem, 7.2vw, 4.5rem);
+  font-weight: 700;
+  line-height: 1.04;
+  letter-spacing: -0.012em;
+  text-wrap: balance;
+  color: var(--text-primary);
+}
+
+.heroNative {
+  margin: 0.2rem 0 0;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(1rem, 2.4vw, 1.35rem);
+  letter-spacing: 0.3em;
+  color: var(--text-muted);
+}
+
+.heroEpigraph {
+  margin: calc(var(--shi-row) * 0.35) 0 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.25rem, 2.4vw, 1.6rem);
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--text-primary);
+  text-wrap: pretty;
+}
+
+.heroLede {
+  margin: 0.7rem 0 0;
+  max-width: 44ch;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.0625rem, 1.4vw, 1.1875rem);
+  font-weight: 500;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* ============================================================
+   BÖLÜM İSKELETİ — boşluk ölçüsü petek satırından geliyor
+   ============================================================ */
+.section,
+.combSection,
+.quiet {
+  position: relative;
+  z-index: 1;
+  width: var(--shi-content);
+  margin-inline: auto;
+  padding-block: calc(var(--shi-row) * 1.5);
+}
+
+.sectionHead {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin-bottom: calc(var(--shi-row) * 0.85);
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.65rem, 3.8vw, 2.6rem);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.sectionLede {
+  margin: 0;
+  max-width: 50ch;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.0625rem, 1.4vw, 1.1875rem);
+  font-weight: 500;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* Kurator yuvaları — ziyaretçide hiç çizilmiyor */
+.slotRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.75rem;
+}
+
+/* ============================================================
+   2 · KÜNYE
+   Müze künyesi: etiket majüskül Cormorant, değer aynı ailenin
+   koyu ağırlığı. Kutu yok, yalnızca saç teli çizgiler.
+   ============================================================ */
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 0 calc(var(--shi-hex) * 0.5);
+  margin: 0;
+  border-top: 1px solid var(--border);
+}
+
+.fact {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.3rem;
+  padding-block: 1.05rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.fact dt {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.fact dd {
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.45;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  text-wrap: pretty;
+}
+
+/* ============================================================
+   3 · 8. TAKIM
+   Dört portre altıgene kırpılı ve tek sıra hâlinde kayık diziliyor:
+   dört kişi yan yana durunca ortaya çıkan şey bir petek şeridi.
+   ============================================================ */
+.team {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: calc(var(--shi-hex) * 0.34);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.teamMember {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+/* Petek kaydırması: tek sıradaki altıgenler bir yarım satır aşağıda */
+.teamMember:nth-child(even) {
+  margin-top: calc(var(--shi-row) * 0.5);
+}
+
+.teamFace {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 100 / 115.47;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  background: color-mix(in srgb, var(--surface) 88%, var(--shi-hive));
+}
+
+.teamFace img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 18%;
+  filter: grayscale(0.6) contrast(1.05) brightness(0.86);
+  transition: filter var(--shi-dur) var(--shi-ease-soft);
+}
+
+.teamMember:hover .teamFace img {
+  filter: grayscale(0.12) contrast(1.02) brightness(1);
+}
+
+.teamBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.teamName {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--text-primary);
+}
+
+.teamRole {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.teamNote {
+  margin-top: 0.15rem;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* ============================================================
+   4 · KOVANDAN ÇIKAN ÜÇ ŞEY
+   Kart yok: üç blok, üstlerinde birer saç teli. Solda altıgen bir
+   sergi plakası — görsel boşsa plaka numarasıyla ayakta kalıyor.
+   ============================================================ */
+.forms {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--shi-row) * 1.05);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.form {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: calc(var(--shi-hex) * 0.45);
+  padding-top: calc(var(--shi-row) * 0.45);
+  border-top: 1px solid var(--border);
+}
+
+.formPlate {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(6rem, 15vw, 10.5rem);
+  aspect-ratio: 100 / 115.47;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  background: color-mix(in srgb, var(--surface) 82%, var(--shi-hive));
+  transition: background var(--shi-dur) var(--shi-ease-soft);
+}
+
+.form:hover .formPlate {
+  background: color-mix(in srgb, var(--surface-hover) 82%, var(--shi-hive));
+}
+
+.formPlate img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.5) contrast(1.06) brightness(0.9);
+  transition: filter var(--shi-dur-slow) var(--shi-ease);
+}
+
+.form:hover .formPlate img {
+  filter: grayscale(0.15) contrast(1.02) brightness(1);
+}
+
+/* Görsel yokken plaka boş kalmıyor: numarasını taşıyor */
+.formPlateIndex {
+  font-family: var(--font-mono);
+  font-size: clamp(1.5rem, 3.6vw, 2.25rem);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  color: color-mix(in srgb, var(--shi-carapace) 34%, transparent);
+}
+
+.formBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+  padding-top: 0.2rem;
+}
+
+.formName {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.formKanji {
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: 1.15rem;
+  letter-spacing: 0.22em;
+  line-height: 1.4;
+  color: color-mix(in srgb, var(--shi-carapace) 62%, transparent);
+}
+
+.formTurkish {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.formTagline {
+  margin-top: 0.5rem;
+  max-width: 42ch;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.125rem, 1.8vw, 1.3125rem);
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--accent);
+  text-wrap: pretty;
+}
+
+.formText {
+  max-width: var(--shi-measure);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.0625rem, 1.4vw, 1.1875rem);
+  font-weight: 500;
+  line-height: 1.85;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.formTraits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 0.65rem;
+}
+
+.trait {
+  padding: 0.34rem 0.7rem 0.3rem;
+  border: 1px solid var(--border);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   5 · DÖRT SESSİZ İŞ
+   Cetvel düzeni: dört satır, aralarında saç teli. Kutu içinde kutu
+   yok — bu sayfada hiçbir yerde yok.
+   ============================================================ */
+.tools {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--border);
+}
+
+.tool {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 15ch) minmax(0, 1fr);
+  align-items: baseline;
+  gap: 0.4rem calc(var(--shi-hex) * 0.35);
+  padding-block: calc(var(--shi-row) * 0.42);
+  border-bottom: 1px solid var(--border);
+  transition: background var(--shi-dur) var(--shi-ease-soft);
+}
+
+.tool:hover {
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+}
+
+.toolArt {
+  position: relative;
+  display: block;
+  align-self: center;
+  width: clamp(2.6rem, 6vw, 3.6rem);
+  aspect-ratio: 100 / 115.47;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  background: color-mix(in srgb, var(--surface-hover) 70%, var(--shi-hive));
+}
+
+.toolArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.55) brightness(0.9);
+}
+
+.toolName {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.toolNote {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.0625rem;
+  font-weight: 500;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* ============================================================
+   6 · PETEK — SAYFANIN KALBİ
+
+   Altı hücre bir halka kuruyor, ortada kovan çekirdeği var. Şemayı
+   SVG çiziyor (HiveGlyphs), üstüne oturan altı düğme gerçek <button>.
+   İkisinin koordinatları aynı: SVG kadrajı halkanın 1.5 katı, düğme
+   merkezleri de aynı yüzdelerde.
+
+   ⚠️ Düğmenin KENDİSİ kırpılmıyor — `clip-path` odak halkasını da
+   kırpardı. Altıgen dolguyu içerideki `combCellShape` taşıyor, kenar
+   çizgisi ise zaten SVG'de. Böylece odak halkası tam görünür.
+   ============================================================ */
+.combSection {
+  padding-block: calc(var(--shi-row) * 1.8);
+}
+
+.comb {
+  display: grid;
+  grid-template-columns: minmax(0, 1.02fr) minmax(0, 1fr);
+  gap: calc(var(--shi-hex) * 0.55);
+  align-items: start;
+}
+
+.combStage {
+  position: sticky;
+  top: calc(var(--shi-row) * 0.6);
+  width: 100%;
+  aspect-ratio: 450 / 433.1;
+}
+
+.combArt {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* İkinci sıra: kadrajın kenarında kırpılan hücreler */
+.combOuter {
+  opacity: 0.55;
+  transition: opacity var(--shi-dur-slow) var(--shi-ease);
+}
+
+/* Halkanın altıgen kenarları — seçili hücrenin kenarı en parlak */
+.combCellEdge {
+  stroke-opacity: 0.2;
+  transition:
+    stroke var(--shi-dur) var(--shi-ease-soft),
+    stroke-opacity var(--shi-dur) var(--shi-ease-soft);
+  transition-delay: calc(var(--shi-spread) * 3);
+}
+
+.combCellEdge[data-dist="0"] {
+  stroke: var(--accent);
+  stroke-opacity: 0.95;
+  transition-delay: 0ms;
+}
+
+.combCellEdge[data-dist="1"] {
+  stroke-opacity: 0.5;
+  transition-delay: var(--shi-spread);
+}
+
+.combCellEdge[data-dist="2"] {
+  stroke-opacity: 0.3;
+  transition-delay: calc(var(--shi-spread) * 2);
+}
+
+/* Uyanma dalgası: halkanın kenarları seçili hücreden dışarı doğru
+   ışıyor. Sayfanın TEK yazılmış anı bu. */
+.combLink {
+  stroke-opacity: 0.06;
+  transition: stroke-opacity var(--shi-dur-slow) var(--shi-ease);
+  transition-delay: calc(var(--shi-spread) * 3);
+}
+
+.combLink[data-dist="0"] {
+  stroke-opacity: 0.72;
+  transition-delay: 0ms;
+}
+
+.combLink[data-dist="1"] {
+  stroke-opacity: 0.32;
+  transition-delay: var(--shi-spread);
+}
+
+.combLink[data-dist="2"] {
+  stroke-opacity: 0.14;
+  transition-delay: calc(var(--shi-spread) * 2);
+}
+
+.combSpoke {
+  stroke-opacity: 0.08;
+  transition: stroke-opacity var(--shi-dur-slow) var(--shi-ease);
+  transition-delay: calc(var(--shi-spread) * 3);
+}
+
+.combSpoke[data-dist="0"] {
+  stroke-opacity: 0.42;
+  transition-delay: 0ms;
+}
+
+.combSpoke[data-dist="1"] {
+  stroke-opacity: 0.2;
+  transition-delay: var(--shi-spread);
+}
+
+/* Hücrelerin içindeki böcekler: dalga geldikçe irileşip parlıyorlar */
+.combDot {
+  fill-opacity: 0.16;
+  transform-box: fill-box;
+  transform-origin: center;
+  scale: 0.7;
+  transition:
+    fill-opacity var(--shi-dur-slow) var(--shi-ease),
+    scale var(--shi-dur-slow) var(--shi-ease);
+  transition-delay: calc(var(--shi-spread) * 3);
+}
+
+.combDot[data-dist="0"] {
+  fill-opacity: 0.95;
+  scale: 1.15;
+  transition-delay: 0ms;
+}
+
+.combDot[data-dist="1"] {
+  fill-opacity: 0.5;
+  scale: 1;
+  transition-delay: var(--shi-spread);
+}
+
+.combDot[data-dist="2"] {
+  fill-opacity: 0.26;
+  scale: 0.85;
+  transition-delay: calc(var(--shi-spread) * 2);
+}
+
+.combCoreShape {
+  stroke-opacity: 0.5;
+}
+
+/* ── Altı düğme ── */
+.combRing {
+  position: absolute;
+  inset: 0;
+}
+
+.combCell {
+  position: absolute;
+  width: 22.222%;
+  height: 26.667%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  gap: 0.1rem;
+  align-content: center;
+  transition: color var(--shi-dur) var(--shi-ease-soft);
+}
+
+/* Merkez yüzdeleri HiveGlyphs.CELL_CENTERS ile birebir aynı;
+   yarım genişlik 11.111%, yarım yükseklik 13.333% */
+.combCell[data-cell="0"] {
+  left: 27.778%;
+  top: 16.667%;
+}
+
+.combCell[data-cell="1"] {
+  left: 50%;
+  top: 16.667%;
+}
+
+.combCell[data-cell="2"] {
+  left: 61.111%;
+  top: 36.667%;
+}
+
+.combCell[data-cell="3"] {
+  left: 50%;
+  top: 56.667%;
+}
+
+.combCell[data-cell="4"] {
+  left: 27.778%;
+  top: 56.667%;
+}
+
+.combCell[data-cell="5"] {
+  left: 16.667%;
+  top: 36.667%;
+}
+
+/* Altıgen dolgu: düğmenin kendisi kırpılmadığı için odak halkası
+   düğmenin dikdörtgen kutusunda, tam görünür kalıyor */
+.combCell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+  transition: background var(--shi-dur) var(--shi-ease-soft);
+  transition-delay: calc(var(--shi-spread) * 3);
+}
+
+.combCell[data-dist="1"]::before {
+  background: color-mix(in srgb, var(--surface-hover) 78%, transparent);
+  transition-delay: var(--shi-spread);
+}
+
+.combCell[data-dist="2"]::before {
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
+  transition-delay: calc(var(--shi-spread) * 2);
+}
+
+.combCell[aria-selected="true"]::before {
+  background: color-mix(in srgb, var(--accent-muted) 46%, var(--surface));
+  transition-delay: 0ms;
+}
+
+.combCell:hover {
+  color: var(--text-primary);
+}
+
+/* Seçili hücrenin dolgusunu hover EZMEZ: seçim, işaretçinin nerede
+   durduğundan daha önemli bir bilgi */
+.combCell:not([aria-selected="true"]):hover::before {
+  background: color-mix(in srgb, var(--surface-hover) 92%, transparent);
+}
+
+.combCell:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.combCell[aria-selected="true"] {
+  color: var(--text-primary);
+}
+
+.combCellIndex {
+  position: relative;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.14em;
+  color: color-mix(in srgb, currentcolor 62%, transparent);
+}
+
+.combCellName {
+  position: relative;
+  max-width: 78%;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(0.6875rem, 1.5vw, 0.875rem);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+/* ── Kovan çekirdeği ── */
+.combCore {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  pointer-events: none;
+  text-align: center;
+}
+
+.combCoreGlyph {
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(1.5rem, 4.4vw, 2.6rem);
+  line-height: 1;
+  color: color-mix(in srgb, var(--shi-carapace) 52%, transparent);
+}
+
+.combCoreLabel {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.combCoreNumber {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  letter-spacing: 0.16em;
+  color: var(--accent);
+}
+
+/* ── Hücrenin metni ── */
+.combSide {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  min-width: 0;
+}
+
+.combPanel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-height: 20rem;
+  padding: calc(var(--shi-row) * 0.42) calc(var(--shi-hex) * 0.28)
+    calc(var(--shi-row) * 0.5);
+  border-top: 1px solid var(--border-strong);
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.combPanel:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.combPanelArt {
+  position: absolute;
+  inset: 0;
+  opacity: 0.13;
+  mask-image: linear-gradient(to top, transparent 26%, black 100%);
+}
+
+.combPanelArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.7);
+}
+
+.combTitle {
+  position: relative;
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.4rem, 3vw, 1.95rem);
+  font-weight: 700;
+  line-height: 1.18;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.combLatin {
+  position: relative;
+  margin: 0 0 0.5rem;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.combText {
+  position: relative;
+  margin: 0;
+  max-width: 56ch;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.0625rem, 1.4vw, 1.1875rem);
+  font-weight: 500;
+  line-height: 1.85;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.combUse {
+  position: relative;
+  margin: auto 0 0;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--border);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.6;
+  color: var(--text-primary);
+  text-wrap: pretty;
+}
+
+.combUseLabel {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.combNav {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.navButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: var(--touch-min);
+  padding: 0 1.05rem;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    color var(--shi-dur-fast) var(--shi-ease-soft),
+    border-color var(--shi-dur-fast) var(--shi-ease-soft),
+    background var(--shi-dur-fast) var(--shi-ease-soft);
+}
+
+.navButton:hover {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+  background: var(--surface);
+}
+
+.navButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.combHint {
+  margin: 0;
+  max-width: 46ch;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   7 · BENİ UNUTUYORLAR — sayfanın duygusal merkezi
+
+   Görsel yok, kurator yuvası yok, süs yok. Bölümün tamamı tek bir
+   dar sütun ve iki saç teli arasında duruyor; satır aralığı sayfanın
+   geri kalanından geniş, ölçü daha dar. Burada tasarımın işi
+   çekilmek — metnin nefes almasına izin vermek.
+   ============================================================ */
+.quiet {
+  padding-block: calc(var(--shi-row) * 2);
+}
+
+.quietHead {
+  max-width: 46ch;
+  margin-bottom: calc(var(--shi-row) * 1);
+  padding-top: calc(var(--shi-row) * 0.55);
+  border-top: 1px solid var(--border-strong);
+}
+
+.quietTitle {
+  margin: 0 0 0.7rem;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.65rem, 3.8vw, 2.6rem);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.quietLede {
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.0625rem, 1.4vw, 1.1875rem);
+  font-weight: 500;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.record {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--shi-row) * 0.95);
+  max-width: 52ch;
+  margin: 0;
+  margin-inline-start: calc(var(--shi-hex) * 0.5);
+  padding: 0;
+  list-style: none;
+}
+
+.recordItem {
+  position: relative;
+  padding-left: calc(var(--shi-hex) * 0.42);
+}
+
+/* Tek süs: kaydın başında minik bir altıgen. Kovanın bir hücresi
+   kadar küçük ve o kadar sessiz. */
+.recordItem::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55rem;
+  width: 0.5rem;
+  aspect-ratio: 100 / 115.47;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  background: color-mix(in srgb, var(--shi-chitin) 70%, transparent);
+}
+
+.recordWhen {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.recordText {
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.125rem, 1.6vw, 1.3125rem);
+  font-weight: 500;
+  line-height: 1.95;
+  color: var(--text-primary);
+  text-wrap: pretty;
+}
+
+/* ============================================================
+   8 · ÖMÜR ÇİZELGESİ
+   Yaş sütunu solda; kayıtları birbirine bağlayan hat düz bir çizgi
+   değil, üst üste dizilmiş noktalardan oluşuyor — bir sıra böcek.
+   ============================================================ */
+.fate {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--shi-row) * 0.9);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fateItem {
+  position: relative;
+  display: grid;
+  grid-template-columns: 7rem minmax(0, 1fr);
+  gap: calc(var(--shi-hex) * 0.35);
+}
+
+.fateItem::before {
+  content: "";
+  position: absolute;
+  left: calc(7rem - var(--shi-hex) * 0.175 - 1.5px);
+  top: 1.4rem;
+  bottom: calc(var(--shi-row) * -0.9);
+  width: 3px;
+  background-image: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--shi-chitin) 45%, transparent) 0 1.2px,
+    transparent 1.4px
+  );
+  background-size: 3px 9px;
+}
+
+.fateItem:last-child::before {
+  bottom: 1rem;
+}
+
+.fateItem::after {
+  content: "";
+  position: absolute;
+  left: calc(7rem - var(--shi-hex) * 0.175 - 5px);
+  top: 0.4rem;
+  width: 10px;
+  aspect-ratio: 100 / 115.47;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  background: var(--shi-chitin);
+}
+
+.fateAge {
+  margin: 0;
+  padding-top: 0.35rem;
+  padding-right: calc(var(--shi-hex) * 0.35);
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.fateBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.fateTitle {
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.25rem, 2.6vw, 1.65rem);
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.fateText {
+  margin: 0;
+  max-width: var(--shi-measure);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.0625rem, 1.4vw, 1.1875rem);
+  font-weight: 500;
+  line-height: 1.85;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.fateQuote {
+  margin: 0.6rem 0 0;
+  padding-left: 1.15rem;
+  border-left: 1px solid var(--accent-muted);
+}
+
+.fateQuote blockquote {
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.1875rem, 2vw, 1.4rem);
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+.fateQuote figcaption {
+  margin-top: 0.45rem;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.fateArt {
+  position: relative;
+  grid-column: 2;
+  display: block;
+  width: 100%;
+  max-width: 30rem;
+  aspect-ratio: 21 / 9;
+  margin-top: 0.5rem;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.fateArt:empty {
+  display: none;
+}
+
+.fateArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.55) contrast(1.05) brightness(0.82);
+  transition: filter var(--shi-dur-slow) var(--shi-ease);
+}
+
+.fateItem:hover .fateArt img {
+  filter: grayscale(0.2) contrast(1.02) brightness(0.94);
+}
+
+/* ============================================================
+   9 · KAPANIŞ
+   ============================================================ */
+.closing {
+  position: relative;
+  z-index: 1;
+  width: var(--shi-content);
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--shi-row) * 0.75);
+  padding-block: calc(var(--shi-row) * 1.7) calc(var(--shi-row) * 2);
+  text-align: center;
+}
+
+.closingArt {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.12;
+  mask-image: radial-gradient(ellipse at 50% 50%, black 8%, transparent 68%);
+}
+
+.closingArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.8);
+}
+
+.closingQuote {
+  margin: 0;
+  max-width: 44ch;
+}
+
+.closingQuote blockquote {
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.5rem, 3.6vw, 2.4rem);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.012em;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.closingQuote figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.95rem;
+}
+
+.quoteBy {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.quoteNote {
+  max-width: 44ch;
+  margin-inline: auto;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.75;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.motto {
+  margin: 0;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(3rem, 12vw, 7rem);
+  line-height: 1;
+  color: color-mix(in srgb, var(--text-primary) 20%, transparent);
+}
+
+.mottoNote {
+  margin: -0.2rem 0 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 0.9375rem;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.credit {
+  max-width: 56ch;
+  margin: 0;
+  padding-top: calc(var(--shi-row) * 0.55);
+  border-top: 1px solid var(--border);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 0.9375rem;
+  line-height: 1.8;
+  color: var(--text-muted);
+}
+
+.credit a {
+  color: var(--text-secondary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--accent-muted);
+  transition: color var(--shi-dur-fast) var(--shi-ease-soft);
+}
+
+.credit a:hover {
+  color: var(--accent);
+}
+
+.credit a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ============================================================
+   KOVAN MODU
+   Böcekler kenarlardan içeri yayılıyor, zemin peteği belirginleşiyor
+   ve dekor bir perdenin altında matlaşıyor — sesler kısılmış gibi.
+   Etkinin tamamı burada; JS yalnızca bir niteliği çeviriyor.
+
+   ⚠️ Metin kontrastına DOKUNULMUYOR. Matlaşan yalnızca dekor: perde
+   z-index 0'da, bütün metin z-index 1'de.
+   ============================================================ */
+.page[data-hive] {
+  --shi-veil-op: 0.38;
+  --shi-comb-op: 1;
+  --shi-margin-op: 1;
+}
+
+/* Dekoratif görsel katmanları doygunluğunu bırakıyor */
+.page[data-hive] .heroScene img,
+.page[data-hive] .formPlate img,
+.page[data-hive] .toolArt img,
+.page[data-hive] .fateArt img,
+.page[data-hive] .closingArt img,
+.page[data-hive] .combPanelArt img {
+  filter: grayscale(0.92) contrast(1.02) brightness(0.72);
+}
+
+.page[data-hive] .teamFace img,
+.page[data-hive] .heroPortrait img {
+  filter: grayscale(0.85) contrast(1.08) brightness(0.8);
+}
+
+/* Hero'daki BOŞ hücre doluyor: kovan yayılınca boş hücre kalmıyor */
+.page[data-hive] .heroFigure::after {
+  background: color-mix(in srgb, var(--shi-hive) 70%, var(--surface));
+  border-color: color-mix(in srgb, var(--shi-carapace) 48%, transparent);
+}
+
+/* Sayfaya serpilmiş küçük altıgenler bir kademe öne çıkıyor */
+.page[data-hive] .recordItem::before,
+.page[data-hive] .fateItem::after {
+  background: var(--shi-swarm);
+}
+
+.page[data-hive] .combOuter {
+  opacity: 1;
+}
+
+/* Palet matlaşıyor: altın çekiliyor, yerini kabuk grisi alıyor.
+   İki renk de bu zeminde AA üstü — matlaşma kontrastı düşürmüyor. */
+.page[data-hive] .formTagline {
+  color: color-mix(in srgb, var(--shi-carapace) 78%, var(--accent));
+}
+
+.page[data-hive] .combCoreNumber {
+  color: var(--shi-carapace);
+}
+
+.page[data-hive] .combCellEdge[data-dist="0"] {
+  stroke: var(--shi-swarm);
+}
+
+/* Kenar şeritleri içeri doğru sürükleniyor */
+@media (prefers-reduced-motion: no-preference) {
+  .page[data-hive] .marginBand[data-edge="left"] {
+    animation: shiDriftIn 26s linear infinite;
+  }
+
+  .page[data-hive] .marginBand[data-edge="right"] {
+    animation: shiDriftOut 26s linear infinite;
+  }
+
+  /* Bulut nefes alıyor: üç kuşak üç ayrı hızda ve üç ayrı yönde. Hareket
+     tek tek noktalara değil KUŞAK GRUBUNA veriliyor (bkz. HiveGlyphs) —
+     yakın kuşak yavaş ve geniş, uzak kuşak hızlı ve dar: paralaks. */
+  .drone[data-band="0"] {
+    animation: shiHoverNear 15s var(--shi-ease-soft) infinite alternate;
+  }
+
+  .drone[data-band="1"] {
+    animation: shiHoverMid 21s var(--shi-ease-soft) infinite alternate;
+    animation-delay: -7s;
+  }
+
+  .drone[data-band="2"] {
+    animation: shiHoverFar 29s var(--shi-ease-soft) infinite alternate;
+    animation-delay: -14s;
+  }
+}
+
+@keyframes shiDriftIn {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 105px 50px;
+  }
+}
+
+@keyframes shiDriftOut {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: -105px 50px;
+  }
+}
+
+@keyframes shiHoverNear {
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: 7px -11px;
+  }
+}
+
+@keyframes shiHoverMid {
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: -5px -7px;
+  }
+}
+
+@keyframes shiHoverFar {
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: 3px 5px;
+  }
+}
+
+/* ============================================================
+   MOBİL — 360 pikselde yatay taşma YOK, ızgaraların hepsi iner
+   ============================================================ */
+@media (max-width: 1000px) {
+  .comb {
+    grid-template-columns: 1fr;
+    gap: calc(var(--shi-row) * 0.7);
+  }
+
+  /* Petek yapışkanlıktan çıkar ve daralır: dar ekranda metnin üstünde
+     durur, sayfanın yarısını yemez */
+  .combStage {
+    position: static;
+    width: min(100%, 26rem);
+    margin-inline: auto;
+  }
+
+  .combPanel {
+    min-height: 0;
+  }
+}
+
+@media (max-width: 860px) {
+  .hero {
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: calc(var(--shi-row) * 0.8);
+    min-height: min(84svh, 44rem);
+    padding-block: calc(var(--shi-row) * 1.2) calc(var(--shi-row) * 1.2);
+  }
+
+  .heroFigure {
+    width: clamp(9rem, 42vw, 13rem);
+  }
+
+  /* Boş hücre dar ekranda kadrajın dışına taşardı */
+  .heroFigure::after {
+    display: none;
+  }
+
+  .heroMark {
+    top: auto;
+    bottom: calc(var(--shi-row) * -0.2);
+    right: calc(var(--shi-gutter) * -0.4);
+    font-size: clamp(3.5rem, 26vw, 8rem);
+  }
+
+  .team {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: calc(var(--shi-hex) * 0.4);
+  }
+
+  .form {
+    grid-template-columns: 1fr;
+    gap: 1.1rem;
+  }
+
+  .formPlate {
+    width: clamp(5rem, 22vw, 8rem);
+  }
+
+  .tool {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .toolNote {
+    grid-column: 2;
+  }
+
+  .fateItem {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    padding-left: 1.5rem;
+  }
+
+  .fateItem::before {
+    left: 3px;
+    top: 1.7rem;
+  }
+
+  .fateItem::after {
+    left: 0;
+    top: 1.5rem;
+  }
+
+  .fateAge {
+    text-align: left;
+    padding-right: 0;
+    padding-top: 0;
+  }
+
+  .fateArt {
+    grid-column: 1;
+  }
+
+  .record {
+    margin-inline-start: 0;
+  }
+
+  .hiveHint {
+    display: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .facts {
+    grid-template-columns: 1fr;
+  }
+
+  .teamMember:nth-child(even) {
+    margin-top: 0;
+  }
+
+  .combNav {
+    flex-wrap: wrap;
+  }
+
+  .navButton {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+
+  .combCellName {
+    letter-spacing: 0.04em;
+  }
+
+  .hiveToggleLabel {
+    display: none;
+  }
+
+  .hiveToggle {
+    padding: 0.5rem;
+    min-width: var(--touch-min);
+    justify-content: center;
+  }
+}
+
+/* Yüksek kontrast / zorunlu renk modunda dekoratif katmanlar susar */
+@media (forced-colors: active) {
+  .lattice,
+  .margins,
+  .veil,
+  .heroCloud,
+  .heroMark,
+  .closingArt {
+    display: none;
+  }
+
+  .combCell::before {
+    background: transparent;
+  }
+}
+
+/* ============================================================
+   REDUCED-MOTION BATTANİYESİ — ev deseni (çift katman):
+   yukarıdaki her animasyon no-preference kapısında; burada kalan
+   geçişler de tamamen kapanır. Uyanma dalgası yine SONUÇ hâliyle
+   görünür — yalnızca yayılma HAREKETİ yok.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

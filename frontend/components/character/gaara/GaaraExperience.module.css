@@ -39,3 +39,1972 @@
   --gaa-glow-soft:  color-mix(in srgb, #cf6a3f 20%, transparent);
   --gaa-glow-strong: color-mix(in srgb, #cf6a3f 45%, transparent);
 }
+
+/* ============================================================
+   GAARA — "Mutlak Savunma — ve Kimin İçin"
+
+   Deri: kökteki `data-world="gaara"` bütün standart token'ları çöl
+   sıcaklığına çeviriyor; yardımcılar `--gaa-*`, yukarıdaki blokta.
+   Bu blokta TEK HEX YOK — ara tonların hepsi color-mix ile türetildi.
+
+   ── SAYFANIN FİKRİ ──────────────────────────────────────────────────────
+   KATMAN. Gaara'nın savunması tek bir kalkan değil, üst üste binmiş beş
+   tabakadır — ve sayfa da öyle kurulmuştur. Ölçü birimi bir kum bandının
+   yüksekliği (`--gaa-band`): bölüm arası mesafe, kart aralığı, kesitin
+   kalınlığı hepsi onun katı. Sayfanın kalbi bir KESİT: yandan bakılan beş
+   bant, seçilen bandın altındaki her şey de yanıyor (savunma birikimli).
+
+   Sayfa 愛 bölümünde ikiye ayrılıyor: oraya kadar "mutlak savunma",
+   ondan sonra "kimin için". KIRMIZI (--accent) yalnızca o harfte, odak
+   halkasında ve bağ altı çizgisinde var; geri kalan her şey kum rengi.
+
+   ZEMİN: 22 kardeş dosyanın en sıcağı. `--bg` tek başına koyu; sıcaklık
+   iki katmanlı bir yıkamadan geliyor (aşağıdaki `.page` gradyanı) ve
+   sayfanın üstüne serpilen tane dokusundan (`.page::before`).
+
+   ── TİPOGRAFİ ───────────────────────────────────────────────────────────
+   Display: Cinzel. Seçim gerekçesi sayfanın kendisi — Gaara alnındaki
+   harfi YAZMADI, KAZIDI; Cinzel Roma kitabelerinin oyma majüskülü, yani
+   "kazınmış harf" ailesinin ta kendisi. Küçük harfleri de kapitale yakın
+   olduğu için Türkçe başlıklar kitabe gibi okunuyor (latin-ext yüklü,
+   İ/Ğ/Ş/Ç/Ö/Ü güvenli).
+   Gövde: Cormorant Garamond 500 — sıcak, klasik, Cinzel'in doğal eşi.
+   Notasyon (etiket, künye değeri, katman numarası): Inter + tabular-nums.
+   Japonca: Shippori Mincho B1 700 — fırça DEĞİL. Ev genelinde kanji için
+   Yuji Boku (fırça) kullanılıyor; burada bilinçli olarak keskin uçlu bir
+   mincho seçildi, çünkü bu sayfadaki harfler kaziıyor, boyanmıyor.
+
+   ── HAREKET ─────────────────────────────────────────────────────────────
+   Yazılmış TEK an: kesitte bir bant seçildiğinde alttaki bantların
+   sırayla yanması (aşağıdan yukarı, 60 ms aralıklı). İkinci ve son an
+   愛'nin on üç strokeunun sırayla kazınması — bir kez, açılışta.
+   Geri kalan her şey ya durağan ya da tane sürüklenmesi kadar yavaş.
+   Süre/easing değişkenleri `.page`de; animasyonlar no-preference
+   kapısında, dosyanın sonunda reduce battaniyesi var.
+
+   ── SHUKAKU MODU ────────────────────────────────────────────────────────
+   Renk değişkeni TANIMLANMIYOR (BRIEF §3). Bütün kayma tek bir ÖLÇÜ
+   üzerinden: `--gaa-mix` karışım oranı 0% → 15%. Kuralların içinde
+   color-mix o oranı okuyor, yani palet sarıya kayarken hiçbir token
+   yeniden yazılmıyor. Aynı mantıkla `--gaa-hard` kumun yumuşaklığı:
+   modda 0'a inince bütün yuvarlak köşeler sertleşiyor.
+   ============================================================ */
+
+.page {
+  /* Süre ve easing — hareket sözlüğü */
+  --gaa-dur-fast: 150ms;
+  --gaa-dur: 300ms;
+  --gaa-dur-slow: 720ms;
+  --gaa-carve: 300ms; /* tek strokeun kazınma süresi */
+  --gaa-ease: cubic-bezier(0.16, 1, 0.3, 1); /* üstel yavaşlama */
+  --gaa-ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Geometri — bir kum bandı sayfanın tek ölçü birimi */
+  --gaa-band: clamp(3.4rem, 7.4vw, 5.2rem);
+  --gaa-gutter: clamp(1rem, 4vw, 2.25rem);
+  --gaa-content: min(100% - var(--gaa-gutter) * 2, 72rem);
+  --gaa-measure: 64ch;
+
+  /* Shukaku modunun iki kolu — ikisi de ölçü, renk değil */
+  --gaa-mix: 0%;
+  --gaa-hard: 3px;
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  color: var(--text-primary);
+  overflow-x: clip;
+  background:
+    radial-gradient(
+      130% 58% at 50% 104%,
+      color-mix(in srgb, var(--gaa-gourd) 16%, transparent) 0%,
+      transparent 70%
+    ),
+    linear-gradient(
+      to bottom,
+      var(--bg) 0%,
+      color-mix(in srgb, var(--gaa-gourd) 8%, var(--bg)) 100%
+    );
+  transition: background var(--gaa-dur-slow) var(--gaa-ease);
+}
+
+/* Tane dokusu: 3 piksellik bir ızgarada duran nokta alanı. Sayfanın
+   yüzeyi düz bir zemin değil, üstünde durulan kum olsun diye. Üstte ve
+   altta maskeyle söner. */
+.page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    var(--gaa-grain) 0 1px,
+    transparent 1.2px
+  );
+  background-size: 3px 3px;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    black 8rem,
+    black calc(100% - 10rem),
+    transparent 100%
+  );
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Breadcrumb ──────────────────────────────────────────────────────── */
+.crumb {
+  position: relative;
+  z-index: 1;
+  width: var(--gaa-content);
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-block: 0.75rem;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.crumb a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--gaa-dur-fast) var(--gaa-ease-soft);
+}
+
+.crumb a:hover {
+  color: var(--gaa-sand);
+}
+
+.crumb a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.crumbSep {
+  color: var(--border-strong);
+}
+
+/* ============================================================
+   MOD DÜĞMESİ — "Shukaku"
+   ============================================================ */
+.modeToggle {
+  position: fixed;
+  right: clamp(0.75rem, 3vw, 1.75rem);
+  bottom: calc(clamp(0.75rem, 3vw, 1.75rem) + var(--music-bar, 0px));
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: var(--touch-min);
+  padding: 0.5rem 1.05rem 0.5rem 0.6rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+  backdrop-filter: blur(6px);
+  color: var(--text-secondary);
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 12px 30px -18px color-mix(in srgb, var(--bg) 90%, transparent);
+  transition:
+    color var(--gaa-dur) var(--gaa-ease-soft),
+    border-color var(--gaa-dur) var(--gaa-ease-soft),
+    box-shadow var(--gaa-dur) var(--gaa-ease-soft);
+}
+
+.modeToggle:hover {
+  color: var(--text-primary);
+  border-color: var(--gaa-gourd);
+}
+
+.modeToggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.modeToggle[aria-pressed="true"] {
+  color: var(--text-primary);
+  border-color: var(--gaa-sand);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--gaa-shukaku) 30%, transparent),
+    0 18px 40px -22px color-mix(in srgb, var(--gaa-shukaku) 60%, transparent);
+}
+
+.modeGlyph {
+  width: 1.5rem;
+  height: 1.5rem;
+  flex: none;
+  transition: scale var(--gaa-dur-slow) var(--gaa-ease);
+}
+
+.modeToggle[aria-pressed="true"] .modeGlyph {
+  scale: 1.12;
+}
+
+.modeLabel {
+  white-space: nowrap;
+}
+
+.modeHint {
+  position: fixed;
+  right: clamp(0.75rem, 3vw, 1.75rem);
+  bottom: calc(clamp(0.75rem, 3vw, 1.75rem) + var(--music-bar, 0px) + 3.5rem);
+  z-index: 59;
+  max-width: min(21rem, calc(100vw - 2rem));
+  margin: 0;
+  text-align: right;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.modeHint:empty {
+  display: none;
+}
+
+/* Kenardan bakan tek göz — mod kapalıyken tamamen görünmez */
+.watchers {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.watcher {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: min(26vw, 17rem);
+  height: min(64vh, 34rem);
+  translate: -34% -50%;
+  opacity: 0;
+  transition:
+    opacity var(--gaa-dur-slow) var(--gaa-ease),
+    translate var(--gaa-dur-slow) var(--gaa-ease);
+}
+
+.watcher:last-child {
+  left: auto;
+  right: 0;
+  translate: 34% -50%;
+  scale: -1 1;
+}
+
+.watcherEye {
+  transform-origin: 98px 217px;
+}
+
+/* ============================================================
+   1 · HERO — ÇÖL UFKU
+   Her şey kadrajın ALTINA yerleşir; üstteki boşluk bilerek boş gökyüzü.
+   Portre sağda, iki kenarından da kuma dağılıyor.
+   ============================================================ */
+.hero {
+  position: relative;
+  z-index: 1;
+  width: var(--gaa-content);
+  margin-inline: auto;
+  min-height: min(90svh, 54rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(8.5rem, 25vw, 15rem);
+  grid-template-rows: 1fr auto;
+  align-items: end;
+  gap: 0 var(--gaa-gutter);
+  padding-block: calc(var(--gaa-band) * 0.7) calc(var(--gaa-band) * 1.2);
+}
+
+.heroScene {
+  position: absolute;
+  inset: calc(var(--gaa-band) * -0.5) calc(var(--gaa-gutter) * -1);
+  z-index: -2;
+  overflow: hidden;
+}
+
+.heroScene img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: sepia(0.35) saturate(0.85) brightness(0.62);
+}
+
+.heroScrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    var(--bg) 3%,
+    color-mix(in srgb, var(--bg) 58%, transparent) 52%,
+    color-mix(in srgb, var(--bg) 84%, transparent) 100%
+  );
+}
+
+/* Ufuk: iki eğri hat, kadrajın alt yarısında. Metnin arkasından geçer. */
+.horizon {
+  position: absolute;
+  left: calc(var(--gaa-gutter) * -2);
+  right: calc(var(--gaa-gutter) * -2);
+  bottom: calc(var(--gaa-band) * 0.2);
+  z-index: -1;
+  height: clamp(9rem, 30vh, 20rem);
+  width: auto;
+  opacity: 0.6;
+  pointer-events: none;
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    black 12%,
+    black 88%,
+    transparent 100%
+  );
+}
+
+.ridge {
+  transition: opacity var(--gaa-dur-slow) var(--gaa-ease);
+}
+
+/* Filigran: dev 我愛羅, gökyüzünün sol üstünde, neredeyse görünmez */
+.heroMark {
+  position: absolute;
+  top: calc(var(--gaa-band) * 0.1);
+  left: calc(var(--gaa-gutter) * -0.4);
+  margin: 0;
+  font-family: var(--font-shippori), Georgia, serif;
+  font-weight: 700;
+  font-size: clamp(4rem, 17vw, 13rem);
+  line-height: 0.92;
+  letter-spacing: 0.02em;
+  color: color-mix(in srgb, var(--gaa-sand) 9%, transparent);
+  user-select: none;
+  pointer-events: none;
+}
+
+.heroBody {
+  grid-column: 1;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+  max-width: 38ch;
+}
+
+.heroVillage {
+  margin: 0 0 0.5rem;
+  padding-bottom: 0.55rem;
+  border-bottom: 1px solid var(--border-strong);
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.heroName {
+  margin: 0;
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: clamp(2.75rem, 9.5vw, 5.5rem);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: 0.015em;
+  text-wrap: balance;
+  color: var(--text-primary);
+  transition: text-shadow var(--gaa-dur-slow) var(--gaa-ease);
+}
+
+.heroNative {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-shippori), Georgia, serif;
+  font-weight: 600;
+  font-size: clamp(1.05rem, 2.6vw, 1.45rem);
+  letter-spacing: 0.3em;
+  color: var(--gaa-gourd);
+}
+
+.heroEpithet {
+  margin: 0.15rem 0 0;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.heroEpigraph {
+  margin: calc(var(--gaa-band) * 0.42) 0 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.2rem, 2.3vw, 1.55rem);
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--text-primary);
+  text-wrap: pretty;
+}
+
+.heroLede {
+  margin: 0.55rem 0 0;
+  max-width: 44ch;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.0625rem;
+  font-weight: 500;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.heroAside {
+  grid-column: 2;
+  grid-row: 1 / 3;
+  align-self: end;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.9rem;
+}
+
+.portraitWrap {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+
+/* Portre kutu içinde DEĞİL: alt ve sol kenarı maskeyle kuma dağılıyor,
+   üstüne SVG taneler biniyor. Çerçeve yok — çölde kenar da yok. */
+.heroPortrait {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4.4;
+  overflow: hidden;
+  filter: sepia(0.28) saturate(0.92) contrast(1.04);
+  mask-image:
+    linear-gradient(to bottom, black 52%, transparent 99%),
+    linear-gradient(to right, transparent 0, black 26%);
+  mask-composite: intersect;
+  transition: filter var(--gaa-dur-slow) var(--gaa-ease);
+}
+
+.heroPortrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 16%;
+}
+
+.hero:hover .heroPortrait {
+  filter: sepia(0.1) saturate(1) contrast(1.04);
+}
+
+/* Taneler portrenin kenarlarından savruluyor — kutunun DIŞINA taşıyor */
+.grains {
+  position: absolute;
+  inset: -14% -30% -22% -34%;
+  pointer-events: none;
+}
+
+.horizonCaption {
+  margin: 0;
+  max-width: 22ch;
+  text-align: right;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .grain {
+    animation: gaaDrift 19s var(--gaa-ease-soft) infinite alternate;
+  }
+
+  .grain[data-band="2"] {
+    animation-duration: 26s;
+    animation-delay: -6s;
+  }
+
+  .grain[data-band="3"] {
+    animation-duration: 33s;
+    animation-delay: -13s;
+  }
+}
+
+@keyframes gaaDrift {
+  from {
+    translate: 0 0;
+    opacity: 0.55;
+  }
+  to {
+    translate: -7px -4px;
+    opacity: 1;
+  }
+}
+
+/* ============================================================
+   BÖLÜM İSKELETİ
+   ============================================================ */
+.section,
+.strataSection,
+.aiSection {
+  position: relative;
+  z-index: 1;
+  width: var(--gaa-content);
+  margin-inline: auto;
+  padding-block: calc(var(--gaa-band) * 1.05);
+}
+
+.sectionHead {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin-bottom: calc(var(--gaa-band) * 0.7);
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: clamp(1.7rem, 4vw, 2.85rem);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: 0.01em;
+  color: var(--text-primary);
+  text-wrap: balance;
+  transition: text-shadow var(--gaa-dur-slow) var(--gaa-ease);
+}
+
+.sectionLede {
+  margin: 0;
+  max-width: 52ch;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.125rem;
+  font-weight: 500;
+  line-height: 1.75;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* Kurator yuvaları — ziyaretçide hiç çizilmiyor */
+.slotRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+/* ============================================================
+   2 · KÜNYE — çekirdek numunesi şeridi
+   Sekiz sütun; her sütunun tepesinde bir kum çizgisi. Üstten aşağı
+   okunuyor: etiket Inter, değer Cinzel.
+   ============================================================ */
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12.5rem, 1fr));
+  gap: 0;
+  margin: 0;
+  border-top: 1px solid var(--border-strong);
+}
+
+.fact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 1.15rem 1.15rem 1.35rem 0;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--gaa-shield) 40%, transparent) 0%,
+    transparent 62%
+  );
+  transition: background var(--gaa-dur) var(--gaa-ease-soft);
+}
+
+.fact:hover {
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--gaa-shield) 85%, transparent) 0%,
+    transparent 76%
+  );
+}
+
+.fact dt {
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.fact dd {
+  margin: 0;
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.35;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+}
+
+/* ============================================================
+   3 · KUM KATMANLARI — SAYFANIN KALBİ
+   Solda kesit (aşağıdan yukarı beş bant), sağda seçilen katmanın
+   okunuşu. Panel yapışkan: bant seçilirken metin gözden kaybolmuyor.
+   ============================================================ */
+.strataSection {
+  padding-block: calc(var(--gaa-band) * 1.25);
+}
+
+.strata {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: calc(var(--gaa-band) * 0.6);
+  align-items: start;
+}
+
+.strataColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+/* Kesit: DOM sırası 1→5 (tırmanış), görsel sıra ters — 1 en altta.
+   Bantlar negatif kenar boşluğuyla birbirine geçiyor, yani dalgalı üst
+   kenar bir üstteki bandın tabanını ısırıyor. Gerçek kesitte tabakalar
+   arasında boşluk yoktur. */
+.strataStack {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: stretch;
+}
+
+.band {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 0.9rem;
+  min-height: var(--gaa-band);
+  padding: 0.5rem 0.9rem 0.6rem;
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    min-height var(--gaa-dur-slow) var(--gaa-ease),
+    color var(--gaa-dur) var(--gaa-ease-soft),
+    translate var(--gaa-dur-slow) var(--gaa-ease);
+}
+
+.band + .band {
+  margin-bottom: calc(var(--gaa-band) * -0.2);
+}
+
+.band:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.bandArt {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  opacity: 0.34;
+  transition:
+    opacity var(--gaa-dur-slow) var(--gaa-ease),
+    filter var(--gaa-dur-slow) var(--gaa-ease);
+}
+
+/* Birikimli yanma: seçilen bandın ALTINDAKİ her bant da yanar, ve
+   yanma aşağıdan yukarı 60 ms aralıklarla ilerler — sayfanın yazılmış
+   tek anı. Gecikme bandın kendi sırasından geliyor. */
+.band:nth-child(1) .bandArt {
+  transition-delay: 0ms;
+}
+
+.band:nth-child(2) .bandArt {
+  transition-delay: 60ms;
+}
+
+.band:nth-child(3) .bandArt {
+  transition-delay: 120ms;
+}
+
+.band:nth-child(4) .bandArt {
+  transition-delay: 180ms;
+}
+
+.band:nth-child(5) .bandArt {
+  transition-delay: 240ms;
+}
+
+.band[data-lit] {
+  color: var(--text-primary);
+}
+
+.band[data-lit] .bandArt {
+  opacity: 1;
+}
+
+.band[data-active] {
+  min-height: calc(var(--gaa-band) * 1.22);
+}
+
+.band[data-active] .bandArt {
+  filter: brightness(1.35);
+}
+
+.band:hover:not([data-lit]) .bandArt {
+  opacity: 0.62;
+}
+
+.bandEdge {
+  transition: stroke-opacity var(--gaa-dur-slow) var(--gaa-ease);
+}
+
+.band[data-active] .bandEdge {
+  stroke-opacity: 1;
+}
+
+.bandGrains {
+  opacity: 0;
+  transition: opacity var(--gaa-dur-slow) var(--gaa-ease);
+}
+
+.band[data-lit] .bandGrains {
+  opacity: 1;
+}
+
+.bandIndex {
+  flex: none;
+  width: 1.5rem;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 1rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--text-muted);
+  transition: color var(--gaa-dur) var(--gaa-ease-soft);
+}
+
+.band[data-active] .bandIndex {
+  color: var(--accent-hover);
+}
+
+.bandBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.bandName {
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: clamp(0.95rem, 2vw, 1.15rem);
+  font-weight: 700;
+  line-height: 1.2;
+  color: inherit;
+}
+
+.bandRomaji {
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.bandKanji {
+  flex: none;
+  font-family: var(--font-shippori), Georgia, serif;
+  font-weight: 700;
+  font-size: clamp(0.9rem, 1.9vw, 1.2rem);
+  letter-spacing: 0.08em;
+  line-height: 1.1;
+  color: color-mix(in srgb, var(--gaa-sand) 55%, transparent);
+  transition: color var(--gaa-dur) var(--gaa-ease-soft);
+}
+
+.band[data-lit] .bandKanji {
+  color: var(--gaa-sand);
+}
+
+.strataCaption {
+  margin: 0;
+  max-width: 46ch;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+
+/* ── Seçilen katmanın okunuşu ─────────────────────────────────────────── */
+.layerPanel {
+  position: sticky;
+  top: calc(var(--gaa-band) * 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-height: 28rem;
+  padding: 1.6rem 1.5rem 1.7rem;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--gaa-hard);
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--surface) 82%, transparent),
+    color-mix(in srgb, var(--bg) 92%, transparent)
+  );
+  box-shadow: 0 26px 60px -46px color-mix(in srgb, var(--bg) 92%, transparent);
+  transition:
+    border-color var(--gaa-dur) var(--gaa-ease-soft),
+    border-radius var(--gaa-dur) var(--gaa-ease-soft);
+}
+
+.layerPanel:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.layerArt {
+  position: absolute;
+  inset: 0;
+  opacity: 0.15;
+  mask-image: linear-gradient(to top, transparent 24%, black 100%);
+}
+
+.layerArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: sepia(0.4) saturate(0.8);
+}
+
+.layerCount {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  margin: 0;
+  font-family: var(--font-inter), var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+.layerCountNumber {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--gaa-sand);
+}
+
+.layerCountTotal {
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.layerTitle {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin: 0.15rem 0 0;
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: clamp(1.4rem, 3.2vw, 2.05rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.layerWord {
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.layerName {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 0.3rem 0 0;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gaa-gourd);
+}
+
+.layerKanji {
+  font-family: var(--font-shippori), Georgia, serif;
+  font-weight: 700;
+  font-size: 1.25rem;
+  letter-spacing: 0.1em;
+  text-transform: none;
+  color: var(--gaa-sand);
+}
+
+.layerTag {
+  position: relative;
+  margin: 0.5rem 0 0;
+  max-width: 42ch;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.1875rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--gaa-sand);
+  text-wrap: pretty;
+}
+
+.layerText {
+  position: relative;
+  margin: 0;
+  max-width: 54ch;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.0625rem;
+  font-weight: 500;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.layerCost {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin: auto 0 0;
+  padding-top: 0.95rem;
+  border-top: 1px solid var(--border);
+  max-width: 50ch;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.7;
+  color: var(--text-primary);
+  text-wrap: pretty;
+}
+
+.layerCostLabel {
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.strataHint {
+  position: relative;
+  margin: 0.9rem 0 0;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   4 · KUMUN GRAMERİ — üç büyük
+   Tek sütun, üç blok. Kanji sağda dikey ve BÜYÜK: metnin arkasında
+   duran bir kaya yüzeyi gibi.
+   ============================================================ */
+.forms {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--gaa-band) * 0.85);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.form {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0 clamp(1rem, 3vw, 2.25rem);
+  padding-top: 1.6rem;
+  border-top: 1px solid var(--border-strong);
+}
+
+.formArt {
+  position: absolute;
+  inset: 1.6rem 0 auto auto;
+  width: min(17rem, 40%);
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  opacity: 0.42;
+  mask-image: linear-gradient(to left, black 26%, transparent 100%);
+  transition: opacity var(--gaa-dur-slow) var(--gaa-ease);
+}
+
+.formArt:empty {
+  display: none;
+}
+
+.formArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: sepia(0.42) saturate(0.85) contrast(1.05);
+}
+
+.form:hover .formArt {
+  opacity: 0.66;
+}
+
+.formKanji {
+  grid-column: 2;
+  grid-row: 1;
+  writing-mode: vertical-rl;
+  font-family: var(--font-shippori), Georgia, serif;
+  font-weight: 700;
+  font-size: clamp(1.8rem, 5.2vw, 3.6rem);
+  line-height: 1;
+  letter-spacing: 0.06em;
+  color: color-mix(in srgb, var(--gaa-sand) 16%, transparent);
+  transition: color var(--gaa-dur-slow) var(--gaa-ease);
+}
+
+.form:hover .formKanji {
+  color: color-mix(in srgb, var(--gaa-sand) 34%, transparent);
+}
+
+.formBody {
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.formName {
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: clamp(1.3rem, 3vw, 1.9rem);
+  font-weight: 700;
+  line-height: 1.18;
+  letter-spacing: 0.01em;
+  color: var(--text-primary);
+}
+
+.formTurkish {
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.formTagline {
+  margin-top: 0.45rem;
+  max-width: 42ch;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.1875rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--gaa-sand);
+}
+
+.formText {
+  max-width: var(--gaa-measure);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.0625rem;
+  font-weight: 500;
+  line-height: 1.85;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.formTraits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.65rem;
+}
+
+.trait {
+  padding: 0.32rem 0.7rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--gaa-hard);
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  transition: border-radius var(--gaa-dur) var(--gaa-ease-soft);
+}
+
+/* ============================================================
+   5 · TAŞIDIKLARI — dört küçük
+   Her biri kuma yarı gömülü bir nesne: alt kenardan yükselen kum
+   yıkaması, üstte metin.
+   ============================================================ */
+.kit {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15.5rem, 1fr));
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: var(--gaa-hard);
+  overflow: hidden;
+  transition: border-radius var(--gaa-dur) var(--gaa-ease-soft);
+}
+
+.kitItem {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1.5rem 1.3rem 1.7rem;
+  overflow: hidden;
+  background:
+    linear-gradient(
+      to top,
+      color-mix(in srgb, var(--gaa-shield) 70%, transparent) 0%,
+      transparent 55%
+    ),
+    var(--bg);
+  transition: background var(--gaa-dur) var(--gaa-ease-soft);
+}
+
+.kitItem:hover {
+  background:
+    linear-gradient(
+      to top,
+      color-mix(in srgb, var(--gaa-shield) 100%, transparent) 0%,
+      transparent 68%
+    ),
+    var(--surface);
+}
+
+.kitArt {
+  position: absolute;
+  inset: auto 0 0 auto;
+  width: 68%;
+  aspect-ratio: 1;
+  opacity: 0.2;
+  mask-image: radial-gradient(circle at 78% 92%, black 18%, transparent 70%);
+  transition: opacity var(--gaa-dur-slow) var(--gaa-ease);
+}
+
+.kitArt:empty {
+  display: none;
+}
+
+.kitArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: sepia(0.45) saturate(0.8);
+}
+
+.kitItem:hover .kitArt {
+  opacity: 0.34;
+}
+
+.kitName {
+  position: relative;
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.28;
+  color: var(--text-primary);
+}
+
+.kitNote {
+  position: relative;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.75;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* ============================================================
+   6 · 愛 — SAYFANIN MENTEŞESİ
+   Sayfadaki TEK kırmızı kütle. Etrafında hiçbir şey yok: harf, iki
+   cümle, bir dipnot. Bölüm ortalanmış, çünkü burası duruş noktası.
+   ============================================================ */
+.aiSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--gaa-band) * 0.4);
+  padding-block: calc(var(--gaa-band) * 1.6);
+  text-align: center;
+  isolation: isolate;
+}
+
+.aiScene {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.12;
+  mask-image: radial-gradient(ellipse at 50% 46%, black 8%, transparent 66%);
+}
+
+.aiScene img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: sepia(0.5) saturate(0.7);
+}
+
+.aiTitle {
+  margin: 0;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.aiGlyph {
+  width: clamp(11rem, 34vw, 19rem);
+  height: auto;
+  filter: drop-shadow(0 0 42px var(--gaa-glow-soft));
+}
+
+.aiStroke {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+
+/* Oluk: harfin battığı yer. Shukaku modunda kayma büyüyor — yara
+   derinleşiyor. Buradaki `transform` SVG'deki sunum niteliğini eziyor. */
+.aiGroove {
+  transition: transform var(--gaa-dur-slow) var(--gaa-ease);
+}
+
+.aiLines {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  max-width: 50ch;
+}
+
+.aiLine {
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.2rem, 2.7vw, 1.6rem);
+  font-weight: 600;
+  line-height: 1.55;
+  color: var(--text-primary);
+  text-wrap: pretty;
+}
+
+.aiLine + .aiLine {
+  color: var(--text-secondary);
+}
+
+.aiFootnote {
+  margin: 0;
+  max-width: 44ch;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--border);
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.75rem;
+  line-height: 1.75;
+  color: var(--text-muted);
+}
+
+/* Kazınma: on üç stroke sırayla iniyor. Bir kez, açılışta — ve
+   sayfanın ikinci (son) yazılmış anı. */
+@media (prefers-reduced-motion: no-preference) {
+  .aiStroke {
+    animation: gaaCarve var(--gaa-carve) var(--gaa-ease-soft) backwards;
+  }
+
+  .aiStroke[data-stroke="1"] { animation-delay: 120ms; }
+  .aiStroke[data-stroke="2"] { animation-delay: 240ms; }
+  .aiStroke[data-stroke="3"] { animation-delay: 360ms; }
+  .aiStroke[data-stroke="4"] { animation-delay: 480ms; }
+  .aiStroke[data-stroke="5"] { animation-delay: 600ms; }
+  .aiStroke[data-stroke="6"] { animation-delay: 780ms; }
+  .aiStroke[data-stroke="7"] { animation-delay: 900ms; }
+  .aiStroke[data-stroke="8"] { animation-delay: 1080ms; }
+  .aiStroke[data-stroke="9"] { animation-delay: 1200ms; }
+  .aiStroke[data-stroke="10"] { animation-delay: 1320ms; }
+  .aiStroke[data-stroke="11"] { animation-delay: 1440ms; }
+  .aiStroke[data-stroke="12"] { animation-delay: 1620ms; }
+}
+
+@keyframes gaaCarve {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ============================================================
+   7 · KİMİN İÇİN — dört portre
+   Uzaklık kadrajda ölçülüyor: `data-distance` uzaktakini soldurup
+   aşağı itiyor, yakındakini öne alıyor. Portreler kutuda değil,
+   alt kenarları kuma karışıyor.
+   ============================================================ */
+.people {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: calc(var(--gaa-band) * 0.5) clamp(1rem, 3vw, 2rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  align-items: end;
+}
+
+.person {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  transition: translate var(--gaa-dur-slow) var(--gaa-ease);
+}
+
+.personArt {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--gaa-shield) 60%, transparent);
+  mask-image: linear-gradient(to bottom, black 58%, transparent 100%);
+}
+
+.personArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 18%;
+  transition: filter var(--gaa-dur-slow) var(--gaa-ease);
+}
+
+.person[data-distance="far"] {
+  translate: 0 0.9rem;
+}
+
+.person[data-distance="far"] .personArt img {
+  filter: sepia(0.55) saturate(0.5) brightness(0.72) contrast(1.05);
+}
+
+.person[data-distance="mid"] .personArt img {
+  filter: sepia(0.38) saturate(0.75) brightness(0.88);
+}
+
+.person[data-distance="near"] .personArt img {
+  filter: sepia(0.12) saturate(1) brightness(1);
+}
+
+.person:hover .personArt img {
+  filter: sepia(0.05) saturate(1.05) brightness(1.02);
+}
+
+.personBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.32rem;
+}
+
+.personRole {
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.personName {
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--text-primary);
+}
+
+/* Dokunma hedefi: satır içi bağ 44 pikselin altında kalmasın diye
+   inline-flex + min-height (BRIEF §7). Kartın nefesi de buradan geliyor. */
+.personName a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-color: var(--accent-muted);
+  transition: text-decoration-color var(--gaa-dur-fast) var(--gaa-ease-soft);
+}
+
+.personName a:hover {
+  text-decoration-color: var(--accent);
+}
+
+.personName a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.personNote {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* ============================================================
+   8 · KADER ÇİZELGESİ
+   Beş kayıt, beş tortu tabakası: aşağı indikçe kum yıkaması koyulaşır
+   (`--gaa-depth`). Yaş sütunu solda, derinlik ölçüsü gibi.
+   ============================================================ */
+.fate {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fateItem {
+  --gaa-depth: 20%;
+
+  position: relative;
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr);
+  gap: 0 1.5rem;
+  padding-block: calc(var(--gaa-band) * 0.55);
+  border-top: 1px solid var(--border);
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--gaa-shield) var(--gaa-depth), transparent),
+    transparent 78%
+  );
+}
+
+.fateItem:nth-child(2) {
+  --gaa-depth: 34%;
+}
+
+.fateItem:nth-child(3) {
+  --gaa-depth: 50%;
+}
+
+.fateItem:nth-child(4) {
+  --gaa-depth: 68%;
+}
+
+.fateItem:nth-child(5) {
+  --gaa-depth: 88%;
+  border-bottom: 1px solid var(--border);
+}
+
+.fateAge {
+  margin: 0;
+  padding-top: 0.35rem;
+  text-align: right;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  color: var(--gaa-gourd);
+}
+
+.fateBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.fateTitle {
+  margin: 0;
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: clamp(1.15rem, 2.5vw, 1.55rem);
+  font-weight: 700;
+  line-height: 1.28;
+  letter-spacing: 0.01em;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.fateText {
+  margin: 0;
+  max-width: var(--gaa-measure);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.0625rem;
+  font-weight: 500;
+  line-height: 1.85;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.fateQuote {
+  margin: 0.4rem 0 0;
+  padding-left: 1.15rem;
+  border-left: 1px solid var(--accent-muted);
+}
+
+.fateQuote blockquote {
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.1875rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+.fateQuote figcaption {
+  margin-top: 0.4rem;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.fateArt {
+  position: relative;
+  grid-column: 2;
+  display: block;
+  width: 100%;
+  max-width: 32rem;
+  aspect-ratio: 21 / 9;
+  margin-top: 1rem;
+  overflow: hidden;
+  border-radius: var(--gaa-hard);
+}
+
+.fateArt:empty {
+  display: none;
+}
+
+.fateArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: sepia(0.4) saturate(0.8) brightness(0.85);
+  transition: filter var(--gaa-dur-slow) var(--gaa-ease);
+}
+
+.fateItem:hover .fateArt img {
+  filter: sepia(0.15) saturate(0.95) brightness(0.95);
+}
+
+/* ============================================================
+   9 · KAPANIŞ
+   ============================================================ */
+.closing {
+  position: relative;
+  z-index: 1;
+  width: var(--gaa-content);
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--gaa-band) * 0.6);
+  padding-block: calc(var(--gaa-band) * 1.5) calc(var(--gaa-band) * 1.8);
+  text-align: center;
+}
+
+.closingArt {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.16;
+  mask-image: radial-gradient(ellipse at 50% 50%, black 8%, transparent 70%);
+}
+
+.closingArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: sepia(0.5) saturate(0.7);
+}
+
+.closingQuote {
+  margin: 0;
+  max-width: 44ch;
+}
+
+.closingQuote blockquote {
+  margin: 0;
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: clamp(1.3rem, 3.2vw, 2.1rem);
+  font-weight: 700;
+  line-height: 1.32;
+  letter-spacing: 0.01em;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.closingQuote figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.95rem;
+}
+
+.quoteBy {
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.quoteNote {
+  max-width: 44ch;
+  margin-inline: auto;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+.motto {
+  margin: 0;
+  font-family: var(--font-shippori), Georgia, serif;
+  font-weight: 700;
+  font-size: clamp(2.2rem, 8vw, 4.25rem);
+  line-height: 1.1;
+  letter-spacing: 0.12em;
+  color: color-mix(in srgb, var(--gaa-sand) 30%, transparent);
+}
+
+.mottoNote {
+  margin: -0.6rem 0 0;
+  max-width: 46ch;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.75rem;
+  line-height: 1.7;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.credit {
+  max-width: 56ch;
+  margin: 0;
+  padding-top: calc(var(--gaa-band) * 0.5);
+  border-top: 1px solid var(--border);
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.75rem;
+  line-height: 1.8;
+  color: var(--text-muted);
+}
+
+.credit a {
+  color: var(--text-secondary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--accent-muted);
+  transition: color var(--gaa-dur-fast) var(--gaa-ease-soft);
+}
+
+.credit a:hover {
+  color: var(--accent-hover);
+}
+
+.credit a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ============================================================
+   SHUKAKU MODU
+   Tek kol: `--gaa-mix`. Bütün kayma color-mix üzerinden okunuyor,
+   hiçbir renk token'ı yeniden yazılmıyor (BRIEF §3). İkinci kol
+   `--gaa-hard`: kum sertleşince yuvarlaklık sıfırlanıyor.
+   ============================================================ */
+.page[data-shukaku] {
+  --gaa-mix: 15%;
+  --gaa-hard: 0px;
+
+  /* Aşağıdaki bütün oranlar TEK koldan türüyor: `--gaa-mix` değişince
+     sayfanın sarıya kayma miktarı toptan değişir. */
+  background:
+    radial-gradient(
+      130% 58% at 50% 104%,
+      color-mix(in srgb, var(--gaa-shukaku) calc(var(--gaa-mix) * 1.5), transparent)
+        0%,
+      transparent 72%
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--gaa-shukaku) calc(var(--gaa-mix) * 0.34), var(--bg))
+        0%,
+      color-mix(in srgb, var(--gaa-shukaku) var(--gaa-mix), var(--bg)) 100%
+    );
+}
+
+.page[data-shukaku] .watcher {
+  opacity: 1;
+  translate: -8% -50%;
+}
+
+.page[data-shukaku] .watcher:last-child {
+  translate: 8% -50%;
+}
+
+/* Tipografi çatlar: harfin bir kopyası yerinden oynuyor, arasına
+   zeminin kendisi giriyor — kırık bir kabuk gibi. */
+.page[data-shukaku] .heroName,
+.page[data-shukaku] .sectionTitle {
+  text-shadow:
+    0.035em -0.022em 0 var(--bg),
+    0.05em -0.032em 0 color-mix(in srgb, var(--gaa-shukaku) 62%, transparent),
+    -0.02em 0.03em 0 color-mix(in srgb, var(--gaa-gourd) 45%, transparent);
+}
+
+/* Kum sertleşir: bantların dalga kenarı keskinleşir, taneler koyulaşır */
+.page[data-shukaku] .bandArt {
+  filter: saturate(1.35) brightness(1.12);
+}
+
+.page[data-shukaku] .band[data-active] .bandArt {
+  filter: saturate(1.4) brightness(1.5);
+}
+
+.page[data-shukaku] .bandKanji,
+.page[data-shukaku] .layerKanji,
+.page[data-shukaku] .heroNative {
+  color: var(--gaa-shukaku);
+}
+
+.page[data-shukaku] .layerPanel {
+  border-color: color-mix(in srgb, var(--gaa-shukaku) 34%, var(--border));
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--gaa-shukaku) 8%, var(--surface)),
+    color-mix(in srgb, var(--gaa-shukaku) 4%, var(--bg))
+  );
+}
+
+.page[data-shukaku] .kitItem,
+.page[data-shukaku] .fateItem {
+  background:
+    linear-gradient(
+      to top,
+      color-mix(in srgb, var(--gaa-shukaku) 12%, transparent) 0%,
+      transparent 62%
+    ),
+    color-mix(in srgb, var(--gaa-shukaku) 4%, var(--bg));
+}
+
+.page[data-shukaku] .ridge {
+  opacity: 0.9;
+}
+
+.page[data-shukaku] .heroPortrait {
+  filter: sepia(0.55) saturate(1.15) contrast(1.12) brightness(0.94);
+}
+
+.page[data-shukaku] .grain {
+  opacity: 1;
+}
+
+/* ============================================================
+   MOBİL — 360 pikselde yatay taşma YOK, ızgaraların hepsi iner
+   ============================================================ */
+@media (max-width: 900px) {
+  .strata {
+    grid-template-columns: 1fr;
+    gap: calc(var(--gaa-band) * 0.5);
+  }
+
+  /* Panel yapışkanlıktan çıkar: dar ekranda kesitin altında durur */
+  .layerPanel {
+    position: static;
+    min-height: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .hero {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    align-items: start;
+    gap: calc(var(--gaa-band) * 0.6) 0;
+    min-height: min(84svh, 48rem);
+  }
+
+  /* Portre ÜSTTE: dar ekranda gökyüzü boşluğu ona kalıyor */
+  .heroAside {
+    grid-column: 1;
+    grid-row: 1;
+    align-items: flex-start;
+    align-self: start;
+    margin-top: calc(var(--gaa-band) * 1.5);
+    width: clamp(8rem, 42vw, 12rem);
+  }
+
+  .heroBody {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .horizonCaption {
+    text-align: left;
+  }
+
+  .heroMark {
+    font-size: clamp(3.5rem, 24vw, 8rem);
+    left: auto;
+    right: calc(var(--gaa-gutter) * -0.4);
+  }
+
+  .form {
+    grid-template-columns: 1fr;
+    gap: 0.9rem;
+  }
+
+  .formKanji {
+    grid-column: 1;
+    grid-row: 1;
+    writing-mode: horizontal-tb;
+    letter-spacing: 0.1em;
+    font-size: clamp(1.6rem, 8vw, 2.4rem);
+  }
+
+  .formBody {
+    grid-row: 2;
+  }
+
+  .formArt {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    max-width: none;
+    aspect-ratio: 16 / 9;
+    order: -1;
+    opacity: 0.6;
+    mask-image: linear-gradient(to top, transparent 2%, black 58%);
+  }
+
+  .fateItem {
+    grid-template-columns: 1fr;
+    gap: 0.55rem 0;
+  }
+
+  .fateAge {
+    text-align: left;
+    padding-top: 0;
+  }
+
+  .fateArt {
+    grid-column: 1;
+  }
+
+  .modeHint {
+    display: none;
+  }
+}
+
+@media (max-width: 460px) {
+  .facts {
+    grid-template-columns: 1fr;
+  }
+
+  .people {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .person[data-distance="far"] {
+    translate: 0;
+  }
+
+  /* Bantta kanji yerini metne bırakır — 360 pikselde satır taşmasın */
+  .bandKanji {
+    display: none;
+  }
+
+  .band {
+    padding-inline: 0.65rem;
+  }
+
+  .modeLabel {
+    display: none;
+  }
+
+  .modeToggle {
+    padding: 0.5rem;
+    min-width: var(--touch-min);
+    justify-content: center;
+  }
+}
+
+/* Yüksek kontrast / zorunlu renk modunda dekoratif katmanlar susar */
+@media (forced-colors: active) {
+  .page::before,
+  .heroMark,
+  .horizon,
+  .grains,
+  .watchers,
+  .closingArt,
+  .aiScene {
+    display: none;
+  }
+}
+
+/* ============================================================
+   REDUCED-MOTION BATTANİYESİ — ev deseni (çift katman):
+   yukarıdaki her animasyon no-preference kapısında; burada kalan
+   geçişler de tamamen kapanır. Kesit yine doğru yanar, 愛 yine
+   kazılı görünür — yalnızca HAREKETLERİ yok.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

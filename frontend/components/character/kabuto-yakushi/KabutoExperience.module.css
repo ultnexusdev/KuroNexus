@@ -39,3 +39,2104 @@
   --kab-glow-soft:  color-mix(in srgb, #7f8fe0 20%, transparent);
   --kab-glow-strong: color-mix(in srgb, #7f8fe0 45%, transparent);
 }
+
+/* ============================================================
+   KABUTO YAKUSHI — "Kim Olduğumu Biliyorum"
+
+   Deri yukarıda; bu noktadan sonra TEK HEX YOK — ara tonların hepsi
+   color-mix ile token'lardan türetildi (BRIEF §3).
+
+   ── SAYFANIN FİKRİ ──────────────────────────────────────────────────────
+   DOSYA. Shikamaru'nun sayfası bir tahtaya, Itachi'ninki karanlığa oturur;
+   bu sayfa bir KÂĞIDA oturuyor. Solda dar bir kenar boşluğu (`--kab-rail`)
+   ve boydan boya inen tek bir cetvel çizgisi var; içerik hep o çizginin
+   sağında. Kenara düşülen not süs değil, sayım: "8 kart · 7 kimlik + 1 boş".
+   Bir adamın hayatı burada gerçekten bir kütük kaydı gibi duruyor — çünkü
+   onun hayatı da kayıtlardan ve o kayıtların silinmesinden ibaret.
+
+   ── İKİ İMZA ────────────────────────────────────────────────────────────
+   1. BASKI KAYMASI: her büyük başlığın altında yarım harf kaymış ikinci bir
+      gölge var (`--kab-ghost`). Kötü basılmış bir kimlik kartı gibi: yazı
+      kendisiyle çakışmıyor. Sennin modunda bu gölge harfin üstüne oturuyor —
+      sayfanın "artık kim olduğumu biliyorum" dediği an tam olarak budur.
+   2. CAMIN ARDI: hero portresindeki gözlüğün camında yansıma var ve
+      arkasındaki göz görünmüyor. Sennin modunda yansıma sönüyor, pullar
+      iniyor, yılan gözü açılıyor.
+
+   ── RENK DİSİPLİNİ ──────────────────────────────────────────────────────
+   Yeşil (`--kab-snake`) sayfada HİÇBİR yerde yok — yalnızca sennin modunda
+   ve yalnızca yılan tekniğinin nişanında beliriyor. Böylece mod düğmesi
+   dekoratif bir anahtar değil, kazanılmış bir renk. Soğuk gri çizgi ailesi
+   `--kab-scalpel`, cam ışığı `--kab-lens`, tek sıcak nokta `--gold` ve o da
+   yalnızca destenin boş kartındaki soruda.
+
+   ── TİPOGRAFİ ───────────────────────────────────────────────────────────
+   Display: Cormorant Garamond — ince, yüksek kontrastlı, neredeyse cerrahi
+   bir serif; bu sayfada 600 ağırlıkta kullanılıyor (400'de kırılgan kalıyor).
+   Gövde, etiket ve bütün sayılar: Inter + tabular-nums — dosya/kayıt sesi,
+   serifin karşısında soğuk ve nötr. Kanji: Yuji Boku fırça ailesi.
+
+   ── HAREKET ─────────────────────────────────────────────────────────────
+   TEK yazılmış an var: kartın masaya konması (`--kab-deal`) — bulanıklıktan
+   çıkıp yerine oturan bir kart. Geri kalan her şey ya durağan ya da renk
+   geçişi. Süre/easing değişkenleri `.page`de; animasyon no-preference
+   kapısında, dosya sonunda reduce battaniyesi var.
+   ============================================================ */
+
+.page {
+  /* Hareket sözlüğü */
+  --kab-dur-fast: 150ms;
+  --kab-dur: 300ms;
+  --kab-dur-slow: 700ms;
+  --kab-deal: 620ms;
+  --kab-ease: cubic-bezier(0.16, 1, 0.3, 1); /* üstel yavaşlama */
+  --kab-ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Geometri — dosya kâğıdı */
+  --kab-gutter: clamp(1rem, 4vw, 2.5rem);
+  --kab-gap: clamp(1.25rem, 3vw, 2.5rem);
+  --kab-rail: 0rem; /* kenar boşluğu 900 pikselin üstünde açılır */
+  --kab-content: min(100% - var(--kab-gutter) * 2, 74rem);
+  --kab-measure: 66ch;
+  --kab-ghost: 0.055em; /* başlıkların baskı kayması */
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text-primary);
+  overflow-x: clip;
+  overflow-wrap: break-word;
+}
+
+@media (min-width: 900px) {
+  .page {
+    --kab-rail: 11rem;
+  }
+}
+
+.page :focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Breadcrumb ──────────────────────────────────────────────────────── */
+.crumb {
+  position: relative;
+  z-index: 2;
+  width: var(--kab-content);
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding-block: 0.75rem;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.crumb a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--kab-dur-fast) var(--kab-ease-soft);
+}
+
+.crumb a:hover {
+  color: var(--text-primary);
+}
+
+.crumbSep {
+  color: var(--border-strong);
+}
+
+/* ── Mod düğmesi: bir gözlük camı, pullarla doluyor ──────────────────── */
+.sageToggle {
+  position: fixed;
+  right: clamp(0.75rem, 3vw, 1.75rem);
+  bottom: calc(clamp(0.75rem, 3vw, 1.75rem) + var(--music-bar, 0px));
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: var(--touch-min);
+  padding: 0.45rem 1.05rem 0.45rem 0.5rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: blur(7px);
+  color: var(--text-secondary);
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 12px 30px -18px color-mix(in srgb, var(--bg) 92%, transparent);
+  transition:
+    color var(--kab-dur) var(--kab-ease-soft),
+    border-color var(--kab-dur) var(--kab-ease-soft),
+    background var(--kab-dur) var(--kab-ease-soft);
+}
+
+.sageToggle:hover {
+  color: var(--text-primary);
+  border-color: var(--accent-muted);
+}
+
+.sageToggle[aria-pressed="true"] {
+  color: var(--text-primary);
+  border-color: color-mix(in srgb, var(--kab-snake) 55%, var(--border-strong));
+}
+
+/* Cam: yuvarlak, içi boş; modda pul dolduruyor */
+.sageGlyph {
+  position: relative;
+  display: block;
+  flex: none;
+  width: 1.6rem;
+  height: 1.6rem;
+  border: 1.5px solid var(--kab-scalpel);
+  border-radius: 50%;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--kab-lens) 16%, transparent);
+}
+
+.sageGlyphScales {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  color: var(--kab-snake);
+  opacity: 0;
+  transition: opacity var(--kab-dur) var(--kab-ease-soft);
+}
+
+.sageToggle[aria-pressed="true"] .sageGlyph {
+  border-color: var(--kab-snake);
+}
+
+.sageToggle[aria-pressed="true"] .sageGlyphScales {
+  opacity: 0.85;
+}
+
+.sageLabel {
+  white-space: nowrap;
+}
+
+.sageHint {
+  position: fixed;
+  right: clamp(0.75rem, 3vw, 1.75rem);
+  bottom: calc(clamp(0.75rem, 3vw, 1.75rem) + var(--music-bar, 0px) + 3.6rem);
+  z-index: 59;
+  max-width: min(23rem, calc(100vw - 2rem));
+  margin: 0;
+  text-align: right;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.75rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.sageHint:empty {
+  display: none;
+}
+
+/* ============================================================
+   1 · HERO — CAMIN ARDINDAKİ GÖZ
+   ============================================================ */
+.hero {
+  position: relative;
+  z-index: 1;
+  width: var(--kab-content);
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(1.5rem, 5vw, 4rem);
+  min-height: min(84svh, 50rem);
+  padding-block: clamp(1.5rem, 5vw, 3.5rem) clamp(3rem, 8vw, 6rem);
+}
+
+.heroScene {
+  position: absolute;
+  inset: calc(var(--kab-gutter) * -1);
+  z-index: -1;
+  overflow: hidden;
+}
+
+.heroScene img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.5) brightness(0.5);
+}
+
+.heroScrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to right,
+    var(--bg) 12%,
+    color-mix(in srgb, var(--bg) 72%, transparent) 65%,
+    color-mix(in srgb, var(--bg) 88%, transparent) 100%
+  );
+}
+
+/* Filigran: dikey kanji sütunu, sağ kenarda ve kadrajdan taşıyor */
+.watermark {
+  position: absolute;
+  top: 50%;
+  right: calc(var(--kab-gutter) * -0.75);
+  translate: 0 -50%;
+  margin: 0;
+  writing-mode: vertical-rl;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(6rem, 22vw, 15rem);
+  line-height: 0.9;
+  letter-spacing: 0.05em;
+  color: color-mix(in srgb, var(--text-primary) 5%, transparent);
+  user-select: none;
+  pointer-events: none;
+  transition: color var(--kab-dur-slow) var(--kab-ease);
+}
+
+.heroBody {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.heroName {
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(2.6rem, 8.5vw, 6rem);
+  font-weight: 600;
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  text-wrap: balance;
+  /* Baskı kayması: kimlik kendisiyle çakışmıyor */
+  text-shadow: var(--kab-ghost) 0 0
+    color-mix(in srgb, var(--accent) 40%, transparent);
+  transition: text-shadow var(--kab-dur-slow) var(--kab-ease);
+}
+
+.heroNative {
+  margin: 0.5rem 0 0;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(1rem, 2.4vw, 1.35rem);
+  letter-spacing: 0.28em;
+  color: var(--text-muted);
+}
+
+.heroEpigraph {
+  margin: clamp(1.25rem, 3vw, 2rem) 0 0;
+  max-width: 34ch;
+  padding-left: 1.1rem;
+  border-left: 1px solid color-mix(in srgb, var(--kab-lens) 40%, transparent);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-style: italic;
+  font-size: clamp(1.2rem, 2.4vw, 1.6rem);
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--text-primary);
+  text-wrap: pretty;
+}
+
+.heroLede {
+  margin: 1.35rem 0 0;
+  max-width: 48ch;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.9375rem;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.heroAside {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+/* Künye fotoğrafı çerçevesi. Portre AniList'in ~230 pikseli — BÜYÜTÜLMÜYOR
+   (BRIEF §4.1): kadraj dar tutuldu, boşluğu tipografi ve grafik dolduruyor. */
+.portraitFrame {
+  position: relative;
+  width: clamp(9rem, 26vw, 13.5rem);
+  aspect-ratio: 3 / 4;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  overflow: hidden;
+  box-shadow: 0 30px 60px -40px color-mix(in srgb, var(--bg) 90%, transparent);
+}
+
+.portraitFrame::after {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border: 1px solid color-mix(in srgb, var(--kab-scalpel) 16%, transparent);
+  pointer-events: none;
+}
+
+.portrait {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 20%;
+  filter: grayscale(0.4) contrast(1.06) brightness(0.94);
+  transition: filter var(--kab-dur-slow) var(--kab-ease);
+}
+
+/* Pullar: yüzün üstüne iniyor, yalnızca sennin modunda */
+.portraitScales {
+  position: absolute;
+  inset: -6%;
+  width: 112%;
+  height: 112%;
+  color: var(--kab-snake);
+  opacity: 0;
+  mask-image: radial-gradient(
+    ellipse at 50% 34%,
+    black 12%,
+    color-mix(in srgb, black 45%, transparent) 48%,
+    transparent 76%
+  );
+  transition: opacity var(--kab-dur-slow) var(--kab-ease);
+  pointer-events: none;
+}
+
+/* Gözlük: portreden geniş, sapları kadrajın dışına taşıyor */
+.spectacles {
+  position: absolute;
+  top: 31%;
+  left: 50%;
+  translate: -50% -50%;
+  width: 124%;
+  pointer-events: none;
+}
+
+.specFrame {
+  color: var(--kab-scalpel);
+  opacity: 0.92;
+  transition: color var(--kab-dur-slow) var(--kab-ease);
+}
+
+.specLens {
+  fill: color-mix(in srgb, var(--kab-lens) 20%, transparent);
+}
+
+.specGlare {
+  color: var(--kab-lens);
+  opacity: 0.82;
+  transition: opacity var(--kab-dur-slow) var(--kab-ease);
+}
+
+.specEye {
+  color: var(--kab-snake);
+  opacity: 0;
+  transition: opacity var(--kab-dur-slow) var(--kab-ease);
+}
+
+.portraitCaption {
+  margin: 0;
+  max-width: 14rem;
+  text-align: center;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   BÖLÜM İSKELETİ — dosya kâğıdı
+   Solda kenar boşluğu, boydan boya cetvel çizgisi, sağda içerik.
+   ============================================================ */
+.section,
+.deckSection {
+  position: relative;
+  z-index: 1;
+  width: var(--kab-content);
+  margin-inline: auto;
+  padding-block: clamp(3rem, 8vw, 5.5rem);
+}
+
+.head {
+  display: grid;
+  grid-template-columns: var(--kab-rail) minmax(0, 1fr);
+  column-gap: var(--kab-gap);
+  align-items: start;
+  margin-bottom: clamp(1.75rem, 4vw, 3rem);
+}
+
+.marginNote {
+  grid-column: 1;
+  margin: 0;
+  padding-top: 0.65rem;
+  text-align: right;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+.headBody {
+  grid-column: 2;
+  min-width: 0;
+}
+
+.body {
+  margin-left: calc(var(--kab-rail) + var(--kab-gap));
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(2rem, 5vw, 3.4rem);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
+  text-wrap: balance;
+  text-shadow: var(--kab-ghost) 0 0
+    color-mix(in srgb, var(--accent) 32%, transparent);
+  transition: text-shadow var(--kab-dur-slow) var(--kab-ease);
+}
+
+.lede {
+  margin: 0.9rem 0 0;
+  max-width: 56ch;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.9375rem;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* Kurator yuvaları — ziyaretçide hiç çizilmiyor */
+.slotRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+/* ============================================================
+   2 · DOSYA — KÜNYE ŞERİDİ
+   Kayıt defteri satırları: solda etiket, sağda değer ve dipnot.
+   Silinen kaydın DEĞERİ gerçekten üstü çizili duruyor.
+   ============================================================ */
+.facts {
+  margin: 0;
+  border-top: 1px solid var(--border);
+}
+
+.fact {
+  display: grid;
+  grid-template-columns: minmax(7rem, 14rem) minmax(0, 1fr);
+  column-gap: clamp(1rem, 3vw, 2rem);
+  padding: 0.95rem 0.75rem;
+  margin-inline: -0.75rem;
+  border-bottom: 1px solid var(--border);
+  transition: background var(--kab-dur) var(--kab-ease-soft);
+}
+
+.fact:hover {
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+}
+
+.factLabel {
+  padding-top: 0.15rem;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.factValue {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin: 0;
+  min-width: 0;
+}
+
+.factText {
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+}
+
+.factText[data-struck] {
+  color: var(--text-muted);
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+  text-decoration-color: color-mix(in srgb, var(--danger) 85%, transparent);
+}
+
+.factNote {
+  max-width: 54ch;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.8125rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   3 · LABORATUVAR — ÜÇ BÜYÜK
+   Kart değil: kâğıdın üstünde üç blok. Solda nişan ve dikey kanji,
+   sağda metin, sağ üstte solmuş sahne görseli.
+   ============================================================ */
+.jutsuList {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2.25rem, 5vw, 3.5rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.jutsu {
+  position: relative;
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr);
+  column-gap: clamp(1rem, 3vw, 2rem);
+  padding-top: clamp(1.5rem, 3vw, 2.25rem);
+  border-top: 1px solid var(--border);
+}
+
+.jutsuSign {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.1rem;
+}
+
+.jutsuGlyph {
+  width: 2.4rem;
+  height: 2.4rem;
+  color: var(--kab-scalpel);
+  opacity: 0.8;
+  transition:
+    color var(--kab-dur) var(--kab-ease-soft),
+    opacity var(--kab-dur) var(--kab-ease-soft);
+}
+
+.jutsu:hover .jutsuGlyph {
+  opacity: 1;
+}
+
+.jutsuKanji {
+  writing-mode: vertical-rl;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(1.1rem, 2.6vw, 1.6rem);
+  line-height: 1;
+  letter-spacing: 0.14em;
+  color: color-mix(in srgb, var(--text-primary) 28%, transparent);
+  transition: color var(--kab-dur) var(--kab-ease-soft);
+}
+
+.jutsu:hover .jutsuKanji {
+  color: color-mix(in srgb, var(--kab-lens) 75%, transparent);
+}
+
+.jutsuBody {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.jutsuName {
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.5rem, 3.4vw, 2.25rem);
+  font-weight: 600;
+  line-height: 1.14;
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
+}
+
+.jutsuTurkish {
+  margin: 0;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.jutsuTagline {
+  margin: 0.5rem 0 0;
+  max-width: 42ch;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-style: italic;
+  font-size: clamp(1.15rem, 2.2vw, 1.4rem);
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--kab-lens);
+}
+
+.jutsuText {
+  margin: 0.35rem 0 0;
+  max-width: var(--kab-measure);
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.9375rem;
+  line-height: 1.85;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.traits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trait {
+  padding: 0.32rem 0.7rem;
+  border: 1px solid var(--border);
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.jutsuArt {
+  position: absolute;
+  top: clamp(1.5rem, 3vw, 2.25rem);
+  right: 0;
+  width: min(17rem, 34%);
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  opacity: 0.4;
+  mask-image: linear-gradient(to left, black 25%, transparent 100%);
+  transition: opacity var(--kab-dur-slow) var(--kab-ease);
+  pointer-events: none;
+}
+
+/* Görselin oturduğu sağ üst köşe metne kapalı: sahne yüklendiğinde başlık
+   ve slogan görselin altına kaymasın diye o sütun baştan ayrılıyor. */
+@media (min-width: 760px) {
+  .jutsuName,
+  .jutsuTurkish,
+  .jutsuTagline {
+    padding-right: min(18rem, 38%);
+  }
+}
+
+.jutsuArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.55) contrast(1.05);
+}
+
+.jutsu:hover .jutsuArt {
+  opacity: 0.6;
+}
+
+/* ============================================================
+   4 · KÜÇÜK ALETLER — DÖRT
+   İki sütunlu tepsi. Kutu yok, gölge yok: nişan + ad + not.
+   ============================================================ */
+.tools {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: clamp(1.5rem, 4vw, 3.25rem);
+  row-gap: clamp(1.75rem, 4vw, 2.75rem);
+  margin: 0;
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--border);
+  list-style: none;
+}
+
+.tool {
+  position: relative;
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr);
+  column-gap: 1rem;
+  align-content: start;
+  overflow: hidden;
+}
+
+.toolArt {
+  position: absolute;
+  inset: auto 0 0 auto;
+  width: 55%;
+  aspect-ratio: 1;
+  opacity: 0.16;
+  mask-image: radial-gradient(circle at 85% 90%, black 15%, transparent 70%);
+  transition: opacity var(--kab-dur-slow) var(--kab-ease);
+  pointer-events: none;
+}
+
+.toolArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.65);
+}
+
+.tool:hover .toolArt {
+  opacity: 0.28;
+}
+
+.toolGlyph {
+  grid-row: 1 / 3;
+  width: 1.9rem;
+  height: 1.9rem;
+  margin-top: 0.2rem;
+  color: var(--kab-scalpel);
+  opacity: 0.75;
+  transition: color var(--kab-dur) var(--kab-ease-soft);
+}
+
+.toolName {
+  position: relative;
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.2rem, 2.4vw, 1.5rem);
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+.toolNote {
+  position: relative;
+  margin: 0.5rem 0 0;
+  max-width: 46ch;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.75;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* ============================================================
+   5 · KİMLİK DESTESİ — SAYFANIN KALBİ
+   Solda sahne (çekilen kart), sağda deste ve sayaç, altta yığın.
+   ============================================================ */
+.deckSection {
+  padding-block: clamp(3.5rem, 9vw, 6.5rem);
+}
+
+.deck {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "stage side"
+    "pile pile";
+  column-gap: clamp(1.5rem, 4vw, 3rem);
+  row-gap: clamp(1.75rem, 4vw, 2.75rem);
+  align-items: start;
+}
+
+.stage {
+  grid-area: stage;
+  min-width: 0;
+}
+
+/* Çekilen kart. Kimlik kartı oranına yakın, iç çerçeveli, üstten
+   yıkanmış. Yüz portresi sağ üst köşede — künye fotoğrafı gibi. */
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: min(100%, 27rem);
+  min-height: 27rem;
+  padding: 1.5rem 1.4rem 1.6rem;
+  border: 1px solid var(--border-strong);
+  background:
+    linear-gradient(
+      to bottom,
+      var(--kab-card),
+      color-mix(in srgb, var(--kab-card) 20%, transparent) 42%,
+      transparent 70%
+    ),
+    var(--surface);
+  overflow: hidden;
+  box-shadow: 0 30px 64px -44px color-mix(in srgb, var(--bg) 88%, transparent);
+}
+
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  border: 1px solid color-mix(in srgb, var(--kab-scalpel) 13%, transparent);
+  pointer-events: none;
+}
+
+.card[data-blank] {
+  background: var(--surface);
+  border-color: color-mix(in srgb, var(--gold) 40%, var(--border-strong));
+}
+
+.cardArt {
+  position: absolute;
+  inset: 0;
+  opacity: 0.14;
+  mask-image: linear-gradient(to top, transparent 25%, black 100%);
+  pointer-events: none;
+}
+
+.cardArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.7);
+}
+
+.cardHead {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-right: 4.6rem;
+}
+
+.cardMark {
+  width: 1.75rem;
+  height: 1.75rem;
+  flex: none;
+  color: var(--kab-lens);
+  opacity: 0.85;
+  transition: color var(--kab-dur) var(--kab-ease-soft);
+}
+
+.cardIndex {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  margin: 0;
+  font-family: var(--font-inter), var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+.cardIndexWord {
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.cardIndexNumber {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.cardIndexTotal {
+  font-size: 0.75rem;
+}
+
+.cardEra {
+  position: relative;
+  margin: 0.9rem 0 0;
+  padding-right: 4.6rem;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.cardTitle {
+  position: relative;
+  margin: 0.25rem 0 0;
+  padding-right: 4.6rem;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.6rem, 4vw, 2.1rem);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
+  text-wrap: balance;
+  text-shadow: var(--kab-ghost) 0 0
+    color-mix(in srgb, var(--accent) 35%, transparent);
+  transition: text-shadow var(--kab-dur-slow) var(--kab-ease);
+}
+
+/* Boş kartın tek satırı — sayfadaki tek sıcak renk */
+.cardQuestion {
+  position: relative;
+  margin: 0.5rem 0 0.25rem;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-style: italic;
+  font-size: clamp(1.9rem, 5.5vw, 2.75rem);
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--gold);
+  text-wrap: balance;
+}
+
+.cardFigure {
+  position: absolute;
+  top: 1.3rem;
+  right: 1.3rem;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  width: 3.6rem;
+  margin: 0;
+}
+
+.cardFace {
+  position: relative;
+  display: block;
+  width: 3.6rem;
+  height: 3.6rem;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.cardFace img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 18%;
+  filter: grayscale(0.55) contrast(1.05);
+}
+
+.cardFaceName {
+  margin: 0;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.5625rem;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: 0.04em;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.cardText {
+  position: relative;
+  margin: 0.85rem 0 0;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.cardFields {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.4rem 1.25rem;
+  margin: auto 0 0;
+  padding-top: 1.1rem;
+  border-top: 1px solid color-mix(in srgb, var(--kab-scalpel) 14%, transparent);
+}
+
+.cardField dt {
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.cardField dd {
+  margin: 0.3rem 0 0;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+/* ── Deste tarafı: sayaç, yüzü aşağı kartlar, çekme düğmesi ─────────── */
+.deckSide {
+  grid-area: side;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: clamp(9rem, 20vw, 12rem);
+}
+
+.deckCount {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  margin: 0;
+}
+
+.deckCountNumber {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(2.75rem, 7vw, 3.75rem);
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+}
+
+.deckCountLabel {
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.deckStack {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 120 / 168;
+}
+
+.deckBack {
+  position: absolute;
+  inset: 0;
+  z-index: calc(40 - var(--kab-i));
+  translate: calc(var(--kab-i) * 3px) calc(var(--kab-i) * -3px);
+  rotate: calc(var(--kab-i) * -0.85deg);
+  border: 1px solid var(--border-strong);
+  background:
+    linear-gradient(var(--kab-card), var(--kab-card)),
+    var(--surface);
+  box-shadow: 0 10px 24px -18px color-mix(in srgb, var(--bg) 90%, transparent);
+}
+
+.deckBackArt {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.backFrame {
+  color: color-mix(in srgb, var(--kab-scalpel) 26%, transparent);
+}
+
+.backHatch {
+  color: color-mix(in srgb, var(--accent) 24%, transparent);
+  transition: opacity var(--kab-dur-slow) var(--kab-ease);
+}
+
+.backScales {
+  color: var(--kab-snake);
+  opacity: 0;
+  transition: opacity var(--kab-dur-slow) var(--kab-ease);
+}
+
+.backMark {
+  color: color-mix(in srgb, var(--kab-lens) 42%, transparent);
+}
+
+.deckEmpty {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  margin: 0;
+  padding: 1rem;
+  border: 1px dashed var(--border-strong);
+  text-align: center;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.drawButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  width: 100%;
+  min-height: var(--touch-min);
+  padding: 0 1rem;
+  border: 1px solid var(--accent-muted);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--text-primary);
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    background var(--kab-dur-fast) var(--kab-ease-soft),
+    border-color var(--kab-dur-fast) var(--kab-ease-soft);
+}
+
+.drawButton:hover {
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  border-color: var(--accent);
+}
+
+.drawButton[data-kind="reset"] {
+  border-color: var(--border-strong);
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.drawButton[data-kind="reset"]:hover {
+  color: var(--text-primary);
+  background: var(--surface);
+}
+
+.drawChevron {
+  width: 0.9rem;
+  height: 0.9rem;
+  flex: none;
+}
+
+/* ── Yığın: çekilmiş kimlikler üst üste biniyor ─────────────────────── */
+.pileWrap {
+  grid-area: pile;
+  min-width: 0;
+}
+
+.pileLabel {
+  margin: 0 0 0.85rem;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.pile {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pileItem {
+  min-width: 0;
+}
+
+.pileItem + .pileItem {
+  margin-left: -0.3rem;
+}
+
+.pileCard {
+  position: relative;
+  z-index: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: var(--touch-min);
+  padding: 0.5rem 0.8rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-muted);
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-align: left;
+  cursor: pointer;
+  rotate: -0.7deg;
+  transition:
+    color var(--kab-dur-fast) var(--kab-ease-soft),
+    border-color var(--kab-dur-fast) var(--kab-ease-soft),
+    background var(--kab-dur-fast) var(--kab-ease-soft),
+    rotate var(--kab-dur) var(--kab-ease);
+}
+
+.pileItem:nth-child(even) .pileCard {
+  rotate: 0.8deg;
+}
+
+.pileItem:nth-child(3n) .pileCard {
+  rotate: -1.2deg;
+}
+
+.pileCard:hover,
+.pileCard:focus-visible {
+  z-index: 3;
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+  background: var(--surface);
+}
+
+.pileCard[data-active] {
+  z-index: 2;
+  rotate: 0deg;
+  color: var(--text-primary);
+  border-color: var(--accent-muted);
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+}
+
+.pileCard[data-blank][data-active] {
+  border-color: color-mix(in srgb, var(--gold) 55%, var(--border-strong));
+  background: color-mix(in srgb, var(--gold) 10%, var(--surface));
+}
+
+.pileMark {
+  width: 1.05rem;
+  height: 1.05rem;
+  flex: none;
+  opacity: 0.85;
+}
+
+.pileTitle {
+  max-width: 15ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.deckHint {
+  margin: 1.1rem 0 0;
+  max-width: 60ch;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.75rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   6 · BİLGİ KARTLARI
+   Kartın yüzü dolu, arkası boş. Üçüncü kayıt Kabuto'nun kendisi:
+   alanları çizgili ve boş.
+   ============================================================ */
+.infoCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: clamp(1.25rem, 3vw, 2rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.infoCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  min-width: 0;
+}
+
+.infoFront {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  padding: 1.1rem 1.15rem 1.3rem;
+  border: 1px solid var(--border);
+  background:
+    linear-gradient(var(--kab-chart), var(--kab-chart)),
+    var(--surface);
+}
+
+.infoCard[data-self] .infoFront {
+  border-style: dashed;
+  background: transparent;
+}
+
+.infoLabel {
+  margin: 0.85rem 0 0.2rem;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.infoLabel:first-child {
+  margin-top: 0;
+}
+
+.infoSubject {
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.3rem, 2.6vw, 1.6rem);
+  font-weight: 600;
+  line-height: 1.15;
+  color: var(--text-primary);
+}
+
+.infoSquad,
+.infoLine {
+  margin: 0;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+.infoLine {
+  color: var(--text-primary);
+}
+
+/* Kartın arkası: gerçekten boş bir alan, yalnızca etiketi var */
+.infoBack {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 1.15rem 0.8rem;
+  border: 1px dashed var(--border);
+}
+
+.infoBack .infoLabel {
+  margin: 0;
+}
+
+.infoBackWord {
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-style: italic;
+  font-size: 1.25rem;
+  color: color-mix(in srgb, var(--text-muted) 70%, transparent);
+}
+
+.infoNote {
+  margin: 0;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+  text-wrap: pretty;
+}
+
+/* ============================================================
+   7 · DOSYANIN BEŞ SAYFASI
+   Sol kenarda dikiş hattı: kesik çizgi ve her kaydın hizasında bir
+   dikiş nişanı. Yaş sütunu solda, portre sağda.
+   ============================================================ */
+.fate {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2rem, 5vw, 3.25rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fateItem {
+  position: relative;
+  display: grid;
+  grid-template-columns: 7rem minmax(0, 1fr) auto;
+  column-gap: clamp(1rem, 3vw, 2rem);
+  padding-left: 1.75rem;
+}
+
+/* Dikiş hattı */
+.fateItem::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.35rem;
+  bottom: calc(clamp(2rem, 5vw, 3.25rem) * -1);
+  width: 1px;
+  background: repeating-linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--kab-scalpel) 30%, transparent) 0 7px,
+    transparent 7px 15px
+  );
+  transition: background var(--kab-dur-slow) var(--kab-ease);
+}
+
+.fateItem:last-child::before {
+  bottom: 1rem;
+}
+
+.fateStitch {
+  position: absolute;
+  left: -0.4rem;
+  top: 0.15rem;
+  width: 0.9rem;
+  height: 0.9rem;
+  color: var(--kab-scalpel);
+  background: var(--bg);
+  transition: color var(--kab-dur) var(--kab-ease-soft);
+}
+
+.fateAge {
+  margin: 0;
+  padding-top: 0.2rem;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+.fateBody {
+  min-width: 0;
+}
+
+.fateTitle {
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.3rem, 2.8vw, 1.75rem);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.fateText {
+  margin: 0.6rem 0 0;
+  max-width: var(--kab-measure);
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.9375rem;
+  line-height: 1.85;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.fateArt {
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 32rem;
+  aspect-ratio: 21 / 9;
+  margin-top: 1rem;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.fateArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.55) contrast(1.05) brightness(0.88);
+  transition: filter var(--kab-dur-slow) var(--kab-ease);
+}
+
+.fateItem:hover .fateArt img {
+  filter: grayscale(0.25) contrast(1.02) brightness(0.96);
+}
+
+.fateFace {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  width: 5.5rem;
+  margin: 0;
+}
+
+.fateFaceArt {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.fateFaceArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 20%;
+  filter: grayscale(0.6) contrast(1.05) brightness(0.9);
+}
+
+.fateFace figcaption {
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   8 · KAPANIŞ
+   ============================================================ */
+.closing {
+  position: relative;
+  z-index: 1;
+  width: var(--kab-content);
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(1.5rem, 4vw, 2.5rem);
+  padding-block: clamp(4rem, 10vw, 7rem);
+  text-align: center;
+}
+
+.closingArt {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.13;
+  mask-image: radial-gradient(ellipse at 50% 50%, black 8%, transparent 68%);
+}
+
+.closingArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.75);
+}
+
+.closingQuote {
+  margin: 0;
+  max-width: 44ch;
+}
+
+.closingQuote blockquote {
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.6rem, 4.5vw, 2.75rem);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.quoteOriginal {
+  margin: 0.6rem 0 0;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(1.1rem, 2.6vw, 1.5rem);
+  letter-spacing: 0.24em;
+  color: color-mix(in srgb, var(--text-primary) 42%, transparent);
+}
+
+.closingQuote figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.95rem;
+}
+
+.quoteBy {
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.quoteNote {
+  max-width: 46ch;
+  margin-inline: auto;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+.motto {
+  margin: 0;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(2.5rem, 8vw, 4.5rem);
+  line-height: 1.1;
+  letter-spacing: 0.12em;
+  color: color-mix(in srgb, var(--text-primary) 22%, transparent);
+  transition: color var(--kab-dur-slow) var(--kab-ease);
+}
+
+.mottoNote {
+  margin: -0.4rem 0 0;
+  max-width: 52ch;
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.75rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+
+.credit {
+  max-width: 58ch;
+  margin: 0;
+  padding-top: clamp(1.5rem, 4vw, 2.5rem);
+  border-top: 1px solid var(--border);
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.75rem;
+  line-height: 1.8;
+  color: var(--text-muted);
+}
+
+.credit a {
+  color: var(--text-secondary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--accent-muted);
+  transition: color var(--kab-dur-fast) var(--kab-ease-soft);
+}
+
+.credit a:hover {
+  color: var(--accent-hover);
+}
+
+/* ============================================================
+   SENNİN MODU — YILAN
+   "Artık kim olduğumu biliyorum": camdaki yansıma söner, pullar iner,
+   göz açılır ve başlıkların ikinci gölgesi harfin üstüne oturur.
+   Etkinin tamamı burada — JS yalnızca bir niteliği çeviriyor.
+   ============================================================ */
+.page[data-sage] .heroName,
+.page[data-sage] .title,
+.page[data-sage] .cardTitle {
+  text-shadow: none;
+}
+
+.page[data-sage] .specGlare {
+  opacity: 0.1;
+}
+
+.page[data-sage] .specEye {
+  opacity: 1;
+}
+
+.page[data-sage] .specFrame {
+  color: color-mix(in srgb, var(--kab-snake) 60%, var(--kab-scalpel));
+}
+
+.page[data-sage] .portraitScales {
+  opacity: 0.5;
+}
+
+.page[data-sage] .portrait img {
+  filter: grayscale(0.15) contrast(1.12) brightness(0.9) hue-rotate(-12deg);
+}
+
+.page[data-sage] .watermark {
+  color: color-mix(in srgb, var(--kab-snake) 11%, transparent);
+}
+
+.page[data-sage] .jutsuGlyph,
+.page[data-sage] .toolGlyph,
+.page[data-sage] .cardMark,
+.page[data-sage] .fateStitch {
+  color: var(--kab-snake);
+}
+
+.page[data-sage] .jutsuKanji,
+.page[data-sage] .motto {
+  color: color-mix(in srgb, var(--kab-snake) 34%, transparent);
+}
+
+.page[data-sage] .jutsuTagline {
+  color: var(--kab-snake);
+}
+
+.page[data-sage] .heroEpigraph {
+  border-left-color: color-mix(in srgb, var(--kab-snake) 55%, transparent);
+}
+
+.page[data-sage] .fateItem::before {
+  background: repeating-linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--kab-snake) 45%, transparent) 0 7px,
+    transparent 7px 15px
+  );
+}
+
+.page[data-sage] .backHatch {
+  opacity: 0;
+}
+
+.page[data-sage] .backScales {
+  opacity: 0.5;
+}
+
+.page[data-sage] .cardFields,
+.page[data-sage] .card::after,
+.page[data-sage] .portraitFrame::after {
+  border-color: color-mix(in srgb, var(--kab-snake) 22%, transparent);
+}
+
+/* Soğuk yeşil ortam ışığı — sayfanın üstüne inen ince bir yıkama */
+.page[data-sage]::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at 50% 0%,
+    color-mix(in srgb, var(--kab-snake) 8%, transparent),
+    transparent 68%
+  );
+}
+
+/* ============================================================
+   HAREKET — TEK YAZILMIŞ AN: KARTIN MASAYA KONMASI
+   ============================================================ */
+@media (prefers-reduced-motion: no-preference) {
+  .card {
+    animation: kabDeal var(--kab-deal) var(--kab-ease) both;
+  }
+}
+
+@keyframes kabDeal {
+  from {
+    opacity: 0;
+    translate: 0 22px;
+    rotate: -1.8deg;
+    filter: blur(7px);
+  }
+
+  55% {
+    filter: blur(0.5px);
+  }
+
+  to {
+    opacity: 1;
+    translate: 0 0;
+    rotate: 0deg;
+    filter: blur(0);
+  }
+}
+
+/* ============================================================
+   MOBİL — 360 pikselde yatay taşma yok, ızgaraların hepsi tek sütuna iner
+   ============================================================ */
+@media (min-width: 900px) {
+  /* Dosya cetveli: kenar boşluğunu içerikten ayıran tek dikey çizgi */
+  .section::before,
+  .deckSection::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: calc(var(--kab-rail) + var(--kab-gap) / 2);
+    width: 1px;
+    background: linear-gradient(
+      to bottom,
+      transparent 0,
+      color-mix(in srgb, var(--kab-scalpel) 14%, transparent) 8%,
+      color-mix(in srgb, var(--kab-scalpel) 14%, transparent) 88%,
+      transparent 100%
+    );
+    pointer-events: none;
+    transition: background var(--kab-dur-slow) var(--kab-ease);
+  }
+
+  .page[data-sage] .section::before,
+  .page[data-sage] .deckSection::before {
+    background: linear-gradient(
+      to bottom,
+      transparent 0,
+      color-mix(in srgb, var(--kab-snake) 26%, transparent) 8%,
+      color-mix(in srgb, var(--kab-snake) 26%, transparent) 88%,
+      transparent 100%
+    );
+  }
+}
+
+@media (max-width: 900px) {
+  .head {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .marginNote {
+    grid-column: 1;
+    padding-top: 0;
+    margin-bottom: 0.85rem;
+    text-align: left;
+  }
+
+  .headBody {
+    grid-column: 1;
+  }
+
+  .body {
+    margin-left: 0;
+  }
+
+  .deck {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "stage"
+      "side"
+      "pile";
+  }
+
+  .card {
+    width: 100%;
+    max-width: 30rem;
+  }
+
+  /* Deste yatay bir şeride iner: sayaç, kart yığını, çekme düğmesi */
+  .deckSide {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 1.25rem;
+    width: 100%;
+    max-width: 30rem;
+  }
+
+  .deckStack {
+    width: 5rem;
+    flex: none;
+  }
+
+  .drawButton {
+    width: auto;
+    flex: 1 1 auto;
+    max-width: 16rem;
+  }
+}
+
+@media (max-width: 760px) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    gap: clamp(1.5rem, 6vw, 2.5rem);
+    min-height: 0;
+  }
+
+  /* Portre ÜSTTE: künye fotoğrafı gibi, adın üstünde */
+  .heroAside {
+    order: -1;
+    align-items: flex-start;
+  }
+
+  .portraitCaption {
+    text-align: left;
+  }
+
+  .watermark {
+    top: auto;
+    bottom: -2rem;
+    right: calc(var(--kab-gutter) * -0.5);
+    translate: 0 0;
+    font-size: clamp(5rem, 34vw, 11rem);
+  }
+
+  .jutsu {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 1rem;
+  }
+
+  .jutsuSign {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.85rem;
+  }
+
+  .jutsuKanji {
+    writing-mode: horizontal-tb;
+  }
+
+  .jutsuArt {
+    position: relative;
+    top: auto;
+    right: auto;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    margin-top: 0.5rem;
+    opacity: 0.55;
+    mask-image: linear-gradient(to top, transparent 2%, black 55%);
+  }
+
+  .tools {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .fateItem {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 0.6rem;
+  }
+
+  .fateFace {
+    flex-direction: row;
+    align-items: center;
+    width: auto;
+    gap: 0.75rem;
+  }
+
+  .fateFaceArt {
+    width: 3.25rem;
+    flex: none;
+  }
+
+  .sageHint {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .fact {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 0.35rem;
+  }
+
+  .infoCards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .card {
+    min-height: 0;
+    padding: 1.25rem 1.15rem 1.4rem;
+  }
+
+  /* Dar telefonda çekme düğmesi kendi satırına iner — sayaç ve deste
+     yan yana kalırken düğme tam genişlikte ve rahat basılır olur. */
+  .deckSide {
+    flex-wrap: wrap;
+  }
+
+  .drawButton {
+    flex: 1 1 100%;
+    max-width: none;
+  }
+
+  .cardFields {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.75rem;
+  }
+}
+
+@media (max-width: 460px) {
+  /* Yığında yalnızca nişanlar kalır — etiket ekran okuyucuda duruyor */
+  .pileTitle {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .pileCard {
+    min-width: var(--touch-min);
+    justify-content: center;
+    padding: 0.5rem;
+  }
+
+  .pileMark {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .sageLabel {
+    display: none;
+  }
+
+  .sageToggle {
+    min-width: var(--touch-min);
+    justify-content: center;
+    padding: 0.5rem;
+  }
+
+  .cardHead,
+  .cardEra,
+  .cardTitle {
+    padding-right: 0;
+  }
+
+  .cardFigure {
+    position: relative;
+    top: auto;
+    right: auto;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.6rem;
+    width: auto;
+    margin-top: 0.85rem;
+  }
+
+  .cardFace {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  .cardFaceName {
+    text-align: left;
+  }
+}
+
+/* Yüksek kontrast / zorunlu renk modunda dekoratif katmanlar susar */
+@media (forced-colors: active) {
+  .watermark,
+  .portraitScales,
+  .closingArt,
+  .cardArt,
+  .toolArt,
+  .jutsuArt {
+    display: none;
+  }
+
+  .page[data-sage]::after {
+    display: none;
+  }
+}
+
+/* ============================================================
+   REDUCED-MOTION BATTANİYESİ — ev deseni (çift katman): yukarıdaki
+   animasyon no-preference kapısında, burada kalan geçişler de kapanır.
+   Kart yine yerinde durur, yalnızca konma HAREKETİ yok.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

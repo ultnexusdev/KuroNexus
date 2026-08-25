@@ -39,3 +39,2065 @@
   --obi-glow-soft:  color-mix(in srgb, #9b5fd8 20%, transparent);
   --obi-glow-strong: color-mix(in srgb, #9b5fd8 45%, transparent);
 }
+
+/* ============================================================
+   OBITO UCHIHA — "Maskenin Ardındaki İsim"
+
+   Deri yukarıda. Bu noktadan aşağıda TEK HEX YOK: bütün ara tonlar
+   color-mix ile yukarıdaki token'lardan türetildi.
+
+   ── SAYFANIN FİKRİ ──────────────────────────────────────────────────────
+   SOYULMA. Diğer karakter sayfaları bir şey kurar, gösterir, biriktirir;
+   bu sayfa bir şeyi ÜSTÜNDEN ALIR. Kökteki `data-voice` niteliği dört
+   değer alıyor (tobi → madara → none → obito) ve tek başına üç işi
+   birden yürütüyor:
+
+     1. `--obi-veil`  — maskenin kalınlığı (1 → 0). Spiral maskenin
+        `stroke-dashoffset`i buradan hesaplanıyor; spiral MERKEZDEN dışa
+        çizildiği için offset arttıkça DIŞ uç geri çekilir, yani maske
+        dıştan içe çözülür. Sayfanın yazılmış TEK anı bu.
+     2. `--obi-reveal` — altındaki yüzün açıklığı (0 → 1). Portrenin
+        gri tonu, bulanıklığı ve opaklığı bu orandan geliyor.
+     3. Sayfanın DİLİ. Beş bölümün başlığı ve giriş cümlesi dört ayrı
+        sesle yazıldı, dördü de DOM'da; `display: none` üçünü hem
+        gözden hem erişilebilirlik ağacından çıkarıyor. Ses değişince
+        yalnızca metin değil TİPOGRAFİ de değişiyor: Tobi'nin gevşek
+        serifinden Madara'nın oyulmuş kapitaline, oradan "Kimse"nin
+        aralanmış boşluğuna, en sonunda Obito'nun sıcak display'ine.
+
+   ── TİPOGRAFİ ───────────────────────────────────────────────────────────
+   Anlatı ve display: Cormorant Garamond — dar, yüksek kontrastlı, ağıt
+   sesli bir serif. Büyük boyda 600/700 kullanılıyor: bu ailenin ince
+   çizgileri koyu zeminde 400'de kayboluyor (ölçüldü).
+   Etiket ve künye başlıkları: Cinzel — aralanmış kapital, "oyulmuş ad".
+   Aynı aile Madara ve Kimse katmanlarının display sesi.
+   Yalnızca "Tobi" katmanı: Anton — maskenin bağırdığı ad, poster ağırlığı.
+   Japonca: Yuji Boku fırça ailesi (kanadın ortak sesi).
+
+   ── HAREKET ─────────────────────────────────────────────────────────────
+   Yazılmış tek an maskenin çözülmesi (`--obi-peel`). Geri kalan her şey
+   ya durağan ya da fark edilmeyecek kadar yavaş. Süre/easing değişkenleri
+   `.page`de; dosyanın sonunda reduce battaniyesi var.
+   ============================================================ */
+
+.page {
+  /* Süre ve easing — hareket sözlüğü */
+  --obi-dur-fast: 180ms;
+  --obi-dur: 380ms;
+  --obi-dur-slow: 900ms;
+  --obi-peel: 1500ms;
+  --obi-ease: cubic-bezier(0.16, 1, 0.3, 1); /* üstel yavaşlama */
+  --obi-ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Geometri */
+  --obi-gutter: clamp(1.1rem, 4.5vw, 2.5rem);
+  --obi-content: min(100% - var(--obi-gutter) * 2, 74rem);
+  --obi-measure: 66ch;
+  --obi-step: clamp(3rem, 8vw, 6.5rem);
+
+  /* Oranlar — renk DEĞİL, ölçü. Katman seçicisi bu ikisini çeviriyor. */
+  --obi-veil: 1;
+  --obi-reveal: 0;
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text-primary);
+  overflow-x: clip;
+}
+
+/* Maske düştüğünde açılan sıcak yıkama. Sabit konumlu, içeriğin altında;
+   `opacity` dışında hiçbir şeyi değiştirmiyor. */
+.page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 92% 58% at 50% 6%,
+    color-mix(in srgb, var(--obi-hope) 9%, transparent),
+    transparent 68%
+  );
+  opacity: 0;
+  transition: opacity var(--obi-dur-slow) var(--obi-ease);
+}
+
+/* ── Katman oranları ──────────────────────────────────────────────────
+   Dört değer, tek eksen: maske kalınlığı. Aradaki iki basamak eşit
+   aralıklı DEĞİL — "Kimse" katmanında maske zaten neredeyse yok, çünkü
+   o katmanda saklanacak bir ad kalmamıştı. */
+.page[data-voice="tobi"] {
+  --obi-veil: 1;
+  --obi-reveal: 0;
+}
+
+.page[data-voice="madara"] {
+  --obi-veil: 0.68;
+  --obi-reveal: 0.32;
+}
+
+.page[data-voice="none"] {
+  --obi-veil: 0.32;
+  --obi-reveal: 0.68;
+}
+
+.page[data-voice="obito"] {
+  --obi-veil: 0.07;
+  --obi-reveal: 1;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ============================================================
+   DÖRT SESLİ METİN
+   Aynı başlığın dört yazımı da DOM'da; görünen yalnızca biri.
+   `display: none` erişilebilirlik ağacından da çıkardığı için başlığın
+   hesaplanan adı hep tek bir cümle — `aria-labelledby` hedefi ise hiç
+   değişmeyen `<h2>` düğümünün kendisi.
+   ============================================================ */
+.voiceSwap {
+  display: none;
+}
+
+.page[data-voice="tobi"] .voiceSwap[data-voice="tobi"],
+.page[data-voice="madara"] .voiceSwap[data-voice="madara"],
+.page[data-voice="none"] .voiceSwap[data-voice="none"],
+.page[data-voice="obito"] .voiceSwap[data-voice="obito"] {
+  display: inline;
+}
+
+/* ── Breadcrumb ──────────────────────────────────────────────────────── */
+.crumb {
+  position: relative;
+  z-index: 1;
+  width: var(--obi-content);
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-block: 0.5rem;
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.crumb a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--obi-dur-fast) var(--obi-ease-soft);
+}
+
+.crumb a:hover {
+  color: var(--text-primary);
+}
+
+.crumb a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.crumbSep {
+  color: var(--border-strong);
+}
+
+/* ============================================================
+   MOD DÜĞMESİ — "Maske düşüyor"
+   Düğmenin gliffi sayfanın maskesinin küçük hâli: basılıyken o da
+   çözülüyor, yani düğme kendi etkisini üstünde taşıyor.
+   ============================================================ */
+.fallToggle {
+  position: fixed;
+  right: clamp(0.75rem, 3vw, 1.75rem);
+  bottom: calc(clamp(0.75rem, 3vw, 1.75rem) + var(--music-bar, 0px));
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: var(--touch-min);
+  padding: 0.5rem 1.05rem 0.5rem 0.6rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: blur(8px);
+  color: var(--text-secondary);
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 12px 30px -16px color-mix(in srgb, var(--bg) 92%, transparent);
+  transition:
+    color var(--obi-dur) var(--obi-ease-soft),
+    border-color var(--obi-dur) var(--obi-ease-soft),
+    box-shadow var(--obi-dur) var(--obi-ease-soft);
+}
+
+.fallToggle:hover {
+  color: var(--text-primary);
+  border-color: color-mix(in srgb, var(--obi-mask) 55%, var(--border-strong));
+}
+
+.fallToggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.fallToggle[aria-pressed="true"] {
+  color: var(--text-primary);
+  border-color: color-mix(in srgb, var(--obi-hope) 45%, var(--border-strong));
+  box-shadow:
+    0 14px 34px -18px color-mix(in srgb, var(--obi-hope) 45%, transparent),
+    0 4px 12px -8px color-mix(in srgb, var(--bg) 90%, transparent);
+}
+
+.fallToggleGlyph {
+  width: 1.45rem;
+  height: 1.45rem;
+  flex: none;
+}
+
+.fallToggleLabel {
+  white-space: nowrap;
+}
+
+.fallToggleCoil {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset var(--obi-peel) var(--obi-ease);
+}
+
+.fallToggle[aria-pressed="true"] .fallToggleCoil {
+  stroke-dashoffset: 1;
+}
+
+.fallHint {
+  position: fixed;
+  right: clamp(0.75rem, 3vw, 1.75rem);
+  bottom: calc(clamp(0.75rem, 3vw, 1.75rem) + var(--music-bar, 0px) + 3.6rem);
+  z-index: 59;
+  max-width: min(22rem, calc(100vw - 2rem));
+  margin: 0;
+  text-align: right;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  pointer-events: none;
+}
+
+.fallHint:empty {
+  display: none;
+}
+
+/* ============================================================
+   1 · HERO
+   Arkada Kamui girdabı: kare spiral + ondan kopmuş plakalar. Portre
+   dar ve küçük (BRIEF §4.1) — yüzü asıl gösteren yer maskenin altı.
+   ============================================================ */
+.hero {
+  position: relative;
+  z-index: 1;
+  width: var(--obi-content);
+  margin-inline: auto;
+  min-height: min(86svh, 52rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: var(--obi-gutter);
+  padding-block: calc(var(--obi-step) * 0.7) calc(var(--obi-step) * 1.05);
+}
+
+/* Girdap kadrajın sağından taşar; kenarları maskeyle söner ki bir
+   "grafik" değil, arkada duran bir mekân gibi okunsun. */
+.heroSwirl {
+  position: absolute;
+  top: 46%;
+  left: 62%;
+  z-index: -1;
+  width: min(126vmin, 62rem);
+  aspect-ratio: 1;
+  translate: -26% -50%;
+  pointer-events: none;
+  mask-image: radial-gradient(circle at 50% 50%, black 26%, transparent 74%);
+}
+
+.swirlCoil {
+  transition: stroke var(--obi-dur-slow) var(--obi-ease);
+}
+
+.swirlShards polygon {
+  transition:
+    fill var(--obi-dur-slow) var(--obi-ease),
+    stroke var(--obi-dur-slow) var(--obi-ease);
+}
+
+.heroScene {
+  position: absolute;
+  inset: calc(var(--obi-step) * -0.35) calc(var(--obi-gutter) * -1);
+  z-index: -2;
+  overflow: hidden;
+}
+
+.heroScene img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.5) brightness(0.52);
+}
+
+.heroScrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    var(--bg) 3%,
+    color-mix(in srgb, var(--bg) 60%, transparent) 52%,
+    color-mix(in srgb, var(--bg) 86%, transparent) 100%
+  );
+}
+
+/* Filigran: 仮面の男 — "maskeli adam". AniList'in alternatif ad
+   listesindeki kayıt; dekoratif olduğu için aria-hidden. */
+.heroMark {
+  position: absolute;
+  top: calc(var(--obi-step) * 0.4);
+  right: calc(var(--obi-gutter) * -0.4);
+  margin: 0;
+  writing-mode: vertical-rl;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(2.2rem, 7.5vw, 5rem);
+  line-height: 1;
+  letter-spacing: 0.16em;
+  color: color-mix(in srgb, var(--text-primary) 7%, transparent);
+  user-select: none;
+  pointer-events: none;
+  transition: color var(--obi-dur-slow) var(--obi-ease);
+}
+
+.heroBody {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+  max-width: 36ch;
+}
+
+.heroClan {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.heroName {
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, "Times New Roman", serif;
+  font-size: clamp(2.9rem, 10vw, 6rem);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+  color: var(--text-primary);
+  transition: color var(--obi-dur-slow) var(--obi-ease);
+}
+
+.heroNative {
+  margin: 0.3rem 0 0;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(1rem, 2.4vw, 1.4rem);
+  letter-spacing: 0.26em;
+  color: var(--text-muted);
+}
+
+.heroEpigraph {
+  margin: calc(var(--obi-step) * 0.35) 0 0;
+  max-width: 34ch;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.15rem, 2.2vw, 1.5rem);
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--text-primary);
+  text-wrap: pretty;
+}
+
+.heroLede {
+  margin: 0.7rem 0 0;
+  max-width: 42ch;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.0625rem;
+  line-height: 1.72;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.heroAside {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.75rem;
+  width: clamp(8rem, 21vw, 12.5rem);
+}
+
+.heroPortrait {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  filter: grayscale(0.62) contrast(1.06) brightness(0.9);
+  box-shadow: 0 26px 52px -34px color-mix(in srgb, var(--bg) 94%, transparent);
+  transition: filter var(--obi-dur-slow) var(--obi-ease);
+}
+
+.heroPortrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 16%;
+}
+
+/* Ezilen taraf. Karakterin yaralı yarısı SAĞ yarısıdır; bize dönük bir
+   portrede o taraf ekranın SOLUNA düşer. Yüklenen portrenin kadrajını
+   bilmediğimiz için ağ anatomik bir çizim gibi değil, portrenin üstüne
+   düşmüş bir katman gibi duruyor. */
+.heroScar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 54%;
+  height: 100%;
+  opacity: 0.28;
+  mask-image: linear-gradient(to right, black 40%, transparent 100%);
+  transition: opacity var(--obi-dur-slow) var(--obi-ease);
+}
+
+.scarLine {
+  transition:
+    stroke var(--obi-dur-slow) var(--obi-ease),
+    opacity var(--obi-dur-slow) var(--obi-ease);
+}
+
+.hero:hover .heroPortrait {
+  filter: grayscale(0.3) contrast(1.04) brightness(0.98);
+}
+
+.hero:hover .heroScar {
+  opacity: 0.5;
+}
+
+/* ============================================================
+   BÖLÜM İSKELETİ
+   ============================================================ */
+.section,
+.stackSection {
+  position: relative;
+  z-index: 1;
+  width: var(--obi-content);
+  margin-inline: auto;
+  padding-block: var(--obi-step);
+}
+
+.sectionHead {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  max-width: 56ch;
+  margin-bottom: calc(var(--obi-step) * 0.62);
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, "Times New Roman", serif;
+  font-size: clamp(1.9rem, 4.4vw, 3.3rem);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  text-wrap: balance;
+  transition:
+    letter-spacing var(--obi-dur-slow) var(--obi-ease),
+    color var(--obi-dur-slow) var(--obi-ease);
+}
+
+.sectionLede {
+  margin: 0;
+  max-width: 52ch;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+  transition: color var(--obi-dur-slow) var(--obi-ease);
+}
+
+/* ── Sesin tipografisi ────────────────────────────────────────────────
+   Metin değişince ses de değişmeli. Dört ayar; hepsi aynı ölçek
+   içinde kalıyor, yalnızca ağırlık, aralık ve aile oynuyor. */
+.page[data-voice="tobi"] .sectionTitle {
+  font-weight: 600;
+  letter-spacing: 0.005em;
+}
+
+.page[data-voice="madara"] .sectionTitle {
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: clamp(1.5rem, 3.4vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.page[data-voice="none"] .sectionTitle {
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: clamp(1.4rem, 3vw, 2.2rem);
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.page[data-voice="obito"] .sectionTitle {
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.page[data-voice="none"] .sectionLede {
+  color: var(--text-muted);
+}
+
+.page[data-voice="obito"] .sectionLede {
+  color: var(--text-primary);
+}
+
+/* Küratör yuvaları — ziyaretçide hiç çizilmiyor */
+.slotRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.75rem;
+}
+
+/* ============================================================
+   2 · AD YIĞINI — SAYFANIN KALBİ
+   Solda maske, sağda katmanlar. Maske yapışkan: katman listesinde
+   gezinirken spiralin nereye kadar çözüldüğü gözden kaybolmuyor.
+   ============================================================ */
+.stackSection {
+  padding-block: calc(var(--obi-step) * 1.1);
+}
+
+.stack {
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1fr);
+  gap: calc(var(--obi-step) * 0.6);
+  align-items: start;
+}
+
+.maskWrap {
+  position: sticky;
+  top: calc(var(--obi-step) * 0.35);
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.maskFrame {
+  position: relative;
+  width: 100%;
+  max-width: 29rem;
+  aspect-ratio: 5 / 6;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 70%, var(--bg));
+}
+
+/* Maskenin ALTI: yüz. Gri tonu, bulanıklığı ve opaklığı tek bir
+   orandan (`--obi-reveal`) geliyor — katman derinleştikçe açılıyor. */
+.maskFace {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.maskFace img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 20%;
+  opacity: calc(0.3 + 0.7 * var(--obi-reveal));
+  filter:
+    grayscale(calc(1 - var(--obi-reveal) * 0.85))
+    contrast(1.06)
+    blur(calc((1 - var(--obi-reveal)) * 2.2px));
+  transition:
+    opacity var(--obi-peel) var(--obi-ease),
+    filter var(--obi-peel) var(--obi-ease);
+}
+
+/* Yüz yuvası da portre de boşsa: karanlık bir alan. Bölüm çökmüyor,
+   spiral bu kez boşluğun üstünde çözülüyor. */
+.maskVoid {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 70% 55% at 58% 44%,
+    color-mix(in srgb, var(--surface-hover) 90%, transparent),
+    transparent 72%
+  );
+}
+
+.maskScar {
+  position: absolute;
+  inset: 0 auto 0 6%;
+  width: 46%;
+  height: 100%;
+  opacity: calc(0.15 + 0.55 * var(--obi-reveal));
+  mask-image: linear-gradient(to right, black 45%, transparent 100%);
+  transition: opacity var(--obi-peel) var(--obi-ease);
+}
+
+.maskArt {
+  position: absolute;
+  inset: 6% 8%;
+  width: 84%;
+  height: 88%;
+}
+
+/* ⚠️ SAYFANIN TEK YAZILMIŞ ANI.
+   `pathLength={1}` + `dasharray: 1` ile yol tek bir kesintisiz çizgiye
+   iniyor; offset arttıkça yolun SONU (yani spiralin dış ucu) geri
+   çekiliyor. Maske dıştan içe çözülüyor, altındaki yüz açılıyor. */
+.maskCoil {
+  stroke-dasharray: 1;
+  stroke-dashoffset: calc(1 - var(--obi-veil));
+  transition: stroke-dashoffset var(--obi-peel) var(--obi-ease);
+}
+
+.maskRim,
+.maskEye {
+  opacity: calc(0.25 + 0.75 * var(--obi-veil));
+  transition: opacity var(--obi-peel) var(--obi-ease);
+}
+
+/* ── Ad kalıpları ─────────────────────────────────────────────────────
+   Adlar maskenin ÜSTÜNDE duruyor, altında değil: soyulan şey yüz değil
+   ad. Üsttekiler kayıp gider, alttakiler yüzeye çıkar. */
+.decals {
+  position: absolute;
+  inset: 0;
+  display: block;
+  pointer-events: none;
+}
+
+.decal {
+  position: absolute;
+  left: 50%;
+  top: 62%;
+  translate: -50% -50%;
+  white-space: nowrap;
+  font-size: clamp(1.9rem, 8.5vw, 3.4rem);
+  line-height: 1;
+  /* Varsayılan hâl: henüz gömülü — maskenin altında bekliyor */
+  opacity: 0.09;
+  scale: 0.86;
+  filter: blur(3px);
+  transition:
+    opacity var(--obi-peel) var(--obi-ease),
+    translate var(--obi-peel) var(--obi-ease),
+    rotate var(--obi-peel) var(--obi-ease),
+    scale var(--obi-peel) var(--obi-ease),
+    filter var(--obi-peel) var(--obi-ease);
+}
+
+/* Her adın kendi sesi — durumdan bağımsız */
+.decal[data-layer="tobi"] {
+  font-family: var(--font-anton), var(--font-sans);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--obi-mask);
+}
+
+.decal[data-layer="madara"] {
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+/* "Kimse" içi boş bir ad: dolgusu yok, yalnızca konturu var.
+   text-stroke desteklenmeyen yerde soluk dolgu kalır — okunur. */
+.decal[data-layer="none"] {
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-weight: 400;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--obi-rubble) 22%, transparent);
+  -webkit-text-stroke: 1px var(--obi-rubble);
+}
+
+.decal[data-layer="obito"] {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--obi-hope);
+}
+
+/* Soyulmuş katmanlar — her biri başka yöne savruluyor */
+.page[data-voice="madara"] .decal[data-layer="tobi"],
+.page[data-voice="none"] .decal[data-layer="tobi"],
+.page[data-voice="obito"] .decal[data-layer="tobi"] {
+  opacity: 0;
+  translate: -96% -164%;
+  rotate: -9deg;
+  scale: 1.05;
+  filter: blur(9px);
+}
+
+.page[data-voice="none"] .decal[data-layer="madara"],
+.page[data-voice="obito"] .decal[data-layer="madara"] {
+  opacity: 0;
+  translate: 4% -158%;
+  rotate: 7deg;
+  scale: 1.05;
+  filter: blur(9px);
+}
+
+.page[data-voice="obito"] .decal[data-layer="none"] {
+  opacity: 0;
+  translate: -50% 46%;
+  rotate: 0deg;
+  scale: 1.12;
+  filter: blur(9px);
+}
+
+/* Etkin katman — kaynak sırasında en sonda, çünkü özgüllükleri eşit */
+.page[data-voice="tobi"] .decal[data-layer="tobi"],
+.page[data-voice="madara"] .decal[data-layer="madara"],
+.page[data-voice="none"] .decal[data-layer="none"],
+.page[data-voice="obito"] .decal[data-layer="obito"] {
+  opacity: 1;
+  translate: -50% -50%;
+  rotate: 0deg;
+  scale: 1;
+  filter: none;
+}
+
+/* ── Maskenin kalınlığı ölçeği ────────────────────────────────────── */
+.depth {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin: 0;
+  max-width: 29rem;
+}
+
+.depthLabel {
+  flex: none;
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.depthTrack {
+  position: relative;
+  flex: 1 1 auto;
+  height: 2px;
+  background: var(--border);
+}
+
+.depthFill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: calc(var(--obi-veil) * 100%);
+  background: var(--obi-mask);
+  transition: width var(--obi-peel) var(--obi-ease);
+}
+
+/* ── Katman listesi (dikey sekmeler) ──────────────────────────────── */
+.stackPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-width: 0;
+}
+
+.layers {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--border);
+}
+
+.layer {
+  display: grid;
+  grid-template-columns: 1.75rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  min-height: calc(var(--touch-min) + 1.1rem);
+  padding: 1rem 0.9rem;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background var(--obi-dur) var(--obi-ease-soft),
+    padding-left var(--obi-dur) var(--obi-ease);
+}
+
+.layer:hover {
+  background: color-mix(in srgb, var(--surface) 62%, transparent);
+}
+
+.layer:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.layer[aria-selected="true"] {
+  background: var(--surface);
+  padding-left: 1.4rem;
+}
+
+.layerDepth {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 1px solid var(--border-strong);
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  transition:
+    background var(--obi-dur) var(--obi-ease-soft),
+    border-color var(--obi-dur) var(--obi-ease-soft),
+    color var(--obi-dur) var(--obi-ease-soft);
+}
+
+.layerBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.layerName {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--text-secondary);
+  transition: color var(--obi-dur) var(--obi-ease-soft);
+}
+
+.layerRole {
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.layerNative {
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: 0.9375rem;
+  letter-spacing: 0.16em;
+  color: color-mix(in srgb, var(--text-muted) 62%, transparent);
+}
+
+/* Her katmanın kendi rengi — etkinken açılıyor */
+.layer[aria-selected="true"] .layerName {
+  color: var(--text-primary);
+}
+
+.layer[data-layer="tobi"][aria-selected="true"] .layerDepth {
+  background: var(--obi-mask);
+  border-color: var(--obi-mask);
+  color: var(--bg);
+}
+
+.layer[data-layer="madara"][aria-selected="true"] .layerDepth {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+
+.layer[data-layer="none"][aria-selected="true"] .layerDepth {
+  background: transparent;
+  border-color: var(--obi-rubble);
+  color: var(--obi-rubble);
+}
+
+.layer[data-layer="obito"][aria-selected="true"] .layerDepth {
+  background: var(--obi-hope);
+  border-color: var(--obi-hope);
+  color: var(--bg);
+}
+
+/* ── Sesin paneli ─────────────────────────────────────────────────── */
+.layerPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  min-height: 15rem;
+  padding: 1.5rem 1.4rem 1.6rem;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 55%, var(--bg));
+}
+
+.layerPanel:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.voiceLabel {
+  margin: 0;
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.voiceLine {
+  margin: 0.1rem 0 0.5rem;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.5rem, 3.6vw, 2.25rem);
+  font-weight: 700;
+  line-height: 1.24;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+  color: var(--text-primary);
+}
+
+.layerPanel[data-layer="tobi"] .voiceLine {
+  color: var(--obi-mask);
+}
+
+.layerPanel[data-layer="madara"] .voiceLine {
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: clamp(1.2rem, 2.8vw, 1.75rem);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.layerPanel[data-layer="none"] .voiceLine {
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: clamp(1.1rem, 2.6vw, 1.6rem);
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.layerPanel[data-layer="obito"] .voiceLine {
+  color: var(--obi-hope);
+}
+
+.voiceNote {
+  margin: 0;
+  max-width: var(--obi-measure);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.0625rem;
+  line-height: 1.78;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.stackHint {
+  margin: 0;
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   3 · KÜNYE
+   Kart ızgarası değil, bir DOSYA: etiket solda küçük kapital, değer
+   sağda serif. Satırlar ince çizgilerle ayrılıyor.
+   ============================================================ */
+.facts {
+  margin: 0;
+  border-top: 1px solid var(--border);
+}
+
+.fact {
+  display: grid;
+  grid-template-columns: minmax(8.5rem, 15rem) minmax(0, 1fr);
+  gap: 0.35rem 2.25rem;
+  align-items: baseline;
+  padding: 1.05rem 0.9rem;
+  margin-inline: -0.9rem;
+  border-bottom: 1px solid var(--border);
+  transition: background var(--obi-dur) var(--obi-ease-soft);
+}
+
+.fact:hover {
+  background: color-mix(in srgb, var(--surface) 65%, transparent);
+}
+
+.fact dt {
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.fact dd {
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.1875rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--text-primary);
+  text-wrap: pretty;
+}
+
+/* ============================================================
+   4 · ADINI BİLENLER
+   Kutu yok: beş sütun, aralarında birer ince çizgi. Portreler alta
+   doğru siliniyor. Seçili adı DUYMAYAN kişi sönüyor — bölüm
+   dekoratif bir yoldaş ızgarası değil, mekaniğin parçası.
+   ============================================================ */
+.witnesses {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.witness {
+  transition: opacity var(--obi-dur-slow) var(--obi-ease);
+}
+
+.witness + .witness .witnessLink {
+  border-inline-start: 1px solid var(--border);
+}
+
+.witnessLink {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  height: 100%;
+  padding-inline: 1.15rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.witness:first-child .witnessLink {
+  padding-inline-start: 0;
+}
+
+.witnessLink:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.witnessArt {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  margin-bottom: 0.55rem;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--surface) 80%, var(--bg));
+  mask-image: linear-gradient(to bottom, black 52%, transparent 100%);
+}
+
+.witnessArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 18%;
+  filter: grayscale(0.85) contrast(1.05) brightness(0.82);
+  transition: filter var(--obi-dur-slow) var(--obi-ease);
+}
+
+a.witnessLink:hover .witnessArt img {
+  filter: grayscale(0.25) contrast(1.02) brightness(0.98);
+}
+
+.witnessName {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.witnessRole {
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Dört kare: bu kişinin hangi adları duyduğu. Boş kare duymadığı ad. */
+.witnessNames {
+  display: flex;
+  gap: 5px;
+  margin: 0.35rem 0 0.15rem;
+}
+
+.witnessTick {
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--border-strong);
+  transition:
+    background var(--obi-dur) var(--obi-ease-soft),
+    border-color var(--obi-dur) var(--obi-ease-soft);
+}
+
+.witnessTick[data-heard] {
+  background: color-mix(in srgb, var(--text-muted) 70%, transparent);
+  border-color: var(--text-muted);
+}
+
+.page[data-voice="tobi"] .witnessTick[data-layer="tobi"][data-heard] {
+  background: var(--obi-mask);
+  border-color: var(--obi-mask);
+}
+
+.page[data-voice="madara"] .witnessTick[data-layer="madara"][data-heard] {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.page[data-voice="none"] .witnessTick[data-layer="none"][data-heard] {
+  background: transparent;
+  border-color: var(--obi-rubble);
+}
+
+.page[data-voice="obito"] .witnessTick[data-layer="obito"][data-heard] {
+  background: var(--obi-hope);
+  border-color: var(--obi-hope);
+}
+
+.witnessNote {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 0.9375rem;
+  line-height: 1.68;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* Seçili adı duymayanlar sönüyor */
+.page[data-voice="tobi"] .witness:not([data-knew~="tobi"]),
+.page[data-voice="madara"] .witness:not([data-knew~="madara"]),
+.page[data-voice="none"] .witness:not([data-knew~="none"]),
+.page[data-voice="obito"] .witness:not([data-knew~="obito"]) {
+  opacity: 0.34;
+}
+
+/* ============================================================
+   5 · GÜÇ LABORATUVARI
+   Üç büyük blok: solda fırça kanjisi ve altında silik bir görsel,
+   sağda metnin tamamı. Kart yok — bloklar ince çizgilerle ayrılıyor.
+   ============================================================ */
+.techniques {
+  display: flex;
+  flex-direction: column;
+  margin: 0 0 calc(var(--obi-step) * 0.8);
+  padding: 0;
+  list-style: none;
+}
+
+.technique {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 15rem) minmax(0, 1fr);
+  gap: 1.4rem 2.5rem;
+  padding-block: calc(var(--obi-step) * 0.55);
+  border-top: 1px solid var(--border);
+}
+
+.technique:last-child {
+  border-bottom: 1px solid var(--border);
+}
+
+.techniqueArt {
+  position: absolute;
+  inset: calc(var(--obi-step) * 0.55) auto auto 0;
+  display: block;
+  width: min(15rem, 32%);
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  opacity: 0.22;
+  mask-image: linear-gradient(to right, black 8%, transparent 88%);
+  transition: opacity var(--obi-dur-slow) var(--obi-ease);
+}
+
+.techniqueArt:empty {
+  display: none;
+}
+
+.techniqueArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.65) contrast(1.08);
+}
+
+.technique:hover .techniqueArt {
+  opacity: 0.4;
+}
+
+.techniqueKanji {
+  position: relative;
+  grid-column: 1;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(1.8rem, 4.6vw, 3.1rem);
+  line-height: 1.25;
+  letter-spacing: 0.06em;
+  color: color-mix(in srgb, var(--obi-mask) 50%, transparent);
+  transition: color var(--obi-dur-slow) var(--obi-ease);
+}
+
+.technique:hover .techniqueKanji {
+  color: color-mix(in srgb, var(--obi-mask) 82%, transparent);
+}
+
+.techniqueBody {
+  grid-column: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+.techniqueName {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.5rem, 3.2vw, 2.1rem);
+  font-weight: 700;
+  line-height: 1.14;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.techniqueTurkish {
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.techniqueTagline {
+  margin-top: 0.5rem;
+  max-width: 46ch;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.1875rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--obi-mask);
+}
+
+.techniqueText {
+  max-width: var(--obi-measure);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.0625rem;
+  line-height: 1.82;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.traits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+
+.trait {
+  padding: 0.32rem 0.7rem;
+  border: 1px solid var(--border);
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ── Dört küçük kayıt — çizgili bir liste ───────────────────────────── */
+.minorTitle {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.25rem, 2.4vw, 1.6rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.minorLede {
+  margin: 0 0 1.75rem;
+  max-width: 52ch;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+.minors {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--border);
+}
+
+.minor {
+  position: relative;
+  display: grid;
+  grid-template-columns: 8rem minmax(0, 1fr) auto;
+  gap: 0.6rem 1.75rem;
+  align-items: start;
+  padding-block: 1.4rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.minorKanji {
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: 1.25rem;
+  line-height: 1.35;
+  letter-spacing: 0.08em;
+  color: color-mix(in srgb, var(--text-primary) 34%, transparent);
+}
+
+.minorBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.minorName {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.minorNote {
+  max-width: var(--obi-measure);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1rem;
+  line-height: 1.72;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.minorArt {
+  position: relative;
+  display: block;
+  width: 7.5rem;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  opacity: 0.72;
+  transition: opacity var(--obi-dur) var(--obi-ease-soft);
+}
+
+.minorArt:empty {
+  display: none;
+}
+
+.minorArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.6) contrast(1.05);
+}
+
+.minor:hover .minorArt {
+  opacity: 1;
+}
+
+/* ============================================================
+   6 · KANNABİ KÖPRÜSÜ — EZİLEN TARAF
+   Sayfanın duygusal merkezi ve tek tam genişlikli bandı. Üstünde
+   çöken bir kütlenin ALT yüzü duruyor; metin onun altında, dar bir
+   sütunda. Maske düştüğünde kütle biraz yukarı kalkıyor.
+   ============================================================ */
+.kannabi {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding: calc(var(--obi-step) * 1.35) var(--obi-gutter)
+    calc(var(--obi-step) * 1.05);
+  border-block: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 60%, var(--bg));
+  overflow: hidden;
+}
+
+/* Kütlenin ağırlığı: üstten aşağı inen karanlık */
+.kannabi::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 45%;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--bg) 90%, transparent),
+    transparent 100%
+  );
+}
+
+.rubble {
+  position: absolute;
+  inset: 0 0 auto 0;
+  width: 100%;
+  height: clamp(2.6rem, 7vw, 4.6rem);
+  pointer-events: none;
+  transition: translate var(--obi-dur-slow) var(--obi-ease);
+}
+
+.rubbleChunk {
+  transition:
+    fill var(--obi-dur-slow) var(--obi-ease),
+    stroke var(--obi-dur-slow) var(--obi-ease);
+}
+
+.kannabi .sectionHead,
+.beats,
+.kannabiQuote,
+.kannabiPlates {
+  position: relative;
+  width: min(100%, 54rem);
+  margin-inline: auto;
+}
+
+.beats {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--obi-step) * 0.45);
+}
+
+.beat {
+  display: grid;
+  grid-template-columns: 7rem minmax(0, 1fr);
+  gap: 1.75rem;
+  align-items: baseline;
+}
+
+.beatLabel {
+  margin: 0;
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--obi-rubble);
+}
+
+.beatText {
+  margin: 0;
+  max-width: var(--obi-measure);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.0625rem;
+  line-height: 1.82;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.kannabiQuote {
+  margin: calc(var(--obi-step) * 0.7) auto 0;
+  padding-block: calc(var(--obi-step) * 0.5);
+  border-block: 1px solid var(--border);
+  text-align: center;
+}
+
+.kannabiQuote blockquote {
+  margin: 0 auto;
+  max-width: 42ch;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.35rem, 3.2vw, 2rem);
+  font-weight: 600;
+  line-height: 1.36;
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.kannabiQuote figcaption {
+  margin-top: 1rem;
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.kannabiPlates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px;
+  margin-top: calc(var(--obi-step) * 0.6);
+}
+
+.kannabiPlates:empty {
+  display: none;
+}
+
+.kannabiPlate {
+  position: relative;
+  display: block;
+  flex: 1 1 16rem;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+
+.kannabiPlate img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.72) contrast(1.06) brightness(0.78);
+  transition: filter var(--obi-dur-slow) var(--obi-ease);
+}
+
+.kannabiPlate:hover img {
+  filter: grayscale(0.3) contrast(1.02) brightness(0.94);
+}
+
+/* ============================================================
+   7 · KADER ÇİZELGESİ
+   Solda yaş, sağda kayıt. Dikey ray yok — kayıtlar tam genişlikte
+   ince çizgilerle ayrılıyor, çizelge bir defter gibi okunuyor.
+   ============================================================ */
+.fate {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fateItem {
+  display: grid;
+  grid-template-columns: minmax(0, 0.62fr) minmax(0, 1fr);
+  gap: 1rem 2.5rem;
+  padding-block: calc(var(--obi-step) * 0.55);
+  border-top: 1px solid var(--border);
+}
+
+.fateItem:last-child {
+  border-bottom: 1px solid var(--border);
+}
+
+.fateAge {
+  grid-column: 1;
+  grid-row: 1;
+  margin: 0;
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: clamp(1.05rem, 2.4vw, 1.5rem);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--obi-mask);
+}
+
+.fateBody {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  min-width: 0;
+}
+
+.fateTitle {
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.35rem, 2.8vw, 1.85rem);
+  font-weight: 700;
+  line-height: 1.22;
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.fateText {
+  margin: 0;
+  max-width: var(--obi-measure);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.0625rem;
+  line-height: 1.82;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.fateArt {
+  position: relative;
+  grid-column: 2;
+  grid-row: 2;
+  display: block;
+  width: 100%;
+  max-width: 30rem;
+  aspect-ratio: 21 / 9;
+  margin-top: 0.5rem;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.fateArt:empty {
+  display: none;
+}
+
+.fateArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.6) contrast(1.06) brightness(0.82);
+  transition: filter var(--obi-dur-slow) var(--obi-ease);
+}
+
+.fateItem:hover .fateArt img {
+  filter: grayscale(0.22) contrast(1.02) brightness(0.94);
+}
+
+/* ============================================================
+   8 · KAPANIŞ
+   ============================================================ */
+.closing {
+  position: relative;
+  z-index: 1;
+  width: var(--obi-content);
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--obi-step) * 0.55);
+  padding-block: calc(var(--obi-step) * 1.3) calc(var(--obi-step) * 1.6);
+  text-align: center;
+}
+
+.closingArt {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.14;
+  mask-image: radial-gradient(ellipse at 50% 46%, black 8%, transparent 68%);
+}
+
+.closingArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.78);
+}
+
+.closingQuote {
+  margin: 0;
+  max-width: 44ch;
+}
+
+.closingQuote blockquote {
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, "Times New Roman", serif;
+  font-size: clamp(1.4rem, 3.4vw, 2.3rem);
+  font-weight: 700;
+  line-height: 1.28;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.closingQuote figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.95rem;
+}
+
+.quoteBy {
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.quoteNote {
+  max-width: 44ch;
+  margin-inline: auto;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+.motto {
+  margin: 0;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(1.75rem, 6.5vw, 3.5rem);
+  line-height: 1.16;
+  letter-spacing: 0.1em;
+  color: color-mix(in srgb, var(--obi-hope) 34%, transparent);
+  transition: color var(--obi-dur-slow) var(--obi-ease);
+}
+
+.mottoNote {
+  margin: -0.3rem 0 0;
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+}
+
+.credit {
+  max-width: 58ch;
+  margin: 0;
+  padding-top: calc(var(--obi-step) * 0.45);
+  border-top: 1px solid var(--border);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 0.9375rem;
+  line-height: 1.78;
+  color: var(--text-muted);
+}
+
+.credit a {
+  color: var(--text-secondary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--accent-muted);
+  transition: color var(--obi-dur-fast) var(--obi-ease-soft);
+}
+
+.credit a:hover {
+  color: var(--accent-hover);
+}
+
+.credit a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ============================================================
+   MASKE DÜŞÜYOR
+   Maske katmanı tamamen kalkar, yara izleri görünür, palet ısırır:
+   mor yıkama çekilir, `--obi-hope` geri gelir. Seçili AD değişmez —
+   bilerek: yüz ortadayken hâlâ başkasının sesiyle okuyabiliyorsun.
+   Kaynak sırasında katman oranlarından SONRA, çünkü özgüllükleri eşit.
+   ============================================================ */
+.page[data-fallen] {
+  --obi-veil: 0;
+  --obi-reveal: 1;
+}
+
+.page[data-fallen]::before {
+  opacity: 1;
+}
+
+.page[data-fallen] .heroName,
+.page[data-fallen] .motto {
+  color: var(--obi-hope);
+}
+
+.page[data-fallen] .heroMark {
+  color: color-mix(in srgb, var(--obi-hope) 14%, transparent);
+}
+
+.page[data-fallen] .heroPortrait {
+  filter: grayscale(0.08) contrast(1.03) brightness(1.02);
+}
+
+.page[data-fallen] .heroScar,
+.page[data-fallen] .maskScar {
+  opacity: 0.85;
+}
+
+.page[data-fallen] .scarLine {
+  stroke: var(--obi-hope);
+}
+
+/* Girdap moru bırakır: Kamui hâlâ orada ama artık soğuk değil */
+.page[data-fallen] .swirlCoil,
+.page[data-fallen] .swirlShards polygon {
+  stroke: color-mix(in srgb, var(--obi-hope) 20%, transparent);
+}
+
+.page[data-fallen] .swirlShards polygon {
+  fill: color-mix(in srgb, var(--obi-hope) 12%, transparent);
+}
+
+/* Kütle biraz kalkar — altından ışık geçer */
+.page[data-fallen] .rubble {
+  translate: 0 -16%;
+}
+
+.page[data-fallen] .rubbleChunk {
+  fill: color-mix(in srgb, var(--obi-hope) 9%, transparent);
+  stroke: var(--obi-hope);
+}
+
+.page[data-fallen] .kannabi {
+  background: color-mix(in srgb, var(--obi-hope) 4%, var(--surface));
+}
+
+.page[data-fallen] .fateAge,
+.page[data-fallen] .techniqueTagline {
+  color: var(--obi-hope);
+}
+
+.page[data-fallen] .depthTrack {
+  background: color-mix(in srgb, var(--obi-hope) 22%, var(--border));
+}
+
+/* ============================================================
+   AMBİYANS — girdabın çok yavaş dönüşü
+   Tek dekoratif animasyon. Sayfanın yazılmış anıyla (maskenin
+   çözülmesi) yarışmayacak kadar yavaş: bir tam tur bir dakikadan uzun.
+   ============================================================ */
+@media (prefers-reduced-motion: no-preference) {
+  .heroSwirl {
+    animation: obiDrift 96s linear infinite;
+  }
+}
+
+@keyframes obiDrift {
+  from {
+    rotate: 0deg;
+  }
+  to {
+    rotate: 360deg;
+  }
+}
+
+/* ============================================================
+   MOBİL — 360 pikselde yatay taşma yok, ızgaralar tek sütuna iner
+   ============================================================ */
+@media (max-width: 1080px) {
+  .witnesses {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: calc(var(--obi-step) * 0.4) 0;
+  }
+
+  /* Üç sütuna inince dördüncü kart yeni satırın başı olur: ayırıcı
+     çizgi satır başında durmamalı. */
+  .witness:nth-child(3n + 1) .witnessLink {
+    border-inline-start: 0;
+    padding-inline-start: 0;
+  }
+}
+
+@media (max-width: 960px) {
+  .stack {
+    grid-template-columns: 1fr;
+    gap: calc(var(--obi-step) * 0.55);
+  }
+
+  .maskWrap {
+    position: static;
+    align-items: center;
+  }
+
+  .maskFrame {
+    max-width: 24rem;
+    margin-inline: auto;
+  }
+
+  .depth {
+    max-width: 24rem;
+    margin-inline: auto;
+  }
+
+  .technique {
+    grid-template-columns: 1fr;
+    gap: 0.9rem;
+  }
+
+  .techniqueKanji,
+  .techniqueBody {
+    grid-column: 1;
+  }
+
+  .techniqueArt {
+    position: relative;
+    inset: auto;
+    order: -1;
+    width: 100%;
+    max-width: none;
+    aspect-ratio: 16 / 9;
+    opacity: 0.5;
+    mask-image: linear-gradient(to top, transparent 2%, black 62%);
+  }
+
+  .fateItem {
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
+  }
+
+  .fateAge,
+  .fateBody,
+  .fateArt {
+    grid-column: 1;
+  }
+
+  .fateAge {
+    grid-row: auto;
+  }
+
+  .fateBody {
+    grid-row: auto;
+  }
+
+  .fateArt {
+    grid-row: auto;
+  }
+}
+
+@media (max-width: 760px) {
+  .hero {
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: calc(var(--obi-step) * 0.5);
+    min-height: min(80svh, 44rem);
+  }
+
+  .heroAside {
+    order: -1;
+    align-items: flex-start;
+    width: clamp(7rem, 32vw, 9.5rem);
+  }
+
+  .heroMark {
+    right: calc(var(--obi-gutter) * -0.2);
+    opacity: 0.7;
+  }
+
+  .minor {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .minorArt {
+    width: 100%;
+    max-width: 14rem;
+    margin-top: 0.35rem;
+  }
+
+  .beat {
+    grid-template-columns: 1fr;
+    gap: 0.45rem;
+  }
+
+  .fallHint {
+    display: none;
+  }
+}
+
+@media (max-width: 620px) {
+  .witnesses {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .witness:nth-child(3n + 1) .witnessLink {
+    border-inline-start: 1px solid var(--border);
+    padding-inline-start: 1.15rem;
+  }
+
+  .witness:nth-child(2n + 1) .witnessLink {
+    border-inline-start: 0;
+    padding-inline-start: 0;
+  }
+
+  .fact {
+    grid-template-columns: 1fr;
+    gap: 0.3rem;
+  }
+
+  .layer {
+    grid-template-columns: 1.6rem minmax(0, 1fr);
+    gap: 0.85rem;
+  }
+
+  .layerNative {
+    display: none;
+  }
+
+  .fallToggleLabel {
+    display: none;
+  }
+
+  .fallToggle {
+    padding: 0.5rem;
+    min-width: var(--touch-min);
+    justify-content: center;
+  }
+}
+
+/* Yüksek kontrast / zorunlu renk modunda dekoratif katmanlar susar */
+@media (forced-colors: active) {
+  .heroSwirl,
+  .heroMark,
+  .heroScar,
+  .maskScar,
+  .rubble,
+  .closingArt,
+  .decals {
+    display: none;
+  }
+
+  .page::before {
+    display: none;
+  }
+}
+
+/* ============================================================
+   REDUCED-MOTION BATTANİYESİ — ev deseni (çift katman):
+   yukarıdaki ambiyans zaten no-preference kapısında; burada kalan
+   bütün geçişler de kapanıyor. Maske yine SEÇİLEN kalınlıkta
+   görünür — yalnızca çözülme HAREKETİ yok.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

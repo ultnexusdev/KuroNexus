@@ -79,6 +79,14 @@ export const EXPERIENCE_ROSTER: RosterEntry[] = [
      ziyaretçi hangi modda açılacağını seçmiş olur. */
   { characterId: EXPERIENCE_IDS.yuujiItadori, name: "Yuuji Itadori", nameNative: "虎杖悠仁", ...JJK },
   { characterId: EXPERIENCE_IDS.sukuna, name: "Ryōmen Sukuna", nameNative: "両面宿儺", ...JJK },
+  /* Üçüncü tur (25 Ağustos 2026) — Tokyo Jujutsu Lisesi'nin çevresi.
+     Adlar AniList'in romanizasyonuyla aynı (uzun ünlü yazılı): burada
+     Obito/Nagato'daki gibi bir ad ayrışması yok. */
+  { characterId: EXPERIENCE_IDS.satoruGojou, name: "Satoru Gojou", nameNative: "五条悟", ...JJK },
+  { characterId: EXPERIENCE_IDS.megumiFushiguro, name: "Megumi Fushiguro", nameNative: "伏黒恵", ...JJK },
+  { characterId: EXPERIENCE_IDS.nobaraKugisaki, name: "Nobara Kugisaki", nameNative: "釘崎野薔薇", ...JJK },
+  { characterId: EXPERIENCE_IDS.kentoNanami, name: "Kento Nanami", nameNative: "七海建人", ...JJK },
+  { characterId: EXPERIENCE_IDS.suguruGetou, name: "Suguru Getou", nameNative: "夏油傑", ...JJK },
 ];
 
 /** Rozet ve süzgeç için: elle tasarlanmış sayfası olan numaralar. */

@@ -86,6 +86,21 @@ export const EXPERIENCE_IDS = {
   konan: 3179,
   minatoNamikaze: 2535,
   kushinaUzumaki: 7302,
+
+  /* ── Üçüncü tur (25 Ağustos 2026): Jujutsu Kaisen'den beş kişi.
+     Kap sayfası (Itadori/Sukuna) JJK'nın tek sayfasıydı; bu beşi Tokyo
+     Jujutsu Lisesi'nin çevresini kapatıyor. Numaralar AniList GraphQL'den
+     doğrulandı ve hepsinin medya listesinde Jujutsu Kaisen var.
+
+     ⚠️ AniList adları romanizasyonda uzun ünlüyü YAZIYOR: "Satoru Gojou",
+     "Suguru Getou". Kadro kaydında da aynı yazım korundu — burada
+     Obito/Nagato'daki gibi bir AD AYRIŞMASI YOK, yalnızca romanizasyon
+     tercihi var, dolayısıyla sayfa başlığı AniList'inkiyle örtüşüyor. ── */
+  satoruGojou: 127691,
+  megumiFushiguro: 126635,
+  nobaraKugisaki: 133700,
+  kentoNanami: 133704,
+  suguruGetou: 133699,
 } as const;
 
 /**
@@ -195,6 +210,25 @@ export const EXPERIENCE_COMPANIONS: Record<number, number[]> = {
   [EXPERIENCE_IDS.minatoNamikaze]: [7302, 17, 2423, 85, 3149, 14082],
   // Kushina: eşi, oğlu, önceki jinchūriki hattı
   [EXPERIENCE_IDS.kushinaUzumaki]: [2535, 17, 2767, 7407],
+
+  /* ── Üçüncü tur (25 Ağustos 2026) — Jujutsu Kaisen ──
+     ⚠️ 25 Ağustos itibarıyla JJK kadrosunun HİÇBİRİNİN kendi
+     veritabanımızda görseli yok (`/anime/characters/images?ids=…` boş
+     dizi döndü, ölçüldü). Yani bu listeler bugün portre getirmiyor ve
+     beş sayfa da yoldaşlarını yalnızca ADLA çiziyor — bölümler bu hâlde
+     tasarlandı, portre gelirse kendiliğinden yerine oturur. */
+  // Gojo: en yakınındaki tek kişi, üç öğrencisi, meslektaşları
+  [EXPERIENCE_IDS.satoruGojou]: [
+    133699, 127212, 126635, 133700, 133704, 158154, 133701,
+  ],
+  // Megumi: babası, ablası, ustası, takımı, içine giren şey
+  [EXPERIENCE_IDS.megumiFushiguro]: [162722, 193479, 127691, 127212, 133700, 133701],
+  // Nobara: takımı, ustası, onu bitiren el
+  [EXPERIENCE_IDS.nobaraKugisaki]: [127212, 126635, 127691, 133702, 133704],
+  // Nanami: çırağı, sınıf arkadaşı olmayan tek dostu, karşısındaki
+  [EXPERIENCE_IDS.kentoNanami]: [127212, 127691, 133702, 157214, 133700],
+  // Getō: tek arkadaşı, sınıfı, taşıdığı kız, onu devralan
+  [EXPERIENCE_IDS.suguruGetou]: [127691, 158154, 203015, 162722, 289584],
 };
 
 const EXPERIENCE_ID_SET: ReadonlySet<number> = new Set<number>(

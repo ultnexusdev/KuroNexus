@@ -1,12 +1,14 @@
 # Karakter Deneyim Sayfası Ekleme — Çalışma Kılavuzu
 
-> **Yeni bir oturuma bu dosyayla başla.** Amacı, 36 sayfalık sistemi baştan
+> **Yeni bir oturuma bu dosyayla başla.** Amacı, 41 sayfalık sistemi baştan
 > keşfetmeden bir sonrakini ekleyebilmen. Ne olduğunu değil, **nasıl
 > yapılacağını** anlatır.
 >
 > Geçmişin anlatısı ayrı iki dosyada:
 > `docs/DEVIR-2026-08-23-karakter-deneyim-sayfalari.md` (ilk 13) ve
 > `docs/DEVIR-2026-08-24-karakter-sayfalari-2.md` (sonraki 22 + dizin sergisi).
+> Üçüncü tur (25 Ağustos 2026) Jujutsu Kaisen'den beş kişi ekledi ve ayrı bir
+> devir notu yazılmadı — kılavuzun tabloları güncellendi, yeterli oldu.
 
 ---
 
@@ -36,7 +38,7 @@ Ayrıntı ve ölçüm: `lib/characters/experience-page.tsx` dosya başı.
 
 ### Neden palet CSS modülünde
 
-35 palet `globals.css`'te olsaydı ~14,5 KB gzip **her sayfada** inecekti.
+42 palet `globals.css`'te olsaydı ~14,5 KB gzip **her sayfada** inecekti.
 Rotalar ayrıldığı için palet artık karakterin kendi modülünde, dosyanın en
 başında, `.page[data-world="…"]` seçicisiyle duruyor.
 
@@ -324,6 +326,11 @@ etiket" kabul değil.
 | Konan | origami katlama adımları |
 | Minato | Hiraishin işaretleriyle **anlık** gezinme |
 | Kushina | gerilen ve kopan chakra zinciri halkaları |
+| Gojō | iki boş yuva; sonucu miktar değil ZITLIK belirliyor (蒼+赫→茈) |
+| Megumi | ortak zemin çizgisi; seçim üç ayrı cevap veriyor, biri kategorik red |
+| Nobara | iki pano: solda vuruyorsun, sağda oluyor; arada bağ yoksa hiçbir şey olmuyor |
+| Nanami | tahmin → ölç → kes; hedef değişse de nokta hep %70'te |
+| Getō | tek yönlü hazne: al, biriktir, bir kere boşalt (geri alma yok) |
 
 ---
 
@@ -347,25 +354,30 @@ Yeni palet bu tablodakilere yakın düşmemeli; önek benzersiz olmalı.
 | `kakashi-hatake` | `kks` | `#070a0c` | `#5aa9d0` |
 | `kankuro` | `kan` | `#08060a` | `#7a4fc4` |
 | `kenpachi-zaraki` | `knp` | `#090707` | `#cd3f36` |
+| `kento-nanami` | `nan` | `#08090b` | `#b39a5c` |
 | `kiba-inuzuka` | `kib` | `#0a0908` | `#c04358` |
 | `kisuke-urahara` | `urh` | `#0b0906` | `#c9503a` |
 | `konan` | `knn` | `#07080c` | `#adb8d4` |
 | `konohamaru-sarutobi` | `knh` | `#06090c` | `#58bf5f` |
 | `kushina-uzumaki` | `kus` | `#0a0607` | `#e0495f` |
 | `madara-uchiha` | `mad` | `#08080b` | `#5f6bb8` |
+| `megumi-fushiguro` | `meg` | `#070809` | `#8fa6bf` |
 | `minato-namikaze` | `min` | `#05070d` | `#f5c84f` |
 | `nagato` | `nag` | `#070809` | `#8a7fc4` |
 | `naruto-uzumaki` | `nrt` | `#06090f` | `#f2801f` |
 | `neji-hyuga` | `nej` | `#06070a` | `#86c2b0` |
+| `nobara-kugisaki` | `nob` | `#0c0806` | `#cf7a52` |
 | `obito-uchiha` | `obi` | `#08060a` | `#9b5fd8` |
 | `orochimaru` | `oro` | `#060806` | `#8fbf46` |
 | `rock-lee` | `lee` | `#0a0806` | `#e88a37` |
 | `sai` | `sai` | `#0a0a09` | `#ded6c4` |
 | `sakura-haruno` | `skr` | `#0a070a` | `#4cbc88` |
 | `sasuke-uchiha` | `sas` | `#07060b` | `#8a68e4` |
+| `satoru-gojou` | `goj` | `#05080c` | `#5fd0f0` |
 | `shikamaru-nara` | `shk` | `#08090a` | `#d0a04a` |
 | `shino-aburame` | `shi` | `#070806` | `#bf9a35` |
 | `sousuke-aizen` | `azn` | `#06070c` | `#9c86e2` |
+| `suguru-getou` | `get` | `#080a08` | `#83ab7d` |
 | `sukuna-itadori` | `vsl` | `#0a0708` | `#e2645f` |
 | `temari` | `tem` | `#06080a` | `#5fb0a8` |
 | `tenten` | `ten` | `#090809` | `#d13f63` |
@@ -375,8 +387,12 @@ Yeni palet bu tablodakilere yakın düşmemeli; önek benzersiz olmalı.
 Sıkışmış aile: **turuncu/kehribar** (naruto, rocklee, iruka, choji,
 shikamaru, shino, gaara) ve **kızıl** (itachi, ichigo, kenpachi, urahara,
 jiraiya, kiba, tenten, kushina, vessel). Yeni sayfa bu ikisinden çıkabiliyorsa
-çıksın; boş kalan aileler: **turkuaz/deniz mavisi**, **koyu zeytin**,
-**bakır/bronz**, **soğuk gri-mavi**.
+çıksın.
+
+25 Ağustos'taki JJK turu dört boş aileden üçünü kapattı: **bakır/bronz**
+(nobara), **soğuk gri-mavi** (megumi) ve **mat pirinç** (nanami); gojo buz
+mavisini, getō kirli yosunu aldı. Geriye kalan boşluklar: **koyu zeytin**,
+**menekşe-lacivert**, **kül/nötr gri** ve doygunluğu düşük **toprak tonları**.
 
 ---
 
@@ -385,7 +401,7 @@ jiraiya, kiba, tenten, kushina, vessel). Yeni sayfa bu ikisinden çıkabiliyorsa
 `/dark-stories/category/anime/karakterler` ikiye ayrık:
 
 - **Üstte** "Elle Tasarlanmış Dosyalar" rafı → `EXPERIENCE_ROSTER`'daki
-  37 adres (`CuratedShelf`, sunucu bileşeni, dizine prop olarak geçiyor).
+  42 adres (`CuratedShelf`, sunucu bileşeni, dizine prop olarak geçiyor).
 - **Altta** "Künye Dosyaları" ızgarası → **sayfası olmayan** karakterler.
   Elle tasarlanmışlar ızgaradan tamamen düşürülüyor; çift portre yok.
 
@@ -430,5 +446,6 @@ git push origin main       # tek push, Coolify iki servisi de tetikler
 Deploy ~4–5 dakika, tek build. Sonra canlıda doğrula: adres 200 mü, doğru
 `data-world` var mı, başlık doğru ad mı, dizinde raf ve sayaç güncellendi mi.
 
-**Görsel yuvaları:** 605 `ABILITY` yuvası şu an boş. Sayfa görselsiz de tam
+**Görsel yuvaları:** 41 veri dosyasındaki `*_IMAGE_KEYS` blokları toplam
+710 `ABILITY` anahtarı tanımlıyor ve neredeyse hepsi boş. Sayfa görselsiz de tam
 çalışıyor; küratör modundan yüklenen görsel anında görünür (`no-store`).

@@ -584,6 +584,23 @@ hepsini `/dark-stories/category/anime/karakterler` dizininde sergile.
 - **605 `ABILITY` yuvası boş** (188 + 417) — küratör modunu bekliyor.
 - Devir notu: `docs/DEVIR-2026-08-24-karakter-sayfalari-2.md`
 
+## 5n · 5 JUJUTSU KAISEN KARAKTERİ (25 Ağustos)
+
+Kullanıcı komutu: kılavuzu oku, sonra Satoru Gojō, Megumi Fushiguro,
+Nobara Kugisaki, Kento Nanami ve Suguru Getō'yu ekle.
+
+- **Toplam artık 41 karakter / 42 adres** (kap sayfası iki adres).
+- **Beş yeni mekanik**, hiçbiri kullanılmış 36'yla yapısal olarak aynı değil:
+  iki yuvalı birleştirici (gojo), ortak zemin çizgisi + kategorik red
+  (megumi), sebep-burada/sonuç-orada tezgâhı (nobara), tahmin-ölçüm tezgâhı
+  (nanami), tek yönlü hazne (getō). Kılavuzun §3 tablosuna işlendi.
+- **JJK kadrosunun veritabanımızda hiç görseli yok** (ölçüldü) — beş sayfa da
+  görselsiz tam çalışacak şekilde tasarlandı, motifler elle çizilmiş SVG.
+- **Boş palet ailelerinden üçü kapandı**: bakır/bronz, soğuk gri-mavi, mat
+  pirinç. Kalanlar kılavuzun §4'ünde güncellendi.
+- Ayrı devir notu yazılmadı; `docs/KARAKTER-SAYFASI-EKLEME.md` güncellendi
+  (sayılar, mekanik tablosu, palet tablosu koddan yeniden üretildi).
+
 ## 6 · AÇIK RİSKLER
 
 - Kurulum ucu canlıda admin tetiklemesi bekler; o güne kadar sergi AniList

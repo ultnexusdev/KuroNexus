@@ -24,8 +24,10 @@ import type { LocalizedText } from "./types";
  * şeridinde de yok. Uydurulmadı.
  *
  * ── REPLİK DİSİPLİNİ ─────────────────────────────────────────────────────
- * Sayfada iki replik var, ikisi de Madara'ya ait ve ikisi de yaygın olarak
- * bilinen çeviriler. Emin olunmayan hiçbir cümle tırnak içine alınmadı;
+ * Sayfada üç replik var, üçü de Madara'ya ait. İkisi ("Gerçeğe uyan…" ve
+ * "Yaşadıkça anlarsın…") Madara'nın Obito'ya yaptığı konuşmadan, ayrı ayrı
+ * cümleler — aynı cümle sayfada iki kez geçmiyor. Üçüncüsü ışık ve gölge
+ * satırı. Emin olunmayan hiçbir cümle tırnak içine alınmadı;
  * dövüşlerin ve kararların ayrıntıları arşivin kendi anlatımı olarak düz
  * metin hâlinde yazıldı.
  *
@@ -792,12 +794,14 @@ export const MADARA_TIMELINE: MadaraFateEntry[] = [
       tr: "Ölülerden çağrıldı, sonra çağıranın bağını kendi eliyle çözdü. Rinnegan'ıyla heykeli topladı, on kuyruklunun kabına dönüştü ve Sonsuz Tsukuyomi'yi başlattı. Ölçek yolculuğunun sonu buydu: bir nehir kıyısında başlayan hesap, göğe asılmış tek bir göze indirgendi.",
       en: "He was called back from the dead, then untied the summoner's leash himself. With the Rinnegan he assembled the statue, became the vessel of the Ten-Tails and set the Infinite Tsukuyomi going. That was the end of the journey in scale: an account that opened on a river bank was reduced to a single eye hung in the sky.",
     },
+    /* Aynı konuşmanın ikinci cümlesi — kapanıştaki replikle çakışmasın diye
+       bilerek ayrı seçildi (bkz. REPLİK DİSİPLİNİ, dosyanın başı). */
     quote: {
       text: {
-        tr: "Gerçeğe uyan. Bu lanetli dünyada hiçbir şey planlandığı gibi gitmez.",
-        en: "Wake up to reality. Nothing ever goes as planned in this accursed world.",
+        tr: "Yaşadıkça anlarsın: bu gerçeklik yalnızca acı, ıstırap ve boşlukla dolu.",
+        en: "The longer you live, the more you realize that this reality is only filled with suffering, pain and emptiness.",
       },
-      by: { tr: "Madara Uchiha", en: "Madara Uchiha" },
+      by: { tr: "Madara Uchiha — Obito'ya", en: "Madara Uchiha — to Obito" },
     },
   },
 ];

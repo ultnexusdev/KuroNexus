@@ -564,6 +564,26 @@ sayfa yaz, her biri ayrı worktree/dalda, şablon paylaşımı yasak.
   canlıda sorun yok; `getCharacterCards` sunmuyor (bkz. devir notu).
 - Devir notu: `docs/DEVIR-2026-08-23-karakter-deneyim-sayfalari.md`
 
+## 5m · 22 KARAKTER SAYFASI DAHA + DİZİN SERGİSİ (24 Ağustos)
+
+Kullanıcı komutu: Naruto evreninden 22 kişi daha, aynı kurallarla; ayrıca
+hepsini `/dark-stories/category/anime/karakterler` dizininde sergile.
+
+- **Toplam artık 36 karakter / 37 adres** (kap sayfası iki adres).
+- **Paletler globals.css'ten çıktı** — ölçüldü: 35 palet orada 14,5 KB gzip
+  olacaktı ve her sayfada inecekti. Artık her palet karakterin kendi CSS
+  modülünde, `.page[data-world=…]` seçicisiyle. globals.css'te yalnızca
+  `itachi`/`akatsuki`/`bleach` kaldı. **Yeni sayfa açan paleti globals'a
+  yazmasın.**
+- **Dizin sergisi**: `roster.ts` (37 adresin kadro kaydı) + `CuratedShelf`
+  rafı + kart rozeti. AniList kadro listeleri yalnızca başrol/yardımcıyı
+  taşıdığı için dizinde hiç görünmeyen 19 karakter ızgaraya eklendi.
+- **AniList API'si geri açıldı**; numaralar GraphQL'den doğrulandı. Obito
+  #3149'da "Tobi", Nagato #3180'de "Pain" adıyla kayıtlı — sayfa başlığı
+  artık kadro kaydındaki adı kullanıyor, AniList'inkini değil.
+- **605 `ABILITY` yuvası boş** (188 + 417) — küratör modunu bekliyor.
+- Devir notu: `docs/DEVIR-2026-08-24-karakter-sayfalari-2.md`
+
 ## 6 · AÇIK RİSKLER
 
 - Kurulum ucu canlıda admin tetiklemesi bekler; o güne kadar sergi AniList

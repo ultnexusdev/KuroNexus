@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "check:bleach": "node scripts/check-bleach-fonts.mjs && node scripts/check-bleach-contrast.mjs && node scripts/check-bleach-anchors.mjs && node scripts/check-bleach-motion.mjs && node scripts/check-bleach-i18n.mjs && node scripts/check-bleach-budget.mjs"
+    "check:bleach": "node scripts/check-bleach-fonts.mjs && node scripts/check-bleach-contrast.mjs && node scripts/check-bleach-anchors.mjs && node scripts/check-bleach-motion.mjs && node scripts/check-bleach-i18n.mjs && node scripts/check-bleach-budget.mjs",
+    "check:karakter": "node scripts/check-karakter-kayit.mjs && node scripts/check-karakter-sinif.mjs && node scripts/check-karakter-hex.mjs && node scripts/check-karakter-kontrast.mjs"
   },
   "dependencies": {
     "@tiptap/extension-font-family": "^3.27.3",

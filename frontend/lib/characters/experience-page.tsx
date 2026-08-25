@@ -5,6 +5,7 @@ import { getCharacterDetail, getCharacterImages } from "@/lib/api/characters";
 import type { CharacterDetail, CharacterImageRow } from "@/lib/api/types";
 import { shareCard } from "@/lib/seo";
 import { experienceCompanionIds } from "./experiences";
+import { EXPERIENCE_ROSTER } from "./roster";
 
 /**
  * Deneyim sayfalarının ortak sunucu işi — künye, yönetici bayrağı, yoldaş
@@ -79,11 +80,27 @@ export async function experienceMetadata(
   const { character } = detail;
   const summary = character.description.find((segment) => !segment.spoiler);
   const description = summary ? summary.text.slice(0, 160) : undefined;
+
+  /*
+   * Başlık AniList'in adını DEĞİL sayfanın adını taşır (24 Ağustos 2026).
+   *
+   * İki kayıtta ikisi ayrışıyor: #3149 AniList'te "Tobi", #3180 ise "Pain".
+   * Bunlar karakterin kendi adı değil taktığı maske ve personası; sayfa
+   * Obito'yu ve Nagato'yu anlatıyor. Ölçüldü: düzeltmeden önce sekme adı
+   * ve paylaşım kartı "Tobi | KuroNexus" / "Pain | KuroNexus" diyordu —
+   * yani sayfanın başlığıyla çelişiyordu ve arama sonucunda yanlış adla
+   * görünüyordu. Kadro kaydındaki ad tek doğruluk kaynağı; kayıtta
+   * yoksa AniList'inki kullanılıyor (davranış değişmiyor).
+   */
+  const displayName =
+    EXPERIENCE_ROSTER.find((entry) => entry.characterId === characterId)?.name ??
+    character.name;
+
   return {
-    title: character.name,
+    title: displayName,
     description,
     ...shareCard({
-      title: character.name,
+      title: displayName,
       description,
       locale,
       path: `/dark-stories/category/anime/karakterler/${characterId}`,

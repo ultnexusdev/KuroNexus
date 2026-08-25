@@ -135,7 +135,7 @@ export function WarFan({
       {/* Kumaş: altı dilim. Tek/çift dilimin dolgusu bir tık farklı —
           üst üste bindiklerinde kat çizgileri okunsun diye. */}
       <g>
-        {SEGMENTS.map((base, index) => (
+        {FULL_SEGMENTS.map((base, index) => (
           <path
             key={base}
             className={segmentClassName}
@@ -242,7 +242,7 @@ export function FanSilhouette({ className }: { className?: string }) {
         fill="var(--tem-moon)"
         fillOpacity="0.04"
       >
-        {SEGMENTS.map((base) => (
+        {FULL_SEGMENTS.map((base) => (
           <path key={base} d={SEGMENT_PATH} transform={`rotate(${base})`} />
         ))}
       </g>

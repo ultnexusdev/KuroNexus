@@ -313,6 +313,14 @@
   display: none;
 }
 
+/* Sütunun NE OLDUĞUNU söyleyen tek satır. Dar ekranda gizli: orada sütun
+   alt şeride iniyor ve mekanik zaten "İşaretler" bölümünde yazıyla
+   anlatılıyor (bkz. HiraishinShell'deki not). Geniş ekranda sütunun üst
+   ucunda duruyor — `.railStatus` alt uçta, ikisi çakışmıyor. */
+.railHint {
+  display: none;
+}
+
 @media (min-width: 900px) {
   .rail {
     inset: 50% auto auto 0;
@@ -417,6 +425,26 @@
 
   .railStatus:empty {
     display: none;
+  }
+
+  .railHint {
+    position: fixed;
+    left: calc(var(--min-rail) + 0.9rem);
+    /* Yapışkan site başlığının altı — Kenpachi'nin mod düğmesiyle aynı pay */
+    top: 5rem;
+    z-index: 29;
+    display: block;
+    max-width: 20rem;
+    margin: 0;
+    padding: 0.5rem 0.85rem;
+    border-left: 1px solid var(--border-strong);
+    font-family: var(--font-jost), var(--font-sans);
+    font-size: 0.7rem;
+    font-weight: 300;
+    line-height: 1.6;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    pointer-events: none;
   }
 }
 

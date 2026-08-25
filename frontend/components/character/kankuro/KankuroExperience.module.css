@@ -479,6 +479,15 @@
   height: auto;
 }
 
+/* Kumadori'nin mor boya çizgileri (KankuroGlyphs → KumadoriChart).
+   Renk ve kalınlık SVG'de; buradaki iş çizgiyi VEKTÖR değil BOYA gibi
+   göstermek: uçlarda hafif bir dağılma ve altındaki yüz planından
+   ayrılsın diye ince bir taşma. */
+.kumadoriLine {
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 1.5px var(--kan-string));
+}
+
 .kumadoriCaption {
   display: flex;
   flex-direction: column;
@@ -1086,6 +1095,22 @@
 
 .weaponMark[data-weapon="4"] {
   transition-delay: 350ms;
+}
+
+/* Numaralı çağrı halkası (KankuroGlyphs → Mark). Opaklığı DIŞTAKİ
+   `.weaponMark` sürüyor; buradaki iş iki şey: halka kartın tıklamasını
+   yutmasın (kart bir düğme, halka süs) ve kukla açılırken yerine
+   otursun. Geçiş, dosya sonundaki reduce battaniyesiyle kapanıyor. */
+.markRing {
+  pointer-events: none;
+  transform-box: fill-box;
+  transform-origin: center;
+  scale: 0.82;
+  transition: scale var(--kan-open) var(--kan-ease);
+}
+
+.weaponMark[data-open] .markRing {
+  scale: 1;
 }
 
 .markText {

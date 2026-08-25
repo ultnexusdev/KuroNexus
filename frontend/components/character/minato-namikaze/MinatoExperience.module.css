@@ -39,3 +39,1735 @@
   --min-glow-soft:  color-mix(in srgb, #f5c84f 20%, transparent);
   --min-glow-strong: color-mix(in srgb, #f5c84f 45%, transparent);
 }
+
+/* ============================================================
+   MINATO NAMIKAZE — "SARI ŞİMŞEK · İŞARETLER"
+
+   Deri: kökteki `data-world="minato-namikaze"` bütün standart token'ları
+   gece göğüne çevirir; yardımcılar `--min-*` (yukarıdaki blok). Bu
+   bloktan AŞAĞIDA TEK HEX YOK — ara tonların hepsi color-mix ile
+   token'lardan türetildi.
+
+   ── SAYFANIN FİKRİ ──────────────────────────────────────────────────────
+   MESAFE YOK. Kenarda sabit duran yedi mühür sayfanın yedi bölümüne
+   bağlı; bir mühre basmak aradaki yolu göstermeden o bölüme ışınlıyor
+   (`scrollIntoView({ behavior: "instant" })`, bkz. HiraishinShell) ve
+   varılan bölümün sol üst köşesinde dev bir köşe ayracı bir an parlıyor.
+   Ayracın biçimi tesadüf değil: sütundaki yedi mührün ortak çerçevesi de
+   aynı köşe ayracı. Sayfanın grafiği tek bir işaretin ölçek ölçek
+   büyütülmüş hâlinden ibaret — 24 pikselde mühür, 30 rem'de varış flaşı.
+
+   Bunun bilinçli TEK istisnası MÜHÜRLEME GECESİ: orada hiçbir geçiş,
+   hiçbir animasyon, hiçbir hover yok ve satır aralığı sayfanın en
+   genişi. Her şeyin anlık olduğu bir sayfada tek yavaş yer.
+
+   ── TİPOGRAFİ ───────────────────────────────────────────────────────────
+   Display + arayüz: Jost (geometrik, yalnızca 200/300 ağırlıkta yüklü —
+   ⚠️ bu ailede kalın YOK, hiyerarşi boyut ve renkle kuruluyor). Hairline
+   bir Futura sesi, "şimşek" için doğru olan yer.
+   Gövde: Petrona (geniş, düşük-orta kontrastlı metin serifi). Ev kuralı
+   gereği 2rem üstünde kullanılmıyor — bu sayfada Petrona'nın en büyük
+   boyu 1.35rem.
+   Japonca: Shippori Mincho B1 — kazınmış, keskin bir mincho. Shikamaru
+   sayfasındaki fırça (Yuji Boku) değil: burada iş hat değil MÜHÜR.
+
+   ── HAREKET ─────────────────────────────────────────────────────────────
+   Tek yazılmış an var: VARIŞ FLAŞI. Geri kalan her şey ya durağan ya da
+   fark edilmeyecek kadar kısa bir renk geçişi. Süre/easing değişkenleri
+   `.page`de; flaş `no-preference` kapısında, dosyanın sonunda reduce
+   battaniyesi var — reduce'ta flaş hiç çalışmıyor, sıçrama yine anlık.
+
+   ⚠️ `.page` üzerinde `overflow`, `transform`, `filter` YOK ve olmamalı:
+   üçünden herhangi biri işaret sütununu (position: fixed) kendi kutusuna
+   hapsederdi. Taşma gereken yerde `overflow: clip` bölümün kendisinde.
+   ============================================================ */
+
+.page {
+  /* Süre ve easing — hareket sözlüğü */
+  --min-dur-fast: 140ms;
+  --min-dur: 300ms;
+  --min-dur-slow: 700ms;
+  /* ⚠️ HiraishinShell içindeki FLASH_MS ile aynı olmalı */
+  --min-flash-dur: 560ms;
+  --min-ease: cubic-bezier(0.16, 1, 0.3, 1); /* üstel yavaşlama */
+  --min-ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Geometri */
+  --min-rail: 3.5rem;
+  --min-bar: 3.5rem; /* dar ekranda alt şeridin yüksekliği */
+  --min-gutter: clamp(1.1rem, 4vw, 2.5rem);
+  --min-content: min(100% - var(--min-gutter) * 2, 72rem);
+  --min-measure: 66ch;
+  --min-band: clamp(3.25rem, 7vw, 6rem);
+
+  position: relative;
+  background: var(--bg);
+  color: var(--text-primary);
+  /* Alt şerit içeriği örtmesin */
+  padding-bottom: calc(var(--min-bar) + var(--music-bar, 0px));
+}
+
+@media (min-width: 900px) {
+  .page {
+    /* Sütun sola geçti: içerik onun sağından başlar */
+    padding-left: var(--min-rail);
+    padding-bottom: 0;
+  }
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ============================================================
+   İŞARET SÜTUNU — sayfanın kalbi
+
+   Masaüstünde sol kenarda dikey, dar ekranda altta yatay bir şerit.
+   Dar ekran hesabı: 7 mühür + 1 mod düğmesi = 8 hücre, hücre başına en
+   az 44px (--touch-min) → 352px. 360 piksellik ekranda kenar boşluğu
+   bu yüzden `clamp(0px, …)` ile sıfırdan başlıyor; hiçbir hücre 44'ün
+   altına inmiyor ve yatay taşma olmuyor.
+   ============================================================ */
+.rail {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: var(--music-bar, 0px);
+  z-index: 30;
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  padding-inline: clamp(0px, 0.8vw, 0.5rem);
+  border-top: 1px solid var(--border-strong);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: blur(10px);
+}
+
+.railNav {
+  flex: 1 1 auto;
+  position: relative;
+  min-width: 0;
+}
+
+/* Mühürleri birbirine bağlayan formül ipliği */
+.railThread {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  translate: 0 -50%;
+  background: linear-gradient(
+    to right,
+    transparent,
+    color-mix(in srgb, var(--min-mark) 26%, transparent) 12%,
+    color-mix(in srgb, var(--min-mark) 26%, transparent) 88%,
+    transparent
+  );
+  pointer-events: none;
+  transition: background var(--min-dur-slow) var(--min-ease);
+}
+
+.markList {
+  position: relative;
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.markItem {
+  flex: 1 1 var(--touch-min);
+  min-width: var(--touch-min);
+  display: flex;
+}
+
+.mark {
+  position: relative;
+  flex: 1 1 auto;
+  display: grid;
+  place-items: center;
+  min-width: var(--touch-min);
+  min-height: var(--min-bar);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: color-mix(in srgb, var(--min-mark) 40%, var(--text-muted));
+  cursor: pointer;
+  transition: color var(--min-dur) var(--min-ease-soft);
+}
+
+.mark:hover {
+  color: var(--min-mark);
+}
+
+.mark:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -3px;
+}
+
+.mark[aria-current="true"] {
+  color: var(--min-mark);
+}
+
+/* "Buradasın" çubuğu — dar ekranda üstte, geniş ekranda sol kenarda */
+.mark[aria-current="true"]::before {
+  content: "";
+  position: absolute;
+  inset: 0 25% auto;
+  height: 2px;
+  background: var(--min-mark);
+}
+
+.markGlyph {
+  width: 1.4rem;
+  height: 1.4rem;
+  transition: filter var(--min-dur) var(--min-ease-soft);
+}
+
+.mark[aria-current="true"] .markGlyph {
+  filter: drop-shadow(0 0 6px var(--min-glow-strong));
+}
+
+/* Mührün adı. Dar ekranda görsel olarak gizli ama erişim ağacında:
+   `display: none` yazsaydık düğmenin adı hiç kalmazdı. */
+.markName {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ── Mod düğmesi: Hiraishin ────────────────────────────────────────────
+   Adı DEĞİŞMİYOR; durumu aria-pressed, etkisini status satırı söylüyor. */
+.railToggle {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  min-width: var(--touch-min);
+  min-height: var(--min-bar);
+  padding: 0;
+  border: 0;
+  border-right: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color var(--min-dur) var(--min-ease-soft);
+}
+
+.railToggle:hover {
+  color: var(--min-mark);
+}
+
+.railToggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -3px;
+}
+
+.railToggle[aria-pressed="true"] {
+  color: var(--min-mark);
+}
+
+.railToggleGlyph {
+  width: 1.45rem;
+  height: 1.45rem;
+  transition:
+    filter var(--min-dur) var(--min-ease-soft),
+    rotate var(--min-dur-slow) var(--min-ease);
+}
+
+.railToggle[aria-pressed="true"] .railToggleGlyph {
+  filter: drop-shadow(0 0 8px var(--min-glow-strong));
+  rotate: 45deg;
+}
+
+.railToggleLabel {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Mod durumu — yalnızca geniş ekranda ve yalnızca mod AÇIKKEN.
+   Sütunun kullanma kılavuzu buraya sabitlenmedi: kalıcı bir yüzen satır
+   sayfanın sol alt köşesinde içeriğin üstüne biner. Aynı cümle hero'da
+   görünür metin olarak, sütunun içinde de görsel olarak gizli bir
+   açıklama olarak duruyor (`aria-describedby`). */
+.railStatus {
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .rail {
+    inset: 50% auto auto 0;
+    right: auto;
+    bottom: auto;
+    translate: 0 -50%;
+    flex-direction: column;
+    width: var(--min-rail);
+    padding: 0.5rem 0.3rem;
+    border-top: 0;
+    border-right: 1px solid var(--border);
+    background: color-mix(in srgb, var(--surface) 62%, transparent);
+  }
+
+  .railToggle {
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+    min-height: var(--touch-min);
+    margin-bottom: 0.4rem;
+  }
+
+  .railThread {
+    inset: 0 auto 0 50%;
+    width: 1px;
+    height: auto;
+    translate: -50% 0;
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      color-mix(in srgb, var(--min-mark) 26%, transparent) 12%,
+      color-mix(in srgb, var(--min-mark) 26%, transparent) 88%,
+      transparent
+    );
+  }
+
+  .markList {
+    flex-direction: column;
+  }
+
+  .mark {
+    min-height: var(--touch-min);
+  }
+
+  .mark[aria-current="true"]::before {
+    inset: 22% auto 22% -0.3rem;
+    width: 2px;
+    height: auto;
+  }
+
+  /* Adı imlece/odağa gelince sütunun sağında açılır */
+  .markName {
+    position: absolute;
+    left: calc(100% + 0.55rem);
+    top: 50%;
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: 0.35rem 0.7rem;
+    overflow: visible;
+    clip-path: none;
+    translate: -0.4rem -50%;
+    border: 1px solid var(--border-strong);
+    background: color-mix(in srgb, var(--surface) 96%, transparent);
+    color: var(--text-primary);
+    font-family: var(--font-jost), var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 300;
+    letter-spacing: 0.1em;
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      opacity var(--min-dur) var(--min-ease-soft),
+      translate var(--min-dur) var(--min-ease);
+  }
+
+  .mark:hover .markName,
+  .mark:focus-visible .markName {
+    opacity: 1;
+    translate: 0 -50%;
+  }
+
+  .railStatus {
+    position: fixed;
+    left: calc(var(--min-rail) + 0.9rem);
+    bottom: 1.4rem;
+    z-index: 29;
+    display: block;
+    max-width: 22rem;
+    margin: 0;
+    padding: 0.55rem 0.85rem;
+    border-left: 1px solid var(--min-mark);
+    background: color-mix(in srgb, var(--surface) 88%, transparent);
+    backdrop-filter: blur(8px);
+    font-family: var(--font-jost), var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 300;
+    line-height: 1.65;
+    letter-spacing: 0.02em;
+    color: color-mix(in srgb, var(--min-mark) 70%, var(--text-secondary));
+    pointer-events: none;
+  }
+
+  .railStatus:empty {
+    display: none;
+  }
+}
+
+/* ============================================================
+   IŞINLANMA — varış flaşı ve Hiraishin çizgileri
+
+   Her mühür bir `[data-mark]` bölümüne bağlı. Kök öğedeki `data-arrive`
+   hangi bölüme VARILDIĞINI söylüyor; aşağıdaki eşleştirme yedi satır
+   uzunluğunda çünkü CSS iki niteliğin DEĞERİNİ karşılaştıramıyor. Bunun
+   alternatifi flaşı JS'ten elle DOM'a yazmaktı; nitelik + CSS daha
+   ucuz ve sunucu çizimini hiç bozmuyor.
+   ============================================================ */
+.page [data-mark] {
+  position: relative;
+  /* Yapışkan site başlığı varış noktasını örtmesin */
+  scroll-margin-top: 4.75rem;
+}
+
+.page [data-mark]:focus {
+  outline: none;
+}
+
+.page [data-mark]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -4px;
+}
+
+/* Hiraishin çizgisi: bölüm başındaki formül hattı. Kapalıyken yok. */
+.page [data-mark]::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    var(--min-mark),
+    color-mix(in srgb, var(--min-mark) 12%, transparent) 78%,
+    transparent
+  );
+  transform-origin: 0 50%;
+  scale: 0 1;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    scale var(--min-dur-slow) var(--min-ease),
+    opacity var(--min-dur) var(--min-ease-soft);
+}
+
+/* Varış flaşı: dev bir köşe ayracı — sütundaki mührün çerçevesinin
+   sayfa ölçeğine büyütülmüş hâli. */
+.page [data-mark]::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: min(30rem, 66%);
+  height: min(52vh, 100%);
+  border-top: 2px solid var(--min-mark);
+  border-left: 2px solid var(--min-mark);
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .page[data-arrive="hero"] [data-mark="hero"]::after,
+  .page[data-arrive="record"] [data-mark="record"]::after,
+  .page[data-arrive="marks"] [data-mark="marks"]::after,
+  .page[data-arrive="jutsu"] [data-mark="jutsu"]::after,
+  .page[data-arrive="kit"] [data-mark="kit"]::after,
+  .page[data-arrive="fate"] [data-mark="fate"]::after,
+  .page[data-arrive="night"] [data-mark="night"]::after {
+    animation: minArrive var(--min-flash-dur) var(--min-ease) 1 both;
+  }
+}
+
+@keyframes minArrive {
+  0% {
+    opacity: 1;
+    box-shadow: -0.5rem -0.5rem 3.5rem 0.5rem var(--min-flash);
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0;
+    box-shadow: -0.5rem -0.5rem 7rem 1.5rem transparent;
+  }
+}
+
+/* ── Hiraishin modu: bütün işaretler aynı anda ──────────────────────── */
+.page[data-hiraishin] [data-mark]::before {
+  scale: 1 1;
+  opacity: 0.62;
+}
+
+.page[data-hiraishin] .mark {
+  color: var(--min-mark);
+}
+
+.page[data-hiraishin] .markGlyph,
+.page[data-hiraishin] .legendGlyph {
+  filter: drop-shadow(0 0 7px var(--min-glow-strong));
+}
+
+.page[data-hiraishin] .railThread {
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--min-mark) 12%,
+    var(--min-mark) 88%,
+    transparent
+  );
+}
+
+.page[data-hiraishin] .title,
+.page[data-hiraishin] .heroName {
+  text-shadow: 0 0 2.4rem var(--min-glow-soft);
+}
+
+.page[data-hiraishin] .formula {
+  color: var(--min-mark);
+}
+
+.page[data-hiraishin] .heroSky {
+  opacity: 1;
+}
+
+.page[data-hiraishin] .techKanji,
+.page[data-hiraishin] .kitGlyph {
+  color: color-mix(in srgb, var(--min-mark) 55%, transparent);
+}
+
+/* ============================================================
+   BÖLÜM İSKELETİ
+   Her `[data-mark]` bölümü TAM GENİŞLİK; içerik `.inner`'da ortalanıyor.
+   Sebep: varış flaşı bölümün kendi kenarında parlamalı, içeriğin
+   kenarında değil — masaüstünde tam sütunun bittiği yerde başlıyor.
+   ============================================================ */
+.stop {
+  padding-block: var(--min-band);
+}
+
+.inner {
+  width: var(--min-content);
+  margin-inline: auto;
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: calc(var(--min-band) * 0.62);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-jost), var(--font-sans);
+  font-size: clamp(1.7rem, 4.4vw, 2.9rem);
+  font-weight: 300;
+  line-height: 1.14;
+  letter-spacing: 0.01em;
+  color: var(--min-cloak);
+  text-wrap: balance;
+  transition: text-shadow var(--min-dur-slow) var(--min-ease);
+}
+
+.lede {
+  margin: 0;
+  max-width: 52ch;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1.0625rem;
+  font-weight: 400;
+  line-height: 1.75;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.prose {
+  margin: 0 0 1.15rem;
+  max-width: var(--min-measure);
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1rem;
+  line-height: 1.85;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.prose:last-child {
+  margin-bottom: 0;
+}
+
+/* Kürator yuvaları — ziyaretçide hiç çizilmiyor */
+.slotRow {
+  width: var(--min-content);
+  margin: 1.5rem auto 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+/* ── Breadcrumb ──────────────────────────────────────────────────────── */
+.crumb {
+  position: relative;
+  z-index: 1;
+  width: var(--min-content);
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding-block: 0.6rem;
+  font-family: var(--font-jost), var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 300;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.crumb a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--min-dur-fast) var(--min-ease-soft);
+}
+
+.crumb a:hover {
+  color: var(--min-mark);
+}
+
+.crumb a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.crumbSep {
+  color: var(--border-strong);
+}
+
+/* ============================================================
+   1 · HERO — GECE GÖĞÜ VE BEYAZ CÜBBE
+   ============================================================ */
+.hero {
+  overflow: clip;
+  padding-block: clamp(2rem, 6vw, 4.5rem) calc(var(--min-band) * 1.5);
+}
+
+/* Gece göğü: üstte lacivert derinlik, altta köyün ışığı */
+.heroSky {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(120% 78% at 76% 4%, var(--min-night), transparent 64%),
+    radial-gradient(62% 40% at 14% 96%, var(--min-glow-soft), transparent 72%);
+  opacity: 0.85;
+  pointer-events: none;
+  transition: opacity var(--min-dur-slow) var(--min-ease);
+}
+
+.heroScene {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.heroScene img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.3) brightness(0.5);
+}
+
+.heroScrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    var(--bg) 3%,
+    color-mix(in srgb, var(--bg) 62%, transparent) 58%,
+    color-mix(in srgb, var(--bg) 84%, transparent) 100%
+  );
+}
+
+/* Filigran 四代目 — dikey, gökyüzünün içinde */
+.heroWatermark {
+  position: absolute;
+  top: -0.5rem;
+  right: calc(var(--min-gutter) * 0.4);
+  z-index: 0;
+  margin: 0;
+  writing-mode: vertical-rl;
+  font-family: var(--font-shippori), Georgia, serif;
+  font-size: clamp(4rem, 17vw, 11rem);
+  font-weight: 700;
+  line-height: 0.98;
+  letter-spacing: 0.06em;
+  color: color-mix(in srgb, var(--min-cloak) 7%, transparent);
+  user-select: none;
+  pointer-events: none;
+}
+
+.heroInner {
+  position: relative;
+  z-index: 1;
+  width: var(--min-content);
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: end;
+  gap: var(--min-gutter);
+}
+
+.heroBody {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+  max-width: 40ch;
+}
+
+.heroName {
+  margin: 0;
+  font-family: var(--font-jost), var(--font-sans);
+  font-size: clamp(2.6rem, 9.5vw, 5.6rem);
+  font-weight: 200;
+  line-height: 1.02;
+  letter-spacing: 0.02em;
+  color: var(--min-cloak);
+  text-wrap: balance;
+  transition: text-shadow var(--min-dur-slow) var(--min-ease);
+}
+
+.heroNative {
+  margin: 0.3rem 0 0;
+  font-family: var(--font-shippori), Georgia, serif;
+  font-size: clamp(1rem, 2.4vw, 1.35rem);
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  color: var(--text-muted);
+}
+
+.heroRoles {
+  margin: 1.1rem 0 0;
+  font-family: var(--font-jost), var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--min-mark) 82%, var(--text-secondary));
+}
+
+.heroEpigraph {
+  margin: calc(var(--min-band) * 0.36) 0 0;
+  max-width: 26ch;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: clamp(1.15rem, 2.4vw, 1.5rem);
+  font-weight: 600;
+  line-height: 1.45;
+  letter-spacing: -0.005em;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.heroLede {
+  margin: 0.9rem 0 0;
+  max-width: 46ch;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* Sütunun ne olduğunu söyleyen satır — hero'da, işaretin yanında */
+.heroMarkNote {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin: calc(var(--min-band) * 0.42) 0 0;
+  padding-top: 0.9rem;
+  max-width: 40ch;
+  border-top: 1px solid var(--border);
+  font-family: var(--font-jost), var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 300;
+  line-height: 1.7;
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
+}
+
+.heroMarkGlyph {
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.1rem;
+  color: var(--min-mark);
+}
+
+/* Portre paneli — dar kadraj, gecenin içinde duran beyaz cübbe */
+.heroAside {
+  position: relative;
+  width: min(100%, 22rem);
+  justify-self: start;
+  margin-top: calc(var(--min-band) * 0.5);
+}
+
+.heroPortrait {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4.2;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: 0 30px 70px -46px color-mix(in srgb, var(--min-night) 90%, transparent);
+}
+
+.heroPortrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 14%;
+  filter: contrast(1.04) saturate(0.92);
+}
+
+/* Portrenin tepesi geceye karışsın: cübbe aşağıda kalır */
+.heroPortraitVeil {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--bg) 82%, transparent) 0,
+    transparent 42%
+  );
+}
+
+/* Cübbe eteğinin alev deseni — hero'nun alt sınırı */
+.heroHem {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  width: 100%;
+  height: clamp(2.2rem, 4.5vw, 3.5rem);
+  color: var(--min-seal);
+  opacity: 0.9;
+  mask-image: linear-gradient(to bottom, transparent, black 62%);
+  pointer-events: none;
+}
+
+/* Dar ekranda portre metnin ARKASINA geçmiyor, ALTINA iniyor: solmuş bir
+   görselin üstüne gövde metni yazmak ölçülebilir bir kontrast riski ve
+   360 pikselde 40ch'lik satır zaten portrenin bulunduğu yere kadar
+   uzuyor. Panelin dibi hero'nun alev eteğiyle örtüşüyor. */
+@media (max-width: 899px) {
+  .heroAside {
+    width: min(100%, 20rem);
+  }
+}
+
+@media (min-width: 900px) {
+  .heroInner {
+    grid-template-columns: minmax(0, 1fr) clamp(15rem, 28vw, 22rem);
+  }
+
+  .heroAside {
+    justify-self: end;
+    margin-top: 0;
+  }
+}
+
+/* ============================================================
+   2 · KÜNYE — nokta liderli tutanak satırları
+   Kart yok: her satır bir dosya satırı. Etiket solda, değer sağda,
+   arada noktalı bir lider.
+   ============================================================ */
+.record {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  column-gap: clamp(1.5rem, 5vw, 4rem);
+  margin: 0;
+  border-top: 1px solid var(--border);
+}
+
+.recordRow {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding-block: 0.95rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.recordLabel {
+  flex: none;
+  font-family: var(--font-jost), var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Değer büyüyen taraf; noktalı lider onun `::before`ı.
+   Ayrı bir <span> KULLANILMIYOR: `<dl><div>` sarmalayıcısının içine
+   dt/dd dışında öğe koymak geçersiz HTML olurdu. */
+.recordValue {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin: 0;
+  text-align: right;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.45;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+}
+
+.recordValue::before {
+  content: "";
+  flex: 1 1 1.5rem;
+  min-width: 1.25rem;
+  align-self: center;
+  height: 1px;
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--border-strong) 0 1px,
+    transparent 1px 5px
+  );
+}
+
+@media (min-width: 780px) {
+  .record {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ============================================================
+   3 · İŞARETLER — mekaniğin kullanma kılavuzu ve mühür sözlüğü
+   ============================================================ */
+.marksGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: calc(var(--min-band) * 0.7) clamp(2rem, 5vw, 4rem);
+  align-items: start;
+}
+
+.marksBody {
+  min-width: 0;
+}
+
+.marksArt {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: clamp(1.5rem, 4vw, 2.75rem);
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+}
+
+.marksPhoto {
+  position: absolute;
+  inset: 0;
+  opacity: 0.22;
+  mask-image: radial-gradient(circle at 50% 50%, black 25%, transparent 78%);
+}
+
+.marksPhoto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.4);
+}
+
+.formula {
+  position: relative;
+  width: 100%;
+  max-width: 20rem;
+  aspect-ratio: 1;
+  color: color-mix(in srgb, var(--min-mark) 62%, transparent);
+  transition: color var(--min-dur-slow) var(--min-ease);
+}
+
+.legend {
+  min-width: 0;
+}
+
+.legendTitle {
+  margin: 0 0 1.1rem;
+  font-family: var(--font-jost), var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.legendList {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--border);
+  border-block: 1px solid var(--border);
+}
+
+.legendItem {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: baseline;
+  gap: 0.25rem 0.85rem;
+  padding: 0.85rem 0.25rem;
+  background: var(--bg);
+}
+
+.legendGlyph {
+  grid-row: span 2;
+  align-self: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  color: color-mix(in srgb, var(--min-mark) 70%, transparent);
+  transition: filter var(--min-dur) var(--min-ease-soft);
+}
+
+.legendName {
+  font-family: var(--font-jost), var(--font-sans);
+  font-size: 0.9375rem;
+  font-weight: 300;
+  letter-spacing: 0.06em;
+  color: var(--min-cloak);
+}
+
+.legendNote {
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+@media (min-width: 620px) {
+  .legendList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 900px) {
+  .marksGrid {
+    grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
+  }
+
+  .marksBody {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .marksArt {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: stretch;
+  }
+
+  .legend {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .legendList {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ============================================================
+   4 · ÜÇ TEKNİK
+   Kart değil: üç geniş bant. Görsel bandın bir kenarından girip metnin
+   altına doğru sönüyor, taraf sırayla değişiyor (`data-side`).
+   ============================================================ */
+.techs {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tech {
+  position: relative;
+  padding-block: calc(var(--min-band) * 0.85);
+  border-top: 1px solid var(--border);
+  overflow: clip;
+}
+
+.techArt {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: min(34rem, 54%);
+  opacity: 0.3;
+  mask-image: linear-gradient(to left, black 8%, transparent 92%);
+  transition: opacity var(--min-dur-slow) var(--min-ease);
+}
+
+.tech[data-side="1"] .techArt {
+  inset: 0 auto 0 0;
+  mask-image: linear-gradient(to right, black 8%, transparent 92%);
+}
+
+.techArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.35) brightness(0.72);
+}
+
+.tech:hover .techArt {
+  opacity: 0.42;
+}
+
+.techBody {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: var(--min-measure);
+  min-width: 0;
+}
+
+.tech[data-side="1"] .techBody {
+  margin-left: auto;
+}
+
+.techKanji {
+  font-family: var(--font-shippori), Georgia, serif;
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  line-height: 1.3;
+  color: color-mix(in srgb, var(--min-mark) 34%, transparent);
+  transition: color var(--min-dur) var(--min-ease-soft);
+}
+
+.tech:hover .techKanji {
+  color: color-mix(in srgb, var(--min-mark) 72%, transparent);
+}
+
+.techName {
+  margin: 0;
+  font-family: var(--font-jost), var(--font-sans);
+  font-size: clamp(1.5rem, 3.6vw, 2.25rem);
+  font-weight: 300;
+  line-height: 1.14;
+  letter-spacing: 0.01em;
+  color: var(--min-cloak);
+}
+
+.techTurkish {
+  font-family: var(--font-jost), var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.techTagline {
+  margin-top: 0.5rem;
+  max-width: 38ch;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--min-mark);
+}
+
+.techText {
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1rem;
+  line-height: 1.85;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.techTraits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.65rem;
+}
+
+.trait {
+  padding: 0.32rem 0.7rem;
+  border: 1px solid var(--border-strong);
+  font-family: var(--font-jost), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 300;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 760px) {
+  .techArt {
+    opacity: 0.16;
+    width: 100%;
+    inset: 0;
+    mask-image: linear-gradient(to top, transparent 4%, black 78%);
+  }
+
+  .tech[data-side="1"] .techArt {
+    inset: 0;
+    mask-image: linear-gradient(to top, transparent 4%, black 78%);
+  }
+}
+
+/* ============================================================
+   5 · DÖRT KÜÇÜK — asimetrik tutanak ızgarası
+   Eşit dört kutu DEĞİL: 7/5 · 5/7 bölünme, ilk kaydın glifi daha büyük.
+   ============================================================ */
+.kit {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+
+.kitItem {
+  position: relative;
+  grid-column: span 12;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  background: var(--bg);
+  overflow: clip;
+  transition: background var(--min-dur) var(--min-ease-soft);
+}
+
+.kitItem:hover {
+  background: var(--surface);
+}
+
+.kitPhoto {
+  position: absolute;
+  inset: 0;
+  opacity: 0.16;
+  mask-image: linear-gradient(to top left, black 5%, transparent 68%);
+}
+
+.kitPhoto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.5);
+}
+
+.kitGlyph {
+  position: absolute;
+  top: clamp(1rem, 2.5vw, 1.6rem);
+  right: clamp(1rem, 2.5vw, 1.6rem);
+  width: 3.25rem;
+  height: 3.25rem;
+  color: color-mix(in srgb, var(--min-mark) 26%, transparent);
+  transition: color var(--min-dur) var(--min-ease-soft);
+}
+
+.kitItem:first-child .kitGlyph {
+  width: 5.5rem;
+  height: 5.5rem;
+}
+
+.kitItem:hover .kitGlyph {
+  color: color-mix(in srgb, var(--min-mark) 58%, transparent);
+}
+
+.kitName {
+  position: relative;
+  margin: 0;
+  max-width: 22ch;
+  font-family: var(--font-jost), var(--font-sans);
+  font-size: 1.25rem;
+  font-weight: 300;
+  line-height: 1.24;
+  letter-spacing: 0.02em;
+  color: var(--min-cloak);
+}
+
+.kitNote {
+  position: relative;
+  margin: 0;
+  max-width: 52ch;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 0.9375rem;
+  line-height: 1.78;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+@media (min-width: 780px) {
+  .kitItem:nth-child(1),
+  .kitItem:nth-child(4) {
+    grid-column: span 7;
+  }
+
+  .kitItem:nth-child(2),
+  .kitItem:nth-child(3) {
+    grid-column: span 5;
+  }
+}
+
+/* ============================================================
+   6 · YİRMİ DÖRT YIL
+   Beş geniş bant. Dönem etiketi solda bir sütun, kayıt sağda.
+   ============================================================ */
+.fate {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fateItem {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem clamp(1.5rem, 4vw, 3rem);
+  padding-block: calc(var(--min-band) * 0.72);
+  border-top: 1px solid var(--border);
+}
+
+.fateEra {
+  margin: 0;
+  font-family: var(--font-jost), var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  color: color-mix(in srgb, var(--min-mark) 78%, var(--text-secondary));
+}
+
+.fateBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  min-width: 0;
+}
+
+.fateTitle {
+  margin: 0;
+  font-family: var(--font-jost), var(--font-sans);
+  font-size: clamp(1.3rem, 2.9vw, 1.9rem);
+  font-weight: 300;
+  line-height: 1.22;
+  letter-spacing: 0.01em;
+  color: var(--min-cloak);
+  text-wrap: balance;
+}
+
+.fateText {
+  margin: 0;
+  max-width: var(--min-measure);
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1rem;
+  line-height: 1.85;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.faces {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.1rem;
+  margin: 0.4rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.face {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  width: 4.25rem;
+}
+
+.faceArt {
+  position: relative;
+  display: block;
+  width: 3.4rem;
+  height: 3.4rem;
+  overflow: hidden;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+}
+
+.faceArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 18%;
+  filter: grayscale(0.55) contrast(1.05) brightness(0.86);
+  transition: filter var(--min-dur) var(--min-ease-soft);
+}
+
+.face:hover .faceArt img {
+  filter: grayscale(0) contrast(1.02) brightness(1);
+}
+
+.faceName {
+  font-family: var(--font-jost), var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 300;
+  line-height: 1.35;
+  letter-spacing: 0.05em;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.fateArt {
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 34rem;
+  aspect-ratio: 21 / 9;
+  margin-top: 0.5rem;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.fateArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.35) brightness(0.82);
+  transition: filter var(--min-dur-slow) var(--min-ease);
+}
+
+.fateItem:hover .fateArt img {
+  filter: grayscale(0.1) brightness(0.95);
+}
+
+@media (min-width: 820px) {
+  .fateItem {
+    grid-template-columns: minmax(0, 11rem) minmax(0, 1fr);
+  }
+
+  .fateEra {
+    padding-top: 0.5rem;
+  }
+}
+
+/* ============================================================
+   7 · MÜHÜRLEME GECESİ
+
+   ⚠️ BU BÖLÜMDE HAREKET YOK. Ne geçiş, ne hover, ne animasyon. Sayfanın
+   geri kalanı anlıkken burada hiçbir şey hızlanmıyor: satır aralığı
+   sayfanın en genişi (2.05) ve satırlar arasında bir BÖLÜM boyu boşluk
+   var. Boşluk burada süs değil, bölümün tek biçim aracı.
+   ============================================================ */
+.night {
+  overflow: clip;
+  padding-block: calc(var(--min-band) * 1.9);
+  background:
+    radial-gradient(90% 60% at 50% 0%, var(--min-night), transparent 70%),
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--surface) 40%, transparent),
+      transparent 40%
+    );
+  border-block: 1px solid var(--border);
+}
+
+.nightScene {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.16;
+  mask-image: radial-gradient(ellipse at 50% 40%, black 8%, transparent 72%);
+}
+
+.nightScene img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.5) brightness(0.7);
+}
+
+.nightSeal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 0;
+  width: min(38rem, 92%);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  color: color-mix(in srgb, var(--min-seal) 16%, transparent);
+  pointer-events: none;
+}
+
+.nightInner {
+  position: relative;
+  z-index: 1;
+  width: min(100% - var(--min-gutter) * 2, 46ch);
+  margin-inline: auto;
+}
+
+.nightHead {
+  margin-bottom: calc(var(--min-band) * 1.1);
+}
+
+.nightTitle {
+  margin: 0;
+  font-family: var(--font-jost), var(--font-sans);
+  font-size: clamp(1.7rem, 4.4vw, 2.6rem);
+  font-weight: 200;
+  line-height: 1.18;
+  letter-spacing: 0.04em;
+  color: var(--min-cloak);
+}
+
+.nightLede {
+  margin: 0.9rem 0 0;
+  font-family: var(--font-jost), var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 300;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--min-seal) 70%, var(--text-secondary));
+}
+
+.nightLine {
+  margin: 0;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: clamp(1.0625rem, 2.2vw, 1.3rem);
+  font-weight: 400;
+  line-height: 2.05;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.nightLine + .nightLine {
+  margin-top: var(--min-band);
+}
+
+/* Son satır sessizliğin kendisi: daha açık, daha büyük, tek başına */
+.nightLine[data-last] {
+  margin-top: calc(var(--min-band) * 1.5);
+  font-size: clamp(1.2rem, 2.8vw, 1.6rem);
+  font-weight: 600;
+  line-height: 1.85;
+  color: var(--min-cloak);
+}
+
+.nightSource {
+  margin: calc(var(--min-band) * 1.3) 0 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  font-family: var(--font-jost), var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 300;
+  line-height: 1.7;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   8 · KAPANIŞ
+   İki BELGE (replik değil — bkz. veri dosyası), motto, kaynak künyesi.
+   ============================================================ */
+.closing {
+  position: relative;
+  width: 100%;
+  overflow: clip;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--min-band) * 0.75);
+  padding-block: calc(var(--min-band) * 1.4) calc(var(--min-band) * 2.4);
+  text-align: center;
+}
+
+.closingArt {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.14;
+  mask-image: radial-gradient(ellipse at 50% 45%, black 8%, transparent 70%);
+}
+
+.closingArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.6);
+}
+
+.doc {
+  position: relative;
+  z-index: 1;
+  width: var(--min-content);
+  max-width: 44ch;
+  margin: 0;
+}
+
+.docText {
+  margin: 0;
+  font-family: var(--font-jost), var(--font-sans);
+  font-size: clamp(1.5rem, 4.4vw, 2.4rem);
+  font-weight: 200;
+  line-height: 1.32;
+  letter-spacing: 0.015em;
+  color: var(--min-cloak);
+  text-wrap: balance;
+}
+
+.docCaption {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1.1rem;
+}
+
+.docBy {
+  font-family: var(--font-jost), var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--min-mark) 78%, var(--text-secondary));
+}
+
+.docNote {
+  max-width: 42ch;
+  margin-inline: auto;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 0.9375rem;
+  line-height: 1.72;
+  color: var(--text-secondary);
+}
+
+.motto {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  font-family: var(--font-shippori), Georgia, serif;
+  font-size: clamp(1.75rem, 6.5vw, 3.4rem);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.12em;
+  color: color-mix(in srgb, var(--min-cloak) 22%, transparent);
+}
+
+.mottoNote {
+  position: relative;
+  z-index: 1;
+  margin: -0.4rem 0 0;
+  font-family: var(--font-jost), var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 300;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+}
+
+.credit {
+  position: relative;
+  z-index: 1;
+  width: var(--min-content);
+  max-width: 58ch;
+  margin: 0;
+  padding-top: calc(var(--min-band) * 0.55);
+  border-top: 1px solid var(--border);
+  font-family: var(--font-jost), var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 300;
+  line-height: 1.85;
+  letter-spacing: 0.01em;
+  text-align: left;
+  color: var(--text-muted);
+}
+
+.credit a {
+  color: var(--text-secondary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--accent-muted);
+  transition: color var(--min-dur-fast) var(--min-ease-soft);
+}
+
+.credit a:hover {
+  color: var(--min-mark);
+}
+
+.credit a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* Kapanışın altındaki ters alev şeridi — hero'daki eteğin karşılığı */
+.closingHem {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  width: 100%;
+  height: clamp(1.75rem, 3.5vw, 2.75rem);
+  color: var(--min-seal);
+  opacity: 0.5;
+  mask-image: linear-gradient(to top, transparent, black 70%);
+  pointer-events: none;
+}
+
+/* ============================================================
+   ZORUNLU RENK MODU — dekoratif katmanlar susar
+   ============================================================ */
+@media (forced-colors: active) {
+  .heroSky,
+  .heroWatermark,
+  .heroHem,
+  .closingHem,
+  .closingArt,
+  .nightSeal,
+  .nightScene,
+  .railThread {
+    display: none;
+  }
+
+  .page [data-mark]::before,
+  .page [data-mark]::after {
+    display: none;
+  }
+}
+
+/* ============================================================
+   REDUCED-MOTION BATTANİYESİ — ev deseni (çift katman):
+   varış flaşı zaten `no-preference` kapısının arkasında, burada kalan
+   bütün geçişler de kapanıyor. Işınlanmanın kendisi ETKİLENMİYOR:
+   sıçrama JS'te ve zaten anlık — reduce'ta yalnızca ışık yok.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

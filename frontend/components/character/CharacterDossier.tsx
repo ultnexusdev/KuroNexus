@@ -74,7 +74,6 @@ export function CharacterDossier({
    * saymamak bu yüzden kural, istisna değil.
    */
   const images = detail.images ?? [];
-  const isMain = appearances.some((item) => item.role === "MAIN");
 
   /*
    * Görsel kaynak sırası: kürator yüklemesi (veritabanı) → koddaki varsayılan
@@ -169,12 +168,13 @@ export function CharacterDossier({
           </div>
 
           <div className={styles.identity}>
+            {/* "Başrol / Yardımcı" rozeti 24 Ağustos 2026'da kaldırıldı
+                (kullanıcı kararı: "bunun bir önemi yok"). Dizin kartlarından
+                da kalktı. Rolün ANLAMLI olduğu tek yer duruyor: aşağıdaki
+                "Göründüğü Yapımlar" listesinde her yapımın kendi satırı —
+                orası "bu seride rolü neydi" bilgisi, kimliğe yapıştırılmış
+                bir etiket değil. */}
             <div className={styles.rankRow}>
-              <span
-                className={`${styles.rank} ${isMain ? styles.rankMain : ""}`}
-              >
-                {t(isMain ? "role.MAIN" : "role.SUPPORTING")}
-              </span>
               {character.favourites ? (
                 <span className={styles.favourites}>
                   ♥ {formatCount(character.favourites)}

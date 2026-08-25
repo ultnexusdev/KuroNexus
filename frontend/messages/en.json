@@ -2032,6 +2032,7 @@
     "stats": {
       "characters": "Characters",
       "main": "Leads",
+      "curated": "Hand-built",
       "series": "Series"
     },
     "role": {
@@ -2092,8 +2093,11 @@
     "curated": {
       "title": "Hand-built Files",
       "lede": "For these characters a profile card was not enough: each one has its own page, written for its own universe and built with its own colours and mechanics.",
-      "count": "{count} files",
-      "badge": "Has its own page"
+      "count": "{count} files"
+    },
+    "rest": {
+      "title": "Profile Cards",
+      "lede": "Characters whose own page has not been written yet. Their profiles come from AniList; when one earns a page it moves up to the shelf above."
     },
     "curator": {
       "off": "Curator mode",

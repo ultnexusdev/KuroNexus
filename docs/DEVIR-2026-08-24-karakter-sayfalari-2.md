@@ -131,15 +131,31 @@ yani sayfaları yazılsa bile dizinden ulaşılamıyordu, arama da bulmuyordu.
 - **`CuratedShelf`** — dizinin üstünde "Elle Tasarlanmış Dosyalar" rafı.
   Sunucu bileşeni; istemci olan dizine **prop** olarak geçiyor, istemci
   paketine girmiyor.
-- **Eksik 19 karakter ızgaraya eklendi.** Arama ve seri süzgeci artık onları
-  da buluyor. Mevcut kayıtlara dokunulmadı.
-- **`CharacterPlate` rozeti** — metin değil mürekkep damlası işareti, rol
-  çipinin karşı köşesinde (dar kartta üst üste binmesin diye).
-- Eklenenlerin **rolü boş bırakıldı** ve **`main` sayacı değiştirilmedi**:
-  "başrol" AniList'in kadro ölçüsü, Kankurō'ya ya da Iruka'ya başrol rozeti
-  takmak yanlış olurdu.
+- Eklenenlerin **rolü boş bırakıldı**: "başrol" AniList'in kadro ölçüsü,
+  Kankurō'ya ya da Iruka'ya başrol rozeti takmak yanlış olurdu.
 
-Sonuç: künye sayacı 68 → **87**, raf 37 dosya, ızgarada 37 rozetli kart.
+### ⚠️ Aynı gün revize edildi — sayfa ikiye ayrıldı
+
+İlk sürümde raftaki karakterler ızgarada DA görünüyordu (aynı portre sayfada
+iki kez) ve hangisinin sayfası olduğunu kartın üstündeki bir işaret
+söylüyordu. Kullanıcı geri bildirimiyle üçü birden değişti:
+
+| Önce | Sonra |
+|---|---|
+| Raf + ızgara iç içe, çift portre | Elle tasarlanmışlar ızgaradan **tamamen düşürüldü** |
+| Kartta "kendi sayfası var" işareti | İşaret **kaldırıldı** — ızgarada görünen her kart zaten "sayfası yok" demek |
+| Kartlarda "Başrol / Yardımcı" çipi | **Kaldırıldı** (dizinde ve künye sayfasının hero'sunda) |
+| Sayaç: Karakter / Başrol / Seri | Sayaç: Karakter / **Elle tasarlanmış** / Seri |
+
+Izgaranın üstüne açıklayıcı bir başlık eklendi (`character.rest.*`):
+**"Künye Dosyaları — henüz kendi sayfası yazılmamış karakterler."** Böylece
+"kimin sayfası yok" sorusunu ızgaranın kendisi cevaplıyor; işaret gereksiz.
+
+Rol yalnızca **bir** yerde kaldı: künye sayfasındaki "Göründüğü Yapımlar"
+listesinde her yapımın kendi satırında ("bu seride rolü neydi"). Orası
+kimliğe yapıştırılmış bir etiket değil, o yapıma ait bir veri.
+
+Sonuç: raf **37 dosya**, ızgara **50 kart**, sayaç **87 / 37 / 9**.
 
 ---
 

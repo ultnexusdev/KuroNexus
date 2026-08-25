@@ -158,61 +158,12 @@
 
 /* Rol, renkli bir rozet DEGIL: harflerin kendisi. Renkli rozet uc rolu uc
    ayri uyari gibi gosteriyor; oysa bu bir uyari degil, kunye satiri. */
-.rank {
-  position: absolute;
-  top: var(--gap-sm);
-  left: var(--gap-sm);
-  z-index: 1;
-  padding: 3px 7px;
-  border-radius: var(--radius);
-  background: color-mix(in srgb, var(--bg) 78%, transparent);
-  color: var(--text-secondary);
-  font-family: var(--font-bebas), var(--font-sans);
-  font-size: 0.66rem;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  backdrop-filter: blur(3px);
-}
-
-/* Yalnizca basrol accent tasir — vurgu ancak kit kullanilirsa vurgudur */
-.rankMain {
-  border: 0.5px solid var(--accent-muted);
-  color: var(--accent);
-}
-
-/* Elle tasarlanmis sayfasi olan karakterin isareti (24 Agustos 2026).
-   Rol rozetinin KARSI kosesinde: ikisi ayni tarafta olsaydi dar kartta
-   ust uste binerdi. Metin degil sembol — kart zaten adi tasiyor; erisilebilir
-   ad `aria-label`dan geliyor (bkz. CharacterPlate). */
-.curatedMark {
-  position: absolute;
-  top: var(--gap-sm);
-  right: var(--gap-sm);
-  z-index: 1;
-  display: grid;
-  place-items: center;
-  width: 22px;
-  height: 22px;
-  border: 0.5px solid color-mix(in srgb, var(--gold) 45%, transparent);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--bg) 78%, transparent);
-  backdrop-filter: blur(3px);
-  color: var(--gold);
-}
-
-.curatedMark svg {
-  width: 12px;
-  height: 12px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.3;
-  stroke-linecap: round;
-}
-
-/* Damlanin govdesi dolu, alt cizgi (firca izi) bos kalir */
-.curatedMark svg path:first-child {
-  fill: color-mix(in srgb, currentColor 30%, transparent);
-}
+/* ROL ROZETI VE "ELLE TASARLANMIS" ISARETI KALDIRILDI (24 Agustos 2026).
+   Rol (basrol/yardimci) kullaniciya bir sey soylemiyordu. Isaret ise
+   gereksizlesti: dizin artik ikiye ayrildi — ustteki raf elle tasarlanmis
+   dosyalar, asagidaki izgara ise SAYFASI OLMAYANLAR. Yani "kimin sayfasi
+   var" sorusunu izgaranin kendisi cevapliyor, karta isaret koymaya gerek
+   yok. Bkz. karakterler/(dizin)/page.tsx ve CharacterGallery. */
 
 /* --- Ad plakasi --- */
 

@@ -115,6 +115,36 @@
 
 /* --- Suzgec cubugu --- */
 
+/* --- Alt bolumun basligi: "sayfasi olmayanlar" ---
+   Ustteki raf cerceveli ve dolgulu; burasi bilincli olarak CIPLAK. Ikisi
+   ayni agirlikta olsaydi sayfa iki esit bolume bolunmus gibi gorunurdu,
+   oysa raf one cikmali. Ayirici tek bir cizgi. */
+
+.restHead {
+  margin: var(--gap-xl) 0 0;
+  padding-top: var(--pad-md);
+  border-top: 1px solid var(--border);
+}
+
+.restTitle {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: var(--font-cinzel), serif;
+  font-size: clamp(1.25rem, 3vw, 1.6rem);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+}
+
+.restLede {
+  max-width: 60ch;
+  margin: var(--gap-sm) 0 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
 .tools {
   display: flex;
   flex-wrap: wrap;

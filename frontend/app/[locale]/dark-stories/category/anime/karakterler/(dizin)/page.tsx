@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { readIsAdmin } from "@/lib/auth/session";
 import { getCharacterIndex } from "@/lib/api/characters";
 import type { CharacterIndex } from "@/lib/api/types";
-import { CURATED_IDS, loadCuratedRoster } from "@/lib/characters/roster";
+import { loadCuratedRoster } from "@/lib/characters/roster";
 import { CuratedShelf } from "@/components/character/CuratedShelf";
 import { fetchCategories } from "@/lib/api/universes";
 import { hallLabel, hallName, hallNumber } from "@/lib/halls";
@@ -69,29 +69,31 @@ export default async function CharacterGalleryPage({
   ]);
 
   /*
-   * Elle tasarlanmış sayfası olup dizinde HİÇ görünmeyenler ızgaraya
-   * ekleniyor (24 Ağustos 2026).
+   * Sayfa İKİYE ayrılıyor (24 Ağustos 2026, kullanıcı kararı):
+   *   üstte  → "Elle Tasarlanmış Dosyalar" rafı (kendi sayfası olan 37 adres)
+   *   altta  → künye ızgarası: SAYFASI OLMAYAN karakterler
    *
-   * Dizin, arşivdeki serilerin AniList kadro listelerinden derleniyor ve o
-   * listeler yalnızca başrol/yardımcı kadroyu taşıyor. Iruka, Konohamaru,
-   * Minato, Kushina, Tenten, Temari, Sai, Yamato, Kankurō ve Kabuto hiçbir
-   * kadro listesine girmiyor — yani sayfaları yazıldığı hâlde dizinden
-   * ulaşılamıyordu. Arama ve seri süzgeci de onları bulamıyordu.
+   * Önce ikisi iç içeydi — raftaki karakterler ızgarada da görünüyor, aynı
+   * portre sayfada iki kez çıkıyordu. Ayrıca hangi karakterin sayfası
+   * olduğunu kartın üstündeki bir işaret söylüyordu. İkisi de kalktı: elle
+   * tasarlanmış olanlar ızgaradan tamamen düşürülüyor, böylece ızgarada
+   * görünen HER kart "bunun henüz sayfası yok" demek oluyor ve işarete
+   * gerek kalmıyor.
    *
-   * Eklenenler listenin BAŞINA konuyor: elle yazılmış dosyalar üstte dursun.
-   * Zaten dizinde olanlara dokunulmuyor — AniList'ten gelen rolü, seslendireni
-   * ve seri bağları korunuyor, yalnızca kartlarına işaret ekleniyor.
+   * Sayaçlar bütünü anlatmaya devam ediyor: raf + ızgara = toplam karakter.
+   * "Başrol" sayacı yerine "elle tasarlanmış" geçti — rol etiketleri
+   * kartlardan kalktığı için o sayı ekranda karşılıksız kalıyordu.
    */
-  const mevcut = new Set(index.characters.map((c) => c.characterId));
-  const eksikler = roster.filter((c) => !mevcut.has(c.characterId));
+  const rafta = new Set(roster.map((c) => c.characterId));
+  const kunyeKartlari = index.characters.filter(
+    (c) => !rafta.has(c.characterId),
+  );
   const zenginIndex: CharacterIndex = {
     ...index,
-    characters: [...eksikler, ...index.characters],
+    characters: kunyeKartlari,
     stats: {
       ...index.stats,
-      characters: index.stats.characters + eksikler.length,
-      /* `main` DEĞİŞMİYOR: eklenenlerin rolü yok (bkz. roster.ts) ve
-         "başrol" AniList'in kadro ölçüsü — sayaç o ölçüye sadık kalmalı. */
+      characters: kunyeKartlari.length + roster.length,
     },
   };
 
@@ -101,7 +103,7 @@ export default async function CharacterGalleryPage({
       hallLabel={hall.label}
       hallName={hall.name}
       isAdmin={isAdmin}
-      curatedIds={CURATED_IDS}
+      curatedCount={roster.length}
       shelf={<CuratedShelf roster={roster} />}
     />
   );

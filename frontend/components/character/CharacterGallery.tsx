@@ -19,7 +19,7 @@ export function CharacterGallery({
   hallLabel,
   hallName,
   isAdmin = false,
-  curatedIds,
+  curatedCount = 0,
   shelf,
 }: {
   index: CharacterIndex;
@@ -28,14 +28,12 @@ export function CharacterGallery({
   /** Küratör anahtarını gösterir — yetki her istekte backend'de doğrulanır */
   isAdmin?: boolean;
   /**
-   * Elle tasarlanmış kendi sayfası olan karakterler — kartlarına işaret
-   * konur.
+   * Raftaki elle tasarlanmış dosya sayısı — yalnızca sayaç şeridi için.
    *
    * ⚠️ Aşağıdaki `curating` durumuyla KARIŞTIRMA: o "küratör modu açık mı"
-   * demek (yönetici, karakteri dizinden çıkarabiliyor). Bu ise içeriğe dair
-   * kalıcı bir gerçek: o karakterin yazılmış bir sayfası var.
+   * demek (yönetici, karakteri dizinden çıkarabiliyor).
    */
-  curatedIds?: ReadonlySet<number>;
+  curatedCount?: number;
   /**
    * Üstteki "Elle Tasarlanmış Dosyalar" rafı. SUNUCUDA çizilmiş bir düğüm
    * olarak geçiyor: bu bileşen istemci tarafında ama rafın kendisi istemci
@@ -134,19 +132,16 @@ export function CharacterGallery({
       return index.stats;
     }
     let removed = 0;
-    let removedMain = 0;
     for (const character of index.characters) {
-      if (!hiddenIds.has(character.characterId)) {
-        continue;
-      }
-      removed += 1;
-      if (character.role === "MAIN") {
-        removedMain += 1;
+      if (hiddenIds.has(character.characterId)) {
+        removed += 1;
       }
     }
     return {
       characters: index.stats.characters - removed,
-      main: index.stats.main - removedMain,
+      /* `main` ekranda ÇİZİLMİYOR (rol etiketleri 24 Ağustos'ta kalktı),
+         ama tip alanı istiyor — olduğu gibi taşınıyor. */
+      main: index.stats.main,
       series: index.stats.series,
     };
   }, [curating, hiddenIds, index.characters, index.stats]);
@@ -229,9 +224,12 @@ export function CharacterGallery({
             <span className={styles.statLabel}>{t("stats.characters")}</span>
             <span className={styles.statValue}>{stats.characters}</span>
           </div>
+          {/* "Başrol" sayacı buradaydı. Rol etiketleri kartlardan kalkınca
+              (24 Ağustos 2026) ekranda karşılığı olmayan bir sayı hâline
+              geldi; yerini gerçekten anlamlı olan sayı aldı. */}
           <div className={styles.statCard}>
-            <span className={styles.statLabel}>{t("stats.main")}</span>
-            <span className={styles.statValue}>{stats.main}</span>
+            <span className={styles.statLabel}>{t("stats.curated")}</span>
+            <span className={styles.statValue}>{curatedCount}</span>
           </div>
           <div className={styles.statCard}>
             <span className={styles.statLabel}>{t("stats.series")}</span>
@@ -240,6 +238,16 @@ export function CharacterGallery({
         </div>
 
         {shelf}
+
+        {/* Alt bölümün başlığı. Raf "sayfası olanlar", burası "olmayanlar" —
+            ikisi arasındaki sınırı yazıyla söylemek, karta işaret koymaktan
+            hem daha net hem daha sessiz (kullanıcı kararı, 24 Ağustos 2026). */}
+        {index.characters.length > 0 ? (
+          <header className={styles.restHead}>
+            <h2 className={styles.restTitle}>{t("rest.title")}</h2>
+            <p className={styles.restLede}>{t("rest.lede")}</p>
+          </header>
+        ) : null}
 
         {index.characters.length > 0 ? (
           <>
@@ -307,7 +315,6 @@ export function CharacterGallery({
                   curating={curating}
                   hidden={hiddenIds.has(character.characterId)}
                   onHiddenChange={markHidden}
-                  curated={curatedIds?.has(character.characterId) ?? false}
                 />
               </li>
             ))}

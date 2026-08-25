@@ -39,3 +39,2011 @@
   --tsu-glow-soft:  color-mix(in srgb, #3fae9a 20%, transparent);
   --tsu-glow-strong: color-mix(in srgb, #3fae9a 45%, transparent);
 }
+
+/* ============================================================
+   TSUNADE SENJU — "KUMARBAZIN BAHSİ"
+
+   Deri: kökteki `data-world="tsunade"` bütün standart token'ları bu
+   sayfanın paletine çeviriyor; yardımcılar `--tsu-*`. Deri bloğunun
+   ALTINDA kalan her satırda TEK HEX YOK — ara tonların hepsi color-mix
+   ile token'lardan türetildi (BRIEF §3).
+
+   ── SAYFANIN FİKRİ ──────────────────────────────────────────────────────
+   BAHİS. Sayfadaki bütün ölçü tek bir nesneden türüyor: bir iskambil
+   kartının genişliği (`--tsu-card`). Bölüm arası mesafe, içerik genişliği,
+   ızgara aralığı, portre boyu — hepsi o kartın katı. "Masa" bir metafor
+   değil, sayfanın ölçü sistemi.
+
+   ⚠️ Sakura'nın yayındaki sayfası DOLAN MÜHÜR göstergesi kullanıyor.
+   Burada Byakugō bir birikim çubuğu DEĞİL: bir kasa (kimlik bölümü) ve
+   bir bedel (mod düğmesinin altındaki satır). Ortak mekanik yok.
+
+   ── TEK RENK KURALI ─────────────────────────────────────────────────────
+   `--tsu-luck` sayfada YALNIZCA iki şeye ayrıldı: kazanan elin mührü
+   (stamp + hesaptaki kazanç rakamı) ve kan korkusu bölümündeki damla.
+   Sayfanın tezi bu: Tsunade için kazanmak ile kan aynı şey. Yeni bir
+   yere bu rengi koymak sayfanın tek argümanını çöpe atar.
+
+   Altın (`--gold`) kumarhanenin rengi: oran plakaları, fiş kenarları,
+   masa kenarı, hesap başlığı. Mor (`--tsu-seal`) yalnızca mühür ve kart
+   arkası. Kemik (`--tsu-slug`) yalnızca AÇIK kartın yüzü — masadaki tek
+   ışık kaynağı odur, kart çevirmek sayfaya gerçekten ışık getiriyor.
+
+   ── TİPOGRAFİ ───────────────────────────────────────────────────────────
+   Display + gövde: Cormorant Garamond. Yüksek kontrastlı, aristokrat bir
+   garamond — "Prenses Tsunade" tam olarak bu ses. Gerçek italiği YÜKLÜ
+   (layout.tsx, style: ["normal","italic"]), o yüzden bahsin sözü ve kan
+   korkusu bölümü italik: tarayıcı eğmiyor, ailenin kendi italiği geliyor.
+   ⚠️ Cormorant 400'de display boyutlarda inceliyor — 1.75rem üstünde
+   ağırlık 600'ün altına inmiyor.
+   Plaka/etiket: Cinzel, tracked-out majüskül — kasa fişi ve pirinç plaka.
+   Rakamlar: Archivo Black (`--font-numeral`). Oran plakaları, kart
+   rakamları, hesap sayıları. Aile yalnızca latin dilimi taşıyor; 百
+   rakamı bilerek fırça ailesine (`--font-brush`) düşüyor.
+   Kanji: Yuji Boku fırça ailesi.
+
+   ── HAREKET ─────────────────────────────────────────────────────────────
+   Tek yazılmış an var: KARTIN ÇEVRİLMESİ (`--tsu-flip`, 3B rotateY).
+   İkinci hareket mühür çizgilerinin çizilmesi, o da yalnızca mod açıkken.
+   Geri kalan her şey durağan. Kan korkusu bölümünde HİÇBİR ŞEY hareket
+   etmiyor — bölümün fikri sessizlik. Süre/easing değişkenleri `.page`de;
+   dosyanın sonunda reduced-motion battaniyesi var.
+   ============================================================ */
+
+.page {
+  /* Süre ve easing — hareket sözlüğü */
+  --tsu-dur-fast: 160ms;
+  --tsu-dur: 340ms;
+  --tsu-dur-slow: 820ms;
+  --tsu-flip: 640ms;
+  --tsu-draw: 1500ms;
+  --tsu-ease: cubic-bezier(0.16, 1, 0.3, 1); /* üstel yavaşlama */
+  --tsu-ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+  /* Kartın masaya oturuşu — sonunda çok hafif bir aşma payı var */
+  --tsu-ease-card: cubic-bezier(0.3, 1.18, 0.4, 1);
+
+  /* Geometri — bir iskambil kartı sayfanın tek ölçü birimi */
+  --tsu-card: clamp(4.4rem, 9vw, 6.4rem);
+  --tsu-step: calc(var(--tsu-card) * 0.5);
+  --tsu-gutter: clamp(1rem, 4vw, 2.25rem);
+  --tsu-content: min(
+    100% - var(--tsu-gutter) * 2,
+    calc(var(--tsu-card) * 10.5)
+  );
+  --tsu-measure: 64ch;
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text-primary);
+  overflow-x: clip;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Fiş dokusu: sayfanın en alt katmanı ──────────────────────────────
+   Masaya dağılmış jetonlar. Üstte ve altta maskeyle söner ki bir "desen"
+   gibi değil, kadrajın dışında devam eden bir yüzey gibi okunsun. */
+.chipWash {
+  position: absolute;
+  inset: 0 0 auto;
+  height: min(150svh, 90rem);
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0.55;
+  mask-image: linear-gradient(
+    to bottom,
+    black 0,
+    black 55%,
+    transparent 100%
+  );
+  transition: opacity var(--tsu-dur-slow) var(--tsu-ease);
+}
+
+.chipArt {
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Breadcrumb ──────────────────────────────────────────────────────── */
+.crumb {
+  position: relative;
+  z-index: 1;
+  width: var(--tsu-content);
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-block: 0.75rem;
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.crumb a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--tsu-dur-fast) var(--tsu-ease-soft);
+}
+
+.crumb a:hover {
+  color: var(--text-primary);
+}
+
+.crumb a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.crumbSep {
+  color: var(--border-strong);
+}
+
+/* ============================================================
+   MOD DÜĞMESİ — "SŌZŌ SAISEI"
+   Bir fiş gibi: yuvarlak uçlu, altın kenarlı, mühür gliffiyle.
+   ============================================================ */
+.rebirthToggle {
+  position: fixed;
+  right: clamp(0.75rem, 3vw, 1.75rem);
+  bottom: calc(clamp(0.75rem, 3vw, 1.75rem) + var(--music-bar, 0px));
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: var(--touch-min);
+  padding: 0.5rem 1.1rem 0.5rem 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--gold) 42%, var(--border-strong));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+  backdrop-filter: blur(7px);
+  color: var(--text-secondary);
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 12px 30px -16px color-mix(in srgb, var(--bg) 92%, transparent);
+  transition:
+    color var(--tsu-dur) var(--tsu-ease-soft),
+    border-color var(--tsu-dur) var(--tsu-ease-soft),
+    box-shadow var(--tsu-dur) var(--tsu-ease-soft);
+}
+
+.rebirthToggle:hover {
+  color: var(--text-primary);
+  border-color: var(--gold);
+}
+
+.rebirthToggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.rebirthToggle[aria-pressed="true"] {
+  color: var(--text-primary);
+  border-color: color-mix(in srgb, var(--tsu-seal) 70%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--tsu-seal) 22%, transparent),
+    0 16px 38px -18px color-mix(in srgb, var(--tsu-seal) 55%, transparent);
+}
+
+.rebirthGlyph {
+  width: 1.15rem;
+  height: 1.15rem;
+  flex: none;
+  color: var(--border-strong);
+  transition:
+    color var(--tsu-dur) var(--tsu-ease-soft),
+    scale var(--tsu-dur-slow) var(--tsu-ease);
+}
+
+.rebirthToggle[aria-pressed="true"] .rebirthGlyph {
+  color: var(--tsu-seal);
+  scale: 1.16;
+}
+
+.rebirthNote {
+  position: fixed;
+  right: clamp(0.75rem, 3vw, 1.75rem);
+  bottom: calc(clamp(0.75rem, 3vw, 1.75rem) + var(--music-bar, 0px) + 3.5rem);
+  z-index: 59;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.3rem;
+  max-width: min(21rem, calc(100vw - 2rem));
+  text-align: right;
+  pointer-events: none;
+}
+
+.rebirthNote:empty {
+  display: none;
+}
+
+/* Satırlar sabit konumda ve altlarında ne olacağı belli değil — kontrastı
+   garantiye almak için her ikisi de kendi zeminini taşıyor. */
+.rebirthHint,
+.rebirthCost {
+  padding: 0.28rem 0.65rem;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(5px);
+}
+
+.rebirthHint {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+/* Bedel cümlesi — teknik bedava değil, satır da öyle görünüyor */
+.rebirthCost {
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--warn);
+}
+
+.rebirthLabel {
+  white-space: nowrap;
+}
+
+/* ============================================================
+   1 · HERO — PORTRE, MÜHÜR, YAYILAN ÇİZGİLER
+   ============================================================ */
+.hero {
+  position: relative;
+  z-index: 1;
+  width: var(--tsu-content);
+  margin-inline: auto;
+  min-height: min(86svh, 50rem);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: calc(var(--tsu-card) * 0.75);
+  padding-block: calc(var(--tsu-card) * 0.7) calc(var(--tsu-card) * 1.35);
+}
+
+.heroScene {
+  position: absolute;
+  inset: calc(var(--tsu-card) * -0.4) calc(var(--tsu-gutter) * -1);
+  z-index: -1;
+  overflow: hidden;
+}
+
+.heroScene img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.4) brightness(0.55);
+}
+
+.heroScrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    var(--bg) 3%,
+    color-mix(in srgb, var(--bg) 62%, transparent) 58%,
+    color-mix(in srgb, var(--bg) 84%, transparent) 100%
+  );
+}
+
+/* Filigran: adın hayaleti. Aynı karakterler başlığın altında küçük ve
+   okunur hâlde de duruyor — burada ölçek onu bir dokuya çeviriyor. */
+.heroMark {
+  position: absolute;
+  right: calc(var(--tsu-card) * -0.3);
+  bottom: calc(var(--tsu-card) * 0.15);
+  margin: 0;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(6rem, 24vw, 15rem);
+  line-height: 0.82;
+  letter-spacing: 0.02em;
+  color: color-mix(in srgb, var(--text-primary) 5%, transparent);
+  user-select: none;
+  pointer-events: none;
+  transition: color var(--tsu-dur-slow) var(--tsu-ease);
+}
+
+.heroPortraitWrap {
+  position: relative;
+  width: clamp(9rem, 24vw, calc(var(--tsu-card) * 2.4));
+}
+
+.heroPortrait {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  box-shadow: 0 30px 60px -40px color-mix(in srgb, var(--bg) 95%, transparent);
+}
+
+.heroPortrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 10%;
+  filter: grayscale(0.42) contrast(1.05) brightness(0.9);
+  transition: filter var(--tsu-dur-slow) var(--tsu-ease);
+}
+
+/* Mühür: portrenin ÜSTÜNDE, alnın geldiği yükseklikte. Yerleşim
+   `object-position: 50% 10%` kadrajına göre ayarlandı; SVG portreden
+   geniş olduğu için baklava birkaç piksel kaysa bile grafiğin okunuşu
+   değişmiyor — asıl işi yapan, çerçevenin dışına taşan çizgiler. */
+.heroSeal {
+  position: absolute;
+  left: 50%;
+  top: 19%;
+  translate: -50% -50%;
+  width: 210%;
+  aspect-ratio: 1;
+  pointer-events: none;
+  filter: drop-shadow(
+    0 0 12px color-mix(in srgb, var(--tsu-seal) 45%, transparent)
+  );
+}
+
+/* Yayılan çizgiler yalnızca Sōzō Saisei açıkken çizilir.
+   `pathLength="1"` sayesinde sekiz çizgi de aynı hızda ilerliyor. */
+.sealLine {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  opacity: 0;
+  transition:
+    stroke-dashoffset var(--tsu-draw) var(--tsu-ease),
+    opacity var(--tsu-dur) var(--tsu-ease-soft);
+}
+
+.heroBody {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.45rem;
+  max-width: 46ch;
+}
+
+.heroClan {
+  margin: 0 0 0.3rem;
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.heroName {
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(2.9rem, 10.5vw, 6rem);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+  color: var(--text-primary);
+  transition: text-shadow var(--tsu-dur-slow) var(--tsu-ease);
+}
+
+.heroNative {
+  margin: 0.1rem 0 0;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(1.1rem, 2.6vw, 1.6rem);
+  letter-spacing: 0.3em;
+  color: var(--text-muted);
+}
+
+/* AniList'in `alternativeNames` satırı — üçü de kaynaktan geliyor */
+.aliases {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.alias {
+  padding-inline: 0.85rem;
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.alias:first-child {
+  padding-left: 0;
+}
+
+.alias + .alias {
+  border-left: 1px solid var(--border-strong);
+}
+
+.heroEpigraph {
+  margin: calc(var(--tsu-card) * 0.32) 0 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.2rem, 2.3vw, 1.55rem);
+  font-weight: 600;
+  line-height: 1.45;
+  letter-spacing: -0.005em;
+  color: var(--text-primary);
+  text-wrap: pretty;
+}
+
+.heroLede {
+  margin: 0.45rem 0 0;
+  max-width: 44ch;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.0625rem;
+  font-weight: 500;
+  line-height: 1.75;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.sealCaption {
+  margin: 0.9rem 0 0;
+  max-width: 40ch;
+  padding-left: 0.9rem;
+  border-left: 1px solid color-mix(in srgb, var(--tsu-seal) 45%, transparent);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   BÖLÜM İSKELETİ
+   ============================================================ */
+.section {
+  position: relative;
+  z-index: 1;
+  width: var(--tsu-content);
+  margin-inline: auto;
+  padding-block: calc(var(--tsu-card) * 1.05);
+}
+
+.sectionHead {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-bottom: calc(var(--tsu-card) * 0.65);
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.85rem, 4.4vw, 3.1rem);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  text-wrap: balance;
+  transition: color var(--tsu-dur-slow) var(--tsu-ease);
+}
+
+.sectionLede {
+  margin: 0;
+  max-width: 52ch;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.0625rem;
+  font-weight: 500;
+  line-height: 1.75;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* Kurator yuvaları — ziyaretçide hiç çizilmiyor */
+.slotRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+/* ============================================================
+   2 · KÜNYE — KASA FİŞİ
+   Etiket solda, değer sağda, aradaki boşluğu noktalı bir hat dolduruyor.
+   Kutucuk yok: künye bir tablo değil, kasadan alınan bir fiş.
+   ============================================================ */
+/* ⚠️ Ayırıcı hat HER satırın ALTINDA, üstünde değil. `.fact + .fact`
+   yazılsaydı ızgara satır satır dolduğu için ikinci sütunun ilk kaydı
+   hat alırdı, birincininki almazdı — iki sütun asimetrik görünürdü.
+   Sekiz kayıt iki sütuna dörder dağıldığı için bu düzen simetrik. */
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+  column-gap: calc(var(--tsu-card) * 0.75);
+  margin: 0;
+  border-top: 1px solid color-mix(in srgb, var(--gold) 26%, var(--border));
+}
+
+.fact {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  column-gap: 0.85rem;
+  padding-block: 0.68rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 75%, transparent);
+}
+
+.fact dt {
+  display: flex;
+  align-items: baseline;
+  gap: 0.7rem;
+  min-width: 0;
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Noktalı hat — fişin kendi çizgisi */
+.fact dt::after {
+  content: "";
+  flex: 1 1 auto;
+  min-width: 1.5rem;
+  border-bottom: 1px dotted var(--border-strong);
+  translate: 0 -0.26em;
+}
+
+.fact dd {
+  margin: 0;
+  text-align: right;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+}
+
+/* ============================================================
+   3 · MASADAKİLER
+   Portreler fişe kırpıldı: yuvarlak, kesikli kenarlı. Karşı taraftaki
+   sandalyenin fişi soğuk ve kenarı altın değil.
+   ============================================================ */
+.seats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
+  gap: calc(var(--tsu-card) * 0.55) calc(var(--tsu-card) * 0.6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.seat {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1.1rem;
+  align-items: start;
+}
+
+.seatArt {
+  position: relative;
+  display: block;
+  width: calc(var(--tsu-card) * 1.05);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px dashed color-mix(in srgb, var(--gold) 55%, transparent);
+  background: color-mix(in srgb, var(--surface) 80%, var(--bg));
+  box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--bg) 80%, transparent);
+}
+
+.seatArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 18%;
+  filter: grayscale(0.38) contrast(1.05);
+  transition: filter var(--tsu-dur) var(--tsu-ease-soft);
+}
+
+.seat:hover .seatArt img {
+  filter: grayscale(0.05) contrast(1.02);
+}
+
+/* Eli dağıtan: kesiksiz altın kenar, bir de dış halka */
+.seat[data-side="dealer"] .seatArt {
+  border-style: solid;
+  border-color: var(--gold);
+  box-shadow:
+    inset 0 0 0 3px color-mix(in srgb, var(--bg) 80%, transparent),
+    0 0 0 4px color-mix(in srgb, var(--gold) 18%, transparent);
+}
+
+/* Karşı taraf: soğuk kenar, soluk portre */
+.seat[data-side="against"] .seatArt {
+  border-color: var(--border-strong);
+}
+
+.seat[data-side="against"] .seatArt img {
+  filter: grayscale(0.82) contrast(1.08) brightness(0.78);
+}
+
+.seatBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.seatRole {
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.seat[data-side="against"] .seatRole {
+  color: var(--text-muted);
+}
+
+.seatName {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.seatNote {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 0.9875rem;
+  font-weight: 500;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* ============================================================
+   4 · ÖMÜRLE ÖDENEN ÜÇ TEKNİK
+   Üç plaka: çift çerçeve (dış çizgi + içeride altın hat), solda dikey
+   kanji sütunu. Kart değil — duvara vidalanmış pirinç levha.
+   ============================================================ */
+.forms {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--tsu-card) * 0.6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.form {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1.6rem;
+  padding: calc(var(--tsu-card) * 0.42) calc(var(--tsu-card) * 0.4);
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+  overflow: hidden;
+  transition:
+    border-color var(--tsu-dur) var(--tsu-ease-soft),
+    background var(--tsu-dur) var(--tsu-ease-soft);
+}
+
+.form::before {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border: 1px solid color-mix(in srgb, var(--gold) 16%, transparent);
+  pointer-events: none;
+  transition: border-color var(--tsu-dur-slow) var(--tsu-ease);
+}
+
+.form:hover {
+  background: color-mix(in srgb, var(--surface) 85%, transparent);
+  border-color: var(--border-strong);
+}
+
+.formArt {
+  position: absolute;
+  inset: 0 0 auto auto;
+  width: min(20rem, 42%);
+  aspect-ratio: 16 / 10;
+  opacity: 0.4;
+  mask-image: linear-gradient(
+    to left,
+    black 20%,
+    transparent 100%
+  );
+  transition: opacity var(--tsu-dur-slow) var(--tsu-ease);
+}
+
+.formArt:empty {
+  display: none;
+}
+
+.formArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.55) contrast(1.05);
+}
+
+.form:hover .formArt {
+  opacity: 0.62;
+}
+
+.formKanji {
+  position: relative;
+  writing-mode: vertical-rl;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(1.5rem, 3.6vw, 2.3rem);
+  line-height: 1;
+  letter-spacing: 0.12em;
+  color: color-mix(in srgb, var(--text-primary) 30%, transparent);
+  transition: color var(--tsu-dur) var(--tsu-ease-soft);
+}
+
+.form:hover .formKanji {
+  color: color-mix(in srgb, var(--gold) 85%, transparent);
+}
+
+.formBody {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.formName {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.5rem, 3.2vw, 2.1rem);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.formTurkish {
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.formTagline {
+  margin-top: 0.4rem;
+  max-width: 42ch;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--accent);
+}
+
+.formText {
+  max-width: var(--tsu-measure);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.0625rem;
+  font-weight: 500;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.formTraits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.65rem;
+}
+
+/* Nitelik etiketleri fiş biçiminde: yuvarlak ve kesikli kenarlı */
+.trait {
+  padding: 0.35rem 0.9rem;
+  border: 1px dashed color-mix(in srgb, var(--gold) 42%, var(--border));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--gold) 6%, transparent);
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+/* ============================================================
+   5 · MASADAKİ GERİ KALAN — dört küçük
+   ============================================================ */
+.kit {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+
+.kitItem {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: calc(var(--tsu-card) * 0.35) calc(var(--tsu-card) * 0.3)
+    calc(var(--tsu-card) * 0.38);
+  background: var(--bg);
+  overflow: hidden;
+  transition: background var(--tsu-dur) var(--tsu-ease-soft);
+}
+
+.kitItem:hover {
+  background: var(--surface);
+}
+
+.kitArt {
+  position: absolute;
+  inset: auto 0 0 auto;
+  width: 62%;
+  aspect-ratio: 1;
+  opacity: 0.16;
+  mask-image: radial-gradient(circle at 82% 92%, black 18%, transparent 72%);
+  transition: opacity var(--tsu-dur-slow) var(--tsu-ease);
+}
+
+.kitArt:empty {
+  display: none;
+}
+
+.kitArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.65);
+}
+
+.kitItem:hover .kitArt {
+  opacity: 0.28;
+}
+
+.kitKanji {
+  position: relative;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: 1.05rem;
+  letter-spacing: 0.18em;
+  color: color-mix(in srgb, var(--gold) 60%, transparent);
+}
+
+.kitName {
+  position: relative;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.kitNote {
+  position: relative;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 0.9875rem;
+  font-weight: 500;
+  line-height: 1.72;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* ============================================================
+   6 · BAHİS MASASI — SAYFANIN KALBİ
+
+   Tam genişlikte bir bant: yeşil çuha, üstünde masanın kenar yayı.
+   Beş bahis birer "bahis kutusu" olarak dizili; her kutunun solunda
+   çevrilen bir kart var. Kartlar BİRBİRİNDEN BAĞIMSIZ ve açık kalıyor —
+   masanın durumu 2⁵ değer alabiliyor, tek panelli bir seçici değil.
+   ============================================================ */
+.tableBand {
+  position: relative;
+  z-index: 1;
+  isolation: isolate;
+  width: 100%;
+  margin-block: calc(var(--tsu-card) * 0.5);
+  padding-block: calc(var(--tsu-card) * 1.45) calc(var(--tsu-card) * 1.3);
+  border-block: 1px solid color-mix(in srgb, var(--gold) 22%, var(--border));
+  overflow: hidden;
+}
+
+/* Çuha: merkezden dışa açılan yeşil yıkama + dokunun ince çapraz örgüsü */
+.tableBand::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(
+      130% 92% at 50% 0%,
+      var(--tsu-felt) 0%,
+      transparent 68%
+    ),
+    repeating-linear-gradient(
+      48deg,
+      color-mix(in srgb, var(--accent) 4%, transparent) 0 1px,
+      transparent 1px 6px
+    ),
+    color-mix(in srgb, var(--surface) 72%, var(--bg));
+  opacity: 0.84;
+  transition: opacity var(--tsu-dur-slow) var(--tsu-ease);
+}
+
+.tableRail {
+  position: absolute;
+  inset: 0 0 auto;
+  width: 100%;
+  height: calc(var(--tsu-card) * 0.75);
+  opacity: 0.42;
+  pointer-events: none;
+}
+
+.tableInner {
+  width: var(--tsu-content);
+  margin-inline: auto;
+}
+
+/* Dürüstlük notu: oranlar arşivin kendi kurgusu, kaynaktan gelmiyor */
+.tableNote {
+  margin: 0.2rem 0 0;
+  max-width: 56ch;
+  padding-left: 0.95rem;
+  border-left: 1px solid color-mix(in srgb, var(--gold) 45%, transparent);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  font-style: italic;
+  line-height: 1.65;
+  color: var(--text-muted);
+}
+
+.table {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--tsu-card) * 0.6);
+}
+
+.bets {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tsu-step);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bet {
+  position: relative;
+  border: 1px solid color-mix(in srgb, var(--accent) 20%, var(--border));
+  background: color-mix(in srgb, var(--bg) 52%, transparent);
+  transition:
+    border-color var(--tsu-dur) var(--tsu-ease-soft),
+    background var(--tsu-dur) var(--tsu-ease-soft);
+}
+
+.bet:hover {
+  border-color: color-mix(in srgb, var(--accent) 42%, var(--border));
+}
+
+.bet[data-open] {
+  background: color-mix(in srgb, var(--bg) 78%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 46%, var(--border));
+}
+
+.betTrigger {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas: "card head odds";
+  align-items: center;
+  gap: 1.25rem;
+  width: 100%;
+  padding: calc(var(--tsu-card) * 0.24) calc(var(--tsu-card) * 0.28);
+  border: 0;
+  background: transparent;
+  text-align: start;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+
+.betTrigger:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -3px;
+}
+
+/* ── Kart ────────────────────────────────────────────────────────────
+   Sayfanın tek yazılmış hareketi. 3B çevirme; arka yüz gizli olduğu
+   için iki yüz aynı kutuyu paylaşıyor. Reduced-motion'da geçiş
+   kapanıyor ve kart doğrudan ön yüzüyle duruyor. */
+.cardShell {
+  grid-area: card;
+  display: block;
+  width: var(--tsu-card);
+  perspective: 900px;
+}
+
+.card {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 5 / 7;
+  transform-style: preserve-3d;
+  transition: transform var(--tsu-flip) var(--tsu-ease-card);
+}
+
+.bet[data-open] .card {
+  transform: rotateY(180deg);
+}
+
+.cardBack,
+.cardFace {
+  position: absolute;
+  inset: 0;
+  display: block;
+  backface-visibility: hidden;
+}
+
+.cardFace {
+  transform: rotateY(180deg);
+}
+
+.cardArt {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Kart rakamları HTML katmanında: aile ve tabular rakamlar sayfanın
+   geri kalanıyla aynı olsun diye. 百 Archivo Black'te yok — bilerek
+   fırça ailesine düşüyor. */
+.cardRank,
+.cardRankFoot {
+  position: absolute;
+  font-family: var(--font-numeral), var(--font-brush), var(--font-sans);
+  font-size: calc(var(--tsu-card) * 0.2);
+  line-height: 1;
+  color: var(--bg);
+}
+
+.cardRank {
+  top: 5%;
+  left: 9%;
+}
+
+.cardRankFoot {
+  right: 9%;
+  bottom: 5%;
+  rotate: 180deg;
+}
+
+/* ── Bahsin başlığı ve sözü ─────────────────────────────────────────── */
+.betHead {
+  grid-area: head;
+  display: flex;
+  flex-direction: column;
+  gap: 0.22rem;
+  min-width: 0;
+}
+
+.betTitle {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.25rem, 2.8vw, 1.7rem);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.betCall {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.0625rem;
+  font-weight: 500;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.betAction {
+  margin-top: 0.35rem;
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  transition: color var(--tsu-dur-fast) var(--tsu-ease-soft);
+}
+
+.betTrigger:hover .betAction {
+  color: var(--accent-hover);
+}
+
+/* ── Oran plakası ────────────────────────────────────────────────────
+   Pirinç plaka: altın hat, tracked-out etiket, altında Archivo Black
+   rakam. Sayfadaki en "kumarhane" nesne bu. */
+.odds {
+  grid-area: odds;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.28rem;
+  padding: 0.55rem 0 0.55rem 1.15rem;
+  border-left: 1px solid color-mix(in srgb, var(--gold) 30%, transparent);
+}
+
+.oddsLabel {
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.oddsValue {
+  font-family: var(--font-numeral), var(--font-sans);
+  font-size: clamp(1.1rem, 2.6vw, 1.5rem);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  color: var(--gold);
+}
+
+/* ── Açılan panel ────────────────────────────────────────────────────
+   0fr → 1fr ızgara satırı: yükseklik bilinmeden yumuşak açılım. İç
+   kutuda dikey dolgu YOK — kapalıyken dolgu da görünürdü; boşluğu
+   çocukların kendi kenar boşlukları veriyor. */
+.betPanel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--tsu-dur-slow) var(--tsu-ease);
+}
+
+.bet[data-open] .betPanel {
+  grid-template-rows: 1fr;
+}
+
+.betPanelInner {
+  position: relative;
+  isolation: isolate; /* arkadaki görsel (z-index:-1) kutunun dışına düşmesin */
+  min-height: 0;
+  overflow: hidden;
+  padding-inline: calc(var(--tsu-card) * 0.28);
+}
+
+.betArt {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.13;
+  mask-image: linear-gradient(to top, transparent 12%, black 100%);
+}
+
+.betArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.6);
+}
+
+/* Mühür: masaya basılan damga. Kazanan elde `--tsu-luck` — sayfada bu
+   rengin bulunduğu iki yerden biri. */
+.stamp {
+  display: inline-block;
+  margin: 0.2rem 0 1rem;
+  padding: 0.3rem 0.95rem;
+  border: 1.5px solid currentColor;
+  border-radius: 2px;
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  rotate: -3.5deg;
+}
+
+.bet[data-result="won"] .stamp {
+  color: var(--tsu-luck);
+}
+
+.betLabel {
+  margin: 0 0 0.25rem;
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.betStake {
+  margin: 0 0 1.15rem;
+  max-width: 52ch;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.55;
+  color: var(--text-primary);
+}
+
+.betTruth {
+  margin: 0 0 calc(var(--tsu-card) * 0.34);
+  max-width: var(--tsu-measure);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.0625rem;
+  font-weight: 500;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* ── Hesap ───────────────────────────────────────────────────────────
+   Masanın altındaki defter. Kart açıldıkça değişiyor, beşi de açılınca
+   sayfanın hükmünü basıyor. */
+.ledger {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding-top: calc(var(--tsu-card) * 0.4);
+  border-top: 1px solid color-mix(in srgb, var(--gold) 26%, var(--border));
+}
+
+.ledgerLabel {
+  margin: 0;
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.tallies {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.9rem 2.4rem;
+}
+
+.tally {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.55rem;
+}
+
+.tallyNumber {
+  font-family: var(--font-numeral), var(--font-sans);
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
+  line-height: 1;
+  color: var(--text-muted);
+  transition: color var(--tsu-dur) var(--tsu-ease-soft);
+}
+
+.tally[data-kind="won"] .tallyNumber {
+  color: var(--tsu-luck);
+}
+
+.tally[data-kind="lost"] .tallyNumber {
+  color: var(--text-primary);
+}
+
+.tallyWord {
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.verdict {
+  flex: 1 0 100%;
+  margin: 0.2rem 0 0;
+  max-width: 58ch;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.55;
+  color: var(--gold);
+  text-wrap: pretty;
+}
+
+.ledgerRule {
+  margin: 0;
+  max-width: 60ch;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.tableActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.25rem;
+  margin-top: 0.3rem;
+}
+
+.sweepButton {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  padding: 0 1.15rem;
+  border: 1px solid color-mix(in srgb, var(--gold) 38%, var(--border));
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    color var(--tsu-dur-fast) var(--tsu-ease-soft),
+    border-color var(--tsu-dur-fast) var(--tsu-ease-soft),
+    background var(--tsu-dur-fast) var(--tsu-ease-soft);
+}
+
+.sweepButton:hover {
+  color: var(--text-primary);
+  border-color: var(--gold);
+  background: color-mix(in srgb, var(--gold) 9%, transparent);
+}
+
+.sweepButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.keyboardHint {
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   7 · KAN KORKUSU — SAYFANIN DUYGUSAL MERKEZİ
+
+   Dar sütun, ortalanmış, çerçevesiz. Kart yok, kenarlık yok, HAREKET
+   YOK: bölümün fikri sessizlik, o yüzden damla ne titriyor ne parlıyor.
+   Üstteki ve alttaki kısa hat bölümü sayfanın gürültüsünden ayırıyor.
+   ============================================================ */
+.blood {
+  position: relative;
+  z-index: 1;
+  width: min(100% - var(--tsu-gutter) * 2, 40rem);
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.1rem;
+  padding-block: calc(var(--tsu-card) * 1.6);
+  text-align: center;
+}
+
+.blood::before,
+.blood::after {
+  content: "";
+  width: calc(var(--tsu-card) * 0.7);
+  height: 1px;
+  background: var(--border-strong);
+}
+
+.blood::before {
+  margin-bottom: calc(var(--tsu-card) * 0.5);
+}
+
+.blood::after {
+  margin-top: calc(var(--tsu-card) * 0.5);
+}
+
+.bloodDrop {
+  width: 1.6rem;
+  height: 2rem;
+  flex: none;
+}
+
+.bloodTitle {
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.6rem, 3.8vw, 2.4rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.bloodLine {
+  margin: 0;
+  max-width: 46ch;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.125rem;
+  font-weight: 500;
+  font-style: italic;
+  line-height: 1.95;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.bloodLine:first-of-type {
+  color: var(--text-primary);
+}
+
+.bloodNote {
+  margin: 0.6rem 0 0;
+  max-width: 42ch;
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 2;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   8 · ÖMÜR ÇİZELGESİ
+   Kayıtlar noktalı bir hatla ayrılmış satırlar; dönem etiketi başlığın
+   SAĞINDA, plaka gibi. Dikey ray ve madde işareti yok — sayfa zaten
+   masa üstünde okunuyor, defter satırı yeterli.
+   ============================================================ */
+.fate {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fateItem {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "title age"
+    "text  text"
+    "quote quote"
+    "art   art";
+  align-items: start;
+  gap: 0.55rem 1.5rem;
+  padding-block: calc(var(--tsu-card) * 0.55);
+  border-top: 1px dotted var(--border-strong);
+}
+
+.fateItem:last-child {
+  border-bottom: 1px dotted var(--border-strong);
+}
+
+.fateAge {
+  grid-area: age;
+  margin: 0;
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--gold);
+}
+
+.fateBody {
+  display: contents;
+}
+
+.fateTitle {
+  grid-area: title;
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.3rem, 2.8vw, 1.75rem);
+  font-weight: 700;
+  line-height: 1.22;
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.fateText {
+  grid-area: text;
+  margin: 0.3rem 0 0;
+  max-width: var(--tsu-measure);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.0625rem;
+  font-weight: 500;
+  line-height: 1.82;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.fateQuote {
+  grid-area: quote;
+  margin: 0.9rem 0 0;
+  max-width: 54ch;
+  padding-left: 1.15rem;
+  border-left: 1px solid color-mix(in srgb, var(--gold) 55%, transparent);
+}
+
+.fateQuote blockquote {
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+.fateQuote figcaption {
+  margin-top: 0.45rem;
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.fateArt {
+  grid-area: art;
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 34rem;
+  aspect-ratio: 21 / 9;
+  margin-top: 1rem;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.fateArt:empty {
+  display: none;
+}
+
+.fateArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.5) contrast(1.05) brightness(0.85);
+  transition: filter var(--tsu-dur-slow) var(--tsu-ease);
+}
+
+.fateItem:hover .fateArt img {
+  filter: grayscale(0.15) contrast(1.02) brightness(0.95);
+}
+
+/* ============================================================
+   9 · KAPANIŞ
+   ============================================================ */
+.closing {
+  position: relative;
+  z-index: 1;
+  width: var(--tsu-content);
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--tsu-card) * 0.55);
+  padding-block: calc(var(--tsu-card) * 1.55) calc(var(--tsu-card) * 1.85);
+  text-align: center;
+}
+
+.closingArt {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.14;
+  mask-image: radial-gradient(ellipse at 50% 50%, black 8%, transparent 68%);
+}
+
+.closingArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.75);
+}
+
+.closingQuote {
+  margin: 0;
+  max-width: 44ch;
+}
+
+.closingQuote blockquote {
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.6rem, 4vw, 2.6rem);
+  font-weight: 700;
+  line-height: 1.24;
+  letter-spacing: -0.025em;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.closingQuote figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.95rem;
+}
+
+.quoteBy {
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.quoteNote {
+  max-width: 46ch;
+  margin-inline: auto;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+.motto {
+  margin: 0;
+  font-family: var(--font-brush), var(--font-sans);
+  font-size: clamp(2.1rem, 7vw, 3.9rem);
+  line-height: 1.12;
+  letter-spacing: 0.1em;
+  color: color-mix(in srgb, var(--tsu-seal) 46%, transparent);
+  transition: color var(--tsu-dur-slow) var(--tsu-ease);
+}
+
+.mottoNote {
+  margin: -0.35rem 0 0;
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+}
+
+.credit {
+  max-width: 62ch;
+  margin: 0;
+  padding-top: calc(var(--tsu-card) * 0.45);
+  border-top: 1px solid var(--border);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.8;
+  color: var(--text-muted);
+}
+
+.credit a {
+  color: var(--text-secondary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--accent-muted);
+  transition: color var(--tsu-dur-fast) var(--tsu-ease-soft);
+}
+
+.credit a:hover {
+  color: var(--accent);
+}
+
+.credit a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ============================================================
+   SŌZŌ SAISEI MODU
+
+   Mühür çözülür: alından sekiz çizgi çizilir, sayfanın rengi bir tık
+   geri gelir, çuha ve fişler belirginleşir.
+
+   ⚠️ Doygunluk kökte bir `filter` ile YAPILMIYOR. Kökteki filtre
+   içindeki `position: fixed` düğmeyi `.page`e göre konumlandırır ve
+   düğme sayfayla birlikte kayardı. Onun yerine etkilenen her öğe kendi
+   kuralını taşıyor — hem doğru çalışıyor hem de her biri kendi
+   `transition`ını zaten yazdığı için geçiş yumuşak.
+   ============================================================ */
+.page[data-rebirth] .sealLine {
+  stroke-dashoffset: 0;
+  opacity: 1;
+}
+
+.page[data-rebirth] .sealLine[data-line="2"] {
+  transition-delay: 60ms;
+}
+
+.page[data-rebirth] .sealLine[data-line="3"] {
+  transition-delay: 120ms;
+}
+
+.page[data-rebirth] .sealLine[data-line="4"] {
+  transition-delay: 180ms;
+}
+
+.page[data-rebirth] .sealLine[data-line="5"] {
+  transition-delay: 240ms;
+}
+
+.page[data-rebirth] .sealLine[data-line="6"] {
+  transition-delay: 300ms;
+}
+
+.page[data-rebirth] .sealLine[data-line="7"] {
+  transition-delay: 360ms;
+}
+
+.page[data-rebirth] .sealLine[data-line="8"] {
+  transition-delay: 420ms;
+}
+
+/* Portrenin rengi geri geliyor — yenilenen ilk şey o */
+.page[data-rebirth] .heroPortrait img {
+  filter: grayscale(0) contrast(1.06) brightness(1) saturate(1.12);
+}
+
+/* Başlıklar mühür sonrası accent'e dönüyor. Hepsi 1.85rem üstü ve 700
+   ağırlıkta, yani büyük metin sayılıyor: accent zeminde 3:1 üstü. */
+.page[data-rebirth] .sectionTitle,
+.page[data-rebirth] .bloodTitle {
+  color: var(--accent-hover);
+}
+
+.page[data-rebirth] .heroName {
+  text-shadow: 0 0 34px color-mix(in srgb, var(--tsu-seal) 34%, transparent);
+}
+
+.page[data-rebirth] .heroMark {
+  color: color-mix(in srgb, var(--tsu-seal) 12%, transparent);
+}
+
+.page[data-rebirth] .chipWash {
+  opacity: 1;
+}
+
+/* Çuha doyar: yeşil yıkama ve örgü tam güce çıkar */
+.page[data-rebirth] .tableBand::before {
+  opacity: 1;
+}
+
+.page[data-rebirth] .form::before {
+  border-color: color-mix(in srgb, var(--gold) 40%, transparent);
+}
+
+.page[data-rebirth] .motto {
+  color: color-mix(in srgb, var(--tsu-seal) 88%, transparent);
+}
+
+/* ============================================================
+   HAREKET — no-preference kapısı
+   Sayfada iki yazılmış an var ve ikisi de yukarıda tanımlı geçişler.
+   Buradaki tek animasyon hükmün belirmesi: beş kart da açıldığında
+   hesabın altına gelen satır sessizce yükseliyor.
+   ============================================================ */
+@media (prefers-reduced-motion: no-preference) {
+  .verdict {
+    animation: tsuVerdict var(--tsu-dur-slow) var(--tsu-ease) both;
+  }
+}
+
+@keyframes tsuVerdict {
+  from {
+    opacity: 0;
+    translate: 0 0.5rem;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+/* ============================================================
+   MOBİL — 360 pikselde yatay taşma yok, ızgaralar tek sütuna iner
+   ============================================================ */
+@media (max-width: 900px) {
+  .hero {
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: calc(var(--tsu-card) * 0.55);
+    min-height: 0;
+    padding-block: calc(var(--tsu-card) * 0.5) calc(var(--tsu-card) * 1.1);
+  }
+
+  /* Portre üstte kalır ama mühür çizgilerinin yayılacağı yer başlığın
+     üstündeki boşluk — masaüstünde o boşluk kadrajın kendisi. */
+  .heroPortraitWrap {
+    width: clamp(8rem, 34vw, 12rem);
+  }
+
+  .heroMark {
+    right: calc(var(--tsu-gutter) * -0.4);
+    bottom: auto;
+    top: calc(var(--tsu-card) * 0.2);
+  }
+
+  .form {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .formKanji {
+    writing-mode: horizontal-tb;
+    letter-spacing: 0.16em;
+  }
+
+  .formArt {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    max-width: none;
+    aspect-ratio: 16 / 9;
+    order: -1;
+    opacity: 0.6;
+    mask-image: linear-gradient(to top, transparent 2%, black 62%);
+  }
+}
+
+@media (max-width: 640px) {
+  /* Bahis kutusu: kart solda kalır, oran plakası başlığın altına iner */
+  .betTrigger {
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      "card head"
+      "card odds";
+    align-items: start;
+    gap: 0.9rem 1rem;
+  }
+
+  .odds {
+    align-items: flex-start;
+    padding: 0.6rem 0 0;
+    border-left: 0;
+    border-top: 1px solid color-mix(in srgb, var(--gold) 30%, transparent);
+    width: 100%;
+  }
+
+  .seat {
+    gap: 0.9rem;
+  }
+
+  .fateItem {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "age"
+      "title"
+      "text"
+      "quote"
+      "art";
+    gap: 0.35rem;
+  }
+
+  .fateAge {
+    margin-bottom: 0.2rem;
+  }
+
+  .rebirthNote {
+    display: none;
+  }
+}
+
+@media (max-width: 460px) {
+  .aliases {
+    gap: 0.25rem 0.9rem;
+  }
+
+  .alias {
+    padding-inline: 0;
+  }
+
+  .alias + .alias {
+    border-left: 0;
+  }
+
+  .tallies {
+    gap: 0.8rem 1.5rem;
+  }
+
+  .rebirthLabel {
+    display: none;
+  }
+
+  .rebirthToggle {
+    padding: 0.5rem;
+    min-width: var(--touch-min);
+    justify-content: center;
+  }
+}
+
+/* Yüksek kontrast / zorunlu renk modunda dekoratif katmanlar susar */
+@media (forced-colors: active) {
+  .chipWash,
+  .heroMark,
+  .tableRail,
+  .closingArt,
+  .betArt {
+    display: none;
+  }
+
+  /* Çevirme 3B'de kaybolabiliyor: zorunlu renk modunda kart düz duruyor
+     ve açık/kapalı ayrımını `aria-expanded` ile panelin kendisi taşıyor */
+  .card {
+    transform: none;
+  }
+
+  .bet[data-open] .card {
+    transform: none;
+  }
+
+  .cardBack {
+    display: none;
+  }
+
+  .cardFace {
+    transform: none;
+  }
+}
+
+/* ============================================================
+   REDUCED-MOTION BATTANİYESİ — ev deseni (çift katman):
+   yukarıdaki animasyon no-preference kapısında; burada kalan bütün
+   geçişler de kapanıyor. Kart yine çevriliyor, mühür çizgileri yine
+   çiziliyor — yalnızca ARADAKİ HAREKET yok, durumlar anında geçiyor.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

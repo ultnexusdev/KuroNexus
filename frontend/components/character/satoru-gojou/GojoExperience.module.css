@@ -143,6 +143,34 @@
   --g-gap:      clamp(1rem, 2.5vw, 2rem);
   --g-infinity: clamp(8rem, 22vw, 18rem);
   --g-swap:     400ms;
+
+  /* ════════════════════════════════════════════════════════════
+     BÖLÜM TOKENLARI · P01 · HERO
+
+     Dördü de çekirdekten TÜRETİLİYOR (BRIEF: "her bölüm kendi
+     tokenlarını tanımlar ve çekirdek tokenlardan türetir") — yani
+     bu bölüm için tek yeni hex yok. İkisi moda göre farklı çekirdek
+     token'a bağlandığı için mod önekli ara adımdan geçiyor.
+     ════════════════════════════════════════════════════════════ */
+  --g-bf-s01-negative: var(--g-bf-surface);
+  --g-se-s01-negative: var(--g-se-void);
+  /* Hale ve renk saçağı gözbağlı modda YOK: brief'in tezi gereği o modda
+     ışık yok. İkisi de `transparent` olduğu için AYNI bildirim iki modda
+     çalışıyor — hiçbir bileşen moda göre koşullu çizim yapmıyor. */
+  --g-bf-s01-halo:     transparent;
+  --g-se-s01-halo:     var(--g-se-accent);
+  --g-bf-s01-fringe:   transparent;
+  --g-se-s01-fringe:   var(--g-se-red);
+  /* Film greni yalnızca gözbağlı modda: Six Eyes'ta görüntü temiz. */
+  --g-bf-s01-grain:    0.055;
+  --g-se-s01-grain:    0;
+
+  --g-s01-bg:       var(--g-void);
+  --g-s01-text:     var(--g-text);
+  --g-s01-negative: var(--g-bf-s01-negative);
+  --g-s01-halo:     var(--g-bf-s01-halo);
+  --g-s01-fringe:   var(--g-bf-s01-fringe);
+  --g-s01-grain:    var(--g-bf-s01-grain);
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -167,6 +195,13 @@
   --g-purple:      var(--g-se-purple);
   --g-red-text:    var(--g-se-red-text);
   --g-purple-text: var(--g-se-purple-text);
+
+  /* P01 — yalnızca moda göre AYRIŞAN ikisi yeniden bağlanıyor;
+     `--g-s01-bg` ve `--g-s01-text` zaten çekirdeği izliyor. */
+  --g-s01-negative: var(--g-se-s01-negative);
+  --g-s01-halo:     var(--g-se-s01-halo);
+  --g-s01-fringe:   var(--g-se-s01-fringe);
+  --g-s01-grain:    var(--g-se-s01-grain);
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -181,6 +216,10 @@
   font-family: var(--font-inter), system-ui, sans-serif;
   min-height: 100vh;
   padding-block: clamp(1.5rem, 4vw, 3rem) var(--g-step);
+  /* Taşan tipografi sayfayı yatay kaydırmasın (375px kabul kriteri).
+     `clip`, `hidden` değil: kaydırma bağlamı üretmiyor, yani sticky
+     bölümler bozulmuyor. */
+  overflow-x: clip;
   /* Mod geçişi 400ms (BRIEF · ikili mod). Renk kanalları token'dan
      geldiği için tek bir geçiş bütün sayfayı taşıyor. */
   transition:
@@ -226,20 +265,8 @@
   margin-block-end: var(--g-step);
 }
 
-.title {
-  font-family: var(--gojo-font-display), system-ui, sans-serif;
-  /* Genişlik ekseni: brutalist/expanded his ayrı aile yüklemeden buradan.
-     Değişken eksen desteklenmezse tarayıcı sessizce yok sayıyor. */
-  font-variation-settings: "wdth" 118;
-  font-weight: 700;
-  font-size: clamp(2.5rem, 9vw, 6rem);
-  line-height: 0.92;
-  letter-spacing: -0.02em;
-  text-transform: uppercase;
-  margin: 0;
-  color: var(--g-text);
-}
-
+/* Karakterin özgün adı — hero'nun merkezinde, portrenin altında.
+   Sayfa başlığı DEĞİL (o hero'daki `<h1>`); bu bir künye satırı. */
 .titleNative {
   display: block;
   font-family: var(--gojo-font-jp), system-ui, sans-serif;
@@ -247,7 +274,7 @@
   font-weight: 400;
   letter-spacing: 0.12em;
   color: var(--g-text-dim);
-  margin-block-start: 0.6em;
+  margin: 0;
   transition: color var(--g-swap) ease;
 }
 
@@ -493,27 +520,6 @@
   word-break: break-all;
 }
 
-/* ── P00 temel panosu — P01'de yerini hero'ya bırakacak ── */
-.foundation {
-  display: grid;
-  gap: var(--g-gap);
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
-  align-items: start;
-}
-
-.foundationNote {
-  color: var(--g-text-dim);
-  font-size: 0.95rem;
-  line-height: 1.7;
-  max-inline-size: 60ch;
-}
-
-.foundationRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--g-gap);
-}
-
 /* ── Klavye kısayolları — ekran okuyucu karşılığı ── */
 .shortcuts {
   margin: 0;
@@ -555,5 +561,334 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   P01 · HERO — radyal, merkezkaç
+
+   ── NEGATİF ALAN BİR DÜZEN KURALI ───────────────────────────────
+   Sayfanın tezi burada ilk kez YAPISAL olarak uygulanıyor: merkezde
+   Gojō'ya ayrılmış, yarıçapı `--g-infinity` olan bir bölge var ve
+   oraya HİÇBİR şey giremez. Dev başlık o bölgeye yaklaştıkça
+   saydamlaşarak kesiliyor — bunu bir maske yapıyor, yani kural
+   JS'e değil DÜZENE ait. Efekt dosyası hiç inmese de geçerli.
+
+   ⚠️ Maskelenen yazının DOM karşılığı bozulmuyor: `.heroTitle`
+   görsel katman, yanındaki `sr-only` başlık okunabilir karşılığı.
+
+   ── EFEKT JS'İ OLMADAN TAM RENDER ───────────────────────────────
+   BRIEF · kabul kriteri: "Hero, efekt JS'i yüklenmeden tam olarak
+   render oluyor." Aşağıdaki her şey statik CSS. `InfinityField`
+   yalnızca iki özel değer yazıyor (`--g-par-x/y`); yazılmazsa
+   varsayılanları 0 ve kompozisyon aynı duruyor.
+   ════════════════════════════════════════════════════════════════ */
+.hero {
+  position: relative;
+  /* Tam genişlik: hero `.shell`in DIŞINDA, doğrudan sayfa kökünün
+     çocuğu — dev başlığın viewport sınırlarından taşması gerekiyor.
+     `clip` seçildi, `hidden` DEĞİL: `hidden` bir kaydırma bağlamı
+     üretir ve ilerideki `position: sticky` bölümlerini bozardı.
+     ⚠️ `100vw` KULLANILMIYOR — kaydırma çubuğunun genişliği kadar
+     yatay taşma üretiyor (375px kabul kriteri). */
+  inline-size: 100%;
+  overflow-x: clip;
+  background: var(--g-s01-bg);
+  padding-block: var(--g-step);
+  /* Parallax'ın varsayılanı SIFIR: JS inmezse hiçbir şey kaymaz. */
+  --g-par-x: 0px;
+  --g-par-y: 0px;
+  /* INFINITY'nin imlece tepkisi. 1 = dinlenme hâli.
+     `InfinityField` imleç merkeze yaklaştıkça bunu büyütüyor, yani
+     negatif alan GENİŞLİYOR ve yazı daha da geri çekiliyor. Kuralın
+     birebir görsel karşılığı: yaklaştıkça mesafe açılıyor. */
+  --g-push: 1;
+}
+
+/* Film greni — yalnızca gözbağlı modda görünür (`--g-s01-grain`).
+   Türbülans SVG'si renk literali taşımıyor; opaklık token'dan geliyor. */
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: var(--g-s01-grain);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23g)'/%3E%3C/svg%3E");
+  transition: opacity var(--g-swap) ease;
+}
+
+.heroGrid {
+  position: relative;
+  z-index: 1;
+  inline-size: var(--g-wide);
+  margin-inline: auto;
+  display: grid;
+  gap: var(--g-gap);
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  grid-template-rows: auto minmax(var(--g-step), 1fr) auto;
+  min-block-size: min(88svh, 54rem);
+  align-items: center;
+}
+
+/* ── Dev başlık ─────────────────────────────────────────────────
+   Izgaranın DIŞINDA, mutlak konumlu: hiçbir ızgara hücresine ait
+   değil, sayfanın kendisine ait. Portrenin ARKASINDA (z-index 0)
+   ki katman sırası "boşluk → bükülmüş tipografi → net Gojō" olsun. */
+.heroTitleLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.heroTitle {
+  margin: 0;
+  font-family: var(--gojo-font-display), system-ui, sans-serif;
+  /* Genişlik ekseni 125: brief'in "expanded / brutalist" sesi ayrı bir
+     sıkıştırılmış aile yüklemeden tek dosyadan geliyor. */
+  font-variation-settings: "wdth" 125;
+  font-weight: 700;
+  font-size: clamp(4.5rem, 21vw, 20rem);
+  line-height: 0.82;
+  letter-spacing: -0.03em;
+  text-align: center;
+  white-space: nowrap;
+  color: var(--g-s01-text);
+  /* Kromatik sapma: iki saçak, her biri 2px — brief'in üst sınırı.
+     Gözbağlı modda iki token da `transparent`, yani AYNI bildirim
+     orada hiçbir şey çizmiyor. Koşullu render yok. */
+  text-shadow:
+    -2px 0 0 color-mix(in srgb, var(--g-s01-halo) 50%, transparent),
+    2px 0 0 color-mix(in srgb, var(--g-s01-fringe) 40%, transparent);
+  translate: calc(var(--g-par-x) * -1) calc(var(--g-par-y) * -1);
+  transition:
+    color var(--g-swap) ease,
+    text-shadow var(--g-swap) ease;
+
+  /* ⚠️ INFINITY. Merkezdeki daire içinde yazı YOK; kenara doğru
+     kademeli olarak beliriyor. Yarıçap `--g-infinity` — sayfadaki
+     negatif alan kuralının tek sayısal kaynağı. */
+  --heroMask: radial-gradient(
+    circle calc(var(--g-infinity) * var(--g-push)) at 50% 50%,
+    transparent 0%,
+    transparent 56%,
+    black 94%
+  );
+  -webkit-mask-image: var(--heroMask);
+  mask-image: var(--heroMask);
+}
+
+/* ── Merkez: portre + Japonca satır ─────────────────────────────── */
+.heroCenter {
+  grid-column: 2;
+  grid-row: 2;
+  position: relative;
+  z-index: 2;
+  display: grid;
+  justify-items: center;
+  gap: var(--g-gap);
+  translate: var(--g-par-x) var(--g-par-y);
+}
+
+.heroPortrait {
+  position: relative;
+  inline-size: clamp(13rem, 30vw, 23rem);
+}
+
+/* Six Eyes halesi — portrenin arkasından dışa vuran ışık.
+   Gözbağlı modda `--g-s01-halo` saydam, yani hale hiç yok. */
+.heroHalo {
+  position: absolute;
+  inset: -18%;
+  z-index: -1;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at 50% 45%,
+    color-mix(in srgb, var(--g-s01-halo) 34%, transparent),
+    transparent 70%
+  );
+  transition: background var(--g-swap) ease;
+}
+
+.heroJa {
+  font-family: var(--gojo-font-jp), system-ui, sans-serif;
+  font-size: clamp(0.85rem, 2vw, 1.25rem);
+  letter-spacing: 0.18em;
+  color: var(--g-text-dim);
+  text-align: center;
+  margin: 0;
+  transition: color var(--g-swap) ease;
+}
+
+.heroStrongest {
+  font-family: var(--gojo-font-display), system-ui, sans-serif;
+  font-variation-settings: "wdth" 125;
+  font-size: clamp(0.9rem, 2.4vw, 1.6rem);
+  font-weight: 700;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: var(--g-s01-text);
+  text-align: center;
+  margin: 0;
+  /* Harf aralığı sağdan boşluk bırakıyor; optik olarak ortalamak için. */
+  text-indent: 0.42em;
+}
+
+/* ── Sağ üst: tarama koordinatları ──────────────────────────────── */
+.heroCoords {
+  grid-column: 3;
+  grid-row: 1;
+  justify-self: end;
+  align-self: start;
+  position: relative;
+  z-index: 2;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.7rem;
+  line-height: 1.6;
+  letter-spacing: 0.1em;
+  color: var(--g-text-dim);
+  text-align: end;
+  margin: 0;
+  translate: calc(var(--g-par-x) * 0.5) calc(var(--g-par-y) * 0.5);
+  transition: color var(--g-swap) ease;
+}
+
+/* ── Sol alt: gövde metni ───────────────────────────────────────── */
+.heroLede {
+  grid-column: 1;
+  grid-row: 3;
+  align-self: end;
+  position: relative;
+  z-index: 2;
+  max-inline-size: 34ch;
+  margin: 0;
+  font-weight: 300;
+  font-size: clamp(0.9rem, 1.1vw, 1rem);
+  line-height: 1.75;
+  color: var(--g-text-dim);
+  translate: calc(var(--g-par-x) * 0.35) calc(var(--g-par-y) * 0.35);
+  transition: color var(--g-swap) ease;
+}
+
+/* ── Sağ: tarama paneli (kart DEĞİL, çıktı) ─────────────────────── */
+.heroPanel {
+  grid-column: 3;
+  grid-row: 3;
+  justify-self: end;
+  align-self: end;
+  position: relative;
+  z-index: 2;
+  min-inline-size: min(100%, 17rem);
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.7rem;
+  /* Kart değil: dolgu ve köşe yok, yalnızca solda ince bir tarama
+     çizgisi. Kutuya alsaydık "veri kartı" olurdu — brief'in istediği
+     his bir cihazın ekrana düşürdüğü çıktı. */
+  border-inline-start: 1px solid
+    color-mix(in srgb, var(--g-s01-halo) 45%, var(--g-border));
+  padding-inline-start: 0.9rem;
+  translate: calc(var(--g-par-x) * 0.5) calc(var(--g-par-y) * 0.5);
+  transition: border-color var(--g-swap) ease;
+}
+
+.heroPanelTitle {
+  margin: 0 0 0.6rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.28em;
+  color: var(--g-s01-text);
+}
+
+.heroPanelList {
+  margin: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.heroPanelRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.heroPanelLabel {
+  color: var(--g-text-dim);
+  letter-spacing: 0.08em;
+  transition: color var(--g-swap) ease;
+}
+
+.heroPanelValue {
+  color: var(--g-s01-text);
+  text-align: end;
+  transition: color var(--g-swap) ease;
+}
+
+/* Gizli satır kendi ayracını taşıyor: Six Eyes açıldığında panelin
+   ALTINA yeni bir ölçüm düşmüş gibi görünsün. */
+.heroPanelHidden {
+  margin-block-start: 0.5rem;
+  padding-block-start: 0.5rem;
+  border-block-start: 1px dashed
+    color-mix(in srgb, var(--g-text) 18%, transparent);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   DAR EKRAN — mutlak/ızgara kompozisyonu akışa dönüyor.
+
+   Merkezkaç düzen 375px'te anlamsız: köşelere itilecek köşe yok.
+   Sıra okunma sırasına iniyor, dev başlık küçülüyor ama TAŞMAYA
+   devam ediyor (kural aynı, ölçek farklı).
+   ════════════════════════════════════════════════════════════════ */
+@media (max-width: 63.99rem) {
+  .heroGrid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
+    min-block-size: 0;
+    justify-items: start;
+  }
+
+  .heroCenter,
+  .heroCoords,
+  .heroLede,
+  .heroPanel {
+    grid-column: 1;
+    grid-row: auto;
+    justify-self: stretch;
+  }
+
+  .heroCenter {
+    justify-items: center;
+  }
+
+  .heroCoords {
+    text-align: start;
+  }
+
+  .heroPanel {
+    min-inline-size: 0;
+  }
+
+  .heroTitleLayer {
+    /* Dar ekranda başlık portrenin arkasında değil ÜSTÜNDE duruyor:
+       akış düzeninde üst üste bindirmek okunmayı bozardı. */
+    position: static;
+    order: -1;
+    margin-block-end: var(--g-gap);
+  }
+
+  .heroTitle {
+    font-size: clamp(3rem, 19vw, 8rem);
+  }
+}
+
+/* Hareket kapalıyken parallax tamamen yok — `InfinityField` zaten
+   mount olmuyor, bu yalnızca ikinci emniyet. */
+@media (prefers-reduced-motion: reduce) {
+  .hero {
+    --g-par-x: 0px;
+    --g-par-y: 0px;
   }
 }

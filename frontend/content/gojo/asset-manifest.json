@@ -1,1 +1,13 @@
-[]
+[
+  {
+    "slotId": "goj:hero",
+    "brief": "gojo.hero.primary",
+    "phase": "P01",
+    "aspect": "3 / 4",
+    "spec": {
+      "tr": "Shinjuku dönemi · siyah gözbağlı · ön cepheden tam göğüs portresi · yüz hafif gölgeli · maskelenmiş şeffaf PNG · 4K+",
+      "en": "Shinjuku era · black blindfold · front-facing chest-up portrait · face lightly shadowed · masked transparent PNG · 4K+"
+    },
+    "status": "missing"
+  }
+]

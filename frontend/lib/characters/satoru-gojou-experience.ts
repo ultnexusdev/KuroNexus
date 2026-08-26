@@ -765,44 +765,143 @@ export const GOJO_SHORTCUTS = {
 } as const;
 
 /**
- * P00 temel panosunun metni.
+ * GÖRSEL YUVALARI HER BÖLÜMÜN KENDİ BLOĞUNDA.
  *
- * ⚠️ GEÇİCİ. P01 bu bölümün yerine hero'yu koyacak ve bu blok silinecek.
- * Sayfanın "boş ama hatasız" durduğu aşamada ziyaretçiye ve küratöre ne
- * olduğunu söylemek için var — sessiz bir boş sayfa, bozuk bir sayfadan
- * ayırt edilemez.
+ * Her fazın yuvası o fazın sözlüğüyle birlikte duruyor (`GOJO_S01_SLOT`,
+ * `GOJO_S02_SLOT`, …) ve üç şeyi birden taşıyor: anahtar, oran ve kadraj
+ * tarifi. Merkezî bir oran haritası P00'da denendi ve BIRAKILDI — yuvayı
+ * çizen bölüm ile oranı tanımlayan yer ayrı düştüğünde biri değişip
+ * diğeri kalıyor, sonuç sessiz bir layout kayması oluyor.
+ *
+ * Manifesto (`content/gojo/asset-manifest.json`) bu blokların türevi:
+ * her faz kendi yuvalarını faz sonunda oraya ekliyor.
  */
-export const GOJO_FOUNDATION = {
-  title: {
-    tr: "Temeller",
-    en: "Foundations",
+
+/* ══════════════════════════════════════════════════════════════════════════
+   P01 · HERO
+
+   Kompozisyon radyal ve merkezkaç: Gojō tam merkezde sabit, diğer HER ŞEY
+   devasa bir negatif alanla köşelere itilmiş. Katman sırası derinden yüzeye
+   — boşluk, bükülmüş tipografi, en üstte tamamen net Gojō.
+
+   ⚠️ Metinlerin hiçbiri dekoratif değil. Dev başlık, Japonca satır ve
+   tarama paneli sayfanın ilk ekranında OKUNAN içerik; bükülme yalnızca
+   görsel katmanda oluyor, DOM karşılıkları düz duruyor.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/**
+ * Dev display başlığı.
+ *
+ * Karakterin adı künyeden de geliyor (`detail.character.name`) ama hero'daki
+ * dev yazı ONDAN BAĞIMSIZ: künye adı "Satoru Gojou" (AniList yazımı), buradaki
+ * ise kompozisyonun parçası olan poster yazımı. İkisini ayırmak bilinçli —
+ * künye değişirse poster bozulmasın.
+ */
+export const GOJO_S01_DISPLAY = "GOJO SATORU";
+
+/**
+ * Japonca atmosfer satırı: "O göz, her şeyi görüyor."
+ *
+ * ⚠️ ÇEVRİLMİYOR. Her iki dilde de aynı kalıyor ve `lang="ja"` ile
+ * işaretleniyor (BRIEF · i18n). Çeviri değil, dokunun parçası.
+ * Okunabilir karşılığı `sr-only` olarak ayrıca veriliyor — ekran okuyucu
+ * kullanıcısı satırın ne dediğini bilmeli.
+ */
+export const GOJO_S01_JA = "その眼は、すべてを見ている。";
+
+export const GOJO_S01 = {
+  /** Japonca satırın okunabilir karşılığı — yalnızca ekran okuyucuya */
+  jaGloss: {
+    tr: "O göz, her şeyi görüyor.",
+    en: "That eye sees everything.",
   },
-  note: {
-    tr: "Bu sayfa yeniden kuruluyor. Şu an yalnızca altyapı yerinde: iki modlu token sistemi, gizli veri katmanı ve küratör yuvası. Bölümler sırayla eklenecek.",
-    en: "This page is being rebuilt. Only the foundations are in place: the dual-mode token system, the hidden data layer, and the curated image slot. Sections will be added in order.",
+  /** Display'in küçük kademesi */
+  strongest: {
+    tr: "EN GÜÇLÜ OLAN",
+    en: "THE STRONGEST",
   },
-  /** Gizli veri katmanının çalıştığını gösteren tek örnek alan */
-  sampleLabel: {
-    tr: "Lanetli enerji verimi",
-    en: "Cursed energy efficiency",
-  },
-  sampleValue: {
-    tr: "sınırsız",
-    en: "limitless",
+  /**
+   * Sağ üst köşedeki tarama çıktısı — ekran kenarına yapışık, JetBrains Mono.
+   * Koordinat Shinjuku: hero yuvası o dönemin kadrajını istiyor.
+   */
+  coords: {
+    line1: "35.6938°N 139.7034°E",
+    line2: {
+      tr: "SHINJUKU · GECE",
+      en: "SHINJUKU · NIGHT",
+    },
   },
 } as const;
 
 /**
- * P00'da TANIMLANAN GÖRSEL YUVASI YOK.
+ * Sağdaki veri paneli — kart DEĞİL, tarama çıktısı.
  *
- * `content/gojo/asset-manifest.json` bu yüzden boş dizi. Temel panosundaki
- * tek kadraj mevcut `goj:hero` anahtarını ödünç alıyor (kayıt zaten var,
- * yenisi açılmadı). Yuva kaydı P01'de `gojo.hero.primary` ile başlıyor;
- * her faz kendi yuvalarını manifestoya kendi sonunda ekliyor.
+ * Değerlerin tamamı AniList künyesinden (karakter 127691) ya da serinin
+ * kendi terminolojisinden; uydurulan tek satır yok. Kan grubu künyede boş
+ * olduğu için panelde de yok (`GOJO_MISSING_NOTE`).
  *
- * Oranlar burada, tek yerde: `CuratedImage` oranı CSS'e `--slot-ratio`
- * olarak indiriyor ve yuva boşken de yer kaplıyor (CLS ≈ 0).
+ * ⚠️ DURUM satırı kasıtlı olarak ARŞİV KAYDINI anlatıyor, karakterin
+ * akıbetini değil: hero sayfanın ilk ekranı ve spoiler taşımamalı.
  */
-export const GOJO_SLOT_ASPECT: Record<string, string> = {
-  "goj:hero": "16 / 9",
-};
+export const GOJO_S01_SCAN = {
+  title: {
+    tr: "TARAMA",
+    en: "SCAN",
+  },
+  rows: [
+    {
+      label: { tr: "DERECE", en: "GRADE" },
+      value: { tr: "ÖZEL SINIF", en: "SPECIAL GRADE" },
+    },
+    {
+      label: { tr: "BAĞLI", en: "AFFILIATION" },
+      value: { tr: "TOKYO JUJUTSU LİSESİ", en: "TOKYO JUJUTSU HIGH" },
+    },
+    {
+      label: { tr: "DOĞUM", en: "BIRTHDAY" },
+      value: { tr: "07.12.1989", en: "07.12.1989" },
+    },
+    {
+      label: { tr: "BOY", en: "HEIGHT" },
+      value: { tr: "190 CM", en: "190 CM" },
+    },
+    {
+      label: { tr: "TEKNİK", en: "CURSED TECHNIQUE" },
+      value: { tr: "MUGEGEN · RIKUGAN", en: "LIMITLESS · SIX EYES" },
+    },
+    {
+      label: { tr: "DURUM", en: "STATUS" },
+      value: { tr: "KAYIT ETKİN", en: "RECORD ACTIVE" },
+    },
+  ],
+  /**
+   * Gizli katman — Six Eyes açılınca okunuyor.
+   * BRIEF P01: "Bunlardan CURSED ENERGY EFFICIENCY alanı RevealedData ile
+   * gizli katmanda."
+   */
+  hidden: {
+    label: { tr: "LANETLİ ENERJİ VERİMİ", en: "CURSED ENERGY EFFICIENCY" },
+    value: { tr: "İSRAF YOK", en: "ZERO WASTE" },
+  },
+} as const;
+
+/**
+ * Hero'nun görsel yuvası.
+ *
+ * ⚠️ Anahtar EV SÖZLEŞMESİNE göre `goj:` önekli: küratörün yüklediği görsel
+ * karakter kaydının ABILITY yuvasına bu adla yazılıyor. Brief'in kendi
+ * kimliği (`gojo.hero.primary`) manifestoda `brief` alanında kayıtlı —
+ * ikisi arasındaki köprü orada, iki ad da izlenebilir kalıyor.
+ */
+export const GOJO_S01_SLOT = {
+  key: "goj:hero",
+  aspect: "3 / 4",
+  spec: {
+    tr: "Shinjuku dönemi · siyah gözbağlı · ön cepheden tam göğüs portresi · yüz hafif gölgeli · maskelenmiş şeffaf PNG · 4K+",
+    en: "Shinjuku era · black blindfold · front-facing chest-up portrait · face lightly shadowed · masked transparent PNG · 4K+",
+  },
+  alt: {
+    tr: "Satoru Gojō — gözbağlı, ön cepheden portre",
+    en: "Satoru Gojō — blindfolded, front-facing portrait",
+  },
+} as const;

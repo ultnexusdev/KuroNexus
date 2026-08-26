@@ -102,7 +102,7 @@ export function HeroPortrait({
             curatorLabel={say(GOJO_CURATOR.upload)}
             statusLabel={say(GOJO_CURATOR.missing)}
             glyph={layer.glyph}
-            sizes="368px"
+            sizes="672px"
             /* Kadrajı yığın veriyor. */
             fill
             /* Üçü de yığının içinde düzenlenemez; şerit aşağıda. */

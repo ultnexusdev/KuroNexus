@@ -2129,8 +2129,18 @@ export const GOJO_S11_SLOTS = {
  *
  * Yığın kutusu, üç katman ve manifesto kaydı bu sabitten besleniyor.
  * Değiştirilecekse yalnızca burada değişir.
+ *
+ * ⚠️ 26 Ağustos 2026: 3/4'ten 1584/672'ye (≈21:9) çevrildi. Küratörün
+ * hazırladığı iki kare 1584×672 ve figür sağ üçte birde duruyor; 3:4'lük
+ * bir kutuda `object-fit: cover` ortadan kırpıyor ve GOJŌ TAMAMEN DIŞARIDA
+ * kalıyordu (ölçüldü). Oran karelerin kendi oranına çekildi.
+ *
+ * Bedeli kayda geçsin: hero artık merkezde sabit bir portre değil, geniş
+ * bir plaka. Figür plakanın sağında; P01'in "Gojō tam merkezde" tezi bu
+ * yüzden zayıfladı. Negatif alan kuralı korunuyor — maske plakanın
+ * şekline göre elipse çevrildi, dev başlık plakaya hâlâ giremiyor.
  */
-export const GOJO_HERO_ASPECT = "3 / 4";
+export const GOJO_HERO_ASPECT = "1584 / 672";
 
 /**
  * Üç katman.
@@ -2144,15 +2154,15 @@ export const GOJO_HERO_SLOTS = {
   blindfold: {
     key: "goj:hero-blindfold",
     spec: {
-      tr: "Shinjuku dönemi · SİYAH GÖZBAĞLI · ön cepheden tam göğüs portresi · yüz hafif gölgeli · maskelenmiş şeffaf PNG · 4K+",
-      en: "Shinjuku era · BLACK BLINDFOLD · front-facing chest-up portrait · face lightly shadowed · masked transparent PNG · 4K+",
+      tr: "Geniş plaka (≈21:9, 1584×672) · SİYAH GÖZBAĞLI · figür sağ üçte birde, sol taraf atmosfer · kadrajın tamamı dolu, şeffaflık gerekmiyor",
+      en: "Wide plate (≈21:9, 1584×672) · BLACK BLINDFOLD · figure in the right third, atmosphere on the left · full-bleed frame, no transparency needed",
     },
   },
   sixeyes: {
     key: "goj:hero-sixeyes",
     spec: {
-      tr: "AYNI KADRAJ, gözbağı YOK · Rikugan açık, buz mavisi gözler · aynı poz, aynı ölçek, aynı kırpma — iki kare üst üste bindiğinde yalnızca gözler değişmeli · maskelenmiş şeffaf PNG · 4K+",
-      en: "SAME FRAMING, NO blindfold · Six Eyes open, ice-blue eyes · same pose, same scale, same crop — when the two frames stack, only the eyes should change · masked transparent PNG · 4K+",
+      tr: "AYNI KADRAJ, gözbağı YOK · Rikugan açık, buz mavisi gözler · aynı poz, aynı ölçek, aynı kırpma, aynı piksel boyutu — iki kare üst üste bindiğinde YALNIZCA GÖZLER değişmeli",
+      en: "SAME FRAMING, NO blindfold · Six Eyes open, ice-blue eyes · same pose, same scale, same crop, same pixel size — when the two frames stack, ONLY THE EYES should change",
     },
   },
   glow: {

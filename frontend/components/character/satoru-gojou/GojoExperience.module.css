@@ -970,6 +970,11 @@
      negatif alan GENİŞLİYOR ve yazı daha da geri çekiliyor. Kuralın
      birebir görsel karşılığı: yaklaştıkça mesafe açılıyor. */
   --g-push: 1;
+
+  /* Plakanın genişliği — hero'ya ait bir ÖLÇÜ, palet tokenı değil.
+     Hem kadraj hem de negatif alan maskesi bunu okuyor: ikisi tek
+     sayıdan türediği için yazı plakaya hiçbir ekran boyunda giremiyor. */
+  --g-hero-w: clamp(16rem, 54vw, 42rem);
 }
 
 /* Film greni — yalnızca gözbağlı modda görünür (`--g-s01-grain`).
@@ -1034,14 +1039,28 @@
     color var(--g-swap) ease,
     text-shadow var(--g-swap) ease;
 
-  /* ⚠️ INFINITY. Merkezdeki daire içinde yazı YOK; kenara doğru
-     kademeli olarak beliriyor. Yarıçap `--g-infinity` — sayfadaki
-     negatif alan kuralının tek sayısal kaynağı. */
+  /* ⚠️ INFINITY. Merkezdeki alan içinde yazı YOK; kenara doğru kademeli
+     olarak beliriyor.
+
+     Daire DEĞİL ELİPS: hero artık geniş bir plaka (≈21:9) ve dairesel bir
+     boşluk plakanın sol/sağ kenarlarını açıkta bırakıyordu — harfler
+     kadrajın üstüne biniyordu. Yatay yarıçap plakanın genişliğinden
+     (`--g-hero-w`), dikey yarıçap negatif alan token'ından türüyor. İkisi
+     de `--g-push` ile birlikte büyüyor, yani imleç yaklaşınca alan hâlâ
+     genişliyor. */
+  /* ⚠️ YATAY YARIÇAP PLAKADAN TÜRETİLİYOR, gözle seçilmiyor.
+     Tam saydam bölge yarıçapın %62'sinde bitiyor; plakanın yarı
+     genişliği `--g-hero-w / 2`. Harfin plakaya girmemesi için
+     0.62 × yarıçap ≥ yarı genişlik olmalı, yani yarıçap ≥ w/2 ÷ 0.62
+     = w × 0.806. Pay bırakmak için 0.82.
+     İlk sürüm 0.62 kullanıyordu ve saydam bölge plaka kenarına
+     ULAŞMIYORDU — harfler kadrajın kenarına biniyordu (ölçüldü). */
   --heroMask: radial-gradient(
-    circle calc(var(--g-infinity) * var(--g-push)) at 50% 50%,
+    ellipse calc(var(--g-hero-w) * 0.82 * var(--g-push))
+      calc(var(--g-infinity) * var(--g-push)) at 50% 50%,
     transparent 0%,
-    transparent 56%,
-    black 94%
+    transparent 62%,
+    black 96%
   );
   -webkit-mask-image: var(--heroMask);
   mask-image: var(--heroMask);
@@ -1059,9 +1078,12 @@
   translate: var(--g-par-x) var(--g-par-y);
 }
 
+/* Geniş plaka. Genişlik `--g-hero-w`den — maskeyle AYNI sayı, yani
+   kadraj ile negatif alan hiçbir ekran boyunda ayrışmıyor. */
 .heroPortrait {
   position: relative;
-  inline-size: clamp(13rem, 30vw, 23rem);
+  inline-size: var(--g-hero-w);
+  max-inline-size: 100%;
 }
 
 /* Six Eyes halesi — portrenin arkasından dışa vuran ışık.

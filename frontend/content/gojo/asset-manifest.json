@@ -1,0 +1,332 @@
+[
+  {
+    "slotId": "goj:hero",
+    "brief": "gojo.hero.primary",
+    "phase": "P01",
+    "aspect": "3 / 4",
+    "spec": {
+      "tr": "Shinjuku dönemi · siyah gözbağlı · ön cepheden tam göğüs portresi · yüz hafif gölgeli · maskelenmiş şeffaf PNG · 4K+",
+      "en": "Shinjuku era · black blindfold · front-facing chest-up portrait · face lightly shadowed · masked transparent PNG · 4K+"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:rikugan",
+    "brief": "gojo.strongest.profile",
+    "phase": "P02",
+    "aspect": "2 / 3",
+    "spec": {
+      "tr": "Hidden Inventory sonrası yetişkin dönem · 3/4 açı · kibirli gülümseme · yarım boy · keskin fokus · 4K",
+      "en": "Adult era after Hidden Inventory · three-quarter angle · arrogant smile · half body · sharp focus · 4K"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:mugegen",
+    "brief": "gojo.limitless.hand",
+    "phase": "P03",
+    "aspect": "1 / 1",
+    "spec": {
+      "tr": "İşaret ve orta parmağın uzatıldığı durdurma pozunun makro yakın çekimi · yalnızca eller · şeffaf zemin · 4K+",
+      "en": "Macro close-up of the stopping pose with index and middle finger extended · hands only · transparent background · 4K+"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:ao",
+    "brief": "gojo.techniques.blue",
+    "phase": "P04",
+    "aspect": "16 / 9",
+    "spec": {
+      "tr": "蒼 — çeken uç, her şeyin merkeze düştüğü an",
+      "en": "Blue — the attracting pole, everything falling inward"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:aka",
+    "brief": "gojo.techniques.red",
+    "phase": "P04",
+    "aspect": "16 / 9",
+    "spec": {
+      "tr": "赫 — iten uç, patlamanın ilk karesi",
+      "en": "Red — the repelling pole, the first frame of the blast"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:murasaki",
+    "brief": "gojo.techniques.purple",
+    "phase": "P04",
+    "aspect": "16 / 9",
+    "spec": {
+      "tr": "茈 — iki ucun çarpıştığı yerdeki mor iz",
+      "en": "Purple — the violet trace where the two poles collide"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:handseal",
+    "brief": "gojo.techniques.handseal",
+    "phase": "P04",
+    "aspect": "16 / 9",
+    "spec": {
+      "tr": "Hollow Purple el mührünü birleştiren parmakların makro çekimi · 4K",
+      "en": "Macro shot of the fingers forming the Hollow Purple hand seal · 4K"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:silhouette",
+    "brief": "gojo.techniques.silhouette",
+    "phase": "P04",
+    "aspect": "3 / 4",
+    "spec": {
+      "tr": "İçinden ışık fışkıran karanlık silüet · yetişkin Gojō · 4K",
+      "en": "Dark silhouette with light bursting through · adult Gojō · 4K"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:muryokusho",
+    "brief": "gojo.void.eye",
+    "phase": "P05",
+    "aspect": "16 / 9",
+    "spec": {
+      "tr": "Çaprazlanmış parmaklar ve yüzün yarısı · tek buz mavisi göz bebeğine odaklı ultra-makro göz hizası kadraj · gözbebeği içi nebula dokulu · 8K",
+      "en": "Crossed fingers and half the face · ultra-macro eye-level framing focused on a single ice-blue iris · nebula texture inside the pupil · 8K"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:fate-born",
+    "brief": "gojo.timeline.born",
+    "phase": "P06",
+    "aspect": "4 / 3",
+    "spec": {
+      "tr": "1989 — doğumuyla dünyanın dengesini bozan çocuk",
+      "en": "1989 — the child whose birth shifted the balance"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:fate-riko",
+    "brief": "gojo.timeline.riko",
+    "phase": "P06",
+    "aspect": "4 / 3",
+    "spec": {
+      "tr": "Yıldız Kabı görevi — Toji karşısında, on altı yaşında",
+      "en": "The Star Plasma Vessel mission — facing Toji, at sixteen"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:fate-geto",
+    "brief": "gojo.timeline.geto",
+    "phase": "P06",
+    "aspect": "4 / 3",
+    "spec": {
+      "tr": "Getō ayrılışı — geceleyin karşı karşıya iki silüet",
+      "en": "Getō departure — two silhouettes facing each other at night"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:fate-teacher",
+    "brief": "gojo.timeline.teacher",
+    "phase": "P06",
+    "aspect": "4 / 3",
+    "spec": {
+      "tr": "Öğretmen yılları — sınıfın önünde, üç öğrenci",
+      "en": "The teaching years — in front of the class, three students"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:fate-seal",
+    "brief": "gojo.timeline.seal",
+    "phase": "P06",
+    "aspect": "4 / 3",
+    "spec": {
+      "tr": "Shibuya — kapanan küp, mühürlenme anı",
+      "en": "Shibuya — the closing cube, the moment of sealing"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:young-full",
+    "brief": "gojo.timeline.young.full",
+    "phase": "P06",
+    "aspect": "2 / 3",
+    "spec": {
+      "tr": "Hidden Inventory dönemi genç Gojō · yuvarlak siyah gözlük · tam boy · 4K",
+      "en": "Hidden Inventory era young Gojō · round black glasses · full body · 4K"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:young-portrait",
+    "brief": "gojo.timeline.young.portrait",
+    "phase": "P06",
+    "aspect": "1 / 1",
+    "spec": {
+      "tr": "Hidden Inventory dönemi genç Gojō portresi · yakın kadraj · 4K",
+      "en": "Hidden Inventory era young Gojō portrait · close crop · 4K"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:geto-pair",
+    "brief": "gojo.geto.pair",
+    "phase": "P07",
+    "aspect": "16 / 9",
+    "spec": {
+      "tr": "Genç Gojō ve Getō · sırt sırta ya da karşılıklı profil · gökyüzü arka planı (Gojō yaz mavisi / Getō gün batımı turuncusu) · 4K yüksek kontrast",
+      "en": "Young Gojō and Getō · back to back or facing profiles · sky background (Gojō summer blue / Getō sunset orange) · 4K high contrast"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:teacher",
+    "brief": "gojo.connections.teacher",
+    "phase": "P08",
+    "aspect": "1 / 1",
+    "spec": {
+      "tr": "Yetişkin Gojō · öğretmen kimliği · samimi gülümseme portresi · 4K",
+      "en": "Adult Gojō · teacher identity · warm smiling portrait · 4K"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:node-toji",
+    "brief": "gojo.connections.node.toji",
+    "phase": "P08",
+    "aspect": "1 / 1",
+    "spec": {
+      "tr": "toji — minimalist siluet ya da yüksek kontrastlı kesit illüstrasyon",
+      "en": "toji — minimalist silhouette or high-contrast cutout illustration"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:node-geto",
+    "brief": "gojo.connections.node.geto",
+    "phase": "P08",
+    "aspect": "1 / 1",
+    "spec": {
+      "tr": "geto — minimalist siluet ya da yüksek kontrastlı kesit illüstrasyon",
+      "en": "geto — minimalist silhouette or high-contrast cutout illustration"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:node-shoko",
+    "brief": "gojo.connections.node.shoko",
+    "phase": "P08",
+    "aspect": "1 / 1",
+    "spec": {
+      "tr": "shoko — minimalist siluet ya da yüksek kontrastlı kesit illüstrasyon",
+      "en": "shoko — minimalist silhouette or high-contrast cutout illustration"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:node-nanami",
+    "brief": "gojo.connections.node.nanami",
+    "phase": "P08",
+    "aspect": "1 / 1",
+    "spec": {
+      "tr": "nanami — minimalist siluet ya da yüksek kontrastlı kesit illüstrasyon",
+      "en": "nanami — minimalist silhouette or high-contrast cutout illustration"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:node-yuta",
+    "brief": "gojo.connections.node.yuta",
+    "phase": "P08",
+    "aspect": "1 / 1",
+    "spec": {
+      "tr": "yuta — minimalist siluet ya da yüksek kontrastlı kesit illüstrasyon",
+      "en": "yuta — minimalist silhouette or high-contrast cutout illustration"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:node-megumi",
+    "brief": "gojo.connections.node.megumi",
+    "phase": "P08",
+    "aspect": "1 / 1",
+    "spec": {
+      "tr": "megumi — minimalist siluet ya da yüksek kontrastlı kesit illüstrasyon",
+      "en": "megumi — minimalist silhouette or high-contrast cutout illustration"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:node-yuji",
+    "brief": "gojo.connections.node.yuji",
+    "phase": "P08",
+    "aspect": "1 / 1",
+    "spec": {
+      "tr": "yuji — minimalist siluet ya da yüksek kontrastlı kesit illüstrasyon",
+      "en": "yuji — minimalist silhouette or high-contrast cutout illustration"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:dynamic",
+    "brief": "gojo.power.dynamic",
+    "phase": "P09",
+    "aspect": "3 / 4",
+    "spec": {
+      "tr": "Tamamen karanlık zeminde izole · havada asılı ya da yumruk atan ultra-dinamik dövüş pozu · yüksek deklanşör hissi · blur YOK · 4K",
+      "en": "Isolated on a fully dark ground · ultra-dynamic combat pose · high shutter feel · NO blur · 4K"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:frozen",
+    "brief": "gojo.touch.frozen",
+    "phase": "P10",
+    "aspect": "16 / 9",
+    "spec": {
+      "tr": "Lanetli enerjinin tam değecekken uzay-zamanda durduğu anın ultra-makro yan profil detayı · 8K mikroskobik his",
+      "en": "Ultra-macro side-profile detail of the instant cursed energy stops in spacetime just before contact · 8K"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:egg-mochi",
+    "brief": "gojo.egg.mochi",
+    "phase": "P11",
+    "aspect": "1 / 1",
+    "spec": {
+      "tr": "Kikufuku mochi kutusu · izole ikonsu form · düşük poligon ya da illüstrasyon",
+      "en": "Kikufuku mochi box · isolated icon-like form · low poly or illustration"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:egg-polaroid",
+    "brief": "gojo.egg.polaroid",
+    "phase": "P11",
+    "aspect": "1 / 1",
+    "spec": {
+      "tr": "Lise döneminden buruşmuş polaroid · izole ikonsu form",
+      "en": "Crumpled polaroid from the high school years · isolated icon-like form"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:egg-glasses",
+    "brief": "gojo.egg.glasses",
+    "phase": "P11",
+    "aspect": "1 / 1",
+    "spec": {
+      "tr": "Siyah yuvarlak güneş gözlüğü · izole ikonsu form",
+      "en": "Black round sunglasses · isolated icon-like form"
+    },
+    "status": "missing"
+  }
+]

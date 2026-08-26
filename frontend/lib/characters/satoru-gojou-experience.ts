@@ -660,3 +660,1458 @@ export const GOJO_CLOSING = {
     en: "AniList · Satoru Gojou #127691",
   },
 } as const;
+
+/* ══════════════════════════════════════════════════════════════════════════
+   P00 · TEMELLER — "UNTOUCHABLE" sayfasının kabuk sözlüğü
+   ══════════════════════════════════════════════════════════════════════════
+
+   ⚠️ YUKARIDAKİ BLOKLARIN DURUMU. Bu dosyanın 39–662 satırları "İki Uç"
+   kompozisyonunun (蒼+赫→茈 birleştirici) metni. O kompozisyon 26 Ağustos
+   2026'da yerini "UNTOUCHABLE" sayfasına bırakmaya başladı ve bileşenleri
+   kaldırıldı. Metin SİLİNMEDİ: künye (`GOJO_IDENTITY`), kader çizelgesi
+   (`GOJO_TIMELINE`), teknik anlatımları (`GOJO_ARTS`) ve yuva etiketleri
+   (`GOJO_SLOT_LABELS`) ölçülerek yazılmış, kaynaklı ve iki dilli — yeni
+   bölümler bunları faz faz devralacak. Devralınmayanlar ilgili fazın
+   sonunda temizlenir. Bir fazın işini yapmadan buradan bir şey silme.
+
+   Bu bölümdeki metinler yalnızca KABUĞA ait: mod düğmesi, küratör yuvası
+   ve klavye kısayolları. Bölüm metinleri kendi fazlarında eklenecek.
+
+   Sözlük NEDEN JSON DEĞİL: BRIEF P00/11 `content/gojo/tr.json` + `en.json`
+   istiyor, ama aynı brief "Itachi sayfasının i18n çözümünü incele ve aynı
+   sözleşmeye uy" diyor ve ev sözleşmesi JSON kullanmıyor — 42 karakter
+   sayfasının tamamı metni kodda, iki dilli `LocalizedText` çiftleri olarak
+   tutuyor (AGENTS.md kural 1). Çakışmada brief'in kendi öncelik kuralı
+   uygulandı: Itachi kazanır. Şema aynı şema, taşıyıcı farklı.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/** Sayfa kökündeki iki mod. Değer DOM'a `data-mode` olarak iniyor. */
+export type GojoPageMode = "blindfold" | "sixeyes";
+
+/**
+ * Kabuk metinleri.
+ *
+ * Hiçbir dize bileşenin içine gömülmüyor (BRIEF · i18n): istemci adaları
+ * bile bunları prop olarak, sunucuda `pick()` ile TEK dile indirilmiş
+ * hâlde alıyor. Adaya sözlük göndermek gereksiz bayt olurdu.
+ */
+export const GOJO_UI = {
+  /** Düğmenin sabit adı — moda göre DEĞİŞMEZ, yalnızca basılılığı değişir */
+  modeLabel: {
+    tr: "Altı Göz",
+    en: "Six Eyes",
+  },
+  /** Yalnızca görsel durum yazısı; `aria-pressed` aynı bilgiyi taşıyor */
+  modeOn: {
+    tr: "açık",
+    en: "on",
+  },
+  modeOff: {
+    tr: "kapalı",
+    en: "off",
+  },
+  /** Dokunmatikte CSS gizliyor */
+  modeKeyHint: {
+    tr: "S",
+    en: "S",
+  },
+  /** Six Eyes kapalıyken gizli veri alanlarının maskesi */
+  mask: {
+    tr: "???",
+    en: "???",
+  },
+} as const;
+
+/** Küratör moduna ait yazılar — ziyaretçi bunları hiç görmüyor. */
+export const GOJO_CURATOR = {
+  /** Yükleme düğmesinin etiketi */
+  upload: {
+    tr: "Görsel bağla",
+    en: "Attach image",
+  },
+  /** Manifesto panelinin durum satırı */
+  missing: {
+    tr: "EKSİK VARLIK",
+    en: "MISSING ASSET",
+  },
+} as const;
+
+/**
+ * Klavye kısayolları — `sr-only` bir listede sunuluyor.
+ *
+ * BRIEF · erişilebilirlik: "Easter egg'lerin klavye ile keşfedilebilir bir
+ * yolu var" ve "kısayollar `sr-only` bir listede tanımlıdır — ekran okuyucu
+ * kullanıcısı için erişilemez içerik kalmaz."
+ *
+ * ⚠️ Liste sayfayla birlikte BÜYÜYECEK. Bir faz yeni bir kısayol eklerse
+ * aynı fazda buraya da satırını ekler; kısayol var ama listede yoksa
+ * erişilebilirlik şartı çiğnenmiş olur. Bugün yalnızca `S` var (P00);
+ * `D` P05'te, `P` P11'de eklenecek.
+ */
+export const GOJO_SHORTCUTS = {
+  title: {
+    tr: "Bu sayfadaki klavye kısayolları",
+    en: "Keyboard shortcuts on this page",
+  },
+  items: [
+    {
+      keys: "S",
+      action: {
+        tr: "Altı Göz modunu açar ve kapatır",
+        en: "Toggles Six Eyes mode",
+      },
+    },
+    {
+      keys: "D",
+      action: {
+        tr: "Alan genişlemesi sekansını oynatır",
+        en: "Plays the domain expansion sequence",
+      },
+    },
+    {
+      keys: "P",
+      action: {
+        tr: "Kyoshiki «Murasaki» — mor ışın efektini bir kez geçirir",
+        en: "Hollow Purple — sweeps the violet beam once",
+      },
+    },
+  ],
+} as const;
+
+/**
+ * GÖRSEL YUVALARI HER BÖLÜMÜN KENDİ BLOĞUNDA.
+ *
+ * Her fazın yuvası o fazın sözlüğüyle birlikte duruyor (`GOJO_S01_SLOT`,
+ * `GOJO_S02_SLOT`, …) ve üç şeyi birden taşıyor: anahtar, oran ve kadraj
+ * tarifi. Merkezî bir oran haritası P00'da denendi ve BIRAKILDI — yuvayı
+ * çizen bölüm ile oranı tanımlayan yer ayrı düştüğünde biri değişip
+ * diğeri kalıyor, sonuç sessiz bir layout kayması oluyor.
+ *
+ * Manifesto (`content/gojo/asset-manifest.json`) bu blokların türevi:
+ * her faz kendi yuvalarını faz sonunda oraya ekliyor.
+ */
+
+/* ══════════════════════════════════════════════════════════════════════════
+   P01 · HERO
+
+   Kompozisyon radyal ve merkezkaç: Gojō tam merkezde sabit, diğer HER ŞEY
+   devasa bir negatif alanla köşelere itilmiş. Katman sırası derinden yüzeye
+   — boşluk, bükülmüş tipografi, en üstte tamamen net Gojō.
+
+   ⚠️ Metinlerin hiçbiri dekoratif değil. Dev başlık, Japonca satır ve
+   tarama paneli sayfanın ilk ekranında OKUNAN içerik; bükülme yalnızca
+   görsel katmanda oluyor, DOM karşılıkları düz duruyor.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/**
+ * Dev display başlığı.
+ *
+ * Karakterin adı künyeden de geliyor (`detail.character.name`) ama hero'daki
+ * dev yazı ONDAN BAĞIMSIZ: künye adı "Satoru Gojou" (AniList yazımı), buradaki
+ * ise kompozisyonun parçası olan poster yazımı. İkisini ayırmak bilinçli —
+ * künye değişirse poster bozulmasın.
+ */
+export const GOJO_S01_DISPLAY = "GOJO SATORU";
+
+/**
+ * Japonca atmosfer satırı: "O göz, her şeyi görüyor."
+ *
+ * ⚠️ ÇEVRİLMİYOR. Her iki dilde de aynı kalıyor ve `lang="ja"` ile
+ * işaretleniyor (BRIEF · i18n). Çeviri değil, dokunun parçası.
+ * Okunabilir karşılığı `sr-only` olarak ayrıca veriliyor — ekran okuyucu
+ * kullanıcısı satırın ne dediğini bilmeli.
+ */
+export const GOJO_S01_JA = "その眼は、すべてを見ている。";
+
+export const GOJO_S01 = {
+  /** Japonca satırın okunabilir karşılığı — yalnızca ekran okuyucuya */
+  jaGloss: {
+    tr: "O göz, her şeyi görüyor.",
+    en: "That eye sees everything.",
+  },
+  /** Display'in küçük kademesi */
+  strongest: {
+    tr: "EN GÜÇLÜ OLAN",
+    en: "THE STRONGEST",
+  },
+  /**
+   * Sağ üst köşedeki tarama çıktısı — ekran kenarına yapışık, JetBrains Mono.
+   * Koordinat Shinjuku: hero yuvası o dönemin kadrajını istiyor.
+   */
+  coords: {
+    line1: "35.6938°N 139.7034°E",
+    line2: {
+      tr: "SHINJUKU · GECE",
+      en: "SHINJUKU · NIGHT",
+    },
+  },
+} as const;
+
+/**
+ * Sağdaki veri paneli — kart DEĞİL, tarama çıktısı.
+ *
+ * Değerlerin tamamı AniList künyesinden (karakter 127691) ya da serinin
+ * kendi terminolojisinden; uydurulan tek satır yok. Kan grubu künyede boş
+ * olduğu için panelde de yok (`GOJO_MISSING_NOTE`).
+ *
+ * ⚠️ DURUM satırı kasıtlı olarak ARŞİV KAYDINI anlatıyor, karakterin
+ * akıbetini değil: hero sayfanın ilk ekranı ve spoiler taşımamalı.
+ */
+export const GOJO_S01_SCAN = {
+  title: {
+    tr: "TARAMA",
+    en: "SCAN",
+  },
+  rows: [
+    {
+      label: { tr: "DERECE", en: "GRADE" },
+      value: { tr: "ÖZEL SINIF", en: "SPECIAL GRADE" },
+    },
+    {
+      label: { tr: "BAĞLI", en: "AFFILIATION" },
+      value: { tr: "TOKYO JUJUTSU LİSESİ", en: "TOKYO JUJUTSU HIGH" },
+    },
+    {
+      label: { tr: "DOĞUM", en: "BIRTHDAY" },
+      value: { tr: "07.12.1989", en: "07.12.1989" },
+    },
+    {
+      label: { tr: "BOY", en: "HEIGHT" },
+      value: { tr: "190 CM", en: "190 CM" },
+    },
+    {
+      label: { tr: "TEKNİK", en: "CURSED TECHNIQUE" },
+      value: { tr: "MUGEGEN · RIKUGAN", en: "LIMITLESS · SIX EYES" },
+    },
+    {
+      label: { tr: "DURUM", en: "STATUS" },
+      value: { tr: "KAYIT ETKİN", en: "RECORD ACTIVE" },
+    },
+  ],
+  /**
+   * Gizli katman — Six Eyes açılınca okunuyor.
+   * BRIEF P01: "Bunlardan CURSED ENERGY EFFICIENCY alanı RevealedData ile
+   * gizli katmanda."
+   */
+  hidden: {
+    label: { tr: "LANETLİ ENERJİ VERİMİ", en: "CURSED ENERGY EFFICIENCY" },
+    value: { tr: "İSRAF YOK", en: "ZERO WASTE" },
+  },
+} as const;
+
+/**
+ * Hero'nun görsel yuvası.
+ *
+ * ⚠️ Anahtar EV SÖZLEŞMESİNE göre `goj:` önekli: küratörün yüklediği görsel
+ * karakter kaydının ABILITY yuvasına bu adla yazılıyor. Brief'in kendi
+ * kimliği (`gojo.hero.primary`) manifestoda `brief` alanında kayıtlı —
+ * ikisi arasındaki köprü orada, iki ad da izlenebilir kalıyor.
+ */
+export const GOJO_S01_SLOT = {
+  key: "goj:hero",
+  aspect: "3 / 4",
+  spec: {
+    tr: "Shinjuku dönemi · siyah gözbağlı · ön cepheden tam göğüs portresi · yüz hafif gölgeli · maskelenmiş şeffaf PNG · 4K+",
+    en: "Shinjuku era · black blindfold · front-facing chest-up portrait · face lightly shadowed · masked transparent PNG · 4K+",
+  },
+  alt: {
+    tr: "Satoru Gojō — gözbağlı, ön cepheden portre",
+    en: "Satoru Gojō — blindfolded, front-facing portrait",
+  },
+} as const;
+
+/* ══════════════════════════════════════════════════════════════════════════
+   P02 · THE STRONGEST
+
+   Asimetrik kompozisyon: solda masif metin bloğu, sağda Gojō'nun kadrajı.
+   Aralarında GÖRÜNMEZ DİKEY DUVAR — INFINITY kuralının dikey varyantı.
+   Hiçbir harf sağdaki kadraja giremiyor; duvara yaklaşan tipografi
+   saydamlaşarak kesiliyor.
+
+   ⚠️ Metin kesilse de OKUNUYOR: kesme yalnızca maske katmanında,
+   DOM'daki paragraf bütün. Kaydırılan hiçbir cümle yarım değil.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+export const GOJO_S02 = {
+  /** Sağdan hizalı dev display başlığı */
+  title: {
+    tr: "EN GÜÇLÜ",
+    en: "THE STRONGEST",
+  },
+  /**
+   * Sayfa kenarında dikey (döndürülmüş) etiket, aşağıdan yukarıya.
+   * JetBrains Mono; dekoratif değil, bölümün numarası ve adı.
+   */
+  edgeLabel: {
+    tr: "02 · GENEL BAKIŞ",
+    en: "02 · OVERVIEW",
+  },
+  /**
+   * Karakter genel bakışı — üç paragraf.
+   *
+   * Kaynak disiplini dosyanın geri kalanıyla aynı: tırnak içine yalnızca
+   * doğrulanmış replikler alınıyor, kalan her şey arşivin kendi anlatımı.
+   * Burada tırnak YOK.
+   */
+  body: [
+    {
+      tr: "Gojō'yu en güçlü yapan şey bir vuruşun büyüklüğü değil, iki yeteneğin aynı kişide bulunması. Mugegen ona uzanan her şeyin arasına sonsuz bölünebilen bir aralık koyuyor; Rikugan ise o aralığı ve dünyanın geri kalanını sayı olarak okuyor. İkisi dört yüz yıldır ilk kez tek bir bedende birleşti ve bu, bir güç artışı değil bir KATEGORİ değişimi.",
+      en: "What makes Gojō the strongest is not the size of a blow but the fact that two gifts landed in the same person. Limitless puts an infinitely divisible gap between him and anything reaching for him; Six Eyes reads that gap — and the rest of the world — as numbers. For the first time in four hundred years the two met in one body, and that is not an increase in power but a change of CATEGORY.",
+    },
+    {
+      tr: "Sonucu şu: Gojō dövüşleri kazanmıyor, dövüşün mümkün olup olmadığı sorusunu kapatıyor. Gözbağı da bu yüzden bir engel değil bir kısıtlama — sürekli açık bir Rikugan'ın yorduğu şey göz değil, adamın kendisi. Bandı takan biri zayıflamıyor; kendini yavaşlatıyor.",
+      en: "The consequence: Gojō does not win fights, he closes the question of whether a fight was ever possible. That is why the blindfold is a restraint and not a handicap — what a permanently open Six Eyes exhausts is not the eye but the man. Wearing the band does not weaken him; it slows him down on purpose.",
+    },
+    {
+      tr: "Ve tam da bu yüzden yalnız. Bir düzenin tek bir kişiye bu kadar dayanması, o kişinin gücünden değil düzenin zayıflığından geliyor. Gojō'nun öğretmenliği bir yan iş değil, gördüğü sorunun kendi çözümü: kendisi kadar güçlü olmayan ama birlikte yeten bir kuşak yetiştirmek.",
+      en: "And precisely because of that, he is alone. A system leaning this hard on one person says less about his strength than about the system's weakness. Gojō's teaching is not a side job but his own answer to the problem he sees: raise a generation that is not as strong as he is, yet together is enough.",
+    },
+  ],
+  /**
+   * Six Eyes açıldığında bu bölümde açılan ölçümler.
+   * BRIEF P02: "en az 3 gizli veri alanı".
+   *
+   * ⚠️ Değerler NİTEL. Uydurma sayısal istatistik yazılmadı — serinin
+   * hiçbir yerinde bu ölçüler sayıyla verilmiyor ve arşivin kuralı
+   * emin olunmayanı yazmamak.
+   */
+  readings: [
+    {
+      label: { tr: "MUGEGEN DURUMU", en: "LIMITLESS STATE" },
+      value: { tr: "SÜREKLİ ETKİN", en: "ALWAYS ON" },
+    },
+    {
+      label: { tr: "TEKNİK GECİKMESİ", en: "TECHNIQUE LATENCY" },
+      value: { tr: "YOK · PASİF SAVUNMA", en: "NONE · PASSIVE DEFENCE" },
+    },
+    {
+      label: { tr: "RİKUGAN YÜKÜ", en: "SIX EYES LOAD" },
+      value: { tr: "SÜREKLİ · BU YÜZDEN BANT", en: "CONSTANT · HENCE THE BAND" },
+    },
+  ],
+} as const;
+
+/**
+ * P02'nin görsel yuvası.
+ *
+ * Kadraj sağdaki sütunun tamamını kaplıyor; dikey duvar bu kadrajın sol
+ * kenarı. Oran bilerek dikey (2/3): duvarın yüksek olması gerekiyor.
+ */
+export const GOJO_S02_SLOT = {
+  key: "goj:rikugan",
+  aspect: "2 / 3",
+  spec: {
+    tr: "Hidden Inventory sonrası yetişkin dönem · 3/4 açı · kibirli gülümseme · yarım boy · keskin fokus · 4K",
+    en: "Adult era after Hidden Inventory · three-quarter angle · arrogant smile · half body · sharp focus · 4K",
+  },
+  alt: {
+    tr: "Satoru Gojō — yetişkin dönem, 3/4 açıdan yarım boy portre",
+    en: "Satoru Gojō — adult era, three-quarter half-body portrait",
+  },
+} as const;
+
+/* ══════════════════════════════════════════════════════════════════════════
+   P03 · LIMITLESS
+
+   Izgara tabanlı topoğrafik zemin. Halkalar merkeze yaklaştıkça sıklaşıyor
+   ama merkeze ASLA ulaşmıyor — kalan mesafeyi her adımda yarıya bölen bir
+   Zeno dizisi. Odak tamamen bu negatif alan tünelinde.
+
+   ⚠️ Bu bölümde SCROLL HİJACK var. Hareket sözleşmesi kural 3 harfiyen
+   uygulanıyor; güvenlik listesi `InfinityScroll.tsx` dosya başında.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+export const GOJO_S03 = {
+  title: {
+    tr: "MUGEGEN",
+    en: "LIMITLESS",
+  },
+  /** Başlığın altındaki tek satır — ızgaranın üstünde duruyor */
+  subtitle: {
+    tr: "Aradaki mesafe kapanmıyor",
+    en: "The distance never closes",
+  },
+  /**
+   * Gövde metni ızgara kutucuklarına DAĞITILIYOR (brief).
+   *
+   * ⚠️ Dağıtılmış hâli görsel; okunabilir karşılığı `srText` alanında tek
+   * parça duruyor ve `sr-only` olarak basılıyor. BRIEF · erişilebilirlik:
+   * "Gövde metni grid kutucuklarına dağıtılmış — `sr-only` düz metin
+   * karşılığı ZORUNLU."
+   */
+  cells: [
+    { tr: "Bir el uzanıyor.", en: "A hand reaches out." },
+    { tr: "Aradaki mesafeyi yarıya böl.", en: "Halve the distance between." },
+    { tr: "Sonra kalanı tekrar yarıya böl.", en: "Then halve what is left." },
+    { tr: "Ve tekrar.", en: "And again." },
+    { tr: "El hâlâ yaklaşıyor.", en: "The hand is still closing in." },
+    { tr: "Sonsuz adım kaldı.", en: "Infinite steps remain." },
+    { tr: "Hiç değmiyor.", en: "It never lands." },
+  ],
+  /** Dağıtılmış metnin düz karşılığı — ekran okuyucu ve arama motoru için */
+  srText: {
+    tr: "Bir el uzanıyor. Aradaki mesafeyi yarıya böl, sonra kalanı tekrar yarıya böl, ve tekrar. El hâlâ yaklaşıyor ama önünde her zaman sonsuz sayıda adım kalıyor. Hiç değmiyor. Mugegen bir kalkan değil; Gojō ile ona uzanan şey arasına sonsuz bölünebilen bir aralık koyan bir yakınsama. Duran şey saldırı değil, mesafenin kendisi.",
+    en: "A hand reaches out. Halve the distance between, then halve what is left, and again. The hand keeps closing in, yet an infinite number of steps always remains ahead of it. It never lands. Limitless is not a shield; it is a convergence that places an infinitely divisible gap between Gojō and whatever reaches for him. What stops is not the attack but the distance itself.",
+  },
+  /**
+   * Halka kesişimlerine düşen 9pt formüller.
+   *
+   * Gerçek matematik: geometrik seri ve limit gösterimi. Dekoratif bir
+   * sözde-formül yazılmadı — sayfanın tezi zaten bu yakınsamanın kendisi.
+   * Çevrilmiyor (matematik gösterimi, dil değil).
+   */
+  formulas: [
+    "d₀ / 2ⁿ",
+    "Σ 2⁻ⁿ = 1",
+    "lim d → 0",
+    "d > 0  ∀n",
+    "1/2 + 1/4 + 1/8 …",
+    "∄ n : d(n) = 0",
+  ],
+  /** Scroll kilidi sırasında ekranda beliren tek cümle */
+  lockLine: {
+    tr: "Gerçekten bana ulaşabileceğini mi sandın?",
+    en: "Did you really think you could reach me?",
+  },
+  /** Kilit sırasında görünen çıkış ipucu — klavye kullanıcısı için */
+  lockEscape: {
+    tr: "Çıkmak için Esc",
+    en: "Press Esc to break",
+  },
+} as const;
+
+/**
+ * P03'ün görsel yuvası — ızgaranın merkezinde, negatif alanın kenarında.
+ *
+ * ⚠️ Merkez BOŞ kalmak zorunda (Infinity kuralı). Bu kadraj merkeze
+ * konmuyor; tünelin ağzında, halkaların dışında duruyor.
+ */
+export const GOJO_S03_SLOT = {
+  key: "goj:mugegen",
+  aspect: "1 / 1",
+  spec: {
+    tr: "İşaret ve orta parmağın uzatıldığı durdurma pozunun makro yakın çekimi · yalnızca eller · şeffaf zemin · 4K+",
+    en: "Macro close-up of the stopping pose with index and middle finger extended · hands only · transparent background · 4K+",
+  },
+  alt: {
+    tr: "Uzatılmış iki parmak — durdurma pozunun makro çekimi",
+    en: "Two extended fingers — macro shot of the stopping pose",
+  },
+} as const;
+
+/* ══════════════════════════════════════════════════════════════════════════
+   P04 · CURSED TECHNIQUES
+
+   Sayfa yatay üç şeride ayrılıyor: 蒼 Mavi / 赫 Kırmızı / 茈 Mor. Şeritler
+   birbirine binmeye çalışıyor ama aradaki itici güç yüzünden yırtık siyah
+   boşluklar kalıyor.
+
+   ⚠️ ANLATININ TAMAMI `GOJO_POLES` ve `GOJO_MERGE` bloklarından geliyor
+   (bu dosyanın üst yarısı) — orada ölçülerek yazılmış, terminolojisi
+   serinin kendi yazımıyla. P04 onları DEVRALIYOR, yeniden yazmıyor.
+   Buradaki blok yalnızca bölümün kendi kabuğunu ekliyor: teknik özellik
+   matrisi ve etkileşim etiketleri.
+
+   ── AÇIKLAMA METNİ HER ZAMAN AÇIK ────────────────────────────────────────
+   Hiçbir açıklama etkileşimin arkasına saklanmıyor. Hover/tap/drag yalnızca
+   bir gösteri; metin sunucudan tam geliyor. Reduced-motion şartı ("üç teknik
+   de statik kart olarak sunulur, tüm açıklama metni açık") böylece
+   VARSAYILAN durum oluyor, özel bir dal değil.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+export const GOJO_S04 = {
+  title: {
+    tr: "LANETLİ TEKNİKLER",
+    en: "CURSED TECHNIQUES",
+  },
+  /**
+   * Teknik özellik matrisi — paragraf değil, kolonlu okuma.
+   *
+   * ⚠️ UYDURMA GÜÇ İSTATİSTİĞİ YOK. Seride bu tekniklerin çıktısı sayıyla
+   * verilmiyor; buradaki "sayılar" ilişkisel gösterim: çeken uç −1, iten uç
+   * +1, ikisinin çarpışması hayalî bir üçüncü teknik. Hem doğru hem de
+   * bölümün tezini (zıtlık) taşıyor.
+   */
+  matrixLabels: {
+    vector: { tr: "VEKTÖR", en: "VECTOR" },
+    output: { tr: "ÇIKTI", en: "OUTPUT" },
+    range: { tr: "MENZİL", en: "RANGE" },
+    base: { tr: "TEMEL", en: "BASE" },
+  },
+  matrix: {
+    blue: {
+      vector: "−1",
+      output: { tr: "çekim", en: "attraction" },
+      range: { tr: "nokta", en: "point" },
+      base: "無下限",
+    },
+    red: {
+      vector: "+1",
+      output: { tr: "itme", en: "repulsion" },
+      range: { tr: "koni", en: "cone" },
+      base: "無下限",
+    },
+    purple: {
+      vector: "−1 ⊕ +1",
+      output: { tr: "silme", en: "erasure" },
+      range: { tr: "hat", en: "line" },
+      base: "蒼 + 赫",
+    },
+  },
+  /**
+   * Şeritlerin outline dev başlıkları.
+   *
+   * `GOJO_POLES[].turkish` ("Düz akış — Mavi") künye satırı olarak doğru
+   * ama ekranı kaplayan bir kontur başlık için fazla uzun. Bunlar onun
+   * kısa hâli; ikisi de aynı şeritte, farklı ölçekte duruyor.
+   */
+  displays: {
+    blue: { tr: "MAVİ", en: "BLUE" },
+    red: { tr: "KIRMIZI", en: "RED" },
+    purple: { tr: "MOR", en: "PURPLE" },
+  },
+  /** Etkileşim kabuğu — hiçbiri bilgi taşımıyor, hepsi yönlendirme */
+  ui: {
+    chargeLabel: { tr: "BİRLEŞİM", en: "FUSION" },
+    /** Fare yolu: önce mavi, sonra kırmızı */
+    chargeHint: {
+      tr: "Önce 蒼, sonra 赫 üzerine gel — birleşim dolar.",
+      en: "Hover 蒼 then 赫 — the fusion charges.",
+    },
+    /** Dokunmatik ve fare için ortak yol: iki küreyi birleştir */
+    dragHint: {
+      tr: "İki küreyi birbirine sürükle.",
+      en: "Drag the two spheres together.",
+    },
+    /** Klavye yolu — etkileşim klavyeyle de keşfedilebilir olmak zorunda */
+    keyHint: {
+      tr: "Klavyeyle: küreleri ok tuşlarıyla yaklaştır.",
+      en: "With a keyboard: move the spheres closer with the arrow keys.",
+    },
+    fired: {
+      tr: "茈 — çarpışma gerçekleşti.",
+      en: "茈 — the collision happened.",
+    },
+    reset: { tr: "Sıfırla", en: "Reset" },
+    spherePull: { tr: "Çeken uç", en: "Attracting pole" },
+    spherePush: { tr: "İten uç", en: "Repelling pole" },
+  },
+} as const;
+
+/**
+ * P04'ün iki görsel yuvası.
+ *
+ * Kutup görselleri (`goj:ao`, `goj:aka`, `goj:murasaki`) ZATEN tanımlı ve
+ * şeritlerin içinde kullanılıyor; buradaki ikisi brief'in ayrıca istediği
+ * makro kadrajlar.
+ */
+export const GOJO_S04_SLOTS = {
+  handseal: {
+    key: "goj:handseal",
+    aspect: "16 / 9",
+    spec: {
+      tr: "Hollow Purple el mührünü birleştiren parmakların makro çekimi · 4K",
+      en: "Macro shot of the fingers forming the Hollow Purple hand seal · 4K",
+    },
+    alt: {
+      tr: "Hollow Purple el mührünü birleştiren parmaklar",
+      en: "Fingers forming the Hollow Purple hand seal",
+    },
+  },
+  silhouette: {
+    key: "goj:silhouette",
+    aspect: "3 / 4",
+    spec: {
+      tr: "İçinden ışık fışkıran karanlık silüet · yetişkin Gojō · 4K",
+      en: "Dark silhouette with light bursting through · adult Gojō · 4K",
+    },
+    alt: {
+      tr: "İçinden ışık fışkıran karanlık Gojō silüeti",
+      en: "Dark Gojō silhouette with light bursting through",
+    },
+  },
+} as const;
+
+/* ══════════════════════════════════════════════════════════════════════════
+   P05 · DOMAIN EXPANSION / UNLIMITED VOID
+
+   Tam ekran sinematik sekans. Sayfanın ikinci imza bileşeni burada doğuyor.
+
+   ⚠️ OTOMATİK TETİKLENMİYOR. Sayfadaki düğme ya da `D` kısayolu açıyor;
+   tekrar tekrar oynatılabiliyor.
+
+   ⚠️ İÇERİK SEKANSIN İÇİNDE HAPSEDİLMİYOR. Aşağıdaki her şey bölümün
+   STATİK panosunda da duruyor. Sekans o panonun oynatılmış hâli —
+   reduced-motion'da sekans hiç açılmıyor ve hiçbir bilgi kaybolmuyor.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/** 領域展開 — çevrilmiyor, `lang="ja"` ile işaretleniyor (atmosfer öğesi). */
+export const GOJO_S05_KANJI = "領域展開";
+
+/** 無量空処 — alanın adı. */
+export const GOJO_S05_DOMAIN_KANJI = "無量空処";
+
+export const GOJO_S05 = {
+  title: {
+    tr: "ALAN GENİŞLEMESİ",
+    en: "DOMAIN EXPANSION",
+  },
+  /** 領域展開'in okunabilir karşılığı — ekran okuyucu için */
+  kanjiGloss: {
+    tr: "Alan genişlemesi",
+    en: "Domain expansion",
+  },
+  domainName: {
+    tr: "Muryōkūsho — Sınırsız Boşluk",
+    en: "Muryōkūsho — Unlimited Void",
+  },
+  /** Bölümün gövde metni — panoda ve sekansta aynı anlatı */
+  body: {
+    tr: "Alan genişlemesi bir saldırı değil, bir mekân dayatması. Gojō kendi tekniğini bir hacme çeviriyor ve içine giren herkes o hacmin kurallarına tabi oluyor. Muryōkūsho'nun yaptığı şey acı vermek değil: hedefin beynine yapılması gereken her şeyin bilgisini aynı anda veriyor. Yürümek, nefes almak, göz kırpmak — hepsinin talimatı sonsuz ayrıntıda ve aynı anda geliyor. Beden komutları alıyor ama hiçbirini tamamlayamıyor; kişi ayakta, uyanık ve tamamen durmuş hâlde kalıyor.",
+    en: "A domain expansion is not an attack but an imposition of place. Gojō turns his own technique into a volume, and everyone inside it falls under that volume's rules. What Unlimited Void does is not to inflict pain: it hands the target's brain the information for everything that must be done, all at once. Walking, breathing, blinking — the instructions for each arrive in infinite detail and simultaneously. The body receives the commands and can complete none of them; the person remains standing, awake, and completely stopped.",
+  },
+  /** Donma anında ekranda kalan tek satır */
+  freezeLine: {
+    tr: "SONSUZ BİLGİ.",
+    en: "INFINITE INFORMATION.",
+  },
+  /**
+   * Boşluğa akan bilgi parçaları.
+   *
+   * Brief: "teknik isimleri, karakter bilgileri, Japonca semboller,
+   * koordinatlar, cursed energy verileri, manga paneli tarzı metin
+   * parçaları". Hepsi sayfanın kendi veri kümesinden ya da serinin
+   * terminolojisinden; uydurma sayı yok.
+   *
+   * ⚠️ Bu liste hem sekansta akıyor hem de statik panoda liste olarak
+   * duruyor. Tek kaynak, iki sunum.
+   */
+  fragments: [
+    { text: "無下限呪術", lang: "ja" },
+    { text: "六眼", lang: "ja" },
+    { text: "術式順転「蒼」", lang: "ja" },
+    { text: "術式反転「赫」", lang: "ja" },
+    { text: "虚式「茈」", lang: "ja" },
+    { text: "反転術式", lang: "ja" },
+    { text: "領域展開", lang: "ja" },
+    { text: "無量空処", lang: "ja" },
+    { text: "35.6938°N 139.7034°E", lang: null },
+    { text: "d₀ / 2ⁿ", lang: null },
+    { text: "lim d → 0", lang: null },
+    { text: "Σ 2⁻ⁿ = 1", lang: null },
+    { text: "1989.12.07", lang: null },
+    { text: "190 cm", lang: null },
+    { text: "SPECIAL GRADE", lang: null },
+    { text: "∞", lang: null },
+  ],
+  ui: {
+    /** Tetikleyici düğme */
+    trigger: {
+      tr: "ALAN GENİŞLEMESİ",
+      en: "DOMAIN EXPANSION",
+    },
+    triggerHint: {
+      tr: "veya D tuşu",
+      en: "or press D",
+    },
+    /** ⚠️ Sekans boyunca HER ZAMAN görünür */
+    skip: {
+      tr: "Geç",
+      en: "Skip",
+    },
+    escape: {
+      tr: "Esc ile çık",
+      en: "Esc to exit",
+    },
+    /** Reduced-motion panosunun başlığı */
+    staticLabel: {
+      tr: "Alanın içinde ne var",
+      en: "What is inside the domain",
+    },
+  },
+} as const;
+
+/** P05'in görsel yuvası. */
+export const GOJO_S05_SLOT = {
+  key: "goj:muryokusho",
+  aspect: "16 / 9",
+  spec: {
+    tr: "Çaprazlanmış parmaklar ve yüzün yarısı · tek buz mavisi göz bebeğine odaklı ultra-makro göz hizası kadraj · gözbebeği içi nebula dokulu · 8K",
+    en: "Crossed fingers and half the face · ultra-macro eye-level framing focused on a single ice-blue iris · nebula texture inside the pupil · 8K",
+  },
+  alt: {
+    tr: "Çaprazlanmış parmaklar ve tek bir buz mavisi göz — ultra makro",
+    en: "Crossed fingers and a single ice-blue eye — ultra macro",
+  },
+} as const;
+
+/* ══════════════════════════════════════════════════════════════════════════
+   P06 · THE MAKING OF THE STRONGEST
+
+   Zaman çizelgesi. ⚠️ DURAKLARIN TAMAMI `GOJO_TIMELINE`den geliyor
+   (bu dosyanın üst yarısı): beş durak, yaş etiketleri, kaynaklı replik ve
+   akraba bağlantılarıyla 25 Ağustos 2026'da yazıldı. P06 onu DEVRALIYOR.
+
+   Brief yedi durak sayıyor (Hidden Inventory → Riko → Toji → Awakening →
+   Getō → öğretmenlik → Shibuya). Mevcut beşli aynı anlatıyı taşıyor:
+   Riko durağı Toji karşılaşmasını ve 天上天下唯我独尊 ile uyanışı TEK
+   durakta birleştiriyor — çünkü üçü aynı görevde, aynı gün oluyor. Üçe
+   bölmek kronolojiyi doğru ama anlatıyı yanlış gösterirdi.
+
+   Buradaki blok yalnızca bölümün kabuğu: başlık, yıl damgaları ve
+   paletin kayma noktaları.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+export const GOJO_S06 = {
+  title: {
+    tr: "EN GÜÇLÜ NASIL OLDU",
+    en: "THE MAKING OF THE STRONGEST",
+  },
+  lede: {
+    tr: "Beş durak. Hiçbiri bir zafer değil; hepsi bir bedel.",
+    en: "Five stops. None of them a victory; all of them a price.",
+  },
+  /**
+   * Fotoğrafların arkasında duran dev, saydam yıl damgaları.
+   *
+   * ⚠️ Bunlar `GOJO_TIMELINE`deki yaş etiketlerinin YERİNE geçmiyor,
+   * arkasında duruyor. Yaş etiketi künye bilgisi, bu ise dokunun parçası.
+   * Değerler kaynaklı: doğum 1989 (AniList), Yıldız Kabı görevi 2006
+   * (Hidden Inventory yayı), Getō'nun ayrılışı 2007, öğretmenlik ve
+   * Shibuya 2018.
+   */
+  stamps: {
+    born: "1989",
+    riko: "2006",
+    geto: "2007",
+    teacher: "2018",
+    seal: "2018",
+  } as Record<string, string>,
+  /** Bölümün kapanış satırı — palet kızıla döndükten sonra */
+  outro: {
+    tr: "Ölçen göz kapandığında dünya ilk kez kendi ölçüsüne kaldı.",
+    en: "When the measuring eye closed, the world was left to its own measure for the first time.",
+  },
+} as const;
+
+/**
+ * P06'nın iki görsel yuvası.
+ *
+ * Durakların kendi yuvaları (`goj:fate-*`) `GOJO_TIMELINE`de zaten
+ * tanımlı ve her durakta çiziliyor. Buradaki ikisi brief'in ayrıca
+ * istediği Hidden Inventory dönemi kadrajları.
+ */
+export const GOJO_S06_SLOTS = {
+  full: {
+    key: "goj:young-full",
+    aspect: "2 / 3",
+    spec: {
+      tr: "Hidden Inventory dönemi genç Gojō · yuvarlak siyah güneş gözlüklü · gevşek yakalı üniforma · tam boy · 4K",
+      en: "Hidden Inventory era young Gojō · round black sunglasses · loose-collared uniform · full body · 4K",
+    },
+    alt: {
+      tr: "Genç Satoru Gojō — yuvarlak siyah gözlük, tam boy",
+      en: "Young Satoru Gojō — round black glasses, full body",
+    },
+  },
+  portrait: {
+    key: "goj:young-portrait",
+    aspect: "1 / 1",
+    spec: {
+      tr: "Hidden Inventory dönemi genç Gojō portresi · yakın kadraj · 4K",
+      en: "Hidden Inventory era young Gojō portrait · close crop · 4K",
+    },
+    alt: {
+      tr: "Genç Satoru Gojō portresi",
+      en: "Young Satoru Gojō portrait",
+    },
+  },
+} as const;
+
+/* ══════════════════════════════════════════════════════════════════════════
+   P07 · GOJŌ × GETŌ
+
+   Split-screen, yin & yang. Sol taraf (Gojō) devasa negatif alanla nefes
+   alıyor; sağ taraf (Getō) dar, sıkışık, kalabalık. Ortadaki ayrım düz bir
+   çizgi değil ÇATLAK.
+
+   ⚠️ Bu bölüm bir dostluk anlatısı değil, bir SİMETRİ anlatısı: ikisi de
+   aynı sonuca bakıp zıt yönlere yürüdü. Metin bu yüzden iki sütun ve
+   sütunlar birbirine cevap veriyor.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+export const GOJO_S07 = {
+  title: {
+    tr: "GOJŌ × GETŌ",
+    en: "GOJŌ × GETŌ",
+  },
+  /** Çatlağın iki yakasındaki isimler */
+  leftName: { tr: "SATORU", en: "SATORU" },
+  rightName: { tr: "SUGURU", en: "SUGURU" },
+  /**
+   * Sol sütun — Gojō. Hafif, seyrek, boşluklu.
+   * ⚠️ İki sütun BİRBİRİNE CEVAP VERİYOR; sırayla okunduğunda diyalog
+   * gibi ilerliyor. Ekran okuyucu da bu sırayla duyuyor.
+   */
+  left: [
+    {
+      tr: "İkisi de aynı şeyi gördü: zayıfları koruyan sistem çürümüştü ve o sistemi ayakta tutan şey kendi güçleriydi.",
+      en: "They both saw the same thing: the system that protected the weak had rotted, and what held it up was their own strength.",
+    },
+    {
+      tr: "Gojō yukarıyı devirmek yerine aşağıyı büyütmeyi seçti. Öğretmen oldu. Çözümü zaman aldı ve kendisi kadar güçlü olmayan insanlara güvenmeyi gerektirdi.",
+      en: "Gojō chose to raise the bottom instead of toppling the top. He became a teacher. His answer took time, and it required trusting people who were not as strong as he was.",
+    },
+  ],
+  /** Sağ sütun — Getō. Ağır, sıkışık, kalın. */
+  right: [
+    {
+      tr: "Getō aynı çürümeye baktı ve kusurun sistemde değil insanlarda olduğuna karar verdi. Yuttuğu her lanet onu biraz daha daralttı.",
+      en: "Getō looked at the same rot and decided the flaw was not in the system but in people. Every curse he swallowed narrowed him a little further.",
+    },
+    {
+      tr: "Çözümü hızlıydı ve kimseye güvenmeyi gerektirmiyordu. Bedeli de buydu: yalnız kalmayı seçen, yalnız kalmaktan korkmayan tarafın kaybettiği şey seçenekti.",
+      en: "His answer was fast and required trusting no one. That was its price: what the side unafraid of being alone lost was the possibility of another answer.",
+    },
+  ],
+  /** Instrument Serif italik — bölümün duygusal ekseni */
+  emotional: {
+    tr: "Aralarındaki mesafe bir kavgayla açılmadı. İkisi de haklı olduğuna inandığı yönde yürüdü ve yön farkı yıllar içinde bir uçuruma dönüştü.",
+    en: "The distance between them did not open with a fight. Each walked in the direction he believed was right, and the difference of direction became a chasm over the years.",
+  },
+  /** Çatlağın kırıldığı andaki dev satır */
+  finale: {
+    tr: "EN GÜÇLÜ BİZDİK.",
+    en: "WE WERE THE STRONGEST.",
+  },
+  /**
+   * Çarpışan dev tipografinin okunabilir karşılığı.
+   * BRIEF · erişilebilirlik: "orta çatlakta harfler birbirine çarpar/
+   * kesilir — `sr-only` düz karşılığı zorunlu."
+   */
+  srSummary: {
+    tr: "Sayfanın bu bölümü ikiye ayrılıyor: solda Satoru Gojō, sağda Suguru Getō. Ortadaki çatlak scroll ilerledikçe genişliyor ve sonunda kırılıyor. Kapanış satırı: EN GÜÇLÜ BİZDİK.",
+    en: "This section splits in two: Satoru Gojō on the left, Suguru Getō on the right. The crack between them widens as you scroll and finally breaks. The closing line reads: WE WERE THE STRONGEST.",
+  },
+} as const;
+
+/** P07'nin görsel yuvası. */
+export const GOJO_S07_SLOT = {
+  key: "goj:geto-pair",
+  aspect: "16 / 9",
+  spec: {
+    tr: "Genç Gojō ve Getō · sırt sırta ya da karşılıklı profil · gökyüzü arka planı (Gojō yaz mavisi / Getō gün batımı turuncusu) · 4K yüksek kontrast",
+    en: "Young Gojō and Getō · back to back or facing profiles · sky background (Gojō summer blue / Getō sunset orange) · 4K high contrast",
+  },
+  alt: {
+    tr: "Genç Satoru Gojō ve Suguru Getō — karşılıklı",
+    en: "Young Satoru Gojō and Suguru Getō — facing each other",
+  },
+} as const;
+
+/* ══════════════════════════════════════════════════════════════════════════
+   P08 · CONNECTIONS
+
+   Takımyıldız. Merkezde Gojō, çevresinde yedi düğüm. ⚠️ YÖRÜNGE ÇİZGİLERİ
+   MERKEZE ASLA DEĞMİYOR — merkeze yaklaşırken saydamlaşıp yok oluyorlar.
+   Untouchable kuralının sayfadaki EN DOĞRUDAN ifadesi bu.
+
+   ── ETİKET DİSİPLİNİ ─────────────────────────────────────────────────────
+   Brief "Grade 1 / Special Grade etiketleri" istiyor. Derecesi KESİN olan
+   isimlerde derece yazıldı; olmayanlarda derece UYDURULMADI, yerine rolü
+   yazıldı. Emsal: Shoko'nun resmî derecesi seride verilmiyor; Yūji'nin
+   büyücü derecesi anlatının başında bir "kap" statüsüyle karışıyor. İkisi
+   de rolleriyle anılıyor.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+export const GOJO_S08 = {
+  title: {
+    tr: "BAĞLANTILAR",
+    en: "CONNECTIONS",
+  },
+  lede: {
+    tr: "Yedi yörünge. Hiçbiri merkeze değmiyor.",
+    en: "Seven orbits. None of them reaches the centre.",
+  },
+  /** Ekran okuyucu listesinin başlığı */
+  listLabel: {
+    tr: "Bağlantıların listesi",
+    en: "List of connections",
+  },
+  centerLabel: {
+    tr: "Satoru Gojō — merkez",
+    en: "Satoru Gojō — the centre",
+  },
+  /** Seçim yapılmadığındaki durum satırı */
+  idle: {
+    tr: "Bir düğüm seç.",
+    en: "Select a node.",
+  },
+  keyHint: {
+    tr: "Sekme ile gir, ok tuşlarıyla düğümler arasında gez.",
+    en: "Tab to enter, use the arrow keys to move between nodes.",
+  },
+  /** Düğüm yuvalarının ortak kadraj tarifi */
+  nodeSpec: {
+    tr: "minimalist siluet ya da yüksek kontrastlı kesit illüstrasyon",
+    en: "minimalist silhouette or high-contrast cutout illustration",
+  },
+} as const;
+
+export interface GojoNode {
+  key: string;
+  /** AniList kaydımızdaki numara — künye sayfasına bağlanmak için */
+  characterId: number | null;
+  name: string;
+  /** Derece ya da rol — JetBrains Mono etiketi */
+  tag: { tr: string; en: string };
+  /** Tıklanınca açılan kısa ilişki açıklaması */
+  text: { tr: string; en: string };
+}
+
+/**
+ * Yedi düğüm.
+ *
+ * Sıra rastgele değil: yakınlıktan uzaklığa değil, HAYATTAKİ SIRAYA göre
+ * — Toji ve Getō gençlik, Shoko aynı sınıf, Nanami bir alt devre,
+ * öğrenciler en son. Takımyıldızda saat yönünde bu sırayla diziliyorlar.
+ */
+export const GOJO_NODES: GojoNode[] = [
+  {
+    key: "toji",
+    characterId: null,
+    name: "Toji Fushiguro",
+    tag: { tr: "TEKNİĞİ YOK", en: "NO TECHNIQUE" },
+    text: {
+      tr: "Lanetli enerjisi olmayan bir adam, on altı yaşındaki Gojō'yu öldürdü. Gojō ters akışı kendi bedeninde çözüp geri döndü. Sayfadaki tek gerçek yenilgi bu ve tekniksiz biri tarafından verildi.",
+      en: "A man with no cursed energy killed the sixteen-year-old Gojō. Gojō worked out the reversed flow in his own body and came back. It is the only true defeat on this page, and it was dealt by someone with no technique.",
+    },
+  },
+  {
+    key: "geto",
+    characterId: 133699,
+    name: "Suguru Getō",
+    tag: { tr: "ÖZEL SINIF", en: "SPECIAL GRADE" },
+    text: {
+      tr: "Aynı sınıftaki tek arkadaşı. Aynı çürümeye baktılar, zıt yönlere yürüdüler. Gojō onu durdurmadı — en güçlü olmanın ilk bedeli buydu.",
+      en: "The only friend from his own class. They looked at the same rot and walked in opposite directions. Gojō did not stop him — that was the first price of being the strongest.",
+    },
+  },
+  {
+    key: "shoko",
+    characterId: null,
+    name: "Shoko Ieiri",
+    tag: { tr: "SINIF ARKADAŞI", en: "CLASSMATE" },
+    text: {
+      tr: "Üçlünün üçüncüsü. Ters lanetli tekniği başkaları üzerinde kullanabilen ender kişilerden; Gojō'nun ve Getō'nun gençliğine tanıklık eden tek isim hâlâ o.",
+      en: "The third of the trio. One of the few who can use the reversed cursed technique on others; she remains the only person who witnessed both Gojō's and Getō's youth.",
+    },
+  },
+  {
+    key: "nanami",
+    characterId: 133704,
+    name: "Kento Nanami",
+    tag: { tr: "1. SINIF", en: "GRADE 1" },
+    text: {
+      tr: "Bir alt devreden. Jujutsu'yu bırakıp ofis işine geçti, sonra geri döndü. Gojō'nun aksine gücü değil ÖLÇÜYÜ savunuyor: her şeyin bir mesai saati var.",
+      en: "From the year below. He quit jujutsu for an office job, then came back. Unlike Gojō he defends measure rather than power: everything has working hours.",
+    },
+  },
+  {
+    key: "yuta",
+    characterId: null,
+    name: "Yuta Okkotsu",
+    tag: { tr: "ÖZEL SINIF", en: "SPECIAL GRADE" },
+    text: {
+      tr: "İdam kararı verilmiş bir öğrenciyi Gojō sahiplendi. Yuta, Gojō'nun 'kendim kadar güçlü olmayan ama birlikte yeten bir kuşak' fikrinin en doğrudan kanıtı.",
+      en: "Gojō took in a student who had been sentenced to execution. Yuta is the most direct proof of Gojō's idea of a generation that is not as strong as he is, yet together is enough.",
+    },
+  },
+  {
+    key: "megumi",
+    characterId: 126635,
+    name: "Megumi Fushiguro",
+    tag: { tr: "2. SINIF", en: "GRADE 2" },
+    text: {
+      tr: "Toji'nin oğlu. Gojō onu çocukken buldu ve Zenin ailesine satılmasını engelledi. Öldürdüğü değil, öldüren adamın çocuğu — ve Gojō onu büyüttü.",
+      en: "Toji's son. Gojō found him as a child and stopped him from being sold to the Zenin family. Not the child of the man he killed, but of the man who killed him — and Gojō raised him.",
+    },
+  },
+  {
+    key: "yuji",
+    characterId: 127212,
+    name: "Yūji Itadori",
+    tag: { tr: "SUKUNA'NIN KABI", en: "SUKUNA'S VESSEL" },
+    text: {
+      tr: "Gojō'nun kanadı altına aldığı öğrenci. Onu savunması bir merhamet değil bir hesap: Sukuna'yı kontrollü bir kapta tutmanın tek yolu, kabı yetiştirmek.",
+      en: "The student Gojō took under his wing. Defending him is not mercy but calculation: the only way to keep Sukuna in a controlled vessel is to raise the vessel.",
+    },
+  },
+];
+
+/**
+ * P08'in görsel yuvaları.
+ *
+ * Merkezdeki öğretmen portresi + her düğüm için birer siluet. Düğüm
+ * yuvaları boşken takımyıldız GÖRSELSİZ ama tam çalışıyor — daireler ve
+ * yörüngeler saf SVG.
+ */
+export const GOJO_S08_TEACHER_SLOT = {
+  key: "goj:teacher",
+  aspect: "1 / 1",
+  spec: {
+    tr: "Yetişkin Gojō · öğretmen kimliği · samimi gülümseme portresi · 4K",
+    en: "Adult Gojō · teacher identity · warm smiling portrait · 4K",
+  },
+  alt: {
+    tr: "Satoru Gojō — öğretmen portresi",
+    en: "Satoru Gojō — teacher portrait",
+  },
+} as const;
+
+/** `goj:node-<key>` — yedi minimalist siluet yuvası. */
+export const GOJO_S08_NODE_SLOT = (key: string) => ({
+  key: `goj:node-${key}`,
+  aspect: "1 / 1",
+});
+
+/* ══════════════════════════════════════════════════════════════════════════
+   P09 · POWER ANALYSIS
+
+   HUD. Altı halka ekranın KENARLARINA yapışıyor ve klostrofobik bir çember
+   kuruyor; ortada Gojō'ya ayrılmış pürüzsüz, bomboş bir "Zero" alanı
+   kalıyor.
+
+   ⚠️ BÖLÜMÜN TEZİ: VERİLER GOJŌ'YU ANALİZ EDEMİYOR.
+
+   ── NEDEN UYDURMA İSTATİSTİK YOK ─────────────────────────────────────────
+   Brief bir güç radarı istiyor ve radar sayı ister. Ama seride bu
+   niteliklerin hiçbiri sayıyla verilmiyor; 0–100 arası puanlar uydurmak
+   arşivin kuralını çiğnerdi.
+
+   Çözüm tezin kendisinden geldi: SAYAÇLAR BAŞARISIZ OLUYOR. Her halka
+   yükselmeye başlıyor, tavana dayanıyor ve bir ölçüm değeriyle değil bir
+   TAŞMA işaretiyle duruyor (`∞` ya da `ERR`). Yani ekranda görünen şey
+   Gojō'nun puanı değil, ölçüm aygıtının yetersizliği. Hem dürüst hem de
+   bölümün söylemek istediği şey.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+export const GOJO_S09 = {
+  title: {
+    tr: "GÜÇ ANALİZİ",
+    en: "POWER ANALYSIS",
+  },
+  /** Merkezdeki boş alanın etiketi — okunuyor ama ölçülemiyor */
+  zeroLabel: {
+    tr: "ÖLÇÜM ALANI",
+    en: "MEASUREMENT FIELD",
+  },
+  zeroValue: {
+    tr: "VERİ YOK",
+    en: "NO DATA",
+  },
+  /** Sistem log bloğunun başlığı */
+  logLabel: {
+    tr: "SİSTEM KAYDI",
+    en: "SYSTEM LOG",
+  },
+  /**
+   * Log satırları — gövde metni paragraf değil, hata kaydı (brief).
+   * Anlatının tamamı burada: bölüm sayı okumuyor, okuyamadığını
+   * söylüyor.
+   */
+  log: [
+    {
+      tr: "> hedef bağlandı: GOJŌ SATORU",
+      en: "> target acquired: GOJŌ SATORU",
+    },
+    {
+      tr: "> altı eksende ölçüm başlatıldı",
+      en: "> measurement started on six axes",
+    },
+    {
+      tr: "! eksen tavanı aşıldı — ölçek yeniden hesaplanıyor",
+      en: "! axis ceiling exceeded — rescaling",
+    },
+    {
+      tr: "! ölçek yeniden hesaplandı, tavan yine aşıldı",
+      en: "! rescaled, ceiling exceeded again",
+    },
+    {
+      tr: "> merkez alanına erişilemiyor",
+      en: "> centre field unreachable",
+    },
+    {
+      tr: "× ölçüm iptal. Bu aygıt bu hedefi ölçemiyor.",
+      en: "× measurement aborted. This instrument cannot measure this target.",
+    },
+  ],
+  /** Halkaların ortak durum etiketi */
+  overflow: {
+    tr: "TAŞMA",
+    en: "OVERFLOW",
+  },
+  keyHint: {
+    tr: "Halkaya tıkla, detay açılsın.",
+    en: "Select a ring to open its detail.",
+  },
+} as const;
+
+export interface GojoRing {
+  key: string;
+  label: { tr: string; en: string };
+  /** Ekranda duran nihai gösterim — sayı DEĞİL, taşma işareti */
+  readout: string;
+  /** Sayacın tırmandığı yüzde — tavana dayandığı yer */
+  ceiling: number;
+  detail: { tr: string; en: string };
+}
+
+/**
+ * Altı eksen.
+ *
+ * `readout` bilerek sayı değil: dördü `∞`, ikisi `ERR`. Tavan yüzdeleri
+ * (`ceiling`) yalnızca sayacın nerede duracağını söylüyor — bir puan
+ * değil, aygıtın nereye kadar gidebildiği.
+ */
+export const GOJO_RINGS: GojoRing[] = [
+  {
+    key: "speed",
+    label: { tr: "HIZ", en: "SPEED" },
+    readout: "ERR",
+    ceiling: 96,
+    detail: {
+      tr: "Anlık yer değiştirme ölçülebilir bir hız değil: iki kare arasında geçen mesafe var ama geçen süre yok. Aygıt bölme işlemini tamamlayamıyor.",
+      en: "Instant movement is not a measurable speed: there is distance between two frames but no elapsed time. The instrument cannot complete the division.",
+    },
+  },
+  {
+    key: "intellect",
+    label: { tr: "ZEKÂ", en: "INTELLECT" },
+    readout: "ERR",
+    ceiling: 92,
+    detail: {
+      tr: "Rikugan dünyayı sayı olarak görüyor; taşıyıcısı da öyle düşünüyor. Ölçülen şey bir kişinin zekâsı değil, sürekli açık bir ölçüm cihazının çıktısı — ve o çıktı bu aygıtın çözünürlüğünün üstünde.",
+      en: "Six Eyes renders the world as numbers, and its bearer thinks the same way. What is being measured is not a person's intellect but the output of a permanently open instrument — and that output is above this device's resolution.",
+    },
+  },
+  {
+    key: "energy",
+    label: { tr: "LANETLİ ENERJİ", en: "CURSED ENERGY" },
+    readout: "∞",
+    ceiling: 99,
+    detail: {
+      tr: "Rezerv değil VERİM sorunu. Rikugan tekniği israfsız çalıştırıyor; harcanan enerji hedefe göre otomatik ayarlanıyor. Tüketim ölçülemiyor çünkü boşa giden bir pay yok.",
+      en: "Not a question of reserve but of EFFICIENCY. Six Eyes runs the technique with no waste; the energy spent is auto-tuned to the target. Consumption cannot be read because there is no wasted share.",
+    },
+  },
+  {
+    key: "technique",
+    label: { tr: "TEKNİK", en: "TECHNIQUE" },
+    readout: "∞",
+    ceiling: 98,
+    detail: {
+      tr: "Mugegen bir saldırı değil bir yakınsama: aradaki mesafeyi sonsuz kez bölüyor. Sonsuz sayıda adımın çıktısını sonlu bir ölçekte göstermek mümkün değil.",
+      en: "Limitless is not an attack but a convergence: it divides the intervening distance infinitely many times. The output of infinitely many steps cannot be shown on a finite scale.",
+    },
+  },
+  {
+    key: "domain",
+    label: { tr: "ALAN", en: "DOMAIN" },
+    readout: "∞",
+    ceiling: 97,
+    detail: {
+      tr: "Muryōkūsho hasar vermiyor, BİLGİ veriyor. Bir alanın gücünü hasarla ölçen bir aygıt burada sıfır okuyor — oysa içerideki hiç kimse hareket edemiyor.",
+      en: "Unlimited Void deals no damage, it delivers INFORMATION. An instrument that measures a domain by damage reads zero here — while no one inside can move.",
+    },
+  },
+  {
+    key: "combat",
+    label: { tr: "DÖVÜŞ", en: "COMBAT" },
+    readout: "∞",
+    ceiling: 95,
+    detail: {
+      tr: "Dövüş gücü iki taraf arasındaki farkla ölçülür. Burada karşı taraf yok: Gojō dövüşü kazanmıyor, dövüşün mümkün olup olmadığı sorusunu kapatıyor.",
+      en: "Combat power is measured by the gap between two sides. There is no other side here: Gojō does not win the fight, he closes the question of whether a fight was possible.",
+    },
+  },
+];
+
+/** P09'un görsel yuvası — merkeze DEĞİL, kenara. */
+export const GOJO_S09_SLOT = {
+  key: "goj:dynamic",
+  aspect: "3 / 4",
+  spec: {
+    tr: "Tamamen karanlık zeminde izole · havada asılı ya da yumruk atan ultra-dinamik dövüş pozu · yüksek deklanşör hissi · blur YOK · 4K",
+    en: "Isolated on a fully dark ground · ultra-dynamic combat pose, airborne or throwing a punch · high shutter feel · NO blur · 4K",
+  },
+  alt: {
+    tr: "Satoru Gojō — dinamik dövüş pozu",
+    en: "Satoru Gojō — dynamic combat pose",
+  },
+} as const;
+
+/* ══════════════════════════════════════════════════════════════════════════
+   P10 · CAN YOU TOUCH GOJŌ?
+
+   Görünmez bariyerin sınırında ekstrem makro odak. Ekranın neredeyse
+   tamamı saf negatif alan; hiçbir harf düz yatay kalamıyor.
+
+   ⚠️ GEMINI'NİN "GÖVDE METNİ YOK" YÖNÜ DÜZELTİLDİ. Görsel olarak doğru
+   ama SEO ve i18n için bu bölümün düz metin karşılığı OLMAK ZORUNDA.
+   Aşağıdaki `prose` alanı `sr-only` olarak her zaman DOM'da; hareket
+   azaltılmışsa GÖRÜNÜR hâle geliyor (brief'in kendi düzeltmesi).
+
+   ⚠️ ZENO TUTARLILIĞI: mesafe sayacı P03'ün dizisini sürdürüyor. Her
+   deneme kalan mesafeyi yarıya bölüyor ve sayı hiçbir zaman 0 olmuyor.
+   İki bölüm aynı matematiği paylaşıyor, çünkü aynı şeyi anlatıyorlar.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+export const GOJO_S10 = {
+  /** Bükülmüş dev başlık — okunabilir karşılığı `sr-only` */
+  title: {
+    tr: "GOJŌ'YA DOKUNABİLİR MİSİN?",
+    en: "CAN YOU TOUCH GOJŌ?",
+  },
+  /** Etkileşimi başlatan düğme */
+  trigger: {
+    tr: "DOKUN",
+    en: "TOUCH HIM",
+  },
+  /** Fare ve parmak için ayrı ipucu */
+  hintPointer: {
+    tr: "İmleci ele yaklaştır.",
+    en: "Move the cursor toward the hand.",
+  },
+  hintTouch: {
+    tr: "Parmağını ele doğru sürükle.",
+    en: "Drag your finger toward the hand.",
+  },
+  /** Birkaç denemeden sonra beliren satır */
+  stopped: {
+    tr: "Infinity seni durdurdu.",
+    en: "Infinity stopped you.",
+  },
+  /** Mesafe sayacının etiketi */
+  distanceLabel: {
+    tr: "KALAN MESAFE",
+    en: "REMAINING DISTANCE",
+  },
+  attemptsLabel: {
+    tr: "DENEME",
+    en: "ATTEMPTS",
+  },
+  /**
+   * Bölümün düz metin karşılığı.
+   *
+   * ⚠️ Bu metin bir "erişilebilirlik eki" değil, bölümün İÇERİĞİ. Görsel
+   * katman onu bir etkileşime çeviriyor; katman hiç çalışmasa da bölümün
+   * söylediği şey buradan tam olarak okunuyor.
+   */
+  prose: {
+    tr: "Gojō'ya dokunulamaz. Mugegen ona uzanan her şeyin arasına sonsuz bölünebilen bir aralık koyuyor: el yaklaşıyor, mesafe yarıya iniyor, sonra kalanın yarısına, sonra onun yarısına. Sayı küçülüyor ama sıfır olmuyor. Bu bir kalkan değil — çarpacak bir yüzey yok. Duran şey saldırı değil, mesafenin kendisi. Kaç kere denenirse denensin sonuç aynı: temas hiç gerçekleşmiyor.",
+    en: "Gojō cannot be touched. Limitless places an infinitely divisible gap between him and whatever reaches for him: the hand closes in, the distance halves, then halves again, then again. The number shrinks but never becomes zero. This is not a shield — there is no surface to strike. What stops is not the attack but the distance itself. However many times it is tried, the result is the same: contact never happens.",
+  },
+} as const;
+
+/** P10'un görsel yuvası. */
+export const GOJO_S10_SLOT = {
+  key: "goj:frozen",
+  aspect: "16 / 9",
+  spec: {
+    tr: "Jogo'nun ateşi / bir bıçak / lanetli enerjinin tam değecekken uzay-zamanda durduğu anın ultra-makro yan profil detayı · 8K mikroskobik his",
+    en: "Ultra-macro side-profile detail of the instant Jogo's flame / a blade / cursed energy stops in spacetime just before contact · 8K microscopic feel",
+  },
+  alt: {
+    tr: "Değmeden duran temas anı — ultra makro",
+    en: "The moment of contact halted before it lands — ultra macro",
+  },
+} as const;
+
+/* ══════════════════════════════════════════════════════════════════════════
+   P11 · EASTER EGGS
+
+   ⚠️ GEMINI'NİN ORİJİNAL YÖNÜ İKİ NOKTADA DEĞİŞTİRİLDİ (brief'in kendi
+   düzeltmesi):
+
+   1. `#000000` zemin üzerinde `#050505` ikonlar hem görülemez hem klavyeyle
+      erişilemezdi — keşfedilebilir değil, sadece gizli. İkonlar `#1a1a1a`
+      oldu: hâlâ zor fark ediliyor ama ekranda GERÇEKTEN var ve odakla
+      bulunabiliyor.
+   2. Easter egg'leri tek bölüme hapsetmek "keşfeden keşfeder" fikrini
+      zayıflatıyordu. Gerçek keşifler SAYFANIN TAMAMINA dağıldı; bu bölüm
+      bir KEŞİF KAYDI.
+
+   ── KAYIT İPUCU VERMİYOR ─────────────────────────────────────────────────
+   Bulunmamış bir keşif kayıtta yalnızca kilitli bir yuva olarak duruyor:
+   adı da, nasıl bulunacağı da yazmıyor. Bulununca adı, nasıl bulunduğu ve
+   Gojō'nun alaycı tonunda bir not açılıyor.
+
+   ⚠️ AMA KLAVYE KISAYOLLARI GİZLİ DEĞİL. Hepsi `GOJO_SHORTCUTS` listesinde
+   ve o liste sayfada `sr-only` olarak duruyor — ekran okuyucu kullanıcısı
+   için erişilemez içerik kalmıyor (BRIEF · erişilebilirlik).
+   ══════════════════════════════════════════════════════════════════════════ */
+
+export const GOJO_S11 = {
+  title: {
+    tr: "KEŞİF KAYDI",
+    en: "DISCOVERY LOG",
+  },
+  lede: {
+    tr: "Bu sayfada saklı sekiz şey var. Kayıt yalnızca bulduklarını gösterir.",
+    en: "Eight things are hidden on this page. The log only shows what you have found.",
+  },
+  /** Kilitli yuvanın etiketi — İPUCU YOK */
+  locked: {
+    tr: "kilitli",
+    en: "locked",
+  },
+  counter: {
+    tr: "bulunan",
+    en: "found",
+  },
+  /** Hepsi bulununca çıkan satır */
+  complete: {
+    tr: "Hepsini buldun. Tabii ki buldun.",
+    en: "You found them all. Of course you did.",
+  },
+  reset: {
+    tr: "Kaydı sıfırla",
+    en: "Reset the log",
+  },
+  /**
+   * Mikro objelerin erişilebilir adı.
+   *
+   * ⚠️ OBJENİN ADINI VERMİYOR. Ekran okuyucu kullanıcısı düğmeyi
+   * bulabiliyor (erişilebilirlik korunuyor) ama ne olduğunu ancak
+   * tıklayınca öğreniyor (keşif korunuyor).
+   */
+  hiddenObject: {
+    tr: "Gizli obje",
+    en: "Hidden object",
+  },
+  /** Hero'daki işaretin erişilebilir adı — aynı gerekçe */
+  heroMark: {
+    tr: "Gizli işaret",
+    en: "Hidden mark",
+  },
+} as const;
+
+export interface GojoEgg {
+  key: string;
+  /** Bulunduğunda görünen ad */
+  name: { tr: string; en: string };
+  /** Nasıl bulunduğu — yalnızca bulunduktan SONRA görünüyor */
+  how: { tr: string; en: string };
+  /** Gojō'nun alaycı tonunda not — Instrument Serif italik */
+  note: { tr: string; en: string };
+}
+
+/**
+ * Sekiz keşif.
+ *
+ * Beşi kısayol ya da etkileşim, üçü sayfaya serpiştirilmiş mikro obje.
+ * Sıra kayıtta da bu — ama kilitliyken hiçbiri ad vermiyor.
+ */
+export const GOJO_EGGS: GojoEgg[] = [
+  {
+    key: "sixeyes",
+    name: { tr: "Rikugan", en: "Six Eyes" },
+    how: { tr: "S tuşu", en: "the S key" },
+    note: {
+      tr: "Gözbağını çözmek için bir tuş yetti. Gerçekte bu kadar kolay değil.",
+      en: "One key was enough to take the blindfold off. It is not this easy in practice.",
+    },
+  },
+  {
+    key: "domain",
+    name: { tr: "Muryōkūsho", en: "Unlimited Void" },
+    how: { tr: "D tuşu", en: "the D key" },
+    note: {
+      tr: "Alanı açtın. İçeride kimse yoktu — şanslısın.",
+      en: "You opened the domain. Nobody was inside — lucky you.",
+    },
+  },
+  {
+    key: "purple",
+    name: { tr: "Kyoshiki «Murasaki»", en: "Hollow Purple" },
+    how: { tr: "P tuşu", en: "the P key" },
+    note: {
+      tr: "İki ucu birleştirdin. Yolunda bir şey olsaydı artık olmazdı.",
+      en: "You brought the two poles together. Anything in its path would no longer exist.",
+    },
+  },
+  {
+    key: "hero",
+    name: { tr: "Altı kere", en: "Six times" },
+    how: { tr: "hero'daki işarete altı tıklama", en: "six clicks on the hero mark" },
+    note: {
+      tr: "Altı. Tesadüf değil.",
+      en: "Six. Not a coincidence.",
+    },
+  },
+  {
+    key: "konami",
+    name: { tr: "Eski kod", en: "The old code" },
+    how: { tr: "yukarı yukarı aşağı aşağı sol sağ sol sağ B A", en: "up up down down left right left right B A" },
+    note: {
+      tr: "Bu kodu bilenler benden yaşlı.",
+      en: "Anyone who knows this code is older than I am.",
+    },
+  },
+  {
+    key: "mochi",
+    name: { tr: "Kikufuku", en: "Kikufuku" },
+    how: { tr: "mochi kutusu", en: "the mochi box" },
+    note: {
+      tr: "Sendai'den. Tatlıya para harcamak zayıflık değil.",
+      en: "From Sendai. Spending money on sweets is not a weakness.",
+    },
+  },
+  {
+    key: "polaroid",
+    name: { tr: "Buruşuk polaroid", en: "Crumpled polaroid" },
+    how: { tr: "lise döneminden bir kare", en: "a frame from the high school years" },
+    note: {
+      tr: "Üç kişiydik. Sonra iki olduk.",
+      en: "There were three of us. Then there were two.",
+    },
+  },
+  {
+    key: "glasses",
+    name: { tr: "Yuvarlak gözlük", en: "Round glasses" },
+    how: { tr: "siyah yuvarlak güneş gözlüğü", en: "black round sunglasses" },
+    note: {
+      tr: "Bant değil bunlar. Bunlar tercih.",
+      en: "These are not the band. These are a choice.",
+    },
+  },
+];
+
+/** Mikro objelerin görsel yuvaları. */
+export const GOJO_S11_SLOTS = {
+  mochi: {
+    key: "goj:egg-mochi",
+    aspect: "1 / 1",
+    spec: {
+      tr: "Kikufuku mochi kutusu · izole ikonsu form · düşük poligon ya da illüstrasyon",
+      en: "Kikufuku mochi box · isolated icon-like form · low poly or illustration",
+    },
+  },
+  polaroid: {
+    key: "goj:egg-polaroid",
+    aspect: "1 / 1",
+    spec: {
+      tr: "Lise döneminden buruşmuş polaroid · izole ikonsu form",
+      en: "Crumpled polaroid from the high school years · isolated icon-like form",
+    },
+  },
+  glasses: {
+    key: "goj:egg-glasses",
+    aspect: "1 / 1",
+    spec: {
+      tr: "Siyah yuvarlak güneş gözlüğü · izole ikonsu form",
+      en: "Black round sunglasses · isolated icon-like form",
+    },
+  },
+} as const;

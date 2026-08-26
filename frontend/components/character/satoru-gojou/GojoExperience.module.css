@@ -1,0 +1,3940 @@
+/* ============================================================
+   DÜNYA DERİSİ — Satoru Gojō (AniList #127691)
+
+   ⚠️ SAYFADAKİ TEK HEX KAYNAĞI BU BLOK. Aşağıdaki hiçbir kuralda ve
+   hiçbir .tsx dosyasında hex yok (BRIEF · token sistemi + kural 4).
+   Denetim: `node scripts/check-karakter-hex.mjs` — deri bloğunu çıkarıp
+   geriye kalan her yerde hex arıyor.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı
+   gereği yerel bir sınıf şart; `:global([data-world=…])` derlemede
+   reddediliyor. Kök öğe ikisini birlikte taşır.
+
+   ── İKİ KATMAN, TEK BLOK ────────────────────────────────────────────
+   1. EV PALETİ (`--bg`, `--text-*`, `--accent`, `--goj-*`)
+      25 Ağustos 2026'da ölçülerek seçildi ve DEĞİŞTİRİLMEDİ. Site
+      kabuğu ve `check-karakter-kontrast.mjs` bu aileyi okuyor.
+   2. GOJŌ İKİ MOD (`--g-*`)
+      Bu sayfanın kendi tasarım katmanı. Her iki modun HAM değerleri
+      burada duruyor (`--g-bf-*` blindfold, `--g-se-*` sixeyes);
+      anlamsal isimler (`--g-void`, `--g-text`…) bunlara BAĞLANIYOR.
+
+   ── MOD DEĞİŞİMİ NEDEN BÖYLE ────────────────────────────────────────
+   Mod geçişi ikinci bir blokta anlamsal tokenları yeniden bağlamakla
+   oluyor ve o blokta TEK HEX YOK — sadece `var()`. Sebep teknik:
+   hex denetimi yalnızca `[data-world]` (+ isteğe bağlı `[data-vessel]`)
+   bloğunu muaf tutuyor, `[data-mode]` bloğunu muaf TUTMUYOR. Ham
+   değerleri tek bloğa toplamak hem denetimi geçiriyor hem de iki modun
+   paletini yan yana okunur kılıyor.
+   ============================================================ */
+.page[data-world="satoru-gojou"] {
+  --bg:             #05080c;
+  --surface:        #0d131a;
+  --surface-hover:  #151d26;
+  --border:         #1d2833;
+  --border-strong:  #2c3b49;
+
+  --text-primary:   #eef4f8;
+  --text-secondary: #a8b8c4;
+  --text-muted:     #93a4b2;
+
+  --accent:         #5fd0f0;
+  --accent-hover:   #8ae0fa;
+  --accent-muted:   #1c4c5e;
+
+  --gold:           #d0b878;
+  --warn:           #a6784a;
+  --danger:         #a6584a;
+
+  /* ── Yardımcı malzeme ailesi — yalnızca bu ağaç okur ──
+     ⚠️ ADLANDIRMA SÖZLEŞMESİ: küçük metinde kullanılan her yardımcı
+     rengin `-text` ekli bir kardeşi var; denetim yalnızca onları ölçüyor.
+     Ekli olmayanlar MALZEME (dolgu, gölge, ışık) — koyu olmak zorunda. */
+  --goj-blue:        #2f6fbf;
+  --goj-blue-text:   #7fb8e8;
+  --goj-red:         #b8443c;
+  --goj-red-text:    #e8867c;
+  --goj-purple:      #6f4fbf;
+  --goj-purple-text: #b79ae8;
+  --goj-band:        #171e26;
+
+  /* Yıkamalar ve ışıklar — dekoratif, metin taşımaz */
+  --goj-void:        color-mix(in srgb, #5fd0f0 8%, transparent);
+  --goj-glow-soft:   color-mix(in srgb, #5fd0f0 22%, transparent);
+  --goj-glow-strong: color-mix(in srgb, #5fd0f0 48%, transparent);
+  --goj-merge-glow:  color-mix(in srgb, #6f4fbf 55%, transparent);
+
+  /* ════════════════════════════════════════════════════════════
+     GOJŌ İKİ MOD · HAM DEĞERLER
+     Ölçüm 26 Ağustos 2026 (WCAG 2.1 göreli parlaklık).
+     ════════════════════════════════════════════════════════════ */
+
+  /* ── BLINDFOLD ──────────────────────────────────────────────
+     Metin ölçüleri:
+       text     #e5e5e5 / void  = 16.18   AAA
+       text     #e5e5e5 / surf  = 14.62   AAA
+       text-dim #8c8c8c / void  =  6.06   AA
+       text-dim #8c8c8c / surf  =  5.48   AA
+     accent / red / purple bu modda MALZEME: brief'in tezi gereği
+     gözbağlı modda renk neredeyse yok (1.42 / 2.03 / 1.86). Metin
+     taşımazlar; taşıyacakları yerde `-text` kardeşleri okunur. */
+  --g-bf-void:        #050505;
+  --g-bf-surface:     #141414;
+  --g-bf-text:        #e5e5e5;
+  --g-bf-text-dim:    #8c8c8c;
+  --g-bf-accent:      #2a2a2a;
+  --g-bf-accent-2:    #3a3a3a;
+  --g-bf-red:         #7f1d1d;
+  --g-bf-purple:      #4c1d95;
+  /* Malzemenin metin kardeşleri — ev paletiyle aynı aile.
+       #e8867c / surf = 7.13    #b79ae8 / surf = 7.72 */
+  --g-bf-red-text:    #e8867c;
+  --g-bf-purple-text: #b79ae8;
+
+  /* ── SIX EYES ───────────────────────────────────────────────
+     Metin ölçüleri:
+       text     #ffffff / void  = 21.00   AAA
+       text-dim #8fa8b8 / void  =  8.46   AAA
+       accent   #00e5ff / void  = 13.65   AAA
+       red      #ff003c / void  =  5.32   AA
+     ⚠️ İKİ DÜZELTME (BRIEF · erişilebilirlik tabanı: "sağlamayan değer
+     varsa token'ı düzelt ve neyi neden değiştirdiğini rapor et"):
+
+     1. Brief'in moru #b000ff zeminde 4.29 — gövde metni eşiğinin (4.5)
+        ALTINDA. Mor MALZEME olarak brief'teki değerde bırakıldı (ışın,
+        glow, kenar); metin için #c24dff kardeşi tanımlandı
+        (5.80 / void, 5.73 / surf). Aynı morun açığı, ton kaymıyor.
+
+     2. Kızıl #ff003c Six Eyes zemininde yeterli (5.32 / 5.26) ama
+        `-text` ailesi denetimde EV yüzeyine karşı da ölçülüyor ve
+        `--surface-hover` üzerinde 4.30'a düşüyor. Metin kardeşi
+        #ff2e57'ye yükseltildi — dört zeminin en düşüğü 4.68. Malzeme
+        kızılı (`--g-se-red`) brief'teki değerde kaldı. */
+  --g-se-void:        #000000;
+  --g-se-surface:     #020012;
+  --g-se-text:        #ffffff;
+  --g-se-text-dim:    #8fa8b8;
+  --g-se-accent:      #00e5ff;
+  --g-se-accent-2:    #00f0ff;
+  --g-se-red:         #ff003c;
+  --g-se-purple:      #b000ff;
+  --g-se-red-text:    #ff2e57;
+  --g-se-purple-text: #c24dff;
+
+  /* ── VARSAYILAN BAĞLAMA: BLINDFOLD ──────────────────────────
+     Sunucu bu modda çiziyor; JS inmeden önce sayfa gözbağlı. */
+  --g-void:        var(--g-bf-void);
+  --g-surface:     var(--g-bf-surface);
+  --g-text:        var(--g-bf-text);
+  --g-text-dim:    var(--g-bf-text-dim);
+  --g-accent:      var(--g-bf-accent);
+  --g-accent-2:    var(--g-bf-accent-2);
+  --g-red:         var(--g-bf-red);
+  --g-purple:      var(--g-bf-purple);
+  --g-red-text:    var(--g-bf-red-text);
+  --g-purple-text: var(--g-bf-purple-text);
+
+  /* ── ÖLÇÜ VE RİTİM ──────────────────────────────────────────
+     `--g-infinity` INFINITY FIELD'in yarıçapı: negatif alan kuralının
+     tek sayısal kaynağı. Bölümler bu değeri okuyup Gojō'ya ayrılmış
+     boşluğu hesaplıyor (BRIEF · "negatif alan = Infinity"). */
+  --g-wide:     min(100% - 2.5rem, 78rem);
+  --g-step:     clamp(4rem, 9vw, 8rem);
+  --g-gap:      clamp(1rem, 2.5vw, 2rem);
+  --g-infinity: clamp(8rem, 22vw, 18rem);
+  --g-swap:     400ms;
+
+  /* ════════════════════════════════════════════════════════════
+     BÖLÜM TOKENLARI · P01 · HERO
+
+     Dördü de çekirdekten TÜRETİLİYOR (BRIEF: "her bölüm kendi
+     tokenlarını tanımlar ve çekirdek tokenlardan türetir") — yani
+     bu bölüm için tek yeni hex yok. İkisi moda göre farklı çekirdek
+     token'a bağlandığı için mod önekli ara adımdan geçiyor.
+     ════════════════════════════════════════════════════════════ */
+  --g-bf-s01-negative: var(--g-bf-surface);
+  --g-se-s01-negative: var(--g-se-void);
+  /* Hale ve renk saçağı gözbağlı modda YOK: brief'in tezi gereği o modda
+     ışık yok. İkisi de `transparent` olduğu için AYNI bildirim iki modda
+     çalışıyor — hiçbir bileşen moda göre koşullu çizim yapmıyor. */
+  --g-bf-s01-halo:     transparent;
+  --g-se-s01-halo:     var(--g-se-accent);
+  --g-bf-s01-fringe:   transparent;
+  --g-se-s01-fringe:   var(--g-se-red);
+  /* Film greni yalnızca gözbağlı modda: Six Eyes'ta görüntü temiz. */
+  --g-bf-s01-grain:    0.055;
+  --g-se-s01-grain:    0;
+
+  --g-s01-bg:       var(--g-void);
+  --g-s01-text:     var(--g-text);
+  --g-s01-negative: var(--g-bf-s01-negative);
+  --g-s01-halo:     var(--g-bf-s01-halo);
+  --g-s01-fringe:   var(--g-bf-s01-fringe);
+  --g-s01-grain:    var(--g-bf-s01-grain);
+
+  /* ════════════════════════════════════════════════════════════
+     BÖLÜM TOKENLARI · P02 · THE STRONGEST
+
+     Ölçüm (26 Ağustos 2026):
+       #8c8c8c / #0a0a0a = 5.89   AA  — gövde metni
+       #a8a8a8 / #0a0a0a = 8.33   AAA — küçük punto
+       #eaeaea / #020012 = 17.26  AAA
+       #00f0ff / #020012 = 14.74  AAA
+     `--g-s02-accent` gözbağlı modda #111111 (zeminde 1.05): bu bir
+     MALZEME — görünmez duvarın ve vinyetin gövdesi, metin taşımıyor.
+     Brief'in notu doğrulandı: #8c8c8c gövde için yeterli, küçük punto
+     için #a8a8a8 kardeşi tanımlandı.
+     ════════════════════════════════════════════════════════════ */
+  --g-bf-s02-bg:          #0a0a0a;
+  --g-bf-s02-text:        #8c8c8c;
+  --g-bf-s02-text-strong: #a8a8a8;
+  --g-bf-s02-accent:      #111111;
+  --g-se-s02-bg:          var(--g-se-surface);
+  --g-se-s02-text:        #eaeaea;
+  --g-se-s02-text-strong: var(--g-se-text);
+  --g-se-s02-accent:      var(--g-se-accent-2);
+
+  --g-s02-bg:          var(--g-bf-s02-bg);
+  --g-s02-text:        var(--g-bf-s02-text);
+  --g-s02-text-strong: var(--g-bf-s02-text-strong);
+  --g-s02-accent:      var(--g-bf-s02-accent);
+
+  /* ════════════════════════════════════════════════════════════
+     BÖLÜM TOKENLARI · P03 · LIMITLESS
+
+     Zemin iki modda da zifiri (#000000): tünelin derinliği için
+     gereken tek şey mutlak siyah, o yüzden burada mod ayrımı YOK.
+     Izgara gözbağlı modda tek renk (#2a2a2a — malzeme, metin
+     taşımıyor); Six Eyes'ta dıştan içe spektral geçiş yapıyor:
+     #00d4ff (dış halkalar) → #ff003c (çekirdeğe yakın).
+     Kutucuk metni ayrı bir token okuyor, ölçüldü:
+       #8c8c8c / #000000 = 6.06   AA
+       #8fa8b8 / #000000 = 8.46   AAA
+     ════════════════════════════════════════════════════════════ */
+  --g-s03-bg:             var(--g-se-void);
+  --g-bf-s03-grid:        var(--g-bf-accent);
+  --g-bf-s03-grid-core:   var(--g-bf-accent);
+  --g-se-s03-grid:        #00d4ff;
+  --g-se-s03-grid-core:   var(--g-se-red);
+
+  --g-s03-grid:      var(--g-bf-s03-grid);
+  --g-s03-grid-core: var(--g-bf-s03-grid-core);
+  --g-s03-text:      var(--g-text-dim);
+
+  /* ════════════════════════════════════════════════════════════
+     BÖLÜM TOKENLARI · P04 · CURSED TECHNIQUES
+
+     Gözbağlı mod SOLUK, Six Eyes NEON — aynı üç rengin iki hâli.
+     Üç şerit rengi de MALZEME (dolgu, ışın, kenar); metin taşımıyor.
+     Şeritlerin metni `--g-s04-text` okuyor, ölçüldü:
+       #a8a8a8 / #080808 = 8.42   AAA   (gözbağlı)
+       #ffffff / #000000 = 21.00  AAA   (six eyes)
+     Metin taşıyan renkli tek yer birleşim satırı; o da mor yerine
+     `--g-purple-text` kardeşini okuyor (#b79ae8 / #c24dff).
+     ════════════════════════════════════════════════════════════ */
+  --g-bf-s04-bg:     #080808;
+  --g-bf-s04-blue:   #1e3a8a;
+  --g-bf-s04-red:    var(--g-bf-red);
+  --g-bf-s04-purple: var(--g-bf-purple);
+  --g-bf-s04-text:   #a8a8a8;
+  --g-se-s04-bg:     var(--g-se-void);
+  --g-se-s04-blue:   var(--g-se-accent-2);
+  --g-se-s04-red:    var(--g-se-red);
+  --g-se-s04-purple: var(--g-se-purple);
+  --g-se-s04-text:   var(--g-se-text);
+
+  --g-s04-bg:     var(--g-bf-s04-bg);
+  --g-s04-blue:   var(--g-bf-s04-blue);
+  --g-s04-red:    var(--g-bf-s04-red);
+  --g-s04-purple: var(--g-bf-s04-purple);
+  --g-s04-text:   var(--g-bf-s04-text);
+
+  /* ════════════════════════════════════════════════════════════
+     BÖLÜM TOKENLARI · P05 · UNLIMITED VOID
+
+     ⚠️ GEMINI'NİN ORİJİNAL YÖNÜ BURADA DEĞİŞTİRİLDİ. Gözbağlı mod
+     için "#FFFFFF zemin + kör edici anlık beyaz patlamalar"
+     öneriliyordu. Uygulanmadı: nöbet riski ve hareket sözleşmesi
+     ihlali. Yerine İNVERSİYON KORUNDU ama yumuşatıldı —
+     zemin #f2f2f2 (saf beyaz değil), geçiş en az 300ms rampalı ve
+     saniyede en fazla bir parlaklık geçişi.
+
+     Ölçüm:
+       #000000 / #f2f2f2 = 18.76  AAA   (gözbağlı, inversiyon)
+       #ffffff / #000000 = 21.00  AAA   (six eyes)
+       #ffffff / #2c0055 = 16.96  AAA   (nebula lekesi üzerinde)
+       #ffffff / #0e002b = 19.93  AAA
+     ════════════════════════════════════════════════════════════ */
+  --g-bf-s05-bg:      #f2f2f2;
+  --g-bf-s05-ink:     #000000;
+  --g-bf-s05-nebula1: transparent;
+  --g-bf-s05-nebula2: transparent;
+  --g-se-s05-bg:      var(--g-se-void);
+  --g-se-s05-ink:     var(--g-se-text);
+  --g-se-s05-nebula1: #0e002b;
+  --g-se-s05-nebula2: #2c0055;
+
+  --g-s05-bg:      var(--g-bf-s05-bg);
+  --g-s05-ink:     var(--g-bf-s05-ink);
+  --g-s05-nebula1: var(--g-bf-s05-nebula1);
+  --g-s05-nebula2: var(--g-bf-s05-nebula2);
+
+  /* ════════════════════════════════════════════════════════════
+     BÖLÜM TOKENLARI · P06 · THE MAKING OF THE STRONGEST
+
+     Palet çizelge boyunca KAYIYOR: Hidden Inventory'de soğuk gümüş,
+     Getō'nun ayrılışında sıcaklık kaybı, Shibuya'da kızıl baskın.
+     Kayma `--g-s06-tone` üzerinden yapılıyor — her durak kendi
+     karışım oranını veriyor, yeni renk tanımlanmıyor.
+
+     Ölçüm:
+       #d1d5db / #191919 = 11.93  AAA
+       #a8a8a8 / #191919 =  7.39  AAA   (küçük punto)
+       #e8f4f8 / #050510 = 18.08  AAA
+       #00bfff / #050510 =  9.56  AAA
+     ⚠️ Brief'in `--g-s06-accent` gözbağlı değeri #8c8c8c zeminde 5.23:
+     gövde için yeterli ama küçük künye satırları için #a8a8a8 kardeşi
+     tanımlandı.
+     ════════════════════════════════════════════════════════════ */
+  --g-bf-s06-bg:     #191919;
+  --g-bf-s06-accent: #8c8c8c;
+  --g-bf-s06-quiet:  #a8a8a8;
+  --g-bf-s06-text:   #d1d5db;
+  --g-se-s06-bg:     #050510;
+  --g-se-s06-accent: #00bfff;
+  --g-se-s06-quiet:  var(--g-se-text-dim);
+  --g-se-s06-text:   #e8f4f8;
+
+  --g-s06-bg:     var(--g-bf-s06-bg);
+  --g-s06-accent: var(--g-bf-s06-accent);
+  --g-s06-quiet:  var(--g-bf-s06-quiet);
+  --g-s06-text:   var(--g-bf-s06-text);
+  /* Duraklarda kızıla kayan ton — nihai uç `--g-red`. */
+  --g-s06-heat:   var(--g-red);
+
+  /* ════════════════════════════════════════════════════════════
+     BÖLÜM TOKENLARI · P07 · GOJŌ × GETŌ
+
+     Yin & yang: gözbağlı modda Gojō tarafı AÇIK zemin, Getō tarafı
+     koyu. Sayfadaki tek başka açık yüzey P05'in inversiyonu —
+     ikisi de bilinçli, çünkü ikisi de bir KARŞITLIK anlatıyor.
+
+     Ölçüm:
+       #1f2937 / #f3f4f6 = 13.34  AAA   (Gojō tarafı metni)
+       #f3f4f6 / #1f2937 = 13.34  AAA   (Getō tarafı metni)
+       #00d4ff / #000000 = 11.86  AAA
+       #fbbf24 / #020012 = 12.44  AAA
+       #10b981 / #020012 =  8.19  AAA
+     ════════════════════════════════════════════════════════════ */
+  --g-bf-s07-left-bg:    #f3f4f6;
+  --g-bf-s07-left-ink:   #1f2937;
+  --g-bf-s07-right-bg:   #1f2937;
+  --g-bf-s07-right-ink:  #f3f4f6;
+  --g-bf-s07-left-tone:  #374151;
+  --g-bf-s07-right-tone: #e5e7eb;
+  --g-se-s07-left-bg:    var(--g-se-void);
+  --g-se-s07-left-ink:   var(--g-se-text);
+  --g-se-s07-right-bg:   var(--g-se-surface);
+  --g-se-s07-right-ink:  var(--g-se-text);
+  --g-se-s07-left-tone:  #00d4ff;
+  --g-se-s07-right-tone: #fbbf24;
+  /* Getō'nun ikinci vurgusu — lanet yeşili. Yalnızca çatlakta. */
+  --g-bf-s07-rift:       #10b981;
+  --g-se-s07-rift:       #10b981;
+
+  --g-s07-left-bg:    var(--g-bf-s07-left-bg);
+  --g-s07-left-ink:   var(--g-bf-s07-left-ink);
+  --g-s07-right-bg:   var(--g-bf-s07-right-bg);
+  --g-s07-right-ink:  var(--g-bf-s07-right-ink);
+  --g-s07-left-tone:  var(--g-bf-s07-left-tone);
+  --g-s07-right-tone: var(--g-bf-s07-right-tone);
+  --g-s07-rift:       var(--g-bf-s07-rift);
+
+  /* ════════════════════════════════════════════════════════════
+     BÖLÜM TOKENLARI · P08 · CONNECTIONS
+
+     Gözbağlı modda yedi yörünge de TEK renk (#444444 — malzeme,
+     zeminde 2.16). Six Eyes'ta her karakterin kendi rengi açılıyor.
+
+     ⚠️ KARAKTER RENKLERİ METİN TAŞIMIYOR. Ölçüldü (#03001c zemin):
+       geto   #fbbf24 = 12.33   nanami #c9a227 = 8.51
+       shoko  #8fa8b8 =  8.29   toji   #ff003c = 5.21
+       yuji   #e63946 =  4.94   yuta   #7b2cbf = 2.90  ✗
+       megumi #1d3557 =  1.66  ✗
+     Yuta ve Megumi gövde metni eşiğinin ALTINDA. Renkleri brief'teki
+     değerde bırakıldı çünkü yalnızca YÖRÜNGE ÇİZGİSİ ve ışık olarak
+     kullanılıyorlar; düğüm adları ve açıklamalar `--g-text` /
+     `--g-text-dim` okuyor (ikisi de iki zeminde de AAA). Böylece
+     renkleri bozmadan eşik korunuyor.
+     ════════════════════════════════════════════════════════════ */
+  --g-bf-s08-bg:   var(--g-se-void);
+  --g-se-s08-bg:   #03001c;
+  --g-bf-s08-line: #444444;
+
+  /* Six Eyes'ta karakter bazlı yörünge renkleri */
+  --g-s08-toji:   #ff003c;
+  --g-s08-geto:   #fbbf24;
+  --g-s08-shoko:  #8fa8b8;
+  --g-s08-nanami: #c9a227;
+  --g-s08-yuta:   #7b2cbf;
+  --g-s08-megumi: #1d3557;
+  --g-s08-yuji:   #e63946;
+
+  --g-s08-bg:   var(--g-bf-s08-bg);
+  /* Gözbağlı modda düğümün kendi rengi DEVRE DIŞI: `--g-s08-line`
+     her düğümde aynı. Six Eyes bloğu bunu düğüm rengine bağlıyor. */
+  --g-s08-line: var(--g-bf-s08-line);
+
+  /* ════════════════════════════════════════════════════════════
+     BÖLÜM TOKENLARI · P09 · POWER ANALYSIS
+
+     HUD. Gözbağlı modda tek renk fosfor yeşili, Six Eyes'ta iki
+     renkli terminal. Ölçüm:
+       #33ff33 / #111111 = 13.93  AAA
+       #00f0ff / #000511 = 14.48  AAA
+       #ff0055 / #000511 =  5.23  AA   (taşma işareti)
+     Üçü de metin taşıyabiliyor — bu bölümün gövdesi zaten TAMAMEN
+     mono ve renkli.
+     ════════════════════════════════════════════════════════════ */
+  --g-bf-s09-bg:    #111111;
+  --g-bf-s09-hud:   #33ff33;
+  --g-bf-s09-alarm: #33ff33;
+  --g-se-s09-bg:    #000511;
+  --g-se-s09-hud:   var(--g-se-accent-2);
+  --g-se-s09-alarm: #ff0055;
+
+  --g-s09-bg:    var(--g-bf-s09-bg);
+  --g-s09-hud:   var(--g-bf-s09-hud);
+  --g-s09-alarm: var(--g-bf-s09-alarm);
+
+  /* ════════════════════════════════════════════════════════════
+     BÖLÜM TOKENLARI · P10 · CAN YOU TOUCH GOJŌ?
+
+     Ekranın neredeyse tamamı negatif alan. Gözbağlı modda çarpışma
+     yalnızca bir doku farkı (#141414 — malzeme); Six Eyes'ta beyaz
+     bir çarpışma merkezi ve kenarlara kızıl-mor gradyan.
+     Metin `--g-text` / `--g-text-dim` okuyor: ikisi de iki zeminde
+     AAA (#e5e5e5/#0a0a0a = 15.72, #ffffff/#000000 = 21.00).
+     ════════════════════════════════════════════════════════════ */
+  --g-bf-s10-bg:     #0a0a0a;
+  --g-bf-s10-warp:   #141414;
+  --g-bf-s10-impact: #141414;
+  --g-se-s10-bg:     var(--g-se-void);
+  --g-se-s10-warp:   var(--g-se-purple);
+  --g-se-s10-impact: var(--g-se-text);
+
+  --g-s10-bg:     var(--g-bf-s10-bg);
+  --g-s10-warp:   var(--g-bf-s10-warp);
+  --g-s10-impact: var(--g-bf-s10-impact);
+
+  /* ════════════════════════════════════════════════════════════
+     BÖLÜM TOKENLARI · P11 · EASTER EGGS
+
+     ⚠️ GEMINI'NİN İKON RENGİ DÜZELTİLDİ. `#000000` zemin üzerinde
+     `#050505` (kontrast 1.02) hem görülemez hem odakla bulunamazdı.
+     `#1a1a1a` seçildi — zeminde 1.27, yani hâlâ zor fark ediliyor
+     ama ekranda GERÇEKTEN var. Odaklandığında `--g-accent-2`
+     halkası çiziliyor, yani klavyeyle KEŞFEDİLEBİLİR.
+
+     ⚠️ Mikro objeler METİN TAŞIMIYOR; adları yalnızca keşfedildikten
+     sonra kayıtta, `--g-text` ile görünüyor (iki zeminde de AAA).
+     ════════════════════════════════════════════════════════════ */
+  --g-bf-s11-bg:    var(--g-se-void);
+  --g-bf-s11-icon:  #1a1a1a;
+  --g-bf-s11-found: var(--g-bf-text-dim);
+  --g-se-s11-bg:    var(--g-se-void);
+  --g-se-s11-icon:  #1a1a1a;
+  /* Keşfedildiğinde açılan spot renkler */
+  --g-se-s11-mochi: #ffc0cb;
+  --g-se-s11-glass: #ff00ff;
+
+  --g-s11-bg:    var(--g-bf-s11-bg);
+  --g-s11-icon:  var(--g-bf-s11-icon);
+  --g-s11-found: var(--g-bf-s11-found);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SIX EYES — anlamsal tokenların yeniden bağlanması.
+
+   ⚠️ BU BLOKTA HEX YOK ve OLMAYACAK. Yeni bir renk gerekiyorsa ham
+   değeri yukarıdaki deri bloğuna `--g-se-*` olarak eklenir, buraya
+   yalnızca bağlama satırı gelir. Denetim bu bloğu muaf tutmuyor.
+
+   Hiçbir bileşen moda göre koşullu render yapmıyor (tek istisna
+   `RevealedData`, gerekçesi kendi dosyasında): mod değişimi tek bir
+   öznitelikle burada oluyor.
+   ════════════════════════════════════════════════════════════════ */
+.page[data-world="satoru-gojou"][data-mode="sixeyes"] {
+  --g-void:        var(--g-se-void);
+  --g-surface:     var(--g-se-surface);
+  --g-text:        var(--g-se-text);
+  --g-text-dim:    var(--g-se-text-dim);
+  --g-accent:      var(--g-se-accent);
+  --g-accent-2:    var(--g-se-accent-2);
+  --g-red:         var(--g-se-red);
+  --g-purple:      var(--g-se-purple);
+  --g-red-text:    var(--g-se-red-text);
+  --g-purple-text: var(--g-se-purple-text);
+
+  /* P01 — yalnızca moda göre AYRIŞAN ikisi yeniden bağlanıyor;
+     `--g-s01-bg` ve `--g-s01-text` zaten çekirdeği izliyor. */
+  --g-s01-negative: var(--g-se-s01-negative);
+  --g-s01-halo:     var(--g-se-s01-halo);
+  --g-s01-fringe:   var(--g-se-s01-fringe);
+  --g-s01-grain:    var(--g-se-s01-grain);
+
+  /* P02 */
+  --g-s02-bg:          var(--g-se-s02-bg);
+  --g-s02-text:        var(--g-se-s02-text);
+  --g-s02-text-strong: var(--g-se-s02-text-strong);
+  --g-s02-accent:      var(--g-se-s02-accent);
+
+  /* P03 — zemin iki modda da aynı, yalnızca ızgara ayrışıyor */
+  --g-s03-grid:      var(--g-se-s03-grid);
+  --g-s03-grid-core: var(--g-se-s03-grid-core);
+
+  /* P04 — soluk üçlü neon üçlüye dönüyor */
+  --g-s04-bg:     var(--g-se-s04-bg);
+  --g-s04-blue:   var(--g-se-s04-blue);
+  --g-s04-red:    var(--g-se-s04-red);
+  --g-s04-purple: var(--g-se-s04-purple);
+  --g-s04-text:   var(--g-se-s04-text);
+
+  /* P05 — inversiyon kalkıyor, kozmik boşluk açılıyor */
+  --g-s05-bg:      var(--g-se-s05-bg);
+  --g-s05-ink:     var(--g-se-s05-ink);
+  --g-s05-nebula1: var(--g-se-s05-nebula1);
+  --g-s05-nebula2: var(--g-se-s05-nebula2);
+
+  /* P06 */
+  --g-s06-bg:     var(--g-se-s06-bg);
+  --g-s06-accent: var(--g-se-s06-accent);
+  --g-s06-quiet:  var(--g-se-s06-quiet);
+  --g-s06-text:   var(--g-se-s06-text);
+
+  /* P07 — inversiyon kalkıyor, iki taraf da karanlığa dönüyor */
+  --g-s07-left-bg:    var(--g-se-s07-left-bg);
+  --g-s07-left-ink:   var(--g-se-s07-left-ink);
+  --g-s07-right-bg:   var(--g-se-s07-right-bg);
+  --g-s07-right-ink:  var(--g-se-s07-right-ink);
+  --g-s07-left-tone:  var(--g-se-s07-left-tone);
+  --g-s07-right-tone: var(--g-se-s07-right-tone);
+  --g-s07-rift:       var(--g-se-s07-rift);
+
+  /* P08 — yörünge rengi düğümün kendi rengine bağlanıyor.
+     `--node-tone` her düğümün kendi kutusunda tanımlı; gözbağlı modda
+     bu satır olmadığı için hepsi tek gri kalıyor. */
+  --g-s08-bg:   var(--g-se-s08-bg);
+  --g-s08-line: var(--node-tone, var(--g-se-accent));
+
+  /* P09 — tek renk fosfor yeşili, iki renkli terminale dönüyor */
+  --g-s09-bg:    var(--g-se-s09-bg);
+  --g-s09-hud:   var(--g-se-s09-hud);
+  --g-s09-alarm: var(--g-se-s09-alarm);
+
+  /* P10 — doku farkı, çarpışma merkezine dönüyor */
+  --g-s10-bg:     var(--g-se-s10-bg);
+  --g-s10-warp:   var(--g-se-s10-warp);
+  --g-s10-impact: var(--g-se-s10-impact);
+
+  /* P11 — keşfedilen objeler Six Eyes'ta kendi spot rengini alıyor */
+  --g-s11-bg:    var(--g-se-s11-bg);
+  --g-s11-icon:  var(--g-se-s11-icon);
+  --g-s11-found: var(--g-se-text-dim);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SAYFA KABUĞU
+
+   ⚠️ Kök `<main>` DEĞİL — kök düzen zaten `<main id="icerik">` çiziyor
+   (ev sözleşmesi, KARAKTER-SAYFASI-EKLEME.md §1.4).
+   ════════════════════════════════════════════════════════════════ */
+.page {
+  background: var(--g-void);
+  color: var(--g-text);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  min-height: 100vh;
+  padding-block: clamp(1.5rem, 4vw, 3rem) var(--g-step);
+  /* Taşan tipografi sayfayı yatay kaydırmasın (375px kabul kriteri).
+     `clip`, `hidden` değil: kaydırma bağlamı üretmiyor, yani sticky
+     bölümler bozulmuyor. */
+  overflow-x: clip;
+  /* Mod geçişi 400ms (BRIEF · ikili mod). Renk kanalları token'dan
+     geldiği için tek bir geçiş bütün sayfayı taşıyor. */
+  transition:
+    background-color var(--g-swap) ease,
+    color var(--g-swap) ease;
+}
+
+.shell {
+  width: var(--g-wide);
+  margin-inline: auto;
+}
+
+/* ── Breadcrumb ───────────────────────────────────────────────── */
+.crumb {
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-block-end: var(--g-step);
+}
+
+.crumbLink {
+  color: var(--g-text-dim);
+  text-decoration: none;
+  border-block-end: 1px solid transparent;
+  padding-block-end: 0.15em;
+  transition: color var(--g-swap) ease;
+}
+
+.crumbLink:hover,
+.crumbLink:focus-visible {
+  color: var(--g-text);
+  border-block-end-color: color-mix(in srgb, var(--g-text) 45%, transparent);
+}
+
+/* ── Başlık ───────────────────────────────────────────────────── */
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--g-gap);
+  margin-block-end: var(--g-step);
+}
+
+/* Karakterin özgün adı — hero'nun merkezinde, portrenin altında.
+   Sayfa başlığı DEĞİL (o hero'daki `<h1>`); bu bir künye satırı. */
+.titleNative {
+  display: block;
+  font-family: var(--gojo-font-jp), system-ui, sans-serif;
+  font-size: clamp(0.9rem, 2.2vw, 1.35rem);
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  color: var(--g-text-dim);
+  margin: 0;
+  transition: color var(--g-swap) ease;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   MOD DÜĞMESİ
+   ════════════════════════════════════════════════════════════════ */
+.modeBar {
+  display: flex;
+  align-items: center;
+  gap: var(--g-gap);
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: var(--touch-min);
+  padding: 0.5rem 1rem;
+  background: var(--g-surface);
+  border: 1px solid color-mix(in srgb, var(--g-text) 22%, transparent);
+  border-radius: 999px;
+  color: var(--g-text);
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    background-color var(--g-swap) ease,
+    border-color var(--g-swap) ease,
+    color var(--g-swap) ease;
+}
+
+.toggle:hover {
+  border-color: color-mix(in srgb, var(--g-accent-2) 70%, transparent);
+}
+
+.toggle:focus-visible {
+  outline: 2px solid var(--g-accent-2);
+  outline-offset: 3px;
+}
+
+/* Durum lambası. `aria-pressed` zaten durumu bildiriyor; bu yalnızca
+   görsel karşılığı — ekran okuyucudan gizli. */
+.toggleTrack {
+  inline-size: 2.2rem;
+  block-size: 0.75rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--g-text) 18%, transparent);
+  position: relative;
+  flex: none;
+}
+
+.toggleThumb {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 0.1rem;
+  inline-size: 0.55rem;
+  block-size: 0.55rem;
+  border-radius: 50%;
+  background: var(--g-text-dim);
+  translate: 0 -50%;
+  transition:
+    translate var(--g-swap) ease,
+    background-color var(--g-swap) ease,
+    box-shadow var(--g-swap) ease;
+}
+
+.toggle[aria-pressed="true"] .toggleThumb {
+  translate: 1.35rem -50%;
+  background: var(--g-accent);
+  box-shadow: 0 0 10px 2px color-mix(in srgb, var(--g-accent) 55%, transparent);
+}
+
+.toggleText {
+  white-space: nowrap;
+}
+
+/* Kısayol ipucu — dokunmatikte anlamsız, gizleniyor. */
+.toggleKey {
+  color: var(--g-text-dim);
+  font-size: 0.65rem;
+}
+
+@media (pointer: coarse) {
+  .toggleKey {
+    display: none;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   BÖLÜM SARMALAYICISI
+   ════════════════════════════════════════════════════════════════ */
+.section {
+  position: relative;
+  margin-block-end: var(--g-step);
+  /* Negatif alan kuralının taban ölçüsü: her bölüm Gojō'ya ayrılmış
+     boşluğu bu değerden hesaplıyor (BRIEF · UNTOUCHABLE). */
+  --g-field: var(--g-infinity);
+}
+
+.sectionInner {
+  position: relative;
+}
+
+.sectionTitle {
+  font-family: var(--gojo-font-display), system-ui, sans-serif;
+  font-variation-settings: "wdth" 112;
+  font-size: clamp(1.1rem, 2.6vw, 1.6rem);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--g-text);
+  margin: 0 0 var(--g-gap);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   GİZLİ VERİ KATMANI
+
+   DOM'da HER ZAMAN var; blindfold'da maske görünüyor, Six Eyes'ta
+   gerçek değer. Görünürlük kararı SADECE CSS — JS ile enjekte
+   edilseydi ne arama motoru ne de çeviri katmanı görürdü.
+   ════════════════════════════════════════════════════════════════ */
+.revealed {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5ch;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+}
+
+.revealedLabel {
+  color: var(--g-text-dim);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.revealedMask,
+.revealedValue {
+  transition:
+    opacity var(--g-swap) ease,
+    color var(--g-swap) ease;
+}
+
+.revealedMask {
+  color: var(--g-text-dim);
+  letter-spacing: 0.2em;
+}
+
+.revealedValue {
+  color: var(--g-accent);
+  font-weight: 700;
+}
+
+/* İkisi de DOM'da kalıyor; yalnızca hangisinin çizileceği değişiyor. */
+.page[data-mode="blindfold"] .revealedValue {
+  display: none;
+}
+
+.page[data-mode="sixeyes"] .revealedMask {
+  display: none;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   KÜRATÖR YUVASI
+
+   Üç durum: görsel var / tasarlanmış boşluk / küratör iskelesi.
+   ⚠️ Görsel yokken `<img>` HİÇ basılmıyor — boş yuvalı bir sayfada
+   her açılışta N tane 404 üretmek konsolu kirletir ve bağlantı
+   havuzunu boşa harcar (futbol kanadında ölçülmüş arıza).
+   ════════════════════════════════════════════════════════════════ */
+.slot {
+  position: relative;
+  display: block;
+  inline-size: 100%;
+  /* Oran SABİT: yuva boşken de yer kaplıyor, yani görsel sonradan
+     bağlandığında layout kaymıyor (CLS ≈ 0). */
+  aspect-ratio: var(--slot-ratio, 16 / 9);
+}
+
+.slotClip {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 2px;
+}
+
+.slotImage {
+  object-fit: cover;
+}
+
+/* Ziyaretçinin gördüğü boşluk — yazısız, tasarlanmış, saf CSS. */
+.slotVeil {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(
+      circle at 50% 45%,
+      color-mix(in srgb, var(--g-accent) 14%, transparent),
+      transparent 68%
+    ),
+    var(--g-surface);
+  border: 1px solid color-mix(in srgb, var(--g-text) 10%, transparent);
+}
+
+.slotGlyph {
+  font-family: var(--gojo-font-jp), system-ui, sans-serif;
+  font-size: clamp(2rem, 8vw, 4rem);
+  color: color-mix(in srgb, var(--g-text) 14%, transparent);
+  user-select: none;
+}
+
+/* Küratörün gördüğü iskele — kadraj notu, önerilen boyut, yuva kimliği.
+   Yalnızca yöneticinin DOM'unda; anahtar kapalıyken `CuratorFrame`
+   mekanizması CSS ile gizliyor. */
+.slotHolder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 0.35rem;
+  padding: 0.75rem;
+  background: color-mix(in srgb, var(--g-void) 72%, transparent);
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.68rem;
+  line-height: 1.4;
+  text-align: start;
+}
+
+.slotHolderMeta {
+  color: var(--g-accent);
+  letter-spacing: 0.08em;
+}
+
+.slotHolderHint {
+  color: var(--g-text);
+}
+
+.slotHolderId {
+  color: var(--g-text-dim);
+  word-break: break-all;
+}
+
+/* ── Klavye kısayolları — ekran okuyucu karşılığı ── */
+.shortcuts {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   ERİŞİLEBİLİRLİK YARDIMCILARI
+   ════════════════════════════════════════════════════════════════ */
+.srOnly {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   HAREKET SÖZLEŞMESİ · BATTANİYE
+
+   `prefers-reduced-motion: reduce` altında geçişler ANINDA olur ama
+   YİNE ÇALIŞIR — mod değişimi bir animasyon değil, bir bilgi katmanı
+   (BRIEF · hareket sözleşmesi kural 1). Bilgi kaybı yok.
+   ════════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .page[data-world="satoru-gojou"] {
+    --g-swap: 0ms;
+  }
+
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   P01 · HERO — radyal, merkezkaç
+
+   ── NEGATİF ALAN BİR DÜZEN KURALI ───────────────────────────────
+   Sayfanın tezi burada ilk kez YAPISAL olarak uygulanıyor: merkezde
+   Gojō'ya ayrılmış, yarıçapı `--g-infinity` olan bir bölge var ve
+   oraya HİÇBİR şey giremez. Dev başlık o bölgeye yaklaştıkça
+   saydamlaşarak kesiliyor — bunu bir maske yapıyor, yani kural
+   JS'e değil DÜZENE ait. Efekt dosyası hiç inmese de geçerli.
+
+   ⚠️ Maskelenen yazının DOM karşılığı bozulmuyor: `.heroTitle`
+   görsel katman, yanındaki `sr-only` başlık okunabilir karşılığı.
+
+   ── EFEKT JS'İ OLMADAN TAM RENDER ───────────────────────────────
+   BRIEF · kabul kriteri: "Hero, efekt JS'i yüklenmeden tam olarak
+   render oluyor." Aşağıdaki her şey statik CSS. `InfinityField`
+   yalnızca iki özel değer yazıyor (`--g-par-x/y`); yazılmazsa
+   varsayılanları 0 ve kompozisyon aynı duruyor.
+   ════════════════════════════════════════════════════════════════ */
+.hero {
+  position: relative;
+  /* Tam genişlik: hero `.shell`in DIŞINDA, doğrudan sayfa kökünün
+     çocuğu — dev başlığın viewport sınırlarından taşması gerekiyor.
+     `clip` seçildi, `hidden` DEĞİL: `hidden` bir kaydırma bağlamı
+     üretir ve ilerideki `position: sticky` bölümlerini bozardı.
+     ⚠️ `100vw` KULLANILMIYOR — kaydırma çubuğunun genişliği kadar
+     yatay taşma üretiyor (375px kabul kriteri). */
+  inline-size: 100%;
+  overflow-x: clip;
+  background: var(--g-s01-bg);
+  padding-block: var(--g-step);
+  /* Parallax'ın varsayılanı SIFIR: JS inmezse hiçbir şey kaymaz. */
+  --g-par-x: 0px;
+  --g-par-y: 0px;
+  /* INFINITY'nin imlece tepkisi. 1 = dinlenme hâli.
+     `InfinityField` imleç merkeze yaklaştıkça bunu büyütüyor, yani
+     negatif alan GENİŞLİYOR ve yazı daha da geri çekiliyor. Kuralın
+     birebir görsel karşılığı: yaklaştıkça mesafe açılıyor. */
+  --g-push: 1;
+}
+
+/* Film greni — yalnızca gözbağlı modda görünür (`--g-s01-grain`).
+   Türbülans SVG'si renk literali taşımıyor; opaklık token'dan geliyor. */
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: var(--g-s01-grain);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23g)'/%3E%3C/svg%3E");
+  transition: opacity var(--g-swap) ease;
+}
+
+.heroGrid {
+  position: relative;
+  z-index: 1;
+  inline-size: var(--g-wide);
+  margin-inline: auto;
+  display: grid;
+  gap: var(--g-gap);
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  grid-template-rows: auto minmax(var(--g-step), 1fr) auto;
+  min-block-size: min(88svh, 54rem);
+  align-items: center;
+}
+
+/* ── Dev başlık ─────────────────────────────────────────────────
+   Izgaranın DIŞINDA, mutlak konumlu: hiçbir ızgara hücresine ait
+   değil, sayfanın kendisine ait. Portrenin ARKASINDA (z-index 0)
+   ki katman sırası "boşluk → bükülmüş tipografi → net Gojō" olsun. */
+.heroTitleLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.heroTitle {
+  margin: 0;
+  font-family: var(--gojo-font-display), system-ui, sans-serif;
+  /* Genişlik ekseni 125: brief'in "expanded / brutalist" sesi ayrı bir
+     sıkıştırılmış aile yüklemeden tek dosyadan geliyor. */
+  font-variation-settings: "wdth" 125;
+  font-weight: 700;
+  font-size: clamp(4.5rem, 21vw, 20rem);
+  line-height: 0.82;
+  letter-spacing: -0.03em;
+  text-align: center;
+  white-space: nowrap;
+  color: var(--g-s01-text);
+  /* Kromatik sapma: iki saçak, her biri 2px — brief'in üst sınırı.
+     Gözbağlı modda iki token da `transparent`, yani AYNI bildirim
+     orada hiçbir şey çizmiyor. Koşullu render yok. */
+  text-shadow:
+    -2px 0 0 color-mix(in srgb, var(--g-s01-halo) 50%, transparent),
+    2px 0 0 color-mix(in srgb, var(--g-s01-fringe) 40%, transparent);
+  translate: calc(var(--g-par-x) * -1) calc(var(--g-par-y) * -1);
+  transition:
+    color var(--g-swap) ease,
+    text-shadow var(--g-swap) ease;
+
+  /* ⚠️ INFINITY. Merkezdeki daire içinde yazı YOK; kenara doğru
+     kademeli olarak beliriyor. Yarıçap `--g-infinity` — sayfadaki
+     negatif alan kuralının tek sayısal kaynağı. */
+  --heroMask: radial-gradient(
+    circle calc(var(--g-infinity) * var(--g-push)) at 50% 50%,
+    transparent 0%,
+    transparent 56%,
+    black 94%
+  );
+  -webkit-mask-image: var(--heroMask);
+  mask-image: var(--heroMask);
+}
+
+/* ── Merkez: portre + Japonca satır ─────────────────────────────── */
+.heroCenter {
+  grid-column: 2;
+  grid-row: 2;
+  position: relative;
+  z-index: 2;
+  display: grid;
+  justify-items: center;
+  gap: var(--g-gap);
+  translate: var(--g-par-x) var(--g-par-y);
+}
+
+.heroPortrait {
+  position: relative;
+  inline-size: clamp(13rem, 30vw, 23rem);
+}
+
+/* Six Eyes halesi — portrenin arkasından dışa vuran ışık.
+   Gözbağlı modda `--g-s01-halo` saydam, yani hale hiç yok. */
+.heroHalo {
+  position: absolute;
+  inset: -18%;
+  z-index: -1;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at 50% 45%,
+    color-mix(in srgb, var(--g-s01-halo) 34%, transparent),
+    transparent 70%
+  );
+  transition: background var(--g-swap) ease;
+}
+
+.heroJa {
+  font-family: var(--gojo-font-jp), system-ui, sans-serif;
+  font-size: clamp(0.85rem, 2vw, 1.25rem);
+  letter-spacing: 0.18em;
+  color: var(--g-text-dim);
+  text-align: center;
+  margin: 0;
+  transition: color var(--g-swap) ease;
+}
+
+.heroStrongest {
+  font-family: var(--gojo-font-display), system-ui, sans-serif;
+  font-variation-settings: "wdth" 125;
+  font-size: clamp(0.9rem, 2.4vw, 1.6rem);
+  font-weight: 700;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: var(--g-s01-text);
+  text-align: center;
+  margin: 0;
+  /* Harf aralığı sağdan boşluk bırakıyor; optik olarak ortalamak için. */
+  text-indent: 0.42em;
+}
+
+/* ── Sağ üst: tarama koordinatları ──────────────────────────────── */
+.heroCoords {
+  grid-column: 3;
+  grid-row: 1;
+  justify-self: end;
+  align-self: start;
+  position: relative;
+  z-index: 2;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.7rem;
+  line-height: 1.6;
+  letter-spacing: 0.1em;
+  color: var(--g-text-dim);
+  text-align: end;
+  margin: 0;
+  translate: calc(var(--g-par-x) * 0.5) calc(var(--g-par-y) * 0.5);
+  transition: color var(--g-swap) ease;
+}
+
+/* ── Sol alt: gövde metni ───────────────────────────────────────── */
+.heroLede {
+  grid-column: 1;
+  grid-row: 3;
+  align-self: end;
+  position: relative;
+  z-index: 2;
+  max-inline-size: 34ch;
+  margin: 0;
+  font-weight: 300;
+  font-size: clamp(0.9rem, 1.1vw, 1rem);
+  line-height: 1.75;
+  color: var(--g-text-dim);
+  translate: calc(var(--g-par-x) * 0.35) calc(var(--g-par-y) * 0.35);
+  transition: color var(--g-swap) ease;
+}
+
+/* ── Sağ: tarama paneli (kart DEĞİL, çıktı) ─────────────────────── */
+.heroPanel {
+  grid-column: 3;
+  grid-row: 3;
+  justify-self: end;
+  align-self: end;
+  position: relative;
+  z-index: 2;
+  min-inline-size: min(100%, 17rem);
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.7rem;
+  /* Kart değil: dolgu ve köşe yok, yalnızca solda ince bir tarama
+     çizgisi. Kutuya alsaydık "veri kartı" olurdu — brief'in istediği
+     his bir cihazın ekrana düşürdüğü çıktı. */
+  border-inline-start: 1px solid
+    color-mix(in srgb, var(--g-s01-halo) 45%, var(--g-border));
+  padding-inline-start: 0.9rem;
+  translate: calc(var(--g-par-x) * 0.5) calc(var(--g-par-y) * 0.5);
+  transition: border-color var(--g-swap) ease;
+}
+
+.heroPanelTitle {
+  margin: 0 0 0.6rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.28em;
+  color: var(--g-s01-text);
+}
+
+.heroPanelList {
+  margin: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.heroPanelRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.heroPanelLabel {
+  color: var(--g-text-dim);
+  letter-spacing: 0.08em;
+  transition: color var(--g-swap) ease;
+}
+
+.heroPanelValue {
+  color: var(--g-s01-text);
+  text-align: end;
+  transition: color var(--g-swap) ease;
+}
+
+/* Gizli satır kendi ayracını taşıyor: Six Eyes açıldığında panelin
+   ALTINA yeni bir ölçüm düşmüş gibi görünsün. */
+.heroPanelHidden {
+  margin-block-start: 0.5rem;
+  padding-block-start: 0.5rem;
+  border-block-start: 1px dashed
+    color-mix(in srgb, var(--g-text) 18%, transparent);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   DAR EKRAN — mutlak/ızgara kompozisyonu akışa dönüyor.
+
+   Merkezkaç düzen 375px'te anlamsız: köşelere itilecek köşe yok.
+   Sıra okunma sırasına iniyor, dev başlık küçülüyor ama TAŞMAYA
+   devam ediyor (kural aynı, ölçek farklı).
+   ════════════════════════════════════════════════════════════════ */
+@media (max-width: 63.99rem) {
+  .heroGrid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
+    min-block-size: 0;
+    justify-items: start;
+  }
+
+  .heroCenter,
+  .heroCoords,
+  .heroLede,
+  .heroPanel {
+    grid-column: 1;
+    grid-row: auto;
+    justify-self: stretch;
+  }
+
+  .heroCenter {
+    justify-items: center;
+  }
+
+  .heroCoords {
+    text-align: start;
+  }
+
+  .heroPanel {
+    min-inline-size: 0;
+  }
+
+  .heroTitleLayer {
+    /* Dar ekranda başlık portrenin arkasında değil ÜSTÜNDE duruyor:
+       akış düzeninde üst üste bindirmek okunmayı bozardı. */
+    position: static;
+    order: -1;
+    margin-block-end: var(--g-gap);
+  }
+
+  .heroTitle {
+    font-size: clamp(3rem, 19vw, 8rem);
+  }
+}
+
+/* Hareket kapalıyken parallax tamamen yok — `InfinityField` zaten
+   mount olmuyor, bu yalnızca ikinci emniyet. */
+@media (prefers-reduced-motion: reduce) {
+  .hero {
+    --g-par-x: 0px;
+    --g-par-y: 0px;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   P02 · THE STRONGEST — asimetrik, görünmez dikey duvar
+
+   ── INFINITY'NİN DİKEY VARYANTI ─────────────────────────────────
+   Solda masif metin, sağda Gojō'nun kadrajı. Aralarında görünmez
+   bir duvar var ve hiçbir harf onu geçemiyor: sağa hizalı dev
+   başlık kadraja YAKLAŞTIKÇA saydamlaşarak kesiliyor.
+
+   ⚠️ Maske YALNIZCA dev başlıkta. Gövde paragrafları sol bloğa
+   hapsedilmiş ve duvara hiç yaklaşmıyor — okunabilirlik pazarlık
+   konusu değil. Kesilen başlığın DOM karşılığı da bütün: metin
+   `sr-only` ikizi olmadan da tam, yalnızca boyanması kesiliyor.
+   ════════════════════════════════════════════════════════════════ */
+.strongest {
+  position: relative;
+  inline-size: 100%;
+  overflow-x: clip;
+  background: var(--g-s02-bg);
+  padding-block: var(--g-step);
+  transition: background-color var(--g-swap) ease;
+}
+
+/* Kenarlardan merkeze ağır vinyet. Malzeme `--g-s02-accent`; gözbağlı
+   modda neredeyse zeminle aynı (#111111), Six Eyes'ta soğuk bir kenar
+   ışığına dönüşüyor. Tek bildirim, iki mod. */
+.strongest::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 78% 62% at 50% 50%,
+    transparent 35%,
+    color-mix(in srgb, var(--g-s02-accent) 30%, transparent) 100%
+  );
+  transition: background var(--g-swap) ease;
+}
+
+.strongestGrid {
+  position: relative;
+  z-index: 1;
+  inline-size: var(--g-wide);
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 21rem);
+  gap: var(--g-gap);
+  align-items: center;
+}
+
+/* ── Sol: metin bloğu ──────────────────────────────────────────── */
+.strongestLeft {
+  min-inline-size: 0;
+}
+
+.strongestTitle {
+  margin: 0 0 var(--g-gap);
+  font-family: var(--gojo-font-display), system-ui, sans-serif;
+  /* Kalın ve köşeli: genişlik ekseni 125, en ağır kesit. */
+  font-variation-settings: "wdth" 125;
+  font-weight: 900;
+  font-size: clamp(3rem, 13vw, 11rem);
+  line-height: 0.84;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
+  /* Sağdan hizalı: duvara DOĞRU büyüyor. */
+  text-align: end;
+  color: var(--g-s02-text-strong);
+  /* Sütunu taşıyor — duvara ulaşmaya çalışıyor ama ulaşamıyor. */
+  margin-inline-end: calc(var(--g-gap) * -1.5);
+
+  /* ⚠️ DUVAR. Sağ kenara doğru saydamlaşıyor; harfler kadraja
+     giremeden bitiyor. Yatay Infinity maskesi. */
+  --wallMask: linear-gradient(
+    to right,
+    black 0%,
+    black 62%,
+    transparent 97%
+  );
+  -webkit-mask-image: var(--wallMask);
+  mask-image: var(--wallMask);
+  transition: color var(--g-swap) ease;
+}
+
+.strongestBody {
+  /* Sol bloğa HAPSEDİLMİŞ: duvara yaklaşmıyor, maskesiz, tam okunur. */
+  max-inline-size: 46ch;
+  display: grid;
+  gap: 1.1rem;
+}
+
+.strongestPara {
+  margin: 0;
+  font-weight: 300;
+  font-size: clamp(0.95rem, 1.15vw, 1.05rem);
+  line-height: 1.8;
+  color: var(--g-s02-text);
+  transition: color var(--g-swap) ease;
+}
+
+/* ── Six Eyes ölçümleri ────────────────────────────────────────── */
+.strongestReadings {
+  margin: var(--g-gap) 0 0;
+  padding-inline: 0;
+  list-style: none;
+  padding-block-start: 0.9rem;
+  border-block-start: 1px solid
+    color-mix(in srgb, var(--g-s02-text) 25%, transparent);
+  display: grid;
+  gap: 0.4rem;
+  max-inline-size: 46ch;
+}
+
+.strongestReading {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.68rem;
+}
+
+/* ── Sağ: kadraj ───────────────────────────────────────────────── */
+.strongestFrame {
+  position: relative;
+  min-inline-size: 0;
+}
+
+/* Moiré ve sis — CSS ile, canvas YOK (brief şartı).
+   İnce çizgi ızgarası düşük opaklıkta; iki katman hafifçe farklı
+   açıda olduğu için girişim deseni kendiliğinden oluşuyor. */
+.strongestMoire {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image:
+    repeating-linear-gradient(
+      92deg,
+      color-mix(in srgb, var(--g-s02-accent) 55%, transparent) 0 1px,
+      transparent 1px 4px
+    ),
+    repeating-linear-gradient(
+      88deg,
+      color-mix(in srgb, var(--g-s02-accent) 40%, transparent) 0 1px,
+      transparent 1px 5px
+    );
+  transition: background-image var(--g-swap) ease;
+}
+
+/* ── Sayfa kenarındaki dikey etiket ────────────────────────────── */
+.strongestEdge {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 0.4rem;
+  z-index: 2;
+  margin: 0;
+  /* Aşağıdan yukarıya: dikey yazım + 180° çevirme. */
+  writing-mode: vertical-rl;
+  rotate: 180deg;
+  transform-origin: center;
+  translate: 0 -50%;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--g-s02-text) 75%, transparent);
+  pointer-events: none;
+  transition: color var(--g-swap) ease;
+}
+
+/* ── Dar ekran ─────────────────────────────────────────────────── */
+@media (max-width: 63.99rem) {
+  .strongestGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .strongestTitle {
+    text-align: start;
+    margin-inline-end: 0;
+    font-size: clamp(2.6rem, 15vw, 6rem);
+    /* Dar ekranda sağda kadraj YOK, yani duvar da yok: maske
+       kaldırılıyor. Var olmayan bir sınıra karşı harf kesmek
+       anlamsız olurdu. */
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  /* Kenar etiketi dar ekranda yatay bir üst satıra dönüyor:
+     360px'te dikey etiket kadrajı daraltıyordu. */
+  .strongestEdge {
+    position: static;
+    writing-mode: horizontal-tb;
+    rotate: none;
+    translate: none;
+    margin-block-end: 0.75rem;
+    letter-spacing: 0.3em;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   P03 · LIMITLESS — Zeno tüneli
+
+   ── HALKALAR MERKEZE ULAŞMIYOR ──────────────────────────────────
+   Izgara SVG'si sunucuda üretiliyor ve halkaların yarıçapı bir Zeno
+   dizisi: r(n) = R∞ + (Rdış − R∞) / 2ⁿ. Her adım kalan mesafeyi
+   yarıya bölüyor, yani halkalar R∞'a YAKLAŞIYOR ama asla girmiyor.
+   Matematik dekoratif değil, bölümün tezi.
+
+   ── MERKEZ BOŞ DEĞİL, AYRILMIŞ ──────────────────────────────────
+   Kural "merkez boş kalsın" değil, "merkeze BAŞKA hiçbir şey
+   giremesin". Orada yalnızca Gojō'nun eli var. Metin ızgarası 3×3
+   ve ORTA HÜCRE HİÇ DOLDURULMUYOR — negatif alan kuralının düzen
+   düzeyindeki en doğrudan ifadesi.
+   ════════════════════════════════════════════════════════════════ */
+.limitless {
+  position: relative;
+  inline-size: 100%;
+  overflow-x: clip;
+  background: var(--g-s03-bg);
+  padding-block: var(--g-step);
+}
+
+.limitlessStage {
+  position: relative;
+  inline-size: var(--g-wide);
+  margin-inline: auto;
+  min-block-size: min(88svh, 46rem);
+  display: grid;
+  place-items: center;
+}
+
+/* Izgara — mutlak, en altta. `aria-hidden`, çünkü anlamı metinde. */
+.limitlessGrid {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  pointer-events: none;
+}
+
+/* ── Dev başlık: ızgarayla kesişiyor ───────────────────────────── */
+.limitlessTitle {
+  position: absolute;
+  inset-block-start: 6%;
+  inset-inline: 0;
+  z-index: 2;
+  margin: 0;
+  text-align: center;
+  font-family: var(--gojo-font-display), system-ui, sans-serif;
+  font-variation-settings: "wdth" 125;
+  font-weight: 800;
+  font-size: clamp(2.6rem, 12vw, 9rem);
+  line-height: 0.86;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--g-s03-grid-core);
+  /* Karışım modu harflerin ızgara çizgileriyle KESİŞMESİNİ sağlıyor:
+     üst üste binen yerler birbirini yiyor, ayrı bir çizim gerekmiyor. */
+  mix-blend-mode: difference;
+  pointer-events: none;
+  transition: color var(--g-swap) ease;
+}
+
+.limitlessSubtitle {
+  position: absolute;
+  inset-block-end: 6%;
+  inset-inline: 0;
+  z-index: 2;
+  margin: 0;
+  text-align: center;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--g-s03-text);
+  transition: color var(--g-swap) ease;
+}
+
+/* ── 3×3 metin ızgarası — ORTA HÜCRE BOŞ ───────────────────────── */
+.limitlessCells {
+  position: relative;
+  z-index: 1;
+  inline-size: min(100%, 62rem);
+  block-size: min(78svh, 40rem);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.limitlessCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  text-align: center;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: clamp(0.62rem, 1.1vw, 0.78rem);
+  line-height: 1.6;
+  letter-spacing: 0.04em;
+  color: var(--g-s03-text);
+  transition: color var(--g-swap) ease;
+}
+
+/* ⚠️ ORTA HÜCRE. Hiçbir kutucuk metni buraya konmuyor; burada
+   yalnızca Gojō'nun eli var. */
+.limitlessCore {
+  grid-column: 2;
+  grid-row: 2;
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+
+.limitlessHand {
+  inline-size: min(100%, var(--g-infinity));
+}
+
+/* ── Kesişimlere düşen formüller ───────────────────────────────────
+   SVG'nin İÇİNDE `<text>` olarak duruyorlar, HTML katmanında değil.
+   Sebep: halkalarla aynı koordinat sisteminde olmaları gerekiyor —
+   kutu oranı değiştiğinde HTML yüzdeleri halkalardan kayıyordu.
+   Punto SVG kullanıcı biriminde, yani ızgarayla birlikte ölçekleniyor. */
+.limitlessFormula {
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  fill: color-mix(in srgb, var(--g-s03-grid) 85%, transparent);
+  transition: fill var(--g-swap) ease;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SCROLL KİLİDİ KATMANI
+
+   Tamamen dekoratif: `aria-hidden` ve tıklamaya kapalı. Aynı cümle
+   bölümün statik iskeletinde `sr-only` olarak duruyor, yani bilgi
+   yalnızca animasyonun içinde sunulmuyor.
+
+   ⚠️ Bu katman scroll'u ENGELLEMİYOR. Kilit tamamen `wheel` olayının
+   `preventDefault` edilmesiyle çalışıyor (gerekçe: InfinityScroll.tsx).
+   Katman kalksa bile kilit durumu değişmez.
+   ════════════════════════════════════════════════════════════════ */
+.lockLayer {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 1rem;
+  pointer-events: none;
+  background: color-mix(in srgb, var(--g-s03-bg) 72%, transparent);
+  /* Tek geçiş, 300ms rampa — flaş limiti (hareket sözleşmesi kural 2). */
+  animation: gojoLockIn 300ms ease both;
+}
+
+.lockMark {
+  font-family: var(--gojo-font-display), system-ui, sans-serif;
+  font-size: clamp(5rem, 22vw, 14rem);
+  line-height: 1;
+  color: var(--g-s03-grid);
+}
+
+.lockLine {
+  font-family: var(--gojo-font-display), system-ui, sans-serif;
+  font-variation-settings: "wdth" 112;
+  font-size: clamp(1rem, 3.2vw, 2rem);
+  text-align: center;
+  max-inline-size: 22ch;
+  color: var(--g-text);
+}
+
+.lockHint {
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--g-text-dim);
+}
+
+@keyframes gojoLockIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ── Dar ekran ─────────────────────────────────────────────────── */
+@media (max-width: 47.99rem) {
+  .limitlessCells {
+    /* 375px'te 3×3 kutucuk okunmuyor: tek sütuna iniyor ve merkez
+       hücresi akışın ortasında kendi sırasını alıyor. Kural bozulmuyor,
+       yalnızca ızgara tek boyuta düşüyor. */
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
+    block-size: auto;
+    gap: 0.9rem;
+  }
+
+  .limitlessCore {
+    grid-column: 1;
+    grid-row: auto;
+    padding-block: var(--g-gap);
+  }
+
+  /* 375px'te 9pt formüller okunmuyor; ızgara zaten tek sütuna indi. */
+  .limitlessFormula {
+    display: none;
+  }
+
+  .limitlessTitle {
+    position: static;
+    margin-block-end: var(--g-gap);
+  }
+
+  .limitlessSubtitle {
+    position: static;
+    margin-block-start: var(--g-gap);
+  }
+
+  .limitlessStage {
+    min-block-size: 0;
+  }
+}
+
+/* Kilit hiç kurulmuyor ama katmanın animasyonu da kapatılıyor. */
+@media (prefers-reduced-motion: reduce) {
+  .lockLayer {
+    animation: none;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   P04 · CURSED TECHNIQUES — üç şerit, aralarında yırtık boşluk
+
+   ── AÇIKLAMA METNİ HER ZAMAN AÇIK ───────────────────────────────
+   Aşağıdaki hiçbir kural metni gizlemiyor. Etkileşim yalnızca
+   `--pull` ve `--tremor` değerlerini oynatıyor; ikisi de kapalıyken
+   (JS yok, reduced-motion, dokunmadan) şeritler tam okunur duruyor.
+   Brief'in reduced-motion şartı böylece VARSAYILAN, özel dal değil.
+
+   ── ŞERİT RENGİ TEK YERDEN ──────────────────────────────────────
+   Her şerit `data-pole` taşıyor ve yalnızca `--pole` değişkenini
+   değiştiriyor. Aşağıdaki kuralların hiçbiri kutba göre çoğalmıyor.
+   ════════════════════════════════════════════════════════════════ */
+.techniques {
+  position: relative;
+  inline-size: 100%;
+  overflow-x: clip;
+  background: var(--g-s04-bg);
+  padding-block: var(--g-step);
+  color: var(--g-s04-text);
+  transition:
+    background-color var(--g-swap) ease,
+    color var(--g-swap) ease;
+}
+
+.techniquesInner {
+  inline-size: var(--g-wide);
+  margin-inline: auto;
+}
+
+.techniquesTitle {
+  margin: 0 0 var(--g-step);
+  font-family: var(--gojo-font-display), system-ui, sans-serif;
+  font-variation-settings: "wdth" 125;
+  font-size: clamp(1.2rem, 3vw, 2rem);
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--g-s04-text);
+}
+
+/* ── Şerit ─────────────────────────────────────────────────────── */
+.bands {
+  display: grid;
+  /* Aradaki boşluk siyah kalıyor: şeritler birbirine binmek istiyor
+     ama itici güç yüzünden değemiyor. */
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.band {
+  position: relative;
+  padding: clamp(1.25rem, 3vw, 2.5rem);
+  /* YIRTIK KENAR. Düz bir kenar "kart" okunurdu; buradaki his bir
+     şeyin koparılmış olması. Poligon asimetrik ve her şeritte aynı —
+     tekrar bir desen kuruyor, kaza gibi durmuyor. */
+  clip-path: polygon(
+    0 1.2%,
+    18% 0,
+    47% 1.6%,
+    73% 0.2%,
+    100% 1.4%,
+    100% 98.4%,
+    76% 100%,
+    41% 98.2%,
+    14% 99.8%,
+    0 98.2%
+  );
+  background: color-mix(in srgb, var(--pole) 7%, transparent);
+  border-inline-start: 2px solid var(--pole);
+  transition:
+    background-color var(--g-swap) ease,
+    border-color var(--g-swap) ease;
+}
+
+.band[data-pole="blue"] {
+  --pole: var(--g-s04-blue);
+}
+
+.band[data-pole="red"] {
+  --pole: var(--g-s04-red);
+}
+
+.band[data-pole="purple"] {
+  --pole: var(--g-s04-purple);
+}
+
+/* İçerik katmanı — çekim/itme burada okunuyor.
+   `--pull` 1 = dinlenme. Mavi 1'in altına, kırmızı üstüne çekiyor. */
+.bandInner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: var(--g-gap);
+  align-items: start;
+  scale: var(--pull, 1);
+  transition: scale 320ms ease;
+}
+
+/* Vakum / şok dalgası alanı — saf CSS nokta tarlası.
+   Mavi'de içe, Kırmızı'da dışa ölçekleniyor; partikül sistemi yok. */
+.bandField {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background-image: radial-gradient(
+    circle at center,
+    color-mix(in srgb, var(--pole) 55%, transparent) 0 1px,
+    transparent 1.5px
+  );
+  background-size: 14px 14px;
+  scale: var(--field, 1);
+  transition:
+    opacity 320ms ease,
+    scale 420ms ease;
+}
+
+.band[data-active="on"] .bandField {
+  opacity: 0.5;
+}
+
+/* ── Outline-only dev başlık ───────────────────────────────────── */
+.bandTitle {
+  margin: 0 0 0.4rem;
+  font-family: var(--gojo-font-display), system-ui, sans-serif;
+  font-variation-settings: "wdth" 125;
+  font-weight: 900;
+  font-size: clamp(2.2rem, 8vw, 5.5rem);
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  /* SADECE KONTUR. Dolgu yok — şeritler ekranı kaplıyor ama ağırlık
+     yapmıyor, arkadaki siyah boşluk görünmeye devam ediyor. */
+  color: transparent;
+  -webkit-text-stroke: 1px var(--pole);
+  /* Titreme: kırmızı etkinken harf aralığı hafifçe oynuyor. */
+  letter-spacing: var(--tremor, -0.02em);
+  transition:
+    letter-spacing 220ms ease,
+    -webkit-text-stroke-color var(--g-swap) ease;
+}
+
+.bandKanji {
+  font-family: var(--gojo-font-jp), system-ui, sans-serif;
+  font-size: clamp(1.6rem, 5vw, 3rem);
+  line-height: 1;
+  color: var(--pole);
+  transition: color var(--g-swap) ease;
+}
+
+.bandName {
+  margin: 0.3rem 0 0;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--g-s04-text);
+}
+
+.bandText {
+  margin: var(--g-gap) 0 0;
+  max-inline-size: 52ch;
+  font-weight: 300;
+  font-size: clamp(0.9rem, 1.1vw, 1rem);
+  line-height: 1.8;
+  color: var(--g-s04-text);
+}
+
+/* ── Teknik özellik matrisi — paragraf değil, kolon ────────────── */
+.bandMatrix {
+  margin: var(--g-gap) 0 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.3rem 1.2rem;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.7rem;
+}
+
+.bandMatrixLabel {
+  color: color-mix(in srgb, var(--g-s04-text) 72%, transparent);
+  letter-spacing: 0.12em;
+}
+
+.bandMatrixValue {
+  margin: 0;
+  color: var(--g-s04-text);
+}
+
+/* Vektör sayıları — italik kalın mono (brief). */
+.bandVector {
+  font-style: italic;
+  font-weight: 700;
+  color: var(--pole);
+  transition: color var(--g-swap) ease;
+}
+
+.bandSlot {
+  min-inline-size: 0;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   BİRLEŞİM — iki küre + doluluk göstergesi
+
+   İki yol var ve İKİSİ DE her cihazda çalışıyor:
+     · Sıra yolu  — önce 蒼 sonra 赫 üzerine gelmek göstergeyi doldurur
+                    (yalnızca ince işaretçi; dokunmatikte hover yok)
+     · Sürükleme  — iki küreyi birbirine yaklaştırmak (Pointer Events,
+                    fare ve parmak aynı kod yolunu kullanıyor)
+     · Klavye     — küreler gerçek `<button>`; ok tuşlarıyla yaklaşıyor
+   ════════════════════════════════════════════════════════════════ */
+.fusion {
+  margin-block-start: var(--g-step);
+  padding-block-start: var(--g-gap);
+  border-block-start: 1px solid
+    color-mix(in srgb, var(--g-s04-text) 22%, transparent);
+}
+
+.fusionHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.8rem;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--g-s04-text);
+}
+
+.fusionMeter {
+  position: relative;
+  inline-size: min(100%, 16rem);
+  block-size: 3px;
+  background: color-mix(in srgb, var(--g-s04-text) 22%, transparent);
+  overflow: hidden;
+}
+
+.fusionMeterFill {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  inline-size: calc(var(--charge, 0) * 100%);
+  background: var(--g-s04-purple);
+  transition: inline-size 200ms linear;
+}
+
+/* Küre rayı */
+.fusionTrack {
+  position: relative;
+  margin-block-start: var(--g-gap);
+  block-size: clamp(4.5rem, 12vw, 7rem);
+  border: 1px dashed color-mix(in srgb, var(--g-s04-text) 18%, transparent);
+  touch-action: none;
+}
+
+.fusionSphere {
+  position: absolute;
+  inset-block-start: 50%;
+  inline-size: clamp(2.4rem, 6vw, 3.4rem);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 1px solid var(--pole);
+  background: radial-gradient(
+    circle at 38% 34%,
+    color-mix(in srgb, var(--pole) 62%, transparent),
+    color-mix(in srgb, var(--pole) 14%, transparent) 70%
+  );
+  color: var(--g-s04-text);
+  font-family: var(--gojo-font-jp), system-ui, sans-serif;
+  font-size: clamp(0.9rem, 2.4vw, 1.3rem);
+  display: grid;
+  place-items: center;
+  cursor: grab;
+  translate: -50% -50%;
+  inset-inline-start: calc(var(--x, 20) * 1%);
+  touch-action: none;
+  transition: box-shadow 200ms ease;
+}
+
+.fusionSphere:focus-visible {
+  outline: 2px solid var(--g-accent-2);
+  outline-offset: 3px;
+}
+
+.fusionSphere[data-pole="blue"] {
+  --pole: var(--g-s04-blue);
+}
+
+.fusionSphere[data-pole="red"] {
+  --pole: var(--g-s04-red);
+}
+
+.fusionSphere[data-near="1"] {
+  box-shadow: 0 0 22px 2px color-mix(in srgb, var(--pole) 55%, transparent);
+}
+
+.fusionStatus {
+  margin: var(--g-gap) 0 0;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.7rem;
+  line-height: 1.7;
+  color: var(--g-purple-text);
+  transition: color var(--g-swap) ease;
+}
+
+.fusionHint {
+  margin: 0.4rem 0 0;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.66rem;
+  line-height: 1.7;
+  color: color-mix(in srgb, var(--g-s04-text) 78%, transparent);
+}
+
+.fusionReset {
+  margin-block-start: var(--g-gap);
+  min-height: var(--touch-min);
+  padding: 0.4rem 1rem;
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--g-s04-text) 35%, transparent);
+  color: var(--g-s04-text);
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.fusionReset:focus-visible {
+  outline: 2px solid var(--g-accent-2);
+  outline-offset: 3px;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   EKRAN YIRTILMASI — tek geçiş
+
+   ⚠️ FLAŞ LİMİTİ. Tek bir geçiş, 700ms; tam beyaz KULLANILMIYOR, en
+   parlak kare mor tabanlı kalıyor. Saniyede birden fazla parlaklık
+   sıçraması yok (hareket sözleşmesi kural 2).
+   ════════════════════════════════════════════════════════════════ */
+.beam {
+  position: fixed;
+  inset: 0;
+  z-index: 35;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--g-s04-purple) 70%, transparent) 45%,
+    color-mix(in srgb, var(--g-s04-purple) 88%, transparent) 50%,
+    color-mix(in srgb, var(--g-s04-purple) 70%, transparent) 55%,
+    transparent 100%
+  );
+  background-size: 40% 100%;
+  background-repeat: no-repeat;
+  animation: gojoBeam 700ms ease-out both;
+}
+
+@keyframes gojoBeam {
+  from {
+    background-position: -45% 0;
+    opacity: 0;
+  }
+  18% {
+    opacity: 1;
+  }
+  82% {
+    opacity: 1;
+  }
+  to {
+    background-position: 145% 0;
+    opacity: 0;
+  }
+}
+
+/* ── Dar ekran ─────────────────────────────────────────────────── */
+@media (max-width: 63.99rem) {
+  .bandInner {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   HAREKET KAPALI
+
+   Üç teknik statik kart oluyor: ölçek, titreme, nokta tarlası ve
+   ışın tamamen kapalı. Hiçbir açıklama metni kaybolmuyor çünkü
+   hiçbiri zaten etkileşime bağlı değildi.
+   ════════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .bandInner {
+    scale: 1;
+  }
+
+  .bandField {
+    display: none;
+  }
+
+  .beam {
+    display: none;
+  }
+}
+
+/* Şeritlerin altındaki iki makro kadraj — anlatıya bağlı değil, atmosfer. */
+.techniquesPlates {
+  margin-block-start: var(--g-step);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  gap: var(--g-gap);
+  align-items: start;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   P05 · DOMAIN EXPANSION / UNLIMITED VOID
+
+   ── BÖLÜM: STATİK PANO ──────────────────────────────────────────
+   Bölümün kendisi HER ZAMAN tam: alan adı, gövde metni, akan bilgi
+   parçalarının listesi ve göz kadrajı. Sekans bunun oynatılmış hâli.
+   Reduced-motion'da sekans hiç açılmıyor ve hiçbir şey kaybolmuyor.
+   ════════════════════════════════════════════════════════════════ */
+.void {
+  position: relative;
+  inline-size: 100%;
+  overflow-x: clip;
+  background: var(--g-void);
+  padding-block: var(--g-step);
+  transition: background-color var(--g-swap) ease;
+}
+
+.voidInner {
+  inline-size: var(--g-wide);
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--g-gap);
+  align-items: start;
+}
+
+.voidKanji {
+  margin: 0;
+  font-family: var(--gojo-font-jp), system-ui, sans-serif;
+  font-size: clamp(2.4rem, 9vw, 6rem);
+  line-height: 1;
+  letter-spacing: 0.06em;
+  color: var(--g-text);
+  transition: color var(--g-swap) ease;
+}
+
+.voidTitle {
+  margin: 0.4rem 0 0;
+  font-family: var(--gojo-font-display), system-ui, sans-serif;
+  font-variation-settings: "wdth" 118;
+  font-size: clamp(1rem, 2.6vw, 1.7rem);
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--g-text);
+}
+
+.voidName {
+  margin: 0.3rem 0 var(--g-gap);
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  color: var(--g-text-dim);
+  transition: color var(--g-swap) ease;
+}
+
+.voidBody {
+  margin: 0;
+  max-inline-size: 54ch;
+  font-weight: 300;
+  font-size: clamp(0.92rem, 1.1vw, 1.02rem);
+  line-height: 1.8;
+  color: var(--g-text-dim);
+  transition: color var(--g-swap) ease;
+}
+
+/* Bilgi parçalarının STATİK listesi — sekansta akan şeylerin aynısı. */
+.voidList {
+  margin: var(--g-gap) 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.66rem;
+  color: var(--g-text-dim);
+  transition: color var(--g-swap) ease;
+}
+
+.voidListLabel {
+  margin: var(--g-gap) 0 0;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--g-text-dim) 80%, transparent);
+}
+
+/* ── Tetikleyici ───────────────────────────────────────────────── */
+.voidTrigger {
+  margin-block-start: var(--g-gap);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: var(--touch-min);
+  padding: 0.7rem 1.4rem;
+  background: transparent;
+  border: 1px solid var(--g-accent-2);
+  color: var(--g-text);
+  font-family: var(--gojo-font-display), system-ui, sans-serif;
+  font-variation-settings: "wdth" 118;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    border-color var(--g-swap) ease,
+    color var(--g-swap) ease;
+}
+
+.voidTrigger:hover {
+  border-color: var(--g-accent);
+}
+
+.voidTrigger:focus-visible {
+  outline: 2px solid var(--g-accent-2);
+  outline-offset: 3px;
+}
+
+.voidTriggerHint {
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  color: var(--g-text-dim);
+  text-transform: none;
+}
+
+@media (pointer: coarse) {
+  .voidTriggerHint {
+    display: none;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SEKANS — native <dialog>
+
+   ⚠️ NEDEN `<dialog>` VE NEDEN `body` KİLİTLENMİYOR
+   Brief "sekans açıkken body scroll kilitli" diyor. Kilit ELLE
+   YAPILMIYOR: `showModal()` arkadaki sayfayı zaten etkisiz (inert)
+   kılıyor, odak tuzağını ve `Esc` çıkışını tarayıcı yönetiyor.
+   `body`ye `overflow: hidden` yazmak geri alınması gereken bir DURUM
+   bırakırdı ve bir hata anında kullanıcı gerçekten kilitli kalabilirdi
+   — sayfanın hiçbir yerinde bu desen yok (`check:gojo` denetliyor).
+   Diyalog tam ekran ve opak olduğu için arkada bir kayma olsa bile
+   görünmüyor; görsel sonuç aynı, risk sıfır.
+   ════════════════════════════════════════════════════════════════ */
+.sequence {
+  inline-size: 100vw;
+  max-inline-size: 100vw;
+  block-size: 100dvh;
+  max-block-size: 100dvh;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  background: var(--g-s05-bg);
+  color: var(--g-s05-ink);
+  /* ⚠️ FLAŞ LİMİTİ. Zemin değişimi 420ms rampalı — brief'in istediği
+     asgari 300ms'nin üstünde. Fazlar arası en az 800ms olduğu için
+     saniyede birden fazla parlaklık geçişi imkânsız. */
+  transition:
+    background-color 420ms ease,
+    color 420ms ease;
+}
+
+.sequence::backdrop {
+  background: var(--g-void);
+}
+
+/* Faz 1 — karartma. Zemin henüz inversiyona geçmiyor. */
+.sequence[data-phase="dark"] {
+  background: var(--g-void);
+  color: var(--g-text);
+}
+
+/* Faz 2 — 領域展開 */
+.sequence[data-phase="kanji"] {
+  background: var(--g-void);
+  color: var(--g-text);
+}
+
+/* Faz 3 ve 4 — açılım ve donma: burada inversiyon devreye giriyor. */
+.sequence[data-phase="open"],
+.sequence[data-phase="freeze"] {
+  background: var(--g-s05-bg);
+  color: var(--g-s05-ink);
+}
+
+/* Faz 5 — geri dönüş */
+.sequence[data-phase="close"] {
+  background: var(--g-void);
+  color: var(--g-text);
+}
+
+.sequenceStage {
+  position: relative;
+  inline-size: 100%;
+  block-size: 100%;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+/* Nebula lekeleri — gözbağlı modda iki token da `transparent`,
+   yani aynı bildirim orada hiçbir şey çizmiyor. */
+.sequenceNebula {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    radial-gradient(
+      ellipse 60% 45% at 28% 32%,
+      color-mix(in srgb, var(--g-s05-nebula2) 85%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 55% 50% at 74% 68%,
+      color-mix(in srgb, var(--g-s05-nebula1) 90%, transparent),
+      transparent 72%
+    );
+  transition: opacity 620ms ease;
+}
+
+.sequence[data-phase="open"] .sequenceNebula,
+.sequence[data-phase="freeze"] .sequenceNebula {
+  opacity: 1;
+}
+
+/* 領域展開 */
+.sequenceKanji {
+  position: relative;
+  z-index: 2;
+  margin: 0;
+  font-family: var(--gojo-font-jp), system-ui, sans-serif;
+  font-size: clamp(2.6rem, 13vw, 9rem);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 420ms ease;
+}
+
+.sequence[data-phase="kanji"] .sequenceKanji {
+  opacity: 1;
+}
+
+/* Donma satırı */
+.sequenceFreeze {
+  position: relative;
+  z-index: 3;
+  margin: 0;
+  font-family: var(--gojo-font-display), system-ui, sans-serif;
+  font-variation-settings: "wdth" 125;
+  font-size: clamp(1.2rem, 5vw, 3.4rem);
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 420ms ease;
+}
+
+.sequence[data-phase="freeze"] .sequenceFreeze {
+  opacity: 1;
+}
+
+/* ── Akan bilgi ────────────────────────────────────────────────── */
+.sequenceFlow {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 420ms ease;
+}
+
+.sequence[data-phase="open"] .sequenceFlow,
+.sequence[data-phase="freeze"] .sequenceFlow {
+  opacity: 1;
+}
+
+.sequenceFragment {
+  position: absolute;
+  inset-inline-start: calc(var(--fx) * 1%);
+  inset-block-start: calc(var(--fy) * 1%);
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: calc(0.6rem * var(--fs, 1));
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  translate: -50% -50%;
+  /* Merkezden dışa doğru akış. Süre parçadan parçaya farklı ki
+     tek bir dalga gibi durmasın. */
+  animation: gojoDrift calc(var(--fd) * 1ms) linear infinite;
+}
+
+.sequenceFragment[lang="ja"] {
+  font-family: var(--gojo-font-jp), system-ui, sans-serif;
+}
+
+@keyframes gojoDrift {
+  from {
+    scale: 0.35;
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.85;
+  }
+  to {
+    scale: 2.1;
+    opacity: 0;
+  }
+}
+
+/* ⚠️ FRAME FREEZE. Her şey duruyor, yalnızca imleç hareket ediyor.
+   Animasyonlar `paused` — silinmiyor, DONDURULUYOR; yani parçalar
+   son kaldıkları yerde asılı kalıyor. */
+.sequence[data-phase="freeze"] .sequenceFragment {
+  animation-play-state: paused;
+}
+
+/* ── Her zaman görünür çıkış ───────────────────────────────────── */
+.sequenceExit {
+  position: absolute;
+  inset-block-start: max(1rem, env(safe-area-inset-top));
+  inset-inline-end: 1rem;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.sequenceSkip {
+  min-height: var(--touch-min);
+  padding: 0.5rem 1.1rem;
+  background: transparent;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  color: inherit;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.sequenceSkip:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+.sequenceEscape {
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+@media (pointer: coarse) {
+  .sequenceEscape {
+    display: none;
+  }
+}
+
+/* ── Dar ekran ─────────────────────────────────────────────────── */
+@media (max-width: 63.99rem) {
+  .voidInner {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   HAREKET KAPALI
+
+   Sekans zaten hiç açılmıyor (JS kapısı). Buradaki kurallar ikinci
+   emniyet: bir şekilde açılırsa bile akış ve nebula durur, faz
+   geçişleri anlık olur. Bilgi kaybı yok — panonun tamamı yukarıda.
+   ════════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .sequence,
+  .sequenceKanji,
+  .sequenceFreeze,
+  .sequenceFlow,
+  .sequenceNebula {
+    transition-duration: 0.001ms;
+  }
+
+  .sequenceFragment {
+    animation: none;
+    opacity: 0.85;
+    scale: 1;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   P06 · THE MAKING OF THE STRONGEST — kayan palet
+
+   ── PALET DURAK DURAK KAYIYOR ───────────────────────────────────
+   Her durak `--heat` adında tek bir sayı taşıyor (0 → 1). Metin,
+   çizgi ve kadraj kenarı o sayıyla `--g-s06-accent` ile `--g-s06-heat`
+   arasında karışıyor. Hidden Inventory'de soğuk gümüş, Getō'nun
+   ayrılışında sıcaklık kaybı, Shibuya'da kızıl baskın — hepsi TEK
+   değişkenle, yeni renk tanımlamadan.
+
+   ── AKIŞ YÖNÜ ÜZERİNE NOT ───────────────────────────────────────
+   Brief "aşağıdan yukarı akan zaman çizelgesi" istiyor. Duraklar
+   DOM'da kronolojik sırada (1989 → Shibuya) ve görsel sıra da aynı.
+   `column-reverse` ile görseli ters çevirmek DOM sırasıyla görsel
+   sırayı ayırırdı; ekran okuyucu ve klavye kullanıcısı ters sırada
+   gezerdi (WCAG "anlamlı sıra"). Yükseliş hissi bunun yerine
+   bağlantı çizgisinin ve yıl damgalarının ölçeğiyle veriliyor.
+   ════════════════════════════════════════════════════════════════ */
+.making {
+  position: relative;
+  inline-size: 100%;
+  overflow-x: clip;
+  background: var(--g-s06-bg);
+  color: var(--g-s06-text);
+  padding-block: var(--g-step);
+  transition:
+    background-color var(--g-swap) ease,
+    color var(--g-swap) ease;
+}
+
+/* Film çizikleri ve toz — CSS/SVG, ek canvas YOK (brief şartı). */
+.making::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.09;
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--g-s06-text) 40%, transparent) 0 1px,
+      transparent 1px 140px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--g-s06-text) 25%, transparent) 0 1px,
+      transparent 1px 63px
+    ),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='d'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23d)'/%3E%3C/svg%3E");
+}
+
+/* Köşelerde loş aydınlatma */
+.making::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 80% 65% at 50% 45%,
+    transparent 40%,
+    color-mix(in srgb, var(--g-void) 55%, transparent) 100%
+  );
+}
+
+.makingInner {
+  position: relative;
+  z-index: 1;
+  inline-size: var(--g-wide);
+  margin-inline: auto;
+}
+
+.makingTitle {
+  margin: 0;
+  /* Sayfadaki TEK serif — nostaljinin taşıyıcısı. */
+  font-family: var(--gojo-font-serif), Georgia, serif;
+  font-size: clamp(2rem, 6vw, 4rem);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  color: var(--g-s06-text);
+}
+
+.makingLede {
+  margin: 0.6rem 0 var(--g-step);
+  font-family: var(--gojo-font-serif), Georgia, serif;
+  font-style: italic;
+  font-size: clamp(1rem, 2vw, 1.3rem);
+  color: var(--g-s06-quiet);
+  transition: color var(--g-swap) ease;
+}
+
+/* ── Duraklar ──────────────────────────────────────────────────── */
+.stops {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--g-step);
+}
+
+/* Yükselen bağlantı çizgisi — duraklar boyunca ısınıyor. */
+.stops::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: clamp(0.5rem, 4vw, 3rem);
+  inline-size: 1px;
+  background: linear-gradient(
+    to top,
+    var(--g-s06-heat),
+    var(--g-s06-accent) 60%,
+    transparent
+  );
+  opacity: 0.55;
+}
+
+.stop {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: var(--g-gap);
+  align-items: start;
+  padding-inline-start: clamp(1.6rem, 8vw, 6rem);
+  /* Durağın ısı katsayısı — bileşen `--heat` yazıyor (0 → 1). */
+  --stopTone: color-mix(
+    in srgb,
+    var(--g-s06-heat) calc(var(--heat, 0) * 100%),
+    var(--g-s06-accent)
+  );
+}
+
+/* Dev, saydam yıl damgası — fotoğrafların ALTINDA kalıyor. */
+.stopStamp {
+  position: absolute;
+  inset-block-start: -0.15em;
+  inset-inline-start: clamp(1rem, 6vw, 4rem);
+  z-index: 0;
+  margin: 0;
+  font-family: var(--gojo-font-display), system-ui, sans-serif;
+  font-variation-settings: "wdth" 125;
+  font-weight: 900;
+  font-size: clamp(4rem, 16vw, 13rem);
+  line-height: 0.8;
+  letter-spacing: -0.04em;
+  color: color-mix(in srgb, var(--stopTone) 12%, transparent);
+  pointer-events: none;
+  user-select: none;
+  transition: color var(--g-swap) ease;
+}
+
+.stopBody {
+  position: relative;
+  z-index: 1;
+  min-inline-size: 0;
+}
+
+.stopAge {
+  margin: 0;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--stopTone);
+  transition: color var(--g-swap) ease;
+}
+
+.stopTitle {
+  margin: 0.35rem 0 0.7rem;
+  font-family: var(--gojo-font-serif), Georgia, serif;
+  font-size: clamp(1.3rem, 3.2vw, 2.2rem);
+  font-weight: 400;
+  line-height: 1.15;
+  color: var(--g-s06-text);
+}
+
+.stopText {
+  margin: 0;
+  /* Dar sütun — brief. */
+  max-inline-size: 42ch;
+  font-weight: 300;
+  font-size: clamp(0.9rem, 1.05vw, 0.98rem);
+  line-height: 1.85;
+  color: var(--g-s06-quiet);
+  transition: color var(--g-swap) ease;
+}
+
+.stopQuote {
+  margin: var(--g-gap) 0 0;
+  padding-inline-start: 1rem;
+  border-inline-start: 2px solid var(--stopTone);
+  max-inline-size: 42ch;
+  transition: border-color var(--g-swap) ease;
+}
+
+.stopQuoteText {
+  margin: 0;
+  font-family: var(--gojo-font-jp), system-ui, sans-serif;
+  font-size: clamp(1.05rem, 2.4vw, 1.5rem);
+  line-height: 1.5;
+  color: var(--g-s06-text);
+}
+
+.stopQuoteBy {
+  display: block;
+  margin-block-start: 0.4rem;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.64rem;
+  letter-spacing: 0.12em;
+  color: var(--g-s06-quiet);
+  font-style: normal;
+}
+
+.stopKin {
+  margin: 0.8rem 0 0;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.66rem;
+  color: var(--g-s06-quiet);
+  transition: color var(--g-swap) ease;
+}
+
+/* Kadraj — yırtık kenarlı kağıt / kırık cam. */
+.stopFrame {
+  position: relative;
+  z-index: 1;
+  min-inline-size: 0;
+  /* Her durakta hafifçe farklı bir eğim: üst üste binen kağıtlar
+     hissi. Sayı bileşenden geliyor, rastgele değil. */
+  rotate: calc(var(--tilt, 0) * 1deg);
+  clip-path: polygon(
+    1.5% 0.8%,
+    99% 0,
+    100% 96%,
+    72% 100%,
+    38% 97.5%,
+    0 99.2%
+  );
+  border: 1px solid color-mix(in srgb, var(--stopTone) 45%, transparent);
+  transition: border-color var(--g-swap) ease;
+}
+
+/* Bölümün iki dönem kadrajı */
+.makingPlates {
+  margin-block-start: var(--g-step);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: var(--g-gap);
+  align-items: start;
+}
+
+.makingOutro {
+  margin: var(--g-step) 0 0;
+  max-inline-size: 46ch;
+  font-family: var(--gojo-font-serif), Georgia, serif;
+  font-style: italic;
+  font-size: clamp(1.05rem, 2.2vw, 1.45rem);
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--g-s06-heat) 45%, var(--g-s06-text));
+  transition: color var(--g-swap) ease;
+}
+
+/* ── Dar ekran ─────────────────────────────────────────────────── */
+@media (max-width: 63.99rem) {
+  .stop {
+    grid-template-columns: minmax(0, 1fr);
+    padding-inline-start: clamp(1rem, 6vw, 2.5rem);
+  }
+
+  .stopStamp {
+    font-size: clamp(3rem, 22vw, 7rem);
+  }
+
+  .stopFrame {
+    rotate: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stopFrame {
+    rotate: none;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   P07 · GOJŌ × GETŌ — split-screen, ortada çatlak
+
+   ── AYRILMA TEK DEĞİŞKENLE ──────────────────────────────────────
+   `--split` 0 → 1. Sıfırda iki panel bitişik ve aralarında çizgi
+   yok; bir'de aralarında çatlak açılmış ve kırılmış. Scroll adası
+   yalnızca bu sayıyı yazıyor.
+
+   ⚠️ VARSAYILAN 1. JS inmezse, hareket azaltılmışsa ya da ada
+   kaldırılırsa bölüm AYRILMIŞ ve kırılmış hâlde duruyor — yani
+   anlatının SONUCU görünür kalıyor. Ters varsayım (0'da başlamak)
+   o durumlarda bölümü anlamsız bırakırdı.
+   ════════════════════════════════════════════════════════════════ */
+.pair {
+  position: relative;
+  inline-size: 100%;
+  overflow-x: clip;
+  padding-block: var(--g-step);
+  background: var(--g-void);
+  --split: 1;
+  transition: background-color var(--g-swap) ease;
+}
+
+.pairInner {
+  inline-size: var(--g-wide);
+  margin-inline: auto;
+}
+
+.pairTitle {
+  margin: 0 0 var(--g-gap);
+  text-align: center;
+  font-family: var(--gojo-font-display), system-ui, sans-serif;
+  font-variation-settings: "wdth" 125;
+  font-size: clamp(1.4rem, 4vw, 2.6rem);
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  color: var(--g-text);
+  transition: color var(--g-swap) ease;
+}
+
+/* İki panel + aradaki çatlak */
+.pairSplit {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  /* Aralık `--split` ile açılıyor. */
+  gap: calc(var(--split) * clamp(0.5rem, 3vw, 2.5rem));
+  align-items: stretch;
+  transition: gap 240ms ease;
+}
+
+.pairPanel {
+  position: relative;
+  padding: clamp(1.2rem, 3vw, 2.5rem);
+  min-inline-size: 0;
+  transition:
+    background-color var(--g-swap) ease,
+    color var(--g-swap) ease;
+}
+
+/* ── Sol: Gojō. Nefes alan taraf ──────────────────────────────── */
+.pairLeft {
+  background: var(--g-s07-left-bg);
+  color: var(--g-s07-left-ink);
+  /* Devasa negatif alan: içerik sütunun yalnızca bir kısmını
+     kullanıyor ve gerisi boş kalıyor. Bölümün tezi bu. */
+  display: grid;
+  align-content: start;
+  gap: var(--g-gap);
+}
+
+/* ── Sağ: Getō. Dar, sıkışık, kalabalık ───────────────────────── */
+.pairRight {
+  background: var(--g-s07-right-bg);
+  color: var(--g-s07-right-ink);
+  display: grid;
+  align-content: start;
+  /* Sıkışıklık: satır arası ve boşluk BİLEREK dar. */
+  gap: 0.55rem;
+}
+
+.pairName {
+  margin: 0;
+  font-family: var(--gojo-font-display), system-ui, sans-serif;
+  font-variation-settings: "wdth" 125;
+  font-size: clamp(1.6rem, 6vw, 4rem);
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+}
+
+.pairLeft .pairName {
+  /* Sol isim çatlağa doğru büyüyor ve kenarında kesiliyor. */
+  text-align: end;
+  color: var(--g-s07-left-tone);
+  --leftMask: linear-gradient(to right, black 0%, black 74%, transparent 99%);
+  -webkit-mask-image: var(--leftMask);
+  mask-image: var(--leftMask);
+}
+
+.pairRight .pairName {
+  text-align: start;
+  color: var(--g-s07-right-tone);
+  --rightMask: linear-gradient(to left, black 0%, black 74%, transparent 99%);
+  -webkit-mask-image: var(--rightMask);
+  mask-image: var(--rightMask);
+}
+
+.pairPara {
+  margin: 0;
+  font-size: clamp(0.88rem, 1.05vw, 0.98rem);
+  line-height: 1.75;
+}
+
+/* Gojō tarafı hafif, Getō tarafı kalın (brief). */
+.pairLeft .pairPara {
+  font-weight: 300;
+  max-inline-size: 34ch;
+}
+
+.pairRight .pairPara {
+  font-weight: 600;
+  line-height: 1.55;
+}
+
+/* ── Çatlak ────────────────────────────────────────────────────
+   Düz çizgi DEĞİL: kırık bir poligon. `--split` sıfırdayken
+   görünmüyor, bire yaklaştıkça beliriyor. */
+.pairRift {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 50%;
+  inline-size: clamp(10px, 1.6vw, 22px);
+  translate: -50% 0;
+  pointer-events: none;
+  opacity: var(--split);
+  transition: opacity 240ms ease;
+}
+
+.pairRiftLine {
+  stroke: var(--g-s07-rift);
+  stroke-width: 1.4;
+  fill: none;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ── Duygusal eksen ve kapanış ─────────────────────────────────── */
+.pairEmotional {
+  margin: var(--g-step) auto 0;
+  max-inline-size: 52ch;
+  text-align: center;
+  font-family: var(--gojo-font-serif), Georgia, serif;
+  font-style: italic;
+  font-size: clamp(1rem, 2.2vw, 1.4rem);
+  line-height: 1.55;
+  color: var(--g-text-dim);
+  transition: color var(--g-swap) ease;
+}
+
+.pairFinale {
+  margin: var(--g-gap) 0 0;
+  text-align: center;
+  font-family: var(--gojo-font-display), system-ui, sans-serif;
+  font-variation-settings: "wdth" 125;
+  font-size: clamp(1.3rem, 6vw, 4.5rem);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  color: var(--g-text);
+  transition: color var(--g-swap) ease;
+}
+
+.pairPlate {
+  margin-block-start: var(--g-step);
+}
+
+/* ── Dar ekran ─────────────────────────────────────────────────
+   375px'te iki panel yan yana okunmuyor; alt alta iniyor ve
+   çatlak yatay bir kırığa dönüşüyor. */
+@media (max-width: 47.99rem) {
+  .pairSplit {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pairLeft .pairName,
+  .pairRight .pairName {
+    text-align: start;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .pairRift {
+    display: none;
+  }
+}
+
+/* Hareket kapalıyken ayrılma animasyonu yok: iki taraf BAŞINDAN
+   itibaren ayrık ve çatlak kırık duruyor (brief şartı). */
+@media (prefers-reduced-motion: reduce) {
+  .pair {
+    --split: 1;
+  }
+
+  .pairSplit,
+  .pairRift {
+    transition: none;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   P08 · CONNECTIONS — takımyıldız
+
+   ── YÖRÜNGE MERKEZE DEĞMİYOR ────────────────────────────────────
+   Her bağlantı çizgisi düğümden merkeze doğru uzanıyor ama son
+   parçası bir gradyanla SAYDAMLAŞIYOR: çizgi merkeze varmadan
+   bitiyor. Untouchable kuralının sayfadaki en doğrudan ifadesi.
+   Gradyan SVG'de tanımlı (`ConstellationMap`), yani kesme görsel
+   bir hile değil çizginin kendi tanımı.
+
+   ── ATMOSFER TOKEN SEVİYESİNDE KAYIYOR ──────────────────────────
+   Bir düğüm seçildiğinde bölüm kökündeki `--node-tone` değişiyor.
+   Hiçbir bileşen yeniden çizilmiyor, hiçbir sınıf eklenmiyor.
+   ════════════════════════════════════════════════════════════════ */
+.web {
+  position: relative;
+  inline-size: 100%;
+  overflow-x: clip;
+  background: var(--g-s08-bg);
+  padding-block: var(--g-step);
+  transition: background-color var(--g-swap) ease;
+}
+
+/* Yumuşak ışıma — seçili düğümün rengine göre kayıyor.
+   Pürüzsüz, dokusuz zemin (brief): gren ya da desen YOK. */
+.web::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 55% 45% at 50% 46%,
+    color-mix(in srgb, var(--node-tone, var(--g-accent)) 12%, transparent),
+    transparent 72%
+  );
+  transition: background 420ms ease;
+}
+
+.webInner {
+  position: relative;
+  z-index: 1;
+  inline-size: var(--g-wide);
+  margin-inline: auto;
+}
+
+.webTitle {
+  margin: 0;
+  text-align: center;
+  font-family: var(--gojo-font-display), system-ui, sans-serif;
+  font-variation-settings: "wdth" 125;
+  font-size: clamp(1.1rem, 3vw, 2rem);
+  font-weight: 700;
+  /* Minimal, tamamı büyük harf, geniş harf aralığı (brief). */
+  letter-spacing: 0.42em;
+  text-indent: 0.42em;
+  text-transform: uppercase;
+  color: var(--g-text);
+  transition: color var(--g-swap) ease;
+}
+
+.webLede {
+  margin: 0.6rem 0 var(--g-step);
+  text-align: center;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  color: var(--g-text-dim);
+  transition: color var(--g-swap) ease;
+}
+
+/* ── Harita ────────────────────────────────────────────────────── */
+.webStage {
+  position: relative;
+  inline-size: min(100%, 46rem);
+  margin-inline: auto;
+  aspect-ratio: 1;
+}
+
+.webLines {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  pointer-events: none;
+}
+
+.webOrbit {
+  fill: none;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  opacity: 0.45;
+  transition: opacity 320ms ease;
+}
+
+/* Seçili düğümün yörüngesi öne çıkıyor, diğerleri geriliyor. */
+.webStage[data-selected] .webOrbit {
+  opacity: 0.16;
+}
+
+.webStage[data-selected] .webOrbit[data-on="1"] {
+  opacity: 1;
+}
+
+/* Merkez — Gojō. Yörüngelerin ulaşamadığı yer. */
+.webCore {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  translate: -50% -50%;
+  inline-size: clamp(6rem, 22%, 11rem);
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--g-text) 22%, transparent);
+}
+
+/* Düğüm düğmeleri */
+.webNode {
+  position: absolute;
+  inset-block-start: calc(var(--ny) * 1%);
+  inset-inline-start: calc(var(--nx) * 1%);
+  translate: -50% -50%;
+  display: grid;
+  gap: 0.25rem;
+  justify-items: center;
+  min-inline-size: var(--touch-min);
+  min-block-size: var(--touch-min);
+  padding: 0.4rem 0.5rem;
+  background: transparent;
+  border: 0;
+  color: var(--g-text);
+  cursor: pointer;
+  transition: color var(--g-swap) ease;
+}
+
+.webNode:focus-visible {
+  outline: 2px solid var(--g-accent-2);
+  outline-offset: 2px;
+}
+
+.webNodeDot {
+  inline-size: 0.6rem;
+  block-size: 0.6rem;
+  border-radius: 50%;
+  background: var(--nodeTone, var(--g-s08-line));
+  box-shadow: 0 0 0 0 transparent;
+  transition:
+    box-shadow 320ms ease,
+    background-color var(--g-swap) ease;
+}
+
+.webNode[aria-current="true"] .webNodeDot {
+  box-shadow: 0 0 16px 3px
+    color-mix(in srgb, var(--nodeTone, var(--g-s08-line)) 65%, transparent);
+}
+
+.webNodeName {
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  /* ⚠️ Ad karakterin RENGİNİ okumuyor: iki düğümün rengi gövde metni
+     eşiğinin altında (Yuta 2.90, Megumi 1.66). Renk yalnızca yörünge
+     ve nokta için. */
+  color: var(--g-text-dim);
+  transition: color var(--g-swap) ease;
+}
+
+.webNode[aria-current="true"] .webNodeName {
+  color: var(--g-text);
+}
+
+.webNodeTag {
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.54rem;
+  letter-spacing: 0.14em;
+  color: color-mix(in srgb, var(--g-text-dim) 78%, transparent);
+}
+
+/* ── Seçilen bağlantının açıklaması ────────────────────────────── */
+.webDetail {
+  margin: var(--g-gap) auto 0;
+  max-inline-size: 54ch;
+  min-block-size: 6rem;
+  text-align: center;
+}
+
+.webDetailName {
+  margin: 0;
+  font-family: var(--gojo-font-display), system-ui, sans-serif;
+  font-variation-settings: "wdth" 118;
+  font-size: clamp(1rem, 2.4vw, 1.5rem);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--g-text);
+}
+
+.webDetailText {
+  margin: 0.5rem 0 0;
+  font-weight: 300;
+  font-size: 0.92rem;
+  line-height: 1.75;
+  color: var(--g-text-dim);
+  transition: color var(--g-swap) ease;
+}
+
+.webHint {
+  margin: var(--g-gap) 0 0;
+  text-align: center;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  color: color-mix(in srgb, var(--g-text-dim) 75%, transparent);
+}
+
+/* Görsel ağın ALTINDAKİ sr-only liste karşılığı (brief şartı) */
+.webList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.webTeacher {
+  margin-block-start: var(--g-step);
+  inline-size: min(100%, 20rem);
+  margin-inline: auto;
+}
+
+/* ── Dar ekran ─────────────────────────────────────────────────
+   375px'te dairesel yerleşim okunmuyor: düğümler mutlak konumdan
+   çıkıp akışa giriyor, harita gizleniyor. Bilgi kaybı yok —
+   açıklama ve liste aynen duruyor. */
+@media (max-width: 47.99rem) {
+  .webStage {
+    aspect-ratio: auto;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+
+  .webLines,
+  .webCore {
+    display: none;
+  }
+
+  .webNode {
+    position: static;
+    translate: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .web::before,
+  .webOrbit,
+  .webNodeDot {
+    transition: none;
+  }
+}
+
+/* Düğümün içindeki minimalist siluet — yuva boşken hiç yer kaplamıyor,
+   dolduğunda noktanın yerini alıyor. */
+.webNodeArt {
+  inline-size: clamp(2rem, 5vw, 2.8rem);
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+/* Küratör şeridi — YALNIZCA yöneticinin DOM'unda.
+   ⚠️ Düğüm siluetleri `<button>` içinde `noEdit` ile çiziliyor (iç içe
+   etkileşimli öğe geçersiz HTML). Küratörün o yedi yuvaya erişebildiği
+   tek yer burası. */
+.webCurator {
+  margin-block-start: var(--g-step);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
+  gap: var(--g-gap);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   P09 · POWER ANALYSIS — HUD
+
+   ── MERKEZ ÖLÇÜLEMİYOR ──────────────────────────────────────────
+   Altı halka ekranın KENARINDA; ortada Gojō'ya ayrılmış pürüzsüz,
+   bomboş bir alan kalıyor. Izgara `1fr auto 1fr` ve orta hücre
+   yalnızca "VERİ YOK" satırını taşıyor. Bölümün tezi bu boşluk.
+
+   ── OKUNABİLİRLİK DİSTORSİYONUN ÖNÜNDE ──────────────────────────
+   Brief scanline, CRT barrel distortion ve glitch istiyor. Scanline
+   ve hafif bir kavis uygulandı; GLITCH METNE UYGULANMADI. Gövde bu
+   bölümde tamamen mono ve zaten küçük punto; üstüne kayma eklemek
+   brief'in kendi "distortion metin okunabilirliğini bozmayacak"
+   şartını çiğnerdi. Glitch yalnızca halka kenarlarında.
+   ════════════════════════════════════════════════════════════════ */
+.hud {
+  position: relative;
+  inline-size: 100%;
+  overflow-x: clip;
+  background: var(--g-s09-bg);
+  color: var(--g-s09-hud);
+  padding-block: var(--g-step);
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  transition:
+    background-color var(--g-swap) ease,
+    color var(--g-swap) ease;
+}
+
+/* Scanlines — ince, düşük opaklık; metnin üstünden geçiyor ama
+   okunabilirliği bozmuyor (1px çizgi, 3px aralık). */
+.hud::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.16;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--g-s09-hud) 45%, transparent) 0 1px,
+    transparent 1px 3px
+  );
+}
+
+/* CRT kavisi — ölçülü. Kenarlarda hafif karartma; geometri
+   bozulmuyor, yalnızca ışık düşüyor. */
+.hud::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 92% 88% at 50% 50%,
+    transparent 55%,
+    color-mix(in srgb, var(--g-void) 62%, transparent) 100%
+  );
+}
+
+.hudInner {
+  position: relative;
+  z-index: 1;
+  inline-size: var(--g-wide);
+  margin-inline: auto;
+}
+
+.hudTitle {
+  margin: 0 0 var(--g-gap);
+  font-family: var(--gojo-font-display), system-ui, sans-serif;
+  /* Stencil hissi: genişlik ekseni 125 + geniş harf aralığı.
+     Ayrı bir stencil ailesi YÜKLENMEDİ (brief'in kendi kararı). */
+  font-variation-settings: "wdth" 125;
+  font-size: clamp(1.1rem, 3vw, 2rem);
+  font-weight: 900;
+  letter-spacing: 0.36em;
+  text-indent: 0.36em;
+  text-transform: uppercase;
+  color: var(--g-s09-hud);
+}
+
+/* ── Klostrofobik çember ───────────────────────────────────────── */
+/* ⚠️ TEK IZGARA, TEK SAYAÇ ADASI.
+   İlk sürümde sol ve sağ sütunlar ayrı `PowerRings` örnekleriydi ve her
+   biri kendi üçlüsünü çalıştırdığı için aynı anda ALTI sayaç ilerliyordu
+   — brief'in "en fazla 3" kısıtı sessizce çiğneniyordu. Şimdi altı halka
+   tek bir adadan geliyor; yerleşimi bu ızgara yapıyor. */
+.hudRing {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr) minmax(0, 1fr);
+  grid-template-rows: repeat(3, auto);
+  gap: 0.7rem var(--g-gap);
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hudCell {
+  grid-column: var(--col);
+  grid-row: var(--row);
+  min-inline-size: 0;
+}
+
+/* ⚠️ MERKEZ. Pürüzsüz ve bomboş — hiçbir halka, hiçbir sayı burada
+   değil. Yalnızca ölçümün başarısızlığını söyleyen iki satır. */
+.hudZero {
+  grid-column: 2;
+  grid-row: 1 / span 3;
+  display: grid;
+  place-items: center;
+  gap: 0.4rem;
+  min-block-size: clamp(12rem, 34vw, 22rem);
+  border: 1px dashed color-mix(in srgb, var(--g-s09-hud) 22%, transparent);
+  border-radius: 50%;
+  text-align: center;
+}
+
+.hudZeroLabel {
+  margin: 0;
+  font-size: 0.6rem;
+  letter-spacing: 0.28em;
+  color: color-mix(in srgb, var(--g-s09-hud) 70%, transparent);
+}
+
+.hudZeroValue {
+  margin: 0;
+  font-size: clamp(0.9rem, 2.6vw, 1.6rem);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--g-s09-alarm);
+  transition: color var(--g-swap) ease;
+}
+
+/* ── Halka ─────────────────────────────────────────────────────── */
+.hudMeter {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.6rem;
+  align-items: center;
+  inline-size: 100%;
+  min-block-size: var(--touch-min);
+  padding: 0.4rem 0.5rem;
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--g-s09-hud) 18%, transparent);
+  color: inherit;
+  text-align: start;
+  cursor: pointer;
+  transition: border-color 200ms ease;
+}
+
+.hudMeter:hover,
+.hudMeter[aria-expanded="true"] {
+  border-color: color-mix(in srgb, var(--g-s09-hud) 55%, transparent);
+}
+
+.hudMeter:focus-visible {
+  outline: 2px solid var(--g-accent-2);
+  outline-offset: 2px;
+}
+
+.hudDial {
+  inline-size: clamp(2.4rem, 6vw, 3.2rem);
+  aspect-ratio: 1;
+}
+
+.hudDialTrack {
+  fill: none;
+  stroke: color-mix(in srgb, var(--g-s09-hud) 18%, transparent);
+  stroke-width: 3;
+}
+
+.hudDialFill {
+  fill: none;
+  stroke: var(--g-s09-hud);
+  stroke-width: 3;
+  stroke-linecap: butt;
+  /* Sayaç `--fill` (0 → 1) ile doluyor; JS yalnızca o değeri yazıyor. */
+  stroke-dasharray: 100;
+  stroke-dashoffset: calc(100 - var(--fill, 1) * 100);
+  transition: stroke-dashoffset 120ms linear;
+}
+
+/* Tavana dayanan halka alarma dönüyor — glitch YALNIZCA burada,
+   metinde değil. */
+.hudMeter[data-overflow="1"] .hudDialFill {
+  stroke: var(--g-s09-alarm);
+}
+
+.hudLabel {
+  margin: 0;
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.hudReadout {
+  margin: 0.15rem 0 0;
+  font-size: clamp(0.95rem, 2.4vw, 1.3rem);
+  font-weight: 700;
+  font-style: italic;
+  letter-spacing: 0.08em;
+  color: var(--g-s09-alarm);
+  transition: color var(--g-swap) ease;
+}
+
+.hudStatus {
+  margin: 0.1rem 0 0;
+  font-size: 0.56rem;
+  letter-spacing: 0.2em;
+  color: color-mix(in srgb, var(--g-s09-hud) 65%, transparent);
+}
+
+.hudDetail {
+  margin: 0.5rem 0 0;
+  font-size: 0.68rem;
+  line-height: 1.75;
+  color: color-mix(in srgb, var(--g-s09-hud) 88%, transparent);
+}
+
+/* ── Sistem kaydı — gövde metni paragraf değil, log ────────────── */
+.hudLog {
+  margin: var(--g-step) 0 0;
+  padding: var(--g-gap);
+  border: 1px solid color-mix(in srgb, var(--g-s09-hud) 22%, transparent);
+  font-size: 0.68rem;
+  line-height: 1.9;
+}
+
+.hudLogLabel {
+  margin: 0 0 0.5rem;
+  font-size: 0.58rem;
+  letter-spacing: 0.28em;
+  color: color-mix(in srgb, var(--g-s09-hud) 70%, transparent);
+}
+
+.hudLogList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Son satır — ölçümün iptali */
+.hudLogList li:last-child {
+  color: var(--g-s09-alarm);
+  transition: color var(--g-swap) ease;
+}
+
+.hudPlate {
+  margin-block-start: var(--g-gap);
+}
+
+.hudHint {
+  margin: var(--g-gap) 0 0;
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  color: color-mix(in srgb, var(--g-s09-hud) 62%, transparent);
+}
+
+/* ── Dar ekran ─────────────────────────────────────────────────── */
+@media (max-width: 63.99rem) {
+  .hudRing {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+  }
+
+  /* Dar ekranda açık yerleşim iptal: her şey akışa giriyor.
+     Merkez alan çemberin ortası olmaktan çıkıp bir durak oluyor —
+     ama YİNE BOŞ, tez bozulmuyor. */
+  .hudCell,
+  .hudZero {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .hudZero {
+    min-block-size: 9rem;
+  }
+}
+
+/* Sayaç animasyonu kapalı: değerler doğrudan son hâlinde
+   (brief şartı). Dolgu geçişi de anlık. */
+@media (prefers-reduced-motion: reduce) {
+  .hudDialFill {
+    transition: none;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   P10 · CAN YOU TOUCH GOJŌ? — bariyerin sınırı
+
+   Ekranın neredeyse tamamı saf negatif alan. Hiçbir harf düz yatay
+   kalmıyor: başlık silindir etrafına sarılmış gibi harf harf
+   döndürülüyor.
+
+   ⚠️ İMLEÇ HİÇBİR YERDE GİZLENMİYOR. `cursor: none` sayfanın hiçbir
+   yerinde yok ve `npm run check:gojo` bunu denetliyor. Etkileşim
+   yalnızca OKUYOR; hiçbir olay engellenmiyor, kullanıcı her an
+   scroll ile çıkabiliyor.
+   ════════════════════════════════════════════════════════════════ */
+.touch {
+  position: relative;
+  inline-size: 100%;
+  overflow-x: clip;
+  background: var(--g-s10-bg);
+  padding-block: var(--g-step);
+  transition: background-color var(--g-swap) ease;
+}
+
+.touchInner {
+  inline-size: var(--g-wide);
+  margin-inline: auto;
+}
+
+/* ── Bükülmüş başlık ───────────────────────────────────────────── */
+.touchTitle {
+  margin: 0 0 var(--g-gap);
+  text-align: center;
+  font-family: var(--gojo-font-display), system-ui, sans-serif;
+  font-variation-settings: "wdth" 118;
+  font-size: clamp(1.3rem, 5vw, 3.4rem);
+  font-weight: 800;
+  line-height: 1.4;
+  color: var(--g-text);
+  transition: color var(--g-swap) ease;
+}
+
+/* Her harf kendi açısıyla: silindire sarılmış his.
+   Açı bileşenden geliyor (`--a`), rastgele değil. */
+.touchGlyph {
+  display: inline-block;
+  rotate: calc(var(--a) * 1deg);
+  translate: 0 calc(var(--d) * 1px);
+}
+
+/* ── Alan ──────────────────────────────────────────────────────── */
+.touchField {
+  position: relative;
+  min-block-size: min(70svh, 38rem);
+  display: grid;
+  place-items: center;
+  /* Etkileşim BU KUTUYLA SINIRLI — sayfa geneline taşmıyor. */
+  touch-action: pan-y;
+}
+
+/* Görünmez bariyer. `--reach` 0 (uzak) → 1 (sınırda).
+   Gözbağlı modda yalnızca bir doku farkı; Six Eyes'ta beyaz merkez
+   ve kenarlara kızıl-mor. */
+.touchBarrier {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  translate: -50% -50%;
+  inline-size: var(--g-infinity);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: calc(0.15 + var(--reach, 0) * 0.85);
+  background: radial-gradient(
+    circle at 50% 50%,
+    color-mix(in srgb, var(--g-s10-impact) calc(var(--reach, 0) * 55%), transparent),
+    color-mix(in srgb, var(--g-s10-warp) 45%, transparent) 62%,
+    transparent 78%
+  );
+  transition:
+    opacity 200ms ease,
+    background 200ms ease;
+}
+
+/* Çarpışma halkası — imleç sınıra dayandığında beliriyor. */
+.touchRing {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  translate: -50% -50%;
+  inline-size: calc(var(--g-infinity) * (0.55 + var(--reach, 0) * 0.45));
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 1px solid
+    color-mix(in srgb, var(--g-s10-impact) calc(var(--reach, 0) * 90%), transparent);
+  pointer-events: none;
+  transition:
+    inline-size 200ms ease,
+    border-color 200ms ease;
+}
+
+.touchPlate {
+  inline-size: min(100%, 34rem);
+}
+
+/* ── Okuma ─────────────────────────────────────────────────────── */
+.touchReadout {
+  margin: var(--g-gap) auto 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem 1.6rem;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  color: var(--g-text-dim);
+  transition: color var(--g-swap) ease;
+}
+
+.touchDistance {
+  font-weight: 700;
+  color: var(--g-text);
+}
+
+.touchStopped {
+  margin: var(--g-gap) 0 0;
+  text-align: center;
+  font-family: var(--gojo-font-serif), Georgia, serif;
+  font-style: italic;
+  font-size: clamp(1.05rem, 3vw, 1.8rem);
+  color: var(--g-text);
+  transition: color var(--g-swap) ease;
+}
+
+.touchTrigger {
+  display: block;
+  margin: var(--g-gap) auto 0;
+  min-height: var(--touch-min);
+  padding: 0.65rem 1.6rem;
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--g-text) 32%, transparent);
+  color: var(--g-text);
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    border-color 200ms ease,
+    color var(--g-swap) ease;
+}
+
+.touchTrigger:hover {
+  border-color: color-mix(in srgb, var(--g-accent-2) 70%, transparent);
+}
+
+.touchTrigger:focus-visible {
+  outline: 2px solid var(--g-accent-2);
+  outline-offset: 3px;
+}
+
+.touchHint {
+  margin: 0.6rem 0 0;
+  text-align: center;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  color: color-mix(in srgb, var(--g-text-dim) 78%, transparent);
+}
+
+/* ── Düz metin karşılığı ───────────────────────────────────────
+   Normalde `sr-only`. ⚠️ HAREKET KAPALIYKEN GÖRÜNÜR OLUYOR —
+   brief'in kendi düzeltmesi: etkileşim çalışmadığında bölümün
+   söylediği şey okunabilir kalmalı. */
+.touchProse {
+  margin: var(--g-gap) auto 0;
+  max-inline-size: 58ch;
+  font-weight: 300;
+  font-size: clamp(0.9rem, 1.1vw, 1rem);
+  line-height: 1.85;
+  color: var(--g-text-dim);
+  transition: color var(--g-swap) ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* ⚠️ `.srOnly` ile birlikte kullanılıyor ve onun BÜTÜN kurallarını
+     geri almak zorunda — `margin: -1px` dâhil. Biri unutulursa metin
+     "görünür" olur ama ekranın dışında kalır. */
+  .touchProse {
+    position: static;
+    inline-size: auto;
+    block-size: auto;
+    padding: 0;
+    margin: var(--g-gap) auto 0;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+  }
+
+  .touchGlyph {
+    rotate: none;
+    translate: none;
+  }
+
+  .touchBarrier,
+  .touchRing {
+    transition: none;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   P11 · EASTER EGGS — keşif kaydı ve mikro objeler
+
+   ── TAMAMEN MAT ─────────────────────────────────────────────────
+   Sıfır parlama. Tek ışık, keşfedilen objenin üzerine vuran keskin
+   spot — o da yalnızca tetiklendiğinde.
+   ════════════════════════════════════════════════════════════════ */
+.eggs {
+  position: relative;
+  inline-size: 100%;
+  overflow-x: clip;
+  background: var(--g-s11-bg);
+  padding-block: var(--g-step);
+  transition: background-color var(--g-swap) ease;
+}
+
+.eggsInner {
+  inline-size: var(--g-wide);
+  margin-inline: auto;
+}
+
+.eggsTitle {
+  margin: 0;
+  font-family: var(--gojo-font-display), system-ui, sans-serif;
+  font-variation-settings: "wdth" 118;
+  font-size: clamp(1rem, 2.6vw, 1.6rem);
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--g-text);
+  transition: color var(--g-swap) ease;
+}
+
+.eggsLede {
+  margin: 0.5rem 0 var(--g-gap);
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  color: var(--g-s11-found);
+  transition: color var(--g-swap) ease;
+}
+
+.eggsCount {
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  color: var(--g-text);
+}
+
+/* ── Kayıt ─────────────────────────────────────────────────────
+   Boş-uzay estetiği: ilk bakışta neredeyse boş. Kilitli yuvalar
+   yalnızca bir çizgi; ad da ipucu da YOK. */
+.eggsLog {
+  margin: var(--g-gap) 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.9rem;
+}
+
+.eggRow {
+  display: grid;
+  grid-template-columns: 1.6rem minmax(0, 1fr);
+  gap: 0.8rem;
+  align-items: start;
+  padding-block-end: 0.9rem;
+  border-block-end: 1px solid
+    color-mix(in srgb, var(--g-text) 10%, transparent);
+}
+
+.eggIndex {
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  color: color-mix(in srgb, var(--g-s11-found) 60%, transparent);
+}
+
+/* Kilitli: tek bir çizgi. İpucu vermiyor. */
+.eggLocked {
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.2em;
+  color: color-mix(in srgb, var(--g-s11-found) 42%, transparent);
+}
+
+.eggName {
+  margin: 0;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--g-text);
+}
+
+.eggHow {
+  margin: 0.15rem 0 0;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  color: var(--g-s11-found);
+}
+
+/* Gojō'nun alaycı notu — Instrument Serif italik (brief). */
+.eggNote {
+  margin: 0.4rem 0 0;
+  font-family: var(--gojo-font-serif), Georgia, serif;
+  font-style: italic;
+  font-size: clamp(0.92rem, 1.6vw, 1.1rem);
+  line-height: 1.5;
+  color: var(--g-text);
+  transition: color var(--g-swap) ease;
+}
+
+.eggsComplete {
+  margin: var(--g-gap) 0 0;
+  font-family: var(--gojo-font-serif), Georgia, serif;
+  font-style: italic;
+  font-size: clamp(1rem, 2.4vw, 1.5rem);
+  color: var(--g-text);
+}
+
+.eggsReset {
+  margin-block-start: var(--g-gap);
+  min-height: var(--touch-min);
+  padding: 0.4rem 1rem;
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--g-text) 25%, transparent);
+  color: var(--g-s11-found);
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.eggsReset:focus-visible {
+  outline: 2px solid var(--g-accent-2);
+  outline-offset: 3px;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   MİKRO OBJELER — sayfaya serpiştirilmiş
+
+   ⚠️ GÖRÜLEBİLİR ve ODAKLANABİLİR. İkon rengi `#1a1a1a`: zeminde
+   zor fark ediliyor ama gerçekten var. Odaklandığında görünür bir
+   halka çiziliyor — yani klavyeyle KEŞFEDİLEBİLİR, sadece gizli
+   değil (brief'in kendi düzeltmesi).
+   ════════════════════════════════════════════════════════════════ */
+.egg {
+  position: absolute;
+  inset-block-end: clamp(0.5rem, 2vw, 1.5rem);
+  inline-size: var(--touch-min);
+  block-size: var(--touch-min);
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  color: var(--g-s11-icon);
+  cursor: pointer;
+  /* Tamamen mat: gölge, parlama, geçiş yok. */
+  transition: color 200ms ease;
+}
+
+.egg:focus-visible {
+  outline: 2px solid var(--g-accent-2);
+  outline-offset: 2px;
+}
+
+/* Keşfedilince spot ışığı vuruyor — tek ışık kaynağı bu. */
+.egg[data-found="1"] {
+  color: var(--eggTone, var(--g-text-dim));
+}
+
+.eggMark {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.eggSlot {
+  inline-size: 1.6rem;
+}
+
+/* Objelerin yerleşim yerleri — bölümlerin kenarında, akışı bozmadan */
+.eggLeft {
+  inset-inline-start: clamp(0.5rem, 2vw, 1.5rem);
+}
+
+.eggRight {
+  inset-inline-end: clamp(0.5rem, 2vw, 1.5rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .egg {
+    transition: none;
+  }
+}

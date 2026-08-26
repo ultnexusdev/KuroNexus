@@ -98,13 +98,14 @@ export function CuratedImage({
   className?: string;
 }) {
   return (
-    <span
-      className={[styles.slot, className].filter(Boolean).join(" ")}
-      style={{ "--slot-ratio": aspect } as React.CSSProperties}
-      data-slot={slotId}
-      data-empty={src ? undefined : ""}
-    >
-      <span className={styles.slotClip}>
+    <div className={[styles.slotWrap, className].filter(Boolean).join(" ")}>
+      <span
+        className={styles.slot}
+        style={{ "--slot-ratio": aspect } as React.CSSProperties}
+        data-slot={slotId}
+        data-empty={src ? undefined : ""}
+      >
+        <span className={styles.slotClip}>
         {src ? (
           <Image
             className={styles.slotImage}
@@ -119,7 +120,14 @@ export function CuratedImage({
           <>
             {/* ZİYARETÇİNİN GÖRDÜĞÜ BOŞLUK — yazısız, tasarlanmış.
                 Katmanların tamamı saf CSS: hiçbir dosya inmiyor. */}
-            <span className={styles.slotVeil} aria-hidden="true">
+            {/* `data-curator-veil`: kürator modu AÇIKKEN bu tasarlanmış
+                boşluk gizleniyor ve yerini iskele alıyor (`CuratorFrame`
+                mekanizması). İşaret eksikti — ikisi üst üste görünüyordu. */}
+            <span
+              className={styles.slotVeil}
+              data-curator-veil
+              aria-hidden="true"
+            >
               <span className={styles.slotGlyph}>{glyph}</span>
             </span>
 
@@ -135,18 +143,29 @@ export function CuratedImage({
             ) : null}
           </>
         )}
+        </span>
       </span>
 
-      {/* Yükleyici ayrı: yuva doluyken de görselin ÜSTÜNE yazabilmek
-          gerekiyor, yoksa küratör beğenmediği kareyi değiştiremezdi. */}
+      {/* ⚠️ YÜKLEYİCİ KADRAJIN DIŞINDA, NORMAL AKIŞTA.
+          İlk sürümde `.slot`un İÇİNDEYDİ ve hiç görünmüyordu — iki
+          sebepten: (1) `.slotClip` mutlak konumlu olduğu için akıştaki
+          yükleyicinin ÜSTÜNE boyanıyordu, (2) `CuratorSlot` bir `<div>`
+          çiziyor ve `<span>` içinde `<div>` geçersiz HTML. Ev emsali de
+          böyle: çalışan sayfalar yükleyiciyi kadrajın yanında ayrı bir
+          satırda çiziyor (`RatioExperience` → `.slotRow`).
+
+          Yuva doluyken de çiziliyor: küratörün beğenmediği kareyi
+          değiştirebilmesi gerekiyor. */}
       {isAdmin && !noEdit ? (
-        <CuratorSlot
-          characterId={characterId}
-          slot="ABILITY"
-          abilityName={slotId}
-          label={curatorLabel}
-        />
+        <div className={styles.slotEditor}>
+          <CuratorSlot
+            characterId={characterId}
+            slot="ABILITY"
+            abilityName={slotId}
+            label={curatorLabel}
+          />
+        </div>
       ) : null}
-    </span>
+    </div>
   );
 }

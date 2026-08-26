@@ -784,6 +784,19 @@
    her açılışta N tane 404 üretmek konsolu kirletir ve bağlantı
    havuzunu boşa harcar (futbol kanadında ölçülmüş arıza).
    ════════════════════════════════════════════════════════════════ */
+/* Dış sarmalayıcı: kadraj + (yönetici ise) yükleyici satırı.
+   Kadrajın kendisi sabit oranlı; yükleyici onun DIŞINDA, normal akışta —
+   içine konursa mutlak konumlu kırpma katmanının altında kalıyor. */
+.slotWrap {
+  display: block;
+  inline-size: 100%;
+}
+
+/* Yönetici yükleyicisi — ziyaretçinin DOM'unda hiç yok. */
+.slotEditor {
+  margin-block-start: 0.5rem;
+}
+
 .slot {
   position: relative;
   display: block;

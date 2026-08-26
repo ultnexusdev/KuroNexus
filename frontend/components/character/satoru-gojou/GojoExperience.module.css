@@ -198,6 +198,28 @@
   --g-s02-text:        var(--g-bf-s02-text);
   --g-s02-text-strong: var(--g-bf-s02-text-strong);
   --g-s02-accent:      var(--g-bf-s02-accent);
+
+  /* ════════════════════════════════════════════════════════════
+     BÖLÜM TOKENLARI · P03 · LIMITLESS
+
+     Zemin iki modda da zifiri (#000000): tünelin derinliği için
+     gereken tek şey mutlak siyah, o yüzden burada mod ayrımı YOK.
+     Izgara gözbağlı modda tek renk (#2a2a2a — malzeme, metin
+     taşımıyor); Six Eyes'ta dıştan içe spektral geçiş yapıyor:
+     #00d4ff (dış halkalar) → #ff003c (çekirdeğe yakın).
+     Kutucuk metni ayrı bir token okuyor, ölçüldü:
+       #8c8c8c / #000000 = 6.06   AA
+       #8fa8b8 / #000000 = 8.46   AAA
+     ════════════════════════════════════════════════════════════ */
+  --g-s03-bg:             var(--g-se-void);
+  --g-bf-s03-grid:        var(--g-bf-accent);
+  --g-bf-s03-grid-core:   var(--g-bf-accent);
+  --g-se-s03-grid:        #00d4ff;
+  --g-se-s03-grid-core:   var(--g-se-red);
+
+  --g-s03-grid:      var(--g-bf-s03-grid);
+  --g-s03-grid-core: var(--g-bf-s03-grid-core);
+  --g-s03-text:      var(--g-text-dim);
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -235,6 +257,10 @@
   --g-s02-text:        var(--g-se-s02-text);
   --g-s02-text-strong: var(--g-se-s02-text-strong);
   --g-s02-accent:      var(--g-se-s02-accent);
+
+  /* P03 — zemin iki modda da aynı, yalnızca ızgara ayrışıyor */
+  --g-s03-grid:      var(--g-se-s03-grid);
+  --g-s03-grid-core: var(--g-se-s03-grid-core);
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -1122,5 +1148,240 @@
     translate: none;
     margin-block-end: 0.75rem;
     letter-spacing: 0.3em;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   P03 · LIMITLESS — Zeno tüneli
+
+   ── HALKALAR MERKEZE ULAŞMIYOR ──────────────────────────────────
+   Izgara SVG'si sunucuda üretiliyor ve halkaların yarıçapı bir Zeno
+   dizisi: r(n) = R∞ + (Rdış − R∞) / 2ⁿ. Her adım kalan mesafeyi
+   yarıya bölüyor, yani halkalar R∞'a YAKLAŞIYOR ama asla girmiyor.
+   Matematik dekoratif değil, bölümün tezi.
+
+   ── MERKEZ BOŞ DEĞİL, AYRILMIŞ ──────────────────────────────────
+   Kural "merkez boş kalsın" değil, "merkeze BAŞKA hiçbir şey
+   giremesin". Orada yalnızca Gojō'nun eli var. Metin ızgarası 3×3
+   ve ORTA HÜCRE HİÇ DOLDURULMUYOR — negatif alan kuralının düzen
+   düzeyindeki en doğrudan ifadesi.
+   ════════════════════════════════════════════════════════════════ */
+.limitless {
+  position: relative;
+  inline-size: 100%;
+  overflow-x: clip;
+  background: var(--g-s03-bg);
+  padding-block: var(--g-step);
+}
+
+.limitlessStage {
+  position: relative;
+  inline-size: var(--g-wide);
+  margin-inline: auto;
+  min-block-size: min(88svh, 46rem);
+  display: grid;
+  place-items: center;
+}
+
+/* Izgara — mutlak, en altta. `aria-hidden`, çünkü anlamı metinde. */
+.limitlessGrid {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  pointer-events: none;
+}
+
+/* ── Dev başlık: ızgarayla kesişiyor ───────────────────────────── */
+.limitlessTitle {
+  position: absolute;
+  inset-block-start: 6%;
+  inset-inline: 0;
+  z-index: 2;
+  margin: 0;
+  text-align: center;
+  font-family: var(--gojo-font-display), system-ui, sans-serif;
+  font-variation-settings: "wdth" 125;
+  font-weight: 800;
+  font-size: clamp(2.6rem, 12vw, 9rem);
+  line-height: 0.86;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--g-s03-grid-core);
+  /* Karışım modu harflerin ızgara çizgileriyle KESİŞMESİNİ sağlıyor:
+     üst üste binen yerler birbirini yiyor, ayrı bir çizim gerekmiyor. */
+  mix-blend-mode: difference;
+  pointer-events: none;
+  transition: color var(--g-swap) ease;
+}
+
+.limitlessSubtitle {
+  position: absolute;
+  inset-block-end: 6%;
+  inset-inline: 0;
+  z-index: 2;
+  margin: 0;
+  text-align: center;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--g-s03-text);
+  transition: color var(--g-swap) ease;
+}
+
+/* ── 3×3 metin ızgarası — ORTA HÜCRE BOŞ ───────────────────────── */
+.limitlessCells {
+  position: relative;
+  z-index: 1;
+  inline-size: min(100%, 62rem);
+  block-size: min(78svh, 40rem);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.limitlessCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  text-align: center;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: clamp(0.62rem, 1.1vw, 0.78rem);
+  line-height: 1.6;
+  letter-spacing: 0.04em;
+  color: var(--g-s03-text);
+  transition: color var(--g-swap) ease;
+}
+
+/* ⚠️ ORTA HÜCRE. Hiçbir kutucuk metni buraya konmuyor; burada
+   yalnızca Gojō'nun eli var. */
+.limitlessCore {
+  grid-column: 2;
+  grid-row: 2;
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+
+.limitlessHand {
+  inline-size: min(100%, var(--g-infinity));
+}
+
+/* ── Kesişimlere düşen formüller ───────────────────────────────────
+   SVG'nin İÇİNDE `<text>` olarak duruyorlar, HTML katmanında değil.
+   Sebep: halkalarla aynı koordinat sisteminde olmaları gerekiyor —
+   kutu oranı değiştiğinde HTML yüzdeleri halkalardan kayıyordu.
+   Punto SVG kullanıcı biriminde, yani ızgarayla birlikte ölçekleniyor. */
+.limitlessFormula {
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  fill: color-mix(in srgb, var(--g-s03-grid) 85%, transparent);
+  transition: fill var(--g-swap) ease;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SCROLL KİLİDİ KATMANI
+
+   Tamamen dekoratif: `aria-hidden` ve tıklamaya kapalı. Aynı cümle
+   bölümün statik iskeletinde `sr-only` olarak duruyor, yani bilgi
+   yalnızca animasyonun içinde sunulmuyor.
+
+   ⚠️ Bu katman scroll'u ENGELLEMİYOR. Kilit tamamen `wheel` olayının
+   `preventDefault` edilmesiyle çalışıyor (gerekçe: InfinityScroll.tsx).
+   Katman kalksa bile kilit durumu değişmez.
+   ════════════════════════════════════════════════════════════════ */
+.lockLayer {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 1rem;
+  pointer-events: none;
+  background: color-mix(in srgb, var(--g-s03-bg) 72%, transparent);
+  /* Tek geçiş, 300ms rampa — flaş limiti (hareket sözleşmesi kural 2). */
+  animation: gojoLockIn 300ms ease both;
+}
+
+.lockMark {
+  font-family: var(--gojo-font-display), system-ui, sans-serif;
+  font-size: clamp(5rem, 22vw, 14rem);
+  line-height: 1;
+  color: var(--g-s03-grid);
+}
+
+.lockLine {
+  font-family: var(--gojo-font-display), system-ui, sans-serif;
+  font-variation-settings: "wdth" 112;
+  font-size: clamp(1rem, 3.2vw, 2rem);
+  text-align: center;
+  max-inline-size: 22ch;
+  color: var(--g-text);
+}
+
+.lockHint {
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--g-text-dim);
+}
+
+@keyframes gojoLockIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ── Dar ekran ─────────────────────────────────────────────────── */
+@media (max-width: 47.99rem) {
+  .limitlessCells {
+    /* 375px'te 3×3 kutucuk okunmuyor: tek sütuna iniyor ve merkez
+       hücresi akışın ortasında kendi sırasını alıyor. Kural bozulmuyor,
+       yalnızca ızgara tek boyuta düşüyor. */
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
+    block-size: auto;
+    gap: 0.9rem;
+  }
+
+  .limitlessCore {
+    grid-column: 1;
+    grid-row: auto;
+    padding-block: var(--g-gap);
+  }
+
+  /* 375px'te 9pt formüller okunmuyor; ızgara zaten tek sütuna indi. */
+  .limitlessFormula {
+    display: none;
+  }
+
+  .limitlessTitle {
+    position: static;
+    margin-block-end: var(--g-gap);
+  }
+
+  .limitlessSubtitle {
+    position: static;
+    margin-block-start: var(--g-gap);
+  }
+
+  .limitlessStage {
+    min-block-size: 0;
+  }
+}
+
+/* Kilit hiç kurulmuyor ama katmanın animasyonu da kapatılıyor. */
+@media (prefers-reduced-motion: reduce) {
+  .lockLayer {
+    animation: none;
   }
 }

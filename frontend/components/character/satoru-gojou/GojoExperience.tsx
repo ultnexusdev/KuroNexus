@@ -10,12 +10,14 @@ import {
   GOJO_CRUMB,
   GOJO_S01_SLOT,
   GOJO_S02_SLOT,
+  GOJO_S03_SLOT,
   GOJO_SHORTCUTS,
   GOJO_UI,
 } from "@/lib/characters/satoru-gojou-experience";
 import { CuratorFrame } from "@/components/character/CuratorFrame";
 import { GOJO_FONT_CLASS } from "./gojo-fonts";
 import { HeroSection } from "./HeroSection";
+import { LimitlessSection } from "./LimitlessSection";
 import { StrongestSection } from "./StrongestSection";
 import { SectionShell } from "./SectionShell";
 import { SixEyesProvider } from "./SixEyesProvider";
@@ -98,6 +100,17 @@ export function GojoExperience({ detail, isAdmin }: CharacterExperienceProps) {
             locale={locale}
             isAdmin={isAdmin}
             src={abilityImages.get(GOJO_S02_SLOT.key) ?? null}
+          />
+        </section>
+
+        {/* ══ P03 · LIMITLESS ═════════════════════════════════════════
+            Sayfadaki TEK scroll hijack'i burada. Güvenlik listesi
+            `InfinityScroll.tsx` dosya başında madde madde. */}
+        <section aria-labelledby="gojo-limitless-title">
+          <LimitlessSection
+            locale={locale}
+            isAdmin={isAdmin}
+            src={abilityImages.get(GOJO_S03_SLOT.key) ?? null}
           />
         </section>
 

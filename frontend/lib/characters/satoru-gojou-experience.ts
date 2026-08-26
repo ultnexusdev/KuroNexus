@@ -995,3 +995,92 @@ export const GOJO_S02_SLOT = {
     en: "Satoru Gojō — adult era, three-quarter half-body portrait",
   },
 } as const;
+
+/* ══════════════════════════════════════════════════════════════════════════
+   P03 · LIMITLESS
+
+   Izgara tabanlı topoğrafik zemin. Halkalar merkeze yaklaştıkça sıklaşıyor
+   ama merkeze ASLA ulaşmıyor — kalan mesafeyi her adımda yarıya bölen bir
+   Zeno dizisi. Odak tamamen bu negatif alan tünelinde.
+
+   ⚠️ Bu bölümde SCROLL HİJACK var. Hareket sözleşmesi kural 3 harfiyen
+   uygulanıyor; güvenlik listesi `InfinityScroll.tsx` dosya başında.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+export const GOJO_S03 = {
+  title: {
+    tr: "MUGEGEN",
+    en: "LIMITLESS",
+  },
+  /** Başlığın altındaki tek satır — ızgaranın üstünde duruyor */
+  subtitle: {
+    tr: "Aradaki mesafe kapanmıyor",
+    en: "The distance never closes",
+  },
+  /**
+   * Gövde metni ızgara kutucuklarına DAĞITILIYOR (brief).
+   *
+   * ⚠️ Dağıtılmış hâli görsel; okunabilir karşılığı `srText` alanında tek
+   * parça duruyor ve `sr-only` olarak basılıyor. BRIEF · erişilebilirlik:
+   * "Gövde metni grid kutucuklarına dağıtılmış — `sr-only` düz metin
+   * karşılığı ZORUNLU."
+   */
+  cells: [
+    { tr: "Bir el uzanıyor.", en: "A hand reaches out." },
+    { tr: "Aradaki mesafeyi yarıya böl.", en: "Halve the distance between." },
+    { tr: "Sonra kalanı tekrar yarıya böl.", en: "Then halve what is left." },
+    { tr: "Ve tekrar.", en: "And again." },
+    { tr: "El hâlâ yaklaşıyor.", en: "The hand is still closing in." },
+    { tr: "Sonsuz adım kaldı.", en: "Infinite steps remain." },
+    { tr: "Hiç değmiyor.", en: "It never lands." },
+  ],
+  /** Dağıtılmış metnin düz karşılığı — ekran okuyucu ve arama motoru için */
+  srText: {
+    tr: "Bir el uzanıyor. Aradaki mesafeyi yarıya böl, sonra kalanı tekrar yarıya böl, ve tekrar. El hâlâ yaklaşıyor ama önünde her zaman sonsuz sayıda adım kalıyor. Hiç değmiyor. Mugegen bir kalkan değil; Gojō ile ona uzanan şey arasına sonsuz bölünebilen bir aralık koyan bir yakınsama. Duran şey saldırı değil, mesafenin kendisi.",
+    en: "A hand reaches out. Halve the distance between, then halve what is left, and again. The hand keeps closing in, yet an infinite number of steps always remains ahead of it. It never lands. Limitless is not a shield; it is a convergence that places an infinitely divisible gap between Gojō and whatever reaches for him. What stops is not the attack but the distance itself.",
+  },
+  /**
+   * Halka kesişimlerine düşen 9pt formüller.
+   *
+   * Gerçek matematik: geometrik seri ve limit gösterimi. Dekoratif bir
+   * sözde-formül yazılmadı — sayfanın tezi zaten bu yakınsamanın kendisi.
+   * Çevrilmiyor (matematik gösterimi, dil değil).
+   */
+  formulas: [
+    "d₀ / 2ⁿ",
+    "Σ 2⁻ⁿ = 1",
+    "lim d → 0",
+    "d > 0  ∀n",
+    "1/2 + 1/4 + 1/8 …",
+    "∄ n : d(n) = 0",
+  ],
+  /** Scroll kilidi sırasında ekranda beliren tek cümle */
+  lockLine: {
+    tr: "Gerçekten bana ulaşabileceğini mi sandın?",
+    en: "Did you really think you could reach me?",
+  },
+  /** Kilit sırasında görünen çıkış ipucu — klavye kullanıcısı için */
+  lockEscape: {
+    tr: "Çıkmak için Esc",
+    en: "Press Esc to break",
+  },
+} as const;
+
+/**
+ * P03'ün görsel yuvası — ızgaranın merkezinde, negatif alanın kenarında.
+ *
+ * ⚠️ Merkez BOŞ kalmak zorunda (Infinity kuralı). Bu kadraj merkeze
+ * konmuyor; tünelin ağzında, halkaların dışında duruyor.
+ */
+export const GOJO_S03_SLOT = {
+  key: "goj:mugegen",
+  aspect: "1 / 1",
+  spec: {
+    tr: "İşaret ve orta parmağın uzatıldığı durdurma pozunun makro yakın çekimi · yalnızca eller · şeffaf zemin · 4K+",
+    en: "Macro close-up of the stopping pose with index and middle finger extended · hands only · transparent background · 4K+",
+  },
+  alt: {
+    tr: "Uzatılmış iki parmak — durdurma pozunun makro çekimi",
+    en: "Two extended fingers — macro shot of the stopping pose",
+  },
+} as const;

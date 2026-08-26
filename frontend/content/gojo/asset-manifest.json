@@ -174,5 +174,16 @@
       "en": "Hidden Inventory era young Gojō portrait · close crop · 4K"
     },
     "status": "missing"
+  },
+  {
+    "slotId": "goj:geto-pair",
+    "brief": "gojo.geto.pair",
+    "phase": "P07",
+    "aspect": "16 / 9",
+    "spec": {
+      "tr": "Genç Gojō ve Getō · sırt sırta ya da karşılıklı profil · gökyüzü arka planı (Gojō yaz mavisi / Getō gün batımı turuncusu) · 4K yüksek kontrast",
+      "en": "Young Gojō and Getō · back to back or facing profiles · sky background (Gojō summer blue / Getō sunset orange) · 4K high contrast"
+    },
+    "status": "missing"
   }
 ]

@@ -1420,3 +1420,84 @@ export const GOJO_S06_SLOTS = {
     },
   },
 } as const;
+
+/* ══════════════════════════════════════════════════════════════════════════
+   P07 · GOJŌ × GETŌ
+
+   Split-screen, yin & yang. Sol taraf (Gojō) devasa negatif alanla nefes
+   alıyor; sağ taraf (Getō) dar, sıkışık, kalabalık. Ortadaki ayrım düz bir
+   çizgi değil ÇATLAK.
+
+   ⚠️ Bu bölüm bir dostluk anlatısı değil, bir SİMETRİ anlatısı: ikisi de
+   aynı sonuca bakıp zıt yönlere yürüdü. Metin bu yüzden iki sütun ve
+   sütunlar birbirine cevap veriyor.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+export const GOJO_S07 = {
+  title: {
+    tr: "GOJŌ × GETŌ",
+    en: "GOJŌ × GETŌ",
+  },
+  /** Çatlağın iki yakasındaki isimler */
+  leftName: { tr: "SATORU", en: "SATORU" },
+  rightName: { tr: "SUGURU", en: "SUGURU" },
+  /**
+   * Sol sütun — Gojō. Hafif, seyrek, boşluklu.
+   * ⚠️ İki sütun BİRBİRİNE CEVAP VERİYOR; sırayla okunduğunda diyalog
+   * gibi ilerliyor. Ekran okuyucu da bu sırayla duyuyor.
+   */
+  left: [
+    {
+      tr: "İkisi de aynı şeyi gördü: zayıfları koruyan sistem çürümüştü ve o sistemi ayakta tutan şey kendi güçleriydi.",
+      en: "They both saw the same thing: the system that protected the weak had rotted, and what held it up was their own strength.",
+    },
+    {
+      tr: "Gojō yukarıyı devirmek yerine aşağıyı büyütmeyi seçti. Öğretmen oldu. Çözümü zaman aldı ve kendisi kadar güçlü olmayan insanlara güvenmeyi gerektirdi.",
+      en: "Gojō chose to raise the bottom instead of toppling the top. He became a teacher. His answer took time, and it required trusting people who were not as strong as he was.",
+    },
+  ],
+  /** Sağ sütun — Getō. Ağır, sıkışık, kalın. */
+  right: [
+    {
+      tr: "Getō aynı çürümeye baktı ve kusurun sistemde değil insanlarda olduğuna karar verdi. Yuttuğu her lanet onu biraz daha daralttı.",
+      en: "Getō looked at the same rot and decided the flaw was not in the system but in people. Every curse he swallowed narrowed him a little further.",
+    },
+    {
+      tr: "Çözümü hızlıydı ve kimseye güvenmeyi gerektirmiyordu. Bedeli de buydu: yalnız kalmayı seçen, yalnız kalmaktan korkmayan tarafın kaybettiği şey seçenekti.",
+      en: "His answer was fast and required trusting no one. That was its price: what the side unafraid of being alone lost was the possibility of another answer.",
+    },
+  ],
+  /** Instrument Serif italik — bölümün duygusal ekseni */
+  emotional: {
+    tr: "Aralarındaki mesafe bir kavgayla açılmadı. İkisi de haklı olduğuna inandığı yönde yürüdü ve yön farkı yıllar içinde bir uçuruma dönüştü.",
+    en: "The distance between them did not open with a fight. Each walked in the direction he believed was right, and the difference of direction became a chasm over the years.",
+  },
+  /** Çatlağın kırıldığı andaki dev satır */
+  finale: {
+    tr: "EN GÜÇLÜ BİZDİK.",
+    en: "WE WERE THE STRONGEST.",
+  },
+  /**
+   * Çarpışan dev tipografinin okunabilir karşılığı.
+   * BRIEF · erişilebilirlik: "orta çatlakta harfler birbirine çarpar/
+   * kesilir — `sr-only` düz karşılığı zorunlu."
+   */
+  srSummary: {
+    tr: "Sayfanın bu bölümü ikiye ayrılıyor: solda Satoru Gojō, sağda Suguru Getō. Ortadaki çatlak scroll ilerledikçe genişliyor ve sonunda kırılıyor. Kapanış satırı: EN GÜÇLÜ BİZDİK.",
+    en: "This section splits in two: Satoru Gojō on the left, Suguru Getō on the right. The crack between them widens as you scroll and finally breaks. The closing line reads: WE WERE THE STRONGEST.",
+  },
+} as const;
+
+/** P07'nin görsel yuvası. */
+export const GOJO_S07_SLOT = {
+  key: "goj:geto-pair",
+  aspect: "16 / 9",
+  spec: {
+    tr: "Genç Gojō ve Getō · sırt sırta ya da karşılıklı profil · gökyüzü arka planı (Gojō yaz mavisi / Getō gün batımı turuncusu) · 4K yüksek kontrast",
+    en: "Young Gojō and Getō · back to back or facing profiles · sky background (Gojō summer blue / Getō sunset orange) · 4K high contrast",
+  },
+  alt: {
+    tr: "Genç Satoru Gojō ve Suguru Getō — karşılıklı",
+    en: "Young Satoru Gojō and Suguru Getō — facing each other",
+  },
+} as const;

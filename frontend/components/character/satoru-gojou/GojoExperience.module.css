@@ -311,6 +311,44 @@
   --g-s06-text:   var(--g-bf-s06-text);
   /* Duraklarda kızıla kayan ton — nihai uç `--g-red`. */
   --g-s06-heat:   var(--g-red);
+
+  /* ════════════════════════════════════════════════════════════
+     BÖLÜM TOKENLARI · P07 · GOJŌ × GETŌ
+
+     Yin & yang: gözbağlı modda Gojō tarafı AÇIK zemin, Getō tarafı
+     koyu. Sayfadaki tek başka açık yüzey P05'in inversiyonu —
+     ikisi de bilinçli, çünkü ikisi de bir KARŞITLIK anlatıyor.
+
+     Ölçüm:
+       #1f2937 / #f3f4f6 = 13.34  AAA   (Gojō tarafı metni)
+       #f3f4f6 / #1f2937 = 13.34  AAA   (Getō tarafı metni)
+       #00d4ff / #000000 = 11.86  AAA
+       #fbbf24 / #020012 = 12.44  AAA
+       #10b981 / #020012 =  8.19  AAA
+     ════════════════════════════════════════════════════════════ */
+  --g-bf-s07-left-bg:    #f3f4f6;
+  --g-bf-s07-left-ink:   #1f2937;
+  --g-bf-s07-right-bg:   #1f2937;
+  --g-bf-s07-right-ink:  #f3f4f6;
+  --g-bf-s07-left-tone:  #374151;
+  --g-bf-s07-right-tone: #e5e7eb;
+  --g-se-s07-left-bg:    var(--g-se-void);
+  --g-se-s07-left-ink:   var(--g-se-text);
+  --g-se-s07-right-bg:   var(--g-se-surface);
+  --g-se-s07-right-ink:  var(--g-se-text);
+  --g-se-s07-left-tone:  #00d4ff;
+  --g-se-s07-right-tone: #fbbf24;
+  /* Getō'nun ikinci vurgusu — lanet yeşili. Yalnızca çatlakta. */
+  --g-bf-s07-rift:       #10b981;
+  --g-se-s07-rift:       #10b981;
+
+  --g-s07-left-bg:    var(--g-bf-s07-left-bg);
+  --g-s07-left-ink:   var(--g-bf-s07-left-ink);
+  --g-s07-right-bg:   var(--g-bf-s07-right-bg);
+  --g-s07-right-ink:  var(--g-bf-s07-right-ink);
+  --g-s07-left-tone:  var(--g-bf-s07-left-tone);
+  --g-s07-right-tone: var(--g-bf-s07-right-tone);
+  --g-s07-rift:       var(--g-bf-s07-rift);
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -371,6 +409,15 @@
   --g-s06-accent: var(--g-se-s06-accent);
   --g-s06-quiet:  var(--g-se-s06-quiet);
   --g-s06-text:   var(--g-se-s06-text);
+
+  /* P07 — inversiyon kalkıyor, iki taraf da karanlığa dönüyor */
+  --g-s07-left-bg:    var(--g-se-s07-left-bg);
+  --g-s07-left-ink:   var(--g-se-s07-left-ink);
+  --g-s07-right-bg:   var(--g-se-s07-right-bg);
+  --g-s07-right-ink:  var(--g-se-s07-right-ink);
+  --g-s07-left-tone:  var(--g-se-s07-left-tone);
+  --g-s07-right-tone: var(--g-se-s07-right-tone);
+  --g-s07-rift:       var(--g-se-s07-rift);
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -2590,5 +2637,214 @@
 @media (prefers-reduced-motion: reduce) {
   .stopFrame {
     rotate: none;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   P07 · GOJŌ × GETŌ — split-screen, ortada çatlak
+
+   ── AYRILMA TEK DEĞİŞKENLE ──────────────────────────────────────
+   `--split` 0 → 1. Sıfırda iki panel bitişik ve aralarında çizgi
+   yok; bir'de aralarında çatlak açılmış ve kırılmış. Scroll adası
+   yalnızca bu sayıyı yazıyor.
+
+   ⚠️ VARSAYILAN 1. JS inmezse, hareket azaltılmışsa ya da ada
+   kaldırılırsa bölüm AYRILMIŞ ve kırılmış hâlde duruyor — yani
+   anlatının SONUCU görünür kalıyor. Ters varsayım (0'da başlamak)
+   o durumlarda bölümü anlamsız bırakırdı.
+   ════════════════════════════════════════════════════════════════ */
+.pair {
+  position: relative;
+  inline-size: 100%;
+  overflow-x: clip;
+  padding-block: var(--g-step);
+  background: var(--g-void);
+  --split: 1;
+  transition: background-color var(--g-swap) ease;
+}
+
+.pairInner {
+  inline-size: var(--g-wide);
+  margin-inline: auto;
+}
+
+.pairTitle {
+  margin: 0 0 var(--g-gap);
+  text-align: center;
+  font-family: var(--gojo-font-display), system-ui, sans-serif;
+  font-variation-settings: "wdth" 125;
+  font-size: clamp(1.4rem, 4vw, 2.6rem);
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  color: var(--g-text);
+  transition: color var(--g-swap) ease;
+}
+
+/* İki panel + aradaki çatlak */
+.pairSplit {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  /* Aralık `--split` ile açılıyor. */
+  gap: calc(var(--split) * clamp(0.5rem, 3vw, 2.5rem));
+  align-items: stretch;
+  transition: gap 240ms ease;
+}
+
+.pairPanel {
+  position: relative;
+  padding: clamp(1.2rem, 3vw, 2.5rem);
+  min-inline-size: 0;
+  transition:
+    background-color var(--g-swap) ease,
+    color var(--g-swap) ease;
+}
+
+/* ── Sol: Gojō. Nefes alan taraf ──────────────────────────────── */
+.pairLeft {
+  background: var(--g-s07-left-bg);
+  color: var(--g-s07-left-ink);
+  /* Devasa negatif alan: içerik sütunun yalnızca bir kısmını
+     kullanıyor ve gerisi boş kalıyor. Bölümün tezi bu. */
+  display: grid;
+  align-content: start;
+  gap: var(--g-gap);
+}
+
+/* ── Sağ: Getō. Dar, sıkışık, kalabalık ───────────────────────── */
+.pairRight {
+  background: var(--g-s07-right-bg);
+  color: var(--g-s07-right-ink);
+  display: grid;
+  align-content: start;
+  /* Sıkışıklık: satır arası ve boşluk BİLEREK dar. */
+  gap: 0.55rem;
+}
+
+.pairName {
+  margin: 0;
+  font-family: var(--gojo-font-display), system-ui, sans-serif;
+  font-variation-settings: "wdth" 125;
+  font-size: clamp(1.6rem, 6vw, 4rem);
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+}
+
+.pairLeft .pairName {
+  /* Sol isim çatlağa doğru büyüyor ve kenarında kesiliyor. */
+  text-align: end;
+  color: var(--g-s07-left-tone);
+  --leftMask: linear-gradient(to right, black 0%, black 74%, transparent 99%);
+  -webkit-mask-image: var(--leftMask);
+  mask-image: var(--leftMask);
+}
+
+.pairRight .pairName {
+  text-align: start;
+  color: var(--g-s07-right-tone);
+  --rightMask: linear-gradient(to left, black 0%, black 74%, transparent 99%);
+  -webkit-mask-image: var(--rightMask);
+  mask-image: var(--rightMask);
+}
+
+.pairPara {
+  margin: 0;
+  font-size: clamp(0.88rem, 1.05vw, 0.98rem);
+  line-height: 1.75;
+}
+
+/* Gojō tarafı hafif, Getō tarafı kalın (brief). */
+.pairLeft .pairPara {
+  font-weight: 300;
+  max-inline-size: 34ch;
+}
+
+.pairRight .pairPara {
+  font-weight: 600;
+  line-height: 1.55;
+}
+
+/* ── Çatlak ────────────────────────────────────────────────────
+   Düz çizgi DEĞİL: kırık bir poligon. `--split` sıfırdayken
+   görünmüyor, bire yaklaştıkça beliriyor. */
+.pairRift {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 50%;
+  inline-size: clamp(10px, 1.6vw, 22px);
+  translate: -50% 0;
+  pointer-events: none;
+  opacity: var(--split);
+  transition: opacity 240ms ease;
+}
+
+.pairRiftLine {
+  stroke: var(--g-s07-rift);
+  stroke-width: 1.4;
+  fill: none;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ── Duygusal eksen ve kapanış ─────────────────────────────────── */
+.pairEmotional {
+  margin: var(--g-step) auto 0;
+  max-inline-size: 52ch;
+  text-align: center;
+  font-family: var(--gojo-font-serif), Georgia, serif;
+  font-style: italic;
+  font-size: clamp(1rem, 2.2vw, 1.4rem);
+  line-height: 1.55;
+  color: var(--g-text-dim);
+  transition: color var(--g-swap) ease;
+}
+
+.pairFinale {
+  margin: var(--g-gap) 0 0;
+  text-align: center;
+  font-family: var(--gojo-font-display), system-ui, sans-serif;
+  font-variation-settings: "wdth" 125;
+  font-size: clamp(1.3rem, 6vw, 4.5rem);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  color: var(--g-text);
+  transition: color var(--g-swap) ease;
+}
+
+.pairPlate {
+  margin-block-start: var(--g-step);
+}
+
+/* ── Dar ekran ─────────────────────────────────────────────────
+   375px'te iki panel yan yana okunmuyor; alt alta iniyor ve
+   çatlak yatay bir kırığa dönüşüyor. */
+@media (max-width: 47.99rem) {
+  .pairSplit {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pairLeft .pairName,
+  .pairRight .pairName {
+    text-align: start;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .pairRift {
+    display: none;
+  }
+}
+
+/* Hareket kapalıyken ayrılma animasyonu yok: iki taraf BAŞINDAN
+   itibaren ayrık ve çatlak kırık duruyor (brief şartı). */
+@media (prefers-reduced-motion: reduce) {
+  .pair {
+    --split: 1;
+  }
+
+  .pairSplit,
+  .pairRift {
+    transition: none;
   }
 }

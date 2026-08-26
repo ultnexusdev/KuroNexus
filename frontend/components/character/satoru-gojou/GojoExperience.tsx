@@ -12,6 +12,7 @@ import {
   GOJO_S02_SLOT,
   GOJO_S03_SLOT,
   GOJO_S05_SLOT,
+  GOJO_S07_SLOT,
   GOJO_SHORTCUTS,
   GOJO_UI,
 } from "@/lib/characters/satoru-gojou-experience";
@@ -20,6 +21,7 @@ import { GOJO_FONT_CLASS } from "./gojo-fonts";
 import { HeroSection } from "./HeroSection";
 import { LimitlessSection } from "./LimitlessSection";
 import { MakingSection } from "./MakingSection";
+import { PairSection } from "./PairSection";
 import { TechniquesSection } from "./TechniquesSection";
 import { VoidSection } from "./VoidSection";
 import { StrongestSection } from "./StrongestSection";
@@ -148,6 +150,17 @@ export function GojoExperience({ detail, isAdmin }: CharacterExperienceProps) {
             locale={locale}
             isAdmin={isAdmin}
             images={abilityImages}
+          />
+        </section>
+
+        {/* ══ P07 · GOJŌ × GETŌ ═══════════════════════════════════════
+            Split-screen, ortada çatlak. `--split` varsayılanı 1: ada
+            hiç inmezse bölüm ayrılmış ve kırılmış duruyor. */}
+        <section aria-labelledby="gojo-pair-title">
+          <PairSection
+            locale={locale}
+            isAdmin={isAdmin}
+            src={abilityImages.get(GOJO_S07_SLOT.key) ?? null}
           />
         </section>
 

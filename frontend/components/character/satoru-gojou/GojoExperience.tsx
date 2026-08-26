@@ -14,6 +14,7 @@ import {
   GOJO_S05_SLOT,
   GOJO_S07_SLOT,
   GOJO_S08_TEACHER_SLOT,
+  GOJO_S09_SLOT,
   GOJO_SHORTCUTS,
   GOJO_UI,
 } from "@/lib/characters/satoru-gojou-experience";
@@ -24,6 +25,7 @@ import { HeroSection } from "./HeroSection";
 import { LimitlessSection } from "./LimitlessSection";
 import { MakingSection } from "./MakingSection";
 import { PairSection } from "./PairSection";
+import { PowerSection } from "./PowerSection";
 import { TechniquesSection } from "./TechniquesSection";
 import { VoidSection } from "./VoidSection";
 import { StrongestSection } from "./StrongestSection";
@@ -175,6 +177,17 @@ export function GojoExperience({ detail, isAdmin }: CharacterExperienceProps) {
             isAdmin={isAdmin}
             src={abilityImages.get(GOJO_S08_TEACHER_SLOT.key) ?? null}
             images={abilityImages}
+          />
+        </section>
+
+        {/* ══ P09 · POWER ANALYSIS ════════════════════════════════════
+            HUD kenarlarda, merkez ayrılmış ve BOŞ. Sayaçlar bir puan
+            değil ölçüm aygıtının yetersizliğini gösteriyor. */}
+        <section aria-labelledby="gojo-power-title">
+          <PowerSection
+            locale={locale}
+            isAdmin={isAdmin}
+            src={abilityImages.get(GOJO_S09_SLOT.key) ?? null}
           />
         </section>
 

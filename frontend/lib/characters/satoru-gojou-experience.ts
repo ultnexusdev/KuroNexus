@@ -1667,3 +1667,179 @@ export const GOJO_S08_NODE_SLOT = (key: string) => ({
   key: `goj:node-${key}`,
   aspect: "1 / 1",
 });
+
+/* ══════════════════════════════════════════════════════════════════════════
+   P09 · POWER ANALYSIS
+
+   HUD. Altı halka ekranın KENARLARINA yapışıyor ve klostrofobik bir çember
+   kuruyor; ortada Gojō'ya ayrılmış pürüzsüz, bomboş bir "Zero" alanı
+   kalıyor.
+
+   ⚠️ BÖLÜMÜN TEZİ: VERİLER GOJŌ'YU ANALİZ EDEMİYOR.
+
+   ── NEDEN UYDURMA İSTATİSTİK YOK ─────────────────────────────────────────
+   Brief bir güç radarı istiyor ve radar sayı ister. Ama seride bu
+   niteliklerin hiçbiri sayıyla verilmiyor; 0–100 arası puanlar uydurmak
+   arşivin kuralını çiğnerdi.
+
+   Çözüm tezin kendisinden geldi: SAYAÇLAR BAŞARISIZ OLUYOR. Her halka
+   yükselmeye başlıyor, tavana dayanıyor ve bir ölçüm değeriyle değil bir
+   TAŞMA işaretiyle duruyor (`∞` ya da `ERR`). Yani ekranda görünen şey
+   Gojō'nun puanı değil, ölçüm aygıtının yetersizliği. Hem dürüst hem de
+   bölümün söylemek istediği şey.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+export const GOJO_S09 = {
+  title: {
+    tr: "GÜÇ ANALİZİ",
+    en: "POWER ANALYSIS",
+  },
+  /** Merkezdeki boş alanın etiketi — okunuyor ama ölçülemiyor */
+  zeroLabel: {
+    tr: "ÖLÇÜM ALANI",
+    en: "MEASUREMENT FIELD",
+  },
+  zeroValue: {
+    tr: "VERİ YOK",
+    en: "NO DATA",
+  },
+  /** Sistem log bloğunun başlığı */
+  logLabel: {
+    tr: "SİSTEM KAYDI",
+    en: "SYSTEM LOG",
+  },
+  /**
+   * Log satırları — gövde metni paragraf değil, hata kaydı (brief).
+   * Anlatının tamamı burada: bölüm sayı okumuyor, okuyamadığını
+   * söylüyor.
+   */
+  log: [
+    {
+      tr: "> hedef bağlandı: GOJŌ SATORU",
+      en: "> target acquired: GOJŌ SATORU",
+    },
+    {
+      tr: "> altı eksende ölçüm başlatıldı",
+      en: "> measurement started on six axes",
+    },
+    {
+      tr: "! eksen tavanı aşıldı — ölçek yeniden hesaplanıyor",
+      en: "! axis ceiling exceeded — rescaling",
+    },
+    {
+      tr: "! ölçek yeniden hesaplandı, tavan yine aşıldı",
+      en: "! rescaled, ceiling exceeded again",
+    },
+    {
+      tr: "> merkez alanına erişilemiyor",
+      en: "> centre field unreachable",
+    },
+    {
+      tr: "× ölçüm iptal. Bu aygıt bu hedefi ölçemiyor.",
+      en: "× measurement aborted. This instrument cannot measure this target.",
+    },
+  ],
+  /** Halkaların ortak durum etiketi */
+  overflow: {
+    tr: "TAŞMA",
+    en: "OVERFLOW",
+  },
+  keyHint: {
+    tr: "Halkaya tıkla, detay açılsın.",
+    en: "Select a ring to open its detail.",
+  },
+} as const;
+
+export interface GojoRing {
+  key: string;
+  label: { tr: string; en: string };
+  /** Ekranda duran nihai gösterim — sayı DEĞİL, taşma işareti */
+  readout: string;
+  /** Sayacın tırmandığı yüzde — tavana dayandığı yer */
+  ceiling: number;
+  detail: { tr: string; en: string };
+}
+
+/**
+ * Altı eksen.
+ *
+ * `readout` bilerek sayı değil: dördü `∞`, ikisi `ERR`. Tavan yüzdeleri
+ * (`ceiling`) yalnızca sayacın nerede duracağını söylüyor — bir puan
+ * değil, aygıtın nereye kadar gidebildiği.
+ */
+export const GOJO_RINGS: GojoRing[] = [
+  {
+    key: "speed",
+    label: { tr: "HIZ", en: "SPEED" },
+    readout: "ERR",
+    ceiling: 96,
+    detail: {
+      tr: "Anlık yer değiştirme ölçülebilir bir hız değil: iki kare arasında geçen mesafe var ama geçen süre yok. Aygıt bölme işlemini tamamlayamıyor.",
+      en: "Instant movement is not a measurable speed: there is distance between two frames but no elapsed time. The instrument cannot complete the division.",
+    },
+  },
+  {
+    key: "intellect",
+    label: { tr: "ZEKÂ", en: "INTELLECT" },
+    readout: "ERR",
+    ceiling: 92,
+    detail: {
+      tr: "Rikugan dünyayı sayı olarak görüyor; taşıyıcısı da öyle düşünüyor. Ölçülen şey bir kişinin zekâsı değil, sürekli açık bir ölçüm cihazının çıktısı — ve o çıktı bu aygıtın çözünürlüğünün üstünde.",
+      en: "Six Eyes renders the world as numbers, and its bearer thinks the same way. What is being measured is not a person's intellect but the output of a permanently open instrument — and that output is above this device's resolution.",
+    },
+  },
+  {
+    key: "energy",
+    label: { tr: "LANETLİ ENERJİ", en: "CURSED ENERGY" },
+    readout: "∞",
+    ceiling: 99,
+    detail: {
+      tr: "Rezerv değil VERİM sorunu. Rikugan tekniği israfsız çalıştırıyor; harcanan enerji hedefe göre otomatik ayarlanıyor. Tüketim ölçülemiyor çünkü boşa giden bir pay yok.",
+      en: "Not a question of reserve but of EFFICIENCY. Six Eyes runs the technique with no waste; the energy spent is auto-tuned to the target. Consumption cannot be read because there is no wasted share.",
+    },
+  },
+  {
+    key: "technique",
+    label: { tr: "TEKNİK", en: "TECHNIQUE" },
+    readout: "∞",
+    ceiling: 98,
+    detail: {
+      tr: "Mugegen bir saldırı değil bir yakınsama: aradaki mesafeyi sonsuz kez bölüyor. Sonsuz sayıda adımın çıktısını sonlu bir ölçekte göstermek mümkün değil.",
+      en: "Limitless is not an attack but a convergence: it divides the intervening distance infinitely many times. The output of infinitely many steps cannot be shown on a finite scale.",
+    },
+  },
+  {
+    key: "domain",
+    label: { tr: "ALAN", en: "DOMAIN" },
+    readout: "∞",
+    ceiling: 97,
+    detail: {
+      tr: "Muryōkūsho hasar vermiyor, BİLGİ veriyor. Bir alanın gücünü hasarla ölçen bir aygıt burada sıfır okuyor — oysa içerideki hiç kimse hareket edemiyor.",
+      en: "Unlimited Void deals no damage, it delivers INFORMATION. An instrument that measures a domain by damage reads zero here — while no one inside can move.",
+    },
+  },
+  {
+    key: "combat",
+    label: { tr: "DÖVÜŞ", en: "COMBAT" },
+    readout: "∞",
+    ceiling: 95,
+    detail: {
+      tr: "Dövüş gücü iki taraf arasındaki farkla ölçülür. Burada karşı taraf yok: Gojō dövüşü kazanmıyor, dövüşün mümkün olup olmadığı sorusunu kapatıyor.",
+      en: "Combat power is measured by the gap between two sides. There is no other side here: Gojō does not win the fight, he closes the question of whether a fight was possible.",
+    },
+  },
+];
+
+/** P09'un görsel yuvası — merkeze DEĞİL, kenara. */
+export const GOJO_S09_SLOT = {
+  key: "goj:dynamic",
+  aspect: "3 / 4",
+  spec: {
+    tr: "Tamamen karanlık zeminde izole · havada asılı ya da yumruk atan ultra-dinamik dövüş pozu · yüksek deklanşör hissi · blur YOK · 4K",
+    en: "Isolated on a fully dark ground · ultra-dynamic combat pose, airborne or throwing a punch · high shutter feel · NO blur · 4K",
+  },
+  alt: {
+    tr: "Satoru Gojō — dinamik dövüş pozu",
+    en: "Satoru Gojō — dynamic combat pose",
+  },
+} as const;

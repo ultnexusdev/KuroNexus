@@ -273,5 +273,16 @@
       "en": "yuji — minimalist silhouette or high-contrast cutout illustration"
     },
     "status": "missing"
+  },
+  {
+    "slotId": "goj:dynamic",
+    "brief": "gojo.power.dynamic",
+    "phase": "P09",
+    "aspect": "3 / 4",
+    "spec": {
+      "tr": "Tamamen karanlık zeminde izole · havada asılı ya da yumruk atan ultra-dinamik dövüş pozu · yüksek deklanşör hissi · blur YOK · 4K",
+      "en": "Isolated on a fully dark ground · ultra-dynamic combat pose · high shutter feel · NO blur · 4K"
+    },
+    "status": "missing"
   }
 ]

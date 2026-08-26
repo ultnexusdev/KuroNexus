@@ -761,6 +761,13 @@ export const GOJO_SHORTCUTS = {
         en: "Toggles Six Eyes mode",
       },
     },
+    {
+      keys: "D",
+      action: {
+        tr: "Alan genişlemesi sekansını oynatır",
+        en: "Plays the domain expansion sequence",
+      },
+    },
   ],
 } as const;
 
@@ -1215,5 +1222,118 @@ export const GOJO_S04_SLOTS = {
       tr: "İçinden ışık fışkıran karanlık Gojō silüeti",
       en: "Dark Gojō silhouette with light bursting through",
     },
+  },
+} as const;
+
+/* ══════════════════════════════════════════════════════════════════════════
+   P05 · DOMAIN EXPANSION / UNLIMITED VOID
+
+   Tam ekran sinematik sekans. Sayfanın ikinci imza bileşeni burada doğuyor.
+
+   ⚠️ OTOMATİK TETİKLENMİYOR. Sayfadaki düğme ya da `D` kısayolu açıyor;
+   tekrar tekrar oynatılabiliyor.
+
+   ⚠️ İÇERİK SEKANSIN İÇİNDE HAPSEDİLMİYOR. Aşağıdaki her şey bölümün
+   STATİK panosunda da duruyor. Sekans o panonun oynatılmış hâli —
+   reduced-motion'da sekans hiç açılmıyor ve hiçbir bilgi kaybolmuyor.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/** 領域展開 — çevrilmiyor, `lang="ja"` ile işaretleniyor (atmosfer öğesi). */
+export const GOJO_S05_KANJI = "領域展開";
+
+/** 無量空処 — alanın adı. */
+export const GOJO_S05_DOMAIN_KANJI = "無量空処";
+
+export const GOJO_S05 = {
+  title: {
+    tr: "ALAN GENİŞLEMESİ",
+    en: "DOMAIN EXPANSION",
+  },
+  /** 領域展開'in okunabilir karşılığı — ekran okuyucu için */
+  kanjiGloss: {
+    tr: "Alan genişlemesi",
+    en: "Domain expansion",
+  },
+  domainName: {
+    tr: "Muryōkūsho — Sınırsız Boşluk",
+    en: "Muryōkūsho — Unlimited Void",
+  },
+  /** Bölümün gövde metni — panoda ve sekansta aynı anlatı */
+  body: {
+    tr: "Alan genişlemesi bir saldırı değil, bir mekân dayatması. Gojō kendi tekniğini bir hacme çeviriyor ve içine giren herkes o hacmin kurallarına tabi oluyor. Muryōkūsho'nun yaptığı şey acı vermek değil: hedefin beynine yapılması gereken her şeyin bilgisini aynı anda veriyor. Yürümek, nefes almak, göz kırpmak — hepsinin talimatı sonsuz ayrıntıda ve aynı anda geliyor. Beden komutları alıyor ama hiçbirini tamamlayamıyor; kişi ayakta, uyanık ve tamamen durmuş hâlde kalıyor.",
+    en: "A domain expansion is not an attack but an imposition of place. Gojō turns his own technique into a volume, and everyone inside it falls under that volume's rules. What Unlimited Void does is not to inflict pain: it hands the target's brain the information for everything that must be done, all at once. Walking, breathing, blinking — the instructions for each arrive in infinite detail and simultaneously. The body receives the commands and can complete none of them; the person remains standing, awake, and completely stopped.",
+  },
+  /** Donma anında ekranda kalan tek satır */
+  freezeLine: {
+    tr: "SONSUZ BİLGİ.",
+    en: "INFINITE INFORMATION.",
+  },
+  /**
+   * Boşluğa akan bilgi parçaları.
+   *
+   * Brief: "teknik isimleri, karakter bilgileri, Japonca semboller,
+   * koordinatlar, cursed energy verileri, manga paneli tarzı metin
+   * parçaları". Hepsi sayfanın kendi veri kümesinden ya da serinin
+   * terminolojisinden; uydurma sayı yok.
+   *
+   * ⚠️ Bu liste hem sekansta akıyor hem de statik panoda liste olarak
+   * duruyor. Tek kaynak, iki sunum.
+   */
+  fragments: [
+    { text: "無下限呪術", lang: "ja" },
+    { text: "六眼", lang: "ja" },
+    { text: "術式順転「蒼」", lang: "ja" },
+    { text: "術式反転「赫」", lang: "ja" },
+    { text: "虚式「茈」", lang: "ja" },
+    { text: "反転術式", lang: "ja" },
+    { text: "領域展開", lang: "ja" },
+    { text: "無量空処", lang: "ja" },
+    { text: "35.6938°N 139.7034°E", lang: null },
+    { text: "d₀ / 2ⁿ", lang: null },
+    { text: "lim d → 0", lang: null },
+    { text: "Σ 2⁻ⁿ = 1", lang: null },
+    { text: "1989.12.07", lang: null },
+    { text: "190 cm", lang: null },
+    { text: "SPECIAL GRADE", lang: null },
+    { text: "∞", lang: null },
+  ],
+  ui: {
+    /** Tetikleyici düğme */
+    trigger: {
+      tr: "ALAN GENİŞLEMESİ",
+      en: "DOMAIN EXPANSION",
+    },
+    triggerHint: {
+      tr: "veya D tuşu",
+      en: "or press D",
+    },
+    /** ⚠️ Sekans boyunca HER ZAMAN görünür */
+    skip: {
+      tr: "Geç",
+      en: "Skip",
+    },
+    escape: {
+      tr: "Esc ile çık",
+      en: "Esc to exit",
+    },
+    /** Reduced-motion panosunun başlığı */
+    staticLabel: {
+      tr: "Alanın içinde ne var",
+      en: "What is inside the domain",
+    },
+  },
+} as const;
+
+/** P05'in görsel yuvası. */
+export const GOJO_S05_SLOT = {
+  key: "goj:muryokusho",
+  aspect: "16 / 9",
+  spec: {
+    tr: "Çaprazlanmış parmaklar ve yüzün yarısı · tek buz mavisi göz bebeğine odaklı ultra-makro göz hizası kadraj · gözbebeği içi nebula dokulu · 8K",
+    en: "Crossed fingers and half the face · ultra-macro eye-level framing focused on a single ice-blue iris · nebula texture inside the pupil · 8K",
+  },
+  alt: {
+    tr: "Çaprazlanmış parmaklar ve tek bir buz mavisi göz — ultra makro",
+    en: "Crossed fingers and a single ice-blue eye — ultra macro",
   },
 } as const;

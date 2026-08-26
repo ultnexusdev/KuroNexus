@@ -86,5 +86,16 @@
       "en": "Dark silhouette with light bursting through · adult Gojō · 4K"
     },
     "status": "missing"
+  },
+  {
+    "slotId": "goj:muryokusho",
+    "brief": "gojo.void.eye",
+    "phase": "P05",
+    "aspect": "16 / 9",
+    "spec": {
+      "tr": "Çaprazlanmış parmaklar ve yüzün yarısı · tek buz mavisi göz bebeğine odaklı ultra-makro göz hizası kadraj · gözbebeği içi nebula dokulu · 8K",
+      "en": "Crossed fingers and half the face · ultra-macro eye-level framing focused on a single ice-blue iris · nebula texture inside the pupil · 8K"
+    },
+    "status": "missing"
   }
 ]

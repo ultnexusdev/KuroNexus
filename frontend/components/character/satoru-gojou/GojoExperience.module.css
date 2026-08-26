@@ -248,6 +248,36 @@
   --g-s04-red:    var(--g-bf-s04-red);
   --g-s04-purple: var(--g-bf-s04-purple);
   --g-s04-text:   var(--g-bf-s04-text);
+
+  /* ════════════════════════════════════════════════════════════
+     BÖLÜM TOKENLARI · P05 · UNLIMITED VOID
+
+     ⚠️ GEMINI'NİN ORİJİNAL YÖNÜ BURADA DEĞİŞTİRİLDİ. Gözbağlı mod
+     için "#FFFFFF zemin + kör edici anlık beyaz patlamalar"
+     öneriliyordu. Uygulanmadı: nöbet riski ve hareket sözleşmesi
+     ihlali. Yerine İNVERSİYON KORUNDU ama yumuşatıldı —
+     zemin #f2f2f2 (saf beyaz değil), geçiş en az 300ms rampalı ve
+     saniyede en fazla bir parlaklık geçişi.
+
+     Ölçüm:
+       #000000 / #f2f2f2 = 18.76  AAA   (gözbağlı, inversiyon)
+       #ffffff / #000000 = 21.00  AAA   (six eyes)
+       #ffffff / #2c0055 = 16.96  AAA   (nebula lekesi üzerinde)
+       #ffffff / #0e002b = 19.93  AAA
+     ════════════════════════════════════════════════════════════ */
+  --g-bf-s05-bg:      #f2f2f2;
+  --g-bf-s05-ink:     #000000;
+  --g-bf-s05-nebula1: transparent;
+  --g-bf-s05-nebula2: transparent;
+  --g-se-s05-bg:      var(--g-se-void);
+  --g-se-s05-ink:     var(--g-se-text);
+  --g-se-s05-nebula1: #0e002b;
+  --g-se-s05-nebula2: #2c0055;
+
+  --g-s05-bg:      var(--g-bf-s05-bg);
+  --g-s05-ink:     var(--g-bf-s05-ink);
+  --g-s05-nebula1: var(--g-bf-s05-nebula1);
+  --g-s05-nebula2: var(--g-bf-s05-nebula2);
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -296,6 +326,12 @@
   --g-s04-red:    var(--g-se-s04-red);
   --g-s04-purple: var(--g-se-s04-purple);
   --g-s04-text:   var(--g-se-s04-text);
+
+  /* P05 — inversiyon kalkıyor, kozmik boşluk açılıyor */
+  --g-s05-bg:      var(--g-se-s05-bg);
+  --g-s05-ink:     var(--g-se-s05-ink);
+  --g-s05-nebula1: var(--g-se-s05-nebula1);
+  --g-s05-nebula2: var(--g-se-s05-nebula2);
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -1834,4 +1870,403 @@
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
   gap: var(--g-gap);
   align-items: start;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   P05 · DOMAIN EXPANSION / UNLIMITED VOID
+
+   ── BÖLÜM: STATİK PANO ──────────────────────────────────────────
+   Bölümün kendisi HER ZAMAN tam: alan adı, gövde metni, akan bilgi
+   parçalarının listesi ve göz kadrajı. Sekans bunun oynatılmış hâli.
+   Reduced-motion'da sekans hiç açılmıyor ve hiçbir şey kaybolmuyor.
+   ════════════════════════════════════════════════════════════════ */
+.void {
+  position: relative;
+  inline-size: 100%;
+  overflow-x: clip;
+  background: var(--g-void);
+  padding-block: var(--g-step);
+  transition: background-color var(--g-swap) ease;
+}
+
+.voidInner {
+  inline-size: var(--g-wide);
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--g-gap);
+  align-items: start;
+}
+
+.voidKanji {
+  margin: 0;
+  font-family: var(--gojo-font-jp), system-ui, sans-serif;
+  font-size: clamp(2.4rem, 9vw, 6rem);
+  line-height: 1;
+  letter-spacing: 0.06em;
+  color: var(--g-text);
+  transition: color var(--g-swap) ease;
+}
+
+.voidTitle {
+  margin: 0.4rem 0 0;
+  font-family: var(--gojo-font-display), system-ui, sans-serif;
+  font-variation-settings: "wdth" 118;
+  font-size: clamp(1rem, 2.6vw, 1.7rem);
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--g-text);
+}
+
+.voidName {
+  margin: 0.3rem 0 var(--g-gap);
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  color: var(--g-text-dim);
+  transition: color var(--g-swap) ease;
+}
+
+.voidBody {
+  margin: 0;
+  max-inline-size: 54ch;
+  font-weight: 300;
+  font-size: clamp(0.92rem, 1.1vw, 1.02rem);
+  line-height: 1.8;
+  color: var(--g-text-dim);
+  transition: color var(--g-swap) ease;
+}
+
+/* Bilgi parçalarının STATİK listesi — sekansta akan şeylerin aynısı. */
+.voidList {
+  margin: var(--g-gap) 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.66rem;
+  color: var(--g-text-dim);
+  transition: color var(--g-swap) ease;
+}
+
+.voidListLabel {
+  margin: var(--g-gap) 0 0;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--g-text-dim) 80%, transparent);
+}
+
+/* ── Tetikleyici ───────────────────────────────────────────────── */
+.voidTrigger {
+  margin-block-start: var(--g-gap);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: var(--touch-min);
+  padding: 0.7rem 1.4rem;
+  background: transparent;
+  border: 1px solid var(--g-accent-2);
+  color: var(--g-text);
+  font-family: var(--gojo-font-display), system-ui, sans-serif;
+  font-variation-settings: "wdth" 118;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    border-color var(--g-swap) ease,
+    color var(--g-swap) ease;
+}
+
+.voidTrigger:hover {
+  border-color: var(--g-accent);
+}
+
+.voidTrigger:focus-visible {
+  outline: 2px solid var(--g-accent-2);
+  outline-offset: 3px;
+}
+
+.voidTriggerHint {
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  color: var(--g-text-dim);
+  text-transform: none;
+}
+
+@media (pointer: coarse) {
+  .voidTriggerHint {
+    display: none;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SEKANS — native <dialog>
+
+   ⚠️ NEDEN `<dialog>` VE NEDEN `body` KİLİTLENMİYOR
+   Brief "sekans açıkken body scroll kilitli" diyor. Kilit ELLE
+   YAPILMIYOR: `showModal()` arkadaki sayfayı zaten etkisiz (inert)
+   kılıyor, odak tuzağını ve `Esc` çıkışını tarayıcı yönetiyor.
+   `body`ye `overflow: hidden` yazmak geri alınması gereken bir DURUM
+   bırakırdı ve bir hata anında kullanıcı gerçekten kilitli kalabilirdi
+   — sayfanın hiçbir yerinde bu desen yok (`check:gojo` denetliyor).
+   Diyalog tam ekran ve opak olduğu için arkada bir kayma olsa bile
+   görünmüyor; görsel sonuç aynı, risk sıfır.
+   ════════════════════════════════════════════════════════════════ */
+.sequence {
+  inline-size: 100vw;
+  max-inline-size: 100vw;
+  block-size: 100dvh;
+  max-block-size: 100dvh;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  background: var(--g-s05-bg);
+  color: var(--g-s05-ink);
+  /* ⚠️ FLAŞ LİMİTİ. Zemin değişimi 420ms rampalı — brief'in istediği
+     asgari 300ms'nin üstünde. Fazlar arası en az 800ms olduğu için
+     saniyede birden fazla parlaklık geçişi imkânsız. */
+  transition:
+    background-color 420ms ease,
+    color 420ms ease;
+}
+
+.sequence::backdrop {
+  background: var(--g-void);
+}
+
+/* Faz 1 — karartma. Zemin henüz inversiyona geçmiyor. */
+.sequence[data-phase="dark"] {
+  background: var(--g-void);
+  color: var(--g-text);
+}
+
+/* Faz 2 — 領域展開 */
+.sequence[data-phase="kanji"] {
+  background: var(--g-void);
+  color: var(--g-text);
+}
+
+/* Faz 3 ve 4 — açılım ve donma: burada inversiyon devreye giriyor. */
+.sequence[data-phase="open"],
+.sequence[data-phase="freeze"] {
+  background: var(--g-s05-bg);
+  color: var(--g-s05-ink);
+}
+
+/* Faz 5 — geri dönüş */
+.sequence[data-phase="close"] {
+  background: var(--g-void);
+  color: var(--g-text);
+}
+
+.sequenceStage {
+  position: relative;
+  inline-size: 100%;
+  block-size: 100%;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+/* Nebula lekeleri — gözbağlı modda iki token da `transparent`,
+   yani aynı bildirim orada hiçbir şey çizmiyor. */
+.sequenceNebula {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    radial-gradient(
+      ellipse 60% 45% at 28% 32%,
+      color-mix(in srgb, var(--g-s05-nebula2) 85%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 55% 50% at 74% 68%,
+      color-mix(in srgb, var(--g-s05-nebula1) 90%, transparent),
+      transparent 72%
+    );
+  transition: opacity 620ms ease;
+}
+
+.sequence[data-phase="open"] .sequenceNebula,
+.sequence[data-phase="freeze"] .sequenceNebula {
+  opacity: 1;
+}
+
+/* 領域展開 */
+.sequenceKanji {
+  position: relative;
+  z-index: 2;
+  margin: 0;
+  font-family: var(--gojo-font-jp), system-ui, sans-serif;
+  font-size: clamp(2.6rem, 13vw, 9rem);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 420ms ease;
+}
+
+.sequence[data-phase="kanji"] .sequenceKanji {
+  opacity: 1;
+}
+
+/* Donma satırı */
+.sequenceFreeze {
+  position: relative;
+  z-index: 3;
+  margin: 0;
+  font-family: var(--gojo-font-display), system-ui, sans-serif;
+  font-variation-settings: "wdth" 125;
+  font-size: clamp(1.2rem, 5vw, 3.4rem);
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 420ms ease;
+}
+
+.sequence[data-phase="freeze"] .sequenceFreeze {
+  opacity: 1;
+}
+
+/* ── Akan bilgi ────────────────────────────────────────────────── */
+.sequenceFlow {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 420ms ease;
+}
+
+.sequence[data-phase="open"] .sequenceFlow,
+.sequence[data-phase="freeze"] .sequenceFlow {
+  opacity: 1;
+}
+
+.sequenceFragment {
+  position: absolute;
+  inset-inline-start: calc(var(--fx) * 1%);
+  inset-block-start: calc(var(--fy) * 1%);
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: calc(0.6rem * var(--fs, 1));
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  translate: -50% -50%;
+  /* Merkezden dışa doğru akış. Süre parçadan parçaya farklı ki
+     tek bir dalga gibi durmasın. */
+  animation: gojoDrift calc(var(--fd) * 1ms) linear infinite;
+}
+
+.sequenceFragment[lang="ja"] {
+  font-family: var(--gojo-font-jp), system-ui, sans-serif;
+}
+
+@keyframes gojoDrift {
+  from {
+    scale: 0.35;
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.85;
+  }
+  to {
+    scale: 2.1;
+    opacity: 0;
+  }
+}
+
+/* ⚠️ FRAME FREEZE. Her şey duruyor, yalnızca imleç hareket ediyor.
+   Animasyonlar `paused` — silinmiyor, DONDURULUYOR; yani parçalar
+   son kaldıkları yerde asılı kalıyor. */
+.sequence[data-phase="freeze"] .sequenceFragment {
+  animation-play-state: paused;
+}
+
+/* ── Her zaman görünür çıkış ───────────────────────────────────── */
+.sequenceExit {
+  position: absolute;
+  inset-block-start: max(1rem, env(safe-area-inset-top));
+  inset-inline-end: 1rem;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.sequenceSkip {
+  min-height: var(--touch-min);
+  padding: 0.5rem 1.1rem;
+  background: transparent;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  color: inherit;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.sequenceSkip:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+.sequenceEscape {
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+@media (pointer: coarse) {
+  .sequenceEscape {
+    display: none;
+  }
+}
+
+/* ── Dar ekran ─────────────────────────────────────────────────── */
+@media (max-width: 63.99rem) {
+  .voidInner {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   HAREKET KAPALI
+
+   Sekans zaten hiç açılmıyor (JS kapısı). Buradaki kurallar ikinci
+   emniyet: bir şekilde açılırsa bile akış ve nebula durur, faz
+   geçişleri anlık olur. Bilgi kaybı yok — panonun tamamı yukarıda.
+   ════════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .sequence,
+  .sequenceKanji,
+  .sequenceFreeze,
+  .sequenceFlow,
+  .sequenceNebula {
+    transition-duration: 0.001ms;
+  }
+
+  .sequenceFragment {
+    animation: none;
+    opacity: 0.85;
+    scale: 1;
+  }
 }

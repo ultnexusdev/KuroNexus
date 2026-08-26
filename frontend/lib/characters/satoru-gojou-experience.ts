@@ -768,6 +768,13 @@ export const GOJO_SHORTCUTS = {
         en: "Plays the domain expansion sequence",
       },
     },
+    {
+      keys: "P",
+      action: {
+        tr: "Kyoshiki «Murasaki» — mor ışın efektini bir kez geçirir",
+        en: "Hollow Purple — sweeps the violet beam once",
+      },
+    },
   ],
 } as const;
 
@@ -1918,5 +1925,193 @@ export const GOJO_S10_SLOT = {
   alt: {
     tr: "Değmeden duran temas anı — ultra makro",
     en: "The moment of contact halted before it lands — ultra macro",
+  },
+} as const;
+
+/* ══════════════════════════════════════════════════════════════════════════
+   P11 · EASTER EGGS
+
+   ⚠️ GEMINI'NİN ORİJİNAL YÖNÜ İKİ NOKTADA DEĞİŞTİRİLDİ (brief'in kendi
+   düzeltmesi):
+
+   1. `#000000` zemin üzerinde `#050505` ikonlar hem görülemez hem klavyeyle
+      erişilemezdi — keşfedilebilir değil, sadece gizli. İkonlar `#1a1a1a`
+      oldu: hâlâ zor fark ediliyor ama ekranda GERÇEKTEN var ve odakla
+      bulunabiliyor.
+   2. Easter egg'leri tek bölüme hapsetmek "keşfeden keşfeder" fikrini
+      zayıflatıyordu. Gerçek keşifler SAYFANIN TAMAMINA dağıldı; bu bölüm
+      bir KEŞİF KAYDI.
+
+   ── KAYIT İPUCU VERMİYOR ─────────────────────────────────────────────────
+   Bulunmamış bir keşif kayıtta yalnızca kilitli bir yuva olarak duruyor:
+   adı da, nasıl bulunacağı da yazmıyor. Bulununca adı, nasıl bulunduğu ve
+   Gojō'nun alaycı tonunda bir not açılıyor.
+
+   ⚠️ AMA KLAVYE KISAYOLLARI GİZLİ DEĞİL. Hepsi `GOJO_SHORTCUTS` listesinde
+   ve o liste sayfada `sr-only` olarak duruyor — ekran okuyucu kullanıcısı
+   için erişilemez içerik kalmıyor (BRIEF · erişilebilirlik).
+   ══════════════════════════════════════════════════════════════════════════ */
+
+export const GOJO_S11 = {
+  title: {
+    tr: "KEŞİF KAYDI",
+    en: "DISCOVERY LOG",
+  },
+  lede: {
+    tr: "Bu sayfada saklı sekiz şey var. Kayıt yalnızca bulduklarını gösterir.",
+    en: "Eight things are hidden on this page. The log only shows what you have found.",
+  },
+  /** Kilitli yuvanın etiketi — İPUCU YOK */
+  locked: {
+    tr: "kilitli",
+    en: "locked",
+  },
+  counter: {
+    tr: "bulunan",
+    en: "found",
+  },
+  /** Hepsi bulununca çıkan satır */
+  complete: {
+    tr: "Hepsini buldun. Tabii ki buldun.",
+    en: "You found them all. Of course you did.",
+  },
+  reset: {
+    tr: "Kaydı sıfırla",
+    en: "Reset the log",
+  },
+  /**
+   * Mikro objelerin erişilebilir adı.
+   *
+   * ⚠️ OBJENİN ADINI VERMİYOR. Ekran okuyucu kullanıcısı düğmeyi
+   * bulabiliyor (erişilebilirlik korunuyor) ama ne olduğunu ancak
+   * tıklayınca öğreniyor (keşif korunuyor).
+   */
+  hiddenObject: {
+    tr: "Gizli obje",
+    en: "Hidden object",
+  },
+  /** Hero'daki işaretin erişilebilir adı — aynı gerekçe */
+  heroMark: {
+    tr: "Gizli işaret",
+    en: "Hidden mark",
+  },
+} as const;
+
+export interface GojoEgg {
+  key: string;
+  /** Bulunduğunda görünen ad */
+  name: { tr: string; en: string };
+  /** Nasıl bulunduğu — yalnızca bulunduktan SONRA görünüyor */
+  how: { tr: string; en: string };
+  /** Gojō'nun alaycı tonunda not — Instrument Serif italik */
+  note: { tr: string; en: string };
+}
+
+/**
+ * Sekiz keşif.
+ *
+ * Beşi kısayol ya da etkileşim, üçü sayfaya serpiştirilmiş mikro obje.
+ * Sıra kayıtta da bu — ama kilitliyken hiçbiri ad vermiyor.
+ */
+export const GOJO_EGGS: GojoEgg[] = [
+  {
+    key: "sixeyes",
+    name: { tr: "Rikugan", en: "Six Eyes" },
+    how: { tr: "S tuşu", en: "the S key" },
+    note: {
+      tr: "Gözbağını çözmek için bir tuş yetti. Gerçekte bu kadar kolay değil.",
+      en: "One key was enough to take the blindfold off. It is not this easy in practice.",
+    },
+  },
+  {
+    key: "domain",
+    name: { tr: "Muryōkūsho", en: "Unlimited Void" },
+    how: { tr: "D tuşu", en: "the D key" },
+    note: {
+      tr: "Alanı açtın. İçeride kimse yoktu — şanslısın.",
+      en: "You opened the domain. Nobody was inside — lucky you.",
+    },
+  },
+  {
+    key: "purple",
+    name: { tr: "Kyoshiki «Murasaki»", en: "Hollow Purple" },
+    how: { tr: "P tuşu", en: "the P key" },
+    note: {
+      tr: "İki ucu birleştirdin. Yolunda bir şey olsaydı artık olmazdı.",
+      en: "You brought the two poles together. Anything in its path would no longer exist.",
+    },
+  },
+  {
+    key: "hero",
+    name: { tr: "Altı kere", en: "Six times" },
+    how: { tr: "hero'daki işarete altı tıklama", en: "six clicks on the hero mark" },
+    note: {
+      tr: "Altı. Tesadüf değil.",
+      en: "Six. Not a coincidence.",
+    },
+  },
+  {
+    key: "konami",
+    name: { tr: "Eski kod", en: "The old code" },
+    how: { tr: "yukarı yukarı aşağı aşağı sol sağ sol sağ B A", en: "up up down down left right left right B A" },
+    note: {
+      tr: "Bu kodu bilenler benden yaşlı.",
+      en: "Anyone who knows this code is older than I am.",
+    },
+  },
+  {
+    key: "mochi",
+    name: { tr: "Kikufuku", en: "Kikufuku" },
+    how: { tr: "mochi kutusu", en: "the mochi box" },
+    note: {
+      tr: "Sendai'den. Tatlıya para harcamak zayıflık değil.",
+      en: "From Sendai. Spending money on sweets is not a weakness.",
+    },
+  },
+  {
+    key: "polaroid",
+    name: { tr: "Buruşuk polaroid", en: "Crumpled polaroid" },
+    how: { tr: "lise döneminden bir kare", en: "a frame from the high school years" },
+    note: {
+      tr: "Üç kişiydik. Sonra iki olduk.",
+      en: "There were three of us. Then there were two.",
+    },
+  },
+  {
+    key: "glasses",
+    name: { tr: "Yuvarlak gözlük", en: "Round glasses" },
+    how: { tr: "siyah yuvarlak güneş gözlüğü", en: "black round sunglasses" },
+    note: {
+      tr: "Bant değil bunlar. Bunlar tercih.",
+      en: "These are not the band. These are a choice.",
+    },
+  },
+];
+
+/** Mikro objelerin görsel yuvaları. */
+export const GOJO_S11_SLOTS = {
+  mochi: {
+    key: "goj:egg-mochi",
+    aspect: "1 / 1",
+    spec: {
+      tr: "Kikufuku mochi kutusu · izole ikonsu form · düşük poligon ya da illüstrasyon",
+      en: "Kikufuku mochi box · isolated icon-like form · low poly or illustration",
+    },
+  },
+  polaroid: {
+    key: "goj:egg-polaroid",
+    aspect: "1 / 1",
+    spec: {
+      tr: "Lise döneminden buruşmuş polaroid · izole ikonsu form",
+      en: "Crumpled polaroid from the high school years · isolated icon-like form",
+    },
+  },
+  glasses: {
+    key: "goj:egg-glasses",
+    aspect: "1 / 1",
+    spec: {
+      tr: "Siyah yuvarlak güneş gözlüğü · izole ikonsu form",
+      en: "Black round sunglasses · isolated icon-like form",
+    },
   },
 } as const;

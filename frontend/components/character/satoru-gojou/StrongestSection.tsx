@@ -2,12 +2,14 @@ import { pick } from "@/lib/characters/types";
 import type { LocalizedText } from "@/lib/characters/types";
 import {
   GOJO_CURATOR,
+  GOJO_S11,
   GOJO_ID,
   GOJO_S02,
   GOJO_S02_SLOT,
   GOJO_UI,
 } from "@/lib/characters/satoru-gojou-experience";
 import { CuratedImage } from "./CuratedImage";
+import { EggObject } from "./EggObject";
 import { RevealedData } from "./RevealedData";
 import styles from "./GojoExperience.module.css";
 
@@ -95,6 +97,16 @@ export function StrongestSection({
           />
         </div>
       </div>
+      {/* P11 · mikro obje — sayfaya serpiştirilmiş üç keşiften biri.
+          Bölümün akışını bozmuyor: mutlak konumlu ve kenarda. */}
+      <EggObject
+        eggKey="glasses"
+        mark="◠"
+        label={say(GOJO_S11.hiddenObject)}
+        side="left"
+        tone="var(--g-se-s11-glass)"
+      />
     </div>
   );
 }
+

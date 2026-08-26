@@ -295,5 +295,38 @@
       "en": "Ultra-macro side-profile detail of the instant cursed energy stops in spacetime just before contact · 8K"
     },
     "status": "missing"
+  },
+  {
+    "slotId": "goj:egg-mochi",
+    "brief": "gojo.egg.mochi",
+    "phase": "P11",
+    "aspect": "1 / 1",
+    "spec": {
+      "tr": "Kikufuku mochi kutusu · izole ikonsu form · düşük poligon ya da illüstrasyon",
+      "en": "Kikufuku mochi box · isolated icon-like form · low poly or illustration"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:egg-polaroid",
+    "brief": "gojo.egg.polaroid",
+    "phase": "P11",
+    "aspect": "1 / 1",
+    "spec": {
+      "tr": "Lise döneminden buruşmuş polaroid · izole ikonsu form",
+      "en": "Crumpled polaroid from the high school years · isolated icon-like form"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:egg-glasses",
+    "brief": "gojo.egg.glasses",
+    "phase": "P11",
+    "aspect": "1 / 1",
+    "spec": {
+      "tr": "Siyah yuvarlak güneş gözlüğü · izole ikonsu form",
+      "en": "Black round sunglasses · isolated icon-like form"
+    },
+    "status": "missing"
   }
 ]

@@ -2,6 +2,7 @@ import { pick } from "@/lib/characters/types";
 import type { LocalizedText } from "@/lib/characters/types";
 import {
   GOJO_CURATOR,
+  GOJO_S11,
   GOJO_ID,
   GOJO_S06,
   GOJO_S06_SLOTS,
@@ -9,6 +10,7 @@ import {
   GOJO_TIMELINE,
 } from "@/lib/characters/satoru-gojou-experience";
 import { CuratedImage } from "./CuratedImage";
+import { EggObject } from "./EggObject";
 import styles from "./GojoExperience.module.css";
 
 /**
@@ -151,6 +153,16 @@ export function MakingSection({
 
         <p className={styles.makingOutro}>{say(GOJO_S06.outro)}</p>
       </div>
+      {/* P11 · mikro obje — sayfaya serpiştirilmiş üç keşiften biri.
+          Bölümün akışını bozmuyor: mutlak konumlu ve kenarda. */}
+      <EggObject
+        eggKey="mochi"
+        mark="◍"
+        label={say(GOJO_S11.hiddenObject)}
+        side="right"
+        tone="var(--g-se-s11-mochi)"
+      />
     </div>
   );
 }
+

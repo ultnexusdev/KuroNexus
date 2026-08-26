@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
+import { useDiscovery } from "./DiscoveryProvider";
 import { useSixEyes } from "./SixEyesProvider";
 import styles from "./GojoExperience.module.css";
 
@@ -48,6 +49,14 @@ export function SixEyesToggle({
   keyHint: string;
 }) {
   const { sixEyes, toggle } = useSixEyes();
+  const { discover } = useDiscovery();
+
+  /* Mod düğmesi aynı zamanda ilk keşif (P11). Kısayolla da,
+     tıklamayla da aynı yerden geçiyor. */
+  const fire = useCallback(() => {
+    discover("sixeyes");
+    toggle();
+  }, [discover, toggle]);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -55,18 +64,18 @@ export function SixEyesToggle({
       if (event.ctrlKey || event.metaKey || event.altKey) return;
       if (isTypingTarget(event.target)) return;
       event.preventDefault();
-      toggle();
+      fire();
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [toggle]);
+  }, [fire]);
 
   return (
     <button
       type="button"
       className={styles.toggle}
       aria-pressed={sixEyes}
-      onClick={toggle}
+      onClick={fire}
     >
       <span className={styles.toggleTrack} aria-hidden="true">
         <span className={styles.toggleThumb} />

@@ -10,10 +10,12 @@ import {
   GOJO_S01_JA,
   GOJO_S01_SCAN,
   GOJO_S01_SLOT,
+  GOJO_S11,
   GOJO_UI,
 } from "@/lib/characters/satoru-gojou-experience";
 import { CuratedImage } from "./CuratedImage";
 import { HeroEffects } from "./HeroEffects";
+import { HeroEgg } from "./HeroEgg";
 import { RevealedData } from "./RevealedData";
 import styles from "./GojoExperience.module.css";
 
@@ -133,6 +135,9 @@ export function HeroSection({
           </p>
         </div>
       </div>
+
+      {/* P11 · altı tıklama. Rikugan'ın altısı; sayı tesadüf değil. */}
+      <HeroEgg label={say(GOJO_S11.heroMark)} />
 
       <HeroEffects />
     </div>

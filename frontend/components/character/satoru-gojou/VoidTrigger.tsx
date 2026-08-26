@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useState } from "react";
+import { useDiscovery } from "./DiscoveryProvider";
 import { useMotionSafe } from "./useMotionSafe";
 import styles from "./GojoExperience.module.css";
 
@@ -54,7 +55,14 @@ export function VoidTrigger({
   fragments: ReadonlyArray<{ text: string; lang: string | null }>;
 }) {
   const { reducedMotion } = useMotionSafe();
+  const { discover } = useDiscovery();
   const [open, setOpen] = useState(false);
+
+  /* Sekansı açmak aynı zamanda bir keşif (P11). */
+  const start = useCallback(() => {
+    discover("domain");
+    setOpen(true);
+  }, [discover]);
 
   const close = useCallback(() => setOpen(false), []);
 
@@ -67,11 +75,11 @@ export function VoidTrigger({
       event.preventDefault();
       /* Zaten açıksa yeniden tetiklemiyor: üst üste binen iki sekans
          flaş limitini bozardı. */
-      setOpen((current) => current || true);
+      start();
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [reducedMotion]);
+  }, [reducedMotion, start]);
 
   if (reducedMotion) return null;
 
@@ -80,7 +88,7 @@ export function VoidTrigger({
       <button
         type="button"
         className={styles.voidTrigger}
-        onClick={() => setOpen(true)}
+        onClick={start}
       >
         {label}
         <span className={styles.voidTriggerHint}>{hint}</span>

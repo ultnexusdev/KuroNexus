@@ -426,6 +426,31 @@
   --g-s10-bg:     var(--g-bf-s10-bg);
   --g-s10-warp:   var(--g-bf-s10-warp);
   --g-s10-impact: var(--g-bf-s10-impact);
+
+  /* ════════════════════════════════════════════════════════════
+     BÖLÜM TOKENLARI · P11 · EASTER EGGS
+
+     ⚠️ GEMINI'NİN İKON RENGİ DÜZELTİLDİ. `#000000` zemin üzerinde
+     `#050505` (kontrast 1.02) hem görülemez hem odakla bulunamazdı.
+     `#1a1a1a` seçildi — zeminde 1.27, yani hâlâ zor fark ediliyor
+     ama ekranda GERÇEKTEN var. Odaklandığında `--g-accent-2`
+     halkası çiziliyor, yani klavyeyle KEŞFEDİLEBİLİR.
+
+     ⚠️ Mikro objeler METİN TAŞIMIYOR; adları yalnızca keşfedildikten
+     sonra kayıtta, `--g-text` ile görünüyor (iki zeminde de AAA).
+     ════════════════════════════════════════════════════════════ */
+  --g-bf-s11-bg:    var(--g-se-void);
+  --g-bf-s11-icon:  #1a1a1a;
+  --g-bf-s11-found: var(--g-bf-text-dim);
+  --g-se-s11-bg:    var(--g-se-void);
+  --g-se-s11-icon:  #1a1a1a;
+  /* Keşfedildiğinde açılan spot renkler */
+  --g-se-s11-mochi: #ffc0cb;
+  --g-se-s11-glass: #ff00ff;
+
+  --g-s11-bg:    var(--g-bf-s11-bg);
+  --g-s11-icon:  var(--g-bf-s11-icon);
+  --g-s11-found: var(--g-bf-s11-found);
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -511,6 +536,11 @@
   --g-s10-bg:     var(--g-se-s10-bg);
   --g-s10-warp:   var(--g-se-s10-warp);
   --g-s10-impact: var(--g-se-s10-impact);
+
+  /* P11 — keşfedilen objeler Six Eyes'ta kendi spot rengini alıyor */
+  --g-s11-bg:    var(--g-se-s11-bg);
+  --g-s11-icon:  var(--g-se-s11-icon);
+  --g-s11-found: var(--g-se-text-dim);
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -3708,6 +3738,203 @@
 
   .touchBarrier,
   .touchRing {
+    transition: none;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   P11 · EASTER EGGS — keşif kaydı ve mikro objeler
+
+   ── TAMAMEN MAT ─────────────────────────────────────────────────
+   Sıfır parlama. Tek ışık, keşfedilen objenin üzerine vuran keskin
+   spot — o da yalnızca tetiklendiğinde.
+   ════════════════════════════════════════════════════════════════ */
+.eggs {
+  position: relative;
+  inline-size: 100%;
+  overflow-x: clip;
+  background: var(--g-s11-bg);
+  padding-block: var(--g-step);
+  transition: background-color var(--g-swap) ease;
+}
+
+.eggsInner {
+  inline-size: var(--g-wide);
+  margin-inline: auto;
+}
+
+.eggsTitle {
+  margin: 0;
+  font-family: var(--gojo-font-display), system-ui, sans-serif;
+  font-variation-settings: "wdth" 118;
+  font-size: clamp(1rem, 2.6vw, 1.6rem);
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--g-text);
+  transition: color var(--g-swap) ease;
+}
+
+.eggsLede {
+  margin: 0.5rem 0 var(--g-gap);
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  color: var(--g-s11-found);
+  transition: color var(--g-swap) ease;
+}
+
+.eggsCount {
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  color: var(--g-text);
+}
+
+/* ── Kayıt ─────────────────────────────────────────────────────
+   Boş-uzay estetiği: ilk bakışta neredeyse boş. Kilitli yuvalar
+   yalnızca bir çizgi; ad da ipucu da YOK. */
+.eggsLog {
+  margin: var(--g-gap) 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.9rem;
+}
+
+.eggRow {
+  display: grid;
+  grid-template-columns: 1.6rem minmax(0, 1fr);
+  gap: 0.8rem;
+  align-items: start;
+  padding-block-end: 0.9rem;
+  border-block-end: 1px solid
+    color-mix(in srgb, var(--g-text) 10%, transparent);
+}
+
+.eggIndex {
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  color: color-mix(in srgb, var(--g-s11-found) 60%, transparent);
+}
+
+/* Kilitli: tek bir çizgi. İpucu vermiyor. */
+.eggLocked {
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.2em;
+  color: color-mix(in srgb, var(--g-s11-found) 42%, transparent);
+}
+
+.eggName {
+  margin: 0;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--g-text);
+}
+
+.eggHow {
+  margin: 0.15rem 0 0;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  color: var(--g-s11-found);
+}
+
+/* Gojō'nun alaycı notu — Instrument Serif italik (brief). */
+.eggNote {
+  margin: 0.4rem 0 0;
+  font-family: var(--gojo-font-serif), Georgia, serif;
+  font-style: italic;
+  font-size: clamp(0.92rem, 1.6vw, 1.1rem);
+  line-height: 1.5;
+  color: var(--g-text);
+  transition: color var(--g-swap) ease;
+}
+
+.eggsComplete {
+  margin: var(--g-gap) 0 0;
+  font-family: var(--gojo-font-serif), Georgia, serif;
+  font-style: italic;
+  font-size: clamp(1rem, 2.4vw, 1.5rem);
+  color: var(--g-text);
+}
+
+.eggsReset {
+  margin-block-start: var(--g-gap);
+  min-height: var(--touch-min);
+  padding: 0.4rem 1rem;
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--g-text) 25%, transparent);
+  color: var(--g-s11-found);
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.eggsReset:focus-visible {
+  outline: 2px solid var(--g-accent-2);
+  outline-offset: 3px;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   MİKRO OBJELER — sayfaya serpiştirilmiş
+
+   ⚠️ GÖRÜLEBİLİR ve ODAKLANABİLİR. İkon rengi `#1a1a1a`: zeminde
+   zor fark ediliyor ama gerçekten var. Odaklandığında görünür bir
+   halka çiziliyor — yani klavyeyle KEŞFEDİLEBİLİR, sadece gizli
+   değil (brief'in kendi düzeltmesi).
+   ════════════════════════════════════════════════════════════════ */
+.egg {
+  position: absolute;
+  inset-block-end: clamp(0.5rem, 2vw, 1.5rem);
+  inline-size: var(--touch-min);
+  block-size: var(--touch-min);
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  color: var(--g-s11-icon);
+  cursor: pointer;
+  /* Tamamen mat: gölge, parlama, geçiş yok. */
+  transition: color 200ms ease;
+}
+
+.egg:focus-visible {
+  outline: 2px solid var(--g-accent-2);
+  outline-offset: 2px;
+}
+
+/* Keşfedilince spot ışığı vuruyor — tek ışık kaynağı bu. */
+.egg[data-found="1"] {
+  color: var(--eggTone, var(--g-text-dim));
+}
+
+.eggMark {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.eggSlot {
+  inline-size: 1.6rem;
+}
+
+/* Objelerin yerleşim yerleri — bölümlerin kenarında, akışı bozmadan */
+.eggLeft {
+  inset-inline-start: clamp(0.5rem, 2vw, 1.5rem);
+}
+
+.eggRight {
+  inset-inline-end: clamp(0.5rem, 2vw, 1.5rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .egg {
     transition: none;
   }
 }

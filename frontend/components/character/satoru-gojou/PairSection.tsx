@@ -5,8 +5,10 @@ import {
   GOJO_ID,
   GOJO_S07,
   GOJO_S07_SLOT,
+  GOJO_S11,
 } from "@/lib/characters/satoru-gojou-experience";
 import { CuratedImage } from "./CuratedImage";
+import { EggObject } from "./EggObject";
 import { PairEffects } from "./PairEffects";
 import styles from "./GojoExperience.module.css";
 
@@ -109,6 +111,15 @@ export function PairSection({
           />
         </div>
       </div>
+
+      {/* P11 · mikro obje — sayfaya serpiştirilmiş üç keşiften biri.
+          Bölümün akışını bozmuyor: mutlak konumlu ve kenarda. */}
+      <EggObject
+        eggKey="polaroid"
+        mark="▧"
+        label={say(GOJO_S11.hiddenObject)}
+        side="left"
+      />
 
       <PairEffects />
     </div>

@@ -660,3 +660,149 @@ export const GOJO_CLOSING = {
     en: "AniList · Satoru Gojou #127691",
   },
 } as const;
+
+/* ══════════════════════════════════════════════════════════════════════════
+   P00 · TEMELLER — "UNTOUCHABLE" sayfasının kabuk sözlüğü
+   ══════════════════════════════════════════════════════════════════════════
+
+   ⚠️ YUKARIDAKİ BLOKLARIN DURUMU. Bu dosyanın 39–662 satırları "İki Uç"
+   kompozisyonunun (蒼+赫→茈 birleştirici) metni. O kompozisyon 26 Ağustos
+   2026'da yerini "UNTOUCHABLE" sayfasına bırakmaya başladı ve bileşenleri
+   kaldırıldı. Metin SİLİNMEDİ: künye (`GOJO_IDENTITY`), kader çizelgesi
+   (`GOJO_TIMELINE`), teknik anlatımları (`GOJO_ARTS`) ve yuva etiketleri
+   (`GOJO_SLOT_LABELS`) ölçülerek yazılmış, kaynaklı ve iki dilli — yeni
+   bölümler bunları faz faz devralacak. Devralınmayanlar ilgili fazın
+   sonunda temizlenir. Bir fazın işini yapmadan buradan bir şey silme.
+
+   Bu bölümdeki metinler yalnızca KABUĞA ait: mod düğmesi, küratör yuvası
+   ve klavye kısayolları. Bölüm metinleri kendi fazlarında eklenecek.
+
+   Sözlük NEDEN JSON DEĞİL: BRIEF P00/11 `content/gojo/tr.json` + `en.json`
+   istiyor, ama aynı brief "Itachi sayfasının i18n çözümünü incele ve aynı
+   sözleşmeye uy" diyor ve ev sözleşmesi JSON kullanmıyor — 42 karakter
+   sayfasının tamamı metni kodda, iki dilli `LocalizedText` çiftleri olarak
+   tutuyor (AGENTS.md kural 1). Çakışmada brief'in kendi öncelik kuralı
+   uygulandı: Itachi kazanır. Şema aynı şema, taşıyıcı farklı.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/** Sayfa kökündeki iki mod. Değer DOM'a `data-mode` olarak iniyor. */
+export type GojoPageMode = "blindfold" | "sixeyes";
+
+/**
+ * Kabuk metinleri.
+ *
+ * Hiçbir dize bileşenin içine gömülmüyor (BRIEF · i18n): istemci adaları
+ * bile bunları prop olarak, sunucuda `pick()` ile TEK dile indirilmiş
+ * hâlde alıyor. Adaya sözlük göndermek gereksiz bayt olurdu.
+ */
+export const GOJO_UI = {
+  /** Düğmenin sabit adı — moda göre DEĞİŞMEZ, yalnızca basılılığı değişir */
+  modeLabel: {
+    tr: "Altı Göz",
+    en: "Six Eyes",
+  },
+  /** Yalnızca görsel durum yazısı; `aria-pressed` aynı bilgiyi taşıyor */
+  modeOn: {
+    tr: "açık",
+    en: "on",
+  },
+  modeOff: {
+    tr: "kapalı",
+    en: "off",
+  },
+  /** Dokunmatikte CSS gizliyor */
+  modeKeyHint: {
+    tr: "S",
+    en: "S",
+  },
+  /** Six Eyes kapalıyken gizli veri alanlarının maskesi */
+  mask: {
+    tr: "???",
+    en: "???",
+  },
+} as const;
+
+/** Küratör moduna ait yazılar — ziyaretçi bunları hiç görmüyor. */
+export const GOJO_CURATOR = {
+  /** Yükleme düğmesinin etiketi */
+  upload: {
+    tr: "Görsel bağla",
+    en: "Attach image",
+  },
+  /** Manifesto panelinin durum satırı */
+  missing: {
+    tr: "EKSİK VARLIK",
+    en: "MISSING ASSET",
+  },
+} as const;
+
+/**
+ * Klavye kısayolları — `sr-only` bir listede sunuluyor.
+ *
+ * BRIEF · erişilebilirlik: "Easter egg'lerin klavye ile keşfedilebilir bir
+ * yolu var" ve "kısayollar `sr-only` bir listede tanımlıdır — ekran okuyucu
+ * kullanıcısı için erişilemez içerik kalmaz."
+ *
+ * ⚠️ Liste sayfayla birlikte BÜYÜYECEK. Bir faz yeni bir kısayol eklerse
+ * aynı fazda buraya da satırını ekler; kısayol var ama listede yoksa
+ * erişilebilirlik şartı çiğnenmiş olur. Bugün yalnızca `S` var (P00);
+ * `D` P05'te, `P` P11'de eklenecek.
+ */
+export const GOJO_SHORTCUTS = {
+  title: {
+    tr: "Bu sayfadaki klavye kısayolları",
+    en: "Keyboard shortcuts on this page",
+  },
+  items: [
+    {
+      keys: "S",
+      action: {
+        tr: "Altı Göz modunu açar ve kapatır",
+        en: "Toggles Six Eyes mode",
+      },
+    },
+  ],
+} as const;
+
+/**
+ * P00 temel panosunun metni.
+ *
+ * ⚠️ GEÇİCİ. P01 bu bölümün yerine hero'yu koyacak ve bu blok silinecek.
+ * Sayfanın "boş ama hatasız" durduğu aşamada ziyaretçiye ve küratöre ne
+ * olduğunu söylemek için var — sessiz bir boş sayfa, bozuk bir sayfadan
+ * ayırt edilemez.
+ */
+export const GOJO_FOUNDATION = {
+  title: {
+    tr: "Temeller",
+    en: "Foundations",
+  },
+  note: {
+    tr: "Bu sayfa yeniden kuruluyor. Şu an yalnızca altyapı yerinde: iki modlu token sistemi, gizli veri katmanı ve küratör yuvası. Bölümler sırayla eklenecek.",
+    en: "This page is being rebuilt. Only the foundations are in place: the dual-mode token system, the hidden data layer, and the curated image slot. Sections will be added in order.",
+  },
+  /** Gizli veri katmanının çalıştığını gösteren tek örnek alan */
+  sampleLabel: {
+    tr: "Lanetli enerji verimi",
+    en: "Cursed energy efficiency",
+  },
+  sampleValue: {
+    tr: "sınırsız",
+    en: "limitless",
+  },
+} as const;
+
+/**
+ * P00'da TANIMLANAN GÖRSEL YUVASI YOK.
+ *
+ * `content/gojo/asset-manifest.json` bu yüzden boş dizi. Temel panosundaki
+ * tek kadraj mevcut `goj:hero` anahtarını ödünç alıyor (kayıt zaten var,
+ * yenisi açılmadı). Yuva kaydı P01'de `gojo.hero.primary` ile başlıyor;
+ * her faz kendi yuvalarını manifestoya kendi sonunda ekliyor.
+ *
+ * Oranlar burada, tek yerde: `CuratedImage` oranı CSS'e `--slot-ratio`
+ * olarak indiriyor ve yuva boşken de yer kaplıyor (CLS ≈ 0).
+ */
+export const GOJO_SLOT_ASPECT: Record<string, string> = {
+  "goj:hero": "16 / 9",
+};

@@ -1084,3 +1084,136 @@ export const GOJO_S03_SLOT = {
     en: "Two extended fingers — macro shot of the stopping pose",
   },
 } as const;
+
+/* ══════════════════════════════════════════════════════════════════════════
+   P04 · CURSED TECHNIQUES
+
+   Sayfa yatay üç şeride ayrılıyor: 蒼 Mavi / 赫 Kırmızı / 茈 Mor. Şeritler
+   birbirine binmeye çalışıyor ama aradaki itici güç yüzünden yırtık siyah
+   boşluklar kalıyor.
+
+   ⚠️ ANLATININ TAMAMI `GOJO_POLES` ve `GOJO_MERGE` bloklarından geliyor
+   (bu dosyanın üst yarısı) — orada ölçülerek yazılmış, terminolojisi
+   serinin kendi yazımıyla. P04 onları DEVRALIYOR, yeniden yazmıyor.
+   Buradaki blok yalnızca bölümün kendi kabuğunu ekliyor: teknik özellik
+   matrisi ve etkileşim etiketleri.
+
+   ── AÇIKLAMA METNİ HER ZAMAN AÇIK ────────────────────────────────────────
+   Hiçbir açıklama etkileşimin arkasına saklanmıyor. Hover/tap/drag yalnızca
+   bir gösteri; metin sunucudan tam geliyor. Reduced-motion şartı ("üç teknik
+   de statik kart olarak sunulur, tüm açıklama metni açık") böylece
+   VARSAYILAN durum oluyor, özel bir dal değil.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+export const GOJO_S04 = {
+  title: {
+    tr: "LANETLİ TEKNİKLER",
+    en: "CURSED TECHNIQUES",
+  },
+  /**
+   * Teknik özellik matrisi — paragraf değil, kolonlu okuma.
+   *
+   * ⚠️ UYDURMA GÜÇ İSTATİSTİĞİ YOK. Seride bu tekniklerin çıktısı sayıyla
+   * verilmiyor; buradaki "sayılar" ilişkisel gösterim: çeken uç −1, iten uç
+   * +1, ikisinin çarpışması hayalî bir üçüncü teknik. Hem doğru hem de
+   * bölümün tezini (zıtlık) taşıyor.
+   */
+  matrixLabels: {
+    vector: { tr: "VEKTÖR", en: "VECTOR" },
+    output: { tr: "ÇIKTI", en: "OUTPUT" },
+    range: { tr: "MENZİL", en: "RANGE" },
+    base: { tr: "TEMEL", en: "BASE" },
+  },
+  matrix: {
+    blue: {
+      vector: "−1",
+      output: { tr: "çekim", en: "attraction" },
+      range: { tr: "nokta", en: "point" },
+      base: "無下限",
+    },
+    red: {
+      vector: "+1",
+      output: { tr: "itme", en: "repulsion" },
+      range: { tr: "koni", en: "cone" },
+      base: "無下限",
+    },
+    purple: {
+      vector: "−1 ⊕ +1",
+      output: { tr: "silme", en: "erasure" },
+      range: { tr: "hat", en: "line" },
+      base: "蒼 + 赫",
+    },
+  },
+  /**
+   * Şeritlerin outline dev başlıkları.
+   *
+   * `GOJO_POLES[].turkish` ("Düz akış — Mavi") künye satırı olarak doğru
+   * ama ekranı kaplayan bir kontur başlık için fazla uzun. Bunlar onun
+   * kısa hâli; ikisi de aynı şeritte, farklı ölçekte duruyor.
+   */
+  displays: {
+    blue: { tr: "MAVİ", en: "BLUE" },
+    red: { tr: "KIRMIZI", en: "RED" },
+    purple: { tr: "MOR", en: "PURPLE" },
+  },
+  /** Etkileşim kabuğu — hiçbiri bilgi taşımıyor, hepsi yönlendirme */
+  ui: {
+    chargeLabel: { tr: "BİRLEŞİM", en: "FUSION" },
+    /** Fare yolu: önce mavi, sonra kırmızı */
+    chargeHint: {
+      tr: "Önce 蒼, sonra 赫 üzerine gel — birleşim dolar.",
+      en: "Hover 蒼 then 赫 — the fusion charges.",
+    },
+    /** Dokunmatik ve fare için ortak yol: iki küreyi birleştir */
+    dragHint: {
+      tr: "İki küreyi birbirine sürükle.",
+      en: "Drag the two spheres together.",
+    },
+    /** Klavye yolu — etkileşim klavyeyle de keşfedilebilir olmak zorunda */
+    keyHint: {
+      tr: "Klavyeyle: küreleri ok tuşlarıyla yaklaştır.",
+      en: "With a keyboard: move the spheres closer with the arrow keys.",
+    },
+    fired: {
+      tr: "茈 — çarpışma gerçekleşti.",
+      en: "茈 — the collision happened.",
+    },
+    reset: { tr: "Sıfırla", en: "Reset" },
+    spherePull: { tr: "Çeken uç", en: "Attracting pole" },
+    spherePush: { tr: "İten uç", en: "Repelling pole" },
+  },
+} as const;
+
+/**
+ * P04'ün iki görsel yuvası.
+ *
+ * Kutup görselleri (`goj:ao`, `goj:aka`, `goj:murasaki`) ZATEN tanımlı ve
+ * şeritlerin içinde kullanılıyor; buradaki ikisi brief'in ayrıca istediği
+ * makro kadrajlar.
+ */
+export const GOJO_S04_SLOTS = {
+  handseal: {
+    key: "goj:handseal",
+    aspect: "16 / 9",
+    spec: {
+      tr: "Hollow Purple el mührünü birleştiren parmakların makro çekimi · 4K",
+      en: "Macro shot of the fingers forming the Hollow Purple hand seal · 4K",
+    },
+    alt: {
+      tr: "Hollow Purple el mührünü birleştiren parmaklar",
+      en: "Fingers forming the Hollow Purple hand seal",
+    },
+  },
+  silhouette: {
+    key: "goj:silhouette",
+    aspect: "3 / 4",
+    spec: {
+      tr: "İçinden ışık fışkıran karanlık silüet · yetişkin Gojō · 4K",
+      en: "Dark silhouette with light bursting through · adult Gojō · 4K",
+    },
+    alt: {
+      tr: "İçinden ışık fışkıran karanlık Gojō silüeti",
+      en: "Dark Gojō silhouette with light bursting through",
+    },
+  },
+} as const;

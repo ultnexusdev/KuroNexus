@@ -18,6 +18,7 @@ import { CuratorFrame } from "@/components/character/CuratorFrame";
 import { GOJO_FONT_CLASS } from "./gojo-fonts";
 import { HeroSection } from "./HeroSection";
 import { LimitlessSection } from "./LimitlessSection";
+import { TechniquesSection } from "./TechniquesSection";
 import { StrongestSection } from "./StrongestSection";
 import { SectionShell } from "./SectionShell";
 import { SixEyesProvider } from "./SixEyesProvider";
@@ -111,6 +112,17 @@ export function GojoExperience({ detail, isAdmin }: CharacterExperienceProps) {
             locale={locale}
             isAdmin={isAdmin}
             src={abilityImages.get(GOJO_S03_SLOT.key) ?? null}
+          />
+        </section>
+
+        {/* ══ P04 · CURSED TECHNIQUES ═════════════════════════════════
+            Üç şerit. Anlatının tamamı sunucuda; etkileşim adası hiç
+            inmese de üç teknik tam okunur. */}
+        <section aria-labelledby="gojo-techniques-title">
+          <TechniquesSection
+            locale={locale}
+            isAdmin={isAdmin}
+            images={abilityImages}
           />
         </section>
 

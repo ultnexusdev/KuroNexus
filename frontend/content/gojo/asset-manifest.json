@@ -31,5 +31,60 @@
       "en": "Macro close-up of the stopping pose with index and middle finger extended · hands only · transparent background · 4K+"
     },
     "status": "missing"
+  },
+  {
+    "slotId": "goj:ao",
+    "brief": "gojo.techniques.blue",
+    "phase": "P04",
+    "aspect": "16 / 9",
+    "spec": {
+      "tr": "蒼 — çeken uç, her şeyin merkeze düştüğü an",
+      "en": "Blue — the attracting pole, everything falling inward"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:aka",
+    "brief": "gojo.techniques.red",
+    "phase": "P04",
+    "aspect": "16 / 9",
+    "spec": {
+      "tr": "赫 — iten uç, patlamanın ilk karesi",
+      "en": "Red — the repelling pole, the first frame of the blast"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:murasaki",
+    "brief": "gojo.techniques.purple",
+    "phase": "P04",
+    "aspect": "16 / 9",
+    "spec": {
+      "tr": "茈 — iki ucun çarpıştığı yerdeki mor iz",
+      "en": "Purple — the violet trace where the two poles collide"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:handseal",
+    "brief": "gojo.techniques.handseal",
+    "phase": "P04",
+    "aspect": "16 / 9",
+    "spec": {
+      "tr": "Hollow Purple el mührünü birleştiren parmakların makro çekimi · 4K",
+      "en": "Macro shot of the fingers forming the Hollow Purple hand seal · 4K"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:silhouette",
+    "brief": "gojo.techniques.silhouette",
+    "phase": "P04",
+    "aspect": "3 / 4",
+    "spec": {
+      "tr": "İçinden ışık fışkıran karanlık silüet · yetişkin Gojō · 4K",
+      "en": "Dark silhouette with light bursting through · adult Gojō · 4K"
+    },
+    "status": "missing"
   }
 ]

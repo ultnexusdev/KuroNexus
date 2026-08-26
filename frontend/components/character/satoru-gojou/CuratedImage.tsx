@@ -52,6 +52,9 @@ export function CuratedImage({
   priority,
   unoptimized,
   noEdit,
+  fill,
+  optional,
+  ariaHidden,
   className,
 }: {
   /** `goj:hero` gibi kararlı, benzersiz kimlik */
@@ -95,15 +98,58 @@ export function CuratedImage({
    * şeridinde düzenlenebilir).
    */
   noEdit?: boolean;
+  /**
+   * Oranı YOK SAY, ebeveyni doldur.
+   *
+   * Kadrajı dışarıdaki düzen belirlediğinde gerekiyor. İlk kullanıcı
+   * hero'nun iki durumlu yığını: üç katman aynı kutuda üst üste duruyor
+   * ve kutunun oranını yığın veriyor.
+   *
+   * ⚠️ CLS sorumluluğu çağırana geçiyor — oran artık yuvadan gelmediği
+   * için ebeveynin kendi yüksekliğini bilmesi şart.
+   */
+  fill?: boolean;
+  /**
+   * Yuva BOŞSA hiçbir şey çizme.
+   *
+   * Varsayılan davranış boş yuvada tasarlanmış boşluğu ve (yöneticide)
+   * manifesto panelini çizmek — çünkü eksik varlık sessizce geçilmemeli.
+   * Ama bazı yuvalar gerçekten isteğe bağlı ve eksikliği bir kusur değil;
+   * onlarda "EKSİK VARLIK" uyarısı yanlış alarm olurdu. İlk kullanıcı
+   * hero'nun aura katmanı.
+   *
+   * ⚠️ Küratörün o yuvaya erişebilmesi için çağıranın yükleyiciyi BAŞKA
+   * bir yerde çizmesi şart (hero'da yönetici şeridi).
+   */
+  optional?: boolean;
+  /**
+   * Yuvayı erişilebilirlik ağacından tamamen gizle.
+   *
+   * Kadraj TEK BAŞINA bir figür değil, daha büyük bir figürün katmanıysa
+   * gerekiyor: hero'nun iki durumlu portresinde üç katman var ve ekran
+   * okuyucuya tek bir ad verilmeli. `role="img"` taşıyan kap alt ağacı
+   * zaten yaprak yapıyor, ama bunu ayrıca yazmak davranışı tarayıcı
+   * yorumuna bırakmıyor.
+   */
+  ariaHidden?: boolean;
   className?: string;
 }) {
+  /* İsteğe bağlı ve boş: ne boşluk ne panel. Hiç yokmuş gibi. */
+  if (optional && !src) return null;
+
   return (
-    <div className={[styles.slotWrap, className].filter(Boolean).join(" ")}>
+    <div
+      className={[styles.slotWrap, fill ? styles.slotWrapFill : null, className]
+        .filter(Boolean)
+        .join(" ")}
+      aria-hidden={ariaHidden ? "true" : undefined}
+    >
       <span
         className={styles.slot}
         style={{ "--slot-ratio": aspect } as React.CSSProperties}
         data-slot={slotId}
         data-empty={src ? undefined : ""}
+        data-fill={fill ? "" : undefined}
       >
         <span className={styles.slotClip}>
         {src ? (

@@ -792,6 +792,13 @@
   inline-size: 100%;
 }
 
+/* `fill` hâli: sarmalayıcı da ebeveyni dolduruyor, yoksa mutlak konumlu
+   kadrajın altında yüksekliği sıfıra çökerdi. */
+.slotWrapFill {
+  position: absolute;
+  inset: 0;
+}
+
 /* Yönetici yükleyicisi — ziyaretçinin DOM'unda hiç yok. */
 .slotEditor {
   margin-block-start: 0.5rem;
@@ -804,6 +811,14 @@
   /* Oran SABİT: yuva boşken de yer kaplıyor, yani görsel sonradan
      bağlandığında layout kaymıyor (CLS ≈ 0). */
   aspect-ratio: var(--slot-ratio, 16 / 9);
+}
+
+/* `fill`: oranı yok say, ebeveyni doldur. Kadrajı dışarıdaki düzen
+   veriyor (hero'nun iki durumlu yığını). */
+.slot[data-fill] {
+  position: absolute;
+  inset: 0;
+  aspect-ratio: auto;
 }
 
 .slotClip {
@@ -3950,4 +3965,73 @@
   .egg {
     transition: none;
   }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   HERO · İKİ DURUMLU GÖRSEL YIĞINI
+
+   Üç katman aynı kutuda üst üste. Geçiş YALNIZCA opaklık ve kaynağı
+   kökteki `data-mode` — hiçbir katman JS durumu tutmuyor, hiçbiri
+   koşullu çizilmiyor.
+
+   ⚠️ Süre `--g-swap` (400ms), yani global mod geçişiyle AYNI değişkeni
+   okuyor. `prefers-reduced-motion` altında o değişken zaten 0ms'ye
+   iniyor (deri bloğundaki battaniye) — burada ayrıca bir kural yazmak
+   iki yerde iki doğru üretirdi.
+
+   ⚠️ Yığın kutusunun oranı `--slot-ratio`dan geliyor ve o da bileşenin
+   okuduğu TEK sabitten (`GOJO_HERO_ASPECT`). Üç katman da aynı kutuyu
+   dolduruyor: iki kare arasında piksel kayması ve yüklenirken layout
+   kayması yok.
+   ════════════════════════════════════════════════════════════════ */
+.heroStack {
+  position: relative;
+  inline-size: 100%;
+  aspect-ratio: var(--slot-ratio);
+}
+
+.heroLayer {
+  transition: opacity var(--g-swap) ease;
+}
+
+/* Gözbağlı kare: varsayılan görünür. Sunucu bu modda çiziyor. */
+.heroLayerBlind {
+  opacity: 1;
+}
+
+/* Rikugan karesi ve aura: varsayılan saydam ama DOM'da ve YÜKLÜ.
+   `visibility` ya da `display` KULLANILMIYOR — ikisi de tarayıcının
+   kareyi indirmesini erteleyebilir ve ilk geçişte boş kare üretirdi.
+   Saydam bir görsel yine de indiriliyor. */
+.heroLayerSix,
+.heroLayerGlow {
+  opacity: 0;
+}
+
+.page[data-mode="sixeyes"] .heroLayerBlind {
+  opacity: 0;
+}
+
+.page[data-mode="sixeyes"] .heroLayerSix,
+.page[data-mode="sixeyes"] .heroLayerGlow {
+  opacity: 1;
+}
+
+/* Yönetici şeridi — üç yuvanın yükleyicisi.
+   Katmanlar yığının içinde `noEdit` ile çiziliyor (üst üste binen üç
+   yükleyici hem tıklanamaz hem anlamsız olurdu); küratörün üçüne de
+   eriştiği tek yer burası. */
+.heroEditors {
+  display: grid;
+  gap: 0.6rem;
+  margin-block-start: var(--g-gap);
+}
+
+.heroEditorNote {
+  margin: 0;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  line-height: 1.6;
+  color: var(--g-text-dim);
 }

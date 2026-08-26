@@ -1,20 +1,17 @@
 import { pick } from "@/lib/characters/types";
 import type { LocalizedText } from "@/lib/characters/types";
 import {
-  GOJO_CURATOR,
   GOJO_HERO,
-  GOJO_ID,
   GOJO_IDENTITY,
   GOJO_S01,
   GOJO_S01_DISPLAY,
   GOJO_S01_JA,
   GOJO_S01_SCAN,
-  GOJO_S01_SLOT,
   GOJO_S11,
   GOJO_UI,
 } from "@/lib/characters/satoru-gojou-experience";
-import { CuratedImage } from "./CuratedImage";
 import { HeroEffects } from "./HeroEffects";
+import { HeroPortrait } from "./HeroPortrait";
 import { HeroEgg } from "./HeroEgg";
 import { RevealedData } from "./RevealedData";
 import styles from "./GojoExperience.module.css";
@@ -43,13 +40,13 @@ import styles from "./GojoExperience.module.css";
 export function HeroSection({
   locale,
   isAdmin,
-  heroSrc,
+  images,
   displayName,
 }: {
   locale: string;
   isAdmin: boolean;
-  /** Küratörün bağladığı hero karesi; yoksa `null` */
-  heroSrc: string | null;
+  /** Yüklenmiş sahne görselleri — hero'nun üç yuvası buradan okunuyor */
+  images: Map<string, string>;
   /** Künyeden gelen ad — `sr-only` başlığın kaynağı */
   displayName: string;
 }) {
@@ -77,22 +74,10 @@ export function HeroSection({
         <div className={styles.heroCenter}>
           <div className={styles.heroPortrait}>
             <span className={styles.heroHalo} aria-hidden="true" />
-            <CuratedImage
-              slotId={GOJO_S01_SLOT.key}
-              spec={say(GOJO_S01_SLOT.spec)}
-              aspect={GOJO_S01_SLOT.aspect}
-              src={heroSrc}
-              alt={say(GOJO_S01_SLOT.alt)}
-              isAdmin={isAdmin}
-              characterId={GOJO_ID}
-              curatorLabel={say(GOJO_CURATOR.upload)}
-              statusLabel={say(GOJO_CURATOR.missing)}
-              glyph={GOJO_IDENTITY.nativeName}
-              sizes="368px"
-              /* Hero'nun kadrajı LCP adayı: küratör bir kare bağladığında
-                 öncelikli inmeli. */
-              priority
-            />
+            {/* İki durumlu portre: gözbağlı ve Rikugan kareleri aynı
+                kutuda üst üste, geçiş yalnızca opaklık. Gerekçeler
+                `HeroPortrait.tsx` dosya başında. */}
+            <HeroPortrait locale={locale} isAdmin={isAdmin} images={images} />
           </div>
 
           <p className={styles.titleNative} lang="ja">

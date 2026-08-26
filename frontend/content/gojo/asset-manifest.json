@@ -1,12 +1,35 @@
 [
   {
-    "slotId": "goj:hero",
-    "brief": "gojo.hero.primary",
+    "slotId": "goj:hero-blindfold",
+    "brief": "gojo.hero.blindfold",
     "phase": "P01",
     "aspect": "3 / 4",
     "spec": {
-      "tr": "Shinjuku dönemi · siyah gözbağlı · ön cepheden tam göğüs portresi · yüz hafif gölgeli · maskelenmiş şeffaf PNG · 4K+",
-      "en": "Shinjuku era · black blindfold · front-facing chest-up portrait · face lightly shadowed · masked transparent PNG · 4K+"
+      "tr": "Shinjuku dönemi · SİYAH GÖZBAĞLI · ön cepheden tam göğüs portresi · yüz hafif gölgeli · maskelenmiş şeffaf PNG · 4K+",
+      "en": "Shinjuku era · BLACK BLINDFOLD · front-facing chest-up portrait · face lightly shadowed · masked transparent PNG · 4K+"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:hero-sixeyes",
+    "brief": "gojo.hero.sixeyes",
+    "phase": "P01",
+    "aspect": "3 / 4",
+    "spec": {
+      "tr": "AYNI KADRAJ, gözbağı YOK · Rikugan açık, buz mavisi gözler · aynı poz, aynı ölçek, aynı kırpma — iki kare üst üste bindiğinde yalnızca gözler değişmeli · maskelenmiş şeffaf PNG · 4K+",
+      "en": "SAME FRAMING, NO blindfold · Six Eyes open, ice-blue eyes · same pose, same scale, same crop — when the two frames stack, only the eyes should change · masked transparent PNG · 4K+"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:hero-glow",
+    "brief": "gojo.hero.glow",
+    "phase": "P01",
+    "aspect": "3 / 4",
+    "optional": true,
+    "spec": {
+      "tr": "İSTEĞE BAĞLI aura katmanı · Rikugan açıkken portrenin üstünde duran ışık/enerji dokusu · şeffaf PNG, kenarları yumuşak · yoksa katman hiç çizilmez",
+      "en": "OPTIONAL aura layer · a light/energy texture sitting above the portrait when Six Eyes is open · transparent PNG with soft edges · if absent the layer is not rendered at all"
     },
     "status": "missing"
   },

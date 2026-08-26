@@ -900,25 +900,16 @@ export const GOJO_S01_SCAN = {
 } as const;
 
 /**
- * Hero'nun görsel yuvası.
+ * P01'İN TEK GÖRSEL YUVASI EMEKLİ OLDU.
  *
- * ⚠️ Anahtar EV SÖZLEŞMESİNE göre `goj:` önekli: küratörün yüklediği görsel
- * karakter kaydının ABILITY yuvasına bu adla yazılıyor. Brief'in kendi
- * kimliği (`gojo.hero.primary`) manifestoda `brief` alanında kayıtlı —
- * ikisi arasındaki köprü orada, iki ad da izlenebilir kalıyor.
+ * `gojo.hero.primary` (`goj:hero`) yerini iki durumlu çifte bıraktı:
+ * `GOJO_HERO_SLOTS.blindfold` ve `.sixeyes` — dosyanın sonunda, isteğe
+ * bağlı `.glow` katmanıyla birlikte. Mod değişince portrenin kendisi de
+ * değişiyor; tek kare bunu taşıyamıyordu.
+ *
+ * ⚠️ Eski anahtar manifestodan da çıkarıldı. O anahtara bağlı bir görsel
+ * YOKTU (30 yuvanın hepsi boş), yani kayıp yok.
  */
-export const GOJO_S01_SLOT = {
-  key: "goj:hero",
-  aspect: "3 / 4",
-  spec: {
-    tr: "Shinjuku dönemi · siyah gözbağlı · ön cepheden tam göğüs portresi · yüz hafif gölgeli · maskelenmiş şeffaf PNG · 4K+",
-    en: "Shinjuku era · black blindfold · front-facing chest-up portrait · face lightly shadowed · masked transparent PNG · 4K+",
-  },
-  alt: {
-    tr: "Satoru Gojō — gözbağlı, ön cepheden portre",
-    en: "Satoru Gojō — blindfolded, front-facing portrait",
-  },
-} as const;
 
 /* ══════════════════════════════════════════════════════════════════════════
    P02 · THE STRONGEST
@@ -2114,4 +2105,74 @@ export const GOJO_S11_SLOTS = {
       en: "Black round sunglasses · isolated icon-like form",
     },
   },
+} as const;
+
+/* ══════════════════════════════════════════════════════════════════════════
+   HERO · İKİ DURUMLU GÖRSEL
+
+   Hero'nun tek kadrajı (`gojo.hero.primary`) ikiye ayrıldı: gözbağlı ve
+   Rikugan açık. İkisi de DOM'da HER ZAMAN duruyor, üst üste bindirilmiş ve
+   aynı ölçüde; geçiş yalnızca opaklık.
+
+   ⚠️ NEDEN KOŞULLU ÇİZİM DEĞİL: moda göre birini çizip diğerini sökmek DOM
+   düğümünü değiştirir; `next/image` yeniden bağlanır, tarayıcı kareyi
+   yeniden ister ve ilk geçişte boş bir kare görünür. İllüzyon tam orada
+   kırılıyor. İkisi de duruyor, biri saydam.
+
+   ⚠️ TEK ORAN KAYNAĞI: `GOJO_HERO_ASPECT`. Hem yığın kutusu hem üç yuva
+   aynı sabiti okuyor — iki kare arasında bir piksel kayması ve yükleme
+   sırasında layout kayması olmasın diye.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/**
+ * Hero kadrajının oranı — TEK DOĞRULUK KAYNAĞI.
+ *
+ * Yığın kutusu, üç katman ve manifesto kaydı bu sabitten besleniyor.
+ * Değiştirilecekse yalnızca burada değişir.
+ */
+export const GOJO_HERO_ASPECT = "3 / 4";
+
+/**
+ * Üç katman.
+ *
+ * `blindfold` ve `sixeyes` ZORUNLU çift: ikisi de her zaman çiziliyor,
+ * biri saydam. `glow` isteğe bağlı — yoksa katman HİÇ çizilmiyor ve
+ * manifesto paneli de göstermiyor (eksik varlık uyarısı vermiyor), çünkü
+ * eksikliği bir kusur değil bir tercih.
+ */
+export const GOJO_HERO_SLOTS = {
+  blindfold: {
+    key: "goj:hero-blindfold",
+    spec: {
+      tr: "Shinjuku dönemi · SİYAH GÖZBAĞLI · ön cepheden tam göğüs portresi · yüz hafif gölgeli · maskelenmiş şeffaf PNG · 4K+",
+      en: "Shinjuku era · BLACK BLINDFOLD · front-facing chest-up portrait · face lightly shadowed · masked transparent PNG · 4K+",
+    },
+  },
+  sixeyes: {
+    key: "goj:hero-sixeyes",
+    spec: {
+      tr: "AYNI KADRAJ, gözbağı YOK · Rikugan açık, buz mavisi gözler · aynı poz, aynı ölçek, aynı kırpma — iki kare üst üste bindiğinde yalnızca gözler değişmeli · maskelenmiş şeffaf PNG · 4K+",
+      en: "SAME FRAMING, NO blindfold · Six Eyes open, ice-blue eyes · same pose, same scale, same crop — when the two frames stack, only the eyes should change · masked transparent PNG · 4K+",
+    },
+  },
+  glow: {
+    key: "goj:hero-glow",
+    spec: {
+      tr: "İSTEĞE BAĞLI aura katmanı · Rikugan açıkken portrenin üstünde duran ışık/enerji dokusu · şeffaf PNG, kenarları yumuşak · yoksa katman hiç çizilmez",
+      en: "OPTIONAL aura layer · a light/energy texture sitting above the portrait when Six Eyes is open · transparent PNG with soft edges · if absent the layer is not rendered at all",
+    },
+  },
+} as const;
+
+/**
+ * İki kare TEK mantıksal figür.
+ *
+ * BRIEF · erişilebilirlik: kap `role="img"` ve tek bir ad taşıyor;
+ * içindeki katmanlar `aria-hidden`. Modun hangisi olduğunu zaten mod
+ * düğmesi `aria-pressed` ile bildiriyor — burada tekrar etmek ekran
+ * okuyucuda aynı bilgiyi iki kez okuturdu.
+ */
+export const GOJO_HERO_FIGURE_ALT = {
+  tr: "Satoru Gojō — ön cepheden portre; gözbağı Altı Göz moduna göre açılıyor",
+  en: "Satoru Gojō — front-facing portrait; the blindfold lifts with Six Eyes mode",
 } as const;

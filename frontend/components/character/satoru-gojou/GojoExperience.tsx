@@ -8,7 +8,6 @@ import {
 } from "@/lib/characters/experiences";
 import {
   GOJO_CRUMB,
-  GOJO_S01_SLOT,
   GOJO_S02_SLOT,
   GOJO_S03_SLOT,
   GOJO_S05_SLOT,
@@ -107,7 +106,7 @@ export function GojoExperience({ detail, isAdmin }: CharacterExperienceProps) {
           <HeroSection
             locale={locale}
             isAdmin={isAdmin}
-            heroSrc={abilityImages.get(GOJO_S01_SLOT.key) ?? null}
+            images={abilityImages}
             displayName={detail.character.name}
           />
 

@@ -1337,3 +1337,86 @@ export const GOJO_S05_SLOT = {
     en: "Crossed fingers and a single ice-blue eye — ultra macro",
   },
 } as const;
+
+/* ══════════════════════════════════════════════════════════════════════════
+   P06 · THE MAKING OF THE STRONGEST
+
+   Zaman çizelgesi. ⚠️ DURAKLARIN TAMAMI `GOJO_TIMELINE`den geliyor
+   (bu dosyanın üst yarısı): beş durak, yaş etiketleri, kaynaklı replik ve
+   akraba bağlantılarıyla 25 Ağustos 2026'da yazıldı. P06 onu DEVRALIYOR.
+
+   Brief yedi durak sayıyor (Hidden Inventory → Riko → Toji → Awakening →
+   Getō → öğretmenlik → Shibuya). Mevcut beşli aynı anlatıyı taşıyor:
+   Riko durağı Toji karşılaşmasını ve 天上天下唯我独尊 ile uyanışı TEK
+   durakta birleştiriyor — çünkü üçü aynı görevde, aynı gün oluyor. Üçe
+   bölmek kronolojiyi doğru ama anlatıyı yanlış gösterirdi.
+
+   Buradaki blok yalnızca bölümün kabuğu: başlık, yıl damgaları ve
+   paletin kayma noktaları.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+export const GOJO_S06 = {
+  title: {
+    tr: "EN GÜÇLÜ NASIL OLDU",
+    en: "THE MAKING OF THE STRONGEST",
+  },
+  lede: {
+    tr: "Beş durak. Hiçbiri bir zafer değil; hepsi bir bedel.",
+    en: "Five stops. None of them a victory; all of them a price.",
+  },
+  /**
+   * Fotoğrafların arkasında duran dev, saydam yıl damgaları.
+   *
+   * ⚠️ Bunlar `GOJO_TIMELINE`deki yaş etiketlerinin YERİNE geçmiyor,
+   * arkasında duruyor. Yaş etiketi künye bilgisi, bu ise dokunun parçası.
+   * Değerler kaynaklı: doğum 1989 (AniList), Yıldız Kabı görevi 2006
+   * (Hidden Inventory yayı), Getō'nun ayrılışı 2007, öğretmenlik ve
+   * Shibuya 2018.
+   */
+  stamps: {
+    born: "1989",
+    riko: "2006",
+    geto: "2007",
+    teacher: "2018",
+    seal: "2018",
+  } as Record<string, string>,
+  /** Bölümün kapanış satırı — palet kızıla döndükten sonra */
+  outro: {
+    tr: "Ölçen göz kapandığında dünya ilk kez kendi ölçüsüne kaldı.",
+    en: "When the measuring eye closed, the world was left to its own measure for the first time.",
+  },
+} as const;
+
+/**
+ * P06'nın iki görsel yuvası.
+ *
+ * Durakların kendi yuvaları (`goj:fate-*`) `GOJO_TIMELINE`de zaten
+ * tanımlı ve her durakta çiziliyor. Buradaki ikisi brief'in ayrıca
+ * istediği Hidden Inventory dönemi kadrajları.
+ */
+export const GOJO_S06_SLOTS = {
+  full: {
+    key: "goj:young-full",
+    aspect: "2 / 3",
+    spec: {
+      tr: "Hidden Inventory dönemi genç Gojō · yuvarlak siyah güneş gözlüklü · gevşek yakalı üniforma · tam boy · 4K",
+      en: "Hidden Inventory era young Gojō · round black sunglasses · loose-collared uniform · full body · 4K",
+    },
+    alt: {
+      tr: "Genç Satoru Gojō — yuvarlak siyah gözlük, tam boy",
+      en: "Young Satoru Gojō — round black glasses, full body",
+    },
+  },
+  portrait: {
+    key: "goj:young-portrait",
+    aspect: "1 / 1",
+    spec: {
+      tr: "Hidden Inventory dönemi genç Gojō portresi · yakın kadraj · 4K",
+      en: "Hidden Inventory era young Gojō portrait · close crop · 4K",
+    },
+    alt: {
+      tr: "Genç Satoru Gojō portresi",
+      en: "Young Satoru Gojō portrait",
+    },
+  },
+} as const;

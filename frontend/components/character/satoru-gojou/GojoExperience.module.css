@@ -278,6 +278,39 @@
   --g-s05-ink:     var(--g-bf-s05-ink);
   --g-s05-nebula1: var(--g-bf-s05-nebula1);
   --g-s05-nebula2: var(--g-bf-s05-nebula2);
+
+  /* ════════════════════════════════════════════════════════════
+     BÖLÜM TOKENLARI · P06 · THE MAKING OF THE STRONGEST
+
+     Palet çizelge boyunca KAYIYOR: Hidden Inventory'de soğuk gümüş,
+     Getō'nun ayrılışında sıcaklık kaybı, Shibuya'da kızıl baskın.
+     Kayma `--g-s06-tone` üzerinden yapılıyor — her durak kendi
+     karışım oranını veriyor, yeni renk tanımlanmıyor.
+
+     Ölçüm:
+       #d1d5db / #191919 = 11.93  AAA
+       #a8a8a8 / #191919 =  7.39  AAA   (küçük punto)
+       #e8f4f8 / #050510 = 18.08  AAA
+       #00bfff / #050510 =  9.56  AAA
+     ⚠️ Brief'in `--g-s06-accent` gözbağlı değeri #8c8c8c zeminde 5.23:
+     gövde için yeterli ama küçük künye satırları için #a8a8a8 kardeşi
+     tanımlandı.
+     ════════════════════════════════════════════════════════════ */
+  --g-bf-s06-bg:     #191919;
+  --g-bf-s06-accent: #8c8c8c;
+  --g-bf-s06-quiet:  #a8a8a8;
+  --g-bf-s06-text:   #d1d5db;
+  --g-se-s06-bg:     #050510;
+  --g-se-s06-accent: #00bfff;
+  --g-se-s06-quiet:  var(--g-se-text-dim);
+  --g-se-s06-text:   #e8f4f8;
+
+  --g-s06-bg:     var(--g-bf-s06-bg);
+  --g-s06-accent: var(--g-bf-s06-accent);
+  --g-s06-quiet:  var(--g-bf-s06-quiet);
+  --g-s06-text:   var(--g-bf-s06-text);
+  /* Duraklarda kızıla kayan ton — nihai uç `--g-red`. */
+  --g-s06-heat:   var(--g-red);
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -332,6 +365,12 @@
   --g-s05-ink:     var(--g-se-s05-ink);
   --g-s05-nebula1: var(--g-se-s05-nebula1);
   --g-s05-nebula2: var(--g-se-s05-nebula2);
+
+  /* P06 */
+  --g-s06-bg:     var(--g-se-s06-bg);
+  --g-s06-accent: var(--g-se-s06-accent);
+  --g-s06-quiet:  var(--g-se-s06-quiet);
+  --g-s06-text:   var(--g-se-s06-text);
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -2268,5 +2307,288 @@
     animation: none;
     opacity: 0.85;
     scale: 1;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   P06 · THE MAKING OF THE STRONGEST — kayan palet
+
+   ── PALET DURAK DURAK KAYIYOR ───────────────────────────────────
+   Her durak `--heat` adında tek bir sayı taşıyor (0 → 1). Metin,
+   çizgi ve kadraj kenarı o sayıyla `--g-s06-accent` ile `--g-s06-heat`
+   arasında karışıyor. Hidden Inventory'de soğuk gümüş, Getō'nun
+   ayrılışında sıcaklık kaybı, Shibuya'da kızıl baskın — hepsi TEK
+   değişkenle, yeni renk tanımlamadan.
+
+   ── AKIŞ YÖNÜ ÜZERİNE NOT ───────────────────────────────────────
+   Brief "aşağıdan yukarı akan zaman çizelgesi" istiyor. Duraklar
+   DOM'da kronolojik sırada (1989 → Shibuya) ve görsel sıra da aynı.
+   `column-reverse` ile görseli ters çevirmek DOM sırasıyla görsel
+   sırayı ayırırdı; ekran okuyucu ve klavye kullanıcısı ters sırada
+   gezerdi (WCAG "anlamlı sıra"). Yükseliş hissi bunun yerine
+   bağlantı çizgisinin ve yıl damgalarının ölçeğiyle veriliyor.
+   ════════════════════════════════════════════════════════════════ */
+.making {
+  position: relative;
+  inline-size: 100%;
+  overflow-x: clip;
+  background: var(--g-s06-bg);
+  color: var(--g-s06-text);
+  padding-block: var(--g-step);
+  transition:
+    background-color var(--g-swap) ease,
+    color var(--g-swap) ease;
+}
+
+/* Film çizikleri ve toz — CSS/SVG, ek canvas YOK (brief şartı). */
+.making::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.09;
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--g-s06-text) 40%, transparent) 0 1px,
+      transparent 1px 140px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--g-s06-text) 25%, transparent) 0 1px,
+      transparent 1px 63px
+    ),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='d'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23d)'/%3E%3C/svg%3E");
+}
+
+/* Köşelerde loş aydınlatma */
+.making::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 80% 65% at 50% 45%,
+    transparent 40%,
+    color-mix(in srgb, var(--g-void) 55%, transparent) 100%
+  );
+}
+
+.makingInner {
+  position: relative;
+  z-index: 1;
+  inline-size: var(--g-wide);
+  margin-inline: auto;
+}
+
+.makingTitle {
+  margin: 0;
+  /* Sayfadaki TEK serif — nostaljinin taşıyıcısı. */
+  font-family: var(--gojo-font-serif), Georgia, serif;
+  font-size: clamp(2rem, 6vw, 4rem);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  color: var(--g-s06-text);
+}
+
+.makingLede {
+  margin: 0.6rem 0 var(--g-step);
+  font-family: var(--gojo-font-serif), Georgia, serif;
+  font-style: italic;
+  font-size: clamp(1rem, 2vw, 1.3rem);
+  color: var(--g-s06-quiet);
+  transition: color var(--g-swap) ease;
+}
+
+/* ── Duraklar ──────────────────────────────────────────────────── */
+.stops {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--g-step);
+}
+
+/* Yükselen bağlantı çizgisi — duraklar boyunca ısınıyor. */
+.stops::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: clamp(0.5rem, 4vw, 3rem);
+  inline-size: 1px;
+  background: linear-gradient(
+    to top,
+    var(--g-s06-heat),
+    var(--g-s06-accent) 60%,
+    transparent
+  );
+  opacity: 0.55;
+}
+
+.stop {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: var(--g-gap);
+  align-items: start;
+  padding-inline-start: clamp(1.6rem, 8vw, 6rem);
+  /* Durağın ısı katsayısı — bileşen `--heat` yazıyor (0 → 1). */
+  --stopTone: color-mix(
+    in srgb,
+    var(--g-s06-heat) calc(var(--heat, 0) * 100%),
+    var(--g-s06-accent)
+  );
+}
+
+/* Dev, saydam yıl damgası — fotoğrafların ALTINDA kalıyor. */
+.stopStamp {
+  position: absolute;
+  inset-block-start: -0.15em;
+  inset-inline-start: clamp(1rem, 6vw, 4rem);
+  z-index: 0;
+  margin: 0;
+  font-family: var(--gojo-font-display), system-ui, sans-serif;
+  font-variation-settings: "wdth" 125;
+  font-weight: 900;
+  font-size: clamp(4rem, 16vw, 13rem);
+  line-height: 0.8;
+  letter-spacing: -0.04em;
+  color: color-mix(in srgb, var(--stopTone) 12%, transparent);
+  pointer-events: none;
+  user-select: none;
+  transition: color var(--g-swap) ease;
+}
+
+.stopBody {
+  position: relative;
+  z-index: 1;
+  min-inline-size: 0;
+}
+
+.stopAge {
+  margin: 0;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--stopTone);
+  transition: color var(--g-swap) ease;
+}
+
+.stopTitle {
+  margin: 0.35rem 0 0.7rem;
+  font-family: var(--gojo-font-serif), Georgia, serif;
+  font-size: clamp(1.3rem, 3.2vw, 2.2rem);
+  font-weight: 400;
+  line-height: 1.15;
+  color: var(--g-s06-text);
+}
+
+.stopText {
+  margin: 0;
+  /* Dar sütun — brief. */
+  max-inline-size: 42ch;
+  font-weight: 300;
+  font-size: clamp(0.9rem, 1.05vw, 0.98rem);
+  line-height: 1.85;
+  color: var(--g-s06-quiet);
+  transition: color var(--g-swap) ease;
+}
+
+.stopQuote {
+  margin: var(--g-gap) 0 0;
+  padding-inline-start: 1rem;
+  border-inline-start: 2px solid var(--stopTone);
+  max-inline-size: 42ch;
+  transition: border-color var(--g-swap) ease;
+}
+
+.stopQuoteText {
+  margin: 0;
+  font-family: var(--gojo-font-jp), system-ui, sans-serif;
+  font-size: clamp(1.05rem, 2.4vw, 1.5rem);
+  line-height: 1.5;
+  color: var(--g-s06-text);
+}
+
+.stopQuoteBy {
+  display: block;
+  margin-block-start: 0.4rem;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.64rem;
+  letter-spacing: 0.12em;
+  color: var(--g-s06-quiet);
+  font-style: normal;
+}
+
+.stopKin {
+  margin: 0.8rem 0 0;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.66rem;
+  color: var(--g-s06-quiet);
+  transition: color var(--g-swap) ease;
+}
+
+/* Kadraj — yırtık kenarlı kağıt / kırık cam. */
+.stopFrame {
+  position: relative;
+  z-index: 1;
+  min-inline-size: 0;
+  /* Her durakta hafifçe farklı bir eğim: üst üste binen kağıtlar
+     hissi. Sayı bileşenden geliyor, rastgele değil. */
+  rotate: calc(var(--tilt, 0) * 1deg);
+  clip-path: polygon(
+    1.5% 0.8%,
+    99% 0,
+    100% 96%,
+    72% 100%,
+    38% 97.5%,
+    0 99.2%
+  );
+  border: 1px solid color-mix(in srgb, var(--stopTone) 45%, transparent);
+  transition: border-color var(--g-swap) ease;
+}
+
+/* Bölümün iki dönem kadrajı */
+.makingPlates {
+  margin-block-start: var(--g-step);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: var(--g-gap);
+  align-items: start;
+}
+
+.makingOutro {
+  margin: var(--g-step) 0 0;
+  max-inline-size: 46ch;
+  font-family: var(--gojo-font-serif), Georgia, serif;
+  font-style: italic;
+  font-size: clamp(1.05rem, 2.2vw, 1.45rem);
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--g-s06-heat) 45%, var(--g-s06-text));
+  transition: color var(--g-swap) ease;
+}
+
+/* ── Dar ekran ─────────────────────────────────────────────────── */
+@media (max-width: 63.99rem) {
+  .stop {
+    grid-template-columns: minmax(0, 1fr);
+    padding-inline-start: clamp(1rem, 6vw, 2.5rem);
+  }
+
+  .stopStamp {
+    font-size: clamp(3rem, 22vw, 7rem);
+  }
+
+  .stopFrame {
+    rotate: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stopFrame {
+    rotate: none;
   }
 }

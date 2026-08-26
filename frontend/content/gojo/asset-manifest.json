@@ -97,5 +97,82 @@
       "en": "Crossed fingers and half the face · ultra-macro eye-level framing focused on a single ice-blue iris · nebula texture inside the pupil · 8K"
     },
     "status": "missing"
+  },
+  {
+    "slotId": "goj:fate-born",
+    "brief": "gojo.timeline.born",
+    "phase": "P06",
+    "aspect": "4 / 3",
+    "spec": {
+      "tr": "1989 — doğumuyla dünyanın dengesini bozan çocuk",
+      "en": "1989 — the child whose birth shifted the balance"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:fate-riko",
+    "brief": "gojo.timeline.riko",
+    "phase": "P06",
+    "aspect": "4 / 3",
+    "spec": {
+      "tr": "Yıldız Kabı görevi — Toji karşısında, on altı yaşında",
+      "en": "The Star Plasma Vessel mission — facing Toji, at sixteen"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:fate-geto",
+    "brief": "gojo.timeline.geto",
+    "phase": "P06",
+    "aspect": "4 / 3",
+    "spec": {
+      "tr": "Getō ayrılışı — geceleyin karşı karşıya iki silüet",
+      "en": "Getō departure — two silhouettes facing each other at night"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:fate-teacher",
+    "brief": "gojo.timeline.teacher",
+    "phase": "P06",
+    "aspect": "4 / 3",
+    "spec": {
+      "tr": "Öğretmen yılları — sınıfın önünde, üç öğrenci",
+      "en": "The teaching years — in front of the class, three students"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:fate-seal",
+    "brief": "gojo.timeline.seal",
+    "phase": "P06",
+    "aspect": "4 / 3",
+    "spec": {
+      "tr": "Shibuya — kapanan küp, mühürlenme anı",
+      "en": "Shibuya — the closing cube, the moment of sealing"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:young-full",
+    "brief": "gojo.timeline.young.full",
+    "phase": "P06",
+    "aspect": "2 / 3",
+    "spec": {
+      "tr": "Hidden Inventory dönemi genç Gojō · yuvarlak siyah gözlük · tam boy · 4K",
+      "en": "Hidden Inventory era young Gojō · round black glasses · full body · 4K"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:young-portrait",
+    "brief": "gojo.timeline.young.portrait",
+    "phase": "P06",
+    "aspect": "1 / 1",
+    "spec": {
+      "tr": "Hidden Inventory dönemi genç Gojō portresi · yakın kadraj · 4K",
+      "en": "Hidden Inventory era young Gojō portrait · close crop · 4K"
+    },
+    "status": "missing"
   }
 ]

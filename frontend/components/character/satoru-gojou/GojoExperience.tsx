@@ -19,6 +19,7 @@ import { CuratorFrame } from "@/components/character/CuratorFrame";
 import { GOJO_FONT_CLASS } from "./gojo-fonts";
 import { HeroSection } from "./HeroSection";
 import { LimitlessSection } from "./LimitlessSection";
+import { MakingSection } from "./MakingSection";
 import { TechniquesSection } from "./TechniquesSection";
 import { VoidSection } from "./VoidSection";
 import { StrongestSection } from "./StrongestSection";
@@ -136,6 +137,17 @@ export function GojoExperience({ detail, isAdmin }: CharacterExperienceProps) {
             locale={locale}
             isAdmin={isAdmin}
             src={abilityImages.get(GOJO_S05_SLOT.key) ?? null}
+          />
+        </section>
+
+        {/* ══ P06 · THE MAKING OF THE STRONGEST ═══════════════════════
+            Beş durak `GOJO_TIMELINE`den devralındı; palet durak durak
+            soğuk gümüşten Shibuya'nın kızılına kayıyor. */}
+        <section aria-labelledby="gojo-making-title">
+          <MakingSection
+            locale={locale}
+            isAdmin={isAdmin}
+            images={abilityImages}
           />
         </section>
 

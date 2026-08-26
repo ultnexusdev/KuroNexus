@@ -51,6 +51,7 @@ export function CuratedImage({
   sizes,
   priority,
   unoptimized,
+  noEdit,
   className,
 }: {
   /** `goj:hero` gibi kararlı, benzersiz kimlik */
@@ -83,6 +84,17 @@ export function CuratedImage({
    * Küratörün yüklediği kareler edilir.
    */
   unoptimized?: boolean;
+  /**
+   * Yükleme düğmesini BASTIR.
+   *
+   * Yuva bir `<button>` ya da `<a>` içindeyse zorunlu: iç içe etkileşimli
+   * öğe hem geçersiz HTML hem de tıklamanın yanlış yere gitmesi demek.
+   * ⚠️ Bunu kullanan yer, aynı yuvayı düzenlenebilir hâlde BAŞKA bir
+   * konumda da çizmek zorunda — yoksa küratörün o yuvaya erişimi hiç
+   * kalmaz. Emsal: P08'in düğüm siluetleri (düğmede `noEdit`, küratör
+   * şeridinde düzenlenebilir).
+   */
+  noEdit?: boolean;
   className?: string;
 }) {
   return (
@@ -127,7 +139,7 @@ export function CuratedImage({
 
       {/* Yükleyici ayrı: yuva doluyken de görselin ÜSTÜNE yazabilmek
           gerekiyor, yoksa küratör beğenmediği kareyi değiştiremezdi. */}
-      {isAdmin ? (
+      {isAdmin && !noEdit ? (
         <CuratorSlot
           characterId={characterId}
           slot="ABILITY"

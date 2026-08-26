@@ -349,6 +349,41 @@
   --g-s07-left-tone:  var(--g-bf-s07-left-tone);
   --g-s07-right-tone: var(--g-bf-s07-right-tone);
   --g-s07-rift:       var(--g-bf-s07-rift);
+
+  /* ════════════════════════════════════════════════════════════
+     BÖLÜM TOKENLARI · P08 · CONNECTIONS
+
+     Gözbağlı modda yedi yörünge de TEK renk (#444444 — malzeme,
+     zeminde 2.16). Six Eyes'ta her karakterin kendi rengi açılıyor.
+
+     ⚠️ KARAKTER RENKLERİ METİN TAŞIMIYOR. Ölçüldü (#03001c zemin):
+       geto   #fbbf24 = 12.33   nanami #c9a227 = 8.51
+       shoko  #8fa8b8 =  8.29   toji   #ff003c = 5.21
+       yuji   #e63946 =  4.94   yuta   #7b2cbf = 2.90  ✗
+       megumi #1d3557 =  1.66  ✗
+     Yuta ve Megumi gövde metni eşiğinin ALTINDA. Renkleri brief'teki
+     değerde bırakıldı çünkü yalnızca YÖRÜNGE ÇİZGİSİ ve ışık olarak
+     kullanılıyorlar; düğüm adları ve açıklamalar `--g-text` /
+     `--g-text-dim` okuyor (ikisi de iki zeminde de AAA). Böylece
+     renkleri bozmadan eşik korunuyor.
+     ════════════════════════════════════════════════════════════ */
+  --g-bf-s08-bg:   var(--g-se-void);
+  --g-se-s08-bg:   #03001c;
+  --g-bf-s08-line: #444444;
+
+  /* Six Eyes'ta karakter bazlı yörünge renkleri */
+  --g-s08-toji:   #ff003c;
+  --g-s08-geto:   #fbbf24;
+  --g-s08-shoko:  #8fa8b8;
+  --g-s08-nanami: #c9a227;
+  --g-s08-yuta:   #7b2cbf;
+  --g-s08-megumi: #1d3557;
+  --g-s08-yuji:   #e63946;
+
+  --g-s08-bg:   var(--g-bf-s08-bg);
+  /* Gözbağlı modda düğümün kendi rengi DEVRE DIŞI: `--g-s08-line`
+     her düğümde aynı. Six Eyes bloğu bunu düğüm rengine bağlıyor. */
+  --g-s08-line: var(--g-bf-s08-line);
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -418,6 +453,12 @@
   --g-s07-left-tone:  var(--g-se-s07-left-tone);
   --g-s07-right-tone: var(--g-se-s07-right-tone);
   --g-s07-rift:       var(--g-se-s07-rift);
+
+  /* P08 — yörünge rengi düğümün kendi rengine bağlanıyor.
+     `--node-tone` her düğümün kendi kutusunda tanımlı; gözbağlı modda
+     bu satır olmadığı için hepsi tek gri kalıyor. */
+  --g-s08-bg:   var(--g-se-s08-bg);
+  --g-s08-line: var(--node-tone, var(--g-se-accent));
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -2847,4 +2888,282 @@
   .pairRift {
     transition: none;
   }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   P08 · CONNECTIONS — takımyıldız
+
+   ── YÖRÜNGE MERKEZE DEĞMİYOR ────────────────────────────────────
+   Her bağlantı çizgisi düğümden merkeze doğru uzanıyor ama son
+   parçası bir gradyanla SAYDAMLAŞIYOR: çizgi merkeze varmadan
+   bitiyor. Untouchable kuralının sayfadaki en doğrudan ifadesi.
+   Gradyan SVG'de tanımlı (`ConstellationMap`), yani kesme görsel
+   bir hile değil çizginin kendi tanımı.
+
+   ── ATMOSFER TOKEN SEVİYESİNDE KAYIYOR ──────────────────────────
+   Bir düğüm seçildiğinde bölüm kökündeki `--node-tone` değişiyor.
+   Hiçbir bileşen yeniden çizilmiyor, hiçbir sınıf eklenmiyor.
+   ════════════════════════════════════════════════════════════════ */
+.web {
+  position: relative;
+  inline-size: 100%;
+  overflow-x: clip;
+  background: var(--g-s08-bg);
+  padding-block: var(--g-step);
+  transition: background-color var(--g-swap) ease;
+}
+
+/* Yumuşak ışıma — seçili düğümün rengine göre kayıyor.
+   Pürüzsüz, dokusuz zemin (brief): gren ya da desen YOK. */
+.web::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 55% 45% at 50% 46%,
+    color-mix(in srgb, var(--node-tone, var(--g-accent)) 12%, transparent),
+    transparent 72%
+  );
+  transition: background 420ms ease;
+}
+
+.webInner {
+  position: relative;
+  z-index: 1;
+  inline-size: var(--g-wide);
+  margin-inline: auto;
+}
+
+.webTitle {
+  margin: 0;
+  text-align: center;
+  font-family: var(--gojo-font-display), system-ui, sans-serif;
+  font-variation-settings: "wdth" 125;
+  font-size: clamp(1.1rem, 3vw, 2rem);
+  font-weight: 700;
+  /* Minimal, tamamı büyük harf, geniş harf aralığı (brief). */
+  letter-spacing: 0.42em;
+  text-indent: 0.42em;
+  text-transform: uppercase;
+  color: var(--g-text);
+  transition: color var(--g-swap) ease;
+}
+
+.webLede {
+  margin: 0.6rem 0 var(--g-step);
+  text-align: center;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  color: var(--g-text-dim);
+  transition: color var(--g-swap) ease;
+}
+
+/* ── Harita ────────────────────────────────────────────────────── */
+.webStage {
+  position: relative;
+  inline-size: min(100%, 46rem);
+  margin-inline: auto;
+  aspect-ratio: 1;
+}
+
+.webLines {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  pointer-events: none;
+}
+
+.webOrbit {
+  fill: none;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  opacity: 0.45;
+  transition: opacity 320ms ease;
+}
+
+/* Seçili düğümün yörüngesi öne çıkıyor, diğerleri geriliyor. */
+.webStage[data-selected] .webOrbit {
+  opacity: 0.16;
+}
+
+.webStage[data-selected] .webOrbit[data-on="1"] {
+  opacity: 1;
+}
+
+/* Merkez — Gojō. Yörüngelerin ulaşamadığı yer. */
+.webCore {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  translate: -50% -50%;
+  inline-size: clamp(6rem, 22%, 11rem);
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--g-text) 22%, transparent);
+}
+
+/* Düğüm düğmeleri */
+.webNode {
+  position: absolute;
+  inset-block-start: calc(var(--ny) * 1%);
+  inset-inline-start: calc(var(--nx) * 1%);
+  translate: -50% -50%;
+  display: grid;
+  gap: 0.25rem;
+  justify-items: center;
+  min-inline-size: var(--touch-min);
+  min-block-size: var(--touch-min);
+  padding: 0.4rem 0.5rem;
+  background: transparent;
+  border: 0;
+  color: var(--g-text);
+  cursor: pointer;
+  transition: color var(--g-swap) ease;
+}
+
+.webNode:focus-visible {
+  outline: 2px solid var(--g-accent-2);
+  outline-offset: 2px;
+}
+
+.webNodeDot {
+  inline-size: 0.6rem;
+  block-size: 0.6rem;
+  border-radius: 50%;
+  background: var(--nodeTone, var(--g-s08-line));
+  box-shadow: 0 0 0 0 transparent;
+  transition:
+    box-shadow 320ms ease,
+    background-color var(--g-swap) ease;
+}
+
+.webNode[aria-current="true"] .webNodeDot {
+  box-shadow: 0 0 16px 3px
+    color-mix(in srgb, var(--nodeTone, var(--g-s08-line)) 65%, transparent);
+}
+
+.webNodeName {
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  /* ⚠️ Ad karakterin RENGİNİ okumuyor: iki düğümün rengi gövde metni
+     eşiğinin altında (Yuta 2.90, Megumi 1.66). Renk yalnızca yörünge
+     ve nokta için. */
+  color: var(--g-text-dim);
+  transition: color var(--g-swap) ease;
+}
+
+.webNode[aria-current="true"] .webNodeName {
+  color: var(--g-text);
+}
+
+.webNodeTag {
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.54rem;
+  letter-spacing: 0.14em;
+  color: color-mix(in srgb, var(--g-text-dim) 78%, transparent);
+}
+
+/* ── Seçilen bağlantının açıklaması ────────────────────────────── */
+.webDetail {
+  margin: var(--g-gap) auto 0;
+  max-inline-size: 54ch;
+  min-block-size: 6rem;
+  text-align: center;
+}
+
+.webDetailName {
+  margin: 0;
+  font-family: var(--gojo-font-display), system-ui, sans-serif;
+  font-variation-settings: "wdth" 118;
+  font-size: clamp(1rem, 2.4vw, 1.5rem);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--g-text);
+}
+
+.webDetailText {
+  margin: 0.5rem 0 0;
+  font-weight: 300;
+  font-size: 0.92rem;
+  line-height: 1.75;
+  color: var(--g-text-dim);
+  transition: color var(--g-swap) ease;
+}
+
+.webHint {
+  margin: var(--g-gap) 0 0;
+  text-align: center;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  color: color-mix(in srgb, var(--g-text-dim) 75%, transparent);
+}
+
+/* Görsel ağın ALTINDAKİ sr-only liste karşılığı (brief şartı) */
+.webList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.webTeacher {
+  margin-block-start: var(--g-step);
+  inline-size: min(100%, 20rem);
+  margin-inline: auto;
+}
+
+/* ── Dar ekran ─────────────────────────────────────────────────
+   375px'te dairesel yerleşim okunmuyor: düğümler mutlak konumdan
+   çıkıp akışa giriyor, harita gizleniyor. Bilgi kaybı yok —
+   açıklama ve liste aynen duruyor. */
+@media (max-width: 47.99rem) {
+  .webStage {
+    aspect-ratio: auto;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+
+  .webLines,
+  .webCore {
+    display: none;
+  }
+
+  .webNode {
+    position: static;
+    translate: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .web::before,
+  .webOrbit,
+  .webNodeDot {
+    transition: none;
+  }
+}
+
+/* Düğümün içindeki minimalist siluet — yuva boşken hiç yer kaplamıyor,
+   dolduğunda noktanın yerini alıyor. */
+.webNodeArt {
+  inline-size: clamp(2rem, 5vw, 2.8rem);
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+/* Küratör şeridi — YALNIZCA yöneticinin DOM'unda.
+   ⚠️ Düğüm siluetleri `<button>` içinde `noEdit` ile çiziliyor (iç içe
+   etkileşimli öğe geçersiz HTML). Küratörün o yedi yuvaya erişebildiği
+   tek yer burası. */
+.webCurator {
+  margin-block-start: var(--g-step);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
+  gap: var(--g-gap);
 }

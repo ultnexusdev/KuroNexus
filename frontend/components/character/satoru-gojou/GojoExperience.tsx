@@ -13,10 +13,12 @@ import {
   GOJO_S03_SLOT,
   GOJO_S05_SLOT,
   GOJO_S07_SLOT,
+  GOJO_S08_TEACHER_SLOT,
   GOJO_SHORTCUTS,
   GOJO_UI,
 } from "@/lib/characters/satoru-gojou-experience";
 import { CuratorFrame } from "@/components/character/CuratorFrame";
+import { ConnectionsSection } from "./ConnectionsSection";
 import { GOJO_FONT_CLASS } from "./gojo-fonts";
 import { HeroSection } from "./HeroSection";
 import { LimitlessSection } from "./LimitlessSection";
@@ -161,6 +163,18 @@ export function GojoExperience({ detail, isAdmin }: CharacterExperienceProps) {
             locale={locale}
             isAdmin={isAdmin}
             src={abilityImages.get(GOJO_S07_SLOT.key) ?? null}
+          />
+        </section>
+
+        {/* ══ P08 · CONNECTIONS ═══════════════════════════════════════
+            Yörünge çizgileri merkeze ASLA değmiyor. Ağın `sr-only`
+            liste karşılığı bölümün içinde. */}
+        <section aria-labelledby="gojo-connections-title">
+          <ConnectionsSection
+            locale={locale}
+            isAdmin={isAdmin}
+            src={abilityImages.get(GOJO_S08_TEACHER_SLOT.key) ?? null}
+            images={abilityImages}
           />
         </section>
 

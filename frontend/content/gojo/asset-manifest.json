@@ -185,5 +185,93 @@
       "en": "Young Gojō and Getō · back to back or facing profiles · sky background (Gojō summer blue / Getō sunset orange) · 4K high contrast"
     },
     "status": "missing"
+  },
+  {
+    "slotId": "goj:teacher",
+    "brief": "gojo.connections.teacher",
+    "phase": "P08",
+    "aspect": "1 / 1",
+    "spec": {
+      "tr": "Yetişkin Gojō · öğretmen kimliği · samimi gülümseme portresi · 4K",
+      "en": "Adult Gojō · teacher identity · warm smiling portrait · 4K"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:node-toji",
+    "brief": "gojo.connections.node.toji",
+    "phase": "P08",
+    "aspect": "1 / 1",
+    "spec": {
+      "tr": "toji — minimalist siluet ya da yüksek kontrastlı kesit illüstrasyon",
+      "en": "toji — minimalist silhouette or high-contrast cutout illustration"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:node-geto",
+    "brief": "gojo.connections.node.geto",
+    "phase": "P08",
+    "aspect": "1 / 1",
+    "spec": {
+      "tr": "geto — minimalist siluet ya da yüksek kontrastlı kesit illüstrasyon",
+      "en": "geto — minimalist silhouette or high-contrast cutout illustration"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:node-shoko",
+    "brief": "gojo.connections.node.shoko",
+    "phase": "P08",
+    "aspect": "1 / 1",
+    "spec": {
+      "tr": "shoko — minimalist siluet ya da yüksek kontrastlı kesit illüstrasyon",
+      "en": "shoko — minimalist silhouette or high-contrast cutout illustration"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:node-nanami",
+    "brief": "gojo.connections.node.nanami",
+    "phase": "P08",
+    "aspect": "1 / 1",
+    "spec": {
+      "tr": "nanami — minimalist siluet ya da yüksek kontrastlı kesit illüstrasyon",
+      "en": "nanami — minimalist silhouette or high-contrast cutout illustration"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:node-yuta",
+    "brief": "gojo.connections.node.yuta",
+    "phase": "P08",
+    "aspect": "1 / 1",
+    "spec": {
+      "tr": "yuta — minimalist siluet ya da yüksek kontrastlı kesit illüstrasyon",
+      "en": "yuta — minimalist silhouette or high-contrast cutout illustration"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:node-megumi",
+    "brief": "gojo.connections.node.megumi",
+    "phase": "P08",
+    "aspect": "1 / 1",
+    "spec": {
+      "tr": "megumi — minimalist siluet ya da yüksek kontrastlı kesit illüstrasyon",
+      "en": "megumi — minimalist silhouette or high-contrast cutout illustration"
+    },
+    "status": "missing"
+  },
+  {
+    "slotId": "goj:node-yuji",
+    "brief": "gojo.connections.node.yuji",
+    "phase": "P08",
+    "aspect": "1 / 1",
+    "spec": {
+      "tr": "yuji — minimalist siluet ya da yüksek kontrastlı kesit illüstrasyon",
+      "en": "yuji — minimalist silhouette or high-contrast cutout illustration"
+    },
+    "status": "missing"
   }
 ]

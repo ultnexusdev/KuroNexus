@@ -1501,3 +1501,169 @@ export const GOJO_S07_SLOT = {
     en: "Young Satoru Gojō and Suguru Getō — facing each other",
   },
 } as const;
+
+/* ══════════════════════════════════════════════════════════════════════════
+   P08 · CONNECTIONS
+
+   Takımyıldız. Merkezde Gojō, çevresinde yedi düğüm. ⚠️ YÖRÜNGE ÇİZGİLERİ
+   MERKEZE ASLA DEĞMİYOR — merkeze yaklaşırken saydamlaşıp yok oluyorlar.
+   Untouchable kuralının sayfadaki EN DOĞRUDAN ifadesi bu.
+
+   ── ETİKET DİSİPLİNİ ─────────────────────────────────────────────────────
+   Brief "Grade 1 / Special Grade etiketleri" istiyor. Derecesi KESİN olan
+   isimlerde derece yazıldı; olmayanlarda derece UYDURULMADI, yerine rolü
+   yazıldı. Emsal: Shoko'nun resmî derecesi seride verilmiyor; Yūji'nin
+   büyücü derecesi anlatının başında bir "kap" statüsüyle karışıyor. İkisi
+   de rolleriyle anılıyor.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+export const GOJO_S08 = {
+  title: {
+    tr: "BAĞLANTILAR",
+    en: "CONNECTIONS",
+  },
+  lede: {
+    tr: "Yedi yörünge. Hiçbiri merkeze değmiyor.",
+    en: "Seven orbits. None of them reaches the centre.",
+  },
+  /** Ekran okuyucu listesinin başlığı */
+  listLabel: {
+    tr: "Bağlantıların listesi",
+    en: "List of connections",
+  },
+  centerLabel: {
+    tr: "Satoru Gojō — merkez",
+    en: "Satoru Gojō — the centre",
+  },
+  /** Seçim yapılmadığındaki durum satırı */
+  idle: {
+    tr: "Bir düğüm seç.",
+    en: "Select a node.",
+  },
+  keyHint: {
+    tr: "Sekme ile gir, ok tuşlarıyla düğümler arasında gez.",
+    en: "Tab to enter, use the arrow keys to move between nodes.",
+  },
+  /** Düğüm yuvalarının ortak kadraj tarifi */
+  nodeSpec: {
+    tr: "minimalist siluet ya da yüksek kontrastlı kesit illüstrasyon",
+    en: "minimalist silhouette or high-contrast cutout illustration",
+  },
+} as const;
+
+export interface GojoNode {
+  key: string;
+  /** AniList kaydımızdaki numara — künye sayfasına bağlanmak için */
+  characterId: number | null;
+  name: string;
+  /** Derece ya da rol — JetBrains Mono etiketi */
+  tag: { tr: string; en: string };
+  /** Tıklanınca açılan kısa ilişki açıklaması */
+  text: { tr: string; en: string };
+}
+
+/**
+ * Yedi düğüm.
+ *
+ * Sıra rastgele değil: yakınlıktan uzaklığa değil, HAYATTAKİ SIRAYA göre
+ * — Toji ve Getō gençlik, Shoko aynı sınıf, Nanami bir alt devre,
+ * öğrenciler en son. Takımyıldızda saat yönünde bu sırayla diziliyorlar.
+ */
+export const GOJO_NODES: GojoNode[] = [
+  {
+    key: "toji",
+    characterId: null,
+    name: "Toji Fushiguro",
+    tag: { tr: "TEKNİĞİ YOK", en: "NO TECHNIQUE" },
+    text: {
+      tr: "Lanetli enerjisi olmayan bir adam, on altı yaşındaki Gojō'yu öldürdü. Gojō ters akışı kendi bedeninde çözüp geri döndü. Sayfadaki tek gerçek yenilgi bu ve tekniksiz biri tarafından verildi.",
+      en: "A man with no cursed energy killed the sixteen-year-old Gojō. Gojō worked out the reversed flow in his own body and came back. It is the only true defeat on this page, and it was dealt by someone with no technique.",
+    },
+  },
+  {
+    key: "geto",
+    characterId: 133699,
+    name: "Suguru Getō",
+    tag: { tr: "ÖZEL SINIF", en: "SPECIAL GRADE" },
+    text: {
+      tr: "Aynı sınıftaki tek arkadaşı. Aynı çürümeye baktılar, zıt yönlere yürüdüler. Gojō onu durdurmadı — en güçlü olmanın ilk bedeli buydu.",
+      en: "The only friend from his own class. They looked at the same rot and walked in opposite directions. Gojō did not stop him — that was the first price of being the strongest.",
+    },
+  },
+  {
+    key: "shoko",
+    characterId: null,
+    name: "Shoko Ieiri",
+    tag: { tr: "SINIF ARKADAŞI", en: "CLASSMATE" },
+    text: {
+      tr: "Üçlünün üçüncüsü. Ters lanetli tekniği başkaları üzerinde kullanabilen ender kişilerden; Gojō'nun ve Getō'nun gençliğine tanıklık eden tek isim hâlâ o.",
+      en: "The third of the trio. One of the few who can use the reversed cursed technique on others; she remains the only person who witnessed both Gojō's and Getō's youth.",
+    },
+  },
+  {
+    key: "nanami",
+    characterId: 133704,
+    name: "Kento Nanami",
+    tag: { tr: "1. SINIF", en: "GRADE 1" },
+    text: {
+      tr: "Bir alt devreden. Jujutsu'yu bırakıp ofis işine geçti, sonra geri döndü. Gojō'nun aksine gücü değil ÖLÇÜYÜ savunuyor: her şeyin bir mesai saati var.",
+      en: "From the year below. He quit jujutsu for an office job, then came back. Unlike Gojō he defends measure rather than power: everything has working hours.",
+    },
+  },
+  {
+    key: "yuta",
+    characterId: null,
+    name: "Yuta Okkotsu",
+    tag: { tr: "ÖZEL SINIF", en: "SPECIAL GRADE" },
+    text: {
+      tr: "İdam kararı verilmiş bir öğrenciyi Gojō sahiplendi. Yuta, Gojō'nun 'kendim kadar güçlü olmayan ama birlikte yeten bir kuşak' fikrinin en doğrudan kanıtı.",
+      en: "Gojō took in a student who had been sentenced to execution. Yuta is the most direct proof of Gojō's idea of a generation that is not as strong as he is, yet together is enough.",
+    },
+  },
+  {
+    key: "megumi",
+    characterId: 126635,
+    name: "Megumi Fushiguro",
+    tag: { tr: "2. SINIF", en: "GRADE 2" },
+    text: {
+      tr: "Toji'nin oğlu. Gojō onu çocukken buldu ve Zenin ailesine satılmasını engelledi. Öldürdüğü değil, öldüren adamın çocuğu — ve Gojō onu büyüttü.",
+      en: "Toji's son. Gojō found him as a child and stopped him from being sold to the Zenin family. Not the child of the man he killed, but of the man who killed him — and Gojō raised him.",
+    },
+  },
+  {
+    key: "yuji",
+    characterId: 127212,
+    name: "Yūji Itadori",
+    tag: { tr: "SUKUNA'NIN KABI", en: "SUKUNA'S VESSEL" },
+    text: {
+      tr: "Gojō'nun kanadı altına aldığı öğrenci. Onu savunması bir merhamet değil bir hesap: Sukuna'yı kontrollü bir kapta tutmanın tek yolu, kabı yetiştirmek.",
+      en: "The student Gojō took under his wing. Defending him is not mercy but calculation: the only way to keep Sukuna in a controlled vessel is to raise the vessel.",
+    },
+  },
+];
+
+/**
+ * P08'in görsel yuvaları.
+ *
+ * Merkezdeki öğretmen portresi + her düğüm için birer siluet. Düğüm
+ * yuvaları boşken takımyıldız GÖRSELSİZ ama tam çalışıyor — daireler ve
+ * yörüngeler saf SVG.
+ */
+export const GOJO_S08_TEACHER_SLOT = {
+  key: "goj:teacher",
+  aspect: "1 / 1",
+  spec: {
+    tr: "Yetişkin Gojō · öğretmen kimliği · samimi gülümseme portresi · 4K",
+    en: "Adult Gojō · teacher identity · warm smiling portrait · 4K",
+  },
+  alt: {
+    tr: "Satoru Gojō — öğretmen portresi",
+    en: "Satoru Gojō — teacher portrait",
+  },
+} as const;
+
+/** `goj:node-<key>` — yedi minimalist siluet yuvası. */
+export const GOJO_S08_NODE_SLOT = (key: string) => ({
+  key: `goj:node-${key}`,
+  aspect: "1 / 1",
+});

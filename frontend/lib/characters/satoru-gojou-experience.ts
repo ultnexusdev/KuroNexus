@@ -905,3 +905,93 @@ export const GOJO_S01_SLOT = {
     en: "Satoru Gojō — blindfolded, front-facing portrait",
   },
 } as const;
+
+/* ══════════════════════════════════════════════════════════════════════════
+   P02 · THE STRONGEST
+
+   Asimetrik kompozisyon: solda masif metin bloğu, sağda Gojō'nun kadrajı.
+   Aralarında GÖRÜNMEZ DİKEY DUVAR — INFINITY kuralının dikey varyantı.
+   Hiçbir harf sağdaki kadraja giremiyor; duvara yaklaşan tipografi
+   saydamlaşarak kesiliyor.
+
+   ⚠️ Metin kesilse de OKUNUYOR: kesme yalnızca maske katmanında,
+   DOM'daki paragraf bütün. Kaydırılan hiçbir cümle yarım değil.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+export const GOJO_S02 = {
+  /** Sağdan hizalı dev display başlığı */
+  title: {
+    tr: "EN GÜÇLÜ",
+    en: "THE STRONGEST",
+  },
+  /**
+   * Sayfa kenarında dikey (döndürülmüş) etiket, aşağıdan yukarıya.
+   * JetBrains Mono; dekoratif değil, bölümün numarası ve adı.
+   */
+  edgeLabel: {
+    tr: "02 · GENEL BAKIŞ",
+    en: "02 · OVERVIEW",
+  },
+  /**
+   * Karakter genel bakışı — üç paragraf.
+   *
+   * Kaynak disiplini dosyanın geri kalanıyla aynı: tırnak içine yalnızca
+   * doğrulanmış replikler alınıyor, kalan her şey arşivin kendi anlatımı.
+   * Burada tırnak YOK.
+   */
+  body: [
+    {
+      tr: "Gojō'yu en güçlü yapan şey bir vuruşun büyüklüğü değil, iki yeteneğin aynı kişide bulunması. Mugegen ona uzanan her şeyin arasına sonsuz bölünebilen bir aralık koyuyor; Rikugan ise o aralığı ve dünyanın geri kalanını sayı olarak okuyor. İkisi dört yüz yıldır ilk kez tek bir bedende birleşti ve bu, bir güç artışı değil bir KATEGORİ değişimi.",
+      en: "What makes Gojō the strongest is not the size of a blow but the fact that two gifts landed in the same person. Limitless puts an infinitely divisible gap between him and anything reaching for him; Six Eyes reads that gap — and the rest of the world — as numbers. For the first time in four hundred years the two met in one body, and that is not an increase in power but a change of CATEGORY.",
+    },
+    {
+      tr: "Sonucu şu: Gojō dövüşleri kazanmıyor, dövüşün mümkün olup olmadığı sorusunu kapatıyor. Gözbağı da bu yüzden bir engel değil bir kısıtlama — sürekli açık bir Rikugan'ın yorduğu şey göz değil, adamın kendisi. Bandı takan biri zayıflamıyor; kendini yavaşlatıyor.",
+      en: "The consequence: Gojō does not win fights, he closes the question of whether a fight was ever possible. That is why the blindfold is a restraint and not a handicap — what a permanently open Six Eyes exhausts is not the eye but the man. Wearing the band does not weaken him; it slows him down on purpose.",
+    },
+    {
+      tr: "Ve tam da bu yüzden yalnız. Bir düzenin tek bir kişiye bu kadar dayanması, o kişinin gücünden değil düzenin zayıflığından geliyor. Gojō'nun öğretmenliği bir yan iş değil, gördüğü sorunun kendi çözümü: kendisi kadar güçlü olmayan ama birlikte yeten bir kuşak yetiştirmek.",
+      en: "And precisely because of that, he is alone. A system leaning this hard on one person says less about his strength than about the system's weakness. Gojō's teaching is not a side job but his own answer to the problem he sees: raise a generation that is not as strong as he is, yet together is enough.",
+    },
+  ],
+  /**
+   * Six Eyes açıldığında bu bölümde açılan ölçümler.
+   * BRIEF P02: "en az 3 gizli veri alanı".
+   *
+   * ⚠️ Değerler NİTEL. Uydurma sayısal istatistik yazılmadı — serinin
+   * hiçbir yerinde bu ölçüler sayıyla verilmiyor ve arşivin kuralı
+   * emin olunmayanı yazmamak.
+   */
+  readings: [
+    {
+      label: { tr: "MUGEGEN DURUMU", en: "LIMITLESS STATE" },
+      value: { tr: "SÜREKLİ ETKİN", en: "ALWAYS ON" },
+    },
+    {
+      label: { tr: "TEKNİK GECİKMESİ", en: "TECHNIQUE LATENCY" },
+      value: { tr: "YOK · PASİF SAVUNMA", en: "NONE · PASSIVE DEFENCE" },
+    },
+    {
+      label: { tr: "RİKUGAN YÜKÜ", en: "SIX EYES LOAD" },
+      value: { tr: "SÜREKLİ · BU YÜZDEN BANT", en: "CONSTANT · HENCE THE BAND" },
+    },
+  ],
+} as const;
+
+/**
+ * P02'nin görsel yuvası.
+ *
+ * Kadraj sağdaki sütunun tamamını kaplıyor; dikey duvar bu kadrajın sol
+ * kenarı. Oran bilerek dikey (2/3): duvarın yüksek olması gerekiyor.
+ */
+export const GOJO_S02_SLOT = {
+  key: "goj:rikugan",
+  aspect: "2 / 3",
+  spec: {
+    tr: "Hidden Inventory sonrası yetişkin dönem · 3/4 açı · kibirli gülümseme · yarım boy · keskin fokus · 4K",
+    en: "Adult era after Hidden Inventory · three-quarter angle · arrogant smile · half body · sharp focus · 4K",
+  },
+  alt: {
+    tr: "Satoru Gojō — yetişkin dönem, 3/4 açıdan yarım boy portre",
+    en: "Satoru Gojō — adult era, three-quarter half-body portrait",
+  },
+} as const;

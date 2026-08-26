@@ -9,12 +9,14 @@ import {
 import {
   GOJO_CRUMB,
   GOJO_S01_SLOT,
+  GOJO_S02_SLOT,
   GOJO_SHORTCUTS,
   GOJO_UI,
 } from "@/lib/characters/satoru-gojou-experience";
 import { CuratorFrame } from "@/components/character/CuratorFrame";
 import { GOJO_FONT_CLASS } from "./gojo-fonts";
 import { HeroSection } from "./HeroSection";
+import { StrongestSection } from "./StrongestSection";
 import { SectionShell } from "./SectionShell";
 import { SixEyesProvider } from "./SixEyesProvider";
 import { SixEyesToggle } from "./SixEyesToggle";
@@ -86,6 +88,18 @@ export function GojoExperience({ detail, isAdmin }: CharacterExperienceProps) {
           heroSrc={abilityImages.get(GOJO_S01_SLOT.key) ?? null}
           displayName={detail.character.name}
         />
+
+        {/* ══ P02 · THE STRONGEST ═════════════════════════════════════
+            Bölüm kendi başlığını taşıyor (kompozisyonun parçası), bu
+            yüzden `SectionShell` yerine `aria-labelledby` ile doğrudan
+            bağlanıyor. */}
+        <section aria-labelledby="gojo-strongest-title">
+          <StrongestSection
+            locale={locale}
+            isAdmin={isAdmin}
+            src={abilityImages.get(GOJO_S02_SLOT.key) ?? null}
+          />
+        </section>
 
         <div className={styles.shell}>
           {/* ══ KLAVYE KISAYOLLARI ════════════════════════════════════

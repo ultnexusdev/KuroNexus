@@ -9,5 +9,16 @@
       "en": "Shinjuku era · black blindfold · front-facing chest-up portrait · face lightly shadowed · masked transparent PNG · 4K+"
     },
     "status": "missing"
+  },
+  {
+    "slotId": "goj:rikugan",
+    "brief": "gojo.strongest.profile",
+    "phase": "P02",
+    "aspect": "2 / 3",
+    "spec": {
+      "tr": "Hidden Inventory sonrası yetişkin dönem · 3/4 açı · kibirli gülümseme · yarım boy · keskin fokus · 4K",
+      "en": "Adult era after Hidden Inventory · three-quarter angle · arrogant smile · half body · sharp focus · 4K"
+    },
+    "status": "missing"
   }
 ]

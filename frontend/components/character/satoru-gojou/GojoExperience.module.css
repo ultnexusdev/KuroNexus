@@ -171,6 +171,33 @@
   --g-s01-halo:     var(--g-bf-s01-halo);
   --g-s01-fringe:   var(--g-bf-s01-fringe);
   --g-s01-grain:    var(--g-bf-s01-grain);
+
+  /* ════════════════════════════════════════════════════════════
+     BÖLÜM TOKENLARI · P02 · THE STRONGEST
+
+     Ölçüm (26 Ağustos 2026):
+       #8c8c8c / #0a0a0a = 5.89   AA  — gövde metni
+       #a8a8a8 / #0a0a0a = 8.33   AAA — küçük punto
+       #eaeaea / #020012 = 17.26  AAA
+       #00f0ff / #020012 = 14.74  AAA
+     `--g-s02-accent` gözbağlı modda #111111 (zeminde 1.05): bu bir
+     MALZEME — görünmez duvarın ve vinyetin gövdesi, metin taşımıyor.
+     Brief'in notu doğrulandı: #8c8c8c gövde için yeterli, küçük punto
+     için #a8a8a8 kardeşi tanımlandı.
+     ════════════════════════════════════════════════════════════ */
+  --g-bf-s02-bg:          #0a0a0a;
+  --g-bf-s02-text:        #8c8c8c;
+  --g-bf-s02-text-strong: #a8a8a8;
+  --g-bf-s02-accent:      #111111;
+  --g-se-s02-bg:          var(--g-se-surface);
+  --g-se-s02-text:        #eaeaea;
+  --g-se-s02-text-strong: var(--g-se-text);
+  --g-se-s02-accent:      var(--g-se-accent-2);
+
+  --g-s02-bg:          var(--g-bf-s02-bg);
+  --g-s02-text:        var(--g-bf-s02-text);
+  --g-s02-text-strong: var(--g-bf-s02-text-strong);
+  --g-s02-accent:      var(--g-bf-s02-accent);
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -202,6 +229,12 @@
   --g-s01-halo:     var(--g-se-s01-halo);
   --g-s01-fringe:   var(--g-se-s01-fringe);
   --g-s01-grain:    var(--g-se-s01-grain);
+
+  /* P02 */
+  --g-s02-bg:          var(--g-se-s02-bg);
+  --g-s02-text:        var(--g-se-s02-text);
+  --g-s02-text-strong: var(--g-se-s02-text-strong);
+  --g-s02-accent:      var(--g-se-s02-accent);
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -890,5 +923,204 @@
   .hero {
     --g-par-x: 0px;
     --g-par-y: 0px;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   P02 · THE STRONGEST — asimetrik, görünmez dikey duvar
+
+   ── INFINITY'NİN DİKEY VARYANTI ─────────────────────────────────
+   Solda masif metin, sağda Gojō'nun kadrajı. Aralarında görünmez
+   bir duvar var ve hiçbir harf onu geçemiyor: sağa hizalı dev
+   başlık kadraja YAKLAŞTIKÇA saydamlaşarak kesiliyor.
+
+   ⚠️ Maske YALNIZCA dev başlıkta. Gövde paragrafları sol bloğa
+   hapsedilmiş ve duvara hiç yaklaşmıyor — okunabilirlik pazarlık
+   konusu değil. Kesilen başlığın DOM karşılığı da bütün: metin
+   `sr-only` ikizi olmadan da tam, yalnızca boyanması kesiliyor.
+   ════════════════════════════════════════════════════════════════ */
+.strongest {
+  position: relative;
+  inline-size: 100%;
+  overflow-x: clip;
+  background: var(--g-s02-bg);
+  padding-block: var(--g-step);
+  transition: background-color var(--g-swap) ease;
+}
+
+/* Kenarlardan merkeze ağır vinyet. Malzeme `--g-s02-accent`; gözbağlı
+   modda neredeyse zeminle aynı (#111111), Six Eyes'ta soğuk bir kenar
+   ışığına dönüşüyor. Tek bildirim, iki mod. */
+.strongest::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 78% 62% at 50% 50%,
+    transparent 35%,
+    color-mix(in srgb, var(--g-s02-accent) 30%, transparent) 100%
+  );
+  transition: background var(--g-swap) ease;
+}
+
+.strongestGrid {
+  position: relative;
+  z-index: 1;
+  inline-size: var(--g-wide);
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 21rem);
+  gap: var(--g-gap);
+  align-items: center;
+}
+
+/* ── Sol: metin bloğu ──────────────────────────────────────────── */
+.strongestLeft {
+  min-inline-size: 0;
+}
+
+.strongestTitle {
+  margin: 0 0 var(--g-gap);
+  font-family: var(--gojo-font-display), system-ui, sans-serif;
+  /* Kalın ve köşeli: genişlik ekseni 125, en ağır kesit. */
+  font-variation-settings: "wdth" 125;
+  font-weight: 900;
+  font-size: clamp(3rem, 13vw, 11rem);
+  line-height: 0.84;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
+  /* Sağdan hizalı: duvara DOĞRU büyüyor. */
+  text-align: end;
+  color: var(--g-s02-text-strong);
+  /* Sütunu taşıyor — duvara ulaşmaya çalışıyor ama ulaşamıyor. */
+  margin-inline-end: calc(var(--g-gap) * -1.5);
+
+  /* ⚠️ DUVAR. Sağ kenara doğru saydamlaşıyor; harfler kadraja
+     giremeden bitiyor. Yatay Infinity maskesi. */
+  --wallMask: linear-gradient(
+    to right,
+    black 0%,
+    black 62%,
+    transparent 97%
+  );
+  -webkit-mask-image: var(--wallMask);
+  mask-image: var(--wallMask);
+  transition: color var(--g-swap) ease;
+}
+
+.strongestBody {
+  /* Sol bloğa HAPSEDİLMİŞ: duvara yaklaşmıyor, maskesiz, tam okunur. */
+  max-inline-size: 46ch;
+  display: grid;
+  gap: 1.1rem;
+}
+
+.strongestPara {
+  margin: 0;
+  font-weight: 300;
+  font-size: clamp(0.95rem, 1.15vw, 1.05rem);
+  line-height: 1.8;
+  color: var(--g-s02-text);
+  transition: color var(--g-swap) ease;
+}
+
+/* ── Six Eyes ölçümleri ────────────────────────────────────────── */
+.strongestReadings {
+  margin: var(--g-gap) 0 0;
+  padding-inline: 0;
+  list-style: none;
+  padding-block-start: 0.9rem;
+  border-block-start: 1px solid
+    color-mix(in srgb, var(--g-s02-text) 25%, transparent);
+  display: grid;
+  gap: 0.4rem;
+  max-inline-size: 46ch;
+}
+
+.strongestReading {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.68rem;
+}
+
+/* ── Sağ: kadraj ───────────────────────────────────────────────── */
+.strongestFrame {
+  position: relative;
+  min-inline-size: 0;
+}
+
+/* Moiré ve sis — CSS ile, canvas YOK (brief şartı).
+   İnce çizgi ızgarası düşük opaklıkta; iki katman hafifçe farklı
+   açıda olduğu için girişim deseni kendiliğinden oluşuyor. */
+.strongestMoire {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image:
+    repeating-linear-gradient(
+      92deg,
+      color-mix(in srgb, var(--g-s02-accent) 55%, transparent) 0 1px,
+      transparent 1px 4px
+    ),
+    repeating-linear-gradient(
+      88deg,
+      color-mix(in srgb, var(--g-s02-accent) 40%, transparent) 0 1px,
+      transparent 1px 5px
+    );
+  transition: background-image var(--g-swap) ease;
+}
+
+/* ── Sayfa kenarındaki dikey etiket ────────────────────────────── */
+.strongestEdge {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 0.4rem;
+  z-index: 2;
+  margin: 0;
+  /* Aşağıdan yukarıya: dikey yazım + 180° çevirme. */
+  writing-mode: vertical-rl;
+  rotate: 180deg;
+  transform-origin: center;
+  translate: 0 -50%;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--g-s02-text) 75%, transparent);
+  pointer-events: none;
+  transition: color var(--g-swap) ease;
+}
+
+/* ── Dar ekran ─────────────────────────────────────────────────── */
+@media (max-width: 63.99rem) {
+  .strongestGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .strongestTitle {
+    text-align: start;
+    margin-inline-end: 0;
+    font-size: clamp(2.6rem, 15vw, 6rem);
+    /* Dar ekranda sağda kadraj YOK, yani duvar da yok: maske
+       kaldırılıyor. Var olmayan bir sınıra karşı harf kesmek
+       anlamsız olurdu. */
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  /* Kenar etiketi dar ekranda yatay bir üst satıra dönüyor:
+     360px'te dikey etiket kadrajı daraltıyordu. */
+  .strongestEdge {
+    position: static;
+    writing-mode: horizontal-tb;
+    rotate: none;
+    translate: none;
+    margin-block-end: 0.75rem;
+    letter-spacing: 0.3em;
   }
 }

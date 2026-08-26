@@ -284,5 +284,16 @@
       "en": "Isolated on a fully dark ground · ultra-dynamic combat pose · high shutter feel · NO blur · 4K"
     },
     "status": "missing"
+  },
+  {
+    "slotId": "goj:frozen",
+    "brief": "gojo.touch.frozen",
+    "phase": "P10",
+    "aspect": "16 / 9",
+    "spec": {
+      "tr": "Lanetli enerjinin tam değecekken uzay-zamanda durduğu anın ultra-makro yan profil detayı · 8K mikroskobik his",
+      "en": "Ultra-macro side-profile detail of the instant cursed energy stops in spacetime just before contact · 8K"
+    },
+    "status": "missing"
   }
 ]

@@ -406,6 +406,26 @@
   --g-s09-bg:    var(--g-bf-s09-bg);
   --g-s09-hud:   var(--g-bf-s09-hud);
   --g-s09-alarm: var(--g-bf-s09-alarm);
+
+  /* ════════════════════════════════════════════════════════════
+     BÖLÜM TOKENLARI · P10 · CAN YOU TOUCH GOJŌ?
+
+     Ekranın neredeyse tamamı negatif alan. Gözbağlı modda çarpışma
+     yalnızca bir doku farkı (#141414 — malzeme); Six Eyes'ta beyaz
+     bir çarpışma merkezi ve kenarlara kızıl-mor gradyan.
+     Metin `--g-text` / `--g-text-dim` okuyor: ikisi de iki zeminde
+     AAA (#e5e5e5/#0a0a0a = 15.72, #ffffff/#000000 = 21.00).
+     ════════════════════════════════════════════════════════════ */
+  --g-bf-s10-bg:     #0a0a0a;
+  --g-bf-s10-warp:   #141414;
+  --g-bf-s10-impact: #141414;
+  --g-se-s10-bg:     var(--g-se-void);
+  --g-se-s10-warp:   var(--g-se-purple);
+  --g-se-s10-impact: var(--g-se-text);
+
+  --g-s10-bg:     var(--g-bf-s10-bg);
+  --g-s10-warp:   var(--g-bf-s10-warp);
+  --g-s10-impact: var(--g-bf-s10-impact);
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -486,6 +506,11 @@
   --g-s09-bg:    var(--g-se-s09-bg);
   --g-s09-hud:   var(--g-se-s09-hud);
   --g-s09-alarm: var(--g-se-s09-alarm);
+
+  /* P10 — doku farkı, çarpışma merkezine dönüyor */
+  --g-s10-bg:     var(--g-se-s10-bg);
+  --g-s10-warp:   var(--g-se-s10-warp);
+  --g-s10-impact: var(--g-se-s10-impact);
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -3476,6 +3501,213 @@
    (brief şartı). Dolgu geçişi de anlık. */
 @media (prefers-reduced-motion: reduce) {
   .hudDialFill {
+    transition: none;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   P10 · CAN YOU TOUCH GOJŌ? — bariyerin sınırı
+
+   Ekranın neredeyse tamamı saf negatif alan. Hiçbir harf düz yatay
+   kalmıyor: başlık silindir etrafına sarılmış gibi harf harf
+   döndürülüyor.
+
+   ⚠️ İMLEÇ HİÇBİR YERDE GİZLENMİYOR. `cursor: none` sayfanın hiçbir
+   yerinde yok ve `npm run check:gojo` bunu denetliyor. Etkileşim
+   yalnızca OKUYOR; hiçbir olay engellenmiyor, kullanıcı her an
+   scroll ile çıkabiliyor.
+   ════════════════════════════════════════════════════════════════ */
+.touch {
+  position: relative;
+  inline-size: 100%;
+  overflow-x: clip;
+  background: var(--g-s10-bg);
+  padding-block: var(--g-step);
+  transition: background-color var(--g-swap) ease;
+}
+
+.touchInner {
+  inline-size: var(--g-wide);
+  margin-inline: auto;
+}
+
+/* ── Bükülmüş başlık ───────────────────────────────────────────── */
+.touchTitle {
+  margin: 0 0 var(--g-gap);
+  text-align: center;
+  font-family: var(--gojo-font-display), system-ui, sans-serif;
+  font-variation-settings: "wdth" 118;
+  font-size: clamp(1.3rem, 5vw, 3.4rem);
+  font-weight: 800;
+  line-height: 1.4;
+  color: var(--g-text);
+  transition: color var(--g-swap) ease;
+}
+
+/* Her harf kendi açısıyla: silindire sarılmış his.
+   Açı bileşenden geliyor (`--a`), rastgele değil. */
+.touchGlyph {
+  display: inline-block;
+  rotate: calc(var(--a) * 1deg);
+  translate: 0 calc(var(--d) * 1px);
+}
+
+/* ── Alan ──────────────────────────────────────────────────────── */
+.touchField {
+  position: relative;
+  min-block-size: min(70svh, 38rem);
+  display: grid;
+  place-items: center;
+  /* Etkileşim BU KUTUYLA SINIRLI — sayfa geneline taşmıyor. */
+  touch-action: pan-y;
+}
+
+/* Görünmez bariyer. `--reach` 0 (uzak) → 1 (sınırda).
+   Gözbağlı modda yalnızca bir doku farkı; Six Eyes'ta beyaz merkez
+   ve kenarlara kızıl-mor. */
+.touchBarrier {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  translate: -50% -50%;
+  inline-size: var(--g-infinity);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: calc(0.15 + var(--reach, 0) * 0.85);
+  background: radial-gradient(
+    circle at 50% 50%,
+    color-mix(in srgb, var(--g-s10-impact) calc(var(--reach, 0) * 55%), transparent),
+    color-mix(in srgb, var(--g-s10-warp) 45%, transparent) 62%,
+    transparent 78%
+  );
+  transition:
+    opacity 200ms ease,
+    background 200ms ease;
+}
+
+/* Çarpışma halkası — imleç sınıra dayandığında beliriyor. */
+.touchRing {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  translate: -50% -50%;
+  inline-size: calc(var(--g-infinity) * (0.55 + var(--reach, 0) * 0.45));
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 1px solid
+    color-mix(in srgb, var(--g-s10-impact) calc(var(--reach, 0) * 90%), transparent);
+  pointer-events: none;
+  transition:
+    inline-size 200ms ease,
+    border-color 200ms ease;
+}
+
+.touchPlate {
+  inline-size: min(100%, 34rem);
+}
+
+/* ── Okuma ─────────────────────────────────────────────────────── */
+.touchReadout {
+  margin: var(--g-gap) auto 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem 1.6rem;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  color: var(--g-text-dim);
+  transition: color var(--g-swap) ease;
+}
+
+.touchDistance {
+  font-weight: 700;
+  color: var(--g-text);
+}
+
+.touchStopped {
+  margin: var(--g-gap) 0 0;
+  text-align: center;
+  font-family: var(--gojo-font-serif), Georgia, serif;
+  font-style: italic;
+  font-size: clamp(1.05rem, 3vw, 1.8rem);
+  color: var(--g-text);
+  transition: color var(--g-swap) ease;
+}
+
+.touchTrigger {
+  display: block;
+  margin: var(--g-gap) auto 0;
+  min-height: var(--touch-min);
+  padding: 0.65rem 1.6rem;
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--g-text) 32%, transparent);
+  color: var(--g-text);
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    border-color 200ms ease,
+    color var(--g-swap) ease;
+}
+
+.touchTrigger:hover {
+  border-color: color-mix(in srgb, var(--g-accent-2) 70%, transparent);
+}
+
+.touchTrigger:focus-visible {
+  outline: 2px solid var(--g-accent-2);
+  outline-offset: 3px;
+}
+
+.touchHint {
+  margin: 0.6rem 0 0;
+  text-align: center;
+  font-family: var(--gojo-font-mono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  color: color-mix(in srgb, var(--g-text-dim) 78%, transparent);
+}
+
+/* ── Düz metin karşılığı ───────────────────────────────────────
+   Normalde `sr-only`. ⚠️ HAREKET KAPALIYKEN GÖRÜNÜR OLUYOR —
+   brief'in kendi düzeltmesi: etkileşim çalışmadığında bölümün
+   söylediği şey okunabilir kalmalı. */
+.touchProse {
+  margin: var(--g-gap) auto 0;
+  max-inline-size: 58ch;
+  font-weight: 300;
+  font-size: clamp(0.9rem, 1.1vw, 1rem);
+  line-height: 1.85;
+  color: var(--g-text-dim);
+  transition: color var(--g-swap) ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* ⚠️ `.srOnly` ile birlikte kullanılıyor ve onun BÜTÜN kurallarını
+     geri almak zorunda — `margin: -1px` dâhil. Biri unutulursa metin
+     "görünür" olur ama ekranın dışında kalır. */
+  .touchProse {
+    position: static;
+    inline-size: auto;
+    block-size: auto;
+    padding: 0;
+    margin: var(--g-gap) auto 0;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+  }
+
+  .touchGlyph {
+    rotate: none;
+    translate: none;
+  }
+
+  .touchBarrier,
+  .touchRing {
     transition: none;
   }
 }

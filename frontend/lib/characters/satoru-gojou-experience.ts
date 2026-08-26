@@ -1843,3 +1843,80 @@ export const GOJO_S09_SLOT = {
     en: "Satoru Gojō — dynamic combat pose",
   },
 } as const;
+
+/* ══════════════════════════════════════════════════════════════════════════
+   P10 · CAN YOU TOUCH GOJŌ?
+
+   Görünmez bariyerin sınırında ekstrem makro odak. Ekranın neredeyse
+   tamamı saf negatif alan; hiçbir harf düz yatay kalamıyor.
+
+   ⚠️ GEMINI'NİN "GÖVDE METNİ YOK" YÖNÜ DÜZELTİLDİ. Görsel olarak doğru
+   ama SEO ve i18n için bu bölümün düz metin karşılığı OLMAK ZORUNDA.
+   Aşağıdaki `prose` alanı `sr-only` olarak her zaman DOM'da; hareket
+   azaltılmışsa GÖRÜNÜR hâle geliyor (brief'in kendi düzeltmesi).
+
+   ⚠️ ZENO TUTARLILIĞI: mesafe sayacı P03'ün dizisini sürdürüyor. Her
+   deneme kalan mesafeyi yarıya bölüyor ve sayı hiçbir zaman 0 olmuyor.
+   İki bölüm aynı matematiği paylaşıyor, çünkü aynı şeyi anlatıyorlar.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+export const GOJO_S10 = {
+  /** Bükülmüş dev başlık — okunabilir karşılığı `sr-only` */
+  title: {
+    tr: "GOJŌ'YA DOKUNABİLİR MİSİN?",
+    en: "CAN YOU TOUCH GOJŌ?",
+  },
+  /** Etkileşimi başlatan düğme */
+  trigger: {
+    tr: "DOKUN",
+    en: "TOUCH HIM",
+  },
+  /** Fare ve parmak için ayrı ipucu */
+  hintPointer: {
+    tr: "İmleci ele yaklaştır.",
+    en: "Move the cursor toward the hand.",
+  },
+  hintTouch: {
+    tr: "Parmağını ele doğru sürükle.",
+    en: "Drag your finger toward the hand.",
+  },
+  /** Birkaç denemeden sonra beliren satır */
+  stopped: {
+    tr: "Infinity seni durdurdu.",
+    en: "Infinity stopped you.",
+  },
+  /** Mesafe sayacının etiketi */
+  distanceLabel: {
+    tr: "KALAN MESAFE",
+    en: "REMAINING DISTANCE",
+  },
+  attemptsLabel: {
+    tr: "DENEME",
+    en: "ATTEMPTS",
+  },
+  /**
+   * Bölümün düz metin karşılığı.
+   *
+   * ⚠️ Bu metin bir "erişilebilirlik eki" değil, bölümün İÇERİĞİ. Görsel
+   * katman onu bir etkileşime çeviriyor; katman hiç çalışmasa da bölümün
+   * söylediği şey buradan tam olarak okunuyor.
+   */
+  prose: {
+    tr: "Gojō'ya dokunulamaz. Mugegen ona uzanan her şeyin arasına sonsuz bölünebilen bir aralık koyuyor: el yaklaşıyor, mesafe yarıya iniyor, sonra kalanın yarısına, sonra onun yarısına. Sayı küçülüyor ama sıfır olmuyor. Bu bir kalkan değil — çarpacak bir yüzey yok. Duran şey saldırı değil, mesafenin kendisi. Kaç kere denenirse denensin sonuç aynı: temas hiç gerçekleşmiyor.",
+    en: "Gojō cannot be touched. Limitless places an infinitely divisible gap between him and whatever reaches for him: the hand closes in, the distance halves, then halves again, then again. The number shrinks but never becomes zero. This is not a shield — there is no surface to strike. What stops is not the attack but the distance itself. However many times it is tried, the result is the same: contact never happens.",
+  },
+} as const;
+
+/** P10'un görsel yuvası. */
+export const GOJO_S10_SLOT = {
+  key: "goj:frozen",
+  aspect: "16 / 9",
+  spec: {
+    tr: "Jogo'nun ateşi / bir bıçak / lanetli enerjinin tam değecekken uzay-zamanda durduğu anın ultra-makro yan profil detayı · 8K mikroskobik his",
+    en: "Ultra-macro side-profile detail of the instant Jogo's flame / a blade / cursed energy stops in spacetime just before contact · 8K microscopic feel",
+  },
+  alt: {
+    tr: "Değmeden duran temas anı — ultra makro",
+    en: "The moment of contact halted before it lands — ultra macro",
+  },
+} as const;

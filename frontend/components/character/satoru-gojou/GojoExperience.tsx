@@ -15,6 +15,7 @@ import {
   GOJO_S07_SLOT,
   GOJO_S08_TEACHER_SLOT,
   GOJO_S09_SLOT,
+  GOJO_S10_SLOT,
   GOJO_SHORTCUTS,
   GOJO_UI,
 } from "@/lib/characters/satoru-gojou-experience";
@@ -27,6 +28,7 @@ import { MakingSection } from "./MakingSection";
 import { PairSection } from "./PairSection";
 import { PowerSection } from "./PowerSection";
 import { TechniquesSection } from "./TechniquesSection";
+import { TouchSection } from "./TouchSection";
 import { VoidSection } from "./VoidSection";
 import { StrongestSection } from "./StrongestSection";
 import { SectionShell } from "./SectionShell";
@@ -188,6 +190,17 @@ export function GojoExperience({ detail, isAdmin }: CharacterExperienceProps) {
             locale={locale}
             isAdmin={isAdmin}
             src={abilityImages.get(GOJO_S09_SLOT.key) ?? null}
+          />
+        </section>
+
+        {/* ══ P10 · CAN YOU TOUCH GOJŌ? ═══════════════════════════════
+            Etkileşim bölümün kutusuyla SINIRLI; imleç hiçbir koşulda
+            gizlenmiyor. Bölümün düz metni her zaman DOM'da. */}
+        <section aria-labelledby="gojo-touch-title">
+          <TouchSection
+            locale={locale}
+            isAdmin={isAdmin}
+            src={abilityImages.get(GOJO_S10_SLOT.key) ?? null}
           />
         </section>
 

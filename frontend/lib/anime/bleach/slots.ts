@@ -1,4 +1,5 @@
 import { BANKAI_HALL } from "./bankai";
+import { DIVISIONS, hasSecondCaptain } from "./divisions";
 import type { BleachSlotWorld, Localized } from "./types";
 
 /**
@@ -180,7 +181,31 @@ export interface CuratedSlotDef {
 // aynısı — iki kopya tutulsaydı biri güncellenip diğeri unutulurdu.
 // ---------------------------------------------------------------------------
 
+/**
+ * Kapının KLASİK dizilimdeki kaptanı.
+ *
+ * ⚠️ Kimlik era eki TAŞIMIYOR ve taşımayacak: `bleach:gotei:1` küratörün
+ * Yamamoto'yu yüklediği satırın anahtarı. `…:classic` yapmak o kareyi
+ * koparırdı (manifesto başlığındaki kural).
+ */
 export const gateSlotId = (division: number) => `bleach:gotei:${division}`;
+
+/**
+ * Kapının TYBW SONRASI kaptanı — yalnızca kaptanın DEĞİŞTİĞİ bölüklerde.
+ *
+ * Sekiz bölükte kadro değişiyor (1, 3, 4, 5, 7, 8, 9, 13): 1. bölüğün başında
+ * klasik dizilimde Yamamoto, TYBW sonrası Shunsui Kyōraku duruyor. Zaman kipi
+ * anahtarı adı zaten değiştiriyordu; kare değişmeyince anahtar yarım
+ * çalışıyordu — Kyōraku'nun kapısında Yamamoto'nun fotoğrafı kalıyordu
+ * (kullanıcı bildirimi, 27 Ağustos 2026).
+ *
+ * ⚠️ Kaptanı DEĞİŞMEYEN beş bölükte (2, 6, 10, 11, 12) ikinci yuva YOK: aynı
+ * kişi için iki kez kare istemek küratöre gereksiz iş ve manifestoda beş
+ * sahte "eksik" satırı demekti. Liste elle yazılmıyor, `DIVISIONS`ten
+ * karşılaştırmayla çıkıyor.
+ */
+export const gateTybwSlotId = (division: number) =>
+  `bleach:gotei:${division}:tybw`;
 export const innerWorldSlotId = (zanpakuto: string) => `bleach:inner:${zanpakuto}`;
 export const bankaiSlotId = (slug: string) => `bleach:bankai:${slug}`;
 export const espadaSlotId = (rank: number) => `bleach:espada:${rank}`;
@@ -188,11 +213,87 @@ export const maskSlotId = (slug: string) => `bleach:mask:${slug}`;
 export const legendSlotId = (slug: string) => `bleach:legend:${slug}`;
 export const worldSlotId = (world: string) => `bleach:world:${world}`;
 
-/** 13 bölük — kanji numarası panelde okunabilir olsun diye burada */
-const DIVISION_KANJI = [
-  "一", "二", "三", "四", "五", "六", "七",
-  "八", "九", "十", "十一", "十二", "十三",
-];
+/**
+ * On üç kapının yuva künyesi — `DIVISIONS`ten TÜRETİLİYOR.
+ *
+ * Kanji listesi burada elle yazılıydı ve kaptan adları hiç yoktu; küratör
+ * manifestoda "3. Bölük kaptanı" görüyor ama KİMİN karesini araması
+ * gerektiğini bilmiyordu. Artık ad da, kanji de tek kaynaktan geliyor —
+ * Bankai nişlerinde iki kopyanın nasıl kaydığı `BANKAI_NICHES` başlığında
+ * yazılı, aynı hataya ikinci kez yer yok.
+ *
+ * `tybwCaptain` yalnızca kaptan DEĞİŞİYORSA dolu; doluysa o bölük iki yuva
+ * üretiyor.
+ */
+const GATES = DIVISIONS.map((division) => ({
+  n: division.n,
+  kanji: division.kanji,
+  captain: division.classic.captain.name,
+  tybwCaptain: hasSecondCaptain(division) ? division.tybw.captain.name : null,
+}));
+
+/**
+ * Tek bir kapı yuvasının künyesi.
+ *
+ * Yirmi bir yuvanın (13 + 8) etiketi ve kadraj notu tek kalıptan çıkıyor.
+ * Küratörün bu ekranda cevaplaması gereken soru "kimin karesini arıyorum" ve
+ * cevabı `captain`; zaman kipi de yazılı, çünkü iki yuvalı bölüklerde iki
+ * satır yan yana duruyor ve hangisinin hangi dizilim olduğu ayırt edilmeli.
+ */
+function gateSlot(gate: {
+  id: string;
+  kanji: string;
+  n: number;
+  captain: string;
+  /** Kaptanı değişmeyen bölüklerde `null`: etiketin era eki olmuyor */
+  era: "classic" | "tybw" | null;
+  /** Öbür dizilimin kaptanı — notta "onun karesi ayrı yuvada" demek için */
+  other: string | null;
+}): CuratedSlotDef {
+  /* ⚠️ Niteleme parçaları da `Localized` — düz `string` olsalardı Türkçesi
+     İngilizce sayfada aynen çıkardı. `check-bleach-i18n` tam olarak bu
+     sınıf kaçağı için yazılmıştı (betiğin başlığındaki `bladeNote` olayı). */
+  const eraTag: Localized =
+    gate.era === "classic"
+      ? { tr: " · klasik dizilim", en: " · classic era" }
+      : gate.era === "tybw"
+        ? { tr: " · TYBW sonrası", en: " · post-TYBW" }
+        : { tr: "", en: "" };
+
+  const also: Localized = gate.other
+    ? {
+        tr: ` Bu bölüğün öbür dizilimdeki kaptanı ${gate.other}; onun karesi AYRI bir yuvada.`,
+        en: ` In the other era this division is led by ${gate.other}; that frame lives in a separate slot.`,
+      }
+    : {
+        tr: " Kaptan iki dizilimde de aynı; tek kare yetiyor.",
+        en: " The captain is the same in both eras; one frame is enough.",
+      };
+
+  return {
+    id: gate.id,
+    section: "gotei",
+    label: {
+      tr: `${gate.kanji} · ${gate.n}. Bölük · ${gate.captain}${eraTag.tr}`,
+      en: `${gate.kanji} · Division ${gate.n} · ${gate.captain}${eraTag.en}`,
+    },
+    hint: {
+      tr: `${gate.captain}. Kapı açılınca aralıktan görünen kare: dikey kadraj, tek figür, göğüs hizasından yukarısı. Yüz kadrajın üst yarısında kalsın — alt kenara kaptanın adı biniyor.${also.tr}`,
+      en: `${gate.captain}. The frame seen through the opening gate: vertical crop, a single figure, chest up. Keep the face in the upper half — the captain's name sits over the lower edge.${also.en}`,
+    },
+    size: { w: 720, h: 960 },
+    ratios: ["3:4", "4:5"],
+    world: "soul-society",
+    /* ⚠️ `photo`, `silhouette` DEĞİL (27 Ağustos 2026). Silüet işlemi
+       `brightness(0.3)` uyguluyor ve küratör kaptan portresi yüklediğinde
+       ekranda koyu bir blok görüyordu (kullanıcı bildirimi). Kapının
+       karanlığı zaten kanatlardan ve zeminden geliyor; fotoğrafın kendisi
+       kendi parlaklığında kalmalı. Küratör isterse GÖRÜNÜM sekmesinden
+       silüete çevirebiliyor. */
+    treatment: "photo",
+    fallback: "silhouette",
+  };
+}
 
 /** İç dünyası olan altı Zanpakutō (brief P04: "20 yarım yerine 6 mükemmel") */
 const INNER_WORLDS: { slug: string; name: string }[] = [
@@ -386,30 +487,33 @@ export const BLEACH_SLOTS: readonly CuratedSlotDef[] = [
     srcCredit: layer.srcCredit,
   })),
 
-  /* ══ P03 · GOTEI 13 ══════════════════════════════════════════════════ */
-  ...DIVISION_KANJI.map<CuratedSlotDef>((kanji, index) => ({
-    id: gateSlotId(index + 1),
-    section: "gotei",
-    label: {
-      tr: `${kanji} · ${index + 1}. Bölük kaptanı`,
-      en: `${kanji} · Division ${index + 1} captain`,
-    },
-    hint: {
-      tr: `${index + 1}. bölüğün kaptanı. Kapı açılınca aralıktan görünen kare: dikey kadraj, tek figür, göğüs hizasından yukarısı. Yüz kadrajın üst yarısında kalsın — alt kenara kaptanın adı biniyor.`,
-      en: `The captain of Division ${index + 1}. The frame seen through the opening gate: vertical crop, a single figure, chest up. Keep the face in the upper half — the captain's name sits over the lower edge.`,
-    },
-    size: { w: 720, h: 960 },
-    ratios: ["3:4", "4:5"],
-    world: "soul-society",
-    /* ⚠️ `photo`, `silhouette` DEĞİL (27 Ağustos 2026). Silüet işlemi
-       `brightness(0.3)` uyguluyor ve küratör kaptan portresi yüklediğinde
-       ekranda koyu bir blok görüyordu (kullanıcı bildirimi). Kapının
-       karanlığı zaten kanatlardan ve zeminden geliyor; fotoğrafın kendisi
-       kendi parlaklığında kalmalı. Küratör isterse GÖRÜNÜM sekmesinden
-       silüete çevirebiliyor. */
-    treatment: "photo",
-    fallback: "silhouette",
-  })),
+  /* ══ P03 · GOTEI 13 ══════════════════════════════════════════════════
+     Kapı başına BİR yuva, kaptanı değişen sekiz bölükte İKİ. Zaman kipi
+     anahtarı hangi kareyi çizeceğini `Gotei13Section` seçiyor. */
+  ...GATES.flatMap<CuratedSlotDef>((gate) => [
+    gateSlot({
+      id: gateSlotId(gate.n),
+      kanji: gate.kanji,
+      n: gate.n,
+      captain: gate.captain,
+      /* Kaptan değişiyorsa bu yuva artık "klasik dizilimin kaptanı";
+         değişmiyorsa era ayrımı yok, etiket sade kalıyor. */
+      era: gate.tybwCaptain ? "classic" : null,
+      other: gate.tybwCaptain,
+    }),
+    ...(gate.tybwCaptain
+      ? [
+          gateSlot({
+            id: gateTybwSlotId(gate.n),
+            kanji: gate.kanji,
+            n: gate.n,
+            captain: gate.tybwCaptain,
+            era: "tybw",
+            other: gate.captain,
+          }),
+        ]
+      : []),
+  ]),
 
   /* ══ P04 · İÇ DÜNYALAR ═══════════════════════════════════════════════ */
   ...INNER_WORLDS.map<CuratedSlotDef>((zan) => ({

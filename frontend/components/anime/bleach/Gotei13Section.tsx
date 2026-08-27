@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
-import { DIVISIONS } from "@/lib/anime/bleach/divisions";
-import { gateSlotId } from "@/lib/anime/bleach/slots";
+import { DIVISIONS, hasSecondCaptain } from "@/lib/anime/bleach/divisions";
+import { gateSlotId, gateTybwSlotId } from "@/lib/anime/bleach/slots";
 import { CuratedImage, CuratedSlotPen } from "./CuratedImage";
 import { Gotei13 } from "./Gotei13";
 
@@ -33,6 +33,16 @@ export async function Gotei13Section({ locale }: { locale: string }) {
    * ⚠️ `noEdit` zorunlu: kapı bir `<button>` ve içine ikinci bir `<button>`
    * (kalem) koymak geçersiz HTML olurdu. Kalem bu yüzden ayrı geliyor —
    * `pens`, kapının KARDEŞİ olarak çiziliyor.
+   *
+   * ── ⚠️ İKİ ZAMAN KİPİ, İKİ KARE ────────────────────────────────────────
+   * Sekiz bölükte kaptan değişiyor (1, 3, 4, 5, 7, 8, 9, 13). Anahtar adı
+   * zaten değiştiriyordu ama kare sabit kalıyordu: Kyōraku'nun kapısında
+   * Yamamoto'nun fotoğrafı duruyordu. İkinci dizi bu yüzden var.
+   *
+   * ⚠️ Kaptanı değişmeyen beş bölükte ikinci dizinin karşılığı `null` —
+   * boş bir kopya DEĞİL. Aynı yuvayı ikinci kez çizmek, anahtar her
+   * çevrildiğinde React'e aynı görseli söktürüp yeniden taktırırdı:
+   * değişmemesi gereken kare gözle görülür biçimde yanıp sönerdi.
    */
   const art = DIVISIONS.map((division) => (
     <CuratedImage
@@ -49,11 +59,36 @@ export async function Gotei13Section({ locale }: { locale: string }) {
     <CuratedSlotPen key={division.n} slotId={gateSlotId(division.n)} />
   ));
 
+  /** Kaptanı değişen bölüklerin TYBW karesi; değişmeyenlerde `null` */
+  const artTybw = DIVISIONS.map((division) =>
+    hasSecondCaptain(division) ? (
+      <CuratedImage
+        key={`${division.n}-tybw`}
+        slotId={gateTybwSlotId(division.n)}
+        fill
+        decorative
+        noEdit
+        sizes="160px"
+      />
+    ) : null,
+  );
+
+  const pensTybw = DIVISIONS.map((division) =>
+    hasSecondCaptain(division) ? (
+      <CuratedSlotPen
+        key={`${division.n}-tybw`}
+        slotId={gateTybwSlotId(division.n)}
+      />
+    ) : null,
+  );
+
   return (
     <Gotei13
       locale={locale}
       art={art}
+      artTybw={artTybw}
       pens={pens}
+      pensTybw={pensTybw}
       labels={{
         eyebrow: t("eyebrow"),
         title: t("title"),

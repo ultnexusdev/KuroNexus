@@ -53,17 +53,33 @@ import world from "./world.module.css";
 export function Gotei13({
   locale,
   art,
+  artTybw,
   pens,
+  pensTybw,
   labels,
 }: {
   locale: string;
   /**
    * Kapı aralığından görünen kaptan kareleri — SUNUCUDA çizilip prop
    * olarak iniyor (`Gotei13Section` başlığındaki gerekçe).
+   *
+   * KLASİK dizilimin kaptanı; kaptanı değişmeyen bölüklerde iki kipte de
+   * bu çiziliyor.
    */
   art: ReactNode[];
+  /**
+   * TYBW SONRASI kaptanın karesi — yalnızca kaptanı değişen sekiz bölükte
+   * dolu, kalanlarda `null`.
+   *
+   * ⚠️ `null` "kare yok" demek DEĞİL, "aynı kare kalsın" demek. Kaptanı
+   * değişmeyen bölükte ikinci bir kopya çizmek, anahtar her çevrildiğinde
+   * React'e aynı görseli söktürüp yeniden taktırırdı.
+   */
+  artTybw: ReactNode[];
   /** Küratör kalemleri — kapının KARDEŞİ, içinde değil (iç içe buton olmaz) */
   pens: ReactNode[];
+  /** TYBW yuvasının kalemi; kalem DAİMA ekrandaki kareyi düzenliyor */
+  pensTybw: ReactNode[];
   labels: {
     eyebrow: string;
     title: string;
@@ -108,6 +124,42 @@ export function Gotei13({
       setFocused(n - 1);
     }
   }, []);
+
+  /**
+   * Küratör manifestosundaki "Sayfada göster →" bağlantısı.
+   *
+   * ⚠️ TYBW yuvasının çapası (`#slot-bleach-gotei-1-tybw`) YALNIZCA o
+   * dizilim seçiliyken DOM'da. Bağlantıya tıklandığında tarayıcı hedefi
+   * bulamayıp hiçbir şey yapmıyordu — küratör için "bozuk bağlantı".
+   * Adres hangi kipi istiyorsa önce ona geçiliyor.
+   *
+   * Kaydırma tarayıcıya BIRAKILMIYOR: hedef düğüm kip değiştikten sonraki
+   * çizimde oluşuyor, tarayıcının kendi kaydırması ondan önce olup bitiyor.
+   * `jumpTo` durumu tam o çizimi bekliyor.
+   */
+  const [jumpTo, setJumpTo] = useState<string | null>(null);
+
+  useEffect(() => {
+    const jump = () => {
+      const match = /^#slot-bleach-gotei-\d{1,2}(-tybw)?$/.exec(
+        window.location.hash,
+      );
+      if (!match) return;
+      setEra(match[1] ? "tybw" : "classic");
+      setJumpTo(window.location.hash.slice(1));
+    };
+    jump();
+    window.addEventListener("hashchange", jump);
+    return () => window.removeEventListener("hashchange", jump);
+  }, []);
+
+  useEffect(() => {
+    if (!jumpTo) return;
+    document
+      .getElementById(jumpTo)
+      ?.scrollIntoView({ block: "center", behavior: "smooth" });
+    setJumpTo(null);
+  }, [jumpTo]);
 
   const focusGate = useCallback((index: number) => {
     const next = (index + DIVISIONS.length) % DIVISIONS.length;
@@ -196,6 +248,18 @@ export function Gotei13({
           {DIVISIONS.map((division, i) => {
             const position = gatePosition(i);
             const isOpen = open === division.n;
+
+            /* Zaman kipi kareyi de çeviriyor: 1. bölüğün başında klasik
+               dizilimde Yamamoto, TYBW sonrası Kyōraku duruyor. Kaptanı
+               değişmeyen bölüklerde `artTybw[i]` `null` ve AYNI düğüm
+               yerinde kalıyor — sökülüp yeniden takılmıyor. */
+            const showTybw = era === "tybw" && artTybw[i] !== null;
+            const gateArt = showTybw ? artTybw[i] : art[i];
+            /* Kalem daima EKRANDAKİ kareyi düzenliyor: küratör TYBW'ye
+               geçtiğinde Kyōraku'nun yuvasını açıyor, Yamamoto'nunkini
+               değil. */
+            const gatePen = showTybw ? pensTybw[i] : pens[i];
+
             return (
               <div
                 key={division.n}
@@ -231,7 +295,7 @@ export function Gotei13({
                       `CuratedImage` kendi tasarlanmış boşluğunu çiziyor —
                       burada ek bir yedek gerekmiyor. */}
                   <span className={styles.art} aria-hidden="true">
-                    {art[i]}
+                    {gateArt}
                   </span>
 
                   {/* Kapı iki panel: hover'da ortadan aralanıyor, tıklamada
@@ -261,7 +325,7 @@ export function Gotei13({
                 {/* Küratör kalemi — kapının İÇİNDE değil KARDEŞİ.
                     Küratör modu kapalıyken CSS onu tamamen gizliyor
                     (`CuratorFrame`), ziyaretçinin paketinde hiç yok. */}
-                {pens[i]}
+                {gatePen}
 
                 {isOpen ? (
                   <DivisionPanel

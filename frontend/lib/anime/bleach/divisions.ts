@@ -508,6 +508,22 @@ export const ERAS = ["classic", "tybw"] as const;
 export type Era = (typeof ERAS)[number];
 
 /**
+ * Bölüğün başındaki kişi TYBW sonrası DEĞİŞİYOR mu?
+ *
+ * Sekiz bölükte değişiyor: 1, 3, 4, 5, 7, 8, 9, 13. Bu soru iki ayrı yerde
+ * soruluyor — küratör yuvası üretilirken (`slots.ts`) ve kapının karesi
+ * seçilirken (`Gotei13Section`) — ve iki yerde ayrı yazılsaydı biri
+ * kayardı. Aynı sınıf hata Bankai nişlerinde bir kez yaşandı
+ * (`BANKAI_NICHES` başlığı).
+ *
+ * ⚠️ Liste SABİT DEĞİL, karşılaştırmayla çıkıyor: kadro verisi düzeltilirse
+ * yuvalar kendiliğinden doğru sayıya iniyor/çıkıyor.
+ */
+export function hasSecondCaptain(division: DivisionRecord): boolean {
+  return division.tybw.captain.name !== division.classic.captain.name;
+}
+
+/**
  * Kapının daire üzerindeki yeri.
  *
  * ⚠️ SVG DEĞİL, HTML. Kapılar gerçek `<button>` — klavye gezinmesi, odak

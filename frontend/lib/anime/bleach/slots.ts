@@ -1,3 +1,4 @@
+import { BANKAI_HALL } from "./bankai";
 import type { BleachSlotWorld, Localized } from "./types";
 
 /**
@@ -203,19 +204,22 @@ const INNER_WORLDS: { slug: string; name: string }[] = [
   { slug: "benihime", name: "Benihime 紅姫" },
 ];
 
-/** Bankai Salonu nişleri — koridordaki sıra bu (Tensa Zangetsu en sonda) */
-const BANKAI_NICHES: { slug: string; name: string }[] = [
-  { slug: "senbonzakura-kageyoshi", name: "Senbonzakura Kageyoshi · Byakuya Kuchiki" },
-  { slug: "zanka-no-tachi", name: "Zanka no Tachi · Genryūsai Yamamoto" },
-  { slug: "daiguren-hyorinmaru", name: "Daiguren Hyōrinmaru · Tōshirō Hitsugaya" },
-  { slug: "kannonbiraki-benihime", name: "Kannonbiraki Benihime Aratame · Kisuke Urahara" },
-  { slug: "minazuki", name: "Minazuki · Retsu Unohana" },
-  { slug: "katen-kyokotsu", name: "Katen Kyōkotsu: Karamatsu Shinjū · Shunsui Kyōraku" },
-  { slug: "hihio-zabimaru", name: "Hihiō Zabimaru · Renji Abarai" },
-  { slug: "kokujo-tengen-myoo", name: "Kokujō Tengen Myōō · Sajin Komamura" },
-  { slug: "jakuho-raikoben", name: "Jakuhō Raikōben · Suì-Fēng" },
-  { slug: "tensa-zangetsu", name: "Tensa Zangetsu · Ichigo Kurosaki" },
-];
+/**
+ * Bankai Salonu nişleri — koridordaki sıra bu (Tensa Zangetsu en sonda).
+ *
+ * ⚠️ ELLE YAZILMIYOR, `BANKAI_HALL`den TÜRETİLİYOR (27 Ağustos 2026).
+ * İki kopya tutuluyordu ve biri kaydı: koridor `bleach:bankai:${niche.id}`
+ * çiziyordu, manifesto `katen-kyokotsu` tanımlıyordu ama koridordaki kimlik
+ * `katen-kyokotsu-karamatsu`ydu. Sonuç: `slotDef()` o nişte `undefined`
+ * dönüyor, `CuratedImage` sessizce `null` basıyor ve küratörün yüklediği
+ * kare HİÇBİR YERDE görünmüyordu (kullanıcı bildirimi). Tek kaynağa
+ * bağlamak bu sınıf hatayı bir daha mümkün kılmıyor.
+ */
+const BANKAI_NICHES = BANKAI_HALL.map((niche) => ({
+  slug: niche.id,
+  name: niche.name,
+  owner: niche.owner,
+}));
 
 /** Espada 0–9 — sıra güç sırası değil numara sırası; panelde okunaklı olsun */
 const ESPADA_NAMES = [
@@ -391,13 +395,19 @@ export const BLEACH_SLOTS: readonly CuratedSlotDef[] = [
       en: `${kanji} · Division ${index + 1} captain`,
     },
     hint: {
-      tr: "Kapı aralığından görünen kaptan SİLÜETİ. Dikey, tek figür, arka plan boş. Portre değil — kim olduğu belli olmamalı.",
-      en: "Captain SILHOUETTE seen through the parting gate. Vertical, single figure, empty background. Not a portrait — identity stays hidden.",
+      tr: `${index + 1}. bölüğün kaptanı. Kapı açılınca aralıktan görünen kare: dikey kadraj, tek figür, göğüs hizasından yukarısı. Yüz kadrajın üst yarısında kalsın — alt kenara kaptanın adı biniyor.`,
+      en: `The captain of Division ${index + 1}. The frame seen through the opening gate: vertical crop, a single figure, chest up. Keep the face in the upper half — the captain's name sits over the lower edge.`,
     },
     size: { w: 720, h: 960 },
     ratios: ["3:4", "4:5"],
     world: "soul-society",
-    treatment: "silhouette",
+    /* ⚠️ `photo`, `silhouette` DEĞİL (27 Ağustos 2026). Silüet işlemi
+       `brightness(0.3)` uyguluyor ve küratör kaptan portresi yüklediğinde
+       ekranda koyu bir blok görüyordu (kullanıcı bildirimi). Kapının
+       karanlığı zaten kanatlardan ve zeminden geliyor; fotoğrafın kendisi
+       kendi parlaklığında kalmalı. Küratör isterse GÖRÜNÜM sekmesinden
+       silüete çevirebiliyor. */
+    treatment: "photo",
     fallback: "silhouette",
   })),
 
@@ -421,15 +431,22 @@ export const BLEACH_SLOTS: readonly CuratedSlotDef[] = [
   ...BANKAI_NICHES.map<CuratedSlotDef>((niche) => ({
     id: bankaiSlotId(niche.slug),
     section: "bankai",
-    label: { tr: `Niş · ${niche.name}`, en: `Niche · ${niche.name}` },
+    label: {
+      tr: `Niş · ${niche.name} · ${niche.owner}`,
+      en: `Niche · ${niche.name} · ${niche.owner}`,
+    },
     hint: {
-      tr: "Dar dikey niş silüeti. Karanlıkta duran tek figür; hover'da içeriden aydınlanacak, o yüzden kenarları net olsun.",
-      en: "Narrow vertical niche silhouette. A single figure in the dark; it lights from within on hover, so keep edges crisp.",
+      tr: `Dar dikey niş. ${niche.name} — sahibi ${niche.owner}. Karanlıkta duran tek figür, tam boy; nişin arkasından reiatsu ışığı vuruyor, o yüzden kenarları net olsun.`,
+      en: `Narrow vertical niche. ${niche.name} — wielded by ${niche.owner}. A single full-length figure in the dark; reiatsu light strikes from behind the niche, so keep edges crisp.`,
     },
     size: { w: 600, h: 1200 },
     ratios: ["9:16", "3:4"],
     world: "soul-society",
-    treatment: "silhouette",
+    /* ⚠️ `photo`, `silhouette` DEĞİL — gerekçe Gotei 13 yuvalarıyla aynı
+       (27 Ağustos 2026). Nişin karanlığı zeminden ve ışığın yokluğundan
+       geliyor; karenin kendisini `brightness(0.3)` ile ezmek küratöre
+       yüklediği görseli göstermiyordu. */
+    treatment: "photo",
     fallback: "silhouette",
   })),
 

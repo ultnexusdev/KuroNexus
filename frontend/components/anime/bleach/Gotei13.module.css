@@ -84,6 +84,12 @@
   width: min(100%, 62rem);
   margin-inline: auto;
   aspect-ratio: 1;
+  /* Panel dairenin MERKEZINE oturacak ama DOM'da kapinin yaninda
+     duruyor. Kapsayici sorgusu planin genisligini olculebilir yapiyor:
+     `1cqw` = planin %1'i. Plan kare oldugu icin ayni birim dikeyde de
+     gecerli — `container-type: size` gerekmiyor ve mobilde (yukseklik
+     icerikten geliyor) hicbir sey cokmuyor. */
+  container-type: inline-size;
 }
 
 /* Sokyoku Tepesi — dairenin merkezi ve sessiz gogsu */
@@ -126,6 +132,41 @@
   left: var(--x);
   top: var(--y);
   translate: -50% -50%;
+}
+
+/* Kapinin ARDINDAKI kare. Kanatlarin (`z-index: 1`) ALTINDA duruyor:
+   kapi kapaliyken gorunmuyor, acilinca ortaya cikiyor.
+
+   ⚠️ Filtre YOK. Yuvanin islem bicimi `photo` (bkz. slots.ts) ve karenin
+   kendi parlakligi korunuyor — kapinin karanligi kanatlardan ve zeminden
+   geliyor, fotografi ezmekten degil. */
+.art {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+}
+
+/* `CuratedImage` bir <span> ve `fill` verildiginde ebeveynin yuksekligini
+   istiyor: yuva burada kapinin tamamini dolduruyor. */
+.art > * {
+  height: 100%;
+}
+
+/* Alt kenarda ince bir perde: kaptanin adi (`.peek`) fotografin uzerine
+   biniyor ve acik bir kadrajda okunmaz kaliyordu. Fotografin KENDISINE
+   dokunmuyor — yalnizca yazinin oturdugu seride bir zemin veriyor. */
+.art::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 45%;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    color-mix(in srgb, var(--world-ink) 88%, transparent)
+  );
+  pointer-events: none;
 }
 
 /* ── KAPI ────────────────────────────────────────────────────
@@ -290,20 +331,39 @@
 
 /* ── PANEL ───────────────────────────────────────────────────
    Masaustunde dairenin MERKEZINDE: daire gezinme, merkez icerik.
-   Dialog DEGIL — satir ici genisleme (brief karari). */
+   Dialog DEGIL — satir ici genisleme (brief karari).
+
+   ⚠️ KONUM DUZELTILDI (27 Agustos 2026). `left: 50%` yaziyordu ama
+   panelin kapsayicisi `.plan` DEGIL `.slot`: `.slot` mutlak konumlu
+   oldugu icin yuzdeler KAPININ kutusuna gore cozuluyordu. Sonuc:
+   panel actigi kapinin tam ustune biniyor, kaptanin karesini ve iki
+   komsu kapiyi kapatiyordu (kullanici bildirimi).
+
+   Merkez ile kapi arasindaki fark burada kapaniyor:
+     `1cqw`        planin genisliginin %1'i (plan kare, dikeyde de gecerli)
+     `var(--gx/y)` kapinin daire uzerindeki yeri, BIRIMSIZ sayi
+     `50%`         kapinin kendi genisliginin/yuksekliginin yarisi
+   Ucu birlikte paneli tam olarak Sokyoku Tepesi'ne oturtuyor.
+
+   ⚠️ IC KAYDIRMA KALKTI. `max-height: 74%` de kapsayiciyi `.plan`
+   saniyordu; gercekte kapinin yuksekliginin %74'u (~110px) oluyor ve
+   panel kendi icinde kaydirma cubugu cikariyordu. Panel artik
+   icerigi kadar uzun — merkez alan zaten bos. */
 .panel {
   position: absolute;
-  left: 50%;
-  top: 50%;
+  left: calc((50 - var(--gx, 50)) * 1cqw + 50%);
+  top: calc((50 - var(--gy, 50)) * 1cqw + 50%);
   translate: -50% -50%;
   z-index: 5;
-  width: min(30rem, 74vw);
-  max-height: 74%;
-  overflow-y: auto;
+  /* Genislik de plana bagli: dar masaustunde panel dairenin disina
+     tasmasin ve komsu kapilarin uzerine binmesin. */
+  width: min(30rem, 56cqw, 74vw);
   padding: clamp(1rem, 2.2vw, 1.75rem);
   border: 1px solid var(--reiatsu);
-  background: color-mix(in srgb, var(--world-ink) 94%, transparent);
-  backdrop-filter: blur(2px);
+  /* Saydamlik + blur KALKTI: panel artik merkezin bosluguna oturuyor,
+     arkasinda okunmasi gereken bir sey yok. Opak zemin hem metni
+     netlestiriyor hem bir kompozisyon katmani eksiltiyor. */
+  background: var(--world-ink);
 }
 
 .panelHead {
@@ -513,12 +573,13 @@
     translate: 0 -50%;
   }
 
+  /* Koridorda merkez kavrami yok: panel actigi kapinin ALTINDA aciliyor.
+     `position: static` oldugu icin masaustunun `cqw` hesabi devre disi
+     kaliyor — mobil yerlesim bu turdan hic etkilenmedi. */
   .panel {
     position: static;
     translate: none;
     width: 100%;
-    max-height: none;
-    backdrop-filter: none;
   }
 }
 

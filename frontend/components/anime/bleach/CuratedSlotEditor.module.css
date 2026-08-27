@@ -118,13 +118,6 @@
   cursor: pointer;
 }
 
-.hint {
-  margin: 0;
-  font-size: 0.72rem;
-  line-height: 1.5;
-  color: var(--text-muted);
-}
-
 /* ── SEKMELER ────────────────────────────────────────────────
    Bes is, bes sekme. Tek panelde toplandi cunku hepsi AYNI satiri
    yaziyor; sekme basina ayri uc acmak bes DTO ve bes kez tekrarlanan
@@ -159,8 +152,11 @@
   display: flex;
   flex-direction: column;
   gap: var(--gap-sm);
-  /* En uzun sekme (gorunum) panelin altindan tasmasin */
-  max-height: 46vh;
+  /* En uzun sekme (gorunum) panelin altindan tasmasin.
+     ⚠️ 46vh → 58vh: gorsel sekmesi kucuk resim + onerilen boyut + kadraj
+     notuyla buyudu ve "Dosya sec" dugmesi kesme cizgisinin ALTINA
+     dusuyordu. Panelin kendi icinde kaydirmak da bir kaydirma. */
+  max-height: min(58vh, 32rem);
   overflow-y: auto;
 }
 
@@ -254,6 +250,54 @@
   font-size: 0.68rem;
   line-height: 1.5;
   color: var(--text-muted);
+}
+
+/* ── GORSEL SEKMESININ BASI ──────────────────────────────────
+   Uc soru, uc satir, sonra dugme: "su an ne var", "ne kadar
+   buyuk olmali", "bu kare neyin karesi". Ucu de yukleme
+   alaninin USTUNDE (gerekce bilesendeki `ImageTab` basliginda). */
+
+/* Yuvada su an duran kare. Yuksekligi sabit: panelin genisligi 300px
+   ve buradaki is "hangi kare" sorusunu cevaplamak, kadraji
+   degerlendirmek degil (o ODAK sekmesinin isi). */
+.thumb {
+  display: block;
+  height: 84px;
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  background-color: var(--bg);
+  background-size: cover;
+  background-position: center;
+}
+
+.spec {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+}
+
+.specLine {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+}
+
+.specFormat {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+/* Kadraj notu — yuvanin `hint` alani. Kuratorun okuyacagi tek
+   cumle bu oldugu icin punto notlardan bir kademe buyuk. */
+.about {
+  margin: 0;
+  padding-inline-start: var(--gap-sm);
+  border-inline-start: 2px solid var(--border-strong);
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
 }
 
 /* ── ODAK KUTUSU ─────────────────────────────────────────────

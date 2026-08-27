@@ -43,6 +43,7 @@ export function BankaiHall({
   locale,
   labels,
   art,
+  pens,
 }: {
   locale: string;
   labels: BankaiLabels;
@@ -56,6 +57,14 @@ export function BankaiHall({
    * korunuyor, sınır da ihlal edilmiyor.
    */
   art: ReactNode[];
+  /**
+   * Küratör kalemleri — nişin İÇİNDE değil KARDEŞİ.
+   *
+   * Niş bir `<button>`; kalem de bir `<button>`. İç içe koymak geçersiz
+   * HTML olurdu, o yüzden ayrı geliyor ve CSS ile nişin köşesine
+   * oturuyor. Ziyaretçinin DOM'unda hiç yok (kesme sunucuda).
+   */
+  pens: ReactNode[];
 }) {
   const corridorRef = useRef<HTMLDivElement | null>(null);
   const [pinned, setPinned] = useState<string | null>(null);
@@ -156,13 +165,22 @@ export function BankaiHall({
 
                   {/* Ad alttan yukarı yükseliyor. Kapalıyken DOM'da ama
                       görünmez: ekran okuyucu her zaman okuyabiliyor,
-                      göz ancak ışık düşünce görüyor. */}
+                      göz ancak ışık düşünce görüyor.
+
+                      ⚠️ İKİ DİLLİ OKUNUŞ (27 Ağustos 2026). Kanji tek
+                      başına duruyordu ve 花天狂骨枯松心中'ün nasıl
+                      okunduğunu yalnızca Japonca bilen biri çıkarabiliyordu.
+                      Okunuş artık kanjinin ALTINDA, parantez içinde —
+                      sahibinin adı da aynı biçimde, kanjisiyle. */}
                   <span className={styles.plate}>
                     <span className={styles.plateKanji} lang="ja">
                       {niche.kanji}
                     </span>
-                    <span className={styles.plateName}>{niche.name}</span>
-                    <span className={styles.plateOwner}>{niche.owner}</span>
+                    <span className={styles.plateName}>({niche.name})</span>
+                    <span className={styles.plateOwner}>
+                      <span lang="ja">{niche.ownerKanji}</span>{" "}
+                      <span>({niche.owner})</span>
+                    </span>
                     {niche.note ? (
                       <span className={styles.plateNote}>
                         {locale === "en"
@@ -172,6 +190,10 @@ export function BankaiHall({
                     ) : null}
                   </span>
                 </button>
+
+                {/* Küratör kalemi — nişin KARDEŞİ. Küratör modu kapalıyken
+                    CSS onu tamamen gizliyor, ziyaretçide hiç yok. */}
+                {pens[i]}
               </li>
             );
           })}

@@ -236,6 +236,30 @@
   color: var(--text-muted);
 }
 
+/* ── YALNIZ KALEM ────────────────────────────────────────────
+   `CuratedSlotPen` — yuva bir <button>/<a> icinde oldugunda kalem
+   onun KARDESI olarak ciziliyor. Kendisi konumlanmiyor; nereye
+   oturacagini cagiran bolum soyluyor (kapinin kosesi, nisin ustu).
+   Boylece kurator yuvayi yerinde duzenliyor ve sayfanin en altindaki
+   manifestoya inmek zorunda kalmiyor. */
+.pen {
+  position: absolute;
+  inset: 0;
+  /* Kapinin/nisin butun katmanlarinin USTUNDE (en yuksegi `.ring`, 3)
+     ama acilan bilgi panelinin (5) ALTINDA: panel merkeze oturdugunda
+     bir kapinin kalemi onun icinden delip gecmesin. */
+  z-index: 4;
+  display: block;
+  pointer-events: none;
+}
+
+/* Yalnizca kalemin KENDISI tiklanabilir: kaplayan kutu degil.
+   Aksi halde kapinin/nisin uzerine gorunmez bir kalkan gelirdi ve
+   kurator modunda bolum tiklanamaz olurdu. */
+.pen > * {
+  pointer-events: auto;
+}
+
 /* ── KADRAJ DISARIDAN ─────────────────────────────────────────
    `fill` verilince yuvanin orani yok sayiliyor ve cerceve ebeveyni
    dolduruyor. Ilk kullanici hero: tek gorsel dort dikey seride

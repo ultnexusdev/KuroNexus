@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import {
   DIVISIONS,
   gatePosition,
@@ -39,12 +39,31 @@ import world from "./world.module.css";
  * durak, içinde ok tuşlarıyla dolaşılıyor. On üç ayrı sekme durağı,
  * klavyeyle sayfayı gezen birini bölümün içinde on üç kez durdururdu.
  * Enter/Space açıyor, Escape kapatıyor.
+ *
+ * ── PANEL DAİRENİN MERKEZİNDE ────────────────────────────────────────────
+ * Panel DOM'da kapının yanında duruyor (ekran okuyucu ve `aria-controls`
+ * için doğru olan) ama EKRANDA Sōkyoku Tepesi'ne, yani dairenin ortasına
+ * konumlanıyor. Bu ayrım gerekli: `.slot` mutlak konumlu olduğu için
+ * panelin `left: 50%` yazması onu KAPININ ortasına koyuyordu — açılan panel
+ * kaptanın karesini ve iki komşu kapıyı kapatıyordu (kullanıcı bildirimi,
+ * 27 Ağustos 2026). Kapsayıcı sorgusu (`cqw`) planın genişliğini ölçüyor;
+ * kapının daire üzerindeki yeri `--gx`/`--gy` ile SAYI olarak iniyor ve
+ * fark CSS'te kapatılıyor. Ayrıntı: `Gotei13.module.css`.
  */
 export function Gotei13({
   locale,
+  art,
+  pens,
   labels,
 }: {
   locale: string;
+  /**
+   * Kapı aralığından görünen kaptan kareleri — SUNUCUDA çizilip prop
+   * olarak iniyor (`Gotei13Section` başlığındaki gerekçe).
+   */
+  art: ReactNode[];
+  /** Küratör kalemleri — kapının KARDEŞİ, içinde değil (iç içe buton olmaz) */
+  pens: ReactNode[];
   labels: {
     eyebrow: string;
     title: string;
@@ -185,6 +204,13 @@ export function Gotei13({
                   {
                     "--x": `${position.x}%`,
                     "--y": `${position.y}%`,
+                    /* Aynı konum BİRİMSİZ de iniyor: panel dairenin
+                       merkezine oturacak ve merkez ile kapı arasındaki
+                       farkı CSS `calc()` ile hesaplıyor. Yüzdeyle bu
+                       hesap yapılamıyor — yüzde kapının kutusuna göre
+                       çözülürdü. */
+                    "--gx": position.x,
+                    "--gy": position.y,
                     "--reiatsu": division.reiatsu,
                   } as React.CSSProperties
                 }
@@ -200,6 +226,14 @@ export function Gotei13({
                   onFocus={() => setFocused(i)}
                   onClick={() => setOpen(isOpen ? null : division.n)}
                 >
+                  {/* Kapının ARDINDAKİ kare: kanatların ALTINDA duruyor,
+                      yani kapı açılınca ortaya çıkıyor. Yuva boşken
+                      `CuratedImage` kendi tasarlanmış boşluğunu çiziyor —
+                      burada ek bir yedek gerekmiyor. */}
+                  <span className={styles.art} aria-hidden="true">
+                    {art[i]}
+                  </span>
+
                   {/* Kapı iki panel: hover'da ortadan aralanıyor, tıklamada
                       tamamen açılıyor. */}
                   <span className={styles.leaf} data-side="left" aria-hidden="true" />
@@ -223,6 +257,11 @@ export function Gotei13({
                     {division[era].captain.name}
                   </span>
                 </button>
+
+                {/* Küratör kalemi — kapının İÇİNDE değil KARDEŞİ.
+                    Küratör modu kapalıyken CSS onu tamamen gizliyor
+                    (`CuratorFrame`), ziyaretçinin paketinde hiç yok. */}
+                {pens[i]}
 
                 {isOpen ? (
                   <DivisionPanel

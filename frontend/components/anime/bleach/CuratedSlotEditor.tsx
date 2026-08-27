@@ -301,8 +301,13 @@ export function CuratedSlotEditor({
                 </button>
               </header>
 
-              <p className={styles.hint}>{slot.hint}</p>
-
+              {/* ⚠️ KADRAJ NOTU BURADAN GÖRSEL SEKMESİNE TAŞINDI
+                  (27 Ağustos 2026). Not "bu kareye ne konacak" sorusunu
+                  cevaplıyor ve o soru YALNIZCA yükleme anında soruluyor;
+                  başlıkta durduğunda beş sekmenin hepsinde yer kaplıyor,
+                  panel uzuyor ve asıl işin — dosya seçmenin — altına
+                  itiyordu. Artık önerilen boyut ve biçimle birlikte,
+                  yükleme düğmesinin tam üstünde. */}
               <div className={styles.tabs} role="tablist">
                 {TABS.map((id) => (
                   <button
@@ -324,6 +329,11 @@ export function CuratedSlotEditor({
                   <ImageTab
                     busy={busy}
                     hasImage={Boolean(draft?.url)}
+                    /* Yüklü kare sekmenin BAŞINDA: küratör neyin üstüne
+                       yazdığını görerek yüklüyor. */
+                    current={source}
+                    slot={slot}
+                    ratio={draft?.ratio ?? slot.defaultRatio}
                     fileRef={fileRef}
                     onFile={(file) => void upload(() => uploadImage(file))}
                     onUrl={(url) => void upload(() => uploadImageFromUrl(url))}
@@ -403,8 +413,15 @@ export function CuratedSlotEditor({
    ══════════════════════════════════════════════════════════════════ */
 
 const PANEL_WIDTH = 300;
-/** Panelin en uzun sekmesinin yaklaşık yüksekliği — alttan kelepçe için */
-const PANEL_HEIGHT = 400;
+/**
+ * Panelin en uzun sekmesinin yaklaşık yüksekliği — alttan kelepçe için.
+ *
+ * Görsel sekmesi 27 Ağustos 2026'da büyüdü (küçük resim + önerilen boyut +
+ * kadraj notu). Değer buna göre yeniden ölçüldü: kelepçe küçük kalırsa panel
+ * ekranın altından taşar ve küratör YİNE sayfayı kaydırmak zorunda kalır —
+ * yani düzeltilen şeyin kendisi geri gelir.
+ */
+const PANEL_HEIGHT = 470;
 
 const TABS = ["image", "focus", "crop", "text", "view"] as const;
 type Tab = (typeof TABS)[number];
@@ -417,9 +434,26 @@ const TAB_KEYS: Record<Tab, string> = {
   view: "tabView",
 };
 
+/**
+ * GÖRSEL SEKMESİ — mevcut kare, künye, sonra yükleme.
+ *
+ * ── SIRA BİLİNÇLİ ────────────────────────────────────────────────────────
+ * Küratörün üç sorusu var ve üçü de yükleme düğmesine BASMADAN ÖNCE
+ * cevaplanmalı: "şu an ne var", "ne kadar büyük olmalı", "bu kare neyin
+ * karesi". Üçü de düğmenin hemen üstünde duruyor; hiçbiri için ne panelde
+ * ne sayfada kaydırmak gerekiyor (kullanıcı bildirimi, 27 Ağustos 2026).
+ *
+ * ⚠️ ÖNERİLEN BOYUT YUVADAN GELİYOR, SABİT DEĞİL. Her yuvanın kendi ölçüsü
+ * ve kendi oranı var (kapı 720×960 · 3:4, niş 600×1200 · 9:16, katman fonu
+ * 2560×1200 · 21:9). Tek bir "1920×1080" satırı yazmak küratöre yanlış
+ * kareyi hazırlatırdı.
+ */
 function ImageTab({
   busy,
   hasImage,
+  current,
+  slot,
+  ratio,
   fileRef,
   onFile,
   onUrl,
@@ -428,6 +462,11 @@ function ImageTab({
 }: {
   busy: boolean;
   hasImage: boolean;
+  /** Yuvada ŞU AN duran kare — yoksa yükleme alanı tek başına */
+  current: string | null;
+  slot: CuratedSlotView;
+  /** Küratörün seçtiği oran; seçmediyse yuvanın varsayılanı */
+  ratio: string;
   fileRef: React.RefObject<HTMLInputElement | null>;
   onFile: (file: File) => void;
   onUrl: (url: string) => void;
@@ -439,10 +478,30 @@ function ImageTab({
 
   return (
     <>
+      {current ? (
+        <span
+          className={styles.thumb}
+          style={{ backgroundImage: `url("${current}")` }}
+          role="img"
+          aria-label={t("currentImage")}
+        />
+      ) : null}
+
+      {/* ÖNERİLEN KARE — düğmenin hemen üstünde, yuvadan türetilmiş */}
+      <p className={styles.spec}>
+        <span className={styles.specLine}>
+          {t("specSize", { w: slot.size.w, h: slot.size.h, ratio })}
+        </span>
+        <span className={styles.specFormat}>{t("specFormat")}</span>
+      </p>
+
+      {/* BU KARE NEYİN KARESİ — yuvanın kadraj notu */}
+      <p className={styles.about}>{slot.hint}</p>
+
       <input
         ref={fileRef}
         type="file"
-        accept="image/*"
+        accept="image/jpeg,image/png,image/webp"
         hidden
         onChange={(event) => {
           const file = event.target.files?.[0];

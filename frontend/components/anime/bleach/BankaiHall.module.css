@@ -61,7 +61,17 @@
   scroll-snap-type: x proximity;
   /* Kaydirma cubugu koridorun karanligini bozuyordu */
   scrollbar-width: none;
-  padding-block: clamp(1rem, 3vh, 2rem);
+
+  /* ⚠️ ALT BOSLUK LEVHA ICIN (27 Agustos 2026). Ust ve alt bosluk esitti
+     (~2rem) ve ad levhasi nisin ALTINDA aciliyor: `overflow-y: hidden`
+     ilk satirdan sonrasini kesiyordu. Ekranda yalnizca kanji goruluyor,
+     okunusu ve sahibi hic gorunmuyordu (kullanici bildirimi).
+
+     ⚠️ `--hall-floor` ikisini birden tutuyor: nislerin oturdugu zemin
+     cizgisi (`.floor`) bu bosluktan olculuyor. Ayri yazilsalardi biri
+     degistiginde cizgi nislerin altindan kayardi. */
+  --hall-floor: clamp(1rem, 3vh, 2rem);
+  padding-block: var(--hall-floor) calc(var(--hall-floor) + 8rem);
 }
 
 .corridor::-webkit-scrollbar {
@@ -83,7 +93,11 @@
   list-style: none;
 }
 
+/* ⚠️ `position: relative` KURATOR ICIN. Kalem (`CuratedSlotPen`) nisin
+   KARDESI olarak burada duruyor ve konumunu bu kutudan aliyor — nisin
+   ICINE konamiyor cunku ikisi de <button> (ic ice etkilesimli oge). */
 .slot {
+  position: relative;
   flex: none;
   scroll-snap-align: center;
 }
@@ -170,7 +184,10 @@
   left: 50%;
   top: calc(100% + 0.75rem);
   translate: -50% 8px;
-  width: max(160px, 100%);
+  /* Okunus parantez icinde alta biniyor ve uzun adlar var
+     ("Katen Kyokotsu: Karamatsu Shinju"): 160px'te alti satira
+     bolunuyordu. Nis dar kalıyor, levha genisliyor. */
+  width: max(15rem, 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -197,21 +214,33 @@
   color: var(--reiatsu);
 }
 
+/* Kanjinin OKUNUSU, parantez icinde: 花天狂骨枯松心中 → (Katen Kyokotsu…).
+
+   ⚠️ BUYUK HARF KALKTI (27 Agustos 2026). Genis aralikli kapital bir
+   ETIKET sesi; burada okunacak bir kelime var ve parantezle birlikte
+   "(SENBONZAKURA KAGEYOSHI)" hem bagirıyor hem zor okunuyordu. Punto da
+   0.58 → 0.7rem: 8 punto bir okunus satiri icin fazla kucuktu. */
 .plateName {
   font-family: var(--b-kubo);
   font-weight: 300;
-  font-size: 0.58rem;
-  letter-spacing: 0.2em;
-  margin-inline-end: -0.2em;
-  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  line-height: 1.35;
   color: var(--world-paper);
   overflow-wrap: anywhere;
 }
 
+/* Sahibi de ayni bicimde: kanji + parantez icinde okunusu */
 .plateOwner {
   font-family: var(--b-body);
   font-size: 0.72rem;
+  line-height: 1.4;
   color: var(--text-muted);
+}
+
+.plateOwner [lang="ja"] {
+  font-family: var(--b-display);
+  color: var(--text-secondary);
 }
 
 .plateNote {
@@ -223,12 +252,14 @@
   opacity: 0.8;
 }
 
-/* Zemin cizgisi: nislerin oturdugu tek yatay iz */
+/* Zemin cizgisi: nislerin oturdugu tek yatay iz.
+   Alt bosluk levha icin buyudu; cizgi NISLERIN altinda kalmali, o yuzden
+   konumu koridorun alt bosluguna degil `--hall-floor`a bagli. */
 .floor {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: clamp(1rem, 3vh, 2rem);
+  bottom: calc(var(--hall-floor) + 8rem);
   height: 1px;
   background: var(--hairline);
   pointer-events: none;

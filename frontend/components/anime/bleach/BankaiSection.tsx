@@ -1,7 +1,8 @@
 import { getTranslations } from "next-intl/server";
 import { BANKAI_HALL } from "@/lib/anime/bleach/bankai";
 import { BankaiHall } from "./BankaiHall";
-import { CuratedImage } from "./CuratedImage";
+import { bankaiSlotId } from "@/lib/anime/bleach/slots";
+import { CuratedImage, CuratedSlotPen } from "./CuratedImage";
 import { NicheFigure } from "./NicheFigure";
 
 /**
@@ -16,8 +17,22 @@ import { NicheFigure } from "./NicheFigure";
  * geçirmek: on siluet burada çizilip diziyle aşağı iniyor.
  *
  * ⚠️ `noEdit` zorunlu: niş bir `<button>` ve içine küratör kalemi
- * (ikinci bir `<button>`) koymak geçersiz HTML olurdu. Yuvalar manifesto
- * panelinden düzenlenebiliyor, yani kayıp yok.
+ * (ikinci bir `<button>`) koymak geçersiz HTML olurdu.
+ *
+ * ── ⚠️ KALEM ARTIK KORİDORDA ─────────────────────────────────────────────
+ * "Manifesto panelinden düzenlenebiliyor, yani kayıp yok" cümlesi 27 Ağustos
+ * 2026'da yanlış çıktı: manifesto on altı bölümlük sayfanın EN ALTINDA ve
+ * küratör her kare için "aşağı in → yükle → yukarı çık → bak" turu atmak
+ * zorunda kalıyordu (kullanıcı bildirimi). Kalem artık `pens` ile ayrı
+ * geliyor ve nişin KARDEŞİ olarak çiziliyor — HTML geçerli, yükleme alanı
+ * nişin üstünde.
+ *
+ * ── ⚠️ YUVA KİMLİĞİ TEK KAYNAKTAN ────────────────────────────────────────
+ * `bleach:bankai:${niche.id}` elle yazılıyordu ve manifestodaki liste ayrı
+ * yazılmıştı: `katen-kyokotsu` ≠ `katen-kyokotsu-karamatsu`. `slotDef()` o
+ * nişte `undefined` dönüyor, `CuratedImage` sessizce `null` basıyordu — o
+ * niş sayfada YOKTU. Kimlik artık `bankaiSlotId()`den geliyor ve manifesto
+ * da aynı listeden türetiliyor (`slots.ts`).
  */
 export async function BankaiSection({ locale }: { locale: string }) {
   const t = await getTranslations({ locale, namespace: "anime.bleach.bankai" });
@@ -25,7 +40,7 @@ export async function BankaiSection({ locale }: { locale: string }) {
   const art = BANKAI_HALL.map((niche, i) => (
     <CuratedImage
       key={niche.id}
-      slotId={`bleach:bankai:${niche.id}`}
+      slotId={bankaiSlotId(niche.id)}
       fill
       decorative
       noEdit
@@ -34,10 +49,15 @@ export async function BankaiSection({ locale }: { locale: string }) {
     />
   ));
 
+  const pens = BANKAI_HALL.map((niche) => (
+    <CuratedSlotPen key={niche.id} slotId={bankaiSlotId(niche.id)} />
+  ));
+
   return (
     <BankaiHall
       locale={locale}
       art={art}
+      pens={pens}
       labels={{
         eyebrow: t("eyebrow"),
         title: t("title"),

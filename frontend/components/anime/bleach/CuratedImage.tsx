@@ -230,6 +230,56 @@ export async function CuratedImage({
   );
 }
 
+/**
+ * YALNIZCA KÜRATÖR KALEMİ — görsel çizmeden.
+ *
+ * ── NEDEN AYRI BİR BİLEŞEN ───────────────────────────────────────────────
+ * Bazı yuvalar bir `<button>` ya da `<a>` İÇİNDE duruyor (Gotei kapıları,
+ * Bankai nişleri). Kalemin kendisi de bir `<button>` olduğu için oraya
+ * konamıyor — iç içe etkileşimli öğe hem geçersiz HTML hem de tıklamanın
+ * yanlış yere gitmesi demek. Çözüm o güne kadar `noEdit` idi: yuva sayfada
+ * düzenlenemiyor, küratör sayfanın EN ALTINDAKİ manifestoya inip oradan
+ * yüklüyordu.
+ *
+ * ⚠️ Bu, ölçülmüş bir arıza: on altı bölümlük bir sayfada "yükle → yukarı
+ * çık → sonuca bak → aşağı in" turu her kare için tekrarlanıyordu
+ * (kullanıcı bildirimi, 27 Ağustos 2026). Kalem artık yuvanın YANINDA,
+ * etkileşimli öğenin KARDEŞİ olarak çiziliyor: HTML geçerli kalıyor,
+ * yükleme alanı görselin hemen üstünde açılıyor ve sayfa hiç kaymıyor.
+ *
+ * Görseli çizmiyor: kadraj yine `<CuratedImage … noEdit />` ile geliyor.
+ * İkisi aynı `cache()`li okumayı paylaşıyor, yani ek istek yok.
+ */
+export async function CuratedSlotPen({
+  slotId,
+  className,
+}: {
+  slotId: string;
+  className?: string;
+}) {
+  const slot = slotDef(slotId);
+  if (!slot) return null;
+
+  const [images, isAdmin, locale] = await Promise.all([
+    readCuratedImages(BLEACH_SURFACE),
+    readIsAdmin(),
+    getLocale(),
+  ]);
+
+  /* Ziyaretçinin paketinde bu ada HİÇ yok — kesme sunucuda. */
+  if (!isAdmin) return null;
+
+  return (
+    <span className={[styles.pen, className].filter(Boolean).join(" ")}>
+      <CuratedSlotMount
+        surface={BLEACH_SURFACE}
+        slot={serialize(slot, locale)}
+        record={images[slotId] ?? null}
+      />
+    </span>
+  );
+}
+
 /* ══════════════════════════════════════════════════════════════════
    Yardımcılar
    ══════════════════════════════════════════════════════════════════ */

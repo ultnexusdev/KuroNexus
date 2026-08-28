@@ -182,7 +182,22 @@ Aynı ders `browser-pane-frozen-raf` notunda zaten yazılıydı.
    tutuyor. Kaydırmaya bağlı bir animasyon bir DEĞERİ gösteriyorsa
    aralığı `entry` içinde kapanmalı.
 
-8. **Gerçek imleç GİZLENMEDİ.** Brief "custom cursor" diyor ama
+8. **⚠️ EFEKT KATMANI OPAK BOYARSA KADRAJI YUTAR.** Miyagi'nin şimşek
+   halkası, dönen gradyanın üstüne **opak bir iç dikdörtgen** konarak
+   yapılıyordu; o dikdörtgen `.fx` katmanındaydı (`z-index: 2`), yani
+   kadrajın (`z-index: 1`) üstünde. Hover'da kart açılıyor ve portre
+   kayboluyordu (28 Ağustos 2026). Beş efektten yalnızca bu ic kapak
+   kullanıyordu — ötekiler `mix-blend-mode: screen` ya da maske ile
+   çalışıyor ve hiçbiri altındakini gizlemiyor.
+
+   Doğrusu **iç kapak kullanmamak**: gradyan `mask-composite: exclude`
+   ile 2 piksellik halkaya indiriliyor, ortası hiç boyanmıyor. Dönen şey
+   eleman değil gradyanın açısı (`@property --sd-sweep`) — elemanı
+   döndürmek halkanın kendisini de eğerdi.
+
+   `check:slam-dunk` artık `.fx` kurallarında opak zemin arıyor.
+
+9. **Gerçek imleç GİZLENMEDİ.** Brief "custom cursor" diyor ama
    `cursor: none` erişilebilirlik kaybı: imleç boyutunu büyütmüş kişi
    işaretçisini kaybeder ve JS gelmezse hiç imleç kalmaz. Top imlecin
    ARDINDA hareket ediyor.
@@ -213,10 +228,11 @@ boyut, oran ve "ne bulmam gerek" notu her satırda yazılı.
 npm run check:slam-dunk
 ```
 
-Altı denetim: **veri** (kadro bütünlüğü, takım referansları, stat aralığı,
+Yedi denetim: **veri** (kadro bütünlüğü, takım referansları, stat aralığı,
 ilk beş mevkileri), **iki dil** (her `Localized` alanının İngilizcesi +
 sözlük iskeleti), **çapa** (skorbordun her bağlantısının karşılığı var mı),
 **kalem** (`noEdit` ile çizilen her yuvanın erişilebilir bir kalemi var mı),
+**efekt** (hover katmanı kadrajın üstünü opak boyuyor mu),
 **hex** (palet dışına kaçmış renk), **hareket** (azaltılmış hareket kapısı).
 
 ⚠️ Bleach'in denetimlerinden farklı olarak veriyi METİN değil DEĞER olarak

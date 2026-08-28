@@ -317,6 +317,43 @@ const pageCss = readFileSync(
 if (pageCss.match(HEX)) fail("HEX", "page.module.css palet dışına çıkmış");
 
 /* ══════════════════════════════════════════════════════════════════
+   4b · EFEKT KATMANI İÇERİĞİ GİZLEMEZ
+
+   ⚠️ ÖLÇÜLMÜŞ ARIZA (kullanıcı bildirimi, 28 Ağustos 2026). Miyagi'nin
+   şimşek halkası, dönen gradyanın üstüne OPAK bir iç dikdörtgen konarak
+   yapılıyordu; o dikdörtgen `.fx` katmanındaydı, yani kadrajın ÜSTÜNDE.
+   Hover'da kart açılıyor ve oyuncunun portresi kayboluyordu.
+
+   Kural: `.fx` katmanındaki hiçbir kural sayfanın OPAK zemin
+   değişkenlerini `background` olarak basamaz. Saydam katmanlar
+   (`color-mix(… transparent)`, `mix-blend-mode`, maske, `box-shadow`)
+   serbest — onlar altındakini gizlemiyor.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ⚠️ Yorumlar ÖNCE siliniyor: yoksa bir kuralın seçicisi olarak üstündeki
+   yorum bloğu yakalanıyor ve rapor okunmaz oluyor (denetimin kendisi
+   yazılırken görüldü). */
+const cardCss = readFileSync(
+  join(COMPONENTS, "PlayerCard.module.css"),
+  "utf8",
+).replace(/\/\*[\s\S]*?\*\//g, "");
+/** `.fx` icin yazilmis her kural blogunu ayikla. */
+for (const match of cardCss.matchAll(/([^{}]*\.fx[^{}]*)\{([^}]*)\}/g)) {
+  const [, selector, body] = match;
+  const bg = body.match(/(?:^|[;\s])background(?:-image)?:\s*([^;]+)/);
+  if (!bg) continue;
+  /* Opak zemin: saydamlik uretmeyen bir ev degiskeni. `color-mix(...
+     transparent)` ve `transparent` saydam oldugu icin serbest. */
+  const opaque = /var\(--sd-bg[a-z-]*\)/.test(bg[1]) && !/transparent/.test(bg[1]);
+  if (opaque) {
+    fail(
+      "EFEKT",
+      `${selector.trim()} opak zemin basıyor (${bg[1].trim().slice(0, 40)}…) — kadrajın üstünü kapatır`,
+    );
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════
    5 · HAREKET
 
    Kapı TEK yerde (`court.module.css`) ve JS ile hareket eden iki ada

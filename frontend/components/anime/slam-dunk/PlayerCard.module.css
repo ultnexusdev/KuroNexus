@@ -203,37 +203,75 @@
 }
 
 /* ── MIYAGI · simsek ────────────────────────────────────────
-   Karti ceviren sari bir yay. Konik gradyan doner, dar bir dilim
-   parlak kalir — kenar boyunca kosan bir isik izi. */
+   Kartin kenarinda kosan bir isik yayi.
+
+   ⚠️ ESKI COZUM PORTREYI GIZLIYORDU (kullanici bildirimi, 28 Agustos
+   2026). Halka, donen konik gradyanin uzerine OPAK bir ic dikdortgen
+   konarak elde ediliyordu; o dikdortgen `.fx` katmanindaydi, yani
+   kadrajin USTUNDE. Hover'da kart aciliyor ve Miyagi'nin karesi
+   kayboluyordu. Bes efektten yalnizca bu ic kapak kullaniyordu —
+   otekiler ya `mix-blend-mode: screen` ya da maske ile calisiyor ve
+   hicbiri opak boyamiyor.
+
+   YENI COZUM IC KAPAK KULLANMIYOR: gradyan bir maskeyle 2 pikselik
+   halkaya indiriliyor, ortasi HIC boyanmiyor. Ustelik donen sey ELEMAN
+   degil gradyanin ACISI — elemani dondurmek halkanin kendisini de
+   dondurup dikdortgeni egerdi. */
 .card[data-fx="miyagi"] .fx::before {
   content: "";
   position: absolute;
-  inset: -40%;
+  inset: 0;
+  /* Halkanin kalinligi: maske tam olarak bu dolguyu birakiyor */
+  padding: 2px;
   background: conic-gradient(
-    from 0deg,
+    from var(--sd-sweep, 0deg),
     transparent 0deg 300deg,
-    color-mix(in srgb, var(--sd-ball-glow) 85%, transparent) 340deg,
+    color-mix(in srgb, var(--sd-ball-glow) 90%, transparent) 340deg,
     transparent 360deg
   );
-  animation: sd-spin 1100ms linear infinite;
+  /* Icerik kutusunu maskeden CIKAR: geriye yalnizca dolgu halkasi kalir.
+     Iki satir da gerekli — eski WebKit `xor`, standart `exclude`. */
+  -webkit-mask:
+    linear-gradient(black 0 0) content-box,
+    linear-gradient(black 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(black 0 0) content-box,
+    linear-gradient(black 0 0);
+  mask-composite: exclude;
+  animation: sd-sweep 1100ms linear infinite;
 }
 
-/* Ic maske: yalnizca kenar seridi gorunsun, ortasi bos kalsin. */
+/*
+ * Ic kenar parildamasi — `box-shadow: inset`, ZEMIN DEGIL.
+ *
+ * Kartin icini elektrik rengine boyuyor ama saydam kaliyor: portre
+ * altindan okunmaya devam ediyor. Eski opak kapagin yerini bu aliyor.
+ */
 .card[data-fx="miyagi"] .fx::after {
   content: "";
   position: absolute;
-  inset: 3px;
-  background: linear-gradient(
-    170deg,
-    var(--sd-bg-panel),
-    color-mix(in srgb, var(--sd-bg) 92%, var(--team-deep))
-  );
+  inset: 0;
+  box-shadow: inset 0 0 26px
+    color-mix(in srgb, var(--sd-ball-glow) 28%, transparent);
   clip-path: inherit;
 }
 
-@keyframes sd-spin {
+/*
+ * ⚠️ ACIYI ANIMASYONA SOKMAK ICIN `@property` SART: kayitsiz bir ozel
+ * deger interpolasyon yapmiyor, `0deg`te takili kalirdi. Destegi olmayan
+ * tarayicida halka duruyor ama donmuyor — icerigi gizleyen bir durum
+ * dogmuyor, yalnizca hareket kayboluyor.
+ */
+@property --sd-sweep {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes sd-sweep {
   to {
-    transform: rotate(1turn);
+    --sd-sweep: 360deg;
   }
 }
 

@@ -187,8 +187,23 @@ export default async function ClubWorldPage({
                 className={styles.era}
                 delay={index === 0 ? 0 : 40}
               >
-                {/* Çapa: /spor/futbol/galatasaray#avrupaya-acilan-kapi */}
-                <span id={era.slug} className={styles.anchor} aria-hidden />
+                {/* Çapa: /spor/futbol/galatasaray#avrupaya-acilan-kapi
+
+                    `data-start-year` ÇAPANIN ÜSTÜNDE, bölümün değil — ve bu
+                    bilinçli. Bölümü `Reveal` çiziyor; oraya öznitelik koymak
+                    kanadın TEK hareket bileşenine futbola özgü bir prop
+                    eklemek demekti (`Reveal` bütün spor kanadında kullanılıyor).
+                    CSS zaten çocuktan ebeveyne çıkabiliyor: dönem tonu
+                    `page.module.css`te `.era:has([data-start-year^="19..."])`
+                    ile okunuyor. Yıl ONDALIK BASAMAK ÖN EKİYLE eşleşiyor,
+                    `nth-child` ile değil: küratör araya bir dönem eklediğinde
+                    tonlar kaymasın diye. */}
+                <span
+                  id={era.slug}
+                  className={styles.anchor}
+                  data-start-year={era.startYear}
+                  aria-hidden
+                />
 
                 {/* Yıl BAŞLIĞIN ÜSTÜNDE, aynı sütunda.
                     Etiket-sol / başlık-sağ (hanging header) deseni bilinçli

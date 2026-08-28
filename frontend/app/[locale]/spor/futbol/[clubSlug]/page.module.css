@@ -331,3 +331,192 @@
    Arşiv yarısı BİLİNÇLİ olarak ışıksız: sayfanın sesi üstte toplanıyor,
    kürasyon sessiz kalıyor.
    ============================================================ */
+
+/* ============================================================
+   GALATASARAY · SİNEMATİK KATMAN — 29 Ağustos 2026
+
+   ── KAPSAM ───────────────────────────────────────────────────────────────
+   Yalnızca `[data-club="galatasaray"]`. Rota bütün kulüpler için ortak
+   (`[clubSlug]`); Fenerbahçe/Beşiktaş/Trabzonspor sayfaları bu bloktan hiç
+   etkilenmiyor. Kök `<div>` `data-club` özniteliğini zaten taşıyordu — yeni
+   bir kanca açılmadı, var olanı okuduk.
+
+   ── NE EKLENMEDİ, NEDEN ──────────────────────────────────────────────────
+   Bu tur bir "sayfayı sinemalaştır" listesiyle geldi; maddelerin bir kısmı
+   ZATEN yazılıydı ve tekrar edilmedi:
+
+   • Film greni  → `spor/layout.module.css` `.wing::before`. Üretilmiş SVG
+     `fractalNoise`, %5, `soft-light`. Dosyasız, dış istek yok, CSP dostu.
+   • Sinematik ışık → bu dosyanın başındaki `.page::before` (19 Ağustos,
+     "fazla siyahlık var" bildirimi üzerine eklenmişti).
+   • Sepya→renk hover → `LegendsHall.module.css` (`sepia(.5)` → `sepia(0)`),
+     ayrıca SquadBoard / PlayerGallery / StadiumExperience dereceli filtreli.
+
+   İki öneri BİLEREK uygulanmadı:
+
+   1. "Başlıklara `letter-spacing: 3px` + `font-weight: 300`". Kanadın
+      başlık sesi Petrona 800; tracked-out majüskül işini `.eyebrow` (Cinzel)
+      zaten yapıyor. İkisini birbirine çevirmek iki sesi de düzleştirirdi.
+   2. "Dönem METİNLERİNE sepya/grayscale filtre". Arşiv yarısında hiç görsel
+      yok — burası saf tipografi. Metne filtre uygulamak yalnızca kontrastı
+      WCAG eşiğinin altına indirirdi. Yerine dönem tonu RENK ÜZERİNDEN
+      yürüyor (aşağıdaki `--era-*` değişkenleri); okuma kontrastı sabit.
+   ============================================================ */
+
+/* ---- 1 · Perde kenarı (vignette) ----
+
+   Sabit bir katman: ekran nereye kayarsa kaysın kadraj aynı yerde kalıyor.
+   `.page::before` (atmosfer) ile AYNI yığında ama ondan SONRA boyanıyor —
+   ışık altta, kadraj kararması üstte. Renk kararı değil okuma maskesi
+   olduğu için `--sport-ink` üzerinden kuruluyor (kural 16: hex yazılmaz).
+
+   Merkez %42'de: kadrajın ağırlık merkezi geometrik ortadan bir tık yukarı
+   alınınca göz metne, boşluğa değil oturuyor. */
+.page[data-club="galatasaray"]::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    118% 88% at 50% 42%,
+    transparent 36%,
+    color-mix(in srgb, var(--sport-ink) 42%, transparent) 74%,
+    color-mix(in srgb, var(--sport-ink) 78%, transparent) 100%
+  );
+}
+
+/* ---- 2 · İki yarı arasındaki iniş ----
+
+   Dosyanın sonundaki not duruyor: "Arşiv yarısı BİLİNÇLİ olarak ışıksız."
+   O karar İPTAL EDİLMEDİ, YUMUŞATILDI (29 Ağustos, kullanıcı kararı):
+   maç günü ışığı arşive bir kez daha sızıyor ve 40vh içinde tükeniyor.
+   Ölçüt basit — arşiv hâlâ üst yarıdan sessiz olmalı; eşitlenirse sayfanın
+   iki sesi tek sese düşer. */
+[data-club="galatasaray"] .introBlock {
+  position: relative;
+  isolation: isolate;
+  border-top-color: color-mix(
+    in srgb,
+    var(--gs-brand-yellow) 18%,
+    var(--sport-line)
+  );
+}
+
+[data-club="galatasaray"] .introBlock::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 40vh;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--gs-brand-yellow) 5%, transparent) 0%,
+    transparent 100%
+  );
+}
+
+/* ---- 3 · DÖNEM TONU: zaman renkle akıyor ----
+
+   ── NEDEN `nth-child` DEĞİL ──────────────────────────────────────────────
+   Dönemler veritabanından geliyor ve küratör aralarına yenisini ekleyebilir.
+   `nth-child(1)`e "1905 tonu" demek, araya bir dönem girdiği gün bütün
+   tonların bir sıra kaymasına ve bunun SESSİZCE olmasına yol açardı.
+
+   ── BAĞLANMA BİÇİMİ ──────────────────────────────────────────────────────
+   Çapa `<span>`i `data-start-year` taşıyor (`page.tsx`); ton ONDALIK
+   BASAMAK ÖN EKİNDEN okunuyor: `^="196"` → 1960-1969. Yani 1971'de başlayan
+   yeni bir dönem eklendiğinde doğru kovaya kendiliğinden düşüyor. CSS'te
+   sayı karşılaştırması olmadığı için tek dayanıklı yol bu.
+
+   ── TONUN YÖNÜ ───────────────────────────────────────────────────────────
+   Ramp `globals.css`teki mevcut token ayrımının üstüne kuruldu ve onu
+   GÖRÜNÜR yapıyor: `--gs-gold`/`--gs-cream` arşivin "geceye çekilmiş" sesi,
+   `--gs-brand-yellow` maç gününün tam doygunluğu. Dönem 1905'ten 2000'lere
+   yürüdükçe ton birinciden ikinciye geçiyor — okuyucu aşağı kaydırırken
+   zamanın yaklaştığını renkten anlıyor.
+
+   Varsayılan (öznitelik gelmezse) bugünkü davranış: düz `--gs-gold`. */
+[data-club="galatasaray"] .era {
+  --era-accent: var(--gs-gold);
+  --era-line: var(--sport-line);
+  --era-wash: transparent;
+  position: relative;
+  isolation: isolate;
+  border-bottom-color: var(--era-line);
+}
+
+/* 1900-1949 — en küllü: altın, krem içinde solmuş. Arşiv fotoğrafının
+   sarardığı yer. Krem AÇIK bir ton olduğu için koyu zeminde kontrast
+   düşmüyor, yalnızca doygunluk düşüyor — istenen tam olarak bu. */
+[data-club="galatasaray"] .era:has(> [data-start-year^="190"]),
+[data-club="galatasaray"] .era:has(> [data-start-year^="191"]),
+[data-club="galatasaray"] .era:has(> [data-start-year^="192"]),
+[data-club="galatasaray"] .era:has(> [data-start-year^="193"]),
+[data-club="galatasaray"] .era:has(> [data-start-year^="194"]) {
+  --era-accent: color-mix(in srgb, var(--gs-cream) 58%, var(--gs-gold));
+  --era-line: color-mix(in srgb, var(--gs-cream) 10%, var(--sport-line));
+  --era-wash: color-mix(in srgb, var(--gs-cream) 3%, transparent);
+}
+
+/* 1950-1979 — Ali Sami Yen yılları: soluk retro, altına dönüş başlıyor */
+[data-club="galatasaray"] .era:has(> [data-start-year^="195"]),
+[data-club="galatasaray"] .era:has(> [data-start-year^="196"]),
+[data-club="galatasaray"] .era:has(> [data-start-year^="197"]) {
+  --era-accent: color-mix(in srgb, var(--gs-cream) 24%, var(--gs-gold));
+  --era-line: color-mix(in srgb, var(--gs-gold) 12%, var(--sport-line));
+  --era-wash: color-mix(in srgb, var(--gs-gold) 4%, transparent);
+}
+
+/* 1980-1999 — Avrupa'ya açılan kapı: renk doyuyor, marka sarısı geliyor */
+[data-club="galatasaray"] .era:has(> [data-start-year^="198"]),
+[data-club="galatasaray"] .era:has(> [data-start-year^="199"]) {
+  --era-accent: color-mix(in srgb, var(--gs-brand-yellow) 45%, var(--gs-gold));
+  --era-line: color-mix(in srgb, var(--gs-brand-yellow) 16%, var(--sport-line));
+  --era-wash: color-mix(in srgb, var(--gs-brand-yellow) 5%, transparent);
+}
+
+/* 2000 ve sonrası — maç gününün tonu. Sayfanın en altı en "bugün" yer:
+   arşiv geçmişe iniyor ve şimdiye geri tırmanıyor. */
+[data-club="galatasaray"] .era:has(> [data-start-year^="200"]),
+[data-club="galatasaray"] .era:has(> [data-start-year^="201"]),
+[data-club="galatasaray"] .era:has(> [data-start-year^="202"]) {
+  --era-accent: var(--gs-brand-yellow);
+  --era-line: color-mix(in srgb, var(--gs-brand-yellow) 22%, var(--sport-line));
+  --era-wash: color-mix(in srgb, var(--gs-brand-red) 4%, transparent);
+}
+
+/* Dönemin ışığı: yalnızca üstten sızan çok düşük yoğunluklu bir yıkama.
+   TEK kural, üç değer — bölümleri tek tek boyamak değil. `isolation`
+   ebeveyn üzerinde: `z-index: -1` bu kutunun içinde kalsın, sayfa zeminine
+   düşmesin. */
+[data-club="galatasaray"] .era::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(to bottom, var(--era-wash) 0%, transparent 55%);
+}
+
+/* Tonun taşındığı yüzeyler. Hepsi `--era-accent` MİRASINI okuyor, yani
+   dönem kutusunun dışına çıkmıyor.
+
+   `text-shadow` METNİ değil ışığı taklit ediyor: geniş yarıçap, düşük alfa.
+   Yılın kendi rengi zaten yeterli kontrastta; gölge yalnızca "yanan" hissi
+   için ve okunurluğa dokunmuyor. */
+[data-club="galatasaray"] .eraYear {
+  color: var(--era-accent);
+  text-shadow: 0 0 1.6rem color-mix(in srgb, var(--era-accent) 22%, transparent);
+}
+
+[data-club="galatasaray"] .personal {
+  border-left-color: var(--era-accent);
+}
+
+[data-club="galatasaray"] .figureLink:hover .figureName,
+[data-club="galatasaray"] .figureLink:focus-visible .figureName {
+  color: var(--era-accent);
+}

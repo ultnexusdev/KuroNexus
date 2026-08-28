@@ -92,6 +92,36 @@ interface Playlist {
   slug: string;
 }
 
+/**
+ * Yol → ortam sesi evreni.
+ *
+ * ── NEDEN TEK YERDE ──────────────────────────────────────────────────────
+ * Aynı bilgi eskiden ÜÇ ayrı yerde `/\/dark-stories\/.+/` olarak yazılıydı:
+ * çalma listesi isteğinin kapısı, slug çıkarma etkisi ve çaların görünürlük
+ * kararı. Yeni bir yol eklemek üçünü birden güncellemeyi gerektiriyordu ve
+ * biri unutulursa hata SESSİZ oluyordu (çalar ya hiç görünmez ya da boş
+ * listeyle görünürdü). Üçü de artık bu fonksiyonu okuyor.
+ *
+ * ── GALATASARAY KULÜP DÜNYASI ────────────────────────────────────────────
+ * `/spor/futbol/galatasaray` bir hikâye evreni değil ama SPOR kategorisinde
+ * `galatasaray` slug'lı bir `WikiUniverse` kaydı var (kulüp sayfasının
+ * kendisi de o evrenin görünen yüzü). Marşlar oraya yükleniyor:
+ * `/admin/ambient-tracks` → evren "Galatasaray".
+ *
+ * Yalnızca kulüp sayfası: futbolcu sayfalarının kendi teması var
+ * (`PlayerAudio`) ve iki ses sistemi üst üste binmemeli.
+ *
+ * ⚠️ Locale öneki isteğe bağlı (`/tr/...` ya da öneksiz) — desenler yolun
+ * BAŞINA değil, İÇİNE bakıyor.
+ */
+function ambientUniverseSlug(pathname: string | null): string | null {
+  if (!pathname) return null;
+  const story = pathname.match(/\/dark-stories\/([^/]+)/);
+  if (story?.[1]) return story[1];
+  if (/\/spor\/futbol\/galatasaray(?:\/|$)/.test(pathname)) return "galatasaray";
+  return null;
+}
+
 export function GlobalAmbientPlayer() {
   const pathname = usePathname();
   const t = useTranslations("player");
@@ -122,16 +152,16 @@ export function GlobalAmbientPlayer() {
   /**
    * Parça içeren evrenler = seçilebilir çalma listeleri.
    *
-   * İstek İLK dark-stories evren ziyaretine ertelendi (2026-08-22 denetimi):
-   * eskiden mount'ta atılıyordu, yani ana sayfa/spor/müzik dahil HER sayfada,
-   * her ziyaretçi için bir API turu — oysa liste menüsü yalnızca çalar
+   * İstek İLK evren ziyaretine ertelendi (2026-08-22 denetimi): eskiden
+   * mount'ta atılıyordu, yani ana sayfa/spor/müzik dahil HER sayfada, her
+   * ziyaretçi için bir API turu — oysa liste menüsü yalnızca çalar
    * görünürken açılabiliyor ve çalar yalnızca evren sayfalarında kuruluyor.
    * Ref tek-atış garantisi: hiç liste yoksa her gezinmede yeniden istenmesin.
    */
   const playlistsRequested = useRef(false);
   useEffect(() => {
     if (playlistsRequested.current) return;
-    if (!/\/dark-stories\/.+/.test(pathname ?? "")) return;
+    if (!ambientUniverseSlug(pathname)) return;
     playlistsRequested.current = true;
     apiFetch<Playlist[]>("/ambient-tracks/playlists")
       .then(setPlaylists)
@@ -156,15 +186,15 @@ export function GlobalAmbientPlayer() {
     [],
   );
 
-  // Pathname'den universeSlug çıkarma (örn: /tr/dark-stories/temurkan-efsaneleri/...)
+  // Pathname'den universeSlug çıkarma
+  // (örn: /tr/dark-stories/temurkan-efsaneleri/... · /tr/spor/futbol/galatasaray)
   useEffect(() => {
-    if (!pathname) return;
-    const match = pathname.match(/\/dark-stories\/([^\/]+)/);
-    if (match && match[1] && match[1] !== universeSlug) {
+    const slug = ambientUniverseSlug(pathname);
+    if (slug && slug !== universeSlug) {
       // Yeni evrene girildi: müzik çalmıyorsa listeyi sessizce değiştir;
       // çalıyorsa mevcut liste bitene/değiştirilene kadar devam eder (kesinti yok)
       if (!isPlaying) {
-        loadPlaylist(match[1], false);
+        loadPlaylist(slug, false);
       }
     }
   }, [pathname, universeSlug, isPlaying, loadPlaylist]);
@@ -204,7 +234,7 @@ export function GlobalAmbientPlayer() {
 
   // Evren sayfalarının dışında (ana sayfa, evren listesi vb.) çalar yalnızca
   // aktif bir dinleme oturumu varsa görünür — ilk gezinmede araya girmez.
-  const inUniverse = /\/dark-stories\/.+/.test(pathname ?? "");
+  const inUniverse = ambientUniverseSlug(pathname) !== null;
   const hasActiveSession = isPlaying || currentTime > 0;
   if (!inUniverse && !hasActiveSession) return null;
 

@@ -8,8 +8,13 @@
 
 ## ⌂ DURUM
 
-**CANLIDA — `6f096e0` main'e pushlandı (28 Ağustos 2026).** Beş çeyrek, 45 kadro kaydı, 5 takım,
-54 küratör yuvası, iki dil. `npm run check:slam-dunk` yeşil.
+**CANLIDA — `6f096e0` → `73e2e1a` (28 Ağustos 2026).** Beş çeyrek, 45 kadro
+kaydı, 5 takım, 54 küratör yuvası, iki dil. `npm run check:slam-dunk` yeşil.
+
+`73e2e1a` küratörün bildirdiği beş arızayı kapattı: dokuz arka plan yuvasının
+kalemi erişilebilir oldu, stat barları artık iki yerde de aynı, manifesto
+sayacı ham anahtar basmıyordu. Aynı turda **Shohoku ilk beşi yukarı çekildi**
+(takım ortalaması 76,2 → 80,0; Sannoh 77,1) — gerekçe `roster.ts` başlığında.
 
 Üretim derlemesi temiz: rota **19,8 KB** kendi payı / **148 KB** ilk yük
 (Bleach 30,8 / 157). Dört denetim takımı da yeşil: `slam-dunk`, `bleach`,
@@ -156,7 +161,28 @@ Aynı ders `browser-pane-frozen-raf` notunda zaten yazılıydı.
    ⚠️ Ses yuvası GÖRSEL manifestosunda değil (`audio.ts`) — orada olsaydı
    küratör panelinde "eksik görsel" olarak listelenirdi.
 
-6. **Gerçek imleç GİZLENMEDİ.** Brief "custom cursor" diyor ama
+6. **⚠️ DEKORATİF SARMALAYICI KÜRATÖR KALEMİNİ YUTUYOR.** Arka plan
+   kadrajları `pointer-events: none` + `z-index: -1` taşıyan katmanların
+   içinde duruyor; kalem oraya konarsa tıklama **sessizce hiçbir yere
+   gitmiyor** — ne hata, ne imleç değişimi. Beş bölümde birden yaşandı
+   (28 Ağustos 2026). Kural: kadraj `noEdit`, kalem sarmalayıcının
+   DIŞINDA (`<CourtSlotPen backdrop />`). `check:slam-dunk` artık
+   ikisinin eşleştiğini denetliyor.
+
+   Aynı tuzağın ikinci yüzü: `CuratedSlotEditor` → `.pencil` mutlak
+   konumlu (`top:-10px; right:-10px`). Kabı `position: relative` değilse
+   **bütün kalemler sayfanın sağ üst köşesine yığılıyor.** Manifesto
+   satırlarında tam olarak bu oldu.
+
+7. **`animation-timeline: view()` aralığı DEĞERİ değil KONUMU çiziyor.**
+   Stat barları `entry 12% cover 34%` ile doldurulunca aynı karakterin
+   barı hero'da ve ızgarada FARKLI uzunlukta görünüyordu — çünkü dolum
+   ekrandaki konuma bağlıydı. Doğrusu `entry 25% entry 100%`: öğe tam
+   görünür olduğunda animasyon bitmiş oluyor ve `both` son kareyi
+   tutuyor. Kaydırmaya bağlı bir animasyon bir DEĞERİ gösteriyorsa
+   aralığı `entry` içinde kapanmalı.
+
+8. **Gerçek imleç GİZLENMEDİ.** Brief "custom cursor" diyor ama
    `cursor: none` erişilebilirlik kaybı: imleç boyutunu büyütmüş kişi
    işaretçisini kaybeder ve JS gelmezse hiç imleç kalmaz. Top imlecin
    ARDINDA hareket ediyor.
@@ -187,9 +213,10 @@ boyut, oran ve "ne bulmam gerek" notu her satırda yazılı.
 npm run check:slam-dunk
 ```
 
-Beş denetim: **veri** (kadro bütünlüğü, takım referansları, stat aralığı,
+Altı denetim: **veri** (kadro bütünlüğü, takım referansları, stat aralığı,
 ilk beş mevkileri), **iki dil** (her `Localized` alanının İngilizcesi +
 sözlük iskeleti), **çapa** (skorbordun her bağlantısının karşılığı var mı),
+**kalem** (`noEdit` ile çizilen her yuvanın erişilebilir bir kalemi var mı),
 **hex** (palet dışına kaçmış renk), **hareket** (azaltılmış hareket kapısı).
 
 ⚠️ Bleach'in denetimlerinden farklı olarak veriyi METİN değil DEĞER olarak

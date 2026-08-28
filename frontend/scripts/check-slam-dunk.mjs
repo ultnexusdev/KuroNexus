@@ -250,6 +250,46 @@ for (const { anchor } of SLAM_DUNK_ANCHORS) {
 }
 
 /* ══════════════════════════════════════════════════════════════════
+   3b · ULAŞILABİLİR KALEM
+
+   ⚠️ ÖLÇÜLMÜŞ ARIZA (kullanıcı bildirimi, 28 Ağustos 2026). Arka plan
+   kadrajları `pointer-events: none` + `z-index: -1` taşıyan dekoratif
+   sarmalayıcıların içinde duruyor; kalem oraya konunca küratör hiçbir
+   bölümün arka plan görselini DEĞİŞTİREMİYORDU. Tıklama sessizce hiçbir
+   yere gitmiyordu — ne hata, ne uyarı.
+
+   Kural: bir `<CourtImage>` `noEdit` ile çiziliyorsa (kalemi bastırılmış),
+   AYNI dosyada aynı yuva için bir `<CourtSlotPen>` olmak ZORUNDA. Yoksa
+   o yuva küratör için erişilemez demektir.
+   ══════════════════════════════════════════════════════════════════ */
+
+/** `<CourtImage … slotId={X} … />` bloğundan yuva ifadesini çek. */
+function slotTokens(source, tag) {
+  const out = [];
+  for (const chunk of source.split(`<${tag}`).slice(1)) {
+    const block = chunk.slice(0, chunk.indexOf("/>") + 1);
+    const m = block.match(/slotId=(?:\{([^}]+)\}|"([^"]+)")/);
+    if (m) out.push({ slot: (m[1] ?? m[2]).trim(), noEdit: /\bnoEdit\b/.test(block) });
+  }
+  return out;
+}
+
+for (const name of readdirSync(COMPONENTS).filter((n) => n.endsWith(".tsx"))) {
+  const source = readFileSync(join(COMPONENTS, name), "utf8");
+  if (!source.includes("<CourtImage")) continue;
+
+  const pens = new Set(slotTokens(source, "CourtSlotPen").map((p) => p.slot));
+  for (const { slot, noEdit } of slotTokens(source, "CourtImage")) {
+    if (noEdit && !pens.has(slot)) {
+      fail(
+        "KALEM",
+        `${name}: ${slot} \`noEdit\` ile çiziliyor ama karşılığında <CourtSlotPen> yok — küratör o yuvaya erişemez`,
+      );
+    }
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════
    4 · HEX
 
    Palet TEK dosyada (`court.module.css`). Başka bir modülde hex, iki

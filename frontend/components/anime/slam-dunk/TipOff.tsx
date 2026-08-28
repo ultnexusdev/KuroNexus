@@ -2,7 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { teamStarters } from "@/lib/anime/slam-dunk/roster";
 import { TEAMS } from "@/lib/anime/slam-dunk/teams";
 import { pick } from "@/lib/anime/slam-dunk/types";
-import { CourtImage } from "./CourtImage";
+import { CourtImage, CourtSlotPen } from "./CourtImage";
 import { PlayerCard } from "./PlayerCard";
 import { ReactiveCourt } from "./ReactiveCourt";
 import court from "./court.module.css";
@@ -48,9 +48,14 @@ export async function TipOff({ locale }: { locale: string }) {
           sizes="1920px"
           fill
           decorative
+          noEdit
         />
         <span className={styles.vignette} />
       </div>
+
+      {/* ⚠️ Kalem sahnenin DIŞINDA: `.stageBg` `pointer-events: none`
+          taşıyor (metin onun üstünde) ve içine konan kalem tıklanamıyordu. */}
+      <CourtSlotPen slotId="slam-dunk:hero" backdrop />
 
       <header className={styles.intro}>
         <p className={court.eyebrow}>

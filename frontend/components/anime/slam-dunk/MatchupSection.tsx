@@ -3,7 +3,7 @@ import { teamRoster } from "@/lib/anime/slam-dunk/roster";
 import { teamSlotId } from "@/lib/anime/slam-dunk/slots";
 import { RIVAL_ORDER, TEAMS } from "@/lib/anime/slam-dunk/teams";
 import { pick, type TeamId } from "@/lib/anime/slam-dunk/types";
-import { CourtImage } from "./CourtImage";
+import { CourtImage, CourtSlotPen } from "./CourtImage";
 import { MatchupSelector, type MatchupTab } from "./MatchupSelector";
 import { QuarterHeader } from "./QuarterHeader";
 import { RosterGrid } from "./RosterGrid";
@@ -59,9 +59,14 @@ export async function MatchupSection({ locale }: { locale: string }) {
           sizes="1600px"
           fill
           decorative
+          noEdit
         />
         <span className={styles.gymFade} />
       </div>
+
+      {/* ⚠️ Kalem salonun DIŞINDA: `.gym` `pointer-events: none` +
+          `z-index: -1` taşıyor, içine konan kalem tıklanamıyordu. */}
+      <CourtSlotPen slotId="slam-dunk:gym" backdrop />
 
       <QuarterHeader
         quarter={t("quarters.half")}
@@ -98,9 +103,14 @@ async function RivalPanel({ id, locale }: { id: TeamId; locale: string }) {
           sizes="1200px"
           fill
           decorative
+          noEdit
         />
         <span className={team.bandFade} />
       </div>
+
+      {/* Rakibin kendi bandının kalemi — bandın DIŞINDA, panelin sağ üstünde.
+          Panel `position: relative`, yani kalem doğru rakibe asılıyor. */}
+      <CourtSlotPen slotId={teamSlotId(id)} backdrop />
 
       <header className={styles.panelHead}>
         <h3 className={`${court.display} ${styles.panelTitle}`}>

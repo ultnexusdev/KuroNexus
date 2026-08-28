@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { TEAMS } from "@/lib/anime/slam-dunk/teams";
 import { pick } from "@/lib/anime/slam-dunk/types";
-import { CourtImage } from "./CourtImage";
+import { CourtImage, CourtSlotPen } from "./CourtImage";
 import { QuarterHeader } from "./QuarterHeader";
 import court from "./court.module.css";
 import styles from "./BuzzerSection.module.css";
@@ -38,9 +38,14 @@ export async function BuzzerSection({ locale }: { locale: string }) {
           sizes="1600px"
           fill
           decorative
+          noEdit
         />
         <span className={styles.shotFade} aria-hidden />
       </div>
+
+      {/* ⚠️ Kalem kadrajın DIŞINDA: `.shotWrap` `z-index: -1` taşıyor ve
+          içine konan kalem bölümün zemininin ARKASINDA kalıyordu. */}
+      <CourtSlotPen slotId="slam-dunk:buzzer" backdrop />
 
       <div className={styles.content}>
         <QuarterHeader

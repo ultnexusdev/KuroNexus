@@ -234,11 +234,32 @@
   color: var(--sd-ink-faint);
 }
 
-/* Yalnizca kalem — yuva bir <button>/<a> icindeyken kardes olarak
-   ciziliyor (ic ice etkilesimli oge yasak). */
+/* Yalnizca kalem — yuva bir <button>/<a> icindeyken ya da dekoratif bir
+   katmanin icindeyken KARDES olarak ciziliyor. */
 .pen {
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
   z-index: 3;
+}
+
+/*
+ * ARKA PLAN YUVASININ KALEMI — bolumun sag ust kosesinde.
+ *
+ * ⚠️ `.pen`den SONRA yaziliyor: iki secici de tek sinif, yani esit
+ * ozgullukte ve dosyadaki SIRA kazaniyor. Ayri bir modulde tanimlansaydi
+ * hangisinin kazanacagi paketleme sirasina kalirdi.
+ *
+ * `z-index` icerikten yuksek: hero'nun basligi ve bolum metni ustune
+ * binmesin. Kalem yalnizca kurator modunda gorunuyor, yani ziyaretcinin
+ * gordugu hicbir seyi ortmuyor.
+ */
+.penBackdrop {
+  /* ⚠️ Ust pay 1.1rem'den az olmasin: kalemin kendisi `.pen` kutusundan
+     10px YUKARIDA duruyor (`.pencil { top: -10px }`) ve hero ile sahil
+     bandi `overflow: hidden` tasiyor — daha az payda kalemin ust kenari
+     kirpilirdi. */
+  top: clamp(1.1rem, 2.4vw, 1.8rem);
+  right: clamp(1.2rem, 4vw, 3.4rem);
+  z-index: 8;
 }

@@ -88,12 +88,27 @@
   box-shadow: none;
 }
 
+/*
+ * ⚠️ ARALIK `cover` DEGIL `entry` — 28 Agustos 2026'da duzeltildi.
+ *
+ * Eskiden `entry 12% cover 34%` yaziyordu ve bu OLCULEBILIR bir hataydi:
+ * `cover` araligi ogenin ekrana girisinden CIKISINA kadar uzaniyor, yani
+ * bar ancak sayfa epey kaydirildiktan sonra doluyordu. Sonucu kullanici
+ * bildirdi: AYNI karakterin bari hero'da ve kadro izgarasinda FARKLI
+ * uzunlukta gorunuyordu — cunku ikisi ekranin farkli yerlerindeydi ve
+ * dolum, degere degil KAYDIRMA KONUMUNA bagliydi.
+ *
+ * Yeni aralik ogenin ekrana girisiyle baslayip girisi tamamlandiginda
+ * bitiyor: bar tam gorunur oldugu anda daima tam degerinde. `both` dolum
+ * kipi aralik asildiktan sonra son kareyi tutuyor, yani asagi kaydirmaya
+ * devam etmek degeri bir daha degistirmiyor.
+ */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
     .fill {
       animation: sd-fill linear both;
       animation-timeline: view();
-      animation-range: entry 12% cover 34%;
+      animation-range: entry 25% entry 100%;
     }
   }
 }

@@ -3,7 +3,7 @@ import { teamRoster } from "@/lib/anime/slam-dunk/roster";
 import { teamSlotId } from "@/lib/anime/slam-dunk/slots";
 import { TEAMS } from "@/lib/anime/slam-dunk/teams";
 import { pick } from "@/lib/anime/slam-dunk/types";
-import { CourtImage } from "./CourtImage";
+import { CourtImage, CourtSlotPen } from "./CourtImage";
 import { QuarterHeader } from "./QuarterHeader";
 import { RosterGrid } from "./RosterGrid";
 import court from "./court.module.css";
@@ -47,9 +47,14 @@ export async function ShohokuSection({ locale }: { locale: string }) {
           sizes="1600px"
           fill
           decorative
+          noEdit
         />
         <span className={styles.bandFade} />
       </div>
+
+      {/* ⚠️ Kalem bandın DIŞINDA: `.band` `pointer-events: none` +
+          `z-index: -1` taşıyor, içine konan kalem tıklanamıyordu. */}
+      <CourtSlotPen slotId={teamSlotId("shohoku")} backdrop />
 
       <QuarterHeader
         quarter={t("quarters.q2")}

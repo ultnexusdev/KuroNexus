@@ -42,7 +42,13 @@ export async function SlamDunkManifest() {
 
   const groups = slotsBySection();
   const all = groups.flatMap((group) => group.slots);
-  const filled = all.filter((slot) => {
+  /* ⚠️ Anahtarlar `done` / `total` / `missing` — sözlükteki ICU kalıbı
+     bunları istiyor. Başta `filled` gönderiliyordu ve next-intl kalıbı
+     dolduramayınca ekrana "curator.manifestMeter" diye HAM ANAHTAR
+     basıyordu (kullanıcı bildirimi, 28 Ağustos 2026). Sessiz değil ama
+     kolay kaçan bir hata: sayfa çökmüyor, yalnızca metin yerine anahtar
+     görünüyor. */
+  const done = all.filter((slot) => {
     const record = images[slot.id];
     return record?.url && !record.isHidden;
   }).length;
@@ -54,7 +60,11 @@ export async function SlamDunkManifest() {
           {t("manifestTitle")}
         </h2>
         <p className={styles.meter}>
-          {t("manifestMeter", { filled, total: all.length })}
+          {t("manifestMeter", {
+            done,
+            total: all.length,
+            missing: all.length - done,
+          })}
         </p>
         <p className={styles.note}>{t("manifestNote")}</p>
       </header>

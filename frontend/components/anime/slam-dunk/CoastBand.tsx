@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { CourtImage } from "./CourtImage";
+import { CourtImage, CourtSlotPen } from "./CourtImage";
 import court from "./court.module.css";
 import styles from "./CoastBand.module.css";
 
@@ -35,8 +35,14 @@ export async function CoastBand({ locale }: { locale: string }) {
           sizes="1920px"
           fill
           decorative
+          noEdit
         />
       </div>
+
+      {/* ⚠️ Kalem kadrajın DIŞINDA: `.shotWrap` `pointer-events: none`
+          taşıyor ve paralaks için kayıyor — içine konan kalem hem
+          tıklanamıyor hem yerinde durmuyordu. */}
+      <CourtSlotPen slotId="slam-dunk:coast" backdrop />
 
       {/* Demiryolu geçidi: sahilin üstünden geçen tek yatay çizgi.
           Saf CSS, dekoratif — serinin açılış karesine bir selam. */}

@@ -23,6 +23,22 @@ import type { RosterMember, TeamId } from "./types";
  * Ölçek çapaları `types.ts` → `Stats` başlığında yazılı ve sayfa bunu
  * gizlemiyor: bar bloğunun altında kaynak notu basılıyor.
  *
+ * ⚠️ SHOHOKU’NUN İLK BEŞİ BİLEREK YUKARI ÇEKİLDİ (28 Ağustos 2026,
+ * kullanıcı kararı). Gerekçe: sayfanın anlattığı takım, üç yıllık ulusal
+ * şampiyonu deviren takım; ilk beşi rakiplerinin ortalamasının altında
+ * okunuyorsa sayfa kendi tezini çürütüyor. Beş kartın TAKIM ortalaması
+ * artık sayfadaki en yüksek ortalama.
+ *
+ * ⚠️ Ama KARAKTER ŞEKLİ KORUNDU: Sakuragi hâlâ zayıf şutör, Miyagi hâlâ
+ * kötü ribaundcu, Mitsui’nin hızı hâlâ düşük. Zaaflar silinmedi, takımın
+ * tabanı yükseltildi.
+ *
+ * ⚠️ Sawakita’nın tek tek en yüksek hücumu (97) ve Kawata’nın en yüksek
+ * savunma/ribauntu (94) OLDUĞU GİBİ DURUYOR: sayfa o iki kartta
+ * “Japonya’nın 1 numaralı lise oyuncusu” ve “Japonya’nın 1 numaralı
+ * pivotu” yazıyor. Numarayı onların üstüne çıkarmak sayfayı kendi
+ * metniyle çelişkiye düşürürdü — üstünlük TAKIM düzeyinde kuruldu.
+ *
  * ⚠️ Kimlikleri (`id`) DEĞİŞTİRME — küratörün yüklediği kare
  * `slam-dunk:player:<id>` yuvasına bağlı ve yeniden adlandırma o kareyi
  * koparır (`CuratedImage.slotId` sözleşmesi).
@@ -48,7 +64,9 @@ export const ROSTER: RosterMember[] = [
       tr: "Dört ay önce topa ilk kez dokundu; bugün Kanagawa’nın en iyi ribaundcusu. Şutu hâlâ dar bir açıda güvenilir, gücü ve sıçraması sahada eşsiz.",
       en: "He touched a ball for the first time four months ago; today he is Kanagawa's best rebounder. His shot is reliable only from one narrow angle, but his power and leap have no equal on the floor.",
     },
-    stats: { shooting: 52, defense: 62, rebounding: 97, speed: 88 },
+    /* Ribaunt 99: serinin en iyisi, tartışmasız. Şut yine en zayıf
+       kalemi — yirmi bin şut onu güvenilir yaptı, keskin nişancı değil. */
+    stats: { shooting: 62, defense: 74, rebounding: 99, speed: 93 },
   },
   {
     id: "rukawa",
@@ -67,7 +85,9 @@ export const ROSTER: RosterMember[] = [
       tr: "Her mevkide oynayabilen çaylak. Gözü sakatlanınca serbest atışları gözleri kapalı attı; Anzai onu ve Sakuragi’yi eski öğrencisinden büyük iki yetenek sayıyor.",
       en: "A freshman who can play any position. With an injured eye he shot his free throws blind; Anzai rates him and Sakuragi above his own former protégé.",
     },
-    stats: { shooting: 90, defense: 82, rebounding: 68, speed: 92 },
+    /* Sawakita ile birebire giren tek oyuncu: hücumu ve hızı onun bir
+       tık altında, savunması ulusal seviyede. */
+    stats: { shooting: 94, defense: 88, rebounding: 72, speed: 95 },
   },
   {
     id: "akagi",
@@ -86,7 +106,9 @@ export const ROSTER: RosterMember[] = [
       tr: "Takımın kaptanı ve pota altındaki duvarı. Bileği sakatken sahadan çıkmayı reddetti; ulusal şampiyonluk hayalini üç yıl boyunca tek başına taşıdı.",
       en: "Captain, and the wall beneath the rim. He refused to leave the floor on an injured ankle and carried the dream of a national title alone for three years.",
     },
-    stats: { shooting: 72, defense: 90, rebounding: 90, speed: 58 },
+    /* Kanagawa’nın en iyi pivotu; Kawata dışında dengi yok. Hız hâlâ
+       en düşük kalemi — pota altında duran bir oyuncu. */
+    stats: { shooting: 78, defense: 93, rebounding: 93, speed: 64 },
   },
   {
     id: "miyagi",
@@ -105,7 +127,9 @@ export const ROSTER: RosterMember[] = [
       tr: "Serinin en hızlı oyuncusu. Boyu 168 olmasına rağmen Fujima ve Maki’ye ayak uyduruyor, çift markajı sığ dribbling’le kırıyor; Akagi’den sonra kaptanlığı devralıyor.",
       en: "The fastest player in the series. At 168 cm he still keeps pace with Fujima and Maki, breaks double teams with a shallow dribble, and takes the captaincy after Akagi.",
     },
-    stats: { shooting: 55, defense: 82, rebounding: 42, speed: 97 },
+    /* Hız 99: serinin en hızlısı, sayfadaki en yüksek tek değer.
+       Ribaunt 46 — 168 santim bir kurucu, zaaf silinmedi. */
+    stats: { shooting: 62, defense: 88, rebounding: 46, speed: 99 },
   },
   {
     id: "mitsui",
@@ -124,7 +148,9 @@ export const ROSTER: RosterMember[] = [
       tr: "Eski ortaokul MVP’si, iki yıllık aradan sonra dönen üç sayı uzmanı. Ayağı yere basınca kapanan savunma onu durdurmuyor; tek gerçek zaafı kondisyonu.",
       en: "A former junior-high MVP and a three-point specialist back after two lost years. Once his feet are set no closeout troubles him; his one real weakness is stamina.",
     },
-    stats: { shooting: 95, defense: 78, rebounding: 48, speed: 62 },
+    /* Şut 97: Sawakita ile eşit, sayfanın tepesi — üç sayı onun işi.
+       Hız 66, kondisyonu tek gerçek zaafı olduğu için düşük kaldı. */
+    stats: { shooting: 97, defense: 84, rebounding: 52, speed: 66 },
   },
   {
     id: "kogure",

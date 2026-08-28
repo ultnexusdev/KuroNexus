@@ -215,9 +215,24 @@ export async function CourtImage({
 export async function CourtSlotPen({
   slotId,
   className,
+  backdrop,
 }: {
   slotId: string;
   className?: string;
+  /**
+   * ARKA PLAN YUVASI kalemi — bölümün sağ üst köşesine oturuyor.
+   *
+   * ⚠️ Neden ayrı bir kip: hero, sahil bandı, salon, takım bantları ve
+   * kapanış karesi hep DEKORATİF bir sarmalayıcının içinde çiziliyor ve o
+   * sarmalayıcılar `pointer-events: none` + `z-index: -1` taşıyor —
+   * içeriğin altında kalsınlar diye. Kalem de oraya konunca tıklanamıyordu
+   * (kullanıcı bildirimi, 28 Ağustos 2026): küratör arka plan görselini
+   * hiçbir bölümde değiştiremiyordu.
+   *
+   * Çözüm kalemi sarmalayıcının DIŞINA, bölümün kendisine taşımak. Kadraj
+   * yine `noEdit` ile geliyor; düzenleme tek bir kapıdan yürüyor.
+   */
+  backdrop?: boolean;
 }) {
   const slot = slotDef(slotId);
   if (!slot) return null;
@@ -232,7 +247,11 @@ export async function CourtSlotPen({
   if (!isAdmin) return null;
 
   return (
-    <span className={[styles.pen, className].filter(Boolean).join(" ")}>
+    <span
+      className={[styles.pen, backdrop ? styles.penBackdrop : null, className]
+        .filter(Boolean)
+        .join(" ")}
+    >
       <CuratedSlotMount
         surface={SLAM_DUNK_SURFACE}
         slot={serialize(slot, locale)}

@@ -55,13 +55,25 @@
   list-style: none;
 }
 
+/*
+ * ⚠️ `position: relative` ZORUNLU.
+ *
+ * Duzenleyicinin kalemi (`CuratedSlotEditor` → `.pencil`) mutlak
+ * konumlaniyor (`top:-10px; right:-10px`). Satir konumlanmis olmayinca
+ * elli dort kalemin HEPSI en yakin konumlanmis ataya — sayfa kokune —
+ * yapisiyor ve sag ust kosede ust uste yigiliyordu: manifestoda hicbir
+ * satirin kalemi tiklanamaz oluyordu (kullanici bildirimi, 28 Agustos
+ * 2026). Ayni tuzak arka plan yuvalarinda da vardi.
+ */
 .row {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
   gap: 0.7rem;
-  padding: 0.7rem 0.9rem;
+  /* Sag ustteki kaleme yer: satirin kendi metniyle cakismasin */
+  padding: 1.1rem 0.9rem 0.7rem;
   border: 1px solid color-mix(in srgb, var(--sd-ink) 10%, transparent);
   border-left-width: 3px;
   background: color-mix(in srgb, var(--sd-bg-panel) 70%, transparent);

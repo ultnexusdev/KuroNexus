@@ -8,10 +8,14 @@
 
 ## ⌂ DURUM
 
-**Sayfa inşa edildi ve çalışıyor.** Beş çeyrek, 45 kadro kaydı, 5 takım,
+**CANLIDA — `6f096e0` main'e pushlandı (28 Ağustos 2026).** Beş çeyrek, 45 kadro kaydı, 5 takım,
 54 küratör yuvası, iki dil. `npm run check:slam-dunk` yeşil.
 
-**AÇIK İŞ — commit edilmedi.** Nedeni aşağıda ("İki oturum çakışması").
+Üretim derlemesi temiz: rota **19,8 KB** kendi payı / **148 KB** ilk yük
+(Bleach 30,8 / 157). Dört denetim takımı da yeşil: `slam-dunk`, `bleach`,
+`karakter`, `gojo`.
+
+**Açık iş yok.** Sırada küratörün 54 yuvayı doldurması var (aşağıda).
 
 ---
 
@@ -67,36 +71,30 @@ eskisi gibi `@/lib/anime/bleach/slots`tan import ediyor.
 
 ---
 
-## ⚠️ İKİ OTURUM ÇAKIŞMASI (28 Ağustos 2026)
+## ESPADA PORTRELERİ — dört kod hatası (aynı commit'te düzeltildi)
 
-Bu iş yapılırken **paralel bir oturum Bleach'in Espada bölümünü
-düzenliyordu** ve çalışma ağacında üç tip hatası bıraktı:
+Bu iş yapılırken **paralel bir oturum Bleach'in Espada bölümüne portre
+yuvası ekliyordu** (Gemini ile üretilmiş bir tasarım). Tasarıma
+DOKUNULMADI; yalnızca dört kod hatası düzeltildi:
 
-```
-components/anime/bleach/EspadaSection.tsx(50,9)  '"2:3"' geçerli oran değil
-lib/anime/bleach/slots.ts(563,14)                '"2:3"' geçerli oran değil
-lib/anime/bleach/slots.ts(565,5)                 '"normal"' geçerli işlem biçimi değil
-```
+| Hata | Düzeltme |
+|---|---|
+| `ratios: ["2:3"]` — izinli oranlar listesinde yoktu, derlenmiyordu | `"2:3"` `lib/curated/contract.ts`e eklendi. Yatay karşılığı (`3:2`) zaten vardı, dikeyi eksikti; 600×900 tam olarak 2:3 |
+| `treatment: "normal"` — böyle bir işlem biçimi yok | `"photo"`. `"normal"` bir KARIŞIM kipi (`SLOT_BLENDS`); tasarımın istediği "filtre uygulama" ve bunun adı `photo` |
+| **Yuva kimliği dizinin İNDEKSİNDEN üretiliyordu** (`(name, rank) =>`) ama `espada.ts` rütbeleri **1–10** tutuyor | Elle yazılmış `ESPADA_NAMES` kopyası silindi, liste artık `ESPADA` kaydından türüyor |
+| Portre bir `<button>`ın İÇİNDEydi ve küratör kalemi de bir `<button>` | `noEdit` + `penNode`: kalem kartın KARDEŞİ olarak çiziliyor |
 
-**Bu hatalar Slam Dunk işinden gelmiyor** — `"2:3"` hiçbir zaman izinli
-oranlar listesinde yoktu, `"normal"` de bir işlem biçimi değil (o bir
-KARIŞIM kipi). Kasıtlı olarak düzeltilmedi: yarım kalmış başka bir
-oturumun kararını tahmin etmek yanlış olurdu.
-
-**Sonucu:** `next build` bu üç satır yüzünden koşmuyor, yani
-
-- üretim derlemesi ve performans bütçesi ÖLÇÜLEMEDİ,
-- `lib/anime/bleach/slots.ts` iki oturumun değişikliğini birden taşıdığı
-  için dosya tek başına commit edilemiyor.
-
-**Yapılacak:** Espada turu bitince `"2:3"` `lib/curated/contract.ts`teki
-`SLOT_RATIOS`a eklenmeli (600×900 portre yuvası için doğru oran) ve
-`treatment: "normal"` muhtemelen `"photo"` olmalı. Sonra `npx tsc --noEmit`
-temizlenir ve commit atılabilir.
+⚠️ **Üçüncüsü sessiz bir veri kaybıydı.** Manifesto `bleach:espada:0…9`
+üretiyor, bölüm `bleach:espada:1…10` çiziyordu: `slotDef()` Yammy'yi
+bulamadığı için `CuratedImage` **sessizce `null` basıyordu** — on portrenin
+dokuzu görünüyor, onuncusu hiç yok, hata da yok. `…:0` ise hiçbir yerde
+çizilmeyen yetim bir yuvaydı. Tam olarak
+`kurator-yuvasi-tanimli-ama-cizilmiyor` notundaki ikinci arıza biçimi.
+Doğrulandı: üretim çıktısında artık 1–10 arası **on** yuva çiziliyor.
 
 ---
 
-## Doğrulananlar (28 Ağustos 2026, dev sunucusu 3000)
+## Doğrulananlar (28 Ağustos 2026)
 
 | | |
 |---|---|
@@ -106,8 +104,9 @@ temizlenir ve commit atılabilir.
 | Hidrasyon | rakip seçici sekmeleri tıklamayla geçiyor, `aria-selected` doğru dönüyor |
 | Hub kartı | `/anime` sayfasında Slam Dunk kapısı ve 湘北 rozeti çiziliyor |
 | Sitemap | `/anime/slam-dunk` üç dil girdisiyle listede |
-| Bleach regresyonu | `npm run check:bleach` — font/kontrast/çapa/hareket/i18n BEŞİ de yeşil |
-| Sayfa ağırlığı | dev HTML 1,06 MB ham / **125 KB gzip** (Bleach aynı koşulda 188 KB) |
+| Bleach regresyonu | `npm run check:bleach` — ALTI denetim de yeşil; bütçe üretim derlemesinde JS **153,7 KB / 220 KB**, CSS 32,3 / 40 |
+| Espada | üretim çıktısında 1–10 arası **on** yuva çiziliyor, iç içe `<button>` yok |
+| Rota yükü | `/anime/slam-dunk` **19,8 KB** kendi payı / **148 KB** ilk yük (Bleach 30,8 / 157) |
 
 ### ⚠️ ÖLÇÜLEMEYENLER — canlıda doğrulanacak
 

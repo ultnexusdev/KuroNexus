@@ -81,6 +81,10 @@
 }
 
 .slot {
+  /* Kurator kaleminin cipasi. `.pen` `inset: 0` ile mutlak konumlaniyor ve
+     konumlanmis bir ata bulamazsa izgaranin tamamina yayiliyordu.
+     Ziyaretcide gorsel etkisi YOK: kart zaten yuvayi dolduruyor. */
+  position: relative;
   display: flex;
   justify-content: center;
 }
@@ -110,20 +114,37 @@
    (kok duzende yazili) ve tam olarak burada kullaniliyor. */
 .numberWrap {
   position: relative;
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(8rem, 14vw, 12rem);
+  aspect-ratio: 2 / 3;
   line-height: 0.8;
   transition: scale 320ms cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  border-radius: 4px;
 }
 
 .number {
+  position: absolute;
   display: block;
-  font-size: clamp(4rem, 9vw, 9rem);
+  font-size: clamp(6rem, 15vw, 15rem);
   color: var(--world-paper);
-  opacity: 0.22;
-  transition: opacity 320ms ease-out, color 400ms ease-out;
+  opacity: 0.15;
+  z-index: 0;
+  transition: opacity 320ms ease-out, color 400ms ease-out, transform 320ms ease-out;
 }
 
-/* Maske parcasi numaranin USTUNE biniyor: kimligin iki yarisi ust uste. */
+.portrait {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0.8;
+  filter: grayscale(60%) contrast(1.1);
+  transition: opacity 320ms ease-out, filter 320ms ease-out;
+}
+
+/* Maske parçası numaranın ÜSTÜNE biniyor: kimliğin iki yarısı üst üste. */
 .fragment {
   position: absolute;
   left: 50%;
@@ -132,18 +153,26 @@
   translate: -50% -50%;
   color: var(--world-glow);
   opacity: 0;
+  z-index: 2;
   transition: opacity 320ms ease-out, color 400ms ease-out;
   pointer-events: none;
 }
 
 .card:hover .numberWrap,
 .card:focus-visible .numberWrap {
-  scale: 1.08;
+  scale: 1.05;
 }
 
 .card:hover .number,
 .card:focus-visible .number {
+  opacity: 0.05;
+  transform: scale(1.1);
+}
+
+.card:hover .portrait,
+.card:focus-visible .portrait {
   opacity: 1;
+  filter: grayscale(0%) contrast(1);
 }
 
 .card:hover .fragment,
@@ -205,6 +234,31 @@
   min-height: clamp(7rem, 18vw, 14rem);
   background: var(--world-paper);
   color: var(--world-ink);
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.4), 0 10px 30px rgba(0, 0, 0, 0.2);
+  transition: box-shadow 500ms ease-out, transform 500ms cubic-bezier(0.16, 1, 0.3, 1), color 500ms ease-out;
+  border-radius: 2px;
+  position: relative;
+  overflow: hidden;
+}
+
+.throne::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(168, 31, 107, 0.15) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 500ms ease-out;
+  pointer-events: none;
+}
+
+.throne:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.6), 0 15px 40px rgba(0, 0, 0, 0.4), 0 0 25px rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.throne:hover::before {
+  opacity: 1;
 }
 
 .throneKanji {
@@ -212,6 +266,11 @@
   font-weight: 700;
   font-size: clamp(3rem, 9vw, 7rem);
   line-height: 1;
+  transition: text-shadow 500ms ease-out;
+}
+
+.throne:hover .throneKanji {
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.4), 0 0 30px rgba(168, 31, 107, 0.3);
 }
 
 .throneCaption {
@@ -620,7 +679,7 @@
 
   .numberWrap {
     flex: none;
-    width: 4.5ch;
+    width: 4.5rem;
   }
 
   .number {

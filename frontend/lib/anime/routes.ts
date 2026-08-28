@@ -24,6 +24,8 @@ export const animeHref = {
   naruto: () => "/anime/naruto",
   /** Bleach Evreni — Naruto ile aynı ayrım: evrenin kendisi, izlediğim seri değil */
   bleach: () => "/anime/bleach",
+  /** Slam Dunk Evreni — aynı ayrım, üçüncü evren */
+  slamDunk: () => "/anime/slam-dunk",
   /** Six Paths detay sayfası (deva/asura/human/animal/preta/naraka) */
   akatsukiPath: (pathKey: string) => `/anime/akatsuki/six-paths/${pathKey}`,
   /** Anime arşivi (altı raf) */

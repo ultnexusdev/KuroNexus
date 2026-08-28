@@ -1,5 +1,7 @@
+import type { SlotRatio, SlotTreatment } from "@/lib/curated/contract";
 import { BANKAI_HALL } from "./bankai";
 import { DIVISIONS, hasSecondCaptain } from "./divisions";
+import { ESPADA } from "./espada";
 import type { BleachSlotWorld, Localized } from "./types";
 
 /**
@@ -39,45 +41,24 @@ export const BLEACH_SURFACE = "anime/bleach";
 // ---------------------------------------------------------------------------
 
 /**
- * İzin verilen kırpma oranları.
+ * İzin verilen oranlar, işlem biçimleri ve karışım kipleri ARTIK BURADA
+ * TANIMLI DEĞİL.
  *
- * Sayılı liste, çünkü değer doğrudan `aspect-ratio`ya basılıyor ve küratör
- * paneli seçenekleri buradan çiziyor. Serbest metin, yuvanın tasarlandığı
- * kutuya sığmayan bir oran girilmesine izin verirdi.
+ * Üçü de bir evrene ait değil (backend DTO'suyla birebir eşleşiyorlar) ve
+ * Slam Dunk evreni aynı düzenleyiciyi kullanınca `lib/curated/contract.ts`e
+ * taşındılar — gerekçe o dosyanın başlığında. Buradan RE-EXPORT ediliyorlar:
+ * on altı Bleach bölümü bu dosyadan import ediyor ve hiçbirine dokunulmadı.
  */
-export const SLOT_RATIOS = [
-  "21:9",
-  "2:1",
-  "16:9",
-  "3:2",
-  "4:3",
-  "1:1",
-  "4:5",
-  "3:4",
-  "9:16",
-] as const;
-export type SlotRatio = (typeof SLOT_RATIOS)[number];
-
-/**
- * Görselin işlenme biçimi.
- *
- * `duotone` renklerini yuvanın bağlı olduğu DÜNYA paleti veriyor
- * (`--world-accent` / `--world-glow`); yuva kaydı renk taşımıyor — kural 16.
- */
-export const SLOT_TREATMENTS = ["photo", "silhouette", "duotone"] as const;
-export type SlotTreatment = (typeof SLOT_TREATMENTS)[number];
-
-/** Ön yüzün çizebildiği karışım kipleri — backend DTO'suyla aynı liste. */
-export const SLOT_BLENDS = [
-  "normal",
-  "multiply",
-  "screen",
-  "overlay",
-  "soft-light",
-  "hard-light",
-  "luminosity",
-] as const;
-export type SlotBlend = (typeof SLOT_BLENDS)[number];
+export {
+  SLOT_RATIOS,
+  SLOT_TREATMENTS,
+  SLOT_BLENDS,
+} from "@/lib/curated/contract";
+export type {
+  SlotRatio,
+  SlotTreatment,
+  SlotBlend,
+} from "@/lib/curated/contract";
 
 /**
  * Görsel yokken (ya da "geçici gizle" açıkken) ne çizilecek.
@@ -322,19 +303,21 @@ const BANKAI_NICHES = BANKAI_HALL.map((niche) => ({
   owner: niche.owner,
 }));
 
-/** Espada 0–9 — sıra güç sırası değil numara sırası; panelde okunaklı olsun */
-const ESPADA_NAMES = [
-  "Yammy Llargo",
-  "Coyote Starrk",
-  "Baraggan Louisenbairn",
-  "Tier Harribel",
-  "Ulquiorra Cifer",
-  "Nnoitra Gilga",
-  "Grimmjow Jaegerjaquez",
-  "Zommari Rureaux",
-  "Szayelaporro Granz",
-  "Aaroniero Arruruerie",
-];
+/*
+ * ⚠️ ESPADA ADLARININ ELLE YAZILMIŞ İKİNCİ KOPYASI KALDIRILDI
+ * (28 Ağustos 2026).
+ *
+ * Liste burada `["Yammy Llargo", "Coyote Starrk", …]` olarak duruyordu ve
+ * yuva kimliği dizinin İNDEKSİNDEN üretiliyordu (`(name, rank) =>`). Oysa
+ * `espada.ts` rütbeleri **1–10** olarak tutuyor ve Yammy 10 numara. Sonuç
+ * ölçüldü: manifesto `bleach:espada:0…9` üretiyordu, bölüm ise
+ * `bleach:espada:1…10` çiziyordu — Yammy'nin kadrajı `slotDef()` bulamadığı
+ * için SESSİZCE hiç basılmıyordu (on portrenin dokuzu görünüyordu), üstelik
+ * `…:0` kimliği hiçbir yerde çizilmeyen yetim bir yuvaydı.
+ *
+ * Tam olarak manifesto başlığındaki kural: yuva listesini VERİ DOSYASINDAN
+ * türet, elle ikinci kopya yazma. Artık `ESPADA` kaydından geliyor.
+ */
 
 /** Maske duvarı — sonuncusu bilinçli olarak isimsiz */
 const MASKS: { slug: string; name: Localized }[] = [
@@ -571,18 +554,25 @@ export const BLEACH_SLOTS: readonly CuratedSlotDef[] = [
   },
 
   /* ══ P08 · ESPADA ════════════════════════════════════════════════════ */
-  ...ESPADA_NAMES.map<CuratedSlotDef>((name, rank) => ({
-    id: espadaSlotId(rank),
+  ...ESPADA.map<CuratedSlotDef>((record) => ({
+    id: espadaSlotId(record.rank),
     section: "espada",
-    label: { tr: `${rank} · ${name}`, en: `${rank} · ${name}` },
-    hint: {
-      tr: "Hollow maske PARÇASI — dev numaranın üzerine binecek. Tek renk, şeffaf zemin, PNG/WebP. Tam portre değil.",
-      en: "Hollow mask FRAGMENT — it overlays the giant numeral. Single colour, transparent background, PNG/WebP. Not a full portrait.",
+    label: {
+      tr: `${record.rank} · ${record.name}`,
+      en: `${record.rank} · ${record.name}`,
     },
-    size: { w: 800, h: 800 },
-    ratios: ["1:1"],
+    hint: {
+      tr: "Karakterin portresi — numaranın önünde görünecek. Şeffaf zemin (PNG/WebP) tavsiye edilir, tam beden portre.",
+      en: "Character portrait — appears in front of the numeral. Transparent background (PNG/WebP) recommended, full body portrait.",
+    },
+    size: { w: 600, h: 900 },
+    ratios: ["2:3"],
     world: "hueco-mundo",
-    treatment: "silhouette",
+    /* ⚠️ `"normal"` DEĞİL — o bir KARIŞIM kipi (`SLOT_BLENDS`), işlem biçimi
+       değil. Tasarımın istediği "filtre uygulama, kareyi olduğu gibi bas" ve
+       bunun adı `photo`: üç işlem biçiminden filtre UYGULAMAYAN tek olanı.
+       Karar değişmedi, yalnızca doğru sözcükle yazıldı (28 Ağustos 2026). */
+    treatment: "photo",
     fallback: "silhouette",
   })),
 

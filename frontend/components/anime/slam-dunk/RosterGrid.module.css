@@ -1,0 +1,46 @@
+/* ============================================================
+   KADRO IZGARASI
+
+   ⚠️ HEX YOK. Palet `court.module.css`ten miras iniyor.
+   ============================================================ */
+
+.grid {
+  display: grid;
+  /* Mobil-onceki: tek sutun degil IKI. Kart dikey ve dar; tek sutunda
+     telefonda gereksiz devlesip sayfa uzuyordu. */
+  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+  gap: clamp(0.7rem, 1.6vw, 1.1rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 640px) {
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  }
+}
+
+.grid > li {
+  display: flex;
+}
+
+.grid > li > * {
+  flex: 1;
+}
+
+/*
+ * KAYNAK NOTU.
+ *
+ * Izgaranin altinda BIR KEZ. Slam Dunk'in hicbir resmi kaynagi oyunculari
+ * sayisal derecelendirmiyor ve bunu gizlemek, uydurulmus bir sayiyi canon
+ * gibi sunmak olurdu.
+ */
+.disclaimer {
+  margin: 1.6rem 0 0;
+  padding-top: 1rem;
+  border-top: 1px solid color-mix(in srgb, var(--sd-ink) 10%, transparent);
+  font-size: 0.76rem;
+  max-width: 52rem;
+  color: var(--sd-ink-faint);
+}

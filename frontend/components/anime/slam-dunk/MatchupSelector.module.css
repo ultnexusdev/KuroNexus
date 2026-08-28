@@ -1,0 +1,150 @@
+/* ============================================================
+   RAKIP SECICI
+
+   ⚠️ HEX YOK. Palet `court.module.css`ten miras iniyor. Her sekme ve
+   her panel kendi `data-team` niteligini tasiyor, yani secilen takimin
+   rengi iceriye kendiliginden akiyor.
+   ============================================================ */
+
+.selector {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.6rem, 3vw, 2.6rem);
+}
+
+/* ── SEKME SERIDI ───────────────────────────────────────────
+   Mobilde yatay kayiyor, genis ekranda dorde bolunuyor. */
+.tabs {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(11rem, 1fr);
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.3rem;
+  scrollbar-width: none;
+}
+
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+
+@media (min-width: 860px) {
+  .tabs {
+    grid-auto-columns: 1fr;
+    overflow: visible;
+  }
+}
+
+.tab {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.22rem;
+  min-height: var(--touch-min);
+  padding: 0.9rem 1rem;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--team-accent) 22%, transparent);
+  background: linear-gradient(
+    150deg,
+    var(--sd-bg-panel),
+    color-mix(in srgb, var(--sd-bg) 88%, var(--team-deep))
+  );
+  /* Skorbord dugmesiyle ayni kirik kose dili */
+  clip-path: polygon(0 0, calc(100% - 0.7rem) 0, 100% 0.7rem, 100% 100%, 0 100%);
+  color: var(--sd-ink-dim);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 220ms ease,
+    color 220ms ease,
+    transform 220ms ease;
+}
+
+.tab:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--team-accent) 55%, transparent);
+}
+
+.tab[data-active] {
+  border-color: var(--team-accent);
+  color: var(--sd-ink);
+}
+
+.tabName {
+  font-family: var(--font-numeral), "Arial Black", sans-serif;
+  font-size: 1.02rem;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  transform: skewX(-8deg);
+  transform-origin: left bottom;
+}
+
+.tabKanji {
+  font-family: var(--font-shippori), "Yu Mincho", serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  color: var(--sd-ink-faint);
+}
+
+.tabMeta {
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  color: var(--sd-ink-faint);
+}
+
+/*
+ * SECILI SEKMENIN PARILTISI.
+ *
+ * Takimin kendi rengi. Brief'in dort tarifi burada bulusuyor: Ryonan
+ * deniz mavisi, Kainan altin-mor, Shoyo zumrut, Sannoh yuksek kontrast
+ * beyaz. Renkleri `court.module.css` veriyor, bu katman yalnizca sekli.
+ */
+.tabGlow {
+  position: absolute;
+  inset-inline: -30%;
+  bottom: -70%;
+  aspect-ratio: 2;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--team-glow) 55%, transparent),
+    transparent 74%
+  );
+  transition: opacity 300ms ease;
+}
+
+.tab[data-active] .tabGlow,
+.tab:hover .tabGlow {
+  opacity: 1;
+}
+
+/* Sannoh'nun beyazi cok parlak: yuksek kontrast tarifi bir isik
+   patlamasi degil, KESKIN bir kenar. Parilti kisiliyor, cizgi
+   kaliniyor. */
+.tab[data-team="sannoh"][data-active] {
+  border-width: 2px;
+}
+
+.tab[data-team="sannoh"] .tabGlow {
+  opacity: 0;
+}
+
+.tab[data-team="sannoh"][data-active] .tabGlow {
+  opacity: 0.35;
+}
+
+/* ── PANEL ──────────────────────────────────────────────────
+   `hidden` niteligi zaten gizliyor; burada yalnizca odak halkasi
+   duzeltiliyor (panel `tabindex="0"` cunku WAI-ARIA deseni sekme
+   iceriginin klavyeyle erisilebilir olmasini istiyor). */
+.panel {
+  outline-offset: 4px;
+}
+
+.panel:focus-visible {
+  outline: 2px solid var(--team-accent);
+}

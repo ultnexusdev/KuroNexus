@@ -1,0 +1,104 @@
+/* ============================================================
+   4. CEYREK · SON DUDUK
+
+   Bilerek seyrek: tek kadraj, tek skor, uc cumle.
+
+   ⚠️ HEX YOK. Palet `court.module.css`ten miras iniyor.
+   ============================================================ */
+
+.section {
+  position: relative;
+  isolation: isolate;
+  min-height: min(80vh, 820px);
+  display: flex;
+  align-items: flex-end;
+}
+
+.shotWrap {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.shot {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  opacity: 0.55;
+}
+
+/* Kirpma kutusunun yuksekligi `fill` propundan geliyor: `CourtImage`
+   `[data-fill]` niteligini basiyor ve orani kendi modulunde kaldiriyor. */
+
+.shotFade {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      110% 70% at 30% 70%,
+      color-mix(in srgb, var(--sd-bg) 74%, transparent),
+      transparent 72%
+    ),
+    linear-gradient(
+      to bottom,
+      var(--sd-bg) 0%,
+      transparent 28%,
+      color-mix(in srgb, var(--sd-bg) 70%, transparent) 70%,
+      var(--sd-bg) 100%
+    );
+}
+
+.content {
+  position: relative;
+  width: 100%;
+  max-width: 52rem;
+}
+
+/* ── DEV SKOR ─────────────────────────────────────────────── */
+.final {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.6rem 1.4rem;
+  margin: 0 0 1.6rem;
+}
+
+.finalScore {
+  font-size: clamp(3.4rem, 13vw, 8.5rem);
+  line-height: 0.82;
+  color: var(--sd-ink);
+  text-shadow:
+    0 0 22px color-mix(in srgb, var(--team-glow) 55%, transparent),
+    0 0 70px color-mix(in srgb, var(--team-glow) 26%, transparent);
+}
+
+.finalMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding-bottom: 0.6rem;
+}
+
+.finalTeams {
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--sd-ink);
+}
+
+.finalStage {
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--sd-ink-faint);
+}
+
+.epilogue {
+  margin: 0;
+  max-width: 44rem;
+  font-size: clamp(0.94rem, 1.5vw, 1.06rem);
+}

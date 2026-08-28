@@ -1,0 +1,52 @@
+/* ============================================================
+   /anime/slam-dunk — SAYFA KABUGU
+
+   Palet ve tipografi olcegi `components/anime/slam-dunk/court.module.css`
+   ten geliyor (sayfa kokunde `.court` sinifi duruyor). Burada duran sey
+   yalnizca sayfanin kendi yerlesimi.
+
+   ⚠️ HEX YOK.
+   ============================================================ */
+
+.page {
+  position: relative;
+  flex: 1;
+  min-height: 100svh;
+  /* Kanat kabugu Bebas olcegini ve kendi zeminini dayatiyor; Slam Dunk
+     kendi derisini `.court` ile aciyor ve zemini oradan aliyor. */
+  overflow-x: clip;
+}
+
+/*
+ * KIRINTI YOLU.
+ *
+ * Skorbordun USTUNDE, sayfanin en basinda ve akista duruyor —
+ * Bleach'teki gibi sahnenin uzerine yuzmuyor. Sebep: burada hemen
+ * altinda yapiskan bir skorbord var ve iki serit ust uste binerse
+ * ikisi de okunmaz oluyor.
+ */
+.crumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.9rem clamp(1rem, 4vw, 3rem) 0.7rem;
+  max-width: 1560px;
+  margin-inline: auto;
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--sd-ink-faint);
+}
+
+.crumb a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.crumb a:hover,
+.crumb a:focus-visible {
+  color: var(--team-accent);
+}

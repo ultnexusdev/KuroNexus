@@ -1,0 +1,124 @@
+/* ============================================================
+   SAYFA MUZIGI — calar + kuratorun "muzik ekle" kapisi
+
+   ⚠️ HEX YOK. Palet `court.module.css`ten miras iniyor.
+   ============================================================ */
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--touch-min);
+  height: var(--touch-min);
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--team-accent) 34%, transparent);
+  background: color-mix(in srgb, var(--sd-bg) 70%, transparent);
+  color: var(--sd-ink);
+  cursor: pointer;
+  /* Skorbord dugmeleriyle ayni kirik kose */
+  clip-path: polygon(0 0, calc(100% - 0.5rem) 0, 100% 0.5rem, 100% 100%, 0 100%);
+  transition:
+    border-color 200ms ease,
+    background 200ms ease;
+}
+
+.toggle:hover {
+  border-color: color-mix(in srgb, var(--team-accent) 70%, transparent);
+  background: color-mix(in srgb, var(--team-deep) 45%, transparent);
+}
+
+/* Calmiyorken: ucgen oynat isareti. SVG yok, `clip-path` yeterli. */
+.playIcon {
+  width: 0.7rem;
+  height: 0.8rem;
+  background: var(--team-accent);
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+
+/* Caliyorken: uc cubuk nefes aliyor. Duraklatma isareti YERINE bu,
+   cunku durumu iki kez soyluyor — hem sekil hem hareket. */
+.wave {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 0.9rem;
+}
+
+.wave span {
+  width: 3px;
+  background: var(--team-accent);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--team-glow) 60%, transparent);
+  animation: sd-wave 900ms ease-in-out infinite alternate;
+}
+
+.wave span:nth-child(1) {
+  height: 45%;
+  animation-delay: -300ms;
+}
+
+.wave span:nth-child(2) {
+  height: 100%;
+}
+
+.wave span:nth-child(3) {
+  height: 65%;
+  animation-delay: -600ms;
+}
+
+@keyframes sd-wave {
+  from {
+    transform: scaleY(0.4);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+/* ── KURATORUN KAPISI ─────────────────────────────────────────
+   Anahtar kapaliyken `CuratorFrame` gizliyor (`[data-curator-slot]`). */
+.curator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* Dosya girdisi gorunmez ama ERISILEBILIR kalmali: `display: none`
+   onu odak sirasindan da cikarirdi. Dugme zaten onu tetikliyor;
+   girdinin kendisi ekran disina alinmiyor, sifir boyuta indiriliyor. */
+.file {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.add {
+  min-height: var(--touch-min);
+  padding: 0 0.7rem;
+  border: 1px dashed color-mix(in srgb, var(--team-accent) 45%, transparent);
+  background: transparent;
+  color: var(--team-accent);
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.add:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--team-accent) 12%, transparent);
+}
+
+.add:disabled {
+  opacity: 0.55;
+  cursor: progress;
+}
+
+.error {
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-size: 0.6rem;
+  color: var(--sd-led);
+}

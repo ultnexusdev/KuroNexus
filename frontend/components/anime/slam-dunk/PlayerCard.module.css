@@ -1,0 +1,410 @@
+/* ============================================================
+   KADRO KARTI
+
+   Iki boy tek bilesende: `[data-size="stage"]` (Shohoku ilk besi) ve
+   `[data-size="grid"]` (kalan kirk kayit). Fark tamamen burada.
+
+   ⚠️ HEX YOK. Palet `court.module.css`ten miras iniyor.
+   ============================================================ */
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  isolation: isolate;
+  background: linear-gradient(
+    170deg,
+    var(--sd-bg-panel),
+    color-mix(in srgb, var(--sd-bg) 92%, var(--team-deep))
+  );
+  border: 1px solid color-mix(in srgb, var(--team-accent) 22%, transparent);
+  /* 90'lar forma kartinin kirik kosesi */
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - 1.1rem),
+    calc(100% - 1.1rem) 100%,
+    0 100%
+  );
+  transition:
+    transform 260ms cubic-bezier(0.2, 0.7, 0.3, 1),
+    border-color 260ms ease,
+    box-shadow 260ms ease;
+}
+
+.card:hover,
+.card:focus-within {
+  transform: translateY(-4px);
+  border-color: color-mix(in srgb, var(--team-accent) 70%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--team-accent) 30%, transparent),
+    0 18px 44px -18px color-mix(in srgb, var(--team-glow) 55%, transparent);
+}
+
+/* ── AURA: kartin ARKASINDA duran renkli hale ──────────────── */
+.aura {
+  position: absolute;
+  inset: -18% -14%;
+  z-index: -1;
+  opacity: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--team-glow) 40%, transparent),
+    transparent 72%
+  );
+  transition: opacity 320ms ease;
+}
+
+.card:hover .aura,
+.card:focus-within .aura {
+  opacity: 1;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SAHNE EFEKTLERI — bes karakterin bes ayri muamelesi
+
+   Hepsi SAF CSS. `.fx` bos bir katman; ne cizecegini `data-fx`
+   niteligi soyluyor. Efektler yalniz hover/odakta doner: kirk bes
+   kartlik bir sayfada surekli donen bes animasyon pil yerdi.
+
+   ⚠️ Azaltilmis hareket kapisi `court.module.css`te, TEK yerde.
+   ══════════════════════════════════════════════════════════════ */
+.fx {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 300ms ease;
+  clip-path: inherit;
+}
+
+.card:hover .fx,
+.card:focus-within .fx {
+  opacity: 1;
+}
+
+/* ── SAKURAGI · darbe dalgalari ─────────────────────────────
+   Potaya inen elin sok dalgasi: uc halka merkezden disari aciliyor.
+   Tek psodo-oge, uc `box-shadow` halkasi, tek animasyon. */
+.card[data-fx="sakuragi"] .fx::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 34%;
+  width: 6rem;
+  height: 6rem;
+  margin: -3rem 0 0 -3rem;
+  border-radius: 50%;
+  border: 2px solid color-mix(in srgb, var(--sd-ball) 70%, transparent);
+  box-shadow:
+    0 0 0 0 color-mix(in srgb, var(--sd-ball) 30%, transparent),
+    0 0 40px color-mix(in srgb, var(--team-glow) 55%, transparent);
+  animation: sd-impact 1500ms ease-out infinite;
+}
+
+.card[data-fx="sakuragi"] .fx::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    68% 48% at 50% 34%,
+    color-mix(in srgb, var(--sd-ball) 22%, transparent),
+    transparent 70%
+  );
+  mix-blend-mode: screen;
+}
+
+@keyframes sd-impact {
+  from {
+    transform: scale(0.35);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+/* ── RUKAWA · soguk ruzgar ve duman ─────────────────────────
+   Dikey seritler yukari suzuluyor; renk takim degil BUZ.
+   Rukawa'nin kartinda takim kirmizisi kullanilmiyor ve bu bilincli:
+   brief soguk mavi/mor istiyor, karakterin sicakligi o. */
+.card[data-fx="rukawa"] .fx::before {
+  content: "";
+  position: absolute;
+  inset: -30% 0;
+  background: repeating-linear-gradient(
+    100deg,
+    transparent 0 22px,
+    color-mix(in srgb, var(--sd-ice) 22%, transparent) 22px 24px,
+    transparent 24px 46px
+  );
+  filter: blur(1px);
+  animation: sd-drift 3600ms linear infinite;
+}
+
+.card[data-fx="rukawa"] .fx::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    80% 60% at 50% 70%,
+    color-mix(in srgb, var(--sd-ice-deep) 34%, transparent),
+    transparent 72%
+  );
+  mix-blend-mode: screen;
+}
+
+@keyframes sd-drift {
+  from {
+    transform: translate3d(0, 8%, 0);
+  }
+  to {
+    transform: translate3d(0, -8%, 0);
+  }
+}
+
+/* ── AKAGI · goril siluetı ──────────────────────────────────
+   Kartin arkasinda dev bir govde beliriyor. Sekil bir SVG maskesi:
+   dosya inmiyor (data URI) ve rengi maskeden degil ALTTAKI gradyandan
+   aliyor, yani takim paletine bagli kaliyor. */
+.card[data-fx="akagi"] .fx::before {
+  content: "";
+  position: absolute;
+  inset: 8% 6% -4%;
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--team-accent) 62%, transparent),
+    color-mix(in srgb, var(--team-glow) 22%, transparent)
+  );
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cg fill='%23000'%3E%3Cellipse cx='100' cy='56' rx='35' ry='31'/%3E%3Cellipse cx='100' cy='92' rx='23' ry='17'/%3E%3Cpath d='M26 200 C26 128 60 100 100 100 C140 100 174 128 174 200 Z'/%3E%3Cellipse cx='32' cy='150' rx='23' ry='44'/%3E%3Cellipse cx='168' cy='150' rx='23' ry='44'/%3E%3C/g%3E%3C/svg%3E");
+  mask-repeat: no-repeat;
+  mask-position: center bottom;
+  mask-size: contain;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cg fill='%23000'%3E%3Cellipse cx='100' cy='56' rx='35' ry='31'/%3E%3Cellipse cx='100' cy='92' rx='23' ry='17'/%3E%3Cpath d='M26 200 C26 128 60 100 100 100 C140 100 174 128 174 200 Z'/%3E%3Cellipse cx='32' cy='150' rx='23' ry='44'/%3E%3Cellipse cx='168' cy='150' rx='23' ry='44'/%3E%3C/g%3E%3C/svg%3E");
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center bottom;
+  -webkit-mask-size: contain;
+  animation: sd-loom 2600ms ease-in-out infinite alternate;
+}
+
+@keyframes sd-loom {
+  from {
+    transform: scale(0.97);
+    opacity: 0.55;
+  }
+  to {
+    transform: scale(1.03);
+    opacity: 0.85;
+  }
+}
+
+/* ── MIYAGI · simsek ────────────────────────────────────────
+   Karti ceviren sari bir yay. Konik gradyan doner, dar bir dilim
+   parlak kalir — kenar boyunca kosan bir isik izi. */
+.card[data-fx="miyagi"] .fx::before {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg 300deg,
+    color-mix(in srgb, var(--sd-ball-glow) 85%, transparent) 340deg,
+    transparent 360deg
+  );
+  animation: sd-spin 1100ms linear infinite;
+}
+
+/* Ic maske: yalnizca kenar seridi gorunsun, ortasi bos kalsin. */
+.card[data-fx="miyagi"] .fx::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  background: linear-gradient(
+    170deg,
+    var(--sd-bg-panel),
+    color-mix(in srgb, var(--sd-bg) 92%, var(--team-deep))
+  );
+  clip-path: inherit;
+}
+
+@keyframes sd-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+/* ── MITSUI · uc sayi cizgisi ve alev ───────────────────────
+   Kartin altindan yukselen alev + tepede parlayan bir yay: attigi
+   ucluk ve geldigi yer. */
+.card[data-fx="mitsui"] .fx::before {
+  content: "";
+  position: absolute;
+  inset-inline: -20%;
+  top: -46%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 2px solid color-mix(in srgb, var(--sd-ball) 55%, transparent);
+  box-shadow: 0 0 26px color-mix(in srgb, var(--sd-ball-glow) 45%, transparent);
+  animation: sd-arc 2400ms ease-in-out infinite alternate;
+}
+
+.card[data-fx="mitsui"] .fx::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 46%;
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--sd-ball) 52%, transparent),
+    color-mix(in srgb, var(--team-accent) 22%, transparent) 46%,
+    transparent
+  );
+  mix-blend-mode: screen;
+  animation: sd-flame 1700ms ease-in-out infinite alternate;
+}
+
+@keyframes sd-arc {
+  from {
+    opacity: 0.4;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes sd-flame {
+  from {
+    transform: scaleY(0.86);
+    opacity: 0.7;
+  }
+  to {
+    transform: scaleY(1.08);
+    opacity: 1;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   KADRAJ
+   ══════════════════════════════════════════════════════════════ */
+.frame {
+  position: relative;
+  z-index: 1;
+}
+
+.portrait {
+  display: block;
+}
+
+/*
+ * FORMA NUMARASI — kadrajin ustunde, sag altta.
+ *
+ * ⚠️ Fotograf gelince de kaliyor. Numara yuvanin yedegi degil kartin
+ * KIMLIGI: bir Slam Dunk kartinda numara okunmuyorsa kart eksiktir.
+ * Dis cizgi, uzerine bindigi her fotografta okunmasini sagliyor.
+ */
+.number {
+  position: absolute;
+  right: 0.4rem;
+  bottom: -0.5rem;
+  z-index: 2;
+  font-size: clamp(2.6rem, 8vw, 4.4rem);
+  line-height: 0.8;
+  color: color-mix(in srgb, var(--sd-bg) 55%, transparent);
+  -webkit-text-stroke: 2px var(--team-accent);
+  text-shadow: 0 0 18px color-mix(in srgb, var(--team-glow) 45%, transparent);
+  pointer-events: none;
+}
+
+.card[data-size="stage"] .number {
+  font-size: clamp(3.4rem, 5vw, 5.6rem);
+  bottom: -0.7rem;
+}
+
+/* Kocu ve menajeri numaradan degil ETIKETTEN taniyoruz. */
+.roleTag {
+  position: absolute;
+  left: 0;
+  top: 0.7rem;
+  z-index: 2;
+  padding: 0.24rem 0.7rem;
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--sd-bg);
+  background: var(--team-accent);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   GOVDE
+   ══════════════════════════════════════════════════════════════ */
+.body {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem 1rem 1.2rem;
+}
+
+.card[data-size="stage"] .body {
+  gap: 0.66rem;
+  padding: 1.4rem 1.3rem 1.6rem;
+}
+
+.name {
+  display: flex;
+  flex-direction: column;
+  gap: 0.16rem;
+  margin: 0;
+}
+
+.nameLatin {
+  font-size: clamp(1rem, 2.4vw, 1.3rem);
+  color: var(--sd-ink);
+}
+
+.card[data-size="stage"] .nameLatin {
+  font-size: clamp(1.5rem, 3vw, 2.1rem);
+}
+
+.nameKanji {
+  font-size: 0.76rem;
+  color: var(--sd-ink-faint);
+}
+
+.epithet {
+  margin: 0;
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--team-accent);
+}
+
+.spec {
+  margin: 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--sd-ink) 10%, transparent);
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: var(--sd-ink-dim);
+}
+
+.note {
+  margin: 0;
+  font-size: 0.86rem;
+}
+
+.staffNote {
+  margin: 0;
+  font-size: 0.8rem;
+}

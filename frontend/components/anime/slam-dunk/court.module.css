@@ -1,0 +1,254 @@
+/*
+ * SLAM DUNK EVRENİ — DERİ VE PALET.
+ *
+ * ── NEDEN TEK DOSYA ──────────────────────────────────────────────────────
+ * Sayfa on bir bileşene bölünüyor ve on birinin de aynı takım rengini
+ * bilmesi gerekiyor. Üç yol vardı:
+ *   1. `globals.css`e yazmak — Bleach'in yolu. Karakter sayfası sisteminde
+ *      terk edildi: site geneli dosya, tek bir sayfanın paletiyle şişiyor.
+ *   2. Her modülde tekrar yazmak — on bir kopya, biri güncellenmeyince
+ *      sessiz ayrışma.
+ *   3. TEK bir deri dosyası, sayfa kökünde. CSS özel değerleri MİRASLA
+ *      iniyor, yani `.court` altındaki her modül `var(--team-accent)`
+ *      yazabiliyor ve hiçbiri hex bilmiyor. Seçilen bu.
+ *
+ * ⚠️ HEX YALNIZCA BURADA. Başka bir Slam Dunk modülünde hex görürsen o bir
+ * kaçak: `scripts/check-slam-dunk.mjs` bunu denetliyor.
+ *
+ * ── ⚠️ BLEACH'TEN HİÇBİR DEĞER ALINMADI ──────────────────────────────────
+ * Kullanıcı kararı (28 Ağustos 2026): iki evren tasarım dili paylaşmıyor.
+ * Bleach ince, geniş aralıklı ve gotik; burası ağır, sıkışık ve neon.
+ * Ortak tek şey küratör ARACININ paneli — o bir yönetim yüzeyi, sayfanın
+ * derisi değil.
+ */
+
+/* ══════════════════════════════════════════════════════════════════
+   TABAN — gece parkesi
+   ══════════════════════════════════════════════════════════════════ */
+.court {
+  /* Zemin: siyah değil, ışığı emmiş bir salon */
+  --sd-bg: #07080b;
+  --sd-bg-raise: #0e1016;
+  --sd-bg-panel: #12141c;
+
+  /* Parke — arka planın en altındaki sıcak katman */
+  --sd-floor: #2a1a10;
+  --sd-floor-lit: #4a2c17;
+
+  /* Saha çizgileri: boya, ışık değil. Alfa ile inceliyor. */
+  --sd-line: rgba(242, 239, 230, 0.22);
+  --sd-line-soft: rgba(242, 239, 230, 0.09);
+
+  /* Yazı — kemik beyazı, saf beyaz değil (parlama yapıyor) */
+  --sd-ink: #f2efe6;
+  --sd-ink-dim: rgba(242, 239, 230, 0.66);
+  --sd-ink-faint: rgba(242, 239, 230, 0.4);
+
+  /* Topun rengi. Takımı olmayan her şeyin vurgusu bu. */
+  --sd-ball: #ff7a1a;
+  --sd-ball-glow: #ffb066;
+
+  /* Skorbord ekranı — LED kırmızısı */
+  --sd-led: #ff2d20;
+  --sd-led-dim: rgba(255, 45, 32, 0.35);
+
+  /*
+   * Rukawa'nın soğuğu.
+   *
+   * Takım paletinde YOK ve olmamalı: Shohoku kırmızı, Rukawa değil. Brief
+   * onun kartı için soğuk mavi/mor istiyor ve bu, takım renginin bir tonu
+   * değil ona ait ayrı bir sıcaklık. Yine de burada duruyor — hex'in tek
+   * evi bu dosya.
+   */
+  --sd-ice: #6fb6ff;
+  --sd-ice-deep: #7d5bd6;
+
+  /* Varsayılan takım paleti: takım bilinmeyen yerde top rengi geçerli */
+  --team-accent: var(--sd-ball);
+  --team-glow: var(--sd-ball-glow);
+  --team-deep: #3a1a05;
+
+  /*
+   * Site başlığının yüksekliği: 44px dokunma alanı + 2×12px dolgu +
+   * 0,5px çizgi (`styles/globals.css` token'ları). Skorbord bunun altına
+   * yapışıyor.
+   *
+   * ⚠️ Başlık dolgusu değişirse burası da değişmeli — yoksa skorbord
+   * başlığın ARDINA girer ve iki çeyrek düğmesi tıklanamaz olur.
+   */
+  --sd-header: 68px;
+  /* Skorbordun kendi yüksekliği — çapa inişleri barın altına düşsün */
+  --sd-board: 62px;
+
+  color: var(--sd-ink);
+  background: var(--sd-bg);
+}
+
+/*
+ * ÇAPA İNİŞİ.
+ *
+ * İki yapışkan bar üst üste duruyor (site başlığı + skorbord). Pay
+ * verilmezse `#matchup` bağlantısı bölüm başlığını tam barların ardına
+ * indiriyor ve ziyaretçi yanlış yere geldiğini sanıyor.
+ *
+ * ⚠️ `scroll-padding-top` KÖKTE değil BURADA: kök `<html>` bütün sayfaların
+ * ortak yüzeyi ve oraya yazmak Slam Dunk'ın ölçüsünü site geneline
+ * bulaştırırdı. `scroll-margin-top` hedefin kendisinde duruyor.
+ */
+.court :target,
+.court [data-quarter] {
+  scroll-margin-top: calc(var(--sd-header) + var(--sd-board) + 0.5rem);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   BEŞ TAKIM PALETİ
+
+   ⚠️ `[data-team]` niteliğini taşıyan HER ÖĞE paleti yeniden tanımlıyor ve
+   miras onu bütün torunlara indiriyor. Bir kart, bir bant, bir bölüm —
+   hepsi aynı mekanizmayı kullanıyor ve hiçbiri sınıf adı bilmiyor.
+
+   Renkler formalardan ve fandom takım künyelerindeki `color1`/`color2`
+   değerlerinden; parıltılar brief'teki tariflerden (Ryonan deniz mavisi,
+   Kainan altın-mor, Shoyo zümrüt, Sannoh yüksek kontrast).
+   ══════════════════════════════════════════════════════════════════ */
+.court [data-team="shohoku"] {
+  --team-accent: #e63329;
+  --team-glow: #ff5a3c;
+  --team-deep: #3d0a06;
+}
+
+.court [data-team="ryonan"] {
+  --team-accent: #2f7fd6;
+  --team-glow: #6fd6ff;
+  --team-deep: #0f265c;
+}
+
+.court [data-team="kainan"] {
+  --team-accent: #e0b23a;
+  --team-glow: #9b8ae6;
+  --team-deep: #221f52;
+}
+
+.court [data-team="shoyo"] {
+  --team-accent: #57a828;
+  --team-glow: #96e85a;
+  --team-deep: #14300a;
+}
+
+.court [data-team="sannoh"] {
+  --team-accent: #e8e8ea;
+  --team-glow: #ffffff;
+  --team-deep: #131318;
+}
+
+.court [data-team="neutral"] {
+  --team-accent: var(--sd-ball);
+  --team-glow: var(--sd-ball-glow);
+  --team-deep: #3a1a05;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   TİPOGRAFİ — 90'lar spor afişi
+
+   Yeni font İNDİRİLMİYOR. Kökün yüklediği aile yeterli: Archivo Black
+   (`--font-numeral`) forma numaralarında ve skorbordda, Anton bölüm
+   başlıklarında, Shippori kanjide, Jost gövde metninde. Slam Dunk'ın kendi
+   sesi fonttan değil MUAMELEDEN geliyor — italik eğim, dış çizgi ve sıkı
+   harf aralığı. Dördüncü bir dosya indirmenin bedeli, kazandıracağı farkı
+   karşılamıyordu.
+   ══════════════════════════════════════════════════════════════════ */
+.display {
+  font-family: var(--font-numeral), "Arial Black", sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 0.86;
+  text-transform: uppercase;
+  /* 90'lar forma tipografisi: harfler öne eğik */
+  transform: skewX(-8deg);
+  transform-origin: left bottom;
+}
+
+.numeral {
+  font-family: var(--font-numeral), "Arial Black", sans-serif;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.04em;
+  transform: skewX(-10deg);
+}
+
+.eyebrow {
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 0.68rem;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--sd-ink-faint);
+}
+
+.kanji {
+  font-family: var(--font-shippori), "Yu Mincho", serif;
+  letter-spacing: 0.12em;
+}
+
+.body {
+  font-family: var(--font-jost), system-ui, sans-serif;
+  line-height: 1.62;
+  color: var(--sd-ink-dim);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   ORTAK YÜZEYLER
+   ══════════════════════════════════════════════════════════════════ */
+
+/**
+ * Neon dış çizgi — başlıklarda kullanılıyor.
+ *
+ * `text-shadow` yerine ikisi birden: `-webkit-text-stroke` çizgiyi verir ama
+ * parıltı vermez; `text-shadow` parıltıyı verir ama kalın harflerde bulanır.
+ * İkisi üst üste konunca 90'lar neon tabelası çıkıyor.
+ */
+.neon {
+  color: transparent;
+  -webkit-text-stroke: 2px var(--team-accent);
+  text-shadow:
+    0 0 18px color-mix(in srgb, var(--team-glow) 55%, transparent),
+    0 0 46px color-mix(in srgb, var(--team-glow) 28%, transparent);
+}
+
+.neonSolid {
+  color: var(--sd-ink);
+  text-shadow:
+    0 0 12px color-mix(in srgb, var(--team-glow) 60%, transparent),
+    0 0 38px color-mix(in srgb, var(--team-glow) 30%, transparent);
+}
+
+/**
+ * Bölüm gövdesi — sayfanın her çeyreği bu kutuda.
+ *
+ * ⚠️ `content-visibility` BİLEREK YOK. Bleach'te on bölüme verilmişti ve
+ * orada işe yaradı; burada bölümlerin yarısı yapışkan skorbordla ve
+ * `animation-timeline: view()` ile takışıyor — aynı ders, aynı istisna.
+ */
+.section {
+  position: relative;
+  padding: clamp(4rem, 9vw, 8.5rem) clamp(1rem, 4vw, 3rem);
+  max-width: 1560px;
+  margin-inline: auto;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   AZALTILMIŞ HAREKET
+
+   ⚠️ Sayfanın tamamı için TEK kapı. Bileşenler kendi `@media` bloklarını
+   yazmıyor: bir bileşende unutulursa sessizce kaçak olur ve denetim betiği
+   tam olarak bunu arıyor.
+   ══════════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .court *,
+  .court *::before,
+  .court *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

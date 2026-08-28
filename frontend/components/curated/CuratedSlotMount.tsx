@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import type { CuratedImageRecord } from "@/lib/api/curated-images";
-import type { CuratedSlotView } from "./CuratedImage";
+import type { CuratedSlotView } from "@/lib/curated/contract";
 
 /**
  * Düzenleyicinin İNCE İSKELESİ.

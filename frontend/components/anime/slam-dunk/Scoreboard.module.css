@@ -1,0 +1,207 @@
+/* ============================================================
+   NEON SKORBORD — sayfa ici gezinme
+
+   Site basliginin ALTINDA yapiskan. Site basligi `position: sticky;
+   top: 0; z-index: 40` ve yuksekligi 44px dokunma alani + 2×12px dolgu
+   + 0.5px cizgi ≈ 68px (`styles/globals.css` token'lari).
+
+   ⚠️ `--sd-header` o olcunun tek yazili yeri. Baslik dolgusu degisirse
+   burasi da degismeli, yoksa skorbord basligin altina girer.
+
+   ⚠️ HEX YOK. Palet `court.module.css`ten miras iniyor.
+   ============================================================ */
+
+.board {
+  position: sticky;
+  top: var(--sd-header, 68px);
+  /* Site basligindan (40) DUSUK, sayfa icerigindan yuksek: baslik acilan
+     menusuyle skorbordun ustunde kalmali. */
+  z-index: 30;
+  border-block: 1px solid color-mix(in srgb, var(--team-accent) 26%, transparent);
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--sd-bg) 92%, transparent),
+    color-mix(in srgb, var(--sd-bg-panel) 96%, transparent)
+  );
+  backdrop-filter: blur(14px) saturate(1.2);
+  box-shadow: 0 12px 30px -22px color-mix(in srgb, var(--team-glow) 60%, transparent);
+}
+
+.inner {
+  display: flex;
+  align-items: stretch;
+  gap: 0.75rem;
+  max-width: 1560px;
+  margin-inline: auto;
+  padding: 0.45rem clamp(0.6rem, 3vw, 1.6rem);
+}
+
+/* ── CEYREKLER ────────────────────────────────────────────────
+   Mobilde yatay kayan serit (kural 2: mobile-first). Masaustunde
+   skorun soluna yerlesiyor. */
+.quarters {
+  display: flex;
+  flex: 1 1 auto;
+  gap: 0.3rem;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.quarters::-webkit-scrollbar {
+  display: none;
+}
+
+.quarter {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  align-items: stretch;
+  justify-content: center;
+  min-height: var(--touch-min);
+  padding: 0.4rem 0.8rem;
+  border: 1px solid color-mix(in srgb, var(--sd-ink) 10%, transparent);
+  /* Skorbord dugmesi: sag ust kosesi kirik */
+  clip-path: polygon(0 0, calc(100% - 0.5rem) 0, 100% 0.5rem, 100% 100%, 0 100%);
+  background: color-mix(in srgb, var(--sd-bg) 70%, transparent);
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    border-color 200ms ease,
+    background 200ms ease;
+}
+
+.quarter:hover {
+  border-color: color-mix(in srgb, var(--team-accent) 55%, transparent);
+  background: color-mix(in srgb, var(--team-deep) 40%, transparent);
+}
+
+.quarterLabel {
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--sd-ink-faint);
+  transition: color 200ms ease;
+}
+
+.quarter[data-active] .quarterLabel {
+  color: var(--sd-ink);
+}
+
+/*
+ * LED SERIDI — eski tip skorbordun nokta matrisi.
+ *
+ * Aktif olmayan ceyrekte sonuk noktalar, aktifte yanan bir sirit.
+ * `repeating-linear-gradient` ile: hicbir dosya inmiyor.
+ */
+.led {
+  height: 4px;
+  background: repeating-linear-gradient(
+    to right,
+    color-mix(in srgb, var(--sd-ink) 16%, transparent) 0 4px,
+    transparent 4px 7px
+  );
+}
+
+.quarter[data-active] .led {
+  background: repeating-linear-gradient(
+    to right,
+    var(--sd-led) 0 4px,
+    transparent 4px 7px
+  );
+  box-shadow: 0 0 10px var(--sd-led-dim);
+}
+
+/* ── SKOR PANELI ──────────────────────────────────────────────
+   Mobilde gizli: dar ekranda ceyrek seridi ve ses dugmesi zaten
+   yatay yeri doldurmus oluyor ve skor okunmaz bir kalabaliga
+   donusuyor. Bilgi kaybi yok — ayni skorlar bolum basliklarinda
+   metin olarak da yaziyor. */
+.panel {
+  display: none;
+  align-items: center;
+  gap: 0.55rem;
+  padding-inline: 0.9rem;
+  border-inline: 1px solid color-mix(in srgb, var(--sd-ink) 10%, transparent);
+}
+
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  text-align: right;
+}
+
+.side:last-of-type {
+  text-align: left;
+}
+
+.sideLabel {
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-size: 0.5rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--sd-ink-faint);
+}
+
+.team {
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: var(--sd-ink-dim);
+  white-space: nowrap;
+}
+
+.digits {
+  font-family: var(--font-numeral), "Arial Black", sans-serif;
+  font-size: 1.5rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  transform: skewX(-8deg);
+  color: var(--sd-led);
+  text-shadow: 0 0 14px var(--sd-led-dim);
+}
+
+/* Onde olan takimin sayisi beyaza donuyor — skorbordun kendi dili. */
+.panel[data-leading="home"] .digits:first-of-type,
+.panel[data-leading="away"] .digits:last-of-type {
+  color: var(--sd-ink);
+  text-shadow: 0 0 16px color-mix(in srgb, var(--sd-ink) 45%, transparent);
+}
+
+.colon {
+  color: var(--sd-ink-faint);
+}
+
+.audio {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex: 0 0 auto;
+}
+
+@media (min-width: 900px) {
+  .panel {
+    display: flex;
+  }
+
+  .quarters {
+    flex: 0 1 auto;
+  }
+
+  .inner {
+    justify-content: space-between;
+  }
+
+  .quarterLabel {
+    font-size: 0.66rem;
+  }
+}

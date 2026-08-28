@@ -1,0 +1,74 @@
+/* ============================================================
+   TOPUN IZI
+
+   Sekiz nokta imleci gecikmeyle takip ediyor. Bastaki bir basketbol
+   topu (dikis cizgileriyle), arkadakiler sonen kivilcimlar.
+
+   ⚠️ HEX YOK. Palet `court.module.css`ten miras iniyor.
+   ============================================================ */
+
+.host {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  /* ⚠️ Tiklamayi YUTMAZ. Iz bir suse ve sayfanin uzerinde duruyor;
+     `pointer-events` acik kalsaydi butun sayfa tiklanamaz olurdu. */
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+
+.host[data-on] {
+  opacity: 1;
+}
+
+.dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  /* Konumu JS yaziyor (`translate3d`); merkeze almak icin negatif pay */
+  margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2);
+  /* Bastaki nokta 22px, her adimda kuculuyor */
+  --size: calc(22px - var(--i) * 2px);
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  /* Kivilcimlar giderek sonuyor */
+  opacity: calc(1 - var(--i) * 0.11);
+  background: radial-gradient(
+    circle at 35% 30%,
+    var(--sd-ball-glow),
+    var(--sd-ball) 62%,
+    color-mix(in srgb, var(--sd-ball) 55%, black) 100%
+  );
+  box-shadow:
+    0 0 12px color-mix(in srgb, var(--sd-ball) 65%, transparent),
+    0 0 30px color-mix(in srgb, var(--sd-ball-glow) 32%, transparent);
+  will-change: transform;
+}
+
+/*
+ * DIKIS CIZGILERI — yalnizca bastaki topta.
+ *
+ * Bir dikey, bir yatay ve iki egri: basketbol topunun dort cizgisi.
+ * Arkadaki yedi nokta kivilcim, top degil — hepsine dikis cizmek
+ * izi bir "top yagmuru"na cevirirdi.
+ */
+.dot:first-child::before,
+.dot:first-child::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+
+.dot:first-child::before {
+  border-top: 1.5px solid color-mix(in srgb, black 55%, transparent);
+  border-bottom: 1.5px solid color-mix(in srgb, black 55%, transparent);
+}
+
+.dot:first-child::after {
+  border-left: 1.5px solid color-mix(in srgb, black 55%, transparent);
+  border-right: 1.5px solid color-mix(in srgb, black 55%, transparent);
+  transform: scaleX(0.42);
+}

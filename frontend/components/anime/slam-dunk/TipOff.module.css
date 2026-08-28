@@ -1,0 +1,179 @@
+/* ============================================================
+   1. CEYREK · HAVA ATISI
+
+   ⚠️ HEX YOK. Palet `court.module.css`ten miras iniyor.
+   ============================================================ */
+
+.hero {
+  position: relative;
+  min-height: min(88vh, 900px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(2rem, 5vw, 4rem);
+  /* Bolum kendi dolgusunu genisletiyor: sahne kenarlara kadar aksin */
+  padding-top: clamp(3rem, 8vw, 6rem);
+  overflow: hidden;
+}
+
+/* ── ZEMIN KATMANLARI ───────────────────────────────────────── */
+.stageBg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  /* Sahnenin kendisi tiklanamaz; ICINDEKI saha imleci dinliyor
+     (`ReactiveCourt` kendi `pointer-events`ini aciyor). */
+  pointer-events: none;
+}
+
+.courtLayer {
+  pointer-events: auto;
+}
+
+/*
+ * KURATORUN ACILIS KADRAJI.
+ *
+ * Sahanin USTUNDE ama karartmanin ALTINDA. Yuvaya bir kare yuklenmediginde
+ * `CourtImage` kendi saha cizgisi yedegini ciziyor ve iki saha ust uste
+ * binmiyor: yedek cok daha sonuk, taban sahanin dokusu gibi okunuyor.
+ */
+.heroShot {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  opacity: 0.5;
+}
+
+/* Kirpma kutusunun yuksekligi `fill` propundan geliyor: `CourtImage`
+   `[data-fill]` niteligini basiyor ve orani kendi modulunde kaldiriyor. */
+
+/* Karartma: metnin okunmasi kadraja BAGLI OLMAMALI. Kurator hangi kareyi
+   yuklerse yuklesin baslik okunur kaliyor. */
+.vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      120% 80% at 20% 40%,
+      color-mix(in srgb, var(--sd-bg) 82%, transparent),
+      transparent 70%
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--sd-bg) 55%, transparent),
+      color-mix(in srgb, var(--sd-bg) 30%, transparent) 45%,
+      var(--sd-bg) 100%
+    );
+}
+
+/* ── GIRIS METNI ────────────────────────────────────────────── */
+.intro {
+  position: relative;
+  z-index: 1;
+  max-width: 46rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem 1rem;
+  margin: 0;
+}
+
+.wordmark {
+  font-size: clamp(3.4rem, 13vw, 9rem);
+}
+
+.wordmarkKanji {
+  font-size: clamp(1rem, 2.6vw, 1.6rem);
+  color: var(--sd-ink-faint);
+}
+
+.tagline {
+  margin: 0;
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-size: clamp(0.86rem, 2vw, 1.05rem);
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--team-accent);
+}
+
+.lede {
+  margin: 0;
+  font-size: clamp(0.94rem, 1.5vw, 1.06rem);
+  max-width: 42rem;
+}
+
+.standing {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.9rem;
+  margin: 0.4rem 0 0;
+  padding-top: 0.9rem;
+  border-top: 1px solid color-mix(in srgb, var(--team-accent) 26%, transparent);
+}
+
+.standingKey {
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--sd-ink-faint);
+}
+
+.standingValue {
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-size: 0.86rem;
+  color: var(--sd-ink);
+}
+
+/* ── ILK BES ────────────────────────────────────────────────── */
+.five {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: clamp(0.7rem, 1.6vw, 1.1rem);
+  margin: 0;
+  padding: 0 0 1rem;
+  list-style: none;
+  /* Mobil: parmakla kaydirilan sahne seridi (kural 2, mobile-first) */
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 1rem;
+}
+
+.fiveItem {
+  flex: 0 0 min(74vw, 19rem);
+  scroll-snap-align: start;
+}
+
+@media (min-width: 1180px) {
+  .five {
+    /* Genis ekranda bes kart yan yana sigiyor: kaydirma kalkiyor */
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    overflow: visible;
+  }
+
+  .fiveItem {
+    flex: initial;
+  }
+
+  /* Sahne dizilimi: ortadaki kart bir tik yukarida, kenardakiler geride.
+     Bir takim fotografinin duruşu — bes esit kutu degil. */
+  .fiveItem:nth-child(1),
+  .fiveItem:nth-child(5) {
+    transform: translateY(1.4rem);
+  }
+
+  .fiveItem:nth-child(3) {
+    transform: translateY(-1rem);
+  }
+}

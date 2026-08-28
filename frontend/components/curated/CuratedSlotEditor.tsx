@@ -18,8 +18,8 @@ import {
   type SetCuratedImageInput,
 } from "@/lib/admin/api";
 import type { CuratedImageRecord } from "@/lib/api/curated-images";
-import { SLOT_BLENDS, SLOT_TREATMENTS } from "@/lib/anime/bleach/slots";
-import type { CuratedSlotView } from "./CuratedImage";
+import { SLOT_BLENDS, SLOT_TREATMENTS } from "@/lib/curated/contract";
+import type { CuratedSlotView } from "@/lib/curated/contract";
 import styles from "./CuratedSlotEditor.module.css";
 
 /**
@@ -62,7 +62,7 @@ export function CuratedSlotEditor({
   slot: CuratedSlotView;
   record: CuratedImageRecord | null;
 }) {
-  const t = useTranslations("anime.bleach.curator");
+  const t = useTranslations("curator");
   const router = useRouter();
 
   const anchorRef = useRef<HTMLButtonElement | null>(null);
@@ -473,7 +473,7 @@ function ImageTab({
   onClear: () => void;
   onReset: () => void;
 }) {
-  const t = useTranslations("anime.bleach.curator");
+  const t = useTranslations("curator");
   const [url, setUrl] = useState("");
 
   return (
@@ -599,7 +599,7 @@ function FocusTab({
   scale: number;
   onSave: (position: string, scale: number) => void;
 }) {
-  const t = useTranslations("anime.bleach.curator");
+  const t = useTranslations("curator");
   const boxRef = useRef<HTMLDivElement | null>(null);
   const parsed = parsePosition(position);
   const [x, setX] = useState(parsed.x);
@@ -709,7 +709,7 @@ function CropTab({
   value: string | null;
   onSave: (ratio: string) => void;
 }) {
-  const t = useTranslations("anime.bleach.curator");
+  const t = useTranslations("curator");
   const active = value ?? defaultRatio;
 
   return (
@@ -745,7 +745,7 @@ function TextTab({
   record: CuratedImageRecord | null;
   onSave: (patch: { altTr: string; altEn: string; credit: string }) => void;
 }) {
-  const t = useTranslations("anime.bleach.curator");
+  const t = useTranslations("curator");
   const [altTr, setAltTr] = useState(record?.altTr ?? "");
   const [altEn, setAltEn] = useState(record?.altEn ?? "");
   const [credit, setCredit] = useState(record?.credit ?? "");
@@ -812,7 +812,7 @@ function ViewTab({
     isHidden?: boolean;
   }) => void;
 }) {
-  const t = useTranslations("anime.bleach.curator");
+  const t = useTranslations("curator");
   const treatment = record?.treatment ?? defaultTreatment;
   const [opacity, setOpacity] = useState(record?.opacity ?? 100);
 

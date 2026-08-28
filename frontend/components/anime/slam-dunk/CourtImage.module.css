@@ -1,0 +1,244 @@
+/* ============================================================
+   SLAM DUNK EVRENI · TEK GORSEL YUVASI
+
+   Iki katman, bilincli olarak ayri:
+     .frame  → tasmaya IZIN VERIR. Kurator kalemi ve paneli kucuk
+               yuvalarda kesilmesin diye.
+     .clip   → kirpma YALNIZCA burada. Gorselin kendisi kirpiliyor,
+               yani hicbir duzen bozulmuyor.
+
+   Ayrimin gerekcesi olculmus: futbol kanadinda panel `.frame` icinde
+   duruyordu ve kucuk yuvada adres kutusu gorunmuyordu.
+
+   ⚠️ HEX YOK. Palet `court.module.css`te, miras yoluyla iniyor
+   (`--team-accent`, `--team-glow`, `--sd-*`).
+   ============================================================ */
+
+.frame {
+  position: relative;
+  display: block;
+  /* Karisim kipleri (mix-blend-mode) yuvanin DISINA tasmasin */
+  isolation: isolate;
+}
+
+.clip {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  /* Oran yuvadan geliyor (`--slot-ratio: 3 / 4`). Boyut once bilindigi
+     icin CLS 0: gorsel inerken satir ziplamiyor. */
+  aspect-ratio: var(--slot-ratio, 3 / 4);
+  background: var(--sd-bg-raise);
+}
+
+/* `fill`: oran YOK SAYILIR, ebeveyn dolduruluyor. Kart izgarasinda
+   kartin yuksekligi satirin en uzun kartindan geliyor. */
+.frame[data-fill] {
+  height: 100%;
+}
+
+.frame[data-fill] .clip {
+  aspect-ratio: auto;
+  height: 100%;
+}
+
+.clip img {
+  object-fit: cover;
+}
+
+/* ── ISLEM BICIMLERI ─────────────────────────────────────────
+   `photo` varsayilan ve filtre uygulamiyor. */
+
+/* Siluet: sekil kaliyor, kimlik gidiyor.
+   ⚠️ `brightness(0)` DEGIL. Bleach'te olculdu: sifir parlaklik OPAK bir
+   fotografta tuvalin tamamini siyaha ceviriyor ve kurator yukledigi
+   portreyi siyah bir dikdortgen olarak goruyor. */
+.clip[data-treatment="silhouette"] img {
+  filter: grayscale(1) contrast(1.9) brightness(0.32);
+}
+
+/* Duotone: once renk sokuluyor, sonra takimin iki tonu `color`
+   karisimiyla geri basiliyor. Genis sahne bantlarinin varsayilani —
+   metin ustune bindigi icin fotografin kendi renkleri okumayi bozuyordu. */
+.clip[data-treatment="duotone"] img {
+  filter: grayscale(1) contrast(1.12);
+}
+
+.clip[data-treatment="duotone"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(160deg, var(--team-glow), var(--team-deep));
+  mix-blend-mode: color;
+}
+
+/* ── ZIYARETCININ GORDUGU BOSLUK ─────────────────────────────
+   Yazisiz, tasarlanmis. Katmanlarin tamami saf CSS: hicbir dosya
+   inmiyor, hicbir istek gitmiyor.
+
+   Elli dort yuvanin cogu ilk gun bos acilacak ve hicbiri "eksik"
+   gorunmemeli — futbol kanadinda ve Bleach'te olculmus ayni karar. */
+.veil {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      110% 80% at 50% 12%,
+      color-mix(in srgb, var(--team-glow) 16%, transparent),
+      transparent 68%
+    ),
+    linear-gradient(to bottom, var(--sd-bg-raise), var(--sd-bg));
+}
+
+/*
+ * FORMA NUMARASI YEDEGI — kart bir tipografik afise donusuyor.
+ *
+ * Numara dev, kirpik ve seffaf: bir fotografin yerini tutmuyor, yerini
+ * TUTUYORMUS GIBI de yapmiyor. Kurator kare yukleyince sessizce cekiliyor.
+ */
+.jersey {
+  position: relative;
+  font-family: var(--font-numeral), "Arial Black", sans-serif;
+  font-size: clamp(5rem, 22cqi, 14rem);
+  line-height: 0.8;
+  letter-spacing: -0.06em;
+  transform: skewX(-10deg);
+  color: transparent;
+  -webkit-text-stroke: 2px color-mix(in srgb, var(--team-accent) 55%, transparent);
+  text-shadow: 0 0 40px color-mix(in srgb, var(--team-glow) 22%, transparent);
+  user-select: none;
+}
+
+/* Kap oldugu icin numara kutunun genisligine gore olceklenebiliyor
+   (`cqi`). Yuvanin dis olcusu degismiyor. */
+.clip {
+  container-type: inline-size;
+}
+
+/*
+ * SAHA CIZGISI YEDEGI — genis sahne kadrajlari icin.
+ *
+ * Kus bakisi sahanin yalin hali: orta daire, serbest atis yayi, dip cizgi.
+ * Tamami `radial-gradient` + `linear-gradient`; SVG dosyasi yok, cunku
+ * bes ayri yuvada tekrarlaniyor ve her birinde bir istek demekti.
+ */
+.courtLines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    /* orta daire */
+    radial-gradient(
+        circle at 50% 50%,
+        transparent calc(11% - 1px),
+        var(--sd-line-soft) 11%,
+        transparent calc(11% + 1px)
+      ),
+    /* serbest atis yayi — sol */
+      radial-gradient(
+        circle at 0% 50%,
+        transparent calc(26% - 1px),
+        var(--sd-line-soft) 26%,
+        transparent calc(26% + 1px)
+      ),
+    /* serbest atis yayi — sag */
+      radial-gradient(
+        circle at 100% 50%,
+        transparent calc(26% - 1px),
+        var(--sd-line-soft) 26%,
+        transparent calc(26% + 1px)
+      ),
+    /* orta cizgi */
+      linear-gradient(
+        to right,
+        transparent calc(50% - 1px),
+        var(--sd-line-soft) 50%,
+        transparent calc(50% + 1px)
+      );
+}
+
+.glow {
+  position: absolute;
+  inset-inline: -20%;
+  bottom: -40%;
+  height: 80%;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--team-accent) 20%, transparent),
+    transparent
+  );
+  pointer-events: none;
+}
+
+/* Uretilmis SVG gurultusu — dosya yok, dis istek yok, CSP dostu. */
+.grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.16;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+}
+
+/* ── KURATORUN GORDUGU ISKELE ────────────────────────────────
+   Yalnizca yoneticinin DOM'unda. Anahtar kapaliyken CSS gizliyor
+   (`CuratorFrame` → `[data-curator-slot]`), yani admin de sayfanin
+   gercek halini denetleyebiliyor. */
+.holder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: clamp(0.6rem, 4%, 1.4rem);
+  text-align: center;
+  border: 1px dashed color-mix(in srgb, var(--team-accent) 45%, transparent);
+  background: color-mix(in srgb, var(--sd-bg) 82%, transparent);
+}
+
+.holderMeta {
+  font-family: var(--font-numeral), "Arial Black", sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: var(--team-accent);
+}
+
+.holderHint {
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--sd-ink-dim);
+}
+
+.holderId {
+  font-family: ui-monospace, "SFMono-Regular", monospace;
+  font-size: 0.66rem;
+  color: var(--sd-ink-faint);
+  word-break: break-all;
+}
+
+/* Kunye satiri — serbest lisansli kareler atif istiyor ve atif gorselle
+   birlikte seyahat etmeli. */
+.credit {
+  display: block;
+  margin-top: 0.4rem;
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-size: 0.66rem;
+  letter-spacing: 0.04em;
+  color: var(--sd-ink-faint);
+}
+
+/* Yalnizca kalem — yuva bir <button>/<a> icindeyken kardes olarak
+   ciziliyor (ic ice etkilesimli oge yasak). */
+.pen {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 3;
+}

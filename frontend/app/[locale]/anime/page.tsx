@@ -370,6 +370,42 @@ export default async function AnimeHallPage({
             </Link>
           </li>
 
+          {/* Slam Dunk Evreni — üçüncü evren kapısı (28 Ağustos 2026).
+              ⚠️ Kart GÖRSELSİZ ve bilerek: Bleach kartının yarılma etkisi
+              bir kareye bağlı ve o kare `EXHIBIT_IMAGE_KEYS` üzerinden
+              geliyor. Slam Dunk'ın görselleri kendi küratör yüzeyinde
+              (`anime/slam-dunk`) duruyor ve o mekanizma bu sayfada okunmuyor.
+              Kartı sahte bir kareye bağlamak yerine hub'ın metin dilinde
+              bırakıldı — One Piece kartı da aynı şekilde duruyor. */}
+          <li className={styles.worldItem}>
+            <Link href={animeHref.slamDunk()} className={styles.world}>
+              {/* Kanji rozeti: Akatsuki ve Bleach kartlarındaki `.kanji`
+                  deseni. 湘北 = Shohoku, sayfanın da açılış işareti. */}
+              <span className={`${shell.brush} ${styles.kanji}`} aria-hidden>
+                湘北
+              </span>
+
+              <span className={styles.worldBody}>
+                <span className={`${shell.data} ${styles.worldMeter}`}>
+                  {t("worlds.slamdunk.meter")}
+                </span>
+                {/* Özel ad — İngilizce, TR büyütmesi bozmasın diye `lang` */}
+                <span
+                  lang="en"
+                  className={`${shell.display} ${styles.worldName}`}
+                >
+                  {t("worlds.slamdunk.title")}
+                </span>
+                <span className={styles.worldTagline}>
+                  {t("worlds.slamdunk.tagline")}
+                </span>
+                <span className={`${shell.data} ${styles.worldEnter}`}>
+                  {t("worlds.enter")}
+                </span>
+              </span>
+            </Link>
+          </li>
+
           {onePiece ? (
             <li className={styles.worldItem}>
               <Link

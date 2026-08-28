@@ -47,6 +47,11 @@ const STATIC_PATHS = [
      ⚠️ `/anime/bleach/playground` BİLEREK YOK: tasarım denemesi, kendi
      `generateMetadata`sında `noindex` taşıyor. */
   "/anime/bleach",
+  /* Slam Dunk Evreni — 28 Ağustos 2026. Kilit yok: sayfa ilk günden
+     indekslenebilir, çünkü kırk beş kadro kaydının tamamı ve beş takımın
+     verisi yayına girerken hazır (Bleach'te içerik on altı bölüm boyunca
+     birikiyordu ve `noindex` o yüzden gerekmişti). */
+  "/anime/slam-dunk",
   "/dark-stories/category/kitap",
   "/dark-stories/category/kitap/arsiv",
   "/dark-stories/category/kitap/seriler",

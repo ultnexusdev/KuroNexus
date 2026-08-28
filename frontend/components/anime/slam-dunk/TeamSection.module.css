@@ -1,0 +1,59 @@
+/* ============================================================
+   TAKIM BOLUMU — Shohoku kadrosu ve rakip panelleri paylasiyor
+
+   ⚠️ HEX YOK. Palet `court.module.css`ten miras iniyor.
+   ============================================================ */
+
+.section {
+  position: relative;
+  isolation: isolate;
+}
+
+/* ── TAKIM BANDI ────────────────────────────────────────────
+   Basligin ARKASINDA duran genis kadraj. Sagdan basliyor ki sol
+   taraftaki metin hicbir kadrajda okunmaz olmasin. */
+.band {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: 0;
+  width: min(62%, 52rem);
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.42;
+}
+
+.bandShot {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+}
+
+/* Kirpma kutusunun yuksekligi `fill` propundan geliyor: `CourtImage`
+   `[data-fill]` niteligini basiyor ve orani kendi modulunde kaldiriyor. */
+
+/* Kadraji metne dogru soldurma: sert kenar yok, sahne metnin altina
+   siziyor. */
+.bandFade {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      to right,
+      var(--sd-bg) 0%,
+      color-mix(in srgb, var(--sd-bg) 55%, transparent) 42%,
+      transparent 100%
+    ),
+    linear-gradient(
+      to bottom,
+      var(--sd-bg) 0%,
+      transparent 25%,
+      transparent 70%,
+      var(--sd-bg) 100%
+    );
+}
+
+.blurb {
+  max-width: 46rem;
+  margin: 0 0 clamp(2rem, 4vw, 3rem);
+  font-size: clamp(0.92rem, 1.4vw, 1.02rem);
+}

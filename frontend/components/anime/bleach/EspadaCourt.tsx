@@ -64,6 +64,16 @@ export interface CourtItem {
   fragment: string;
   fragmentNote: string;
   stages: CourtStage[];
+  imageNode?: React.ReactNode;
+  /**
+   * Küratör kalemi — kartın KARDEŞİ olarak çiziliyor, içinde değil.
+   *
+   * ⚠️ Kart bir `<button>` ve kalem de bir `<button>`: iç içe konsalardı
+   * hem HTML geçersiz olurdu hem de tıklama karta değil kaleme giderdi.
+   * Kadraj bu yüzden `noEdit` ile geliyor ve kalem ayrı bir düğüm.
+   * Yönetici değilken sunucuda kesiliyor, ziyaretçinin DOM'unda hiç yok.
+   */
+  penNode?: React.ReactNode;
 }
 
 export interface CourtLabels {
@@ -178,6 +188,11 @@ export function EspadaCourt({
                     <span className={`${world.numeral} ${styles.number}`}>
                       {item.rank}
                     </span>
+                    {item.imageNode && (
+                      <span className={styles.portrait}>
+                        {item.imageNode}
+                      </span>
+                    )}
                     {/* Maske parçası numaranın ÜSTÜNE biniyor: kimliğin
                         iki yarısı üst üste — neydin ve nesin. */}
                     <MaskFragment
@@ -204,6 +219,10 @@ export function EspadaCourt({
                     ) : null}
                   </span>
                 </button>
+
+                {/* Küratör kalemi kartın DIŞINDA — gerekçe `CourtItem`
+                    tipindeki `penNode` başlığında. */}
+                {item.penNode}
               </li>
             );
           })}

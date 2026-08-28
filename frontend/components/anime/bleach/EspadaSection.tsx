@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { ESPADA, SCENE_ESPADA_RANK } from "@/lib/anime/bleach/espada";
 import { pick } from "@/lib/anime/bleach/types";
 import { EspadaCourt, type CourtItem } from "./EspadaCourt";
+import { CuratedImage, CuratedSlotPen } from "./CuratedImage";
 import styles from "./EspadaCourt.module.css";
 import world from "./world.module.css";
 
@@ -42,6 +43,23 @@ export async function EspadaSection({ locale }: { locale: string }) {
       name: stage.name,
       text: pick(stage.text, locale),
     })),
+    /* ⚠️ `noEdit` ZORUNLU: bu kadraj `EspadaCourt`ta bir `<button>`ın
+       İÇİNDE çiziliyor ve düzenleme kalemi de bir `<button>`. İç içe
+       etkileşimli öğe hem geçersiz HTML hem de tıklamanın karta değil
+       kaleme gitmesi demek — `CuratedImage` başlığında yazılı kural.
+       Kalem bunun yerine kartın KARDEŞİ olarak çiziliyor (`penNode`). */
+    imageNode: (
+      <CuratedImage
+        slotId={`bleach:espada:${record.rank}`}
+        sizes="200px"
+        ratio="2:3"
+        fill
+        noEdit
+      />
+    ),
+    /* Görseli çizmeyen, yalnızca kalemi basan ikinci ada. Yönetici
+       değilken sunucuda kesiliyor, yani ziyaretçinin DOM'unda hiç yok. */
+    penNode: <CuratedSlotPen slotId={`bleach:espada:${record.rank}`} />,
   }));
 
   return (

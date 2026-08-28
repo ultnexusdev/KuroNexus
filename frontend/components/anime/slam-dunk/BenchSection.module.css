@@ -1,0 +1,25 @@
+/* ============================================================
+   3. CEYREK · KENAR
+
+   ⚠️ HEX YOK. Palet `court.module.css`ten miras iniyor.
+   ============================================================ */
+
+.section {
+  position: relative;
+}
+
+/*
+ * FUJIMA NOTU.
+ *
+ * Kendi `data-team="shoyo"` niteligini tasiyor: cerceve Shoyo'nun
+ * zumrudunda cikiyor ve okuyan kisi hangi takimdan bahsedildigini
+ * renkten de anliyor.
+ */
+.footnote {
+  max-width: 46rem;
+  margin: clamp(1.6rem, 3vw, 2.4rem) 0 0;
+  padding: 0.9rem 1.1rem;
+  border-left: 3px solid var(--team-accent);
+  background: color-mix(in srgb, var(--team-deep) 26%, transparent);
+  font-size: 0.86rem;
+}

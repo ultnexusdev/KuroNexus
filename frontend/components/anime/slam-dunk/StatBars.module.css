@@ -1,0 +1,127 @@
+/* ============================================================
+   DORT BAR — sut, savunma, ribaunt, hiz.
+
+   ⚠️ HEX YOK. Palet `court.module.css`ten miras iniyor.
+   ============================================================ */
+
+.bars {
+  display: grid;
+  gap: 0.42rem;
+  margin: 0;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 5.6rem 1fr;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.bars[data-compact] .row {
+  grid-template-columns: 2.4rem 1fr;
+  gap: 0.45rem;
+}
+
+.label {
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--sd-ink-faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.track {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  height: 0.5rem;
+  /* Bosluk da bir olcek: dolu olmayan kisim gorunur kalmali */
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--sd-ink) 8%, transparent),
+    color-mix(in srgb, var(--sd-ink) 4%, transparent)
+  );
+  /* 90'lar skorbord dilimi: sag ucu egik */
+  clip-path: polygon(0 0, 100% 0, calc(100% - 0.5rem) 100%, 0 100%);
+}
+
+/*
+ * DOLUM.
+ *
+ * Genislik `--value` degiskeninden (satir ici, veriden). Animasyon
+ * `animation-timeline: view()` ile SAF CSS: destekleyen tarayici bari
+ * gorundukce dolduruyor, desteklemeyen dogrudan tam genislikte ciziyor —
+ * yani hicbir tarayicida bos bar kalmiyor.
+ */
+.fill {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: var(--value, 0%);
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--team-accent) 55%, transparent),
+    var(--team-accent)
+  );
+  box-shadow: 0 0 10px color-mix(in srgb, var(--team-glow) 40%, transparent);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 0.5rem) 100%, 0 100%);
+}
+
+/* Serinin tepesindeki degerler parliyor — 90+ ulusal seviye esigi. */
+.fill[data-high] {
+  background: linear-gradient(to right, var(--team-accent), var(--team-glow));
+  box-shadow:
+    0 0 14px color-mix(in srgb, var(--team-glow) 70%, transparent),
+    0 0 34px color-mix(in srgb, var(--team-glow) 32%, transparent);
+}
+
+/* Belirgin zaafiyet: parilti yok, renk sonuyor. Fukuda'nin savunmasi
+   bir eksiklik degil KARAKTER — gostermemek veriyi yumusatmak olurdu. */
+.fill[data-low] {
+  background: color-mix(in srgb, var(--team-accent) 32%, transparent);
+  box-shadow: none;
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .fill {
+      animation: sd-fill linear both;
+      animation-timeline: view();
+      animation-range: entry 12% cover 34%;
+    }
+  }
+}
+
+@keyframes sd-fill {
+  from {
+    width: 0%;
+  }
+  to {
+    width: var(--value, 0%);
+  }
+}
+
+.value {
+  position: absolute;
+  right: -1.8rem;
+  font-family: var(--font-numeral), "Arial Black", sans-serif;
+  font-size: 0.62rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--sd-ink-faint);
+}
+
+.bars[data-compact] .value {
+  right: -1.5rem;
+  font-size: 0.58rem;
+}
+
+/* Sayinin sagda yer bulmasi icin izgaraya pay birakiliyor. */
+.bars {
+  padding-right: 1.9rem;
+}

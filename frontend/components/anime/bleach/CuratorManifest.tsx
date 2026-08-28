@@ -11,7 +11,7 @@ import {
   slotsBySection,
 } from "@/lib/anime/bleach/slots";
 import { pick } from "@/lib/anime/bleach/types";
-import { CuratedSlotMount } from "./CuratedSlotMount";
+import { CuratedSlotMount } from "@/components/curated/CuratedSlotMount";
 import styles from "./CuratorManifest.module.css";
 
 /**
@@ -38,7 +38,7 @@ export async function CuratorManifest() {
   const [images, locale, t] = await Promise.all([
     readCuratedImages(BLEACH_SURFACE),
     getLocale(),
-    getTranslations("anime.bleach.curator"),
+    getTranslations("curator"),
   ]);
 
   /**

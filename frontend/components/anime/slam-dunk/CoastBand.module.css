@@ -1,0 +1,95 @@
+/* ============================================================
+   KAMAKURA SAHIL BANDI
+
+   ⚠️ HEX YOK. Palet `court.module.css`ten miras iniyor.
+   ============================================================ */
+
+.band {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  height: clamp(15rem, 34vw, 26rem);
+  overflow: hidden;
+  border-block: 1px solid color-mix(in srgb, var(--sd-ink) 8%, transparent);
+}
+
+.shotWrap {
+  position: absolute;
+  /* Kadraj bandan UZUN: paralaks kayarken alt ya da ust kenarda
+     bosluk acilmasin. */
+  inset: -14% 0;
+  pointer-events: none;
+}
+
+.shot {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  opacity: 0.6;
+}
+
+/* Kirpma kutusunun yuksekligi `fill` propundan geliyor: `CourtImage`
+   `[data-fill]` niteligini basiyor ve orani kendi modulunde kaldiriyor. */
+
+/*
+ * PARALAKS — sifir JS.
+ *
+ * `animation-timeline: view()` bandin gorunurlugunu bir zaman cizgisine
+ * ceviriyor: band ekrana girerken kadraj yukari, cikarken asagi kayiyor.
+ * Destegi olmayan tarayicida animasyon hic uygulanmiyor ve kadraj
+ * ortalanmis sabit duruyor — ikisi de dogru gorunuyor.
+ */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .shotWrap {
+      animation: sd-parallax linear both;
+      animation-timeline: view();
+    }
+  }
+}
+
+@keyframes sd-parallax {
+  from {
+    transform: translateY(6%);
+  }
+  to {
+    transform: translateY(-6%);
+  }
+}
+
+/*
+ * DEMIRYOLU GECIDI.
+ *
+ * Serinin acilis karesine bir selam: sahilin onunden gecen tek yatay
+ * cizgi ve traversler. Tamami gradyan — dosya inmiyor.
+ */
+.crossing {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 32%;
+  height: 0.9rem;
+  opacity: 0.5;
+  background:
+    /* raylar */
+    linear-gradient(
+        to bottom,
+        transparent 0 20%,
+        color-mix(in srgb, var(--sd-ink) 40%, transparent) 20% 26%,
+        transparent 26% 74%,
+        color-mix(in srgb, var(--sd-ink) 40%, transparent) 74% 80%,
+        transparent 80%
+      ),
+    /* traversler */
+      repeating-linear-gradient(
+        to right,
+        color-mix(in srgb, var(--sd-ink) 22%, transparent) 0 4px,
+        transparent 4px 22px
+      );
+}
+
+.caption {
+  position: relative;
+  padding: 0 clamp(1rem, 4vw, 3rem) clamp(1.2rem, 3vw, 2rem);
+  color: var(--sd-ink-dim);
+  text-shadow: 0 2px 12px var(--sd-bg);
+}

@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Image from "next/image";
 import { getLocale } from "next-intl/server";
 import { apiUrl, isLocalUpload } from "@/lib/api/client";
+import type { CuratedSlotView } from "@/lib/curated/contract";
 import { readCuratedImages } from "@/lib/api/curated-images";
 import { readIsAdmin } from "@/lib/auth/session";
 import {
@@ -15,7 +16,7 @@ import {
   type SlotRatio,
 } from "@/lib/anime/bleach/slots";
 import { pick } from "@/lib/anime/bleach/types";
-import { CuratedSlotMount } from "./CuratedSlotMount";
+import { CuratedSlotMount } from "@/components/curated/CuratedSlotMount";
 import styles from "./CuratedImage.module.css";
 
 /**
@@ -323,7 +324,7 @@ function slugify(id: string): string {
  * varsayılanları kullanıyor. İki dilli alanlar burada TEK dile indiriliyor —
  * adaya sözlük göndermek gereksiz bayt olurdu.
  */
-function serialize(slot: CuratedSlotDef, locale: string) {
+function serialize(slot: CuratedSlotDef, locale: string): CuratedSlotView {
   return {
     id: slot.id,
     label: pick(slot.label, locale),
@@ -335,4 +336,7 @@ function serialize(slot: CuratedSlotDef, locale: string) {
   };
 }
 
-export type CuratedSlotView = ReturnType<typeof serialize>;
+/* ⚠️ Tip ARTIK BURADA TANIMLI DEĞİL: düzenleyici iki evrenin ortak adası
+   olunca `lib/curated/contract.ts`e taşındı. Buradan re-export ediliyor —
+   Bleach tarafında bu isimden import eden dosyalar bozulmasın. */
+export type { CuratedSlotView };

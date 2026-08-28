@@ -1,0 +1,128 @@
+/* ============================================================
+   DEVRE ARASI · RAKIPLER
+
+   ⚠️ HEX YOK. Palet `court.module.css`ten miras iniyor.
+   ============================================================ */
+
+.section {
+  position: relative;
+  isolation: isolate;
+}
+
+/* ── SALON ZEMINI ───────────────────────────────────────────
+   Cok sonuk: secicinin dort paleti one cikmali, salon yalnizca
+   sayfanin nerede gectigini soylemeli. */
+.gym {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.24;
+}
+
+.gymShot {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+}
+
+/* Kirpma kutusunun yuksekligi `fill` propundan geliyor: `CourtImage`
+   `[data-fill]` niteligini basiyor ve orani kendi modulunde kaldiriyor. */
+
+.gymFade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    var(--sd-bg) 0%,
+    transparent 22%,
+    transparent 72%,
+    var(--sd-bg) 100%
+  );
+}
+
+/* ── PANEL GOVDESI ──────────────────────────────────────────
+   Kendi `data-team`ini tasiyor: secilen takimin rengi iceriye
+   miras yoluyla iniyor. */
+.panelBody {
+  position: relative;
+  isolation: isolate;
+  padding-top: 0.5rem;
+}
+
+.panelHead {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  max-width: 46rem;
+  margin-bottom: clamp(1.6rem, 3vw, 2.4rem);
+}
+
+.panelTitle {
+  margin: 0;
+  font-size: clamp(1.5rem, 4vw, 2.6rem);
+  color: var(--sd-ink);
+}
+
+.panelMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 0;
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  color: var(--sd-ink-faint);
+}
+
+.panelBlurb {
+  margin: 0;
+  font-size: clamp(0.9rem, 1.4vw, 1rem);
+}
+
+/* ── SHOHOKU ILE KARSILASMA ─────────────────────────────────
+   Galibiyet ve maglubiyet ayni bicimde: arsiv taraf tutmuyor,
+   yalnizca renk sonucu soyluyor. */
+.clash {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem 0.8rem;
+  margin: 0.5rem 0 0;
+  padding-top: 0.9rem;
+  border-top: 1px solid color-mix(in srgb, var(--team-accent) 30%, transparent);
+}
+
+.clashLabel,
+.clashStage,
+.clashResult {
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-size: 0.64rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--sd-ink-faint);
+}
+
+.clashScore {
+  font-size: clamp(1.2rem, 2.6vw, 1.8rem);
+  line-height: 1;
+  color: var(--sd-ink);
+}
+
+.clash[data-won] .clashScore {
+  color: var(--team-accent);
+  text-shadow: 0 0 18px color-mix(in srgb, var(--team-glow) 45%, transparent);
+}
+
+.clashResult {
+  padding: 0.16rem 0.5rem;
+  border: 1px solid color-mix(in srgb, var(--sd-ink) 18%, transparent);
+  color: var(--sd-ink-dim);
+}
+
+.clash[data-won] .clashResult {
+  border-color: color-mix(in srgb, var(--team-accent) 60%, transparent);
+  color: var(--team-accent);
+}

@@ -1,0 +1,65 @@
+/* ============================================================
+   IMLECIN ALTINDA YANAN SAHA
+
+   Iki kopya ust uste: sonuk taban + neon ust katman. Ust katmanin
+   maskesi imlecin konumunda bir isik havuzu.
+
+   ⚠️ HEX YOK. Palet `court.module.css`ten miras iniyor.
+   ============================================================ */
+
+.host {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: auto;
+  /* Baslangic: havuz sahanin ortasinda. Imlec hic gelmezse (dokunmatik,
+     klavye) sahne yine de olu bir kroki gibi durmuyor. */
+  --mx: 50%;
+  --my: 50%;
+}
+
+.base,
+.lit {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Taban: boya. Zaten oradaydi, imlecten bagimsiz. */
+.base {
+  color: var(--sd-line);
+}
+
+/*
+ * UST KATMAN: neon.
+ *
+ * Maske imlecin konumunda dairesel bir gecis. `radial-gradient` maskede
+ * calisiyor cunku maske de bir goruntu — beyaz gorunur, seffaf gizli.
+ *
+ * ⚠️ `transition` maskenin KENDISINDE degil `opacity`de: maske gradyanini
+ * gecise sokmak her karede yeniden hesaplatiyor ve olculebilir sekilde
+ * takiliyor. Konum aninda takip ediyor, gorunurluk yumusak geliyor.
+ */
+.lit {
+  color: var(--team-accent);
+  opacity: 0;
+  filter: drop-shadow(0 0 6px var(--team-glow));
+  mask-image: radial-gradient(
+    circle 20% at var(--mx) var(--my),
+    black 0%,
+    rgba(0, 0, 0, 0.45) 45%,
+    transparent 78%
+  );
+  -webkit-mask-image: radial-gradient(
+    circle 20% at var(--mx) var(--my),
+    black 0%,
+    rgba(0, 0, 0, 0.45) 45%,
+    transparent 78%
+  );
+  transition: opacity 400ms ease;
+}
+
+.host[data-lit] .lit {
+  opacity: 1;
+}

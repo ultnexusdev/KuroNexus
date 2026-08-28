@@ -1438,64 +1438,14 @@
         "title": "The World of Bleach",
         "tagline": "Three worlds, thirteen gates, and a name for every blade.",
         "meter": "Under construction"
+      },
+      "slamdunk": {
+        "title": "The Slam Dunk Universe",
+        "tagline": "Forty-five entries, five teams and a one-point win.",
+        "meter": "Roster archive"
       }
     },
     "bleach": {
-      "curator": {
-        "edit": "Edit",
-        "close": "Close",
-        "save": "Save",
-        "busy": "Saving…",
-        "error": "Could not save. The file must be JPG, PNG or WEBP and under 10 MB; if you are fetching from an address, it must point straight at an image.",
-        "undo": "Undo",
-        "tabImage": "Image",
-        "tabFocus": "Focus",
-        "tabCrop": "Crop",
-        "tabText": "Text",
-        "tabView": "Look",
-        "currentImage": "The frame currently in this slot",
-        "specSize": "Recommended frame: {w}×{h} pixels · {ratio}",
-        "specFormat": "JPG, PNG or WEBP · 10 MB max",
-        "fromFile": "Choose a file",
-        "fromUrl": "Or an image address",
-        "urlPlaceholder": "Image address starting with https://",
-        "fetch": "Fetch",
-        "urlNote": "The address is not stored as given: the image is downloaded onto our own disk.",
-        "removeImage": "Remove image",
-        "resetSlot": "Reset slot",
-        "focusHint": "Drag the crosshair: this point stays centred in the crop. Arrow keys move 1%, Shift+arrow 10%.",
-        "focusNeedsImage": "Upload an image first; the focal point can be set after that.",
-        "focusCrosshair": "Focal point: {x}% across, {y}% down",
-        "zoom": "Zoom",
-        "focusReset": "Back to centre",
-        "cropHint": "Ratios this slot allows. The first one is the default.",
-        "ratioDefault": "default",
-        "altTr": "Alt text · Turkish",
-        "altEn": "Alt text · English",
-        "credit": "Source / credit line",
-        "creditPlaceholder": "Getty Images, IHA, official archive…",
-        "treatment": "Treatment",
-        "treatment_photo": "Photo",
-        "treatment_silhouette": "Silhouette",
-        "treatment_duotone": "Duotone",
-        "opacity": "Opacity",
-        "blend": "Blend mode",
-        "hide": "Hide for now",
-        "show": "Show again",
-        "manifestTitle": "Curator · image slots",
-        "manifestMeter": "{done} / {total} slots filled · {missing} images missing",
-        "manifestNote": "The slots also sit inside their sections; you can fill them straight from here. Every row states the suggested size, ratio and framing note.",
-        "ratioOverridden": "ratio changed",
-        "jump": "Show on page →",
-        "orphanTitle": "Records with no slot in the manifest",
-        "orphanNote": "These slot ids no longer exist in the code. The record survives but is drawn nowhere — the slot may have been renamed.",
-        "state_filled": "FILLED",
-        "state_empty": "EMPTY",
-        "state_hidden": "HIDDEN",
-        "state_default": "DEFAULT",
-        "manifestPlaceholders": "{count} slots on a temporary frame",
-        "placeholderNote": "Placeholder — replace with your own frame"
-      },
       "meta": {
         "title": "The Bleach Universe",
         "description": "Three worlds, Gotei 13, the Zanpakutō archives, Espada, Wandenreich and the Thousand-Year Blood War — the complete archive of the soul realms.",
@@ -2871,5 +2821,142 @@
       "genreNoChildren": "This room has no subgenres.",
       "genreOrphans": "Subgenres without a parent"
     }
+  },
+  "slamDunk": {
+    "meta": {
+      "title": "The Slam Dunk Universe",
+      "description": "Shohoku's starting five, four rival high schools and forty-five roster entries — from the Kanagawa prelims to the national tournament, stat bars included."
+    },
+    "quarters": {
+      "q1": "1st Quarter",
+      "q2": "2nd Quarter",
+      "half": "Half Time",
+      "q3": "3rd Quarter",
+      "q4": "4th Quarter"
+    },
+    "nav": {
+      "aria": "Page sections — scoreboard"
+    },
+    "home": "Home",
+    "visitor": "Visitor",
+    "tagline": "The 90s Basketball Saga",
+    "standing": "Standing",
+    "startingFive": "Shohoku starting five",
+    "coast": "The Kamakura coast road — where the series opens",
+    "versus": "Against Shohoku",
+    "result": {
+      "win": "Shohoku won",
+      "loss": "Shohoku lost"
+    },
+    "positions": {
+      "PG": "Point Guard",
+      "SG": "Shooting Guard",
+      "SF": "Small Forward",
+      "PF": "Power Forward",
+      "C": "Centre"
+    },
+    "roles": {
+      "coach": "Coach",
+      "manager": "Manager"
+    },
+    "roster": {
+      "unknown": "no record",
+      "year": "year {year}"
+    },
+    "stats": {
+      "shooting": "Shooting",
+      "defense": "Defence",
+      "rebounding": "Rebounding",
+      "speed": "Speed",
+      "shootingShort": "SHT",
+      "defenseShort": "DEF",
+      "reboundingShort": "REB",
+      "speedShort": "SPD",
+      "disclaimer": "The stat bars are not canon. No official Slam Dunk source rates the players numerically; these four values are an archive assessment drawn from the abilities and weakness sections of the fandom entries and from the matches themselves. Height, weight, jersey number and position, by contrast, follow the source — where the source is silent nothing is invented and the field reads “no record”."
+    },
+    "sections": {
+      "shohoku": {
+        "title": "The Squad",
+        "lede": "Jersey four through fifteen, {count} players. The five above take the stage; the rest of this list are the ones who carried them there."
+      },
+      "matchup": {
+        "title": "The Rivals",
+        "lede": "Kanagawa's three powers and the champion of Akita. Pick a team: its roster, its standing and the game it played against Shohoku open below."
+      },
+      "bench": {
+        "title": "The Bench",
+        "lede": "Games are not won by the five on the floor alone. The coaches and managers of all five teams: twenty thousand shots in a week, a final read wrong, and an analysis that ran all night.",
+        "playerCoach": "{team}'s coach is not in this grid but in the roster list: {name} is captain and coach at once. He runs the team from the sideline, then turns the tempo of the game on his own the moment he steps on court."
+      },
+      "buzzer": {
+        "title": "Final Buzzer",
+        "lede": "Three-year defending national champions, beaten by a single point by an unknown team from Kanagawa.",
+        "epilogue": "The archive keeps the next day too: in round three Shohoku lost to Aiwa Gakuen 102-40. The squad was spent, Sakuragi's back was injured, and the ride home was quiet. That is exactly what makes the one-point win mean something — winning that game never meant they would keep winning."
+      }
+    },
+    "audio": {
+      "play": "Play the music",
+      "pause": "Pause the music",
+      "title": "Page music",
+      "add": "Add music",
+      "replace": "Replace music",
+      "uploading": "Uploading…",
+      "error": "Upload failed"
+    }
+  },
+  "curator": {
+    "edit": "Edit",
+    "close": "Close",
+    "save": "Save",
+    "busy": "Saving…",
+    "error": "Could not save. The file must be JPG, PNG or WEBP and under 10 MB; if you are fetching from an address, it must point straight at an image.",
+    "undo": "Undo",
+    "tabImage": "Image",
+    "tabFocus": "Focus",
+    "tabCrop": "Crop",
+    "tabText": "Text",
+    "tabView": "Look",
+    "currentImage": "The frame currently in this slot",
+    "specSize": "Recommended frame: {w}×{h} pixels · {ratio}",
+    "specFormat": "JPG, PNG or WEBP · 10 MB max",
+    "fromFile": "Choose a file",
+    "fromUrl": "Or an image address",
+    "urlPlaceholder": "Image address starting with https://",
+    "fetch": "Fetch",
+    "urlNote": "The address is not stored as given: the image is downloaded onto our own disk.",
+    "removeImage": "Remove image",
+    "resetSlot": "Reset slot",
+    "focusHint": "Drag the crosshair: this point stays centred in the crop. Arrow keys move 1%, Shift+arrow 10%.",
+    "focusNeedsImage": "Upload an image first; the focal point can be set after that.",
+    "focusCrosshair": "Focal point: {x}% across, {y}% down",
+    "zoom": "Zoom",
+    "focusReset": "Back to centre",
+    "cropHint": "Ratios this slot allows. The first one is the default.",
+    "ratioDefault": "default",
+    "altTr": "Alt text · Turkish",
+    "altEn": "Alt text · English",
+    "credit": "Source / credit line",
+    "creditPlaceholder": "Getty Images, IHA, official archive…",
+    "treatment": "Treatment",
+    "treatment_photo": "Photo",
+    "treatment_silhouette": "Silhouette",
+    "treatment_duotone": "Duotone",
+    "opacity": "Opacity",
+    "blend": "Blend mode",
+    "hide": "Hide for now",
+    "show": "Show again",
+    "manifestTitle": "Curator · image slots",
+    "manifestMeter": "{done} / {total} slots filled · {missing} images missing",
+    "manifestNote": "The slots also sit inside their sections; you can fill them straight from here. Every row states the suggested size, ratio and framing note.",
+    "ratioOverridden": "ratio changed",
+    "jump": "Show on page →",
+    "orphanTitle": "Records with no slot in the manifest",
+    "orphanNote": "These slot ids no longer exist in the code. The record survives but is drawn nowhere — the slot may have been renamed.",
+    "state_filled": "FILLED",
+    "state_empty": "EMPTY",
+    "state_hidden": "HIDDEN",
+    "state_default": "DEFAULT",
+    "manifestPlaceholders": "{count} slots on a temporary frame",
+    "placeholderNote": "Placeholder — replace with your own frame"
   }
 }

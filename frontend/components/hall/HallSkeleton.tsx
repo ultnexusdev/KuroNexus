@@ -15,6 +15,7 @@ export function HallSkeleton({
   category,
   tiles = 12,
   stats = 4,
+  curtain = false,
 }: {
   category?:
     | "film"
@@ -28,6 +29,13 @@ export function HallSkeleton({
   tiles?: number;
   /** Künye şeridindeki kutu sayısı; 0 verilirse şerit hiç çizilmez */
   stats?: number;
+  /**
+   * Salonun başında kenardan kenara bir perde var mı (anime arşivi).
+   * Açıkken sayfa sütunundaki başlık yer tutucuları çizilmez: o başlık
+   * perdenin içinde duruyor, iki kez çizilirse iskelet gerçek sayfaya
+   * benzemez.
+   */
+  curtain?: boolean;
 }) {
   return (
     <div
@@ -39,10 +47,18 @@ export function HallSkeleton({
       aria-busy="true"
       aria-live="polite"
     >
+      {curtain ? (
+        <div className={`${styles.curtain} ${styles.pulse}`} aria-hidden />
+      ) : null}
+
       <div className={styles.page} aria-hidden>
-        <div className={`${styles.bar} ${styles.eyebrow} ${styles.pulse}`} />
-        <div className={`${styles.bar} ${styles.title} ${styles.pulse}`} />
-        <div className={`${styles.bar} ${styles.lede} ${styles.pulse}`} />
+        {curtain ? null : (
+          <>
+            <div className={`${styles.bar} ${styles.eyebrow} ${styles.pulse}`} />
+            <div className={`${styles.bar} ${styles.title} ${styles.pulse}`} />
+            <div className={`${styles.bar} ${styles.lede} ${styles.pulse}`} />
+          </>
+        )}
 
         {stats > 0 ? (
           <div className={styles.stats}>

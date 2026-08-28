@@ -5,6 +5,36 @@
 
 ## Mevcut Aşama
 
+> ✅ **ANİME ARŞİVİ · SİNEMATİK PERDE (28 Ağustos 2026).**
+>
+> `/dark-stories/category/anime/arsiv` görsel olarak yenilendi. Çıkış noktası
+> kullanıcının Gemini'den aldığı bir taslaktı (Tailwind + framer-motion +
+> lucide, her seriye elle yazılmış `glowColor`); kod birebir alınamazdı —
+> projede o üç bağımlılık yok ve kural 16 bileşende hex yasaklıyor. Taslağın
+> **fikirleri** alındı, uygulaması bu depoya çevrildi:
+>
+> - **Perde** (`AnimeHall.tsx` → `Curtain`): kenardan kenara, 400–640 px.
+>   Arkada izlenen serinin afişi 48 sn'lik Ken Burns'le yaklaşıyor, üstünde
+>   film graini ve üç katmanlı karartma. Kimlik (`SALON 04` + `<h1>` +
+>   `アーカイヴ`) ile "kaldığın yer" kartı **aynı perdede**: önceden ikisi ayrı
+>   yerdeydi ve ikisi de yarım kalıyordu. Sayfanın `<h1>`'i buraya taşındığı
+>   için hero başlığını `<p>` yapan eski kısıt da ortadan kalktı.
+> - **Raf şeridi** (`ShelfRail`): raflardan önce, site başlığının altına
+>   yapışan bant; kaydırma kısayolu + hangi rafın önünde olduğunu gösteren
+>   işaret. **Sekmeye çevrilmedi** — altı raf sayfasının adresleri korundu.
+> - **Kart**: hover'da yükselme + `data-halo` ile ANLAM taşıyan ışıma
+>   (favori→altın, yayında→yeşil, bekleniyor→kehribar, gerisi mor), afişin
+>   sağından inen Japonca filigran (`titleNative`), kapağın dibinden çıkan
+>   "Dosyayı aç", kapak üstüne taşınan durum rozeti.
+> - **Işık huzmesi**: `.grid:has(> li:hover)` ile rafın geri kalanı geri
+>   çekiliyor; yalnızca `hover: hover` cihazlarda.
+> - **Raf işaretleri emojiden çıktı**: `SHELF_ICONS` tablosu silindi, yerine
+>   `components/anime/ShelfIcon.tsx` (tek stroke, `currentColor`, `em` ölçü).
+>
+> Yükleme iskeletine perde yer tutucusu eklendi (`HallSkeleton` → `curtain`).
+> Derleme ve tip denetimi temiz; **canlı doğrulama bekliyor** — lokalde
+> backend kapalı olduğu için kartlı hâli görülemedi.
+
 > ✅ **BLEACH EVRENİ · KÜRATÖR ALTYAPISI (23 Ağustos 2026).**
 >
 > `/anime/bleach` sayfasının inşası başladı. Bu tur **yalnızca küratör

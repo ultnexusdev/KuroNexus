@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { Link } from "@/lib/i18n/navigation";
@@ -9,10 +9,11 @@ import Image from "next/image";
 import {
   belongsTo,
   shelfHref,
-  SHELF_ICONS,
   SHELF_KEYS,
+  SHELF_SLUGS,
   type ShelfKey,
 } from "@/lib/anime/shelves";
+import { ShelfIcon } from "./ShelfIcon";
 import {
   buildTaxonomy,
   CHIP_LIMIT,
@@ -46,6 +47,11 @@ const CuratorBar = dynamic(
 
 // Salonda her raf tek satır: geniş ekrandaki sütun sayısı kadar
 const ROW_LIMIT = 6;
+
+/** Raf bölümünün DOM kimliği — şerit buraya kaydırıyor. */
+function shelfDomId(key: ShelfKey): string {
+  return `raf-${SHELF_SLUGS[key]}`;
+}
 
 export function AnimeHall({
   archive,
@@ -132,6 +138,14 @@ export function AnimeHall({
     return map;
   }, [visible]);
 
+  /* Şeritte yalnızca sayfada gerçekten çizilen raflar var — boş bir rafa
+     kaydırmak kullanıcıyı boşluğa götürürdü. Koşul `renderShelf`inkiyle
+     birebir aynı: "izliyorum" boşken de duruyor, çünkü salonun kalbi o. */
+  const railKeys = useMemo(
+    () => SHELF_KEYS.filter((key) => shelves[key].length > 0 || key === "watching"),
+    [shelves],
+  );
+
   const { stats } = archive;
   const isEmpty = archive.entries.length === 0;
 
@@ -144,13 +158,11 @@ export function AnimeHall({
     const row = entries.slice(0, ROW_LIMIT);
 
     return (
-      <section className={styles.shelfSection} key={key}>
+      <section className={styles.shelfSection} key={key} id={shelfDomId(key)}>
         <div className={styles.shelfHead}>
           <Link href={shelfHref(key)} className={styles.shelfLink}>
             <h2 className={styles.shelfTitle}>
-              <span className={styles.shelfIcon} aria-hidden>
-                {SHELF_ICONS[key]}
-              </span>
+              <ShelfIcon shelf={key} className={styles.shelfIcon} />
               {t(`shelf.${key}`)}
             </h2>
           </Link>
@@ -176,34 +188,28 @@ export function AnimeHall({
 
   return (
     <div data-category="anime" className={styles.hall}>
-      {/* Salonun yüzü: şu an izlediğin seri, kaldığın yer ve "devam et" */}
-      {hero ? <Hero anime={hero} /> : null}
+      {/* Salonun yüzü: kimlik ve "kaldığın yer" tek perdede */}
+      <Curtain
+        anime={hero}
+        hallLabel={hallLabel}
+        hallName={hallName}
+        backLabel={tStories("backToList")}
+      />
 
       <div className={styles.page}>
-        <header className={styles.head}>
-          <Link href="/dark-stories/category/anime" className={styles.back}>
-            {tStories("backToList")}
-          </Link>
-          <span className={styles.eyebrow}>
-            {t("hall", { num: hallLabel, name: hallName })}
-          </span>
-          <h1 className={styles.title}>{t("archiveTitle")}</h1>
-          <p className={styles.lede}>{t("archiveLede")}</p>
-
-          {isAdmin ? (
-            <div className={styles.curatorSwitch}>
-              <button
-                type="button"
-                className={curating ? styles.curatorOn : styles.curatorOff}
-                aria-pressed={curating}
-                onClick={() => setCurating((current) => !current)}
-              >
-                {curating ? t("curator.on") : t("curator.off")}
-              </button>
-              <span className={styles.muted}>{t("curator.hint")}</span>
-            </div>
-          ) : null}
-        </header>
+        {isAdmin ? (
+          <div className={styles.curatorSwitch}>
+            <button
+              type="button"
+              className={curating ? styles.curatorOn : styles.curatorOff}
+              aria-pressed={curating}
+              onClick={() => setCurating((current) => !current)}
+            >
+              {curating ? t("curator.on") : t("curator.off")}
+            </button>
+            <span className={styles.muted}>{t("curator.hint")}</span>
+          </div>
+        ) : null}
 
         {curating ? <CuratorBar /> : null}
 
@@ -278,6 +284,10 @@ export function AnimeHall({
               ) : null}
             </div>
 
+            {railKeys.length > 1 ? (
+              <ShelfRail keys={railKeys} shelves={shelves} />
+            ) : null}
+
             {SHELF_KEYS.map((key) => renderShelf(key))}
           </>
         )}
@@ -289,74 +299,224 @@ export function AnimeHall({
 }
 
 /**
- * Salonun hero alanı: izlemekte olduğun serinin banner'ı.
+ * Perde — salonun girişi.
  *
- * İşlevsel olması bilinçli — banner + başlık + "S2 · 18/23" + "devam et".
- * Salona girer girmez ilk yapacağın şey zaten kaldığın yere dönmek.
+ * Eskiden burada yalnızca "izlediğin seri + kaldığın bölüm + devam et" duran
+ * bir bant vardı; salonun adı perdenin **altında**, sayfa sütununda
+ * başlıyordu. İki baş vardı ve ikisi de yarım kalıyordu.
+ *
+ * Perde artık ikisini birlikte taşıyor: arkada izlediğin serinin afişi çok
+ * yavaş yaklaşıyor, ön planda salonun kimliği, sağ altta ise aynı "kaldığın
+ * yer" kartı. İşlevden hiçbir şey eksilmedi.
+ *
+ * Sayfanın `<h1>`'i de buraya taşındı. Eskiden bu bandın içindeki başlık
+ * bilerek `<p>` yapılmıştı: gerçek `<h1>` aşağıda olduğu için burada bir
+ * `<h2>` başlık ağacını ters çeviriyordu. O kısıt artık yok — başlık
+ * gerçekten sayfanın ilk başlığı, dolayısıyla `<h1>` olarak duruyor.
+ *
+ * İzlenen seri yoksa (arşiv boş ya da hiçbir şey izlenmiyor) perde çökmez:
+ * afiş katmanı çizilmez, kimlik kendi başına durur.
  */
-function Hero({ anime }: { anime: ArchiveAnime }) {
+function Curtain({
+  anime,
+  hallLabel,
+  hallName,
+  backLabel,
+}: {
+  /** Şu an izlenen seri; yoksa perde yalnızca kimliği taşır */
+  anime: ArchiveAnime | null;
+  hallLabel: string;
+  hallName: string;
+  /** "← Listeye dön" — metin çağıranın sözlüğünden geliyor */
+  backLabel: string;
+}) {
   const t = useTranslations("anime");
-  const part = anime.currentPart;
+  const part = anime?.currentPart ?? null;
   const total = part?.episodes ?? null;
   const watched = part?.watchedEpisodes ?? 0;
   const percent =
     total && total > 0 ? Math.min(100, Math.round((watched / total) * 100)) : 0;
-  const days = daysUntil(anime.nextAiringAt);
-  const image = anime.bannerImage ?? anime.coverImage;
+  const days = anime ? daysUntil(anime.nextAiringAt) : null;
+  const image = anime ? (anime.bannerImage ?? anime.coverImage) : null;
 
   return (
-    <section className={styles.hero}>
+    <section className={styles.curtain}>
       {image ? (
-        <Image
-          src={image}
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className={styles.heroImg}
-          unoptimized
-        />
+        <span className={styles.curtainStage}>
+          <Image
+            src={image}
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className={styles.curtainImg}
+            unoptimized
+          />
+        </span>
       ) : null}
-      <div className={styles.heroShade} />
+      <span className={styles.curtainShade} />
+      <span className={styles.curtainGrain} />
 
-      <div className={styles.heroInner}>
-        <span className={styles.heroEyebrow}>{t("hero.eyebrow")}</span>
-        {/* <h2> DEGIL: bu bant sayfanin gercek <h1>'inden (arsiv basligi)
-            ONCE ciziliyordu, yani baslik agacinda h2 -> h1 sirasi olusuyor
-            ve ekran okuyucuda salonun adi ikinci sirada kaliyordu. Bant
-            zaten dekoratif bir "devam et" seridi, baslik olmasi sart degil.
-            Gorsel olcu degismedi (ayni .heroTitle sinifi). */}
-        <p className={styles.heroTitle}>{anime.title}</p>
+      <div className={styles.curtainInner}>
+        <Link href="/dark-stories/category/anime" className={styles.curtainBack}>
+          {backLabel}
+        </Link>
 
-        {part ? (
-          <p className={styles.heroLine}>
-            <span>{part.title}</span>
-            <span className={styles.heroCount}>
-              {total
-                ? t("episodeOf", { watched, total })
-                : t("episodeCount", { watched })}
+        <div className={styles.curtainIdentity}>
+          <span className={styles.curtainHall}>
+            {t("hall", { num: hallLabel, name: hallName })}
+          </span>
+          <h1 className={styles.curtainTitle}>
+            {t("archiveTitle")}
+            {/* Japonca karşılık görsel bir eşlik; ekran okuyucu başlığı iki
+                kez, ikincisini de hecelenmiş hâlde okumasın diye gizli */}
+            <span className={styles.curtainNative} aria-hidden>
+              {t("archiveNative")}
             </span>
-            {days !== null ? (
-              <span className={styles.countdown}>
-                {t("nextInDays", { count: days, episode: anime.nextEpisode ?? 0 })}
+          </h1>
+          <p className={styles.curtainLede}>{t("archiveLede")}</p>
+        </div>
+
+        {anime ? (
+          <div className={styles.resume}>
+            <span className={styles.resumeLabel}>{t("hero.eyebrow")}</span>
+            <p className={styles.resumeTitle}>{anime.title}</p>
+
+            {part ? (
+              <p className={styles.resumeLine}>
+                <span>{part.title}</span>
+                <span className={styles.resumeCount}>
+                  {total
+                    ? t("episodeOf", { watched, total })
+                    : t("episodeCount", { watched })}
+                </span>
+                {days !== null ? (
+                  <span className={styles.countdown}>
+                    {t("nextInDays", {
+                      count: days,
+                      episode: anime.nextEpisode ?? 0,
+                    })}
+                  </span>
+                ) : null}
+              </p>
+            ) : null}
+
+            {total ? (
+              <span className={styles.resumeBar} aria-hidden>
+                <span
+                  className={styles.resumeBarFill}
+                  style={{ width: `${percent}%` }}
+                />
               </span>
             ) : null}
-          </p>
-        ) : null}
 
-        {total ? (
-          <span className={styles.heroBar} aria-hidden>
-            <span className={styles.heroBarFill} style={{ width: `${percent}%` }} />
-          </span>
+            <Link
+              href={`/dark-stories/category/anime/${anime.slug}`}
+              className={styles.resumeCta}
+            >
+              {t("hero.resume")}
+            </Link>
+          </div>
         ) : null}
-
-        <Link
-          href={`/dark-stories/category/anime/${anime.slug}`}
-          className={styles.heroCta}
-        >
-          {t("hero.resume")}
-        </Link>
       </div>
     </section>
+  );
+}
+
+/**
+ * Raf şeridi — raflar arası kısayol.
+ *
+ * Rafları sekmeye çevirmek gündeme geldi ve **reddedildi**: her rafın kendi
+ * adresi var (`/izliyorum`, `/bitirdiklerim` …) ve sekme o altı sayfayı
+ * salondan koparırdı. Bunun yerine şerit yalnızca bir kaydırma kısayolu:
+ * düğmeye basmak sayfayı o rafa götürüyor, sayfa kaydıkça da hangi rafın
+ * önünde olduğun işaretleniyor. Raflar yerinde, adresler yerinde.
+ *
+ * Rafın **tamamına** gitmek isteyen için yol yine raf başlığının kendisi —
+ * o bir bağlantı, bu ise bir düğme. İkisi karışmasın diye şeritteki
+ * elemanlar `<button>`.
+ */
+function ShelfRail({
+  keys,
+  shelves,
+}: {
+  /** Sayfada gerçekten çizilen raflar, sayfadaki sırayla */
+  keys: ShelfKey[];
+  shelves: Record<ShelfKey, ArchiveAnime[]>;
+}) {
+  const t = useTranslations("anime");
+  const [active, setActive] = useState<ShelfKey | null>(keys[0] ?? null);
+
+  /* Hangi rafın önündeyiz. Bleach'teki derinlik şeridiyle aynı desen:
+     görünür alanın üst çeyreğinde sıfır yüksekliğinde bir bant, o bandı
+     geçen bölüm etkin sayılıyor. Bant üstte çünkü şeridin kendisi de
+     yapışkan: kullanıcının okuduğu yer ekranın ortası değil, şeridin
+     hemen altı. */
+  useEffect(() => {
+    const pairs = keys
+      .map((key) => [key, document.getElementById(shelfDomId(key))] as const)
+      .filter(
+        (pair): pair is readonly [ShelfKey, HTMLElement] => pair[1] !== null,
+      );
+    if (pairs.length === 0) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) {
+            continue;
+          }
+          const found = pairs.find((pair) => pair[1] === entry.target);
+          if (found) {
+            setActive(found[0]);
+          }
+        }
+      },
+      { rootMargin: "-22% 0px -62% 0px", threshold: 0 },
+    );
+    for (const [, node] of pairs) {
+      observer.observe(node);
+    }
+    return () => observer.disconnect();
+  }, [keys]);
+
+  function goTo(key: ShelfKey) {
+    const node = document.getElementById(shelfDomId(key));
+    if (!node) {
+      return;
+    }
+    const reduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    node.scrollIntoView({
+      behavior: reduced ? "auto" : "smooth",
+      block: "start",
+    });
+    /* İşaret hemen geçiyor: yumuşak kaydırma bitene kadar beklemek şeridi
+       bir saniye boyunca yanlış rafta gösterirdi. Gözlemci yolun sonunda
+       zaten aynı sonuca varıyor. */
+    setActive(key);
+  }
+
+  return (
+    <nav className={styles.rail} aria-label={t("shelfNav")}>
+      <ul className={styles.railTrack}>
+        {keys.map((key) => (
+          <li key={key}>
+            <button
+              type="button"
+              className={active === key ? styles.railItemOn : styles.railItem}
+              aria-current={active === key ? "true" : undefined}
+              onClick={() => goTo(key)}
+            >
+              {t(`shelf.${key}`)}
+              <span className={styles.railCount}>{shelves[key].length}</span>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </nav>
   );
 }

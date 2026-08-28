@@ -8,6 +8,12 @@
 
 .hall {
   --anime-content-w: 1180px;
+  /* Site basligi yapiskan (SiteHeader.module.css): yuksekligi orada sabit
+     yazili degil, kural 2'nin dokunma alanindan (44px) ve kendi ic
+     boslugundan cikiyor. Ayni token'lardan turetiliyor ki basligin ic
+     boslugu degisirse raf seridi de onunla birlikte kaysin. */
+  --anime-header-h: calc(var(--touch-min) + var(--pad-sm) * 2);
+  --anime-rail-h: 58px;
 
   position: relative;
   min-height: 100vh;
@@ -175,10 +181,100 @@
   cursor: pointer;
 }
 
+/* --- Raf seridi ---
+
+   Raflar sayfada alt alta duruyor ve her birinin AYRI BIR ADRESI var
+   (/izliyorum, /bitirdiklerim …). Sekmeye cevirmek o alti adresi salondan
+   kopariridi; bunun yerine seride bir kisayol katmani konuldu: dugmeye
+   basmak sayfayi o rafa kaydiriyor, sayfa kaydikca da hangi raftaki gorunur
+   olarak isaretleniyor. Adresler yerinde kaliyor, raflar arasi goz gezdirme
+   de bitmiyor.
+
+   Serit yapiskan ama site basliginin ALTINA: iki yapiskan bant ust uste
+   binmesin diye `top` basligin yuksekligi kadar asagida basliyor. */
+
+.rail {
+  position: sticky;
+  top: var(--anime-header-h);
+  z-index: 20;
+  box-sizing: border-box;
+  min-height: var(--anime-rail-h);
+  display: flex;
+  align-items: center;
+  margin: var(--pad-md) 0 0;
+  padding: var(--gap-sm) var(--gap-md);
+  border: 0.5px solid var(--border);
+  border-radius: 999px;
+  /* Serit kaydirilan icerigin uzerinden geciyor: opak degil, bulanik.
+     Altindaki posterler seride carpar gibi gecsin diye. */
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter: blur(12px);
+}
+
+.railTrack {
+  display: flex;
+  gap: var(--gap-sm);
+  overflow-x: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  scrollbar-width: none;
+}
+
+.railTrack::-webkit-scrollbar {
+  display: none;
+}
+
+.railItem,
+.railItemOn {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 7px;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 0.5px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    color 180ms cubic-bezier(0.23, 1, 0.32, 1),
+    border-color 180ms cubic-bezier(0.23, 1, 0.32, 1),
+    background-color 180ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.railItem:hover {
+  color: var(--text-primary);
+}
+
+.railItemOn {
+  border-color: var(--accent-muted);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+}
+
+.railCount {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.railItemOn .railCount {
+  color: color-mix(in srgb, var(--accent) 70%, var(--text-muted));
+}
+
 /* --- Raflar --- */
 
 .shelfSection {
   margin-top: var(--pad-lg);
+  /* Serit tikladiginda raf basligi seridin ALTINDA kalmasin: yapiskan iki
+     bandin toplam yuksekligi kadar pay birakiliyor. */
+  scroll-margin-top: calc(
+    var(--anime-header-h) + var(--anime-rail-h) + var(--gap-lg)
+  );
 }
 
 .shelfHead {
@@ -207,11 +303,21 @@
 }
 
 /* Raf isareti: basligin onunde, ondan kucuk ve solgun — bir gosterge,
-   basligin parcasi degil */
+   basligin parcasi degil.
+
+   Cizilmis bir SVG (`ShelfIcon`): cizgi rengini `currentColor` ile
+   BASLIKTAN aliyor, dolayisiyla tema degisince isaret de degisiyor.
+   Olcu `em` cinsinden: ayni bilesen hem salondaki 1.15 rem'lik raf
+   basliginda hem raf sayfasinin 3.4 rem'e kadar buyuyen basliginda
+   orantiyi koruyor. */
 .shelfIcon {
-  margin-right: 8px;
-  font-size: 0.9rem;
-  opacity: 0.75;
+  width: 0.82em;
+  height: 0.82em;
+  margin-right: 9px;
+  /* Taban hizasinda isaret yazinin ustune kaciyordu; satirin optik
+     ortasina indiriliyor */
+  vertical-align: -0.06em;
+  opacity: 0.55;
 }
 
 .shelfCount {
@@ -227,6 +333,25 @@
   margin-top: var(--gap-lg);
   padding: 0;
   list-style: none;
+}
+
+/* Isik huzmesi: bir karta gelindiginde rafin geri kalani geri cekilir.
+   Amaci "efekt" degil, rafin ne kadar kalabalik olursa olsun gozun tek bir
+   kareye kilitlenebilmesi.
+
+   Yalnizca gercek isaretci olan cihazlarda: dokunmatikte `:hover` bir kez
+   yapisip kalir ve raf yariya sonuk donardi. */
+@media (hover: hover) {
+  .grid > li {
+    transition:
+      opacity 280ms cubic-bezier(0.23, 1, 0.32, 1),
+      filter 280ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .grid:has(> li:hover) > li:not(:hover) {
+    opacity: 0.38;
+    filter: saturate(0.5);
+  }
 }
 
 .empty {
@@ -256,6 +381,24 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+
+  /* Kartin isimasi BILGI tasiyor, dekor degil: hangi renkle parladigi
+     serinin arsivdeki durumunu soyluyor. Varsayilan salonun mor akseni;
+     asagidaki uc dal onu geciyor. Renk yine token'lardan (kural 16) —
+     kartlara elle renk yazilmiyor. */
+  --card-halo: color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.card[data-halo="favorite"] {
+  --card-halo: color-mix(in srgb, var(--gold) 55%, transparent);
+}
+
+.card[data-halo="airing"] {
+  --card-halo: color-mix(in srgb, var(--anime-airing-ink) 60%, transparent);
+}
+
+.card[data-halo="upcoming"] {
+  --card-halo: color-mix(in srgb, var(--anime-upcoming-ink) 60%, transparent);
 }
 
 .coverLink {
@@ -320,10 +463,119 @@
   border: 0.5px solid var(--border);
   border-radius: var(--radius);
   background: var(--surface);
+  transition:
+    transform 320ms cubic-bezier(0.23, 1, 0.32, 1),
+    border-color 320ms cubic-bezier(0.23, 1, 0.32, 1),
+    box-shadow 320ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* `focus-within` de var: kart yalnizca fareyle degil, klavyeyle
+   gezilirken de ayni sekilde one cikiyor (baslik baglantisi odaklaninca). */
+.card:hover .coverWrap,
+.card:focus-within .coverWrap {
+  transform: translateY(-5px);
+  border-color: color-mix(in srgb, var(--card-halo) 55%, var(--border-strong));
+  box-shadow: 0 18px 38px -16px var(--card-halo);
 }
 
 .coverImg {
   object-fit: cover;
+  transition: transform 700ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.card:hover .coverImg,
+.card:focus-within .coverImg {
+  transform: scale(1.06);
+}
+
+/* Yayin durumu rozeti kapagin sag ust kosesinde duruyor: kartin ALTINDAKI
+   satirdan alindi, boylece baslik iki satirin tamamini kullanabiliyor.
+   Rozetin kendi zemini yari saydam; afisin uzerinde okunmasi icin altina
+   bulanik koyu bir yastik konuyor. */
+.coverBadge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 2;
+  display: inline-flex;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg) 78%, transparent);
+  backdrop-filter: blur(6px);
+}
+
+/* Japonca ad afisin sagindan asagi iniyor — rozetin bittigi yerden basliyor.
+   Neredeyse gorunmez duruyor, karta gelindiginde okunur hale geliyor:
+   arsivin kendi dilinden bir filigran. */
+.cardNative {
+  position: absolute;
+  top: 38px;
+  right: 9px;
+  z-index: 1;
+  max-height: 56%;
+  overflow: hidden;
+  writing-mode: vertical-rl;
+  color: var(--text-primary);
+  font-size: 0.88rem;
+  letter-spacing: 0.16em;
+  opacity: 0.16;
+  text-shadow: 0 1px 3px var(--bg);
+  pointer-events: none;
+  transition: opacity 320ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.card:hover .cardNative,
+.card:focus-within .cardNative {
+  opacity: 0.5;
+}
+
+/* Kapagin dibinden yukselen cagri. Bilerek TEK satir: puan, yil ve ilerleme
+   zaten kartin altinda duruyor; onlari bir de burada tekrarlamak hover'i
+   ikinci bir kart haline getirirdi. */
+.coverData {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 8px;
+  background: linear-gradient(
+    to top,
+    var(--bg),
+    color-mix(in srgb, var(--bg) 55%, transparent) 65%,
+    transparent
+  );
+  color: var(--text-primary);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0;
+  transform: translateY(65%);
+  pointer-events: none;
+  transition:
+    opacity 260ms cubic-bezier(0.23, 1, 0.32, 1),
+    transform 260ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.card:hover .coverData,
+.card:focus-within .coverData {
+  opacity: 1;
+  transform: none;
+}
+
+/* Dokunmatikte hover diye bir sey yok: cagri hic cizilmiyor (kapagin kendisi
+   zaten baglanti), filigran ise biraz daha okunur birakiliyor — orada
+   "gelince belirir" karsiligi olmadigi icin sabit degeri kendisi tasiyor. */
+@media (hover: none) {
+  .coverData {
+    display: none;
+  }
+
+  .cardNative {
+    opacity: 0.22;
+  }
 }
 
 .coverFallback {
@@ -748,47 +1000,92 @@
   }
 }
 
-/* --- Hero: salonun yuzu --- */
+/* --- PERDE: salonun girisi -------------------------------------------
 
-.hero {
+   Buradaki bant 16 Agustos'tan beri tek bir is goruyordu: "izledigin seri +
+   kaldigin bolum + devam et". Salonun ADI ise perdenin ALTINDA, sayfa
+   sutununda duruyordu. Iki bas vardi ve ikisi de yarim kaliyordu — perde
+   kimliksiz bir afis, baslik da afisin altina dusmus bir satirdi.
+
+   Perde artik ikisini birlikte tasiyor: arkada izledigin serinin afisi cok
+   yavas yaklasiyor, on planda salonun kimligi (sayfanin gercek <h1>'i buraya
+   TASINDI, artik ilk gorulen sey o), sag altta ise ayni "kaldigin yer"
+   karti. Islevden hicbir sey eksilmedi; tek perde iki isi birden yapiyor.
+
+   Afis yoksa (arsiv bos ya da izlenen seri yok) perde cokmez: zemin
+   gradyani ve kimlik katmani kendi basina duruyor. */
+
+.curtain {
   position: relative;
-  min-height: clamp(260px, 34vw, 400px);
-  margin-bottom: var(--pad-lg);
+  display: flex;
+  align-items: flex-end;
+  min-height: clamp(400px, 62vh, 640px);
+  /* Perde kenardan kenara: `.hall`un ic boslugu negatif marjla geri
+     aliniyor, boylece afis ekranin kendi kenarinda bitiyor. Deger holun
+     dolgusunun BIREBIR karsiligi — yatayda tasma olusmuyor. */
+  margin: calc(var(--pad-lg) * -1) calc(var(--pad-md) * -1) var(--pad-lg);
   overflow: hidden;
   border-bottom: 0.5px solid var(--border);
 }
 
-.heroImg {
-  object-fit: cover;
-  opacity: 0.5;
+/* Afis kendi katmaninda: olceklenirken kenarlardan bosluk acilmasin diye
+   dort yandan tasiriliyor (`inset: -5%`). */
+.curtainStage {
+  position: absolute;
+  inset: -5%;
+  animation: curtainDrift 48s ease-in-out infinite alternate;
 }
 
-/* Sagdan sola koyulasan perde: yazi her afiste okunakli kalsin */
-.heroShade {
+.curtainImg {
+  object-fit: cover;
+  /* Afis burada dekor: uzerindeki metin her poster icinde okunakli kalmali */
+  opacity: 0.44;
+}
+
+/* Perde dokusu — soldan ve dipten koyulasan iki gecis, uzerine vinyet.
+   Yazi solda, "kaldigin yer" karti sagda duruyor; ikisi de kendi zeminini
+   buradan aliyor. */
+.curtainShade {
   position: absolute;
   inset: 0;
   background:
     linear-gradient(
       to right,
       var(--bg) 0%,
-      color-mix(in srgb, var(--bg) 82%, transparent) 42%,
-      transparent 78%
+      color-mix(in srgb, var(--bg) 78%, transparent) 38%,
+      transparent 72%
     ),
-    linear-gradient(to bottom, transparent 55%, var(--bg));
+    linear-gradient(to bottom, transparent 38%, var(--bg) 98%),
+    radial-gradient(
+      130% 90% at 50% 30%,
+      transparent 30%,
+      color-mix(in srgb, var(--bg) 70%, transparent) 100%
+    );
 }
 
-.heroInner {
+/* Film graini: afisin dijital duzlugunu kirip perdeye bir yuzey veriyor.
+   Ayni desen salonun lobisinde ve Bleach dunyasinda da kullaniliyor. */
+.curtainGrain {
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.1;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+.curtainInner {
   position: relative;
   z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--gap-sm);
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: end;
+  gap: var(--pad-lg);
   /* ⚠️ `box-sizing` ve `width` BİRLİKTE okunmalı.
 
      Projede evrensel `border-box` reseti YOK. `width`in `100%` dalı ile iki
      yandaki `--pad-md` content-box'ta TOPLANIYORDU: 375px'te kutu 343 + 16 +
-     16 = 375px çıkıyor, oysa içinde durduğu `.hero` 343px. `.hero`da
+     16 = 375px çıkıyor, oysa içinde durduğu perde 343px. Perdede
      `overflow: hidden` olduğu için sayfa yatay kaymıyor ama içerik KIRPILIYOR
      — ölçüldü: ilerleme çubuğu holün sağ kenarını 13px aşıyor ve kesiliyor,
      16px'lik sağ iç boşluk tamamen yok oluyor.
@@ -802,54 +1099,155 @@
   padding: var(--pad-lg) var(--pad-md);
 }
 
-.heroEyebrow {
+.curtainBack {
+  grid-column: 1 / -1;
+  justify-self: start;
+  margin-bottom: auto;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  text-decoration: none;
+}
+
+.curtainBack:hover {
+  color: var(--accent);
+}
+
+.curtainIdentity {
+  min-width: 0;
+}
+
+/* Salon numarasi sitenin gezinme sistemi: alti salon var ve numaralari
+   ana sayfadaki sirayla ayni. Sus degil, adres. */
+.curtainHall {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   color: var(--gold);
   font-family: var(--font-bebas), var(--font-sans);
-  font-size: 0.85rem;
-  letter-spacing: 0.28em;
+  font-size: 0.9rem;
+  letter-spacing: 0.32em;
 }
 
-.heroTitle {
-  margin: 0;
-  max-width: 18ch;
+/* Kunye cizgisi: numaranin yanindan sagta dogru uzayip soner */
+.curtainHall::after {
+  content: "";
+  flex: 0 1 120px;
+  height: 0.5px;
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--gold) 60%, transparent),
+    transparent
+  );
+}
+
+.curtainTitle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 0.5em;
+  margin: var(--gap-md) 0 0;
   color: var(--text-primary);
   font-family: var(--font-cinzel), serif;
-  font-size: clamp(1.6rem, 4.5vw, 2.8rem);
+  font-size: clamp(2.2rem, 6.5vw, 4.4rem);
   font-weight: 600;
-  line-height: 1.1;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  text-wrap: balance;
 }
 
-.heroLine {
+/* Japonca karsilik basligin agirligini tasimiyor, ona eslik ediyor:
+   yarim boy, solgun ve ince. Latin harfleriyle ayni satirda taban hizasinda
+   durur, dar ekranda alt satira gecer. */
+.curtainNative {
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: clamp(0.95rem, 2vw, 1.45rem);
+  font-weight: 300;
+  letter-spacing: 0.18em;
+}
+
+.curtainLede {
+  max-width: 46ch;
+  margin: var(--gap-lg) 0 0;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* --- Kaldigin yer karti --- */
+
+/* Perdenin sag alt kosesinde duran islevsel kisim. Camsi zemin burada
+   dekor degil: kart bir AFISIN uzerinde duruyor ve altindaki gorseli
+   tamamen ortmeden metnin okunmasini saglamasi gerekiyor. */
+.resume {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--gap-sm);
+  width: 100%;
+  max-width: 340px;
+  padding: var(--gap-lg);
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius-card);
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+  backdrop-filter: blur(10px);
+}
+
+.resumeLabel {
+  color: var(--accent);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.78rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.resumeTitle {
+  margin: 0;
+  overflow: hidden;
+  color: var(--text-primary);
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.resumeLine {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   gap: var(--gap-sm);
   margin: 0;
   color: var(--text-secondary);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
-.heroCount {
+.resumeCount {
   color: var(--accent);
   font-variant-numeric: tabular-nums;
 }
 
-.heroBar {
+.resumeBar {
   display: block;
-  width: min(340px, 100%);
+  width: 100%;
   height: 4px;
   overflow: hidden;
   border-radius: 999px;
   background: color-mix(in srgb, var(--border) 80%, transparent);
 }
 
-.heroBarFill {
+.resumeBarFill {
   display: block;
   height: 100%;
   background: var(--accent);
 }
 
-.heroCta {
+.resumeCta {
+  display: inline-flex;
+  align-items: center;
   min-height: var(--touch-min);
   margin-top: var(--gap-sm);
   padding: 10px 18px;
@@ -860,11 +1258,69 @@
   font-size: 0.85rem;
   letter-spacing: 0.04em;
   text-decoration: none;
+  transition:
+    background-color 200ms cubic-bezier(0.23, 1, 0.32, 1),
+    color 200ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.heroCta:hover {
+.resumeCta:hover {
   background: color-mix(in srgb, var(--accent) 26%, transparent);
   color: var(--text-primary);
+}
+
+/* Genis ekranda kimlik solda, kart sagda; ikisi de perdenin dibine oturur */
+@media (min-width: 900px) {
+  .curtainInner {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .resume {
+    width: 340px;
+  }
+}
+
+/* Afis cok yavas yaklasiyor — 48 saniyede bir nefes. Fark edilmesi degil,
+   perdenin "durgun bir resim" gibi durmamasi amaclaniyor. */
+@keyframes curtainDrift {
+  from {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: scale(1.09) translate3d(0, -1.2%, 0);
+  }
+}
+
+/* Hareket azaltma acikken hicbir sey KAYBOLMUYOR, yalnizca gecisler ve
+   yaklasan afis duruyor: karta gelindiginde isima, filigran ve cagri hala
+   beliriyor — sadece aninda. */
+@media (prefers-reduced-motion: reduce) {
+  .curtainStage {
+    animation: none;
+  }
+
+  .resumeCta,
+  .railItem,
+  .railItemOn,
+  .coverWrap,
+  .coverImg,
+  .cardNative,
+  .coverData,
+  .grid > li {
+    transition: none;
+  }
+
+  .card:hover .coverWrap,
+  .card:focus-within .coverWrap,
+  .card:hover .coverImg,
+  .card:focus-within .coverImg {
+    transform: none;
+  }
+
+  .card:hover .coverData,
+  .card:focus-within .coverData {
+    transform: none;
+  }
 }
 
 /* --- Uc katmanli suzgec --- */

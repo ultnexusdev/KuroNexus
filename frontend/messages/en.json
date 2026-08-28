@@ -1410,6 +1410,9 @@
       "eyebrow": "Currently watching",
       "resume": "Pick up where you left off →"
     },
+    "archiveNative": "アーカイヴ",
+    "shelfNav": "Archive shelves",
+    "openFile": "Open file",
     "worlds": {
       "title": "Anime Worlds",
       "aria": "Anime worlds",

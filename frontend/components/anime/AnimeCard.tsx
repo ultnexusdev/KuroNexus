@@ -59,6 +59,31 @@ export function AiringBadge({ anime }: { anime: ArchiveAnime }) {
 }
 
 /**
+ * Kartın ışıma rengi — dekor değil, **arşivdeki durumun kendisi**.
+ *
+ * Gemini'nin taslağında her seriye elle bir `glowColor` yazılıyordu (lanet
+ * moru, Eva yeşili…); o yol hem 200 seriye elle renk girmeyi hem de bileşene
+ * hex yazmayı gerektiriyordu (kural 16'ya aykırı). Renk bunun yerine zaten
+ * elimizde olan iki alandan türetiliyor ve token setinden okunuyor: kartın
+ * neden parladığı bir bilgi taşıyor.
+ *
+ * Favori önce geliyor: bu benim işaretim, yayın durumu ise yapımın kendi
+ * hâli. Kesiştiklerinde kişisel olan kazanır.
+ */
+function haloOf(anime: ArchiveAnime): string | undefined {
+  if (anime.isFavorite) {
+    return "favorite";
+  }
+  if (anime.airingState === "RELEASING") {
+    return "airing";
+  }
+  if (anime.airingState === "UPCOMING") {
+    return "upcoming";
+  }
+  return undefined;
+}
+
+/**
  * Seri kartı. Tek bakışta üç şey okunmalı: **nerede kaldım**, **devam ediyor
  * mu**, **sırada ne var**. Sezon bilgisi altta ("S2 · 14/23") çünkü ilerleme
  * part'ın özelliği — seride tek bir sayı yok.
@@ -82,7 +107,7 @@ export function AnimeCard({
   const href = `/dark-stories/category/anime/${anime.slug}`;
 
   return (
-    <article className={styles.card}>
+    <article className={styles.card} data-halo={haloOf(anime)}>
       {/* Kapak ve başlık anime sayfasına açılır. Kapak bağlantısı erişilebilirlik
           ağacında YOK: erişilebilir adı boştu (görselin alt=""), üstelik aşağıdaki
           başlık bağlantısıyla aynı yere gidiyor — ekran okuyucuya kart başına tek
@@ -98,6 +123,22 @@ export function AnimeCard({
               ★
             </span>
           ) : null}
+
+          {/* Durum rozeti kapagin ustunde: kartin altindaki satirdan alindi,
+              boylece baslik iki satirin tamamini kullanabiliyor */}
+          <span className={styles.coverBadge}>
+            <AiringBadge anime={anime} />
+          </span>
+
+          {/* Serinin kendi dilindeki adi, afisin sagindan asagi. Metin
+              KOPYA DEGIL: baslik zaten kartin altinda ve bu katman
+              erisilebilirlik agacinin disinda (kapak baglantisi
+              `aria-hidden`), yani ekran okuyucuda cift okuma olusmuyor. */}
+          {anime.titleNative ? (
+            <span className={styles.cardNative}>{anime.titleNative}</span>
+          ) : null}
+
+          <span className={styles.coverData}>{t("openFile")} →</span>
         </span>
       </Link>
 
@@ -107,7 +148,6 @@ export function AnimeCard({
             {anime.title}
           </Link>
         </h3>
-        <AiringBadge anime={anime} />
       </div>
 
       {part ? (

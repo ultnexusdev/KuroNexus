@@ -19,6 +19,18 @@
   margin-inline: auto;
 }
 
+/* Anime salonunun perdesi (`AnimeHall.module.css` → `.curtain`). Iskelet
+   onun yerini SIMDIDEN tutuyor: perde 400-640 px arasi bir bant ve veri
+   inince birden acilsa sayfanin tamami asagi ziplardi. Olculer perdenin
+   kendi degerleriyle ayni, negatif marj da holun dolgusunu ayni sekilde
+   geri aliyor. */
+.curtain {
+  min-height: clamp(400px, 62vh, 640px);
+  margin: calc(var(--pad-lg) * -1) calc(var(--pad-md) * -1) var(--pad-lg);
+  border-bottom: 0.5px solid var(--border);
+  background: var(--surface);
+}
+
 /* Iskelet parcalarinin ortak yuzeyi. Gercek kartlarla ayni kenarlik ve
    radius: yerine gercek icerik gelince zipla­ma olmasin. */
 .bar,

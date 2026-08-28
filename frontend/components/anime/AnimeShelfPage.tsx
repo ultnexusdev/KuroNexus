@@ -4,7 +4,8 @@ import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/lib/i18n/navigation";
 import type { AnimeArchive } from "@/lib/api/types";
-import { belongsTo, SHELF_ICONS, type ShelfKey } from "@/lib/anime/shelves";
+import { belongsTo, type ShelfKey } from "@/lib/anime/shelves";
+import { ShelfIcon } from "./ShelfIcon";
 import {
   buildTaxonomy,
   CHIP_LIMIT,
@@ -108,9 +109,7 @@ export function AnimeShelfPage({
             {t("hall", { num: hallLabel, name: hallName })}
           </span>
           <h1 className={styles.title}>
-            <span className={styles.shelfIcon} aria-hidden>
-              {SHELF_ICONS[shelf]}
-            </span>
+            <ShelfIcon shelf={shelf} className={styles.shelfIcon} />
             {t(`shelf.${shelf}`)}
           </h1>
           <p className={styles.lede}>

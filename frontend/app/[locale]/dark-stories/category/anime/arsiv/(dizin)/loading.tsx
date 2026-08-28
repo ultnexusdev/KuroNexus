@@ -18,5 +18,5 @@ import { HallSkeleton } from "@/components/hall/HallSkeleton";
  * korur.
  */
 export default function Loading() {
-  return <HallSkeleton category="anime" tiles={12} stats={4} />;
+  return <HallSkeleton category="anime" tiles={12} stats={4} curtain />;
 }

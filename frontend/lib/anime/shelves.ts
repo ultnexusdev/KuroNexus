@@ -32,18 +32,8 @@ export const SHELF_SLUGS: Record<ShelfKey, string> = {
   planned: "planliyorum",
 };
 
-/**
- * Raf işaretleri. Salonda başlıkların yanında küçük duruyorlar — altı raf
- * alt alta dizilince hangisine baktığın tek bakışta okunsun diye.
- */
-export const SHELF_ICONS: Record<ShelfKey, string> = {
-  watching: "▶️",
-  paused: "⏳",
-  upcoming: "📅",
-  completed: "✅",
-  favorites: "❤️",
-  planned: "📌",
-};
+/* Raf işaretleri artık burada değil: emoji tablosu yerine çizilmiş SVG'ler
+   geldi (`components/anime/ShelfIcon.tsx`). Gerekçe orada yazılı. */
 
 /** URL parçasından raf anahtarı; tanınmayan yol için null (sayfa 404 verir). */
 export function shelfFromSlug(slug: string): ShelfKey | null {

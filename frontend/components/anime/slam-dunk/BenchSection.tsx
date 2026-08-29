@@ -61,7 +61,6 @@ export async function BenchSection({ locale }: { locale: string }) {
         members={staff}
         locale={locale}
         label={t("sections.bench.title")}
-        noDisclaimer
       />
 
       {/* Fujima notu: kadro ızgarasında duran ama buraya da ait olan

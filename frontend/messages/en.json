@@ -2872,8 +2872,7 @@
       "shootingShort": "SHT",
       "defenseShort": "DEF",
       "reboundingShort": "REB",
-      "speedShort": "SPD",
-      "disclaimer": "The stat bars are not canon. No official Slam Dunk source rates the players numerically; these four values are an archive assessment drawn from the abilities and weakness sections of the fandom entries and from the matches themselves. Height, weight, jersey number and position, by contrast, follow the source — where the source is silent nothing is invented and the field reads “no record”."
+      "speedShort": "SPD"
     },
     "sections": {
       "shohoku": {

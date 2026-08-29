@@ -29,18 +29,8 @@
   flex: 1;
 }
 
-/*
- * KAYNAK NOTU.
- *
- * Izgaranin altinda BIR KEZ. Slam Dunk'in hicbir resmi kaynagi oyunculari
- * sayisal derecelendirmiyor ve bunu gizlemek, uydurulmus bir sayiyi canon
- * gibi sunmak olurdu.
- */
-.disclaimer {
-  margin: 1.6rem 0 0;
-  padding-top: 1rem;
-  border-top: 1px solid color-mix(in srgb, var(--sd-ink) 10%, transparent);
-  font-size: 0.76rem;
-  max-width: 52rem;
-  color: var(--sd-ink-faint);
-}
+/* ⚠️ `.disclaimer` KALDIRILDI (29 Agustos 2026). Izgaranin altinda,
+   bar degerlerinin canon olmadigini anlatan bir not vardi; kullanici
+   karariyla gitti (gerekce `RosterGrid.tsx` basliginda). Sozluk anahtari
+   `slamDunk.stats.disclaimer` da kaldirildi -- yetim ceviri birakmamak
+   icin ikisi ayni turda. */

@@ -18,6 +18,31 @@
   padding-block: clamp(4rem, 12vh, 9rem) 0;
   background: var(--bg);
   color: var(--text-primary);
+
+  /* ⚠️ `clip`, `hidden` DEGIL -- ve fark bu bolumde her sey demek.
+     `overflow: hidden` bir KAYDIRMA KABI yaratir; kilic sutunu
+     `position: sticky` ve yapiskanligi en yakin kaydirma kabina gore
+     cozulur, yani `hidden` onu gorunur alana degil bu kutuya baglar ve
+     kilic yapismayi birakir. Dosyanin basinda "burada overflow: hidden
+     YOK" yazmasinin sebebi tam olarak buydu.
+
+     `overflow: clip` kaydirma kabi YARATMIYOR: yalnizca boyamayi
+     kirpiyor, yapiskanlik gorunur alana bagli kaliyor.
+
+     ⚠️ NEDEN GEREKLI (29 Agustos 2026, kullanici bildirimi: "sayfa saga
+     dogru kayiyor"): toz katmani (`.bladeCol::after`) sahnenin tamamina
+     yayilmak icin `inset-inline: -100vw` tasiyor ve zincirde onu kirpan
+     hicbir ata yoktu (`html`, `body`, `main`, `.page` -- hicbirinde
+     overflow kurali yok). Saga tasan mutlak konumlu bir oge yatay
+     kaydirma uretiyor: sayfa ~100vw genisliyor ve saga kaydirinca bos
+     alan goruluyordu. Sol tarafa tasma kaydirma uretmedigi icin arıza
+     tek yonluydu ve gozle "biraz kaymis" gibi okunuyordu.
+
+     Yalnizca X ekseni: Y'de kirpma olsa yapiskan sutun kendi bolumunun
+     disina cikamaz ve tepeden kesilirdi. `visible` + `clip` ciftinin
+     ikisi de oldugu gibi hesaplaniyor (yalnizca `hidden`/`auto` ile
+     eslesen `visible` `auto`ya doner). */
+  overflow-x: clip;
 }
 
 .head {

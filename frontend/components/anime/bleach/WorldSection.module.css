@@ -23,6 +23,23 @@
   /* ⚠️ Yalnizca RENK animasyonu — layout'a dokunan hicbir ozellik yok,
      yani katman gecisinde CLS = 0. Sayfa kokundeki gecisin ayni degeri. */
   transition: background-color 600ms ease-in-out, color 600ms ease-in-out;
+
+  /* ⚠️ SAYFA SAGA KAYIYORDU (29 Agustos 2026, kullanici bildirimi).
+     Olculdu: belge 1425px'lik gorunur alanda 2098px'e kadar uzuyordu ve
+     tek kaynak buradaki dev kanjiydi. `.ghostKanji` `white-space: nowrap`
+     ve `font-size: clamp(6rem, 26vw, 22rem)`; Wandenreich katmaninin
+     kanjisi ALTI karakter (見えざる帝国) ve 6 x 352px = 2112px ediyor.
+     Kanji sol kenardan disari tasmak UZERE tasarlandi ama sag ucu
+     kirpilmadigi icin sayfaya 673px yatay kaydirma ekliyordu -- saga
+     kaydirinca gorulen bos alan tam olarak oydu.
+
+     `clip`, `hidden` DEGIL: `hidden` bir kaydirma kabi yaratir ve
+     katmanin icindeki yapiskan/parallax davranislari gorunur alan yerine
+     bu kutuya baglanir. `clip` yalnizca boyamayi kirpiyor.
+
+     Yalnizca X: Y'de kirpma atmosfer katmanlarinin (yagmur, kul, kemik
+     agaci) katman sinirindan tasan kisimlarini keserdi. */
+  overflow-x: clip;
 }
 
 .inner {

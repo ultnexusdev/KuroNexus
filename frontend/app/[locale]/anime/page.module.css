@@ -112,6 +112,13 @@
   pointer-events: none;
 }
 
+/* Hero kaleminin kutusu: `.opening` `overflow: hidden` tasiyor ve
+   kalem kendi kutusundan 10px disari cikiyor. Kutu kenarlardan iceri
+   alinmazsa kalem kirpilir ve kurator hero yuvasini goremez. */
+.heroPen {
+  inset: clamp(1.25rem, 3vw, 2.25rem);
+}
+
 .heroArt img {
   object-fit: cover;
   object-position: center 32%;
@@ -226,6 +233,10 @@
 .worldItem {
   display: flex;
   min-width: 0;
+  /* Kurator kaleminin konumlanma cercevesi. Kalem kartin KARDESI
+     (kart bir <a>, ic ice etkilesimli oge olamaz) ve `.world`un
+     `overflow: hidden`i onu kirpmasin diye disarida duruyor. */
+  position: relative;
 }
 
 .world {

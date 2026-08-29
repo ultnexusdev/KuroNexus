@@ -14,6 +14,9 @@ import { ANIME_SECTIONS } from "@/lib/anime/sections";
 import type { ArchiveAnime } from "@/lib/api/types";
 import { AkatsukiCloud } from "@/components/anime/AkatsukiCloud";
 import { AkatsukiPortalLink } from "@/components/anime/AkatsukiPortal";
+import { CuratorFrame } from "@/components/character/CuratorFrame";
+import { HallArt, HallSlotPen, hallArtSrc } from "@/components/anime/HallArt";
+import { readIsAdmin } from "@/lib/auth/session";
 import shell from "./layout.module.css";
 import styles from "./page.module.css";
 
@@ -94,13 +97,14 @@ export default async function AnimeHallPage({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "anime" });
 
-  const [archive, showcase, hall, painImages] = await Promise.all([
+  const [archive, showcase, hall, painImages, isAdmin] = await Promise.all([
     getAnimeArchive(),
     getAnimeShowcase(),
     getHall(t("hallName"), locale),
     // Silüet için yalnızca Pain'in kayıtları; kurulum koşmadıysa boş döner
     // ve kart bulut motifiyle çizilir — sayfa görsele borçlu değil.
     getCharacterImages([AKATSUKI_IDS.pain]),
+    readIsAdmin(),
   ]);
 
   const painPortrait =
@@ -119,15 +123,39 @@ export default async function AnimeHallPage({
         (image) => image.slot === "ABILITY" && image.abilityName === key,
       ) ?? null;
 
+  /* ── ⚠️ ESKİ KARE MEKANİZMASI ARTIK YEDEK (29 Ağustos 2026) ────────────
+     Bu dört kare karakter görselleri tablosundan geliyordu: Pain'in
+     kaydına `ABILITY` slotu olarak, `abilityName` alanına `akatsuki:…`
+     anahtarları yazılarak. Sergi için yazılmış bir mekanizma salonun kapı
+     kareleri için ödünç alınmıştı ve bedeli şuydu: yeni bir karta kare
+     koymanın yolu admin panelinden Pain'in dosyasına gidip uydurma bir
+     yetenek adı yazmaktı (kullanıcı bildirimi: "Slam Dunk evrenini
+     ekledik onun resmi yok").
+
+     Kareler artık `anime/hall` küratör yüzeyinden geliyor ve aşağıdakiler
+     yalnızca YEDEK: yuva boşken çizilmeye devam ediyorlar, küratör
+     üstlerine yazdığı anda kayıt kazanıyor. Yani geçiş yıkıcı değil. */
   const hallHero = exhibitImage(EXHIBIT_IMAGE_KEYS.hallHero);
-  /* v8: Naruto Evreni ve Anime Arşivi kartlarının üretilmiş fonları —
-     yoksa kart eski sade hâliyle çizilir */
   const narutoArt = exhibitImage(EXHIBIT_IMAGE_KEYS.worldNaruto);
   const archiveArt = exhibitImage(EXHIBIT_IMAGE_KEYS.worldArchive);
-  /* Bleach kartı: küratör yuvası boşsa depodaki geçici kareye düşüyor.
-     Kartın hiçbir koşulda görselsiz kalmaması gerekiyor — yarılma etkisi
-     görsele bağlı ve boş bir kartta anlamsız kalırdı. */
-  const bleachArt = exhibitImage(EXHIBIT_IMAGE_KEYS.worldBleach);
+  const bleachArtLegacy = exhibitImage(EXHIBIT_IMAGE_KEYS.worldBleach);
+
+  /* Bleach kartı kareyi İKİ KEZ çiziyor (hover'da yarılan iki yarı), o
+     yüzden `HallArt` değil doğrudan adres çözücü kullanılıyor. Kartın
+     hiçbir koşulda görselsiz kalmaması gerekiyor: yarılma etkisi görsele
+     bağlı ve boş bir kartta anlamsız kalırdı — bu yüzden zincirin sonunda
+     depodaki geçici kare duruyor. */
+  const bleachArt = await hallArtSrc(
+    "anime:world:bleach",
+    bleachArtLegacy ? apiUrl(bleachArtLegacy.url) : BLEACH_CARD_FALLBACK,
+  );
+
+  /* Hero kaydı var mı — vitrin afişleri yalnızca HİÇBİR kare yokken
+     çiziliyor ve bu artık küratör yuvasını da hesaba katmalı. */
+  const heroArt = await hallArtSrc(
+    "anime:hall:hero",
+    hallHero ? apiUrl(hallHero.url) : null,
+  );
 
   /* Naruto artık aranmıyor: kartı arşivdeki seri kaydına değil kendi evren
      sayfasına gidiyor. One Piece hâlâ arşive bağlı — onun evren sayfası yok. */
@@ -142,6 +170,10 @@ export default async function AnimeHallPage({
         });
 
   return (
+    /* Küratör anahtarı: kapalıyken kalemler gizli ve yönetici sayfanın
+       gerçek hâlini görüyor. Ziyaretçide sarmalayıcı hiç çizilmiyor —
+       ne anahtar, ne nitelik, ne de bir bayt JS. */
+    <CuratorFrame isAdmin={isAdmin}>
     <div className={styles.page}>
       <nav className={shell.crumb} aria-label="breadcrumb">
         <Link href="/dark-stories">KuroNexus</Link>
@@ -151,30 +183,29 @@ export default async function AnimeHallPage({
 
       {/* ══ 1. AÇILIŞ ══ */}
       <header className={styles.opening}>
-        {/* v6-A1: üretilmiş hero fonu — varsa sahnenin tamamı onun,
-            afişler hiç çizilmez */}
-        {hallHero ? (
-          <span className={styles.heroArt} aria-hidden>
-            <Image
-              src={apiUrl(hallHero.url)}
-              alt=""
-              fill
-              sizes="1920px"
-              priority
-            />
-          </span>
-        ) : null}
+        {/* Hero fonu — varsa sahnenin tamamı onun, afişler hiç çizilmez */}
+        <HallArt
+          slotId="anime:hall:hero"
+          fallbackUrl={hallHero ? apiUrl(hallHero.url) : null}
+          className={styles.heroArt}
+          sizes="1920px"
+          priority
+        />
 
         {/* Vitrin afişleri: kenarlardan sızar, metne doğru kaybolur.
             AniList adresleri tam URL verir; CSP img-src'de s4.anilist.co
-            zaten var. remotePatterns'ta olmadığı için düz <img>. */}
-        {!hallHero && showcase.left?.posterPath ? (
+            zaten var. remotePatterns'ta olmadığı için düz <img>.
+
+            ⚠️ Koşul artık `heroArt` — eski `hallHero` DEĞİL. Küratör
+            hero yuvasını doldurduğunda afişler de susmalı; koşul eski
+            kayda bakmaya devam etseydi kare ile afişler üst üste binerdi. */}
+        {!heroArt && showcase.left?.posterPath ? (
           <span className={`${styles.poster} ${styles.posterLeft}`} aria-hidden>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={showcase.left.posterPath} alt="" loading="eager" />
           </span>
         ) : null}
-        {!hallHero && showcase.right?.posterPath ? (
+        {!heroArt && showcase.right?.posterPath ? (
           <span
             className={`${styles.poster} ${styles.posterRight}`}
             aria-hidden
@@ -183,6 +214,10 @@ export default async function AnimeHallPage({
             <img src={showcase.right.posterPath} alt="" loading="eager" />
           </span>
         ) : null}
+
+        {/* Küratör kalemi: hero bir `<a>` içinde DEĞİL, o yüzden doğrudan
+            sahnenin içinde durabiliyor. */}
+        <HallSlotPen slotId="anime:hall:hero" className={styles.heroPen} />
 
         {/* v3-A1: merkez ışık havuzu — hero'nun ortası ölü siyah kalmasın */}
         <span className={styles.openingPool} aria-hidden />
@@ -232,6 +267,14 @@ export default async function AnimeHallPage({
               href={animeHref.akatsuki()}
               className={`${styles.world} ${styles.akatsuki}`}
             >
+              {/* Küratör kare koyarsa bulut/silüet kompozisyonunun ARKASINA
+                  giriyor: kartın kendi dili (暁, bulut rozeti, Pain silüeti)
+                  kaybolmuyor, yalnızca zemin kazanıyor. */}
+              <HallArt
+                slotId="anime:world:akatsuki"
+                className={styles.worldArt}
+                sizes="620px"
+              />
               <span className={styles.mist} aria-hidden />
               {painPortrait ? (
                 <span className={styles.silhouette} aria-hidden>
@@ -271,6 +314,7 @@ export default async function AnimeHallPage({
                 </span>
               </span>
             </AkatsukiPortalLink>
+            <HallSlotPen slotId="anime:world:akatsuki" />
           </li>
 
           {/* Naruto Evreni kendi sayfasına gidiyor (`/anime/naruto`), arşivdeki
@@ -279,16 +323,12 @@ export default async function AnimeHallPage({
               her hâlükârda var, koşullu çizim gereksizdi. */}
           <li className={styles.worldItem}>
             <Link href={animeHref.naruto()} className={styles.world}>
-                {narutoArt ? (
-                  <span className={styles.worldArt} aria-hidden>
-                    <Image
-                      src={apiUrl(narutoArt.url)}
-                      alt=""
-                      fill
-                      sizes="620px"
-                    />
-                  </span>
-                ) : null}
+                <HallArt
+                  slotId="anime:world:naruto"
+                  fallbackUrl={narutoArt ? apiUrl(narutoArt.url) : null}
+                  className={styles.worldArt}
+                  sizes="620px"
+                />
                 <span className={styles.worldBody}>
                   <span className={`${shell.display} ${styles.worldName}`}>
                     {t("worlds.naruto.title")}
@@ -301,6 +341,7 @@ export default async function AnimeHallPage({
                   </span>
                 </span>
             </Link>
+            <HallSlotPen slotId="anime:world:naruto" />
           </li>
 
           {/* Bleach Evreni — Naruto'nun kardeşi: evrenin kendisi, izlediğim
@@ -320,23 +361,33 @@ export default async function AnimeHallPage({
               <span className={styles.riftArt} aria-hidden>
                 {/* Aynı kare iki kez: her yarı kendi clip-path'iyle duruyor
                     ve hover'da ters yönlere kayıyor. Tek görsel dosyası —
-                    ikinci kopya ağdan yeniden inmiyor. */}
-                <span className={styles.riftHalf} data-side="left">
-                  <Image
-                    src={bleachArt ? apiUrl(bleachArt.url) : BLEACH_CARD_FALLBACK}
-                    alt=""
-                    fill
-                    sizes="620px"
-                  />
-                </span>
-                <span className={styles.riftHalf} data-side="right">
-                  <Image
-                    src={bleachArt ? apiUrl(bleachArt.url) : BLEACH_CARD_FALLBACK}
-                    alt=""
-                    fill
-                    sizes="620px"
-                  />
-                </span>
+                    ikinci kopya ağdan yeniden inmiyor.
+
+                    ⚠️ İki kopya AYNI yuvadan besleniyor ama tek bir kalemi
+                    var (kartın dışında, kardeş olarak): küratör tek bir kare
+                    yüklüyor, yarılmayı CSS yapıyor. */}
+                {bleachArt ? (
+                  <>
+                    <span className={styles.riftHalf} data-side="left">
+                      <Image
+                        src={bleachArt.url}
+                        alt=""
+                        fill
+                        sizes="620px"
+                        style={bleachArt.style}
+                      />
+                    </span>
+                    <span className={styles.riftHalf} data-side="right">
+                      <Image
+                        src={bleachArt.url}
+                        alt=""
+                        fill
+                        sizes="620px"
+                        style={bleachArt.style}
+                      />
+                    </span>
+                  </>
+                ) : null}
                 <span className={styles.riftSeam} />
               </span>
 
@@ -368,17 +419,23 @@ export default async function AnimeHallPage({
                 </span>
               </span>
             </Link>
+            <HallSlotPen slotId="anime:world:bleach" />
           </li>
 
           {/* Slam Dunk Evreni — üçüncü evren kapısı (28 Ağustos 2026).
-              ⚠️ Kart GÖRSELSİZ ve bilerek: Bleach kartının yarılma etkisi
-              bir kareye bağlı ve o kare `EXHIBIT_IMAGE_KEYS` üzerinden
-              geliyor. Slam Dunk'ın görselleri kendi küratör yüzeyinde
-              (`anime/slam-dunk`) duruyor ve o mekanizma bu sayfada okunmuyor.
-              Kartı sahte bir kareye bağlamak yerine hub'ın metin dilinde
-              bırakıldı — One Piece kartı da aynı şekilde duruyor. */}
+              ⚠️ Kart 29 Ağustos 2026'ya kadar GÖRSELSİZDİ ve gerekçesi
+              teknikti: kareler `EXHIBIT_IMAGE_KEYS` üzerinden, yani
+              Pain'in karakter kaydından geliyordu ve oraya Slam Dunk için
+              bir kare koymanın makul bir yolu yoktu. Kullanıcı bildirimi
+              tam olarak buydu ("onun resmi yok"). Yuva artık `anime/hall`
+              yüzeyinde ve kart da diğerleri gibi doldurulabiliyor. */}
           <li className={styles.worldItem}>
             <Link href={animeHref.slamDunk()} className={styles.world}>
+              <HallArt
+                slotId="anime:world:slamdunk"
+                className={styles.worldArt}
+                sizes="620px"
+              />
               {/* Kanji rozeti: Akatsuki ve Bleach kartlarındaki `.kanji`
                   deseni. 湘北 = Shohoku, sayfanın da açılış işareti. */}
               <span className={`${shell.brush} ${styles.kanji}`} aria-hidden>
@@ -404,6 +461,7 @@ export default async function AnimeHallPage({
                 </span>
               </span>
             </Link>
+            <HallSlotPen slotId="anime:world:slamdunk" />
           </li>
 
           {onePiece ? (
@@ -412,6 +470,11 @@ export default async function AnimeHallPage({
                 href={animeHref.series(onePiece.slug)}
                 className={styles.world}
               >
+                <HallArt
+                  slotId="anime:world:onepiece"
+                  className={styles.worldArt}
+                  sizes="620px"
+                />
                 <span className={styles.worldBody}>
                   {/* "One Piece" TR büyütmede "ONE PİECE" olurdu — özel ad */}
                   <span className={`${shell.display} ${styles.worldName}`}>
@@ -425,21 +488,18 @@ export default async function AnimeHallPage({
                   </span>
                 </span>
               </Link>
+              <HallSlotPen slotId="anime:world:onepiece" />
             </li>
           ) : null}
 
           <li className={styles.worldItem}>
             <Link href={animeHref.archive()} className={styles.world}>
-              {archiveArt ? (
-                <span className={styles.worldArt} aria-hidden>
-                  <Image
-                    src={apiUrl(archiveArt.url)}
-                    alt=""
-                    fill
-                    sizes="620px"
-                  />
-                </span>
-              ) : null}
+              <HallArt
+                slotId="anime:world:archive"
+                fallbackUrl={archiveArt ? apiUrl(archiveArt.url) : null}
+                className={styles.worldArt}
+                sizes="620px"
+              />
               <span className={styles.worldBody}>
                 <span className={`${shell.display} ${styles.worldName}`}>
                   {t("worlds.archive.title")}
@@ -452,9 +512,11 @@ export default async function AnimeHallPage({
                 </span>
               </span>
             </Link>
+            <HallSlotPen slotId="anime:world:archive" />
           </li>
         </ul>
       </section>
     </div>
+    </CuratorFrame>
   );
 }

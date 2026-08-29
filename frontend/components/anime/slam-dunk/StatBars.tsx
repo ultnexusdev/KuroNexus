@@ -8,10 +8,16 @@ import styles from "./StatBars.module.css";
  * ── ⚠️ BU SAYILAR CANON DEĞİL ────────────────────────────────────────────
  * Slam Dunk'ın hiçbir resmî kaynağı oyuncuları sayısal derecelendirmiyor.
  * Değerler fandom künyelerindeki "Abilities / Strengths / Weakness"
- * bölümlerinden çıkarılmış ARŞİV DEĞERLENDİRMESİ ve sayfa bunu gizlemiyor:
- * kadro ızgarasının altında tek bir kaynak notu duruyor
- * (`slamDunk.stats.disclaimer`). Not her kartta tekrarlanmıyor — kırk beş
- * kez basılan bir uyarı okunmaz hâle gelir ve kartın kendisini boğar.
+ * bölümlerinden çıkarılmış ARŞİV DEĞERLENDİRMESİ.
+ *
+ * ⚠️ Bunu söyleyen kaynak notu kadro ızgarasının altında duruyordu ve
+ * 29 Ağustos 2026'da kullanıcı kararıyla KALDIRILDI (gerekçe
+ * `RosterGrid.tsx` başlığında). Yani sayfa artık bunu yazmıyor —
+ * kaydın kendisi burada duruyor ve öyle kalmalı: bir gün bu değerleri
+ * "canon veri" sanıp bir yere taşımak isteyen olursa duracağı yer burası.
+ *
+ * Boy, kilo, forma numarası ve mevki bunun DIŞINDA: onlar kaynağa sadık
+ * ve kaynakta olmayan alan uydurulmuyor, "kayıt yok" yazıyor.
  *
  * ── NEDEN SUNUCU BİLEŞENİ ────────────────────────────────────────────────
  * Bar bir `<div>`in genişliği; hesaplanacak bir şey yok. Dolum animasyonu

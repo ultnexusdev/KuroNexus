@@ -1,0 +1,41 @@
+/* ============================================================
+   ANIME SALONU · KART FONU YUVASI
+
+   Yuvanin kendi kutusu YOK: kare kartin arka fonu ve kartin kendi
+   yuksekligini dolduruyor. Kadraj kurallari (maske, filtre, hover)
+   kartin kendi modulunde (`page.module.css` → `.worldArt`, `.heroArt`);
+   burada yalnizca konumlanma ve kurator kalemi var.
+
+   ⚠️ KURAL 16: tek hex yok.
+   ============================================================ */
+
+.art {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ── KURATOR KALEMI ──────────────────────────────────────────
+   Kartin KARDESI, icinde degil: kart bir <a> ve ic ice etkilesimli
+   oge hem gecersiz HTML hem de tiklamanin yanlis yere gitmesi demek.
+
+   ⚠️ Kaplama kutusu tiklanabilir DEGIL, yalnizca kalemin kendisi:
+   aksi halde kartin uzerine gorunmez bir kalkan gelirdi ve kurator
+   modunda kartlar tiklanamaz olurdu. */
+.pen {
+  position: absolute;
+  /* ⚠️ `0` DEGIL. Kalem dugmesi kendi kutusunun sag ust kosesinden
+     10px DISARI tasiyor (`CuratedSlotEditor.module.css` → `.pencil`);
+     kutu kartla ayni olsaydi kalem kartin disina dusup izgara
+     boslugunda ya da bolum kenarinda asili kalirdi. 14px iceri
+     alinca kalem kartin kosesine oturuyor. */
+  inset: 14px;
+  z-index: 5;
+  display: block;
+  pointer-events: none;
+}
+
+.pen > * {
+  pointer-events: auto;
+}

@@ -47,10 +47,28 @@
   cursor: pointer;
 }
 
-/* Dolu yuva ile bos yuva bir bakista ayirt edilsin */
-.pencil[data-filled] {
-  border-color: var(--accent-muted);
+/* ── DOLU / BOS ──────────────────────────────────────────────
+   ⚠️ VURGU 29 AGUSTOS 2026'DA TERS CEVRILDI.
+
+   Once dolu yuva aksan rengindeydi, bos yuva soluk. Mantikli
+   gorunuyordu ama kuratorun isini tam ters yone cekiyordu: uzun bir
+   sayfada aradigi sey DOLU yuvalar degil, BOS olanlar -- "nereye
+   ekleyecegim" sorusu (kullanici bildirimi). Dolular zaten gorseliyle
+   kendini gosteriyor; kalemin isaret etmesi gereken sey eksik olan.
+
+   Bos yuvanin kalemi artik kesikli konturlu ve aksan zeminli: sayfa
+   hizli kaydirilirken bile yakalaniyor. Dolu yuvanin kalemi sessiz --
+   orada bir sey yapilacaksa kurator zaten kareyi gorup duruyor. */
+.pencil:not([data-filled]) {
+  border-style: dashed;
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 16%, var(--surface));
   color: var(--accent);
+}
+
+.pencil[data-filled] {
+  border-color: var(--border-strong);
+  color: var(--text-secondary);
 }
 
 .pencil:hover,

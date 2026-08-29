@@ -40,6 +40,21 @@ import world from "./world.module.css";
  * ── ⚠️ SON EKRAN DOLDURULMADI ────────────────────────────────────────────
  * Brief: "Motto ekranı en az 60vh boşluk taşır. Doldurmaya çalışma."
  * Kılıç kaybolduktan sonra ekranda iki satırdan başka hiçbir şey yok.
+ *
+ * ── ⚠️ KILIÇ AYLARDIR GÖRÜNMÜYORDU (29 Ağustos 2026) ─────────────────────
+ * Bölümün bütün mekaniği çalışıyordu — path gerçekten morph ediyor, zemin
+ * gerçekten dönüyordu — ama ziyaretçi kılıcı HİÇ görmüyordu: `.arc` kendi
+ * zeminini tam genişlikte boyamak için negatif taşmayla kılıç sütununun
+ * üstüne çıkıyor ve DOM'da sonra geldiği için opak zeminini kılıcın üzerine
+ * basıyordu (ikisinin de `z-index`i `auto`ydu).
+ *
+ * Geriye yalnızca arc'lar arasındaki devasa boşluklar kalıyordu ve bunlar
+ * bir tasarım hatası gibi okunuyordu — ki kılıç olmadan öyleydiler.
+ *
+ * Düzeltme tek satır (`bladeCol { z-index: 2 }`); ama bölüm o boşlukları
+ * artık dolduruyor da: spot ışığı, vignette, dikey kılavuz çizgi, süzülen
+ * toz ve kılıcın her arc'a **varışında** attığı nabız. Beşi de saf CSS,
+ * hiçbiri HTML'e ya da morph mantığına dokunmuyor.
  */
 export async function StoryTimeline({ locale }: { locale: string }) {
   const t = await getTranslations({ locale, namespace: "anime.bleach.timeline" });

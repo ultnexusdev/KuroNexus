@@ -283,6 +283,65 @@
 .stage:has(.row[data-i="8"] :is(.pick:checked, .line:hover)) { --aura: var(--aura-8); }
 .stage:has(.row[data-i="9"] :is(.pick:checked, .line:hover)) { --aura: var(--aura-9); }
 
+/* ── KURATOR MODU: ON PORTRE BIRDEN ──────────────────────────
+   ⚠️ OLCULMUS ARIZA (29 Agustos 2026): bu bolumde yuvalara gorsel
+   EKLENEMIYORDU.
+
+   Sebep bolumun kendi tezi: on panelin onu da ust uste duruyor ve
+   yalnizca satira hover/secim yapilinca aciliyor. Kurator kalemi
+   gorebilmek icin fareyi SATIRIN uzerinde tutmak, dosya secebilmek
+   icinse fareyi PANELE goturmek zorunda -- ikisi ayni anda olamiyor,
+   panel yolda kapaniyor. Yuvalar teknik olarak duruyordu, pratikte
+   erisilemezdi.
+
+   Cozum: mod acikken sahne tek sutuna, portreler de acik bir izgaraya
+   iniyor. On kare de ayni anda ekranda, her birinin kalemi ve kadraj
+   iskelesi yerinde. Ziyaretcinin gordugu davranis DEGISMIYOR --
+   butun kurallar `[data-curating="true"]` altinda.
+
+   ⚠️ `:global` sart: nitelik `CuratorFrame`in sarmalayicisinda ve o
+   baska bir CSS modulunun sinifini tasiyor; ortak dil nitelik.
+
+   ⚠️ Izgara adimi 14rem'den kucuk OLMAMALI: `CuratedImage` icindeki
+   kap sorgusu 220px altinda kadraj notunu ve yuva kimligini gizliyor
+   ve kurator hangi karenin hangisi oldugunu goremez hale gelir. */
+:global([data-curating="true"]) .stage {
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: clamp(1.5rem, 5vh, 2.5rem);
+}
+
+:global([data-curating="true"]) .panels {
+  position: static;
+}
+
+:global([data-curating="true"]) .panelBox {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: clamp(0.8rem, 2vw, 1.4rem);
+  min-height: 0;
+}
+
+:global([data-curating="true"]) .panel {
+  position: static;
+  opacity: 1;
+  visibility: visible;
+  transition: none;
+}
+
+/* Portre kendi hucresini doldursun: 14rem tavani izgarada anlamsiz. */
+:global([data-curating="true"]) .portrait {
+  max-width: none;
+}
+
+/* Biyografi, etiketler ve "bir isme gel" ipucu izgarada gurultu:
+   kurator burada metin okumuyor, kare yerlestiriyor. Ikisi de
+   mod kapaninca aynen geri geliyor. */
+:global([data-curating="true"]) .bio,
+:global([data-curating="true"]) .tags,
+:global([data-curating="true"]) .hint {
+  display: none;
+}
+
 /* ── DAR EKRAN ───────────────────────────────────────────────
    Portre sutunu altta: yapiskan bir panel dar ekranda ekranin yarisini
    yerdi. Satirlar aciklamasini kendi altinda acmiyor -- panel tek ve

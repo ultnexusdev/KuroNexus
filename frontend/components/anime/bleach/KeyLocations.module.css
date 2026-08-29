@@ -77,7 +77,18 @@
 }
 
 /* ── MEKANLAR ────────────────────────────────────────────────
-   Kart YOK: iki sutun, hairline ayracli liste. */
+   Kart YOK: iki sutun, hairline ayracli liste.
+
+   ⚠️ IZGARAYA DONMEDI. 29 Agustos 2026'da yirmi uc kadraj eklendi ama
+   liste ritmi korundu: satirlar hala hairline ile ayriliyor, kutu ve
+   golge yok. Kadraj iki olcekte —
+
+     AVUC ICI  Satirin solunda kucuk bir kare. Ad ve iki cumle yaninda.
+     ACILIS    Grubun ILK mekani. Iki sutunu birden kapliyor, 16:9,
+               metin karenin ALTINDA. Grubun kimligi bu kare.
+
+   Ayrimin gerekcesi: yirmi uc esit kare bir katalog olurdu ve bolumun
+   tezi katalog degil INIS. Bes acilis karesi bes durak isaretliyor. */
 .places {
   list-style: none;
   margin: 0;
@@ -89,15 +100,65 @@
 }
 
 .place {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
+  /* Kucuk kare solda, metin sagda. `grid` degil `flex` degil: iki
+     satirlik metnin (ad + aciklama) tek bir sutunda kalmasi ve karenin
+     ikisinin de solunda durmasi gerekiyor. */
+  display: grid;
+  grid-template-columns: clamp(4.5rem, 11vw, 7rem) minmax(0, 1fr);
+  align-items: start;
+  column-gap: clamp(0.7rem, 2vw, 1.1rem);
+  row-gap: 0.35rem;
   padding-block: clamp(0.8rem, 2.4vh, 1.25rem);
   border-bottom: 1px solid var(--hairline);
 }
 
 .place p {
   margin: 0;
+  grid-column: 2;
+}
+
+/* ── ACILIS KARESI ───────────────────────────────────────────
+   Grubun ilk mekani iki sutunu birden aliyor ve kare metnin USTUNE
+   geciyor. Tek satirlik bir istisna degil bolumun ritmi: bes grup,
+   bes acilis. */
+.place[data-lead] {
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: clamp(0.6rem, 1.8vh, 1rem);
+  padding-bottom: clamp(1.2rem, 3.5vh, 2rem);
+}
+
+.place[data-lead] p {
+  grid-column: 1;
+  /* Acilis metni karenin altinda ve tam genislikte durmasin: olcu
+     korunuyor, satir uzunlugu okunur kaliyor. */
+  max-width: var(--measure);
+}
+
+/* ── KADRAJ ──────────────────────────────────────────────────
+   Yuvanin kendi orani gecerli (kucukte 4:3, acilista 16:9); burada
+   yalnizca kutunun genisligi ve konumu soyleniyor.
+
+   ⚠️ `--slot-mark-opacity` DEGIL `.glyph` devrede: yuvalarin yedegi
+   `typographic`, yani bos kadrajda mekanin KENDI kanjisi duruyor.
+   Bolum bos yuvalarla da tasarlanmis gorunuyor. */
+.placeShot {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  width: 100%;
+  /* ⚠️ Yuvanin varsayilan alt siniri 3rem ve bu kutu ~72px: uc
+     karakterlik bir ad (空座町) kirpilirdi. Ust sinir da iniyor --
+     kucuk kare bir yer tutucu, bir afis degil. */
+  --slot-glyph-min: 1rem;
+  --slot-glyph-max: 2.4rem;
+}
+
+.place[data-lead] .placeShot {
+  grid-row: auto;
+  /* Acilis karesi tam tersi: bos oldugunda dev kanji BOLUMUN
+     kendisi. Varsayilan olcek geri geliyor. */
+  --slot-glyph-min: 3rem;
+  --slot-glyph-max: 9rem;
 }
 
 .placeHead {
@@ -140,5 +201,12 @@
 
   .places {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Acilis karesi tek sutunda zaten tam genislikte: `1 / -1` bir sey
+     degistirmiyor ama acikca yaziliyor -- izgara tanimi degisirse
+     kural sessizce yanlis yere dusmesin. */
+  .place[data-lead] {
+    grid-column: 1;
   }
 }

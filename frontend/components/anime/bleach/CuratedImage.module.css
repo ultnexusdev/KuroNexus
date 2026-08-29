@@ -151,15 +151,31 @@
 }
 
 /* Tipografik yedek: bosluk tasarimin kendisi. Dev kanji, cok dusuk
-   opaklik — Kubo'nun negatif alan estetigi. */
+   opaklik — Kubo'nun negatif alan estetigi.
+
+   ⚠️ ALT SINIR DISARIDAN AYARLANABILIR (`--slot-glyph-min`). Sabit 3rem,
+   yuva genis oldugu surece dogruydu; P15'in mekan listesi ~72px'lik
+   kucuk kareler getirdi (29 Agustos 2026) ve orada 48px'lik uc kanji
+   kutuya sigmiyor, `.clip` onlari kirpiyordu. Ust sinir da ayni
+   gerekceyle disari acildi.
+
+   `--slot-mark-opacity` ile ayni desen: yuva kendi olcegini bilmiyor,
+   onu kullanan bolum biliyor. */
 .glyph {
   position: relative;
   font-family: var(--font-brush), var(--font-serif), serif;
-  font-size: clamp(3rem, 22cqi, 9rem);
+  font-size: clamp(
+    var(--slot-glyph-min, 3rem),
+    22cqi,
+    var(--slot-glyph-max, 9rem)
+  );
   line-height: 1;
   color: var(--world-paper, var(--text-primary));
   opacity: 0.12;
   user-select: none;
+  /* Kucuk kadrajda uc karakterlik bir ad satira sigmayip kirpilmasin */
+  text-align: center;
+  text-wrap: balance;
 }
 
 /* `cqi` birimi icin: yuva kendi kap sorgusu olsun */
@@ -184,9 +200,44 @@
   gap: var(--gap-sm);
   padding: var(--pad-md);
   text-align: center;
-  background: color-mix(in srgb, var(--surface) 92%, transparent);
-  outline: 1px dashed var(--border-strong);
+
+  /* ⚠️ ISKELE GORUNMUYORDU (29 Agustos 2026, kullanici bildirimi:
+     "bos olan kisimlarda nerden ekleyecegimi goremiyorum").
+
+     Eski hali `--surface` zemin + `--border-strong` kesikli kontur idi
+     ve ikisi de KOYU: siyah bir sayfada koyu gri bir dikdortgen, hem de
+     etrafindaki gercek tasarimin arasinda. Bir yuva "bos" diye degil
+     "sayfanin bir parcasi" diye okunuyordu ve kurator sayfayi asagi
+     kaydirirken hicbirini goremiyordu.
+
+     Artik iskele AKSAN rengini giyiyor: kontur aksan, zemin aksanin cok
+     duesuk yuzdesi. Ziyaretcinin gordugu hicbir sey degismiyor --
+     `.holder` YALNIZCA kurator modunda ve YALNIZCA yoneticinin
+     DOM'unda. */
+  background:
+    linear-gradient(
+      color-mix(in srgb, var(--accent) 9%, transparent),
+      color-mix(in srgb, var(--accent) 9%, transparent)
+    ),
+    color-mix(in srgb, var(--surface) 94%, transparent);
+  outline: 1px dashed color-mix(in srgb, var(--accent) 70%, transparent);
   outline-offset: -4px;
+}
+
+/* Uzaktan okunan isaret. Yazi degil SEKIL: kurator sayfayi hizli
+   kaydirirken bir arti gorup duruyor, sonra notu okuyor.
+
+   ⚠️ Cok kucuk yuvalarda (maske 64px, arma 72px) not ve kimlik zaten
+   gizleniyor; arti orada TEK isaret olarak kaliyor ve tam da bu yuzden
+   `.holderHint`ten once, kap sorgusunun disinda tanimli. */
+.holder::before {
+  content: "+";
+  display: block;
+  font-family: var(--font-mono);
+  font-size: clamp(1.1rem, 14cqi, 2.2rem);
+  font-weight: 300;
+  line-height: 1;
+  color: var(--accent);
 }
 
 .holderMeta {

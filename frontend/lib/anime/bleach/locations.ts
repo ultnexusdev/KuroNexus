@@ -9,11 +9,19 @@ import type { LayerId } from "@/components/anime/bleach/WorldSection";
  * temasını taşıyor**. Yani tek bölümde beş tema kayması oluyor: sayfanın
  * mini bir özeti.
  *
- * ── ⚠️ GÖRSEL YOK VE BU BİLİNÇLİ ────────────────────────────────────────
- * Brief'in açık kararı: "Sayfada zaten çok görsel var; burası nefes alma
- * alanı." Bölüm tamamen tipografik ve manifestoda `locations` yuvası
- * açılmadı — açılsaydı küratör panelinde sonsuza kadar "eksik görsel"
- * olarak dururdu.
+ * ── ⚠️ GÖRSEL KARARI DEĞİŞTİ (29 Ağustos 2026) ──────────────────────────
+ * Brief bu bölümü görselsiz istiyordu: "Sayfada zaten çok görsel var; burası
+ * nefes alma alanı." Kullanıcı bunu açıkça geri aldı — "Mekânlar kısmında da
+ * fotoğrafla görselliği artıralım, mesela Karakura Town resmi de olsun".
+ *
+ * Karar uygulandı ama bölümün tezi korundu: kart yok, ızgara yok. Her grubun
+ * İLK mekânı geniş bir açılış karesi alıyor (grubun kimliği), kalanlar
+ * listedeki yerinde küçük bir küçük resimle duruyor. Yani bölüm hâlâ bir
+ * liste — resimlenmiş bir liste.
+ *
+ * ⚠️ `slug` YENİ VE KARARLI: küratörün yuvası `bleach:place:<slug>`. Yeniden
+ * adlandırmak yüklenen kareyi koparır (manifesto başlığındaki kural). Ad
+ * değişse bile slug DEĞİŞMEZ.
  *
  * ── HEPSİ FANDOM'DAN DOĞRULANDI (23 Ağustos 2026) ────────────────────────
  * ⚠️ Brief'in Reiōkyū listesi bir hata taşıyordu: **Ichimonji bir saray
@@ -34,6 +42,13 @@ import type { LayerId } from "@/components/anime/bleach/WorldSection";
 export interface LocationRecord {
   /** ÇEVRİLMEZ */
   kanji: string;
+  /**
+   * ⚠️ KARARLI kimlik — küratör yuvası (`bleach:place:<slug>`) bundan
+   * türüyor. Adın ASCII karşılığı; Türkçe/Japonca diyakritik taşımıyor
+   * (`Sōkyoku` → `sokyoku`) çünkü backend yuva kimliğini
+   * `^[a-z0-9][a-z0-9:-]*$` ile doğruluyor.
+   */
+  slug: string;
   /** ÇEVRİLMEZ — özel ad */
   name: string;
   /** 2 cümle, arşivci sesi — wiki özeti değil */
@@ -59,6 +74,7 @@ export const LOCATION_GROUPS: readonly LocationGroup[] = [
     places: [
       {
         kanji: "空座町",
+        slug: "karakura-town",
         name: "Karakura Town",
         text: {
           tr: "Sıradan bir taşra kasabası gibi görünüyor ama ruhsal yoğunluğu olağandışı: hem Hollow'ları hem onları avlayanları kendine çekiyor. Savaşın büyük bölümü burada, hiçbir şeyden haberi olmayan insanların üstünde geçti.",
@@ -67,6 +83,7 @@ export const LOCATION_GROUPS: readonly LocationGroup[] = [
       },
       {
         kanji: "クロサキ医院",
+        slug: "kurosaki-clinic",
         name: "Kurosaki Clinic",
         text: {
           tr: "Bir aile kliniği ve aynı zamanda eski bir kaptanın sığınağı. Tabelası kanji değil katakana — kasabanın en sıradan görünen yerinin en sıra dışı sakinleri var.",
@@ -75,6 +92,7 @@ export const LOCATION_GROUPS: readonly LocationGroup[] = [
       },
       {
         kanji: "浦原商店",
+        slug: "urahara-shop",
         name: "Urahara Shop",
         text: {
           tr: "Dışarıdan bakınca sokak arasında küçük bir şekerci. Altında bir eğitim mağarası, arkasında Soul Society'ye açılan kapıyı kuran adam var.",
@@ -83,6 +101,7 @@ export const LOCATION_GROUPS: readonly LocationGroup[] = [
       },
       {
         kanji: "空座一校",
+        slug: "karakura-ikko",
         name: "Karakura Ikkō",
         text: {
           tr: "Ichigo'nun ve arkadaşlarının lisesi; hikâyenin başladığı sınıf burada. Ruhları görebilen bir avuç öğrenci, aynı sıraları görmeyenlerle paylaşıyor.",
@@ -99,6 +118,7 @@ export const LOCATION_GROUPS: readonly LocationGroup[] = [
     places: [
       {
         kanji: "瀞霊廷",
+        slug: "seireitei",
         name: "Seireitei",
         text: {
           tr: "“Arınmış Ruhlar Divanı”: beyaz duvarların içinde on üç bölük, bir bürokrasi ve asil haneler. Duvarın içine doğmak ile dışına doğmak arasındaki fark, ölümden sonra bile sürüyor.",
@@ -107,6 +127,7 @@ export const LOCATION_GROUPS: readonly LocationGroup[] = [
       },
       {
         kanji: "流魂街",
+        slug: "rukongai",
         name: "Rukongai",
         text: {
           tr: "Duvarın dışı ve Soul Society'nin asıl kalabalığı: dört yöne seksener, 320 bölge. Bir numara sakin ve yasalı; seksen numarada yasa diye bir şey yok.",
@@ -115,6 +136,7 @@ export const LOCATION_GROUPS: readonly LocationGroup[] = [
       },
       {
         kanji: "双殛の丘",
+        slug: "sokyoku-hill",
         name: "Sōkyoku Hill",
         text: {
           tr: "İnfaz için seçilmiş tek yer: Seireitei'nin tam ortasında kayalık bir yayla. Bir milyon Zanpakutō gücündeki mızrak burada kırıldı ve kırıldığı gün Soul Society'nin de bir şeyi kırıldı.",
@@ -123,6 +145,7 @@ export const LOCATION_GROUPS: readonly LocationGroup[] = [
       },
       {
         kanji: "双殛",
+        slug: "sokyoku",
         name: "Sōkyoku",
         text: {
           tr: "Tepeye adını veren dev naginata; adı “ikili ceza” demek. Serbest bırakıldığında bir ateş anka kuşuna dönüşüyor ve tek bir ruhu değil, o ruhun bütün olasılıklarını siliyor.",
@@ -131,6 +154,7 @@ export const LOCATION_GROUPS: readonly LocationGroup[] = [
       },
       {
         kanji: "懺罪宮",
+        slug: "senzaikyu",
         name: "Senzaikyū",
         text: {
           tr: "“Tövbe Sarayı”: infazı bekleyenlerin tutulduğu beyaz kule, tepeye tepeden bakıyor. Rukia oradan çıkarıldığında hikâye bir kurtarma operasyonundan bir iç savaşa döndü.",
@@ -139,6 +163,7 @@ export const LOCATION_GROUPS: readonly LocationGroup[] = [
       },
       {
         kanji: "中央四十六室",
+        slug: "central-46",
         name: "Central 46 Compound",
         text: {
           tr: "Kırk bilge ve altı yargıcın kapatıldığı külliye; çoğu yer altında ve dışarıya kapalı. Aizen içerideki herkesi öldürüp yerlerine geçtiğinde kimse aylarca fark etmedi — kapalılığın bedeli.",
@@ -147,6 +172,7 @@ export const LOCATION_GROUPS: readonly LocationGroup[] = [
       },
       {
         kanji: "真央霊術院",
+        slug: "shinoreijutsuin",
         name: "Shinōreijutsuin",
         text: {
           tr: "Yamamoto'nun 2.100 yıl önce kurduğu okul; Gotei 13, Onmitsukidō ve Kidō Birliği'nin üçü de öğrencisini buradan alıyor. Central 46'nın yetki alanı dışındaki iki yerden biri.",
@@ -163,6 +189,7 @@ export const LOCATION_GROUPS: readonly LocationGroup[] = [
     places: [
       {
         kanji: "霊王宮",
+        slug: "reiokyu",
         name: "Reiōkyū",
         text: {
           tr: "Soul Society'nin üzerinde, kimsenin göremediği bir kat. Oraya çıkmanın tek yolu Ōken ve Ōken bir anahtar değil, canlı bir kemikten yapılmış bir madde.",
@@ -171,6 +198,7 @@ export const LOCATION_GROUPS: readonly LocationGroup[] = [
       },
       {
         kanji: "霊王大内裏",
+        slug: "reio-daidairi",
         name: "Reiō Daidairi",
         text: {
           tr: "Ana tapınak: havada duran dev silindirik yapı ve Ruh Kralı'nın bulunduğu yer. Bir taht odası değil bir mühür odası.",
@@ -179,6 +207,7 @@ export const LOCATION_GROUPS: readonly LocationGroup[] = [
       },
       {
         kanji: "麒麟殿",
+        slug: "kirinden",
         name: "Kirinden",
         text: {
           tr: "Tenjirō Kirinji'nin karargâhı ve içinde şifa veren kaplıcalar var. Yaraların iyileştiği yer değil, iyileşmenin zorla yaptırıldığı yer.",
@@ -187,6 +216,7 @@ export const LOCATION_GROUPS: readonly LocationGroup[] = [
       },
       {
         kanji: "臥豚殿",
+        slug: "gatonden",
         name: "Gatonden",
         text: {
           tr: "Kirio Hikifune'nin karargâhı. Ruh gücünü yemek yoluyla besleyen bir mutfak — yapay ruhu icat eden kişinin sarayı bir laboratuvar değil, bir sofra.",
@@ -195,6 +225,7 @@ export const LOCATION_GROUPS: readonly LocationGroup[] = [
       },
       {
         kanji: "鳳凰殿",
+        slug: "hooden",
         name: "Hōōden",
         text: {
           tr: "Ōetsu Nimaiya'nın karargâhı ve her Zanpakutō'nun doğduğu yer. Asauchi'ler burada dövülüyor; yani Soul Society'nin bütün kılıçları tek bir adamın elinden çıkmış.",
@@ -211,6 +242,7 @@ export const LOCATION_GROUPS: readonly LocationGroup[] = [
     places: [
       {
         kanji: "虚夜宮",
+        slug: "las-noches",
         name: "Las Noches",
         text: {
           tr: "Adı “boşluğun gece sarayı” demek ve içeride gerçekten yapay bir gökyüzü var: Aizen'in kurduğu tavan hep gündüz gösteriyor. Dışarıda hiç bitmeyen gecenin altında, içeride hiç gelmeyen bir gündüz.",
@@ -219,6 +251,7 @@ export const LOCATION_GROUPS: readonly LocationGroup[] = [
       },
       {
         kanji: "メノスの森",
+        slug: "forest-of-menos",
         name: "Forest of Menos",
         text: {
           tr: "Çölün altında, sıradan Hollow'ların Arrancar'lardan saklandığı bir orman. Yukarısı bir imparatorluksa burası onun bodrumu.",
@@ -227,6 +260,7 @@ export const LOCATION_GROUPS: readonly LocationGroup[] = [
       },
       {
         kanji: "黒腔",
+        slug: "garganta",
         name: "Garganta",
         text: {
           tr: "“Kara boğaz”: dünyalar arasında yırtılan geçit. Senkaimon'un aksine bir kapı değil bir yarık — Hollow'ların yolu düzenli değil, yırtıktır.",
@@ -235,6 +269,7 @@ export const LOCATION_GROUPS: readonly LocationGroup[] = [
       },
       {
         kanji: "白い砂漠",
+        slug: "white-desert",
         name: "The white desert",
         text: {
           tr: "Sonsuz beyaz kum, kırılmayan bir ay ve kuru kemik ağaçları. Hueco Mundo'da mekân denince akla gelen ilk şey bir yapı değil, bu boşluğun kendisi.",
@@ -251,6 +286,7 @@ export const LOCATION_GROUPS: readonly LocationGroup[] = [
     places: [
       {
         kanji: "銀架城",
+        slug: "silbern",
         name: "Silbern",
         text: {
           tr: "“Gümüş çatkı kalesi”: Wandenreich'in merkezi ve Sternritter'ın kışlası. Soul Society'nin gölgesinin içinde duruyor, yani düşman hep oradaydı — yalnızca görünmüyordu.",
@@ -259,6 +295,7 @@ export const LOCATION_GROUPS: readonly LocationGroup[] = [
       },
       {
         kanji: "影の領域",
+        slug: "schatten-bereich",
         name: "Schatten Bereich",
         text: {
           tr: "İmparatorluğun içinde bulunduğu gölge alanı ve aynı zamanda ordunun yolu. Quincy'ler bir mesafeyi yürüyerek değil, gölgeden girip gölgeden çıkarak geçiyor.",
@@ -267,6 +304,7 @@ export const LOCATION_GROUPS: readonly LocationGroup[] = [
       },
       {
         kanji: "真世界城",
+        slug: "wahrwelt",
         name: "Wahrwelt",
         text: {
           tr: "“Gerçek dünya şehri” — ama yeni bir şehir değil: Yhwach kraliyet sarayını ele geçirip yeniden dövdü ve Reiōkyū bu hâle geldi. Yani imparatorluğun son başkenti, tanrının evinin kendisi.",

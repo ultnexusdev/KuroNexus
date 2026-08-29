@@ -2,6 +2,7 @@ import type { SlotRatio, SlotTreatment } from "@/lib/curated/contract";
 import { BANKAI_HALL } from "./bankai";
 import { DIVISIONS, hasSecondCaptain } from "./divisions";
 import { ESPADA } from "./espada";
+import { LOCATION_GROUPS } from "./locations";
 import type { BleachSlotWorld, Localized } from "./types";
 
 /**
@@ -195,6 +196,19 @@ export const legendSlotId = (slug: string) => `bleach:legend:${slug}`;
 export const worldSlotId = (world: string) => `bleach:world:${world}`;
 
 /**
+ * P15'in mekân kareleri — 29 Ağustos 2026'da açıldı.
+ *
+ * ⚠️ BRIEF'İN KARARI GERİ ALINDI. Bölüm "nefes alma alanı" olsun diye
+ * görselsiz tasarlanmıştı ve manifestoda hiç yuvası yoktu; kullanıcı bunu
+ * açıkça istedi ("Mekânlar kısmında da fotoğrafla görselliği artıralım").
+ * Yirmi üç yuva bir günde dolmayacak — bölüm boşken de eksiksiz görünüyor,
+ * çünkü her yuva mekânın kendi kanjisini `typographic` yedeğiyle basıyor.
+ *
+ * Kimlik `LOCATION_GROUPS`taki `slug`tan geliyor, elle yazılmıyor.
+ */
+export const placeSlotId = (slug: string) => `bleach:place:${slug}`;
+
+/**
  * On üç kapının yuva künyesi — `DIVISIONS`ten TÜRETİLİYOR.
  *
  * Kanji listesi burada elle yazılıydı ve kaptan adları hiç yoktu; küratör
@@ -344,6 +358,42 @@ const LEGENDS: { slug: string; name: string }[] = [
   { slug: "shunsui-kyoraku", name: "Shunsui Kyōraku" },
   { slug: "ichibe-hyosube", name: "Ichibē Hyōsube" },
 ];
+
+/**
+ * Yirmi üç mekân — P15'in kareleri.
+ *
+ * ⚠️ ELLE YAZILMIYOR. `LOCATION_GROUPS` zaten mekânların tek doğruluk
+ * kaynağı; ikinci bir liste tutmak, bir gün bir mekân eklenip yuvasının
+ * unutulması (ya da tersi) demekti — `GATES`in `DIVISIONS`ten türetilme
+ * gerekçesinin aynısı.
+ *
+ * ⚠️ `lead` KONUMDAN geliyor: her grubun İLK mekânı o grubun açılış
+ * karesi. Veri dosyasında gruplar zaten tanımlayıcı mekânla başlıyor
+ * (Karakura Town, Seireitei, Reiōkyū, Las Noches, Silbern) — bayrağı
+ * veriye eklemek aynı bilgiyi iki kez yazmak olurdu. Sıra değişirse
+ * açılış karesi de değişir; doğru olan bu.
+ *
+ * ⚠️ Grubun `layer` kimliği ile yuvanın `world` alanı AYNI şey değil ama
+ * bu bölümde örtüşüyorlar: beş grubun beşi de bir dünyaya ait. Yine de
+ * dönüşüm açıkça yazılıyor, çünkü `LayerId` bir tema kimliği,
+ * `BleachSlotWorld` ise bir palet seçimi ve ikisi ileride ayrışabilir.
+ */
+const PLACES: {
+  slug: string;
+  name: string;
+  /** Küratör panelinde satırın hangi gruba ait olduğu — ÇEVRİLMEZ */
+  group: string;
+  world: BleachSlotWorld;
+  lead: boolean;
+}[] = LOCATION_GROUPS.flatMap((group) =>
+  group.places.map((place, i) => ({
+    slug: place.slug,
+    name: place.name,
+    group: group.eyebrow,
+    world: group.layer as BleachSlotWorld,
+    lead: i === 0,
+  })),
+);
 
 /**
  * Beş katman — P02'nin dünya sırası.
@@ -593,6 +643,42 @@ export const BLEACH_SLOTS: readonly CuratedSlotDef[] = [
     world: "neutral",
     treatment: "silhouette",
     fallback: "silhouette",
+  })),
+
+  /* ══ P15 · MEKÂNLAR ══════════════════════════════════════════════════ */
+  ...PLACES.map<CuratedSlotDef>((place) => ({
+    id: placeSlotId(place.slug),
+    section: "locations",
+    label: {
+      tr: `${place.group} · ${place.name}`,
+      en: `${place.group} · ${place.name}`,
+    },
+    hint: place.lead
+      ? {
+          tr: `${place.name} — GRUBUN AÇILIŞ KARESİ. Geniş manzara: mekânın tamamı görünsün, tek bir detay değil. Kalabalık kompozisyondan kaçın; üstüne başlık binmeyecek ama bölüm buradan tanınacak.`,
+          en: `${place.name} — THE GROUP'S OPENING FRAME. Wide establishing shot: the whole place, not one detail. Avoid busy compositions; no text sits on it, but the group is recognised from here.`,
+        }
+      : {
+          tr: `${place.name} — listedeki küçük kare. Tek bir tanınır ayrıntı yeter: kapı, tabela, siluet. Yatay kadraj, sade zemin.`,
+          en: `${place.name} — the small frame in the list. One recognisable detail is enough: a door, a sign, a silhouette. Landscape crop, plain background.`,
+        },
+    size: place.lead ? { w: 1600, h: 900 } : { w: 640, h: 480 },
+    ratios: place.lead ? ["16:9", "2:1", "3:2"] : ["4:3", "1:1", "3:2"],
+    world: place.world,
+    /**
+     * ⚠️ VARSAYILAN `duotone`, `photo` DEĞİL — ve bu bölümün TEZİ.
+     *
+     * Beş grup beş dünyanın derisini giyiyor; yirmi üç farklı kaynaktan
+     * gelen işlenmemiş kare o beş kaymayı görünmez kılardı (her fotoğrafın
+     * kendi rengi grubun rengiyle yarışır). `duotone` her kareyi grubun
+     * kendi iki tonuna indiriyor: bölüm tek bir arşivden çıkmış gibi
+     * duruyor ve tema kayması fotoğrafların ÜSTÜNDE de sürüyor.
+     *
+     * Küratör beğenmezse yuva yuva `photo`ya çevirebiliyor — bu bir
+     * varsayılan, bir kilit değil.
+     */
+    treatment: "duotone",
+    fallback: "typographic",
   })),
 
   /* ══ P13 · EFSANELER ═════════════════════════════════════════════════ */

@@ -110,10 +110,29 @@ export async function Legends({ locale }: { locale: string }) {
               <Fragment key={legend.slug}>
                 <article className={styles.panel} data-i={i}>
                   <div className={styles.portrait}>
+                    {/* ⚠️ `noEdit` KALKTI (29 Ağustos 2026, kullanıcı
+                        bildirimi: "Efsaneler'de küratör modunda ekleme
+                        görünmüyor"). İki ayrı sebeple görünmüyordu:
+
+                          1. Kalem `noEdit` ile bastırılmıştı. Gerekçesi
+                             yanlıştı — yuva bir `<button>`/`<a>` içinde
+                             DEĞİL, panelin içinde duruyor; iç içe
+                             etkileşimli öğe sorunu burada hiç yoktu.
+                          2. Kalem çizilseydi bile ulaşılamazdı: on panelin
+                             onu da `opacity: 0; visibility: hidden` ve
+                             yalnızca satıra hover/seçim ile açılıyor.
+                             Küratör kalemi görmek için satırın üstünde
+                             durmak, yüklemek içinse fareyi panele
+                             götürmek zorunda kalırdı — panel o an
+                             kapanıyor.
+
+                        Çözüm ikinci maddede: küratör modu açıkken on
+                        portre yan yana, hepsi görünür bir ızgaraya
+                        açılıyor (`Legends.module.css`). Ziyaretçinin
+                        gördüğü davranış zerre değişmiyor. */}
                     <CuratedImage
                       slotId={legendSlotId(legend.slug)}
                       decorative
-                      noEdit
                       glyph={legend.kanji}
                       sizes="420px"
                     />

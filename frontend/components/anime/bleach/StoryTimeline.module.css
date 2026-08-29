@@ -88,9 +88,15 @@
   margin-inline: auto;
   padding-inline-end: var(--rail);
   display: grid;
-  grid-template-columns: clamp(9rem, 22vw, 16rem) minmax(0, 1fr);
-  column-gap: clamp(1.5rem, 5vw, 4rem);
+  grid-template-columns: var(--blade-col) minmax(0, 1fr);
+  column-gap: var(--stage-gap);
   align-items: start;
+
+  /* Kilic sutununun genisligi UC yerde birden gerekiyordu (izgara,
+     arc'in negatif tasmasi, kilavuz cizginin konumu) ve uc kopya
+     halinde yaziliydi. Tek kaynak: birini degistiren ucunu degistirir. */
+  --blade-col: clamp(9rem, 22vw, 16rem);
+  --stage-gap: clamp(1.5rem, 5vw, 4rem);
 
   /* Kilicin morph zaman cizelgesi: sahnenin tamami boyunca */
   view-timeline-name: --story;
@@ -107,6 +113,59 @@
   justify-content: center;
   /* Yapiskan sayfa basligi kilici tepeden kirpmasin */
   padding-block: clamp(3rem, 8vh, 5rem);
+
+  /* ⚠️ KILIC GORUNMUYORDU (29 Agustos 2026, kullanici bildirimi).
+     Sebep tek bir eksik satirdi: `.arc` hem `position: relative` hem de
+     `background: var(--bg)` tasiyor ve negatif `margin-left` ile TAM
+     OLARAK bu sutunun uzerine tasiyor (kendi zeminini tam genislikte
+     boyayabilmek icin). Iki oge de konumlanmis ve ikisinin de z-index'i
+     `auto`ydu, yani boyama sirasini AGAC SIRASI belirliyordu: `.arcs`
+     DOM'da sonra geldigi icin opak zemini kilicin ustune basiyordu.
+
+     Kilic bes bicim arasinda gercekten morph ediyordu; ziyaretci
+     hicbirini gormuyordu ve geriye yalnizca arc'lar arasindaki devasa
+     bosluklar kaliyordu -- "tasarim hatasi gibi duruyor" bildirimi tam
+     olarak buydu.
+
+     Siralama artik acik: arc zeminleri (auto) < kilavuz cizgi (1) <
+     kilic sutunu (2). */
+  z-index: 2;
+}
+
+/* ── TOZ ─────────────────────────────────────────────────────
+   Bosluklarin "bos" degil GECIS alani oldugu hissi. Yapiskan
+   sutunun icinde duruyor, yani ekran kadar bir kutu: sayfa 600svh
+   uzunlugunda olsa da boyanan alan her zaman tek ekran.
+
+   Desen uretilmis (radial-gradient noktalar), dosya inmiyor. Dikeyde
+   140px'te bir tekrar ediyor ve animasyon tam 140px kaydiriyor --
+   dikis gorunmuyor. */
+.bladeCol::after {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  /* Sahnenin tamamina yayiliyor: toz kilic sutunuyla sinirli kalsaydi
+     metnin oldugu tarafta hava "temiz" gorunurdu. */
+  inset-inline: -100vw;
+  pointer-events: none;
+  opacity: 0.07;
+  background-image:
+    radial-gradient(1px 1px at 12% 18%, var(--world-paper, var(--text-primary)), transparent),
+    radial-gradient(1px 1px at 47% 62%, var(--world-paper, var(--text-primary)), transparent),
+    radial-gradient(1px 1px at 78% 31%, var(--world-paper, var(--text-primary)), transparent),
+    radial-gradient(1px 1px at 63% 88%, var(--world-paper, var(--text-primary)), transparent),
+    radial-gradient(1px 1px at 29% 74%, var(--world-paper, var(--text-primary)), transparent);
+  background-size: 190px 140px;
+  animation: dust 26s linear infinite;
+}
+
+@keyframes dust {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 0 -140px;
+  }
 }
 
 .bladeBox {
@@ -121,6 +180,90 @@
   width: 100%;
   height: 100%;
   overflow: visible;
+
+  /* ── NABIZ ───────────────────────────────────────────────────
+     Bicim degisimi SUREKLI: kilic hicbir an durmuyor, iki bicim
+     arasinda surekli akiyor. Bu yuzden "degisti" ani gozle
+     yakalanamiyordu -- degisecek bir AN yoktu.
+
+     Nabiz o ani URETIYOR. Kilic her arc'in tam bicimine VARDIGINDA
+     (%0 · %25 · %50 · %75 · %100) bir kalp atisi kadar buyuyup
+     parliyor; iki arc'in ORTASINDA (%12,5 · %37,5 ...) hafifce
+     kuculup sonuyor. Boylece bes durak ve dort gecis ortaya cikiyor
+     ve kaydiran kisi "birazdan bir sey olacak / oldu" ritmini
+     hissediyor.
+
+     ⚠️ AYNI ZAMAN CIZELGESI (`--story`) ve AYNI aralik: nabiz ile
+     morph birbirinden kayarsa parlama yanlis anda gelir ve etki
+     tersine doner. Iki animasyon tek kaydirmaya bagli.
+
+     ⚠️ Golge rengi arc'tan geliyor (`--arc-N`, satir ici) -- boylece
+     spot isigi donemin rengine sahip. Ikinci golge SABIT ve koyu:
+     Arrancar arc'inda kilicin dolgusu kemik beyazi (#EFEDE7) ve
+     zemin de kemik beyazi, yani renkli parlama orada HICBIR sey
+     yapmiyor. Koyu golge o karede kilicin tek okunma sebebi. */
+  animation-name: heartbeat;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: both;
+  animation-timeline: --story;
+  animation-range: contain 0% contain 100%;
+}
+
+@keyframes heartbeat {
+  0% {
+    scale: 1.025;
+    filter:
+      drop-shadow(0 0 22px color-mix(in srgb, var(--arc-0) 55%, transparent))
+      drop-shadow(0 2px 6px color-mix(in srgb, var(--void) 75%, transparent));
+  }
+  12.5% {
+    scale: 0.985;
+    filter:
+      drop-shadow(0 0 6px color-mix(in srgb, var(--arc-1) 22%, transparent))
+      drop-shadow(0 2px 6px color-mix(in srgb, var(--void) 60%, transparent));
+  }
+  25% {
+    scale: 1.025;
+    filter:
+      drop-shadow(0 0 22px color-mix(in srgb, var(--arc-1) 55%, transparent))
+      drop-shadow(0 2px 6px color-mix(in srgb, var(--void) 75%, transparent));
+  }
+  37.5% {
+    scale: 0.985;
+    filter:
+      drop-shadow(0 0 6px color-mix(in srgb, var(--arc-2) 22%, transparent))
+      drop-shadow(0 2px 6px color-mix(in srgb, var(--void) 60%, transparent));
+  }
+  50% {
+    scale: 1.025;
+    filter:
+      drop-shadow(0 0 22px color-mix(in srgb, var(--arc-2) 55%, transparent))
+      drop-shadow(0 2px 6px color-mix(in srgb, var(--void) 75%, transparent));
+  }
+  62.5% {
+    scale: 0.985;
+    filter:
+      drop-shadow(0 0 6px color-mix(in srgb, var(--arc-3) 22%, transparent))
+      drop-shadow(0 2px 6px color-mix(in srgb, var(--void) 60%, transparent));
+  }
+  75% {
+    scale: 1.025;
+    filter:
+      drop-shadow(0 0 22px color-mix(in srgb, var(--arc-3) 55%, transparent))
+      drop-shadow(0 2px 6px color-mix(in srgb, var(--void) 75%, transparent));
+  }
+  87.5% {
+    scale: 0.985;
+    filter:
+      drop-shadow(0 0 6px color-mix(in srgb, var(--arc-4) 22%, transparent))
+      drop-shadow(0 2px 6px color-mix(in srgb, var(--void) 60%, transparent));
+  }
+  100% {
+    scale: 1.025;
+    filter:
+      drop-shadow(0 0 22px color-mix(in srgb, var(--arc-4) 55%, transparent))
+      drop-shadow(0 2px 6px color-mix(in srgb, var(--void) 75%, transparent));
+  }
 }
 
 /* ── MORPH ───────────────────────────────────────────────────
@@ -132,6 +275,18 @@
    sabitler; ilerleme tabanli zaman cizelgesinde sure `auto` kalmali. */
 .bladePath {
   fill: var(--arc-0);
+
+  /* ⚠️ Arrancar arc'inda kilicin dolgusu #EFEDE7, Hueco Mundo zemini de
+     #EFEDE7: beyaz uzerine beyaz. Kilic o ceyrek boyunca dolgusuyla HIC
+     okunmuyordu. Ince koyu bir kontur bes arc'in besinde de dogru is
+     yapiyor -- koyu katmanlarda parlak bicimin kenarini keskinlestiriyor,
+     acik katmanda kilicin TEK okunma sebebi oluyor.
+
+     Genislik viewBox biriminde (100x200): cizimde ~2px'e denk geliyor. */
+  stroke: color-mix(in srgb, var(--void) 88%, transparent);
+  stroke-width: 1.1;
+  stroke-linejoin: round;
+
   animation-name: forge;
   animation-timing-function: linear;
   animation-fill-mode: both;
@@ -169,6 +324,37 @@
   list-style: none;
   margin: 0;
   padding: 0;
+  position: relative;
+}
+
+/* ── KILAVUZ CIZGI ───────────────────────────────────────────
+   Bes arc bir INIS: kilavuz cizgi o inisin rayi. Kilic sutununun tam
+   ortasindan gecerek bolumun basindan sonuna kadar iniyor, yani
+   bosluklar "hicbir sey" degil "cizginin devam ettigi yer".
+
+   ⚠️ z-index: 1 SART. Arc zeminleri (`position: relative`, z-index
+   auto) DOM'da sonra geldigi icin cizgiyi orterdi -- kilicin
+   gorunmemesiyle ayni tuzak, ayni cozum. Siralama: zeminler < cizgi
+   (1) < kilic sutunu (2).
+
+   Ucları soluyor: sert baslayip sert biten bir cizgi bir kenarlik
+   gibi okunurdu; bu bir ray, bir cerceve degil. */
+.arcs::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset-block: 0;
+  left: calc((var(--blade-col) + var(--stage-gap)) * -1 + var(--blade-col) / 2);
+  width: 1px;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    color-mix(in srgb, var(--world-paper, var(--text-primary)) 24%, transparent) 12%,
+    color-mix(in srgb, var(--world-paper, var(--text-primary)) 24%, transparent) 88%,
+    transparent
+  );
+  opacity: 0.45;
 }
 
 .arc {
@@ -183,11 +369,63 @@
   padding-block: clamp(2.5rem, 8vh, 5rem);
   /* Kilic sutunu solda; arc kutusu kendi zeminini tam genislikte
      boyayabilsin diye tasma ile disari cikiyor. */
-  margin-left: calc(clamp(9rem, 22vw, 16rem) * -1 - clamp(1.5rem, 5vw, 4rem));
-  padding-left: calc(clamp(9rem, 22vw, 16rem) + clamp(1.5rem, 5vw, 4rem));
+  margin-left: calc((var(--blade-col) + var(--stage-gap)) * -1);
+  padding-left: calc(var(--blade-col) + var(--stage-gap));
+
+  /* Sinematik zeminin iki degiskeni. Varsayilan KOYU katmanlar icin. */
+  --cine-spot: var(--arc);
+  --cine-edge: color-mix(in srgb, var(--void) 62%, transparent);
+}
+
+/* ⚠️ HUECO MUNDO TERS CALISIYOR. Arc'in rengi orada kemik beyazi ve
+   zemin de kemik beyazi: beyaz uzerine beyaz spot HICBIR sey yapmiyor.
+   Ayni sekilde koyu bir vignette dosyanin tek acik paletini kirletirdi
+   -- "sonsuz beyaz col" hissi sayfanin en cesur karari, bir film
+   kenarligiyla bogulmamali.
+
+   Spot dunyanin kendi aksanina (kuru kan kizili degil, siyah) donuyor
+   ve kenar karartmasi bir nefese iniyor. */
+.arc[data-layer="hueco-mundo"] {
+  --cine-spot: var(--world-accent);
+  --cine-edge: color-mix(in srgb, var(--void) 16%, transparent);
+}
+
+/* ── SPOT ISIGI + VIGNETTE ───────────────────────────────────
+   ⚠️ `background-attachment: fixed` -- gradyanlar arc kutusuna DEGIL
+   GORUNUR ALANA gore konumlaniyor. Iki kazanc:
+     • Spot her zaman ekranin ortasinda, yani kilicin arkasinda kaliyor;
+       arc kutusu 120svh oldugu icin kutuya bagli bir gradyan kaydirirken
+       yukari kacardi.
+     • Bes arc'in kaplamasi birebir ayni yerde duruyor, yani arc
+       sinirlarinda DIKIS gorunmuyor.
+
+   iOS Safari `fixed`i yok sayip `scroll` gibi davraniyor: spot o zaman
+   arc ile birlikte kayiyor. Bozulma degil, daha az etkili bir sahne.
+
+   Metnin ALTINDA (`z-index: 0`), arc zemininin USTUNDE. */
+.arc::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-attachment: fixed, fixed;
+  background-repeat: no-repeat, no-repeat;
+  background-image:
+    /* 1 · SPOT -- kilicin arkasi, donemin renginde */
+    radial-gradient(
+      58vw 62vh at 20% 50%,
+      color-mix(in srgb, var(--cine-spot) 15%, transparent),
+      transparent 70%
+    ),
+    /* 2 · VIGNETTE -- kenarlar karanlik, goz merkeze gidiyor */
+    radial-gradient(88% 78% at 46% 50%, transparent 38%, var(--cine-edge) 100%);
 }
 
 .arcInner {
+  position: relative;
+  /* Kaplamanin USTUNDE: spot ve vignette metni yikamamali. */
+  z-index: 1;
   display: flex;
   flex-direction: column;
   gap: clamp(0.4rem, 1.4vh, 0.8rem);
@@ -198,11 +436,28 @@
   margin: 0;
 }
 
+/* ── DERINLIK ────────────────────────────────────────────────
+   Metin zeminin USTUNE cikiyormus gibi dursun. Golge cok hafif ve
+   RENKSIZ degil: dunyanin murekkebinden geliyor, yani acik palette
+   (Hueco Mundo) kendiliginden dogru yone gidiyor.
+
+   ⚠️ Kontrasti DEGISTIRMIYOR: `text-shadow` olculen orani etkilemez
+   ve metin renklerine dokunulmadi (`check-bleach-contrast` gecerli
+   kaliyor). Yaptigi tek sey kenari zeminden ayirmak. */
+.head h2,
+.arcName,
+.mottoLine {
+  text-shadow: 0 1px 18px color-mix(in srgb, var(--world-ink, var(--bg)) 70%, transparent);
+}
+
 .arcIndex {
   font-size: clamp(1.8rem, 5vw, 3rem);
   line-height: 0.8;
   color: var(--arc);
   opacity: 0.8;
+  /* Rakam donemin renginde: golge de o renkten, sayi zeminden
+     kopup one ciksin. */
+  text-shadow: 0 0 26px color-mix(in srgb, var(--arc) 45%, transparent);
 }
 
 .arcName {
@@ -228,7 +483,12 @@
    ⚠️ Brief: "Motto ekrani en az 60vh bosluk tasir. Doldurmaya calisma."
    Burada baska hicbir sey yok ve olmayacak. */
 .motto {
-  min-height: 78svh;
+  /* ⚠️ Brief: "Motto ekrani EN AZ 60vh bosluk tasir." Alt sinir aynen
+     duruyor; degisen tek sey UST sinir: 78svh 1440p bir ekranda 1050px
+     ediyordu ve orada bosluk "sahne" olmaktan cikip "sayfa bitti mi"
+     sorusuna donusuyordu. 44rem (704px) tavan, kucuk ekranlarda hicbir
+     sey degistirmiyor -- 60svh zaten daha buyuk. */
+  min-height: max(60svh, min(78svh, 44rem));
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -270,14 +530,40 @@
     padding-block: 0;
   }
 
+  /* Toz yapiskan bir kutuya degil akan bir kutuya bagli kaliyordu:
+     dar ekranda `.bladeCol` statik ve metnin ustunde, yani kaplama
+     yalnizca kilicin oldugu serit kadar. Kapatiliyor -- yarim bir
+     atmosfer, atmosfersizlikten daha kotu. */
+  .bladeCol::after {
+    display: none;
+  }
+
   .bladeBox {
     height: clamp(12rem, 34vh, 18rem);
+  }
+
+  /* Kilic sutunu artik solda degil ustte: dikey ray anlamini
+     yitiriyor ve metnin icinden gecerdi. */
+  .arcs::before {
+    display: none;
   }
 
   .arc {
     min-height: 0;
     margin-left: 0;
     padding-left: 0;
+  }
+
+  /* Spot artik sol sutunun arkasinda degil, kilicin gectigi ust
+     bantta. Vignette aynen kaliyor. */
+  .arc::before {
+    background-image:
+      radial-gradient(
+        90vw 40vh at 50% 30%,
+        color-mix(in srgb, var(--cine-spot) 15%, transparent),
+        transparent 70%
+      ),
+      radial-gradient(96% 84% at 50% 50%, transparent 42%, var(--cine-edge) 100%);
   }
 
   .motto {
@@ -293,6 +579,24 @@
   /* Kilic tek bir bicimde duruyor; arc'lar arasinda gezinmenin yolu
      basliktaki bes capa (brief'in kendi yedegi). */
   .bladePath {
+    animation-name: none;
+  }
+
+  /* ⚠️ Nabiz da duruyor -- ama SONUCU degil: kilic olcegin ve golgenin
+     ilk kare degerinde kaliyor (`animation-fill-mode: both` kalkinca
+     bildirimler tabana doner, o yuzden burada acikca yaziliyor).
+     Yani spot isigi ve derinlik yerinde, yalnizca atis yok. */
+  .blade {
+    animation-name: none;
+    scale: 1;
+    filter:
+      drop-shadow(0 0 22px color-mix(in srgb, var(--arc-0) 45%, transparent))
+      drop-shadow(0 2px 6px color-mix(in srgb, var(--void) 75%, transparent));
+  }
+
+  /* Suzulen toz vestibuler rahatsizlik icin en riskli katman: desen
+     duruyor, hareketi gidiyor. */
+  .bladeCol::after {
     animation-name: none;
   }
 }

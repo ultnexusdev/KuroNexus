@@ -4,6 +4,7 @@ import { Link } from "@/lib/i18n/navigation";
 import { apiUrl } from "@/lib/api/client";
 import { getCharacterImagesBulk } from "@/lib/api/characters";
 import { readIsAdmin } from "@/lib/auth/session";
+import { readCuratedImages } from "@/lib/api/curated-images";
 import { AKATSUKI_IDS, EXHIBIT_IMAGE_KEYS } from "@/lib/anime/akatsuki";
 import { animeHref } from "@/lib/anime/routes";
 import { shareCard } from "@/lib/seo";
@@ -36,10 +37,12 @@ import {
   NARUTO_VILLAGES,
   NARUTO_ELEMENT_IDS,
   NARUTO_PORTRAIT_SIZE,
+  NARUTO_MAP_SURFACE,
   narutoBijuuKey,
   narutoElementKey,
   narutoEyeKey,
   narutoJutsuKey,
+  narutoPinSlotId,
   narutoPeopleIds,
   narutoPerson,
   narutoSlotSpec,
@@ -236,6 +239,23 @@ export default async function NarutoUniversePage() {
   const mapRow = art(NARUTO_IMAGE_KEYS.map);
   const mapArt = mapRow ? apiUrl(mapRow.url) : null;
 
+  /**
+   * İğne koordinatları: nationId → "38% 42%".
+   *
+   * ⚠️ AYRI BİR DEPODAN geliyor (`CuratedImage`), sayfanın geri kalanı gibi
+   * `CharacterImage`den değil. Tek sebebi o tablonun `position` sütununun
+   * zaten bir koordinat çifti olması — gerekçenin tamamı `images.ts`teki
+   * `NARUTO_MAP_SURFACE` başlığında. Kayıt yoksa `NARUTO_NATIONS`
+   * içindeki elle yazılmış değer geçerli kalıyor.
+   */
+  const pinRecords = await readCuratedImages(NARUTO_MAP_SURFACE);
+  const pins = Object.fromEntries(
+    NARUTO_NATIONS.map((nation) => [
+      nation.id,
+      pinRecords[narutoPinSlotId(nation.id)]?.position ?? null,
+    ]),
+  ) as Record<string, string | null>;
+
   /** Gölgeler fonu: kendi yuvası → yoksa serginin kadro bandı */
   const shadowsArt =
     art(NARUTO_IMAGE_KEYS.shadows) ??
@@ -317,7 +337,12 @@ export default async function NarutoUniversePage() {
           slot={artSlot(NARUTO_IMAGE_KEYS.atlas)}
           isAdmin={isAdmin}
         >
-          <NarutoAtlas nations={NARUTO_NATIONS} map={mapArt} />
+          <NarutoAtlas
+            nations={NARUTO_NATIONS}
+            map={mapArt}
+            pins={pins}
+            canEdit={isAdmin}
+          />
 
           {/* Haritanın kendi yuvası — bölüm fonundan AYRI. İkisi karışırsa
               küratör kıta şemasını arka fon sanıp yükler ve iğneler

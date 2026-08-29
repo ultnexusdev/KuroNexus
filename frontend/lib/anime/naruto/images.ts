@@ -103,6 +103,36 @@ export function narutoJutsuKey(slug: string): string {
   return `naruto:jutsu:${slug}`;
 }
 
+/**
+ * HARİTA İĞNELERİ — koordinatların yaşadığı yer.
+ *
+ * ── ⚠️ BU YUVA BİR GÖRSEL TAŞIMIYOR, BİR KOORDİNAT TAŞIYOR ───────────────
+ * Sayfanın geri kalanı `CharacterImage` (ABILITY) mekanizmasını kullanıyor;
+ * iğneler ise `CuratedImage` tablosunda duruyor. Sebep tek bir alan:
+ * o tablonun `position` sütunu zaten CSS `object-position` biçiminde bir
+ * koordinat çifti ("38% 42%") ve backend'de `^\d{1,3}% \d{1,3}%$` ile
+ * doğrulanıyor. `url` da nullable.
+ *
+ * Yani iğne editörü için YENİ TABLO, YENİ UÇ ve MIGRATION GEREKMEDİ —
+ * `slotId` serbest metin olduğu için backend deploy'u bile gerekmiyor
+ * (gerekçesi `SetCuratedImageDto` başlığında yazılı ve tam olarak bunun
+ * için alınmış bir karar).
+ *
+ * ⚠️ HASSASİYET TAM SAYI YÜZDE. Doğrulama ondalık kabul etmiyor, yani
+ * iğneler %1'lik ızgaraya oturuyor (900px'lik haritada ~9px). Şematik bir
+ * harita için fazlasıyla yeterli; bir gün daha ince gerekirse `position`
+ * değil AYRI bir alan açılmalı — bu sütunun sözleşmesi CSS.
+ *
+ * ⚠️ Koordinat yoksa `NARUTO_NATIONS` içindeki elle yazılmış değer geçerli.
+ * Yani editör kullanılmasa da harita doğru duruyor ve kayıt silinirse
+ * koda geri düşüyor.
+ */
+export const NARUTO_MAP_SURFACE = "anime/naruto";
+
+export function narutoPinSlotId(nationId: string): string {
+  return `naruto:pin:${nationId}`;
+}
+
 /* ⚠️ HOKAGE İÇİN AYRI YUVA AÇILMADI ve bu bilinçli.
    Kapı açıldığında salona giren kare, kişinin ZATEN var olan
    `PORTRAIT` kaydı. Sayfanın sözleşmesi bu: "portre bir kez

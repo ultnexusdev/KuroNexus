@@ -367,6 +367,138 @@
   color: var(--text-primary);
 }
 
+/* ══ İĞNE EDİTÖRÜ ════════════════════════════════════════════════════
+   Yalnızca kürator modunda ve yalnızca "İğneleri düzenle" açıkken.
+   Ziyaretçi bu kurallardan hicbirini görmüyor — harita `[data-editing]`
+   niteligini tasimiyor.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Duzenleme acikken harita bir tuval: imlec tasima imleci ve metin
+   secimi kapali (surukleme sirasinda kasabalarin adi seciliyordu). */
+.map[data-editing] {
+  cursor: crosshair;
+  user-select: none;
+}
+
+.map[data-editing] .pin {
+  cursor: grab;
+  /* Dokunmatikte suruklerken sayfa kaymasin */
+  touch-action: none;
+}
+
+.map[data-editing] .pin[data-dragging] {
+  cursor: grabbing;
+  z-index: 2;
+}
+
+/* Duzenleme kipinde her igne bir tutamak gibi gorunuyor: nokta
+   buyuyor ve etrafinda bir halka beliriyor. */
+.map[data-editing] .pinDot {
+  opacity: 0.9;
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--rec) 18%, transparent);
+}
+
+/* Koddaki yerinden TASINMIS igne: halka altin. Kurator hangilerine
+   dokundugunu bir bakista goruyor ve yalnizca onlari sifirlayabiliyor. */
+.map[data-editing] .pin[data-moved] .pinDot {
+  box-shadow:
+    0 0 0 2px var(--bg),
+    0 0 0 5px color-mix(in srgb, var(--gold) 55%, transparent);
+}
+
+/* Canli koordinat — surukleme sirasinda nereye birakildigi okunuyor */
+.pinCoord {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.pin[data-dragging] .pinCoord {
+  color: var(--accent);
+}
+
+/* ── PANEL ───────────────────────────────────────────────────
+   Haritanin ALTINDA, ustunde degil: iğnelerin uzerine binen bir
+   arac cubugu tam da tasinacak alani kapatirdi. */
+.pinBar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+  margin-top: var(--gap-md);
+  padding: var(--pad-md);
+  border: 0.5px solid var(--accent-muted);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+
+.pinToggle,
+.pinToggleOn {
+  align-self: flex-start;
+  min-height: var(--touch-min);
+  padding: 0 16px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+
+.pinToggleOn {
+  border-color: var(--accent-muted);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--accent);
+}
+
+.pinToggle:hover,
+.pinToggleOn:hover {
+  background: var(--surface-hover);
+}
+
+.pinHint {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.pinResets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-sm);
+}
+
+.pinReset {
+  min-height: 32px;
+  padding: 0 10px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.74rem;
+  cursor: pointer;
+}
+
+.pinReset:hover:not(:disabled) {
+  background: var(--surface-hover);
+  color: var(--gold);
+}
+
+.pinReset:disabled {
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.pinError {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--warn);
+}
+
 /* ── 5 · ZAMAN ÇİZELGESİ ────────────────────────────────────────────── */
 .timeline {
   display: flex;

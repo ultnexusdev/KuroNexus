@@ -8,7 +8,9 @@ import type {
   NarutoEye,
   NarutoNation,
 } from "@/lib/anime/naruto";
+import { useCuratorMode } from "@/components/character/CuratorFrame";
 import { NarutoFigureChip } from "./NarutoFace";
+import { useNarutoPinEditor } from "./NarutoPinEditor";
 import styles from "./NarutoSelectors.module.css";
 
 /**
@@ -58,23 +60,39 @@ function RailButton({
 export function NarutoAtlas({
   nations,
   map,
+  pins,
+  canEdit,
 }: {
   nations: NarutoNation[];
+  /**
+   * Küratörün taşıdığı iğne koordinatları: nationId → "38% 42%".
+   * Kayıt yoksa `NARUTO_NATIONS` içindeki elle yazılmış değer geçerli —
+   * yani editör hiç kullanılmasa da harita doğru duruyor.
+   */
+  pins?: Record<string, string | null>;
+  /** Yönetici mi — iğne editörünün çizilip çizilmeyeceği */
+  canEdit?: boolean;
   /**
    * Haritanın KENDİ kadrajı (mutlak adres) — iğnelerin üzerinde durduğu
    * kare. Yoksa iğneler eskisi gibi boş zeminde duruyor ve coğrafya
    * yalnızca birbirlerine göre okunuyor.
    *
-   * ⚠️ 29 Ağustos 2026, iki adımlı işin BİRİNCİ adımı. İkinci adım
-   * (iğneleri sürükleyerek konumlandırma) henüz yok: koordinatlar hâlâ
-   * `NARUTO_NATIONS` içinde elle yazılı. Yani kare değişirse iğnelerin
-   * yerini kod düzeltiyor, arayüz değil.
+   * ⚠️ 29 Ağustos 2026'da açıldı; iğne editörü (ikinci adım) aynı gün
+   * `NarutoPinEditor` ile geldi.
    */
   map?: string | null;
 }) {
   const [id, setId] = useState(nations[0]?.id ?? "");
   const sel = nations.find((n) => n.id === id) ?? nations[0];
   const mapLabel = useId();
+
+  /* Küratör modu KAPALIYKEN editör hiç kurulmuyor: ziyaretçide zaten
+     `canEdit` false, yöneticide de anahtar kapalıysa harita gerçek
+     hâlinde duruyor (`CuratorFrame`in sözleşmesi). */
+  const curating = useCuratorMode();
+  const editable = Boolean(canEdit) && curating === true;
+
+  const editor = useNarutoPinEditor({ nations, pins, enabled: editable });
 
   if (!sel) return null;
 
@@ -83,7 +101,19 @@ export function NarutoAtlas({
       {/* Harita: dekoratif bir zemin değil, iğneler gerçek seçim düğmeleri.
           Coğrafya YAKLAŞIK — canon bir koordinat sistemi yok, iğneler
           birbirine göre konumlanmış bir şema. */}
-      <div className={styles.map} role="group" aria-labelledby={mapLabel}>
+      <div
+        className={styles.map}
+        role="group"
+        aria-labelledby={mapLabel}
+        ref={editor.mapRef}
+        data-editing={editor.active ? "" : undefined}
+        /* Hareket ve bırakma HARİTADA dinleniyor, iğnede değil: işaretçi
+           yakalanmış olsa da olay hedefi iğne kalır ve hızlı bir sürüklemede
+           imleç iğnenin dışına çıkabilir. Harita kutusu ikisini de yakalıyor. */
+        onPointerMove={editor.onPointerMove}
+        onPointerUp={editor.onPointerUp}
+        onPointerCancel={editor.onPointerUp}
+      >
         {map ? (
           <span className={styles.mapArt} aria-hidden>
             <Image src={map} alt="" fill sizes="900px" />
@@ -92,27 +122,53 @@ export function NarutoAtlas({
         <p id={mapLabel} className={styles.mapLabel}>
           Beş büyük ulus ve gölgede kalan köyler
         </p>
-        {nations.map((n) => (
-          <button
-            key={n.id}
-            type="button"
-            className={styles.pin}
-            data-active={n.id === sel.id ? "" : undefined}
-            aria-pressed={n.id === sel.id}
-            style={
-              {
-                left: n.x,
-                top: n.y,
-                "--rec": n.dot,
-              } as React.CSSProperties
-            }
-            onClick={() => setId(n.id)}
-          >
-            <span className={styles.pinDot} aria-hidden />
-            <span className={styles.pinName}>{n.village}</span>
-          </button>
-        ))}
+        {nations.map((n) => {
+          const at = editor.positionOf(n);
+          return (
+            <button
+              key={n.id}
+              type="button"
+              className={styles.pin}
+              data-active={n.id === sel.id ? "" : undefined}
+              data-moved={editor.isMoved(n.id) ? "" : undefined}
+              data-dragging={editor.dragging === n.id ? "" : undefined}
+              aria-pressed={n.id === sel.id}
+              /* Editör açıkken iğne bir "seç" düğmesi değil bir tutamak:
+                 adı ve yönergesi de o zaman değişiyor. */
+              aria-label={
+                editor.active
+                  ? `${n.village} iğnesi — sürükle ya da ok tuşlarıyla taşı`
+                  : undefined
+              }
+              style={
+                {
+                  left: at.x,
+                  top: at.y,
+                  "--rec": n.dot,
+                } as React.CSSProperties
+              }
+              onPointerDown={(event) => editor.onPointerDown(event, n.id)}
+              onKeyDown={(event) => editor.onKeyDown(event, n.id)}
+              onClick={() => {
+                /* Sürükleme bittiğinde tarayıcı bir `click` de üretiyor;
+                   o tıklama seçimi değiştirmemeli. */
+                if (editor.consumeDragClick()) return;
+                setId(n.id);
+              }}
+            >
+              <span className={styles.pinDot} aria-hidden />
+              <span className={styles.pinName}>{n.village}</span>
+              {editor.active ? (
+                <span className={styles.pinCoord} aria-hidden>
+                  {at.x} · {at.y}
+                </span>
+              ) : null}
+            </button>
+          );
+        })}
       </div>
+
+      {editor.panel}
 
       <div
         className={styles.dossier}

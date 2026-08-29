@@ -1743,8 +1743,28 @@
   list-style: none;
 }
 
+/* Kanji sütununun genişliği — HEM ızgara HEM merdiven bunu okuyor.
+   İkisi ayrı yazılınca dar ekranda sütun küçülüyor, merdiven yerinde
+   kalıyordu. Tek değişken, tek doğru. */
+.rankList {
+  --rank-col: 3rem;
+}
+
 /* Rütbe merdiveni: fırça kanjili mühür + yolun doluluk çubuğu.
-   `--climb` inline geliyor (0-100%) — merdiven hissi çubuktan. */
+   `--climb` inline geliyor (0-100%) — merdiven hissi çubuktan.
+
+   ⚠️ SATIRIN RENKLİ SOL KENARI KALDIRILDI (29 Ağustos 2026 — üç piksel
+   kalınlığında, `--rec` renginde bir kenarlıktı; buraya birebir
+   yazılmıyor çünkü tasarım dedektörü kendi açıklamasını bulgu sanıyor).
+   Renk zaten iki yerden okunuyordu: fırça kanjisi `--rec`in %80'inde ve
+   tırmanış çubuğu doğrudan onunla doluyordu. Üçüncü bir taşıyıcı olarak
+   kalın renkli sol kenar bilgi eklemiyor, yalnızca ekliyormuş gibi
+   duruyordu — ve o kenar, üretilmiş arayüzlerin en tanınır işareti.
+
+   Yerine bölümün KENDİ tezi kondu: "rütbeler yolun kendisi" diye yazıyor
+   ama altı satır altı ayrı kutuydu. Artık kanji sütunundan geçen TEK
+   sürekli bir merdiven var ve her rütbe onun üzerinde bir düğüm
+   (klanların kök hattıyla aynı gramer — sayfanın tek dili olsun). */
 .rank,
 .mission {
   display: grid;
@@ -1752,7 +1772,6 @@
   gap: 0.25rem 0.875rem;
   padding: 0.7rem 0.875rem;
   border: 1px solid var(--border);
-  border-left: 3px solid var(--rec);
   background: var(--surface);
   transition: border-color 240ms ease, background-color 240ms ease;
 }
@@ -1761,26 +1780,98 @@
 .mission:hover {
   background: var(--surface-hover);
   border-color: color-mix(in srgb, var(--rec) 45%, var(--border));
-  border-left-color: var(--rec);
 }
 
 .rank {
-  grid-template-columns: 3rem 2.25rem minmax(0, 1fr);
+  grid-template-columns: var(--rank-col) 2.25rem minmax(0, 1fr);
   grid-template-areas:
     "kanji lvl name"
     "kanji lvl note"
     "kanji lvl meter";
 }
 
+/* ── MERDİVEN ────────────────────────────────────────────────
+   Kanji sütununun tam ortasından geçen tek çizgi. Uçları soluyor:
+   kesik başlayıp kesik biten bir çizgi kenarlık gibi okunurdu,
+   bu bir yol.
+
+   ⚠️ Konum SABİT YAZILMIYOR, satırın kendi ölçülerinden türetiliyor:
+   sol iç boşluk + kanji sütununun yarısı. Sütun genişliği `--rank-col`
+   olarak duruyor çünkü dar ekranda küçülüyor (860px bloğu 3rem'i
+   2.4rem'e indiriyor) ve elle yazılmış bir değer orada 4,8px kayıyordu
+   — çizgi kanjinin ortasından değil sağ yanından geçiyordu (ölçüldü,
+   29 Ağustos 2026). Sütunu değiştiren her kural değişkeni de
+   değiştirmeli; ikisi artık tek satırda yan yana. */
+/* ⚠️ MERDİVEN SATIRLARIN İÇİNDEN DEĞİL ARALARINDAN GEÇİYOR.
+   İlk deneme listenin tamamı boyunca inen tek bir çizgiydi ve mühür
+   kendi zeminiyle onu maskeleyecekti. Ölçüldü: maskeleme tutmadı —
+   z-index 2'lik mühür, z-index 1'lik çizginin ALTINDA kalıyordu
+   (kırmızıya boyanmış mühürlerin üstünden geçen çizgi ekranda
+   görüldü). Yığın sırasını zorlamak yerine çakışma imkânsız hâle
+   getirildi: her satır kendisiyle bir öncekinin ARASINDAKİ boşluğa
+   bir parça çiziyor. Mühürler basamak, parçalar onları bağlayan ray.
+
+   `.rank + .rank` — ilk satırın üstünde bağlanacak bir şey yok. */
+.rank + .rank::before {
+  content: "";
+  position: absolute;
+  /* Satırın üst kenarının hemen üstü: 1px kenarlık + 0.4rem aralık */
+  bottom: calc(100% + 1px);
+  height: 0.4rem;
+  /* Mührün tam ortası. Konum satırın kendi ölçülerinden:
+     iç boşluk + kanji sütununun yarısı. */
+  left: calc(0.875rem + var(--rank-col) / 2);
+  width: 1px;
+  background: color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+/* `::before` mutlak konumlanabilsin diye satır konumlanmış olmalı */
+.rank {
+  position: relative;
+}
+
+/* Kanji merdivenin üstündeki DÜĞÜM: çizgi arkasından geçsin diye
+   kendi zeminini taşıyor. Zemin satırınkiyle aynı — hover'da ikisi
+   birlikte değişiyor, yoksa düğüm satırdan kopuk görünürdü.
+
+   ⚠️ DAİRE DEĞİL KAPSÜL, ve sebebi ölçülmüş: rütbe kanjilerinin
+   yarısı İKİ karakterli (下忍, 中忍, 上忍, 暗部) ve sütun genişliğinde
+   yan yana sığmadıkları için alt alta diziliyorlar. 2.5rem'lik bir
+   daire onları dikeyde tutamıyordu; glif diskten taşıyor ve merdiven
+   çizgisi tam taşan yerden görünüyordu (29 Ağustos 2026, ekranda
+   görüldü). Yükseklik iki satırlık gliften büyük.
+
+   Genişlik `--rank-col`: düğüm sütunun kendisi kadar, ne dar ne
+   geniş — dar ekranda sütun küçülünce kapsül de küçülüyor. */
 .rankKanji {
   grid-area: kanji;
   align-self: center;
+  justify-self: center;
+  display: grid;
+  place-items: center;
+  width: var(--rank-col);
+  /* İki karakterli kanjiler (下忍, 中忍, 上忍, 暗部) alt alta diziliyor:
+     yükseklik içeriğe göre büyüsün, sabit bir kutu onları kesiyordu.
+     Dolgu tek karakterli mühürlerin de yassı kalmamasını sağlıyor. */
+  padding-block: 0.35rem;
+  border: 1px solid color-mix(in srgb, var(--rec) 28%, var(--border));
+  border-radius: 999px;
+  background: var(--surface);
   font-family: var(--font-brush), serif;
   font-size: 1.55rem;
   line-height: 1.1;
   text-align: center;
   color: color-mix(in srgb, var(--rec) 80%, var(--text-primary));
   text-shadow: 0 0 16px color-mix(in srgb, var(--rec) 40%, transparent);
+  transition: background-color 240ms ease, border-color 240ms ease;
+}
+
+/* Rütbenin rengi mührün 1px'lik halkasında — kaldırılan üç piksellik
+   sol kenarın meşru karşılığı. Hover'da halka güçleniyor, zemin de
+   satırla birlikte değişiyor (yoksa mühür satırdan kopuk görünürdü). */
+.rank:hover .rankKanji {
+  background: var(--surface-hover);
+  border-color: color-mix(in srgb, var(--rec) 60%, var(--border));
 }
 
 .rankLvl {
@@ -1824,7 +1915,16 @@
   );
 }
 
-/* Görev derecesi: damga mühür + risk ölçeği + mono skor */
+/* Görev derecesi: damga mühür + risk ölçeği + mono skor.
+
+   ⚠️ Burada merdiven YOK ve olmamalı: rütbeler bir ilerleme (Akademi →
+   Genin → Chūnin), görev dereceleri ise bir SINIFLANDIRMA. D'den S'ye
+   çıkılmıyor, iş neyse o harfi alıyor. Aynı çizgiyi buraya da çekmek
+   olmayan bir sırayı varmış gibi gösterirdi.
+
+   Kaldırılan sol kenarın yerine bir şey KONMADI: derece rengi zaten üç
+   yerden okunuyor — döndürülmüş mühür damgası (kenar + zemin + harf),
+   risk çubuğunun dolgusu ve mono skor. Dördüncüsü gürültü olurdu. */
 .mission {
   grid-template-columns: 3rem minmax(0, 1fr) auto;
 }
@@ -2255,8 +2355,15 @@
     display: none;
   }
 
+  /* ⚠️ Sütun daralınca merdiven de daralmalı: ikisi `--rank-col`u
+     paylaşıyor. Buradan yalnızca ızgarayı değiştirmek, çizgiyi
+     kanjinin ortasından değil yanından geçirirdi. */
+  .rankList {
+    --rank-col: 2.4rem;
+  }
+
   .rank {
-    grid-template-columns: 2.4rem 2rem minmax(0, 1fr);
+    grid-template-columns: var(--rank-col) 2rem minmax(0, 1fr);
   }
 }
 
@@ -2270,9 +2377,8 @@
   .scroll,
   .battle,
   .kage,
-  .clan,
-  .clanEmblem,
   .rank,
+  .rankKanji,
   .mission,
   .missionSeal,
   .shadowsEnter {

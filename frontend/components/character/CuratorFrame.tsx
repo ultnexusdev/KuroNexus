@@ -1,8 +1,55 @@
 "use client";
 
-import { useState } from "react";
+import { createContext, useContext, useState } from "react";
 import { useTranslations } from "next-intl";
 import styles from "./CuratorFrame.module.css";
+
+/**
+ * Küratör modu — GERÇEK durum, niteliğin kendisi değil.
+ *
+ * ── NEDEN NİTELİĞE EK OLARAK BİR CONTEXT ─────────────────────────────────
+ * Anahtar bugüne kadar `data-curating` niteliği + CSS ile çalışıyordu ve o
+ * mekanizma yerinde duruyor: sunucu bileşenlerinin içine dağılmış yuvaları
+ * bir context'e bağlamak sayfanın tamamını istemci sınırına çekerdi.
+ *
+ * Ama CSS yalnızca GİZLİYOR. Yükleyici adası kapalıyken de mount ediliyor,
+ * durumunu tutuyor ve DOM'da duruyordu — kullanıcı isteği bunun tersi
+ * (29 Ağustos 2026): "kapalıyken tamamen DOM'dan saklanacak (veya render
+ * edilmeyecek)".
+ *
+ * Context bunu maliyetsiz çözüyor çünkü YALNIZCA yuvalar okuyor ve yuvalar
+ * ZATEN istemci bileşeni (`CuratorSlot`). Sunucudan geçen `children` ağacı
+ * sağlayıcının altında kaldığı için context onlara sorunsuz iniyor —
+ * sunucu bileşenleri istemciye çekilmiyor.
+ *
+ * ⚠️ VARSAYILAN `false` DEĞİL `undefined` — ve bu ayrım kritik.
+ *
+ * Üç durum var, iki değil:
+ *   true       → çerçeve var, anahtar AÇIK   → yuva çizilsin
+ *   false      → çerçeve var, anahtar KAPALI → yuva çizilmesin
+ *   undefined  → ÜSTTE ÇERÇEVE YOK           → eski davranış sürsün
+ *
+ * Üçüncüsü bir geri çekilme değil güvenlik ağı: `CuratorSlot` bu depoda
+ * kırk sekiz dosyadan çağrılıyor ve bazıları yuvayı çerçeveyi açan
+ * bileşenin ALTINDA ama başka bir dosyada çiziyor (`GateLadder` →
+ * `GateShell` → `RockLeeExperience`). Varsayılan `false` olsaydı,
+ * zinciri bir yerde kopuk olan HER yuva yöneticiden de sessizce
+ * kaybolurdu — ve bu, statik olarak doğrulanamayacak bir risk.
+ *
+ * Çerçevesiz yuva eskisi gibi çiziliyor; onu zaten çağıranın kendi
+ * `isAdmin` kesmesi ziyaretçiden koruyor.
+ */
+const CuratorModeContext = createContext<boolean | undefined>(undefined);
+
+/**
+ * Küratör modu açık mı.
+ *
+ * `undefined` "üstte çerçeve yok" demek — çağıran bunu "çiz" olarak
+ * yorumluyor (gerekçe yukarıda).
+ */
+export function useCuratorMode(): boolean | undefined {
+  return useContext(CuratorModeContext);
+}
 
 /**
  * Kürator modu anahtarı.
@@ -39,19 +86,28 @@ export function CuratorFrame({
   }
 
   return (
-    <div className={styles.frame} data-curating={curating ? "true" : "false"}>
-      <div className={styles.bar}>
-        <button
-          type="button"
-          className={curating ? styles.on : styles.off}
-          onClick={() => setCurating((value) => !value)}
-          aria-pressed={curating}
-        >
-          {curating ? t("on") : t("off")}
-        </button>
-        {curating ? <span className={styles.hint}>{t("hint")}</span> : null}
+    /* Nitelik VE context bir arada, ikisi de gerekli:
+         • nitelik → CSS'in ulaşabildiği her yuva (Bleach'in iskeleleri,
+           künye satırları, ızgara açılımları) tek seçiciyle açılıp
+           kapanıyor;
+         • context → yükleyici adaları kapalıyken HİÇ mount edilmiyor.
+       İkincisi birincinin yerini alamaz: sayfadaki yuvaların çoğu sunucu
+       bileşeni ve context okuyamaz. */
+    <CuratorModeContext.Provider value={curating}>
+      <div className={styles.frame} data-curating={curating ? "true" : "false"}>
+        <div className={styles.bar}>
+          <button
+            type="button"
+            className={curating ? styles.on : styles.off}
+            onClick={() => setCurating((value) => !value)}
+            aria-pressed={curating}
+          >
+            {curating ? t("on") : t("off")}
+          </button>
+          {curating ? <span className={styles.hint}>{t("hint")}</span> : null}
+        </div>
+        {children}
       </div>
-      {children}
-    </div>
+    </CuratorModeContext.Provider>
   );
 }

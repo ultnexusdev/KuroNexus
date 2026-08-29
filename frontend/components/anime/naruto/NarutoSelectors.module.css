@@ -251,15 +251,73 @@
     var(--surface);
 }
 
+/* ── HARITANIN KENDISI ──────────────────────────────────────
+   Kurator bir kare yukledigi anda yukaridaki sema zemini onun ALTINDA
+   kaliyor: iki isik havuzu haritanin ustune degil arkasina dusuyor,
+   yani kare gelince sema kayboluyor ve gelmezse bolum yine tam.
+
+   ⚠️ Karartma SART: harita bir zemin, ignelerin ustune cikamaz.
+   Ustundeki on igne ve etiketleri okunabilir kalmali. */
+.mapArt {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.mapArt img {
+  object-fit: cover;
+  opacity: 0.55;
+}
+
+.mapArt::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      70% 60% at 50% 45%,
+      transparent,
+      color-mix(in srgb, var(--bg) 45%, transparent) 100%
+    ),
+    linear-gradient(
+      to top,
+      color-mix(in srgb, var(--bg) 75%, transparent),
+      transparent 30%
+    );
+}
+
 .mapLabel {
   position: absolute;
   inset-inline: 0;
   bottom: 0.75rem;
+  z-index: 1;
   margin: 0;
   font-size: 0.72rem;
   letter-spacing: 0.14em;
   text-align: center;
   color: var(--text-muted);
+}
+
+/* ── GOZUN YAKIN PLANI ──────────────────────────────────────
+   Kare kadraj, irisin renginde ince bir halka. Kunyede duruyor,
+   rayda degil: sekiz kucuk fotograf rayi bir kontak baskiya
+   cevirirdi ve secim bir goz motifiyle daha hizli okunuyor. */
+.eyeScene {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  width: min(100%, 15rem);
+  margin: 0 0 1.25rem;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--rec, var(--accent)) 45%, var(--border));
+  box-shadow: 0 0 32px -14px var(--rec, var(--accent));
+}
+
+.eyeScene img {
+  object-fit: cover;
+  animation: narutoSceneIn 600ms ease both;
 }
 
 .pin {
@@ -507,7 +565,8 @@
     transition: none;
   }
 
-  .dossierScene img {
+  .dossierScene img,
+  .eyeScene img {
     animation: none;
   }
 }

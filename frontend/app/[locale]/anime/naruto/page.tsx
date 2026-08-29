@@ -35,10 +35,14 @@ import {
   NARUTO_UCHIHA_LINE,
   NARUTO_VILLAGES,
   NARUTO_ELEMENT_IDS,
+  NARUTO_PORTRAIT_SIZE,
   narutoBijuuKey,
   narutoElementKey,
+  narutoEyeKey,
+  narutoJutsuKey,
   narutoPeopleIds,
   narutoPerson,
+  narutoSlotSpec,
   type NarutoFigureRef,
 } from "@/lib/anime/naruto";
 import { CuratorFrame } from "@/components/character/CuratorFrame";
@@ -151,6 +155,39 @@ export default async function NarutoUniversePage() {
           ) ?? null)
       : null;
 
+  /**
+   * Bir ABILITY yuvasının küratör kalemine geçen her şey — TEK YERDE.
+   *
+   * ⚠️ Çağrı yerleri eskiden etiketi elle yazıyordu ve manifestodakiyle
+   * tutmuyordu (panelde "Chakra", bölümde "Chakra fonu"). Şimdi etiket de,
+   * önerilen ölçü de manifestodan; yuvada duran kare de kayıttan. Küratör
+   * dolu bir yuvada boş kutu değil karenin kendisini görüyor.
+   */
+  const artSlot = (key: string) => {
+    const spec = narutoSlotSpec(key);
+    const row = art(key);
+    return {
+      characterId: NARUTO_OWNER_ID,
+      slot: "ABILITY" as const,
+      abilityName: key,
+      label: spec?.label ?? key,
+      size: spec?.size,
+      current: row ? { id: row.id, url: apiUrl(row.url) } : null,
+    };
+  };
+
+  /** Aynısı bir kadro portresi için — ölçü bütün portrelerde ortak. */
+  const portraitSlot = (characterId: number, label: string) => {
+    const row = portrait(characterId);
+    return {
+      characterId,
+      slot: "PORTRAIT" as const,
+      label,
+      size: NARUTO_PORTRAIT_SIZE,
+      current: row ? { id: row.id, url: apiUrl(row.url) } : null,
+    };
+  };
+
   /** Kadro yüz haritası: slug → mutlak portre adresi. Çipler veri bilmez,
       hazır adres alır — istemci bileşenlerine de bu harita iner. */
   const faces = Object.fromEntries(
@@ -178,6 +215,26 @@ export default async function NarutoUniversePage() {
       return [beast.slug, row ? apiUrl(row.url) : null];
     }),
   ) as Record<string, string | null>;
+
+  /** Göz kadrajları: eyeId → mutlak adres (yoksa künye CSS irisiyle kalır) */
+  const eyeArt = Object.fromEntries(
+    NARUTO_EYES.map((eye) => {
+      const row = art(narutoEyeKey(eye.id));
+      return [eye.id, row ? apiUrl(row.url) : null];
+    }),
+  ) as Record<string, string | null>;
+
+  /** Jutsu kadrajları: slug → mutlak adres (yoksa kart yalnız aurasıyla) */
+  const jutsuArt = Object.fromEntries(
+    NARUTO_JUTSU.map((jutsu) => {
+      const row = art(narutoJutsuKey(jutsu.slug));
+      return [jutsu.slug, row ? apiUrl(row.url) : null];
+    }),
+  ) as Record<string, string | null>;
+
+  /** Haritanın kendi karesi — iğnelerin üzerinde duran kadraj */
+  const mapRow = art(NARUTO_IMAGE_KEYS.map);
+  const mapArt = mapRow ? apiUrl(mapRow.url) : null;
 
   /** Gölgeler fonu: kendi yuvası → yoksa serginin kadro bandı */
   const shadowsArt =
@@ -246,10 +303,7 @@ export default async function NarutoUniversePage() {
             </p>
             <CuratorSlotIf
               enabled={isAdmin}
-              characterId={NARUTO_OWNER_ID}
-              slot="ABILITY"
-              abilityName={NARUTO_IMAGE_KEYS.hero}
-              label="Açılış fonu"
+              {...artSlot(NARUTO_IMAGE_KEYS.hero)}
             />
           </div>
         </header>
@@ -260,11 +314,15 @@ export default async function NarutoUniversePage() {
           title="Shinobi Dünyası"
           lede="Beş büyük ulus, aralarında ezilen küçük köyler ve her birinin kendi gölgesi."
           art={art(NARUTO_IMAGE_KEYS.atlas)}
-          slotKey={NARUTO_IMAGE_KEYS.atlas}
-          slotLabel="Shinobi Dünyası fonu"
+          slot={artSlot(NARUTO_IMAGE_KEYS.atlas)}
           isAdmin={isAdmin}
         >
-          <NarutoAtlas nations={NARUTO_NATIONS} />
+          <NarutoAtlas nations={NARUTO_NATIONS} map={mapArt} />
+
+          {/* Haritanın kendi yuvası — bölüm fonundan AYRI. İkisi karışırsa
+              küratör kıta şemasını arka fon sanıp yükler ve iğneler
+              görselin dışında kalır. */}
+          <CuratorSlotIf enabled={isAdmin} {...artSlot(NARUTO_IMAGE_KEYS.map)} />
         </Section>
 
         {/* ══ 2 · KÖYLER ═════════════════════════════════════════════ */}
@@ -272,8 +330,7 @@ export default async function NarutoUniversePage() {
           title="Köyler ve Bölgeler"
           lede="Beş büyük köy ve onların gölgesinde kalan altı yerleşim."
           isAdmin={isAdmin}
-          slotKey={NARUTO_IMAGE_KEYS.konoha}
-          slotLabel="Konohagakure kadrajı"
+          slot={artSlot(NARUTO_IMAGE_KEYS.konoha)}
         >
           <ul className={styles.villageGrid}>
             {NARUTO_VILLAGES.map((village) => (
@@ -311,8 +368,7 @@ export default async function NarutoUniversePage() {
           title="İkonik Mekânlar"
           lede="Hikâyenin döndüğü yerler."
           art={art(NARUTO_IMAGE_KEYS.hokageRock)}
-          slotKey={NARUTO_IMAGE_KEYS.hokageRock}
-          slotLabel="Hokage Kayalığı"
+          slot={artSlot(NARUTO_IMAGE_KEYS.hokageRock)}
           isAdmin={isAdmin}
         >
           {Object.entries(placeRegions).map(([region, places]) => (
@@ -336,48 +392,56 @@ export default async function NarutoUniversePage() {
           title="Shinobi Efsaneleri"
           lede="Evreni taşıyan dokuz isim. Sıra anlatı sırası, güç sırası değil."
           art={art(NARUTO_IMAGE_KEYS.legends)}
-          slotKey={NARUTO_IMAGE_KEYS.legends}
-          slotLabel="Efsaneler bandı"
+          slot={artSlot(NARUTO_IMAGE_KEYS.legends)}
           isAdmin={isAdmin}
         >
+          {/* ⚠️ DÜZ IZGARADAN KAYIK DİZİLİME (29 Ağustos 2026).
+              Dokuz efsane aynı yükseklikte üç sıra hâlinde diziliydi ve
+              göz hiçbirinde durmuyordu. Sütunlar artık birbirine göre
+              kaymış ve kart boyları dönüşümlü — dizilim bir tabloya
+              değil bir duvara benziyor.
+
+              ⚠️ Yükleme yuvası kartın DIŞINA çıktı: kart `overflow:
+              hidden` ve içeriğini alta yaslıyor, yükleyici orada hem
+              kırpılıyor hem portrenin üstüne biniyordu. */}
           <ul className={styles.legendGrid}>
             {NARUTO_LEGENDS.map((legend) => {
               const face = portrait(legend.characterId);
               return (
-                <li
-                  key={legend.no}
-                  className={styles.legend}
-                  style={
-                    {
-                      "--rec": legend.accent,
-                      "--glow": legend.glow,
-                    } as React.CSSProperties
-                  }
-                >
-                  {face ? (
-                    <span className={styles.legendFace} aria-hidden>
-                      <Image
-                        src={apiUrl(face.url)}
-                        alt=""
-                        fill
-                        sizes="420px"
-                      />
+                <li key={legend.no} className={styles.legendCell}>
+                  <article
+                    className={styles.legend}
+                    style={
+                      {
+                        "--rec": legend.accent,
+                        "--glow": legend.glow,
+                      } as React.CSSProperties
+                    }
+                  >
+                    {face ? (
+                      <span className={styles.legendFace} aria-hidden>
+                        <Image
+                          src={apiUrl(face.url)}
+                          alt=""
+                          fill
+                          sizes="420px"
+                        />
+                      </span>
+                    ) : null}
+                    <span className={styles.legendNo} aria-hidden>
+                      {legend.no}
                     </span>
-                  ) : null}
-                  <span className={styles.legendNo} aria-hidden>
-                    {legend.no}
-                  </span>
-                  <div className={styles.legendBody}>
-                    <h3 className={styles.legendName}>{legend.name}</h3>
-                    <p className={styles.legendTitle}>{legend.title}</p>
-                    <p className={styles.legendPower}>{legend.power}</p>
-                  </div>
+                    <div className={styles.legendBody}>
+                      <h3 className={styles.legendName}>{legend.name}</h3>
+                      <p className={styles.legendTitle}>{legend.title}</p>
+                      <p className={styles.legendPower}>{legend.power}</p>
+                    </div>
+                  </article>
+
                   {legend.characterId ? (
                     <CuratorSlotIf
                       enabled={isAdmin}
-                      characterId={legend.characterId}
-                      slot="PORTRAIT"
-                      label={`${legend.name} portresi`}
+                      {...portraitSlot(legend.characterId, `${legend.name} portresi`)}
                     />
                   ) : null}
                 </li>
@@ -403,17 +467,29 @@ export default async function NarutoUniversePage() {
                 <li
                   key={team.name}
                   className={styles.team}
+                  data-sigil={team.sigil}
                   style={{ "--rec": team.color } as React.CSSProperties}
                 >
+                  {/* ⚠️ KAPTAN EFEKTİ. Kartın arkasında takımı taşıyan
+                      kişinin imza tekniği yanıyor: Kakashi'de yıldırım,
+                      Asuma'da rüzgâr, Guy'da alev. Aile veriden geliyor
+                      (`sigil`, gerekçesi `types.ts`te), çizimi saf CSS —
+                      dosya inmiyor. Hover'da uyanıyor. */}
+                  <span className={styles.teamSigil} aria-hidden />
+
                   <p className={styles.teamTag}>{team.tag}</p>
                   <h3 className={styles.teamName}>{team.name}</h3>
+
+                  {/* ⚠️ PORTRELER 26px'TEN 52px'E. Çipin içindeki yüz
+                      tanınmıyordu — kullanıcı bildirimi. Kadro artık
+                      çip değil bir sıra: yüz üstte, ad altında. */}
                   <ul className={styles.teamMembers}>
                     {team.members.map((member) => (
                       <li key={member.label}>
                         <NarutoFace
                           src={faceOf(member)}
                           label={member.label}
-                          size={26}
+                          size={52}
                         />
                         <span>{member.label}</span>
                       </li>
@@ -427,7 +503,7 @@ export default async function NarutoUniversePage() {
                             key={figure.label}
                             src={faceOf(figure)}
                             label={figure.label}
-                            size={22}
+                            size={30}
                           />
                         ))}
                       </span>
@@ -445,9 +521,7 @@ export default async function NarutoUniversePage() {
                         return (
                           <CuratorSlot
                             key={figure.person}
-                            characterId={person.characterId}
-                            slot="PORTRAIT"
-                            label={`${figure.label} portresi`}
+                            {...portraitSlot(person.characterId, `${figure.label} portresi`)}
                           />
                         );
                       })}
@@ -504,10 +578,7 @@ export default async function NarutoUniversePage() {
             </Link>
             <CuratorSlotIf
               enabled={isAdmin}
-              characterId={NARUTO_OWNER_ID}
-              slot="ABILITY"
-              abilityName={NARUTO_IMAGE_KEYS.shadows}
-              label="Gölgeler fonu"
+              {...artSlot(NARUTO_IMAGE_KEYS.shadows)}
             />
           </div>
         </section>
@@ -517,8 +588,7 @@ export default async function NarutoUniversePage() {
           title="Klanlar ve Soy Hatları"
           lede="Aynı köke çıkan iki dal ve köyün geri kalanı."
           art={art(NARUTO_IMAGE_KEYS.clans)}
-          slotKey={NARUTO_IMAGE_KEYS.clans}
-          slotLabel="Klanlar bandı"
+          slot={artSlot(NARUTO_IMAGE_KEYS.clans)}
           isAdmin={isAdmin}
         >
           <div className={styles.lineages}>
@@ -566,24 +636,33 @@ export default async function NarutoUniversePage() {
             </div>
           </div>
 
+          {/* ⚠️ IZGARADAN KÖK HATTINA (29 Ağustos 2026).
+              On iki klan aynı boyda on iki kutuda yan yana duruyordu:
+              köyün kendisi bir ızgara değil, aynı köke bağlı dallar.
+              Klanlar artık tek bir gövdeden çıkan düğümler — sol/sağ
+              dönüşümlü, her biri gövdeye kendi dalıyla bağlı. Soylu
+              hanelerin düğümü altın halkalı; ayrım veriden (`noble`),
+              ayrı bir rozetten değil.
+
+              ⚠️ `<ol>` DEĞİL `<ul>`: dallar arasında sıra yok. Görsel
+              dizilim bir hiyerarşi değil bir dağılım. */}
           <h3 className={styles.subhead}>Konoha klanları</h3>
-          <ul className={styles.clanGrid}>
-            {NARUTO_CLANS.map((clan) => (
+          <ul className={styles.clanVine}>
+            {NARUTO_CLANS.map((clan, i) => (
               <li
                 key={clan.name}
-                className={styles.clan}
+                className={styles.clanNode}
+                data-side={i % 2 === 0 ? "left" : "right"}
                 data-noble={clan.noble ? "" : undefined}
               >
-                <span className={styles.clanEmblem} aria-hidden>
+                <span className={styles.clanBranch} aria-hidden />
+                <span className={styles.clanSeal} aria-hidden>
                   <ClanEmblem clan={clan.id} />
                 </span>
                 <span className={styles.clanBody}>
                   <span className={styles.clanName}>{clan.name}</span>
                   <span className={styles.clanTrait}>{clan.trait}</span>
                 </span>
-                {clan.noble ? (
-                  <span className={styles.clanNoble}>SOYLU</span>
-                ) : null}
               </li>
             ))}
           </ul>
@@ -595,8 +674,7 @@ export default async function NarutoUniversePage() {
           title="Chakra ve Doğa Dönüşümü"
           lede="Beş temel dönüşüm; her biri bir diğerini yener, bir diğerine yenilir."
           art={art(NARUTO_IMAGE_KEYS.chakra)}
-          slotKey={NARUTO_IMAGE_KEYS.chakra}
-          slotLabel="Chakra fonu"
+          slot={artSlot(NARUTO_IMAGE_KEYS.chakra)}
           isAdmin={isAdmin}
         >
           <NarutoChakra
@@ -611,10 +689,7 @@ export default async function NarutoUniversePage() {
               {NARUTO_ELEMENTS.map((element) => (
                 <CuratorSlot
                   key={element.id}
-                  characterId={NARUTO_OWNER_ID}
-                  slot="ABILITY"
-                  abilityName={narutoElementKey(element.id)}
-                  label={`Element kadrajı · ${element.tr}`}
+                  {...artSlot(narutoElementKey(element.id))}
                 />
               ))}
             </div>
@@ -626,14 +701,30 @@ export default async function NarutoUniversePage() {
           title="Dōjutsu"
           lede="Kanla geçen gözler ve onların bedeli."
           art={art(NARUTO_IMAGE_KEYS.dojutsu)}
-          slotKey={NARUTO_IMAGE_KEYS.dojutsu}
-          slotLabel="Dōjutsu kadrajı"
+          slot={artSlot(NARUTO_IMAGE_KEYS.dojutsu)}
           isAdmin={isAdmin}
         >
-          <NarutoDojutsu eyes={NARUTO_EYES} />
+          <NarutoDojutsu eyes={NARUTO_EYES} art={eyeArt} />
+
+          {/* Sekiz gözün kendi yuvaları — bölümün içinde, tek sıra */}
+          {isAdmin ? (
+            <div data-curator-slot className={styles.elementSlots}>
+              {NARUTO_EYES.map((eye) => (
+                <CuratorSlot key={eye.id} {...artSlot(narutoEyeKey(eye.id))} />
+              ))}
+            </div>
+          ) : null}
         </Section>
 
         {/* ══ 10 · JUTSU ARŞİVİ ══════════════════════════════════════ */}
+        {/* ══ 10 · JUTSU ARŞİVİ ══════════════════════════════════════
+            ⚠️ DÜZ KUTULARDAN SALIM PLAKALARINA (29 Ağustos 2026).
+            Dokuz teknik aynı gri kutuda duruyordu ve tek ayrımları bir
+            renk değişkeniydi — o değişken de hiçbir yerde okunmuyordu.
+            Kart artık tekniğin KENDİ rengini taşıyan bir salım plakası:
+            renk alt kenardan yukarı sızıyor (chakra), derece plakanın
+            gramerini belirliyor ve küratör her tekniğe kendi karesini
+            koyabiliyor. */}
         <Section title="Jutsu Arşivi" lede="Kategoriler ve evreni değiştiren dokuz teknik.">
           <ul className={styles.catStrip}>
             {NARUTO_JUTSU_CATEGORIES.map((cat) => (
@@ -642,18 +733,53 @@ export default async function NarutoUniversePage() {
           </ul>
 
           <ul className={styles.jutsuGrid}>
-            {NARUTO_JUTSU.map((jutsu) => (
-              <li
-                key={jutsu.name}
-                className={styles.jutsu}
-                style={{ "--rec": jutsu.color } as React.CSSProperties}
-              >
-                <p className={styles.jutsuRank}>{jutsu.rank}</p>
-                <h3 className={styles.jutsuName}>{jutsu.name}</h3>
-                <p className={styles.jutsuDesc}>{jutsu.desc}</p>
-              </li>
-            ))}
+            {NARUTO_JUTSU.map((jutsu) => {
+              /* "A · NINJUTSU" → derece + kategori. Veri tek dize olarak
+                 yazılmıştı ve tasarım ikisini ayrı ağırlıkta istiyor;
+                 kaydı bölmek yerine burada ayrıştırılıyor — dizenin
+                 kendisi kaynak, ayrım bir sunum kararı. */
+              const [grade, family] = jutsu.rank.split(" · ");
+              const scene = jutsuArt[jutsu.slug] ?? null;
+              return (
+                <li
+                  key={jutsu.slug}
+                  className={styles.jutsu}
+                  data-grade={grade}
+                  style={{ "--rec": jutsu.color } as React.CSSProperties}
+                >
+                  {scene ? (
+                    <span className={styles.jutsuArt} aria-hidden>
+                      <Image src={scene} alt="" fill sizes="420px" />
+                    </span>
+                  ) : null}
+
+                  {/* Chakra sızıntısı: alt kenardan yükselen renk. Kare
+                      olsun olmasın plaka bu katmanla ayakta — boş kart
+                      "eksik" değil "henüz salınmamış" görünüyor. */}
+                  <span className={styles.jutsuBleed} aria-hidden />
+
+                  <p className={styles.jutsuGrade}>
+                    <span className={styles.jutsuGradeMark}>{grade}</span>
+                    <span className={styles.jutsuFamily}>{family ?? ""}</span>
+                  </p>
+                  <h3 className={styles.jutsuName}>{jutsu.name}</h3>
+                  <p className={styles.jutsuDesc}>{jutsu.desc}</p>
+                </li>
+              );
+            })}
           </ul>
+
+          {/* Dokuz tekniğin kendi yuvaları */}
+          {isAdmin ? (
+            <div data-curator-slot className={styles.elementSlots}>
+              {NARUTO_JUTSU.map((jutsu) => (
+                <CuratorSlot
+                  key={jutsu.slug}
+                  {...artSlot(narutoJutsuKey(jutsu.slug))}
+                />
+              ))}
+            </div>
+          ) : null}
         </Section>
 
         {/* ══ 11 · BIJUU — SİNEMATİK SAHNE ═══════════════════════════
@@ -665,8 +791,7 @@ export default async function NarutoUniversePage() {
           title="Kuyruklu Canavarlar"
           lede="Ten-Tails'in dokuz parçası ve onları taşıyanlar."
           art={art(NARUTO_IMAGE_KEYS.bijuu)}
-          slotKey={NARUTO_IMAGE_KEYS.bijuu}
-          slotLabel="Bijuu fonu"
+          slot={artSlot(NARUTO_IMAGE_KEYS.bijuu)}
           isAdmin={isAdmin}
         >
           <BijuuStage bijuu={NARUTO_BIJUU} art={bijuuArt} />
@@ -677,10 +802,7 @@ export default async function NarutoUniversePage() {
               {NARUTO_BIJUU.map((beast) => (
                 <CuratorSlot
                   key={beast.slug}
-                  characterId={NARUTO_OWNER_ID}
-                  slot="ABILITY"
-                  abilityName={narutoBijuuKey(beast.slug)}
-                  label={`Bijuu sahnesi · ${beast.name}`}
+                  {...artSlot(narutoBijuuKey(beast.slug))}
                 />
               ))}
             </div>
@@ -704,30 +826,93 @@ export default async function NarutoUniversePage() {
           title="Hokage Salonu"
           lede="Yedi yüz, yedi dönem. Her biri bir öncekine bir şekilde bağlı."
           art={art(NARUTO_IMAGE_KEYS.hokageHall)}
-          slotKey={NARUTO_IMAGE_KEYS.hokageHall}
-          slotLabel="Hokage Salonu"
+          slot={artSlot(NARUTO_IMAGE_KEYS.hokageHall)}
           isAdmin={isAdmin}
         >
-          <ol className={styles.hokageList}>
-            {NARUTO_HOKAGE.map((kage) => {
-              const face = portrait(kage.characterId);
-              return (
-                <li key={kage.ord} className={styles.hokage}>
-                  <NarutoFace
-                    src={face ? apiUrl(face.url) : null}
-                    label={kage.name}
-                    size={52}
-                  />
-                  <span className={styles.hokageOrd}>{kage.ord}</span>
-                  <div className={styles.hokageBody}>
-                    <h3 className={styles.hokageName}>{kage.name}</h3>
-                    <p className={styles.hokageEpithet}>{kage.epithet}</p>
-                    <p className={styles.hokageEnd}>{kage.end}</p>
-                  </div>
-                </li>
-              );
-            })}
-          </ol>
+          {/* ⚠️ LİSTEDEN SALONA (29 Ağustos 2026).
+              Yedi Hokage alt alta yedi satırdı; makam bir tabloya
+              indirgenmişti. Salon artık gerçekten bir salon: aşağıdaki
+              raydan bir dönem seçiliyor ve ahşap kapılar iki yana
+              açılarak o Hokage'yi içeri alıyor.
+
+              ── ⚠️ SIFIR JS ─────────────────────────────────────────
+              Seçim gizli bir radyo grubu, açılım `:has()`. Bunun bir
+              `<button>` olması yanlış olurdu: burada yapılan şey bir
+              eylem değil bir SEÇİM ve tarayıcı aynı anda yalnızca
+              birinin seçili olmasını kendisi garantiliyor. Klavye
+              desteği de bedava geliyor (ok tuşlarıyla dönem gezme).
+
+              ── ⚠️ KAPI HER SEÇİMDE YENİDEN AÇILIYOR ────────────────
+              Paneller `display: none`; seçilen panel `display: grid`
+              oluyor ve kapılar o an animasyonlarını BAŞTAN koşuyor.
+              Tek bir kapı çifti olsaydı ikinci seçimde animasyon
+              yeniden tetiklenmezdi — her panel kendi kapısını taşıyor. */}
+          <div className={styles.hall}>
+            <div className={styles.hallStage}>
+              {NARUTO_HOKAGE.map((kage) => {
+                const face = portrait(kage.characterId);
+                return (
+                  <article
+                    key={kage.ord}
+                    className={styles.hallPanel}
+                    aria-live="polite"
+                  >
+                    <span className={styles.hallGlow} aria-hidden />
+                    {face ? (
+                      <span className={styles.hallFace} aria-hidden>
+                        <Image
+                          src={apiUrl(face.url)}
+                          alt=""
+                          fill
+                          sizes="520px"
+                        />
+                      </span>
+                    ) : null}
+                    <span className={styles.hallDoor} data-side="left" aria-hidden />
+                    <span className={styles.hallDoor} data-side="right" aria-hidden />
+
+                    <div className={styles.hallBody}>
+                      <span className={styles.hokageOrd}>{kage.ord}</span>
+                      <h3 className={styles.hokageName}>{kage.name}</h3>
+                      <p className={styles.hokageEpithet}>{kage.epithet}</p>
+                      <p className={styles.hokageEnd}>{kage.end}</p>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+
+            <ol className={styles.hallRail} aria-label="Yedi Hokage">
+              {NARUTO_HOKAGE.map((kage, i) => {
+                const face = portrait(kage.characterId);
+                return (
+                  <li key={kage.ord}>
+                    {/* Gizli radyo: görünmüyor ama SİLİNMİYOR — klavye
+                        ve ekran okuyucu için yerinde duruyor. */}
+                    <input
+                      type="radio"
+                      name="hokage"
+                      id={`hokage-${kage.ord}`}
+                      className={styles.hallPick}
+                      defaultChecked={i === 0}
+                    />
+                    <label
+                      className={styles.hallTab}
+                      htmlFor={`hokage-${kage.ord}`}
+                    >
+                      <NarutoFace
+                        src={face ? apiUrl(face.url) : null}
+                        label={kage.name}
+                        size={44}
+                      />
+                      <span className={styles.hallTabOrd}>{kage.ord}</span>
+                      <span className={styles.hallTabName}>{kage.name}</span>
+                    </label>
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
 
           {/* Göreve hiç başlayamayan aday — listeyi eksik bırakmak tarihi
               yanlış anlatmak olurdu, ama sıraya da katılamaz */}
@@ -777,8 +962,7 @@ export default async function NarutoUniversePage() {
           title="Dönemler"
           lede="Kaguya'nın inişinden bugünün metropolüne kadar on beş halka."
           art={art(NARUTO_IMAGE_KEYS.history)}
-          slotKey={NARUTO_IMAGE_KEYS.history}
-          slotLabel="Tarih bandı"
+          slot={artSlot(NARUTO_IMAGE_KEYS.history)}
           isAdmin={isAdmin}
         >
           <NarutoChronicle eras={NARUTO_ERAS} faces={faces} />
@@ -789,8 +973,7 @@ export default async function NarutoUniversePage() {
           title="Efsanevi Savaşlar"
           lede="İki tarafın rengi kartın iki yakasını boyar."
           art={art(NARUTO_IMAGE_KEYS.valley)}
-          slotKey={NARUTO_IMAGE_KEYS.valley}
-          slotLabel="Son Vadisi"
+          slot={artSlot(NARUTO_IMAGE_KEYS.valley)}
           isAdmin={isAdmin}
         >
           <ul className={styles.battleGrid}>
@@ -886,8 +1069,7 @@ export default async function NarutoUniversePage() {
           title="Yasak Parşömenler"
           lede="Evrenin en dip katmanı — çoğu karakterin hiç öğrenemediği şeyler."
           art={art(NARUTO_IMAGE_KEYS.scrolls)}
-          slotKey={NARUTO_IMAGE_KEYS.scrolls}
-          slotLabel="Parşömen bandı"
+          slot={artSlot(NARUTO_IMAGE_KEYS.scrolls)}
           isAdmin={isAdmin}
         >
           <ul className={styles.scrollGrid}>
@@ -905,7 +1087,13 @@ export default async function NarutoUniversePage() {
             Sayfa uzun olduğu için "hangi yuvalar var" sorusunun tek yerden
             cevaplanması gerekiyordu — bölüm içi yuvalar yerinde duruyor. */}
         {isAdmin ? (
-          <section className={styles.curatorIndex}>
+          /* ⚠️ `data-curator-slot`: anahtar kapalıyken KUŞAĞIN TAMAMI
+             gizleniyor. Eskiden yalnızca içindeki yükleyiciler kapanıyor,
+             elli satırlık yuva listesi sayfanın sonunda duruyordu —
+             yöneticinin "sayfanın gerçek hâlini gör" kipinde göreceği son
+             şey bir yönetim tablosu olmamalı (kullanıcı isteği,
+             29 Ağustos 2026). */
+          <section data-curator-slot className={styles.curatorIndex}>
             <h2 className={styles.subhead}>Küratör · görsel yuvaları</h2>
             <p className={styles.curatorHint}>
               Yuvalar bölümlerin içinde de duruyor. Adres yapıştırırsan görsel
@@ -917,12 +1105,7 @@ export default async function NarutoUniversePage() {
                 <div key={slot.key} className={styles.curatorCell}>
                   <p className={styles.curatorLabel}>{slot.label}</p>
                   <p className={styles.curatorSub}>{slot.hint}</p>
-                  <CuratorSlot
-                    characterId={NARUTO_OWNER_ID}
-                    slot="ABILITY"
-                    abilityName={slot.key}
-                    label={slot.label}
-                  />
+                  <CuratorSlot {...artSlot(slot.key)} />
                 </div>
               ))}
             </div>
@@ -952,9 +1135,7 @@ export default async function NarutoUniversePage() {
                     {faces[slug] ? " · portre yüklü" : " · portre boş"}
                   </p>
                   <CuratorSlot
-                    characterId={person.characterId}
-                    slot="PORTRAIT"
-                    label={`${person.name} portresi`}
+                    {...portraitSlot(person.characterId, `${person.name} portresi`)}
                   />
                 </div>
               ))}
@@ -975,8 +1156,7 @@ function Section({
   title,
   lede,
   art,
-  slotKey,
-  slotLabel,
+  slot,
   isAdmin,
   children,
 }: {
@@ -984,8 +1164,15 @@ function Section({
   title: string;
   lede?: string;
   art?: { url: string } | null;
-  slotKey?: string;
-  slotLabel?: string;
+  /**
+   * Bölüm fonunun küratör kalemi — HAZIR PROP DEMETİ.
+   *
+   * ⚠️ Anahtar + etiket ayrı ayrı geçiliyordu; artık `artSlot(key)`
+   * demeti geçiyor. Sebep: etiket, önerilen ölçü ve yuvada duran kare
+   * sayfanın kapsamındaki verilerden türüyor ve bu bileşen bileşen
+   * dışında tanımlı, o kapsama erişemiyor.
+   */
+  slot?: React.ComponentProps<typeof CuratorSlot>;
   isAdmin?: boolean;
   children: React.ReactNode;
 }) {
@@ -1001,14 +1188,8 @@ function Section({
         <header className={styles.sectionHead}>
           <h2 className={`${shell.display} ${styles.sectionTitle}`}>{title}</h2>
           {lede ? <p className={styles.sectionLede}>{lede}</p> : null}
-          {slotKey && slotLabel ? (
-            <CuratorSlotIf
-              enabled={Boolean(isAdmin)}
-              characterId={NARUTO_OWNER_ID}
-              slot="ABILITY"
-              abilityName={slotKey}
-              label={slotLabel}
-            />
+          {slot ? (
+            <CuratorSlotIf enabled={Boolean(isAdmin)} {...slot} />
           ) : null}
         </header>
 
@@ -1021,6 +1202,13 @@ function Section({
 /**
  * Yuvayı yalnızca yöneticiye çiz — `AkatsukiExhibit` içindeki aynı adlı
  * yardımcının kardeşi. Ziyaretçi yükleyici JS'ini hiç indirmiyor.
+ *
+ * ⚠️ İKİ AYRI KESME, ikisi de gerekli. Buradaki `enabled` SUNUCUDA kesiyor:
+ * ziyaretçinin paketinde ada hiç yok. `CuratorSlot`un kendi içindeki
+ * `useCuratorMode()` ise İSTEMCİDE kesiyor: yönetici bile anahtarı
+ * kapattığında yükleyici mount edilmiyor (29 Ağustos 2026, kullanıcı
+ * isteği). Biri diğerinin yerini alamaz — sunucu anahtarın durumunu,
+ * istemci de yöneticinin kim olduğunu bilmiyor.
  */
 function CuratorSlotIf({
   enabled,

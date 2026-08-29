@@ -14,12 +14,108 @@
 /* Hangi alana yazilacagi — kurator hangi gorselin nereye ait oldugunu
    karistirmasin diye yuvanin adi ekranda yazili */
 .slot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--gap-sm) var(--gap-md);
   margin: 0 0 var(--gap-md);
   color: var(--accent);
   font-family: var(--font-bebas), var(--font-sans);
   font-size: 0.85rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
+}
+
+/* Onerilen olcu. Kurator kareleri kendisi uretiyor ve hangi oranda
+   uretecegini yuvaya bakarak bilmeli — sayi manifestodan geliyor.
+   Mono cunku bu bir OLCUM, bir etiket degil. */
+.spec {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: none;
+  color: var(--text-muted);
+}
+
+/* ── DOLU YUVA: ONIZLEME ─────────────────────────────────────
+   Kutu yerine karenin KENDISI. Kurator sayfayi asagi kaydirirken
+   hangi yuvanin dolu oldugunu bir bakista goruyor; eskiden her yuva
+   ayni bos kutuyu cizdigi icin bunu ancak sayfayi kapatip bakarak
+   anlayabiliyordu. */
+.preview {
+  position: relative;
+  margin: 0 0 var(--gap-md);
+  overflow: hidden;
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--bg);
+  /* Yuvalarin orani cok degisken (2:3 portre, 21:9 bant): sabit bir
+     kutu yerine kare kendi oranini korusun, tavan yuksekligi tassin. */
+  line-height: 0;
+}
+
+.preview img {
+  display: block;
+  width: 100%;
+  max-height: 14rem;
+  object-fit: contain;
+}
+
+/* Eylem seridi: normalde soluk, hover/odakta acik. Hicbir zaman
+   TAMAMEN gizlenmiyor — dokunmatikte hover yok ve gizli bir dugme
+   orada ulasilamaz olurdu. */
+.previewBar {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  display: flex;
+  gap: var(--gap-sm);
+  padding: var(--gap-sm);
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--bg) 92%, transparent),
+    transparent
+  );
+  opacity: 0.55;
+  transition: opacity 200ms ease;
+}
+
+.preview:hover .previewBar,
+.previewBar:focus-within {
+  opacity: 1;
+}
+
+.previewAction {
+  min-height: 32px;
+  padding: 0 12px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.74rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.previewAction:hover:not(:disabled) {
+  background: var(--surface-hover);
+  color: var(--accent);
+}
+
+.previewAction:disabled {
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.previewRemove:hover:not(:disabled) {
+  color: var(--warn);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .previewBar {
+    transition: none;
+  }
 }
 
 .ways {

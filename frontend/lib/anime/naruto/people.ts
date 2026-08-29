@@ -203,6 +203,7 @@ export const NARUTO_TEAMS: NarutoTeam[] = [
     name: "Team 7",
     tag: "KAKASHI HAN",
     color: "#e6b84c",
+    sigil: "lightning",
     members: [
       ref("naruto-uzumaki", "Naruto"),
       ref("sasuke-uchiha", "Sasuke"),
@@ -215,6 +216,7 @@ export const NARUTO_TEAMS: NarutoTeam[] = [
     name: "Team 8",
     tag: "TAKİP TAKIMI",
     color: "oklch(0.72 0.1 220)",
+    sigil: "shadow",
     members: [
       ref("kiba-inuzuka", "Kiba"),
       ref("shino-aburame", "Shino"),
@@ -227,6 +229,7 @@ export const NARUTO_TEAMS: NarutoTeam[] = [
     name: "Team 10",
     tag: "INO-SHIKA-CHO",
     color: "oklch(0.76 0.1 140)",
+    sigil: "wind",
     members: [
       ref("shikamaru-nara", "Shikamaru"),
       ref("ino-yamanaka", "Ino"),
@@ -239,6 +242,7 @@ export const NARUTO_TEAMS: NarutoTeam[] = [
     name: "Team Guy",
     tag: "TAIJUTSU",
     color: "oklch(0.78 0.11 60)",
+    sigil: "flame",
     members: [
       ref("neji-hyuga", "Neji"),
       ref("rock-lee", "Lee"),
@@ -251,6 +255,7 @@ export const NARUTO_TEAMS: NarutoTeam[] = [
     name: "Sannin",
     tag: "EFSANE ÜÇLÜ",
     color: "oklch(0.7 0.13 30)",
+    sigil: "seal",
     members: [ref("jiraiya"), ref("tsunade", "Tsunade"), ref("orochimaru")],
     sensei: "Sensei: Hiruzen Sarutobi · Adı Amegakure'de Hanzō'dan geldi",
     senseiRefs: [ref("hiruzen-sarutobi"), ref("hanzo")],
@@ -259,6 +264,7 @@ export const NARUTO_TEAMS: NarutoTeam[] = [
     name: "Minato'nun Takımı",
     tag: "ÜÇÜNCÜ SAVAŞ",
     color: "oklch(0.8 0.12 90)",
+    sigil: "seal",
     members: [
       ref("kakashi-hatake", "Kakashi"),
       ref("obito-uchiha", "Obito"),
@@ -271,6 +277,7 @@ export const NARUTO_TEAMS: NarutoTeam[] = [
     name: "Taka / Hebi",
     tag: "SASUKE'NİN TAKIMI",
     color: "oklch(0.68 0.14 300)",
+    sigil: "lightning",
     members: [
       ref("sasuke-uchiha", "Sasuke"),
       ref("suigetsu-hozuki", "Suigetsu"),
@@ -283,6 +290,7 @@ export const NARUTO_TEAMS: NarutoTeam[] = [
     name: "Kara",
     tag: "BORUTO DÖNEMİ",
     color: "oklch(0.64 0.16 28)",
+    sigil: "void",
     members: [
       ref("jigen"),
       ref("delta"),

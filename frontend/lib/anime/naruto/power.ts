@@ -205,54 +205,63 @@ export const NARUTO_JUTSU_CATEGORIES = [
 
 export const NARUTO_JUTSU: NarutoJutsu[] = [
   {
+    slug: "rasengan",
     rank: "A · NINJUTSU",
     name: "Rasengan",
     desc: "Minato'nun icadı; şekil dönüşümünün zirvesi, doğa dönüşümü içermez.",
     color: "oklch(0.78 0.11 220)",
   },
   {
+    slug: "chidori",
     rank: "A · RAITON",
     name: "Chidori",
     desc: "Kakashi'nin bin kuşu. Tek noktaya toplanan delici saldırı.",
     color: "oklch(0.84 0.13 95)",
   },
   {
+    slug: "amaterasu",
     rank: "S · DŌJUTSU",
     name: "Amaterasu",
     desc: "Sönmeyen kara alev. Itachi'nin sağ gözünden çıkar.",
     color: "#ef4444",
   },
   {
+    slug: "susanoo",
     rank: "S · DŌJUTSU",
     name: "Susanoo",
     desc: "Chakradan örülen dev muhafız; Mangekyō'nun son basamağı.",
     color: "#ef4444",
   },
   {
+    slug: "kamui",
     rank: "S · UZAY-ZAMAN",
     name: "Kamui",
     desc: "Hedefi başka bir boyuta çeken girdap. Obito ile Kakashi aynı gözü paylaşır.",
     color: "oklch(0.7 0.12 300)",
   },
   {
+    slug: "hiraishin",
     rank: "S · FŪINJUTSU",
     name: "Uçan Gök Gürültüsü",
     desc: "Tobirama'nın bulduğu, Minato'nun mükemmelleştirdiği ışınlanma mührü.",
     color: "oklch(0.82 0.12 90)",
   },
   {
+    slug: "hachimon",
     rank: "— · TAIJUTSU",
     name: "Sekiz Kapı",
     desc: "Bedenin sekiz kapısı. Sekizincisi açılırsa bedel ölümdür.",
     color: "oklch(0.78 0.11 60)",
   },
   {
+    slug: "edo-tensei",
     rank: "YASAK · KINJUTSU",
     name: "Edo Tensei",
     desc: "Ölüleri savaş alanına geri çağıran diriltme; Tobirama'nın icadı, Orochimaru'nun silahı.",
     color: "oklch(0.72 0.09 150)",
   },
   {
+    slug: "chibaku-tensei",
     rank: "S · RINNEGAN",
     name: "Chibaku Tensei",
     desc: "Çekim çekirdeğiyle kurulan yapay uydu. Ay bu teknikle doğdu.",

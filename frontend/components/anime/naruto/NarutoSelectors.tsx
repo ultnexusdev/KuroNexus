@@ -55,7 +55,23 @@ function RailButton({
 /* ══════════════════════════════════════════════════════════════════════
    1 · SHINOBI DÜNYASI — harita + ulus künyesi
    ══════════════════════════════════════════════════════════════════════ */
-export function NarutoAtlas({ nations }: { nations: NarutoNation[] }) {
+export function NarutoAtlas({
+  nations,
+  map,
+}: {
+  nations: NarutoNation[];
+  /**
+   * Haritanın KENDİ kadrajı (mutlak adres) — iğnelerin üzerinde durduğu
+   * kare. Yoksa iğneler eskisi gibi boş zeminde duruyor ve coğrafya
+   * yalnızca birbirlerine göre okunuyor.
+   *
+   * ⚠️ 29 Ağustos 2026, iki adımlı işin BİRİNCİ adımı. İkinci adım
+   * (iğneleri sürükleyerek konumlandırma) henüz yok: koordinatlar hâlâ
+   * `NARUTO_NATIONS` içinde elle yazılı. Yani kare değişirse iğnelerin
+   * yerini kod düzeltiyor, arayüz değil.
+   */
+  map?: string | null;
+}) {
   const [id, setId] = useState(nations[0]?.id ?? "");
   const sel = nations.find((n) => n.id === id) ?? nations[0];
   const mapLabel = useId();
@@ -68,6 +84,11 @@ export function NarutoAtlas({ nations }: { nations: NarutoNation[] }) {
           Coğrafya YAKLAŞIK — canon bir koordinat sistemi yok, iğneler
           birbirine göre konumlanmış bir şema. */}
       <div className={styles.map} role="group" aria-labelledby={mapLabel}>
+        {map ? (
+          <span className={styles.mapArt} aria-hidden>
+            <Image src={map} alt="" fill sizes="900px" />
+          </span>
+        ) : null}
         <p id={mapLabel} className={styles.mapLabel}>
           Beş büyük ulus ve gölgede kalan köyler
         </p>
@@ -211,11 +232,26 @@ export function NarutoChakra({
 /* ══════════════════════════════════════════════════════════════════════
    3 · DŌJUTSU — göz teknikleri
    ══════════════════════════════════════════════════════════════════════ */
-export function NarutoDojutsu({ eyes }: { eyes: NarutoEye[] }) {
+export function NarutoDojutsu({
+  eyes,
+  art,
+}: {
+  eyes: NarutoEye[];
+  /**
+   * eyeId → küratör kadrajı (mutlak adres). Yoksa künye görselsiz —
+   * CSS iris motifi zaten her gözü çiziyor, yani boş çerçeve doğmuyor.
+   *
+   * ⚠️ 29 Ağustos 2026'da açıldı. Bölümün tek yuvası vardı (arka fon) ve
+   * sekiz gözün hiçbirine kare konamıyordu (kullanıcı isteği).
+   */
+  art?: Record<string, string | null>;
+}) {
   const [id, setId] = useState(eyes[0]?.id ?? "");
   const sel = eyes.find((e) => e.id === id) ?? eyes[0];
 
   if (!sel) return null;
+
+  const scene = art?.[sel.id] ?? null;
 
   return (
     <div className={styles.split}>
@@ -228,7 +264,9 @@ export function NarutoDojutsu({ eyes }: { eyes: NarutoEye[] }) {
             onSelect={() => setId(eye.id)}
           >
             {/* Göz motifi saf CSS — iki iç içe daire, ortada bebek.
-                Görsel gerekmiyor, o yüzden yüklenmeyi de beklemiyor. */}
+                Görsel gerekmiyor, o yüzden yüklenmeyi de beklemiyor.
+                Kare yüklendiyse rayda DEĞİL künyede çiziliyor: sekiz
+                küçük fotoğraf rayı bir kontak baskıya çevirirdi. */}
             <span
               className={styles.iris}
               aria-hidden
@@ -250,6 +288,15 @@ export function NarutoDojutsu({ eyes }: { eyes: NarutoEye[] }) {
         aria-live="polite"
         style={{ "--rec": sel.iris } as React.CSSProperties}
       >
+        {/* Gözün yakın planı — kare kadraj, irisin rengiyle çevrelenmiş.
+            `key={sel.id}` göz değişince kadrajı baştan kuruyor: eski kare
+            yenisinin altından görünmüyor (element panelinin aynı kararı). */}
+        {scene ? (
+          <figure key={sel.id} className={styles.eyeScene}>
+            <Image src={scene} alt="" fill sizes="360px" />
+          </figure>
+        ) : null}
+
         <p className={styles.dossierCode}>{sel.owner}</p>
         <h3 className={styles.dossierName}>{sel.name}</h3>
         <p className={styles.dossierNote}>{sel.desc}</p>

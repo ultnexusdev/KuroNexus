@@ -88,10 +88,30 @@ export interface NarutoLegend {
   characterId?: number;
 }
 
+/**
+ * Takımı taşıyan kişinin imza tekniğinin GÖRSEL ailesi.
+ *
+ * ⚠️ Bir canon alanı DEĞİL, bir tasarım kararı — ve öyle okunmalı. Kartın
+ * arkasında hangi efektin yanacağını söylüyor; kaydın anlattığı bir şey
+ * değil. Her değer takımı kuran/taşıyan kişinin canon imzasından türedi:
+ * Kakashi → Chidori (yıldırım), Asuma → rüzgâr bıçakları, Guy → Sekiz
+ * Kapı (alev), Minato → Uçan Gök Gürültüsü (mühür), Jigen → Ōtsutsuki
+ * (boşluk). Yeni bir takım eklenirse aile de o kişiden seçilir.
+ */
+export type NarutoTeamSigil =
+  | "lightning"
+  | "wind"
+  | "flame"
+  | "seal"
+  | "void"
+  | "shadow";
+
 export interface NarutoTeam {
   name: string;
   tag: string;
   color: string;
+  /** Kartın arkasında yanan efekt ailesi — gerekçesi tipin başlığında */
+  sigil: NarutoTeamSigil;
   members: NarutoFigureRef[];
   sensei: string;
   /** Sensei satırındaki adların kadro bağları — küçük portreler */
@@ -129,6 +149,8 @@ export interface NarutoEye {
 }
 
 export interface NarutoJutsu {
+  /** Görsel yuvası anahtarının parçası (`naruto:jutsu:<slug>`) — KARARLI */
+  slug: string;
   rank: string;
   name: string;
   desc: string;

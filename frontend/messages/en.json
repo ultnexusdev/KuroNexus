@@ -3,6 +3,7 @@
     "siteName": "KuroNexus",
     "backToTop": "Back to top",
     "skipToContent": "Skip to main content",
+    "routeLoading": "Loading page",
     "unavailable": {
       "title": "The archive is unreachable right now",
       "text": "This is not an empty shelf — the server could not be reached, your records are intact. It is usually temporary.",

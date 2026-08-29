@@ -3,6 +3,7 @@
     "siteName": "KuroNexus",
     "backToTop": "En üste git",
     "skipToContent": "Ana içeriğe atla",
+    "routeLoading": "Sayfa yükleniyor",
     "unavailable": {
       "title": "Arşive şu an ulaşılamıyor",
       "text": "Bu bir boşluk değil — sunucuya bağlanılamadı, kayıtların yerinde duruyor. Çoğu zaman geçicidir.",

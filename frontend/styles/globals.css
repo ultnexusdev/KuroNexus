@@ -175,6 +175,49 @@ html {
    Kapi renkleri kategori slug'ina gore surulur; yeni kategori
    eklenirse --door-default-* devreye girer (moduler).
    ============================================================ */
+/* ============================================================
+   ROTA YUKLEME KATMANI (KuroLoader) — 29 Agustos 2026
+
+   Sayfa gecislerinde ortada 黒 kanjisi, etrafinda donen ince halkalar.
+   Katmanin rengi ve zemini TEMADAN BAGIMSIZ: yukleme ekrani markanin
+   kendi kimligi, ziyaretcinin sectigi derinin degil. Sekiz tema ve alti
+   salon arasinda gezinirken gostergenin de renk degistirmesi "site
+   yeniden yukleniyor" degil "baska bir siteye gittim" hissi verirdi.
+
+   ⚠️ Bu iki deger marka varliklarindan geliyor, secilmedi:
+   `public/brand/icon.svg` zemini #0c0b09 ve marka altini #c8a15c.
+
+   ⚠️ Kural 16: renk karari burada, bilesende degil. `KuroLoader`
+   `currentColor` uzerinden calisiyor; asagidaki token'lari overlay
+   sarmalayicisi baglıyor.
+   ============================================================ */
+:root {
+  --loader-ink:  #0c0b09; /* katman zemini — icon.svg'nin kendi zemini */
+  --loader-gold: #c8a15c; /* marka altini; varsayilan ve spor salonu */
+  /* Anime salonu: Akatsuki kizili (#c24449) ile anime kapisinin
+     turuncusu (--door-anime-a, #f0731e) ARASINDA sicak bir ton.
+     Ikisinden biri dogrudan alinmadi: kizil fazla "Akatsuki sergisi",
+     turuncu fazla "kapi". Zemin uzerinde 4.77:1 -- grafik siniri icin
+     istenen 3:1'in uzerinde. */
+  --loader-anime: #cc5a3c;
+
+  /* Katmanin yigin sirasi. Depoda z-index olcegi TOKEN DEGIL, her modul
+     kendi sayisini yaziyor; bu deger komsulariyla birlikte okunmadan
+     degistirilemeyecegi icin istisna yapildi:
+
+       40  SiteHeader (sticky)      60  MusicPlayerBar, kurator paneli
+       70  LoreDossier              80  karakter deneyim katmanlari
+       90  Lightbox (MODAL), AkatsukiPortal (gecis), PlayerGallery
+       95  ← BURASI                100 skip link
+       120 PlayerImage             1001 GlobalAmbientPlayer menusu
+
+     Gecis katmaninin ve butun sabit kabugun USTUNDE, modalin ALTINDA:
+     Lightbox aciklen yapilan bir gezinme loader'i galerinin onune
+     tasimamali. Skip link daha da ustte kaliyor -- klavyeyle gelen biri
+     loader gorunurken bile atlama baglantisina ulasabilmeli. */
+  --z-route-loader: 95;
+}
+
 :root {
   --hub-ink:   #101116; /* hol zemini — saf siyah degil */
   --hub-soot:  #17181f; /* hol yuzeyleri */

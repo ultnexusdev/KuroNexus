@@ -1,0 +1,147 @@
+/* ============================================================
+   KuroLoader — rota gecis katmani
+
+   ⚠️ DEGERLER DEGISTIRILMEDI. Bileseninin icinde satir ici bir
+   <style> olarak geliyordu; buraya BIREBIR tasindi (stroke, opaklik,
+   sure, yon). Tasima gerekcesi: satir ici <style> her ornekle birlikte
+   yeniden basiliyor ve depoda her sey CSS modulu.
+
+   ⚠️ Kural 16: tek hex yok. Renk `globals.css`teki `--loader-*`
+   token'larindan; isaretin kendisi `currentColor` okuyor.
+
+   ⚠️ EFEKT YOK. Glow, blur, drop-shadow bilincli olarak dislandi:
+   ince cizgi ve donus yeterli, filtre dusuk uclu cihazda gecisi
+   takar (gorevin acik sarti).
+   ============================================================ */
+
+/* `inline` kalsaydi izgara hucresinde harf tabani kadar bir bosluk
+   birakirdi ve isaret optik olarak merkezden asagi kayardi. */
+.loader {
+  display: block;
+}
+
+.ink {
+  fill: currentColor;
+  opacity: 0.92;
+}
+
+.arc {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  /* Donusun merkezi viewBox'in ortasi. `transform-box: view-box`
+     olmadan SVG icinde `transform-origin` oge kutusuna gore
+     hesaplanir ve halkalar eksantrik doner. */
+  transform-box: view-box;
+  transform-origin: 140px 140px;
+}
+
+.outer {
+  stroke-width: 1.5;
+  opacity: 0.85;
+  animation: knCw 2.6s linear infinite;
+}
+
+.inner {
+  stroke-width: 1;
+  opacity: 0.45;
+  animation: knCcw 4.2s linear infinite;
+}
+
+/* Donmeyen ray: donen iki halkanin uzerinde durdugu cizgi. */
+.rest {
+  stroke-width: 0.75;
+  opacity: 0.18;
+}
+
+@keyframes knCw {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes knCcw {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+/* ── KATMAN ──────────────────────────────────────────────────
+   Zemin ve renk TEMADAN BAGIMSIZ: yukleme ekrani markanin kimligi,
+   ziyaretcinin sectigi derinin degil (gerekce `globals.css`te).
+
+   Yigin sirasi token'dan: gecis katmaninin ustunde, modalin altinda. */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-route-loader);
+  display: grid;
+  place-items: center;
+  background: var(--loader-ink);
+  color: var(--loader-gold);
+  /* Katman ekrani kapatiyor: gecis surerken ikinci bir tiklama
+     gitmesin. Imlec de ne oldugunu soylesin. */
+  cursor: progress;
+
+  /* ⚠️ TITREME KALKANI, SAF CSS. Dugum hemen mount ediliyor ama
+     `--kn-enter-delay` dolmadan HIC BOYANMIYOR (`both` + %0'da
+     opacity 0). Sayfa daha erken gelirse katman bir kare bile
+     gorunmeden sokuluyor.
+
+     Kancaya baglanmadi cunku `loading.tsx` yedegi sunucuda ciziliyor:
+     bir istemci kancasi o yedegi hidrasyona kadar gizlerdi ve en yavas
+     senaryoda ekran bos kalirdi. */
+  animation: knOverlayIn 250ms var(--kn-enter-delay, 180ms) ease-out both;
+}
+
+/* Salon kimligi. Spor kasten YOK: gorev "notr altin, degistirme"
+   diyor ve varsayilan zaten o. */
+.overlay[data-tone="anime"] {
+  color: var(--loader-anime);
+}
+
+/* Cikis: `useDelayedVisible` en az 400ms'yi doldurunca bu niteligi
+   basiyor ve dugumu 250ms daha ayakta tutuyor. Giris kuralini
+   ozgullukle eziyor -- iki `animation` ayni ogede yarismasin. */
+.overlay[data-phase="leaving"] {
+  animation: knOverlayOut 250ms ease-in both;
+}
+
+@keyframes knOverlayIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes knOverlayOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* ── AZALTILMIS HAREKET ──────────────────────────────────────
+   Halkalar duruyor, kanji sabit kaliyor -- gostergenin kendisi
+   kayboluyor degil, yalnizca donmuyor.
+
+   ⚠️ Katmanin gecikmesi KORUNUYOR, yalnizca solma kalkiyor: gecikme
+   bir hareket degil bir zamanlama karari ve onu kaldirmak titremeyi
+   geri getirirdi. Sure 1ms -- `animation-delay` calismaya devam
+   ediyor, gecis anlik oluyor. */
+@media (prefers-reduced-motion: reduce) {
+  .outer,
+  .inner {
+    animation: none;
+    opacity: 0.3;
+  }
+
+  .overlay,
+  .overlay[data-phase="leaving"] {
+    animation-duration: 1ms;
+  }
+}

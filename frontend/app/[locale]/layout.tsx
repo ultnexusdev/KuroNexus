@@ -306,6 +306,7 @@ export async function generateMetadata({
 
 import { GlobalAmbientPlayer } from "@/components/story/GlobalAmbientPlayer";
 import { SiteFooter } from "@/components/layout/SiteFooter";
+import { RouteLoader } from "@/components/ui/RouteLoader";
 import { MusicQueueProvider } from "@/components/player/MusicQueue";
 import { MusicPlayerBar } from "@/components/player/MusicPlayerBar";
 
@@ -368,6 +369,16 @@ export default async function LocaleLayout({
             {/* Şerit en sonda: sabit konumlu ve içeriğin üstüne biniyor;
                 kuyruk boşken hiçbir şey çizmiyor */}
             <MusicPlayerBar />
+            {/* Rota geçiş katmanı EN SONDA ve kök düzende: sayfa ağacı
+                değişirken bu ağaç yeniden mount edilmiyor, yani gösterge
+                geçişin iki ucunda da hayatta kalıyor. Bir sayfanın içine
+                konsaydı tam da göstermesi gereken anda sökülürdü.
+
+                ⚠️ `loading.tsx` DEĞİL: o mekanizma segmenti akışa çevirip
+                alttaki `notFound()` çağrılarının durum kodunu yutuyor
+                (ölçülmüş tutanak, 2026-08-06). Gerekçenin tamamı
+                `RouteLoader` başlığında. */}
+            <RouteLoader />
           </MusicQueueProvider>
         </NextIntlClientProvider>
       </body>

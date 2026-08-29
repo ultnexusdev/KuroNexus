@@ -1,13 +1,33 @@
-import { AnimeHallSkeleton } from "@/components/anime/AnimeHallSkeleton";
+import { getLocale, getTranslations } from "next-intl/server";
+import KuroLoader from "@/components/ui/KuroLoader";
 
 /**
- * Anime kanadının yükleme iskeleti.
+ * Anime kanadinin yukleme ekrani.
  *
- * Eskiden paylaşılan `HallSkeleton` (poster ızgarası) çiziliyordu; salonun
- * gerçek düzeni poster ızgarası olmadığı için veri indiğinde sayfa
- * zıplıyordu. Artık kanadın kendi iskeleti — ölçüler `page.module.css`ten.
- * `HallSkeleton` diğer salonlarda olduğu gibi duruyor.
+ * ── ⚠️ ISKELET GITTI, LOADER GELDI (29 Agustos 2026) ─────────────────────
+ * Burada `AnimeHallSkeleton` duruyordu: kanadin gercek duzenini birebir
+ * taklit eden, zipramayi bitirmek icin yazilmis bir icerik iskeleti.
+ * Kullanici karari onun yerine markanin kendi yukleme ekranini istedi --
+ * 黒 ve donen halkalar, kanadin sicak tonunda.
+ *
+ * ⚠️ Bileşen DURUYOR (`components/anime/AnimeHallSkeleton.tsx`) ama artik
+ * hicbir yerden cagrilmiyor. Silinmedi: yazilma gerekcesi (poster
+ * izgarasi uyusmuyordu, veri inince kutular yer degistiriyordu) hâlâ
+ * gecerli ve karar geri alinmak istenirse tek satirlik bir import.
+ *
+ * ── ⚠️ TEK BAYT JS YOK ───────────────────────────────────────────────────
+ * Sunucu bileseni: SVG + CSS. Titreme kalkani da (180ms) saf CSS
+ * gecikmesi -- bir istemci kancasi bu yedegi hidrasyona kadar gizlerdi
+ * ve sert yuklemede ekran bos kalirdi (gerekce `KuroLoader.tsx`te).
+ *
+ * ── ⚠️ BU DOSYA ZATEN VARDI ──────────────────────────────────────────────
+ * Yani akis (streaming) davranisi ve onun `notFound()` uzerindeki etkisi
+ * DEGISMEDI -- yeni bir `loading.tsx` eklenmedi. Kok segmente hicbir sey
+ * konmadi; kuresel katman `RouteLoader` rotalara hic dokunmuyor.
  */
-export default function AnimeHallLoading() {
-  return <AnimeHallSkeleton />;
+export default async function AnimeHallLoading() {
+  const locale = await getLocale();
+  const t = await getTranslations({ locale, namespace: "common" });
+
+  return <KuroLoader overlay tone="anime" label={t("routeLoading")} />;
 }

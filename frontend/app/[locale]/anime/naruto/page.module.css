@@ -371,12 +371,21 @@
   margin-top: clamp(1.25rem, 3vw, 2.75rem);
 }
 
+/* ⚠️ KART PORTRENİN ORANINDA, SABİT YÜKSEKLİKTE DEĞİL.
+   Eskiden `min-height: clamp(15rem, 26vw, 19rem)` idi: 1440px'te kart
+   440×304, yani YATAY. Kaynak ise dikey bir portre (400×600, yuvanın
+   kendi ölçüsü). `cover` aradaki farkı kırparak kapatıyordu — 660px'e
+   büyütülen görselden 304px'lik bir şerit kalıyor, yüzün yarısı ve
+   omuzların tamamı gidiyordu (kullanıcı bildirimi, 29 Ağustos 2026).
+
+   `aspect-ratio: 2 / 3` kaynağın oranının aynısı: `cover` artık hiçbir
+   şeyi kırpmıyor, portre olduğu gibi duruyor. */
 .legend {
   position: relative;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  min-height: clamp(15rem, 26vw, 19rem);
+  aspect-ratio: 2 / 3;
   padding: clamp(1rem, 2vw, 1.5rem);
   overflow: hidden;
   isolation: isolate;
@@ -385,16 +394,24 @@
   transition: border-color 300ms ease, box-shadow 300ms ease;
 }
 
-/* Boy ritmi: birinci ve ucuncu sutun uzun, orta sutun kisa.
-   Donusum bir veri iddiasi degil bir kadraj karari — dokuz kayit
-   esit onemde ve oyle kaliyor. */
-.legendCell:nth-child(3n + 2) .legend {
-  min-height: clamp(12.5rem, 21vw, 15.5rem);
-}
+/* ⚠️ BOY RİTMİ KALKTI. Orta sütunun kartı kısa çiziliyordu; kart artık
+   portrenin oranını taşıdığı için boyunu değiştirmek kırpmayı geri
+   getirirdi. Ritmi tek başına dikey kayma taşıyor (yukarıdaki
+   `margin-top`) — dokuz portre de aynı kadrajda duruyor. */
 
 .legend:hover {
   border-color: color-mix(in srgb, var(--rec) 60%, transparent);
   box-shadow: 0 0 40px -18px var(--glow);
+}
+
+/* ⚠️ PORTRESİ OLMAYAN KART 2:3 DURMUYOR.
+   Oran kaynağın oranı; kaynak yoksa oranı korumak 620px'lik boş bir
+   kutu bırakırdı (canlıda dokuzu da dolu, ama bir isim eklenip portresi
+   henüz yüklenmediğinde bu hâl doğar). Kart o durumda eski kompakt
+   boyuna dönüyor — sayfanın "boş oda yasağı" kuralının kart hâli. */
+.legend:not(:has(.legendFace)) {
+  aspect-ratio: auto;
+  min-height: clamp(13rem, 22vw, 16rem);
 }
 
 .legendFace {
@@ -405,25 +422,36 @@
 
 .legendFace img {
   object-fit: cover;
-  object-position: center 18%;
-  opacity: 0.55;
+  /* Kart 2:3 olduğu için kırpma YOK; `top` yalnızca oranı tutmayan bir
+     yükleme gelirse başın kesilmemesi için — kayıp aşağıdan olsun. */
+  object-position: center top;
+  /* ⚠️ %55'ten %82'ye. Portre artık kartın konusu, arkasındaki doku
+     değil; bölümün tezi "evreni taşıyan dokuz isim" ve o dokuz yüzün
+     görünmesi gerekiyor. Metnin okunmasını alttaki perde taşıyor. */
+  opacity: 0.82;
   transition: opacity 400ms ease, scale 500ms cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 .legend:hover .legendFace img {
-  opacity: 0.75;
+  opacity: 1;
   scale: 1.04;
 }
 
-/* Portre varsa metnin altını karart */
+/* Portre varsa metnin altını karart.
+
+   ⚠️ Perde GÜÇLENDİ çünkü görsel %82'ye çıktı: ad, künye ve güç satırı
+   kartın alt dörtte birinde duruyor ve orada zeminin neredeyse tamamen
+   `--bg` olması gerekiyor. Üst kısım açık kalıyor — yüzün durduğu yer
+   orası. */
 .legendFace::after {
   content: "";
   position: absolute;
   inset: 0;
   background: linear-gradient(
     to top,
-    var(--bg) 8%,
-    color-mix(in srgb, var(--bg) 55%, transparent) 55%,
+    var(--bg) 18%,
+    color-mix(in srgb, var(--bg) 72%, transparent) 42%,
+    color-mix(in srgb, var(--bg) 18%, transparent) 72%,
     transparent 100%
   );
 }
@@ -1452,28 +1480,49 @@
 /* Iceri giren yuz: buyuk, ustten hizali, alti karariyor ki kunye
    okunsun. Kapilar aciliyorken yerinde duruyor — kapi acilir, kisi
    zaten oradadir. */
+/* ── SALONA GİREN KİŞİ ───────────────────────────────────────
+   ⚠️ PORTRE SAHNENİN TAMAMINI KAPLAMIYOR ARTIK.
+   Eskiden `inset: 0` idi: 1440px'te sahne ~1300×368, yani neredeyse
+   4:1. Kaynak dikey bir portre (400×600) ve `cover` onu 1300px genişliğe
+   büyütüyordu — 1950px'lik görselden 368px'lik bir şerit kalıyor, o
+   şerit de Hokage şapkasının tepesine denk geliyordu. Ekranda yalnızca
+   bir şapka görünüyordu (kullanıcı bildirimi, 29 Ağustos 2026).
+
+   Kadraj artık portrenin oranında ve sahnenin SAĞ tarafında duruyor:
+   kişi kapının içinde bir figür, duvara sürülmüş bir doku değil. Metin
+   solda kalıyor, ikisi çarpışmıyor. */
 .hallFace {
   position: absolute;
-  inset: 0;
+  top: 0;
+  bottom: 0;
+  right: clamp(0.75rem, 5vw, 4rem);
+  aspect-ratio: 2 / 3;
   z-index: -1;
 }
 
 .hallFace img {
   object-fit: cover;
-  object-position: center 16%;
-  opacity: 0.7;
+  /* Kutu 2:3 olduğu için kırpma yok; `top` oranı tutmayan bir yükleme
+     gelirse başın kesilmemesi için. */
+  object-position: center top;
+  opacity: 0.92;
 }
 
+/* Figür sahneye erisin: sol kenarı zemine karışıyor, altı da
+   kapanıyor — kadrajın dört köşesi görünürse "yapıştırılmış bir
+   fotoğraf" olur, kapıdan giren biri değil. */
 .hallFace::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    to top,
-    var(--bg) 6%,
-    color-mix(in srgb, var(--bg) 60%, transparent) 52%,
-    transparent 88%
-  );
+  background:
+    linear-gradient(
+      to right,
+      var(--bg),
+      color-mix(in srgb, var(--bg) 35%, transparent) 36%,
+      transparent 72%
+    ),
+    linear-gradient(to top, var(--bg) 3%, transparent 26%);
 }
 
 /* ── KAPILAR ─────────────────────────────────────────────────
@@ -2326,10 +2375,6 @@
     margin-top: 0;
   }
 
-  .legendCell:nth-child(3n + 2) .legend {
-    min-height: clamp(15rem, 26vw, 19rem);
-  }
-
   .hokage,
   .candidate {
     grid-template-columns: 3.25rem minmax(0, 1fr);
@@ -2459,13 +2504,16 @@
 }
 
 /* Iceri giris: kisi kapinin ardindan bir adim one geliyor */
+/* ⚠️ Bitiş opaklığı `.hallFace img`in dinlenme değeriyle AYNI olmalı.
+   `animation-fill-mode: both` son kareyi tuttuğu için ayrışırlarsa
+   portre girişten sonra kalıcı olarak sönük kalır. */
 @keyframes hallEnter {
   from {
     opacity: 0;
     scale: 1.08;
   }
   to {
-    opacity: 0.7;
+    opacity: 0.92;
     scale: 1;
   }
 }
@@ -2495,5 +2543,41 @@
 @media (max-width: 560px) {
   .legendGrid {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ── SALON · DAR EKRAN ───────────────────────────────────────
+   Sagdaki figur 375px'te sahnenin yarisini yiyor ve kunye onun
+   ustune biniyor. Dikeyde ayrisiyorlar: portre ustte ortada, kunye
+   altinda. Sahne bunun icin uzuyor.
+
+   ⚠️ BU BLOK DOSYANIN SONUNDA DURMAK ZORUNDA — `.hallStage`in temel
+   kurali (satir ~1465) burasindan SONRA gelirse `min-height`i geri
+   eziyor. Bir kez yasandi: blok yukariya konmustu ve sahne 27rem
+   yerine 17rem'de kaliyordu, portre kunyenin uzerine biniyordu
+   (olculdu, 29 Agustos 2026). Efsane izgarasindaki tuzagin aynisi. */
+@media (max-width: 700px) {
+  .hallStage {
+    min-height: 27rem;
+  }
+
+  .hallFace {
+    top: 0;
+    bottom: auto;
+    right: auto;
+    left: 50%;
+    translate: -50% 0;
+    height: 15rem;
+  }
+
+  .hallFace::after {
+    /* Yatay perde anlamsiz: figur artik ortada. Yalnizca alt kenar
+       kunyenin zeminine karisiyor. */
+    background: linear-gradient(
+      to top,
+      var(--bg) 4%,
+      color-mix(in srgb, var(--bg) 55%, transparent) 26%,
+      transparent 58%
+    );
   }
 }

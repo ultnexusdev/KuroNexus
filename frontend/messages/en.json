@@ -1444,6 +1444,149 @@
         "title": "The Slam Dunk Universe",
         "tagline": "Forty-five entries, five teams and a one-point win.",
         "meter": "Roster archive"
+      },
+      "jjk": {
+        "title": "The Jujutsu Kaisen Universe",
+        "tagline": "The curtain falls, the archive opens: curses, domains, twenty fingers.",
+        "meter": "Under construction"
+      }
+    },
+    "jjk": {
+      "meta": {
+        "title": "The Jujutsu Kaisen Universe",
+        "description": "The Cursed Archive: cursed energy, jujutsu society, the grade wall, domain expansions, Sukuna's twenty fingers, the Shibuya Incident and the Culling Game — a complete record of the world behind the curtain."
+      },
+      "toc": {
+        "aria": "Skip to a section",
+        "veil": "The Veil",
+        "energy": "Cursed Energy",
+        "society": "Jujutsu Society",
+        "grades": "The Grade Wall",
+        "spirits": "The Curse Archive",
+        "domain": "Domain Expansion",
+        "archetypes": "The Archetypes",
+        "fingers": "20 Fingers",
+        "shibuya": "The Shibuya Incident",
+        "culling": "The Culling Game",
+        "finale": "The Final Record"
+      },
+      "veil": {
+        "archive": "Jujutsu Archive — a fan project",
+        "title": "The Cursed Archive",
+        "lede": "Negative emotion leaks, gathers and takes shape. This archive is the record of the world kept behind the curtain: curses, sorcerers, domains, and the losses written in a single night.",
+        "raise": "raise the curtain",
+        "lower": "lower the curtain",
+        "sealed": "closed — civilians protected",
+        "open": "open — the real world is visible"
+      },
+      "energy": {
+        "latin": "Cursed Energy",
+        "lede": "The power system is not a tier list but rules stacked on rules. The ladder reads from base to summit: from seeing the flow to binding a place itself to a rule.",
+        "listAria": "Energy layers",
+        "cost": "cost",
+        "who": "seen in",
+        "index": "layer"
+      },
+      "society": {
+        "latin": "Jujutsu Society",
+        "lede": "Institutions are not buildings; they are ways of distributing responsibility. Tokyo organises the individual, Kyoto organises tradition, and headquarters organises unaccountability. Touch a name and the file card opens.",
+        "branchesAria": "Institutions",
+        "rosterAria": "Roster",
+        "grade": "grade",
+        "tech": "technique",
+        "domain": "domain",
+        "status": "status",
+        "file": "personnel file"
+      },
+      "grades": {
+        "latin": "The Grade Wall",
+        "lede": "Grading is not a measurement; it is an administrative decision. Flip the switch: the official record and the threat observed in the field land on different rungs of the same wall. Names framed in red are the ones that refuse to stay in place.",
+        "switchAria": "Record mode",
+        "official": "official grade",
+        "real": "actual threat",
+        "officialShort": "official",
+        "realShort": "actual",
+        "records": "records"
+      },
+      "spirits": {
+        "latin": "The Curse Archive",
+        "lede": "Cursed spirits are not created; they are left behind. The catalogue is kept in the dark — touch a silhouette and the file opens, and the threat assessment becomes legible.",
+        "catalogAria": "Curse catalogue",
+        "panelTitle": "threat assessment",
+        "unknownName": "UNCLASSIFIED",
+        "unknownCls": "record sealed",
+        "sealedNote": "Pick a silhouette from the catalogue to open its file. The archive keeps unopened records in the dark.",
+        "threat": "threat",
+        "intel": "intellect",
+        "energy": "energy"
+      },
+      "domain": {
+        "latin": "Domain Expansion",
+        "lede": "A space sealed shut with cursed energy: everything inside is subject to the domain's rule, and the technique cannot miss. Choose a domain — the room turns into its world. Those with the nerve step inside.",
+        "listAria": "Domains",
+        "caster": "caster",
+        "grade": "grade",
+        "hit": "sure-hit",
+        "enter": "enter the domain",
+        "exit": "leave the domain",
+        "active": "domain active"
+      },
+      "archetypes": {
+        "latin": "The Archetypes",
+        "lede": "We list the characters not by name but by the function they carry. No one in this story plays a role they chose; the role is handed to them by an inheritance, a body, or a plan.",
+        "listAria": "Archetype index",
+        "tech": "technique",
+        "domain": "domain",
+        "affiliation": "affiliation",
+        "fight": "defining encounter",
+        "arc": "arc",
+        "openFile": "Open the character file"
+      },
+      "fingers": {
+        "latin": "20 Fingers",
+        "lede": "Twenty pieces that could not be burned a thousand years ago. This part of the archive is incomplete by design: some records were never kept, others were erased when they entered Kenjaku's inventory. Touching a finger opens its record — what you open stays in the archive, not in your head.",
+        "counter": "records opened",
+        "reset": "seal the vault",
+        "gridAria": "The twenty fingers",
+        "place": "location",
+        "holder": "held by",
+        "arc": "arc",
+        "status": "status"
+      },
+      "shibuya": {
+        "latin": "Shibuya — October 31",
+        "lede": "This night does not read as a chronological list; it reads as an operation line. Pick an hour: the pins on the map move to that moment, and a name that is off the board drops from the list. The hours are approximate, per the archive.",
+        "lineAria": "Operation hours",
+        "mapAria": "Shibuya operations map — actor positions at the selected hour",
+        "legendAria": "Actors",
+        "prev": "previous",
+        "next": "next",
+        "stop": "stop",
+        "place": "location",
+        "who": "names on record"
+      },
+      "culling": {
+        "latin": "The Culling Game",
+        "lede": "Japan is split into ten colonies. The game is not a tournament but a rule-making machine: a player who banks enough points can change the rules themselves. For Kenjaku the goal was never winning — it was rewriting the system.",
+        "mapAria": "Colony map",
+        "mapNote": "10 colonies · barriers active",
+        "colony": "colony no.",
+        "players": "players",
+        "events": "major events",
+        "rulesTitle": "rules",
+        "sealed": "record sealed",
+        "closedName": "record sealed",
+        "noRecord": "no record"
+      },
+      "finale": {
+        "latin": "The Final Record",
+        "lede": "The archive's closing page. On the left, the roads the story travelled; on the right, the losses on record. Read side by side, the two lists reveal what the series was actually about.",
+        "lossesTitle": "losses on record",
+        "lossesNote": "The list is incomplete. The civilian records behind the curtain were never kept."
+      },
+      "footer": {
+        "line": "As long as the curtain is down, the world is quiet.",
+        "meta": "jujutsu archive — a fan project · 11 sections · frames awaiting the curator"
       }
     },
     "bleach": {

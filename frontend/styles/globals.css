@@ -1027,6 +1027,381 @@ html {
 }
 
 /* ============================================================
+   SALON 04 · JUJUTSU KAISEN EVRENI — "LANETLI ARSIV"
+   /anime/jujutsu-kaisen (30 Agustos 2026)
+
+   Hiyerarsi (Bleach'in ayni durustlugu):
+     [data-category="anime"]  → kanat
+     [data-world="jjk"]       → sayfa (arsiv tabani: murekkep + kizil)
+     [data-zone="…"]          → bolge (uc bolum kendi sesini tasiyor)
+     [data-domain="…"]        → alan paleti (dokuz alan; bolum VE tam
+                                ekran devralma ayni bloklari okur)
+
+   ── NEDEN data-zone / data-domain ────────────────────────────────────
+   Bleach `data-layer` kullandi; ayni niteligi ikinci evrene de yuklemek
+   `[data-layer="living"]` gibi bloklarla sessizce carpisirdi. JJK kendi
+   niteliklerini aciyor ve ikisi de yalnizca `[data-world="jjk"]` altinda
+   gecerli — sayfanin disina tek deger sizmiyor.
+
+   ── KONTRAST ──────────────────────────────────────────────────────────
+   Mockup'in dusuk opakli metinleri OLDUGU GIBI ALINMADI: gercek metin
+   tasiyan her token AA'ya cekildi (birincil AAA, ikincil/soluk ≥4.5,
+   accent zemin ustunde ≥3). Dusuk opaklik yalnizca dekoratif katmanlarda
+   (aria-hidden) yasiyor. Olcum: scripts/check-jjk-contrast.mjs.
+   ============================================================ */
+
+[data-world="jjk"] {
+  --bg:             #08080B;
+  --surface:        #101014;
+  --surface-hover:  #1A1A1F;
+  --border:         #2A2A2E;
+  --border-strong:  #454449;
+
+  --text-primary:   #E8E4DC;
+  --text-secondary: #A09C93;
+  --text-muted:     #8A8780;
+
+  /* Kizil: derin gövde (#8E0F1A) zemin/parlama isi goruyor, metin/kontur
+     isini #D4202F ustleniyor (zemin ustunde 3.3:1 — accent esigi). Kucuk
+     punto kizil metin --accent-hover okur (≈5:1). */
+  --accent:         #D4202F;
+  --accent-hover:   #E0525C;
+  --accent-muted:   #8E0F1A;
+
+  --gold:           #C9A227;
+  --warn:           #C9A06A;
+  --danger:         #D4202F;
+
+  /* Arsiv-yerel temel */
+  --void:     #08080B;
+  --bone:     #E8E4DC;
+  --hairline: rgba(232, 228, 220, 0.14);
+
+  /* CuratedImage duotone/veil bu dortluyu okuyor */
+  --world-ink:    #08080B;
+  --world-accent: #8E0F1A;
+  --world-glow:   #3A0D12;
+  --world-paper:  #E8E4DC;
+
+  /* Kanat kabugunun film graini kapali — Bleach'le ayni gerekce: arsivin
+     negatif alani dokusuz, doku SVG grain olarak yuva iceride basiyor. */
+  --an-noise: 0;
+
+  /* Shibuya operasyon odasi — aktor igneleri. Isim rengi ayni zamanda
+     lejant metni oldugu icin hepsi zeminde ≥4.5 okur. */
+  --actor-gojo:    #5AA9E6;
+  --actor-yuji:    #E8E4DC;
+  --actor-sukuna:  #E0525C;
+  --actor-mahito:  #C9A06A;
+  --actor-kenjaku: #A488E0;
+
+  /* Kagit dosya (Jujutsu Toplumu uye kunyesi) — arsivin tek acik yuzeyi.
+     Kagit ustunde murekkep: 13.9:1. Kizil damga #A6121F: 5.6:1. */
+  --paper-bg:     #E6E1D5;
+  --paper-ink:    #1A1610;
+  --paper-faint:  #5C564A;
+  --paper-line:   rgba(26, 22, 16, 0.22);
+  --paper-stamp:  #A6121F;
+}
+
+/* ── UC BOLGE ─────────────────────────────────────────────────
+   Bolum kendi kokunde `data-zone` tasiyor; token seti yeniden
+   baglaniyor, bolumun gradyanlari module CSS'te bu token'lardan
+   kuruluyor. Gecis yumusakligi bolumun kendi isi. */
+
+/* 呪力 LANETLI ENERJI — lanet enerjisinin moru */
+[data-world="jjk"] [data-zone="energy"] {
+  --bg:             #0A080F;
+  --surface:        #131017;
+  --surface-hover:  #1D1922;
+  --border:         #2E2A34;
+  --border-strong:  #4A4552;
+
+  --accent:         #A97FDF;
+  --accent-hover:   #BF9DEA;
+  --accent-muted:   #4A2C6B;
+
+  --world-accent: #6C1F8F;
+  --world-glow:   #2C1440;
+}
+
+/* 呪霊 LANET ARSIVI — bataklik yesili, organik lanet */
+[data-world="jjk"] [data-zone="spirits"] {
+  --bg:             #060905;
+  --surface:        #0E120B;
+  --surface-hover:  #161B12;
+  --border:         #272E20;
+  --border-strong:  #414A36;
+
+  --accent:         #96AC5C;
+  --accent-hover:   #ACC076;
+  --accent-muted:   #3E4A24;
+
+  --world-accent: #4E5F28;
+  --world-glow:   #1C2410;
+}
+
+/* 死滅回游 KIYIM OYUNU — koloni bariyerlerinin sogugu */
+[data-world="jjk"] [data-zone="culling"] {
+  --bg:             #04070C;
+  --surface:        #0B1017;
+  --surface-hover:  #131A24;
+  --border:         #232C38;
+  --border-strong:  #3B4756;
+
+  --accent:         #5AA9E6;
+  --accent-hover:   #7CBCEC;
+  --accent-muted:   #1D5C96;
+
+  --world-accent: #1D5C96;
+  --world-glow:   #0E2A46;
+}
+
+/* ── DOKUZ ALAN PALETI ────────────────────────────────────────
+   Alan bolumu VE tam ekran devralma ayni bloklari okur: kok oge
+   `data-domain` tasiyinca butun set doner. `--dom-bg*` gradyan
+   duraklari; duz `--bg` de donuyor ki alan icindeki her yuzey
+   (yuva yedegi, cizgi, panel) alanin dunyasina gecsin.
+
+   ⚠️ GOJO DOSYADAKI IKINCI ACIK PALET (Hueco Mundo'dan sonra):
+   Unlimited Void beyaza yakin — "sonsuz bilgi" korlugu. Metin
+   token'lari ters yonde kuruldu ve ayni esiklerden geciyor. */
+
+[data-world="jjk"] [data-domain="gojo"] {
+  --dom-bg0: #EEF1F5; --dom-bg1: #DFE5EE; --dom-bg2: #CFD8E6;
+  --bg: #E6EAF1;
+  --surface: #F3F5F9;
+  --surface-hover: #FFFFFF;
+  --border: #B9C2D2;
+  --border-strong: #8E9AB0;
+  --text-primary: #0C1220;
+  --text-secondary: #3A4358;
+  --text-muted: #4C566C;
+  --accent: #2F4D8A;
+  --accent-hover: #24407A;
+  --accent-muted: #8FA3C9;
+  --dom-ink: #0C1220;
+  --dom-body: #2E3850;
+  --dom-accent: #2F4D8A;
+  --dom-muted: #4C566C;
+  --dom-rule: rgba(12, 18, 32, 0.18);
+  --dom-ghost: rgba(12, 18, 32, 0.05);
+  --dom-veilc: rgba(47, 77, 138, 0.09);
+  --world-ink: #EEF1F5;
+  --world-accent: #2F4D8A;
+  --world-glow: #B9C7E0;
+  --world-paper: #0C1220;
+}
+
+[data-world="jjk"] [data-domain="sukuna"] {
+  --dom-bg0: #120406; --dom-bg1: #1C0507; --dom-bg2: #080203;
+  --bg: #120406;
+  --surface: #1E0A0C;
+  --surface-hover: #291013;
+  --border: #3A1418;
+  --border-strong: #572027;
+  --text-primary: #F6E9E6;
+  --text-secondary: #C4A9A4;
+  --text-muted: #AE968F;
+  --accent: #E0525C;
+  --accent-hover: #EA7A82;
+  --accent-muted: #7A1219;
+  --dom-ink: #F6E9E6;
+  --dom-body: #CDB3AE;
+  --dom-accent: #E0525C;
+  --dom-muted: #AE968F;
+  --dom-rule: rgba(224, 48, 60, 0.3);
+  --dom-ghost: rgba(224, 48, 60, 0.07);
+  --dom-veilc: rgba(224, 48, 60, 0.12);
+  --world-ink: #120406;
+  --world-accent: #B01620;
+  --world-glow: #3D0A0F;
+  --world-paper: #F6E9E6;
+}
+
+[data-world="jjk"] [data-domain="mahito"] {
+  --dom-bg0: #1A1410; --dom-bg1: #241A12; --dom-bg2: #100C09;
+  --bg: #1A1410;
+  --surface: #241C15;
+  --surface-hover: #2F251B;
+  --border: #3E3327;
+  --border-strong: #5C4C3A;
+  --text-primary: #F2E6D6;
+  --text-secondary: #BCA98F;
+  --text-muted: #A6937C;
+  --accent: #C9A06A;
+  --accent-hover: #D9B685;
+  --accent-muted: #6B4F2C;
+  --dom-ink: #F2E6D6;
+  --dom-body: #C6B296;
+  --dom-accent: #C9A06A;
+  --dom-muted: #A6937C;
+  --dom-rule: rgba(201, 160, 106, 0.28);
+  --dom-ghost: rgba(201, 160, 106, 0.07);
+  --dom-veilc: rgba(201, 160, 106, 0.09);
+  --world-ink: #1A1410;
+  --world-accent: #8A6633;
+  --world-glow: #33271A;
+  --world-paper: #F2E6D6;
+}
+
+[data-world="jjk"] [data-domain="jogo"] {
+  --dom-bg0: #140803; --dom-bg1: #200C04; --dom-bg2: #0A0402;
+  --bg: #140803;
+  --surface: #200F06;
+  --surface-hover: #2C150A;
+  --border: #3E1F0D;
+  --border-strong: #5E2F14;
+  --text-primary: #FBE8D4;
+  --text-secondary: #C8A88C;
+  --text-muted: #B2937A;
+  --accent: #E8721F;
+  --accent-hover: #F08F4A;
+  --accent-muted: #7A3A0F;
+  --dom-ink: #FBE8D4;
+  --dom-body: #D2B090;
+  --dom-accent: #E8721F;
+  --dom-muted: #B2937A;
+  --dom-rule: rgba(232, 114, 31, 0.3);
+  --dom-ghost: rgba(232, 114, 31, 0.08);
+  --dom-veilc: rgba(232, 114, 31, 0.1);
+  --world-ink: #140803;
+  --world-accent: #A34E12;
+  --world-glow: #3A1B08;
+  --world-paper: #FBE8D4;
+}
+
+[data-world="jjk"] [data-domain="dagon"] {
+  --dom-bg0: #04100F; --dom-bg1: #06171A; --dom-bg2: #020909;
+  --bg: #04100F;
+  --surface: #0A1A1A;
+  --surface-hover: #102423;
+  --border: #1C3231;
+  --border-strong: #2C4C4A;
+  --text-primary: #DFF0EE;
+  --text-secondary: #9DBCB8;
+  --text-muted: #86A6A2;
+  --accent: #4FB3A6;
+  --accent-hover: #71C5BA;
+  --accent-muted: #1E544D;
+  --dom-ink: #DFF0EE;
+  --dom-body: #A8C6C2;
+  --dom-accent: #4FB3A6;
+  --dom-muted: #86A6A2;
+  --dom-rule: rgba(79, 179, 166, 0.28);
+  --dom-ghost: rgba(79, 179, 166, 0.07);
+  --dom-veilc: rgba(79, 179, 166, 0.07);
+  --world-ink: #04100F;
+  --world-accent: #2C7A70;
+  --world-glow: #0C2B28;
+  --world-paper: #DFF0EE;
+}
+
+[data-world="jjk"] [data-domain="higuruma"] {
+  --dom-bg0: #0B0A08; --dom-bg1: #14120D; --dom-bg2: #060504;
+  --bg: #0B0A08;
+  --surface: #161410;
+  --surface-hover: #201D16;
+  --border: #322E23;
+  --border-strong: #4C4634;
+  --text-primary: #F3ECDC;
+  --text-secondary: #B5AC94;
+  --text-muted: #A0977F;
+  --accent: #C8B26A;
+  --accent-hover: #D7C486;
+  --accent-muted: #665A2C;
+  --dom-ink: #F3ECDC;
+  --dom-body: #C0B69C;
+  --dom-accent: #C8B26A;
+  --dom-muted: #A0977F;
+  --dom-rule: rgba(200, 178, 106, 0.26);
+  --dom-ghost: rgba(200, 178, 106, 0.06);
+  --dom-veilc: rgba(200, 178, 106, 0.06);
+  --world-ink: #0B0A08;
+  --world-accent: #8A783E;
+  --world-glow: #2B2617;
+  --world-paper: #F3ECDC;
+}
+
+[data-world="jjk"] [data-domain="hakari"] {
+  --dom-bg0: #0A0410; --dom-bg1: #14061C; --dom-bg2: #05020A;
+  --bg: #0A0410;
+  --surface: #160A1E;
+  --surface-hover: #201029;
+  --border: #351A42;
+  --border-strong: #512A62;
+  --text-primary: #F6E9FF;
+  --text-secondary: #C1A6D6;
+  --text-muted: #AB90C2;
+  --accent: #E648B0;
+  --accent-hover: #EE74C4;
+  --accent-muted: #7A1F5C;
+  --dom-ink: #F6E9FF;
+  --dom-body: #CBB0DE;
+  --dom-accent: #E648B0;
+  --dom-muted: #AB90C2;
+  --dom-rule: rgba(230, 72, 176, 0.3);
+  --dom-ghost: rgba(230, 72, 176, 0.08);
+  --dom-veilc: rgba(230, 72, 176, 0.12);
+  --world-ink: #0A0410;
+  --world-accent: #A5257C;
+  --world-glow: #33103F;
+  --world-paper: #F6E9FF;
+}
+
+[data-world="jjk"] [data-domain="megumi"] {
+  --dom-bg0: #050507; --dom-bg1: #0B0B10; --dom-bg2: #030304;
+  --bg: #050507;
+  --surface: #0F0F14;
+  --surface-hover: #17171E;
+  --border: #26262E;
+  --border-strong: #3C3C48;
+  --text-primary: #E9ECF2;
+  --text-secondary: #A3ABBC;
+  --text-muted: #8D95A8;
+  --accent: #8FA2C4;
+  --accent-hover: #A8B8D4;
+  --accent-muted: #3D4A66;
+  --dom-ink: #E9ECF2;
+  --dom-body: #AEB6C8;
+  --dom-accent: #8FA2C4;
+  --dom-muted: #8D95A8;
+  --dom-rule: rgba(143, 162, 196, 0.24);
+  --dom-ghost: rgba(143, 162, 196, 0.06);
+  --dom-veilc: rgba(143, 162, 196, 0.06);
+  --world-ink: #050507;
+  --world-accent: #56688C;
+  --world-glow: #191E2B;
+  --world-paper: #E9ECF2;
+}
+
+[data-world="jjk"] [data-domain="yuta"] {
+  --dom-bg0: #080A10; --dom-bg1: #0E131F; --dom-bg2: #04060A;
+  --bg: #080A10;
+  --surface: #10141E;
+  --surface-hover: #181E2B;
+  --border: #26304A;
+  --border-strong: #3A4868;
+  --text-primary: #E8EEF6;
+  --text-secondary: #A2AFC4;
+  --text-muted: #8C99B0;
+  --accent: #6F8FD8;
+  --accent-hover: #90A9E2;
+  --accent-muted: #2C3E6E;
+  --dom-ink: #E8EEF6;
+  --dom-body: #ACBACF;
+  --dom-accent: #6F8FD8;
+  --dom-muted: #8C99B0;
+  --dom-rule: rgba(111, 143, 216, 0.26);
+  --dom-ghost: rgba(111, 143, 216, 0.06);
+  --dom-veilc: rgba(111, 143, 216, 0.07);
+  --world-ink: #080A10;
+  --world-accent: #3D5AA8;
+  --world-glow: #141D33;
+  --world-paper: #E8EEF6;
+}
+
+/* ============================================================
    TUREV TOKEN — --surface-2
 
    Yuzey ile zemin ARASI ton. Kapaksiz kitabin cerceve ici, fotografsiz
@@ -1049,10 +1424,15 @@ html {
    listesinde olmasaydi `--surface-2` SAYFANIN paletinden hesaplanmis
    halde kalirdi. Hueco Mundo'da bu, beyaz zemine koyu bir ara ton dusurmek
    demekti — negatif temanin en gorunur kirilma noktasi. */
+/* ⚠️ `[data-zone]` ve `[data-domain]` 30 Agustos 2026'da eklendi (JJK
+   bolgeleri ve alan paletleri) — `[data-layer]` ile ayni gerekce: ikisi de
+   kendi `--surface`/`--bg` degerlerini yeniden bagliyor. */
 :root,
 [data-category],
 [data-world],
-[data-layer] {
+[data-layer],
+[data-zone],
+[data-domain] {
   --surface-2: color-mix(in srgb, var(--surface) 65%, var(--bg));
 }
 

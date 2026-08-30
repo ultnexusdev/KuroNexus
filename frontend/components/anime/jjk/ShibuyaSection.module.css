@@ -1,0 +1,368 @@
+/* ============================================================
+   P10 · SHIBUYA — zaman hatti + harita + kayit karti
+
+   Aktor renkleri --actor-* token'larindan (globals.css, kural 16);
+   iğne data-actor niteligiyle rengini secer.
+   ============================================================ */
+
+.inner {
+  position: relative;
+  z-index: 1;
+  max-width: var(--band);
+  margin-inline: auto;
+  display: grid;
+  gap: clamp(1.8rem, 3.5vw, 2.8rem);
+}
+
+.ops {
+  display: grid;
+  gap: clamp(1.6rem, 3vw, 2.4rem);
+}
+
+/* ── ZAMAN HATTI ────────────────────────────────────────────── */
+
+.line {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.4rem;
+  padding-block: 0.4rem;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.wire {
+  position: absolute;
+  left: 2.2rem;
+  right: 2.2rem;
+  top: calc(50% + 0.1rem);
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--accent) 60%, transparent),
+    color-mix(in srgb, var(--bone) 22%, transparent)
+  );
+  pointer-events: none;
+}
+
+.stopBtn {
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+  font-family: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  min-width: 4.8rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--text-muted);
+  transition: color 300ms ease;
+}
+
+.stopBtn:hover {
+  color: var(--text-secondary);
+}
+
+.stopBtn:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 3px;
+}
+
+.stopBtn[data-on] {
+  color: var(--text-primary);
+}
+
+.stopTime {
+  font-family: var(--j-mono, monospace);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+}
+
+.stopDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50% !important;
+  background: var(--surface-hover);
+  border: 2px solid color-mix(in srgb, var(--bone) 40%, transparent);
+  transition: background-color 350ms ease, border-color 350ms ease, scale 350ms ease;
+}
+
+.stopBtn[data-on] .stopDot {
+  background: var(--accent);
+  border-color: var(--text-primary);
+  scale: 1.55;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stopDot {
+    transition: none;
+  }
+}
+
+.stopName {
+  font-size: 0.72rem;
+  line-height: 1.3;
+  text-align: center;
+  max-width: 7.5rem;
+}
+
+/* ── OPERASYON KATI ─────────────────────────────────────────── */
+
+.floor {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(280px, 1fr);
+  gap: clamp(1.4rem, 3vw, 2.6rem);
+  align-items: stretch;
+}
+
+/* ── HARITA ─────────────────────────────────────────────────── */
+
+.map {
+  position: relative;
+  min-height: 380px;
+  border: 1px solid var(--border);
+  background:
+    radial-gradient(
+      ellipse at 55% 60%,
+      color-mix(in srgb, var(--accent-muted) 16%, transparent),
+      transparent 62%
+    ),
+    color-mix(in srgb, var(--bg) 94%, #000);
+  overflow: hidden;
+}
+
+.grid {
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(90deg, color-mix(in srgb, var(--bone) 4%, transparent) 0 1px, transparent 1px 56px),
+    repeating-linear-gradient(0deg, color-mix(in srgb, var(--bone) 4%, transparent) 0 1px, transparent 1px 56px);
+}
+
+/* Perde cemberi — operasyonun siniri */
+.ring {
+  position: absolute;
+  inset: 7%;
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  border-radius: 50% !important;
+  mask-image: radial-gradient(circle, #000 98%, transparent);
+}
+
+.station {
+  position: absolute;
+  translate: -50% -50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  pointer-events: none;
+}
+
+.stationDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50% !important;
+  background: color-mix(in srgb, var(--bone) 45%, transparent);
+}
+
+.stationName {
+  font-style: normal;
+  font-family: var(--j-mono, monospace);
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.pin {
+  position: absolute;
+  width: 13px;
+  height: 13px;
+  border-radius: 50% !important;
+  translate: -50% -50%;
+  background: var(--pin, var(--accent));
+  box-shadow:
+    0 0 16px var(--pin, var(--accent)),
+    0 0 0 3px color-mix(in srgb, var(--bg) 75%, transparent);
+  transition: left 1000ms cubic-bezier(0.4, 0, 0.2, 1), top 1000ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pin {
+    transition: none;
+  }
+}
+
+.pin[data-actor="gojo"] { --pin: var(--actor-gojo); }
+.pin[data-actor="yuji"] { --pin: var(--actor-yuji); }
+.pin[data-actor="sukuna"] { --pin: var(--actor-sukuna); }
+.pin[data-actor="mahito"] { --pin: var(--actor-mahito); }
+.pin[data-actor="kenjaku"] { --pin: var(--actor-kenjaku); }
+
+/* ── KAYIT KARTI ────────────────────────────────────────────── */
+
+.card {
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 76%, transparent);
+  padding: clamp(1.4rem, 2.6vw, 2.2rem);
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+}
+
+.cardEyebrow {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.9rem;
+  font-family: var(--j-mono, monospace);
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--accent-hover);
+}
+
+.cardTime {
+  font-size: 0.78rem;
+  color: var(--text-primary);
+}
+
+.cardTitle {
+  margin: 0;
+  font-family: var(--j-display, serif);
+  font-weight: 700;
+  font-size: clamp(1.3rem, 2.6vw, 1.9rem);
+  line-height: 1.15;
+  color: var(--text-primary);
+}
+
+.cardBody {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.cardMeta {
+  margin: 0;
+  display: grid;
+  gap: 0.8rem;
+  padding-block: 0.9rem;
+  border-block: 1px solid var(--hairline);
+}
+
+.cardMeta div {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.cardMeta dt {
+  font-family: var(--j-mono, monospace);
+  font-size: 0.58rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.cardMeta dd {
+  margin: 0;
+  font-size: 0.92rem;
+  color: var(--text-primary);
+}
+
+.nav {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.step {
+  cursor: pointer;
+  font-family: var(--j-mono, monospace);
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 0.65rem 1rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  transition: color 250ms ease, border-color 250ms ease;
+}
+
+.step:hover:not(:disabled) {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+.step:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 2px;
+}
+
+.step:disabled {
+  cursor: default;
+  opacity: 0.4;
+}
+
+.legend {
+  list-style: none;
+  margin: 0;
+  padding: 0.4rem 0 0;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.legendRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--j-mono, monospace);
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  opacity: 0.45;
+  transition: opacity 500ms ease;
+}
+
+.legendRow[data-here] {
+  opacity: 1;
+  color: var(--text-secondary);
+}
+
+.legendDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50% !important;
+  background: var(--pin, var(--accent));
+}
+
+.legendRow[data-actor="gojo"] { --pin: var(--actor-gojo); }
+.legendRow[data-actor="yuji"] { --pin: var(--actor-yuji); }
+.legendRow[data-actor="sukuna"] { --pin: var(--actor-sukuna); }
+.legendRow[data-actor="mahito"] { --pin: var(--actor-mahito); }
+.legendRow[data-actor="kenjaku"] { --pin: var(--actor-kenjaku); }
+
+.legendRow[data-here] .legendDot {
+  box-shadow: 0 0 12px var(--pin, var(--accent));
+}
+
+@media (max-width: 900px) {
+  .floor {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .map {
+    min-height: 300px;
+  }
+
+  .stopName {
+    display: none;
+  }
+}

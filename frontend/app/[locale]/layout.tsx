@@ -15,6 +15,7 @@ import {
   Jost,
   Archivo_Black,
   UnifrakturMaguntia,
+  IBM_Plex_Mono,
 } from "next/font/google";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
@@ -235,6 +236,22 @@ const unifraktur = UnifrakturMaguntia({
 });
 
 /*
+ * SALON 04 · JUJUTSU KAISEN EVRENİ — arşiv kayıt sesi (30 Ağustos 2026).
+ *
+ * Sayfanın tezi "Lanetli Arşiv": derece, durum, saat, koloni numarası gibi
+ * her KAYIT alanı mono ile basılıyor — kod süsü değil, sicil dili. Yalnızca
+ * `/anime/jujutsu-kaisen` altında kullanılıyor; `preload: false` gerekçesi
+ * yukarıdaki dört Bleach ailesiyle aynı. latin-ext ✅ Türkçe GÜVENLİ.
+ */
+const plexMono = IBM_Plex_Mono({
+  weight: ["400", "500"],
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-plexmono",
+  display: "swap",
+  preload: false,
+});
+
+/*
  * API kaynağına preconnect (9 Ağustos 2026).
  *
  * ÖLÇÜM: canlı sitede kitap rafı sayfasının HTML'inde tek bir `preconnect` ya
@@ -340,7 +357,7 @@ export default async function LocaleLayout({
     <html
       lang={locale}
       data-theme={theme}
-      className={`${brushFont.variable} ${cinzel.variable} ${bebas.variable} ${petrona.variable} ${cormorant.variable} ${corinthia.variable} ${orhun.variable} ${anton.variable} ${inter.variable} ${shippori.variable} ${jost.variable} ${archivoBlack.variable} ${unifraktur.variable}`}
+      className={`${brushFont.variable} ${cinzel.variable} ${bebas.variable} ${petrona.variable} ${cormorant.variable} ${corinthia.variable} ${orhun.variable} ${anton.variable} ${inter.variable} ${shippori.variable} ${jost.variable} ${archivoBlack.variable} ${unifraktur.variable} ${plexMono.variable}`}
     >
       <head>
         <link rel="preconnect" href={apiOrigin} crossOrigin="anonymous" />

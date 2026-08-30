@@ -1,0 +1,231 @@
+/* ============================================================
+   JJK EVRENI · TEK GORSEL YUVASI
+
+   Bleach'in `CuratedImage.module.css` dosyasinin kardesi — katman
+   ayrimi (.frame tasar / .clip kirpar), islem bicimleri ve iskele
+   gerekceleriyle birlikte oradan geliyor. Iki fark:
+
+     1. Tipografik yedek MINCHO konusuyor (--font-shippori): arsivin
+        kanji sesi firca degil, keskin serif. Bleach'inki firca kaliyor.
+     2. Renk yine token'lardan (--world-*, --accent, --bg) — JJK'de bu
+        token'lari bolge (`data-zone`) ve alan (`data-domain`) bloklari
+        yeniden bagliyor, yani duotone/veil kalitimla dogru boyaniyor.
+   ============================================================ */
+
+.frame {
+  position: relative;
+  display: block;
+  isolation: isolate;
+}
+
+.clip {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  aspect-ratio: var(--slot-ratio, 16 / 9);
+  background: color-mix(in srgb, var(--bg) 88%, #000);
+  container-type: inline-size;
+}
+
+.clip img {
+  object-fit: cover;
+}
+
+/* ── ISLEM BICIMLERI ───────────────────────────────────────── */
+
+/* Siluet: sekil kalir, kimlik gider. `brightness(0)` DEGIL — opak
+   fotografi siyah dikdortgene cevirir (Bleach olcumu, 23 Agustos 2026). */
+.clip[data-treatment="silhouette"] img {
+  filter: grayscale(1) contrast(1.9) brightness(0.3);
+}
+
+.clip[data-treatment="duotone"] img {
+  filter: grayscale(1) contrast(1.15);
+}
+
+.clip[data-treatment="duotone"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    var(--world-glow, var(--accent-muted)),
+    var(--world-accent, var(--accent))
+  );
+  mix-blend-mode: color;
+}
+
+/* ── ZIYARETCININ GORDUGU BOSLUK ───────────────────────────── */
+.veil {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      120% 90% at 50% 15%,
+      color-mix(in srgb, var(--world-glow, var(--accent)) 14%, transparent),
+      transparent 70%
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--bg) 70%, #000),
+      color-mix(in srgb, var(--bg) 95%, #000)
+    );
+}
+
+.glow {
+  position: absolute;
+  inset-inline: -20%;
+  bottom: -40%;
+  height: 80%;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--world-accent, var(--accent)) 18%, transparent),
+    transparent
+  );
+  pointer-events: none;
+}
+
+.grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.06;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+
+.mark {
+  position: relative;
+  display: block;
+  width: min(62%, 320px);
+  color: var(--world-paper, var(--text-secondary));
+  opacity: var(--slot-mark-opacity, 0.22);
+  transition: opacity var(--slot-mark-fade, 0ms) ease;
+}
+
+.mark svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Tipografik yedek: dev kanji, MINCHO sesi. Sinirlar disaridan
+   ayarlanabilir — Bleach'in `--slot-glyph-*` deseninin aynisi. */
+.glyph {
+  position: relative;
+  font-family: var(--font-shippori), var(--font-brush), serif;
+  font-size: clamp(
+    var(--slot-glyph-min, 3rem),
+    22cqi,
+    var(--slot-glyph-max, 9rem)
+  );
+  line-height: 1;
+  color: var(--world-paper, var(--text-primary));
+  opacity: 0.12;
+  user-select: none;
+  text-align: center;
+  text-wrap: balance;
+}
+
+/* ── KURATORUN GORDUGU ISKELE ──────────────────────────────── */
+.holder {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--gap-sm);
+  padding: var(--pad-md);
+  text-align: center;
+  background:
+    linear-gradient(
+      color-mix(in srgb, var(--accent) 9%, transparent),
+      color-mix(in srgb, var(--accent) 9%, transparent)
+    ),
+    color-mix(in srgb, var(--surface) 94%, transparent);
+  outline: 1px dashed color-mix(in srgb, var(--accent) 70%, transparent);
+  outline-offset: -4px;
+}
+
+.holder::before {
+  content: "+";
+  display: block;
+  font-family: var(--font-mono);
+  font-size: clamp(1.1rem, 14cqi, 2.2rem);
+  font-weight: 300;
+  line-height: 1;
+  color: var(--accent);
+}
+
+.holderMeta {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+}
+
+.holderHint {
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.holderId {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+/* Kucuk yuvalarda not ve kimlik sigmiyor: yalnizca olcu kalir.
+   Kap sorgusu — belirleyici yuvanin kendi genisligi. */
+@container (max-width: 220px) {
+  .holderHint,
+  .holderId {
+    display: none;
+  }
+}
+
+/* ── KUNYE ─────────────────────────────────────────────────── */
+.credit {
+  display: block;
+  margin-top: var(--gap-xs);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+/* ── YALNIZ KALEM ──────────────────────────────────────────── */
+.pen {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: block;
+  pointer-events: none;
+}
+
+.pen > * {
+  pointer-events: auto;
+}
+
+/* ── KADRAJ DISARIDAN (`fill`) ─────────────────────────────── */
+.frame[data-fill] {
+  height: 100%;
+}
+
+.frame[data-fill] .clip {
+  aspect-ratio: auto;
+  height: 100%;
+}

@@ -1,0 +1,159 @@
+/* ============================================================
+   JJK EVRENI · "LANETLI ARSIV" — TIPOGRAFI OLCEGI + DUZEN
+
+   Renk token'lari BURADA DEGIL, `globals.css`te (kural 16). Burada
+   duran sey olcek, ritim ve tipografik ses.
+
+   ── UC SES ────────────────────────────────────────────────────────────
+   Bleach'in sesi Jost'lu ince kapitaldi; JJK'nin tezi baska: bir ARSIV
+   KAYDI. Kanji basliklari MINCHO (Shippori — keskin serif, murekkep),
+   kayit alanlari MONO (IBM Plex — derece, saat, durum, koloni no),
+   govde Inter. Mono burada kostum degil sicil dili: yalnizca VERI
+   tasiyan satirlar giyer, paragraf asla.
+
+   Kanadin `--an-*` olcegi `.page` uzerinde eziliyor — kanat disina
+   tek deger sizmiyor (world.module.css'in ayni karari).
+   ============================================================ */
+
+.page {
+  --j-display: var(--font-shippori), var(--font-brush), serif;
+  --j-mono: var(--font-plexmono), var(--font-mono), monospace;
+  --j-body: var(--font-inter), var(--font-sans);
+
+  /* --- TIP OLCEGI (akiskan) --- */
+  --t-hero: clamp(3.2rem, 11vw, 10rem);
+  --t-section: clamp(2rem, 5vw, 3.6rem);
+  --t-panel: clamp(1.35rem, 2.4vw, 2rem);
+  --t-eyebrow: clamp(0.66rem, 1vw, 0.78rem);
+  --t-body: clamp(0.95rem, 1.1vw, 1.05rem);
+  --t-meta: 0.72rem;
+
+  /* --- DUZEN --- */
+  --measure: 62ch;
+  --gutter: clamp(1.25rem, 5vw, 6rem);
+  --band: min(1400px, 100% - 2 * var(--gutter));
+  --rhythm: clamp(4.5rem, 9vw, 9rem);
+
+  /* Kanat olcegini ez: arsiv kendi ritmini kurar */
+  --an-gutter: var(--gutter);
+  --an-measure: var(--measure);
+
+  /* Kanji rayinin genisligi — govde onun kadar iceri cekiliyor */
+  --rail: 4.75rem;
+
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--j-body);
+}
+
+/* Arsivde yuvarlak kose YOK: her sey kesik, muhur gibi. Sayfa
+   agacindaki her seyi kapsiyor — bilesenlerde tek tek yazilmasin. */
+.page :is(a, button, input, img, span, div, section, li, aside, article, dialog) {
+  border-radius: 0;
+}
+
+/* ── SESLER ─────────────────────────────────────────────────── */
+
+/* Kayit sesi: mono, genis aralik, BUYUK HARF. Yalnizca veri satirlari. */
+.mono {
+  font-family: var(--j-mono);
+  font-size: var(--t-meta);
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+/* Kanji/basliklarin murekkep sesi */
+.display {
+  font-family: var(--j-display);
+  font-weight: 600;
+  line-height: 1.04;
+}
+
+/* Bolum govde paragraflari */
+.lede {
+  max-width: var(--measure);
+  font-size: var(--t-body);
+  line-height: 1.85;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* ── BOLUM ISKELETI ─────────────────────────────────────────── */
+
+.section {
+  position: relative;
+  padding: var(--rhythm) var(--gutter);
+  border-top: 1px solid var(--hairline);
+  background: var(--bg);
+  /* Bolge/alan gecisleri yalnizca renk animasyonu — CLS 0 */
+  transition: background-color 600ms ease-in-out, color 600ms ease-in-out;
+  scroll-margin-top: 2rem;
+}
+
+.section:focus {
+  outline: none;
+}
+
+/* Baslik satiri: kanji + Latin niteleyici tek satirda, taban hizali */
+.head {
+  display: flex;
+  align-items: baseline;
+  gap: clamp(0.8rem, 2vw, 1.4rem);
+  flex-wrap: wrap;
+  margin: 0 0 clamp(0.9rem, 2vw, 1.4rem);
+}
+
+.headKanji {
+  font-family: var(--j-display);
+  font-weight: 600;
+  font-size: var(--t-section);
+  line-height: 1;
+  color: var(--text-primary);
+}
+
+.headLatin {
+  font-family: var(--j-mono);
+  font-size: clamp(0.72rem, 1.4vw, 0.95rem);
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+/* Kayit numarasi — arsivde sira bilgi tasiyor: dosya numarasi. */
+.headNo {
+  font-family: var(--j-mono);
+  font-size: var(--t-meta);
+  letter-spacing: 0.3em;
+  color: var(--text-muted);
+}
+
+/* Bolumun dev filigran kanjisi — dekor, aria-hidden */
+.ghost {
+  position: absolute;
+  right: -6vw;
+  top: 10%;
+  font-family: var(--j-display);
+  font-size: min(32vw, 430px);
+  line-height: 0.8;
+  color: color-mix(in srgb, var(--text-primary) 3.5%, transparent);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ── PERFORMANS ─────────────────────────────────────────────────
+   Ekran disi bolumun duzen/boyama isi ertelenir. ⚠️ Yapiskan sahne ya da
+   scroll-timeline tasiyan bolume VERME (Bleach P18-a olcumu): spirits
+   panelinin sticky'si ve shibuya haritasi bu yuzden listede yok. */
+.deferPaint {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 120vh;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page,
+  .section {
+    transition: none;
+  }
+}

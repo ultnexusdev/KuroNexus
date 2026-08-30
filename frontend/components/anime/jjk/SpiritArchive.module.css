@@ -1,0 +1,259 @@
+/* ============================================================
+   P06 · LANET ARSIVI — bataklik yesili bolge, katalog + panel
+   ============================================================ */
+
+.zone {
+  overflow: hidden;
+  background:
+    radial-gradient(
+      ellipse at 30% 20%,
+      color-mix(in srgb, var(--world-accent) 16%, transparent),
+      transparent 55%
+    ),
+    var(--bg);
+}
+
+.inner {
+  position: relative;
+  z-index: 1;
+  max-width: var(--band);
+  margin-inline: auto;
+  display: grid;
+  gap: clamp(2rem, 4vw, 3.2rem);
+}
+
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 400px);
+  gap: clamp(1.8rem, 4vw, 4rem);
+  align-items: start;
+}
+
+/* ── KATALOG ────────────────────────────────────────────────── */
+
+.catalog {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 0.75rem;
+}
+
+.file {
+  cursor: pointer;
+  width: 100%;
+  min-height: 8.2rem;
+  font-family: inherit;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.8rem;
+  padding: 1.15rem 1.05rem;
+  background: color-mix(in srgb, var(--bg) 92%, #000);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  transition:
+    background-color 450ms ease,
+    border-color 350ms ease,
+    color 450ms ease,
+    filter 450ms ease;
+  /* Kapali dosya: bulanik, isimsiz */
+  filter: blur(1.4px);
+}
+
+.file:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 2px;
+  filter: none;
+}
+
+.file:hover {
+  border-color: var(--border-strong);
+  filter: blur(0.6px);
+}
+
+.file[data-open] {
+  filter: none;
+  background: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--world-accent) 16%, var(--bg)),
+    color-mix(in srgb, var(--bg) 94%, #000)
+  );
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  color: var(--text-primary);
+}
+
+.file[data-open][data-on] {
+  border-color: var(--accent);
+}
+
+.fileJp {
+  font-family: var(--j-display, serif);
+  font-size: 1.9rem;
+  line-height: 1;
+}
+
+.fileBody {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.fileName {
+  font-size: 0.9rem;
+}
+
+.fileCls {
+  font-family: var(--j-mono, monospace);
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+/* ── DEGERLENDIRME PANELI ───────────────────────────────────── */
+
+.panel {
+  position: sticky;
+  top: 1.5rem;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 78%, transparent);
+  padding: clamp(1.4rem, 2.6vw, 2.2rem);
+  display: grid;
+  gap: 1.15rem;
+}
+
+.panelEyebrow {
+  margin: 0;
+  font-family: var(--j-mono, monospace);
+  font-size: 0.64rem;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent-hover);
+}
+
+.panelHead {
+  display: flex;
+  align-items: baseline;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.panelJp {
+  font-family: var(--j-display, serif);
+  font-size: clamp(1.9rem, 3.4vw, 2.6rem);
+  line-height: 1;
+  color: var(--text-primary);
+}
+
+.panelName {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+.panelCls {
+  margin: 0;
+  font-family: var(--j-mono, monospace);
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Portre koltugu: acik dosyada belirir */
+.seat {
+  display: none;
+}
+
+.seat[data-open] {
+  display: block;
+}
+
+.seatFrame {
+  position: relative;
+  display: none;
+}
+
+.seatFrame[data-on] {
+  display: block;
+}
+
+.portrait {
+  display: block;
+  --slot-glyph-min: 2.2rem;
+}
+
+.bars {
+  margin: 0;
+  display: grid;
+  gap: 0.9rem;
+  padding-block: 1.1rem;
+  border-block: 1px solid var(--hairline);
+}
+
+.barRow {
+  display: contents;
+}
+
+.barRow dt {
+  font-family: var(--j-mono, monospace);
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.barRow dd {
+  margin: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 3.2rem;
+  gap: 0.7rem;
+  align-items: center;
+}
+
+.track {
+  display: block;
+  height: 6px;
+  background: color-mix(in srgb, var(--bone) 10%, transparent);
+  overflow: hidden;
+}
+
+.fill {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-muted), var(--accent));
+  transition: width 600ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fill {
+    transition: none;
+  }
+}
+
+.barVal {
+  font-family: var(--j-mono, monospace);
+  font-size: 0.68rem;
+  color: var(--text-secondary);
+  text-align: right;
+}
+
+.panelNote {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+@media (max-width: 900px) {
+  .split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .panel {
+    position: static;
+  }
+}

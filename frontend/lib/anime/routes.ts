@@ -26,6 +26,8 @@ export const animeHref = {
   bleach: () => "/anime/bleach",
   /** Slam Dunk Evreni — aynı ayrım, üçüncü evren */
   slamDunk: () => "/anime/slam-dunk",
+  /** Jujutsu Kaisen Evreni — aynı ayrım, dördüncü evren ("Lanetli Arşiv") */
+  jjk: () => "/anime/jujutsu-kaisen",
   /** Six Paths detay sayfası (deva/asura/human/animal/preta/naraka) */
   akatsukiPath: (pathKey: string) => `/anime/akatsuki/six-paths/${pathKey}`,
   /** Anime arşivi (altı raf) */
@@ -44,4 +46,13 @@ export const animeHref = {
  * rezervedir — App Router statik bölümü önce dener ve çakışan kayıt
  * sessizce erişilmez olur (spor/müzik ölçümü).
  */
-export const RESERVED_ANIME_SLUGS = new Set(["akatsuki", "naruto", "bleach"]);
+export const RESERVED_ANIME_SLUGS = new Set([
+  "akatsuki",
+  "naruto",
+  "bleach",
+  /* ⚠️ İkisi listede EKSİKTİ — statik rotaları çoktan var (30 Ağustos 2026).
+     Liste "hangi adlar rezerve" sorusunun tek kaynağı; rota açılırken
+     buraya yazılmamışsa listenin bekçiliği yarım kalıyor. */
+  "slam-dunk",
+  "jujutsu-kaisen",
+]);

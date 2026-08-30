@@ -1,0 +1,190 @@
+/* ============================================================
+   P02 · LANETLI ENERJI — mor bolge, merdiven + dosya paneli
+   ============================================================ */
+
+.zone {
+  overflow: hidden;
+  background:
+    radial-gradient(
+      ellipse at 20% 10%,
+      color-mix(in srgb, var(--world-accent) 14%, transparent),
+      transparent 55%
+    ),
+    var(--bg);
+}
+
+.inner {
+  position: relative;
+  z-index: 1;
+  max-width: var(--band);
+  margin-inline: auto;
+  display: grid;
+  gap: clamp(2rem, 4vw, 3.4rem);
+}
+
+.ladder {
+  display: grid;
+  grid-template-columns: minmax(240px, 340px) minmax(0, 1fr);
+  gap: clamp(1.8rem, 4vw, 4.2rem);
+  align-items: start;
+}
+
+/* ── MERDIVEN ───────────────────────────────────────────────── */
+
+.list {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--hairline);
+}
+
+.rung {
+  cursor: pointer;
+  display: flex;
+  align-items: baseline;
+  gap: 0.9rem;
+  padding: 0.95rem 1rem;
+  text-align: left;
+  font-family: inherit;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--hairline);
+  border-left: 2px solid transparent;
+  color: var(--text-secondary);
+  transition: background-color 300ms ease, color 300ms ease, border-color 300ms ease;
+}
+
+.rung:hover {
+  color: var(--text-primary);
+}
+
+.rung:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: -2px;
+}
+
+.rung[data-on] {
+  background: color-mix(in srgb, var(--accent-muted) 34%, transparent);
+  border-left-color: var(--accent);
+  color: var(--text-primary);
+}
+
+.rungJp {
+  font-family: var(--j-display, serif);
+  font-size: 1.05rem;
+  line-height: 1;
+  min-width: 4.6ch;
+}
+
+.rungName {
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+}
+
+/* ── DOSYA PANELI ───────────────────────────────────────────── */
+
+.panel {
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+  padding: clamp(1.5rem, 3vw, 2.6rem);
+  display: grid;
+  gap: clamp(0.9rem, 1.8vw, 1.3rem);
+  align-content: start;
+  min-height: 24rem;
+}
+
+.panelIndex {
+  margin: 0;
+  font-family: var(--j-mono, monospace);
+  font-size: var(--t-meta);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent-hover);
+}
+
+.panelJp {
+  margin: 0;
+  font-family: var(--j-display, serif);
+  font-weight: 700;
+  font-size: clamp(2.6rem, 6vw, 4.6rem);
+  line-height: 1;
+  color: var(--text-primary);
+}
+
+.panelName {
+  margin: 0;
+  font-family: var(--j-mono, monospace);
+  font-size: clamp(0.8rem, 1.4vw, 1rem);
+  font-weight: 500;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.meta {
+  margin: 0;
+  display: flex;
+  gap: clamp(1.4rem, 3vw, 3rem);
+  flex-wrap: wrap;
+  padding-block: 0.9rem;
+  border-block: 1px solid var(--hairline);
+}
+
+.meta div {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.meta dt {
+  font-family: var(--j-mono, monospace);
+  font-size: 0.62rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.meta dd {
+  margin: 0;
+  font-size: 0.92rem;
+  color: var(--text-primary);
+}
+
+.panelBody {
+  margin: 0;
+  max-width: 52ch;
+  font-size: var(--t-body);
+  line-height: 1.85;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+@media (max-width: 860px) {
+  .ladder {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .list {
+    flex-direction: row;
+    flex-wrap: wrap;
+    border-top: none;
+    gap: 0.4rem;
+  }
+
+  .rung {
+    border: 1px solid var(--border);
+    border-left-width: 2px;
+    padding: 0.6rem 0.8rem;
+  }
+
+  .rungJp {
+    min-width: 0;
+  }
+
+  /* Dar ekranda ad gizlenir, kanji sekmesi kalır — panel adı zaten basıyor */
+  .rungName {
+    display: none;
+  }
+
+  .panel {
+    min-height: 0;
+  }
+}

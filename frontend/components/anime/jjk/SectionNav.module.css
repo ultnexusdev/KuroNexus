@@ -1,0 +1,61 @@
+/* ============================================================
+   BOLUMLERE ATLA — odak gelmeden gorunmez, odakla acilir.
+
+   ⚠️ clip-path/srOnly DEGIL: ogeyi ekran DISINA tasiyoruz, cocuklar
+   odaklaninca geri geliyor (Bleach P18-b'nin olculmus karari).
+   ============================================================ */
+
+.nav {
+  position: fixed;
+  inset-inline: 0;
+  top: 0;
+  z-index: 90;
+  translate: 0 -110%;
+  transition: translate 200ms ease;
+  background: color-mix(in srgb, var(--bg, #08080B) 94%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--bone, #E8E4DC) 16%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+.nav:focus-within {
+  translate: 0 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav {
+    transition: none;
+  }
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0.6rem 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.4rem;
+  justify-content: center;
+}
+
+.link {
+  display: inline-block;
+  padding: 0.45rem 0.7rem;
+  font-family: var(--j-mono, monospace);
+  font-size: 0.66rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-secondary, #A09C93);
+  text-decoration: none;
+  border: 1px solid transparent;
+}
+
+.link:hover {
+  color: var(--text-primary, #E8E4DC);
+}
+
+.link:focus-visible {
+  outline: none;
+  border-color: var(--accent, #D4202F);
+  color: var(--text-primary, #E8E4DC);
+}

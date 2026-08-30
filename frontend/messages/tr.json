@@ -1444,6 +1444,149 @@
         "title": "Slam Dunk Evreni",
         "tagline": "Kırk beş kayıt, beş takım ve bir sayılık bir galibiyet.",
         "meter": "Kadro arşivi"
+      },
+      "jjk": {
+        "title": "Jujutsu Kaisen Evreni",
+        "tagline": "Perde iner, arşiv açılır: lanetler, alanlar, yirmi parmak.",
+        "meter": "İnşa hâlinde"
+      }
+    },
+    "jjk": {
+      "meta": {
+        "title": "Jujutsu Kaisen Evreni",
+        "description": "Lanetli Arşiv: lanetli enerji, jujutsu toplumu, derece duvarı, alan genişlemeleri, Sukuna'nın yirmi parmağı, Shibuya Olayı ve Kıyım Oyunu — perdenin ardındaki dünyanın tam kaydı."
+      },
+      "toc": {
+        "aria": "Bölümlere atla",
+        "veil": "Perde",
+        "energy": "Lanetli Enerji",
+        "society": "Jujutsu Toplumu",
+        "grades": "Derece Duvarı",
+        "spirits": "Lanet Arşivi",
+        "domain": "Alan Genişlemesi",
+        "archetypes": "Arketipler",
+        "fingers": "20 Parmak",
+        "shibuya": "Shibuya Olayı",
+        "culling": "Kıyım Oyunu",
+        "finale": "Son Kayıt"
+      },
+      "veil": {
+        "archive": "Jujutsu Archive — hayran projesi",
+        "title": "Lanetli Arşiv",
+        "lede": "Negatif duygu sızar, birikir ve biçim kazanır. Bu arşiv, perdenin ardında tutulan dünyanın kaydıdır: lanetler, büyücüler, alanlar ve bir gecede yazılan kayıplar.",
+        "raise": "perdeyi kaldır",
+        "lower": "perdeyi indir",
+        "sealed": "kapalı — siviller korunuyor",
+        "open": "açık — gerçek dünya görünür durumda"
+      },
+      "energy": {
+        "latin": "Lanetli Enerji",
+        "lede": "Güç sistemi bir seviye listesi değil, üst üste binen kurallardır. Merdiven temelden zirveye okunur: enerjiyi görmekten, mekânın kendisini kurala bağlamaya.",
+        "listAria": "Enerji katmanları",
+        "cost": "bedel",
+        "who": "kimde",
+        "index": "katman"
+      },
+      "society": {
+        "latin": "Jujutsu Toplumu",
+        "lede": "Kurumlar bina değil, sorumluluk dağıtma biçimidir. Tokyo bireyi, Kyoto geleneği, karargâh ise sorumsuzluğu örgütler. Bir isme dokunun; sicil kartı açılır.",
+        "branchesAria": "Kurumlar",
+        "rosterAria": "Kadro",
+        "grade": "derece",
+        "tech": "teknik",
+        "domain": "alan",
+        "status": "durum",
+        "file": "sicil kaydı"
+      },
+      "grades": {
+        "latin": "Derece Duvarı",
+        "lede": "Derecelendirme bir ölçüm değil, idari bir karardır. Anahtarı çevirin: resmî kayıt ile sahada gözlenen tehdit aynı duvarda farklı basamaklara düşer. Kızıl çerçeveli isimler iki listede aynı yerde durmayanlardır.",
+        "switchAria": "Kayıt kipi",
+        "official": "resmî derece",
+        "real": "gerçek tehdit",
+        "officialShort": "resmî",
+        "realShort": "gerçek",
+        "records": "kayıt"
+      },
+      "spirits": {
+        "latin": "Lanet Arşivi",
+        "lede": "Lanetli ruhlar yaratılmaz; bırakılır. Katalog karanlıkta tutulur — bir silüete dokunulduğunda dosya açılır ve tehdit değerlendirmesi okunur hâle gelir.",
+        "catalogAria": "Lanet kataloğu",
+        "panelTitle": "tehdit değerlendirmesi",
+        "unknownName": "SINIFLANDIRILMADI",
+        "unknownCls": "kayıt kapalı",
+        "sealedNote": "Dosyayı açmak için katalogdan bir silüet seçin. Arşiv, açılmamış kayıtları karanlıkta tutar.",
+        "threat": "tehdit",
+        "intel": "zekâ",
+        "energy": "enerji"
+      },
+      "domain": {
+        "latin": "Alan Genişlemesi",
+        "lede": "Lanetli enerjiyle kapatılmış bir mekân: içindeki her şey alanın kuralına tabidir ve teknik kesin isabet eder. Bir alan seçin — oda onun dünyasına döner. Cesareti olan alana girer.",
+        "listAria": "Alanlar",
+        "caster": "kuran",
+        "grade": "derece",
+        "hit": "kesin isabet",
+        "enter": "alana gir",
+        "exit": "alandan çık",
+        "active": "alan aktif"
+      },
+      "archetypes": {
+        "latin": "Arketipler",
+        "lede": "Karakterleri isimleriyle değil taşıdıkları işlevle listeliyoruz. Hikâyede kimse kendi seçtiği rolü oynamıyor; rolü ona bir miras, bir beden ya da bir plan veriyor.",
+        "listAria": "Arketip dizini",
+        "tech": "teknik",
+        "domain": "alan",
+        "affiliation": "bağlılık",
+        "fight": "tanımlayıcı karşılaşma",
+        "arc": "yay",
+        "openFile": "Karakter dosyasını aç"
+      },
+      "fingers": {
+        "latin": "20 Parmak",
+        "lede": "Bin yıl önce yakılamayan yirmi parça. Arşivin bu bölümü kasıtlı olarak eksiktir: bazı kayıtlar hiç tutulmadı, bazıları Kenjaku envanterine geçtiği için silindi. Bir parmağa dokunmak kaydı açar — açtıklarınız aklınızda değil, arşivde kalır.",
+        "counter": "açılan kayıt",
+        "reset": "kasayı mühürle",
+        "gridAria": "Yirmi parmak",
+        "place": "yer",
+        "holder": "elinde tutan",
+        "arc": "yay",
+        "status": "durum"
+      },
+      "shibuya": {
+        "latin": "Shibuya — 31 Ekim",
+        "lede": "Bu gece kronolojik bir liste olarak okunmaz; bir operasyon hattı olarak okunur. Saati seçin: haritadaki iğneler o âna kayar, sahnede olmayan isim listeden düşer. Saatler arşiv kaydına göre yaklaşıktır.",
+        "lineAria": "Operasyon saatleri",
+        "mapAria": "Shibuya operasyon haritası — aktörlerin seçili saatteki konumları",
+        "legendAria": "Aktörler",
+        "prev": "önceki",
+        "next": "sonraki",
+        "stop": "durak",
+        "place": "yer",
+        "who": "kayıttaki isimler"
+      },
+      "culling": {
+        "latin": "Kıyım Oyunu",
+        "lede": "Japonya on koloniye bölünür. Oyun bir turnuva değil, kural üretme makinesidir: puan biriktiren oyuncu kuralın kendisini değiştirebilir. Kenjaku için amaç kazanmak değil, sistemin yeniden yazılmasıdır.",
+        "mapAria": "Koloni haritası",
+        "mapNote": "10 koloni · bariyer aktif",
+        "colony": "koloni no.",
+        "players": "oyuncular",
+        "events": "büyük olaylar",
+        "rulesTitle": "kurallar",
+        "sealed": "kayıt kapalı",
+        "closedName": "kayıt kapalı",
+        "noRecord": "kayıt yok"
+      },
+      "finale": {
+        "latin": "Son Kayıt",
+        "lede": "Arşivin kapanış sayfası. Solda hikâyenin geçtiği yollar, sağda kayda geçen kayıplar. İki liste yan yana durduğunda serinin asıl konusu görünür hâle gelir.",
+        "lossesTitle": "kayda geçen kayıplar",
+        "lossesNote": "Liste eksiktir. Perde ardında kalan sivil kayıtları hiçbir zaman tutulmadı."
+      },
+      "footer": {
+        "line": "Perde indiği sürece dünya sessizdir.",
+        "meta": "jujutsu archive — hayran projesi · 11 bölüm · görseller küratörü bekliyor"
       }
     },
     "bleach": {

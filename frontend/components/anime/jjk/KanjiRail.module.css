@@ -1,0 +1,126 @@
+/* ============================================================
+   KANJI RAYI — sagda sabit sekmeler; dar ekranda alt serit
+
+   Ray sayfanin DISINDA durur (fixed): govde `--rail` kadar iceri
+   cekilir (jjk.module.css .withRail). Alt seritte govde dokunulmaz,
+   yalnizca alt bosluk acilir.
+   ============================================================ */
+
+.rail {
+  position: fixed;
+  right: 0;
+  top: 0;
+  height: 100vh;
+  height: 100dvh;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  padding: 0.8rem 0.6rem;
+  pointer-events: none;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  max-height: 100%;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.tab {
+  pointer-events: auto;
+  cursor: pointer;
+  width: 3.5rem;
+  padding: 0.5rem 0.25rem 0.55rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  font-family: inherit;
+  background: color-mix(in srgb, var(--bg, #08080B) 76%, transparent);
+  border: 1px solid color-mix(in srgb, var(--bone, #E8E4DC) 16%, transparent);
+  color: var(--text-secondary, #A09C93);
+  backdrop-filter: blur(6px);
+  transition: border-color 350ms ease, color 350ms ease;
+}
+
+.tab:hover {
+  border-color: var(--accent, #D4202F);
+  color: var(--text-primary, #E8E4DC);
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--accent-hover, #E0525C);
+  outline-offset: 2px;
+}
+
+.tab[data-on] {
+  border-color: var(--accent, #D4202F);
+  color: var(--text-primary, #E8E4DC);
+  background: color-mix(in srgb, var(--accent-muted, #8E0F1A) 30%, var(--bg, #08080B));
+}
+
+.kanji {
+  font-family: var(--j-display, serif);
+  font-size: 0.95rem;
+  line-height: 1.15;
+  text-align: center;
+}
+
+.name {
+  font-family: var(--j-mono, monospace);
+  font-size: 0.44rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: center;
+  line-height: 1.35;
+  opacity: 0.85;
+}
+
+/* ── DAR EKRAN: alt serit ───────────────────────────────────── */
+
+@media (max-width: 1100px) {
+  .rail {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: auto;
+    padding: 0.45rem 0.6rem calc(0.45rem + env(safe-area-inset-bottom, 0px));
+    align-items: stretch;
+    background: color-mix(in srgb, var(--bg, #08080B) 86%, transparent);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid color-mix(in srgb, var(--bone, #E8E4DC) 12%, transparent);
+  }
+
+  .list {
+    flex-direction: row;
+    overflow-y: visible;
+    overflow-x: auto;
+    max-height: none;
+    width: 100%;
+    justify-content: safe center;
+  }
+
+  .tab {
+    width: auto;
+    min-width: 2.9rem;
+    padding: 0.4rem 0.5rem;
+    background: transparent;
+    border-color: transparent;
+    backdrop-filter: none;
+  }
+
+  .tab[data-on] {
+    border-color: var(--accent, #D4202F);
+  }
+
+  .name {
+    display: none;
+  }
+}

@@ -1,0 +1,95 @@
+/* ============================================================
+   KURATOR MANIFESTOSU — yalnizca yonetici DOM'unda
+   ============================================================ */
+
+.panel {
+  max-width: var(--band);
+  margin-inline: auto;
+  margin-block: 3rem 4rem;
+  padding: clamp(1.2rem, 2.4vw, 2rem);
+  border: 1px dashed color-mix(in srgb, var(--accent) 55%, transparent);
+  display: grid;
+  gap: 1.4rem;
+}
+
+.head {
+  margin: 0;
+  font-family: var(--j-mono, monospace);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--accent-hover);
+}
+
+.group {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.groupTitle {
+  margin: 0;
+  font-family: var(--j-mono, monospace);
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.9rem;
+  align-items: start;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+}
+
+.row[data-filled] {
+  border-color: color-mix(in srgb, var(--gold) 45%, transparent);
+}
+
+.rowMain {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.rowLabel {
+  font-size: 0.88rem;
+  color: var(--text-primary);
+}
+
+.rowMeta {
+  font-family: var(--j-mono, monospace);
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+.rowMeta code {
+  color: var(--text-secondary);
+}
+
+.rowHint {
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.rowPen {
+  position: relative;
+  min-width: 3rem;
+  min-height: 2.4rem;
+}

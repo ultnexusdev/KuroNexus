@@ -1,0 +1,241 @@
+/* ============================================================
+   P09 · 20 PARMAK — karolar, sayac, kayit paneli
+   ============================================================ */
+
+.inner {
+  position: relative;
+  z-index: 1;
+  max-width: var(--band);
+  margin-inline: auto;
+  display: grid;
+  gap: clamp(1.8rem, 3.5vw, 2.8rem);
+}
+
+.vault {
+  display: grid;
+  gap: clamp(1.4rem, 3vw, 2.2rem);
+}
+
+/* ── SAYAC ──────────────────────────────────────────────────── */
+
+.meter {
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  flex-wrap: wrap;
+}
+
+.meterLabel {
+  font-family: var(--j-mono, monospace);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--accent-hover);
+}
+
+.meterTrack {
+  flex: 1;
+  min-width: 8rem;
+  height: 2px;
+  background: color-mix(in srgb, var(--bone) 12%, transparent);
+}
+
+.meterFill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transition: width 500ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .meterFill {
+    transition: none;
+  }
+}
+
+.reset {
+  cursor: pointer;
+  font-family: var(--j-mono, monospace);
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 0.5rem 0.85rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  transition: color 300ms ease, border-color 300ms ease;
+}
+
+.reset:hover {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+.reset:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 2px;
+}
+
+/* ── KAROLAR ────────────────────────────────────────────────── */
+
+.grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(4.6rem, 1fr));
+  gap: 0.55rem;
+}
+
+.tile {
+  cursor: pointer;
+  width: 100%;
+  aspect-ratio: 1;
+  font-family: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  background: color-mix(in srgb, var(--bg) 94%, #000);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  transition:
+    background-color 500ms ease,
+    border-color 350ms ease,
+    color 350ms ease,
+    translate 250ms ease;
+}
+
+.tile:hover {
+  border-color: var(--border-strong);
+}
+
+.tile:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 2px;
+}
+
+.tile[data-open] {
+  background: radial-gradient(
+    circle at 50% 60%,
+    color-mix(in srgb, var(--accent-muted) 42%, transparent),
+    color-mix(in srgb, var(--surface) 90%, transparent)
+  );
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  color: var(--text-primary);
+  box-shadow: inset 0 0 26px color-mix(in srgb, var(--accent-muted) 28%, transparent);
+}
+
+.tile[data-on] {
+  border-color: var(--accent);
+  translate: 0 -3px;
+}
+
+/* Yirminci parca: tamamlanmis kayit kizil yazar */
+.tile[data-status="complete"][data-open] {
+  border-color: var(--accent);
+  color: var(--accent-hover);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile {
+    transition: none;
+  }
+
+  .tile[data-on] {
+    translate: none;
+  }
+}
+
+.tileNo {
+  font-family: var(--j-mono, monospace);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+}
+
+.tileJp {
+  font-family: var(--j-display, serif);
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+/* ── KAYIT PANELI ───────────────────────────────────────────── */
+
+.record {
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+  padding: clamp(1.4rem, 2.8vw, 2.4rem);
+  display: grid;
+  gap: 1.1rem;
+}
+
+.recordEyebrow {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.9rem;
+  font-family: var(--j-display, serif);
+  font-weight: 600;
+  font-size: clamp(1.2rem, 2.4vw, 1.7rem);
+  color: var(--text-primary);
+}
+
+.recordNo {
+  font-family: var(--j-mono, monospace);
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  color: var(--accent-hover);
+}
+
+.recordMeta {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.9rem 1.4rem;
+  padding-block: 1rem;
+  border-block: 1px solid var(--hairline);
+}
+
+.recordMeta div {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.recordMeta dt {
+  font-family: var(--j-mono, monospace);
+  font-size: 0.58rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.recordMeta dd {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--text-primary);
+}
+
+.recordMeta dd[data-status] {
+  font-family: var(--j-mono, monospace);
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.recordMeta dd[data-status="complete"],
+.recordMeta dd[data-status="forced"] {
+  color: var(--accent-hover);
+}
+
+.recordNote {
+  margin: 0;
+  max-width: 60ch;
+  font-size: var(--t-body);
+  line-height: 1.85;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}

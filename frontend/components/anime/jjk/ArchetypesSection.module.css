@@ -1,0 +1,236 @@
+/* ============================================================
+   P08 · ARKETIPLER — dizin + dosya (portre 2:3, Naruto kurali)
+   ============================================================ */
+
+.inner {
+  position: relative;
+  z-index: 1;
+  max-width: var(--band);
+  margin-inline: auto;
+  display: grid;
+  gap: clamp(2rem, 4vw, 3.4rem);
+}
+
+.split {
+  display: grid;
+  grid-template-columns: minmax(240px, 340px) minmax(0, 1fr);
+  gap: clamp(1.8rem, 4vw, 4.4rem);
+  align-items: start;
+}
+
+/* ── DIZIN ──────────────────────────────────────────────────── */
+
+.index {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--hairline);
+}
+
+.entry {
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  display: grid;
+  grid-template-columns: 2.2rem minmax(0, 1fr);
+  gap: 0.9rem;
+  align-items: center;
+  padding: 0.95rem 0.9rem;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--hairline);
+  border-left: 2px solid transparent;
+  color: var(--text-secondary);
+  transition: background-color 300ms ease, color 300ms ease, border-color 300ms ease;
+}
+
+.entry:hover {
+  color: var(--text-primary);
+}
+
+.entry:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: -2px;
+}
+
+.entry[data-on] {
+  background: color-mix(in srgb, var(--accent-muted) 26%, transparent);
+  border-left-color: var(--accent);
+  color: var(--text-primary);
+}
+
+.entryJp {
+  font-family: var(--j-display, serif);
+  font-size: 1.15rem;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.entryBody {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.entryRole {
+  font-family: var(--j-mono, monospace);
+  font-size: 0.6rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--accent-hover);
+}
+
+.entryName {
+  font-size: 0.95rem;
+}
+
+/* ── DOSYA ──────────────────────────────────────────────────── */
+
+.dossier {
+  display: grid;
+  grid-template-columns: minmax(200px, 300px) minmax(0, 1fr);
+  gap: clamp(1.6rem, 3vw, 3rem);
+  align-items: start;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+  padding: clamp(1.5rem, 3vw, 2.6rem);
+}
+
+.seat {
+  display: grid;
+}
+
+.seatFrame {
+  position: relative;
+  display: none;
+}
+
+.seatFrame[data-on] {
+  display: block;
+}
+
+.portrait {
+  display: block;
+  --slot-glyph-min: 2.6rem;
+}
+
+.text {
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+}
+
+.role {
+  margin: 0;
+  font-family: var(--j-mono, monospace);
+  font-size: 0.66rem;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent-hover);
+}
+
+.name {
+  margin: 0;
+  font-family: var(--j-display, serif);
+  font-weight: 700;
+  font-size: clamp(1.7rem, 3.4vw, 2.6rem);
+  line-height: 1.05;
+  color: var(--text-primary);
+}
+
+.meta {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 0.9rem 1.4rem;
+  padding-block: 1rem;
+  border-block: 1px solid var(--hairline);
+}
+
+.meta div {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.meta dt {
+  font-family: var(--j-mono, monospace);
+  font-size: 0.58rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.meta dd {
+  margin: 0;
+  font-size: 0.92rem;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+.line {
+  margin: 0;
+  max-width: 46ch;
+  font-size: 0.98rem;
+  font-style: italic;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.fileLink {
+  justify-self: start;
+  font-family: var(--j-mono, monospace);
+  font-size: 0.66rem;
+  font-weight: 500;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--accent-hover);
+  text-decoration: none;
+  padding: 0.7rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent);
+  transition: background-color 300ms ease, border-color 300ms ease;
+}
+
+.fileLink:hover {
+  background: color-mix(in srgb, var(--accent-muted) 26%, transparent);
+  border-color: var(--accent);
+}
+
+.fileLink:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 2px;
+}
+
+@media (max-width: 980px) {
+  .split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .index {
+    flex-direction: row;
+    flex-wrap: wrap;
+    border-top: none;
+    gap: 0.4rem;
+  }
+
+  .entry {
+    grid-template-columns: auto;
+    border: 1px solid var(--border);
+    border-left-width: 2px;
+    padding: 0.55rem 0.75rem;
+  }
+
+  .entryJp,
+  .entryName {
+    display: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .dossier {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .seat {
+    max-width: 280px;
+  }
+}

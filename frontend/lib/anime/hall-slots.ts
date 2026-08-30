@@ -105,6 +105,16 @@ export const ANIME_HALL_SLOTS: readonly HallSlotDef[] = [
     ratios: ["16:9", "3:2"],
   },
   {
+    id: "anime:world:jjk",
+    label: {
+      tr: "Dünya kartı · Jujutsu Kaisen Evreni",
+      en: "World card · Jujutsu Kaisen",
+    },
+    hint: CARD_HINT,
+    size: { w: 1240, h: 780 },
+    ratios: ["16:9", "3:2"],
+  },
+  {
     id: "anime:world:onepiece",
     label: { tr: "Dünya kartı · One Piece", en: "World card · One Piece" },
     hint: CARD_HINT,

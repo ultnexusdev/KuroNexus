@@ -464,6 +464,43 @@ export default async function AnimeHallPage({
             <HallSlotPen slotId="anime:world:slamdunk" />
           </li>
 
+          {/* Jujutsu Kaisen Evreni — dördüncü evren kapısı (30 Ağustos 2026).
+              Bleach'in "İnşa hâlinde" kararının aynısı: sayfa yapım
+              aşamasında ama kart bugünden duruyor, ölçü bunu açıkça
+              söylüyor. Kanji rozeti 呪 — sayfanın da açılış işareti. */}
+          <li className={styles.worldItem}>
+            <Link href={animeHref.jjk()} className={styles.world}>
+              <HallArt
+                slotId="anime:world:jjk"
+                className={styles.worldArt}
+                sizes="620px"
+              />
+              <span className={`${shell.brush} ${styles.kanji}`} aria-hidden>
+                呪
+              </span>
+
+              <span className={styles.worldBody}>
+                <span className={`${shell.data} ${styles.worldMeter}`}>
+                  {t("worlds.jjk.meter")}
+                </span>
+                {/* Özel ad — İngilizce, TR büyütmesi bozmasın diye `lang` */}
+                <span
+                  lang="en"
+                  className={`${shell.display} ${styles.worldName}`}
+                >
+                  {t("worlds.jjk.title")}
+                </span>
+                <span className={styles.worldTagline}>
+                  {t("worlds.jjk.tagline")}
+                </span>
+                <span className={`${shell.data} ${styles.worldEnter}`}>
+                  {t("worlds.enter")}
+                </span>
+              </span>
+            </Link>
+            <HallSlotPen slotId="anime:world:jjk" />
+          </li>
+
           {onePiece ? (
             <li className={styles.worldItem}>
               <Link

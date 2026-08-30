@@ -1,0 +1,287 @@
+/* ============================================================
+   P11 · KIYIM OYUNU — soguk mavi bolge, harita + kural defteri
+   ============================================================ */
+
+.zone {
+  overflow: hidden;
+  background:
+    radial-gradient(
+      ellipse at 60% 30%,
+      color-mix(in srgb, var(--world-accent) 18%, transparent),
+      transparent 60%
+    ),
+    var(--bg);
+}
+
+.inner {
+  position: relative;
+  z-index: 1;
+  max-width: var(--band);
+  margin-inline: auto;
+  display: grid;
+  gap: clamp(1.8rem, 3.5vw, 2.8rem);
+}
+
+.game {
+  display: grid;
+  gap: clamp(1.6rem, 3vw, 2.4rem);
+}
+
+/* ── HARITA ─────────────────────────────────────────────────── */
+
+.map {
+  position: relative;
+  aspect-ratio: 16 / 7;
+  min-height: 320px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  background: color-mix(in srgb, var(--bg) 94%, #000);
+}
+
+.mapArt {
+  position: absolute;
+  inset: 0;
+  display: block;
+  opacity: 0.85;
+}
+
+.backdrop {
+  display: block;
+  height: 100%;
+}
+
+.mapWeave {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--bone) 2.4%, transparent) 0 2px,
+    transparent 2px 12px
+  );
+}
+
+.mapNote {
+  position: absolute;
+  left: 1rem;
+  bottom: 0.85rem;
+  display: flex;
+  align-items: baseline;
+  gap: 0.8rem;
+  font-family: var(--j-mono, monospace);
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.mapPicked {
+  font-style: normal;
+  color: var(--accent-hover);
+}
+
+.node {
+  cursor: pointer;
+  position: absolute;
+  translate: -50% -50%;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  font-family: var(--j-mono, monospace);
+  font-size: 0.62rem;
+  letter-spacing: 0.05em;
+  border-radius: 50% !important;
+  background: color-mix(in srgb, var(--bg) 88%, #000);
+  border: 1px solid color-mix(in srgb, var(--accent) 24%, transparent);
+  color: var(--text-muted);
+  transition:
+    background-color 350ms ease,
+    border-color 350ms ease,
+    color 350ms ease,
+    box-shadow 350ms ease;
+  z-index: 2;
+}
+
+.node[data-open] {
+  background: color-mix(in srgb, var(--accent-muted) 40%, var(--bg));
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+  color: var(--text-primary);
+}
+
+.node:hover {
+  border-color: var(--accent);
+}
+
+.node:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 2px;
+}
+
+.node[data-on] {
+  background: var(--accent-muted);
+  border-color: var(--accent-hover);
+  color: var(--text-primary);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent-muted) 45%, transparent);
+  z-index: 3;
+}
+
+/* ── MASA: dosya + kurallar ─────────────────────────────────── */
+
+.desk {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(260px, 1fr);
+  gap: clamp(1.4rem, 3vw, 2.4rem);
+  align-items: start;
+}
+
+.dossier {
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 76%, transparent);
+  padding: clamp(1.4rem, 2.8vw, 2.4rem);
+  display: grid;
+  gap: 1rem;
+}
+
+.dossierEyebrow {
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.9rem;
+  font-family: var(--j-mono, monospace);
+  font-size: 0.64rem;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--accent-hover);
+}
+
+.dossierJp {
+  font-family: var(--j-display, serif);
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+.dossierName {
+  margin: 0;
+  font-family: var(--j-display, serif);
+  font-weight: 700;
+  font-size: clamp(1.4rem, 2.8vw, 2.1rem);
+  line-height: 1.1;
+  color: var(--text-primary);
+}
+
+.dossierName[data-sealed] {
+  font-family: var(--j-mono, monospace);
+  font-weight: 500;
+  font-size: 0.95rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.dossierMeta {
+  margin: 0;
+  display: grid;
+  gap: 0.85rem;
+  padding-block: 0.9rem;
+  border-block: 1px solid var(--hairline);
+}
+
+.dossierMeta div {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.dossierMeta dt {
+  font-family: var(--j-mono, monospace);
+  font-size: 0.58rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.dossierMeta dd {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--text-primary);
+}
+
+.dossierNote {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* ── KURAL DEFTERI ──────────────────────────────────────────── */
+
+.rules {
+  border: 1px solid var(--border);
+  padding: clamp(1.2rem, 2.4vw, 1.9rem);
+  display: grid;
+  gap: 0.9rem;
+  align-content: start;
+}
+
+.rulesTitle {
+  margin: 0;
+  font-family: var(--j-mono, monospace);
+  font-size: 0.64rem;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.rulesList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+}
+
+.rule {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  gap: 0.8rem;
+  align-items: baseline;
+  padding-block: 0.7rem;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.rule:last-child {
+  border-bottom: none;
+}
+
+.ruleNo {
+  font-family: var(--j-mono, monospace);
+  font-size: 0.66rem;
+  color: var(--accent-hover);
+}
+
+.ruleText {
+  font-size: 0.85rem;
+  line-height: 1.75;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 900px) {
+  .desk {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .map {
+    aspect-ratio: auto;
+    min-height: 340px;
+  }
+
+  .mapNote {
+    display: none;
+  }
+}

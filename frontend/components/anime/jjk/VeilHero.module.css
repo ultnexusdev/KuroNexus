@@ -1,0 +1,367 @@
+/* ============================================================
+   P01 · PERDE — acilis sahnesi
+
+   Uc kat: sehir (yuva + CSS ufku) → perde (8 parca) → sahne onu.
+   Perde parcalarinin ucus vektorleri mockup'tan olculdu; hareket
+   yalnizca `transform/opacity` ve tamami opt-in (`no-preference`).
+   ============================================================ */
+
+.stage {
+  position: relative;
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.stage:focus {
+  outline: none;
+}
+
+/* ── KAT 1 · SEHIR ──────────────────────────────────────────── */
+
+.city {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.skyline {
+  position: absolute;
+  inset: 0;
+  display: block;
+  opacity: 0.55;
+  /* Ufuk yukarida eriyip gitsin — kare sahnenin tabani, posteri degil */
+  mask-image: linear-gradient(to top, #000 55%, transparent 96%);
+}
+
+/* CSS bina seritleri — YALNIZCA yuva bosken cizilir (yuva kendi
+   `data-empty` isaretini tasiyor; ikinci bir bayrak tutulmuyor). */
+.blocks {
+  display: none;
+  position: absolute;
+  inset: 0;
+  opacity: 0.5;
+}
+
+.city:has([data-empty]) .blocks {
+  display: block;
+}
+
+.blocks i {
+  position: absolute;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--bone) 13%, transparent) 0 3px,
+    transparent 3px 12px
+  );
+}
+
+.blocks i:nth-child(1) { left: 6%;  width: 8%;  height: 30vh; }
+.blocks i:nth-child(2) { left: 24%; width: 5%;  height: 41vh; }
+.blocks i:nth-child(3) { left: 52%; width: 11%; height: 25vh; }
+.blocks i:nth-child(4) { left: 74%; width: 6%;  height: 36vh; }
+.blocks i:nth-child(5) {
+  left: 0;
+  right: 0;
+  width: auto;
+  height: 46vh;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--bone) 9%, transparent) 0 2px,
+      transparent 2px 9px
+    ),
+    linear-gradient(to top, color-mix(in srgb, var(--bone) 7%, transparent), transparent 78%);
+  mask-image: linear-gradient(to top, #000 10%, transparent 96%);
+}
+
+/* Sehrin ustune cöken pus — perde kalkinca sehir "nefes alsin" diye
+   perdeden ayri bir katman */
+.smog {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at 50% 100%,
+    transparent 40%,
+    color-mix(in srgb, var(--bg) 86%, #000) 96%
+  );
+}
+
+/* ── KAT 2 · PERDE ──────────────────────────────────────────── */
+
+.veil {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.ember,
+.emberFar {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(28px);
+}
+
+.ember {
+  width: 62vmin;
+  height: 62vmin;
+  left: 50%;
+  top: 46%;
+  translate: -50% -50%;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--accent-muted) 50%, transparent),
+    color-mix(in srgb, var(--accent-muted) 8%, transparent) 55%,
+    transparent 72%
+  );
+}
+
+.emberFar {
+  right: 12%;
+  top: 22%;
+  width: 30vmin;
+  height: 30vmin;
+  filter: blur(34px);
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--accent-muted) 45%, transparent),
+    transparent 68%
+  );
+}
+
+/* Sekiz parca: 4 sutun x 2 sira, yirtik kenarlar clip-path'te.
+   Perde YARI SAYDAM: sehir arkasindan losca secilir — "sivil gozu"
+   perdeyi karanlik olarak gorur, tamamen kor olmaz. */
+.shard {
+  position: absolute;
+  width: 26%;
+  height: 51%;
+  background:
+    linear-gradient(
+      165deg,
+      color-mix(in srgb, var(--accent-muted) 52%, var(--bg)) 0%,
+      color-mix(in srgb, var(--accent-muted) 26%, var(--bg)) 60%,
+      color-mix(in srgb, var(--bg) 92%, #000) 100%
+    );
+  opacity: 0.92;
+  box-shadow: inset 0 0 60px color-mix(in srgb, #000 55%, transparent);
+  transition:
+    transform 900ms cubic-bezier(0.3, 0, 0.2, 1),
+    opacity 700ms ease;
+}
+
+.shard[data-shard="1"] { left: -1%;  top: -1%;  clip-path: polygon(0 0, 100% 0, 92% 88%, 6% 100%); }
+.shard[data-shard="2"] { left: 24%;  top: -1%;  clip-path: polygon(0 0, 100% 0, 100% 94%, 8% 90%); }
+.shard[data-shard="3"] { left: 49%;  top: -1%;  clip-path: polygon(0 0, 100% 0, 94% 96%, 0 88%); }
+.shard[data-shard="4"] { left: 74%;  top: -1%;  width: 28%; clip-path: polygon(0 0, 100% 0, 100% 100%, 4% 92%); }
+.shard[data-shard="5"] { left: -1%;  top: 49%;  height: 53%; clip-path: polygon(4% 0, 100% 8%, 96% 100%, 0 100%); }
+.shard[data-shard="6"] { left: 24%;  top: 49%;  height: 53%; clip-path: polygon(0 6%, 96% 0, 100% 100%, 0 100%); }
+.shard[data-shard="7"] { left: 49%;  top: 49%;  height: 53%; clip-path: polygon(0 0, 100% 10%, 100% 100%, 6% 100%); }
+.shard[data-shard="8"] { left: 74%;  top: 49%;  width: 28%; height: 53%; clip-path: polygon(0 8%, 100% 0, 100% 100%, 0 100%); }
+
+/* Perde kalkti: parcalar kenarlara savrulur. Vektorler mockup'tan.
+   Gecikme merkezden disari dogru — yirtilma tek noktadan basliyor. */
+[data-veil="up"] .shard { opacity: 0; }
+[data-veil="up"] .shard[data-shard="1"] { transform: translate(-46vw, -40vh) rotate(-14deg); transition-delay: 60ms; }
+[data-veil="up"] .shard[data-shard="2"] { transform: translate(-6vw, -72vh) rotate(6deg); }
+[data-veil="up"] .shard[data-shard="3"] { transform: translate(44vw, -46vh) rotate(12deg); transition-delay: 40ms; }
+[data-veil="up"] .shard[data-shard="4"] { transform: translate(62vw, -4vh) rotate(-8deg); transition-delay: 90ms; }
+[data-veil="up"] .shard[data-shard="5"] { transform: translate(-64vw, 2vh) rotate(-10deg); transition-delay: 80ms; }
+[data-veil="up"] .shard[data-shard="6"] { transform: translate(2vw, 74vh) rotate(-6deg); transition-delay: 30ms; }
+[data-veil="up"] .shard[data-shard="7"] { transform: translate(42vw, 52vh) rotate(10deg); transition-delay: 70ms; }
+[data-veil="up"] .shard[data-shard="8"] { transform: translate(-44vw, 50vh) rotate(14deg); transition-delay: 50ms; }
+
+/* Korlar perdeyle birlikte gider: perde kalkinca sahne SOGUR —
+   kizil isik perdenin isigiydi. */
+.ember,
+.emberFar {
+  transition: opacity 900ms ease;
+}
+
+[data-veil="up"] .ember,
+[data-veil="up"] .emberFar {
+  opacity: 0.25;
+}
+
+/* Kor nabzi yalnizca hareket isteyene */
+@media (prefers-reduced-motion: no-preference) {
+  .ember { animation: jjkCore 7s ease-in-out infinite; }
+  .emberFar { animation: jjkCore 9s ease-in-out infinite 1.4s; }
+
+  @keyframes jjkCore {
+    0%, 100% { scale: 1; opacity: 0.9; }
+    50% { scale: 1.13; opacity: 1; }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shard {
+    transition: opacity 400ms ease;
+  }
+
+  /* Ucus yok: parcalar yerinde soner */
+  [data-veil="up"] .shard {
+    transform: none !important;
+  }
+}
+
+/* ── KAT 3 · SAHNE ONU ──────────────────────────────────────── */
+
+.front {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  gap: clamp(1.4rem, 3vh, 2.4rem);
+  justify-items: center;
+  text-align: center;
+  padding: calc(var(--gutter) * 1.2) var(--gutter);
+  max-width: 46rem;
+}
+
+/* Asili ahsap plaka — tek dekoratif Japonca levha. Konum `.front`e
+   gore (yakin konumlu ata o), genis ekranda basligin sol ustunde asili. */
+.placard {
+  position: absolute;
+  left: clamp(-13rem, -16vw, -6rem);
+  top: -16vh;
+  width: 2.9rem;
+  padding: 1.1rem 0.55rem 1.4rem;
+  writing-mode: vertical-rl;
+  font-family: var(--j-display, serif);
+  font-size: 0.95rem;
+  letter-spacing: 0.3em;
+  text-align: center;
+  color: #16110F;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--bone) 90%, transparent),
+    color-mix(in srgb, var(--bone) 55%, transparent)
+  );
+  box-shadow: 0 24px 60px color-mix(in srgb, #000 60%, transparent);
+  transform-origin: top center;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .placard {
+    animation: jjkDrift 11s ease-in-out infinite alternate;
+  }
+
+  @keyframes jjkDrift {
+    from { transform: translateY(0) rotate(-1deg); }
+    to { transform: translateY(-26px) rotate(1.5deg); }
+  }
+}
+
+.title {
+  display: grid;
+  gap: clamp(0.7rem, 1.6vh, 1.1rem);
+  justify-items: center;
+}
+
+.kicker {
+  color: var(--text-secondary);
+}
+
+.name {
+  margin: 0;
+  display: grid;
+  gap: clamp(0.5rem, 1.4vh, 0.9rem);
+  justify-items: center;
+  font-family: var(--j-display, serif);
+  font-weight: 700;
+  font-size: var(--t-hero, clamp(3.2rem, 11vw, 10rem));
+  line-height: 0.94;
+  color: var(--text-primary);
+  text-shadow: 0 4px 60px color-mix(in srgb, #000 70%, transparent);
+}
+
+.sub {
+  font-family: var(--j-mono, monospace);
+  font-size: clamp(0.8rem, 1.6vw, 1.05rem);
+  font-weight: 500;
+  letter-spacing: 0.44em;
+  text-transform: uppercase;
+  color: var(--accent-hover);
+}
+
+.lede {
+  margin: 0;
+  text-align: center;
+  color: color-mix(in srgb, var(--text-primary) 78%, var(--bg));
+  text-shadow: 0 2px 30px color-mix(in srgb, #000 80%, transparent);
+}
+
+/* ── ANAHTAR ───────────────────────────────────────────────── */
+
+.control {
+  display: grid;
+  gap: 0.8rem;
+  justify-items: center;
+}
+
+.cta {
+  cursor: pointer;
+  font-family: var(--j-mono, monospace);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  padding: 1.05rem 1.7rem;
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--bg) 74%, transparent);
+  border: 1px solid var(--accent);
+  backdrop-filter: blur(6px);
+  transition: background-color 300ms ease, border-color 300ms ease;
+}
+
+.cta:hover {
+  background: color-mix(in srgb, var(--accent-muted) 30%, var(--bg));
+  border-color: var(--accent-hover);
+}
+
+.cta:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 3px;
+}
+
+.status {
+  margin: 0;
+  font-family: var(--j-mono, monospace);
+  font-size: var(--t-meta, 0.72rem);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.status [lang="ja"] {
+  font-family: var(--j-display, serif);
+  letter-spacing: 0;
+  color: var(--accent-hover);
+}
+
+/* Orta genislikte plaka basligin ustune binerdi: dekor, feda edilir */
+@media (max-width: 1100px) {
+  .placard {
+    display: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .placard {
+    display: block;
+    position: static;
+    order: -1;
+    animation: none;
+    font-size: 0.8rem;
+    padding: 0.8rem 0.45rem 1rem;
+    width: 2.4rem;
+  }
+
+  .front {
+    padding-top: calc(var(--gutter) * 0.9);
+  }
+}

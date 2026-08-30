@@ -1,0 +1,777 @@
+/* ============================================================
+   P07 · ALAN GENISLEMESI — palet cevirici bolum + devralma
+
+   Renk BURADA YOK: `data-domain` globals.css'te butun token setini
+   dondurur; bu dosya geometriyi ve dokuyu tasir. Alan basina doku
+   ([data-domain="…"] .weave/.takeFx/.takeShape) mockup'tan.
+   ============================================================ */
+
+.chamber {
+  position: relative;
+  min-height: 100svh;
+  overflow: hidden;
+  border-top: 1px solid var(--hairline);
+  background: linear-gradient(var(--dom-bg0), var(--dom-bg1) 55%, var(--dom-bg2));
+  color: var(--text-primary);
+  transition: background 1100ms ease, color 1100ms ease;
+  scroll-margin-top: 2rem;
+}
+
+.chamber:focus {
+  outline: none;
+}
+
+/* Alanin dokusu — desen rengi --dom-veilc, geometri alana ozel */
+.weave {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: background 1100ms ease;
+}
+
+.ghost {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  font-family: var(--j-display, serif);
+  font-size: min(46vw, 620px);
+  line-height: 0.8;
+  color: var(--dom-ghost);
+  pointer-events: none;
+  user-select: none;
+  transition: color 1100ms ease;
+  white-space: nowrap;
+}
+
+.inner {
+  position: relative;
+  z-index: 2;
+  max-width: var(--band);
+  margin-inline: auto;
+  min-height: 100svh;
+  padding: var(--rhythm) var(--gutter);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(250px, 360px);
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: center;
+}
+
+/* ── DETAY ──────────────────────────────────────────────────── */
+
+.detail {
+  display: grid;
+  gap: clamp(0.9rem, 1.8vh, 1.4rem);
+}
+
+.no {
+  margin: 0;
+  font-family: var(--j-mono, monospace);
+  font-size: var(--t-meta);
+  letter-spacing: 0.3em;
+  color: var(--dom-muted);
+  transition: color 1100ms ease;
+}
+
+.head {
+  margin: 0 0 0.4rem;
+  display: flex;
+  align-items: baseline;
+  gap: clamp(0.8rem, 2vw, 1.4rem);
+  flex-wrap: wrap;
+}
+
+.headKanji {
+  font-family: var(--j-display, serif);
+  font-weight: 600;
+  font-size: clamp(1.6rem, 3.4vw, 2.4rem);
+  line-height: 1;
+  transition: color 1100ms ease;
+}
+
+.headLatin {
+  font-family: var(--j-mono, monospace);
+  font-size: clamp(0.68rem, 1.2vw, 0.85rem);
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--dom-muted);
+  transition: color 1100ms ease;
+}
+
+.lede {
+  margin: 0;
+  max-width: var(--measure);
+  font-size: var(--t-body);
+  line-height: 1.85;
+  color: var(--dom-body);
+  transition: color 1100ms ease;
+  text-wrap: pretty;
+}
+
+.domJp {
+  margin: 0.6rem 0 0;
+  font-family: var(--j-display, serif);
+  font-weight: 700;
+  font-size: clamp(2.6rem, 7vw, 6.4rem);
+  line-height: 0.96;
+  color: var(--dom-ink);
+  transition: color 1100ms ease;
+  text-wrap: balance;
+}
+
+.domEn {
+  margin: 0;
+  font-family: var(--j-mono, monospace);
+  font-size: clamp(0.72rem, 1.4vw, 0.95rem);
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--dom-accent);
+  transition: color 1100ms ease;
+}
+
+.rule {
+  display: block;
+  height: 1px;
+  width: min(520px, 100%);
+  background: var(--dom-rule);
+  transition: background 1100ms ease;
+}
+
+.body {
+  margin: 0;
+  max-width: 42em;
+  font-size: clamp(0.95rem, 1.6vw, 1.15rem);
+  line-height: 1.85;
+  color: var(--dom-body);
+  transition: color 1100ms ease;
+  text-wrap: pretty;
+}
+
+.meta {
+  margin: 0.3rem 0 0;
+  display: flex;
+  gap: clamp(1.4rem, 3vw, 3rem);
+  flex-wrap: wrap;
+}
+
+.meta div {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.meta dt {
+  font-family: var(--j-mono, monospace);
+  font-size: 0.6rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--dom-muted);
+  transition: color 1100ms ease;
+}
+
+.meta dd {
+  margin: 0;
+  font-family: var(--j-display, serif);
+  font-size: clamp(1rem, 1.8vw, 1.35rem);
+  color: var(--dom-ink);
+  transition: color 1100ms ease;
+}
+
+.enter {
+  cursor: pointer;
+  justify-self: start;
+  font-family: var(--j-mono, monospace);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  padding: 1.05rem 1.6rem;
+  background: var(--dom-accent);
+  border: none;
+  color: var(--dom-bg0);
+  transition: opacity 300ms ease, background 1100ms ease, color 1100ms ease;
+}
+
+.enter:hover {
+  opacity: 0.85;
+}
+
+.enter:focus-visible {
+  outline: 2px solid var(--dom-ink);
+  outline-offset: 3px;
+}
+
+.enter [lang="ja"] {
+  font-family: var(--j-display, serif);
+  letter-spacing: 0.1em;
+}
+
+/* Bolum ici kadraj */
+.stillSeat {
+  max-width: 520px;
+  margin-top: 0.4rem;
+}
+
+.seatFrame {
+  position: relative;
+  display: none;
+}
+
+.seatFrame[data-on] {
+  display: block;
+}
+
+.still {
+  display: block;
+}
+
+/* ── LISTE ──────────────────────────────────────────────────── */
+
+.list {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--dom-rule);
+  transition: border-color 1100ms ease;
+}
+
+.pick {
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.8rem;
+  padding: 0.85rem 0.9rem;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--dom-rule);
+  border-left: 2px solid transparent;
+  color: var(--dom-muted);
+  transition:
+    background-color 300ms ease,
+    color 500ms ease,
+    border-color 500ms ease;
+}
+
+.pick:hover {
+  color: var(--dom-ink);
+}
+
+.pick:focus-visible {
+  outline: 2px solid var(--dom-accent);
+  outline-offset: -2px;
+}
+
+.pick[data-on] {
+  background: color-mix(in srgb, var(--dom-ink) 7%, transparent);
+  border-left-color: var(--dom-accent);
+  color: var(--dom-ink);
+}
+
+.pickCaster {
+  font-family: var(--j-display, serif);
+  font-size: 0.95rem;
+}
+
+.pickEn {
+  font-family: var(--j-mono, monospace);
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.72;
+  text-align: right;
+}
+
+/* ── ALAN DOKULARI (bolum ici) ──────────────────────────────── */
+
+[data-domain="gojo"] .weave {
+  background: repeating-linear-gradient(90deg, var(--dom-veilc) 0 1px, transparent 1px 7px);
+}
+
+[data-domain="sukuna"] .weave {
+  background: repeating-linear-gradient(45deg, var(--dom-veilc) 0 2px, transparent 2px 26px);
+}
+
+[data-domain="mahito"] .weave {
+  background: repeating-radial-gradient(circle at 30% 40%, var(--dom-veilc) 0 12px, transparent 12px 40px);
+}
+
+[data-domain="jogo"] .weave {
+  background: repeating-linear-gradient(0deg, var(--dom-veilc) 0 1px, transparent 1px 14px);
+}
+
+[data-domain="dagon"] .weave {
+  background: repeating-linear-gradient(180deg, var(--dom-veilc) 0 2px, transparent 2px 18px);
+}
+
+[data-domain="higuruma"] .weave {
+  background: repeating-linear-gradient(90deg, var(--dom-veilc) 0 1px, transparent 1px 60px);
+}
+
+[data-domain="hakari"] .weave {
+  background: repeating-linear-gradient(90deg, var(--dom-veilc) 0 3px, transparent 3px 12px);
+}
+
+[data-domain="megumi"] .weave {
+  background: repeating-linear-gradient(135deg, var(--dom-veilc) 0 2px, transparent 2px 22px);
+}
+
+[data-domain="yuta"] .weave {
+  background: repeating-linear-gradient(45deg, var(--dom-veilc) 0 1px, transparent 1px 16px);
+}
+
+/* ── DEVRALMA ───────────────────────────────────────────────── */
+
+.take {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  width: 100dvw;
+  height: 100vh;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: none;
+  overflow: hidden;
+  background: linear-gradient(var(--dom-bg0), var(--dom-bg1) 55%, var(--dom-bg2));
+  color: var(--dom-ink);
+}
+
+.take::backdrop {
+  background: transparent;
+}
+
+.take[open] {
+  display: block;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .take[open] {
+    animation: jjkTakeover 750ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
+  }
+
+  @keyframes jjkTakeover {
+    0% {
+      clip-path: inset(49.5% 0 49.5% 0);
+      opacity: 0.2;
+    }
+    55% {
+      clip-path: inset(0 0 0 0);
+      opacity: 1;
+    }
+    62% {
+      transform: translateX(-6px);
+    }
+    68% {
+      transform: translateX(5px);
+    }
+    100% {
+      clip-path: inset(0 0 0 0);
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+.takeFx {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.takeShape {
+  position: absolute;
+  pointer-events: none;
+}
+
+.takeVignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at 50% 45%,
+    transparent 26%,
+    color-mix(in srgb, var(--dom-bg2) 85%, #000)
+  );
+}
+
+.takeGhost {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  font-family: var(--j-display, serif);
+  font-size: min(70vmin, 780px);
+  line-height: 0.8;
+  color: var(--dom-ghost);
+  pointer-events: none;
+  user-select: none;
+}
+
+.takeInner {
+  position: relative;
+  z-index: 4;
+  height: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: clamp(1.4rem, 3vw, 3.4rem);
+  align-items: center;
+  padding: clamp(1.6rem, 4vh, 4rem) clamp(1.6rem, 6vw, 5.6rem);
+  overflow-y: auto;
+}
+
+.takeText {
+  display: grid;
+  gap: clamp(0.9rem, 2vh, 1.4rem);
+}
+
+.takeEyebrow {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-family: var(--j-mono, monospace);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--dom-accent);
+}
+
+.takeEyebrow [lang="ja"] {
+  font-family: var(--j-display, serif);
+  letter-spacing: 0.12em;
+}
+
+.exit {
+  cursor: pointer;
+  font-family: var(--j-mono, monospace);
+  font-size: 0.66rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  padding: 0.8rem 1.2rem;
+  background: transparent;
+  border: 1px solid var(--dom-rule);
+  color: var(--dom-ink);
+  transition: background-color 300ms ease;
+}
+
+.exit:hover {
+  background: color-mix(in srgb, var(--dom-ink) 8%, transparent);
+}
+
+.exit:focus-visible {
+  outline: 2px solid var(--dom-accent);
+  outline-offset: 2px;
+}
+
+.takeJp {
+  margin: 0;
+  font-family: var(--j-display, serif);
+  font-weight: 800;
+  font-size: clamp(2.6rem, 9vw, 8rem);
+  line-height: 0.92;
+  color: var(--dom-ink);
+  text-wrap: balance;
+}
+
+.takeEn {
+  margin: 0;
+  font-family: var(--j-mono, monospace);
+  font-size: clamp(0.74rem, 1.8vw, 1.05rem);
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--dom-accent);
+}
+
+.takeRule {
+  display: block;
+  height: 1px;
+  width: min(520px, 100%);
+  background: var(--dom-rule);
+}
+
+.takeBody {
+  margin: 0;
+  max-width: 40em;
+  font-size: clamp(0.95rem, 1.8vw, 1.3rem);
+  line-height: 1.85;
+  color: var(--dom-body);
+  text-wrap: pretty;
+}
+
+.takeTag {
+  margin: 0;
+  font-family: var(--j-mono, monospace);
+  font-size: 0.66rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  line-height: 2;
+  color: var(--dom-muted);
+}
+
+.takeMeta {
+  margin: 0;
+  display: flex;
+  gap: clamp(1.4rem, 3vw, 3rem);
+  flex-wrap: wrap;
+}
+
+.takeMeta div {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.takeMeta dt {
+  font-family: var(--j-mono, monospace);
+  font-size: 0.58rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--dom-muted);
+}
+
+.takeMeta dd {
+  margin: 0;
+  font-family: var(--j-display, serif);
+  font-size: clamp(1.05rem, 2vw, 1.5rem);
+  color: var(--dom-ink);
+}
+
+/* Devralmanin sinematik karesi */
+.takeSeat {
+  align-self: stretch;
+  min-height: 42vh;
+}
+
+.takeSeat .seatFrame[data-on] {
+  display: block;
+  height: 100%;
+}
+
+.takeStill {
+  display: block;
+  height: 100%;
+  box-shadow: 0 30px 80px color-mix(in srgb, #000 45%, transparent);
+}
+
+/* ── DEVRALMA SEKILLERI (alan basina) ───────────────────────── */
+
+[data-domain="gojo"] .takeFx {
+  background:
+    repeating-linear-gradient(0deg, var(--dom-veilc) 0 1px, transparent 1px 30px),
+    radial-gradient(circle at 50% 42%, #FFFFFF, #DDE4EE 68%);
+}
+
+[data-domain="gojo"] .takeShape {
+  left: 50%;
+  top: 50%;
+  width: min(64vmin, 760px);
+  height: min(64vmin, 760px);
+  translate: -50% -50%;
+  border: 1px solid color-mix(in srgb, var(--dom-accent) 25%, transparent);
+  border-radius: 50% !important;
+}
+
+[data-domain="sukuna"] .takeFx {
+  background: repeating-linear-gradient(38deg, color-mix(in srgb, var(--dom-accent) 20%, transparent) 0 3px, transparent 3px 38px);
+}
+
+[data-domain="sukuna"] .takeShape {
+  left: 50%;
+  bottom: -8vh;
+  width: min(80vmin, 900px);
+  height: min(60vmin, 640px);
+  translate: -50%;
+  background: linear-gradient(to top, color-mix(in srgb, var(--dom-accent) 24%, transparent), transparent 72%);
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+
+[data-domain="mahito"] .takeFx {
+  background: repeating-radial-gradient(circle at 32% 38%, color-mix(in srgb, var(--dom-accent) 12%, transparent) 0 14px, transparent 14px 46px);
+}
+
+[data-domain="mahito"] .takeShape {
+  right: 10%;
+  top: 22%;
+  width: 42vmin;
+  height: 42vmin;
+  background: radial-gradient(circle, color-mix(in srgb, var(--dom-accent) 30%, transparent), transparent 62%);
+  filter: blur(30px);
+  border-radius: 52% 48% 38% 62% !important;
+}
+
+[data-domain="jogo"] .takeFx {
+  background: repeating-linear-gradient(0deg, var(--dom-veilc) 0 1px, transparent 1px 16px);
+}
+
+[data-domain="jogo"] .takeShape {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 46vh;
+  background: linear-gradient(to top, color-mix(in srgb, var(--dom-accent) 42%, transparent), transparent 78%);
+  filter: blur(14px);
+}
+
+[data-domain="dagon"] .takeFx {
+  background: repeating-linear-gradient(180deg, color-mix(in srgb, var(--dom-accent) 8%, transparent) 0 2px, transparent 2px 20px);
+}
+
+[data-domain="dagon"] .takeShape {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 40vh;
+  background: linear-gradient(to top, color-mix(in srgb, var(--dom-accent) 26%, transparent), transparent 80%);
+}
+
+[data-domain="higuruma"] .takeFx {
+  background: repeating-linear-gradient(90deg, color-mix(in srgb, var(--dom-accent) 7%, transparent) 0 1px, transparent 1px 72px);
+}
+
+[data-domain="higuruma"] .takeShape {
+  left: 50%;
+  top: 12%;
+  width: min(70vmin, 780px);
+  height: 76vh;
+  translate: -50%;
+  border: 1px solid color-mix(in srgb, var(--dom-accent) 22%, transparent);
+}
+
+[data-domain="hakari"] .takeFx {
+  background: repeating-linear-gradient(90deg, color-mix(in srgb, var(--dom-accent) 16%, transparent) 0 4px, transparent 4px 14px);
+}
+
+[data-domain="hakari"] .takeShape {
+  inset: 8% 6%;
+  border: 2px solid color-mix(in srgb, var(--dom-accent) 50%, transparent);
+  box-shadow: inset 0 0 60px color-mix(in srgb, var(--dom-accent) 35%, transparent);
+}
+
+[data-domain="megumi"] .takeFx {
+  background: repeating-linear-gradient(135deg, var(--dom-veilc) 0 2px, transparent 2px 26px);
+}
+
+[data-domain="megumi"] .takeShape {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 54vh;
+  background: radial-gradient(ellipse at 50% 100%, color-mix(in srgb, var(--dom-accent) 22%, transparent), transparent 70%);
+}
+
+[data-domain="yuta"] .takeFx {
+  background: repeating-linear-gradient(45deg, color-mix(in srgb, var(--dom-accent) 8%, transparent) 0 1px, transparent 1px 18px);
+}
+
+[data-domain="yuta"] .takeShape {
+  left: 50%;
+  top: 50%;
+  width: 60vmin;
+  height: 60vmin;
+  translate: -50% -50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--dom-accent) 22%, transparent), transparent 66%);
+  filter: blur(24px);
+}
+
+/* Alan nabizlari — yalnizca hareket isteyene */
+@media (prefers-reduced-motion: no-preference) {
+  [data-domain="gojo"] .takeShape {
+    animation: jjkHalo 6s ease-out infinite;
+  }
+
+  [data-domain="sukuna"] .weave,
+  [data-domain="sukuna"] .takeFx {
+    animation: jjkSlash 7s linear infinite;
+  }
+
+  [data-domain="jogo"] .takeShape {
+    animation: jjkHeat 6s ease-in-out infinite;
+  }
+
+  [data-domain="hakari"] .takeShape {
+    animation: jjkNeon 1.4s steps(2) infinite;
+  }
+
+  [data-domain="mahito"] .takeShape,
+  [data-domain="yuta"] .takeShape {
+    animation: jjkCorePulse 9s ease-in-out infinite;
+  }
+
+  @keyframes jjkHalo {
+    0% { scale: 0.9; opacity: 0.5; }
+    100% { scale: 1.6; opacity: 0; }
+  }
+
+  @keyframes jjkSlash {
+    from { background-position: 0 0; }
+    to { background-position: 220px 220px; }
+  }
+
+  @keyframes jjkHeat {
+    0%, 100% { opacity: 0.6; translate: 0 6px; }
+    50% { opacity: 1; translate: 0 -6px; }
+  }
+
+  @keyframes jjkNeon {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.45; }
+  }
+
+  @keyframes jjkCorePulse {
+    0%, 100% { scale: 1; opacity: 0.9; }
+    50% { scale: 1.13; opacity: 1; }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chamber,
+  .weave,
+  .ghost,
+  .no,
+  .headKanji,
+  .headLatin,
+  .lede,
+  .domJp,
+  .domEn,
+  .rule,
+  .body,
+  .meta dt,
+  .meta dd,
+  .enter,
+  .pick,
+  .list {
+    transition: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .inner {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .list {
+    order: -1;
+    flex-direction: row;
+    flex-wrap: wrap;
+    border-top: none;
+    gap: 0.4rem;
+  }
+
+  .pick {
+    border: 1px solid var(--dom-rule);
+    border-left-width: 2px;
+    padding: 0.55rem 0.75rem;
+  }
+
+  .pickEn {
+    display: none;
+  }
+}

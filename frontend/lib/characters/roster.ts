@@ -41,8 +41,7 @@ const JJK = { series: "JUJUTSU KAISEN", seriesSlug: "jujutsu-kaisen" };
    çipleri), yani dizindeki süzgeç bu satırları gerçekten tanıyor. */
 const AOT = { series: "Attack on Titan", seriesSlug: "attack-on-titan" };
 const GTO = { series: "GTO: Great Teacher Onizuka", seriesSlug: "gto-great-teacher-onizuka" };
-/* My Hero Academia (`my-hero-academia`) Dalga 2 ile eklenecek — kullanılmayan
-   bir sabit bırakmak eslint'i kırıyor, sırası gelince yazılacak. */
+const MHA = { series: "My Hero Academia", seriesSlug: "my-hero-academia" };
 
 export const EXPERIENCE_ROSTER: RosterEntry[] = [
   { characterId: EXPERIENCE_IDS.itachi, name: "Itachi Uchiha", nameNative: "うちはイタチ", ...NARUTO },
@@ -114,6 +113,13 @@ export const EXPERIENCE_ROSTER: RosterEntry[] = [
   { characterId: EXPERIENCE_IDS.arminArlert, name: "Armin Arlert", nameNative: "アルミン・アルレルト", ...AOT },
   { characterId: EXPERIENCE_IDS.levi, name: "Levi Ackerman", nameNative: "リヴァイ", ...AOT },
   { characterId: EXPERIENCE_IDS.eikichiOnizuka, name: "Eikichi Onizuka", nameNative: "鬼塚英吉", ...GTO },
+
+  /* ── Dalga 2 · My Hero Academia ── */
+  { characterId: EXPERIENCE_IDS.izukuMidoriya, name: "Izuku Midoriya", nameNative: "緑谷出久", ...MHA },
+  { characterId: EXPERIENCE_IDS.katsukiBakugou, name: "Katsuki Bakugou", nameNative: "爆豪勝己", ...MHA },
+  { characterId: EXPERIENCE_IDS.shoutoTodoroki, name: "Shouto Todoroki", nameNative: "轟焦凍", ...MHA },
+  { characterId: EXPERIENCE_IDS.ochakoUraraka, name: "Ochako Uraraka", nameNative: "麗日お茶子", ...MHA },
+  { characterId: EXPERIENCE_IDS.toshinoriYagi, name: "Toshinori Yagi", nameNative: "八木俊典", ...MHA },
 ];
 
 /** Rozet ve süzgeç için: elle tasarlanmış sayfası olan numaralar. */

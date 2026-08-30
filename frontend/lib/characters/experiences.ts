@@ -140,6 +140,13 @@ export const EXPERIENCE_IDS = {
   arminArlert: 46494,
   levi: 45627,
   eikichiOnizuka: 434,
+
+  /* ── Dalga 2 · My Hero Academia ── */
+  izukuMidoriya: 89028,
+  katsukiBakugou: 88892,
+  shoutoTodoroki: 89220,
+  ochakoUraraka: 89221,
+  toshinoriYagi: 89224,
 } as const;
 
 /**
@@ -290,6 +297,18 @@ export const EXPERIENCE_COMPANIONS: Record<number, number[]> = {
   [EXPERIENCE_IDS.levi]: [46496, 71121, 40882, 40881, 71479],
   // Onizuka: GTO kadrosunda arşivde yalnız — künye adla çizilir
   [EXPERIENCE_IDS.eikichiOnizuka]: [434],
+
+  /* ── Dalga 2 · My Hero Academia ── */
+  // Midoriya: sembol, rakip, sınıf, düşman
+  [EXPERIENCE_IDS.izukuMidoriya]: [89224, 88892, 89220, 89221, 89226],
+  // Bakugō: hedefi, sembol, sınıf arkadaşları, öğretmen
+  [EXPERIENCE_IDS.katsukiBakugou]: [89028, 89224, 89220, 89243, 89225],
+  // Todoroki: sınıfı, sembol, ağabeyi (Dabi), öğretmen
+  [EXPERIENCE_IDS.shoutoTodoroki]: [89028, 88892, 89224, 126378, 89225],
+  // Uraraka: takımı, sınıfı, karşısına çıkan
+  [EXPERIENCE_IDS.ochakoUraraka]: [89028, 88892, 89223, 125619, 89220],
+  // Toshinori: halefi, düşmanı, öğrencileri
+  [EXPERIENCE_IDS.toshinoriYagi]: [89028, 125956, 88892, 89225, 89226],
 
 };
 

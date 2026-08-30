@@ -1,0 +1,1734 @@
+/* ============================================================
+   DÜNYA DERİSİ — Eren Yeager (AniList #40882)
+
+   Palet Faz 2 brief'inde KİLİTLİ geldi (docs/ANIME-FAZ2-DALGA1.md §1);
+   değerlerin hiçbiri değiştirilmedi. Kontrast ölçüldü ve eşiklerin
+   üstünde: --text-primary AAA (bg 12.2 / surface 11.5), ikincil metin
+   ailesi AA üstü, --accent zeminde 3.36.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı gereği
+   bir yerel sınıf şart. Kök öğe ikisini birlikte taşır.
+
+   Aile: kurumuş toprak ve kan. Sıkışmış KIZIL ailesinden (Itachi #c8202f,
+   Ichigo #e04a48, Kenpachi #cd3f36, Urahara #c9503a) uzaklık ölçüldü —
+   #b13e2f hepsine 28'in üstünde. Ton farkı da yapısal: buradaki kızıl
+   parlak değil KURUMUŞ, zemini kahverengiye çalıyor.
+   ============================================================ */
+.page[data-world="eren-yeager"] {
+  --bg:             #0e0b09;
+  --surface:        #181310;
+  --surface-hover:  #201a16;
+  --border:         #28211c;
+  --border-strong:  #39302a;
+
+  --text-primary:   #d1cbc7;
+  --text-secondary: #9c897c;
+  --text-muted:     #9a7f6d;
+
+  --accent:         #b13e2f;
+  --accent-hover:   #c36255;
+  --accent-muted:   #361f1c;
+
+  --gold:           #b68e54;
+  --warn:           #b88347;
+  --danger:         #c26459;
+
+  /* ── Yardımcı malzeme ailesi — yalnızca bu ağaç okur ──
+     ⚠️ ADLANDIRMA SÖZLEŞMESİ: küçük metinde kullanılan her yardımcı rengin
+     `-text` ekli bir kardeşi var ve metin ONU okuyor; denetim yalnızca
+     onları ölçüyor. Ekli olmayanlar MALZEME ve koyu olmak zorunda:
+     silüetin gövdesi, duvarın taşı, buharın kütlesi. */
+  --ern-titan:        #241d18;
+  --ern-wall:         #3a332c;
+  --ern-wall-text:    #a99887;
+  --ern-steam:        #6a5b50;
+  --ern-steam-text:   #b9a99c;
+  --ern-crystal:      #7a6238;
+  --ern-crystal-text: #c3a879;
+  --ern-sea:          #2c5a63;
+  --ern-sea-text:     #7fb6bd;
+  --ern-rumble:       #7d2a20;
+  --ern-rumble-text:  #d08a7e;
+  --ern-mark-text:    #c0a68a;
+
+  /* Yıkamalar ve mürekkepler — dekoratif, metin taşımaz */
+  --ern-horizon-ink:  color-mix(in srgb, var(--gold) 46%, transparent);
+  --ern-watermark:    color-mix(in srgb, var(--accent) 13%, transparent);
+  --ern-sepia-wash:   color-mix(in srgb, var(--gold) 7%, transparent);
+  --ern-rumble-wash:  color-mix(in srgb, var(--accent) 12%, transparent);
+  --ern-steam-wash:   color-mix(in srgb, var(--ern-steam) 22%, transparent);
+}
+
+/* ============================================================
+   EREN YEAGER — "Yer Gürültüsü"
+
+   Deri: kökteki `data-world="eren-yeager"` bütün standart token'ları
+   kurumuş toprağa ve kana çeviriyor; yardımcılar `--ern-*` (yukarıdaki
+   blok). Bu bloktan AŞAĞIDA TEK HEX YOK — ara tonların hepsi color-mix
+   ile token'lardan türetildi (SÖZLEŞME §1).
+
+   ── SAYFANIN FİKRİ ──────────────────────────────────────────────────────
+   ÖZGÜRLÜK VE YIKIM AYNI HAREKETİN İKİ ADI. Sayfa duvarın içinde dar
+   başlıyor, dışarı çıktıkça genişliyor ve genişlik bir bedelle geliyor.
+
+   ── IZGARA: UFUK BANDI (brief §Izgara) ──────────────────────────────────
+   Ne tek kolon ne iki kolon. Her bölüm bir BANT; her bandın içinde, hep
+   AYNI yükseklikte (`--ern-sky`), yatay bir "duvar üstü" çizgisi var.
+   Bölümler dönüşümlü olarak o çizginin ÜSTÜNDE (`data-side="above"` →
+   başlık gökyüzü şeridini doldurur, çizgi metnin ARKASINDAN geçer) ve
+   ALTINDA (`data-side="below"` → gökyüzü boş kalır) duruyor.
+
+   ── MOD: DUVARIN ARDI (brief §Düğme) ────────────────────────────────────
+   `data-beyond="wall" | "sea"` üç ölçüyü birden çeviriyor — renk YANINDA
+   duruyor, yerine değil:
+     --ern-measure  46rem → 76rem   (içerik sütunu genişler)
+     --ern-sky      6.5rem → 3.2rem (ufuk çizgisi YUKARI kayar)
+     --ern-cols     100% → 17rem    (titan kartları tek sütundan üçe açılır)
+   Ayrıca hero karesinin ORANI değişiyor (4/3 → 21/9).
+
+   ── HAREKET: TİTAN BUHARI + KRİSTALLEŞME (brief §Hareket) ───────────────
+   Bantların altından yükselen sıcak buhar katmanı `mask-image` + `translateY`
+   ile çiziliyor; kartların kenarı `clip-path` poligonuyla kristal kırığı
+   gibi kesik ve hover/focus'ta kırık büyüyor. İkisi de dosya sonundaki
+   `reduce` battaniyesiyle kapanıyor.
+
+   ── FİLİGRAN ────────────────────────────────────────────────────────────
+   Dikey 進撃 + elle çizilmiş, DOLGUSUZ duvar dişleri konturu (ErenGlyphs).
+
+   ── TİPOGRAFİ ───────────────────────────────────────────────────────────
+   Display: Anton — ALL CAPS, sıkışık (-0.01em), çok büyük.
+   Gövde: Petrona. Japonca: Shippori Mincho. Sayı ve etiket: Inter,
+   tabular-nums (yürüyüşün sayacı hep aynı genişlikte dursun diye).
+
+   ── RENK GÖREVLERİ ──────────────────────────────────────────────────────
+   --accent        → duvarın kırığı, aktif adım, odak halkası
+   --gold          → ufuk çizgisi ve künye değerleri
+   --ern-titan     → YALNIZCA silüet gövdesi
+   --ern-wall      → YALNIZCA duvar dişleri ve taş kenarlar
+   --ern-crystal   → YALNIZCA sertleştirme kenarları
+   --ern-sea       → YALNIZCA duvarın dışı durumu
+   --ern-rumble    → YALNIZCA yürüyüş sahnesi ve durum satırı
+   ============================================================ */
+
+.page {
+  --ern-measure: 46rem;
+  --ern-sky: 6.5rem;
+  --ern-cols: 100%;
+  --ern-plate: 4 / 3;
+  --ern-gap: clamp(0.85rem, 2.2vw, 1.5rem);
+  --ern-step: clamp(3.5rem, 8vw, 6.5rem);
+  --ern-tint: var(--ern-sepia-wash);
+  --ern-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ern-slow: 620ms;
+  --ern-quick: 200ms;
+  --ern-notch: 16px;
+
+  position: relative;
+  isolation: isolate;
+  overflow-x: clip;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-petrona), Georgia, serif;
+  padding: clamp(0.9rem, 3vw, 2.25rem) clamp(0.85rem, 3vw, 2.5rem)
+    clamp(3rem, 8vw, 6rem);
+}
+
+/* Duvarın ardı: ölçü, ufuk ve oran birden değişiyor */
+.page[data-beyond="sea"] {
+  --ern-measure: 76rem;
+  --ern-sky: 3.2rem;
+  --ern-cols: 17rem;
+  --ern-plate: 21 / 9;
+  --ern-tint: var(--ern-rumble-wash);
+}
+
+/* Zemin yıkaması: sepya → kızıl. Hiçbir metnin ÜSTÜNDE değil. */
+.wash {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(to top, var(--ern-tint), transparent 68%);
+  transition: background var(--ern-slow) var(--ern-ease);
+}
+
+/* ── Filigran ───────────────────────────────────────────────────────── */
+
+.watermark {
+  position: absolute;
+  top: clamp(7rem, 18vw, 15rem);
+  right: clamp(-0.75rem, 0.5vw, 1rem);
+  z-index: 0;
+  writing-mode: vertical-rl;
+  font-family: var(--font-shippori), "Yu Mincho", serif;
+  font-size: clamp(4.5rem, 15vw, 12rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  color: var(--ern-watermark);
+  pointer-events: none;
+  user-select: none;
+}
+
+.watermarkTeeth {
+  position: absolute;
+  top: clamp(3.5rem, 9vw, 7rem);
+  left: -4%;
+  z-index: 0;
+  width: 108%;
+  height: clamp(2.5rem, 6vw, 4.5rem);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.teethLine {
+  fill: none;
+  stroke: var(--ern-wall);
+  stroke-width: 1.6;
+  stroke-linejoin: miter;
+  vector-effect: non-scaling-stroke;
+}
+
+.teethGround {
+  fill: none;
+  stroke: var(--ern-horizon-ink);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ── Mod düğmesi: duvarın ardı ──────────────────────────────────────── */
+
+.beyondBar {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  max-width: min(100%, var(--ern-measure));
+  margin: 0 auto;
+  padding-bottom: 0.5rem;
+  transition: max-width var(--ern-slow) var(--ern-ease);
+}
+
+.beyondLabel {
+  margin: 0;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.beyondToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: var(--touch-min);
+  padding: 0.5rem 1.1rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 0;
+  background: var(--surface);
+  color: var(--text-primary);
+  cursor: pointer;
+  clip-path: polygon(
+    0 0,
+    calc(100% - 10px) 0,
+    100% 10px,
+    100% 100%,
+    10px 100%,
+    0 calc(100% - 10px)
+  );
+  transition:
+    background var(--ern-quick) var(--ern-ease),
+    border-color var(--ern-quick) var(--ern-ease);
+}
+
+.beyondToggle:hover {
+  background: var(--surface-hover);
+  border-color: var(--accent);
+}
+
+.beyondToggle:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 3px;
+}
+
+.beyondToggleText {
+  font-family: var(--font-anton), var(--font-inter), sans-serif;
+  font-size: clamp(0.9rem, 2.1vw, 1.05rem);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+/* Kapı: iki kanat, mod açılınca ayrılıyor */
+.beyondGate {
+  position: relative;
+  display: inline-flex;
+  width: 22px;
+  height: 26px;
+  border-bottom: 1px solid var(--ern-horizon-ink);
+}
+
+.beyondGateLeaf {
+  position: absolute;
+  top: 0;
+  width: 10px;
+  height: 24px;
+  background: color-mix(in srgb, var(--ern-wall) 90%, transparent);
+  transition: transform var(--ern-slow) var(--ern-ease);
+}
+
+.beyondGateLeaf:first-child {
+  left: 0;
+}
+
+.beyondGateLeaf:last-child {
+  right: 0;
+}
+
+.page[data-beyond="sea"] .beyondGateLeaf:first-child {
+  transform: translateX(-7px);
+}
+
+.page[data-beyond="sea"] .beyondGateLeaf:last-child {
+  transform: translateX(7px);
+}
+
+.beyondState {
+  margin: 0;
+  font-family: var(--font-shippori), var(--font-inter), serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  color: var(--ern-wall-text);
+  transition: color var(--ern-slow) var(--ern-ease);
+}
+
+.page[data-beyond="sea"] .beyondState {
+  color: var(--ern-sea-text);
+}
+
+.beyondHint {
+  position: relative;
+  z-index: 3;
+  max-width: min(100%, var(--ern-measure));
+  margin: 0 auto 1.5rem;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  transition: max-width var(--ern-slow) var(--ern-ease);
+}
+
+/* ── Breadcrumb ─────────────────────────────────────────────────────── */
+
+.crumb {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  max-width: min(100%, var(--ern-measure));
+  margin: 0 auto 1.25rem;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: max-width var(--ern-slow) var(--ern-ease);
+}
+
+.crumb a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+
+.crumb a:hover {
+  color: var(--accent-hover);
+  border-bottom-color: var(--accent);
+}
+
+.crumb a:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 3px;
+}
+
+.crumbSep {
+  color: var(--border-strong);
+}
+
+.crumbHere {
+  color: var(--text-muted);
+}
+
+/* ── UFUK BANDI: sayfanın ızgarası ──────────────────────────────────── */
+
+.band,
+.bandWide {
+  position: relative;
+  z-index: 1;
+  margin: 0 auto;
+  padding-top: var(--ern-sky);
+  padding-bottom: var(--ern-step);
+  transition:
+    max-width var(--ern-slow) var(--ern-ease),
+    padding-top var(--ern-slow) var(--ern-ease);
+}
+
+.band {
+  max-width: min(100%, var(--ern-measure));
+}
+
+/* Yürüyüş bandı daha geniş: sahnenin kalabalığa yeri olsun */
+.bandWide {
+  max-width: min(100%, calc(var(--ern-measure) + 9rem));
+}
+
+/* Duvar üstü çizgisi — bantın içinde HEP aynı yükseklikte, içeriğin
+   ARKASINDA. Negatif iç boşluk `.page`in `overflow-x: clip`i sayesinde
+   yatay taşma üretmiyor. */
+.horizonLine {
+  position: absolute;
+  top: var(--ern-sky);
+  left: calc(var(--ern-gap) * -2);
+  right: calc(var(--ern-gap) * -2);
+  z-index: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--ern-horizon-ink) 9%,
+    var(--ern-horizon-ink) 91%,
+    transparent
+  );
+  pointer-events: none;
+  transition: top var(--ern-slow) var(--ern-ease);
+}
+
+.horizonMark {
+  position: absolute;
+  left: calc(var(--ern-gap) * 2);
+  bottom: 0;
+  width: 48px;
+  height: 16px;
+}
+
+.horizonMarkLine {
+  fill: none;
+  stroke: var(--ern-horizon-ink);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Titan buharı: bandın altından yükselen sıcak katman */
+.band::before,
+.bandWide::before {
+  content: "";
+  position: absolute;
+  left: calc(var(--ern-gap) * -2);
+  right: calc(var(--ern-gap) * -2);
+  bottom: 0;
+  z-index: 0;
+  height: 42%;
+  pointer-events: none;
+  background: linear-gradient(to top, var(--ern-steam-wash), transparent);
+  -webkit-mask-image: linear-gradient(to top, black 0%, transparent 88%);
+  mask-image: linear-gradient(to top, black 0%, transparent 88%);
+}
+
+/* Ufkun ÜSTÜNDE: başlık gökyüzü şeridini dolduruyor ve çizgiye oturuyor */
+.band[data-side="above"] .bandHead,
+.bandWide[data-side="above"] .bandHead {
+  position: relative;
+  z-index: 2;
+  margin-top: calc(var(--ern-sky) * -1);
+  min-height: var(--ern-sky);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-bottom: 0.7rem;
+}
+
+/* Hero'nun tamamı gökyüzüne çıkıyor; ufuk çizgisi adın ARKASINDAN geçiyor —
+   duvarın üstü bir manzara değil, ismin üstünden geçen bir SINIR. */
+.band[data-side="above"] .heroTop {
+  margin-top: calc(var(--ern-sky) * -1);
+}
+
+/* Ufkun ALTINDA: gökyüzü boş, her şey çizginin altında başlıyor */
+.band[data-side="below"] .bandHead {
+  padding-top: 0.8rem;
+}
+
+.bandHead {
+  position: relative;
+  z-index: 2;
+  margin: 0 0 clamp(1.25rem, 3vw, 2rem);
+}
+
+.bandTitle {
+  margin: 0;
+  font-family: var(--font-anton), var(--font-inter), sans-serif;
+  font-size: clamp(2rem, 6.5vw, 3.6rem);
+  font-weight: 400;
+  line-height: 1.04;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.bandLede {
+  margin: 0.55rem 0 0;
+  max-width: 44ch;
+  font-size: clamp(0.95rem, 2.2vw, 1.05rem);
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* ── 1 · HERO ───────────────────────────────────────────────────────── */
+
+.heroTop {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: clamp(1rem, 4vw, 2.5rem);
+}
+
+.heroText {
+  flex: 1 1 18rem;
+  min-width: 0;
+}
+
+.heroHouse {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.heroName {
+  margin: 0;
+  font-family: var(--font-anton), var(--font-inter), sans-serif;
+  font-size: clamp(2.8rem, 13vw, 7rem);
+  font-weight: 400;
+  line-height: 1.02;
+  letter-spacing: -0.012em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  overflow-wrap: break-word;
+}
+
+.heroNative {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-shippori), "Yu Mincho", serif;
+  font-size: clamp(0.95rem, 2.6vw, 1.25rem);
+  letter-spacing: 0.16em;
+  color: var(--ern-mark-text);
+}
+
+.heroEpigraph {
+  margin: 1.1rem 0 0;
+  max-width: 42ch;
+  padding-left: 0.95rem;
+  border-left: 2px solid var(--accent);
+  font-size: clamp(1rem, 2.5vw, 1.15rem);
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+.heroPortraitCol {
+  flex: 0 1 13rem;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+/* Portre KÜÇÜK (kaynak 230×345) — madalyon boyunda, hero olarak değil */
+.portraitFrame {
+  display: block;
+  width: 100%;
+  max-width: 13rem;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--ern-notch)) 0,
+    100% var(--ern-notch),
+    100% 100%,
+    var(--ern-notch) 100%,
+    0 calc(100% - var(--ern-notch))
+  );
+}
+
+.portraitImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 22%;
+}
+
+.heroLede {
+  position: relative;
+  z-index: 2;
+  margin: clamp(1.5rem, 4vw, 2.25rem) 0 0;
+  max-width: 62ch;
+  font-size: clamp(1rem, 2.3vw, 1.1rem);
+  line-height: 1.72;
+  color: var(--text-secondary);
+}
+
+/* Büyük ufuk karesi — küratör yuvası; boşken de duruyor.
+   ORAN moda bağlı: duvarın içinde 4/3, dışında 21/9. */
+.heroPlate {
+  position: relative;
+  z-index: 2;
+  margin: clamp(1.5rem, 4vw, 2.25rem) 0 0.6rem;
+  aspect-ratio: var(--ern-plate);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 22px,
+      color-mix(in srgb, var(--ern-wall) 26%, transparent) 22px 23px
+    ),
+    var(--surface);
+  clip-path: polygon(
+    0 0,
+    calc(100% - 26px) 0,
+    100% 26px,
+    100% 100%,
+    26px 100%,
+    0 calc(100% - 26px)
+  );
+  transition: aspect-ratio var(--ern-slow) var(--ern-ease);
+}
+
+.heroPlateImage {
+  object-fit: cover;
+}
+
+.heroPlate[data-filled="false"] .heroPlateImage {
+  display: none;
+}
+
+/* Kristal kırığı: kadrajın sağ üst köşesinden inen kesik */
+.heroPlateEdge {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    128deg,
+    transparent 62%,
+    color-mix(in srgb, var(--ern-crystal) 22%, transparent) 62%,
+    transparent 68%
+  );
+}
+
+.plateCaption,
+.horizonCaption {
+  position: relative;
+  z-index: 2;
+  margin: 0.5rem 0 0;
+  max-width: 56ch;
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+
+.plateCaption {
+  color: var(--ern-steam-text);
+}
+
+.horizonCaption {
+  margin-top: clamp(1.5rem, 4vw, 2.25rem);
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--border);
+  color: var(--ern-wall-text);
+}
+
+/* ── 2 · KÜNYE ──────────────────────────────────────────────────────── */
+
+.dossier {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(1rem, 3vw, 2rem);
+}
+
+.facts {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 1px;
+  margin: 0;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+
+.fact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.85rem 1rem;
+  background: var(--surface);
+}
+
+.fact dt {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.fact dd {
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.45;
+  color: var(--gold);
+}
+
+/* Sembolik obje: bodrum anahtarı, elle çizilmiş kontur */
+.dossierKey {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 96px;
+  align-self: center;
+}
+
+.keyLine {
+  fill: none;
+  stroke: var(--ern-crystal);
+  stroke-width: 2;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.factNote {
+  position: relative;
+  z-index: 2;
+  margin: 1rem 0 0;
+  max-width: 62ch;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+/* ── 3 · ÜÇ TİTAN ───────────────────────────────────────────────────── */
+
+.titans {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--ern-cols)), 1fr));
+  gap: clamp(1rem, 2.5vw, 1.75rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  transition: grid-template-columns var(--ern-slow) var(--ern-ease);
+}
+
+.titan {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  padding: clamp(0.9rem, 2.2vw, 1.35rem);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--ern-notch)) 0,
+    100% var(--ern-notch),
+    100% 100%,
+    var(--ern-notch) 100%,
+    0 calc(100% - var(--ern-notch))
+  );
+  transition:
+    background var(--ern-quick) var(--ern-ease),
+    clip-path var(--ern-slow) var(--ern-ease);
+}
+
+.titan:hover {
+  background: var(--surface-hover);
+  clip-path: polygon(
+    0 0,
+    calc(100% - 30px) 0,
+    100% 30px,
+    100% 100%,
+    30px 100%,
+    0 calc(100% - 30px)
+  );
+}
+
+.titanArt {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  background: color-mix(in srgb, var(--bg) 80%, var(--ern-wall));
+}
+
+.titanArt img {
+  object-fit: cover;
+}
+
+.titanKanji {
+  position: absolute;
+  right: 0.4rem;
+  bottom: 0.1rem;
+  font-family: var(--font-shippori), "Yu Mincho", serif;
+  font-size: clamp(1.6rem, 5vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1;
+  color: color-mix(in srgb, var(--ern-crystal) 55%, transparent);
+  pointer-events: none;
+}
+
+.titanArt[data-filled="true"] .titanKanji {
+  color: color-mix(in srgb, var(--text-primary) 70%, transparent);
+}
+
+.titanBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.titanName {
+  margin: 0;
+  font-family: var(--font-anton), var(--font-inter), sans-serif;
+  font-size: clamp(1.15rem, 3vw, 1.5rem);
+  letter-spacing: -0.005em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.titanReading {
+  margin: 0;
+  font-family: var(--font-shippori), "Yu Mincho", serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  color: var(--ern-crystal-text);
+}
+
+.titanTurkish {
+  margin: 0;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.titanTagline {
+  margin: 0.25rem 0 0;
+  font-size: 1rem;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+.titanText {
+  margin: 0.35rem 0 0;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+.titanTraits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.55rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trait {
+  padding: 0.22rem 0.55rem;
+  border: 1px solid var(--border-strong);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: var(--ern-crystal-text);
+}
+
+/* ── 4 · DÖRT DONANIM ───────────────────────────────────────────────── */
+
+.gearGrid {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+  gap: clamp(0.85rem, 2vw, 1.4rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.gear {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: clamp(0.8rem, 2vw, 1.1rem);
+  border-top: 2px solid var(--border-strong);
+  background: color-mix(in srgb, var(--surface) 65%, transparent);
+}
+
+.gearArt {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg) 70%, var(--ern-wall));
+  clip-path: polygon(
+    0 0,
+    calc(100% - 12px) 0,
+    100% 12px,
+    100% 100%,
+    12px 100%,
+    0 calc(100% - 12px)
+  );
+}
+
+.gearArt img {
+  object-fit: cover;
+}
+
+.gearKanji {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-shippori), "Yu Mincho", serif;
+  font-size: clamp(1.3rem, 4.5vw, 2rem);
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  color: color-mix(in srgb, var(--ern-steam) 90%, transparent);
+  pointer-events: none;
+}
+
+.gearArt[data-filled="true"] .gearKanji {
+  color: color-mix(in srgb, var(--text-primary) 78%, transparent);
+  background: color-mix(in srgb, var(--bg) 45%, transparent);
+}
+
+.gearName {
+  margin: 0;
+  font-family: var(--font-anton), var(--font-inter), sans-serif;
+  font-size: clamp(1rem, 2.4vw, 1.15rem);
+  letter-spacing: -0.005em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.gearNote {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* ── 5 · YÜRÜYÜŞ — sayfanın kalbi ───────────────────────────────────── */
+
+.march {
+  position: relative;
+  z-index: 2;
+}
+
+.crowdStage {
+  position: relative;
+  aspect-ratio: 15 / 4;
+  min-height: 8.5rem;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--ern-rumble) 22%, var(--bg)),
+    var(--bg)
+  );
+  clip-path: polygon(
+    0 0,
+    calc(100% - 22px) 0,
+    100% 22px,
+    100% 100%,
+    22px 100%,
+    0 calc(100% - 22px)
+  );
+}
+
+.crowdScene {
+  object-fit: cover;
+  opacity: 0.42;
+}
+
+.crowdArt {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.crowdFigure {
+  fill: var(--ern-titan);
+}
+
+.crowdGround {
+  fill: none;
+  stroke: var(--ern-horizon-ink);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+
+.depthTop {
+  stop-color: var(--bg);
+  stop-opacity: 0.92;
+}
+
+.depthFade {
+  stop-color: var(--bg);
+  stop-opacity: 0.18;
+}
+
+.depthFoot {
+  stop-color: var(--bg);
+  stop-opacity: 0;
+}
+
+.crowdNumeral {
+  position: absolute;
+  left: clamp(0.6rem, 2vw, 1.25rem);
+  top: clamp(0.4rem, 1.5vw, 0.9rem);
+  font-family: var(--font-anton), var(--font-inter), sans-serif;
+  font-size: clamp(2.2rem, 9vw, 5rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: color-mix(in srgb, var(--ern-rumble-text) 88%, transparent);
+  text-shadow: 0 2px 10px var(--bg);
+  pointer-events: none;
+}
+
+.crowdKanji {
+  position: absolute;
+  right: clamp(0.6rem, 2vw, 1.25rem);
+  top: clamp(0.4rem, 1.5vw, 0.9rem);
+  font-family: var(--font-shippori), "Yu Mincho", serif;
+  font-size: clamp(1.1rem, 3.4vw, 1.9rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.1em;
+  color: color-mix(in srgb, var(--gold) 82%, transparent);
+  text-shadow: 0 2px 8px var(--bg);
+  pointer-events: none;
+}
+
+.crowdCaption {
+  position: absolute;
+  left: clamp(0.6rem, 2vw, 1.25rem);
+  right: clamp(0.6rem, 2vw, 1.25rem);
+  bottom: 0.5rem;
+  margin: 0;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ern-steam-text);
+  text-shadow: 0 1px 6px var(--bg);
+}
+
+.marchSteps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
+  gap: 0.5rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.marchStep {
+  display: flex;
+  min-width: 0;
+}
+
+.marchStepButton {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: var(--touch-min);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--border);
+  border-bottom: 2px solid var(--border-strong);
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+  color: var(--text-secondary);
+  cursor: pointer;
+  text-align: left;
+  transition:
+    background var(--ern-quick) var(--ern-ease),
+    border-color var(--ern-quick) var(--ern-ease),
+    color var(--ern-quick) var(--ern-ease);
+}
+
+.marchStepButton:hover {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.marchStepButton:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 2px;
+}
+
+.marchStepButton[data-passed="true"] {
+  border-bottom-color: var(--accent);
+  color: var(--text-primary);
+}
+
+.marchStepButton[aria-pressed="true"] {
+  background: var(--surface-hover);
+  border-color: var(--accent);
+  color: var(--text-primary);
+}
+
+.marchStepKanji {
+  font-family: var(--font-shippori), "Yu Mincho", serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--gold);
+}
+
+.marchStepCount {
+  font-size: 0.9rem;
+  line-height: 1.3;
+}
+
+.marchStepNumeral {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+.marchControls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.9rem 0 0;
+}
+
+.marchWalk,
+.marchGhost {
+  min-height: var(--touch-min);
+  padding: 0.5rem 1.15rem;
+  border: 1px solid var(--border-strong);
+  font-family: var(--font-anton), var(--font-inter), sans-serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    background var(--ern-quick) var(--ern-ease),
+    color var(--ern-quick) var(--ern-ease),
+    transform var(--ern-quick) var(--ern-ease);
+}
+
+.marchWalk {
+  border-color: var(--accent);
+  background: var(--accent-muted);
+  color: var(--text-primary);
+}
+
+.marchWalk:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent) 40%, var(--surface));
+}
+
+.marchGhost {
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.marchGhost:hover:not(:disabled) {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.marchWalk:focus-visible,
+.marchGhost:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 3px;
+}
+
+.marchWalk:disabled,
+.marchGhost:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
+.marchReadout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.75rem;
+  margin: 1rem 0 0;
+  padding: 0.75rem 0 0;
+  border-top: 1px solid var(--border);
+}
+
+.marchReadItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.marchReadItem dt {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.marchReadItem dd {
+  margin: 0;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+}
+
+.marchStatus {
+  margin: 0.75rem 0 0;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  color: var(--ern-rumble-text);
+}
+
+/* Daralan söz sütunu — mekaniğin ikinci yarısı */
+.sayBody {
+  --ern-say: 64ch;
+  max-width: min(100%, var(--ern-say));
+  margin: clamp(1.25rem, 3vw, 2rem) 0 0;
+  padding-left: 1rem;
+  border-left: 2px solid var(--accent);
+  transition: max-width var(--ern-slow) var(--ern-ease);
+}
+
+.sayTitle {
+  margin: 0;
+  font-family: var(--font-anton), var(--font-inter), sans-serif;
+  font-size: clamp(1.3rem, 4vw, 2rem);
+  font-weight: 400;
+  line-height: 1.06;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.sayText {
+  margin: 0.5rem 0 0;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+.marchNote,
+.marchHint {
+  margin: 1rem 0 0;
+  max-width: 62ch;
+  font-size: 0.86rem;
+  line-height: 1.6;
+}
+
+.marchNote {
+  color: var(--text-muted);
+}
+
+.marchHint {
+  margin-top: 0.4rem;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 0.78rem;
+  color: var(--ern-wall-text);
+}
+
+/* ── 6 · BEŞ DURAK ──────────────────────────────────────────────────── */
+
+.fate {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.5rem, 4vw, 2.75rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: ernFate;
+}
+
+/* Durakların kendisi de ufka göre yer değiştiriyor: bir üstte, bir altta */
+.fateItem {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  counter-increment: ernFate;
+}
+
+.fateItem[data-side="above"] {
+  padding-left: 0;
+  padding-right: clamp(0rem, 6vw, 4rem);
+}
+
+.fateItem[data-side="below"] {
+  padding-left: clamp(0rem, 6vw, 4rem);
+  padding-right: 0;
+}
+
+.fateAge {
+  margin: 0;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ern-rumble-text);
+}
+
+.fateAge::before {
+  content: counter(ernFate, decimal-leading-zero) " · ";
+  color: var(--text-muted);
+}
+
+.fateBody {
+  min-width: 0;
+}
+
+.fateTitle {
+  margin: 0;
+  font-family: var(--font-anton), var(--font-inter), sans-serif;
+  font-size: clamp(1.3rem, 4vw, 2rem);
+  font-weight: 400;
+  line-height: 1.06;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.fateText {
+  margin: 0.55rem 0 0;
+  max-width: 66ch;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+.fateQuote {
+  margin: 1rem 0 0;
+  padding: 0.85rem 1rem;
+  border-left: 2px solid var(--accent);
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+}
+
+.fateQuote figcaption {
+  margin-top: 0.45rem;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 0.74rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.quoteJa {
+  margin: 0;
+  font-family: var(--font-shippori), "Yu Mincho", serif;
+  font-size: clamp(1.05rem, 3vw, 1.4rem);
+  font-weight: 600;
+  line-height: 1.55;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+}
+
+.quoteReading {
+  margin: 0.35rem 0 0;
+  font-size: 0.95rem;
+  font-style: italic;
+  line-height: 1.55;
+  color: var(--ern-mark-text);
+}
+
+.fateArt {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg) 75%, var(--ern-wall));
+  clip-path: polygon(
+    0 0,
+    calc(100% - 18px) 0,
+    100% 18px,
+    100% 100%,
+    18px 100%,
+    0 calc(100% - 18px)
+  );
+}
+
+.fateArt img {
+  object-fit: cover;
+}
+
+/* ── 7a · ÜÇLÜ VE KAPTAN ────────────────────────────────────────────── */
+
+.trioPlate,
+.closingPlate {
+  position: relative;
+  z-index: 2;
+  aspect-ratio: 2 / 1;
+  margin: 0 0 0.6rem;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 26px,
+      color-mix(in srgb, var(--ern-wall) 22%, transparent) 26px 27px
+    ),
+    var(--surface);
+  clip-path: polygon(
+    0 0,
+    calc(100% - 22px) 0,
+    100% 22px,
+    100% 100%,
+    22px 100%,
+    0 calc(100% - 22px)
+  );
+}
+
+.trioPlate img,
+.closingPlate img {
+  object-fit: cover;
+}
+
+.bonds {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: clamp(0.85rem, 2vw, 1.4rem);
+  margin: clamp(1rem, 3vw, 1.75rem) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bond {
+  display: flex;
+  gap: 0.85rem;
+  padding: 0.9rem;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 75%, transparent);
+}
+
+.bondFace {
+  position: relative;
+  flex: 0 0 auto;
+  width: 3.5rem;
+  height: 3.5rem;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  background: color-mix(in srgb, var(--bg) 70%, var(--ern-wall));
+  border-radius: 50%;
+}
+
+.bondFace img {
+  object-fit: cover;
+}
+
+.bondBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.bondRole {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.bondName {
+  font-family: var(--font-anton), var(--font-inter), sans-serif;
+  font-size: 1.05rem;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.bondName a {
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+.bondName a:hover {
+  color: var(--text-primary);
+  border-bottom-color: var(--accent);
+}
+
+.bondName a:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 3px;
+}
+
+.bondNative {
+  font-family: var(--font-shippori), "Yu Mincho", serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  color: var(--ern-sea-text);
+}
+
+.bondNote {
+  margin-top: 0.25rem;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+/* ── 7b · KAPANIŞ ───────────────────────────────────────────────────── */
+
+.closingQuotes {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  gap: clamp(0.9rem, 2.5vw, 1.6rem);
+  margin: clamp(1rem, 3vw, 1.75rem) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.closingQuote {
+  margin: 0;
+  padding: clamp(0.9rem, 2.2vw, 1.35rem);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--ern-notch)) 0,
+    100% var(--ern-notch),
+    100% 100%,
+    var(--ern-notch) 100%,
+    0 calc(100% - var(--ern-notch))
+  );
+}
+
+.closingQuote figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-top: 0.7rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--border);
+}
+
+.quoteBy {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.quoteNote {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.motto {
+  position: relative;
+  z-index: 2;
+  margin: clamp(1.75rem, 5vw, 3rem) 0 0;
+  font-family: var(--font-shippori), "Yu Mincho", serif;
+  font-size: clamp(3rem, 14vw, 7rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.12em;
+  text-align: center;
+  color: color-mix(in srgb, var(--accent) 72%, transparent);
+}
+
+.mottoNote {
+  position: relative;
+  z-index: 2;
+  max-width: 60ch;
+  margin: 0.85rem auto 0;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.credit {
+  position: relative;
+  z-index: 2;
+  max-width: 66ch;
+  margin: clamp(1.5rem, 4vw, 2.25rem) 0 0;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.85rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+}
+
+.credit a {
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+.credit a:hover {
+  color: var(--text-primary);
+  border-bottom-color: var(--accent);
+}
+
+.credit a:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 3px;
+}
+
+/* ── Dar ekran: 360 pikselde yatay taşma OLMAZ ──────────────────────── */
+
+@media (max-width: 480px) {
+  .page {
+    --ern-sky: 4.5rem;
+    --ern-notch: 10px;
+  }
+
+  .heroPortraitCol {
+    flex: 1 1 100%;
+  }
+
+  .portraitFrame {
+    max-width: 11rem;
+  }
+
+  .dossier {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .dossierKey {
+    align-self: flex-start;
+  }
+
+  .crowdStage {
+    aspect-ratio: 3 / 2;
+  }
+
+  .marchReadout {
+    gap: 0.5rem 1rem;
+  }
+}
+
+/* ── HAREKET: titan buharı + kristalleşme ───────────────────────────── */
+
+@media (prefers-reduced-motion: no-preference) {
+  .band::before,
+  .bandWide::before {
+    animation: ernSteam 11s var(--ern-ease) infinite alternate;
+  }
+
+  .watermarkTeeth {
+    animation: ernHaze 17s var(--ern-ease) infinite alternate;
+  }
+
+  .crowdArt {
+    animation: ernTread 6.5s steps(2, jump-none) infinite alternate;
+  }
+
+  .marchWalk:hover:not(:disabled) {
+    transform: translateX(2px);
+  }
+}
+
+@keyframes ernSteam {
+  from {
+    transform: translateY(9%);
+    opacity: 0.45;
+  }
+  to {
+    transform: translateY(-5%);
+    opacity: 1;
+  }
+}
+
+@keyframes ernHaze {
+  from {
+    opacity: 0.34;
+  }
+  to {
+    opacity: 0.62;
+  }
+}
+
+/* Yürüyüş: iki kademeli, çok küçük bir yer değiştirme — "adım" */
+@keyframes ernTread {
+  from {
+    transform: translateX(-0.35%);
+  }
+  to {
+    transform: translateX(0.35%);
+  }
+}
+
+/* ── REDUCE BATTANİYESİ ─────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .band::before,
+  .bandWide::before {
+    opacity: 0.7;
+    transform: none;
+  }
+
+  .watermarkTeeth {
+    opacity: 0.45;
+  }
+
+  .crowdArt {
+    transform: none;
+  }
+}

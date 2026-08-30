@@ -114,6 +114,13 @@ Palet çelik grisi; skarlat yalnızca atkıda ve accent'te.
 **Yasak:** "çevrilen el yazması sayfaları" (Jiraiya). Sende sayfa
 çevrilmiyor, **metin yerinde değişiyor**.
 
+⚠️ **Accent 30 Ağustos'ta DÜZELTİLDİ.** İlk değer `#8eadc2` idi ve
+yayındaki Megumi sayfasının accent'ine (`#8fa6bf`) yalnızca **8 birim**
+uzaktaydı — `check-karakter-kontrast.mjs` bunu HATA sayıyor (eşik 15).
+Megumi Dalga 5'te yeniden yazılacak ama o zamana kadar eski palet yerinde
+duruyor, yani çakışma gerçek. Yeni değer bütün 65 accent'e en az **38**
+birim uzakta. Aşağıdaki blok geçerli olan.
+
 ```css
 .page[data-world="armin-arlert"] {
   --bg: #0b0d0f;
@@ -124,9 +131,9 @@ Palet çelik grisi; skarlat yalnızca atkıda ve accent'te.
   --text-primary: #c7cdd1;
   --text-secondary: #7c8f9c;
   --text-muted: #6f889b;
-  --accent: #8eadc2;
-  --accent-hover: #aac0cf;
-  --accent-muted: #435460;
+  --accent: #7cc0d5;
+  --accent-hover: #a0ccd9;
+  --accent-muted: #355964;
   --gold: #ae925b;
   --warn: #b88347;
   --danger: #c2665b;

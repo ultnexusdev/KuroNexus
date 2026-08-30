@@ -1,0 +1,63 @@
+{
+  "slug": "eren-yeager",
+  "anilistId": 40882,
+  "ad": "Eren Yeager",
+  "adNative": "エレン・イェーガー",
+  "digerAdlar": [
+    "Eren Jaeger",
+    "Eren Jäger",
+    "Shi ni Isogi Yarou (死に急ぎ野郎)",
+    "Suicidal Maniac",
+    "Attack Titan",
+    "Founding Titan"
+  ],
+  "cinsiyet": "Male",
+  "yas": "15-",
+  "kanGrubu": null,
+  "dogum": {
+    "year": null,
+    "month": 3,
+    "day": 30
+  },
+  "aciklama": "__Height:__ 170 cm (5'7\") - 183 cm (6'0\")\n__Affiliation:__ 104th Trainees Squad, Survey Corps. \n\nEren was born to [Carla](https://anilist.co/character/62475/Yeager-Carla) and [Grisha Yeager](https://anilist.co/character/62477/Yeager-Grisha) in Shiganshina District within the southern region of Wall Maria. He grew up in the town with his parents and foster sister [Mikasa](https://anilist.co/character/40881/Ackerman-Mikasa), who moved in with the Yeagers as a child. Eren spent most of his time with Mikasa and their mutual best friend [Armin Arlert](https://anilist.co/character/46494/Arlert-Armin), whom the pair often defended from neighborhood bullies.  \n\nEren is a passionate, determined, hardheaded, and impulsive young man. When they were children, Armin showed him a book depicting the wonders of the outside world. Eren grew to share Armin's curiosity of the world beyond the Walls and resolved to see it for himself. This dream inspired his admiration of the Survey Corps and his desire to join their ranks as soon as he became eligible for enrollment. \n\nWhen the Titans suddenly broke through Wall Maria into Shiganshina, Eren was forced to watch on as his mother became trapped under the rubble of their house and eaten by a titan. Forever changed from this event, Eren vows to kill every last titan.",
+  "siteUrl": "https://anilist.co/character/40882",
+  "yapimlar": [
+    {
+      "rol": "MAIN",
+      "baslik": "Shingeki no Kyojin",
+      "baslikEn": "Attack on Titan"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Shingeki no Kyojin Season 2",
+      "baslikEn": "Attack on Titan Season 2"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Shingeki no Kyojin Season 3",
+      "baslikEn": "Attack on Titan Season 3"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Shingeki no Kyojin: The Final Season",
+      "baslikEn": "Attack on Titan Final Season"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Shingeki no Kyojin Season 3 Part 2",
+      "baslikEn": "Attack on Titan Season 3 Part 2"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Shingeki no Kyojin: The Final Season Part 2",
+      "baslikEn": "Attack on Titan Final Season Part 2"
+    }
+  ],
+  "portre": {
+    "dosya": "/assets/anime/karakterler/eren-yeager/anilist-portrait.jpg",
+    "w": 230,
+    "h": 345,
+    "tip": "jpg",
+    "kaynakUrl": "https://s4.anilist.co/file/anilistcdn/character/large/b40882-dsj7IP943WFF.jpg"
+  }
+}

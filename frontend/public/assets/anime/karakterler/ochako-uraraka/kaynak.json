@@ -1,0 +1,59 @@
+{
+  "slug": "ochako-uraraka",
+  "anilistId": 89221,
+  "ad": "Ochako Uraraka",
+  "adNative": "麗日お茶子",
+  "digerAdlar": [
+    "Ochaco Uraraka",
+    "Uravity (ウラビティ)"
+  ],
+  "cinsiyet": "Female",
+  "yas": "15-",
+  "kanGrubu": "B",
+  "dogum": {
+    "year": null,
+    "month": 12,
+    "day": 27
+  },
+  "aciklama": "__Height:__ 156 cm (5'1\")\n__Quirk:__ Zero Gravity\n\nStudent in Class 1-A at U.A. High School\n\nOchako is an outgoing, lively person who thinks about everything positively, though she is objective enough to see flaws and virtues. She gets excited over little things very easily. Ochaco has been described by other students as \"the most laidback girl\" among her class, being very bubbly and kind of an airhead at times. She is often incredibly blunt without being aware of it. She is on good terms with everyone and is particularly close friends with several class members, including [Izuku](https://anilist.co/character/89028/Midoriya-Izuku), [Tenya Ida](https://anilist.co/character/89222/Iida-Tenya), and [Tsuyu](https://anilist.co/character/89223/Asui-Tsuyu).\n\nOchaco's Quirk gives her the power to manipulate gravity upon touching solid things with the pads on her fingertips. The targets lose their gravitational pull, effectively making them weightless. She is able to activate or cancel her Quirk's effects by closing her fingers together, and is shown to be careful with her hands in order to avoid accidental quirk activation.",
+  "siteUrl": "https://anilist.co/character/89221",
+  "yapimlar": [
+    {
+      "rol": "MAIN",
+      "baslik": "Boku no Hero Academia",
+      "baslikEn": "My Hero Academia"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Boku no Hero Academia 2",
+      "baslikEn": "My Hero Academia Season 2"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Boku no Hero Academia 3",
+      "baslikEn": "My Hero Academia Season 3"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Boku no Hero Academia 4",
+      "baslikEn": "My Hero Academia Season 4"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Boku no Hero Academia 5",
+      "baslikEn": "My Hero Academia Season 5"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Boku no Hero Academia 6",
+      "baslikEn": "My Hero Academia Season 6"
+    }
+  ],
+  "portre": {
+    "dosya": "/assets/anime/karakterler/ochako-uraraka/anilist-portrait.png",
+    "w": 230,
+    "h": 345,
+    "tip": "png",
+    "kaynakUrl": "https://s4.anilist.co/file/anilistcdn/character/large/b89221-gSF2a4gPbG4m.png"
+  }
+}

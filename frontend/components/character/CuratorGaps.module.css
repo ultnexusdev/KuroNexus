@@ -1,0 +1,116 @@
+/*
+ * Boş yuva özeti — küratör altyapısı, sayfa tasarımı değil.
+ *
+ * Bilerek NÖTR: 28 karakter sayfasının hepsinde aynı görünüyor ve hiçbirinin
+ * kimliğine karışmıyor. Renkler sayfanın kendi paletinden (`--surface`,
+ * `--accent`…) okunuyor, yani blok bulunduğu derinin tonunu alıyor ama
+ * biçimi her yerde aynı kalıyor — küratör onu her sayfada aynı yerde ve
+ * aynı biçimde bulsun diye.
+ */
+
+.gaps {
+  margin: clamp(3rem, 8vw, 5rem) auto 0;
+  padding: clamp(1rem, 3vw, 1.75rem);
+  max-width: 64rem;
+  border: 1px dashed var(--border-strong);
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.count {
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.done {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+  color: var(--accent);
+}
+
+.list {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, var(--surface-hover) 60%, transparent);
+}
+
+/* Dolu satırlar geri çekiliyor: gözün aradığı şey BOŞ olanlar */
+.row[data-filled="true"] {
+  opacity: 0.55;
+}
+
+.badge {
+  flex: 0 0 auto;
+  min-width: 3.5rem;
+  padding: 0.2rem 0.45rem;
+  border-radius: 0.3rem;
+  border: 1px solid var(--border);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.row[data-filled="false"] .badge {
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  color: var(--accent);
+}
+
+.body {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.label {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.spec {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.key {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.72rem;
+  /* Uzun anahtar dar ekranda satırı taşırmasın */
+  overflow-wrap: anywhere;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 30rem) {
+  .row {
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+}

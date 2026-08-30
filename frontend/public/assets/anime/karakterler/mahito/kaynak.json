@@ -1,0 +1,58 @@
+{
+  "slug": "mahito",
+  "anilistId": 133702,
+  "ad": "Mahito",
+  "adNative": "真人",
+  "digerAdlar": [
+    "Patchface"
+  ],
+  "cinsiyet": "Male",
+  "yas": null,
+  "kanGrubu": null,
+  "dogum": {
+    "year": null,
+    "month": null,
+    "day": null
+  },
+  "aciklama": "__Grade__: Special Grade\n__Cursed Technique:__ Idle Transfiguration\n\nMahito is one of the primary antagonists of the Jujutsu Kaisen series. He is a Cursed Spirit allied with Suguru Geto, Jogo, Hanami and several others. Their ultimate goal is the eradication of humanity and ultimately replacing the population with Cursed Spirits.",
+  "siteUrl": "https://anilist.co/character/133702",
+  "yapimlar": [
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen",
+      "baslikEn": "JUJUTSU KAISEN"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen 2nd Season",
+      "baslikEn": "JUJUTSU KAISEN Season 2"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen",
+      "baslikEn": "Jujutsu Kaisen"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen Modulo",
+      "baslikEn": "Jujutsu Kaisen Modulo"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Jujutsu Kaisen: Shibuya Jihen Tokubetsu Henshuu-ban x Shimetsu Kaiyuu Senkou Jouei",
+      "baslikEn": "JUJUTSU KAISEN: Execution -Shibuya Incident x The Culling Game Begins-"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen Modulo PV",
+      "baslikEn": null
+    }
+  ],
+  "portre": {
+    "dosya": "/assets/anime/karakterler/mahito/anilist-portrait.png",
+    "w": 230,
+    "h": 345,
+    "tip": "png",
+    "kaynakUrl": "https://s4.anilist.co/file/anilistcdn/character/large/b133702-Y7JRG5vAvjIL.png"
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "slug": "chousou",
+  "anilistId": 157116,
+  "ad": "Chousou",
+  "adNative": "脹相",
+  "digerAdlar": [
+    "Choso"
+  ],
+  "cinsiyet": "Male",
+  "yas": "150+",
+  "kanGrubu": null,
+  "dogum": {
+    "year": null,
+    "month": null,
+    "day": null
+  },
+  "aciklama": "Chousou is half human and half cursed spirit and the first of the Death Painting Wombs with a Special Grade rank. He and his two brothers, [Kechizu](https://anilist.co/character/210832/Kechizu) and [Eso](https://anilist.co/character/210831/Esou) are Cursed Womb: Death Paintings who have sided with [Mahito](https://anilist.co/character/133702/Mahito)'s group.\n\nChousou bears strong attachments to his brothers and is very overprotective of them. ~!However, after receiving a vision during his battle with Itadori, Chousou was eventually convinced that Sukuna's vessel was actually one of his younger brothers. He then became furious at Mahito and the other cursed spirits for manipulating him into harming Itadori.!~\n\n~!Chousou is one of nine death painting wombs that came from a woman capable of giving birth to cursed spirit children. At some point, Chousou and his brothers were stored at the Jujutsu High, along with some of Sukuna's fingers.\n\nAs stated by Chousou himself, Noritoshi Kamo, the man who experimented on his mother is in fact his third \"parent\" due to him having mixed in his own blood into Chousou when his mother was pregnant with him. Although seemingly not remembering much about his own past, it is evident that Chousou himself remembers Noritoshi and holds a grudge against him for toying with his mother and siblings' lives.!~",
+  "siteUrl": "https://anilist.co/character/157116",
+  "yapimlar": [
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen",
+      "baslikEn": "JUJUTSU KAISEN"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen 2nd Season",
+      "baslikEn": "JUJUTSU KAISEN Season 2"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen: Shimetsu Kaiyuu - Zenpen",
+      "baslikEn": "JUJUTSU KAISEN Season 3: The Culling Game Part 1"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen",
+      "baslikEn": "Jujutsu Kaisen"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen: Shimetsu Kaiyuu - Kouhen",
+      "baslikEn": null
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen: Shibuya Jihen Tokubetsu Henshuu-ban x Shimetsu Kaiyuu Senkou Jouei",
+      "baslikEn": "JUJUTSU KAISEN: Execution -Shibuya Incident x The Culling Game Begins-"
+    }
+  ],
+  "portre": {
+    "dosya": "/assets/anime/karakterler/chousou/anilist-portrait.png",
+    "w": 230,
+    "h": 345,
+    "tip": "png",
+    "kaynakUrl": "https://s4.anilist.co/file/anilistcdn/character/large/b157116-2jYQf3y8NeTZ.png"
+  }
+}

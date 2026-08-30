@@ -101,6 +101,54 @@ export const EXPERIENCE_IDS = {
   nobaraKugisaki: 133700,
   kentoNanami: 133704,
   suguruGetou: 133699,
+
+  /* ── Dördüncü tur (30 Ağustos 2026): 24 yeni sayfa, üç yeni evren.
+     Arşiv ilk kez Naruto/Bleach/JJK dışına çıkıyor — Attack on Titan,
+     My Hero Academia ve GTO kadroları buradan başlıyor.
+
+     Numaraların hepsi AniList GraphQL'den TEK TEK doğrulandı (30 Ağustos
+     2026): her biri için `Character(id:)` sorgusu atıldı ve dönen
+     `name.full` + `media` listesi beklenen seriyle eşleşti.
+
+     ⚠️ Dört numara AD'la aranarak bulundu (rota kaydımızda yoktu) ve
+     AniList romanizasyonu uzun ünlüyü YAZIYOR — Gojou/Getou emsaliyle
+     aynı, ad ayrışması değil yazım tercihi:
+       toujiFushiguro → #162722, AniList'te "Touji Fushiguro"
+       jougo          → #156991, AniList'te "Jougo"
+       yuutaOkkotsu   → #129571, AniList'te "Yuuta Okkotsu"
+       panda          → #137974, "Panda" (arama Shirokuma Café'nin
+                        pandasına ve One Piece'in Pandaman'ine de
+                        çarpıyor; Jujutsu Kaisen süzgeciyle ayrıldı) ── */
+
+  /* Attack on Titan */
+  erenYeager: 40882,
+  mikasaAckerman: 40881,
+  arminArlert: 46494,
+  levi: 45627,
+  /* GTO */
+  eikichiOnizuka: 434,
+  /* My Hero Academia */
+  izukuMidoriya: 89028,
+  katsukiBakugou: 88892,
+  shoutoTodoroki: 89220,
+  ochakoUraraka: 89221,
+  toshinoriYagi: 89224,
+  /* Bleach */
+  rukiaKuchiki: 6,
+  renjiAbarai: 906,
+  uryuuIshida: 564,
+  ulquiorraCifer: 1081,
+  grimmjowJaegerjaquez: 1080,
+  yoruichiShihouin: 908,
+  /* Jujutsu Kaisen */
+  chousou: 157116,
+  makiZenin: 134167,
+  mahito: 133702,
+  aoiToudou: 137975,
+  panda: 137974,
+  toujiFushiguro: 162722,
+  jougo: 156991,
+  yuutaOkkotsu: 129571,
 } as const;
 
 /**
@@ -229,6 +277,65 @@ export const EXPERIENCE_COMPANIONS: Record<number, number[]> = {
   [EXPERIENCE_IDS.kentoNanami]: [127212, 127691, 133702, 157214, 133700],
   // Getō: tek arkadaşı, sınıfı, taşıdığı kız, onu devralan
   [EXPERIENCE_IDS.suguruGetou]: [127691, 158154, 203015, 162722, 289584],
+
+  /* ── Dördüncü tur (30 Ağustos 2026) ──
+     Numaralar arşivin kendi karakter dizininden alındı (68 kayıt,
+     `/anime/characters`), yani portresi olanlar gerçekten çözülüyor.
+     Dizinde OLMAYAN birkaç numara bilinçli duruyor (Byakuya #907,
+     Rin Nohara #14082 gibi): portre kaydı yoksa bölüm adla çiziliyor,
+     kayıt sonradan girildiğinde kendiliğinden yerine oturuyor. */
+
+  // Eren: adası, çocukluk üçlüsü, komutanı, düşman olan sınıf arkadaşları
+  [EXPERIENCE_IDS.erenYeager]: [40881, 46494, 45627, 46496, 46484, 46490],
+  // Mikasa: koruduğu, üçlünün üçüncüsü, kan bağı olduğu kaptan
+  [EXPERIENCE_IDS.mikasaAckerman]: [40882, 46494, 45627, 46498, 45887],
+  // Armin: üçlü, akıl hocası, devraldığı güç
+  [EXPERIENCE_IDS.arminArlert]: [40882, 40881, 46496, 71121, 46484],
+  // Levi: müfrezesi, komutanı, düşmanı
+  [EXPERIENCE_IDS.levi]: [46496, 71121, 40882, 40881, 71479],
+  // Onizuka: GTO kadrosunda arşivde yalnız — künye adla çizilir
+  [EXPERIENCE_IDS.eikichiOnizuka]: [434],
+
+  // Midoriya: sembol, rakip, sınıf, düşman
+  [EXPERIENCE_IDS.izukuMidoriya]: [89224, 88892, 89220, 89221, 89226],
+  // Bakugō: hedefi, sembol, sınıf arkadaşları
+  [EXPERIENCE_IDS.katsukiBakugou]: [89028, 89224, 89220, 89243, 89225],
+  // Todoroki: sınıfı, sembol, düşman
+  [EXPERIENCE_IDS.shoutoTodoroki]: [89028, 88892, 89224, 126378, 89225],
+  // Uraraka: takımı, sınıfı, karşısına çıkan
+  [EXPERIENCE_IDS.ochakoUraraka]: [89028, 88892, 89223, 125619, 89220],
+  // Toshinori: halefi, düşmanı, öğrencileri
+  [EXPERIENCE_IDS.toshinoriYagi]: [89028, 125956, 88892, 89225, 89226],
+
+  // Rukia: kılıcını verdiği, ağabeyi (kayıt yok), çocukluk arkadaşı
+  [EXPERIENCE_IDS.rukiaKuchiki]: [5, 906, 210, 908, 1081],
+  // Renji: çocukluk arkadaşı, rakibi, kaptanı
+  [EXPERIENCE_IDS.renjiAbarai]: [6, 5, 1080, 210, 909],
+  // Uryū: rakibi-dostu, dövüştüğü Espada, sınıfı
+  [EXPERIENCE_IDS.uryuuIshida]: [5, 7, 6, 1081, 1080],
+  // Ulquiorra: kaçırdığı kız, sorduğu çocuk, efendisi
+  [EXPERIENCE_IDS.ulquiorraCifer]: [7, 5, 1086, 1080, 564],
+  // Grimmjow: takıntısı, rakip Espada, efendisi
+  [EXPERIENCE_IDS.grimmjowJaegerjaquez]: [5, 1081, 1086, 564, 7],
+  // Yoruichi: ortağı, çırağı, eski bölüğü
+  [EXPERIENCE_IDS.yoruichiShihouin]: [210, 5, 6, 1086, 909],
+
+  // Chōsō: kardeşi olduğunu anladığı çocuk, kardeşleri, düşmanı
+  [EXPERIENCE_IDS.chousou]: [127212, 133702, 126635, 133700, 127691],
+  // Maki: sınıfı, reddettiği klan, ustası
+  [EXPERIENCE_IDS.makiZenin]: [157115, 129571, 127212, 162722, 127691],
+  // Mahito: ortakları, öldürdüğü, karşısındaki
+  [EXPERIENCE_IDS.mahito]: [133704, 127212, 157116, 156991, 133700],
+  // Tōdō: "en iyi dostu", rakibi, ustası
+  [EXPERIENCE_IDS.aoiToudou]: [127212, 127691, 133700, 126635, 134167],
+  // Panda: sınıfı, yaratıcısı, kardeşleri
+  [EXPERIENCE_IDS.panda]: [157115, 134167, 129571, 127212, 127691],
+  // Tōji: oğlu, sattığı klan, öldürdüğü kadın, karşısındaki
+  [EXPERIENCE_IDS.toujiFushiguro]: [126635, 127691, 134167, 133699, 129571],
+  // Jōgo: lanet ortakları, saygı duyduğu, karşısındaki
+  [EXPERIENCE_IDS.jougo]: [133702, 157116, 133701, 127691, 127212],
+  // Yūta: Rika (kayıt yok), sınıfı, ustası, akrabası
+  [EXPERIENCE_IDS.yuutaOkkotsu]: [134167, 157115, 127691, 127212, 133699],
 };
 
 const EXPERIENCE_ID_SET: ReadonlySet<number> = new Set<number>(

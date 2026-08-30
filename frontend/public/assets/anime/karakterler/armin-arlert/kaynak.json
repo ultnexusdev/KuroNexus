@@ -1,0 +1,58 @@
+{
+  "slug": "armin-arlert",
+  "anilistId": 46494,
+  "ad": "Armin Arlert",
+  "adNative": "アルミン・アルレルト",
+  "digerAdlar": [
+    "Armin Arlelt"
+  ],
+  "cinsiyet": "Male",
+  "yas": "15-",
+  "kanGrubu": null,
+  "dogum": {
+    "year": null,
+    "month": 11,
+    "day": 3
+  },
+  "aciklama": "__Height:__ 163 cm (5'4\")\n__Position:__ 104th Trainees Squad, Survey Corps\n__Relatives:__ [Grandfather](https://anilist.co/character/84313/Armin-no-Ojiisan)\n\nArmin is a young boy who was born and raised in the Shiganshina District within the walls, being childhood friends with both [Eren Yeager](https://anilist.co/character/40882/Eren-Yeager) and [Mikasa Ackerman](https://anilist.co/character/40881). After Wall Maria was breached, he chose to join Mikasa and Eren in joining the military, both to try to make a good and meaningful impact on the world, and to fulfill his dream of seeing the outside world.\n\nEven when he was young, the naturally curious Armin has always had a deep fascination with the world beyond the Walls. As a child, he found and studied an illegal book about the outside world that was owned by his grandfather. He often shared the book and information contained in it with Eren Yeager, his best friend, and his dreams of seeing the world outside the walls. Armin was branded a heretic by other children for his unusual interest in the outside world and was thus frequently picked on. Too timid to defend himself, Armin would often rely on his friends Eren and Mikasa Ackerman to protect him from local bullies. This, coupled with his frail physique, was a deep shame for Armin, leading him to have poor self-esteem and to believe that he is a burden to others. Because of this, Armin has always been very eager to prove his worth, especially towards his close friends. \n\nArmin is known to be exceptionally loyal and selfless. He constantly worries for the safety of his friends, and he is always prepared to throw himself into dangerous situations to save them. Alongside his kindhearted nature and emotionally intelligence, Armin is a very analytical person. He likes to think deeply about situations and solve problems using his mind. These personality traits, in conjunction with his intelligence, good judgment, level headedness, ability to plan ahead, come up with creative ideas and to think outside the box, are what make him a great tactician. Although he may appear among the physically weakest of the 104th Training Corps, his incredible intelligence and strategic genius makes him an invaluable asset to any team.\n",
+  "siteUrl": "https://anilist.co/character/46494",
+  "yapimlar": [
+    {
+      "rol": "MAIN",
+      "baslik": "Shingeki no Kyojin",
+      "baslikEn": "Attack on Titan"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Shingeki no Kyojin Season 2",
+      "baslikEn": "Attack on Titan Season 2"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Shingeki no Kyojin Season 3",
+      "baslikEn": "Attack on Titan Season 3"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Shingeki no Kyojin: The Final Season",
+      "baslikEn": "Attack on Titan Final Season"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Shingeki no Kyojin Season 3 Part 2",
+      "baslikEn": "Attack on Titan Season 3 Part 2"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Shingeki no Kyojin: The Final Season Part 2",
+      "baslikEn": "Attack on Titan Final Season Part 2"
+    }
+  ],
+  "portre": {
+    "dosya": "/assets/anime/karakterler/armin-arlert/anilist-portrait.png",
+    "w": 230,
+    "h": 345,
+    "tip": "png",
+    "kaynakUrl": "https://s4.anilist.co/file/anilistcdn/character/large/b46494-g7xYYuBtYPnO.png"
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "slug": "shouto-todoroki",
+  "anilistId": 89220,
+  "ad": "Shouto Todoroki",
+  "adNative": "轟焦凍",
+  "digerAdlar": [
+    "Shouto (ショート)",
+    "Shoto Todoroki",
+    "Half-and-Half",
+    "Icy-Hot"
+  ],
+  "cinsiyet": "Male",
+  "yas": "15-",
+  "kanGrubu": "O",
+  "dogum": {
+    "year": null,
+    "month": 1,
+    "day": 11
+  },
+  "aciklama": "__Height:__ 176 cm (5'9\") \n__Affiliation:__ U.A. High School\n__Quirk:__ Half-Cold Half-Hot\n\nStudent in Class 1-A at U.A. High School, where he got in through official recommendations. He is the youngest son of the top hero [Endeavor](https://anilist.co/character/126158).\n\nShouto initially has a cold, aloof personality, which stemmed from his complicated family life. Focused and unemotional, Shouto preferred to keep things to himself instead of hanging out with others. After the events of the U.A. Sports Festival, however, he notably became more sociable and kinder than ever before. He even gained a sense of humor and would occasionally smile, although still retaining some fragments of his previous distant attitude and nonchalant demeanor. While usually quiet and reserved, Shouto initially possessed a moderate level of arrogance, which, combined with his solitary tendencies, sometimes made him take the initiative without considering the opinions of others.\n\nShouto's Quirk Half-Cold Half-Hot gives him the ability to generate ice from the right side of his body, and flames from his left side. Due to years of rejecting his father, Shouto has developed a habit of favoring ice, even when fire would be a better option. This grudge also caused him to have difficulty controlling his flames. If he overuses one element without utilizing the other, then his own body temperature will suffer.",
+  "siteUrl": "https://anilist.co/character/89220",
+  "yapimlar": [
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Boku no Hero Academia",
+      "baslikEn": "My Hero Academia"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Boku no Hero Academia 2",
+      "baslikEn": "My Hero Academia Season 2"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Boku no Hero Academia 3",
+      "baslikEn": "My Hero Academia Season 3"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Boku no Hero Academia 4",
+      "baslikEn": "My Hero Academia Season 4"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Boku no Hero Academia 5",
+      "baslikEn": "My Hero Academia Season 5"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Boku no Hero Academia 6",
+      "baslikEn": "My Hero Academia Season 6"
+    }
+  ],
+  "portre": {
+    "dosya": "/assets/anime/karakterler/shouto-todoroki/anilist-portrait.png",
+    "w": 230,
+    "h": 345,
+    "tip": "png",
+    "kaynakUrl": "https://s4.anilist.co/file/anilistcdn/character/large/b89220-KNBwaVFAR8FD.png"
+  }
+}

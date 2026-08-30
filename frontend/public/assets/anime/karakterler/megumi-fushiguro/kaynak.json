@@ -1,0 +1,58 @@
+{
+  "slug": "megumi-fushiguro",
+  "anilistId": 126635,
+  "ad": "Megumi Fushiguro",
+  "adNative": "伏黒恵",
+  "digerAdlar": [
+    "Sea Urchin Head"
+  ],
+  "cinsiyet": "Male",
+  "yas": "15",
+  "kanGrubu": null,
+  "dogum": {
+    "year": 2002,
+    "month": 12,
+    "day": 22
+  },
+  "aciklama": "__Species:__ Human\n__Height:__ 175 cm (5'9\")\n__Occupation:__ Sorcerer, Student\n__Affiliation:__ Jujutsu High\n__Grade:__ Grade 2 Sorcerer\n__Cursed Technique:__ 10 Shadows\n\nMegumi is the deuteragonist of the Jujutsu Kaisen series. He is a first-year student at Jujutsu High and also a descendant of the Zenin Family.\n\nWhile outwardly stoic and calculating, Megumi wishes to help protect people he sees as good or kind. He believes that the world is unfair and that a Sorcerer is a tool to ensure kind people are given more chances to live. Claiming it to be his selfish and irrational desire, he does not see himself as a hero for doing this.",
+  "siteUrl": "https://anilist.co/character/126635",
+  "yapimlar": [
+    {
+      "rol": "MAIN",
+      "baslik": "Jujutsu Kaisen",
+      "baslikEn": "JUJUTSU KAISEN"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Jujutsu Kaisen 2nd Season",
+      "baslikEn": "JUJUTSU KAISEN Season 2"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Jujutsu Kaisen: Shimetsu Kaiyuu - Zenpen",
+      "baslikEn": "JUJUTSU KAISEN Season 3: The Culling Game Part 1"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Jujutsu Kaisen",
+      "baslikEn": "Jujutsu Kaisen"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen: Kaigyoku・Gyokusetsu",
+      "baslikEn": "JUJUTSU KAISEN: Hidden Inventory / Premature Death – The Movie"
+    },
+    {
+      "rol": "BACKGROUND",
+      "baslik": "Jujutsu Kaisen Modulo",
+      "baslikEn": "Jujutsu Kaisen Modulo"
+    }
+  ],
+  "portre": {
+    "dosya": "/assets/anime/karakterler/megumi-fushiguro/anilist-portrait.png",
+    "w": 230,
+    "h": 345,
+    "tip": "png",
+    "kaynakUrl": "https://s4.anilist.co/file/anilistcdn/character/large/b126635-L0y3I92JSUkN.png"
+  }
+}

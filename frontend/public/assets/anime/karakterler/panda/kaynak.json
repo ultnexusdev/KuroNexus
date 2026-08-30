@@ -1,0 +1,56 @@
+{
+  "slug": "panda",
+  "anilistId": 137974,
+  "ad": "Panda",
+  "adNative": "パンダ",
+  "digerAdlar": [],
+  "cinsiyet": "Male",
+  "yas": null,
+  "kanGrubu": null,
+  "dogum": {
+    "year": null,
+    "month": 3,
+    "day": 5
+  },
+  "aciklama": "__Species:__ Cursed Corpse (varies among 3 personalities)\n__Occupation:__ Jujutsu Sorcerer, Student\n__Affiliation:__ Jujutsu High\n__Grade:__ 2\n\nHe is a second-year at Tokyo Prefectural Jujutsu High. As a Metamorphosed Cursed Corpse, he is the best creation of Principal [Masamichi Yaga](https://anilist.co/character/189237/Masamichi-Yaga). He is sentient and has three cores inside the doll body: the youngest brother \"Panda\", the eldest brother \"Gorilla\" and a sister.",
+  "siteUrl": "https://anilist.co/character/137974",
+  "yapimlar": [
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen",
+      "baslikEn": "JUJUTSU KAISEN"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen 2nd Season",
+      "baslikEn": "JUJUTSU KAISEN Season 2"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen 0",
+      "baslikEn": "JUJUTSU KAISEN 0"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen: Shimetsu Kaiyuu - Zenpen",
+      "baslikEn": "JUJUTSU KAISEN Season 3: The Culling Game Part 1"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen",
+      "baslikEn": "Jujutsu Kaisen"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen 0: Tokyo Toritsu Jujutsu Koutou Senmon Gakkou",
+      "baslikEn": "Jujutsu Kaisen 0"
+    }
+  ],
+  "portre": {
+    "dosya": "/assets/anime/karakterler/panda/anilist-portrait.jpg",
+    "w": 230,
+    "h": 335,
+    "tip": "jpg",
+    "kaynakUrl": "https://s4.anilist.co/file/anilistcdn/character/large/b137974-9qnK3DPrvLKh.jpg"
+  }
+}

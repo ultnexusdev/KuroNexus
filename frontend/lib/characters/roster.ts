@@ -36,6 +36,12 @@ export interface RosterEntry {
 const NARUTO = { series: "Naruto", seriesSlug: "naruto" };
 const BLEACH = { series: "Bleach", seriesSlug: "bleach" };
 const JJK = { series: "JUJUTSU KAISEN", seriesSlug: "jujutsu-kaisen" };
+/* 30 Ağustos 2026 — arşiv ilk kez bu üç evrene açılıyor. Slug'lar arşivin
+   kendi seri kaydından alındı (`/anime/characters`, 68 karakterin seri
+   çipleri), yani dizindeki süzgeç bu satırları gerçekten tanıyor. */
+const AOT = { series: "Attack on Titan", seriesSlug: "attack-on-titan" };
+const MHA = { series: "My Hero Academia", seriesSlug: "my-hero-academia" };
+const GTO = { series: "GTO: Great Teacher Onizuka", seriesSlug: "gto-great-teacher-onizuka" };
 
 export const EXPERIENCE_ROSTER: RosterEntry[] = [
   { characterId: EXPERIENCE_IDS.itachi, name: "Itachi Uchiha", nameNative: "うちはイタチ", ...NARUTO },
@@ -87,6 +93,42 @@ export const EXPERIENCE_ROSTER: RosterEntry[] = [
   { characterId: EXPERIENCE_IDS.nobaraKugisaki, name: "Nobara Kugisaki", nameNative: "釘崎野薔薇", ...JJK },
   { characterId: EXPERIENCE_IDS.kentoNanami, name: "Kento Nanami", nameNative: "七海建人", ...JJK },
   { characterId: EXPERIENCE_IDS.suguruGetou, name: "Suguru Getou", nameNative: "夏油傑", ...JJK },
+
+  /* ── Dördüncü tur (30 Ağustos 2026): 24 sayfa, üç yeni evren ──
+     Adlar ve yerel yazımlar AniList künyesinden ALINDI (indirilen
+     `public/assets/anime/karakterler/<slug>/kaynak.json`), elle
+     yazılmadı — yerel yazımda harf hatası bu yüzden imkânsız.
+
+     İki bilinçli sapma:
+       Levi → AniList soyadını yazmıyor ("Levi"); sayfa karakterin
+         kanondaki tam adını taşıyor (Obito/Nagato emsalindeki ilke:
+         künye AniList'in, başlık karakterin adı).
+       Ulquiorra → AniList'te uzun ünlü işareti düşmüş ("シファ");
+         doğrusu yazıldı. */
+  { characterId: EXPERIENCE_IDS.erenYeager, name: "Eren Yeager", nameNative: "エレン・イェーガー", ...AOT },
+  { characterId: EXPERIENCE_IDS.mikasaAckerman, name: "Mikasa Ackerman", nameNative: "ミカサ・アッカーマン", ...AOT },
+  { characterId: EXPERIENCE_IDS.arminArlert, name: "Armin Arlert", nameNative: "アルミン・アルレルト", ...AOT },
+  { characterId: EXPERIENCE_IDS.levi, name: "Levi Ackerman", nameNative: "リヴァイ", ...AOT },
+  { characterId: EXPERIENCE_IDS.eikichiOnizuka, name: "Eikichi Onizuka", nameNative: "鬼塚英吉", ...GTO },
+  { characterId: EXPERIENCE_IDS.izukuMidoriya, name: "Izuku Midoriya", nameNative: "緑谷出久", ...MHA },
+  { characterId: EXPERIENCE_IDS.katsukiBakugou, name: "Katsuki Bakugou", nameNative: "爆豪勝己", ...MHA },
+  { characterId: EXPERIENCE_IDS.shoutoTodoroki, name: "Shouto Todoroki", nameNative: "轟焦凍", ...MHA },
+  { characterId: EXPERIENCE_IDS.ochakoUraraka, name: "Ochako Uraraka", nameNative: "麗日お茶子", ...MHA },
+  { characterId: EXPERIENCE_IDS.toshinoriYagi, name: "Toshinori Yagi", nameNative: "八木俊典", ...MHA },
+  { characterId: EXPERIENCE_IDS.rukiaKuchiki, name: "Rukia Kuchiki", nameNative: "朽木ルキア", ...BLEACH },
+  { characterId: EXPERIENCE_IDS.renjiAbarai, name: "Renji Abarai", nameNative: "阿散井恋次", ...BLEACH },
+  { characterId: EXPERIENCE_IDS.uryuuIshida, name: "Uryuu Ishida", nameNative: "石田雨竜", ...BLEACH },
+  { characterId: EXPERIENCE_IDS.ulquiorraCifer, name: "Ulquiorra Cifer", nameNative: "ウルキオラ・シファー", ...BLEACH },
+  { characterId: EXPERIENCE_IDS.grimmjowJaegerjaquez, name: "Grimmjow Jaegerjaquez", nameNative: "グリムジョー・ジャガージャック", ...BLEACH },
+  { characterId: EXPERIENCE_IDS.yoruichiShihouin, name: "Yoruichi Shihouin", nameNative: "四楓院夜一", ...BLEACH },
+  { characterId: EXPERIENCE_IDS.chousou, name: "Chousou", nameNative: "脹相", ...JJK },
+  { characterId: EXPERIENCE_IDS.makiZenin, name: "Maki Zenin", nameNative: "禪院真希", ...JJK },
+  { characterId: EXPERIENCE_IDS.mahito, name: "Mahito", nameNative: "真人", ...JJK },
+  { characterId: EXPERIENCE_IDS.aoiToudou, name: "Aoi Toudou", nameNative: "東堂葵", ...JJK },
+  { characterId: EXPERIENCE_IDS.panda, name: "Panda", nameNative: "パンダ", ...JJK },
+  { characterId: EXPERIENCE_IDS.toujiFushiguro, name: "Touji Fushiguro", nameNative: "伏黒甚爾", ...JJK },
+  { characterId: EXPERIENCE_IDS.jougo, name: "Jougo", nameNative: "漏瑚", ...JJK },
+  { characterId: EXPERIENCE_IDS.yuutaOkkotsu, name: "Yuuta Okkotsu", nameNative: "乙骨憂太", ...JJK },
 ];
 
 /** Rozet ve süzgeç için: elle tasarlanmış sayfası olan numaralar. */

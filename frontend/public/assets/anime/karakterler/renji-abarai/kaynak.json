@@ -1,0 +1,59 @@
+{
+  "slug": "renji-abarai",
+  "anilistId": 906,
+  "ad": "Renji Abarai",
+  "adNative": "阿散井恋次",
+  "digerAdlar": [
+    "Freeloader",
+    "Red Pineapple"
+  ],
+  "cinsiyet": "Male",
+  "yas": null,
+  "kanGrubu": null,
+  "dogum": {
+    "year": null,
+    "month": 8,
+    "day": 31
+  },
+  "aciklama": "__Height:__ 188 cm (6'2\")\n__Race:__ Shinigami\n__Rank:__ Lieutenant of the 6th Division\n__Zanpakutou:__  [Zabi](https://anilist.co/character/24528/Zabimaru-Female)[maru](https://anilist.co/character/29307/Zabimaru-Male)\n\nIn terms of personality, Renji is same as any other Shinigami. His personality varies from cocky and eccentric, to being depressed after he's defeated, all the way to being clueless and funny. Although he's carefree and happy character in most of the series, he can be quite serious, especially when it's the matter of life and death situations for either him or people he hold precious.\n\nHe is shown to have rather complicated relationship with his captain, [Kuchiki Byakuya](https://anilist.co/character/907/Kuchiki-Byakuya). Renji sees Byakuya as the goal he has to surpass. First time, when Renji was still in the Academy, he encountered Byakuya and felt something chilling about him. In the meantime, Renji became Byakuya's lieutenant, and throughout the series, Renji starts to see Byakuya not only as rival, but also as man he can look up to.",
+  "siteUrl": "https://anilist.co/character/906",
+  "yapimlar": [
+    {
+      "rol": "MAIN",
+      "baslik": "BLEACH",
+      "baslikEn": "Bleach"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "BLEACH: Sennen Kessen-hen",
+      "baslikEn": "BLEACH: Thousand-Year Blood War"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "BLEACH: Sennen Kessen-hen - Ketsubetsu-tan",
+      "baslikEn": "BLEACH: Thousand-Year Blood War - The Separation"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "BLEACH",
+      "baslikEn": "Bleach"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "BLEACH: Sennen Kessen-hen - Soukoku-tan",
+      "baslikEn": "BLEACH: Thousand-Year Blood War - The Conflict"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "BLEACH: MEMORIES OF NOBODY",
+      "baslikEn": "Bleach the Movie: Memories of Nobody"
+    }
+  ],
+  "portre": {
+    "dosya": "/assets/anime/karakterler/renji-abarai/anilist-portrait.png",
+    "w": 230,
+    "h": 346,
+    "tip": "png",
+    "kaynakUrl": "https://s4.anilist.co/file/anilistcdn/character/large/b906-ImRjx5HFM8X6.png"
+  }
+}

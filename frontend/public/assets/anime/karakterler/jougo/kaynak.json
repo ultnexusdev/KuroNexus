@@ -1,0 +1,53 @@
+{
+  "slug": "jougo",
+  "anilistId": 156991,
+  "ad": "Jougo",
+  "adNative": "漏瑚",
+  "digerAdlar": [
+    "Jogo"
+  ],
+  "cinsiyet": "Male",
+  "yas": null,
+  "kanGrubu": null,
+  "dogum": {
+    "year": null,
+    "month": null,
+    "day": null
+  },
+  "aciklama": "__Grade:__ Special Grade Cursed Spirit\n\nJogou is an unregistered special grade cursed spirit aligned with Mahito, Hanami, and Dagon. He was born of humanity's fear and negative association with volcanoes and other fire-related natural disasters. This resulted in a highly intelligent cursed spirit with massive levels of cursed energy even for a special grade. Jogou believes curses are the true humans and desires a world where his kind dominates the earth.",
+  "siteUrl": "https://anilist.co/character/156991",
+  "yapimlar": [
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen",
+      "baslikEn": "JUJUTSU KAISEN"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen 2nd Season",
+      "baslikEn": "JUJUTSU KAISEN Season 2"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen",
+      "baslikEn": "Jujutsu Kaisen"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen: Shibuya Jihen Tokubetsu Henshuu-ban x Shimetsu Kaiyuu Senkou Jouei",
+      "baslikEn": "JUJUTSU KAISEN: Execution -Shibuya Incident x The Culling Game Begins-"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen: Iku Natsu to Kaeru Aki",
+      "baslikEn": "Jujutsu Kaisen: Summer of Ashes, Autumn of Dust"
+    }
+  ],
+  "portre": {
+    "dosya": "/assets/anime/karakterler/jougo/anilist-portrait.png",
+    "w": 230,
+    "h": 345,
+    "tip": "png",
+    "kaynakUrl": "https://s4.anilist.co/file/anilistcdn/character/large/b156991-niYjdp9CxO4w.png"
+  }
+}

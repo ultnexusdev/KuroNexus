@@ -1,0 +1,59 @@
+{
+  "slug": "kento-nanami",
+  "anilistId": 133704,
+  "ad": "Kento Nanami",
+  "adNative": "七海建人",
+  "digerAdlar": [
+    "Nanamin",
+    "7:3 Sorcerer"
+  ],
+  "cinsiyet": "Male",
+  "yas": "27",
+  "kanGrubu": null,
+  "dogum": {
+    "year": null,
+    "month": 7,
+    "day": 3
+  },
+  "aciklama": "__Height:__ 184 cm (6'0½\")\n__Occupation:__ Sorcerer\n__Affiliation:__ Jujutsu High\n__Grade:__ Grade 1 Sorcerer\n__Cursed Technique:__ Ratio\n\nHe is a Grade 1 Jujutsu Sorcerer and a Tokyo Jujutsu High alumni. \n\nNanami is a very intelligent and reserved man who at first appears to be someone who is just very serious about his work. He knows how to separate sentimentalism from service and claims he's only a Jujutsu Sorcerer because it's slightly less idiotic than regular careers. As one of [Yuji's](https://anilist.co/character/127212/Yuji-Itadori) mentors, Nanami is a complete contrast to [Gojo](https://anilist.co/character/127691/Satoru-Gojou), who is far more outspoken and easy-going.",
+  "siteUrl": "https://anilist.co/character/133704",
+  "yapimlar": [
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen",
+      "baslikEn": "JUJUTSU KAISEN"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen 2nd Season",
+      "baslikEn": "JUJUTSU KAISEN Season 2"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen 0",
+      "baslikEn": "JUJUTSU KAISEN 0"
+    },
+    {
+      "rol": "BACKGROUND",
+      "baslik": "Jujutsu Kaisen: Shimetsu Kaiyuu - Zenpen",
+      "baslikEn": "JUJUTSU KAISEN Season 3: The Culling Game Part 1"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen",
+      "baslikEn": "Jujutsu Kaisen"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen 0: Tokyo Toritsu Jujutsu Koutou Senmon Gakkou",
+      "baslikEn": "Jujutsu Kaisen 0"
+    }
+  ],
+  "portre": {
+    "dosya": "/assets/anime/karakterler/kento-nanami/anilist-portrait.png",
+    "w": 230,
+    "h": 345,
+    "tip": "png",
+    "kaynakUrl": "https://s4.anilist.co/file/anilistcdn/character/large/b133704-8wLTGjc234q2.png"
+  }
+}

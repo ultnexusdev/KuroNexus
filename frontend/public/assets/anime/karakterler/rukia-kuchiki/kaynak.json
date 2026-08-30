@@ -1,0 +1,56 @@
+{
+  "slug": "rukia-kuchiki",
+  "anilistId": 6,
+  "ad": "Rukia Kuchiki",
+  "adNative": "朽木ルキア",
+  "digerAdlar": [],
+  "cinsiyet": "Female",
+  "yas": null,
+  "kanGrubu": null,
+  "dogum": {
+    "year": null,
+    "month": 1,
+    "day": 14
+  },
+  "aciklama": "__Race:__ Shinigami\n__Height:__ 144 cm (4'8\")  \n__Rank:__ Lieutenant of the 13th Division\n__Relatives:__ [Byakuya Kuchiki](https://anilist.co/character/907) (Adoptive Brother/Brother-in-law)\n__Zanpakutou:__ [Sode no Shirayuki](https://anilist.co/character/24524/Sode-no-Shirayuki)\n\nRukia is a Soul Reaper from the Soul Society who met and saved [Ichigo Kurosaki's](https://anilist.co/character/5/Ichigo-Kurosaki) life by lending him her spiritual power. After saving him, she is forced to temporarily remain in the human world, using a gigai given to her by [Kisuke Urahara](https://anilist.co/character/210/Kisuke-Urahara) until she can regain her strength and return to the Soul Society. She chooses to live with Ichigo in order to keep an eye on him and have a place to stay. She is also the Lieutenant of the 13th Division of the Gotei 13, serving under Squad Captain [Juushirou Ukitake](https://anilist.co/character/2682/Juushirou-Ukitake).\n\nInitially born into a lower class, Rukia retains her modesty, despite being an adopted member of a noble bloodline. She is graceful and \"clean\", yet is willing to talk to ordinary people. However, her cool and lone demeanor often forces her to hide her personal troubles, even from those close to her. Because of her never opening up her heart, she has difficulty making friends. She can also act like a bit of a tomboy at times, wanting to show others that she's tough and getting aggressive towards others when they insult her. Rukia is clueless about the ways of the modern Human World, often making misconceptions and struggling with the simplest of things like opening a juice box. She likes to climb up to high places and loves everything rabbit-themed, becoming quite sensitive when someone insults her obsession with them. People often have difficulty understanding her drawings, which are typically rabbit-like, and doesn't like it when people complain about their quality.",
+  "siteUrl": "https://anilist.co/character/6",
+  "yapimlar": [
+    {
+      "rol": "MAIN",
+      "baslik": "BLEACH",
+      "baslikEn": "Bleach"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "BLEACH: Sennen Kessen-hen",
+      "baslikEn": "BLEACH: Thousand-Year Blood War"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "BLEACH: Sennen Kessen-hen - Ketsubetsu-tan",
+      "baslikEn": "BLEACH: Thousand-Year Blood War - The Separation"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "BLEACH",
+      "baslikEn": "Bleach"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "BLEACH: Sennen Kessen-hen - Soukoku-tan",
+      "baslikEn": "BLEACH: Thousand-Year Blood War - The Conflict"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "BLEACH: Sennen Kessen-hen - Kashin-tan",
+      "baslikEn": "BLEACH: Thousand-Year Blood War - The Calamity"
+    }
+  ],
+  "portre": {
+    "dosya": "/assets/anime/karakterler/rukia-kuchiki/anilist-portrait.png",
+    "w": 230,
+    "h": 345,
+    "tip": "png",
+    "kaynakUrl": "https://s4.anilist.co/file/anilistcdn/character/large/b6-25WoBeWMZXBc.png"
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "slug": "yoruichi-shihouin",
+  "anilistId": 908,
+  "ad": "Yoruichi Shihouin",
+  "adNative": "四楓院夜一",
+  "digerAdlar": [
+    "Goddess of Flash",
+    "Demon cat"
+  ],
+  "cinsiyet": "Female",
+  "yas": null,
+  "kanGrubu": null,
+  "dogum": {
+    "year": null,
+    "month": 1,
+    "day": 1
+  },
+  "aciklama": "__Height:__ 156 cm (5'1\")\n__Previous Position:__ ~!22nd Head of Shihōin Clan, Captain of the 2nd Division, Onmitsukidō Commander-in-Chief, Corrections Corps Commander, Executive Militia Corps Commander!~\n__Partner:__ [Kisuke Urahara](https://anilist.co/character/210)\n\nYoruichi Shihouin is an attractive, dark-skinned woman who can transform into a black cat for long periods of time. She is intelligent and witty, and is intimately knowledgeable of Soul Society and its workings, as she was the former leader of the special forces. Although of noble birth, she acts differently from other nobles. For instance, she instructed [Soifon](https://anilist.co/character/905) to refer to her without using honorific suffixes. She also transforms into her human form directly in front of [Ichigo](https://anilist.co/character/5) on several occasions just to see his reaction to seeing her naked.  \n\nYoruichi tends to avoid battles, preferring to help after a fight is over, but she will step in if she thinks her side cannot win. She was responsible for training [Chad](https://anilist.co/character/575) and [Orihime](https://anilist.co/character/7) prior to their entrance into Soul Society. She also supervised Ichigo Kurosaki's final release training using the methods developed by Kisuke Urahara.",
+  "siteUrl": "https://anilist.co/character/908",
+  "yapimlar": [
+    {
+      "rol": "SUPPORTING",
+      "baslik": "BLEACH",
+      "baslikEn": "Bleach"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "BLEACH: Sennen Kessen-hen - Ketsubetsu-tan",
+      "baslikEn": "BLEACH: Thousand-Year Blood War - The Separation"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "BLEACH",
+      "baslikEn": "Bleach"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "BLEACH: Sennen Kessen-hen - Soukoku-tan",
+      "baslikEn": "BLEACH: Thousand-Year Blood War - The Conflict"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "BLEACH: Sennen Kessen-hen - Kashin-tan",
+      "baslikEn": "BLEACH: Thousand-Year Blood War - The Calamity"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "BLEACH: The DiamondDust Rebellion - Mou Hitotsu no Hyourinmaru",
+      "baslikEn": "Bleach the Movie: The DiamondDust Rebellion"
+    }
+  ],
+  "portre": {
+    "dosya": "/assets/anime/karakterler/yoruichi-shihouin/anilist-portrait.png",
+    "w": 230,
+    "h": 345,
+    "tip": "png",
+    "kaynakUrl": "https://s4.anilist.co/file/anilistcdn/character/large/b908-JSYUkJLCw1f0.png"
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "slug": "nobara-kugisaki",
+  "anilistId": 133700,
+  "ad": "Nobara Kugisaki",
+  "adNative": "釘崎野薔薇",
+  "digerAdlar": [],
+  "cinsiyet": "Female",
+  "yas": "16",
+  "kanGrubu": null,
+  "dogum": {
+    "year": 2002,
+    "month": 8,
+    "day": 7
+  },
+  "aciklama": "__Height:__ 160 cm (5'3\")\n__Occupation:__ Jujutsu Sorcerer, Student\n__Affiliation:__ Tokyo Jujutsu High\n__Grade:__ Grade 3 Sorcerer\n\nShe is a first-year student and grade 3 jujutsu sorcerer at Tokyo Jujutsu High studying under [Satoru Gojo](https://anilist.co/character/127691) alongside [Yuji](https://anilist.co/character/127212) and [Megumi](https://anilist.co/character/126635).\n \nNobara is a confident and brash young woman with an unshakable character. More than anything, Nobara is determined to stay true to herself no matter what. She takes great pride in being both a pretty girl and a strong fighter, refusing to let anyone influence her.\n\nInitially, Nobara can appear to be a very obnoxious and arrogant person. She first introduced herself to Yuji and Megumi by expressing how inferior they were. She also argued with Yuji for the greater part of their first mission together. Despite her abrasive attitude, Nobara is actually an incredibly caring and dutiful person, but would never let most people see that side of her. After fighting alongside each other in several missions, Yuji and Megumi grow to become Nobara's closest allies.",
+  "siteUrl": "https://anilist.co/character/133700",
+  "yapimlar": [
+    {
+      "rol": "MAIN",
+      "baslik": "Jujutsu Kaisen",
+      "baslikEn": "JUJUTSU KAISEN"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Jujutsu Kaisen 2nd Season",
+      "baslikEn": "JUJUTSU KAISEN Season 2"
+    },
+    {
+      "rol": "BACKGROUND",
+      "baslik": "Jujutsu Kaisen: Shimetsu Kaiyuu - Zenpen",
+      "baslikEn": "JUJUTSU KAISEN Season 3: The Culling Game Part 1"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Jujutsu Kaisen",
+      "baslikEn": "Jujutsu Kaisen"
+    },
+    {
+      "rol": "BACKGROUND",
+      "baslik": "Jujutsu Kaisen: Kaigyoku・Gyokusetsu",
+      "baslikEn": "JUJUTSU KAISEN: Hidden Inventory / Premature Death – The Movie"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen Modulo",
+      "baslikEn": "Jujutsu Kaisen Modulo"
+    }
+  ],
+  "portre": {
+    "dosya": "/assets/anime/karakterler/nobara-kugisaki/anilist-portrait.png",
+    "w": 230,
+    "h": 345,
+    "tip": "png",
+    "kaynakUrl": "https://s4.anilist.co/file/anilistcdn/character/large/b133700-f6sOO3TcgLV6.png"
+  }
+}

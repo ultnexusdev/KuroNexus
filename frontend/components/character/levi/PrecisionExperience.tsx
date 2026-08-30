@@ -153,8 +153,20 @@ export function PrecisionExperience({
                   fill
                   sizes="(max-width: 40rem) 92vw, 34rem"
                 />
-              ) : (
-                <figcaption className={styles.frameCaption}>
+              ) : isAdmin ? (
+                /* ⚠️ `isAdmin` KESMESİ 30 Ağustos'ta eklendi.
+                   Önce koşulsuzdu: on beş kadrajın hepsi boş olduğu için
+                   sıradan ziyaretçi sayfada on beş kutu ve on beş kez
+                   ÜRETİM METADATASI görüyordu ("geniş kadraj · 1600×900 ·
+                   webp") — ekran okuyucu da hepsini okuyordu. Üç şartı
+                   birden çiğniyordu: FAZ2 §3 "görsel yokken bölüm
+                   GÖRSELSİZ ama ayakta kalsın" (etiketli yer tutucu
+                   değil), Levi'nin kendi kilidi "kart yok, kutu yok —
+                   yalnız çizgi ve metin", ve ev deseni (Gojo'nun
+                   `CuratedImage`inde ziyaretçinin gördüğü boşluk YAZISIZ
+                   bir örtü, künye paneli yalnız yöneticide).
+                   Yönetici için bilgi değerli, o yüzden silinmedi. */
+                <figcaption className={styles.frameCaption} data-curator-slot>
                   <span className={styles.frameCaptionWord}>
                     {pick(LEVI_FRAME_EMPTY, locale)}
                   </span>
@@ -162,7 +174,7 @@ export function PrecisionExperience({
                     {pick(LEVI_SLOT_SPECS[key], locale)}
                   </span>
                 </figcaption>
-              )}
+              ) : null}
             </figure>
           </div>
         </div>

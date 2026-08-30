@@ -680,8 +680,16 @@ export interface MikasaAngle {
   /** Kartların dizilim eğimini süren katsayı (0 = düz istif) */
   shift: number;
   name: LocalizedText;
-  /** Mono okuma satırı — çeviri gerektirmeyen teknik dize */
-  readout: string;
+  /**
+   * Mono okuma satırı.
+   *
+   * ⚠️ 30 Ağustos 2026'da `string` iken `LocalizedText` yapıldı. Önce
+   * "çeviri gerektirmeyen teknik dize" diye işaretlenmişti, ama son
+   * kelime teknik değil nesir: /en adresinde İngilizce okuyucu
+   * "22° · 0.42 → sabit mesafe" görüyordu. Sayı ve ok ortak kalıyor,
+   * yalnız son kelime çevriliyor.
+   */
+  readout: LocalizedText;
   geometry: LocalizedText;
   scene: LocalizedText;
   note: LocalizedText;
@@ -694,7 +702,7 @@ export const MIKASA_ANGLES: MikasaAngle[] = [
     deg: 0,
     shift: 0,
     name: { tr: "Dikey iniş", en: "Vertical drop" },
-    readout: "00° · 0.00 → düz",
+    readout: { tr: "00° · 0.00 → düz", en: "00° · 0.00 → flat" },
     geometry: {
       tr: "Kanca yok, açı yok. Hareketin tamamı yerçekimi; sayfadaki kartlar da üst üste, eğimsiz duruyor.",
       en: "No hook, no angle. The whole movement is gravity; the cards on this page stack straight, without slope.",
@@ -714,7 +722,7 @@ export const MIKASA_ANGLES: MikasaAngle[] = [
     deg: 22,
     shift: 0.42,
     name: { tr: "Takip", en: "Tracking" },
-    readout: "22° · 0.42 → sabit mesafe",
+    readout: { tr: "22° · 0.42 → sabit mesafe", en: "22° · 0.42 → fixed distance" },
     geometry: {
       tr: "Dar açı, sabit mesafe. Kartlar hafifçe sağa kayıyor ama hiçbiri çizgiden kopmuyor — takip tam olarak budur.",
       en: "A narrow angle, a constant distance. The cards drift right a little but none leaves the line — that is exactly what tracking is.",
@@ -734,7 +742,7 @@ export const MIKASA_ANGLES: MikasaAngle[] = [
     deg: 45,
     shift: 1,
     name: { tr: "Kesişim", en: "Interception" },
-    readout: "45° · 1.00 → önünü kes",
+    readout: { tr: "45° · 1.00 → önünü kes", en: "45° · 1.00 → cut it off" },
     geometry: {
       tr: "Geniş açı, kesişen yol. Kartlar art arda kayıyor ve dizilim belirgin bir eğime dönüşüyor; çizgi hâlâ solda, hâlâ tek parça.",
       en: "A wide angle, an intersecting path. The cards step out one after another and the arrangement becomes a visible slope; the line is still on the left, still one piece.",

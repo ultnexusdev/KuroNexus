@@ -37,10 +37,20 @@ import type { LocalizedText } from "./types";
  *
  * ── TERMİNOLOJİ ──────────────────────────────────────────────────────────
  * 鬼爆コンビ (Onibaku Konbi — Onizuka + Ryuji Danma ikilisi, Shōnan yılları),
- * 聖林学苑 (Seirin Gakuen — Holy Forest Akademisi), 3年4組 (san-nen yon-kumi
+ * 聖林学園 (Seirin Gakuen — Holy Forest Akademisi), 3年4組 (san-nen yon-kumi
  * — üçüncü sınıf dördüncü şube), 空手二段 (karate ni-dan), 教員免許 (kyōin
  * menkyo — öğretmenlik ehliyeti), カワサキ750RS「Z2」 (motosikleti).
  * Türkçeleri arşivin kendi karşılıkları.
+ *
+ * ⚠️ OKUL ADI — ÜÇ UYARLAMA ÜÇ AYRI AD, KARIŞTIRMASI KOLAY (30 Ağustos
+ * 2026'da düzeltildi; ja.wikipedia「GTO (漫画)」ile doğrulandı):
+ *     manga (1997)      → 東京吉祥学苑  Tōkyō Kichijō Gakuen
+ *     TV animesi (1999) → 聖林学園      Seirin Gakuen      ← BU SAYFA
+ *     dizi (1998)       → 武蔵野聖林学苑 Musashino Seirin Gakuen
+ * Sayfa animeyi kaynak aldığı için 聖林学園 doğru olan. İlk yazımda
+ * 聖林学苑 yazılmıştı — 園 yerine 苑, yani DİZİNİN kanjisi. Tek karakter
+ * ama sayfanın tezi belgesel titizlik olduğu için sözünü bozuyordu.
+ * "Holy Forest Academy" 聖林学園'ın yerleşik İngilizce karşılığı, doğru.
  */
 
 export const ONIZUKA_ID = 434;
@@ -281,8 +291,8 @@ export const ONIZUKA_IDENTITY = {
     {
       label: { tr: "Unvan", en: "Title" },
       value: {
-        tr: "Öğretmen — 聖林学苑, 3年4組",
-        en: "Teacher — 聖林学苑, Class 3-4",
+        tr: "Öğretmen — 聖林学園, 3年4組",
+        en: "Teacher — 聖林学園, Class 3-4",
       },
     },
     {
@@ -776,7 +786,7 @@ export const ONIZUKA_TIMELINE: OnizukaFateEntry[] = [
     key: "holyforest",
     age: { tr: "22 · ilk gün", en: "22 · day one" },
     counter: "00:52",
-    native: "聖林学苑 3年4組",
+    native: "聖林学園 3年4組",
     title: { tr: "Kimsenin almadığı sınıf", en: "The class nobody would take" },
     text: {
       tr: "Holy Forest Akademisi'ne alınıyor ve ona 3年4組 veriliyor: öğretmenlerini teker teker kıran, yöntemi oturmuş bir sınıf. Sınıfın hesabı basit — bu da diğerleri gibi birkaç haftada gider.",

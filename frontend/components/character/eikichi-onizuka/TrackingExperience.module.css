@@ -72,13 +72,15 @@
    ızgara yok, hafifçe döndürülmüş paneller, halftone başlıklar, VHS greni.
 
    ── DÜĞMENİN YAPTIĞI (yapı, ışık değil) ─────────────────────────────────
-   `data-bell="class"`  → `--onz-tilt-scale: 0`  paneller düzleşir,
-                          `--onz-lap: 0`         üst üste binme kalkar,
-                          aralar eşitlenir, gren ve halftone kısılır.
-   `data-bell="street"` → eğim 1.6 katına çıkar, paneller birbirine biner
+   `data-bell="class"`  → eğim 0.9 katı: kolaj DERLİ TOPLU (ama var),
+                          binme azalır, aralar eşitlenir, gren ve
+                          halftone kısılır.
+   `data-bell="street"` → eğim 2.4 katına çıkar, paneller birbirine biner
                           (negatif `margin-top`), gren ve nokta deseni
                           kabarır, asfalt yıkaması zemine basar.
    Yani modun etkisi bir renk değil bir DÜZEN: aynı içerik, başka geometri.
+   Düğme kolajı AÇIP KAPATMIYOR, derecesini değiştiriyor — ızgara ekseni
+   bu sayfada kilitli olduğu için kolaj iki durumda da görünmek zorunda.
 
    ── ÖLÇÜ SİSTEMİ ────────────────────────────────────────────────────────
    --onz-tilt        panelin kendi eğimi (tiltA…tiltE)
@@ -126,9 +128,18 @@
   padding-block: clamp(1rem, 3vw, 2rem) clamp(4rem, 10vw, 7rem);
 }
 
+/* ⚠️ `class` modunda eğim SIFIR DEĞİL (30 Ağustos 2026'da düzeltildi).
+   Brief önce "class: paneller düzleşir (döndürme sıfırlanır)" diyordu ve
+   bu sayfa `class` ile AÇILIYOR — sonuç: ziyaretçinin gördüğü ilk kare
+   kusursuz hizalı, tam boy panellerin düz tek kolon yığınıydı, yani tam
+   olarak Faz 2'nin yok etmek için yazıldığı şablon görünümü.
+   Izgara ekseni bu sayfada KİLİTLİ ("kart kolajı, hizalı ızgara YOK"),
+   dolayısıyla kolaj iki durumda da görünmek zorunda: `class` daha derli
+   toplu bir kolaj, `street` dağılmış hâli. Düğme kolajı açıp kapatmıyor,
+   DERECESİNİ değiştiriyor. */
 .page[data-world="eikichi-onizuka"][data-bell="class"] {
-  --onz-tilt-scale: 0;
-  --onz-lap: 0rem;
+  --onz-tilt-scale: 0.9;
+  --onz-lap: -0.5rem;
   --onz-gap: clamp(2rem, 5vw, 3.25rem);
   --onz-grain: 0.3;
   --onz-dot-size: 3px;
@@ -136,7 +147,7 @@
 }
 
 .page[data-world="eikichi-onizuka"][data-bell="street"] {
-  --onz-tilt-scale: 1.6;
+  --onz-tilt-scale: 2.4;
   --onz-lap: -1.5rem;
   --onz-gap: clamp(3rem, 7vw, 5.5rem);
   --onz-grain: 1;
@@ -345,19 +356,19 @@
 }
 
 .tiltA {
-  --onz-tilt: -1.3deg;
+  --onz-tilt: -2.1deg;
 }
 .tiltB {
-  --onz-tilt: 0.9deg;
+  --onz-tilt: 1.5deg;
 }
 .tiltC {
-  --onz-tilt: -0.7deg;
+  --onz-tilt: -1.2deg;
 }
 .tiltD {
-  --onz-tilt: 1.4deg;
+  --onz-tilt: 2.3deg;
 }
 .tiltE {
-  --onz-tilt: -1.05deg;
+  --onz-tilt: -1.7deg;
 }
 
 .panelHead {
@@ -1547,7 +1558,7 @@
 
 @media (max-width: 44rem) {
   .page {
-    --onz-tilt-mob: 0.3;
+    --onz-tilt-mob: 0.5;
   }
 
   .page[data-world="eikichi-onizuka"][data-bell="street"] {
@@ -1561,7 +1572,7 @@
 
 @media (max-width: 26rem) {
   .page {
-    --onz-tilt-mob: 0.15;
+    --onz-tilt-mob: 0.3;
   }
 
   .panel {

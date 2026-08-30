@@ -281,7 +281,11 @@ export const EXPERIENCE_COMPANIONS: Record<number, number[]> = {
   // Mikasa: koruduğu, üçlünün üçüncüsü, kan bağı olduğu kaptan
   [EXPERIENCE_IDS.mikasaAckerman]: [40882, 46494, 45627, 46498, 45887],
   // Armin: üçlü, akıl hocası, devraldığı güç
-  [EXPERIENCE_IDS.arminArlert]: [40882, 40881, 46496, 71121, 46484],
+  /* Levi (45627) 30 Ağustos'ta EKLENDİ: sayfanın kendi tanık listesi
+     (`ARMIN_WITNESSES`) onu çiziyordu ama bu satırda yoktu, yani portresi
+     arşive girildiğinde bile kadraj sonsuza kadar boş kalacaktı. Bugün
+     hepsi boş olduğu için gözle fark edilmiyordu — denetçi buldu. */
+  [EXPERIENCE_IDS.arminArlert]: [40882, 40881, 45627, 46496, 71121, 46484],
   // Levi: müfrezesi, komutanı, düşmanı
   [EXPERIENCE_IDS.levi]: [46496, 71121, 40882, 40881, 71479],
   // Onizuka: GTO kadrosunda arşivde yalnız — künye adla çizilir

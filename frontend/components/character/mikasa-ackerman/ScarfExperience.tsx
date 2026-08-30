@@ -111,7 +111,7 @@ export function ScarfExperience({
     key: angle.key,
     deg: angle.deg,
     name: pick(angle.name, locale),
-    readout: angle.readout,
+    readout: pick(angle.readout, locale),
     geometry: pick(angle.geometry, locale),
     scene: pick(angle.scene, locale),
     note: pick(angle.note, locale),

@@ -108,10 +108,15 @@ export class ListeningService {
    * Bir geçmiş dosyasını içe aktarır. İki biçimi de tanır (uzatılmış geçmiş
    * ve eski `StreamingHistory`), hangisi olduğunu alanlardan anlar.
    *
-   * **Tekrar tekrar çalıştırmak güvenli.** `@@unique([userId, playedAt,
-   * spotifyTrackUri])` kısıtı sayesinde aynı dosyayı ikinci kez aktarmak
-   * kopya üretmiyor; `skipDuplicates` ile sessizce atlanıyor. Zip içindeki
-   * dosyaları tek tek yüklemek de bu yüzden sorun değil.
+   * **Tekrar tekrar çalıştırmak güvenli — ama iki katmanla.**
+   *
+   * 1. `@@unique([userId, playedAt, spotifyTrackUri])` + `skipDuplicates`:
+   *    yalnızca URI'Lİ satırları (uzatılmış geçmiş) korur.
+   * 2. Servis katmanı ön eleme (aşağıda): eski `StreamingHistory` biçiminde
+   *    URI YOK ve PostgreSQL'de NULL ≠ NULL olduğundan kısıt o satırlar için
+   *    HİÇ çalışmıyor — aynı dosya ikinci kez yüklense her satır
+   *    kopyalanırdı. Bu yüzden dosyanın kapsadığı aralıktaki mevcut kayıtlar
+   *    tek sorguyla çekilip anahtar kümesiyle eleniyor.
    */
   async importHistoryFile(
     buffer: Buffer,
@@ -142,6 +147,39 @@ export class ListeningService {
     }
 
     /**
+     * Tekrar eleme. Anahtar URI'li satırda kısıtla aynı bilgi (zaman + URI),
+     * URI'siz satırda zaman + parça adı. Ölçüm (30 Ağustos 2026, kullanıcının
+     * 12.765 kayıtlık gerçek dosyası): 30 sn eşiğini geçen hiçbir çift aynı
+     * dakika+parça anahtarını paylaşmıyor — anahtar gerçek dinleme
+     * kaybetmiyor. Aynı küme dosya İÇİNDEKİ tekrarları da eliyor
+     * (`createMany` NULL URI'li iki özdeş satırı ikisini de yazardı).
+     */
+    let minPlayedAt = normalized[0].playedAt;
+    let maxPlayedAt = normalized[0].playedAt;
+    for (const play of normalized) {
+      if (play.playedAt < minPlayedAt) minPlayedAt = play.playedAt;
+      if (play.playedAt > maxPlayedAt) maxPlayedAt = play.playedAt;
+    }
+    const existing = await this.prisma.musicPlay.findMany({
+      where: { userId, playedAt: { gte: minPlayedAt, lte: maxPlayedAt } },
+      select: { playedAt: true, spotifyTrackUri: true, trackName: true },
+    });
+    const seen = new Set(existing.map(playKey));
+    const fresh: NormalizedPlay[] = [];
+    for (const play of normalized) {
+      const key = playKey(play);
+      if (seen.has(key)) {
+        result.duplicate += 1;
+        continue;
+      }
+      seen.add(key);
+      fresh.push(play);
+    }
+    if (fresh.length === 0) {
+      return result;
+    }
+
+    /**
      * Parça eşleştirmesi tek sorguda: satır satır `findUnique` çağırmak
      * onbinlerce sorgu demekti. Arşivde karşılığı olmayan dinleme de yazılır
      * (`trackId` null kalır) — `F1RaceResult.driverName` ile aynı gerekçe:
@@ -149,15 +187,15 @@ export class ListeningService {
      */
     const uris = [
       ...new Set(
-        normalized
+        fresh
           .map((play) => play.spotifyTrackUri)
           .filter((uri): uri is string => Boolean(uri)),
       ),
     ];
     const trackIdByUri = await this.mapUrisToTracks(uris);
 
-    for (let index = 0; index < normalized.length; index += BATCH_SIZE) {
-      const slice = normalized.slice(index, index + BATCH_SIZE);
+    for (let index = 0; index < fresh.length; index += BATCH_SIZE) {
+      const slice = fresh.slice(index, index + BATCH_SIZE);
       const rows = slice.map((play) => {
         const trackId = play.spotifyTrackUri
           ? (trackIdByUri.get(play.spotifyTrackUri) ?? null)
@@ -359,6 +397,21 @@ function parseTimestamp(value: string): Date | null {
     : trimmed;
   const date = new Date(normalized);
   return Number.isNaN(date.getTime()) ? null : date;
+}
+
+/**
+ * Tekrar elemesinin anahtarı. URI varsa kısıttaki bilgiyle aynı
+ * (zaman + URI); yoksa zaman + parça adı. Önek (`u|`/`t|`) iki uzayın
+ * çakışmasını engelliyor.
+ */
+function playKey(play: {
+  playedAt: Date;
+  spotifyTrackUri: string | null;
+  trackName: string;
+}): string {
+  return play.spotifyTrackUri
+    ? `${play.playedAt.getTime()}|u|${play.spotifyTrackUri}`
+    : `${play.playedAt.getTime()}|t|${play.trackName}`;
 }
 
 /** "spotify:track:2nLtzopw4rPReszdYBJU6h" → "2nLtzopw4rPReszdYBJU6h" */

@@ -1,30 +1,115 @@
 /*
  * Salon 05 · Kitap — "Kitap Arsivim".
  *
- * Uc sutun (kullanici istegi: "her seyi ortada birlestirmeyelim, tum alani
- * doldursun"): solda suzgec rayi, ortada raflar, sagda istatistik.
+ * 2026-08-30: kullanicinin verdigi tasarima gore yeniden kuruldu.
+ * Uc sutun 1400px'lik cercevede ortalanir (3-6-3): solda suzgec paneli,
+ * ortada raflar, sagda istatistik panelleri. Baslik cercevenin tamamina
+ * yayilir, iki ray da yapiskan.
  *
- * Salonun imzasi RAF: film salonunda afisler asilidir, burada ciltler DURUR —
- * ortak bir zemine basarlar, boylari birbirini tutmaz ve altlarinda bir raf
- * tahtasi vardir.
+ * Salonun yeni imzasi CAM PANEL + YALDIZ: yari saydam, bulanik zeminli
+ * paneller ve altin cizgiler. Eski imza olan raf tahtasi ve cilt sirti
+ * kullanici karariyla KALDIRILDI — kartlar duz izgarada durur, hover'da
+ * yukari kalkar.
  *
- * Kural 16: dosyada hicbir hex deger yok, yalnizca tema token'lari.
+ * Kural 16: dosyada hicbir hex deger yok, yalnizca tema token'lari ve
+ * onlarin color-mix turevleri.
+ *
+ * ⚠️ GLOW ISTISNASI (kullanici onayi, 2026-08-30): kart hover'inda ve
+ * okuma cubugunda hafif altin isima var. Kural 16'nin "parlama yok"
+ * maddesine bu salon icin acilmis belgeli istisna; kaynak rengi yine
+ * var(--accent). Baska salona tasima.
  */
 
 .hall {
   min-height: 100vh;
-  padding: var(--pad-lg) 0;
-  background: var(--bg);
+  padding: var(--pad-lg) 0 80px;
+  background-color: var(--bg);
+  /* Tepe halesi: kutuphanenin tavanindan sizan mor isik. Sabit olculu
+     radial — sayfa ne kadar uzarsa uzasin hale tepede kalir */
+  background-image: radial-gradient(
+    1100px 540px at 50% -80px,
+    color-mix(in srgb, var(--surface-hover) 85%, var(--bg)),
+    transparent 70%
+  );
+  background-repeat: no-repeat;
 }
+
+/* 1400px'lik cerceve (kullanici karari: genis 2100 yerine ortalanmis) */
+.frame {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1400px;
+  margin-inline: auto;
+  padding: 0 var(--pad-md);
+}
+
+@media (min-width: 1100px) {
+  .frame {
+    padding: 0 var(--pad-lg);
+  }
+}
+
+/* --- Baslik: cercevenin tamamina yayilir, altinda ince cizgi --- */
+
+.head {
+  display: grid;
+  gap: 6px;
+  margin-bottom: var(--pad-lg);
+  padding-bottom: var(--pad-md);
+  border-bottom: 1px solid var(--border);
+}
+
+.back {
+  justify-self: start;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  text-decoration: none;
+}
+
+.back:hover {
+  color: var(--accent);
+}
+
+.eyebrow {
+  color: var(--accent-muted);
+  font-family: var(--font-sans);
+  font-size: 0.66rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: var(--font-cinzel), serif;
+  font-size: clamp(1.8rem, 3.2vw, 2.5rem);
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.epigraph {
+  max-width: 62ch;
+  margin: 4px 0 0;
+  color: var(--text-secondary);
+  font-family: var(--font-cormorant), serif;
+  font-size: 1.02rem;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.curatorSwitch {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  margin-top: 4px;
+}
+
+/* --- Uc sutunlu govde --- */
 
 .layout {
   display: grid;
   gap: var(--gap-lg);
-  box-sizing: border-box;
-  width: 100%;
-  max-width: 2100px;
-  margin-inline: auto;
-  padding: 0 var(--pad-md);
   /* Dar ekranda tek sutun: raylar icerigin ALTINA iner, ustune degil —
      telefonda once suzgec goren kimse raflara ulasamiyordu */
   grid-template-columns: 1fr;
@@ -32,14 +117,17 @@
     "column"
     "left"
     "right";
+  align-items: start;
 }
 
 .railLeft {
   grid-area: left;
+  min-width: 0;
 }
 
 .railRight {
   grid-area: right;
+  min-width: 0;
 }
 
 .column {
@@ -47,50 +135,57 @@
   min-width: 0;
 }
 
-/* Iki ray da ekranla birlikte kaymaz, yerinde durur: uzun raf dizisinde
-   suzgeci ve istatistigi gormek icin basa donmek gerekmesin */
+/* Tasarimdaki 3-6-3 oran; iki ray da yerinde durur */
 @media (min-width: 1100px) {
   .layout {
-    grid-template-columns: 244px minmax(0, 1fr);
-    grid-template-areas:
-      "left column"
-      "right column";
+    grid-template-columns: minmax(0, 3fr) minmax(0, 6fr) minmax(0, 3fr);
+    grid-template-areas: "left column right";
   }
 
-  .railInner {
+  .railStack {
     position: sticky;
     top: var(--pad-md);
   }
 }
 
-@media (min-width: 1500px) {
-  .layout {
-    grid-template-columns: 252px minmax(0, 1fr) 312px;
-    grid-template-areas: "left column right";
-  }
+/* --- Cam panel: salonun yeni ortak yuzeyi --- */
+
+.railStack {
+  display: grid;
+  gap: var(--gap-md);
 }
 
-/* --- Raylarin ortak kabugu --- */
-
-.railInner {
+.panel {
   display: grid;
   gap: var(--gap-md);
   padding: var(--pad-md);
-  border: 1px solid var(--border);
+  border: 1px solid color-mix(in srgb, var(--accent) 9%, transparent);
   border-radius: var(--radius-card);
-  background: color-mix(in srgb, var(--surface) 70%, transparent);
+  background: color-mix(in srgb, var(--surface) 62%, transparent);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
 }
 
 .railTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin: 0;
-  padding-bottom: 6px;
+  padding-bottom: 10px;
   border-bottom: 1px solid var(--border);
-  color: var(--text-primary);
-  font-family: var(--font-bebas), var(--font-sans);
-  font-size: 0.86rem;
-  font-weight: 400;
-  letter-spacing: 0.16em;
+  color: var(--accent);
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
+}
+
+.panelIcon {
+  flex-shrink: 0;
+  width: 13px;
+  height: 13px;
+  opacity: 0.85;
 }
 
 /* --- Sol ray: suzgecler --- */
@@ -102,11 +197,11 @@
 
 .filterHead {
   margin: 0;
-  color: var(--text-secondary);
-  font-family: var(--font-bebas), var(--font-sans);
-  font-size: 0.76rem;
-  font-weight: 400;
-  letter-spacing: 0.14em;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.64rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
@@ -125,10 +220,11 @@
   justify-content: space-between;
   gap: 8px;
   min-height: var(--touch-min, 44px);
-  color: var(--text-secondary);
-  font-family: var(--font-bebas), var(--font-sans);
-  font-size: 0.76rem;
-  letter-spacing: 0.14em;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.64rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   cursor: pointer;
   list-style: none;
@@ -146,7 +242,7 @@
   height: 0;
   border-top: 4px solid transparent;
   border-bottom: 4px solid transparent;
-  border-left: 5px solid var(--text-muted);
+  border-left: 5px solid var(--accent-muted);
   content: "";
   transition: transform 140ms ease;
 }
@@ -160,6 +256,7 @@
   color: var(--text-muted);
   font-family: var(--font-sans);
   font-size: 0.72rem;
+  font-weight: 400;
   letter-spacing: 0;
   text-transform: none;
 }
@@ -172,39 +269,91 @@
   padding: 0;
   overflow-y: auto;
   list-style: none;
+  /* Tasarimdaki ince yaldizli kaydirma cubugu — yalnizca bu listelerde */
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--accent) 30%, var(--bg)) var(--bg);
+}
+
+.filterList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.filterList::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+.filterList::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--accent) 30%, var(--bg));
+}
+
+.filterList::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
 }
 
 .filterRow,
 .filterRowOn {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  gap: 10px;
   width: 100%;
   /* Kural 2: dokunma alani en az 44px */
   min-height: var(--touch-min, 44px);
-  padding: 0 8px;
+  padding: 0 4px;
   border: 0;
   border-radius: var(--radius);
   background: transparent;
   color: var(--text-secondary);
   font-family: inherit;
-  font-size: 0.86rem;
+  font-size: 0.85rem;
   text-align: left;
   cursor: pointer;
 }
 
 .filterRow:hover {
-  background: var(--surface-hover);
   color: var(--text-primary);
 }
 
 .filterRowOn {
-  background: color-mix(in srgb, var(--accent) 14%, transparent);
-  color: var(--accent);
+  color: var(--text-primary);
+}
+
+/* Tasarimdaki kutu isareti: secili satirda icine altin kare dolar */
+.tick {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 15px;
+  height: 15px;
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  background: var(--bg);
+  transition: border-color 160ms ease;
+}
+
+.tick::after {
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  background: transparent;
+  content: "";
+  transition: background-color 160ms ease;
+}
+
+.filterRow:hover .tick {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border-strong));
+}
+
+.filterRowOn .tick {
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+.filterRowOn .tick::after {
+  background: var(--accent-hover);
 }
 
 .filterLabel {
+  flex: 1 1 auto;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -219,7 +368,28 @@
 
 .selectField {
   display: grid;
-  gap: 4px;
+  gap: 6px;
+}
+
+/* Ozel ok: select'in kendi oku gizlenir, yerine yaldiz ucgen cizilir.
+   Ok CSS kenarligindan geliyor — data-URI SVG hex tasirdi (kural 16) */
+.selectWrap {
+  position: relative;
+  display: block;
+}
+
+.selectWrap::after {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  width: 0;
+  height: 0;
+  border-top: 5px solid var(--accent);
+  border-right: 4px solid transparent;
+  border-left: 4px solid transparent;
+  content: "";
+  transform: translateY(-50%);
+  pointer-events: none;
 }
 
 .selectField select,
@@ -229,18 +399,29 @@
   width: 100%;
   min-height: var(--touch-min, 44px);
   padding: 0 10px;
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  border-radius: 6px;
   background: var(--bg);
   color: var(--text-primary);
   font-family: inherit;
-  font-size: 0.88rem;
+  font-size: 0.86rem;
+}
+
+.selectField select {
+  padding-right: 28px;
+  appearance: none;
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+.selectField select:hover {
+  background: var(--surface-hover);
 }
 
 .selectField select:focus-visible,
 .searchField input:focus-visible,
 .sortField select:focus-visible {
-  border-color: var(--accent-muted);
+  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
   /* `outline: none` kaldirildi (6 Agustos 2026): yerine konan kenarlik
      degisimi 2.7:1 kontrast veriyordu, WCAG 1.4.11 esigi 3:1. Odak halkasi
      artik globals.css'teki genel :where(...):focus-visible kuralindan
@@ -264,80 +445,144 @@
   color: var(--accent);
 }
 
-/* --- Orta sutun basligi --- */
-
-.head {
-  display: grid;
-  gap: 6px;
-  margin-bottom: var(--pad-lg);
-}
-
-.back {
-  justify-self: start;
-  color: var(--text-secondary);
-  font-size: 0.82rem;
+/* Oduller karti: suzgec panelinin altinda ayri bir cam kart (tasarim) */
+.awardsCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-sm);
+  min-height: var(--touch-min, 44px);
+  padding: 12px var(--pad-md);
+  border: 1px solid color-mix(in srgb, var(--accent) 9%, transparent);
+  border-radius: var(--radius-card);
+  background: color-mix(in srgb, var(--surface) 62%, transparent);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
   text-decoration: none;
+  transition: border-color 200ms ease;
 }
 
-.back:hover {
+.awardsCard:hover {
+  border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.awardsCardBody {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   color: var(--accent);
 }
 
-.eyebrow {
-  color: var(--text-muted);
-  font-family: var(--font-bebas), var(--font-sans);
-  font-size: 0.8rem;
-  letter-spacing: 0.2em;
+.awardsCardText {
+  color: var(--text-primary);
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
-.title {
-  margin: 0;
-  color: var(--text-primary);
-  font-family: var(--font-cinzel), serif;
-  font-size: clamp(1.9rem, 4vw, 2.9rem);
-  font-weight: 400;
-  letter-spacing: 0.06em;
+.awardsArrow {
+  flex-shrink: 0;
+  width: 13px;
+  height: 13px;
+  color: var(--text-muted);
+  transition: transform 200ms ease, color 200ms ease;
 }
 
-.epigraph {
-  max-width: 62ch;
-  margin: 0;
-  color: var(--text-secondary);
-  font-family: var(--font-cormorant), serif;
-  font-size: 1.05rem;
-  font-style: italic;
-  line-height: 1.5;
+.awardsCard:hover .awardsArrow {
+  color: var(--accent);
+  transform: translateX(3px);
 }
 
-.curatorSwitch {
-  display: flex;
-  align-items: center;
-  gap: var(--gap-sm);
-  margin-top: 4px;
-}
-
-/* --- Arac seridi --- */
+/* --- Arama + siralama: tek cam bar (tasarim) --- */
 
 .toolbar {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: var(--gap-sm);
+  gap: 12px;
   margin-bottom: var(--pad-lg);
+  padding: 4px 8px 4px 16px;
+  border: 1px solid color-mix(in srgb, var(--accent) 9%, transparent);
+  border-radius: var(--radius-card);
+  background: color-mix(in srgb, var(--surface) 62%, transparent);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  transition: border-color 200ms ease;
+}
+
+.toolbar:focus-within {
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.searchIcon {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  color: color-mix(in srgb, var(--accent) 55%, var(--text-muted));
 }
 
 .searchField {
-  flex: 1 1 240px;
+  flex: 1 1 160px;
   display: grid;
+  min-width: 0;
+}
+
+.searchField input {
+  min-height: var(--touch-min, 44px);
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.searchField input::placeholder {
+  color: var(--text-muted);
 }
 
 .sortField {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   gap: 8px;
+  padding-left: 12px;
+  border-left: 1px solid var(--border);
   color: var(--text-muted);
   font-size: 0.78rem;
+}
+
+.sortField .selectWrap::after {
+  right: 6px;
+}
+
+.sortField select {
+  width: auto;
+  min-height: var(--touch-min, 44px);
+  padding: 0 22px 0 4px;
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  appearance: none;
+  cursor: pointer;
+}
+
+.sortField select:hover {
+  color: var(--text-primary);
+}
+
+/* Dar ekranda bar ikiye katlanir; arama ustte tam satir kalir */
+@media (max-width: 560px) {
+  .toolbar {
+    flex-wrap: wrap;
+    padding: 4px 12px;
+  }
+
+  .sortField {
+    flex: 1 1 100%;
+    padding-left: 0;
+    border-left: 0;
+    border-top: 1px solid var(--border);
+  }
 }
 
 .resultCount {
@@ -356,237 +601,83 @@
   white-space: nowrap;
 }
 
-/* --- RAF: salonun imzasi --- */
+/* --- Bolum baslari: yaldizli Cinzel + sagda sayac ve "tumunu gor" --- */
 
 .shelfSection {
-  margin-bottom: var(--pad-lg);
+  margin-bottom: calc(var(--pad-lg) + 8px);
 }
 
-.shelfHead {
+.shelfHead,
+.blockHead {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: var(--gap-sm);
-  margin-bottom: var(--gap-sm);
+  margin-bottom: var(--gap-md);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
 }
 
-.shelfLink {
+.shelfLink,
+.blockLink {
   text-decoration: none;
 }
 
-.shelfTitle {
+.shelfTitle,
+.blockTitle {
   margin: 0;
-  color: var(--text-primary);
+  color: var(--accent);
   font-family: var(--font-cinzel), serif;
-  font-size: 1.28rem;
-  font-weight: 400;
-  letter-spacing: 0.05em;
-}
-
-.shelfLink:hover .shelfTitle {
-  color: var(--accent);
-}
-
-.shelfCount {
-  flex-shrink: 0;
-  color: var(--text-muted);
-  font-family: var(--font-bebas), var(--font-sans);
-  font-size: 0.78rem;
-  letter-spacing: 0.14em;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
 }
 
-.board {
-  position: relative;
-  padding-bottom: 18px;
-}
-
-/* Izgara, esnek satir DEGIL: sabit genislikli ciltler genis ekranda rafin
-   sagini bos birakiyordu (kullanici bildirimi). Sutunlar 1fr oldugu icin raf
-   her genislikte tam doluyor; sutun sayisi `SHELF_ROW` ile eslesiyor. */
-.volumes {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  align-items: start;
-  gap: var(--gap-md);
-  margin: 0;
-  padding: 0 var(--pad-sm);
-  list-style: none;
-}
-
-.volume {
-  display: grid;
-  align-content: start;
-  gap: 6px;
-  min-width: 0;
-}
-
-/* Sutun sayilari 9'un bolenlerinden secildi (3 ve 9): raf o genisliklerde
-   tam satir oluyor. Aradaki 5'li kademe tabletde kartlarin okunur kalmasi
-   icin — orada son satir yarim kaliyor, telefonda zaten oyleydi. */
-@media (min-width: 640px) {
-  .volumes {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 1100px) {
-  .volumes {
-    grid-template-columns: repeat(9, minmax(0, 1fr));
-  }
-}
-
-.spine {
-  position: relative;
-  display: block;
-  width: 100%;
-  /* Butun ciltler ayni boyda: raf hizali dursun (kullanici istegi). Sabit
-     yukseklik DEGIL oran — sutun genisligi ekrana gore degisiyor ve sabit
-     yukseklik kapaklari sikistiriyordu */
-  aspect-ratio: 2 / 3;
-  overflow: hidden;
-  border: 1px solid var(--border-strong);
-  border-radius: 2px 3px 3px 2px;
-  /* Cilt sirti: sol kenarda ince bir yaldiz cizgi */
-  border-left: 3px solid var(--accent-muted);
-  background: var(--surface);
-  text-decoration: none;
-}
-
-/* Raf tahtasi: ciltlerin bastigi zemin */
-.plank {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  height: 6px;
-  border-radius: 2px;
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--accent) 34%, var(--surface)),
-    var(--surface)
-  );
-}
-
-/* Tahtanin altindaki golge: rafin kalinligini anlatir, isima degil */
-.plank::after {
-  position: absolute;
-  top: 100%;
-  right: 6px;
-  left: 6px;
-  height: 5px;
-  border-radius: 0 0 4px 4px;
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--bg) 60%, transparent),
-    transparent
-  );
-  content: "";
-}
-
-.volumeText {
-  display: grid;
-  gap: 1px;
-  min-width: 0;
-}
-
-/* Ad iki satira sabit. Tek satirlik adla iki satirlik ad yan yana gelince
-   altlarindaki yazar satirlari kayiyordu — raf artik satir satir hizali.
-   Olcu: 0.95rem x 1.25 satir yuksekligi x 2 satir */
-.volumeText .titleLink {
-  display: -webkit-box;
-  height: 2.375rem;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-}
-
-.volumeAuthor {
-  overflow: hidden;
-  color: var(--text-muted);
-  font-size: 0.74rem;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.emptyShelf,
-.empty {
-  margin: 0 0 var(--gap-md);
-  color: var(--text-muted);
-  font-family: var(--font-cormorant), serif;
-  font-size: 1.02rem;
-}
-
-/* Sol rayın altındaki ödüller bağlantısı */
-.awardsLink {
-  display: block;
-  margin-top: var(--pad-md);
-  padding-top: var(--gap-md);
-  border-top: 1px solid var(--border);
-  color: var(--text-secondary);
-  font-family: var(--font-bebas), var(--font-sans);
-  font-size: 0.82rem;
-  letter-spacing: 0.14em;
-  text-decoration: none;
-  text-transform: uppercase;
-}
-
-.awardsLink:hover {
-  color: var(--accent);
-}
-
-.shelfFooter {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: var(--gap-sm);
-}
-
-.showAll,
-.railLink {
-  color: var(--accent);
-  font-family: var(--font-bebas), var(--font-sans);
-  font-size: 0.78rem;
-  letter-spacing: 0.14em;
-  text-decoration: none;
-  text-transform: uppercase;
-}
-
-.showAll:hover,
-.railLink:hover {
+.shelfLink:hover .shelfTitle,
+.blockLink:hover .blockTitle {
   color: var(--accent-hover);
 }
 
-/* "Tumunu goster" ve ray baglantilari dokunmatikte 44px.
-   375px'te 81x21 px olculdu — kural 2 tabaninin yarisi kadar. Film salonunda
-   ayni gorevdeki `.showAll` kenarlikli 44px'lik bir dugme; burada duz bir
-   metin baglantisi oldugu icin gorunumu degistirmeden yalnizca yuksekligi
-   veriliyor. Kendi satirinda durdugu icin (`.shelfFooter` flex, sona
-   hizali) buyumesi komsu bir seyi itmiyor.
+.shelfMeta {
+  display: flex;
+  flex-shrink: 0;
+  align-items: baseline;
+  gap: 14px;
+}
 
-   Bu duzeltme ayni zamanda `.shelfTitle`i tasiyan `.shelfLink`in (35px)
-   gerekcesi: rafin altinda AYNI adrese giden 44px'lik bir hedef olusuyor,
-   yani baslik baglantisi WCAG 2.5.8'in "esdeger hedef" istisnasina giriyor. */
+.shelfCount,
+.blockCount {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+
+.showAll {
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.showAll:hover {
+  color: var(--accent);
+}
+
+/* "Tumunu gor" dokunmatikte 44px (kural 2; fareli ekranda olcu degismez) */
 @media (pointer: coarse) {
-  .showAll,
-  .railLink {
+  .showAll {
     display: inline-flex;
     align-items: center;
     min-height: var(--touch-min);
   }
 
-  /* Odul seridine giden blok baglantisi 309x35 px'ti. `display` ve hizalama
-     BILINCLI olarak degistirilmiyor — kural yalnizca alt sinir koyuyor,
-     boylece metnin kendi ust cizgisine gore konumu kaymiyor. */
-  .awardsLink {
-    min-height: var(--touch-min);
-  }
-
-  /* Blok basligi baglantisi ("Serilerim" vb.) 69x26 px'ti ve kapsayicisinda
-     ayni adrese giden BASKA hicbir hedef yok — yani `.shelfLink`teki
-     "esdeger hedef" gerekcesi burada gecmiyor, gercekten duzeltilmesi
-     gerekiyordu. Baslik satirinin hizasi bozulmasin diye alan genisletmesi;
-     yatayda genislemedigi icin yanindaki sayacin dokunusunu calmiyor. */
   .blockLink {
     position: relative;
   }
@@ -598,12 +689,283 @@
   }
 }
 
+/* --- SU AN OKUYORUM: yatay kart (tasarimin merkez parcasi) --- */
+
+.heroList {
+  display: grid;
+  gap: var(--gap-sm);
+}
+
+.heroCard {
+  position: relative;
+  display: flex;
+  gap: var(--gap-md);
+  align-items: center;
+  padding: var(--pad-md);
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--accent) 9%, transparent);
+  border-radius: var(--radius-card);
+  background: color-mix(in srgb, var(--surface) 62%, transparent);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+/* Kose halesi: kartin sag ustunde yumusak yaldiz isik (tasarimdaki orb) */
+.heroOrb {
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 190px;
+  height: 190px;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--accent) 13%, transparent),
+    transparent 72%
+  );
+  pointer-events: none;
+}
+
+.heroCover {
+  position: relative;
+  flex-shrink: 0;
+  width: 92px;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--text-primary) 12%, transparent);
+  border-radius: 4px;
+  background: var(--surface);
+  box-shadow: 5px 8px 16px color-mix(in srgb, var(--bg) 65%, transparent);
+  text-decoration: none;
+}
+
+.heroBody {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.heroTitle {
+  margin: 0 0 2px;
+  color: var(--text-primary);
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.25rem;
+  font-weight: 400;
+  line-height: 1.25;
+}
+
+.heroTitle .titleLink {
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.heroAuthor {
+  margin: 0 0 14px;
+  color: var(--accent-muted);
+  font-family: var(--font-cormorant), serif;
+  font-size: 0.95rem;
+  font-style: italic;
+}
+
+/* Sayac satiri mono: kod susu degil olcum dili — "%18 / 110 / 612" */
+.heroMetaRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+  color: var(--text-muted);
+  font-family: var(--font-plexmono), monospace;
+  font-size: 0.64rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+
+.heroBar {
+  width: 100%;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--bg);
+}
+
+.heroBarFill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+  /* GLOW istisnasi — dosya basindaki nota bak */
+  box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+/* Telefonda kapak kucultmek yerine kart dikey katlanir */
+@media (max-width: 480px) {
+  .heroCard {
+    align-items: flex-start;
+  }
+
+  .heroCover {
+    width: 72px;
+  }
+
+  .heroTitle {
+    font-size: 1.05rem;
+  }
+}
+
+/* --- Raf izgarasi: duz kartlar (tasarimdaki grid-cols-3/4/5) --- */
+
+.volumes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+  gap: var(--gap-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 640px) {
+  .volumes {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 768px) {
+  .volumes {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+.volume {
+  display: grid;
+  align-content: start;
+  gap: 3px;
+  min-width: 0;
+  transition: transform 300ms ease;
+}
+
+/* Hover'da kart yukari kalkar; kapagin golgesi derinlesir ve yaldiz
+   isima acilir (GLOW istisnasi). Klavye odagi ayni sinyali verir. */
+.volume:hover,
+.volume:focus-within {
+  transform: translateY(-5px);
+}
+
+.spine {
+  position: relative;
+  display: block;
+  width: 100%;
+  /* Butun kapaklar ayni oran: raf hizali dursun (kullanici istegi) */
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--text-primary) 11%, transparent);
+  border-radius: 4px;
+  background: var(--surface);
+  box-shadow: 0 6px 14px color-mix(in srgb, var(--bg) 60%, transparent);
+  text-decoration: none;
+  transition: box-shadow 300ms ease, border-color 300ms ease;
+}
+
+.volume:hover .spine,
+.volume:focus-within .spine {
+  border-color: color-mix(in srgb, var(--accent) 25%, transparent);
+  box-shadow:
+    0 12px 22px color-mix(in srgb, var(--bg) 85%, transparent),
+    0 0 15px color-mix(in srgb, var(--accent) 16%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .volume,
+  .spine {
+    transition: none;
+  }
+
+  .volume:hover,
+  .volume:focus-within {
+    transform: none;
+  }
+}
+
+/* "INCELE" ortusu: hover/odakta kapagin ustune iner (tasarim) */
+.inspect {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--bg) 45%, transparent);
+  opacity: 0;
+  transition: opacity 300ms ease;
+  pointer-events: none;
+}
+
+.volume:hover .inspect,
+.volume:focus-within .inspect,
+.card:hover .inspect,
+.card:focus-within .inspect {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .inspect {
+    transition: none;
+  }
+}
+
+.inspectChip {
+  padding: 4px 10px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--accent) 92%, transparent);
+  color: var(--bg);
+  font-family: var(--font-sans);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.volumeText {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  padding-top: 5px;
+}
+
+/* Ad tek satir (tasarim: truncate) — raf satir satir hizali kalir */
+.volumeText .titleLink {
+  display: block;
+  overflow: hidden;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.volumeAuthor {
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.emptyShelf,
+.empty {
+  margin: 0 0 var(--gap-md);
+  color: var(--text-muted);
+  font-family: var(--font-cormorant), serif;
+  font-size: 1.02rem;
+  font-style: italic;
+}
+
 /* --- Rafin kendi sayfasindaki izgara --- */
 
 .grid {
   display: grid;
-  /* Mobil-oncelikli uc kolon; genis ekranda kendiliginden acilir.
-     minmax(126px) dar ekranda ikide kaliyordu — taban artik sabit uc kolon */
+  /* Mobil-oncelikli uc kolon; genis ekranda kendiliginden acilir */
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--gap-md);
   margin: 0;
@@ -617,21 +979,20 @@
   }
 }
 
-/* Kart, izgara hucresinin TAMAMINI kaplar.
-   7 Agustos 2026: raflarda kartlarin alt kenarlari hizasizdi — yazar satiri
-   olmayan kitap ile olan kitap yan yana gelince (ve kurator modunda arac
-   satiri acilinca) yukseklik icerikten geliyordu.
-
-   Duzen `grid` degil `flex`: kunye satirini en alta yapistiran
-   `margin-top: auto` numarasi grid hucresinde CALISMAZ — orada satirin
-   yuksekligi zaten iceriktir, otomatik marj dagitacak bosluk bulamaz.
-   Sutun yonlu flex'te ise artan yukseklik dogrudan o marja yaziliyor.
-   Desen anime salonundan geliyor (bkz. AnimeHall.module.css .card). */
+/* Kart, izgara hucresinin TAMAMINI kaplar; kunye satiri `margin-top: auto`
+   ile en alta yapisir (gerekce eski surumden geliyor: grid hucresinde bu
+   numara calismaz, sutun yonlu flex'te calisir) */
 .card {
   display: flex;
   flex-direction: column;
   gap: 4px;
   height: 100%;
+  transition: transform 300ms ease;
+}
+
+.card:hover,
+.card:focus-within {
+  transform: translateY(-5px);
 }
 
 .coverWrap {
@@ -639,11 +1000,32 @@
   display: block;
   aspect-ratio: 2 / 3;
   overflow: hidden;
-  border: 1px solid var(--border-strong);
-  border-left: 3px solid var(--accent-muted);
-  border-radius: 2px 3px 3px 2px;
+  border: 1px solid color-mix(in srgb, var(--text-primary) 11%, transparent);
+  border-radius: 4px;
   background: var(--surface);
+  box-shadow: 0 6px 14px color-mix(in srgb, var(--bg) 60%, transparent);
   text-decoration: none;
+  transition: box-shadow 300ms ease, border-color 300ms ease;
+}
+
+.card:hover .coverWrap,
+.card:focus-within .coverWrap {
+  border-color: color-mix(in srgb, var(--accent) 25%, transparent);
+  box-shadow:
+    0 12px 22px color-mix(in srgb, var(--bg) 85%, transparent),
+    0 0 15px color-mix(in srgb, var(--accent) 16%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .coverWrap {
+    transition: none;
+  }
+
+  .card:hover,
+  .card:focus-within {
+    transform: none;
+  }
 }
 
 .coverImg {
@@ -671,14 +1053,13 @@
   font-size: 0.75rem;
 }
 
-/* Seri cilt numarasi — kapagin sag ust kosesinde kucuk bir sirt etiketi */
+/* Seri cilt numarasi — kapagin sag ust kosesinde kucuk etiket */
 .seriesMark {
   position: absolute;
   top: 6px;
   right: 6px;
-  /* 30 = 20px sayi alani + 5px x2 dolgu. Global `border-box` sonrasi
-     min-width DIS olcu; 20px birakilsaydi tek haneli ciltlerde etiket
-     30 -> 20px'e duser ve iki haneliyle ayni genislikte durmazdi. */
+  /* 30 = 20px sayi alani + 5px x2 dolgu; tek haneli ciltler iki haneliyle
+     ayni genislikte dursun (global border-box sonrasi min-width DIS olcu) */
   min-width: 30px;
   padding: 2px 5px;
   border-radius: var(--radius);
@@ -733,20 +1114,20 @@
 
 .cardTitle {
   margin: 0;
-  font-family: var(--font-cormorant), serif;
-  font-size: 0.98rem;
-  font-weight: 500;
-  line-height: 1.25;
+  font-size: 0.78rem;
+  line-height: 1.3;
 }
 
-/* Izgarada da ad iki satirda sabit: yazar ve puan satirlari hizali kalsin */
+/* Izgarada da ad tek satir: yazar ve puan satirlari hizali kalsin */
 .cardTitle .titleLink {
-  display: -webkit-box;
-  height: 2.375rem;
+  display: block;
   overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .titleLink {
@@ -766,7 +1147,7 @@
   margin: 0;
   overflow: hidden;
   color: var(--text-muted);
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -775,9 +1156,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  /* `auto`: puan/sayfa satiri kartin en altina yapisir. Yazar satiri olan
-     ve olmayan kitaplar arasindaki yukseklik farki artik buradaki bosluga
-     yaziliyor, kartin alt kenarina degil (bkz. .card notu) */
+  /* `auto`: puan/sayfa satiri kartin en altina yapisir (bkz. .card notu) */
   margin: auto 0 0;
   font-size: 0.76rem;
 }
@@ -820,8 +1199,8 @@
   border-radius: 999px;
   background: transparent;
   color: var(--accent);
-  font-family: var(--font-bebas), var(--font-sans);
-  font-size: 0.84rem;
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   cursor: pointer;
@@ -835,50 +1214,12 @@
 /* --- Seriler ve yazarlar --- */
 
 .block {
-  margin-top: var(--pad-lg);
-  padding-top: var(--pad-md);
-  border-top: 1px solid var(--border);
+  margin-bottom: calc(var(--pad-lg) + 8px);
 }
 
-/* Baslik satiri: bolumun adi ve toplam sayisi. Ad tiklanabilir — bolumun
-   kendi sayfasina gidiyor (kullanici istegi) */
-.blockHead {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--gap-sm);
-  margin-bottom: var(--gap-sm);
-}
-
-.blockTitle {
-  margin: 0;
-  color: var(--text-primary);
-  font-family: var(--font-bebas), var(--font-sans);
-  font-size: 0.94rem;
-  font-weight: 400;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.blockLink {
-  text-decoration: none;
-}
-
-.blockLink:hover .blockTitle {
-  color: var(--accent);
-}
-
-.blockCount {
-  flex-shrink: 0;
-  color: var(--text-muted);
-  font-family: var(--font-bebas), var(--font-sans);
-  font-size: 0.78rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-/* Seri seridi de tek satir ve tam dolu; sutun sayisi `SERIES_LIMIT` ile
-   eslesiyor, kalan seriler kendi sayfasinda (kullanici istegi) */
+/* Seri izgarasi iki baglamda calisir: salonun 6/12'lik orta sutununda VE
+   dizin sayfasinin tam genisliginde. auto-fill sutun sayisini kapsayicidan
+   turetir — orta sutunda ~5, dizinde ~9-10 kolon. */
 .seriesRow {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -890,13 +1231,7 @@
 
 @media (min-width: 640px) {
   .seriesRow {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 1100px) {
-  .seriesRow {
-    grid-template-columns: repeat(9, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
   }
 }
 
@@ -905,13 +1240,30 @@
   align-content: start;
   gap: 4px;
   min-width: 0;
+  transition: transform 300ms ease;
+}
+
+.seriesCard:hover,
+.seriesCard:focus-within {
+  transform: translateY(-5px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .seriesCard {
+    transition: none;
+  }
+
+  .seriesCard:hover,
+  .seriesCard:focus-within {
+    transform: none;
+  }
 }
 
 /* Artik bir bag (serinin kendi sayfasi); buton gorunumu korunuyor */
 .seriesButton {
   display: grid;
   align-content: start;
-  gap: 4px;
+  gap: 3px;
   padding: 0;
   border: 0;
   background: transparent;
@@ -930,32 +1282,48 @@
   position: relative;
   aspect-ratio: 2 / 3;
   overflow: hidden;
-  border: 1px solid var(--border-strong);
-  border-left: 3px solid var(--accent-muted);
-  border-radius: 2px 3px 3px 2px;
+  margin-bottom: 2px;
+  border: 1px solid color-mix(in srgb, var(--text-primary) 11%, transparent);
+  border-radius: 4px;
   background: var(--surface);
+  box-shadow: 0 6px 14px color-mix(in srgb, var(--bg) 60%, transparent);
+  transition: box-shadow 300ms ease, border-color 300ms ease;
+}
+
+.seriesCard:hover .seriesCover {
+  border-color: color-mix(in srgb, var(--accent) 25%, transparent);
+  box-shadow:
+    0 12px 22px color-mix(in srgb, var(--bg) 85%, transparent),
+    0 0 15px color-mix(in srgb, var(--accent) 16%, transparent);
 }
 
 .seriesName {
+  overflow: hidden;
   color: var(--text-primary);
-  font-family: var(--font-cormorant), serif;
-  font-size: 0.95rem;
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
+/* Cilt sayisi yaldizla: tasarimdaki "21 Kitap" satiri */
 .seriesMeta {
-  color: var(--text-muted);
-  font-size: 0.76rem;
+  color: var(--accent-muted);
+  font-size: 0.7rem;
+  font-variant-numeric: tabular-nums;
 }
 
 /* "5 kitaptan 3'u Turkce" satiri — serinin eksigini soyleyen tek satir */
 .seriesTranslation {
-  color: var(--gold);
-  font-size: 0.74rem;
+  color: var(--text-muted);
+  font-size: 0.7rem;
 }
 
 .seriesUniverse {
   color: var(--accent);
-  font-size: 0.74rem;
+  font-size: 0.72rem;
   text-decoration: none;
 }
 
@@ -963,8 +1331,7 @@
   color: var(--accent-hover);
 }
 
-/* Satirda sekiz yazar (kullanici istegi); salonda iki satir gorunuyor,
-   kalani yazarlar sayfasinda */
+/* Yazar izgarasi da iki baglamda: salonda ~4, dizin sayfasinda ~8 kolon */
 .authorGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -976,26 +1343,13 @@
 
 @media (min-width: 640px) {
   .authorGrid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 1100px) {
-  .authorGrid {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 1400px) {
-  .authorGrid {
-    grid-template-columns: repeat(8, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   }
 }
 
 /* Iliskisel kaydi olan yazarda bir bag, olmayanda buton — ikisi de ayni kart.
    `box-sizing` SART: kart bir <a> oldugunda tarayici varsayilani border-box
-   DEGIL ve dolgu+kenarlik hucreyi tasirip komsu karta biniyordu (kullanici
-   bildirimi). <button> hâlinde tarayici bunu kendiliginden veriyordu. */
+   DEGIL ve dolgu+kenarlik hucreyi tasirip komsu karta biniyordu. */
 .authorCard {
   display: flex;
   box-sizing: border-box;
@@ -1007,17 +1361,18 @@
   padding: 8px 10px;
   overflow: hidden;
   border: 1px solid var(--border);
-  border-radius: var(--radius-card);
-  background: color-mix(in srgb, var(--surface) 70%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--surface) 62%, transparent);
   color: inherit;
   font-family: inherit;
   text-align: left;
   text-decoration: none;
   cursor: pointer;
+  transition: border-color 200ms ease;
 }
 
 .authorCard:hover {
-  border-color: var(--accent-muted);
+  border-color: color-mix(in srgb, var(--accent) 35%, transparent);
 }
 
 .authorCard:hover .authorName {
@@ -1074,18 +1429,56 @@
   font-size: 0.76rem;
 }
 
-/* --- Sag ray: istatistikler --- */
+/* --- Sag ray: istatistik panelleri --- */
 
 .statBlock,
 .quoteBlock {
   display: grid;
-  gap: 8px;
+  gap: 10px;
+}
+
+/* Tasarimdaki iki sayisal kutu: okunan kitap + toplam sayfa */
+.statTiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.statTile {
+  padding: 12px 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--bg) 55%, transparent);
+  text-align: center;
+}
+
+.statTileValue {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--text-primary);
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.35rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.statTileGold {
+  color: var(--accent);
+}
+
+.statTileLabel {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
 .statList {
   display: grid;
-  gap: 6px;
-  margin: 0;
+  gap: 8px;
+  margin: 4px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
 }
 
 .statList > div {
@@ -1097,21 +1490,21 @@
 
 .statList dt {
   color: var(--text-secondary);
-  font-size: 0.82rem;
+  font-size: 0.78rem;
 }
 
 .statList dd {
   margin: 0;
   color: var(--text-primary);
-  font-size: 0.92rem;
+  font-size: 0.85rem;
   font-variant-numeric: tabular-nums;
   text-align: right;
 }
 
 .statSub {
   display: block;
-  color: var(--text-muted);
-  font-size: 0.74rem;
+  color: var(--accent-muted);
+  font-size: 0.68rem;
   font-style: italic;
 }
 
@@ -1183,11 +1576,17 @@
 .recentCover {
   position: relative;
   flex-shrink: 0;
-  width: 32px;
+  width: 38px;
   aspect-ratio: 2 / 3;
   overflow: hidden;
-  border-radius: 2px;
+  border: 1px solid color-mix(in srgb, var(--text-primary) 11%, transparent);
+  border-radius: 3px;
   background: var(--surface);
+  transition: border-color 200ms ease;
+}
+
+.recentRow:hover .recentCover {
+  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
 }
 
 .recentText {
@@ -1199,15 +1598,21 @@
 .recentTitle {
   overflow: hidden;
   color: var(--text-primary);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
+  font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
+  transition: color 200ms ease;
+}
+
+.recentRow:hover .recentTitle {
+  color: var(--accent);
 }
 
 .recentAuthor {
   overflow: hidden;
   color: var(--text-muted);
-  font-size: 0.74rem;
+  font-size: 0.72rem;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -1215,7 +1620,7 @@
 .quoteText {
   margin: 0;
   padding-left: 10px;
-  border-left: 2px solid var(--accent-muted);
+  border-left: 1px solid var(--accent-muted);
   color: var(--text-secondary);
   font-family: var(--font-cormorant), serif;
   font-size: 1rem;
@@ -1236,11 +1641,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Geri baglantisi dokunmatikte 44px.
-   Kitap kanadinin sekiz modulunde de ayni baglanti 22-23px olculdu (kural 2
-   tabani 44px). Yalnizca kaba isaretcide buyuyor; fareli ekranda olcu
-   degismiyor, yani masaustu bosluk duzeni oldugu gibi kaliyor.
-   Film ve dizi kanatlarinda ayni duzeltme yapildi. */
+/* Geri baglantisi dokunmatikte 44px (kural 2; masaustu olculeri degismez) */
 @media (pointer: coarse) {
   .back {
     display: inline-flex;

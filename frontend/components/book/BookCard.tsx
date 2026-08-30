@@ -194,6 +194,11 @@ export function BookCard({
             />
           </span>
         ) : null}
+
+        {/* Hover/odakta kapağa inen "İncele" örtüsü (2026-08-30 tasarımı) */}
+        <span className={styles.inspect} aria-hidden>
+          <span className={styles.inspectChip}>{t("inspect")}</span>
+        </span>
       </Link>
 
       <h3 className={styles.cardTitle}>

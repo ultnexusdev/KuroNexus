@@ -481,24 +481,33 @@ html {
    altin seritlerin ayni tonu). Kadim Dunyalar'in mat altinindan (#b08d57)
    bilincli olarak daha kremli: ikisi komsu salon ama ayni sayfa degil.
    Anime derisi mor bir accent tasidigi icin burada accent MOR DEGIL —
-   morun tamami kapiya ve yuzeylere birakildi. Kanadin tam gorsel kimligi
-   arsivle birlikte gelecek (kural 16). */
+   morun tamami kapiya ve yuzeylere birakildi.
+
+   2026-08-30 — kullanicinin verdigi arsiv tasarimina gore ayarlandi:
+   zemin daha derin siyaha indi (#12101b -> #0c0a0f), yaldiz tasarimdaki
+   klasik altina cekildi (#c9a86a -> #d4af37). `--surface-hover` ayni
+   zamanda sayfa tepesindeki radial halenin rengi (BookHall.module.css).
+
+   ⚠️ KURAL 16 ISTISNASI (kullanici onayi, 2026-08-30): kitap salonu kart
+   hover'inda ve okuma cubugunda hafif altin GLOW tasiyabilir. Istisna
+   yalnizca bu salonun modulleri icin; renkler yine token/color-mix ile
+   kurulur, baska salona sizmaz. */
 [data-category="kitap"] {
-  --bg:             #12101b;
-  --surface:        #191524;
-  --surface-hover:  #211c30;
-  --border:         #2b2338;
-  --border-strong:  #3b3049;
+  --bg:             #0c0a0f;
+  --surface:        #161219;
+  --surface-hover:  #221c2e;
+  --border:         #262130;
+  --border-strong:  #3a3346;
 
   --text-primary:   #ece7dc;
-  --text-secondary: #a09aad;
-  --text-muted:     #9a94a8;
+  --text-secondary: #a49eb0;
+  --text-muted:     #8d8799;
 
-  --accent:         #c9a86a; /* sirt yaldizi */
-  --accent-hover:   #dcbd80;
-  --accent-muted:   #6d5c3d;
+  --accent:         #d4af37; /* sirt yaldizi */
+  --accent-hover:   #e5c07b;
+  --accent-muted:   #b5952f;
 
-  --gold:           #c9a86a;
+  --gold:           #d4af37;
   --warn:           #a6784a;
   --danger:         #a6584a;
 }

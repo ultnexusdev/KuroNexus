@@ -985,6 +985,8 @@
     "resultCount": "{count} books",
     "pageCount": "{count} pages",
     "pageOf": "page {current} of {total}",
+    "inspect": "View",
+    "progressPercent": "{percent}% complete",
     "quotePage": "p. {page}",
     "seriesVolume": "{name} · volume {index}",
     "shelf": {

@@ -985,6 +985,8 @@
     "resultCount": "{count} kitap",
     "pageCount": "{count} sayfa",
     "pageOf": "{current} / {total} sayfa",
+    "inspect": "İncele",
+    "progressPercent": "%{percent} tamamlandı",
     "quotePage": "s. {page}",
     "seriesVolume": "{name} · {index}. cilt",
     "shelf": {

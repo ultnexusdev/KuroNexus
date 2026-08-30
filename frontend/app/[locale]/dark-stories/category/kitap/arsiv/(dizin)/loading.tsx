@@ -1,7 +1,20 @@
-import { HallSkeleton } from "@/components/hall/HallSkeleton";
+import { getLocale, getTranslations } from "next-intl/server";
+import KuroLoader from "@/components/ui/KuroLoader";
 
 /**
- * Kitap arsivi — yükleme iskeleti.
+ * Kitap arşivi — yükleme ekranı.
+ *
+ * ── ⚠️ İSKELET GİTTİ, LOADER GELDİ (30 Ağustos 2026) ─────────────────────
+ * Burada `HallSkeleton` duruyordu. Kullanıcı kararı: sitede tek bir
+ * yükleme kimliği olsun, hangi bağlantıya basılırsa basılsın aynı 黒
+ * ekranı açsın.
+ *
+ * ⚠️ SEBEP YALNIZCA ZEVK DEĞİL, GÖRÜNÜRLÜK: bir segmentte `loading.tsx`
+ * varsa Next.js geçişi ANINDA commit edip bu yedeği basıyor. Böylece
+ * `useLinkStatus().pending` daha 180ms dolmadan `false`a dönüyor ve
+ * küresel katman (`RouteLoader`) bu rotada HİÇ doğmuyor. Yani buradaki
+ * gövde neyse kullanıcının gördüğü yükleme ekranı odur — küresel katmanı
+ * beklemek boşuna.
  *
  * ⚠️ Bu dosyanın `(dizin)` rota grubunun İÇİNDE olması ZORUNLU.
  *
@@ -16,7 +29,14 @@ import { HallSkeleton } from "@/components/hall/HallSkeleton";
  * Parantezli klasör adı adresi değiştirmez, yalnızca segment ağacında ayrı bir
  * dal açar. Kardeş dinamik rota bu dalın dışında kaldığı için gerçek 404'ünü
  * korur.
+ *
+ * ⚠️ Gecikme prop'u verilmiyor: `KuroLoader`in kendi 180ms'lik saf CSS
+ * kalkanı burada DOĞRU olan. Sunucuda çiziliyor ve sert yüklemede ilk
+ * HTML'de bulunuyor; bir istemci kancası onu hidrasyona kadar gizlerdi.
  */
-export default function Loading() {
-  return <HallSkeleton category="kitap" tiles={12} stats={4} />;
+export default async function BookArchiveLoading() {
+  const locale = await getLocale();
+  const t = await getTranslations({ locale, namespace: "common" });
+
+  return <KuroLoader overlay label={t("routeLoading")} />;
 }

@@ -184,22 +184,26 @@ html {
    salon arasinda gezinirken gostergenin de renk degistirmesi "site
    yeniden yukleniyor" degil "baska bir siteye gittim" hissi verirdi.
 
-   ⚠️ Bu iki deger marka varliklarindan geliyor, secilmedi:
-   `public/brand/icon.svg` zemini #0c0b09 ve marka altini #c8a15c.
+   ⚠️ SALON BASINA TON YOK (30 Agustos 2026, kullanici karari:
+   "hepsi turuncu-kizil"). Onceden iki token vardi -- `--loader-gold`
+   (#c8a15c, marka altini) varsayilan, `--loader-anime` yalnizca anime
+   kanadinda. Ayrimin bedeli goruldu: ayni jest (bir baglantiya basmak)
+   sayfadan sayfaya farkli renkte bir ekran aciyordu, yani gosterge bir
+   kimlik degil bir surpriz oluyordu. Tek token kaldi.
 
    ⚠️ Kural 16: renk karari burada, bilesende degil. `KuroLoader`
    `currentColor` uzerinden calisiyor; asagidaki token'lari overlay
-   sarmalayicisi baglıyor.
+   sarmalayicisi baglıyor. Bilesende `tone` prop'u YOK -- olsaydi bu
+   karar yeniden acilirdi.
    ============================================================ */
 :root {
   --loader-ink:  #0c0b09; /* katman zemini — icon.svg'nin kendi zemini */
-  --loader-gold: #c8a15c; /* marka altini; varsayilan ve spor salonu */
-  /* Anime salonu: Akatsuki kizili (#c24449) ile anime kapisinin
-     turuncusu (--door-anime-a, #f0731e) ARASINDA sicak bir ton.
-     Ikisinden biri dogrudan alinmadi: kizil fazla "Akatsuki sergisi",
-     turuncu fazla "kapi". Zemin uzerinde 4.77:1 -- grafik siniri icin
-     istenen 3:1'in uzerinde. */
-  --loader-anime: #cc5a3c;
+  /* Akatsuki kizili (#c24449) ile anime kapisinin turuncusu
+     (--door-anime-a, #f0731e) ARASINDA sicak bir ton. Ikisinden biri
+     dogrudan alinmadi: kizil fazla "Akatsuki sergisi", turuncu fazla
+     "kapi". Zemin uzerinde 4.77:1 -- grafik siniri icin istenen
+     3:1'in uzerinde. */
+  --loader-mark: #cc5a3c;
 
   /* Katmanin yigin sirasi. Depoda z-index olcegi TOKEN DEGIL, her modul
      kendi sayisini yaziyor; bu deger komsulariyla birlikte okunmadan

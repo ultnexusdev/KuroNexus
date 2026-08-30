@@ -1,8 +1,15 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+} from "react";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/lib/i18n/navigation";
+import { beginNavPending } from "@/lib/nav/pending";
 import type { CharacterIndex } from "@/lib/api/types";
 import { CharacterPlate } from "./CharacterPlate";
 import styles from "./CharacterGallery.module.css";
@@ -150,15 +157,34 @@ export function CharacterGallery({
    * "Rastgele bir dosya çek" — müzenin kendi jesti: çekmeceden gelişigüzel
    * bir künye. Süzgeç açıksa **görünen** listeden seçer; yoksa buton bir
    * seriyi süzüp başka seriden karakter açardı.
+   *
+   * ⚠️ GEÇİŞ BİR `startTransition` İÇİNDE (30 Ağustos 2026). Sitedeki
+   * yükleme ekranını besleyen sayaç `<Link>`in içindeki `useLinkStatus()`
+   * kancasından geliyor; burası bir `<button>` ve `router.push` o kancanın
+   * hiç haberi olmadan gezindiği için ekran **hiçbir gösterge vermeden**
+   * donuyordu. Geçiş bir `useTransition` içine alınınca `pending` aynı
+   * bilgiyi veriyor ve aşağıdaki etki onu aynı sayaca yazıyor — yani
+   * rastgele düğmesi de artık 黒 ekranını açıyor.
    */
+  const [navigating, startNavigation] = useTransition();
+
+  useEffect(() => {
+    if (!navigating) return;
+    /* Dönen işlev sayacı serbest bırakıyor: geçiş bitse de bileşen
+       sökülse de sayaç düşüyor. */
+    return beginNavPending();
+  }, [navigating]);
+
   const openRandom = () => {
     if (visible.length === 0) {
       return;
     }
     const pick = visible[Math.floor(Math.random() * visible.length)];
-    router.push(
-      `/dark-stories/category/anime/karakterler/${pick.characterId}`,
-    );
+    startNavigation(() => {
+      router.push(
+        `/dark-stories/category/anime/karakterler/${pick.characterId}`,
+      );
+    });
   };
 
   const isFiltered = query.trim().length > 0 || series !== null;

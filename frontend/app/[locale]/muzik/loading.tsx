@@ -1,13 +1,27 @@
-import { HallSkeleton } from "@/components/hall/HallSkeleton";
+import { getLocale, getTranslations } from "next-intl/server";
+import KuroLoader from "@/components/ui/KuroLoader";
 
 /**
- * Müzik kanadının yükleme iskeleti.
+ * Müzik kanadının yükleme ekranı.
  *
- * Paylaşılan `HallSkeleton` kullanılıyor: altı salonun hepsi aynı iskeleti
- * kendi derisiyle çiziyor, yani kanat başına ayrı bir iskelet yazmak yok.
- * `category="muzik"` deriyi açıyor — iskelet de salonun renklerinde görünsün,
- * yükleme sırasında tema atlaması olmasın.
+ * ── ⚠️ İSKELET GİTTİ, LOADER GELDİ (30 Ağustos 2026) ─────────────────────
+ * Burada `HallSkeleton category="muzik"` duruyordu. Kullanıcı kararı:
+ * sitede tek bir yükleme kimliği olsun, hangi bağlantıya basılırsa
+ * basılsın aynı 黒 ekranı açsın.
+ *
+ * ⚠️ Bir segmentte `loading.tsx` varsa Next.js geçişi ANINDA commit edip
+ * bu yedeği basıyor; `useLinkStatus().pending` daha 180ms dolmadan
+ * `false`a dönüyor ve küresel katman (`RouteLoader`) bu rotada HİÇ
+ * doğmuyor. Buradaki gövde neyse kullanıcının gördüğü yükleme ekranı odur.
+ *
+ * ⚠️ BU DOSYA ZATEN VARDI — yani akış (streaming) davranışı ve onun
+ * `notFound()` üzerindeki etkisi DEĞİŞMEDİ; yeni bir `loading.tsx`
+ * eklenmedi. (Bilinen açık iş: `/muzik/tur/<yok>` bu yüzden 404 yerine
+ * 200 dönüyor ve bu değişiklikten ÖNCE de öyleydi.)
  */
-export default function MusicLoading() {
-  return <HallSkeleton category="muzik" tiles={12} stats={3} />;
+export default async function MusicLoading() {
+  const locale = await getLocale();
+  const t = await getTranslations({ locale, namespace: "common" });
+
+  return <KuroLoader overlay label={t("routeLoading")} />;
 }

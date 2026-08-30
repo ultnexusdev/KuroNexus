@@ -1,7 +1,13 @@
 import styles from "./HallSkeleton.module.css";
 
 /**
- * Salon iskeleti — `loading.tsx` dosyalarının gövdesi.
+ * Salon iskeleti.
+ *
+ * ── ⚠️ ŞU AN HİÇBİR YERDEN ÇAĞRILMIYOR (30 Ağustos 2026) ─────────────────
+ * Altı `loading.tsx` dosyasının gövdesiydi; hepsi `KuroLoader`a geçti
+ * (kullanıcı kararı: sitede tek bir yükleme kimliği). `AnimeHallSkeleton`
+ * ile aynı gerekçeyle SİLİNMEDİ: aşağıdaki zıplama sorunu hâlâ gerçek ve
+ * karar geri alınmak istenirse tek satırlık bir import.
  *
  * Gerçek salonun iskeletini taklit ediyor (künye şeridi + poster ızgarası),
  * çünkü amaç "bir şey yükleniyor" demek değil, **gelecek şeyin yerini şimdiden

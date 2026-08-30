@@ -67,8 +67,12 @@
 }
 
 /* ── KATMAN ──────────────────────────────────────────────────
-   Zemin ve renk TEMADAN BAGIMSIZ: yukleme ekrani markanin kimligi,
-   ziyaretcinin sectigi derinin degil (gerekce `globals.css`te).
+   Zemin ve renk TEMADAN VE SALONDAN BAGIMSIZ: yukleme ekrani markanin
+   kimligi, ziyaretcinin sectigi derinin degil (gerekce `globals.css`te).
+
+   ⚠️ `[data-tone]` KURALI YOK. Once vardi (anime kanadi ayri renkte
+   yukluyordu) ve 30 Agustos 2026'da kaldirildi: ayni jest sayfadan
+   sayfaya farkli renkte bir ekran acamaz.
 
    Yigin sirasi token'dan: gecis katmaninin ustunde, modalin altinda. */
 .overlay {
@@ -78,7 +82,7 @@
   display: grid;
   place-items: center;
   background: var(--loader-ink);
-  color: var(--loader-gold);
+  color: var(--loader-mark);
   /* Katman ekrani kapatiyor: gecis surerken ikinci bir tiklama
      gitmesin. Imlec de ne oldugunu soylesin. */
   cursor: progress;
@@ -92,12 +96,6 @@
      bir istemci kancasi o yedegi hidrasyona kadar gizlerdi ve en yavas
      senaryoda ekran bos kalirdi. */
   animation: knOverlayIn 250ms var(--kn-enter-delay, 180ms) ease-out both;
-}
-
-/* Salon kimligi. Spor kasten YOK: gorev "notr altin, degistirme"
-   diyor ve varsayilan zaten o. */
-.overlay[data-tone="anime"] {
-  color: var(--loader-anime);
 }
 
 /* Cikis: `useDelayedVisible` en az 400ms'yi doldurunca bu niteligi

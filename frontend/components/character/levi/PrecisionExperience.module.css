@@ -1,0 +1,1312 @@
+/* ============================================================
+   DÜNYA DERİSİ — Levi (AniList #45627)
+
+   Palet dalga briefinde KİLİTLİ; değerler olduğu gibi alındı ve
+   `node scripts/check-karakter-kontrast.mjs` ile ölçüldü:
+   text-primary 11.34 / surface, text-secondary 5.36, text-muted 4.93,
+   accent 6.76, accent-hover 8.32, gold 4.86 — hepsi eşiğin üstünde.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı
+   gereği bir yerel sınıf şart. Kök öğe ikisini birlikte taşır.
+
+   Aile: KÜL. Sayfada renk yok denecek kadar az — accent bile gri
+   (#989ea4), tek sıcaklık `--accent-hover`ın soğuk mavisinde. Arşivin
+   sıkışmış turuncu ve kızıl ailelerinden tamamen dışarıda; en yakın
+   komşusu Sai'nin kirli beyazı ve o da bambaşka bir zeminde.
+
+   ⚠️ Yardımcı token adlandırması: küçük metinde kullanılan her rengin
+   `-text` ekli bir kardeşi var (denetim yalnızca onları ölçüyor).
+   Ekli olmayanlar MALZEME: kanadın konturu, çeliğin gövdesi.
+   ============================================================ */
+.page[data-world="levi"] {
+  --bg:             #0c0d0d;
+  --surface:        #141516;
+  --surface-hover:  #1b1d1e;
+  --border:         #222425;
+  --border-strong:  #313335;
+
+  --text-primary:   #c9cccf;
+  --text-secondary: #848c94;
+  --text-muted:     #7b8691;
+
+  --accent:         #989ea4;
+  --accent-hover:   #9db1c8;
+  --accent-muted:   #3b4754;
+
+  --gold:           #7b858e;
+  --warn:           #b88347;
+  --danger:         #c26459;
+
+  /* ── Yardımcı malzeme — yalnızca bu ağaç okur ── */
+  --lvi-wing:       #3a4147;
+  --lvi-steel:      #4a5157;
+  --lvi-ink:        #101112;
+
+  /* ── Küçük metinde okunan aile (`-text`, ölçülüyor) ── */
+  --lvi-steel-text: #a3adb6;
+  --lvi-held-text:  #b9c4cd;
+  --lvi-lost-text:  #7f8a95;
+  --lvi-ja-text:    #98a4ae;
+  --lvi-frame-text: #8b949c;
+}
+
+/* ============================================================
+   LEVI — "Kesinlik"
+
+   Deri: kökteki `data-world="levi"` bütün standart token'ları küle
+   çeviriyor; yardımcılar `--lvi-*` (yukarıdaki blok). Bu bloktan
+   AŞAĞIDA TEK HEX YOK — ara tonların hepsi color-mix ile token'lardan
+   türetildi (FAZ 2 §1).
+
+   ── SAYFANIN FİKRİ ──────────────────────────────────────────────────────
+   KAPASİTE VE UNUTMA. Dalganın diğer dört sayfası genişliyor; bu sayfa
+   daralıyor. Tek kolon 34rem, bölümler arasında 8–14rem boşluk, KUTU YOK,
+   KART YOK, GÖLGE YOK. Görünen her ayrım bir saç çizgisi. Başlıklar bile
+   küçük: Bebas Neue ama 1.15rem'i geçmiyor — sayfadaki en büyük şey adın
+   kendisi (2.5rem) ve o da diğer sayfaların yarısı kadar.
+
+   ⚠️ Nanami'nin oranıyla, Sai'nin tomarıyla, Itachi'nin feneriyle
+   karıştırılmasın: burada ne kademe var ne ilerleme. Sabit bir SINIR (üç)
+   ve onu aşmaya çalışan bir ziyaretçi var.
+
+   ── ÖLÇÜ SİSTEMİ ────────────────────────────────────────────────────────
+   `--lvi-col` kolonun tek genişliği, `--lvi-step` bölümler arası boşluk,
+   `--lvi-hair` ise sayfadaki TEK ayırıcı: bir piksellik çizgi.
+
+   ── RENK GÖREVLERİ ──────────────────────────────────────────────────────
+   --accent        → bölüm başlıkları, dolu yuvanın sol çizgisi, ölçü tikleri
+   --accent-hover  → sayılar, alıntı okunuşları, bağlantılar, motto
+   --gold          → künye değerleri (kül grisinin sıcak olmayan altını)
+   --lvi-wing      → YALNIZCA kanat armasının konturu
+   --lvi-steel     → YALNIZCA çelik gövdeler (ense şeridi, ayraç)
+   --lvi-lost-text → YALNIZCA düşenlerin adı
+
+   ── TİPOGRAFİ ───────────────────────────────────────────────────────────
+   Display: Bebas Neue — dar, sıkı, BÜYÜK HARF, ama KÜÇÜK punto. Tek
+   ağırlıklı display ailesi olduğu için ev kuralının wght alt sınırı
+   burada geçerli değil (aynı desen Nanami ve Kiba sayfalarında).
+   Gövde: Jost, küçük punto, 1.95 satır aralığı — nefes metnin kendisinde.
+   Japonca: Shippori Mincho.
+
+   ── HAREKET ─────────────────────────────────────────────────────────────
+   "Dönen ODM bulanıklığı": geçişlerde kısa bir `rotate` + `blur`, sonra
+   TAM DURGUNLUK. Sayfada sürekli koşan hiçbir animasyon yok; her hareket
+   bir kullanıcı eylemine bağlı ve bir kere oluyor. Dosya sonundaki `reduce`
+   battaniyesi hepsini kapatıyor ve her durumun yazılı karşılığı var.
+   ============================================================ */
+
+.page {
+  --lvi-col: 34rem;
+  --lvi-step: clamp(8rem, 20vh, 14rem);
+  --lvi-hair: color-mix(in srgb, var(--border-strong) 80%, transparent);
+  --lvi-hair-soft: color-mix(in srgb, var(--border) 92%, transparent);
+  --lvi-turn: 520ms;
+  --lvi-quick: 220ms;
+  --lvi-ease: cubic-bezier(0.16, 0.84, 0.34, 1);
+
+  position: relative;
+  background: var(--bg);
+  color: var(--text-primary);
+  overflow-x: clip;
+  overflow-wrap: break-word;
+  padding: clamp(1.25rem, 4vw, 2.5rem) clamp(1.1rem, 5vw, 2rem)
+    clamp(5rem, 14vh, 9rem);
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-size: clamp(0.86rem, 0.8rem + 0.25vw, 0.95rem);
+  line-height: 1.95;
+  letter-spacing: 0.012em;
+}
+
+/* Görünür odak — sayfadaki her düğme ve bağlantı için tek kural */
+.page :focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 3px;
+}
+
+/* ── İKİNCİ DERECE: "pişmanlıksız seçim" modunun kaldırdığı her şey ──
+   Kaldırma `display: none` DEĞİL: geçiş mümkün olsun diye satır yüksekliği
+   1fr → 0fr, erişilebilirlik ağacından gerçekten çıksın diye `visibility`.
+   İkisi bir arada olmadan mod ya animasyonsuz ya da yalancı olurdu. */
+.aside {
+  display: grid;
+  grid-template-rows: 1fr;
+  margin-block-start: 0.7rem;
+  opacity: 1;
+  visibility: visible;
+  transition:
+    grid-template-rows var(--lvi-turn) var(--lvi-ease),
+    margin-block-start var(--lvi-turn) var(--lvi-ease),
+    opacity var(--lvi-quick) var(--lvi-ease),
+    filter var(--lvi-quick) var(--lvi-ease),
+    visibility 0s linear 0s;
+}
+
+.aside > * {
+  min-height: 0;
+  overflow: hidden;
+  transform: rotate(0deg);
+  transition: transform var(--lvi-turn) var(--lvi-ease);
+}
+
+.page[data-clean="true"] .aside {
+  grid-template-rows: 0fr;
+  margin-block-start: 0;
+  opacity: 0;
+  filter: blur(5px);
+  visibility: hidden;
+  transition:
+    grid-template-rows var(--lvi-turn) var(--lvi-ease),
+    margin-block-start var(--lvi-turn) var(--lvi-ease),
+    opacity var(--lvi-quick) var(--lvi-ease),
+    filter var(--lvi-quick) var(--lvi-ease),
+    visibility 0s linear var(--lvi-turn);
+}
+
+.page[data-clean="true"] .aside > * {
+  transform: rotate(-2.5deg);
+}
+
+/* `.aside > *` kırpıyor (katlanma bunu gerektiriyor) ve bu, içindeki
+   bağlantıların odak halkasını da kırpardı — halkayı içeri alıyoruz. */
+.aside :focus-visible {
+  outline-offset: -2px;
+}
+
+/* ══ BREADCRUMB ═══════════════════════════════════════════════════════ */
+
+.crumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.2rem 0.7rem;
+  max-width: var(--lvi-col);
+  margin-inline: auto;
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.crumb a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color var(--lvi-quick) var(--lvi-ease);
+}
+
+.crumb a:hover {
+  color: var(--accent-hover);
+}
+
+.crumbSep {
+  color: color-mix(in srgb, var(--lvi-steel-text) 55%, transparent);
+}
+
+.crumbHere {
+  color: var(--text-muted);
+}
+
+/* ══ 1 · HERO ═════════════════════════════════════════════════════════ */
+
+.hero {
+  position: relative;
+  max-width: var(--lvi-col);
+  margin: clamp(2.5rem, 8vh, 5rem) auto 0;
+}
+
+/* Filigran: tek kanat arması, dolgusuz, çok büyük, çok soluk.
+   Bu sayfada JAPONCA FİLİGRAN YOK (dalga kilidi). */
+.wings {
+  position: absolute;
+  top: -2.5rem;
+  left: 50%;
+  width: min(150%, 46rem);
+  translate: -50% 0;
+  pointer-events: none;
+  opacity: 0.5;
+  visibility: visible;
+  transition:
+    opacity var(--lvi-turn) var(--lvi-ease),
+    filter var(--lvi-turn) var(--lvi-ease),
+    rotate var(--lvi-turn) var(--lvi-ease),
+    visibility 0s linear 0s;
+}
+
+.page[data-clean="true"] .wings {
+  opacity: 0;
+  filter: blur(9px);
+  rotate: -3deg;
+  visibility: hidden;
+  transition:
+    opacity var(--lvi-turn) var(--lvi-ease),
+    filter var(--lvi-turn) var(--lvi-ease),
+    rotate var(--lvi-turn) var(--lvi-ease),
+    visibility 0s linear var(--lvi-turn);
+}
+
+.wingsArt {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.wingsFeather {
+  stroke: var(--lvi-wing);
+  stroke-width: 0.6;
+}
+
+.wingsSpine {
+  stroke: color-mix(in srgb, var(--lvi-wing) 55%, transparent);
+  stroke-width: 0.5;
+}
+
+.heroHouse {
+  position: relative;
+  margin: 0;
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.heroName {
+  position: relative;
+  margin: 0.9rem 0 0;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(1.7rem, 1.15rem + 2.4vw, 2.5rem);
+  font-weight: 400;
+  line-height: 1.02;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.heroNative {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.16em;
+  color: var(--lvi-ja-text);
+  overflow-wrap: anywhere;
+}
+
+.heroTitle {
+  position: relative;
+  margin: 1.6rem 0 0;
+  font-family: var(--font-shippori), serif;
+  font-size: 1.05rem;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+  overflow-wrap: anywhere;
+}
+
+.heroTitleReading {
+  margin: 0;
+  font-size: 0.74rem;
+  letter-spacing: 0.16em;
+  color: var(--text-muted);
+}
+
+.rule {
+  display: block;
+  height: 1px;
+  margin-block: 2.2rem;
+  background: var(--lvi-hair);
+}
+
+.heroEpigraph {
+  position: relative;
+  margin: 0;
+  font-size: 1.02rem;
+  line-height: 1.85;
+  color: var(--text-primary);
+}
+
+.heroLede {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.heroFrameNote {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/* Madalyon portre — kaynak kare 230×345, yani KÜÇÜK: tam kanama bir hero
+   olarak kullanılmıyor. Büyük kadraj küratör yuvası olarak boş duruyor. */
+.portrait {
+  position: relative;
+  width: clamp(9rem, 42vw, 13rem);
+  aspect-ratio: 230 / 345;
+  margin: clamp(2.5rem, 7vh, 4rem) 0 0;
+  border: 1px solid var(--lvi-hair);
+  overflow: hidden;
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+}
+
+.portraitImg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ══ 2 · MOD DÜĞMESİ ══════════════════════════════════════════════════ */
+
+.mode {
+  max-width: var(--lvi-col);
+  margin: clamp(5rem, 13vh, 8rem) auto 0;
+}
+
+.modeTitle {
+  margin: 0;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(0.95rem, 0.9rem + 0.3vw, 1.15rem);
+  font-weight: 400;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.modeNative {
+  margin: 0.45rem 0 0;
+  font-family: var(--font-shippori), serif;
+  font-size: 1rem;
+  letter-spacing: 0.14em;
+  color: var(--lvi-ja-text);
+}
+
+.modeButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+  min-height: var(--touch-min);
+  margin-block-start: 1.5rem;
+  padding: 0.7rem 1.3rem;
+  background: none;
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 0.74rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    border-color var(--lvi-quick) var(--lvi-ease),
+    color var(--lvi-quick) var(--lvi-ease);
+}
+
+.modeButton:hover {
+  border-color: var(--accent);
+  color: var(--accent-hover);
+}
+
+/* Tek işaret: basılıyken çeyrek tur dönüp DURAN bir kare. Dönüşün kendisi
+   sayfanın hareket dili; döndükten sonra hiçbir şey kımıldamıyor. */
+.modeMark {
+  width: 0.6rem;
+  height: 0.6rem;
+  flex: none;
+  border: 1px solid var(--accent);
+  transition:
+    transform var(--lvi-turn) var(--lvi-ease),
+    background var(--lvi-turn) var(--lvi-ease);
+}
+
+.modeButton[aria-pressed="true"] .modeMark {
+  transform: rotate(45deg);
+  background: var(--accent);
+}
+
+.modeLabel {
+  display: inline-block;
+}
+
+.modeHint {
+  margin: 1.1rem 0 0;
+  min-height: 3.2em;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+/* ══ ORTAK BÖLÜM ══════════════════════════════════════════════════════ */
+
+.section,
+.voidSection,
+.closing {
+  max-width: var(--lvi-col);
+  margin: var(--lvi-step) auto 0;
+}
+
+.sectionTitle {
+  margin: 0 0 1.2rem;
+  padding-block-end: 0.9rem;
+  border-block-end: 1px solid var(--lvi-hair);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(0.95rem, 0.9rem + 0.3vw, 1.15rem);
+  font-weight: 400;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.sectionLede {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+/* ══ KADRAJLAR ════════════════════════════════════════════════════════
+   Her kadrajın HEMEN ALTINDA kendi küratör yuvası duruyor (sayfa sonunda
+   toplu blok YASAK). Boş kadraj sayfadan silinmiyor — ama "pişmanlıksız
+   seçim" modu açıldığında DOLU OLMAYANLAR kalkıyor: mod ikinci dereceden
+   bilgiyi atıyor, gerçek olanı değil. */
+
+.frameSlot {
+  display: grid;
+  grid-template-rows: 1fr;
+  margin-block-start: 1.6rem;
+  opacity: 1;
+  visibility: visible;
+  transition:
+    grid-template-rows var(--lvi-turn) var(--lvi-ease),
+    margin-block-start var(--lvi-turn) var(--lvi-ease),
+    opacity var(--lvi-quick) var(--lvi-ease),
+    filter var(--lvi-quick) var(--lvi-ease),
+    visibility 0s linear 0s;
+}
+
+.frameInner {
+  min-height: 0;
+  overflow: hidden;
+  transition: transform var(--lvi-turn) var(--lvi-ease);
+}
+
+.page[data-clean="true"] .frameSlot[data-filled="false"] {
+  grid-template-rows: 0fr;
+  margin-block-start: 0;
+  opacity: 0;
+  filter: blur(6px);
+  visibility: hidden;
+  transition:
+    grid-template-rows var(--lvi-turn) var(--lvi-ease),
+    margin-block-start var(--lvi-turn) var(--lvi-ease),
+    opacity var(--lvi-quick) var(--lvi-ease),
+    filter var(--lvi-quick) var(--lvi-ease),
+    visibility 0s linear var(--lvi-turn);
+}
+
+.page[data-clean="true"] .frameSlot[data-filled="false"] .frameInner {
+  transform: rotate(-2deg) scale(0.97);
+}
+
+.frame {
+  position: relative;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  border: 1px solid var(--lvi-hair-soft);
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+  overflow: hidden;
+}
+
+.frame img {
+  object-fit: cover;
+}
+
+.frameTall {
+  aspect-ratio: 3 / 4;
+  max-width: 21rem;
+}
+
+.frameWide {
+  aspect-ratio: 16 / 9;
+}
+
+.frameSmall {
+  aspect-ratio: 3 / 2;
+}
+
+.frameScene {
+  aspect-ratio: 3 / 2;
+}
+
+.frameBand {
+  aspect-ratio: 8 / 3;
+}
+
+.frameCaption {
+  display: grid;
+  gap: 0.35rem;
+  justify-items: center;
+  padding: 1rem;
+  text-align: center;
+}
+
+.frameCaptionWord {
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--lvi-frame-text);
+}
+
+.frameCaptionSpec {
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+/* ══ 3 · KÜNYE ŞERİDİ ═════════════════════════════════════════════════
+   Kutu yok: her satır bir saç çizgisiyle ayrılıyor. Sekizinci satır
+   "yaş" ve bilerek boş bir cevap taşıyor. */
+
+.facts {
+  display: grid;
+  margin: 0;
+}
+
+.fact {
+  display: grid;
+  grid-template-columns: minmax(6.5rem, 9rem) 1fr;
+  gap: 0.35rem 1.2rem;
+  align-items: baseline;
+  padding-block: 0.85rem;
+  border-block-start: 1px solid var(--lvi-hair-soft);
+}
+
+.fact:first-child {
+  border-block-start: 0;
+}
+
+.factLabel {
+  margin: 0;
+  font-size: 0.68rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.factValue {
+  margin: 0;
+  color: var(--gold);
+  overflow-wrap: anywhere;
+}
+
+.factNote {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* ══ 4a · DONANIM — ÜÇ BÜYÜK ══════════════════════════════════════════ */
+
+.gearList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.gear {
+  padding-block-start: clamp(2.5rem, 7vh, 4rem);
+}
+
+.gear + .gear {
+  margin-block-start: clamp(2.5rem, 7vh, 4rem);
+  border-block-start: 1px solid var(--lvi-hair-soft);
+}
+
+.gearIndex {
+  margin: 0 0 1rem;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.85rem;
+  letter-spacing: 0.4em;
+  font-variant-numeric: tabular-nums;
+  color: var(--lvi-steel-text);
+}
+
+.gearName {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-size: clamp(1.15rem, 1rem + 0.8vw, 1.5rem);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.gearReading {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--lvi-ja-text);
+}
+
+.gearTurkish {
+  margin: 0.65rem 0 0;
+  font-size: 0.76rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.gearTagline {
+  margin: 1.4rem 0 0;
+  font-size: 1.02rem;
+  color: var(--accent-hover);
+}
+
+.gearText {
+  margin: 1.1rem 0 0;
+}
+
+.gearTraits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trait {
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--lvi-steel-text);
+}
+
+.trait::before {
+  content: "/";
+  margin-inline-end: 0.5rem;
+  color: color-mix(in srgb, var(--lvi-steel-text) 60%, transparent);
+}
+
+/* Ense ölçüsü — metinde geçen 1 m × 10 cm'in görsel karşılığı.
+   Üretilmiş raster değil, elle çizilmiş SVG (FAZ 2 §3). */
+.napeBar {
+  display: block;
+  margin-block-start: 1.4rem;
+}
+
+.napeArt {
+  display: block;
+  width: 100%;
+  max-width: 20rem;
+  height: auto;
+}
+
+.napeStrip {
+  stroke: var(--lvi-steel);
+  stroke-width: 1;
+}
+
+.napeTick {
+  stroke: var(--accent);
+  stroke-width: 1.2;
+}
+
+/* ══ 4b · DÖRT KÜÇÜK ══════════════════════════════════════════════════ */
+
+.kitList {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(2rem, 5vh, 3rem) 2rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kit {
+  min-width: 0;
+  padding-block-start: 1.5rem;
+  border-block-start: 1px solid var(--lvi-hair-soft);
+}
+
+.kitName {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-size: 1.05rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.kitReading {
+  margin: 0;
+  font-size: 0.7rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--lvi-ja-text);
+}
+
+.kitTurkish {
+  margin: 0.6rem 0 0;
+  font-size: 0.74rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.kitNote {
+  margin: 0.9rem 0 0;
+}
+
+/* ══ 5 · KAPASİTE TEZGÂHI — SAYFANIN KALBİ ════════════════════════════ */
+
+.rack {
+  margin-block-start: 2.4rem;
+}
+
+.rackCount {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0 0 1.8rem;
+  padding-block-end: 0.6rem;
+  border-block-end: 1px solid var(--lvi-hair);
+}
+
+.rackCountLabel {
+  font-size: 0.68rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.rackCountValue {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 1.35rem;
+  letter-spacing: 0.2em;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent-hover);
+}
+
+.rackHead {
+  margin: 2.6rem 0 0.9rem;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.82rem;
+  font-weight: 400;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.rackHead:first-of-type {
+  margin-block-start: 0;
+}
+
+/* Üç yuva HER ZAMAN çiziliyor: doluluk değil SINIR gösteriliyor */
+.slots {
+  display: grid;
+  gap: 0.85rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.slot {
+  min-width: 0;
+}
+
+.slotFull {
+  display: grid;
+  gap: 0.2rem;
+  width: 100%;
+  min-height: var(--touch-min);
+  padding: 0.85rem 0 0.85rem 1.05rem;
+  background: none;
+  border: 0;
+  border-inline-start: 2px solid var(--accent);
+  color: var(--lvi-held-text);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  animation: lviTurnIn var(--lvi-turn) var(--lvi-ease) both;
+  transition: border-color var(--lvi-quick) var(--lvi-ease);
+}
+
+.slotFull:hover {
+  border-inline-start-color: var(--accent-hover);
+}
+
+.slotName {
+  font-family: var(--font-shippori), serif;
+  font-size: 1.02rem;
+  letter-spacing: 0.06em;
+  color: var(--lvi-held-text);
+  overflow-wrap: anywhere;
+}
+
+.slotTitle {
+  font-size: 0.7rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.slotLine {
+  margin-block-start: 0.4rem;
+  font-size: 0.92em;
+  line-height: 1.85;
+  color: var(--text-primary);
+}
+
+.slotEmpty {
+  display: flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  padding: 0.85rem 0 0.85rem 1.05rem;
+  border-inline-start: 2px solid var(--border);
+  font-size: 0.72rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.rackOpening {
+  margin: 1.3rem 0 0;
+  color: var(--text-secondary);
+}
+
+.rackRelease {
+  margin: 1.3rem 0 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.pool {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.poolItem {
+  min-width: 0;
+}
+
+.poolButton {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: 0.1rem 0.9rem;
+  width: 100%;
+  min-height: var(--touch-min);
+  padding: 0.75rem 0.35rem;
+  background: none;
+  border: 0;
+  border-block-start: 1px solid var(--lvi-hair-soft);
+  color: var(--text-primary);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  transition:
+    color var(--lvi-quick) var(--lvi-ease),
+    background var(--lvi-quick) var(--lvi-ease);
+}
+
+.poolButton:hover:not(:disabled) {
+  color: var(--accent-hover);
+  background: color-mix(in srgb, var(--surface-hover) 75%, transparent);
+}
+
+.poolButton:disabled {
+  cursor: default;
+  color: var(--text-muted);
+}
+
+.poolName {
+  grid-column: 1;
+  font-family: var(--font-shippori), serif;
+  font-size: 0.98rem;
+  letter-spacing: 0.05em;
+  overflow-wrap: anywhere;
+}
+
+.poolTitle {
+  grid-column: 1;
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.poolBadge {
+  grid-column: 2;
+  grid-row: 1;
+  font-size: 0.64rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--accent-hover);
+}
+
+/* Düşenler: yalnızca AD kalıyor, cümle gitti. Üstü çizili olması bir
+   süsleme değil — sayfanın anlattığı kaybın kendisi. */
+.dropped {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.droppedItem {
+  font-family: var(--font-shippori), serif;
+  font-size: 0.9rem;
+  color: var(--lvi-lost-text);
+  text-decoration: line-through;
+  text-decoration-color: color-mix(in srgb, var(--lvi-steel) 85%, transparent);
+  overflow-wrap: anywhere;
+  animation: lviTurnIn var(--lvi-turn) var(--lvi-ease) both;
+}
+
+.droppedEmpty {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.rackFoot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.9rem 1.4rem;
+  margin-block-start: 2.6rem;
+}
+
+.rackReset {
+  min-height: var(--touch-min);
+  padding: 0.55rem 1.1rem;
+  background: none;
+  border: 1px solid var(--border-strong);
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 0.7rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    border-color var(--lvi-quick) var(--lvi-ease),
+    color var(--lvi-quick) var(--lvi-ease);
+}
+
+.rackReset:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent-hover);
+}
+
+.rackReset:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.rackKeys {
+  flex: 1 1 13rem;
+  margin: 0;
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+.rackStatus {
+  margin: 1.5rem 0 0;
+  min-height: 2.6em;
+  font-size: 0.84rem;
+  color: var(--accent-hover);
+}
+
+.rackClosing {
+  margin: 0.8rem 0 0;
+  padding-inline-start: 1.05rem;
+  border-inline-start: 2px solid var(--accent);
+  color: var(--text-primary);
+}
+
+/* ══ 6 · BEŞ DURAK ════════════════════════════════════════════════════ */
+
+.fate {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.stop {
+  padding-block-start: clamp(2.5rem, 7vh, 4rem);
+}
+
+.stop + .stop {
+  margin-block-start: clamp(2.5rem, 7vh, 4rem);
+  border-block-start: 1px solid var(--lvi-hair-soft);
+}
+
+.stopStamp {
+  margin: 0;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 0.85rem;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+}
+
+.stopTitle {
+  margin: 0.75rem 0 0;
+  font-size: 1.05rem;
+  font-weight: 500;
+  letter-spacing: 0.015em;
+  color: var(--text-primary);
+}
+
+.stopText {
+  margin: 0.9rem 0 0;
+}
+
+.stopQuote {
+  margin: 1.7rem 0 0;
+  padding-inline-start: 1.2rem;
+  border-inline-start: 1px solid var(--accent-muted);
+}
+
+.quoteJa {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-size: 1.12rem;
+  line-height: 1.75;
+  letter-spacing: 0.06em;
+  color: var(--lvi-ja-text);
+  overflow-wrap: anywhere;
+}
+
+.quoteReading {
+  margin: 0.55rem 0 0;
+  font-size: 0.94em;
+  color: var(--text-primary);
+}
+
+.quoteBy {
+  margin-block-start: 0.55rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.stopKin {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 0.85rem;
+  margin: 0;
+}
+
+.stopKinLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-block-end: 1px solid color-mix(in srgb, var(--accent-hover) 45%, transparent);
+  transition: border-color var(--lvi-quick) var(--lvi-ease);
+}
+
+.stopKinLink:hover {
+  border-block-end-color: var(--accent-hover);
+}
+
+.stopKinName {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  color: var(--text-secondary);
+}
+
+.stopKinRole {
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+}
+
+/* ══ 7a · BAĞLAR ══════════════════════════════════════════════════════
+   Portresiz, bilerek: bu sayfa dalganın en az öğe taşıyanı olmak zorunda.
+   Yalnız ad, rol ve bir çizgi. */
+
+.bonds {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bond {
+  display: grid;
+  gap: 0.15rem;
+  padding-block: 0.9rem;
+  border-block-start: 1px solid var(--lvi-hair-soft);
+}
+
+.bond:first-child {
+  border-block-start: 0;
+}
+
+.bondName {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  min-height: var(--touch-min);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 1.05rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-block-end: 1px solid color-mix(in srgb, var(--accent-hover) 40%, transparent);
+  transition: border-color var(--lvi-quick) var(--lvi-ease);
+}
+
+.bondName:hover {
+  border-block-end-color: var(--accent-hover);
+}
+
+.bondNamePlain {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  min-height: var(--touch-min);
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 1.05rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.bondRole {
+  color: var(--text-primary);
+}
+
+.bondFlag {
+  margin: 0;
+  font-size: 0.66rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ══ 7b · KAPANIŞ ═════════════════════════════════════════════════════ */
+
+.closingQuotes {
+  display: grid;
+  gap: clamp(2.5rem, 7vh, 4rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.closingQuote {
+  margin: 0;
+  padding-inline-start: 1.3rem;
+  border-inline-start: 2px solid var(--accent-muted);
+}
+
+.quoteNote {
+  margin: 0;
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+}
+
+.motto {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-size: clamp(1.45rem, 1.1rem + 1.7vw, 2.2rem);
+  letter-spacing: 0.14em;
+  line-height: 1.5;
+  color: var(--accent-hover);
+  overflow-wrap: anywhere;
+}
+
+.mottoNote {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+.credit {
+  margin: 2.8rem 0 0;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.credit a {
+  color: var(--accent-hover);
+}
+
+.creditNote {
+  margin: 0;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+/* ══ HAREKET ══════════════════════════════════════════════════════════
+   Tek yazılmış an: bir şeyin ele geldiği (ya da elden düştüğü) an.
+   Kısa bir dönüş + bulanıklık, sonra TAM DURGUNLUK — sayfada süresiz
+   koşan hiçbir animasyon yok. */
+
+@keyframes lviTurnIn {
+  from {
+    opacity: 0;
+    transform: rotate(-6deg) translateY(0.4rem);
+    filter: blur(7px);
+  }
+
+  60% {
+    filter: blur(2px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+  }
+}
+
+/* ══ DAR EKRAN ════════════════════════════════════════════════════════
+   360 px'te yatay taşma yok: kolon zaten tek, künye şeridi tek sütuna
+   iniyor, uzun Japonca dizeler `overflow-wrap: anywhere` ile kırılıyor. */
+
+@media (max-width: 26rem) {
+  .fact {
+    grid-template-columns: 1fr;
+    gap: 0.2rem;
+  }
+
+  .rackCount {
+    flex-wrap: wrap;
+  }
+}
+
+@media (min-width: 34rem) {
+  .kitList {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ══ AZALTILMIŞ HAREKET ═══════════════════════════════════════════════
+   Battaniye: geçiş süreleri VE gecikmeleri sıfırlanıyor. Gecikme de
+   şart — "pişmanlıksız seçim" modunun `visibility` geçişi bir gecikmeye
+   bindirilmiş durumda ve o kalırsa kaldırılan blok yarım saniye daha
+   ekran okuyucuda kalırdı. */
+
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    transition-delay: 0s !important;
+    scroll-behavior: auto !important;
+  }
+}

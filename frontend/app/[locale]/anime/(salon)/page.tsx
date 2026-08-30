@@ -17,7 +17,7 @@ import { AkatsukiPortalLink } from "@/components/anime/AkatsukiPortal";
 import { CuratorFrame } from "@/components/character/CuratorFrame";
 import { HallArt, HallSlotPen, hallArtSrc } from "@/components/anime/HallArt";
 import { readIsAdmin } from "@/lib/auth/session";
-import shell from "./layout.module.css";
+import shell from "../layout.module.css";
 import styles from "./page.module.css";
 
 export const dynamic = "force-dynamic";

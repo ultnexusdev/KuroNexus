@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { redirect } from "@/lib/i18n/navigation";
 import { getCharacterImages } from "@/lib/api/characters";
 import { readIsAdmin } from "@/lib/auth/session";
 import { AKATSUKI_IDS, SIX_PATHS } from "@/lib/anime/akatsuki";
-import { animeHref } from "@/lib/anime/routes";
 import { shareCard } from "@/lib/seo";
 import { AkatsukiPathDetail } from "@/components/anime/akatsuki/AkatsukiPathDetail";
 
@@ -55,14 +54,19 @@ export default async function AkatsukiPathPage({
   const path = findPath(pathKey);
   if (!path) {
     /*
-     * `notFound()` DEĞİL, bilinçli: üst ağaçtaki loading.tsx kabuğu akışla
-     * erken 200 gönderiyor ve not-found ekranı 200 gövdesinde kalıyordu
-     * (yerelde ölçüldü). Bilinmeyen anahtar elle yazılmış bir adrestir —
-     * doğru cevap ziyaretçiyi serginin kendisine götürmek.
+     * ⚠️ BURASI BİR SÜRE `redirect()` İDİ ve sebebi bu dosyada değildi:
+     * üst ağaçtaki `anime/loading.tsx` bütün kanadı akışa çeviriyor, HTTP
+     * başlıkları gövde çözülmeden gidiyor ve `notFound()` durum kodunu
+     * artık değiştiremiyordu — not-found ekranı 200 gövdesinin içinde
+     * kalıyordu (yerelde ölçüldü). Çare o gün ziyaretçiyi sergiye
+     * yönlendirmekti.
+     *
+     * 30 Ağustos 2026'da kök sebep düzeltildi: `loading.tsx` bir alta,
+     * `anime/(salon)/` grubuna taşındı ve bu rota akışın dışında kaldı.
+     * Artık gerçek 404 verilebiliyor — olmayan anahtar var olan bir
+     * sayfaya yönlenmiyor.
      */
-    redirect({ href: animeHref.akatsuki(), locale });
-    // next-intl'in redirect'i `never` tiplenmediği için TS daraltması elle
-    return null;
+    notFound();
   }
 
   const [images, isAdmin] = await Promise.all([

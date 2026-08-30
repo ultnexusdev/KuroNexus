@@ -10,7 +10,7 @@ import { shareCard } from "@/lib/seo";
 import { CoverArt } from "@/components/music/CoverArt";
 import { GenreMixBar } from "@/components/music/GenreMixBar";
 import { MusicCuratorSwitch } from "@/components/music/MusicCuratorSwitch";
-import shell from "./layout.module.css";
+import shell from "../layout.module.css";
 import styles from "./page.module.css";
 
 /**

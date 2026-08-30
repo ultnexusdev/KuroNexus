@@ -1,0 +1,1656 @@
+/* ============================================================
+   DÜNYA DERİSİ — Mikasa Ackerman (AniList #40881)
+
+   Palet Faz 2 · Dalga 1 brief'inde KİLİTLİ olarak verildi; değerler
+   değiştirilmedi. Kontrast ölçüldü (`node scripts/check-karakter-kontrast.mjs`):
+   birincil metin AAA üstü, ikincil aile AA üstü, accent zeminde 3:1 üstü.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı gereği
+   bir yerel sınıf şart. Kök öğe ikisini birlikte taşır.
+
+   Aile: SOĞUK ÇELİK GRİSİ. Skarlat yalnızca iki yerde — atkı çizgisinde ve
+   accent'te. Sayfada üçüncü bir renk yok; bu bir kısıt değil sayfanın fikri.
+   ============================================================ */
+.page[data-world="mikasa-ackerman"] {
+  --bg:             #0b0b0c;
+  --surface:        #131416;
+  --surface-hover:  #191b1d;
+  --border:         #202225;
+  --border-strong:  #2f3235;
+
+  --text-primary:   #c8ccd0;
+  --text-secondary: #818c98;
+  --text-muted:     #768593;
+
+  --accent:         #bc5c66;
+  --accent-hover:   #bf8288;
+  --accent-muted:   #3f2c2e;
+
+  --gold:           #768593;
+  --warn:           #b88347;
+  --danger:         #c26459;
+
+  /* ── Yardımcı malzeme ailesi — yalnızca bu ağaç okur ──
+     ⚠️ ADLANDIRMA SÖZLEŞMESİ: küçük metinde kullanılan her yardımcı rengin
+     `-text` ekli bir kardeşi var ve metin ONU okuyor; denetim yalnızca
+     `-text` ekli olanları ölçüyor. Ekli olmayanlar MALZEME: atkının
+     kumaşı, donanımın çeliği, kablonun teli, dokumanın ipliği. Hepsi koyu
+     olmak zorunda. */
+  --mks-scarf:      #a8404b;
+  --mks-scarf-text: #d98a91;
+  --mks-steel:      #394046;
+  --mks-steel-text: #98a4ae;
+  --mks-wire:       #626d76;
+  --mks-weave:      #232629;
+
+  /* Yıkamalar — dekoratif, metin taşımaz */
+  --mks-wash:       color-mix(in srgb, #a8404b 10%, transparent);
+  --mks-cold:       color-mix(in srgb, #98a4ae 8%, transparent);
+}
+
+/* ============================================================
+   MIKASA ACKERMAN — "Atkı"
+
+   Deri: kökteki `data-world="mikasa-ackerman"` bütün standart token'ları
+   çelik grisine çeviriyor; yardımcılar `--mks-*` (yukarıdaki blok).
+   Bu bloktan AŞAĞIDA TEK HEX YOK — ara tonların hepsi color-mix ile
+   token'lardan türetildi (SÖZLEŞME §1).
+
+   ── SAYFANIN FİKRİ ──────────────────────────────────────────────────────
+   TEK SÜREKLİ ÇİZGİ. Sol kenardan aşağı inen kırmızı atkı sayfanın hem
+   ızgarası hem tek renk aksanı. Bütün bölümler ona ODM kablolarıyla asılı;
+   kablolar `--mks-angle`ı okuyor. Sayfanın kalbindeki açı seçicisi o
+   değişkeni çevirdiğinde bütün kablolar birlikte dönüyor ve kartların
+   dizilim eğimi kayıyor.
+
+   ⚠️ Kushina'nın kopan zincir halkalarıyla karıştırılmasın: burada çizgi
+   hiç kopmuyor, hiç kısalmıyor. Değişen tek şey bir AÇI.
+   ⚠️ Madara'nın ölçek değiştiren basamaklarıyla da karıştırılmasın: burada
+   hiçbir şey büyümüyor; yalnızca eğiliyor.
+
+   ── ÖLÇÜ SİSTEMİ ────────────────────────────────────────────────────────
+   --mks-rail    atkının sol kenardan uzaklığı
+   --mks-gutter  içeriğin sol kenardan uzaklığı (atkının sağında)
+   --mks-step    bölümler arası dikey ritim
+   --mks-slope   dikey istiflerde adım başına yatay kayma
+   --mks-drop    yatay sıralarda adım başına dikey kayma
+   --mks-angle   kanca açısı (inline, ScarfShell'den)
+   --mks-shift   dizilim eğimi katsayısı (inline, ScarfShell'den)
+
+   ── TİPOGRAFİ ───────────────────────────────────────────────────────────
+   Display: Jost — ALL CAPS, 0.18em harf aralığı, orta ağırlık. Büyük değil
+   GENİŞ: sayfanın soğukluğu boyuttan değil aralıktan geliyor.
+   Gövde: Cormorant, alıntılar italik.
+   Teknik okumalar (derece, yaş, okunuş): IBM Plex Mono, tabular-nums.
+   Japonca: Shippori Mincho.
+
+   ── RENK GÖREVLERİ ──────────────────────────────────────────────────────
+   --mks-scarf      YALNIZCA atkı çizgisi ve düğümler
+   --accent         başlık altı işaretleri, seçili açı, odak halkası
+   --mks-steel      kart kenarları, donanım rozetleri
+   --mks-wire       ODM kabloları (SVG stroke)
+   --mks-weave      dokuma filigranı
+   --gold           künye değerleri (bu palette gri — bilinçli)
+   ============================================================ */
+
+.page {
+  --mks-rail: clamp(0.85rem, 4.5vw, 2.4rem);
+  --mks-gutter: clamp(2.2rem, 9vw, 5.25rem);
+  --mks-step: clamp(3.5rem, 9vw, 6.5rem);
+  --mks-slope: clamp(0.3rem, 1.7vw, 1.15rem);
+  --mks-drop: clamp(0.25rem, 1.3vw, 0.95rem);
+  --mks-round: 3px;
+  --mks-rail-w: 3px;
+  --mks-angle: 22deg;
+  --mks-shift: 0.42;
+
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-cormorant), Georgia, "Times New Roman", serif;
+  min-height: 100vh;
+  padding-block: clamp(1.25rem, 4vw, 2.75rem) clamp(3rem, 9vw, 6rem);
+}
+
+/* Uyanış: yeni bilgi gelmiyor, var olan sertleşiyor. */
+.page[data-awake="true"] {
+  --mks-round: 0px;
+  --mks-rail-w: 6px;
+}
+
+/* ⚠️ FİLTRE `.skin`DE, KÖKTE DEĞİL. `filter` bir içerme bloğu yaratıyor;
+   kökte olsaydı CuratorFrame'in sağ alta sabitlenmiş küratör hapı sayfaya
+   değil bu kutuya göre konumlanırdı. Sıralama: .page → CuratorFrame → .skin */
+.skin {
+  position: relative;
+  max-width: 76rem;
+  margin-inline: auto;
+  padding-inline: var(--mks-gutter) clamp(1rem, 4vw, 2.5rem);
+}
+
+.page[data-awake="true"] .skin {
+  filter: contrast(1.25) saturate(0.6);
+}
+
+/* ── ATKI: sayfanın tek sürekli çizgisi ─────────────────────────────── */
+
+.rail {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: var(--mks-rail);
+  inline-size: var(--mks-rail-w);
+  pointer-events: none;
+}
+
+.railCore {
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      var(--mks-scarf) 0 7px,
+      color-mix(in srgb, var(--mks-scarf) 68%, var(--bg)) 7px 14px
+    );
+  box-shadow: 0 0 14px color-mix(in srgb, var(--mks-scarf) 30%, transparent);
+}
+
+.railKnot {
+  position: absolute;
+  inset-block-start: -0.35rem;
+  inset-inline-start: 50%;
+  inline-size: clamp(1.35rem, 4vw, 2rem);
+  block-size: auto;
+  transform: translateX(-50%);
+  overflow: visible;
+}
+
+.railKnotLoop {
+  fill: none;
+  stroke: var(--mks-scarf);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+}
+
+.railKnotTail {
+  fill: none;
+  stroke: color-mix(in srgb, var(--mks-scarf) 70%, var(--bg));
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+/* ── ÜST ŞERİT ──────────────────────────────────────────────────────── */
+
+.crumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-block-end: clamp(1.5rem, 5vw, 3rem);
+}
+
+.crumb a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-block-end: 1px solid color-mix(in srgb, var(--mks-scarf) 55%, transparent);
+  padding-block: 0.3rem;
+  min-height: var(--touch-min);
+  display: inline-flex;
+  align-items: center;
+}
+
+.crumb a:hover,
+.crumb a:focus-visible {
+  color: var(--accent-hover);
+  border-block-end-color: var(--accent);
+}
+
+.crumbSep {
+  color: var(--text-muted);
+}
+
+.crumbHere {
+  color: var(--mks-steel-text);
+}
+
+/* ── 1 · HERO ───────────────────────────────────────────────────────── */
+
+.hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: clamp(1.25rem, 4vw, 2.75rem);
+  padding-block-end: clamp(2rem, 6vw, 3.5rem);
+  overflow: clip;
+}
+
+.heroWeave {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.heroWeaveWarp {
+  fill: none;
+  stroke: var(--mks-weave);
+  stroke-width: 1.4;
+}
+
+.heroWeaveWeft {
+  fill: none;
+  stroke: color-mix(in srgb, var(--mks-scarf) 26%, var(--bg));
+  stroke-width: 1.4;
+}
+
+/* ⚠️ İKİ TUZAK BİR ARADA, ikisi de ölçülerek bulundu (30 Ağustos 2026).
+   1. Filigran portrenin SOLUNDA duruyor, sağ kenarda değil: sağ kenarda
+      opak portre madalyonu (z-index 1) onu tamamen örtüyordu.
+   2. Burada FİZİKSEL `top`/`right` var, mantıksal karşılıkları DEĞİL.
+      Öğenin kendi yazım yönü `vertical-rl` ve tarayıcı yerleştirme
+      niteliklerini öğenin KENDİ eksenlerine göre çözüyor:
+      `inset-block-start` sağa, `inset-inline-end` alta düşüyordu — yani
+      yatay konumu ayarladığını sandığın bildirim dikey konumu ayarlıyordu.
+      Ölçüm: mark 891–1053, portre 815–1045 (üst üste). */
+.heroMark {
+  position: absolute;
+  top: -0.5rem;
+  right: clamp(0.5rem, 26vw, 17rem);
+  margin: 0;
+  font-family: var(--font-shippori), "Yu Mincho", serif;
+  font-size: clamp(4.5rem, 17vw, 11rem);
+  line-height: 0.92;
+  writing-mode: vertical-rl;
+  color: color-mix(in srgb, var(--mks-steel-text) 13%, transparent);
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+
+.heroBody {
+  position: relative;
+  z-index: 1;
+  min-inline-size: 0;
+}
+
+.heroHouse {
+  margin: 0 0 clamp(0.75rem, 2.5vw, 1.25rem);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--mks-steel-text);
+}
+
+.heroName {
+  margin: 0;
+  font-family: var(--font-jost), "Segoe UI", system-ui, sans-serif;
+  font-weight: 500;
+  font-size: clamp(1.85rem, 7.2vw, 3.9rem);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  line-height: 1.12;
+  color: var(--text-primary);
+  overflow-wrap: break-word;
+}
+
+.heroNative {
+  margin: 0.6rem 0 0;
+  font-family: var(--font-shippori), "Yu Mincho", serif;
+  font-size: clamp(0.85rem, 2.6vw, 1.05rem);
+  letter-spacing: 0.24em;
+  color: var(--text-muted);
+}
+
+.heroEpigraph {
+  margin: clamp(1.25rem, 4vw, 2rem) 0 0;
+  padding-inline-start: 1rem;
+  border-inline-start: 2px solid var(--mks-scarf);
+  font-size: clamp(1.05rem, 3.1vw, 1.4rem);
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--text-primary);
+  max-inline-size: 34ch;
+}
+
+.heroLede {
+  margin: clamp(1rem, 3vw, 1.5rem) 0 0;
+  font-size: clamp(0.98rem, 2.7vw, 1.12rem);
+  line-height: 1.72;
+  color: var(--text-secondary);
+  max-inline-size: 56ch;
+}
+
+.heroAside {
+  position: relative;
+  z-index: 1;
+  inline-size: min(230px, 40vw);
+}
+
+.heroPortrait {
+  display: block;
+  position: relative;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--mks-round);
+  background: var(--surface);
+  overflow: hidden;
+  aspect-ratio: 230 / 345;
+}
+
+.heroPortrait::after {
+  /* Atkı, portrenin altını da geçiyor: aynı çizgi, aynı kırmızı. */
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 12%;
+  block-size: 5px;
+  background: var(--mks-scarf);
+  opacity: 0.85;
+}
+
+.heroPortraitImg {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+
+.heroBand {
+  position: relative;
+  z-index: 1;
+  grid-column: 1 / -1;
+  margin-block-start: clamp(1.25rem, 4vw, 2rem);
+}
+
+/* ── 2 · MOD DÜĞMESİ ────────────────────────────────────────────────── */
+
+.mode {
+  position: relative;
+  margin-block-start: var(--mks-step);
+}
+
+.modeBar {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(0.75rem, 3vw, 1.5rem);
+  margin-block-start: clamp(1rem, 3vw, 1.75rem);
+  padding: clamp(0.75rem, 2.5vw, 1.15rem);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--mks-round);
+  background: var(--surface);
+}
+
+/* Uyanıkken mod şeridi de atkının rengine bulanıyor — sayfadaki tek
+   yıkama, metnin altında değil zeminde. */
+.page[data-awake="true"] .modeBar {
+  background: linear-gradient(var(--mks-wash), var(--mks-wash)), var(--surface);
+  border-color: var(--mks-scarf);
+}
+
+.modeButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: var(--touch-min);
+  padding: 0.55rem 1.05rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--mks-round);
+  background: var(--surface-hover);
+  color: var(--text-primary);
+  font-family: var(--font-jost), "Segoe UI", system-ui, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.modeButton:hover {
+  border-color: var(--accent);
+  color: var(--accent-hover);
+}
+
+.modeButton[aria-pressed="true"] {
+  border-color: var(--mks-scarf);
+  background: color-mix(in srgb, var(--accent-muted) 60%, var(--surface-hover));
+}
+
+.modeGlyph {
+  inline-size: 1.1rem;
+  block-size: auto;
+  flex: none;
+}
+
+.modeGlyphLoop {
+  fill: none;
+  stroke: var(--mks-scarf);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.modeGlyphTail {
+  fill: none;
+  stroke: var(--mks-steel-text);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.modeLabel {
+  white-space: nowrap;
+}
+
+.modeState {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 0;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.modeStateLabel {
+  color: var(--text-muted);
+}
+
+.modeStateValue {
+  color: var(--mks-scarf-text);
+}
+
+.modeHint {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: clamp(0.92rem, 2.5vw, 1.02rem);
+  line-height: 1.65;
+  color: var(--text-secondary);
+  max-inline-size: 62ch;
+}
+
+/* ── BÖLÜM İSKELETİ ─────────────────────────────────────────────────── */
+
+.section,
+.dialSection,
+.closing {
+  position: relative;
+  margin-block-start: var(--mks-step);
+}
+
+.sectionHead {
+  position: relative;
+  margin-block-end: clamp(1.25rem, 4vw, 2.25rem);
+}
+
+/* ODM kablosu: bölümü sol kenardaki atkıya bağlıyor. Açısını
+   `--mks-angle`dan alıyor, yani sayfanın kalbindeki seçiciden. */
+.sectionCable {
+  position: absolute;
+  inset-block-start: 0.45rem;
+  inset-inline-start: calc(var(--mks-rail) - var(--mks-gutter));
+  inline-size: calc(
+    var(--mks-gutter) - var(--mks-rail) + clamp(0.5rem, 3vw, 2.25rem)
+  );
+  block-size: auto;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.sectionCablePivot {
+  transform-box: fill-box;
+  transform-origin: 0% 50%;
+  transform: rotate(var(--mks-angle));
+}
+
+.sectionCableLine {
+  fill: none;
+  stroke: var(--mks-wire);
+  stroke-width: 1.6;
+  stroke-linecap: butt;
+}
+
+.sectionCableTip {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sectionCableNode {
+  fill: var(--mks-scarf);
+  stroke: none;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: var(--font-jost), "Segoe UI", system-ui, sans-serif;
+  font-weight: 500;
+  font-size: clamp(1.05rem, 3.2vw, 1.55rem);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.sectionLede {
+  margin: 0.85rem 0 0;
+  font-size: clamp(0.98rem, 2.6vw, 1.1rem);
+  line-height: 1.72;
+  color: var(--text-secondary);
+  max-inline-size: 62ch;
+}
+
+/* ── 3 · KÜNYE ŞERİDİ ───────────────────────────────────────────────── */
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: 1px;
+  margin: 0;
+  border: 1px solid var(--border);
+  background: var(--border);
+}
+
+.fact {
+  padding: clamp(0.7rem, 2.4vw, 1.05rem);
+  background: var(--surface);
+}
+
+.fact dt {
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.64rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.fact dd {
+  margin: 0.45rem 0 0;
+  font-size: clamp(0.95rem, 2.5vw, 1.05rem);
+  line-height: 1.55;
+  color: var(--gold);
+}
+
+.factNote {
+  margin: clamp(0.85rem, 3vw, 1.35rem) 0 0;
+  padding-inline-start: 0.9rem;
+  border-inline-start: 1px solid color-mix(in srgb, var(--mks-scarf) 50%, transparent);
+  font-size: 0.94rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+  max-inline-size: 62ch;
+}
+
+.bondsTitle {
+  margin: clamp(2rem, 6vw, 3.25rem) 0 0;
+  font-family: var(--font-jost), "Segoe UI", system-ui, sans-serif;
+  font-weight: 500;
+  font-size: clamp(0.92rem, 2.6vw, 1.1rem);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--mks-steel-text);
+}
+
+.bondsLede {
+  margin: 0.65rem 0 clamp(1rem, 3vw, 1.5rem);
+  font-size: 0.98rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+  max-inline-size: 58ch;
+}
+
+.bonds {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: clamp(0.6rem, 2vw, 0.95rem);
+}
+
+/* Dizilim eğimi: her sonraki bağ, seçili açı kadar sağa kayıyor.
+   `min()` 360 pikselde taşmayı imkânsız kılıyor. */
+.bond {
+  margin-inline-start: min(
+    calc(var(--mks-shift) * var(--i, 0) * var(--mks-slope)),
+    4.5rem
+  );
+}
+
+.bondLink {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(0.7rem, 2.5vw, 1.1rem);
+  min-height: var(--touch-min);
+  padding: clamp(0.6rem, 2.2vw, 0.95rem);
+  border: 1px solid var(--border);
+  border-inline-start: 2px solid color-mix(in srgb, var(--mks-scarf) 65%, transparent);
+  border-radius: var(--mks-round);
+  background: var(--surface);
+  color: inherit;
+  text-decoration: none;
+}
+
+a.bondLink:hover,
+a.bondLink:focus-visible {
+  background: var(--surface-hover);
+  border-inline-start-color: var(--accent);
+}
+
+.bondFace {
+  position: relative;
+  inline-size: clamp(2.6rem, 9vw, 3.4rem);
+  aspect-ratio: 1;
+  flex: none;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--surface-hover);
+  display: grid;
+  place-items: center;
+}
+
+.bondFace img {
+  object-fit: cover;
+}
+
+.bondFaceMark {
+  font-family: var(--font-jost), "Segoe UI", system-ui, sans-serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.1em;
+  color: var(--mks-steel-text);
+}
+
+.bondBody {
+  display: grid;
+  gap: 0.22rem;
+  min-inline-size: 0;
+}
+
+.bondName {
+  font-family: var(--font-jost), "Segoe UI", system-ui, sans-serif;
+  font-weight: 500;
+  font-size: 0.92rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.bondNative {
+  font-family: var(--font-shippori), "Yu Mincho", serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+}
+
+.bondRole {
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.64rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mks-scarf-text);
+}
+
+.bondNote {
+  margin-block-start: 0.3rem;
+  font-size: 0.96rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* ── 4 · DONANIM ────────────────────────────────────────────────────── */
+
+.gear {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: clamp(1rem, 3.5vw, 1.75rem);
+}
+
+.gearItem {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) minmax(0, 22rem);
+  align-items: start;
+  gap: clamp(0.85rem, 3vw, 1.6rem);
+  padding: clamp(0.9rem, 3vw, 1.5rem);
+  border: 1px solid var(--border);
+  border-radius: var(--mks-round);
+  background: var(--surface);
+  margin-inline-start: min(
+    calc(var(--mks-shift) * var(--i, 0) * var(--mks-slope)),
+    4.5rem
+  );
+}
+
+.gearItem::before {
+  /* Kartın atkıya bakan kenarı — kırmızı, ince, sürekli */
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  inline-size: 2px;
+  background: var(--mks-scarf);
+}
+
+.gearKanji {
+  writing-mode: vertical-rl;
+  font-family: var(--font-shippori), "Yu Mincho", serif;
+  font-size: clamp(1.1rem, 3.4vw, 1.5rem);
+  letter-spacing: 0.12em;
+  color: color-mix(in srgb, var(--mks-steel-text) 45%, transparent);
+  padding-inline-start: 0.35rem;
+}
+
+.gearBody {
+  display: grid;
+  gap: 0.4rem;
+  min-inline-size: 0;
+}
+
+.gearName {
+  font-family: var(--font-shippori), "Yu Mincho", serif;
+  font-size: clamp(1rem, 3vw, 1.2rem);
+  letter-spacing: 0.1em;
+  color: var(--text-primary);
+}
+
+.gearReading {
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.gearTurkish {
+  font-family: var(--font-jost), "Segoe UI", system-ui, sans-serif;
+  font-weight: 500;
+  font-size: clamp(0.95rem, 2.7vw, 1.12rem);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent-hover);
+}
+
+.gearTagline {
+  font-size: clamp(1rem, 2.8vw, 1.18rem);
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--mks-steel-text);
+}
+
+.gearText {
+  font-size: clamp(0.98rem, 2.6vw, 1.08rem);
+  line-height: 1.72;
+  color: var(--text-secondary);
+}
+
+.gearTraits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-block-start: 0.35rem;
+}
+
+.trait {
+  padding: 0.28rem 0.6rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--mks-round);
+  background: var(--surface-hover);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mks-steel-text);
+}
+
+/* Dört ayrıntı: yatay sıra, dolayısıyla eğim DİKEY kayma olarak okunuyor —
+   aynı açı, başka eksen. */
+.notes {
+  list-style: none;
+  margin: clamp(1.25rem, 4vw, 2rem) 0 0;
+  padding: 0 0 min(calc(var(--mks-shift) * 3 * var(--mks-drop)), 3rem);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12.5rem), 1fr));
+  gap: clamp(0.7rem, 2.5vw, 1.15rem);
+}
+
+.note {
+  display: grid;
+  gap: 0.35rem;
+  align-content: start;
+  padding: clamp(0.7rem, 2.4vw, 1rem);
+  border: 1px solid var(--border);
+  border-block-start: 2px solid var(--mks-steel);
+  border-radius: var(--mks-round);
+  background: var(--surface);
+  transform: translateY(min(calc(var(--mks-shift) * var(--i, 0) * var(--mks-drop)), 3rem));
+}
+
+/* Kare rozet dar ekranda tek kolona düşünce 275 piksellik bir boşluğa
+   dönüşüyor ve altındaki metni ekrandan atıyordu (ölçüldü, 360 px).
+   Yükseklik sınırlanıyor; dolduğunda `object-fit: cover` kadrajı kesiyor. */
+.note .frame {
+  max-block-size: clamp(8rem, 34vw, 14rem);
+}
+
+.noteName {
+  font-family: var(--font-shippori), "Yu Mincho", serif;
+  font-size: 1.02rem;
+  letter-spacing: 0.08em;
+  color: var(--text-primary);
+}
+
+.noteReading {
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.noteTurkish {
+  font-family: var(--font-jost), "Segoe UI", system-ui, sans-serif;
+  font-weight: 500;
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--mks-scarf-text);
+}
+
+.noteText {
+  font-size: 0.96rem;
+  line-height: 1.62;
+  color: var(--text-secondary);
+}
+
+/* ── 5 · KANCA AÇISI ────────────────────────────────────────────────── */
+
+.dial {
+  display: grid;
+  gap: clamp(1.25rem, 4vw, 2rem);
+}
+
+.dialLayout {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: clamp(1rem, 4vw, 2.25rem);
+  padding: clamp(0.9rem, 3vw, 1.5rem);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--mks-round);
+  background: var(--surface);
+}
+
+.dialArt {
+  inline-size: clamp(7rem, 26vw, 11rem);
+  flex: none;
+}
+
+.dialDiagram {
+  inline-size: 100%;
+  block-size: auto;
+  display: block;
+}
+
+.dialRail {
+  fill: none;
+  stroke: var(--mks-scarf);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.dialRay {
+  fill: none;
+  stroke: color-mix(in srgb, var(--mks-wire) 55%, transparent);
+  stroke-width: 1.4;
+  stroke-dasharray: 3 5;
+}
+
+.dialRayActive {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+}
+
+.dialArc {
+  fill: none;
+  stroke: color-mix(in srgb, var(--mks-steel-text) 45%, transparent);
+  stroke-width: 1.2;
+}
+
+.dialArc[data-flat="true"] {
+  stroke: color-mix(in srgb, var(--mks-steel-text) 18%, transparent);
+}
+
+.dialNode {
+  fill: var(--mks-scarf);
+}
+
+.dialTarget {
+  fill: none;
+  stroke: var(--accent-hover);
+  stroke-width: 2;
+}
+
+.dialControls {
+  display: grid;
+  gap: clamp(0.8rem, 2.5vw, 1.2rem);
+  min-inline-size: 0;
+}
+
+.dialGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.dialButton {
+  display: grid;
+  gap: 0.15rem;
+  justify-items: start;
+  min-height: var(--touch-min);
+  padding: 0.5rem 0.85rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--mks-round);
+  background: var(--surface-hover);
+  color: var(--text-secondary);
+  cursor: pointer;
+  text-align: start;
+}
+
+.dialButton:hover {
+  border-color: var(--accent);
+  color: var(--text-primary);
+}
+
+.dialButton[aria-pressed="true"] {
+  border-color: var(--mks-scarf);
+  background: color-mix(in srgb, var(--accent-muted) 55%, var(--surface-hover));
+  color: var(--text-primary);
+}
+
+.dialDeg {
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 1.02rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.06em;
+  color: var(--accent-hover);
+}
+
+.dialButton[aria-pressed="true"] .dialDeg {
+  color: var(--mks-scarf-text);
+}
+
+.dialName {
+  font-family: var(--font-jost), "Segoe UI", system-ui, sans-serif;
+  font-weight: 500;
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.dialMeta {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0;
+  padding-block-start: 0.75rem;
+  border-block-start: 1px solid var(--border);
+}
+
+.dialMetaRow {
+  display: grid;
+  grid-template-columns: minmax(0, 10rem) minmax(0, 1fr);
+  gap: 0.5rem;
+}
+
+.dialMetaLabel {
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  align-self: center;
+}
+
+.dialMetaValue {
+  margin: 0;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.76rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--mks-steel-text);
+}
+
+.dialHint {
+  margin: 0;
+  font-size: 0.94rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.dialPanels {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 min(calc(var(--mks-shift) * 2 * var(--mks-drop)), 2.5rem);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: clamp(0.7rem, 2.5vw, 1.15rem);
+}
+
+.dialPanel {
+  display: grid;
+  gap: 0.5rem;
+  align-content: start;
+  padding: clamp(0.8rem, 2.6vw, 1.15rem);
+  border: 1px solid var(--border);
+  border-inline-start: 2px solid var(--border-strong);
+  border-radius: var(--mks-round);
+  background: var(--surface);
+  transform: translateY(min(calc(var(--mks-shift) * var(--i, 0) * var(--mks-drop)), 2.5rem));
+}
+
+.dialPanel[data-active="true"] {
+  border-inline-start-color: var(--mks-scarf);
+  background: var(--surface-hover);
+}
+
+.dialPanelHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.55rem;
+  margin: 0;
+}
+
+.dialPanelDeg {
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 1.05rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent-hover);
+}
+
+.dialPanel[data-active="true"] .dialPanelDeg {
+  color: var(--mks-scarf-text);
+}
+
+.dialPanelName {
+  font-family: var(--font-jost), "Segoe UI", system-ui, sans-serif;
+  font-weight: 500;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.dialGeometry {
+  margin: 0;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: var(--mks-steel-text);
+}
+
+.dialScene {
+  margin: 0;
+  font-size: 0.99rem;
+  line-height: 1.68;
+  color: var(--text-secondary);
+}
+
+.dialNote {
+  margin: 0;
+  padding-inline-start: 0.75rem;
+  border-inline-start: 1px solid color-mix(in srgb, var(--mks-scarf) 55%, transparent);
+  font-size: 0.96rem;
+  font-style: italic;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+/* ── 6 · BEŞ DÜĞÜM ──────────────────────────────────────────────────── */
+
+.knots {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: clamp(1rem, 3.5vw, 1.75rem);
+}
+
+.knot {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 9rem) minmax(0, 1fr) minmax(0, 20rem);
+  align-items: start;
+  gap: clamp(0.75rem, 3vw, 1.5rem);
+  padding: clamp(0.9rem, 3vw, 1.5rem) clamp(0.9rem, 3vw, 1.5rem)
+    clamp(0.9rem, 3vw, 1.5rem) clamp(1.1rem, 3.5vw, 1.8rem);
+  border: 1px solid var(--border);
+  border-radius: var(--mks-round);
+  background: var(--surface);
+  margin-inline-start: min(
+    calc(var(--mks-shift) * var(--i, 0) * var(--mks-slope)),
+    4.5rem
+  );
+}
+
+.knot::before {
+  /* Atkının üstüne atılan düğüm: kartın sol kenarındaki kırmızı halka */
+  content: "";
+  position: absolute;
+  inset-block-start: clamp(0.9rem, 3vw, 1.5rem);
+  inset-inline-start: -0.42rem;
+  inline-size: 0.85rem;
+  aspect-ratio: 1;
+  border: 2px solid var(--mks-scarf);
+  border-radius: 50%;
+  background: var(--bg);
+}
+
+.knotAge {
+  margin: 0;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.68rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--mks-scarf-text);
+}
+
+.knotBody {
+  min-inline-size: 0;
+}
+
+.knotTitle {
+  margin: 0;
+  font-family: var(--font-jost), "Segoe UI", system-ui, sans-serif;
+  font-weight: 500;
+  font-size: clamp(1rem, 2.9vw, 1.28rem);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.knotText {
+  margin: 0.7rem 0 0;
+  font-size: clamp(0.98rem, 2.6vw, 1.08rem);
+  line-height: 1.72;
+  color: var(--text-secondary);
+}
+
+.knotQuote {
+  margin: clamp(0.85rem, 3vw, 1.25rem) 0 0;
+  padding-inline-start: 0.95rem;
+  border-inline-start: 2px solid var(--mks-scarf);
+}
+
+.knotQuoteJa {
+  margin: 0;
+  font-family: var(--font-shippori), "Yu Mincho", serif;
+  font-size: clamp(1rem, 2.9vw, 1.2rem);
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+.knotQuoteReading {
+  margin: 0.3rem 0 0;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.64rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.knotQuoteMeaning {
+  margin: 0.4rem 0 0;
+  font-size: 1rem;
+  font-style: italic;
+  line-height: 1.6;
+  color: var(--mks-steel-text);
+}
+
+.knotQuote figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-block-start: 0.5rem;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.knotQuoteBy {
+  color: var(--mks-scarf-text);
+}
+
+.knotQuoteWhere {
+  color: var(--text-muted);
+}
+
+.knotKin {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+  margin: clamp(0.85rem, 3vw, 1.2rem) 0 0;
+  padding-block-start: 0.7rem;
+  border-block-start: 1px solid var(--border);
+}
+
+.knotKinFace {
+  position: relative;
+  inline-size: 2.2rem;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--surface-hover);
+  flex: none;
+}
+
+.knotKinFace img {
+  object-fit: cover;
+}
+
+.knotKinName {
+  font-family: var(--font-jost), "Segoe UI", system-ui, sans-serif;
+  font-weight: 500;
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.knotKinRole {
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ── 7 · KAPANIŞ ────────────────────────────────────────────────────── */
+
+.closingScarf {
+  inline-size: min(15rem, 55vw);
+  margin-block-end: clamp(1.25rem, 4vw, 2rem);
+}
+
+.closingKnot {
+  inline-size: 45%;
+  block-size: auto;
+  display: block;
+  margin: auto;
+}
+
+.closingKnotLoop {
+  fill: none;
+  stroke: var(--mks-scarf);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.closingKnotTail {
+  fill: none;
+  stroke: color-mix(in srgb, var(--mks-scarf) 60%, var(--bg));
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+
+.closingQuotes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  gap: clamp(0.85rem, 3vw, 1.4rem);
+}
+
+.closingQuote {
+  margin: 0;
+  padding: clamp(0.9rem, 3vw, 1.4rem);
+  border: 1px solid var(--border);
+  border-block-start: 2px solid var(--mks-scarf);
+  border-radius: var(--mks-round);
+  background: var(--surface);
+}
+
+.quoteJa {
+  margin: 0;
+  font-family: var(--font-shippori), "Yu Mincho", serif;
+  font-size: clamp(1.1rem, 3.2vw, 1.35rem);
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+.quoteReading {
+  margin: 0.4rem 0 0;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.64rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.quoteMeaning {
+  margin: 0.55rem 0 0;
+  font-size: clamp(1rem, 2.7vw, 1.12rem);
+  font-style: italic;
+  line-height: 1.6;
+  color: var(--mks-steel-text);
+}
+
+.closingQuote figcaption {
+  display: grid;
+  gap: 0.35rem;
+  margin-block-start: 0.75rem;
+  padding-block-start: 0.7rem;
+  border-block-start: 1px solid var(--border);
+}
+
+.quoteBy {
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mks-scarf-text);
+}
+
+.quoteNote {
+  font-size: 0.94rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.motto {
+  margin: clamp(2rem, 6vw, 3.25rem) 0 0;
+  font-family: var(--font-shippori), "Yu Mincho", serif;
+  font-size: clamp(2.6rem, 12vw, 5.5rem);
+  line-height: 1;
+  letter-spacing: 0.14em;
+  color: color-mix(in srgb, var(--mks-scarf) 65%, var(--text-primary));
+}
+
+.mottoNote {
+  margin: clamp(0.75rem, 2.5vw, 1.15rem) 0 0;
+  font-size: clamp(0.98rem, 2.6vw, 1.08rem);
+  line-height: 1.7;
+  color: var(--text-secondary);
+  max-inline-size: 58ch;
+}
+
+.closingBand {
+  margin-block-start: clamp(1.5rem, 5vw, 2.5rem);
+}
+
+.credit {
+  margin: clamp(1.5rem, 5vw, 2.5rem) 0 0;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  line-height: 1.8;
+  color: var(--text-muted);
+}
+
+.credit a {
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-block-end: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  min-height: var(--touch-min);
+  display: inline-flex;
+  align-items: center;
+}
+
+.credit a:hover,
+.credit a:focus-visible {
+  color: var(--mks-scarf-text);
+  border-block-end-color: var(--mks-scarf);
+}
+
+.sourceNote {
+  margin: 0.85rem 0 0;
+  font-size: 0.92rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+  max-inline-size: 64ch;
+}
+
+/* ── KADRAJLAR VE KÜRATÖR YUVALARI ──────────────────────────────────── */
+
+.frame {
+  position: relative;
+  display: block;
+  inline-size: 100%;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--mks-round);
+  background:
+    linear-gradient(var(--mks-cold), var(--mks-cold)),
+    var(--surface);
+}
+
+.frame img {
+  object-fit: cover;
+}
+
+.frame[data-filled="false"] {
+  border-style: dashed;
+  display: grid;
+  place-items: center;
+  padding: clamp(0.75rem, 3vw, 1.25rem);
+}
+
+/* Geniş bant BOŞKEN 16:9 tam genişlikte 600 pikselden uzun bir gri kutuya
+   dönüşüyordu (ölçüldü). Yükseklik sınırlanıyor; dolduğunda `object-fit:
+   cover` kadrajı zaten kesiyor. */
+.frame[data-shape="band"] {
+  aspect-ratio: 16 / 9;
+  max-block-size: clamp(11rem, 32vh, 22rem);
+}
+
+.frame[data-shape="card"] {
+  aspect-ratio: 3 / 2;
+}
+
+.frame[data-shape="scene"] {
+  aspect-ratio: 14 / 9;
+}
+
+.frame[data-shape="knot"] {
+  aspect-ratio: 7 / 4;
+}
+
+.frame[data-shape="badge"] {
+  aspect-ratio: 1;
+}
+
+.frameLabel {
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.68rem;
+  line-height: 1.6;
+  letter-spacing: 0.08em;
+  text-align: center;
+  color: var(--text-muted);
+  max-inline-size: 44ch;
+}
+
+.slotRow {
+  margin-block-start: 0.6rem;
+}
+
+/* Küratör yuvası çok kolonlu kartların içinde bir ızgara öğesi olarak
+   duruyor; kendi satırını kaplamazsa üç kolonlu düzende ilk kolona
+   sıkışıyor. (Yuva `isAdmin` kesmesiyle çiziliyor, ziyaretçide yok.) */
+.gearItem > [data-curator-slot],
+.knot > [data-curator-slot] {
+  grid-column: 1 / -1;
+}
+
+/* ── ODAK ───────────────────────────────────────────────────────────── */
+
+.page :focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: var(--mks-round);
+}
+
+/* ── DAR EKRAN ──────────────────────────────────────────────────────── */
+
+@media (max-width: 860px) {
+  .knot {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .gearItem {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .gearItem .frame {
+    grid-column: 1 / -1;
+  }
+
+  .dialMetaRow {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.15rem;
+  }
+}
+
+@media (max-width: 780px) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .heroAside {
+    inline-size: min(200px, 50vw);
+  }
+
+  .modeBar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 620px) {
+  .dialLayout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dialArt {
+    inline-size: min(11rem, 60vw);
+  }
+
+  .gearItem {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Dekoratif dikey kanji dar ekranda TAMAMEN kalkıyor. Yatay çevrilince
+     hemen altındaki `.gearName` ile aynı metni iki kez gösteriyordu
+     (ölçüldü, 360 px). Zaten `aria-hidden`: kaybolması bilgi kaybı değil. */
+  .gearKanji {
+    display: none;
+  }
+}
+
+/* ── HAREKET ────────────────────────────────────────────────────────────
+   Varsayılan DURGUN: kablolar tam çizili, kartlar yerinde, filtre anlık.
+   Bütün hareket aşağıdaki kapının içinde — `prefers-reduced-motion`
+   ayarlı bir kullanıcı sayfayı hiç hareketsiz görüyor ve HİÇBİR içerik
+   gizli kalmıyor.
+
+   Hareket dili: ODM KABLO GEOMETRİSİ. Yumuşak geçiş yok; çizgiler
+   `stroke-dashoffset` ile çiziliyor, sonra duruyorlar. ─────────────── */
+
+@media (prefers-reduced-motion: no-preference) {
+  .skin {
+    transition: filter 480ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .railCore {
+    transition: box-shadow 400ms linear;
+  }
+
+  .sectionCablePivot {
+    transition: transform 460ms cubic-bezier(0.3, 0.8, 0.25, 1);
+  }
+
+  .sectionCableLine,
+  .sectionCableTip {
+    stroke-dasharray: 120;
+    stroke-dashoffset: 120;
+    animation: mksDraw 720ms cubic-bezier(0.25, 0.8, 0.3, 1) forwards;
+  }
+
+  .sectionCableTip {
+    animation-delay: 260ms;
+  }
+
+  .dialRayActive {
+    stroke-dasharray: 130;
+    stroke-dashoffset: 130;
+    animation: mksDraw 520ms cubic-bezier(0.2, 0.85, 0.25, 1) forwards;
+  }
+
+  .dialTarget {
+    transform-box: fill-box;
+    transform-origin: 50% 50%;
+    animation: mksLock 480ms cubic-bezier(0.2, 0.85, 0.25, 1) 220ms backwards;
+  }
+
+  .bond,
+  .gearItem,
+  .knot {
+    transition: margin-inline-start 460ms cubic-bezier(0.3, 0.8, 0.25, 1);
+  }
+
+  .note,
+  .dialPanel {
+    transition:
+      transform 460ms cubic-bezier(0.3, 0.8, 0.25, 1),
+      background-color 240ms linear,
+      border-color 240ms linear;
+  }
+
+  .modeButton,
+  .dialButton,
+  .bondLink {
+    transition:
+      border-color 200ms linear,
+      background-color 200ms linear,
+      color 200ms linear;
+  }
+}
+
+@keyframes mksDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes mksLock {
+  from {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Battaniye: yukarıdaki kapıya rağmen bir yerden hareket sızarsa kapansın. */
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

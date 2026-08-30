@@ -84,7 +84,20 @@
 
 /* ── DAR EKRAN: alt serit ───────────────────────────────────── */
 
+/* ⚠️ KURATOR HAPI ILE CAKISMA. Dar ekranda ray sayfanin ALT KENARINI
+   kapliyor ve kurator hapi da sag altta sabit duruyor — hap rayin en
+   sagindaki iki sekmeyi ortuyordu. Cozum rayi degil HAPI oynatmak:
+   `--curator-dock-lift` hapi rayin ustune cikariyor.
+
+   Degisken `CuratorFrame`in sarmalayicisina yaziliyor (`[data-curating]`),
+   cunku hap orada duruyor ve ozel ozellikler yalnizca ASAGI iner —
+   `.page` uzerine yazmak hapa ULASMAZDI. Nitelik yalnizca yoneticide
+   basiliyor, yani ziyaretci bu kuraldan hic etkilenmiyor. */
 @media (max-width: 1100px) {
+  :global([data-curating]):has(.rail) {
+    --curator-dock-lift: 3.6rem;
+  }
+
   .rail {
     top: auto;
     bottom: 0;

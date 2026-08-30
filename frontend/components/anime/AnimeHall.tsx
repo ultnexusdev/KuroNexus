@@ -28,6 +28,7 @@ import { BackToTop } from "@/components/BackToTop";
 import { AnimeCard } from "./AnimeCard";
 import styles from "./AnimeHall.module.css";
 import { ArchiveUnavailable } from "@/components/hall/ArchiveUnavailable";
+import { CuratorDock } from "@/components/curated/CuratorDock";
 
 /**
  * Salon 04 · Anime — "Anime Arşivim".
@@ -199,15 +200,14 @@ export function AnimeHall({
       <div className={styles.page}>
         {isAdmin ? (
           <div className={styles.curatorSwitch}>
-            <button
-              type="button"
-              className={curating ? styles.curatorOn : styles.curatorOff}
-              aria-pressed={curating}
-              onClick={() => setCurating((current) => !current)}
-            >
-              {curating ? t("curator.on") : t("curator.off")}
-            </button>
-            <span className={styles.muted}>{t("curator.hint")}</span>
+            {/* Anahtar sağ alttaki sabit hapa taşındı (30 Ağustos 2026) —
+                sarmalayıcı duruyor, artık yalnızca paneli tutuyor. */}
+            <CuratorDock
+              on={curating}
+              onToggle={() => setCurating((current) => !current)}
+              label={curating ? t("curator.on") : t("curator.off")}
+              hint={t("curator.hint")}
+            />
           </div>
         ) : null}
 

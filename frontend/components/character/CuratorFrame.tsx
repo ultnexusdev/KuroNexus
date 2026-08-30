@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState } from "react";
 import { useTranslations } from "next-intl";
+import { CuratorDock } from "@/components/curated/CuratorDock";
 import styles from "./CuratorFrame.module.css";
 
 /**
@@ -95,18 +96,20 @@ export function CuratorFrame({
        bileşeni ve context okuyamaz. */
     <CuratorModeContext.Provider value={curating}>
       <div className={styles.frame} data-curating={curating ? "true" : "false"}>
-        <div className={styles.bar}>
-          <button
-            type="button"
-            className={curating ? styles.on : styles.off}
-            onClick={() => setCurating((value) => !value)}
-            aria-pressed={curating}
-          >
-            {curating ? t("on") : t("off")}
-          </button>
-          {curating ? <span className={styles.hint}>{t("hint")}</span> : null}
-        </div>
+        {/* ⚠️ ANAHTAR ARTIK SAYFANIN BAŞINDA DEĞİL (30 Ağustos 2026).
+            Eskiden `.bar` içinde, içeriğin ÜSTÜNDE duran bir satırdı ve
+            evren sayfaları o kadar uzun ki modu kapatmak için en başa
+            dönmek gerekiyordu (kullanıcı bildirimi). Hap sağ altta sabit
+            ve `children`den SONRA çiziliyor — `position: fixed` olduğu
+            için görsel yeri değişmiyor, ama sekme sırasında sayfanın
+            içeriğinden önce gelmiyor. */}
         {children}
+        <CuratorDock
+          on={curating}
+          onToggle={() => setCurating((value) => !value)}
+          label={curating ? t("on") : t("off")}
+          hint={t("hint")}
+        />
       </div>
     </CuratorModeContext.Provider>
   );

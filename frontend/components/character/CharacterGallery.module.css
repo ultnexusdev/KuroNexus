@@ -349,31 +349,6 @@
   margin-top: var(--gap-lg);
 }
 
-.curatorOff,
-.curatorOn {
-  min-height: var(--touch-min);
-  padding: 0 16px;
-  border: 0.5px solid var(--border-strong);
-  border-radius: var(--radius);
-  background: var(--surface);
-  color: var(--text-secondary);
-  font-family: inherit;
-  font-size: 0.82rem;
-  letter-spacing: 0.08em;
-  cursor: pointer;
-}
-
-.curatorOn {
-  border-color: var(--accent-muted);
-  background: color-mix(in srgb, var(--accent) 10%, transparent);
-  color: var(--accent);
-}
-
-.curatorOff:hover,
-.curatorOn:hover {
-  background: var(--surface-hover);
-}
-
 .curatorHint {
   color: var(--text-muted);
   font-size: 0.8rem;

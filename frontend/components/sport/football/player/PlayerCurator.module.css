@@ -2,33 +2,42 @@
    KÜRATÖR MODU · anahtar + panel
    ============================================================ */
 
+/* ⚠️ RENKLER ARTIK PAYLASILAN HAP TOKEN'LARINDAN (30 Agustos 2026).
+   Bu dugme sitedeki kurator hapinin KAYNAK desenidir — kullanicinin
+   "spordaki gibi olsun" dedigi sey buydu ve on alti anahtar buraya
+   hizalandi (`components/curated/CuratorDock`). Kendi markup'i duruyor
+   cunku fazladan iki isi var: paneli acik/kapali tutmak ve eski kayit
+   rozetini basmak. Gorunum tek kaynaktan gelsin diye renkler ortak.
+
+   Konum da ayni: `--curator-dock-lift` sayfanin kendi alt seridi varsa
+   hapi yukari iter (varsayilan 0). */
 .toggle {
   position: fixed;
   right: clamp(0.75rem, 2vw, 1.5rem);
-  bottom: clamp(0.75rem, 2vw, 1.5rem);
-  z-index: 60;
+  bottom: calc(clamp(0.75rem, 2vw, 1.5rem) + var(--curator-dock-lift, 0px));
+  z-index: 70;
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
   min-height: var(--touch-min);
   padding: 0.55rem 0.95rem;
-  border: 1px solid color-mix(in srgb, var(--accent, #f6c94a) 50%, transparent);
+  border: 1px solid var(--curator-dock-line);
   border-radius: 999px;
-  background: color-mix(in srgb, #0b0d13 88%, transparent);
-  color: color-mix(in srgb, var(--accent, #f6c94a) 94%, #fff);
+  background: var(--curator-dock-bg);
+  color: var(--curator-dock-ink);
   font-family: var(--font-inter), var(--font-sans);
   font-size: 0.76rem;
   font-weight: 600;
   letter-spacing: 0.04em;
   cursor: pointer;
   backdrop-filter: blur(6px);
-  box-shadow: 0 14px 34px -18px rgba(0, 0, 0, 0.9);
+  box-shadow: var(--curator-dock-shadow);
 }
 
 .toggle[data-on] {
-  background: var(--accent, #f6c94a);
-  color: #14110a;
-  border-color: var(--accent, #f6c94a);
+  background: var(--curator-dock-on-bg);
+  color: var(--curator-dock-on-ink);
+  border-color: var(--curator-dock-on-bg);
 }
 
 .toggle svg {

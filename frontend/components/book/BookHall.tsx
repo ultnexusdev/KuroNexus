@@ -37,6 +37,7 @@ import {
 import { AWARDS_HREF } from "@/lib/book/routes";
 import styles from "./BookHall.module.css";
 import { ArchiveUnavailable } from "@/components/hall/ArchiveUnavailable";
+import { CuratorDock } from "@/components/curated/CuratorDock";
 
 /**
  * Salon 05 · Kitap — "Kitap Arşivim".
@@ -371,14 +372,11 @@ export function BookHall({
 
             {isAdmin ? (
               <div className={styles.curatorSwitch}>
-                <button
-                  type="button"
-                  className={curating ? styles.curatorOn : styles.curatorOff}
-                  aria-pressed={curating}
-                  onClick={() => setCurating((value) => !value)}
-                >
-                  {curating ? t("curator.off") : t("curator.on")}
-                </button>
+                <CuratorDock
+                  on={curating}
+                  onToggle={() => setCurating((value) => !value)}
+                  label={curating ? t("curator.off") : t("curator.on")}
+                />
               </div>
             ) : null}
           </header>

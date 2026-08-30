@@ -3,7 +3,8 @@
    ============================================================ */
 
 .zone {
-  overflow: hidden;
+  /* `clip`: kirpar ama kaydirma kabi yaratmaz — gerekce jjk.module.css */
+  overflow: clip;
   background:
     radial-gradient(
       ellipse at 60% 30%,

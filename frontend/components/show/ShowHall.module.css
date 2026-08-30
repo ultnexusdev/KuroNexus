@@ -101,33 +101,6 @@
   margin-top: var(--gap-lg);
 }
 
-.curatorOn,
-.curatorOff {
-  min-height: var(--touch-min);
-  padding: 0 14px;
-  border-radius: var(--radius);
-  font-family: var(--font-bebas), var(--font-sans);
-  font-size: 0.9rem;
-  letter-spacing: 0.18em;
-}
-
-.curatorOff {
-  background: none;
-  border: 0.5px solid var(--border-strong);
-  color: var(--text-secondary);
-}
-
-.curatorOff:hover {
-  color: var(--gold);
-  border-color: var(--gold);
-}
-
-.curatorOn {
-  background: var(--surface);
-  border: 0.5px solid var(--gold);
-  color: var(--gold);
-}
-
 .curatorHint {
   color: var(--text-muted);
   font-size: 0.8rem;

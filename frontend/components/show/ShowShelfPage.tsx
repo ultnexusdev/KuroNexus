@@ -18,6 +18,7 @@ import { BackToTop } from "@/components/BackToTop";
 import { ShowBackdrop } from "./ShowBackdrop";
 import { ShowCard } from "./ShowCard";
 import styles from "./ShowHall.module.css";
+import { CuratorDock } from "@/components/curated/CuratorDock";
 
 /**
  * Tek bir rafın tam sayfası — film salonundaki `FilmShelfPage`in aynısı.
@@ -121,14 +122,11 @@ export function ShowShelfPage({
 
           {isAdmin ? (
             <div className={styles.curatorSwitch}>
-              <button
-                type="button"
-                className={curating ? styles.curatorOn : styles.curatorOff}
-                aria-pressed={curating}
-                onClick={() => setCurating((value) => !value)}
-              >
-                {curating ? t("curator.off") : t("curator.on")}
-              </button>
+              <CuratorDock
+                on={curating}
+                onToggle={() => setCurating((value) => !value)}
+                label={curating ? t("curator.off") : t("curator.on")}
+              />
             </div>
           ) : null}
         </header>

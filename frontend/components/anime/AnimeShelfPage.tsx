@@ -18,6 +18,7 @@ import {
 import { BackToTop } from "@/components/BackToTop";
 import { AnimeCard } from "./AnimeCard";
 import styles from "./AnimeHall.module.css";
+import { CuratorDock } from "@/components/curated/CuratorDock";
 
 /**
  * Bir rafın tamamı. Salon sayfası her raftan yalnızca ilk satırı gösterir,
@@ -118,14 +119,11 @@ export function AnimeShelfPage({
 
           {isAdmin ? (
             <div className={styles.curatorSwitch}>
-              <button
-                type="button"
-                className={curating ? styles.curatorOn : styles.curatorOff}
-                aria-pressed={curating}
-                onClick={() => setCurating((current) => !current)}
-              >
-                {curating ? t("curator.on") : t("curator.off")}
-              </button>
+              <CuratorDock
+                on={curating}
+                onToggle={() => setCurating((current) => !current)}
+                label={curating ? t("curator.on") : t("curator.off")}
+              />
             </div>
           ) : null}
         </header>

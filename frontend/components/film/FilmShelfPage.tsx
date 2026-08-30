@@ -18,6 +18,7 @@ import { BackToTop } from "@/components/BackToTop";
 import { FilmBackdrop } from "./FilmBackdrop";
 import { MovieCard } from "./MovieCard";
 import styles from "./FilmHall.module.css";
+import { CuratorDock } from "@/components/curated/CuratorDock";
 
 /**
  * Tek bir rafın tam sayfası: /dark-stories/category/film/arsiv/<raf>
@@ -132,14 +133,11 @@ export function FilmShelfPage({
 
           {isAdmin ? (
             <div className={styles.curatorSwitch}>
-              <button
-                type="button"
-                className={curating ? styles.curatorOn : styles.curatorOff}
-                aria-pressed={curating}
-                onClick={() => setCurating((value) => !value)}
-              >
-                {curating ? t("curator.off") : t("curator.on")}
-              </button>
+              <CuratorDock
+                on={curating}
+                onToggle={() => setCurating((value) => !value)}
+                label={curating ? t("curator.off") : t("curator.on")}
+              />
             </div>
           ) : null}
         </header>

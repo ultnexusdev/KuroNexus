@@ -89,6 +89,14 @@
   /* Bolge/alan gecisleri yalnizca renk animasyonu — CLS 0 */
   transition: background-color 600ms ease-in-out, color 600ms ease-in-out;
   scroll-margin-top: 2rem;
+
+  /* ⚠️ `clip`, `hidden` DEGIL — bu sayfada ikisi ayni sey degil.
+     `.ghost` filigrani bilerek `right: -6vw` ile disari tasiyor ve kirpma
+     olmayinca SAYFA yatay kayiyordu (kullanici bildirimi, 30 Agustos
+     2026: "sayfa saga sola kayiyor"). `hidden` bir kaydirma kabi yaratir
+     ve Lanet Arsivi'nin yapiskan degerlendirme paneli ile Son Kayit'taki
+     kayiplar sicili YAPISMAYI birakirdi; `clip` kap yaratmadan kirpiyor. */
+  overflow: clip;
 }
 
 .section:focus {

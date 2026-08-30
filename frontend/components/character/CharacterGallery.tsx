@@ -13,6 +13,7 @@ import { beginNavPending } from "@/lib/nav/pending";
 import type { CharacterIndex } from "@/lib/api/types";
 import { CharacterPlate } from "./CharacterPlate";
 import styles from "./CharacterGallery.module.css";
+import { CuratorDock } from "@/components/curated/CuratorDock";
 
 /**
  * Portre kanadı — arşivdeki bütün serilerin kadroları tek ızgarada.
@@ -228,14 +229,11 @@ export function CharacterGallery({
               portrenin sağ üstünde "kaldır" düğmesi çıkıyor. */}
           {isAdmin ? (
             <div className={styles.curatorSwitch}>
-              <button
-                type="button"
-                className={curating ? styles.curatorOn : styles.curatorOff}
-                aria-pressed={curating}
-                onClick={toggleCurating}
-              >
-                {curating ? t("indexCurator.on") : t("indexCurator.off")}
-              </button>
+              <CuratorDock
+                on={curating}
+                onToggle={toggleCurating}
+                label={curating ? t("indexCurator.on") : t("indexCurator.off")}
+              />
               {curating ? (
                 <span className={styles.curatorHint}>
                   {t("indexCurator.hint")}

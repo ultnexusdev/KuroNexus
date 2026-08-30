@@ -22,6 +22,7 @@ import {
   coverUnoptimized,
 } from "./BookCard";
 import styles from "./BookDetail.module.css";
+import { CuratorDock } from "@/components/curated/CuratorDock";
 
 export function personHref(slug: string): string {
   return `/dark-stories/category/kitap/kisi/${slug}`;
@@ -124,14 +125,11 @@ export function BookDetail({
           </Link>
 
           {isAdmin ? (
-            <button
-              type="button"
-              className={curating ? styles.curatorOn : styles.curatorOff}
-              aria-pressed={curating}
-              onClick={() => setCurating((value) => !value)}
-            >
-              {curating ? t("curator.off") : t("curator.on")}
-            </button>
+            <CuratorDock
+              on={curating}
+              onToggle={() => setCurating((value) => !value)}
+              label={curating ? t("curator.off") : t("curator.on")}
+            />
           ) : null}
         </div>
 

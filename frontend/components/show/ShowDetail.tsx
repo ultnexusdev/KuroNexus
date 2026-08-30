@@ -26,6 +26,7 @@ import type {
 import styles from "./ShowDetail.module.css";
 import { Lightbox } from "@/components/hall/Lightbox";
 import { ArchiveAddButtons } from "@/components/hall/ArchiveAddButtons";
+import { CuratorDock } from "@/components/curated/CuratorDock";
 
 /**
  * Dizi sayfası — film salonundaki `MovieDetail`ın aynısı. Künye levhasında
@@ -79,14 +80,11 @@ export function ShowDetail({
           </Link>
 
           {isAdmin ? (
-            <button
-              type="button"
-              className={curating ? styles.curatorOn : styles.curatorOff}
-              aria-pressed={curating}
-              onClick={() => setCurating((value) => !value)}
-            >
-              {curating ? tShow("curator.off") : tShow("curator.on")}
-            </button>
+            <CuratorDock
+              on={curating}
+              onToggle={() => setCurating((value) => !value)}
+              label={curating ? tShow("curator.off") : tShow("curator.on")}
+            />
           ) : null}
         </div>
 

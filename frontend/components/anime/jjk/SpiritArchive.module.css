@@ -2,8 +2,13 @@
    P06 · LANET ARSIVI — bataklik yesili bolge, katalog + panel
    ============================================================ */
 
+/* ⚠️ `clip`, `hidden` DEGIL — bu bolumde fark GORUNUR bir hata.
+   Sagdaki tehdit degerlendirme paneli `position: sticky` ve `hidden`
+   bir kaydirma kabi yaratiyordu: panel bolumun icinde yapisiyor gibi
+   gorunup sayfa kayarken YUKARIDA KALMIYORDU. `clip` kap yaratmadan
+   kirpiyor (30 Agustos 2026). */
 .zone {
-  overflow: hidden;
+  overflow: clip;
   background:
     radial-gradient(
       ellipse at 30% 20%,

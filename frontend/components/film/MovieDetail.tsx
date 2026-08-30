@@ -19,6 +19,7 @@ import type {
 import styles from "./MovieDetail.module.css";
 import { Lightbox } from "@/components/hall/Lightbox";
 import { ArchiveAddButtons } from "@/components/hall/ArchiveAddButtons";
+import { CuratorDock } from "@/components/curated/CuratorDock";
 
 /**
  * Film sayfası.
@@ -75,14 +76,11 @@ export function MovieDetail({
           </Link>
 
           {isAdmin ? (
-            <button
-              type="button"
-              className={curating ? styles.curatorOn : styles.curatorOff}
-              aria-pressed={curating}
-              onClick={() => setCurating((value) => !value)}
-            >
-              {curating ? tFilm("curator.off") : tFilm("curator.on")}
-            </button>
+            <CuratorDock
+              on={curating}
+              onToggle={() => setCurating((value) => !value)}
+              label={curating ? tFilm("curator.off") : tFilm("curator.on")}
+            />
           ) : null}
         </div>
 

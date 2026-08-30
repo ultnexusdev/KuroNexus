@@ -1,0 +1,112 @@
+/* ============================================================
+   KURATOR HAPI — sag altta sabit, yedi salonda ayni
+
+   Renk token'lari globals.css `:root`ta (kural 16) ve LITERAL —
+   gerekce orada yazili: hap icerik degil ARAC, salon derisiyle
+   renk degistirmemeli.
+   ============================================================ */
+
+.dock {
+  position: fixed;
+  right: clamp(0.75rem, 2vw, 1.5rem);
+  /* `--curator-dock-lift`: kendi alt seridi olan sayfalar (JJK kanji
+     rayi) hapi yukari itiyor. Varsayilan 0 (globals.css). */
+  bottom: calc(clamp(0.75rem, 2vw, 1.5rem) + var(--curator-dock-lift, 0px));
+  /* Kanji rayinin (60) USTUNDE, "bolumlere atla" seridinin (90) ALTINDA:
+     klavyeyle gelen kisinin ilk duragi hicbir zaman kapanmasin. */
+  z-index: 70;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  /* Kap tiklamalari gecirsin — yalnizca hapin kendisi tiklanabilir.
+     Aksi halde sag alt kose gorunmez bir kalkanla kaplanirdi. */
+  pointer-events: none;
+}
+
+.button {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: var(--touch-min);
+  padding: 0.55rem 0.95rem;
+  border: 1px solid var(--curator-dock-line);
+  border-radius: 999px;
+  background: var(--curator-dock-bg);
+  color: var(--curator-dock-ink);
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  box-shadow: var(--curator-dock-shadow);
+}
+
+.button[data-on] {
+  background: var(--curator-dock-on-bg);
+  border-color: var(--curator-dock-on-bg);
+  color: var(--curator-dock-on-ink);
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--curator-dock-on-bg);
+  outline-offset: 3px;
+}
+
+.button svg {
+  width: 1rem;
+  height: 1rem;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Acikken hapin ustunde beliren tek satir. Hapla ayni cam yuzey,
+   ayni kose — tek bir arac parcasi gibi okunsun. */
+.hint {
+  pointer-events: auto;
+  margin: 0;
+  max-width: min(22rem, calc(100vw - 2.5rem));
+  padding: 0.5rem 0.8rem;
+  border: 1px solid var(--curator-dock-line);
+  border-radius: 999px;
+  background: var(--curator-dock-bg);
+  color: var(--curator-dock-ink);
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: 0.7rem;
+  line-height: 1.45;
+  text-align: right;
+  backdrop-filter: blur(6px);
+  box-shadow: var(--curator-dock-shadow);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .button {
+    transition: background-color 200ms ease, border-color 200ms ease,
+      color 200ms ease;
+  }
+
+  .button:hover {
+    border-color: var(--curator-dock-on-bg);
+  }
+}
+
+/* Dar ekranda ipucu satiri yer kaplamasin: hap tek basina kalir,
+   ayni bilgi zaten acilan panelin basinda yaziyor. */
+@media (max-width: 560px) {
+  .hint {
+    display: none;
+  }
+
+  .button {
+    font-size: 0.72rem;
+    padding: 0.5rem 0.8rem;
+  }
+}

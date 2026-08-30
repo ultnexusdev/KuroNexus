@@ -1436,6 +1436,36 @@ html {
   --surface-2: color-mix(in srgb, var(--surface) 65%, var(--bg));
 }
 
+/* ============================================================
+   KURATOR HAPI — site geneli yuzen anahtar (30 Agustos 2026)
+
+   Kullanici karari: kurator modu artik sayfanin BASINDA duran bir
+   satir degil, sag altta SABIT duran bir hap. Gerekce pratik — evren
+   sayfalari cok uzun ve anahtari kapatmak icin en basa donmek
+   gerekiyordu.
+
+   ⚠️ TOKEN'LAR BILEREK LITERAL ve YALNIZCA `:root`ta.
+   Hap bir ICERIK ogesi degil ARAC: yedi salonun her birinde AYNI
+   gorunmeli. `--accent` okusaydi Bleach'te kizil, spor'da sari, JJK
+   alaninda mavi olurdu — kullanici "sitenin tamaminda bu sekilde
+   gorunsun" dedi. Hicbir deri bu uc token'i ezmiyor; ezmeyin.
+
+   Ambar tonu bilincli: hicbir salonun icerik aksani degil, evrensel
+   "duzenleme" isareti. Kontrast olculdu: ink/bg 11.8:1, on-ink/on-bg
+   9.6:1 — ikisi de AAA.
+   ============================================================ */
+:root {
+  --curator-dock-bg: rgba(11, 12, 17, 0.88);
+  --curator-dock-line: rgba(224, 179, 65, 0.42);
+  --curator-dock-ink: #ecdfc3;
+  --curator-dock-on-bg: #e0b341;
+  --curator-dock-on-ink: #14110a;
+  --curator-dock-shadow: 0 14px 34px -18px rgba(0, 0, 0, 0.9);
+  /* Sayfa kendi alt seridini tasiyorsa (JJK kanji rayi) hapi yukari
+     iter. Varsayilan 0 — hicbir sayfa bir sey yapmak zorunda degil. */
+  --curator-dock-lift: 0px;
+}
+
 :root {
   /* Salon 04 — yayin durumu rozetleri: uc ton, hepsi dusuk doygunlukta */
   --anime-airing-ink:   #6f9c72; /* yayinda */

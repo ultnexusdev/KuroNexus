@@ -4,6 +4,7 @@ import { useState } from "react";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import styles from "./FootballCuratorSwitch.module.css";
+import { CuratorDock } from "@/components/curated/CuratorDock";
 
 /**
  * Kulüp sayfasının küratör modu anahtarı.
@@ -29,15 +30,12 @@ export function FootballCuratorSwitch() {
 
   return (
     <div className={styles.row}>
-      <button
-        type="button"
-        className={curating ? styles.on : styles.off}
-        aria-pressed={curating}
-        aria-expanded={curating}
-        onClick={() => setCurating((value) => !value)}
-      >
-        {curating ? t("curatorOff") : t("curatorOn")}
-      </button>
+      <CuratorDock
+        on={curating}
+        onToggle={() => setCurating((value) => !value)}
+        label={curating ? t("curatorOff") : t("curatorOn")}
+        expanded={curating}
+      />
 
       {curating ? <LineupCurator /> : null}
     </div>

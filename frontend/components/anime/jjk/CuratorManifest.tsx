@@ -37,8 +37,17 @@ export async function CuratorManifest() {
   );
 
   return (
-    <aside className={styles.panel} aria-label="Küratör manifestosu">
-      <p className={styles.head}>
+    /* ⚠️ `data-curator-slot` ŞART: `isAdmin` yalnızca ziyaretçiyi dışarıda
+       tutuyor, anahtarı dinleyen şey bu işaret (`CuratorFrame` →
+       `[data-curating="false"] [data-curator-slot] { display: none }`).
+       İşaretsizken panel yönetici için her zaman açık kalıyordu
+       (kullanıcı bildirimi, 30 Ağustos 2026). */
+    <aside
+      className={styles.panel}
+      aria-labelledby="jjk-manifest-head"
+      data-curator-slot
+    >
+      <p className={styles.head} id="jjk-manifest-head">
         KÜRATÖR MANİFESTOSU — {filled}/{total} yuva dolu
       </p>
       {groups.map((group) => (

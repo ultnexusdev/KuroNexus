@@ -12,6 +12,7 @@ import { ShowCard, Poster } from "./ShowCard";
 import styles from "./ShowHall.module.css";
 import { ArchiveUnavailable } from "@/components/hall/ArchiveUnavailable";
 import { ScrollStrip } from "@/components/hall/ScrollStrip";
+import { CuratorDock } from "@/components/curated/CuratorDock";
 
 /**
  * Salon 02 · Dizi — film salonundaki `FilmHall`ın aynısı. Rafların yanına
@@ -241,14 +242,11 @@ export function ShowHall({
 
           {isAdmin ? (
             <div className={styles.curatorSwitch}>
-              <button
-                type="button"
-                className={curating ? styles.curatorOn : styles.curatorOff}
-                aria-pressed={curating}
-                onClick={() => setCurating((value) => !value)}
-              >
-                {curating ? t("curator.off") : t("curator.on")}
-              </button>
+              <CuratorDock
+                on={curating}
+                onToggle={() => setCurating((value) => !value)}
+                label={curating ? t("curator.off") : t("curator.on")}
+              />
               {curating ? (
                 <span className={styles.curatorHint}>{t("curator.hint")}</span>
               ) : null}

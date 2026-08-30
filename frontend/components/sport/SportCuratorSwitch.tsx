@@ -4,6 +4,7 @@ import { useState } from "react";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import styles from "./SportCurator.module.css";
+import { CuratorDock } from "@/components/curated/CuratorDock";
 
 /**
  * Küratör modu anahtarı — Salon 06 · Spor.
@@ -31,15 +32,12 @@ export function SportCuratorSwitch() {
 
   return (
     <div className={styles.switchRow}>
-      <button
-        type="button"
-        className={curating ? styles.switchOn : styles.switchOff}
-        aria-pressed={curating}
-        aria-expanded={curating}
-        onClick={() => setCurating((value) => !value)}
-      >
-        {curating ? t("off") : t("on")}
-      </button>
+      <CuratorDock
+        on={curating}
+        onToggle={() => setCurating((value) => !value)}
+        label={curating ? t("off") : t("on")}
+        expanded={curating}
+      />
 
       {curating ? <SportCurator /> : null}
     </div>

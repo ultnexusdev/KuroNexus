@@ -22,6 +22,7 @@ import type {
 import { daysUntil } from "@/lib/anime/filters";
 import { AiringBadge } from "./AnimeCard";
 import styles from "./AnimeDetail.module.css";
+import { CuratorDock } from "@/components/curated/CuratorDock";
 
 /**
  * Anime sayfası.
@@ -81,14 +82,11 @@ export function AnimeDetail({
           </Link>
 
           {isAdmin ? (
-            <button
-              type="button"
-              className={curating ? styles.curatorOn : styles.curatorOff}
-              aria-pressed={curating}
-              onClick={() => setCurating((value) => !value)}
-            >
-              {curating ? t("curator.on") : t("curator.off")}
-            </button>
+            <CuratorDock
+              on={curating}
+              onToggle={() => setCurating((value) => !value)}
+              label={curating ? t("curator.on") : t("curator.off")}
+            />
           ) : null}
         </div>
 

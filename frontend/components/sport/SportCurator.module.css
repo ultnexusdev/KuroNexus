@@ -17,40 +17,6 @@
   padding: 0 var(--sp-gutter);
 }
 
-.switchOff,
-.switchOn {
-  appearance: none;
-  align-self: flex-start;
-  background: none;
-  border: 1px solid var(--sport-line);
-  color: var(--text-secondary);
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  padding: 0.6rem 1rem;
-  min-height: var(--touch-min);
-  cursor: pointer;
-  transition: border-color 220ms ease, color 220ms ease;
-}
-
-.switchOff:hover,
-.switchOn:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-.switchOff:focus-visible,
-.switchOn:focus-visible {
-  outline: 2px solid var(--accent-hover);
-  outline-offset: 2px;
-}
-
-.switchOn {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
 .panel {
   display: flex;
   flex-direction: column;

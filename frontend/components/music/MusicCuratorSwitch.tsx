@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import type { CuratorPlaylist } from "./PlaylistCurator";
 import styles from "./MusicCurator.module.css";
+import { CuratorDock } from "@/components/curated/CuratorDock";
 
 /**
  * Küratör modu anahtarı — Salon 06 · Müzik.
@@ -70,15 +71,12 @@ export function MusicCuratorSwitch(
 
   return (
     <div className={styles.switchRow}>
-      <button
-        type="button"
-        className={curating ? styles.switchOn : styles.switchOff}
-        aria-pressed={curating}
-        aria-expanded={curating}
-        onClick={() => setCurating((value) => !value)}
-      >
-        {curating ? t("off") : t("on")}
-      </button>
+      <CuratorDock
+        on={curating}
+        onToggle={() => setCurating((value) => !value)}
+        label={curating ? t("off") : t("on")}
+        expanded={curating}
+      />
 
       {curating ? (
         props.scope === "hall" ? (

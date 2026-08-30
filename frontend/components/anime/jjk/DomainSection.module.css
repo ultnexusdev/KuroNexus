@@ -9,7 +9,10 @@
 .chamber {
   position: relative;
   min-height: 100svh;
-  overflow: hidden;
+  /* `clip`: kirpar ama kaydirma kabi yaratmaz — gerekce jjk.module.css.
+     Tam ekran devralma bundan etkilenmiyor: `showModal()` diyalogu UST
+     KATMANDA ciziliyor ve hicbir atanin kirpmasina takilmiyor. */
+  overflow: clip;
   border-top: 1px solid var(--hairline);
   background: linear-gradient(var(--dom-bg0), var(--dom-bg1) 55%, var(--dom-bg2));
   color: var(--text-primary);
@@ -327,10 +330,13 @@
 .take {
   position: fixed;
   inset: 0;
-  width: 100vw;
-  width: 100dvw;
-  height: 100vh;
-  height: 100dvh;
+  /* ⚠️ `100vw` DEGIL `auto`. `100vw` kaydirma cubugunu de sayiyor ve
+     devralma acikken diyalog gorunur alandan GENIS oluyordu — sayfayi
+     yatay kaydiran ikinci kaynak. `inset: 0` zaten tam ekran yapiyor;
+     `auto` yalnizca tarayicinin `<dialog>` icin verdigi `fit-content`i
+     eziyor. */
+  width: auto;
+  height: auto;
   max-width: none;
   max-height: none;
   margin: 0;

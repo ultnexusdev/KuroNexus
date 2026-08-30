@@ -85,24 +85,6 @@
   margin-top: var(--gap-lg);
 }
 
-.curatorOn,
-.curatorOff {
-  min-height: var(--touch-min);
-  padding: 0 14px;
-  border: 0.5px solid var(--border-strong);
-  border-radius: var(--radius);
-  background: var(--surface);
-  color: var(--text-secondary);
-  font-size: 0.82rem;
-  letter-spacing: 0.08em;
-  cursor: pointer;
-}
-
-.curatorOn {
-  border-color: var(--accent-muted);
-  color: var(--accent);
-}
-
 /* --- Kunye seridi --- */
 
 .stats {

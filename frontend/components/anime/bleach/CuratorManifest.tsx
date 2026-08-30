@@ -70,7 +70,17 @@ export async function CuratorManifest() {
   const orphans = Object.values(images).filter((row) => !slotDef(row.slotId));
 
   return (
-    <section className={styles.panel} aria-labelledby="bleach-manifest">
+    /* ⚠️ `data-curator-slot` ŞART (30 Ağustos 2026, kullanıcı bildirimi:
+       "küratör manifestosu küratör modu kapalıyken de görünüyor").
+       `isAdmin` yalnızca ZİYARETÇİYİ dışarıda tutuyor; anahtarın kendisi
+       `CuratorFrame`in `data-curating` niteliği + bu işaretle çalışıyor.
+       İşaret olmayınca panel yönetici için HER ZAMAN açıktı. Slam Dunk
+       manifestosu bunu baştan doğru yapıyordu, bu ikisi atlanmış. */
+    <section
+      className={styles.panel}
+      aria-labelledby="bleach-manifest"
+      data-curator-slot
+    >
       <header className={styles.head}>
         <h2 id="bleach-manifest" className={styles.title}>
           {t("manifestTitle")}

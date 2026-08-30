@@ -287,25 +287,6 @@
   margin-bottom: 0;
 }
 
-.curatorOff,
-.curatorOn {
-  min-height: 36px;
-  padding: 0 14px;
-  border: 0.5px solid var(--border-strong);
-  border-radius: 999px;
-  background: transparent;
-  color: var(--text-secondary);
-  font-size: 0.74rem;
-  letter-spacing: 0.06em;
-  cursor: pointer;
-}
-
-.curatorOn {
-  border-color: var(--accent-muted);
-  background: color-mix(in srgb, var(--accent) 10%, transparent);
-  color: var(--accent);
-}
-
 /* --- Afis ustundeki hizli isaretleme --- */
 
 .quick {

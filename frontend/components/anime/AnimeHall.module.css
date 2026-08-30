@@ -112,6 +112,9 @@
   margin: var(--pad-md) 0;
 }
 
+/* Kunye kartlari OKUNUR, tiklanmaz: `AnimeHall.tsx`te duz `<div>`ler, hicbir
+   adrese baglanmiyorlar. Bu yuzden kalkma/golge gibi bir imlec vurgusu YOK —
+   tiklanabilir gorunup hicbir sey yapmayan yuzey birakmiyoruz. */
 .statCard {
   padding: var(--gap-md) var(--gap-lg);
   border: 0.5px solid var(--border);
@@ -147,6 +150,31 @@
   margin: var(--pad-md) 0;
 }
 
+/* Dar ekranda cipler uc satira sarmak yerine tek satirda kayiyor — raf
+   seridiyle ayni hareket. Tek puruzu satirin SONUNDAKI "+N daha" dugmesiydi:
+   sarma kalkinca ekranin sagindan cikip kayboluyordu. Dugme kabin sag
+   kenarina yapisiyor, cipler onun altindan geciyor — kaydirma nerede olursa
+   olsun "gerisi" hep elin altinda. */
+@media (max-width: 640px) {
+  .filters {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+  }
+
+  .filters::-webkit-scrollbar {
+    display: none;
+  }
+
+  .filters .moreChips {
+    position: sticky;
+    right: 0;
+    background: var(--bg);
+    box-shadow: -12px 0 12px -2px var(--bg);
+  }
+}
+
 .chip,
 .chipOn {
   min-height: 34px;
@@ -157,6 +185,7 @@
   color: var(--text-secondary);
   font-size: 0.78rem;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .chipOn {
@@ -179,6 +208,7 @@
   color: var(--text-muted);
   font-size: 0.78rem;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 /* --- Raf seridi ---
@@ -215,8 +245,12 @@
   display: flex;
   gap: var(--gap-sm);
   overflow-x: auto;
-  margin: 0;
-  padding: 0;
+  /* Aktif rafin isareti pilin ALTINDA duruyor (`.railItemOn::after`).
+     `overflow-x: auto` dikey ekseni de kaba cevirdigi icin isaret aksi halde
+     kirpilir ve hic gorunmezdi; alta yer aciliyor, ayni miktar negatif marjla
+     geri alininca seridin yuksekligi degismiyor. */
+  margin: 0 0 -10px;
+  padding: 0 0 10px;
   list-style: none;
   scrollbar-width: none;
 }
@@ -254,6 +288,20 @@
   border-color: var(--accent-muted);
   background: color-mix(in srgb, var(--accent) 12%, transparent);
   color: var(--accent);
+  position: relative;
+}
+
+.railItemOn::after {
+  content: "";
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 12px;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--accent);
+  box-shadow: 0 0 6px var(--accent);
 }
 
 .railCount {
@@ -552,11 +600,11 @@
   letter-spacing: 0.18em;
   text-transform: uppercase;
   opacity: 0;
-  transform: translateY(65%);
+  transform: translateY(80%);
   pointer-events: none;
   transition:
-    opacity 260ms cubic-bezier(0.23, 1, 0.32, 1),
-    transform 260ms cubic-bezier(0.23, 1, 0.32, 1);
+    opacity 400ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 400ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .card:hover .coverData,
@@ -710,6 +758,29 @@
   border-color: color-mix(in srgb, var(--anime-airing-ink) 45%, transparent);
   background: color-mix(in srgb, var(--anime-airing-ink) 12%, transparent);
   color: var(--anime-airing-ink);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badgeAiring::before {
+  content: "";
+  display: block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: var(--anime-airing-ink);
+  box-shadow: 0 0 6px var(--anime-airing-ink);
+  animation: pulseAiring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulseAiring {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
 }
 
 .badgeUpcoming {
@@ -1034,6 +1105,10 @@
   position: absolute;
   inset: -5%;
   animation: curtainDrift 48s ease-in-out infinite alternate;
+  /* Buraya alta dogru bir maske KONMUYOR: dipteki kararmayi zaten
+     `.curtainShade` yapiyor. Ustelik bu kutu `inset: -5%` ile buyutuldugu
+     icin maskenin solma cizgisi golgeninkiyle hizalanmaz, afisin alt yarisi
+     iki kez silinirdi. Tek kararma, tek yerden. */
 }
 
 .curtainImg {
@@ -1192,6 +1267,7 @@
   border-radius: var(--radius-card);
   background: color-mix(in srgb, var(--surface) 72%, transparent);
   backdrop-filter: blur(10px);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--text-primary) 10%, transparent);
 }
 
 .resumeLabel {
@@ -1266,6 +1342,7 @@
 .resumeCta:hover {
   background: color-mix(in srgb, var(--accent) 26%, transparent);
   color: var(--text-primary);
+  box-shadow: 0 0 20px -5px color-mix(in srgb, var(--accent) 60%, transparent);
 }
 
 /* Genis ekranda kimlik solda, kart sagda; ikisi de perdenin dibine oturur */
@@ -1295,7 +1372,10 @@
    yaklasan afis duruyor: karta gelindiginde isima, filigran ve cagri hala
    beliriyor — sadece aninda. */
 @media (prefers-reduced-motion: reduce) {
-  .curtainStage {
+  /* Yayin rozetinin nabzi da duruyor: nokta kayboluyor degil, sabit kaliyor —
+     "yayinda" bilgisi yerinde, yalnizca kirpismasi bitiyor. */
+  .curtainStage,
+  .badgeAiring::before {
     animation: none;
   }
 

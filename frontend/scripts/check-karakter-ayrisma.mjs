@@ -211,7 +211,12 @@ if (DETAY) {
     console.log(
       `${s.ad.padEnd(24)} font=${[...s.iz.font].join("/") || "-"}` +
         `  durum=${[...s.iz.durum].join("/") || "-"}` +
-        `  keyframe=${s.iz.hareket.size}  izgara=${s.iz.izgara.size}`,
+        /* İkisi de gösteriliyor: "kimlikli" hareket üç ve daha fazla
+           duraklı olan; toplam ise "bu sayfada hiç hareket var mı"
+           sorusunun cevabı. Yalnız birincisini basmak yanıltıyordu —
+           Eren'in üç animasyonu var ama üçü de iki duraklı. */
+        `  keyframe=${s.iz.hareket.size}/${s.iz.hareket.toplamKeyframe ?? 0}` +
+        `  izgara=${s.iz.izgara.size}`,
     );
   }
   console.log("");

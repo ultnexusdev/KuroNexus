@@ -72,13 +72,13 @@ const CuratorCardTools = dynamic(
 );
 
 /**
- * Salonda her raf tek sıra: rafa sığan kart sayısı.
+ * Salonda her rafta gösterilen kart sayısı.
  *
- * 9'dan 5'e indi (2026-08-30): orta sütun artık 2100px'lik tam genişlik
- * değil 1400px'lik çerçevenin 6/12'si — tasarımdaki gibi beş kolon.
- * Sıradaki kart sayısı CSS'teki geniş-ekran kolon sayısıyla eşleşiyor.
+ * 10 = geniş ekranda TAM İKİ SIRA (kullanıcı isteği, 2026-08-30): ızgara
+ * 1100px üstünde beş kolon, tek sıra raf çok seyrek kalıyordu. 5'in katı
+ * olmayan bir değer son sırayı yarım bırakır.
  */
-const SHELF_ROW = 5;
+const SHELF_ROW = 10;
 
 // Tek rafın kendi sayfasında ızgara kaç kitapla açılır
 const PAGE_SIZE = 24;

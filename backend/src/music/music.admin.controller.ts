@@ -16,6 +16,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import type { AuthenticatedUser } from '../common/types/authenticated-user';
+import { LibraryImportService } from './library-import.service';
 import { ListeningService } from './listening.service';
 import { MusicCuratorService } from './music-curator.service';
 import { MusicPlaylistService } from './music-playlist.service';
@@ -51,6 +52,7 @@ export class MusicAdminController {
     private readonly sync: MusicSyncService,
     private readonly spotify: SpotifyService,
     private readonly listening: ListeningService,
+    private readonly library: LibraryImportService,
     private readonly roles: MusicRolesService,
     private readonly curator: MusicCuratorService,
     private readonly playlists: MusicPlaylistService,
@@ -284,14 +286,16 @@ export class MusicAdminController {
   /* ── Dinleme kaydı ───────────────────────────────────────────────────── */
 
   /**
-   * Spotify "Extended streaming history" dosyasını içe aktarır.
+   * Spotify dinleme geçmişi dosyasını içe aktarır — iki biçim de geçerli:
+   * "Extended streaming history" (tüm zamanlar, URI'li) ve "Account data"
+   * içindeki `StreamingHistory_music_*.json` (son ~1 yıl, URI'siz).
    *
    * Zip içindeki JSON dosyaları tek tek yüklenir; **tekrar tekrar çalıştırmak
-   * güvenli** (`@@unique([userId, playedAt, spotifyTrackUri])` kopyayı
-   * engelliyor), yani yanlışlıkla aynı dosyayı iki kez yüklemek zararsız.
+   * güvenli** — URI'li satırları unique kısıtı, URI'sizleri servis katmanındaki
+   * ön eleme koruyor (bkz. `listening.service.ts`).
    *
-   * Dosyayı istemek için: hesap ayarları → Gizlilik → "Extended streaming
-   * history" (yalnızca "Account data" DEĞİL; o son bir yılı ve az alan verir).
+   * Tercih yine "Extended streaming history": hesap ayarları → Gizlilik.
+   * Tüm zamanları kapsıyor ve parça eşleştirmesi URI'yle kesin.
    */
   @Post('listening/import')
   @UseInterceptors(FileInterceptor('file'))
@@ -320,5 +324,26 @@ export class MusicAdminController {
     return this.listening.backfillTrackLinks(
       Number.isFinite(parsed) && parsed > 0 ? Math.min(parsed, 50_000) : 5_000,
     );
+  }
+
+  /* ── Kütüphane (YourLibrary.json) ────────────────────────────────────── */
+
+  /**
+   * "Account data" paketindeki `YourLibrary.json`: beğenilen parçalardan
+   * "Beğenilenler" yerel listesini doldurur, takip edilen sanatçılardan
+   * arşivde olmayanları aday listesi olarak döndürür. Yeniden yüklemek
+   * güvenli ve İSTENEN kullanım: sanatçı eklendikçe aynı dosya tekrar
+   * yüklenir, yeni eşleşen beğeniler listeye girer.
+   */
+  @Post('library/import')
+  @UseInterceptors(FileInterceptor('file'))
+  importLibrary(@UploadedFile() file: Express.Multer.File | undefined) {
+    if (!file) {
+      throw new BadRequestException('MUSIC.LIBRARY_FILE_REQUIRED');
+    }
+    if (file.size > MAX_HISTORY_BYTES) {
+      throw new BadRequestException('MUSIC.LIBRARY_TOO_LARGE');
+    }
+    return this.library.importLibraryFile(file.buffer);
   }
 }

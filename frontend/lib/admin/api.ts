@@ -1152,14 +1152,15 @@ export function backfillListening(): Promise<{ linked: number }> {
 }
 
 /**
- * Spotify "Extended streaming history" dosyasını içe aktarır.
+ * Spotify dinleme geçmişi dosyasını içe aktarır — hem "Extended streaming
+ * history" hem "Account data" içindeki `StreamingHistory_music_*.json`.
  *
  * Gövde FormData olduğu için `apiFetch` kullanılmıyor; çerez izni elle
  * veriliyor (yükleme uçlarındaki desen, bkz. `uploadImage`).
  *
- * Tekrar tekrar yüklemek güvenli: `@@unique([userId, playedAt,
- * spotifyTrackUri])` kopyayı engelliyor. Zip içindeki dosyalar tek tek
- * yüklenir.
+ * Tekrar tekrar yüklemek güvenli: URI'li satırları unique kısıtı, URI'siz
+ * satırları (eski biçim) servis katmanındaki ön eleme koruyor
+ * (`listening.service.ts`). Zip içindeki dosyalar tek tek yüklenir.
  */
 export async function importListeningHistory(file: File): Promise<{
   read: number;
@@ -1196,6 +1197,54 @@ export async function importListeningHistory(file: File): Promise<{
     skipped: number;
     matched: number;
   }>;
+}
+
+/** `POST /admin/music/library/import` yanıtı — bkz. `library-import.service.ts` */
+export interface MusicLibraryImportResult {
+  liked: {
+    total: number;
+    inArchive: number;
+    added: number;
+    alreadyInPlaylist: number;
+    unmatched: number;
+    playlist: { id: string; slug: string; name: string };
+  };
+  artists: {
+    total: number;
+    inArchive: number;
+    candidates: Array<{ name: string; spotifyId: string; likedTracks: number }>;
+  };
+}
+
+/**
+ * "Account data" paketindeki `YourLibrary.json`u içe aktarır: beğenilenler
+ * "Beğenilenler" yerel listesine bağlanır, takip edilen sanatçılardan
+ * arşivde olmayanlar aday listesi olarak döner. Yeniden yüklemek güvenli ve
+ * istenen kullanım — sanatçı eklendikçe yeni eşleşen beğeniler listeye girer.
+ */
+export async function importMusicLibrary(
+  file: File,
+): Promise<MusicLibraryImportResult> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const response = await fetch(apiFetchUrl("/admin/music/library/import"), {
+    method: "POST",
+    credentials: "include",
+    body: formData,
+  });
+  if (!response.ok) {
+    let messageKey = "API.REQUEST_FAILED";
+    try {
+      const body = (await response.json()) as { message?: string };
+      if (typeof body.message === "string") {
+        messageKey = body.message;
+      }
+    } catch {
+      // gövde JSON değilse varsayılan anahtar
+    }
+    throw new ApiError(response.status, messageKey);
+  }
+  return response.json() as Promise<MusicLibraryImportResult>;
 }
 
 /* ── Tür sözlüğü ve act künyesi ─────────────────────────────────────────────

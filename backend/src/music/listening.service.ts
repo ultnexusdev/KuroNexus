@@ -269,8 +269,13 @@ export class ListeningService {
     return { linked };
   }
 
-  /** `spotify:track:ID` → arşivdeki parça kimliği. */
-  private async mapUrisToTracks(uris: string[]): Promise<Map<string, string>> {
+  /**
+   * `spotify:track:ID` → arşivdeki parça kimliği.
+   *
+   * Public çünkü kütüphane içe aktarımı (`LibraryImportService`) da aynı
+   * eşleştirmeyi kullanıyor — kopyalamak iki yerde ayrı davranış doğururdu.
+   */
+  async mapUrisToTracks(uris: string[]): Promise<Map<string, string>> {
     const result = new Map<string, string>();
     if (uris.length === 0) {
       return result;

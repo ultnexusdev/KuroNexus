@@ -16,6 +16,7 @@ import {
   createMusicGenre,
   enrichMusicAct,
   importListeningHistory,
+  importMusicLibrary,
   listMusicGenres,
   localizeMusicArtwork,
   musicStatus,
@@ -29,6 +30,7 @@ import {
   uploadImage,
   type MusicAdminStatus,
   type MusicGenreRecord,
+  type MusicLibraryImportResult,
   type SpotifyArtistResult,
 } from "@/lib/admin/api";
 import type { CuratorAct } from "./MusicCuratorSwitch";
@@ -761,7 +763,7 @@ function GenreDictionary() {
   );
 }
 
-/** Bakım işleri: kapak yerelleştirme, rol sözlüğü, dinleme geçmişi. */
+/** Bakım işleri: kapak yerelleştirme, rol sözlüğü, dinleme geçmişi, kütüphane. */
 function Maintenance() {
   const t = useTranslations("music.curator");
   const toText = useErrorText();
@@ -770,6 +772,10 @@ function Maintenance() {
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<string | null>(null);
+  /** Son `YourLibrary.json` yüklemesinin sonucu — aday listesi buradan çiziliyor */
+  const [library, setLibrary] = useState<MusicLibraryImportResult | null>(null);
+  const [addingId, setAddingId] = useState<string | null>(null);
+  const [addedIds, setAddedIds] = useState<Set<string>>(new Set());
 
   async function run(key: string, work: () => Promise<string>) {
     setBusy(key);
@@ -782,6 +788,43 @@ function Maintenance() {
       setError(toText(err));
     } finally {
       setBusy(null);
+    }
+  }
+
+  /**
+   * Aday sanatçıyı ekler — `ArtistSearch.add` ile aynı iki adım (ekle +
+   * MusicBrainz zenginleştirmesi) ve aynı gerekçe: künye yalnızca oradan
+   * geliyor, iki ayrı düğme küratöre iki adımı ezberletirdi.
+   */
+  async function addCandidate(candidate: {
+    name: string;
+    spotifyId: string;
+  }) {
+    setAddingId(candidate.spotifyId);
+    setError(null);
+    setDone(null);
+    try {
+      const result = await addMusicAct(candidate.spotifyId);
+      let note = t("added", {
+        name: result.name,
+        albums: result.albumsCreated + result.albumsUpdated,
+        tracks: result.tracks,
+      });
+      try {
+        const enriched = await enrichMusicAct(result.actId);
+        note += enriched.matched
+          ? ` · ${t("enriched", { count: enriched.filled.length })}`
+          : ` · ${t("enrichFailed", { reason: enriched.reason ?? "—" })}`;
+      } catch (err: unknown) {
+        note += ` · ${toText(err)}`;
+      }
+      setDone(note);
+      setAddedIds((previous) => new Set(previous).add(candidate.spotifyId));
+      router.refresh();
+    } catch (err: unknown) {
+      setError(toText(err));
+    } finally {
+      setAddingId(null);
     }
   }
 
@@ -860,10 +903,11 @@ function Maintenance() {
         </button>
       </div>
 
-      {/* Dinleme geçmişi: Spotify'ın "Extended streaming history" zip'inden
-          çıkan JSON dosyaları TEK TEK yükleniyor. Aynı dosyayı iki kez
-          yüklemek zararsız — `@@unique([userId, playedAt, spotifyTrackUri])`
-          kopyayı engelliyor. */}
+      {/* Dinleme geçmişi: zip'ten çıkan JSON dosyaları TEK TEK yükleniyor.
+          İki biçim de geçerli: "Extended streaming history" ve "Account data"
+          içindeki StreamingHistory_music_*.json. Aynı dosyayı iki kez
+          yüklemek zararsız — URI'li satırları unique kısıtı, URI'sizleri
+          servis katmanındaki ön eleme engelliyor (listening.service.ts). */}
       <label className={styles.fileField}>
         <span className={styles.fileLabel}>{t("historyLabel")}</span>
         <input
@@ -889,8 +933,73 @@ function Maintenance() {
       </label>
       <p className={styles.hint}>{t("historyHint")}</p>
 
+      {/* Kütüphane: beğenilenler "Beğenilenler" listesine, takip edilen
+          sanatçılardan arşivde olmayanlar aşağıdaki aday listesine. */}
+      <label className={styles.fileField}>
+        <span className={styles.fileLabel}>{t("libraryLabel")}</span>
+        <input
+          type="file"
+          accept="application/json,.json"
+          disabled={busy !== null || addingId !== null}
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+            if (!file) {
+              return;
+            }
+            void run("library", async () => {
+              const result = await importMusicLibrary(file);
+              setLibrary(result);
+              setAddedIds(new Set());
+              return t("libraryDone", {
+                added: result.liked.added,
+                already: result.liked.alreadyInPlaylist,
+                unmatched: result.liked.unmatched,
+              });
+            });
+            event.target.value = "";
+          }}
+        />
+      </label>
+      <p className={styles.hint}>{t("libraryHint")}</p>
+
       {error ? <p className={styles.error}>{error}</p> : null}
       {done ? <p className={styles.ok}>{done}</p> : null}
+
+      {library && library.artists.candidates.length > 0 ? (
+        <>
+          <h4 className={styles.blockTitle}>
+            {t("candidatesTitle", {
+              count: library.artists.candidates.length,
+            })}
+          </h4>
+          <ul className={styles.resultList}>
+            {library.artists.candidates.map((candidate) => (
+              <li key={candidate.spotifyId} className={styles.resultRow}>
+                <span className={styles.resultName}>{candidate.name}</span>
+                <code className={styles.resultId}>
+                  {t("candidateLikes", { count: candidate.likedTracks })}
+                </code>
+                <button
+                  type="button"
+                  className={styles.action}
+                  disabled={
+                    busy !== null ||
+                    addingId !== null ||
+                    addedIds.has(candidate.spotifyId)
+                  }
+                  onClick={() => void addCandidate(candidate)}
+                >
+                  {addingId === candidate.spotifyId
+                    ? t("addingLong")
+                    : addedIds.has(candidate.spotifyId)
+                      ? t("candidateAdded")
+                      : t("add")}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : null}
     </section>
   );
 }

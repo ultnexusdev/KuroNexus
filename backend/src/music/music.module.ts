@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { PrismaModule } from '../prisma/prisma.module';
+import { LibraryImportService } from './library-import.service';
 import { ListeningService } from './listening.service';
 import { MusicAdminController } from './music.admin.controller';
 import { MusicArtworkService } from './music-artwork.service';
@@ -37,6 +38,7 @@ import { SpotifyService } from './spotify.service';
     MusicPlaylistService,
     MusicRolesService,
     ListeningService,
+    LibraryImportService,
     SpotifyService,
     MusicCron,
   ],

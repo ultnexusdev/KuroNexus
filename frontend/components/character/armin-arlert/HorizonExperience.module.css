@@ -26,26 +26,21 @@
   --text-secondary: #7c8f9c;
   --text-muted:     #6f889b;
 
-  /* ⚠️ AÇIK İŞ — MERKEZİN KARARI GEREKİYOR (30 Ağustos 2026).
-     `node scripts/check-karakter-kontrast.mjs` bu accent'i REDDEDİYOR:
+  /* Accent 30 Ağustos 2026'da MERKEZDE değiştirildi (a yolu).
+     İlk değer #8eadc2 idi ve yayındaki Megumi'nin accent'ine (#8fa6bf)
+     yalnızca 8 birim uzaktaydı — kontrast denetimi 15'in altını hata
+     sayıyor. Sayfayı yazan ajan bunu ölçüp merkeze devretti ve kilitli
+     değeri kendi başına değiştirmedi; doğru davranış buydu.
 
-       accent COK YAKIN: armin-arlert (#8eadc2) ~ megumi-fushiguro (#8fa6bf)
-       — uzaklik 8   (esik: 15)
+     "Kabul edilen yakınlık" listesine eklemek (jiraiya|kisuke-urahara
+     emsali) reddedildi: o emsalin gerekçesi zeminlerin çok farklı
+     olmasıydı, burada ikisi de soğuk-koyu, yani yan yana karışırlar.
 
-     Değer brief'ten (docs/ANIME-FAZ2-DALGA1.md §3) geldi ve "DEĞİŞTİRME"
-     kilidi altında, o yüzden BURADA DOKUNULMADI. Karar iki sayfayı birden
-     ilgilendiriyor (Megumi yayında), yani merkezde verilmeli. İki yol var:
-       a) accent'i deniz mavisinin daha açık ucuna çekmek —
-          ölçüldü: #84c0d8 en yakın accent'e 38 uzaklıkta, bg'de 9.75:1,
-          surface'ta 9.11:1 (ikisi de eşiğin çok üstünde), aile aynı kalıyor;
-       b) `KABUL_EDILEN` listesine `armin-arlert|megumi-fushiguro` eklemek
-          (jiraiya|kisuke-urahara emsali) — ama zeminler benzer olduğu için
-          o emsalin gerekçesi burada zayıf.
-     Sayfanın geri kalanı accent'i yalnızca token üzerinden okuyor; hangi
-     yol seçilirse tek satır değişiyor. */
-  --accent:         #8eadc2;
-  --accent-hover:   #aac0cf;
-  --accent-muted:   #435460;
+     Yeni değer 65 accent'in tamamına en az 38 birim uzakta; bg'de
+     9.60:1, surface'ta 8.97:1. Aile aynı kaldı (soluk deniz mavisi). */
+  --accent:         #7cc0d5;
+  --accent-hover:   #a0ccd9;
+  --accent-muted:   #355964;
 
   --gold:           #ae925b;
   --warn:           #b88347;

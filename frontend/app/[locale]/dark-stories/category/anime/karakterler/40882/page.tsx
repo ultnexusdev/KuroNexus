@@ -1,0 +1,33 @@
+import type { Metadata } from "next";
+import {
+  experienceMetadata,
+  loadExperiencePage,
+} from "@/lib/characters/experience-page";
+import { RumblingExperience } from "@/components/character/eren-yeager/RumblingExperience";
+
+/**
+ * Eren Yeager — AniList #40882 (Attack on Titan).
+ *
+ * Elle tasarlanmış deneyim sayfası. Kendi statik rota klasöründe, çünkü App
+ * Router bir rotanın stil dosyalarını modül grafiğinden topluyor (ölçüm ve
+ * gerekçe: lib/characters/experience-page.tsx). Statik parça dinamik
+ * parçadan önce eşleştiği için adres değişmedi.
+ */
+
+export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return experienceMetadata(locale, 40882);
+}
+
+export default async function Page() {
+  const { detail, isAdmin, companions } = await loadExperiencePage(40882);
+  return (
+    <RumblingExperience detail={detail} isAdmin={isAdmin} companions={companions} />
+  );
+}

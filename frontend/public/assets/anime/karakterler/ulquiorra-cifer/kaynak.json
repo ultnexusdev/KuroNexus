@@ -1,0 +1,58 @@
+{
+  "slug": "ulquiorra-cifer",
+  "anilistId": 1081,
+  "ad": "Ulquiorra Cifer",
+  "adNative": "ウルキオラ・シファ",
+  "digerAdlar": [
+    "Schiffer"
+  ],
+  "cinsiyet": "Male",
+  "yas": null,
+  "kanGrubu": null,
+  "dogum": {
+    "year": null,
+    "month": 12,
+    "day": 1
+  },
+  "aciklama": "__Height:__ 169 cm (5'7\")\n\nUlquiorra is a male arrancar with a melancholic appearance. Ulquiora is the 4th ranked espada. Ulquiorra is also analytical; during his and Yammy's first visit to the human world, he makes several remarks on the humans who confront them. He theorizes that Orihime Inoue's healing power is a temporal-spatial ability, which Aizen describes as the rejection of fate, and comments on how Ichigo Kurosaki's final release can easily get through Yammy's defenses. He also notes Ichigo's power fluctuation, which varies between very weak and stronger than his own. It would appear that Ulquiorra and Grimmjow, the 6th Espada, are not on good terms. While Ulquiorra allowed Yammy to kill anyone he deemed as \"trash\", which included Ichigo, Ulquiorra allowed him to live based on his belief that Ichigo's power was so turbulent that eventually, he would destroy himself. Grimmjow's conflicting viewpoint was that Ichigo should have been destroyed outright, as he could overcome his weakness and grow even stronger. \n\nDespite Grimmjow's argument, Aizen trusted Ulquiorra's judgment. This disagreement led to Grimmjow's unauthorized assault on the real world. Though Ulquiorra is of a higher rank than Grimmjow, Grimmjow is confident that Ulquiorra is afraid to fight him for fear of them destroying one another. When released his zanpakutō, Murciélago (黒翼大魔 (ムルシエラゴ) ,Murushierago?, Japanese for \"giant black-winged demon,\" Spanish for \"bat\") creates two large black wings on his back. His hollow helmet centers atop his head, sporting two large horns, and his arrancar uniform appears more form fitting at the top, becoming robe-like towards the bottom. Additionally, Ulquiorra is apparently unique among the Espada in that he has a second release; Resurrección Segunda Etapa (Spanish for \"resurrection second stage\"). He becomes more muscular with clawed hands and feet, the whites of his eyes turn black, and his helmet is replaced with elongated horns. He loses his clothes; his arms and legs from the hip down are covered in black fur, and he gains a long thin tail. In both forms he can create long \"lances\" of energy called Lanza del Relámpago (雷霆の 槍(ラソサ・デ ル ・レ ラソ パ ー ゴ ) ,ransa deru reranpāgo?, Japanese and Spanish for ”lance of the lightning”), and when thrown can cause an explosion. Ulquiorra seems unfamiliar with the technique when he uses it in his second release state, unexpectedly missing Ichigo with his first one, however, to compensate, he can produce more should his first miss the target. Theme song: \"Moonshield,\" on the album \"The Jester Race\" by the group \"In Flames.\"",
+  "siteUrl": "https://anilist.co/character/1081",
+  "yapimlar": [
+    {
+      "rol": "SUPPORTING",
+      "baslik": "BLEACH",
+      "baslikEn": "Bleach"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "BLEACH",
+      "baslikEn": "Bleach"
+    },
+    {
+      "rol": "BACKGROUND",
+      "baslik": "BLEACH: Jigoku-hen",
+      "baslikEn": "Bleach the Movie: Hell Verse"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "BLEACH 20th PV",
+      "baslikEn": "BLEACH 20th Anime Anniversary Official Trailer"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "not be, but be",
+      "baslikEn": null
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "DON’T BLEACH MY FIST",
+      "baslikEn": null
+    }
+  ],
+  "portre": {
+    "dosya": "/assets/anime/karakterler/ulquiorra-cifer/anilist-portrait.png",
+    "w": 230,
+    "h": 345,
+    "tip": "png",
+    "kaynakUrl": "https://s4.anilist.co/file/anilistcdn/character/large/b1081-xLTqHfLL2I2W.png"
+  }
+}

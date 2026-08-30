@@ -1,0 +1,60 @@
+{
+  "slug": "toshinori-yagi",
+  "anilistId": 89224,
+  "ad": "Toshinori Yagi",
+  "adNative": "八木俊典",
+  "digerAdlar": [
+    "All Might (オールマイト)",
+    "Toshi",
+    "Symbol of Peace"
+  ],
+  "cinsiyet": "Male",
+  "yas": null,
+  "kanGrubu": null,
+  "dogum": {
+    "year": null,
+    "month": 6,
+    "day": 10
+  },
+  "aciklama": "__Height:__ 220 cm (7'2\")\n__Quirk:__ One for All\n\nAll Might is the No. 1 Hero and the \"Symbol of Peace.\"\n\nIn his hero form, All Might is a very tall and over-muscular man whose design resembles the american hero comics. His hair spikes on top of his head and his whole body has more shadows than a normal human being.\n\nHowever, in his true form, he is an overly-skinny man who spits a lot of blood out of his mouth and his clothes appear loose.",
+  "siteUrl": "https://anilist.co/character/89224",
+  "yapimlar": [
+    {
+      "rol": "MAIN",
+      "baslik": "Boku no Hero Academia",
+      "baslikEn": "My Hero Academia"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Boku no Hero Academia 2",
+      "baslikEn": "My Hero Academia Season 2"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Boku no Hero Academia 3",
+      "baslikEn": "My Hero Academia Season 3"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Boku no Hero Academia 4",
+      "baslikEn": "My Hero Academia Season 4"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Boku no Hero Academia 5",
+      "baslikEn": "My Hero Academia Season 5"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Boku no Hero Academia 6",
+      "baslikEn": "My Hero Academia Season 6"
+    }
+  ],
+  "portre": {
+    "dosya": "/assets/anime/karakterler/toshinori-yagi/anilist-portrait.jpg",
+    "w": 230,
+    "h": 345,
+    "tip": "jpg",
+    "kaynakUrl": "https://s4.anilist.co/file/anilistcdn/character/large/b89224-K6KEuQAuYKzq.jpg"
+  }
+}

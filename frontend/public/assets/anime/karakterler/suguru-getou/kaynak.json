@@ -1,0 +1,58 @@
+{
+  "slug": "suguru-getou",
+  "anilistId": 133699,
+  "ad": "Suguru Getou",
+  "adNative": "夏油傑",
+  "digerAdlar": [
+    "Kenjaku (羂索)"
+  ],
+  "cinsiyet": "Male",
+  "yas": "27",
+  "kanGrubu": null,
+  "dogum": {
+    "year": 1990,
+    "month": 2,
+    "day": 3
+  },
+  "aciklama": "__Species:__ Human\n__Height:__ 183 cm\n__Occupation:__ Curse User\n__Grade:__ Special Grade Curse User\n__Cursed Technique:__ Cursed Spirit Manipulation\n\nSuguru Getou is an antagonist in both the Jujutsu Kaisen series and its prequel Jujutsu Kaisen 0: Jujutsu High. \n\n~!He was originally a student of [Masamichi Yaga](https://anilist.co/character/189237/Yaga-Masamichi)'s alongside [Satoru Gojo](https://anilist.co/character/127691/Gojou-Satoru) and [Shoko Ieiri](https://anilist.co/character/158154/Ieiri-Shouko) at Tokyo Jujutsu High. His experiences as a jujutsu sorcerer bred a deep hatred for non-sorcerers, leading to an incident where Suguru massacred over a hundred civilians in a single night, later being expelled from Jujutsu High and called for immediate execution as a result.!~",
+  "siteUrl": "https://anilist.co/character/133699",
+  "yapimlar": [
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen",
+      "baslikEn": "JUJUTSU KAISEN"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Jujutsu Kaisen 2nd Season",
+      "baslikEn": "JUJUTSU KAISEN Season 2"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen 0",
+      "baslikEn": "JUJUTSU KAISEN 0"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen",
+      "baslikEn": "Jujutsu Kaisen"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Jujutsu Kaisen 0: Tokyo Toritsu Jujutsu Koutou Senmon Gakkou",
+      "baslikEn": "Jujutsu Kaisen 0"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Jujutsu Kaisen: Kaigyoku・Gyokusetsu",
+      "baslikEn": "JUJUTSU KAISEN: Hidden Inventory / Premature Death – The Movie"
+    }
+  ],
+  "portre": {
+    "dosya": "/assets/anime/karakterler/suguru-getou/anilist-portrait.png",
+    "w": 230,
+    "h": 345,
+    "tip": "png",
+    "kaynakUrl": "https://s4.anilist.co/file/anilistcdn/character/large/b133699-FCnXaISgazAi.png"
+  }
+}

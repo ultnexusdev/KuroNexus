@@ -1,0 +1,56 @@
+{
+  "slug": "mikasa-ackerman",
+  "anilistId": 40881,
+  "ad": "Mikasa Ackerman",
+  "adNative": "ミカサ・アッカーマン",
+  "digerAdlar": [],
+  "cinsiyet": "Female",
+  "yas": "15-",
+  "kanGrubu": null,
+  "dogum": {
+    "year": null,
+    "month": 2,
+    "day": 10
+  },
+  "aciklama": "__Height:__ 170 cm (5'7\") - 176 cm (5'9½\")\n__Position:__ 104th Training Corps, Survey Corps\n__Relatives:__ [Birth Mother](https://anilist.co/character/84341/Mikasa-no-Haha) (Deceased), [Birth Father](https://anilist.co/character/84339/Mikasa-no-Chichi) (Deceased), [Grisha Yaeger](https://anilist.co/character/62477/Grisha-Yeager) (Foster Father), [Carla Yaeger](https://anilist.co/character/62475/Carla-Yeager) (Foster Mother, Deceased), [Eren Yeager](https://anilist.co/character/40882/Eren-Yeager) (Foster Brother)\n\nMikasa is Eren Yaeger's foster sister and mutual childhood friend of [Armin Arlert](https://anilist.co/character/46494), living with the two of them in Shiganshina District within the southern region of Wall Maria. \n\nWhen she was young, her parents were killed by human traffickers, and she was kidnapped. Eren discovered this and helped her escape her captors. Later, Eren gave her his scarf, which she constantly wears and shares an emotional attachment to. She was adopted by the Yaeger family soon after. Because of these past events, Mikasa shares an unbreakable bond with Eren and lives to protect him, constantly worrying for Eren's well-being. After the Titans broke through Wall Maria and killed her and Eren's mother, she chose to follow Eren into the military to try and keep him safe from danger. \n\nEven as a child, Mikasa possessed impressive fighting skill and strength, and that skill was only honed further during her training.  Mikasa is considered a genius among all the army trainees and is incredibly skilled at combat and agility, to the point that she was known as the greatest soldier among the 104th Training Corps and graduated in first place. Though being among the best of the best, she remains humble and refrains from displaying arrogance. Ultimately, Mikasa's loyalty remains with Eren no matter the circumstance, with her only true desire being to live a peaceful life with him.\n",
+  "siteUrl": "https://anilist.co/character/40881",
+  "yapimlar": [
+    {
+      "rol": "MAIN",
+      "baslik": "Shingeki no Kyojin",
+      "baslikEn": "Attack on Titan"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Shingeki no Kyojin Season 2",
+      "baslikEn": "Attack on Titan Season 2"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Shingeki no Kyojin Season 3",
+      "baslikEn": "Attack on Titan Season 3"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Shingeki no Kyojin: The Final Season",
+      "baslikEn": "Attack on Titan Final Season"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Shingeki no Kyojin Season 3 Part 2",
+      "baslikEn": "Attack on Titan Season 3 Part 2"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Shingeki no Kyojin: The Final Season Part 2",
+      "baslikEn": "Attack on Titan Final Season Part 2"
+    }
+  ],
+  "portre": {
+    "dosya": "/assets/anime/karakterler/mikasa-ackerman/anilist-portrait.png",
+    "w": 230,
+    "h": 345,
+    "tip": "png",
+    "kaynakUrl": "https://s4.anilist.co/file/anilistcdn/character/large/b40881-F3gr1PkreDvj.png"
+  }
+}

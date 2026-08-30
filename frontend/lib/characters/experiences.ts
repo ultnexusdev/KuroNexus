@@ -101,6 +101,45 @@ export const EXPERIENCE_IDS = {
   nobaraKugisaki: 133700,
   kentoNanami: 133704,
   suguruGetou: 133699,
+
+  /* ── Dördüncü tur (30 Ağustos 2026): 24 sayfalık bir dizi, üç yeni
+     evren. Arşiv ilk kez Naruto/Bleach/JJK dışına çıkıyor — Attack on
+     Titan, My Hero Academia ve GTO kadroları buradan başlıyor.
+     Turun tamamı beş dalgada giriyor; aşağıda YALNIZCA birleşmiş
+     dalgaların numaraları var.
+
+     Yirmi dört numaranın hepsi AniList GraphQL'den TEK TEK doğrulandı
+     (30 Ağustos 2026): her biri için `Character(id:)` sorgusu atıldı ve
+     dönen `name.full` + `media` listesi beklenen seriyle eşleşti.
+     Doğrulama sonucu burada kayıtlı kalıyor ki sonraki dalgalar aynı
+     turu tekrarlamasın.
+
+     ⚠️ Dört numara AD'la aranarak bulundu (rota kaydımızda yoktu) ve
+     AniList romanizasyonu uzun ünlüyü YAZIYOR — Gojou/Getou emsaliyle
+     aynı, ad ayrışması değil yazım tercihi:
+       toujiFushiguro → #162722, AniList'te "Touji Fushiguro"
+       jougo          → #156991, AniList'te "Jougo"
+       yuutaOkkotsu   → #129571, AniList'te "Yuuta Okkotsu"
+       panda          → #137974, "Panda" (arama Shirokuma Café'nin
+                        pandasına ve One Piece'in Pandaman'ine de
+                        çarpıyor; Jujutsu Kaisen süzgeciyle ayrıldı) ── */
+
+  /* ⚠️ KAYIT DALGA DALGA GİRİYOR — hepsi birden DEĞİL.
+     İlk denemede yirmi dört numara da bir kerede yazılmıştı ve
+     `check-karakter-kayit.mjs` haklı olarak 19 hata verdi: kayıt var,
+     rota yok. Kayıt bir SÖZ — "bu adres çalışıyor" demek. Sayfası
+     hazır olmayan karakteri kaydetmek o sözü boşa çıkarıyor ve
+     denetimi bitene kadar kırmızı tutuyor, yani denetim işe yaramaz
+     hâle geliyor. Dalgası birleşmeden buraya satır ekleme.
+
+     Sıradaki dalgaların numaraları docs/ANIME-FAZ2-DALGA<n>.md'de. */
+
+  /* ── Dalga 1 · Attack on Titan + GTO ── */
+  erenYeager: 40882,
+  mikasaAckerman: 40881,
+  arminArlert: 46494,
+  levi: 45627,
+  eikichiOnizuka: 434,
 } as const;
 
 /**
@@ -229,6 +268,29 @@ export const EXPERIENCE_COMPANIONS: Record<number, number[]> = {
   [EXPERIENCE_IDS.kentoNanami]: [127212, 127691, 133702, 157214, 133700],
   // Getō: tek arkadaşı, sınıfı, taşıdığı kız, onu devralan
   [EXPERIENCE_IDS.suguruGetou]: [127691, 158154, 203015, 162722, 289584],
+
+  /* ── Dördüncü tur (30 Ağustos 2026) ──
+     Numaralar arşivin kendi karakter dizininden alındı (68 kayıt,
+     `/anime/characters`), yani portresi olanlar gerçekten çözülüyor.
+     Dizinde OLMAYAN birkaç numara bilinçli duruyor (Byakuya #907,
+     Rin Nohara #14082 gibi): portre kaydı yoksa bölüm adla çiziliyor,
+     kayıt sonradan girildiğinde kendiliğinden yerine oturuyor. */
+
+  // Eren: adası, çocukluk üçlüsü, komutanı, düşman olan sınıf arkadaşları
+  [EXPERIENCE_IDS.erenYeager]: [40881, 46494, 45627, 46496, 46484, 46490],
+  // Mikasa: koruduğu, üçlünün üçüncüsü, kan bağı olduğu kaptan
+  [EXPERIENCE_IDS.mikasaAckerman]: [40882, 46494, 45627, 46498, 45887],
+  // Armin: üçlü, akıl hocası, devraldığı güç
+  /* Levi (45627) 30 Ağustos'ta EKLENDİ: sayfanın kendi tanık listesi
+     (`ARMIN_WITNESSES`) onu çiziyordu ama bu satırda yoktu, yani portresi
+     arşive girildiğinde bile kadraj sonsuza kadar boş kalacaktı. Bugün
+     hepsi boş olduğu için gözle fark edilmiyordu — denetçi buldu. */
+  [EXPERIENCE_IDS.arminArlert]: [40882, 40881, 45627, 46496, 71121, 46484],
+  // Levi: müfrezesi, komutanı, düşmanı
+  [EXPERIENCE_IDS.levi]: [46496, 71121, 40882, 40881, 71479],
+  // Onizuka: GTO kadrosunda arşivde yalnız — künye adla çizilir
+  [EXPERIENCE_IDS.eikichiOnizuka]: [434],
+
 };
 
 const EXPERIENCE_ID_SET: ReadonlySet<number> = new Set<number>(

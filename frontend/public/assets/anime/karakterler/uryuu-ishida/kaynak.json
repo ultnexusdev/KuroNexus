@@ -1,0 +1,59 @@
+{
+  "slug": "uryuu-ishida",
+  "anilistId": 564,
+  "ad": "Uryuu Ishida",
+  "adNative": "石田雨竜",
+  "digerAdlar": [
+    "Prinz von Licht",
+    "Megane-kun"
+  ],
+  "cinsiyet": "Male",
+  "yas": "15-27",
+  "kanGrubu": "AB",
+  "dogum": {
+    "year": null,
+    "month": 11,
+    "day": 6
+  },
+  "aciklama": "__Species:__ Human (Quincy)  \n__Height:__ 171 cm (5'7\") - 177 cm (5'9\")\n__Spirit Weapon:__ Heilig Bogen\n__Relatives:__ [Ryuuken Ishida](https://anilist.co/character/1083/Ryuuken-Ishida) (father), [Souken Ishida](https://anilist.co/character/22844/Souken-Ishida) (Grandfather, deceased) [Kanae Katagiri](https://anilist.co/character/85235/Kanae-Katagiri) (Mother, deceased)\n\nUryuu is a friend of [Ichigo Kurosaki](https://anilist.co/character/5/Ichigo-Kurosaki) and one of the last surviving Quincy. Uryuu is generally shy and quiet, but tries harder to act cool when other people are around. In addition, he also has a tendency to say things with characteristic drama. Uryuu operates on a moral ethic known as the \"Pride of the Quincy\" and has a strong sense of justice. He has also shown to be very chivalrous, stating that he enacts justice on men who abuse or treat women badly. Uryuu also has a tendency to not use lethal force in battle, especially if he can win without doing so. Instead, he will simply incapacitate his opponent.  Uryuu does not hold his father, Ryuuken Ishida, in high respect; he calls his father by his given name which is considered very rude in Japanese society\n\nHis favorite food is homemade mackerel miso stew. The television program he likes is Don Kanonji's \"Bura-Rei.\"",
+  "siteUrl": "https://anilist.co/character/564",
+  "yapimlar": [
+    {
+      "rol": "MAIN",
+      "baslik": "BLEACH",
+      "baslikEn": "Bleach"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "BLEACH: Sennen Kessen-hen",
+      "baslikEn": "BLEACH: Thousand-Year Blood War"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "BLEACH: Sennen Kessen-hen - Ketsubetsu-tan",
+      "baslikEn": "BLEACH: Thousand-Year Blood War - The Separation"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "BLEACH",
+      "baslikEn": "Bleach"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "BLEACH: Sennen Kessen-hen - Soukoku-tan",
+      "baslikEn": "BLEACH: Thousand-Year Blood War - The Conflict"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "BLEACH: Sennen Kessen-hen - Kashin-tan",
+      "baslikEn": "BLEACH: Thousand-Year Blood War - The Calamity"
+    }
+  ],
+  "portre": {
+    "dosya": "/assets/anime/karakterler/uryuu-ishida/anilist-portrait.jpg",
+    "w": 230,
+    "h": 345,
+    "tip": "jpg",
+    "kaynakUrl": "https://s4.anilist.co/file/anilistcdn/character/large/b564-a6LJitrjSfKC.jpg"
+  }
+}

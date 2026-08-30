@@ -1,0 +1,58 @@
+{
+  "slug": "maki-zenin",
+  "anilistId": 134167,
+  "ad": "Maki Zenin",
+  "adNative": "禪院真希",
+  "digerAdlar": [
+    "Miss Zenin"
+  ],
+  "cinsiyet": "Female",
+  "yas": "16",
+  "kanGrubu": null,
+  "dogum": {
+    "year": null,
+    "month": 1,
+    "day": 20
+  },
+  "aciklama": "__Height:__ 170 cm (5'7\")\n\nMaki Zenin is the older twin sister of [Mai Zenin](https://anilist.co/character/134168/Mai-Zenin). Maki is a grade 4 sorcerer and a second-year at Tokyo Metropolitan Jujutsu Technical High School. She is from the main branch of the Zenin clan, one of the \"Prominent Three Families\" of the Jujutsu world.\n\nShe left the Zenin family in order to prove herself capable of being a Sorcerer after being deemed uncapable, since she lacks Cursed Energy.\n\n~!Because Mai and Maki are monozygotic twins, their strength is considerably limited to one another. Monozygotic twins are considered as a single individual in the Jujutsu world and are a sign of bad omen.!~\n\n~!After the death of her twin sister Mai, Maki has lost all of her cursed energy and gained a Heavenly Restriction. This causes her skills and human capabilities to be on par with [Toji Fushiguro's](https://anilist.co/character/162722/Touji-Fushiguro).!~",
+  "siteUrl": "https://anilist.co/character/134167",
+  "yapimlar": [
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen",
+      "baslikEn": "JUJUTSU KAISEN"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen 2nd Season",
+      "baslikEn": "JUJUTSU KAISEN Season 2"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen 0",
+      "baslikEn": "JUJUTSU KAISEN 0"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen: Shimetsu Kaiyuu - Zenpen",
+      "baslikEn": "JUJUTSU KAISEN Season 3: The Culling Game Part 1"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen",
+      "baslikEn": "Jujutsu Kaisen"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen 0: Tokyo Toritsu Jujutsu Koutou Senmon Gakkou",
+      "baslikEn": "Jujutsu Kaisen 0"
+    }
+  ],
+  "portre": {
+    "dosya": "/assets/anime/karakterler/maki-zenin/anilist-portrait.png",
+    "w": 230,
+    "h": 345,
+    "tip": "png",
+    "kaynakUrl": "https://s4.anilist.co/file/anilistcdn/character/large/b134167-5TCytk45YByD.png"
+  }
+}

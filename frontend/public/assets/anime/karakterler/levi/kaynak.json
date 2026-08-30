@@ -1,0 +1,63 @@
+{
+  "slug": "levi",
+  "anilistId": 45627,
+  "ad": "Levi",
+  "adNative": "リヴァイ",
+  "digerAdlar": [
+    "Levi Heichou (リヴァイ兵長)",
+    "Captain Levi",
+    "Jinrui Saikyou no Heishi (人類最強の兵士)",
+    "Humanity's Strongest Soldier",
+    "Heishichou (兵士長)",
+    "Levi Ackerman (リヴァイ・アッカーマン)"
+  ],
+  "cinsiyet": "Male",
+  "yas": null,
+  "kanGrubu": "A",
+  "dogum": {
+    "year": null,
+    "month": 12,
+    "day": 25
+  },
+  "aciklama": "__Height:__ 160 cm (5'3\")\n\nSquad Captain of the Special Operations Squad (known as Squad Levi) within the Survey Corps. He is known as humanity's strongest soldier. \n\nLevi is abrasive, blunt, and has a strong respect for structure and discipline. He is a clean-freak, demanding spotless cleanliness of himself, his equipment, and his environment. Rumors say he was involved in underground crime in his life before coming a soldier. Despite his emotionless and unfriendly demeanor, Levi cares deeply for his squad and greatly values human life.",
+  "siteUrl": "https://anilist.co/character/45627",
+  "yapimlar": [
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Shingeki no Kyojin",
+      "baslikEn": "Attack on Titan"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Shingeki no Kyojin Season 2",
+      "baslikEn": "Attack on Titan Season 2"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Shingeki no Kyojin Season 3",
+      "baslikEn": "Attack on Titan Season 3"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Shingeki no Kyojin: The Final Season",
+      "baslikEn": "Attack on Titan Final Season"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Shingeki no Kyojin Season 3 Part 2",
+      "baslikEn": "Attack on Titan Season 3 Part 2"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Shingeki no Kyojin: The Final Season Part 2",
+      "baslikEn": "Attack on Titan Final Season Part 2"
+    }
+  ],
+  "portre": {
+    "dosya": "/assets/anime/karakterler/levi/anilist-portrait.png",
+    "w": 230,
+    "h": 345,
+    "tip": "png",
+    "kaynakUrl": "https://s4.anilist.co/file/anilistcdn/character/large/b45627-CR68RyZmddGG.png"
+  }
+}

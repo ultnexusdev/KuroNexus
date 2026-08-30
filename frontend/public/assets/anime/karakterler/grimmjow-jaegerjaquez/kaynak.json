@@ -1,0 +1,56 @@
+{
+  "slug": "grimmjow-jaegerjaquez",
+  "anilistId": 1080,
+  "ad": "Grimmjow Jaegerjaquez",
+  "adNative": "グリムジョー・ジャガージャック",
+  "digerAdlar": [],
+  "cinsiyet": "Male",
+  "yas": null,
+  "kanGrubu": null,
+  "dogum": {
+    "year": null,
+    "month": 7,
+    "day": 31
+  },
+  "aciklama": "__Height:__ 186 cm   \n__Race:__ Arrancar    \n\nGrimmjow appears to be a laid back and irreverent individual, but this scruffy appearance hides an impulsive, excessively violent personality and a lethally short temper. He is blunt, rude, and quite sadistic, revealing an insane grin in battle, much like [Kenpachi Zaraki](https://anilist.co/character/909/Zaraki-Kenpachi). Grimmjow has little respect for authority and says whatever is on his mind, regardless of whether or not it is appropriate.\n\nGrimmjow is the sixth Espada in [Sousuke Aizen's](https://anilist.co/character/1086/Aizen-Sousuke) army of Arrancar, meaning he is ranked sixth in terms of strength. A crooked number 6 is tattooed on his back just above and to the right of his hollow hole. Aizen personally marks the Espada, the ten most powerful of his arrancar, with such tattoos as visible marks of their rank and ability.",
+  "siteUrl": "https://anilist.co/character/1080",
+  "yapimlar": [
+    {
+      "rol": "SUPPORTING",
+      "baslik": "BLEACH",
+      "baslikEn": "Bleach"
+    },
+    {
+      "rol": "BACKGROUND",
+      "baslik": "BLEACH: Sennen Kessen-hen",
+      "baslikEn": "BLEACH: Thousand-Year Blood War"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "BLEACH",
+      "baslikEn": "Bleach"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "BLEACH: Sennen Kessen-hen - Soukoku-tan",
+      "baslikEn": "BLEACH: Thousand-Year Blood War - The Conflict"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "BLEACH 20th PV",
+      "baslikEn": "BLEACH 20th Anime Anniversary Official Trailer"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Bleach: Can't Fear Your Own World",
+      "baslikEn": "Bleach: Can't Fear Your Own World"
+    }
+  ],
+  "portre": {
+    "dosya": "/assets/anime/karakterler/grimmjow-jaegerjaquez/anilist-portrait.jpg",
+    "w": 230,
+    "h": 345,
+    "tip": "jpg",
+    "kaynakUrl": "https://s4.anilist.co/file/anilistcdn/character/large/b1080-JUNo2Or0UGZg.jpg"
+  }
+}

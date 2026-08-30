@@ -1,0 +1,61 @@
+{
+  "slug": "katsuki-bakugou",
+  "anilistId": 88892,
+  "ad": "Katsuki Bakugou",
+  "adNative": "爆豪勝己",
+  "digerAdlar": [
+    "Katsuki Bakugo",
+    "Kacchan (かっちゃん)",
+    "Daibakusasshin Dynamight (大•爆•殺•神ダイナマイト)",
+    "Great Explosion Murder God Dynamight"
+  ],
+  "cinsiyet": "Male",
+  "yas": "14-",
+  "kanGrubu": "A",
+  "dogum": {
+    "year": null,
+    "month": 4,
+    "day": 20
+  },
+  "aciklama": "__Height:__ 172 cm (5'7\")\n__Quirk:__ Explosion\n\nStudent in Class 1-A at U.A. High School.\n\nKatsuki is a crude, arrogant, short-tempered, and aggressive person, especially at the beginning of the series. Due to the constant praise of his abilities and powerful Quirk, Katsuki has developed a superiority complex, and because of that, he desires to be the first and best at everything. He loves to win above all else and cannot stand it when he doesn't, leading him to lose his already short temper if he achieves anything but a complete victory.\n\nKatsuki is not only very athletic and talented at fighting, but also very intelligent and extremely perceptive, capable of strategic planning and improvisation. Additionally, his grades are among the highest of his class. Katsuki also possesses surprising talent in other areas, such as cooking and music, even though he doesn't show a particular interest in them. Overall, Katsuki is considered a natural-born genius with the potential to be one of the best Pro Heroes.\n\nKatsuki's Quirk \"Explosion\" allows him to secrete nitroglycerin-like sweat from the palms of his hands and ignite it on command, allowing him to create strong explosions. The more Katsuki sweats, the stronger his explosions become. Not only can Katsuki use the explosions for attacking, he can also use them to propel himself and navigate through the air at high speeds, allowing him to fly at his opponents without giving them time to react, as well as evade incoming attacks, even while in the air. The shockwave from an explosion can even be used as a shield.",
+  "siteUrl": "https://anilist.co/character/88892",
+  "yapimlar": [
+    {
+      "rol": "MAIN",
+      "baslik": "Boku no Hero Academia",
+      "baslikEn": "My Hero Academia"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Boku no Hero Academia 2",
+      "baslikEn": "My Hero Academia Season 2"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Boku no Hero Academia 3",
+      "baslikEn": "My Hero Academia Season 3"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Boku no Hero Academia 4",
+      "baslikEn": "My Hero Academia Season 4"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Boku no Hero Academia 5",
+      "baslikEn": "My Hero Academia Season 5"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Boku no Hero Academia 6",
+      "baslikEn": "My Hero Academia Season 6"
+    }
+  ],
+  "portre": {
+    "dosya": "/assets/anime/karakterler/katsuki-bakugou/anilist-portrait.png",
+    "w": 230,
+    "h": 345,
+    "tip": "png",
+    "kaynakUrl": "https://s4.anilist.co/file/anilistcdn/character/large/b88892-bdOha3lNcaN6.png"
+  }
+}

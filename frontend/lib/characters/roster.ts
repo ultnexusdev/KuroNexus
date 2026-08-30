@@ -36,6 +36,13 @@ export interface RosterEntry {
 const NARUTO = { series: "Naruto", seriesSlug: "naruto" };
 const BLEACH = { series: "Bleach", seriesSlug: "bleach" };
 const JJK = { series: "JUJUTSU KAISEN", seriesSlug: "jujutsu-kaisen" };
+/* 30 Ağustos 2026 — arşiv ilk kez bu üç evrene açılıyor. Slug'lar arşivin
+   kendi seri kaydından alındı (`/anime/characters`, 68 karakterin seri
+   çipleri), yani dizindeki süzgeç bu satırları gerçekten tanıyor. */
+const AOT = { series: "Attack on Titan", seriesSlug: "attack-on-titan" };
+const GTO = { series: "GTO: Great Teacher Onizuka", seriesSlug: "gto-great-teacher-onizuka" };
+/* My Hero Academia (`my-hero-academia`) Dalga 2 ile eklenecek — kullanılmayan
+   bir sabit bırakmak eslint'i kırıyor, sırası gelince yazılacak. */
 
 export const EXPERIENCE_ROSTER: RosterEntry[] = [
   { characterId: EXPERIENCE_IDS.itachi, name: "Itachi Uchiha", nameNative: "うちはイタチ", ...NARUTO },
@@ -87,6 +94,26 @@ export const EXPERIENCE_ROSTER: RosterEntry[] = [
   { characterId: EXPERIENCE_IDS.nobaraKugisaki, name: "Nobara Kugisaki", nameNative: "釘崎野薔薇", ...JJK },
   { characterId: EXPERIENCE_IDS.kentoNanami, name: "Kento Nanami", nameNative: "七海建人", ...JJK },
   { characterId: EXPERIENCE_IDS.suguruGetou, name: "Suguru Getou", nameNative: "夏油傑", ...JJK },
+
+  /* ── Dördüncü tur (30 Ağustos 2026), Dalga 1 · Attack on Titan + GTO ──
+     Tur 24 sayfalık ve beş dalgada giriyor; burada YALNIZCA birleşmiş
+     dalganın satırları var (gerekçe: experiences.ts'teki kayıt notu).
+
+     Adlar ve yerel yazımlar AniList künyesinden ALINDI (indirilen
+     `public/assets/anime/karakterler/<slug>/kaynak.json`), elle
+     yazılmadı — yerel yazımda harf hatası bu yüzden imkânsız.
+
+     İki bilinçli sapma:
+       Levi → AniList soyadını yazmıyor ("Levi"); sayfa karakterin
+         kanondaki tam adını taşıyor (Obito/Nagato emsalindeki ilke:
+         künye AniList'in, başlık karakterin adı).
+       Ulquiorra → AniList'te uzun ünlü işareti düşmüş ("シファ");
+         doğrusu yazıldı. */
+  { characterId: EXPERIENCE_IDS.erenYeager, name: "Eren Yeager", nameNative: "エレン・イェーガー", ...AOT },
+  { characterId: EXPERIENCE_IDS.mikasaAckerman, name: "Mikasa Ackerman", nameNative: "ミカサ・アッカーマン", ...AOT },
+  { characterId: EXPERIENCE_IDS.arminArlert, name: "Armin Arlert", nameNative: "アルミン・アルレルト", ...AOT },
+  { characterId: EXPERIENCE_IDS.levi, name: "Levi Ackerman", nameNative: "リヴァイ", ...AOT },
+  { characterId: EXPERIENCE_IDS.eikichiOnizuka, name: "Eikichi Onizuka", nameNative: "鬼塚英吉", ...GTO },
 ];
 
 /** Rozet ve süzgeç için: elle tasarlanmış sayfası olan numaralar. */

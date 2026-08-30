@@ -1,0 +1,60 @@
+{
+  "slug": "touji-fushiguro",
+  "anilistId": 162722,
+  "ad": "Touji Fushiguro",
+  "adNative": "伏黒甚爾",
+  "digerAdlar": [
+    "Sorcerer Killer",
+    "Toji Fushiguro",
+    "Touji Zenin"
+  ],
+  "cinsiyet": "Male",
+  "yas": null,
+  "kanGrubu": null,
+  "dogum": {
+    "year": null,
+    "month": 12,
+    "day": 31
+  },
+  "aciklama": "Touji Fushiguro, born Touji Zenin, is the father of [Megumi Fushiguro](https://anilist.co/character/126635/). He took a job from the Star Religious Group to assassinate the Star Plasma Vessel.",
+  "siteUrl": "https://anilist.co/character/162722",
+  "yapimlar": [
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen 2nd Season",
+      "baslikEn": "JUJUTSU KAISEN Season 2"
+    },
+    {
+      "rol": "BACKGROUND",
+      "baslik": "Jujutsu Kaisen: Shimetsu Kaiyuu - Zenpen",
+      "baslikEn": "JUJUTSU KAISEN Season 3: The Culling Game Part 1"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen",
+      "baslikEn": "Jujutsu Kaisen"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen: Kaigyoku・Gyokusetsu",
+      "baslikEn": "JUJUTSU KAISEN: Hidden Inventory / Premature Death – The Movie"
+    },
+    {
+      "rol": "BACKGROUND",
+      "baslik": "Jujutsu Kaisen Modulo",
+      "baslikEn": "Jujutsu Kaisen Modulo"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen: Shibuya Jihen Tokubetsu Henshuu-ban x Shimetsu Kaiyuu Senkou Jouei",
+      "baslikEn": "JUJUTSU KAISEN: Execution -Shibuya Incident x The Culling Game Begins-"
+    }
+  ],
+  "portre": {
+    "dosya": "/assets/anime/karakterler/touji-fushiguro/anilist-portrait.jpg",
+    "w": 230,
+    "h": 345,
+    "tip": "jpg",
+    "kaynakUrl": "https://s4.anilist.co/file/anilistcdn/character/large/b162722-btzdghBizxKS.jpg"
+  }
+}

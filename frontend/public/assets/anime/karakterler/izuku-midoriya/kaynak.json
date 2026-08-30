@@ -1,0 +1,59 @@
+{
+  "slug": "izuku-midoriya",
+  "anilistId": 89028,
+  "ad": "Izuku Midoriya",
+  "adNative": "緑谷出久",
+  "digerAdlar": [
+    "Deku (デク)",
+    "Young Midoriya"
+  ],
+  "cinsiyet": "Male",
+  "yas": "14-",
+  "kanGrubu": "O",
+  "dogum": {
+    "year": null,
+    "month": 7,
+    "day": 15
+  },
+  "aciklama": "__Height:__ 166 cm (5'5¼\")\n__Quirk:__ One For All\n\nStudent in Class 1-A at U.A High School.\n\nAlthough he was born without a Quirk, Izuku's innate heroism and strong sense of justice manages to catch the attention of the legendary hero [All Might](https://anilist.co/character/89224). Izuku has since become All Might's closest pupil.\n\nIzuku is a very timid, reserved, and polite boy. Although initially portrayed as insecure, tearful, and vulnerable, Izuku gradually matures into a more confident and braver person. His infectious leadership skills, combined with his passion and strategic abilities, have turned Izuku into a central figure of Class 1-A. He is caring and emotional, never hesitating to help or rescue someone in danger, even if he knows that he might not be strong or otherwise qualified enough to do it.\n\nIzuku is extremely (and sometimes scarily) enthusiastic about topics related to heroes. His dream drives him to write down notes about everything he learns about heroes' Quirks and fighting capabilities. Thanks to this practice, Izuku has developed a great analytical mind and can form complex battle plans in a few seconds, factoring in the best ways he can utilize the Quirks of allies and enemies alike for his own advantage.\n\nIzuku's Quirk \"One For All\" was transferred to him from All Might. His Quirk allows him to stockpile an enormous amount of raw power, allowing him to significantly enhance all of his physical abilities to various boundless levels. This results in unbelievable levels of strength, speed, stamina, agility, and durability. Izuku can focus the stockpiled power into a single body part, or spread it across his entire body evenly, though, focusing the power in a single part puts a greater strain on that part of his body.",
+  "siteUrl": "https://anilist.co/character/89028",
+  "yapimlar": [
+    {
+      "rol": "MAIN",
+      "baslik": "Boku no Hero Academia",
+      "baslikEn": "My Hero Academia"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Boku no Hero Academia 2",
+      "baslikEn": "My Hero Academia Season 2"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Boku no Hero Academia 3",
+      "baslikEn": "My Hero Academia Season 3"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Boku no Hero Academia 4",
+      "baslikEn": "My Hero Academia Season 4"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Boku no Hero Academia 5",
+      "baslikEn": "My Hero Academia Season 5"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Boku no Hero Academia 6",
+      "baslikEn": "My Hero Academia Season 6"
+    }
+  ],
+  "portre": {
+    "dosya": "/assets/anime/karakterler/izuku-midoriya/anilist-portrait.png",
+    "w": 230,
+    "h": 345,
+    "tip": "png",
+    "kaynakUrl": "https://s4.anilist.co/file/anilistcdn/character/large/b89028-8w1I9o1ISHMg.png"
+  }
+}

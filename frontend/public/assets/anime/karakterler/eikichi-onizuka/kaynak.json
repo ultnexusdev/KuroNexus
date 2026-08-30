@@ -1,0 +1,56 @@
+{
+  "slug": "eikichi-onizuka",
+  "anilistId": 434,
+  "ad": "Eikichi Onizuka",
+  "adNative": "鬼塚英吉",
+  "digerAdlar": [],
+  "cinsiyet": "Male",
+  "yas": "22",
+  "kanGrubu": null,
+  "dogum": {
+    "year": null,
+    "month": 8,
+    "day": 3
+  },
+  "aciklama": "A hormonal, blonde-haired biker and virgin, Onizuka Eikichi graduated from a bottom-rung university by cheating and, as such, cannot get a decent job. His main way of spending time is peering up girls' skirts in a local mall. He is very athletic, as he can bench press 150 kg (331 lbs), has a second dan black belt in karate, and even claims to perform 500 push-ups, 1000 pull ups and 2000 squats daily.",
+  "siteUrl": "https://anilist.co/character/434",
+  "yapimlar": [
+    {
+      "rol": "MAIN",
+      "baslik": "GTO",
+      "baslikEn": "GTO: Great Teacher Onizuka"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "GTO",
+      "baslikEn": "GTO: Great Teacher Onizuka"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Shounan Junai Gumi!",
+      "baslikEn": null
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "Shonan Junai Gumi!",
+      "baslikEn": "GTO: The Early Years - Shonan Junai Gumi"
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "BAD COMPANY",
+      "baslikEn": null
+    },
+    {
+      "rol": "MAIN",
+      "baslik": "GTO: Paradise Lost",
+      "baslikEn": "GTO: Paradise Lost"
+    }
+  ],
+  "portre": {
+    "dosya": "/assets/anime/karakterler/eikichi-onizuka/anilist-portrait.png",
+    "w": 230,
+    "h": 345,
+    "tip": "png",
+    "kaynakUrl": "https://s4.anilist.co/file/anilistcdn/character/large/b434-Q0K9e4HukawA.png"
+  }
+}

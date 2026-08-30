@@ -1,0 +1,1710 @@
+/* ============================================================
+   DÜNYA DERİSİ — Eikichi Onizuka (AniList #434)
+
+   Palet BRIEF'te verildi (ANIME-FAZ2-DALGA1.md §5) ve değerleri
+   DEĞİŞTİRİLMEDİ. Yardımcı aile `--onz-*` aynı bloğun içinde.
+
+   ⚠️ ADLANDIRMA SÖZLEŞMESİ: küçük metinde kullanılan her yardımcı rengin
+   `-text` ekli bir kardeşi var ve metin ONU okuyor; denetim yalnızca
+   `-text` ekli olanları ölçüyor. Ekli olmayanlar MALZEME: bandın manyetik
+   gövdesi, tarama çizgisi, halftone deliği, asfalt, gölge.
+
+   Ölçüldü (30 Ağustos 2026, `node scripts/check-karakter-kontrast.mjs`
+   ile aynı formül): metin ailesi bg/surface/surface-hover üzerinde AA
+   üstü, birincil metin AAA üstü, accent zeminde 3:1 üstü, dört `-text`
+   yardımcısı surface ve surface-hover üzerinde 4.9:1 ve üstü.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı gereği
+   bir yerel sınıf şart. Kök öğe ikisini birlikte taşıyor.
+   ============================================================ */
+.page[data-world="eikichi-onizuka"] {
+  --bg: #12110f;
+  --surface: #1c1a17;
+  --surface-hover: #23211e;
+  --border: #2b2924;
+  --border-strong: #3b3833;
+  --text-primary: #d1cec7;
+  --text-secondary: #9a917e;
+  --text-muted: #948871;
+  --accent: #ccb333;
+  --accent-hover: #c9b85e;
+  --accent-muted: #37321b;
+  --gold: #ba814f;
+  --warn: #b88347;
+  --danger: #c4695f;
+
+  /* ── Metin taşıyan yardımcılar (ölçülüyor) ── */
+  /* Halftone başlıkların mürekkebi ve polaroid altyazısı */
+  --onz-ink-text: #e7e2d5;
+  /* Tebeşir: mono etiketler, tahta notları */
+  --onz-chalk-text: #a8bcae;
+  /* VHS ekran yazısı (OSD): sayaç, tracking göstergesi */
+  --onz-osd-text: #7cb3c6;
+  /* REC noktası ve "bant bozuk" uyarısı */
+  --onz-rec-text: #d0776a;
+
+  /* ── Malzeme (ölçülmüyor: metin değil, doku) ── */
+  --onz-tape: #2a1f16;
+  --onz-scan: #05050a;
+  --onz-dot: #0b0a08;
+  --onz-asphalt: #15171a;
+  --onz-chalk: #55635a;
+  --onz-shadow: #080706;
+  --onz-screen: #0d0f10;
+  --onz-red: #6d2b26;
+  --onz-cyan: #1f5a66;
+
+  /* ── Yıkamalar — dekoratif, metin taşımaz ── */
+  --onz-chalk-wash: color-mix(in srgb, #ccb333 9%, transparent);
+  --onz-asphalt-wash: color-mix(in srgb, #15171a 55%, transparent);
+  --onz-tape-wash: color-mix(in srgb, #2a1f16 60%, transparent);
+}
+
+/* ============================================================
+   EIKICHI ONIZUKA — "İZLEME"
+
+   Bu bloktan AŞAĞIDA TEK HEX YOK; ara tonların hepsi color-mix ile
+   token'lardan türetildi (SÖZLEŞME §1).
+
+   ── SAYFANIN FİKRİ ──────────────────────────────────────────────────────
+   Arşivin en aykırı dosyası. Fantezi yok, güç yok: bir kaset var ve kaset
+   yıpranmış. Sayfa 90'ların yankee/manga estetiğinde bir KOLAJ — hizalı
+   ızgara yok, hafifçe döndürülmüş paneller, halftone başlıklar, VHS greni.
+
+   ── DÜĞMENİN YAPTIĞI (yapı, ışık değil) ─────────────────────────────────
+   `data-bell="class"`  → eğim 0.9 katı: kolaj DERLİ TOPLU (ama var),
+                          binme azalır, aralar eşitlenir, gren ve
+                          halftone kısılır.
+   `data-bell="street"` → eğim 2.4 katına çıkar, paneller birbirine biner
+                          (negatif `margin-top`), gren ve nokta deseni
+                          kabarır, asfalt yıkaması zemine basar.
+   Yani modun etkisi bir renk değil bir DÜZEN: aynı içerik, başka geometri.
+   Düğme kolajı AÇIP KAPATMIYOR, derecesini değiştiriyor — ızgara ekseni
+   bu sayfada kilitli olduğu için kolaj iki durumda da görünmek zorunda.
+
+   ── ÖLÇÜ SİSTEMİ ────────────────────────────────────────────────────────
+   --onz-tilt        panelin kendi eğimi (tiltA…tiltE)
+   --onz-tilt-scale  modun eğim çarpanı
+   --onz-tilt-mob    dar ekran çarpanı (360 px'te taşmayı kesen tek şey)
+   --onz-lap         panellerin üst üste binmesi
+   --onz-gap         panel arası ritim
+   --onz-grain       gren yoğunluğu
+   --onz-dot-size    halftone nokta adımı
+
+   ── RENK GÖREVLERİ ──────────────────────────────────────────────────────
+   --accent          sarı: başlık mürekkebi, aktif konum, zil
+   --gold            künye değerleri ve kaset sayaçları
+   --onz-osd-text    YALNIZCA ekran üstü bilgi (OSD)
+   --onz-chalk-text  YALNIZCA mono etiketler
+   --onz-rec-text    YALNIZCA REC noktası ve "bant bozuk" satırı
+   --onz-tape        YALNIZCA bandın gövdesi
+   --onz-asphalt     YALNIZCA sokak modunun zemin yıkaması
+
+   ── TİPOGRAFİ ───────────────────────────────────────────────────────────
+   Display: Archivo Black (`--font-numeral`) — çok kalın, ALL CAPS, hafif
+   eğik (`skewX`, çünkü ailenin gerçek italiği yok; sentetik oblik yerine
+   kontrollü kesme). Halftone dokusu `background-clip: text` ile, `@supports`
+   kapısında. Gövde: Inter. Etiketler ve bütün sayılar: IBM Plex Mono —
+   sayfanın konusu bir kaset sayacı. Japonca: Shippori Mincho.
+   ============================================================ */
+
+/* ── Kök ─────────────────────────────────────────────────────────────── */
+
+.page {
+  --onz-tilt: 0deg;
+  --onz-tilt-scale: 1;
+  --onz-tilt-mob: 1;
+  --onz-lap: 0rem;
+  --onz-gap: clamp(2.5rem, 6vw, 4.25rem);
+  --onz-grain: 0.6;
+  --onz-dot-size: 4px;
+  --onz-wash: transparent;
+
+  position: relative;
+  overflow-x: clip;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  padding-block: clamp(1rem, 3vw, 2rem) clamp(4rem, 10vw, 7rem);
+}
+
+/* ⚠️ `class` modunda eğim SIFIR DEĞİL (30 Ağustos 2026'da düzeltildi).
+   Brief önce "class: paneller düzleşir (döndürme sıfırlanır)" diyordu ve
+   bu sayfa `class` ile AÇILIYOR — sonuç: ziyaretçinin gördüğü ilk kare
+   kusursuz hizalı, tam boy panellerin düz tek kolon yığınıydı, yani tam
+   olarak Faz 2'nin yok etmek için yazıldığı şablon görünümü.
+   Izgara ekseni bu sayfada KİLİTLİ ("kart kolajı, hizalı ızgara YOK"),
+   dolayısıyla kolaj iki durumda da görünmek zorunda: `class` daha derli
+   toplu bir kolaj, `street` dağılmış hâli. Düğme kolajı açıp kapatmıyor,
+   DERECESİNİ değiştiriyor. */
+.page[data-world="eikichi-onizuka"][data-bell="class"] {
+  --onz-tilt-scale: 0.9;
+  --onz-lap: -0.5rem;
+  --onz-gap: clamp(2rem, 5vw, 3.25rem);
+  --onz-grain: 0.3;
+  --onz-dot-size: 3px;
+  --onz-wash: var(--onz-chalk-wash);
+}
+
+.page[data-world="eikichi-onizuka"][data-bell="street"] {
+  --onz-tilt-scale: 2.4;
+  --onz-lap: -1.5rem;
+  --onz-gap: clamp(3rem, 7vw, 5.5rem);
+  --onz-grain: 1;
+  --onz-dot-size: 6px;
+  --onz-wash: var(--onz-asphalt-wash);
+}
+
+/* Mod yıkaması: zeminde, metnin altında, hiçbir yazının üstünde değil */
+.wash {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: var(--onz-wash);
+  transition: background 200ms steps(3, end);
+}
+
+/* VHS greni: tarama çizgisi + halftone nokta deseni.
+   Opaklık bilerek çok düşük — doku okunabilirliği bozmamalı.
+
+   ⚠️ `fixed` DEĞİL `absolute`: sabitlenmiş bir katman site kabuğunun
+   (üst şerit, küratör hapı) üstüne de tarama çizgisi basardı. Doku
+   yalnızca bu sayfanın gövdesine ait. */
+.grain {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: calc(var(--onz-grain) * 0.13);
+  background-image:
+    repeating-linear-gradient(
+      to bottom,
+      var(--onz-scan) 0 1px,
+      transparent 1px 3px
+    ),
+    radial-gradient(circle at center, var(--onz-dot) 0 32%, transparent 34%);
+  background-size: 100% 3px, var(--onz-dot-size) var(--onz-dot-size);
+}
+
+.shell {
+  position: relative;
+  z-index: 1;
+  width: min(100% - 2rem, 68rem);
+  margin-inline: auto;
+}
+
+/* Yalnızca ekran okuyucuya inen metin — düğmenin ne YAPACAĞI görünen
+   etikete sığmıyor; durum ekranda, eylem burada. */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ── Breadcrumb ──────────────────────────────────────────────────────── */
+
+.crumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.crumb a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  color: var(--onz-chalk-text);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--onz-chalk-text) 45%, transparent);
+}
+
+.crumb a:hover {
+  color: var(--accent-hover);
+}
+
+.crumb a:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.crumbSep {
+  color: var(--text-muted);
+}
+
+.crumbHere {
+  color: var(--text-secondary);
+}
+
+/* ── Ders zili (mod düğmesi) ─────────────────────────────────────────── */
+
+.bellBar {
+  position: relative;
+  z-index: 2;
+  width: min(100% - 2rem, 68rem);
+  margin: 0 auto clamp(1.25rem, 3vw, 2rem);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1rem;
+}
+
+.bellButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: var(--touch-min);
+  padding: 0.5rem 1.1rem;
+  background: var(--surface);
+  border: 2px solid var(--border-strong);
+  box-shadow: 0.3rem 0.3rem 0 0 var(--onz-shadow);
+  color: var(--text-primary);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.bellButton:hover {
+  background: var(--surface-hover);
+  border-color: var(--accent);
+}
+
+.bellButton:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.bellGlyph {
+  width: 1.4rem;
+  height: 1.4rem;
+  flex: none;
+  color: var(--accent);
+}
+
+.bellBody {
+  fill: color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.bellClapper {
+  transform-origin: 50% 30%;
+}
+
+.bellLabel {
+  color: var(--text-secondary);
+}
+
+.bellState {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.bellHint {
+  flex: 1 1 16rem;
+  min-height: 1.2rem;
+  margin: 0;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: var(--onz-chalk-text);
+}
+
+/* ── Panel (kolajın taşıyıcısı) ──────────────────────────────────────── */
+
+.panel {
+  position: relative;
+  margin-top: var(--onz-lap);
+  margin-bottom: var(--onz-gap);
+  padding: clamp(1.15rem, 3.5vw, 2.25rem);
+  background: var(--surface);
+  border: 2px solid var(--border-strong);
+  box-shadow: 0.5rem 0.5rem 0 0 var(--onz-shadow);
+  transform: rotate(
+    calc(var(--onz-tilt) * var(--onz-tilt-scale) * var(--onz-tilt-mob))
+  );
+  transition:
+    transform 180ms steps(3, end),
+    margin-top 180ms steps(3, end);
+}
+
+/* Panelin üst kenarına oturan halftone şerit — kolajın "baskı" hissi */
+.panel::before {
+  content: "";
+  position: absolute;
+  inset: -2px -2px auto -2px;
+  height: 0.4rem;
+  background-image: radial-gradient(
+    circle at center,
+    var(--accent) 0 34%,
+    transparent 36%
+  );
+  background-size: var(--onz-dot-size) var(--onz-dot-size);
+  opacity: 0.55;
+}
+
+.tiltA {
+  --onz-tilt: -2.1deg;
+}
+.tiltB {
+  --onz-tilt: 1.5deg;
+}
+.tiltC {
+  --onz-tilt: -1.2deg;
+}
+.tiltD {
+  --onz-tilt: 2.3deg;
+}
+.tiltE {
+  --onz-tilt: -1.7deg;
+}
+
+.panelHead {
+  margin-bottom: clamp(1rem, 2.5vw, 1.6rem);
+}
+
+.tag {
+  display: inline-block;
+  margin-bottom: 0.55rem;
+  padding: 0.2rem 0.55rem;
+  border: 1px solid color-mix(in srgb, var(--onz-chalk-text) 40%, transparent);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--onz-chalk-text);
+}
+
+.panelTitle {
+  margin: 0;
+  font-family: var(--font-numeral), system-ui, sans-serif;
+  font-size: clamp(1.6rem, 5.5vw, 2.9rem);
+  line-height: 0.95;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+  color: var(--onz-ink-text);
+  transform: skewX(-5deg);
+  transform-origin: left bottom;
+}
+
+.panelRule {
+  display: block;
+  width: min(100%, 22rem);
+  height: 0.6rem;
+  margin: 0.7rem 0 0;
+  color: var(--onz-chalk);
+}
+
+.panelLede {
+  max-width: 46ch;
+  margin: 0.9rem 0 0;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+/* ── 1 · HERO ────────────────────────────────────────────────────────── */
+
+.hero {
+  position: relative;
+  margin-bottom: var(--onz-gap);
+  padding-top: clamp(1rem, 4vw, 2.5rem);
+}
+
+.heroWatermark {
+  position: absolute;
+  inset: 0 auto auto 0;
+  z-index: 0;
+  width: 100%;
+  pointer-events: none;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.heroKanji {
+  font-family: var(--font-shippori), serif;
+  font-size: clamp(5rem, 22vw, 13rem);
+  line-height: 0.82;
+  font-weight: 700;
+  color: color-mix(in srgb, var(--accent) 12%, transparent);
+  user-select: none;
+}
+
+.heroBike {
+  width: clamp(9rem, 34vw, 21rem);
+  height: auto;
+  color: color-mix(in srgb, var(--onz-chalk-text) 22%, transparent);
+}
+
+.heroGrid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: clamp(1.25rem, 3vw, 2rem);
+  grid-template-columns: 1fr;
+  align-items: start;
+}
+
+@media (min-width: 54rem) {
+  .heroGrid {
+    grid-template-columns: minmax(0, 1fr) 17rem;
+  }
+}
+
+.heroBody {
+  min-width: 0;
+}
+
+.heroEyebrow {
+  margin: 0 0 0.7rem;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--onz-chalk-text);
+}
+
+.heroName {
+  margin: 0;
+  font-family: var(--font-numeral), system-ui, sans-serif;
+  font-size: clamp(2.6rem, 12vw, 6.4rem);
+  line-height: 0.86;
+  letter-spacing: -0.012em;
+  text-transform: uppercase;
+  color: var(--onz-ink-text);
+  transform: skewX(-6deg);
+  transform-origin: left bottom;
+  overflow-wrap: break-word;
+}
+
+/* Halftone mürekkep: nokta deseni doğrudan harfin içine kırpılıyor.
+   `@supports` kapısı zorunlu — kırpma desteklenmezse yazı `color` ile
+   dolu kalır, yani hiçbir tarayıcıda kaybolmaz. */
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .heroName,
+  .panelTitle {
+    background-image:
+      radial-gradient(circle at center, var(--onz-dot) 0 30%, transparent 32%),
+      linear-gradient(var(--onz-ink-text), var(--onz-ink-text));
+    /* Harfin içindeki nokta adımı zeminin 2/3'ü: sokak modunda gren
+       kabarırken başlığın okunurluğu kabarmasın. */
+    background-size:
+      calc(var(--onz-dot-size) * 0.66) calc(var(--onz-dot-size) * 0.66),
+      100% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+.heroNative {
+  margin: 0.6rem 0 0;
+  font-family: var(--font-shippori), serif;
+  font-size: clamp(1.1rem, 3.5vw, 1.6rem);
+  letter-spacing: 0.22em;
+  color: var(--accent);
+}
+
+.heroEpigraph {
+  max-width: 44ch;
+  margin: 1.4rem 0 0;
+  padding-left: 0.9rem;
+  border-left: 3px solid var(--accent);
+  font-size: clamp(1rem, 2.4vw, 1.15rem);
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+.heroLede {
+  max-width: 48ch;
+  margin: 1rem 0 0;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+/* Polaroid: depodaki 230×345 portre için KÜÇÜK kadraj (Faz 2 §3) */
+.polaroid {
+  position: relative;
+  width: min(100%, 17rem);
+  margin-inline: auto;
+  padding: 0.75rem 0.75rem 0;
+  background: var(--onz-ink-text);
+  box-shadow: 0.5rem 0.5rem 0 0 var(--onz-shadow);
+  transform: rotate(
+    calc(2.2deg * var(--onz-tilt-scale) * var(--onz-tilt-mob))
+  );
+  transition: transform 180ms steps(3, end);
+}
+
+.polaroidShot {
+  position: relative;
+  display: block;
+  background: var(--onz-screen);
+  aspect-ratio: 230 / 345;
+  overflow: hidden;
+}
+
+.polaroidImg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.polaroidCaption {
+  margin: 0;
+  padding: 0.6rem 0.1rem 0.7rem;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.6rem;
+  line-height: 1.5;
+  letter-spacing: 0.06em;
+  color: var(--onz-shadow);
+}
+
+/* Geniş hero karesi — BOŞ ve bilerek boş: küratör dolduracak */
+.heroFrame {
+  position: relative;
+  z-index: 1;
+  margin-top: clamp(1.5rem, 4vw, 2.5rem);
+  border: 2px dashed var(--border-strong);
+  background:
+    linear-gradient(var(--onz-tape-wash), var(--onz-tape-wash)),
+    var(--surface);
+  aspect-ratio: 16 / 9;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  overflow: hidden;
+}
+
+.heroFrameArt {
+  position: absolute;
+  inset: 0;
+}
+
+.heroFrameArt img {
+  object-fit: cover;
+}
+
+.heroFrameLabel {
+  position: absolute;
+  top: 0.6rem;
+  left: 0.6rem;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.24em;
+  color: var(--onz-osd-text);
+}
+
+.heroFrameNote {
+  max-width: 34ch;
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.72rem;
+  line-height: 1.7;
+  color: var(--onz-chalk-text);
+}
+
+.slotRow {
+  margin-top: 0.75rem;
+}
+
+/* ── 3 · KÜNYE ŞERİDİ ────────────────────────────────────────────────── */
+
+.facts {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: 1fr;
+  margin: 0;
+}
+
+@media (min-width: 34rem) {
+  .facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 62rem) {
+  .facts {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.fact {
+  min-width: 0;
+  padding: 0.7rem 0.8rem;
+  background: var(--surface-hover);
+  border-left: 3px solid var(--accent-muted);
+}
+
+.fact dt {
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--onz-chalk-text);
+}
+
+.fact dd {
+  margin: 0.35rem 0 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--gold);
+  overflow-wrap: break-word;
+}
+
+.factNote {
+  margin: 1.1rem 0 0;
+  max-width: 62ch;
+  font-size: 0.8rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+
+/* ── 4 · SİCİL ───────────────────────────────────────────────────────── */
+
+.majors {
+  display: grid;
+  gap: clamp(1rem, 2.5vw, 1.5rem);
+  grid-template-columns: 1fr;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 58rem) {
+  .majors {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.major {
+  position: relative;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 1rem;
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+  border-top: 4px solid var(--accent);
+}
+
+.majorArt {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 9;
+  background: var(--onz-screen);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.majorArt img {
+  object-fit: cover;
+}
+
+.emptyMark {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.22em;
+  color: color-mix(in srgb, var(--onz-chalk-text) 70%, transparent);
+}
+
+.majorKanji {
+  display: block;
+  font-family: var(--font-shippori), serif;
+  font-size: clamp(1.35rem, 4vw, 1.8rem);
+  line-height: 1.2;
+  color: var(--accent);
+}
+
+.majorReading {
+  display: block;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--onz-chalk-text);
+}
+
+.majorName {
+  display: block;
+  font-family: var(--font-numeral), system-ui, sans-serif;
+  font-size: 1.02rem;
+  line-height: 1.2;
+  text-transform: uppercase;
+  color: var(--onz-ink-text);
+}
+
+.majorTagline {
+  display: block;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: var(--gold);
+}
+
+.majorText {
+  display: block;
+  font-size: 0.88rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+.majorTraits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: auto;
+  padding-top: 0.35rem;
+}
+
+.trait {
+  padding: 0.2rem 0.5rem;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  color: var(--onz-chalk-text);
+}
+
+.minors {
+  display: grid;
+  gap: clamp(0.75rem, 2vw, 1.15rem);
+  grid-template-columns: 1fr;
+  margin: clamp(1.25rem, 3vw, 2rem) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 34rem) {
+  .minors {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 66rem) {
+  .minors {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.minor {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.85rem;
+  background: var(--surface);
+  border: 1px dashed var(--border-strong);
+}
+
+.minorArt {
+  position: relative;
+  display: block;
+  aspect-ratio: 1 / 1;
+  background: var(--onz-screen);
+  overflow: hidden;
+}
+
+.minorArt img {
+  object-fit: cover;
+}
+
+.minorKanji {
+  display: block;
+  font-family: var(--font-shippori), serif;
+  font-size: 1.05rem;
+  line-height: 1.3;
+  color: var(--accent-hover);
+  overflow-wrap: break-word;
+}
+
+.minorReading {
+  display: block;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--onz-chalk-text);
+}
+
+.minorName {
+  display: block;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--onz-ink-text);
+}
+
+.minorText {
+  display: block;
+  font-size: 0.8rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+/* ── 5 · KASET (sayfanın kalbi) ──────────────────────────────────────── */
+
+.deck {
+  display: grid;
+  gap: clamp(0.85rem, 2.2vw, 1.25rem);
+}
+
+.deckTop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 0.9rem;
+}
+
+.deckBadge {
+  width: 3.4rem;
+  height: auto;
+  flex: none;
+  color: var(--accent);
+}
+
+.deckReel {
+  transform-origin: center;
+}
+
+/* Ekran: kaydın kendisi */
+.screen {
+  position: relative;
+  padding: clamp(0.9rem, 2.5vw, 1.4rem);
+  background: var(--onz-screen);
+  border: 2px solid var(--border-strong);
+  overflow: hidden;
+}
+
+.screenArt {
+  position: absolute;
+  inset: 0;
+  opacity: 0.35;
+}
+
+.screenArt img {
+  object-fit: cover;
+}
+
+.screenEmpty {
+  position: absolute;
+  right: 0.7rem;
+  bottom: 0.6rem;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  color: color-mix(in srgb, var(--onz-chalk-text) 60%, transparent);
+}
+
+.osd {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.9rem;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--onz-osd-text);
+}
+
+.osdRec {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--onz-rec-text);
+}
+
+.osdDot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--onz-rec-text);
+}
+
+.osdCounter {
+  color: var(--gold);
+  letter-spacing: 0.2em;
+}
+
+.osdState {
+  color: var(--onz-osd-text);
+}
+
+.segHead {
+  position: relative;
+  z-index: 1;
+  margin-top: 0.9rem;
+}
+
+.segName {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-size: clamp(1.35rem, 5vw, 2rem);
+  line-height: 1.2;
+  color: var(--onz-ink-text);
+}
+
+.segRomaji {
+  display: block;
+  margin-top: 0.2rem;
+  font-family: var(--font-numeral), system-ui, sans-serif;
+  font-size: clamp(1rem, 3vw, 1.3rem);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--accent);
+  transform: skewX(-5deg);
+  transform-origin: left bottom;
+}
+
+.segRole {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--onz-chalk-text);
+}
+
+.field {
+  position: relative;
+  z-index: 1;
+  margin-top: 1rem;
+}
+
+.fieldLabel {
+  display: block;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--onz-chalk-text);
+}
+
+.fieldText {
+  margin: 0.35rem 0 0;
+  max-width: 62ch;
+  font-size: 0.92rem;
+  line-height: 1.75;
+  color: var(--text-primary);
+}
+
+.fieldTextMuted {
+  margin: 0.35rem 0 0;
+  max-width: 62ch;
+  font-size: 0.88rem;
+  line-height: 1.75;
+  color: var(--text-secondary);
+}
+
+/* İzleme bandı: TRACKING bozukken kaydın üstünde duran gürültü şeridi.
+   Metin ALTINDA DEĞİL — kilitli satır hiç çizilmiyor, band o boşluğu
+   dolduruyor. Yani ekran okuyucu bulanık metin okumuyor. */
+.band {
+  position: relative;
+  z-index: 1;
+  margin-top: 1rem;
+  height: 4.5rem;
+  border: 1px solid var(--border);
+  background-image:
+    repeating-linear-gradient(
+      to bottom,
+      var(--onz-tape) 0 2px,
+      transparent 2px 5px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--onz-cyan) 55%, transparent) 0 6px,
+      color-mix(in srgb, var(--onz-red) 55%, transparent) 6px 11px,
+      transparent 11px 26px
+    );
+  background-size: 100% 100%, 220% 100%;
+  background-position: 0 0, 0 0;
+}
+
+.bandNote {
+  position: absolute;
+  inset: auto 0.6rem 0.4rem;
+  margin: 0;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  color: var(--onz-rec-text);
+}
+
+/* Konum çubuğu */
+.transport {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.transportBtn {
+  min-width: var(--touch-min);
+  min-height: var(--touch-min);
+  padding: 0 0.85rem;
+  background: var(--surface-hover);
+  border: 2px solid var(--border-strong);
+  color: var(--onz-osd-text);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+}
+
+.transportBtn:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent-hover);
+}
+
+.transportBtn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.transportBtn:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.transportLabel {
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--onz-chalk-text);
+}
+
+.positionsWrap {
+  overflow-x: auto;
+  padding-bottom: 0.35rem;
+}
+
+.positions {
+  display: flex;
+  gap: 0.5rem;
+  min-width: max-content;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pos {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  min-width: 6.5rem;
+  min-height: var(--touch-min);
+  padding: 0.45rem 0.65rem;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-bottom: 4px solid var(--border-strong);
+  color: var(--text-secondary);
+  text-align: left;
+  cursor: pointer;
+}
+
+.pos:hover {
+  background: var(--surface-hover);
+  border-bottom-color: var(--accent-hover);
+}
+
+.pos:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.pos[aria-pressed="true"] {
+  border-bottom-color: var(--accent);
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.posCounter {
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  color: var(--gold);
+}
+
+.posName {
+  font-family: var(--font-shippori), serif;
+  font-size: 0.86rem;
+  line-height: 1.2;
+}
+
+.posTrk {
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  color: var(--onz-chalk-text);
+}
+
+/* TRACKING kolu */
+.trk {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 0.85rem;
+  padding: 0.75rem;
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+}
+
+.trkLabel {
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--onz-osd-text);
+}
+
+.trkBtn {
+  min-width: var(--touch-min);
+  min-height: var(--touch-min);
+  padding: 0 0.9rem;
+  background: var(--surface);
+  border: 2px solid var(--border-strong);
+  color: var(--text-primary);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.trkBtn:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent-hover);
+}
+
+.trkBtn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.trkBtn:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.trkMeter {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.trkCell {
+  width: 1.6rem;
+  height: 0.55rem;
+  border: 1px solid var(--border-strong);
+  background: var(--onz-screen);
+}
+
+.trkCellOn {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.trkState {
+  flex: 1 1 12rem;
+  margin: 0;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.66rem;
+  line-height: 1.6;
+  letter-spacing: 0.08em;
+  color: var(--onz-osd-text);
+}
+
+.deckStatus {
+  min-height: 1.2rem;
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: var(--gold);
+}
+
+.deckHint {
+  margin: 0;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.66rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+
+.deckSlot {
+  margin-top: 0.25rem;
+}
+
+/* ── 6 · SAYAÇ (kader çizelgesi) ─────────────────────────────────────── */
+
+.fate {
+  display: grid;
+  gap: clamp(1rem, 2.5vw, 1.6rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: onzstep;
+}
+
+.fateItem {
+  position: relative;
+  min-width: 0;
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: 1fr;
+  padding: 1rem;
+  background: var(--surface-hover);
+  border-left: 4px solid var(--accent-muted);
+}
+
+@media (min-width: 50rem) {
+  .fateItem {
+    grid-template-columns: 9.5rem minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.fateSide {
+  min-width: 0;
+}
+
+.fateCounter {
+  display: block;
+  font-family: var(--font-numeral), system-ui, sans-serif;
+  font-size: clamp(1.3rem, 4vw, 1.9rem);
+  letter-spacing: 0.02em;
+  color: var(--accent);
+  transform: skewX(-6deg);
+  transform-origin: left bottom;
+}
+
+.fateAge {
+  display: block;
+  margin-top: 0.25rem;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.64rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--onz-chalk-text);
+}
+
+.fateBody {
+  min-width: 0;
+}
+
+.fateNative {
+  display: block;
+  font-family: var(--font-shippori), serif;
+  font-size: 1.05rem;
+  letter-spacing: 0.12em;
+  color: var(--gold);
+  overflow-wrap: break-word;
+}
+
+.fateTitle {
+  margin: 0.2rem 0 0;
+  font-family: var(--font-numeral), system-ui, sans-serif;
+  font-size: clamp(1.05rem, 3.2vw, 1.4rem);
+  line-height: 1.15;
+  text-transform: uppercase;
+  color: var(--onz-ink-text);
+  transform: skewX(-4deg);
+  transform-origin: left bottom;
+}
+
+.fateText {
+  margin: 0.6rem 0 0;
+  max-width: 62ch;
+  font-size: 0.9rem;
+  line-height: 1.75;
+  color: var(--text-secondary);
+}
+
+.fateQuote {
+  margin: 0.9rem 0 0;
+  padding: 0.7rem 0.9rem;
+  background: var(--surface);
+  border-left: 3px solid var(--onz-rec-text);
+}
+
+.fateQuoteText {
+  margin: 0;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--onz-ink-text);
+}
+
+.fateQuoteReading {
+  margin: 0.35rem 0 0;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.fateQuoteBy {
+  display: block;
+  margin-top: 0.4rem;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  color: var(--onz-chalk-text);
+}
+
+.fateArt {
+  position: relative;
+  display: block;
+  margin-top: 0.85rem;
+  aspect-ratio: 16 / 9;
+  background: var(--onz-screen);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.fateArt img {
+  object-fit: cover;
+}
+
+/* ── 7 · KAPANIŞ ─────────────────────────────────────────────────────── */
+
+/* ⚠️ Kırpma panelde DEĞİL kadrajın kendisinde: `.panel::before`
+   (üst kenardaki halftone şeridi) -2px dışarıda duruyor ve panele
+   `overflow: hidden` yazmak onu bu bölümde sessizce yutuyordu. */
+.closing {
+  position: relative;
+}
+
+.closingArt {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  opacity: 0.22;
+}
+
+.closingArt img {
+  object-fit: cover;
+}
+
+.closingBody {
+  position: relative;
+  z-index: 1;
+}
+
+.channels {
+  display: grid;
+  gap: clamp(0.9rem, 2.5vw, 1.4rem);
+  grid-template-columns: 1fr;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 52rem) {
+  .channels {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.channel {
+  min-width: 0;
+  padding: 1rem;
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+  border-top: 4px solid var(--onz-chalk);
+}
+
+.channelTag {
+  display: block;
+  margin-bottom: 0.6rem;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--onz-osd-text);
+}
+
+.quoteText {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-size: clamp(1.05rem, 3.2vw, 1.35rem);
+  line-height: 1.55;
+  color: var(--onz-ink-text);
+  overflow-wrap: break-word;
+}
+
+.quoteReading {
+  margin: 0.5rem 0 0;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--gold);
+}
+
+.quoteBy {
+  display: block;
+  margin-top: 0.6rem;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  color: var(--onz-chalk-text);
+}
+
+.quoteNote {
+  margin: 0.6rem 0 0;
+  font-size: 0.84rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+.motto {
+  margin: clamp(1.5rem, 4vw, 2.5rem) 0 0;
+  font-family: var(--font-shippori), serif;
+  font-size: clamp(1.2rem, 5vw, 2.1rem);
+  line-height: 1.3;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  overflow-wrap: break-word;
+}
+
+.mottoNote {
+  max-width: 60ch;
+  margin: 0.7rem 0 0;
+  font-size: 0.86rem;
+  line-height: 1.75;
+  color: var(--text-secondary);
+}
+
+.nexus {
+  margin: clamp(1.5rem, 4vw, 2.25rem) 0 0;
+  padding: 0.9rem 1rem;
+  background: var(--surface);
+  border: 1px dashed var(--border-strong);
+  font-size: 0.86rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+.nexusLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  margin-top: 0.35rem;
+  color: var(--accent-hover);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-bottom: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.nexusLink:hover {
+  color: var(--accent);
+}
+
+.nexusLink:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.credit {
+  max-width: 68ch;
+  margin: clamp(1.5rem, 4vw, 2.25rem) 0 0;
+  font-size: 0.78rem;
+  line-height: 1.8;
+  color: var(--text-muted);
+}
+
+.credit a {
+  color: var(--accent-hover);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.credit a:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.gapsWrap {
+  width: min(100% - 2rem, 68rem);
+  margin: clamp(2rem, 5vw, 3rem) auto 0;
+}
+
+/* ── Dar ekran: eğim ve binme kesiliyor (360 px'te taşma OLMAZ) ──────── */
+
+@media (max-width: 44rem) {
+  .page {
+    --onz-tilt-mob: 0.5;
+  }
+
+  .page[data-world="eikichi-onizuka"][data-bell="street"] {
+    --onz-lap: -0.5rem;
+  }
+
+  .heroKanji {
+    font-size: clamp(4rem, 24vw, 8rem);
+  }
+}
+
+@media (max-width: 26rem) {
+  .page {
+    --onz-tilt-mob: 0.3;
+  }
+
+  .panel {
+    box-shadow: 0.25rem 0.25rem 0 0 var(--onz-shadow);
+  }
+}
+
+/* ── Hareket: VHS sürüklenmesi ve tarama ────────────────────────────── */
+
+@media (prefers-reduced-motion: no-preference) {
+  .grain {
+    animation: onzDrift 6s steps(5, end) infinite;
+  }
+
+  .band {
+    animation: onzBand 900ms steps(6, end) infinite;
+  }
+
+  .deckReel {
+    animation: onzReel 2.4s steps(8, end) infinite;
+  }
+
+  .osdDot {
+    animation: onzRec 1.4s steps(2, end) infinite;
+  }
+
+  .bellClapper {
+    animation: onzClap 3.6s steps(4, end) infinite;
+  }
+
+  /* Konum değişince ekranın üstünden geçen sert kesme */
+  .screen[data-sweep="true"]::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--onz-cyan) 70%, transparent) 0 3px,
+      color-mix(in srgb, var(--onz-tape) 80%, transparent) 3px 7px,
+      transparent 7px 14px
+    );
+    animation: onzSweep 320ms steps(4, end) 1;
+  }
+}
+
+@keyframes onzDrift {
+  from {
+    background-position:
+      0 0,
+      0 0;
+  }
+  to {
+    background-position:
+      0 12px,
+      var(--onz-dot-size) 0;
+  }
+}
+
+@keyframes onzBand {
+  0% {
+    background-position:
+      0 0,
+      0 0;
+  }
+  100% {
+    background-position:
+      0 6px,
+      -220% 0;
+  }
+}
+
+@keyframes onzReel {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes onzRec {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0.15;
+  }
+}
+
+@keyframes onzClap {
+  0%,
+  84% {
+    transform: translateX(0);
+  }
+  88% {
+    transform: translateX(-1.2px);
+  }
+  94% {
+    transform: translateX(1.2px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes onzSweep {
+  from {
+    transform: translateY(-100%);
+    opacity: 0.85;
+  }
+  to {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+/* ── Hareket kapatma battaniyesi ─────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .panel,
+  .polaroid,
+  .wash,
+  .grain,
+  .band,
+  .deckReel,
+  .osdDot,
+  .bellClapper {
+    animation: none !important;
+    transition: none !important;
+  }
+}

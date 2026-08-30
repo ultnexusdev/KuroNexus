@@ -1,0 +1,58 @@
+{
+  "slug": "aoi-toudou",
+  "anilistId": 137975,
+  "ad": "Aoi Toudou",
+  "adNative": "東堂葵",
+  "digerAdlar": [
+    "Aoi Todo"
+  ],
+  "cinsiyet": "Male",
+  "yas": "18",
+  "kanGrubu": null,
+  "dogum": {
+    "year": null,
+    "month": 9,
+    "day": 23
+  },
+  "aciklama": "__Species:__ Human\n__Height:__ 190 cm\n__Occupation:__ Sorcerer, Student\n__Affiliation:__ Kyoto Jujutsu Technical High School\n__Grade:__ Grade 1 Sorcerer\n\nToudou is a third-year student at Kyoto Jujutsu Technical High School who possesses inhuman physical strength, durability, and speed. \n\n~!He is able to use a technique called Boogie Woogie, in which he can switch the position of two things that posses a certain amount of curse energy within his range.!~",
+  "siteUrl": "https://anilist.co/character/137975",
+  "yapimlar": [
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen",
+      "baslikEn": "JUJUTSU KAISEN"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen 2nd Season",
+      "baslikEn": "JUJUTSU KAISEN Season 2"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen 0",
+      "baslikEn": "JUJUTSU KAISEN 0"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen: Shimetsu Kaiyuu - Zenpen",
+      "baslikEn": "JUJUTSU KAISEN Season 3: The Culling Game Part 1"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen",
+      "baslikEn": "Jujutsu Kaisen"
+    },
+    {
+      "rol": "SUPPORTING",
+      "baslik": "Jujutsu Kaisen 0: Tokyo Toritsu Jujutsu Koutou Senmon Gakkou",
+      "baslikEn": "Jujutsu Kaisen 0"
+    }
+  ],
+  "portre": {
+    "dosya": "/assets/anime/karakterler/aoi-toudou/anilist-portrait.png",
+    "w": 230,
+    "h": 345,
+    "tip": "png",
+    "kaynakUrl": "https://s4.anilist.co/file/anilistcdn/character/large/b137975-6TH7PiLWJaqy.png"
+  }
+}

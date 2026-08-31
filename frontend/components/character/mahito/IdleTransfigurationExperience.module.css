@@ -1,0 +1,29 @@
+/*
+ * Mahito (真人) — deri bloğu.
+ *
+ * Palet docs/ANIME-FAZ2-DALGA4.md'den BİREBİR alındı; elle renk yazma.
+ * Dosyanın EN BAŞINDA olmak zorunda ve seçici `.page[data-world="…"]`
+ * — `:global([data-world=…])` CSS Modules'ün "pure selector" kuralına
+ * takılıyor.
+ *
+ * Yardımcı token adı `--mht-…`. Küçük METİNDE kullanacağın her
+ * yardımcı rengin `-text` ekli bir kardeşi olmalı; kontrast denetimi
+ * yalnızca onlara bakıyor.
+ */
+.page[data-world="mahito"] {
+  --bg: #0c0d0e;
+  --surface: #141617;
+  --surface-hover: #1b1e1f;
+  --border: #212526;
+  --border-strong: #303536;
+  --text-primary: #c8cfd0;
+  --text-secondary: #819498;
+  --text-muted: #708a8f;
+  --accent: #9fc0c1;
+  --accent-hover: #b4d4d5;
+  --accent-muted: #496869;
+  --gold: #a67468;
+  --warn: #b88347;
+  --danger: #c2665b;
+  /* kendi --mht-* token'ların buraya */
+}

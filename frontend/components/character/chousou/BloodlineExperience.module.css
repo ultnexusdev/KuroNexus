@@ -1,0 +1,29 @@
+/*
+ * Chōsō (脹相) — deri bloğu.
+ *
+ * Palet docs/ANIME-FAZ2-DALGA4.md'den BİREBİR alındı; elle renk yazma.
+ * Dosyanın EN BAŞINDA olmak zorunda ve seçici `.page[data-world="…"]`
+ * — `:global([data-world=…])` CSS Modules'ün "pure selector" kuralına
+ * takılıyor.
+ *
+ * Yardımcı token adı `--chs-…`. Küçük METİNDE kullanacağın her
+ * yardımcı rengin `-text` ekli bir kardeşi olmalı; kontrast denetimi
+ * yalnızca onlara bakıyor.
+ */
+.page[data-world="chousou"] {
+  --bg: #0e090a;
+  --surface: #181012;
+  --surface-hover: #201719;
+  --border: #281d20;
+  --border-strong: #392b2e;
+  --text-primary: #d1c7c9;
+  --text-secondary: #9c7c84;
+  --text-muted: #a17882;
+  --accent: #cc5c78;
+  --accent-hover: #cd8496;
+  --accent-muted: #4d2d35;
+  --gold: #ae775b;
+  --warn: #b88347;
+  --danger: #c16257;
+  /* kendi --chs-* token'ların buraya */
+}

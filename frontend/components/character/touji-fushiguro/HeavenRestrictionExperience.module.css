@@ -1,0 +1,29 @@
+/*
+ * Tōji Fushiguro (伏黒甚爾) — deri bloğu.
+ *
+ * Palet docs/ANIME-FAZ2-DALGA4.md'den BİREBİR alındı; elle renk yazma.
+ * Dosyanın EN BAŞINDA olmak zorunda ve seçici `.page[data-world="…"]`
+ * — `:global([data-world=…])` CSS Modules'ün "pure selector" kuralına
+ * takılıyor.
+ *
+ * Yardımcı token adı `--toj-…`. Küçük METİNDE kullanacağın her
+ * yardımcı rengin `-text` ekli bir kardeşi olmalı; kontrast denetimi
+ * yalnızca onlara bakıyor.
+ */
+.page[data-world="touji-fushiguro"] {
+  --bg: #0a0a0b;
+  --surface: #121314;
+  --surface-hover: #191a1b;
+  --border: #202123;
+  --border-strong: #2e3032;
+  --text-primary: #c9cbcf;
+  --text-secondary: #838995;
+  --text-muted: #7b8393;
+  --accent: #bfb9b0;
+  --accent-hover: #dacebe;
+  --accent-muted: #72634f;
+  --gold: #738596;
+  --warn: #b88347;
+  --danger: #c16257;
+  /* kendi --toj-* token'ların buraya */
+}

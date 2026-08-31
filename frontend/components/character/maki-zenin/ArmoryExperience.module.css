@@ -1,0 +1,29 @@
+/*
+ * Maki Zen'in (禪院真希) — deri bloğu.
+ *
+ * Palet docs/ANIME-FAZ2-DALGA4.md'den BİREBİR alındı; elle renk yazma.
+ * Dosyanın EN BAŞINDA olmak zorunda ve seçici `.page[data-world="…"]`
+ * — `:global([data-world=…])` CSS Modules'ün "pure selector" kuralına
+ * takılıyor.
+ *
+ * Yardımcı token adı `--mki-…`. Küçük METİNDE kullanacağın her
+ * yardımcı rengin `-text` ekli bir kardeşi olmalı; kontrast denetimi
+ * yalnızca onlara bakıyor.
+ */
+.page[data-world="maki-zenin"] {
+  --bg: #0d0e0b;
+  --surface: #161813;
+  --surface-hover: #1d1f1a;
+  --border: #242720;
+  --border-strong: #34372f;
+  --text-primary: #cdd1c7;
+  --text-secondary: #8f9c7c;
+  --text-muted: #83946b;
+  --accent: #7a9852;
+  --accent-hover: #8eab69;
+  --accent-muted: #2a3021;
+  --gold: #788991;
+  --warn: #b88347;
+  --danger: #c3675d;
+  /* kendi --mki-* token'ların buraya */
+}

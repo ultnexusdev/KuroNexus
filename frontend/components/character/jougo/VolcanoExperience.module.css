@@ -1,0 +1,29 @@
+/*
+ * Jōgo (漏瑚) — deri bloğu.
+ *
+ * Palet docs/ANIME-FAZ2-DALGA4.md'den BİREBİR alındı; elle renk yazma.
+ * Dosyanın EN BAŞINDA olmak zorunda ve seçici `.page[data-world="…"]`
+ * — `:global([data-world=…])` CSS Modules'ün "pure selector" kuralına
+ * takılıyor.
+ *
+ * Yardımcı token adı `--jgo-…`. Küçük METİNDE kullanacağın her
+ * yardımcı rengin `-text` ekli bir kardeşi olmalı; kontrast denetimi
+ * yalnızca onlara bakıyor.
+ */
+.page[data-world="jougo"] {
+  --bg: #0c0909;
+  --surface: #161110;
+  --surface-hover: #1e1816;
+  --border: #251f1d;
+  --border-strong: #362e2b;
+  --text-primary: #d1c9c7;
+  --text-secondary: #9c847c;
+  --text-muted: #9c7b70;
+  --accent: #e3581c;
+  --accent-hover: #dd774b;
+  --accent-muted: #3e2014;
+  --gold: #d5aa34;
+  --warn: #b88347;
+  --danger: #c16257;
+  /* kendi --jgo-* token'ların buraya */
+}

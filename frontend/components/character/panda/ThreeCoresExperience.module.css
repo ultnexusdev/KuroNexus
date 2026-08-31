@@ -1,0 +1,29 @@
+/*
+ * Panda (パンダ) — deri bloğu.
+ *
+ * Palet docs/ANIME-FAZ2-DALGA4.md'den BİREBİR alındı; elle renk yazma.
+ * Dosyanın EN BAŞINDA olmak zorunda ve seçici `.page[data-world="…"]`
+ * — `:global([data-world=…])` CSS Modules'ün "pure selector" kuralına
+ * takılıyor.
+ *
+ * Yardımcı token adı `--pnd-…`. Küçük METİNDE kullanacağın her
+ * yardımcı rengin `-text` ekli bir kardeşi olmalı; kontrast denetimi
+ * yalnızca onlara bakıyor.
+ */
+.page[data-world="panda"] {
+  --bg: #0f0f0d;
+  --surface: #181915;
+  --surface-hover: #20201b;
+  --border: #272822;
+  --border-strong: #373831;
+  --text-primary: #cfd1c7;
+  --text-secondary: #959a7e;
+  --text-muted: #8b916e;
+  --accent: #adb569;
+  --accent-hover: #b8bd89;
+  --accent-muted: #40422e;
+  --gold: #b18559;
+  --warn: #b88347;
+  --danger: #c4695f;
+  /* kendi --pnd-* token'ların buraya */
+}

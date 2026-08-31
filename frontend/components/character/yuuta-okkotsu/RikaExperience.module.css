@@ -1,0 +1,29 @@
+/*
+ * Yūta Okkotsu (乙骨憂太) — deri bloğu.
+ *
+ * Palet docs/ANIME-FAZ2-DALGA4.md'den BİREBİR alındı; elle renk yazma.
+ * Dosyanın EN BAŞINDA olmak zorunda ve seçici `.page[data-world="…"]`
+ * — `:global([data-world=…])` CSS Modules'ün "pure selector" kuralına
+ * takılıyor.
+ *
+ * Yardımcı token adı `--yut-…`. Küçük METİNDE kullanacağın her
+ * yardımcı rengin `-text` ekli bir kardeşi olmalı; kontrast denetimi
+ * yalnızca onlara bakıyor.
+ */
+.page[data-world="yuuta-okkotsu"] {
+  --bg: #0d0d0d;
+  --surface: #151515;
+  --surface-hover: #1d1d1d;
+  --border: #242424;
+  --border-strong: #333333;
+  --text-primary: #cccccc;
+  --text-secondary: #8f8a8a;
+  --text-muted: #8d8484;
+  --accent: #8a63bf;
+  --accent-hover: #a189c2;
+  --accent-muted: #393045;
+  --gold: #858585;
+  --warn: #b88347;
+  --danger: #c26459;
+  /* kendi --yut-* token'ların buraya */
+}

@@ -162,6 +162,36 @@ export const EXPERIENCE_IDS = {
   yoruichiShihouin: 908,
   grimmjowJaegerjaquez: 1080,
   ulquiorraCifer: 1081,
+
+  /* ── Dördüncü tur, Dalga 4 · Jujutsu Kaisen'den sekiz yeni sayfa
+     (31 Ağustos 2026) ──
+     Üçüncü tur JJK'nın Tokyo Jujutsu Lisesi çekirdeğini kapatmıştı;
+     bu sekizi Kyoto kanadını, Ölü Rahim kardeşlerini, lanetli ruh
+     cephesini ve "lanet enerjisi olmayanlar" hattını ekliyor.
+
+     ⚠️ Dördünün numarası tur başında BİLİNMİYORDU ve adla arandı.
+     Arama sonuçları Jujutsu Kaisen medya süzgeciyle doğrulandı;
+     doğrulamanın kopyası her karakterin
+     `public/assets/anime/karakterler/<slug>/kaynak.json` dosyasında
+     (`yapimlar` alanında altısı da Jujutsu Kaisen) duruyor:
+       panda          → #137974. Arama Shirokuma Café'nin pandasına ve
+                        One Piece'in Pandaman'ine de çarpıyor; tek
+                        ayıraç medya listesi.
+       toujiFushiguro → #162722, AniList'te "Touji Fushiguro".
+                        "Toji Zenin" varyantı AniList'te KAYITLI DEĞİL.
+       jougo          → #156991, AniList'te "Jougo".
+       yuutaOkkotsu   → #129571, AniList'te "Yuuta Okkotsu".
+     Dördünde de uzun ünlü AniList romanizasyonunda YAZILI (Gojou/Getou
+     emsali) — ad ayrışması değil, yazım tercihi. Klasör adları o yazımı
+     izliyor; `roster.ts` satırlarında doğru yazım kullanılıyor. */
+  chousou: 157116,
+  makiZenin: 134167,
+  mahito: 133702,
+  aoiToudou: 137975,
+  panda: 137974,
+  toujiFushiguro: 162722,
+  jougo: 156991,
+  yuutaOkkotsu: 129571,
 } as const;
 
 /**
@@ -336,6 +366,33 @@ export const EXPERIENCE_COMPANIONS: Record<number, number[]> = {
   [EXPERIENCE_IDS.grimmjowJaegerjaquez]: [5, 1081, 1086, 909],
   // Yoruichi: ortağı, öğrencisi, halefi, hain
   [EXPERIENCE_IDS.yoruichiShihouin]: [210, 5, 905, 1086, 6],
+
+  /* ── Dördüncü tur, Dalga 4 · Jujutsu Kaisen (31 Ağustos 2026) ──
+     Listeler görev dokümanındaki Nexus bağlarını izliyor. JJK kadrosunun
+     kendi veritabanımızda hâlâ portresi YOK (25 Ağustos'ta ölçüldü,
+     `/anime/characters/images?ids=…` boş dizi döndü) — sekiz sayfa da
+     yoldaşlarını bugün yalnızca ADLA çiziyor ve bölümler bu hâlde
+     tasarlandı. Portre girildiğinde kendiliğinden yerine oturur.
+
+     ⚠️ Bir kimlik buraya yazılmazsa, sayfa o karakteri çizse bile
+     kadrajı SONSUZA KADAR boş kalır (Dalga 1'de Armin↔Levi emsali).
+     Sayfanın çizdiği herkes bu listede olmalı. */
+  // Chōsō: tanıdığı kardeş, öldürülen iki kardeşi, kardeşini öldüren, kap
+  [EXPERIENCE_IDS.chousou]: [127212, 210832, 210831, 133702, 133701],
+  // Maki: babasının klanı üstünden Tōji, ikinci sınıflar, ikizi olmayan yol
+  [EXPERIENCE_IDS.makiZenin]: [162722, 129571, 137974, 127691, 133704],
+  // Mahito: ortağı, kestiği adam, kardeşleri kullandığı, kap
+  [EXPERIENCE_IDS.mahito]: [156991, 133704, 157116, 127212, 127691],
+  // Tōdō: "kardeşim", ölçüt aldığı en güçlü, Kyoto sınıfı
+  [EXPERIENCE_IDS.aoiToudou]: [127212, 127691, 133700, 126635],
+  // Panda: Kyoto/Tokyo ikinci sınıflar + yaratıcısı hattı
+  [EXPERIENCE_IDS.panda]: [134167, 129571, 127691, 127212],
+  // Tōji: oğlu, sattığı klan üstünden Maki, öldürdüğü hedef, Gojō
+  [EXPERIENCE_IDS.toujiFushiguro]: [126635, 134167, 127691, 133699],
+  // Jōgo: efendi saydığı, ortakları, karşısındaki duvar
+  [EXPERIENCE_IDS.jougo]: [133701, 133702, 127691, 127212],
+  // Yūta: ustası, ustasının arkadaşı, sınıfı
+  [EXPERIENCE_IDS.yuutaOkkotsu]: [127691, 133699, 134167, 137974],
 };
 
 const EXPERIENCE_ID_SET: ReadonlySet<number> = new Set<number>(

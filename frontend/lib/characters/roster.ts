@@ -129,6 +129,28 @@ export const EXPERIENCE_ROSTER: RosterEntry[] = [
   { characterId: EXPERIENCE_IDS.ulquiorraCifer, name: "Ulquiorra Cifer", nameNative: "ウルキオラ・シファー", ...BLEACH },
   { characterId: EXPERIENCE_IDS.grimmjowJaegerjaquez, name: "Grimmjow Jaegerjaquez", nameNative: "グリムジョー・ジャガージャック", ...BLEACH },
   { characterId: EXPERIENCE_IDS.yoruichiShihouin, name: "Yoruichi Shihōin", nameNative: "四楓院夜一", ...BLEACH },
+
+  /* ── Dördüncü tur, Dalga 4 · Jujutsu Kaisen (31 Ağustos 2026) ──
+     Yerel yazımlar `kaynak.json`dan alındı, elle yazılmadı. Latin
+     yazımda dört bilinçli sapma — hepsi Gojō/Getō emsalindeki ilke
+     (künye AniList'in, başlık karakterin adı):
+       Chōsō  → AniList "Chousou"
+       Tōdō   → AniList "Aoi Toudou"
+       Tōji   → AniList "Touji Fushiguro"
+       Jōgo   → AniList "Jougo"
+       Yūta   → AniList "Yuuta Okkotsu"
+     Maki'nin klan adı AniList'te "Zenin"; kanonda 禪院 (Zen'in) —
+     kesme işareti hece sınırını gösteriyor, yazım hatası değil.
+     Panda'nın kanon adı yok: AniList'teki tek adı "Panda" ve yerel
+     yazımı katakana. */
+  { characterId: EXPERIENCE_IDS.chousou, name: "Chōsō", nameNative: "脹相", ...JJK },
+  { characterId: EXPERIENCE_IDS.makiZenin, name: "Maki Zen'in", nameNative: "禪院真希", ...JJK },
+  { characterId: EXPERIENCE_IDS.mahito, name: "Mahito", nameNative: "真人", ...JJK },
+  { characterId: EXPERIENCE_IDS.aoiToudou, name: "Aoi Tōdō", nameNative: "東堂葵", ...JJK },
+  { characterId: EXPERIENCE_IDS.panda, name: "Panda", nameNative: "パンダ", ...JJK },
+  { characterId: EXPERIENCE_IDS.toujiFushiguro, name: "Tōji Fushiguro", nameNative: "伏黒甚爾", ...JJK },
+  { characterId: EXPERIENCE_IDS.jougo, name: "Jōgo", nameNative: "漏瑚", ...JJK },
+  { characterId: EXPERIENCE_IDS.yuutaOkkotsu, name: "Yūta Okkotsu", nameNative: "乙骨憂太", ...JJK },
 ];
 
 /** Rozet ve süzgeç için: elle tasarlanmış sayfası olan numaralar. */

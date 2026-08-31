@@ -1,0 +1,29 @@
+/*
+ * Aoi Tōdō (東堂葵) — deri bloğu.
+ *
+ * Palet docs/ANIME-FAZ2-DALGA4.md'den BİREBİR alındı; elle renk yazma.
+ * Dosyanın EN BAŞINDA olmak zorunda ve seçici `.page[data-world="…"]`
+ * — `:global([data-world=…])` CSS Modules'ün "pure selector" kuralına
+ * takılıyor.
+ *
+ * Yardımcı token adı `--tdo-…`. Küçük METİNDE kullanacağın her
+ * yardımcı rengin `-text` ekli bir kardeşi olmalı; kontrast denetimi
+ * yalnızca onlara bakıyor.
+ */
+.page[data-world="aoi-toudou"] {
+  --bg: #0f0a0f;
+  --surface: #191219;
+  --surface-hover: #211821;
+  --border: #291f29;
+  --border-strong: #392d39;
+  --text-primary: #d1c7d1;
+  --text-secondary: #9c7c9c;
+  --text-muted: #a076a0;
+  --accent: #d666c0;
+  --accent-hover: #d78ec9;
+  --accent-muted: #5e3155;
+  --gold: #dac32f;
+  --warn: #b88347;
+  --danger: #c26459;
+  /* kendi --tdo-* token'ların buraya */
+}

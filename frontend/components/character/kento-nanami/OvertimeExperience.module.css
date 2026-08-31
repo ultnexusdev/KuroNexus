@@ -1,0 +1,1667 @@
+/*
+ * KENTO NANAMI · "MESAİ" — tek CSS modülü.
+ *
+ * ⚠️ KLASÖRDE İKİNCİ BİR `.module.css` OLMAYACAK. Denetim betikleri klasör
+ * başına tek modül seçiyor; ikincisi eklenirse bu ağaçtaki bütün `styles.X`
+ * okumaları "tanımsız sınıf" olarak patlar (26 Ağustos'ta Gojo'da oldu).
+ *
+ * ── SAYFANIN TEK KURALI ──────────────────────────────────────────────────
+ * Her bant `7fr 3fr`. Sol yedi birim anlatı, sağ üç birim mesai defteri.
+ * Oran hiçbir bölümde, hiçbir kırılma noktasında ve `data-overtime`
+ * açıkken de değişmiyor. Dar ekranda tek kolona ÇÖKMÜYOR — aynı oran
+ * `grid-template-rows: 7fr 3fr` olarak dikeye dönüyor ve defter kendi
+ * bandının altında AKIŞTA duruyor (yapışkan değil: dikeyde ekranın
+ * %30'unu kalıcı işgal etmesi metni okunmaz yapardı).
+ *
+ * ── HAREKET ──────────────────────────────────────────────────────────────
+ * Tek dil: saat ibresi. Her geçiş `steps()` ile kademeli, tek yönlü ve
+ * ölçülü. Serbest süzülme, yay, esneme yok. Dosyanın sonunda `reduce`
+ * battaniyesi var.
+ *
+ * ── DERİ ─────────────────────────────────────────────────────────────────
+ * Hex yalnızca aşağıdaki İLK blokta. `[data-overtime="true"]` bloğu deri
+ * muafiyetine DAHİL DEĞİL (denetim betiği yalnızca çıplak `.page[data-world]`
+ * bloğunu çıkarıyor) — orada yalnızca `color-mix()` var.
+ */
+
+.page[data-world="kento-nanami"] {
+  --bg: #090b10;
+  --surface: #10131b;
+  --surface-hover: #161a23;
+  --border: #1c212b;
+  --border-strong: #2a2f3c;
+  --text-primary: #c7cad1;
+  --text-secondary: #7c869c;
+  --text-muted: #7683a0;
+  --accent: #cfbb6e;
+  --accent-hover: #d1c594;
+  --accent-muted: #595236;
+  --gold: #6380ab;
+  --warn: #b88347;
+  --danger: #c26459;
+
+  /* ── Nanami malzemesi (metin değil) ── */
+  --nan-navy: #121724;
+  --nan-ink: #06080d;
+  --nan-paper: #0d1017;
+  --nan-rule: #1e2431;
+  --nan-rule-strong: #2d3546;
+  --nan-tie: #172032;
+  --nan-tie-fine: #26314a;
+  --nan-dial: #33405a;
+  --nan-hand: #d8c684;
+  --nan-stamp: #6e6136;
+
+  /* ── Küçük metin taşıyan yardımcılar (ölçülüyor) ── */
+  --nan-note-text: #a9b2c4;
+  --nan-code-text: #8f9bb2;
+  --nan-lock-text: #9ea8be;
+  --nan-hour-text: #b9c0cd;
+  --nan-stamp-text: #cfbb6e;
+}
+
+/* Mesai bitti: lacivert koyuluyor, altın öne çıkıyor, defter fazla mesai
+   kaydına dönüyor. Izgara DEĞİŞMİYOR — 7:3 burada da 7:3. */
+.page[data-world="kento-nanami"][data-overtime="true"] {
+  --bg: var(--nan-ink);
+  --surface: color-mix(in srgb, var(--nan-ink) 72%, var(--surface));
+  --surface-hover: color-mix(in srgb, var(--nan-ink) 55%, var(--surface-hover));
+  --nan-navy: color-mix(in srgb, var(--nan-ink) 74%, var(--nan-navy));
+  --nan-paper: color-mix(in srgb, var(--nan-ink) 78%, var(--nan-paper));
+  --nan-rule: color-mix(in srgb, var(--accent) 26%, var(--border-strong));
+  --nan-rule-strong: color-mix(in srgb, var(--accent) 44%, var(--border-strong));
+  --nan-tie: color-mix(in srgb, var(--accent) 18%, var(--nan-ink));
+  --nan-tie-fine: color-mix(in srgb, var(--accent) 40%, var(--nan-ink));
+  --nan-dial: color-mix(in srgb, var(--accent) 52%, var(--border-strong));
+  --nan-stamp: color-mix(in srgb, var(--accent) 60%, var(--nan-ink));
+}
+
+/* ══ KÖK ═══════════════════════════════════════════════════════════════ */
+
+.page {
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-plexmono), ui-monospace, "SFMono-Regular", monospace;
+  font-size: 0.95rem;
+  line-height: 1.72;
+  padding-block: clamp(1.5rem, 4vw, 3.5rem) clamp(3rem, 7vw, 6rem);
+  padding-inline: clamp(0.75rem, 3vw, 2.5rem);
+  /* `clip`, `hidden` değil: `hidden` yapışkan çocukları kırıyor ve bu
+     ağaçta ileride bir yapışkan öğe doğarsa sessizce bozulurdu. */
+  overflow-x: clip;
+}
+
+.shell {
+  max-width: 78rem;
+  margin-inline: auto;
+}
+
+/* ══ 7:3 — SAYFANIN OMURGASI ═══════════════════════════════════════════ */
+
+.band {
+  display: grid;
+  grid-template-columns: 7fr 3fr;
+  column-gap: clamp(0.9rem, 2.2vw, 2.25rem);
+  align-items: stretch;
+}
+
+/* Bantlar arası ayrım: defter kâğıdının yatay çizgisi. */
+.band + .band,
+.band + .group,
+.group + .band,
+.group + .group {
+  border-block-start: 1px solid var(--nan-rule);
+}
+
+.group > .band + .band {
+  border-block-start: 1px solid var(--nan-rule);
+}
+
+.bandMain {
+  min-width: 0;
+  padding-block: clamp(1.5rem, 3.4vw, 2.75rem);
+  padding-inline-end: clamp(0.25rem, 1vw, 1rem);
+}
+
+/* Sağ üç birim. Dikey saç çizgisi bantlar boyunca kesintisiz gidiyor:
+   `align-items: stretch` + iç dolgu, dış boşluk değil. */
+.bandSide {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-block: clamp(1.5rem, 3.4vw, 2.75rem);
+  padding-inline-start: clamp(0.7rem, 1.6vw, 1.4rem);
+  border-inline-start: 1px solid var(--nan-rule);
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--nan-navy) 55%, transparent),
+    transparent 78%
+  );
+}
+
+/* ══ ÜST ŞERİT ═════════════════════════════════════════════════════════ */
+
+.crumb {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+  font-size: 0.76rem;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+  padding-block-end: clamp(0.75rem, 2vw, 1.5rem);
+}
+
+.crumbLink {
+  color: var(--accent);
+  text-decoration: none;
+  border-block-end: 1px solid transparent;
+  min-height: var(--touch-min);
+  display: inline-flex;
+  align-items: center;
+}
+
+.crumbLink:hover,
+.crumbLink:focus-visible {
+  color: var(--accent-hover);
+  border-block-end-color: var(--accent-hover);
+}
+
+.crumbSep {
+  color: var(--nan-code-text);
+}
+
+.crumbHere {
+  color: var(--text-secondary);
+}
+
+/* ══ 1 · HERO ══════════════════════════════════════════════════════════ */
+
+.heroMark {
+  position: relative;
+  display: block;
+  height: clamp(4.5rem, 9vw, 7.5rem);
+  margin-block-end: clamp(0.75rem, 2vw, 1.5rem);
+  overflow: clip;
+}
+
+.heroTie {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.5;
+}
+
+.heroMarkText {
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline-start: 0;
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-weight: 300;
+  font-size: clamp(2.5rem, 7vw, 5rem);
+  line-height: 1;
+  letter-spacing: 0.12em;
+  color: color-mix(in srgb, var(--text-primary) 12%, transparent);
+}
+
+.heroHouse {
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-weight: 300;
+  font-size: clamp(0.95rem, 1.6vw, 1.15rem);
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  margin: 0;
+}
+
+.heroReading {
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  color: var(--nan-code-text);
+  margin: 0.15rem 0 0;
+}
+
+.heroName {
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-weight: 300;
+  font-size: clamp(2rem, 4.6vw, 3.35rem);
+  line-height: 1.08;
+  letter-spacing: -0.005em;
+  text-transform: none;
+  color: var(--text-primary);
+  margin: clamp(0.5rem, 1.4vw, 1rem) 0 0;
+}
+
+.heroNative {
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-weight: 300;
+  font-size: clamp(1rem, 1.9vw, 1.3rem);
+  letter-spacing: 0.24em;
+  color: var(--text-secondary);
+  margin: 0.35rem 0 0;
+}
+
+.rule {
+  display: block;
+  height: 1px;
+  /* Çizgi de yedide kırılıyor: %70'e kadar altın, sonrası saç çizgisi. */
+  background: linear-gradient(
+    to right,
+    var(--accent-muted) 0 70%,
+    var(--nan-rule) 70% 100%
+  );
+  margin-block: clamp(1rem, 2.4vw, 1.75rem);
+}
+
+.heroEpigraph {
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-weight: 300;
+  font-size: clamp(1.05rem, 2vw, 1.4rem);
+  line-height: 1.5;
+  color: var(--text-primary);
+  margin: 0;
+  max-width: 44ch;
+}
+
+.heroLede {
+  color: var(--text-secondary);
+  margin: clamp(0.75rem, 2vw, 1.25rem) 0 0;
+  max-width: 68ch;
+}
+
+.heroFrameNote {
+  font-size: 0.76rem;
+  color: var(--nan-code-text);
+  margin: clamp(0.75rem, 2vw, 1.25rem) 0 0.35rem;
+}
+
+/* ── Personel kartı (sağ hücre) ── */
+
+.card {
+  margin: 0;
+  border: 1px solid var(--nan-rule-strong);
+  background: var(--nan-paper);
+  padding: 0.5rem;
+}
+
+.cardImg {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: grayscale(0.25) contrast(1.03);
+}
+
+.cardFoot {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  padding-block-start: 0.4rem;
+  border-block-start: 1px solid var(--nan-rule);
+  margin-block-start: 0.5rem;
+}
+
+.cardNumber {
+  font-size: 0.82rem;
+  letter-spacing: 0.1em;
+  color: var(--nan-stamp-text);
+}
+
+.cardRole {
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  color: var(--nan-code-text);
+}
+
+/* ══ ORTAK BANT BAŞLIKLARI ═════════════════════════════════════════════ */
+
+.bandCode {
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  color: var(--nan-code-text);
+  margin: 0 0 0.4rem;
+}
+
+.bandTitle {
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-weight: 300;
+  font-size: clamp(1.25rem, 2.3vw, 1.75rem);
+  letter-spacing: 0.005em;
+  text-transform: none;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.bandNative {
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-weight: 300;
+  font-size: 0.95rem;
+  letter-spacing: 0.2em;
+  color: var(--text-secondary);
+  margin: 0.2rem 0 0;
+}
+
+.bandLede {
+  color: var(--text-secondary);
+  margin: 0.6rem 0 clamp(1rem, 2.4vw, 1.75rem);
+  max-width: 64ch;
+}
+
+.group {
+  display: block;
+}
+
+/* ══ 2 · MOD DÜĞMESİ ═══════════════════════════════════════════════════ */
+
+.modeButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: var(--touch-min);
+  margin-block-start: clamp(0.9rem, 2.2vw, 1.5rem);
+  padding: 0.5rem 1.1rem;
+  background: var(--surface);
+  border: 1px solid var(--nan-rule-strong);
+  color: var(--text-primary);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.86rem;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition:
+    background-color 320ms steps(4, end),
+    border-color 320ms steps(4, end);
+}
+
+.modeButton:hover {
+  background: var(--surface-hover);
+  border-color: var(--accent-muted);
+}
+
+.modeButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* Anahtarın kendisi: bir kol değil, iki konumu olan bir kayıt kutusu.
+   Basılıyken dolgu sağa ATLIYOR (steps) — kaymıyor. */
+.modeSwitch {
+  position: relative;
+  display: inline-block;
+  inline-size: 2.4rem;
+  block-size: 0.9rem;
+  border: 1px solid var(--nan-rule-strong);
+  background: var(--nan-paper);
+}
+
+.modeSwitch::after {
+  content: "";
+  position: absolute;
+  inset-block: 1px;
+  inset-inline-start: 1px;
+  inline-size: 0.7rem;
+  background: var(--nan-dial);
+  transition: translate 300ms steps(3, end), background-color 300ms steps(3, end);
+}
+
+.modeButton[aria-pressed="true"] .modeSwitch::after {
+  translate: 1.6rem 0;
+  background: var(--accent);
+}
+
+.modeLabel {
+  white-space: nowrap;
+}
+
+.modeHint {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  margin: 0.9rem 0 0;
+  max-width: 60ch;
+}
+
+.modeNote {
+  color: var(--nan-code-text);
+  font-size: 0.76rem;
+  margin: 0.4rem 0 0;
+  max-width: 60ch;
+}
+
+/* ══ SAĞ HÜCRE — ORTAK PARÇALAR ════════════════════════════════════════ */
+
+.sideLabel {
+  font-size: 0.66rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--nan-code-text);
+  margin: 0;
+}
+
+.sideClock {
+  font-size: clamp(1.5rem, 3vw, 2.1rem);
+  line-height: 1.1;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.sideValue {
+  font-size: 1.05rem;
+  letter-spacing: 0.08em;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.sideText {
+  font-size: 0.76rem;
+  color: var(--nan-note-text);
+  margin: 0;
+}
+
+.sideBanner {
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  color: var(--nan-lock-text);
+  border: 1px solid var(--nan-rule);
+  padding: 0.3rem 0.5rem;
+  margin: 0.2rem 0 0;
+}
+
+.sideBanner[data-closed="true"] {
+  color: var(--nan-stamp-text);
+  border-color: var(--accent-muted);
+}
+
+/* Defterin boş kalan yüksekliği. Dikey düzende 7:3'ün üç birimlik satırı
+   içeriğinden uzun kalırsa fazlası burada desene dönüşüyor — boşluk değil. */
+.sideFill {
+  position: relative;
+  display: block;
+  flex: 1 1 auto;
+  min-block-size: 2.5rem;
+  overflow: clip;
+}
+
+.tieArt {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  opacity: 0.42;
+}
+
+.tieBand {
+  fill: var(--nan-tie);
+}
+
+.tieFine {
+  fill: var(--nan-tie-fine);
+}
+
+/* ══ KADRAN ════════════════════════════════════════════════════════════ */
+
+.dial {
+  inline-size: min(100%, 9rem);
+  block-size: auto;
+  margin-block: 0.35rem;
+}
+
+.dialFace {
+  stroke: var(--nan-dial);
+  stroke-width: 1.4;
+}
+
+.dialTick {
+  stroke: var(--nan-rule-strong);
+  stroke-width: 2;
+}
+
+.dialTickPast {
+  stroke: var(--accent);
+  stroke-width: 2.6;
+}
+
+/* İbre: akrep gibi ATLIYOR. Dokuz saatlik vardiya kadranın dörtte üç
+   turu; geçiş `steps()` olduğu için ara konum yok. */
+.dialHand {
+  transform-box: view-box;
+  transform-origin: 60px 60px;
+  transform: rotate(var(--nan-dial-angle, 270deg));
+  stroke: var(--nan-hand);
+  stroke-width: 3;
+  stroke-linecap: butt;
+}
+
+.dialPivot {
+  fill: var(--nan-hand);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .dialHand {
+    transition: transform 900ms steps(6, end);
+  }
+}
+
+/* ══ ÖLÇER ═════════════════════════════════════════════════════════════ */
+
+.meter {
+  margin: 0.3rem 0 0;
+  display: grid;
+  gap: 0.15rem;
+}
+
+.meterRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  border-block-end: 1px dotted var(--nan-rule);
+  padding-block-end: 0.15rem;
+}
+
+.meterKey {
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: var(--nan-code-text);
+  margin: 0;
+}
+
+.meterValue {
+  font-size: 0.95rem;
+  color: var(--nan-hour-text);
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ══ 3 · GİDER RAPORU ══════════════════════════════════════════════════ */
+
+.reportWrap {
+  overflow-x: auto;
+  border: 1px solid var(--nan-rule);
+  background: var(--nan-paper);
+}
+
+.reportTable {
+  inline-size: 100%;
+  min-inline-size: 30rem;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.reportCaption {
+  text-align: start;
+  padding: 0.55rem 0.7rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--nan-code-text);
+  border-block-end: 1px solid var(--nan-rule);
+}
+
+.reportHead {
+  text-align: start;
+  padding: 0.45rem 0.7rem;
+  font-weight: 400;
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--nan-code-text);
+  border-block-end: 1px solid var(--nan-rule-strong);
+  white-space: nowrap;
+}
+
+.reportRow {
+  border-block-end: 1px solid var(--nan-rule);
+}
+
+.reportRow[data-blank="true"] .reportEntry {
+  color: var(--warn);
+}
+
+.reportCode {
+  padding: 0.42rem 0.7rem;
+  color: var(--nan-code-text);
+  font-variant-numeric: tabular-nums;
+  inline-size: 3.2rem;
+}
+
+.reportItem {
+  padding: 0.42rem 0.7rem;
+  text-align: start;
+  font-weight: 400;
+  color: var(--text-primary);
+}
+
+.reportEntry {
+  padding: 0.42rem 0.7rem;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.reportSource {
+  padding: 0.42rem 0.7rem;
+  color: var(--nan-note-text);
+  font-size: 0.74rem;
+}
+
+.reportFoot {
+  border-block-start: 2px solid var(--nan-rule-strong);
+}
+
+.reportFootKey {
+  padding: 0.5rem 0.7rem;
+  text-align: start;
+  font-weight: 400;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--nan-code-text);
+}
+
+.reportFootValue {
+  padding: 0.5rem 0.7rem;
+  color: var(--nan-stamp-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.reportHint {
+  font-size: 0.7rem;
+  color: var(--nan-code-text);
+  margin: 0.4rem 0 0;
+}
+
+.reportNote {
+  font-size: 0.82rem;
+  color: var(--nan-note-text);
+  margin: 0.8rem 0 0;
+  max-width: 62ch;
+  border-inline-start: 2px solid var(--accent-muted);
+  padding-inline-start: 0.7rem;
+}
+
+/* ══ 4a · ÜÇ ANA KALEM ═════════════════════════════════════════════════ */
+
+.art {
+  display: block;
+}
+
+.artCode {
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  color: var(--nan-code-text);
+  margin: 0 0 0.35rem;
+}
+
+.artKanji {
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-weight: 300;
+  font-size: clamp(1.6rem, 3.2vw, 2.4rem);
+  line-height: 1.15;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  margin: 0;
+}
+
+.artRomaji {
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  color: var(--nan-code-text);
+  margin: 0.2rem 0 0;
+}
+
+.artTurkish {
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-weight: 300;
+  font-size: clamp(1.05rem, 1.9vw, 1.3rem);
+  color: var(--text-primary);
+  margin: 0.45rem 0 0;
+}
+
+.artTagline {
+  color: var(--nan-note-text);
+  font-size: 0.86rem;
+  margin: 0.3rem 0 0;
+  max-width: 58ch;
+}
+
+.artText {
+  color: var(--text-secondary);
+  margin: 0.9rem 0 0;
+  max-width: 68ch;
+}
+
+.artTraits {
+  list-style: none;
+  margin: 0.9rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.artTrait {
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: var(--nan-note-text);
+  border: 1px solid var(--nan-rule);
+  padding: 0.2rem 0.55rem;
+}
+
+/* ══ 4b · DÖRT EK KALEM ════════════════════════════════════════════════ */
+
+.tool {
+  display: block;
+}
+
+.toolCode {
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  color: var(--nan-code-text);
+  margin: 0 0 0.35rem;
+}
+
+.toolKanji {
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-weight: 300;
+  font-size: clamp(1.2rem, 2.2vw, 1.6rem);
+  letter-spacing: 0.08em;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.toolRomaji {
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  color: var(--nan-code-text);
+  margin: 0.15rem 0 0;
+}
+
+.toolName {
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-weight: 300;
+  font-size: 1.05rem;
+  color: var(--accent);
+  margin: 0.35rem 0 0;
+}
+
+.toolNote {
+  color: var(--text-secondary);
+  margin: 0.55rem 0 0;
+  max-width: 66ch;
+}
+
+/* ══ EVREN ÇAPALARI ════════════════════════════════════════════════════ */
+
+.anchorRow {
+  margin: 0.7rem 0 0;
+}
+
+.anchorLink {
+  display: inline-flex;
+  align-items: center;
+  /* Bağlar bölümünde doğrudan bir flex sütununun çocuğu — hizalanmazsa
+     satırın tamamına yayılır ve dokunma hedefi yanlış yere düşer. */
+  align-self: flex-start;
+  min-height: var(--touch-min);
+  font-size: 0.76rem;
+  letter-spacing: 0.06em;
+  color: var(--gold);
+  text-decoration: none;
+  border-block-end: 1px solid color-mix(in srgb, var(--gold) 45%, transparent);
+}
+
+.anchorLink:hover,
+.anchorLink:focus-visible {
+  color: var(--accent-hover);
+  border-block-end-color: var(--accent-hover);
+}
+
+.anchorLink:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ══ 5 · MESAİ ŞERİDİ ══════════════════════════════════════════════════ */
+
+.strip {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.rail {
+  list-style: none;
+  margin: 0.4rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.1rem;
+}
+
+.railRow {
+  display: grid;
+  grid-template-columns: 3.5rem 2.4rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.4rem;
+  padding-block: 0.18rem;
+  border-block-end: 1px dotted var(--nan-rule);
+}
+
+.railHour {
+  font-size: 0.76rem;
+  color: var(--nan-code-text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Saat dolduğunda çubuk soldan sağa ADIM ADIM doluyor. */
+.railBar {
+  display: block;
+  block-size: 0.55rem;
+  inline-size: 100%;
+  background: var(--nan-rule-strong);
+  transform-origin: left center;
+  transform: scaleX(0.18);
+}
+
+.railRow[data-spent="true"] .railBar {
+  background: var(--accent);
+  transform: scaleX(1);
+}
+
+.railEntry {
+  font-size: 0.72rem;
+  color: var(--nan-lock-text);
+  overflow-wrap: anywhere;
+}
+
+.railRow[data-spent="true"] .railHour {
+  color: var(--nan-hour-text);
+}
+
+.railRow[data-spent="true"] .railEntry {
+  color: var(--nan-note-text);
+}
+
+.stripStatus {
+  font-size: 0.76rem;
+  color: var(--nan-note-text);
+  margin: 0.3rem 0 0;
+  border-inline-start: 2px solid var(--accent-muted);
+  padding-inline-start: 0.55rem;
+}
+
+.stripRule {
+  font-size: 0.72rem;
+  color: var(--nan-code-text);
+  margin: 0;
+}
+
+.resetButton {
+  min-height: var(--touch-min);
+  margin-block-start: 0.3rem;
+  padding: 0.4rem 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--nan-rule-strong);
+  color: var(--text-primary);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: border-color 260ms steps(3, end);
+}
+
+.resetButton:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.resetButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.resetButton:disabled {
+  color: var(--nan-lock-text);
+  cursor: default;
+  opacity: 0.7;
+}
+
+.stripHint {
+  font-size: 0.7rem;
+  color: var(--nan-code-text);
+  margin: 0;
+}
+
+/* ── Kayıt defteri (sol hücre) ── */
+
+.log {
+  border: 1px solid var(--nan-rule);
+  background: var(--nan-paper);
+  padding: clamp(0.7rem, 1.6vw, 1.1rem);
+  margin-block-end: clamp(1rem, 2.4vw, 1.75rem);
+}
+
+.logTitle {
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-weight: 300;
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+  margin: 0 0 0.6rem;
+}
+
+.logEmpty {
+  font-size: 0.82rem;
+  color: var(--nan-note-text);
+  margin: 0;
+  max-width: 60ch;
+}
+
+.logList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.logHead,
+.logRow {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr);
+  gap: 0.6rem;
+  padding-block: 0.28rem;
+  border-block-end: 1px solid var(--nan-rule);
+}
+
+.logHead {
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--nan-code-text);
+}
+
+.logHour {
+  color: var(--nan-stamp-text);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.82rem;
+}
+
+.logEntry {
+  color: var(--nan-note-text);
+  font-size: 0.82rem;
+  overflow-wrap: anywhere;
+}
+
+/* ══ MESAİ DEFTERİ KAYDI (sağ hücre) ═══════════════════════════════════ */
+
+.entry {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  flex: 1 1 auto;
+}
+
+.entryLedger {
+  font-size: 0.64rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--nan-code-text);
+  margin: 0;
+}
+
+.entryName {
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-weight: 300;
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.entryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-height: var(--touch-min);
+  padding: 0.35rem 0.65rem;
+  background: var(--surface);
+  border: 1px solid var(--nan-rule-strong);
+  color: var(--text-primary);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.76rem;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition:
+    border-color 260ms steps(3, end),
+    background-color 260ms steps(3, end);
+}
+
+.entryButton:hover {
+  background: var(--surface-hover);
+  border-color: var(--accent);
+}
+
+.entryButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.entryButtonLabel {
+  white-space: nowrap;
+}
+
+.entryCost {
+  font-size: 0.68rem;
+  color: var(--nan-stamp-text);
+  white-space: nowrap;
+}
+
+.entryStamp {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+}
+
+.stampArt {
+  inline-size: 2.5rem;
+  block-size: 1.5rem;
+  flex: none;
+}
+
+.stampFrame {
+  stroke: var(--nan-stamp);
+  stroke-width: 1.4;
+}
+
+.stampSlash {
+  stroke: var(--nan-stamp);
+  stroke-width: 1.2;
+}
+
+.entryStampText {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: var(--nan-stamp-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.entryRecord {
+  font-size: 0.78rem;
+  color: var(--nan-note-text);
+  margin: 0;
+  border-inline-start: 2px solid var(--accent-muted);
+  padding-inline-start: 0.55rem;
+}
+
+.entryLocked {
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--nan-lock-text);
+  border: 1px solid var(--nan-rule);
+  padding: 0.25rem 0.5rem;
+  margin: 0;
+}
+
+.entryLockedNote {
+  font-size: 0.74rem;
+  color: var(--nan-lock-text);
+  margin: 0;
+}
+
+.entry[data-state="overtime"] .entryStampText,
+.entry[data-state="overtime"] .entryName {
+  color: var(--accent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .entry[data-state="open"] .entryStamp,
+  .entry[data-state="overtime"] .entryStamp {
+    animation: nanStamp 520ms steps(4, end) 1;
+  }
+
+  .railRow[data-spent="true"] .railBar {
+    animation: nanSecond 420ms steps(3, end) 1;
+  }
+
+  .sideBanner[data-closed="true"] {
+    animation: nanBell 700ms steps(2, end) 1;
+  }
+}
+
+/* Kaşe basılıyor: yukarıdan iniyor, oturuyor, hafifçe doğruluyor. */
+@keyframes nanStamp {
+  0% {
+    opacity: 0;
+    transform: translateY(-0.4rem) rotate(-3deg);
+  }
+  45% {
+    opacity: 1;
+    transform: translateY(0) rotate(-3deg);
+  }
+  75% {
+    opacity: 1;
+    transform: translateY(0) rotate(-1.4deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotate(-1.4deg);
+  }
+}
+
+/* Saniye kolu: üç adımda doluyor, sonra duruyor. */
+@keyframes nanSecond {
+  0% {
+    transform: scaleX(0.18);
+  }
+  40% {
+    transform: scaleX(0.52);
+  }
+  75% {
+    transform: scaleX(0.84);
+  }
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+/* Vardiya zili: iki kere yanıyor, sonra sabit kalıyor. */
+@keyframes nanBell {
+  0% {
+    border-color: var(--nan-rule);
+  }
+  35% {
+    border-color: var(--accent);
+  }
+  70% {
+    border-color: var(--nan-rule);
+  }
+  100% {
+    border-color: var(--accent-muted);
+  }
+}
+
+/* ══ 6 · BEŞ KAYIT ═════════════════════════════════════════════════════ */
+
+.stop {
+  display: block;
+}
+
+.stopCode {
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  color: var(--nan-code-text);
+  margin: 0 0 0.35rem;
+}
+
+.stopAge {
+  font-size: 0.74rem;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  margin: 0;
+}
+
+.stopTitle {
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-weight: 300;
+  font-size: clamp(1.3rem, 2.4vw, 1.8rem);
+  letter-spacing: 0.01em;
+  color: var(--text-primary);
+  margin: 0.25rem 0 0;
+}
+
+.stopText {
+  color: var(--text-secondary);
+  margin: 0.7rem 0 0;
+  max-width: 68ch;
+}
+
+.stopQuote {
+  margin: 1.1rem 0 0;
+  border-inline-start: 2px solid var(--accent-muted);
+  padding-inline-start: 0.9rem;
+}
+
+.quoteJa {
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-weight: 300;
+  font-size: clamp(1.15rem, 2.4vw, 1.6rem);
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  margin: 0;
+}
+
+.quoteReading {
+  font-size: 0.82rem;
+  color: var(--nan-note-text);
+  margin: 0.3rem 0 0;
+}
+
+.quoteBy {
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: var(--nan-code-text);
+  margin-block-start: 0.35rem;
+}
+
+.stopKin {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin: 0.9rem 0 0;
+  font-size: 0.8rem;
+}
+
+.stopKinLink {
+  color: var(--accent);
+  text-decoration: none;
+  border-block-end: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  min-height: var(--touch-min);
+  display: inline-flex;
+  align-items: center;
+}
+
+.stopKinLink:hover,
+.stopKinLink:focus-visible {
+  color: var(--accent-hover);
+  border-block-end-color: var(--accent-hover);
+}
+
+.stopKinLink:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.stopKinName {
+  color: var(--text-primary);
+}
+
+.stopKinRole {
+  color: var(--nan-code-text);
+  font-size: 0.74rem;
+}
+
+/* ══ 7a · BAĞLAR ═══════════════════════════════════════════════════════ */
+
+.bonds {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0;
+}
+
+.bond {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr);
+  gap: clamp(0.7rem, 1.6vw, 1.2rem);
+  padding-block: clamp(0.8rem, 1.8vw, 1.2rem);
+  border-block-start: 1px solid var(--nan-rule);
+}
+
+.bondFace {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 4.5rem;
+  block-size: 6rem;
+  border: 1px solid var(--nan-rule-strong);
+  background: var(--nan-paper);
+  overflow: clip;
+}
+
+.bondFaceImg {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+  filter: grayscale(0.3);
+}
+
+/* Portre kaydı yokken yer tutucu kutu değil, bir MONOGRAM duruyor:
+   karakterin ana dildeki adı, dikey ve soluk. */
+.bondMono {
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-weight: 300;
+  font-size: 0.95rem;
+  letter-spacing: 0.16em;
+  writing-mode: vertical-rl;
+  color: color-mix(in srgb, var(--text-secondary) 65%, transparent);
+}
+
+.bondBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-inline-size: 0;
+}
+
+.bondName {
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-weight: 300;
+  font-size: 1.15rem;
+  color: var(--accent);
+  text-decoration: none;
+  border-block-end: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  align-self: flex-start;
+  min-height: var(--touch-min);
+  display: inline-flex;
+  align-items: center;
+}
+
+.bondName:hover,
+.bondName:focus-visible {
+  color: var(--accent-hover);
+  border-block-end-color: var(--accent-hover);
+}
+
+.bondName:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.bondNamePlain {
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-weight: 300;
+  font-size: 1.15rem;
+  color: var(--text-primary);
+}
+
+.bondRole {
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  color: var(--nan-code-text);
+}
+
+.bondSummary {
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+  max-width: 62ch;
+}
+
+.bondFlag {
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  color: var(--nan-lock-text);
+}
+
+/* ══ 7b · KAPANIŞ ══════════════════════════════════════════════════════ */
+
+.closingQuotes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: clamp(1.2rem, 3vw, 2rem);
+}
+
+.closingQuote {
+  margin: 0;
+  border-inline-start: 2px solid var(--accent-muted);
+  padding-inline-start: clamp(0.8rem, 2vw, 1.2rem);
+}
+
+.quoteNote {
+  font-size: 0.8rem;
+  color: var(--nan-note-text);
+  margin: 0.45rem 0 0;
+  max-width: 58ch;
+}
+
+.motto {
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-weight: 300;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  letter-spacing: 0.28em;
+  color: var(--accent);
+  margin: 0;
+}
+
+.mottoNote {
+  font-size: 0.84rem;
+  color: var(--nan-note-text);
+  margin: 0.5rem 0 0;
+  max-width: 64ch;
+}
+
+.credit {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin: clamp(1.2rem, 3vw, 2rem) 0 0;
+}
+
+.creditLink {
+  color: var(--accent);
+  text-decoration: none;
+  border-block-end: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.creditLink:hover,
+.creditLink:focus-visible {
+  color: var(--accent-hover);
+  border-block-end-color: var(--accent-hover);
+}
+
+.creditLink:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.creditNote {
+  font-size: 0.74rem;
+  color: var(--nan-code-text);
+  margin: 0.4rem 0 0;
+  max-width: 64ch;
+}
+
+/* ══ KADRAJLAR ═════════════════════════════════════════════════════════ */
+
+.frameSlot {
+  margin-block-start: clamp(0.9rem, 2.2vw, 1.5rem);
+}
+
+.frame {
+  position: relative;
+  margin: 0;
+  display: block;
+  inline-size: 100%;
+  border: 1px solid var(--nan-rule);
+  background: var(--nan-paper);
+  overflow: clip;
+}
+
+/* Dolu kadraj oranını alıyor. */
+.frameSlot[data-filled="true"] .frameWide {
+  aspect-ratio: 16 / 9;
+}
+
+.frameSlot[data-filled="true"] .frameSmall {
+  aspect-ratio: 3 / 2;
+}
+
+.frameSlot[data-filled="true"] .frameScene {
+  aspect-ratio: 3 / 2;
+}
+
+.frameSlot[data-filled="true"] .frameBand {
+  aspect-ratio: 8 / 3;
+}
+
+/* ⚠️ BOŞ KADRAJ 16:9'LUK BİR DELİK AÇMIYOR. On beş kadrajın hepsi bugün
+   boş; her birine tam oran verilseydi sayfa boş kutulardan ibaret olurdu.
+   Boşken kadraj, doldurulmamış bir form alanı gibi ince bir şerit — ve
+   sol sütun bu sayede görselsiz de dolu duruyor (brief şartı). */
+.frameSlot[data-filled="false"] .frame {
+  block-size: auto;
+  min-block-size: 3.25rem;
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--nan-rule-strong) 70%, transparent);
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0 1.55rem,
+      color-mix(in srgb, var(--nan-rule) 55%, transparent) 1.55rem 1.6rem
+    ),
+    var(--nan-paper);
+}
+
+.frameImage {
+  object-fit: cover;
+}
+
+/* Yüklenen görselin üstüne metin binerse okunabilirlik görselin
+   parlaklığına kalmasın (Dalga 1 eki). Perde yalnızca DOLU kadrajda. */
+.frameScrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--nan-ink) 78%, transparent),
+    transparent 55%
+  );
+  pointer-events: none;
+}
+
+.frameCaption {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.7rem 0.8rem;
+}
+
+.frameCaptionWord {
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--nan-code-text);
+}
+
+.frameCaptionSpec {
+  font-size: 0.68rem;
+  color: var(--nan-lock-text);
+}
+
+/* ══ MESAİ BİTTİ — DEFTER FAZLA MESAİ KAYDINA DÖNÜYOR ══════════════════ */
+
+/* ⚠️ IZGARAYA HİÇ DOKUNULMUYOR. Bu blokta tek bir `grid-template-*`
+   satırı yok ve olmayacak: 7:3 Nanami'nin katılığı, moda göre değişen bir
+   süs değil. Değişen şey defterin GÖRÜNÜŞÜ — kenar çizgisi çift kayıt
+   çizgisine dönüyor, etiketler altın kaşe rengine geçiyor, kravat deseni
+   koyulaşıyor. */
+.page[data-world="kento-nanami"][data-overtime="true"] .bandSide {
+  border-inline-start-style: double;
+  border-inline-start-width: 3px;
+}
+
+.page[data-world="kento-nanami"][data-overtime="true"] .sideLabel,
+.page[data-world="kento-nanami"][data-overtime="true"] .entryLedger {
+  color: var(--nan-stamp-text);
+  letter-spacing: 0.26em;
+}
+
+.page[data-world="kento-nanami"][data-overtime="true"] .tieArt {
+  opacity: 0.62;
+}
+
+.page[data-world="kento-nanami"][data-overtime="true"] .entryRecord,
+.page[data-world="kento-nanami"][data-overtime="true"] .stripStatus {
+  border-inline-start-color: var(--accent);
+}
+
+/* ══ DAR EKRAN — 7:3 DİKEYE DÖNÜYOR, TEK KOLONA ÇÖKMÜYOR ═══════════════ */
+
+@media (max-width: 60rem) {
+  /* Aynı oran, artık satır olarak: üst yedi, alt üç.
+
+     ⚠️ İkinci satır minmax(0, 3fr) — düz 3fr DEĞİL, ve fark kritik.
+     Yüksekliği belirsiz bir ızgarada 3fr satırın TABAN ölçüsü kendi
+     içeriği oluyor; defteri içeriğinden uzun kalan bir bantta (mesai
+     şeridi, mod düğmesi) bu, ÜSTTEKİ satırı içeriğinin 7/3 katına
+     şişirip yüzlerce piksel boşluk açıyordu. minmax(0, …) tabanı
+     sıfırlıyor: oran her durumda tam 7:3 kalıyor ve defter payına
+     sığmazsa kendi içinde kayıyor. Şeritte durumun ve "yeni bir gün
+     başlat" düğmesinin kadranın ÖNÜNDE gelmesinin sebebi bu — dar bir
+     defter payında bile ilk görünen onlar oluyor. */
+  .band {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: 7fr minmax(0, 3fr);
+    column-gap: 0;
+  }
+
+  .bandMain {
+    padding-inline-end: 0;
+    padding-block-end: clamp(0.9rem, 3vw, 1.4rem);
+  }
+
+  /* ⚠️ YAPIŞKAN DEĞİL. Dikeyde defterin ekranın altında %30'u kalıcı
+     işgal etmesi, kalan %70'te metni okunmaz yapardı — defter kendi
+     bandının altında akışta duruyor. */
+  .bandSide {
+    border-inline-start: none;
+    border-block-start: 1px solid var(--nan-rule);
+    padding-inline-start: 0;
+    padding-block: clamp(0.9rem, 3vw, 1.4rem) clamp(1.2rem, 3.5vw, 2rem);
+    overflow: auto;
+    overscroll-behavior: contain;
+    background: linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--nan-navy) 55%, transparent),
+      transparent 78%
+    );
+  }
+
+  .dial {
+    inline-size: min(100%, 6rem);
+  }
+
+  /* Dokuz saatlik ray dikeyde üç sütuna katlanıyor: defter payına
+     sığsın diye. Okuma sırası DOM sırası — soldan sağa, yukarıdan aşağı. */
+  .rail {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.35rem;
+  }
+
+  .railRow {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.15rem;
+  }
+
+  .railBar {
+    inline-size: 100%;
+    block-size: 0.35rem;
+  }
+
+  .meter {
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    gap: 0.6rem;
+  }
+}
+
+@media (max-width: 30rem) {
+  .bond {
+    grid-template-columns: 3.5rem minmax(0, 1fr);
+  }
+
+  .bondFace {
+    inline-size: 3.5rem;
+    block-size: 4.6rem;
+  }
+
+  .railRow {
+    grid-template-columns: 3.2rem 2rem minmax(0, 1fr);
+  }
+}
+
+/* ══ HAREKET KAPISI ════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

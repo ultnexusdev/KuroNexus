@@ -1,0 +1,1486 @@
+/* ============================================================
+   DÜNYA DERİSİ — Yoruichi Shihōin (AniList #908)
+
+   Palet dalga briefinde (ANIME-FAZ2-DALGA3 §16) KİLİTLİ; değerler
+   birebir alındı ve `node scripts/check-karakter-kontrast.mjs` ile
+   ölçüldü.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı
+   gereği bir yerel sınıf şart. Kök öğe ikisini birlikte taşır.
+
+   Aile: MENEKŞE. Arşivin sıkışmış turuncu ve kızıl ailelerinden
+   uzakta; en yakın komşuları Obito'nun moru (#9b5fd8) ve Ino'nun
+   pembesi (#cf5ba8) ve ikisi de belirgin uzaklıkta.
+
+   ⚠️ Yardımcı token adlandırması: küçük metinde kullanılan her rengin
+   `-text` ekli bir kardeşi var (denetim yalnızca onları ölçüyor).
+   Ekli olmayanlar MALZEME: art-görüntünün gövdesi, armanın konturu,
+   şeridin zemini, kedi gözü.
+   ============================================================ */
+.page[data-world="yoruichi-shihouin"] {
+  --bg:             #0e0b0f;
+  --surface:        #171219;
+  --surface-hover:  #1f1920;
+  --border:         #261f28;
+  --border-strong:  #362d39;
+
+  --text-primary:   #cfc7d1;
+  --text-secondary: #947c9c;
+  --text-muted:     #9879a2;
+
+  --accent:         #a74ab5;
+  --accent-hover:   #ad72b6;
+  --accent-muted:   #2e2130;
+
+  --gold:           #d0ad39;
+  --warn:           #b88347;
+  --danger:         #c26459;
+
+  /* ── Yardımcı malzeme — yalnızca bu ağaç okur ── */
+  --yor-ghost:      #2a2130;
+  --yor-mon:        #3a2f40;
+  --yor-ink:        #120e13;
+  --yor-eye:        #c9a02e;
+
+  /* ── Küçük metinde okunan aile (`-text`, ölçülüyor) ── */
+  --yor-ja-text:      #b09ab6;
+  --yor-void-text:    #9a94a6;
+  --yor-ledger-text:  #c0b3c6;
+  --yor-rail-text:    #a58fae;
+}
+
+/* ============================================================
+   YORUICHI — "İki beden, tek künye"
+
+   Deri: kökteki `data-world="yoruichi-shihouin"` bütün standart
+   token'ları menekşeye çeviriyor; yardımcılar `--yor-*` (yukarıdaki
+   blok). Bu bloktan AŞAĞIDA TEK HEX YOK — ara tonların hepsi
+   color-mix ile token'lardan türetildi (FAZ 2 §1).
+
+   ── SAYFANIN FİKRİ ──────────────────────────────────────────────────────
+   KÜNYE TEK GÖVDEYE GÖRE YAZILMIŞ. "Kedi formu" düğmesi hero kadrajını
+   değiştiriyor ve künye şeridindeki on üç satırı tek tek çeviriyor; beşi
+   ölçülemez hâle düşüp griye iniyor. Espri veri tablosunun geçerliliğini
+   kaybetmesinde: aynı kişi, ölçülemeyen yarısı.
+
+   ── IZGARA: YATAY KAYAN ŞERİTLER ────────────────────────────────────────
+   Akış dikey, OKUMA YATAY. Her bölüm tam genişlikte bir bant; bandın
+   içeriği kendi kabında (`overflow-x: auto` + `scroll-snap`) yatay
+   kayıyor. Sayfa gövdesi ASLA yatay kaymıyor (`overflow-x: clip`).
+   Şeritler klavyeyle de geziliyor: her şerit `tabindex="0"` + `role="group"`
+   ve odaklandığında ok tuşları kaydırıyor. Fare tekerleği HİÇ yakalanmıyor
+   — sayfada tek bir `wheel` dinleyicisi yok.
+
+   ── TİPOGRAFİ ───────────────────────────────────────────────────────────
+   Display: Petrona, İTALİK ve büyük — hız hissi. Gövde: Inter.
+   Künye satırları: IBM Plex Mono (tablo hissi).
+
+   ⚠️ Petrona'nın italik dosyası kök düzende YÜKLENMİYOR (gerekçe
+   `app/[locale]/layout.tsx`: ikinci bir değişken dosya, ikinci bir
+   indirme). Buradaki `font-style: italic` tarayıcının sentetik
+   eğimini kullanıyor ve bu bilinçli: hız hissi eğimin kendisinden
+   geliyor, ayrı bir çizimden değil. Türkçe diyakritik için satır
+   yüksekliği hiçbir display kuralında 1.02'nin altına inmiyor
+   (test dizesi "BEŞİKTAŞ IĞDIR").
+
+   ── HAREKET: ART-GÖRÜNTÜ (空蝉) ─────────────────────────────────────────
+   Hareket eden her öğe arkasında 2–3 soluk kopya bırakıyor. Kopyalar
+   `::before` katmanlarından ve `box-shadow`dan geliyor; ikisi de içeriğin
+   ARKASINDA duruyor (`.ghosted > * { position: relative; z-index: 1 }`
+   deseni) — metnin üstüne HİÇBİR gölge düşmüyor, okunaklık bozulmuyor.
+   Sayfada sürekli koşan animasyon yok: üç keyframe'in üçü de forma
+   basılınca ya da yeni bir kadraj girince bir kez oynuyor.
+
+   ── RENK GÖREVLERİ ──────────────────────────────────────────────────────
+   --accent          → bölüm başlıkları, aktif seçici, şerit tikleri
+   --accent-hover    → bağlantılar, okunuşlar, motto
+   --gold            → KEDİ formunun okumaları (kedi gözünün sarısı)
+   --yor-ghost       → YALNIZCA art-görüntü gövdesi
+   --yor-mon         → YALNIZCA klan armasının konturu
+   --yor-void-text   → YALNIZCA ölçülemez hâle düşen satırlar
+   ============================================================ */
+
+.page {
+  --yor-gut: clamp(1.1rem, 5vw, 3rem);
+  --yor-card: clamp(15.5rem, 78vw, 21rem);
+  --yor-wide: clamp(17rem, 84vw, 30rem);
+  --yor-hair: color-mix(in srgb, var(--border-strong) 78%, transparent);
+  --yor-hair-soft: color-mix(in srgb, var(--border) 88%, transparent);
+  --yor-step: 420ms;
+  --yor-quick: 190ms;
+  --yor-ease: cubic-bezier(0.18, 0.86, 0.3, 1);
+
+  position: relative;
+  background: var(--bg);
+  color: var(--text-primary);
+  overflow-x: clip;
+  overflow-wrap: break-word;
+  padding-block: clamp(1.25rem, 4vw, 2.25rem) clamp(4rem, 12vh, 7rem);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: clamp(0.88rem, 0.83rem + 0.24vw, 0.97rem);
+  line-height: 1.72;
+}
+
+/* Görünür odak — sayfadaki her düğme, bağlantı ve şerit için tek kural */
+.page a:focus-visible,
+.page button:focus-visible,
+.page [tabindex]:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ── BREADCRUMB ──────────────────────────────────────────────────────── */
+.crumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: 62rem;
+  margin-inline: auto;
+  padding-inline: var(--yor-gut);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.crumb a {
+  color: var(--accent-hover);
+  text-decoration: none;
+  min-height: var(--touch-min);
+  display: inline-flex;
+  align-items: center;
+}
+
+.crumb a:hover {
+  color: var(--text-primary);
+}
+
+.crumbSep {
+  color: var(--yor-rail-text);
+}
+
+.crumbHere {
+  color: var(--yor-rail-text);
+}
+
+/* ══ 1 · HERO ═══════════════════════════════════════════════════════════ */
+.hero {
+  position: relative;
+  padding-block: clamp(1.5rem, 6vh, 3.5rem) clamp(1rem, 3vh, 2rem);
+}
+
+/* Filigran: elle çizilmiş Shihōin arması + 瞬神. Çok büyük, çok soluk,
+   sağ üstte ve kırpılabilir — `overflow-x: clip` kökte duruyor. */
+.mon {
+  position: absolute;
+  inset-block-start: -2vh;
+  inset-inline-end: -6vw;
+  inline-size: clamp(13rem, 42vw, 26rem);
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.monArt {
+  inline-size: 100%;
+  block-size: auto;
+  stroke-width: 1.4;
+}
+
+.monLeaf {
+  stroke: var(--yor-mon);
+}
+
+.monRing {
+  stroke: color-mix(in srgb, var(--yor-mon) 62%, transparent);
+}
+
+.monKanji {
+  position: absolute;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: clamp(2.4rem, 9vw, 5rem);
+  line-height: 1.04;
+  color: color-mix(in srgb, var(--accent) 22%, transparent);
+  letter-spacing: 0.08em;
+}
+
+.heroHead {
+  position: relative;
+  z-index: 1;
+  max-width: 62rem;
+  margin-inline: auto;
+  padding-inline: var(--yor-gut);
+}
+
+.heroHouse {
+  margin: 0 0 0.6rem;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--yor-rail-text);
+}
+
+.heroName {
+  margin: 0;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-style: italic;
+  font-weight: 500;
+  font-size: clamp(2.5rem, 11vw, 6rem);
+  line-height: 1.04;
+  letter-spacing: -0.012em;
+  color: var(--text-primary);
+}
+
+.heroNative {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: clamp(1.1rem, 3.4vw, 1.7rem);
+  line-height: 1.4;
+  color: var(--yor-ja-text);
+  letter-spacing: 0.1em;
+}
+
+.heroTitleReading {
+  margin: 0.2rem 0 0;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.75rem;
+  line-height: 1.7;
+  color: var(--yor-rail-text);
+}
+
+.heroEpigraph {
+  margin: clamp(1.2rem, 4vh, 2rem) 0 0;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-style: italic;
+  font-size: clamp(1.15rem, 3.6vw, 1.75rem);
+  line-height: 1.42;
+  color: var(--accent-hover);
+  max-width: 34ch;
+}
+
+.heroLede {
+  margin: 1rem 0 0;
+  max-width: 58ch;
+  color: var(--text-secondary);
+}
+
+/* ── ŞERİT KABI — sayfanın ızgara kilidi ─────────────────────────────── */
+.heroRail,
+.ledgerRail,
+.cardRail,
+.linkRail,
+.dualRail {
+  position: relative;
+  z-index: 1;
+  margin-block-start: clamp(1.4rem, 4vh, 2.4rem);
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: var(--yor-gut);
+  padding: 0.9rem var(--yor-gut) 1.1rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    color-mix(in srgb, var(--yor-ink) 60%, transparent) 100%
+  );
+}
+
+.heroRail::-webkit-scrollbar,
+.ledgerRail::-webkit-scrollbar,
+.cardRail::-webkit-scrollbar,
+.linkRail::-webkit-scrollbar,
+.dualRail::-webkit-scrollbar {
+  block-size: 10px;
+}
+
+.heroRail::-webkit-scrollbar-thumb,
+.ledgerRail::-webkit-scrollbar-thumb,
+.cardRail::-webkit-scrollbar-thumb,
+.linkRail::-webkit-scrollbar-thumb,
+.dualRail::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+}
+
+.heroRail {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: var(--yor-wide);
+  gap: clamp(1rem, 3vw, 2rem);
+  align-items: start;
+}
+
+.railHint {
+  margin: 0.35rem 0 0;
+  padding-inline: var(--yor-gut);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  color: var(--yor-rail-text);
+}
+
+/* Hero kartı — art-görüntü sözde öğesi İÇERİĞİN ARKASINDA */
+.heroCard {
+  position: relative;
+  scroll-snap-align: start;
+}
+
+.heroCard > * {
+  position: relative;
+  z-index: 1;
+}
+
+.heroCard::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-0.85rem);
+  border-inline-start: 1px solid color-mix(in srgb, var(--yor-ghost) 90%, transparent);
+  background: color-mix(in srgb, var(--yor-ghost) 26%, transparent);
+  z-index: 0;
+}
+
+/* ⚠️ Aktif olmayan hero kadrajı DÜŞÜYOR — düğmenin yaptığı iş bu.
+   `display: none` bilinçli: `visibility` ile şeritte boş bir sütun
+   kalırdı ve yatay okuma bozulurdu. Ayrıca `none → grid` geçişi
+   animasyonun yeniden oynamasını sağlıyor (art-görüntü girişi). */
+.page[data-form="human"] .heroCard[data-card="cat"],
+.page[data-form="cat"] .heroCard[data-card="human"] {
+  display: none;
+}
+
+/* Küratör modunda İKİSİ de görünüyor: iki ayrı yuvanın da
+   doldurulabilmesi için. Özgüllük yukarıdaki kuralın üstünde
+   (0,5,0 > 0,4,0), o yüzden `!important` yok. */
+.page[data-form] [data-curating="true"] .heroCard[data-card] {
+  display: block;
+}
+
+.heroCardTag {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.heroFrameNote {
+  margin: 0 0 0.75rem;
+  font-size: 0.82rem;
+  line-height: 1.62;
+  color: var(--text-secondary);
+}
+
+.portrait {
+  margin: 0;
+  inline-size: clamp(8rem, 34vw, 11.5rem);
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.portraitImg {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+}
+
+/* ── KADRAJ ──────────────────────────────────────────────────────────── */
+.frame {
+  position: relative;
+  margin: 0;
+  inline-size: 100%;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 72%, var(--yor-ink));
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+}
+
+/* Art-görüntü: dolu kadrajın arkasında iki soluk kopya. Dış gölge
+   olduğu için kutunun İÇİNDEKİ hiçbir metnin üstüne düşmüyor; şerit
+   boşluğu (gap) da bu iz için ayrıldı. */
+.frame[data-filled="true"] {
+  box-shadow:
+    -0.5rem 0 0 -0.05rem color-mix(in srgb, var(--yor-ghost) 78%, transparent),
+    -1rem 0 0 -0.15rem color-mix(in srgb, var(--yor-ghost) 42%, transparent);
+}
+
+.frame img {
+  object-fit: cover;
+}
+
+.frameTall {
+  aspect-ratio: 3 / 4;
+}
+
+.frameWide {
+  aspect-ratio: 16 / 9;
+}
+
+.frameSmall {
+  aspect-ratio: 3 / 2;
+}
+
+.frameBand {
+  aspect-ratio: 21 / 9;
+}
+
+.frameCaption {
+  display: grid;
+  gap: 0.3rem;
+  padding: 0.9rem;
+  text-align: center;
+}
+
+.frameCaptionWord {
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.frameCaptionSpec {
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.68rem;
+  color: var(--yor-rail-text);
+}
+
+/* ══ 2 · MOD DÜĞMESİ ════════════════════════════════════════════════════ */
+.mode {
+  border-block: 1px solid var(--yor-hair);
+  background: color-mix(in srgb, var(--surface) 55%, var(--bg));
+  padding-block: clamp(1.6rem, 5vh, 2.6rem);
+  margin-block-start: clamp(1.6rem, 5vh, 3rem);
+}
+
+.modeInner {
+  max-width: 62rem;
+  margin-inline: auto;
+  padding-inline: var(--yor-gut);
+  display: grid;
+  gap: 0.5rem;
+  justify-items: start;
+}
+
+.modeTitle {
+  margin: 0;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-style: italic;
+  font-weight: 500;
+  font-size: clamp(1.5rem, 5vw, 2.4rem);
+  line-height: 1.08;
+  color: var(--text-primary);
+}
+
+.modeNative {
+  margin: 0;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1.5rem;
+  line-height: 1.3;
+  color: color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.modeButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: var(--touch-min);
+  margin-block-start: 0.4rem;
+  padding: 0.55rem 1.15rem;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text-primary);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.07em;
+  cursor: pointer;
+  transition:
+    background var(--yor-quick) var(--yor-ease),
+    border-color var(--yor-quick) var(--yor-ease);
+}
+
+.modeButton:hover {
+  background: var(--surface-hover);
+  border-color: var(--accent);
+}
+
+/* İşaret: insan formunda dolu daire, kedi formunda ince halka.
+   Art-görüntü izi `box-shadow` katmanlarından ve daima SOLDA. */
+.modeMark {
+  inline-size: 0.85rem;
+  block-size: 0.85rem;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow:
+    -0.55rem 0 0 -0.1rem color-mix(in srgb, var(--accent) 45%, transparent),
+    -1rem 0 0 -0.22rem color-mix(in srgb, var(--accent) 22%, transparent);
+  transition: background var(--yor-quick) var(--yor-ease);
+}
+
+.modeButton[aria-pressed="true"] .modeMark {
+  background: transparent;
+  border: 2px solid var(--gold);
+  box-shadow:
+    -0.55rem 0 0 -0.1rem color-mix(in srgb, var(--gold) 40%, transparent),
+    -1rem 0 0 -0.22rem color-mix(in srgb, var(--gold) 18%, transparent);
+}
+
+.modeLabel {
+  white-space: nowrap;
+}
+
+.modeHint {
+  margin: 0.55rem 0 0;
+  max-width: 52ch;
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+}
+
+/* ── BANT ────────────────────────────────────────────────────────────── */
+.band,
+.closing {
+  border-block-start: 1px solid var(--yor-hair-soft);
+  padding-block: clamp(2.6rem, 8vh, 5rem);
+}
+
+.bandHead {
+  max-width: 62rem;
+  margin-inline: auto;
+  padding-inline: var(--yor-gut);
+}
+
+.bandTitle {
+  margin: 0;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-style: italic;
+  font-weight: 500;
+  font-size: clamp(1.7rem, 5.5vw, 3.1rem);
+  line-height: 1.06;
+  letter-spacing: -0.008em;
+  color: var(--accent);
+}
+
+.bandLede {
+  margin: 0.7rem 0 0;
+  max-width: 62ch;
+  color: var(--text-secondary);
+}
+
+.bandBody {
+  max-width: 62rem;
+  margin-inline: auto;
+  padding-inline: var(--yor-gut);
+  margin-block-start: clamp(1.2rem, 4vh, 2rem);
+  display: grid;
+  gap: clamp(1.1rem, 3.5vh, 2rem);
+}
+
+.bandNote {
+  margin: 0;
+  max-width: 62ch;
+  font-size: 0.84rem;
+  color: var(--yor-rail-text);
+}
+
+/* ══ 3 · KÜNYE ŞERİDİ — SAYFANIN MEKANİĞİ ═══════════════════════════════ */
+.ledgerList {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: var(--yor-card);
+  gap: 0.75rem;
+  inline-size: max-content;
+  margin: 0;
+  padding: 0;
+}
+
+.ledgerCell {
+  position: relative;
+  scroll-snap-align: start;
+  border: 1px solid var(--border);
+  border-block-start: 2px solid var(--accent-muted);
+  background: var(--surface);
+  padding: 0.85rem 0.9rem 1rem;
+  display: grid;
+  gap: 0.45rem;
+  align-content: start;
+}
+
+.ledgerCell > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Art-görüntü — hücrenin arkasında tek soluk kopya, hep solda */
+.ledgerCell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-0.55rem);
+  background: color-mix(in srgb, var(--yor-ghost) 34%, transparent);
+  z-index: 0;
+}
+
+.ledgerLabel {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--yor-rail-text);
+}
+
+.ledgerKanji {
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1.05rem;
+  line-height: 1.2;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--yor-ja-text);
+}
+
+/* İki yüz AYNI hücrede duruyor: form değişince satır yükseklik
+   zıplamıyor, yalnızca içerik çevriliyor. */
+.ledgerValue {
+  margin: 0;
+  display: grid;
+  min-block-size: 4.2rem;
+  /* Çevrilme bir DÖNÜŞ olsun diye: perspektif olmadan `rotateX` yalnızca
+     dikey bir ezilme gibi görünüyor. */
+  perspective: 42rem;
+}
+
+.ledgerFace {
+  grid-area: 1 / 1;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: var(--yor-ledger-text);
+  align-self: start;
+}
+
+.ledgerFace[data-face="cat"] {
+  color: var(--gold);
+}
+
+/* Görünmeyen yüz sekme sırasından ve ekran okuyucudan da çıkıyor:
+   `visibility: hidden` yalnız gizlemiyor, erişilebilirlik ağacından
+   da siliyor (`opacity: 0` bunu YAPMAZ). */
+.page[data-form="human"] .ledgerFace[data-face="cat"],
+.page[data-form="cat"] .ledgerFace[data-face="human"] {
+  visibility: hidden;
+}
+
+/* ── Satırların TEK TEK çevrilmesi ────────────────────────────────────
+   Animasyon yeni EŞLEŞEN bir seçiciden geliyor: form değiştiğinde kural
+   yeniden uygulanıyor ve bir kez oynuyor. Gecikme satır sırasından
+   (`--yor-row`) — yani şerit soldan sağa dalga hâlinde dönüyor. */
+.page[data-form="human"] .ledgerFace[data-face="human"],
+.page[data-form="cat"] .ledgerFace[data-face="cat"] {
+  animation: yorTurn var(--yor-step) var(--yor-ease) both;
+  animation-delay: calc(var(--yor-row, 0) * 42ms);
+  transform-origin: top center;
+}
+
+/* Ölçülemez hâle düşen satır: griye iniyor ve "—" gösteriyor.
+   Renk `opacity` ile DEĞİL kendi token'ıyla — soluklaştırmak
+   kontrastı düşürürdü, bu token ölçülüyor (4.5:1). */
+.page[data-form="cat"] .ledgerCell[data-state="void"] {
+  border-block-start-color: color-mix(in srgb, var(--yor-void-text) 34%, transparent);
+  background: color-mix(in srgb, var(--surface) 80%, var(--bg));
+}
+
+.page[data-form="cat"] .ledgerCell[data-state="void"] .ledgerLabel,
+.page[data-form="cat"] .ledgerCell[data-state="void"] .ledgerKanji {
+  color: var(--yor-void-text);
+}
+
+.ledgerDash {
+  display: block;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1.8rem;
+  line-height: 1.1;
+  color: var(--yor-void-text);
+}
+
+.ledgerVoidWord {
+  display: block;
+  margin-block-start: 0.15rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: var(--yor-void-text);
+}
+
+/* ══ 4 · GÜÇ LABORATUVARI + 6 · ÇİZELGE + BAĞLAR — ortak şerit ══════════ */
+.cardList {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: var(--yor-wide);
+  gap: clamp(0.9rem, 2.5vw, 1.6rem);
+  inline-size: max-content;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bigCard,
+.smallCard,
+.stop,
+.bond {
+  position: relative;
+  scroll-snap-align: start;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: clamp(1rem, 3vw, 1.5rem);
+  display: grid;
+  gap: 0.5rem;
+  align-content: start;
+}
+
+.bigCard > *,
+.smallCard > *,
+.stop > *,
+.bond > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Kartların art-görüntüsü: iki kopya, ikisi de kartın ARKASINDA */
+.bigCard::before,
+.stop::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-0.9rem);
+  border-inline-start: 1px solid color-mix(in srgb, var(--yor-ghost) 85%, transparent);
+  background: color-mix(in srgb, var(--yor-ghost) 22%, transparent);
+  z-index: 0;
+}
+
+.smallCard {
+  background: color-mix(in srgb, var(--surface) 78%, var(--bg));
+}
+
+.cardIndex {
+  margin: 0;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+}
+
+.cardName {
+  margin: 0;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: clamp(1.9rem, 6vw, 2.7rem);
+  line-height: 1.14;
+  letter-spacing: 0.06em;
+  color: var(--text-primary);
+}
+
+.kitName {
+  margin: 0;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  line-height: 1.16;
+  letter-spacing: 0.05em;
+  color: var(--text-primary);
+}
+
+.cardReading {
+  margin: 0;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.74rem;
+  letter-spacing: 0.1em;
+  color: var(--yor-ja-text);
+}
+
+.cardTurkish,
+.kitTurkish {
+  margin: 0;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-style: italic;
+  font-size: 1.12rem;
+  line-height: 1.34;
+  color: var(--accent-hover);
+}
+
+.cardTagline {
+  margin: 0.2rem 0 0;
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+}
+
+.cardText {
+  margin: 0.3rem 0 0;
+  font-size: 0.88rem;
+  line-height: 1.74;
+  color: var(--text-primary);
+}
+
+.cardTraits {
+  margin: 0.4rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.3rem;
+}
+
+.trait {
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.71rem;
+  line-height: 1.6;
+  color: var(--yor-rail-text);
+  padding-inline-start: 0.85rem;
+  position: relative;
+}
+
+.trait::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block-start: 0.62em;
+  inline-size: 0.45rem;
+  block-size: 1px;
+  background: var(--accent);
+}
+
+/* 瞬歩 kartının izi ve kapanış ayıracı — aynı elle çizilmiş SVG */
+.trail,
+.rule {
+  display: block;
+  margin-block: 0.5rem;
+  inline-size: min(100%, 13rem);
+  color: var(--accent);
+}
+
+.trailArt {
+  inline-size: 100%;
+  block-size: auto;
+  stroke-width: 2;
+}
+
+.trailGhost {
+  stroke: color-mix(in srgb, var(--accent) 32%, transparent);
+}
+
+.trailBody {
+  stroke: var(--accent);
+}
+
+/* ══ 5 · İKİ BEDEN — interaktif künye ══════════════════════════════════ */
+.dual {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.dualHint {
+  margin: 0;
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+}
+
+/* Bu şeridin her öğesi odaklanabilir bir düğme, o yüzden kabın kendisine
+   `tabindex` verilmedi: tarayıcı odaklanan düğmeyi zaten görünür alana
+   kaydırıyor ve fazladan bir sekme durağı gürültü olurdu. */
+.dualRail {
+  margin-block-start: 0;
+  padding-inline: 0;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(9.5rem, 12rem);
+  gap: 0.5rem;
+  background: none;
+}
+
+.dualPick {
+  scroll-snap-align: start;
+  min-height: var(--touch-min);
+  display: grid;
+  gap: 0.2rem;
+  justify-items: start;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-primary);
+  text-align: start;
+  cursor: pointer;
+  transition:
+    background var(--yor-quick) var(--yor-ease),
+    border-color var(--yor-quick) var(--yor-ease);
+}
+
+.dualPick:hover {
+  background: var(--surface-hover);
+}
+
+.dualPick[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--surface-hover);
+  box-shadow: -0.4rem 0 0 -0.05rem color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.dualPickKanji {
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1.15rem;
+  line-height: 1.2;
+  color: var(--yor-ja-text);
+}
+
+.dualPickLabel {
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.dualPickBadge {
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--yor-rail-text);
+}
+
+.dualPick[data-state="void"] .dualPickBadge {
+  color: var(--yor-void-text);
+}
+
+.dualPick[data-state="turned"] .dualPickBadge {
+  color: var(--gold);
+}
+
+.dualPanel {
+  border: 1px solid var(--border-strong);
+  background: color-mix(in srgb, var(--surface) 86%, var(--bg));
+  padding: clamp(0.9rem, 3vw, 1.4rem);
+  display: grid;
+  gap: 0.8rem;
+}
+
+.dualPanel[data-state="void"] {
+  border-color: color-mix(in srgb, var(--yor-void-text) 40%, transparent);
+}
+
+.dualPanelHead {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.dualPanelTag {
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--yor-rail-text);
+}
+
+.dualPanelKanji {
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1.5rem;
+  line-height: 1.2;
+  color: var(--yor-ja-text);
+}
+
+.dualPanelLabel {
+  font-family: var(--font-petrona), Georgia, serif;
+  font-style: italic;
+  font-size: clamp(1.2rem, 4vw, 1.7rem);
+  line-height: 1.2;
+  color: var(--accent-hover);
+}
+
+.dualPair {
+  display: grid;
+  gap: 0.7rem;
+}
+
+/* Dar ekranda alt alta, 40rem üstünde yan yana: iki gövdenin okuması
+   AYNI ANDA görünsün — bölümün tezi karşılaştırmanın kendisi. */
+@media (min-width: 40rem) {
+  .dualPair {
+    grid-template-columns: 1fr 1fr;
+    gap: 1.4rem;
+  }
+}
+
+.dualSide {
+  border-inline-start: 2px solid var(--border-strong);
+  padding-inline-start: 0.8rem;
+}
+
+.dualSide[data-side="cat"] {
+  border-inline-start-color: color-mix(in srgb, var(--gold) 55%, transparent);
+}
+
+.dualSideHead {
+  margin: 0 0 0.25rem;
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--yor-rail-text);
+}
+
+.dualSideKanji {
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1.05rem;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--yor-ja-text);
+}
+
+.dualSideValue {
+  margin: 0;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.84rem;
+  line-height: 1.65;
+  color: var(--yor-ledger-text);
+}
+
+.dualSide[data-side="cat"] .dualSideValue {
+  color: var(--gold);
+}
+
+.dualSideVoid {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+
+.dualDash {
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 1.8rem;
+  line-height: 1;
+  color: var(--yor-void-text);
+}
+
+.dualVoidWord {
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.78rem;
+  color: var(--yor-void-text);
+}
+
+.dualReason,
+.dualNote {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+.dualReason {
+  color: var(--yor-void-text);
+}
+
+.dualFieldTag {
+  display: block;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.64rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-block-end: 0.15rem;
+}
+
+.dualTally {
+  margin: 0;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.72rem;
+  line-height: 1.65;
+  color: var(--yor-rail-text);
+}
+
+/* ══ 6 · KADER ÇİZELGESİ ═══════════════════════════════════════════════ */
+.stopIndex {
+  margin: 0;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+}
+
+.stopStamp {
+  margin: 0;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--yor-rail-text);
+}
+
+.stopTitle {
+  margin: 0.15rem 0 0;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-style: italic;
+  font-weight: 500;
+  font-size: clamp(1.3rem, 4.2vw, 1.9rem);
+  line-height: 1.14;
+  color: var(--text-primary);
+}
+
+.stopText {
+  margin: 0.3rem 0 0;
+  font-size: 0.88rem;
+  line-height: 1.74;
+  color: var(--text-primary);
+}
+
+/* KAYIT bloğu — replik DEĞİL: doğrulanmış terim, kaynağıyla. */
+.record {
+  margin: 0.5rem 0 0;
+  padding-inline-start: 0.9rem;
+  border-inline-start: 2px solid var(--accent-muted);
+}
+
+.recordText {
+  margin: 0;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: clamp(1.5rem, 5vw, 2.1rem);
+  line-height: 1.24;
+  letter-spacing: 0.08em;
+  color: var(--gold);
+}
+
+.recordReading {
+  margin: 0.2rem 0 0;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.74rem;
+  color: var(--yor-ja-text);
+}
+
+.recordBy {
+  margin: 0.25rem 0 0;
+  font-size: 0.74rem;
+  color: var(--yor-rail-text);
+}
+
+.stopKin {
+  margin: 0.5rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.45rem;
+  font-size: 0.8rem;
+}
+
+.stopKinLink {
+  color: var(--accent-hover);
+  min-height: var(--touch-min);
+  display: inline-flex;
+  align-items: center;
+}
+
+.stopKinName {
+  color: var(--text-primary);
+}
+
+.stopKinRole {
+  color: var(--yor-rail-text);
+}
+
+/* ══ 7a · BAĞLAR ═══════════════════════════════════════════════════════ */
+.bondFace {
+  margin: 0 0 0.5rem;
+  inline-size: 4.5rem;
+  border: 1px solid var(--border-strong);
+  overflow: hidden;
+}
+
+.bondFaceImg {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+}
+
+.bondName,
+.bondNamePlain {
+  font-family: var(--font-petrona), Georgia, serif;
+  font-style: italic;
+  font-size: clamp(1.2rem, 4vw, 1.6rem);
+  line-height: 1.16;
+}
+
+.bondName {
+  color: var(--accent-hover);
+  min-height: var(--touch-min);
+  display: inline-flex;
+  align-items: center;
+}
+
+.bondNamePlain {
+  color: var(--text-primary);
+}
+
+.bondNative {
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  color: var(--yor-ja-text);
+}
+
+.bondRole {
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.bondLine {
+  margin: 0.3rem 0 0;
+  font-size: 0.86rem;
+  line-height: 1.72;
+  color: var(--text-secondary);
+}
+
+.bondFlag {
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  color: var(--yor-rail-text);
+}
+
+/* ══ 7b · EVREN BAĞLANTILARI ═══════════════════════════════════════════ */
+.linkList {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(13rem, 17rem);
+  gap: 0.75rem;
+  inline-size: max-content;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.worldItem {
+  scroll-snap-align: start;
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.85rem 0.9rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.worldLink {
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  color: var(--accent-hover);
+  min-height: var(--touch-min);
+  display: inline-flex;
+  align-items: center;
+}
+
+.worldNote {
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: var(--yor-rail-text);
+}
+
+/* ══ 7c · KAPANIŞ ══════════════════════════════════════════════════════ */
+.closingLines {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: clamp(1.1rem, 3.5vh, 1.9rem);
+}
+
+.closingLine {
+  margin: 0;
+  border-inline-start: 2px solid var(--accent-muted);
+  padding-inline-start: clamp(0.9rem, 3vw, 1.4rem);
+}
+
+.closingJa {
+  margin: 0;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: clamp(2rem, 7vw, 3.4rem);
+  line-height: 1.16;
+  letter-spacing: 0.1em;
+  color: var(--text-primary);
+}
+
+.closingReading {
+  margin: 0.2rem 0 0;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  color: var(--yor-ja-text);
+}
+
+.closingNote {
+  margin: 0.45rem 0 0;
+  max-width: 58ch;
+  font-size: 0.86rem;
+  line-height: 1.72;
+  color: var(--text-secondary);
+}
+
+.closingBy {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  color: var(--yor-rail-text);
+}
+
+.discipline {
+  margin: 0;
+  max-width: 62ch;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 70%, var(--bg));
+  font-size: 0.84rem;
+  line-height: 1.72;
+  color: var(--yor-rail-text);
+}
+
+.motto {
+  margin: 0;
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: clamp(2.4rem, 10vw, 4.6rem);
+  line-height: 1.1;
+  letter-spacing: 0.14em;
+  color: var(--gold);
+}
+
+.mottoReading {
+  margin: 0.1rem 0 0;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  color: var(--yor-ja-text);
+}
+
+.mottoNote {
+  margin: 0.4rem 0 0;
+  max-width: 58ch;
+  font-size: 0.86rem;
+  line-height: 1.72;
+  color: var(--text-secondary);
+}
+
+.credit {
+  margin: 0;
+  max-width: 62ch;
+  font-size: 0.8rem;
+  line-height: 1.7;
+  color: var(--yor-rail-text);
+}
+
+.credit a {
+  color: var(--accent-hover);
+}
+
+.creditNote {
+  margin: 0;
+  max-width: 62ch;
+  font-size: 0.78rem;
+  line-height: 1.7;
+  color: var(--yor-rail-text);
+}
+
+/* ══ HAREKET — art-görüntü (空蝉) ═══════════════════════════════════════
+   Üç keyframe, üçü de bir kullanıcı eylemine bağlı ve bir kez oynuyor.
+   Sayfada sürekli koşan animasyon YOK. */
+@keyframes yorTurn {
+  0% {
+    opacity: 0;
+    transform: translateX(-1.1rem) rotateX(52deg);
+  }
+  38% {
+    opacity: 1;
+    transform: translateX(0.22rem) rotateX(-9deg);
+  }
+  72% {
+    opacity: 1;
+    transform: translateX(-0.08rem) rotateX(3deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) rotateX(0deg);
+  }
+}
+
+@keyframes yorStep {
+  0% {
+    opacity: 0;
+    transform: translateX(-1.6rem);
+  }
+  45% {
+    opacity: 1;
+    transform: translateX(0.3rem);
+  }
+  78% {
+    transform: translateX(-0.1rem);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes yorTrail {
+  0% {
+    opacity: 0.68;
+    transform: translateX(-2rem) scaleX(1.05);
+  }
+  40% {
+    opacity: 0.34;
+    transform: translateX(-1.3rem) scaleX(1.02);
+  }
+  75% {
+    opacity: 0.16;
+    transform: translateX(-1rem) scaleX(1);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-0.85rem) scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Giren hero kadrajı: gövde bir adımda geliyor, izi arkasında sönüyor.
+     `display: none → block` geçişi kuralı yeniden uyguluyor, yani
+     animasyon form her değiştiğinde bir kez oynuyor. */
+  .page[data-form="human"] .heroCard[data-card="human"],
+  .page[data-form="cat"] .heroCard[data-card="cat"] {
+    animation: yorStep var(--yor-step) var(--yor-ease) both;
+  }
+
+  .page[data-form="human"] .heroCard[data-card="human"]::before,
+  .page[data-form="cat"] .heroCard[data-card="cat"]::before {
+    animation: yorTrail calc(var(--yor-step) + 120ms) var(--yor-ease) both;
+  }
+}
+
+/* ── REDUCE BATTANİYESİ ──────────────────────────────────────────────────
+   Hareketi kapatıyor ama BİLGİYİ kapatmıyor: satırlar yine çevriliyor,
+   yalnızca dönüşün kendisi anlık oluyor. */
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

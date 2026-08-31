@@ -3,17 +3,15 @@ import {
   experienceMetadata,
   loadExperiencePage,
 } from "@/lib/characters/experience-page";
-import { ReliquaryExperience } from "@/components/character/suguru-getou/ReliquaryExperience";
+import { DesgarronExperience } from "@/components/character/grimmjow-jaegerjaquez/DesgarronExperience";
 
 /**
- * Suguru Getou — AniList #133699 (Jujutsu Kaisen).
+ * Grimmjow Jaegerjaquez — AniList #1080 (Bleach).
  *
  * Elle tasarlanmış deneyim sayfası. Kendi statik rota klasöründe, çünkü App
  * Router bir rotanın stil dosyalarını modül grafiğinden topluyor (ölçüm ve
  * gerekçe: lib/characters/experience-page.tsx). Statik parça dinamik
  * parçadan önce eşleştiği için adres değişmedi.
- * 30 Ağustos 2026'da bileşen seti YENİDEN yazıldı (Faz 2, Dalga 5).
- * Eski set silinmedi: components/character/.deprecated/suguru-getou/ altında duruyor.
  */
 
 export const dynamic = "force-dynamic";
@@ -24,12 +22,12 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  return experienceMetadata(locale, 133699);
+  return experienceMetadata(locale, 1080);
 }
 
 export default async function Page() {
-  const { detail, isAdmin, companions } = await loadExperiencePage(133699);
+  const { detail, isAdmin, companions } = await loadExperiencePage(1080);
   return (
-    <ReliquaryExperience detail={detail} isAdmin={isAdmin} companions={companions} />
+    <DesgarronExperience detail={detail} isAdmin={isAdmin} companions={companions} />
   );
 }

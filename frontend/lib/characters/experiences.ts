@@ -140,6 +140,28 @@ export const EXPERIENCE_IDS = {
   arminArlert: 46494,
   levi: 45627,
   eikichiOnizuka: 434,
+
+  /* ── Dalga 3 · Bleach ──
+     Bu altısı Bleach'in Gotei 13 / Quincy / Espada üçgenini kapatıyor;
+     Ichigo, Urahara, Aizen ve Kenpachi zaten yayındaydı.
+
+     ⚠️ Numaralar KÜÇÜK ve bu doğru: Rukia #6 ve Uryū #564 AniList'in ilk
+     kayıtlarından. Küçük numarayı "bozuk kayıt" sanıp yeniden aramaya
+     çıkma — altısı da `Character(id:)` ile tek tek doğrulandı ve
+     altısının da medya listesinde Bleach var. Çekimin kopyası her
+     karakterin `public/assets/anime/karakterler/<slug>/kaynak.json`
+     dosyasında duruyor.
+
+     Yoruichi'nin klan adı AniList'te uzun ünlü işareti olmadan yazılı
+     ("Shihouin") ve klasör adı o yazımı izliyor (Gojou/Getou emsali —
+     ad ayrışması değil, romanizasyon tercihi). `roster.ts` satırında
+     doğru yazım kullanılıyor: Shihōin. Aynısı Uryū için de geçerli. ── */
+  rukiaKuchiki: 6,
+  uryuuIshida: 564,
+  renjiAbarai: 906,
+  yoruichiShihouin: 908,
+  grimmjowJaegerjaquez: 1080,
+  ulquiorraCifer: 1081,
 } as const;
 
 /**
@@ -291,6 +313,29 @@ export const EXPERIENCE_COMPANIONS: Record<number, number[]> = {
   // Onizuka: GTO kadrosunda arşivde yalnız — künye adla çizilir
   [EXPERIENCE_IDS.eikichiOnizuka]: [434],
 
+  /* ── Dalga 3 · Bleach (31 Ağustos 2026) ──
+     ⚠️ Dalga 1'in dördüncü dersi burada uygulandı: bir sayfa kimi
+     ÇİZİYORSA o numara bu satırda olmak zorunda. Armin'de tam tersi
+     olmuştu — sayfa Levi'yi çiziyordu, satırda yoktu ve portresi
+     girildiğinde bile kadraj sonsuza kadar boş kalacaktı. Aşağıdaki
+     altı satır, altı sayfanın "bağlar" bölümlerindeki adlarla
+     karşılaştırılarak yazıldı.
+
+     Byakuya (#907) altı satırın dördünde geçiyor ve arşiv dizininde
+     portresi YOK — bilinçli: kayıt sonradan girildiğinde kendiliğinden
+     yerine oturur, o güne kadar bölüm adla çiziliyor. */
+  // Rukia: kılıcını verdiği çocuk, çocukluk arkadaşı, ağabeyi, kaptanı
+  [EXPERIENCE_IDS.rukiaKuchiki]: [5, 906, 907, 210, 1086, 908],
+  // Renji: Rukia, aşmaya çalıştığı kaptanı, ölçüt aldığı rakibi
+  [EXPERIENCE_IDS.renjiAbarai]: [6, 907, 5, 1086, 909],
+  // Uryū: babası, arkadaşları, karşısındaki Espada
+  [EXPERIENCE_IDS.uryuuIshida]: [5, 7, 575, 1083, 1081],
+  // Ulquiorra: tutsağı, rakibi, hemşerisi, efendisi
+  [EXPERIENCE_IDS.ulquiorraCifer]: [7, 5, 1080, 1086],
+  // Grimmjow: takıntısı, dördüncü Espada, efendisi, benzeri
+  [EXPERIENCE_IDS.grimmjowJaegerjaquez]: [5, 1081, 1086, 909],
+  // Yoruichi: ortağı, öğrencisi, halefi, hain
+  [EXPERIENCE_IDS.yoruichiShihouin]: [210, 5, 905, 1086, 6],
 };
 
 const EXPERIENCE_ID_SET: ReadonlySet<number> = new Set<number>(

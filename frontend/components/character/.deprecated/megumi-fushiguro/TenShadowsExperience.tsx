@@ -11,48 +11,49 @@ import {
   type CharacterExperienceProps,
 } from "@/lib/characters/experiences";
 import {
-  NOBARA_ALT,
-  NOBARA_ARTS,
-  NOBARA_ASSERT_TEXT,
-  NOBARA_BENCH_UI,
-  NOBARA_CLOSING,
-  NOBARA_CRUMB,
-  NOBARA_DETAILS,
-  NOBARA_HERO,
-  NOBARA_ID,
-  NOBARA_IDENTITY,
-  NOBARA_IMAGE_KEYS,
-  NOBARA_MISSING_NOTE,
-  NOBARA_POINTS,
-  NOBARA_SECTIONS,
-  NOBARA_SITE_URL,
-  NOBARA_SLOT_LABELS,
-  NOBARA_TIMELINE,
-} from "@/lib/characters/nobara-kugisaki-experience";
+  MEGUMI_ALT,
+  MEGUMI_ARTS,
+  MEGUMI_CLOSING,
+  MEGUMI_CRUMB,
+  MEGUMI_DETAILS,
+  MEGUMI_DUSK_TEXT,
+  MEGUMI_HERO,
+  MEGUMI_ID,
+  MEGUMI_IDENTITY,
+  MEGUMI_IMAGE_KEYS,
+  MEGUMI_MISSING_NOTE,
+  MEGUMI_SECTIONS,
+  MEGUMI_SHADOW_UI,
+  MEGUMI_SHADOWS,
+  MEGUMI_SITE_URL,
+  MEGUMI_SLOT_LABELS,
+  MEGUMI_TIMELINE,
+} from "./data";
 import { CuratorFrame } from "@/components/character/CuratorFrame";
 import { CuratorSlot } from "@/components/character/CuratorSlot";
-import { AssertShell } from "./AssertShell";
-import { ResonanceBench } from "./ResonanceBench";
-import styles from "./ResonanceExperience.module.css";
+import { DuskShell } from "./DuskShell";
+import { ShadowLine } from "./ShadowLine";
+import styles from "./TenShadowsExperience.module.css";
 
 /**
- * Nobara Kugisaki — "Rezonans" deneyim sayfası.
+ * Megumi Fushiguro — "Gölge Çizgisi" deneyim sayfası.
  *
- * /dark-stories/category/anime/karakterler/133700 bu bileşene çıkıyor
- * (kendi statik rota klasörü). Sayfanın fikri tek cümle: SEBEP BURADA,
- * SONUÇ ORADA. Sayfanın kalbi iki panolu bir tezgâh — soldakine vuruyorsun,
- * sağdakinde çıkıyor, ve aralarında bir bağ yoksa hiçbir şey olmuyor.
+ * /dark-stories/category/anime/karakterler/126635 bu bileşene çıkıyor
+ * (kendi statik rota klasörü). Sayfanın fikri tek cümle: HER ŞEY AYNI
+ * ÇİZGİDEN KALKAR. Sayfanın üstünden altına kadar tek bir zemin çizgisi
+ * geçiyor; on gölge onun altında yatıyor ve seçilen doğruluyor. Biri
+ * kırıldığı için bir daha doğrulmuyor — sayfanın taşıdığı asıl cümle bu.
  *
  * Sayfa SUNUCUDA çizilir. İki istemci adası var:
- *   AssertShell    — sayfanın sesini yükselten mod (tek boolean, etkisi CSS)
- *   ResonanceBench — rezonans tezgâhı (sayfanın kalbi)
+ *   DuskShell  — ışığı alçaltan mod (tek boolean, etkinin tamamı CSS)
+ *   ShadowLine — on gölgenin çizgisi (sayfanın kalbi)
  * Metinler burada `pick` ile seçilip adalara düz dize olarak iner.
  *
- * Görseller: characterId 133700 kaydının ABILITY yuvaları (`nob:*`).
- * ⚠️ 25 Ağustos 2026'da bu kayıtta HİÇ görsel yok; tezgâhın tamamı elle
- * çizilmiş SVG olduğu için sayfanın kalbi görselden bağımsız.
+ * Görseller: characterId 126635 kaydının ABILITY yuvaları (`meg:*`).
+ * ⚠️ 25 Ağustos 2026'da bu kayıtta HİÇ görsel yok; on siluet elle çizilmiş
+ * SVG olduğu için sayfanın kalbi görselden tamamen bağımsız.
  */
-export function ResonanceExperience({
+export function TenShadowsExperience({
   detail,
   isAdmin,
   companions,
@@ -66,28 +67,41 @@ export function ResonanceExperience({
 
   const portrait = primaryPortrait(detail);
   const portraitUploaded = isUploadedPortrait(detail);
-  const heroScene = src(NOBARA_IMAGE_KEYS.hero);
-  const closingArt = src(NOBARA_IMAGE_KEYS.closing);
+  const heroScene = src(MEGUMI_IMAGE_KEYS.hero);
+  const closingArt = src(MEGUMI_IMAGE_KEYS.closing);
 
-  const name = detail.character.name || NOBARA_IDENTITY.name;
-  const nativeName = detail.character.nameNative ?? NOBARA_IDENTITY.nativeName;
-  const siteUrl = detail.character.siteUrl ?? NOBARA_SITE_URL;
-  const companionSuffix = pick(NOBARA_ALT.companionSuffix, locale);
+  const name = detail.character.name || MEGUMI_IDENTITY.name;
+  const nativeName = detail.character.nameNative ?? MEGUMI_IDENTITY.nativeName;
+  const siteUrl = detail.character.siteUrl ?? MEGUMI_SITE_URL;
+  const companionSuffix = pick(MEGUMI_ALT.companionSuffix, locale);
 
-  const points = NOBARA_POINTS.map((point) => ({
-    key: point.key,
-    x: point.x,
-    y: point.y,
-    name: pick(point.name, locale),
+  const stateLabel = {
+    tamed: pick(MEGUMI_SHADOW_UI.stateTamed, locale),
+    broken: pick(MEGUMI_SHADOW_UI.stateBroken, locale),
+    untamed: pick(MEGUMI_SHADOW_UI.stateUntamed, locale),
+  };
+
+  const shadows = MEGUMI_SHADOWS.map((shadow) => ({
+    key: shadow.key,
+    kanji: shadow.kanji,
+    name: shadow.name,
+    reading: shadow.reading,
+    turkish: pick(shadow.turkish, locale),
+    figure: shadow.figure,
+    state: shadow.state,
+    stateLabel: stateLabel[shadow.state],
+    role: pick(shadow.role, locale),
+    text: pick(shadow.text, locale),
+    ritualWarning: shadow.ritualWarning
+      ? pick(shadow.ritualWarning, locale)
+      : null,
   }));
 
   return (
-    <AssertShell
-      enterLabel={pick(NOBARA_ASSERT_TEXT.enter, locale)}
-      exitLabel={pick(NOBARA_ASSERT_TEXT.exit, locale)}
-      hint={pick(NOBARA_ASSERT_TEXT.hint, locale)}
-      banner={NOBARA_ASSERT_TEXT.banner}
-      bannerNote={pick(NOBARA_ASSERT_TEXT.bannerNote, locale)}
+    <DuskShell
+      enterLabel={pick(MEGUMI_DUSK_TEXT.enter, locale)}
+      exitLabel={pick(MEGUMI_DUSK_TEXT.exit, locale)}
+      hint={pick(MEGUMI_DUSK_TEXT.hint, locale)}
     >
       <CuratorFrame isAdmin={isAdmin}>
         <nav className={styles.crumb} aria-label="breadcrumb">
@@ -96,12 +110,14 @@ export function ResonanceExperience({
             ·
           </span>
           <span className={styles.crumbHere}>
-            {pick(NOBARA_CRUMB.series, locale)}
+            {pick(MEGUMI_CRUMB.series, locale)}
           </span>
         </nav>
 
-        {/* ══ 1 · HERO ═══════════════════════════════════════════════════ */}
-        <section className={styles.hero} aria-labelledby="nob-name">
+        {/* ══ 1 · HERO ═══════════════════════════════════════════════════
+            Portrenin altından sayfanın tamamına inen tek çizgi burada
+            başlıyor: hero'nun alt kenarı zemin çizgisinin kendisi. */}
+        <section className={styles.hero} aria-labelledby="meg-name">
           {heroScene ? (
             <span className={styles.heroScene} aria-hidden>
               <Image src={heroScene} alt="" fill priority sizes="1920px" />
@@ -110,23 +126,23 @@ export function ResonanceExperience({
           ) : null}
 
           <p className={styles.heroMark} aria-hidden>
-            {NOBARA_IDENTITY.watermark}
+            {MEGUMI_IDENTITY.watermark}
           </p>
 
           <div className={styles.heroBody}>
             <p className={styles.heroHouse}>
-              {pick(NOBARA_IDENTITY.house, locale)}
+              {pick(MEGUMI_IDENTITY.house, locale)}
             </p>
-            <h1 id="nob-name" className={styles.heroName}>
+            <h1 id="meg-name" className={styles.heroName}>
               {name}
             </h1>
             <p className={styles.heroNative} aria-hidden>
               {nativeName}
             </p>
             <p className={styles.heroEpigraph}>
-              {pick(NOBARA_IDENTITY.epigraph, locale)}
+              {pick(MEGUMI_IDENTITY.epigraph, locale)}
             </p>
-            <p className={styles.heroLede}>{pick(NOBARA_HERO.lede, locale)}</p>
+            <p className={styles.heroLede}>{pick(MEGUMI_HERO.lede, locale)}</p>
           </div>
 
           <div className={styles.heroAside}>
@@ -136,8 +152,8 @@ export function ResonanceExperience({
                   src={portrait}
                   alt={pick(
                     portraitUploaded
-                      ? NOBARA_HERO.portraitAlt
-                      : NOBARA_HERO.portraitAltFallback,
+                      ? MEGUMI_HERO.portraitAlt
+                      : MEGUMI_HERO.portraitAltFallback,
                     locale,
                   )}
                   fill
@@ -146,59 +162,61 @@ export function ResonanceExperience({
                   unoptimized={!portraitUploaded}
                 />
               ) : null}
-              {/* Portrenin kenarına çakılmış çivi sırası — dekoratif */}
-              <span className={styles.heroNails} aria-hidden />
+              {/* Portrenin dibinden yana yayılan gölge — mod açıkken uzuyor */}
+              <span className={styles.heroCast} aria-hidden />
             </span>
-            <p className={styles.heroToolCaption}>
-              {pick(NOBARA_HERO.toolCaption, locale)}
+            <p className={styles.heroGroundCaption}>
+              {pick(MEGUMI_HERO.groundCaption, locale)}
             </p>
           </div>
+
+          <span className={styles.heroGround} aria-hidden />
 
           {isAdmin ? (
             <div className={styles.slotRow}>
               <CuratorSlot
-                characterId={NOBARA_ID}
+                characterId={MEGUMI_ID}
                 slot="ABILITY"
-                abilityName={NOBARA_IMAGE_KEYS.hero}
-                label={pick(NOBARA_SLOT_LABELS[NOBARA_IMAGE_KEYS.hero], locale)}
+                abilityName={MEGUMI_IMAGE_KEYS.hero}
+                label={pick(MEGUMI_SLOT_LABELS[MEGUMI_IMAGE_KEYS.hero], locale)}
               />
             </div>
           ) : null}
         </section>
 
         {/* ══ 2 · KÜNYE ══════════════════════════════════════════════════ */}
-        <section className={styles.section} aria-labelledby="nob-identity">
+        <section className={styles.section} aria-labelledby="meg-identity">
           <header className={styles.sectionHead}>
-            <h2 id="nob-identity" className={styles.sectionTitle}>
-              {pick(NOBARA_SECTIONS.identity.title, locale)}
+            <h2 id="meg-identity" className={styles.sectionTitle}>
+              {pick(MEGUMI_SECTIONS.identity.title, locale)}
             </h2>
             <p className={styles.sectionLede}>
-              {pick(NOBARA_SECTIONS.identity.lede, locale)}
+              {pick(MEGUMI_SECTIONS.identity.lede, locale)}
             </p>
           </header>
           <dl className={styles.facts}>
-            {NOBARA_IDENTITY.facts.map((fact) => (
+            {MEGUMI_IDENTITY.facts.map((fact) => (
               <div key={fact.label.tr} className={styles.fact}>
                 <dt>{pick(fact.label, locale)}</dt>
                 <dd>{pick(fact.value, locale)}</dd>
               </div>
             ))}
           </dl>
-          <p className={styles.factNote}>{pick(NOBARA_MISSING_NOTE, locale)}</p>
+          <p className={styles.factNote}>{pick(MEGUMI_MISSING_NOTE, locale)}</p>
         </section>
 
         {/* ══ 3 · ÜÇ SÜTUN ═══════════════════════════════════════════════ */}
-        <section className={styles.section} aria-labelledby="nob-arts">
+        <section className={styles.section} aria-labelledby="meg-arts">
           <header className={styles.sectionHead}>
-            <h2 id="nob-arts" className={styles.sectionTitle}>
-              {pick(NOBARA_SECTIONS.arts.title, locale)}
+            <h2 id="meg-arts" className={styles.sectionTitle}>
+              {pick(MEGUMI_SECTIONS.arts.title, locale)}
             </h2>
             <p className={styles.sectionLede}>
-              {pick(NOBARA_SECTIONS.arts.lede, locale)}
+              {pick(MEGUMI_SECTIONS.arts.lede, locale)}
             </p>
           </header>
           <ul className={styles.arts}>
-            {NOBARA_ARTS.map((art) => {
+            {MEGUMI_ARTS.map((art) => {
               const scene = src(art.imageKey);
               return (
                 <li key={art.key} className={styles.art}>
@@ -234,10 +252,10 @@ export function ResonanceExperience({
                   </span>
                   {isAdmin ? (
                     <CuratorSlot
-                      characterId={NOBARA_ID}
+                      characterId={MEGUMI_ID}
                       slot="ABILITY"
                       abilityName={art.imageKey}
-                      label={pick(NOBARA_SLOT_LABELS[art.imageKey], locale)}
+                      label={pick(MEGUMI_SLOT_LABELS[art.imageKey], locale)}
                     />
                   ) : null}
                 </li>
@@ -247,17 +265,17 @@ export function ResonanceExperience({
         </section>
 
         {/* ══ 4 · DÖRT AYRINTI ═══════════════════════════════════════════ */}
-        <section className={styles.section} aria-labelledby="nob-details">
+        <section className={styles.section} aria-labelledby="meg-details">
           <header className={styles.sectionHead}>
-            <h2 id="nob-details" className={styles.sectionTitle}>
-              {pick(NOBARA_SECTIONS.tools.title, locale)}
+            <h2 id="meg-details" className={styles.sectionTitle}>
+              {pick(MEGUMI_SECTIONS.tools.title, locale)}
             </h2>
             <p className={styles.sectionLede}>
-              {pick(NOBARA_SECTIONS.tools.lede, locale)}
+              {pick(MEGUMI_SECTIONS.tools.lede, locale)}
             </p>
           </header>
           <ul className={styles.notes}>
-            {NOBARA_DETAILS.map((item) => {
+            {MEGUMI_DETAILS.map((item) => {
               const scene = src(item.imageKey);
               return (
                 <li key={item.key} className={styles.note}>
@@ -277,10 +295,10 @@ export function ResonanceExperience({
                   </span>
                   {isAdmin ? (
                     <CuratorSlot
-                      characterId={NOBARA_ID}
+                      characterId={MEGUMI_ID}
                       slot="ABILITY"
                       abilityName={item.imageKey}
-                      label={pick(NOBARA_SLOT_LABELS[item.imageKey], locale)}
+                      label={pick(MEGUMI_SLOT_LABELS[item.imageKey], locale)}
                     />
                   ) : null}
                 </li>
@@ -289,68 +307,46 @@ export function ResonanceExperience({
           </ul>
         </section>
 
-        {/* ══ 5 · REZONANS TEZGÂHI — SAYFANIN KALBİ ══════════════════════ */}
-        <section className={styles.benchSection} aria-labelledby="nob-bench">
+        {/* ══ 5 · ON GÖLGE — SAYFANIN KALBİ ══════════════════════════════ */}
+        <section className={styles.shadowSection} aria-labelledby="meg-shadows">
           <header className={styles.sectionHead}>
-            <h2 id="nob-bench" className={styles.sectionTitle}>
-              {pick(NOBARA_SECTIONS.bench.title, locale)}
+            <h2 id="meg-shadows" className={styles.sectionTitle}>
+              {pick(MEGUMI_SECTIONS.shadows.title, locale)}
             </h2>
             <p className={styles.sectionLede}>
-              {pick(NOBARA_SECTIONS.bench.lede, locale)}
+              {pick(MEGUMI_SECTIONS.shadows.lede, locale)}
             </p>
           </header>
 
-          <ResonanceBench
-            points={points}
-            dollLabel={pick(NOBARA_BENCH_UI.dollLabel, locale)}
-            targetLabel={pick(NOBARA_BENCH_UI.targetLabel, locale)}
-            dollKanji={NOBARA_BENCH_UI.dollKanji}
-            targetKanji={NOBARA_BENCH_UI.targetKanji}
-            strikeVerb={pick(NOBARA_BENCH_UI.strikeVerb, locale)}
-            pullVerb={pick(NOBARA_BENCH_UI.pullVerb, locale)}
-            linkButton={pick(NOBARA_BENCH_UI.linkButton, locale)}
-            linkedTag={pick(NOBARA_BENCH_UI.linkedTag, locale)}
-            unlinkedTag={pick(NOBARA_BENCH_UI.unlinkedTag, locale)}
-            hairpinButton={pick(NOBARA_BENCH_UI.hairpinButton, locale)}
-            hairpinNote={pick(NOBARA_BENCH_UI.hairpinNote, locale)}
-            resetButton={pick(NOBARA_BENCH_UI.resetButton, locale)}
-            nailsLabel={pick(NOBARA_BENCH_UI.nailsLabel, locale)}
-            statusIdle={pick(NOBARA_BENCH_UI.statusIdle, locale)}
-            statusUnlinked={pick(NOBARA_BENCH_UI.statusUnlinked, locale)}
-            statusLinked={pick(NOBARA_BENCH_UI.statusLinked, locale)}
-            statusStruck={pick(NOBARA_BENCH_UI.statusStruck, locale)}
-            statusPulled={pick(NOBARA_BENCH_UI.statusPulled, locale)}
-            statusHairpin={pick(NOBARA_BENCH_UI.statusHairpin, locale)}
-            keyboardHint={pick(NOBARA_BENCH_UI.keyboardHint, locale)}
+          <ShadowLine
+            shadows={shadows}
+            listLabel={pick(MEGUMI_SHADOW_UI.listLabel, locale)}
+            stageLabel={pick(MEGUMI_SHADOW_UI.stageLabel, locale)}
+            ritualButton={pick(MEGUMI_SHADOW_UI.ritualButton, locale)}
+            ritualWord={MEGUMI_SHADOW_UI.ritualWord}
+            ritualWordNote={pick(MEGUMI_SHADOW_UI.ritualWordNote, locale)}
+            countLabel={pick(MEGUMI_SHADOW_UI.countLabel, locale)}
+            countBrokenLabel={pick(MEGUMI_SHADOW_UI.countBrokenLabel, locale)}
+            statusRisen={pick(MEGUMI_SHADOW_UI.statusRisen, locale)}
+            statusBroken={pick(MEGUMI_SHADOW_UI.statusBroken, locale)}
+            statusUntamed={pick(MEGUMI_SHADOW_UI.statusUntamed, locale)}
+            statusRitual={pick(MEGUMI_SHADOW_UI.statusRitual, locale)}
+            keyboardHint={pick(MEGUMI_SHADOW_UI.keyboardHint, locale)}
           />
-
-          {isAdmin ? (
-            <div className={styles.slotRow}>
-              <CuratorSlot
-                characterId={NOBARA_ID}
-                slot="ABILITY"
-                abilityName={NOBARA_IMAGE_KEYS.smallPiece}
-                label={pick(
-                  NOBARA_SLOT_LABELS[NOBARA_IMAGE_KEYS.smallPiece],
-                  locale,
-                )}
-              />
-            </div>
-          ) : null}
         </section>
 
         {/* ══ 6 · BEŞ DURAK ══════════════════════════════════════════════ */}
-        <section className={styles.section} aria-labelledby="nob-fate">
+        <section className={styles.section} aria-labelledby="meg-fate">
           <header className={styles.sectionHead}>
-            <h2 id="nob-fate" className={styles.sectionTitle}>
-              {pick(NOBARA_SECTIONS.fate.title, locale)}
+            <h2 id="meg-fate" className={styles.sectionTitle}>
+              {pick(MEGUMI_SECTIONS.fate.title, locale)}
             </h2>
             <p className={styles.sectionLede}>
-              {pick(NOBARA_SECTIONS.fate.lede, locale)}
+              {pick(MEGUMI_SECTIONS.fate.lede, locale)}
             </p>
           </header>
           <ol className={styles.fate}>
-            {NOBARA_TIMELINE.map((entry) => {
+            {MEGUMI_TIMELINE.map((entry) => {
               const scene = src(entry.imageKey);
               const face = entry.kin
                 ? (faces.get(entry.kin.characterId) ?? null)
@@ -399,10 +395,10 @@ export function ResonanceExperience({
                   </span>
                   {isAdmin ? (
                     <CuratorSlot
-                      characterId={NOBARA_ID}
+                      characterId={MEGUMI_ID}
                       slot="ABILITY"
                       abilityName={entry.imageKey}
-                      label={pick(NOBARA_SLOT_LABELS[entry.imageKey], locale)}
+                      label={pick(MEGUMI_SLOT_LABELS[entry.imageKey], locale)}
                     />
                   ) : null}
                 </li>
@@ -412,23 +408,23 @@ export function ResonanceExperience({
         </section>
 
         {/* ══ 7 · KAPANIŞ ════════════════════════════════════════════════ */}
-        <section className={styles.closing} aria-labelledby="nob-closing">
+        <section className={styles.closing} aria-labelledby="meg-closing">
           {closingArt ? (
             <span className={styles.closingArt} aria-hidden>
               <Image src={closingArt} alt="" fill sizes="1440px" />
             </span>
           ) : null}
           <header className={styles.sectionHead}>
-            <h2 id="nob-closing" className={styles.sectionTitle}>
-              {pick(NOBARA_SECTIONS.closing.title, locale)}
+            <h2 id="meg-closing" className={styles.sectionTitle}>
+              {pick(MEGUMI_SECTIONS.closing.title, locale)}
             </h2>
             <p className={styles.sectionLede}>
-              {pick(NOBARA_SECTIONS.closing.lede, locale)}
+              {pick(MEGUMI_SECTIONS.closing.lede, locale)}
             </p>
           </header>
 
           <ul className={styles.closingQuotes}>
-            {NOBARA_CLOSING.quotes.map((quote) => (
+            {MEGUMI_CLOSING.quotes.map((quote) => (
               <li key={quote.text.tr}>
                 <figure className={styles.closingQuote}>
                   <blockquote className={styles.quoteJa} lang="ja">
@@ -451,27 +447,27 @@ export function ResonanceExperience({
           </ul>
 
           <p className={styles.motto} aria-hidden>
-            {NOBARA_CLOSING.motto}
+            {MEGUMI_CLOSING.motto}
           </p>
           <p className={styles.mottoNote}>
-            {pick(NOBARA_CLOSING.mottoNote, locale)}
+            {pick(MEGUMI_CLOSING.mottoNote, locale)}
           </p>
 
           <p className={styles.credit}>
-            {pick(NOBARA_CLOSING.credit, locale)}{" "}
+            {pick(MEGUMI_CLOSING.credit, locale)}{" "}
             <a href={siteUrl} target="_blank" rel="noreferrer noopener">
-              {pick(NOBARA_CLOSING.creditLink, locale)}
+              {pick(MEGUMI_CLOSING.creditLink, locale)}
             </a>
           </p>
 
           {isAdmin ? (
             <div className={styles.slotRow}>
               <CuratorSlot
-                characterId={NOBARA_ID}
+                characterId={MEGUMI_ID}
                 slot="ABILITY"
-                abilityName={NOBARA_IMAGE_KEYS.closing}
+                abilityName={MEGUMI_IMAGE_KEYS.closing}
                 label={pick(
-                  NOBARA_SLOT_LABELS[NOBARA_IMAGE_KEYS.closing],
+                  MEGUMI_SLOT_LABELS[MEGUMI_IMAGE_KEYS.closing],
                   locale,
                 )}
               />
@@ -479,6 +475,6 @@ export function ResonanceExperience({
           ) : null}
         </section>
       </CuratorFrame>
-    </AssertShell>
+    </DuskShell>
   );
 }

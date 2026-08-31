@@ -1,4 +1,4 @@
-import type { MegumiFigure } from "@/lib/characters/megumi-fushiguro-experience";
+import type { MegumiFigure } from "./data";
 
 /**
  * Megumi Fushiguro sayfasının elle çizilmiş SVG siluetleri.

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { MegumiFigure, MegumiShadowState } from "@/lib/characters/megumi-fushiguro-experience";
+import type { MegumiFigure, MegumiShadowState } from "./data";
 import { BreakMark, ShikigamiSilhouette } from "./ShadowFigures";
 import styles from "./TenShadowsExperience.module.css";
 

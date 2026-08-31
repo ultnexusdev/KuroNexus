@@ -327,10 +327,27 @@ etiket" kabul değil.
 | Minato | Hiraishin işaretleriyle **anlık** gezinme |
 | Kushina | gerilen ve kopan chakra zinciri halkaları |
 | Gojō | iki boş yuva; sonucu miktar değil ZITLIK belirliyor (蒼+赫→茈) |
-| Megumi | ortak zemin çizgisi; seçim üç ayrı cevap veriyor, biri kategorik red |
-| Nobara | iki pano: solda vuruyorsun, sağda oluyor; arada bağ yoksa hiçbir şey olmuyor |
-| Nanami | tahmin → ölç → kes; hedef değişse de nokta hep %70'te |
-| Getō | tek yönlü hazne: al, biriktir, bir kere boşalt (geri alma yok) |
+| Eren | ufuk bandı; duvarın ötesi |
+| Mikasa | dikey atkı çizgisi |
+| Armin | iki kolon; iki cevap |
+| Levi | kapasite tezgâhı — elde en fazla ÜÇ şey |
+| Onizuka | VHS scrubber, sürüklenebilir zaman şeridi |
+| Rukia | üç dans; her biri KALICI kar katmanı, üçü kontrastı tersine çeviriyor |
+| Renji | uzayan eklem zinciri — uzayan şey sayfanın DÜZENİ, yön değiştiriyor |
+| Uryū | nişangâh: beş hedef, kilitlenme + büyütme + ölçüm okumaları |
+| Ulquiorra | ortadaki delik bir sayaç; cevap biriktikçe küçülüyor, sonunda sayfayı yutuyor |
+| Grimmjow | beş pençe; her biri sayfayı `clip-path` ile YIRTIYOR, yırtıklar birikimli |
+| Yoruichi | iki beden tek künye — bazı satırlar kedi formunda ÖLÇÜLEMEZ hâle geliyor |
+| Megumi | paylaşılan gölge havuzu — sekiz çağrı havuzdan fazla, biri geri gönderilmeden Mahoraga açılmıyor |
+| Nobara | tek düzlemde altı çivi, ÜÇÜNÜ seç; yanlış üçlü de kendi cevabını veriyor |
+| Nanami | mesai saati: zamanı İLERLEME harcıyor, sürüklenemiyor, geri alınamıyor |
+| Getō | ihanet çizelgesi: her adımda kal/git; iki sonuç da yazılı ve ikisi de gerçek |
+
+⚠️ Yukarıdaki son dört satır **yeni** mekaniklerdir (31 Ağustos 2026, Dalga 5
+kimlik ameliyatı). Faz 1'in şu dördü **emekli** ve `.deprecated/` altında —
+tekrar etme, ama "kullanılmış" saymaya da devam et:
+Megumi *ortak zemin çizgisi* · Nobara *iki pano* · Nanami *tahmin→ölç→kes,
+hep %70* · Getō *tek yönlü hazne*.
 
 ---
 
@@ -342,34 +359,42 @@ Yeni palet bu tablodakilere yakın düşmemeli; önek benzersiz olmalı.
 
 | Dünya | Önek | `--bg` | `--accent` |
 |---|---|---|---|
+| `armin-arlert` | `arm` | `#0b0d0f` | `#7cc0d5` |
 | `choji-akimichi` | `cho` | `#0b0805` | `#e2a13c` |
+| `eikichi-onizuka` | `onz` | `#12110f` | `#ccb333` |
+| `eren-yeager` | `ern` | `#0e0b09` | `#b13e2f` |
 | `gaara` | `gaa` | `#0b0907` | `#cf6a3f` |
+| `grimmjow-jaegerjaquez` | `grm` | `#090c0e` | `#3fa0d5` |
 | `hinata-hyuuga` | `hnt` | `#07060c` | `#ab9ae2` |
 | `ichigo-kurosaki` | `ich` | `#08080a` | `#e04a48` |
 | `ino-yamanaka` | `ino` | `#0a060c` | `#cf5ba8` |
 | `iruka-umino` | `iru` | `#0b0908` | `#c98a2e` |
-| `itachi` | `ita` | `#060407` | `#c8202f` |
+| `itachi` | `ita` | `#060407` | `#c8202f` |  ← paleti `globals.css`te
 | `jiraiya` | `jir` | `#0a0806` | `#d1553c` |
 | `kabuto-yakushi` | `kab` | `#07070c` | `#7f8fe0` |
 | `kakashi-hatake` | `kks` | `#070a0c` | `#5aa9d0` |
 | `kankuro` | `kan` | `#08060a` | `#7a4fc4` |
 | `kenpachi-zaraki` | `knp` | `#090707` | `#cd3f36` |
-| `kento-nanami` | `nan` | `#08090b` | `#b39a5c` |
+| `kento-nanami` | `nan` | `#090b10` | `#cfbb6e` |
 | `kiba-inuzuka` | `kib` | `#0a0908` | `#c04358` |
 | `kisuke-urahara` | `urh` | `#0b0906` | `#c9503a` |
 | `konan` | `knn` | `#07080c` | `#adb8d4` |
 | `konohamaru-sarutobi` | `knh` | `#06090c` | `#58bf5f` |
 | `kushina-uzumaki` | `kus` | `#0a0607` | `#e0495f` |
+| `levi` | `lvi` | `#0c0d0d` | `#989ea4` |
 | `madara-uchiha` | `mad` | `#08080b` | `#5f6bb8` |
-| `megumi-fushiguro` | `meg` | `#070809` | `#8fa6bf` |
+| `megumi-fushiguro` | `meg` | `#08090c` | `#7275c5` |
+| `mikasa-ackerman` | `mks` | `#0b0b0c` | `#bc5c66` |
 | `minato-namikaze` | `min` | `#05070d` | `#f5c84f` |
 | `nagato` | `nag` | `#070809` | `#8a7fc4` |
 | `naruto-uzumaki` | `nrt` | `#06090f` | `#f2801f` |
 | `neji-hyuga` | `nej` | `#06070a` | `#86c2b0` |
-| `nobara-kugisaki` | `nob` | `#0c0806` | `#cf7a52` |
+| `nobara-kugisaki` | `nob` | `#0f0c0b` | `#dc89b7` |
 | `obito-uchiha` | `obi` | `#08060a` | `#9b5fd8` |
 | `orochimaru` | `oro` | `#060806` | `#8fbf46` |
+| `renji-abarai` | `ren` | `#0d0b0a` | `#db3624` |
 | `rock-lee` | `lee` | `#0a0806` | `#e88a37` |
+| `rukia-kuchiki` | `ruk` | `#0b0c0e` | `#c2c7d1` |
 | `sai` | `sai` | `#0a0a09` | `#ded6c4` |
 | `sakura-haruno` | `skr` | `#0a070a` | `#4cbc88` |
 | `sasuke-uchiha` | `sas` | `#07060b` | `#8a68e4` |
@@ -377,22 +402,38 @@ Yeni palet bu tablodakilere yakın düşmemeli; önek benzersiz olmalı.
 | `shikamaru-nara` | `shk` | `#08090a` | `#d0a04a` |
 | `shino-aburame` | `shi` | `#070806` | `#bf9a35` |
 | `sousuke-aizen` | `azn` | `#06070c` | `#9c86e2` |
-| `suguru-getou` | `get` | `#080a08` | `#83ab7d` |
+| `suguru-getou` | `get` | `#0c0a0d` | `#a46bc2` |
 | `sukuna-itadori` | `vsl` | `#0a0708` | `#e2645f` |
 | `temari` | `tem` | `#06080a` | `#5fb0a8` |
 | `tenten` | `ten` | `#090809` | `#d13f63` |
 | `tsunade` | `tsu` | `#070a08` | `#3fae9a` |
+| `ulquiorra-cifer` | `ulq` | `#0b0b0b` | `#4acf97` |
+| `uryuu-ishida` | `ury` | `#0a0b0f` | `#4a5fb5` |
 | `yamato` | `yam` | `#060907` | `#4f9c6a` |
+| `yoruichi-shihouin` | `yor` | `#0e0b0f` | `#a74ab5` |
 
 Sıkışmış aile: **turuncu/kehribar** (naruto, rocklee, iruka, choji,
 shikamaru, shino, gaara) ve **kızıl** (itachi, ichigo, kenpachi, urahara,
 jiraiya, kiba, tenten, kushina, vessel). Yeni sayfa bu ikisinden çıkabiliyorsa
 çıksın.
 
-25 Ağustos'taki JJK turu dört boş aileden üçünü kapattı: **bakır/bronz**
-(nobara), **soğuk gri-mavi** (megumi) ve **mat pirinç** (nanami); gojo buz
-mavisini, getō kirli yosunu aldı. Geriye kalan boşluklar: **koyu zeytin**,
-**menekşe-lacivert**, **kül/nötr gri** ve doygunluğu düşük **toprak tonları**.
+⚠️ **31 Ağustos 2026'da dört palet DEĞİŞTİ.** Dalga 5'in kimlik ameliyatı
+Megumi'yi soğuk gri-maviden **menekşe-laciverte** (`#7275c5`), Nobara'yı
+bakır/bronzdan **sıcak pembeye** (`#dc89b7`), Nanami'yi mat pirinçten
+**altın-kum**a (`#cfbb6e`), Getō'yu kirli yosundan **menekşeye** (`#a46bc2`)
+taşıdı. Eski dördü `.deprecated/` altında ve denetime GİRMİYOR — bu bilinçli:
+aynı `data-world` için iki palet bloğu olsaydı kontrast betiği ikisini de
+ölçer ve aralarındaki uzaklık 0 çıktığı için "accent COK YAKIN" hatası verirdi.
+
+Dalga 3 (Bleach) altı yeni aile açtı: **buz beyazı/nötr açık gri** (rukia),
+**kızıl-kiremit** (renji), **gece mavisi** (uryū), **asit yeşili** (ulquiorra),
+**elektrik mavisi** (grimmjow), **mor** (yoruichi).
+
+Sıkışan aileler artık: turuncu/kehribar, kızıl, **mor/menekşe** (yoruichi,
+getō, megumi, obito, kankurō, sasuke, aizen, nagato, hinata) ve **yeşil**
+(ulquiorra, sakura, tsunade, konohamaru, orochimaru, yamato, neji, temari).
+Geriye kalan gerçek boşluklar: **koyu zeytin**, **kül/nötr gri** ve doygunluğu
+düşük **toprak tonları**.
 
 ---
 

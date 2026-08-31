@@ -114,6 +114,21 @@ export const EXPERIENCE_ROSTER: RosterEntry[] = [
   { characterId: EXPERIENCE_IDS.arminArlert, name: "Armin Arlert", nameNative: "アルミン・アルレルト", ...AOT },
   { characterId: EXPERIENCE_IDS.levi, name: "Levi Ackerman", nameNative: "リヴァイ", ...AOT },
   { characterId: EXPERIENCE_IDS.eikichiOnizuka, name: "Eikichi Onizuka", nameNative: "鬼塚英吉", ...GTO },
+
+  /* ── Dördüncü tur, Dalga 3 · Bleach (31 Ağustos 2026) ──
+     Aynı kaynak (kaynak.json), aynı ilke. Üç bilinçli sapma daha:
+       Uryū    → AniList "Uryuu Ishida" yazıyor; uzun ünlü işareti
+                 arşivin yazım tercihi (Gojō/Getō emsali).
+       Yoruichi→ AniList "Shihouin"; doğrusu Shihōin.
+       Ulquiorra→ yukarıda anılan sapma burada uygulanıyor: AniList'in
+                 yerel yazımı "ウルキオラ・シファ", uzun ünlü işareti
+                 düşmüş; doğrusu "ウルキオラ・シファー". */
+  { characterId: EXPERIENCE_IDS.rukiaKuchiki, name: "Rukia Kuchiki", nameNative: "朽木ルキア", ...BLEACH },
+  { characterId: EXPERIENCE_IDS.renjiAbarai, name: "Renji Abarai", nameNative: "阿散井恋次", ...BLEACH },
+  { characterId: EXPERIENCE_IDS.uryuuIshida, name: "Uryū Ishida", nameNative: "石田雨竜", ...BLEACH },
+  { characterId: EXPERIENCE_IDS.ulquiorraCifer, name: "Ulquiorra Cifer", nameNative: "ウルキオラ・シファー", ...BLEACH },
+  { characterId: EXPERIENCE_IDS.grimmjowJaegerjaquez, name: "Grimmjow Jaegerjaquez", nameNative: "グリムジョー・ジャガージャック", ...BLEACH },
+  { characterId: EXPERIENCE_IDS.yoruichiShihouin, name: "Yoruichi Shihōin", nameNative: "四楓院夜一", ...BLEACH },
 ];
 
 /** Rozet ve süzgeç için: elle tasarlanmış sayfası olan numaralar. */

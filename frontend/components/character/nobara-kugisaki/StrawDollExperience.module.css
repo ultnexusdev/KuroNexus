@@ -1,0 +1,2123 @@
+/* ============================================================
+   DÜNYA DERİSİ — Nobara Kugisaki (AniList #133700)
+
+   Palet dalga briefinde (DALGA5 §26) KİLİTLİ; değerler oradan birebir
+   alındı ve `node scripts/check-karakter-kontrast.mjs` ile ölçüldü.
+
+   ⚠️ ESKİ NOBARA PALETİ ARTIK BURADA DEĞİL. Faz 1 setinin accent'i
+   bakır (#cf7a52) idi ve o dosya `.deprecated/` altında duruyor. Bu
+   sayfa briefin YENİ paletini kullanıyor: accent SICAK PEMBE (#dc89b7),
+   zemin ise soğumuş bir kahve-siyah. İkisi arasındaki gerilim sayfanın
+   bütün rengi — arşivin sıkışmış turuncu/kızıl ailelerinden de,
+   Ino'nun (#cf5ba8) daha mor pembesinden de uzakta.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı
+   gereği bir yerel sınıf şart. Kök öğe ikisini birlikte taşır.
+
+   ⚠️ Yardımcı token adlandırması: küçük metinde kullanılan her rengin
+   `-text` ekli bir kardeşi var (denetim yalnızca onları ölçüyor).
+   Ekli olmayanlar MALZEME: samanın lifi, çivinin metali, plakanın
+   gövdesi — hepsi koyu olmak zorunda.
+   ============================================================ */
+.page[data-world="nobara-kugisaki"] {
+  --bg:             #0f0c0b;
+  --surface:        #181513;
+  --surface-hover:  #201b19;
+  --border:         #282220;
+  --border-strong:  #38312e;
+
+  --text-primary:   #d1cac7;
+  --text-secondary: #9c877c;
+  --text-muted:     #9c7f70;
+
+  --accent:         #dc89b7;
+  --accent-hover:   #e0aec9;
+  --accent-muted:   #76425e;
+
+  --gold:           #b87e51;
+  --warn:           #b88347;
+  --danger:         #c2665b;
+
+  /* ── Malzeme — yalnızca bu ağaç okur, metin taşımaz ── */
+  --nob-paper:      #0f0c0b;
+  --nob-plate:      #181513;
+  --nob-plate2:     #201b19;
+  --nob-ink:        #0a0807;
+  --nob-straw:      #6d5334;
+  --nob-nail:       #6f645c;
+  --nob-thread:     #8d4a6e;
+  --nob-wash:       #241820;
+  --nob-rule:       #3a302d;
+
+  /* ── Küçük metinde okunan aile (`-text`, ölçülüyor) ── */
+  --nob-label-text: #b09a8e;
+  --nob-ja-text:    #c7a4b4;
+  --nob-hit-text:   #e2a9c6;
+  --nob-miss-text:  #a89189;
+  --nob-nail-text:  #cbb2a6;
+  --nob-folio-text: #9f8b95;
+}
+
+/* ============================================================
+   REZONANS DERİSİ — mod açıkken.
+
+   ⚠️ BU BLOK HEX MUAFİYETİNİN DIŞINDA. `check-karakter-hex.mjs` yalnızca
+   `.page[data-world="…"] {` ile BAŞLAYAN bloğu çıkarıyor; araya bir
+   `[data-resonance]` girdiği anda blok normal gövde sayılıyor. Bu yüzden
+   buradaki her değer `color-mix(in srgb, var(--accent) …%, var(--nob-…))`
+   — girdisi token olduğu için tema ile birlikte kayıyor.
+
+   ⚠️ METİN YÜZEYLERİ NEREDEYSE HİÇ DEĞİŞMİYOR ve bu ölçülmüş bir sınır:
+   `--surface`i accent'e %5'ten fazla kaydırmak `--text-muted`ı 4.5:1'in
+   altına düşürüyor, `--surface-hover`ı kaydırmak ise zaten 4.61'de duran
+   oranı anında kırıyor. "Pembeye doyma" bu yüzden metin zeminlerinde
+   değil PLAKALARDA, ÇİZGİLERDE ve KENARLARDA yapılıyor.
+   ============================================================ */
+.page[data-world="nobara-kugisaki"][data-resonance="true"] {
+  --bg:             color-mix(in srgb, var(--accent) 9%, var(--nob-paper));
+  --surface:        color-mix(in srgb, var(--accent) 5%, var(--nob-plate));
+  --border:         color-mix(in srgb, var(--accent) 30%, var(--nob-plate));
+  --border-strong:  color-mix(in srgb, var(--accent) 46%, var(--nob-plate2));
+  --accent-muted:   color-mix(in srgb, var(--accent) 52%, var(--nob-plate2));
+
+  --nob-wash:       color-mix(in srgb, var(--accent) 26%, var(--nob-plate2));
+  --nob-rule:       color-mix(in srgb, var(--accent) 44%, var(--nob-plate2));
+  --nob-thread:     color-mix(in srgb, var(--accent) 74%, var(--nob-plate2));
+  --nob-straw:      color-mix(in srgb, var(--accent) 34%, var(--nob-straw));
+  --nob-nail:       color-mix(in srgb, var(--accent) 30%, var(--nob-nail));
+}
+
+/* ============================================================
+   NOBARA — "Saman Bebek"
+
+   ── SAYFANIN FİKRİ ──────────────────────────────────────────────────────
+   TOKYO MODA DERGİSİ. Kart yok, eşit sütun yok, kutu ızgarası yok.
+   Yerine: asimetrik on iki kolon, TAM KANAMA renk blokları, blokların
+   üstüne binen tipografi ve dev ALL CAPS Bebas başlıklar.
+
+   ⚠️ On yedi kadrajın HEPSİ boş. Dergi düzeni normalde görselle kanar;
+   burada kanamayı `.plate`ler yani RENK BLOKLARI taşıyor. Kadraj
+   dolduğunda blok görselin altına çekiliyor ve düzen değişmiyor —
+   sayfa görselli de görselsiz de aynı dergi.
+
+   ── ÖLÇÜ SİSTEMİ ────────────────────────────────────────────────────────
+   --nob-pad     kenar boşluğu; tam kanama bunun negatifiyle yapılıyor
+   --nob-gutter  on iki kolonun arası
+   --nob-step    bölümler arası dikey boşluk (dergi sayfa aralığı)
+   --nob-hair    tek ayırıcı: bir piksellik çizgi
+
+   Rezonans açıkken üçü de KÜÇÜLÜYOR — "dergi düzeni sıkışıyor" kilidi
+   birebir bu: sütunlar daralıyor, kenar boşlukları kapanıyor.
+
+   ── TİPOGRAFİ ───────────────────────────────────────────────────────────
+   Display: Bebas Neue — DEV ve GÜRÜLTÜLÜ. Kapak adı 11rem'e kadar
+   çıkıyor, bölüm başlıkları 3.4rem'e. ⚠️ Levi de Bebas kullanıyor ama
+   orada 1.15rem'i geçmiyor; aynı aile, zıt muamele.
+   Gövde: Petrona. ⚠️ Ev kuralı: 2rem üstünde ASLA wght < 700 ve
+   line-height >= 1.02 (Türkçe diyakritik kırpılmasın).
+   Etiket: IBM Plex Mono, tracked-out, küçük.
+   Japonca: Shippori Mincho.
+
+   ── BÜYÜK HARF ──────────────────────────────────────────────────────────
+   Hepsi `text-transform: uppercase` ile; kaynak metin normal yazımda,
+   yani ekran okuyucu "Künye" duyuyor, göz "KÜNYE" görüyor. `lang="tr"`
+   doğru olduğu için tarayıcı i→İ eşlemesini kendisi yapıyor.
+
+   ── RENK GÖREVLERİ ──────────────────────────────────────────────────────
+   --accent          bölüm numaraları, seçili çivi, bağlantılar
+   --accent-hover    dev başlıkların vurgusu, motto
+   --gold            künye değerleri
+   --nob-straw       YALNIZCA saman filigranının lifleri
+   --nob-nail        YALNIZCA çivi metali
+   --nob-thread      YALNIZCA çiviler arası bağ çizgisi
+   --nob-wash        plaka gövdesi
+   ============================================================ */
+
+.page {
+  --nob-pad: clamp(1.05rem, 5vw, 5.5rem);
+  --nob-gutter: clamp(0.85rem, 2.2vw, 2.2rem);
+  --nob-step: clamp(4.5rem, 11vw, 10rem);
+  --nob-hair: 1px;
+
+  position: relative;
+  padding-inline: var(--nob-pad);
+  padding-block: clamp(1.2rem, 3vw, 2.4rem) clamp(5rem, 12vw, 9rem);
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-petrona), Georgia, "Times New Roman", serif;
+  font-size: clamp(0.98rem, 0.94rem + 0.2vw, 1.08rem);
+  line-height: 1.72;
+  /* ⚠️ `clip`, `hidden` DEĞİL: hidden bir kaydırma kabı doğurur ve
+     yapışkan/sabit çocukları kırar. Dergi kanaması bunun sayesinde
+     360 pikselde de taşmıyor. */
+  overflow-x: clip;
+}
+
+.page[data-resonance="true"] {
+  --nob-pad: clamp(0.85rem, 2.6vw, 2.6rem);
+  --nob-gutter: clamp(0.5rem, 1vw, 0.9rem);
+  --nob-step: clamp(3rem, 7vw, 6rem);
+}
+
+/* ── Dergi ızgarası ───────────────────────────────────────────────────
+   Mobilde TEK kolon (taşma riski sıfır), 60rem'den sonra on iki kolon
+   ve asimetrik yerleşim. Her bölüm farklı sütunlarda oturuyor —
+   "editoryal serbestlik" kilidi burada. */
+.section,
+.nails,
+.closing {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--nob-gutter);
+  margin-block-start: var(--nob-step);
+}
+
+.section > *,
+.nails > *,
+.closing > * {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+/* ══ BREADCRUMB ═══════════════════════════════════════════════════════ */
+.crumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: var(--font-plexmono), var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--nob-label-text);
+}
+
+.crumbLink {
+  min-height: var(--touch-min);
+  display: inline-flex;
+  align-items: center;
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-block-end: var(--nob-hair) solid transparent;
+}
+
+.crumbLink:hover,
+.crumbLink:focus-visible {
+  border-block-end-color: var(--accent);
+}
+
+.crumbSep {
+  color: var(--nob-rule);
+}
+
+.crumbHere {
+  color: var(--text-secondary);
+}
+
+/* ══ 1 · KAPAK ════════════════════════════════════════════════════════
+   Üç katman üst üste:
+     z0 saman bebek filigranı (dev, soluk)
+     z1 renk plakası + boş kapak kadrajı
+     z2 masthead, dev ad, manken kartı
+   Mobilde katmanlar akışa dönüyor (üst üste binme kalkıyor), çünkü
+   360 pikselde bindirme okunmuyor. */
+.cover {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--nob-gutter);
+  margin-inline: calc(var(--nob-pad) * -1);
+  padding-inline: var(--nob-pad);
+  padding-block-start: clamp(1.2rem, 3vw, 2.6rem);
+  margin-block-start: clamp(1.4rem, 4vw, 3rem);
+  isolation: isolate;
+}
+
+.cover > * {
+  grid-column: 1 / -1;
+}
+
+.watermark {
+  position: absolute;
+  z-index: 0;
+  inset-block-start: 4%;
+  inset-inline-end: -14%;
+  inline-size: min(78%, 40rem);
+  pointer-events: none;
+}
+
+.watermarkArt {
+  inline-size: 100%;
+  block-size: auto;
+  opacity: 0.2;
+}
+
+.watermarkStraw {
+  stroke: var(--nob-straw);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}
+
+.watermarkBind {
+  stroke: var(--nob-rule);
+  stroke-width: 2.4;
+  fill: none;
+}
+
+.watermarkNail {
+  stroke: var(--accent-muted);
+  stroke-width: 2.6;
+  stroke-linecap: square;
+}
+
+/* Masthead — derginin künye şeridi. Mono, tracked-out, hairline altında. */
+.mast {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem 1.4rem;
+  padding-block-end: 0.7rem;
+  border-block-end: var(--nob-hair) solid var(--nob-rule);
+  font-family: var(--font-plexmono), var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.mastWord {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(1.1rem, 3vw, 1.7rem);
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-inline-end: auto;
+}
+
+.mastIssue {
+  color: var(--nob-folio-text);
+}
+
+.mastDate {
+  color: var(--nob-label-text);
+}
+
+/* Renk plakası — kanamanın kendisi. Kadraj boşken plaka görünür,
+   dolduğunda görselin altına çekiliyor. */
+.coverPlate {
+  position: relative;
+  z-index: 1;
+  margin-block-start: clamp(1.2rem, 3vw, 2.2rem);
+  background: linear-gradient(
+    160deg,
+    var(--nob-wash),
+    color-mix(in srgb, var(--nob-plate) 82%, transparent)
+  );
+  border: var(--nob-hair) solid var(--border);
+}
+
+.coverType {
+  position: relative;
+  z-index: 3;
+  margin-block-start: clamp(1rem, 2.4vw, 1.6rem);
+}
+
+.coverKicker {
+  font-family: var(--font-plexmono), var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--nob-label-text);
+}
+
+/* Sayfanın en büyük şeyi. Dergi kapağı ölçeği. */
+.coverName {
+  margin-block-start: 0.4rem;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(3.1rem, 15.5vw, 11rem);
+  font-weight: 400;
+  line-height: 0.88;
+  letter-spacing: -0.005em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  text-wrap: balance;
+  /* ⚠️ PERDE. Dergi düzeninde ad, kapak plakasının (ve küratör bir kare
+     yüklediyse GÖRSELİN) üstüne biniyor. Gölge nötr (r=g=b), yani hex
+     disiplininin dışında ve temayla kaymıyor. */
+  text-shadow: 0 3px 18px rgb(0 0 0 / 0.55);
+}
+
+.page[data-resonance="true"] .coverName {
+  letter-spacing: -0.03em;
+  color: var(--accent-hover);
+}
+
+.coverNative {
+  font-family: var(--font-shippori), serif;
+  font-size: clamp(1.15rem, 3.6vw, 2rem);
+  line-height: 1.4;
+  letter-spacing: 0.18em;
+  color: var(--nob-ja-text);
+}
+
+.coverStrap {
+  margin-block-start: 0.9rem;
+  max-inline-size: 34ch;
+  font-family: var(--font-plexmono), var(--font-mono);
+  font-size: 0.68rem;
+  line-height: 1.9;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+/* Sırt yazısı — derginin cilt kenarı. Dikey. */
+.coverSpine {
+  display: none;
+}
+
+.coverPortrait {
+  position: relative;
+  z-index: 3;
+  margin-block-start: clamp(1.2rem, 3vw, 2rem);
+  inline-size: min(58%, 13rem);
+  border: var(--nob-hair) solid var(--border-strong);
+  background: var(--surface);
+}
+
+.coverPortraitImg {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+}
+
+.coverText {
+  position: relative;
+  z-index: 3;
+  margin-block-start: clamp(1.4rem, 3.4vw, 2.4rem);
+}
+
+/* Dergi girişi — büyük harfle başlayan tek paragraf, drop cap ile. */
+.coverLede {
+  max-inline-size: 46ch;
+  font-size: clamp(1.02rem, 0.96rem + 0.34vw, 1.2rem);
+  line-height: 1.78;
+  color: var(--text-primary);
+}
+
+.coverLede::first-letter {
+  float: inline-start;
+  margin-inline-end: 0.35rem;
+  padding-block-start: 0.1em;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 3.4em;
+  line-height: 0.78;
+  color: var(--accent);
+}
+
+.coverNameNote,
+.coverEmptyNote {
+  margin-block-start: 1.1rem;
+  max-inline-size: 44ch;
+  font-family: var(--font-plexmono), var(--font-mono);
+  font-size: 0.7rem;
+  line-height: 2;
+  color: var(--nob-label-text);
+}
+
+.coverEmptyNote {
+  padding-inline-start: 0.9rem;
+  border-inline-start: 2px solid var(--accent-muted);
+  color: var(--nob-folio-text);
+}
+
+@media (min-width: 60rem) {
+  .cover {
+    min-block-size: 82vh;
+    align-content: start;
+    padding-block-end: clamp(2rem, 5vw, 5rem);
+  }
+
+  .mast {
+    grid-column: 1 / -1;
+  }
+
+  /* Plaka sağ yarıda, tipografi onun ÜSTÜNE biniyor (z-index katmanı). */
+  .coverPlate {
+    grid-column: 6 / -1;
+    grid-row: 2 / span 3;
+    margin-block-start: 0;
+  }
+
+  .coverType {
+    grid-column: 1 / 10;
+    grid-row: 2;
+    margin-block-start: clamp(2rem, 6vw, 5rem);
+  }
+
+  .coverPortrait {
+    grid-column: 1 / 4;
+    grid-row: 3;
+    inline-size: 100%;
+    margin-block-start: clamp(1.4rem, 4vw, 3rem);
+  }
+
+  .coverText {
+    grid-column: 4 / 8;
+    grid-row: 3;
+    margin-block-start: clamp(1.4rem, 4vw, 3rem);
+  }
+
+  .coverSpine {
+    display: block;
+    grid-column: 12 / -1;
+    grid-row: 2 / span 2;
+    justify-self: end;
+    writing-mode: vertical-rl;
+    font-family: var(--font-shippori), serif;
+    font-size: clamp(1.1rem, 1.6vw, 1.6rem);
+    letter-spacing: 0.42em;
+    color: var(--nob-ja-text);
+    opacity: 0.75;
+  }
+
+  .watermark {
+    inset-inline-end: -6%;
+    inline-size: 34rem;
+  }
+}
+
+/* ══ 2 · MOD DÜĞMESİ ══════════════════════════════════════════════════
+   Derginin "editörün notu" şeridi: tam kanama, tek satır, mono etiketli. */
+.mode {
+  position: relative;
+  margin-block-start: var(--nob-step);
+  margin-inline: calc(var(--nob-pad) * -1);
+  padding: clamp(1.4rem, 3.5vw, 2.6rem) var(--nob-pad);
+  background: var(--surface);
+  border-block: var(--nob-hair) solid var(--border);
+  display: grid;
+  gap: 0.5rem 1.6rem;
+  align-items: baseline;
+}
+
+.modeKicker {
+  font-family: var(--font-shippori), serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.4em;
+  color: var(--nob-ja-text);
+}
+
+.modeTitle {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(2.2rem, 8vw, 4.2rem);
+  font-weight: 400;
+  line-height: 0.94;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.modeNative {
+  display: none;
+}
+
+.modeButton {
+  justify-self: start;
+  min-height: var(--touch-min);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1.3rem;
+  background: transparent;
+  border: 2px solid var(--border-strong);
+  color: var(--text-primary);
+  font-family: var(--font-plexmono), var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.modeButton:hover {
+  border-color: var(--accent);
+}
+
+.modeButton:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 3px;
+}
+
+.modeButton[aria-pressed="true"] {
+  background: var(--accent-muted);
+  border-color: var(--accent);
+}
+
+.modeMark {
+  display: inline-flex;
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+}
+
+.modeMarkArt {
+  inline-size: 100%;
+  block-size: 100%;
+  transform-origin: 16px 34px;
+}
+
+.modeMarkHead {
+  fill: var(--nob-nail);
+  stroke: none;
+}
+
+.modeMarkHandle {
+  stroke: var(--nob-straw);
+  stroke-width: 3.2;
+  stroke-linecap: round;
+}
+
+.modeLabel {
+  white-space: nowrap;
+}
+
+.modeHint {
+  max-inline-size: 62ch;
+  font-size: 0.95rem;
+  line-height: 1.8;
+  color: var(--text-secondary);
+}
+
+@media (min-width: 60rem) {
+  .mode {
+    grid-template-columns: minmax(0, 22rem) minmax(0, 1fr);
+    grid-template-areas:
+      "kicker hint"
+      "title  hint"
+      "button hint";
+  }
+
+  .modeKicker {
+    grid-area: kicker;
+  }
+
+  .modeTitle {
+    grid-area: title;
+  }
+
+  .modeButton {
+    grid-area: button;
+  }
+
+  .modeHint {
+    grid-area: hint;
+    align-self: center;
+  }
+}
+
+/* ══ BÖLÜM BAŞLIĞI ════════════════════════════════════════════════════
+   Dergi bölüm açılışı: solda folio numarası, sağda dev başlık. */
+.head {
+  margin-block-end: clamp(1.6rem, 4vw, 3.2rem);
+  padding-block-end: 0.9rem;
+  border-block-end: 2px solid var(--nob-rule);
+}
+
+.headIndex {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(1.5rem, 4vw, 2.4rem);
+  line-height: 1;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+}
+
+.headTitle {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(2.4rem, 9vw, 5.4rem);
+  font-weight: 400;
+  line-height: 0.92;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.headLede {
+  margin-block-start: 0.8rem;
+  max-inline-size: 52ch;
+  color: var(--text-secondary);
+}
+
+@media (min-width: 60rem) {
+  .head {
+    display: grid;
+    grid-template-columns: 5rem minmax(0, 1fr);
+    column-gap: var(--nob-gutter);
+    align-items: end;
+  }
+
+  .headIndex {
+    grid-row: 1 / span 2;
+  }
+
+  .headLede {
+    grid-column: 2;
+  }
+}
+
+/* ══ 3 · KÜNYE (colophon) ═════════════════════════════════════════════ */
+.colophon {
+  position: relative;
+  display: grid;
+  gap: clamp(1rem, 3vw, 2.4rem);
+}
+
+/* Dev yaş rakamı — dergi sayfasında bir "pull number". */
+.colophonBig {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(6rem, 26vw, 15rem);
+  line-height: 0.76;
+  letter-spacing: -0.02em;
+  color: var(--nob-wash);
+}
+
+.facts {
+  display: grid;
+  gap: 0;
+}
+
+.fact {
+  display: grid;
+  grid-template-columns: minmax(7rem, 11rem) minmax(0, 1fr);
+  gap: 0.4rem 1rem;
+  padding-block: 0.72rem;
+  border-block-end: var(--nob-hair) solid var(--border);
+}
+
+.factLabel {
+  font-family: var(--font-plexmono), var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--nob-label-text);
+  align-self: center;
+}
+
+.factValue {
+  font-size: 1.02rem;
+  color: var(--gold);
+}
+
+.factNote {
+  margin-block-start: 1.4rem;
+  max-inline-size: 60ch;
+  font-family: var(--font-plexmono), var(--font-mono);
+  font-size: 0.72rem;
+  line-height: 2;
+  color: var(--nob-folio-text);
+}
+
+/* Dergi pull-quote'u — kenar boşluğuna taşan büyük satır. */
+.epigraph {
+  margin-block-start: clamp(2rem, 5vw, 4rem);
+  padding-inline-start: clamp(0.9rem, 2vw, 1.6rem);
+  border-inline-start: 4px solid var(--accent);
+  max-inline-size: 26ch;
+  font-size: clamp(1.35rem, 4.4vw, 2.6rem);
+  font-weight: 700;
+  line-height: 1.18;
+  color: var(--text-primary);
+}
+
+@media (min-width: 60rem) {
+  .colophon {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    align-items: start;
+  }
+
+  .colophonBig {
+    grid-column: 1;
+  }
+
+  .facts {
+    grid-column: 2;
+  }
+
+  .factNote {
+    grid-column: 5 / 11;
+  }
+
+  .epigraph {
+    grid-column: 2 / 9;
+  }
+}
+
+/* ══ 4a · ÜÇ BÜYÜK "FEATURE" ══════════════════════════════════════════
+   Kart DEĞİL: her biri kendi açılımını kaplayan bir dergi sayfası.
+   Tek numaralılar plaka solda, çiftler sağda. Gövde metni geniş ekranda
+   İKİ SÜTUNA akıyor — dergi kolonu. */
+.features {
+  display: grid;
+  gap: clamp(3.5rem, 9vw, 8rem);
+  list-style: none;
+}
+
+.feature {
+  position: relative;
+  display: grid;
+  gap: clamp(1rem, 2.6vw, 1.8rem);
+}
+
+.featureIndex {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(4rem, 17vw, 9rem);
+  line-height: 0.74;
+  letter-spacing: -0.02em;
+  color: var(--nob-wash);
+}
+
+.featurePlate {
+  position: relative;
+  background: linear-gradient(
+    200deg,
+    var(--nob-wash),
+    color-mix(in srgb, var(--nob-plate2) 70%, transparent)
+  );
+  border: var(--nob-hair) solid var(--border);
+}
+
+.featureType {
+  position: relative;
+  z-index: 2;
+}
+
+.featureKanji {
+  font-family: var(--font-shippori), serif;
+  font-size: clamp(2.2rem, 8vw, 4rem);
+  font-weight: 700;
+  line-height: 1.16;
+  letter-spacing: 0.1em;
+  color: var(--accent-hover);
+}
+
+.featureReading {
+  font-family: var(--font-shippori), serif;
+  font-size: 0.86rem;
+  letter-spacing: 0.24em;
+  color: var(--nob-ja-text);
+}
+
+.featureName {
+  margin-block-start: 0.7rem;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(1.3rem, 3.6vw, 2rem);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+/* ⚠️ İTALİK YOK. Petrona bu depoda değişken sürümüyle iniyor ve italik
+   dosyası HİÇ yüklenmiyor (kök layout notu) — `font-style: italic`
+   yazmak tarayıcıya sentetik eğim çizdirir. Yoruichi sayfası kimliğini
+   zaten Petrona italiğine kurmuş durumda; buradaki vurgu eğimle değil
+   RENK ve ARALIKLA yapılıyor. */
+.featureTag {
+  margin-block-start: 0.3rem;
+  max-inline-size: 40ch;
+  font-size: clamp(1.05rem, 2.6vw, 1.35rem);
+  letter-spacing: 0.01em;
+  color: var(--gold);
+}
+
+.featureText {
+  margin-block-start: 1.2rem;
+  color: var(--text-primary);
+}
+
+.traits {
+  margin-block-start: 1.2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.4rem;
+  list-style: none;
+  font-family: var(--font-plexmono), var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.trait {
+  color: var(--nob-label-text);
+  padding-block-end: 0.3rem;
+  border-block-end: var(--nob-hair) solid var(--accent-muted);
+}
+
+@media (min-width: 60rem) {
+  .feature {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--nob-gutter);
+    align-items: start;
+  }
+
+  .feature[data-side="left"] .featurePlate {
+    grid-column: 1 / 7;
+    grid-row: 1 / span 2;
+  }
+
+  .feature[data-side="left"] .featureIndex {
+    grid-column: 5 / 8;
+    grid-row: 1;
+    z-index: 2;
+  }
+
+  .feature[data-side="left"] .featureType {
+    grid-column: 7 / -1;
+    grid-row: 2;
+  }
+
+  .feature[data-side="right"] .featurePlate {
+    grid-column: 7 / -1;
+    grid-row: 1 / span 2;
+  }
+
+  .feature[data-side="right"] .featureIndex {
+    grid-column: 5 / 8;
+    grid-row: 1;
+    z-index: 2;
+    justify-self: end;
+  }
+
+  .feature[data-side="right"] .featureType {
+    grid-column: 1 / 7;
+    grid-row: 2;
+  }
+
+  /* Tipografi plakanın ÜSTÜNE biniyor — dergi açılımının imzası. Dev
+     kanji sütun sınırını aşıp renk bloğunun içine giriyor; gölge
+     nötr (r=g=b), yani tema ile kaymayan bir perde. */
+  .feature[data-side="left"] .featureKanji {
+    margin-inline-start: -20%;
+    text-shadow: 0 2px 14px rgb(0 0 0 / 0.6);
+  }
+
+  .feature[data-side="right"] .featureKanji {
+    margin-inline-end: -20%;
+    text-align: end;
+    text-shadow: 0 2px 14px rgb(0 0 0 / 0.6);
+  }
+
+  .featureText {
+    columns: 2;
+    column-gap: clamp(1.4rem, 2.6vw, 2.4rem);
+    column-rule: var(--nob-hair) solid var(--border);
+  }
+}
+
+/* ══ 4b · DÖRT KÜÇÜK KAYIT ════════════════════════════════════════════
+   Derginin kenar sütunu: her kayıt bir öncekinden biraz daha içeri
+   giriyor (merdiven). Kutu yok, yalnızca saç çizgisi. */
+.kit {
+  display: grid;
+  gap: clamp(1.6rem, 4vw, 3rem);
+  list-style: none;
+}
+
+.kitItem {
+  padding-block-start: 1.2rem;
+  border-block-start: var(--nob-hair) solid var(--border);
+}
+
+.kitKanji {
+  font-family: var(--font-shippori), serif;
+  font-size: clamp(1.6rem, 5vw, 2.4rem);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--accent-hover);
+}
+
+.kitReading {
+  font-family: var(--font-shippori), serif;
+  font-size: 0.76rem;
+  letter-spacing: 0.2em;
+  color: var(--nob-ja-text);
+}
+
+.kitName {
+  margin-block-start: 0.5rem;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(1.2rem, 3vw, 1.6rem);
+  font-weight: 400;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.kitNote {
+  margin-block-start: 0.5rem;
+  font-size: 0.98rem;
+  color: var(--text-secondary);
+}
+
+@media (min-width: 60rem) {
+  .kit {
+    grid-column: 2 / -1;
+  }
+
+  /* Merdiven: dört kayıt sırayla içeri kayıyor. */
+  .kitItem:nth-child(1) {
+    margin-inline-start: 0;
+    max-inline-size: 62ch;
+  }
+
+  .kitItem:nth-child(2) {
+    margin-inline-start: 8%;
+    max-inline-size: 58ch;
+  }
+
+  .kitItem:nth-child(3) {
+    margin-inline-start: 16%;
+    max-inline-size: 54ch;
+  }
+
+  .kitItem:nth-child(4) {
+    margin-inline-start: 24%;
+    max-inline-size: 50ch;
+  }
+}
+
+/* ══ 5 · ÜÇ ÇİVİ — SAYFANIN KALBİ ═════════════════════════════════════ */
+.field {
+  display: grid;
+  gap: clamp(1.4rem, 3.5vw, 2.6rem);
+}
+
+/* Düzlem: TEK bir yüzey. Eski sayfanın iki panosu YOK. */
+.fieldPlane {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  margin-inline: calc(var(--nob-pad) * -1);
+  background:
+    radial-gradient(
+      ellipse at 50% 46%,
+      color-mix(in srgb, var(--nob-wash) 90%, transparent),
+      transparent 68%
+    ),
+    var(--nob-ink);
+  border-block: var(--nob-hair) solid var(--border);
+  overflow: clip;
+}
+
+/* Bağ çizgileri ve noktalar AYNI iç kutuda duruyor: yüzdeler ikisinde de
+   aynı kutuya göre çözülsün diye. Kutu kenardan içeri çekik, böylece
+   360 pikselde bile en dıştaki nokta ekranın dışına taşmıyor.
+   ⚠️ İki inset DEĞERİ de aynı olmak zorunda; birini değiştirirken
+   ötekini unutma, yoksa üçgenler noktalardan kayar. */
+.fieldLinesBox,
+.fieldPoints {
+  position: absolute;
+  inset: 7% 15%;
+}
+
+.fieldLinesBox {
+  display: block;
+  pointer-events: none;
+}
+
+.fieldLines {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+/* ⚠️ Varsayılanda GÖRÜNMÜYOR. Mod düğmesinin ("Rezonans") tek işi bu:
+   çalışan üç üçgeni açığa çıkarmak. Kapalıyken üçlüyü metinden
+   çıkarmak gerekiyor. */
+.fieldLink {
+  fill: none;
+  stroke: var(--nob-thread);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 6;
+  opacity: 0;
+}
+
+.page[data-resonance="true"] .fieldLink {
+  opacity: 0.55;
+}
+
+.page[data-resonance="true"] .fieldLink[data-found="true"] {
+  opacity: 0.95;
+  stroke-dasharray: none;
+  stroke-width: 2;
+}
+
+.fieldPick {
+  fill: color-mix(in srgb, var(--accent) 8%, transparent);
+  stroke: var(--nob-nail);
+  stroke-width: 1.5;
+}
+
+.fieldPick[data-hit="true"] {
+  fill: color-mix(in srgb, var(--accent) 20%, transparent);
+  stroke: var(--accent);
+  stroke-width: 2.5;
+}
+
+/* Ses dalgası — TEK halka, merkezden. */
+.fieldWave {
+  position: absolute;
+  z-index: 1;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  inline-size: 8rem;
+  block-size: 8rem;
+  margin: -4rem 0 0 -4rem;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.fieldCaption {
+  position: absolute;
+  z-index: 2;
+  inset-block-end: 0.9rem;
+  inset-inline-start: var(--nob-pad);
+  font-family: var(--font-plexmono), var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--nob-folio-text);
+}
+
+.fieldPoints {
+  z-index: 2;
+  list-style: none;
+}
+
+.fieldPointItem {
+  position: absolute;
+  transform: translate(-50%, -50%);
+}
+
+.fieldPoint {
+  min-inline-size: var(--touch-min);
+  min-block-size: var(--touch-min);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.45rem 0.5rem;
+  background: color-mix(in srgb, var(--nob-plate) 88%, transparent);
+  border: 2px solid var(--border-strong);
+  color: var(--nob-nail-text);
+  cursor: pointer;
+}
+
+.fieldPoint:hover {
+  border-color: var(--accent-muted);
+}
+
+.fieldPoint:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 3px;
+}
+
+.fieldPoint[aria-pressed="true"] {
+  background: var(--accent-muted);
+  border-color: var(--accent);
+  color: var(--text-primary);
+}
+
+.fieldPointNail {
+  display: block;
+  inline-size: 0.7rem;
+  block-size: 1.4rem;
+}
+
+.fieldPointArt {
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.fieldPointHead {
+  stroke: var(--nob-nail);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.fieldPointShaft {
+  stroke: var(--nob-nail);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.fieldPoint[aria-pressed="true"] .fieldPointHead,
+.fieldPoint[aria-pressed="true"] .fieldPointShaft {
+  stroke: var(--accent-hover);
+}
+
+.fieldPointBody {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+}
+
+.fieldPointIndex {
+  font-family: var(--font-plexmono), var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  color: var(--nob-folio-text);
+}
+
+.fieldPointKanji {
+  display: none;
+  font-family: var(--font-shippori), serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+}
+
+/* ⚠️ Dar ekranda GÖRSEL olarak kırpılıyor, erişilebilirlik ağacından
+   ÇIKMIYOR: `display: none` değil, ölçüsü sıfırlanmış bir kap. Düğmenin
+   erişilebilir adı her ölçüde tam; okunabilir karşılığı numaralı
+   künyede (`.fieldLegend`). */
+.fieldPointLabel {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (min-width: 48rem) {
+  .fieldPlane {
+    aspect-ratio: 4 / 3;
+  }
+
+  .fieldLinesBox,
+  .fieldPoints {
+    inset: 7% 16%;
+  }
+
+  .fieldPointKanji {
+    display: block;
+  }
+}
+
+@media (min-width: 64rem) {
+  .fieldPlane {
+    aspect-ratio: 16 / 10;
+  }
+
+  .fieldLinesBox,
+  .fieldPoints {
+    inset: 6% 13%;
+  }
+
+  .fieldPoint {
+    inline-size: 9.5rem;
+    padding: 0.6rem 0.7rem;
+  }
+
+  .fieldPointLabel {
+    position: static;
+    inline-size: auto;
+    block-size: auto;
+    margin: 0;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+    text-align: center;
+    font-family: var(--font-plexmono), var(--font-mono);
+    font-size: 0.62rem;
+    line-height: 1.5;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+}
+
+/* Okuma paneli — alanın altındaki metin. */
+.fieldPanel {
+  display: grid;
+  gap: clamp(1rem, 2.4vw, 1.6rem);
+}
+
+.fieldMeters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.8rem 1.8rem;
+  padding-block-end: 0.9rem;
+  border-block-end: 2px solid var(--nob-rule);
+}
+
+.fieldMeter {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+
+.fieldMeterLabel {
+  font-family: var(--font-plexmono), var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--nob-label-text);
+}
+
+.fieldMeterValue {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 1.6rem;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+.fieldReset {
+  min-height: var(--touch-min);
+  margin-inline-start: auto;
+  padding: 0.4rem 1.1rem;
+  background: transparent;
+  border: var(--nob-hair) solid var(--border-strong);
+  color: var(--text-secondary);
+  font-family: var(--font-plexmono), var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.fieldReset:hover {
+  border-color: var(--accent);
+  color: var(--text-primary);
+}
+
+.fieldReset:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 3px;
+}
+
+/* "Rezonans oldu / olmadı" — ekran okuyucuya da giden tek cümle. */
+.fieldStatus {
+  max-inline-size: 62ch;
+  padding-inline-start: 0.9rem;
+  border-inline-start: 4px solid var(--nob-rule);
+  font-size: 1.02rem;
+  line-height: 1.75;
+  color: var(--nob-miss-text);
+}
+
+.field[data-state="hit"] .fieldStatus {
+  border-inline-start-color: var(--accent);
+  color: var(--nob-hit-text);
+}
+
+.fieldLegend {
+  display: grid;
+  gap: 0;
+  list-style: none;
+}
+
+.fieldLegendItem {
+  display: grid;
+  grid-template-columns: 2.4rem minmax(0, 1fr);
+  gap: 0.15rem 0.8rem;
+  padding-block: 0.7rem;
+  border-block-end: var(--nob-hair) solid var(--border);
+}
+
+.fieldLegendItem[data-on="true"] {
+  border-block-end-color: var(--accent-muted);
+}
+
+.fieldLegendIndex {
+  grid-row: 1 / span 3;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: 1.5rem;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  color: var(--nob-folio-text);
+}
+
+.fieldLegendItem[data-on="true"] .fieldLegendIndex {
+  color: var(--accent);
+}
+
+.fieldLegendKanji {
+  font-family: var(--font-shippori), serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.1em;
+  color: var(--accent-hover);
+}
+
+.fieldLegendReading {
+  font-family: var(--font-shippori), serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  color: var(--nob-ja-text);
+}
+
+.fieldLegendLabel {
+  font-family: var(--font-plexmono), var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--nob-nail-text);
+}
+
+.fieldLegendNote {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+@media (min-width: 60rem) {
+  .fieldLegend {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: clamp(1.4rem, 3vw, 3rem);
+  }
+
+  .fieldLegendItem {
+    grid-template-columns: 2.4rem minmax(0, 1fr) minmax(0, 1.4fr);
+  }
+
+  .fieldLegendNote {
+    grid-column: 3;
+    grid-row: 1 / span 3;
+  }
+}
+
+/* Açılan kayıt — rezonans olduğunda beliren blok. */
+.fieldOpen {
+  padding: clamp(1.2rem, 3vw, 2rem);
+  background: var(--surface);
+  border-inline-start: 4px solid var(--accent);
+}
+
+.fieldOpenKicker {
+  font-family: var(--font-plexmono), var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--nob-label-text);
+}
+
+.fieldOpenName {
+  font-family: var(--font-shippori), serif;
+  font-size: clamp(2rem, 7vw, 3.4rem);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.1em;
+  color: var(--nob-hit-text);
+}
+
+.fieldOpenReading {
+  font-family: var(--font-shippori), serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.22em;
+  color: var(--nob-ja-text);
+}
+
+.fieldOpenTurkish {
+  margin-block-start: 0.5rem;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(1.2rem, 3.2vw, 1.7rem);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.fieldOpenTitle {
+  margin-block-start: 0.2rem;
+  font-size: clamp(1.05rem, 2.4vw, 1.25rem);
+  letter-spacing: 0.01em;
+  color: var(--gold);
+}
+
+.fieldOpenText {
+  margin-block-start: 1rem;
+  max-inline-size: 62ch;
+  color: var(--text-primary);
+}
+
+.fieldHint,
+.fieldLineHint {
+  max-inline-size: 62ch;
+  font-family: var(--font-plexmono), var(--font-mono);
+  font-size: 0.7rem;
+  line-height: 2;
+  color: var(--nob-folio-text);
+}
+
+/* İki ipucu satırından yalnızca bir tanesi duruyor — hangisi olduğuna
+   mod düğmesi karar veriyor. */
+.fieldLineHint[data-on="true"] {
+  display: none;
+}
+
+.page[data-resonance="true"] .fieldLineHint[data-on="true"] {
+  display: block;
+  color: var(--nob-hit-text);
+}
+
+.page[data-resonance="true"] .fieldLineHint[data-on="false"] {
+  display: none;
+}
+
+@media (min-width: 60rem) {
+  .field {
+    grid-column: 1 / -1;
+  }
+
+  .fieldPanel {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--nob-gutter);
+  }
+
+  .fieldMeters,
+  .fieldStatus,
+  .fieldLegend,
+  .fieldOpen,
+  .fieldHint,
+  .fieldLineHint {
+    grid-column: 2 / 12;
+  }
+}
+
+/* ══ 6 · BEŞ DURAK ════════════════════════════════════════════════════
+   Dergi kronolojisi: yaş damgası mono, sıra numarası dev Bebas ile
+   kenar boşluğuna taşıyor, gövde asimetrik sütunda. */
+.fate {
+  display: grid;
+  gap: clamp(3rem, 8vw, 6.5rem);
+  list-style: none;
+}
+
+.stop {
+  position: relative;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.stopNumber {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(3rem, 12vw, 6rem);
+  line-height: 0.8;
+  letter-spacing: -0.01em;
+  color: var(--nob-wash);
+}
+
+.stopStamp {
+  font-family: var(--font-plexmono), var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.stopTitle {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(1.8rem, 6vw, 3.2rem);
+  font-weight: 400;
+  line-height: 0.98;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.stopText {
+  max-inline-size: 60ch;
+  color: var(--text-primary);
+}
+
+.stopQuote {
+  margin-block-start: 1rem;
+  padding-inline-start: clamp(0.9rem, 2vw, 1.4rem);
+  border-inline-start: 4px solid var(--accent-muted);
+}
+
+.quoteJa {
+  font-family: var(--font-shippori), serif;
+  font-size: clamp(1.35rem, 4.6vw, 2.2rem);
+  font-weight: 700;
+  line-height: 1.5;
+  letter-spacing: 0.06em;
+  color: var(--accent-hover);
+}
+
+.quoteReading {
+  margin-block-start: 0.3rem;
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+  color: var(--text-secondary);
+}
+
+.quoteBy {
+  margin-block-start: 0.4rem;
+  font-family: var(--font-plexmono), var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--nob-label-text);
+}
+
+.stopKin {
+  margin-block-start: 0.9rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem 0.9rem;
+  font-family: var(--font-plexmono), var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.stopKinLink {
+  min-height: var(--touch-min);
+  display: inline-flex;
+  align-items: center;
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-block-end: var(--nob-hair) solid var(--accent-muted);
+}
+
+.stopKinLink:hover,
+.stopKinLink:focus-visible {
+  border-block-end-color: var(--accent);
+}
+
+.stopKinName {
+  color: var(--nob-nail-text);
+}
+
+.stopKinRole {
+  color: var(--nob-folio-text);
+}
+
+@media (min-width: 60rem) {
+  .stop {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--nob-gutter);
+    align-items: start;
+  }
+
+  .stop > * {
+    grid-column: 4 / 10;
+  }
+
+  .stop[data-side="left"] .stopNumber {
+    grid-column: 1 / 4;
+    grid-row: 1 / span 3;
+  }
+
+  .stop[data-side="right"] .stopNumber {
+    grid-column: 10 / -1;
+    grid-row: 1 / span 3;
+    justify-self: end;
+  }
+
+  .stop[data-side="right"] > * {
+    grid-column: 3 / 10;
+  }
+
+  .stop[data-side="right"] .stopStamp,
+  .stop[data-side="right"] .stopTitle {
+    grid-column: 3 / 10;
+  }
+}
+
+/* ══ 7a · KADRO + ÇAPALAR ═════════════════════════════════════════════ */
+.bonds {
+  display: grid;
+  gap: 0;
+  list-style: none;
+}
+
+.bond {
+  display: grid;
+  grid-template-columns: 4.4rem minmax(0, 1fr);
+  gap: 0.2rem 1rem;
+  padding-block: 1.1rem;
+  border-block-end: var(--nob-hair) solid var(--border);
+}
+
+.bondFace {
+  position: relative;
+  grid-row: 1;
+  inline-size: 4.4rem;
+  block-size: 5.6rem;
+  overflow: clip;
+  background: var(--surface);
+  border: var(--nob-hair) solid var(--border-strong);
+}
+
+.bondFace img {
+  object-fit: cover;
+}
+
+.bondMark {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-shippori), serif;
+  font-size: 1.9rem;
+  color: var(--nob-wash);
+}
+
+.bondBody {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.bondName {
+  justify-self: start;
+  min-height: var(--touch-min);
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(1.3rem, 3.4vw, 1.8rem);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-block-end: var(--nob-hair) solid var(--accent-muted);
+}
+
+.bondName:hover,
+.bondName:focus-visible {
+  border-block-end-color: var(--accent);
+}
+
+.bondNamePlain {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(1.3rem, 3.4vw, 1.8rem);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--nob-nail-text);
+}
+
+.bondNative {
+  font-family: var(--font-shippori), serif;
+  font-size: 0.86rem;
+  letter-spacing: 0.14em;
+  color: var(--nob-ja-text);
+}
+
+.bondRole {
+  font-family: var(--font-plexmono), var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--nob-label-text);
+}
+
+.bondLine {
+  margin-block-start: 0.3rem;
+  max-inline-size: 60ch;
+  font-size: 0.98rem;
+  color: var(--text-secondary);
+}
+
+.bondFlag {
+  font-family: var(--font-plexmono), var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--nob-folio-text);
+}
+
+.anchors {
+  margin-block-start: clamp(2rem, 5vw, 3.5rem);
+  padding-block-start: 1.2rem;
+  border-block-start: 2px solid var(--nob-rule);
+}
+
+.anchorsTitle {
+  font-family: var(--font-bebas), var(--font-sans);
+  font-size: clamp(1.4rem, 4vw, 2.2rem);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.anchorsLede {
+  margin-block-start: 0.3rem;
+  color: var(--text-secondary);
+}
+
+.anchorList {
+  margin-block-start: 1.2rem;
+  display: grid;
+  gap: 1.2rem;
+  list-style: none;
+}
+
+.anchorItem {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.anchorLink {
+  justify-self: start;
+  min-height: var(--touch-min);
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.7rem;
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-block-end: var(--nob-hair) solid var(--accent-muted);
+}
+
+.anchorLink:hover,
+.anchorLink:focus-visible {
+  border-block-end-color: var(--accent);
+}
+
+.anchorKanji {
+  font-family: var(--font-shippori), serif;
+  font-size: 1.2rem;
+  letter-spacing: 0.1em;
+}
+
+.anchorLabel {
+  font-family: var(--font-plexmono), var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.anchorNote {
+  max-inline-size: 58ch;
+  font-size: 0.96rem;
+  color: var(--text-secondary);
+}
+
+@media (min-width: 60rem) {
+  .bond {
+    grid-template-columns: 5.6rem minmax(0, 1fr);
+  }
+
+  .bondFace {
+    inline-size: 5.6rem;
+    block-size: 7rem;
+  }
+
+  .anchorList {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: var(--nob-gutter);
+  }
+
+  .anchors {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ══ 7b · KAPANIŞ ═════════════════════════════════════════════════════ */
+.closingQuotes {
+  display: grid;
+  gap: clamp(2rem, 5vw, 3.5rem);
+  list-style: none;
+}
+
+.closingQuote {
+  padding-inline-start: clamp(0.9rem, 2vw, 1.4rem);
+  border-inline-start: 4px solid var(--accent);
+}
+
+.quoteNote {
+  margin-block-start: 0.5rem;
+  max-inline-size: 52ch;
+  font-size: 0.96rem;
+  color: var(--text-secondary);
+}
+
+.motto {
+  margin-block-start: clamp(2.5rem, 7vw, 5rem);
+  font-family: var(--font-shippori), serif;
+  font-size: clamp(3rem, 14vw, 8rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.16em;
+  color: var(--accent);
+}
+
+.mottoNote {
+  margin-block-start: 0.8rem;
+  max-inline-size: 56ch;
+  color: var(--text-secondary);
+}
+
+.credit {
+  margin-block-start: clamp(2.5rem, 6vw, 4rem);
+  padding-block-start: 1.1rem;
+  border-block-start: 2px solid var(--nob-rule);
+  font-family: var(--font-plexmono), var(--font-mono);
+  font-size: 0.7rem;
+  line-height: 2;
+  letter-spacing: 0.08em;
+  color: var(--nob-label-text);
+}
+
+.creditLink {
+  color: var(--accent-hover);
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+}
+
+.creditNote {
+  margin-block-start: 0.6rem;
+  max-inline-size: 66ch;
+  font-family: var(--font-plexmono), var(--font-mono);
+  font-size: 0.66rem;
+  line-height: 2;
+  color: var(--nob-folio-text);
+}
+
+@media (min-width: 60rem) {
+  .closingQuotes {
+    grid-column: 2 / 11;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: clamp(1.6rem, 3vw, 3rem);
+  }
+
+  .motto {
+    grid-column: 2 / -1;
+  }
+
+  .mottoNote {
+    grid-column: 2 / 8;
+  }
+
+  .credit {
+    grid-column: 2 / 10;
+  }
+
+  .creditNote {
+    grid-column: 2 / 10;
+  }
+}
+
+/* ══ KADRAJLAR ════════════════════════════════════════════════════════
+   On yedi kadrajın hepsi boş. Boşken ziyaretçi hiçbir yer tutucu METİN
+   görmüyor: künye satırı `isAdmin` ile kesilmiş (Dalga 1'in birinci
+   dersi). Dolduğunda kadrajın üstüne bir PERDE iniyor — dergi düzeninde
+   tipografi görselin üstüne biniyor ve yüklenen kare açık renkli
+   olabilir. */
+.frameSlot {
+  position: relative;
+}
+
+.frame {
+  position: relative;
+  display: block;
+  inline-size: 100%;
+  overflow: clip;
+  background: color-mix(in srgb, var(--nob-plate) 60%, transparent);
+}
+
+.frameImg {
+  object-fit: cover;
+}
+
+.frameSlot[data-filled="true"] .frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--nob-ink) 62%, transparent),
+    color-mix(in srgb, var(--nob-ink) 18%, transparent) 45%,
+    color-mix(in srgb, var(--nob-ink) 70%, transparent)
+  );
+  pointer-events: none;
+}
+
+.frameCaption {
+  position: absolute;
+  inset-block-end: 0.6rem;
+  inset-inline-start: 0.7rem;
+  display: grid;
+  gap: 0.15rem;
+  font-family: var(--font-plexmono), var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.frameCaptionWord {
+  color: var(--nob-label-text);
+}
+
+.frameCaptionSpec {
+  color: var(--nob-folio-text);
+}
+
+.frameCover {
+  aspect-ratio: 3 / 4;
+}
+
+.frameBand {
+  aspect-ratio: 20 / 9;
+}
+
+.frameFeature {
+  aspect-ratio: 4 / 3;
+}
+
+.frameSquare {
+  margin-block-start: 1rem;
+  aspect-ratio: 1 / 1;
+  max-inline-size: 15rem;
+}
+
+.frameWide {
+  margin-block-start: 1rem;
+  aspect-ratio: 16 / 9;
+}
+
+.frameTall {
+  margin-block-start: 1.2rem;
+  aspect-ratio: 3 / 4;
+  max-inline-size: 22rem;
+}
+
+/* ══ HAREKET — ÇEKİÇ VURUŞU ═══════════════════════════════════════════
+   Hareket dili tek cümle: SERT VE KISA. Yumuşak fade YOK.
+
+   nobStrike  düzlemin sarsıntısı (çekiç indi)
+   nobWave    merkezden yayılan TEK ses dalgası halkası
+   nobDrive   çivinin içeri girmesi (seçilen nokta)
+   nobHammer  mod düğmesindeki çekicin bir kez inmesi
+
+   ⚠️ HEPSİ `prefers-reduced-motion: no-preference` KAPISINDA. Sarsıntı
+   vestibüler rahatsızlık üretebiliyor; tercih "azalt" ise sayfada hiçbir
+   şey sarsılmıyor, halka da çizilmiyor — bilgi zaten `role="status"`
+   satırında yazıyla veriliyor, yani hiçbir şey kaybolmuyor. */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes nobStrike {
+    0% {
+      translate: 0 0;
+      rotate: 0deg;
+    }
+    18% {
+      translate: -6px 4px;
+      rotate: -0.35deg;
+    }
+    44% {
+      translate: 5px -3px;
+      rotate: 0.28deg;
+    }
+    72% {
+      translate: -2px 1px;
+      rotate: -0.1deg;
+    }
+    100% {
+      translate: 0 0;
+      rotate: 0deg;
+    }
+  }
+
+  @keyframes nobWave {
+    0% {
+      scale: 0.2;
+      opacity: 0.9;
+      border-width: 6px;
+    }
+    45% {
+      scale: 1.35;
+      opacity: 0.45;
+      border-width: 3px;
+    }
+    100% {
+      scale: 3.1;
+      opacity: 0;
+      border-width: 1px;
+    }
+  }
+
+  @keyframes nobDrive {
+    0% {
+      translate: 0 -10px;
+      opacity: 0.3;
+    }
+    38% {
+      translate: 0 3px;
+      opacity: 1;
+    }
+    66% {
+      translate: 0 -1px;
+      opacity: 1;
+    }
+    100% {
+      translate: 0 0;
+      opacity: 1;
+    }
+  }
+
+  @keyframes nobStrikeAlt {
+    0% {
+      translate: 0 0;
+      rotate: 0deg;
+    }
+    18% {
+      translate: -6px 4px;
+      rotate: -0.35deg;
+    }
+    44% {
+      translate: 5px -3px;
+      rotate: 0.28deg;
+    }
+    72% {
+      translate: -2px 1px;
+      rotate: -0.1deg;
+    }
+    100% {
+      translate: 0 0;
+      rotate: 0deg;
+    }
+  }
+
+  @keyframes nobHammer {
+    0% {
+      rotate: 0deg;
+    }
+    26% {
+      rotate: -34deg;
+    }
+    52% {
+      rotate: 8deg;
+    }
+    78% {
+      rotate: -3deg;
+    }
+    100% {
+      rotate: 0deg;
+    }
+  }
+
+  /* İki ayrı ad, tek hareket: `data-strike` her vuruşta a↔b arasında
+     değiştiği için tarayıcı animasyonu gerçekten BAŞTAN oynatıyor. */
+  .fieldPlane[data-strike="a"] {
+    animation: nobStrike 180ms steps(4, end) 1;
+  }
+
+  .fieldPlane[data-strike="b"] {
+    animation: nobStrikeAlt 180ms steps(4, end) 1;
+  }
+
+  .fieldWave {
+    animation: nobWave 620ms cubic-bezier(0.16, 0.9, 0.3, 1) 1;
+  }
+
+  .fieldPoint[aria-pressed="true"] .fieldPointNail {
+    animation: nobDrive 160ms steps(3, end) 1;
+  }
+
+  .modeButton:active .modeMarkArt {
+    animation: nobHammer 220ms steps(4, end) 1;
+  }
+}

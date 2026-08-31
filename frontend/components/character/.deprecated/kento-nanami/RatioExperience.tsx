@@ -11,49 +11,50 @@ import {
   type CharacterExperienceProps,
 } from "@/lib/characters/experiences";
 import {
-  MEGUMI_ALT,
-  MEGUMI_ARTS,
-  MEGUMI_CLOSING,
-  MEGUMI_CRUMB,
-  MEGUMI_DETAILS,
-  MEGUMI_DUSK_TEXT,
-  MEGUMI_HERO,
-  MEGUMI_ID,
-  MEGUMI_IDENTITY,
-  MEGUMI_IMAGE_KEYS,
-  MEGUMI_MISSING_NOTE,
-  MEGUMI_SECTIONS,
-  MEGUMI_SHADOW_UI,
-  MEGUMI_SHADOWS,
-  MEGUMI_SITE_URL,
-  MEGUMI_SLOT_LABELS,
-  MEGUMI_TIMELINE,
-} from "@/lib/characters/megumi-fushiguro-experience";
+  NANAMI_ALT,
+  NANAMI_ARTS,
+  NANAMI_BENCH_UI,
+  NANAMI_CLOSING,
+  NANAMI_CRUMB,
+  NANAMI_DETAILS,
+  NANAMI_HERO,
+  NANAMI_ID,
+  NANAMI_IDENTITY,
+  NANAMI_IMAGE_KEYS,
+  NANAMI_MISSING_NOTE,
+  NANAMI_OVERTIME_TEXT,
+  NANAMI_SECTIONS,
+  NANAMI_SITE_URL,
+  NANAMI_SLOT_LABELS,
+  NANAMI_TARGETS,
+  NANAMI_TIMELINE,
+} from "./data";
 import { CuratorFrame } from "@/components/character/CuratorFrame";
 import { CuratorSlot } from "@/components/character/CuratorSlot";
-import { DuskShell } from "./DuskShell";
-import { ShadowLine } from "./ShadowLine";
-import styles from "./TenShadowsExperience.module.css";
+import { OvertimeShell } from "./OvertimeShell";
+import { RatioBench } from "./RatioBench";
+import { RatioRule } from "./RatioGlyphs";
+import styles from "./RatioExperience.module.css";
 
 /**
- * Megumi Fushiguro — "Gölge Çizgisi" deneyim sayfası.
+ * Kento Nanami — "Yedi Üçe" deneyim sayfası.
  *
- * /dark-stories/category/anime/karakterler/126635 bu bileşene çıkıyor
+ * /dark-stories/category/anime/karakterler/133704 bu bileşene çıkıyor
  * (kendi statik rota klasörü). Sayfanın fikri tek cümle: HER ŞEY AYNI
- * ÇİZGİDEN KALKAR. Sayfanın üstünden altına kadar tek bir zemin çizgisi
- * geçiyor; on gölge onun altında yatıyor ve seçilen doğruluyor. Biri
- * kırıldığı için bir daha doğrulmuyor — sayfanın taşıdığı asıl cümle bu.
+ * ORANDA KIRILIR. Sayfadaki bütün çizgiler yüzde yetmişte kırılıyor ve mod
+ * düğmesi mesaiyi bitirdiğinde kırılmayı bırakıyorlar. Sayfanın kalbi de bir
+ * tahmin-ölçüm tezgâhı: nereyi işaretlersen işaretle, nokta hep aynı yerde.
  *
  * Sayfa SUNUCUDA çizilir. İki istemci adası var:
- *   DuskShell  — ışığı alçaltan mod (tek boolean, etkinin tamamı CSS)
- *   ShadowLine — on gölgenin çizgisi (sayfanın kalbi)
+ *   OvertimeShell — mesai modu (tek boolean, etkisi CSS'te `--nan-major`)
+ *   RatioBench    — ölçüm tezgâhı (sayfanın kalbi)
  * Metinler burada `pick` ile seçilip adalara düz dize olarak iner.
  *
- * Görseller: characterId 126635 kaydının ABILITY yuvaları (`meg:*`).
- * ⚠️ 25 Ağustos 2026'da bu kayıtta HİÇ görsel yok; on siluet elle çizilmiş
- * SVG olduğu için sayfanın kalbi görselden tamamen bağımsız.
+ * Görseller: characterId 133704 kaydının ABILITY yuvaları (`nan:*`).
+ * ⚠️ 25 Ağustos 2026'da bu kayıtta HİÇ görsel yok; tezgâhın tamamı elle
+ * çizilmiş SVG olduğu için sayfanın kalbi görselden bağımsız.
  */
-export function TenShadowsExperience({
+export function RatioExperience({
   detail,
   isAdmin,
   companions,
@@ -67,41 +68,31 @@ export function TenShadowsExperience({
 
   const portrait = primaryPortrait(detail);
   const portraitUploaded = isUploadedPortrait(detail);
-  const heroScene = src(MEGUMI_IMAGE_KEYS.hero);
-  const closingArt = src(MEGUMI_IMAGE_KEYS.closing);
+  const heroScene = src(NANAMI_IMAGE_KEYS.hero);
+  const closingArt = src(NANAMI_IMAGE_KEYS.closing);
 
-  const name = detail.character.name || MEGUMI_IDENTITY.name;
-  const nativeName = detail.character.nameNative ?? MEGUMI_IDENTITY.nativeName;
-  const siteUrl = detail.character.siteUrl ?? MEGUMI_SITE_URL;
-  const companionSuffix = pick(MEGUMI_ALT.companionSuffix, locale);
+  const name = detail.character.name || NANAMI_IDENTITY.name;
+  const nativeName = detail.character.nameNative ?? NANAMI_IDENTITY.nativeName;
+  const siteUrl = detail.character.siteUrl ?? NANAMI_SITE_URL;
+  const companionSuffix = pick(NANAMI_ALT.companionSuffix, locale);
 
-  const stateLabel = {
-    tamed: pick(MEGUMI_SHADOW_UI.stateTamed, locale),
-    broken: pick(MEGUMI_SHADOW_UI.stateBroken, locale),
-    untamed: pick(MEGUMI_SHADOW_UI.stateUntamed, locale),
-  };
-
-  const shadows = MEGUMI_SHADOWS.map((shadow) => ({
-    key: shadow.key,
-    kanji: shadow.kanji,
-    name: shadow.name,
-    reading: shadow.reading,
-    turkish: pick(shadow.turkish, locale),
-    figure: shadow.figure,
-    state: shadow.state,
-    stateLabel: stateLabel[shadow.state],
-    role: pick(shadow.role, locale),
-    text: pick(shadow.text, locale),
-    ritualWarning: shadow.ritualWarning
-      ? pick(shadow.ritualWarning, locale)
-      : null,
+  const targets = NANAMI_TARGETS.map((target) => ({
+    key: target.key,
+    kanji: target.kanji,
+    name: pick(target.name, locale),
+    span: target.span,
+    size: pick(target.size, locale),
+    note: pick(target.note, locale),
   }));
 
   return (
-    <DuskShell
-      enterLabel={pick(MEGUMI_DUSK_TEXT.enter, locale)}
-      exitLabel={pick(MEGUMI_DUSK_TEXT.exit, locale)}
-      hint={pick(MEGUMI_DUSK_TEXT.hint, locale)}
+    <OvertimeShell
+      enterLabel={pick(NANAMI_OVERTIME_TEXT.enter, locale)}
+      exitLabel={pick(NANAMI_OVERTIME_TEXT.exit, locale)}
+      hint={pick(NANAMI_OVERTIME_TEXT.hint, locale)}
+      clockLabel={pick(NANAMI_OVERTIME_TEXT.clockLabel, locale)}
+      clockOn={NANAMI_OVERTIME_TEXT.clockOn}
+      clockOff={NANAMI_OVERTIME_TEXT.clockOff}
     >
       <CuratorFrame isAdmin={isAdmin}>
         <nav className={styles.crumb} aria-label="breadcrumb">
@@ -110,14 +101,14 @@ export function TenShadowsExperience({
             ·
           </span>
           <span className={styles.crumbHere}>
-            {pick(MEGUMI_CRUMB.series, locale)}
+            {pick(NANAMI_CRUMB.series, locale)}
           </span>
         </nav>
 
         {/* ══ 1 · HERO ═══════════════════════════════════════════════════
-            Portrenin altından sayfanın tamamına inen tek çizgi burada
-            başlıyor: hero'nun alt kenarı zemin çizgisinin kendisi. */}
-        <section className={styles.hero} aria-labelledby="meg-name">
+            Kadraj yediye üçe bölünmüş: metin yedi, portre üç. Aradaki
+            çentik sayfanın her yerinde tekrar eden motif. */}
+        <section className={styles.hero} aria-labelledby="nan-name">
           {heroScene ? (
             <span className={styles.heroScene} aria-hidden>
               <Image src={heroScene} alt="" fill priority sizes="1920px" />
@@ -126,23 +117,36 @@ export function TenShadowsExperience({
           ) : null}
 
           <p className={styles.heroMark} aria-hidden>
-            {MEGUMI_IDENTITY.watermark}
+            {NANAMI_IDENTITY.watermark}
           </p>
 
           <div className={styles.heroBody}>
             <p className={styles.heroHouse}>
-              {pick(MEGUMI_IDENTITY.house, locale)}
+              {pick(NANAMI_IDENTITY.house, locale)}
             </p>
-            <h1 id="meg-name" className={styles.heroName}>
+            <h1 id="nan-name" className={styles.heroName}>
               {name}
             </h1>
             <p className={styles.heroNative} aria-hidden>
               {nativeName}
             </p>
-            <p className={styles.heroEpigraph}>
-              {pick(MEGUMI_IDENTITY.epigraph, locale)}
+
+            <span className={styles.heroRule} aria-hidden>
+              <RatioRule
+                className={styles.heroRuleArt}
+                majorClassName={styles.ruleMajor}
+                minorClassName={styles.ruleMinor}
+                notchClassName={styles.ruleNotch}
+              />
+            </span>
+            <p className={styles.heroRuleCaption}>
+              {pick(NANAMI_HERO.ruleCaption, locale)}
             </p>
-            <p className={styles.heroLede}>{pick(MEGUMI_HERO.lede, locale)}</p>
+
+            <p className={styles.heroEpigraph}>
+              {pick(NANAMI_IDENTITY.epigraph, locale)}
+            </p>
+            <p className={styles.heroLede}>{pick(NANAMI_HERO.lede, locale)}</p>
           </div>
 
           <div className={styles.heroAside}>
@@ -152,71 +156,66 @@ export function TenShadowsExperience({
                   src={portrait}
                   alt={pick(
                     portraitUploaded
-                      ? MEGUMI_HERO.portraitAlt
-                      : MEGUMI_HERO.portraitAltFallback,
+                      ? NANAMI_HERO.portraitAlt
+                      : NANAMI_HERO.portraitAltFallback,
                     locale,
                   )}
                   fill
-                  sizes="(max-width: 760px) 55vw, 360px"
+                  sizes="(max-width: 760px) 55vw, 340px"
                   priority
                   unoptimized={!portraitUploaded}
                 />
               ) : null}
-              {/* Portrenin dibinden yana yayılan gölge — mod açıkken uzuyor */}
-              <span className={styles.heroCast} aria-hidden />
+              {/* Portrenin üstünden geçen bölme çizgisi — yüzde yetmişte */}
+              <span className={styles.heroSplit} aria-hidden />
             </span>
-            <p className={styles.heroGroundCaption}>
-              {pick(MEGUMI_HERO.groundCaption, locale)}
-            </p>
           </div>
-
-          <span className={styles.heroGround} aria-hidden />
 
           {isAdmin ? (
             <div className={styles.slotRow}>
               <CuratorSlot
-                characterId={MEGUMI_ID}
+                characterId={NANAMI_ID}
                 slot="ABILITY"
-                abilityName={MEGUMI_IMAGE_KEYS.hero}
-                label={pick(MEGUMI_SLOT_LABELS[MEGUMI_IMAGE_KEYS.hero], locale)}
+                abilityName={NANAMI_IMAGE_KEYS.hero}
+                label={pick(NANAMI_SLOT_LABELS[NANAMI_IMAGE_KEYS.hero], locale)}
               />
             </div>
           ) : null}
         </section>
 
         {/* ══ 2 · KÜNYE ══════════════════════════════════════════════════ */}
-        <section className={styles.section} aria-labelledby="meg-identity">
+        <section className={styles.section} aria-labelledby="nan-identity">
           <header className={styles.sectionHead}>
-            <h2 id="meg-identity" className={styles.sectionTitle}>
-              {pick(MEGUMI_SECTIONS.identity.title, locale)}
+            <h2 id="nan-identity" className={styles.sectionTitle}>
+              {pick(NANAMI_SECTIONS.identity.title, locale)}
             </h2>
             <p className={styles.sectionLede}>
-              {pick(MEGUMI_SECTIONS.identity.lede, locale)}
+              {pick(NANAMI_SECTIONS.identity.lede, locale)}
             </p>
           </header>
           <dl className={styles.facts}>
-            {MEGUMI_IDENTITY.facts.map((fact) => (
+            {NANAMI_IDENTITY.facts.map((fact) => (
               <div key={fact.label.tr} className={styles.fact}>
                 <dt>{pick(fact.label, locale)}</dt>
                 <dd>{pick(fact.value, locale)}</dd>
               </div>
             ))}
           </dl>
-          <p className={styles.factNote}>{pick(MEGUMI_MISSING_NOTE, locale)}</p>
+          <p className={styles.factNote}>{pick(NANAMI_MISSING_NOTE, locale)}</p>
         </section>
 
         {/* ══ 3 · ÜÇ SÜTUN ═══════════════════════════════════════════════ */}
-        <section className={styles.section} aria-labelledby="meg-arts">
+        <section className={styles.section} aria-labelledby="nan-arts">
           <header className={styles.sectionHead}>
-            <h2 id="meg-arts" className={styles.sectionTitle}>
-              {pick(MEGUMI_SECTIONS.arts.title, locale)}
+            <h2 id="nan-arts" className={styles.sectionTitle}>
+              {pick(NANAMI_SECTIONS.arts.title, locale)}
             </h2>
             <p className={styles.sectionLede}>
-              {pick(MEGUMI_SECTIONS.arts.lede, locale)}
+              {pick(NANAMI_SECTIONS.arts.lede, locale)}
             </p>
           </header>
           <ul className={styles.arts}>
-            {MEGUMI_ARTS.map((art) => {
+            {NANAMI_ARTS.map((art) => {
               const scene = src(art.imageKey);
               return (
                 <li key={art.key} className={styles.art}>
@@ -252,10 +251,10 @@ export function TenShadowsExperience({
                   </span>
                   {isAdmin ? (
                     <CuratorSlot
-                      characterId={MEGUMI_ID}
+                      characterId={NANAMI_ID}
                       slot="ABILITY"
                       abilityName={art.imageKey}
-                      label={pick(MEGUMI_SLOT_LABELS[art.imageKey], locale)}
+                      label={pick(NANAMI_SLOT_LABELS[art.imageKey], locale)}
                     />
                   ) : null}
                 </li>
@@ -265,17 +264,17 @@ export function TenShadowsExperience({
         </section>
 
         {/* ══ 4 · DÖRT AYRINTI ═══════════════════════════════════════════ */}
-        <section className={styles.section} aria-labelledby="meg-details">
+        <section className={styles.section} aria-labelledby="nan-details">
           <header className={styles.sectionHead}>
-            <h2 id="meg-details" className={styles.sectionTitle}>
-              {pick(MEGUMI_SECTIONS.tools.title, locale)}
+            <h2 id="nan-details" className={styles.sectionTitle}>
+              {pick(NANAMI_SECTIONS.tools.title, locale)}
             </h2>
             <p className={styles.sectionLede}>
-              {pick(MEGUMI_SECTIONS.tools.lede, locale)}
+              {pick(NANAMI_SECTIONS.tools.lede, locale)}
             </p>
           </header>
           <ul className={styles.notes}>
-            {MEGUMI_DETAILS.map((item) => {
+            {NANAMI_DETAILS.map((item) => {
               const scene = src(item.imageKey);
               return (
                 <li key={item.key} className={styles.note}>
@@ -295,10 +294,10 @@ export function TenShadowsExperience({
                   </span>
                   {isAdmin ? (
                     <CuratorSlot
-                      characterId={MEGUMI_ID}
+                      characterId={NANAMI_ID}
                       slot="ABILITY"
                       abilityName={item.imageKey}
-                      label={pick(MEGUMI_SLOT_LABELS[item.imageKey], locale)}
+                      label={pick(NANAMI_SLOT_LABELS[item.imageKey], locale)}
                     />
                   ) : null}
                 </li>
@@ -307,46 +306,50 @@ export function TenShadowsExperience({
           </ul>
         </section>
 
-        {/* ══ 5 · ON GÖLGE — SAYFANIN KALBİ ══════════════════════════════ */}
-        <section className={styles.shadowSection} aria-labelledby="meg-shadows">
+        {/* ══ 5 · ÖLÇÜM TEZGÂHI — SAYFANIN KALBİ ═════════════════════════ */}
+        <section className={styles.benchSection} aria-labelledby="nan-bench">
           <header className={styles.sectionHead}>
-            <h2 id="meg-shadows" className={styles.sectionTitle}>
-              {pick(MEGUMI_SECTIONS.shadows.title, locale)}
+            <h2 id="nan-bench" className={styles.sectionTitle}>
+              {pick(NANAMI_SECTIONS.bench.title, locale)}
             </h2>
             <p className={styles.sectionLede}>
-              {pick(MEGUMI_SECTIONS.shadows.lede, locale)}
+              {pick(NANAMI_SECTIONS.bench.lede, locale)}
             </p>
           </header>
 
-          <ShadowLine
-            shadows={shadows}
-            listLabel={pick(MEGUMI_SHADOW_UI.listLabel, locale)}
-            stageLabel={pick(MEGUMI_SHADOW_UI.stageLabel, locale)}
-            ritualButton={pick(MEGUMI_SHADOW_UI.ritualButton, locale)}
-            ritualWord={MEGUMI_SHADOW_UI.ritualWord}
-            ritualWordNote={pick(MEGUMI_SHADOW_UI.ritualWordNote, locale)}
-            countLabel={pick(MEGUMI_SHADOW_UI.countLabel, locale)}
-            countBrokenLabel={pick(MEGUMI_SHADOW_UI.countBrokenLabel, locale)}
-            statusRisen={pick(MEGUMI_SHADOW_UI.statusRisen, locale)}
-            statusBroken={pick(MEGUMI_SHADOW_UI.statusBroken, locale)}
-            statusUntamed={pick(MEGUMI_SHADOW_UI.statusUntamed, locale)}
-            statusRitual={pick(MEGUMI_SHADOW_UI.statusRitual, locale)}
-            keyboardHint={pick(MEGUMI_SHADOW_UI.keyboardHint, locale)}
+          <RatioBench
+            targets={targets}
+            stageLabel={pick(NANAMI_BENCH_UI.stageLabel, locale)}
+            targetLabel={pick(NANAMI_BENCH_UI.targetLabel, locale)}
+            guessLabel={pick(NANAMI_BENCH_UI.guessLabel, locale)}
+            guessHelp={pick(NANAMI_BENCH_UI.guessHelp, locale)}
+            measureButton={pick(NANAMI_BENCH_UI.measureButton, locale)}
+            cutButton={pick(NANAMI_BENCH_UI.cutButton, locale)}
+            resetButton={pick(NANAMI_BENCH_UI.resetButton, locale)}
+            trueLabel={pick(NANAMI_BENCH_UI.trueLabel, locale)}
+            errorLabel={pick(NANAMI_BENCH_UI.errorLabel, locale)}
+            ratioLabel={pick(NANAMI_BENCH_UI.ratioLabel, locale)}
+            ratioValue={NANAMI_BENCH_UI.ratioValue}
+            statusIdle={pick(NANAMI_BENCH_UI.statusIdle, locale)}
+            statusMeasured={pick(NANAMI_BENCH_UI.statusMeasured, locale)}
+            statusCut={pick(NANAMI_BENCH_UI.statusCut, locale)}
+            statusExact={pick(NANAMI_BENCH_UI.statusExact, locale)}
+            keyboardHint={pick(NANAMI_BENCH_UI.keyboardHint, locale)}
           />
         </section>
 
         {/* ══ 6 · BEŞ DURAK ══════════════════════════════════════════════ */}
-        <section className={styles.section} aria-labelledby="meg-fate">
+        <section className={styles.section} aria-labelledby="nan-fate">
           <header className={styles.sectionHead}>
-            <h2 id="meg-fate" className={styles.sectionTitle}>
-              {pick(MEGUMI_SECTIONS.fate.title, locale)}
+            <h2 id="nan-fate" className={styles.sectionTitle}>
+              {pick(NANAMI_SECTIONS.fate.title, locale)}
             </h2>
             <p className={styles.sectionLede}>
-              {pick(MEGUMI_SECTIONS.fate.lede, locale)}
+              {pick(NANAMI_SECTIONS.fate.lede, locale)}
             </p>
           </header>
           <ol className={styles.fate}>
-            {MEGUMI_TIMELINE.map((entry) => {
+            {NANAMI_TIMELINE.map((entry) => {
               const scene = src(entry.imageKey);
               const face = entry.kin
                 ? (faces.get(entry.kin.characterId) ?? null)
@@ -395,10 +398,10 @@ export function TenShadowsExperience({
                   </span>
                   {isAdmin ? (
                     <CuratorSlot
-                      characterId={MEGUMI_ID}
+                      characterId={NANAMI_ID}
                       slot="ABILITY"
                       abilityName={entry.imageKey}
-                      label={pick(MEGUMI_SLOT_LABELS[entry.imageKey], locale)}
+                      label={pick(NANAMI_SLOT_LABELS[entry.imageKey], locale)}
                     />
                   ) : null}
                 </li>
@@ -408,23 +411,23 @@ export function TenShadowsExperience({
         </section>
 
         {/* ══ 7 · KAPANIŞ ════════════════════════════════════════════════ */}
-        <section className={styles.closing} aria-labelledby="meg-closing">
+        <section className={styles.closing} aria-labelledby="nan-closing">
           {closingArt ? (
             <span className={styles.closingArt} aria-hidden>
               <Image src={closingArt} alt="" fill sizes="1440px" />
             </span>
           ) : null}
           <header className={styles.sectionHead}>
-            <h2 id="meg-closing" className={styles.sectionTitle}>
-              {pick(MEGUMI_SECTIONS.closing.title, locale)}
+            <h2 id="nan-closing" className={styles.sectionTitle}>
+              {pick(NANAMI_SECTIONS.closing.title, locale)}
             </h2>
             <p className={styles.sectionLede}>
-              {pick(MEGUMI_SECTIONS.closing.lede, locale)}
+              {pick(NANAMI_SECTIONS.closing.lede, locale)}
             </p>
           </header>
 
           <ul className={styles.closingQuotes}>
-            {MEGUMI_CLOSING.quotes.map((quote) => (
+            {NANAMI_CLOSING.quotes.map((quote) => (
               <li key={quote.text.tr}>
                 <figure className={styles.closingQuote}>
                   <blockquote className={styles.quoteJa} lang="ja">
@@ -447,27 +450,27 @@ export function TenShadowsExperience({
           </ul>
 
           <p className={styles.motto} aria-hidden>
-            {MEGUMI_CLOSING.motto}
+            {NANAMI_CLOSING.motto}
           </p>
           <p className={styles.mottoNote}>
-            {pick(MEGUMI_CLOSING.mottoNote, locale)}
+            {pick(NANAMI_CLOSING.mottoNote, locale)}
           </p>
 
           <p className={styles.credit}>
-            {pick(MEGUMI_CLOSING.credit, locale)}{" "}
+            {pick(NANAMI_CLOSING.credit, locale)}{" "}
             <a href={siteUrl} target="_blank" rel="noreferrer noopener">
-              {pick(MEGUMI_CLOSING.creditLink, locale)}
+              {pick(NANAMI_CLOSING.creditLink, locale)}
             </a>
           </p>
 
           {isAdmin ? (
             <div className={styles.slotRow}>
               <CuratorSlot
-                characterId={MEGUMI_ID}
+                characterId={NANAMI_ID}
                 slot="ABILITY"
-                abilityName={MEGUMI_IMAGE_KEYS.closing}
+                abilityName={NANAMI_IMAGE_KEYS.closing}
                 label={pick(
-                  MEGUMI_SLOT_LABELS[MEGUMI_IMAGE_KEYS.closing],
+                  NANAMI_SLOT_LABELS[NANAMI_IMAGE_KEYS.closing],
                   locale,
                 )}
               />
@@ -475,6 +478,6 @@ export function TenShadowsExperience({
           ) : null}
         </section>
       </CuratorFrame>
-    </DuskShell>
+    </OvertimeShell>
   );
 }

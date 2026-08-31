@@ -1,0 +1,1516 @@
+/* ============================================================
+   DÜNYA DERİSİ — Renji Abarai (AniList #906)
+
+   Palet DALGA 3 §12'de kilitli; on üç standart token birebir oradan
+   alındı. Seçici `.page[data-world=…]`: CSS Modules'ün "pure selector"
+   kuralı çıplak öznitelik seçicisini reddediyor, yerel bir sınıf şart.
+   Kök öğe ikisini birlikte taşıyor (`JointShell`).
+
+   Aile: KAN KIZILI üstüne yanmış deri. Arşivin sıkışmış kızıl ailesine
+   yakın duruyor ama kilitli — `--accent: #db3624` dalga briefinden geldi
+   ve `check-karakter-kontrast.mjs` onu 36 accent'e karşı ölçüyor.
+
+   ⚠️ BU BLOKTAN AŞAĞIDA TEK HEX YOK. Ara tonların hepsi `color-mix` ile
+   token'lardan türetildi (Faz 2 §1, kural 16). Hex muafiyeti YALNIZCA bu
+   bloğu kapsıyor: `[data-release="bankai"]` bloğu muaf DEĞİL, o yüzden
+   orada yalnızca sayı var.
+
+   ⚠️ Yardımcı token adlandırması: küçük metinde okunan her rengin `-text`
+   ekli bir kardeşi var (denetim yalnızca onları ölçüyor). Ekli olmayanlar
+   MALZEME: dövme mürekkebi, eklem gövdesi, kemik dolgusu.
+   ============================================================ */
+.page[data-world="renji-abarai"] {
+  --bg:             #0d0b0a;
+  --surface:        #171312;
+  --surface-hover:  #1f1918;
+  --border:         #26201f;
+  --border-strong:  #372f2d;
+
+  --text-primary:   #d1c9c7;
+  --text-secondary: #9c837c;
+  --text-muted:     #9e7c73;
+
+  --accent:         #db3624;
+  --accent-hover:   #d65f51;
+  --accent-muted:   #3c1a16;
+
+  --gold:           #9d8e6c;
+  --warn:           #b88347;
+  --danger:         #c26459;
+
+  /* ── Malzeme (ölçülmüyor — metin değil, gövde) ── */
+  --ren-ink:        #16100e;
+  --ren-tattoo:     #2b201d;
+  --ren-joint:      #4d3d37;
+  --ren-bone:       #d8cdbc;
+
+  /* ── Küçük metinde okunan aile (`-text`, ölçülüyor) ── */
+  --ren-ja-text:    #b8a49c;
+  --ren-joint-text: #b39b90;
+  --ren-reach-text: #c0a89a;
+  --ren-bone-text:  #ddd3c4;
+  --ren-frame-text: #a89189;
+}
+
+/* ============================================================
+   RENJI ABARAI — "Zabimaru"
+
+   ── SAYFANIN FİKRİ ──────────────────────────────────────────────────────
+   ZABİMARU EKLEMLİ BİR KILIÇ, VE SAYFANIN DÜZENİ DE EKLEMLİ BİR AKS.
+   Bölümler tek kolonda akmıyor: sırayla sola ve sağa kayıyorlar
+   (`--ren-swing`), aralarında onları bağlayan eklem parçaları var ve
+   okurken göz zikzak çiziyor. Bölüm ayıracı bir kutu ya da düz çizgi
+   değil, ortasında eklem kırığı olan bir DÖVME çizgisi.
+
+   ── DALGA İÇİNDEKİ YERİ ─────────────────────────────────────────────────
+   Rukia ortalanmış dar tek kolon, Uryū katı blueprint ızgarası, Ulquiorra
+   büyük negatif alan, Grimmjow yırtılmış tam-genişlik bantları, Yoruichi
+   yatay kayan şeritler. Bu sayfa altısı arasında TEK yatay salınanı: hiçbir
+   bölüm bir öncekiyle aynı hizada başlamıyor.
+
+   ── ZİKZAK NASIL KURULDU ────────────────────────────────────────────────
+   `margin-inline-start` dönüşümlü, `transform` DEĞİL. Gerekçe 360 px:
+   `translateX` kutuyu kaydırır ama genişliğini küçültmez, yani dar ekranda
+   kaçınılmaz olarak taşar. Burada kutunun kendisi `calc(100% - 2*swing)`
+   kadar dar, kayma da tam o kadar — toplam her zaman %100. Genlik
+   `clamp()` ile ölçekleniyor; 360 px'te 5–6 px'e iniyor ama SIFIRA
+   inmiyor: zikzak dar ekranda da, `shikai` modunda da DURUYOR (Dalga 1'in
+   ikinci dersi).
+
+   ── HAREKET ─────────────────────────────────────────────────────────────
+   Dört animasyon, hepsi "eklem açılması" ailesinden:
+     ren-joint-open  → bölüm eklemi rotate+scaleX ile uzuyor
+     ren-bar-reach   → zincir eklemindeki beş çubuk sırayla uzuyor
+     ren-ink-draw    → dövme çizgisi stroke-dashoffset ile çiziliyor
+     ren-spine-rise  → bankai'de omurga yukarıdan iniyor
+   Dosyanın sonunda `prefers-reduced-motion: reduce` battaniyesi var;
+   zikzak DÜZENİ battaniyenin altında da aynen duruyor, çünkü düzen
+   animasyon değil ızgara.
+   ============================================================ */
+
+.page {
+  position: relative;
+  max-width: 74rem;
+  margin-inline: auto;
+  padding-block: clamp(1rem, 3vw, 2.25rem) clamp(4rem, 9vw, 7rem);
+  padding-inline: clamp(0.85rem, 3vw, 2rem);
+  color: var(--text-primary);
+  background: var(--bg);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  line-height: 1.62;
+
+  /* ⚠️ `clip`, `hidden` DEĞİL: `hidden` bir kaydırma kabı kurar ve
+     omurgadaki `position: sticky`yi kırar. `clip` kaydırma kabı kurmuyor. */
+  overflow-x: clip;
+
+  /* Zikzağın genliği ve eklem boyu — düğme bunları değiştiriyor */
+  --ren-swing: clamp(0.35rem, 2.8vw, 2.5rem);
+  --ren-joint-len: clamp(1.5rem, 5vw, 3.4rem);
+  --ren-tilt: 34deg;
+}
+
+/* ══ MOD: BANKAI ════════════════════════════════════════════════════════
+   Işık değil YAPI: genlik iki katına çıkıyor, eklem uzuyor, başlıklar bir
+   kademe büyüyor, omurga beliriyor. Bu blok deri bloğu DEĞİL — burada hex
+   kullanmak yasak, o yüzden yalnızca sayı var. */
+.page[data-release="bankai"] {
+  --ren-swing: clamp(0.7rem, 5.6vw, 5.2rem);
+  --ren-joint-len: clamp(2.4rem, 8vw, 6.2rem);
+  --ren-tilt: 46deg;
+}
+
+/* ══ OMURGA (bankai motifi) ═════════════════════════════════════════════ */
+
+.spine {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: 0;
+  inline-size: 3.25rem;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 520ms ease;
+}
+
+.page[data-release="bankai"] .spine {
+  opacity: 1;
+}
+
+.spineArt {
+  position: sticky;
+  inset-block-start: 22vh;
+  display: block;
+  inline-size: 100%;
+  block-size: clamp(15rem, 40vh, 24rem);
+}
+
+.spineBone {
+  fill: color-mix(in srgb, var(--ren-bone) 62%, transparent);
+}
+
+.spineCord {
+  stroke: color-mix(in srgb, var(--ren-bone) 34%, transparent);
+  stroke-width: 1.25;
+  stroke-dasharray: 5 7;
+}
+
+.page[data-release="bankai"] .spineArt {
+  animation: ren-spine-rise 760ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (max-width: 62rem) {
+  /* Dar ekranda omurga içeriğin üstüne biner — motif düşer, sayfa kalır */
+  .spine {
+    display: none;
+  }
+}
+
+/* 360 px kontrolü: filigran sayfanın iç kenarına çekiliyor ve künye
+   şeridi iki kolondan tek kolona iniyor. Zikzak kaçıklıkları KALKMIYOR —
+   `--ren-swing` clamp'in alt ucunda (≈6 px) yaşamaya devam ediyor. */
+@media (max-width: 30rem) {
+  .heroMark {
+    inset-block-start: -0.75rem;
+    inset-inline-end: 0;
+  }
+
+  .facts {
+    grid-template-columns: 1fr;
+  }
+
+  .factLabel {
+    padding-block: 0.55rem 0;
+  }
+
+  .factValue {
+    padding-block: 0 0.55rem;
+    border-block-start: none;
+  }
+}
+
+/* ══ BREADCRUMB ═════════════════════════════════════════════════════════ */
+
+.crumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  align-items: center;
+  margin-block-end: clamp(1.6rem, 4vw, 3rem);
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.crumb a {
+  min-block-size: var(--touch-min);
+  display: inline-flex;
+  align-items: center;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-block-end: 1px solid transparent;
+}
+
+.crumb a:hover,
+.crumb a:focus-visible {
+  color: var(--accent-hover);
+  border-block-end-color: color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.crumbSep {
+  color: color-mix(in srgb, var(--text-muted) 60%, transparent);
+}
+
+.crumbHere {
+  color: var(--ren-joint-text);
+}
+
+/* ══ 1 · HERO ═══════════════════════════════════════════════════════════ */
+
+.hero {
+  position: relative;
+  inline-size: calc(100% - var(--ren-swing) * 2);
+  max-inline-size: 46rem;
+  margin-inline-start: 0;
+  padding-block-end: clamp(1.5rem, 4vw, 2.5rem);
+  transition: inline-size 460ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* Filigran: dövme bandı + kanji. `aria-hidden`, okunuşu ayrı satırda. */
+.heroMark {
+  position: absolute;
+  inset-block-start: -1.5rem;
+  inset-inline-end: -1rem;
+  inline-size: clamp(11rem, 34vw, 21rem);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.heroMarkArt {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  opacity: 0.5;
+}
+
+.heroMarkStroke {
+  fill: var(--ren-tattoo);
+}
+
+.heroMarkSpike {
+  fill: color-mix(in srgb, var(--ren-tattoo) 72%, transparent);
+}
+
+.heroMarkKanji {
+  position: absolute;
+  inset-block-start: 44%;
+  inset-inline-end: 4%;
+  font-family: var(--font-brush), serif;
+  font-size: clamp(2.6rem, 9vw, 5.2rem);
+  line-height: 1;
+  color: color-mix(in srgb, var(--accent-muted) 88%, var(--ren-ink));
+}
+
+.page[data-release="bankai"] .heroMarkArt {
+  opacity: 0.76;
+}
+
+.heroHouse,
+.heroTitleReading,
+.heroWatermarkNote {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.heroName {
+  position: relative;
+  z-index: 1;
+  margin-block: 0.7rem 0.2rem;
+  font-family: var(--font-brush), serif;
+  font-size: clamp(2.9rem, 11vw, 6.1rem);
+  font-weight: 400;
+  line-height: 0.94;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.page[data-release="bankai"] .heroName {
+  color: color-mix(in srgb, var(--text-primary) 76%, var(--ren-bone));
+}
+
+.heroNative {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  font-family: var(--font-brush), serif;
+  font-size: clamp(1.5rem, 5vw, 2.5rem);
+  line-height: 1.2;
+  color: var(--ren-ja-text);
+}
+
+.heroTitle {
+  position: relative;
+  z-index: 1;
+  margin-block: 1.1rem 0.2rem;
+  font-family: var(--font-brush), serif;
+  font-size: clamp(1.15rem, 3.4vw, 1.75rem);
+  color: var(--accent-hover);
+}
+
+.heroTitleReading {
+  text-transform: none;
+  letter-spacing: 0.04em;
+}
+
+.heroEpigraph {
+  position: relative;
+  z-index: 1;
+  margin-block: 1.4rem 0;
+  max-inline-size: 34rem;
+  font-size: clamp(1.05rem, 2.6vw, 1.35rem);
+  line-height: 1.5;
+  color: var(--ren-reach-text);
+}
+
+.heroLede {
+  position: relative;
+  z-index: 1;
+  margin-block: 1rem 0;
+  max-inline-size: 38rem;
+  color: var(--text-secondary);
+}
+
+.heroWatermarkNote {
+  margin-block-start: 1rem;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  color: var(--ren-frame-text);
+}
+
+/* Madalyon portre — 230×346, eklemli kadraj içinde */
+.portrait {
+  position: relative;
+  z-index: 1;
+  inline-size: fit-content;
+  margin: clamp(1.6rem, 4vw, 2.6rem) 0 0;
+  padding: 0.55rem;
+  border: 1px solid var(--border-strong);
+  border-start-start-radius: 1.5rem;
+  border-end-end-radius: 1.5rem;
+  background: var(--surface);
+}
+
+.portraitImg {
+  display: block;
+  inline-size: clamp(8rem, 28vw, 11.5rem);
+  block-size: auto;
+  clip-path: polygon(0 0, 100% 0, 100% 88%, 86% 100%, 0 100%);
+}
+
+.heroFrameNote {
+  position: relative;
+  z-index: 1;
+  margin-block: 1.4rem 0.6rem;
+  max-inline-size: 34rem;
+  font-size: 0.86rem;
+  color: var(--ren-frame-text);
+}
+
+/* ══ 2 · MOD DÜĞMESİ ════════════════════════════════════════════════════ */
+
+.release {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.75rem 1.1rem;
+  inline-size: 100%;
+  margin-block: clamp(2.4rem, 6vw, 4rem);
+  padding-block: clamp(1.1rem, 3vw, 1.8rem);
+  border-block: 1px solid var(--border);
+}
+
+.releaseTitle {
+  margin: 0;
+  font-family: var(--font-brush), serif;
+  font-size: clamp(1.35rem, 4vw, 2.1rem);
+  font-weight: 400;
+  color: var(--text-primary);
+}
+
+.releaseNative {
+  margin: 0;
+  font-family: var(--font-brush), serif;
+  font-size: clamp(1.1rem, 3vw, 1.6rem);
+  color: var(--ren-ja-text);
+}
+
+.releaseButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-block-size: var(--touch-min);
+  margin-inline-start: auto;
+  padding-inline: 1.15rem;
+  border: 1px solid var(--border-strong);
+  border-start-start-radius: 1.4rem;
+  border-end-end-radius: 1.4rem;
+  background: var(--surface);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    border-color 260ms ease,
+    background-color 260ms ease;
+}
+
+.releaseButton:hover {
+  background: var(--surface-hover);
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border-strong));
+}
+
+.releaseButton:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 3px;
+}
+
+.releaseButton[aria-pressed="true"] {
+  border-color: color-mix(in srgb, var(--accent) 70%, transparent);
+  background: color-mix(in srgb, var(--accent-muted) 60%, var(--surface));
+}
+
+/* Üç parçalı eklem göstergesi — basılıyken parçalar aralanıyor */
+.releaseMark {
+  display: inline-flex;
+  gap: 2px;
+  align-items: center;
+  transition: gap 260ms ease;
+}
+
+.releaseMarkPart {
+  inline-size: 0.5rem;
+  block-size: 0.85rem;
+  background: color-mix(in srgb, var(--ren-joint) 80%, transparent);
+  clip-path: polygon(0 0, 100% 12%, 100% 88%, 0 100%);
+  transition: background-color 260ms ease;
+}
+
+.releaseButton[aria-pressed="true"] .releaseMark {
+  gap: 5px;
+}
+
+.releaseButton[aria-pressed="true"] .releaseMarkPart {
+  background: var(--ren-bone);
+}
+
+.releaseLabel {
+  white-space: nowrap;
+}
+
+.releaseHint {
+  flex: 1 1 100%;
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--ren-joint-text);
+}
+
+/* ══ ZİKZAK GÖVDESİ ═════════════════════════════════════════════════════
+   Bütün bölümler bu sınıfı taşıyor. Genişlik = %100 − 2×genlik, kayma da
+   tam o kadar; toplam her zaman %100, yani 360 px'te bile yatay taşma yok. */
+
+.limb {
+  position: relative;
+  inline-size: calc(100% - var(--ren-swing) * 2);
+  max-inline-size: 46rem;
+  margin-block: clamp(2.6rem, 7vw, 5rem);
+  margin-inline-start: 0;
+  transition:
+    inline-size 460ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    margin-inline-start 460ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.limb[data-side="right"] {
+  margin-inline-start: calc(var(--ren-swing) * 2);
+}
+
+/* Bölümü bir önceki ayıraca bağlayan eklem parçası */
+.limb::before {
+  content: "";
+  position: absolute;
+  inset-block-start: calc(var(--ren-joint-len) * -0.55);
+  inset-inline-start: 0;
+  inline-size: var(--ren-joint-len);
+  block-size: 3px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--ren-joint) 0 7px,
+    transparent 7px 10px
+  );
+  transform-origin: left center;
+  animation: ren-joint-open 620ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.limb[data-side="right"]::before {
+  --ren-tilt: -34deg;
+}
+
+.page[data-release="bankai"] .limb[data-side="right"]::before {
+  --ren-tilt: -46deg;
+}
+
+.limbHead {
+  margin-block-end: clamp(1.2rem, 3vw, 1.9rem);
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: var(--font-brush), serif;
+  font-size: clamp(1.85rem, 6vw, 3.3rem);
+  font-weight: 400;
+  line-height: 1.06;
+  color: var(--text-primary);
+}
+
+.page[data-release="bankai"] .sectionTitle {
+  font-size: clamp(2.15rem, 7vw, 3.9rem);
+  color: color-mix(in srgb, var(--text-primary) 70%, var(--ren-bone));
+}
+
+.sectionLede {
+  margin-block: 0.6rem 0;
+  max-inline-size: 38rem;
+  color: var(--text-secondary);
+}
+
+/* ══ BÖLÜM AYIRACI — DÖVME ÇİZGİSİ ══════════════════════════════════════ */
+
+.rule {
+  display: block;
+  inline-size: 100%;
+  block-size: 14px;
+  margin-block: clamp(1.8rem, 5vw, 3.4rem);
+}
+
+.ruleArt {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.ruleLine {
+  stroke: color-mix(in srgb, var(--ren-joint) 88%, transparent);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: ren-ink-draw 1500ms ease-out both;
+}
+
+.ruleNode {
+  stroke: color-mix(in srgb, var(--accent) 62%, transparent);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.page[data-release="bankai"] .ruleLine {
+  stroke: color-mix(in srgb, var(--ren-bone) 55%, transparent);
+  stroke-width: 3;
+}
+
+/* ══ 3 · KÜNYE ŞERİDİ ═══════════════════════════════════════════════════ */
+
+.facts {
+  display: grid;
+  grid-template-columns: minmax(7rem, 11rem) 1fr;
+  gap: 0;
+  margin: 0;
+}
+
+.fact {
+  display: contents;
+}
+
+.factLabel {
+  padding-block: 0.6rem;
+  padding-inline-end: 1rem;
+  border-block-start: 1px solid var(--border);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.factValue {
+  margin: 0;
+  padding-block: 0.6rem;
+  border-block-start: 1px solid var(--border);
+  color: var(--text-primary);
+}
+
+.factNote {
+  margin-block: 1.3rem 0;
+  max-inline-size: 36rem;
+  font-size: 0.86rem;
+  color: var(--ren-frame-text);
+}
+
+/* ══ 4a · ÜÇ BÜYÜK AĞIZ ═════════════════════════════════════════════════
+   İç zikzak: kartlar da kendi aralarında sola-sağa kayıyor, ama dış
+   bölümün yarısı kadar genlikle — ölçek küçüldükçe salınım da küçülüyor. */
+
+.blades {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.blade {
+  position: relative;
+  inline-size: calc(100% - var(--ren-swing));
+  margin-block: clamp(2rem, 5vw, 3.4rem);
+  margin-inline-start: 0;
+  padding-inline-start: 1.1rem;
+  border-inline-start: 2px solid color-mix(in srgb, var(--ren-joint) 85%, transparent);
+  transition:
+    inline-size 460ms ease,
+    margin-inline-start 460ms ease;
+}
+
+/* Sağa kayan kart ayıracını da karşı kenara alıyor: eklem hangi taraftaysa
+   çizgi de orada. */
+.blade[data-side="right"] {
+  margin-inline-start: var(--ren-swing);
+  padding-inline-start: 0;
+  padding-inline-end: 1.1rem;
+  border-inline-start: none;
+  border-inline-end: 2px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  text-align: end;
+}
+
+.blade[data-side="right"] .bladeTagline {
+  padding-inline: 0 0.85rem;
+  border-inline-start: none;
+  border-inline-end: 2px solid color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+.blade[data-side="right"] .bladeTraits {
+  justify-content: flex-end;
+}
+
+.bladeIndex {
+  margin: 0;
+  font-family: var(--font-brush), serif;
+  font-size: 1.4rem;
+  line-height: 1;
+  color: color-mix(in srgb, var(--ren-joint) 90%, var(--text-muted));
+}
+
+.bladeName {
+  margin-block: 0.35rem 0;
+  font-family: var(--font-brush), serif;
+  font-size: clamp(1.9rem, 6vw, 3rem);
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--accent-hover);
+}
+
+.bladeReading {
+  margin: 0;
+  font-size: 0.95rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ren-ja-text);
+}
+
+.bladeTurkish {
+  margin-block: 0.5rem 0;
+  font-size: 1.02rem;
+  color: var(--text-primary);
+}
+
+.bladeTagline {
+  margin-block: 0.9rem 0;
+  padding-inline-start: 0.85rem;
+  border-inline-start: 2px solid color-mix(in srgb, var(--accent) 60%, transparent);
+  font-size: 1.05rem;
+  color: var(--ren-reach-text);
+}
+
+.bladeText {
+  margin-block: 1rem 0;
+  color: var(--text-secondary);
+}
+
+.bladeTraits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-block: 1.1rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trait {
+  padding: 0.28rem 0.7rem;
+  border: 1px solid var(--border-strong);
+  clip-path: polygon(0 0, 100% 8%, 100% 92%, 0 100%);
+  background: var(--surface);
+  font-size: 0.82rem;
+  color: var(--ren-joint-text);
+}
+
+/* ══ 4b · DÖRT KANAT ════════════════════════════════════════════════════ */
+
+.kit {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--border);
+}
+
+.kitCard {
+  padding: clamp(0.9rem, 2.5vw, 1.4rem);
+  background: var(--surface);
+  transition: background-color 300ms ease;
+}
+
+.kitCard:hover {
+  background: var(--surface-hover);
+}
+
+.kitName {
+  margin: 0;
+  font-family: var(--font-brush), serif;
+  font-size: clamp(1.6rem, 5vw, 2.3rem);
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--text-primary);
+}
+
+.kitReading {
+  margin: 0;
+  font-size: 0.82rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ren-ja-text);
+}
+
+.kitTurkish {
+  margin-block: 0.5rem 0;
+  font-size: 0.94rem;
+  color: var(--accent-hover);
+}
+
+.kitNote {
+  margin-block: 0.6rem 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+/* ══ 5 · EKLEM ZİNCİRİ — SAYFANIN KALBİ ═════════════════════════════════ */
+
+.chain {
+  margin-block-start: clamp(1.2rem, 3vw, 2rem);
+}
+
+.chainBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.8rem 1.1rem;
+  padding-block: 1rem;
+  border-block: 1px solid var(--border);
+}
+
+.chainButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-block-size: var(--touch-min);
+  padding-inline: 1.3rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 60%, var(--border-strong));
+  clip-path: polygon(0 0, 100% 10%, 100% 90%, 0 100%);
+  background: color-mix(in srgb, var(--accent-muted) 70%, var(--surface));
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 1rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 240ms ease;
+}
+
+.chainButton:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent-muted) 95%, var(--surface));
+}
+
+.chainButton:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 3px;
+}
+
+.chainButton:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.chainButtonMark {
+  inline-size: 1.1rem;
+  block-size: 0.34rem;
+  background: var(--accent);
+  clip-path: polygon(0 0, 100% 22%, 100% 78%, 0 100%);
+}
+
+.chainButtonLabel {
+  white-space: nowrap;
+}
+
+.chainCount {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.chainCountLabel {
+  font-size: 0.76rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.chainCountValue {
+  font-family: var(--font-brush), serif;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--ren-reach-text);
+}
+
+.chainReset {
+  min-block-size: var(--touch-min);
+  margin-inline-start: auto;
+  padding-inline: 0.95rem;
+  border: 1px solid var(--border-strong);
+  background: transparent;
+  color: var(--ren-joint-text);
+  font: inherit;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.chainReset:hover:not(:disabled) {
+  color: var(--text-primary);
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--border-strong));
+}
+
+.chainReset:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 3px;
+}
+
+.chainReset:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.chainStatus {
+  margin-block: 1rem 0;
+  max-inline-size: 38rem;
+  color: var(--ren-reach-text);
+}
+
+.chainHint {
+  margin-block: 0.5rem 0;
+  max-inline-size: 38rem;
+  font-size: 0.84rem;
+  color: var(--ren-frame-text);
+}
+
+.chainList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Zincirin her halkası dıştaki zikzağın TERSİNE dönüyor: dış bölüm sola
+   yaslıyken içerideki eklem sağa açılıyor. Yön her eklemde değişiyor. */
+.chainItem {
+  position: relative;
+  inline-size: calc(100% - var(--ren-swing) * 1.4);
+  margin-block: clamp(1.6rem, 4vw, 2.8rem);
+  margin-inline-start: 0;
+  transition:
+    inline-size 460ms ease,
+    margin-inline-start 460ms ease;
+}
+
+.chainItem[data-side="right"] {
+  margin-inline-start: calc(var(--ren-swing) * 1.4);
+}
+
+/* Eklem parçası: beş çubuk, sırayla uzuyor */
+.joint {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  block-size: 0.6rem;
+  margin-block-end: 0.75rem;
+}
+
+.joint[data-side="right"] {
+  flex-direction: row-reverse;
+}
+
+.jointBar {
+  flex: 1 1 auto;
+  block-size: 100%;
+  background: color-mix(in srgb, var(--ren-joint) 92%, transparent);
+  clip-path: polygon(0 0, 100% 18%, 100% 82%, 0 100%);
+  transform-origin: left center;
+  animation: ren-bar-reach 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--ren-i) * 70ms);
+}
+
+.joint[data-side="right"] .jointBar {
+  transform-origin: right center;
+}
+
+.page[data-release="bankai"] .jointBar {
+  background: color-mix(in srgb, var(--ren-bone) 46%, var(--ren-joint));
+  block-size: 100%;
+}
+
+.segment {
+  padding: clamp(1rem, 3vw, 1.6rem);
+  border: 1px solid var(--border);
+  border-start-start-radius: 1.2rem;
+  border-end-end-radius: 1.2rem;
+  background: var(--surface);
+}
+
+.chainItem[data-side="right"] .segment {
+  border-start-start-radius: 0;
+  border-end-end-radius: 0;
+  border-start-end-radius: 1.2rem;
+  border-end-start-radius: 1.2rem;
+}
+
+.segmentStage {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.segmentNative {
+  margin: 0;
+  font-family: var(--font-brush), serif;
+  font-size: clamp(1.7rem, 5vw, 2.6rem);
+  line-height: 1.1;
+  color: var(--ren-ja-text);
+}
+
+.segmentTitle {
+  margin-block: 0.2rem 0;
+  font-family: var(--font-brush), serif;
+  font-size: clamp(1.5rem, 4.4vw, 2.2rem);
+  font-weight: 400;
+  color: var(--text-primary);
+}
+
+.segmentReach {
+  margin-block: 0.55rem 0;
+  font-size: 0.9rem;
+  letter-spacing: 0.06em;
+  color: var(--ren-reach-text);
+}
+
+.segmentText {
+  margin-block: 0.9rem 0;
+  color: var(--text-secondary);
+}
+
+.segmentNote {
+  margin-block: 0.8rem 0;
+  padding-inline-start: 0.8rem;
+  border-inline-start: 2px solid color-mix(in srgb, var(--ren-joint) 80%, transparent);
+  font-size: 0.86rem;
+  color: var(--ren-frame-text);
+}
+
+.chainClosing {
+  margin-block: clamp(1.6rem, 4vw, 2.4rem) 0;
+  max-inline-size: 36rem;
+  font-size: clamp(1rem, 2.4vw, 1.2rem);
+  color: var(--ren-reach-text);
+}
+
+/* ══ 6 · BEŞ DÖNEM ══════════════════════════════════════════════════════ */
+
+.fate {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stop {
+  position: relative;
+  inline-size: calc(100% - var(--ren-swing));
+  margin-block: clamp(2rem, 5vw, 3.2rem);
+  margin-inline-start: 0;
+  padding-block-start: 1rem;
+  border-block-start: 1px solid var(--border-strong);
+  transition:
+    inline-size 460ms ease,
+    margin-inline-start 460ms ease;
+}
+
+.stop[data-side="right"] {
+  margin-inline-start: var(--ren-swing);
+}
+
+.stopStamp {
+  margin: 0;
+  font-size: 0.76rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent-hover);
+}
+
+.stopTitle {
+  margin-block: 0.35rem 0;
+  font-family: var(--font-brush), serif;
+  font-size: clamp(1.6rem, 4.8vw, 2.5rem);
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--text-primary);
+}
+
+.stopText {
+  margin-block: 0.8rem 0;
+  color: var(--text-secondary);
+}
+
+.stopQuote {
+  margin: 1.1rem 0 0;
+  padding-inline-start: 1rem;
+  border-inline-start: 3px solid color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.quoteJa {
+  margin: 0;
+  font-family: var(--font-brush), serif;
+  font-size: clamp(1.4rem, 4vw, 2.1rem);
+  line-height: 1.35;
+  color: var(--text-primary);
+}
+
+.quoteReading {
+  margin-block: 0.35rem 0;
+  font-size: 0.9rem;
+  color: var(--ren-ja-text);
+}
+
+.quoteBy {
+  margin-block-start: 0.35rem;
+  font-size: 0.76rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.stopKin {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-block: 1rem 0;
+}
+
+.stopKinLink {
+  min-block-size: var(--touch-min);
+  display: inline-flex;
+  align-items: center;
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-block-end: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+.stopKinLink:hover,
+.stopKinLink:focus-visible {
+  color: var(--text-primary);
+  border-block-end-color: var(--accent);
+}
+
+.stopKinName {
+  color: var(--ren-joint-text);
+}
+
+.stopKinRole {
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+}
+
+/* ══ 7a · BAĞLAR ════════════════════════════════════════════════════════ */
+
+.bonds {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bond {
+  display: flex;
+  gap: 1rem;
+  padding-block: clamp(1rem, 3vw, 1.5rem);
+  border-block-start: 1px solid var(--border);
+}
+
+.bondFace {
+  position: relative;
+  flex: 0 0 auto;
+  inline-size: 4.5rem;
+  block-size: 4.5rem;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  clip-path: polygon(0 0, 100% 0, 100% 82%, 82% 100%, 0 100%);
+  background: var(--surface-hover);
+}
+
+.bondFace img {
+  object-fit: cover;
+}
+
+.bondFaceMark {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-brush), serif;
+  font-size: 2rem;
+  color: color-mix(in srgb, var(--ren-joint) 92%, var(--text-muted));
+}
+
+.bondBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-inline-size: 0;
+}
+
+.bondName {
+  font-family: var(--font-brush), serif;
+  font-size: clamp(1.35rem, 4vw, 1.9rem);
+  line-height: 1.15;
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-block-end: 1px solid transparent;
+  align-self: flex-start;
+}
+
+.bondName:hover,
+.bondName:focus-visible {
+  color: var(--text-primary);
+  border-block-end-color: var(--accent);
+}
+
+.bondNamePlain {
+  font-family: var(--font-brush), serif;
+  font-size: clamp(1.35rem, 4vw, 1.9rem);
+  line-height: 1.15;
+  color: var(--text-primary);
+}
+
+.bondNative {
+  font-size: 0.88rem;
+  color: var(--ren-ja-text);
+}
+
+.bondRole {
+  font-size: 0.76rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.bondText {
+  margin-block-start: 0.45rem;
+  color: var(--text-secondary);
+}
+
+.bondFlag {
+  margin-block-start: 0.5rem;
+  font-size: 0.78rem;
+  color: var(--ren-frame-text);
+}
+
+/* ══ 7b · EVRENE AÇILAN EKLEMLER ════════════════════════════════════════ */
+
+.nexusList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 0.85rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nexus {
+  display: flex;
+}
+
+.nexusLink {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  inline-size: 100%;
+  min-block-size: var(--touch-min);
+  padding: 0.95rem 2.2rem 0.95rem 1rem;
+  border: 1px solid var(--border-strong);
+  clip-path: polygon(0 0, 100% 6%, 100% 94%, 0 100%);
+  background: var(--surface);
+  text-decoration: none;
+  transition: background-color 260ms ease;
+}
+
+.nexusLink:hover,
+.nexusLink:focus-visible {
+  background: var(--surface-hover);
+}
+
+.nexusLink:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 3px;
+}
+
+.nexusTitle {
+  font-family: var(--font-brush), serif;
+  font-size: 1.3rem;
+  line-height: 1.2;
+  color: var(--accent-hover);
+}
+
+.nexusText {
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+}
+
+.nexusArrow {
+  position: absolute;
+  inset-inline-end: 0.9rem;
+  inset-block-start: 1rem;
+  color: var(--ren-joint-text);
+}
+
+/* ══ 7c · KAPANIŞ ═══════════════════════════════════════════════════════ */
+
+.closing {
+  position: relative;
+  inline-size: calc(100% - var(--ren-swing) * 2);
+  max-inline-size: 46rem;
+  margin-block: clamp(3rem, 8vw, 5.5rem) 0;
+  margin-inline-start: 0;
+  transition:
+    inline-size 460ms ease,
+    margin-inline-start 460ms ease;
+}
+
+.closingQuotes {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.closingQuote {
+  margin: 0 0 clamp(1.6rem, 4vw, 2.4rem);
+  padding-inline-start: 1rem;
+  border-inline-start: 3px solid color-mix(in srgb, var(--accent) 50%, transparent);
+}
+
+.quoteNote {
+  margin-block: 0.6rem 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.motto {
+  margin: 0;
+  font-family: var(--font-brush), serif;
+  font-size: clamp(3rem, 13vw, 7rem);
+  line-height: 1;
+  color: color-mix(in srgb, var(--accent) 62%, var(--text-primary));
+}
+
+.page[data-release="bankai"] .motto {
+  color: color-mix(in srgb, var(--ren-bone) 72%, var(--accent));
+}
+
+.mottoNote {
+  margin-block: 0.9rem 0;
+  max-inline-size: 34rem;
+  font-size: 0.9rem;
+  color: var(--ren-frame-text);
+}
+
+.credit {
+  margin-block: clamp(2rem, 5vw, 3rem) 0;
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+}
+
+.credit a {
+  color: var(--accent-hover);
+}
+
+.creditNote {
+  margin-block: 0.7rem 0;
+  max-inline-size: 38rem;
+  font-size: 0.82rem;
+  color: var(--ren-frame-text);
+}
+
+/* ══ KADRAJLAR VE KÜRATÖR YUVALARI ══════════════════════════════════════
+   Kadraj yalnızca DOLU olduğunda ya da küratör modunda çiziliyor (bileşen
+   tarafında kesiliyor). Boş kadrajdaki üretim metadatası ziyaretçiye
+   sızmıyor — Dalga 1'in birinci dersi. */
+
+.frameSlot {
+  margin-block: clamp(1.1rem, 3vw, 1.7rem) 0.6rem;
+}
+
+.frameInner {
+  inline-size: 100%;
+  overflow-x: auto;
+}
+
+.frame {
+  position: relative;
+  display: grid;
+  place-items: center;
+  inline-size: 100%;
+  margin: 0;
+  border: 1px dashed color-mix(in srgb, var(--ren-joint) 85%, transparent);
+  background: color-mix(in srgb, var(--surface) 70%, var(--bg));
+  overflow: hidden;
+}
+
+.frameSlot[data-filled="true"] .frame {
+  border-style: solid;
+  border-color: var(--border-strong);
+}
+
+.frame img {
+  object-fit: cover;
+}
+
+.frameCaption {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.8rem;
+  text-align: center;
+}
+
+.frameCaptionWord {
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ren-joint-text);
+}
+
+.frameCaptionSpec {
+  font-size: 0.76rem;
+  color: var(--ren-frame-text);
+}
+
+.frameTall {
+  aspect-ratio: 3 / 4;
+  clip-path: polygon(0 0, 100% 0, 100% 92%, 88% 100%, 0 100%);
+}
+
+.frameWide {
+  aspect-ratio: 14 / 9;
+  clip-path: polygon(0 0, 100% 5%, 100% 100%, 0 95%);
+}
+
+.frameSmall {
+  aspect-ratio: 1 / 1;
+  clip-path: polygon(0 0, 100% 8%, 100% 92%, 0 100%);
+}
+
+.frameScene {
+  aspect-ratio: 7 / 4;
+  clip-path: polygon(0 4%, 100% 0, 100% 96%, 0 100%);
+}
+
+.frameBand {
+  aspect-ratio: 16 / 7;
+  clip-path: polygon(0 0, 100% 6%, 100% 94%, 0 100%);
+}
+
+/* ══ HAREKET ════════════════════════════════════════════════════════════ */
+
+@keyframes ren-joint-open {
+  0% {
+    transform: rotate(var(--ren-tilt)) scaleX(0);
+    opacity: 0;
+  }
+  55% {
+    transform: rotate(var(--ren-tilt)) scaleX(1.14);
+    opacity: 1;
+  }
+  78% {
+    transform: rotate(var(--ren-tilt)) scaleX(0.93);
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(var(--ren-tilt)) scaleX(1);
+    opacity: 1;
+  }
+}
+
+@keyframes ren-bar-reach {
+  0% {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  34% {
+    transform: scaleX(0.62);
+    opacity: 1;
+  }
+  71% {
+    transform: scaleX(1.18);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+@keyframes ren-ink-draw {
+  0% {
+    stroke-dashoffset: 100;
+    opacity: 0;
+  }
+  16% {
+    stroke-dashoffset: 88;
+    opacity: 1;
+  }
+  72% {
+    stroke-dashoffset: 13;
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+@keyframes ren-spine-rise {
+  0% {
+    transform: translateY(-1.8rem) scaleY(0.7);
+    opacity: 0;
+  }
+  46% {
+    transform: translateY(0.4rem) scaleY(1.05);
+    opacity: 0.6;
+  }
+  74% {
+    transform: translateY(-0.15rem) scaleY(0.98);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(0) scaleY(1);
+    opacity: 1;
+  }
+}
+
+/* ══ AZALTILMIŞ HAREKET ═════════════════════════════════════════════════
+   Battaniye: bütün animasyon ve geçişler susuyor. ⚠️ ZİKZAK DÜZENİ
+   KALKMIYOR — kaçıklıklar `margin-inline-start` ile kuruldu, yani ızgara
+   animasyona değil yerleşime ait. Azaltılmış harekette sayfa aynı zikzağı
+   çiziyor, yalnızca sessizce çiziyor. */
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    transition-delay: 0s !important;
+    scroll-behavior: auto !important;
+  }
+}

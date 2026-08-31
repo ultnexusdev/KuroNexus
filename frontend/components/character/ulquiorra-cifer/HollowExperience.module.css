@@ -1,0 +1,1680 @@
+/* ============================================================
+   DÜNYA DERİSİ — Ulquiorra Cifer (AniList #1081)
+
+   Palet dalga briefinde KİLİTLİ; on üç değer olduğu gibi alındı ve
+   `node scripts/check-karakter-kontrast.mjs` ile ölçüldü:
+   text-primary 12.26 / bg · 11.48 / surface, text-secondary 5.06 /
+   surface-hover, text-muted 4.62 / surface-hover, accent 9.36 / surface,
+   accent-hover 9.76 / surface, gold 5.00 / surface — hepsi eşiğin üstünde.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı gereği
+   bir yerel sınıf şart. Kök öğe ikisini birlikte taşır.
+
+   Aile: KÖMÜR + tek bir zehir yeşili. Zemin nötr gri-siyah (r=g=b), tek
+   renkli şey accent: #4acf97, Ulquiorra'nın cero'sunun ve gözyaşı
+   hatlarının rengi. Arşivin sıkışmış turuncu ve kızıl ailelerinin tamamen
+   dışında; en yakın yeşil komşusu Sakura'nın #4cbc88'i ve aradaki RGB
+   uzaklığı 24 (eşik 20).
+
+   ⚠️ Yardımcı token adlandırması: küçük metinde kullanılan her rengin
+   `-text` ekli bir kardeşi var (denetim yalnızca onları ölçüyor).
+   Ekli olmayanlar MALZEME: deliğin gövdesi, halkanın konturu, gözyaşının
+   çizgisi, miğferin kırığı — hepsi koyu olmak zorunda.
+   ============================================================ */
+.page[data-world="ulquiorra-cifer"] {
+  --bg:             #0b0b0b;
+  --surface:        #141414;
+  --surface-hover:  #1b1b1b;
+  --border:         #222222;
+  --border-strong:  #323232;
+
+  --text-primary:   #cccccc;
+  --text-secondary: #8f8a8a;
+  --text-muted:     #8c8282;
+
+  --accent:         #4acf97;
+  --accent-hover:   #73cea8;
+  --accent-muted:   #244738;
+
+  --gold:           #858585;
+  --warn:           #b88347;
+  --danger:         #c26459;
+
+  /* ── Yardımcı malzeme — yalnızca bu ağaç okur ── */
+  --ulq-void:       #050505;
+  --ulq-ring:       #2c3b35;
+  --ulq-tear:       #2f6a52;
+  --ulq-helm:       #3a3a3a;
+
+  /* ── Küçük metinde okunan aile (`-text`, ölçülüyor) ── */
+  --ulq-ask-text:    #8fd8b6;
+  --ulq-glyph-text:  #9a9a9a;
+  --ulq-frame-text:  #8e8e8e;
+  --ulq-answer-text: #a8a3a3;
+}
+
+/* ============================================================
+   ULQUIORRA — "Boşluk"
+
+   Deri: kökteki `data-world="ulquiorra-cifer"` bütün standart token'ları
+   kömüre çeviriyor; yardımcılar `--ulq-*` (yukarıdaki blok). Bu bloktan
+   AŞAĞIDA TEK HEX YOK — ara tonların hepsi color-mix ile token'lardan
+   türetildi (FAZ 2 §1).
+
+   ── SAYFANIN FİKRİ ──────────────────────────────────────────────────────
+   BOŞLUK GERÇEK. `.grid` üç parçalı ve ORTA PARÇA BOŞ:
+   `minmax(0,1fr) | var(--ulq-hole) | minmax(0,1fr)`. Bölümler 1. ve 3.
+   kolonda; sağ sütun `--ulq-offset` kadar aşağı kaydırılmış, yani simetrik
+   bir iki kolon değil dengesiz bir negatif alan. Ortadaki kolonun içinde
+   yalnızca iki ince halka ve kenarına oturmuş bir 虚 var.
+
+   ⚠️ Ve o kolonun GENİŞLİĞİ SABİT DEĞİL. `--ulq-hole` kökteki
+   `data-answers` niteliğine bağlı: her cevap deliği bir kademe daraltıyor
+   ve `grid-template-columns` geçişle yeniden ölçülüyor. Yani mekanik bir
+   göstergeyi değil DÜZENİN KENDİSİNİ değiştiriyor. Beşinci cevapta
+   `data-swallow="true"` oluyor, ızgara erişilebilirlik ağacından çıkıyor ve
+   perde sayfanın tamamını kaplıyor.
+
+   ── ÖLÇÜ SİSTEMİ ────────────────────────────────────────────────────────
+   `--ulq-hole` orta kolonun genişliği (değişken), `--ulq-step` bölümler
+   arası dikey boşluk, `--ulq-offset` sağ sütunun aşağı kayması,
+   `--ulq-hair` sayfadaki tek ayırıcı: bir piksellik çizgi.
+
+   ── RENK GÖREVLERİ ──────────────────────────────────────────────────────
+   --accent          → soru işareti, ölçü çentikleri, verilmiş cevabın izi
+   --accent-hover    → bağlantılar, sayaç rakamı, motto
+   --gold            → künye değerleri (nötr gri; bu palette altın yok)
+   --ulq-void        → YALNIZCA deliğin ve perdenin gövdesi
+   --ulq-ring        → YALNIZCA halkanın konturu ve 虚 filigranı
+   --ulq-tear        → YALNIZCA gözyaşı izlerinin çizgisi
+   --ulq-helm        → YALNIZCA kırık miğfer parçasının konturu
+   --ulq-ask-text    → soru metinleri (mod açıkken öne çıkan aile)
+
+   ── TİPOGRAFİ ───────────────────────────────────────────────────────────
+   Display: Cormorant Garamond, ağırlık 300, ÇOK büyük, harf aralığı geniş,
+   büyük harf. Sessiz ve soğuk; sayfada kalın hiçbir şey yok.
+   Gövde: Inter, KÜÇÜK punto ama ağırlık 400.
+
+   ⚠️ Gövde neden 300 değil: `--text-primary` ince kesimde ve küçük puntoda
+   okunaksızlaşıyor (ince kontur + düşük ışık). 300 yalnızca 2rem üstündeki
+   başlıklarda — WCAG'nin "büyük metin" eşiğinin üstü. Sorular Cormorant
+   italik ama 400'de.
+   Japonca: Shippori Mincho.
+
+   ── HAREKET ─────────────────────────────────────────────────────────────
+   "Gözyaşı izi" ve BAŞKA HİÇBİR ŞEY. Sayfada tek bir `@keyframes` var: beş
+   ince dikey çizgi yukarıdan aşağı, yavaş, tek yönlü akıyor. Geri kalan
+   her şey ya durgun ya da bir kullanıcı eylemine bağlı bir geçiş. Animasyon
+   `prefers-reduced-motion: no-preference` kapısında, geçişler ise dosya
+   sonundaki `reduce` battaniyesiyle kapanıyor.
+   ============================================================ */
+
+.page {
+  --ulq-hole: clamp(11rem, 26vw, 20rem);
+  --ulq-step: clamp(6.5rem, 19vh, 13rem);
+  --ulq-offset: clamp(4.5rem, 13vh, 10rem);
+  --ulq-hair: color-mix(in srgb, var(--border-strong) 72%, transparent);
+  --ulq-hair-soft: color-mix(in srgb, var(--border) 88%, transparent);
+  --ulq-slow: 900ms;
+  --ulq-quick: 320ms;
+  --ulq-ease: cubic-bezier(0.22, 0.61, 0.24, 1);
+
+  position: relative;
+  background: var(--bg);
+  color: var(--text-primary);
+  overflow-x: clip;
+  overflow-wrap: break-word;
+  padding: clamp(1.1rem, 4vw, 2.4rem) clamp(1rem, 5vw, 3rem)
+    clamp(5rem, 16vh, 10rem);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: clamp(0.8rem, 0.76rem + 0.2vw, 0.875rem);
+  font-weight: 400;
+  line-height: 1.9;
+  letter-spacing: 0.008em;
+}
+
+/* Görünür odak — sayfadaki her düğme ve bağlantı için tek kural */
+.page :focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ── DELİĞİN ÖLÇÜSÜ: mekanizmanın kendisi ────────────────────────────────
+   Her cevap orta kolonu bir kademe daraltıyor. Değerler ızgaraya doğrudan
+   giriyor (`grid-template-columns`), yani bu bir gösterge değil DÜZEN.
+   Beşinci kademe yalnızca perde açılırken bir an görünüyor. */
+.page[data-answers="1"] { --ulq-hole: clamp(9rem, 21vw, 16rem); }
+.page[data-answers="2"] { --ulq-hole: clamp(7.5rem, 17vw, 12.5rem); }
+.page[data-answers="3"] { --ulq-hole: clamp(6rem, 13vw, 9.5rem); }
+.page[data-answers="4"] { --ulq-hole: clamp(4.5rem, 9vw, 7rem); }
+.page[data-answers="5"] { --ulq-hole: clamp(4rem, 8vw, 6rem); }
+
+/* ── HAREKET: gözyaşı izi ───────────────────────────────────────────────
+   Sayfanın TEK animasyonu. `position: fixed` çünkü sayfa çok uzun ve iz
+   mutlak konumlansaydı yalnızca en üstte görünürdü. */
+.tears {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.tear {
+  position: absolute;
+  inset-block-start: -32vh;
+  inline-size: 1px;
+  block-size: 30vh;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    color-mix(in srgb, var(--ulq-tear) 85%, transparent) 45%,
+    transparent
+  );
+  opacity: 0;
+}
+
+.tear:nth-child(1) { inset-inline-start: 6%; }
+.tear:nth-child(2) { inset-inline-start: 23%; }
+.tear:nth-child(3) { inset-inline-start: 51%; }
+.tear:nth-child(4) { inset-inline-start: 74%; }
+.tear:nth-child(5) { inset-inline-start: 92%; }
+
+@keyframes ulqTear {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  14% {
+    opacity: 0.6;
+  }
+  72% {
+    opacity: 0.32;
+  }
+  100% {
+    transform: translateY(165vh);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .tear {
+    animation: ulqTear 21s linear infinite;
+  }
+  .tear:nth-child(2) { animation-duration: 27s; animation-delay: -6s; }
+  .tear:nth-child(3) { animation-duration: 18s; animation-delay: -13s; }
+  .tear:nth-child(4) { animation-duration: 31s; animation-delay: -3s; }
+  .tear:nth-child(5) { animation-duration: 24s; animation-delay: -17s; }
+}
+
+/* Görünmez canlı bölge — perdenin de ızgaranın da DIŞINDA (gerekçe
+   `HollowShell` başlığında: gizli bir canlı bölge hiçbir şey duyurmaz). */
+.live {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ── Breadcrumb ─────────────────────────────────────────────────────── */
+
+.crumb {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.crumb a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--touch-min);
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-block-end: 1px solid transparent;
+}
+
+.crumb a:hover {
+  border-block-end-color: var(--accent);
+}
+
+.crumbSep { color: var(--border-strong); }
+.crumbHere { color: var(--text-secondary); }
+
+/* ── 1 · HERO ───────────────────────────────────────────────────────── */
+
+.hero {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: start;
+  max-inline-size: 46rem;
+  margin-block-start: clamp(3rem, 12vh, 8rem);
+}
+
+.heroEyebrow {
+  margin: 0;
+  font-size: 0.66rem;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.heroName {
+  margin: clamp(1rem, 3vh, 2rem) 0 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-weight: 300;
+  font-size: clamp(2.4rem, 10vw, 7.5rem);
+  line-height: 0.98;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.heroNative {
+  margin: 0.9rem 0 0;
+  font-family: var(--font-shippori), serif;
+  font-size: clamp(0.9rem, 2.4vw, 1.2rem);
+  letter-spacing: 0.34em;
+  color: var(--ulq-glyph-text);
+}
+
+.heroAlt {
+  margin: 0.4rem 0 0;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+}
+
+.heroRule {
+  display: block;
+  inline-size: min(100%, 14rem);
+  block-size: 1px;
+  margin-block: clamp(1.8rem, 5vh, 3.2rem);
+  background: var(--ulq-hair);
+}
+
+.heroLede {
+  margin: 0;
+  max-inline-size: 34rem;
+  color: var(--text-secondary);
+  transition: color var(--ulq-quick) var(--ulq-ease);
+}
+
+/* Madalyon portre — 230×345, tam kanama için küçük olduğu için dar kadraj */
+.portrait {
+  display: grid;
+  justify-items: start;
+  gap: 0.7rem;
+  margin: clamp(2.4rem, 7vh, 4rem) 0 0;
+}
+
+.portraitImg {
+  display: block;
+  inline-size: clamp(7rem, 22vw, 11.5rem);
+  block-size: auto;
+  border: 1px solid var(--ulq-hair-soft);
+  filter: grayscale(0.25) contrast(1.02);
+}
+
+.portraitCap {
+  display: grid;
+  gap: 0.25rem;
+  font-family: var(--font-shippori), serif;
+  font-size: 1.15rem;
+  letter-spacing: 0.2em;
+  color: var(--ulq-glyph-text);
+}
+
+.portraitCapReading {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+/* Yalnızca yöneticide — üretim gerekçesi ziyaretçiye sızmaz */
+.heroFrameNote {
+  margin: 1.4rem 0 0;
+  max-inline-size: 30rem;
+  font-size: 0.68rem;
+  line-height: 1.7;
+  letter-spacing: 0.06em;
+  color: var(--ulq-frame-text);
+}
+
+/* ── 2 · MOD DÜĞMESİ ────────────────────────────────────────────────── */
+
+.mode {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: start;
+  gap: 0.6rem;
+  margin-block-start: clamp(4rem, 14vh, 9rem);
+  padding-block-start: clamp(1.6rem, 5vh, 2.6rem);
+  border-block-start: 1px solid var(--ulq-hair);
+  max-inline-size: 34rem;
+}
+
+.modeTitle {
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-weight: 300;
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  line-height: 1.05;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.modeNative {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.3em;
+  color: var(--ulq-ring);
+}
+
+.modeButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+  min-block-size: var(--touch-min);
+  margin-block-start: 0.7rem;
+  padding: 0.55rem 1.3rem 0.55rem 1rem;
+  background: transparent;
+  border: 1px solid var(--ulq-hair);
+  border-radius: 0;
+  color: var(--text-primary);
+  font: inherit;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition:
+    border-color var(--ulq-quick) var(--ulq-ease),
+    color var(--ulq-quick) var(--ulq-ease);
+}
+
+.modeButton:hover {
+  border-color: var(--accent-muted);
+  color: var(--accent-hover);
+}
+
+/* Tek işaret: içi boş bir halka — basılıyken ortası açılıyor, dolmuyor */
+.modeMark {
+  inline-size: 0.85rem;
+  block-size: 0.85rem;
+  border: 1px solid var(--accent-muted);
+  border-radius: 50%;
+  transition:
+    border-color var(--ulq-quick) var(--ulq-ease),
+    box-shadow var(--ulq-quick) var(--ulq-ease);
+}
+
+.modeButton[aria-pressed="true"] .modeMark {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.modeLabel { display: inline-block; }
+
+.modeHint {
+  margin: 0.6rem 0 0;
+  max-inline-size: 30rem;
+  font-size: 0.72rem;
+  line-height: 1.75;
+  color: var(--text-secondary);
+}
+
+/* ── IZGARA: ortası GERÇEKTEN boş ───────────────────────────────────── */
+
+.grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--ulq-hole) minmax(0, 1fr);
+  column-gap: clamp(1.5rem, 5vw, 4.5rem);
+  row-gap: var(--ulq-step);
+  align-items: start;
+  margin-block-start: var(--ulq-step);
+  opacity: 1;
+  visibility: visible;
+  transition:
+    grid-template-columns var(--ulq-slow) var(--ulq-ease),
+    opacity 420ms var(--ulq-ease),
+    visibility 0s;
+}
+
+/* ⚠️ YUTMA: içerik gerçekten erişilebilirlik ağacından ve sekme sırasından
+   çıkıyor (`visibility`), yalnızca soluklaşmıyor. Geri alınabilir ve odak
+   perdedeki düğmeye taşınıyor — gerekçe `HollowShell` başlığında. */
+.page[data-swallow="true"] .grid {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    grid-template-columns var(--ulq-slow) var(--ulq-ease),
+    opacity 420ms var(--ulq-ease),
+    visibility 0s 420ms;
+}
+
+.left { grid-column: 1; }
+
+/* Sağ sütun bir adım aşağıda: simetrik iki kolon olsaydı boşluk bir
+   "gutter" gibi okunurdu, oysa burada boşluk sayfanın konusu. */
+.right {
+  grid-column: 3;
+  margin-block-start: var(--ulq-offset);
+}
+
+.gapsWrap { grid-column: 1 / -1; }
+
+/* ⚠️ SATIRLAR ELLE VERİLDİ, otomatik yerleşime bırakılmadı. Delik
+   `grid-row: 1 / span 4` ile dört satırı birden kaplıyor; bölümler otomatik
+   yerleşseydi kaç satır oluşacağı tarayıcının seyrek/yoğun paketleme
+   yorumuna kalırdı ve delik alt yarıda sabitlenemezdi. Yedi bölüm, dört
+   satır: (künye|güç) (küçük|kalp) (kader|bağlar) (kapanış| — ).
+   Son hücrenin boş kalması kasıtlı: sayfanın son negatif alanı. */
+.grid > section:nth-of-type(1) { grid-row: 1; }
+.grid > section:nth-of-type(2) { grid-row: 1; }
+.grid > section:nth-of-type(3) { grid-row: 2; }
+.grid > section:nth-of-type(4) { grid-row: 2; }
+.grid > section:nth-of-type(5) { grid-row: 3; }
+.grid > section:nth-of-type(6) { grid-row: 3; }
+.grid > section:nth-of-type(7) { grid-row: 4; }
+
+/* ── DELİK: ikinci kolonun kendisi ──────────────────────────────────── */
+
+.hole {
+  position: sticky;
+  top: max(4rem, calc(50vh - var(--ulq-hole) / 2));
+  grid-column: 2;
+  /* Dört içerik satırının tamamı. `-1` implicit satırlarda son EXPLICIT
+     çizgiyi gösterdiği için span kullanılıyor; bölüm sayısı sabit (7 bölüm
+     → 4 satır), o yüzden bu değer deterministik. */
+  grid-row: 1 / span 4;
+  align-self: start;
+  justify-self: center;
+  z-index: 2;
+  display: grid;
+  justify-items: center;
+  gap: 0.5rem;
+  /* Delik daraldığında sayacın metni okunamaz hâle gelmesin diye taban:
+     kolon 4.5rem'e inse bile metin bloğu 6.5rem kalıyor ve fazlası
+     boşluğa taşıyor (`overflow-x: clip` yatay kaydırmayı engelliyor). */
+  inline-size: max(100%, 6.5rem);
+  text-align: center;
+}
+
+.holeRing {
+  position: relative;
+  display: block;
+  inline-size: var(--ulq-hole);
+  max-inline-size: 100%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    var(--ulq-void) 54%,
+    color-mix(in srgb, var(--ulq-void) 65%, transparent) 76%,
+    transparent 100%
+  );
+  transition: inline-size var(--ulq-slow) var(--ulq-ease);
+}
+
+.ringArt {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.ringOuter {
+  stroke: var(--ulq-ring);
+  stroke-width: 0.9;
+}
+
+.ringInner {
+  stroke: color-mix(in srgb, var(--ulq-ring) 55%, transparent);
+  stroke-width: 0.7;
+}
+
+.ringTick {
+  stroke: var(--accent-muted);
+  stroke-width: 1.1;
+}
+
+/* Filigran: 虚 halkanın KENARINDA, yarısı dışarıda. Dolu bir simge değil —
+   boşluğun kenarına yazılmış bir işaret. */
+.holeGlyph {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-end: 0;
+  transform: translate(36%, -32%);
+  font-family: var(--font-shippori), serif;
+  font-size: clamp(1.5rem, calc(var(--ulq-hole) * 0.34), 4.5rem);
+  line-height: 1;
+  letter-spacing: 0;
+  color: color-mix(in srgb, var(--ulq-ring) 85%, transparent);
+  pointer-events: none;
+}
+
+.holeLabel {
+  margin: 0.9rem 0 0;
+  font-size: 0.6rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.holeCount {
+  display: grid;
+  gap: 0.15rem;
+  margin: 0;
+}
+
+.holeCountNum {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-weight: 300;
+  font-size: clamp(1.5rem, 4vw, 2.4rem);
+  line-height: 1;
+  letter-spacing: 0.06em;
+  color: var(--accent-hover);
+}
+
+.holeCountSep {
+  padding-inline: 0.2em;
+  color: var(--border-strong);
+}
+
+.holeCountWord {
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.holeReading {
+  margin: 0;
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  color: var(--ulq-frame-text);
+}
+
+.holeReset {
+  min-block-size: var(--touch-min);
+  margin-block-start: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  background: transparent;
+  border: 1px solid var(--ulq-hair-soft);
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    border-color var(--ulq-quick) var(--ulq-ease),
+    color var(--ulq-quick) var(--ulq-ease),
+    opacity var(--ulq-quick) var(--ulq-ease);
+}
+
+.holeReset:hover:not(:disabled) {
+  border-color: var(--accent-muted);
+  color: var(--accent-hover);
+}
+
+.holeReset:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* ── BÖLÜM İSKELETİ ─────────────────────────────────────────────────── */
+
+.section {
+  position: relative;
+  min-inline-size: 0;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-weight: 300;
+  font-size: clamp(2rem, 5.2vw, 3.6rem);
+  line-height: 1.04;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  transition: color var(--ulq-quick) var(--ulq-ease);
+}
+
+.sectionLede {
+  margin: 1.1rem 0 0;
+  max-inline-size: 32rem;
+  color: var(--text-secondary);
+  transition: color var(--ulq-quick) var(--ulq-ease);
+}
+
+/* ── SORU SATIRI — modun öne aldığı aile ────────────────────────────── */
+
+.ask {
+  position: relative;
+  margin: 1.5rem 0 0;
+  padding-inline-start: 1.7rem;
+  max-inline-size: 30rem;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-weight: 400;
+  font-style: italic;
+  font-size: clamp(0.95rem, 0.9rem + 0.4vw, 1.15rem);
+  line-height: 1.55;
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
+  transition:
+    color var(--ulq-quick) var(--ulq-ease),
+    font-size var(--ulq-quick) var(--ulq-ease);
+}
+
+.askLabel {
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block-start: 0;
+  font-style: normal;
+  color: var(--accent-muted);
+  transition: color var(--ulq-quick) var(--ulq-ease);
+}
+
+/* ── MOD: "Kalp nerede?" ────────────────────────────────────────────────
+   Işık değil YAPI: anlatı bir kademe geri çekiliyor, sorular öne çıkıyor.
+   Solma `opacity` ile DEĞİL token değişimiyle yapılıyor — opaklık düşürmek
+   kontrastı eşiğin altına indirirdi; buradaki her hedef token 4.5:1'in
+   üstünde kalıyor. */
+.page[data-heart="true"] .heroLede,
+.page[data-heart="true"] .sectionLede,
+.page[data-heart="true"] .holeFactText,
+.page[data-heart="true"] .powerText,
+.page[data-heart="true"] .powerTagline,
+.page[data-heart="true"] .minorNote,
+.page[data-heart="true"] .stopText,
+.page[data-heart="true"] .bondLine,
+.page[data-heart="true"] .ledgerLede,
+.page[data-heart="true"] .keyNote,
+.page[data-heart="true"] .questionNote,
+.page[data-heart="true"] .discipline {
+  color: var(--text-muted);
+}
+
+.page[data-heart="true"] .heroName,
+.page[data-heart="true"] .sectionTitle,
+.page[data-heart="true"] .stopTitle,
+.page[data-heart="true"] .powerName,
+.page[data-heart="true"] .minorName {
+  color: var(--text-secondary);
+}
+
+.page[data-heart="true"] .ask {
+  font-size: clamp(1.15rem, 1rem + 0.85vw, 1.6rem);
+  color: var(--ulq-ask-text);
+}
+
+.page[data-heart="true"] .askLabel { color: var(--accent); }
+
+.page[data-heart="true"] .questionText,
+.page[data-heart="true"] .markText {
+  color: var(--ulq-ask-text);
+}
+
+/* ── 3 · KÜNYE ŞERİDİ ───────────────────────────────────────────────── */
+
+.facts {
+  margin: clamp(1.8rem, 5vh, 3rem) 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0;
+  border-block-start: 1px solid var(--ulq-hair-soft);
+}
+
+.fact {
+  display: grid;
+  grid-template-columns: minmax(6rem, 10rem) minmax(0, 1fr);
+  gap: 0.6rem 1rem;
+  padding-block: 0.75rem;
+  border-block-end: 1px solid var(--ulq-hair-soft);
+}
+
+.factLabel {
+  margin: 0;
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.factValue {
+  margin: 0;
+  color: var(--gold);
+}
+
+.factNote {
+  margin: 1.2rem 0 0;
+  max-inline-size: 30rem;
+  font-size: 0.72rem;
+  line-height: 1.75;
+  color: var(--text-muted);
+}
+
+/* Deliğin kendi satırı — bir künye satırına sığmıyor */
+.holeFact {
+  margin-block-start: clamp(2.4rem, 7vh, 4rem);
+  padding-inline-start: clamp(0.9rem, 3vw, 1.6rem);
+  border-inline-start: 1px solid var(--ulq-hair);
+}
+
+.helmMark {
+  display: block;
+  inline-size: clamp(5rem, 16vw, 8rem);
+  margin-block-end: 0.9rem;
+  color: var(--ulq-helm);
+}
+
+.helmArt {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+}
+
+.helmEdge { stroke: currentColor; stroke-width: 1.4; }
+.helmBreak { stroke: var(--accent-muted); stroke-width: 1.4; }
+
+.holeFactTitle {
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-weight: 300;
+  font-size: clamp(1.4rem, 3.4vw, 2rem);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.holeFactText {
+  margin: 0.7rem 0 0;
+  max-inline-size: 30rem;
+  color: var(--text-secondary);
+  transition: color var(--ulq-quick) var(--ulq-ease);
+}
+
+/* ── 4a · ÜÇ BÜYÜK ──────────────────────────────────────────────────── */
+
+.wingMark {
+  display: block;
+  inline-size: min(100%, 22rem);
+  margin-block-end: clamp(1.2rem, 4vh, 2.4rem);
+  color: var(--ulq-ring);
+}
+
+.wingArt {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+}
+
+.wingStroke { stroke: currentColor; stroke-width: 1; }
+
+.powers {
+  list-style: none;
+  margin: clamp(2rem, 6vh, 3.4rem) 0 0;
+  padding: 0;
+  display: grid;
+  gap: clamp(3rem, 9vh, 5.5rem);
+}
+
+.power {
+  display: grid;
+  justify-items: start;
+  min-inline-size: 0;
+}
+
+.powerIndex {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-weight: 300;
+  font-size: 1.6rem;
+  line-height: 1;
+  letter-spacing: 0.1em;
+  color: var(--accent-muted);
+}
+
+.powerName {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-size: clamp(1.4rem, 4vw, 2.1rem);
+  line-height: 1.3;
+  letter-spacing: 0.14em;
+  color: var(--text-primary);
+  transition: color var(--ulq-quick) var(--ulq-ease);
+}
+
+.powerReading {
+  margin: 0.35rem 0 0;
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  color: var(--accent-hover);
+}
+
+.powerTurkish {
+  margin: 0.2rem 0 0;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.powerTagline {
+  margin: 1rem 0 0;
+  max-inline-size: 26rem;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1rem, 2.4vw, 1.25rem);
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  transition: color var(--ulq-quick) var(--ulq-ease);
+}
+
+.powerText {
+  margin: 0.9rem 0 0;
+  max-inline-size: 32rem;
+  color: var(--text-secondary);
+  transition: color var(--ulq-quick) var(--ulq-ease);
+}
+
+.powerTraits {
+  list-style: none;
+  margin: 1rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.2rem;
+}
+
+.powerTrait {
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  color: var(--ulq-answer-text);
+}
+
+/* ── 4b · DÖRT KÜÇÜK ────────────────────────────────────────────────── */
+
+.minors {
+  list-style: none;
+  margin: clamp(2rem, 6vh, 3.4rem) 0 0;
+  padding: 0;
+  display: grid;
+  gap: clamp(2.4rem, 7vh, 4rem);
+}
+
+.minor {
+  min-inline-size: 0;
+  padding-block-start: 1rem;
+  border-block-start: 1px solid var(--ulq-hair-soft);
+}
+
+.minorName {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-size: clamp(1.1rem, 3vw, 1.5rem);
+  letter-spacing: 0.16em;
+  color: var(--text-primary);
+  transition: color var(--ulq-quick) var(--ulq-ease);
+}
+
+.minorReading {
+  margin: 0.3rem 0 0;
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  color: var(--accent-hover);
+}
+
+.minorTurkish {
+  margin: 0.15rem 0 0;
+  font-size: 0.64rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.minorNote {
+  margin: 0.8rem 0 0;
+  max-inline-size: 30rem;
+  color: var(--text-secondary);
+  transition: color var(--ulq-quick) var(--ulq-ease);
+}
+
+/* ── 5 · KALP DEFTERİ ───────────────────────────────────────────────── */
+
+.ledgerTitle {
+  margin: clamp(2rem, 6vh, 3rem) 0 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-weight: 300;
+  font-size: clamp(1.4rem, 3.4vw, 2rem);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.ledgerLede {
+  margin: 0.7rem 0 0;
+  max-inline-size: 30rem;
+  color: var(--text-secondary);
+  transition: color var(--ulq-quick) var(--ulq-ease);
+}
+
+.ledger {
+  list-style: none;
+  margin: 1.6rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0;
+  border-block-start: 1px solid var(--ulq-hair-soft);
+}
+
+.ledgerRow {
+  display: grid;
+  grid-template-columns: 2.4rem minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 0.8rem;
+  padding-block: 0.7rem;
+  border-block-end: 1px solid var(--ulq-hair-soft);
+}
+
+.ledgerGlyph {
+  font-family: var(--font-shippori), serif;
+  font-size: 1.1rem;
+  color: var(--ulq-glyph-text);
+}
+
+.ledgerLabel {
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+}
+
+.ledgerRomaji {
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  color: var(--text-muted);
+}
+
+.keyboardHint {
+  margin: 1.2rem 0 0;
+  max-inline-size: 30rem;
+  font-size: 0.72rem;
+  line-height: 1.75;
+  color: var(--text-muted);
+}
+
+/* ── CEVAP DÜĞMESİ (HeartKey) ───────────────────────────────────────── */
+
+.key {
+  margin-block-start: clamp(2rem, 6vh, 3.2rem);
+  padding-block-start: 1.1rem;
+  border-block-start: 1px solid var(--ulq-hair);
+}
+
+.keyButton {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.85rem;
+  inline-size: 100%;
+  min-block-size: var(--touch-min);
+  padding: 0.6rem 0.9rem;
+  background: transparent;
+  border: 1px solid var(--ulq-hair-soft);
+  color: var(--text-primary);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  transition:
+    border-color var(--ulq-quick) var(--ulq-ease),
+    background-color var(--ulq-quick) var(--ulq-ease);
+}
+
+.keyButton:hover {
+  border-color: var(--accent-muted);
+  background-color: color-mix(in srgb, var(--surface) 70%, transparent);
+}
+
+.key[data-given="true"] .keyButton {
+  border-color: var(--accent-muted);
+  background-color: color-mix(in srgb, var(--accent-muted) 22%, transparent);
+}
+
+.keyGlyph {
+  flex: none;
+  inline-size: 1.9rem;
+  font-family: var(--font-shippori), serif;
+  font-size: 1.3rem;
+  line-height: 1;
+  color: var(--ulq-glyph-text);
+}
+
+.keyText {
+  display: grid;
+  gap: 0.1rem;
+  min-inline-size: 0;
+  flex: 1 1 8rem;
+}
+
+.keyLabel {
+  font-size: 0.76rem;
+  letter-spacing: 0.1em;
+  color: var(--text-primary);
+}
+
+.keyRomaji {
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.keyState {
+  flex: none;
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent-hover);
+}
+
+.keyStateSep { padding-inline: 0.35em; color: var(--border-strong); }
+
+.keyNote {
+  margin: 0.9rem 0 0;
+  max-inline-size: 30rem;
+  font-size: 0.76rem;
+  line-height: 1.8;
+  color: var(--ulq-answer-text);
+  transition: color var(--ulq-quick) var(--ulq-ease);
+}
+
+/* ── 6 · KADER ÇİZELGESİ ────────────────────────────────────────────── */
+
+.fate {
+  list-style: none;
+  margin: clamp(2rem, 6vh, 3.4rem) 0 0;
+  padding: 0;
+  display: grid;
+  gap: clamp(3rem, 9vh, 5rem);
+}
+
+.stop {
+  min-inline-size: 0;
+  padding-inline-start: clamp(0.9rem, 3vw, 1.5rem);
+  border-inline-start: 1px solid var(--ulq-hair-soft);
+}
+
+.stopEra {
+  margin: 0;
+  font-size: 0.62rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.stopTitle {
+  margin: 0.6rem 0 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-weight: 300;
+  font-size: clamp(1.5rem, 3.8vw, 2.2rem);
+  line-height: 1.15;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  transition: color var(--ulq-quick) var(--ulq-ease);
+}
+
+.stopText {
+  margin: 0.8rem 0 0;
+  max-inline-size: 32rem;
+  color: var(--text-secondary);
+  transition: color var(--ulq-quick) var(--ulq-ease);
+}
+
+/* ⚠️ Bu blok bir ALINTI DEĞİL: rozeti "terim" ya da "soru" yazıyor ve
+   tırnak hiç kullanılmıyor (gerekçe veri dosyasının başında). */
+.mark {
+  margin-block-start: 1.2rem;
+  padding-inline-start: 0.9rem;
+  border-inline-start: 1px solid var(--accent-muted);
+}
+
+.markBadge {
+  display: inline-block;
+  font-size: 0.58rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.markText {
+  margin: 0.4rem 0 0;
+  font-family: var(--font-shippori), serif;
+  font-size: clamp(1.1rem, 3vw, 1.5rem);
+  letter-spacing: 0.18em;
+  color: var(--ulq-glyph-text);
+  transition: color var(--ulq-quick) var(--ulq-ease);
+}
+
+.markReading {
+  margin: 0.35rem 0 0;
+  max-inline-size: 26rem;
+  font-size: 0.7rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+
+.stopKin {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.3rem 0.8rem;
+  margin: 1.1rem 0 0;
+}
+
+.stopKinLink {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 2rem;
+  font-size: 0.76rem;
+  letter-spacing: 0.1em;
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-block-end: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+.stopKinLink:hover { border-block-end-color: var(--accent); }
+
+.stopKinName {
+  font-size: 0.76rem;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+}
+
+.stopKinRole {
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ── 7a · BAĞLAR ────────────────────────────────────────────────────── */
+
+.bonds {
+  list-style: none;
+  margin: clamp(2rem, 6vh, 3.4rem) 0 0;
+  padding: 0;
+  display: grid;
+  gap: clamp(2rem, 6vh, 3.2rem);
+}
+
+.bond {
+  display: grid;
+  justify-items: start;
+  gap: 0.3rem;
+  min-inline-size: 0;
+  padding-block-start: 1rem;
+  border-block-start: 1px solid var(--ulq-hair-soft);
+}
+
+.bondPortrait {
+  position: relative;
+  display: block;
+  inline-size: 4rem;
+  block-size: 4rem;
+  margin-block-end: 0.5rem;
+  border: 1px solid var(--ulq-hair-soft);
+  overflow: hidden;
+}
+
+.bondPortraitImg {
+  object-fit: cover;
+  filter: grayscale(0.4);
+}
+
+.bondName {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 2.2rem;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.2rem, 3vw, 1.6rem);
+  font-weight: 300;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-block-end: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.bondName:hover { border-block-end-color: var(--accent); }
+
+.bondNamePlain {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.2rem, 3vw, 1.6rem);
+  font-weight: 300;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.bondNative {
+  font-family: var(--font-shippori), serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.2em;
+  color: var(--ulq-glyph-text);
+}
+
+.bondRole {
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.bondLine {
+  margin-block-start: 0.4rem;
+  max-inline-size: 30rem;
+  color: var(--text-secondary);
+  transition: color var(--ulq-quick) var(--ulq-ease);
+}
+
+.bondFlag {
+  margin-block-start: 0.3rem;
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ulq-frame-text);
+}
+
+.worldLinks {
+  list-style: none;
+  margin: clamp(2.4rem, 7vh, 3.6rem) 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0;
+  border-block-start: 1px solid var(--ulq-hair-soft);
+}
+
+.worldLink {
+  display: grid;
+  gap: 0.2rem;
+  min-block-size: var(--touch-min);
+  padding-block: 0.75rem;
+  border-block-end: 1px solid var(--ulq-hair-soft);
+  text-decoration: none;
+  transition: background-color var(--ulq-quick) var(--ulq-ease);
+}
+
+.worldLink:hover {
+  background-color: color-mix(in srgb, var(--surface) 70%, transparent);
+}
+
+.worldLinkLabel {
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  color: var(--accent-hover);
+}
+
+.worldLinkNote {
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+/* ── 7b · KAPANIŞ ───────────────────────────────────────────────────── */
+
+.closingQuestions {
+  list-style: none;
+  margin: clamp(2rem, 6vh, 3.4rem) 0 0;
+  padding: 0;
+  display: grid;
+  gap: clamp(2rem, 6vh, 3rem);
+}
+
+.closingQuestion {
+  min-inline-size: 0;
+  padding-inline-start: 1rem;
+  border-inline-start: 1px solid var(--accent-muted);
+}
+
+.questionBadge {
+  display: inline-block;
+  font-size: 0.58rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.questionText {
+  margin: 0.5rem 0 0;
+  font-family: var(--font-shippori), serif;
+  font-size: clamp(1.3rem, 4vw, 2rem);
+  line-height: 1.5;
+  letter-spacing: 0.2em;
+  color: var(--ulq-glyph-text);
+  transition: color var(--ulq-quick) var(--ulq-ease);
+}
+
+.questionReading {
+  margin: 0.5rem 0 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1rem, 2.4vw, 1.25rem);
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+.questionNote {
+  margin: 0.4rem 0 0;
+  max-inline-size: 28rem;
+  font-size: 0.7rem;
+  line-height: 1.75;
+  color: var(--text-muted);
+}
+
+.discipline {
+  margin: clamp(1.8rem, 5vh, 2.6rem) 0 0;
+  max-inline-size: 32rem;
+  font-size: 0.74rem;
+  line-height: 1.85;
+  color: var(--text-muted);
+}
+
+.motto {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-size: clamp(1.6rem, 5vw, 2.6rem);
+  letter-spacing: 0.24em;
+  color: var(--accent-hover);
+}
+
+.mottoReading {
+  margin: 0.6rem 0 0;
+  max-inline-size: 30rem;
+  font-size: 0.74rem;
+  line-height: 1.8;
+  color: var(--text-secondary);
+}
+
+.credit {
+  margin: clamp(2.4rem, 7vh, 3.6rem) 0 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+.credit a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 2rem;
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-block-end: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+.credit a:hover { border-block-end-color: var(--accent); }
+
+.creditNote {
+  margin: 0.7rem 0 0;
+  max-inline-size: 34rem;
+  font-size: 0.68rem;
+  line-height: 1.8;
+  color: var(--ulq-frame-text);
+}
+
+/* ── KADRAJLAR ──────────────────────────────────────────────────────────
+   ⚠️ Ziyaretçiye giden boş kadraj `frameGap`: kutu YOK, kenarlık YOK, yazı
+   YOK — yalnızca aralık. Boşluk bu sayfanın konusu; etiketli bir yer tutucu
+   hem kilidi hem dalga 1'in birinci dersini çiğnerdi. */
+.frameGap {
+  display: block;
+  block-size: clamp(2.5rem, 7vh, 5.5rem);
+}
+
+.frameSlot { margin-block-start: clamp(1.2rem, 3.5vh, 2rem); }
+
+.frameFigure {
+  position: relative;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  inline-size: 100%;
+  overflow: hidden;
+  border: 1px solid var(--ulq-hair-soft);
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+}
+
+.frameTall { aspect-ratio: 3 / 4; }
+.frameWide { aspect-ratio: 16 / 9; }
+.frameSquare { aspect-ratio: 1 / 1; }
+.frameScene { aspect-ratio: 3 / 2; }
+.frameBand { aspect-ratio: 21 / 9; }
+
+.frameImg { object-fit: cover; }
+
+/* ⚠️ Yüklenen görselin ÜSTÜNDEKİ metne perde (dalga 1'in ek dersi): açık
+   bir karede kaynak künyesi perdesiz okunmuyordu. */
+.frameCredit {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 0;
+  padding: 0.6rem 0.8rem;
+}
+
+.frameScrim {
+  position: absolute;
+  inset-inline: 0;
+  inset-block: -2.6rem 0;
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--ulq-void) 92%, transparent),
+    transparent
+  );
+  pointer-events: none;
+}
+
+.frameCreditText {
+  position: relative;
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ulq-frame-text);
+}
+
+/* Yalnızca yöneticide çiziliyor (bileşende `isAdmin` kesmesi) */
+.frameCaption {
+  display: grid;
+  gap: 0.3rem;
+  padding: 1rem;
+  text-align: center;
+}
+
+.frameCaptionWord {
+  font-size: 0.66rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ulq-frame-text);
+}
+
+.frameCaptionSpec {
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+/* ── PERDE: boşluk sayfayı alıyor ───────────────────────────────────────
+   Her zaman mount, `visibility` ile kapalı: geçişi mümkün kılıyor ve
+   kapalıyken gerçekten sekme sırasının dışında tutuyor. Açılış `clip-path`
+   ile: delik büyüyor, bir katman kaymıyor. */
+.swallow {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  padding: clamp(1.25rem, 6vw, 4rem);
+  background: var(--ulq-void);
+  opacity: 0;
+  visibility: hidden;
+  clip-path: circle(0% at 50% 50%);
+  transition:
+    clip-path var(--ulq-slow) var(--ulq-ease),
+    opacity 380ms var(--ulq-ease),
+    visibility 0s var(--ulq-slow);
+}
+
+.page[data-swallow="true"] .swallow {
+  opacity: 1;
+  visibility: visible;
+  clip-path: circle(145% at 50% 50%);
+  transition:
+    clip-path var(--ulq-slow) var(--ulq-ease),
+    opacity 300ms var(--ulq-ease),
+    visibility 0s;
+}
+
+.swallowInner {
+  display: grid;
+  justify-items: center;
+  gap: clamp(1rem, 3vh, 1.8rem);
+  max-inline-size: 34rem;
+  text-align: center;
+}
+
+.swallowGlyph {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-size: clamp(3rem, 14vw, 7rem);
+  line-height: 1;
+  color: color-mix(in srgb, var(--ulq-ring) 90%, transparent);
+}
+
+.swallowTitle {
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-weight: 300;
+  font-size: clamp(1.6rem, 5vw, 2.6rem);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+/* Geriye kalan TEK cümle */
+.swallowLine {
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.15rem, 3.6vw, 1.7rem);
+  font-style: italic;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+.swallowActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.8rem;
+  margin-block-start: 0.8rem;
+}
+
+.swallowButton,
+.swallowButtonQuiet {
+  min-block-size: var(--touch-min);
+  padding: 0.5rem 1.1rem;
+  background: transparent;
+  border: 1px solid var(--ulq-hair);
+  font: inherit;
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    border-color var(--ulq-quick) var(--ulq-ease),
+    color var(--ulq-quick) var(--ulq-ease);
+}
+
+.swallowButton { color: var(--accent-hover); }
+.swallowButtonQuiet { color: var(--text-muted); }
+
+.swallowButton:hover,
+.swallowButtonQuiet:hover {
+  border-color: var(--accent-muted);
+  color: var(--accent-hover);
+}
+
+/* ── DAR EKRAN ──────────────────────────────────────────────────────────
+   Tek kolon. Delik KAYBOLMUYOR: ızgaranın ilk satırına geçiyor, ölçüsü
+   `--ulq-hole` ile küçülmeye devam ediyor ve metni okunur kalsın diye
+   9rem'lik bir taban alıyor. 360 px'te en dar hâli 4.5rem — hâlâ görünür. */
+@media (max-width: 62rem) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: clamp(4.5rem, 13vh, 8rem);
+  }
+
+  .left,
+  .right {
+    grid-column: 1;
+    margin-block-start: 0;
+  }
+
+  /* Elle verilen satırlar tek kolonda anlamsız — akışa geri bırakılıyor */
+  .grid > section:nth-of-type(1),
+  .grid > section:nth-of-type(2),
+  .grid > section:nth-of-type(3),
+  .grid > section:nth-of-type(4),
+  .grid > section:nth-of-type(5),
+  .grid > section:nth-of-type(6),
+  .grid > section:nth-of-type(7) {
+    grid-row: auto;
+  }
+
+  .gapsWrap { grid-column: 1; }
+
+  .hole {
+    position: static;
+    grid-column: 1;
+    grid-row: auto;
+    justify-self: center;
+    inline-size: 100%;
+    max-inline-size: max(var(--ulq-hole), 9rem);
+    padding-block: clamp(1rem, 4vh, 2rem);
+  }
+
+  .fact {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.15rem;
+  }
+}
+
+/* ── HAREKET AZALTMA BATTANİYESİ ────────────────────────────────────────
+   Gözyaşı izleri zaten `no-preference` kapısında; burada geçişlerin de
+   tamamı kapanıyor. Sayfanın hiçbir durumu yalnızca harekete bağlı değil:
+   her durumun yazılı karşılığı var (sayaç rakamı, rozetler, canlı bölge). */
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

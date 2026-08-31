@@ -25,5 +25,1688 @@
   --gold: #d5aa34;
   --warn: #b88347;
   --danger: #c16257;
-  /* kendi --jgo-* token'ların buraya */
+
+  /* ── MALZEME (ölçülmüyor — metin değil, gövde) ─────────────────────────
+     Kontrast denetimi bilerek yalnızca `-text` ekli aileye bakıyor; bunlar
+     zemin, çizgi ve perde malzemesi ve KOYU olmak zorundalar. */
+  --jgo-deep: #0a0605;      /* katmanlar aşağı indikçe buna doğru karışıyor */
+  --jgo-bed: #2e0f06;       /* "erime noktası" açıkken zemine karışan magma yatağı */
+  --jgo-magma: #8a2a06;     /* çatlağın altındaki damar gövdesi */
+  --jgo-vein: #b8410f;      /* çatlağın parlayan hattı */
+  --jgo-basalt: #2a2320;    /* levha kenarı, kadraj konturu */
+  --jgo-ashfall: #4a4442;   /* kül perdesi + süzülen parçacıklar (soğuk) */
+  --jgo-ashfall-dark: #38312f; /* erime noktası açıkken kül DAHA KOYU düşüyor */
+  --jgo-obsidian: #080505;  /* en dipteki zemin */
+
+  /* ── KÜÇÜK METİNDE OKUNAN AİLE (`-text`, ölçülüyor) ────────────────────
+     Dördü de `--surface` (#161110) ve `--surface-hover` (#1e1816) üstünde
+     4.5:1'in üstünde ölçüldü: 8.43/7.90 · 7.74/7.25 · 8.58/8.04 · 6.68/6.26.
+     ⚠️ "Erime noktası" açıkken zemin kızarıyor ve o hâl de ölçüldü: en açık
+     katmanın magma yatağına karışmış hâli (#1b110e) üstünde en düşük değer
+     `--text-muted` ile 4.84, `-text` ailesinin en düşüğü 6.61. */
+  --jgo-ash-text: #b6aca8;    /* kül altında kalan ikincil metin */
+  --jgo-ember-text: #e89257;  /* sıcak etiketler, sayaç değerleri */
+  --jgo-sulfur-text: #c9ad5f; /* kükürt sarısı — orijinal dil satırları */
+  --jgo-depth-text: #ab968f;  /* derinlik/ölçü yazıları */
+}
+
+/* ============================================================
+   JŌGO — "YER KESİTİ"
+
+   ── SAYFANIN FİKRİ ──────────────────────────────────────────────────────
+   JŌGO BİR VOLKAN, VE SAYFA O VOLKANIN YANDAN KESİTİ. Bölümler kart ya da
+   kolon değil, üst üste duran yatay JEOLOJİK KATMANLAR. Her katmanın kendi
+   derinliği var (`data-depth`, 0'dan 9'a) ve aşağı indikçe zemin
+   `--jgo-deep`e doğru koyulaşıyor. Katmanların arasındaki ayıraç düz bir
+   çizgi değil, elle çizilmiş DÜZENSİZ BİR MAGMA ÇATLAĞI: altındaki damar
+   nabız gibi parlıyor, üstündeki bazalt hattı kırık.
+
+   ── DALGA İÇİNDEKİ YERİ ─────────────────────────────────────────────────
+   Bu dalganın diğer ızgaraları dikey damar sütunu, envanter rafı, düzensiz
+   dikişli yamalar ve ortalanmış idol posteri. Bu sayfa tek YATAY KATMANLI
+   olanı: hiçbir bölüm bir diğerinin yanında durmuyor, hepsi bir öncekinin
+   ALTINDA duruyor ve her biri bir öncekinden daha koyu.
+
+   ── TİPOGRAFİ ───────────────────────────────────────────────────────────
+   Başlık Anton — ama Eren'in bodur/sıkışık kullanımının (harf aralığı
+   -0.01em, satır aralığı 1.02) TAM TERSİ: harf aralığı 0.3em'e kadar
+   açılıyor, satır aralığı 1.6'nın üstünde. Isı yayılıyor, sıkışmıyor.
+   Gövde IBM Plex Mono: bu bir ölçüm defteri, bir afiş değil.
+
+   ── HAREKET ─────────────────────────────────────────────────────────────
+   Üç animasyon, hepsi "kül ve kıvılcım" ailesinden:
+     jgo-drift → kül parçacıkları yukarıdan aşağı süzülüyor
+     jgo-vein  → çatlaklardaki turuncu damar nabız gibi parlıyor
+     jgo-settle→ kül perdesi kademe kademe çöküyor (opaklık geçişi)
+   Dosyanın sonunda `prefers-reduced-motion: reduce` battaniyesi var.
+   ⚠️ Kül perdesinin opaklığı YALNIZCA `no-preference` kapısının içinde
+   tanımlı: hareket kapalıyken kül HİÇ birikmiyor (görev şartı).
+
+   ⚠️ BU BLOKTAN AŞAĞIDA TEK HEX YOK. Ara tonların hepsi `color-mix` ile
+   token'lardan türetildi (Faz 2 §1, kural 16). Hex muafiyeti YALNIZCA deri
+   bloğunu kapsıyor: `[data-molten="on"]` bloğu muaf DEĞİL, orada yalnızca
+   sayı var.
+   ============================================================ */
+
+.page {
+  position: relative;
+  max-width: 76rem;
+  margin-inline: auto;
+  padding-block: clamp(1rem, 3vw, 2.25rem) clamp(4rem, 9vw, 7rem);
+  padding-inline: var(--jgo-bleed);
+  color: var(--text-primary);
+  background: var(--bg);
+  font-family: var(--font-plexmono), ui-monospace, SFMono-Regular, monospace;
+  font-size: clamp(0.9rem, 1.9vw, 0.98rem);
+  line-height: 1.78;
+
+  /* ⚠️ `clip`, `hidden` DEĞİL: `hidden` bir kaydırma kabı kurar ve içerideki
+     `position: sticky`/`fixed` davranışını bozar. Katmanlar ve çatlaklar
+     negatif marjla sayfa kenarına taştığı için kırpma ŞART — 360 px'te
+     yatay kaydırma çubuğu çıkmasın diye. */
+  overflow-x: clip;
+
+  /* Katmanların kenara taşma payı ve çatlak kalınlığı — düğme bunları
+     değiştiriyor (aşağıda). */
+  --jgo-bleed: clamp(0.85rem, 3vw, 2rem);
+  --jgo-crack-w: 1.6;
+  --jgo-crack-glow-w: 5;
+  --jgo-crack-op: 0.42;
+  --jgo-melt: 100%;
+  --jgo-ash-max: 0.32;
+  --jgo-ash-veil: var(--jgo-ashfall);
+}
+
+/* ══ MOD: ERİME NOKTASI ═════════════════════════════════════════════════
+   Işık değil ISI: çatlaklar genişliyor, katman zeminleri magma yatağına
+   doğru karışıyor (`--jgo-melt` 100%'den 82%'ye iniyor), kül daha koyu
+   düşüyor, damar nabzı hızlanıyor.
+
+   ⚠️ Katmanlı kesit MODA BAĞLI DEĞİL (Onizuka dersi): `off` durumunda da
+   katmanlar üst üste, çatlaklar yerinde ve derinlik koyulaşması aynen
+   duruyor. Düğme sayfayı KURMUYOR, ısıtıyor.
+
+   Bu blok deri bloğu DEĞİL — burada hex yasak, o yüzden yalnızca sayı var. */
+.page[data-molten="on"] {
+  --jgo-crack-w: 3.2;
+  --jgo-crack-glow-w: 11;
+  --jgo-crack-op: 0.85;
+  --jgo-melt: 82%;
+  --jgo-ash-veil: var(--jgo-ashfall-dark);
+}
+
+/* ══ KÜL YAĞIŞI ═════════════════════════════════════════════════════════
+   Sayfanın hareket dili. Tamamen dekoratif (`aria-hidden` bileşende),
+   tıklamayı hiç engellemiyor ve `prefers-reduced-motion`da hiç görünmüyor:
+   parçacıkların opaklığı yalnızca animasyonun içinde tanımlı. */
+.ashfall {
+  /* ⚠️ `fixed` ve içeriğin ÜSTÜNDE (`z-index: 3`, katmanlar 1 çatlaklar 2).
+     İkisi de ölçülmüş kararlar:
+       · `absolute` olsaydı parçacıklar yalnızca ilk ekran boyunca düşerdi
+         (sayfa binlerce piksel uzun, `vh` ile taşınan bir kutu onu kat
+         edemiyor);
+       · `z-index: 0` olsaydı katmanların opak zemini külü tamamen
+         yutardı — kül zaten YÜZEYE çöken bir şey, arkaya değil.
+     Metni gizlemiyor: parçacıklar 2–3 piksel ve en fazla 0.5 opaklıkta,
+     üstelik `pointer-events: none` — tıklamayı hiç engellemiyorlar. */
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  display: block;
+  pointer-events: none;
+}
+
+.mote {
+  position: absolute;
+  top: 0;
+  left: calc(3% + var(--jgo-mote) * 7%);
+  display: block;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: var(--jgo-ash-veil);
+  opacity: 0;
+}
+
+/* Tek sayılı parçacıklar biraz daha büyük — düzensizlik kasıtlı */
+.mote:nth-child(odd) {
+  width: 3px;
+  height: 3px;
+}
+
+/* ══ BREADCRUMB ════════════════════════════════════════════════════════ */
+.crumb {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-block-end: clamp(0.9rem, 2.5vw, 1.6rem);
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--jgo-depth-text);
+}
+
+.crumb a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  padding-inline: 0.15rem;
+  color: var(--jgo-ember-text);
+  text-decoration: none;
+  border-block-end: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.crumb a:hover {
+  color: var(--accent-hover);
+}
+
+.crumb a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.crumbSep {
+  color: var(--jgo-depth-text);
+}
+
+.crumbHere {
+  color: var(--jgo-depth-text);
+}
+
+/* ══ KATMANIN KENDİSİ ═══════════════════════════════════════════════════
+   `.hero`, `.melt` ve `.stratum` aynı kabuğu paylaşıyor: sayfa kenarına
+   taşan yatay bir bant, üstünde ve altında bazalt sınırı, zemini kendi
+   derinliğine göre koyulaşmış. Köşe yuvarlaması YOK — bir tortul katmanın
+   köşesi yuvarlanmaz. */
+.hero,
+.melt,
+.stratum {
+  position: relative;
+  z-index: 1;
+  margin-inline: calc(var(--jgo-bleed) * -1);
+  padding: clamp(1.5rem, 4vw, 2.9rem) var(--jgo-bleed);
+  background: color-mix(in srgb, var(--jgo-layer) var(--jgo-melt), var(--jgo-bed));
+  border-block: 1px solid color-mix(in srgb, var(--border-strong) 70%, transparent);
+}
+
+/* Derinlik: 0 yüzey, 9 magma odası. Aşağı indikçe zemin `--jgo-deep`e doğru
+   karışıyor — yani KOYULAŞIYOR. Açık metin için kontrast bu yönde ARTIYOR,
+   o yüzden en riskli katman en ÜSTTEKİ (ölçüm deri bloğunun başlığında). */
+.hero[data-depth="0"] {
+  --jgo-layer: color-mix(in srgb, var(--surface) 96%, var(--jgo-deep));
+}
+
+.melt {
+  --jgo-layer: color-mix(in srgb, var(--surface) 92%, var(--jgo-deep));
+}
+
+.stratum[data-depth="2"] {
+  --jgo-layer: color-mix(in srgb, var(--surface) 86%, var(--jgo-deep));
+}
+
+.stratum[data-depth="3"] {
+  --jgo-layer: color-mix(in srgb, var(--surface) 78%, var(--jgo-deep));
+}
+
+.stratum[data-depth="4"] {
+  --jgo-layer: color-mix(in srgb, var(--surface) 70%, var(--jgo-deep));
+}
+
+.stratum[data-depth="5"] {
+  --jgo-layer: color-mix(in srgb, var(--surface) 62%, var(--jgo-deep));
+}
+
+.stratum[data-depth="6"] {
+  --jgo-layer: color-mix(in srgb, var(--surface) 54%, var(--jgo-deep));
+}
+
+.stratum[data-depth="7"] {
+  --jgo-layer: color-mix(in srgb, var(--surface) 46%, var(--jgo-deep));
+}
+
+.stratum[data-depth="8"] {
+  --jgo-layer: color-mix(in srgb, var(--surface) 38%, var(--jgo-deep));
+}
+
+.stratum[data-depth="9"] {
+  --jgo-layer: color-mix(in srgb, var(--surface) 30%, var(--jgo-deep));
+}
+
+/* ══ MAGMA ÇATLAĞI — KATMAN AYIRACI ════════════════════════════════════
+   Kutu ya da düz çizgi değil: elle yazılmış path'i olan, kırık ve
+   dallanmalı bir SVG. Katmanların üstüne biniyor (negatif blok marjı), yani
+   sınırı kapatmıyor — sınırı YARIYOR. */
+.crack {
+  position: relative;
+  z-index: 2;
+  display: block;
+  margin-inline: calc(var(--jgo-bleed) * -1);
+  margin-block: clamp(-0.7rem, -2vw, -0.4rem);
+  height: clamp(1.1rem, 3.4vw, 1.9rem);
+  pointer-events: none;
+}
+
+.crackArt {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.crackLine {
+  fill: none;
+  stroke: var(--jgo-basalt);
+  stroke-width: var(--jgo-crack-w);
+}
+
+.crackGlow {
+  fill: none;
+  stroke: var(--jgo-vein);
+  stroke-width: var(--jgo-crack-glow-w);
+  opacity: var(--jgo-crack-op);
+  filter: blur(2px);
+}
+
+.crackBranch {
+  fill: none;
+  stroke: color-mix(in srgb, var(--jgo-magma) 80%, transparent);
+  stroke-width: var(--jgo-crack-w);
+}
+
+/* ══ 1 · HERO ══════════════════════════════════════════════════════════ */
+.hero {
+  display: grid;
+  gap: clamp(0.35rem, 1.2vw, 0.7rem);
+  isolation: isolate;
+}
+
+/* Filigran: tek göz + 漏瑚. `aria-hidden`; taşıdığı bilgi ayrı bir satırda
+   yazıyla da veriliyor, yani bilgi görsele bağlı değil. */
+.heroMark {
+  position: absolute;
+  inset-block-start: clamp(-1rem, -2vw, -0.4rem);
+  inset-inline-end: calc(var(--jgo-bleed) * -0.4);
+  z-index: -1;
+  display: grid;
+  justify-items: center;
+  width: clamp(13rem, 46vw, 26rem);
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.heroMarkArt {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.heroMarkRim {
+  fill: none;
+  stroke: color-mix(in srgb, var(--jgo-basalt) 90%, var(--jgo-vein));
+  stroke-width: 3;
+}
+
+.heroMarkEye {
+  fill: none;
+  stroke: color-mix(in srgb, var(--jgo-vein) 70%, transparent);
+  stroke-width: 2.4;
+}
+
+.heroMarkIris {
+  fill: color-mix(in srgb, var(--jgo-magma) 55%, transparent);
+  stroke: var(--jgo-vein);
+  stroke-width: 2.2;
+}
+
+.heroMarkKanji {
+  margin-block-start: -0.6em;
+  font-family: var(--font-anton), var(--font-inter), sans-serif;
+  font-size: clamp(2rem, 8vw, 4.4rem);
+  letter-spacing: 0.22em;
+  line-height: 1.4;
+  color: color-mix(in srgb, var(--jgo-basalt) 80%, var(--jgo-vein));
+}
+
+.heroHouse {
+  margin: 0;
+  font-size: 0.76rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--jgo-depth-text);
+}
+
+/* Anton, ama Eren'in tam tersi: harf aralığı açık, satır aralığı yüksek. */
+.heroName {
+  margin: 0;
+  font-family: var(--font-anton), var(--font-inter), sans-serif;
+  font-size: clamp(2.6rem, 12vw, 6.4rem);
+  font-weight: 400;
+  letter-spacing: clamp(0.1em, 1.4vw, 0.28em);
+  line-height: 1.3;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  overflow-wrap: break-word;
+}
+
+.heroNative {
+  margin: 0;
+  font-size: clamp(1.1rem, 4vw, 1.7rem);
+  letter-spacing: 0.4em;
+  color: var(--jgo-sulfur-text);
+}
+
+.heroGrade {
+  margin-block: clamp(0.6rem, 2vw, 1.1rem) 0;
+  font-size: clamp(0.95rem, 3vw, 1.3rem);
+  letter-spacing: 0.3em;
+  color: var(--jgo-ember-text);
+}
+
+.heroGradeReading {
+  margin: 0;
+  font-size: 0.82rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--jgo-depth-text);
+}
+
+.heroEpigraph {
+  max-width: 42ch;
+  margin-block: clamp(1rem, 3vw, 1.8rem) 0;
+  padding-inline-start: clamp(0.7rem, 2vw, 1.1rem);
+  border-inline-start: 2px solid color-mix(in srgb, var(--accent) 60%, transparent);
+  font-size: clamp(1rem, 2.6vw, 1.18rem);
+  line-height: 1.7;
+  color: var(--text-primary);
+}
+
+.heroLede {
+  max-width: 62ch;
+  margin-block: clamp(0.9rem, 2.5vw, 1.4rem) 0;
+  color: var(--text-secondary);
+}
+
+.heroMarkNote,
+.heroFrameNote {
+  max-width: 62ch;
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.7;
+  color: var(--jgo-depth-text);
+}
+
+.heroFrameNote {
+  margin-block-start: clamp(0.8rem, 2vw, 1.2rem);
+}
+
+/* ══ 2 · MOD DÜĞMESİ — "ERİME NOKTASI" ═════════════════════════════════ */
+.melt {
+  display: grid;
+  gap: clamp(0.6rem, 2vw, 1rem);
+  justify-items: start;
+}
+
+.meltHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.9rem;
+}
+
+.meltTitle {
+  margin: 0;
+  font-family: var(--font-anton), var(--font-inter), sans-serif;
+  font-size: clamp(1.25rem, 4vw, 2rem);
+  font-weight: 400;
+  letter-spacing: clamp(0.16em, 0.9vw, 0.3em);
+  line-height: 1.6;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.meltNative {
+  margin: 0;
+  font-size: 1rem;
+  letter-spacing: 0.3em;
+  color: var(--jgo-sulfur-text);
+}
+
+.meltButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+  min-height: var(--touch-min);
+  padding: 0.6rem 1.15rem;
+  border: 1px solid var(--border-strong);
+  background: color-mix(in srgb, var(--surface-hover) 80%, var(--jgo-deep));
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 0.85rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.meltButton:hover {
+  border-color: color-mix(in srgb, var(--accent) 60%, var(--border-strong));
+  background: color-mix(in srgb, var(--surface-hover) 60%, var(--accent-muted));
+}
+
+.meltButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.meltButton[aria-pressed="true"] {
+  border-color: color-mix(in srgb, var(--accent) 70%, var(--border-strong));
+  color: var(--jgo-ember-text);
+}
+
+/* Üç katmanlı sıcaklık göstergesi: basılıyken katmanlar aralanıp kızarıyor */
+.meltGauge {
+  display: grid;
+  gap: 2px;
+  width: 1.5rem;
+}
+
+.meltGaugeBand {
+  display: block;
+  height: 4px;
+  background: color-mix(in srgb, var(--jgo-basalt) 70%, var(--jgo-depth-text));
+}
+
+.meltButton[aria-pressed="true"] .meltGauge {
+  gap: 5px;
+}
+
+.meltButton[aria-pressed="true"] .meltGaugeBand:nth-child(1) {
+  background: color-mix(in srgb, var(--jgo-magma) 70%, var(--jgo-basalt));
+}
+
+.meltButton[aria-pressed="true"] .meltGaugeBand:nth-child(2) {
+  background: color-mix(in srgb, var(--jgo-vein) 80%, var(--jgo-magma));
+}
+
+.meltButton[aria-pressed="true"] .meltGaugeBand:nth-child(3) {
+  background: var(--accent);
+}
+
+.meltLabel {
+  display: block;
+}
+
+.meltHint {
+  max-width: 62ch;
+  margin: 0;
+  font-size: 0.83rem;
+  line-height: 1.75;
+  color: var(--jgo-ash-text);
+}
+
+/* ══ KATMAN BAŞLIĞI ════════════════════════════════════════════════════ */
+.stratum {
+  display: grid;
+  gap: clamp(1rem, 3vw, 1.8rem);
+}
+
+.stratumHead {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.2rem clamp(0.7rem, 2.2vw, 1.4rem);
+  align-items: start;
+}
+
+/* Derinlik numarası — kesitin sol kenarındaki ölçek işareti */
+.stratumDepth {
+  grid-row: 1 / span 2;
+  margin: 0;
+  font-family: var(--font-anton), var(--font-inter), sans-serif;
+  font-size: clamp(1.6rem, 6vw, 3rem);
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+  color: color-mix(in srgb, var(--jgo-basalt) 55%, var(--jgo-depth-text));
+}
+
+.sectionTitle {
+  grid-column: 2;
+  margin: 0;
+  font-family: var(--font-anton), var(--font-inter), sans-serif;
+  font-size: clamp(1.3rem, 4.2vw, 2.3rem);
+  font-weight: 400;
+  letter-spacing: clamp(0.16em, 0.9vw, 0.3em);
+  line-height: 1.62;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  overflow-wrap: break-word;
+}
+
+.sectionLede {
+  grid-column: 2;
+  max-width: 66ch;
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+/* ══ 3 · KÜNYE ŞERİDİ ══════════════════════════════════════════════════ */
+.identity {
+  display: grid;
+  gap: clamp(1.2rem, 3vw, 2rem);
+}
+
+@media (min-width: 52rem) {
+  .identity {
+    grid-template-columns: minmax(0, 1fr) 15rem;
+    align-items: start;
+  }
+}
+
+.facts {
+  display: grid;
+  gap: 0;
+  margin: 0;
+}
+
+/* Künye satırları da bir kesit: her satır bir tortul çizgi */
+.fact {
+  display: grid;
+  gap: 0.15rem;
+  padding-block: clamp(0.6rem, 1.8vw, 0.9rem);
+  border-block-end: 1px solid color-mix(in srgb, var(--border) 90%, transparent);
+}
+
+.fact:first-child {
+  border-block-start: 1px solid color-mix(in srgb, var(--border) 90%, transparent);
+}
+
+@media (min-width: 38rem) {
+  .fact {
+    grid-template-columns: 11rem minmax(0, 1fr);
+    gap: 0.15rem 1.2rem;
+  }
+}
+
+.factLabel {
+  margin: 0;
+  font-size: 0.74rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--jgo-depth-text);
+}
+
+.factValue {
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.core {
+  display: grid;
+  gap: 0.7rem;
+  justify-items: start;
+}
+
+/* Çekirdek portre: 230×345, yani KÜÇÜK. Tam kanama bir hero olarak
+   kullanılmıyor — kesitten alınmış dar bir sondaj örneği gibi duruyor. */
+.portrait {
+  position: relative;
+  margin: 0;
+  padding: 0.5rem;
+  border: 1px solid var(--border-strong);
+  background: color-mix(in srgb, var(--jgo-obsidian) 70%, var(--surface));
+}
+
+.portraitImg {
+  display: block;
+  width: 100%;
+  max-width: 11rem;
+  height: auto;
+}
+
+.portraitNote {
+  max-width: 40ch;
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.7;
+  color: var(--jgo-depth-text);
+}
+
+/* Sembolik obje — koninin kesiti */
+.cone {
+  display: block;
+  width: clamp(7rem, 30vw, 11rem);
+  opacity: 0.9;
+}
+
+.coneArt {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.coneOutline {
+  fill: none;
+  stroke: color-mix(in srgb, var(--jgo-basalt) 55%, var(--jgo-depth-text));
+  stroke-width: 2.4;
+}
+
+.coneLayer {
+  fill: none;
+  stroke: color-mix(in srgb, var(--border-strong) 90%, transparent);
+  stroke-width: 1.6;
+  stroke-dasharray: 5 7;
+}
+
+.coneVent {
+  fill: none;
+  stroke: var(--jgo-vein);
+  stroke-width: 2.6;
+  opacity: var(--jgo-crack-op);
+}
+
+/* ══ 4a · ÜÇ BÜYÜK AĞIZ ════════════════════════════════════════════════
+   Kart değil BLOK: her biri tam genişlikte, üstünde kalın bir bazalt
+   çizgisi, solunda derinlik numarası. Yan yana DİZİLMİYORLAR — kesitte
+   her ağız bir öncekinin altında. */
+.vents {
+  display: grid;
+  gap: clamp(1.4rem, 4vw, 2.6rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.vent {
+  display: grid;
+  gap: 0.3rem;
+  padding-block-start: clamp(0.9rem, 2.5vw, 1.4rem);
+  border-block-start: 2px solid color-mix(in srgb, var(--jgo-basalt) 70%, var(--jgo-vein));
+}
+
+.ventIndex {
+  margin: 0;
+  font-family: var(--font-anton), var(--font-inter), sans-serif;
+  font-size: 0.9rem;
+  letter-spacing: 0.3em;
+  color: var(--jgo-depth-text);
+}
+
+.ventNative {
+  margin: 0;
+  font-family: var(--font-anton), var(--font-inter), sans-serif;
+  font-size: clamp(1.5rem, 6vw, 2.6rem);
+  font-weight: 400;
+  letter-spacing: clamp(0.1em, 1vw, 0.26em);
+  line-height: 1.5;
+  color: var(--jgo-sulfur-text);
+}
+
+.ventReading {
+  margin: 0;
+  font-size: 0.78rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--jgo-depth-text);
+}
+
+.ventTitle {
+  margin-block: 0.4rem 0;
+  font-size: clamp(1.05rem, 3vw, 1.3rem);
+  letter-spacing: 0.05em;
+  color: var(--jgo-ember-text);
+}
+
+.ventText {
+  max-width: 68ch;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.ventTraits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-block: 0.6rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trait {
+  padding: 0.28rem 0.65rem;
+  border: 1px solid color-mix(in srgb, var(--border-strong) 85%, transparent);
+  background: color-mix(in srgb, var(--jgo-obsidian) 55%, transparent);
+  font-size: 0.74rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--jgo-ash-text);
+}
+
+/* ══ 4b · DÖRT KÜÇÜK ÖLÇÜM ═════════════════════════════════════════════ */
+.kit {
+  display: grid;
+  gap: clamp(0.8rem, 2.4vw, 1.2rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 44rem) {
+  .kit {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.kitCard {
+  display: grid;
+  gap: 0.25rem;
+  align-content: start;
+  padding: clamp(0.9rem, 2.4vw, 1.3rem);
+  border: 1px solid color-mix(in srgb, var(--border) 90%, transparent);
+  background: color-mix(in srgb, var(--jgo-obsidian) 45%, transparent);
+}
+
+.kitNative {
+  margin: 0;
+  font-family: var(--font-anton), var(--font-inter), sans-serif;
+  font-size: clamp(1.15rem, 4vw, 1.6rem);
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  line-height: 1.55;
+  color: var(--jgo-sulfur-text);
+}
+
+.kitReading {
+  margin: 0;
+  font-size: 0.74rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--jgo-depth-text);
+}
+
+.kitNote {
+  margin-block: 0.4rem 0;
+  color: var(--text-secondary);
+}
+
+/* ══ 5 · KÜL — SAYFANIN KALBİ ══════════════════════════════════════════ */
+.ash {
+  display: grid;
+  gap: clamp(0.7rem, 2vw, 1.05rem);
+}
+
+/* ⚠️ GÖREV ŞARTI 6: kül perdesi küratörün yükleme kutusunu ASLA
+   kapatmasın. İki güvenlik birden var:
+     1. Yapısal — kadraj ve yuva perdenin içinde DEĞİL, `.ashPanel`in
+        DIŞINDA, listenin altında duruyor.
+     2. Katman — yuvaların yığın sırası perdenin üstünde. */
+.ash [data-curator-slot] {
+  position: relative;
+  z-index: 4;
+}
+
+.ashBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.ashOpen,
+.ashBlow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: var(--touch-min);
+  padding: 0.55rem 1.05rem;
+  border: 1px solid var(--border-strong);
+  background: color-mix(in srgb, var(--surface-hover) 80%, var(--jgo-deep));
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 0.82rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.ashOpen:hover,
+.ashBlow:hover {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border-strong));
+}
+
+.ashOpen:focus-visible,
+.ashBlow:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ⚠️ `disabled` DEĞİL `aria-disabled`: düğmeler odak zincirinden düşmüyor,
+   yalnızca görünüşleri ve davranışları sönüyor. Dördüncü aşamada
+   "üfleyemiyorsun" hâli de böyle veriliyor ve açıklaması
+   `aria-describedby` ile bağlı. */
+.ashOpen[aria-disabled="true"],
+.ashBlow[aria-disabled="true"] {
+  border-style: dashed;
+  color: var(--jgo-depth-text);
+  cursor: default;
+}
+
+.ashOpenMark {
+  display: block;
+  width: 0.9rem;
+  height: 0.9rem;
+  border: 1px solid color-mix(in srgb, var(--jgo-vein) 70%, transparent);
+  background: color-mix(in srgb, var(--jgo-magma) 45%, transparent);
+}
+
+.ashBlowMark {
+  display: block;
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--jgo-ashfall) 85%, transparent);
+}
+
+.ashOpenLabel,
+.ashBlowLabel {
+  display: block;
+}
+
+/* Üç sayaç: açılan katman · birikme hızı · kül yoğunluğu */
+.ashMeters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(0.8rem, 3vw, 2rem);
+  margin: 0;
+}
+
+.ashMeter {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.ashMeterLabel {
+  margin: 0;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--jgo-depth-text);
+}
+
+.ashMeterValue {
+  margin: 0;
+  font-family: var(--font-anton), var(--font-inter), sans-serif;
+  font-size: clamp(1.1rem, 3.4vw, 1.5rem);
+  letter-spacing: 0.16em;
+  color: var(--jgo-ember-text);
+}
+
+.ashStatus {
+  min-height: 2.6em;
+  max-width: 66ch;
+  margin: 0;
+  padding-inline-start: 0.8rem;
+  border-inline-start: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  color: var(--jgo-ash-text);
+}
+
+.ashHint,
+.ashDeadHint {
+  max-width: 66ch;
+  margin: 0;
+  font-size: 0.79rem;
+  line-height: 1.7;
+  color: var(--jgo-depth-text);
+}
+
+.ashDeadHint {
+  color: var(--jgo-ash-text);
+}
+
+/* ── KÜL PERDESİ VE ALTINDAKİ METİN ─────────────────────────────────────
+   Perde metnin ÜSTÜNDE ama `pointer-events: none` ve `aria-hidden`: ne
+   okumayı ne tıklamayı engelliyor, yalnızca görsel bir örtü.
+
+   ⚠️ Opaklık YALNIZCA `no-preference` kapısının içinde tanımlı (aşağıda) —
+   hareketi kapalı bir tarayıcıda kül HİÇ birikmiyor.
+
+   ⚠️ En yoğun hâli bile metni okunamaz yapmıyor: perdenin tepe durağı
+   rengin %92'si, katman opaklığı en fazla `--jgo-ash-max` (0.32), yani
+   etkin alfa 0.294. O değerde ana metin 6.63:1, ikincil metin 5.14:1
+   ölçüldü; erime noktası açıkken (koyu kül, kızarmış zemin) 6.48:1 ve
+   5.03:1. İkisi de 4.5 eşiğinin üstünde. */
+.ashPanel {
+  position: relative;
+  padding: clamp(0.9rem, 2.6vw, 1.5rem);
+  border: 1px solid color-mix(in srgb, var(--border) 92%, transparent);
+  background: color-mix(in srgb, var(--jgo-obsidian) 55%, transparent);
+}
+
+.ashVeil {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: block;
+  opacity: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--jgo-ash-veil) 92%, transparent) 0%,
+    color-mix(in srgb, var(--jgo-ash-veil) 62%, transparent) 34%,
+    color-mix(in srgb, var(--jgo-ash-veil) 26%, transparent) 72%,
+    transparent 100%
+  );
+}
+
+.ashEmpty {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  color: var(--jgo-depth-text);
+}
+
+.ashList {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: clamp(1rem, 2.8vw, 1.6rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ashItem {
+  display: grid;
+  gap: 0.2rem;
+  padding-block-start: 0.8rem;
+  border-block-start: 1px solid color-mix(in srgb, var(--border-strong) 65%, transparent);
+}
+
+.ashItem:first-child {
+  padding-block-start: 0;
+  border-block-start: 0;
+}
+
+.ashItemIndex {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.3em;
+  color: var(--jgo-depth-text);
+}
+
+.ashItemNative {
+  margin: 0;
+  font-size: clamp(1rem, 3vw, 1.25rem);
+  letter-spacing: 0.28em;
+  color: var(--jgo-sulfur-text);
+}
+
+.ashItemTitle {
+  margin: 0;
+  font-family: var(--font-anton), var(--font-inter), sans-serif;
+  font-size: clamp(1.05rem, 3.2vw, 1.4rem);
+  font-weight: 400;
+  letter-spacing: clamp(0.12em, 0.7vw, 0.22em);
+  line-height: 1.6;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  overflow-wrap: break-word;
+}
+
+.ashItemText {
+  max-width: 68ch;
+  margin: 0;
+  color: var(--jgo-ash-text);
+}
+
+/* Dördüncü kül: yenilgi metni. Perdenin DIŞINDA — bu bölüm bir ödül değil,
+   mekaniğin vardığı yer, ve her zaman tam okunur. */
+.ashSealed {
+  display: grid;
+  gap: 0.4rem;
+  padding: clamp(1rem, 3vw, 1.7rem);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--border-strong));
+  border-inline-start-width: 4px;
+  background: color-mix(in srgb, var(--jgo-obsidian) 70%, var(--accent-muted));
+}
+
+.ashSealedKicker {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--jgo-ember-text);
+}
+
+.ashSealedTitle {
+  margin: 0;
+  font-family: var(--font-anton), var(--font-inter), sans-serif;
+  font-size: clamp(1.2rem, 4vw, 1.8rem);
+  font-weight: 400;
+  letter-spacing: clamp(0.14em, 0.8vw, 0.26em);
+  line-height: 1.6;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  overflow-wrap: break-word;
+}
+
+.ashSealedText {
+  max-width: 68ch;
+  margin-block: 0.5rem 0;
+  color: var(--text-primary);
+}
+
+/* ══ 6 · KADER KESİTİ — BEŞ KATMAN ═════════════════════════════════════
+   Çizelge de bir kesit: beş yatak üst üste, her biri bir öncekinden içeri
+   kaymış (`padding-inline-start` artıyor) ve daha koyu. Sağdaki kenar
+   çizgisi sondaj hattı. */
+.beds {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bed {
+  display: grid;
+  gap: 0.25rem;
+  padding: clamp(1rem, 3vw, 1.6rem) clamp(0.7rem, 2vw, 1.2rem);
+  border: 1px solid color-mix(in srgb, var(--border) 90%, transparent);
+  border-block-end: 0;
+  background: color-mix(in srgb, var(--jgo-obsidian) 30%, transparent);
+}
+
+.bed:last-child {
+  border-block-end: 1px solid color-mix(in srgb, var(--border) 90%, transparent);
+}
+
+.bed[data-bed="2"] {
+  background: color-mix(in srgb, var(--jgo-obsidian) 45%, transparent);
+}
+
+.bed[data-bed="3"] {
+  background: color-mix(in srgb, var(--jgo-obsidian) 58%, transparent);
+}
+
+.bed[data-bed="4"] {
+  background: color-mix(in srgb, var(--jgo-obsidian) 70%, transparent);
+}
+
+.bed[data-bed="5"] {
+  background: color-mix(in srgb, var(--jgo-obsidian) 82%, transparent);
+  border-inline-start: 3px solid color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.bedDepth {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--jgo-depth-text);
+}
+
+.bedNative {
+  margin: 0;
+  font-size: clamp(1.6rem, 6vw, 2.4rem);
+  letter-spacing: 0.24em;
+  line-height: 1.45;
+  color: color-mix(in srgb, var(--jgo-basalt) 45%, var(--jgo-sulfur-text));
+}
+
+.bedTitle {
+  margin: 0;
+  font-family: var(--font-anton), var(--font-inter), sans-serif;
+  font-size: clamp(1.1rem, 3.6vw, 1.6rem);
+  font-weight: 400;
+  letter-spacing: clamp(0.12em, 0.8vw, 0.24em);
+  line-height: 1.6;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  overflow-wrap: break-word;
+}
+
+.bedText {
+  max-width: 68ch;
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.bedLine {
+  margin-block: 0.5rem 0;
+  padding: 0.4rem 0.8rem;
+  border-inline-start: 2px solid color-mix(in srgb, var(--gold) 55%, transparent);
+  font-size: clamp(1rem, 3vw, 1.2rem);
+  letter-spacing: 0.26em;
+  color: var(--jgo-sulfur-text);
+}
+
+.bedNote {
+  max-width: 72ch;
+  margin: 0;
+  font-size: 0.79rem;
+  line-height: 1.7;
+  color: var(--jgo-depth-text);
+}
+
+/* ══ 7a · AYNI KESİTTE DURANLAR ════════════════════════════════════════ */
+.bonds {
+  display: grid;
+  gap: clamp(0.8rem, 2.4vw, 1.2rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 46rem) {
+  .bonds {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.bond {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: clamp(0.7rem, 2vw, 1.1rem);
+  align-items: start;
+  padding: clamp(0.8rem, 2.2vw, 1.1rem);
+  border: 1px solid color-mix(in srgb, var(--border) 90%, transparent);
+  background: color-mix(in srgb, var(--jgo-obsidian) 40%, transparent);
+}
+
+/* Yoldaş portresi. ⚠️ ALTINDA küratör yuvası YOK ve bu bilinçli: kare
+   başka bir karakterin `CharacterImage` kaydından geliyor. */
+.bondFace {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(3.2rem, 12vw, 4.6rem);
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  background: color-mix(in srgb, var(--jgo-obsidian) 75%, transparent);
+}
+
+.bondFaceImg {
+  object-fit: cover;
+}
+
+.bondFaceMark {
+  font-size: clamp(1.3rem, 5vw, 1.8rem);
+  color: color-mix(in srgb, var(--jgo-basalt) 40%, var(--jgo-depth-text));
+}
+
+.bondBody {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.bondName,
+.bondNamePlain {
+  font-family: var(--font-anton), var(--font-inter), sans-serif;
+  font-size: clamp(1rem, 3vw, 1.25rem);
+  letter-spacing: 0.16em;
+  line-height: 1.5;
+  text-transform: uppercase;
+  overflow-wrap: break-word;
+}
+
+.bondName {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  color: var(--jgo-ember-text);
+  text-decoration: none;
+  border-block-end: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  justify-self: start;
+}
+
+.bondName:hover {
+  color: var(--accent-hover);
+}
+
+.bondName:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.bondNamePlain {
+  color: var(--text-primary);
+}
+
+.bondNative {
+  font-size: 0.86rem;
+  letter-spacing: 0.24em;
+  color: var(--jgo-sulfur-text);
+}
+
+.bondRole {
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--jgo-depth-text);
+}
+
+.bondText {
+  margin-block-start: 0.35rem;
+  color: var(--text-secondary);
+}
+
+/* Kadrajsız anılanlar */
+.plain {
+  display: grid;
+  gap: 0.5rem;
+  padding-block-start: clamp(0.9rem, 2.5vw, 1.4rem);
+  border-block-start: 1px solid color-mix(in srgb, var(--border-strong) 70%, transparent);
+}
+
+.plainTitle {
+  margin: 0;
+  font-family: var(--font-anton), var(--font-inter), sans-serif;
+  font-size: clamp(0.95rem, 3vw, 1.2rem);
+  font-weight: 400;
+  letter-spacing: clamp(0.14em, 0.8vw, 0.24em);
+  line-height: 1.6;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.plainNote {
+  max-width: 68ch;
+  margin: 0;
+  font-size: 0.79rem;
+  line-height: 1.7;
+  color: var(--jgo-depth-text);
+}
+
+.plainList {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.plainRow {
+  display: grid;
+  gap: 0.1rem;
+  padding-block: 0.5rem;
+  border-block-end: 1px dashed color-mix(in srgb, var(--border-strong) 60%, transparent);
+}
+
+.plainName {
+  font-size: 0.98rem;
+  letter-spacing: 0.1em;
+  color: var(--text-primary);
+}
+
+.plainNative {
+  font-size: 0.84rem;
+  letter-spacing: 0.22em;
+  color: var(--jgo-sulfur-text);
+}
+
+.plainText {
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+}
+
+/* ══ 7b · EVRENE AÇILAN ÇATLAKLAR ══════════════════════════════════════ */
+.nexusList {
+  display: grid;
+  gap: 0.7rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 46rem) {
+  .nexusList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.nexus {
+  display: block;
+}
+
+.nexusLink {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.2rem 0.8rem;
+  align-items: center;
+  min-height: var(--touch-min);
+  padding: clamp(0.7rem, 2vw, 1rem);
+  border: 1px solid color-mix(in srgb, var(--border-strong) 80%, transparent);
+  background: color-mix(in srgb, var(--jgo-obsidian) 45%, transparent);
+  text-decoration: none;
+}
+
+.nexusLink:hover {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border-strong));
+  background: color-mix(in srgb, var(--accent-muted) 45%, transparent);
+}
+
+.nexusLink:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.nexusTitle {
+  font-family: var(--font-anton), var(--font-inter), sans-serif;
+  font-size: clamp(0.95rem, 3vw, 1.15rem);
+  letter-spacing: 0.18em;
+  line-height: 1.55;
+  text-transform: uppercase;
+  color: var(--jgo-ember-text);
+  overflow-wrap: break-word;
+}
+
+.nexusText {
+  grid-column: 1;
+  font-size: 0.83rem;
+  color: var(--text-secondary);
+}
+
+.nexusArrow {
+  grid-row: 1 / span 2;
+  grid-column: 2;
+  font-size: 1.2rem;
+  color: var(--jgo-depth-text);
+}
+
+/* ══ 7c · KAPANIŞ ══════════════════════════════════════════════════════ */
+.quotes {
+  display: grid;
+  gap: clamp(0.9rem, 2.6vw, 1.4rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.quote {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+  padding: clamp(0.9rem, 2.6vw, 1.4rem);
+  border-inline-start: 3px solid color-mix(in srgb, var(--gold) 60%, transparent);
+  background: color-mix(in srgb, var(--jgo-obsidian) 50%, transparent);
+}
+
+.quoteJa {
+  margin: 0;
+  font-size: clamp(1.25rem, 5vw, 2rem);
+  letter-spacing: 0.24em;
+  line-height: 1.6;
+  color: var(--jgo-sulfur-text);
+  overflow-wrap: break-word;
+}
+
+.quoteReading {
+  margin: 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--jgo-depth-text);
+}
+
+.quoteNote {
+  max-width: 68ch;
+  margin-block: 0.4rem 0;
+  color: var(--text-secondary);
+}
+
+.quoteBy {
+  font-size: 0.74rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--jgo-ember-text);
+}
+
+.quoteDiscipline {
+  max-width: 72ch;
+  margin: 0;
+  font-size: 0.79rem;
+  line-height: 1.7;
+  color: var(--jgo-depth-text);
+}
+
+.motto {
+  margin-block: clamp(0.8rem, 2.5vw, 1.4rem) 0;
+  font-family: var(--font-anton), var(--font-inter), sans-serif;
+  font-size: clamp(1.6rem, 8vw, 3.4rem);
+  font-weight: 400;
+  letter-spacing: clamp(0.14em, 1.2vw, 0.3em);
+  line-height: 1.55;
+  color: var(--jgo-ember-text);
+  overflow-wrap: break-word;
+}
+
+.mottoNote {
+  max-width: 68ch;
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.credit {
+  max-width: 74ch;
+  margin-block: clamp(1rem, 3vw, 1.6rem) 0;
+  font-size: 0.8rem;
+  line-height: 1.75;
+  color: var(--jgo-depth-text);
+}
+
+.credit a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  color: var(--jgo-ember-text);
+  text-decoration: none;
+  border-block-end: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.credit a:hover {
+  color: var(--accent-hover);
+}
+
+.credit a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.creditNote {
+  max-width: 74ch;
+  margin: 0;
+  font-size: 0.76rem;
+  line-height: 1.7;
+  color: var(--jgo-depth-text);
+}
+
+/* ══ KADRAJLAR ═════════════════════════════════════════════════════════
+   Görsel yokken kadraj GÖRSELSİZ AMA AYAKTA kalıyor: içinde elle çizilmiş
+   çatlamış bir bazalt levha var, yani kesitin dokusunun parçası oluyor.
+
+   ⚠️ Ölçü/üretim metni (`.frameSpec`) YALNIZCA küratör dalında çiziliyor —
+   ziyaretçi boş kadrajın içinde piksel ölçüsü görmüyor (Dalga 1'in Levi
+   dersi). */
+.frame {
+  position: relative;
+  width: 100%;
+  margin-block: clamp(0.8rem, 2vw, 1.2rem) 0;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--jgo-basalt) 85%, var(--border-strong));
+  background: color-mix(in srgb, var(--jgo-obsidian) 70%, var(--surface));
+}
+
+.frameImg {
+  object-fit: cover;
+}
+
+.frameTall {
+  aspect-ratio: 3 / 4;
+  max-width: 24rem;
+}
+
+.frameWide {
+  aspect-ratio: 14 / 9;
+}
+
+.frameSmall {
+  aspect-ratio: 1 / 1;
+  max-width: 15rem;
+}
+
+.frameBand {
+  aspect-ratio: 16 / 7;
+}
+
+.frameSlab {
+  position: absolute;
+  inset: 0;
+  display: block;
+  opacity: 0.75;
+}
+
+.frameSlabArt {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.frameSlabEdge {
+  fill: none;
+  stroke: color-mix(in srgb, var(--jgo-basalt) 90%, transparent);
+  stroke-width: 2;
+}
+
+.frameSlabCrack {
+  fill: none;
+  stroke: color-mix(in srgb, var(--jgo-basalt) 55%, var(--jgo-depth-text));
+  stroke-width: 1.8;
+}
+
+.frameSlabEmber {
+  fill: none;
+  stroke: var(--jgo-vein);
+  stroke-width: 5;
+  opacity: var(--jgo-crack-op);
+  filter: blur(3px);
+}
+
+/* Perde (scrim): metnin altındaki zemin her koşulda okunur kalsın */
+.frameSpec {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 0;
+  z-index: 3;
+  padding: 0.45rem 0.7rem;
+  background: color-mix(in srgb, var(--bg) 86%, transparent);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--jgo-ash-text);
+}
+
+/* ══ HAREKET ═══════════════════════════════════════════════════════════
+   Üçü de `no-preference` kapısının İÇİNDE. Kül perdesinin opaklığı da
+   burada: hareket kapalıyken kül HİÇ birikmiyor (görev şartı). */
+@media (prefers-reduced-motion: no-preference) {
+  .mote {
+    animation: jgo-drift calc(11s + var(--jgo-mote) * 0.9s) linear infinite;
+    animation-delay: calc(var(--jgo-mote) * -1.7s);
+  }
+
+  .crackGlow {
+    animation: jgo-vein 5.2s ease-in-out infinite;
+  }
+
+  .page[data-molten="on"] .crackGlow {
+    animation-duration: 2.4s;
+  }
+
+  .coneVent {
+    animation: jgo-vein 6.4s ease-in-out infinite;
+  }
+
+  .ashVeil {
+    transition: opacity 900ms ease-out;
+  }
+
+  .ashPanel[data-ash="1"] .ashVeil {
+    opacity: calc(var(--jgo-ash-max) * 0.28);
+  }
+
+  .ashPanel[data-ash="2"] .ashVeil {
+    opacity: calc(var(--jgo-ash-max) * 0.52);
+  }
+
+  .ashPanel[data-ash="3"] .ashVeil {
+    opacity: calc(var(--jgo-ash-max) * 0.76);
+  }
+
+  .ashPanel[data-ash="4"] .ashVeil {
+    opacity: var(--jgo-ash-max);
+  }
+
+  .meltGauge,
+  .meltGaugeBand {
+    transition:
+      gap 260ms ease-out,
+      background-color 260ms ease-out;
+  }
+}
+
+@keyframes jgo-drift {
+  0% {
+    transform: translate3d(0, -4vh, 0);
+    opacity: 0;
+  }
+
+  9% {
+    opacity: 0.5;
+  }
+
+  88% {
+    opacity: 0.3;
+  }
+
+  100% {
+    transform: translate3d(1.8rem, 104vh, 0);
+    opacity: 0;
+  }
+}
+
+@keyframes jgo-vein {
+  0%,
+  100% {
+    opacity: calc(var(--jgo-crack-op) * 0.45);
+  }
+
+  50% {
+    opacity: var(--jgo-crack-op);
+  }
+}
+
+/* ══ HAREKET BATTANİYESİ ═══════════════════════════════════════════════
+   ⚠️ Katmanlı kesit battaniyenin ALTINDA DA aynen duruyor: derinlik
+   koyulaşması, çatlaklar ve mod düğmesinin yaptığı ısı değişimi animasyon
+   değil DÜZEN. Kapanan tek şey hareket — ve kül. */
+@media (prefers-reduced-motion: reduce) {
+  .mote,
+  .crackGlow,
+  .coneVent,
+  .ashVeil,
+  .meltGauge,
+  .meltGaugeBand {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .ashfall {
+    display: none;
+  }
+
+  /* Kül HİÇ birikmiyor: perde her yoğunlukta görünmez kalıyor. */
+  .ashVeil {
+    opacity: 0;
+  }
 }

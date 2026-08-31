@@ -1,0 +1,1839 @@
+/*
+ * Mahito (真人) — deri bloğu.
+ *
+ * Palet docs/ANIME-FAZ2-DALGA4.md'den BİREBİR alındı; elle renk yazma.
+ * Dosyanın EN BAŞINDA olmak zorunda ve seçici `.page[data-world="…"]`
+ * — `:global([data-world=…])` CSS Modules'ün "pure selector" kuralına
+ * takılıyor.
+ *
+ * Yardımcı token adı `--mht-…`. Küçük METİNDE kullanacağın her
+ * yardımcı rengin `-text` ekli bir kardeşi olmalı; kontrast denetimi
+ * yalnızca onlara bakıyor.
+ */
+.page[data-world="mahito"] {
+  --bg: #0c0d0e;
+  --surface: #141617;
+  --surface-hover: #1b1e1f;
+  --border: #212526;
+  --border-strong: #303536;
+  --text-primary: #c8cfd0;
+  --text-secondary: #819498;
+  --text-muted: #708a8f;
+  --accent: #9fc0c1;
+  --accent-hover: #b4d4d5;
+  --accent-muted: #496869;
+  --gold: #a67468;
+  --warn: #b88347;
+  --danger: #c2665b;
+
+  /* ── Yardımcı MALZEME (metin değil; ölçülmüyor, gerekçe kontrast
+     betiğinin başında) ────────────────────────────────────────────── */
+  --mht-flesh: #6d4f45;
+  --mht-flesh-deep: #43312c;
+  --mht-thread: #4d6062;
+  --mht-thread-bright: #7d9799;
+  --mht-void: #08090a;
+
+  /* ── Küçük METİNDE okunan aile (`-text`, ölçülüyor) ─────────────── */
+  --mht-seam-text: #9fb3b5;
+  --mht-flesh-text: #c79a89;
+  --mht-badge-text: #93a6a8;
+  --mht-spec-text: #8fa3a5;
+}
+
+/* ============================================================
+   MAHITO — "Ruhun şekli"
+
+   Deri: kökteki `data-world="mahito"` bütün standart token'ları soğuk
+   kömüre çeviriyor; yardımcılar `--mht-*` (yukarıdaki blok). Bu bloktan
+   AŞAĞIDA TEK HEX YOK — ara tonların hepsi `color-mix` ile token'lardan
+   türetildi (FAZ 2 §1).
+
+   ── SAYFANIN FİKRİ ──────────────────────────────────────────────────────
+   RUHUN ŞEKLİ BEDENİN ŞEKLİDİR. Sayfa bir ızgara değil bir YAMA TARLASI:
+   her bölüm başka genişlikte, başka yöne kaymış ve DÖRT KÖŞESİNİN YARIÇAPI
+   AYRI (eliptik `border-radius`, sekiz değer). Kartların kenarları ayrıca
+   piksel tabanlı sekiz köşeli `clip-path` ile eğik kesiliyor: hiçbir kenar
+   diğerine paralel değil. Bölümlerin arasında elle çizilmiş SVG dikişler
+   (`stroke-dasharray` teyel) duruyor.
+
+   ⚠️ NEDEN `clip-path` YÜZDE DEĞİL PİKSEL: bir bölüm 2000 piksel uzun
+   olabiliyor ve `polygon(… 12% …)` orada 240 piksellik bir kesik demek —
+   metni keser. Bütün çokgenler `px`/`calc()` ile yazıldı, yani kesik kutu
+   ne kadar uzarsa uzasın 4–40 piksel arasında kalıyor ve iç dolgu
+   (`--mht-pad`, en az 1.6rem) her zaman kesikten büyük.
+
+   ⚠️ Bölüm gövdesine `clip-path` HİÇ uygulanmıyor: kesilen şey bölümün
+   `::before` katmanı (zemin + kenarlık). Böylece bölümün içindeki
+   `CuratorSlot` yükleme kutusu deformasyondan etkilenmiyor — kırpılan bir
+   yükleme kutusu küratörün tıklayamayacağı bir kutudur (kullanıcı şartı 6).
+
+   ── ÖLÇÜ SİSTEMİ ────────────────────────────────────────────────────────
+   --mht-col   sütun genişliği (64rem tavanlı)
+   --mht-slack bölümlerin kayabileceği pay; genişlik `100% - 2*slack`
+               olduğu için kayma 360 pikselde bile TAŞMIYOR
+   --mht-pad   yamaların iç dolgusu — kesikten her zaman büyük
+   --mht-crawl morph süresi: sürünen, 1.1s
+   --mht-ease  yumuşak ve tedirgin edici easing
+
+   ── RENK GÖREVLERİ ──────────────────────────────────────────────────────
+   --accent            → dikiş düğümleri, seçili form, bağlantılar
+   --accent-hover      → motto, künye bağlantısı
+   --gold              → künye değerleri, ten tarafındaki vurgu
+   --mht-flesh         → YALNIZCA malzeme: mod açıkken yamaların ten dolgusu
+   --mht-thread        → YALNIZCA dikiş ipliği (SVG `stroke`)
+   --mht-void          → YALNIZCA kadraj ve kart oyuklarının dibi
+   --mht-seam-text     → dikiş/ölçü satırlarının metni
+   --mht-flesh-text    → ten tarafındaki küçük metin (mod açıkken öne çıkan)
+   --mht-badge-text    → rozet metni
+   --mht-spec-text     → yalnızca yöneticide görünen teknik künye
+
+   ── TİPOGRAFİ ───────────────────────────────────────────────────────────
+   Display: Cormorant Garamond — ama DEFORME: başlıktaki her kelime başka
+   puntoda (`.wordA…D`, dört ölçü sırayla dağıtılıyor) ve her kelimenin
+   temel çizgisi biraz kayık. Tek bir başlık bile hizasız duruyor.
+   Gövde: Jost, 400. Japonca: sistem mincho zinciri.
+
+   ── HAREKET ─────────────────────────────────────────────────────────────
+   MORPH ve yalnızca morph. Hiçbir şey uçmuyor, kaymıyor, parlamıyor:
+   kutular köşe yarıçaplarını ve kesim çokgenlerini DEĞİŞTİREREK deforme
+   oluyor. Süre uzun (1.1s), easing yumuşak — sürünen bir hareket.
+   Ambiyans olarak yamalar 24 saniyelik bir döngüde çok yavaş nefes alıyor
+   (`mhtCreep`), `prefers-reduced-motion: no-preference` kapısında.
+   Dosya sonundaki `reduce` battaniyesi geçişleri de kapatıyor; kapandığında
+   form seçimi ÇALIŞMAYA DEVAM EDİYOR ve şeklin ne olduğu yazıyla duruyor.
+   ============================================================ */
+
+.page {
+  --mht-col: 64rem;
+  --mht-slack: clamp(0.35rem, 2.6vw, 2.6rem);
+  --mht-pad: clamp(1.6rem, 4vw, 2.9rem);
+  --mht-crawl: 1100ms;
+  --mht-slow: 2200ms;
+  --mht-ease: cubic-bezier(0.34, 0.03, 0.2, 0.99);
+  --mht-hair: color-mix(in srgb, var(--border-strong) 78%, transparent);
+  --mht-fill: color-mix(in srgb, var(--surface) 88%, var(--bg));
+  --mht-fill-soul: color-mix(in srgb, var(--mht-flesh) 16%, var(--surface));
+
+  position: relative;
+  isolation: isolate;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-weight: 400;
+  line-height: 1.62;
+
+  /* ⚠️ `clip`, `hidden` DEĞİL: `hidden` sticky kabı kırıyor (arşiv notu,
+     "yatay taşma avı"). Kayan yamalar zaten `100% - 2*slack` genişlikte,
+     yani 360 pikselde de taşmıyorlar; bu satır yalnızca emniyet. */
+  overflow-x: clip;
+
+  padding-block: clamp(1.5rem, 5vh, 3.5rem) clamp(3rem, 9vh, 6rem);
+  padding-inline: clamp(0.75rem, 3.5vw, 2.5rem);
+}
+
+.page :focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ── ORTAK SÜTUN ────────────────────────────────────────────────────────
+   Her doğrudan blok bu ölçüyü kullanıyor. Genişlik `100% - 2*slack`
+   olduğu için soldan ya da sağdan `slack` kadar kaydırmak TAŞMA ÜRETMİYOR:
+   kayma payı zaten genişlikten düşülmüş durumda. */
+.crumb,
+.hero,
+.mode,
+.seam,
+.patch,
+.gapsWrap {
+  inline-size: min(calc(100% - 2 * var(--mht-slack)), var(--mht-col));
+  margin-inline: auto;
+}
+
+/* ── FİLİGRAN: dikiş deseni ─────────────────────────────────────────────
+   Bir arma değil. Beş yama ve aralarındaki teyel — Mahito'nun yüzündeki
+   dikişin büyütülmüş hâli. Kanji 無為転変 desenin kenarına oturuyor. */
+.watermark {
+  position: absolute;
+  inset-block-start: -2vh;
+  inset-inline-end: clamp(-3rem, -4vw, -1rem);
+  inline-size: clamp(15rem, 42vw, 30rem);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.watermarkArt {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  opacity: 0.5;
+}
+
+.watermarkPatch {
+  fill: color-mix(in srgb, var(--surface-hover) 60%, transparent);
+  stroke: color-mix(in srgb, var(--border-strong) 70%, transparent);
+  stroke-width: 1;
+}
+
+.watermarkSeam {
+  fill: none;
+  stroke: var(--mht-thread);
+  stroke-width: 1.8;
+  stroke-dasharray: 6 7;
+  stroke-linecap: round;
+}
+
+.watermarkKnot {
+  fill: color-mix(in srgb, var(--accent-muted) 70%, transparent);
+}
+
+.watermarkKanji {
+  position: absolute;
+  inset-block-end: -0.5em;
+  inset-inline-start: -0.35em;
+  font-family: "Shippori Mincho", "Yu Mincho", serif;
+  font-size: clamp(1.4rem, 4vw, 2.6rem);
+  letter-spacing: 0.24em;
+  color: color-mix(in srgb, var(--mht-thread-bright) 42%, transparent);
+  writing-mode: vertical-rl;
+}
+
+/* ── BREADCRUMB ─────────────────────────────────────────────────────────*/
+.crumb {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: lowercase;
+  color: var(--text-secondary);
+  margin-block-end: clamp(1.5rem, 5vh, 3rem);
+}
+
+.crumb a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--touch-min);
+  padding-inline-end: 0.2rem;
+  color: var(--accent);
+  text-decoration: none;
+  border-block-end: 1px dashed color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.crumb a:hover {
+  color: var(--accent-hover);
+}
+
+.crumbSep {
+  color: var(--mht-seam-text);
+}
+
+.crumbHere {
+  color: var(--mht-seam-text);
+}
+
+/* ══ 1 · HERO ══════════════════════════════════════════════════════════ */
+.hero {
+  position: relative;
+  z-index: 1;
+  padding-block-end: clamp(1.5rem, 5vh, 3rem);
+}
+
+.heroInner {
+  position: relative;
+  z-index: 1;
+  max-inline-size: 44rem;
+}
+
+.heroEyebrow {
+  margin: 0 0 0.9rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--mht-seam-text);
+}
+
+.heroName {
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-weight: 300;
+  font-size: clamp(3.4rem, 15vw, 8rem);
+  line-height: 0.88;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.heroNative {
+  margin: 0.4rem 0 0;
+  font-family: "Shippori Mincho", "Yu Mincho", serif;
+  font-size: clamp(1.6rem, 6vw, 2.6rem);
+  letter-spacing: 0.35em;
+  color: var(--gold);
+}
+
+.heroAlt {
+  margin: 0.7rem 0 0;
+  font-size: 0.9rem;
+  letter-spacing: 0.06em;
+  color: var(--mht-flesh-text);
+}
+
+.heroLede {
+  margin: clamp(1.4rem, 4vh, 2.2rem) 0 0;
+  font-size: clamp(1rem, 2.4vw, 1.12rem);
+  color: var(--text-primary);
+}
+
+/* Madalyon portre — 230×345, KÜÇÜK. Tam kanama değil, dar bir yama. */
+.portrait {
+  margin: clamp(1.6rem, 5vh, 2.6rem) 0 0;
+  inline-size: min(100%, 14rem);
+}
+
+.portraitImg {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  background: var(--mht-void);
+  border: 1px solid var(--mht-hair);
+  border-radius: 46% 12% 38% 8% / 16% 40% 10% 34%;
+  transition: border-radius var(--mht-crawl) var(--mht-ease);
+}
+
+.portrait:hover .portraitImg,
+.portrait:focus-within .portraitImg {
+  border-radius: 10% 44% 6% 40% / 36% 8% 42% 12%;
+}
+
+.portraitCap {
+  display: grid;
+  gap: 0.15rem;
+  margin-block-start: 0.7rem;
+}
+
+.portraitCapLine {
+  font-size: 0.76rem;
+  letter-spacing: 0.12em;
+  color: var(--mht-seam-text);
+}
+
+.portraitCapNote {
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+}
+
+/* Yalnızca yöneticide — büyük hero karesinin neden boş olduğu */
+.heroFrameNote {
+  margin: 1.2rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--mht-spec-text);
+  border-inline-start: 2px dashed color-mix(in srgb, var(--mht-thread) 70%, transparent);
+  padding-inline-start: 0.8rem;
+}
+
+/* ══ 2 · MOD DÜĞMESİ ═══════════════════════════════════════════════════
+   Sayfadaki en dar ve en eğri yama. Düğme ışığı değil KENARLARI çeviriyor. */
+.mode {
+  position: relative;
+  z-index: 1;
+  margin-block: clamp(1.6rem, 5vh, 2.8rem);
+}
+
+.modeInner {
+  position: relative;
+  max-inline-size: 34rem;
+  padding: var(--mht-pad);
+  background: var(--mht-fill);
+  border: 1px solid var(--mht-hair);
+  border-radius: 3.4rem 0.5rem 2.6rem 1.1rem / 1.3rem 2.9rem 0.6rem 3.2rem;
+  clip-path: polygon(
+    0 14px,
+    16px 0,
+    calc(100% - 7px) 5px,
+    100% 22px,
+    calc(100% - 3px) calc(100% - 17px),
+    calc(100% - 19px) 100%,
+    11px calc(100% - 6px),
+    0 calc(100% - 24px)
+  );
+  transition:
+    border-radius var(--mht-crawl) var(--mht-ease),
+    clip-path var(--mht-crawl) var(--mht-ease),
+    background var(--mht-crawl) var(--mht-ease);
+}
+
+.modeTitle {
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-weight: 300;
+  font-size: clamp(1.9rem, 6vw, 2.9rem);
+  line-height: 1.02;
+  color: var(--text-primary);
+}
+
+.modeNative {
+  margin: 0.25rem 0 0;
+  font-family: "Shippori Mincho", "Yu Mincho", serif;
+  font-size: 1rem;
+  letter-spacing: 0.4em;
+  color: color-mix(in srgb, var(--mht-thread-bright) 80%, transparent);
+}
+
+.modeButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+  min-block-size: var(--touch-min);
+  margin-block-start: 1.2rem;
+  padding: 0.55rem 1.4rem;
+  font: inherit;
+  font-size: 0.92rem;
+  letter-spacing: 0.08em;
+  color: var(--text-primary);
+  background: var(--surface-hover);
+  border: 1px solid var(--border-strong);
+  border-radius: 1.9rem 0.35rem 1.4rem 0.6rem / 0.7rem 1.6rem 0.4rem 1.8rem;
+  cursor: pointer;
+  transition:
+    border-radius var(--mht-crawl) var(--mht-ease),
+    background var(--mht-crawl) var(--mht-ease),
+    color var(--mht-crawl) var(--mht-ease);
+}
+
+.modeButton:hover {
+  background: color-mix(in srgb, var(--mht-flesh) 24%, var(--surface-hover));
+  border-radius: 0.4rem 2.1rem 0.5rem 1.5rem / 1.7rem 0.5rem 1.9rem 0.6rem;
+}
+
+.modeButton[aria-pressed="true"] {
+  color: var(--mht-flesh-text);
+  border-color: color-mix(in srgb, var(--mht-flesh) 70%, var(--border-strong));
+}
+
+.modeStitch {
+  display: inline-block;
+  inline-size: 2.2rem;
+  block-size: 0.9rem;
+  position: relative;
+}
+
+.modeStitchLine {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline: 0;
+  block-size: 0;
+  border-block-start: 2px dashed var(--mht-thread-bright);
+  transition: border-block-start-color var(--mht-crawl) var(--mht-ease);
+}
+
+.modeButton[aria-pressed="true"] .modeStitchLine {
+  border-block-start-color: var(--mht-flesh-text);
+}
+
+.modeLabel {
+  display: inline-block;
+}
+
+.modeHint {
+  margin: 1rem 0 0;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+/* ── MOD AÇIK: bütün kenarlar daha düzensiz, dikişler görünür, ten önde ──*/
+.page[data-soul="true"] .modeInner {
+  background: var(--mht-fill-soul);
+  border-radius: 0.6rem 3.9rem 0.7rem 3.1rem / 3.6rem 0.8rem 3.4rem 0.5rem;
+  clip-path: polygon(
+    0 28px,
+    27px 0,
+    calc(100% - 14px) 13px,
+    100% 41px,
+    calc(100% - 9px) calc(100% - 31px),
+    calc(100% - 33px) 100%,
+    21px calc(100% - 15px),
+    0 calc(100% - 43px)
+  );
+}
+
+/* ══ DİKİŞ: iki yamayı birbirine tutan çizgi ══════════════════════════ */
+.seam {
+  display: block;
+  block-size: clamp(1.6rem, 5vh, 2.8rem);
+  margin-block: clamp(0.4rem, 2vh, 1.2rem);
+}
+
+.seamArt {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.seamLine {
+  fill: none;
+  stroke: var(--mht-thread);
+  stroke-width: 1.4;
+  stroke-dasharray: 8 7;
+  stroke-linecap: round;
+  transition:
+    stroke var(--mht-slow) var(--mht-ease),
+    stroke-dasharray var(--mht-slow) var(--mht-ease);
+}
+
+.seamCross {
+  fill: none;
+  stroke: color-mix(in srgb, var(--mht-thread) 65%, transparent);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  transition: stroke var(--mht-slow) var(--mht-ease);
+}
+
+.page[data-soul="true"] .seamLine {
+  stroke: var(--mht-thread-bright);
+  stroke-dasharray: 5 4;
+}
+
+.page[data-soul="true"] .seamCross {
+  stroke: var(--mht-flesh-text);
+}
+
+/* ══ YAMA: bölümün kendisi ═════════════════════════════════════════════
+   Zemin ve kenarlık `::before`te — bölüm gövdesine `clip-path` UYGULANMIYOR
+   (dosya başındaki gerekçe: içerideki yükleme kutusu kırpılmamalı). */
+.patch {
+  position: relative;
+  z-index: 1;
+  padding: var(--mht-pad);
+  margin-block: clamp(0.6rem, 2vh, 1.4rem);
+}
+
+.patch::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--mht-fill);
+  border: 1px solid var(--mht-hair);
+  border-radius: var(--mht-r);
+  clip-path: var(--mht-cut);
+  transition:
+    border-radius var(--mht-crawl) var(--mht-ease),
+    clip-path var(--mht-crawl) var(--mht-ease),
+    background var(--mht-crawl) var(--mht-ease),
+    border-color var(--mht-crawl) var(--mht-ease);
+}
+
+/* Yedi yamanın yedi ayrı gövdesi: yarıçap kümesi, kesim ve KAYMA yönü
+   hepsinde farklı. Kayma `--mht-slack` payının içinde kaldığı için
+   360 pikselde bile taşma üretmiyor. */
+.patch1 {
+  --mht-r: 4.2rem 0.5rem 2.4rem 1rem / 1.2rem 3.6rem 0.6rem 3.1rem;
+  --mht-cut: polygon(
+    0 19px, 22px 0, calc(100% - 8px) 6px, 100% 27px,
+    calc(100% - 4px) calc(100% - 21px), calc(100% - 24px) 100%,
+    14px calc(100% - 7px), 0 calc(100% - 30px)
+  );
+  translate: calc(var(--mht-slack) * -0.7) 0;
+}
+
+.patch2 {
+  --mht-r: 0.6rem 3.6rem 0.9rem 2.8rem / 3.2rem 0.7rem 2.6rem 0.5rem;
+  --mht-cut: polygon(
+    0 8px, 13px 0, calc(100% - 21px) 4px, 100% 18px,
+    calc(100% - 9px) calc(100% - 9px), calc(100% - 15px) 100%,
+    23px calc(100% - 3px), 0 calc(100% - 17px)
+  );
+  translate: calc(var(--mht-slack) * 0.85) 0;
+}
+
+.patch3 {
+  --mht-r: 2.1rem 2.9rem 0.4rem 3.8rem / 0.6rem 1.8rem 3.4rem 0.9rem;
+  --mht-cut: polygon(
+    0 26px, 9px 0, calc(100% - 16px) 11px, 100% 6px,
+    calc(100% - 6px) calc(100% - 26px), calc(100% - 28px) 100%,
+    18px calc(100% - 11px), 0 calc(100% - 12px)
+  );
+  translate: calc(var(--mht-slack) * -0.35) 0;
+}
+
+.patch4 {
+  --mht-r: 3.1rem 1.1rem 3.9rem 0.5rem / 2.4rem 3.1rem 0.7rem 2.2rem;
+  --mht-cut: polygon(
+    0 12px, 29px 0, calc(100% - 5px) 17px, 100% 33px,
+    calc(100% - 12px) calc(100% - 6px), calc(100% - 9px) 100%,
+    7px calc(100% - 19px), 0 calc(100% - 25px)
+  );
+  translate: calc(var(--mht-slack) * 0.4) 0;
+}
+
+.patch5 {
+  --mht-r: 0.4rem 2.2rem 3.6rem 1.7rem / 1.9rem 0.5rem 2.1rem 3.5rem;
+  --mht-cut: polygon(
+    0 21px, 17px 0, calc(100% - 11px) 3px, 100% 14px,
+    calc(100% - 2px) calc(100% - 33px), calc(100% - 20px) 100%,
+    26px calc(100% - 9px), 0 calc(100% - 6px)
+  );
+  translate: calc(var(--mht-slack) * -0.9) 0;
+}
+
+.patch6 {
+  --mht-r: 2.7rem 0.4rem 1.3rem 3.3rem / 0.8rem 2.6rem 3.7rem 0.6rem;
+  --mht-cut: polygon(
+    0 6px, 24px 0, calc(100% - 19px) 9px, 100% 25px,
+    calc(100% - 7px) calc(100% - 14px), calc(100% - 11px) 100%,
+    16px calc(100% - 22px), 0 calc(100% - 9px)
+  );
+  translate: calc(var(--mht-slack) * 0.6) 0;
+}
+
+.patch7 {
+  --mht-r: 1.5rem 3.8rem 0.6rem 2.3rem / 3.3rem 1.1rem 2.8rem 0.4rem;
+  --mht-cut: polygon(
+    0 15px, 11px 0, calc(100% - 26px) 8px, 100% 21px,
+    calc(100% - 5px) calc(100% - 24px), calc(100% - 17px) 100%,
+    31px calc(100% - 5px), 0 calc(100% - 19px)
+  );
+  translate: calc(var(--mht-slack) * -0.2) 0;
+}
+
+/* Mod açıkken her yamanın kenarları BİR KAT DAHA düzensizleşiyor ve
+   dolgu ten tonuna kayıyor. Yapı değişiyor, ışık değil. */
+.page[data-soul="true"] .patch::before {
+  background: var(--mht-fill-soul);
+  border-color: color-mix(in srgb, var(--mht-flesh) 55%, var(--border-strong));
+}
+
+.page[data-soul="true"] .patch1 {
+  --mht-r: 0.5rem 4.6rem 0.6rem 3.4rem / 3.9rem 0.7rem 3.6rem 0.5rem;
+  --mht-cut: polygon(
+    0 38px, 41px 0, calc(100% - 17px) 14px, 100% 47px,
+    calc(100% - 9px) calc(100% - 39px), calc(100% - 44px) 100%,
+    27px calc(100% - 16px), 0 calc(100% - 51px)
+  );
+}
+
+.page[data-soul="true"] .patch2 {
+  --mht-r: 4.1rem 0.6rem 3.2rem 0.9rem / 0.8rem 3.7rem 0.5rem 3.3rem;
+  --mht-cut: polygon(
+    0 17px, 33px 0, calc(100% - 39px) 12px, 100% 35px,
+    calc(100% - 21px) calc(100% - 18px), calc(100% - 31px) 100%,
+    44px calc(100% - 9px), 0 calc(100% - 33px)
+  );
+}
+
+.page[data-soul="true"] .patch3 {
+  --mht-r: 0.5rem 4.3rem 3.1rem 0.7rem / 3.5rem 0.6rem 0.9rem 3.8rem;
+  --mht-cut: polygon(
+    0 44px, 19px 0, calc(100% - 32px) 25px, 100% 13px,
+    calc(100% - 13px) calc(100% - 46px), calc(100% - 51px) 100%,
+    35px calc(100% - 24px), 0 calc(100% - 23px)
+  );
+}
+
+.page[data-soul="true"] .patch4 {
+  --mht-r: 0.6rem 3.9rem 0.5rem 4.4rem / 4.1rem 0.8rem 3.7rem 0.6rem;
+  --mht-cut: polygon(
+    0 24px, 52px 0, calc(100% - 11px) 34px, 100% 58px,
+    calc(100% - 25px) calc(100% - 13px), calc(100% - 18px) 100%,
+    15px calc(100% - 37px), 0 calc(100% - 46px)
+  );
+}
+
+.page[data-soul="true"] .patch5 {
+  --mht-r: 4.4rem 0.5rem 0.8rem 3.6rem / 0.6rem 3.9rem 4.2rem 0.7rem;
+  --mht-cut: polygon(
+    0 39px, 31px 0, calc(100% - 23px) 7px, 100% 29px,
+    calc(100% - 5px) calc(100% - 57px), calc(100% - 37px) 100%,
+    48px calc(100% - 19px), 0 calc(100% - 13px)
+  );
+}
+
+.page[data-soul="true"] .patch6 {
+  --mht-r: 0.7rem 4.5rem 3.8rem 0.5rem / 3.4rem 0.6rem 0.9rem 4.3rem;
+  --mht-cut: polygon(
+    0 13px, 45px 0, calc(100% - 36px) 18px, 100% 48px,
+    calc(100% - 14px) calc(100% - 27px), calc(100% - 22px) 100%,
+    29px calc(100% - 41px), 0 calc(100% - 18px)
+  );
+}
+
+.page[data-soul="true"] .patch7 {
+  --mht-r: 3.7rem 0.6rem 4.2rem 0.5rem / 0.7rem 4.4rem 0.6rem 3.5rem;
+  --mht-cut: polygon(
+    0 29px, 21px 0, calc(100% - 49px) 16px, 100% 40px,
+    calc(100% - 10px) calc(100% - 45px), calc(100% - 32px) 100%,
+    57px calc(100% - 11px), 0 calc(100% - 36px)
+  );
+}
+
+/* ── DEFORME BAŞLIK: her kelime başka puntoda ───────────────────────────
+   Dört ölçü sırayla dağıtılıyor; ayrıca her ölçünün temel çizgisi ve harf
+   aralığı farklı, yani kelimeler aynı çizgide oturmuyor. */
+.patchTitle {
+  margin: 0 0 0.9rem;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-weight: 300;
+  line-height: 1;
+  color: var(--text-primary);
+}
+
+.word {
+  display: inline-block;
+  margin-inline-end: 0.3em;
+}
+
+.wordA {
+  font-size: clamp(1.7rem, 5.6vw, 3.1rem);
+  letter-spacing: -0.01em;
+  translate: 0 0.06em;
+}
+
+.wordB {
+  font-size: clamp(1.05rem, 3.1vw, 1.75rem);
+  letter-spacing: 0.1em;
+  translate: 0 -0.28em;
+  color: var(--mht-seam-text);
+}
+
+.wordC {
+  font-size: clamp(2.2rem, 7.4vw, 4.1rem);
+  letter-spacing: -0.03em;
+  translate: 0 0.12em;
+}
+
+.wordD {
+  font-size: clamp(1.3rem, 4vw, 2.3rem);
+  letter-spacing: 0.04em;
+  translate: 0 -0.1em;
+  color: var(--gold);
+}
+
+.patchLede {
+  margin: 0 0 clamp(1.2rem, 3.5vh, 2rem);
+  max-inline-size: 46rem;
+  font-size: 0.99rem;
+  color: var(--text-secondary);
+}
+
+/* ── ROZET: kayıt mı, arşivin okuması mı ───────────────────────────────*/
+.badge {
+  display: inline-block;
+  margin-inline-start: 0.55rem;
+  padding: 0.1rem 0.55rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--mht-badge-text);
+  border: 1px dashed color-mix(in srgb, var(--mht-thread) 80%, transparent);
+  border-radius: 0.9rem 0.2rem 0.7rem 0.25rem / 0.3rem 0.8rem 0.2rem 0.75rem;
+}
+
+.badge[data-kind="reading"] {
+  color: var(--mht-flesh-text);
+  border-color: color-mix(in srgb, var(--mht-flesh) 75%, transparent);
+}
+
+.badge[data-kind="absent"] {
+  border-style: dotted;
+}
+
+/* ══ 3 · KÜNYE ŞERİDİ ══════════════════════════════════════════════════ */
+.facts {
+  display: grid;
+  gap: 0;
+  margin: 0;
+}
+
+.fact {
+  display: grid;
+  grid-template-columns: minmax(7rem, 12rem) minmax(0, 1fr);
+  gap: 0.4rem 1.2rem;
+  padding-block: 0.7rem;
+  border-block-end: 1px dashed color-mix(in srgb, var(--mht-thread) 45%, transparent);
+}
+
+.fact:last-child {
+  border-block-end: 0;
+}
+
+.factLabel {
+  margin: 0;
+  font-size: 0.74rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--mht-seam-text);
+}
+
+.factValue {
+  margin: 0;
+  font-size: 0.97rem;
+  color: var(--gold);
+}
+
+.factNote {
+  margin: 1.3rem 0 0;
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+  border-inline-start: 2px dashed color-mix(in srgb, var(--mht-thread) 70%, transparent);
+  padding-inline-start: 0.9rem;
+}
+
+/* Sembolik obje: dikiş — künyenin kendi küçük yaması */
+.symbol {
+  position: relative;
+  margin-block-start: clamp(1.5rem, 4vh, 2.4rem);
+  padding: clamp(1.1rem, 3vw, 1.8rem);
+  background: color-mix(in srgb, var(--surface-hover) 70%, transparent);
+  border: 1px solid color-mix(in srgb, var(--mht-flesh) 40%, var(--border));
+  border-radius: 2.6rem 0.4rem 1.9rem 0.7rem / 0.6rem 2.3rem 0.5rem 2.1rem;
+  transition: border-radius var(--mht-crawl) var(--mht-ease);
+}
+
+.symbol:hover,
+.symbol:focus-within {
+  border-radius: 0.5rem 2.9rem 0.6rem 2.2rem / 2.4rem 0.4rem 2.6rem 0.5rem;
+}
+
+.symbolGlyph {
+  display: block;
+  font-family: "Shippori Mincho", "Yu Mincho", serif;
+  font-size: clamp(1.1rem, 3.4vw, 1.5rem);
+  letter-spacing: 0.32em;
+  color: color-mix(in srgb, var(--mht-thread-bright) 85%, transparent);
+}
+
+.symbolTitle {
+  margin: 0.5rem 0 0.5rem;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(1.25rem, 3.6vw, 1.7rem);
+  color: var(--mht-flesh-text);
+}
+
+.symbolText {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+/* ══ 4a · LANET LABORATUVARI — ÜÇ BÜYÜK ═══════════════════════════════ */
+.labList {
+  display: grid;
+  gap: clamp(1.4rem, 4vh, 2.4rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ⚠️ KESİM KARTIN KENDİSİNDE DEĞİL `::before` KATMANINDA — kullanıcı
+   şartı 6. Kartın içinde `CuratorSlot` yükleme kutusu duruyor ve kesim
+   gövdeye uygulansaydı o kutu (ve köşedeki metin) kırpılırdı. Deforme
+   olan şey zemin + kenarlık; içerik hiçbir zaman kırpılmıyor. Aynı desen
+   `.minor`, `.stop` ve `.bond` için de geçerli. */
+.lab {
+  position: relative;
+  z-index: 0;
+  padding: clamp(1.2rem, 3.4vw, 2rem);
+}
+
+.lab::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: color-mix(in srgb, var(--surface-hover) 62%, transparent);
+  border: 1px solid var(--mht-hair);
+  border-radius: 3rem 0.5rem 2rem 0.9rem / 1rem 2.7rem 0.6rem 2.4rem;
+  clip-path: polygon(
+    0 14px, 18px 0, calc(100% - 9px) 5px, 100% 20px,
+    calc(100% - 4px) calc(100% - 16px), calc(100% - 22px) 100%,
+    12px calc(100% - 5px), 0 calc(100% - 22px)
+  );
+  transition:
+    border-radius var(--mht-crawl) var(--mht-ease),
+    clip-path var(--mht-crawl) var(--mht-ease),
+    background var(--mht-crawl) var(--mht-ease);
+}
+
+.lab:hover::before,
+.lab:focus-within::before {
+  background: color-mix(in srgb, var(--mht-flesh) 18%, var(--surface-hover));
+  border-radius: 0.5rem 3.3rem 0.7rem 2.5rem / 2.6rem 0.5rem 2.9rem 0.6rem;
+  clip-path: polygon(
+    0 31px, 37px 0, calc(100% - 19px) 13px, 100% 42px,
+    calc(100% - 11px) calc(100% - 34px), calc(100% - 41px) 100%,
+    25px calc(100% - 14px), 0 calc(100% - 45px)
+  );
+}
+
+.labIndex {
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 2.4rem;
+  line-height: 1;
+  color: color-mix(in srgb, var(--mht-thread) 90%, transparent);
+}
+
+.labName {
+  margin: 0.2rem 0 0;
+  font-family: "Shippori Mincho", "Yu Mincho", serif;
+  font-weight: 400;
+  font-size: clamp(1.5rem, 5vw, 2.2rem);
+  letter-spacing: 0.16em;
+  color: var(--text-primary);
+}
+
+.labReading {
+  margin: 0.15rem 0 0;
+  font-size: 0.82rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--mht-seam-text);
+}
+
+.labEnglish {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.1rem, 3.2vw, 1.5rem);
+  font-style: italic;
+  color: var(--gold);
+}
+
+.labKind {
+  margin: 0.8rem 0 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  color: var(--mht-seam-text);
+}
+
+.labTagline {
+  margin: 0.7rem 0 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.15rem, 3.4vw, 1.55rem);
+  line-height: 1.25;
+  color: var(--mht-flesh-text);
+}
+
+.labText {
+  margin: 0.7rem 0 0;
+  font-size: 0.97rem;
+  color: var(--text-primary);
+}
+
+.labTraits {
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.labTrait {
+  position: relative;
+  padding-inline-start: 1.3rem;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+.labTrait::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block-start: 0.62em;
+  inline-size: 0.85rem;
+  block-size: 0;
+  border-block-start: 2px dashed var(--mht-thread-bright);
+}
+
+/* ══ 4b · DÖRT KÜÇÜK ══════════════════════════════════════════════════ */
+.minors {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: clamp(1rem, 3vw, 1.7rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.minor {
+  position: relative;
+  z-index: 0;
+  padding: clamp(1rem, 3vw, 1.5rem);
+}
+
+.minor::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: color-mix(in srgb, var(--surface-hover) 55%, transparent);
+  border: 1px solid var(--mht-hair);
+  border-radius: 0.5rem 2.4rem 0.6rem 1.8rem / 2.1rem 0.5rem 2.3rem 0.4rem;
+  clip-path: polygon(
+    0 9px, 12px 0, calc(100% - 15px) 4px, 100% 16px,
+    calc(100% - 3px) calc(100% - 11px), calc(100% - 17px) 100%,
+    8px calc(100% - 4px), 0 calc(100% - 14px)
+  );
+  transition:
+    border-radius var(--mht-crawl) var(--mht-ease),
+    clip-path var(--mht-crawl) var(--mht-ease),
+    background var(--mht-crawl) var(--mht-ease);
+}
+
+.minor:hover::before,
+.minor:focus-within::before {
+  background: color-mix(in srgb, var(--mht-flesh) 16%, var(--surface-hover));
+  border-radius: 2.7rem 0.4rem 2.1rem 0.6rem / 0.5rem 2.4rem 0.4rem 2.6rem;
+  clip-path: polygon(
+    0 23px, 29px 0, calc(100% - 8px) 11px, 100% 33px,
+    calc(100% - 13px) calc(100% - 25px), calc(100% - 34px) 100%,
+    19px calc(100% - 9px), 0 calc(100% - 31px)
+  );
+}
+
+.minorName {
+  margin: 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(1.2rem, 3.6vw, 1.6rem);
+  line-height: 1.15;
+  color: var(--text-primary);
+}
+
+.minorTerm {
+  margin: 0.4rem 0 0;
+  font-size: 0.83rem;
+  letter-spacing: 0.06em;
+  color: var(--mht-seam-text);
+}
+
+.minorText {
+  margin: 0.7rem 0 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+/* ══ 5 · MEKANİK: TEK KART, BEŞ FORM ══════════════════════════════════
+   Kart yer değiştirmiyor: `data-form` niteliği değişiyor ve KUTUNUN
+   GEOMETRİSİ ona göre başka bir yere sürünüyor. Beş çokgenin hepsi sekiz
+   köşeli (aynı köşe sayısı olmadan `clip-path` geçişi çalışmaz) ve hepsi
+   piksel tabanlı (kartın yüksekliği içerikle değişiyor). */
+.morph {
+  margin-block-start: clamp(1rem, 3vh, 1.6rem);
+}
+
+.morphChooserLabel {
+  margin: 0 0 0.7rem;
+  font-size: 0.74rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--mht-seam-text);
+}
+
+.morphChooser {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ⚠️ `display: contents` DEĞİL: bazı tarayıcılarda `li`yi erişilebilirlik
+   ağacından siliyor ve liste "beş öğe" olarak duyurulmuyor. Öğe gerçek bir
+   esnek kutu, düğme onu tamamen dolduruyor. */
+.morphChoice {
+  display: flex;
+  flex: 1 1 8rem;
+}
+
+.morphButton {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  min-block-size: var(--touch-min);
+  min-inline-size: 6.5rem;
+  padding: 0.55rem 0.9rem;
+  font: inherit;
+  text-align: start;
+  color: var(--text-secondary);
+  background: color-mix(in srgb, var(--surface-hover) 60%, transparent);
+  border: 1px solid var(--mht-hair);
+  border-radius: 1.6rem 0.3rem 1.1rem 0.5rem / 0.4rem 1.4rem 0.35rem 1.3rem;
+  cursor: pointer;
+  transition:
+    border-radius var(--mht-crawl) var(--mht-ease),
+    background var(--mht-crawl) var(--mht-ease),
+    color var(--mht-crawl) var(--mht-ease),
+    border-color var(--mht-crawl) var(--mht-ease);
+}
+
+.morphButton:hover {
+  border-radius: 0.35rem 1.8rem 0.4rem 1.3rem / 1.5rem 0.35rem 1.6rem 0.4rem;
+  color: var(--text-primary);
+}
+
+.morphButton[aria-pressed="true"] {
+  color: var(--mht-flesh-text);
+  background: color-mix(in srgb, var(--mht-flesh) 22%, var(--surface-hover));
+  border-color: color-mix(in srgb, var(--mht-flesh) 80%, var(--border-strong));
+  border-radius: 0.3rem 2.1rem 0.4rem 1.7rem / 1.9rem 0.3rem 1.8rem 0.35rem;
+}
+
+.morphButtonIndex {
+  font-size: 0.66rem;
+  letter-spacing: 0.2em;
+  color: var(--mht-seam-text);
+}
+
+.morphButtonGlyph {
+  font-family: "Shippori Mincho", "Yu Mincho", serif;
+  font-size: 1.05rem;
+  letter-spacing: 0.14em;
+  color: var(--mht-thread-bright);
+}
+
+.morphButtonName {
+  font-size: 0.83rem;
+  line-height: 1.25;
+}
+
+.morphHint {
+  margin: 0.9rem 0 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.morphStage {
+  margin-block-start: clamp(1.1rem, 3vh, 1.8rem);
+}
+
+/* ── TEK KART ────────────────────────────────────────────────────────
+   Dolgu (`--mht-pad`, en az 1.6rem ≈ 26px) her zaman en büyük kesikten
+   (40px) daha büyük değilse metin kırpılırdı; bu yüzden kartın dolgusu
+   ayrıca 0.6rem artırıldı ve en derin kesik 44px ile sınırlandı. */
+.morphCard {
+  display: block;
+  padding: calc(var(--mht-pad) + 0.6rem);
+  background: var(--surface-hover);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--mht-card-r, 2.4rem);
+  clip-path: var(--mht-card-cut);
+  transition:
+    border-radius var(--mht-crawl) var(--mht-ease),
+    clip-path var(--mht-crawl) var(--mht-ease),
+    rotate var(--mht-crawl) var(--mht-ease),
+    background var(--mht-crawl) var(--mht-ease);
+}
+
+.morphCard[data-form="raw"] {
+  --mht-card-r: 2.4rem 2.1rem 2.6rem 2.2rem / 2.2rem 2.5rem 2rem 2.4rem;
+  --mht-card-cut: polygon(
+    0 10px, 10px 0, calc(100% - 10px) 6px, 100% 14px,
+    calc(100% - 4px) calc(100% - 12px), calc(100% - 12px) 100%,
+    9px calc(100% - 5px), 0 calc(100% - 14px)
+  );
+  rotate: 0deg;
+}
+
+.morphCard[data-form="made"] {
+  --mht-card-r: 0.4rem 3.6rem 0.5rem 3.1rem / 3.3rem 0.4rem 3.5rem 0.5rem;
+  --mht-card-cut: polygon(
+    0 6px, 34px 0, calc(100% - 6px) 22px, 100% 4px,
+    calc(100% - 18px) calc(100% - 8px), calc(100% - 40px) 100%,
+    30px calc(100% - 26px), 0 calc(100% - 10px)
+  );
+  rotate: -0.25deg;
+}
+
+.morphCard[data-form="self"] {
+  --mht-card-r: 4.4rem 0.4rem 4.1rem 0.5rem / 0.5rem 3.8rem 0.4rem 4.2rem;
+  --mht-card-cut: polygon(
+    0 30px, 8px 0, calc(100% - 28px) 10px, 100% 36px,
+    calc(100% - 6px) calc(100% - 30px), calc(100% - 10px) 100%,
+    38px calc(100% - 12px), 0 calc(100% - 40px)
+  );
+  rotate: 0.45deg;
+}
+
+.morphCard[data-form="domain"] {
+  --mht-card-r: 0.3rem 0.3rem 0.3rem 0.3rem / 0.3rem 0.3rem 0.3rem 0.3rem;
+  --mht-card-cut: polygon(
+    0 44px, 44px 0, calc(100% - 44px) 0, 100% 44px,
+    100% calc(100% - 44px), calc(100% - 44px) 100%,
+    44px calc(100% - 2px), 0 calc(100% - 44px)
+  );
+  rotate: 0deg;
+}
+
+.morphCard[data-form="evolved"] {
+  --mht-card-r: 0.5rem 4.6rem 3.2rem 0.4rem / 3.9rem 0.5rem 0.6rem 4.4rem;
+  --mht-card-cut: polygon(
+    0 18px, 26px 0, calc(100% - 12px) 30px, 100% 8px,
+    calc(100% - 34px) calc(100% - 20px), calc(100% - 16px) 100%,
+    12px calc(100% - 34px), 0 calc(100% - 22px)
+  );
+  rotate: -0.6deg;
+}
+
+.morphBody {
+  display: block;
+}
+
+.morphTerm {
+  margin: 0;
+  font-size: 0.74rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--mht-seam-text);
+}
+
+.morphTermIndex {
+  margin-inline-end: 0.6rem;
+  color: var(--mht-thread-bright);
+}
+
+.morphTermSep {
+  margin-inline: 0.45rem;
+}
+
+.morphTitle {
+  margin: 0.6rem 0 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-weight: 300;
+  font-size: clamp(1.7rem, 5.6vw, 2.8rem);
+  line-height: 1.05;
+  color: var(--text-primary);
+}
+
+.morphKind {
+  margin: 0.4rem 0 0;
+  font-family: "Shippori Mincho", "Yu Mincho", serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.12em;
+  color: var(--gold);
+}
+
+.morphText {
+  margin: 1rem 0 0;
+  font-size: 0.99rem;
+  color: var(--text-primary);
+}
+
+.morphShape {
+  margin: 1.1rem 0 0;
+  padding-block-start: 0.9rem;
+  font-size: 0.86rem;
+  color: var(--mht-flesh-text);
+  border-block-start: 1px dashed color-mix(in srgb, var(--mht-thread) 70%, transparent);
+}
+
+.morphShapeLabel {
+  margin-inline-end: 0.6rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--mht-seam-text);
+}
+
+.morphReduced {
+  margin: 0.9rem 0 0;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+/* ── YAMA ŞERİDİ: beş formun kadrajı ────────────────────────────────────
+   Kadrajlar kartın İÇİNDE DEĞİL. Kart deforme oluyor; şerit olduğu gibi
+   duruyor, çünkü her kadrajın altında bir yükleme kutusu var. */
+.strip {
+  display: grid;
+  gap: clamp(1rem, 3vh, 1.6rem);
+  margin: clamp(1.4rem, 4vh, 2.2rem) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stripItem {
+  padding-block-start: 0.8rem;
+  border-block-start: 1px dashed color-mix(in srgb, var(--mht-thread) 45%, transparent);
+}
+
+.stripName {
+  margin: 0 0 0.6rem;
+  font-size: 0.88rem;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+}
+
+.stripIndex {
+  margin-inline-end: 0.6rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  color: var(--mht-seam-text);
+}
+
+/* ══ 6 · KADER ÇİZELGESİ ══════════════════════════════════════════════ */
+.fate {
+  display: grid;
+  gap: clamp(1.4rem, 4vh, 2.4rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stop {
+  position: relative;
+  z-index: 0;
+  padding: clamp(1.1rem, 3.2vw, 1.8rem);
+}
+
+.stop::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: color-mix(in srgb, var(--surface-hover) 52%, transparent);
+  border: 1px solid var(--mht-hair);
+  border-radius: 0.5rem 2.8rem 0.6rem 2.2rem / 2.5rem 0.5rem 2.7rem 0.4rem;
+  clip-path: polygon(
+    0 11px, 15px 0, calc(100% - 12px) 5px, 100% 19px,
+    calc(100% - 5px) calc(100% - 13px), calc(100% - 20px) 100%,
+    10px calc(100% - 4px), 0 calc(100% - 18px)
+  );
+  transition:
+    border-radius var(--mht-crawl) var(--mht-ease),
+    clip-path var(--mht-crawl) var(--mht-ease),
+    background var(--mht-crawl) var(--mht-ease);
+}
+
+.stop:hover::before,
+.stop:focus-within::before {
+  background: color-mix(in srgb, var(--mht-flesh) 15%, var(--surface-hover));
+  border-radius: 3.1rem 0.5rem 2.4rem 0.6rem / 0.5rem 2.8rem 0.4rem 3rem;
+  clip-path: polygon(
+    0 26px, 33px 0, calc(100% - 9px) 15px, 100% 38px,
+    calc(100% - 14px) calc(100% - 29px), calc(100% - 37px) 100%,
+    22px calc(100% - 10px), 0 calc(100% - 36px)
+  );
+}
+
+.stopEra {
+  margin: 0;
+  font-size: 0.73rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--mht-seam-text);
+}
+
+.stopTitle {
+  margin: 0.45rem 0 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-weight: 300;
+  font-size: clamp(1.5rem, 4.8vw, 2.3rem);
+  line-height: 1.08;
+  color: var(--text-primary);
+}
+
+.stopText {
+  margin: 0.7rem 0 0;
+  font-size: 0.96rem;
+  color: var(--text-primary);
+}
+
+.mark {
+  margin-block-start: 1rem;
+  padding-inline-start: 0.9rem;
+  border-inline-start: 2px dashed color-mix(in srgb, var(--mht-thread) 75%, transparent);
+}
+
+.markText {
+  margin: 0.4rem 0 0;
+  font-family: "Shippori Mincho", "Yu Mincho", serif;
+  font-size: clamp(1.2rem, 4vw, 1.7rem);
+  letter-spacing: 0.2em;
+  color: var(--gold);
+}
+
+.markReading {
+  margin: 0.15rem 0 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  color: var(--mht-seam-text);
+}
+
+.stopKin {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin: 1rem 0 0;
+  font-size: 0.88rem;
+}
+
+.stopKinLink {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--touch-min);
+  color: var(--accent);
+  text-decoration: none;
+  border-block-end: 1px dashed color-mix(in srgb, var(--accent) 50%, transparent);
+}
+
+.stopKinLink:hover {
+  color: var(--accent-hover);
+}
+
+.stopKinName {
+  color: var(--text-primary);
+}
+
+.stopKinRole {
+  color: var(--text-secondary);
+}
+
+/* ══ 7a · BAĞLAR ══════════════════════════════════════════════════════ */
+.bonds {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  gap: clamp(1rem, 3vw, 1.6rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bond {
+  position: relative;
+  z-index: 0;
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  gap: 0.3rem;
+  padding: clamp(1rem, 3vw, 1.4rem);
+}
+
+.bond::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: color-mix(in srgb, var(--surface-hover) 50%, transparent);
+  border: 1px solid var(--mht-hair);
+  border-radius: 2.3rem 0.4rem 1.7rem 0.6rem / 0.5rem 2.1rem 0.4rem 2rem;
+  clip-path: polygon(
+    0 8px, 11px 0, calc(100% - 14px) 3px, 100% 15px,
+    calc(100% - 4px) calc(100% - 10px), calc(100% - 16px) 100%,
+    7px calc(100% - 3px), 0 calc(100% - 13px)
+  );
+  transition:
+    border-radius var(--mht-crawl) var(--mht-ease),
+    clip-path var(--mht-crawl) var(--mht-ease),
+    background var(--mht-crawl) var(--mht-ease);
+}
+
+.bond:hover::before,
+.bond:focus-within::before {
+  background: color-mix(in srgb, var(--mht-flesh) 14%, var(--surface-hover));
+  border-radius: 0.4rem 2.6rem 0.5rem 2rem / 2.2rem 0.4rem 2.4rem 0.5rem;
+  clip-path: polygon(
+    0 21px, 27px 0, calc(100% - 7px) 12px, 100% 30px,
+    calc(100% - 12px) calc(100% - 23px), calc(100% - 32px) 100%,
+    17px calc(100% - 8px), 0 calc(100% - 28px)
+  );
+}
+
+.bondPortrait {
+  position: relative;
+  display: block;
+  inline-size: 4.6rem;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: var(--mht-void);
+  border-radius: 1.5rem 0.3rem 1.1rem 0.4rem / 0.35rem 1.3rem 0.3rem 1.2rem;
+  margin-block-end: 0.4rem;
+}
+
+.bondPortraitImg {
+  object-fit: cover;
+}
+
+.bondName {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.15rem, 3.4vw, 1.5rem);
+  color: var(--accent);
+  text-decoration: none;
+  border-block-end: 1px dashed color-mix(in srgb, var(--accent) 45%, transparent);
+  justify-self: start;
+}
+
+.bondName:hover {
+  color: var(--accent-hover);
+}
+
+.bondNamePlain {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.15rem, 3.4vw, 1.5rem);
+  color: var(--text-primary);
+}
+
+.bondNative {
+  font-family: "Shippori Mincho", "Yu Mincho", serif;
+  font-size: 0.9rem;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+}
+
+.bondRole {
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mht-seam-text);
+}
+
+.bondLine {
+  margin-block-start: 0.35rem;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+.bondFlag {
+  margin-block-start: 0.5rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--mht-badge-text);
+}
+
+.worldLinks {
+  display: grid;
+  gap: 0.7rem;
+  margin: clamp(1.4rem, 4vh, 2.2rem) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.worldLink {
+  display: grid;
+  gap: 0.2rem;
+  min-block-size: var(--touch-min);
+  padding: 0.7rem 1rem;
+  text-decoration: none;
+  background: color-mix(in srgb, var(--surface-hover) 45%, transparent);
+  border: 1px dashed color-mix(in srgb, var(--mht-thread) 80%, transparent);
+  border-radius: 1.8rem 0.3rem 1.3rem 0.5rem / 0.4rem 1.6rem 0.35rem 1.5rem;
+  transition:
+    border-radius var(--mht-crawl) var(--mht-ease),
+    background var(--mht-crawl) var(--mht-ease);
+}
+
+.worldLink:hover {
+  background: color-mix(in srgb, var(--mht-flesh) 14%, var(--surface-hover));
+  border-radius: 0.35rem 2rem 0.4rem 1.5rem / 1.7rem 0.35rem 1.8rem 0.4rem;
+}
+
+.worldLinkLabel {
+  font-size: 0.95rem;
+  color: var(--accent);
+}
+
+.worldLinkNote {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+/* ══ 7b · KAPANIŞ ═════════════════════════════════════════════════════ */
+.lines {
+  display: grid;
+  gap: clamp(1.1rem, 3vh, 1.8rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.line {
+  padding-inline-start: 1.1rem;
+  border-inline-start: 2px dashed color-mix(in srgb, var(--mht-thread) 75%, transparent);
+}
+
+.lineBadge {
+  display: inline-block;
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--mht-badge-text);
+}
+
+/* ⚠️ `blockquote` DEĞİL ve tırnak YOK: bu bir alıntı değil, arşivin kendi
+   cümlesi. Gerekçe veri dosyasının başındaki replik disiplini bloğunda. */
+.lineText {
+  margin: 0.4rem 0 0;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: clamp(1.3rem, 4.4vw, 2rem);
+  line-height: 1.22;
+  color: var(--mht-flesh-text);
+}
+
+.lineNote {
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.discipline {
+  margin: clamp(1.4rem, 4vh, 2.2rem) 0 0;
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+  padding-inline-start: 0.9rem;
+  border-inline-start: 2px dotted color-mix(in srgb, var(--mht-thread) 65%, transparent);
+}
+
+.motto {
+  margin: clamp(1.6rem, 5vh, 2.6rem) 0 0;
+  font-family: "Shippori Mincho", "Yu Mincho", serif;
+  font-size: clamp(1.9rem, 8vw, 3.4rem);
+  letter-spacing: 0.24em;
+  color: var(--accent-hover);
+}
+
+.mottoReading {
+  margin: 0.4rem 0 0;
+  font-size: 0.9rem;
+  letter-spacing: 0.06em;
+  color: var(--mht-seam-text);
+}
+
+.credit {
+  margin: clamp(1.6rem, 5vh, 2.4rem) 0 0;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.creditLink {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--touch-min);
+  color: var(--accent);
+  text-decoration: none;
+  border-block-end: 1px dashed color-mix(in srgb, var(--accent) 50%, transparent);
+}
+
+.creditLink:hover {
+  color: var(--accent-hover);
+}
+
+.creditNote {
+  margin: 0.7rem 0 0;
+  font-size: 0.8rem;
+  color: var(--mht-seam-text);
+}
+
+/* ══ KADRAJLAR ════════════════════════════════════════════════════════
+   Görsel üretilmedi (FAZ 2 §3): boş kadraj bir yer tutucu kutu değil, elle
+   çizilmiş bir dikiş motifi taşıyan bir yama. Ziyaretçi burada HİÇBİR
+   üretim metni görmüyor; ölçü satırı yalnızca `.frameSpec` içinde ve o da
+   yalnızca yöneticide çiziliyor. */
+.frameWrap {
+  margin-block-start: clamp(1rem, 3vh, 1.6rem);
+}
+
+.frameFigure {
+  position: relative;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  overflow: hidden;
+  background: var(--mht-void);
+  border: 1px solid var(--mht-hair);
+  border-radius: 2.2rem 0.4rem 1.6rem 0.6rem / 0.5rem 2rem 0.4rem 1.9rem;
+  transition: border-radius var(--mht-crawl) var(--mht-ease);
+}
+
+.frameWrap:hover .frameFigure,
+.frameWrap:focus-within .frameFigure {
+  border-radius: 0.4rem 2.5rem 0.5rem 1.9rem / 2.1rem 0.4rem 2.3rem 0.5rem;
+}
+
+.frameTall {
+  aspect-ratio: 3 / 4;
+  inline-size: min(100%, 24rem);
+  justify-self: start;
+}
+
+.frameSquare {
+  aspect-ratio: 1 / 1;
+  inline-size: min(100%, 20rem);
+}
+
+.frameWide {
+  aspect-ratio: 16 / 9;
+}
+
+.frameScene {
+  aspect-ratio: 3 / 2;
+}
+
+.framePatch {
+  aspect-ratio: 4 / 3;
+}
+
+.frameBand {
+  aspect-ratio: 21 / 9;
+}
+
+.frameImg {
+  object-fit: cover;
+}
+
+.frameCredit {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 0;
+  margin: 0;
+  padding: 0.6rem 0.9rem;
+}
+
+/* Yüklenen görselin üstündeki metne PERDE — açık bir karede künye yazısı
+   perdesiz okunmuyor (kullanıcı şartı 5). */
+.frameScrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--mht-void) 88%, transparent),
+    transparent
+  );
+}
+
+.frameCreditText {
+  position: relative;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  color: var(--mht-seam-text);
+}
+
+.frameMotif {
+  display: block;
+  inline-size: min(58%, 9rem);
+  opacity: 0.72;
+}
+
+.frameMotifArt {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+}
+
+.frameMotifSeam {
+  fill: none;
+  stroke: var(--mht-thread);
+  stroke-width: 2.2;
+  stroke-dasharray: 7 6;
+  stroke-linecap: round;
+}
+
+.frameMotifKnot {
+  fill: color-mix(in srgb, var(--accent-muted) 85%, transparent);
+}
+
+/* YALNIZCA yöneticide — üretim metadatası ziyaretçiye sızmıyor */
+.frameSpec {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.9rem;
+  margin: 0.6rem 0 0;
+  font-size: 0.74rem;
+  letter-spacing: 0.1em;
+  color: var(--mht-spec-text);
+}
+
+.frameSpecWord {
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+}
+
+.frameSpecText {
+  color: var(--mht-spec-text);
+}
+
+/* Küratör özeti — ızgaranın son bloğu */
+.gapsWrap {
+  margin-block-start: clamp(2rem, 6vh, 3.5rem);
+}
+
+/* ══ AMBİYANS: sürünen nefes ══════════════════════════════════════════
+   Sayfanın TEK `@keyframes`i. Yamalar 24 saniyelik bir döngüde köşe
+   yarıçaplarını çok az kaydırıyor — göz onu bir hareket olarak değil bir
+   huzursuzluk olarak okuyor. `no-preference` kapısında. */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes mhtCreep {
+    from {
+      transform: skewY(0deg) scaleY(1);
+    }
+    to {
+      transform: skewY(0.22deg) scaleY(1.004);
+    }
+  }
+
+  .patch::before {
+    animation: mhtCreep var(--mht-breath, 24s) var(--mht-ease) infinite alternate;
+  }
+
+  .patch1::before { --mht-breath: 26s; animation-delay: -3s; }
+  .patch2::before { --mht-breath: 22s; animation-delay: -9s; }
+  .patch3::before { --mht-breath: 29s; animation-delay: -14s; }
+  .patch4::before { --mht-breath: 24s; animation-delay: -6s; }
+  .patch5::before { --mht-breath: 31s; animation-delay: -19s; }
+  .patch6::before { --mht-breath: 27s; animation-delay: -11s; }
+  .patch7::before { --mht-breath: 23s; animation-delay: -16s; }
+}
+
+/* ══ DAR EKRAN (≤ 40rem) ══════════════════════════════════════════════
+   360 pikselde kayma payı zaten `--mht-slack` ile sıfıra yakın, ama burada
+   tamamen kapatılıyor: dar ekranda hizasızlık okunmuyor, yalnızca yer
+   kaybettiriyor. Kesikler ve yarıçaplar aynen kalıyor. */
+@media (max-width: 40rem) {
+  .patch1,
+  .patch2,
+  .patch3,
+  .patch4,
+  .patch5,
+  .patch6,
+  .patch7 {
+    translate: 0 0;
+  }
+
+  .fact {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.15rem;
+  }
+
+  .morphButton {
+    min-inline-size: 100%;
+  }
+
+  .frameTall {
+    inline-size: 100%;
+  }
+}
+
+/* ══ HAREKET AZALTMA BATTANİYESİ ══════════════════════════════════════
+   Morph animasyonu ve nefes duruyor. FORM SEÇİMİ ÇALIŞMAYA DEVAM EDİYOR:
+   kart yeni şeklini bir anda alıyor, metin değişiyor ve şeklin ne olduğu
+   `.morphShape` satırında YAZIYLA duruyor. Hiçbir bilgi yalnızca harekete
+   bağlı değil. */
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

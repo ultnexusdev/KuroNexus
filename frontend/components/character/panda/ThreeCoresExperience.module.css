@@ -1,0 +1,2011 @@
+/*
+ * Panda (パンダ) — deri bloğu.
+ *
+ * Palet docs/ANIME-FAZ2-DALGA4.md'den BİREBİR alındı; elle renk yazma.
+ * Dosyanın EN BAŞINDA olmak zorunda ve seçici `.page[data-world="…"]`
+ * — `:global([data-world=…])` CSS Modules'ün "pure selector" kuralına
+ * takılıyor.
+ *
+ * Yardımcı token adı `--pnd-…`. Küçük METİNDE kullanacağın her
+ * yardımcı rengin `-text` ekli bir kardeşi olmalı; kontrast denetimi
+ * yalnızca onlara bakıyor.
+ */
+.page[data-world="panda"] {
+  --bg: #0f0f0d;
+  --surface: #181915;
+  --surface-hover: #20201b;
+  --border: #272822;
+  --border-strong: #373831;
+  --text-primary: #cfd1c7;
+  --text-secondary: #959a7e;
+  --text-muted: #8b916e;
+  --accent: #adb569;
+  --accent-hover: #b8bd89;
+  --accent-muted: #40422e;
+  --gold: #b18559;
+  --warn: #b88347;
+  --danger: #c4695f;
+
+  /* ── kendi --pnd-* token'larım ──────────────────────────────────────────
+     MALZEME (metin taşımıyor, ölçüm dışında): bambu sapı, kürkün beyazı,
+     siyah leke, kül. Hepsinin metin taşıyan bir `-text` kardeşi aşağıda. */
+  --pnd-bamboo: #7d8a4e;
+  --pnd-fur: #e2e4d8;
+  --pnd-ink: #14150f;
+  --pnd-ash: #6d6f64;
+  --pnd-core-gorilla: #cf8a4a;
+  --pnd-core-brother: #b9c785;
+  --pnd-core-triangle: #a992ad;
+
+  /* METİN (ölçülüyor — `--surface` ve `--surface-hover` karşısında 4.5:1) */
+  --pnd-bamboo-text: #9aa864;
+  --pnd-fur-text: #dcdecf;
+  --pnd-warm-text: #d3c19a;
+  --pnd-spent-text: #9a9a8e;
+  --pnd-corpse-text: #b3b6ab;
+  --pnd-ash-text: #a8ab9f;
+  --pnd-glow-text: #c2c894;
+  --pnd-core-gorilla-text: #cf8a4a;
+  --pnd-core-brother-text: #b9c785;
+  --pnd-core-triangle-text: #a992ad;
+
+  /* Seçili çekirdeğin rengi — `data-core` ile takas ediliyor (hex YOK) */
+  --pnd-live: var(--accent);
+  --pnd-live-text: var(--pnd-glow-text);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ÜÇ SÜTUN — sayfanın omurgası
+   ═══════════════════════════════════════════════════════════════════════
+
+   Sayfanın TAMAMI üç dikey sütun üzerine kurulu ve oran kök öğeden
+   okunuyor. Bir çekirdek yakıldığında o sütun genişliyor, diğer ikisi
+   DARALIYOR ama kapanmıyor — akordiyon değil, oran değişimi.
+
+   Üç sütun VARSAYILAN durumda da yerinde: mod düğmesi ızgarayı açıp
+   kapatmıyor. (Dalga 1'de Onizuka'da mod düğmesi kilitli ızgarayı
+   sıfırlıyordu; burada mod ve çekirdek durumu birbirine hiç dokunmuyor.) */
+.page {
+  --pnd-c1: 1fr;
+  --pnd-c2: 1fr;
+  --pnd-c3: 1fr;
+  --pnd-gap: clamp(1rem, 2.4vw, 2.25rem);
+  /* Elastik: sonunda hafif geri sekme var (bambu düzelirken sallanır) */
+  --pnd-ease: cubic-bezier(0.34, 1.46, 0.64, 1);
+  --pnd-display: var(--font-jost), system-ui, sans-serif;
+  --pnd-body: var(--font-petrona), Georgia, serif;
+
+  display: block;
+  padding: clamp(1rem, 3vw, 2.75rem) clamp(0.75rem, 3vw, 2.5rem)
+    clamp(3rem, 8vw, 6rem);
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--pnd-body);
+  line-height: 1.62;
+  overflow-x: clip;
+}
+
+.page[data-core="gorilla"] {
+  --pnd-c1: 1.9fr;
+  --pnd-c2: 0.72fr;
+  --pnd-c3: 0.72fr;
+  --pnd-live: var(--pnd-core-gorilla);
+  --pnd-live-text: var(--pnd-core-gorilla-text);
+}
+
+.page[data-core="brother"] {
+  --pnd-c1: 0.72fr;
+  --pnd-c2: 1.9fr;
+  --pnd-c3: 0.72fr;
+  --pnd-live: var(--pnd-core-brother);
+  --pnd-live-text: var(--pnd-core-brother-text);
+}
+
+.page[data-core="triangle"] {
+  --pnd-c1: 0.72fr;
+  --pnd-c2: 0.72fr;
+  --pnd-c3: 1.9fr;
+  --pnd-live: var(--pnd-core-triangle);
+  --pnd-live-text: var(--pnd-core-triangle-text);
+}
+
+/* Kilit: üçü de tükendi → oran eşitleniyor, vurgu külün rengine düşüyor */
+.page[data-locked="true"] {
+  --pnd-c1: 1fr;
+  --pnd-c2: 1fr;
+  --pnd-c3: 1fr;
+  --pnd-live: var(--pnd-ash);
+  --pnd-live-text: var(--pnd-spent-text);
+}
+
+/* ── "Lanetli ceset" kipi: renkler ÇEKİLİYOR ────────────────────────────
+   ⚠️ Buradaki her değer bir `var()` — hex disiplini (kural 16) gereği
+   ikinci bir deri bloğu açılamaz. Metin taşıyan bütün token'lar deri
+   bloğunda ÖLÇÜLMÜŞ `-text` kardeşlerine düşüyor, yani solmuş hâlde de
+   kontrast eşiği tutuyor. */
+.page[data-corpse="true"] {
+  --accent: var(--pnd-ash);
+  --accent-hover: var(--pnd-corpse-text);
+  --gold: var(--pnd-ash-text);
+  --warn: var(--pnd-ash-text);
+  --danger: var(--pnd-corpse-text);
+  --text-secondary: var(--pnd-ash-text);
+  --text-muted: var(--pnd-ash-text);
+  --pnd-bamboo: var(--pnd-ash);
+  --pnd-bamboo-text: var(--pnd-ash-text);
+  --pnd-warm-text: var(--pnd-corpse-text);
+  --pnd-core-gorilla: var(--pnd-ash);
+  --pnd-core-brother: var(--pnd-ash);
+  --pnd-core-triangle: var(--pnd-ash);
+  --pnd-core-gorilla-text: var(--pnd-corpse-text);
+  --pnd-core-brother-text: var(--pnd-corpse-text);
+  --pnd-core-triangle-text: var(--pnd-corpse-text);
+  --pnd-glow-text: var(--pnd-corpse-text);
+  --pnd-live: var(--pnd-ash);
+  --pnd-live-text: var(--pnd-corpse-text);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ORTAK IZGARA
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.heroGrid,
+.triGrid,
+.deck {
+  display: grid;
+  grid-template-columns: var(--pnd-c1) var(--pnd-c2) var(--pnd-c3);
+  gap: var(--pnd-gap);
+  align-items: start;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  transition: grid-template-columns 620ms var(--pnd-ease);
+}
+
+/* Sütun yerleşimi: her hücre kendi sütununu `data-column` ile söylüyor */
+.heroGrid > [data-column="1"],
+.triGrid > [data-column="1"],
+.deck > [data-column="1"] {
+  grid-column: 1;
+}
+
+.heroGrid > [data-column="2"],
+.triGrid > [data-column="2"],
+.deck > [data-column="2"] {
+  grid-column: 2;
+}
+
+.heroGrid > [data-column="3"],
+.triGrid > [data-column="3"],
+.deck > [data-column="3"] {
+  grid-column: 3;
+}
+
+.triGrid > [data-wide="true"] {
+  grid-column: 1 / -1;
+}
+
+/* Sütun ayracı — dikey bir bambu çizgisi. Salınım burada koşuyor. */
+.heroCell,
+.factCol,
+.bigCard,
+.smallCard,
+.stop,
+.bond,
+.core {
+  position: relative;
+  min-width: 0;
+}
+
+.heroCell[data-column="2"]::before,
+.heroCell[data-column="3"]::before,
+.factCol[data-column="2"]::before,
+.factCol[data-column="3"]::before,
+.bigCard[data-column="2"]::before,
+.bigCard[data-column="3"]::before,
+.core[data-column="2"]::before,
+.core[data-column="3"]::before {
+  content: "";
+  position: absolute;
+  inset-block: 0.25rem 0.25rem;
+  inset-inline-start: calc(var(--pnd-gap) / -2);
+  width: 2px;
+  border-radius: 2px;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--pnd-bamboo) 10%, transparent),
+    color-mix(in srgb, var(--pnd-bamboo) 62%, transparent) 22%,
+    color-mix(in srgb, var(--pnd-bamboo) 62%, transparent) 78%,
+    color-mix(in srgb, var(--pnd-bamboo) 10%, transparent)
+  );
+  transform-origin: bottom center;
+  transition: background 500ms ease;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   1 · BREADCRUMB + HERO
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.crumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: clamp(1.25rem, 3vw, 2.5rem);
+  font-family: var(--pnd-display);
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.crumb a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  padding-inline: 0.35rem;
+  color: var(--pnd-live-text);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--pnd-live) 45%, transparent);
+  transition: color 240ms ease, border-color 240ms ease;
+}
+
+.crumb a:hover {
+  color: var(--pnd-glow-text);
+  border-bottom-color: var(--pnd-live);
+}
+
+.crumbSep {
+  color: var(--text-muted);
+}
+
+.crumbHere {
+  color: var(--text-secondary);
+}
+
+.hero {
+  position: relative;
+  isolation: isolate;
+  padding-block: clamp(1rem, 3vw, 2.5rem) clamp(2rem, 5vw, 4rem);
+}
+
+/* Filigran: elle çizilmiş bambu korusu + üç halka + 呪骸 */
+.mark {
+  position: absolute;
+  inset-block-start: -2%;
+  inset-inline-end: -1%;
+  z-index: 0;
+  display: block;
+  width: min(46rem, 92%);
+  pointer-events: none;
+}
+
+.markGrove {
+  display: block;
+  width: 100%;
+  height: auto;
+  opacity: 0.24;
+}
+
+.markStalk {
+  stroke: var(--pnd-bamboo);
+  stroke-width: 2.4;
+  transform-box: fill-box;
+  transform-origin: bottom center;
+}
+
+.markNode {
+  stroke: var(--pnd-bamboo);
+  stroke-width: 3.2;
+}
+
+.markLeaf {
+  stroke: var(--pnd-bamboo);
+  stroke-width: 1.6;
+  opacity: 0.75;
+}
+
+.markRings {
+  position: absolute;
+  inset-block-start: 12%;
+  inset-inline-end: 6%;
+  width: min(15rem, 34%);
+  height: auto;
+  opacity: 0.5;
+}
+
+.markRing {
+  stroke: var(--pnd-live);
+  stroke-width: 2;
+  transition: stroke 500ms ease;
+}
+
+.markLink {
+  stroke: var(--pnd-live);
+  stroke-width: 1;
+  stroke-dasharray: 5 7;
+  opacity: 0.6;
+  transition: stroke 500ms ease;
+}
+
+.markKanji {
+  position: absolute;
+  inset-block-end: 4%;
+  inset-inline-end: 4%;
+  font-family: var(--pnd-display);
+  font-size: clamp(3.5rem, 11vw, 8.5rem);
+  line-height: 1;
+  color: color-mix(in srgb, var(--pnd-fur) 12%, transparent);
+  letter-spacing: 0.12em;
+}
+
+.heroCell {
+  z-index: 1;
+}
+
+.portrait {
+  position: relative;
+  margin: 0 0 0.85rem;
+  padding: 0.6rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px 999px var(--radius-card) var(--radius-card);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.portraitImg {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 999px 999px calc(var(--radius-card) - 2px)
+    calc(var(--radius-card) - 2px);
+  filter: saturate(1.02);
+  transition: filter 500ms ease;
+}
+
+.page[data-corpse="true"] .portraitImg {
+  filter: saturate(0.15) contrast(1.05);
+}
+
+.heroSpecies {
+  margin: 0;
+  font-family: var(--pnd-display);
+  font-size: clamp(1.6rem, 3.4vw, 2.6rem);
+  font-weight: 300;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  color: var(--pnd-live-text);
+  transition: color 500ms ease;
+}
+
+.heroSpeciesReading {
+  margin: 0.15rem 0 0;
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+}
+
+.heroSchool {
+  margin: 0 0 0.4rem;
+  font-family: var(--pnd-display);
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--pnd-bamboo-text);
+}
+
+/* Jost, yuvarlak ve DOST: sıkı harf aralığı, sıkı satır yüksekliği, küçük
+   harf. (Slam Dunk'taki geniş aralıklı ALL-CAPS kullanımının tam tersi.) */
+.heroName {
+  margin: 0;
+  font-family: var(--pnd-display);
+  font-size: clamp(3rem, 12vw, 7.5rem);
+  font-weight: 300;
+  letter-spacing: -0.045em;
+  line-height: 0.94;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.heroNative {
+  margin: 0.2rem 0 0;
+  font-family: var(--pnd-display);
+  font-size: clamp(1.1rem, 3vw, 1.9rem);
+  font-weight: 200;
+  letter-spacing: 0.05em;
+  color: var(--pnd-live-text);
+  transition: color 500ms ease;
+}
+
+.heroGrade {
+  margin: 0.55rem 0 0;
+  font-family: var(--pnd-display);
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+}
+
+.heroEpigraph {
+  margin: 1.1rem 0 0;
+  font-size: clamp(1.05rem, 2.2vw, 1.4rem);
+  line-height: 1.42;
+  color: var(--pnd-warm-text);
+  transition: color 500ms ease;
+}
+
+.heroLede {
+  margin: 0.9rem 0 0;
+  max-width: 40ch;
+  color: var(--text-secondary);
+}
+
+.heroFrameNote {
+  margin: 0 0 0.6rem;
+  font-size: 0.86rem;
+  color: var(--text-muted);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   KADRAJLAR + KÜRATÖR
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.frame {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0.9rem 0 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.frame[data-filled="false"] {
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--border-strong) 80%, transparent);
+}
+
+.frameImg {
+  object-fit: cover;
+}
+
+.frameTall {
+  aspect-ratio: 3 / 4;
+}
+
+.frameWide {
+  aspect-ratio: 16 / 9;
+}
+
+.frameSmall {
+  aspect-ratio: 3 / 2;
+}
+
+.frameBand {
+  aspect-ratio: 21 / 9;
+}
+
+/* Boş kadrajın motifi: elle çizilmiş bambu. Kadraj görselsiz ama AYAKTA. */
+.frameMotif {
+  display: block;
+  width: 42%;
+  max-width: 9rem;
+  opacity: 0.32;
+}
+
+.frameMotifArt {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.motifStalk {
+  stroke: var(--pnd-bamboo);
+  stroke-width: 3;
+  transform-box: fill-box;
+  transform-origin: bottom center;
+}
+
+.motifNode {
+  stroke: var(--pnd-bamboo);
+  stroke-width: 4;
+}
+
+.motifLeaf {
+  stroke: var(--pnd-bamboo);
+  stroke-width: 2;
+  opacity: 0.7;
+}
+
+/* ⚠️ ÜRETİM METADATASI YALNIZCA KÜRATÖRE. Ziyaretçi boş kadrajda hiçbir
+   ölçü yazısı görmüyor (Levi emsali: 15 kutuda "1600×900 · webp"). */
+.frameCaption {
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.6rem;
+  padding: 0.5rem 0.7rem;
+  /* Perde: yüklenmiş görselin üstünde de okunur kalsın */
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--bg) 92%, transparent),
+    transparent
+  );
+  font-family: var(--pnd-display);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.frameCaptionWord {
+  color: var(--pnd-live-text);
+}
+
+.frameCaptionSpec {
+  color: var(--text-muted);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   2 · MOD DÜĞMESİ — "Lanetli ceset"
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.mode {
+  display: grid;
+  grid-template-columns: var(--pnd-c1) var(--pnd-c2) var(--pnd-c3);
+  gap: var(--pnd-gap);
+  align-items: center;
+  margin-block: clamp(1.5rem, 4vw, 3rem);
+  padding: clamp(1rem, 2.5vw, 1.9rem);
+  border-block: 1px solid var(--border);
+  transition: grid-template-columns 620ms var(--pnd-ease);
+}
+
+.modeCol {
+  grid-column: 1 / 3;
+  min-width: 0;
+}
+
+.modeTitle {
+  margin: 0;
+  font-family: var(--pnd-display);
+  font-size: clamp(1.5rem, 3.6vw, 2.4rem);
+  font-weight: 300;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  color: var(--text-primary);
+}
+
+.modeNative {
+  margin: 0.1rem 0 0;
+  font-family: var(--pnd-display);
+  font-size: 1.05rem;
+  letter-spacing: 0.35em;
+  color: var(--pnd-live-text);
+  transition: color 500ms ease;
+}
+
+.modeButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: var(--touch-min);
+  margin-top: 0.9rem;
+  padding: 0.5rem 1.15rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--pnd-warm-text);
+  font-family: var(--pnd-display);
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 260ms ease, border-color 260ms ease,
+    color 260ms ease, transform 320ms var(--pnd-ease);
+}
+
+.modeButton:hover {
+  background: var(--surface-hover);
+  border-color: var(--pnd-live);
+  transform: translateY(-2px);
+}
+
+.modeButton:focus-visible {
+  outline: 2px solid var(--pnd-live-text);
+  outline-offset: 3px;
+}
+
+.modeButton[aria-pressed="true"] {
+  border-color: var(--pnd-ash);
+  color: var(--pnd-corpse-text);
+}
+
+/* İşaret: dolu bir çekirdek → boş bir halka */
+.modeMark {
+  width: 0.95rem;
+  height: 0.95rem;
+  flex: none;
+  border: 2px solid var(--pnd-live);
+  border-radius: 999px;
+  background: var(--pnd-live);
+  transition: background 320ms ease, border-color 320ms ease;
+}
+
+.modeButton[aria-pressed="true"] .modeMark {
+  background: transparent;
+}
+
+.modeLabel {
+  white-space: nowrap;
+}
+
+.modeHint {
+  margin: 0.7rem 0 0;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+.modeArtCol {
+  grid-column: 3;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+}
+
+/* İki çizim üst üste değil YAN YANA bir yığında: sıcak kipte halkalar,
+   ceset kipinde anatomik kesit. İkisi de `aria-hidden`. */
+.modeArt {
+  display: block;
+  width: min(13rem, 60%);
+  transition: opacity 480ms ease, transform 620ms var(--pnd-ease);
+}
+
+.modeArt[data-art="anatomy"] {
+  position: absolute;
+  inset-block-start: 0;
+  opacity: 0;
+  transform: scale(0.92);
+}
+
+.page[data-corpse="true"] .modeArt[data-art="rings"] {
+  opacity: 0;
+  transform: scale(0.92);
+}
+
+.page[data-corpse="true"] .modeArt[data-art="anatomy"] {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.modeRings,
+.modeAnatomy {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.modeRing {
+  stroke: var(--pnd-live);
+  stroke-width: 2.4;
+  transition: stroke 500ms ease;
+}
+
+.modeLink {
+  stroke: var(--pnd-live);
+  stroke-width: 1;
+  stroke-dasharray: 5 7;
+  opacity: 0.65;
+}
+
+.anatomyShell {
+  stroke: var(--pnd-corpse-text);
+  stroke-width: 1.6;
+  opacity: 0.85;
+}
+
+.anatomySeam {
+  stroke: var(--pnd-ash-text);
+  stroke-width: 1.2;
+  stroke-dasharray: 4 6;
+}
+
+.anatomyCore {
+  stroke: var(--pnd-corpse-text);
+  stroke-width: 1.8;
+}
+
+.modeArtCap {
+  margin: 0.6rem 0 0;
+  font-family: var(--pnd-display);
+  font-size: 0.74rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+/* Alt metin: her iki kipte de okunuyor, ceset kipinde ÖNE ÇIKIYOR */
+.modeSubtext {
+  grid-column: 1 / -1;
+  margin: 1rem 0 0;
+  max-width: 62ch;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  transition: color 500ms ease, font-size 500ms ease,
+    border-color 500ms ease, padding 500ms ease;
+  border-inline-start: 2px solid transparent;
+  padding-inline-start: 0;
+}
+
+.page[data-corpse="true"] .modeSubtext {
+  font-size: clamp(1rem, 2.1vw, 1.3rem);
+  color: var(--pnd-corpse-text);
+  border-inline-start-color: var(--pnd-ash);
+  padding-inline-start: 0.9rem;
+}
+
+.modeFrame {
+  grid-column: 1 / -1;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ORTAK BÖLÜM İSKELETİ
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.band,
+.closing {
+  margin-block: clamp(2.5rem, 6vw, 5rem);
+}
+
+.bandHead {
+  max-width: 60ch;
+  margin-bottom: clamp(1.1rem, 2.5vw, 2rem);
+}
+
+.bandTitle {
+  margin: 0;
+  font-family: var(--pnd-display);
+  font-size: clamp(1.7rem, 4.6vw, 3.2rem);
+  font-weight: 300;
+  letter-spacing: -0.035em;
+  line-height: 1.02;
+  color: var(--text-primary);
+}
+
+.bandLede {
+  margin: 0.6rem 0 0;
+  color: var(--text-secondary);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   3 · KÜNYE ŞERİDİ
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.factCol {
+  padding: clamp(0.9rem, 2vw, 1.4rem);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+}
+
+.factCol[data-kind="absent"] {
+  background: transparent;
+  border-style: dashed;
+}
+
+.factColTitle {
+  margin: 0;
+  font-family: var(--pnd-display);
+  font-size: clamp(1.1rem, 2.4vw, 1.55rem);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  color: var(--pnd-live-text);
+  transition: color 500ms ease;
+}
+
+.factCol[data-kind="absent"] .factColTitle {
+  color: var(--pnd-ash-text);
+}
+
+.factColLede {
+  margin: 0.25rem 0 1rem;
+  font-size: 0.86rem;
+  color: var(--text-muted);
+}
+
+.factList {
+  margin: 0;
+  display: grid;
+  gap: 0.9rem;
+}
+
+.factRow {
+  padding-block-end: 0.85rem;
+  border-block-end: 1px dashed color-mix(in srgb, var(--border-strong) 70%, transparent);
+}
+
+.factRow:last-child {
+  padding-block-end: 0;
+  border-block-end: 0;
+}
+
+.factLabel {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  font-family: var(--pnd-display);
+  font-size: 0.76rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.factKanji {
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  color: var(--pnd-bamboo-text);
+}
+
+.factValue {
+  margin: 0.25rem 0 0;
+  font-size: 1.02rem;
+  color: var(--text-primary);
+}
+
+.factRow[data-state="absent"] .factValue {
+  color: var(--pnd-ash-text);
+  font-style: italic;
+}
+
+.factNote {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.85rem;
+  font-style: normal;
+  color: var(--text-secondary);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   4 · LANET LABORATUVARI
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.bigCard {
+  padding: clamp(0.95rem, 2vw, 1.5rem);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+}
+
+.cardIndex {
+  margin: 0;
+  font-family: var(--pnd-display);
+  font-size: 0.78rem;
+  letter-spacing: 0.28em;
+  color: color-mix(in srgb, var(--pnd-live) 70%, transparent);
+}
+
+.cardName {
+  margin: 0.3rem 0 0;
+  font-family: var(--pnd-display);
+  font-size: clamp(1.7rem, 4vw, 2.6rem);
+  font-weight: 300;
+  letter-spacing: -0.01em;
+  line-height: 1.06;
+  color: var(--pnd-live-text);
+  transition: color 500ms ease;
+}
+
+.cardReading {
+  margin: 0.1rem 0 0;
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.cardTurkish {
+  margin: 0.35rem 0 0;
+  font-family: var(--pnd-display);
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+  color: var(--text-primary);
+}
+
+.cardTagline {
+  margin: 0.55rem 0 0;
+  font-size: 0.98rem;
+  color: var(--pnd-warm-text);
+  transition: color 500ms ease;
+}
+
+.cardText {
+  margin: 0.7rem 0 0;
+  font-size: 0.96rem;
+  color: var(--text-secondary);
+}
+
+.cardTraits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.9rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trait {
+  padding: 0.22rem 0.6rem;
+  border: 1px solid color-mix(in srgb, var(--border-strong) 90%, transparent);
+  border-radius: 999px;
+  background: var(--surface-hover);
+  font-family: var(--pnd-display);
+  font-size: 0.76rem;
+  letter-spacing: 0.05em;
+  color: var(--pnd-bamboo-text);
+}
+
+.smallCard {
+  padding: clamp(0.85rem, 1.8vw, 1.25rem);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+  background: transparent;
+}
+
+.kitName {
+  margin: 0;
+  font-family: var(--pnd-display);
+  font-size: clamp(1.3rem, 2.8vw, 1.85rem);
+  font-weight: 300;
+  letter-spacing: 0.01em;
+  color: var(--pnd-ash-text);
+}
+
+.kitTurkish {
+  margin: 0.3rem 0 0;
+  font-family: var(--pnd-display);
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.kitVerdict {
+  display: inline-block;
+  margin: 0.5rem 0 0;
+  padding: 0.15rem 0.55rem;
+  border: 1px solid color-mix(in srgb, var(--pnd-ash) 80%, transparent);
+  border-radius: 999px;
+  font-family: var(--pnd-display);
+  font-size: 0.74rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--pnd-ash-text);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   5 · ÜÇ ÇEKİRDEK
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.deckWrap {
+  display: grid;
+  gap: clamp(1rem, 2.4vw, 1.8rem);
+}
+
+.deckMeter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.6rem 1rem;
+  padding-block-end: 0.7rem;
+  border-block-end: 1px solid var(--border);
+}
+
+.deckMeterLabel {
+  font-family: var(--pnd-display);
+  font-size: 0.76rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.deckMeterValue {
+  font-family: var(--pnd-display);
+  font-size: clamp(1.6rem, 4vw, 2.6rem);
+  font-weight: 300;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--pnd-live-text);
+  transition: color 500ms ease;
+}
+
+.deckMeterOf {
+  font-size: 0.5em;
+  color: var(--text-muted);
+}
+
+.deckMeterPips {
+  display: inline-flex;
+  gap: 0.4rem;
+}
+
+.deckPip {
+  width: 0.8rem;
+  height: 0.8rem;
+  border: 2px solid var(--pnd-bamboo);
+  border-radius: 999px;
+  background: var(--pnd-bamboo);
+  transition: background 320ms ease, border-color 320ms ease,
+    transform 420ms var(--pnd-ease);
+}
+
+.deckPip[data-spent="true"] {
+  background: transparent;
+  border-color: var(--pnd-ash);
+  transform: scale(0.78);
+}
+
+/* Duyuru bölgesi: görünür ve okunur — ekran okuyucu dışında da bilgi */
+.live {
+  margin: 0;
+  min-height: 1.4em;
+  font-size: 0.9rem;
+  color: var(--pnd-live-text);
+  transition: color 500ms ease;
+}
+
+.core {
+  display: flex;
+  flex-direction: column;
+  padding: clamp(0.9rem, 2vw, 1.5rem);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  transition: border-color 420ms ease, background 420ms ease,
+    opacity 420ms ease;
+}
+
+.core[data-state="live"] {
+  border-color: var(--pnd-live);
+  background: var(--surface-hover);
+}
+
+.core[data-spent="true"] {
+  border-style: dashed;
+}
+
+.coreKin {
+  margin: 0;
+  font-family: var(--pnd-display);
+  font-size: 0.76rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.coreName {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.55rem;
+  margin: 0.25rem 0 0;
+  font-family: var(--pnd-display);
+  font-size: clamp(1.9rem, 5vw, 3rem);
+  font-weight: 300;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--text-primary);
+}
+
+.core[data-column="1"] .coreName {
+  color: var(--pnd-core-gorilla-text);
+}
+
+.core[data-column="2"] .coreName {
+  color: var(--pnd-core-brother-text);
+}
+
+.core[data-column="3"] .coreName {
+  color: var(--pnd-core-triangle-text);
+}
+
+.core[data-spent="true"] .coreName {
+  color: var(--pnd-spent-text);
+}
+
+.coreNative {
+  font-size: 0.5em;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+.coreRecord {
+  margin: 0.35rem 0 0;
+  font-size: 0.84rem;
+  color: var(--text-muted);
+}
+
+.coreBadge {
+  align-self: flex-start;
+  margin-top: 0.7rem;
+  padding: 0.16rem 0.6rem;
+  border: 1px solid color-mix(in srgb, var(--border-strong) 90%, transparent);
+  border-radius: 999px;
+  font-family: var(--pnd-display);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.coreBadge[data-state="live"] {
+  border-color: var(--pnd-live);
+  color: var(--pnd-live-text);
+}
+
+.coreBadge[data-state="spent"] {
+  color: var(--pnd-spent-text);
+}
+
+.coreShape {
+  margin: 1rem 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.silhouette {
+  display: block;
+  width: min(7rem, 55%);
+  height: auto;
+}
+
+.silhouetteBody {
+  stroke: var(--pnd-fur);
+  stroke-width: 2.4;
+  opacity: 0.8;
+  transition: stroke 500ms ease, opacity 420ms ease;
+}
+
+.silhouetteBody[data-shape="unknown"] {
+  stroke-dasharray: 6 7;
+}
+
+.silhouetteMark {
+  stroke: var(--pnd-live);
+  stroke-width: 2.2;
+  transition: stroke 500ms ease;
+}
+
+.core[data-spent="true"] .silhouetteBody {
+  opacity: 0.36;
+}
+
+.core[data-spent="true"] .silhouetteMark {
+  stroke: var(--pnd-ash);
+}
+
+.coreShapeCap {
+  margin-top: 0.45rem;
+  font-family: var(--pnd-display);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.coreTagline {
+  margin: 0.9rem 0 0;
+  font-size: 0.98rem;
+  color: var(--pnd-warm-text);
+  transition: color 500ms ease;
+}
+
+.coreText {
+  margin: 0.6rem 0 0;
+  font-size: 0.94rem;
+  color: var(--text-secondary);
+}
+
+.coreButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  align-self: flex-start;
+  min-height: var(--touch-min);
+  margin-top: 1rem;
+  padding: 0.5rem 1.05rem;
+  border: 1px solid var(--pnd-live);
+  border-radius: 999px;
+  background: var(--surface-hover);
+  color: var(--pnd-live-text);
+  font-family: var(--pnd-display);
+  font-size: 0.92rem;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: transform 380ms var(--pnd-ease), border-color 300ms ease,
+    color 300ms ease, background 300ms ease;
+}
+
+.coreButton:hover {
+  transform: translateY(-2px);
+  background: var(--surface);
+}
+
+.coreButton:focus-visible {
+  outline: 2px solid var(--pnd-live-text);
+  outline-offset: 3px;
+}
+
+/* ⚠️ `disabled` DEĞİL `aria-disabled`: düğme sekme sırasında kalıyor ve
+   basıldığında tükenmiş çekirdeğin kaydını yeniden açıyor. */
+.coreButton[aria-disabled="true"] {
+  border-style: dashed;
+  border-color: var(--pnd-ash);
+  color: var(--pnd-spent-text);
+  cursor: default;
+}
+
+.coreButton[aria-disabled="true"]:hover {
+  transform: none;
+}
+
+.coreButtonMark {
+  width: 0.75rem;
+  height: 0.75rem;
+  flex: none;
+  border: 2px solid currentColor;
+  border-radius: 999px;
+  background: currentColor;
+  transition: background 320ms ease;
+}
+
+.coreButton[aria-disabled="true"] .coreButtonMark {
+  background: transparent;
+}
+
+.coreButtonLabel {
+  white-space: nowrap;
+}
+
+/* Açıklama metni HER ZAMAN DOM'da; yalnızca görünürlüğü değişiyor.
+   `visibility` değil `opacity` + `height`: metin ekran okuyucudan
+   düşmüyor, çünkü `aria-describedby` ona bağlanıyor. */
+.coreHelp {
+  margin: 0.5rem 0 0;
+  font-size: 0.84rem;
+  color: var(--pnd-spent-text);
+  opacity: 0;
+  transition: opacity 380ms ease;
+}
+
+.coreHelp[data-shown="true"] {
+  opacity: 1;
+}
+
+.coreReading {
+  margin-top: 0.9rem;
+  padding-inline-start: 0.85rem;
+  border-inline-start: 2px solid color-mix(in srgb, var(--pnd-ash) 70%, transparent);
+  opacity: 0.55;
+  transition: opacity 420ms ease, border-color 420ms ease;
+}
+
+.coreReading[data-open="true"] {
+  opacity: 1;
+  border-inline-start-color: var(--pnd-live);
+}
+
+.coreReadingText {
+  margin: 0;
+  font-size: 0.94rem;
+  color: var(--text-secondary);
+}
+
+.coreLoss {
+  margin: 0.5rem 0 0;
+  font-size: 0.94rem;
+  color: var(--pnd-warm-text);
+  transition: color 500ms ease;
+}
+
+.coreStats {
+  margin-top: 1.1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--border);
+}
+
+.coreStatsTitle {
+  margin: 0 0 0.6rem;
+  font-family: var(--pnd-display);
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.statList {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+}
+
+.statRow {
+  display: grid;
+  grid-template-columns: minmax(6rem, 1fr) minmax(0, 1.3fr);
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.statLabel {
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+}
+
+.statValue {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  min-width: 0;
+}
+
+.statNumber {
+  font-family: var(--pnd-display);
+  font-size: 1rem;
+  letter-spacing: 0.01em;
+  color: var(--pnd-live-text);
+  transition: color 500ms ease;
+}
+
+.statMax {
+  font-size: 0.72em;
+  color: var(--text-muted);
+}
+
+.statBar {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 4px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--border-strong) 90%, transparent);
+  overflow: hidden;
+}
+
+.statBar::after {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: var(--pnd-fill, 0%);
+  border-radius: 999px;
+  background: var(--pnd-live);
+  transition: width 620ms var(--pnd-ease), background 500ms ease;
+}
+
+.statVoid {
+  font-family: var(--pnd-display);
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--pnd-ash-text);
+}
+
+.statRow[data-void="true"] .statLabel {
+  color: var(--text-muted);
+}
+
+.coreStatsNote {
+  margin: 0.75rem 0 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.deckHint {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+/* Kilit paneli: ÜÇÜ DE tükendiğinde AÇILAN bölüm. Hiçbir metin
+   gizlenmiyor — sayfaya bir blok ekleniyor. */
+.locked {
+  display: grid;
+  justify-items: start;
+  gap: 0.6rem;
+  padding: clamp(1.1rem, 2.6vw, 2rem);
+  border: 1px solid var(--pnd-ash);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+}
+
+.lockedMark {
+  display: block;
+  width: min(11rem, 60%);
+}
+
+.lockedArt {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.lockedStalk {
+  stroke: var(--pnd-ash-text);
+  stroke-width: 3;
+}
+
+.lockedFiber {
+  stroke: var(--pnd-spent-text);
+  stroke-width: 1.4;
+}
+
+.lockedTitle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin: 0;
+  font-family: var(--pnd-display);
+  font-size: clamp(1.7rem, 5vw, 3rem);
+  font-weight: 300;
+  letter-spacing: -0.04em;
+  line-height: 1.02;
+  color: var(--pnd-fur-text);
+}
+
+.lockedNative {
+  font-size: 0.42em;
+  letter-spacing: 0.24em;
+  color: var(--pnd-ash-text);
+}
+
+.lockedBody {
+  margin: 0;
+  max-width: 62ch;
+  font-size: clamp(1rem, 2.1vw, 1.2rem);
+  color: var(--pnd-corpse-text);
+}
+
+.lockedNote {
+  margin: 0;
+  max-width: 62ch;
+  font-size: 0.86rem;
+  color: var(--text-muted);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   6 · KADER ÇİZELGESİ
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.stop {
+  padding: clamp(0.9rem, 2vw, 1.4rem);
+  border-inline-start: 2px solid color-mix(in srgb, var(--pnd-bamboo) 55%, transparent);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  background: var(--surface);
+}
+
+.stopIndex {
+  margin: 0;
+  font-family: var(--pnd-display);
+  font-size: 0.78rem;
+  letter-spacing: 0.28em;
+  color: color-mix(in srgb, var(--pnd-live) 70%, transparent);
+}
+
+.stopStamp {
+  margin: 0.2rem 0 0;
+  font-family: var(--pnd-display);
+  font-size: 0.76rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--pnd-bamboo-text);
+}
+
+.stopTitle {
+  margin: 0.35rem 0 0;
+  font-family: var(--pnd-display);
+  font-size: clamp(1.35rem, 3.2vw, 2rem);
+  font-weight: 300;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+  color: var(--text-primary);
+}
+
+.stopText {
+  margin: 0.6rem 0 0;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+.record {
+  margin: 1rem 0 0;
+  padding: 0.75rem 0.9rem;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface-hover);
+}
+
+.recordText {
+  margin: 0;
+  font-family: var(--pnd-display);
+  font-size: clamp(1.35rem, 3.4vw, 2.1rem);
+  font-weight: 300;
+  letter-spacing: 0.02em;
+  line-height: 1.15;
+  color: var(--pnd-live-text);
+  transition: color 500ms ease;
+}
+
+.recordReading {
+  margin: 0.35rem 0 0;
+  font-size: 0.88rem;
+  color: var(--text-primary);
+}
+
+.recordBy {
+  margin-top: 0.35rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   7 · BAĞLAR · EVREN · KAPANIŞ
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.bond {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: clamp(0.85rem, 1.8vw, 1.25rem);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+}
+
+.bondFace {
+  margin: 0 0 0.5rem;
+  width: 4.5rem;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.bondFaceImg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.bondName {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  font-family: var(--pnd-display);
+  font-size: clamp(1.15rem, 2.6vw, 1.6rem);
+  font-weight: 300;
+  letter-spacing: -0.025em;
+  color: var(--pnd-live-text);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--pnd-live) 40%, transparent);
+  align-self: flex-start;
+  transition: color 260ms ease, border-color 260ms ease;
+}
+
+.bondName:hover {
+  color: var(--pnd-glow-text);
+  border-bottom-color: var(--pnd-live);
+}
+
+.bondName:focus-visible {
+  outline: 2px solid var(--pnd-live-text);
+  outline-offset: 3px;
+}
+
+.bondNamePlain {
+  font-family: var(--pnd-display);
+  font-size: clamp(1.15rem, 2.6vw, 1.6rem);
+  font-weight: 300;
+  letter-spacing: -0.025em;
+  color: var(--text-primary);
+}
+
+.bondNative {
+  font-size: 0.86rem;
+  color: var(--text-muted);
+}
+
+.bondRole {
+  font-family: var(--pnd-display);
+  font-size: 0.74rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--pnd-bamboo-text);
+}
+
+.bondLine {
+  margin: 0.4rem 0 0;
+  font-size: 0.93rem;
+  color: var(--text-secondary);
+}
+
+.unlisted {
+  margin-top: clamp(1.2rem, 3vw, 2rem);
+  padding: clamp(0.85rem, 1.8vw, 1.25rem);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+}
+
+.unlistedTitle {
+  margin: 0;
+  font-family: var(--pnd-display);
+  font-size: 1.05rem;
+  font-weight: 300;
+  letter-spacing: 0.02em;
+  color: var(--pnd-ash-text);
+}
+
+.unlistedNote {
+  margin: 0.3rem 0 0.75rem;
+  font-size: 0.86rem;
+  color: var(--text-muted);
+}
+
+.unlistedList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.unlistedItem {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.unlistedName {
+  font-family: var(--pnd-display);
+  font-size: 1.05rem;
+  color: var(--text-primary);
+}
+
+.unlistedNative {
+  font-size: 0.86rem;
+  color: var(--text-muted);
+}
+
+.unlistedRole {
+  font-family: var(--pnd-display);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.worldList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(15rem, 100%), 1fr));
+  gap: 0.9rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.worldItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.8rem 0.95rem;
+  border-inline-start: 2px solid color-mix(in srgb, var(--pnd-bamboo) 55%, transparent);
+  background: var(--surface);
+}
+
+.worldLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  font-family: var(--pnd-display);
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+  color: var(--pnd-live-text);
+  text-decoration: none;
+  transition: color 260ms ease;
+}
+
+.worldLink:hover {
+  color: var(--pnd-glow-text);
+  text-decoration: underline;
+}
+
+.worldLink:focus-visible {
+  outline: 2px solid var(--pnd-live-text);
+  outline-offset: 3px;
+}
+
+.worldNote {
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+}
+
+.closingLines {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr));
+  gap: var(--pnd-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.closingLine {
+  margin: 0;
+  padding: clamp(0.9rem, 2vw, 1.4rem);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+}
+
+.closingJa {
+  margin: 0;
+  font-family: var(--pnd-display);
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  line-height: 1.14;
+  color: var(--pnd-live-text);
+  transition: color 500ms ease;
+}
+
+.closingReading {
+  margin: 0.4rem 0 0;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.closingNote {
+  margin: 0.6rem 0 0;
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+}
+
+.closingBy {
+  margin-top: 0.6rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.discipline {
+  margin: clamp(1rem, 2.4vw, 1.8rem) 0 0;
+  max-width: 74ch;
+  padding: 0.8rem 0.95rem;
+  border-inline-start: 2px solid var(--pnd-ash);
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+.rule {
+  display: block;
+  width: min(14rem, 60%);
+  margin: clamp(1.4rem, 3vw, 2.4rem) auto clamp(0.8rem, 2vw, 1.4rem);
+}
+
+.ruleArt {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.ruleStalk {
+  stroke: var(--pnd-bamboo);
+  stroke-width: 3;
+}
+
+.ruleFiber {
+  stroke: var(--pnd-ash-text);
+  stroke-width: 1.2;
+}
+
+.motto {
+  margin: 0;
+  text-align: center;
+  font-family: var(--pnd-display);
+  font-size: clamp(2.4rem, 9vw, 5.5rem);
+  font-weight: 200;
+  letter-spacing: 0.06em;
+  line-height: 1.06;
+  color: var(--pnd-fur-text);
+}
+
+.mottoReading {
+  margin: 0.35rem 0 0;
+  text-align: center;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.mottoNote {
+  margin: 0.4rem auto 0;
+  max-width: 60ch;
+  text-align: center;
+  font-size: 0.86rem;
+  color: var(--text-muted);
+}
+
+.credit {
+  margin: clamp(1.4rem, 3vw, 2.2rem) 0 0;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+.credit a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  color: var(--pnd-live-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.credit a:focus-visible {
+  outline: 2px solid var(--pnd-live-text);
+  outline-offset: 3px;
+}
+
+.creditNote {
+  margin: 0.4rem 0 0;
+  max-width: 80ch;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   HAREKET — bambu salınımı
+   ═══════════════════════════════════════════════════════════════════════
+
+   Dikey çizgiler hafifçe eğilip düzeliyor. Hepsi `no-preference` kapısında;
+   `prefers-reduced-motion` durumunda hiçbiri koşmuyor ama çekirdek seçimi
+   ve bütün metin aynen çalışıyor. */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes pnd-sway {
+    0%,
+    100% {
+      transform: rotate(0deg);
+    }
+    32% {
+      transform: rotate(0.85deg);
+    }
+    68% {
+      transform: rotate(-0.6deg);
+    }
+  }
+
+  @keyframes pnd-lean {
+    0%,
+    100% {
+      transform: skewX(0deg);
+    }
+    40% {
+      transform: skewX(0.6deg);
+    }
+    75% {
+      transform: skewX(-0.45deg);
+    }
+  }
+
+  .markStalk,
+  .motifStalk {
+    animation: pnd-sway 9s ease-in-out infinite;
+    animation-delay: calc(var(--pnd-stalk, 0) * 0.85s);
+  }
+
+  .heroCell[data-column="2"]::before,
+  .heroCell[data-column="3"]::before,
+  .factCol[data-column="2"]::before,
+  .factCol[data-column="3"]::before,
+  .bigCard[data-column="2"]::before,
+  .bigCard[data-column="3"]::before,
+  .core[data-column="2"]::before,
+  .core[data-column="3"]::before {
+    animation: pnd-lean 11s ease-in-out infinite;
+  }
+
+  .core[data-column="3"]::before {
+    animation-delay: 1.6s;
+  }
+
+  .factCol[data-column="3"]::before,
+  .bigCard[data-column="3"]::before,
+  .heroCell[data-column="3"]::before {
+    animation-delay: 2.4s;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   DAR EKRAN — 360 px'te yatay taşma YOK
+   ═══════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 62rem) {
+  .heroGrid,
+  .triGrid,
+  .deck,
+  .mode {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .heroGrid > [data-column],
+  .triGrid > [data-column],
+  .deck > [data-column] {
+    grid-column: 1;
+  }
+
+  .triGrid > [data-wide="true"] {
+    grid-column: 1;
+  }
+
+  .modeCol,
+  .modeArtCol {
+    grid-column: 1;
+  }
+
+  /* Üst üste binen sütunlarda dikey ayraç yatay bir çizgiye dönüşüyor */
+  .heroCell[data-column="2"]::before,
+  .heroCell[data-column="3"]::before,
+  .factCol[data-column="2"]::before,
+  .factCol[data-column="3"]::before,
+  .bigCard[data-column="2"]::before,
+  .bigCard[data-column="3"]::before,
+  .core[data-column="2"]::before,
+  .core[data-column="3"]::before {
+    inset-block: auto;
+    inset-block-start: calc(var(--pnd-gap) / -2);
+    inset-inline: 0;
+    width: auto;
+    height: 2px;
+    background: linear-gradient(
+      to right,
+      color-mix(in srgb, var(--pnd-bamboo) 10%, transparent),
+      color-mix(in srgb, var(--pnd-bamboo) 62%, transparent) 22%,
+      color-mix(in srgb, var(--pnd-bamboo) 62%, transparent) 78%,
+      color-mix(in srgb, var(--pnd-bamboo) 10%, transparent)
+    );
+  }
+
+  .mark {
+    width: min(28rem, 100%);
+    opacity: 0.7;
+  }
+
+  .statRow {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.2rem;
+  }
+}
+
+@media (max-width: 26rem) {
+  .heroName {
+    font-size: clamp(2.4rem, 17vw, 4rem);
+  }
+
+  .motto {
+    font-size: clamp(2rem, 15vw, 3.4rem);
+  }
+
+  .closingJa,
+  .recordText {
+    overflow-wrap: anywhere;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   HAREKET BATTANİYESİ — güvenlik ağı
+   ═══════════════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation: none !important;
+    transition-duration: 1ms !important;
+  }
+}

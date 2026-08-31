@@ -1,0 +1,1766 @@
+/*
+ * Yūta Okkotsu (乙骨憂太) — deri bloğu.
+ *
+ * Palet docs/ANIME-FAZ2-DALGA4.md'den BİREBİR alındı; elle renk yazma.
+ * Dosyanın EN BAŞINDA olmak zorunda ve seçici `.page[data-world="…"]`
+ * — `:global([data-world=…])` CSS Modules'ün "pure selector" kuralına
+ * takılıyor.
+ *
+ * Yardımcı token adı `--yut-…`. Küçük METİNDE kullanacağın her
+ * yardımcı rengin `-text` ekli bir kardeşi olmalı; kontrast denetimi
+ * yalnızca onlara bakıyor.
+ */
+.page[data-world="yuuta-okkotsu"] {
+  --bg: #0d0d0d;
+  --surface: #151515;
+  --surface-hover: #1d1d1d;
+  --border: #242424;
+  --border-strong: #333333;
+  --text-primary: #cccccc;
+  --text-secondary: #8f8a8a;
+  --text-muted: #8d8484;
+  --accent: #8a63bf;
+  --accent-hover: #a189c2;
+  --accent-muted: #393045;
+  --gold: #858585;
+  --warn: #b88347;
+  --danger: #c26459;
+
+  /* ── Yardımcı aile — yalnızca bu ağaç okur ─────────────────────────
+     ⚠️ ADLANDIRMA SÖZLEŞMESİ: küçük metinde kullanılan her yardımcı
+     rengin `-text` ekli bir kardeşi var ve metin ONU okuyor; denetim
+     yalnızca `-text` ekli olanları ölçüyor. Ekli olmayanlar MALZEME:
+     şeridin dolgusu, halkanın konturu, çentiğin gövdesi.
+
+     ⚠️ SAYFANIN MONOKROMU BİR FİLTREYLE KURULMADI. `--yut-rika` ve
+     `--yut-rika-text` dışındaki her şey nötr ailenin kendisi; renk
+     yalnızca Rika'nın olduğu yerlerde ve yalnızca `--yut-spread`
+     katsayısıyla açılıyor. `filter: grayscale()` bilerek yok:
+     küratörün yüklediği kareyi gri gösterip yanlış karar verdirirdi
+     ve küçük metnin kontrastını düşürürdü. */
+  --yut-rika: #7c56b0;
+  --yut-rika-text: #b79ad6;
+  --yut-mono-text: #a6a6a6;
+  --yut-ring: #4a4a4a;
+  --yut-notch: #2b2b2b;
+}
+
+/* ============================================================
+   YŪTA OKKOTSU — "Renk Taşması"
+
+   Deri: kökteki `data-world="yuuta-okkotsu"` bütün standart token'ları
+   nötr aileye çeviriyor; yardımcılar `--yut-*` (yukarıdaki blok).
+   Bu bloktan AŞAĞIDA TEK HEX YOK — ara tonların hepsi color-mix ile
+   token'lardan türetildi (SÖZLEŞME §1).
+
+   ── SAYFANIN FİKRİ ──────────────────────────────────────────────────────
+   ORTALANMIŞ TEK KOLON + SAĞ KENARDA RİKA'NIN DAR ŞERİDİ. Sayfa monokrom;
+   tek renk bölgesi o şerit. Yūta başkalarının tekniklerini kopyaladıkça
+   şeritteki çentikler doluyor ve renk şeritten sayfaya SIZIYOR — maskeli
+   bir gradyan sola doğru ilerliyor.
+
+   ⚠️ Mikasa'nın sol kenardaki sürekli atkı çizgisiyle karıştırılmasın:
+   orada çizgi ızgaranın kendisi ve bölümler ona ASILI. Burada şerit
+   ızgaranın parçası değil, kolonun DIŞINDA duran ayrı bir bölge ve
+   bölümlerin üstüne taşan tek şey renk.
+
+   ── MONOKROM NASIL KURULDU ──────────────────────────────────────────────
+   `filter: grayscale()` YOK. Sayfanın griliği bir efekt değil bir KULLANIM
+   kararı: her şey nötr aileyi (`--text-*`, `--gold`, `--border*`,
+   `--surface*`) okuyor, `--accent`/`--yut-rika` ailesi yalnızca Rika'nın
+   olduğu yerlerde ve yalnızca `--yut-spread` katsayısıyla açılıyor.
+   İki sebep: (1) filtre küçük metnin kontrastını düşürürdü, (2) küratör
+   yüklediği kareyi gri görüp yanlış karar verirdi.
+
+   ── ÖLÇÜ SİSTEMİ ────────────────────────────────────────────────────────
+   --yut-lane    Rika'nın şeridinin genişliği
+   --yut-gap     şeritle kolon arasındaki boşluk
+   --yut-pad     sayfa kenar boşluğu
+   --yut-col     tek kolonun üst genişliği
+   --yut-step    bölümler arası dikey ritim
+   --yut-take    destedeki kaynak ORANI (0…1, istemciden)
+   --yut-count   destedeki kaynak SAYISI (istemciden)
+   --yut-color   Rika sayfada mı (0 / 1, `data-rika`dan)
+   --yut-spread  renk yayılımı = color × (taban + oran)
+
+   ── TİPOGRAFİ ───────────────────────────────────────────────────────────
+   Display: Cinzel — ALL CAPS, geniş harf aralığı, ORTALANMIŞ ve TEK.
+   (Todoroki de Cinzel kullanıyor ama orada simetrik ve bölünmüş; burada
+   sayfanın ekseni bir tane ve o eksen ortada.)
+   Gövde: Cormorant.
+   Teknik okumalar (sayaç, ölçek, yüzde): IBM Plex Mono, tabular-nums.
+   Japonca: Shippori Mincho.
+
+   ── RENK GÖREVLERİ ──────────────────────────────────────────────────────
+   --yut-rika       YALNIZCA şerit dolgusu, sızıntı ve destedeki kart izi
+   --yut-rika-text  Rika bölgesindeki küçük metin (ölçüldü: AA üstü)
+   --yut-mono-text  nötr küçük metin (ölçüldü: AA üstü)
+   --yut-ring       elle çizilmiş halkaların konturu
+   --yut-notch      çentiklerin boş gövdesi
+   --gold           künye değerleri (bu palette gri — bilinçli)
+   ============================================================ */
+
+.page {
+  --yut-lane: clamp(20px, 5vw, 54px);
+  --yut-gap: clamp(8px, 2vw, 18px);
+  --yut-pad: clamp(0.6rem, 3vw, 2rem);
+  --yut-col: 46rem;
+  --yut-step: clamp(2.75rem, 8vw, 5.25rem);
+  --yut-round: 2px;
+  --yut-hair: 1px;
+
+  /* İki eksen. `--yut-take`/`--yut-count` istemciden (deste),
+     `--yut-color` mod düğmesinden. Renk ikisinin ÇARPIMINDA var: deste
+     dolu ama Rika yoksa sayfa gri kalır, Rika var ama deste boşsa renk
+     yalnızca tabanı kadar gelir. */
+  --yut-take: 0;
+  --yut-count: 0;
+  --yut-color: 0;
+  --yut-spread: calc(var(--yut-color) * (0.26 + 0.74 * var(--yut-take)));
+
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-cormorant), Georgia, "Times New Roman", serif;
+  font-size: clamp(1.02rem, 0.95rem + 0.35vw, 1.2rem);
+  line-height: 1.65;
+  min-height: 100vh;
+
+  /* ⚠️ `clip`, `hidden` DEĞİL. Şerit ve taşma çizgileri bölüm kutularının
+     dışına çıkıyor; bu taşma sayfada YATAY KAYDIRMA üretmemeli. `hidden`
+     bir kaydırma kabı yaratıp yapışkan çentik sütununu kırardı, `clip`
+     kırmıyor. 360 px'te ölçüldü: yatay taşma yok. */
+  overflow-x: clip;
+}
+
+/* Mod düğmesi ŞERİDİ YARATMIYOR, DOLDURUYOR: tek değişen katsayı. */
+.page[data-rika="bound"] {
+  --yut-color: 1;
+}
+
+.skin {
+  position: relative;
+  padding-block: clamp(1rem, 4vw, 2.5rem) clamp(3rem, 9vw, 6rem);
+  /* Şeridin şeridi iki yanda da ayrılıyor ki kolon GERÇEKTEN ortada
+     kalsın; sağdaki lane'i şerit dolduruyor, soldaki boş duruyor. */
+  padding-inline: calc(var(--yut-pad) + var(--yut-lane) + var(--yut-gap));
+}
+
+.column {
+  position: relative;
+  z-index: 1;
+  max-width: var(--yut-col);
+  margin-inline: auto;
+}
+
+/* ══ RİKA'NIN ŞERİDİ ════════════════════════════════════════════════════
+   Sayfanın sağ kenarında, en üstten en alta. HER İKİ DURUMDA DA burada.
+   `alone`: altı çentik boş kontur, sızıntı sıfır.
+   `bound`: çentikler doluyor, sızıntı sola ilerliyor. */
+
+.rail {
+  position: absolute;
+  z-index: 0;
+  inset-block: 0;
+  inset-inline-end: var(--yut-pad);
+  width: var(--yut-lane);
+  display: block;
+  overflow: visible;
+  pointer-events: none;
+  border-inline-start: var(--yut-hair) solid var(--border);
+}
+
+/* Sızıntının kendisi: maskeli bir gradyan, sola doğru GENİŞLİYOR.
+   Genişlik geçişi hareketin ta kendisi — `--yut-spread` doğrudan
+   canlandırılamaz, ama ondan türeyen genişlik ve saydamlık canlanır. */
+.railWash {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: calc(-1 * var(--yut-pad));
+  width: calc(var(--yut-lane) + var(--yut-pad) + var(--yut-spread) * 66vw);
+  display: block;
+  background: linear-gradient(
+    to left,
+    color-mix(in srgb, var(--yut-rika) 34%, transparent),
+    color-mix(in srgb, var(--yut-rika) 7%, transparent) 30%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(to left, black 0%, black 10%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to left, black 0%, black 10%, transparent 100%);
+  /* Yayılım en yüksekken bile SIZINTI olarak okunmalı, sel değil:
+     katsayı 0.72 ile kırpılıyor. */
+  opacity: calc(var(--yut-spread) * 0.72);
+}
+
+.railTrack {
+  position: sticky;
+  top: 26vh;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(5px, 1.2vw, 11px);
+  padding-block: 10px;
+  padding-inline: 3px;
+}
+
+.railNotch {
+  --i: 0;
+  display: block;
+  position: relative;
+  height: clamp(16px, 3.2vw, 32px);
+  border: var(--yut-hair) solid var(--border-strong);
+  border-radius: var(--yut-round);
+  background: var(--yut-notch);
+  overflow: hidden;
+}
+
+/* Çentik i, destede i'den fazla kaynak varsa dolu. `clamp` bir
+   karşılaştırma yerine geçiyor: sayı 1'i aşınca doygun, 0'ın altına
+   düşünce boş. Sonuç `--yut-color` ile çarpılıyor, yani `alone` hâlinde
+   şerit gerçekten BOŞ kalıyor. */
+.railNotchFill {
+  position: absolute;
+  inset: 1px;
+  display: block;
+  border-radius: 1px;
+  background: var(--yut-rika);
+  opacity: calc(
+    clamp(0, calc(var(--yut-count) - var(--i)), 1) * var(--yut-color)
+  );
+}
+
+/* ⚠️ BU ÖĞEDE MANTIKSAL ÖZELLİK KULLANILMIYOR — ölçülerek bulundu.
+   Öğe `writing-mode: vertical-rl` taşıyor ve mantıksal özellikler
+   öğenin KENDİ yazma kipine göre çözülüyor: dikey kipte satır içi eksen
+   DİKEY, blok ekseni YATAY. Sonuç:
+     · `margin-inline: auto` kanjiyi yatayda değil dikeyde ortalıyordu
+       (360 px'te şeridin sağından 14 piksel taşıyordu),
+     · `inset-block-end` "alt" değil "sol" anlamına geliyordu ve kanji
+       şeridin dibi yerine tepesine, çentiklerin arasına düşüyordu.
+   Çözüm: bu blokta yalnızca fiziksel özellikler. */
+.railKanji {
+  position: absolute;
+  bottom: clamp(1.5rem, 6vw, 4rem);
+  left: 0;
+  right: 0;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+  writing-mode: vertical-rl;
+  font-family: var(--font-shippori), serif;
+  font-size: clamp(0.8rem, 2.2vw, 1.15rem);
+  letter-spacing: 0.32em;
+  color: var(--yut-mono-text);
+}
+
+/* Bölüm kutusunun DIŞINA taşan çizgi: negatif margin ile sağa çıkıp
+   şeride doğru uzuyor. Nötr gövde her zaman var; renk katmanı
+   `--yut-spread` ile açılıyor. */
+.bleedTick {
+  position: relative;
+  display: block;
+  height: var(--yut-hair);
+  margin-block-start: var(--yut-step);
+  margin-inline-end: calc(-1 * (var(--yut-lane) + var(--yut-gap)));
+  background: linear-gradient(
+    to right,
+    transparent,
+    color-mix(in srgb, var(--border-strong) 90%, transparent)
+  );
+}
+
+.bleedTick::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to right,
+    transparent,
+    color-mix(in srgb, var(--yut-rika) 85%, transparent)
+  );
+  opacity: var(--yut-spread);
+}
+
+/* ══ BREADCRUMB ═════════════════════════════════════════════════════════ */
+
+.crumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.74rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-block-end: clamp(2rem, 7vw, 4.5rem);
+}
+
+.crumb a {
+  color: var(--text-secondary);
+  min-height: var(--touch-min);
+  display: inline-flex;
+  align-items: center;
+}
+
+.crumb a:hover {
+  color: var(--text-primary);
+}
+
+.crumbSep {
+  color: var(--border-strong);
+}
+
+.crumbHere {
+  color: var(--yut-mono-text);
+}
+
+/* ══ 1 · HERO ═══════════════════════════════════════════════════════════
+   Filigran: Rika'nın verdiği yüzük. ÇOK BÜYÜK, İNCE KONTUR, hiçbir yere
+   değmiyor ve yavaşça dönüyor. */
+
+.hero {
+  position: relative;
+  text-align: center;
+}
+
+.heroRing {
+  position: absolute;
+  z-index: 0;
+  inset-block-start: clamp(-4rem, -6vw, -1.5rem);
+  inset-inline-start: 50%;
+  /* Kolondan biraz taşıyor (çok büyük olmalı) ama ŞERİDE DEĞMİYOR:
+     360 px'te ölçüldü, sağ kenarı şeridin solunda kalıyor. */
+  width: min(104%, 42rem);
+  height: auto;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.heroRingBand,
+.heroRingInner,
+.heroRingStone {
+  fill: none;
+  stroke: var(--yut-ring);
+  stroke-width: 1;
+  stroke-linejoin: round;
+}
+
+.heroRingInner {
+  stroke: color-mix(in srgb, var(--yut-ring) 60%, transparent);
+}
+
+.heroRingStone {
+  stroke: color-mix(in srgb, var(--yut-ring) 80%, transparent);
+}
+
+.heroBody {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.heroGrade {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--yut-mono-text);
+}
+
+.heroGradeNative {
+  font-family: var(--font-shippori), serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.24em;
+  color: var(--text-secondary);
+}
+
+.heroName {
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(2.15rem, 9vw, 4.4rem);
+  line-height: 1.02;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.heroNative {
+  font-family: var(--font-shippori), serif;
+  font-size: clamp(1.1rem, 4vw, 1.7rem);
+  letter-spacing: 0.4em;
+  /* Harf aralığı sağa boşluk bırakıyor; ortalamayı geri düzeltir */
+  text-indent: 0.4em;
+  color: var(--text-secondary);
+}
+
+.heroEpigraph {
+  max-width: 32ch;
+  font-style: italic;
+  font-size: clamp(1.05rem, 3.4vw, 1.35rem);
+  color: var(--yut-mono-text);
+}
+
+.heroMedallion {
+  display: block;
+  position: relative;
+  width: clamp(120px, 34vw, 178px);
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 50%;
+  border: var(--yut-hair) solid var(--border-strong);
+  background: var(--surface);
+  margin-block-start: 0.75rem;
+}
+
+.heroPortraitImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 12%;
+}
+
+.heroLede {
+  max-width: 54ch;
+  color: var(--text-secondary);
+  margin-block-start: 0.5rem;
+}
+
+.heroFrame {
+  position: relative;
+  z-index: 1;
+  max-width: 32rem;
+  margin-inline: auto;
+  margin-block-start: clamp(1.75rem, 5vw, 3rem);
+}
+
+.slotRow {
+  margin-block-start: 0.75rem;
+  text-align: start;
+}
+
+/* ══ KADRAJLAR ══════════════════════════════════════════════════════════
+   ⚠️ Kadrajın içindeki AÇIKLAMA metni yalnızca `isAdmin` dalında çiziliyor
+   (TSX). Ziyaretçi ölçü/üretim notu görmüyor; boş kadrajda elle çizilmiş
+   halka ya da kanji duruyor. */
+
+.frame {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  width: 100%;
+  overflow: hidden;
+  border: var(--yut-hair) solid var(--border);
+  border-radius: var(--yut-round);
+  background: color-mix(in srgb, var(--surface) 85%, transparent);
+}
+
+.frame[data-shape="tall"] {
+  aspect-ratio: 3 / 4;
+}
+
+.frame[data-shape="wide"] {
+  aspect-ratio: 3 / 2;
+}
+
+.frame[data-shape="badge"] {
+  aspect-ratio: 1 / 1;
+}
+
+.frame[data-shape="band"] {
+  aspect-ratio: 16 / 9;
+}
+
+.frame[data-filled="false"] {
+  border-style: dashed;
+}
+
+.frame img {
+  object-fit: cover;
+}
+
+.frameGlyph {
+  width: clamp(44px, 12vw, 92px);
+  height: auto;
+}
+
+.frameGlyphOuter,
+.frameGlyphInner {
+  fill: none;
+  stroke: var(--yut-ring);
+  stroke-width: 1.2;
+}
+
+.frameKanji {
+  font-family: var(--font-shippori), serif;
+  font-size: clamp(1.6rem, 7vw, 2.6rem);
+  letter-spacing: 0.18em;
+  text-indent: 0.18em;
+  color: color-mix(in srgb, var(--text-secondary) 55%, transparent);
+}
+
+.frameStep {
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: clamp(1.8rem, 8vw, 3rem);
+  letter-spacing: 0.1em;
+  color: color-mix(in srgb, var(--text-secondary) 45%, transparent);
+}
+
+.frameLabel {
+  max-width: 30ch;
+  padding-inline: 1rem;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.66rem;
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+  text-align: center;
+  color: var(--yut-mono-text);
+}
+
+/* ══ BÖLÜM İSKELETİ — HEPSİ ORTALANMIŞ ══════════════════════════════════ */
+
+.section,
+.deckSection,
+.closing {
+  position: relative;
+  text-align: center;
+}
+
+.sectionHead {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+  margin-block-end: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.sectionSeal {
+  width: clamp(26px, 6vw, 38px);
+  height: auto;
+}
+
+.sectionSealOuter,
+.sectionSealInner {
+  fill: none;
+  stroke: var(--yut-ring);
+  stroke-width: 1.4;
+}
+
+.sectionSealInner {
+  stroke: color-mix(in srgb, var(--yut-ring) 55%, transparent);
+}
+
+.sectionTitle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(1.15rem, 4vw, 1.75rem);
+  letter-spacing: 0.24em;
+  text-indent: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.sectionTitleNative {
+  font-family: var(--font-shippori), serif;
+  font-size: 0.9rem;
+  letter-spacing: 0.3em;
+  text-indent: 0.3em;
+  text-transform: none;
+  color: var(--yut-rika-text);
+}
+
+.sectionLede {
+  max-width: 58ch;
+  margin-inline: auto;
+  color: var(--text-secondary);
+}
+
+/* ══ 2 · MOD DÜĞMESİ ════════════════════════════════════════════════════ */
+
+.modeBar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.modeButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.85rem;
+  min-height: var(--touch-min);
+  padding: 0.75rem 1.6rem;
+  border: var(--yut-hair) solid var(--border-strong);
+  border-radius: var(--yut-round);
+  background: var(--surface);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.modeButton:hover {
+  background: var(--surface-hover);
+  border-color: var(--text-secondary);
+}
+
+.page[data-rika="bound"] .modeButton {
+  border-color: color-mix(in srgb, var(--yut-rika) 70%, var(--border-strong));
+}
+
+.modeSeal {
+  width: 30px;
+  height: 30px;
+  flex: none;
+}
+
+.modeSealOuter,
+.modeSealInner {
+  fill: none;
+  stroke: var(--yut-ring);
+  stroke-width: 1.6;
+}
+
+.page[data-rika="bound"] .modeSealInner {
+  fill: color-mix(in srgb, var(--yut-rika) 70%, transparent);
+  stroke: var(--yut-rika);
+}
+
+.modeButtonText {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+}
+
+.modeKanji {
+  font-family: var(--font-shippori), serif;
+  font-size: 0.9rem;
+  letter-spacing: 0.24em;
+  color: var(--text-secondary);
+}
+
+.page[data-rika="bound"] .modeKanji {
+  color: var(--yut-rika-text);
+}
+
+.modeLabel {
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.modeState {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.7rem;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.modeStateLabel {
+  color: var(--text-secondary);
+}
+
+.modeStateValue {
+  color: var(--yut-mono-text);
+}
+
+.page[data-rika="bound"] .modeStateValue {
+  color: var(--yut-rika-text);
+}
+
+.modeHint {
+  max-width: 52ch;
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+/* Yükselen üç okuma */
+
+.readings {
+  margin-block-start: clamp(1.75rem, 5vw, 2.75rem);
+}
+
+.readingsTitle {
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-weight: 400;
+  font-size: 0.85rem;
+  letter-spacing: 0.28em;
+  text-indent: 0.28em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-block-end: 1.1rem;
+}
+
+.readingList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-width: 34rem;
+  margin-inline: auto;
+}
+
+.reading {
+  --yut-base: 0;
+  --yut-lift: 0;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: baseline;
+  gap: 0.35rem 0.75rem;
+  text-align: start;
+}
+
+.readingKanji {
+  grid-column: 1;
+  font-family: var(--font-shippori), serif;
+  font-size: 0.9rem;
+  letter-spacing: 0.14em;
+  color: var(--text-secondary);
+}
+
+.readingLabel {
+  grid-column: 2;
+  font-size: 0.98rem;
+  color: var(--text-primary);
+}
+
+.readingScale {
+  grid-column: 3;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.7rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--yut-mono-text);
+}
+
+.readingBar {
+  grid-column: 1 / -1;
+  display: block;
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.readingBarFill {
+  display: block;
+  height: 100%;
+  /* 0–10 ölçeği yüzdeye: taban + yayılım × yükseliş */
+  width: calc((var(--yut-base) + var(--yut-lift) * var(--yut-spread)) * 10%);
+  background: var(--text-secondary);
+}
+
+.page[data-rika="bound"] .readingBarFill {
+  background: var(--yut-rika);
+}
+
+.readingNote {
+  grid-column: 1 / -1;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.readingsNote {
+  max-width: 54ch;
+  margin-inline: auto;
+  margin-block-start: 1.4rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+/* ══ 3 · KÜNYE ŞERİDİ ═══════════════════════════════════════════════════ */
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: var(--yut-hair);
+  margin: 0;
+  padding: 0;
+  border: var(--yut-hair) solid var(--border);
+  background: var(--border);
+}
+
+.fact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.9rem 1rem;
+  background: var(--surface);
+}
+
+.fact dt {
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.64rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.fact dd {
+  margin: 0;
+  font-size: 1.02rem;
+  color: var(--gold);
+}
+
+.factNote {
+  max-width: 54ch;
+  margin-inline: auto;
+  margin-block-start: 1.2rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+/* ══ 4 · LANET LABORATUVARI ═════════════════════════════════════════════ */
+
+.labGroupLabel {
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-block: clamp(1.5rem, 4vw, 2.5rem) 1rem;
+}
+
+.labMajor,
+.labMinor,
+.bonds,
+.unlisted,
+.steps,
+.records {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.labMajor {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.25rem, 3.5vw, 2rem);
+}
+
+.labCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: clamp(1.25rem, 4vw, 2.25rem) clamp(1rem, 3.5vw, 2rem);
+  border: var(--yut-hair) solid var(--border);
+  border-radius: var(--yut-round);
+  background: var(--surface);
+}
+
+.labCard::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border: var(--yut-hair) solid var(--yut-rika);
+  border-radius: var(--yut-round);
+  opacity: calc(var(--yut-spread) * 0.6);
+  pointer-events: none;
+}
+
+.labKanji {
+  font-family: var(--font-shippori), serif;
+  font-size: clamp(1.7rem, 7vw, 2.5rem);
+  letter-spacing: 0.2em;
+  text-indent: 0.2em;
+  color: var(--text-primary);
+}
+
+.labReading {
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.64rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.labBody {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  margin-block-start: 0.6rem;
+}
+
+.labTurkish {
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: clamp(1rem, 3.4vw, 1.3rem);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.labTagline {
+  max-width: 40ch;
+  font-style: italic;
+  color: var(--yut-mono-text);
+}
+
+.labText {
+  max-width: 56ch;
+  color: var(--text-secondary);
+}
+
+.labTraits {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-block-start: 0.3rem;
+}
+
+.trait {
+  padding: 0.25rem 0.7rem;
+  border: var(--yut-hair) solid var(--border-strong);
+  border-radius: 999px;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--yut-mono-text);
+}
+
+.labCard .frame {
+  margin-block-start: 1.1rem;
+  max-width: 30rem;
+}
+
+.labMinor {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: clamp(0.9rem, 2.5vw, 1.4rem);
+}
+
+.noteCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 1rem;
+  border: var(--yut-hair) solid var(--border);
+  border-radius: var(--yut-round);
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+}
+
+.noteCard .frame {
+  margin-block-end: 0.75rem;
+}
+
+.noteKanji {
+  font-family: var(--font-shippori), serif;
+  font-size: 1.25rem;
+  letter-spacing: 0.16em;
+  text-indent: 0.16em;
+  color: var(--text-primary);
+}
+
+.noteReading {
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.noteTurkish {
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.92rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.noteTagline {
+  font-style: italic;
+  font-size: 0.94rem;
+  color: var(--yut-mono-text);
+}
+
+.noteText {
+  font-size: 0.94rem;
+  color: var(--text-secondary);
+}
+
+/* ══ 5 · DESTE — SAYFANIN KALBİ ═════════════════════════════════════════ */
+
+.deckFrameRow {
+  max-width: 34rem;
+  margin-inline: auto;
+  margin-block-end: clamp(1.5rem, 4vw, 2.25rem);
+}
+
+.deck {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.deckMeter {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: baseline;
+  gap: 0.5rem 1rem;
+  max-width: 30rem;
+  margin-inline: auto;
+  width: 100%;
+}
+
+.deckCount,
+.deckSpread {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.deckCount {
+  text-align: start;
+}
+
+.deckSpread {
+  text-align: end;
+}
+
+.deckCountLabel,
+.deckSpreadLabel {
+  font-size: 0.62rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.deckCountValue,
+.deckSpreadValue {
+  font-size: clamp(1.4rem, 5vw, 2rem);
+  color: var(--text-primary);
+}
+
+.deckCountSlash {
+  padding-inline: 0.15em;
+  color: var(--border-strong);
+}
+
+.page[data-rika="bound"] .deckSpreadValue {
+  color: var(--yut-rika-text);
+}
+
+.deckBar {
+  grid-column: 1 / -1;
+  display: block;
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.deckBarFill {
+  display: block;
+  height: 100%;
+  width: calc(var(--yut-take) * 100%);
+  background: var(--text-secondary);
+}
+
+.page[data-rika="bound"] .deckBarFill {
+  background: var(--yut-rika);
+}
+
+.deckContents {
+  max-width: 34rem;
+  margin-inline: auto;
+  width: 100%;
+  padding: 1rem;
+  border: var(--yut-hair) dashed var(--border-strong);
+  border-radius: var(--yut-round);
+}
+
+.deckContentsTitle {
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-block-end: 0.65rem;
+}
+
+.deckEmpty {
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+.deckList {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.45rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.deckListItem {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
+  max-width: 100%;
+  gap: 0.45rem;
+  padding: 0.3rem 0.7rem;
+  border: var(--yut-hair) solid var(--border-strong);
+  border-radius: var(--yut-round);
+  background: var(--surface-hover);
+}
+
+/* Kanji dizisi ortasından bölünmemeli: dar ekranda satır kırılacaksa
+   rozetin KENDİSİ sarsın (yukarıdaki `flex-wrap`), terim değil. */
+.deckListKanji {
+  white-space: nowrap;
+  font-family: var(--font-shippori), serif;
+  font-size: 0.85rem;
+  color: var(--yut-mono-text);
+}
+
+.page[data-rika="bound"] .deckListKanji {
+  color: var(--yut-rika-text);
+}
+
+.deckListName {
+  font-size: 0.92rem;
+  color: var(--text-primary);
+}
+
+.deckListOrigin {
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.56rem;
+  letter-spacing: 0.16em;
+  color: var(--text-secondary);
+}
+
+.deckLive {
+  min-height: 1.5em;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  color: var(--yut-mono-text);
+}
+
+.deckGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: clamp(0.75rem, 2.2vw, 1.15rem);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.deckCard {
+  --i: 0;
+  display: flex;
+}
+
+.deckButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+  min-height: var(--touch-min);
+  padding: 1rem 0.9rem 1.1rem;
+  border: var(--yut-hair) solid var(--border);
+  border-radius: var(--yut-round);
+  background: color-mix(in srgb, var(--surface) 65%, transparent);
+  color: var(--text-primary);
+  text-align: center;
+  cursor: pointer;
+}
+
+.deckButton:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-strong);
+}
+
+/* Destede olmak RENKLE DEĞİL, önce yapıyla anlatılıyor: kenar
+   doluyor, rozet metni değişiyor. Renk yalnızca Rika varken ekleniyor. */
+.deckCard[data-taken="true"] .deckButton {
+  border-color: var(--text-secondary);
+  background: var(--surface-hover);
+}
+
+.page[data-rika="bound"] .deckCard[data-taken="true"] .deckButton {
+  border-color: var(--yut-rika);
+  background: color-mix(in srgb, var(--yut-rika) 12%, var(--surface-hover));
+}
+
+.deckBadge {
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.56rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.deckCard[data-taken="true"] .deckBadge {
+  color: var(--yut-mono-text);
+}
+
+.page[data-rika="bound"] .deckCard[data-taken="true"] .deckBadge {
+  color: var(--yut-rika-text);
+}
+
+.deckKanji {
+  font-family: var(--font-shippori), serif;
+  font-size: clamp(1.3rem, 5vw, 1.75rem);
+  letter-spacing: 0.16em;
+  text-indent: 0.16em;
+  color: var(--text-primary);
+}
+
+.deckName {
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.9rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.deckReading {
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.deckOrigin {
+  padding: 0.15rem 0.6rem;
+  border: var(--yut-hair) solid var(--border-strong);
+  border-radius: 999px;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.56rem;
+  letter-spacing: 0.16em;
+  color: var(--yut-mono-text);
+}
+
+.deckSource {
+  font-size: 0.88rem;
+  color: var(--yut-mono-text);
+}
+
+.deckNote {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.deckAction {
+  margin-block-start: 0.5rem;
+  padding: 0.3rem 0.85rem;
+  border: var(--yut-hair) solid var(--border-strong);
+  border-radius: var(--yut-round);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.deckHint,
+.deckNoteText {
+  max-width: 56ch;
+  margin-inline: auto;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+/* ══ 6 · KADER ÇİZELGESİ ════════════════════════════════════════════════ */
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.75rem, 5vw, 3rem);
+  counter-reset: yut-step;
+}
+
+.step {
+  --i: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding-block-start: clamp(1.25rem, 4vw, 2.25rem);
+}
+
+/* Adımları birbirine bağlayan tek dikey çizgi — ortada, kesintisiz */
+.step::before {
+  content: "";
+  position: absolute;
+  inset-block-start: calc(-1 * clamp(1.75rem, 5vw, 3rem));
+  inset-inline-start: 50%;
+  width: var(--yut-hair);
+  height: clamp(1.75rem, 5vw, 3rem);
+  background: var(--border-strong);
+}
+
+.step:first-child::before {
+  display: none;
+}
+
+.stepAge {
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.64rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--yut-mono-text);
+}
+
+.stepBody {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.stepTitle {
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(1.05rem, 3.6vw, 1.4rem);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.stepText {
+  max-width: 56ch;
+  color: var(--text-secondary);
+}
+
+.stepQuote {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  max-width: 44ch;
+  margin: 0.6rem 0 0;
+  padding: 1rem 1.25rem;
+  border-block: var(--yut-hair) solid var(--border-strong);
+}
+
+.stepQuoteJa {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-size: clamp(1.05rem, 3.6vw, 1.35rem);
+  letter-spacing: 0.1em;
+  color: var(--text-primary);
+}
+
+.stepQuoteReading {
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  color: var(--text-secondary);
+}
+
+.stepQuoteMeaning {
+  font-style: italic;
+  color: var(--yut-mono-text);
+}
+
+.stepQuoteBy,
+.stepQuoteWhere {
+  display: block;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
+  color: var(--text-secondary);
+}
+
+.stepQuoteBy {
+  text-transform: uppercase;
+  color: var(--yut-mono-text);
+}
+
+.step .frame {
+  max-width: 30rem;
+}
+
+/* ══ BAĞLAR ═════════════════════════════════════════════════════════════ */
+
+.bonds {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  gap: clamp(0.75rem, 2.2vw, 1.15rem);
+}
+
+.bond {
+  --i: 0;
+  display: flex;
+}
+
+.bondLink {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+  min-height: var(--touch-min);
+  padding: 1.1rem 1rem;
+  border: var(--yut-hair) solid var(--border);
+  border-radius: var(--yut-round);
+  background: var(--surface);
+  color: var(--text-primary);
+  text-align: center;
+}
+
+.bondLink:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-strong);
+}
+
+.bondFace {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 66px;
+  height: 66px;
+  overflow: hidden;
+  border-radius: 50%;
+  border: var(--yut-hair) solid var(--border-strong);
+  background: var(--surface-hover);
+}
+
+.bondFace img {
+  object-fit: cover;
+}
+
+.bondFaceMark {
+  font-family: var(--font-shippori), serif;
+  font-size: 1.5rem;
+  color: var(--text-secondary);
+}
+
+.bondBody {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.bondName {
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.bondNative {
+  font-family: var(--font-shippori), serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.16em;
+  color: var(--text-secondary);
+}
+
+.bondRole {
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--yut-mono-text);
+}
+
+.bondNote {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.unlistedTitle {
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-weight: 400;
+  font-size: 0.62rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-block: clamp(1.5rem, 4vw, 2.25rem) 0.9rem;
+}
+
+.unlisted {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  gap: 0.9rem;
+}
+
+.unlistedItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.9rem 1rem;
+  border: var(--yut-hair) dashed var(--border-strong);
+  border-radius: var(--yut-round);
+}
+
+.unlistedName {
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: 0.92rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.unlistedKanji {
+  font-family: var(--font-shippori), serif;
+  font-size: 0.9rem;
+  letter-spacing: 0.2em;
+  color: var(--yut-rika-text);
+}
+
+.unlistedRole {
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.unlistedNote {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+/* Rika'nın kadrajı — resmî portresi YOK, siluet duruyor */
+
+.rikaFrame {
+  max-width: 20rem;
+  margin-inline: auto;
+  margin-block-start: clamp(1.5rem, 4vw, 2.25rem);
+}
+
+.rikaSilhouette {
+  width: 72%;
+  height: auto;
+}
+
+.rikaHalo {
+  fill: none;
+  stroke: var(--yut-ring);
+  stroke-width: 1;
+}
+
+.rikaBody,
+.rikaHair {
+  fill: color-mix(in srgb, var(--text-secondary) 22%, transparent);
+  stroke: none;
+}
+
+.rikaHair {
+  fill: color-mix(in srgb, var(--text-secondary) 34%, transparent);
+}
+
+.page[data-rika="bound"] .rikaBody,
+.page[data-rika="bound"] .rikaHair {
+  fill: color-mix(in srgb, var(--yut-rika) 40%, transparent);
+}
+
+.rikaNote {
+  margin-block-start: 0.75rem;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.66rem;
+  line-height: 1.55;
+  color: var(--yut-mono-text);
+  text-align: start;
+}
+
+/* ══ 7 · KAPANIŞ ════════════════════════════════════════════════════════ */
+
+.records {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-width: 46ch;
+  margin-inline: auto;
+}
+
+.record {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 1.25rem 1.25rem 1rem;
+  border: var(--yut-hair) solid var(--border);
+  border-radius: var(--yut-round);
+  background: var(--surface);
+}
+
+.recordText {
+  margin: 0;
+  font-style: italic;
+  font-size: clamp(1.05rem, 3.4vw, 1.25rem);
+  color: var(--text-primary);
+}
+
+.recordWhere {
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  color: var(--text-secondary);
+}
+
+.motto {
+  margin-block-start: clamp(2rem, 6vw, 3.25rem);
+  font-family: var(--font-shippori), serif;
+  font-size: clamp(1.2rem, 5vw, 1.85rem);
+  letter-spacing: 0.28em;
+  text-indent: 0.28em;
+  color: var(--text-primary);
+}
+
+.mottoReading {
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.64rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.mottoNote {
+  max-width: 48ch;
+  margin-inline: auto;
+  margin-block-start: 0.75rem;
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+}
+
+.closingBand {
+  margin-block-start: clamp(2rem, 6vw, 3.25rem);
+}
+
+.credit {
+  margin-block-start: clamp(1.75rem, 5vw, 2.75rem);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  color: var(--text-secondary);
+}
+
+.credit a {
+  color: var(--yut-rika-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.sourceNote {
+  max-width: 60ch;
+  margin-inline: auto;
+  margin-block-start: 0.9rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+/* ══ ODAK ═══════════════════════════════════════════════════════════════
+   Halka değil kutu: sayfanın geri kalanı yumuşak, odak sert olmalı.
+   Rengi nötr aileden — odak işareti Rika'nın bölgesine bağlı olamaz. */
+
+.page a:focus-visible,
+.page button:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 3px;
+}
+
+/* ══ HAREKET ════════════════════════════════════════════════════════════
+   Bütün hareket bu kapının içinde. `prefers-reduced-motion` altında ne
+   sızma geçişi ne halka dönüşü var — ama RENK DURUMU YİNE DEĞİŞİYOR,
+   çünkü değerler hesaplanıyor, canlandırılmıyor. */
+
+@media (prefers-reduced-motion: no-preference) {
+  .railWash {
+    transition:
+      width 900ms cubic-bezier(0.22, 0.61, 0.36, 1),
+      opacity 700ms ease;
+  }
+
+  .railNotchFill,
+  .bleedTick::after,
+  .labCard::after {
+    transition: opacity 600ms ease;
+  }
+
+  .readingBarFill,
+  .deckBarFill {
+    transition:
+      width 700ms cubic-bezier(0.22, 0.61, 0.36, 1),
+      background-color 500ms ease;
+  }
+
+  .deckButton,
+  .modeButton,
+  .bondLink {
+    transition:
+      background-color 300ms ease,
+      border-color 300ms ease,
+      color 300ms ease;
+  }
+
+  /* Yüzük halkası yavaşça dönüyor — iki dakikada bir tur. */
+  .heroRing {
+    animation: yutRing 140s linear infinite;
+  }
+}
+
+@keyframes yutRing {
+  from {
+    transform: translateX(-50%) rotate(0deg);
+  }
+  to {
+    transform: translateX(-50%) rotate(360deg);
+  }
+}
+
+/* Battaniye: kapı bir gün delinirse burada kapanır. */
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ══ DAR EKRAN ══════════════════════════════════════════════════════════
+   360 px'te ölçüldü: yatay taşma yok. Şerit daralıyor ama KAYBOLMUYOR —
+   sayfanın tek renk bölgesi her ölçüde yerinde. */
+
+@media (max-width: 480px) {
+  .deckMeter {
+    grid-template-columns: 1fr;
+  }
+
+  .deckSpread {
+    text-align: start;
+  }
+
+  .railTrack {
+    top: 20vh;
+  }
+}

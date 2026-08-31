@@ -1,0 +1,1716 @@
+/*
+ * Maki Zen'in (禪院真希) — deri bloğu.
+ *
+ * Palet docs/ANIME-FAZ2-DALGA4.md'den BİREBİR alındı; elle renk yazma.
+ * Dosyanın EN BAŞINDA olmak zorunda ve seçici `.page[data-world="…"]`
+ * — `:global([data-world=…])` CSS Modules'ün "pure selector" kuralına
+ * takılıyor.
+ *
+ * Yardımcı token adı `--mki-…`. Küçük METİNDE kullanacağın her
+ * yardımcı rengin `-text` ekli bir kardeşi olmalı; kontrast denetimi
+ * yalnızca onlara bakıyor.
+ */
+.page[data-world="maki-zenin"] {
+  --bg: #0d0e0b;
+  --surface: #161813;
+  --surface-hover: #1d1f1a;
+  --border: #242720;
+  --border-strong: #34372f;
+  --text-primary: #cdd1c7;
+  --text-secondary: #8f9c7c;
+  --text-muted: #83946b;
+  --accent: #7a9852;
+  --accent-hover: #8eab69;
+  --accent-muted: #2a3021;
+  --gold: #788991;
+  --warn: #b88347;
+  --danger: #c3675d;
+
+  /* ── Yardımcı MALZEME — ölçülmüyor, hiçbiri metin taşımıyor ──
+     Hepsi rafın kendisi: çizgi, çentik, çelik, mühür, perde. Koyu olmak
+     ZORUNDA (raf zemininin üstünde duruyorlar), o yüzden `-text` eki
+     almıyorlar ve kontrast denetiminin dışındalar. */
+  --mki-rail:        #2c3126;
+  --mki-rail-strong: #454b3b;
+  --mki-cellbg:      #12140f;
+  --mki-notch:       #3a4131;
+  --mki-seal:        #333a2b;
+  --mki-strike:      #6d5f3f;
+  --mki-steel:       #59614f;
+  --mki-void:        #23262a;
+  --mki-ink:         #090a08;
+
+  /* ── Küçük metinde okunan aile (`-text`, ölçülüyor) ──
+     Beşi de `--surface` ve `--surface-hover` üstünde en az 4.5:1. */
+  --mki-stencil-text: #a3ad91;
+  --mki-gauge-text:   #b6c29e;
+  --mki-ja-text:      #9aa78c;
+  --mki-slot-text:    #93a380;
+  --mki-zero-text:    #a9b0b8;
+}
+
+/* ============================================================
+   MAKI ZEN'İN — "SİLAH RAFI"
+
+   ── SAYFANIN FİKRİ ──────────────────────────────────────────────────────
+   ENVANTER. Lanet enerjisi yok; geriye gövde ve alet kalıyor. Sayfanın
+   tamamı KATI, EŞİT HÜCRELİ bir raf: künye on iki göz, laboratuvar üç artı
+   dört göz, mekanik altı göz. Hepsi aynı çizgi kalınlığında, aynı boşlukta,
+   aynı köşede. Yuvarlak köşe YOK, gölge YOK, degrade YOK — bir oyun
+   envanterinin dürüstlüğü: her şey görünür, hiçbir şey saklı değil.
+
+   ── ÖLÇÜ SİSTEMİ ────────────────────────────────────────────────────────
+   --mki-cell    zemin ızgarasının gözü
+   --mki-rail-w  raf çizgisi kalınlığı — düğmenin çevirdiği ANA değişken
+   --mki-gap     hücreler arası boşluk (mod daraltıyor)
+   --mki-notch   çentik boyu
+   --mki-step    bölümler arası boşluk
+   --mki-hot     "sıcak" vurgu — modla DOYGUNLUĞU değişen tek renk rolü
+   --mki-edge    kutu kenarı — modla kalınlaşan çizgi rengi
+
+   ── CENNETSEL KISITLAMA: IŞIK DEĞİL YAPI ────────────────────────────────
+   data-restriction="before" (半) → çizgi 1px, göz geniş, `--mki-hot`
+                       accent'i `--text-muted` ile karışık (SOLUK), gözlük
+                       hem portrede hem rafta DURUYOR, ölçüler düşük.
+   data-restriction="after"  (全) → çizgi 2px, göz dar, `--mki-hot` saf
+                       `--accent-hover` (KESKİN), gözlük portreden kalkıyor
+                       ve raf gözü X'le kapanıyor, ölçüler yükseliyor.
+
+   ⚠️ İKİ DURUMDA DA ENVANTER IZGARASI DURUYOR (Dalga 1'in ikinci dersi,
+   Onizuka emsali): mod rafı açıp kapatan bir anahtar değil, kalınlığını ve
+   doygunluğunu çeviren bir kol. `before` "ızgarasız hâl" DEĞİL.
+
+   ── RENK GÖREVLERİ ──────────────────────────────────────────────────────
+   --mki-rail          → YALNIZCA zemin ızgarası ve raf çizgileri
+   --mki-rail-strong   → YALNIZCA `after` modundaki kalın raf çizgisi
+   --mki-cellbg        → YALNIZCA envanter hücresinin zemini
+   --mki-notch         → YALNIZCA köşe/kenar çentikleri
+   --mki-seal          → YALNIZCA Zen'in mührünün konturu
+   --mki-strike        → YALNIZCA mührün ve kapanan hücrenin üstündeki X
+   --mki-steel         → YALNIZCA alet siluetlerinin konturu
+   --mki-void          → YALNIZCA 呪力 sütununun boş rayı
+   --mki-gauge-text    → YALNIZCA ölçü sayıları
+   --mki-zero-text     → YALNIZCA sıfır kalan sütun (bilerek soğuk gri:
+                         yeşil ailenin dışında duruyor, çünkü o sütun da
+                         sayfanın geri kalanının dışında)
+
+   ── TİPOGRAFİ ───────────────────────────────────────────────────────────
+   Başlıklar MONO (`--font-plexmono`), ALL CAPS, çok geniş harf aralığı ve
+   çok büyük punto — stencil/askeri. Gövde `--font-inter`. Aynı dalgadaki
+   Tōji (ince 200 Inter + Cormorant) ve Chōsō (kalın mincho + Petrona) ile
+   hiçbir noktada örtüşmüyor.
+
+   ── HAREKET: ÇELİK TAKIRTISI ────────────────────────────────────────────
+   Bütün geçişler `steps()`. Yumuşak eğri, yaylanma, süzülme YOK. Dört
+   `@keyframes` var (mkiClack · mkiStrike · mkiSnap · mkiTick) ve hepsi
+   `no-preference` kapısının içinde; dosya sonunda ayrıca `reduce`
+   battaniyesi var.
+   ============================================================ */
+
+.page {
+  --mki-cell: 3.25rem;
+  --mki-rail-w: 1px;
+  --mki-gap: 0.6rem;
+  /* ⚠️ ÖLÇÜ, renk değil. Çentiğin RENGİ deri bloğundaki `--mki-notch`;
+     ikisine aynı adı vermek `background-size: #3a4131` gibi sessizce
+     geçersiz bir bildirim üretirdi. */
+  --mki-notch-size: 10px;
+  --mki-step: clamp(2.75rem, 7vw, 5rem);
+  --mki-pad: clamp(0.75rem, 2.6vw, 1.4rem);
+  --mki-max: 76rem;
+  --mki-quick: 150ms;
+  --mki-mid: 260ms;
+  --mki-slow: 420ms;
+  --mki-hot: color-mix(in srgb, var(--accent) 58%, var(--text-muted));
+  --mki-edge: var(--mki-rail);
+
+  position: relative;
+  isolation: isolate;
+  overflow-x: clip;
+  overflow-wrap: break-word;
+  background-color: var(--bg);
+  /* RAF ZEMİNİ: iki yönde çizgi. İki durumda da duruyor. */
+  background-image:
+    repeating-linear-gradient(
+      to right,
+      var(--mki-rail) 0,
+      var(--mki-rail) var(--mki-rail-w),
+      transparent var(--mki-rail-w),
+      transparent var(--mki-cell)
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      var(--mki-rail) 0,
+      var(--mki-rail) var(--mki-rail-w),
+      transparent var(--mki-rail-w),
+      transparent var(--mki-cell)
+    );
+  color: var(--text-primary);
+  font-family: var(--font-inter), var(--font-sans);
+  font-size: clamp(0.86rem, 0.82rem + 0.2vw, 0.97rem);
+  line-height: 1.72;
+  padding: clamp(1rem, 3vw, 2.25rem) clamp(0.75rem, 3.5vw, 2.5rem)
+    clamp(3.5rem, 10vh, 6.5rem);
+}
+
+/* Kısıtlama YARIM — çizgi ince, göz geniş, palet soluk. */
+.page[data-restriction="before"] {
+  --mki-cell: 3.25rem;
+  --mki-rail-w: 1px;
+  --mki-gap: 0.6rem;
+  --mki-hot: color-mix(in srgb, var(--accent) 58%, var(--text-muted));
+  --mki-edge: var(--mki-rail);
+}
+
+/* Kısıtlama TAM — çizgi kalın, göz dar, palet keskin. */
+.page[data-restriction="after"] {
+  --mki-cell: 2.75rem;
+  --mki-rail-w: 2px;
+  --mki-gap: 0.35rem;
+  --mki-hot: var(--accent-hover);
+  --mki-edge: var(--mki-rail-strong);
+}
+
+/* Görünür odak — sayfadaki her düğme ve bağlantı için tek kural */
+.page :focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 2px;
+}
+
+/* ── Ortak kutu: rafın gözü. Sayfadaki HER kutu bu üç kuralı paylaşıyor. ── */
+.section,
+.closing,
+.mode {
+  position: relative;
+  max-width: var(--mki-max);
+  margin: 0 auto var(--mki-step);
+  padding: var(--mki-pad);
+  border: var(--mki-rail-w) solid var(--mki-edge);
+  border-radius: 0;
+  background-color: color-mix(in srgb, var(--surface) 88%, transparent);
+}
+
+/* ══ BREADCRUMB ═══════════════════════════════════════════════════════════ */
+
+.crumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: var(--mki-max);
+  margin: 0 auto 1.25rem;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.crumbLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  padding: 0 0.6rem;
+  border: var(--mki-rail-w) solid var(--mki-edge);
+  color: var(--accent-hover);
+  text-decoration: none;
+}
+
+.crumbLink:hover {
+  background-color: var(--surface-hover);
+}
+
+.crumbSep {
+  color: var(--mki-stencil-text);
+}
+
+.crumbHere {
+  color: var(--mki-stencil-text);
+}
+
+/* ══ 1 · HERO ═════════════════════════════════════════════════════════════ */
+
+.hero {
+  position: relative;
+  overflow: clip;
+  max-width: var(--mki-max);
+  margin: 0 auto var(--mki-step);
+  padding: var(--mki-pad);
+  border: var(--mki-rail-w) solid var(--mki-edge);
+  background-color: color-mix(in srgb, var(--surface) 82%, transparent);
+}
+
+/* Filigran: soyut Zen'in mührü + ÜSTÜNE ÇİZİLEN X (reddediliş) + 禪院. */
+.watermark {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 0;
+  display: block;
+  width: clamp(10rem, 36vw, 21rem);
+  pointer-events: none;
+}
+
+.watermarkArt {
+  display: block;
+  width: 100%;
+  height: auto;
+  opacity: 0.4;
+}
+
+.watermarkSeal {
+  stroke: var(--mki-seal);
+  stroke-width: 3;
+}
+
+.watermarkStrike {
+  stroke: var(--mki-strike);
+  stroke-width: 6;
+  stroke-dasharray: 300;
+}
+
+.watermarkKanji {
+  display: block;
+  margin-top: -0.6em;
+  color: var(--mki-seal);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: clamp(2rem, 7vw, 4rem);
+  letter-spacing: 0.1em;
+  text-align: center;
+  opacity: 0.7;
+}
+
+.heroHead {
+  position: relative;
+  z-index: 1;
+}
+
+.wordmark {
+  margin: 0 0 0.9rem;
+  color: var(--mki-stencil-text);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+}
+
+.heroName {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: clamp(1.9rem, 0.9rem + 5.2vw, 5rem);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.heroNative {
+  margin: 0.35rem 0 0;
+  color: var(--mki-ja-text);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: clamp(1.05rem, 0.85rem + 1.2vw, 1.7rem);
+  letter-spacing: 0.3em;
+}
+
+.heroRank {
+  margin: 0.8rem 0 0;
+  padding: 0.3rem 0.6rem;
+  display: inline-block;
+  border: var(--mki-rail-w) solid var(--mki-edge);
+  color: var(--mki-stencil-text);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+}
+
+.heroSerial {
+  margin: 0.55rem 0 0;
+  color: var(--text-muted);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.28em;
+}
+
+/* Çentikli raf kuralı — elle çizilmiş SVG */
+.rule {
+  display: block;
+  width: 100%;
+  height: 14px;
+  margin: 1.35rem 0;
+}
+
+.ruleStroke {
+  stroke: var(--mki-notch);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+
+.heroText {
+  position: relative;
+  z-index: 1;
+  max-width: 44rem;
+}
+
+.heroEpigraph {
+  margin: 0 0 0.9rem;
+  color: var(--mki-hot);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: clamp(0.95rem, 0.85rem + 0.7vw, 1.35rem);
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+}
+
+.heroLede {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+/* Madalyon portre — 230×345, dar kadraj */
+.portraitPlate {
+  position: relative;
+  z-index: 1;
+  width: min(15rem, 62vw);
+  margin: 1.5rem 0 0;
+}
+
+.portrait {
+  position: relative;
+  margin: 0;
+  padding: 0.4rem;
+  border: var(--mki-rail-w) solid var(--mki-edge);
+  background-color: var(--mki-cellbg);
+}
+
+.portraitImg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Gözlük silueti — `after` modunda kalkıyor (modun görünür sonucu) */
+.portraitGlasses {
+  position: absolute;
+  right: 0.4rem;
+  bottom: 0.4rem;
+  display: block;
+  width: 55%;
+  opacity: 1;
+}
+
+.page[data-restriction="after"] .portraitGlasses {
+  opacity: 0;
+}
+
+.portraitGlassesArt {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.portraitGlassesStroke {
+  stroke: var(--mki-steel);
+  stroke-width: 3;
+}
+
+.heroFrameNote {
+  position: relative;
+  z-index: 1;
+  margin: 1.6rem 0 0.6rem;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+/* ══ KADRAJ + KÖŞE ÇENTİKLERİ ═════════════════════════════════════════════ */
+
+.frame {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  margin: 0.9rem 0 0;
+  border: var(--mki-rail-w) solid var(--mki-edge);
+  background-color: var(--mki-cellbg);
+}
+
+.frameTall {
+  aspect-ratio: 3 / 4;
+  max-width: 28rem;
+}
+
+.frameBand {
+  aspect-ratio: 8 / 3;
+}
+
+.frameSquare {
+  aspect-ratio: 1 / 1;
+}
+
+.frameImg {
+  object-fit: cover;
+}
+
+/* Perde: parlak bir kare yüklendiğinde üstteki yazı kaybolmasın */
+.frameVeil {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 45%;
+  background-image: linear-gradient(
+    to top,
+    rgb(0 0 0 / 0.72),
+    rgb(0 0 0 / 0)
+  );
+}
+
+.frameCorners {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-size: var(--mki-notch-size) var(--mki-notch-size);
+  background-position: 0 0, 100% 0, 0 100%, 100% 100%;
+  background-image:
+    linear-gradient(to right, var(--mki-notch) 0 100%),
+    linear-gradient(to right, var(--mki-notch) 0 100%),
+    linear-gradient(to right, var(--mki-notch) 0 100%),
+    linear-gradient(to right, var(--mki-notch) 0 100%);
+}
+
+/* Ölçü metni YALNIZCA küratör dalında çiziliyor (bileşen `isAdmin` ile
+   kesiyor); burada yalnızca görünüşü var. */
+.frameCaption {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+}
+
+.frameCaptionWord {
+  display: block;
+  color: var(--mki-slot-text);
+  font-size: 0.68rem;
+  letter-spacing: 0.26em;
+}
+
+.frameCaptionSpec {
+  display: block;
+  color: var(--mki-slot-text);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+}
+
+/* ══ 2 · MOD DÜĞMESİ ══════════════════════════════════════════════════════ */
+
+.blockMark {
+  margin: 0 0 0.7rem;
+  padding: 0.15rem 0.45rem;
+  display: inline-block;
+  border: var(--mki-rail-w) solid var(--mki-edge);
+  color: var(--mki-stencil-text);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.24em;
+}
+
+.modeTitle {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: clamp(1.25rem, 0.9rem + 2vw, 2.4rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.modeKanji {
+  margin: 0.35rem 0 0;
+  color: var(--mki-ja-text);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 1.15rem;
+  letter-spacing: 0.24em;
+}
+
+.modeReading {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+}
+
+.modeLede {
+  margin: 0.9rem 0 0;
+  max-width: 46rem;
+  color: var(--text-secondary);
+}
+
+.modeSwitch {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--mki-gap);
+  margin: 1.2rem 0 0;
+}
+
+.modeButton {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-height: var(--touch-min);
+  padding: 0.7rem 0.75rem;
+  border: var(--mki-rail-w) solid var(--mki-edge);
+  border-radius: 0;
+  background-color: var(--mki-cellbg);
+  color: var(--text-secondary);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.modeButton:hover {
+  background-color: var(--surface-hover);
+}
+
+.modeButton[aria-pressed="true"] {
+  border-color: var(--mki-hot);
+  background-color: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.modeMark {
+  color: var(--mki-ja-text);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.modeButton[aria-pressed="true"] .modeMark {
+  color: var(--accent-hover);
+}
+
+.modeName {
+  color: var(--mki-stencil-text);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.82rem;
+  letter-spacing: 0.24em;
+}
+
+.modeLabel {
+  color: var(--text-muted);
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+.modeHint {
+  margin: 1rem 0 0;
+  padding: 0.6rem 0.7rem;
+  border-left: 3px solid var(--mki-hot);
+  background-color: var(--mki-cellbg);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.modeRule,
+.modeSource {
+  margin: 0.7rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.76rem;
+}
+
+.modeSource {
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  letter-spacing: 0.04em;
+}
+
+/* ══ ORTAK BÖLÜM BAŞLIĞI ══════════════════════════════════════════════════ */
+
+.sectionTitle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin: 0;
+  color: var(--text-primary);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: clamp(1.3rem, 0.95rem + 2.1vw, 2.6rem);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.sectionKanji {
+  color: var(--mki-ja-text);
+  font-size: 0.45em;
+  letter-spacing: 0.24em;
+}
+
+.sectionLede {
+  margin: 0.9rem 0 0;
+  max-width: 48rem;
+  color: var(--text-secondary);
+}
+
+/* ══ 3 · KÜNYE DÖKÜMÜ ═════════════════════════════════════════════════════ */
+
+.manifest {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--mki-gap);
+  margin: 1.4rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.manifestRow {
+  display: grid;
+  grid-template-columns: 2.1rem 1.6rem minmax(0, 1fr);
+  align-items: start;
+  gap: 0.4rem;
+  padding: 0.6rem 0.65rem;
+  border: var(--mki-rail-w) solid var(--mki-edge);
+  background-color: var(--mki-cellbg);
+}
+
+.manifestMark {
+  color: var(--text-muted);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+}
+
+.manifestKanji {
+  color: var(--mki-ja-text);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.95rem;
+  line-height: 1.2;
+}
+
+.manifestLabel {
+  grid-column: 3;
+  color: var(--mki-stencil-text);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.64rem;
+  letter-spacing: 0.24em;
+}
+
+.manifestValue {
+  grid-column: 3;
+  color: var(--text-primary);
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+
+.manifestNote {
+  margin: 1rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+/* ══ 4 · LANET LABORATUVARI ═══════════════════════════════════════════════ */
+
+.systems {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--mki-gap);
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.system {
+  display: flex;
+  flex-direction: column;
+  padding: 0.85rem;
+  border: var(--mki-rail-w) solid var(--mki-edge);
+  background-color: var(--mki-cellbg);
+}
+
+.systemMark {
+  margin: 0;
+  color: var(--mki-hot);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.1em;
+}
+
+.systemKanji {
+  margin: 0.5rem 0 0;
+  color: var(--mki-ja-text);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 1.25rem;
+  letter-spacing: 0.18em;
+}
+
+.systemReading {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+}
+
+.systemTitle {
+  margin: 0.7rem 0 0;
+  color: var(--text-primary);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.systemText {
+  margin: 0.6rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.systemTraits {
+  margin: 0.8rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.systemTrait {
+  padding: 0.35rem 0 0.35rem 1.1rem;
+  border-top: var(--mki-rail-w) solid var(--mki-edge);
+  color: var(--mki-stencil-text);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  background-repeat: no-repeat;
+  background-position: 0 0.85em;
+  background-size: 0.5rem 1px;
+  background-image: linear-gradient(to right, var(--mki-notch) 0 100%);
+}
+
+.voidsTitle {
+  margin: 2rem 0 0;
+  color: var(--mki-stencil-text);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+}
+
+.voids {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--mki-gap);
+  margin: 0.9rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.voidCard {
+  display: flex;
+  flex-direction: column;
+  padding: 0.7rem;
+  border: var(--mki-rail-w) solid var(--mki-edge);
+  background-color: color-mix(in srgb, var(--mki-void) 55%, var(--mki-cellbg));
+}
+
+.voidMark {
+  color: var(--text-muted);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.24em;
+}
+
+.voidKanji {
+  margin: 0.3rem 0 0;
+  color: var(--mki-ja-text);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 1.02rem;
+  letter-spacing: 0.12em;
+}
+
+.voidReading {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+}
+
+.voidTitle {
+  margin: 0.55rem 0 0;
+  color: var(--text-primary);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.voidVerdict {
+  margin: 0.5rem 0 0;
+  padding: 0.2rem 0.45rem;
+  align-self: flex-start;
+  border: var(--mki-rail-w) solid var(--mki-zero-text);
+  color: var(--mki-zero-text);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.22em;
+}
+
+.voidNote {
+  margin: 0.55rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+/* ══ 5 · SİLAH RAFI ═══════════════════════════════════════════════════════ */
+
+.rack {
+  margin: 1.5rem 0 0;
+}
+
+.rackHint {
+  margin: 0 0 0.7rem;
+  color: var(--mki-stencil-text);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+}
+
+/* ENVANTER IZGARASI — eşit hücreler. İki modda da yerinde; değişen boşluk
+   ve çizgi kalınlığı. Dar ekranda kolon sayısı düşüyor, taşma YOK. */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--mki-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.gridItem {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  width: 100%;
+  min-height: var(--touch-min);
+  padding: 0.55rem;
+  border: var(--mki-rail-w) solid var(--mki-edge);
+  border-radius: 0;
+  background-color: var(--mki-cellbg);
+  color: var(--text-secondary);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.cell:hover {
+  background-color: var(--surface-hover);
+  border-color: var(--mki-rail-strong);
+}
+
+.cell[aria-pressed="true"] {
+  border-color: var(--mki-hot);
+  background-color: var(--surface-hover);
+  box-shadow: inset 0 0 0 var(--mki-rail-w) var(--mki-hot);
+}
+
+.cellMark {
+  color: var(--text-muted);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.24em;
+}
+
+.cellArt {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 7;
+  border: var(--mki-rail-w) solid var(--mki-edge);
+  background-color: var(--mki-ink);
+}
+
+.cellImg {
+  object-fit: cover;
+}
+
+.cellGlyph {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.cellGlyphStroke {
+  stroke: var(--mki-steel);
+  stroke-width: 3;
+}
+
+.cell[aria-pressed="true"] .cellGlyphStroke {
+  stroke: var(--mki-hot);
+}
+
+/* Kapanan gözün üstündeki X — filigrandaki reddedilişin küçük hâli */
+.cellStrike {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(
+      to bottom right,
+      transparent calc(50% - 1px),
+      var(--mki-strike) calc(50% - 1px),
+      var(--mki-strike) calc(50% + 1px),
+      transparent calc(50% + 1px)
+    ),
+    linear-gradient(
+      to bottom left,
+      transparent calc(50% - 1px),
+      var(--mki-strike) calc(50% - 1px),
+      var(--mki-strike) calc(50% + 1px),
+      transparent calc(50% + 1px)
+    );
+}
+
+.cell[data-retired="true"] .cellStrike {
+  opacity: 1;
+}
+
+.cell[data-retired="true"] .cellArt {
+  opacity: 0.35;
+}
+
+.cellKanji {
+  color: var(--mki-ja-text);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 1.1rem;
+  line-height: 1.2;
+  letter-spacing: 0.1em;
+}
+
+.cellName {
+  color: var(--text-primary);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.cellReading {
+  color: var(--mki-stencil-text);
+  font-size: 0.7rem;
+}
+
+.cellGrade {
+  color: var(--text-muted);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+}
+
+.cellFoot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 0.4rem;
+  border-top: var(--mki-rail-w) solid var(--mki-edge);
+}
+
+.cellFig {
+  color: var(--mki-gauge-text);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+}
+
+.cellFig[data-zero="true"] {
+  color: var(--mki-zero-text);
+}
+
+.cellUnit {
+  margin-left: 0.15em;
+  color: var(--text-muted);
+  font-size: 0.62rem;
+  font-style: normal;
+}
+
+.cellFlag {
+  align-self: flex-start;
+  padding: 0.12rem 0.4rem;
+  border: var(--mki-rail-w) solid var(--mki-strike);
+  color: var(--mki-stencil-text);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+}
+
+.cellFlag[data-on="true"] {
+  border-color: var(--mki-hot);
+  color: var(--accent-hover);
+}
+
+/* Hücrenin HEMEN ALTINDAKİ küratör bloğu — ziyaretçide hiç çizilmiyor */
+.cellSlot {
+  padding: 0.35rem 0 0;
+}
+
+.cellSlotSpec {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--mki-slot-text);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+}
+
+/* ── ÖLÇÜ ŞERİDİ ────────────────────────────────────────────────────────── */
+
+.strip {
+  margin: var(--mki-gap) 0 0;
+  padding: 0.85rem;
+  border: var(--mki-rail-w) solid var(--mki-edge);
+  background-color: color-mix(in srgb, var(--surface) 92%, transparent);
+}
+
+.stripTitle {
+  margin: 0;
+  color: var(--mki-stencil-text);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+}
+
+.stripName {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin: 0.6rem 0 0;
+  color: var(--text-primary);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: clamp(1.05rem, 0.85rem + 1.1vw, 1.7rem);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.stripKanji {
+  color: var(--mki-ja-text);
+  font-size: 0.62em;
+  letter-spacing: 0.16em;
+}
+
+.stripNote {
+  margin: 0.55rem 0 0;
+  max-width: 44rem;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.stripGrade {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.5rem 0 0;
+  color: var(--mki-stencil-text);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.stripGradeKanji {
+  color: var(--mki-ja-text);
+  letter-spacing: 0.1em;
+  text-transform: none;
+}
+
+.gauges {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--mki-gap);
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.gauge {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.55rem;
+  border: var(--mki-rail-w) solid var(--mki-edge);
+  background-color: var(--mki-cellbg);
+}
+
+.gaugeKanji {
+  color: var(--mki-ja-text);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.86rem;
+  letter-spacing: 0.14em;
+}
+
+.gaugeLabel {
+  color: var(--mki-stencil-text);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+}
+
+.gaugeValue {
+  display: block;
+  color: var(--mki-gauge-text);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: clamp(1.4rem, 1.1rem + 1.6vw, 2.4rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.gaugeUnit {
+  margin-left: 0.2em;
+  color: var(--text-muted);
+  font-size: 0.4em;
+  font-style: normal;
+  letter-spacing: 0.1em;
+}
+
+.gaugeTrack {
+  display: block;
+  height: 6px;
+  margin-top: 0.35rem;
+  background-color: var(--mki-void);
+}
+
+.gaugeFill {
+  display: block;
+  height: 100%;
+  background-color: var(--mki-hot);
+}
+
+/* 呪力 — sayfanın sessiz esprisi: bu sütun asla dolmuyor. */
+.gauge[data-zero="true"] {
+  border-color: var(--mki-void);
+}
+
+.gauge[data-zero="true"] .gaugeValue {
+  color: var(--mki-zero-text);
+}
+
+.gauge[data-zero="true"] .gaugeFill {
+  background-color: var(--mki-void);
+}
+
+.stripZero {
+  margin: 0.9rem 0 0;
+  padding: 0.5rem 0.6rem;
+  border-left: 3px solid var(--mki-zero-text);
+  color: var(--mki-zero-text);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
+}
+
+.stripMass,
+.stripMeasure {
+  margin: 0.6rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.stripStatus {
+  margin: 0.6rem 0 0;
+  min-height: 1.2em;
+  color: var(--mki-stencil-text);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+}
+
+/* ══ 6 · KADER ÇİZELGESİ ══════════════════════════════════════════════════ */
+
+.steps {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--mki-gap);
+  margin: 1.4rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step {
+  padding: 0.85rem;
+  border: var(--mki-rail-w) solid var(--mki-edge);
+  border-left: 3px solid var(--mki-hot);
+  background-color: var(--mki-cellbg);
+}
+
+.stepMark {
+  display: inline-block;
+  margin-right: 0.6rem;
+  color: var(--text-muted);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.24em;
+}
+
+.stepAge {
+  display: inline-block;
+  padding: 0.12rem 0.45rem;
+  border: var(--mki-rail-w) solid var(--mki-edge);
+  color: var(--mki-stencil-text);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.64rem;
+  letter-spacing: 0.16em;
+}
+
+.stepKanji {
+  margin: 0.6rem 0 0;
+  color: var(--mki-ja-text);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 1.2rem;
+  letter-spacing: 0.18em;
+}
+
+.stepReading {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.64rem;
+  letter-spacing: 0.14em;
+}
+
+.stepTitle {
+  margin: 0.6rem 0 0;
+  color: var(--text-primary);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: clamp(0.9rem, 0.82rem + 0.5vw, 1.15rem);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.stepText {
+  margin: 0.6rem 0 0;
+  max-width: 48rem;
+  color: var(--text-secondary);
+  font-size: 0.87rem;
+}
+
+.stepTerm {
+  margin: 0.75rem 0 0;
+  padding: 0.5rem 0.6rem;
+  border: var(--mki-rail-w) solid var(--mki-edge);
+  color: var(--mki-stencil-text);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.75rem;
+  line-height: 1.6;
+}
+
+.stepTermLabel {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.58rem;
+  letter-spacing: 0.28em;
+}
+
+/* ══ 7a · BAĞLAR ══════════════════════════════════════════════════════════ */
+
+.bonds {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--mki-gap);
+  margin: 1.4rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bond,
+.twin {
+  padding: 0.8rem;
+  border: var(--mki-rail-w) solid var(--mki-edge);
+  background-color: var(--mki-cellbg);
+}
+
+.twin {
+  margin: var(--mki-gap) 0 0;
+  border-style: dashed;
+}
+
+.bondKanji {
+  display: block;
+  color: var(--mki-ja-text);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 1.05rem;
+  letter-spacing: 0.16em;
+}
+
+.bondHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin-top: 0.4rem;
+}
+
+.bondName,
+.bondNamePlain,
+.twinName {
+  margin: 0;
+  color: var(--accent-hover);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.94rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.bondName {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.bondNamePlain,
+.twinName {
+  color: var(--mki-stencil-text);
+}
+
+.bondRole,
+.twinRole {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.bondText,
+.twinText {
+  margin: 0.5rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.bondFlag {
+  display: inline-block;
+  margin-top: 0.6rem;
+  padding: 0.12rem 0.4rem;
+  border: var(--mki-rail-w) solid var(--mki-edge);
+  color: var(--text-muted);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+}
+
+/* ══ 7b · LANETLİ ARŞİV BAĞLANTILARI ══════════════════════════════════════ */
+
+.hallList {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--mki-gap);
+  margin: 1.3rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hall {
+  padding: 0.7rem;
+  border: var(--mki-rail-w) solid var(--mki-edge);
+  background-color: var(--mki-cellbg);
+}
+
+.hallLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: var(--touch-min);
+  color: var(--accent-hover);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.84rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.hallKanji {
+  color: var(--mki-ja-text);
+  letter-spacing: 0.14em;
+  text-transform: none;
+}
+
+.hallNote {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+/* ══ 7c · KAPANIŞ ═════════════════════════════════════════════════════════ */
+
+.quoteNote {
+  margin: 1.1rem 0 0;
+  padding: 0.6rem 0.7rem;
+  border-left: 3px solid var(--mki-notch);
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+
+.closingBlocks {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--mki-gap);
+  margin: 1.3rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.closingBlock {
+  margin: 0;
+  padding: 0.9rem;
+  border: var(--mki-rail-w) solid var(--mki-edge);
+  background-color: var(--mki-cellbg);
+}
+
+.closingTerm {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: clamp(2rem, 1.3rem + 3.4vw, 3.6rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: 0.14em;
+}
+
+.closingReading {
+  margin: 0.35rem 0 0;
+  color: var(--mki-stencil-text);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+}
+
+.closingText {
+  margin: 0.7rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.closingBy {
+  display: block;
+  margin-top: 0.7rem;
+  color: var(--text-muted);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.motto {
+  margin: 1.4rem 0 0;
+  color: var(--mki-hot);
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: clamp(1.8rem, 1.1rem + 3.6vw, 3.8rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.16em;
+}
+
+.mottoNote {
+  margin: 0.45rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+}
+
+.credit {
+  margin: 1.6rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.creditLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  color: var(--accent-hover);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.creditNote {
+  margin: 0.5rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  line-height: 1.55;
+}
+
+/* ══ GENİŞ EKRAN ══════════════════════════════════════════════════════════
+   Izgara DAR ekranda da var (kolon sayısı düşüyor, taşma yok); geniş ekranda
+   göz sayısı artıyor. */
+
+@media (min-width: 34rem) {
+  .heroName {
+    letter-spacing: 0.1em;
+  }
+
+  .manifest {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .frameTall {
+    max-width: 22rem;
+  }
+}
+
+@media (min-width: 44rem) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .gauges {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .bonds,
+  .hallList,
+  .closingBlocks {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .voids {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 58rem) {
+  .manifest {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .systems {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sectionTitle {
+    letter-spacing: 0.18em;
+  }
+}
+
+/* ══ HAREKET: ÇELİK TAKIRTISI ═════════════════════════════════════════════
+   Hepsi `steps()`. Kısa, sert, kademeli — organik hiçbir şey yok. */
+
+@keyframes mkiClack {
+  from {
+    opacity: 0;
+    transform: translateY(-0.22em);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes mkiStrike {
+  from {
+    stroke-dashoffset: 300;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes mkiSnap {
+  from {
+    transform: translateY(-3px);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes mkiTick {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .cell,
+  .modeButton,
+  .crumbLink,
+  .gauge,
+  .section,
+  .closing,
+  .mode,
+  .hero {
+    transition:
+      border-color var(--mki-mid) steps(3),
+      background-color var(--mki-quick) steps(2),
+      box-shadow var(--mki-quick) steps(2);
+  }
+
+  .cell:hover {
+    animation: mkiSnap var(--mki-quick) steps(2) both;
+  }
+
+  .cellStrike,
+  .portraitGlasses {
+    transition: opacity var(--mki-mid) steps(4);
+  }
+
+  /* Sayı değiştiğinde React düğümü yeniden takıyor: takırtı baştan çalıyor */
+  .gaugeValue {
+    animation: mkiClack var(--mki-mid) steps(4) both;
+  }
+
+  .gaugeFill {
+    transition: width var(--mki-slow) steps(10);
+  }
+
+  .cellFlag {
+    animation: mkiTick var(--mki-quick) steps(2) both;
+  }
+
+  /* Filigranın X'i dört basamakta çiziliyor — reddediliş bir kerede olmuyor */
+  .watermarkStrike {
+    animation: mkiStrike 1s steps(4) both;
+  }
+}
+
+/* Battaniye: hareket kapalıysa hiçbir şey kıpırdamıyor. */
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    transition-delay: 0s !important;
+    scroll-behavior: auto !important;
+  }
+
+  .watermarkStrike {
+    stroke-dashoffset: 0;
+  }
+}

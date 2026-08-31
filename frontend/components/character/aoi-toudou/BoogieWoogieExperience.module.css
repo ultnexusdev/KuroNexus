@@ -1,0 +1,1529 @@
+/*
+ * Aoi Tōdō (東堂葵) — deri bloğu.
+ *
+ * Palet docs/ANIME-FAZ2-DALGA4.md'den BİREBİR alındı; elle renk yazma.
+ * Dosyanın EN BAŞINDA olmak zorunda ve seçici `.page[data-world="…"]`
+ * — `:global([data-world=…])` CSS Modules'ün "pure selector" kuralına
+ * takılıyor.
+ *
+ * Yardımcı token adı `--tdo-…`. Küçük METİNDE kullanacağın her
+ * yardımcı rengin `-text` ekli bir kardeşi olmalı; kontrast denetimi
+ * yalnızca onlara bakıyor.
+ */
+.page[data-world="aoi-toudou"] {
+  --bg: #0f0a0f;
+  --surface: #191219;
+  --surface-hover: #211821;
+  --border: #291f29;
+  --border-strong: #392d39;
+  --text-primary: #d1c7d1;
+  --text-secondary: #9c7c9c;
+  --text-muted: #a076a0;
+  --accent: #d666c0;
+  --accent-hover: #d78ec9;
+  --accent-muted: #5e3155;
+  --gold: #dac32f;
+  --warn: #b88347;
+  --danger: #c26459;
+
+  /* ── kendi --tdo-* token'ların ─────────────────────────────────────────
+     MALZEME (metin taşımıyor, ölçüm dışı): poster kâğıdı, kalın çerçeve,
+     fuşya doygunluk, alkışın tek kareli parlaması.
+     METİN (`-text` ekli, surface ve surface-hover'a karşı 4.5:1 ölçülüyor):
+     pop etiketi, işaret yazısı, fuşya küçük metin, ışık patlaması yazısı. */
+  --tdo-poster: #1d151d;
+  --tdo-frame: #b8539f;
+  --tdo-fuchsia: #f05fb8;
+  --tdo-fuchsia-text: #f087c6;
+  --tdo-spark-text: #e8d45a;
+  --tdo-mark-text: #e2a8dc;
+  --tdo-pop-text: #f0b7e0;
+  --tdo-flash: #fff0fb;
+
+  /* Ölçü token'ları — renk değil, posterin ritmi */
+  --tdo-frame-w: clamp(3px, 0.7vw, 7px);
+  --tdo-gap: clamp(1rem, 3.5vw, 2.4rem);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   İDOL POSTERİ IZGARASI
+
+   Dalga 4'ün geri kalanı dar, gergin ve asimetrik. Bu sayfa tam tersi:
+   her bölüm ORTALANMIŞ, SİMETRİK, kalın çerçeveli bir poster bloğu. Metin
+   ortalı, başlıklar dev, çerçeveler iki hatlı (dış kalın + iç ince). Sayfa
+   yukarıdan aşağı okunurken göz hep aynı eksende kalıyor — takas anındaki
+   yer değiştirme ancak bu kadar düzenli bir zeminde fark ediliyor.
+
+   PARLAKLIK YENİ RENKTEN GELMİYOR. Palet kilitli; parlaklık `--accent` ve
+   `--gold` yoğunluğundan, çerçeve kalınlığından, tipografi ölçeğinden ve
+   boşluk ritminden geliyor.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.page {
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  line-height: 1.6;
+  padding-block: clamp(0.9rem, 3vw, 2rem) clamp(3rem, 9vw, 6rem);
+  padding-inline: clamp(0.6rem, 3vw, 2rem);
+  /* 360 px sigortası. `clip` — `hidden` DEĞİL: `hidden` kaydırma bağlamı
+     açıyor ve alt bloklardaki yapışkan davranışı sessizce bozuyor. */
+  overflow-x: clip;
+}
+
+/* ── BREADCRUMB ─────────────────────────────────────────────────────────── */
+.crumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  max-width: 64rem;
+  margin: 0 auto clamp(0.8rem, 3vw, 1.4rem);
+  font-size: 0.82rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.crumb a {
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-block-end: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  padding: 0.35rem 0.1rem;
+}
+
+.crumb a:hover {
+  color: var(--tdo-fuchsia-text);
+}
+
+.crumbSep {
+  color: var(--text-muted);
+}
+
+.crumbHere {
+  color: var(--text-muted);
+}
+
+/* ── POSTER BLOĞU ───────────────────────────────────────────────────────── */
+.poster {
+  position: relative;
+  max-width: 64rem;
+  margin: 0 auto clamp(1.4rem, 5vw, 3.4rem);
+  border: var(--tdo-frame-w) solid var(--tdo-frame);
+  background: var(--tdo-poster);
+  padding: clamp(0.5rem, 2vw, 1.1rem);
+  text-align: center;
+}
+
+/* Posterin ikinci hattı — kalın dış çerçevenin içinde ince altın bir kenar. */
+.poster::after {
+  content: "";
+  position: absolute;
+  inset: clamp(3px, 1vw, 9px);
+  border: 1px solid color-mix(in srgb, var(--gold) 38%, transparent);
+  pointer-events: none;
+}
+
+.posterInner {
+  position: relative;
+  z-index: 1;
+  padding: clamp(1rem, 4vw, 2.6rem) clamp(0.5rem, 3vw, 2rem);
+}
+
+.eyebrow {
+  margin: 0 0 0.5rem;
+  font-size: 0.76rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--tdo-spark-text);
+}
+
+/* Poster başlığı: dev, ortalanmış, sıkı. Archivo Black yalnızca `latin`
+   altkümesiyle yükleniyor — Türkçe ş/ğ/İ Impact yedeğinden geliyor. */
+.posterTitle {
+  margin: 0 0 0.6rem;
+  font-family: var(--font-numeral), Impact, system-ui, sans-serif;
+  font-weight: 400;
+  font-size: clamp(1.7rem, 8vw, 3.4rem);
+  line-height: 1.02;
+  letter-spacing: -0.015em;
+  text-transform: uppercase;
+  text-wrap: balance;
+  overflow-wrap: break-word;
+  color: var(--text-primary);
+}
+
+.posterLede {
+  max-width: 44rem;
+  margin: 0 auto clamp(1.2rem, 4vw, 2.2rem);
+  font-size: clamp(0.95rem, 2.4vw, 1.06rem);
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* ── HERO ───────────────────────────────────────────────────────────────── */
+.watermark {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: clip;
+  pointer-events: none;
+}
+
+.watermarkArt {
+  width: min(130%, 44rem);
+  height: auto;
+}
+
+.watermarkHand {
+  fill: color-mix(in srgb, var(--accent) 13%, transparent);
+}
+
+.watermarkSpark {
+  fill: none;
+  stroke: color-mix(in srgb, var(--gold) 24%, transparent);
+  stroke-width: 7;
+  stroke-linecap: round;
+}
+
+.watermarkKanji {
+  position: absolute;
+  inset-block-end: 4%;
+  font-size: clamp(2.6rem, 17vw, 9rem);
+  line-height: 1;
+  letter-spacing: 0.08em;
+  color: color-mix(in srgb, var(--accent) 11%, transparent);
+}
+
+.heroName {
+  margin: 0.4rem 0 0;
+  font-family: var(--font-numeral), Impact, system-ui, sans-serif;
+  font-weight: 400;
+  font-size: clamp(2.2rem, 12vw, 6.2rem);
+  line-height: 0.94;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  overflow-wrap: break-word;
+  color: var(--text-primary);
+}
+
+.heroNative {
+  margin: 0.45rem 0 0;
+  font-size: clamp(1.1rem, 4vw, 1.8rem);
+  letter-spacing: 0.3em;
+  color: var(--accent-hover);
+}
+
+.heroBilling {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.4rem 0.8rem;
+  margin: 0.9rem 0 0;
+}
+
+.heroBillingWord {
+  font-family: var(--font-numeral), Impact, system-ui, sans-serif;
+  font-size: 0.92rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tdo-spark-text);
+}
+
+.heroBillingNative {
+  font-size: 0.95rem;
+  letter-spacing: 0.2em;
+  color: var(--text-muted);
+}
+
+.heroTagline {
+  max-width: 34rem;
+  margin: 1rem auto 0;
+  font-size: clamp(1rem, 3vw, 1.25rem);
+  color: var(--tdo-pop-text);
+  text-wrap: balance;
+}
+
+/* Portre madalyonu — 230×345, yani KÜÇÜK. Poster ölçeğine gerilmiyor. */
+.medallion {
+  width: min(58%, 13rem);
+  margin: clamp(1.2rem, 4vw, 2rem) auto 0;
+  padding: 0.5rem;
+  border: var(--tdo-frame-w) solid var(--tdo-frame);
+  background: var(--surface);
+}
+
+.medallionImg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.heroLede,
+.heroSignature {
+  max-width: 42rem;
+  margin: clamp(1.1rem, 3.5vw, 1.8rem) auto 0;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.heroSignature {
+  color: var(--tdo-mark-text);
+  font-size: 1.02rem;
+}
+
+.heroSignatureNote,
+.heroFrameNote,
+.heroMarkNote {
+  max-width: 40rem;
+  margin: 0.7rem auto 0;
+  font-size: 0.83rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+/* ── MOD DÜĞMESİ ────────────────────────────────────────────────────────── */
+.modeNative {
+  margin: 0 0 1rem;
+  font-size: clamp(1.4rem, 6vw, 2.6rem);
+  letter-spacing: 0.24em;
+  color: var(--accent);
+}
+
+.modeButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  min-height: var(--touch-min);
+  padding: 0.7rem 1.6rem;
+  border: var(--tdo-frame-w) solid var(--tdo-frame);
+  background: var(--surface);
+  color: var(--text-primary);
+  font-family: var(--font-numeral), Impact, system-ui, sans-serif;
+  font-size: clamp(0.95rem, 3vw, 1.2rem);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.modeButton:hover {
+  background: var(--surface-hover);
+  color: var(--tdo-fuchsia-text);
+}
+
+.modeButton[aria-pressed="true"] {
+  background: var(--accent-muted);
+  color: var(--tdo-pop-text);
+}
+
+.modeGlyph {
+  display: inline-flex;
+}
+
+.modeGlyphArt {
+  width: 1.7rem;
+  height: auto;
+}
+
+.modeGlyphHand {
+  fill: currentColor;
+}
+
+.modeGlyphSpark {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 9;
+  stroke-linecap: round;
+}
+
+.modeWord {
+  display: inline-block;
+}
+
+.modeHint,
+.modeNote {
+  max-width: 40rem;
+  margin: 1rem auto 0;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+.modeNote {
+  font-size: 0.83rem;
+  color: var(--text-muted);
+}
+
+/* ── "KARDEŞİM!" ŞERİDİ ─────────────────────────────────────────────────
+   Mod kapalıyken `display: none`: ekran okuyucu da görmüyor. Yalnızca
+   `opacity` ile gizlemek, kapalı modda Yūji'yi sesli okuturdu. */
+.brother {
+  display: none;
+}
+
+.page[data-brother="true"] .brother {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  max-width: 40rem;
+  margin: clamp(1.4rem, 4vw, 2.2rem) auto 0;
+  padding: 0.9rem 1.1rem;
+  border: 2px dashed color-mix(in srgb, var(--tdo-fuchsia) 55%, transparent);
+  background: color-mix(in srgb, var(--accent-muted) 35%, transparent);
+  text-align: start;
+}
+
+.brotherFace {
+  position: relative;
+  flex: 0 0 auto;
+  width: 72px;
+  height: 72px;
+  overflow: hidden;
+  border: 2px solid var(--tdo-frame);
+  background: var(--surface);
+  display: grid;
+  place-items: center;
+}
+
+.brotherFaceImg {
+  object-fit: cover;
+}
+
+.brotherFaceEmpty {
+  font-size: 0.66rem;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.brotherBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: min(100%, 12rem);
+  flex: 1 1 14rem;
+}
+
+.brotherBadge {
+  font-family: var(--font-numeral), Impact, system-ui, sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--tdo-spark-text);
+}
+
+.brotherName {
+  align-self: flex-start;
+  font-size: 1.02rem;
+  color: var(--tdo-fuchsia-text);
+  text-decoration: none;
+  border-block-end: 1px solid
+    color-mix(in srgb, var(--tdo-fuchsia) 60%, transparent);
+}
+
+.brotherName:hover {
+  color: var(--tdo-pop-text);
+}
+
+.brotherNative {
+  font-size: 0.85rem;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+}
+
+.brotherLine {
+  margin-block-start: 0.25rem;
+  font-size: 0.87rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+/* ── KÜNYE ŞERİDİ ───────────────────────────────────────────────────────── */
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: 0.5rem;
+  margin: 0 0 clamp(1rem, 3vw, 1.6rem);
+  padding: 0;
+}
+
+.fact {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.3rem 0.7rem;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+}
+
+.fact[data-blank="true"] {
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--warn) 45%, transparent);
+}
+
+.factLabel {
+  margin: 0;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.factValue {
+  margin: 0;
+  font-size: 0.98rem;
+  color: var(--text-primary);
+}
+
+.fact[data-blank="true"] .factValue {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.factNote {
+  max-width: 40rem;
+  margin: 0 auto 0.5rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.productions {
+  margin-block-start: clamp(1.4rem, 4vw, 2.2rem);
+}
+
+.productionsTitle {
+  margin: 0 0 0.7rem;
+  font-family: var(--font-numeral), Impact, system-ui, sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--tdo-spark-text);
+}
+
+.productionsList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.production {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.55rem 0.6rem;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+}
+
+.productionName {
+  font-size: 0.92rem;
+  color: var(--text-primary);
+}
+
+.productionRole {
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ── TAKAS ALANI (ClapStage) ────────────────────────────────────────────── */
+.field {
+  margin: 0;
+}
+
+.fieldHead {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-block-end: clamp(0.9rem, 3vw, 1.4rem);
+}
+
+.fieldLabel {
+  margin: 0;
+  font-family: var(--font-numeral), Impact, system-ui, sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--tdo-spark-text);
+}
+
+.fieldHint {
+  margin: 0;
+  font-size: 0.86rem;
+  color: var(--tdo-mark-text);
+}
+
+.fieldGrid {
+  display: grid;
+  gap: var(--tdo-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fieldGrid[data-variant="powers"] {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+}
+
+.fieldGrid[data-variant="kit"] {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+}
+
+.fieldGrid[data-variant="stage"] {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9.5rem), 1fr));
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  border: var(--tdo-frame-w) solid
+    color-mix(in srgb, var(--tdo-frame) 60%, transparent);
+  background: var(--surface);
+  /* FLIP burada oynuyor ama `transform` geçişi burada TANIMLI DEĞİL: sıçrama
+     istemci adasından Web Animations API ile veriliyor ve tarayıcı katmanı
+     yalnızca canlandırma süresince kuruyor. `will-change` yazmak on üç paneli
+     kalıcı olarak ayrı katmana çıkarırdı. */
+}
+
+.panel[data-marked="true"] {
+  border-color: var(--tdo-fuchsia);
+  background: var(--surface-hover);
+}
+
+.panelBar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.5rem;
+  border-block-end: 1px solid var(--border);
+  background: color-mix(in srgb, var(--accent-muted) 30%, transparent);
+}
+
+.panelPos {
+  font-family: var(--font-numeral), Impact, system-ui, sans-serif;
+  font-size: 1.05rem;
+  line-height: 1;
+  color: var(--tdo-spark-text);
+}
+
+.mark {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex: 1 1 auto;
+  min-height: var(--touch-min);
+  padding: 0.35rem 0.5rem;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--tdo-mark-text);
+  font: inherit;
+  font-size: 0.78rem;
+  text-align: start;
+  cursor: pointer;
+}
+
+.mark:hover {
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  color: var(--tdo-fuchsia-text);
+}
+
+.markDot {
+  flex: 0 0 auto;
+  width: 0.75rem;
+  height: 0.75rem;
+  border: 2px solid var(--tdo-frame);
+  border-radius: 50%;
+}
+
+.mark[aria-pressed="true"] .markDot {
+  background: var(--tdo-fuchsia);
+  border-color: var(--tdo-fuchsia);
+}
+
+.markText {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.markName {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.panelBody {
+  flex: 1 1 auto;
+  padding: clamp(0.7rem, 2.5vw, 1.1rem);
+}
+
+.clapRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  margin-block-start: clamp(1.1rem, 3.5vw, 1.8rem);
+}
+
+.clap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  min-height: var(--touch-min);
+  padding: 0.7rem 1.5rem;
+  border: var(--tdo-frame-w) solid var(--tdo-frame);
+  background: var(--accent-muted);
+  color: var(--text-primary);
+  font-family: var(--font-numeral), Impact, system-ui, sans-serif;
+  font-size: clamp(0.9rem, 2.6vw, 1.1rem);
+  letter-spacing: 0.16em;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.clap[data-armed="true"] {
+  background: color-mix(in srgb, var(--tdo-fuchsia) 42%, var(--surface));
+  border-color: var(--tdo-fuchsia);
+}
+
+.clap:hover {
+  color: var(--tdo-pop-text);
+}
+
+.clapGlyph {
+  display: inline-flex;
+}
+
+.swapArt {
+  width: 2.4rem;
+  height: auto;
+}
+
+.swapArc {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 5;
+  stroke-linecap: round;
+}
+
+.swapHead {
+  fill: currentColor;
+}
+
+.clapWord {
+  display: inline-block;
+}
+
+/* Alkışın tek kareli parlaması. Varsayılan görünmez; yalnızca hareket
+   açıkken bir kez oynuyor (aşağıdaki `no-preference` kapısında). */
+.flash {
+  position: absolute;
+  inset: 0;
+  background: var(--tdo-flash);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.reset {
+  min-height: var(--touch-min);
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border-strong);
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.reset:hover {
+  color: var(--tdo-fuchsia-text);
+  border-color: var(--tdo-frame);
+}
+
+.status {
+  min-height: 1.5em;
+  margin: 0.9rem 0 0;
+  font-size: 0.88rem;
+  color: var(--tdo-fuchsia-text);
+}
+
+.fieldKeys {
+  max-width: 40rem;
+  margin: 0.4rem auto 0;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+/* ── ÜÇ BÜYÜK KART ──────────────────────────────────────────────────────── */
+.power {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  text-align: center;
+}
+
+.powerKind {
+  margin: 0;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--tdo-spark-text);
+}
+
+.powerName {
+  margin: 0;
+  font-family: var(--font-numeral), Impact, system-ui, sans-serif;
+  font-weight: 400;
+  font-size: clamp(1.2rem, 4.5vw, 1.7rem);
+  line-height: 1.05;
+  text-transform: uppercase;
+  overflow-wrap: break-word;
+  color: var(--text-primary);
+}
+
+.powerNative {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  margin: 0;
+  font-size: 1.02rem;
+  letter-spacing: 0.16em;
+  color: var(--accent-hover);
+}
+
+.powerReading {
+  font-size: 0.74rem;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+.powerTurkish {
+  margin: 0;
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+}
+
+.powerTagline {
+  margin: 0.4rem 0 0;
+  font-size: 1rem;
+  color: var(--tdo-pop-text);
+  text-wrap: balance;
+}
+
+.powerText {
+  margin: 0.3rem 0 0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  text-align: start;
+  text-wrap: pretty;
+}
+
+.powerTraits {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.35rem;
+  margin: 0.7rem 0 0.4rem;
+  padding: 0;
+  list-style: none;
+}
+
+.trait {
+  padding: 0.25rem 0.55rem;
+  border: 1px solid color-mix(in srgb, var(--gold) 40%, transparent);
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  color: var(--tdo-spark-text);
+}
+
+/* ── DÖRT KÜÇÜK NOT ─────────────────────────────────────────────────────── */
+.kit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  text-align: center;
+}
+
+.kitName {
+  margin: 0;
+  font-family: var(--font-numeral), Impact, system-ui, sans-serif;
+  font-weight: 400;
+  font-size: clamp(1rem, 3.6vw, 1.24rem);
+  line-height: 1.1;
+  text-transform: uppercase;
+  overflow-wrap: break-word;
+  color: var(--text-primary);
+}
+
+.kitNative {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  margin: 0;
+  font-size: 0.95rem;
+  letter-spacing: 0.14em;
+  color: var(--accent-hover);
+}
+
+.kitReading {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.kitNote {
+  margin: 0.4rem 0 0;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  text-align: start;
+  text-wrap: pretty;
+}
+
+/* ── SÖZLÜK ─────────────────────────────────────────────────────────────── */
+.glossary {
+  margin-block-start: clamp(1.6rem, 5vw, 2.6rem);
+  padding-block-start: clamp(1.2rem, 4vw, 2rem);
+  border-block-start: 1px solid var(--border);
+}
+
+.glossaryTitle {
+  margin: 0 0 0.4rem;
+  font-family: var(--font-numeral), Impact, system-ui, sans-serif;
+  font-size: 0.9rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--tdo-spark-text);
+}
+
+.glossaryLede {
+  margin: 0 0 1rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.glossaryList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+}
+
+.term {
+  padding: 0.55rem 0.6rem;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+}
+
+.termNative {
+  margin: 0;
+  font-size: 1.05rem;
+  letter-spacing: 0.1em;
+  color: var(--accent-hover);
+}
+
+.termBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  margin: 0.25rem 0 0;
+}
+
+.termReading {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.termText {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+/* ── SAHNE PANELLERİ ────────────────────────────────────────────────────── */
+.figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  text-align: center;
+}
+
+.figureFace {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border: 2px solid color-mix(in srgb, var(--tdo-frame) 70%, transparent);
+  background: var(--bg);
+  display: grid;
+  place-items: center;
+}
+
+.figureFaceImg {
+  object-fit: cover;
+}
+
+.figureFaceEmpty {
+  padding: 0.4rem;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.idol {
+  display: block;
+  width: 72%;
+}
+
+.idolArt {
+  width: 100%;
+  height: auto;
+}
+
+.idolBody {
+  fill: color-mix(in srgb, var(--accent) 32%, transparent);
+}
+
+.idolLine {
+  fill: none;
+  stroke: color-mix(in srgb, var(--gold) 60%, transparent);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.figureName {
+  margin: 0.5rem 0 0;
+  font-family: var(--font-numeral), Impact, system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 0.95rem;
+  line-height: 1.15;
+  text-transform: uppercase;
+  overflow-wrap: break-word;
+  color: var(--text-primary);
+}
+
+.figureLink {
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-block-end: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.figureLink:hover {
+  color: var(--tdo-fuchsia-text);
+}
+
+.figureNative {
+  margin: 0;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+}
+
+.figureNote {
+  margin: 0.35rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* ── TAKADA-CHAN: POP ETİKETLERİ ────────────────────────────────────────── */
+.pops {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 0 0 1.2rem;
+  padding: 0;
+  list-style: none;
+}
+
+.pop {
+  padding: 0.4rem 0.85rem;
+  border: 3px solid var(--tdo-frame);
+  background: color-mix(in srgb, var(--accent-muted) 55%, transparent);
+  font-family: var(--font-numeral), Impact, system-ui, sans-serif;
+  font-size: clamp(0.72rem, 2.4vw, 0.92rem);
+  letter-spacing: 0.14em;
+  color: var(--tdo-pop-text);
+}
+
+.pop:nth-child(even) {
+  transform: rotate(-2deg);
+}
+
+.pop:nth-child(odd) {
+  transform: rotate(1.5deg);
+}
+
+.takadaNative {
+  margin: 0 0 0.6rem;
+  font-size: clamp(1.3rem, 5vw, 2.1rem);
+  letter-spacing: 0.2em;
+  color: var(--accent);
+}
+
+.takadaText,
+.takadaNote {
+  max-width: 40rem;
+  margin: 0 auto 1.2rem;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.takadaNote {
+  margin-block: 0.9rem 0;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+/* ── KADER ÇİZELGESİ ────────────────────────────────────────────────────── */
+.fate {
+  display: grid;
+  gap: clamp(1.4rem, 5vw, 2.6rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: tdo-stop;
+}
+
+.stop {
+  position: relative;
+  padding: clamp(1rem, 3.5vw, 1.8rem);
+  border: 2px solid var(--border-strong);
+  background: color-mix(in srgb, var(--surface) 75%, transparent);
+}
+
+.stop::before {
+  counter-increment: tdo-stop;
+  content: counter(tdo-stop, decimal-leading-zero);
+  display: block;
+  margin-block-end: 0.3rem;
+  font-family: var(--font-numeral), Impact, system-ui, sans-serif;
+  font-size: clamp(2rem, 8vw, 3.2rem);
+  line-height: 0.9;
+  color: color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.stopAge {
+  margin: 0;
+  font-family: var(--font-numeral), Impact, system-ui, sans-serif;
+  font-size: 0.76rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--tdo-spark-text);
+}
+
+.stopStamp {
+  margin: 0.2rem 0 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.stopTitle {
+  margin: 0.5rem 0 0.4rem;
+  font-family: var(--font-numeral), Impact, system-ui, sans-serif;
+  font-weight: 400;
+  font-size: clamp(1.25rem, 5vw, 1.9rem);
+  line-height: 1.05;
+  text-transform: uppercase;
+  overflow-wrap: break-word;
+  color: var(--text-primary);
+}
+
+.stopText {
+  max-width: 42rem;
+  margin: 0 auto;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.stopQuote {
+  max-width: 32rem;
+  margin: 1.1rem auto 0;
+  padding: 0.8rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--gold) 40%, transparent);
+  background: color-mix(in srgb, var(--bg) 55%, transparent);
+}
+
+.quoteJa {
+  margin: 0;
+  font-size: clamp(1.2rem, 5vw, 1.9rem);
+  letter-spacing: 0.14em;
+  line-height: 1.3;
+  color: var(--accent-hover);
+}
+
+.quoteReading {
+  margin: 0.35rem 0 0;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.quoteBy {
+  margin-block-start: 0.35rem;
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+/* ── KADRO ──────────────────────────────────────────────────────────────── */
+.bonds {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: 0.7rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bond {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.7rem;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 75%, transparent);
+  text-align: start;
+}
+
+.bondFace {
+  position: relative;
+  flex: 0 0 auto;
+  width: 66px;
+  height: 88px;
+  overflow: hidden;
+  border: 2px solid color-mix(in srgb, var(--tdo-frame) 65%, transparent);
+  background: var(--bg);
+  display: grid;
+  place-items: center;
+}
+
+.bondFaceImg {
+  object-fit: cover;
+}
+
+.bondFaceEmpty {
+  padding: 0.3rem;
+  font-size: 0.64rem;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.bondBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  min-width: 0;
+}
+
+.bondName {
+  align-self: flex-start;
+  font-size: 1rem;
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-block-end: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.bondName:hover {
+  color: var(--tdo-fuchsia-text);
+}
+
+.bondNamePlain {
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.bondNative {
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+}
+
+.bondRole {
+  margin-block-start: 0.2rem;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.bondFlag {
+  margin-block-start: 0.25rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ── KAPANIŞ ────────────────────────────────────────────────────────────── */
+.closingQuotes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  gap: 0.9rem;
+  margin: 0 0 1.4rem;
+  padding: 0;
+  list-style: none;
+}
+
+.closingQuote {
+  height: 100%;
+  margin: 0;
+  padding: 1rem;
+  border: var(--tdo-frame-w) solid
+    color-mix(in srgb, var(--tdo-frame) 65%, transparent);
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+}
+
+.quoteNote {
+  margin: 0.6rem 0 0;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  text-align: start;
+  text-wrap: pretty;
+}
+
+.quoteDiscipline {
+  max-width: 42rem;
+  margin: 0 auto 1.6rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.motto {
+  margin: 0;
+  font-size: clamp(2.2rem, 12vw, 4.8rem);
+  line-height: 1.1;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+}
+
+.mottoReading {
+  margin: 0.3rem 0 0;
+  font-size: 0.85rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--tdo-spark-text);
+}
+
+.mottoNote {
+  max-width: 40rem;
+  margin: 0.8rem auto clamp(1.4rem, 4vw, 2.2rem);
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.credit {
+  margin: clamp(1.2rem, 4vw, 2rem) 0 0;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+.credit a {
+  color: var(--accent-hover);
+  padding: 0.3rem 0.1rem;
+}
+
+.credit a:hover {
+  color: var(--tdo-fuchsia-text);
+}
+
+.creditNote {
+  max-width: 42rem;
+  margin: 0.6rem auto 0;
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+/* ── POSTER KADRAJI ─────────────────────────────────────────────────────── */
+.frame {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  margin: clamp(1rem, 3vw, 1.6rem) 0 0;
+  overflow: hidden;
+  border: var(--tdo-frame-w) solid
+    color-mix(in srgb, var(--tdo-frame) 55%, transparent);
+  background: var(--bg);
+}
+
+.frameTall {
+  aspect-ratio: 3 / 4;
+  max-width: 26rem;
+  margin-inline: auto;
+}
+
+.frameWide {
+  aspect-ratio: 16 / 9;
+}
+
+.frameScene {
+  aspect-ratio: 7 / 4;
+}
+
+.frameIdol {
+  aspect-ratio: 5 / 7;
+  max-width: 22rem;
+  margin-inline: auto;
+}
+
+.frameBand {
+  aspect-ratio: 21 / 9;
+}
+
+.frameImg {
+  object-fit: cover;
+}
+
+/* Boş kadraj çökmüyor: elle çizilmiş ışık patlaması yerinde duruyor. */
+.frameBurst {
+  display: block;
+  width: min(46%, 9rem);
+}
+
+.burstArt {
+  width: 100%;
+  height: auto;
+}
+
+.burstRay {
+  fill: none;
+  stroke: color-mix(in srgb, var(--gold) 45%, transparent);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.burstStar {
+  fill: color-mix(in srgb, var(--accent) 28%, transparent);
+}
+
+/* Perde — YALNIZCA kadraj doluyken ve yalnızca küratör modunda. */
+.frameScrim {
+  position: absolute;
+  inset: auto 0 0;
+  height: 55%;
+  background: linear-gradient(to top, rgb(0 0 0 / 0.82), rgb(0 0 0 / 0));
+  pointer-events: none;
+}
+
+/* ⚠️ Üretim künyesi ziyaretçiye SIZMIYOR: bileşen bu düğümü yalnızca
+   `isAdmin` dalında çiziyor (Dalga 1'de Levi'de yapılan hata). */
+.frameCaption {
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.45rem 0.6rem;
+  text-align: start;
+}
+
+.frameCaptionWord {
+  font-family: var(--font-numeral), Impact, system-ui, sans-serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--tdo-spark-text);
+}
+
+.frameCaptionSpec {
+  font-size: 0.68rem;
+  color: var(--text-secondary);
+}
+
+/* ── ODAK ───────────────────────────────────────────────────────────────── */
+.page a:focus-visible,
+.page button:focus-visible {
+  outline: 3px solid var(--tdo-fuchsia);
+  outline-offset: 3px;
+}
+
+/* ══ "KARDEŞİM!" AÇIKKEN — PALET FUŞYAYA DOYUYOR ═══════════════════════════
+   Burada tek bir hex bile yok: yalnızca deri bloğundaki token'lar yeniden
+   bağlanıyor, yani tema değişse renk de birlikte kayıyor. */
+.page[data-world="aoi-toudou"][data-brother="true"] {
+  --accent: var(--tdo-fuchsia);
+  --accent-hover: var(--tdo-fuchsia-text);
+  --tdo-frame: var(--tdo-fuchsia);
+  --tdo-poster: var(--surface);
+}
+
+/* ══ HAREKET — YALNIZCA KAPI AÇIKKEN ══════════════════════════════════════
+   ⚠️ FLIP sıçraması CSS'te DEĞİL: istemci adası `matchMedia` ile
+   `prefers-reduced-motion`u kendisi okuyup Web Animations API'yi hiç
+   kurmuyor. Burada duran şey yalnızca alkışın tek kareli parlaması ve
+   düğme/panel geçişleri.
+
+   ⚠️ Hareket kapalıyken TAKASIN KENDİSİ ÇALIŞMAYA DEVAM EDİYOR — kaybolan
+   tek şey zıplama ve parlama. */
+@media (prefers-reduced-motion: no-preference) {
+  .flash {
+    animation: tdoClapFlash 240ms steps(3, end) 1 forwards;
+  }
+
+  .panel,
+  .mark,
+  .clap,
+  .reset,
+  .modeButton,
+  .pop {
+    transition:
+      background-color 180ms ease,
+      border-color 180ms ease,
+      color 180ms ease,
+      transform 180ms ease;
+  }
+
+  .clap[data-armed="true"] {
+    transform: scale(1.03);
+  }
+
+  .pop:hover {
+    transform: rotate(0deg) scale(1.06);
+  }
+}
+
+@keyframes tdoClapFlash {
+  from {
+    opacity: 0.85;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* ══ AZALTILMIŞ HAREKET ════════════════════════════════════════════════════
+   Battaniye: bu sayfada takas anındaki sıçrama ve parlama en rahatsız edici
+   iki öğe. İkisi de kapanıyor; mekanik yerinde kalıyor ve her durumun
+   yazılı karşılığı zaten `role="status"` ile veriliyor. */
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    transition-delay: 0s !important;
+    scroll-behavior: auto !important;
+  }
+}

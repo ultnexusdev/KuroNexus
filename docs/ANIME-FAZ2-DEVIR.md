@@ -13,10 +13,23 @@
 | 1 | Eren, Mikasa, Armin, Levi, Onizuka | ✅ **canlıda** (`main`, `7e9934f`) |
 | 2 | Midoriya, Bakugō, Todoroki, Uraraka, Toshinori | ⚠️ **YARIM** — aşağıya bak |
 | 3 | Rukia, Renji, Uryū, Ulquiorra, Grimmjow, Yoruichi | ✅ **bitti** (`anime/faz2-dalga35`) |
-| 4 | Chōsō, Maki, Mahito, Tōdō, Panda, Tōji, Jōgo, Yūta | ⬜ **kalan** |
+| 4 | Chōsō, Maki, Mahito, Tōdō, Panda, Tōji, Jōgo, Yūta | ✅ **bitti** (`anime/faz2-dalga4`) |
 | 5 | Megumi, Nobara, Nanami, Getō (yeniden tasarım) | ✅ **bitti** (`anime/faz2-dalga35`) |
 
-Raporlar: `docs/ANIME-FAZ2-DALGA3-RAPOR.md`, `docs/ANIME-FAZ2-DALGA5-RAPOR.md`.
+Raporlar: `docs/ANIME-FAZ2-DALGA3-RAPOR.md`, `docs/ANIME-FAZ2-DALGA5-RAPOR.md`,
+`docs/ANIME-FAZ2-DALGA4-RAPOR.md`.
+
+> **31 Ağustos 2026 — Dalga 4 bitti.** Sekiz JJK sayfası `anime/faz2-dalga4`
+> dalında; dal `main` tabanlı, Dalga 2'nin yarım işi ALINMADI. Ayrışma
+> denetimi sekizini de temiz geçirdi: 1770 çiftin 94'ü eşiğe yakın ve
+> **hiçbirinde Dalga 4 sayfası yok**. Kalan tek dalga: **Dalga 2**.
+>
+> Merkezde iki gizli hata bulundu ve düzeltildi (ikisi de brief kaynaklı,
+> ajan hatası değil): `--font-numeral` `latin-ext` taşımıyordu (Türkçe
+> başlıklar yedek fonta düşüyordu) ve `--font-inter` `200` ağırlığını
+> bildirmiyordu (`font-weight: 200` sessizce 400 çiziliyordu). İkisi de
+> `layout.tsx`'te düzeltildi; ölçüldü, yayındaki hiçbir sayfa değişmedi.
+> Ayrıntı: raporun §2 ve §5'i.
 
 ### ⚠️ İKİ ENTEGRASYON DALI VAR — karıştırma
 
@@ -273,12 +286,16 @@ Dalga 3 + 5 için (31 Ağustos 2026):
 - [ ] **Grup 2'nin dört worktree'si duruyor** — `K:\KURONEXUS-wt\*-rework`.
       Sökerken junction ÖNCE: `cmd //c rmdir "<yol>\frontend\node_modules"`
 
-Kalanlar (Dalga 2 ve 4):
+Kalanlar (yalnızca Dalga 2):
 
-- [ ] Dalga 2'nin yarım işi (bkz. §1'deki uyarı)
-- [ ] Dalga 4 · JJK'dan sekiz yeni sayfa
-- [ ] Dalga 4 girince: Tōji↔Megumi ve Yūta↔Getō bağları kendiliğinden kurulur,
-      doğrula
+- [ ] Dalga 2'nin yarım işi (bkz. §1'deki uyarı) — **tek kalan dalga bu**
+- [x] Dalga 4 · JJK'dan sekiz yeni sayfa (31 Ağustos 2026)
+- [x] Dalga 4 girince: Tōji↔Megumi ve Yūta↔Getō bağları kendiliğinden kuruldu
+      — **doğrulandı**. Megumi'nin ve Getō'nun veri dosyaları zaten `162722`
+      ve `129571` taşıyordu ve `isExperienceCharacter()` ile çiziyorlardı;
+      Dalga 4 kayıtları girince düz ad bağlantıya döndü. İki dosyaya da
+      dokunulmadı.
+- [x] Dalga 4'ün sekiz worktree'si söküldü (junction **önce**), `prune` yapıldı
 - [ ] `lib/characters/sukuna-itadori-experience.ts` satır 62 ve 64 AniList'e
       **hotlink** yapıyor (bu görevden önce yazılmış). İki kareyi indirip
       `public/assets/anime/karakterler/` altına almak ayrı bir iş.

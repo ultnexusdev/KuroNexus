@@ -1,0 +1,1680 @@
+/*
+ * Chōsō (脹相) — deri bloğu.
+ *
+ * Palet docs/ANIME-FAZ2-DALGA4.md'den BİREBİR alındı; elle renk yazma.
+ * Dosyanın EN BAŞINDA olmak zorunda ve seçici `.page[data-world="…"]`
+ * — `:global([data-world=…])` CSS Modules'ün "pure selector" kuralına
+ * takılıyor.
+ *
+ * Yardımcı token adı `--chs-…`. Küçük METİNDE kullanacağın her
+ * yardımcı rengin `-text` ekli bir kardeşi olmalı; kontrast denetimi
+ * yalnızca onlara bakıyor.
+ */
+.page[data-world="chousou"] {
+  --bg: #0e090a;
+  --surface: #181012;
+  --surface-hover: #201719;
+  --border: #281d20;
+  --border-strong: #392b2e;
+  --text-primary: #d1c7c9;
+  --text-secondary: #9c7c84;
+  --text-muted: #a17882;
+  --accent: #cc5c78;
+  --accent-hover: #cd8496;
+  --accent-muted: #4d2d35;
+  --gold: #ae775b;
+  --warn: #b88347;
+  --danger: #c16257;
+
+  /* ── DAMAR MALZEMESİ ─────────────────────────────────────────────
+     Bunlar METİN DEĞİL: damar gövdesi, kılcal, pıhtı, zar. Hepsi koyu
+     olmak ZORUNDA, o yüzden `-text` eki yok ve kontrast denetimi
+     onları bilerek ölçmüyor (betiğin dosya başındaki gerekçesi). ── */
+  --chs-blood: #7d1f2b;
+  --chs-blood-lit: #b8323f;
+  --chs-vein: #4a2029;
+  --chs-vein-lit: #8a2f3d;
+  --chs-capillary: #5e2530;
+  --chs-clot: #2a1013;
+  --chs-membrane: #241417;
+  --chs-ichor: #6b3350;
+
+  /* ── "Kan Bağı" AÇIKKEN geçerli olan doygun zemin ─────────────────
+     Mod düğmesi standart token'ları bu aileyle DEĞİŞTİRİYOR, yani
+     bütün bölümler aynı anda dönüyor. Değerler burada duruyor ki
+     `[data-blood="on"]` bloğunda tek hex olmasın (kural 16). ── */
+  --chs-lit-bg: #150a0c;
+  --chs-lit-surface: #1d1113;
+  --chs-lit-hover: #261619;
+  --chs-lit-border: #40232a;
+  --chs-lit-edge: #5c3038;
+  --chs-lit-accent: #d95f7c;
+  --chs-lit-accent-hover: #e08c9c;
+
+  /* ── Küçük METİNDE okunan aile (`-text`, ölçülüyor) ─────────────── */
+  --chs-vein-text: #c39aa2;
+  --chs-kin-text: #d8a7ac;
+  --chs-womb-text: #bd919b;
+  --chs-flow-text: #e0919c;
+  --chs-record-text: #a8848c;
+  --chs-lit-text: #dcc0c4;
+  --chs-node-text: #c9a389;
+}
+
+/* ============================================================
+   CHŌSŌ — "Kan Bağı": dokuz sayıldı, üçü adlandırıldı
+
+   Deri: kökteki `data-world="chousou"` bütün standart token'ları
+   damar kırmızısına çeviriyor. Bu bloktan AŞAĞIDA TEK HEX YOK —
+   ara tonların hepsi color-mix ile token'lardan türetildi
+   (FAZ 2 §1).
+
+   ── IZGARA (kilit) ──────────────────────────────────────────────
+   DİKEY DAMAR SÜTUNU. Sayfanın ortasından kalın bir damar aşağı
+   iniyor; bölümler ondan SAĞA ve SOLA dallanıyor ve her dallanma
+   noktası görünür bir halkayla işaretli. Akış her zaman yukarıdan
+   aşağı: hiçbir bölüm damarı yukarı doğru izlemiyor, hiçbir geçiş
+   yukarı hareket etmiyor.
+
+   Telefonda damar ortada değil SOLDA (`--chs-spine: 1.45rem`) ve
+   bütün bölümler ondan sağa dallanıyor — 360 pikselde iki kolon
+   okunmaz olurdu. 64rem'den sonra damar tam ortaya geçiyor
+   (`--chs-spine: 50%`) ve dallanma sağa/sola dönüşümlü başlıyor.
+
+   ⚠️ Izgara MOD DÜĞMESİNE BAĞLI DEĞİL. "Kan Bağı" kapalıyken de
+   damar, dallanma noktaları ve tek yönlü akış yerinde; düğme
+   ızgarayı açıp kapatmıyor, ona KILCAL DAMAR ekliyor ve dokuz
+   kardeşin adını yazıyor (Dalga 1 denetiminin ikinci dersi).
+
+   ── TİPOGRAFİ (kilit) ───────────────────────────────────────────
+   Başlıklar `--font-shippori` (mincho) ama ailenin EN KALIN kesimi
+   (700), NEGATİF harf aralığı ve neredeyse kapalı satır aralığı
+   (0.92–1.06). Rukia'daki ince/havadar mincho kullanımının tam
+   tersi: orada 600 ve 2.4 satır aralığı vardı. Gövde `--font-petrona`.
+
+   ── HAREKET (kilit) ─────────────────────────────────────────────
+   AKIŞKAN KIRMIZI SIVI. İki tür hareket var, ikisi de yavaş:
+     · `stroke-dashoffset` — dokuz kardeş mekaniğinde kanın halkadan
+       aşağı yürümesi (1.7s, viskoz easing, geri dönüşü yok)
+     · `opacity` nabzı — dallanma noktalarında ve kılcallarda
+       9–13 saniyelik salınım
+   Hızlı hiçbir şey yok; en kısa geçiş 420ms.
+   ============================================================ */
+
+/* ── Kök ─────────────────────────────────────────────────────── */
+.page {
+  /* Damarın yatay yeri. Telefonda solda, geniş ekranda tam ortada;
+     hem gövde çizgisi hem dallanma noktaları bunu okuyor. */
+  --chs-spine: 1.35rem;
+  --chs-gutter: 2.6rem;
+
+  position: relative;
+  isolation: isolate;
+  max-width: 78rem;
+  margin-inline: auto;
+  padding: var(--pad-lg) var(--pad-md) var(--pad-xl);
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-petrona), Georgia, "Times New Roman", serif;
+  font-size: 1rem;
+  line-height: 1.62;
+}
+
+/* ── Mod düğmesi: palet doyuyor, YAPI damarlanıyor ──────────────
+   Tek hex yok: doygun aile deri bloğunda tanımlı, burada yalnızca
+   standart token'ların üstüne biniyor. ── */
+.page[data-blood="on"] {
+  --bg: var(--chs-lit-bg);
+  --surface: var(--chs-lit-surface);
+  --surface-hover: var(--chs-lit-hover);
+  --border: var(--chs-lit-border);
+  --border-strong: var(--chs-lit-edge);
+  --accent: var(--chs-lit-accent);
+  --accent-hover: var(--chs-lit-accent-hover);
+  --chs-vein: var(--chs-vein-lit);
+  --chs-blood: var(--chs-blood-lit);
+}
+
+/* ── Kılcal damar katmanı — sayfanın kenarlarına uzayan altı kol ─
+   Kapalıyken hiçbiri görünmüyor: düğme ışığı değil YAPIYI açıyor. ── */
+.capillaries {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: clip;
+}
+
+.capillary {
+  position: absolute;
+  display: block;
+  width: 1px;
+  opacity: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--chs-capillary),
+    transparent
+  );
+  transition: opacity 900ms ease;
+}
+
+.capillary:nth-child(1) {
+  inset-block: 8% auto;
+  height: 22%;
+  inset-inline-start: 2%;
+}
+.capillary:nth-child(2) {
+  inset-block: 26% auto;
+  height: 18%;
+  inset-inline-end: 3%;
+}
+.capillary:nth-child(3) {
+  inset-block: 44% auto;
+  height: 26%;
+  inset-inline-start: 5%;
+}
+.capillary:nth-child(4) {
+  inset-block: 58% auto;
+  height: 20%;
+  inset-inline-end: 6%;
+}
+.capillary:nth-child(5) {
+  inset-block: 72% auto;
+  height: 24%;
+  inset-inline-start: 3%;
+}
+.capillary:nth-child(6) {
+  inset-block: 84% auto;
+  height: 14%;
+  inset-inline-end: 2%;
+}
+
+.page[data-blood="on"] .capillary {
+  opacity: 0.85;
+}
+
+/* ── Breadcrumb ──────────────────────────────────────────────── */
+.crumb {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--gap-sm);
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 0.86rem;
+  letter-spacing: 0.04em;
+  color: var(--chs-record-text);
+}
+
+.crumb a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  padding-inline: 0.1rem;
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.crumb a:hover {
+  color: var(--chs-kin-text);
+}
+
+.crumbSep {
+  color: var(--chs-vein);
+}
+
+.crumbHere {
+  color: var(--chs-vein-text);
+}
+
+/* ── 1 · HERO ────────────────────────────────────────────────── */
+.hero {
+  position: relative;
+  z-index: 1;
+  padding-block: clamp(1.5rem, 5vw, 3.5rem) clamp(2rem, 6vw, 4rem);
+}
+
+/* Filigran: elle çizilmiş damar/dallanma deseni + 脹相.
+   Kendi kabında kırpılıyor, sayfanın yatay taşmasına dokunmuyor. */
+.mark {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-end: 0;
+  z-index: -1;
+  display: block;
+  width: min(62%, 24rem);
+  aspect-ratio: 52 / 76;
+  overflow: clip;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.markArt {
+  width: 100%;
+  height: 100%;
+}
+
+.markTrunk {
+  fill: none;
+  stroke: var(--chs-vein);
+  stroke-width: 9;
+  stroke-linecap: round;
+}
+
+.markBranch {
+  fill: none;
+  stroke: color-mix(in srgb, var(--chs-vein) 72%, transparent);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.markNode {
+  fill: color-mix(in srgb, var(--chs-blood) 55%, transparent);
+  stroke: var(--chs-vein);
+  stroke-width: 2;
+}
+
+.markKanji {
+  position: absolute;
+  inset-block-start: 12%;
+  inset-inline-start: 0;
+  font-family: var(--font-shippori), serif;
+  font-weight: 700;
+  font-size: clamp(3.5rem, 14vw, 8rem);
+  line-height: 0.86;
+  letter-spacing: -0.06em;
+  color: color-mix(in srgb, var(--chs-blood) 42%, transparent);
+  writing-mode: vertical-rl;
+}
+
+.heroBody {
+  position: relative;
+  max-width: 46rem;
+}
+
+.heroClass {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-weight: 700;
+  font-size: clamp(1.05rem, 3.4vw, 1.5rem);
+  line-height: 1.06;
+  letter-spacing: -0.02em;
+  color: var(--chs-kin-text);
+}
+
+.heroClassReading {
+  margin: 0.3rem 0 0;
+  font-size: 0.86rem;
+  letter-spacing: 0.03em;
+  color: var(--chs-record-text);
+}
+
+/* Sıkışık kesim: en kalın ağırlık, negatif harf aralığı, kapalı
+   satır aralığı ve yatayda hafif ezilmiş bir gövde. */
+.heroName {
+  margin: 1rem 0 0;
+  font-family: var(--font-shippori), serif;
+  font-weight: 700;
+  font-size: clamp(2.6rem, 12vw, 6rem);
+  line-height: 0.9;
+  letter-spacing: -0.045em;
+  color: var(--text-primary);
+  transform: scaleX(0.93);
+  transform-origin: left center;
+}
+
+.heroNative {
+  margin: 0.4rem 0 0;
+  font-family: var(--font-shippori), serif;
+  font-weight: 700;
+  font-size: clamp(1.6rem, 6vw, 2.6rem);
+  line-height: 1;
+  letter-spacing: 0.06em;
+  color: var(--chs-flow-text);
+}
+
+.hairline {
+  display: block;
+  height: 1px;
+  margin-block: 1.4rem;
+  background: linear-gradient(
+    to right,
+    var(--chs-blood),
+    color-mix(in srgb, var(--chs-vein) 60%, transparent) 45%,
+    transparent
+  );
+}
+
+.heroEpigraph {
+  margin: 0 0 1rem;
+  font-family: var(--font-shippori), serif;
+  font-weight: 600;
+  font-size: clamp(1.15rem, 3.6vw, 1.55rem);
+  line-height: 1.34;
+  letter-spacing: -0.015em;
+  color: var(--chs-kin-text);
+}
+
+.prose {
+  margin: 0 0 1rem;
+  max-width: 42rem;
+  color: var(--text-secondary);
+}
+
+/* Madalyon portre — 230×345 kare, dar kadrajda. */
+.portrait {
+  margin: 1.6rem 0 0;
+  width: min(14rem, 62%);
+  border: 1px solid var(--border-strong);
+  border-radius: 2px;
+  background: var(--surface);
+  overflow: clip;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--chs-blood) 40%, transparent);
+}
+
+.portraitImg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* ── 2 · MOD DÜĞMESİ ─────────────────────────────────────────── */
+.mode {
+  position: relative;
+  z-index: 1;
+  padding: var(--pad-lg) 0 var(--pad-xl);
+  padding-inline-start: var(--chs-gutter);
+}
+
+/* Düğmenin damara bağlandığı kısa gövde parçası */
+.modeStem {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: var(--chs-spine);
+  width: 0.5rem;
+  transform: translateX(-50%);
+  border-radius: 1rem;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--chs-vein) 30%,
+    var(--chs-blood)
+  );
+}
+
+.modeTitle {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-weight: 700;
+  font-size: clamp(1.5rem, 5vw, 2.2rem);
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+  color: var(--text-primary);
+}
+
+.modeNative {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-shippori), serif;
+  font-weight: 600;
+  font-size: 1.05rem;
+  letter-spacing: 0.12em;
+  color: var(--chs-vein-text);
+}
+
+.modeLede {
+  margin: 0.7rem 0 1.1rem;
+  max-width: 34rem;
+  color: var(--text-secondary);
+}
+
+.modeButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gap-md);
+  min-height: var(--touch-min);
+  min-width: var(--touch-min);
+  padding: 0.6rem 1.2rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 2rem;
+  background: var(--surface);
+  color: var(--chs-kin-text);
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 0.98rem;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition:
+    background-color 520ms ease,
+    border-color 520ms ease,
+    color 520ms ease;
+}
+
+.modeButton:hover {
+  background: var(--surface-hover);
+  border-color: var(--chs-blood);
+}
+
+.modeButton:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 3px;
+}
+
+.modeButton[aria-pressed="true"] {
+  border-color: var(--chs-blood);
+  background: color-mix(in srgb, var(--chs-blood) 26%, var(--surface));
+}
+
+.modeMark {
+  flex: none;
+  width: 1.6rem;
+  height: 1.6rem;
+}
+
+.modeMarkShell {
+  fill: color-mix(in srgb, var(--chs-blood) 30%, transparent);
+  stroke: var(--chs-blood);
+  stroke-width: 2.4;
+}
+
+.modeMarkVein {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 2;
+  stroke-linecap: round;
+  transition: stroke 520ms ease;
+}
+
+.modeButton[aria-pressed="true"] .modeMarkShell {
+  fill: color-mix(in srgb, var(--chs-blood) 68%, transparent);
+}
+
+.modeButton[aria-pressed="true"] .modeMarkVein {
+  stroke: var(--chs-flow-text);
+}
+
+.modeLabel {
+  display: inline-block;
+}
+
+.modeHint {
+  margin: 1rem 0 0;
+  max-width: 36rem;
+  font-size: 0.92rem;
+  color: var(--chs-record-text);
+}
+
+/* ── GÖVDE DAMARI VE DALLANMA ────────────────────────────────── */
+.trunk {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: clamp(2.75rem, 7vw, 5.5rem);
+}
+
+/* Kalın damar: yukarıdan aşağı, tek parça, hiç kesilmiyor. */
+.trunk::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: var(--chs-spine);
+  width: 0.55rem;
+  transform: translateX(-50%);
+  border-radius: 1rem;
+  background: repeating-linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--chs-blood) 85%, transparent) 0 30px,
+    color-mix(in srgb, var(--chs-vein) 90%, transparent) 30px 86px
+  );
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--chs-vein) 70%, transparent);
+}
+
+.branch {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  padding-inline-start: var(--chs-gutter);
+}
+
+/* Dallanma noktası — halkanın kendisi damarın üstünde duruyor. */
+.node {
+  position: absolute;
+  inset-block-start: 0.35rem;
+  inset-inline-start: var(--chs-spine);
+  width: 2.4rem;
+  height: 2.4rem;
+  transform: translateX(-50%);
+  pointer-events: none;
+  color: var(--chs-node-text);
+}
+
+.nodeArt {
+  width: 100%;
+  height: 100%;
+}
+
+.nodeRing {
+  fill: var(--chs-clot);
+  stroke: var(--chs-blood);
+  stroke-width: 2.2;
+}
+
+.nodeCapillary {
+  fill: none;
+  stroke: color-mix(in srgb, var(--chs-capillary) 70%, transparent);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  opacity: 0;
+  transition: opacity 700ms ease;
+}
+
+.page[data-blood="on"] .nodeCapillary {
+  opacity: 1;
+}
+
+/* Dallanma noktasından bölüm gövdesine giden yatay bağ. */
+.branchLink {
+  position: absolute;
+  inset-block-start: 1.5rem;
+  inset-inline-start: calc(var(--chs-spine) + 0.65rem);
+  width: 0.8rem;
+  height: 1px;
+  background: var(--chs-vein);
+}
+
+.branchBody {
+  min-width: 0;
+  padding-inline-start: var(--gap-md);
+  border-inline-start: 1px solid
+    color-mix(in srgb, var(--chs-vein) 65%, transparent);
+}
+
+/* ── Kardeş adı: yalnızca "Kan Bağı" AÇIKKEN çiziliyor ─────────
+   `display: none` bilinçli: kapalıyken bu satırlar ekran okuyucuda
+   da YOK. Mod düğmesi görünürlüğü değil içeriği değiştiriyor. ── */
+.whisper {
+  display: none;
+  margin: 0 0 0.9rem;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.88rem;
+  letter-spacing: 0.04em;
+  color: var(--chs-kin-text);
+}
+
+.page[data-blood="on"] .whisper {
+  display: flex;
+}
+
+.whisperIndex {
+  font-family: var(--font-shippori), serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--chs-flow-text);
+}
+
+.whisperNative {
+  font-family: var(--font-shippori), serif;
+  font-weight: 600;
+  color: var(--chs-vein-text);
+}
+
+.whisperName {
+  font-weight: 600;
+}
+
+.whisper[data-nameless="true"] .whisperName {
+  font-style: italic;
+  color: var(--chs-record-text);
+}
+
+.whisperNote {
+  color: var(--chs-record-text);
+}
+
+/* ── Bölüm başlıkları ────────────────────────────────────────── */
+.sectionTitle {
+  margin: 0 0 0.7rem;
+  font-family: var(--font-shippori), serif;
+  font-weight: 700;
+  font-size: clamp(1.5rem, 5.4vw, 2.4rem);
+  line-height: 0.96;
+  letter-spacing: -0.04em;
+  color: var(--text-primary);
+}
+
+.sectionLede {
+  margin: 0 0 1.6rem;
+  max-width: 40rem;
+  color: var(--chs-vein-text);
+}
+
+/* ── 3 · KÜNYE ŞERİDİ ────────────────────────────────────────── */
+.facts {
+  margin: 0 0 1.4rem;
+  display: grid;
+  gap: 0;
+  border-block-start: 1px solid var(--border);
+}
+
+.fact {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.15rem;
+  padding-block: 0.7rem;
+  border-block-end: 1px solid var(--border);
+}
+
+.factLabel {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-weight: 700;
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--chs-record-text);
+}
+
+.factValue {
+  margin: 0;
+  color: var(--text-primary);
+}
+
+/* ── 4a · ÜÇ AĞIRLIK ─────────────────────────────────────────── */
+.artList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: clamp(1.75rem, 4vw, 2.75rem);
+}
+
+.art {
+  padding: var(--pad-md);
+  border: 1px solid var(--border);
+  border-inline-start: 3px solid var(--chs-blood);
+  border-radius: 2px;
+  background: var(--surface);
+}
+
+.artName {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-weight: 700;
+  font-size: clamp(1.5rem, 5vw, 2.1rem);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: var(--chs-flow-text);
+}
+
+.artReading {
+  margin: 0.35rem 0 0;
+  font-size: 0.86rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--chs-record-text);
+}
+
+.artTurkish {
+  margin: 0.2rem 0 0;
+  font-family: var(--font-shippori), serif;
+  font-weight: 600;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+  color: var(--chs-kin-text);
+}
+
+.artTagline {
+  margin: 0 0 0.8rem;
+  font-family: var(--font-shippori), serif;
+  font-weight: 600;
+  font-size: 1.06rem;
+  line-height: 1.36;
+  letter-spacing: -0.012em;
+  color: var(--text-primary);
+}
+
+.traits {
+  margin: 0 0 1.2rem;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.trait {
+  position: relative;
+  padding-inline-start: 1.1rem;
+  font-size: 0.92rem;
+  color: var(--chs-womb-text);
+}
+
+.trait::before {
+  content: "";
+  position: absolute;
+  inset-block-start: 0.62em;
+  inset-inline-start: 0;
+  width: 0.5rem;
+  height: 1px;
+  background: var(--chs-blood);
+}
+
+/* ── 4b · DÖRT TERİM ─────────────────────────────────────────── */
+.termList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--gap-lg);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+}
+
+.term {
+  padding: var(--pad-md);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  background: var(--surface);
+}
+
+/* Kayıtta olmayan iki terim: kesik kenar, dolgusuz zemin. */
+.term[data-empty="true"] {
+  border-style: dashed;
+  background: transparent;
+}
+
+.termName {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-weight: 700;
+  font-size: 1.4rem;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: var(--chs-kin-text);
+}
+
+.term[data-empty="true"] .termName {
+  color: var(--chs-record-text);
+}
+
+.termReading {
+  margin: 0.3rem 0 0;
+  font-size: 0.82rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--chs-record-text);
+}
+
+.termTurkish {
+  margin: 0.15rem 0 0.6rem;
+  font-family: var(--font-shippori), serif;
+  font-weight: 600;
+  font-size: 0.98rem;
+  color: var(--chs-vein-text);
+}
+
+/* ── 5 · DOKUZ KARDEŞ ────────────────────────────────────────── */
+.wombs {
+  display: grid;
+  gap: var(--gap-xl);
+}
+
+.wombRail {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--gap-lg);
+}
+
+.womb {
+  position: relative;
+  padding: var(--pad-md) var(--pad-md) var(--pad-md) 2.1rem;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  background: var(--surface);
+  transition:
+    background-color 620ms ease,
+    border-color 620ms ease;
+}
+
+.womb[data-state="open"] {
+  border-color: color-mix(in srgb, var(--chs-blood) 70%, var(--border));
+  background: var(--surface-hover);
+}
+
+.womb[data-nameless="true"] {
+  border-style: dashed;
+}
+
+/* Akış gövdesi: kan bu yolda YUKARIDAN AŞAĞI yürüyor. */
+.wombStem {
+  position: absolute;
+  inset-block: 0.9rem 0.9rem;
+  inset-inline-start: 0.72rem;
+  width: 0.66rem;
+  display: block;
+}
+
+.wombStemArt {
+  width: 100%;
+  height: 100%;
+}
+
+.wombStemBed {
+  fill: none;
+  stroke: color-mix(in srgb, var(--chs-vein) 80%, transparent);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.wombStemStream {
+  fill: none;
+  stroke: var(--chs-blood);
+  stroke-width: 3.4;
+  stroke-linecap: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+}
+
+/* Akış bitmiş halkada yol tamamen dolu — hareket kapalı olsa bile. */
+.womb[data-state="open"] .wombStemStream {
+  stroke-dashoffset: 0;
+}
+
+.wombIndex {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: color-mix(in srgb, var(--chs-blood) 80%, transparent);
+}
+
+.wombName {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-shippori), serif;
+  font-weight: 700;
+  font-size: clamp(1.25rem, 4.4vw, 1.7rem);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+}
+
+.wombNameless {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-shippori), serif;
+  font-weight: 600;
+  font-style: italic;
+  font-size: clamp(1.05rem, 3.6vw, 1.3rem);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--chs-record-text);
+}
+
+.wombNative {
+  margin: 0.2rem 0 0;
+  font-family: var(--font-shippori), serif;
+  font-weight: 600;
+  font-size: 1.1rem;
+  letter-spacing: 0.08em;
+  color: var(--chs-flow-text);
+}
+
+.wombTitle {
+  margin: 0.3rem 0 0.9rem;
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  color: var(--chs-record-text);
+}
+
+.wombButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  min-height: var(--touch-min);
+  min-width: var(--touch-min);
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 2px;
+  background: var(--bg);
+  color: var(--chs-kin-text);
+  font-family: var(--font-petrona), Georgia, serif;
+  font-size: 0.94rem;
+  cursor: pointer;
+  transition:
+    border-color 480ms ease,
+    background-color 480ms ease;
+}
+
+.wombButton:hover {
+  border-color: var(--chs-blood);
+}
+
+.wombButton:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 3px;
+}
+
+.wombButton[aria-disabled="true"] {
+  cursor: default;
+  color: var(--chs-record-text);
+}
+
+.wombButtonMark {
+  flex: none;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  border: 1px solid var(--chs-blood);
+  background: transparent;
+  transition: background-color 620ms ease;
+}
+
+.womb[data-state="open"] .wombButtonMark {
+  background: var(--chs-blood);
+}
+
+.wombButtonLabel {
+  display: inline-block;
+}
+
+.wombMemory {
+  margin-block-start: 1rem;
+  padding-block-start: 0.9rem;
+  border-block-start: 1px solid
+    color-mix(in srgb, var(--chs-blood) 45%, transparent);
+}
+
+.wombMemoryText {
+  margin: 0 0 1rem;
+  color: var(--text-secondary);
+}
+
+/* ── Kan bağı göstergesi — YANDA ─────────────────────────────── */
+.gauge {
+  padding: var(--pad-md);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  background: var(--surface);
+}
+
+.gaugeLabel {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-weight: 700;
+  font-size: 0.86rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--chs-record-text);
+}
+
+.gaugeValue {
+  margin: 0.2rem 0 0.7rem;
+  font-family: var(--font-shippori), serif;
+  font-weight: 700;
+  font-size: clamp(2rem, 8vw, 3rem);
+  line-height: 0.9;
+  letter-spacing: -0.05em;
+  color: var(--chs-flow-text);
+}
+
+.gaugeTube {
+  display: flex;
+  flex-direction: row;
+  gap: 3px;
+  padding: 3px;
+  border: 1px solid var(--border-strong);
+  border-radius: 2px;
+  background: var(--chs-clot);
+}
+
+.gaugeCell {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 0.7rem;
+  background: transparent;
+  transition: background-color 700ms ease;
+}
+
+.gaugeCell[data-filled="true"] {
+  background: var(--chs-blood);
+}
+
+.gaugeTube[data-full="true"] {
+  border-color: var(--chs-blood);
+}
+
+.gaugeUnit {
+  margin: 0.5rem 0 0;
+  font-size: 0.86rem;
+  color: var(--chs-record-text);
+}
+
+.gaugeHint {
+  margin: 0.8rem 0 0;
+  font-size: 0.9rem;
+  color: var(--chs-vein-text);
+}
+
+.gaugeKeyboard {
+  margin: 0.6rem 0 0;
+  font-size: 0.84rem;
+  color: var(--chs-record-text);
+}
+
+.wombStatus {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--chs-womb-text);
+}
+
+/* ── Onuncu kadraj ───────────────────────────────────────────── */
+.tenth {
+  padding: var(--pad-lg) var(--pad-md);
+  border: 1px solid var(--chs-blood);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--chs-blood) 12%, var(--surface));
+}
+
+.tenthIndex {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-weight: 700;
+  font-size: clamp(2.2rem, 9vw, 3.4rem);
+  line-height: 0.9;
+  color: color-mix(in srgb, var(--chs-blood) 85%, transparent);
+}
+
+.tenthMark {
+  margin: 0.6rem 0 0;
+  display: flex;
+  align-items: baseline;
+  gap: var(--gap-sm);
+  font-family: var(--font-shippori), serif;
+  font-weight: 700;
+  font-size: clamp(1.4rem, 5vw, 2rem);
+  line-height: 1;
+  color: var(--chs-flow-text);
+}
+
+.tenthMarkFrom {
+  opacity: 0.6;
+}
+
+.tenthMarkArrow {
+  color: var(--chs-vein-text);
+  font-size: 0.8em;
+}
+
+.tenthMarkTo {
+  color: var(--chs-kin-text);
+}
+
+.tenthMarkNote {
+  margin: 0.4rem 0 1.2rem;
+  font-size: 0.88rem;
+  color: var(--chs-record-text);
+}
+
+.tenthName {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-weight: 700;
+  font-size: clamp(1.5rem, 5.6vw, 2.3rem);
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+  color: var(--text-primary);
+}
+
+.tenthLink {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 2px solid var(--chs-blood);
+}
+
+.tenthLink:hover {
+  color: var(--chs-kin-text);
+}
+
+.tenthLink:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 3px;
+}
+
+.tenthNative {
+  margin: 0.3rem 0 0;
+  font-family: var(--font-shippori), serif;
+  font-weight: 600;
+  font-size: 1.15rem;
+  letter-spacing: 0.08em;
+  color: var(--chs-flow-text);
+}
+
+.tenthTitle {
+  margin: 0.3rem 0 0.9rem;
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  color: var(--chs-record-text);
+}
+
+.tenthText {
+  margin: 0 0 1rem;
+  color: var(--text-secondary);
+}
+
+.tenthNote {
+  margin: 0 0 1.2rem;
+  font-size: 0.92rem;
+  color: var(--chs-womb-text);
+}
+
+/* ── 6 · BAĞLAR ──────────────────────────────────────────────── */
+.bonds {
+  margin: 0 0 1.6rem;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--gap-lg);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+}
+
+.bond {
+  padding: var(--pad-md);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  background: var(--surface);
+}
+
+.bondFace {
+  margin: 0 0 0.8rem;
+  width: 5rem;
+  aspect-ratio: 3 / 4;
+  border: 1px solid var(--border-strong);
+  border-radius: 2px;
+  background: var(--chs-membrane);
+  overflow: clip;
+}
+
+.bondFace[data-filled="false"] {
+  border-style: dashed;
+}
+
+.bondFaceImg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bondName {
+  display: inline-block;
+  font-family: var(--font-shippori), serif;
+  font-weight: 700;
+  font-size: 1.2rem;
+  letter-spacing: -0.025em;
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 50%, transparent);
+}
+
+.bondName:hover {
+  color: var(--chs-kin-text);
+}
+
+.bondName:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 3px;
+}
+
+.bondNamePlain {
+  display: inline-block;
+  font-family: var(--font-shippori), serif;
+  font-weight: 700;
+  font-size: 1.2rem;
+  letter-spacing: -0.025em;
+  color: var(--text-primary);
+}
+
+.bondRole {
+  display: block;
+  margin-block: 0.2rem 0.6rem;
+  font-size: 0.86rem;
+  letter-spacing: 0.04em;
+  color: var(--chs-record-text);
+}
+
+.bondFlag {
+  display: block;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  color: var(--chs-record-text);
+}
+
+/* ── 7a · KADER ÇİZELGESİ ────────────────────────────────────── */
+.fate {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: clamp(1.75rem, 4vw, 2.75rem);
+}
+
+.stop {
+  position: relative;
+  padding-inline-start: var(--gap-lg);
+  border-inline-start: 2px solid
+    color-mix(in srgb, var(--chs-blood) 55%, transparent);
+}
+
+.stopStamp {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--chs-record-text);
+}
+
+.stopTitle {
+  margin: 0.3rem 0 0.7rem;
+  font-family: var(--font-shippori), serif;
+  font-weight: 700;
+  font-size: clamp(1.25rem, 4.4vw, 1.75rem);
+  line-height: 1;
+  letter-spacing: -0.035em;
+  color: var(--text-primary);
+}
+
+.stopMark {
+  margin: 0 0 1.1rem;
+  padding-inline-start: var(--gap-md);
+  border-inline-start: 1px solid var(--chs-blood);
+}
+
+.markJa {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-weight: 700;
+  font-size: clamp(1.2rem, 4.4vw, 1.6rem);
+  line-height: 1.1;
+  letter-spacing: 0.04em;
+  color: var(--chs-flow-text);
+}
+
+.markReading {
+  margin: 0.25rem 0 0;
+  font-size: 0.86rem;
+  color: var(--chs-record-text);
+}
+
+/* ── 7b · KAPANIŞ ────────────────────────────────────────────── */
+.closingLines {
+  margin: 0 0 1.4rem;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--gap-xl);
+}
+
+.closingLine {
+  margin: 0;
+  padding: var(--pad-md);
+  border: 1px solid var(--border);
+  border-inline-start: 3px solid var(--chs-blood);
+  border-radius: 2px;
+  background: var(--surface);
+}
+
+.quoteJa {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-weight: 700;
+  font-size: clamp(1.5rem, 5.6vw, 2.2rem);
+  line-height: 1.1;
+  letter-spacing: 0.03em;
+  color: var(--chs-flow-text);
+}
+
+.quoteReading {
+  margin: 0.3rem 0 0.8rem;
+  font-size: 0.88rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--chs-record-text);
+}
+
+.quoteBy {
+  font-size: 0.84rem;
+  letter-spacing: 0.05em;
+  color: var(--chs-vein-text);
+}
+
+.motto {
+  margin: 0 0 0.6rem;
+  font-family: var(--font-shippori), serif;
+  font-weight: 700;
+  font-size: clamp(2rem, 8vw, 3.4rem);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: var(--chs-kin-text);
+}
+
+.credit {
+  margin: 1.4rem 0 0.6rem;
+  font-size: 0.9rem;
+  color: var(--chs-record-text);
+}
+
+.credit a {
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 50%, transparent);
+}
+
+.credit a:hover {
+  color: var(--chs-kin-text);
+}
+
+.credit a:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 3px;
+}
+
+/* ── Kadrajlar ───────────────────────────────────────────────── */
+.frameSlot {
+  margin-block: 1rem 0.6rem;
+}
+
+.frame {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  margin: 0;
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  background: var(--chs-membrane);
+  overflow: clip;
+}
+
+.frameSlot[data-filled="false"] .frame {
+  border-style: dashed;
+  background: color-mix(in srgb, var(--chs-membrane) 70%, transparent);
+}
+
+.frame img {
+  object-fit: cover;
+}
+
+.frameTall {
+  aspect-ratio: 3 / 4;
+  max-width: 22rem;
+}
+
+.frameWide {
+  aspect-ratio: 16 / 9;
+}
+
+.frameSmall {
+  aspect-ratio: 3 / 2;
+}
+
+.frameKin {
+  aspect-ratio: 4 / 5;
+  max-width: 16rem;
+}
+
+.frameBand {
+  aspect-ratio: 21 / 9;
+}
+
+/* Boş kadrajın içindeki üretim metadatası YALNIZCA küratöre çiziliyor
+   (bileşen `isAdmin` ile kesiyor). Ziyaretçi yazısız bir yüzey görüyor. */
+.frameCaption {
+  display: grid;
+  gap: 0.15rem;
+  padding: var(--pad-sm);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  color: var(--chs-record-text);
+}
+
+.frameCaptionWord {
+  font-family: var(--font-shippori), serif;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.frameCaptionSpec {
+  color: var(--chs-vein-text);
+}
+
+/* ============================================================
+   GENİŞ EKRAN — damar tam ortaya geçiyor, dallar iki yana açılıyor
+   ============================================================ */
+@media (min-width: 64rem) {
+  .page {
+    --chs-spine: 50%;
+    --chs-gutter: 0rem;
+    padding-inline: var(--pad-lg);
+  }
+
+  .hero {
+    padding-inline-end: 26%;
+  }
+
+  .mode {
+    padding-inline-start: calc(50% + 2.2rem);
+  }
+
+  .branch {
+    grid-template-columns: minmax(0, 1fr) 4.5rem minmax(0, 1fr);
+  }
+
+  /* Sol dal: gövde damarı bölümün SAĞ kenarında — dal oraya bağlanıyor. */
+  .branchBody {
+    grid-column: 1;
+    padding-inline: 0 var(--gap-lg);
+    border-inline-start: none;
+    border-inline-end: 1px solid
+      color-mix(in srgb, var(--chs-vein) 65%, transparent);
+  }
+
+  .branch[data-side="right"] .branchBody {
+    grid-column: 3;
+    padding-inline: var(--gap-lg) 0;
+    border-inline-start: 1px solid
+      color-mix(in srgb, var(--chs-vein) 65%, transparent);
+    border-inline-end: none;
+  }
+
+  /* Damarın ÜSTÜNDE duran bölümler: gövde çizgisi metnin arasından
+     geçmesin diye kendi zeminlerini taşıyorlar. Damar bölüme giriyor
+     ve alttan çıkıyor — kesilmiyor, içinden akıyor. */
+  .branch[data-side="spine"] .branchBody {
+    grid-column: 1 / -1;
+    padding-inline: var(--gap-lg);
+    border-inline-start: 1px solid
+      color-mix(in srgb, var(--chs-vein) 65%, transparent);
+    border-inline-end: 1px solid
+      color-mix(in srgb, var(--chs-vein) 65%, transparent);
+    background: var(--bg);
+  }
+
+  .branchLink {
+    inset-inline-start: auto;
+    inset-inline-end: calc(50% + 0.9rem);
+    width: 1.5rem;
+  }
+
+  .branch[data-side="right"] .branchLink {
+    inset-inline-start: calc(50% + 0.9rem);
+    inset-inline-end: auto;
+  }
+
+  .branch[data-side="spine"] .branchLink {
+    display: none;
+  }
+
+  /* Sol dalın başlıkları damara doğru hizalanıyor; GÖVDE metni
+     hizasını değiştirmiyor (okunabilirlik hizadan önce gelir). */
+  .branch[data-side="left"] .sectionTitle,
+  .branch[data-side="left"] .whisper {
+    text-align: end;
+    justify-content: flex-end;
+  }
+
+  .branch[data-side="left"] .sectionLede {
+    margin-inline-start: auto;
+  }
+
+  .fact {
+    grid-template-columns: 11rem minmax(0, 1fr);
+    gap: var(--gap-md);
+    align-items: baseline;
+  }
+
+  .wombs {
+    grid-template-columns: minmax(0, 1fr) 14rem;
+    gap: var(--gap-xl);
+    align-items: start;
+  }
+
+  .wombRail {
+    grid-column: 1;
+  }
+
+  .gauge {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .gaugeTube {
+    flex-direction: column;
+    min-height: 14rem;
+  }
+
+  .gaugeCell {
+    height: auto;
+  }
+
+  .wombStatus,
+  .tenth {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ============================================================
+   HAREKET — akışkan kırmızı sıvı. Yavaş, sürekli, tek yönlü.
+   ============================================================ */
+@media (prefers-reduced-motion: no-preference) {
+  /* Gövde damarında ağır bir akış: desen aşağı iniyor, yukarı değil. */
+  .trunk::before {
+    animation: chs-drip 24s linear infinite;
+  }
+
+  /* Dallanma noktalarında yavaş nabız */
+  .nodeRing {
+    animation: chs-pulse 9s ease-in-out infinite;
+    transform-origin: center;
+  }
+
+  .branch:nth-child(2n) .nodeRing {
+    animation-duration: 11s;
+    animation-delay: 1.4s;
+  }
+
+  .branch:nth-child(3n) .nodeRing {
+    animation-duration: 13s;
+    animation-delay: 2.6s;
+  }
+
+  .page[data-blood="on"] .capillary {
+    animation: chs-pulse 12s ease-in-out infinite;
+  }
+
+  /* Gecikme, kısayolun `animation-delay`ini SIFIRLAMAMASI için aynı
+     ya da daha yüksek özgüllükte yazıldı. */
+  .page[data-blood="on"] .capillary:nth-child(2n) {
+    animation-delay: 2.2s;
+  }
+
+  .page[data-blood="on"] .capillary:nth-child(3n) {
+    animation-delay: 4.1s;
+  }
+
+  /* SAYFANIN KALBİ: kan halkadan AŞAĞI yürüyor. `forwards` şart —
+     akış bittiğinde yol dolu kalıyor, geri sarmıyor. */
+  .womb[data-state="flowing"] .wombStemStream {
+    animation: chs-flow 1700ms cubic-bezier(0.45, 0.02, 0.4, 1) forwards;
+  }
+
+  /* Anı sızarak açılıyor: yükseklik değil opaklık + hafif iniş. */
+  .wombMemory {
+    animation: chs-seep 900ms ease-out both;
+  }
+
+  .tenth {
+    animation: chs-seep 1200ms ease-out both;
+  }
+
+  .markKanji {
+    animation: chs-pulse 16s ease-in-out infinite;
+  }
+}
+
+@keyframes chs-drip {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 0 86px;
+  }
+}
+
+@keyframes chs-pulse {
+  0%,
+  100% {
+    opacity: 0.42;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes chs-flow {
+  from {
+    stroke-dashoffset: 100;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes chs-seep {
+  from {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================================
+   HAREKET BATTANİYESİ — kapalıyken hiçbir şey kıpırdamıyor.
+   Mekanik yine çalışıyor: akışın süresi `NineWombs` içinde sıfıra
+   iniyor ve anı beklemeden açılıyor (o dosyadaki gerekçe).
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

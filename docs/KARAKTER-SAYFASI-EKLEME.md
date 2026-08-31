@@ -342,6 +342,14 @@ etiket" kabul değil.
 | Nobara | tek düzlemde altı çivi, ÜÇÜNÜ seç; yanlış üçlü de kendi cevabını veriyor |
 | Nanami | mesai saati: zamanı İLERLEME harcıyor, sürüklenemiyor, geri alınamıyor |
 | Getō | ihanet çizelgesi: her adımda kal/git; iki sonuç da yazılı ve ikisi de gerçek |
+| Chōsō | dokuz kardeş halkası — SIRASIZ; dokuzu da açılınca bile altı yüz adsız kalıyor |
+| Maki | silah rafı: hücre açılmıyor, SEÇİLİYOR ve künye şeridini yeniden hesaplıyor; 呪力 sütunu hep 0 |
+| Mahito | beş form; aynı DOM düğümünün geometrisi değişiyor — kart takas edilmiyor, DÖNÜŞÜYOR |
+| Tōdō | alkış: iki hedefi işaretle, takas et — sayfanın KENDİ DÜZENİ yer değiştiriyor |
+| Panda | üç çekirdek TÜKENİYOR; kademe değil kaynak, üçü bitince sayfa kilitleniyor |
+| Tōji | çanta: birikimli ve geri alınabilir seçim; üç fiziksel okuma artıyor, 呪力 sütunu hiç kıpırdamıyor |
+| Jōgo | kül birikiyor, üflenince temizleniyor ama her seferinde DAHA HIZLI geri geliyor; dördüncüde temizlenmiyor |
+| Yūta | kopyalanan teknik destesi; deste büyüdükçe monokrom alan azalıyor, renk yayılıyor — toplama geri alınabilir |
 
 ⚠️ Yukarıdaki son dört satır **yeni** mekaniklerdir (31 Ağustos 2026, Dalga 5
 kimlik ameliyatı). Faz 1'in şu dördü **emekli** ve `.deprecated/` altında —
@@ -411,6 +419,14 @@ Yeni palet bu tablodakilere yakın düşmemeli; önek benzersiz olmalı.
 | `uryuu-ishida` | `ury` | `#0a0b0f` | `#4a5fb5` |
 | `yamato` | `yam` | `#060907` | `#4f9c6a` |
 | `yoruichi-shihouin` | `yor` | `#0e0b0f` | `#a74ab5` |
+| `aoi-toudou` | `tdo` | `#0f0a0f` | `#d666c0` |
+| `chousou` | `chs` | `#0e090a` | `#cc5c78` |
+| `jougo` | `jgo` | `#0c0909` | `#e3581c` |
+| `mahito` | `mht` | `#0c0d0e` | `#9fc0c1` |
+| `maki-zenin` | `mki` | `#0d0e0b` | `#7a9852` |
+| `panda` | `pnd` | `#0f0f0d` | `#adb569` |
+| `touji-fushiguro` | `toj` | `#0a0a0b` | `#bfb9b0` |
+| `yuuta-okkotsu` | `yut` | `#0d0d0d` | `#8a63bf` |
 
 Sıkışmış aile: **turuncu/kehribar** (naruto, rocklee, iruka, choji,
 shikamaru, shino, gaara) ve **kızıl** (itachi, ichigo, kenpachi, urahara,
@@ -434,6 +450,16 @@ getō, megumi, obito, kankurō, sasuke, aizen, nagato, hinata) ve **yeşil**
 (ulquiorra, sakura, tsunade, konohamaru, orochimaru, yamato, neji, temari).
 Geriye kalan gerçek boşluklar: **koyu zeytin**, **kül/nötr gri** ve doygunluğu
 düşük **toprak tonları**.
+
+⚠️ **Dalga 4 (31 Ağustos 2026) o üç boşluğun üçünü de kullandı** — sekiz
+JJK sayfası bilerek "mor-siyah lanet enerjisi" varsayılanından çıkarıldı:
+**koyu zeytin/haki** (maki `#7a9852`, panda `#adb569`), **kül/nötr**
+(tōji `#bfb9b0` — arşivin ilk gerçek nötr accent'i), **soluk mineral**
+(mahito `#9fc0c1`), **et/bordo** (chōsō `#cc5c78`), **lav** (jōgo `#e3581c`)
+ve **fuşya** (tōdō `#d666c0`). Yalnızca Yūta (`#8a63bf`) mor ailesinde ve o
+da bilinçli: sayfası **monokrom** ve o mor yalnızca Rika'nın bulunduğu dar
+şeritte taşıyor. Yeni sayfa için boşluk aramaya çıkarsan bu altısı artık
+dolu.
 
 ---
 

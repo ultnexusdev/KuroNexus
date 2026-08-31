@@ -274,12 +274,314 @@ uyarıların hepsi (kushina-uzumaki ailesi, naruto~sukuna-itadori) bu dalgadan
 
 ---
 
-## 3. Kalan iş
+## 3. GRUP 2 — AniList numarası doğrulanan dört karakter
 
-- [ ] Grup 2: Panda, Tōji, Jōgo, Yūta
-- [ ] Sekizi birleştikten sonra tam `next build`
-- [ ] Nexus doğrulaması: Tōji↔Megumi ve Yūta↔Getō bağları Dalga 4 girince
-      kendiliğinden kurulmalı
-- [ ] `docs/KARAKTER-SAYFASI-EKLEME.md` §3 (mekanik tablosu) ve §4 (palet
-      tablosu) güncellemesi
-- [ ] Worktree sökümü — junction **önce** `rmdir`, sonra `git worktree remove`
+Grup 1'in raporu yazıldıktan sonra başlatıldı (görev şartı). Yine dört ayrı
+worktree, dört ayrı dal, dört farklı referans sayfa (Yoruichi / Levi / Renji /
+Mikasa). Ajanlara Grup 1'in dört kimliği **yazıyla** bildirildi ki aynı yere
+düşmesinler; klasörlerini açmaları yasaklandı.
+
+| # | Karakter | Dal | Bileşen | Commit |
+|---|---|---|---|---|
+| 21 | Panda | `panda-redesign` | `ThreeCoresExperience` | `ff16a72` |
+| 22 | Tōji Fushiguro | `toji-redesign` | `HeavenRestrictionExperience` | `c2f7d0d` |
+| 23 | Jōgo | `jogo-redesign` | `VolcanoExperience` | `a3a73f3` |
+| 24 | Yūta Okkotsu | `yuta-redesign` | `RikaExperience` | `8b5e2b2` |
+
+### 21 · Panda — `panda` · `--pnd-`
+
+**Dosyalar:** `ThreeCoresExperience.tsx` (756) · `.module.css` (2011) ·
+`CoreDeck.tsx` (istemci, 257) · `CoreShell.tsx` (istemci, 197) ·
+`PandaGlyphs.tsx` (sunucu SVG, 266) · `lib/characters/panda-experience.ts` (1258)
+
+**Küratör:** 15 yuva (1 PORTRAIT + 14 ABILITY). Anahtarlar: `hero`, `corpse`,
+`corpse-body`, `mutation`, `cursed-energy`, `core-gorilla`, `core-brother`,
+`core-triangle`, `fate-workshop`, `fate-sentience`, `fate-class`,
+`fate-gorilla`, `fate-cost`, `closing`.
+
+**Ayrışma:** sayfanın **tamamı** tek bir üç sütunlu omurgada ve oranı kök
+`data-core` sürüyor (`1.9fr / 0.72fr / 0.72fr`) — akordiyon değil, oran.
+Jost 200/300, **karışık kutu ve negatif harf aralığı** (Slam Dunk'taki geniş
+ALL CAPS Jost'un tam tersi). Bambu salınımı: SVG saplar `transform-box:
+fill-box` üzerinde sapa göre gecikmeyle dönüyor, oran geçişi
+`cubic-bezier(0.34, 1.46, 0.64, 1)` ile elastik. `data-corpse` paleti
+soldurup üç halka amblemini anatomik kesite çeviriyor, **ızgaraya ve
+çekirdek durumuna dokunmuyor** (Onizuka dersi).
+
+**Mekanik ayrımı:** tükenme, kademe değil (Ichigo'nun beş kademeli kimlik
+seçicisinin tersi). Erişilebilirlik: her yakma/geri açma/kilit
+`aria-live="polite"` ile duyuruluyor; tükenmiş düğme `disabled` değil
+`aria-disabled` + `aria-describedby` (odak kaybolmuyor); tükenmiş bir
+çekirdeğin kaydı yeniden **tüketmeden** açılabiliyor; kilit bir panel
+**ekliyor**, hiçbir şeyi gizlemiyor.
+
+**Dürüstlük işaretleri:** üçüncü çekirdeğin kaynakta **adı yok** — sayfa
+"Üçgen"in arşivin işareti olduğunu, kanon olmadığını açıkça yazıyor. O
+sütunun stat çubukları **bilerek boş**: kayıt o çekirdeği hiç iş başında
+göstermiyor. Yaş/kan grubu karakterizasyona çevrildi ("bir lanetli cesedin
+kan grubu olmaz, çünkü kanı yok").
+
+### 22 · Tōji Fushiguro — `touji-fushiguro` · `--toj-`
+
+**Dosyalar:** `HeavenRestrictionExperience.tsx` (748) · `.module.css` (1669) ·
+`ToolSatchel.tsx` (istemci, 249) · `EmptySkyShell.tsx` (istemci, 128) ·
+`ToujiGlyphs.tsx` (sunucu SVG, 169) ·
+`lib/characters/touji-fushiguro-experience.ts` (1078)
+
+**Küratör:** 14 yuva (1 PORTRAIT + 13 ABILITY). Anahtarlar: `hero`,
+`restriction`, `zero`, `tools`, `sakahoko`, `yuun`, `satchel`, `fate-zenin`,
+`fate-fushiguro`, `fate-kaigyoku`, `fate-gyokusetsu`, `fate-shibuya`,
+`closing`. Üç "yok" kartına (術式 / 領域展開 / 反転術式) **bilerek yuva
+verilmedi** — olmayan tekniğin kadrajı doldurulmayı bekleyen bir eksik gibi
+görünürdü.
+
+**Ayrışma:** üst üçte bir boş gökyüzü her bölümde `.sky` öğesiyle korunuyor
+(mobilde 15rem→6.5rem düşüyor ama **sıfırlanmıyor**); içerik 68rem'lik alçak
+yatay bantta. Inter 200 + `clamp(2.1rem, 9vw, 6.6rem)`. Sayfada **yalnızca iki
+hareket** var: 150 sn'lik gökyüzü kayması ve seçimde çizilen 180 ms'lik tek
+çizgi — dalganın en hareketsiz sayfası. `data-restriction` lanet enerjisi
+sütununu **çiziyor**; sütun sayfa boyunca inen boş bir şerit ve açıldığında
+gerçekten yer kaplıyor (içerik sağa kayıyor). Hiçbir sayı, hiçbir renk
+değişmiyor.
+
+**Maki'den ayrım (brief'in özel uyarısı, karşılandı):** Maki'de eşit hücreli
+bir **raf**, plexmono ALL CAPS stencil, bütün geçişler `steps()`, dolu ve
+askeri. Tōji'de hücre yok — `.pockets` bir **rulo** ve satır yükseklikleri
+metin uzunluğuna göre bilerek eşitsiz. Seçim tekli değil **birikimli** ve geri
+konabiliyor; stat şeridi yeniden hesaplanmıyor, üç okuma **büyüyor**. Sıfır
+sütunu espri değil **tez**: tezgâhın sol kolonunun tamamı o, `clamp(4.5rem,
+15vh, 9rem)` boyunda tek bir "0" ve altında hiç dolmayan tik çizgili bir
+kanal — sayfadaki en büyük tek öğe. Beş bölmenin ikisi hiçbir şeyi
+değiştirmiyor ve **iki farklı sebeple**. Maki'de düğme paleti doyuruyor ve
+istatistikleri yükseltiyor; Tōji'de düğme hiçbir sayıya dokunmuyor.
+
+**Alıntı disiplini:** sayfada tırnak içinde söylenmiş **tek cümle yok** —
+Tōji'nin Japonca repliklerinin birebir yazımı doğrulanamadı ve hiçbiri
+uydurulmadı. Kapanıştaki iki blok **ad**: 呪術師殺し ve 伏黒; motto bir
+terim: 天与呪縛. Gerekçe hem veri dosyasında hem sayfada görünür bir notta.
+
+### 23 · Jōgo — `jougo` · `--jgo-`
+
+**Dosyalar:** `VolcanoExperience.tsx` (705) · `.module.css` (1712) ·
+`AshFall.tsx` (istemci, 270) · `CrustShell.tsx` (istemci, 125) ·
+`JougoGlyphs.tsx` (sunucu SVG, 224) · `lib/characters/jougo-experience.ts` (997)
+
+**Küratör:** 16 yuva (1 PORTRAIT + 15 ABILITY). Anahtarlar: `hero`, `teknik`,
+`alan`, `meteor`, `lanet-enerjisi`, `baglayici-soz`, `lanetli-alet`,
+`ters-teknik`, `kul`, `katman-1`…`katman-5`, `kapanis`.
+
+**Ayrışma:** katmanlı yer kesiti — bölümler yatay jeolojik katman, `data-depth`
+0→9 ile zemin `--jgo-deep`e karışıp koyulaşıyor; aralarında negatif marjla
+sınırı yaran düzensiz SVG magma çatlağı. **Kart yok, kolon yok, hiçbir bölüm
+bir diğerinin yanında değil.** Anton, ama Eren'in bodur kullanımının tersi:
+harf aralığı `clamp(0.16em, 0.9vw, 0.3em)`, satır aralığı 1.6+ (Eren: −0.01em
+/ 1.02). Kader çizelgesi yaş yerine **derinlik** etiketli — bir lanetli ruhun
+yaşı yok, katmanı var.
+
+**Levi'nin toz silmesinden ayrım (brief'in yasağı, karşılandı):** Levi'de toz
+**kalıcı** temizleniyordu — sildiğin yer temiz kalıyor, sayfa adım adım
+açılıyor, yani bir ilerleme çubuğu. Jōgo'da temizlik **geçici** ve her
+temizlik bir sonrakini yaklaştırıyor: birikme hızı ×1→×2→×3→×4, dördüncüde
+hiç kalkmıyor ve yenilgi metni orada açılıyor. **Levi'de kazanıyorsun,
+burada kaybediyorsun.**
+
+**Kül katmanının erişilebilirliği (brief'in özel şartı) — ölçüldü:**
+- Perde ayrı bir `<span aria-hidden>`, `pointer-events: none`; metin normal
+  DOM'da ve ekran okuyucuda **her zaman tam** okunuyor.
+- Perdenin opaklığı **yalnızca** `no-preference` içinde tanımlı; `reduce`
+  battaniyesinde `opacity: 0` + `display: none` → hareket kapalıyken **kül
+  hiç birikmiyor**.
+- Örtü altında ölçülen kontrast: ana metin **6.63:1**, ikincil **5.14:1**;
+  erime noktası açıkken **6.48:1** ve **5.03:1**. Perde aşağı doğru
+  şeffaflaşıyor — örtü gerçekten "kısmi".
+- İki düğme de gerçek `<button>` ve **hiçbiri `disabled` değil**;
+  kullanılamaz durumlar `aria-disabled` + `aria-describedby` ile veriliyor.
+- Küratör çakışması iki güvenlikle engellendi: kül panelinde hiç kadraj yok
+  **ve** `.ash [data-curator-slot]` perdenin üstünde bir `z-index` taşıyor.
+
+### 24 · Yūta Okkotsu — `yuuta-okkotsu` · `--yut-`
+
+**Dosyalar:** `RikaExperience.tsx` (992) · `.module.css` (1766) ·
+`CopyDeck.tsx` (istemci, 189) · `RikaShell.tsx` (istemci, 121) ·
+`RikaToggle.tsx` (istemci, 78) · `YuutaGlyphs.tsx` (sunucu SVG, 146) ·
+`lib/characters/yuuta-okkotsu-experience.ts` (1079)
+⚠️ **Üç istemci adası — sınırda** (sözleşme en fazla 3 diyor).
+
+**Küratör:** 17 yuva (1 PORTRAIT + 16 ABILITY). Anahtarlar: `hero`, `rika`,
+`copy`, `queen`, `reserve`, `domain`, `reverse`, `tool`, `vow`, `deck`,
+`promise`, `accident`, `school`, `geto`, `order`, `closing`.
+
+**Monokrom nasıl kuruldu — `filter: grayscale()` KULLANILMADI.** İki gerekçe
+kodda yazılı: küçük metnin kontrastını düşürürdü ve küratör yüklediği kareyi
+gri görüp yanlış karar verirdi. Grilik paletin **nötr ailesini kullanmaktan**
+geliyor (`--text-*`, `--gold: #858585`, `--border*`, `--surface*`); renk
+yalnızca `--accent` / `--yut-rika`dan ve yalnızca Rika'nın bulunduğu yerlerde,
+`--yut-spread = color × (0.26 + 0.74 × take)` katsayısıyla açılıyor.
+
+**Ayrışma:** ortalanmış tek kolon + kolonun **dışında** sağ kenarda Rika'nın
+şeridi (negatif `margin-inline-end`). Mikasa'da çizgi ızgaranın kendisiydi ve
+bölümler ona asılıydı; burada şerit ızgaranın parçası değil. Cinzel ALL CAPS
+**ortalanmış ve tek** (Todoroki'deki simetrik/bölünmüş kullanımın tersi).
+`data-rika` şeridi **yaratmıyor, dolduruyor** — `alone` hâlinde altı çentik
+boş kontur olarak yerinde (Onizuka dersi).
+
+**Getō'nun iki mekaniğinden ayrım (brief'in yasağı, karşılandı):** eski hazne
+tek yönlüydü (al · biriktir · bir kere boşalt). Burada **kapasite yok,
+boşaltma yok, sıra yok** — altı kaynağın her biri bağımsız ve aynı düğmeyle
+**geri verilebiliyor**; görsel sonuç bir göstergenin dolması değil **rengin
+sayfaya yayılması**. Dalga 5'in dallanan ihanet yoluyla ilgisi yok: dal, yol,
+geri alınamaz seçim yok. Kabuto'nun kart destesinden de ayrı: kartlar sırayla
+çekilmiyor, hepsi aynı anda ortada ve hepsi geri konabiliyor.
+
+**Renk tek başına bilgi taşımıyor:** DESTEDE/DIŞARIDA rozeti, `aria-pressed`,
+adlarıyla deste listesi, sayaç ve `aria-live="polite"` cümlesi aynı durumu
+metinle söylüyor.
+
+**360 px ölçümü (gerçek ölçüm, tahmin değil):** en kötü durumda
+(`data-rika="bound"` + deste 6/6) `documentElement.scrollWidth = 360`,
+`clientWidth = 360` → **yatay kaydırma yok**; görünüm alanının dışına çıkan
+öğe sıfır. Tasarlanan 28 px'lik taşma `.page { overflow-x: clip }` ile
+kırpılıyor. Ölçüm sırasında **iki gerçek hata bulunup düzeltildi**:
+`writing-mode: vertical-rl` taşıyan `railKanji`'de mantıksal özellikler
+öğenin kendi yazma kipine göre çözülüyordu — `margin-inline: auto` yatayda
+değil **dikeyde** ortalıyor ve 360 px'te 14 px taşırıyordu; `inset-block-end`
+de "alt" değil "sol" anlamına gelip kanjiyi şeridin tepesine düşürüyordu.
+Blok fiziksel özelliklere çevrildi.
+
+---
+
+## 4. Sekiz sayfa birlikte — final denetimi
+
+```
+npx tsc --noEmit                          → temiz (exit 0)
+npx eslint <sekiz klasör + sekiz veri dosyası + layout.tsx>
+                                          → temiz
+node scripts/check-karakter-kayit.mjs     → TEMIZ (61 adres, 61 kadro satiri)
+node scripts/check-karakter-sinif.mjs     → TEMIZ (60 modul)
+node scripts/check-karakter-hex.mjs       → TEMIZ (60 modul)
+node scripts/check-karakter-kontrast.mjs  → TEMIZ (62 palet)
+node scripts/check-karakter-ayrisma.mjs   → TEMIZ (60 sayfa, 1770 cift)
+NEXT_PUBLIC_API_URL=… npx next build      → exit 0, sekiz rotanın sekizi de derlendi
+```
+
+### Ayrışma — dalganın tek numaralı ölçüsü
+
+Betik 1770 çiftin **94'ünü** eşiğe yakın diye listeliyor. Dalga 4'ün sekiz
+sayfasının **hiçbiri o 94 çiftin içinde yok** — ne birbirleriyle ne yayındaki
+52 sayfayla. Listedeki uyarıların tamamı bu dalgadan önce vardı.
+
+Sekiz sayfanın font kümeleri de birbirinden **tamamen ayrı** (betiğin kendi
+parmak izi çıktısı):
+
+| Sayfa | Font kümesi | `data-*` durumu | Izgara sinyali |
+|---|---|---|---|
+| `chousou` | petrona / shippori | blood | 11 |
+| `maki-zenin` | inter / sans / plexmono | restriction | 9 |
+| `mahito` | jost / cormorant | soul | 10 |
+| `aoi-toudou` | inter / numeral | brother | 10 |
+| `panda` | jost / petrona | core / corpse | 9 |
+| `touji-fushiguro` | cormorant / inter | restriction | 16 |
+| `jougo` | plexmono / anton / inter | molten | 9 |
+| `yuuta-okkotsu` | cormorant / shippori / plexmono / cinzel | rika | 15 |
+
+Maki ve Tōji'nin `data-*` adı aynı (`restriction`) — kavram brief'te ikisine
+de kilitlendi. Ama betik ikisini **hiçbir eksende** yakın bulmuyor: font
+kümesi farklı (9 vs 16 ızgara sinyali), hareket dili zıt (`steps()` vs
+neredeyse hiç hareket), düğmenin yaptığı iş farklı (palet+ölçü vs sütun
+çizme).
+
+### Elle yapılan ek denetimler
+
+- **Sayfalar arası bileşen paylaşımı: yok.** Sekiz klasörün hiçbiri başka bir
+  karakterin bileşenini ya da `-experience.ts` dosyasını import etmiyor.
+  Paylaşılan tek şey altyapı (`CuratorFrame` / `CuratorSlot` / `CuratorGaps` /
+  `experiences` / `types`).
+- **Küratör metni sızıntısı: yok.** Sekizinde de ölçü/spec metni `isAdmin`
+  dalında; ziyaretçinin gördüğü boş kadraj yazısız (Dalga 1'in Levi hatası
+  tekrarlanmadı).
+- **İstemci adası:** yedisinde 2, Yūta'da 3 (sınır 3).
+- **Klasör başına `.module.css`:** sekizinde de 1.
+- **Palet bütünlüğü:** sekiz deri bloğunun standart 14 token'ı brief'teki
+  değerlerle **birebir**; ajanlar yalnızca işaretli yer tutucuya kendi
+  `--<önek>-*` ailelerini ekledi.
+- **Mevcut JJK sayfaları değişmedi:** Gojō, Megumi, Nobara, Nanami, Getō,
+  Sukuna/Itadori — `git diff` bu klasörlerde sıfır satır gösteriyor.
+
+### Nexus bağları
+
+| Bağ | Durum |
+|---|---|
+| Tōji → Megumi (#126635) | ✔ kuruldu, çift yönlü |
+| **Megumi → Tōji** | ✔ **kendiliğinden canlandı** — Megumi'nin veri dosyası zaten `162722` taşıyordu ve `isExperienceCharacter()` ile çiziyordu; Tōji kayıt olunca düz ad bağlantıya döndü |
+| Tōji → Maki (#134167) | ✔ |
+| Maki → Zen'in klanı | ✔ (klan bir karakter değil; sayfa içi bölüm olarak, Tōji bağlantılı) |
+| Chōsō → Itadori (#127212) | ✔ |
+| Mahito → Nanami (#133704) | ✔ |
+| Jōgo → Sukuna (#133701) | ✔ |
+| Yūta → Gojō (#127691) | ✔ |
+| **Getō → Yūta** | ✔ **kendiliğinden canlandı** (aynı mekanizma, `129571`) |
+
+**Eksik hedef (link kurulmadı, düz ad yazıldı):** Mai Zen'in, Toge Inumaki,
+Masamichi Yaga, Takada-chan, Rika Orimoto, Riko Amanai, Shiu Kong, Hanami,
+Dagon, Kechizu (#210832) ve Eso (#210831). Son ikisinin AniList numarası var
+ve `EXPERIENCE_COMPANIONS`'a yazıldı (portre girilirse kadraj dolar) ama
+kendi sayfaları yok, o yüzden bağlantı kurulmadı.
+
+---
+
+## 5. Merkezde bulunan ve düzeltilen ikinci iş
+
+### `--font-inter` 200 ağırlığını basmıyordu
+
+Tōji'nin brief'i başlıkları **Inter 200** diye kilitledi; incelik o sayfanın
+kimliğinin (yokluk, boş gökyüzü) taşıyıcısı. Ama aile `layout.tsx`'te statik
+kesimlerle yükleniyordu (`weight: ["400","600","700"]`) ve **bildirilmeyen bir
+ağırlık sessizce en yakınına düşüyor** — yani `font-weight: 200` yazan kural
+400 çiziliyordu. Bunu ne `tsc`, ne `eslint`, ne de beş denetim betiği görüyor.
+
+Düzeltme: `weight: ["200","400","600","700"]`.
+
+**Ölçüldü, tahmin edilmedi:** `font-weight: 200` yazan 12 modülün **hiçbiri**
+`--font-inter` okumuyor (Bleach salonu, Konan, Minato, Tenten — hepsi
+Jost/Cormorant/Shippori ailesinde), yani bu ekleme yayındaki hiçbir sayfanın
+görünüşünü değiştirmiyor.
+
+⚠️ **AÇIK İŞ, bu turda bilerek düzeltilmedi:** Inter okuyan **üç** modül
+`font-weight: 300` yazıyor (`bleach/world`, Gojō, Ulquiorra) ve onlar da bugün
+400 çiziliyor. `"300"` eklemek üç **yayın** sayfasının görünüşünü değiştirirdi;
+bu görevin kapsamı dışında ve ayrı bir karar. Not `layout.tsx`'te de duruyor.
+
+---
+
+## 6. Kalan iş
+
+- [x] Grup 1 ve Grup 2 birleşti, denetimler temiz, build temiz
+- [x] `docs/KARAKTER-SAYFASI-EKLEME.md` §3 (8 yeni mekanik satırı) ve §4
+      (8 yeni palet satırı + açılan renk aileleri notu) güncellendi
+- [x] Worktree sökümü — junction **önce** `rmdir`, sonra `git worktree remove`
+- [ ] **Görseller:** sekiz sayfa toplam **134 küratör yuvası** çiziyor ve
+      neredeyse hepsi bugün **boş**. Ölçüldü (kaynaktan sayıldı):
+
+      | Sayfa | `ABILITY` anahtarı | + PORTRAIT | Toplam yuva |
+      |---|---|---|---|
+      | `chousou` (`chs`) | 17 | 1 + 5 yoldaş | 23 |
+      | `maki-zenin` (`mki`) | 14 | 1 | 15 |
+      | `mahito` (`mht`) | 20 | 1 | 21 |
+      | `aoi-toudou` (`tdo`) | 12 | 1 | 13 |
+      | `panda` (`pnd`) | 14 | 1 | 15 |
+      | `touji-fushiguro` (`toj`) | 13 | 1 | 14 |
+      | `jougo` (`jgo`) | 15 | 1 | 16 |
+      | `yuuta-okkotsu` (`yut`) | 16 | 1 | 17 |
+      | **Toplam** | **121** | **13** | **134** |
+
+      Sayfalar görselsiz tam çalışıyor; küratör modundan yüklenen kare anında
+      görünüyor (`no-store`). Öncelik sırası: sekiz **hero** karesi
+      (1200×1600 dikey portre), sonra teknik/sahne kadrajları.
+- [ ] **Yoldaş portreleri:** JJK kadrosunun kendi veritabanımızda hâlâ portresi
+      yok, yani sekiz sayfanın bağlar bölümü bugün **adla** çiziliyor. Bölümler
+      bu hâlde tasarlandı; portre girildiğinde kendiliğinden yerine oturur.
+- [ ] **Dalga 2'nin yarım işi** duruyor (bu görevin kapsamı dışında):
+      `anime/faz2-dalga2` üzerindeki `bb36a2d` beş MHA rotasını ve kaydını
+      taşıyor ama bileşenleri yok.
+- [ ] `lib/characters/sukuna-itadori-experience.ts` satır 62 ve 64 AniList'e
+      **hotlink** yapıyor (bu görevden önce yazılmış, ayrı iş).

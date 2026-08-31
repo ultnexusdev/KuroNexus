@@ -1,0 +1,1866 @@
+/* ============================================================
+   DÜNYA DERİSİ — Uryū Ishida (AniList #564)
+
+   Palet dalga briefinde KİLİTLİ; değerler olduğu gibi alındı ve
+   `node scripts/check-karakter-kontrast.mjs` ile ölçüldü:
+   text-primary 11.23 / surface, text-secondary 4.94, text-muted 4.97,
+   accent 3.18, accent-hover 4.80, gold 4.81 — hepsi eşiğin üstünde.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı
+   gereği bir yerel sınıf şart. Kök öğe ikisini birlikte taşır.
+
+   Aile: SOĞUK MÜREKKEP MAVİSİ. Arşivin sıkışmış turuncu ve kızıl
+   ailelerinin tamamen dışında. En yakın komşu Madara'nın #5f6bb8'i
+   (RGB uzaklığı 24) ve zeminler bambaşka: Madara sıcak siyah bir
+   basamak dizisi, burası soğuk bir teknik föy.
+
+   ⚠️ BU BLOKTAN AŞAĞIDA TEK HEX YOK. `[data-blut]` blokları hex
+   TAŞIMAZ — `check-karakter-hex.mjs` yalnızca `data-vessel` ikinci
+   niteliğini deri sayıyor, `data-blut` bloğu gövde olarak taranıyor.
+   Orada yalnızca UZUNLUK ve token referansı var.
+
+   ⚠️ Yardımcı token adlandırması: küçük metinde okunan her rengin
+   `-text` ekli bir kardeşi var (denetim yalnızca onları ölçüyor).
+   Ekli olmayanlar MALZEME: ızgara çizgisi, artı işareti, haçın
+   konturu, dikiş ipliği, kilit halkası.
+   ============================================================ */
+.page[data-world="uryuu-ishida"] {
+  --bg:             #0a0b0f;
+  --surface:        #111319;
+  --surface-hover:  #181a21;
+  --border:         #1e2029;
+  --border-strong:  #2c2f3a;
+
+  --text-primary:   #c7c9d1;
+  --text-secondary: #7c839c;
+  --text-muted:     #7b83a3;
+
+  --accent:         #4a5fb5;
+  --accent-hover:   #727fb6;
+  --accent-muted:   #212430;
+
+  --gold:           #7d828c;
+  --warn:           #b88347;
+  --danger:         #c26459;
+
+  /* ── Yardımcı MALZEME — ölçülmüyor, hiçbiri metin taşımıyor ── */
+  --ury-rule:       #1c1f2b;
+  --ury-tick:       #333a55;
+  --ury-cross:      #262d47;
+  --ury-thread:     #39405c;
+  --ury-lock:       #5b73cf;
+  --ury-ink:        #0d0e13;
+
+  /* ── Küçük metinde okunan aile (`-text`, ölçülüyor) ── */
+  --ury-blueprint-text: #9aa3c4;
+  --ury-measure-text:   #a5adcc;
+  --ury-ja-text:        #a9b0cd;
+  --ury-frame-text:     #949cbb;
+  --ury-stitch-text:    #a8a2c0;
+}
+
+/* ============================================================
+   URYŪ ISHIDA — "Nişangâh"
+
+   ── SAYFANIN FİKRİ ──────────────────────────────────────────────────────
+   QUINCY GEOMETRİSİ VE TERZİLİK. İki hassasiyet aynı elde: NİŞAN ve DİKİŞ.
+   Sayfanın tamamı görünür bir BLUEPRINT IZGARASININ üstünde duruyor; her
+   bölüm on iki kolonluk bir ızgaraya tam oturuyor ve köşelerinde artı (+)
+   işaretleri var. Serbest yüzen tek bir alan yok.
+
+   ── ÖLÇÜ SİSTEMİ ────────────────────────────────────────────────────────
+   `--ury-cell`   ızgara gözü (blueprint çizgilerinin aralığı)
+   `--ury-rule-w` çizgi kalınlığı — Blut düğmesinin çevirdiği ANA değişken
+   `--ury-plus`   köşe artı işaretinin boyu
+   `--ury-gutter` on iki kolonun arası
+   `--ury-step`   bölümler arası boşluk
+
+   ── BLUT: IŞIK DEĞİL YAPI ───────────────────────────────────────────────
+   `data-blut="vene"`    savunma → çizgi KALINLAŞIR, göz daralır, kutular
+                         dört kenardan KAPANIR, nişangâh halkaları daralır
+   `data-blut="arterie"` saldırı → çizgi İNCELİR, göz açılır, kutuların
+                         zemini ve iki kenarı KALKAR, halkalar AÇILIR,
+                         mavi haçlar keskinleşir
+   ⚠️ İki durumda da blueprint ızgara DURUYOR (Dalga 1'in ikinci dersi):
+   mod ızgarayı açıp kapatan bir anahtar değil, kalınlığını çeviren bir kol.
+
+   ── RENK GÖREVLERİ ──────────────────────────────────────────────────────
+   --accent            → bölüm başlıkları, kilitli halka, bağlantılar
+   --accent-hover      → sayılar, kilit rozeti, motto
+   --gold              → föy değerleri
+   --ury-rule          → YALNIZCA blueprint ızgara çizgileri
+   --ury-tick          → YALNIZCA köşe artı işaretleri
+   --ury-cross         → YALNIZCA Quincy haçı filigranının konturu
+   --ury-thread        → YALNIZCA teyel ipliği
+   --ury-lock          → YALNIZCA nişangâhın kilit halkası
+   --ury-measure-text  → YALNIZCA ölçüm okumaları
+
+   ── TİPOGRAFİ: İKİ AİLENİN ÇELİŞKİSİ ────────────────────────────────────
+   Başlık ve özel adlar BLACKLETTER (`--font-gothic`, UnifrakturMaguntia —
+   Quincy'nin Alman kimliği). Gövde, etiket ve bütün ölçüler MONO
+   (`--font-plexmono`). Sayfanın kimliği bu çelişki: gotik + teknik.
+
+   ⚠️ GOTİK AİLENİN ş/ğ/İ/ı HARFLERİ YOK (`scripts/check-bleach-fonts.mjs`).
+   Bu yüzden gotik sınıfların hepsine MONO YEDEĞİ yazıldı ve o sınıflara
+   yalnızca Latin-1 sınırları içindeki özel adlar basılıyor. Türkçe bölüm
+   başlıkları mono ailede — okunaklılık riski de böylece kalkıyor: gotik
+   yalnızca büyük punto ve kısa dizede.
+
+   ── HAREKET ─────────────────────────────────────────────────────────────
+   İki dil: NİŞANGÂH KİLİTLENMESİ (halkalar dönerek daralıyor, ara
+   duraklarda BEKLİYOR — kısa, mekanik, sıçramalı) ve TEYEL (dikiş çizgisi
+   `stroke-dasharray` deseniyle ilerliyor). Altı `@keyframes` var, hepsi
+   dosya sonundaki `reduce` battaniyesiyle kapanıyor.
+   ============================================================ */
+
+.page {
+  --ury-cell: 2.5rem;
+  --ury-rule-w: 1px;
+  --ury-plus: 13px;
+  --ury-gutter: clamp(0.6rem, 1.6vw, 1.4rem);
+  --ury-step: clamp(4.5rem, 11vh, 8rem);
+  --ury-max: 74rem;
+  --ury-lock-ms: 620ms;
+  --ury-quick: 200ms;
+  --ury-ease: cubic-bezier(0.2, 0.9, 0.3, 1);
+
+  /* Kutu davranışı — Blut düğmesi bu üçünü çeviriyor */
+  --ury-box-bg: var(--surface);
+  --ury-box-edge: var(--border-strong);
+  --ury-box-open: 0;
+  --ury-ring-scale: 1;
+
+  position: relative;
+  background-color: var(--bg);
+  /* BLUEPRINT: iki yönde ince çizgi. İki durumda da duruyor. */
+  background-image:
+    repeating-linear-gradient(
+      to right,
+      var(--ury-rule) 0,
+      var(--ury-rule) var(--ury-rule-w),
+      transparent var(--ury-rule-w),
+      transparent var(--ury-cell)
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      var(--ury-rule) 0,
+      var(--ury-rule) var(--ury-rule-w),
+      transparent var(--ury-rule-w),
+      transparent var(--ury-cell)
+    );
+  color: var(--text-primary);
+  overflow-x: clip;
+  overflow-wrap: break-word;
+  padding: clamp(1.1rem, 3.5vw, 2.25rem) clamp(0.9rem, 4vw, 2.5rem)
+    clamp(4rem, 12vh, 7rem);
+  font-family: var(--font-plexmono), ui-monospace, "SFMono-Regular", monospace;
+  font-size: clamp(0.78rem, 0.73rem + 0.22vw, 0.88rem);
+  line-height: 1.78;
+  letter-spacing: 0.005em;
+}
+
+/* Görünür odak — sayfadaki her düğme ve bağlantı için tek kural */
+.page :focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 3px;
+}
+
+/* ── BLUT · SAVUNMA (静血装) ────────────────────────────────────────────
+   Çizgi kalınlaşıyor, göz daralıyor, kutular dört kenardan kapanıyor.
+   Sayfa sıkışıyor: bir savunma duruşunun layout karşılığı. */
+.page[data-blut="vene"] {
+  --ury-cell: 2.25rem;
+  --ury-rule-w: 1.15px;
+  --ury-plus: 12px;
+  --ury-box-bg: var(--surface);
+  --ury-box-edge: var(--border-strong);
+  --ury-box-open: 0;
+  --ury-ring-scale: 0.84;
+}
+
+/* ── BLUT · SALDIRI (動血装) ────────────────────────────────────────────
+   Çizgi inceliyor, göz açılıyor, kutuların ZEMİNİ ve iki kenarı kalkıyor
+   (yalnız sol + alt kural çizgisi kalıyor), halkalar açılıyor. */
+.page[data-blut="arterie"] {
+  /* ⚠️ 0.75px, 0.5px DEĞİL: yarım piksellik bir `border-width` bazı
+     tarayıcılarda tamamen kayboluyor ve kutuların kenarı yok olurdu.
+     0.75px hem kenarı ayakta tutuyor hem 1.15px'e göre gözle görülür
+     biçimde daha ince — düğmenin işi bu farkı göstermek. */
+  --ury-cell: 3.25rem;
+  --ury-rule-w: 0.75px;
+  --ury-plus: 17px;
+  --ury-box-bg: transparent;
+  --ury-box-edge: transparent;
+  --ury-box-open: 1;
+  --ury-ring-scale: 1.2;
+}
+
+/* ============================================================
+   KÖŞE ARTI İŞARETLERİ
+
+   Sekiz katmanlı tek bir sözde öğe: her köşede iki çubuk, bir artı.
+   Sözde öğe kutunun yarım artı boyu DIŞINA taşıyor ki haç köşenin tam
+   ÜSTÜNDE otursun (yarısı kırpılmış bir tik değil).
+   ============================================================ */
+.section::before,
+.reticleSection::before,
+.closing::before,
+.hero::before,
+.mode::before,
+.arm::before,
+.kit::before,
+.bond::before,
+.hall::before,
+.panel::before,
+.board::before,
+.frameCorners {
+  content: "";
+  position: absolute;
+  inset: calc(var(--ury-plus) / -2);
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--ury-tick), var(--ury-tick)),
+    linear-gradient(var(--ury-tick), var(--ury-tick)),
+    linear-gradient(var(--ury-tick), var(--ury-tick)),
+    linear-gradient(var(--ury-tick), var(--ury-tick)),
+    linear-gradient(var(--ury-tick), var(--ury-tick)),
+    linear-gradient(var(--ury-tick), var(--ury-tick)),
+    linear-gradient(var(--ury-tick) 0 0), linear-gradient(var(--ury-tick) 0 0);
+  background-repeat: no-repeat;
+  background-size:
+    var(--ury-plus) var(--ury-rule-w), var(--ury-rule-w) var(--ury-plus),
+    var(--ury-plus) var(--ury-rule-w), var(--ury-rule-w) var(--ury-plus),
+    var(--ury-plus) var(--ury-rule-w), var(--ury-rule-w) var(--ury-plus),
+    var(--ury-plus) var(--ury-rule-w), var(--ury-rule-w) var(--ury-plus);
+  background-position:
+    left 0 top calc(var(--ury-plus) / 2 - var(--ury-rule-w) / 2),
+    left calc(var(--ury-plus) / 2 - var(--ury-rule-w) / 2) top 0,
+    right 0 top calc(var(--ury-plus) / 2 - var(--ury-rule-w) / 2),
+    right calc(var(--ury-plus) / 2 - var(--ury-rule-w) / 2) top 0,
+    left 0 bottom calc(var(--ury-plus) / 2 - var(--ury-rule-w) / 2),
+    left calc(var(--ury-plus) / 2 - var(--ury-rule-w) / 2) bottom 0,
+    right 0 bottom calc(var(--ury-plus) / 2 - var(--ury-rule-w) / 2),
+    right calc(var(--ury-plus) / 2 - var(--ury-rule-w) / 2) bottom 0;
+  transition: background-size var(--ury-quick) var(--ury-ease);
+}
+
+/* ============================================================
+   ON İKİ KOLONLUK IZGARA
+
+   Her bölüm aynı ızgaraya oturuyor; hiçbir öğe kolon dışına taşmıyor.
+   40rem altında ızgara tek kolona iniyor (360 px'te taşma yok).
+   ============================================================ */
+.hero,
+.mode,
+.section,
+.reticleSection,
+.closing {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--ury-gutter);
+  align-content: start;
+  max-width: var(--ury-max);
+  margin-inline: auto;
+  margin-block-end: var(--ury-step);
+  padding: clamp(1.4rem, 3.5vw, 2.4rem) clamp(1rem, 2.6vw, 1.8rem);
+}
+
+/* ── Breadcrumb ─────────────────────────────────────────────────────── */
+.crumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  max-width: var(--ury-max);
+  margin-inline: auto;
+  margin-block-end: clamp(1.5rem, 4vh, 2.75rem);
+  padding-inline: clamp(1rem, 2.6vw, 1.8rem);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.crumbLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-block-end: var(--ury-rule-w) solid
+    color-mix(in srgb, var(--accent-hover) 40%, transparent);
+}
+
+.crumbLink:hover {
+  color: var(--text-primary);
+}
+
+.crumbSep {
+  color: var(--ury-tick);
+}
+
+.crumbHere {
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   1 · HERO
+   ============================================================ */
+.hero {
+  row-gap: 1.4rem;
+  padding-block: clamp(2rem, 6vh, 4rem);
+}
+
+/* Filigran: elle çizilmiş beş uçlu Quincy haçı + 滅却師 */
+.watermark {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  justify-self: end;
+  align-self: start;
+  position: relative;
+  display: block;
+  inline-size: min(58%, 22rem);
+  aspect-ratio: 1;
+  margin-block-start: -1.5rem;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.watermarkArt {
+  inline-size: 100%;
+  block-size: 100%;
+  color: var(--ury-cross);
+  stroke: currentColor;
+  stroke-width: 1.4;
+  opacity: 0.85;
+}
+
+.watermarkStroke {
+  stroke: currentColor;
+  stroke-width: 1.4;
+}
+
+.watermarkRing {
+  stroke: color-mix(in srgb, var(--ury-cross) 70%, transparent);
+  stroke-width: 1;
+  stroke-dasharray: 6 5;
+}
+
+.watermarkKanji {
+  position: absolute;
+  inset-block-end: 4%;
+  inset-inline-start: 2%;
+  font-family: var(--font-plexmono), ui-monospace, monospace;
+  font-size: clamp(1rem, 0.7rem + 1.4vw, 1.7rem);
+  letter-spacing: 0.42em;
+  color: color-mix(in srgb, var(--ury-cross) 92%, var(--text-muted));
+}
+
+.heroHead {
+  grid-column: 1 / 10;
+  grid-row: 1;
+  position: relative;
+  z-index: 1;
+}
+
+/* Gotik wordmark — ASCII, Türkçe dize GEÇEMEZ */
+.wordmark {
+  font-family: var(--font-gothic), var(--font-plexmono), serif;
+  font-size: clamp(1.5rem, 0.9rem + 2.6vw, 2.9rem);
+  line-height: 1;
+  color: color-mix(in srgb, var(--accent) 62%, var(--bg));
+  margin: 0 0 0.35rem;
+}
+
+/* Gotik ad — sayfadaki en büyük öğe. Ekran okuyucu için DÜZ metin:
+   harf harf span'lanmıyor. */
+.heroName {
+  font-family: var(--font-gothic), var(--font-plexmono), serif;
+  font-size: clamp(2.6rem, 1.4rem + 6vw, 5.4rem);
+  font-weight: 400;
+  line-height: 0.98;
+  letter-spacing: 0.01em;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.heroNative {
+  margin: 0.7rem 0 0;
+  font-size: clamp(0.9rem, 0.8rem + 0.5vw, 1.15rem);
+  letter-spacing: 0.34em;
+  color: var(--ury-ja-text);
+}
+
+.heroLong,
+.heroSchrift {
+  margin: 0.35rem 0 0;
+  font-size: 0.74rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ury-blueprint-text);
+}
+
+.heroSchrift {
+  color: var(--accent-hover);
+}
+
+/* Teyel ayracı — dikiş çizgisi ilerliyor */
+.stitch {
+  grid-column: 1 / -1;
+  inline-size: 100%;
+  block-size: 12px;
+  margin-block: 1.6rem 0.4rem;
+  color: var(--ury-thread);
+}
+
+.stitchThread {
+  stroke: var(--ury-thread);
+  stroke-width: 1.6;
+  stroke-dasharray: 12 9;
+  animation: uryStitch 5.5s var(--ury-ease) infinite;
+}
+
+.stitchNeedle {
+  stroke: var(--ury-tick);
+  stroke-width: 1.4;
+}
+
+.heroText {
+  grid-column: 1 / 8;
+  position: relative;
+  z-index: 1;
+}
+
+.heroEpigraph {
+  margin: 0;
+  font-size: clamp(0.9rem, 0.82rem + 0.4vw, 1.05rem);
+  line-height: 1.68;
+  color: var(--text-primary);
+}
+
+.heroLede {
+  margin: 1rem 0 0;
+  color: var(--text-secondary);
+}
+
+/* Künye madalyonu — portre 230×345, dar kadraj */
+.portraitPlate {
+  grid-column: 8 / -1;
+  align-self: start;
+}
+
+.portrait {
+  position: relative;
+  display: block;
+  margin: 0;
+  padding: 0.5rem;
+  background: var(--ury-ink);
+  border: var(--ury-rule-w) solid var(--border-strong);
+}
+
+.portraitImg {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  filter: saturate(0.82) contrast(1.05);
+}
+
+.heroFrameNote {
+  grid-column: 1 / -1;
+  margin: 1.6rem 0 0.7rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  color: var(--ury-frame-text);
+}
+
+/* ============================================================
+   2 · BLUT DÜĞMESİ
+   ============================================================ */
+.mode {
+  row-gap: 0.9rem;
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
+  border-block: var(--ury-rule-w) solid var(--border);
+}
+
+.modeTitle {
+  grid-column: 1 / 4;
+  margin: 0;
+  font-family: var(--font-gothic), var(--font-plexmono), serif;
+  font-size: clamp(1.6rem, 1.1rem + 1.8vw, 2.5rem);
+  font-weight: 400;
+  line-height: 1;
+  color: var(--accent-hover);
+}
+
+.modeSwitch {
+  grid-column: 4 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ury-gutter);
+}
+
+.modeButton {
+  flex: 1 1 12rem;
+  display: grid;
+  gap: 0.15rem;
+  min-height: var(--touch-min);
+  padding: 0.7rem 0.9rem;
+  text-align: start;
+  cursor: pointer;
+  color: var(--text-secondary);
+  background: transparent;
+  border: var(--ury-rule-w) solid var(--border);
+  transition:
+    border-color var(--ury-quick) var(--ury-ease),
+    color var(--ury-quick) var(--ury-ease),
+    background-color var(--ury-quick) var(--ury-ease);
+}
+
+.modeButton:hover {
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+.modeButton[aria-pressed="true"] {
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border-color: var(--accent);
+}
+
+/* Gotik taraf adı — ASCII ("Vene" / "Arterie") */
+.modeName {
+  font-family: var(--font-gothic), var(--font-plexmono), serif;
+  font-size: clamp(1.35rem, 1rem + 1.2vw, 1.9rem);
+  line-height: 1.05;
+}
+
+.modeKanji {
+  font-size: 0.82rem;
+  letter-spacing: 0.28em;
+  color: var(--ury-ja-text);
+}
+
+.modeLabel {
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.modeHint {
+  grid-column: 4 / -1;
+  margin: 0;
+  color: var(--ury-measure-text);
+}
+
+.modeRule {
+  grid-column: 4 / -1;
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.modeSource {
+  grid-column: 4 / -1;
+  margin: 0;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   BÖLÜM BAŞLIKLARI
+   ============================================================ */
+.section,
+.reticleSection,
+.closing {
+  row-gap: 0.85rem;
+}
+
+/* Gotik Almanca işaret — aria-hidden, Latin-1 sınırları içinde */
+.sectionMark {
+  grid-column: 1 / 4;
+  grid-row: 1;
+  margin: 0;
+  font-family: var(--font-gothic), var(--font-plexmono), serif;
+  font-size: clamp(1.5rem, 1rem + 2.2vw, 2.7rem);
+  line-height: 1;
+  color: color-mix(in srgb, var(--accent) 55%, var(--bg));
+  animation: uryTick 900ms var(--ury-ease) both;
+}
+
+.sectionTitle {
+  grid-column: 4 / -1;
+  grid-row: 1;
+  align-self: end;
+  margin: 0;
+  font-size: clamp(0.8rem, 0.74rem + 0.3vw, 0.95rem);
+  font-weight: 500;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--accent-hover);
+}
+
+.sectionLede {
+  grid-column: 4 / 11;
+  margin: 0 0 1.2rem;
+  color: var(--text-secondary);
+}
+
+/* ============================================================
+   3 · TEKNİK FÖY
+   ============================================================ */
+.facts {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: calc(var(--ury-gutter) * 2);
+  margin: 0;
+}
+
+.fact {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding-block: 0.5rem;
+  border-block-end: var(--ury-rule-w) solid var(--border);
+}
+
+.factIndex {
+  display: inline-block;
+  min-inline-size: 1.9rem;
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  color: var(--ury-tick);
+}
+
+.factLabel {
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.factValue {
+  margin: 0;
+  text-align: end;
+  color: var(--gold);
+}
+
+.factNote {
+  grid-column: 4 / 11;
+  margin: 1.3rem 0 0;
+  font-size: 0.74rem;
+  color: var(--ury-blueprint-text);
+}
+
+/* ============================================================
+   4a · ÜÇ ANA SİSTEM
+   ============================================================ */
+.armList {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: calc(var(--ury-gutter) * 2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.arm {
+  position: relative;
+  display: grid;
+  grid-template-columns: 3.2rem minmax(0, 1fr);
+  gap: 0.35rem var(--ury-gutter);
+  padding: 1.2rem 1.1rem;
+  background: var(--ury-box-bg);
+  border: var(--ury-rule-w) solid var(--ury-box-edge);
+  border-inline-start: calc(var(--ury-rule-w) * 2) solid var(--accent-muted);
+  border-block-end: var(--ury-rule-w) solid var(--border-strong);
+  transition:
+    background-color var(--ury-lock-ms) var(--ury-ease),
+    border-color var(--ury-lock-ms) var(--ury-ease);
+}
+
+.armIndex {
+  grid-column: 1;
+  grid-row: 1 / 3;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  color: var(--ury-tick);
+}
+
+/* Gotik sistem adı — Latin-1 sınırları içinde, aria-hidden */
+.armName {
+  grid-column: 2;
+  margin: 0;
+  font-family: var(--font-gothic), var(--font-plexmono), serif;
+  font-size: clamp(1.7rem, 1.1rem + 2.4vw, 3rem);
+  line-height: 1;
+  color: var(--text-primary);
+}
+
+.armHeading {
+  grid-column: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.9rem;
+  margin: 0.15rem 0 0;
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.armRomaji {
+  color: var(--ury-blueprint-text);
+}
+
+.armKanji {
+  letter-spacing: 0.24em;
+  text-transform: none;
+  color: var(--ury-ja-text);
+}
+
+.armTurkish {
+  color: var(--text-muted);
+}
+
+.armTagline {
+  grid-column: 2;
+  margin: 0.7rem 0 0;
+  font-size: clamp(0.85rem, 0.8rem + 0.3vw, 1rem);
+  color: var(--accent-hover);
+}
+
+.armText {
+  grid-column: 2;
+  margin: 0.5rem 0 0;
+  color: var(--text-secondary);
+}
+
+.armTraits {
+  grid-column: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.9rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trait {
+  padding: 0.2rem 0.55rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  color: var(--ury-measure-text);
+  border: var(--ury-rule-w) solid var(--border-strong);
+}
+
+/* ============================================================
+   4b · DÖRT ALET
+   ============================================================ */
+.axis {
+  grid-column: 1 / -1;
+  inline-size: 100%;
+  block-size: 16px;
+  margin-block-end: 0.9rem;
+}
+
+.axisRail {
+  stroke: var(--border-strong);
+  stroke-width: 1;
+}
+
+.axisTick {
+  stroke: var(--ury-tick);
+  stroke-width: 1;
+}
+
+.axisMajor {
+  stroke: var(--accent);
+  stroke-width: 1.4;
+}
+
+.kitList {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: calc(var(--ury-gutter) * 1.6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kit {
+  position: relative;
+  padding: 1rem;
+  background: var(--ury-box-bg);
+  border: var(--ury-rule-w) solid var(--ury-box-edge);
+  border-block-start: calc(var(--ury-rule-w) * 2) solid var(--accent-muted);
+  transition:
+    background-color var(--ury-lock-ms) var(--ury-ease),
+    border-color var(--ury-lock-ms) var(--ury-ease);
+}
+
+.kitName {
+  margin: 0;
+  font-size: 0.86rem;
+  font-weight: 500;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.kitKanji {
+  margin: 0.2rem 0 0;
+  font-size: 0.82rem;
+  letter-spacing: 0.3em;
+  color: var(--ury-ja-text);
+}
+
+.kitTurkish {
+  margin: 0.15rem 0 0;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: var(--accent-hover);
+}
+
+.kitNote {
+  margin: 0.7rem 0 0;
+  color: var(--text-secondary);
+}
+
+/* ============================================================
+   5 · NİŞANGÂH — SAYFANIN KALBİ
+   ============================================================ */
+.reticleSection {
+  row-gap: 0.85rem;
+}
+
+.scope {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  gap: calc(var(--ury-gutter) * 1.6);
+}
+
+.board {
+  position: relative;
+  grid-column: 1;
+  aspect-ratio: 4 / 3;
+  padding: 0.9rem;
+  background:
+    radial-gradient(
+      circle at 50% 50%,
+      color-mix(in srgb, var(--accent) 8%, transparent) 0,
+      transparent 62%
+    ),
+    var(--ury-ink);
+  border: var(--ury-rule-w) solid var(--border-strong);
+  overflow: clip;
+}
+
+/* Tarama çizgisi — boştayken panoyu soldan sağa geçiyor.
+   Konum `background-position` ile sürülüyor: pano genişliği bilinmediği
+   için `translate` yüzdesi (öğenin KENDİ boyu) işe yaramazdı. */
+.boardSweep {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(
+    to right,
+    transparent 0%,
+    color-mix(in srgb, var(--ury-lock) 55%, transparent) 46%,
+    color-mix(in srgb, var(--ury-lock) 55%, transparent) 54%,
+    transparent 100%
+  );
+  background-size: 18% 100%;
+  background-repeat: no-repeat;
+  background-position: -18% 0;
+  animation: urySweep 7s linear infinite;
+}
+
+.board[data-locked="true"] .boardSweep {
+  animation-play-state: paused;
+  opacity: 0;
+}
+
+.boardGrid {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.boardAxis {
+  stroke: color-mix(in srgb, var(--ury-tick) 80%, transparent);
+  stroke-width: 1;
+  stroke-dasharray: 4 6;
+}
+
+.boardCaption {
+  position: absolute;
+  inset-block-start: 0.55rem;
+  inset-inline-start: 0.7rem;
+  margin: 0;
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ury-frame-text);
+}
+
+/* Hedeflerin oturduğu alan — kenarlardan içeri çekilmiş ki 360 px'te
+   büyütülmüş bir hedef bile panodan taşmasın. */
+.field {
+  position: absolute;
+  inset: clamp(1.7rem, 7%, 2.8rem);
+}
+
+/* ── NİŞANGÂH ──────────────────────────────────────────────────────── */
+.reticle {
+  position: absolute;
+  inline-size: clamp(5.5rem, 22%, 9rem);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  opacity: 0.4;
+  scale: var(--ury-ring-scale);
+  transition:
+    left var(--ury-lock-ms) var(--ury-ease),
+    top var(--ury-lock-ms) var(--ury-ease),
+    opacity var(--ury-quick) var(--ury-ease);
+  pointer-events: none;
+}
+
+.reticle[data-locked="true"] {
+  opacity: 1;
+}
+
+.reticleArt {
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.reticleRingOuter {
+  stroke: color-mix(in srgb, var(--ury-lock) 65%, transparent);
+  stroke-width: 1.2;
+  stroke-dasharray: 10 8;
+  transform-origin: 50% 50%;
+}
+
+.reticleRingMid {
+  stroke: color-mix(in srgb, var(--ury-lock) 80%, transparent);
+  stroke-width: 1;
+  stroke-dasharray: 5 12;
+  transform-origin: 50% 50%;
+}
+
+.reticleRingInner {
+  stroke: var(--ury-lock);
+  stroke-width: 1.4;
+  transform-origin: 50% 50%;
+}
+
+.reticleTick {
+  stroke: color-mix(in srgb, var(--ury-lock) 70%, transparent);
+  stroke-width: 1.2;
+}
+
+.reticleDot {
+  stroke: var(--accent-hover);
+  stroke-width: 1.6;
+}
+
+.reticle[data-locked="true"] .reticleRingOuter {
+  animation: uryLock var(--ury-lock-ms) linear both;
+}
+
+.reticle[data-locked="true"] .reticleRingMid {
+  animation: uryLock var(--ury-lock-ms) linear both;
+  animation-delay: 70ms;
+}
+
+.reticle[data-locked="true"] .reticleRingInner {
+  animation: uryLock var(--ury-lock-ms) linear both;
+  animation-delay: 140ms;
+}
+
+/* ── HEDEFLER ──────────────────────────────────────────────────────── */
+.targets {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.targetSeat {
+  position: absolute;
+  translate: -50% -50%;
+}
+
+.target {
+  display: grid;
+  justify-items: center;
+  gap: 0.1rem;
+  min-inline-size: var(--touch-min);
+  min-block-size: var(--touch-min);
+  padding: 0.35rem 0.5rem;
+  cursor: pointer;
+  color: var(--text-secondary);
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  border: var(--ury-rule-w) solid var(--border-strong);
+  transition:
+    scale var(--ury-lock-ms) var(--ury-ease),
+    opacity var(--ury-quick) var(--ury-ease),
+    border-color var(--ury-quick) var(--ury-ease),
+    color var(--ury-quick) var(--ury-ease);
+}
+
+.target:hover {
+  border-color: var(--accent);
+  color: var(--text-primary);
+}
+
+.target[data-dimmed="true"] {
+  opacity: 0.35;
+}
+
+.target[data-locked="true"] {
+  scale: 1.55;
+  z-index: 2;
+  color: var(--text-primary);
+  border-color: var(--ury-lock);
+  background: color-mix(in srgb, var(--accent) 20%, var(--bg));
+}
+
+.targetKanji {
+  font-size: 0.8rem;
+  letter-spacing: 0.16em;
+  color: var(--ury-ja-text);
+}
+
+.targetMark {
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  color: var(--accent-hover);
+}
+
+.targetName {
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ── ÖLÇÜ PANELİ ───────────────────────────────────────────────────── */
+.panel {
+  position: relative;
+  grid-column: 2;
+  padding: 1rem;
+  background: var(--surface);
+  border: var(--ury-rule-w) solid var(--border-strong);
+}
+
+.panelTitle {
+  margin: 0 0 0.8rem;
+  font-size: 0.64rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ury-frame-text);
+}
+
+.readout {
+  animation: uryReadout 520ms var(--ury-ease) both;
+}
+
+.readoutHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.6rem;
+  margin: 0;
+}
+
+.readoutKanji {
+  font-size: 1.1rem;
+  letter-spacing: 0.18em;
+  color: var(--ury-ja-text);
+}
+
+.readoutName {
+  font-size: 0.88rem;
+  letter-spacing: 0.1em;
+  color: var(--text-primary);
+}
+
+.readoutFlag {
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent-hover);
+}
+
+.readings {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.15rem 0.8rem;
+  margin: 0.9rem 0 0;
+}
+
+.reading {
+  padding-block: 0.35rem;
+  border-block-end: var(--ury-rule-w) solid var(--border);
+}
+
+.readingLabel {
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.readingValue {
+  margin: 0.1rem 0 0;
+  font-size: 0.92rem;
+  letter-spacing: 0.1em;
+  color: var(--ury-measure-text);
+}
+
+.readoutText {
+  margin: 1rem 0 0;
+  color: var(--text-secondary);
+}
+
+.readoutLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  margin-block-start: 0.6rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-block-end: var(--ury-rule-w) solid
+    color-mix(in srgb, var(--accent-hover) 45%, transparent);
+}
+
+.readoutLink:hover {
+  color: var(--text-primary);
+}
+
+.release {
+  display: block;
+  min-height: var(--touch-min);
+  margin-block-start: 1rem;
+  padding: 0.4rem 0.8rem;
+  font: inherit;
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  color: var(--text-secondary);
+  background: transparent;
+  border: var(--ury-rule-w) solid var(--border-strong);
+}
+
+.release:hover {
+  color: var(--text-primary);
+  border-color: var(--accent);
+}
+
+.boardHint,
+.readingNote {
+  grid-column: 1 / -1;
+  margin: 0.9rem 0 0;
+  font-size: 0.72rem;
+  color: var(--ury-blueprint-text);
+}
+
+.readingNote {
+  margin-block-start: 0.4rem;
+  color: var(--ury-frame-text);
+}
+
+/* Ekran okuyucu duyurusu — görünmez ama okunur */
+.srStatus {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ============================================================
+   6 · BEŞ DURAK
+   ============================================================ */
+.fate {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: calc(var(--ury-gutter) * 2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: ury-stop;
+}
+
+.stop {
+  display: grid;
+  grid-template-columns: minmax(0, 9rem) minmax(0, 1fr);
+  gap: 0.3rem var(--ury-gutter);
+  padding-block-end: 1.4rem;
+  border-block-end: var(--ury-rule-w) solid var(--border);
+}
+
+.stopStamp {
+  grid-column: 1;
+  grid-row: 1 / 3;
+  margin: 0;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-hover);
+}
+
+.stopTitle {
+  grid-column: 2;
+  margin: 0;
+  font-size: clamp(0.95rem, 0.85rem + 0.5vw, 1.2rem);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+}
+
+.stopText {
+  grid-column: 2;
+  margin: 0.5rem 0 0;
+  color: var(--text-secondary);
+}
+
+/* Tırnak içinde diyalog YOK — doğrulanmış özgün terim var */
+.stopTerm {
+  grid-column: 2;
+  margin: 1rem 0 0;
+  padding-inline-start: 0.9rem;
+  border-inline-start: calc(var(--ury-rule-w) * 2) solid var(--ury-thread);
+}
+
+.stopTermText {
+  margin: 0;
+  font-size: clamp(1rem, 0.9rem + 0.6vw, 1.3rem);
+  letter-spacing: 0.2em;
+  color: var(--ury-ja-text);
+}
+
+.stopTermReading {
+  margin: 0.25rem 0 0;
+  font-size: 0.76rem;
+  color: var(--ury-stitch-text);
+}
+
+.stopTermBy {
+  margin-block-start: 0.3rem;
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   7a · BAĞLAR
+   ============================================================ */
+.bonds {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: var(--ury-gutter);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bond {
+  position: relative;
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr);
+  gap: var(--ury-gutter);
+  padding: 0.9rem;
+  background: var(--ury-box-bg);
+  border: var(--ury-rule-w) solid var(--ury-box-edge);
+  border-block-end: var(--ury-rule-w) solid var(--border-strong);
+  transition:
+    background-color var(--ury-lock-ms) var(--ury-ease),
+    border-color var(--ury-lock-ms) var(--ury-ease);
+}
+
+.bondFace {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  background: var(--ury-ink);
+  border: var(--ury-rule-w) solid var(--border);
+  overflow: clip;
+}
+
+.bondImg {
+  object-fit: cover;
+  filter: saturate(0.8) contrast(1.04);
+}
+
+.bondBody {
+  display: grid;
+  gap: 0.15rem;
+  align-content: start;
+}
+
+.bondName {
+  font-size: 0.92rem;
+  letter-spacing: 0.06em;
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-block-end: var(--ury-rule-w) solid
+    color-mix(in srgb, var(--accent-hover) 40%, transparent);
+  justify-self: start;
+}
+
+.bondName:hover {
+  color: var(--text-primary);
+}
+
+.bondNamePlain {
+  font-size: 0.92rem;
+  letter-spacing: 0.06em;
+  color: var(--text-primary);
+}
+
+.bondRole {
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.bondText {
+  margin: 0.5rem 0 0;
+  color: var(--text-secondary);
+}
+
+.bondFlag {
+  margin-block-start: 0.5rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  color: var(--ury-frame-text);
+}
+
+/* ============================================================
+   7b · EVRENİN KENDİ KAYDI
+   ============================================================ */
+.hallList {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--ury-gutter);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hall {
+  position: relative;
+  display: grid;
+  gap: 0.4rem;
+  align-content: start;
+  padding: 0.9rem;
+  border: var(--ury-rule-w) solid var(--border);
+}
+
+.hallLink {
+  min-height: var(--touch-min);
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  color: var(--accent-hover);
+  text-decoration: none;
+}
+
+.hallLink:hover {
+  color: var(--text-primary);
+}
+
+.hallNote {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+}
+
+/* ============================================================
+   7c · KAPANIŞ
+   ============================================================ */
+.closing {
+  row-gap: 0.85rem;
+}
+
+.quoteNote {
+  grid-column: 1 / -1;
+  margin: 0 0 0.6rem;
+  padding: 0.8rem 1rem;
+  font-size: 0.74rem;
+  color: var(--ury-stitch-text);
+  border: var(--ury-rule-w) dashed var(--ury-thread);
+}
+
+.closingBlocks {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: calc(var(--ury-gutter) * 2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.closingBlock {
+  margin: 0;
+  padding-inline-start: 1rem;
+  border-inline-start: calc(var(--ury-rule-w) * 2) solid var(--accent-muted);
+}
+
+.closingTerm {
+  margin: 0;
+  font-size: clamp(1.1rem, 0.95rem + 0.9vw, 1.6rem);
+  letter-spacing: 0.16em;
+  color: var(--ury-ja-text);
+}
+
+.closingReading {
+  margin: 0.3rem 0 0;
+  font-size: 0.8rem;
+  color: var(--accent-hover);
+}
+
+.closingText {
+  margin: 0.7rem 0 0;
+  color: var(--text-secondary);
+}
+
+.closingBy {
+  margin-block-start: 0.5rem;
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+}
+
+.motto {
+  grid-column: 1 / -1;
+  margin: 1.4rem 0 0;
+  font-size: clamp(1.6rem, 1.1rem + 2.4vw, 3rem);
+  letter-spacing: 0.34em;
+  text-align: center;
+  color: var(--accent-hover);
+}
+
+.mottoNote {
+  grid-column: 3 / 11;
+  margin: 0.6rem 0 1.4rem;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.credit {
+  grid-column: 1 / -1;
+  margin: 1.6rem 0 0;
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+.creditLink {
+  color: var(--accent-hover);
+}
+
+.creditNote {
+  grid-column: 1 / -1;
+  margin: 0.4rem 0 0;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   KADRAJLAR
+
+   Görsel yokken bölüm GÖRSELSİZ ama ayakta kalıyor: boş kadraj yalnızca
+   ince bir dikdörtgen ve köşe artıları. Üretim metadatası (`.frameCaption`)
+   yalnızca küratöre çiziliyor — çağıran taraf `isAdmin` ile kesiyor.
+   ============================================================ */
+/* ⚠️ `grid-column: 1 / -1` VARSAYILAN: kadrajların çoğu on iki kolonluk bir
+   ızgaranın doğrudan çocuğu ve yazılmasaydı otomatik yerleşimle TEK kolona
+   sıkışırdı (ızgara katı, serbest yerleşim yok). Izgara olmayan bir ebeveyn
+   içinde bu bildirim yok sayılıyor. Kadrajın hemen altındaki küratör yuvası
+   da aynı genişliği alıyor (`[data-curator-slot]` kuralı). */
+.frame {
+  position: relative;
+  display: block;
+  grid-column: 1 / -1;
+  margin: 1.2rem 0 0;
+  background: var(--ury-ink);
+  border: var(--ury-rule-w) solid var(--border);
+  overflow: clip;
+}
+
+.hero [data-curator-slot],
+.section [data-curator-slot],
+.reticleSection [data-curator-slot],
+.closing [data-curator-slot],
+.arm [data-curator-slot],
+.stop [data-curator-slot] {
+  grid-column: 1 / -1;
+}
+
+.frame[data-filled="false"] {
+  background: color-mix(in srgb, var(--ury-ink) 70%, transparent);
+  border-style: dashed;
+}
+
+.frameImg {
+  object-fit: cover;
+}
+
+/* Yüklenen görselin üstündeki metne perde: parlak bir kare geldiğinde
+   üstteki başlık şeridi kaybolmasın. */
+.frameVeil {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--ury-ink) 78%, transparent) 0%,
+    transparent 34%,
+    transparent 62%,
+    color-mix(in srgb, var(--ury-ink) 72%, transparent) 100%
+  );
+}
+
+.frameCaption {
+  position: absolute;
+  inset-block-end: 0.6rem;
+  inset-inline-start: 0.7rem;
+  display: grid;
+  gap: 0.1rem;
+}
+
+.frameCaptionWord {
+  font-size: 0.66rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ury-frame-text);
+}
+
+.frameCaptionSpec {
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+.frameTall {
+  aspect-ratio: 3 / 4;
+  max-inline-size: 26rem;
+}
+
+.frameWide {
+  aspect-ratio: 16 / 9;
+}
+
+.frameSmall {
+  aspect-ratio: 3 / 2;
+}
+
+.frameScene {
+  aspect-ratio: 3 / 2;
+}
+
+.frameBand {
+  aspect-ratio: 8 / 3;
+}
+
+/* ============================================================
+   HAREKET
+
+   Altı `@keyframes`. İkisi sayfanın hareket dilini taşıyor: NİŞANGÂH
+   KİLİTLENMESİ (`uryLock` — dönerken ARA DURAKLARDA BEKLİYOR, yani
+   sıçramalı) ve TEYEL (`uryStitch` — dikiş deseni ilerliyor).
+   ============================================================ */
+
+/* Halkalar dönerek daralıyor ve iki noktada DURUYOR — mekanik his
+   buradan geliyor, sürekli bir easing eğrisinden değil. */
+@keyframes uryLock {
+  0% {
+    rotate: 0deg;
+    scale: 1.75;
+    opacity: 0;
+  }
+  22% {
+    rotate: 84deg;
+    scale: 1.32;
+    opacity: 1;
+  }
+  46% {
+    rotate: 84deg;
+    scale: 1.32;
+    opacity: 1;
+  }
+  70% {
+    rotate: 178deg;
+    scale: 1.05;
+    opacity: 1;
+  }
+  86% {
+    rotate: 178deg;
+    scale: 1.05;
+    opacity: 0.85;
+  }
+  100% {
+    rotate: 180deg;
+    scale: 1;
+    opacity: 1;
+  }
+}
+
+/* Teyel: iplik soldan sağa ilerliyor, iğne her düğümde biraz yavaşlıyor */
+@keyframes uryStitch {
+  0% {
+    stroke-dashoffset: 42;
+    opacity: 0.35;
+  }
+  35% {
+    stroke-dashoffset: 26;
+    opacity: 0.9;
+  }
+  68% {
+    stroke-dashoffset: 12;
+    opacity: 0.9;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0.45;
+  }
+}
+
+/* Köşe artıları ve bölüm işaretleri: kısa bir "yerine oturma" */
+@keyframes uryTick {
+  0% {
+    opacity: 0;
+    scale: 0.45;
+  }
+  34% {
+    opacity: 1;
+    scale: 1.14;
+  }
+  62% {
+    opacity: 0.72;
+    scale: 0.98;
+  }
+  100% {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+/* Ölçüm okumaları: harf aralığı geniş başlıyor ve rakamlar yerine oturuyor */
+@keyframes uryReadout {
+  0% {
+    opacity: 0;
+    translate: 0 0.55rem;
+    letter-spacing: 0.4em;
+  }
+  44% {
+    opacity: 1;
+    translate: 0 0;
+    letter-spacing: 0.18em;
+  }
+  72% {
+    opacity: 0.7;
+    letter-spacing: 0.12em;
+  }
+  100% {
+    opacity: 1;
+    translate: 0 0;
+    letter-spacing: 0.06em;
+  }
+}
+
+/* Boştaki tarama — pano bir şey aradığında */
+@keyframes urySweep {
+  0% {
+    background-position: -18% 0;
+    opacity: 0;
+  }
+  18% {
+    opacity: 0.55;
+  }
+  78% {
+    opacity: 0.55;
+  }
+  100% {
+    background-position: 118% 0;
+    opacity: 0;
+  }
+}
+
+/* Filigran haçı: kontur çizilerek beliriyor */
+@keyframes uryDraw {
+  0% {
+    opacity: 0;
+    stroke-dashoffset: 44;
+  }
+  55% {
+    opacity: 0.8;
+    stroke-dashoffset: 16;
+  }
+  100% {
+    opacity: 1;
+    stroke-dashoffset: 0;
+  }
+}
+
+.watermarkRing {
+  animation: uryDraw 2.4s var(--ury-ease) both;
+}
+
+/* ============================================================
+   DAR EKRAN — 360 px'te yatay taşma YOK
+
+   Ölçüm paneli hedefin ALTINA iniyor, on iki kolon tek kolona düşüyor,
+   çift kolonlu ızgaralar tekleşiyor. Blueprint ızgara duruyor: kimliğin
+   bir ekran boyutuna bağlı olmaması gerekiyor.
+   ============================================================ */
+@media (max-width: 60rem) {
+  .scope {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .board,
+  .panel {
+    grid-column: 1;
+  }
+
+  .closingBlocks,
+  .hallList {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 48rem) {
+  .hero,
+  .mode,
+  .section,
+  .reticleSection,
+  .closing {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 0.7rem;
+  }
+
+  .watermark,
+  .heroHead,
+  .heroText,
+  .portraitPlate,
+  .sectionMark,
+  .sectionTitle,
+  .sectionLede,
+  .factNote,
+  .modeTitle,
+  .modeSwitch,
+  .modeHint,
+  .modeRule,
+  .modeSource,
+  .mottoNote {
+    grid-column: 1;
+  }
+
+  .watermark {
+    grid-row: auto;
+    justify-self: center;
+    inline-size: min(78%, 17rem);
+    margin-block-start: 0;
+    order: -1;
+  }
+
+  .heroHead {
+    grid-row: auto;
+  }
+
+  .portraitPlate {
+    max-inline-size: 15rem;
+  }
+
+  .facts,
+  .kitList {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .fact {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .factValue {
+    grid-column: 1;
+    text-align: start;
+  }
+
+  .arm {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .armIndex,
+  .armName,
+  .armHeading,
+  .armTagline,
+  .armText,
+  .armTraits {
+    grid-column: 1;
+  }
+
+  .armIndex {
+    grid-row: auto;
+  }
+
+  .stop {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .stopStamp,
+  .stopTitle,
+  .stopText,
+  .stopTerm {
+    grid-column: 1;
+  }
+
+  .stopStamp {
+    grid-row: auto;
+  }
+
+  .bond {
+    grid-template-columns: 4.2rem minmax(0, 1fr);
+  }
+
+  .board {
+    aspect-ratio: 1 / 1;
+  }
+
+  .targetName {
+    white-space: normal;
+  }
+}
+
+/* ============================================================
+   HAREKET AZALTMA — battaniye
+
+   Sayfadaki her animasyon ve geçiş burada kapanıyor. Nişangâh yine
+   kilitleniyor, teyel yine çizili duruyor; yalnızca yolu görünmüyor.
+   Her durumun YAZILI karşılığı zaten var (`role="status"` satırları).
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    transition-delay: 0s !important;
+    scroll-behavior: auto !important;
+  }
+}

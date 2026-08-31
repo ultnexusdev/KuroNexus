@@ -1,8 +1,8 @@
-# Faz 2 Devir Notu — kalan 18 karakter
+# Faz 2 Devir Notu — kalan 13 karakter
 
 > **Yeni oturuma bu dosyayla başla.** Sırayla: bu dosya →
 > `docs/KARAKTER-SAYFASI-EKLEME.md` → `docs/ANIME-FAZ2-SOZLESME.md`.
-> Son güncelleme: 31 Ağustos 2026.
+> Son güncelleme: 31 Ağustos 2026 (Dalga 3 + 5 bitti).
 
 ---
 
@@ -11,13 +11,34 @@
 | Dalga | Karakter | Durum |
 |---|---|---|
 | 1 | Eren, Mikasa, Armin, Levi, Onizuka | ✅ **canlıda** (`main`, `7e9934f`) |
-| 2 | Midoriya, Bakugō, Todoroki, Uraraka, Toshinori | 🔄 ajanlar yazıyor |
-| 3 | Rukia, Renji, Uryū, Ulquiorra, Grimmjow, Yoruichi | ⬜ **kalan** |
+| 2 | Midoriya, Bakugō, Todoroki, Uraraka, Toshinori | ⚠️ **YARIM** — aşağıya bak |
+| 3 | Rukia, Renji, Uryū, Ulquiorra, Grimmjow, Yoruichi | ✅ **bitti** (`anime/faz2-dalga35`) |
 | 4 | Chōsō, Maki, Mahito, Tōdō, Panda, Tōji, Jōgo, Yūta | ⬜ **kalan** |
-| 5 | Megumi, Nobara, Nanami, Getō (yeniden tasarım) | ⬜ **kalan** |
+| 5 | Megumi, Nobara, Nanami, Getō (yeniden tasarım) | ✅ **bitti** (`anime/faz2-dalga35`) |
 
-Entegrasyon dalı: **`anime/karakter-fazi-2`** (uzağa pushlandı).
-Dalga 1 `main`'e merge edildi ve push edildi.
+Raporlar: `docs/ANIME-FAZ2-DALGA3-RAPOR.md`, `docs/ANIME-FAZ2-DALGA5-RAPOR.md`.
+
+### ⚠️ İKİ ENTEGRASYON DALI VAR — karıştırma
+
+| Dal | İçindekiler | Derleniyor mu |
+|---|---|---|
+| `anime/faz2-dalga35` | Dalga 3 (6 Bleach) + Dalga 5 (4 JJK) | ✅ **evet** |
+| `anime/karakter-fazi-2` | Dalga 2'nin **yalnızca** rota + kaydı (`ce7692d`) | ❌ **hayır** |
+
+**Dalga 2 yarım kaldı ve bu bilinmeden devam edilmemeli.** `ce7692d` beş My
+Hero Academia rotasını ve `EXPERIENCE_IDS` kaydını merkeze yazmış, ama beş
+sayfanın **bileşenleri hiç commit'lenmemiş**: `K:\KURONEXUS-wt\<slug>-redesign`
+worktree'lerinde commit'siz duruyorlar. İkisinin (Midoriya `NotebookExperience`,
+Todoroki `HalfAndHalfExperience`) ana bileşeni hiç yazılmamış ve beş klasörün
+hiçbirinde `.module.css` yok. O dalda `tsc` beş TS2307 veriyor.
+
+Dalga 3+5 bu yüzden `main` tabanlı ayrı bir dalda ilerledi; `ce7692d`
+alınmadı, Dalga 2'nin dallarına ve worktree'lerine **dokunulmadı**.
+
+**Dalga 2'yi bitirecek oturuma:** worktree'lerdeki commit'siz dosyaları
+topla, eksik iki bileşeni ve beş `.module.css`'i yaz, sonra
+`anime/faz2-dalga35` (ya da o zamanki `main`) üzerine al. `ce7692d`'yi
+olduğu gibi merge etme — kaydı var, bileşeni yok.
 
 ### Hazır olan altyapı (tekrar yapma)
 
@@ -107,7 +128,16 @@ Sonra `main`'e merge + push.
 
 ---
 
-## 3. Dalga 5'in özel işi — emeklilik
+## 3. Dalga 5'in özel işi — emeklilik ✅ YAPILDI (31 Ağustos 2026)
+
+> Bu bölüm **tarihsel** olarak duruyor; iş bitti. Dördü de
+> `components/character/.deprecated/` altında, veri dosyaları `data.ts`
+> oldu, rotalar yeni bileşenlere bağlandı, denetimlerin `.deprecated`'ı
+> atladığı ölçüldü (52 modül taranıyor, dördü listede yok).
+> Ayrışma denetimi de `check:karakter` zincirine **eklendi** ve zincir temiz.
+> Aynı şeyi Dalga 4'te yapman gerekmiyor — orada emeklilik yok, yeni sayfa var.
+
+### Özgün metin (Dalga 4 için gerekmiyor)
 
 Dört sayfa zaten yayında; **silinmeyecek**, `.deprecated/` altına taşınacak.
 Hazır betik: `<scratchpad>/dalga5-emeklilik.sh`. Yaptığı:
@@ -179,7 +209,10 @@ yalnızca `--bg`/`--surface` üzerinde ölçüyor, görsel üstünü göremiyor.
 
 ---
 
-## 6. Kalan 18 karakter — tek bakışta
+## 6. Kalan 13 karakter — tek bakışta
+
+> Dalga 3 ve Dalga 5 BİTTİ; tabloları aşağıda tarihsel kayıt olarak duruyor.
+> Sıradaki iş Dalga 4 (sekiz JJK sayfası) ve Dalga 2'nin yarım kalan beşi.
 
 ### Dalga 3 · Bleach (6)
 | Karakter | ID | Klasör | Bileşen |
@@ -224,13 +257,28 @@ dokunma, yalnız rotayı yeni bileşene bağla ve §3'teki emekliliği uygula.
 
 ## 7. Bitince
 
-- [ ] `npm run check:karakter` temiz
-- [ ] `node scripts/check-karakter-ayrisma.mjs` temiz (Dalga 5'ten sonra
-      iki bilinen çift de düşmeli) → sonra zincire ekle
-- [ ] `next build` temiz
-- [ ] Nexus bağları: Tōji↔Megumi, Eren↔Mikasa↔Armin↔Levi,
-      Midoriya↔Toshinori, Getō↔Gojō, Renji↔Rukia
-- [ ] Worktree'ler söküldü (junction **önce**), `git worktree prune`
-- [ ] `docs/KARAKTER-SAYFASI-EKLEME.md` §3 (mekanik tablosu) ve §4
-      (palet/önek tablosu) 28 yeni satırla güncellendi
-- [ ] Bu dosya güncellendi ya da silindi
+Dalga 3 + 5 için (31 Ağustos 2026):
+
+- [x] `npm run check:karakter` temiz — **ayrışma denetimi zincire eklendi**
+      (`package.json`), beş betik birden koşuyor ve beşi de temiz
+- [x] `next build` temiz — 10 rotanın onu da listede
+- [x] Nexus bağları: Getō↔Gojō ✔, Renji↔Rukia ✔, Nobara↔Megumi ✔,
+      Megumi↔Gojō ✔. **Tōji↔Megumi kurulamadı** (Tōji'nin sayfası Dalga 4'te;
+      bugün düz adla çiziliyor, dalga girince kendiliğinden bağlanacak)
+- [x] Grup 1'in altı worktree'si söküldü (junction **önce**), `prune` yapıldı
+- [x] `docs/KARAKTER-SAYFASI-EKLEME.md` §3 (mekanik tablosu, 15 yeni satır +
+      emekli dördünün notu) ve §4 (palet tablosu koddan **yeniden üretildi**,
+      52 satır) güncellendi
+- [x] Bu dosya güncellendi
+- [ ] **Grup 2'nin dört worktree'si duruyor** — `K:\KURONEXUS-wt\*-rework`.
+      Sökerken junction ÖNCE: `cmd //c rmdir "<yol>\frontend\node_modules"`
+
+Kalanlar (Dalga 2 ve 4):
+
+- [ ] Dalga 2'nin yarım işi (bkz. §1'deki uyarı)
+- [ ] Dalga 4 · JJK'dan sekiz yeni sayfa
+- [ ] Dalga 4 girince: Tōji↔Megumi ve Yūta↔Getō bağları kendiliğinden kurulur,
+      doğrula
+- [ ] `lib/characters/sukuna-itadori-experience.ts` satır 62 ve 64 AniList'e
+      **hotlink** yapıyor (bu görevden önce yazılmış). İki kareyi indirip
+      `public/assets/anime/karakterler/` altına almak ayrı bir iş.

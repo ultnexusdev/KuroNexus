@@ -336,9 +336,20 @@ export function SplitShell({
             </div>
             {dialSlot}
             {/* Kadraj künyesi YALNIZCA küratör modunda: ziyaretçi boş bir
-                kutunun içinde üretim notu görmez (Dalga 1 bulgusu 1). */}
+                kutunun içinde üretim notu görmez (Dalga 1 bulgusu 1).
+
+                ⚠️ `isAdmin` YETMİYOR, `data-curator-slot` de şart: birincisi
+                "bu kişi yönetici mi", ikincisi "küratör anahtarı AÇIK mı".
+                `CuratorSlot` anahtarı kendi okuyup kapalıyken hiç
+                çizilmiyor; yanındaki bu sunucu-tarafı not okumuyor, yani
+                işaretsiz bırakılırsa yönetici sayfanın gerçek hâline
+                baktığında yuva kaybolur ama üretim notu ekranda kalırdı.
+                Ortak dil `CuratorFrame.module.css`teki
+                `[data-curating="false"] [data-curator-slot]` kuralı. */}
             {isAdmin ? (
-              <p className={styles.plateCaption}>{dial.frameCaption}</p>
+              <p className={styles.plateCaption} data-curator-slot>
+                {dial.frameCaption}
+              </p>
             ) : null}
           </section>
 

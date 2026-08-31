@@ -1,4 +1,22 @@
-# Faz 2 Devir Notu — kalan 13 karakter
+# Faz 2 Devir Notu — TAMAMLANDI
+
+> ## ✅ 31 Ağustos 2026 — FAZ 2 BİTTİ. Beş dalganın beşi de `main`'de.
+>
+> Bu dosya artık **tarihsel kayıt**. Yeni bir karakter sayfası eklemek için
+> `docs/KARAKTER-SAYFASI-EKLEME.md` yeterli; aşağıdaki "bir dalgayı
+> çalıştırma" bölümü paralel ajan düzeni için hâlâ geçerli.
+>
+> Son iki dalganın raporları: `docs/ANIME-FAZ2-DALGA4-RAPOR.md` (8 JJK) ve
+> `docs/ANIME-FAZ2-DALGA2-RAPOR.md` (5 MHA).
+>
+> **Dalga 2 hakkında düzeltme:** aşağıda "worktree'lerde commit'siz duruyor"
+> yazıyor — ölçünce öyle çıkmadı. Sonraki bir oturum beş worktree'nin işini
+> `wip(...)` commit'i olarak toplamıştı; kayıp yoktu, iş yarımdı (502
+> tanımsız CSS sınıfı + iki hiç yazılmamış ana bileşen). `ce7692d`/`bb36a2d`
+> **merge edilmedi**; beş `wip` commit'i güncel `main` üzerine cherry-pick
+> edildi ve kayıt bileşenler tamamlandıktan SONRA yazıldı. Ayrıntı raporda.
+
+
 
 > **Yeni oturuma bu dosyayla başla.** Sırayla: bu dosya →
 > `docs/KARAKTER-SAYFASI-EKLEME.md` → `docs/ANIME-FAZ2-SOZLESME.md`.
@@ -11,7 +29,7 @@
 | Dalga | Karakter | Durum |
 |---|---|---|
 | 1 | Eren, Mikasa, Armin, Levi, Onizuka | ✅ **canlıda** (`main`, `7e9934f`) |
-| 2 | Midoriya, Bakugō, Todoroki, Uraraka, Toshinori | ⚠️ **YARIM** — aşağıya bak |
+| 2 | Midoriya, Bakugō, Todoroki, Uraraka, Toshinori | ✅ **bitti** (`anime/faz2-dalga2-bitir`) |
 | 3 | Rukia, Renji, Uryū, Ulquiorra, Grimmjow, Yoruichi | ✅ **bitti** (`anime/faz2-dalga35`) |
 | 4 | Chōsō, Maki, Mahito, Tōdō, Panda, Tōji, Jōgo, Yūta | ✅ **bitti** (`anime/faz2-dalga4`) |
 | 5 | Megumi, Nobara, Nanami, Getō (yeniden tasarım) | ✅ **bitti** (`anime/faz2-dalga35`) |
@@ -286,9 +304,11 @@ Dalga 3 + 5 için (31 Ağustos 2026):
 - [ ] **Grup 2'nin dört worktree'si duruyor** — `K:\KURONEXUS-wt\*-rework`.
       Sökerken junction ÖNCE: `cmd //c rmdir "<yol>\frontend\node_modules"`
 
-Kalanlar (yalnızca Dalga 2):
+Kalanlar: **yok — Faz 2 tamamlandı.**
 
-- [ ] Dalga 2'nin yarım işi (bkz. §1'deki uyarı) — **tek kalan dalga bu**
+- [x] Dalga 2'nin yarım işi bitirildi (31 Ağustos 2026). 502 tanımsız CSS
+      sınıfı sıfıra indi, Midoriya ve Todoroki'nin ana bileşenleri yazıldı,
+      küratör işareti (`data-curator-slot`) eksiği üç dosyada düzeltildi.
 - [x] Dalga 4 · JJK'dan sekiz yeni sayfa (31 Ağustos 2026)
 - [x] Dalga 4 girince: Tōji↔Megumi ve Yūta↔Getō bağları kendiliğinden kuruldu
       — **doğrulandı**. Megumi'nin ve Getō'nun veri dosyaları zaten `162722`

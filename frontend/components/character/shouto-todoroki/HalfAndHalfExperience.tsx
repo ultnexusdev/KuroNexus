@@ -187,7 +187,7 @@ export function HalfAndHalfExperience({
           <span className={styles.plateSeam} aria-hidden />
         </figure>
         {isAdmin ? (
-          <div className={styles.plateSlot}>
+          <div className={styles.plateSlot} data-curator-slot>
             <CuratorSlot
               characterId={TDR_ID}
               slot="ABILITY"
@@ -293,7 +293,7 @@ export function HalfAndHalfExperience({
         <span className={styles.portraitSeam} aria-hidden />
       </figure>
       {isAdmin ? (
-        <div className={styles.plateSlot}>
+        <div className={styles.plateSlot} data-curator-slot>
           <CuratorSlot
             characterId={TDR_ID}
             slot="PORTRAIT"
@@ -315,7 +315,7 @@ export function HalfAndHalfExperience({
 
       {plate(TDR_IMAGE_KEYS.hero, styles.plateHero, "ice")}
       {isAdmin ? (
-        <p className={styles.plateNote}>
+        <p className={styles.plateNote} data-curator-slot>
           {pick(TDR_IDENTITY.heroFrameCaption, locale)}
         </p>
       ) : null}
@@ -700,7 +700,7 @@ export function HalfAndHalfExperience({
       )}`}
       dialSlot={
         isAdmin ? (
-          <div className={styles.plateSlot}>
+          <div className={styles.plateSlot} data-curator-slot>
             <CuratorSlot
               characterId={TDR_ID}
               slot="ABILITY"

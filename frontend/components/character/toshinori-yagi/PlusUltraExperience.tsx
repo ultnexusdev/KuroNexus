@@ -767,7 +767,11 @@ export function PlusUltraExperience({
 
       {/* ══ Küratör özeti — düzenleyicisiz, sayfanın EN ALTINDA ═══════════ */}
       {isAdmin ? (
-        <div className={styles.gapsWrap}>
+        /* `data-curator-slot` sarmalayıcıda da şart: `CuratorGaps` anahtar
+           kapalıyken kendini çizmiyor ama bu kutu yine de üst boşluğunu
+           (`margin-top`) sayfaya bırakıyordu — yöneticinin gördüğü sayfa
+           ziyaretçininkinden farklı oluyordu. */
+        <div className={styles.gapsWrap} data-curator-slot>
           <CuratorGaps
             title={pick(ALM_GAPS.title, locale)}
             emptyLabel={pick(ALM_GAPS.empty, locale)}

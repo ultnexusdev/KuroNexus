@@ -25,5 +25,1645 @@
   --gold: #738596;
   --warn: #b88347;
   --danger: #c16257;
-  /* kendi --toj-* token'ların buraya */
+  /* ── Yardımcı malzeme — yalnızca bu ağaç okur, ÖLÇÜLMÜYOR ──
+     Hepsi koyu olmak zorunda: saç çizgisi, silüet konturu, kumaş ve
+     sütunun gövdesi. Metin taşımıyorlar. */
+  --toj-line: #2a2d31;
+  --toj-glyph: #363b41;
+  --toj-glyph-soft: #24272b;
+  --toj-cloth: #16181a;
+  --toj-shaft: #1b1e21;
+
+  /* ── Küçük metinde okunan aile (`-text`, ÖLÇÜLÜYOR) ──
+     Eşik: --surface (#121314) ve --surface-hover (#191a1b) üzerinde 4.5:1. */
+  --toj-sky-text: #8b93a0;
+  --toj-ja-text: #9aa2ad;
+  --toj-zero-text: #cfd2d7;
+  --toj-gain-text: #b3aa9d;
+  --toj-frame-text: #8f97a3;
+  --toj-absent-text: #8d95a1;
+}
+
+/* ============================================================
+   TŌJI FUSHIGURO — "Cennetsel Kısıtlama"
+
+   Deri: kökteki `data-world="touji-fushiguro"` bütün standart
+   token'ları soğuk kurşuna çeviriyor; yardımcılar `--toj-*`
+   (yukarıdaki blok). Bu bloktan AŞAĞIDA TEK HEX YOK — ara tonların
+   hepsi `color-mix` ile token'lardan türetildi (FAZ 2 §1).
+
+   ── SAYFANIN FİKRİ ──────────────────────────────────────────────────────
+   ÖLÇÜLEN ŞEY BİR YOKLUK. Sayfanın üst üçte biri bilerek boş: "boş
+   gökyüzü". İçerik o boşluğun altına, ALÇAK ve YATAY bir banda
+   toplanıyor. Her bölüm aynı düzeni tekrar ediyor — önce boşluk, sonra
+   içerik — çünkü boşluk bir giriş efekti değil, sayfanın gramerinin
+   kendisi.
+
+   ⚠️ BOŞLUK MOD DÜĞMESİNE BAĞLI DEĞİL. Varsayılan durumda da orada.
+   Düğmenin yaptığı tek şey sol kenardaki LANET ENERJİSİ SÜTUNUNU
+   çizmek; sütun da boş bir şerit olarak beliriyor (Onizuka dersi:
+   düğme yapıyı gösterir, doğurmaz).
+
+   ── MAKİ ZEN'İN'DEN AYRIM (dalga şartı) ─────────────────────────────────
+   İki sayfa da envanter mekaniği taşıyor ve ikisinde de 天与呪縛 var.
+   Ayrım beş eksende:
+     ızgara   → Maki eşit hücreli RAF; burada satırları eşit olmayan
+                bir RULO ve üstte devasa boşluk
+     tipografi→ Maki `--font-plexmono` ALL CAPS stencil; burada
+                `--font-inter` 200, çok büyük, geniş aralıklı + gövde
+                Cormorant
+     hareket  → Maki'nin bütün geçişleri `steps()` (çelik takırtısı);
+                burada iki hareket var ve ikisi de sürekli değil:
+                150 saniyelik gökyüzü kayması + seçimde tek çizgi
+     düğme    → Maki'de palet/istatistik değişiyor; burada hiçbir sayı
+                değişmiyor, yalnızca sütun görünür oluyor
+     doku     → Maki dolu ve askeri; burası boş ve sessiz
+
+   ── ÖLÇÜ SİSTEMİ ────────────────────────────────────────────────────────
+   `--toj-sky`      her bölümün üstündeki boşluk
+   `--toj-sky-hero` hero'nunki (daha büyük)
+   `--toj-wide`     içerik bandının genişliği — sayfa YATAY okunuyor
+   `--toj-col-w`    lanet enerjisi sütununun genişliği
+   Mobilde boşluk oranı düşüyor ama SIFIRLANMIYOR (360 px'te sayfa
+   kullanılabilir kalmalı; kilit "boş gökyüzü" orada da geçerli).
+
+   ── RENK GÖREVLERİ ──────────────────────────────────────────────────────
+   --accent           seçili bölmenin çizgisi, bağlantılar
+   --accent-hover     odak halkası, motto
+   --gold             künye değerleri
+   --toj-gain-text    ARTAN taraf (üç fiziksel okuma)
+   --toj-zero-text    DEĞİŞMEYEN taraf (sıfır sütunu)
+   --toj-glyph        yalnızca elle çizilmiş SVG konturları
+   ============================================================ */
+
+.page {
+  --toj-wide: 68rem;
+  --toj-sky: clamp(7rem, 24vh, 15rem);
+  --toj-sky-hero: clamp(11rem, 40vh, 26rem);
+  --toj-gap: clamp(3.5rem, 9vh, 7rem);
+  --toj-col-w: clamp(2.4rem, 6vw, 3.6rem);
+  --toj-pad: clamp(1rem, 5vw, 3rem);
+  --toj-hair: color-mix(in srgb, var(--toj-line) 90%, transparent);
+  --toj-hair-soft: color-mix(in srgb, var(--toj-line) 50%, transparent);
+  --toj-cut: 180ms;
+  --toj-ease: cubic-bezier(0.9, 0, 0.1, 1);
+
+  position: relative;
+  background: var(--bg);
+  color: var(--text-primary);
+  overflow-x: clip;
+  overflow-wrap: break-word;
+  padding: clamp(1rem, 4vw, 2rem) var(--toj-pad) clamp(5rem, 14vh, 9rem);
+  font-family: var(--font-cormorant), Georgia, "Times New Roman", serif;
+  font-size: clamp(1rem, 0.95rem + 0.3vw, 1.16rem);
+  line-height: 1.8;
+}
+
+/* Görünür odak — sayfadaki her düğme ve bağlantı için tek kural */
+.page :focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 3px;
+  border-radius: 1px;
+}
+
+/* Sütun açıldığında içerik sağa kayıyor: boş şerit gerçekten YER KAPLIYOR.
+   Geçiş yok — bu bir layout kararı, bir animasyon değil. */
+.page[data-restriction="shown"] {
+  padding-left: calc(var(--toj-pad) + var(--toj-col-w));
+}
+
+/* ── LANET ENERJİSİ SÜTUNU ────────────────────────────────────────────
+   Sayfanın tamamı boyunca inen boş şerit. Hiçbir yerde dolmuyor: içi
+   yalnızca tik çizgileri. Dekoratif (`aria-hidden`) — anlamı mod
+   düğmesinin altındaki canlı paragrafta yazılı. */
+.column {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: var(--toj-col-w);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  padding-block: clamp(1rem, 4vw, 2rem);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.page[data-restriction="shown"] .column {
+  opacity: 1;
+  visibility: visible;
+}
+
+.columnHead {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.columnNative {
+  font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+  font-size: 0.95rem;
+  line-height: 1.2;
+  color: var(--toj-ja-text);
+  writing-mode: vertical-rl;
+  letter-spacing: 0.12em;
+}
+
+.columnLabel {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 200;
+  font-size: 0.62rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--toj-sky-text);
+  writing-mode: vertical-rl;
+}
+
+.columnShaft {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 6rem;
+  border-inline: 1px solid var(--toj-hair);
+  background:
+    repeating-linear-gradient(
+      to top,
+      color-mix(in srgb, var(--toj-line) 70%, transparent) 0 1px,
+      transparent 1px 3.4rem
+    ),
+    color-mix(in srgb, var(--toj-shaft) 45%, transparent);
+}
+
+.columnValue {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 200;
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  line-height: 1;
+  color: var(--toj-zero-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.columnFoot {
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: var(--toj-sky-text);
+  writing-mode: vertical-rl;
+  max-height: 14rem;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* ── BOŞ GÖKYÜZÜ ──────────────────────────────────────────────────────
+   Her bölümün ilk çocuğu. Bir "spacer" değil: sayfanın gramerinin
+   görünen hâli. Altındaki tek saç çizgisi ufuk. */
+.sky {
+  position: relative;
+  display: block;
+  height: var(--toj-sky);
+}
+
+.sky::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 1px;
+  background: color-mix(in srgb, var(--toj-line) 55%, transparent);
+}
+
+.heroSky {
+  position: relative;
+  display: block;
+  height: var(--toj-sky-hero);
+}
+
+/* Sayfanın TEK sürekli hareketi: 150 saniyelik yatay kayma. */
+.skyDrift {
+  position: absolute;
+  inset-inline: -8%;
+  bottom: 14%;
+  display: block;
+  height: 46%;
+}
+
+.skyArt {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.skyLine {
+  stroke: var(--toj-line);
+  stroke-width: 1.2;
+  fill: none;
+}
+
+.skyHaze {
+  stroke: var(--toj-glyph-soft);
+  stroke-width: 1;
+  fill: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .skyDrift {
+    animation: tojDrift 150s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes tojDrift {
+  from {
+    transform: translate3d(-1.6%, 0, 0);
+  }
+
+  to {
+    transform: translate3d(1.6%, 0, 0);
+  }
+}
+
+/* Filigran — dolgusuz Ters Mızrak, çok soluk, gökyüzünün içinde. */
+.watermark {
+  position: absolute;
+  top: 4%;
+  inset-inline-end: 4%;
+  display: block;
+  height: 90%;
+  opacity: 0.5;
+}
+
+.watermarkArt {
+  display: block;
+  height: 100%;
+  width: auto;
+}
+
+.watermarkStroke {
+  stroke: var(--toj-glyph);
+  stroke-width: 2;
+  fill: none;
+  stroke-linejoin: round;
+}
+
+.watermarkFaint {
+  stroke: var(--toj-glyph-soft);
+  stroke-width: 2;
+  fill: none;
+}
+
+.watermarkKanji {
+  position: absolute;
+  inset-inline-start: 0;
+  bottom: 8%;
+  font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+  font-size: clamp(2rem, 8vw, 6rem);
+  line-height: 1;
+  letter-spacing: 0.08em;
+  color: color-mix(in srgb, var(--toj-glyph) 62%, transparent);
+  user-select: none;
+}
+
+/* ── BREADCRUMB ───────────────────────────────────────────────────────── */
+.crumb {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  max-width: var(--toj-wide);
+  margin-inline: auto;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 200;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.crumb a {
+  color: var(--accent);
+  text-decoration: none;
+  min-height: var(--touch-min);
+  display: inline-flex;
+  align-items: center;
+}
+
+.crumb a:hover {
+  color: var(--accent-hover);
+}
+
+.crumbSep {
+  color: var(--toj-sky-text);
+}
+
+.crumbHere {
+  color: var(--toj-sky-text);
+}
+
+/* ── 1 · HERO ─────────────────────────────────────────────────────────── */
+.hero {
+  position: relative;
+}
+
+.heroBody {
+  max-width: var(--toj-wide);
+  margin-inline: auto;
+  padding-top: clamp(1.2rem, 3vh, 2.2rem);
+}
+
+.heroHouse {
+  margin: 0 0 0.7rem;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 200;
+  font-size: 0.72rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--toj-sky-text);
+}
+
+/*
+ * ⚠️ `font-weight: 200` BİLEREK yazıldı ve şu an 400'e düşüyor:
+ * `--font-inter` kök düzende 400/600/700 statik kesimleriyle yükleniyor
+ * (app/[locale]/layout.tsx), yani 200 kesimi henüz dosyada yok ve
+ * tarayıcı daha ince bir ağırlığı sentezlemiyor. Bildirim yine de
+ * duruyor: dalga kilidi "çok ince (200)" diyor ve aile bir gün değişken
+ * dosyaya geçtiğinde sayfa kendiliğinden doğru kesime oturur. İnce
+ * hissi bugün ÖLÇEK + HARF ARALIĞI + soğuk renk üçlüsünden geliyor.
+ */
+.heroName {
+  margin: 0;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 200;
+  font-size: clamp(2.1rem, 9vw, 6.6rem);
+  line-height: 1;
+  letter-spacing: clamp(0.05em, 0.55vw, 0.17em);
+  color: var(--text-primary);
+}
+
+.heroNative {
+  margin: 0.6rem 0 0;
+  font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+  font-size: clamp(1.1rem, 2.4vw, 1.6rem);
+  letter-spacing: 0.24em;
+  color: var(--toj-ja-text);
+}
+
+.heroEpithet {
+  margin: 0.3rem 0 0;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 200;
+  font-size: 0.76rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--toj-sky-text);
+}
+
+.rule {
+  display: block;
+  width: min(100%, 22rem);
+  height: 1px;
+  margin: clamp(1.6rem, 4vh, 2.6rem) 0;
+  background: var(--toj-hair);
+}
+
+.skyNote {
+  margin: 0 0 1.1rem;
+  max-width: 44rem;
+  font-size: clamp(1.05rem, 1rem + 0.4vw, 1.35rem);
+  line-height: 1.7;
+  color: var(--text-primary);
+}
+
+.heroLede {
+  margin: 0;
+  max-width: 44rem;
+  color: var(--text-secondary);
+}
+
+.heroFrameNote {
+  max-width: var(--toj-wide);
+  margin: clamp(1.5rem, 4vh, 2.4rem) auto 0.6rem;
+  font-size: 0.85rem;
+  color: var(--toj-frame-text);
+}
+
+.heroFrame {
+  max-width: var(--toj-wide);
+  margin: clamp(1.5rem, 4vh, 2.4rem) auto 0;
+}
+
+/* ── 2 · MOD DÜĞMESİ ──────────────────────────────────────────────────── */
+.mode {
+  position: relative;
+  margin-top: var(--toj-gap);
+}
+
+.modeBody {
+  max-width: var(--toj-wide);
+  margin-inline: auto;
+  padding-top: clamp(1rem, 3vh, 2rem);
+}
+
+.modeTitle {
+  margin: 0;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 200;
+  font-size: clamp(1.6rem, 5vw, 3.4rem);
+  line-height: 1.05;
+  letter-spacing: clamp(0.04em, 0.4vw, 0.13em);
+  color: var(--text-primary);
+}
+
+.modeNative {
+  margin: 0.5rem 0 0;
+  font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+  font-size: 1.15rem;
+  letter-spacing: 0.22em;
+  color: var(--toj-ja-text);
+}
+
+.modeReading {
+  margin: 0.15rem 0 0;
+  font-size: 0.92rem;
+  color: var(--toj-sky-text);
+}
+
+.modeButton {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  margin-top: clamp(1.2rem, 3vh, 2rem);
+  padding: 0.5rem 1.4rem 0.5rem 0;
+  border: 0;
+  border-bottom: 1px solid var(--accent);
+  background: none;
+  color: var(--accent);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 200;
+  font-size: 0.8rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.modeButton:hover {
+  color: var(--accent-hover);
+  border-bottom-color: var(--accent-hover);
+}
+
+.modeHint {
+  margin: 1rem 0 0;
+  max-width: 42rem;
+  color: var(--text-secondary);
+}
+
+/* ── ORTAK BÖLÜM İSKELETİ ─────────────────────────────────────────────── */
+.section,
+.closing {
+  position: relative;
+  margin-top: var(--toj-gap);
+}
+
+.sectionBody {
+  max-width: var(--toj-wide);
+  margin-inline: auto;
+  padding-top: clamp(1rem, 3vh, 2rem);
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 200;
+  font-size: clamp(1.6rem, 5vw, 3.4rem);
+  line-height: 1.05;
+  letter-spacing: clamp(0.04em, 0.4vw, 0.13em);
+  color: var(--text-primary);
+}
+
+.sectionLede {
+  margin: 1rem 0 0;
+  max-width: 46rem;
+  color: var(--text-secondary);
+}
+
+.subTitle {
+  margin: clamp(2.2rem, 6vh, 3.6rem) 0 1rem;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 200;
+  font-size: 0.74rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--toj-sky-text);
+}
+
+/* ── KADRAJLAR ────────────────────────────────────────────────────────
+   Kutu YOK: yalnızca alt saç çizgisi. Boş kadraj ziyaretçiye TEK HARF
+   göstermiyor, yalnızca dolgusuz silüet — ve boşken alçak duruyor ki
+   on üç boş kadraj sayfayı şişirmesin. */
+.frame {
+  position: relative;
+  display: block;
+  margin: clamp(1.1rem, 3vh, 1.8rem) 0 0;
+  border-bottom: 1px solid var(--toj-hair-soft);
+  overflow: hidden;
+  background: color-mix(in srgb, var(--toj-cloth) 55%, transparent);
+}
+
+.frameImg {
+  object-fit: cover;
+}
+
+.frame[data-filled="true"].frameTall {
+  aspect-ratio: 3 / 4;
+  max-width: 24rem;
+}
+
+.frame[data-filled="true"].frameWide {
+  aspect-ratio: 16 / 9;
+}
+
+.frame[data-filled="true"].frameSmall,
+.frame[data-filled="true"].frameScene {
+  aspect-ratio: 3 / 2;
+}
+
+.frame[data-filled="true"].frameBand {
+  aspect-ratio: 8 / 3;
+}
+
+.frame[data-filled="false"] {
+  height: clamp(4.2rem, 11vh, 7rem);
+  background: none;
+}
+
+.frame[data-filled="false"].frameTall {
+  height: clamp(8rem, 24vh, 14rem);
+  max-width: 24rem;
+}
+
+.frame[data-filled="false"].frameSmall {
+  height: clamp(3.4rem, 8vh, 5rem);
+}
+
+.frameGlyph {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  opacity: 0.55;
+}
+
+.glyphArt {
+  display: block;
+  max-height: 78%;
+  max-width: 56%;
+  width: auto;
+  height: auto;
+}
+
+.glyphStroke {
+  stroke: var(--toj-glyph);
+  stroke-width: 3;
+  fill: none;
+  stroke-linejoin: round;
+}
+
+.glyphFaint {
+  stroke: var(--toj-glyph-soft);
+  stroke-width: 2;
+  fill: none;
+}
+
+/* ⚠️ Yalnızca küratörde çiziliyor (bileşende `isAdmin` kesmesi var). */
+.frameCaption {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.7rem;
+  padding: 0.4rem 0.6rem;
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 200;
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.frameCaptionWord {
+  color: var(--toj-frame-text);
+}
+
+.frameCaptionSpec {
+  color: var(--toj-sky-text);
+}
+
+/* ── 3 · KÜNYE ────────────────────────────────────────────────────────── */
+.identity {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(1.4rem, 4vw, 2.6rem);
+  margin-top: clamp(1.8rem, 5vh, 3rem);
+}
+
+.portraitCol {
+  min-width: 0;
+}
+
+.portrait {
+  margin: 0;
+  max-width: 9.5rem;
+  border-bottom: 1px solid var(--toj-hair);
+}
+
+.portraitImg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 0 clamp(1.2rem, 3vw, 2.4rem);
+  margin: 0;
+  min-width: 0;
+}
+
+.fact {
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--toj-hair-soft);
+  min-width: 0;
+}
+
+.factLabel {
+  margin: 0 0 0.2rem;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 200;
+  font-size: 0.66rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--toj-sky-text);
+}
+
+.factValue {
+  margin: 0;
+  color: var(--gold);
+  font-size: 1.02rem;
+  line-height: 1.55;
+}
+
+.appearances {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem clamp(1rem, 3vw, 2rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.appearance {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.6rem 0;
+  min-width: 0;
+  flex: 1 1 15rem;
+  border-top: 1px solid var(--toj-hair-soft);
+}
+
+.appearanceTitle {
+  color: var(--text-secondary);
+  font-size: 0.98rem;
+}
+
+.appearanceRole {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 200;
+  font-size: 0.64rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--toj-sky-text);
+}
+
+.factNote {
+  margin: clamp(1.6rem, 4vh, 2.4rem) 0 0;
+  max-width: 44rem;
+  font-size: 0.94rem;
+  color: var(--toj-sky-text);
+}
+
+/* ── 4 · LANET LABORATUVARI ───────────────────────────────────────────── */
+.majors {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+  gap: clamp(1.8rem, 4vw, 3rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.major {
+  min-width: 0;
+  border-top: 1px solid var(--toj-hair);
+  padding-top: 0.9rem;
+}
+
+.majorIndex {
+  margin: 0 0 0.6rem;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 200;
+  font-size: 0.7rem;
+  letter-spacing: 0.24em;
+  color: var(--toj-sky-text);
+}
+
+.majorName {
+  margin: 0;
+  font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+  font-size: clamp(1.5rem, 3.4vw, 2.1rem);
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  color: var(--text-primary);
+}
+
+.majorReading {
+  margin: 0.15rem 0 0;
+  font-size: 0.86rem;
+  color: var(--toj-sky-text);
+}
+
+.majorTurkish {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 200;
+  font-size: 0.78rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--toj-ja-text);
+}
+
+.verdict {
+  margin: 0.8rem 0 0;
+  font-size: 0.95rem;
+  color: var(--toj-gain-text);
+}
+
+.majorText {
+  margin: 0.8rem 0 0;
+  color: var(--text-secondary);
+}
+
+.traits {
+  margin: 0.9rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trait {
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--toj-hair-soft);
+  font-size: 0.92rem;
+  color: var(--toj-sky-text);
+}
+
+.pieces {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.4rem;
+  margin: 1.6rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.piece {
+  min-width: 0;
+  border-top: 1px solid var(--toj-hair-soft);
+  padding-top: 0.7rem;
+}
+
+.pieceName {
+  margin: 0;
+  font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+  font-size: 1.2rem;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  color: var(--toj-ja-text);
+}
+
+.pieceReading {
+  margin: 0.1rem 0 0;
+  font-size: 0.8rem;
+  color: var(--toj-sky-text);
+}
+
+.pieceTurkish {
+  margin: 0.25rem 0 0;
+  font-size: 0.98rem;
+  color: var(--text-primary);
+}
+
+.pieceNote {
+  margin: 0.35rem 0 0;
+  font-size: 0.94rem;
+  color: var(--text-secondary);
+}
+
+.minors {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: clamp(1.2rem, 3vw, 2.2rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.minor {
+  min-width: 0;
+  border-top: 1px solid var(--toj-hair);
+  padding-top: 0.8rem;
+}
+
+/* "Yok" diyen üç kart bilerek daha soluk: cevap bir eksiklik değil,
+   sayfanın tezi. Kadrajları da yok. */
+.minor[data-absent="true"] .minorVerdict {
+  color: var(--toj-absent-text);
+  letter-spacing: 0.3em;
+}
+
+.minorName {
+  margin: 0;
+  font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+  font-size: 1.35rem;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  color: var(--text-primary);
+}
+
+.minorReading {
+  margin: 0.1rem 0 0;
+  font-size: 0.8rem;
+  color: var(--toj-sky-text);
+}
+
+.minorTurkish {
+  margin: 0.3rem 0 0;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 200;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--toj-ja-text);
+}
+
+.minorVerdict {
+  margin: 0.7rem 0 0;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 200;
+  font-size: clamp(1.1rem, 2.4vw, 1.6rem);
+  letter-spacing: 0.14em;
+  color: var(--toj-gain-text);
+}
+
+.minorNote {
+  margin: 0.5rem 0 0;
+  font-size: 0.94rem;
+  color: var(--text-secondary);
+}
+
+/* ── 5 · ENVANTER TEZGÂHI ─────────────────────────────────────────────── */
+.bench {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(1.8rem, 4vw, 2.8rem);
+  margin-top: clamp(2rem, 5vh, 3.4rem);
+}
+
+/* Sıfır sütunu: tezgâhtaki EN BÜYÜK tek öğe. Espri değil, tez. */
+.zero {
+  min-width: 0;
+  border-left: 1px solid var(--toj-hair);
+  padding-left: clamp(0.9rem, 2vw, 1.5rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.zeroNative {
+  margin: 0;
+  font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+  font-size: 1.15rem;
+  letter-spacing: 0.2em;
+  color: var(--toj-ja-text);
+}
+
+.zeroLabel {
+  margin: 0;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 200;
+  font-size: 0.68rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--toj-sky-text);
+}
+
+.zeroValue {
+  margin: 0.3rem 0 0;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 200;
+  font-size: clamp(4.5rem, 15vw, 9rem);
+  line-height: 0.85;
+  letter-spacing: 0.02em;
+  color: var(--toj-zero-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.zeroShaft {
+  display: block;
+  width: 100%;
+  min-height: clamp(5rem, 18vh, 14rem);
+  margin-top: 0.9rem;
+  border-top: 1px solid var(--toj-hair);
+  background: repeating-linear-gradient(
+    to top,
+    color-mix(in srgb, var(--toj-line) 65%, transparent) 0 1px,
+    transparent 1px 2.6rem
+  );
+}
+
+.zeroCaption {
+  margin: 0.9rem 0 0;
+  font-size: 0.94rem;
+  color: var(--toj-sky-text);
+}
+
+/* Çanta — açılan rulo. Satırların yüksekliği EŞİT DEĞİL (raf değil). */
+.roll {
+  min-width: 0;
+}
+
+.rollTitle {
+  margin: 0;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 200;
+  font-size: 0.74rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--toj-sky-text);
+}
+
+.rollHint {
+  margin: 0.5rem 0 1rem;
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+}
+
+.pockets {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--toj-hair);
+}
+
+.pocket {
+  border-bottom: 1px solid var(--toj-hair-soft);
+  min-width: 0;
+}
+
+.pocketButton {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 1rem;
+  width: 100%;
+  min-height: var(--touch-min);
+  padding: clamp(0.85rem, 2vw, 1.2rem) 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.pocketButton:hover {
+  background: color-mix(in srgb, var(--surface-hover) 70%, transparent);
+}
+
+.pocketIndex {
+  flex: 0 0 auto;
+  width: 2.1rem;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 200;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  color: var(--toj-sky-text);
+}
+
+.pocketBody {
+  flex: 1 1 13rem;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+}
+
+.pocketNative {
+  font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+  font-size: 1.2rem;
+  letter-spacing: 0.16em;
+  color: var(--toj-ja-text);
+}
+
+.pocketName {
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+
+.pocketReading {
+  font-size: 0.8rem;
+  color: var(--toj-sky-text);
+}
+
+.pocketLine {
+  font-size: 0.96rem;
+  color: var(--text-secondary);
+}
+
+.pocketState {
+  flex: 0 0 auto;
+  margin-left: auto;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 200;
+  font-size: 0.64rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--toj-sky-text);
+}
+
+.pocket[data-out="true"] .pocketState {
+  color: var(--toj-gain-text);
+}
+
+/* Alet çekildiğinde çizilen KISA, KESİN çizgi — gökyüzü kaymasından
+   sonraki tek hareket bu. */
+.pocketRule {
+  position: absolute;
+  inset-inline: 0;
+  bottom: -1px;
+  height: 1px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+.pocket[data-out="true"] .pocketRule {
+  transform: scaleX(1);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pocketRule {
+    transition: transform var(--toj-cut) var(--toj-ease);
+  }
+
+  .readFill {
+    transition: width var(--toj-cut) var(--toj-ease);
+  }
+}
+
+/* Üç fiziksel okuma — ARTAN taraf. */
+.reads {
+  min-width: 0;
+}
+
+.readsTitle {
+  margin: 0 0 1rem;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 200;
+  font-size: 0.74rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--toj-sky-text);
+}
+
+.readList {
+  display: grid;
+  gap: 1.3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.read {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.25rem 0.8rem;
+  min-width: 0;
+}
+
+.readLabel {
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 200;
+  font-size: 0.7rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--toj-sky-text);
+}
+
+.readNative {
+  font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+  font-size: 0.9rem;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--toj-ja-text);
+}
+
+.readValue {
+  grid-column: 2;
+  grid-row: 1;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 200;
+  font-size: 1.7rem;
+  line-height: 1;
+  color: var(--toj-gain-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.readTrack {
+  position: relative;
+  grid-column: 1 / -1;
+  grid-row: 2;
+  display: block;
+  height: 1px;
+  background: var(--toj-hair);
+}
+
+.readFill {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  height: 1px;
+  background: var(--toj-gain-text);
+}
+
+.readNote {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.tries {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.3rem 0.7rem;
+  margin: clamp(1.4rem, 4vh, 2.2rem) 0 0;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--toj-hair-soft);
+}
+
+.triesLabel {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 200;
+  font-size: 0.66rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--toj-sky-text);
+}
+
+.triesValue {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 200;
+  font-size: 1.2rem;
+  color: var(--toj-gain-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.triesNote {
+  flex: 1 1 12rem;
+  font-size: 0.92rem;
+  color: var(--toj-zero-text);
+}
+
+.reset {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  margin-top: 1rem;
+  padding: 0.4rem 1.2rem 0.4rem 0;
+  border: 0;
+  border-bottom: 1px solid var(--toj-hair);
+  background: none;
+  color: var(--accent);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 200;
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.reset:hover {
+  color: var(--accent-hover);
+  border-bottom-color: var(--accent-hover);
+}
+
+.benchStatus {
+  margin: 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--toj-hair);
+  color: var(--text-primary);
+}
+
+.benchClosing {
+  margin: 0;
+  max-width: 46rem;
+  font-size: clamp(1.02rem, 1rem + 0.3vw, 1.25rem);
+  color: var(--text-secondary);
+}
+
+/* ── 6 · KADER ÇİZELGESİ ──────────────────────────────────────────────── */
+.fate {
+  margin: clamp(1.8rem, 5vh, 3rem) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Her durak YATAY okunuyor: solda damga, sağda metin. Dar ekranda alt
+   alta iniyor — 360 px'te yatay taşma yok. */
+.stop {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.25rem clamp(1.2rem, 3vw, 2.4rem);
+  padding: clamp(1.6rem, 4vh, 2.6rem) 0;
+  border-top: 1px solid var(--toj-hair);
+  min-width: 0;
+}
+
+.stopStamp {
+  margin: 0;
+  font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  letter-spacing: 0.18em;
+  color: var(--toj-ja-text);
+}
+
+.stopStampReading {
+  margin: 0;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 200;
+  font-size: 0.66rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--toj-sky-text);
+}
+
+.stopTitle {
+  margin: 0.7rem 0 0;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 200;
+  font-size: clamp(1.25rem, 3vw, 2rem);
+  letter-spacing: 0.06em;
+  color: var(--text-primary);
+}
+
+.stopText {
+  margin: 0.6rem 0 0;
+  max-width: 46rem;
+  color: var(--text-secondary);
+}
+
+.stopMark {
+  margin: 0.9rem 0 0;
+  font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+  font-size: 1.15rem;
+  letter-spacing: 0.2em;
+  color: var(--accent);
+}
+
+.stopMarkReading {
+  margin: 0.1rem 0 0;
+  font-size: 0.88rem;
+  color: var(--toj-sky-text);
+}
+
+.stopKin {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.7rem;
+  margin: 0.8rem 0 0;
+}
+
+.stopKinLink {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid var(--toj-hair);
+}
+
+.stopKinLink:hover {
+  color: var(--accent-hover);
+  border-bottom-color: var(--accent-hover);
+}
+
+.stopKinName {
+  color: var(--text-primary);
+}
+
+.stopKinRole {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 200;
+  font-size: 0.64rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--toj-sky-text);
+}
+
+/* ── 7a · BAĞLAR ──────────────────────────────────────────────────────── */
+.bonds {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: clamp(1.4rem, 3vw, 2.6rem);
+  margin: clamp(1.8rem, 5vh, 3rem) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bond {
+  min-width: 0;
+  border-top: 1px solid var(--toj-hair);
+  padding-top: 0.9rem;
+}
+
+.bondHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.7rem;
+  margin: 0;
+}
+
+.bondName {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 1.1rem;
+  border-bottom: 1px solid var(--toj-hair);
+}
+
+.bondName:hover {
+  color: var(--accent-hover);
+  border-bottom-color: var(--accent-hover);
+}
+
+.bondNamePlain {
+  color: var(--text-primary);
+  font-size: 1.1rem;
+}
+
+.bondNative {
+  font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.14em;
+  color: var(--toj-ja-text);
+}
+
+.bondRole {
+  margin: 0.25rem 0 0;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 200;
+  font-size: 0.64rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--toj-sky-text);
+}
+
+.bondLine {
+  margin: 0.5rem 0 0;
+  font-size: 0.96rem;
+  color: var(--text-secondary);
+}
+
+.bondFlag {
+  margin: 0.6rem 0 0;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 200;
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--toj-frame-text);
+}
+
+.plainNames {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem clamp(1.2rem, 3vw, 2.4rem);
+  margin: clamp(1.6rem, 4vh, 2.4rem) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.plainName {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  flex: 1 1 13rem;
+  min-width: 0;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--toj-hair-soft);
+}
+
+.plainNameText {
+  color: var(--text-primary);
+}
+
+.plainNameRole {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 200;
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--toj-sky-text);
+}
+
+/* ── 7b · KAPANIŞ ─────────────────────────────────────────────────────── */
+.lines {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: clamp(1.6rem, 4vw, 3rem);
+  margin: clamp(1.8rem, 5vh, 3rem) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.line {
+  margin: 0;
+  min-width: 0;
+  border-top: 1px solid var(--toj-hair);
+  padding-top: 1rem;
+}
+
+.lineJa {
+  margin: 0;
+  font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+  font-size: clamp(1.7rem, 4vw, 2.6rem);
+  line-height: 1.35;
+  letter-spacing: 0.16em;
+  color: var(--text-primary);
+}
+
+.lineReading {
+  margin: 0.35rem 0 0;
+  font-size: 0.86rem;
+  color: var(--toj-sky-text);
+}
+
+.lineTurkish {
+  margin: 0.25rem 0 0;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 200;
+  font-size: 0.76rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--toj-ja-text);
+}
+
+.lineNote {
+  margin: 0.7rem 0 0;
+  color: var(--text-secondary);
+}
+
+.lineBy {
+  margin-top: 0.7rem;
+  font-size: 0.86rem;
+  color: var(--toj-frame-text);
+}
+
+.quoteNote {
+  margin: clamp(1.8rem, 4vh, 2.6rem) 0 0;
+  max-width: 46rem;
+  font-size: 0.94rem;
+  color: var(--toj-sky-text);
+}
+
+.motto {
+  margin: 0;
+  font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+  font-size: clamp(2rem, 7vw, 4.6rem);
+  line-height: 1.2;
+  letter-spacing: 0.2em;
+  color: var(--accent-hover);
+}
+
+.mottoNote {
+  margin: 0.9rem 0 0;
+  max-width: 44rem;
+  color: var(--text-secondary);
+}
+
+.credit {
+  margin: clamp(2.2rem, 5vh, 3.2rem) 0 0;
+  font-size: 0.9rem;
+  color: var(--toj-sky-text);
+}
+
+.creditLink {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid var(--toj-hair);
+}
+
+.creditLink:hover {
+  color: var(--accent-hover);
+  border-bottom-color: var(--accent-hover);
+}
+
+.creditNote {
+  margin: 0.5rem 0 0;
+  max-width: 46rem;
+  font-size: 0.88rem;
+  color: var(--toj-frame-text);
+}
+
+/* ── GENİŞ EKRAN ──────────────────────────────────────────────────────
+   Sayfa burada gerçekten YATAY oluyor: künye iki kolona, tezgâh üç
+   kolona, duraklar damga|metin ikilisine ayrılıyor. Üst boşluk aynen
+   duruyor — genişlik arttıkça boşluk da büyüyor. */
+@media (min-width: 56rem) {
+  .identity {
+    grid-template-columns: minmax(0, 10rem) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .bench {
+    grid-template-columns: minmax(9rem, 0.6fr) minmax(0, 1.7fr) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .benchStatus,
+  .benchClosing {
+    grid-column: 1 / -1;
+  }
+
+  .stop {
+    grid-template-columns: minmax(0, 11rem) minmax(0, 1fr);
+  }
+
+  .stopStamp,
+  .stopStampReading {
+    grid-column: 1;
+  }
+
+  .stopTitle,
+  .stopText,
+  .stopMark,
+  .stopMarkReading,
+  .stopKin {
+    grid-column: 2;
+  }
+
+  .stopTitle {
+    margin-top: 0;
+  }
+
+  .pieces {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ── DAR EKRAN ────────────────────────────────────────────────────────
+   ⚠️ Üst boşluk KÜÇÜLÜYOR ama sıfırlanmıyor: "boş gökyüzü" 360 px'te de
+   sayfanın kilidi. Sıfırlamak sayfayı başka bir sayfa yapardı. */
+@media (max-width: 40rem) {
+  .page {
+    --toj-sky: clamp(3.5rem, 14vh, 6.5rem);
+    --toj-sky-hero: clamp(6rem, 26vh, 11rem);
+    --toj-gap: clamp(2.6rem, 7vh, 4rem);
+  }
+
+  .watermarkKanji {
+    bottom: 4%;
+  }
+
+  .zeroValue {
+    font-size: clamp(3.6rem, 22vw, 6rem);
+  }
+}
+
+/* ── HAREKET BATTANİYESİ ──────────────────────────────────────────────
+   Sayfada zaten iki hareket var (gökyüzü kayması ve seçim çizgisi) ve
+   ikisi de `no-preference` kapısının arkasında. Bu blok yine de duruyor:
+   ileride eklenecek her geçiş için tek kapatma noktası. */
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }

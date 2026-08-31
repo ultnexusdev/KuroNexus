@@ -350,6 +350,11 @@ etiket" kabul değil.
 | Tōji | çanta: birikimli ve geri alınabilir seçim; üç fiziksel okuma artıyor, 呪力 sütunu hiç kıpırdamıyor |
 | Jōgo | kül birikiyor, üflenince temizleniyor ama her seferinde DAHA HIZLI geri geliyor; dördüncüde temizlenmiyor |
 | Yūta | kopyalanan teknik destesi; deste büyüdükçe monokrom alan azalıyor, renk yayılıyor — toplama geri alınabilir |
+| Midoriya | sekiz vestige KÜMÜLATİF birikiyor (soyulmuyor, geri de alınabiliyor); düğme düzeni değil İÇERİĞİ çoğaltıyor |
+| Bakugō | etki-tepki: kart ileri fırlarken sayfa gövdesi TERS yöne kayıyor, beş teknik beş yön |
+| Todoroki | tek sürekli oran (0–100) sayfanın TAMAMINI yönetiyor; iki yarı farklı hareket dili konuşuyor |
+| Uraraka | Release: tüm kartlar düşüp yığılıyor ve yığın AYRI bir okuma sırası veriyor; üçüncüde bulantı uyarısı |
+| All Might | azalan süre sayacı, geri dönüşü YOK; ben-day deseni dekor değil, kalan enerjinin göstergesi |
 
 ⚠️ Yukarıdaki son dört satır **yeni** mekaniklerdir (31 Ağustos 2026, Dalga 5
 kimlik ameliyatı). Faz 1'in şu dördü **emekli** ve `.deprecated/` altında —
@@ -427,6 +432,11 @@ Yeni palet bu tablodakilere yakın düşmemeli; önek benzersiz olmalı.
 | `panda` | `pnd` | `#0f0f0d` | `#adb569` |
 | `touji-fushiguro` | `toj` | `#0a0a0b` | `#bfb9b0` |
 | `yuuta-okkotsu` | `yut` | `#0d0d0d` | `#8a63bf` |
+| `izuku-midoriya` | `mid` | `#0b0f0d` | `#60be79` |
+| `katsuki-bakugou` | `bkg` | `#0d0b0a` | `#f2a650` |
+| `ochako-uraraka` | `urk` | `#0e0b0d` | `#cd84a1` |
+| `shouto-todoroki` | `tdr` | `#0b0d0e` | `#4aa1b5` |
+| `toshinori-yagi` | `alm` | `#0b0c0f` | `#e1b847` |
 
 Sıkışmış aile: **turuncu/kehribar** (naruto, rocklee, iruka, choji,
 shikamaru, shino, gaara) ve **kızıl** (itachi, ichigo, kenpachi, urahara,

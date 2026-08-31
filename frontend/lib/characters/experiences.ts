@@ -192,6 +192,25 @@ export const EXPERIENCE_IDS = {
   toujiFushiguro: 162722,
   jougo: 156991,
   yuutaOkkotsu: 129571,
+
+  /* ── Dördüncü tur, Dalga 2 · My Hero Academia (31 Ağustos 2026) ──
+     Turun SON dalgası. Arşiv ilk kez My Hero Academia'ya açılıyor.
+
+     ⚠️ Bu beşinin kaydı bir kez daha yazılıyor. İlk yazımı 31 Ağustos'ta
+     `ce7692d`/`bb36a2d` ile girmişti ama o dalda BİLEŞENLER YOKTU: rota
+     ve kayıt vardı, `components/character/<slug>/` boştu, yani `tsc` beş
+     TS2307 veriyordu ve `check-karakter-kayit` beş "bileşen dosyası YOK"
+     basıyordu. O dal olduğu gibi merge EDİLMEDİ; beş sayfanın yarım kalan
+     işi ayrı dallardan (`<slug>-redesign`) cherry-pick edildi ve kayıt
+     burada, bileşenler tamamlandıktan sonra yazıldı.
+
+     Numaralar `kaynak.json` dosyalarındaki AniList çekiminden; beşinin de
+     `yapimlar` listesinde Boku no Hero Academia var. ── */
+  izukuMidoriya: 89028,
+  katsukiBakugou: 88892,
+  shoutoTodoroki: 89220,
+  ochakoUraraka: 89221,
+  toshinoriYagi: 89224,
 } as const;
 
 /**
@@ -393,6 +412,27 @@ export const EXPERIENCE_COMPANIONS: Record<number, number[]> = {
   [EXPERIENCE_IDS.jougo]: [133701, 133702, 127691, 127212],
   // Yūta: ustası, ustasının arkadaşı, sınıfı
   [EXPERIENCE_IDS.yuutaOkkotsu]: [127691, 133699, 134167, 137974],
+
+  /* ── Dördüncü tur, Dalga 2 · My Hero Academia (31 Ağustos 2026) ──
+     Listeler `bb36a2d`'de bir kez düşünülmüştü ve olduğu gibi korundu;
+     o commit merge edilmedi ama içindeki karar doğruydu.
+
+     ⚠️ Sayfası OLMAYAN numaralar bilinçli duruyor (Shigaraki 89226,
+     Aizawa 89225, Iida 89223, Dabi 126378, All For One 125956,
+     Kirishima 89243, Toga 125619): portre kaydı girildiğinde kadraj
+     kendiliğinden dolar, o güne kadar bölüm ADLA çiziliyor. Sayfası
+     olmayana `isExperienceCharacter()` `false` döndüğü için bağlantı
+     zaten kurulmuyor. */
+  // Midoriya: sembol, rakip, sınıf, düşman
+  [EXPERIENCE_IDS.izukuMidoriya]: [89224, 88892, 89220, 89221, 89226],
+  // Bakugō: hedefi, sembol, sınıf arkadaşları, öğretmen
+  [EXPERIENCE_IDS.katsukiBakugou]: [89028, 89224, 89220, 89243, 89225],
+  // Todoroki: sınıfı, sembol, ağabeyi (Dabi), öğretmen
+  [EXPERIENCE_IDS.shoutoTodoroki]: [89028, 88892, 89224, 126378, 89225],
+  // Uraraka: takımı, sınıfı, karşısına çıkan
+  [EXPERIENCE_IDS.ochakoUraraka]: [89028, 88892, 89223, 125619, 89220],
+  // Toshinori: halefi, düşmanı, öğrencileri
+  [EXPERIENCE_IDS.toshinoriYagi]: [89028, 125956, 88892, 89225, 89226],
 };
 
 const EXPERIENCE_ID_SET: ReadonlySet<number> = new Set<number>(

@@ -1,0 +1,2316 @@
+/*
+ * Toshinori Yagi (八木俊典) — deri bloğu.
+ *
+ * Palet docs/ANIME-FAZ2-DALGA2.md'den BİREBİR alındı; elle renk yazma.
+ * Dosyanın EN BAŞINDA olmak zorunda ve seçici `.page[data-world="…"]`
+ * — `:global([data-world=…])` CSS Modules'ün "pure selector" kuralına
+ * takılıyor.
+ *
+ * Yardımcı token adı `--alm-…`. Küçük METİNDE kullanacağın her
+ * yardımcı rengin `-text` ekli bir kardeşi olmalı; kontrast denetimi
+ * yalnızca onlara bakıyor.
+ *
+ * ── BU SAYFADA KONTRAST NEDEN İKİ UÇTA ÖLÇÜLDÜ ───────────────────────────
+ * Palet sabit değil: `data-form` (altın ↔ gerçek) ve `data-drain` (0…5)
+ * birlikte bir RAMPA sürüyor (`--alm-cool`, 0% → 100%). Metin rengi bu
+ * rampanın iki ucunda duran İKİ ölçülmüş token arasında `color-mix` ile
+ * geziniyor. İki uç da denetimden geçiyor ve aradaki her karışım
+ * ikisinin arasında kalıyor (sRGB'de kanal değerleri ara değer olduğu
+ * için parlaklık da ara değer; ölçüldü):
+ *
+ *   --alm-gold-text  #e6c463 → surface 10.90 · surface-hover 10.21
+ *   --alm-cold-text  #8fbde0 → surface  9.22 · surface-hover  8.63
+ *   ara karışımlar (%20/40/60/80) → 10.45 · 9.98 · 9.68 · 9.36
+ *
+ * Yani sayaç sıfıra inip doygunluk tamamen çekildiğinde bile en düşük
+ * metin kontrastı 8.63:1 — eşiğin (4.5) neredeyse iki katı. Doygunluk
+ * kaybı METNİ DEĞİL yalnızca dekoratif katmanları (yıkama, ben-day,
+ * kâğıt, kontur) etkiliyor.
+ */
+.page[data-world="toshinori-yagi"] {
+  --bg: #0b0c0f;
+  --surface: #131418;
+  --surface-hover: #191b20;
+  --border: #202228;
+  --border-strong: #2e3138;
+  --text-primary: #c7c9d1;
+  --text-secondary: #7c849c;
+  --text-muted: #7983a2;
+  --accent: #e1b847;
+  --accent-hover: #dec173;
+  --accent-muted: #594a21;
+  --gold: #5488b6;
+  --warn: #b88347;
+  --danger: #c26459;
+
+  /* ── Metin taşıyan yardımcılar (ölçülüyor) ───────────────────────────
+     Dördü de `-text` ekli; denetim yalnızca bunlara bakıyor. */
+
+  /* Poster mürekkebi: kontur başlıkların dolgusu, panel başlıkları */
+  --alm-ink-text: #eceadf;
+  /* Altın formun küçük metni — rampanın SICAK ucu */
+  --alm-gold-text: #e6c463;
+  /* Gerçek formun küçük metni — rampanın SOĞUK ucu */
+  --alm-cold-text: #8fbde0;
+  /* "Sınır aşıldı" satırı ve tükenme uyarısı */
+  --alm-over-text: #e08d80;
+  /* Kâğıt altyazısı: kadraj notları, defter satırları */
+  --alm-paper-text: #cfcabb;
+
+  /* ── Malzeme (metin DEĞİL, ölçülmüyor) ───────────────────────────────
+     Çizgi romanın "kalın siyah kontur"u ve "beyaz oluk"u da burada
+     token: gövdede `black`/`white` yazmak yasak (denetim adlandırılmış
+     rengi de yakalıyor). */
+
+  /* Panel konturu — posterin siyahı */
+  --alm-ink: #05060a;
+  /* Oluk (gutter) — posterin beyazı; sıcak, hafif sararmış kâğıt */
+  --alm-paper: #e7e3d6;
+  /* Aynı kâğıdın rengi çekilmiş hâli: sayaç dibe inince buraya kayıyor */
+  --alm-paper-cold: #ccd1d6;
+  /* Kâğıdın kırık kenarı */
+  --alm-paper-edge: #b3ad9c;
+  /* Ben-day noktası — altın uçta */
+  --alm-dot-gold: #6f5820;
+  /* Ben-day noktası — soğuk uçta (pratikte görünmüyor: alfa sıfıra iner) */
+  --alm-dot-cold: #2b4457;
+  /* Panel çatlağının içi */
+  --alm-crack: #0e1016;
+
+  /* ── Rampanın varsayılanı: ALTIN FORM, hiç harcanmamış ───────────────
+     Beş `data-drain` bloğu ve `data-form="true"` bunları eziyor.
+
+     ⚠️ RAMPA İKİ KOPYA HÂLİNDE: `--alm-cool` YÜZDE (color-mix'in ikinci
+     rengine oran olarak giriyor), `--alm-cool-n` BİRİMSİZ SAYI (0…1).
+     İkincisi `calc()` içinde çarpan olarak gerekiyor: CSS'te yüzdeyi
+     yüzdeye BÖLMEK geçersiz, yani `calc(var(--alm-cool) / 100%)` sessizce
+     geçersiz bir bildirim üretirdi. İkisi hep birlikte değişiyor. */
+  --alm-cool: 0%;
+  --alm-cool-n: 0;
+  --alm-stroke: 6px;
+  --alm-dot-alpha: 0.5;
+  --alm-measure: 78rem;
+  --alm-gutter: 14px;
+  --alm-pad: clamp(1rem, 2.6vw, 2.1rem);
+
+  /* ── Rampadan TÜRETİLEN renkler ──────────────────────────────────────
+     `--alm-cool` aşağıdaki bloklarda değişiyor; `var()` bileşik değerin
+     içinde geç çözüldüğü için bu dört token kendiliğinden kayıyor. */
+  --alm-tone: color-mix(in srgb, var(--accent), var(--gold) var(--alm-cool));
+  --alm-tone-text: color-mix(
+    in srgb,
+    var(--alm-gold-text),
+    var(--alm-cold-text) var(--alm-cool)
+  );
+  --alm-dot: color-mix(
+    in srgb,
+    var(--alm-dot-gold),
+    var(--alm-dot-cold) var(--alm-cool)
+  );
+  --alm-paper-now: color-mix(
+    in srgb,
+    var(--alm-paper),
+    var(--alm-paper-cold) var(--alm-cool)
+  );
+}
+
+/* ============================================================
+   TOSHINORI YAGI — "PLUS ULTRA"
+
+   Bu bloktan AŞAĞIDA TEK HEX YOK; ara tonların hepsi color-mix ile
+   token'lardan türetildi (SÖZLEŞME §1).
+
+   ── SAYFANIN FİKRİ ──────────────────────────────────────────────────────
+   ALL MIGHT BİR FORM DEĞİL BİR BÜTÇE. Sayfa bir Amerikan çizgi roman
+   SAYFASI: kâğıt (`.board`) üstüne oturmuş, kalın mürekkep konturlu,
+   farklı genişlikte paneller; aralarında beyaz oluk; panel içinde
+   ben-day noktaları. Ama poster bir kaynak harcıyor ve sayfanın bütün
+   grameri o harcamayı ÖLÇÜYOR.
+
+   ── ÜÇ NİTELİK, TEK RAMPA ───────────────────────────────────────────────
+   Kök öğe üç niteliği birden taşıyor:
+     data-world="toshinori-yagi"  → deri
+     data-form="golden|true"      → mod düğmesi (yapı çeviriyor)
+     data-drain="0…5"             → kalan süreden türeyen tükenme kademesi
+
+   İkisi de AYNI dört değişkeni sürüyor — kontur kalınlığı, ben-day alfası,
+   kâğıdın ölçüsü ve renk rampası. Yani düğme ile sayaç aynı ekseni iki
+   ayrı uçtan itiyor: düğme bir anda, sayaç kademe kademe.
+
+   ⚠️ IZGARA İKİ DURUMDA DA DURUYOR. Düğme paneli yaratmıyor ya da yok
+   etmiyor; ORANINI ve KONTURUNU değiştiriyor (Dalga 1'de Onizuka'da
+   yapılan hata: mod kapalıyken kilitli ızgara tamamen kayboluyordu).
+
+   ── BEN-DAY BURADA DEKOR DEĞİL GÖSTERGE ─────────────────────────────────
+   Nokta deseninin YOĞUNLUĞU sayfanın kalan enerjisi. Sayaç düştükçe
+   noktalar soluyor, sıfırda hiç kalmıyor. Bilgi TEK BAŞINA desende
+   değil: kalan dakika `.meterBigValue`de rakamla, `.meterStatus`ta
+   `aria-live` ile yazıyla da veriliyor.
+   ============================================================ */
+
+/* ── Tükenme kademeleri ───────────────────────────────────────────────
+   Aralıklar eşit DEĞİL (bkz. `PlusUltraShell.drainLevel`): sonlara doğru
+   sıkışıyorlar, çünkü tükenmenin hissi de öyle. */
+
+.page[data-drain="1"] {
+  --alm-cool: 20%;
+  --alm-stroke: 5.5px;
+  --alm-dot-alpha: 0.4;
+  --alm-measure: 75rem;
+}
+
+.page[data-drain="2"] {
+  --alm-cool: 40%;
+  --alm-stroke: 4.5px;
+  --alm-dot-alpha: 0.3;
+  --alm-measure: 72rem;
+}
+
+.page[data-drain="3"] {
+  --alm-cool: 60%;
+  --alm-stroke: 3.5px;
+  --alm-dot-alpha: 0.2;
+  --alm-measure: 69rem;
+  --alm-gutter: 12px;
+}
+
+.page[data-drain="4"] {
+  --alm-cool: 80%;
+  --alm-stroke: 3px;
+  --alm-dot-alpha: 0.1;
+  --alm-measure: 66rem;
+  --alm-gutter: 11px;
+}
+
+.page[data-drain="5"] {
+  --alm-cool: 100%;
+  --alm-stroke: 2px;
+  --alm-dot-alpha: 0;
+  --alm-measure: 62rem;
+  --alm-gutter: 10px;
+}
+
+/* ⚠️ SIRA ÖNEMLİ: bu blok tükenme bloklarından SONRA geliyor. Aynı
+   özgüllükte (0,2,0) olduğu için düğmeyle gerçek forma geçmek rampayı
+   doğrudan uca taşıyor — sayaç ne durumda olursa olsun. */
+.page[data-form="true"] {
+  --alm-cool: 100%;
+  --alm-stroke: 2px;
+  --alm-dot-alpha: 0;
+  --alm-measure: 62rem;
+  --alm-gutter: 10px;
+  --alm-pad: clamp(0.85rem, 2vw, 1.6rem);
+}
+
+/* ── Sayfa kabuğu ─────────────────────────────────────────────────────── */
+
+.page {
+  position: relative;
+  z-index: 0;
+  /* Filigran ve panel çatlaması kadrajın dışına taşabiliyor. `clip`,
+     `hidden` değil: `hidden` yapışkan öğeleri kırıyor. */
+  overflow-x: clip;
+  padding: clamp(1.2rem, 3vw, 2.6rem) clamp(0.75rem, 3vw, 2rem)
+    clamp(2.5rem, 6vw, 5rem);
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-inter), var(--font-sans), sans-serif;
+  font-weight: 400;
+  line-height: 1.62;
+}
+
+/* Zemin yıkaması — altın formda sıcak, gerçek formda soğuk. Hiçbir metnin
+   ALTINDA değil (kontrast ölçümü bozulmasın): yalnızca sayfanın zemininde
+   duruyor ve panellerin arkasında kalıyor. */
+.wash {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      120% 60% at 50% 0%,
+      color-mix(in srgb, var(--alm-tone) 13%, transparent),
+      transparent 62%
+    ),
+    radial-gradient(
+      90% 55% at 12% 100%,
+      color-mix(in srgb, var(--alm-tone) 8%, transparent),
+      transparent 70%
+    );
+}
+
+/* ── Filigran: konuşma balonu + ışın demeti + 平和の象徴 ───────────────── */
+
+.watermark {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: clip;
+  pointer-events: none;
+  /* Filigran bir DURUM göstergesi değil; gerçek formda geri çekiliyor ama
+     kaybolmuyor — sayfanın kimliği o. */
+  opacity: calc(0.5 - 0.22 * (var(--alm-cool) / 100%));
+}
+
+.watermarkBeam {
+  position: absolute;
+  top: -12vw;
+  right: -22vw;
+  width: min(115vw, 74rem);
+  height: min(115vw, 74rem);
+  color: var(--alm-tone);
+  opacity: 0.42;
+}
+
+.watermarkBalloon {
+  position: absolute;
+  top: clamp(3rem, 12vw, 9rem);
+  left: clamp(-3rem, -4vw, -1rem);
+  width: min(78vw, 34rem);
+  height: auto;
+  color: var(--alm-tone);
+  opacity: 0.5;
+}
+
+.watermarkKanji {
+  position: absolute;
+  right: clamp(0.5rem, 3vw, 3rem);
+  bottom: clamp(2rem, 9vw, 8rem);
+  max-width: 100%;
+  font-family: var(--font-shippori), serif;
+  font-size: clamp(2.6rem, 11vw, 8rem);
+  line-height: 1;
+  letter-spacing: 0.16em;
+  writing-mode: vertical-rl;
+  color: color-mix(in srgb, var(--alm-tone) 26%, transparent);
+}
+
+/* ── Breadcrumb ───────────────────────────────────────────────────────── */
+
+.crumb {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: var(--alm-measure);
+  margin: 0 auto clamp(0.9rem, 2.5vw, 1.6rem);
+  font-size: 0.82rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.crumb a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  padding: 0 0.15rem;
+  color: var(--alm-tone-text);
+  text-decoration: none;
+  border-bottom: 2px solid color-mix(in srgb, var(--alm-tone) 45%, transparent);
+}
+
+.crumb a:hover {
+  color: var(--alm-ink-text);
+  border-bottom-color: var(--alm-ink-text);
+}
+
+.crumbSep {
+  color: var(--text-muted);
+}
+
+.crumbHere {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  color: var(--text-secondary);
+}
+
+/* ── ÇİZGİ ROMAN KÂĞIDI ───────────────────────────────────────────────────
+   `.board` posterin kendisi: 12 sütunluk bir kâğıt. Paneller onun üstüne
+   oturuyor, aralarındaki boşluk KÂĞIT görünüyor — çizgi romanın oluğu
+   (gutter) tam olarak bu. Kâğıdın rengi de rampada: sayaç indikçe sararmış
+   sıcaklığını kaybediyor.
+
+   `minmax(0, 1fr)`: uzun bir sözcük ya da geniş bir tablo sütunu şişirip
+   yatay taşma üretmesin diye. 360 px ölçümünün yarısı bu satırda. */
+
+.board {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--alm-gutter);
+  width: 100%;
+  max-width: var(--alm-measure);
+  margin: 0 auto;
+  padding: var(--alm-gutter);
+  background: var(--alm-paper-now);
+  border: calc(var(--alm-stroke) + 2px) solid var(--alm-ink);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--alm-paper-edge) 55%, transparent),
+    0 26px 60px color-mix(in srgb, var(--alm-ink) 72%, transparent);
+}
+
+/* ── PANEL ────────────────────────────────────────────────────────────────
+   Her bölüm bir panel. Genişlikler eşit DEĞİL — sayfanın çizgi roman
+   hissi tam olarak bu eşitsizlikten geliyor:
+     splash / afiş / laboratuvar / sayaç / kapanış → 12 sütun
+     künye → 8, sembol → 4        (aynı satırda, farklı boy)
+     çizelge → 7, kadro → 5       (aynı satırda, farklı boy)
+   46rem altında hepsi 12'ye iniyor. */
+
+.panel {
+  position: relative;
+  grid-column: span 12;
+  min-width: 0;
+  background: var(--surface);
+  border: var(--alm-stroke) solid var(--alm-ink);
+  border-radius: 0;
+  /* `clip`, `hidden` değil: ben-day deseni ve çatlama kadrajın içinde
+     kalsın ama yapışkan öğeler kırılmasın. */
+  overflow: clip;
+  isolation: isolate;
+}
+
+.panel[data-span="full"] {
+  grid-column: span 12;
+}
+
+.panel[data-span="wide"] {
+  grid-column: span 8;
+}
+
+.panel[data-span="narrow"] {
+  grid-column: span 4;
+}
+
+.panel[data-span="tall"] {
+  grid-column: span 7;
+}
+
+.panel[data-span="side"] {
+  grid-column: span 5;
+}
+
+/* Splash paneli: sayfanın ilk karesi, konturu bir kademe daha kalın. */
+.panel[data-kind="splash"] {
+  border-width: calc(var(--alm-stroke) + 3px);
+}
+
+/* Afiş paneli: mod düğmesinin paneli — kâğıdın ortasındaki şerit. */
+.panel[data-kind="banner"] {
+  background: color-mix(in srgb, var(--alm-tone) 7%, var(--surface));
+}
+
+/* Sembol paneli: dar, ortalanmış, mürekkep ağırlıklı. */
+.panel[data-kind="mark"] {
+  background: color-mix(in srgb, var(--alm-ink) 45%, var(--surface));
+}
+
+.panel[data-kind="meter"] {
+  background: color-mix(in srgb, var(--alm-ink) 24%, var(--surface));
+}
+
+.panel[data-kind="cast"] {
+  background: color-mix(in srgb, var(--alm-ink) 30%, var(--surface));
+}
+
+.panel[data-kind="closing"] {
+  background: color-mix(in srgb, var(--alm-ink) 38%, var(--surface));
+}
+
+/* Panelin iç gölgesi: kâğıda basılmış mürekkep hissi. Metnin ÜSTÜNDE
+   değil, kenarında. */
+.panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 clamp(20px, 4vw, 46px)
+    color-mix(in srgb, var(--alm-ink) 62%, transparent);
+}
+
+/* Panelin çatlağı: kenardan içeri giren tek bir mürekkep kırığı. Duruyorken
+   görünmüyor; giriş animasyonunda ve odakta bir an parlıyor. */
+.panel::after {
+  content: "";
+  position: absolute;
+  inset: -10%;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(
+    104deg,
+    transparent 44%,
+    color-mix(in srgb, var(--alm-crack) 85%, transparent) 47%,
+    color-mix(in srgb, var(--alm-tone) 55%, transparent) 49%,
+    transparent 52%
+  );
+}
+
+.panelBody {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.85rem, 1.8vw, 1.35rem);
+  min-width: 0;
+  padding: var(--alm-pad);
+}
+
+/* ── Ben-day noktaları: sayfanın kalan enerjisi ───────────────────────────
+   Alfası `--alm-dot-alpha` ile sürülüyor: 0.5 (dolu bütçe) → 0 (tükenmiş).
+   Tek başına bilgi taşımıyor — kalan dakika ayrıca rakamla yazıyor. */
+
+.ben {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: var(--alm-dot-alpha);
+  background-image: radial-gradient(
+    circle at center,
+    var(--alm-dot) 1.15px,
+    transparent 1.35px
+  );
+  background-size: 7px 7px;
+  /* Desen panelin sol üstünden değil, kâğıdın kendi ızgarasından başlıyor;
+     paneller kaydıkça desen de kayıyor — basılmış tek bir kâğıt hissi. */
+  background-position: 0 0;
+  mask-image: linear-gradient(
+    160deg,
+    black 0%,
+    black 42%,
+    transparent 88%
+  );
+}
+
+/* ── Panel başlıkları ─────────────────────────────────────────────────── */
+
+.panelHead {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+/* ── TİPOGRAFİ: İÇİ BOŞ KONTUR ────────────────────────────────────────────
+   Anton tek kesim (400) ve `latin-ext` taşıyor — `font-weight` YAZILMIYOR
+   (bildirilmeyen bir ağırlık sessizce en yakınına düşer). Kalınlık hissi
+   ölçekten ve `-webkit-text-stroke`tan geliyor.
+
+   ⚠️ Bakugō da bu dalgada dev poster başlığı kuruyor. Ayrım DOLU vs
+   KONTUR: onunki Archivo Black, eğik, negatif aralıklı ve DOLU; buradaki
+   Anton, dik, POZİTİF aralıklı ve İÇİ BOŞ. Eren'in dolu/bodur Anton
+   kullanımının da tam tersi.
+
+   `@supports` şart: `-webkit-text-stroke` desteklenmiyorsa `color:
+   transparent` yazan bir kural başlığı görünmez yapardı. Varsayılan DOLU,
+   kontur yalnızca destek varken devreye giriyor. */
+
+.heroName,
+.panelTitle,
+.meterBigValue,
+.motto {
+  font-family: var(--font-anton), var(--font-inter), sans-serif;
+  color: var(--alm-ink-text);
+  text-transform: uppercase;
+  line-height: 0.92;
+  overflow-wrap: anywhere;
+}
+
+@supports (-webkit-text-stroke: 2px currentColor) {
+  .heroName,
+  .panelTitle,
+  .meterBigValue {
+    color: transparent;
+    -webkit-text-stroke: calc(var(--alm-stroke) * 0.32) var(--alm-ink-text);
+  }
+
+  .motto {
+    color: transparent;
+    -webkit-text-stroke: calc(var(--alm-stroke) * 0.28) var(--alm-tone-text);
+  }
+}
+
+.panelTitle {
+  margin: 0;
+  font-size: clamp(1.6rem, 4.4vw, 2.9rem);
+  letter-spacing: 0.045em;
+  text-shadow: 3px 3px 0 color-mix(in srgb, var(--alm-tone) 26%, transparent);
+}
+
+.panelLede {
+  margin: 0;
+  max-width: 62ch;
+  font-size: 0.98rem;
+  color: var(--text-secondary);
+}
+
+/* ══ 1 · HERO — splash paneli ═══════════════════════════════════════════ */
+
+.heroTop {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: clamp(1rem, 3vw, 2.4rem);
+  align-items: start;
+}
+
+.heroText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+.heroEyebrow {
+  margin: 0;
+  font-size: 0.78rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--alm-tone-text);
+}
+
+.heroName {
+  margin: 0;
+  font-size: clamp(2.6rem, 11vw, 7rem);
+  letter-spacing: 0.03em;
+  /* Posterin kaydırılmış ikinci baskısı: konturlu harflerin arkasında
+     duran tek renk gölge. Dolu bir harf değil, bir "ikinci geçiş". */
+  text-shadow:
+    5px 5px 0 color-mix(in srgb, var(--alm-tone) 30%, transparent),
+    10px 10px 0 color-mix(in srgb, var(--alm-ink) 65%, transparent);
+}
+
+.heroHero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin: 0;
+  font-size: clamp(1.05rem, 2.6vw, 1.6rem);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--alm-tone-text);
+}
+
+.heroHeroNative {
+  font-family: var(--font-shippori), serif;
+  font-size: 0.72em;
+  letter-spacing: 0.1em;
+  text-transform: none;
+  color: var(--text-secondary);
+}
+
+.heroNative {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-size: clamp(1rem, 2.4vw, 1.35rem);
+  letter-spacing: 0.34em;
+  color: var(--text-muted);
+}
+
+.heroHouse {
+  margin: 0;
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+}
+
+.heroEpigraph {
+  margin: 0.3rem 0 0;
+  max-width: 56ch;
+  padding-left: clamp(0.7rem, 1.6vw, 1.1rem);
+  border-left: 4px solid color-mix(in srgb, var(--alm-tone) 60%, transparent);
+  font-size: clamp(0.98rem, 1.6vw, 1.1rem);
+  color: var(--text-primary);
+}
+
+.heroLede {
+  margin: 0;
+  max-width: 74ch;
+  font-size: clamp(0.96rem, 1.5vw, 1.05rem);
+  color: var(--text-primary);
+}
+
+/* ── Portre sütunu: madalyon ölçüsü ──────────────────────────────────────
+   AniList portresi 230×345 — poster boyunda DEĞİL. Bilerek küçük duruyor;
+   büyük kadraj aşağıdaki iki hero yuvası. */
+
+.heroPortraitCol {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  width: min(230px, 42vw);
+  min-width: 0;
+}
+
+.portraitFrame {
+  position: relative;
+  display: block;
+  padding: 6px;
+  background: var(--alm-paper-now);
+  border: var(--alm-stroke) solid var(--alm-ink);
+}
+
+.portraitImage {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: saturate(calc(1 - 0.45 * (var(--alm-cool) / 100%)));
+}
+
+.portraitCaption {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+/* ── İki hero kadrajı ────────────────────────────────────────────────────
+   Brief §Düğme: gerçek formda HERO GÖRSELİ DEĞİŞİYOR. İki ayrı yuva var
+   (`alm:hero-golden`, `alm:hero-true`) ve ziyaretçi yalnızca yürürlükteki
+   formunkini görüyor.
+
+   ⚠️ KÜRATÖR MODU AÇIKKEN İKİSİ DE ÇİZİLİYOR (aşağıdaki blok): her
+   yuvanın kendi kadrajının HEMEN ALTINDA durması şartı, mekaniğin
+   durumuna takılmamalı. Sayfa tükenip gerçek forma kilitlense bile
+   küratör iki kareyi de görüyor ve ikisini de yükleyebiliyor. */
+
+.heroPlate {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: clip;
+  background: color-mix(in srgb, var(--alm-ink) 55%, var(--surface));
+  border: var(--alm-stroke) solid var(--alm-ink);
+}
+
+.page[data-form="golden"] .heroPlate[data-form-frame="true"],
+.page[data-form="true"] .heroPlate[data-form-frame="golden"] {
+  display: none;
+}
+
+/* Küratör modunda ikisi de geri geliyor — özgüllük yukarıdaki kuralı
+   aşacak kadar yüksek (0,5,0 > 0,4,0), `!important` gerekmiyor. */
+.page[data-form] [data-curating="true"] .heroPlate[data-form-frame] {
+  display: block;
+}
+
+.heroPlate img {
+  object-fit: cover;
+}
+
+/* Yüklenen görselin üstündeki metne perde: kadrajın alt üçte biri
+   koyulaşıyor, üstüne düşen her şey okunur kalıyor. */
+.heroPlate[data-filled="true"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    transparent 42%,
+    color-mix(in srgb, var(--alm-ink) 78%, transparent) 100%
+  );
+}
+
+/* Görsel YOKKEN kadraj boş ama ayakta: elle çizilmiş ışın demeti ve
+   mürekkep taraması. Ziyaretçiye TEK KELİME yazmıyor. */
+.heroPlate[data-filled="false"] {
+  background-image:
+    repeating-conic-gradient(
+      from 0deg at 50% 50%,
+      color-mix(in srgb, var(--alm-tone) 12%, transparent) 0deg 3deg,
+      transparent 3deg 9deg
+    ),
+    repeating-linear-gradient(
+      45deg,
+      color-mix(in srgb, var(--alm-ink) 55%, transparent) 0 10px,
+      transparent 10px 22px
+    );
+}
+
+/* Panelin mürekkep kenarı — kadrajın içinden dışına doğru çizilmiş çerçeve */
+.heroPlateEdge {
+  position: absolute;
+  inset: clamp(6px, 1.4vw, 14px);
+  pointer-events: none;
+  border: 2px solid color-mix(in srgb, var(--alm-paper) 30%, transparent);
+}
+
+.plateCaption {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--alm-paper-text);
+}
+
+/* ══ 2 · MOD DÜĞMESİ — afiş paneli ══════════════════════════════════════ */
+
+.formHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.formTitle {
+  margin: 0;
+  font-family: var(--font-anton), var(--font-inter), sans-serif;
+  font-size: clamp(1.4rem, 3.6vw, 2.3rem);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--alm-ink-text);
+}
+
+.formNative {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.18em;
+  color: var(--text-muted);
+}
+
+.formLede {
+  margin: 0;
+  max-width: 70ch;
+  font-size: 0.96rem;
+  color: var(--text-secondary);
+}
+
+.formRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: clamp(0.6rem, 1.6vw, 1.2rem);
+  min-width: 0;
+}
+
+.formLabel {
+  margin: 0;
+  font-family: var(--font-anton), var(--font-inter), sans-serif;
+  font-size: clamp(1.3rem, 3.2vw, 2rem);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--alm-tone-text);
+}
+
+/* ── "Plus Ultra" düğmesi ────────────────────────────────────────────────
+   Gerçek `<button>`; dokunma hedefi `--touch-min` üstünde; odak halkası
+   görünür. Tükendiğinde `disabled` DEĞİL `aria-disabled` taşıyor (odak
+   kaybolmasın) — o yüzden görünüşü de burada `[aria-disabled="true"]` ile
+   kuruluyor. */
+
+.formToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: var(--touch-min);
+  padding: 0.55rem clamp(0.9rem, 2.4vw, 1.5rem);
+  background: var(--surface-hover);
+  border: var(--alm-stroke) solid var(--alm-ink);
+  border-radius: 0;
+  color: var(--alm-ink-text);
+  font: inherit;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 color-mix(in srgb, var(--alm-tone) 55%, transparent);
+}
+
+.formToggle:hover {
+  background: color-mix(in srgb, var(--alm-tone) 16%, var(--surface-hover));
+}
+
+.formToggle:focus-visible {
+  outline: 3px solid var(--alm-ink-text);
+  outline-offset: 3px;
+}
+
+.formToggle[aria-disabled="true"] {
+  cursor: not-allowed;
+  box-shadow: none;
+  background: var(--surface);
+  color: var(--text-secondary);
+  border-color: color-mix(in srgb, var(--alm-ink) 70%, var(--border-strong));
+}
+
+/* Düğmenin işareti: üç ışın çubuğu. Altın formda açılıyor, gerçek formda
+   yatıyor — düğmenin ne yaptığını renk değil BİÇİM söylüyor. */
+.formToggleMark {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  width: 22px;
+  height: 22px;
+}
+
+.formToggleBar {
+  display: block;
+  height: 3px;
+  background: currentColor;
+  transform-origin: left center;
+}
+
+.formToggleBar:nth-child(1) {
+  width: 100%;
+}
+
+.formToggleBar:nth-child(2) {
+  width: 72%;
+}
+
+.formToggleBar:nth-child(3) {
+  width: 44%;
+}
+
+.page[data-form="true"] .formToggleBar:nth-child(2),
+.page[data-form="true"] .formToggleBar:nth-child(3) {
+  width: 100%;
+}
+
+.formToggleText {
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.formState {
+  margin: 0;
+  font-size: 0.86rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--alm-tone-text);
+}
+
+.formHint {
+  margin: 0;
+  max-width: 68ch;
+  padding: 0.7rem 0.9rem;
+  background: color-mix(in srgb, var(--alm-ink) 40%, transparent);
+  border-left: 4px solid var(--alm-tone);
+  font-size: 0.92rem;
+  color: var(--text-primary);
+}
+
+.formLocked {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.85rem 1rem;
+  background: color-mix(in srgb, var(--danger) 12%, var(--surface));
+  border: 2px solid color-mix(in srgb, var(--danger) 55%, transparent);
+}
+
+.formLockedTitle {
+  margin: 0;
+  font-family: var(--font-anton), var(--font-inter), sans-serif;
+  font-size: 1.15rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--alm-over-text);
+}
+
+.formLockedText {
+  margin: 0;
+  max-width: 64ch;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+/* ══ 3 · KÜNYE ══════════════════════════════════════════════════════════ */
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  background: var(--alm-ink);
+  border: 2px solid var(--alm-ink);
+}
+
+.fact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+  padding: 0.65rem 0.8rem;
+  background: var(--surface-hover);
+}
+
+.fact dt {
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.fact dd {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--alm-ink-text);
+  overflow-wrap: anywhere;
+}
+
+.factNote {
+  margin: 0;
+  max-width: 70ch;
+  padding: 0.7rem 0.9rem;
+  background: color-mix(in srgb, var(--warn) 10%, var(--surface));
+  border-left: 4px solid color-mix(in srgb, var(--warn) 60%, transparent);
+  font-size: 0.88rem;
+  color: var(--text-primary);
+}
+
+/* ══ 3b · SEMBOLİK İŞARET — dar panel ═══════════════════════════════════ */
+
+.markTitle {
+  margin: 0;
+  font-size: 0.78rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--alm-tone-text);
+}
+
+.markKanji {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-size: clamp(3.2rem, 12vw, 6rem);
+  line-height: 1;
+  letter-spacing: 0.06em;
+  color: var(--alm-ink-text);
+  text-shadow: 4px 4px 0 color-mix(in srgb, var(--alm-tone) 45%, transparent);
+}
+
+.markReading {
+  margin: 0;
+  font-size: 0.88rem;
+  letter-spacing: 0.08em;
+  color: var(--alm-tone-text);
+}
+
+.markText {
+  margin: 0;
+  font-size: 0.93rem;
+  color: var(--text-primary);
+}
+
+/* ══ 4 · GÜÇ KÜNYESİ ════════════════════════════════════════════════════
+   Üç büyük kart (Quirk / Ultimate Move / Hero Adı) + dört Smash. Kartlar
+   da birer küçük panel: kalın kontur, kâğıt matı, ben-day yok (desen
+   sayfanın enerjisini okutuyor, kartın değil). */
+
+.powers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  gap: var(--alm-gutter);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.power {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 0.9rem;
+  background: var(--surface-hover);
+  border: var(--alm-stroke) solid var(--alm-ink);
+}
+
+.powerArt {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: clip;
+  background: color-mix(in srgb, var(--alm-ink) 50%, var(--surface));
+  border: 2px solid var(--alm-ink);
+}
+
+.powerArt img {
+  object-fit: cover;
+}
+
+.powerArt[data-filled="true"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    transparent 55%,
+    color-mix(in srgb, var(--alm-ink) 72%, transparent) 100%
+  );
+}
+
+.powerArt[data-filled="false"] {
+  background-image: repeating-linear-gradient(
+    -38deg,
+    color-mix(in srgb, var(--alm-tone) 14%, transparent) 0 6px,
+    transparent 6px 15px
+  );
+}
+
+.powerKind {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--alm-tone-text);
+}
+
+.powerName {
+  margin: 0;
+  font-family: var(--font-anton), var(--font-inter), sans-serif;
+  font-size: clamp(1.25rem, 2.6vw, 1.7rem);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: var(--alm-ink-text);
+  overflow-wrap: anywhere;
+}
+
+.powerNative {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+.powerTagline {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--alm-tone-text);
+}
+
+.powerText {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.powerTraits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0.2rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trait {
+  padding: 0.25rem 0.55rem;
+  background: color-mix(in srgb, var(--alm-tone) 14%, var(--surface));
+  border: 2px solid color-mix(in srgb, var(--alm-tone) 42%, transparent);
+  font-size: 0.76rem;
+  letter-spacing: 0.06em;
+  color: var(--alm-tone-text);
+}
+
+/* ── Dört Smash ─────────────────────────────────────────────────────── */
+
+.smashes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  gap: var(--alm-gutter);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.smash {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+  padding: 0.7rem;
+  background: color-mix(in srgb, var(--alm-ink) 30%, var(--surface));
+  border: 2px solid var(--alm-ink);
+}
+
+.smashArt {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: clip;
+  background: color-mix(in srgb, var(--alm-ink) 55%, var(--surface));
+  border: 2px solid var(--alm-ink);
+}
+
+.smashArt img {
+  object-fit: cover;
+}
+
+.smashArt[data-filled="true"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    transparent 58%,
+    color-mix(in srgb, var(--alm-ink) 70%, transparent) 100%
+  );
+}
+
+.smashArt[data-filled="false"] {
+  background-image: repeating-conic-gradient(
+    from 12deg at 50% 50%,
+    color-mix(in srgb, var(--alm-tone) 15%, transparent) 0deg 4deg,
+    transparent 4deg 12deg
+  );
+}
+
+.smashName {
+  margin: 0;
+  font-family: var(--font-anton), var(--font-inter), sans-serif;
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--alm-ink-text);
+  overflow-wrap: anywhere;
+}
+
+.smashNative {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+.smashNote {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+/* ══ 5 · KALAN SÜRE — sayfanın kalbi ════════════════════════════════════ */
+
+.meterPlate {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 21 / 9;
+  overflow: clip;
+  background: color-mix(in srgb, var(--alm-ink) 58%, var(--surface));
+  border: var(--alm-stroke) solid var(--alm-ink);
+}
+
+.meterPlate img {
+  object-fit: cover;
+}
+
+.meterPlate[data-filled="true"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    transparent 48%,
+    color-mix(in srgb, var(--alm-ink) 76%, transparent) 100%
+  );
+}
+
+.meterPlate[data-filled="false"] {
+  background-image: repeating-linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--alm-tone) 16%, transparent) 0 3px,
+    transparent 3px calc(3px + 0.9vw)
+  );
+}
+
+.meter {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.9rem, 2vw, 1.5rem);
+  min-width: 0;
+}
+
+.meterHead {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: clamp(0.8rem, 2vw, 1.3rem);
+  background: color-mix(in srgb, var(--alm-ink) 52%, var(--surface));
+  border: var(--alm-stroke) solid var(--alm-ink);
+}
+
+.meterBudget {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  font-size: 0.74rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.meterBudgetValue {
+  color: var(--alm-tone-text);
+}
+
+.meterBig {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.55rem;
+  margin: 0;
+  min-width: 0;
+}
+
+.meterBigLabel {
+  font-size: 0.78rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+/* Dev rakam: kalan dakika. Ben-day kaybolması TEK BAŞINA bilgi taşımasın
+   diye sayı her zaman burada duruyor ve okunuyor. */
+.meterBigValue {
+  font-size: clamp(3.4rem, 15vw, 8rem);
+  letter-spacing: 0.01em;
+  text-shadow:
+    4px 4px 0 color-mix(in srgb, var(--alm-tone) 34%, transparent),
+    8px 8px 0 color-mix(in srgb, var(--alm-ink) 70%, transparent);
+}
+
+.meterBigUnit {
+  font-size: clamp(1rem, 2.6vw, 1.5rem);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--alm-tone-text);
+}
+
+/* Işın demetinin yatay hâli — göstergenin kendisi */
+.meterGauge {
+  display: block;
+  width: 100%;
+  height: clamp(30px, 6vw, 48px);
+}
+
+.meterGaugeLabel {
+  margin: 0;
+  font-size: 0.76rem;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+}
+
+/* ── Beş harcama kalemi ─────────────────────────────────────────────── */
+
+.spends {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: var(--alm-gutter);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.spend {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  min-width: 0;
+  padding: 0.85rem;
+  background: var(--surface-hover);
+  border: var(--alm-stroke) solid var(--alm-ink);
+}
+
+/* Harcanmış kalem: kâğıt solmuş, kenar mürekkebi çekilmiş. Renk TEK
+   gösterge değil — düğmenin yazısı da "Harcandı" oluyor. */
+.spend[data-used="true"] {
+  background: color-mix(in srgb, var(--alm-ink) 46%, var(--surface));
+  border-color: color-mix(in srgb, var(--alm-ink) 60%, var(--border-strong));
+}
+
+.spend[data-over="true"] {
+  border-color: color-mix(in srgb, var(--danger) 62%, transparent);
+}
+
+.spendHead {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.spendNative {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-size: 0.82rem;
+  letter-spacing: 0.22em;
+  color: var(--text-muted);
+}
+
+.spendTitle {
+  margin: 0;
+  font-family: var(--font-anton), var(--font-inter), sans-serif;
+  font-size: clamp(1.15rem, 2.6vw, 1.5rem);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: var(--alm-ink-text);
+}
+
+.spendCost {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem;
+  margin: 0;
+}
+
+.spendCostLabel {
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.spendCostValue {
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--alm-tone-text);
+}
+
+.spendText {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+.spendAfter {
+  margin: 0;
+  padding: 0.5rem 0.7rem;
+  background: color-mix(in srgb, var(--alm-ink) 55%, transparent);
+  border-left: 4px solid var(--alm-tone);
+  font-size: 0.86rem;
+  font-style: italic;
+  color: var(--alm-paper-text);
+}
+
+/* ── Harcama düğmesi ─────────────────────────────────────────────────────
+   Tükenmiş kalem `disabled` DEĞİL `aria-disabled` taşıyor: odak
+   kaybolmuyor, kalem sekmeyle hâlâ geziliyor ve durumu okunuyor. */
+
+.spendButton {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: auto;
+  min-height: var(--touch-min);
+  padding: 0.5rem 1rem;
+  background: color-mix(in srgb, var(--alm-tone) 20%, var(--surface));
+  border: 3px solid var(--alm-ink);
+  border-radius: 0;
+  color: var(--alm-ink-text);
+  font: inherit;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 color-mix(in srgb, var(--alm-tone) 60%, transparent);
+}
+
+.spendButton:hover {
+  background: color-mix(in srgb, var(--alm-tone) 32%, var(--surface));
+}
+
+.spendButton:focus-visible {
+  outline: 3px solid var(--alm-ink-text);
+  outline-offset: 3px;
+}
+
+.spendButton[aria-disabled="true"] {
+  cursor: default;
+  box-shadow: none;
+  background: var(--surface);
+  color: var(--text-secondary);
+  border-color: color-mix(in srgb, var(--alm-ink) 70%, var(--border-strong));
+}
+
+.spend[data-over="true"] .spendButton[aria-disabled="true"] {
+  color: var(--alm-over-text);
+  border-color: color-mix(in srgb, var(--danger) 60%, transparent);
+}
+
+/* Düğmenin darbe halkası: basılabilir hâlde dışa doğru genişleyen tek bir
+   şok halkası. Harcanınca sönüyor. */
+.spendButtonRing {
+  position: absolute;
+  inset: -6px;
+  pointer-events: none;
+  border: 2px solid color-mix(in srgb, var(--alm-tone) 45%, transparent);
+  opacity: 0;
+}
+
+.spendButton[aria-disabled="true"] .spendButtonRing {
+  display: none;
+}
+
+.spendButtonText {
+  font-size: 0.86rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* ── Defter ─────────────────────────────────────────────────────────── */
+
+.ledger {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: clamp(0.75rem, 1.8vw, 1.1rem);
+  background: color-mix(in srgb, var(--alm-ink) 40%, var(--surface));
+  border: 2px solid var(--alm-ink);
+}
+
+.ledgerTitle {
+  margin: 0;
+  font-size: 0.74rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--alm-tone-text);
+}
+
+.ledgerEmpty {
+  margin: 0;
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+}
+
+.ledgerList {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--alm-ink);
+  border: 1px solid var(--alm-ink);
+}
+
+.ledgerRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.45rem 0.6rem;
+  background: var(--surface-hover);
+  font-size: 0.86rem;
+}
+
+.ledgerIndex {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.6rem;
+  padding: 0.05rem 0.3rem;
+  background: color-mix(in srgb, var(--alm-tone) 24%, var(--surface));
+  border: 2px solid color-mix(in srgb, var(--alm-tone) 50%, transparent);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--alm-tone-text);
+}
+
+.ledgerName {
+  flex: 1 1 8rem;
+  min-width: 0;
+  color: var(--alm-ink-text);
+}
+
+.ledgerCost {
+  font-variant-numeric: tabular-nums;
+  color: var(--alm-paper-text);
+}
+
+.ledgerOver {
+  padding: 0.1rem 0.45rem;
+  border: 2px solid color-mix(in srgb, var(--danger) 60%, transparent);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--alm-over-text);
+}
+
+.ledgerNote {
+  margin: 0;
+  max-width: 74ch;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+/* ── Durum ve kapanış satırları ─────────────────────────────────────── */
+
+/* `aria-live="polite"` bu satırda: her harcamada kalan süre okunuyor. */
+.meterStatus {
+  margin: 0;
+  padding: 0.55rem 0.8rem;
+  background: color-mix(in srgb, var(--alm-tone) 12%, var(--surface));
+  border-left: 5px solid var(--alm-tone);
+  font-size: 0.92rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--alm-ink-text);
+}
+
+.meterEmpty {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.9rem 1rem;
+  background: color-mix(in srgb, var(--danger) 12%, var(--surface));
+  border: 3px solid color-mix(in srgb, var(--danger) 55%, transparent);
+}
+
+.meterEmptyTitle {
+  margin: 0;
+  font-family: var(--font-anton), var(--font-inter), sans-serif;
+  font-size: 1.2rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--alm-over-text);
+}
+
+.meterEmptyText {
+  margin: 0;
+  max-width: 68ch;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.meterHint {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.meterNote {
+  margin: 0;
+  max-width: 74ch;
+  padding-left: 0.9rem;
+  border-left: 3px solid color-mix(in srgb, var(--alm-tone) 45%, transparent);
+  font-size: 0.86rem;
+  color: var(--alm-paper-text);
+}
+
+/* ══ 6 · BEŞ DURAK ══════════════════════════════════════════════════════ */
+
+.fate {
+  display: flex;
+  flex-direction: column;
+  gap: var(--alm-gutter);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: alm-fate;
+}
+
+.fateItem {
+  display: grid;
+  grid-template-columns: minmax(0, 7rem) minmax(0, 1fr);
+  gap: 0.55rem clamp(0.7rem, 2vw, 1.2rem);
+  align-items: start;
+  min-width: 0;
+  padding: 0.85rem;
+  background: var(--surface-hover);
+  border: 3px solid var(--alm-ink);
+}
+
+/* Sayfanın SAATİ: yaş değil, "günde ne kadar All Might". Gerekçe veri
+   dosyasının başında. */
+.fateClock {
+  grid-column: 1;
+  margin: 0;
+  padding: 0.35rem 0.5rem;
+  background: color-mix(in srgb, var(--alm-tone) 18%, var(--surface));
+  border: 2px solid color-mix(in srgb, var(--alm-tone) 48%, transparent);
+  font-size: 0.76rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--alm-tone-text);
+  overflow-wrap: anywhere;
+}
+
+.fateBody {
+  grid-column: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.fateTitle {
+  margin: 0;
+  font-family: var(--font-anton), var(--font-inter), sans-serif;
+  font-size: clamp(1.15rem, 2.6vw, 1.55rem);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: var(--alm-ink-text);
+}
+
+.fateText {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.fateQuote {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin: 0.2rem 0 0;
+  padding: 0.6rem 0.8rem;
+  background: color-mix(in srgb, var(--alm-ink) 55%, transparent);
+  border-left: 5px solid var(--alm-tone);
+}
+
+.fateQuote figcaption {
+  font-size: 0.76rem;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+}
+
+/* Görsel kadrajı iki sütunu da kaplıyor — panelin altına serilen şerit. */
+.fateArt {
+  grid-column: 1 / -1;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: clip;
+  background: color-mix(in srgb, var(--alm-ink) 55%, var(--surface));
+  border: 2px solid var(--alm-ink);
+}
+
+.fateArt img {
+  object-fit: cover;
+}
+
+.fateArt[data-filled="true"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    transparent 52%,
+    color-mix(in srgb, var(--alm-ink) 74%, transparent) 100%
+  );
+}
+
+.fateArt[data-filled="false"] {
+  background-image: repeating-linear-gradient(
+    112deg,
+    color-mix(in srgb, var(--alm-tone) 12%, transparent) 0 5px,
+    transparent 5px 16px
+  );
+}
+
+/* ══ Orijinal replikler ═════════════════════════════════════════════════ */
+
+.quoteJa {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-size: clamp(1.05rem, 2.4vw, 1.45rem);
+  letter-spacing: 0.1em;
+  line-height: 1.45;
+  color: var(--alm-ink-text);
+}
+
+.quoteReading {
+  margin: 0;
+  font-size: 0.92rem;
+  color: var(--alm-tone-text);
+}
+
+.quoteBy {
+  display: block;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.quoteNote {
+  display: block;
+  margin-top: 0.35rem;
+  max-width: 64ch;
+  font-size: 0.86rem;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text-primary);
+}
+
+/* ══ 6b · KADRO — nexus bağları ═════════════════════════════════════════ */
+
+.bondsPlate {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2 / 1;
+  overflow: clip;
+  background: color-mix(in srgb, var(--alm-ink) 55%, var(--surface));
+  border: var(--alm-stroke) solid var(--alm-ink);
+}
+
+.bondsPlate img {
+  object-fit: cover;
+}
+
+.bondsPlate[data-filled="true"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    transparent 50%,
+    color-mix(in srgb, var(--alm-ink) 74%, transparent) 100%
+  );
+}
+
+.bondsPlate[data-filled="false"] {
+  background-image: repeating-conic-gradient(
+    from 30deg at 20% 80%,
+    color-mix(in srgb, var(--alm-tone) 13%, transparent) 0deg 3deg,
+    transparent 3deg 10deg
+  );
+}
+
+.bonds {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--alm-ink);
+  border: 2px solid var(--alm-ink);
+}
+
+.bond {
+  display: flex;
+  gap: 0.75rem;
+  min-width: 0;
+  padding: 0.7rem;
+  background: var(--surface-hover);
+}
+
+.bondFace {
+  position: relative;
+  flex: none;
+  display: block;
+  width: 64px;
+  height: 64px;
+  overflow: clip;
+  background: color-mix(in srgb, var(--alm-ink) 60%, var(--surface));
+  border: 2px solid var(--alm-ink);
+}
+
+.bondFace img {
+  object-fit: cover;
+}
+
+.bondFace[data-filled="false"] {
+  background-image: repeating-linear-gradient(
+    45deg,
+    color-mix(in srgb, var(--alm-tone) 16%, transparent) 0 4px,
+    transparent 4px 11px
+  );
+}
+
+.bondBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.bondRole {
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--alm-tone-text);
+}
+
+.bondName {
+  font-family: var(--font-anton), var(--font-inter), sans-serif;
+  font-size: 1.15rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.1;
+  color: var(--alm-ink-text);
+  overflow-wrap: anywhere;
+}
+
+/* Kendi dosyası olan iki kimlik bağlanıyor (Midoriya, Bakugō); kalan üçü
+   düz ad — `isExperienceCharacter` false döndüğü için bağ verilmiyor. */
+.bondName a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  color: var(--alm-tone-text);
+  text-decoration: none;
+  border-bottom: 3px solid color-mix(in srgb, var(--alm-tone) 55%, transparent);
+}
+
+.bondName a:hover {
+  color: var(--alm-ink-text);
+  border-bottom-color: var(--alm-ink-text);
+}
+
+.bondName a:focus-visible {
+  outline: 3px solid var(--alm-ink-text);
+  outline-offset: 3px;
+}
+
+.bondNative {
+  font-family: var(--font-shippori), serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+.bondNote {
+  margin-top: 0.2rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+/* ══ 7 · KAPANIŞ ════════════════════════════════════════════════════════ */
+
+.closingPlate {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2 / 1;
+  overflow: clip;
+  background: color-mix(in srgb, var(--alm-ink) 60%, var(--surface));
+  border: var(--alm-stroke) solid var(--alm-ink);
+}
+
+.closingPlate img {
+  object-fit: cover;
+}
+
+.closingPlate[data-filled="true"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    transparent 50%,
+    color-mix(in srgb, var(--alm-ink) 76%, transparent) 100%
+  );
+}
+
+.closingPlate[data-filled="false"] {
+  background-image: repeating-linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--alm-tone) 11%, transparent) 0 2px,
+    transparent 2px calc(2px + 1.1vw)
+  );
+}
+
+.closingQuotes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  gap: var(--alm-gutter);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.closingQuote {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  height: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 0.9rem;
+  background: var(--surface-hover);
+  border: 3px solid var(--alm-ink);
+  border-left-width: 6px;
+  border-left-color: var(--alm-tone);
+}
+
+.motto {
+  margin: 0.4rem 0 0;
+  font-family: var(--font-shippori), serif;
+  font-size: clamp(1.6rem, 6vw, 3.2rem);
+  letter-spacing: 0.22em;
+  line-height: 1.15;
+  text-transform: none;
+  color: var(--alm-tone-text);
+  overflow-wrap: anywhere;
+}
+
+.mottoNote {
+  margin: 0;
+  max-width: 72ch;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.credit {
+  margin: 0;
+  max-width: 76ch;
+  padding-top: 0.7rem;
+  border-top: 2px solid var(--border-strong);
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.credit a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  color: var(--alm-tone-text);
+  text-decoration: none;
+  border-bottom: 2px solid color-mix(in srgb, var(--alm-tone) 50%, transparent);
+}
+
+.credit a:hover {
+  color: var(--alm-ink-text);
+  border-bottom-color: var(--alm-ink-text);
+}
+
+.credit a:focus-visible {
+  outline: 3px solid var(--alm-ink-text);
+  outline-offset: 3px;
+}
+
+/* ── Küratör boşluk özeti ─────────────────────────────────────────────── */
+
+.gapsWrap {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: var(--alm-measure);
+  margin: clamp(1.2rem, 3vw, 2rem) auto 0;
+}
+
+/* ══ ELLE ÇİZİLMİŞ SVG'LERİN RENGİ ══════════════════════════════════════
+   `AllMightGlyphs.tsx` tek bir `fill`/`stroke` özniteliği yazmıyor; hepsi
+   burada, token'lardan (kural 16). */
+
+.balloonLine {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 5;
+  stroke-linejoin: round;
+}
+
+.balloonDot {
+  fill: currentColor;
+}
+
+.beamRay {
+  fill: currentColor;
+}
+
+.beamRay[data-tier="1"] {
+  opacity: 0.68;
+}
+
+.beamRay[data-tier="2"] {
+  opacity: 0.42;
+}
+
+/* Gösterge çentikleri: yanan ışın tonda, sönen çentik SİLİNMİYOR —
+   harcanan sürenin izi kâğıtta kalıyor. */
+.gaugeTick {
+  fill: color-mix(in srgb, var(--alm-ink) 55%, var(--surface-hover));
+  stroke: var(--alm-ink);
+  stroke-width: 1.5;
+}
+
+.gaugeTick[data-lit="true"] {
+  fill: var(--alm-tone);
+}
+
+.gaugeBase {
+  fill: none;
+  stroke: var(--alm-ink);
+  stroke-width: 3;
+}
+
+/* ══ DAR EKRAN ══════════════════════════════════════════════════════════
+   360 px'te yatay taşma YOK. İki sütun genişliğindeki paneller (künye 8,
+   sembol 4, çizelge 7, kadro 5) tek sütuna iniyor; ızgara `minmax(0,1fr)`
+   ile şişmiyor; uzun özel adlar `overflow-wrap: anywhere` ile kırılıyor. */
+
+@media (max-width: 60rem) {
+  .heroTop {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .heroPortraitCol {
+    width: min(230px, 60vw);
+  }
+}
+
+@media (max-width: 46rem) {
+  .panel[data-span="full"],
+  .panel[data-span="wide"],
+  .panel[data-span="narrow"],
+  .panel[data-span="tall"],
+  .panel[data-span="side"] {
+    grid-column: span 12;
+  }
+
+  .board {
+    /* Dar ekranda oluk daralıyor ama KAYBOLMUYOR: çizgi roman ızgarası
+       her iki formda ve her ölçüde ayakta (Dalga 1'in Onizuka hatası). */
+    gap: max(8px, calc(var(--alm-gutter) - 4px));
+    padding: max(8px, calc(var(--alm-gutter) - 4px));
+  }
+}
+
+@media (max-width: 34rem) {
+  .fateItem {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .fateClock {
+    grid-column: 1;
+    justify-self: start;
+    text-align: left;
+  }
+
+  .fateBody {
+    grid-column: 1;
+  }
+
+  .meterBigValue {
+    font-size: clamp(3rem, 22vw, 5rem);
+  }
+
+  .bond {
+    flex-wrap: wrap;
+  }
+
+  .watermarkKanji {
+    font-size: clamp(2.2rem, 14vw, 4rem);
+  }
+}
+
+/* ══ HAREKET ════════════════════════════════════════════════════════════
+   Hareket dili: PANEL PATLAMASI + BEN-DAY KAYMASI.
+
+   1. Panel girişi — kenarlar bir an "çatlıyor" (`clip-path` poligonu
+      düzensiz bir kâğıt kırığından tam dikdörtgene oturuyor) ve mürekkep
+      kırığı bir kez parlıyor.
+   2. Ben-day deseni sürekli ama çok yavaş kayıyor: basılmış kâğıdın
+      titremesi.
+   3. Işın demeti filigranı ağır ağır dönüyor.
+   4. Harcama düğmesinin şok halkası nabız gibi genişliyor.
+
+   ⚠️ `prefers-reduced-motion`da bunların HEPSİ kapanıyor (dosya sonundaki
+   battaniye) — ama SAYAÇ VE FORM DEĞİŞİMİ ÇALIŞMAYA DEVAM EDİYOR: kontur
+   kalınlığı, nokta alfası, kâğıdın rengi ve panel ölçüsü animasyon değil
+   DURUM; hareketi kapatmak mekaniği kapatmıyor. */
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Rampanın kendisi: harcama anında renk/kontur bir anda değil yumuşayarak
+     çekiliyor — "düşen kum saati" hissi. */
+  .board,
+  .panel,
+  .heroPlate,
+  .portraitFrame,
+  .powerArt,
+  .smashArt,
+  .meterPlate,
+  .bondsPlate,
+  .closingPlate,
+  .spend,
+  .spendButton,
+  .formToggle,
+  .ben,
+  .watermark,
+  .portraitImage,
+  .gaugeTick {
+    transition:
+      background-color 520ms ease,
+      border-color 520ms ease,
+      border-width 520ms ease,
+      color 520ms ease,
+      fill 520ms ease,
+      opacity 520ms ease,
+      filter 520ms ease,
+      max-width 520ms ease;
+  }
+
+  /* 1 · Panel patlaması */
+  .panel {
+    animation: almPanelCrack 760ms cubic-bezier(0.16, 0.86, 0.24, 1) both;
+  }
+
+  .panel::after {
+    animation: almCrackFlash 760ms ease-out both;
+  }
+
+  .board > .panel:nth-child(2),
+  .board > .panel:nth-child(2)::after {
+    animation-delay: 90ms;
+  }
+
+  .board > .panel:nth-child(3),
+  .board > .panel:nth-child(3)::after {
+    animation-delay: 180ms;
+  }
+
+  .board > .panel:nth-child(4),
+  .board > .panel:nth-child(4)::after {
+    animation-delay: 270ms;
+  }
+
+  .board > .panel:nth-child(n + 5),
+  .board > .panel:nth-child(n + 5)::after {
+    animation-delay: 360ms;
+  }
+
+  /* Odakta ya da imleç altında panel kenarı bir kez daha çatlıyor */
+  .panel:focus-within::after {
+    animation: almCrackFlash 620ms ease-out both;
+  }
+
+  /* 2 · Ben-day kayması */
+  .ben {
+    animation: almBenDrift 26s linear infinite;
+  }
+
+  /* 3 · Işın demeti */
+  .watermarkBeam {
+    animation: almBeamTurn 190s linear infinite;
+  }
+
+  /* 4 · Şok halkası */
+  .spendButton:not([aria-disabled="true"]) .spendButtonRing {
+    animation: almRing 2.6s ease-out infinite;
+  }
+}
+
+@keyframes almPanelCrack {
+  0% {
+    clip-path: polygon(7% 2%, 93% 0, 100% 95%, 4% 100%);
+    opacity: 0;
+  }
+  38% {
+    clip-path: polygon(0 3%, 98% 0, 100% 97%, 2% 100%);
+    opacity: 1;
+  }
+  64% {
+    clip-path: polygon(2% 0, 100% 2%, 99% 100%, 0 98%);
+  }
+  100% {
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    opacity: 1;
+  }
+}
+
+@keyframes almCrackFlash {
+  0% {
+    opacity: 0;
+    transform: translateX(-28%);
+  }
+  22% {
+    opacity: 0.9;
+  }
+  70% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(30%);
+  }
+}
+
+@keyframes almBenDrift {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 70px 42px;
+  }
+}
+
+@keyframes almBeamTurn {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes almRing {
+  0% {
+    opacity: 0.75;
+    transform: scale(0.94);
+  }
+  60% {
+    opacity: 0;
+    transform: scale(1.06);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.06);
+  }
+}
+
+/* ── Hareket kapatma battaniyesi ──────────────────────────────────────────
+   Panel çatlaması ve nokta kayması durur; SAYAÇ VE FORM DEĞİŞİMİ DURMAZ. */
+
+@media (prefers-reduced-motion: reduce) {
+  .page,
+  .board,
+  .panel,
+  .ben,
+  .wash,
+  .watermark,
+  .watermarkBeam,
+  .watermarkBalloon,
+  .heroPlate,
+  .portraitFrame,
+  .portraitImage,
+  .powerArt,
+  .smashArt,
+  .meterPlate,
+  .meterGauge,
+  .gaugeTick,
+  .bondsPlate,
+  .closingPlate,
+  .spend,
+  .spendButton,
+  .spendButtonRing,
+  .formToggle,
+  .formToggleBar {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  /* Çatlama animasyonu kapanınca panel kırpması da tam dikdörtgene
+     sabitleniyor — yoksa `both` dolgusu 0% karesinde donardı. */
+  .panel {
+    clip-path: none;
+    opacity: 1;
+  }
+
+  .panel::after {
+    animation: none !important;
+    opacity: 0;
+  }
+}

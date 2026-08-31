@@ -25,6 +25,2066 @@
   --gold: #ca6242;
   --warn: #b88347;
   --danger: #c2665b;
-  /* ateş tarafı için --tdr-flame, --tdr-flame-text gibi bir aile tanımla */
-  /* kendi --tdr-* token'ların buraya */
+
+  /* MALZEME — metin DEĞİL, ölçülmüyor. Çizgi, dolgu, zemin yıkaması
+     ve SVG konturları; hepsi koyu ya da doygun olmak zorunda. */
+  --tdr-ice: #52b0c6;
+  --tdr-ice-deep: #12303a;
+  --tdr-flame: #d4562a;
+  --tdr-flame-deep: #3a1a10;
+  --tdr-seam: #8e9ca1;
+  --tdr-ink: #050708;
+
+  /* KÜL — "Yarım güç" modunda alev yarısının rengi. Düğme bölünmeyi
+     yaratmıyor, bir tarafı SÖNDÜRÜYOR; sönük tarafta hâlâ metin var,
+     o yüzden külün de ölçülen bir kardeşi var. */
+  --tdr-ash: #4b5052;
+  --tdr-ash-deep: #191c1d;
+
+  /* Küçük metinde okunan aile (`-text`, ölçülüyor). Eşik 4.5:1;
+     en düşük değer kül metni ile surface-hover arasında, 5.90. */
+  --tdr-ice-text: #78c3d4;
+  --tdr-flame-text: #e08a63;
+  --tdr-ash-text: #949a9d;
+  --tdr-cost-text: #d9846a;
+  --tdr-frame-text: #8a9599;
+}
+
+/* ============================================================
+   TODOROKI — "Yarım ve Yarım"
+
+   ── SAYFANIN FİKRİ ───────────────────────────────────────────
+   BÖLÜNME BİR ORAN, VE ORANI ZİYARETÇİ TUTUYOR. Sayfanın en
+   üstünden en altına tek bir dikey çizgi iniyor; HER bölüm o
+   çizginin iki yanına yerleşiyor. Solda soğuk sütun, sağda sıcak
+   sütun. Çizginin yeri `--tdr-split` (0–100) ve TEK bir kaydırak
+   onu sayfanın TAMAMINDA aynı anda kaydırıyor.
+
+   Bölünme VARSAYILAN durumda da var: mod düğmesi onu yaratmıyor,
+   yalnızca alev yarısını söndürüyor (Dalga 1'de Onizuka'da mod
+   düğmesi kilitli ızgarayı sıfırlıyordu — o hata burada yok).
+
+   ── ⚠️ SASUKE'NİN "DİKEY YARIĞI"NDAN AYRIM ───────────────────
+   Sasuke'de yarık SABİT bir bölme: konumu değişmiyor ve iki taraf
+   aynı anda aynı şekilde davranıyor. Burada:
+     · oran SÜREKLİ ve kullanıcı elinde (`<input type="range">`),
+     · iki yarı FARKLI hareket dili konuşuyor — solda `clip-path`
+       ile aşağıdan yukarı büyüyen kristal, sağda `filter` ile
+       yerinde dalgalanan ısı,
+     · uçlarda bir sütun layout'tan GERÇEKTEN düşüyor,
+     · başlık ailesi Cinzel majüskül ve simetrik (tören sesi),
+     · filigran tek bir kelimenin çizginin iki yanına düşen iki
+       yarısı (半 / 分), silüet ya da desen değil.
+
+   ── ÖLÇÜ SİSTEMİ ─────────────────────────────────────────────
+   --tdr-split      kökten inen ham değer (0–100), satır içi stil
+   --tdr-ratio      ekrana göre kırpılmış hâli (dar ekran kırılımı)
+   --tdr-ice-w      buz sütununun genişliği
+   --tdr-flame-w    alev sütununun genişliği
+   --tdr-gutter     çizginin iki yanındaki nefes payı
+   --tdr-step       bölümler arası boşluk
+
+   ── ⚠️ KÜRATÖR YUVALARI ORANIN DIŞINDA ───────────────────────
+   `.plateSlot` / `.plateSpec` / `.plateCaption` hiçbir zaman
+   `.iceSide` / `.flameSide` içinde değil. Uçlarda (%0 / %100) bir
+   sütun `display: none` oluyor; yuva orada olsaydı küratörün
+   yükleme kutusu da onunla birlikte sıfır genişliğe düşerdi.
+   Kadrajlar ve yuvalar `.column` genişliğinde duruyor, bölünme
+   çizgisi onların ÜSTÜNDEN geçiyor.
+
+   ── ⚠️ HEX ────────────────────────────────────────────────────
+   Bu satırdan aşağıda TEK HEX YOK. Ara tonların hepsi color-mix
+   ile yukarıdaki token'lardan türetildi (FAZ 2 §1).
+   ============================================================ */
+
+.page {
+  /* Bölünme oranı. Satır içi stil (`SplitShell`) bu değeri EZİYOR;
+     buradaki 50 yalnızca bir güvenlik ağı. */
+  --tdr-split: 50;
+  --tdr-ratio: var(--tdr-split);
+  --tdr-ice-w: calc(var(--tdr-ratio) * 1%);
+  --tdr-flame-w: calc((100 - var(--tdr-ratio)) * 1%);
+
+  --tdr-gutter: clamp(0.6rem, 2.2vw, 1.75rem);
+  --tdr-step: clamp(3.25rem, 8vh, 6rem);
+  --tdr-turn: 220ms;
+  --tdr-ease: cubic-bezier(0.33, 0.02, 0.2, 1);
+  --tdr-grow: 17s;
+  --tdr-heat: 6.5s;
+
+  /* CJK gövdesi: Cinzel'de de Inter'de de kanji yok. Sistem
+     mincho'su tören sesini bozmuyor ve başka bir sayfanın kilitli
+     display fontunu (Shippori, Yuji) ödünç ALMIYOR. */
+  --tdr-ja: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP",
+    "MS PMincho", serif;
+
+  /* Alev yarısının CANLI hâli. Bütün sıcak taraf bu üç adı okuyor,
+     `--tdr-flame`i doğrudan değil: `data-power="half"` yalnızca
+     burayı çeviriyor, yani sayfa tek yerden sönüyor. */
+  --tdr-flame-live: var(--tdr-flame);
+  --tdr-flame-live-text: var(--tdr-flame-text);
+  --tdr-flame-live-deep: var(--tdr-flame-deep);
+
+  position: relative;
+  isolation: isolate;
+  overflow-x: clip;
+  overflow-wrap: break-word;
+  background: var(--bg);
+  color: var(--text-primary);
+  padding: clamp(1rem, 3vw, 2rem) clamp(0.85rem, 3.5vw, 2.25rem)
+    clamp(4rem, 11vh, 7rem);
+  font-family: var(--font-inter), system-ui, "Segoe UI", sans-serif;
+  font-weight: 400;
+  font-size: clamp(0.97rem, 0.93rem + 0.22vw, 1.06rem);
+  line-height: 1.66;
+}
+
+/* "Yarım güç": alev yarısı külün rengine düşüyor. Bölünme YERİNDE
+   kalıyor — düğme ızgarayı değil, bir tarafın canlılığını çeviriyor. */
+.page[data-power="half"] {
+  --tdr-flame-live: var(--tdr-ash);
+  --tdr-flame-live-text: var(--tdr-ash-text);
+  --tdr-flame-live-deep: var(--tdr-ash-deep);
+}
+
+/* Görünür odak — sayfadaki her düğme, bağlantı ve kaydırak için tek
+   kural. Düz ve simetrik: sayfanın tören sesiyle aynı. */
+.page :focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ══ TARAF RENGİ ══════════════════════════════════════════════════
+   Bir öğe hangi yarıda duruyorsa üç adı oradan alıyor; içerideki her
+   kural `--tdr-side*` okuyor. Böylece "ice" ve "flame" için iki ayrı
+   kural ailesi yazmak gerekmiyor — ve `.fateStep[data-side]` gibi
+   DIŞTAKİ bir işaret, içindeki `.iceSide` / `.flameSide` tarafından
+   doğru yerde geçersiz kılınıyor (miras derinliği kazanır, özgüllük
+   değil). */
+.iceSide,
+.page [data-side="ice"] {
+  --tdr-side: var(--tdr-ice);
+  --tdr-side-text: var(--tdr-ice-text);
+  --tdr-side-deep: var(--tdr-ice-deep);
+}
+
+.flameSide,
+.page [data-side="flame"] {
+  --tdr-side: var(--tdr-flame-live);
+  --tdr-side-text: var(--tdr-flame-live-text);
+  --tdr-side-deep: var(--tdr-flame-live-deep);
+}
+
+/* ══ ZEMİN YIKAMASI ═══════════════════════════════════════════════
+   Solda soğuk, sağda sıcak. `absolute` — `fixed` DEĞİL: `.page`
+   üzerindeki `overflow-x: clip` sabit konumlu çocuklarda tarayıcıdan
+   tarayıcıya değişiyor, mutlak konum belirsizlik bırakmıyor. Hiçbir
+   metnin altında bulanıklık yok; yalnızca renk. */
+.wash {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--tdr-ice-deep) 58%, transparent) 0%,
+    transparent 34%,
+    transparent 66%,
+    color-mix(in srgb, var(--tdr-flame-live-deep) 62%, transparent) 100%
+  );
+  transition: background var(--tdr-turn) var(--tdr-ease);
+}
+
+/* ══ KOLON ════════════════════════════════════════════════════════
+   ⚠️ YATAY DOLGUSU YOK, bilerek — yatay dolgu `.page`te duruyor.
+   Sebep bir hizalama ölçüsü: bölünme çizgisi `left: var(--tdr-ice-w)`
+   ile yerleşiyor ve bu yüzde `.column` genişliğine göre çözülüyor;
+   `.split` ızgarasının sütun sınırı da aynı genişliğe göre
+   çözülüyor. İkisinin ÇAKIŞMASI için ortak kutunun tek olması şart.
+   Bölümlere yatay dolgu EKLEME. */
+.column {
+  position: relative;
+  z-index: 1;
+  max-width: 74rem;
+  margin-inline: auto;
+}
+
+/* ══ BÖLÜNME ÇİZGİSİ ══════════════════════════════════════════════
+   Sayfanın tek sürekli öğesi: en üstten en alta iniyor ve oranla
+   birlikte kayıyor. İçeriğin ÜSTÜNDE (`z-index: 2`) çünkü kadrajların
+   ve kartların üstünden de geçmesi gerekiyor — ama tek piksel ve
+   saydam, ve sütunların arasındaki nefes payına (`--tdr-gutter`) denk
+   geldiği için hiçbir gövde metninin üstüne oturmuyor. */
+.seam {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--tdr-ice-w);
+  z-index: 2;
+  width: 1px;
+  margin-left: -0.5px;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    transparent 0,
+    color-mix(in srgb, var(--tdr-seam) 62%, transparent) 4rem,
+    color-mix(in srgb, var(--tdr-seam) 42%, transparent) calc(100% - 6rem),
+    transparent 100%
+  );
+  transition: left var(--tdr-turn) var(--tdr-ease);
+}
+
+/* Uçlarda çizgi bir bölme olmaktan çıkıp sayfanın kenarına yapışıyor:
+   ayıracak iki şey kalmadı, o yüzden soluyor. */
+.page[data-edge="ice"] .seam,
+.page[data-edge="flame"] .seam {
+  opacity: 0.45;
+}
+
+/* ══ FİLİGRAN: 半分 ═══════════════════════════════════════════════
+   Tek kelime, iki yarım. Çizginin tam üstünde duruyor ve onunla
+   birlikte kayıyor: 半 solda buz renginde, 分 sağda alev renginde. */
+.watermark {
+  position: absolute;
+  top: clamp(1.5rem, 6vh, 5rem);
+  left: var(--tdr-ice-w);
+  z-index: 0;
+  display: flex;
+  align-items: baseline;
+  pointer-events: none;
+  transform: translateX(-50%);
+  font-family: var(--tdr-ja);
+  font-size: clamp(7rem, 26vw, 20rem);
+  line-height: 0.86;
+  transition: left var(--tdr-turn) var(--tdr-ease);
+}
+
+.watermarkIce {
+  display: block;
+  color: color-mix(in srgb, var(--tdr-ice) 15%, transparent);
+}
+
+.watermarkFlame {
+  display: block;
+  color: color-mix(in srgb, var(--tdr-flame-live) 15%, transparent);
+  transition: color var(--tdr-turn) var(--tdr-ease);
+}
+
+/* ══ SAYFA MOTİFLERİ ══════════════════════════════════════════════
+   Elle çizilmiş kar tanesi ve alev konturu (`TodorokiGlyphs`). İkisi
+   de aynı 200×200 kutuda ve aynı merkezde: sayfanın iddiası "iki ayrı
+   şey" değil, "aynı gövdenin iki yarısı". Motifler çizginin iki
+   yanına yaslanıyor ve onunla birlikte kayıyor. */
+.markIce,
+.markFlame {
+  position: absolute;
+  z-index: 0;
+  width: clamp(8rem, 20vw, 17rem);
+  height: auto;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.markIce {
+  top: clamp(24rem, 46vh, 38rem);
+  right: calc(100% - var(--tdr-ice-w) + var(--tdr-gutter));
+  transition: right var(--tdr-turn) var(--tdr-ease);
+}
+
+.markFlame {
+  top: clamp(30rem, 56vh, 46rem);
+  left: calc(var(--tdr-ice-w) + var(--tdr-gutter));
+  transition:
+    left var(--tdr-turn) var(--tdr-ease),
+    opacity var(--tdr-turn) var(--tdr-ease);
+}
+
+.markIceArm {
+  stroke: color-mix(in srgb, var(--tdr-ice) 46%, transparent);
+  stroke-width: 2.2;
+}
+
+.markIceCore {
+  stroke: color-mix(in srgb, var(--tdr-ice) 62%, transparent);
+  stroke-width: 2.6;
+}
+
+.markFlameOutline {
+  stroke: color-mix(in srgb, var(--tdr-flame-live) 46%, transparent);
+  stroke-width: 2.4;
+  transition: stroke var(--tdr-turn) var(--tdr-ease);
+}
+
+.markFlameTongue {
+  stroke: color-mix(in srgb, var(--tdr-flame-live) 34%, transparent);
+  stroke-width: 1.8;
+  transition: stroke var(--tdr-turn) var(--tdr-ease);
+}
+
+/* ══ İKİ YARI ═════════════════════════════════════════════════════
+   Sayfanın ızgarası. İki iz, aralarında `gap` YOK: yüzdeler toplamda
+   tam 100 ediyor ve nefes payı sütunların KENDİ dolgusundan geliyor.
+   (`gap` eklemek toplamı 100'ün üstüne çıkarır ve sayfayı yatayda
+   taşırırdı — 360 px'te ilk kırılan yer burası olurdu.)
+
+   `minmax(0, …)` şart: içerideki uzun sözcükler min-content
+   genişliğini yükseltip izi taşırabilir. `overflow-wrap: anywhere`
+   ile birlikte %5'lik bir sütunda bile metin KALIYOR, yalnızca
+   sıkışıyor — bant metinlerinin anlattığı bedel tam olarak bu. */
+.split {
+  display: grid;
+  grid-template-columns:
+    minmax(0, var(--tdr-ice-w))
+    minmax(0, var(--tdr-flame-w));
+  align-items: start;
+  transition: grid-template-columns var(--tdr-turn) var(--tdr-ease);
+}
+
+.iceSide,
+.flameSide {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  gap: clamp(0.75rem, 2vh, 1.35rem);
+  align-content: start;
+  min-width: 0;
+  padding-block: clamp(0.9rem, 2.5vh, 1.6rem);
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
+
+/* Buz sütunu çizgiye DOĞRU hizalı, alev sütunu çizgiden UZAĞA: ikisi
+   de omurgadan okunuyor, sayfa aynada duruyor gibi. */
+.iceSide {
+  padding-inline-end: var(--tdr-gutter);
+  text-align: right;
+}
+
+.flameSide {
+  padding-inline-start: var(--tdr-gutter);
+  text-align: left;
+}
+
+/* Sütunun çizgiye bakan kenarı — durağan çizgi. */
+.iceSide::after,
+.flameSide::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: -1;
+  width: 1px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    color-mix(in srgb, var(--tdr-side) 34%, transparent) 18%,
+    color-mix(in srgb, var(--tdr-side) 34%, transparent) 82%,
+    transparent
+  );
+}
+
+.iceSide::after {
+  right: calc(var(--tdr-gutter) / 2);
+}
+
+.flameSide::after {
+  left: calc(var(--tdr-gutter) / 2);
+}
+
+/* Hareketin taşıyıcısı. İki pseudo da METNİN ARKASINDA
+   (`z-index: -1`, sütunlarda `isolation: isolate`) — sağdaki
+   bulanıklık hiçbir yazının üstüne düşmüyor. */
+.iceSide::before,
+.flameSide::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: -1;
+  width: clamp(1.5rem, 5vw, 3.5rem);
+  pointer-events: none;
+}
+
+.iceSide::before {
+  right: 0;
+  background: linear-gradient(
+    to left,
+    color-mix(in srgb, var(--tdr-ice) 16%, transparent),
+    transparent 78%
+  );
+}
+
+.flameSide::before {
+  left: 0;
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--tdr-flame-live) 16%, transparent),
+    transparent 78%
+  );
+}
+
+/* Sütun başındaki oran çubuğu. Geniş ekranda sütunun kendi genişliğini
+   dolduruyor; dar ekranda (sütunlar üst üste bindiğinde) oranın TEK
+   okunur işareti oluyor ve genişliğini doğrudan orandan alıyor. */
+.sideMeter {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    color-mix(in srgb, var(--tdr-side) 72%, transparent)
+  );
+  transition: width var(--tdr-turn) var(--tdr-ease);
+}
+
+.flameSide .sideMeter {
+  background: linear-gradient(
+    to left,
+    transparent,
+    color-mix(in srgb, var(--tdr-side) 72%, transparent)
+  );
+}
+
+/* ── UÇLAR ────────────────────────────────────────────────────────
+   %0 ve %100'de kapanan sütun layout'tan VE erişilebilirlik ağacından
+   gerçekten çıkıyor. Kalan sütun tek iz oluyor ve kendi hizasına
+   dönüyor: tek başına kalmış bir sütunda "aynaya hizalanmak" anlamsız,
+   üstelik tam genişlikte sağa dayalı uzun paragraf okunmaz. */
+.page[data-edge="flame"] .iceSide,
+.page[data-edge="ice"] .flameSide {
+  display: none;
+}
+
+.page[data-edge="flame"] .split,
+.page[data-edge="ice"] .split {
+  grid-template-columns: minmax(0, 100%);
+}
+
+.page[data-edge="ice"] .iceSide {
+  padding-inline-end: 0;
+  text-align: left;
+}
+
+.page[data-edge="flame"] .flameSide {
+  padding-inline-start: 0;
+}
+
+.page[data-edge="ice"] .iceSide::after,
+.page[data-edge="flame"] .flameSide::after,
+.page[data-edge="ice"] .iceSide::before,
+.page[data-edge="flame"] .flameSide::before {
+  display: none;
+}
+
+/* ══ BREADCRUMB ═══════════════════════════════════════════════════ */
+
+.crumb {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: baseline;
+  justify-content: center;
+  margin-bottom: clamp(2rem, 7vh, 4.5rem);
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.crumb a {
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--accent-hover) 40%, transparent);
+  transition: color var(--tdr-turn) var(--tdr-ease);
+}
+
+.crumb a:hover {
+  color: var(--text-primary);
+}
+
+.crumbSep {
+  color: var(--tdr-frame-text);
+}
+
+.crumbHere {
+  color: var(--text-muted);
+}
+
+/* ══ 1 · HERO ═════════════════════════════════════════════════════
+   Kimlik bloğu çizginin ÜSTÜNDE: tek `<h1>` bir sütunun içinde
+   olsaydı uçlarda sayfadan tamamen silinirdi. Ortalanmış, majüskül,
+   simetrik — sayfanın tören sesi burada kuruluyor. */
+.hero {
+  position: relative;
+  padding-bottom: var(--tdr-step);
+}
+
+.heroIdentity {
+  position: relative;
+  display: grid;
+  gap: 0.75rem;
+  justify-items: center;
+  text-align: center;
+}
+
+.heroHouse {
+  margin: 0;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+/* ⚠️ Cinzel DEĞİŞKEN font ve latin-ext taşıyor: Türkçe majüskül
+   (İ/Ğ/Ş/Ç/Ö/Ü) sorunsuz çiziliyor, ikinci bir dilim beklenmiyor. */
+.heroName {
+  margin: 0;
+  font-family: var(--font-cinzel), "Trajan Pro", Georgia, serif;
+  font-weight: 500;
+  font-size: clamp(2.1rem, 1.2rem + 4.4vw, 4.6rem);
+  line-height: 1.04;
+  letter-spacing: clamp(0.02em, 0.9vw, 0.16em);
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.heroNative {
+  margin: 0;
+  font-family: var(--tdr-ja);
+  font-size: clamp(1.05rem, 0.9rem + 0.8vw, 1.5rem);
+  letter-spacing: 0.42em;
+  text-indent: 0.42em;
+  color: var(--accent-hover);
+}
+
+/* Madalyon portre — 230×345, yani KÜÇÜK; tam kanama hero olarak
+   kullanılmıyor. Büyük kare aşağıda ve küratöre ayrılmış.
+
+   ⚠️ Portre ÇİZGİYLE BİRLİKTE KAYIYOR: sol payı orana bağlı, yani
+   bölünme çizgisi yüzünün ortasından geçiyor. `clamp` uçlarda onu
+   kolonun içinde tutuyor — kayarken sayfadan taşmıyor. */
+.portrait {
+  --tdr-medal: min(13rem, 52vw);
+
+  position: relative;
+  width: var(--tdr-medal);
+  margin: clamp(2rem, 6vh, 3.5rem) 0 0;
+  margin-inline-start: clamp(
+    0px,
+    calc(var(--tdr-ice-w) - var(--tdr-medal) / 2),
+    calc(100% - var(--tdr-medal))
+  );
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  transition: margin-inline-start var(--tdr-turn) var(--tdr-ease);
+}
+
+.portraitImage {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.portraitSeam {
+  position: absolute;
+  top: -0.6rem;
+  bottom: -0.6rem;
+  left: 50%;
+  width: 1px;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    color-mix(in srgb, var(--tdr-seam) 78%, transparent) 20%,
+    color-mix(in srgb, var(--tdr-seam) 78%, transparent) 80%,
+    transparent
+  );
+}
+
+.heroEpigraph {
+  margin: 0;
+  font-family: var(--font-cinzel), "Trajan Pro", Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(1rem, 0.94rem + 0.4vw, 1.22rem);
+  line-height: 1.62;
+  letter-spacing: 0.02em;
+  color: var(--tdr-ice-text);
+}
+
+.heroLede {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+/* ══ BÖLÜM BAŞLIĞI ════════════════════════════════════════════════
+   ⚠️ BAŞLIK ORANIN DIŞINDA. Bir sütunun içinde olsaydı %5'te okunmaz,
+   %0'da kaybolurdu. Ortalanmış ve simetrik duruyor; orandan haberdar
+   olan tek parça, çizginin tepesine oturan çentik. */
+.sectionHead {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 0.6rem;
+  padding-top: clamp(1.4rem, 4vh, 2.4rem);
+  padding-bottom: clamp(0.5rem, 2vh, 1.2rem);
+  text-align: center;
+}
+
+.sectionNotch,
+.modeNotch {
+  position: absolute;
+  top: 0;
+  left: var(--tdr-ice-w);
+  width: 1.6rem;
+  height: 0.8rem;
+  transform: translateX(-50%);
+  transition: left var(--tdr-turn) var(--tdr-ease);
+}
+
+.notchIce {
+  fill: color-mix(in srgb, var(--tdr-ice) 78%, transparent);
+}
+
+.notchFlame {
+  fill: color-mix(in srgb, var(--tdr-flame-live) 78%, transparent);
+  transition: fill var(--tdr-turn) var(--tdr-ease);
+}
+
+.sectionTitle,
+.modeTitle {
+  margin: 0;
+  font-family: var(--font-cinzel), "Trajan Pro", Georgia, serif;
+  font-weight: 500;
+  font-size: clamp(1.35rem, 1.05rem + 1.5vw, 2.35rem);
+  line-height: 1.16;
+  letter-spacing: clamp(0.06em, 0.5vw, 0.14em);
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.sectionNative,
+.modeNative {
+  margin: 0;
+  font-family: var(--tdr-ja);
+  font-size: 0.92rem;
+  letter-spacing: 0.5em;
+  text-indent: 0.5em;
+  color: var(--text-muted);
+}
+
+.sectionLede {
+  max-width: 44rem;
+  margin: 0.4rem 0 0;
+  color: var(--text-secondary);
+}
+
+/* ══ 2 · MOD DÜĞMESİ ══════════════════════════════════════════════
+   "Yarım güç". Bölünmeyi AÇIP KAPATMIYOR — bölünme her iki durumda da
+   yerinde; değişen, alev yarısının çalışıp çalışmadığı. */
+.mode {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 1rem;
+  padding-bottom: var(--tdr-step);
+}
+
+.modeHead {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  padding-top: clamp(1.4rem, 4vh, 2.4rem);
+  text-align: center;
+}
+
+.modeButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: var(--touch-min);
+  padding: 0.6rem 1.4rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 0;
+  background: var(--surface);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition:
+    background var(--tdr-turn) var(--tdr-ease),
+    border-color var(--tdr-turn) var(--tdr-ease);
+}
+
+.modeButton:hover {
+  background: var(--surface-hover);
+  border-color: var(--accent);
+}
+
+/* İki kare: soldaki hep canlı, sağdaki modla birlikte yanıyor ya da
+   küle dönüyor. Düğmenin ne yaptığı düğmenin ÜSTÜNDE görünüyor. */
+.modeChipIce,
+.modeChipFlame {
+  display: block;
+  width: 0.85rem;
+  height: 1.7rem;
+  transition:
+    background var(--tdr-turn) var(--tdr-ease),
+    box-shadow var(--tdr-turn) var(--tdr-ease);
+}
+
+.modeChipIce {
+  background: color-mix(in srgb, var(--tdr-ice) 82%, transparent);
+}
+
+.modeChipFlame {
+  background: color-mix(in srgb, var(--tdr-flame-live) 82%, transparent);
+}
+
+.page[data-power="full"] .modeChipFlame {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--tdr-flame) 55%, transparent);
+}
+
+.modeButtonText {
+  font-family: var(--font-cinzel), "Trajan Pro", Georgia, serif;
+  font-weight: 600;
+  font-size: 0.86rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* Durum yalnızca renkle değil YAZIYLA da veriliyor. */
+.modeState {
+  display: grid;
+  gap: 0.35rem;
+  max-width: 42rem;
+  margin: 0;
+  text-align: center;
+}
+
+.modeStateName {
+  font-family: var(--font-cinzel), "Trajan Pro", Georgia, serif;
+  font-weight: 600;
+  font-size: 0.84rem;
+  letter-spacing: 0.14em;
+  color: var(--tdr-ice-text);
+}
+
+.page[data-power="full"] .modeStateName {
+  color: var(--accent-hover);
+}
+
+.modeStateText {
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+}
+
+/* ══ 3 · KÜNYE ŞERİDİ ═════════════════════════════════════════════
+   Soğuk sütunda sayılar, sıcak sütunda aidiyet. */
+.dossier {
+  position: relative;
+  padding-bottom: var(--tdr-step);
+}
+
+.facts {
+  display: grid;
+  gap: 0;
+  margin: 0;
+}
+
+.factsIce {
+  border-top: 1px solid color-mix(in srgb, var(--tdr-ice) 26%, transparent);
+}
+
+.factsFlame {
+  border-top: 1px solid
+    color-mix(in srgb, var(--tdr-flame-live) 26%, transparent);
+  transition: border-color var(--tdr-turn) var(--tdr-ease);
+}
+
+.fact {
+  display: grid;
+  gap: 0.12rem;
+  padding-block: 0.65rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.factLabel {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.factValue {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: baseline;
+  margin: 0;
+  color: var(--gold);
+}
+
+.iceSide .factValue {
+  justify-content: flex-end;
+}
+
+.factNative {
+  font-family: var(--tdr-ja);
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  color: var(--tdr-frame-text);
+}
+
+/* Ayna uyarısı sessiz bir tercih olarak bırakılmadı: hangi sütunun onun
+   hangi yarısı olduğu YAZIYLA duruyor. İki kenarı iki taraftan. */
+.mirrorNote {
+  max-width: 46rem;
+  margin: clamp(1.6rem, 4vh, 2.6rem) auto 0;
+  padding: 0.85rem 1rem;
+  border-left: 1px solid color-mix(in srgb, var(--tdr-ice) 55%, transparent);
+  border-right: 1px solid
+    color-mix(in srgb, var(--tdr-flame-live) 55%, transparent);
+  background: var(--surface);
+  font-size: 0.9rem;
+  text-align: center;
+  color: var(--text-secondary);
+  transition: border-color var(--tdr-turn) var(--tdr-ease);
+}
+
+.factNote {
+  max-width: 46rem;
+  margin: 0.9rem auto 0;
+  font-size: 0.82rem;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+/* ══ 4 · QUIRK LABORATUVARI ═══════════════════════════════════════
+   Üç büyük kart (個性) + dört küçük kayıt kartı. Her kart kendi
+   tarafına düşüyor ve rengini `--tdr-side*`ten alıyor. */
+.lab {
+  position: relative;
+  padding-bottom: var(--tdr-step);
+}
+
+.card {
+  display: grid;
+  gap: 0.4rem;
+  padding: clamp(0.85rem, 2.5vw, 1.3rem);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  transition:
+    background var(--tdr-turn) var(--tdr-ease),
+    border-color var(--tdr-turn) var(--tdr-ease);
+}
+
+.card:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-strong);
+}
+
+/* Kartın ÇİZGİYE BAKAN kenarı taraf rengini alıyor: soğuk kartlar
+   sağdan, sıcak kartlar soldan. Renk hep omurgaya bakıyor. */
+.iceSide .card,
+.iceSide .move {
+  border-right: 2px solid color-mix(in srgb, var(--tdr-side) 62%, transparent);
+}
+
+.flameSide .card,
+.flameSide .move {
+  border-left: 2px solid color-mix(in srgb, var(--tdr-side) 62%, transparent);
+}
+
+.cardName {
+  margin: 0;
+  font-family: var(--tdr-ja);
+  font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.2rem);
+  line-height: 1.1;
+  letter-spacing: 0.06em;
+  color: var(--tdr-side-text);
+}
+
+.cardReading {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.cardTitle {
+  margin: 0.3rem 0 0;
+  font-family: var(--font-cinzel), "Trajan Pro", Georgia, serif;
+  font-weight: 500;
+  font-size: 1.06rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.cardTagline {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--tdr-side-text);
+}
+
+.cardText {
+  margin: 0;
+  font-size: 0.94rem;
+  color: var(--text-secondary);
+}
+
+/* Nitelik rozetleri — iki tarafta da aynı biçim, yalnızca hizaları
+   aynaya bakıyor. */
+.cardTraits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0.35rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.iceSide .cardTraits {
+  justify-content: flex-end;
+}
+
+.cardTrait {
+  padding: 0.15rem 0.55rem;
+  border: 1px solid color-mix(in srgb, var(--tdr-side) 58%, transparent);
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+  color: var(--tdr-side-text);
+}
+
+/* Dört küçük kayıt kartı */
+.move {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.75rem clamp(0.7rem, 2vw, 1.05rem);
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+}
+
+.moveKind {
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.moveName {
+  margin: 0;
+  font-family: var(--tdr-ja);
+  font-size: 1.15rem;
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: 0.04em;
+  color: var(--tdr-side-text);
+}
+
+.moveNote {
+  margin: 0;
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+}
+
+/* ══ 5 · İNTERAKTİF BÖLÜM — ORAN KAYDIRAĞI ════════════════════════
+   Sayfanın kalbi. Tek kontrol, sayfanın tamamı. */
+.dial {
+  position: relative;
+  padding-bottom: var(--tdr-step);
+}
+
+/* Bölüm başlığının altındaki oran şeridi: kaydıraktan önce, oranın ne
+   olduğunu tek bakışta veren şey. */
+.ratioBar {
+  display: flex;
+  width: min(100%, 34rem);
+  height: 0.4rem;
+  margin-top: 0.9rem;
+  border: 1px solid var(--border);
+}
+
+.ratioIce {
+  display: block;
+  width: var(--tdr-ice-w);
+  background: color-mix(in srgb, var(--tdr-ice) 70%, transparent);
+  transition: width var(--tdr-turn) var(--tdr-ease);
+}
+
+.ratioFlame {
+  display: block;
+  width: var(--tdr-flame-w);
+  background: color-mix(in srgb, var(--tdr-flame-live) 70%, transparent);
+  transition:
+    width var(--tdr-turn) var(--tdr-ease),
+    background var(--tdr-turn) var(--tdr-ease);
+}
+
+.dialBoard {
+  display: grid;
+  gap: clamp(0.9rem, 2.5vh, 1.5rem);
+  max-width: 46rem;
+  margin: clamp(1.4rem, 4vh, 2.4rem) auto 0;
+  padding: clamp(1rem, 3vw, 1.75rem);
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+}
+
+/* ⚠️ SOL uç `flameEnd`, SAĞ uç `iceEnd`. Kaydırağın değeri BUZ
+   sütununun genişliği: 0'da buz yok, 100'de alev yok. Etiketler kendi
+   renklerini okuduğu için yerleri de kendi taraflarına denk geliyor. */
+.dialTrackRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.dialEndFlame,
+.dialEndIce {
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.dialEndFlame {
+  color: var(--tdr-flame-live-text);
+  transition: color var(--tdr-turn) var(--tdr-ease);
+}
+
+.dialEndIce {
+  color: var(--tdr-ice-text);
+}
+
+.dialLabel {
+  flex: 1 1 12rem;
+  font-size: 0.8rem;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+/* ── KAYDIRAK ─────────────────────────────────────────────────────
+   Ray bir GÖSTERGE: tutamağın solunda biriken buz, sağında kalan alev.
+   Uçlarda ray tek renge düşüyor ve o uçtaki etiketle aynı rengi okuyor.
+
+   ⚠️ Satıcı pseudo'ları AYRI kurallar: tek kuralda gruplanırsa birini
+   tanımayan tarayıcı kuralın TAMAMINI atar.
+
+   ⚠️ Ray dolgusu `--tdr-split` okuyor, `--tdr-ratio` DEĞİL. Dar
+   ekranda oran kırpılıyor ama kaydırağın kendi değeri kırpılmıyor;
+   tutamağın altındaki dolgu gerçek değeri göstermek zorunda. */
+.dialRange {
+  width: 100%;
+  height: var(--touch-min);
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+.dialRange::-webkit-slider-runnable-track {
+  height: 0.65rem;
+  border: 1px solid var(--border-strong);
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--tdr-ice) 72%, transparent) 0
+      calc(var(--tdr-split) * 1%),
+    color-mix(in srgb, var(--tdr-flame-live) 72%, transparent)
+      calc(var(--tdr-split) * 1%) 100%
+  );
+}
+
+.dialRange::-moz-range-track {
+  height: 0.65rem;
+  border: 1px solid var(--border-strong);
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--tdr-ice) 72%, transparent) 0
+      calc(var(--tdr-split) * 1%),
+    color-mix(in srgb, var(--tdr-flame-live) 72%, transparent)
+      calc(var(--tdr-split) * 1%) 100%
+  );
+}
+
+.dialRange::-webkit-slider-thumb {
+  width: 0.7rem;
+  height: 2rem;
+  margin-top: -0.72rem;
+  border: 1px solid var(--bg);
+  border-radius: 0;
+  background: var(--tdr-seam);
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.dialRange::-moz-range-thumb {
+  width: 0.7rem;
+  height: 2rem;
+  border: 1px solid var(--bg);
+  border-radius: 0;
+  background: var(--tdr-seam);
+}
+
+/* İki sayı, iki uçta: solda buzun payı, sağda alevin payı. */
+.dialGauge {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.dialGaugeIce,
+.dialGaugeFlame {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.dialGaugeIce {
+  color: var(--tdr-ice-text);
+}
+
+.dialGaugeFlame {
+  color: var(--tdr-flame-live-text);
+  transition: color var(--tdr-turn) var(--tdr-ease);
+}
+
+.dialGaugeName {
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.dialGaugeValue {
+  font-family: var(--font-cinzel), "Trajan Pro", Georgia, serif;
+  font-weight: 600;
+  font-size: clamp(1.8rem, 1.3rem + 2.2vw, 3rem);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.presets {
+  display: grid;
+  gap: 0.55rem;
+  justify-items: center;
+}
+
+.presetsLabel {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.presetRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.presetFlame,
+.presetHalf,
+.presetIce {
+  min-height: var(--touch-min);
+  padding: 0.4rem 0.95rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 0;
+  background: color-mix(in srgb, var(--surface-hover) 80%, transparent);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition:
+    color var(--tdr-turn) var(--tdr-ease),
+    border-color var(--tdr-turn) var(--tdr-ease);
+}
+
+.presetFlame:hover,
+.presetHalf:hover,
+.presetIce:hover {
+  color: var(--text-primary);
+  border-color: var(--accent);
+}
+
+.presetFlame[aria-pressed="true"] {
+  border-color: color-mix(in srgb, var(--tdr-flame-live) 75%, transparent);
+  color: var(--tdr-flame-live-text);
+}
+
+.presetHalf[aria-pressed="true"] {
+  border-color: var(--accent);
+  color: var(--accent-hover);
+}
+
+.presetIce[aria-pressed="true"] {
+  border-color: color-mix(in srgb, var(--tdr-ice) 75%, transparent);
+  color: var(--tdr-ice-text);
+}
+
+/* Okuma alanı — her zaman aynı yerde. Uçlarda başlığı değişiyor ve
+   kapanan sütunun BEDELİNİ yazıyor: sütunun yerini metin alıyor. */
+.readout {
+  display: grid;
+  gap: 0.4rem;
+  padding: clamp(0.85rem, 2.5vw, 1.2rem);
+  border: 1px solid var(--border);
+  border-left: 2px solid color-mix(in srgb, var(--tdr-ice) 60%, transparent);
+  border-right: 2px solid
+    color-mix(in srgb, var(--tdr-flame-live) 60%, transparent);
+  background: var(--surface-hover);
+  transition: border-color var(--tdr-turn) var(--tdr-ease);
+}
+
+.readout[data-edge="ice"] {
+  border-right-color: color-mix(in srgb, var(--tdr-ash) 60%, transparent);
+}
+
+.readout[data-edge="flame"] {
+  border-left-color: color-mix(in srgb, var(--tdr-ash) 60%, transparent);
+}
+
+.readoutLabel {
+  margin: 0;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.readoutCost {
+  margin: 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--tdr-cost-text);
+}
+
+.readoutTitle {
+  margin: 0;
+  font-family: var(--font-cinzel), "Trajan Pro", Georgia, serif;
+  font-weight: 600;
+  font-size: 1.1rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.readoutText {
+  margin: 0;
+  font-size: 0.94rem;
+  color: var(--text-secondary);
+}
+
+.dialHint {
+  margin: 0;
+  font-size: 0.82rem;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+/* ══ 6 · KADER ÇİZELGESİ ══════════════════════════════════════════
+   Beş durak. Her durak kendi tarafında yazılıyor; karşı sütunda o
+   durağın sıra numarası ve yaş etiketi duruyor — çizelge de tek sütuna
+   kaçmıyor, çizginin iki yanına yerleşiyor. */
+.fate {
+  position: relative;
+  padding-bottom: var(--tdr-step);
+}
+
+.fateList {
+  display: grid;
+  gap: clamp(1.5rem, 5vh, 3rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fateStep {
+  position: relative;
+}
+
+.fateTitle {
+  margin: 0;
+  font-family: var(--font-cinzel), "Trajan Pro", Georgia, serif;
+  font-weight: 500;
+  font-size: clamp(1.05rem, 0.95rem + 0.7vw, 1.45rem);
+  line-height: 1.2;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--tdr-side-text);
+}
+
+.fateText {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+/* Karşı sütundaki işaret: numara + yaş. Okunacak bir cümlesi yok —
+   bir kilometre taşı, çizginin öbür yanında duruyor. */
+.fateMark {
+  display: grid;
+  gap: 0.2rem;
+  margin: 0;
+  padding-top: 0.2rem;
+}
+
+.fateIndex {
+  font-family: var(--font-cinzel), "Trajan Pro", Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(2.4rem, 1.6rem + 3.4vw, 4.4rem);
+  line-height: 0.92;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  /* ⚠️ Malzeme rengi (`--tdr-side`) DEĞİL, metin rengi. Ölçüldü: sayı
+     `--tdr-side` ile %52 saydamken zeminine karşı 1.08:1 çıkıyordu —
+     "02" bir süs değil, durağın sıra numarası. `-text` ailesiyle ve
+     %85 ile en kötü durumda (kül yarısı) 5.20:1. */
+  color: color-mix(in srgb, var(--tdr-side-text) 85%, transparent);
+}
+
+.fateAge {
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* İki replik türü, iki ayrı ses: `fateQuote` söylenmiş bir cümle,
+   `fateMemory` hatırlanan bir cümle. İkincisi daha sessiz. */
+.fateQuote,
+.fateMemory,
+.closingQuote {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0.8rem clamp(0.7rem, 2vw, 1.1rem);
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 62%, transparent);
+}
+
+.fateMemory {
+  border-style: dashed;
+  background: transparent;
+}
+
+.quoteJa {
+  margin: 0;
+  font-family: var(--tdr-ja);
+  font-size: clamp(1.05rem, 0.95rem + 0.6vw, 1.35rem);
+  line-height: 1.7;
+  letter-spacing: 0.05em;
+  color: var(--tdr-side-text);
+}
+
+.quoteReading {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.quoteBy {
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.quoteNote {
+  margin: 0;
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+}
+
+.missingNote,
+.parentsNote {
+  max-width: 46rem;
+  margin: clamp(1.4rem, 4vh, 2.2rem) auto 0;
+  font-size: 0.82rem;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+/* ══ 7a · ÇİZGİNİN İKİ YANI ═══════════════════════════════════════ */
+.bonds {
+  position: relative;
+  padding-bottom: var(--tdr-step);
+}
+
+.bondHeading {
+  margin: 0;
+  font-family: var(--font-cinzel), "Trajan Pro", Georgia, serif;
+  font-weight: 500;
+  font-size: 1rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--tdr-side-text);
+}
+
+.bondList {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bond {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.7rem 0;
+  border-top: 1px solid var(--border);
+}
+
+.bondName {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: baseline;
+  margin: 0;
+  font-family: var(--font-cinzel), "Trajan Pro", Georgia, serif;
+  font-weight: 500;
+  font-size: 1.02rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.iceSide .bondName {
+  justify-content: flex-end;
+}
+
+.bondLink {
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--accent-hover) 45%, transparent);
+  transition: color var(--tdr-turn) var(--tdr-ease);
+}
+
+.bondLink:hover {
+  color: var(--text-primary);
+}
+
+.bondNative {
+  font-family: var(--tdr-ja);
+  font-size: 0.85rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: none;
+  color: var(--tdr-frame-text);
+}
+
+.bondRole {
+  margin: 0;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--tdr-side-text);
+}
+
+.bondNote {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+/* Arşivde kendi dosyası var mı — rozet, cümlenin içine gömülmedi. */
+.bondBadge {
+  margin: 0.15rem 0 0;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ══ 7b · KAPANIŞ ═════════════════════════════════════════════════ */
+.closing {
+  position: relative;
+  padding-bottom: clamp(1.5rem, 4vh, 2.5rem);
+}
+
+.closingQuote {
+  padding: clamp(0.9rem, 2.5vw, 1.35rem);
+}
+
+/* 半冷半燃 — dört karakter, ikisi soğuk ikisi sıcak. Söz de tam
+   ortadan bölünüyor, sayfanın kendisi gibi: degrade tam ortada
+   renk değiştiriyor. */
+.motto {
+  margin: clamp(2rem, 6vh, 3.5rem) 0 0;
+  font-family: var(--tdr-ja);
+  font-size: clamp(2.4rem, 1.4rem + 5vw, 5rem);
+  line-height: 1.16;
+  letter-spacing: 0.14em;
+  text-indent: 0.14em;
+  text-align: center;
+  background: linear-gradient(
+    to right,
+    var(--tdr-ice-text) 0%,
+    var(--tdr-ice-text) 46%,
+    var(--tdr-flame-live-text) 54%,
+    var(--tdr-flame-live-text) 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.mottoGloss {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(0.75rem, 3vw, 2rem);
+  justify-content: center;
+  margin: clamp(1.2rem, 3vh, 1.8rem) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.glossItem {
+  display: grid;
+  gap: 0.25rem;
+  justify-items: center;
+  min-width: 4.5rem;
+  padding-top: 0.5rem;
+  border-top: 2px solid color-mix(in srgb, var(--tdr-side) 62%, transparent);
+}
+
+.glossChar {
+  font-family: var(--tdr-ja);
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--tdr-side-text);
+}
+
+.glossText {
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.mottoNote {
+  max-width: 44rem;
+  margin: clamp(1.2rem, 3vh, 1.8rem) auto 0;
+  font-size: 0.86rem;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+/* Kaynak künyesi */
+.credit {
+  max-width: 46rem;
+  margin: clamp(2rem, 6vh, 3.5rem) auto 0;
+  padding-top: clamp(1.2rem, 3vh, 1.8rem);
+  border-top: 1px solid var(--border);
+  font-size: 0.86rem;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.creditLink {
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--accent-hover) 45%, transparent);
+}
+
+.creditLink:hover {
+  color: var(--text-primary);
+}
+
+.creditNote {
+  max-width: 46rem;
+  margin: 0.5rem auto 0;
+  font-size: 0.8rem;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+/* ══ KADRAJLAR VE KÜRATÖR YUVALARI ════════════════════════════════
+   ⚠️ Kadrajlar sütunların İÇİNDE DEĞİL. Uçlarda bir sütun layout'tan
+   çıkıyor; kadraj orada olsaydı küratörün yükleme kutusu da onunla
+   birlikte kaybolurdu. Kadrajlar `.column` genişliğinde duruyor ve
+   bölünme çizgisi onların üstünden geçiyor (`.plateSeam`), yani oran
+   kadrajı KIRPMIYOR.
+
+   ⚠️ Görselin ÜSTÜNDE metin yok — ne ziyaretçi ne yönetici için. Ölçü
+   ve tip künyesi kadrajın ALTINDA ve yalnızca `isAdmin` dalında. */
+.plate {
+  position: relative;
+  display: block;
+  width: 100%;
+  margin: clamp(1.2rem, 3.5vh, 2rem) 0 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--tdr-ice-deep) 70%, var(--surface)),
+    var(--surface) 46%,
+    var(--surface) 54%,
+    color-mix(in srgb, var(--tdr-flame-live-deep) 70%, var(--surface))
+  );
+  transition: background var(--tdr-turn) var(--tdr-ease);
+}
+
+.plate[data-filled="true"] {
+  background: var(--tdr-ink);
+}
+
+.plateImage,
+.dialPlateImage {
+  object-fit: cover;
+}
+
+/* Perde: yüklenen kare parlak çıktığında bölünme çizgisi ve kenar
+   kaybolmasın. Boş kadrajda zaten koyu zemin var. */
+.plateScrim {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 44%;
+  pointer-events: none;
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--tdr-ink) 86%, transparent),
+    transparent
+  );
+}
+
+/* Kadrajın içinden geçen bölünme çizgisi — oranla birlikte kayıyor. */
+.plateSeam {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--tdr-ice-w);
+  width: 1px;
+  margin-left: -0.5px;
+  pointer-events: none;
+  background: color-mix(in srgb, var(--tdr-seam) 62%, transparent);
+  transition: left var(--tdr-turn) var(--tdr-ease);
+}
+
+/* Boş kadrajın motifi: soğuk tarafta kar tanesi, sıcak tarafta alev
+   konturu. Görsel yokken bölüm görselsiz ama AYAKTA kalıyor. */
+.plateMark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(42%, 11rem);
+  height: auto;
+  transform: translate(-50%, -50%);
+  opacity: 0.6;
+}
+
+.plateMarkArm {
+  stroke: color-mix(in srgb, var(--tdr-ice) 48%, transparent);
+  stroke-width: 2.2;
+}
+
+.plateMarkCore {
+  stroke: color-mix(in srgb, var(--tdr-ice) 66%, transparent);
+  stroke-width: 2.6;
+}
+
+.plateMarkOutline {
+  stroke: color-mix(in srgb, var(--tdr-flame-live) 48%, transparent);
+  stroke-width: 2.4;
+  transition: stroke var(--tdr-turn) var(--tdr-ease);
+}
+
+.plateMarkTongue {
+  stroke: color-mix(in srgb, var(--tdr-flame-live) 36%, transparent);
+  stroke-width: 1.8;
+  transition: stroke var(--tdr-turn) var(--tdr-ease);
+}
+
+/* Kadraj biçimleri — `TDR_SLOT_SIZES`teki oranlar. */
+.plateHero {
+  aspect-ratio: 16 / 9;
+}
+
+.plateScene {
+  aspect-ratio: 3 / 2;
+}
+
+.plateBand {
+  aspect-ratio: 2 / 1;
+}
+
+/* Küçük kare kadrajlar (800×800). Tam genişlikte bir kare ekranı
+   yutardı; bu yüzden dar ve ÇİZGİNİN ÜSTÜNE ortalanmış — `clamp`
+   uçlarda onu kolonun içinde tutuyor. Ortalandığı için kendi çizgisi
+   de merkeze düşüyor. */
+.plateSquare {
+  --tdr-square: min(100%, 26rem);
+
+  width: var(--tdr-square);
+  aspect-ratio: 1 / 1;
+  margin-inline-start: clamp(
+    0px,
+    calc(var(--tdr-ice-w) - var(--tdr-square) / 2),
+    calc(100% - var(--tdr-square))
+  );
+  transition:
+    margin-inline-start var(--tdr-turn) var(--tdr-ease),
+    background var(--tdr-turn) var(--tdr-ease);
+}
+
+.plateSquare .plateSeam {
+  left: 50%;
+  transition: none;
+}
+
+.plateStack {
+  display: grid;
+  gap: clamp(0.6rem, 2vh, 1.1rem);
+  margin-top: clamp(0.6rem, 2vh, 1rem);
+}
+
+.plateCell {
+  display: block;
+}
+
+/* Oran karesi — interaktif bölümün kendi kadrajı. */
+.dialPlate {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 21 / 9;
+  margin-top: clamp(1.4rem, 4vh, 2.2rem);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--tdr-ice-deep) 70%, var(--surface)),
+    var(--surface) 46%,
+    var(--surface) 54%,
+    color-mix(in srgb, var(--tdr-flame-live-deep) 70%, var(--surface))
+  );
+  transition: background var(--tdr-turn) var(--tdr-ease);
+}
+
+.dialPlate[data-filled="true"] {
+  background: var(--tdr-ink);
+}
+
+.dialPlate::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--tdr-ice-w);
+  width: 1px;
+  margin-left: -0.5px;
+  pointer-events: none;
+  background: color-mix(in srgb, var(--tdr-seam) 62%, transparent);
+  transition: left var(--tdr-turn) var(--tdr-ease);
+}
+
+/* ── Küratör metni ────────────────────────────────────────────────
+   Dördü de YALNIZCA `isAdmin` dalında çiziliyor (kesim bileşende) ve
+   hiçbiri görselin ÜSTÜNDE değil: kadrajın altında, kendi satırında.
+   Ziyaretçiye üretim notu sızmıyor. */
+.plateSlot {
+  display: grid;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+  padding: 0.7rem;
+  border: 1px dashed var(--border-strong);
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+}
+
+.plateSpec,
+.plateNote,
+.plateCaption {
+  margin: 0;
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: var(--tdr-frame-text);
+}
+
+.plateNote,
+.plateCaption {
+  margin-top: 0.55rem;
+  text-align: center;
+}
+
+/* ══ HAREKET ══════════════════════════════════════════════════════
+   İKİ YARI FARKLI HAREKET EDİYOR — sayfanın Sasuke'nin sabit
+   yarığından ayrıldığı ikinci yer.
+
+   SOL (buz): `clip-path` ile aşağıdan yukarı BÜYÜYEN kristal. Tek
+   yönlü ve kademeli; tepeye vardıktan sonra yukarıdan aşağı eriyip
+   yeniden başlıyor. Hiçbir şey salınmıyor.
+
+   SAĞ (alev): `filter` ile ISI TİTREMESİ. Büyümüyor, ilerlemiyor;
+   yerinde duruyor ve havayı bozuyor.
+
+   ⚠️ Bulanıklık YALNIZCA dekoratif pseudo'ların ve SVG konturlarının
+   üstünde — hiçbir metnin üstüne düşmüyor. (Kontrast betiği bulanık
+   üstünü ölçemiyor, o yüzden bu ayrım koda yazıldı.) */
+
+@media (prefers-reduced-motion: no-preference) {
+  .markIceArm {
+    animation: tdrCrystal var(--tdr-grow) var(--tdr-ease) infinite;
+  }
+
+  .markIceCore {
+    animation: tdrCrystal var(--tdr-grow) var(--tdr-ease) infinite;
+    animation-delay: -1.6s;
+  }
+
+  .plateMarkArm {
+    animation: tdrCrystal calc(var(--tdr-grow) * 0.8) var(--tdr-ease) infinite;
+  }
+
+  .iceSide::before {
+    animation: tdrCrystalEdge calc(var(--tdr-grow) * 1.3) var(--tdr-ease)
+      infinite;
+  }
+
+  .markFlameOutline {
+    animation: tdrHeat var(--tdr-heat) ease-in-out infinite;
+  }
+
+  .markFlameTongue {
+    animation: tdrHeat calc(var(--tdr-heat) * 0.78) ease-in-out infinite;
+    animation-delay: -1.1s;
+  }
+
+  .plateMarkTongue {
+    animation: tdrHeat calc(var(--tdr-heat) * 0.9) ease-in-out infinite;
+  }
+
+  .flameSide::before {
+    animation: tdrShimmer calc(var(--tdr-heat) * 1.4) ease-in-out infinite;
+  }
+}
+
+/* "Yarım güç": alev yarısı külün rengine düştü VE o taraftaki hareket
+   durdu — mod metninin söylediği tam olarak bu. Buz tarafı çalışmaya
+   devam ediyor; bölünme yerinde, yalnızca bir yarı sönük. */
+.page[data-power="half"] .markFlameOutline,
+.page[data-power="half"] .markFlameTongue,
+.page[data-power="half"] .plateMarkTongue,
+.page[data-power="half"] .flameSide::before {
+  animation: none;
+  filter: none;
+}
+
+.page[data-power="half"] .markFlame {
+  opacity: 0.3;
+}
+
+@keyframes tdrCrystal {
+  0% {
+    clip-path: inset(100% 0 0 0);
+    opacity: 0;
+  }
+  38% {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+  }
+  76% {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+  }
+  100% {
+    clip-path: inset(100% 0 0 0);
+    opacity: 0;
+  }
+}
+
+@keyframes tdrCrystalEdge {
+  0% {
+    clip-path: inset(100% 0 0 0);
+  }
+  44% {
+    clip-path: inset(0 0 0 0);
+  }
+  80% {
+    clip-path: inset(0 0 0 0);
+  }
+  100% {
+    clip-path: inset(100% 0 0 0);
+  }
+}
+
+@keyframes tdrHeat {
+  0% {
+    filter: blur(0);
+    transform: translateY(0) scaleY(1);
+  }
+  30% {
+    filter: blur(0.9px);
+    transform: translateY(-0.8%) scaleY(1.015);
+  }
+  62% {
+    filter: blur(0.35px);
+    transform: translateY(0.5%) scaleY(0.992);
+  }
+  100% {
+    filter: blur(0);
+    transform: translateY(0) scaleY(1);
+  }
+}
+
+@keyframes tdrShimmer {
+  0% {
+    filter: blur(0);
+    opacity: 0.65;
+  }
+  35% {
+    filter: blur(3px);
+    opacity: 1;
+  }
+  70% {
+    filter: blur(1.2px);
+    opacity: 0.8;
+  }
+  100% {
+    filter: blur(0);
+    opacity: 0.65;
+  }
+}
+
+/* ══ DAR EKRAN ════════════════════════════════════════════════════
+   İki kırılım, ikisi de bölünme fikrini KORUYOR.
+
+   1) ≤ 46 rem — sütunlar yan yana kalıyor ama oran 26–74 arasına
+      kırpılıyor: dar ekranda %5'lik bir sütun okunur değil. Uçlar
+      (%0 / %100) bundan etkilenmiyor çünkü orada bir sütun zaten
+      tamamen kapanıyor; yani kaydırağın uçtaki anlamı burada da
+      duruyor.
+
+   2) ≤ 30 rem (360 px buraya düşüyor) — sütunlar ÜST ÜSTE, çünkü yan
+      yana okunamıyorlar. Bölünme kayboluyor mu: hayır. Çizgi hâlâ
+      sayfadan iniyor ve oranın yerini gösteriyor; her yarının
+      başındaki `.sideMeter` kendi payı kadar geniş, yani oran iki
+      çubuk olarak okunuyor; renk ve kenar çizgisi tarafı söylüyor. */
+
+@media (max-width: 46rem) {
+  .page {
+    --tdr-ratio: clamp(26, var(--tdr-split), 74);
+  }
+}
+
+@media (max-width: 30rem) {
+  .split {
+    grid-template-columns: minmax(0, 100%);
+    gap: 1.4rem;
+  }
+
+  .iceSide,
+  .flameSide {
+    padding-inline: 0;
+    text-align: left;
+  }
+
+  .iceSide .factValue,
+  .iceSide .cardTraits,
+  .iceSide .bondName {
+    justify-content: flex-start;
+  }
+
+  .iceSide .card,
+  .iceSide .move {
+    border-right: 1px solid var(--border);
+    border-left: 2px solid color-mix(in srgb, var(--tdr-side) 62%, transparent);
+  }
+
+  .iceSide::after,
+  .flameSide::after,
+  .iceSide::before,
+  .flameSide::before {
+    display: none;
+  }
+
+  /* Oran burada iki çubuk olarak okunuyor. */
+  .iceSide .sideMeter {
+    width: var(--tdr-ice-w);
+  }
+
+  .flameSide .sideMeter {
+    width: var(--tdr-flame-w);
+  }
+
+  .dialGauge {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .watermark {
+    font-size: 6.5rem;
+  }
+
+  .markIce,
+  .markFlame {
+    display: none;
+  }
+}
+
+/* ══ AZALTILMIŞ HAREKET ═══════════════════════════════════════════
+   Battaniye: süreler, gecikmeler ve geçişler sıfırlanıyor; kristal
+   büyümesi ve ısı titremesi duruyor.
+
+   ⚠️ ORAN KAYDIRAĞI ÇALIŞMAYA DEVAM EDİYOR. Sıfırlanan yalnızca GEÇİŞ
+   süresi, yani sütun genişlikleri yumuşamadan anında yerleşiyor —
+   mekanik kapanmıyor.
+
+   `clip-path` ve `filter` ayrıca elle geri alınıyor: donmuş bir yarım
+   kristal ya da yapışmış bir bulanıklık "kapalı hareket" değil,
+   sayfaya kalmış bir artık olurdu. */
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0s !important;
+    transition-duration: 0.001ms !important;
+    transition-delay: 0s !important;
+  }
+
+  .markIceArm,
+  .markIceCore,
+  .plateMarkArm,
+  .iceSide::before {
+    clip-path: none;
+    opacity: 1;
+  }
+
+  .markFlameOutline,
+  .markFlameTongue,
+  .plateMarkTongue,
+  .flameSide::before {
+    filter: none;
+    transform: none;
+  }
 }

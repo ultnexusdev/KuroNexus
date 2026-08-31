@@ -67,6 +67,8 @@ export interface DialText {
   iceLabel: string;
   flameLabel: string;
   readoutLabel: string;
+  /** `aria-valuetext` kalıbı — `{ice}` ve `{flame}` sayıyla değişiyor. */
+  valueText: string;
   presetsLabel: string;
   presetFlame: string;
   presetHalf: string;
@@ -116,6 +118,13 @@ export function SplitShell({
 
   const edge = split === 0 ? "flame" : split === 100 ? "ice" : "none";
   const band = bandFor(bands, split);
+
+  /* Ekran okuyucu ham yüzdeyi değil ORANI duysun: "yüzde 70 buz, yüzde 30
+     alev — Buz ağır basıyor". Kalıp sunucuda `pick` edilip düz dize olarak
+     indi; burada yalnızca iki sayı yerine oturuyor. */
+  const valueText = `${dial.valueText
+    .replace("{ice}", String(split))
+    .replace("{flame}", String(100 - split))} — ${band.title}`;
 
   return (
     <div
@@ -222,12 +231,16 @@ export function SplitShell({
             </header>
 
             <div className={styles.dialBoard}>
+              {/* ⚠️ SOL uç `flameEnd`, SAĞ uç `iceEnd`. Kaydırağın değeri BUZ
+                  sütununun genişliği: 0'da buz yok (yalnız alev), 100'de alev
+                  yok (yalnız buz). Etiketler kendi renklerini okuduğu için
+                  yerleri de kendi taraflarına denk gelmek zorunda. */}
               <div className={styles.dialTrackRow}>
-                <span className={styles.dialEndIce}>{dial.iceEnd}</span>
+                <span className={styles.dialEndFlame}>{dial.flameEnd}</span>
                 <label className={styles.dialLabel} htmlFor="tdr-range">
                   {dial.sliderLabel}
                 </label>
-                <span className={styles.dialEndFlame}>{dial.flameEnd}</span>
+                <span className={styles.dialEndIce}>{dial.iceEnd}</span>
               </div>
 
               <input
@@ -238,7 +251,7 @@ export function SplitShell({
                 max={100}
                 step={STEP}
                 value={split}
-                aria-valuetext={`${split}% — ${band.title}`}
+                aria-valuetext={valueText}
                 onChange={(event) => setSplit(Number(event.target.value))}
               />
 
@@ -288,7 +301,12 @@ export function SplitShell({
               {/* Okuma alanı: her zaman aynı yerde, uçlarda bir başlık daha
                   alıyor. İçindeki metinler SUNUCUDA `pick` ile seçildi —
                   buraya düz dize olarak indi (Dalga 1 bulgusu 3). */}
-              <div className={styles.readout} data-edge={edge} role="status">
+              <div
+                className={styles.readout}
+                data-edge={edge}
+                role="status"
+                aria-live="polite"
+              >
                 {edge === "none" ? (
                   <p className={styles.readoutLabel}>{dial.readoutLabel}</p>
                 ) : (

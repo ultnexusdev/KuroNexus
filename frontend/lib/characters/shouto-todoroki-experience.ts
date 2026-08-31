@@ -255,6 +255,33 @@ export const TDR_SLOT_SPECS: Record<string, LocalizedText> = {
   },
 };
 
+/**
+ * Yuvaların beklenen piksel ölçüsü — `CuratorSlot`in `size` alanı.
+ *
+ * `TDR_SLOT_SPECS` aynı sayıyı METİN olarak taşıyor (küratör okusun diye);
+ * burası aynı sayının MAKİNE hâli. İkisini ayrı tutmak, ölçüyü metinden
+ * ayrıştırmak zorunda kalmamak için.
+ */
+export const TDR_SLOT_SIZES: Record<string, { w: number; h: number }> = {
+  [TDR_PORTRAIT_SLOT_KEY]: { w: 1200, h: 1600 },
+  [TDR_IMAGE_KEYS.hero]: { w: 1920, h: 1080 },
+  [TDR_IMAGE_KEYS.quirkIce]: { w: 1200, h: 800 },
+  [TDR_IMAGE_KEYS.quirkFlame]: { w: 1200, h: 800 },
+  [TDR_IMAGE_KEYS.quirkCost]: { w: 1200, h: 800 },
+  [TDR_IMAGE_KEYS.moveUltimate]: { w: 800, h: 800 },
+  [TDR_IMAGE_KEYS.moveName]: { w: 800, h: 800 },
+  [TDR_IMAGE_KEYS.moveRank]: { w: 800, h: 800 },
+  [TDR_IMAGE_KEYS.moveEntry]: { w: 800, h: 800 },
+  [TDR_IMAGE_KEYS.dial]: { w: 2100, h: 900 },
+  [TDR_IMAGE_KEYS.fateBorn]: { w: 1440, h: 810 },
+  [TDR_IMAGE_KEYS.fateFive]: { w: 1440, h: 810 },
+  [TDR_IMAGE_KEYS.fateScald]: { w: 1440, h: 810 },
+  [TDR_IMAGE_KEYS.fateFestival]: { w: 1440, h: 810 },
+  [TDR_IMAGE_KEYS.fateAfter]: { w: 1440, h: 810 },
+  [TDR_IMAGE_KEYS.bonds]: { w: 1600, h: 800 },
+  [TDR_IMAGE_KEYS.closing]: { w: 1600, h: 800 },
+};
+
 /* ── Breadcrumb ─────────────────────────────────────────────────────────── */
 
 export const TDR_CRUMB = {
@@ -628,8 +655,26 @@ export const TDR_DIAL = {
     tr: "Bölünme oranı — soldaki buz yarısının genişliği, yüzde",
     en: "Split ratio — the width of the ice half on the left, per cent",
   },
-  iceEnd: { tr: "yalnız alev", en: "flame only" },
-  flameEnd: { tr: "yalnız buz", en: "ice only" },
+  /**
+   * Kaydırağın iki ucundaki etiket.
+   *
+   * ⚠️ 31 Ağustos 2026'da DÜZELTİLDİ. Değerler ters yazılmıştı: `iceEnd`
+   * "yalnız alev" diyordu. Kaydırağın değeri BUZ sütununun genişliği, yani
+   * sağ uç (100) buzun tamamı. `iceEnd` sağ uçta, `flameEnd` sol uçta duruyor
+   * ve ikisi de kendi rengini okuyor — eski hâlde "yalnız alev" yazısı buz
+   * renginde çıkacaktı.
+   */
+  iceEnd: { tr: "yalnız buz", en: "ice only" },
+  flameEnd: { tr: "yalnız alev", en: "flame only" },
+  /**
+   * Kaydırağın `aria-valuetext`i — oran ekran okuyucuda ANLAMLI okunsun.
+   * `{ice}` ve `{flame}` istemci adasında sayıyla değiştiriliyor; ham yüzde
+   * ("70") tek başına hangi tarafın baskın olduğunu söylemiyordu.
+   */
+  valueText: {
+    tr: "yüzde {ice} buz, yüzde {flame} alev",
+    en: "{ice} per cent ice, {flame} per cent flame",
+  },
   iceLabel: { tr: "Buz", en: "Ice" },
   flameLabel: { tr: "Alev", en: "Flame" },
   readoutLabel: { tr: "Şu anki ayar", en: "Current setting" },
@@ -731,7 +776,12 @@ export const TDR_TIMELINE = [
       en: "His father judged that he could not reach the top on his own strength and chose a spouse with a powerful Quirk. When the child who inherited both Quirks was born, he gave him the epithet the source records: “the greatest work”. Not a name — a technical assessment.",
     },
     imageKey: TDR_IMAGE_KEYS.fateBorn,
+    /* ⚠️ `quote` VE `memory` beş durakta da yazılı, boş olsa bile `null`.
+       Dizi `as const`: bir alan yalnızca bazı üyelerde geçerse birleşim
+       tipinde o alan HİÇ olmuyor ve `step.memory` derlemede patlıyor
+       (31 Ağustos 2026'da üç durakta eksikti, tsc yakaladı). */
     quote: null,
+    memory: null,
   },
   {
     key: "gosai",
@@ -744,6 +794,7 @@ export const TDR_TIMELINE = [
     },
     imageKey: TDR_IMAGE_KEYS.fateFive,
     quote: null,
+    memory: null,
   },
   {
     key: "yakedo",
@@ -756,6 +807,7 @@ export const TDR_TIMELINE = [
     },
     imageKey: TDR_IMAGE_KEYS.fateScald,
     quote: null,
+    memory: null,
   },
   {
     key: "taiikusai",

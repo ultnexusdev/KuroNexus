@@ -1,0 +1,29 @@
+/*
+ * Izuku Midoriya (緑谷出久) — deri bloğu.
+ *
+ * Palet docs/ANIME-FAZ2-DALGA2.md'den BİREBİR alındı; elle renk yazma.
+ * Dosyanın EN BAŞINDA olmak zorunda ve seçici `.page[data-world="…"]`
+ * — `:global([data-world=…])` CSS Modules'ün "pure selector" kuralına
+ * takılıyor.
+ *
+ * Yardımcı token adı `--mid-…`. Küçük METİNDE kullanacağın her
+ * yardımcı rengin `-text` ekli bir kardeşi olmalı; kontrast denetimi
+ * yalnızca onlara bakıyor.
+ */
+.page[data-world="izuku-midoriya"] {
+  --bg: #0b0f0d;
+  --surface: #131815;
+  --surface-hover: #19201d;
+  --border: #202824;
+  --border-strong: #2e3833;
+  --text-primary: #c7d1cc;
+  --text-secondary: #7c9c8c;
+  --text-muted: #699680;
+  --accent: #60be79;
+  --accent-hover: #86c195;
+  --accent-muted: #2e4233;
+  --gold: #bdae4c;
+  --warn: #b88347;
+  --danger: #c2665b;
+  /* kendi --mid-* token'ların buraya */
+}

@@ -41,6 +41,7 @@ const JJK = { series: "JUJUTSU KAISEN", seriesSlug: "jujutsu-kaisen" };
    çipleri), yani dizindeki süzgeç bu satırları gerçekten tanıyor. */
 const AOT = { series: "Attack on Titan", seriesSlug: "attack-on-titan" };
 const GTO = { series: "GTO: Great Teacher Onizuka", seriesSlug: "gto-great-teacher-onizuka" };
+const MHA = { series: "My Hero Academia", seriesSlug: "my-hero-academia" };
 /* My Hero Academia (`my-hero-academia`) Dalga 2 ile eklenecek — kullanılmayan
    bir sabit bırakmak eslint'i kırıyor, sırası gelince yazılacak. */
 
@@ -151,6 +152,22 @@ export const EXPERIENCE_ROSTER: RosterEntry[] = [
   { characterId: EXPERIENCE_IDS.toujiFushiguro, name: "Tōji Fushiguro", nameNative: "伏黒甚爾", ...JJK },
   { characterId: EXPERIENCE_IDS.jougo, name: "Jōgo", nameNative: "漏瑚", ...JJK },
   { characterId: EXPERIENCE_IDS.yuutaOkkotsu, name: "Yūta Okkotsu", nameNative: "乙骨憂太", ...JJK },
+
+  /* ── Dördüncü tur, Dalga 2 · My Hero Academia (31 Ağustos 2026) ──
+     Turun son dalgası. Yerel yazımlar `kaynak.json`dan.
+
+     İki bilinçli sapma — Dalga 4'teki ilkeyle aynı (künye AniList'in,
+     başlık karakterin adı):
+       Bakugō   → AniList "Katsuki Bakugou"
+       Todoroki → AniList "Shouto Todoroki"
+     Toshinori Yagi kadroya GERÇEK adıyla giriyor, "All Might" ile değil:
+     sayfanın konusu tam olarak maskenin ardındaki adam ve AniList kaydı
+     da bu adı taşıyor. Kahraman adı sayfanın içinde. */
+  { characterId: EXPERIENCE_IDS.izukuMidoriya, name: "Izuku Midoriya", nameNative: "緑谷出久", ...MHA },
+  { characterId: EXPERIENCE_IDS.katsukiBakugou, name: "Katsuki Bakugō", nameNative: "爆豪勝己", ...MHA },
+  { characterId: EXPERIENCE_IDS.shoutoTodoroki, name: "Shōto Todoroki", nameNative: "轟焦凍", ...MHA },
+  { characterId: EXPERIENCE_IDS.ochakoUraraka, name: "Ochako Uraraka", nameNative: "麗日お茶子", ...MHA },
+  { characterId: EXPERIENCE_IDS.toshinoriYagi, name: "Toshinori Yagi", nameNative: "八木俊典", ...MHA },
 ];
 
 /** Rozet ve süzgeç için: elle tasarlanmış sayfası olan numaralar. */

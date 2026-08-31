@@ -1,0 +1,30 @@
+/*
+ * Shōto Todoroki (轟焦凍) — deri bloğu.
+ *
+ * Palet docs/ANIME-FAZ2-DALGA2.md'den BİREBİR alındı; elle renk yazma.
+ * Dosyanın EN BAŞINDA olmak zorunda ve seçici `.page[data-world="…"]`
+ * — `:global([data-world=…])` CSS Modules'ün "pure selector" kuralına
+ * takılıyor.
+ *
+ * Yardımcı token adı `--tdr-…`. Küçük METİNDE kullanacağın her
+ * yardımcı rengin `-text` ekli bir kardeşi olmalı; kontrast denetimi
+ * yalnızca onlara bakıyor.
+ */
+.page[data-world="shouto-todoroki"] {
+  --bg: #0b0d0e;
+  --surface: #131618;
+  --surface-hover: #1a1e1f;
+  --border: #202527;
+  --border-strong: #2f3437;
+  --text-primary: #c7ced1;
+  --text-secondary: #7c929c;
+  --text-muted: #708a97;
+  --accent: #4aa1b5;
+  --accent-hover: #72aab6;
+  --accent-muted: #212d30;
+  --gold: #ca6242;
+  --warn: #b88347;
+  --danger: #c2665b;
+  /* ateş tarafı için --tdr-flame, --tdr-flame-text gibi bir aile tanımla */
+  /* kendi --tdr-* token'ların buraya */
+}

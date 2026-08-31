@@ -1,0 +1,29 @@
+/*
+ * Katsuki Bakugō (爆豪勝己) — deri bloğu.
+ *
+ * Palet docs/ANIME-FAZ2-DALGA2.md'den BİREBİR alındı; elle renk yazma.
+ * Dosyanın EN BAŞINDA olmak zorunda ve seçici `.page[data-world="…"]`
+ * — `:global([data-world=…])` CSS Modules'ün "pure selector" kuralına
+ * takılıyor.
+ *
+ * Yardımcı token adı `--bkg-…`. Küçük METİNDE kullanacağın her
+ * yardımcı rengin `-text` ekli bir kardeşi olmalı; kontrast denetimi
+ * yalnızca onlara bakıyor.
+ */
+.page[data-world="katsuki-bakugou"] {
+  --bg: #0d0b0a;
+  --surface: #161412;
+  --surface-hover: #1e1b19;
+  --border: #26221f;
+  --border-strong: #36322e;
+  --text-primary: #d1ccc7;
+  --text-secondary: #9c8c7c;
+  --text-muted: #95816d;
+  --accent: #f2a650;
+  --accent-hover: #edb97d;
+  --accent-muted: #764d1e;
+  --gold: #c56249;
+  --warn: #b88347;
+  --danger: #c26459;
+  /* kendi --bkg-* token'ların buraya */
+}

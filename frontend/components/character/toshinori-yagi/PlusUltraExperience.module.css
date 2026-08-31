@@ -1,0 +1,29 @@
+/*
+ * Toshinori Yagi (八木俊典) — deri bloğu.
+ *
+ * Palet docs/ANIME-FAZ2-DALGA2.md'den BİREBİR alındı; elle renk yazma.
+ * Dosyanın EN BAŞINDA olmak zorunda ve seçici `.page[data-world="…"]`
+ * — `:global([data-world=…])` CSS Modules'ün "pure selector" kuralına
+ * takılıyor.
+ *
+ * Yardımcı token adı `--alm-…`. Küçük METİNDE kullanacağın her
+ * yardımcı rengin `-text` ekli bir kardeşi olmalı; kontrast denetimi
+ * yalnızca onlara bakıyor.
+ */
+.page[data-world="toshinori-yagi"] {
+  --bg: #0b0c0f;
+  --surface: #131418;
+  --surface-hover: #191b20;
+  --border: #202228;
+  --border-strong: #2e3138;
+  --text-primary: #c7c9d1;
+  --text-secondary: #7c849c;
+  --text-muted: #7983a2;
+  --accent: #e1b847;
+  --accent-hover: #dec173;
+  --accent-muted: #594a21;
+  --gold: #5488b6;
+  --warn: #b88347;
+  --danger: #c26459;
+  /* kendi --alm-* token'ların buraya */
+}

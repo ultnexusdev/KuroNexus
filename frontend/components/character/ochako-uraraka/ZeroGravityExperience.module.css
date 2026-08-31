@@ -1,0 +1,29 @@
+/*
+ * Ochako Uraraka (麗日お茶子) — deri bloğu.
+ *
+ * Palet docs/ANIME-FAZ2-DALGA2.md'den BİREBİR alındı; elle renk yazma.
+ * Dosyanın EN BAŞINDA olmak zorunda ve seçici `.page[data-world="…"]`
+ * — `:global([data-world=…])` CSS Modules'ün "pure selector" kuralına
+ * takılıyor.
+ *
+ * Yardımcı token adı `--urk-…`. Küçük METİNDE kullanacağın her
+ * yardımcı rengin `-text` ekli bir kardeşi olmalı; kontrast denetimi
+ * yalnızca onlara bakıyor.
+ */
+.page[data-world="ochako-uraraka"] {
+  --bg: #0e0b0d;
+  --surface: #181315;
+  --surface-hover: #1f1a1d;
+  --border: #272024;
+  --border-strong: #372f33;
+  --text-primary: #d1c7cc;
+  --text-secondary: #9c7c8c;
+  --text-muted: #9f7a8c;
+  --accent: #cd84a1;
+  --accent-hover: #d2a7b8;
+  --accent-muted: #60434f;
+  --gold: #a98960;
+  --warn: #b88347;
+  --danger: #c26459;
+  /* kendi --urk-* token'ların buraya */
+}

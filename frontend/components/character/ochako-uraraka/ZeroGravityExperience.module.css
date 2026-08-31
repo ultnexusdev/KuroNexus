@@ -25,5 +25,2019 @@
   --gold: #a98960;
   --warn: #b88347;
   --danger: #c26459;
-  /* kendi --urk-* token'ların buraya */
+
+  /* ── Yardımcı malzeme ailesi — yalnızca bu ağaç okur ──
+     ⚠️ ADLANDIRMA SÖZLEŞMESİ: küçük metinde kullanılan her yardımcı rengin
+     `-text` ekli bir kardeşi var ve metin ONU okuyor; denetim yalnızca
+     onları ölçüyor. Ekli olmayanlar MALZEME ve koyu olmak zorunda:
+     havanın kütlesi, yer çizgisinin taşı, pedin mürekkebi.
+     Ölçüldü (surface #181315 / surface-hover #1f1a1d):
+       --urk-air-text     8.11 / 7.57
+       --urk-ground-text  6.55 / 6.12
+       --urk-pad-text     8.03 / 7.50
+       --urk-fall-text    8.03 / 7.50
+       --urk-weight-text  8.07 / 7.54 */
+  --urk-air: #221a1f;
+  --urk-air-text: #bda6b3;
+  --urk-ground: #3a2f35;
+  --urk-ground-text: #ae93a1;
+  --urk-pad: #4a3a43;
+  --urk-pad-text: #c2a3b2;
+  --urk-fall: #6b4c58;
+  --urk-fall-text: #cba0ae;
+  --urk-weight-text: #c2a884;
+}
+
+/* ============================================================
+   OCHAKO URARAKA — "Zero Gravity"
+
+   Deri: kökteki `data-world="ochako-uraraka"` bütün standart token'ları
+   çeviriyor; yardımcılar `--urk-*` (yukarıdaki blok). Bu bloktan AŞAĞIDA
+   TEK HEX YOK — ara tonların hepsi `color-mix` ile türetildi (SÖZLEŞME §1).
+
+   ── SAYFANIN FİKRİ ──────────────────────────────────────────────────────
+   GÜCÜ KALDIRMAK DEĞİL, BIRAKMAYA KARAR VERMEK. Sayfadaki her şey ya
+   yüzüyor ya düşüyor; arası yok.
+
+   ── IZGARA: SERBEST YÜZEN KART ALANI (brief §Izgara) ────────────────────
+   Hiçbir liste hizalı bir ızgara DEĞİL. Her kart kabı `flex-flow: row wrap`
+   + `align-items: flex-end` ile duruyor ve kartların yüksekliği tek tek
+   `data-drift` (1–5) niteliğinden geliyor:
+
+     [data-drift="n"] → --urk-hang  (yer çizgisinden yükseklik)
+                        --urk-swing (salınım genliği)
+                        --urk-phase (salınımın FAZI — negatif gecikme)
+                        --urk-float (salınımın süresi)
+                        --urk-tilt  (bir derecenin yarısı kadar eğiklik)
+
+   Beş fazın hiçbiri aynı değil: kartlar aynı anda salınmıyor. Her bölümün
+   ALTINDA `.bandGround` var — görünmez bir yer çizgisi; yüzerken kesik ve
+   ince, ağırlık geri gelince dolu ve kalın.
+
+   ── ÜÇ AYRI HAREKET KATMANI, ÜÇ AYRI CSS ÖZELLİĞİ ───────────────────────
+   Birbirini ezmesinler diye üç bağımsız dönüşüm özelliği kullanılıyor
+   (`translate`/`rotate` `transform`den ÖNCE uygulanıyor, üçü birleşiyor):
+
+     transform: translateY(--urk-hang)  → yükseklik   (mod düğmesi + düşüş)
+     translate: 0 …                     → salınım     (sonsuz, alternate)
+     rotate:    var(--urk-tilt)         → eğiklik     (mod düğmesi)
+
+   Tek bir `transform` üstünde toplansalardı salınım animasyonu düşüşü
+   ezerdi — sonsuz animasyon her zaman geçişi yener.
+
+   ── MOD: ZERO GRAVITY (brief §Düğme) ────────────────────────────────────
+   `data-gravity="off" | "on"` — VARSAYILAN `off`. Düğme yüzmeyi YARATMIYOR,
+   yerçekimini geri getiriyor. Altı ölçüyü birden çeviriyor ve altısı da
+   YAPI:
+     --urk-lift-1…5  farklı yükseklikler → hepsi 0
+     --urk-overlap   0 → negatif (kartlar birbirinin PAYINA giriyor)
+     --urk-gap       geniş → dar
+     --urk-display   çok büyük → bir kademe küçük
+     --urk-ground-w  1px kesik → 3px dolu
+     --urk-tilt      eğik → düz
+   ⚠️ Bindirme yalnızca kartların yatay PAYINA giriyor (`--urk-overlap`
+   mutlak değeri kart iç payından küçük) — metin hiçbir durumda kırpılmıyor.
+
+   ── MEKANİK: RELEASE (brief §Mekanik) ───────────────────────────────────
+   `.field[data-fallen]` beş kartı birden çeviriyor:
+     false → row wrap, farklı yüksekliklerde asılı, `order` = kaldırma sırası
+     true  → column, yer çizgisinde YIĞIN, `order` = bedel sırası
+   Düşüş `urkDrop` ile ivmeli (`cubic-bezier(0.55,0,1,0.45)`) ve yere
+   çarpınca küçük bir sekme veriyor. Kalkış `urkRise` ile yavaşlayan.
+   ⚠️ Yığında bindirme (`--urk-pile`) kartın İÇ PAYINDAN küçük ve kartlar
+   opak — yığılmış hâlde beş metnin beşi de okunuyor.
+   ⚠️ `reduce`da animasyon yok ama Release ÇALIŞMAYA DEVAM EDİYOR: düşmüş
+   konumu animasyon değil, statik kural veriyor (`transform: translateY(0)`).
+
+   ── FİLİGRAN (brief §Filigran) ──────────────────────────────────────────
+   Elle çizilmiş parmak ucu pedi (`PadMark`) — sayfa köşesinde bir büyük,
+   her bölümün köşesinde bir küçük — ve dikey 無重力.
+
+   ── TİPOGRAFİ ───────────────────────────────────────────────────────────
+   Display: Cormorant Garamond, ağırlık 300, İTALİK, çok büyük — havada
+   asılı duran bir zarafet. Gövde: Inter. Japonca: Shippori Mincho.
+
+   ── RENK GÖREVLERİ ──────────────────────────────────────────────────────
+   --accent        → dokunuşun izi, aktif kenar, odak halkası
+   --gold          → künye değerleri
+   --warn          → YALNIZCA bulantı uyarısı ve kaldırma sayacı
+   --urk-air       → YALNIZCA hava/gökyüzü kütlesi
+   --urk-ground    → YALNIZCA yer çizgisi ve çentikleri
+   --urk-pad       → YALNIZCA parmak ucu pedi filigranı
+   --urk-fall      → YALNIZCA düşüş izleri
+   ============================================================ */
+
+.page {
+  /* Ölçü */
+  --urk-measure: 64rem;
+  --urk-measure-wide: 78rem;
+  --urk-step: clamp(3rem, 7.5vw, 5.5rem);
+  --urk-radius: 1.15rem 1.15rem 1.6rem 1.6rem / 1.6rem 1.6rem 2.4rem 2.4rem;
+
+  /* Yerleşim — mod düğmesinin çevirdiği altı ölçü */
+  --urk-lift-1: -3.4rem;
+  --urk-lift-2: -1.5rem;
+  --urk-lift-3: -4.7rem;
+  --urk-lift-4: -0.9rem;
+  --urk-lift-5: -2.7rem;
+  --urk-overlap: 0rem;
+  --urk-gap: clamp(1rem, 2.6vw, 1.9rem);
+  --urk-display: clamp(2.7rem, 9.5vw, 6.4rem);
+  --urk-display-mid: clamp(1.85rem, 5.2vw, 3.4rem);
+  --urk-ground-w: 1px;
+  --urk-ground-style: dashed;
+
+  /* Kart başına salınım — `[data-drift]` blokları eziyor */
+  --urk-hang: 0rem;
+  --urk-swing: 0px;
+  --urk-phase: 0s;
+  --urk-float: 10s;
+  --urk-tilt: 0deg;
+
+  /* Yığın */
+  --urk-pile: -0.8rem;
+
+  /* Zaman */
+  --urk-drop-ease: cubic-bezier(0.55, 0, 1, 0.45);
+  --urk-rise-ease: cubic-bezier(0.16, 0.86, 0.3, 1);
+  --urk-ease: cubic-bezier(0.32, 0.72, 0.3, 1);
+  --urk-slow: 900ms;
+  --urk-mid: 460ms;
+  --urk-quick: 200ms;
+
+  /* Yıkamalar ve mürekkepler — dekoratif, metin taşımaz */
+  --urk-watermark: color-mix(in srgb, var(--accent) 12%, transparent);
+  --urk-pad-ink: color-mix(in srgb, var(--urk-pad) 88%, transparent);
+  --urk-ground-ink: color-mix(in srgb, var(--urk-ground) 90%, transparent);
+  --urk-air-wash: color-mix(in srgb, var(--accent) 7%, transparent);
+  --urk-heavy-wash: color-mix(in srgb, var(--urk-ground) 26%, transparent);
+  --urk-tint: var(--urk-air-wash);
+
+  position: relative;
+  isolation: isolate;
+  /* ⚠️ `clip`, `hidden` DEĞİL: `hidden` yapışkan öğeleri kırıyor. Serbest
+     yerleşimli kartlar `translate`/`rotate` ile kayıyor ve 360 px'te
+     yatay taşma bırakmamaları buna bağlı. */
+  overflow-x: clip;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  overflow-wrap: break-word;
+  padding: clamp(0.9rem, 3vw, 2.25rem) clamp(0.85rem, 3vw, 2.5rem)
+    clamp(3rem, 8vw, 6rem);
+}
+
+/* Ağırlık geri geldi: yükseklikler kapanıyor, kartlar birbirine giriyor,
+   başlık ölçeği bir kademe düşüyor, yer çizgisi kalınlaşıyor. */
+.page[data-gravity="on"] {
+  --urk-lift-1: 0rem;
+  --urk-lift-2: 0rem;
+  --urk-lift-3: 0rem;
+  --urk-lift-4: 0rem;
+  --urk-lift-5: 0rem;
+  --urk-overlap: -1.1rem;
+  --urk-gap: 0.3rem;
+  --urk-display: clamp(2.1rem, 7vw, 4.6rem);
+  --urk-display-mid: clamp(1.5rem, 4.2vw, 2.6rem);
+  --urk-ground-w: 3px;
+  --urk-ground-style: solid;
+  --urk-tint: var(--urk-heavy-wash);
+}
+
+.page[data-gravity="on"] [data-drift],
+.page[data-gravity="on"] [data-altitude] {
+  rotate: 0deg;
+}
+
+/* ── Kart başına yükseklik, faz ve eğiklik ──────────────────────────────
+   Beş ayrı faz: negatif `animation-delay` sayesinde kartlar salınıma
+   ORTASINDAN giriyor, yani hiçbiri ötekiyle aynı anda yukarıda olmuyor. */
+
+.page [data-drift="1"] {
+  --urk-hang: var(--urk-lift-1);
+  --urk-swing: 7px;
+  --urk-phase: -0.2s;
+  --urk-float: 9.5s;
+  --urk-tilt: -0.45deg;
+}
+
+.page [data-drift="2"] {
+  --urk-hang: var(--urk-lift-2);
+  --urk-swing: 5px;
+  --urk-phase: -2.6s;
+  --urk-float: 11.5s;
+  --urk-tilt: 0.3deg;
+}
+
+.page [data-drift="3"] {
+  --urk-hang: var(--urk-lift-3);
+  --urk-swing: 9px;
+  --urk-phase: -5.1s;
+  --urk-float: 8.5s;
+  --urk-tilt: 0.55deg;
+}
+
+.page [data-drift="4"] {
+  --urk-hang: var(--urk-lift-4);
+  --urk-swing: 4px;
+  --urk-phase: -1.3s;
+  --urk-float: 12.5s;
+  --urk-tilt: -0.28deg;
+}
+
+.page [data-drift="5"] {
+  --urk-hang: var(--urk-lift-5);
+  --urk-swing: 8px;
+  --urk-phase: -7.4s;
+  --urk-float: 10.5s;
+  --urk-tilt: 0.4deg;
+}
+
+/* Kader çizelgesi bir ray değil bir İNİŞ: 5 en yüksek, 1 yere değiyor. */
+.page [data-altitude="5"] {
+  --urk-hang: var(--urk-lift-3);
+  --urk-swing: 8px;
+  --urk-phase: -1.1s;
+  --urk-float: 11s;
+  --urk-tilt: -0.4deg;
+  --urk-inset: 9%;
+}
+
+.page [data-altitude="4"] {
+  --urk-hang: var(--urk-lift-1);
+  --urk-swing: 6px;
+  --urk-phase: -4.3s;
+  --urk-float: 9.5s;
+  --urk-tilt: 0.32deg;
+  --urk-inset: 6.5%;
+}
+
+.page [data-altitude="3"] {
+  --urk-hang: var(--urk-lift-5);
+  --urk-swing: 5px;
+  --urk-phase: -6.8s;
+  --urk-float: 12s;
+  --urk-tilt: -0.25deg;
+  --urk-inset: 4%;
+}
+
+.page [data-altitude="2"] {
+  --urk-hang: var(--urk-lift-2);
+  --urk-swing: 3px;
+  --urk-phase: -2.2s;
+  --urk-float: 13s;
+  --urk-tilt: 0.18deg;
+  --urk-inset: 1.5%;
+}
+
+.page [data-altitude="1"] {
+  --urk-hang: 0rem;
+  --urk-swing: 0px;
+  --urk-phase: 0s;
+  --urk-float: 14s;
+  --urk-tilt: 0deg;
+  --urk-inset: 0%;
+}
+
+/* ── Zemin yıkaması ─────────────────────────────────────────────────────
+   Hiçbir metnin ÜSTÜNDE değil, yalnızca zeminde — kontrast ölçümü
+   bozulmasın diye. Yüzerken yukarı doğru açılıyor, ağırlık gelince
+   aşağıda toplanıyor. */
+.wash {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(to top, var(--urk-tint), transparent 62%);
+  transition: background var(--urk-slow) var(--urk-ease);
+}
+
+/* ── Filigran: 無重力 + parmak ucu pedi ─────────────────────────────── */
+
+.watermark {
+  position: absolute;
+  top: clamp(6rem, 16vw, 13rem);
+  right: clamp(-0.9rem, 0.4vw, 0.75rem);
+  z-index: 0;
+  writing-mode: vertical-rl;
+  font-family: var(--font-shippori), "Yu Mincho", serif;
+  font-size: clamp(3.6rem, 13vw, 10rem);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  color: var(--urk-watermark);
+  pointer-events: none;
+  user-select: none;
+}
+
+.watermarkPad {
+  position: absolute;
+  top: clamp(24rem, 60vw, 46rem);
+  left: clamp(-3rem, -2vw, -1rem);
+  z-index: 0;
+  width: clamp(11rem, 26vw, 20rem);
+  height: auto;
+  color: var(--urk-pad-ink);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* ── Mod düğmesi: Zero Gravity ──────────────────────────────────────── */
+
+.gravityBar {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 1rem;
+  max-width: min(100%, var(--urk-measure));
+  margin: 0 auto;
+  padding-bottom: 0.4rem;
+}
+
+.gravityLabel {
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--urk-air-text);
+}
+
+.gravityToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: var(--touch-min);
+  padding: 0.45rem 1.15rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition:
+    background var(--urk-quick) var(--urk-ease),
+    border-color var(--urk-quick) var(--urk-ease);
+}
+
+.gravityToggle:hover {
+  background: var(--surface-hover);
+  border-color: var(--accent);
+}
+
+.gravityToggle:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 3px;
+}
+
+/* Kadran: içindeki boncuk ağırlık gelince DİBE düşüyor */
+.gravityDial {
+  position: relative;
+  display: inline-flex;
+  width: 18px;
+  height: 26px;
+  border: 1px solid var(--urk-ground-ink);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--urk-air) 80%, transparent);
+}
+
+.gravityBead {
+  position: absolute;
+  left: 50%;
+  top: 3px;
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  border-radius: 999px;
+  background: var(--accent);
+  transition: transform var(--urk-slow) var(--urk-drop-ease);
+}
+
+.page[data-gravity="on"] .gravityBead {
+  transform: translateY(12px);
+}
+
+.gravityToggleText {
+  font-family: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(1rem, 2.3vw, 1.2rem);
+  letter-spacing: 0.01em;
+}
+
+.gravityState {
+  margin: 0;
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  color: var(--urk-air-text);
+  transition: color var(--urk-slow) var(--urk-ease);
+}
+
+.page[data-gravity="on"] .gravityState {
+  color: var(--urk-ground-text);
+}
+
+.gravityHint {
+  position: relative;
+  z-index: 3;
+  max-width: min(100%, var(--urk-measure));
+  margin: 0 auto clamp(1.5rem, 4vw, 2.5rem);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* ── Breadcrumb ─────────────────────────────────────────────────────── */
+
+.crumb {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  max-width: min(100%, var(--urk-measure));
+  margin: 0 auto 1.75rem;
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.crumb a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.crumb a:hover {
+  color: var(--text-primary);
+  border-bottom-color: var(--accent);
+}
+
+.crumb a:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 3px;
+}
+
+.crumbSep {
+  color: var(--urk-ground-text);
+}
+
+.crumbHere {
+  color: var(--text-muted);
+}
+
+/* ── Bölüm kabı: bant + yer çizgisi + köşe pedi ─────────────────────── */
+
+.band,
+.bandWide {
+  position: relative;
+  z-index: 2;
+  max-width: min(100%, var(--urk-measure));
+  margin: 0 auto;
+  padding-top: var(--urk-step);
+  /* Kartlar yukarı doğru asıldığı için üstte, düşerken de altta yer
+     kalsın diye altta pay: yer çizgisi hep aynı yerde duruyor. */
+  padding-bottom: clamp(1.5rem, 4vw, 2.75rem);
+}
+
+.bandWide {
+  max-width: min(100%, var(--urk-measure-wide));
+}
+
+.bandPad {
+  position: absolute;
+  top: calc(var(--urk-step) * 0.35);
+  left: clamp(-2.5rem, -1.5vw, -0.5rem);
+  z-index: 0;
+  width: clamp(3.5rem, 7vw, 5.5rem);
+  height: auto;
+  color: var(--urk-pad-ink);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+/* Görünmez yer çizgisi: yüzerken kesik ve ince, ağırlık gelince dolu. */
+.bandGround {
+  display: block;
+  width: 100%;
+  height: 0;
+  margin-top: clamp(1.75rem, 4.5vw, 3rem);
+  border-top: var(--urk-ground-w) var(--urk-ground-style)
+    color-mix(in srgb, var(--urk-ground) 65%, transparent);
+  transition: border-top-width var(--urk-slow) var(--urk-ease);
+}
+
+.page[data-gravity="on"] .bandGround {
+  border-top-color: var(--urk-ground);
+}
+
+.bandHead {
+  position: relative;
+  z-index: 2;
+  max-width: 62ch;
+  margin-bottom: clamp(1.75rem, 4.5vw, 3rem);
+}
+
+.bandTitle {
+  margin: 0;
+  font-family: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: var(--urk-display-mid);
+  line-height: 1.02;
+  letter-spacing: -0.005em;
+  color: var(--text-primary);
+  transition: font-size var(--urk-slow) var(--urk-ease);
+}
+
+.bandLede {
+  margin: 0.85rem 0 0;
+  font-size: clamp(0.95rem, 2.1vw, 1.05rem);
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+/* ── 1 · HERO ───────────────────────────────────────────────────────── */
+
+.heroTop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--urk-gap);
+  margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.heroText {
+  flex: 1 1 22rem;
+  min-width: 0;
+  transform: translateY(var(--urk-lift-2));
+  transition: transform var(--urk-slow) var(--urk-drop-ease);
+}
+
+.heroHouse {
+  margin: 0 0 0.85rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--urk-air-text);
+}
+
+.heroName {
+  margin: 0;
+  font-family: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: var(--urk-display);
+  line-height: 0.94;
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
+  transition: font-size var(--urk-slow) var(--urk-ease);
+}
+
+.heroNative {
+  margin: 0.5rem 0 0;
+  font-family: var(--font-shippori), "Yu Mincho", serif;
+  font-size: clamp(1.1rem, 3vw, 1.6rem);
+  letter-spacing: 0.16em;
+  color: var(--urk-air-text);
+}
+
+.heroAlias {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin: 1.15rem 0 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent-hover);
+}
+
+.heroAliasNative {
+  font-family: var(--font-shippori), "Yu Mincho", serif;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: none;
+  color: var(--urk-pad-text);
+}
+
+.heroEpigraph {
+  max-width: 46ch;
+  margin: 1.5rem 0 0;
+  font-family: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(1.2rem, 3vw, 1.7rem);
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+
+.heroPortraitCol {
+  flex: 0 1 15rem;
+  min-width: 0;
+  transform: translateY(var(--urk-lift-4));
+  transition: transform var(--urk-slow) var(--urk-drop-ease);
+}
+
+/* Kadraj parmak ucu pedi biçiminde: üstü dar, altı geniş. */
+.portraitFrame {
+  position: relative;
+  display: block;
+  max-width: 14.5rem;
+  padding: 0.55rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 46% 46% 42% 42% / 38% 38% 52% 52%;
+  background: var(--surface);
+}
+
+.portraitImage {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 46% 46% 42% 42% / 38% 38% 52% 52%;
+  object-fit: cover;
+}
+
+/* Ağırlıksızlığın halkası — dokunmanın bıraktığı iz */
+.portraitHalo {
+  position: absolute;
+  inset: -0.6rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 34%, transparent);
+  border-radius: 46% 46% 42% 42% / 38% 38% 52% 52%;
+  pointer-events: none;
+  transition: inset var(--urk-slow) var(--urk-ease);
+}
+
+.page[data-gravity="on"] .portraitHalo {
+  inset: -0.15rem;
+}
+
+.heroLede {
+  position: relative;
+  z-index: 2;
+  max-width: 68ch;
+  margin: 0 0 clamp(1.75rem, 4.5vw, 2.75rem);
+  font-size: clamp(0.98rem, 2.2vw, 1.08rem);
+  line-height: 1.75;
+  color: var(--text-secondary);
+}
+
+/* Büyük hero karesi — boşken de duruyor, İÇİNDE METİN YOK. */
+.heroPlate {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 0.9rem;
+  background:
+    radial-gradient(
+      120% 90% at 50% 8%,
+      color-mix(in srgb, var(--urk-air) 92%, transparent),
+      transparent 74%
+    ),
+    var(--surface);
+}
+
+.heroPlate[data-filled="false"] {
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--border-strong) 80%, transparent);
+}
+
+.heroPlate img,
+.heroPlateImage {
+  object-fit: cover;
+}
+
+.heroPlateEdge {
+  position: absolute;
+  inset: 0.6rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
+  border-radius: 0.5rem;
+  pointer-events: none;
+}
+
+.plateCaption,
+.groundCaption {
+  max-width: 62ch;
+  margin: 0.9rem 0 0;
+  font-size: 0.85rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+}
+
+.groundCaption {
+  margin-top: 0.85rem;
+  color: var(--urk-ground-text);
+}
+
+/* ── 2 · KÜNYE ──────────────────────────────────────────────────────── */
+
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--urk-gap);
+  margin: 0;
+  padding: 0;
+}
+
+.fact {
+  position: relative;
+  flex: 1 1 13rem;
+  min-width: 0;
+  margin-inline-start: var(--urk-overlap);
+  padding: 1.1rem 1.2rem 1.2rem;
+  border: 1px solid var(--border);
+  border-radius: var(--urk-radius);
+  background: var(--surface);
+  transform: translateY(var(--urk-hang));
+  rotate: var(--urk-tilt);
+  transition:
+    transform var(--urk-slow) var(--urk-drop-ease),
+    rotate var(--urk-slow) var(--urk-ease),
+    margin-inline-start var(--urk-slow) var(--urk-ease),
+    border-color var(--urk-quick) var(--urk-ease);
+}
+
+.fact:first-child {
+  margin-inline-start: 0;
+}
+
+.fact:hover {
+  z-index: 5;
+  border-color: var(--accent-muted);
+}
+
+.factLabel {
+  margin: 0 0 0.4rem;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--urk-air-text);
+}
+
+.factValue {
+  margin: 0;
+  font-family: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(1.15rem, 2.8vw, 1.45rem);
+  line-height: 1.25;
+  color: var(--gold);
+}
+
+.factNote {
+  max-width: 70ch;
+  margin: clamp(1.5rem, 4vw, 2.25rem) 0 0;
+  font-size: 0.85rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+
+/* ── 3 · QUIRK LABORATUVARI ─────────────────────────────────────────── */
+
+.powers {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--urk-gap);
+  margin: 0 0 clamp(2rem, 5vw, 3.25rem);
+  padding: 0;
+  list-style: none;
+}
+
+/* Üç büyük kart, üç AYRI genişlik — hizalı ızgara yok. */
+.power {
+  position: relative;
+  min-width: 0;
+  margin-inline-start: var(--urk-overlap);
+  padding: 1.25rem 1.25rem 1.4rem;
+  border: 1px solid var(--border);
+  border-radius: var(--urk-radius);
+  background: var(--surface);
+  transform: translateY(var(--urk-hang));
+  rotate: var(--urk-tilt);
+  transition:
+    transform var(--urk-slow) var(--urk-drop-ease),
+    rotate var(--urk-slow) var(--urk-ease),
+    margin-inline-start var(--urk-slow) var(--urk-ease),
+    border-color var(--urk-quick) var(--urk-ease);
+}
+
+.power:first-child {
+  margin-inline-start: 0;
+}
+
+.power:nth-child(1) {
+  flex: 1 1 25rem;
+}
+
+.power:nth-child(2) {
+  flex: 1 1 19rem;
+}
+
+.power:nth-child(3) {
+  flex: 1 1 22rem;
+}
+
+.power:hover {
+  z-index: 5;
+  border-color: var(--accent-muted);
+}
+
+.powerArt {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  margin-bottom: 1.15rem;
+  border: 1px solid var(--border);
+  border-radius: 0.7rem;
+  background: color-mix(in srgb, var(--urk-air) 90%, transparent);
+}
+
+.powerArt[data-filled="false"] {
+  border-style: dashed;
+}
+
+.powerArt img {
+  object-fit: cover;
+}
+
+.powerBody {
+  min-width: 0;
+}
+
+.powerTerm {
+  margin: 0 0 0.45rem;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--urk-pad-text);
+}
+
+.powerName {
+  margin: 0;
+  font-family: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(1.65rem, 4vw, 2.3rem);
+  line-height: 1.08;
+  color: var(--text-primary);
+}
+
+.powerNative {
+  margin: 0.3rem 0 0;
+  font-family: var(--font-shippori), "Yu Mincho", serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.14em;
+  color: var(--urk-air-text);
+}
+
+.powerTagline {
+  margin: 0.85rem 0 0;
+  font-family: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(1.05rem, 2.5vw, 1.25rem);
+  line-height: 1.4;
+  color: var(--accent-hover);
+}
+
+.powerText {
+  margin: 0.9rem 0 0;
+  font-size: 0.93rem;
+  line-height: 1.75;
+  color: var(--text-secondary);
+}
+
+.powerTraits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 1.1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trait {
+  padding: 0.3rem 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--urk-ground) 78%, transparent);
+  border-radius: 999px;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: var(--urk-ground-text);
+}
+
+/* Dört küçük kart — büyüklerden AYRI bir yükseklik ailesinde */
+.traitGrid {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--urk-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.traitCard {
+  position: relative;
+  flex: 1 1 15rem;
+  min-width: 0;
+  margin-inline-start: var(--urk-overlap);
+  padding: 1.1rem 1.15rem 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--urk-radius);
+  background: var(--surface);
+  transform: translateY(var(--urk-hang));
+  rotate: var(--urk-tilt);
+  transition:
+    transform var(--urk-slow) var(--urk-drop-ease),
+    rotate var(--urk-slow) var(--urk-ease),
+    margin-inline-start var(--urk-slow) var(--urk-ease),
+    border-color var(--urk-quick) var(--urk-ease);
+}
+
+.traitCard:first-child {
+  margin-inline-start: 0;
+}
+
+.traitCard:hover {
+  z-index: 5;
+  border-color: var(--accent-muted);
+}
+
+.traitArt {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  margin-bottom: 0.95rem;
+  border: 1px solid var(--border);
+  border-radius: 0.7rem;
+  background: color-mix(in srgb, var(--urk-air) 90%, transparent);
+}
+
+.traitArt[data-filled="false"] {
+  border-style: dashed;
+}
+
+.traitArt img {
+  object-fit: cover;
+}
+
+.traitName {
+  margin: 0;
+  font-family: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(1.25rem, 3vw, 1.55rem);
+  line-height: 1.15;
+  color: var(--text-primary);
+}
+
+.traitNote {
+  margin: 0.7rem 0 0;
+  font-size: 0.88rem;
+  line-height: 1.72;
+  color: var(--text-secondary);
+}
+
+/* ── 4 · BEŞ PED — sayfanın kalbi ───────────────────────────────────── */
+
+.field {
+  position: relative;
+  /* Kartlar yükseklik ve eğiklikle kayıyor; taşma burada da kesiliyor. */
+  overflow-x: clip;
+}
+
+.fieldSky {
+  position: relative;
+  aspect-ratio: 21 / 9;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 0.9rem;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--urk-air) 95%, transparent),
+    var(--surface)
+  );
+}
+
+.fieldSky[data-filled="false"] {
+  border-style: dashed;
+}
+
+.fieldSky img {
+  object-fit: cover;
+}
+
+/* Perde: küratörün yüklediği karenin üstüne giren opak katman. Kontrast
+   betiği yüklenen görselin üstünü ÖLÇEMEZ; bu yüzden görselle sayfanın
+   arası her zaman kapalı. */
+.fieldScrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--bg) 35%, transparent),
+    color-mix(in srgb, var(--bg) 88%, transparent)
+  );
+}
+
+/* Düşüş izleri: YALNIZCA kartlar düşmüşken görünüyor. */
+.fieldTrace {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  color: var(--urk-fall);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--urk-mid) var(--urk-ease);
+}
+
+.field[data-fallen="true"] .fieldTrace {
+  opacity: 1;
+}
+
+.fieldControls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.85rem 1.5rem;
+  margin: clamp(1.25rem, 3vw, 2rem) 0 0;
+}
+
+.releaseButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: max(var(--touch-min), 3rem);
+  padding: 0.55rem 1.5rem;
+  border: 1px solid var(--accent-muted);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition:
+    background var(--urk-quick) var(--urk-ease),
+    border-color var(--urk-quick) var(--urk-ease);
+}
+
+.releaseButton:hover {
+  background: var(--surface-hover);
+  border-color: var(--accent);
+}
+
+.releaseButton:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 3px;
+}
+
+/* Halka: beş pedin birleştiği daire. Nokta bırakılınca dibe iniyor. */
+.releaseRing {
+  position: relative;
+  display: inline-flex;
+  width: 22px;
+  height: 22px;
+  border: 1px solid color-mix(in srgb, var(--accent) 60%, transparent);
+  border-radius: 999px;
+}
+
+.releaseDot {
+  position: absolute;
+  left: 50%;
+  top: 2px;
+  width: 6px;
+  height: 6px;
+  margin-left: -3px;
+  border-radius: 999px;
+  background: var(--accent);
+  transition: transform var(--urk-mid) var(--urk-drop-ease);
+}
+
+.field[data-fallen="true"] .releaseDot {
+  transform: translateY(10px);
+}
+
+.releaseText {
+  font-family: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(1.1rem, 2.6vw, 1.35rem);
+}
+
+.fieldCount {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin: 0;
+}
+
+.fieldCountLabel {
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--urk-air-text);
+}
+
+.fieldCountValue {
+  font-family: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(1.6rem, 4vw, 2.1rem);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--accent-hover);
+  transition: color var(--urk-mid) var(--urk-ease);
+}
+
+/* Bulantı eşiği aşıldı: sayaç artık uyarı rengiyle okunuyor. */
+.field[data-warned="true"] .fieldCountValue {
+  color: var(--warn);
+}
+
+.fieldState {
+  max-width: 68ch;
+  margin: 1.1rem 0 0;
+  padding-left: 0.9rem;
+  border-left: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  font-size: 0.93rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+/* ⚠️ CANLI BÖLGE HER ZAMAN DOM'DA. Uyarı metni sonradan İÇİNE giriyor —
+   bölgenin kendisi sonradan eklenirse ekran okuyucular duyurmuyor. Boşken
+   yer kaplamıyor ama `display: none` DEĞİL (o da duyuruyu öldürürdü). */
+.fieldNausea {
+  max-width: 68ch;
+  margin: 1rem 0 0;
+  padding: 0.85rem 1.05rem;
+  border: 1px solid color-mix(in srgb, var(--warn) 55%, transparent);
+  border-radius: 0.6rem;
+  background: var(--surface-hover);
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--warn);
+}
+
+.fieldNausea[data-on="false"] {
+  height: 0;
+  margin: 0;
+  padding: 0;
+  border-width: 0;
+  overflow: hidden;
+}
+
+/* ── Beş kart: yüzen alan ↔ yerdeki yığın ───────────────────────────── */
+
+.lifts {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: flex-end;
+  justify-content: center;
+  gap: var(--urk-gap);
+  margin: clamp(2rem, 5vw, 3.5rem) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lift {
+  position: relative;
+  min-width: 0;
+  order: var(--urk-order, 0);
+  margin-inline-start: var(--urk-overlap);
+  transform: translateY(var(--urk-hang));
+  rotate: var(--urk-tilt);
+  transition:
+    transform var(--urk-slow) var(--urk-drop-ease),
+    rotate var(--urk-slow) var(--urk-ease),
+    margin var(--urk-slow) var(--urk-ease);
+}
+
+.lift:first-child {
+  margin-inline-start: 0;
+}
+
+.lift[data-span="wide"] {
+  flex: 1 1 26rem;
+}
+
+.lift[data-span="mid"] {
+  flex: 1 1 20rem;
+}
+
+.lift[data-span="narrow"] {
+  flex: 1 1 15rem;
+}
+
+/* Odaklanan kart her zaman en üstte — yığında odak kaybolmuyor. */
+.lift:focus-within {
+  z-index: 40;
+}
+
+.liftInner {
+  /* İç pay bilerek `--urk-pile`dan BÜYÜK: yığılmış hâlde bindirme yalnızca
+     bu paya giriyor, metne değil. */
+  padding: 1.4rem 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--urk-radius);
+  /* Opak: alttaki kartın metni üsttekinin içinden okunmuyor. */
+  background: var(--surface);
+  transition: border-color var(--urk-quick) var(--urk-ease);
+}
+
+.lift:hover .liftInner {
+  border-color: var(--accent-muted);
+}
+
+.liftButton {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  width: 100%;
+  min-height: var(--touch-min);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.liftButton:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 4px;
+}
+
+.liftIndex {
+  flex: 0 0 auto;
+  min-width: 2.4ch;
+  font-family: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(1.9rem, 5vw, 2.6rem);
+  font-variant-numeric: tabular-nums;
+  line-height: 0.95;
+  color: var(--accent-hover);
+}
+
+.liftHead {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.liftOrderLabel {
+  font-size: 0.64rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--urk-air-text);
+}
+
+.liftTitle {
+  font-family: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(1.35rem, 3.4vw, 1.75rem);
+  line-height: 1.15;
+  color: var(--text-primary);
+}
+
+.liftWeight {
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  color: var(--urk-weight-text);
+}
+
+.liftBody {
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--border);
+}
+
+/* ⚠️ `hidden` niteliği bir `display` bildirimini ezemez: bu kural olmadan
+   kapalı kartın metni ekranda kalırdı. */
+.liftBody[hidden] {
+  display: none;
+}
+
+.liftBodyLabel {
+  margin: 0 0 0.4rem;
+  font-size: 0.64rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--urk-pad-text);
+}
+
+.liftBodyText {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.75;
+  color: var(--text-secondary);
+}
+
+/* ── Düşmüş dizilim: yer çizgisinde yığın ───────────────────────────── */
+
+.field[data-fallen="true"] .lifts {
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: 0;
+  /* Yığının EN ÜSTTEKİ kartı da negatif pay taşıyor; kabı aynı kadar
+     aşağı iterek listenin üst kenarı yerinde kalıyor. */
+  margin-top: calc(clamp(2rem, 5vw, 3.5rem) - var(--urk-pile));
+}
+
+.field[data-fallen="true"] .lift {
+  flex: 0 0 auto;
+  width: 100%;
+  margin-inline-start: 0;
+  margin-block-start: var(--urk-pile);
+  /* Yığında alttaki kart üsttekinin ALT payını örtüyor — metni değil. */
+  z-index: var(--urk-order, 0);
+  transform: translateY(0);
+  rotate: 0deg;
+}
+
+.fieldGround {
+  position: relative;
+  display: block;
+  width: 100%;
+  margin-top: clamp(1.5rem, 4vw, 2.5rem);
+  color: var(--urk-ground);
+  transition: color var(--urk-slow) var(--urk-ease);
+}
+
+.field[data-fallen="true"] .fieldGround {
+  color: var(--accent-muted);
+}
+
+.fieldGroundMark {
+  display: block;
+  width: 100%;
+  height: clamp(0.7rem, 2vw, 1.1rem);
+}
+
+.fieldHint,
+.fieldNote {
+  max-width: 70ch;
+  margin: 1rem 0 0;
+  font-size: 0.85rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+
+.fieldNote {
+  color: var(--urk-ground-text);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── 5 · BEŞ DURAK — bir ray değil, bir iniş ────────────────────────── */
+
+.fate {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fateItem {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.75rem clamp(1rem, 2.5vw, 1.75rem);
+  /* Yükseklik düştükçe girinti de azalıyor: son durak yere değiyor. */
+  margin-inline-start: var(--urk-inset, 0%);
+  padding: 1.35rem 1.25rem 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--urk-radius);
+  background: var(--surface);
+  transform: translateY(var(--urk-hang));
+  rotate: var(--urk-tilt);
+  transition:
+    transform var(--urk-slow) var(--urk-drop-ease),
+    rotate var(--urk-slow) var(--urk-ease),
+    margin var(--urk-slow) var(--urk-ease);
+}
+
+.fateItem + .fateItem {
+  margin-block-start: var(--urk-overlap);
+}
+
+.fateItem:hover,
+.fateItem:focus-within {
+  z-index: 5;
+}
+
+.fateAge {
+  flex: 0 0 auto;
+  margin: 0;
+  font-family: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(1.1rem, 2.8vw, 1.4rem);
+  color: var(--urk-air-text);
+}
+
+.fateBody {
+  flex: 1 1 22rem;
+  min-width: 0;
+}
+
+.fateTitle {
+  margin: 0;
+  font-family: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(1.4rem, 3.6vw, 2rem);
+  line-height: 1.1;
+  color: var(--text-primary);
+}
+
+.fateText {
+  margin: 0.7rem 0 0;
+  font-size: 0.93rem;
+  line-height: 1.75;
+  color: var(--text-secondary);
+}
+
+.fateQuote {
+  margin: 1.1rem 0 0;
+  padding: 0.95rem 1.1rem;
+  border-left: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  border-radius: 0 0.6rem 0.6rem 0;
+  background: var(--surface-hover);
+}
+
+.fateQuote figcaption {
+  margin-top: 0.55rem;
+  font-size: 0.76rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.fateArt {
+  position: relative;
+  flex: 1 1 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  margin-top: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 0.7rem;
+  background: color-mix(in srgb, var(--urk-air) 90%, transparent);
+}
+
+.fateArt[data-filled="false"] {
+  border-style: dashed;
+}
+
+.fateArt img {
+  object-fit: cover;
+}
+
+/* ── Replikler (kader çizelgesi + kapanış ortak) ────────────────────── */
+
+.quoteJa {
+  margin: 0;
+  font-family: var(--font-shippori), "Yu Mincho", serif;
+  font-size: clamp(1.15rem, 3vw, 1.5rem);
+  line-height: 1.55;
+  letter-spacing: 0.06em;
+  color: var(--text-primary);
+}
+
+.quoteReading {
+  margin: 0.55rem 0 0;
+  font-family: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(1.02rem, 2.4vw, 1.2rem);
+  line-height: 1.55;
+  color: var(--urk-fall-text);
+}
+
+.quoteKind {
+  margin: 0 0 0.6rem;
+  font-size: 0.64rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--urk-weight-text);
+}
+
+.quoteBy {
+  display: block;
+  font-family: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 1.05rem;
+  color: var(--urk-air-text);
+}
+
+.quoteNote {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.82rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+
+/* ── 6 · AYNI SINIF ─────────────────────────────────────────────────── */
+
+.classPlate {
+  position: relative;
+  aspect-ratio: 2 / 1;
+  overflow: hidden;
+  margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+  border: 1px solid var(--border);
+  border-radius: 0.9rem;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--urk-air) 95%, transparent),
+    var(--surface)
+  );
+}
+
+.classPlate[data-filled="false"] {
+  border-style: dashed;
+}
+
+.classPlate img {
+  object-fit: cover;
+}
+
+.bonds {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--urk-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bond {
+  position: relative;
+  display: flex;
+  flex: 1 1 17rem;
+  align-items: flex-start;
+  gap: 0.95rem;
+  min-width: 0;
+  margin-inline-start: var(--urk-overlap);
+  padding: 1.05rem 1.15rem 1.2rem;
+  border: 1px solid var(--border);
+  border-radius: var(--urk-radius);
+  background: var(--surface);
+  transform: translateY(var(--urk-hang));
+  rotate: var(--urk-tilt);
+  transition:
+    transform var(--urk-slow) var(--urk-drop-ease),
+    rotate var(--urk-slow) var(--urk-ease),
+    margin-inline-start var(--urk-slow) var(--urk-ease),
+    border-color var(--urk-quick) var(--urk-ease);
+}
+
+.bond:first-child {
+  margin-inline-start: 0;
+}
+
+.bond:hover,
+.bond:focus-within {
+  z-index: 5;
+  border-color: var(--accent-muted);
+}
+
+.bondFace {
+  position: relative;
+  flex: 0 0 auto;
+  display: block;
+  width: 4.4rem;
+  height: 4.4rem;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  border-radius: 46% 46% 42% 42% / 38% 38% 52% 52%;
+  background: var(--surface-hover);
+}
+
+.bondFace[data-filled="false"] {
+  border-style: dashed;
+}
+
+.bondFace img {
+  object-fit: cover;
+}
+
+.bondBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+  min-width: 0;
+}
+
+.bondRole {
+  font-size: 0.63rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--urk-air-text);
+}
+
+.bondName {
+  font-family: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(1.2rem, 3vw, 1.45rem);
+  line-height: 1.15;
+  color: var(--text-primary);
+}
+
+.bondName a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.bondName a:hover {
+  color: var(--text-primary);
+  border-bottom-color: var(--accent);
+}
+
+.bondName a:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 3px;
+}
+
+.bondNative {
+  font-family: var(--font-shippori), "Yu Mincho", serif;
+  font-size: 0.82rem;
+  letter-spacing: 0.12em;
+  color: var(--urk-pad-text);
+}
+
+.bondNote {
+  margin-top: 0.35rem;
+  font-size: 0.87rem;
+  line-height: 1.72;
+  color: var(--text-secondary);
+}
+
+/* ── 7 · KAPANIŞ ────────────────────────────────────────────────────── */
+
+.closingPlate {
+  position: relative;
+  aspect-ratio: 2 / 1;
+  overflow: hidden;
+  margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+  border: 1px solid var(--border);
+  border-radius: 0.9rem;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--urk-air) 95%, transparent),
+    var(--surface)
+  );
+}
+
+.closingPlate[data-filled="false"] {
+  border-style: dashed;
+}
+
+.closingPlate img {
+  object-fit: cover;
+}
+
+.closingQuotes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--urk-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.closingItem {
+  position: relative;
+  flex: 1 1 24rem;
+  min-width: 0;
+  margin-inline-start: var(--urk-overlap);
+  transform: translateY(var(--urk-hang));
+  rotate: var(--urk-tilt);
+  transition:
+    transform var(--urk-slow) var(--urk-drop-ease),
+    rotate var(--urk-slow) var(--urk-ease),
+    margin-inline-start var(--urk-slow) var(--urk-ease);
+}
+
+.closingItem:first-child {
+  margin-inline-start: 0;
+}
+
+.closingItem:hover {
+  z-index: 5;
+}
+
+.closingQuote {
+  margin: 0;
+  padding: 1.25rem 1.3rem 1.4rem;
+  border: 1px solid var(--border);
+  border-radius: var(--urk-radius);
+  background: var(--surface);
+}
+
+.motto {
+  position: relative;
+  z-index: 2;
+  margin: clamp(2rem, 5vw, 3.25rem) 0 0;
+  font-family: var(--font-shippori), "Yu Mincho", serif;
+  font-size: clamp(2.6rem, 13vw, 6.5rem);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.14em;
+  text-align: center;
+  color: color-mix(in srgb, var(--accent) 68%, transparent);
+}
+
+.mottoNote {
+  position: relative;
+  z-index: 2;
+  max-width: 62ch;
+  margin: 1rem auto 0;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.credit {
+  position: relative;
+  z-index: 2;
+  max-width: 70ch;
+  margin: clamp(1.75rem, 4.5vw, 2.5rem) 0 0;
+  padding-top: 0.95rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.85rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+
+.credit a {
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.credit a:hover {
+  color: var(--text-primary);
+  border-bottom-color: var(--accent);
+}
+
+.credit a:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 3px;
+}
+
+/* ============================================================
+   KÜRATÖR MODU — yüzme ve bindirme KAPALI
+
+   Yüzen bir kartın altındaki `CuratorSlot` kartla birlikte hareket ediyor
+   (yuva kartın İÇİNDE), ama bindirme açıkken komşu kart yuvanın tıklama
+   alanına giriyordu. Küratör modunda yükseklikler, bindirme ve salınım
+   sıfırlanıyor: her yuva tam boyuyla ve tıklanabilir hâlde duruyor.
+   Ziyaretçi bu daldan hiç geçmiyor — `data-curating` yalnızca yöneticide.
+   ============================================================ */
+
+.page [data-curating="true"] {
+  --urk-lift-1: 0rem;
+  --urk-lift-2: 0rem;
+  --urk-lift-3: 0rem;
+  --urk-lift-4: 0rem;
+  --urk-lift-5: 0rem;
+  --urk-overlap: 0rem;
+  --urk-pile: 0rem;
+  --urk-swing: 0px;
+  --urk-tilt: 0deg;
+}
+
+.page [data-curating="true"] .fact,
+.page [data-curating="true"] .power,
+.page [data-curating="true"] .traitCard,
+.page [data-curating="true"] .lift,
+.page [data-curating="true"] .fateItem,
+.page [data-curating="true"] .bond,
+.page [data-curating="true"] .closingItem,
+.page [data-curating="true"] .heroText,
+.page [data-curating="true"] .heroPortraitCol {
+  animation: none;
+  rotate: 0deg;
+  translate: none;
+}
+
+/* ============================================================
+   HAREKET — salınım (yüzerken) ve ivmeli düşüş (Release)
+   ============================================================ */
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Yüzen kartların salınımı `translate` üstünde, `transform`dan AYRI —
+     yükseklik ve düşüş `transform`da olduğu için birbirlerini ezmiyorlar.
+     Negatif `--urk-phase` gecikmesi beşini ayrı fazlara dağıtıyor. */
+  .page[data-gravity="off"] .fact,
+  .page[data-gravity="off"] .power,
+  .page[data-gravity="off"] .traitCard,
+  .page[data-gravity="off"] .fateItem,
+  .page[data-gravity="off"] .bond,
+  .page[data-gravity="off"] .closingItem {
+    animation: urkSway var(--urk-float) ease-in-out var(--urk-phase) infinite
+      alternate;
+  }
+
+  .page[data-gravity="off"] .field[data-fallen="false"] .lift {
+    animation: urkSway var(--urk-float) ease-in-out var(--urk-phase) infinite
+      alternate;
+  }
+
+  .page[data-gravity="off"] .watermarkPad {
+    animation: urkBreathe 16s ease-in-out infinite alternate;
+  }
+
+  /* RELEASE — beşi BİRDEN, aynı süreyle, ivmelenerek. Kartlar farklı
+     yüksekliklerden başlıyor ama aynı anda yere değiyor. */
+  .field[data-touched="true"][data-fallen="true"] .lift {
+    animation: urkDrop 760ms both;
+  }
+
+  .field[data-touched="true"][data-fallen="false"] .lift {
+    animation: urkRise 820ms var(--urk-rise-ease) both;
+  }
+}
+
+/* Salınım: yalnızca birkaç piksel, ama fazları ayrı. */
+@keyframes urkSway {
+  from {
+    translate: 0 calc(var(--urk-swing) * -1);
+  }
+  to {
+    translate: 0 var(--urk-swing);
+  }
+}
+
+@keyframes urkBreathe {
+  from {
+    opacity: 0.34;
+  }
+  to {
+    opacity: 0.58;
+  }
+}
+
+/* Düşüş: ivmelenen bir eğri, sonra yere çarpma ve küçük bir sekme. */
+@keyframes urkDrop {
+  0% {
+    transform: translateY(var(--urk-hang));
+    animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
+  }
+  70% {
+    transform: translateY(0.62rem);
+    animation-timing-function: cubic-bezier(0.2, 0, 0.4, 1);
+  }
+  85% {
+    transform: translateY(-0.3rem);
+    animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/* Kalkış: yavaşlayan — düşmenin tersi, sekmesiz. */
+@keyframes urkRise {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(var(--urk-hang));
+  }
+}
+
+/* ============================================================
+   DAR EKRAN — 360 pikselde yatay taşma OLMAZ
+
+   Serbest yerleşimli kartlar `margin-inline-start` ile birbirine giriyor;
+   tek sütuna düştüklerinde bu negatif pay kabın dışına taşardı. Dar
+   ekranda bindirme, girinti ve yığın payı küçülüyor ya da sıfırlanıyor.
+   ============================================================ */
+
+@media (max-width: 640px) {
+  .page,
+  .page[data-gravity="on"] {
+    --urk-overlap: 0rem;
+  }
+
+  .page [data-altitude] {
+    --urk-inset: 0%;
+  }
+
+  .fateItem + .fateItem {
+    margin-block-start: clamp(0.75rem, 2vw, 1.1rem);
+  }
+}
+
+@media (max-width: 480px) {
+  .page {
+    --urk-pile: -0.45rem;
+    --urk-lift-1: -2.1rem;
+    --urk-lift-2: -0.9rem;
+    --urk-lift-3: -2.8rem;
+    --urk-lift-4: -0.5rem;
+    --urk-lift-5: -1.6rem;
+  }
+
+  .heroPortraitCol {
+    flex: 1 1 100%;
+  }
+
+  .portraitFrame {
+    max-width: 11.5rem;
+  }
+
+  .heroPlate {
+    aspect-ratio: 4 / 3;
+  }
+
+  .fieldSky {
+    aspect-ratio: 3 / 2;
+  }
+
+  .liftInner {
+    padding: 1.15rem 1rem;
+  }
+
+  .fateItem {
+    padding: 1.15rem 1rem 1.25rem;
+  }
+
+  .watermark {
+    font-size: clamp(3rem, 16vw, 5rem);
+  }
+}
+
+/* ============================================================
+   REDUCE BATTANİYESİ
+
+   ⚠️ Release BU MODDA DA ÇALIŞIYOR: düşmüş konumu animasyon değil, statik
+   `.field[data-fallen="true"] .lift` kuralı veriyor. Kartlar salınmıyor ve
+   ivmelenmiyor — anında yerine geçiyorlar; okuma sırası, yığın ve iki ayrı
+   metin aynen duruyor.
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .page .fact,
+  .page .power,
+  .page .traitCard,
+  .page .lift,
+  .page .fateItem,
+  .page .bond,
+  .page .closingItem {
+    translate: none;
+  }
+
+  .watermarkPad {
+    opacity: 0.4;
+  }
 }

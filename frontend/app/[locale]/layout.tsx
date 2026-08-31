@@ -215,10 +215,20 @@ const jost = Jost({
 });
 
 /* Espada numaraları ve Bölük rakamları için dev tipografik zemin.
-   Yalnızca 0–9 basılıyor; ailenin geri kalanı hiç çizilmiyor. */
+
+   ⚠️ 31 Ağustos 2026'da `latin-ext` EKLENDİ. Aile eskiden yalnızca 0–9
+   basıyordu ve `subsets: ["latin"]` o kullanım için yeterliydi. Dalga 4'te
+   Tōdō'nun sayfası bu aileyi POSTER BAŞLIĞI olarak kullanıyor (brief'te
+   kilitli) ve başlıklar Türkçe: `latin` alt kümesinde ş/ğ/İ/ı YOK, yani
+   başlığın yarısı yedek fonttan çiziliyor ve tek satırda iki ayrı tipografi
+   görünüyordu. `latin-ext` o beş harfi getiriyor.
+
+   Rakamları etkilemiyor: 0–9 zaten `latin` içinde ve o alt küme aynen
+   duruyor — Espada/Bölük sayfaları bu değişiklikten önce ne çiziyorsa
+   aynısını çiziyor. */
 const archivoBlack = Archivo_Black({
   weight: "400",
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
   variable: "--font-numeral",
   display: "swap",
   preload: false,

@@ -1,0 +1,1948 @@
+/* ============================================================
+   DÜNYA DERİSİ — Megumi Fushiguro (AniList #126635)
+
+   Palet Dalga 5 §25'te KİLİTLİ; değerler briefteki bloktan birebir
+   alındı ve `node scripts/check-karakter-kontrast.mjs` ile ölçüldü:
+   text-primary 11.48 / surface, text-secondary 5.00, text-muted 4.90,
+   accent 4.58, accent-hover 6.91, gold 4.61 — hepsi eşiğin üstünde.
+   Accent'in en yakın komşusu madara (#5f6bb8) ve arada 25 birim var
+   (hata eşiği 15, uyarı eşiği 20).
+
+   ⚠️ ESKİ MEGUMİ PALETİ DEĞİL. Yayındaki set soğuk gri-maviydi
+   (--bg #070809, accent #8fa6bf) ve artık `.deprecated/` altında,
+   denetimin dışında. Buradaki aile MENEKŞE-LACİVERT: gölgenin içine
+   düşen tek renk.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı
+   gereği yerel bir sınıf şart; kök öğe ikisini birlikte taşıyor.
+
+   ⚠️ Yardımcı token adlandırması: küçük metinde okunan her rengin
+   `-text` ekli bir kardeşi var (denetim yalnızca onları ölçüyor).
+   Ekli olmayanlar MALZEME: havuzun gövdesi, kenarı, yarası.
+   ============================================================ */
+.page[data-world="megumi-fushiguro"] {
+  --bg:             #08090c;
+  --surface:        #0f1017;
+  --surface-hover:  #15171f;
+  --border:         #1b1d27;
+  --border-strong:  #292b38;
+
+  --text-primary:   #c7c9d1;
+  --text-secondary: #7c829c;
+  --text-muted:     #7980a2;
+
+  --accent:         #7275c5;
+  --accent-hover:   #9798c9;
+  --accent-muted:   #383951;
+
+  --gold:           #777b9c;
+  --warn:           #b88347;
+  --danger:         #c06056;
+
+  /* ── Yardımcı malzeme (metin DEĞİL, ölçülmüyor) ── */
+  --meg-pool:       #101220;
+  --meg-pool-deep:  #06070d;
+  --meg-edge:       #232640;
+  --meg-scar:       #2c2130;
+  --meg-glow:       #2c2e50;
+
+  /* ── Küçük metinde okunan aile (`-text`, ölçülüyor) ── */
+  --meg-seal-text:  #9aa0c8;
+  --meg-cost-text:  #a3a5c2;
+  --meg-field-text: #9fa8c6;
+  --meg-scar-text:  #b58a9c;
+  --meg-lock-text:  #ab93cf;
+  --meg-ja-text:    #9ba1c4;
+  --meg-rail-text:  #8f94ba;
+  --meg-call-text:  #8fb5a0;
+}
+
+/* ============================================================
+   MEGUMİ — "Gölge Menajerisi"
+
+   Bu bloktan AŞAĞIDA TEK HEX YOK: ara tonların hepsi `color-mix` ile
+   token'lardan türetildi (Faz 2 §1).
+
+   ── SAYFANIN FİKRİ ──────────────────────────────────────────────────────
+   ALTTAN YUKARI DOLAN SAYFA. Alt kenarda sabit bir gölge havuzu şeridi
+   var (`position: sticky; bottom: 0`); bölümler onun üstünde akıyor ve
+   çağrılan şikigami havuzdan çıkıp bölümlerin ARASINA yerleşiyor.
+   Ölçek tek kolon değil: solda dar bir DİKEY MÜHÜR RAYI, sağda metin.
+
+   ── TİPOGRAFİ ───────────────────────────────────────────────────────────
+   Display: Yuji Boku (fırça) ama KÜÇÜK, SIKI ve DİKEY — mühür yazısı gibi.
+   ⚠️ Renji aynı fontu bu turda BÜYÜK ve taşkın kullandı; burada bölüm
+   başlığı 1.2rem'i geçmiyor ve rayda `writing-mode: vertical-rl` ile
+   dikey duruyor. Gövde Inter, 1.85 satır aralığı.
+
+   ── HAREKET ─────────────────────────────────────────────────────────────
+   GÖLGE BİRİKİNTİSİ. Havuzun kenarları `border-radius` ile yavaşça
+   deforme oluyor (akışkan kütle); şikigami çıkarken gölge yukarı uzayıp
+   KOPUYOR (`megRise` + `megTail`). Alan açıkken zemin sızıyor (`megSeep`).
+   Hepsi `prefers-reduced-motion` battaniyesiyle kapanıyor.
+
+   ── DÜĞME ───────────────────────────────────────────────────────────────
+   "Alan" (`data-domain`) ışığı değil ZEMİNİ değiştiriyor: yüzeyler ve
+   kenarlar kayboluyor, sayfa tek bir sürekli karanlık alan oluyor.
+   Havuz şeridi kapalıyken de duruyor (Dalga 1 · ders 2).
+
+   ── RENK GÖREVLERİ ──────────────────────────────────────────────────────
+   --accent          → bölüm başlıkları, çağrı düğmesi kenarı, sayaç
+   --accent-hover    → bağlantılar, sayılar, motto
+   --gold            → künye değerleri
+   --meg-pool        → YALNIZCA havuzun gövdesi ve şerit zemini
+   --meg-scar        → YALNIZCA kırılan payın malzemesi
+   --meg-scar-text   → YALNIZCA 玉犬・白 satırının metni
+   --meg-lock-text   → YALNIZCA 魔虚羅 satırının metni
+   ============================================================ */
+
+.page {
+  --meg-rail: clamp(1.7rem, 4.5vw, 2.5rem);
+  --meg-col: 58rem;
+  --meg-gap: clamp(2.6rem, 7vh, 4.6rem);
+  --meg-hair: color-mix(in srgb, var(--border-strong) 78%, transparent);
+  --meg-soft: color-mix(in srgb, var(--border) 88%, transparent);
+  --meg-slow: 640ms;
+  --meg-quick: 200ms;
+  --meg-ease: cubic-bezier(0.22, 0.8, 0.28, 1);
+  /* Şeridin ayırdığı yer — içeriğin son satırını kapatmasın diye */
+  --meg-pool-h: clamp(7.5rem, 16vh, 10.5rem);
+
+  position: relative;
+  isolation: isolate;
+  background: var(--bg);
+  color: var(--text-primary);
+  /* Çapaya atlarken hedef şeridin altında kalmasın */
+  scroll-padding-bottom: var(--meg-pool-h);
+  overflow-x: clip;
+  overflow-wrap: break-word;
+  padding: clamp(1.1rem, 4vw, 2.2rem) clamp(0.9rem, 4vw, 1.8rem) 0;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: clamp(0.85rem, 0.8rem + 0.2vw, 0.94rem);
+  line-height: 1.85;
+  letter-spacing: 0.008em;
+}
+
+/* Görünür odak — sayfadaki her düğme ve bağlantı için tek kural */
+.page :focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ── Alanın zemini ─────────────────────────────────────────────────────
+   `data-domain` açıkken sayfanın altına serilen gölge. Tıklamayı
+   engellemiyor; kapalıyken tamamen saydam. */
+.field {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--meg-slow) var(--meg-ease);
+  background:
+    radial-gradient(
+      120% 60% at 50% 100%,
+      color-mix(in srgb, var(--meg-pool) 92%, transparent) 0%,
+      transparent 72%
+    ),
+    linear-gradient(
+      to top,
+      color-mix(in srgb, var(--meg-pool-deep) 96%, transparent) 0%,
+      transparent 58%
+    );
+  background-size: 160% 160%;
+}
+
+.page[data-domain="true"] .field {
+  opacity: 1;
+}
+
+/* ── Breadcrumb ───────────────────────────────────────────────────────── */
+
+.crumb {
+  position: relative;
+  z-index: 1;
+  max-width: var(--meg-col);
+  margin: 0 auto clamp(1.6rem, 5vh, 3rem);
+  font-size: 0.76rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.crumb a {
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  padding-block: 0.35rem;
+}
+
+.crumb a:hover {
+  border-bottom-color: var(--accent-hover);
+}
+
+.crumbSep {
+  margin-inline: 0.55rem;
+  color: var(--meg-rail-text);
+}
+
+.crumbHere {
+  color: var(--text-secondary);
+}
+
+/* ── 1 · HERO ─────────────────────────────────────────────────────────── */
+
+.hero {
+  position: relative;
+  z-index: 1;
+  max-width: var(--meg-col);
+  margin: 0 auto var(--meg-gap);
+  padding-bottom: clamp(1.6rem, 5vh, 3rem);
+  border-bottom: 1px solid var(--meg-hair);
+}
+
+.sealMark {
+  position: absolute;
+  top: -1.5rem;
+  right: -1rem;
+  width: clamp(9rem, 34vw, 17rem);
+  aspect-ratio: 1;
+  opacity: 0.16;
+  pointer-events: none;
+}
+
+.sealArt {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.sealRing {
+  stroke: var(--accent);
+  stroke-width: 1.1;
+}
+
+.sealStroke {
+  stroke: var(--accent-muted);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.sealCore {
+  stroke: var(--accent-hover);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+
+.watermark {
+  position: absolute;
+  top: 1rem;
+  right: 0.1rem;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  font-family: var(--font-brush), var(--font-shippori), serif;
+  font-size: clamp(1.7rem, 6vw, 3rem);
+  letter-spacing: 0.14em;
+  line-height: 1;
+  color: color-mix(in srgb, var(--accent) 22%, transparent);
+  pointer-events: none;
+}
+
+.heroBody {
+  position: relative;
+  max-width: 40rem;
+}
+
+.heroHouse {
+  margin: 0 0 0.6rem;
+  font-size: 0.74rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--meg-rail-text);
+}
+
+/* ⚠️ Fırça KÜÇÜK: Renji'nin taşkın ölçeğinin tam tersi. Sayfadaki en
+   büyük şey adın kendisi ve o da 2.4rem'i geçmiyor. */
+.heroName {
+  margin: 0;
+  font-family: var(--font-brush), var(--font-shippori), serif;
+  font-size: clamp(1.65rem, 1.2rem + 2vw, 2.4rem);
+  font-weight: 400;
+  line-height: 1.12;
+  letter-spacing: 0.005em;
+  color: var(--text-primary);
+}
+
+.heroNative {
+  margin: 0.35rem 0 1.4rem;
+  font-family: var(--font-brush), var(--font-shippori), serif;
+  font-size: 1.05rem;
+  letter-spacing: 0.22em;
+  color: var(--meg-ja-text);
+}
+
+.heroEpigraph {
+  margin: 0 0 1.8rem;
+  padding-left: 0.9rem;
+  border-left: 2px solid var(--accent-muted);
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+.portrait {
+  margin: 0 0 0.7rem;
+  width: clamp(7rem, 26vw, 9.5rem);
+  border: 1px solid var(--meg-hair);
+  border-radius: 42% 42% 46% 46% / 8% 8% 12% 12%;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.portraitImg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.heroLede {
+  margin: 1.4rem 0 0;
+  color: var(--text-secondary);
+}
+
+.heroFrameNote {
+  margin: 1.1rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.7;
+  color: var(--meg-rail-text);
+}
+
+/* ── Bölüm ızgarası: dikey mühür rayı + gövde ─────────────────────────── */
+
+.section,
+.closing,
+.mode,
+.poolSection {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: var(--meg-rail) minmax(0, 1fr);
+  column-gap: clamp(0.75rem, 2.5vw, 1.5rem);
+  max-width: var(--meg-col);
+  margin: 0 auto var(--meg-gap);
+}
+
+/* Havuz bölümünde ray bütün satırları geçiyor, geri kalanı ikinci kolonda */
+.poolSection > .rail {
+  grid-row: 1 / -1;
+}
+
+.poolSection > .poolHead,
+.poolSection > .roster,
+.poolSection > .rosterHint,
+.poolSection > .rosterDevice,
+.poolSection > .poolTail {
+  grid-column: 2;
+}
+
+/* ⚠️ FIRÇA DİKEY VE SIKI — dalga kilidinin tipografi maddesi.
+   Rayın kendisi bir mühür sütunu: koyu bir şerit, üstünde tek kanji. */
+.rail {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  padding-top: 0.35rem;
+  border-right: 1px solid var(--meg-soft);
+}
+
+.railSeal {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  font-family: var(--font-brush), var(--font-shippori), serif;
+  font-size: clamp(0.95rem, 2.6vw, 1.15rem);
+  letter-spacing: 0.1em;
+  line-height: 1.05;
+  color: var(--meg-rail-text);
+}
+
+.sectionBody {
+  min-width: 0;
+}
+
+.sectionTitle {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-brush), var(--font-shippori), serif;
+  font-size: clamp(1rem, 0.94rem + 0.3vw, 1.2rem);
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: 0.03em;
+  color: var(--accent-hover);
+}
+
+.sectionLede {
+  margin: 0 0 1.8rem;
+  font-size: 0.86rem;
+  color: var(--text-muted);
+}
+
+/* ── 2 · MOD DÜĞMESİ ──────────────────────────────────────────────────── */
+
+.modeBody {
+  min-width: 0;
+  padding: clamp(1rem, 3vw, 1.6rem);
+  border: 1px solid var(--meg-hair);
+  background: var(--surface);
+  transition:
+    border-color var(--meg-slow) var(--meg-ease),
+    background-color var(--meg-slow) var(--meg-ease);
+}
+
+.modeNative {
+  margin: -0.2rem 0 1rem;
+  font-family: var(--font-brush), var(--font-shippori), serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.2em;
+  color: var(--meg-ja-text);
+}
+
+.modeButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: var(--touch-min);
+  padding: 0.55rem 1.15rem;
+  border: 1px solid var(--accent-muted);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--meg-pool) 70%, transparent);
+  color: var(--text-primary);
+  font: inherit;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition:
+    border-color var(--meg-quick) var(--meg-ease),
+    background-color var(--meg-quick) var(--meg-ease);
+}
+
+.modeButton:hover {
+  border-color: var(--accent);
+  background: var(--surface-hover);
+}
+
+/* Tek işaret: akışkan bir damla — basılıyken kenarları deforme oluyor */
+.modeMark {
+  width: 0.85rem;
+  height: 0.85rem;
+  background: var(--accent);
+  border-radius: 62% 38% 44% 56% / 48% 56% 44% 52%;
+}
+
+.page[data-domain="true"] .modeMark {
+  animation: megBlob 7.5s var(--meg-ease) infinite;
+}
+
+.modeLabel {
+  font-size: 0.86rem;
+}
+
+.modeHint {
+  margin: 1rem 0 0;
+  font-size: 0.82rem;
+  color: var(--meg-field-text);
+}
+
+.modeNote {
+  margin: 0.55rem 0 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/* ── 3 · KÜNYE ŞERİDİ ─────────────────────────────────────────────────── */
+
+.facts {
+  margin: 0;
+  display: grid;
+  gap: 0;
+}
+
+.fact {
+  display: grid;
+  grid-template-columns: minmax(6.5rem, 32%) minmax(0, 1fr);
+  gap: 0.6rem;
+  padding: 0.62rem 0;
+  border-bottom: 1px solid var(--meg-soft);
+}
+
+.factLabel {
+  margin: 0;
+  font-size: 0.74rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.factValue {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--gold);
+}
+
+.factNote {
+  margin: 1rem 0 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/* ── 4a · ÜÇ BÜYÜK ────────────────────────────────────────────────────── */
+
+.artList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: clamp(2.2rem, 6vh, 3.4rem);
+}
+
+.art {
+  position: relative;
+  padding: clamp(1rem, 3vw, 1.5rem);
+  border: 1px solid var(--meg-hair);
+  border-left-width: 3px;
+  border-left-color: var(--accent-muted);
+  background: var(--surface);
+  transition:
+    border-color var(--meg-slow) var(--meg-ease),
+    background-color var(--meg-slow) var(--meg-ease);
+}
+
+.artIndex {
+  margin: 0 0 0.4rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  color: var(--meg-rail-text);
+}
+
+.artKanji {
+  margin: 0;
+  font-family: var(--font-brush), var(--font-shippori), serif;
+  font-size: clamp(1.1rem, 1rem + 0.5vw, 1.35rem);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  line-height: 1.25;
+  color: var(--text-primary);
+}
+
+.artReading {
+  margin: 0.2rem 0 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  color: var(--meg-ja-text);
+}
+
+.artRoman {
+  margin: 0.3rem 0 0;
+  font-size: 0.82rem;
+  letter-spacing: 0.05em;
+  color: var(--accent-hover);
+}
+
+.artTurkish {
+  margin: 0.15rem 0 0.8rem;
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+}
+
+.artTagline {
+  margin: 0 0 0.9rem;
+  padding-left: 0.75rem;
+  border-left: 1px solid var(--accent-muted);
+  font-size: 0.88rem;
+  color: var(--meg-seal-text);
+}
+
+.artText {
+  margin: 0 0 1rem;
+  color: var(--text-secondary);
+}
+
+.artTraits {
+  margin: 0 0 1rem;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.trait {
+  padding: 0.22rem 0.6rem;
+  border: 1px solid var(--meg-soft);
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  color: var(--meg-cost-text);
+}
+
+.artAnchor {
+  margin: 0 0 1rem;
+  font-size: 0.8rem;
+}
+
+.artAnchorLink {
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-bottom: 1px solid var(--accent-muted);
+  padding-block: 0.3rem;
+}
+
+.artAnchorLink:hover {
+  border-bottom-color: var(--accent-hover);
+}
+
+/* ── 4b · DÖRT KÜÇÜK ──────────────────────────────────────────────────── */
+
+.kitList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+  gap: clamp(0.9rem, 2.5vw, 1.3rem);
+}
+
+.kit {
+  min-width: 0;
+  padding: clamp(0.85rem, 2.5vw, 1.15rem);
+  border: 1px solid var(--meg-soft);
+  background: color-mix(in srgb, var(--surface) 76%, transparent);
+  transition:
+    border-color var(--meg-slow) var(--meg-ease),
+    background-color var(--meg-slow) var(--meg-ease);
+}
+
+.kitKanji {
+  margin: 0;
+  font-family: var(--font-brush), var(--font-shippori), serif;
+  font-size: 1.05rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  color: var(--meg-ja-text);
+}
+
+.kitName {
+  margin: 0.25rem 0 0.6rem;
+  font-size: 0.85rem;
+  letter-spacing: 0.03em;
+  color: var(--accent-hover);
+}
+
+.kitNote {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+/* ── 5 · GÖLGE HAVUZU: LİSTE ──────────────────────────────────────────── */
+
+.poolHead {
+  min-width: 0;
+}
+
+.poolTail {
+  min-width: 0;
+  margin-top: 1.6rem;
+}
+
+.roster {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.beast {
+  position: relative;
+  min-width: 0;
+  padding: clamp(0.85rem, 2.5vw, 1.2rem);
+  border: 1px solid var(--meg-soft);
+  border-left: 3px solid var(--meg-soft);
+  background: var(--surface);
+  transition:
+    border-color var(--meg-quick) var(--meg-ease),
+    background-color var(--meg-quick) var(--meg-ease),
+    transform var(--meg-quick) var(--meg-ease);
+}
+
+.beast[data-out="true"] {
+  border-left-color: var(--accent);
+  background: var(--surface-hover);
+}
+
+.beast[data-short="true"][data-out="false"] {
+  opacity: 0.62;
+}
+
+.beast[data-kind="scar"] {
+  border-left-color: var(--meg-scar);
+  background: color-mix(in srgb, var(--meg-scar) 22%, var(--surface));
+}
+
+.beast[data-kind="locked"] {
+  border-left-color: var(--accent-muted);
+  border-style: dashed;
+}
+
+.beast[data-kind="locked"][data-open="true"] {
+  border-style: solid;
+  border-left-color: var(--meg-lock-text);
+}
+
+.beastHead {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: start;
+  margin-bottom: 0.7rem;
+}
+
+.beastSigil {
+  width: 2.6rem;
+  height: 2.6rem;
+  flex: none;
+}
+
+.sigilArt {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.sigilRing {
+  stroke: var(--meg-edge);
+  stroke-width: 1.4;
+}
+
+.sigilStroke {
+  stroke: var(--accent);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.beast[data-out="true"] .sigilStroke {
+  stroke: var(--accent-hover);
+}
+
+.beast[data-kind="scar"] .sigilStroke {
+  stroke: var(--meg-scar-text);
+  stroke-dasharray: 5 4;
+}
+
+.beast[data-kind="locked"] .sigilStroke {
+  stroke: var(--meg-lock-text);
+}
+
+.beastNames {
+  min-width: 0;
+  display: block;
+}
+
+.beastKanji {
+  display: block;
+  font-family: var(--font-brush), var(--font-shippori), serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.09em;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+.beastReading {
+  display: block;
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  color: var(--meg-ja-text);
+}
+
+.beastName {
+  margin: 0.25rem 0 0;
+  font-size: 0.92rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--accent-hover);
+}
+
+.beastRoman {
+  display: block;
+  font-size: 0.76rem;
+  letter-spacing: 0.06em;
+  color: var(--meg-cost-text);
+}
+
+.beastRole {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.79rem;
+  color: var(--text-muted);
+}
+
+.beast[data-kind="scar"] .beastRole {
+  color: var(--meg-scar-text);
+}
+
+.beast[data-kind="locked"] .beastRole {
+  color: var(--meg-lock-text);
+}
+
+.beastMeta {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.9rem;
+}
+
+.beastBadge {
+  padding: 0.14rem 0.5rem;
+  border: 1px solid var(--meg-soft);
+  font-size: 0.68rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--meg-field-text);
+}
+
+.beast[data-out="true"] .beastBadge {
+  border-color: var(--accent);
+  color: var(--meg-cost-text);
+}
+
+.beastCost {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.32rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.beastCostValue {
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--meg-cost-text);
+}
+
+.beastCostUnit {
+  text-transform: none;
+  letter-spacing: 0.04em;
+}
+
+.beastText {
+  margin: 0 0 0.9rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.beast[data-kind="scar"] .beastText {
+  color: var(--meg-scar-text);
+}
+
+.beastNote {
+  margin: 0 0 0.9rem;
+  padding-left: 0.7rem;
+  border-left: 1px solid var(--meg-scar);
+  font-size: 0.79rem;
+  color: var(--text-muted);
+}
+
+.beastLock {
+  margin: 0 0 0.55rem;
+  font-size: 0.8rem;
+  color: var(--meg-lock-text);
+}
+
+/* Kilidin sayaç karşılığı — "Çağrılan: 5/8 · 3 havuzda kalan" */
+.beastProgress {
+  margin: 0 0 0.9rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--meg-cost-text);
+}
+
+.beastButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--touch-min);
+  min-width: 10rem;
+  padding: 0.5rem 1.1rem;
+  border: 1px solid var(--accent-muted);
+  background: color-mix(in srgb, var(--meg-pool) 60%, transparent);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 0.84rem;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition:
+    border-color var(--meg-quick) var(--meg-ease),
+    background-color var(--meg-quick) var(--meg-ease),
+    color var(--meg-quick) var(--meg-ease);
+}
+
+.beastButton:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: var(--surface-hover);
+}
+
+.beastButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.beastButton[data-tone="call"] {
+  color: var(--meg-call-text);
+}
+
+.beastButton[data-tone="return"] {
+  border-color: var(--accent);
+  color: var(--meg-cost-text);
+}
+
+.beastButton[data-tone="scar"] {
+  border-color: var(--meg-scar);
+  color: var(--meg-scar-text);
+}
+
+.beastButton[data-tone="ritual"] {
+  border-color: var(--meg-lock-text);
+  color: var(--meg-lock-text);
+}
+
+.beastButton[aria-disabled="true"] {
+  cursor: default;
+  opacity: 0.8;
+}
+
+.wheel {
+  display: block;
+  width: clamp(3.5rem, 12vw, 5rem);
+  aspect-ratio: 1;
+  margin-bottom: 0.8rem;
+}
+
+.wheelArt {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.wheelRim {
+  stroke: var(--meg-lock-text);
+  stroke-width: 1.6;
+}
+
+.wheelSpoke {
+  stroke: var(--accent);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+
+.page[data-mahoraga="true"] .wheelArt {
+  animation: megTurn 12s linear infinite;
+}
+
+.ritualWord {
+  margin: 0.9rem 0 0.2rem;
+  font-family: var(--font-brush), var(--font-shippori), serif;
+  font-size: 0.98rem;
+  letter-spacing: 0.16em;
+  color: var(--meg-ja-text);
+}
+
+.ritualWordNote {
+  margin: 0;
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+.rosterHint,
+.rosterDevice {
+  margin: 1.1rem 0 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.rosterDevice {
+  padding-left: 0.7rem;
+  border-left: 1px solid var(--meg-soft);
+}
+
+/* ── Bölümlerin arasına yerleşen şikigami ─────────────────────────────── */
+
+.band {
+  position: relative;
+  z-index: 1;
+  max-width: var(--meg-col);
+  margin: calc(var(--meg-gap) * -0.55) auto var(--meg-gap);
+  padding-left: calc(var(--meg-rail) + clamp(0.75rem, 2.5vw, 1.5rem));
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+
+.bandItem {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+  flex: 1 1 15rem;
+  padding: 0.6rem 0.85rem 0.6rem 0.75rem;
+  border: 1px solid var(--meg-soft);
+  border-radius: 46% 8% 40% 10% / 22% 30% 18% 26%;
+  background: color-mix(in srgb, var(--meg-pool) 70%, var(--surface));
+  animation: megRise 780ms var(--meg-ease) both;
+}
+
+/* Gölge yukarı uzayıp KOPUYOR: kuyruk kartın altından çıkıp kesiliyor */
+.bandTail {
+  position: absolute;
+  left: 1.5rem;
+  bottom: -1.5rem;
+  width: 2px;
+  height: 1.5rem;
+  background: linear-gradient(
+    to bottom,
+    var(--accent-muted) 0%,
+    transparent 100%
+  );
+  animation: megTail 780ms var(--meg-ease) both;
+}
+
+.bandSigil {
+  width: 2.1rem;
+  height: 2.1rem;
+  flex: none;
+}
+
+.bandText {
+  min-width: 0;
+  display: block;
+}
+
+.bandKanji {
+  display: block;
+  font-family: var(--font-brush), var(--font-shippori), serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.1em;
+  color: var(--meg-ja-text);
+}
+
+.bandName {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--accent-hover);
+}
+
+.bandLine {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--meg-field-text);
+}
+
+/* ── Havuz şeridi — SABİT, ALT KENARDA ────────────────────────────────── */
+
+.pool {
+  position: sticky;
+  bottom: 0;
+  z-index: 4;
+  margin: var(--meg-gap) calc(clamp(0.9rem, 4vw, 1.8rem) * -1) 0;
+  padding: 0.9rem clamp(0.9rem, 4vw, 1.8rem)
+    calc(0.9rem + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--meg-edge);
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--meg-pool) 94%, transparent) 0%,
+    var(--meg-pool-deep) 100%
+  );
+  /* Mobilde ekranın yarısını yemesin */
+  max-height: 42vh;
+  overflow-y: auto;
+}
+
+.poolEdge {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -0.9rem;
+  height: 1rem;
+  pointer-events: none;
+}
+
+.poolEdgeArt {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.poolEdgeFill {
+  fill: color-mix(in srgb, var(--meg-pool) 88%, transparent);
+}
+
+/* Akışkan kütle: kenarları yavaşça deforme olan tek bir birikinti */
+.poolBlob {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: -1.6rem;
+  height: 2.6rem;
+  pointer-events: none;
+  opacity: 0.5;
+  background: color-mix(in srgb, var(--meg-pool) 70%, transparent);
+  border-radius: 58% 42% 46% 54% / 70% 62% 38% 30%;
+  animation: megBlob 11s var(--meg-ease) infinite;
+}
+
+.poolInner {
+  position: relative;
+  max-width: var(--meg-col);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.45rem 1.2rem;
+}
+
+.poolTitle {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--meg-rail-text);
+}
+
+.poolTitleJa {
+  font-family: var(--font-brush), var(--font-shippori), serif;
+  font-size: 1.05rem;
+  letter-spacing: 0.1em;
+  text-transform: none;
+  color: var(--meg-ja-text);
+}
+
+.poolCount {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
+.poolCountValue {
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--accent-hover);
+}
+
+.poolCountOf {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.poolCountLabel {
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.gauge {
+  display: flex;
+  gap: 3px;
+  align-items: stretch;
+  height: 0.62rem;
+}
+
+.gaugeCell {
+  flex: 1 1 0;
+  min-width: 0;
+  border-radius: 1px;
+  transition: background-color var(--meg-quick) var(--meg-ease);
+}
+
+.gaugeCell[data-kind="full"] {
+  background: var(--accent);
+}
+
+.gaugeCell[data-kind="spent"] {
+  background: color-mix(in srgb, var(--accent-muted) 55%, transparent);
+}
+
+.gaugeCell[data-kind="scar"] {
+  background: var(--meg-scar);
+}
+
+.poolScar {
+  margin: 0;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  color: var(--meg-scar-text);
+}
+
+.poolField {
+  min-width: 0;
+}
+
+.poolFieldLabel {
+  margin: 0 0 0.3rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--meg-field-text);
+}
+
+.poolEmpty {
+  margin: 0;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.chips {
+  margin: 0;
+  padding: 0 0 0.2rem;
+  list-style: none;
+  display: flex;
+  gap: 0.4rem;
+  /* 360 px'te taşabilecek tek satır — kendi kabında kayıyor */
+  overflow-x: auto;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: var(--touch-min);
+  padding: 0.3rem 0.65rem;
+  border: 1px solid var(--accent-muted);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 0.76rem;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color var(--meg-quick) var(--meg-ease);
+}
+
+.chip:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.chip:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.chipJa {
+  font-family: var(--font-brush), var(--font-shippori), serif;
+  font-size: 0.92rem;
+  letter-spacing: 0.08em;
+  color: var(--meg-ja-text);
+}
+
+.chipAction {
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  color: var(--meg-field-text);
+}
+
+.poolReset {
+  justify-self: start;
+  min-height: var(--touch-min);
+  padding: 0.35rem 0.9rem;
+  border: 1px solid var(--meg-soft);
+  background: none;
+  color: var(--meg-cost-text);
+  font: inherit;
+  font-size: 0.76rem;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+}
+
+.poolReset:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.poolReset:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.poolStatus {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: var(--meg-field-text);
+}
+
+.pool[data-sealed="true"] .poolCountValue {
+  color: var(--meg-lock-text);
+}
+
+.pool[data-drained="true"] .gaugeCell[data-kind="spent"] {
+  background: color-mix(in srgb, var(--meg-lock-text) 26%, transparent);
+}
+
+/* ── 6 · BEŞ DURAK ────────────────────────────────────────────────────── */
+
+.stops {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: clamp(1.8rem, 5vh, 2.8rem);
+}
+
+.stop {
+  position: relative;
+  min-width: 0;
+  padding-left: 1.1rem;
+  border-left: 1px solid var(--meg-hair);
+}
+
+.stopAge {
+  margin: 0 0 0.25rem;
+  font-size: 0.71rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--meg-rail-text);
+}
+
+.stopTitle {
+  margin: 0 0 0.55rem;
+  font-family: var(--font-brush), var(--font-shippori), serif;
+  font-size: 1.05rem;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  color: var(--text-primary);
+}
+
+.stopText {
+  margin: 0 0 0.9rem;
+  color: var(--text-secondary);
+}
+
+.stopQuote {
+  margin: 0 0 0.9rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--meg-soft);
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+}
+
+.quoteJa {
+  margin: 0;
+  font-family: var(--font-brush), var(--font-shippori), serif;
+  font-size: 1rem;
+  letter-spacing: 0.13em;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+.quoteReading {
+  margin: 0.35rem 0 0;
+  font-size: 0.8rem;
+  color: var(--meg-seal-text);
+}
+
+.quoteBy {
+  margin-top: 0.35rem;
+  font-size: 0.73rem;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+}
+
+.quoteNote {
+  margin: 0.5rem 0 0;
+  font-size: 0.79rem;
+  color: var(--text-muted);
+}
+
+.stopKin {
+  margin: 0 0 0.9rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.stopKinLink {
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-bottom: 1px solid var(--accent-muted);
+  padding-block: 0.3rem;
+}
+
+.stopKinLink:hover {
+  border-bottom-color: var(--accent-hover);
+}
+
+.stopKinName {
+  color: var(--meg-cost-text);
+}
+
+.stopKinRole {
+  color: var(--text-muted);
+}
+
+/* ── 7a · BAĞLAR ──────────────────────────────────────────────────────── */
+
+.bondSchool {
+  margin: 0 0 1.3rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.bondSchoolLink {
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-bottom: 1px solid var(--accent-muted);
+  padding-block: 0.3rem;
+}
+
+.bondSchoolLink:hover {
+  border-bottom-color: var(--accent-hover);
+}
+
+.bondSchoolName {
+  color: var(--text-muted);
+}
+
+.bonds {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.9rem;
+}
+
+.bond {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.85rem;
+  align-items: start;
+  padding: 0.85rem;
+  border: 1px solid var(--meg-soft);
+  background: color-mix(in srgb, var(--surface) 74%, transparent);
+  transition:
+    border-color var(--meg-slow) var(--meg-ease),
+    background-color var(--meg-slow) var(--meg-ease);
+}
+
+.bondFace {
+  display: block;
+  width: 3.4rem;
+  height: 4.4rem;
+  overflow: hidden;
+  border: 1px solid var(--meg-hair);
+  background: var(--meg-pool);
+}
+
+.bondFaceImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.bondSeal {
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0.5;
+}
+
+.bondBody {
+  min-width: 0;
+  display: block;
+}
+
+.bondName {
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-bottom: 1px solid var(--accent-muted);
+  font-size: 0.94rem;
+  padding-block: 0.25rem;
+}
+
+.bondName:hover {
+  border-bottom-color: var(--accent-hover);
+}
+
+.bondNamePlain {
+  font-size: 0.94rem;
+  color: var(--text-primary);
+}
+
+.bondNative {
+  display: inline-block;
+  margin-left: 0.5rem;
+  font-family: var(--font-brush), var(--font-shippori), serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  color: var(--meg-ja-text);
+}
+
+.bondRole {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--meg-rail-text);
+}
+
+.bondLine {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 0.83rem;
+  color: var(--text-secondary);
+}
+
+.bondFlag {
+  display: block;
+  margin-top: 0.45rem;
+  font-size: 0.71rem;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.bondFlagFace {
+  color: var(--meg-rail-text);
+}
+
+.bondSlotNote {
+  margin: 1.1rem 0 1.6rem;
+  font-size: 0.77rem;
+  color: var(--text-muted);
+}
+
+/* ── 7b · KAPANIŞ ─────────────────────────────────────────────────────── */
+
+.closing {
+  margin-bottom: clamp(2rem, 6vh, 3.4rem);
+}
+
+.closingQuotes {
+  margin: 0 0 1.8rem;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 1.2rem;
+}
+
+.closingQuote {
+  margin: 0;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--meg-soft);
+  border-left: 3px solid var(--accent-muted);
+  background: var(--surface);
+}
+
+.motto {
+  margin: 0;
+  font-family: var(--font-brush), var(--font-shippori), serif;
+  font-size: clamp(1.2rem, 1rem + 1vw, 1.6rem);
+  letter-spacing: 0.2em;
+  color: var(--accent-hover);
+}
+
+.mottoNote {
+  margin: 0.5rem 0 1.6rem;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.credit {
+  margin: 1.6rem 0 0;
+  font-size: 0.79rem;
+  color: var(--text-muted);
+}
+
+.credit a {
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-bottom: 1px solid var(--accent-muted);
+  padding-block: 0.3rem;
+}
+
+.credit a:hover {
+  border-bottom-color: var(--accent-hover);
+}
+
+.creditNote {
+  margin: 0.5rem 0 0;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* ── Kadrajlar ────────────────────────────────────────────────────────── */
+
+.frame {
+  position: relative;
+  margin: 1.2rem 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px solid var(--meg-soft);
+  background: color-mix(in srgb, var(--meg-pool) 55%, var(--surface));
+}
+
+.frame[data-filled="true"] {
+  border-color: var(--meg-hair);
+}
+
+/* ⚠️ BOŞ KADRAJ = GÖLGE BİRİKİNTİSİ, "yer tutucu kutu" DEĞİL.
+   Ziyaretçi burada yazısız (Dalga 1 · ders 1) ve kenarsız bir karanlık
+   görüyor; sayfanın kendi diliyle konuşuyor, "buraya görsel gelecek"
+   demiyor. Yönetici aynı yerde künyeyi görüyor. */
+.frame[data-filled="false"] {
+  border-color: transparent;
+  background:
+    radial-gradient(
+      130% 95% at 50% 100%,
+      color-mix(in srgb, var(--meg-pool) 92%, transparent) 0%,
+      transparent 72%
+    ),
+    var(--surface);
+}
+
+.frame img {
+  object-fit: cover;
+}
+
+.frameWide {
+  aspect-ratio: 16 / 9;
+}
+
+.frameSquare {
+  aspect-ratio: 1;
+}
+
+.frameScene {
+  aspect-ratio: 12 / 7;
+}
+
+.frameBand {
+  aspect-ratio: 5 / 2;
+}
+
+/* ⚠️ `isAdmin` KESMESİ: ziyaretçi boş kadrajı YAZISIZ görüyor. Üretim
+   metadatası (1600×900 · webp) yalnızca yöneticiye çiziliyor — Dalga 1'in
+   birinci dersi (Levi'de ziyaretçi on beş etiketli kutu görüyordu). */
+.frameCaption {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.8rem;
+  text-align: center;
+}
+
+.frameCaptionWord {
+  font-size: 0.74rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--meg-rail-text);
+}
+
+.frameCaptionSpec {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   ALAN AÇIK — Kangō An'ei Tei
+
+   Zemin tamamen gölgeye dönüyor, bölüm KENARLARI kayboluyor ve
+   sayfa tek bir sürekli karanlık alan oluyor. Işık değil YAPI
+   değişiyor: yüzeyler saydamlaşıyor, çizgiler siliniyor.
+
+   ⚠️ Havuz şeridi burada da duruyor — yalnızca üst kenarı
+   kayboluyor, yani gölge zeminle şerit tek gövde oluyor.
+   ============================================================ */
+
+.page[data-domain="true"] .modeBody,
+.page[data-domain="true"] .art,
+.page[data-domain="true"] .kit,
+.page[data-domain="true"] .beast,
+.page[data-domain="true"] .bond,
+.page[data-domain="true"] .closingQuote,
+.page[data-domain="true"] .stopQuote,
+.page[data-domain="true"] .frame {
+  border-color: transparent;
+  background: color-mix(in srgb, var(--meg-pool-deep) 55%, transparent);
+}
+
+.page[data-domain="true"] .beast[data-out="true"] {
+  border-left-color: var(--accent);
+  background: color-mix(in srgb, var(--meg-glow) 30%, transparent);
+}
+
+.page[data-domain="true"] .rail,
+.page[data-domain="true"] .stop,
+.page[data-domain="true"] .fact,
+.page[data-domain="true"] .hero {
+  border-color: transparent;
+}
+
+.page[data-domain="true"] .trait,
+.page[data-domain="true"] .beastBadge {
+  border-color: color-mix(in srgb, var(--accent-muted) 45%, transparent);
+}
+
+.page[data-domain="true"] .pool {
+  border-top-color: transparent;
+}
+
+.page[data-domain="true"] .poolEdgeFill {
+  fill: color-mix(in srgb, var(--meg-pool-deep) 70%, transparent);
+}
+
+.page[data-domain="true"] .field {
+  animation: megSeep 24s var(--meg-ease) infinite;
+}
+
+/* ============================================================
+   MAHORAGA OKUNDU — geri dönülmez
+
+   Sayfa kapanıyor: çağrılar kilitli, havuz mühürlü. Görsel
+   karşılığı tek bir şey — çark. Kenarlar ve vurgu menekşeye
+   kayıyor, çünkü artık teknik Megumi'nin elinde değil.
+   ============================================================ */
+
+.page[data-mahoraga="true"] .beast[data-kind="locked"] {
+  border-color: var(--meg-lock-text);
+  background: color-mix(in srgb, var(--meg-glow) 34%, var(--surface));
+}
+
+.page[data-mahoraga="true"] .poolBlob {
+  opacity: 0.85;
+  background: color-mix(in srgb, var(--meg-glow) 70%, transparent);
+}
+
+/* ============================================================
+   HAREKET
+   ============================================================ */
+
+/* Akışkan birikinti: kenarlar yavaşça deforme oluyor */
+@keyframes megBlob {
+  0% {
+    border-radius: 58% 42% 46% 54% / 70% 62% 38% 30%;
+    transform: translateY(0) scaleX(1);
+  }
+  27% {
+    border-radius: 44% 56% 62% 38% / 54% 74% 26% 46%;
+    transform: translateY(-2px) scaleX(1.03);
+  }
+  61% {
+    border-radius: 66% 34% 38% 62% / 42% 58% 42% 58%;
+    transform: translateY(1px) scaleX(0.98);
+  }
+  100% {
+    border-radius: 58% 42% 46% 54% / 70% 62% 38% 30%;
+    transform: translateY(0) scaleX(1);
+  }
+}
+
+/* Şikigami çıkarken gölge yukarı uzayıp KOPUYOR */
+@keyframes megRise {
+  0% {
+    opacity: 0;
+    transform: translateY(1.6rem) scaleY(0.5);
+    filter: blur(5px);
+  }
+  38% {
+    opacity: 0.55;
+    transform: translateY(0.5rem) scaleY(1.18);
+    filter: blur(2px);
+  }
+  72% {
+    opacity: 1;
+    transform: translateY(-0.2rem) scaleY(0.94);
+    filter: blur(0);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+    filter: blur(0);
+  }
+}
+
+/* Kopan kuyruk: uzuyor, inceliyor, kesiliyor */
+@keyframes megTail {
+  0% {
+    height: 0;
+    opacity: 0.9;
+  }
+  46% {
+    height: 2.4rem;
+    opacity: 0.75;
+  }
+  78% {
+    height: 1.1rem;
+    opacity: 0.3;
+  }
+  100% {
+    height: 1.5rem;
+    opacity: 0.55;
+  }
+}
+
+/* Alan açıkken zemin sızıyor */
+@keyframes megSeep {
+  0% {
+    background-position:
+      50% 100%,
+      50% 100%;
+    opacity: 1;
+  }
+  33% {
+    background-position:
+      42% 92%,
+      58% 104%;
+    opacity: 0.88;
+  }
+  67% {
+    background-position:
+      60% 104%,
+      44% 94%;
+    opacity: 0.95;
+  }
+  100% {
+    background-position:
+      50% 100%,
+      50% 100%;
+    opacity: 1;
+  }
+}
+
+/* Çark: her uyumdan sonra bir kademe */
+@keyframes megTurn {
+  0% {
+    rotate: 0deg;
+    opacity: 0.85;
+  }
+  31% {
+    rotate: 118deg;
+    opacity: 1;
+  }
+  64% {
+    rotate: 236deg;
+    opacity: 0.9;
+  }
+  100% {
+    rotate: 360deg;
+    opacity: 0.85;
+  }
+}
+
+/* ============================================================
+   ÖLÇEKLER
+   ============================================================ */
+
+/* Dar ekran: mühür rayı yatay bir şeride dönüyor, ızgara tek kolona
+   iniyor. Sayfanın karakteri kaybolmuyor — ray hâlâ orada, yalnızca
+   yönü değişiyor. */
+@media (max-width: 34rem) {
+  .section,
+  .closing,
+  .mode,
+  .poolSection {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 0.7rem;
+  }
+
+  .poolSection > .rail {
+    grid-row: auto;
+  }
+
+  .poolSection > .poolHead,
+  .poolSection > .roster,
+  .poolSection > .rosterHint,
+  .poolSection > .rosterDevice,
+  .poolSection > .poolTail {
+    grid-column: 1;
+  }
+
+  .rail {
+    justify-content: flex-start;
+    padding-top: 0;
+    padding-bottom: 0.45rem;
+    border-right: none;
+    border-bottom: 1px solid var(--meg-soft);
+  }
+
+  .railSeal {
+    writing-mode: horizontal-tb;
+    letter-spacing: 0.28em;
+  }
+
+  .band {
+    padding-left: 0;
+  }
+
+  .beastButton {
+    width: 100%;
+    min-width: 0;
+  }
+
+  /* Şerit mobilde daha da alçak: ekranın yarısını yemesin */
+  .pool {
+    max-height: 38vh;
+  }
+
+  .poolCountValue {
+    font-size: 1.25rem;
+  }
+}
+
+/* Geniş ekran: şeridin içi iki kolona açılıyor, sayaç solda */
+@media (min-width: 52rem) {
+  .poolInner {
+    grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .poolTitle,
+  .poolCount,
+  .gauge,
+  .poolScar {
+    grid-column: 1;
+  }
+
+  .poolField,
+  .poolReset,
+  .poolStatus {
+    grid-column: 2;
+  }
+}
+
+/* ============================================================
+   HAREKETİ AZALT — battaniye
+
+   Sayfadaki her durumun yazılı bir karşılığı var (`role="status"`
+   satırı, rozetler, sayaç), o yüzden hareketin tamamı kapanabiliyor.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

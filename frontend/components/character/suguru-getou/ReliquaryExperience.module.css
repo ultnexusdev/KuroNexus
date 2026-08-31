@@ -1,0 +1,1786 @@
+/* ============================================================
+   DÜNYA DERİSİ — Suguru Getō (AniList #133699)
+
+   Palet dalga briefinde KİLİTLİ (docs/ANIME-FAZ2-DALGA5.md §28);
+   on dört standart değer oradan BİREBİR alındı ve
+   `node scripts/check-karakter-kontrast.mjs` ile ölçüldü.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı
+   gereği bir yerel sınıf şart. Kök öğe ikisini birlikte taşır.
+
+   Aile: MOR TÜTSÜ. Accent (#a46bc2) doygun bir menekşe; zemin nötr
+   değil, morun kendi karanlığı. Arşivin sıkışmış turuncu ve kızıl
+   ailelerinin dışında; en yakın mor komşuları Obito (#9b5fd8) ve
+   Yoruichi (#a74ab5) ve ikisi de ölçülen eşiğin dışında kaldı.
+
+   ⚠️ ESKİ GETŌ PALETİ ARTIK YOK. Emekliye ayrılan sayfa kirli yosun
+   (accent #83ab7d) kullanıyordu; o dosya `.deprecated/` altında ve
+   bu ağaçtan hiç okunmuyor.
+
+   ── ⚠️ İKİ DERİ, TEK DOSYA ──────────────────────────────────────
+   "Maymun" modu paleti SOĞUTUYOR. İkinci deri bloğu
+   `.page[data-world="suguru-getou"][data-monkey="true"]` altında ve
+   içinde TEK HEX YOK: yalnızca aşağıdaki `--get-cold-*` ailesini
+   standart token adlarına BAĞLIYOR. Sebebi bir denetim ayrıntısı —
+   `check-karakter-hex.mjs` yalnızca `[data-vessel]` ekli ikinci deriyi
+   tanıyor, `[data-monkey]` eklisini tanımıyor ve oradaki bir hex
+   doğru olarak ihlal sayılırdı.
+
+   ── ⚠️ `-text` AİLESİ ───────────────────────────────────────────
+   Denetim yalnızca `-text` ekli token'ları ölçüyor. Soğuk derinin
+   METİN renkleri de `-text` ekli, yani mod açıkken okunan her renk
+   ölçümün içinde. `-text` eki OLMAYANLAR malzeme: duman gövdesi,
+   torii konturu, boncuk dolgusu, yol çizgisi — hepsi koyu olmak
+   zorunda ve 4.5:1 ile ölçülmeleri yanlış alarm üretirdi.
+   ============================================================ */
+.page[data-world="suguru-getou"] {
+  --bg:             #0c0a0d;
+  --surface:        #151217;
+  --surface-hover:  #1c181f;
+  --border:         #241f26;
+  --border-strong:  #332d37;
+
+  --text-primary:   #cec7d1;
+  --text-secondary: #927c9c;
+  --text-muted:     #9479a2;
+
+  --accent:         #a46bc2;
+  --accent-hover:   #b390c6;
+  --accent-muted:   #43344b;
+
+  --gold:           #857b8e;
+  --warn:           #b88347;
+  --danger:         #c26459;
+
+  /* ── Malzeme: duman, tapınak, yol (metin DEĞİL, ölçülmüyor) ── */
+  --get-smoke:      #2a1c33;
+  --get-smoke-far:  #1a1220;
+  --get-torii:      #4a3555;
+  --get-bead:       #5c4368;
+  --get-road:       #3a3040;
+  --get-ink:        #08070a;
+
+  /* ── Soğuk deri: "Maymun" modunda bağlanan malzeme ── */
+  --get-cold-bg:      #090a0f;
+  --get-cold-surface: #101219;
+  --get-cold-hover:   #171a23;
+  --get-cold-border:  #1f222d;
+  --get-cold-edge:    #2b2f3d;
+  --get-cold-smoke:   #1b2436;
+
+  /* ── Küçük metinde okunan aile (`-text`, ölçülüyor) ── */
+  --get-ghost-text:        #9a8ba6;
+  --get-ja-text:           #a992b5;
+  --get-stay-text:         #8fb39a;
+  --get-leave-text:        #c2879f;
+  --get-frame-text:        #9e8fa8;
+  --get-monkey-text:       #b39ac0;
+  --get-cold-primary-text: #c6cad4;
+  --get-cold-accent-text:  #8aa2cf;
+  --get-cold-hover-text:   #a9bcdd;
+  --get-cold-body-text:    #8b93ad;
+  --get-cold-gold-text:    #7e879e;
+}
+
+/* ============================================================
+   İKİNCİ DERİ — "Maymun" modu (soğuma)
+
+   ⚠️ BURADA HEX YOK ve olamaz (gerekçe yukarıda). Blok yalnızca
+   yukarıda tanımlı `--get-cold-*` ailesini standart adlara bağlıyor.
+   Özgüllük `.page[data-world=…]` bloğundan bir nitelik fazla, yani
+   bu blok kazanıyor ve `data-monkey="false"` iken hiç uygulanmıyor.
+
+   Modun ASIL işi bu değil: mod İÇERİĞİ çeviriyor (bkz. `.voicePlain` /
+   `.voiceMonkey`). Renk yalnızca o değişimin eşlikçisi.
+   ============================================================ */
+.page[data-world="suguru-getou"][data-monkey="true"] {
+  --bg:             var(--get-cold-bg);
+  --surface:        var(--get-cold-surface);
+  --surface-hover:  var(--get-cold-hover);
+  --border:         var(--get-cold-border);
+  --border-strong:  var(--get-cold-edge);
+
+  --text-primary:   var(--get-cold-primary-text);
+  --text-secondary: var(--get-cold-body-text);
+  --text-muted:     var(--get-cold-body-text);
+
+  --accent:         var(--get-cold-accent-text);
+  --accent-hover:   var(--get-cold-hover-text);
+
+  --gold:           var(--get-cold-gold-text);
+
+  --get-smoke:      var(--get-cold-smoke);
+  --get-smoke-far:  var(--get-cold-bg);
+  --get-torii:      var(--get-cold-edge);
+  --get-bead:       var(--get-cold-edge);
+  --get-road:       var(--get-cold-edge);
+
+  --get-ghost-text: var(--get-cold-body-text);
+  --get-ja-text:    var(--get-cold-hover-text);
+  --get-frame-text: var(--get-cold-body-text);
+}
+
+/* ============================================================
+   GETŌ — "Tapınak ve İhanet"
+
+   Deri: kökteki `data-world="suguru-getou"` bütün standart token'ları
+   mor tütsüye çeviriyor; yardımcılar `--get-*`. Bu bloktan AŞAĞIDA
+   TEK HEX YOK — ara tonların hepsi color-mix ile token'lardan
+   türetildi (FAZ 2 §1).
+
+   ── SAYFANIN FİKRİ ──────────────────────────────────────────────────────
+   AYNI ADAM İKİ YOL AYRIMINDA. Sayfa yukarıdan aşağı bir YOL: tek bir
+   omurga iniyor ve her bölümde ikiye ayrılıyor. Gövde sütunu seçilen dalı
+   sürdürüyor, yanındaki dar sütun seçilmeyen kolu SOLUK ama okunur
+   tutuyor. Bölümler yolun düğümlerinde.
+
+   ── ⚠️ RUKIA'DAN AYRIŞMA (aynı font ikilisi) ────────────────────────────
+   İki sayfa da Shippori Mincho + Cormorant kullanıyor çünkü ikisi de dalga
+   briefinde kilitli. Muamele bilerek KARŞIT:
+
+     Rukia                          Getō
+     ince kesim (300–400)           orta-kalın kesim (500–700)
+     satır aralığı 2.4–2.8          satır aralığı 1.62
+     ortalanmış TEK dar kolon       üç sütunlu ASİMETRİK yol
+     `text-transform: uppercase`    kitabe: küçük harf + dikey ritim
+     hareket: kar taneciği/kristal  hareket: yükselip DAĞILAN duman
+     `data-moon` (zemin aydınlanır) `data-monkey` (metin değişir)
+
+   Ölçüm: `node scripts/check-karakter-ayrisma.mjs`.
+
+   ── ÖLÇÜ SİSTEMİ ────────────────────────────────────────────────────────
+   `--get-ghost`  seçilmeyen kolun sütun genişliği
+   `--get-rail`   omurga sütununun genişliği
+   `--get-body`   gövde sütununun üst sınırı
+   `--get-step`   düğümler arası boşluk
+   `--get-line`   yolun çizgi rengi (tek ayırıcı)
+
+   ── RENK GÖREVLERİ ──────────────────────────────────────────────────────
+   --accent          → düğüm başlıkları, omurga düğümü, seçilen dal
+   --accent-hover    → bağlantılar, kanji okunuşları, motto
+   --gold            → künye değerleri
+   --get-stay-text   → YALNIZCA "kal" dalı
+   --get-leave-text  → YALNIZCA "git" dalı
+   --get-ghost-text  → YALNIZCA seçilmeyen kolun metni
+   --get-torii/bead  → YALNIZCA filigranın konturu ve boncukları
+
+   ── HAREKET ─────────────────────────────────────────────────────────────
+   MOR DUMAN. Üç katman yavaşça yükselip dağılıyor: `translateY` + artan
+   `filter: blur()` + düşen `opacity`. Sert hiçbir şey yok, hiçbir şey
+   yerine oturmuyor. Katmanlar `.smoke` kabının içinde ve o kap
+   `z-index: 0` + `pointer-events: none` ile METNİN ARKASINDA duruyor —
+   bulanıklık hiçbir yazının üstüne düşmüyor (kontrast betiği görsel/blur
+   üstünü ölçemiyor, o yüzden bu ayrım koda yazıldı). Dosya sonundaki
+   `reduce` battaniyesi üçünü de kapatıyor.
+   ============================================================ */
+
+.page {
+  --get-ghost: 13rem;
+  --get-rail: 3.25rem;
+  --get-body: 42rem;
+  --get-step: clamp(4.5rem, 9vh, 7.5rem);
+  --get-line: color-mix(in srgb, var(--get-road) 85%, transparent);
+  --get-line-soft: color-mix(in srgb, var(--get-road) 45%, transparent);
+  --get-drift: 46s;
+  --get-turn: 460ms;
+  --get-ease: cubic-bezier(0.28, 0.72, 0.22, 1);
+
+  position: relative;
+  isolation: isolate;
+  background: var(--bg);
+  color: var(--text-primary);
+  overflow-x: clip;
+  overflow-wrap: break-word;
+  padding: clamp(1.1rem, 3.5vw, 2.2rem) clamp(0.9rem, 4vw, 2rem)
+    clamp(4.5rem, 12vh, 8rem);
+  font-family: var(--font-cormorant), "Iowan Old Style", Georgia, serif;
+  font-size: clamp(1.02rem, 0.96rem + 0.3vw, 1.14rem);
+  line-height: 1.62;
+  letter-spacing: 0.004em;
+}
+
+/* Görünür odak — sayfadaki her düğme ve bağlantı için tek kural.
+   Rukia'nın düz 2px halkasından bilerek farklı: kesikli ve daha ince,
+   tapınak ipine benziyor. */
+.page :focus-visible {
+  outline: 1px dashed var(--accent-hover);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ══ İKİ SES ═══════════════════════════════════════════════════════════
+   Modun kalbi. İki versiyon da sunucuda çizildi; görünürlüğü kökteki
+   nitelik seçiyor. `display: none` bilerek: öğe erişilebilirlik ağacından
+   da çıkıyor, yani ekran okuyucu iki versiyonu arka arkaya okumuyor.
+
+   ⚠️ Ziyaretçi hiçbir zaman iki metni birden görmüyor; sayfa kaynağında
+   ikisi de var ve bu bilinçli (bkz. `MonkeyShell` başlığı). */
+.page[data-monkey="false"] .voiceMonkey {
+  display: none;
+}
+
+.page[data-monkey="true"] .voicePlain {
+  display: none;
+}
+
+.voiceMonkey {
+  color: var(--get-monkey-text);
+}
+
+.voicePlain {
+  color: inherit;
+}
+
+/* ══ DUMAN ═════════════════════════════════════════════════════════════ */
+
+.smoke {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.smokeLayerA,
+.smokeLayerB,
+.smokeLayerC {
+  position: absolute;
+  display: block;
+  border-radius: 48% 52% 43% 57% / 62% 48% 52% 38%;
+  will-change: transform, filter, opacity;
+}
+
+.smokeLayerA {
+  left: -12vw;
+  bottom: -30vh;
+  width: 64vw;
+  height: 64vw;
+  background: radial-gradient(
+    circle at 42% 58%,
+    color-mix(in srgb, var(--get-smoke) 58%, transparent),
+    transparent 68%
+  );
+}
+
+.smokeLayerB {
+  right: -18vw;
+  bottom: -38vh;
+  width: 78vw;
+  height: 78vw;
+  background: radial-gradient(
+    circle at 58% 46%,
+    color-mix(in srgb, var(--accent-muted) 42%, transparent),
+    transparent 66%
+  );
+}
+
+.smokeLayerC {
+  left: 22vw;
+  bottom: -26vh;
+  width: 52vw;
+  height: 52vw;
+  background: radial-gradient(
+    circle at 50% 50%,
+    color-mix(in srgb, var(--get-smoke-far) 72%, transparent),
+    transparent 70%
+  );
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .smokeLayerA {
+    animation: getDrift var(--get-drift) linear infinite;
+  }
+
+  .smokeLayerB {
+    animation: getPlume calc(var(--get-drift) * 1.45) linear infinite;
+    animation-delay: -14s;
+  }
+
+  .smokeLayerC {
+    animation: getDisperse calc(var(--get-drift) * 1.22) linear infinite;
+    animation-delay: -27s;
+  }
+}
+
+/* Ana içerik dumanın ÜSTÜNDE — bulanıklık hiçbir metne değmiyor */
+.crumb,
+.hero,
+.mode,
+.node {
+  position: relative;
+  z-index: 1;
+}
+
+/* ══ BREADCRUMB ════════════════════════════════════════════════════════ */
+
+.crumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: baseline;
+  font-family: var(--font-shippori), "Hiragino Mincho ProN", serif;
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+  margin: 0 0 clamp(2rem, 6vh, 4rem);
+}
+
+.crumb a {
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-bottom: 1px solid var(--get-line);
+  padding-bottom: 2px;
+  min-height: var(--touch-min);
+  display: inline-flex;
+  align-items: center;
+}
+
+.crumbSep {
+  color: var(--get-frame-text);
+}
+
+.crumbHere {
+  color: var(--text-muted);
+}
+
+/* ══ 1 · HERO ══════════════════════════════════════════════════════════
+   Ne ortalanmış ne tam kanama: filigran kolonu SOLDA sabit duruyor, metin
+   sağında. Ad sayfadaki en büyük şey ama bir başlık kadar; mincho'nun
+   kitabe hâli iri punto değil, DİK duruş istiyor. */
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(1.6rem, 4vh, 2.8rem);
+  margin: 0 0 var(--get-step);
+}
+
+.watermark {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 1rem;
+  opacity: 0.5;
+}
+
+.torii {
+  width: min(15rem, 46vw);
+  height: auto;
+  display: block;
+}
+
+.toriiPost,
+.toriiBeam {
+  stroke: var(--get-torii);
+}
+
+.toriiGlow {
+  fill: color-mix(in srgb, var(--get-smoke) 40%, transparent);
+}
+
+.beads {
+  width: min(5.2rem, 17vw);
+  height: auto;
+  display: block;
+}
+
+.beadCord {
+  stroke: color-mix(in srgb, var(--get-bead) 70%, transparent);
+}
+
+.bead {
+  fill: color-mix(in srgb, var(--get-bead) 82%, transparent);
+}
+
+.beadKnot {
+  fill: var(--accent-muted);
+}
+
+/* Dikey yazılan filigran sözcüğü — sayfanın "dikey ritim" kilidi buradan
+   başlıyor ve kanji rayları boyunca sürüyor. */
+.watermarkWord {
+  position: absolute;
+  top: 0;
+  right: 0;
+  writing-mode: vertical-rl;
+  font-family: var(--font-shippori), "Hiragino Mincho ProN", serif;
+  font-weight: 500;
+  font-size: clamp(1.1rem, 0.9rem + 1vw, 1.7rem);
+  letter-spacing: 0.42em;
+  color: color-mix(in srgb, var(--accent) 34%, transparent);
+}
+
+.heroText {
+  display: grid;
+  gap: 0.85rem;
+  max-width: var(--get-body);
+}
+
+.heroHouse {
+  margin: 0;
+  font-family: var(--font-shippori), "Hiragino Mincho ProN", serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  color: var(--text-secondary);
+}
+
+.heroName {
+  margin: 0;
+  font-family: var(--font-shippori), "Hiragino Mincho ProN", serif;
+  font-weight: 700;
+  font-size: clamp(1.95rem, 1.5rem + 2.4vw, 3.1rem);
+  line-height: 1.18;
+  letter-spacing: 0.03em;
+  color: var(--text-primary);
+}
+
+.heroNative {
+  margin: 0;
+  font-family: var(--font-shippori), "Hiragino Mincho ProN", serif;
+  font-weight: 500;
+  font-size: 1.28rem;
+  letter-spacing: 0.3em;
+  color: var(--get-ja-text);
+}
+
+.heroEpigraph {
+  margin: 0.6rem 0 0;
+  font-size: 1.22rem;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--accent-hover);
+  border-left: 2px solid var(--get-line);
+  padding-left: 1rem;
+}
+
+.heroLede {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+/* Madalyon: 230×345, dar ve kenarlıklı — büyük hero olarak KULLANILMIYOR */
+.portrait {
+  margin: 0;
+  width: min(11.5rem, 42vw);
+  border: 1px solid var(--border-strong);
+  padding: 0.4rem;
+  background: var(--surface);
+}
+
+.portraitImg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.gate {
+  display: grid;
+  gap: 0.7rem;
+  max-width: var(--get-body);
+}
+
+.gateNote {
+  margin: 0;
+  font-size: 0.94rem;
+  color: var(--text-muted);
+}
+
+@media (min-width: 52rem) {
+  .hero {
+    grid-template-columns: minmax(0, 17rem) minmax(0, 1fr);
+    align-items: start;
+    column-gap: clamp(1.8rem, 4vw, 3.4rem);
+  }
+
+  .watermark {
+    grid-row: span 2;
+  }
+
+  .portrait {
+    grid-column: 1;
+  }
+
+  .gate {
+    grid-column: 2;
+  }
+}
+
+/* ══ 2 · MOD DÜĞMESİ ═══════════════════════════════════════════════════ */
+
+.mode {
+  display: grid;
+  gap: 0.85rem;
+  max-width: 46rem;
+  margin: 0 0 var(--get-step);
+  padding: clamp(1.1rem, 3vw, 1.8rem);
+  background: var(--surface);
+  border-top: 1px solid var(--get-line);
+  border-bottom: 1px solid var(--get-line);
+}
+
+.modeHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.modeTitle {
+  margin: 0;
+  font-family: var(--font-shippori), "Hiragino Mincho ProN", serif;
+  font-weight: 700;
+  font-size: 1.32rem;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+.modeNative {
+  margin: 0;
+  font-family: var(--font-shippori), "Hiragino Mincho ProN", serif;
+  font-size: 1.05rem;
+  letter-spacing: 0.24em;
+  color: var(--get-ja-text);
+}
+
+/* Çerçeve cümlesi — düğmenin ne yaptığını basmadan önce söylüyor.
+   Küçültülmedi ve `.aside` benzeri bir gizleme katmanına konmadı:
+   hassas bir modun açıklaması modun kendisiyle aynı ağırlıkta olmalı. */
+.modeFrame {
+  margin: 0;
+  font-size: 0.98rem;
+  color: var(--text-secondary);
+}
+
+.modeButton {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: var(--touch-min);
+  padding: 0.5rem 1.2rem;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+  font-family: var(--font-shippori), "Hiragino Mincho ProN", serif;
+  font-size: 0.92rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition:
+    border-color var(--get-turn) var(--get-ease),
+    background-color var(--get-turn) var(--get-ease);
+}
+
+.modeButton:hover {
+  background: var(--surface-hover);
+  border-color: var(--accent);
+}
+
+/* Tek işaret: basılıyken dolan bir daire (tespih boncuğu) */
+.modeMark {
+  width: 0.72rem;
+  height: 0.72rem;
+  border-radius: 50%;
+  border: 1px solid var(--accent);
+  background: transparent;
+  transition: background-color var(--get-turn) var(--get-ease);
+}
+
+.modeButton[aria-pressed="true"] .modeMark {
+  background: var(--accent);
+}
+
+.modeLabel {
+  display: inline-block;
+}
+
+.modeHint {
+  margin: 0;
+  font-size: 0.94rem;
+  color: var(--text-muted);
+}
+
+/* Arşivin cevabı — modla DEĞİŞMİYOR ve göze de öyle görünmeli:
+   sayfadaki tek çift kenarlı blok. */
+.modeAnswer {
+  margin: 0.4rem 0 0;
+  padding: 0.85rem 1rem;
+  font-size: 0.98rem;
+  color: var(--text-primary);
+  background: var(--surface-hover);
+  border-left: 3px double var(--accent);
+}
+
+/* ══ IZGARA: YOLUN DÜĞÜMLERİ ═══════════════════════════════════════════
+   Dar ekranda İKİ sütun (omurga + gövde) ve seçilmeyen kol gövdenin
+   ALTINA iniyor — silinmiyor, çünkü dallanma 360 pikselde de okunmalı.
+   Geniş ekranda ÜÇ sütun: kol · omurga · gövde. */
+
+.node {
+  display: grid;
+  grid-template-columns: var(--get-rail) minmax(0, 1fr);
+  column-gap: clamp(0.75rem, 2.5vw, 1.4rem);
+  row-gap: 1.2rem;
+  margin: 0 0 var(--get-step);
+}
+
+.nodeRail {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  position: relative;
+  display: block;
+  width: 100%;
+}
+
+.nodeFork {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.forkStem {
+  stroke: var(--get-line);
+}
+
+.forkTakenArm {
+  stroke: var(--accent);
+}
+
+.forkGhostArm {
+  stroke: var(--get-line-soft);
+  stroke-dasharray: 3 5;
+}
+
+.forkNode {
+  fill: var(--accent);
+}
+
+/* Çatalın altından aşağı inen omurga — düğümü bir sonrakine bağlıyor */
+.nodeLine {
+  position: absolute;
+  top: calc(100% - 0.2rem);
+  bottom: calc(var(--get-step) * -1);
+  left: calc(50% - 0.5px);
+  width: 1px;
+  background: linear-gradient(
+    to bottom,
+    var(--get-line),
+    color-mix(in srgb, var(--get-road) 12%, transparent)
+  );
+}
+
+.nodeBody {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+  max-width: var(--get-body);
+}
+
+/* Seçilmeyen kol: dar ekranda gövdenin altında, soluk ve eğik bir blok */
+.nodeGhost {
+  grid-column: 2;
+  grid-row: 2;
+  min-width: 0;
+  padding: 0.7rem 0 0.7rem 0.9rem;
+  border-left: 1px dashed var(--get-line-soft);
+  opacity: 0.86;
+}
+
+.nodeGhostBadge {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-shippori), "Hiragino Mincho ProN", serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  color: var(--get-frame-text);
+}
+
+.nodeGhostLine {
+  margin: 0;
+  font-size: 0.94rem;
+  font-style: italic;
+  line-height: 1.55;
+  color: var(--get-ghost-text);
+}
+
+.nodeTitle {
+  margin: 0 0 0.55rem;
+  font-family: var(--font-shippori), "Hiragino Mincho ProN", serif;
+  font-weight: 700;
+  font-size: clamp(1.3rem, 1.1rem + 0.9vw, 1.78rem);
+  line-height: 1.32;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+}
+
+.nodeLede {
+  margin: 0 0 1.6rem;
+  color: var(--text-secondary);
+}
+
+@media (min-width: 64rem) {
+  .node {
+    grid-template-columns: var(--get-ghost) var(--get-rail) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .nodeGhost {
+    grid-column: 1;
+    grid-row: 1;
+    text-align: right;
+    padding: 0.9rem 1rem 0.9rem 0;
+    border-left: 0;
+    border-right: 1px dashed var(--get-line-soft);
+  }
+
+  .nodeRail {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .nodeBody {
+    grid-column: 3;
+    grid-row: 1;
+  }
+}
+
+/* ══ 3 · KÜNYE ŞERİDİ ══════════════════════════════════════════════════ */
+
+.facts {
+  margin: 0 0 1.4rem;
+  display: grid;
+  gap: 0;
+}
+
+.fact {
+  display: grid;
+  grid-template-columns: minmax(0, 9.5rem) minmax(0, 1fr);
+  gap: 0.6rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 90%, transparent);
+}
+
+.factLabel {
+  margin: 0;
+  font-family: var(--font-shippori), "Hiragino Mincho ProN", serif;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  align-self: center;
+}
+
+.factValue {
+  margin: 0;
+  color: var(--gold);
+  font-size: 1.05rem;
+}
+
+.factNote {
+  margin: 0;
+  font-size: 0.94rem;
+  color: var(--text-muted);
+}
+
+/* ══ 4a · ÜÇ SÜTUN ═════════════════════════════════════════════════════
+   Kart YOK. Her sütun kendi dikey kanji rayıyla başlıyor ve metin onun
+   sağından akıyor — kitabe düzeni. */
+
+.arts {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: clamp(2.6rem, 6vh, 4.2rem);
+}
+
+.art {
+  display: grid;
+  grid-template-columns: minmax(0, 3.2rem) minmax(0, 1fr);
+  column-gap: clamp(0.8rem, 2vw, 1.3rem);
+  row-gap: 0.5rem;
+}
+
+.artIndex {
+  grid-column: 1;
+  grid-row: 1;
+  margin: 0;
+  font-family: var(--font-shippori), "Hiragino Mincho ProN", serif;
+  font-size: 0.76rem;
+  letter-spacing: 0.1em;
+  color: var(--get-frame-text);
+}
+
+/* Kanji dikey yazılıyor: sayfanın dikey ritmi bu raydan geliyor */
+.artKanji {
+  grid-column: 1;
+  grid-row: 2 / span 4;
+  margin: 0;
+  writing-mode: vertical-rl;
+  font-family: var(--font-shippori), "Hiragino Mincho ProN", serif;
+  font-weight: 700;
+  font-size: clamp(1.35rem, 1.1rem + 1.1vw, 1.9rem);
+  letter-spacing: 0.16em;
+  color: var(--text-primary);
+  justify-self: center;
+}
+
+.artReading {
+  grid-column: 2;
+  grid-row: 1;
+  margin: 0;
+  font-family: var(--font-shippori), "Hiragino Mincho ProN", serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  color: var(--get-ja-text);
+}
+
+.artName {
+  grid-column: 2;
+  grid-row: 2;
+  margin: 0;
+  font-family: var(--font-shippori), "Hiragino Mincho ProN", serif;
+  font-weight: 500;
+  font-size: 1.06rem;
+  letter-spacing: 0.05em;
+  color: var(--accent-hover);
+}
+
+.artTurkish {
+  grid-column: 2;
+  grid-row: 3;
+  margin: 0;
+  font-size: 1.16rem;
+  color: var(--text-primary);
+}
+
+.artTagline {
+  grid-column: 2;
+  grid-row: 4;
+  margin: 0;
+  font-style: italic;
+  color: var(--gold);
+}
+
+.artText {
+  grid-column: 2;
+  grid-row: 5;
+  margin: 0.5rem 0 0;
+  color: var(--text-secondary);
+}
+
+.artTraits {
+  grid-column: 2;
+  grid-row: 6;
+  margin: 0.6rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.1rem;
+}
+
+.trait {
+  font-family: var(--font-shippori), "Hiragino Mincho ProN", serif;
+  font-size: 0.74rem;
+  letter-spacing: 0.1em;
+  color: var(--get-frame-text);
+  padding-left: 0.8rem;
+  position: relative;
+}
+
+.trait::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.5em;
+  width: 0.34rem;
+  height: 0.34rem;
+  border-radius: 50%;
+  background: var(--accent-muted);
+}
+
+/* Kadraj sütunun tamamını kaplıyor */
+.art > figure,
+.art > div[data-curator-slot] {
+  grid-column: 1 / -1;
+}
+
+/* ══ 4b · DÖRT TERİM ═══════════════════════════════════════════════════ */
+
+.marks {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 2rem;
+}
+
+.mark {
+  display: grid;
+  gap: 0.35rem;
+  padding-left: 1rem;
+  border-left: 2px solid var(--get-line);
+}
+
+.markKanji {
+  margin: 0;
+  font-family: var(--font-shippori), "Hiragino Mincho ProN", serif;
+  font-weight: 700;
+  font-size: 1.44rem;
+  letter-spacing: 0.14em;
+  color: var(--text-primary);
+}
+
+.markReading {
+  margin: 0;
+  font-family: var(--font-shippori), "Hiragino Mincho ProN", serif;
+  font-size: 0.76rem;
+  letter-spacing: 0.14em;
+  color: var(--get-ja-text);
+}
+
+.markName {
+  margin: 0;
+  font-size: 1.08rem;
+  color: var(--accent-hover);
+}
+
+.markNote {
+  margin: 0.3rem 0 0;
+  color: var(--text-secondary);
+}
+
+@media (min-width: 46rem) {
+  .marks {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 2.2rem;
+  }
+}
+
+/* ══ 5+6 · İHANET ÇİZELGESİ ════════════════════════════════════════════ */
+
+.ledger {
+  display: grid;
+  gap: 1.6rem;
+  margin-top: 2rem;
+}
+
+.ledgerHint {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.ledgerList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: clamp(2.4rem, 5vh, 3.6rem);
+}
+
+.ledgerStep {
+  display: grid;
+  grid-template-columns: 1.6rem minmax(0, 1fr);
+  column-gap: clamp(0.7rem, 2vw, 1.1rem);
+}
+
+/* Durağın kendi rayı: elmas düğüm + iki eğik kol.
+   Seçim yapıldığında kollardan biri koyulaşıyor (aşağıdaki durum
+   blokları), yani ray da yolun kendisini anlatıyor. */
+.stepRail {
+  position: relative;
+  display: block;
+}
+
+.stepNode {
+  position: absolute;
+  top: 0.55rem;
+  left: calc(50% - 0.3rem);
+  width: 0.6rem;
+  height: 0.6rem;
+  transform: rotate(45deg);
+  border: 1px solid var(--accent);
+  background: var(--bg);
+}
+
+.stepStemLeft,
+.stepStemRight {
+  position: absolute;
+  top: 1.5rem;
+  width: 1px;
+  height: calc(100% - 1.5rem);
+  background: var(--get-line-soft);
+}
+
+.stepStemLeft {
+  left: calc(50% - 0.42rem);
+  transform: rotate(6deg);
+  transform-origin: top center;
+}
+
+.stepStemRight {
+  left: calc(50% + 0.42rem);
+  transform: rotate(-6deg);
+  transform-origin: top center;
+}
+
+.ledgerStep[data-branch="stay"] .stepStemLeft {
+  background: var(--get-stay-text);
+}
+
+.ledgerStep[data-branch="leave"] .stepStemRight {
+  background: var(--get-leave-text);
+}
+
+.stepBody {
+  min-width: 0;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.stepMeta {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.9rem;
+  font-family: var(--font-shippori), "Hiragino Mincho ProN", serif;
+  font-size: 0.74rem;
+  letter-spacing: 0.11em;
+}
+
+.stepIndex {
+  color: var(--get-frame-text);
+}
+
+.stepAge {
+  color: var(--accent);
+}
+
+.stepWhen {
+  color: var(--text-muted);
+}
+
+.stepTitle {
+  margin: 0;
+  font-family: var(--font-shippori), "Hiragino Mincho ProN", serif;
+  font-weight: 700;
+  font-size: clamp(1.16rem, 1.02rem + 0.6vw, 1.48rem);
+  line-height: 1.34;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+}
+
+.stepText {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+/* Özgün satır — replik ile KAYITLI TERİM görsel olarak da ayrı */
+.original {
+  margin: 0.5rem 0 0;
+  padding: 0.75rem 0 0.75rem 0.9rem;
+  border-left: 2px solid var(--accent-muted);
+}
+
+.original[data-kind="quote"] {
+  border-left-color: var(--accent);
+}
+
+.originalKind {
+  margin: 0 0 0.3rem;
+  font-family: var(--font-shippori), "Hiragino Mincho ProN", serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  color: var(--get-frame-text);
+}
+
+/* ⚠️ Alt sınır 360 pikselde ölçüldü: 極ノ番「うずまき」 dokuz karakter ve
+   0.12em aralıkla sabit 1.5rem'de dar sütunu taşırıyordu. clamp ile
+   küçülüyor; CJK zaten her karakterde satır kırabiliyor ama etiket
+   aralığı son karakterde taşma bırakıyordu. */
+.originalText {
+  margin: 0;
+  font-family: var(--font-shippori), "Hiragino Mincho ProN", serif;
+  font-weight: 700;
+  font-size: clamp(1.14rem, 0.94rem + 0.9vw, 1.5rem);
+  letter-spacing: 0.12em;
+  color: var(--text-primary);
+}
+
+.originalReading {
+  margin: 0.2rem 0 0;
+  font-size: 1.02rem;
+  color: var(--accent-hover);
+}
+
+.originalNote {
+  margin: 0.4rem 0 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.stepKin {
+  margin: 0.2rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.7rem;
+  align-items: baseline;
+  font-size: 0.94rem;
+}
+
+.stepKinLink {
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-bottom: 1px solid var(--get-line);
+}
+
+.stepKinPlain {
+  color: var(--text-primary);
+}
+
+.stepKinRole {
+  color: var(--get-frame-text);
+  font-size: 0.86rem;
+}
+
+/* ── YOL AYRIMI ────────────────────────────────────────────────────────
+   Bir dikey gövde, bir yatay ayrım çubuğu, iki dikey iniş: sayfadaki
+   ızgaranın küçültülmüş hâli. İki kol da HER ZAMAN yazılı; seçilmeyen
+   kol soluklaşıyor ama silinmiyor. */
+
+.fork {
+  position: relative;
+  margin-top: 1.9rem;
+  padding-top: 2.4rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.4rem;
+}
+
+.fork::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: calc(50% - 0.5px);
+  width: 1px;
+  height: 1.1rem;
+  background: var(--get-line);
+}
+
+.fork::after {
+  content: "";
+  position: absolute;
+  top: 1.1rem;
+  left: 25%;
+  right: 25%;
+  height: 1px;
+  background: var(--get-line);
+}
+
+.forkArm {
+  position: relative;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+  transition:
+    opacity var(--get-turn) var(--get-ease),
+    border-color var(--get-turn) var(--get-ease);
+}
+
+.forkArm::before {
+  content: "";
+  position: absolute;
+  top: -1.3rem;
+  left: calc(50% - 0.5px);
+  width: 1px;
+  height: 1.3rem;
+  background: var(--get-line);
+}
+
+.forkArm[data-state="taken"] {
+  border-color: var(--accent);
+  background: var(--surface-hover);
+  opacity: 1;
+}
+
+.forkArm[data-state="ghost"] {
+  opacity: 0.58;
+  border-style: dashed;
+}
+
+.forkButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: var(--touch-min);
+  width: 100%;
+  padding: 0.3rem 0;
+  background: transparent;
+  border: 0;
+  text-align: left;
+  cursor: pointer;
+  font-family: var(--font-shippori), "Hiragino Mincho ProN", serif;
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  color: var(--text-primary);
+}
+
+.forkGlyph {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border: 1px solid var(--border-strong);
+  font-size: 0.95rem;
+  color: var(--get-frame-text);
+}
+
+.forkArm:first-child .forkGlyph {
+  color: var(--get-stay-text);
+}
+
+.forkArm:last-child .forkGlyph {
+  color: var(--get-leave-text);
+}
+
+.forkArm[data-state="taken"] .forkGlyph {
+  border-color: var(--accent);
+}
+
+.forkWord {
+  min-width: 0;
+}
+
+.forkBadge {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-shippori), "Hiragino Mincho ProN", serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  color: var(--get-frame-text);
+}
+
+.forkLine {
+  margin: 0.4rem 0 0;
+  font-size: 0.96rem;
+  line-height: 1.55;
+  color: var(--get-ghost-text);
+}
+
+.forkArm[data-state="taken"] .forkLine {
+  color: var(--text-secondary);
+}
+
+@media (min-width: 40rem) {
+  .fork {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: clamp(1rem, 3vw, 2rem);
+  }
+}
+
+.stepFrameWrap {
+  margin-top: 1.4rem;
+}
+
+/* Durum satırı: canlı bölge, görünür ve tek satır */
+.ledgerStatus {
+  margin: 0;
+  padding: 0.7rem 0.9rem;
+  font-size: 0.96rem;
+  color: var(--text-primary);
+  background: var(--surface);
+  border-top: 1px solid var(--get-line);
+  border-bottom: 1px solid var(--get-line);
+}
+
+.outcome {
+  display: grid;
+  gap: 0.6rem;
+  padding: clamp(1.1rem, 3vw, 1.8rem);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+}
+
+.outcome[data-outcome="left"] {
+  border-left: 4px solid var(--get-leave-text);
+}
+
+.outcome[data-outcome="stayed"] {
+  border-left: 4px solid var(--get-stay-text);
+}
+
+.outcomeKanji {
+  margin: 0;
+  font-family: var(--font-shippori), "Hiragino Mincho ProN", serif;
+  font-weight: 700;
+  font-size: clamp(1.6rem, 1.3rem + 1.4vw, 2.3rem);
+  letter-spacing: 0.2em;
+  color: color-mix(in srgb, var(--accent) 62%, transparent);
+}
+
+.outcomeTitle {
+  margin: 0;
+  font-family: var(--font-shippori), "Hiragino Mincho ProN", serif;
+  font-weight: 700;
+  font-size: 1.24rem;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+}
+
+.outcomeText {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+/* Arşivin dürüstlük satırı: hangi dalın KAYITTA olduğu */
+.outcomeCanon {
+  margin: 0.3rem 0 0;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.94rem;
+  color: var(--text-primary);
+  background: var(--surface-hover);
+}
+
+.outcomeActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-top: 0.4rem;
+}
+
+.ledgerButton {
+  min-height: var(--touch-min);
+  padding: 0.45rem 1.05rem;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  color: var(--accent-hover);
+  font-family: var(--font-shippori), "Hiragino Mincho ProN", serif;
+  font-size: 0.86rem;
+  letter-spacing: 0.07em;
+  cursor: pointer;
+  transition: border-color var(--get-turn) var(--get-ease);
+}
+
+.ledgerButton:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.ledgerButton:disabled {
+  opacity: 0.42;
+  cursor: default;
+}
+
+/* ══ 7a · BAĞLAR + ÇAPALAR ═════════════════════════════════════════════ */
+
+.bonds {
+  margin: 0 0 2.6rem;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 1.5rem;
+}
+
+.bond {
+  padding-bottom: 1.4rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 85%, transparent);
+}
+
+.bondHead {
+  margin: 0 0 0.3rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.8rem;
+  align-items: baseline;
+}
+
+.bondName {
+  font-family: var(--font-shippori), "Hiragino Mincho ProN", serif;
+  font-size: 1.08rem;
+  font-weight: 500;
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-bottom: 1px solid var(--get-line);
+}
+
+.bondNamePlain {
+  font-family: var(--font-shippori), "Hiragino Mincho ProN", serif;
+  font-size: 1.08rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.bondRole {
+  font-size: 0.88rem;
+  color: var(--gold);
+}
+
+.bondLine {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.bondFlag {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-shippori), "Hiragino Mincho ProN", serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  color: var(--get-frame-text);
+}
+
+.anchorTitle {
+  margin: 0 0 0.4rem;
+  font-family: var(--font-shippori), "Hiragino Mincho ProN", serif;
+  font-weight: 700;
+  font-size: 1.14rem;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+}
+
+.anchorLede {
+  margin: 0 0 1.1rem;
+  font-size: 0.96rem;
+  color: var(--text-muted);
+}
+
+.anchors {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 1rem;
+}
+
+.anchor {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.anchorLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: var(--touch-min);
+  text-decoration: none;
+  color: var(--accent-hover);
+  justify-self: start;
+}
+
+.anchorKanji {
+  font-family: var(--font-shippori), "Hiragino Mincho ProN", serif;
+  font-weight: 700;
+  font-size: 1.16rem;
+  letter-spacing: 0.12em;
+  color: var(--text-primary);
+}
+
+.anchorLabel {
+  font-size: 1rem;
+  border-bottom: 1px solid var(--get-line);
+}
+
+.anchorNote {
+  font-size: 0.92rem;
+  color: var(--text-muted);
+}
+
+/* ══ 7b · KAPANIŞ ══════════════════════════════════════════════════════ */
+
+.closingQuotes {
+  margin: 0 0 2.4rem;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 2.2rem;
+}
+
+.closingQuote {
+  margin: 0;
+  padding-left: 1.1rem;
+  border-left: 2px solid var(--accent-muted);
+}
+
+.quoteJa {
+  margin: 0;
+  font-family: var(--font-shippori), "Hiragino Mincho ProN", serif;
+  font-weight: 700;
+  font-size: clamp(1.28rem, 1rem + 1.3vw, 2.05rem);
+  letter-spacing: 0.14em;
+  line-height: 1.4;
+  color: var(--text-primary);
+}
+
+.quoteReading {
+  margin: 0.3rem 0 0;
+  font-size: 1.1rem;
+  font-style: italic;
+  color: var(--accent-hover);
+}
+
+.quoteNote {
+  margin: 0.5rem 0 0;
+  font-size: 0.96rem;
+  color: var(--text-muted);
+}
+
+.quoteBy {
+  margin: 0.5rem 0 0;
+  font-family: var(--font-shippori), "Hiragino Mincho ProN", serif;
+  font-size: 0.74rem;
+  letter-spacing: 0.16em;
+  color: var(--get-frame-text);
+}
+
+.motto {
+  margin: 0;
+  writing-mode: vertical-rl;
+  font-family: var(--font-shippori), "Hiragino Mincho ProN", serif;
+  font-weight: 700;
+  font-size: clamp(1.3rem, 1.05rem + 1.1vw, 1.85rem);
+  letter-spacing: 0.34em;
+  color: var(--accent);
+  height: 11rem;
+}
+
+.mottoNote {
+  margin: 1rem 0 2rem;
+  color: var(--text-secondary);
+}
+
+.credit {
+  margin: 2rem 0 0;
+  font-size: 0.96rem;
+  color: var(--text-muted);
+}
+
+.credit a {
+  color: var(--accent-hover);
+}
+
+.creditNote {
+  margin: 0.5rem 0 0;
+  font-size: 0.88rem;
+  color: var(--get-frame-text);
+}
+
+/* ══ KADRAJLAR ═════════════════════════════════════════════════════════
+   Boş kadraj ziyaretçide YAZISIZ: yalnızca ince bir çerçeve ve içinde
+   kesik bir çapraz. Üretim metadatası `isAdmin` ile kesildi (bileşende). */
+
+.frame {
+  position: relative;
+  margin: 1.3rem 0 0;
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  display: grid;
+  place-items: center;
+}
+
+.frame[data-filled="false"] {
+  background: repeating-linear-gradient(
+    142deg,
+    color-mix(in srgb, var(--surface) 100%, transparent),
+    color-mix(in srgb, var(--surface) 100%, transparent) 14px,
+    color-mix(in srgb, var(--surface-hover) 100%, transparent) 14px,
+    color-mix(in srgb, var(--surface-hover) 100%, transparent) 28px
+  );
+}
+
+.frameImg {
+  object-fit: cover;
+}
+
+/* Yüklenen görselin ÜSTÜNDEKİ metin için perde — köşe etiketleri ve
+   başlıklar parlak bir kareye denk geldiğinde okunmaz olmasın. */
+.frameScrim {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 46%;
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--get-ink) 88%, transparent),
+    transparent
+  );
+  pointer-events: none;
+}
+
+.frameCaption {
+  position: relative;
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.7rem;
+  text-align: center;
+}
+
+/* Görselin ÜSTÜNDEKİ tek metin. Kadraj doluyken altında `.frameScrim`
+   var, boşken zaten koyu bir zemin üstünde duruyor — iki durumda da
+   okunur. Bu etiket sayfanın kendi sözü ("山門 · kapı"), küratör
+   metni DEĞİL: ziyaretçiye üretim notu sızmıyor. */
+.frameOverlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0.6rem 0.75rem;
+  font-family: var(--font-shippori), "Hiragino Mincho ProN", serif;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  color: var(--get-frame-text);
+}
+
+.frameCaptionWord {
+  font-family: var(--font-shippori), "Hiragino Mincho ProN", serif;
+  font-size: 0.76rem;
+  letter-spacing: 0.16em;
+  color: var(--get-frame-text);
+}
+
+.frameCaptionSpec {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.frameGate {
+  aspect-ratio: 3 / 4;
+  max-width: 22rem;
+}
+
+.frameWide {
+  aspect-ratio: 16 / 9;
+}
+
+.frameSmall {
+  aspect-ratio: 3 / 2;
+}
+
+.frameScene {
+  aspect-ratio: 3 / 2;
+}
+
+.frameBand {
+  aspect-ratio: 21 / 9;
+}
+
+/* ══ HAREKET: MOR DUMAN ════════════════════════════════════════════════
+   Üç animasyonun da imzası aynı ilkeden çıkıyor: yükseldikçe BULANIKLAŞ,
+   yayıldıkça KAYBOL. Beş duraklı, çünkü dağılma tek bir eğri değil —
+   önce toparlanıyor, sonra çözülüyor.
+
+   ⚠️ Katmanların üçü de `.smoke` kabında ve o kap metnin ARKASINDA
+   (`z-index: 0`, içerik `z-index: 1`). `filter: blur()` hiçbir yazının
+   üstüne düşmüyor; kontrast betiği bulanık üstünü ölçemediği için bu
+   ayrım koda yazıldı. */
+
+@keyframes getDrift {
+  0% {
+    transform: translate3d(0, 6vh, 0) scale(0.86);
+    filter: blur(26px);
+    opacity: 0;
+  }
+  22% {
+    transform: translate3d(2vw, -6vh, 0) scale(0.96);
+    filter: blur(32px);
+    opacity: 0.5;
+  }
+  54% {
+    transform: translate3d(-1vw, -26vh, 0) scale(1.08);
+    filter: blur(44px);
+    opacity: 0.34;
+  }
+  79% {
+    transform: translate3d(3vw, -44vh, 0) scale(1.2);
+    filter: blur(58px);
+    opacity: 0.16;
+  }
+  100% {
+    transform: translate3d(1vw, -62vh, 0) scale(1.34);
+    filter: blur(72px);
+    opacity: 0;
+  }
+}
+
+@keyframes getPlume {
+  0% {
+    transform: translate3d(0, 10vh, 0) scale(0.92);
+    filter: blur(34px);
+    opacity: 0;
+  }
+  18% {
+    transform: translate3d(-3vw, -2vh, 0) scale(1);
+    filter: blur(38px);
+    opacity: 0.42;
+  }
+  47% {
+    transform: translate3d(1vw, -22vh, 0) scale(1.1);
+    filter: blur(50px);
+    opacity: 0.3;
+  }
+  73% {
+    transform: translate3d(-4vw, -40vh, 0) scale(1.24);
+    filter: blur(64px);
+    opacity: 0.14;
+  }
+  100% {
+    transform: translate3d(-2vw, -58vh, 0) scale(1.4);
+    filter: blur(80px);
+    opacity: 0;
+  }
+}
+
+@keyframes getDisperse {
+  0% {
+    transform: translate3d(0, 4vh, 0) scale(0.8);
+    filter: blur(22px);
+    opacity: 0;
+  }
+  26% {
+    transform: translate3d(2vw, -10vh, 0) scale(0.94);
+    filter: blur(30px);
+    opacity: 0.36;
+  }
+  58% {
+    transform: translate3d(-2vw, -30vh, 0) scale(1.12);
+    filter: blur(46px);
+    opacity: 0.22;
+  }
+  84% {
+    transform: translate3d(4vw, -48vh, 0) scale(1.3);
+    filter: blur(62px);
+    opacity: 0.1;
+  }
+  100% {
+    transform: translate3d(2vw, -66vh, 0) scale(1.46);
+    filter: blur(78px);
+    opacity: 0;
+  }
+}
+
+/* ══ AZALTILMIŞ HAREKET ════════════════════════════════════════════════
+   Battaniye: süreler VE gecikmeler sıfırlanıyor. Gecikme de şart —
+   duman katmanları eksi gecikmelerle dağıtılmış durumda ve yalnızca
+   süreyi sıfırlamak üçünü aynı anda ekranın altında yığardı.
+
+   Duman katmanları ayrıca tamamen gizleniyor: durgun bir bulanıklık
+   lekesi "kapalı hareket" değil, sayfaya yapışmış bir artık olurdu. */
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0s !important;
+    transition-duration: 0.001ms !important;
+    transition-delay: 0s !important;
+  }
+
+  .smoke {
+    display: none;
+  }
+}

@@ -1,0 +1,1894 @@
+/* ============================================================
+   DÜNYA DERİSİ — Grimmjow Jaegerjaquez (AniList #1080)
+
+   Palet dalga briefinde (§15) KİLİTLİ; değerler birebir alındı ve
+   `node scripts/check-karakter-kontrast.mjs` ile ölçüldü.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı
+   gereği bir yerel sınıf şart. Kök öğe ikisini birlikte taşır.
+
+   Aile: SOĞUK ÇELİK + ELEKTRİK MAVİSİ. Accent (#3fa0d5) doğrudan
+   Grimmjow'un Cero'sunun rengi. Arşivin sıkışmış turuncu ve kızıl
+   ailelerinin tamamen dışında; en yakın komşusu Kakashi'nin
+   #5aa9d0'ı ve o çok daha soluk bir zeminde duruyor.
+
+   ⚠️ Yardımcı token adlandırması: küçük metinde okunan her rengin
+   `-text` ekli bir kardeşi var (denetim yalnızca onları ölçüyor).
+   Ekli olmayanlar MALZEME: pençe konturu, kemik, deri gölgesi —
+   hepsi koyu olmak zorunda, metin olarak hiç okunmuyorlar.
+   ============================================================ */
+.page[data-world="grimmjow-jaegerjaquez"] {
+  --bg:             #090c0e;
+  --surface:        #111517;
+  --surface-hover:  #171c1f;
+  --border:         #1d2327;
+  --border-strong:  #2b3338;
+
+  --text-primary:   #c7cdd1;
+  --text-secondary: #7c8f9c;
+  --text-muted:     #6d879a;
+
+  --accent:         #3fa0d5;
+  --accent-hover:   #6aaed2;
+  --accent-muted:   #203946;
+
+  --gold:           #609da9;
+  --warn:           #b88347;
+  --danger:         #c26459;
+
+  /* ── Yardımcı MALZEME — yalnızca bu ağaç okur, metin değil ── */
+  --grm-claw:       #1c5f86;
+  --grm-mask:       #2a3439;
+  --grm-pelt:       #16292f;
+  --grm-ink:        #06090b;
+
+  /* ── Küçük metinde okunan aile (`-text`, ölçülüyor) ── */
+  --grm-claw-text:  #79b8e0;
+  --grm-rank-text:  #b0c2cc;
+  --grm-ja-text:    #93a9b6;
+  --grm-frame-text: #8b9fac;
+  --grm-torn-text:  #a8bcc6;
+}
+
+/* ============================================================
+   GRIMMJOW — "Desgarrón"
+
+   Deri: kökteki `data-world` bütün standart token'ları çeliğe ve
+   elektrik mavisine çeviriyor; yardımcılar `--grm-*` (yukarıdaki
+   blok). Bu bloktan AŞAĞIDA TEK HEX YOK — ara tonların hepsi
+   `color-mix` ile token'lardan türetildi (FAZ 2 §1, kural 16).
+
+   ── SAYFANIN FİKRİ ──────────────────────────────────────────────────────
+   YIRTMA. Sayfada hizalı tek bir kutu yok. Bölümler tam genişlikte üst
+   üste binmiş bantlar ve her bandın alt kenarı `clip-path` ile DÜZENSİZ
+   BİR YIRTIK. Her bandın yırtığı BAŞKA bir poligon: dokuz bandın dokuz
+   ayrı kenarı var, hiçbiri ötekinin tekrarı değil. Bir sonraki bant
+   negatif `margin-block-start` ile o yırtığın ALTINA giriyor, yani
+   yırtıktan altındaki katman görünüyor.
+
+   Bu bir süsleme değil. İspanyolca *arrancar* "koparmak" demek, Japoncası
+   破面 "kırılmış maske" — Arrancar maskesini kendi eliyle yırtmış Hollow.
+   Biçim doğrudan ırkın tarifinden geliyor.
+
+   ── ÖLÇÜ SİSTEMİ ────────────────────────────────────────────────────────
+   --grm-rip     yırtığın derinliği (mod kapalıyken sığ, açıkken derin)
+   --grm-lap     bantların üst üste binme payı
+   --grm-gutter  bant İÇİNİN yan boşluğu (bandın kendisi tam genişlik)
+   --grm-charge  0 → 1; elektrik mavisinin doygunluğu
+
+   ⚠️ Yırtıklar mod KAPALIYKEN de var, yalnızca sığ (Dalga 1 dersi 2).
+   Resurrección onları getirmiyor, DERİNLEŞTİRİYOR.
+
+   ── TİPOGRAFİ ───────────────────────────────────────────────────────────
+   Display: Archivo Black — düz (eğim yok), çok büyük, sıkı harf aralığı
+   ve KIRPILMIŞ. Kırpma `clip-path: inset()` ile.
+
+   ⚠️ KIRPMA ÖLÇÜSÜ — okunabilirlik sözleşmesi. Archivo Black'in büyük
+   harf yüksekliği ~0.73em, hhea yükselen+alçalan toplamı ~1.25em.
+   `.bandTitle`de satır kutusu 1em, yani yarım satır aralığı -0.125em:
+   kutunun üstü yazının tepesinden 0.125em AŞAĞIDA, taban çizgisi
+   kutu_üstü+0.875em, büyük harfin tepesi kutu_üstü+0.145em. Üstten
+   kesilen 0.05em bu tepenin de, Türkçe İ'nin noktasının da (~0.075em)
+   ÜSTÜNDE kalıyor. Alttan HİÇ kesilmiyor — ç ve ş'nin sedillası taban
+   çizgisinin altında ve dokunulmuyor. Yani kesilen şey yalnızca BOŞLUK.
+   Ekran okuyucuya giden metin zaten bütün: `clip-path` görsel bir kırpma,
+   metni değiştirmiyor.
+
+   `.heroName` yalnızca Latin BÜYÜK HARF taşıdığı için (noktalı harf yok)
+   daha derin kesiliyor; ölçüsü kendi başlığında.
+
+   Gövde: Jost. Japonca ve okunuşlar `--grm-ja-text`.
+
+   ── HAREKET ─────────────────────────────────────────────────────────────
+   YIRTMA — ve fade YOK. Sayfada `opacity` geçişi hiç kullanılmadı; her
+   açılış bir `clip-path` poligonunun kenarının kayması. Zamanlama kısa,
+   sert ve düzensiz: `--grm-snap` 140ms, `--grm-tear` 240ms, easing
+   `cubic-bezier(0.86, 0, 0.07, 1)` (ortada duraklamayan, iki ucu sert).
+   Sürekli koşan animasyon yok; her hareket bir kullanıcı eylemine bağlı.
+   Dosya sonundaki `reduce` battaniyesi hepsini kapatıyor ve her durumun
+   YAZILI karşılığı var.
+   ============================================================ */
+
+.page {
+  --grm-rip: 0.75rem;
+  --grm-lap: 1.4rem;
+  --grm-title-scale: 1;
+  --grm-charge: 0;
+  --grm-gutter: clamp(1.05rem, 5vw, 2.4rem);
+  --grm-measure: 44rem;
+
+  --grm-snap: 140ms;
+  --grm-tear: 240ms;
+  --grm-hard: cubic-bezier(0.86, 0, 0.07, 1);
+  --grm-jag: cubic-bezier(0.95, 0.05, 0.8, 0.04);
+
+  --grm-hair: color-mix(in srgb, var(--border-strong) 85%, transparent);
+  --grm-live: color-mix(
+    in srgb,
+    var(--accent) calc(var(--grm-charge) * 100%),
+    var(--grm-claw)
+  );
+
+  position: relative;
+  background: var(--bg);
+  color: var(--text-primary);
+  overflow-x: clip;
+  overflow-wrap: break-word;
+  padding-block: clamp(1.1rem, 4vw, 2.2rem) clamp(4rem, 12vh, 7rem);
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-size: clamp(0.88rem, 0.82rem + 0.25vw, 0.97rem);
+  line-height: 1.72;
+  letter-spacing: 0.006em;
+}
+
+/* ── RESURRECCIÓN — modun YAPIYA yaptığı ────────────────────────────
+   Işık değil yapı: yırtıklar derinleşiyor, bantlar birbirine daha çok
+   giriyor (dikey ritim kısalıyor), başlıklar bir kademe büyüyor ve
+   elektrik mavisi doyuyor. Dördü de `clip-path`, `margin` ve `font-size`
+   üzerinden geçiş yapıyor — hiçbiri `opacity` değil. */
+.page[data-ressurect="true"] {
+  --grm-rip: 1.65rem;
+  --grm-lap: 2.55rem;
+  --grm-title-scale: 1.16;
+  --grm-charge: 1;
+}
+
+/* Görünür odak — sayfadaki her düğme ve bağlantı için tek kural */
+.page :focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 3px;
+}
+
+.page a {
+  color: var(--accent-hover);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+}
+
+.page a:hover {
+  color: var(--grm-claw-text);
+}
+
+/* ══ BREADCRUMB ═══════════════════════════════════════════════════════ */
+
+.crumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.55rem;
+  padding-inline: var(--grm-gutter);
+  padding-block-end: clamp(1.2rem, 4vw, 2rem);
+  font-size: 0.78rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.crumbSep {
+  color: var(--grm-claw-text);
+  transform: skewX(-22deg);
+}
+
+.crumbHere {
+  color: var(--grm-torn-text);
+}
+
+/* ══ BANT — IZGARANIN KENDİSİ ═════════════════════════════════════════
+   Tam genişlik, alt kenarı yırtık. Dokuz bandın dokuz AYRI poligonu var
+   (aşağıda `[data-band]` blokları); hiçbiri ötekinin aynası değil.
+
+   ⚠️ `clip-path` kesiyor, o yüzden içerik yırtık bölgeye hiç girmiyor:
+   `padding-block-end` yırtığın en derin noktasından fazla. Yırtık
+   DEKORASYON — odaklanabilir hiçbir şey onun içinde kalmıyor.
+
+   Katman sırası TERS: hero en üstte, kapanış en altta. Böylece bir
+   bandın yırtığından BİR SONRAKİ bandın zemini görünüyor; yırtık gerçek
+   bir açıklık gibi davranıyor. */
+.band {
+  position: relative;
+  z-index: 1;
+  padding-block: clamp(2.6rem, 7vw, 4.4rem)
+    calc(var(--grm-lap) + clamp(2.8rem, 7vw, 4.6rem));
+  background: var(--surface);
+  transition:
+    clip-path var(--grm-tear) var(--grm-hard),
+    margin-block-start var(--grm-tear) var(--grm-hard),
+    padding-block-end var(--grm-tear) var(--grm-hard);
+}
+
+.band + .band {
+  margin-block-start: calc(var(--grm-lap) * -1);
+}
+
+/* Bandın İÇİ — hizalı kutu yok: her bandın ölçüsü ve yaslanması farklı.
+   Ortak bir kolon çizgisi bilerek YOK; göz her bantta başka bir yerden
+   başlıyor. */
+.bandInner {
+  position: relative;
+  z-index: 2;
+  max-width: var(--grm-measure);
+  padding-inline: var(--grm-gutter);
+}
+
+/* ── Dokuz bant, dokuz kenar ─────────────────────────────────────────
+   Poligonların hepsi 11 noktalı (geçişin çalışması için nokta sayısı
+   sabit olmak zorunda) ama çentiklerin yeri ve derinliği her bantta
+   başka. Derinlikler `--grm-rip` çarpanı; mod açıldığında hepsi aynı
+   anda derinleşiyor. */
+
+.band[data-band="hero"] {
+  z-index: 9;
+  background: linear-gradient(
+    177deg,
+    color-mix(in srgb, var(--surface) 88%, var(--grm-pelt)) 0%,
+    var(--surface) 62%,
+    color-mix(in srgb, var(--surface) 80%, var(--grm-ink)) 100%
+  );
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - var(--grm-rip) * 0.4),
+    89% calc(100% - var(--grm-rip) * 2.6),
+    77% calc(100% - var(--grm-rip) * 0.9),
+    63% calc(100% - var(--grm-rip) * 3.1),
+    51% calc(100% - var(--grm-rip) * 1.1),
+    38% calc(100% - var(--grm-rip) * 2.8),
+    24% calc(100% - var(--grm-rip) * 0.6),
+    11% calc(100% - var(--grm-rip) * 2.2),
+    0 calc(100% - var(--grm-rip) * 0.8)
+  );
+}
+
+.band[data-band="mode"] {
+  z-index: 8;
+  background: color-mix(in srgb, var(--surface-hover) 82%, var(--grm-pelt));
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - var(--grm-rip) * 2.4),
+    91% calc(100% - var(--grm-rip) * 0.5),
+    80% calc(100% - var(--grm-rip) * 2.9),
+    68% calc(100% - var(--grm-rip) * 1.4),
+    54% calc(100% - var(--grm-rip) * 3.3),
+    41% calc(100% - var(--grm-rip) * 0.7),
+    29% calc(100% - var(--grm-rip) * 2.5),
+    14% calc(100% - var(--grm-rip) * 1.2),
+    0 calc(100% - var(--grm-rip) * 2.7)
+  );
+}
+
+.band[data-band="identity"] {
+  z-index: 7;
+  background: var(--surface);
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - var(--grm-rip) * 1.6),
+    86% calc(100% - var(--grm-rip) * 3.2),
+    73% calc(100% - var(--grm-rip) * 0.4),
+    60% calc(100% - var(--grm-rip) * 2.1),
+    47% calc(100% - var(--grm-rip) * 0.9),
+    34% calc(100% - var(--grm-rip) * 3.0),
+    22% calc(100% - var(--grm-rip) * 1.3),
+    9% calc(100% - var(--grm-rip) * 2.6),
+    0 calc(100% - var(--grm-rip) * 0.5)
+  );
+}
+
+.band[data-band="identity"] .bandInner {
+  margin-inline-start: auto;
+  max-width: calc(var(--grm-measure) + 3rem);
+}
+
+.band[data-band="power"] {
+  z-index: 6;
+  background: color-mix(in srgb, var(--surface) 90%, var(--grm-ink));
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - var(--grm-rip) * 3.0),
+    93% calc(100% - var(--grm-rip) * 1.1),
+    81% calc(100% - var(--grm-rip) * 2.4),
+    66% calc(100% - var(--grm-rip) * 0.5),
+    52% calc(100% - var(--grm-rip) * 2.9),
+    39% calc(100% - var(--grm-rip) * 1.5),
+    26% calc(100% - var(--grm-rip) * 3.2),
+    12% calc(100% - var(--grm-rip) * 0.8),
+    0 calc(100% - var(--grm-rip) * 2.0)
+  );
+}
+
+.band[data-band="kit"] {
+  z-index: 5;
+  background: color-mix(in srgb, var(--surface-hover) 74%, var(--grm-ink));
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - var(--grm-rip) * 0.9),
+    88% calc(100% - var(--grm-rip) * 2.7),
+    75% calc(100% - var(--grm-rip) * 1.5),
+    61% calc(100% - var(--grm-rip) * 3.4),
+    49% calc(100% - var(--grm-rip) * 0.4),
+    36% calc(100% - var(--grm-rip) * 2.2),
+    23% calc(100% - var(--grm-rip) * 1.0),
+    10% calc(100% - var(--grm-rip) * 3.1),
+    0 calc(100% - var(--grm-rip) * 1.4)
+  );
+}
+
+.band[data-band="kit"] .bandInner {
+  margin-inline: auto;
+  max-width: calc(var(--grm-measure) + 6rem);
+}
+
+.band[data-band="desgarron"] {
+  z-index: 4;
+  background: linear-gradient(
+    183deg,
+    color-mix(in srgb, var(--surface) 84%, var(--grm-pelt)) 0%,
+    color-mix(in srgb, var(--surface) 94%, var(--grm-ink)) 100%
+  );
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - var(--grm-rip) * 2.2),
+    90% calc(100% - var(--grm-rip) * 0.4),
+    78% calc(100% - var(--grm-rip) * 3.5),
+    64% calc(100% - var(--grm-rip) * 1.2),
+    50% calc(100% - var(--grm-rip) * 2.6),
+    37% calc(100% - var(--grm-rip) * 0.6),
+    25% calc(100% - var(--grm-rip) * 3.3),
+    13% calc(100% - var(--grm-rip) * 1.7),
+    0 calc(100% - var(--grm-rip) * 2.9)
+  );
+}
+
+.band[data-band="fate"] {
+  z-index: 3;
+  background: var(--surface);
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - var(--grm-rip) * 1.2),
+    87% calc(100% - var(--grm-rip) * 3.0),
+    74% calc(100% - var(--grm-rip) * 0.6),
+    59% calc(100% - var(--grm-rip) * 2.4),
+    46% calc(100% - var(--grm-rip) * 1.4),
+    33% calc(100% - var(--grm-rip) * 3.4),
+    21% calc(100% - var(--grm-rip) * 0.5),
+    8% calc(100% - var(--grm-rip) * 2.3),
+    0 calc(100% - var(--grm-rip) * 1.1)
+  );
+}
+
+.band[data-band="fate"] .bandInner {
+  margin-inline-end: auto;
+  max-width: calc(var(--grm-measure) + 1.5rem);
+}
+
+.band[data-band="bonds"] {
+  z-index: 2;
+  background: color-mix(in srgb, var(--surface-hover) 68%, var(--grm-ink));
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - var(--grm-rip) * 2.8),
+    92% calc(100% - var(--grm-rip) * 1.3),
+    79% calc(100% - var(--grm-rip) * 3.1),
+    67% calc(100% - var(--grm-rip) * 0.4),
+    53% calc(100% - var(--grm-rip) * 2.0),
+    40% calc(100% - var(--grm-rip) * 1.1),
+    27% calc(100% - var(--grm-rip) * 3.3),
+    15% calc(100% - var(--grm-rip) * 0.7),
+    0 calc(100% - var(--grm-rip) * 2.5)
+  );
+}
+
+.band[data-band="closing"] {
+  z-index: 1;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--surface) 92%, var(--grm-ink)) 0%,
+    var(--bg) 100%
+  );
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - var(--grm-rip) * 0.5),
+    89% calc(100% - var(--grm-rip) * 2.5),
+    76% calc(100% - var(--grm-rip) * 1.0),
+    62% calc(100% - var(--grm-rip) * 3.2),
+    48% calc(100% - var(--grm-rip) * 0.8),
+    35% calc(100% - var(--grm-rip) * 2.7),
+    23% calc(100% - var(--grm-rip) * 1.5),
+    11% calc(100% - var(--grm-rip) * 3.0),
+    0 calc(100% - var(--grm-rip) * 1.9)
+  );
+}
+
+/* ── Kenardaki pençe izi gölgeleri — YALNIZCA Resurrección'da ────────
+   Görünme biçimi bir fade DEĞİL: `clip-path` yukarıdan aşağı açılıyor,
+   yani izler de yırtılarak beliriyor. Kapalıyken tamamen kapalı. */
+.band::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline: 0;
+  pointer-events: none;
+  z-index: 1;
+  background:
+    repeating-linear-gradient(
+      104deg,
+      transparent 0 calc(0.55rem + var(--grm-rip)),
+      color-mix(in srgb, var(--grm-live) 26%, transparent) calc(0.55rem + var(--grm-rip))
+        calc(0.68rem + var(--grm-rip)),
+      transparent calc(0.68rem + var(--grm-rip)) calc(2.4rem + var(--grm-rip))
+    );
+  mask-image: linear-gradient(
+    90deg,
+    black 0%,
+    transparent 22%,
+    transparent 78%,
+    black 100%
+  );
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path var(--grm-tear) var(--grm-jag);
+}
+
+.page[data-ressurect="true"] .band::before {
+  clip-path: inset(0 0 0 0);
+}
+
+/* ── Yırtığın altındaki lif çizgisi ──────────────────────────────────
+   Kesik kenar tek başına fazla temiz kalıyor; bu ince kırık çizgi
+   kesiğin altına giriyor ve kâğıt lifinin hissini veriyor. Bandın
+   `clip-path`i onu da kestiği için yalnızca yırtığın var olduğu yerde
+   görünüyor — kendiliğinden düzensiz. */
+.fibre {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 0;
+  z-index: 3;
+  display: block;
+  height: calc(var(--grm-rip) * 3.6);
+  pointer-events: none;
+  transition: height var(--grm-tear) var(--grm-hard);
+}
+
+.fibreArt {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.fibreStroke {
+  stroke: color-mix(in srgb, var(--grm-live) 62%, transparent);
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ══ FİLİGRAN ═════════════════════════════════════════════════════════
+   Üç parça, üçü de elle: dört paralel pençe yırtığı, 破面 ve Aizen'in
+   sırta kazıdığı ÇARPIK 6. Hepsi `aria-hidden` — okunabilir karşılıkları
+   künye şeridinde metin olarak zaten var. */
+.watermark {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  pointer-events: none;
+  overflow: clip;
+}
+
+.watermarkClaw {
+  position: absolute;
+  inset-block-start: -4%;
+  inset-inline-end: -6%;
+  width: min(46%, 22rem);
+  height: auto;
+  transform: rotate(9deg);
+  color: var(--grm-mask);
+}
+
+.watermarkRip {
+  fill: color-mix(
+    in srgb,
+    var(--grm-live) calc(18% + var(--grm-charge) * 16%),
+    transparent
+  );
+  transition: fill var(--grm-tear) var(--grm-hard);
+}
+
+.watermarkKanji {
+  position: absolute;
+  inset-block-end: 4%;
+  inset-inline-start: -0.06em;
+  font-family: var(--font-shippori), var(--font-jost), serif;
+  font-size: clamp(6rem, 30vw, 15rem);
+  line-height: 0.78;
+  letter-spacing: -0.05em;
+  color: color-mix(in srgb, var(--grm-mask) 72%, transparent);
+  /* Kanji de kırpılıyor — sayfadaki her şey gibi. Dekoratif olduğu için
+     burada kesme sınırı yok. */
+  clip-path: inset(0.12em 0 0.05em 0);
+}
+
+.watermarkSix {
+  position: absolute;
+  inset-block-start: 34%;
+  inset-inline-end: 8%;
+  width: min(16%, 7rem);
+  height: auto;
+}
+
+.watermarkSixStroke {
+  stroke: color-mix(
+    in srgb,
+    var(--grm-live) calc(34% + var(--grm-charge) * 24%),
+    transparent
+  );
+  stroke-width: 7;
+  transition: stroke var(--grm-tear) var(--grm-hard);
+}
+
+/* ══ 1 · HERO ═════════════════════════════════════════════════════════ */
+
+.heroHouse {
+  margin: 0;
+  font-size: 0.76rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--grm-claw-text);
+}
+
+/* ⚠️ KIRPMA — bu sayfanın en sert kesimi.
+   `.heroName` yalnızca Latin BÜYÜK HARF taşıyor (noktalı harf yok), o
+   yüzden `.bandTitle`dan daha derin kesilebiliyor. Ölçü: satır kutusu
+   0.96em, yarım satır aralığı -0.145em, taban çizgisi kutu_üstü+0.855em,
+   büyük harfin tepesi kutu_üstü+0.125em. Üstten 0.08em kesiliyor —
+   tepenin 0.045em üstünde. Alttan 0.02em kesiliyor, yani taban çizgisinin
+   0.085em altına kadar korunuyor: Q'nun kuyruğu (~0.05em) sağlam.
+   Harf gövdesine hiç dokunulmuyor; giden şey yalnızca boşluk. */
+.heroName {
+  margin: 0.55rem 0 0;
+  font-family: var(--font-numeral), Impact, system-ui, sans-serif;
+  font-weight: 400;
+  font-size: calc(clamp(1.9rem, 10.5vw, 4.6rem) * var(--grm-title-scale));
+  line-height: 0.96;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  clip-path: inset(0.08em 0 0.02em 0);
+  transition: font-size var(--grm-tear) var(--grm-hard);
+}
+
+.heroNative {
+  margin: 0.7rem 0 0;
+  font-size: 0.94rem;
+  letter-spacing: 0.06em;
+  color: var(--grm-ja-text);
+}
+
+.heroRank {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.3rem 0.75rem;
+  margin: 1.15rem 0 0;
+  padding-block-start: 0.85rem;
+  border-block-start: 1px solid var(--grm-hair);
+}
+
+.heroRankName {
+  font-family: var(--font-numeral), Impact, system-ui, sans-serif;
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--grm-claw-text);
+}
+
+.heroRankReading {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.heroEpigraph {
+  margin: 1.5rem 0 0;
+  max-width: 34rem;
+  font-size: clamp(1rem, 0.94rem + 0.5vw, 1.22rem);
+  line-height: 1.55;
+  color: var(--grm-torn-text);
+}
+
+.heroLede {
+  margin: 1.15rem 0 0;
+  max-width: 36rem;
+  color: var(--text-secondary);
+}
+
+.portrait {
+  margin: 2.1rem 0 0;
+  width: min(13rem, 46vw);
+  /* Portre de yırtık — kadraj dikdörtgen değil. Küçük bir kare olduğu
+     için kesim sığ: yüz asla kesilmiyor, yalnızca kenar payı gidiyor. */
+  clip-path: polygon(
+    0 2%,
+    96% 0,
+    100% 94%,
+    62% 100%,
+    28% 96%,
+    0 100%
+  );
+  border-inline-start: 2px solid var(--grm-live);
+}
+
+.portraitImg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.heroFrameNote,
+.heroMarkNote {
+  margin: 1.25rem 0 0;
+  max-width: 32rem;
+  font-size: 0.82rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+}
+
+/* ══ 2 · MOD DÜĞMESİ ══════════════════════════════════════════════════ */
+
+.bandNative {
+  margin: 0.6rem 0 0;
+  font-family: var(--font-shippori), var(--font-jost), serif;
+  font-size: 1.7rem;
+  line-height: 1.1;
+  letter-spacing: 0.1em;
+  color: var(--grm-ja-text);
+}
+
+.bandReading {
+  margin: 0.35rem 0 0;
+  font-size: 0.83rem;
+  color: var(--text-secondary);
+}
+
+.modeButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-block-start: 1.6rem;
+  min-height: var(--touch-min);
+  padding: 0.7rem 1.35rem;
+  border: 1px solid var(--border-strong);
+  background: color-mix(in srgb, var(--surface) 70%, var(--grm-ink));
+  color: var(--text-primary);
+  font: inherit;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  /* Düğmenin kendisi de yırtık kenarlı. */
+  clip-path: polygon(
+    0 6%,
+    97% 0,
+    100% 88%,
+    64% 100%,
+    31% 92%,
+    0 100%
+  );
+  transition:
+    background var(--grm-snap) var(--grm-hard),
+    border-color var(--grm-snap) var(--grm-hard);
+}
+
+.modeButton:hover {
+  background: var(--surface-hover);
+  border-color: var(--grm-live);
+}
+
+/* Basılınca kendi içinde yırtılan dilim. */
+.modeMark {
+  flex: none;
+  width: 1.15rem;
+  height: 1.15rem;
+  background: var(--grm-live);
+  clip-path: polygon(50% 0, 100% 38%, 78% 100%, 22% 100%, 0 38%);
+  transition: clip-path var(--grm-snap) var(--grm-jag);
+}
+
+.modeButton[aria-pressed="true"] .modeMark {
+  clip-path: polygon(
+    50% 0,
+    62% 44%,
+    100% 38%,
+    72% 68%,
+    88% 100%,
+    50% 74%,
+    12% 100%,
+    28% 68%,
+    0 38%,
+    38% 44%
+  );
+}
+
+.modeLabel {
+  font-family: var(--font-numeral), Impact, system-ui, sans-serif;
+  font-size: 0.86rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.modeCommand {
+  font-family: var(--font-shippori), var(--font-jost), serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  color: var(--grm-ja-text);
+}
+
+.modeHint {
+  margin: 1.15rem 0 0;
+  max-width: 34rem;
+  font-size: 0.85rem;
+  color: var(--grm-torn-text);
+}
+
+/* ══ BÖLÜM BAŞLIKLARI ═════════════════════════════════════════════════
+   ⚠️ Kırpma ölçüsü ve gerekçesi dosya başındaki TİPOGRAFİ bloğunda.
+   Kısaca: üstten 0.05em kesiliyor (büyük harfin tepesi 0.145em'de, İ'nin
+   noktası ~0.075em'de — ikisi de güvende), alttan HİÇ kesilmiyor (ç, ş
+   sedillaları taban çizgisinin altında). Kesilen şey yalnızca boşluk. */
+.bandTitle {
+  margin: 0;
+  font-family: var(--font-numeral), Impact, system-ui, sans-serif;
+  font-weight: 400;
+  font-size: calc(clamp(1.7rem, 8.4vw, 3.9rem) * var(--grm-title-scale));
+  line-height: 1;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  clip-path: inset(0.05em 0 0 0);
+  transition: font-size var(--grm-tear) var(--grm-hard);
+}
+
+.bandLede {
+  margin: 1rem 0 0;
+  max-width: 38rem;
+  color: var(--text-secondary);
+}
+
+/* ══ 3 · KÜNYE ŞERİDİ ═════════════════════════════════════════════════
+   Kutu yok: satırlar kırık bir merdiven gibi kayıyor. Her satırın sol
+   payı bir öncekinden farklı; ortak bir hizalama çizgisi bilerek yok. */
+.facts {
+  margin: 2rem 0 0;
+  display: grid;
+  gap: 0;
+}
+
+.fact {
+  display: grid;
+  gap: 0.15rem 1rem;
+  padding-block: 0.75rem;
+  border-block-end: 1px solid var(--grm-hair);
+}
+
+.fact:nth-child(2n) {
+  margin-inline-start: clamp(0.5rem, 3vw, 1.9rem);
+}
+
+.fact:nth-child(3n) {
+  margin-inline-start: clamp(0.25rem, 1.6vw, 1rem);
+}
+
+.fact:nth-child(5n) {
+  margin-inline-start: clamp(0.9rem, 4.5vw, 2.9rem);
+}
+
+.factLabel {
+  margin: 0;
+  font-size: 0.73rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.factValue {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--grm-rank-text);
+}
+
+/* İki boş satır: uydurulmuş bir sayı yerine görünür bir boşluk. */
+.fact[data-blank="true"] .factValue {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.fact[data-blank="true"] {
+  border-block-end-style: dashed;
+}
+
+.factNote {
+  margin: 1.3rem 0 0;
+  max-width: 34rem;
+  font-size: 0.83rem;
+  color: var(--text-muted);
+}
+
+/* ══ 4a · ÜÇ BÜYÜK GÜÇ ════════════════════════════════════════════════ */
+
+.powerList {
+  margin: 2.2rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: clamp(3rem, 8vw, 5rem);
+}
+
+.power {
+  position: relative;
+  padding-block-start: 0.5rem;
+}
+
+.power:nth-child(2) {
+  margin-inline-start: clamp(0rem, 3.5vw, 2.2rem);
+}
+
+.power:nth-child(3) {
+  margin-inline-start: clamp(0rem, 1.6vw, 1rem);
+}
+
+/* Dev, kırpılmış rakam. Yalnızca RAKAM taşıyor (noktalı harf riski yok),
+   dekoratif ve sıra bilgisi zaten <ol> semantiğinde. */
+.powerIndex {
+  margin: 0 0 -0.35em;
+  font-family: var(--font-numeral), Impact, system-ui, sans-serif;
+  font-size: clamp(3.2rem, 15vw, 6.4rem);
+  line-height: 0.86;
+  letter-spacing: -0.06em;
+  color: color-mix(in srgb, var(--grm-mask) 88%, var(--grm-live));
+  clip-path: inset(0.08em 0 0.03em 0);
+}
+
+.powerName {
+  position: relative;
+  margin: 0;
+  font-family: var(--font-numeral), Impact, system-ui, sans-serif;
+  font-weight: 400;
+  font-size: calc(clamp(1.25rem, 5vw, 1.9rem) * var(--grm-title-scale));
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--grm-claw-text);
+  clip-path: inset(0.05em 0 0 0);
+  transition: font-size var(--grm-tear) var(--grm-hard);
+}
+
+.powerNative {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.7rem;
+  margin: 0.45rem 0 0;
+  font-family: var(--font-shippori), var(--font-jost), serif;
+  font-size: 1.06rem;
+  letter-spacing: 0.08em;
+  color: var(--grm-ja-text);
+}
+
+.powerReading,
+.kitReading {
+  font-family: var(--font-jost), system-ui, sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.powerTurkish {
+  margin: 0.35rem 0 0;
+  font-size: 0.95rem;
+  color: var(--grm-torn-text);
+}
+
+.powerTagline {
+  margin: 1.1rem 0 0;
+  padding-inline-start: 0.95rem;
+  border-inline-start: 2px solid var(--grm-live);
+  font-size: 1.02rem;
+  color: var(--grm-rank-text);
+}
+
+.powerText {
+  margin: 1.05rem 0 0;
+  color: var(--text-secondary);
+}
+
+.powerTraits {
+  margin: 1.1rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.trait {
+  padding: 0.28rem 0.7rem;
+  border: 1px solid var(--border-strong);
+  background: color-mix(in srgb, var(--surface-hover) 60%, transparent);
+  font-size: 0.76rem;
+  letter-spacing: 0.05em;
+  color: var(--grm-frame-text);
+  clip-path: polygon(0 0, 100% 8%, 96% 100%, 4% 92%);
+}
+
+/* ══ 4b · DÖRT KÜÇÜK TEKNİK ═══════════════════════════════════════════ */
+
+.kitList {
+  margin: 2.2rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 1.6rem;
+}
+
+.kit {
+  padding: 1.35rem 1.15rem 1.5rem;
+  background: color-mix(in srgb, var(--surface) 78%, var(--grm-ink));
+  border-block-start: 2px solid var(--grm-live);
+  /* Dört kartın dördü de FARKLI kesilmiş; hizalı kenar yok. */
+  clip-path: polygon(0 0, 100% 0, 100% 93%, 71% 100%, 34% 94%, 0 100%);
+}
+
+.kit:nth-child(2) {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 66% 93%, 29% 100%, 0 95%);
+  margin-inline-start: clamp(0rem, 2.5vw, 1.4rem);
+}
+
+.kit:nth-child(3) {
+  clip-path: polygon(0 0, 100% 0, 100% 96%, 78% 100%, 41% 92%, 0 99%);
+}
+
+.kit:nth-child(4) {
+  clip-path: polygon(0 0, 100% 0, 100% 91%, 58% 100%, 22% 95%, 0 100%);
+  margin-inline-start: clamp(0rem, 1.4vw, 0.8rem);
+}
+
+.kitName {
+  margin: 0;
+  font-family: var(--font-numeral), Impact, system-ui, sans-serif;
+  font-weight: 400;
+  font-size: calc(1.02rem * var(--grm-title-scale));
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: var(--grm-claw-text);
+  transition: font-size var(--grm-tear) var(--grm-hard);
+}
+
+.kitNative {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.6rem;
+  margin: 0.4rem 0 0;
+  font-family: var(--font-shippori), var(--font-jost), serif;
+  font-size: 0.98rem;
+  letter-spacing: 0.06em;
+  color: var(--grm-ja-text);
+}
+
+.kitTurkish {
+  margin: 0.3rem 0 0;
+  font-size: 0.84rem;
+  color: var(--grm-torn-text);
+}
+
+.kitNote {
+  margin: 0.8rem 0 0;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+/* ══ 5 · DESGARRÓN — SAYFANIN KALBİ ═══════════════════════════════════
+   Beş katman, beş pençe. Yırtıklar birikimli: `--grm-collage` deck'in
+   kaç yırtığı açık olduğunu taşıyor, `--grm-dir` / `--grm-amt` her
+   katmanın kendi yönünü ve genliğini. İkisi çarpılınca beş parça
+   birbirinden ayrışıyor ve bölüm bir kolaja dönüşüyor. */
+.deck {
+  --grm-collage: 0;
+  margin-block-start: 2.2rem;
+}
+
+.deckHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.6rem 1.2rem;
+  padding-block-end: 0.85rem;
+  border-block-end: 1px solid var(--grm-hair);
+}
+
+.deckRack {
+  margin: 0;
+  font-family: var(--font-numeral), Impact, system-ui, sans-serif;
+  font-size: 0.88rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--grm-claw-text);
+}
+
+.deckCount {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 0;
+  margin-inline-start: auto;
+}
+
+.deckCountLabel {
+  font-size: 0.73rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.deckCountValue {
+  font-family: var(--font-numeral), Impact, system-ui, sans-serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.02em;
+  color: var(--grm-rank-text);
+}
+
+.deckReset {
+  min-height: var(--touch-min);
+  padding: 0.4rem 0.95rem;
+  border: 1px solid var(--border-strong);
+  background: transparent;
+  color: var(--grm-frame-text);
+  font: inherit;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  clip-path: polygon(0 8%, 98% 0, 100% 92%, 40% 100%, 0 96%);
+  transition: color var(--grm-snap) var(--grm-hard);
+}
+
+.deckReset:hover:not(:disabled) {
+  color: var(--grm-claw-text);
+  border-color: var(--grm-live);
+}
+
+.deckReset:disabled {
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.deckHint {
+  margin: 0.9rem 0 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.strata {
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.75rem;
+}
+
+/* Katmanın kayma yönü ve genliği — beşi de farklı, hiçbiri ötekinin
+   aynası değil. Yırtık sayısı arttıkça (`--grm-collage`) hepsi birden
+   dağılıyor. */
+.stratum {
+  position: relative;
+  --grm-dir: 1;
+  --grm-amt: 0.7;
+  transform: translateX(
+      calc(var(--grm-dir) * var(--grm-amt) * var(--grm-collage) * 0.5rem)
+    )
+    rotate(calc(var(--grm-dir) * var(--grm-amt) * var(--grm-collage) * 0.45deg));
+  transition: transform var(--grm-tear) var(--grm-jag);
+}
+
+.stratum[data-slot="0"] {
+  --grm-dir: -1;
+  --grm-amt: 0.9;
+}
+
+.stratum[data-slot="1"] {
+  --grm-dir: 1;
+  --grm-amt: 0.55;
+}
+
+.stratum[data-slot="2"] {
+  --grm-dir: -1;
+  --grm-amt: 1.15;
+}
+
+.stratum[data-slot="3"] {
+  --grm-dir: 1;
+  --grm-amt: 0.8;
+}
+
+.stratum[data-slot="4"] {
+  --grm-dir: -1;
+  --grm-amt: 0.4;
+}
+
+.deck[data-open="1"] {
+  --grm-collage: 0.26;
+}
+
+.deck[data-open="2"] {
+  --grm-collage: 0.5;
+}
+
+.deck[data-open="3"] {
+  --grm-collage: 0.72;
+}
+
+.deck[data-open="4"] {
+  --grm-collage: 0.88;
+}
+
+.deck[data-open="5"] {
+  --grm-collage: 1;
+}
+
+/* ── KAPAK — tamamen dekoratif, `aria-hidden`, tıklanamaz ──────────── */
+.lid {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  pointer-events: none;
+  overflow: clip;
+}
+
+.lidSkin {
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(
+      98deg,
+      transparent 0 1.1rem,
+      color-mix(in srgb, var(--grm-mask) 42%, transparent) 1.1rem 1.18rem,
+      transparent 1.18rem 2.6rem
+    ),
+    color-mix(in srgb, var(--surface-hover) 55%, transparent);
+  clip-path: inset(0 0 0 0);
+  transition: clip-path var(--grm-tear) var(--grm-jag);
+}
+
+/* Yırtılınca kapak yukarı doğru kaçıyor — kaybolmuyor, AÇILIYOR. */
+.stratum[data-torn="true"] .lidSkin {
+  clip-path: inset(0 0 78% 0);
+}
+
+.lidGash {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: 0;
+  height: 0.28rem;
+  background: var(--grm-live);
+  clip-path: polygon(
+    0 40%,
+    14% 0,
+    27% 66%,
+    41% 12%,
+    55% 74%,
+    68% 8%,
+    82% 60%,
+    100% 22%,
+    100% 100%,
+    0 100%
+  );
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  transition: transform var(--grm-snap) var(--grm-jag);
+}
+
+.stratum[data-torn="true"] .lidGash {
+  transform: scaleX(1);
+}
+
+/* ── PENÇE — gerçek düğme ──────────────────────────────────────────── */
+.claw {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.7rem 1rem;
+  width: 100%;
+  min-height: var(--touch-min);
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--border-strong);
+  background: color-mix(in srgb, var(--surface) 62%, var(--grm-ink));
+  color: var(--text-primary);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  clip-path: polygon(0 0, 100% 4%, 100% 100%, 38% 95%, 0 100%);
+  transition:
+    background var(--grm-snap) var(--grm-hard),
+    border-color var(--grm-snap) var(--grm-hard),
+    clip-path var(--grm-snap) var(--grm-jag);
+}
+
+.claw:hover {
+  background: var(--surface-hover);
+  border-color: var(--grm-live);
+}
+
+.stratum[data-torn="true"] .claw {
+  border-color: var(--grm-live);
+  background: color-mix(in srgb, var(--surface-hover) 76%, var(--accent-muted));
+  clip-path: polygon(0 3%, 100% 0, 100% 92%, 61% 100%, 24% 93%, 0 100%);
+}
+
+.clawIndex {
+  flex: none;
+  font-family: var(--font-numeral), Impact, system-ui, sans-serif;
+  font-size: 1.75rem;
+  line-height: 0.86;
+  letter-spacing: -0.03em;
+  color: color-mix(in srgb, var(--grm-mask) 70%, var(--grm-live));
+  clip-path: inset(0.08em 0 0.03em 0);
+}
+
+.stratum[data-torn="true"] .clawIndex {
+  color: var(--grm-claw-text);
+}
+
+.clawBody {
+  flex: 1 1 11rem;
+  display: grid;
+  gap: 0.12rem;
+}
+
+.clawName {
+  font-family: var(--font-numeral), Impact, system-ui, sans-serif;
+  font-size: calc(0.98rem * var(--grm-title-scale));
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--grm-rank-text);
+  transition: font-size var(--grm-tear) var(--grm-hard);
+}
+
+.clawNative {
+  font-family: var(--font-shippori), var(--font-jost), serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  color: var(--grm-ja-text);
+}
+
+.clawReading {
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.clawTorn {
+  margin-block-start: 0.2rem;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.clawState {
+  flex: none;
+  display: grid;
+  gap: 0.2rem;
+  justify-items: end;
+  margin-inline-start: auto;
+  text-align: end;
+}
+
+.clawBadge {
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.stratum[data-torn="true"] .clawBadge {
+  color: var(--grm-claw-text);
+}
+
+.clawAction {
+  font-family: var(--font-numeral), Impact, system-ui, sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--grm-frame-text);
+}
+
+/* ── KART — yırtığın altından çıkan ────────────────────────────────
+   Kapalıyken `0fr` + `visibility: hidden`: layout'tan da erişilebilirlik
+   ağacından da GERÇEKTEN çıkıyor, yalnızca gizlenmiyor. Böylece ekran
+   okuyucunun gördüğü ile ekranda görünen aynı.
+
+   ⚠️ `.cardInner`daki `overflow: hidden` `0fr` daralmasının şartı. İçinde
+   odaklanabilir hiçbir şey yok (yalnız başlık + paragraf), o yüzden bir
+   odak halkasını kesme riski taşımıyor. */
+.card {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  transition:
+    grid-template-rows var(--grm-tear) var(--grm-hard),
+    visibility 0s linear var(--grm-tear);
+}
+
+.stratum[data-torn="true"] .card {
+  grid-template-rows: 1fr;
+  visibility: visible;
+  transition:
+    grid-template-rows var(--grm-tear) var(--grm-hard),
+    visibility 0s linear 0s;
+}
+
+.cardInner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ── AÇILIŞ BİR FADE DEĞİL, BİR YIRTIK ─────────────────────────────
+   `opacity` hiç kullanılmıyor: kart görünürken kenarı `clip-path` ile
+   düzensiz bir yırtıktan tam dikdörtgene doğru açılıyor. İki poligonun
+   nokta sayısı EŞİT olmak zorunda (dokuz), yoksa tarayıcı ara kareyi
+   hesaplayamıyor ve geçiş sıçrayarak biter.
+
+   `both` doldurma: bitiş durumu kalıcı, yani kartın alt kenarı da
+   yırtık kalıyor (en fazla %4). `.cardText`in alt boşluğu bunu
+   karşılıyor, metin hiçbir zaman kesilmiyor. */
+@media (prefers-reduced-motion: no-preference) {
+  .stratum[data-torn="true"] .cardInner {
+    animation: grmTear var(--grm-tear) var(--grm-jag) both;
+  }
+}
+
+@keyframes grmTear {
+  from {
+    clip-path: polygon(
+      0 0,
+      100% 0,
+      100% 7%,
+      86% 2%,
+      71% 9%,
+      55% 1%,
+      39% 8%,
+      21% 3%,
+      0 6%
+    );
+  }
+
+  to {
+    clip-path: polygon(
+      0 0,
+      100% 0,
+      100% 100%,
+      86% 96%,
+      71% 100%,
+      55% 97%,
+      39% 100%,
+      21% 96%,
+      0 100%
+    );
+  }
+}
+
+.cardTitle {
+  margin: 1.15rem 0 0;
+  font-family: var(--font-numeral), Impact, system-ui, sans-serif;
+  font-weight: 400;
+  font-size: calc(0.95rem * var(--grm-title-scale));
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--grm-claw-text);
+  transition: font-size var(--grm-tear) var(--grm-hard);
+}
+
+.cardText {
+  margin: 0.6rem 0 0;
+  /* Alt boşluk `grmTear`in bitiş poligonundaki %4'lük yırtığı
+     karşılıyor — metin hiçbir zaman kesilmiyor. */
+  padding: 0 0.95rem 1.8rem;
+  border-inline-start: 2px solid
+    color-mix(in srgb, var(--grm-live) 60%, transparent);
+  color: var(--text-secondary);
+}
+
+.deckStatus {
+  margin: 1.5rem 0 0;
+  padding-block-start: 0.8rem;
+  border-block-start: 1px solid var(--grm-hair);
+  font-size: 0.84rem;
+  color: var(--grm-torn-text);
+}
+
+.deckComplete {
+  margin: 0.9rem 0 0;
+  padding-inline-start: 0.95rem;
+  border-inline-start: 2px solid var(--grm-live);
+  font-size: 0.92rem;
+  color: var(--grm-rank-text);
+}
+
+/* ══ 6 · BEŞ DURAK ════════════════════════════════════════════════════ */
+
+.fate {
+  margin: 2.2rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: clamp(2.6rem, 7vw, 4.2rem);
+}
+
+.stop {
+  position: relative;
+  padding-inline-start: 1.15rem;
+  border-inline-start: 1px solid var(--grm-hair);
+}
+
+.stop:nth-child(2n) {
+  margin-inline-start: clamp(0rem, 3vw, 1.8rem);
+}
+
+.stop:nth-child(3n) {
+  margin-inline-start: clamp(0rem, 1.2vw, 0.7rem);
+}
+
+.stopStamp {
+  margin: 0;
+  font-size: 0.73rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--grm-claw-text);
+}
+
+.stopTitle {
+  margin: 0.5rem 0 0;
+  font-family: var(--font-numeral), Impact, system-ui, sans-serif;
+  font-weight: 400;
+  font-size: calc(clamp(1.1rem, 4.4vw, 1.6rem) * var(--grm-title-scale));
+  line-height: 1.06;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--grm-rank-text);
+  clip-path: inset(0.05em 0 0 0);
+  transition: font-size var(--grm-tear) var(--grm-hard);
+}
+
+.stopText {
+  margin: 0.85rem 0 0;
+  color: var(--text-secondary);
+}
+
+.stopQuote {
+  margin: 1.25rem 0 0;
+  padding: 1rem 1.05rem;
+  background: color-mix(in srgb, var(--surface-hover) 70%, transparent);
+  clip-path: polygon(0 0, 100% 5%, 100% 100%, 44% 94%, 0 100%);
+}
+
+.quoteJa {
+  margin: 0;
+  font-family: var(--font-shippori), var(--font-jost), serif;
+  font-size: clamp(1.15rem, 5vw, 1.6rem);
+  line-height: 1.5;
+  letter-spacing: 0.06em;
+  color: var(--grm-rank-text);
+}
+
+.quoteReading {
+  margin: 0.5rem 0 0;
+  color: var(--grm-torn-text);
+}
+
+.quoteBy {
+  margin-block-start: 0.55rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.stopKin {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.3rem 0.7rem;
+  margin: 1.1rem 0 0;
+  padding-block-start: 0.7rem;
+  border-block-start: 1px solid var(--grm-hair);
+}
+
+.stopKinLink,
+.stopKinName {
+  font-family: var(--font-numeral), Impact, system-ui, sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.stopKinName {
+  color: var(--grm-frame-text);
+}
+
+.stopKinRole {
+  font-size: 0.84rem;
+  color: var(--text-muted);
+}
+
+/* ══ 7a · DÖRT İSİM ═══════════════════════════════════════════════════ */
+
+.bonds {
+  margin: 2.1rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 1.3rem;
+}
+
+.bond {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1rem 1rem 1.15rem;
+  background: color-mix(in srgb, var(--surface) 72%, var(--grm-ink));
+  clip-path: polygon(0 0, 100% 3%, 100% 100%, 52% 94%, 0 100%);
+}
+
+.bond:nth-child(2n) {
+  clip-path: polygon(0 4%, 100% 0, 100% 95%, 63% 100%, 0 96%);
+  margin-inline-start: clamp(0rem, 2.4vw, 1.4rem);
+}
+
+.bondFace {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 4.2rem;
+  min-height: 5.6rem;
+  background: color-mix(in srgb, var(--surface-hover) 70%, transparent);
+  border-inline-start: 2px solid var(--grm-live);
+  clip-path: polygon(0 2%, 100% 0, 100% 96%, 46% 100%, 0 97%);
+  overflow: clip;
+}
+
+.bondFaceImg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bondFaceEmpty {
+  padding: 0.4rem;
+  font-size: 0.63rem;
+  line-height: 1.35;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.bondBody {
+  flex: 1 1 12rem;
+  display: grid;
+  gap: 0.22rem;
+  align-content: start;
+}
+
+.bondName,
+.bondNamePlain {
+  font-family: var(--font-numeral), Impact, system-ui, sans-serif;
+  font-size: calc(0.98rem * var(--grm-title-scale));
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  transition: font-size var(--grm-tear) var(--grm-hard);
+}
+
+.bondNamePlain {
+  color: var(--grm-frame-text);
+}
+
+.bondNative {
+  font-family: var(--font-shippori), var(--font-jost), serif;
+  font-size: 0.88rem;
+  letter-spacing: 0.06em;
+  color: var(--grm-ja-text);
+}
+
+.bondRole {
+  margin-block-start: 0.25rem;
+  font-size: 0.89rem;
+  color: var(--text-secondary);
+}
+
+.bondFlag {
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ── Evren bağları ─────────────────────────────────────────────────── */
+
+.world {
+  margin-block-start: clamp(2.4rem, 6vw, 3.4rem);
+  padding-block-start: 1.2rem;
+  border-block-start: 1px solid var(--grm-hair);
+}
+
+.worldTitle {
+  margin: 0;
+  font-family: var(--font-numeral), Impact, system-ui, sans-serif;
+  font-weight: 400;
+  font-size: calc(1rem * var(--grm-title-scale));
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--grm-claw-text);
+  transition: font-size var(--grm-tear) var(--grm-hard);
+}
+
+.worldLede {
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.worldList {
+  margin: 1.1rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.8rem;
+}
+
+.worldItem {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.75rem;
+  padding-inline-start: 0.85rem;
+  border-inline-start: 2px solid
+    color-mix(in srgb, var(--grm-live) 55%, transparent);
+}
+
+.worldLink {
+  font-family: var(--font-numeral), Impact, system-ui, sans-serif;
+  font-size: 0.86rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.worldNote {
+  font-size: 0.83rem;
+  color: var(--text-muted);
+}
+
+/* ══ 7b · KAPANIŞ ═════════════════════════════════════════════════════ */
+
+.closingQuotes {
+  margin: 2.1rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 1.8rem;
+}
+
+.closingQuote {
+  margin: 0;
+  padding: 1.25rem 1.15rem 1.35rem;
+  background: color-mix(in srgb, var(--surface-hover) 62%, transparent);
+  border-inline-start: 2px solid var(--grm-live);
+  clip-path: polygon(0 0, 100% 4%, 100% 100%, 57% 95%, 0 100%);
+}
+
+.quoteNote {
+  margin: 0.8rem 0 0;
+  font-size: 0.87rem;
+  color: var(--text-muted);
+}
+
+.quoteDiscipline {
+  margin: 1.6rem 0 0;
+  max-width: 36rem;
+  font-size: 0.83rem;
+  color: var(--text-muted);
+}
+
+.motto {
+  margin: clamp(2.4rem, 6vw, 3.4rem) 0 0;
+  font-family: var(--font-shippori), var(--font-jost), serif;
+  font-size: clamp(3rem, 16vw, 6rem);
+  line-height: 0.9;
+  letter-spacing: 0.02em;
+  color: var(--grm-rank-text);
+  /* Motto da kırpılmış — sayfanın son cümlesi de kesik. Kanji büyük
+     harf/alt uzantı taşımıyor, o yüzden burada kesim serbest. */
+  clip-path: inset(0.1em 0 0.04em 0);
+}
+
+.mottoNote {
+  margin: 1.2rem 0 0;
+  max-width: 36rem;
+  color: var(--text-secondary);
+}
+
+.credit {
+  margin: clamp(2.4rem, 6vw, 3.4rem) 0 0;
+  padding-block-start: 1.2rem;
+  border-block-start: 1px solid var(--grm-hair);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.creditNote {
+  margin: 0.8rem 0 0;
+  max-width: 38rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* ══ KADRAJLAR ════════════════════════════════════════════════════════
+   Kadrajın DIŞ kabı yırtık; `<Image>` ve altyazı kırpılmıyor. Boş kadraj
+   ziyaretçide YAZISIZ bir doku, yöneticide üretim künyesi taşıyor
+   (Dalga 1 dersi 1: küratör metni ziyaretçiye sızmasın). */
+.frame {
+  position: relative;
+  display: grid;
+  place-items: end start;
+  margin: 1.5rem 0 0;
+  background: color-mix(in srgb, var(--grm-ink) 72%, var(--surface));
+  border-block-start: 1px solid
+    color-mix(in srgb, var(--grm-live) 45%, transparent);
+  overflow: clip;
+  clip-path: polygon(0 0, 100% 2%, 100% 100%, 49% 94%, 0 100%);
+}
+
+.frame[data-filled="false"] {
+  background:
+    repeating-linear-gradient(
+      112deg,
+      transparent 0 1.4rem,
+      color-mix(in srgb, var(--grm-mask) 34%, transparent) 1.4rem 1.5rem,
+      transparent 1.5rem 3.2rem
+    ),
+    color-mix(in srgb, var(--grm-ink) 60%, var(--surface));
+}
+
+.frameImg {
+  object-fit: cover;
+}
+
+/* ⚠️ PERDE. Yüklenen karenin üstünde metin duruyor; kontrast görselin
+   parlaklığına bağlı kalamaz. */
+.frameScrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    3deg,
+    color-mix(in srgb, var(--grm-ink) 88%, transparent) 0%,
+    transparent 46%
+  );
+}
+
+.frameCaption {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.85rem 0.95rem;
+}
+
+.frameCaptionWord {
+  font-family: var(--font-numeral), Impact, system-ui, sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--grm-frame-text);
+}
+
+.frameCaptionSpec {
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.frameTall {
+  aspect-ratio: 3 / 4;
+  max-width: 26rem;
+}
+
+.frameWide {
+  aspect-ratio: 16 / 9;
+}
+
+.frameScene {
+  aspect-ratio: 3 / 2;
+}
+
+.frameSmall {
+  aspect-ratio: 3 / 2;
+  margin-block-start: 1.1rem;
+}
+
+.frameBand {
+  aspect-ratio: 8 / 3;
+}
+
+/* ══ GENİŞ EKRAN ══════════════════════════════════════════════════════ */
+
+@media (min-width: 40rem) {
+  .kitList {
+    grid-template-columns: 1fr 1fr;
+    gap: 1.8rem 1.5rem;
+  }
+
+  .fact {
+    grid-template-columns: 13rem 1fr;
+    align-items: baseline;
+  }
+}
+
+@media (min-width: 60rem) {
+  .band[data-band="identity"] .bandInner,
+  .band[data-band="fate"] .bandInner {
+    padding-inline: clamp(2.4rem, 8vw, 6rem);
+  }
+
+  .band[data-band="kit"] .bandInner,
+  .band[data-band="closing"] .bandInner {
+    margin-inline: auto;
+  }
+}
+
+/* ══ AZALTILMIŞ HAREKET ═══════════════════════════════════════════════
+   ⚠️ Bu sayfa için özellikle önemli: hareket dili SERT ve DÜZENSİZ
+   (yırtılma), yani hareket duyarlılığı olan biri için en rahatsız edici
+   türden. Battaniye geçiş sürelerini VE gecikmeleri sıfırlıyor.
+
+   Gecikme de şart: kartın `visibility` geçişi bir gecikmeye bindirilmiş
+   ve o kalsaydı kapatılan kart çeyrek saniye daha ekran okuyucuda
+   kalırdı. Her durumun yazılı karşılığı zaten var (`role="status"`),
+   yani hareket kapalıyken hiçbir bilgi kaybolmuyor. */
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    transition-delay: 0s !important;
+    scroll-behavior: auto !important;
+  }
+}

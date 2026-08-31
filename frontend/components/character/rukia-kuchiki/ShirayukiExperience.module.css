@@ -1,0 +1,1629 @@
+/* ============================================================
+   DÜNYA DERİSİ — Rukia Kuchiki (AniList #6)
+
+   Palet dalga briefinde KİLİTLİ (docs/ANIME-FAZ2-DALGA3.md §11);
+   on dört standart değer oradan BİREBİR alındı ve
+   `node scripts/check-karakter-kontrast.mjs` ile ölçüldü.
+
+   Seçici `.page[data-world=…]`: CSS Modules "pure selector" kuralı
+   gereği bir yerel sınıf şart. Kök öğe ikisini birlikte taşır.
+
+   Aile: SOĞUK KÜL-MAVİ. Accent (#c2c7d1) neredeyse renksiz bir
+   buz grisi; tek doygunluk `--gold`ün mavimsi lekesinde. Arşivin
+   sıkışmış turuncu ve kızıl ailelerinden tamamen dışarıda.
+
+   ── ⚠️ BU BLOK NEDEN BU KADAR UZUN ──────────────────────────────
+   Bu sayfa arşivdeki TEK ters çeviren sayfa: üç dans çağrıldığında
+   zemin beyazlaşıyor ve kontrast dönüyor. Ters durumun renkleri de
+   HEX olarak burada duruyor, çünkü kural 16 gereği deri bloğu
+   dışında tek hex yok — aşağıdaki bütün durum blokları (ay ışığı,
+   üç kar katmanı) yalnızca bu token'ları BİRBİRİNE BAĞLIYOR,
+   hiçbirinde yeni bir renk yazılı değil.
+
+   ── ⚠️ `-text` AİLESİ VE TERS DURUM ─────────────────────────────
+   Denetim yalnızca `-text` ekli token'ları ölçüyor ve KOYU zemine
+   göre ölçüyor (kontrast betiğinin varsayımı: sayfa karanlık).
+   Bu sayfada o varsayım yalnızca varsayılan durumda doğru. Çözüm:
+   `-text` ailesi burada AÇIK tonlarla tanımlı (ölçülüyor, geçiyor),
+   ters durumda ise `[data-snow="3"]` bloğunda aynı adlar KOYU
+   mürekkep token'larına bağlanıyor. Yani metin her durumda aynı
+   `-text` ailesini okuyor; okuduğu değer zeminle birlikte dönüyor.
+   Mürekkep token'ları `-text` eki ALMIYOR çünkü varsayılan durumda
+   onlar metin değil MALZEME (gölge gövdesi, kristal konturu).
+   ============================================================ */
+.page[data-world="rukia-kuchiki"] {
+  --bg:             #0b0c0e;
+  --surface:        #131517;
+  --surface-hover:  #1a1c1f;
+  --border:         #212327;
+  --border-strong:  #2f3237;
+
+  --text-primary:   #c7cad1;
+  --text-secondary: #7e889a;
+  --text-muted:     #7b869b;
+
+  --accent:         #c2c7d1;
+  --accent-hover:   #d5dbe7;
+  --accent-muted:   #5e6c87;
+
+  --gold:           #737fa5;
+  --warn:           #b88347;
+  --danger:         #c26459;
+
+  /* ── Ay ışığı: zemin bir kademe AÇILIYOR (dalganın tersi) ── */
+  --ruk-moon-bg:      #15181c;
+  --ruk-moon-surface: #1d2126;
+  --ruk-moon-hover:   #252a30;
+  --ruk-moon-border:  #2c323a;
+  --ruk-moon-edge:    #3d4550;
+
+  /* ── Gölge gövdesi: kapalıyken siyah, ay ışığında MAVİ ── */
+  --ruk-shade:      #060709;
+  --ruk-shade-blue: #101b2c;
+  --ruk-shade-pale: #b4c4d8;
+
+  /* ── Malzeme: tanecik ve kristal konturu ── */
+  --ruk-flake:   #aebac9;
+  --ruk-crystal: #46536a;
+
+  /* ── Kar katmanı 1 — birinci dans ── */
+  --ruk-snow1-bg:      #1a1f25;
+  --ruk-snow1-surface: #232931;
+  --ruk-snow1-hover:   #2b323b;
+  --ruk-snow1-border:  #39424e;
+  --ruk-snow1-edge:    #4c5766;
+
+  /* ── Kar katmanı 2 — ikinci dans, sayfa eşikte ── */
+  --ruk-snow2-bg:      #2c343d;
+  --ruk-snow2-surface: #38414c;
+  --ruk-snow2-hover:   #434d59;
+  --ruk-snow2-border:  #525d6b;
+  --ruk-snow2-edge:    #687484;
+
+  /* ── Kar katmanı 3 — zemin bembeyaz, kontrast TERSİNE ── */
+  --ruk-snow3-bg:      #eef1f4;
+  --ruk-snow3-surface: #e3e8ee;
+  --ruk-snow3-hover:   #d8dee6;
+  --ruk-snow3-border:  #c3ccd7;
+  --ruk-snow3-edge:    #9daabb;
+
+  /* ── Mürekkep: ters durumun metni. Varsayılan durumda MALZEME
+        (kristal gövdesi, kadraj zemini) olduğu için `-text` eki YOK. ── */
+  --ruk-ink:            #1b1f25;
+  --ruk-ink-soft:       #3f4753;
+  --ruk-ink-mute:       #4a525f;
+  --ruk-ink-accent:     #43516c;
+  --ruk-ink-accent-lit: #2e3a50;
+  --ruk-ink-gold:       #4a5570;
+
+  /* ── Küçük metinde okunan aile (`-text`, ölçülüyor) ── */
+  --ruk-frost-text:    #a9b3c3;
+  --ruk-drift-text:    #aab4c4;
+  --ruk-frame-text:    #98a2b2;
+  --ruk-call-text:     #b8c0cd;
+  --ruk-quiet-text:    #8b95a6;
+  --ruk-moonlit-text:  #cdd2da;
+  --ruk-moonsoft-text: #939eb1;
+}
+
+/* ============================================================
+   RUKIA — "Sode no Shirayuki": beyaz üstüne beyaz
+
+   Deri: kökteki `data-world="rukia-kuchiki"` bütün standart
+   token'ları buz grisine çeviriyor. Bu bloktan AŞAĞIDA TEK HEX
+   YOK — ara tonların hepsi color-mix ile token'lardan türetildi
+   (FAZ 2 §1).
+
+   ── SAYFANIN FİKRİ ──────────────────────────────────────────────
+   KAR SİLMEZ, ÖRTER. Üç dans çağrıldıkça sayfaya üç KALICI kar
+   katmanı biniyor; üçüncüsünde zemin bembeyaz oluyor ve kontrast
+   tersine dönüyor. Hiçbir bölüm kaybolmuyor, hiçbir cümle gitmiyor
+   — hepsinin zemini değişiyor.
+
+   ── IZGARA (kilit) ──────────────────────────────────────────────
+   ORTALANMIŞ DAR TEK KOLON. Bölüm başlıkları sayfanın tam
+   ortasında; gövde metni (`.trail`) kolonun içinde hafifçe SOLA
+   kaçık duruyor — kar üstünde yürüyen birinin izi gibi. Bölümlerin
+   arasında kar birikintisi gibi GENİŞLEYEN yatay bantlar var:
+   kolon 30rem'de sabit kalırken bantlar 34 → 40 → 46rem'e açılıyor.
+
+   ⚠️ Izgara MOD DÜĞMESİNE BAĞLI DEĞİL. Ay ışığı kapalıyken de dar
+   kolon, ortalanmış başlıklar ve genişleyen bantlar yerinde; düğme
+   ızgarayı açıp kapatmıyor, TONUNU ve kar yoğunluğunu değiştiriyor
+   (Dalga 1 denetiminin ikinci dersi).
+
+   ── TİPOGRAFİ (kilit) ───────────────────────────────────────────
+   Başlıklar `--font-shippori` (mincho), ailenin EN İNCE kesimi
+   (600) ve ÇOK geniş satır aralığı (2.4–2.8) + geniş harf aralığı.
+   Gövde `--font-cormorant`. İkisi de serif, ikisi de hafif: sayfa
+   ışıklı görünmeli, ağır değil.
+
+   ── HAREKET (kilit) ─────────────────────────────────────────────
+   Kar taneciği: en fazla 14 tanecik, yavaş ve seyrek. Kenarlarda
+   `clip-path` ile buz kristali büyümesi. SERT HİÇBİR ŞEY YOK —
+   sıçrama, titreşim, tarama, kırılma yok; üç animasyonun üçü de
+   yalnızca süzülüyor ve büyüyor.
+   ============================================================ */
+
+/* ══ DURUM 1 · AY IŞIĞI ═══════════════════════════════════════════════
+   Bu dalganın TERSİNE giden tek sayfası: açıkken zemin bir kademe
+   AYDINLANIYOR. Gölgeler mavileşiyor, metin bir ton yükseliyor (aksi
+   hâlde açılan zeminde ikincil metin 4.5'in altına düşerdi — ölçüldü).
+   Yeni renk YOK, yalnızca bağlama. */
+.page[data-moon="on"] {
+  --bg: var(--ruk-moon-bg);
+  --surface: var(--ruk-moon-surface);
+  --surface-hover: var(--ruk-moon-hover);
+  --border: var(--ruk-moon-border);
+  --border-strong: var(--ruk-moon-edge);
+  --text-primary: var(--ruk-moonlit-text);
+  --text-secondary: var(--ruk-moonsoft-text);
+  --text-muted: var(--ruk-moonsoft-text);
+  --ruk-frost-text: var(--ruk-moonlit-text);
+  --ruk-quiet-text: var(--ruk-moonsoft-text);
+  --ruk-shade: var(--ruk-shade-blue);
+}
+
+/* ══ DURUM 2 · ÜÇ KAR KATMANI ═════════════════════════════════════════
+   Ay ışığı bloğundan SONRA yazılı: aynı özgüllükte (0,2,0) olduğu için
+   sıra kazanır ve kar katmanı zemini devralır. Ay ışığının kar üstünde
+   yaptığı iş (mavi gölge, yoğun tanecik) daha yüksek özgüllüklü
+   seçicilerde duruyor, o yüzden kaybolmuyor. */
+.page[data-snow="1"] {
+  --bg: var(--ruk-snow1-bg);
+  --surface: var(--ruk-snow1-surface);
+  --surface-hover: var(--ruk-snow1-hover);
+  --border: var(--ruk-snow1-border);
+  --border-strong: var(--ruk-snow1-edge);
+  --text-primary: var(--ruk-moonlit-text);
+  --text-secondary: var(--ruk-drift-text);
+  --text-muted: var(--ruk-drift-text);
+  --ruk-frost-text: var(--ruk-moonlit-text);
+  --ruk-quiet-text: var(--ruk-drift-text);
+}
+
+.page[data-snow="2"] {
+  --bg: var(--ruk-snow2-bg);
+  --surface: var(--ruk-snow2-surface);
+  --surface-hover: var(--ruk-snow2-hover);
+  --border: var(--ruk-snow2-border);
+  --border-strong: var(--ruk-snow2-edge);
+  --text-primary: var(--ruk-moonlit-text);
+  --text-secondary: var(--ruk-drift-text);
+  --text-muted: var(--ruk-drift-text);
+  --accent: var(--ruk-moonlit-text);
+  --accent-hover: var(--ruk-moonlit-text);
+  --ruk-frost-text: var(--ruk-moonlit-text);
+  --ruk-drift-text: var(--ruk-moonlit-text);
+  --ruk-frame-text: var(--ruk-moonlit-text);
+  --ruk-call-text: var(--ruk-moonlit-text);
+  --ruk-quiet-text: var(--ruk-moonlit-text);
+}
+
+/* Üçüncü katman: KONTRAST TERSİNE DÖNÜYOR.
+   `-text` ailesinin tamamı mürekkebe bağlanıyor — metin aynı adları
+   okumaya devam ediyor, okuduğu değer zeminle birlikte dönüyor. */
+.page[data-snow="3"] {
+  --bg: var(--ruk-snow3-bg);
+  --surface: var(--ruk-snow3-surface);
+  --surface-hover: var(--ruk-snow3-hover);
+  --border: var(--ruk-snow3-border);
+  --border-strong: var(--ruk-snow3-edge);
+  --text-primary: var(--ruk-ink);
+  --text-secondary: var(--ruk-ink-soft);
+  --text-muted: var(--ruk-ink-mute);
+  --accent: var(--ruk-ink-accent);
+  --accent-hover: var(--ruk-ink-accent-lit);
+  --accent-muted: var(--ruk-snow3-edge);
+  --gold: var(--ruk-ink-gold);
+  --ruk-frost-text: var(--ruk-ink-soft);
+  --ruk-drift-text: var(--ruk-ink-soft);
+  --ruk-frame-text: var(--ruk-ink-mute);
+  --ruk-call-text: var(--ruk-ink);
+  --ruk-quiet-text: var(--ruk-ink-mute);
+  --ruk-moonlit-text: var(--ruk-ink);
+  --ruk-moonsoft-text: var(--ruk-ink-mute);
+  --ruk-flake: var(--ruk-snow3-edge);
+  --ruk-crystal: var(--ruk-snow3-edge);
+  --ruk-shade: var(--ruk-snow3-edge);
+}
+
+/* Beyaz zemin + ay ışığı: gölge siyaha değil soluk maviye kaçıyor. */
+.page[data-snow="3"][data-moon="on"] {
+  --ruk-shade: var(--ruk-shade-pale);
+  --border: var(--ruk-snow3-edge);
+}
+
+/* ══ KÖK ═════════════════════════════════════════════════════════════ */
+.page {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  /* ⚠️ `justify-items: center` YOK, bilerek: küratör modunda `CuratorFrame`
+     araya tek bir sarmalayıcı `div` koyuyor ve merkezleme onu içeriği
+     kadar daraltırdı — bölümlerin `min(100%, 30rem)` ölçüsü o daralmış
+     kaba göre çözülür, yani yöneticide sayfa ziyaretçidekinden dar
+     görünürdü. Ortalama bölümlerin kendi `margin-inline: auto`suyla
+     yapılıyor; öğeler kolonu her durumda dolduruyor. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding-block: 2rem 5rem;
+  padding-inline: 1.1rem;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-cormorant), Georgia, serif;
+  /* `clip`, `hidden` DEĞİL: `hidden` yapışkan öğeleri kırıyor ve bu
+     sayfa ileride bir yapışkan başlık kazanabilir (arşiv notu). */
+  overflow-x: clip;
+  transition: background-color 900ms ease, color 900ms ease;
+}
+
+/* ══ KAR TANECİĞİ KATMANI (hareket dili) ═════════════════════════════
+   On dört tanecik — dalga kilidinin üst sınırı. Sekizi her zaman
+   görünür, altısı yalnızca ay ışığında: "kar yoğunlaşıyor" tam olarak
+   bu. Konumlar ve gecikmeler `:nth-child()` ile veriliyor; bileşende
+   satır içi stil yok. */
+.snowfall {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  pointer-events: none;
+}
+
+.flake {
+  position: absolute;
+  inset-block-start: -6vh;
+  inline-size: 3px;
+  block-size: 3px;
+  border-radius: 50%;
+  background: var(--ruk-flake);
+  opacity: 0;
+}
+
+.flake:nth-child(1)  { inset-inline-start: 6%;  }
+.flake:nth-child(2)  { inset-inline-start: 14%; }
+.flake:nth-child(3)  { inset-inline-start: 23%; }
+.flake:nth-child(4)  { inset-inline-start: 31%; }
+.flake:nth-child(5)  { inset-inline-start: 42%; }
+.flake:nth-child(6)  { inset-inline-start: 55%; }
+.flake:nth-child(7)  { inset-inline-start: 67%; }
+.flake:nth-child(8)  { inset-inline-start: 79%; }
+.flake:nth-child(9)  { inset-inline-start: 10%; }
+.flake:nth-child(10) { inset-inline-start: 27%; }
+.flake:nth-child(11) { inset-inline-start: 47%; }
+.flake:nth-child(12) { inset-inline-start: 61%; }
+.flake:nth-child(13) { inset-inline-start: 73%; }
+.flake:nth-child(14) { inset-inline-start: 89%; }
+
+/* ══ BUZ KRİSTALİ — kenarlardan içeri büyüyor (`clip-path`) ══════════
+   Sayfanın iki kenarında duran iki ince perde. Kar katmanı arttıkça
+   kırpma çokgeni içeri doğru açılıyor: kristal BÜYÜYOR, bir şey
+   parlamıyor ya da kaymıyor. */
+.rime {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  pointer-events: none;
+}
+
+.rimeLeft,
+.rimeRight {
+  position: absolute;
+  inset-block: 0;
+  inline-size: 8rem;
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--ruk-flake) 22%, transparent),
+    transparent
+  );
+  opacity: 0.35;
+  clip-path: polygon(0% 0%, 22% 0%, 10% 14%, 26% 26%, 8% 40%, 24% 55%, 9% 70%, 22% 86%, 6% 100%, 0% 100%);
+}
+
+.rimeLeft {
+  inset-inline-start: 0;
+}
+
+.rimeRight {
+  inset-inline-end: 0;
+  transform: scaleX(-1);
+}
+
+.page[data-moon="on"] .rimeLeft,
+.page[data-moon="on"] .rimeRight {
+  opacity: 0.5;
+}
+
+.page[data-snow="3"] .rimeLeft,
+.page[data-snow="3"] .rimeRight {
+  clip-path: polygon(0% 0%, 62% 0%, 34% 12%, 68% 24%, 30% 38%, 64% 52%, 32% 66%, 60% 82%, 28% 100%, 0% 100%);
+  opacity: 0.6;
+}
+
+/* ══ IZGARA — dar, ortalanmış tek kolon ══════════════════════════════ */
+.crumb,
+.hero,
+.moon,
+.section,
+.danceSection,
+.closing {
+  position: relative;
+  z-index: 1;
+  inline-size: min(100%, 30rem);
+  margin-inline: auto;
+}
+
+.crumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-block-end: 4rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ruk-quiet-text);
+}
+
+.crumb a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--touch-min);
+  color: var(--ruk-frost-text);
+  text-decoration: none;
+  border-block-end: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.crumb a:hover {
+  color: var(--accent-hover);
+}
+
+.crumb a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.crumbSep {
+  color: var(--ruk-quiet-text);
+}
+
+.crumbHere {
+  color: var(--ruk-quiet-text);
+}
+
+/* Bölümler arasındaki dikey ritim — kolonun kendisi hiç genişlemiyor */
+.section,
+.danceSection,
+.closing {
+  padding-block: 3.4rem;
+  text-align: center;
+}
+
+/* ══ KAR BİRİKİNTİSİ BANTLARI ════════════════════════════════════════
+   Bölümlerin ARASINDA duran, kolondan GENİŞ yatay bantlar. Üç kademe:
+   34 / 40 / 46rem. Sayfanın tek "genişleyen" öğesi bunlar; kolon dar
+   kaldığı için genişleme bir kar birikintisi gibi okunuyor. */
+.drift {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  inline-size: min(100%, 34rem);
+  block-size: 5.5rem;
+  margin-inline: auto;
+  background:
+    radial-gradient(
+      120% 100% at 50% 100%,
+      color-mix(in srgb, var(--ruk-flake) 12%, transparent),
+      transparent 72%
+    );
+  clip-path: polygon(0% 100%, 0% 64%, 12% 52%, 27% 60%, 41% 42%, 55% 55%, 70% 44%, 84% 58%, 100% 50%, 100% 100%);
+}
+
+.drift[data-band="2"] {
+  inline-size: min(100%, 40rem);
+  block-size: 7rem;
+}
+
+.drift[data-band="3"] {
+  inline-size: min(100%, 46rem);
+  block-size: 8.5rem;
+}
+
+.driftCrystal {
+  inline-size: 2.2rem;
+  block-size: 2.2rem;
+  margin-block-start: 2.2rem;
+  opacity: 0.5;
+}
+
+.driftArm {
+  stroke: var(--ruk-crystal);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+/* ══ 1 · HERO ════════════════════════════════════════════════════════ */
+.hero {
+  padding-block-end: 3rem;
+}
+
+.crest {
+  position: relative;
+  display: grid;
+  place-items: center;
+  inline-size: min(100%, 20rem);
+  margin-inline: auto;
+  margin-block-end: -3.5rem;
+  opacity: 0.32;
+}
+
+.crestArt {
+  inline-size: 100%;
+  block-size: auto;
+}
+
+.crestRing {
+  stroke: var(--ruk-crystal);
+  stroke-width: 0.8;
+}
+
+.crestPetal {
+  stroke: var(--ruk-crystal);
+  stroke-width: 0.7;
+}
+
+.crestCore {
+  stroke: var(--ruk-crystal);
+  stroke-width: 0.9;
+}
+
+.crestKanji {
+  position: absolute;
+  font-family: var(--font-shippori), serif;
+  font-weight: 600;
+  font-size: clamp(2.4rem, 1.2rem + 5vw, 4.6rem);
+  letter-spacing: 0.12em;
+  color: color-mix(in srgb, var(--accent) 26%, transparent);
+}
+
+.heroHouse {
+  position: relative;
+  margin: 0 0 1.4rem;
+  font-family: var(--font-shippori), serif;
+  font-weight: 600;
+  font-size: 0.74rem;
+  letter-spacing: 0.34em;
+  line-height: 2.6;
+  text-transform: uppercase;
+  color: var(--ruk-quiet-text);
+}
+
+.heroName {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-weight: 600;
+  font-size: clamp(2.05rem, 1.25rem + 3.4vw, 3.35rem);
+  letter-spacing: 0.06em;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+.heroNative {
+  margin: 0.4rem 0 2.2rem;
+  font-family: var(--font-shippori), serif;
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: 0.4em;
+  color: var(--ruk-quiet-text);
+}
+
+.heroTitle {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-weight: 600;
+  font-size: 1.6rem;
+  letter-spacing: 0.5em;
+  /* Harf aralığı sağa boşluk bırakıyor; ortalamayı düzeltiyoruz */
+  text-indent: 0.5em;
+  color: var(--ruk-call-text);
+}
+
+.heroTitleReading {
+  margin: 0.6rem 0 0;
+  font-size: 0.95rem;
+  font-style: italic;
+  letter-spacing: 0.05em;
+  color: var(--ruk-quiet-text);
+}
+
+.hairline {
+  display: block;
+  inline-size: 3.5rem;
+  block-size: 1px;
+  margin: 2.6rem auto;
+  background: color-mix(in srgb, var(--accent) 42%, transparent);
+}
+
+.heroEpigraph {
+  margin: 0 auto;
+  max-inline-size: 26rem;
+  font-size: clamp(1.15rem, 1rem + 0.8vw, 1.45rem);
+  font-style: italic;
+  line-height: 1.85;
+  color: var(--ruk-frost-text);
+}
+
+/* ══ GÖVDE METNİ — "iz": kolonun içinde hafifçe SOLA kaçık ═══════════
+   Başlıklar tam ortada dururken gövde bloğu sağdan boşluk bırakıp sola
+   kayıyor. Kar üstünde yürüyen birinin izi gibi: merkez var ama metin
+   merkeze oturmuyor. `.trail` bu sayfanın tek gövde sınıfı. */
+.trail {
+  margin: 1.8rem 2.4rem 0 0;
+  font-size: 1.06rem;
+  line-height: 1.95;
+  text-align: start;
+  color: var(--ruk-drift-text);
+}
+
+.portrait {
+  position: relative;
+  inline-size: 8.5rem;
+  block-size: 8.5rem;
+  margin: 3.2rem auto 0;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--accent) 34%, transparent);
+  overflow: hidden;
+  box-shadow: 0 0 0 8px color-mix(in srgb, var(--ruk-shade) 55%, transparent);
+}
+
+.portraitImg {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+  object-position: 50% 18%;
+}
+
+/* ══ KADRAJLAR VE KÜRATÖR YUVALARI ═══════════════════════════════════ */
+.frameSlot {
+  margin-block-start: 2.4rem;
+}
+
+.frame {
+  position: relative;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  inline-size: 100%;
+  border: 1px solid color-mix(in srgb, var(--border-strong) 80%, transparent);
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+  overflow: hidden;
+}
+
+.frame img {
+  object-fit: cover;
+}
+
+.frameTall  { aspect-ratio: 3 / 4; }
+.frameWide  { aspect-ratio: 16 / 9; }
+.frameSmall { aspect-ratio: 3 / 2; }
+.frameBand  { aspect-ratio: 21 / 9; }
+
+/* ⚠️ YALNIZCA KÜRATÖR GÖRÜYOR. Ziyaretçi boş kadrajda hiçbir yazı
+   görmez: bileşen bu blok için `isAdmin` kesmesi uyguluyor (Dalga 1
+   denetiminin birinci dersi — üretim metadatası sızmasın). */
+.frameCaption {
+  display: grid;
+  gap: 0.4rem;
+  padding: 1rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ruk-frame-text);
+}
+
+.frameCaptionWord {
+  font-family: var(--font-shippori), serif;
+  font-weight: 600;
+}
+
+.frameCaptionSpec {
+  letter-spacing: 0.1em;
+  text-transform: none;
+  overflow-wrap: anywhere;
+}
+
+/* ══ 2 · MOD DÜĞMESİ — "Ay ışığı" ════════════════════════════════════ */
+.moon {
+  padding-block: 3rem 1rem;
+  text-align: center;
+}
+
+.moonNative {
+  margin: 0.2rem 0 1.6rem;
+  font-family: var(--font-shippori), serif;
+  font-weight: 600;
+  font-size: 1.3rem;
+  letter-spacing: 0.42em;
+  text-indent: 0.42em;
+  color: color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.moonButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+  min-block-size: var(--touch-min);
+  padding: 0.7rem 1.5rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 38%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
+  color: var(--ruk-call-text);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1rem;
+  letter-spacing: 0.14em;
+  cursor: pointer;
+  transition: border-color 500ms ease, background-color 500ms ease;
+}
+
+.moonButton:hover {
+  background: var(--surface-hover);
+  border-color: color-mix(in srgb, var(--accent) 62%, transparent);
+}
+
+.moonButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.moonMark {
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+  flex: none;
+}
+
+.moonDisc {
+  stroke: var(--accent);
+  stroke-width: 1.1;
+}
+
+/* Durum RENKLE değil BİÇİMLE söyleniyor: basılıyken gölge kavsi
+   dolunayın dışına çıkıyor, yani ay "açılıyor". */
+.moonShadow {
+  fill: color-mix(in srgb, var(--accent) 42%, transparent);
+  transform-origin: 24px 24px;
+  transition: transform 700ms ease, opacity 700ms ease;
+}
+
+.moonButton[aria-pressed="true"] .moonShadow {
+  transform: translateX(9px);
+  opacity: 0.18;
+}
+
+.moonLabel {
+  white-space: normal;
+}
+
+.moonHint {
+  margin: 1.6rem 2.4rem 0 0;
+  font-size: 0.98rem;
+  line-height: 1.85;
+  text-align: start;
+  color: var(--ruk-quiet-text);
+}
+
+/* ══ BÖLÜM BAŞLIKLARI — tam ortada, çok geniş satır aralığı ══════════ */
+.sectionTitle {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-weight: 600;
+  font-size: clamp(1.02rem, 0.88rem + 0.7vw, 1.32rem);
+  letter-spacing: 0.36em;
+  /* Kilit: ÇOK geniş satır aralığı. Başlık bir blok değil, bir nefes. */
+  line-height: 2.75;
+  text-indent: 0.36em;
+  text-align: center;
+  color: var(--text-primary);
+}
+
+.sectionLede {
+  margin: 0.4rem auto 0;
+  max-inline-size: 24rem;
+  font-size: 0.98rem;
+  font-style: italic;
+  line-height: 1.9;
+  text-align: center;
+  color: var(--ruk-quiet-text);
+}
+
+/* ══ 3 · KÜNYE ŞERİDİ ════════════════════════════════════════════════
+   Kutu yok: her satır bir saç çizgisiyle ayrılıyor ve etiket sağa,
+   değer sola hizalı — kolonun ortasında bir dikey boşluk kalıyor. */
+.facts {
+  margin: 2.6rem 0 0;
+  display: grid;
+  gap: 0;
+}
+
+.fact {
+  display: grid;
+  grid-template-columns: minmax(0, 8rem) minmax(0, 1fr);
+  gap: 1rem;
+  padding-block: 0.85rem;
+  border-block-start: 1px solid color-mix(in srgb, var(--border) 90%, transparent);
+  text-align: start;
+}
+
+.fact:last-child {
+  border-block-end: 1px solid color-mix(in srgb, var(--border) 90%, transparent);
+}
+
+.factLabel {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-weight: 600;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  line-height: 2.2;
+  text-transform: uppercase;
+  text-align: end;
+  color: var(--ruk-quiet-text);
+}
+
+.factValue {
+  margin: 0;
+  font-size: 1.02rem;
+  line-height: 1.7;
+  color: var(--ruk-frost-text);
+}
+
+/* ══ 4a · ÜÇ AĞIRLIK ═════════════════════════════════════════════════ */
+.artList {
+  margin: 3rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 5rem;
+}
+
+.art {
+  margin: 0;
+}
+
+.artName {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-weight: 600;
+  font-size: clamp(2.2rem, 1.6rem + 2.4vw, 3rem);
+  letter-spacing: 0.22em;
+  line-height: 1.6;
+  text-indent: 0.22em;
+  color: var(--text-primary);
+}
+
+.artReading {
+  margin: 0.2rem 0 0;
+  font-size: 0.86rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--ruk-quiet-text);
+}
+
+.artTurkish {
+  margin: 0.7rem 0 0;
+  font-size: 1.05rem;
+  font-style: italic;
+  color: var(--ruk-frost-text);
+}
+
+.artTagline {
+  margin: 0 auto;
+  max-inline-size: 24rem;
+  font-size: 1.02rem;
+  line-height: 1.85;
+  color: var(--ruk-call-text);
+}
+
+.traits {
+  margin: 1.8rem 2.4rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: flex-start;
+}
+
+.trait {
+  padding: 0.32rem 0.8rem;
+  border: 1px solid color-mix(in srgb, var(--border-strong) 75%, transparent);
+  border-radius: 999px;
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  color: var(--ruk-quiet-text);
+}
+
+/* ══ 4b · DÖRT EL İŞİ ════════════════════════════════════════════════ */
+.craftList {
+  margin: 3rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 3.6rem;
+}
+
+.craft {
+  padding-block-start: 2rem;
+  border-block-start: 1px solid color-mix(in srgb, var(--border) 88%, transparent);
+}
+
+.craftName {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-weight: 600;
+  font-size: 1.75rem;
+  letter-spacing: 0.3em;
+  line-height: 1.9;
+  text-indent: 0.3em;
+  color: var(--ruk-call-text);
+}
+
+.craftReading {
+  margin: 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--ruk-quiet-text);
+}
+
+.craftTurkish {
+  margin: 0.5rem 0 0;
+  font-size: 1rem;
+  font-style: italic;
+  color: var(--ruk-frost-text);
+}
+
+/* ══ 5 · ÜÇ DANS — SAYFANIN KALBİ ════════════════════════════════════ */
+.danceSection {
+  padding-block: 4rem;
+}
+
+.dances {
+  margin-block-start: 2.8rem;
+}
+
+.commandLabel {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-weight: 600;
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  line-height: 2.4;
+  text-transform: uppercase;
+  color: var(--ruk-quiet-text);
+}
+
+.commandText {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-weight: 600;
+  font-size: clamp(1.5rem, 1.1rem + 1.7vw, 2.1rem);
+  letter-spacing: 0.28em;
+  line-height: 2;
+  text-indent: 0.28em;
+  color: var(--accent-hover);
+}
+
+.commandReading {
+  margin: 0 0 3rem;
+  font-size: 0.95rem;
+  font-style: italic;
+  color: var(--ruk-quiet-text);
+}
+
+.danceList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 4.5rem;
+}
+
+.dance {
+  position: relative;
+  padding-block-start: 1.5rem;
+}
+
+.danceCrystal {
+  display: block;
+  inline-size: 2.6rem;
+  block-size: 2.6rem;
+  margin: 0 auto 1rem;
+  opacity: 0.4;
+  transition: opacity 800ms ease;
+}
+
+.dance[data-fallen="true"] .danceCrystal {
+  opacity: 1;
+}
+
+.crystalArt {
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.crystalArm {
+  stroke: var(--ruk-crystal);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+
+.danceIndex {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-weight: 600;
+  font-size: 0.72rem;
+  letter-spacing: 0.4em;
+  color: color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.danceCall {
+  margin: 0.6rem 0 0;
+  font-family: var(--font-shippori), serif;
+  font-weight: 600;
+  font-size: clamp(1.3rem, 1rem + 1.3vw, 1.8rem);
+  letter-spacing: 0.24em;
+  line-height: 2;
+  text-indent: 0.24em;
+  color: var(--ruk-call-text);
+}
+
+.danceReading {
+  margin: 0;
+  font-size: 0.88rem;
+  font-style: italic;
+  letter-spacing: 0.04em;
+  color: var(--ruk-quiet-text);
+}
+
+.danceName {
+  margin: 1rem 0 0;
+  font-family: var(--font-shippori), serif;
+  font-weight: 600;
+  font-size: 1.02rem;
+  letter-spacing: 0.16em;
+  line-height: 2.2;
+  color: var(--text-primary);
+}
+
+.danceText {
+  margin: 0.4rem 2.4rem 0 0;
+  font-size: 1.02rem;
+  line-height: 1.9;
+  text-align: start;
+  color: var(--ruk-drift-text);
+}
+
+.danceButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-block-size: var(--touch-min);
+  margin-block-start: 1.6rem;
+  padding: 0.6rem 1.4rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+  color: var(--ruk-call-text);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 0.98rem;
+  letter-spacing: 0.16em;
+  cursor: pointer;
+  transition: background-color 600ms ease, border-color 600ms ease;
+}
+
+.danceButton:hover:not([aria-disabled="true"]) {
+  background: var(--surface-hover);
+  border-color: color-mix(in srgb, var(--accent) 70%, transparent);
+}
+
+.danceButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+/* ⚠️ `:disabled` DEĞİL. Düğmeler gerçek anlamda devre dışı bırakılmıyor
+   (odağı kaybetmemeleri için — gerekçe `ThreeDances` içinde); durum
+   `aria-disabled` ile veriliyor ve stil de onu okuyor. */
+.danceButton[aria-disabled="true"] {
+  cursor: default;
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--accent) 26%, transparent);
+  background: transparent;
+  color: var(--ruk-quiet-text);
+}
+
+.danceButtonMark {
+  inline-size: 0.55rem;
+  block-size: 0.55rem;
+  flex: none;
+  border-radius: 50%;
+  background: var(--ruk-flake);
+  transition: transform 600ms ease;
+}
+
+.danceButton[aria-disabled="true"] .danceButtonMark {
+  transform: scale(2.1);
+  background: color-mix(in srgb, var(--ruk-flake) 45%, transparent);
+}
+
+.danceButtonLabel {
+  white-space: normal;
+}
+
+.danceLayerNote {
+  margin: 1.2rem 2.4rem 0 0;
+  padding-inline-start: 1rem;
+  border-inline-start: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  font-size: 0.98rem;
+  line-height: 1.85;
+  text-align: start;
+  color: var(--ruk-frost-text);
+}
+
+.danceFoot {
+  display: grid;
+  gap: 1rem;
+  justify-items: center;
+  margin-block-start: 4rem;
+  padding-block-start: 2.4rem;
+  border-block-start: 1px solid color-mix(in srgb, var(--border) 90%, transparent);
+}
+
+.danceCount {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.8rem;
+  margin: 0;
+}
+
+.danceCountLabel {
+  font-family: var(--font-shippori), serif;
+  font-weight: 600;
+  font-size: 0.7rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--ruk-quiet-text);
+}
+
+.danceCountValue {
+  font-family: var(--font-shippori), serif;
+  font-weight: 600;
+  font-size: 1.5rem;
+  letter-spacing: 0.1em;
+  color: var(--text-primary);
+}
+
+.liftButton {
+  min-block-size: var(--touch-min);
+  padding: 0.55rem 1.3rem;
+  border: 1px solid color-mix(in srgb, var(--border-strong) 85%, transparent);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ruk-frost-text);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.14em;
+  cursor: pointer;
+  transition: border-color 500ms ease, color 500ms ease;
+}
+
+.liftButton:hover:not([aria-disabled="true"]) {
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+  color: var(--accent-hover);
+}
+
+.liftButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.liftButton[aria-disabled="true"] {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.danceHint,
+.danceStatus,
+.danceInverted {
+  margin: 0;
+  max-inline-size: 26rem;
+  font-size: 0.95rem;
+  line-height: 1.85;
+  text-align: center;
+  color: var(--ruk-quiet-text);
+}
+
+.danceStatus {
+  margin-block-start: 1.8rem;
+  font-style: italic;
+  color: var(--ruk-frost-text);
+}
+
+.danceInverted {
+  margin: 1.4rem auto 0;
+  padding: 1.2rem 1.4rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+  color: var(--ruk-call-text);
+}
+
+/* ══ 6 · BEŞ DURAK ═══════════════════════════════════════════════════ */
+.fate {
+  margin: 3rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 4.5rem;
+}
+
+.stop {
+  padding-block-start: 2.2rem;
+  border-block-start: 1px solid color-mix(in srgb, var(--border) 88%, transparent);
+}
+
+.stopStamp {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-weight: 600;
+  font-size: 0.68rem;
+  letter-spacing: 0.32em;
+  line-height: 2.4;
+  text-transform: uppercase;
+  color: var(--ruk-quiet-text);
+}
+
+.stopTitle {
+  margin: 0.5rem auto 0;
+  max-inline-size: 22rem;
+  font-family: var(--font-shippori), serif;
+  font-weight: 600;
+  font-size: clamp(1.12rem, 0.95rem + 0.9vw, 1.44rem);
+  letter-spacing: 0.1em;
+  line-height: 2.1;
+  color: var(--text-primary);
+}
+
+.stopQuote {
+  margin: 2rem 0 0;
+}
+
+.quoteJa {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-weight: 600;
+  font-size: clamp(1.25rem, 1rem + 1.1vw, 1.7rem);
+  letter-spacing: 0.2em;
+  line-height: 2.2;
+  text-indent: 0.2em;
+  overflow-wrap: anywhere;
+  color: var(--accent-hover);
+}
+
+.quoteReading {
+  margin: 0.5rem auto 0;
+  max-inline-size: 24rem;
+  font-size: 0.98rem;
+  font-style: italic;
+  line-height: 1.8;
+  color: var(--ruk-frost-text);
+}
+
+.quoteBy {
+  margin-block-start: 0.7rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--ruk-quiet-text);
+}
+
+.stopKin {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.7rem;
+  margin: 1.8rem 0 0;
+}
+
+.stopKinLink {
+  min-block-size: var(--touch-min);
+  display: inline-flex;
+  align-items: center;
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-block-end: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.stopKinLink:hover {
+  color: var(--accent);
+}
+
+.stopKinLink:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.stopKinName {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--touch-min);
+  color: var(--ruk-frost-text);
+}
+
+.stopKinRole {
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ruk-quiet-text);
+}
+
+/* ══ 7a · BAĞLAR ═════════════════════════════════════════════════════ */
+.bonds {
+  margin: 3rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 3.4rem;
+}
+
+.bond {
+  padding-block-start: 2rem;
+  border-block-start: 1px solid color-mix(in srgb, var(--border) 88%, transparent);
+}
+
+.bondFace {
+  position: relative;
+  inline-size: 5rem;
+  block-size: 5rem;
+  margin: 0 auto 1.2rem;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  background: color-mix(in srgb, var(--surface) 75%, transparent);
+  overflow: hidden;
+}
+
+.bondFace[data-filled="false"] {
+  border-style: dashed;
+}
+
+.bondFaceImg {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+  object-position: 50% 20%;
+}
+
+.bondName,
+.bondNamePlain {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--touch-min);
+  font-family: var(--font-shippori), serif;
+  font-weight: 600;
+  font-size: 1.05rem;
+  letter-spacing: 0.12em;
+  line-height: 2;
+}
+
+.bondName {
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-block-end: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.bondName:hover {
+  color: var(--accent);
+}
+
+.bondName:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.bondNamePlain {
+  color: var(--ruk-frost-text);
+}
+
+.bondRole {
+  display: block;
+  margin-block-start: 0.2rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ruk-quiet-text);
+}
+
+.bondFlag {
+  display: block;
+  margin-block-start: 1rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ruk-frame-text);
+}
+
+/* ══ 7b · EVREN KAPILARI ═════════════════════════════════════════════ */
+.doors {
+  margin: 2.6rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 1.6rem;
+}
+
+.door {
+  padding-block: 1rem;
+  border-block-start: 1px solid color-mix(in srgb, var(--border) 88%, transparent);
+}
+
+.doorLink {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--touch-min);
+  font-family: var(--font-shippori), serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.14em;
+  line-height: 2;
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-block-end: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+.doorLink:hover {
+  color: var(--accent);
+}
+
+.doorLink:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.doorNote {
+  display: block;
+  margin-block-start: 0.35rem;
+  font-size: 0.92rem;
+  font-style: italic;
+  color: var(--ruk-quiet-text);
+}
+
+/* ══ 7c · KAPANIŞ ════════════════════════════════════════════════════ */
+.closing {
+  padding-block-end: 2rem;
+}
+
+.closingQuotes {
+  margin: 3rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 3.6rem;
+}
+
+.closingQuote {
+  margin: 0;
+  padding-block-start: 2rem;
+  border-block-start: 1px solid color-mix(in srgb, var(--border) 88%, transparent);
+}
+
+.motto {
+  margin: 0;
+  font-family: var(--font-shippori), serif;
+  font-weight: 600;
+  font-size: clamp(1.6rem, 1.15rem + 2vw, 2.4rem);
+  letter-spacing: 0.26em;
+  line-height: 2.1;
+  text-indent: 0.26em;
+  color: var(--accent-hover);
+}
+
+.credit {
+  margin: 3rem 2.4rem 0 0;
+  font-size: 0.92rem;
+  line-height: 1.85;
+  text-align: start;
+  color: var(--ruk-quiet-text);
+}
+
+.credit a {
+  color: var(--accent-hover);
+  text-decoration: none;
+  border-block-end: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.credit a:hover {
+  color: var(--accent);
+}
+
+.credit a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+/* ══ DAR EKRAN (360 px) ══════════════════════════════════════════════
+   Kolon zaten `min(100%, 30rem)`; burada yalnızca sola kaçık gövdenin
+   sağ boşluğu kısalıyor (2.4rem, 360 pikselde metni sıkıştırıyordu) ve
+   künye satırı tek kolona iniyor. */
+@media (max-width: 26rem) {
+  .trail,
+  .moonHint,
+  .danceText,
+  .danceLayerNote,
+  .credit,
+  .traits {
+    margin-inline-end: 0.9rem;
+  }
+
+  .fact {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.2rem;
+  }
+
+  .factLabel {
+    text-align: start;
+  }
+
+  .crest {
+    inline-size: min(100%, 14rem);
+    margin-block-end: -2.4rem;
+  }
+}
+
+/* ══ HAREKET — kar taneciği ve kristal büyümesi ══════════════════════
+   Kilit: YAVAŞ ve SEYREK. Üç animasyonun üçü de yalnızca süzülüyor ya
+   da büyüyor; sıçrama, titreşim, tarama, kırılma YOK.
+
+   Sekiz tanecik her zaman süzülüyor, altısı yalnızca ay ışığında
+   görünüyor — "kar yoğunlaşıyor" tam olarak bu. */
+@media (prefers-reduced-motion: no-preference) {
+  .flake {
+    animation: rukSift 26s linear infinite;
+  }
+
+  .flake:nth-child(1)  { animation-duration: 24s; animation-delay: 0s;    }
+  .flake:nth-child(2)  { animation-duration: 31s; animation-delay: -6s;   }
+  .flake:nth-child(3)  { animation-duration: 28s; animation-delay: -13s;  }
+  .flake:nth-child(4)  { animation-duration: 35s; animation-delay: -3s;   }
+  .flake:nth-child(5)  { animation-duration: 27s; animation-delay: -18s;  }
+  .flake:nth-child(6)  { animation-duration: 33s; animation-delay: -9s;   }
+  .flake:nth-child(7)  { animation-duration: 29s; animation-delay: -22s;  }
+  .flake:nth-child(8)  { animation-duration: 37s; animation-delay: -15s;  }
+
+  /* Ay ışığı kapalıyken bu altısı hiç çizilmiyor */
+  .flake:nth-child(n + 9) {
+    animation: none;
+  }
+
+  .page[data-moon="on"] .flake:nth-child(9)  { animation: rukSift 30s linear -4s infinite;  }
+  .page[data-moon="on"] .flake:nth-child(10) { animation: rukSift 25s linear -11s infinite; }
+  .page[data-moon="on"] .flake:nth-child(11) { animation: rukSift 34s linear -19s infinite; }
+  .page[data-moon="on"] .flake:nth-child(12) { animation: rukSift 28s linear -7s infinite;  }
+  .page[data-moon="on"] .flake:nth-child(13) { animation: rukSift 32s linear -24s infinite; }
+  .page[data-moon="on"] .flake:nth-child(14) { animation: rukSift 26s linear -16s infinite; }
+
+  .rimeLeft,
+  .rimeRight {
+    animation: rukRime 42s ease-in-out infinite;
+  }
+
+  .rimeRight {
+    animation-delay: -21s;
+  }
+
+  .crest {
+    animation: rukSettle 5.5s ease-out 1;
+  }
+
+  .danceCrystal {
+    animation: rukSettle 4.5s ease-out 1;
+  }
+}
+
+/* Süzülme: dört durak. Tanecik yatayda çok az kayıyor (rüzgâr değil,
+   ağırlıksızlık) ve iki kez soluklaşıyor — kar hiç düz düşmüyor. */
+@keyframes rukSift {
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0;
+  }
+  18% {
+    transform: translate3d(0.7rem, 22vh, 0);
+    opacity: 0.75;
+  }
+  56% {
+    transform: translate3d(-0.9rem, 62vh, 0);
+    opacity: 0.5;
+  }
+  84% {
+    transform: translate3d(0.5rem, 92vh, 0);
+    opacity: 0.62;
+  }
+  100% {
+    transform: translate3d(0, 112vh, 0);
+    opacity: 0;
+  }
+}
+
+/* Kristal büyümesi: `clip-path` çokgeni kenardan içeri açılıp geri
+   çekiliyor. Üç durak — kırağının nefes alması. */
+@keyframes rukRime {
+  0% {
+    clip-path: polygon(0% 0%, 22% 0%, 10% 14%, 26% 26%, 8% 40%, 24% 55%, 9% 70%, 22% 86%, 6% 100%, 0% 100%);
+    opacity: 0.28;
+  }
+  45% {
+    clip-path: polygon(0% 0%, 38% 0%, 18% 15%, 44% 27%, 16% 41%, 40% 56%, 17% 71%, 38% 87%, 12% 100%, 0% 100%);
+    opacity: 0.44;
+  }
+  72% {
+    clip-path: polygon(0% 0%, 30% 0%, 13% 13%, 34% 25%, 11% 39%, 32% 54%, 12% 69%, 30% 85%, 8% 100%, 0% 100%);
+    opacity: 0.36;
+  }
+  100% {
+    clip-path: polygon(0% 0%, 22% 0%, 10% 14%, 26% 26%, 8% 40%, 24% 55%, 9% 70%, 22% 86%, 6% 100%, 0% 100%);
+    opacity: 0.28;
+  }
+}
+
+/* Yerine oturma: filigran ve kristaller bir kez, çok yavaş netleşiyor.
+   Kayma YOK — yalnızca ölçek ve bulanıklık, yani "kar oturuyor".
+
+   ⚠️ `opacity` bilerek dışarıda: animasyon `forwards` DEĞİL ve bittiğinde
+   öğe kendi `opacity` değerine dönüyor. Saydamlığı buraya yazmak, çağrılan
+   dansın kristalini (1) filigranın değerine (0.32) düşürürdü. */
+@keyframes rukSettle {
+  0% {
+    transform: scale(1.06);
+    filter: blur(3px);
+  }
+  40% {
+    transform: scale(1.03);
+    filter: blur(1.6px);
+  }
+  75% {
+    transform: scale(1.01);
+    filter: blur(0.5px);
+  }
+  100% {
+    transform: scale(1);
+    filter: blur(0);
+  }
+}
+
+/* ══ AZALTILMIŞ HAREKET ══════════════════════════════════════════════
+   Battaniye: süreler VE gecikmeler sıfırlanıyor. Gecikme de şart —
+   tanecikler eksi gecikmelerle dağıtılmış durumda ve yalnızca süreyi
+   sıfırlamak on dördünü aynı anda ekranın tepesinde bırakırdı. */
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    transition-delay: 0s !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Hareketsiz durumda tanecikler görünmesin: donmuş bir nokta bulutu
+     kar değil, kir olurdu. */
+  .snowfall {
+    display: none;
+  }
+}

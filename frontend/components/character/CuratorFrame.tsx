@@ -40,7 +40,18 @@ import styles from "./CuratorFrame.module.css";
  * Çerçevesiz yuva eskisi gibi çiziliyor; onu zaten çağıranın kendi
  * `isAdmin` kesmesi ziyaretçiden koruyor.
  */
-const CuratorModeContext = createContext<boolean | undefined>(undefined);
+/**
+ * ⚠️ DIŞA AÇIK — sağlayıcıyı `CuratorFrame` dışında da kuran bir yer var.
+ *
+ * Karakter dizini (`CharacterGallery`) kendi anahtarını zaten tutuyor ve
+ * çerçeveyi kullanmıyor; ama rafı SUNUCUDA çizilmiş bir düğüm olarak
+ * alıyor (`shelf` prop'u) ve o düğümün içindeki yuvalara prop indiremiyor.
+ * Sağlayıcıyı oraya kurmak, rafı istemci paketine çekmeden yuvaların modu
+ * okumasını sağlıyor — context sunucuda çizilmiş çocuklardan geçebilir.
+ */
+export const CuratorModeContext = createContext<boolean | undefined>(
+  undefined,
+);
 
 /**
  * Küratör modu açık mı.

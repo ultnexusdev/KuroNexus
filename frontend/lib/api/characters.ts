@@ -72,6 +72,37 @@ export async function getCharacterCards(
 }
 
 /**
+ * 50'den fazla karakterin künyesi.
+ *
+ * ⚠️ BU BÖLME BİR SÜS DEĞİL, ÖLÇÜLMÜŞ BİR HATANIN TAMİRİ (31 Ağustos 2026).
+ * Uç `ids` listesini 50'de KESİYOR (`anime.controller.ts`) ve sessizce
+ * kesiyor: 66 kimlik gönderen çağıran 50 kayıt alıyor, eksik 16'sı için
+ * hiçbir hata görmüyor. Elle tasarlanmış dosyalar rafı tam bu yüzden
+ * kırılmıştı — kayıttaki 51. sıradan sonraki bütün karakterler (Ulquiorra,
+ * Grimmjow, Yoruichi, JJK ve MHA kadrosu) portresiz, harfli kutu olarak
+ * çiziliyordu.
+ *
+ * `getCharacterImagesBulk`in aynısı ve aynı gerekçeyle: sınırı backend'de
+ * gevşetmek yerine burada bölüyoruz, uç herkese açık ve üst sınırın bir
+ * savunma değeri var.
+ */
+export async function getCharacterCardsBulk(
+  ids: number[],
+): Promise<CharacterCard[]> {
+  const unique = [...new Set(ids)].filter(
+    (id) => Number.isInteger(id) && id > 0,
+  );
+  const chunks: number[][] = [];
+  for (let i = 0; i < unique.length; i += 50) {
+    chunks.push(unique.slice(i, i + 50));
+  }
+  const results = await Promise.all(
+    chunks.map((chunk) => getCharacterCards(chunk)),
+  );
+  return results.flat();
+}
+
+/**
  * Verilen karakterlerin küratör görselleri (CharacterImage) tek istekte.
  *
  * Akatsuki sergisinin görsel kaynağı: portreler ve sergi görselleri buradan,

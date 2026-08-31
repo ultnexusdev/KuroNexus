@@ -2222,7 +2222,13 @@
     "indexCurator": {
       "off": "Küratör modu",
       "on": "Küratör modu açık",
-      "hint": "Her portrenin sağ üstündeki ✕ ile karakteri dizinden çıkarabilirsin. Geri alınabilir."
+      "hint": "Sol üstteki görsel işaretiyle portre yükleyebilir, sağ üstteki ✕ ile karakteri dizinden çıkarabilirsin. İkisi de geri alınabilir."
+    },
+    "portraitSlot": {
+      "open": "{name} için portre yükle",
+      "title": "{name} · portre yükleme",
+      "close": "Kapat",
+      "note": "Yüklenen kare karakterin kendi sayfasındaki kapak portresiyle aynı yuvaya iner. Yeni bir kare yüklemek eskisinin yerini alır."
     }
   },
   "pageState": {

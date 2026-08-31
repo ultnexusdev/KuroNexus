@@ -104,7 +104,7 @@ export default async function CharacterGalleryPage({
       hallName={hall.name}
       isAdmin={isAdmin}
       curatedCount={roster.length}
-      shelf={<CuratedShelf roster={roster} />}
+      shelf={<CuratedShelf roster={roster} isAdmin={isAdmin} />}
     />
   );
 }

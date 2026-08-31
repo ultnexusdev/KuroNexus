@@ -36,6 +36,7 @@ export function CuratorUpload({
   label,
   current,
   size,
+  onUploaded,
 }: {
   characterId: number;
   slot: CharacterImageSlotName;
@@ -61,6 +62,15 @@ export function CuratorUpload({
    * yazılı değil — aynı yuva iki yerde farklı boyut söylememeli.
    */
   size?: { w: number; h: number };
+  /**
+   * Yükleme BAŞARIYLA bittiğinde çağrılır — çağıran isterse kendini
+   * toplar (dizindeki portre katmanı kapanıyor).
+   *
+   * Yalnızca başarıda: hata durumunda katman kapanırsa küratör hata
+   * iletisini hiç görmezdi. Sayfa tazelemesi burada kalıyor, çağırana
+   * bırakılmadı — her çağıranın aynı şeyi yeniden yazması gerekirdi.
+   */
+  onUploaded?: () => void;
 }) {
   const t = useTranslations("character.uploader");
   const router = useRouter();
@@ -90,6 +100,7 @@ export function CuratorUpload({
       setReplacing(false);
       // Sunucu bileşenlerini yeniden çizdirir: görsel anında yerine oturur
       startTransition(() => router.refresh());
+      onUploaded?.();
     } catch {
       setError(t("error"));
     } finally {

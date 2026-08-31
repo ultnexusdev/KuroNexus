@@ -12,6 +12,7 @@ import { Link, useRouter } from "@/lib/i18n/navigation";
 import { beginNavPending } from "@/lib/nav/pending";
 import type { CharacterIndex } from "@/lib/api/types";
 import { CharacterPlate } from "./CharacterPlate";
+import { CuratorModeContext } from "./CuratorFrame";
 import styles from "./CharacterGallery.module.css";
 import { CuratorDock } from "@/components/curated/CuratorDock";
 
@@ -261,7 +262,16 @@ export function CharacterGallery({
           </div>
         </div>
 
-        {shelf}
+        {/* Raf SUNUCUDA çizilmiş bir düğüm: içindeki portre yuvalarına prop
+            inemez, ama context iner. Sağlayıcı yalnızca yöneticide kuruluyor
+            — ziyaretçide raf zaten yuvasız geliyor. */}
+        {isAdmin ? (
+          <CuratorModeContext.Provider value={curating}>
+            {shelf}
+          </CuratorModeContext.Provider>
+        ) : (
+          shelf
+        )}
 
         {/* Alt bölümün başlığı. Raf "sayfası olanlar", burası "olmayanlar" —
             ikisi arasındaki sınırı yazıyla söylemek, karta işaret koymaktan

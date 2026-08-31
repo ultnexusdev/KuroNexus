@@ -1,7 +1,9 @@
 import Image from "next/image";
 import { Link } from "@/lib/i18n/navigation";
+import { apiUrl } from "@/lib/api/client";
 import type { ArchiveCharacter } from "@/lib/api/types";
 import { CharacterHideButton } from "./CharacterHideButton";
+import { CharacterPortraitSlot } from "./CharacterPortraitSlot";
 import styles from "./CharacterPlate.module.css";
 
 /**
@@ -46,6 +48,22 @@ export function CharacterPlate({
 }) {
   const href = `/dark-stories/category/anime/karakterler/${character.characterId}`;
 
+  /*
+   * Portre iki kaynaktan gelebiliyor: küratörün yüklediği kare (kendi
+   * sunucumuz, `/uploads/...` göreli) ya da AniList kartı (mutlak adres).
+   * Backend yükleme varsa `image` alanına ONU yazıyor (`withPortraits`),
+   * yani buradaki tek iş göreli adresi çözmek.
+   *
+   * ⚠️ `unoptimized` AYRIMI GEREKLİ: kendi alan adımız `remotePatterns`
+   * listesinde, AniList değil. Yüklenen kareyi optimize etmemek boşuna
+   * bant genişliği, AniList'i optimize etmeye kalkmak ise çalışma
+   * zamanında hata. Aynı ayrım rafta da yazılı (`CuratedShelf`).
+   */
+  const kendiYuklememiz = (character.image ?? "").startsWith("/uploads/");
+  const portrait = kendiYuklememiz
+    ? apiUrl(character.image as string)
+    : character.image;
+
   /* ROL ROZETİ YOK (24 Ağustos 2026, kullanıcı kararı: "başrol/yardımcı
      yazan kısımların bir önemi yok"). `character.role` alanı veri modelinde
      duruyor — AniList'ten geliyor ve künye sayfası onu başka yerde
@@ -63,6 +81,17 @@ export function CharacterPlate({
           onChange={onHiddenChange}
         />
       ) : null}
+      {/* Portre yuvası — kaldırma düğmesinin karşı köşesinde. Küratör
+          kartın boş olduğunu gördüğü yerde dolduruyor; eskiden karakterin
+          kendi sayfasına gitmek gerekiyordu ve künye kartlarının sayfası
+          zaten yok (kullanıcı isteği, 31 Ağustos 2026). */}
+      {curating ? (
+        <CharacterPortraitSlot
+          characterId={character.characterId}
+          name={character.name}
+          curating
+        />
+      ) : null}
       <Link
         href={href}
         className={styles.frame}
@@ -70,9 +99,9 @@ export function CharacterPlate({
         // gelir — yoksa ekran okuyucu yalnızca "bağlantı" diye okur
         aria-label={character.name}
       >
-        {character.image ? (
+        {portrait ? (
           <Image
-            src={character.image}
+            src={portrait}
             alt=""
             fill
             sizes={sizes}
@@ -80,8 +109,10 @@ export function CharacterPlate({
             /* AniList görselleri `images.remotePatterns` içinde değil (yalnızca
                TMDB ve kendi sunucumuz var); optimizasyondan geçirilmek istenirse
                önce next.config.ts'e alan adı eklenmeli. Kanattaki bütün AniList
-               görselleri aynı sebeple `unoptimized`. */
-            unoptimized
+               görselleri aynı sebeple `unoptimized`. Kendi yüklediğimiz kare
+               ise listede: o optimizasyondan GEÇİYOR — küratörün yüklediği
+               tam boy dosya ızgarada 150 px'e inecek. */
+            unoptimized={!kendiYuklememiz}
           />
         ) : (
           <span className={styles.portraitFallback} aria-hidden>

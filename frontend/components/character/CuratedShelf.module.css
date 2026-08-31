@@ -72,7 +72,10 @@
   list-style: none;
 }
 
+/* `relative` — kurator modundaki portre yuvasi bu kutuya gore konumlaniyor
+   (isaret kartin sol ustunde). Yuva yokken hicbir sey degismiyor. */
 .item {
+  position: relative;
   min-width: 0;
 }
 

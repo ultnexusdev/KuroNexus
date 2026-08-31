@@ -372,16 +372,25 @@ export class AnimeService {
      * Bu sırayla: pahalı derleme cache'te kalıyor, ucuz süzgeç her istekte
      * çalışıyor ve gizleme anında etkili oluyor.
      */
-    const [full, hidden] = await Promise.all([
+    /*
+     * Küratör portreleri de ÖNBELLEKTEN SONRA biniyor, aynı gerekçeyle:
+     * derlenmiş dizin 24 saat cache'li, yüklenen portre ise anında
+     * görünmeli. Yükleme cache'in içine karışsaydı küratör kareyi yükler,
+     * karakter sayfasında görür ama dizinde bir gün boyunca AniList'in
+     * küçük kartını görmeye devam ederdi.
+     */
+    const [full, hidden, portraits] = await Promise.all([
       this.buildCharacterIndex(),
       this.hiddenCharacters.listIds(),
+      this.characterImages.portraitMap(),
     ]);
     if (hidden.size === 0) {
-      return full;
+      return { ...full, characters: withPortraits(full.characters, portraits) };
     }
 
-    const characters = full.characters.filter(
-      (character) => !hidden.has(character.characterId),
+    const characters = withPortraits(
+      full.characters.filter((character) => !hidden.has(character.characterId)),
+      portraits,
     );
 
     // Seri süzgecindeki sayılar da düşmeli: "Bleach · 12" yazarken listede
@@ -605,12 +614,22 @@ export class AnimeService {
     // "Yakındaki karakterler" de dizinin bir parçası: küratörün kaldırdığı
     // bir karakter oradan da çıkmalı, yoksa gizleme yarım kalır
     const hidden = await this.hiddenCharacters.listIds();
-    const related = (
+    const nearby = (
       await this.collectRelated(
         entries.filter((entry) => ownSeries.includes(entry.slug)),
         characterId,
       )
     ).filter((item) => !hidden.has(item.characterId));
+
+    /* Şerit de dizinin bir parçası: küratörün yüklediği portre orada da
+       görünmeli, yoksa aynı karakter iki sayfada iki farklı yüzle çıkar.
+       Harita yalnızca şeritteki 12 kimlik için isteniyor. */
+    const related = withPortraits(
+      nearby,
+      await this.characterImages.portraitMap(
+        nearby.map((item) => item.characterId),
+      ),
+    );
 
     return { character, appearances, related, images };
   }
@@ -1100,6 +1119,33 @@ function byRoleThenFame(a: ArchiveCharacter, b: ArchiveCharacter): number {
   }
   const fame = (b.favourites ?? 0) - (a.favourites ?? 0);
   return fame !== 0 ? fame : a.name.localeCompare(b.name);
+}
+
+/**
+ * Küratörün yüklediği portreyi karakter künyesine işler.
+ *
+ * Kaynak sırası dosya sayfasındakiyle aynı: **yükleme kazanır**, AniList
+ * kartı yalnızca yükleme yoksa devrede. Adres göreli bırakılıyor
+ * (`/uploads/...`) — mutlak hâle getirmek sunucunun kendi adını yanıta
+ * gömmek demek; ön yüz `apiUrl()` ile çözüyor (kapak ve afiş adresleriyle
+ * aynı sözleşme).
+ *
+ * Yeni dizi dönüyor, künyeler yerinde değiştirilmiyor: `full.characters`
+ * derlenmiş dizinin CACHE'İNDEN geliyor ve aynı nesneler bir sonraki
+ * istekte yeniden kullanılıyor — yerinde yazmak, portre kaydı silinse
+ * bile eski adresin bellekte kalması demekti.
+ */
+function withPortraits(
+  characters: ArchiveCharacter[],
+  portraits: Map<number, string>,
+): ArchiveCharacter[] {
+  if (portraits.size === 0) {
+    return characters;
+  }
+  return characters.map((character) => {
+    const uploaded = portraits.get(character.characterId);
+    return uploaded ? { ...character, image: uploaded } : character;
+  });
 }
 
 /**

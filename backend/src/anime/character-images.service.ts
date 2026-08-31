@@ -79,6 +79,43 @@ export class CharacterImagesService {
     });
   }
 
+  /**
+   * Karakter → küratörün yüklediği PORTRE adresi.
+   *
+   * Karakter dizini bu haritayla zenginleşiyor: AniList'in verdiği ~230 px
+   * kart, elle yüklenmiş bir portre varsa onunla değişiyor. Tek sorgu —
+   * `listForMany`i çağırıp PORTRAIT'leri ayıklamak, dizindeki 130 karakter
+   * için bütün yetenek ve galeri karelerini de taşımak demekti.
+   *
+   * "SONUNCUSU KAZANIR" — dosya sayfasındaki kuralın aynısı
+   * (`CharacterDossier`: `.filter(PORTRAIT).at(-1)`). Sıralama artan
+   * olduğu için döngü ilerledikçe üzerine yazıyor ve haritada en son
+   * yüklenen kalıyor. İki yer aynı portreyi göstermeli: dizinde eski,
+   * sayfada yeni portre görmek küratöre "yükleme tutmadı" hissi verirdi.
+   *
+   * `characterIds` verilmezse bütün portreler geliyor: dizin zaten
+   * tamamını istiyor ve `in` listesi 130 elemana çıkardı.
+   */
+  async portraitMap(characterIds?: number[]): Promise<Map<number, string>> {
+    if (characterIds && characterIds.length === 0) {
+      return new Map();
+    }
+    const rows = await this.prisma.characterImage.findMany({
+      where: {
+        slot: 'PORTRAIT',
+        isDeleted: false,
+        ...(characterIds ? { characterId: { in: characterIds } } : {}),
+      },
+      orderBy: [{ orderIndex: 'asc' }, { createdAt: 'asc' }],
+      select: { characterId: true, url: true },
+    });
+    const map = new Map<number, string>();
+    for (const row of rows) {
+      map.set(row.characterId, row.url);
+    }
+    return map;
+  }
+
   async create(
     data: {
       characterId: number;

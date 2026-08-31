@@ -1,4 +1,7 @@
-import { getCharacterCards, getCharacterImagesBulk } from "@/lib/api/characters";
+import {
+  getCharacterCardsBulk,
+  getCharacterImagesBulk,
+} from "@/lib/api/characters";
 import { apiUrl } from "@/lib/api/client";
 import type { ArchiveCharacter } from "@/lib/api/types";
 import { EXPERIENCE_IDS } from "./experiences";
@@ -200,9 +203,14 @@ export function curatedRosterGaps(): number[] {
  */
 export async function loadCuratedRoster(): Promise<ArchiveCharacter[]> {
   const ids = EXPERIENCE_ROSTER.map((entry) => entry.characterId);
+  /* ⚠️ İKİSİ DE `Bulk` — uç `ids` listesini 50'de kesiyor ve kayıt 66
+     kişi. Künyeler `getCharacterCards` ile tek turda isteniyordu ve
+     rafın son 16 karakteri (Ulquiorra'dan MHA kadrosuna kadar) bu yüzden
+     portresiz çiziliyordu: kimse hata görmüyordu çünkü kesme sessiz.
+     Ölçüldü ve düzeltildi, 31 Ağustos 2026. */
   const [rows, cards] = await Promise.all([
     getCharacterImagesBulk(ids),
-    getCharacterCards(ids),
+    getCharacterCardsBulk(ids),
   ]);
 
   const uploaded = new Map<number, string>();

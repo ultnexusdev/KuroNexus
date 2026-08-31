@@ -3,6 +3,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/lib/i18n/navigation";
 import type { ArchiveCharacter } from "@/lib/api/types";
 import { animeHref } from "@/lib/anime/routes";
+import { CharacterPortraitSlot } from "./CharacterPortraitSlot";
 import styles from "./CuratedShelf.module.css";
 
 /**
@@ -23,7 +24,20 @@ import styles from "./CuratedShelf.module.css";
  * Portre çözümleme sırası `lib/characters/roster.ts`te: önce kendi
  * yüklediğimiz tam boy portre, sonra AniList kartı, ikisi de yoksa harf.
  */
-export function CuratedShelf({ roster }: { roster: ArchiveCharacter[] }) {
+export function CuratedShelf({
+  roster,
+  isAdmin = false,
+}: {
+  roster: ArchiveCharacter[];
+  /**
+   * Küratör yuvası ziyaretçiye HİÇ çizilmesin diye: kesme sunucuda
+   * yapılıyor, yükleyici JS'i ziyaretçiye inmiyor. Yuvanın açık mı kapalı
+   * mı olduğuna ise `CuratorFrame` context'i karar veriyor — dizinin
+   * anahtarı bu düğümün ÜSTÜNDE (`CharacterGallery`) ve raf sunucuda
+   * çizildiği için prop olarak inemez.
+   */
+  isAdmin?: boolean;
+}) {
   const t = useTranslations("character.curated");
 
   if (roster.length === 0) {
@@ -50,6 +64,15 @@ export function CuratedShelf({ roster }: { roster: ArchiveCharacter[] }) {
           const kendiYuklememiz = (character.image ?? "").includes("/uploads/");
           return (
             <li key={character.characterId} className={styles.item}>
+              {/* Bağlantının DIŞINDA: kart bir <a>, içine ikinci bir
+                  tıklanabilir öğe koymak geçersiz işaretleme olurdu
+                  (künye kartındaki kaldırma düğmesiyle aynı gerekçe). */}
+              {isAdmin ? (
+                <CharacterPortraitSlot
+                  characterId={character.characterId}
+                  name={character.name}
+                />
+              ) : null}
               <Link
                 href={animeHref.character(character.characterId)}
                 className={styles.card}

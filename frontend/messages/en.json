@@ -2222,7 +2222,13 @@
     "indexCurator": {
       "off": "Curator mode",
       "on": "Curator mode on",
-      "hint": "Use the ✕ at the top right of each portrait to remove a character from the index. This can be undone."
+      "hint": "Use the image mark at the top left to upload a portrait, and the ✕ at the top right to remove a character from the index. Both can be undone."
+    },
+    "portraitSlot": {
+      "open": "Upload a portrait for {name}",
+      "title": "{name} · portrait upload",
+      "close": "Close",
+      "note": "The image lands in the same slot as the cover portrait on the character's own page. Uploading a new one replaces the previous image."
     }
   },
   "pageState": {

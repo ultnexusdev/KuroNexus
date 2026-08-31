@@ -159,8 +159,25 @@ const anton = Anton({
   preload: false,
 });
 
+/* ⚠️ 31 Ağustos 2026'da "200" EKLENDİ (Dalga 4 · Tōji Fushiguro).
+   Aile statik kesimlerle yükleniyor, yani BİLDİRİLMEYEN bir ağırlık
+   sessizce en yakınına düşüyor — `font-weight: 200` yazan bir kural
+   400 çiziliyordu ve bunu ne tsc ne eslint ne de denetim betikleri
+   görüyor. Tōji'nin brief'i başlıkları "çok ince (200) ve çok büyük"
+   diye kilitledi; incelik o sayfanın kimliğinin (yokluk, boş gökyüzü)
+   taşıyıcısı, 400'e düşünce kilit fiilen boşa çıkıyordu.
+
+   Ölçüldü, tahmin edilmedi: `font-weight: 200` yazan 12 modülün
+   HİÇBİRİ `--font-inter` okumuyor (Bleach salonu, Konan, Minato,
+   Tenten — hepsi Jost/Cormorant/Shippori ailesinde), yani bu ekleme
+   yayındaki hiçbir sayfanın görünüşünü değiştirmiyor.
+
+   ⚠️ AÇIK İŞ, bu turda düzeltilmedi: Inter okuyan ÜÇ modül
+   `font-weight: 300` yazıyor (bleach/world, Gojō, Ulquiorra) ve onlar
+   da bugün 400 çiziliyor. "300" eklemek üç yayın sayfasının görünüşünü
+   değiştirirdi; bu görevin kapsamı dışında, ayrı bir karar. */
 const inter = Inter({
-  weight: ["400", "600", "700"],
+  weight: ["200", "400", "600", "700"],
   subsets: ["latin", "latin-ext"],
   variable: "--font-inter",
   display: "swap",

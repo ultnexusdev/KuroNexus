@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { readIsAdmin } from "@/lib/auth/session";
-import { fetchCategories } from "@/lib/api/universes";
 import { getMovieArchive } from "@/lib/api/movies";
-import { hallLabel, hallName, hallNumber } from "@/lib/halls";
+import { getHall } from "@/lib/halls";
 import { shelfFromSlug } from "@/lib/film/shelves";
 import { FilmShelfPage } from "@/components/film/FilmShelfPage";
 import { shareCard } from "@/lib/seo";
@@ -33,22 +32,6 @@ export async function generateMetadata({
   };
 }
 
-/** Salon numarası ve adı tek kaynaktan: kategori kaydı. */
-async function getHall(
-  fallbackName: string,
-  locale: string,
-): Promise<{ label: string; name: string }> {
-  try {
-    const categories = await fetchCategories();
-    return {
-      label: hallLabel(hallNumber(categories, "film")),
-      name: hallName(categories, "film", fallbackName, locale),
-    };
-  } catch {
-    return { label: "", name: fallbackName };
-  }
-}
-
 export default async function ShelfPage({
   params,
 }: {
@@ -63,7 +46,7 @@ export default async function ShelfPage({
   const t = await getTranslations({ locale, namespace: "film" });
   const [archive, hall, isAdmin] = await Promise.all([
     getMovieArchive(),
-    getHall(t("hallName"), locale),
+    getHall("film", t("hallName"), locale),
     readIsAdmin(),
   ]);
 

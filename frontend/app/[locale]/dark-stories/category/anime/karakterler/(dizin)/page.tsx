@@ -5,8 +5,7 @@ import { getCharacterIndex } from "@/lib/api/characters";
 import type { CharacterIndex } from "@/lib/api/types";
 import { loadCuratedRoster } from "@/lib/characters/roster";
 import { CuratedShelf } from "@/components/character/CuratedShelf";
-import { fetchCategories } from "@/lib/api/universes";
-import { hallLabel, hallName, hallNumber } from "@/lib/halls";
+import { getHall } from "@/lib/halls";
 import { shareCard } from "@/lib/seo";
 import { CharacterGallery } from "@/components/character/CharacterGallery";
 
@@ -37,23 +36,6 @@ export async function generateMetadata({
   };
 }
 
-/** Salon numarası ve adı tek kaynaktan: kategori kaydı (arşiv sayfasıyla aynı). */
-async function getHall(
-  fallbackName: string,
-  locale: string,
-): Promise<{ label: string; name: string }> {
-  try {
-    const categories = await fetchCategories();
-    return {
-      label: hallLabel(hallNumber(categories, "anime")),
-      name: hallName(categories, "anime", fallbackName, locale),
-    };
-  } catch {
-    // Kategori listesi alınamazsa başlık numarasız görünür, sayfa çökmez
-    return { label: "", name: fallbackName };
-  }
-}
-
 export default async function CharacterGalleryPage({
   params,
 }: {
@@ -63,7 +45,7 @@ export default async function CharacterGalleryPage({
   const t = await getTranslations({ locale, namespace: "anime" });
   const [index, hall, isAdmin, roster] = await Promise.all([
     getCharacterIndex(),
-    getHall(t("hallName"), locale),
+    getHall("anime", t("hallName"), locale),
     readIsAdmin(),
     loadCuratedRoster(),
   ]);

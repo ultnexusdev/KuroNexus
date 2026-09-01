@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { readIsAdmin } from "@/lib/auth/session";
-import { fetchCategories } from "@/lib/api/universes";
 import { getShowArchive } from "@/lib/api/shows";
-import { hallLabel, hallName, hallNumber } from "@/lib/halls";
+import { getHall } from "@/lib/halls";
 import { ShowHall } from "@/components/show/ShowHall";
 import { shareCard } from "@/lib/seo";
 
@@ -27,22 +26,6 @@ export async function generateMetadata({
   };
 }
 
-/** Salon numarası ve adı tek kaynaktan: kategori kaydı. */
-async function getHall(
-  fallbackName: string,
-  locale: string,
-): Promise<{ label: string; name: string }> {
-  try {
-    const categories = await fetchCategories();
-    return {
-      label: hallLabel(hallNumber(categories, "dizi")),
-      name: hallName(categories, "dizi", fallbackName, locale),
-    };
-  } catch {
-    return { label: "", name: fallbackName };
-  }
-}
-
 export default async function ShowArchivePage({
   params,
 }: {
@@ -52,7 +35,7 @@ export default async function ShowArchivePage({
   const t = await getTranslations({ locale, namespace: "show" });
   const [archive, hall, isAdmin] = await Promise.all([
     getShowArchive(),
-    getHall(t("hallName"), locale),
+    getHall("dizi", t("hallName"), locale),
     readIsAdmin(),
   ]);
 

@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { shareCard } from "@/lib/seo";
-import { fetchCategories } from "@/lib/api/universes";
 import { getAwards } from "@/lib/api/books";
-import { hallLabel, hallName, hallNumber } from "@/lib/halls";
+import { getHall } from "@/lib/halls";
 import { AwardHall } from "@/components/book/AwardHall";
 
 // Kitap salonunun ödüller bölümü (Faz B). Liste backend'de kod içi küratörlü;
@@ -31,23 +30,6 @@ export async function generateMetadata({
   };
 }
 
-/** Salon numarası ve adı tek kaynaktan: kategori kaydı (yoksa kod adı). */
-async function getHall(
-  fallbackName: string,
-  locale: string,
-): Promise<{ label: string; name: string }> {
-  try {
-    const categories = await fetchCategories();
-    return {
-      label: hallLabel(hallNumber(categories, SLUG)),
-      name: hallName(categories, SLUG, fallbackName, locale),
-    };
-  } catch {
-    // Kategori listesi alınamazsa başlık numarasız görünür, sayfa çökmez
-    return { label: "", name: fallbackName };
-  }
-}
-
 export default async function BookAwardsPage({
   params,
 }: {
@@ -57,7 +39,7 @@ export default async function BookAwardsPage({
   const t = await getTranslations({ locale, namespace: "book" });
   const [awards, hall] = await Promise.all([
     getAwards(),
-    getHall(t("hallName"), locale),
+    getHall(SLUG, t("hallName"), locale),
   ]);
 
   return (

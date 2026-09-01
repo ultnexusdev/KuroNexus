@@ -3,9 +3,8 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { readIsAdmin } from "@/lib/auth/session";
 import { shareCard } from "@/lib/seo";
-import { fetchCategories } from "@/lib/api/universes";
 import { getBookArchive } from "@/lib/api/books";
-import { hallLabel, hallName, hallNumber } from "@/lib/halls";
+import { getHall } from "@/lib/halls";
 import { shelfFromSlug } from "@/lib/book/shelves";
 import { BookHall } from "@/components/book/BookHall";
 
@@ -41,21 +40,6 @@ export async function generateMetadata({
   };
 }
 
-async function getHall(
-  fallbackName: string,
-  locale: string,
-): Promise<{ label: string; name: string }> {
-  try {
-    const categories = await fetchCategories();
-    return {
-      label: hallLabel(hallNumber(categories, SLUG)),
-      name: hallName(categories, SLUG, fallbackName, locale),
-    };
-  } catch {
-    return { label: "", name: fallbackName };
-  }
-}
-
 export default async function BookShelfRoute({
   params,
 }: {
@@ -70,7 +54,7 @@ export default async function BookShelfRoute({
   const t = await getTranslations({ locale, namespace: "book" });
   const [archive, hall, isAdmin] = await Promise.all([
     getBookArchive(),
-    getHall(t("hallName"), locale),
+    getHall(SLUG, t("hallName"), locale),
     readIsAdmin(),
   ]);
 

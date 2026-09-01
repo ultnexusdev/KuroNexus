@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { readIsAdmin } from "@/lib/auth/session";
-import { fetchCategories } from "@/lib/api/universes";
 import { getAnimeArchive } from "@/lib/api/anime";
-import { hallLabel, hallName, hallNumber } from "@/lib/halls";
+import { getHall } from "@/lib/halls";
 import { shareCard } from "@/lib/seo";
 import { AnimeHall } from "@/components/anime/AnimeHall";
 
@@ -26,23 +25,6 @@ export async function generateMetadata({
   };
 }
 
-/** Salon numarası ve adı tek kaynaktan: kategori kaydı. */
-async function getHall(
-  fallbackName: string,
-  locale: string,
-): Promise<{ label: string; name: string }> {
-  try {
-    const categories = await fetchCategories();
-    return {
-      label: hallLabel(hallNumber(categories, "anime")),
-      name: hallName(categories, "anime", fallbackName, locale),
-    };
-  } catch {
-    // Kategori listesi alınamazsa başlık numarasız görünür, sayfa çökmez
-    return { label: "", name: fallbackName };
-  }
-}
-
 export default async function AnimeArchivePage({
   params,
 }: {
@@ -52,7 +34,7 @@ export default async function AnimeArchivePage({
   const t = await getTranslations({ locale, namespace: "anime" });
   const [archive, hall, isAdmin] = await Promise.all([
     getAnimeArchive(),
-    getHall(t("hallName"), locale),
+    getHall("anime", t("hallName"), locale),
     readIsAdmin(),
   ]);
 

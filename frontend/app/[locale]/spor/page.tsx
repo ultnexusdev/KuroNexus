@@ -2,12 +2,12 @@ import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
-import { fetchCategories } from "@/lib/api/universes";
+
 import Image from "next/image";
 import { apiUrl, isLocalUpload } from "@/lib/api/client";
 import { fetchSportOverview } from "@/lib/api/sport-archive";
 import { readIsAdmin } from "@/lib/auth/session";
-import { hallLabel, hallNumber } from "@/lib/halls";
+import { getHallLabel } from "@/lib/halls";
 import { legendHref, sportHref } from "@/lib/sport/routes";
 import { shareCard } from "@/lib/seo";
 import { flagGradient, sportFlag } from "@/lib/sport/flags";
@@ -33,18 +33,6 @@ export async function generateMetadata({
     description,
     ...shareCard({ title, description, locale, path: sportHref.root() }),
   };
-}
-
-/**
- * Salon numarası kategori kaydından — `lib/halls.ts` tek kaynak. Kitap
- * salonunun deseni: liste alınamazsa numarasız görünür, sayfa ÇÖKMEZ.
- */
-async function getHallLabel(): Promise<string> {
-  try {
-    return hallLabel(hallNumber(await fetchCategories(), "spor"));
-  } catch {
-    return "";
-  }
 }
 
 /**
@@ -125,7 +113,7 @@ export default async function SportLandingPage({
         f1Circuits: 0,
       }),
     ),
-    getHallLabel(),
+    getHallLabel("spor"),
     readIsAdmin(),
   ]);
 

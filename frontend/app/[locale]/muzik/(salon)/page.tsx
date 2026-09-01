@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
-import { fetchCategories } from "@/lib/api/universes";
+
 import { fetchMusicOverview } from "@/lib/api/music";
 import { readIsAdmin } from "@/lib/auth/session";
-import { hallLabel, hallNumber } from "@/lib/halls";
+import { getHallLabel } from "@/lib/halls";
 import { musicHref, genreColorVar, spotifyOpenUrl } from "@/lib/music/routes";
 import { formatDuration } from "@/lib/music/format";
 import { shareCard } from "@/lib/seo";
@@ -57,17 +57,6 @@ export async function generateMetadata({
   };
 }
 
-/**
- * Salon numarası kategori kaydından — `lib/halls.ts` tek kaynak. Kitap
- * salonunun deseni: liste alınamazsa numarasız görünür, sayfa ÇÖKMEZ.
- */
-async function getHallLabel(): Promise<string> {
-  try {
-    return hallLabel(hallNumber(await fetchCategories(), "muzik"));
-  } catch {
-    return "";
-  }
-}
 
 
 export default async function MusicHallPage() {
@@ -85,7 +74,7 @@ export default async function MusicHallPage() {
   const isAdmin = await readIsAdmin();
   const [overview, hall, t] = await Promise.all([
     fetchMusicOverview(isAdmin),
-    getHallLabel(),
+    getHallLabel("muzik"),
     getTranslations("music"),
   ]);
 

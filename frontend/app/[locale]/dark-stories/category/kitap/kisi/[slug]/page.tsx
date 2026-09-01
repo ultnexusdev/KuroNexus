@@ -3,9 +3,8 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { shareCard } from "@/lib/seo";
 import { apiUrl } from "@/lib/api/client";
-import { fetchCategories } from "@/lib/api/universes";
 import { getBookPerson } from "@/lib/api/books";
-import { hallLabel, hallName, hallNumber } from "@/lib/halls";
+import { getHall } from "@/lib/halls";
 import { PersonPage } from "@/components/book/PersonHall";
 
 /**
@@ -39,21 +38,6 @@ export async function generateMetadata({
   };
 }
 
-async function getHall(
-  fallbackName: string,
-  locale: string,
-): Promise<{ label: string; name: string }> {
-  try {
-    const categories = await fetchCategories();
-    return {
-      label: hallLabel(hallNumber(categories, SLUG)),
-      name: hallName(categories, SLUG, fallbackName, locale),
-    };
-  } catch {
-    return { label: "", name: fallbackName };
-  }
-}
-
 export default async function PersonRoute({
   params,
 }: {
@@ -63,7 +47,7 @@ export default async function PersonRoute({
   const t = await getTranslations({ locale, namespace: "book" });
   const [person, hall] = await Promise.all([
     getBookPerson(slug),
-    getHall(t("hallName"), locale),
+    getHall(SLUG, t("hallName"), locale),
   ]);
 
   // Arşivde olmayan kişi 404; backend de bilmediği slug'a 404 veriyor

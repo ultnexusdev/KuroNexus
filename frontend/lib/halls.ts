@@ -1,4 +1,5 @@
 import type { UniverseCategory } from "./api/types";
+import { fetchCategories } from "./api/universes";
 import { routing } from "./i18n/routing";
 
 /**
@@ -219,4 +220,47 @@ const MOVED_HALLS: Record<string, string> = {
 
 export function hallHref(slug: string): string {
   return MOVED_HALLS[slug] ?? `/dark-stories/category/${slug}`;
+}
+
+/**
+ * Yalnızca salon numarası — adını sözlüğünden çözen sayfalar için.
+ *
+ * Müzik ve spor salonları `getHall`ın kısaltılmış bir ikizini taşıyordu
+ * (D-F4'ün iki artığı): ad kendi ad alanlarından geldiği için `hallName`e
+ * ihtiyaçları yok, sadece numaraya var.
+ */
+export async function getHallLabel(slug: string): Promise<string> {
+  try {
+    return hallLabel(hallNumber(await fetchCategories(), slug));
+  } catch {
+    return "";
+  }
+}
+
+/**
+ * Sayfa başlığı için salon numarası + adı.
+ *
+ * Bu üç satırlık gövde 1 Eylül 2026 denetimine kadar **22 sayfada** birebir
+ * kopyalanmış hâlde duruyordu (bulgu D-F4); tek fark kategori slug'ıydı.
+ * Kategori listesi alınamazsa başlık numarasız görünür ve sayfa çökmez —
+ * kanadın yerleşik kuralı (AGENTS.md kural 4), o yüzden yutulan hata burada
+ * bilinçli.
+ *
+ * `translated`: çağıranın kendi sözlüğünden çözdüğü ad. Türkçede veritabanı
+ * adı, diğer dillerde çeviri öne geçiyor — kararın tamamı `hallName`de.
+ */
+export async function getHall(
+  slug: string,
+  translated: string,
+  locale: string,
+): Promise<{ label: string; name: string }> {
+  try {
+    const categories = await fetchCategories();
+    return {
+      label: hallLabel(hallNumber(categories, slug)),
+      name: hallName(categories, slug, translated, locale),
+    };
+  } catch {
+    return { label: "", name: translated };
+  }
 }

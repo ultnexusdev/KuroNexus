@@ -4,9 +4,8 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/lib/i18n/navigation";
 import { getAnimeArchive, getAnimeShowcase } from "@/lib/api/anime";
 import { getCharacterImages } from "@/lib/api/characters";
-import { fetchCategories } from "@/lib/api/universes";
 import { apiUrl } from "@/lib/api/client";
-import { hallLabel, hallName, hallNumber } from "@/lib/halls";
+import { getHall } from "@/lib/halls";
 import { shareCard } from "@/lib/seo";
 import { animeHref } from "@/lib/anime/routes";
 import { AKATSUKI_IDS, EXHIBIT_IMAGE_KEYS } from "@/lib/anime/akatsuki";
@@ -47,22 +46,6 @@ export async function generateMetadata({
   };
 }
 
-/** Salon numarası ve adı tek kaynaktan: kategori kaydı (eski lobiyle aynı). */
-async function getHall(
-  fallbackName: string,
-  locale: string,
-): Promise<{ label: string; name: string }> {
-  try {
-    const categories = await fetchCategories();
-    return {
-      label: hallLabel(hallNumber(categories, "anime")),
-      name: hallName(categories, "anime", fallbackName, locale),
-    };
-  } catch {
-    return { label: "", name: fallbackName };
-  }
-}
-
 /**
  * Arşivde adı geçen seriyi bul. En kısa başlık kazanır: "Naruto" araması
  * "Naruto: Shippuden"i değil kök seriyi seçsin. Bulunamazsa `null` —
@@ -100,7 +83,7 @@ export default async function AnimeHallPage({
   const [archive, showcase, hall, painImages, isAdmin] = await Promise.all([
     getAnimeArchive(),
     getAnimeShowcase(),
-    getHall(t("hallName"), locale),
+    getHall("anime", t("hallName"), locale),
     // Silüet için yalnızca Pain'in kayıtları; kurulum koşmadıysa boş döner
     // ve kart bulut motifiyle çizilir — sayfa görsele borçlu değil.
     getCharacterImages([AKATSUKI_IDS.pain]),

@@ -36,6 +36,7 @@ Sentez yazıldıktan sonra Kademe 1 ve Kademe 2 aynı gün uygulandı. Kapananla
 | **D-F8 + H-F4** | `1171790` | `today` ×4, `initials` ×2, YouTube adresleri (CSP ile senkron 5 nokta) tekleşti. |
 | **D-B8** | (yerel) | `sleep` ×4, `slugKey` ×2, `TURKISH_CHAR_MAP` kopyası. `gs-official`'ın slugify **fonksiyonu** bilerek ayrı: NFKD farkı mevcut eşleşme anahtarlarını değiştirirdi. |
 | **🔴 Disk arızası #3** | — | Oturumun 12 deploy'u diski %100'e çıkardı; Postgres PANIC döngüsüne girdi, ~40 dk kesinti. Kurtarma + arıza imzası `deploy-iki-build-rami-bitiriyor` notunda. Ders: ard arda push yok, deploy öncesi `df -h /`. |
+| **DCK-03** (Medium) | `00714ef` + panel | Backend healthcheck AÇIK ve **canlı doğrulandı**: `docker ps` → `Up 3 minutes (healthy)`. İlk deneme imajda curl olmadığı için düştü (Coolify HTTP tipini bile konteyner içinden curl'le atıyor — §8.7 varsayımı yanlıştı, belge düzeltildi) ve **rollback canlı test edilmiş oldu**: site hiç düşmedi. curl imaja eklendi. Kullanıcı ayrıca Coolify zamanlanmış Docker temizliğini açtı — disk arıza sınıfının iki panzehiri de yerinde. |
 
 **Canlı doğrulama:** `/health` → `{"status":"ok","db":"up"}`; ana sayfa, kitap ve film salonları dolu (418 film, 253 kitap) — boş raf sınıfı yok. Watch Paths'in çalıştığı da ölçüldü: iki servis farklı commit'lerde olabiliyor ve bu arıza değil.
 
@@ -47,7 +48,7 @@ Sentez yazıldıktan sonra Kademe 1 ve Kademe 2 aynı gün uygulandı. Kapananla
 - **API-08** (High) — film/dizi/anime/pulse uçları `externalData`'yı budamadan çekiyor. ⚠️ Kitaptaki `ARCHIVE_OMIT` çözümü BURADA İŞE YARAMAZ: kitap `externalData`'yı hiç okumuyordu, bu üç kanat ise ondan 10 alan okuyor. JSON projeksiyonu (raw SQL) ya da alanları sütuna terfi (migration) gerekir.
 - **API-04/05** (Medium) — ISR geçişi. ⚠️ Ürün kararı: ziyaretçi 60–300 sn eski veri görür. Küratör tazeliği `isAdmin` yolunda korunabilir (`pulse.ts`'teki `fresh` deseni), ama kullanıcı onayı alınmadan uygulanmadı.
 - **Kademe 3–4'ten kalanlar** (Parça 1) — `externalCache` kalıbı 22 noktada (D-B7; not: "fetchedAt eksik" alt maddesi YANLIŞ ALARM çıktı, şemada `@default(now())` var); **D-F2** FilmCurator↔ShowCurator (~450 satır; küratör akışının canlıda gerçek girişle sınanması gerektiği için bilerek ertelendi); movies↔shows kalan ikizler (D-B4: showcase/buildLinks/buildStats — TMDB istemci soyutlaması ister); rota literalleri film/dizi/anime ayakları (H-F3'ün kalanı); öksüz oyuncu sayfası (F-4, karar gerektirir); D-F7 shelves fabrikası (Low). `music-playlist`/`music-sync` slug varyantları kendi imzalarıyla duruyor.
-- **Panel işleri (kullanıcıda):** DCK-03 healthcheck, Coolify zamanlanmış Docker temizliği, journald üst sınırı — sonuncusu olmadan disk ~16 günde yine dolar.
+- ~~Panel işleri~~ → **İKİSİ DE YAPILDI (1 Eylül akşamı):** backend healthcheck açık ve `(healthy)` doğrulandı; Coolify zamanlanmış Docker temizliği açıldı. Kalan tek küçük iş journald üst sınırı (`SystemMaxUse`) — sunucuda tek satır, acele değil.
 - **Kapsam dışı:** 26 Dependabot açığı (16 high).
 
 ---

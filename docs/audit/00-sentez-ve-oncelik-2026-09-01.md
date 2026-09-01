@@ -7,6 +7,28 @@
 
 ---
 
+## 0 · UYGULAMA DURUMU (1 Eylül 2026, denetimle aynı gün)
+
+Sentez yazıldıktan sonra Kademe 1 ve Kademe 2 aynı gün uygulandı. Kapananlar:
+
+| Bulgu | Commit | Not |
+|---|---|---|
+| **Disk krizi** (planın önüne geçti) | — (sunucuda) | Disk %95 / 2.2 GB boş bulundu; builder cache (3.45 GB) + journald (1.2 GB) + eski deploy imajları (1.2 GB) → **%78 / 8 GB boş**. Ölçüldü: disk ~400 MB/gün büyüyor, yani bu iş periyodik. |
+| **İnternete açık Postgres** (raporlarda yok) | — (panelden) | `0.0.0.0:5432` yayını UltNexus'un DB'sindeydi (KuroNexus'unki zaten kapalıydı); kapatıldı, doğrulandı. |
+| **MEM-01** kısmen | — | "swap ölçülmedi" belirsizliği kapandı: **4 GB swap var**. Ama makine durağan hâlde 2 GB kullanıyor, `available` ~549 MB — marj hâlâ dar. |
+| **H-B1** (Critical) + **H-B4** (3×High) | `a73ee56` | CORS fail-open kapatıldı, `ConfigModule`'e `validate` kapısı, çerez ömrü `JWT_EXPIRES_IN`'den türetiliyor, upload sınırı eşitlendi, `.env.example`'a eksik 13 değişken. 13 test. |
+| **DCK-01** (High) | `bd0e084` | `prisma`+`dotenv` → `dependencies`, build'de `pnpm prune --prod`. Prune'un doğruluğu build sırasında kanıtlanıyor (`prisma --version` + `require('dotenv')`). |
+| **API-01, API-02, API-03** (3×High) + **SEC-02** | `5b31565` | SSR timeout (10 sn), iç ağ throttle muafiyeti (7 test), 24 getirici `cache()` ile sarıldı, API hataları artık loglanıyor. |
+| **SEC-01** + **DCK-04** | `0fc068d` | Kök `error.tsx` (+ `pageState.error.home` iki dilde), `NEXT_PUBLIC_API_URL` build kapısı. |
+
+**Canlı doğrulama:** `/health` → `{"status":"ok","db":"up"}`; ana sayfa, kitap ve film salonları dolu (418 film, 253 kitap) — boş raf sınıfı yok. Watch Paths'in çalıştığı da ölçüldü: iki servis farklı commit'lerde olabiliyor ve bu arıza değil.
+
+**Bu belgenin geri kalanı denetim anındaki durumu anlatır** — yukarıdaki maddeler artık kapalıdır.
+
+**Sıradaki açık işler:** API-06/08 (tam-arşiv okuyan ve budanmamış uçlar; API-08 düz `omit` ile çözülmez, film/dizi/anime `externalData`'yı okuyor — JSON projeksiyonu ya da sütun terfisi gerekir), API-04/05 (ISR geçişi), DCK-02 (frontend root), DCK-03 (healthcheck — panel işi), Coolify zamanlanmış Docker temizliği + journald üst sınırı, 26 Dependabot açığı.
+
+---
+
 ## 1 · Genel sağlık tablosu
 
 | Ölçüt | Değer | Kaynak | Not |

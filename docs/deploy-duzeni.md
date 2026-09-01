@@ -440,6 +440,16 @@ karardı ama temizliğin hiç koşmadığı anlamına da geliyordu.
 
 **Kalıcı çözüm:** Coolify'da zamanlanmış Docker temizliğini aç. Elle
 temizlik bir arıza müdahalesi olmalı, rutin değil.
+
+**✅ 1 Eylül 2026: iki kalıcı önlem de alındı.** Disk o gün ÜÇÜNCÜ kez
+doldu (%100 — Postgres `pg_logical` checkpoint'ini yazamayıp PANIC
+döngüsüne girdi; disk açılınca kendiliğinden toparladı). Ardından:
+1) Coolify zamanlanmış Docker temizliği panelden AÇILDI.
+2) journald'a kalıcı tavan kondu — sınırsızken 1,5 GB'a şişmişti:
+   `/etc/systemd/journald.conf.d/kuronexus-limit.conf` →
+   `[Journal] SystemMaxUse=200M` (drop-in bilinçli: ana conf'u sistem
+   güncellemesi ezebilir). Doğrulama: `journalctl --disk-usage` = 192,0M.
+Geri alma: drop-in dosyayı sil + `systemctl restart systemd-journald`.
 ## 9.6 Tam kurtarma zinciri — 23 Ağustos 2026 akşamı (ölçüldü)
 
 Bu arıza tek bir komutla bitmedi; sıra önemliydi. Yaşanan tam dizi:

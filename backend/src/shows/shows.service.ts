@@ -13,6 +13,7 @@ import {
   type TmdbSeason,
 } from './tmdb-tv.service';
 import { slugify } from '../common/utils/slugify';
+import { normalizeUrl } from '../common/utils/normalize-url';
 import { CreateShowEntryDto } from './dto/create-show-entry.dto';
 import { UpdateShowEntryDto } from './dto/update-show-entry.dto';
 import { UpdateShowSeasonDto } from './dto/update-show-season.dto';
@@ -93,14 +94,6 @@ const SHOW_LINK_FIELDS = [
   'imdb',
   'trailer',
 ] as const satisfies ReadonlyArray<keyof ShowCustomLinks>;
-
-function normalizeUrl(value: string | null | undefined): string | null {
-  const trimmed = (value ?? '').trim();
-  if (!trimmed) {
-    return null;
-  }
-  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
-}
 
 /** Bir sezonun arşiv görünümü — anime kanadındaki `ArchiveAnimePart`ın eşi. */
 export interface ArchiveShowSeason {

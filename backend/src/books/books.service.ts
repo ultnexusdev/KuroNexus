@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { slugify } from '../common/utils/slugify';
+import { normalizeUrl } from '../common/utils/normalize-url';
 import { deriveArchiveSlug } from './archive-slug';
 import { GoogleBooksService, type BookSource } from './google-books.service';
 import {
@@ -1772,13 +1773,6 @@ function parseDate(value: string | null | undefined): Date | null {
 }
 
 /** Şemasız yapıştırılan adrese `https://` ekler; boş metin null döner. */
-function normalizeUrl(value: string | null | undefined): string | null {
-  const trimmed = (value ?? '').trim();
-  if (!trimmed) {
-    return null;
-  }
-  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
-}
 
 function readCustomLinks(entry: ArchiveBookEntry): BookCustomLinks {
   return (entry.links ?? {}) as BookCustomLinks;

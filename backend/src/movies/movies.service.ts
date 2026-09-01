@@ -12,6 +12,7 @@ import {
   type TmdbSearchResult,
 } from './tmdb.service';
 import { slugify } from '../common/utils/slugify';
+import { normalizeUrl } from '../common/utils/normalize-url';
 import { CreateMovieEntryDto } from './dto/create-movie-entry.dto';
 import { UpdateMovieEntryDto } from './dto/update-movie-entry.dto';
 import type { MovieEntry, Prisma } from '../generated/prisma/client';
@@ -115,13 +116,6 @@ const MOVIE_LINK_FIELDS = [
 ] as const satisfies ReadonlyArray<keyof MovieCustomLinks>;
 
 /** Şemasız yapıştırılan adrese `https://` ekler; boş metin null döner. */
-function normalizeUrl(value: string | null | undefined): string | null {
-  const trimmed = (value ?? '').trim();
-  if (!trimmed) {
-    return null;
-  }
-  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
-}
 
 export interface ArchiveMovie {
   id: string;

@@ -20,6 +20,7 @@ import {
 } from './character-images.service';
 import { HiddenCharactersService } from './hidden-characters.service';
 import { slugify } from '../common/utils/slugify';
+import { normalizeUrl } from '../common/utils/normalize-url';
 import { CreateAnimeEntryDto } from './dto/create-anime-entry.dto';
 import { UpdateAnimeEntryDto } from './dto/update-anime-entry.dto';
 import { UpdateAnimePartDto } from './dto/update-anime-part.dto';
@@ -1288,16 +1289,6 @@ function pickBanner(
  * şemasız yapıştırılan adrese `https://` eklenir — "myanimelist.net/anime/1"
  * yazınca bağlantının sayfanın kendi yoluna gitmesi hataydı.
  */
-function normalizeUrl(value: string | null | undefined): string | null {
-  const trimmed = (value ?? '').trim();
-  if (!trimmed) {
-    return null;
-  }
-  if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith('/')) {
-    return trimmed;
-  }
-  return `https://${trimmed}`;
-}
 
 function readCustomLinks(entry: EntryWithParts): AnimeCustomLinks {
   return (entry.links ?? {}) as AnimeCustomLinks;

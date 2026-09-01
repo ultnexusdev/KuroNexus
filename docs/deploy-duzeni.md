@@ -83,7 +83,15 @@ deploy edilebilir. Geri alma: kutuyu boşalt, Save.
 koşuyordu — 11 Ağustos'ta yarım saatlik kesintiye yol açan riski hiçbir
 kazanç karşılığı olmadan tekrarlıyordu (bkz. `DEVIR-2026-08-11.md` §4).
 
-### 3c. Backend health check (ÖNERİLDİ — uygulandığı doğrulanmadı)
+### 3c. Backend health check (1 Eylül 2026: panelden AÇILDI)
+
+⚠️ **İmajda `curl` şart.** İlk deneme (1 Eylül) tam da bu yüzden düştü:
+Coolify, Dockerfile tabanlı uygulamada HTTP tipli kontrolü bile konteynerin
+İÇİNDEN curl/wget ile atıyor — imajda yokken uyarı basıp yeni konteyneri
+unhealthy sayıyor ve eski konteynere geri dönüyor (rollback çalıştı, site
+düşmedi). `curl` aynı gün çalışma imajına eklendi (`backend/Dockerfile`,
+openssl satırı). §8.7'deki "HTTP tipi imajsız çalışır" varsayımı bu uygulama
+türü için YANLIŞ çıktı.
 
 `kuronexus-backend → Configuration → Healthcheck`
 

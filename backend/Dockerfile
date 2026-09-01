@@ -39,9 +39,14 @@ FROM node:24-slim
 WORKDIR /app
 ENV NODE_ENV=production
 
-# Prisma schema engine (migrate deploy) icin openssl
+# openssl: Prisma schema engine (migrate deploy) icin.
+# curl: Coolify healthcheck'i icin — 1 Eylul 2026'da olculdu: Coolify,
+# Dockerfile tabanli uygulamada HTTP tipli kontrolu bile konteynerin ICINDEN
+# curl/wget ile atiyor ("The healthcheck needs a curl or wget command"
+# uyarisi + yeni konteynerin rollback'i canli goruldu). Imajda curl yokken
+# panel healthcheck'i acmak her deploy'u basarisiz sayar.
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends openssl \
+    && apt-get install -y --no-install-recommends openssl curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Build asamasinda `pnpm prune --prod` ile dev bagimliliklari atilmis agac.

@@ -25,6 +25,8 @@ Sentez yazıldıktan sonra Kademe 1 ve Kademe 2 aynı gün uygulandı. Kapananla
 | **H-B2** (Critical) | `fa27e5c` | Compose'da varsayılan PG parolası kaldırıldı (`:?` ile zorunlu), port `127.0.0.1`'e bağlandı. |
 | **D-B6** (High) | `58a1c7c` | `normalizeUrl`'ün dört kopyasından yalnız anime'dekinde olan düzeltme ortaklaştırıldı. Diğer üçü `/uploads/kapak.jpg` gibi yerel yolları `https:///uploads/...`e çevirip **kırıyordu** — bakım borcu değil, aktif hataydı. 5 test. |
 | **H-F1** (High) | `d4ad372` | Süre etiketi i18n'e taşındı; beş sayfadaki gömülü `sa`/`dk` metni sözlüğe alındı. Dinleme sayfasının kompakt biçimi (belgelenmiş tasarım kararı) korundu, yalnız harfleri çevrildi. **Canlı doğrulandı:** aynı albüm EN'de "Length — 56 min", TR'de "Süre — 56 dk". |
+| **D-B2** (High) | `2e0f927` | SSRF indirici klonu (268×2 satır) `common/media/image-downloader.ts`'te tekleşti. Kopyayken hiç testi yoktu; 11 test eklendi — en önemlisi sonek tuzağı (`archive.org.evil.com` reddediliyor) ve uzantının adresten değil içerik imzasından seçilmesi. Davranış değişikliği yok. |
+| **D-B5** (High) | `9f532d1` | `buildUniqueSlug` dört serviste tekleşti. **İki gerçek sapma düzeltildi:** categories sayacı 1'den başlıyordu (ötekiler 2) ve yedek adı olmadığı için boş slug kaydedebiliyordu. Dördünde de eksik olan sonsuz-döngü koruması eklendi (200 deneme + zaman damgası). 6 test. |
 
 **Canlı doğrulama:** `/health` → `{"status":"ok","db":"up"}`; ana sayfa, kitap ve film salonları dolu (418 film, 253 kitap) — boş raf sınıfı yok. Watch Paths'in çalıştığı da ölçüldü: iki servis farklı commit'lerde olabiliyor ve bu arıza değil.
 
@@ -35,7 +37,7 @@ Sentez yazıldıktan sonra Kademe 1 ve Kademe 2 aynı gün uygulandı. Kapananla
 **Sıradaki açık işler:**
 - **API-08** (High) — film/dizi/anime/pulse uçları `externalData`'yı budamadan çekiyor. ⚠️ Kitaptaki `ARCHIVE_OMIT` çözümü BURADA İŞE YARAMAZ: kitap `externalData`'yı hiç okumuyordu, bu üç kanat ise ondan 10 alan okuyor. JSON projeksiyonu (raw SQL) ya da alanları sütuna terfi (migration) gerekir.
 - **API-04/05** (Medium) — ISR geçişi. ⚠️ Ürün kararı: ziyaretçi 60–300 sn eski veri görür. Küratör tazeliği `isAdmin` yolunda korunabilir (`pulse.ts`'teki `fresh` deseni), ama kullanıcı onayı alınmadan uygulanmadı.
-- **Kademe 3–4** (Parça 1) — SSRF indirici klonu (D-B2), `normalizeUrl` düzeltme kaybı (D-B6), `buildUniqueSlug` dört davranış (D-B5), `externalCache` 22 nokta (D-B7), frontend duplicate dörtlüsü, "sa/dk" i18n kaçağı (H-F1), rota literalleri + çelişen `KITAP_HREF` (H-F3), öksüz oyuncu sayfası (F-4).
+- **Kademe 3–4'ten kalanlar** (Parça 1) — `externalCache` kalıbı 22 noktada, biri `fetchedAt` eksik (D-B7); `suggestions()` movies↔shows (D-B1); frontend duplicate dörtlüsü (D-F1–D-F4, ~1.100 satır); rota literalleri + **çelişen `KITAP_HREF`** (H-F3); öksüz oyuncu sayfası (F-4, karar gerektirir). Ayrıca `music-playlist` ve `music-sync`'teki iki `buildUniqueSlug` varyantı kendi imzalarıyla duruyor — aynı hatta çekilebilir ama sözleşmeleri farklı.
 - **Panel işleri (kullanıcıda):** DCK-03 healthcheck, Coolify zamanlanmış Docker temizliği, journald üst sınırı — sonuncusu olmadan disk ~16 günde yine dolar.
 - **Kapsam dışı:** 26 Dependabot açığı (16 high).
 

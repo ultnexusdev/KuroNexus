@@ -8,6 +8,12 @@ import type {
   SourceBookPage,
 } from "@/lib/api/types";
 import { BackToTop } from "@/components/BackToTop";
+import {
+  BOOK_HALL_HREF,
+  bookHref,
+  personHref,
+  publisherHref,
+} from "@/lib/book/routes";
 import styles from "./SourceBook.module.css";
 
 /**
@@ -23,21 +29,8 @@ import styles from "./SourceBook.module.css";
  * açmıyor. Bu ayrımın görünür olması için üstte bir bilgi şeridi duruyor.
  */
 
-const KITAP_HREF = "/dark-stories/category/kitap";
 
 /**
- * Kişi ve yayınevi adresleri. `BookDetail`de de aynı iki satır var; oradan
- * içe aktarmak yerine burada duruyorlar çünkü o modül küratör düzenleyicisini
- * de taşıyor ve bu sayfanın ona hiç ihtiyacı yok.
- */
-function personHref(slug: string): string {
-  return `${KITAP_HREF}/kisi/${slug}`;
-}
-
-function publisherHref(slug: string): string {
-  return `${KITAP_HREF}/yayinevi/${slug}`;
-}
-
 /**
  * Künyedeki adlar. Bağ **yalnızca** o kişinin arşivde kaydı varsa kuruluyor;
  * yoksa düz metin — olmayan kişinin sayfası 404 verirdi. Kitap sayfasındaki
@@ -91,7 +84,7 @@ export function SourceBook({
   return (
     <div data-category="kitap" className={styles.page}>
       <header className={styles.head}>
-        <Link href={KITAP_HREF} className={styles.back}>
+        <Link href={BOOK_HALL_HREF} className={styles.back}>
           {t("person.backToHall")}
         </Link>
         <span className={styles.eyebrow}>
@@ -156,7 +149,7 @@ export function SourceBook({
               <p className={styles.archiveNote}>
                 {t("source.inArchive")}{" "}
                 <Link
-                  href={`${KITAP_HREF}/${book.archiveSlug}`}
+                  href={bookHref(book.archiveSlug)}
                   className={styles.archiveLink}
                 >
                   {t("source.openInArchive")}

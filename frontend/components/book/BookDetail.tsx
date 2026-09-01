@@ -17,20 +17,17 @@ import {
   Cover,
   Stars,
   TranslationBadge,
-  bookHref,
   coverSrc,
   coverUnoptimized,
 } from "./BookCard";
+import {
+  BOOK_ARCHIVE_HREF,
+  bookHref,
+  personHref,
+  publisherHref,
+} from "@/lib/book/routes";
 import styles from "./BookDetail.module.css";
 import { CuratorDock } from "@/components/curated/CuratorDock";
-
-export function personHref(slug: string): string {
-  return `/dark-stories/category/kitap/kisi/${slug}`;
-}
-
-export function publisherHref(slug: string): string {
-  return `/dark-stories/category/kitap/yayinevi/${slug}`;
-}
 
 /**
  * Künyedeki adları **bağ olarak** çizer; ilişkisi olmayan kayıtta düz metne
@@ -120,7 +117,7 @@ export function BookDetail({
     <div data-category="kitap" className={styles.page}>
       <div className={styles.inner}>
         <div className={styles.topBar}>
-          <Link href="/dark-stories/category/kitap/arsiv" className={styles.back}>
+          <Link href={BOOK_ARCHIVE_HREF} className={styles.back}>
             {t("backToArchive")}
           </Link>
 
@@ -394,7 +391,7 @@ export function BookDetail({
                         {volume.seriesIndex ?? "—"}
                       </span>
                       <Link
-                        href={bookHref(volume)}
+                        href={bookHref(volume.slug)}
                         className={styles.seriesLink}
                       >
                         {volume.title}
@@ -497,7 +494,7 @@ function NeighbourBlock({
       <ul className={styles.neighbourList}>
         {books.map((book) => (
           <li key={book.id}>
-            <Link href={bookHref(book)} className={styles.neighbourRow}>
+            <Link href={bookHref(book.slug)} className={styles.neighbourRow}>
               <span className={styles.neighbourCover}>
                 {coverSrc(book) ? (
                   <Image

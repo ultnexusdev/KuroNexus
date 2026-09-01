@@ -12,7 +12,7 @@ import type {
   ReadingOrderSummary,
 } from "@/lib/api/types";
 import { BackToTop } from "@/components/BackToTop";
-import { personHref, sourceBookHref } from "./BookCard";
+import { personHref, sourceBookHref } from "@/lib/book/routes";
 import styles from "./ReadingOrderHall.module.css";
 
 /**

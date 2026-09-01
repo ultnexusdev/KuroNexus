@@ -28,13 +28,17 @@ import { BackToTop } from "@/components/BackToTop";
 import {
   AuthorCard,
   BookCard,
-  bookHref,
   coverSrc,
   coverUnoptimized,
   SeriesCard,
   TranslationBadge,
 } from "./BookCard";
-import { AWARDS_HREF } from "@/lib/book/routes";
+import {
+  AWARDS_HREF,
+  BOOK_ARCHIVE_HREF,
+  BOOK_HALL_HREF,
+  bookHref,
+} from "@/lib/book/routes";
 import styles from "./BookHall.module.css";
 import { ArchiveUnavailable } from "@/components/hall/ArchiveUnavailable";
 import { CuratorDock } from "@/components/curated/CuratorDock";
@@ -182,11 +186,7 @@ export function BookHall({
         {/* ---- Başlık: çerçevenin tamamına yayılır (tasarım) ---- */}
         <header className={styles.head}>
           <Link
-            href={
-              shelf
-                ? "/dark-stories/category/kitap/arsiv"
-                : "/dark-stories/category/kitap"
-            }
+            href={shelf ? BOOK_ARCHIVE_HREF : BOOK_HALL_HREF}
             className={styles.back}
           >
             {shelf
@@ -671,7 +671,7 @@ export function BookHall({
                     {archive.recent.map((book) => (
                       <li key={book.id}>
                         <Link
-                          href={bookHref(book)}
+                          href={bookHref(book.slug)}
                           className={styles.recentRow}
                         >
                           <span className={styles.recentCover}>
@@ -779,7 +779,7 @@ function ReadingNow({
                   başlık bağlantısıyla aynı yere gidiyor (2026-08-22 denetim
                   kararıyla aynı gerekçe) */}
               <Link
-                href={bookHref(book)}
+                href={bookHref(book.slug)}
                 className={styles.heroCover}
                 aria-hidden="true"
                 tabIndex={-1}
@@ -804,7 +804,7 @@ function ReadingNow({
 
               <div className={styles.heroBody}>
                 <h3 className={styles.heroTitle}>
-                  <Link href={bookHref(book)} className={styles.titleLink}>
+                  <Link href={bookHref(book.slug)} className={styles.titleLink}>
                     {book.title}
                   </Link>
                 </h3>
@@ -901,7 +901,7 @@ function Shelf({
                   bağlantısıyla aynı yere gidiyor — ekran okuyucuya kart başına
                   tek durak (2026-08-22 denetim kararı raflara da uygulandı) */}
               <Link
-                href={bookHref(book)}
+                href={bookHref(book.slug)}
                 className={styles.spine}
                 aria-hidden="true"
                 tabIndex={-1}
@@ -952,7 +952,7 @@ function Shelf({
               </Link>
 
               <span className={styles.volumeText}>
-                <Link href={bookHref(book)} className={styles.titleLink}>
+                <Link href={bookHref(book.slug)} className={styles.titleLink}>
                   {book.title}
                 </Link>
                 {book.authors[0] ? (

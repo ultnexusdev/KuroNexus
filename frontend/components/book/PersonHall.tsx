@@ -8,7 +8,7 @@ import type {
   BookSeriesPage,
 } from "@/lib/api/types";
 import { BookCard } from "./BookCard";
-import { awardHref } from "@/lib/book/routes";
+import { awardHref, BOOK_HALL_HREF } from "@/lib/book/routes";
 import styles from "./PersonHall.module.css";
 
 /**
@@ -22,7 +22,6 @@ import styles from "./PersonHall.module.css";
  * gelmezse sayfa onlarsız çiziliyor — kişi ve kitapları zaten bizde (kural 4).
  */
 
-const KITAP_HREF = "/dark-stories/category/kitap";
 
 export function PersonPage({
   person,
@@ -39,7 +38,7 @@ export function PersonPage({
   return (
     <div data-category="kitap" className={styles.page}>
       <header className={styles.head}>
-        <Link href={KITAP_HREF} className={styles.back}>
+        <Link href={BOOK_HALL_HREF} className={styles.back}>
           {t("person.backToHall")}
         </Link>
         <span className={styles.eyebrow}>
@@ -157,7 +156,7 @@ export function SeriesPage({
   return (
     <div data-category="kitap" className={styles.page}>
       <header className={styles.head}>
-        <Link href={KITAP_HREF} className={styles.back}>
+        <Link href={BOOK_HALL_HREF} className={styles.back}>
           {t("person.backToHall")}
         </Link>
         <span className={styles.eyebrow}>
@@ -217,7 +216,7 @@ export function PublisherPage({
   return (
     <div data-category="kitap" className={styles.page}>
       <header className={styles.head}>
-        <Link href={KITAP_HREF} className={styles.back}>
+        <Link href={BOOK_HALL_HREF} className={styles.back}>
           {t("person.backToHall")}
         </Link>
         <span className={styles.eyebrow}>

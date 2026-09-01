@@ -7,7 +7,7 @@ import { Link, useRouter } from "@/lib/i18n/navigation";
 import { apiUrl, isLocalUpload } from "@/lib/api/client";
 import type { AwardDetail, AwardSummary, AwardWinnerCard } from "@/lib/api/types";
 import { BackToTop } from "@/components/BackToTop";
-import { personHref, sourceBookHref } from "./BookCard";
+import { personHref, sourceBookHref } from "@/lib/book/routes";
 import { awardHref, AWARDS_HREF } from "@/lib/book/routes";
 import styles from "./AwardHall.module.css";
 

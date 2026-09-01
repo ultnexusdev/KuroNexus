@@ -4,8 +4,14 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/lib/i18n/navigation";
 import type { BookListItem } from "@/lib/api/types";
-import { bookHref, coverSrc, coverUnoptimized } from "./BookCard";
+import { coverSrc, coverUnoptimized } from "./BookCard";
 import { LOBBY_GLYPHS } from "./BookLobbyGlyphs";
+import {
+  AWARDS_HREF,
+  BOOK_ARCHIVE_HREF,
+  bookHref,
+  READING_ORDERS_HREF,
+} from "@/lib/book/routes";
 import styles from "./BookLobby.module.css";
 
 /**
@@ -30,9 +36,9 @@ import styles from "./BookLobby.module.css";
 
 /** `href` dolu olan bölüm tıklanabilir; boş olan "yakında" rozetiyle durur. */
 const SECTIONS = [
-  { key: "archive", href: "/dark-stories/category/kitap/arsiv" },
-  { key: "awards", href: "/dark-stories/category/kitap/oduller" },
-  { key: "readingOrders", href: "/dark-stories/category/kitap/okuma-sirasi" },
+  { key: "archive", href: BOOK_ARCHIVE_HREF },
+  { key: "awards", href: AWARDS_HREF },
+  { key: "readingOrders", href: READING_ORDERS_HREF },
   { key: "notes", href: null },
 ] as const;
 
@@ -127,7 +133,7 @@ export function BookLobby({
                 {quote.bookSlug && quote.bookTitle ? (
                   <figcaption className={styles.quoteFrom}>
                     <Link
-                      href={`/dark-stories/category/kitap/${quote.bookSlug}`}
+                      href={bookHref(quote.bookSlug)}
                       className={styles.quoteLink}
                     >
                       {quote.bookTitle}
@@ -184,7 +190,7 @@ export function BookLobby({
             <ul className={styles.shelfRow}>
               {recent.map((book) => (
                 <li key={book.id} className={styles.shelfItem}>
-                  <Link href={bookHref(book)} className={styles.shelfLink}>
+                  <Link href={bookHref(book.slug)} className={styles.shelfLink}>
                     <span className={styles.shelfFrame}>
                       <span className={styles.shelfCover}>
                         <ShelfCover book={book} />
@@ -222,7 +228,7 @@ function ReadingLectern({ book }: { book: BookListItem }) {
     <div className={styles.lectern}>
       <span className={styles.lamp} aria-hidden />
 
-      <Link href={bookHref(book)} className={styles.volume}>
+      <Link href={bookHref(book.slug)} className={styles.volume}>
         <span className={styles.volumeInner}>
           {src ? (
             <Image
@@ -250,7 +256,7 @@ function ReadingLectern({ book }: { book: BookListItem }) {
       <span className={styles.shadow} aria-hidden />
 
       <p className={styles.volumeTitle}>
-        <Link href={bookHref(book)} className={styles.volumeTitleLink}>
+        <Link href={bookHref(book.slug)} className={styles.volumeTitleLink}>
           {book.title}
         </Link>
       </p>

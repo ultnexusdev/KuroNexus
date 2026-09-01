@@ -4,6 +4,7 @@ import type { BookAuthorCard, BookSeriesCard } from "@/lib/api/types";
 import { BackToTop } from "@/components/BackToTop";
 import { AuthorCard, SeriesCard } from "./BookCard";
 import hall from "./BookHall.module.css";
+import { BOOK_ARCHIVE_HREF } from "@/lib/book/routes";
 import styles from "./ArchiveIndex.module.css";
 
 /**
@@ -18,7 +19,6 @@ import styles from "./ArchiveIndex.module.css";
  * (`BookCard`), yani iki yerde iki ayrı görünüme kayamıyorlar.
  */
 
-const KITAP_HREF = "/dark-stories/category/kitap/arsiv";
 
 export function AuthorsPage({
   authors,
@@ -109,7 +109,7 @@ function Head({
 }) {
   return (
     <header className={styles.head}>
-      <Link href={KITAP_HREF} className={styles.back}>
+      <Link href={BOOK_ARCHIVE_HREF} className={styles.back}>
         {back}
       </Link>
       <span className={styles.eyebrow}>{eyebrow}</span>

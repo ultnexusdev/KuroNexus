@@ -13,6 +13,7 @@ import type {
   BookAuthorCard,
   BookSeriesCard,
 } from "@/lib/api/types";
+import { bookHref, personHref, seriesHref } from "@/lib/book/routes";
 import styles from "./BookHall.module.css";
 
 /**
@@ -60,31 +61,6 @@ const CuratorCardTools = dynamic(
   { ssr: false },
 );
 
-export function bookHref(book: BookListItem): string {
-  return `/dark-stories/category/kitap/${book.slug}`;
-}
-
-/**
- * Arşivde **olmayan** kitabın künye sayfası. Adres 1000Kitap'ın kendi
- * anahtarı ("oteki-isim--520400"); arşiv adresleriyle karışmasın diye ayrı
- * bir yol altında duruyor.
- */
-export function sourceBookHref(slug: string): string {
-  return `/dark-stories/category/kitap/kaynak/${slug}`;
-}
-
-/**
- * Yazar / çevirmen sayfası. Adres "kisi", "yazar" değil: aynı sayfa çevirmen
- * ve editör için de kullanılıyor.
- */
-export function personHref(slug: string): string {
-  return `/dark-stories/category/kitap/kisi/${slug}`;
-}
-
-/** Serinin kendi sayfası — ciltler sırayla, eksikleriyle birlikte. */
-export function seriesHref(slug: string): string {
-  return `/dark-stories/category/kitap/seri/${slug}`;
-}
 
 export function Cover({
   book,
@@ -150,7 +126,7 @@ export function BookCard({
   curating: boolean;
 }) {
   const t = useTranslations("book");
-  const href = bookHref(book);
+  const href = bookHref(book.slug);
   // Okuma çubuğu yalnızca elde kalan kitapta: bitmiş kitapta %100 çubuk
   // gereksiz gürültü, sıradaki kitapta zaten sıfır
   const showProgress = book.status === "READING" && book.progress !== null;

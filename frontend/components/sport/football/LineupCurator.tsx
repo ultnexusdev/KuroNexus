@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { apiFetch, apiUrl } from "@/lib/api/client";
@@ -203,6 +203,19 @@ function SyncButton() {
   );
   const [detail, setDetail] = useState<string | null>(null);
 
+  /* Yoklama döngüsünün canlılık bayrağı: küratör senkronu başlatıp başka
+     rotaya geçerse döngü 3 dakikaya kadar sürüyor, sökülmüş bileşen için
+     istek atmaya devam ediyor ve dönüşte alakasız sayfayı router.refresh()
+     ile tazeliyordu (2026-09-01 denetimi, M-01). Senkronun kendisi arka
+     planda sürer — kesilen yalnızca bu bileşenin yoklaması. */
+  const alive = useRef(true);
+  useEffect(() => {
+    alive.current = true;
+    return () => {
+      alive.current = false;
+    };
+  }, []);
+
   const run = async () => {
     setState("running");
     setDetail(null);
@@ -213,10 +226,16 @@ function SyncButton() {
       // kadar "çalışıyor" demesin.
       for (let i = 0; i < 60; i += 1) {
         await new Promise((resolve) => setTimeout(resolve, 3000));
+        if (!alive.current) {
+          return;
+        }
         const status = await apiFetch<{
           running: boolean;
           last?: { ok?: boolean; diag?: Record<string, unknown> } | null;
         }>("/admin/football-live/sync");
+        if (!alive.current) {
+          return;
+        }
 
         if (!status.running) {
           const diag = status.last?.diag ?? {};

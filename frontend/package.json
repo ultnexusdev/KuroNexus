@@ -11,7 +11,8 @@
     "check:karakter": "node scripts/check-karakter-kayit.mjs && node scripts/check-karakter-sinif.mjs && node scripts/check-karakter-hex.mjs && node scripts/check-karakter-kontrast.mjs && node scripts/check-karakter-ayrisma.mjs",
     "check:gojo": "node scripts/check-gojo-kilit.mjs",
     "check:slam-dunk": "node scripts/check-slam-dunk.mjs",
-    "check:jjk": "node scripts/check-jjk-contrast.mjs && node scripts/check-jjk-anchors.mjs && node scripts/check-jjk-motion.mjs && node scripts/check-jjk-i18n.mjs"
+    "check:jjk": "node scripts/check-jjk-contrast.mjs && node scripts/check-jjk-anchors.mjs && node scripts/check-jjk-motion.mjs && node scripts/check-jjk-i18n.mjs",
+    "check:i18n": "node scripts/check-i18n-client.mjs"
   },
   "dependencies": {
     "@tiptap/extension-font-family": "^3.27.3",

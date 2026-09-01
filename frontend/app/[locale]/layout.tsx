@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
-import { getTranslations } from "next-intl/server";
+import { getMessages, getTranslations } from "next-intl/server";
 import {
   Yuji_Boku,
   Cinzel,
@@ -22,6 +22,7 @@ import { notFound } from "next/navigation";
 import { readIsAdmin } from "@/lib/auth/session";
 import { SITE_URL } from "@/lib/site";
 import { routing } from "@/lib/i18n/routing";
+import { pickClientMessages } from "@/lib/i18n/clientMessages";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { THEMES, DEFAULT_THEME, THEME_COOKIE, type Theme } from "@/lib/theme";
 import "../../styles/globals.css";
@@ -380,6 +381,12 @@ export default async function LocaleLayout({
 
   const t = await getTranslations({ locale, namespace: "common" });
 
+  // Props'suz provider TÜM kataloğu (tr.json ~107 KB serileşmiş) her sayfanın
+  // payload'ına gömüyordu (2026-09-01 denetimi, B-02). İstemciye yalnızca
+  // useTranslations kullanan bileşenlerin namespace'leri gider; liste ve
+  // bekçisi lib/i18n/clientMessages.ts'te (npm run check:i18n).
+  const clientMessages = pickClientMessages(await getMessages({ locale }));
+
   return (
     <html
       lang={locale}
@@ -390,7 +397,7 @@ export default async function LocaleLayout({
         <link rel="preconnect" href={apiOrigin} crossOrigin="anonymous" />
       </head>
       <body>
-        <NextIntlClientProvider>
+        <NextIntlClientProvider messages={clientMessages}>
           {/* Müzik kuyruğu KÖK DÜZENDE: sayfalar arası gezinmede bu ağaç
               yeniden mount edilmediği için çalar iframe'i hayatta kalıyor ve
               film/dizi sayfalarında gezinirken müzik kesilmiyor (kullanıcı

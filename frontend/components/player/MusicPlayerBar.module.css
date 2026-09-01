@@ -295,3 +295,46 @@
     flex: 1 1 auto;
   }
 }
+
+/* 720 altında gömü gizli: çal/duraklat/atlamanın TEK yolu bu düğmeler, ama
+   ~26-34px'lik hedefler kural 2'nin (--touch-min 44px) yarısıydı (2026-09-01
+   denetimi, R-02/R-03). Ev deseni NowPlaying ve ArchiveAddButtons'takiyle
+   aynı: dokunmatikte taban büyür, fare düzeninde yoğun ölçü kalır. */
+@media (pointer: coarse) {
+  .control,
+  .controlOn,
+  .playButton {
+    min-width: var(--touch-min);
+    min-height: var(--touch-min);
+  }
+
+  .queueRow,
+  .queueRowOn {
+    min-height: var(--touch-min);
+  }
+}
+
+/* 430 altında satırın küçülemeyen blokları (kapak + 5 kumanda + 3 araç)
+   320px'te ~35px taşıyor ve şerit sabit konumlu olduğu için sağ uçtaki
+   kapat/kuyruk düğmeleri fiilen erişilemez kalıyordu (2026-09-01 denetimi,
+   R-01). İkincil kumandalar (karışık/tekrar — DOM'da ilk ve son düğme)
+   gizlenir; ikisi de kuyruk sayfasından erişilebilir durumda. */
+@media (max-width: 430px) {
+  .row {
+    gap: 0.5rem;
+    padding-inline: 0.5rem;
+  }
+
+  .controls > button:first-child,
+  .controls > button:last-child {
+    display: none;
+  }
+}
+
+/* 360 altında kapak da gizlenir: 40px + boşluk, parça adına kalan son alan */
+@media (max-width: 360px) {
+  .cover,
+  .coverEmpty {
+    display: none;
+  }
+}

@@ -304,9 +304,24 @@ export function MusicPlayerBar() {
       return;
     }
     const root = document.documentElement;
-    root.style.setProperty("--music-bar", "5.25rem");
+    // env() payı: şeridin kendisi safe-area kadar uzuyor (module.css) ama body
+    // dolgusu uzamıyordu — çentikli cihazlarda footer'ın son satırı şeridin
+    // altında kalıyordu (2026-09-01 denetimi, R-10).
+    root.style.setProperty(
+      "--music-bar",
+      "calc(5.25rem + env(safe-area-inset-bottom, 0px))",
+    );
+    // Küratör hapı da aynı köşede sabit (z 70 > 60): şerit varken hap şeridin
+    // kuyruk/kapat düğmelerinin üstüne biniyordu (R-04). Kaldırma mekanizması
+    // zaten var; şerit kendi boyunu yazıyor. env() payı BİLEREK yok: hap kendi
+    // `bottom` hesabına safe-area'yı zaten ekliyor (CuratorDock.module.css),
+    // burada da eklense pay iki kez sayılırdı. JJK kanji rayının kendi kuralı
+    // ([data-curating]:has(.rail)) sarmalayıcı öğede olduğu için kendi
+    // alanında bu inline kök değerini ezmeye devam ediyor — bilinçli.
+    root.style.setProperty("--curator-dock-lift", "5.25rem");
     return () => {
       root.style.removeProperty("--music-bar");
+      root.style.removeProperty("--curator-dock-lift");
     };
   }, [hasTrack]);
 

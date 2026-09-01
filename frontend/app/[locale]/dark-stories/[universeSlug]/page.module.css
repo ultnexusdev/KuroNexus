@@ -5,6 +5,13 @@
 
 .wing {
   background: var(--bg);
+  /* Runik marj susleri (CodexOrnaments) mutlak konumlu ve -1.9em disari
+     tasiyor; .codex tavani ~912px oldugu icin 901-976px viewport'ta sag sus
+     disari tasip YATAY KAYDIRMA CUBUGU cikariyordu. Ayni hata sinifi
+     kategori sayfasinda olculup kapatilmisti — guard oradan kopyalandi
+     (2026-09-01 denetimi, RP-01). `clip` secildi, `hidden` degil: hidden
+     bir kaydirma baglami yaratir ve icerideki sticky ogeleri bozar. */
+  overflow-x: clip;
 }
 
 /* --- Sisli Hero --- */

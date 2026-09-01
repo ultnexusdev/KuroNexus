@@ -1,16 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/lib/i18n/navigation";
 import { fetchPartEpisodes } from "@/lib/api/anime";
-import {
-  completeAnimeThrough,
-  updateAnimeEntry,
-  updateAnimePart,
-  uploadImage,
-} from "@/lib/admin/api";
 import type {
   AnimeCharacter,
   AnimeLink,
@@ -34,6 +29,19 @@ import { CuratorDock } from "@/components/curated/CuratorDock";
  * Bölüm listeleri sayfa açılışında değil, sezon açıldığında çekilir: her
  * sezon ayrı bir Jikan isteği demek ve o kaynak yavaş/kırılgan.
  */
+
+/* Küratör panelleri yalnızca küratör modunda iniyor (BookDetail deseni,
+   2026-09-01 denetimi P-02): statik import edilselerdi `lib/admin/api` ile
+   birlikte her ziyaretçinin chunk'ına girerlerdi. */
+const CuratorDossier = dynamic(
+  () => import("./AnimeDetailCurator").then((mod) => mod.CuratorDossier),
+  { ssr: false },
+);
+const PartTools = dynamic(
+  () => import("./AnimeDetailCurator").then((mod) => mod.PartTools),
+  { ssr: false },
+);
+
 export function AnimeDetail({
   anime,
   characters,
@@ -343,131 +351,6 @@ function ExternalLinks({ links }: { links: AnimeLink[] }) {
   );
 }
 
-/** Küratörün elle girdiği alanlar — form durumunun anahtarları. */
-const LINK_FIELDS = ["manga", "opening", "ending", "trailer", "official"] as const;
-
-type LinkField = (typeof LINK_FIELDS)[number];
-
-/**
- * Küratör künyesi: sayfanın sabit banner'ı ve elle girilen bağlantılar.
- *
- * Banner burada duruyor çünkü seçim seriye ait: AniList'ten gelen banner bazı
- * serilerde düşük çözünürlüklü ya da hiç yok. Buraya girilen görsel künye
- * tazelendiğinde de değişmez — alan boşaltılırsa AniList'inkine geri dönülür.
- */
-function CuratorDossier({ anime }: { anime: ArchiveAnime }) {
-  const t = useTranslations("anime");
-  const router = useRouter();
-  const [banner, setBanner] = useState(anime.customBanner ?? "");
-  const [links, setLinks] = useState<Record<LinkField, string>>(() => {
-    // Eski backend yanıtında bu alan yok (deploy penceresi) — boş formla açılır
-    const custom = anime.customLinks ?? {};
-    return {
-      manga: custom.manga ?? "",
-      opening: custom.opening ?? "",
-      ending: custom.ending ?? "",
-      trailer: custom.trailer ?? "",
-      official: custom.official ?? "",
-    };
-  });
-  const [busy, setBusy] = useState(false);
-  const [state, setState] = useState<"idle" | "saved" | "error">("idle");
-
-  async function handleUpload(file: File) {
-    setBusy(true);
-    setState("idle");
-    try {
-      const result = await uploadImage(file);
-      setBanner(result.url);
-    } catch {
-      setState("error");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function handleSave() {
-    setBusy(true);
-    setState("idle");
-    try {
-      await updateAnimeEntry(anime.id, { bannerImage: banner, links });
-      setState("saved");
-      router.refresh();
-    } catch {
-      setState("error");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  return (
-    <section className={styles.section}>
-      <h2 className={styles.sectionTitle}>{t("detail.curatorTitle")}</h2>
-      <p className={styles.sectionLede}>{t("detail.curatorLede")}</p>
-
-      <div className={styles.dossier}>
-        <label className={styles.dossierField}>
-          <span>{t("detail.bannerField")}</span>
-          <input
-            type="text"
-            value={banner}
-            disabled={busy}
-            placeholder="https://…"
-            onChange={(event) => setBanner(event.target.value)}
-          />
-        </label>
-
-        <label className={styles.dossierUpload}>
-          <span>{t("detail.bannerUpload")}</span>
-          <input
-            type="file"
-            accept="image/*"
-            disabled={busy}
-            onChange={(event) => {
-              const file = event.target.files?.[0];
-              if (file) {
-                void handleUpload(file);
-              }
-            }}
-          />
-        </label>
-
-        {LINK_FIELDS.map((field) => (
-          <label key={field} className={styles.dossierField}>
-            <span>{t(`detail.linkField.${field}`)}</span>
-            <input
-              type="url"
-              value={links[field]}
-              disabled={busy}
-              placeholder="https://…"
-              onChange={(event) =>
-                setLinks({ ...links, [field]: event.target.value })
-              }
-            />
-          </label>
-        ))}
-      </div>
-
-      <div className={styles.dossierActions}>
-        <button
-          type="button"
-          className={styles.partTool}
-          disabled={busy}
-          onClick={() => void handleSave()}
-        >
-          {busy ? t("detail.saving") : t("detail.save")}
-        </button>
-        {state === "saved" ? (
-          <span className={styles.dossierNote}>{t("detail.saved")}</span>
-        ) : null}
-        {state === "error" ? (
-          <span className={styles.dossierError}>{t("detail.saveError")}</span>
-        ) : null}
-      </div>
-    </section>
-  );
-}
-
 /** "Anime nerede bitti → manga nereden devam": elle girilmiş sayıdan okunur. */
 function mangaResume(
   anime: ArchiveAnime,
@@ -574,84 +457,6 @@ function PartRow({
 }
 
 /**
- * Sezon satırının küratör kontrolleri: tek tıkla bitirme, "buraya kadar
- * hepsini izledim" ve manga bölümü. Üçü de uzun serilerde tek tek
- * işaretlemekten kurtarıyor.
- */
-function PartTools({ part }: { part: ArchiveAnimePart }) {
-  const t = useTranslations("anime");
-  const router = useRouter();
-  const [busy, setBusy] = useState(false);
-  const [chapter, setChapter] = useState(
-    part.mangaChapter ? String(part.mangaChapter) : "",
-  );
-
-  async function run(action: () => Promise<unknown>) {
-    setBusy(true);
-    try {
-      await action();
-      router.refresh();
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  return (
-    <div className={styles.partTools}>
-      {part.episodes ? (
-        <button
-          type="button"
-          className={styles.partTool}
-          disabled={busy || part.isCompleted}
-          onClick={() =>
-            void run(() =>
-              updateAnimePart(part.id, {
-                watchedEpisodes: part.episodes ?? 0,
-                isCompleted: true,
-              }),
-            )
-          }
-        >
-          {part.isCompleted ? t("detail.partDone") : t("detail.finishPart")}
-        </button>
-      ) : null}
-
-      <button
-        type="button"
-        className={styles.partTool}
-        disabled={busy}
-        title={t("detail.completeThroughHint")}
-        onClick={() => void run(() => completeAnimeThrough(part.id))}
-      >
-        {t("detail.completeThrough")}
-      </button>
-
-      {/* Anime → manga eşlemesi hiçbir API'de yok; tek sayı, elle girilir */}
-      <label className={styles.mangaField}>
-        <span>{t("detail.mangaChapter")}</span>
-        <input
-          type="number"
-          min={0}
-          value={chapter}
-          disabled={busy}
-          placeholder="137"
-          onChange={(event) => setChapter(event.target.value)}
-          onBlur={() => {
-            const parsed = Number.parseInt(chapter, 10);
-            if (!Number.isFinite(parsed) || parsed === part.mangaChapter) {
-              return;
-            }
-            void run(() =>
-              updateAnimePart(part.id, { mangaChapter: Math.max(0, parsed) }),
-            );
-          }}
-        />
-      </label>
-    </div>
-  );
-}
-
-/**
  * Bölüm ızgarası. Filler bölümler soluk ve "F" işaretli; küratör modunda bir
  * bölüme tıklamak "buraya kadar izledim" demek — 220 bölümlük seride tek tek
  * ilerlemek zorunda kalmamak için (kullanıcı geri bildirimi).
@@ -749,7 +554,12 @@ function EpisodeGrid({
             className={styles.skipFillers}
             disabled={busy}
             onClick={() =>
-              void run(() => updateAnimePart(part.id, { skipFillers: true }))
+              // Izgara ziyaretçiye de çiziliyor; admin API'si tıklama ANINDA
+              // yüklenir ki `lib/admin/api` ziyaretçi chunk'ına girmesin (P-02)
+              void run(async () => {
+                const { updateAnimePart } = await import("@/lib/admin/api");
+                return updateAnimePart(part.id, { skipFillers: true });
+              })
             }
           >
             {t("detail.skipFillers")}
@@ -789,16 +599,17 @@ function EpisodeGrid({
                 title={label}
                 disabled={!editing || busy}
                 onClick={() =>
-                  void run(() =>
-                    updateAnimePart(part.id, {
+                  void run(async () => {
+                    const { updateAnimePart } = await import("@/lib/admin/api");
+                    return updateAnimePart(part.id, {
                       // Tıklanan bölüm zaten izlendiyse bir öncesine düşür:
                       // yanlış tıklamayı geri almanın en kısa yolu
                       watchedEpisodes:
                         episode.state === "WATCHED"
                           ? episode.number - 1
                           : episode.number,
-                    }),
-                  )
+                    });
+                  })
                 }
               >
                 {isLastWatched ? "▶" : episode.number}

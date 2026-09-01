@@ -241,13 +241,21 @@
   overflow: hidden;
 }
 
+/* ⚠️ BLUR SABİT, KEYFRAME'DE DEĞİL (2026-09-01 denetimi, P-01).
+   Eskiden üç katman sonsuz döngüde blur'u 22→80px sürüyordu: filter her
+   karede yeniden rasterize edilir ve maliyet alan × yarıçapla büyür —
+   52-78vw'lik üç katman, kap `fixed` olduğu için sayfanın her yerinde,
+   her karede GPU/paint yüküydü. Katman başına animasyonun orta değeri
+   sabitlendi; "yükseldikçe çözülme" hissini scale + opacity zaten veriyor
+   (amorf lekede fark gözle seçilemiyor). Böylece katman BİR kez rasterize
+   ediliyor, döngü compositor'da kalıyor. */
 .smokeLayerA,
 .smokeLayerB,
 .smokeLayerC {
   position: absolute;
   display: block;
   border-radius: 48% 52% 43% 57% / 62% 48% 52% 38%;
-  will-change: transform, filter, opacity;
+  will-change: transform, opacity;
 }
 
 .smokeLayerA {
@@ -255,6 +263,7 @@
   bottom: -30vh;
   width: 64vw;
   height: 64vw;
+  filter: blur(44px);
   background: radial-gradient(
     circle at 42% 58%,
     color-mix(in srgb, var(--get-smoke) 58%, transparent),
@@ -267,6 +276,7 @@
   bottom: -38vh;
   width: 78vw;
   height: 78vw;
+  filter: blur(50px);
   background: radial-gradient(
     circle at 58% 46%,
     color-mix(in srgb, var(--accent-muted) 42%, transparent),
@@ -279,6 +289,7 @@
   bottom: -26vh;
   width: 52vw;
   height: 52vw;
+  filter: blur(46px);
   background: radial-gradient(
     circle at 50% 50%,
     color-mix(in srgb, var(--get-smoke-far) 72%, transparent),
@@ -1669,9 +1680,12 @@
 }
 
 /* ══ HAREKET: MOR DUMAN ════════════════════════════════════════════════
-   Üç animasyonun da imzası aynı ilkeden çıkıyor: yükseldikçe BULANIKLAŞ,
+   Üç animasyonun da imzası aynı ilkeden çıkıyor: yükselirken YAYIL,
    yayıldıkça KAYBOL. Beş duraklı, çünkü dağılma tek bir eğri değil —
    önce toparlanıyor, sonra çözülüyor.
+
+   ⚠️ Keyframe'lerde YALNIZCA transform + opacity (compositor-only) —
+   blur katman sınıflarında sabit, gerekçesi yukarıda (P-01).
 
    ⚠️ Katmanların üçü de `.smoke` kabında ve o kap metnin ARKASINDA
    (`z-index: 0`, içerik `z-index: 1`). `filter: blur()` hiçbir yazının
@@ -1681,27 +1695,22 @@
 @keyframes getDrift {
   0% {
     transform: translate3d(0, 6vh, 0) scale(0.86);
-    filter: blur(26px);
     opacity: 0;
   }
   22% {
     transform: translate3d(2vw, -6vh, 0) scale(0.96);
-    filter: blur(32px);
     opacity: 0.5;
   }
   54% {
     transform: translate3d(-1vw, -26vh, 0) scale(1.08);
-    filter: blur(44px);
     opacity: 0.34;
   }
   79% {
     transform: translate3d(3vw, -44vh, 0) scale(1.2);
-    filter: blur(58px);
     opacity: 0.16;
   }
   100% {
     transform: translate3d(1vw, -62vh, 0) scale(1.34);
-    filter: blur(72px);
     opacity: 0;
   }
 }
@@ -1709,27 +1718,22 @@
 @keyframes getPlume {
   0% {
     transform: translate3d(0, 10vh, 0) scale(0.92);
-    filter: blur(34px);
     opacity: 0;
   }
   18% {
     transform: translate3d(-3vw, -2vh, 0) scale(1);
-    filter: blur(38px);
     opacity: 0.42;
   }
   47% {
     transform: translate3d(1vw, -22vh, 0) scale(1.1);
-    filter: blur(50px);
     opacity: 0.3;
   }
   73% {
     transform: translate3d(-4vw, -40vh, 0) scale(1.24);
-    filter: blur(64px);
     opacity: 0.14;
   }
   100% {
     transform: translate3d(-2vw, -58vh, 0) scale(1.4);
-    filter: blur(80px);
     opacity: 0;
   }
 }
@@ -1737,27 +1741,22 @@
 @keyframes getDisperse {
   0% {
     transform: translate3d(0, 4vh, 0) scale(0.8);
-    filter: blur(22px);
     opacity: 0;
   }
   26% {
     transform: translate3d(2vw, -10vh, 0) scale(0.94);
-    filter: blur(30px);
     opacity: 0.36;
   }
   58% {
     transform: translate3d(-2vw, -30vh, 0) scale(1.12);
-    filter: blur(46px);
     opacity: 0.22;
   }
   84% {
     transform: translate3d(4vw, -48vh, 0) scale(1.3);
-    filter: blur(62px);
     opacity: 0.1;
   }
   100% {
     transform: translate3d(2vw, -66vh, 0) scale(1.46);
-    filter: blur(78px);
     opacity: 0;
   }
 }

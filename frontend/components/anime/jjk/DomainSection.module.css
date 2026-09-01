@@ -423,7 +423,10 @@
   z-index: 4;
   height: 100%;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  /* min(100%, …): 320px'te kullanılabilir alan ~269px'e iniyor; çıplak 300px
+     minimum tek track'i zorlayıp modal içinde yatay kaydırma üretiyordu
+     (2026-09-01 denetimi, RC-02) */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
   gap: clamp(1.4rem, 3vw, 3.4rem);
   align-items: center;
   padding: clamp(1.6rem, 4vh, 4rem) clamp(1.6rem, 6vw, 5.6rem);

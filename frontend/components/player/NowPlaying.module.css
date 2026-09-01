@@ -13,6 +13,13 @@
   --now-rows: 10;
   --now-row-h: 2.6rem;
 
+  /* Satırlar düğme ve dokunmatikte parça atlamanın tek hedefi: 41.6px'lik
+     satır kural 2'nin (44px) altındaydı (2026-09-01 denetimi, R-03). Panel
+     yüksekliği bu değişkenden hesaplandığı için bump kendiliğinden doğru. */
+  @media (pointer: coarse) {
+    --now-row-h: var(--touch-min);
+  }
+
   display: flex;
   flex-direction: column;
   gap: 0.6rem;

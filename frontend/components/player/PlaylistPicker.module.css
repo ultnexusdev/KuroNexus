@@ -23,6 +23,15 @@
   border-color: var(--border);
 }
 
+/* Dokunmatikte 44px taban (kural 2) — şeritteki kumandalarla aynı bump
+   (MusicPlayerBar.module.css, 2026-09-01 denetimi R-02) */
+@media (pointer: coarse) {
+  .trigger {
+    min-width: var(--touch-min);
+    min-height: var(--touch-min);
+  }
+}
+
 .menu {
   position: absolute;
   right: 0;

@@ -71,7 +71,7 @@
 .list {
   display: grid;
   /* Kart genisligi icerige gore: 280px altinda kadraj notu okunmuyor */
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
   gap: var(--gap-lg);
   margin: 0;
   padding: 0;

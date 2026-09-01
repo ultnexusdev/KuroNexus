@@ -10,8 +10,13 @@
   position: fixed;
   right: clamp(0.75rem, 2vw, 1.5rem);
   /* `--curator-dock-lift`: kendi alt seridi olan sayfalar (JJK kanji
-     rayi) hapi yukari itiyor. Varsayilan 0 (globals.css). */
-  bottom: calc(clamp(0.75rem, 2vw, 1.5rem) + var(--curator-dock-lift, 0px));
+     rayi) ve muzik seridi hapi yukari itiyor. Varsayilan 0 (globals.css).
+     env() payi: centikli iPhone'larda hap home gosterge bandina girmesin
+     (2026-09-01 denetimi, R-05) — muzik seridindeki desenle ayni. */
+  bottom: calc(
+    clamp(0.75rem, 2vw, 1.5rem) + var(--curator-dock-lift, 0px) +
+      env(safe-area-inset-bottom, 0px)
+  );
   /* Kanji rayinin (60) USTUNDE, "bolumlere atla" seridinin (90) ALTINDA:
      klavyeyle gelen kisinin ilk duragi hicbir zaman kapanmasin. */
   z-index: 70;

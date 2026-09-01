@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { buildUniqueSlug } from '../common/utils/unique-slug';
 import { PrismaService } from '../prisma/prisma.service';
-import { slugify } from '../common/utils/slugify';
 import { sanitizeStoryContent } from '../common/utils/sanitize-story-content';
 import { CreateWikiEntryDto } from './dto/create-wiki-entry.dto';
 import { UpdateWikiEntryDto } from './dto/update-wiki-entry.dto';
@@ -146,15 +146,13 @@ export class WikiService {
   }
 
   // Slug evren başına benzersizdir (@@unique([universeId, slug]))
-  private async buildUniqueSlug(
+  private buildUniqueSlug(
     title: string,
     universeId: string,
     excludeId?: string,
   ): Promise<string> {
-    const base = slugify(title) || 'entry';
-    let candidate = base;
-    let counter = 2;
-    for (;;) {
+    // Kapsam evrenle sınırlı: aynı slug farklı evrenlerde yaşayabilir.
+    return buildUniqueSlug(title, 'entry', async (candidate) => {
       const clash = await this.prisma.wikiEntry.findFirst({
         where: {
           universeId,
@@ -163,11 +161,7 @@ export class WikiService {
         },
         select: { id: true },
       });
-      if (!clash) {
-        return candidate;
-      }
-      candidate = `${base}-${counter}`;
-      counter += 1;
-    }
+      return clash !== null;
+    });
   }
 }

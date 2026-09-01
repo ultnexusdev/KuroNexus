@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { buildUniqueSlug } from '../common/utils/unique-slug';
 import { PrismaService } from '../prisma/prisma.service';
-import { slugify } from '../common/utils/slugify';
 import { CreateUniverseDto } from './dto/create-universe.dto';
 import { UpdateUniverseDto } from './dto/update-universe.dto';
 import type { Prisma } from '../generated/prisma/client';
@@ -137,14 +137,8 @@ export class UniversesService {
     });
   }
 
-  private async buildUniqueSlug(
-    name: string,
-    excludeId?: string,
-  ): Promise<string> {
-    const base = slugify(name) || 'universe';
-    let candidate = base;
-    let counter = 2;
-    for (;;) {
+  private buildUniqueSlug(name: string, excludeId?: string): Promise<string> {
+    return buildUniqueSlug(name, 'universe', async (candidate) => {
       const clash = await this.prisma.wikiUniverse.findFirst({
         where: {
           slug: candidate,
@@ -152,11 +146,7 @@ export class UniversesService {
         },
         select: { id: true },
       });
-      if (!clash) {
-        return candidate;
-      }
-      candidate = `${base}-${counter}`;
-      counter += 1;
-    }
+      return clash !== null;
+    });
   }
 }

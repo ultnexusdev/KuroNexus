@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { buildUniqueSlug } from '../common/utils/unique-slug';
 import { PrismaService } from '../prisma/prisma.service';
 import { slugify } from '../common/utils/slugify';
 import { sanitizeStoryContent } from '../common/utils/sanitize-story-content';
@@ -253,14 +254,8 @@ export class StoriesService {
     return (last?.orderIndex ?? 0) + 1;
   }
 
-  private async buildUniqueSlug(
-    title: string,
-    excludeId?: string,
-  ): Promise<string> {
-    const base = slugify(title) || 'story';
-    let candidate = base;
-    let counter = 2;
-    for (;;) {
+  private buildUniqueSlug(title: string, excludeId?: string): Promise<string> {
+    return buildUniqueSlug(title, 'story', async (candidate) => {
       const clash = await this.prisma.story.findFirst({
         where: {
           slug: candidate,
@@ -268,11 +263,7 @@ export class StoriesService {
         },
         select: { id: true },
       });
-      if (!clash) {
-        return candidate;
-      }
-      candidate = `${base}-${counter}`;
-      counter += 1;
-    }
+      return clash !== null;
+    });
   }
 }

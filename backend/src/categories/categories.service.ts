@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { buildUniqueSlug } from '../common/utils/unique-slug';
 import { PrismaService } from '../prisma/prisma.service';
-import { slugify } from '../common/utils/slugify';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import type { Prisma } from '../generated/prisma/client';
@@ -105,24 +105,24 @@ export class CategoriesService {
 
   // --- Helpers ---
 
-  private async buildUniqueSlug(name: string, excludeId?: string): Promise<string> {
-    const baseSlug = slugify(name);
-    let slug = baseSlug;
-    let counter = 1;
-
-    while (true) {
-      const existing = await this.prisma.universeCategory.findFirst({
+  /**
+   * ⚠️ DAVRANIŞ DEĞİŞTİ (1 Eylül 2026 denetimi, D-B5). Bu kopya iki yerde
+   * ayrışmıştı: sayaç 1'den başlıyordu (ötekiler 2 — yani aynı çakışmada
+   * `ad-1` üretiyordu) ve `slugify()` boş dönerse yedek ad olmadığı için
+   * BOŞ slug kaydediliyordu. Artık ortak kuralı kullanıyor; mevcut kayıtların
+   * slug'ları veritabanında durduğu için etkilenmiyor, değişen yalnızca
+   * bundan sonra üretilecekler.
+   */
+  private buildUniqueSlug(name: string, excludeId?: string): Promise<string> {
+    return buildUniqueSlug(name, 'category', async (candidate) => {
+      const clash = await this.prisma.universeCategory.findFirst({
         where: {
-          slug,
+          slug: candidate,
           ...(excludeId ? { id: { not: excludeId } } : {}),
         },
+        select: { id: true },
       });
-      if (!existing) break;
-
-      slug = `${baseSlug}-${counter}`;
-      counter++;
-    }
-
-    return slug;
+      return clash !== null;
+    });
   }
 }

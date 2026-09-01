@@ -5,6 +5,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -163,6 +164,11 @@ export function HollowShell({
     [given, labelOf, statusGiven, statusTaken],
   );
 
+  const heartValue = useMemo(
+    () => ({ given, toggle, swallowed }),
+    [given, toggle, swallowed],
+  );
+
   const reset = useCallback(() => {
     setGiven([]);
     setLive(statusReset);
@@ -218,7 +224,9 @@ export function HollowShell({
       </p>
 
       <CuratorFrame isAdmin={isAdmin}>
-        <HeartContext.Provider value={{ given, toggle, swallowed }}>
+        {/* `toggle` zaten useCallback'li; obje de memo'lanmazsa her render
+            yeni referans üretip tüketicileri boşa çiziyordu (P-09). */}
+        <HeartContext.Provider value={heartValue}>
           {hero}
 
           {/* ══ 2 · MOD DÜĞMESİ ═══════════════════════════════════════════

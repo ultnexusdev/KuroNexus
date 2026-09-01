@@ -161,6 +161,8 @@ export function TrackList({
                     alt=""
                     width={32}
                     height={32}
+                    loading="lazy"
+                    decoding="async"
                   />
                 ) : (
                   <span className={styles.coverEmpty} aria-hidden="true" />

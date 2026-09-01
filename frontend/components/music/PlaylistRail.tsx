@@ -93,6 +93,8 @@ export function PlaylistRail({
                         alt=""
                         width={36}
                         height={36}
+                        loading="lazy"
+                        decoding="async"
                       />
                     ) : (
                       <span className={styles.coverEmpty} aria-hidden="true" />

@@ -3,6 +3,7 @@
 import {
   createContext,
   useContext,
+  useMemo,
   useState,
   type ReactNode,
 } from "react";
@@ -35,10 +36,15 @@ export function VeilStage({
   children: ReactNode;
 }) {
   const [raised, setRaised] = useState(false);
+  // Memo'suz inline value her render'da yeni obje üretip bütün tüketicileri
+  // yeniden çiziyordu — repodaki 19 context'in memo'suz iki istisnasından
+  // biriydi (1 Eylül 2026 denetimi, P-09).
+  const veil = useMemo(
+    () => ({ raised, toggle: () => setRaised((v) => !v) }),
+    [raised],
+  );
   return (
-    <VeilContext.Provider
-      value={{ raised, toggle: () => setRaised((v) => !v) }}
-    >
+    <VeilContext.Provider value={veil}>
       <section
         id="veil"
         aria-labelledby={labelledBy}

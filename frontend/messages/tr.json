@@ -114,6 +114,8 @@
     "volumes": "Ciltler",
     "prevPage": "Önceki",
     "nextPage": "Sonraki",
+    "parchmentMode": "Parşömen Modu",
+    "jumpToPage": "Sayfaya gitmek için tıklayın",
     "bookSeries": "Kitap Serisi",
     "bookSeriesNote": "Bu evrenin kitap arşivindeki {count} cildi. Bir cilde dokun, künyesi açılsın.",
     "bookSeriesAll": "Seri sayfasına git →",

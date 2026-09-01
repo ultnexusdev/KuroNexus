@@ -86,6 +86,8 @@ export default async function StoryDetailPage({
         date={dateFormatted}
         prevLabel={t("prevPage")}
         nextLabel={t("nextPage")}
+        parchmentLabel={t("parchmentMode")}
+        jumpLabel={t("jumpToPage")}
       />
 
       {/* Metindeki lore işaretine tıklanınca açılan künye paneli */}

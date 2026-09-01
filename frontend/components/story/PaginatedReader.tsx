@@ -12,6 +12,14 @@ interface PaginatedReaderProps {
   nextLabel?: string;
   firstLabel?: string;
   lastLabel?: string;
+  /**
+   * Parşömen anahtarının erişilebilirlik metni. Bu ikisi 1 Eylül 2026
+   * denetimine kadar GÖMÜLÜ Türkçeydi (bulgu H-F2): bileşen diğer bütün
+   * etiketleri prop'la alırken bu ikisi unutulmuştu, İngilizce okurda ekran
+   * okuyucu Türkçe konuşuyordu. Varsayılanlar eski davranışı koruyor.
+   */
+  parchmentLabel?: string;
+  jumpLabel?: string;
 }
 
 export function PaginatedReader({
@@ -23,6 +31,8 @@ export function PaginatedReader({
   nextLabel = "Sonraki",
   firstLabel = "İlk",
   lastLabel = "Son",
+  parchmentLabel = "Parşömen Modu",
+  jumpLabel = "Sayfaya gitmek için tıklayın",
 }: PaginatedReaderProps) {
   const [globalCurrentPage, setGlobalCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
@@ -254,8 +264,8 @@ export function PaginatedReader({
             type="button"
             className={styles.parchmentToggle}
             onClick={() => setIsParchmentMode(!isParchmentMode)}
-            title="Parşömen Modu"
-            aria-label="Parşömen Modu"
+            title={parchmentLabel}
+            aria-label={parchmentLabel}
             aria-pressed={isParchmentMode}
           >
             <span aria-hidden>📜</span>
@@ -285,7 +295,7 @@ export function PaginatedReader({
               type="button"
               className={styles.pageJump}
               onClick={() => setIsEditingPage(true)}
-              title="Sayfaya gitmek için tıklayın"
+              title={jumpLabel}
             >
               {globalCurrentPage + 1}
             </button>

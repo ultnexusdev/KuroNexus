@@ -114,6 +114,8 @@
     "volumes": "Volumes",
     "prevPage": "Previous",
     "nextPage": "Next",
+    "parchmentMode": "Parchment Mode",
+    "jumpToPage": "Click to jump to a page",
     "bookSeries": "Book Series",
     "bookSeriesNote": "{count} volumes of this world in the book archive. Pick one to open its record.",
     "bookSeriesAll": "Go to the series page →",

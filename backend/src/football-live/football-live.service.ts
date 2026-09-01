@@ -1,4 +1,5 @@
 import { mkdir, writeFile } from 'node:fs/promises';
+import { sleep } from '../common/utils/sleep';
 import { join } from 'node:path';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -1184,10 +1185,6 @@ interface StoredAssets {
 
 function errMsg(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
-}
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /**

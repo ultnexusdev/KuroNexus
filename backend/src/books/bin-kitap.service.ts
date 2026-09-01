@@ -1,9 +1,10 @@
 import { request as httpsRequest } from 'node:https';
+import { sleep } from '../common/utils/sleep';
 import { createBrotliDecompress, createGunzip, createInflate } from 'node:zlib';
 import { Injectable, Logger } from '@nestjs/common';
 import sanitizeHtml from 'sanitize-html';
 import { PrismaService } from '../prisma/prisma.service';
-import { slugify } from '../common/utils/slugify';
+import { slugify, slugKey } from '../common/utils/slugify';
 import type { BookSource } from './google-books.service';
 
 /**
@@ -1089,10 +1090,3 @@ function toCount(value: string | undefined): number | null {
   return Number.isFinite(count) && count > 0 ? count : null;
 }
 
-function slugKey(value: string): string {
-  return slugify(value).slice(0, 60);
-}
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}

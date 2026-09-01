@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { sleep } from '../common/utils/sleep';
 import { PrismaService } from '../prisma/prisma.service';
 
 /**
@@ -140,6 +141,3 @@ export class JikanService {
   }
 }
 
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}

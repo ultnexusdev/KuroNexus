@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
-import { slugify } from '../common/utils/slugify';
+import { slugKey } from '../common/utils/slugify';
 import { BinKitapService } from './bin-kitap.service';
 
 /**
@@ -955,6 +955,3 @@ function readSeries(value: string | undefined): {
 }
 
 /** Cache anahtarı ve yazar eşleştirmesi için sade karşılaştırma biçimi. */
-function slugKey(value: string): string {
-  return slugify(value).slice(0, 60);
-}

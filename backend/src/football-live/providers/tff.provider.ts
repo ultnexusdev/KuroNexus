@@ -1,4 +1,5 @@
 import { Logger } from '@nestjs/common';
+import { sleep } from '../../common/utils/sleep';
 import {
   normalizeTeamKey,
   type FootballProvider,
@@ -233,10 +234,6 @@ function decodeTurkish(buf: Buffer): string {
     );
     return buf.toString('latin1');
   }
-}
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 // ---- Ayrıştırıcılar (saf; test edilebilir olsun diye dışarıda) --------------

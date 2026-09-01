@@ -1,4 +1,5 @@
 import { Logger } from '@nestjs/common';
+import { TURKISH_CHAR_MAP } from '../../common/utils/slugify';
 import type { LiveSquadPlayer } from './types';
 
 /**
@@ -148,21 +149,7 @@ function decodeEntities(raw: string): string {
 }
 
 function slugify(name: string): string {
-  const map: Record<string, string> = {
-    ç: 'c',
-    Ç: 'c',
-    ğ: 'g',
-    Ğ: 'g',
-    ı: 'i',
-    I: 'i',
-    İ: 'i',
-    ö: 'o',
-    Ö: 'o',
-    ş: 's',
-    Ş: 's',
-    ü: 'u',
-    Ü: 'u',
-  };
+  const map = TURKISH_CHAR_MAP;
   let s = '';
   for (const ch of name.normalize('NFC')) s += map[ch] ?? ch.toLowerCase();
   return s.replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');

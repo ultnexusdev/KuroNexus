@@ -20,6 +20,20 @@ COPY . .
 ENV DATABASE_URL="postgresql://build:build@localhost:5432/build"
 RUN pnpm exec prisma generate && pnpm run build
 
+# Derleme bitti; dev bagimliliklari artik olu agirlik. ONCEKI HALINDE bu adim
+# YOKTU ve calisma imajina typescript, jest, eslint, @nestjs/cli dahil TUM agac
+# gidiyordu (olculdu: node_modules 491 MB, imaj 996 MB - frontend'in iki kati).
+# Bedeli disk: bu sunucuda disk dolmasi IKI KEZ uretim arizasi cikardi
+# (docs/deploy-duzeni.md 9). 1 Eylul 2026 denetimi, bulgu DCK-01.
+#
+# Migration adiminin ihtiyaci olan prisma + dotenv bu yuzden dependencies'e
+# tasindi; asagidaki iki satir onlarin prune'dan SAG CIKTIGINI build sirasinda
+# kanitlar. Kanitlamazsa build burada patlar - yani hata canlida "konteyner
+# baslamiyor" olarak degil, deploy logunda gorunur.
+RUN pnpm prune --prod \
+    && pnpm exec prisma --version \
+    && node -e "require('dotenv')"
+
 # ---- Calisma asamasi ----
 FROM node:24-slim
 WORKDIR /app
@@ -30,7 +44,9 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends openssl \
     && rm -rf /var/lib/apt/lists/*
 
-# node_modules komple kopyalanir: prisma CLI + dotenv, migrate deploy icin gerekli
+# Build asamasinda `pnpm prune --prod` ile dev bagimliliklari atilmis agac.
+# Icinde migrate deploy icin gereken prisma CLI + dotenv var (ikisi de
+# dependencies'te), typescript/jest/eslint yok.
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/prisma ./prisma

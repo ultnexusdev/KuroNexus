@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { apiFetch } from "./client";
 import type { MovieArchive, MovieDetail, MovieShowcase } from "./types";
 
@@ -44,7 +45,7 @@ export function fetchMovieArchive(): Promise<MovieArchive> {
  * Salon girişinin iki yanındaki afişler. Alınamazsa lobi CSS sahnesiyle açılır.
  * Günlük önbellek yeterli: afişler ayda bir bile değişmiyor.
  */
-export async function getMovieShowcase(): Promise<MovieShowcase> {
+export const getMovieShowcase = cache(async (): Promise<MovieShowcase> => {
   try {
     return await apiFetch<MovieShowcase>("/movies/showcase", {
       next: { revalidate: 86400 },
@@ -52,7 +53,7 @@ export async function getMovieShowcase(): Promise<MovieShowcase> {
   } catch {
     return EMPTY_SHOWCASE;
   }
-}
+});
 
 /**
  * Arşiv alınamazsa salon boş açılır, sayfa çökmez (kural 4 ruhu).
@@ -61,23 +62,24 @@ export async function getMovieShowcase(): Promise<MovieShowcase> {
  * gerçekten boş" sanıp öyle yazıyordu. Kullanıcı dolu bir arşivin önünde
  * "arşiv boş" mesajı görüyor ve yenilemenin yolunu bulamıyordu.
  */
-export async function getMovieArchive(): Promise<MovieArchive> {
+export const getMovieArchive = cache(async (): Promise<MovieArchive> => {
   try {
     return await fetchMovieArchive();
   } catch {
     return { ...EMPTY_ARCHIVE, unavailable: true };
   }
-}
+});
 
 /** Film sayfası: künye + kadro + fragman + platformlar. Yoksa null (404). */
-export async function getMovieDetail(
-  slug: string,
-): Promise<MovieDetail | null> {
-  try {
-    return await apiFetch<MovieDetail>(`/movies/${encodeURIComponent(slug)}`, {
-      cache: "no-store",
-    });
-  } catch {
-    return null;
-  }
-}
+export const getMovieDetail = cache(
+  async (slug: string): Promise<MovieDetail | null> => {
+    try {
+      return await apiFetch<MovieDetail>(
+        `/movies/${encodeURIComponent(slug)}`,
+        { cache: "no-store" },
+      );
+    } catch {
+      return null;
+    }
+  },
+);

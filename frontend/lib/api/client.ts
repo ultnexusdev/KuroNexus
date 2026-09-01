@@ -83,14 +83,60 @@ export class ApiError extends Error {
  * için bu izin şart — API ayrı bir alan adında olduğundan varsayılan davranış
  * çerezi göndermemek. Sunucu tarafındaki çağrılarda bu alan yok sayılır.
  */
+/**
+ * SSR isteklerinin üst sınırı (1 Eylül 2026 denetimi, bulgu API-01).
+ *
+ * Önceden hiç sınır yoktu. Sitedeki bütün sunucu tarafı veri çağrıları bu
+ * fonksiyondan geçiyor ve 120 sayfa `force-dynamic`; backend asılı kalırsa
+ * (DB kilidi, bellek baskısı) her SSR isteği Node'un varsayılanına kadar
+ * bekliyor ve 2 çekirdekli kutuda istek yığılıyordu. Backend'in kendi dış
+ * istekleri istisnasız `AbortSignal.timeout` taşıyor; aynı disiplin ön yüzde
+ * yoktu.
+ *
+ * 10 sn bilinçli olarak geniş: sağlıklı bir uç 2 sn'nin altında dönüyor, yani
+ * bu sınır yalnızca gerçekten asılmış isteği keser. Süre dolunca çağrı
+ * `ApiError(504)`e dönüyor ve `lib/api/*`'deki mevcut `catch { return [] }`
+ * yedekleri onu aynen devralıyor — davranış değişmiyor, bekleme bitiyor.
+ */
+const DEFAULT_TIMEOUT_MS = 10_000;
+
+/**
+ * Sessiz bozulmanın tek görünürlük noktası (denetim bulgusu SEC-02).
+ *
+ * Kütüphane genelinde her API hatası boş rafa/`null`'a çevriliyor ve hiçbir
+ * yere yazılmıyordu; 429 ya da 5xx durumunda site "çalışıyor" görünüp raflar
+ * boşalıyor, geriye iz kalmıyordu (projenin Ö-8 diye adlandırdığı arıza
+ * sınıfı). Log'u tek tek `catch` bloklarına serpmek yerine buraya koymak
+ * yeterli: bütün çağrılar zaten buradan geçiyor.
+ *
+ * Yalnızca sunucuda yazıyor — tarayıcı konsolunu kirletmiyor, çıktı Coolify
+ * Logs'ta görünüyor.
+ */
+function logApiFailure(path: string, detail: string): void {
+  if (typeof window !== "undefined") {
+    return;
+  }
+  console.error(`[api] ${path} -> ${detail}`);
+}
+
 export async function apiFetch<T>(
   path: string,
   init?: RequestInit,
 ): Promise<T> {
-  const response = await fetch(apiFetchUrl(path), {
-    ...init,
-    credentials: "include",
-  });
+  let response: Response;
+  try {
+    response = await fetch(apiFetchUrl(path), {
+      ...init,
+      credentials: "include",
+      // Çağıran kendi sinyalini verdiyse ona dokunulmuyor (iptal edilebilir
+      // istemci istekleri bu yolu kullanıyor).
+      signal: init?.signal ?? AbortSignal.timeout(DEFAULT_TIMEOUT_MS),
+    });
+  } catch (error) {
+    const timedOut = error instanceof Error && error.name === "TimeoutError";
+    logApiFailure(path, timedOut ? `timeout ${DEFAULT_TIMEOUT_MS}ms` : String(error));
+    throw timedOut ? new ApiError(504, "API.TIMEOUT") : error;
+  }
   if (!response.ok) {
     let messageKey = "API.REQUEST_FAILED";
     try {
@@ -103,6 +149,14 @@ export async function apiFetch<T>(
     } catch {
       // gövde JSON değilse varsayılan anahtar kullanılır
     }
+    // 429 ayrıca işaretleniyor: throttle kovasının dolması boş rafın en olası
+    // sebebi ve log'da diğer hatalarla karışmaması gerekiyor.
+    logApiFailure(
+      path,
+      response.status === 429
+        ? "429 RATE LIMIT (throttle kovasi doldu)"
+        : `${response.status} ${messageKey}`,
+    );
     throw new ApiError(response.status, messageKey);
   }
   return response.json() as Promise<T>;

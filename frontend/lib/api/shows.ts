@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { apiFetch } from "./client";
 import type {
   SeasonEpisodes,
@@ -37,7 +38,7 @@ export function fetchShowArchive(): Promise<ShowArchive> {
 }
 
 /** Salon girişinin iki yanındaki afişler. Alınamazsa lobi CSS sahnesiyle açılır. */
-export async function getShowShowcase(): Promise<ShowShowcase> {
+export const getShowShowcase = cache(async (): Promise<ShowShowcase> => {
   try {
     return await apiFetch<ShowShowcase>("/shows/showcase", {
       next: { revalidate: 86400 },
@@ -45,32 +46,32 @@ export async function getShowShowcase(): Promise<ShowShowcase> {
   } catch {
     return EMPTY_SHOWCASE;
   }
-}
+});
 
 /**
  * Arşiv alınamazsa salon boş açılır, sayfa çökmez (kural 4 ruhu).
  * `unavailable` bayrağının gerekçesi `movies.ts`te yazılı.
  */
-export async function getShowArchive(): Promise<ShowArchive> {
+export const getShowArchive = cache(async (): Promise<ShowArchive> => {
   try {
     return await fetchShowArchive();
   } catch {
     return { ...EMPTY_ARCHIVE, unavailable: true };
   }
-}
+});
 
 /** Dizi sayfası: künye + kadro + fragman + platformlar. Yoksa null (404). */
-export async function getShowDetail(
-  slug: string,
-): Promise<ShowDetail | null> {
-  try {
-    return await apiFetch<ShowDetail>(`/shows/${encodeURIComponent(slug)}`, {
-      cache: "no-store",
-    });
-  } catch {
-    return null;
-  }
-}
+export const getShowDetail = cache(
+  async (slug: string): Promise<ShowDetail | null> => {
+    try {
+      return await apiFetch<ShowDetail>(`/shows/${encodeURIComponent(slug)}`, {
+        cache: "no-store",
+      });
+    } catch {
+      return null;
+    }
+  },
+);
 
 /**
  * Bir sezonun bölüm ızgarası. Sayfa açılışında inmiyor: ızgara açılınca

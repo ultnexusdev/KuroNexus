@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { apiFetch } from "./client";
 import type {
   AnimeArchive,
@@ -32,26 +33,26 @@ export function fetchAnimeArchive(): Promise<AnimeArchive> {
  * Arşiv alınamazsa salon boş açılır, sayfa çökmez (kural 4 ruhu).
  * `unavailable` bayrağının gerekçesi `movies.ts`te yazılı.
  */
-export async function getAnimeArchive(): Promise<AnimeArchive> {
+export const getAnimeArchive = cache(async (): Promise<AnimeArchive> => {
   try {
     return await fetchAnimeArchive();
   } catch {
     return { ...EMPTY_ARCHIVE, unavailable: true };
   }
-}
+});
 
 /** Anime sayfası: künye + sezonlar + kadro. Bulunamazsa null (sayfa 404). */
-export async function getAnimeDetail(
-  slug: string,
-): Promise<AnimeDetail | null> {
-  try {
-    return await apiFetch<AnimeDetail>(`/anime/${encodeURIComponent(slug)}`, {
-      cache: "no-store",
-    });
-  } catch {
-    return null;
-  }
-}
+export const getAnimeDetail = cache(
+  async (slug: string): Promise<AnimeDetail | null> => {
+    try {
+      return await apiFetch<AnimeDetail>(`/anime/${encodeURIComponent(slug)}`, {
+        cache: "no-store",
+      });
+    } catch {
+      return null;
+    }
+  },
+);
 
 /**
  * Bir sezonun bölüm listesi. Tarayıcıdan çağrılır (sezon açıldığında) —
@@ -70,7 +71,7 @@ const EMPTY_SHOWCASE: AnimeShowcase = { left: null, right: null };
  * Salon girişinin iki yanındaki afişler. Alınamazsa lobi afişsiz açılır.
  * Günlük önbellek yeterli: afişler ayda bir bile değişmiyor.
  */
-export async function getAnimeShowcase(): Promise<AnimeShowcase> {
+export const getAnimeShowcase = cache(async (): Promise<AnimeShowcase> => {
   try {
     return await apiFetch<AnimeShowcase>("/anime/showcase", {
       next: { revalidate: 86400 },
@@ -78,4 +79,4 @@ export async function getAnimeShowcase(): Promise<AnimeShowcase> {
   } catch {
     return EMPTY_SHOWCASE;
   }
-}
+});

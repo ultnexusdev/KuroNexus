@@ -4,9 +4,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { ScheduleModule } from '@nestjs/schedule';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { validateEnv } from './common/env.validation';
+import { AppThrottlerGuard } from './common/guards/app-throttler.guard';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { StoriesModule } from './stories/stories.module';
@@ -93,7 +94,9 @@ import { PulseModule } from './pulse/pulse.module';
   controllers: [AppController],
   providers: [
     // Guard sırası önemli: önce rate limit, sonra kimlik, sonra rol.
-    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    // ThrottlerGuard yerine AppThrottlerGuard: SSR istekleri iç ağdan geldiği
+    // için tek kovayı paylaşıyordu (bkz. app-throttler.guard.ts).
+    { provide: APP_GUARD, useClass: AppThrottlerGuard },
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
   ],

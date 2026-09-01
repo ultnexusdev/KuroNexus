@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { apiFetch } from "./client";
 import type {
   CharacterCard,
@@ -38,7 +39,7 @@ const EMPTY_INDEX: CharacterIndex = {
  * API'mize bir tur. Önbelleğin elediği şey yalnızca aynı dakika içindeki
  * tekrar isteklerdi; küratörün doğru liste görmesi ondan ağır basıyor.
  */
-export async function getCharacterIndex(): Promise<CharacterIndex> {
+export const getCharacterIndex = cache(async (): Promise<CharacterIndex> => {
   try {
     return await apiFetch<CharacterIndex>("/anime/characters", {
       cache: "no-store",
@@ -46,7 +47,7 @@ export async function getCharacterIndex(): Promise<CharacterIndex> {
   } catch {
     return EMPTY_INDEX;
   }
-}
+});
 
 /**
  * Adı geçen karakterlerin portreleri (savaş ve ilişki satırları).
@@ -153,7 +154,7 @@ export async function getCharacterImagesBulk(
 }
 
 /** Karakter dosyası. Bulunamazsa `null` → sayfa 404 verir. */
-export async function getCharacterDetail(
+export const getCharacterDetail = cache(async function (
   characterId: string,
 ): Promise<CharacterDetail | null> {
   // Sayısal olmayan kimlik backend'e hiç gitmesin: rota parametresi elle
@@ -185,4 +186,4 @@ export async function getCharacterDetail(
   } catch {
     return null;
   }
-}
+});

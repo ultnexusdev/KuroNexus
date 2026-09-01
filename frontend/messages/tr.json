@@ -2240,7 +2240,8 @@
       "title": "Bir şey ters gitti",
       "text": "Sayfa hazırlanırken beklenmeyen bir hata oluştu. Çoğu zaman geçicidir — tekrar denemek yeterli oluyor.",
       "retry": "Tekrar dene",
-      "code": "Hata kimliği: {digest}"
+      "code": "Hata kimliği: {digest}",
+      "home": "Ana sayfaya dön"
     }
   },
   "lightbox": {

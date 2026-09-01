@@ -2240,7 +2240,8 @@
       "title": "Something went wrong",
       "text": "An unexpected error occurred while preparing the page. It is usually temporary — retrying is often enough.",
       "retry": "Try again",
-      "code": "Error id: {digest}"
+      "code": "Error id: {digest}",
+      "home": "Back to home"
     }
   },
   "lightbox": {

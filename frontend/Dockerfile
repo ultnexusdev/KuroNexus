@@ -41,6 +41,20 @@ COPY --from=build /app/.next/standalone ./
 COPY --from=build /app/.next/static ./.next/static
 COPY --from=build /app/public ./public
 
+# Konteyner artik root DEGIL (1 Eylul 2026 denetimi, bulgu DCK-02).
+#
+# Backend bu karari zaten almisti (backend/Dockerfile: USER node); on yuzun
+# acik kalmasi tutarsizlikti: burada bir RCE bulunsa saldirgan konteynerde
+# tam yetkiyle basliyordu.
+#
+# Standalone cikti, .next/static ve public SALT OKUNUR calisiyor - kopyalanan
+# dosyalarin root'a ait olmasi sorun degil, node onlari okuyabiliyor. Yazma
+# ihtiyaci olan TEK yer next/image'in disk onbellegi (/app/.next/cache); o
+# klasor onceden acilip node'a devrediliyor. Devredilmezse gorsel
+# optimizasyonu ilk istekte EACCES ile duser ve kapaklar kaybolur.
+RUN mkdir -p /app/.next/cache && chown -R node:node /app/.next
+USER node
+
 EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0

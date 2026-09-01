@@ -31,6 +31,7 @@ import type {
   BookStatus,
   BookTranslation,
 } from "@/lib/api/types";
+import { today } from "@/lib/format";
 import styles from "./BookCurator.module.css";
 
 /**
@@ -51,10 +52,6 @@ const TRANSLATIONS: BookTranslation[] = [
   "IN_PROGRESS",
   "ORIGINAL",
 ];
-
-function today(): string {
-  return new Date().toISOString().slice(0, 10);
-}
 
 /**
  * Canlı aramanın bekleme süresi. 350ms ölçüme dayanıyor: Google yanıtları

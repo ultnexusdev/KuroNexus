@@ -20,6 +20,7 @@ import type {
   ShowStatus,
   TmdbSearchResult,
 } from "@/lib/api/types";
+import { today } from "@/lib/format";
 import styles from "./ShowCurator.module.css";
 
 /**
@@ -33,10 +34,6 @@ const STATUSES: ShowStatus[] = [
   "WATCHLIST",
   "REWATCH",
 ];
-
-function today(): string {
-  return new Date().toISOString().slice(0, 10);
-}
 
 /** Arşive dizi ekleme şeridi: TMDB'de ara → seç → künyeyi gir. */
 export function CuratorBar() {

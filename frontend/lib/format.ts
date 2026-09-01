@@ -8,6 +8,25 @@
  * çekmek onu değiştirmek olurdu.
  */
 
+/** Bugünün tarihi, form alanlarının beklediği YYYY-AA-GG biçiminde.
+    Dört küratör yüzeyinde birebir kopyaydı (D-F8). */
+export function today(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+/**
+ * Addan monogram: en fazla iki kelimenin baş harfi. `tr` yereli bilinçli —
+ * "ismail" → "İ" olmalı, "I" değil. İki kitap bileşeninde kopyaydı (D-F8).
+ */
+export function initials(name: string): string {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0]?.toLocaleUpperCase("tr") ?? "")
+    .join("");
+}
+
 /** Tarihi okunur biçime çevirir; geçersizse ham metni döndürür. */
 export function formatDate(value: string, locale: string): string {
   const date = new Date(value);

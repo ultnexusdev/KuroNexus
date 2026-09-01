@@ -20,6 +20,7 @@ import type {
   MovieStatus,
   TmdbSearchResult,
 } from "@/lib/api/types";
+import { today } from "@/lib/format";
 import styles from "./FilmCurator.module.css";
 
 /**
@@ -39,10 +40,6 @@ const STATUSES: MovieStatus[] = ["WATCHED", "WATCHLIST", "REWATCH"];
  * göstermek listeyi yapay olarak kısaltıyordu. Sıra her açılışta karışıyor —
  * hep aynı filmlerle karşılaşmamak için.
  */
-
-function today(): string {
-  return new Date().toISOString().slice(0, 10);
-}
 
 /** Arşive film ekleme şeridi: TMDB'de ara → seç → künyeyi gir. */
 export function CuratorBar() {

@@ -17,15 +17,12 @@ import type {
   MovieStatus,
   TmdbSearchResult,
 } from "@/lib/api/types";
+import { today } from "@/lib/format";
 import styles from "./page.module.css";
 
 const STATUSES: MovieStatus[] = ["WATCHED", "WATCHLIST", "REWATCH"];
 
 // Bugünün tarihi, date input'unun beklediği biçimde
-function today(): string {
-  return new Date().toISOString().slice(0, 10);
-}
-
 function FilmArchiveAdmin() {
   const t = useTranslations("admin.film");
   const tFilm = useTranslations("film");

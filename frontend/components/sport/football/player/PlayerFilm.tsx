@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { PlayerFilm as FilmRecord } from "@/lib/sport/favourite-players";
+import { youtubeEmbedUrl } from "@/lib/youtube";
 import styles from "./PlayerFilm.module.css";
 
 /**
@@ -71,9 +72,10 @@ export function PlayerFilm({
      kanalların video duvarını basmasını engelliyor, `modestbranding=1`
      oynatıcının kendi logosunu kısıyor — ikisi de sahnenin karanlığını
      koruyor. */
-  const src =
-    `https://www.youtube-nocookie.com/embed/${film.youtubeId}` +
-    "?autoplay=1&rel=0&modestbranding=1&playsinline=1";
+  const src = youtubeEmbedUrl(
+    film.youtubeId,
+    "autoplay=1&rel=0&modestbranding=1&playsinline=1",
+  );
 
   return (
     <section

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { youtubeEmbedUrl, youtubeThumbUrl } from "@/lib/youtube";
 import styles from "./Media.module.css";
 
 /**
@@ -34,7 +35,7 @@ export function Trailer({
       <div className={styles.trailerFrame}>
         <iframe
           className={styles.trailerVideo}
-          src={`https://www.youtube-nocookie.com/embed/${videoKey}?autoplay=1&rel=0`}
+          src={youtubeEmbedUrl(videoKey, "autoplay=1&rel=0")}
           title={iframeTitle}
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
@@ -50,7 +51,7 @@ export function Trailer({
       onClick={() => setPlaying(true)}
     >
       <Image
-        src={`https://i.ytimg.com/vi/${videoKey}/hqdefault.jpg`}
+        src={youtubeThumbUrl(videoKey)}
         alt=""
         fill
         sizes="(max-width: 900px) 100vw, 640px"

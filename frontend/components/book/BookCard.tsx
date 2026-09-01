@@ -14,6 +14,7 @@ import type {
   BookSeriesCard,
 } from "@/lib/api/types";
 import { bookHref, personHref, seriesHref } from "@/lib/book/routes";
+import { initials } from "@/lib/format";
 import styles from "./BookHall.module.css";
 
 /**
@@ -289,14 +290,6 @@ export function AuthorCard({
 }
 
 /** Adın baş harfleri — portresi olmayan yazarın madalyonu. */
-function initials(name: string): string {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((word) => word[0]?.toLocaleUpperCase("tr") ?? "")
-    .join("");
-}
 
 /**
  * Seri kartı. Salonun seri şeridinde ve seriler sayfasında aynı bileşen.

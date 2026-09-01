@@ -20,12 +20,22 @@ Sentez yazıldıktan sonra Kademe 1 ve Kademe 2 aynı gün uygulandı. Kapananla
 | **DCK-01** (High) | `bd0e084` | `prisma`+`dotenv` → `dependencies`, build'de `pnpm prune --prod`. Prune'un doğruluğu build sırasında kanıtlanıyor (`prisma --version` + `require('dotenv')`). |
 | **API-01, API-02, API-03** (3×High) + **SEC-02** | `5b31565` | SSR timeout (10 sn), iç ağ throttle muafiyeti (7 test), 24 getirici `cache()` ile sarıldı, API hataları artık loglanıyor. |
 | **SEC-01** + **DCK-04** | `0fc068d` | Kök `error.tsx` (+ `pageState.error.home` iki dilde), `NEXT_PUBLIC_API_URL` build kapısı. |
+| **API-06** (High) + **API-10** | `8543cd4` | Ödül/okuma-sırası uçları artık `getArchive()` değil ince `getArchiveIndex()` okuyor; slug kuralı `deriveArchiveSlug`'da tekleşti (7 test). Ödül cache'i tek sorguya indi. **Canlı doğrulandı:** ödül rozeti `korluk` slug'ını üretti ve o slug doğru kitap sayfasını açtı — iki yol aynı slug'ı üretiyor. |
+| **DCK-02** | `58ccfb1` | Frontend konteyneri artık root değil; `next/image` önbelleği `node`'a devredildi. Canlı doğrulandı: `/_next/image` isteği `image/jpeg` döndürüyor, izin hatası yok. |
+| **H-B2** (Critical) | `fa27e5c` | Compose'da varsayılan PG parolası kaldırıldı (`:?` ile zorunlu), port `127.0.0.1`'e bağlandı. |
 
 **Canlı doğrulama:** `/health` → `{"status":"ok","db":"up"}`; ana sayfa, kitap ve film salonları dolu (418 film, 253 kitap) — boş raf sınıfı yok. Watch Paths'in çalıştığı da ölçüldü: iki servis farklı commit'lerde olabiliyor ve bu arıza değil.
 
 **Bu belgenin geri kalanı denetim anındaki durumu anlatır** — yukarıdaki maddeler artık kapalıdır.
 
-**Sıradaki açık işler:** API-06/08 (tam-arşiv okuyan ve budanmamış uçlar; API-08 düz `omit` ile çözülmez, film/dizi/anime `externalData`'yı okuyor — JSON projeksiyonu ya da sütun terfisi gerekir), API-04/05 (ISR geçişi), DCK-02 (frontend root), DCK-03 (healthcheck — panel işi), Coolify zamanlanmış Docker temizliği + journald üst sınırı, 26 Dependabot açığı.
+**Kapanış durumu:** İki Critical'ın **ikisi de** kapandı. Parça 3'ün (deploy/production) yedi High'ından altısı kapandı — açık kalan tek High **API-08**. Parça 2'nin dört High'ı zaten `cd5ebf0` ile kapanmıştı. Parça 1'in kalan High'ları (duplicate ve yapı borcu: D-B1/D-B2/D-B5/D-B6/D-B7, D-F1–D-F4, H-F1, H-F3, F-4) henüz açık — bunlar üretimi düşürmüyor, sessiz ayrışma üretiyor.
+
+**Sıradaki açık işler:**
+- **API-08** (High) — film/dizi/anime/pulse uçları `externalData`'yı budamadan çekiyor. ⚠️ Kitaptaki `ARCHIVE_OMIT` çözümü BURADA İŞE YARAMAZ: kitap `externalData`'yı hiç okumuyordu, bu üç kanat ise ondan 10 alan okuyor. JSON projeksiyonu (raw SQL) ya da alanları sütuna terfi (migration) gerekir.
+- **API-04/05** (Medium) — ISR geçişi. ⚠️ Ürün kararı: ziyaretçi 60–300 sn eski veri görür. Küratör tazeliği `isAdmin` yolunda korunabilir (`pulse.ts`'teki `fresh` deseni), ama kullanıcı onayı alınmadan uygulanmadı.
+- **Kademe 3–4** (Parça 1) — SSRF indirici klonu (D-B2), `normalizeUrl` düzeltme kaybı (D-B6), `buildUniqueSlug` dört davranış (D-B5), `externalCache` 22 nokta (D-B7), frontend duplicate dörtlüsü, "sa/dk" i18n kaçağı (H-F1), rota literalleri + çelişen `KITAP_HREF` (H-F3), öksüz oyuncu sayfası (F-4).
+- **Panel işleri (kullanıcıda):** DCK-03 healthcheck, Coolify zamanlanmış Docker temizliği, journald üst sınırı — sonuncusu olmadan disk ~16 günde yine dolar.
+- **Kapsam dışı:** 26 Dependabot açığı (16 high).
 
 ---
 

@@ -23,6 +23,8 @@ Sentez yazıldıktan sonra Kademe 1 ve Kademe 2 aynı gün uygulandı. Kapananla
 | **API-06** (High) + **API-10** | `8543cd4` | Ödül/okuma-sırası uçları artık `getArchive()` değil ince `getArchiveIndex()` okuyor; slug kuralı `deriveArchiveSlug`'da tekleşti (7 test). Ödül cache'i tek sorguya indi. **Canlı doğrulandı:** ödül rozeti `korluk` slug'ını üretti ve o slug doğru kitap sayfasını açtı — iki yol aynı slug'ı üretiyor. |
 | **DCK-02** | `58ccfb1` | Frontend konteyneri artık root değil; `next/image` önbelleği `node`'a devredildi. Canlı doğrulandı: `/_next/image` isteği `image/jpeg` döndürüyor, izin hatası yok. |
 | **H-B2** (Critical) | `fa27e5c` | Compose'da varsayılan PG parolası kaldırıldı (`:?` ile zorunlu), port `127.0.0.1`'e bağlandı. |
+| **D-B6** (High) | `58a1c7c` | `normalizeUrl`'ün dört kopyasından yalnız anime'dekinde olan düzeltme ortaklaştırıldı. Diğer üçü `/uploads/kapak.jpg` gibi yerel yolları `https:///uploads/...`e çevirip **kırıyordu** — bakım borcu değil, aktif hataydı. 5 test. |
+| **H-F1** (High) | `d4ad372` | Süre etiketi i18n'e taşındı; beş sayfadaki gömülü `sa`/`dk` metni sözlüğe alındı. Dinleme sayfasının kompakt biçimi (belgelenmiş tasarım kararı) korundu, yalnız harfleri çevrildi. **Canlı doğrulandı:** aynı albüm EN'de "Length — 56 min", TR'de "Süre — 56 dk". |
 
 **Canlı doğrulama:** `/health` → `{"status":"ok","db":"up"}`; ana sayfa, kitap ve film salonları dolu (418 film, 253 kitap) — boş raf sınıfı yok. Watch Paths'in çalıştığı da ölçüldü: iki servis farklı commit'lerde olabiliyor ve bu arıza değil.
 

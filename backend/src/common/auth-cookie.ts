@@ -1,4 +1,5 @@
 import type { CookieOptions } from 'express';
+import { parseDurationMs } from './duration';
 
 /**
  * Oturum çerezi — tek tanım yeri.
@@ -19,9 +20,29 @@ import type { CookieOptions } from 'express';
  */
 export const AUTH_COOKIE_NAME = 'kuronexus-session';
 
-// JWT'nin kendi ömrüyle aynı olmalı (JWT_EXPIRES_IN varsayılanı '1d').
-// Çerez daha uzun yaşarsa kullanıcı "girişli" görünür ama her istek 401 alır.
-const MAX_AGE_MS = 24 * 60 * 60 * 1000;
+/**
+ * Çerez ömrü JWT'nin ömründen TÜRETİLİR, sabit yazılmaz.
+ *
+ * Önceden burada `24 * 60 * 60 * 1000` duruyordu ve JWT ömrü env'den
+ * geliyordu; `JWT_EXPIRES_IN=7d` yazıldığı an ikisi ayrışacaktı: token altı
+ * gün daha geçerliyken çerez ölür, kullanıcı sebepsiz yere çıkış yapmış olur.
+ * Ters yönde (env'de daha kısa) ise kullanıcı "girişli" görünüp her istekte
+ * 401 alırdı (1 Eylül 2026 denetimi, H-B4).
+ *
+ * Değer fonksiyon içinde okunuyor: modül seviyesinde okunsaydı `process.env`
+ * dolmadan önce yakalanma riski olurdu.
+ */
+const FALLBACK_MAX_AGE_MS = 24 * 60 * 60 * 1000; // '1d'
+
+function maxAgeMs(): number {
+  const configured = process.env.JWT_EXPIRES_IN;
+  if (!configured) {
+    return FALLBACK_MAX_AGE_MS;
+  }
+  // Biçim bozuksa `validateEnv` boot'ta zaten durdurur; buradaki geri düşüş
+  // yalnızca o kapıdan geçmeyen çağrılar (test, script) için.
+  return parseDurationMs(configured) ?? FALLBACK_MAX_AGE_MS;
+}
 
 /**
  * `domain` üretimde `.kuronexus.com` olmalı (`AUTH_COOKIE_DOMAIN`): çerezi
@@ -44,7 +65,7 @@ export function authCookieOptions(): CookieOptions {
     sameSite: 'lax',
     domain: process.env.AUTH_COOKIE_DOMAIN || undefined,
     path: '/',
-    maxAge: MAX_AGE_MS,
+    maxAge: maxAgeMs(),
   };
 }
 

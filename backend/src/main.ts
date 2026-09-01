@@ -75,11 +75,28 @@ async function bootstrap(): Promise<void> {
       transform: true,
     }),
   );
-  // `credentials: true` olmadan tarayıcı oturum çerezini API'ye göndermez —
-  // giriş yapılır ama sonraki her istek 401 döner. Bu yüzden kaynak listesi de
-  // üretimde mutlaka `CORS_ORIGIN` ile daraltılmış olmalı.
+  /**
+   * `credentials: true` olmadan tarayıcı oturum çerezini API'ye göndermez —
+   * giriş yapılır ama sonraki her istek 401 döner. Bu yüzden kaynak listesi
+   * üretimde mutlaka `CORS_ORIGIN` ile daraltılmış olmalı.
+   *
+   * Eski hâli `?? true` ile bitiyordu: `CORS_ORIGIN` unutulursa HER origin
+   * çerezli erişim kazanıyordu ve hiçbir uyarı çıkmıyordu (1 Eylül 2026
+   * denetimi, H-B1). Artık üretimde o değişkeni `validateEnv` zorunlu kılıyor;
+   * buradaki liste yalnızca ikinci savunma hattı.
+   *
+   * `trim()` şart: `"a.com, b.com"` gibi boşluklu bir değerde ikinci origin
+   * asla eşleşmez ve sebebi zor bulunan bir CORS hatası üretir.
+   */
+  const corsOrigin = process.env.CORS_ORIGIN?.split(',')
+    .map((entry) => entry.trim())
+    .filter(Boolean);
   app.enableCors({
-    origin: process.env.CORS_ORIGIN?.split(',') ?? true,
+    origin:
+      corsOrigin && corsOrigin.length > 0
+        ? corsOrigin
+        : // Yalnızca geliştirme: iki taraf farklı portta olduğu için CORS gerekli.
+          ['http://localhost:3000', 'http://127.0.0.1:3000'],
     credentials: true,
   });
   await app.listen(process.env.PORT ?? 3001);

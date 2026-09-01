@@ -6,6 +6,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
+import { validateEnv } from './common/env.validation';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { StoriesModule } from './stories/stories.module';
@@ -30,7 +31,9 @@ import { PulseModule } from './pulse/pulse.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    // `validate`: eksik/bozuk ortam değişkeni boot'ta durdurur ya da log'a
+    // yazar (bkz. env.validation.ts). Sessiz yanlış yapılandırma sınıfına karşı.
+    ConfigModule.forRoot({ isGlobal: true, validate: validateEnv }),
     ScheduleModule.forRoot(),
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 100 }]),
     // Yüklenen görseller /uploads/* altından public servis edilir

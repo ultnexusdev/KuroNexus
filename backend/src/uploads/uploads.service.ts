@@ -16,7 +16,10 @@ const ALLOWED_MIME_TYPES = new Set([
   'audio/mp3',
 ]);
 
-const DEFAULT_MAX_BYTES = 50 * 1024 * 1024; // 50MB
+// `.env.example`'daki `MAX_UPLOAD_BYTES` ile AYNI olmalı. Uzun süre kod 50 MB,
+// örnek dosya 10 MB diyordu; değişkeni tanımlamayan bir ortamda sınır sessizce
+// beş katına çıkıyordu (1 Eylül 2026 denetimi, H-B4).
+const DEFAULT_MAX_BYTES = 10 * 1024 * 1024; // 10MB
 
 @Injectable()
 export class UploadsService implements OnModuleInit {

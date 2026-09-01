@@ -8,6 +8,7 @@ import type {
   SourceBookPage,
 } from "@/lib/api/types";
 import { BackToTop } from "@/components/BackToTop";
+import { languageName } from "@/lib/format";
 import {
   BOOK_HALL_HREF,
   bookHref,
@@ -284,12 +285,3 @@ export function SourceBook({
 
 /** Dil kodunu okunur ada çevirir; tarayıcı bilmiyorsa kod kalır (film
     kanadındaki `MovieDetail` ile aynı yardımcı). */
-function languageName(code: string, locale: string): string {
-  try {
-    return (
-      new Intl.DisplayNames([locale], { type: "language" }).of(code) ?? code
-    );
-  } catch {
-    return code;
-  }
-}

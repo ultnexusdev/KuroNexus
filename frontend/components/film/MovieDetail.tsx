@@ -7,9 +7,11 @@ import { useLocale, useTranslations } from "next-intl";
 import { Link, useRouter } from "@/lib/i18n/navigation";
 import { tmdbImage } from "@/lib/api/movies";
 import { ApiError } from "@/lib/api/client";
+import { formatDate, languageName } from "@/lib/format";
+import { Trailer } from "@/components/media/Trailer";
+import { CastCard } from "@/components/media/CastCard";
 import type {
   ArchiveMovie,
-  MovieCastMember,
   MovieDetail as MovieDetailData,
   MovieLink,
   MovieLinkKind,
@@ -339,7 +341,11 @@ export function MovieDetail({
             {detail.trailerKey ? (
               <section className={styles.section}>
                 <h2 className={styles.sectionTitle}>{t("trailer")}</h2>
-                <Trailer videoKey={detail.trailerKey} movieTitle={movie.title} />
+                <Trailer
+                  videoKey={detail.trailerKey}
+                  iframeTitle={t("trailerOf", { title: movie.title })}
+                  playLabel={t("playTrailer")}
+                />
               </section>
             ) : null}
 
@@ -439,14 +445,6 @@ function ArchiveRow({ movie }: { movie: ArchiveMovie }) {
   );
 }
 
-/** Tarihi okunur biçime çevirir; geçersizse ham metni döndürür. */
-function formatDate(value: string, locale: string): string {
-  const date = new Date(value);
-  return Number.isNaN(date.getTime())
-    ? value
-    : new Intl.DateTimeFormat(locale, { dateStyle: "long" }).format(date);
-}
-
 /** Bütçe/hâsılat: dolar, kısaltmasız ama okunur (1.500.000 $ gibi). */
 function formatMoney(value: number, locale: string): string {
   return new Intl.NumberFormat(locale, {
@@ -454,96 +452,6 @@ function formatMoney(value: number, locale: string): string {
     currency: "USD",
     maximumFractionDigits: 0,
   }).format(value);
-}
-
-/** Dil kodunu (en, ja…) okunur ada çevirir; tarayıcı bilmiyorsa kod kalır. */
-function languageName(code: string, locale: string): string {
-  try {
-    return (
-      new Intl.DisplayNames([locale], { type: "language" }).of(code) ?? code
-    );
-  } catch {
-    return code;
-  }
-}
-
-/**
- * Fragman. iframe sayfa açılışında İNMEZ: önce YouTube'un kapak görseli
- * gösterilir, oynat düğmesine basınca gömülü oynatıcı yüklenir. Böylece her
- * film sayfası açılışında YouTube'a istek gitmiyor.
- */
-function Trailer({
-  videoKey,
-  movieTitle,
-}: {
-  videoKey: string;
-  movieTitle: string;
-}) {
-  const t = useTranslations("film.detail");
-  const [playing, setPlaying] = useState(false);
-
-  if (playing) {
-    return (
-      <div className={styles.trailerFrame}>
-        <iframe
-          className={styles.trailerVideo}
-          src={`https://www.youtube-nocookie.com/embed/${videoKey}?autoplay=1&rel=0`}
-          title={t("trailerOf", { title: movieTitle })}
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        />
-      </div>
-    );
-  }
-
-  return (
-    <button
-      type="button"
-      className={styles.trailerFrame}
-      onClick={() => setPlaying(true)}
-    >
-      <Image
-        src={`https://i.ytimg.com/vi/${videoKey}/hqdefault.jpg`}
-        alt=""
-        fill
-        sizes="(max-width: 900px) 100vw, 640px"
-        className={styles.trailerThumb}
-        unoptimized
-      />
-      <span className={styles.trailerPlay} aria-hidden>
-        ▶
-      </span>
-      <span className={styles.trailerLabel}>{t("playTrailer")}</span>
-    </button>
-  );
-}
-
-function CastCard({ member }: { member: MovieCastMember }) {
-  const photo = tmdbImage(member.profilePath, "w185");
-  return (
-    <li className={styles.castCard}>
-      <span className={styles.castPhoto}>
-        {photo ? (
-          <Image
-            src={photo}
-            alt=""
-            fill
-            sizes="88px"
-            className={styles.castImg}
-            unoptimized
-          />
-        ) : (
-          <span className={styles.castInitial} aria-hidden>
-            {member.name.slice(0, 1)}
-          </span>
-        )}
-      </span>
-      <span className={styles.castName}>{member.name}</span>
-      {member.character ? (
-        <span className={styles.castRole}>{member.character}</span>
-      ) : null}
-    </li>
-  );
 }
 
 function ProviderChip({

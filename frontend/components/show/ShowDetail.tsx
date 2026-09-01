@@ -7,11 +7,13 @@ import { useLocale, useTranslations } from "next-intl";
 import { Link, useRouter } from "@/lib/i18n/navigation";
 import { fetchSeasonEpisodes, tmdbImage } from "@/lib/api/shows";
 import { ApiError } from "@/lib/api/client";
+import { formatDate, languageName } from "@/lib/format";
+import { Trailer } from "@/components/media/Trailer";
+import { CastCard } from "@/components/media/CastCard";
 import type {
   ArchiveShow,
   ArchiveShowSeason,
   SeasonEpisodes,
-  ShowCastMember,
   ShowDetail as ShowDetailData,
   ShowLink,
   ShowLinkKind,
@@ -377,7 +379,11 @@ export function ShowDetail({
             {detail.trailerKey ? (
               <section className={styles.section}>
                 <h2 className={styles.sectionTitle}>{t("trailer")}</h2>
-                <Trailer videoKey={detail.trailerKey} showTitle={show.title} />
+                <Trailer
+                  videoKey={detail.trailerKey}
+                  iframeTitle={t("trailerOf", { title: show.title })}
+                  playLabel={t("playTrailer")}
+                />
               </section>
             ) : null}
 
@@ -684,96 +690,6 @@ function ArchiveRow({ show }: { show: ArchiveShow }) {
   );
 }
 
-function formatDate(value: string, locale: string): string {
-  const date = new Date(value);
-  return Number.isNaN(date.getTime())
-    ? value
-    : new Intl.DateTimeFormat(locale, { dateStyle: "long" }).format(date);
-}
-
-function languageName(code: string, locale: string): string {
-  try {
-    return (
-      new Intl.DisplayNames([locale], { type: "language" }).of(code) ?? code
-    );
-  } catch {
-    return code;
-  }
-}
-
-function Trailer({
-  videoKey,
-  showTitle,
-}: {
-  videoKey: string;
-  showTitle: string;
-}) {
-  const t = useTranslations("show.detail");
-  const [playing, setPlaying] = useState(false);
-
-  if (playing) {
-    return (
-      <div className={styles.trailerFrame}>
-        <iframe
-          className={styles.trailerVideo}
-          src={`https://www.youtube-nocookie.com/embed/${videoKey}?autoplay=1&rel=0`}
-          title={t("trailerOf", { title: showTitle })}
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        />
-      </div>
-    );
-  }
-
-  return (
-    <button
-      type="button"
-      className={styles.trailerFrame}
-      onClick={() => setPlaying(true)}
-    >
-      <Image
-        src={`https://i.ytimg.com/vi/${videoKey}/hqdefault.jpg`}
-        alt=""
-        fill
-        sizes="(max-width: 900px) 100vw, 640px"
-        className={styles.trailerThumb}
-        unoptimized
-      />
-      <span className={styles.trailerPlay} aria-hidden>
-        ▶
-      </span>
-      <span className={styles.trailerLabel}>{t("playTrailer")}</span>
-    </button>
-  );
-}
-
-function CastCard({ member }: { member: ShowCastMember }) {
-  const photo = tmdbImage(member.profilePath, "w185");
-  return (
-    <li className={styles.castCard}>
-      <span className={styles.castPhoto}>
-        {photo ? (
-          <Image
-            src={photo}
-            alt=""
-            fill
-            sizes="88px"
-            className={styles.castImg}
-            unoptimized
-          />
-        ) : (
-          <span className={styles.castInitial} aria-hidden>
-            {member.name.slice(0, 1)}
-          </span>
-        )}
-      </span>
-      <span className={styles.castName}>{member.name}</span>
-      {member.character ? (
-        <span className={styles.castRole}>{member.character}</span>
-      ) : null}
-    </li>
-  );
-}
 
 function ProviderChip({
   provider,

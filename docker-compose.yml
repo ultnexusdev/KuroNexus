@@ -5,10 +5,18 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-kuronexus}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-kuronexus_dev_password}
+      # Varsayilan parola KALDIRILDI (1 Eylul 2026 denetimi, bulgu H-B2).
+      # Onceden burada calisan bir parola yaziliydi; bu dosya yanlislikla
+      # sunucuda kosturulursa PG bilinen bir parolayla ayaga kalkiyordu.
+      # `:?` ile degisken artik ZORUNLU: tanimsizsa compose anlasilir bir
+      # hatayla durur, sessizce zayif bir kurulum acmaz.
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD tanimlanmali (.env)}
       POSTGRES_DB: ${POSTGRES_DB:-kuronexus_dev}
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      # 127.0.0.1'e bagli: onceden 0.0.0.0'a aciliyordu, yani bu dosyanin
+      # kosturuldugu her makinede PG internete aciktı. Gelistirme akisi
+      # degismiyor - yerelden baglanti aynen calisiyor.
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     volumes:
       - kuronexus_db_data:/var/lib/postgresql/data
 

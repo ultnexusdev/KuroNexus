@@ -3,6 +3,8 @@
 // tipe atanabilir olduğu için künye sayfası da aynı yardımcıları kullanabilir.
 import type { BookListItem, BookTranslation } from "@/lib/api/types";
 import { matchesGenreKeys } from "./genres";
+// Üçüncü bir kopyası buradaydı; kural film/dizi ile aynı (D-F1).
+import { byNumber } from "@/lib/archive/filters";
 
 /**
  * Kitap arşivinin süzgeç ve sıralama kuralları.
@@ -30,9 +32,6 @@ export type SortKey = (typeof SORT_KEYS)[number];
 
 export const DEFAULT_SORT: SortKey = "added";
 
-export function isSortKey(value: string | null): value is SortKey {
-  return value !== null && (SORT_KEYS as readonly string[]).includes(value);
-}
 
 /**
  * Dönem kovaları — film salonundaki "Dönem" seçkisinin kitap karşılığı.
@@ -135,22 +134,6 @@ function matchesSearch(book: BookListItem, query: string): boolean {
 }
 
 /** Puansızlar sona: karşılaştırmada null yerine yön farkı gözetilir. */
-function byNumber(
-  a: number | null,
-  b: number | null,
-  direction: "asc" | "desc",
-): number {
-  if (a === null && b === null) {
-    return 0;
-  }
-  if (a === null) {
-    return 1;
-  }
-  if (b === null) {
-    return -1;
-  }
-  return direction === "desc" ? b - a : a - b;
-}
 
 // Jenerik: ne verilirse aynı tip geri dönüyor. Sabit `BookListItem[]`
 // yazılsaydı künye sayfası süzgeçten geçirdiği tam kaydın `description`ını

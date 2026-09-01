@@ -6,6 +6,7 @@ import { apiUrl, ApiError } from "@/lib/api/client";
 import { fetchMusicAlbum, type MusicAlbum } from "@/lib/api/music";
 import { readIsAdmin } from "@/lib/auth/session";
 import { musicHref, spotifyOpenUrl } from "@/lib/music/routes";
+import { formatDuration } from "@/lib/music/format";
 import { shareCard } from "@/lib/seo";
 import { upperProperName } from "@/lib/text";
 import { CoverArt, CoverTile } from "@/components/music/CoverArt";
@@ -96,11 +97,6 @@ function releaseLabel(
   });
 }
 
-function totalLength(ms: number): string {
-  const minutes = Math.round(ms / 60_000);
-  const hours = Math.floor(minutes / 60);
-  return hours > 0 ? `${hours} sa ${minutes % 60} dk` : `${minutes} dk`;
-}
 
 export default async function MusicAlbumPage({
   params,
@@ -159,7 +155,7 @@ export default async function MusicAlbumPage({
             {duration > 0 ? (
               <div>
                 <dt className={shell.label}>{t("album.duration")}</dt>
-                <dd>{totalLength(duration)}</dd>
+                <dd>{formatDuration(duration, t)}</dd>
               </div>
             ) : null}
             {album.label ? (

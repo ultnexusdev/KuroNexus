@@ -6,6 +6,7 @@ import { apiUrl, ApiError } from "@/lib/api/client";
 import { fetchMusicPlaylist, type MusicPlaylistDetail } from "@/lib/api/music";
 import { readIsAdmin } from "@/lib/auth/session";
 import { musicHref, spotifyOpenUrl } from "@/lib/music/routes";
+import { formatDuration } from "@/lib/music/format";
 import { shareCard } from "@/lib/seo";
 import { CoverArt } from "@/components/music/CoverArt";
 import { MusicCuratorSwitch } from "@/components/music/MusicCuratorSwitch";
@@ -68,14 +69,6 @@ export async function generateMetadata({
   }
 }
 
-function formatDuration(ms: number | null): string {
-  if (!ms || ms <= 0) {
-    return "";
-  }
-  const minutes = Math.round(ms / 60_000);
-  const hours = Math.floor(minutes / 60);
-  return hours > 0 ? `${hours} sa ${minutes % 60} dk` : `${minutes} dk`;
-}
 
 export default async function MusicPlaylistPage({
   params,
@@ -114,7 +107,7 @@ export default async function MusicPlaylistPage({
           <span className={shell.label}>
             {t("playlists.trackCount", { count: playlist.trackCount })}
             {playlist.durationMs
-              ? ` · ${formatDuration(playlist.durationMs)}`
+              ? ` · ${formatDuration(playlist.durationMs, t) ?? ""}`
               : ""}
           </span>
           {playlist.spotifyId ? (

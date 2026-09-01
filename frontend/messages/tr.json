@@ -2679,6 +2679,12 @@
   "music": {
     "name": "Müzik",
     "hall": "Salon",
+    "duration": {
+      "hoursMinutes": "{hours} sa {minutes} dk",
+      "minutes": "{minutes} dk",
+      "hoursMinutesCompact": "{hours}s {minutes}d",
+      "minutesCompact": "{minutes}d"
+    },
     "lede": "Bu sayfa bir kavşak: listeler, sanatçılar ve dinleme kaydı buradan açılıyor. Türler ayrı odalarda duruyor ama listeler türe bakmıyor — bir sette hem riff hem r&b olabilir.",
     "backToNexus": "Nexus'a dön",
     "lastSync": "Son eşitleme",

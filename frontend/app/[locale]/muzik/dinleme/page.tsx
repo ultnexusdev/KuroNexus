@@ -7,6 +7,7 @@ import {
   type MusicListening,
 } from "@/lib/api/music";
 import { genreColorVar, musicHref } from "@/lib/music/routes";
+import { formatDurationCompact } from "@/lib/music/format";
 import { shareCard } from "@/lib/seo";
 import { CoverArt } from "@/components/music/CoverArt";
 import { GenreMixBar } from "@/components/music/GenreMixBar";
@@ -61,13 +62,6 @@ function parseRange(value: string | undefined): ListeningRange {
   return RANGES.includes(upper) ? upper : "FOUR_WEEKS";
 }
 
-/** "61s 24d" — tasarımdaki biçim. */
-function formatListeningTime(ms: number): string {
-  const totalMinutes = Math.round(ms / 60_000);
-  const hours = Math.floor(totalMinutes / 60);
-  const minutes = totalMinutes % 60;
-  return hours > 0 ? `${hours}s ${String(minutes).padStart(2, "0")}d` : `${minutes}d`;
-}
 
 export default async function ListeningPage({
   searchParams,
@@ -239,13 +233,20 @@ export default async function ListeningPage({
 
 async function ListeningStats({ data }: { data: MusicListening }) {
   const t = await getTranslations("music.listening");
+  // Süre etiketleri bir üst ad alanında duruyor (`music.duration.*`): biçim
+  // müzik kanadının tamamında ortak, yalnız bu sayfaya ait değil.
+  const tMusic = await getTranslations("music");
   const day =
     data.busiestDay !== null
       ? t(`days.${data.busiestDay.dayOfWeek}` as "days.0")
       : "—";
 
   const cards = [
-    { key: "time", label: t("totalTime"), value: formatListeningTime(data.totals.msPlayed) },
+    {
+      key: "time",
+      label: t("totalTime"),
+      value: formatDurationCompact(data.totals.msPlayed, tMusic),
+    },
     {
       key: "artists",
       label: t("distinctArtists"),

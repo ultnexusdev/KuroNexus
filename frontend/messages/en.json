@@ -2679,6 +2679,12 @@
   "music": {
     "name": "Music",
     "hall": "Hall",
+    "duration": {
+      "hoursMinutes": "{hours} hr {minutes} min",
+      "minutes": "{minutes} min",
+      "hoursMinutesCompact": "{hours}h {minutes}m",
+      "minutesCompact": "{minutes}m"
+    },
     "lede": "This page is a junction: playlists, artists and the listening log open from here. Genres live in separate rooms, but playlists ignore genre — one set can hold both a riff and r&b.",
     "backToNexus": "Back to Nexus",
     "lastSync": "Last sync",

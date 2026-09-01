@@ -4,6 +4,7 @@ import { Link } from "@/lib/i18n/navigation";
 import { fetchMusicPlaylists } from "@/lib/api/music";
 import { readIsAdmin } from "@/lib/auth/session";
 import { musicHref } from "@/lib/music/routes";
+import { formatDuration } from "@/lib/music/format";
 import { shareCard } from "@/lib/seo";
 import { CoverArt } from "@/components/music/CoverArt";
 import { GenreMixBar } from "@/components/music/GenreMixBar";
@@ -38,14 +39,6 @@ export async function generateMetadata({
   };
 }
 
-function formatDuration(ms: number | null): string {
-  if (!ms || ms <= 0) {
-    return "";
-  }
-  const minutes = Math.round(ms / 60_000);
-  const hours = Math.floor(minutes / 60);
-  return hours > 0 ? `${hours} sa ${minutes % 60} dk` : `${minutes} dk`;
-}
 
 export default async function MusicPlaylistsPage() {
   const isAdmin = await readIsAdmin();
@@ -88,7 +81,7 @@ export default async function MusicPlaylistsPage() {
                   <span className={shell.label}>
                     {t("playlists.trackCount", { count: playlist.trackCount })}
                     {playlist.durationMs
-                      ? ` · ${formatDuration(playlist.durationMs)}`
+                      ? ` · ${formatDuration(playlist.durationMs, t) ?? ""}`
                       : ""}
                   </span>
                   {playlist.description ? (

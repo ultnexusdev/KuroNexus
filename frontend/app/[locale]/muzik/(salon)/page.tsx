@@ -6,6 +6,7 @@ import { fetchMusicOverview } from "@/lib/api/music";
 import { readIsAdmin } from "@/lib/auth/session";
 import { hallLabel, hallNumber } from "@/lib/halls";
 import { musicHref, genreColorVar, spotifyOpenUrl } from "@/lib/music/routes";
+import { formatDuration } from "@/lib/music/format";
 import { shareCard } from "@/lib/seo";
 import { CoverArt } from "@/components/music/CoverArt";
 import { GenreMixBar } from "@/components/music/GenreMixBar";
@@ -68,15 +69,6 @@ async function getHallLabel(): Promise<string> {
   }
 }
 
-function formatDuration(ms: number | null): string | null {
-  if (!ms || ms <= 0) {
-    return null;
-  }
-  const totalMinutes = Math.round(ms / 60_000);
-  const hours = Math.floor(totalMinutes / 60);
-  const minutes = totalMinutes % 60;
-  return hours > 0 ? `${hours} sa ${minutes} dk` : `${minutes} dk`;
-}
 
 export default async function MusicHallPage() {
   /**
@@ -208,7 +200,7 @@ export default async function MusicHallPage() {
         ) : (
           <ul className={styles.playlistGrid}>
             {overview.playlists.map((playlist) => {
-              const duration = formatDuration(playlist.durationMs);
+              const duration = formatDuration(playlist.durationMs, t);
               return (
                 /* ⚠️ Kart 13 Ağustos'a kadar BAĞLANTISIZDI: tıklanınca hiçbir
                    şey olmuyordu (kullanıcı bildirimi — "SPOR listesi var ama

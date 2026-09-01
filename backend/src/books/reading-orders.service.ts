@@ -279,7 +279,9 @@ export class ReadingOrdersService {
 
   /** Arşivdeki kitapların dizini — "sende var" işareti için. */
   private async readArchiveIndex(): Promise<ArchiveIndex> {
-    const { books } = await this.books.getArchive();
+    // `getArchive()` DEĞİL — gerekçe `awards.service.ts`teki ikiziyle aynı
+    // (1 Eylül 2026 denetimi, API-06).
+    const books = await this.books.getArchiveIndex();
     const byTitle = new Map<string, ArchiveHit>();
     const bySourceSlug = new Map<string, ArchiveHit>();
     for (const book of books) {

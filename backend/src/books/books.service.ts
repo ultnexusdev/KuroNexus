@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { slugify } from '../common/utils/slugify';
+import { deriveArchiveSlug } from './archive-slug';
 import { GoogleBooksService, type BookSource } from './google-books.service';
 import {
   binKitapSlug,
@@ -210,6 +211,19 @@ export type BookListItem = Omit<ArchiveBook, 'description'>;
 function toListItem({ description: _unused, ...rest }: ArchiveBook): BookListItem {
   return rest;
 }
+
+/** `getArchiveIndex()` satırı: rozet eşleşmesi için gereken en dar küme. */
+export type ArchiveIndexEntry = Pick<
+  BookEntry,
+  | 'title'
+  | 'originalTitle'
+  | 'firstPublishedYear'
+  | 'coverImage'
+  | 'googleId'
+  | 'binKitapSlug'
+  | 'status'
+  | 'authors'
+> & { slug: string };
 
 export interface BookArchive {
   books: BookListItem[];
@@ -420,6 +434,43 @@ export class BooksService {
       recent: listed.slice(0, RECENT_LIMIT),
       quoteOfTheDay: await this.pickQuoteOfTheDay(books),
     };
+  }
+
+  /**
+   * Arşivin ince dizini — yalnızca "bu kitap sende var mı" sorusu için
+   * (1 Eylül 2026 denetimi, bulgu API-06).
+   *
+   * Ödül ve okuma-sırası uçları bu bilgiyi almak için `getArchive()`
+   * çağırıyordu: ~10 sorgu, üç ilişki (`CREDITS_INCLUDE`), tam kayıtlar ve
+   * üstüne istatistik/seri/yazar/tür derlemeleri — hepsi dört public uçta,
+   * istek başına, önbelleksiz. Oysa kullanılan alanlar aşağıdaki sekiz sütun.
+   *
+   * ⚠️ `where` ve `orderBy` `getArchive()` ile BİREBİR aynı olmak zorunda:
+   * slug liste sırasından türetiliyor, sıralama kayarsa bu dizindeki slug'lar
+   * gerçek kitap sayfalarının slug'larından farklı çıkar ve rozetler sessizce
+   * yanlış kitaba bağlanır. Türetme kuralı da bu yüzden kopyalanmadı,
+   * `deriveArchiveSlug` ile paylaşılıyor.
+   */
+  async getArchiveIndex(): Promise<ArchiveIndexEntry[]> {
+    const rows = await this.prisma.bookEntry.findMany({
+      where: { isDeleted: false },
+      orderBy: [{ finishedAt: 'desc' }, { createdAt: 'desc' }],
+      select: {
+        title: true,
+        originalTitle: true,
+        firstPublishedYear: true,
+        coverImage: true,
+        googleId: true,
+        binKitapSlug: true,
+        status: true,
+        authors: true,
+      },
+    });
+    const used = new Set<string>();
+    return rows.map((row, index) => ({
+      ...row,
+      slug: deriveArchiveSlug(row.title, row.firstPublishedYear, index, used),
+    }));
   }
 
   /** Kitap sayfası: künye + alıntılar + seri + komşular + evren bağı. */
@@ -1799,16 +1850,12 @@ export function withSlugs(entries: BookEntryWithCredits[]): ArchiveBook[] {
   const used = new Set<string>();
   return entries.map((entry, index) => {
     const book = toArchiveBook(entry);
-    const base = slugify(book.title) || `kitap-${index + 1}`;
-    const withYear = book.firstPublishedYear
-      ? `${base}-${book.firstPublishedYear}`
-      : base;
-    const slug = !used.has(base)
-      ? base
-      : !used.has(withYear)
-        ? withYear
-        : `${base}-${index + 1}`;
-    used.add(slug);
+    const slug = deriveArchiveSlug(
+      book.title,
+      book.firstPublishedYear,
+      index,
+      used,
+    );
     return { ...book, slug };
   });
 }

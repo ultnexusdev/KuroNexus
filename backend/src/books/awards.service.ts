@@ -187,8 +187,8 @@ export class AwardsService {
 
   /** Ödüller sayfasının üst listesi. Dış istek YOK, hep hızlı. */
   async list(): Promise<AwardSummary[]> {
-    const [matches, archive, people] = await Promise.all([
-      this.readMatches(AWARDS.flatMap((award) => award.winners)),
+    const [{ matches }, archive, people] = await Promise.all([
+      this.readCacheState(AWARDS.flatMap((award) => award.winners)),
       this.readArchiveIndex(),
       this.readPersonIndex(),
     ]);
@@ -205,11 +205,10 @@ export class AwardsService {
       throw new NotFoundException('BOOKS.AWARD_NOT_FOUND');
     }
 
-    const [matches, archive, people, settled] = await Promise.all([
-      this.readMatches(award.winners),
+    const [{ matches, settled }, archive, people] = await Promise.all([
+      this.readCacheState(award.winners),
       this.readArchiveIndex(),
       this.readPersonIndex(),
-      this.readSettled(award.winners),
     ]);
 
     const winners = award.winners.map((winner) =>
@@ -251,12 +250,22 @@ export class AwardsService {
     limit: number,
   ): Promise<{ checked: number; filled: number; localized: number }> {
     const all = AWARDS.flatMap((award) => award.winners);
-    const settled = await this.readSettled(all);
+    const { settled } = await this.readCacheState(all);
     const missing = all.filter((winner) => !settled.has(cacheKey(winner)));
     const filled = await this.resolveMany(missing.slice(0, limit));
-    // Isıtma turunun ikinci yarısı: cache'de duran dış adresleri içeri al
+    /**
+     * Isıtma turunun ikinci yarısı: cache'de duran dış adresleri içeri al.
+     *
+     * Cache burada BİLEREK ikinci kez okunuyor — `resolveMany` az önce yeni
+     * eşleşmeler yazmış olabilir ve onların kapakları da bu turda inmeli.
+     * İlk okumanın sonucunu yeniden kullanmak, yeni çözülen kitapların
+     * kapaklarını bir sonraki tura erteleyen sessiz bir gerileme olurdu.
+     * (API-10'un hedefi istek yolundaki çift sorguydu; burası cron/admin
+     * yolu ve okuma arasında veri değişiyor.)
+     */
+    const { matches } = await this.readCacheState(all);
     const localized = await this.localizeCovers(
-      this.pendingCovers(await this.readMatches(all)).slice(0, limit),
+      this.pendingCovers(matches).slice(0, limit),
     );
     return { checked: all.length, filled, localized };
   }
@@ -356,19 +365,36 @@ export class AwardsService {
     return { bySlug, bySeoName };
   }
 
-  /** Cache'deki eşleşmeleri tek sorguda okur. */
-  private async readMatches(
-    winners: AwardWinner[],
-  ): Promise<Map<string, AwardMatch>> {
+  /**
+   * Cache durumunu TEK sorguda okur: hem eşleşmeler hem "aradık, sonuçlandı"
+   * anahtarları.
+   *
+   * Önceden bu iş iki ayrı metottu (`readMatches` + `readSettled`) ve ikisi de
+   * aynı `IN` listesiyle aynı tabloyu sorguluyordu — ödül detayında ikisi aynı
+   * `Promise.all` içinde yan yana çağrılıyordu, yani her istekte 235
+   * anahtarlık sorgu iki kez koşuyordu (1 Eylül 2026 denetimi, API-10).
+   * `settled` zaten `matches`ın okuduğu satırlardan türetilebiliyor.
+   *
+   * AYRIM: `settled`, taze olan HER kaydı içerir — eşleşmiş olanları da,
+   * "aradık ama bulamadık" diye yazılanları da. `matches` yalnızca
+   * eşleşenleri taşır. Arka plan doldurması `settled`e bakar ki bulunamayan
+   * kitaplar her açılışta yeniden aranmasın.
+   */
+  private async readCacheState(winners: AwardWinner[]): Promise<{
+    matches: Map<string, AwardMatch>;
+    settled: Set<string>;
+  }> {
     const keys = [...new Set(winners.map((winner) => cacheKey(winner)))];
     const rows = await this.prisma.externalCache.findMany({
       where: { cacheKey: { in: keys } },
     });
-    const map = new Map<string, AwardMatch>();
+    const matches = new Map<string, AwardMatch>();
+    const settled = new Set<string>();
     for (const row of rows) {
       if (Date.now() - row.fetchedAt.getTime() > CACHE_TTL_MS) {
         continue;
       }
+      settled.add(row.cacheKey);
       const payload = row.payload as unknown as AwardMatchPayload | null;
       // Eşleşmesi bulunamayan kitaplar da yazılıyor (bkz. resolveOne) ki her
       // açılışta yeniden aranmasınlar; onlar `matched: false` taşıyor
@@ -378,35 +404,20 @@ export class AwardsService {
       // `authorSeo` sonradan eklendi ve **cache sürümü artırılmadı**: eski
       // kayıtlarda yok, o zaman yazar bağı adın katlanmış hâline düşüyor.
       // Sürüm artsaydı ölçülmüş 90 günlük eşleşmelerin tamamı çöpe giderdi.
-      map.set(row.cacheKey, {
+      matches.set(row.cacheKey, {
         book: payload.book,
         authorSeo: payload.authorSeo ?? null,
       });
     }
-    return map;
-  }
-
-  /**
-   * Cache'de **eşleşmediği bilinen** kayıtların anahtarları. `readMatches`
-   * bunları atladığı için, arka plan doldurması onları sürekli yeniden
-   * aramasın diye ayrıca okunuyor.
-   */
-  private async readSettled(winners: AwardWinner[]): Promise<Set<string>> {
-    const keys = [...new Set(winners.map((winner) => cacheKey(winner)))];
-    const rows = await this.prisma.externalCache.findMany({
-      where: { cacheKey: { in: keys } },
-      select: { cacheKey: true, fetchedAt: true },
-    });
-    return new Set(
-      rows
-        .filter((row) => Date.now() - row.fetchedAt.getTime() <= CACHE_TTL_MS)
-        .map((row) => row.cacheKey),
-    );
+    return { matches, settled };
   }
 
   /** Arşivdeki kitapların kimlik ve ad dizini — "sende var" rozeti için. */
   private async readArchiveIndex(): Promise<ArchiveIndex> {
-    const { books } = await this.books.getArchive();
+    // `getArchive()` DEĞİL: o çağrı ~10 sorgu + tam kayıt + istatistik
+    // derlemesi demekti, buradaysa yalnızca slug/kapak/ad/yazar kullanılıyor
+    // (1 Eylül 2026 denetimi, API-06).
+    const books = await this.books.getArchiveIndex();
 
     const byGoogleId = new Map<string, ArchiveHit>();
     const byTitle = new Map<string, ArchiveHit>();

@@ -4,7 +4,8 @@ import type { LocalizedText } from "./types";
  * Megumi Fushiguro — "Gölge Menajerisi" (`ShadowMenagerieExperience`) verisi.
  *
  * ⚠️ BU DOSYA YENİ. Eski veri dosyası
- * `components/character/.deprecated/megumi-fushiguro/data.ts` altında duruyor;
+ * `components/character/.deprecated/megumi-fushiguro/data.ts` altındaydı
+ * (2026-09-01'de silindi — denetim B-06, git geçmişinde duruyor);
  * oradan METİN taşındı ama hiçbir şey import edilmedi (Faz 2 · Dalga 5 şartı).
  * Taşınırken düzeltilen üç şey aşağıda "DÜZELTİLENLER" başlığında yazılı.
  *

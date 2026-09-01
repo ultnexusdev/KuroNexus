@@ -13,7 +13,7 @@ import { ReliquaryExperience } from "@/components/character/suguru-getou/Reliqua
  * gerekçe: lib/characters/experience-page.tsx). Statik parça dinamik
  * parçadan önce eşleştiği için adres değişmedi.
  * 30 Ağustos 2026'da bileşen seti YENİDEN yazıldı (Faz 2, Dalga 5).
- * Eski set silinmedi: components/character/.deprecated/suguru-getou/ altında duruyor.
+ * Eski set 2026-09-01'de silindi (denetim B-06); git geçmişinde duruyor.
  */
 
 export const dynamic = "force-dynamic";

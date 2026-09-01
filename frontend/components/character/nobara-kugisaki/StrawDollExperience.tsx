@@ -59,8 +59,9 @@ import styles from "./StrawDollExperience.module.css";
  *
  * /dark-stories/category/anime/karakterler/133700 bu bileşene çıkıyor (kendi
  * statik rota klasörü). 31 Ağustos 2026'da SIFIRDAN yazıldı; eski set
- * `components/character/.deprecated/nobara-kugisaki/` altında duruyor ve
- * buradan HİÇ import edilmiyor.
+ * `components/character/.deprecated/nobara-kugisaki/` altındaydı (2026-09-01'de
+ * silindi — denetim B-06, git geçmişinde duruyor) ve buradan HİÇ import
+ * edilmedi.
  *
  * ── NEDEN BÖYLE GÖRÜNÜYOR ────────────────────────────────────────────────
  * Fikir tek cümle: BU BİR TOKYO MODA DERGİSİ SAYFASI. Kart ızgarası yok,

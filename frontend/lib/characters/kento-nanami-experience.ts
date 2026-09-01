@@ -6,8 +6,9 @@ import type { LocalizedText } from "./types";
  * ── BU DOSYA NEDEN YENİDEN YAZILDI ───────────────────────────────────────
  * 25 Ağustos 2026'daki ilk Nanami sayfası ("Yedi Üçe") beş JJK sayfasıyla
  * birlikte reddedildi: hepsi aynı şablondan çıkmıştı. Eski set
- * `components/character/.deprecated/kento-nanami/` altında duruyor ve orada
- * kalıyor. Buradaki METİNLERİN bir kısmı oradan taşındı (biyografi,
+ * `components/character/.deprecated/kento-nanami/` altındaydı; 2026-09-01'de
+ * silindi (denetim B-06), git geçmişinde duruyor. Buradaki METİNLERİN bir
+ * kısmı oradan taşındı (biyografi,
  * kronoloji, iki replik); ama görsel kimlik, mekanik ve terminoloji baştan
  * kuruldu. Eski mekanik (tahmin → ölç → kes, hep %70) yasak listesinde.
  *

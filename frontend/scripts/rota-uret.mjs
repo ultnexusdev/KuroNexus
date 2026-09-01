@@ -68,7 +68,7 @@ for (const [id, ad, slug, comp, seri] of liste) {
   }
   mkdirSync(dir, { recursive: true });
   const eskiNot = yenidenYaz
-    ? `\n * 30 Ağustos 2026'da bileşen seti YENİDEN yazıldı (Faz 2, Dalga 5).\n * Eski set silinmedi: components/character/.deprecated/${slug}/ altında duruyor.`
+    ? `\n * 30 Ağustos 2026'da bileşen seti YENİDEN yazıldı (Faz 2, Dalga 5).\n * Eski set 2026-09-01'de silindi (denetim B-06); git geçmişinde duruyor.`
     : "";
   writeFileSync(
     dosya,

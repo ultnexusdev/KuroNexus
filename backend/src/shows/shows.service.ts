@@ -14,6 +14,7 @@ import {
 } from './tmdb-tv.service';
 import { slugify } from '../common/utils/slugify';
 import { normalizeUrl } from '../common/utils/normalize-url';
+import { dedupe, interleave, shuffle } from '../common/tmdb/suggestion-mixer';
 import { CreateShowEntryDto } from './dto/create-show-entry.dto';
 import { UpdateShowEntryDto } from './dto/update-show-entry.dto';
 import { UpdateShowSeasonDto } from './dto/update-show-season.dto';
@@ -385,37 +386,9 @@ export class ShowsService {
     const taste = shuffle(dedupe(tasteLists.flat(), known));
     const buzz = shuffle(dedupe([...trending, ...popular1], known));
 
-    const streams: TmdbSearchResult[][] = [explore, taste, explore, buzz];
-    const cursors = [0, 0, 0, 0];
-    const mixed: TmdbSearchResult[] = [];
-    const taken = new Set<number>();
-    while (mixed.length < SUGGESTION_POOL) {
-      let progressed = false;
-      for (let s = 0; s < streams.length; s += 1) {
-        const stream = streams[s];
-        while (
-          cursors[s] < stream.length &&
-          taken.has(stream[cursors[s]].tmdbId)
-        ) {
-          cursors[s] += 1;
-        }
-        if (cursors[s] >= stream.length) {
-          continue;
-        }
-        const item = stream[cursors[s]];
-        cursors[s] += 1;
-        taken.add(item.tmdbId);
-        mixed.push(item);
-        progressed = true;
-        if (mixed.length >= SUGGESTION_POOL) {
-          break;
-        }
-      }
-      if (!progressed) {
-        break;
-      }
-    }
-    return mixed;
+    // Dizim kuralı film kanadıyla ORTAK ve testli
+    // (`common/tmdb/suggestion-mixer.ts`): iki keşif, bir zevk, bir gündem.
+    return interleave([explore, taste, explore, buzz], SUGGESTION_POOL);
   }
 
   async dismissSuggestion(
@@ -872,29 +845,6 @@ export class ShowsService {
       return { payload: undefined, fetchedAt: null, show: null };
     }
   }
-}
-
-function dedupe(
-  items: TmdbSearchResult[],
-  known: Set<number>,
-): TmdbSearchResult[] {
-  const seen = new Set<number>();
-  return items.filter((item) => {
-    if (known.has(item.tmdbId) || seen.has(item.tmdbId)) {
-      return false;
-    }
-    seen.add(item.tmdbId);
-    return true;
-  });
-}
-
-function shuffle<T>(items: T[]): T[] {
-  const copy = [...items];
-  for (let i = copy.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]];
-  }
-  return copy;
 }
 
 /**

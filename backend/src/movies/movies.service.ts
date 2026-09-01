@@ -13,6 +13,7 @@ import {
 } from './tmdb.service';
 import { slugify } from '../common/utils/slugify';
 import { normalizeUrl } from '../common/utils/normalize-url';
+import { dedupe, interleave, shuffle } from '../common/tmdb/suggestion-mixer';
 import { CreateMovieEntryDto } from './dto/create-movie-entry.dto';
 import { UpdateMovieEntryDto } from './dto/update-movie-entry.dto';
 import type { MovieEntry, Prisma } from '../generated/prisma/client';
@@ -114,8 +115,6 @@ const MOVIE_LINK_FIELDS = [
   'imdb',
   'trailer',
 ] as const satisfies ReadonlyArray<keyof MovieCustomLinks>;
-
-/** Şemasız yapıştırılan adrese `https://` ekler; boş metin null döner. */
 
 export interface ArchiveMovie {
   id: string;
@@ -376,39 +375,9 @@ export class MoviesService {
     const buzz = shuffle(dedupe([...trending, ...popular1], known));
 
     // Dönüşümlü dizim: iki keşif, bir zevk, bir gündem. Keşif ağır basıyor —
-    // havuz gündemin dar penceresine sıkışmasın.
-    const streams: TmdbSearchResult[][] = [explore, taste, explore, buzz];
-    const cursors = [0, 0, 0, 0];
-    const mixed: TmdbSearchResult[] = [];
-    const taken = new Set<number>();
-    while (mixed.length < SUGGESTION_POOL) {
-      let progressed = false;
-      for (let s = 0; s < streams.length; s += 1) {
-        const stream = streams[s];
-        // explore iki kez listede: aynı elemanı iki kez almamak için işaretli
-        while (
-          cursors[s] < stream.length &&
-          taken.has(stream[cursors[s]].tmdbId)
-        ) {
-          cursors[s] += 1;
-        }
-        if (cursors[s] >= stream.length) {
-          continue;
-        }
-        const item = stream[cursors[s]];
-        cursors[s] += 1;
-        taken.add(item.tmdbId);
-        mixed.push(item);
-        progressed = true;
-        if (mixed.length >= SUGGESTION_POOL) {
-          break;
-        }
-      }
-      if (!progressed) {
-        break;
-      }
-    }
-    return mixed;
+    // havuz gündemin dar penceresine sıkışmasın. Dizim kuralı ortak hatta
+    // (`common/tmdb/suggestion-mixer.ts`) ve testli.
+    return interleave([explore, taste, explore, buzz], SUGGESTION_POOL);
   }
 
   /**
@@ -642,28 +611,6 @@ export class MoviesService {
 }
 
 /** Arşivde olanları ve tekrarları eler. */
-function dedupe(
-  items: TmdbSearchResult[],
-  known: Set<number>,
-): TmdbSearchResult[] {
-  const seen = new Set<number>();
-  return items.filter((item) => {
-    if (known.has(item.tmdbId) || seen.has(item.tmdbId)) {
-      return false;
-    }
-    seen.add(item.tmdbId);
-    return true;
-  });
-}
-
-function shuffle<T>(items: T[]): T[] {
-  const copy = [...items];
-  for (let i = copy.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]];
-  }
-  return copy;
-}
 
 /**
  * Filmlere adres verir (anime salonundaki desen). Slug veritabanında

@@ -32,6 +32,7 @@
 | Etiket | Nereye döner |
 | --- | --- |
 | `yedek-denetim-oncesi-2026-09-01` | Denetim uygulamasından ÖNCE (`83870ff`, B-06 sonrası) |
+| `yedek-gece-sonu-2026-09-02` | 2 Eylül gecesinin sonu (`d9c8b8c`): Critical/High kapalı, D-B7 TMDB kanadı canlıda |
 
 `main`'in tamamı canlıda ve doğrulanmış; pushlanmamış commit yok. Çalışma
 ağacı temiz (jujutsu-kaisen görsel seti 2 Eylül gecesi

@@ -15,6 +15,7 @@ import { CharacterPlate } from "./CharacterPlate";
 import { CuratorModeContext } from "./CuratorFrame";
 import styles from "./CharacterGallery.module.css";
 import { CuratorDock } from "@/components/curated/CuratorDock";
+import { animeHref } from "@/lib/anime/routes";
 
 /**
  * Portre kanadı — arşivdeki bütün serilerin kadroları tek ızgarada.
@@ -184,7 +185,7 @@ export function CharacterGallery({
     const pick = visible[Math.floor(Math.random() * visible.length)];
     startNavigation(() => {
       router.push(
-        `/dark-stories/category/anime/karakterler/${pick.characterId}`,
+        animeHref.character(pick.characterId),
       );
     });
   };
@@ -217,7 +218,7 @@ export function CharacterGallery({
         <header className={styles.head}>
           {/* Salon girişine döner, arşive değil: bu oda oraya bağlı
               (lobideki bölüm listesi bu sayfanın kapısı) */}
-          <Link href="/dark-stories/category/anime" className={styles.back}>
+          <Link href={animeHref.hall()} className={styles.back}>
             {t("backToArchive")}
           </Link>
           <span className={styles.eyebrow}>

@@ -26,6 +26,7 @@ import {
 } from "./CharacterSections";
 import { TagRow } from "./CharacterSections";
 import styles from "./CharacterDossier.module.css";
+import { animeHref } from "@/lib/anime/routes";
 
 /**
  * Karakter dosyası.
@@ -131,7 +132,7 @@ export function CharacterDossier({
     <div className={styles.hall} data-category="anime">
       <div className={styles.page}>
         <Link
-          href="/dark-stories/category/anime/karakterler"
+          href={animeHref.characters()}
           className={styles.back}
         >
           {t("backToGallery")}
@@ -206,7 +207,7 @@ export function CharacterDossier({
                 {archiveSeries.map((series) => (
                   <li key={series.slug}>
                     <Link
-                      href={`/dark-stories/category/anime/${series.slug}`}
+                      href={animeHref.series(series.slug)}
                       className={styles.seriesLink}
                     >
                       {series.title}
@@ -416,7 +417,7 @@ export function CharacterDossier({
                       <span className={styles.appearanceTitle}>
                         {appearance.archiveSlug ? (
                           <Link
-                            href={`/dark-stories/category/anime/${appearance.archiveSlug}`}
+                            href={animeHref.series(appearance.archiveSlug)}
                             className={styles.appearanceLink}
                           >
                             {appearance.title}
@@ -507,7 +508,7 @@ function AppearanceFrame({ appearance }: { appearance: CharacterAppearance }) {
 
   return (
     <Link
-      href={`/dark-stories/category/anime/${appearance.archiveSlug}`}
+      href={animeHref.series(appearance.archiveSlug)}
       className={styles.appearanceFrame}
       aria-label={appearance.title}
     >

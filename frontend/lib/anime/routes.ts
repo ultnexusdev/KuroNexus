@@ -7,9 +7,10 @@
  * sayfaları) spor göçünün Faz 1 deseniyle ŞİMDİLİK eski ağaçta duruyor —
  * taşınırlarsa yalnızca bu dosya değişir.
  *
- * ⚠️ Eski ağaçtaki elle yazılmış adresler (AnimeCard, CharacterPlate vb.)
- * henüz süpürülmedi — ayrı temizlik turu (PLAN.md TODO). Yeni kod bu
- * dosyadan okur.
+ * Eski ağaçtaki elle yazılmış adresler 2 Eylül 2026'da süpürüldü (H-F3):
+ * bileşen, lib ve sayfa dosyalarında sıfır literal kaldı; iki eski
+ * salon-kökü bağlantısı (`/dark-stories/category/anime`, 301 yiyordu) da
+ * `hall()`a döndü. Bilinçli istisna: `app/sitemap.ts` (merkez) ve yorumlar.
  */
 
 const OLD_TREE = "/dark-stories/category/anime";
@@ -36,7 +37,9 @@ export const animeHref = {
   /** Karakter dizini */
   characters: () => `${OLD_TREE}/karakterler`,
   /** Karakter dosyası — kimlik AniList numarası */
-  character: (characterId: number) => `${OLD_TREE}/karakterler/${characterId}`,
+  /** Kimlik sayıdır; rota parametresinden (dize) gelen çağrılar da olur */
+  character: (characterId: number | string) =>
+    `${OLD_TREE}/karakterler/${characterId}`,
   /** Seri sayfası (başlıktan türetilen slug) */
   series: (slug: string) => `${OLD_TREE}/${slug}`,
 };

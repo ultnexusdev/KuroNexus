@@ -1,3 +1,4 @@
+import { showHref } from "@/lib/show/routes";
 /**
  * Dizi salonunun bölümleri — film salonundaki `lib/film/sections.ts` ile
  * aynı desen.
@@ -13,6 +14,6 @@ export const SHOW_SECTIONS: ShowSection[] = [
   {
     slug: "arsiv",
     key: "archive",
-    href: "/dark-stories/category/dizi/arsiv",
+    href: showHref.archive(),
   },
 ];

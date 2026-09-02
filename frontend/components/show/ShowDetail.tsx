@@ -24,6 +24,7 @@ import styles from "./ShowDetail.module.css";
 import { Lightbox } from "@/components/hall/Lightbox";
 import { ArchiveAddButtons } from "@/components/hall/ArchiveAddButtons";
 import { CuratorDock } from "@/components/curated/CuratorDock";
+import { showHref } from "@/lib/show/routes";
 
 /**
  * Dizi sayfası — film salonundaki `MovieDetail`ın aynısı. Künye levhasında
@@ -87,7 +88,7 @@ export function ShowDetail({
       <div className={styles.inner}>
         <div className={styles.topBar}>
           <Link
-            href="/dark-stories/category/dizi/arsiv"
+            href={showHref.archive()}
             className={styles.back}
           >
             {tShow("backToArchive")}
@@ -659,7 +660,7 @@ function ArchiveRow({ show }: { show: ArchiveShow }) {
   return (
     <li>
       <Link
-        href={`/dark-stories/category/dizi/${show.slug}`}
+        href={showHref.show(show.slug)}
         className={styles.similarRow}
       >
         <span className={styles.similarPoster}>
@@ -829,7 +830,7 @@ function SimilarRow({
   const row =
     show.inArchive && show.slug ? (
       <Link
-        href={`/dark-stories/category/dizi/${show.slug}`}
+        href={showHref.show(show.slug)}
         className={styles.similarRow}
       >
         {body}

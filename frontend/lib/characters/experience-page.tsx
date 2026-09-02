@@ -6,6 +6,7 @@ import type { CharacterDetail, CharacterImageRow } from "@/lib/api/types";
 import { shareCard } from "@/lib/seo";
 import { experienceCompanionIds } from "./experiences";
 import { EXPERIENCE_ROSTER } from "./roster";
+import { animeHref } from "@/lib/anime/routes";
 
 /**
  * Deneyim sayfalarının ortak sunucu işi — künye, yönetici bayrağı, yoldaş
@@ -105,7 +106,7 @@ export async function experienceMetadata(
       title: displayName,
       description,
       locale,
-      path: `/dark-stories/category/anime/karakterler/${characterId}`,
+      path: animeHref.character(characterId),
       image: character.image,
     }),
   };

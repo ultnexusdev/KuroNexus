@@ -1,4 +1,5 @@
 import type { ArchiveAnime } from "@/lib/api/types";
+import { animeHref } from "@/lib/anime/routes";
 
 /**
  * Anime salonunun rafları. Film salonundaki desen: raf anahtarı ile URL
@@ -41,7 +42,7 @@ export function shelfFromSlug(slug: string): ShelfKey | null {
 }
 
 export function shelfHref(key: ShelfKey): string {
-  return `/dark-stories/category/anime/arsiv/${SHELF_SLUGS[key]}`;
+  return animeHref.shelf(SHELF_SLUGS[key]);
 }
 
 /**

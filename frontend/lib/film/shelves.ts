@@ -1,4 +1,5 @@
 import type { ArchiveMovie } from "@/lib/api/types";
+import { filmHref } from "@/lib/film/routes";
 
 /**
  * Salonun rafları. Raf anahtarı ile URL parçası tek yerde eşleşir; hem salon
@@ -29,7 +30,7 @@ export function shelfFromSlug(slug: string): ShelfKey | null {
 }
 
 export function shelfHref(key: ShelfKey): string {
-  return `/dark-stories/category/film/arsiv/${SHELF_SLUGS[key]}`;
+  return filmHref.shelf(SHELF_SLUGS[key]);
 }
 
 /**

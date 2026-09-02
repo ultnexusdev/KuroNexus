@@ -7,6 +7,7 @@ import { Link } from "@/lib/i18n/navigation";
 import { tmdbImage } from "@/lib/api/shows";
 import type { ArchiveShow } from "@/lib/api/types";
 import styles from "./ShowHall.module.css";
+import { showHref } from "@/lib/show/routes";
 
 // Salon sayfası ve raf sayfaları aynı kartı kullanır — tek yerde durur
 const CuratorCardTools = dynamic(
@@ -53,7 +54,7 @@ export function ShowCard({
   const t = useTranslations("show");
   // TMDB puanı, kişisel puan değil — gerekçesi MovieCard'da yazılı
   const rating = show.voteAverage;
-  const href = `/dark-stories/category/dizi/${show.slug}`;
+  const href = showHref.show(show.slug);
   const season = show.currentSeason;
   const percent =
     season?.episodes && season.episodes > 0

@@ -19,6 +19,7 @@ import { ShowBackdrop } from "./ShowBackdrop";
 import { ShowCard } from "./ShowCard";
 import styles from "./ShowHall.module.css";
 import { CuratorDock } from "@/components/curated/CuratorDock";
+import { showHref } from "@/lib/show/routes";
 
 /**
  * Tek bir rafın tam sayfası — film salonundaki `FilmShelfPage`in aynısı.
@@ -109,7 +110,7 @@ export function ShowShelfPage({
 
       <div className={styles.page}>
         <header className={styles.head}>
-          <Link href="/dark-stories/category/dizi/arsiv" className={styles.back}>
+          <Link href={showHref.archive()} className={styles.back}>
             {t("backToArchive")}
           </Link>
           <span className={styles.eyebrow}>

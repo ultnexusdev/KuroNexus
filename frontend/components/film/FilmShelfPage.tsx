@@ -19,6 +19,7 @@ import { FilmBackdrop } from "./FilmBackdrop";
 import { MovieCard } from "./MovieCard";
 import styles from "./FilmHall.module.css";
 import { CuratorDock } from "@/components/curated/CuratorDock";
+import { filmHref } from "@/lib/film/routes";
 
 /**
  * Tek bir rafın tam sayfası: /dark-stories/category/film/arsiv/<raf>
@@ -120,7 +121,7 @@ export function FilmShelfPage({
 
       <div className={styles.page}>
         <header className={styles.head}>
-          <Link href="/dark-stories/category/film/arsiv" className={styles.back}>
+          <Link href={filmHref.archive()} className={styles.back}>
             {t("backToArchive")}
           </Link>
           <span className={styles.eyebrow}>

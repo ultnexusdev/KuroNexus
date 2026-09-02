@@ -4,6 +4,7 @@ import { readIsAdmin } from "@/lib/auth/session";
 import { getMovieDetail, tmdbImage } from "@/lib/api/movies";
 import { MovieDetail } from "@/components/film/MovieDetail";
 import { shareCard } from "@/lib/seo";
+import { filmHref } from "@/lib/film/routes";
 
 // Film sayfası. `arsiv` statik yolu bundan önce eşleşir (Next statik segmenti
 // dinamik segmentten önce dener), o yüzden çakışma yok — anime salonundaki
@@ -27,7 +28,7 @@ export async function generateMetadata({
     ...shareCard({
       title,
       locale,
-      path: `/dark-stories/category/film/${slug}`,
+      path: filmHref.movie(slug),
       image: tmdbImage(detail.movie.posterPath, "w780"),
     }),
   };

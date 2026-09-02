@@ -13,6 +13,7 @@ import styles from "./FilmHall.module.css";
 import { ArchiveUnavailable } from "@/components/hall/ArchiveUnavailable";
 import { ScrollStrip } from "@/components/hall/ScrollStrip";
 import { CuratorDock } from "@/components/curated/CuratorDock";
+import { filmHref } from "@/lib/film/routes";
 
 /**
  * Salon 02 · Film — "Projeksiyon Salonu".
@@ -199,7 +200,7 @@ export function FilmHall({
               <li key={movie.id} className={styles.framed}>
                 {/* Çerçeveli afiş de filmin sayfasına açılır */}
                 <Link
-                  href={`/dark-stories/category/film/${movie.slug}`}
+                  href={filmHref.movie(movie.slug)}
                   className={styles.framedPoster}
                 >
                   <Poster
@@ -254,7 +255,7 @@ export function FilmHall({
       <div className={styles.page}>
         <header className={styles.head}>
           {/* Geri: bir üst kapı olan salon girişine döner */}
-          <Link href="/dark-stories/category/film" className={styles.back}>
+          <Link href={filmHref.hall()} className={styles.back}>
             {tStories("backToUniverse", { name: hallName })}
           </Link>
           <span className={styles.eyebrow}>
@@ -349,7 +350,7 @@ export function FilmHall({
                         <li key={movie.id} className={styles.frame}>
                           {/* Şeritteki kareler de tıklanabilir */}
                           <Link
-                            href={`/dark-stories/category/film/${movie.slug}`}
+                            href={filmHref.movie(movie.slug)}
                             className={styles.framePoster}
                           >
                             <Poster
@@ -360,7 +361,7 @@ export function FilmHall({
                           </Link>
                           <p className={styles.frameTitle}>
                             <Link
-                              href={`/dark-stories/category/film/${movie.slug}`}
+                              href={filmHref.movie(movie.slug)}
                               className={styles.titleLink}
                             >
                               {movie.title}

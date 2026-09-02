@@ -13,6 +13,7 @@ import styles from "./ShowHall.module.css";
 import { ArchiveUnavailable } from "@/components/hall/ArchiveUnavailable";
 import { ScrollStrip } from "@/components/hall/ScrollStrip";
 import { CuratorDock } from "@/components/curated/CuratorDock";
+import { showHref } from "@/lib/show/routes";
 
 /**
  * Salon 02 · Dizi — film salonundaki `FilmHall`ın aynısı. Rafların yanına
@@ -178,7 +179,7 @@ export function ShowHall({
             {row.map((show) => (
               <li key={show.id} className={styles.framed}>
                 <Link
-                  href={`/dark-stories/category/dizi/${show.slug}`}
+                  href={showHref.show(show.slug)}
                   className={styles.framedPoster}
                 >
                   <Poster
@@ -231,7 +232,7 @@ export function ShowHall({
 
       <div className={styles.page}>
         <header className={styles.head}>
-          <Link href="/dark-stories/category/dizi" className={styles.back}>
+          <Link href={showHref.hall()} className={styles.back}>
             {tStories("backToUniverse", { name: hallName })}
           </Link>
           <span className={styles.eyebrow}>
@@ -321,7 +322,7 @@ export function ShowHall({
                       {recent.map((show) => (
                         <li key={show.id} className={styles.frame}>
                           <Link
-                            href={`/dark-stories/category/dizi/${show.slug}`}
+                            href={showHref.show(show.slug)}
                             className={styles.framePoster}
                           >
                             <Poster
@@ -332,7 +333,7 @@ export function ShowHall({
                           </Link>
                           <p className={styles.frameTitle}>
                             <Link
-                              href={`/dark-stories/category/dizi/${show.slug}`}
+                              href={showHref.show(show.slug)}
                               className={styles.titleLink}
                             >
                               {show.title}

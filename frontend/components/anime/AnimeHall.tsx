@@ -29,6 +29,7 @@ import { AnimeCard } from "./AnimeCard";
 import styles from "./AnimeHall.module.css";
 import { ArchiveUnavailable } from "@/components/hall/ArchiveUnavailable";
 import { CuratorDock } from "@/components/curated/CuratorDock";
+import { animeHref } from "@/lib/anime/routes";
 
 /**
  * Salon 04 · Anime — "Anime Arşivim".
@@ -358,7 +359,7 @@ function Curtain({
       <span className={styles.curtainGrain} />
 
       <div className={styles.curtainInner}>
-        <Link href="/dark-stories/category/anime" className={styles.curtainBack}>
+        <Link href={animeHref.hall()} className={styles.curtainBack}>
           {backLabel}
         </Link>
 
@@ -411,7 +412,7 @@ function Curtain({
             ) : null}
 
             <Link
-              href={`/dark-stories/category/anime/${anime.slug}`}
+              href={animeHref.series(anime.slug)}
               className={styles.resumeCta}
             >
               {t("hero.resume")}

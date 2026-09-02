@@ -5,6 +5,7 @@ import { getShowArchive } from "@/lib/api/shows";
 import { getHall } from "@/lib/halls";
 import { ShowHall } from "@/components/show/ShowHall";
 import { shareCard } from "@/lib/seo";
+import { showHref } from "@/lib/show/routes";
 
 // Dizi salonunun bir bölümü — film salonundaki aynı desen. Statik yol,
 // [categorySlug] dinamik yolundan önce eşleşir; salon girişi (lobi) bir üst
@@ -22,7 +23,7 @@ export async function generateMetadata({
   const title = t("title");
   return {
     title,
-    ...shareCard({ title, locale, path: "/dark-stories/category/dizi/arsiv" }),
+    ...shareCard({ title, locale, path: showHref.archive() }),
   };
 }
 

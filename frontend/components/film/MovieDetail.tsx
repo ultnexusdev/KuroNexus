@@ -22,6 +22,7 @@ import styles from "./MovieDetail.module.css";
 import { Lightbox } from "@/components/hall/Lightbox";
 import { ArchiveAddButtons } from "@/components/hall/ArchiveAddButtons";
 import { CuratorDock } from "@/components/curated/CuratorDock";
+import { filmHref } from "@/lib/film/routes";
 
 /**
  * Film sayfası.
@@ -84,7 +85,7 @@ export function MovieDetail({
       <div className={styles.inner}>
         <div className={styles.topBar}>
           <Link
-            href="/dark-stories/category/film/arsiv"
+            href={filmHref.archive()}
             className={styles.back}
           >
             {tFilm("backToArchive")}
@@ -414,7 +415,7 @@ function ArchiveRow({ movie }: { movie: ArchiveMovie }) {
   return (
     <li>
       <Link
-        href={`/dark-stories/category/film/${movie.slug}`}
+        href={filmHref.movie(movie.slug)}
         className={styles.similarRow}
       >
         <span className={styles.similarPoster}>
@@ -595,7 +596,7 @@ function SimilarRow({
   const row =
     movie.inArchive && movie.slug ? (
       <Link
-        href={`/dark-stories/category/film/${movie.slug}`}
+        href={filmHref.movie(movie.slug)}
         className={styles.similarRow}
       >
         {body}

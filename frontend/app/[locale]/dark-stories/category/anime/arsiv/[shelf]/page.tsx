@@ -8,6 +8,7 @@ import { hallLabel, hallName, hallNumber } from "@/lib/halls";
 import { shelfFromSlug } from "@/lib/anime/shelves";
 import { shareCard } from "@/lib/seo";
 import { AnimeShelfPage } from "@/components/anime/AnimeShelfPage";
+import { animeHref } from "@/lib/anime/routes";
 
 export const dynamic = "force-dynamic";
 
@@ -28,7 +29,7 @@ export async function generateMetadata({
     ...shareCard({
       title,
       locale,
-      path: `/dark-stories/category/anime/arsiv/${shelf}`,
+      path: animeHref.shelf(shelf),
     }),
   };
 }

@@ -5,6 +5,7 @@ import { getCharacterCards, getCharacterDetail } from "@/lib/api/characters";
 import { getCharacterOverlay } from "@/lib/characters";
 import { shareCard } from "@/lib/seo";
 import { CharacterDossier } from "@/components/character/CharacterDossier";
+import { animeHref } from "@/lib/anime/routes";
 
 // Karakter dosyası. Adres AniList karakter numarası: başlıktan slug türetmek
 // burada işe yaramaz — aynı adı taşıyan karakterler yaygın ("Ichigo" hem
@@ -43,7 +44,7 @@ export async function generateMetadata({
       title: character.name,
       description,
       locale,
-      path: `/dark-stories/category/anime/karakterler/${characterId}`,
+      path: animeHref.character(characterId),
       image: character.image,
     }),
   };

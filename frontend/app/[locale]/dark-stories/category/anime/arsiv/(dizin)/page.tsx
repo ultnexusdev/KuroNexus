@@ -5,6 +5,7 @@ import { getAnimeArchive } from "@/lib/api/anime";
 import { getHall } from "@/lib/halls";
 import { shareCard } from "@/lib/seo";
 import { AnimeHall } from "@/components/anime/AnimeHall";
+import { animeHref } from "@/lib/anime/routes";
 
 // Anime salonunun bir bölümü. Statik yol, [categorySlug] dinamik yolundan
 // önce eşleşir; salon girişi (lobi) bir üst seviyede kalır.
@@ -21,7 +22,7 @@ export async function generateMetadata({
   const title = t("archiveTitle");
   return {
     title,
-    ...shareCard({ title, locale, path: "/dark-stories/category/anime/arsiv" }),
+    ...shareCard({ title, locale, path: animeHref.archive() }),
   };
 }
 

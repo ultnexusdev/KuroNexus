@@ -8,6 +8,7 @@ import { CuratedShelf } from "@/components/character/CuratedShelf";
 import { getHall } from "@/lib/halls";
 import { shareCard } from "@/lib/seo";
 import { CharacterGallery } from "@/components/character/CharacterGallery";
+import { animeHref } from "@/lib/anime/routes";
 
 // Portre kanadı — anime salonunun ikinci odası. Statik yol, `[slug]` dinamik
 // yolundan önce eşleşir (Next statik segmenti önce dener), `arsiv` ile aynı
@@ -31,7 +32,7 @@ export async function generateMetadata({
       title,
       description,
       locale,
-      path: "/dark-stories/category/anime/karakterler",
+      path: animeHref.characters(),
     }),
   };
 }

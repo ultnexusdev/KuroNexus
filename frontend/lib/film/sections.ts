@@ -1,3 +1,4 @@
+import { filmHref } from "@/lib/film/routes";
 /**
  * Film salonunun bölümleri.
  *
@@ -16,6 +17,6 @@ export const FILM_SECTIONS: FilmSection[] = [
   {
     slug: "arsiv",
     key: "archive",
-    href: "/dark-stories/category/film/arsiv",
+    href: filmHref.archive(),
   },
 ];

@@ -7,6 +7,7 @@ import { getHall } from "@/lib/halls";
 import { shelfFromSlug } from "@/lib/film/shelves";
 import { FilmShelfPage } from "@/components/film/FilmShelfPage";
 import { shareCard } from "@/lib/seo";
+import { filmHref } from "@/lib/film/routes";
 
 // Tek bir rafın tam sayfası (izlediklerim, izleyeceklerim, favorilerim…).
 // Süzgeçler URL'de olduğu için sayfa dinamik.
@@ -27,7 +28,7 @@ export async function generateMetadata({
     ...shareCard({
       title,
       locale,
-      path: `/dark-stories/category/film/arsiv/${shelf}`,
+      path: filmHref.shelf(shelf),
     }),
   };
 }

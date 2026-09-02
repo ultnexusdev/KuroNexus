@@ -7,6 +7,7 @@ import { Link } from "@/lib/i18n/navigation";
 import { tmdbImage } from "@/lib/api/movies";
 import type { ArchiveMovie } from "@/lib/api/types";
 import styles from "./FilmHall.module.css";
+import { filmHref } from "@/lib/film/routes";
 
 // Salon sayfası ve raf sayfaları aynı kartı kullanır — tek yerde durur
 const CuratorCardTools = dynamic(
@@ -63,7 +64,7 @@ export function MovieCard({
    * şey "bu film genel olarak nasıl", kendi puanımı zaten biliyorum.
    */
   const rating = movie.voteAverage;
-  const href = `/dark-stories/category/film/${movie.slug}`;
+  const href = filmHref.movie(movie.slug);
 
   return (
     <article className={styles.card}>

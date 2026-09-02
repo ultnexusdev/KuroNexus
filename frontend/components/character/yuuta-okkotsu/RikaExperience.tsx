@@ -803,7 +803,7 @@ export function RikaExperience({
                       {linked ? (
                         <Link
                           className={styles.bondLink}
-                          href={`/dark-stories/category/anime/karakterler/${bond.characterId}`}
+                          href={animeHref.character(bond.characterId)}
                         >
                           {body}
                         </Link>

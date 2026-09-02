@@ -7,6 +7,7 @@ import { Link } from "@/lib/i18n/navigation";
 import type { ArchiveAnime } from "@/lib/api/types";
 import { daysUntil } from "@/lib/anime/filters";
 import styles from "./AnimeHall.module.css";
+import { animeHref } from "@/lib/anime/routes";
 
 // Küratör kontrolleri yalnızca mod açıkken iner — ziyaretçi bu JS'i almaz
 const CuratorCardTools = dynamic(
@@ -104,7 +105,7 @@ export function AnimeCard({
   const days = daysUntil(anime.nextAiringAt);
   const rating = anime.personalRating ?? (anime.averageScore ? anime.averageScore / 10 : null);
 
-  const href = `/dark-stories/category/anime/${anime.slug}`;
+  const href = animeHref.series(anime.slug);
 
   return (
     <article className={styles.card} data-halo={haloOf(anime)}>

@@ -4,6 +4,7 @@ import { readIsAdmin } from "@/lib/auth/session";
 import { getShowDetail, tmdbImage } from "@/lib/api/shows";
 import { ShowDetail } from "@/components/show/ShowDetail";
 import { shareCard } from "@/lib/seo";
+import { showHref } from "@/lib/show/routes";
 
 // Dizi sayfası. `arsiv` statik yolu bundan önce eşleşir (Next statik
 // segmenti dinamik segmentten önce dener) — film salonundaki düzenin aynısı.
@@ -26,7 +27,7 @@ export async function generateMetadata({
     ...shareCard({
       title,
       locale,
-      path: `/dark-stories/category/dizi/${slug}`,
+      path: showHref.show(slug),
       image: tmdbImage(detail.show.posterPath, "w780"),
     }),
   };

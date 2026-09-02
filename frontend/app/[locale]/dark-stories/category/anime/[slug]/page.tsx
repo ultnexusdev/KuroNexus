@@ -4,6 +4,7 @@ import { readIsAdmin } from "@/lib/auth/session";
 import { getAnimeDetail } from "@/lib/api/anime";
 import { shareCard } from "@/lib/seo";
 import { AnimeDetail } from "@/components/anime/AnimeDetail";
+import { animeHref } from "@/lib/anime/routes";
 
 // Anime sayfası. `arsiv` statik yolu bundan önce eşleşir (Next statik
 // segmenti dinamik segmentten önce dener), o yüzden çakışma yok.
@@ -24,7 +25,7 @@ export async function generateMetadata({
     ...shareCard({
       title,
       locale,
-      path: `/dark-stories/category/anime/${slug}`,
+      path: animeHref.series(slug),
       image: detail.anime.coverImage,
     }),
   };

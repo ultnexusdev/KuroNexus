@@ -10,6 +10,7 @@ import {
   type CharacterGalleryItem,
 } from "./CharacterGalleryLightbox";
 import styles from "./CharacterSections.module.css";
+import { animeHref } from "@/lib/anime/routes";
 
 /**
  * Karakter sayfasının elle tasarlanan bölümleri.
@@ -26,7 +27,7 @@ import styles from "./CharacterSections.module.css";
  * penceresi (`CharacterGalleryLightbox`, yalnızca "hangi görsel açık" durumu).
  */
 
-const CHARACTER_HREF = "/dark-stories/category/anime/karakterler";
+const CHARACTER_HREF = animeHref.characters();
 
 /** Hero'daki alıntı — karakterin kendi sözü. */
 export function Epigraph({ overlay }: { overlay: CharacterOverlay }) {

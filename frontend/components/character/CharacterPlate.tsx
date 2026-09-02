@@ -5,6 +5,7 @@ import type { ArchiveCharacter } from "@/lib/api/types";
 import { CharacterHideButton } from "./CharacterHideButton";
 import { CharacterPortraitSlot } from "./CharacterPortraitSlot";
 import styles from "./CharacterPlate.module.css";
+import { animeHref } from "@/lib/anime/routes";
 
 /**
  * Karakter levhası — dizinde ve karakter dosyasının "yakındaki karakterler"
@@ -46,7 +47,7 @@ export function CharacterPlate({
   hidden?: boolean;
   onHiddenChange?: (characterId: number, hidden: boolean) => void;
 }) {
-  const href = `/dark-stories/category/anime/karakterler/${character.characterId}`;
+  const href = animeHref.character(character.characterId);
 
   /*
    * Portre iki kaynaktan gelebiliyor: küratörün yüklediği kare (kendi

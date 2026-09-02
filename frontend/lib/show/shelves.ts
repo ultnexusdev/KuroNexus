@@ -1,4 +1,5 @@
 import type { ArchiveShow } from "@/lib/api/types";
+import { showHref } from "@/lib/show/routes";
 
 /**
  * Salonun rafları — film salonundaki dört rafın (izlediklerim/izleyeceklerim/
@@ -36,7 +37,7 @@ export function shelfFromSlug(slug: string): ShelfKey | null {
 }
 
 export function shelfHref(key: ShelfKey): string {
-  return `/dark-stories/category/dizi/arsiv/${SHELF_SLUGS[key]}`;
+  return showHref.shelf(SHELF_SLUGS[key]);
 }
 
 /**

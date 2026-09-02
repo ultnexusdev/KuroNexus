@@ -18,6 +18,7 @@ import { daysUntil } from "@/lib/anime/filters";
 import { AiringBadge } from "./AnimeCard";
 import styles from "./AnimeDetail.module.css";
 import { CuratorDock } from "@/components/curated/CuratorDock";
+import { animeHref } from "@/lib/anime/routes";
 
 /**
  * Anime sayfası.
@@ -83,7 +84,7 @@ export function AnimeDetail({
       <div className={styles.inner}>
         <div className={styles.topBar}>
           <Link
-            href="/dark-stories/category/anime/arsiv"
+            href={animeHref.archive()}
             className={styles.back}
           >
             {t("backToHall")}
@@ -235,7 +236,7 @@ export function AnimeDetail({
                       olarak tıklanıyor — yüzü ve adı ayrı hedefler yapmak
                       56px'lik satırda iki minik dokunma alanı üretirdi. */}
                   <Link
-                    href={`/dark-stories/category/anime/karakterler/${character.characterId}`}
+                    href={animeHref.character(character.characterId)}
                     className={styles.characterLink}
                   >
                     {character.imageSmall ?? character.image ? (

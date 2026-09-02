@@ -19,6 +19,7 @@ import { BackToTop } from "@/components/BackToTop";
 import { AnimeCard } from "./AnimeCard";
 import styles from "./AnimeHall.module.css";
 import { CuratorDock } from "@/components/curated/CuratorDock";
+import { animeHref } from "@/lib/anime/routes";
 
 /**
  * Bir rafın tamamı. Salon sayfası her raftan yalnızca ilk satırı gösterir,
@@ -101,7 +102,7 @@ export function AnimeShelfPage({
       <div className={styles.page}>
         <header className={styles.head}>
           <Link
-            href="/dark-stories/category/anime/arsiv"
+            href={animeHref.archive()}
             className={styles.back}
           >
             {t("backToHall")}

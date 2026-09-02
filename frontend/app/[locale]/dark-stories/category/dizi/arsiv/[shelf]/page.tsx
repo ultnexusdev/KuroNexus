@@ -7,6 +7,7 @@ import { getHall } from "@/lib/halls";
 import { shelfFromSlug } from "@/lib/show/shelves";
 import { ShowShelfPage } from "@/components/show/ShowShelfPage";
 import { shareCard } from "@/lib/seo";
+import { showHref } from "@/lib/show/routes";
 
 // Tek bir rafın tam sayfası (izlediklerim, izleyeceklerim, Kore Dramaları…).
 // Süzgeçler URL'de olduğu için sayfa dinamik.
@@ -27,7 +28,7 @@ export async function generateMetadata({
     ...shareCard({
       title,
       locale,
-      path: `/dark-stories/category/dizi/arsiv/${shelf}`,
+      path: showHref.shelf(shelf),
     }),
   };
 }

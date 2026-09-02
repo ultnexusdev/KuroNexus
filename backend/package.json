@@ -41,7 +41,7 @@
     "prisma": "^7.8.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
-    "sanitize-html": "^2.17.6",
+    "sanitize-html": "^2.17.7",
     "unzipper": "^0.12.5"
   },
   "devDependencies": {

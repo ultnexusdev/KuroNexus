@@ -191,9 +191,10 @@ literalleri~~ (2 Eylül gecesi süpürüldü: `filmHref`/`showHref` açıldı,
 API-13 (~~API-07/09/11~~ 2 Eylül gecesi kapandı — kitap uçları ince dizin +
 kimlikle çekim, dizi arşivi saf okuma, müzik tür payı tek gruplu SQL;
 ~~API-12~~ gerekçesiz), **D-B7 `externalCache` — SÜRÜYOR:** `ExternalCacheService` + 9 test; TMDB
-(film/dizi), AniList + Jikan ve kitap (Google Books, bin-kitap, ödüller)
-kanatları taşındı (`remember` TTL fonksiyonu ve `shouldWrite` aldı); kalan 4
-servis (Spotify, MusicBrainz, futbol, futbol-canlı) rapor D-B7'de listeli, kanat başına
+(film/dizi), AniList + Jikan, kitap (Google Books, bin-kitap, ödüller) ve
+müzik (Spotify, MusicBrainz) kanatları taşındı (`remember` TTL fonksiyonu ve
+`shouldWrite` aldı); kalan 2 servis (futbol 7 nokta, futbol-canlı 2 nokta)
+rapor D-B7'de listeli, kanat başına
 bir commit, "davranışı birebir koru" kuralıyla ("fetchedAt eksik" YANLIŞ
 ALARM'dı ama `write` artık iki dalda da yazıyor), ~~i18n ölü anahtarlar (16×2)~~ ve ~~ölü exportlar~~ (2 Eylül gecesi
 silindi; GOJO_*, RESERVED_*, curatedCharacterIds bilerek kaldı — rapor 1.2/1.5),

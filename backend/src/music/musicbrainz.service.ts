@@ -4,7 +4,7 @@ import {
   NotFoundException,
   ServiceUnavailableException,
 } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { ExternalCacheService } from '../common/cache/external-cache.service';
 import type { MusicActKind } from '../generated/prisma/enums';
 
 /**
@@ -162,7 +162,7 @@ export class MusicBrainzService {
   private gate: Promise<void> = Promise.resolve();
   private lastRequestAt = 0;
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly cache: ExternalCacheService) {}
 
   /**
    * Spotify kimliğinden MusicBrainz kimliğini (MBID) bulur.
@@ -271,31 +271,18 @@ export class MusicBrainzService {
     path: string,
     params: Record<string, string>,
   ): Promise<T> {
-    const cached = await this.prisma.externalCache.findUnique({
-      where: { cacheKey },
-    });
-    if (cached && Date.now() - cached.fetchedAt.getTime() < CACHE_TTL_MS) {
-      return cached.payload as unknown as T;
-    }
-
-    try {
-      const payload = await this.request<T>(path, params);
-      await this.prisma.externalCache.upsert({
-        where: { cacheKey },
-        create: { cacheKey, payload: payload as never, fetchedAt: new Date() },
-        update: { payload: payload as never, fetchedAt: new Date() },
-      });
-      return payload;
-    } catch (error) {
-      // Kural 4: dış kaynak düşerse bayat veri sunulur
-      if (cached) {
-        this.logger.warn(
-          `MusicBrainz düştü, bayat kayıt sunuluyor (${cacheKey}): ${String(error)}`,
-        );
-        return cached.payload as unknown as T;
-      }
-      throw error;
-    }
+    return this.cache.remember<T>(
+      cacheKey,
+      CACHE_TTL_MS,
+      () => this.request<T>(path, params),
+      {
+        // Kural 4: dış kaynak düşerse bayat veri sunulur
+        onStale: (error) =>
+          this.logger.warn(
+            `MusicBrainz düştü, bayat kayıt sunuluyor (${cacheKey}): ${String(error)}`,
+          ),
+      },
+    );
   }
 
   /**

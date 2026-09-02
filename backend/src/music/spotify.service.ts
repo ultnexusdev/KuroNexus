@@ -4,7 +4,7 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PrismaService } from '../prisma/prisma.service';
+import { ExternalCacheService } from '../common/cache/external-cache.service';
 
 /**
  * Spotify Web API erişimi — **Client Credentials** akışı.
@@ -247,7 +247,7 @@ export class SpotifyService {
   private tokenPromise: Promise<string> | null = null;
 
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly cache: ExternalCacheService,
     config: ConfigService,
   ) {
     this.clientId = config.get<string>('SPOTIFY_CLIENT_ID');
@@ -443,71 +443,57 @@ export class SpotifyService {
     path: string,
     params: Record<string, string>,
   ): Promise<T[]> {
-    const cached = await this.prisma.externalCache.findUnique({
-      where: { cacheKey },
-    });
-    if (cached && Date.now() - cached.fetchedAt.getTime() < CACHE_TTL_MS) {
-      return cached.payload as unknown as T[];
-    }
-
-    try {
-      const collected: T[] = [];
-      /**
-       * ══════════════════════════════════════════════════════════════════
-       * ⚠️ `limit` ve `offset` GÖNDERİLMİYOR — ÖLÇÜLDÜ (11 Ağustos 2026)
-       *
-       * Önceki sürüm sayfa boyunu kendi belirliyordu (`limit=50`) ve Spotify
-       * bunu reddediyordu:
-       *   …/albums?include_groups=album,single,compilation&limit=50&offset=0
-       *   → 400 {"error":{"status":400,"message":"Invalid limit"}}
-       * Belgelerde bu uç için üst sınır 50 yazıyor; pratikte kabul edilmedi.
-       *
-       * Artık sınır TAHMİN EDİLMİYOR: ilk sayfa parametresiz isteniyor
-       * (Spotify kendi varsayılanını uygular, hangi değer olursa olsun
-       * geçerlidir) ve sonraki sayfalar Spotify'ın yanıtta verdiği `next`
-       * adresi AYNEN izlenerek alınıyor. Kendi kurduğumuz bir offset/limit
-       * çifti kalmadığı için bu sınıf hata bir daha çıkamaz.
-       *
-       * Bedeli: varsayılan sayfa boyu 50'den küçük olduğu için birkaç istek
-       * daha atılıyor. Doğruluk bir istekten değerli.
-       * ══════════════════════════════════════════════════════════════════
-       */
-      let nextUrl: string | null = buildUrl(path, params);
-      for (let page = 0; page < MAX_PAGES && nextUrl; page++) {
-        // Açık tip: `T` kısıtsız bir tip parametresi olduğu için tip
-        // çıkarımına bırakıldığında `any` gibi ele alınıyor ve tip güvenliği
-        // sessizce kayboluyor (kural 7: örtülü any yok).
-        const payload: RawPaged<T> = await this.send<RawPaged<T>>(nextUrl);
-        const items: T[] = payload.items ?? [];
-        collected.push(...items);
-        // `next` Spotify'ın kendi kurduğu tam adres — yeniden inşa edilmiyor
-        nextUrl = items.length > 0 ? (payload.next ?? null) : null;
-        if (nextUrl && page === MAX_PAGES - 1) {
-          this.logger.warn(
-            `Sayfa sınırına dayandı, liste kesildi: ${path} (${collected.length} kayıt)`,
-          );
+    return this.cache.remember<T[]>(
+      cacheKey,
+      CACHE_TTL_MS,
+      async () => {
+        const collected: T[] = [];
+        /**
+         * ══════════════════════════════════════════════════════════════════
+         * ⚠️ `limit` ve `offset` GÖNDERİLMİYOR — ÖLÇÜLDÜ (11 Ağustos 2026)
+         *
+         * Önceki sürüm sayfa boyunu kendi belirliyordu (`limit=50`) ve Spotify
+         * bunu reddediyordu:
+         *   …/albums?include_groups=album,single,compilation&limit=50&offset=0
+         *   → 400 {"error":{"status":400,"message":"Invalid limit"}}
+         * Belgelerde bu uç için üst sınır 50 yazıyor; pratikte kabul edilmedi.
+         *
+         * Artık sınır TAHMİN EDİLMİYOR: ilk sayfa parametresiz isteniyor
+         * (Spotify kendi varsayılanını uygular, hangi değer olursa olsun
+         * geçerlidir) ve sonraki sayfalar Spotify'ın yanıtta verdiği `next`
+         * adresi AYNEN izlenerek alınıyor. Kendi kurduğumuz bir offset/limit
+         * çifti kalmadığı için bu sınıf hata bir daha çıkamaz.
+         *
+         * Bedeli: varsayılan sayfa boyu 50'den küçük olduğu için birkaç istek
+         * daha atılıyor. Doğruluk bir istekten değerli.
+         * ══════════════════════════════════════════════════════════════════
+         */
+        let nextUrl: string | null = buildUrl(path, params);
+        for (let page = 0; page < MAX_PAGES && nextUrl; page++) {
+          // Açık tip: `T` kısıtsız bir tip parametresi olduğu için tip
+          // çıkarımına bırakıldığında `any` gibi ele alınıyor ve tip güvenliği
+          // sessizce kayboluyor (kural 7: örtülü any yok).
+          const payload: RawPaged<T> = await this.send<RawPaged<T>>(nextUrl);
+          const items: T[] = payload.items ?? [];
+          collected.push(...items);
+          // `next` Spotify'ın kendi kurduğu tam adres — yeniden inşa edilmiyor
+          nextUrl = items.length > 0 ? (payload.next ?? null) : null;
+          if (nextUrl && page === MAX_PAGES - 1) {
+            this.logger.warn(
+              `Sayfa sınırına dayandı, liste kesildi: ${path} (${collected.length} kayıt)`,
+            );
+          }
         }
-      }
-      await this.prisma.externalCache.upsert({
-        where: { cacheKey },
-        create: {
-          cacheKey,
-          payload: collected as never,
-          fetchedAt: new Date(),
-        },
-        update: { payload: collected as never, fetchedAt: new Date() },
-      });
-      return collected;
-    } catch (error) {
-      // Kural 4: dış kaynak düşerse bayat veri sunulur, hata gösterilmez
-      if (cached) {
-        this.logger.warn(
-          `Spotify düştü, bayat liste sunuluyor (${cacheKey}): ${String(error)}`,
-        );
-        return cached.payload as unknown as T[];
-      }
-      throw error;
-    }
+        return collected;
+      },
+      {
+        // Kural 4: dış kaynak düşerse bayat veri sunulur, hata gösterilmez
+        onStale: (error) =>
+          this.logger.warn(
+            `Spotify düştü, bayat liste sunuluyor (${cacheKey}): ${String(error)}`,
+          ),
+      },
+    );
   }
 
   private async cached<T>(
@@ -516,34 +502,17 @@ export class SpotifyService {
     params: Record<string, string>,
     ttlMs: number,
   ): Promise<T> {
-    const cached = await this.prisma.externalCache.findUnique({
-      where: { cacheKey },
-    });
-    if (cached && Date.now() - cached.fetchedAt.getTime() < ttlMs) {
-      return cached.payload as unknown as T;
-    }
-
-    try {
-      const payload = await this.request<T>(path, params);
-      await this.prisma.externalCache.upsert({
-        where: { cacheKey },
-        create: {
-          cacheKey,
-          payload: payload as never,
-          fetchedAt: new Date(),
-        },
-        update: { payload: payload as never, fetchedAt: new Date() },
-      });
-      return payload;
-    } catch (error) {
-      if (cached) {
-        this.logger.warn(
-          `Spotify düştü, bayat künye sunuluyor (${cacheKey}): ${String(error)}`,
-        );
-        return cached.payload as unknown as T;
-      }
-      throw error;
-    }
+    return this.cache.remember<T>(
+      cacheKey,
+      ttlMs,
+      () => this.request<T>(path, params),
+      {
+        onStale: (error) =>
+          this.logger.warn(
+            `Spotify düştü, bayat künye sunuluyor (${cacheKey}): ${String(error)}`,
+          ),
+      },
+    );
   }
 
   /** Yol + parametreden adres kurup gönderir (sayfasız uçlar). */

@@ -20,8 +20,13 @@
    df -h /; free -h; docker ps --format "{{.Names}}\t{{.Status}}" | grep -E "xpvhr95|qy5pum"
    ```
    Disk **%85 üstündeyse push ETME** (§4.1). Backend satırında `(healthy)` görünmeli.
-3. **Yarınki İLK deploy MEM-01'in soğuk-build sınavıdır** (§4.2): panelden
-   `Duration` oku. 4-6 dk → mesele kapalı. 10+ dk → §4.2'deki sıradaki kaldıraç.
+3. ~~Yarınki İLK deploy MEM-01'in soğuk-build sınavıdır~~ → **ÖLÇÜLDÜ, GEÇTİ
+   (2 Eylül 16:00–16:14 UTC).** Push'tan hemen önce `docker builder prune -af`
+   koşmuştu (cache sıfır) ve `frontend/package.json` değişmişti (kurulum katmanı
+   soğuk): backend 4m41s, frontend push→canlı **5 dk 11 sn** (16:08:44 →
+   16:13:55, parça imzası değişimiyle ölçüldü). Bu iki koşul en kötü senaryo;
+   MEM-01 kapalı, §4.2'deki "sıradaki kaldıraç" gerekmiyor. Deploy sırasında
+   site ve API kesintisiz 200 döndü. Disk push öncesi %90 → temizlikle %78.
 4. **Geri dönüş noktası**
 
 | Etiket | Nereye döner |

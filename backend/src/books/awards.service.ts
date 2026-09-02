@@ -1,5 +1,6 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { ExternalCacheService } from '../common/cache/external-cache.service';
 import { slugify } from '../common/utils/slugify';
 import { GoogleBooksService, type BookSource } from './google-books.service';
 import {
@@ -160,7 +161,10 @@ export class AwardsService {
   private readonly coverFailures = new Set<string>();
 
   constructor(
+    /** Liste okuması (`findMany`) ve `patchCache` (`update`) Prisma'da kalır */
     private readonly prisma: PrismaService,
+    /** Yazma tek kapıdan (D-B7) */
+    private readonly cache: ExternalCacheService,
     private readonly source: GoogleBooksService,
     /**
      * Ödüllerin **birinci** kaynağı (kullanıcı kararı). Google yedeğe
@@ -783,12 +787,8 @@ export class AwardsService {
     return local ? { ...book, coverImage: local } : book;
   }
 
-  private async writeCache(cacheKey: string, payload: unknown): Promise<void> {
-    await this.prisma.externalCache.upsert({
-      where: { cacheKey },
-      create: { cacheKey, payload: payload as object, fetchedAt: new Date() },
-      update: { payload: payload as object, fetchedAt: new Date() },
-    });
+  private writeCache(cacheKey: string, payload: unknown): Promise<void> {
+    return this.cache.write(cacheKey, payload);
   }
 
   /**

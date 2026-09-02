@@ -3,7 +3,7 @@ import { sleep } from '../common/utils/sleep';
 import { createBrotliDecompress, createGunzip, createInflate } from 'node:zlib';
 import { Injectable, Logger } from '@nestjs/common';
 import sanitizeHtml from 'sanitize-html';
-import { PrismaService } from '../prisma/prisma.service';
+import { ExternalCacheService } from '../common/cache/external-cache.service';
 import { slugify, slugKey } from '../common/utils/slugify';
 import type { BookSource } from './google-books.service';
 
@@ -349,7 +349,7 @@ export class BinKitapService {
   /** 429 görüldüyse kuyruğun yeniden açılacağı an (bkz. RATE_LIMIT_COOLDOWN_MS) */
   private cooldownUntil = 0;
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly cache: ExternalCacheService) {}
 
   /**
    * Küratör aramasının 1000Kitap bacağı.
@@ -655,29 +655,19 @@ export class BinKitapService {
 
   // --- Cache (kural 4/14) ---
 
-  private async readCache<T>(
-    cacheKey: string,
-    ttlMs: number,
-  ): Promise<T | null> {
-    const cached = await this.prisma.externalCache.findUnique({
-      where: { cacheKey },
-    });
-    if (!cached) {
-      return null;
-    }
-    if (Date.now() - cached.fetchedAt.getTime() >= ttlMs) {
-      return null;
-    }
-    return cached.payload as unknown as T;
+  /**
+   * İki ince sarmalayıcı `ExternalCacheService`e devrediyor (D-B7). Bu servis
+   * `remember` kalıbına oturmuyor: arama boş sonucu cache'lemiyor, detay
+   * bayata `Infinity` TTL ile ayrıca düşüyor, kişi sayfası hatada null
+   * dönüyor — üç farklı yedek; okuma/yazma ayrı kalınca her biri açıkça
+   * görünür kalıyor.
+   */
+  private readCache<T>(cacheKey: string, ttlMs: number): Promise<T | null> {
+    return this.cache.readFresh<T>(cacheKey, ttlMs);
   }
 
-  private async writeCache(cacheKey: string, payload: unknown): Promise<void> {
-    const value = payload as never;
-    await this.prisma.externalCache.upsert({
-      where: { cacheKey },
-      create: { cacheKey, payload: value, fetchedAt: new Date() },
-      update: { payload: value, fetchedAt: new Date() },
-    });
+  private writeCache(cacheKey: string, payload: unknown): Promise<void> {
+    return this.cache.write(cacheKey, payload);
   }
 }
 
@@ -1089,4 +1079,3 @@ function toCount(value: string | undefined): number | null {
   const count = Number.parseInt(value ?? '', 10);
   return Number.isFinite(count) && count > 0 ? count : null;
 }
-

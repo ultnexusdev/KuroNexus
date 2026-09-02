@@ -4,7 +4,7 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PrismaService } from '../prisma/prisma.service';
+import { ExternalCacheService } from '../common/cache/external-cache.service';
 import { slugKey } from '../common/utils/slugify';
 import { BinKitapService } from './bin-kitap.service';
 
@@ -209,7 +209,7 @@ export class GoogleBooksService {
   private readonly apiKey?: string;
 
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly cache: ExternalCacheService,
     private readonly binKitap: BinKitapService,
     config: ConfigService,
   ) {
@@ -365,32 +365,26 @@ export class GoogleBooksService {
    */
   async getVolume(googleId: string): Promise<BookSource> {
     const cacheKey = `books:google:v1:${googleId}`;
-    const cached = await this.prisma.externalCache.findUnique({
-      where: { cacheKey },
-    });
-    if (cached && Date.now() - cached.fetchedAt.getTime() < CACHE_TTL_MS) {
-      return cached.payload as unknown as BookSource;
-    }
-
-    try {
-      const raw = await this.googleRequest<GoogleVolumeRaw>(
-        `/volumes/${encodeURIComponent(googleId)}`,
-      );
-      const book = normalizeGoogle(raw);
-      if (!book) {
-        throw new ServiceUnavailableException('BOOKS.SOURCE_UNAVAILABLE');
-      }
-      await this.writeCache(cacheKey, book);
-      return book;
-    } catch (error) {
-      if (cached) {
-        this.logger.warn(
-          `Google Books ${googleId} yenilenemedi, bayat cache sunuluyor: ${String(error)}`,
+    return this.cache.remember<BookSource>(
+      cacheKey,
+      CACHE_TTL_MS,
+      async () => {
+        const raw = await this.googleRequest<GoogleVolumeRaw>(
+          `/volumes/${encodeURIComponent(googleId)}`,
         );
-        return cached.payload as unknown as BookSource;
-      }
-      throw error;
-    }
+        const book = normalizeGoogle(raw);
+        if (!book) {
+          throw new ServiceUnavailableException('BOOKS.SOURCE_UNAVAILABLE');
+        }
+        return book;
+      },
+      {
+        onStale: (error) =>
+          this.logger.warn(
+            `Google Books ${googleId} yenilenemedi, bayat cache sunuluyor: ${String(error)}`,
+          ),
+      },
+    );
   }
 
   /**
@@ -568,19 +562,20 @@ export class GoogleBooksService {
     author: string,
   ): Promise<OpenLibraryDoc | null> {
     const cacheKey = `books:ol:v1:${slugKey(title)}:${slugKey(author)}`;
-    const cached = await this.prisma.externalCache.findUnique({
-      where: { cacheKey },
-    });
-    if (cached && Date.now() - cached.fetchedAt.getTime() < CACHE_TTL_MS) {
-      return cached.payload as unknown as OpenLibraryDoc | null;
-    }
-    try {
-      const doc = await this.openLibraryLookup(title, author);
-      await this.writeCache(cacheKey, doc);
-      return doc;
-    } catch (error) {
+    const warn = (error: unknown) =>
       this.logger.warn(`Open Library okunamadı: ${String(error)}`);
-      return (cached?.payload as unknown as OpenLibraryDoc | null) ?? null;
+    try {
+      // `null` da yazılır: "bulunamadı" bilgisi bir sonuçtur (JSON null)
+      return await this.cache.remember<OpenLibraryDoc | null>(
+        cacheKey,
+        CACHE_TTL_MS,
+        () => this.openLibraryLookup(title, author),
+        { onStale: warn },
+      );
+    } catch (error) {
+      // Kayıt yokken düştü: bayat da yok, null ile devam (bayat varsa sunuldu)
+      warn(error);
+      return null;
     }
   }
 
@@ -596,21 +591,21 @@ export class GoogleBooksService {
     isbn: string,
   ): Promise<OpenLibraryEdition | null> {
     const cacheKey = `books:ol-isbn:v1:${isbn}`;
-    const cached = await this.prisma.externalCache.findUnique({
-      where: { cacheKey },
-    });
-    if (cached && Date.now() - cached.fetchedAt.getTime() < CACHE_TTL_MS) {
-      return cached.payload as unknown as OpenLibraryEdition | null;
-    }
     try {
-      const edition = await this.openLibraryRequest<OpenLibraryEdition>(
-        `/isbn/${encodeURIComponent(isbn)}.json`,
-        {},
+      // Bayat kayıt SUNULMAZ (eski davranış): 404 dahil her hata "bilmiyorum"
+      // olarak null yazılır ki aynı ISBN her eklemede yeniden sorulmasın
+      return await this.cache.remember<OpenLibraryEdition | null>(
+        cacheKey,
+        CACHE_TTL_MS,
+        () =>
+          this.openLibraryRequest<OpenLibraryEdition>(
+            `/isbn/${encodeURIComponent(isbn)}.json`,
+            {},
+          ),
+        { staleOnError: false },
       );
-      await this.writeCache(cacheKey, edition);
-      return edition;
     } catch {
-      await this.writeCache(cacheKey, null);
+      await this.cache.write(cacheKey, null);
       return null;
     }
   }
@@ -728,18 +723,6 @@ export class GoogleBooksService {
       throw new ServiceUnavailableException('BOOKS.SOURCE_UNAVAILABLE');
     }
     return (await response.json()) as T;
-  }
-
-  private async writeCache(cacheKey: string, payload: unknown): Promise<void> {
-    await this.prisma.externalCache.upsert({
-      where: { cacheKey },
-      create: {
-        cacheKey,
-        payload: payload as object,
-        fetchedAt: new Date(),
-      },
-      update: { payload: payload as object, fetchedAt: new Date() },
-    });
   }
 }
 

@@ -175,7 +175,8 @@ yoksa atlanır). İki sebep, iki düzeltme:
 ### 3.4 Medium/Low kümesi (sentez §0'da tam liste)
 B-04 `lib/admin/api.ts` bölünmesi (44 importer), D-B4 movies↔shows kalan
 ikizler (TMDB istemci soyutlaması ister), H-F3 film/dizi/anime rota literalleri,
-API-07/09/11/12/13, D-B7 `externalCache` (22 nokta; "fetchedAt eksik" YANLIŞ
+API-07/11/13 (~~API-09~~ 2 Eylül gecesi kapandı: tohumlama bloğu ölü koddu,
+silindi; ~~API-12~~ gerekçesiz), D-B7 `externalCache` (22 nokta; "fetchedAt eksik" YANLIŞ
 ALARM), i18n ölü anahtarlar (15×2), ölü exportlar (GOJO_* hariç — dal açık),
 `music-playlist`/`music-sync` slug varyantları, P-04/05/10 animasyon hijyeni
 (tasarımı değiştirir — kullanıcıyla).

@@ -279,42 +279,17 @@ export class ShowsService {
     directors: Array<{ name: string; count: number }>;
     genres: string[];
   }> {
-    let entries = await readArchiveEntries(this.prisma);
-
     /**
-     * Sezon takibinden ÖNCE eklenmiş diziler sezonsuz duruyor. Zincir burada
-     * bir kez kuruluyor: aksi halde salon "0 sezon" gösterir ve kullanıcının
-     * her diziyi tek tek açması gerekir. Bir kez başarılı olduktan sonra bu
-     * dal hiç çalışmaz; TMDB düşerse sessizce atlanır (kural 4).
+     * SAF OKUMA (API-09, 2 Eylül 2026). Buradaki "sezon takibinden önce
+     * eklenmiş dizileri ilk açılışta TMDB'den tohumla" bloğu kaldırıldı:
+     * `create` ve `refresh` sezonları zaten kuruyor, canlıda sezonsuz dizi
+     * kalmadı (92/92 ölçüldü) ve public bir GET'in sınırsız `Promise.all`
+     * ile yazıp arşivi ikinci kez okuması hem yavaş hem eşzamanlılıkta
+     * çifte senkron riskiydi. Sezonsuz bir kayıt bir daha oluşursa yol
+     * admin `refresh` (⟳ tazele) — ya da dizi sayfasının kendi tek-kayıt
+     * onarımı (`getDetail`).
      */
-    const unseeded = entries.filter((entry) => entry.seasons.length === 0);
-    if (unseeded.length > 0) {
-      const seeded = await Promise.all(
-        unseeded.map(async (entry) => {
-          try {
-            const show = await this.tmdb.getShow(entry.tmdbId);
-            await this.prisma.showEntry.update({
-              where: { id: entry.id },
-              data: {
-                externalData: show as unknown as Prisma.InputJsonValue,
-                externalDataFetchedAt: new Date(),
-              },
-            });
-            await this.syncSeasons(entry.id, show);
-            // Zaten "izledim" işaretli dizinin sayacı da dolsun
-            if (entry.status === 'WATCHED') {
-              await this.markAllSeasonsWatched(entry.id);
-            }
-            return show.seasons.length > 0;
-          } catch {
-            return false;
-          }
-        }),
-      );
-      if (seeded.some(Boolean)) {
-        entries = await readArchiveEntries(this.prisma);
-      }
-    }
+    const entries = await readArchiveEntries(this.prisma);
 
     const shows = withSlugs(entries);
     return {
@@ -332,15 +307,17 @@ export class ShowsService {
     if (index === -1) {
       throw new NotFoundException('SHOWS.NOT_FOUND');
     }
-    const show = shows[index];
+    let show = shows[index];
     // Liste satırı daraltılmış künye taşıyor; sayfa kadro, fragman, platform
     // ve sezon listesi istiyor — tam görüntü yalnızca bu kayıt için okunur
     // (API-08). `seasons` sıralı geliyor ki aşağıdaki "sezonsuz mu" kontrolü
     // ve `syncSeasons` eskisi gibi çalışsın.
-    const entry = await this.prisma.showEntry.findUniqueOrThrow({
-      where: { id: entries[index].id },
-      include: { seasons: { orderBy: { orderIndex: 'asc' } } },
-    });
+    const readEntry = () =>
+      this.prisma.showEntry.findUniqueOrThrow({
+        where: { id: entries[index].id },
+        include: { seasons: { orderBy: { orderIndex: 'asc' } } },
+      });
+    let entry = await readEntry();
     let data = (entry.externalData ?? null) as TmdbShow | null;
 
     if (!data || data.stills === undefined || data.seasons === undefined) {
@@ -365,7 +342,10 @@ export class ShowsService {
      */
     if (entry.seasons.length === 0 && data?.seasons?.length) {
       await this.syncSeasons(entry.id, data);
-      return this.getDetail(slug);
+      // Özyineleme YOK (API-09): arşivin tamamını ikinci kez okumak yerine
+      // yalnız bu kayıt tazelenir; slug listeden geldiği gibi kalır.
+      entry = await readEntry();
+      show = { ...toArchiveShow(entry), slug: show.slug };
     }
 
     let similar: TmdbSearchResult[] = [];

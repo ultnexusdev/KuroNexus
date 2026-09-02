@@ -77,7 +77,7 @@
 - **Çözüm:** Liste uçlarında gösterilen alanları sütuna terfi ettirmek ya da Postgres JSON projeksiyonu; kısa vadede en azından `omit` benzeri daraltma.
 - **Getiri:** Kitapta ölçülen kazancın (istek başına ~0.5 MB) benzeri üç salonda daha; DB→app→JSON zincirinde RAM/CPU düşer.
 
-### API-09 — `GET /shows` içinde döngüsel yazma + özyinelemeli çift okuma
+### ~~API-09~~ — `GET /shows` içinde döngüsel yazma + özyinelemeli çift okuma → **YAPILDI (2 Eylül 2026 gecesi):** ölçüm canlıda 92 dizinin 92'sinde sezon var, `create` ve `refresh` sezonları zaten kuruyor → arşiv ucundaki tohumlama bloğu ölü koddu, silindi; `GET /shows` saf okuma. `getDetail`teki özyineleme kalktı: sezon onarımı gerekirse yalnız o kayıt yeniden okunuyor (`readEntry`), slug listeden geldiği gibi kalıyor. Kanıt: tsc/build/jest 161 temiz; dizi arşivi yanıtı deploy sonrası bayt bayt kıyaslanacak.
 - **Dosya:** `backend/src/shows/shows.service.ts` — **Satır:** 220-241 (seeding), 295-298 (özyineleme)
 - **Problem:** Public arşiv ucu, sezonu eksik dizileri sınırsız `Promise.all` ile TMDB'den çekip dizi başına update + sezon başına upsert koşuyor (satır 220-241), ardından arşivi yeniden okuyor (satır 243). `getDetail` da sezon eksikse kendini çağırıp tam `findMany`'yi ikinci kez koşuyor (satır 295-298).
 - **Etki:** **Medium** (tek seferlik geçiş amaçlı — yorum satır 212-217 — ama uç public ve koşul her boş-sezonlu kayıtta yeniden tetiklenir)

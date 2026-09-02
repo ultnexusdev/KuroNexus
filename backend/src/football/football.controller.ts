@@ -23,13 +23,11 @@ export class FootballController {
     return this.football.getSquad();
   }
 
-  @Public()
-  @Get('player/:id')
-  getPlayer(@Param('id') id: string) {
-    return this.football.getPlayer(id);
-  }
-
   /*
+   * GET /player/:id 2026-09-02'de KALDIRILDI (F-4, kullanıcı kararı): tek
+   * tüketicisi `/spor/futbol/oyuncu/[id]` sayfasıydı, o da emekli edildi.
+   * TmPlayer tablosu duruyor — kadro ve transfer haberleri ondan okuyor.
+   *
    * GET /standings ve GET /next-match 2026-08-22'de KALDIRILDI (kullanıcı
    * onayı): kulüp sayfası puan tablosunu ve sonraki maçı artık tek istekte
    * football-live'dan alıyor ve iki ucun frontend'de tek bir tüketicisi

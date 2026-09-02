@@ -304,49 +304,6 @@ export class FootballService {
     return { ok: true };
   }
 
-  async getPlayer(playerId: string) {
-    const p = await this.prisma.tmPlayer.findUnique({
-      where: { id: playerId },
-      include: { currentClub: true },
-    });
-
-    if (!p) {
-      return { player: null };
-    }
-
-    let age: number | null = null;
-    if (p.dateOfBirth) {
-      const ageDifMs = Date.now() - p.dateOfBirth.getTime();
-      const ageDate = new Date(ageDifMs);
-      age = Math.abs(ageDate.getUTCFullYear() - 1970);
-    }
-
-    // Sezon istatistiği YOK: API-Football döneminden kalan `statistics` alanı
-    // TM geçişinde hep boş dönüyordu, sayfa da "{sezon} sezonu için istatistik
-    // bulunamadı" diye sabit bir hata gösteriyordu. TM veri setinde maç bazlı
-    // istatistik var (TmGame) ama senkronize edilmiyor; o gelene kadar sayfa
-    // elimizdeki gerçek veriyi (künye) gösterir, olmayan veriyi vaat etmez.
-    return {
-      player: {
-        id: p.id,
-        name: p.name,
-        firstname: p.firstName ?? null,
-        lastname: p.lastName ?? null,
-        age,
-        birthDate: p.dateOfBirth
-          ? p.dateOfBirth.toISOString().split('T')[0]
-          : null,
-        heightInCm: p.heightInCm ?? null,
-        foot: p.foot ?? null,
-        position: p.subPosition ?? p.position ?? null,
-        marketValueInEur: p.marketValueInEur ?? null,
-        clubName: p.currentClub?.name ?? null,
-        photo: p.imageUrl ?? null,
-        tmUrl: p.url ?? null,
-      },
-    };
-  }
-
   // ---- Transfermarkt veri seti senkronizasyonu ----
   // players.csv stream edilir, yalnızca takımın oyuncuları süzülüp upsert
   // edilir (tam veri seti ~100k satır — hepsini içeri almak gereksiz).

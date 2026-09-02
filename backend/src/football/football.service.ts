@@ -5,8 +5,8 @@ import { Readable } from 'stream';
 import csv = require('csv-parser');
 import * as unzipper from 'unzipper';
 import { PrismaService } from '../prisma/prisma.service';
+import { ExternalCacheService } from '../common/cache/external-cache.service';
 import type { CreateSquadOverrideDto } from './dto/create-squad-override.dto';
-import type { Prisma } from '../generated/prisma/client';
 
 // transfermarkt-datasets'in resmî yayın kanalı Kaggle'dır (CSV'ler git'te değil).
 // Tek dosya indirmesi ZIP olarak döner; stream edilerek açılır.
@@ -165,6 +165,8 @@ export class FootballService {
   constructor(
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
+    /** Senkron durumu / forma numaraları deposu — `ExternalCache` tek kapıdan (D-B7) */
+    private readonly cache: ExternalCacheService,
   ) {
     this.teamId = this.config.get<string>('TM_TEAM_ID', '141'); // 141 = Galatasaray in TM
     this.season = this.config.get<string>('TM_SEASON', '2024');
@@ -194,11 +196,9 @@ export class FootballService {
     const [players, overrides, numbers] = await Promise.all([
       this.prisma.tmPlayer.findMany({ where: { currentClubId: this.teamId } }),
       this.prisma.squadOverride.findMany({ where: { teamId: this.teamId } }),
-      this.prisma.externalCache.findUnique({
-        where: { cacheKey: SHIRT_NUMBERS_KEY },
-      }),
+      this.cache.read<Record<string, number>>(SHIRT_NUMBERS_KEY),
     ]);
-    const shirtNumbers = (numbers?.payload ?? {}) as Record<string, number>;
+    const shirtNumbers = numbers?.payload ?? {};
 
     const hiddenIds = new Set(
       overrides.filter((o) => o.tmPlayerId).map((o) => o.tmPlayerId as string),
@@ -341,9 +341,7 @@ export class FootballService {
   }
 
   async getSyncStatus() {
-    const last = await this.prisma.externalCache.findUnique({
-      where: { cacheKey: SYNC_STATUS_KEY },
-    });
+    const last = await this.cache.read(SYNC_STATUS_KEY);
     return {
       running: this.syncRunning,
       last: last?.payload ?? null,
@@ -359,9 +357,7 @@ export class FootballService {
   private leagueSyncRunning = false;
 
   async getLeagueSyncStatus() {
-    const last = await this.prisma.externalCache.findUnique({
-      where: { cacheKey: LEAGUE_SYNC_KEY },
-    });
+    const last = await this.cache.read(LEAGUE_SYNC_KEY);
     return {
       running: this.leagueSyncRunning,
       last: last?.payload ?? null,
@@ -512,15 +508,8 @@ export class FootballService {
     return (await res.json()) as Array<ApifyMatchRow | ApifyStandingRow>;
   }
 
-  private async upsertCache(key: string, payload: unknown) {
-    await this.prisma.externalCache.upsert({
-      where: { cacheKey: key },
-      create: { cacheKey: key, payload: payload as Prisma.InputJsonValue },
-      update: {
-        payload: payload as Prisma.InputJsonValue,
-        fetchedAt: new Date(),
-      },
-    });
+  private upsertCache(key: string, payload: unknown): Promise<void> {
+    return this.cache.write(key, payload);
   }
 
   // ---- Forma numaraları (admin, sezonda bir kez) ----
@@ -616,16 +605,12 @@ export class FootballService {
 
   async getShirtNumberStatus() {
     const [numbers, last] = await Promise.all([
-      this.prisma.externalCache.findUnique({
-        where: { cacheKey: SHIRT_NUMBERS_KEY },
-      }),
-      this.prisma.externalCache.findUnique({
-        where: { cacheKey: SHIRT_NUMBERS_KEY + ':last' },
-      }),
+      this.cache.read<Record<string, number>>(SHIRT_NUMBERS_KEY),
+      this.cache.read(SHIRT_NUMBERS_KEY + ':last'),
     ]);
     return {
       running: this.shirtSyncRunning,
-      count: Object.keys((numbers?.payload ?? {}) as object).length,
+      count: Object.keys(numbers?.payload ?? {}).length,
       last: last?.payload ?? null,
       lastAt: last?.fetchedAt ?? null,
     };
@@ -813,18 +798,8 @@ export class FootballService {
     );
   }
 
-  private async writeSyncStatus(payload: Record<string, unknown>) {
-    await this.prisma.externalCache.upsert({
-      where: { cacheKey: SYNC_STATUS_KEY },
-      create: {
-        cacheKey: SYNC_STATUS_KEY,
-        payload: payload as Prisma.InputJsonValue,
-      },
-      update: {
-        payload: payload as Prisma.InputJsonValue,
-        fetchedAt: new Date(),
-      },
-    });
+  private writeSyncStatus(payload: Record<string, unknown>): Promise<void> {
+    return this.cache.write(SYNC_STATUS_KEY, payload);
   }
 }
 

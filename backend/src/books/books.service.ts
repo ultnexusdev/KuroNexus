@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { ExternalCacheService } from '../common/cache/external-cache.service';
 import { slugify } from '../common/utils/slugify';
 import { normalizeUrl } from '../common/utils/normalize-url';
 import { deriveArchiveSlug } from './archive-slug';
@@ -209,7 +210,10 @@ export interface BookArchiveStats {
 export type BookListItem = Omit<ArchiveBook, 'description'>;
 
 /** Künye metnini listeden düşürür — tek geçiş, `getArchive` dışında kullanılmaz. */
-function toListItem({ description: _unused, ...rest }: ArchiveBook): BookListItem {
+function toListItem({
+  description: _unused,
+  ...rest
+}: ArchiveBook): BookListItem {
   return rest;
 }
 
@@ -397,6 +401,8 @@ export interface BookSeriesPage {
 export class BooksService {
   constructor(
     private readonly prisma: PrismaService,
+    /** Kişi fotoğrafı deposu — `ExternalCache` tek kapıdan (D-B7) */
+    private readonly cache: ExternalCacheService,
     private readonly source: GoogleBooksService,
     private readonly binKitap: BinKitapService,
     private readonly covers: BookCoverService,
@@ -710,11 +716,10 @@ export class BooksService {
     remote: string | null,
   ): Promise<string | null> {
     const cacheKey = `books:person-photo:v1:${slugify(slug)}`;
-    const cached = await this.prisma.externalCache.findUnique({
-      where: { cacheKey },
-    });
+    // Yaşa bakılmaz: indirilmiş fotoğraf süresiz geçerli (`read`, TTL yok)
+    const cached = await this.cache.read<{ photo: string | null }>(cacheKey);
     if (cached) {
-      return (cached.payload as { photo: string | null }).photo;
+      return cached.payload.photo;
     }
     if (!remote) {
       return null;
@@ -726,11 +731,7 @@ export class BooksService {
     }
     // Yalnızca başarılı indirme yazılıyor: boş cevap cache'lenirse portre
     // 30 gün gelmezdi (arama bacağında ödenen aynı bedel)
-    await this.prisma.externalCache.upsert({
-      where: { cacheKey },
-      create: { cacheKey, payload: { photo }, fetchedAt: new Date() },
-      update: { payload: { photo }, fetchedAt: new Date() },
-    });
+    await this.cache.write(cacheKey, { photo });
     return photo;
   }
 

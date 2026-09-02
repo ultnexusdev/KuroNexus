@@ -5,6 +5,7 @@ import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Cron } from '@nestjs/schedule';
 import { PrismaService } from '../prisma/prisma.service';
+import { ExternalCacheService } from '../common/cache/external-cache.service';
 import { RemoteImageService } from '../uploads/remote-image.service';
 import { UploadsService } from '../uploads/uploads.service';
 import { FootballService } from '../football/football.service';
@@ -30,7 +31,6 @@ import {
 } from './providers/types';
 import { LINEUP_SLOTS, type SetLineupDto } from './dto/set-lineup.dto';
 import type { AddClubImageDto } from './dto/club-image.dto';
-import type { Prisma } from '../generated/prisma/client';
 
 /**
  * Salon 06 · Futbol · CANLI VERİ — normalleştirici.
@@ -190,6 +190,8 @@ export class FootballLiveService {
   constructor(
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
+    /** Puan cetveli/fikstür/canlı maç deposu — `ExternalCache` tek kapıdan (D-B7) */
+    private readonly cache: ExternalCacheService,
     private readonly uploads: UploadsService,
     private readonly remoteImage: RemoteImageService,
     private readonly football: FootballService,
@@ -1147,25 +1149,21 @@ export class FootballLiveService {
 
   // ---- Cache yardımcıları --------------------------------------------------
 
-  private async readCache<T>(
+  /**
+   * İki sarmalayıcı `ExternalCacheService`e devrediyor (D-B7). Bu servis TTL'li
+   * "taze/bayat" kalıbı değil, durum deposu kullanıyor (senkron sonucu, puan
+   * cetveli, fikstür, canlı maç); okuma yaşa bakmaz, yazma her zaman şimdi.
+   * Eski `writeCache`in `create` dalında `fetchedAt` yoktu (şema varsayılanına
+   * düşüyordu) — artık iki dalda da açık.
+   */
+  private readCache<T>(
     cacheKey: string,
   ): Promise<{ payload: T; fetchedAt: Date } | null> {
-    const row = await this.prisma.externalCache.findUnique({
-      where: { cacheKey },
-    });
-    if (!row) return null;
-    return { payload: row.payload as T, fetchedAt: row.fetchedAt };
+    return this.cache.read<T>(cacheKey);
   }
 
-  private async writeCache(cacheKey: string, payload: unknown): Promise<void> {
-    await this.prisma.externalCache.upsert({
-      where: { cacheKey },
-      create: { cacheKey, payload: payload as Prisma.InputJsonValue },
-      update: {
-        payload: payload as Prisma.InputJsonValue,
-        fetchedAt: new Date(),
-      },
-    });
+  private writeCache(cacheKey: string, payload: unknown): Promise<void> {
+    return this.cache.write(cacheKey, payload);
   }
 }
 

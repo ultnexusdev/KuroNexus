@@ -56,10 +56,12 @@ ağacı temiz (jujutsu-kaisen görsel seti 2 Eylül gecesi
 (JSON projeksiyonu, gerçek-PG eşdeğerlik testi), D-F2 (TmdbCurator, −425
 satır, küratör sınavı geçti), F-4 emekli, H-F6 bilinçli istisna, jujutsu
 görsel seti taşındı, API-09/07/11, ölü kod (16 i18n + 9 export), H-F3 rota
-süpürmesi (36 dosya), ölü CSS (669 satır), D-B7 başladı (ExternalCacheService
-+ TMDB kanadı), Docker temizliği 15 dk, MEM-01 soğuk sınav geçti.
-`pnpm test` 21 paket / 168 test yeşil. **Kod tarafında açık Critical/High
-yok; D-B7'nin kalan 9 servisi tek açık refactor.**
+süpürmesi (36 dosya), ölü CSS (669 satır), D-B7 KAPANDI (ExternalCacheService,
+16 servis, 5 commit, her kanat canlıda bayt bayt kıyaslandı), Docker temizliği
+15 dk, MEM-01 soğuk sınav geçti. `pnpm test` 21 paket / 170 test yeşil.
+**Kod tarafında açık Critical/High yok; denetimin High sınıfı bütünüyle
+kapalı. Kalan yalnız Medium/Low: D-B4, B-04, API-13, müzik slug varyantları,
+animasyon hijyeni (kullanıcıyla).**
 
 Ölçülebilir sonuç: ~1.800 satır tekrar silindi, **62 yeni test** (öncesinde 0),
 backend imajı 996 → 842 MB, `/books` gibi 558 KB'lık yanıtlar artık ziyaretçiye
@@ -190,11 +192,11 @@ literalleri~~ (2 Eylül gecesi süpürüldü: `filmHref`/`showHref` açıldı,
 `animeHref` TODO'su kapandı, 36 dosya — rapor H-F3),
 API-13 (~~API-07/09/11~~ 2 Eylül gecesi kapandı — kitap uçları ince dizin +
 kimlikle çekim, dizi arşivi saf okuma, müzik tür payı tek gruplu SQL;
-~~API-12~~ gerekçesiz), **D-B7 `externalCache` — SÜRÜYOR:** `ExternalCacheService` + 9 test; TMDB
-(film/dizi), AniList + Jikan, kitap (Google Books, bin-kitap, ödüller) ve
-müzik (Spotify, MusicBrainz) kanatları taşındı (`remember` TTL fonksiyonu ve
-`shouldWrite` aldı); kalan 2 servis (futbol 7 nokta, futbol-canlı 2 nokta)
-rapor D-B7'de listeli, kanat başına
+~~API-12~~ gerekçesiz), ~~D-B7 `externalCache`~~ **KAPANDI (2 Eylül gecesi, 5 commit):**
+`ExternalCacheService` + 9 test; 16 servisin tamamı taşındı (`remember` /
+`readFresh` / `read` / `write`; TTL fonksiyonu ve `shouldWrite` ile). Doğrudan
+`prisma.externalCache` yalnız üç bilinçli noktada (ödül liste okuması ve
+`patchCache`, cron varlık yoklaması) — rapor D-B7'de gerekçeli, kanat başına
 bir commit, "davranışı birebir koru" kuralıyla ("fetchedAt eksik" YANLIŞ
 ALARM'dı ama `write` artık iki dalda da yazıyor), ~~i18n ölü anahtarlar (16×2)~~ ve ~~ölü exportlar~~ (2 Eylül gecesi
 silindi; GOJO_*, RESERVED_*, curatedCharacterIds bilerek kaldı — rapor 1.2/1.5),

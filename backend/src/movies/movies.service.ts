@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { ExternalCacheService } from '../common/cache/external-cache.service';
 import {
   TmdbService,
   type TmdbCastMember,
@@ -228,6 +229,8 @@ export interface MovieDetail {
 export class MoviesService {
   constructor(
     private readonly prisma: PrismaService,
+    /** Vitrin afişleri deposu — `ExternalCache` tek kapıdan (D-B7) */
+    private readonly cache: ExternalCacheService,
     private readonly tmdb: TmdbService,
   ) {}
 
@@ -460,17 +463,12 @@ export class MoviesService {
     right: ShowcasePoster | null;
   }> {
     const cacheKey = 'movies:showcase:v1';
-    const cached = await this.prisma.externalCache.findUnique({
-      where: { cacheKey },
-    });
-    if (
-      cached &&
-      Date.now() - cached.fetchedAt.getTime() < SHOWCASE_CACHE_TTL_MS
-    ) {
-      return cached.payload as unknown as {
-        left: ShowcasePoster | null;
-        right: ShowcasePoster | null;
-      };
+    const cached = await this.cache.read<{
+      left: ShowcasePoster | null;
+      right: ShowcasePoster | null;
+    }>(cacheKey);
+    if (cached && cached.ageMs < SHOWCASE_CACHE_TTL_MS) {
+      return cached.payload;
     }
 
     const resolve = async (
@@ -499,23 +497,9 @@ export class MoviesService {
 
     // İkisi de boşsa cache'leme: anahtar sonradan tanımlanınca hemen dolsun
     if (left || right) {
-      await this.prisma.externalCache.upsert({
-        where: { cacheKey },
-        create: {
-          cacheKey,
-          payload: payload as unknown as object,
-          fetchedAt: new Date(),
-        },
-        update: {
-          payload: payload as unknown as object,
-          fetchedAt: new Date(),
-        },
-      });
+      await this.cache.write(cacheKey, payload);
     } else if (cached) {
-      return cached.payload as unknown as {
-        left: ShowcasePoster | null;
-        right: ShowcasePoster | null;
-      };
+      return cached.payload;
     }
     return payload;
   }

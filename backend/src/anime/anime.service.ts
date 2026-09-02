@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { ExternalCacheService } from '../common/cache/external-cache.service';
 import {
   AnilistService,
   type AnilistCharacter,
@@ -304,6 +305,8 @@ export async function readArchiveEntries(
 export class AnimeService {
   constructor(
     private readonly prisma: PrismaService,
+    /** Vitrin afişleri + derlenmiş karakter dizini deposu (D-B7) */
+    private readonly cache: ExternalCacheService,
     private readonly anilist: AnilistService,
     private readonly jikan: JikanService,
     private readonly characterImages: CharacterImagesService,
@@ -342,17 +345,12 @@ export class AnimeService {
     right: ShowcasePoster | null;
   }> {
     const cacheKey = 'anime:showcase:v1';
-    const cached = await this.prisma.externalCache.findUnique({
-      where: { cacheKey },
-    });
-    if (
-      cached &&
-      Date.now() - cached.fetchedAt.getTime() < SHOWCASE_CACHE_TTL_MS
-    ) {
-      return cached.payload as unknown as {
-        left: ShowcasePoster | null;
-        right: ShowcasePoster | null;
-      };
+    const cached = await this.cache.read<{
+      left: ShowcasePoster | null;
+      right: ShowcasePoster | null;
+    }>(cacheKey);
+    if (cached && cached.ageMs < SHOWCASE_CACHE_TTL_MS) {
+      return cached.payload;
     }
 
     const resolve = async (query: string): Promise<ShowcasePoster | null> => {
@@ -386,23 +384,9 @@ export class AnimeService {
 
     // İkisi de boşsa cache'leme: kaynak toparlayınca hemen dolsun
     if (left || right) {
-      await this.prisma.externalCache.upsert({
-        where: { cacheKey },
-        create: {
-          cacheKey,
-          payload: payload as unknown as object,
-          fetchedAt: new Date(),
-        },
-        update: {
-          payload: payload as unknown as object,
-          fetchedAt: new Date(),
-        },
-      });
+      await this.cache.write(cacheKey, payload);
     } else if (cached) {
-      return cached.payload as unknown as {
-        left: ShowcasePoster | null;
-        right: ShowcasePoster | null;
-      };
+      return cached.payload;
     }
     return payload;
   }
@@ -514,14 +498,9 @@ export class AnimeService {
     // v2: kadro portreleri büyüdü (anilist.service `characters:v3`), derlenmiş
     // dizin de o adresleri taşıdığı için birlikte sürümlendi
     const cacheKey = `anime:character-index:v2:${fingerprint}`;
-    const cached = await this.prisma.externalCache.findUnique({
-      where: { cacheKey },
-    });
-    if (
-      cached &&
-      Date.now() - cached.fetchedAt.getTime() < CHARACTER_INDEX_TTL_MS
-    ) {
-      return cached.payload as unknown as CharacterIndexPayload;
+    const cached = await this.cache.read<CharacterIndexPayload>(cacheKey);
+    if (cached && cached.ageMs < CHARACTER_INDEX_TTL_MS) {
+      return cached.payload;
     }
 
     const casts = await mapWithLimit(
@@ -592,28 +571,9 @@ export class AnimeService {
     // Hiç karakter derlenemediyse cache'leme: kaynak toparlayınca ilk istekte
     // dolsun, boş liste 24 saat çakılı kalmasın (afiş cache'iyle aynı karar)
     if (characters.length > 0) {
-      /*
-       * ⚠️ Aşağıdaki `as unknown as object` dönüşümü SİLİNMEMELİ.
-       *
-       * `eslint --fix` bunu "gereksiz dönüşüm" diye kaldırmak ister ve
-       * kaldırınca derleme kırılır: Prisma'nın `Json` alanı TypeScript'te
-       * `InputJsonValue` bekliyor, o tip de **index imzası** şart koşuyor.
-       * `ArchiveCharacter` gibi adlandırılmış arayüzlerde index imzası yok,
-       * dolayısıyla doğrudan atanamıyorlar. Aynı desen bu dosyada `showcase`
-       * ve `episodeMarks` yazımlarında da var, aynı sebeple.
-       */
-      await this.prisma.externalCache.upsert({
-        where: { cacheKey },
-        create: {
-          cacheKey,
-          payload: payload as unknown as object,
-          fetchedAt: new Date(),
-        },
-        update: {
-          payload: payload as unknown as object,
-          fetchedAt: new Date(),
-        },
-      });
+      // Prisma'nın `InputJsonValue` dönüşümü (adlandırılmış arayüzlerde index
+      // imzası yok) artık tek yerde: `ExternalCacheService.write` (D-B7).
+      await this.cache.write(cacheKey, payload);
     }
     return payload;
   }

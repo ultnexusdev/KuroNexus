@@ -106,7 +106,9 @@ Data Cache'ten, deploy 15 dk → 4 dk.
 
 ## 3 · AÇIK İŞLER
 
-### 3.1 Sıradaki adaylar (öneri sırasıyla)
+### 3.1 Sıradaki adaylar (öneri sırasıyla) — **ÜÇÜ DE BİTTİ (2 Eylül gecesi)**
+Sonraki oturumun sırası: önce §3.2 kararları (kullanıcıya sor), sonra §3.4
+Medium/Low kümesi; kod tarafında açık High kalmadı.
 1. ~~Dependabot 26 açık~~ → **YAPILDI, 2 Eylül akşamı, iki commit halinde
    (backend + frontend ayrı — Watch Paths tek push'ta iki build açmasın diye).**
    Ayrıntı sentez §0 son madde. **Push sırası:** `df -h /` → önce backend
@@ -123,8 +125,8 @@ Data Cache'ten, deploy 15 dk → 4 dk.
    denetler, eksikliği değil). Entegrasyon testi yerel PG ister:
    `prisma db push --url <test-db>` → `TEST_DATABASE_URL=<test-db> pnpm test
    archive-readers`; iş bitince `DROP DATABASE`. Son açık kod High'ı buydu.
-3. ~~D-F2 FilmCurator↔ShowCurator~~ → **KOD BİTTİ (2 Eylül gecesi), canlı
-   küratör sınavı bekliyor.** Gövde `components/media/TmdbCurator.tsx`
+3. ~~D-F2 FilmCurator↔ShowCurator~~ → **BİTTİ ve canlıda küratör girişiyle
+   SINANDI (2 Eylül 17:00 UTC, kullanıcı: "hepsi çalışıyor").** Gövde `components/media/TmdbCurator.tsx`
    (+ tek CSS `TmdbCurator.module.css`; iki kopya bayt bayt aynıydı). Salon
    dosyaları 617+578 → 55+55 satırlık `WING` tanımı: durum kümesi,
    `watched`/`watchlist`, yedi admin ucu. **Sözleşme:** `useTranslations`
@@ -194,6 +196,14 @@ Depoda `stash@{0}: gojo: yarim kalan yeniden yazim` duruyor; argümansız
 JSDoc-kesme regex'i dosyanın ilk `/**`'ından itibaren her şeyi yuttu (20 dosya,
 419 satır — commit'lenmeden geri alındı). Kural: dosya başına değişim boyutu
 şartı + tek blok şartı koy; tutmazsa dokunma. CRLF: regex'te `\r?\n`.
+
+### 4.5b Disk: deploy başına ~7 puan (2 Eylül akşamı ölçüldü)
+%78 → (backend + frontend deploy) → %92 → temizlik → %78 → (frontend) → ?
+Yani her deploy build cache + eski etiketli imaj olarak **~2.5 GB** bırakıyor;
+03:00 temizliği günde bir koşuyor, iki-üç deploy'luk bir akşam tek başına
+%90'ı geçiyor. Push öncesi `df -h /` kuralı bu yüzden kalıcı. Kalıcı çözüm
+adayı: Coolify'da deploy sonrası otomatik `builder prune` ya da imaj saklama
+sayısını düşürmek (rollback için 1-2 imaj yeter) — kullanıcıyla konuşulacak.
 
 ### 4.6 Küçükler
 `/tr` → `/` 307 (yoklamada `-L`); `docker inspect` env dökme (`DATABASE_URL`

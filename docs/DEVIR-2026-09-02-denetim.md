@@ -200,10 +200,16 @@ JSDoc-kesme regex'i dosyanın ilk `/**`'ından itibaren her şeyi yuttu (20 dosy
 ### 4.5b Disk: deploy başına ~7 puan (2 Eylül akşamı ölçüldü)
 %78 → (backend + frontend deploy) → %92 → temizlik → %78 → (frontend) → ?
 Yani her deploy build cache + eski etiketli imaj olarak **~2.5 GB** bırakıyor;
-03:00 temizliği günde bir koşuyor, iki-üç deploy'luk bir akşam tek başına
-%90'ı geçiyor. Push öncesi `df -h /` kuralı bu yüzden kalıcı. Kalıcı çözüm
-adayı: Coolify'da deploy sonrası otomatik `builder prune` ya da imaj saklama
-sayısını düşürmek (rollback için 1-2 imaj yeter) — kullanıcıyla konuşulacak.
+günde bir koşan temizlik buna yetmiyordu.
+
+**ÇÖZÜLDÜ (2 Eylül 17:10 UTC):** Coolify → Servers → localhost → Docker
+Cleanup: sıklık `0 0 * * *` → **`*/15 * * * *`**, "Force Docker Cleanup" açık
+kaldı. İlk elle tetiklemede %85 → %79 (build cache gitti). Bilinçli yan
+etki: her deploy soğuk cache ile başlar (ölçülü: 5 dk, §0.3). **"Disable
+Application Image Retention" AÇILMADI** — rollback o imajlara dayanıyor
+(§4.3'te siteyi kurtaran buydu). Push öncesi `df -h /` alışkanlığı kalsın;
+artık %85 üstü görmek beklenmiyor, görürsen temizlik koşmuyor demektir
+(panelde "Recent executions" listesine bak).
 
 ### 4.6 Küçükler
 `/tr` → `/` 307 (yoklamada `-L`); `docker inspect` env dökme (`DATABASE_URL`

@@ -123,8 +123,17 @@ Data Cache'ten, deploy 15 dk → 4 dk.
    denetler, eksikliği değil). Entegrasyon testi yerel PG ister:
    `prisma db push --url <test-db>` → `TEST_DATABASE_URL=<test-db> pnpm test
    archive-readers`; iş bitince `DROP DATABASE`. Son açık kod High'ı buydu.
-3. **D-F2** FilmCurator↔ShowCurator (~450 satır, %89 aynı) — küratör akışı
-   yalnız canlıda gerçek girişle sınanır; kullanıcıyla birlikte.
+3. ~~D-F2 FilmCurator↔ShowCurator~~ → **KOD BİTTİ (2 Eylül gecesi), canlı
+   küratör sınavı bekliyor.** Gövde `components/media/TmdbCurator.tsx`
+   (+ tek CSS `TmdbCurator.module.css`; iki kopya bayt bayt aynıydı). Salon
+   dosyaları 617+578 → 55+55 satırlık `WING` tanımı: durum kümesi,
+   `watched`/`watchlist`, yedi admin ucu. **Sözleşme:** `useTranslations`
+   sarmalayıcıda literal kalır (`check:i18n` literal ister), ortak bileşene
+   `t` prop'la iner. `next/dynamic` yolları ve `CuratorCardTools({movie})` /
+   `({show})` imzaları değişmedi — kartlar/salonlar dokunulmadı.
+   **Canlı sınav (küratör girişiyle, her iki salonda):** ara → seç → ekle;
+   öneri rafında ✕ / ↩ / "izledim"; kartta ★, ✓ (sırada bekleyende), durum
+   seçici, ✕ kaldır. Dizi tarafında "İzliyorum" seçeneği listede olmalı.
 
 ### 3.2 Kullanıcı kararı bekleyenler
 - **F-4** öksüz `/spor/futbol/oyuncu/[playerId]`: link ver ya da 301 ile emekli et.

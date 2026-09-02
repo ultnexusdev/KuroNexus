@@ -80,14 +80,14 @@ export default async function AnimeHallPage({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "anime" });
 
-  const [archive, showcase, hall, painImages, isAdmin] = await Promise.all([
-    getAnimeArchive(),
+  const isAdmin = await readIsAdmin();
+  const [archive, showcase, hall, painImages] = await Promise.all([
+    getAnimeArchive(isAdmin),
     getAnimeShowcase(),
     getHall("anime", t("hallName"), locale),
     // Silüet için yalnızca Pain'in kayıtları; kurulum koşmadıysa boş döner
     // ve kart bulut motifiyle çizilir — sayfa görsele borçlu değil.
-    getCharacterImages([AKATSUKI_IDS.pain]),
-    readIsAdmin(),
+    getCharacterImages([AKATSUKI_IDS.pain], isAdmin),
   ]);
 
   const painPortrait =

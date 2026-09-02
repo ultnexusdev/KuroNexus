@@ -71,9 +71,9 @@ export default async function CharacterPage({
   ].filter((id): id is number => typeof id === "number");
   const cardsPromise = getCharacterCards(referencedIds);
 
-  const [detail, isAdmin] = await Promise.all([
-    getCharacterDetail(characterId),
-    readIsAdmin(),
+  const isAdmin = await readIsAdmin();
+  const [detail] = await Promise.all([
+    getCharacterDetail(characterId, isAdmin),
   ]);
   if (!detail) {
     notFound();

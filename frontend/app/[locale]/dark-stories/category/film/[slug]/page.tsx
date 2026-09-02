@@ -39,9 +39,9 @@ export default async function MoviePage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const [detail, isAdmin] = await Promise.all([
-    getMovieDetail(slug),
-    readIsAdmin(),
+  const isAdmin = await readIsAdmin();
+  const [detail] = await Promise.all([
+    getMovieDetail(slug, isAdmin),
   ]);
   if (!detail) {
     notFound();

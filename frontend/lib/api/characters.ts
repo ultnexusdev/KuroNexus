@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { apiFetch } from "./client";
+import { freshness } from "./freshness";
 import type {
   CharacterCard,
   CharacterDetail,
@@ -25,29 +26,33 @@ const EMPTY_INDEX: CharacterIndex = {
  * Dizin. Kaynak düşerse salon boş açılır, sayfa çökmez — arşivin geri kalanı
  * (AGENTS.md kural 4) aynı davranışı gösteriyor.
  *
- * ── NEDEN `no-store` ──────────────────────────────────────────────────────
+ * ── TAZELİK: KÜRATÖR TAZE, ZİYARETÇİ BEŞ DAKİKA ──────────────────────────
  * Burada bir saatlik önbellek vardı ve küratör modunu ölçülebilir biçimde
  * bozuyordu: küratör bir karakteri dizinden çıkarıyor, sayfayı yeniliyor ve
  * karakter geri geliyordu — dışlama listesi backend'de işlese bile Next
- * önbellekten eski listeyi veriyordu. Bekleme bir saate kadar çıkabiliyordu,
- * yani "kaldırdım ama duruyor" hatası kullanıcıya rastgele görünüyordu.
+ * önbellekten eski listeyi veriyordu. "Kaldırdım ama duruyor" hatası
+ * kullanıcıya rastgele görünüyordu. Çare önce `no-store` oldu; 2 Eylül
+ * 2026'da `fresh` desenine geçti (`lib/api/freshness.ts`): sorun yaşayan
+ * KÜRATÖRDÜ, o hâlâ taze okuyor — ziyaretçiye önbellek geri geldi.
  *
- * `getCharacterDetail` aynı gerekçeyle zaten `no-store`: küratörün yüklediği
- * görsel anında görünsün diye. Dizin de aynı hizada.
- *
- * Bedeli küçük: liste backend'de günlük cache'li, buradaki istek kendi
- * API'mize bir tur. Önbelleğin elediği şey yalnızca aynı dakika içindeki
- * tekrar isteklerdi; küratörün doğru liste görmesi ondan ağır basıyor.
+ * `getCharacterDetail` ve `getCharacterImages` aynı hizada.
  */
-export const getCharacterIndex = cache(async (): Promise<CharacterIndex> => {
-  try {
-    return await apiFetch<CharacterIndex>("/anime/characters", {
-      cache: "no-store",
-    });
-  } catch {
-    return EMPTY_INDEX;
-  }
-});
+const cachedCharacterIndex = cache(
+  async (fresh: boolean): Promise<CharacterIndex> => {
+    try {
+      return await apiFetch<CharacterIndex>(
+        "/anime/characters",
+        freshness(fresh),
+      );
+    } catch {
+      return EMPTY_INDEX;
+    }
+  },
+);
+/** `fresh === true` normalizasyonunun gerekçesi `books.ts`te. */
+export function getCharacterIndex(fresh?: boolean): Promise<CharacterIndex> {
+  return cachedCharacterIndex(fresh === true);
+}
 
 /**
  * Adı geçen karakterlerin portreleri (savaş ve ilişki satırları).
@@ -107,12 +112,14 @@ export async function getCharacterCardsBulk(
  * Verilen karakterlerin küratör görselleri (CharacterImage) tek istekte.
  *
  * Akatsuki sergisinin görsel kaynağı: portreler ve sergi görselleri buradan,
- * kayıt yoksa AniList portresine (`getCharacterCards`) düşülür. `no-store` —
- * küratörün/kurulum ucunun yüklediği görsel anında görünmeli (dizinle aynı
- * gerekçe). Alınamazsa boş dizi: sergi portresiz ama ayakta kalır.
+ * kayıt yoksa AniList portresine (`getCharacterCards`) düşülür. Küratörün /
+ * kurulum ucunun yüklediği görsel KÜRATÖRE anında görünür (`fresh`), ziyaretçi
+ * beş dakikalık önbellekten okur (dizinle aynı karar). Alınamazsa boş dizi:
+ * sergi portresiz ama ayakta kalır.
  */
 export async function getCharacterImages(
   ids: number[],
+  fresh?: boolean,
 ): Promise<CharacterImageRow[]> {
   const unique = [...new Set(ids)].filter(
     (id) => Number.isInteger(id) && id > 0,
@@ -123,7 +130,7 @@ export async function getCharacterImages(
   try {
     return await apiFetch<CharacterImageRow[]>(
       `/anime/characters/images?ids=${unique.join(",")}`,
-      { cache: "no-store" },
+      freshness(fresh),
     );
   } catch {
     return [];
@@ -139,6 +146,7 @@ export async function getCharacterImages(
  */
 export async function getCharacterImagesBulk(
   ids: number[],
+  fresh?: boolean,
 ): Promise<CharacterImageRow[]> {
   const unique = [...new Set(ids)].filter(
     (id) => Number.isInteger(id) && id > 0,
@@ -148,14 +156,15 @@ export async function getCharacterImagesBulk(
     chunks.push(unique.slice(i, i + 50));
   }
   const results = await Promise.all(
-    chunks.map((chunk) => getCharacterImages(chunk)),
+    chunks.map((chunk) => getCharacterImages(chunk, fresh)),
   );
   return results.flat();
 }
 
 /** Karakter dosyası. Bulunamazsa `null` → sayfa 404 verir. */
-export const getCharacterDetail = cache(async function (
+const cachedCharacterDetail = cache(async function (
   characterId: string,
+  fresh: boolean,
 ): Promise<CharacterDetail | null> {
   // Sayısal olmayan kimlik backend'e hiç gitmesin: rota parametresi elle
   // yazılabilir bir yer ve `ParseIntPipe` orada 400 üretirdi — kullanıcıya
@@ -181,9 +190,16 @@ export const getCharacterDetail = cache(async function (
      */
     return await apiFetch<CharacterDetail>(
       `/anime/characters/${characterId}`,
-      { cache: "no-store" },
+      freshness(fresh),
     );
   } catch {
     return null;
   }
 });
+/** `fresh === true` normalizasyonunun gerekçesi `books.ts`te. */
+export function getCharacterDetail(
+  characterId: string,
+  fresh?: boolean,
+): Promise<CharacterDetail | null> {
+  return cachedCharacterDetail(characterId, fresh === true);
+}

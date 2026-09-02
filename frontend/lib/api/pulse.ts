@@ -1,4 +1,5 @@
 import { apiFetch } from "./client";
+import { freshness } from "./freshness";
 import type { Pulse } from "./types";
 
 const EMPTY_PULSE: Pulse = {
@@ -22,9 +23,9 @@ const EMPTY_PULSE: Pulse = {
  * /dark-stories) onu çağırıyor — eskiden `no-store` ile her ziyaretçi hepsini
  * yeniden koşturuyordu, üstelik yazılı bir gerekçesi yoktu (2026-08-22
  * denetimi; karar kullanıcıya soruldu ve onaylandı). Beş dakika müzik
- * kanadıyla aynı denge.
+ * kanadıyla aynı denge — değer 2 Eylül 2026'dan beri site geneli tek yerde:
+ * `lib/api/freshness.ts` (REVALIDATE).
  */
-const REVALIDATE = 300;
 
 /**
  * "Nexus'u Keşfet" sayfasının tamamı tek istekte gelir. Alınamazsa sayfa boş
@@ -37,10 +38,7 @@ const REVALIDATE = 300;
  */
 export async function getPulse(fresh?: boolean): Promise<Pulse> {
   try {
-    return await apiFetch<Pulse>(
-      "/pulse",
-      fresh ? { cache: "no-store" } : { next: { revalidate: REVALIDATE } },
-    );
+    return await apiFetch<Pulse>("/pulse", freshness(fresh));
   } catch {
     return EMPTY_PULSE;
   }

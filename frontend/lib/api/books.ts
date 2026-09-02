@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { apiFetch } from "./client";
+import { freshness } from "./freshness";
 import type {
   AwardDetail,
   AwardSummary,
@@ -41,42 +42,64 @@ const EMPTY_ARCHIVE: BookArchive = {
 /**
  * Salon tek istekte dolar; künye dış kaynaktan değil kendi tablomuzdan gelir.
  *
- * Sayfa önbelleği yok: arşive kitap ekledikten hemen sonra salonda görmek
- * gerekiyor (film kanadında verilen aynı karar).
+ * Tazelik `fresh`e bağlı (`lib/api/freshness.ts`): küratör arşive kitap
+ * ekledikten hemen sonra salonda görür, ziyaretçi en geç beş dakikada.
+ * 2 Eylül 2026'ya kadar herkes için `no-store` idi — 558 KB'lık yanıt her
+ * ziyarette yeniden üretiliyordu.
  */
-export function fetchBookArchive(): Promise<BookArchive> {
-  return apiFetch<BookArchive>("/books", { cache: "no-store" });
+export function fetchBookArchive(fresh?: boolean): Promise<BookArchive> {
+  return apiFetch<BookArchive>("/books", freshness(fresh));
 }
+
+/*
+ * `cache()` sarmalayıcıları `fresh`i BOOLEAN'a normalize ederek çağrılır:
+ * React `cache` argümanları referans/değer eşitliğiyle anahtarlıyor, yani
+ * `undefined` ile `false` AYRI girişler olurdu — `generateMetadata` (arg
+ * vermez) ile sayfa gövdesi (isAdmin=false verir) aynı ziyarette iki ayrı
+ * fetch atardı ve API-03'ün dedupe kazancı sessizce kaybolurdu.
+ */
 
 /**
  * Arşiv alınamazsa salon boş açılır, sayfa çökmez (kural 4 ruhu).
  * `unavailable` bayrağının gerekçesi `movies.ts`te yazılı.
  */
-export const getBookArchive = cache(async (): Promise<BookArchive> => {
+const cachedBookArchive = cache(async (fresh: boolean): Promise<BookArchive> => {
   try {
-    return await fetchBookArchive();
+    return await fetchBookArchive(fresh);
   } catch {
     return { ...EMPTY_ARCHIVE, unavailable: true };
   }
 });
+export function getBookArchive(fresh?: boolean): Promise<BookArchive> {
+  return cachedBookArchive(fresh === true);
+}
 
 /** Kitap sayfası: künye + alıntılar + seri + komşular. Yoksa null (404). */
-export const getBookDetail = cache(
-  async (slug: string): Promise<BookDetail | null> => {
+const cachedBookDetail = cache(
+  async (slug: string, fresh: boolean): Promise<BookDetail | null> => {
     try {
-      return await apiFetch<BookDetail>(`/books/${encodeURIComponent(slug)}`, {
-        cache: "no-store",
-      });
+      return await apiFetch<BookDetail>(
+        `/books/${encodeURIComponent(slug)}`,
+        freshness(fresh),
+      );
     } catch {
       return null;
     }
   },
 );
+export function getBookDetail(
+  slug: string,
+  fresh?: boolean,
+): Promise<BookDetail | null> {
+  return cachedBookDetail(slug, fresh === true);
+}
 
 /**
- * Yazar / çevirmen sayfası. Önbellek YOK: biyografi ilk ziyarette backend'de
- * kaynaktan çekilip saklanıyor, `revalidate` konsaydı kullanıcı biyografisiz
- * hâli görmeye devam ederdi (ödül raflarıyla aynı gerekçe).
+ * Yazar / çevirmen sayfası. Önbellek YOK ve 2 Eylül'deki `fresh` geçişinin
+ * BİLEREK dışında: biyografi ilk ziyarette backend'de kaynaktan çekilip
+ * saklanıyor, `revalidate` konsaydı ZİYARETÇİ biyografisiz hâli beş dakika
+ * görmeye devam ederdi — küratör muafiyeti bunu çözmez, çünkü gecikmeli
+ * doldurma ziyaretçiye dönük (ödül raflarıyla aynı gerekçe).
  */
 export const getBookPerson = cache(
   async (slug: string): Promise<BookPersonPage | null> => {
@@ -92,34 +115,46 @@ export const getBookPerson = cache(
 );
 
 /**
- * Seri sayfası. Önbellek YOK: arşive yeni cilt eklendiğinde serinin sayfasında
- * hemen görünmesi gerekiyor (salonla aynı karar).
+ * Seri sayfası. Küratör arşive yeni cilt eklediğinde serinin sayfasında
+ * hemen görür (`fresh`); ziyaretçi beş dakikalık önbellekten okur.
  */
-export const getBookSeries = cache(
-  async (slug: string): Promise<BookSeriesPage | null> => {
+const cachedBookSeries = cache(
+  async (slug: string, fresh: boolean): Promise<BookSeriesPage | null> => {
     try {
       return await apiFetch<BookSeriesPage>(
         `/books/seri/${encodeURIComponent(slug)}`,
-        { cache: "no-store" },
+        freshness(fresh),
       );
     } catch {
       return null;
     }
   },
 );
+export function getBookSeries(
+  slug: string,
+  fresh?: boolean,
+): Promise<BookSeriesPage | null> {
+  return cachedBookSeries(slug, fresh === true);
+}
 
-export const getBookPublisher = cache(
-  async (slug: string): Promise<BookPublisherPage | null> => {
+const cachedBookPublisher = cache(
+  async (slug: string, fresh: boolean): Promise<BookPublisherPage | null> => {
     try {
       return await apiFetch<BookPublisherPage>(
         `/books/yayinevi/${encodeURIComponent(slug)}`,
-        { cache: "no-store" },
+        freshness(fresh),
       );
     } catch {
       return null;
     }
   },
 );
+export function getBookPublisher(
+  slug: string,
+  fresh?: boolean,
+): Promise<BookPublisherPage | null> {
+  return cachedBookPublisher(slug, fresh === true);
+}
 
 /**
  * Arşivde olmayan kitabın künye sayfası (ödül raflarından gelinir).
@@ -143,9 +178,10 @@ export const getSourceBook = cache(
 );
 
 /**
- * Ödül rafları. Önbellek YOK: kapaklar backend'de arka planda dolduğu için
- * ikinci açılışta sayfanın dolmuş olması gerekiyor — `revalidate` konsaydı
- * kullanıcı eski, kapaksız hâli görmeye devam ederdi.
+ * Ödül rafları. Önbellek YOK ve `fresh` geçişinin BİLEREK dışında: kapaklar
+ * backend'de arka planda doluyor ve raf `pending` sayacıyla kendini tazeliyor
+ * — ziyaretçi için `revalidate` konsaydı o döngü beş dakika boyunca aynı
+ * "bekleyen" yanıtı okurdu. Ucun bedeli API-06/API-10 ile zaten düştü.
  *
  * Alınamazsa boş liste: ödüller bölümü "alınamadı" der, salon çökmez (kural 4).
  */

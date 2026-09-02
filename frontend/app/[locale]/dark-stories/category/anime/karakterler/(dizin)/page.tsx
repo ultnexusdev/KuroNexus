@@ -43,11 +43,11 @@ export default async function CharacterGalleryPage({
 }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "anime" });
-  const [index, hall, isAdmin, roster] = await Promise.all([
-    getCharacterIndex(),
+  const isAdmin = await readIsAdmin();
+  const [index, hall, roster] = await Promise.all([
+    getCharacterIndex(isAdmin),
     getHall("anime", t("hallName"), locale),
-    readIsAdmin(),
-    loadCuratedRoster(),
+    loadCuratedRoster(isAdmin),
   ]);
 
   /*

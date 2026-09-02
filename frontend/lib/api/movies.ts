@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { apiFetch } from "./client";
+import { freshness } from "./freshness";
 import type { MovieArchive, MovieDetail, MovieShowcase } from "./types";
 
 const EMPTY_SHOWCASE: MovieShowcase = { left: null, right: null };
@@ -19,12 +20,12 @@ export { tmdbImage } from "./tmdb";
 /**
  * Salon tek istekte dolar; künye TMDB'den değil kendi cache'imizden gelir.
  *
- * Sayfa önbelleği yok: arşive film ekledikten hemen sonra salonda görmek
- * gerekiyor, beş dakika beklemek "eklendi ama görünmüyor" hissi veriyordu.
- * Dış API maliyeti yok — bu istek kendi veritabanımıza gidiyor.
+ * Tazelik `fresh`e bağlı (`lib/api/freshness.ts`). "Eklendi ama görünmüyor"
+ * hissi — bu dosyanın eski `no-store` gerekçesi — KÜRATÖRÜN yaşadığı şeydi;
+ * artık o taze okuyor, ziyaretçi beş dakikalık önbellekten.
  */
-export function fetchMovieArchive(): Promise<MovieArchive> {
-  return apiFetch<MovieArchive>("/movies", { cache: "no-store" });
+export function fetchMovieArchive(fresh?: boolean): Promise<MovieArchive> {
+  return apiFetch<MovieArchive>("/movies", freshness(fresh));
 }
 
 /**
@@ -48,24 +49,34 @@ export const getMovieShowcase = cache(async (): Promise<MovieShowcase> => {
  * gerçekten boş" sanıp öyle yazıyordu. Kullanıcı dolu bir arşivin önünde
  * "arşiv boş" mesajı görüyor ve yenilemenin yolunu bulamıyordu.
  */
-export const getMovieArchive = cache(async (): Promise<MovieArchive> => {
+const cachedMovieArchive = cache(async (fresh: boolean): Promise<MovieArchive> => {
   try {
-    return await fetchMovieArchive();
+    return await fetchMovieArchive(fresh);
   } catch {
     return { ...EMPTY_ARCHIVE, unavailable: true };
   }
 });
+/** `fresh === true` normalizasyonunun gerekçesi `books.ts`te. */
+export function getMovieArchive(fresh?: boolean): Promise<MovieArchive> {
+  return cachedMovieArchive(fresh === true);
+}
 
 /** Film sayfası: künye + kadro + fragman + platformlar. Yoksa null (404). */
-export const getMovieDetail = cache(
-  async (slug: string): Promise<MovieDetail | null> => {
+const cachedMovieDetail = cache(
+  async (slug: string, fresh: boolean): Promise<MovieDetail | null> => {
     try {
       return await apiFetch<MovieDetail>(
         `/movies/${encodeURIComponent(slug)}`,
-        { cache: "no-store" },
+        freshness(fresh),
       );
     } catch {
       return null;
     }
   },
 );
+export function getMovieDetail(
+  slug: string,
+  fresh?: boolean,
+): Promise<MovieDetail | null> {
+  return cachedMovieDetail(slug, fresh === true);
+}

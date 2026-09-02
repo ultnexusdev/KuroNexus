@@ -201,7 +201,10 @@ export function curatedRosterGaps(): number[] {
  * Her iki getirici de hata durumunda boş dizi döndürüyor, yani kaynak
  * düşse bile raf adlarla ayakta kalır (AGENTS.md kural 4).
  */
-export async function loadCuratedRoster(): Promise<ArchiveCharacter[]> {
+export async function loadCuratedRoster(
+  /** Küratör taze okur (`lib/api/freshness.ts`); sayfa `readIsAdmin()` sonucunu verir. */
+  fresh?: boolean,
+): Promise<ArchiveCharacter[]> {
   const ids = EXPERIENCE_ROSTER.map((entry) => entry.characterId);
   /* ⚠️ İKİSİ DE `Bulk` — uç `ids` listesini 50'de kesiyor ve kayıt 66
      kişi. Künyeler `getCharacterCards` ile tek turda isteniyordu ve
@@ -209,7 +212,7 @@ export async function loadCuratedRoster(): Promise<ArchiveCharacter[]> {
      portresiz çiziliyordu: kimse hata görmüyordu çünkü kesme sessiz.
      Ölçüldü ve düzeltildi, 31 Ağustos 2026. */
   const [rows, cards] = await Promise.all([
-    getCharacterImagesBulk(ids),
+    getCharacterImagesBulk(ids, fresh),
     getCharacterCardsBulk(ids),
   ]);
 

@@ -1,4 +1,5 @@
 import { apiFetch } from "./client";
+import { freshness } from "./freshness";
 
 /**
  * Salon 06 · Müzik — veri getiriciler.
@@ -323,7 +324,11 @@ export interface MusicListening {
  * küratör panelden bir sanatçı eklediğinde salonu bir hafta beklemek de
  * kabul edilemez; beş dakika iki uç arasındaki denge.
  */
-const REVALIDATE = 300;
+/*
+ * `REVALIDATE` ve `freshness` 2 Eylül 2026'dan beri site geneli tek yerde
+ * (`lib/api/freshness.ts`) — bu dosyada doğan desen arşivlerin tamamına
+ * çıktı. Aşağıdaki ölçüm notu ilk kaynak olduğu için burada duruyor.
+ */
 
 /**
  * Önbellek kararı **çağırana göre** değişiyor.
@@ -342,9 +347,6 @@ const REVALIDATE = 300;
  * Böylece arşivin sahibi her zaman gerçeği görüyor, ziyaretçi hızlı sayfa
  * alıyor ve backend'e gereksiz yük binmiyor.
  */
-function freshness(fresh?: boolean): RequestInit {
-  return fresh ? { cache: "no-store" } : { next: { revalidate: REVALIDATE } };
-}
 
 export function fetchMusicOverview(fresh?: boolean): Promise<MusicOverview> {
   return apiFetch<MusicOverview>("/music/overview", freshness(fresh));

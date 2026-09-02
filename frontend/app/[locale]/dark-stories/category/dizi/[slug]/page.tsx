@@ -38,9 +38,9 @@ export default async function ShowPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const [detail, isAdmin] = await Promise.all([
-    getShowDetail(slug),
-    readIsAdmin(),
+  const isAdmin = await readIsAdmin();
+  const [detail] = await Promise.all([
+    getShowDetail(slug, isAdmin),
   ]);
   if (!detail) {
     notFound();

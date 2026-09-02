@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { apiFetch } from "./client";
+import { freshness } from "./freshness";
 import type {
   AnimeArchive,
   AnimeDetail,
@@ -22,37 +23,48 @@ const EMPTY_ARCHIVE: AnimeArchive = {
 
 /**
  * Anime salonu tek istekte dolar; künye AniList'ten değil kendi cache'imizden
- * gelir. Sayfa önbelleği yok: "+1 bölüm"den sonra ilerlemeyi anında görmek
- * gerekiyor (film arşivinde de aynı karar).
+ * gelir. Tazelik `fresh`e bağlı (`lib/api/freshness.ts`): "+1 bölüm"den
+ * sonra ilerlemeyi anında görmesi gereken KÜRATÖR, ziyaretçi değil.
  */
-export function fetchAnimeArchive(): Promise<AnimeArchive> {
-  return apiFetch<AnimeArchive>("/anime", { cache: "no-store" });
+export function fetchAnimeArchive(fresh?: boolean): Promise<AnimeArchive> {
+  return apiFetch<AnimeArchive>("/anime", freshness(fresh));
 }
 
 /**
  * Arşiv alınamazsa salon boş açılır, sayfa çökmez (kural 4 ruhu).
- * `unavailable` bayrağının gerekçesi `movies.ts`te yazılı.
+ * `unavailable` bayrağının gerekçesi `movies.ts`te yazılı. `fresh === true`
+ * normalizasyonunun gerekçesi `books.ts`te.
  */
-export const getAnimeArchive = cache(async (): Promise<AnimeArchive> => {
+const cachedAnimeArchive = cache(async (fresh: boolean): Promise<AnimeArchive> => {
   try {
-    return await fetchAnimeArchive();
+    return await fetchAnimeArchive(fresh);
   } catch {
     return { ...EMPTY_ARCHIVE, unavailable: true };
   }
 });
+export function getAnimeArchive(fresh?: boolean): Promise<AnimeArchive> {
+  return cachedAnimeArchive(fresh === true);
+}
 
 /** Anime sayfası: künye + sezonlar + kadro. Bulunamazsa null (sayfa 404). */
-export const getAnimeDetail = cache(
-  async (slug: string): Promise<AnimeDetail | null> => {
+const cachedAnimeDetail = cache(
+  async (slug: string, fresh: boolean): Promise<AnimeDetail | null> => {
     try {
-      return await apiFetch<AnimeDetail>(`/anime/${encodeURIComponent(slug)}`, {
-        cache: "no-store",
-      });
+      return await apiFetch<AnimeDetail>(
+        `/anime/${encodeURIComponent(slug)}`,
+        freshness(fresh),
+      );
     } catch {
       return null;
     }
   },
 );
+export function getAnimeDetail(
+  slug: string,
+  fresh?: boolean,
+): Promise<AnimeDetail | null> {
+  return cachedAnimeDetail(slug, fresh === true);
+}
 
 /**
  * Bir sezonun bölüm listesi. Tarayıcıdan çağrılır (sezon açıldığında) —

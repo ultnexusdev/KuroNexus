@@ -44,10 +44,10 @@ export default async function ShelfPage({
   }
 
   const t = await getTranslations({ locale, namespace: "film" });
-  const [archive, hall, isAdmin] = await Promise.all([
-    getMovieArchive(),
+  const isAdmin = await readIsAdmin();
+  const [archive, hall] = await Promise.all([
+    getMovieArchive(isAdmin),
     getHall("film", t("hallName"), locale),
-    readIsAdmin(),
   ]);
 
   return (

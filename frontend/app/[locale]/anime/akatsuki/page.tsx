@@ -41,13 +41,13 @@ export default async function AkatsukiPage({
   const { locale } = await params;
   const ids = akatsukiCharacterIds();
 
-  const [images, cards, isAdmin, archive] = await Promise.all([
-    getCharacterImages(ids),
+  const isAdmin = await readIsAdmin();
+  const [images, cards, archive] = await Promise.all([
+    getCharacterImages(ids, isAdmin),
     getCharacterCards(ids),
-    readIsAdmin(),
     // Nexus paneli kapısı: arşivdeki Naruto serisi. Alınamazsa kapı
     // çizilmez, sergi çökmez (getirici boş arşive düşüyor).
-    getAnimeArchive(),
+    getAnimeArchive(isAdmin),
   ]);
 
   const naruto = archive.entries

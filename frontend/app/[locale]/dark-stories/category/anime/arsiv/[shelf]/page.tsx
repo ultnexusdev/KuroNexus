@@ -45,10 +45,10 @@ export default async function AnimeShelfRoute({
   }
 
   const t = await getTranslations({ locale, namespace: "anime" });
-  const [archive, categories, isAdmin] = await Promise.all([
-    getAnimeArchive(),
+  const isAdmin = await readIsAdmin();
+  const [archive, categories] = await Promise.all([
+    getAnimeArchive(isAdmin),
     fetchCategories().catch(() => []),
-    readIsAdmin(),
   ]);
 
   return (

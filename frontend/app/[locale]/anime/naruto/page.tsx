@@ -132,13 +132,13 @@ export async function generateMetadata({
  * serginin `akatsuki:legion` kadrajını ödünç alıyor.
  */
 export default async function NarutoUniversePage() {
-  const [images, akatsukiImages, isAdmin] = await Promise.all([
+  const isAdmin = await readIsAdmin();
+  const [images, akatsukiImages] = await Promise.all([
     // Sayfanın kendi kadrajları + BÜTÜN kadro portreleri tek turda
     // (uç 50 kimlikte kesiyor; bulk yardımcı listeyi bölüp birleştiriyor)
-    getCharacterImagesBulk([NARUTO_OWNER_ID, ...narutoPeopleIds()]),
+    getCharacterImagesBulk([NARUTO_OWNER_ID, ...narutoPeopleIds()], isAdmin),
     // Akatsuki sergisinin görselleri — Gölgeler yuvası boşsa ödünç alınır
-    getCharacterImagesBulk([AKATSUKI_IDS.pain]),
-    readIsAdmin(),
+    getCharacterImagesBulk([AKATSUKI_IDS.pain], isAdmin),
   ]);
 
   /** Yuva anahtarından kadraj. SON kayıt kazanır (kürasyon sözleşmesi:

@@ -36,9 +36,9 @@ export default async function AnimePage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const [detail, isAdmin] = await Promise.all([
-    getAnimeDetail(slug),
-    readIsAdmin(),
+  const isAdmin = await readIsAdmin();
+  const [detail] = await Promise.all([
+    getAnimeDetail(slug, isAdmin),
   ]);
   if (!detail) {
     notFound();

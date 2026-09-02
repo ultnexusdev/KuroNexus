@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { apiFetch } from "./client";
+import { freshness } from "./freshness";
 import type {
   SeasonEpisodes,
   ShowArchive,
@@ -20,9 +21,10 @@ const EMPTY_ARCHIVE: ShowArchive = {
 // yorumu kopyayı zaten itiraf ediyordu ("ikizinde yazılı").
 export { tmdbImage } from "./tmdb";
 
-/** Salon tek istekte dolar; künye TMDB'den değil kendi cache'imizden gelir. */
-export function fetchShowArchive(): Promise<ShowArchive> {
-  return apiFetch<ShowArchive>("/shows", { cache: "no-store" });
+/** Salon tek istekte dolar; künye TMDB'den değil kendi cache'imizden gelir.
+    Tazelik `fresh`e bağlı — gerekçe `lib/api/freshness.ts`. */
+export function fetchShowArchive(fresh?: boolean): Promise<ShowArchive> {
+  return apiFetch<ShowArchive>("/shows", freshness(fresh));
 }
 
 /** Salon girişinin iki yanındaki afişler. Alınamazsa lobi CSS sahnesiyle açılır. */
@@ -40,26 +42,37 @@ export const getShowShowcase = cache(async (): Promise<ShowShowcase> => {
  * Arşiv alınamazsa salon boş açılır, sayfa çökmez (kural 4 ruhu).
  * `unavailable` bayrağının gerekçesi `movies.ts`te yazılı.
  */
-export const getShowArchive = cache(async (): Promise<ShowArchive> => {
+const cachedShowArchive = cache(async (fresh: boolean): Promise<ShowArchive> => {
   try {
-    return await fetchShowArchive();
+    return await fetchShowArchive(fresh);
   } catch {
     return { ...EMPTY_ARCHIVE, unavailable: true };
   }
 });
+/** `fresh === true` normalizasyonunun gerekçesi `books.ts`te. */
+export function getShowArchive(fresh?: boolean): Promise<ShowArchive> {
+  return cachedShowArchive(fresh === true);
+}
 
 /** Dizi sayfası: künye + kadro + fragman + platformlar. Yoksa null (404). */
-export const getShowDetail = cache(
-  async (slug: string): Promise<ShowDetail | null> => {
+const cachedShowDetail = cache(
+  async (slug: string, fresh: boolean): Promise<ShowDetail | null> => {
     try {
-      return await apiFetch<ShowDetail>(`/shows/${encodeURIComponent(slug)}`, {
-        cache: "no-store",
-      });
+      return await apiFetch<ShowDetail>(
+        `/shows/${encodeURIComponent(slug)}`,
+        freshness(fresh),
+      );
     } catch {
       return null;
     }
   },
 );
+export function getShowDetail(
+  slug: string,
+  fresh?: boolean,
+): Promise<ShowDetail | null> {
+  return cachedShowDetail(slug, fresh === true);
+}
 
 /**
  * Bir sezonun bölüm ızgarası. Sayfa açılışında inmiyor: ızgara açılınca

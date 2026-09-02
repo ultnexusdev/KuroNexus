@@ -39,9 +39,9 @@ export default async function BookPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const [detail, isAdmin] = await Promise.all([
-    getBookDetail(slug),
-    readIsAdmin(),
+  const isAdmin = await readIsAdmin();
+  const [detail] = await Promise.all([
+    getBookDetail(slug, isAdmin),
   ]);
   if (!detail) {
     notFound();

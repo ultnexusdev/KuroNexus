@@ -32,10 +32,10 @@ export default async function AnimeArchivePage({
 }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "anime" });
-  const [archive, hall, isAdmin] = await Promise.all([
-    getAnimeArchive(),
+  const isAdmin = await readIsAdmin();
+  const [archive, hall] = await Promise.all([
+    getAnimeArchive(isAdmin),
     getHall("anime", t("hallName"), locale),
-    readIsAdmin(),
   ]);
 
   return (

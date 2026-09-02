@@ -52,10 +52,10 @@ export default async function BookShelfRoute({
   }
 
   const t = await getTranslations({ locale, namespace: "book" });
-  const [archive, hall, isAdmin] = await Promise.all([
-    getBookArchive(),
+  const isAdmin = await readIsAdmin();
+  const [archive, hall] = await Promise.all([
+    getBookArchive(isAdmin),
     getHall(SLUG, t("hallName"), locale),
-    readIsAdmin(),
   ]);
 
   return (

@@ -69,9 +69,9 @@ export default async function AkatsukiPathPage({
     notFound();
   }
 
-  const [images, isAdmin] = await Promise.all([
-    getCharacterImages([AKATSUKI_IDS.pain]),
-    readIsAdmin(),
+  const isAdmin = await readIsAdmin();
+  const [images] = await Promise.all([
+    getCharacterImages([AKATSUKI_IDS.pain], isAdmin),
   ]);
 
   return (

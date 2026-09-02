@@ -51,10 +51,12 @@ export interface ExperiencePageData {
 export async function loadExperiencePage(
   characterId: number,
 ): Promise<ExperiencePageData> {
-  const [detail, isAdmin, companions] = await Promise.all([
-    getCharacterDetail(String(characterId)),
-    readIsAdmin(),
-    getCharacterImages(experienceCompanionIds(characterId)),
+  // Önce kimlik, sonra veri: küratör taze okur (`lib/api/freshness.ts`).
+  // Ziyaretçi için sıralama bedava — çerez yoksa `readIsAdmin` ağa çıkmıyor.
+  const isAdmin = await readIsAdmin();
+  const [detail, companions] = await Promise.all([
+    getCharacterDetail(String(characterId), isAdmin),
+    getCharacterImages(experienceCompanionIds(characterId), isAdmin),
   ]);
   if (!detail) {
     notFound();

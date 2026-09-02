@@ -4,7 +4,7 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PrismaService } from '../prisma/prisma.service';
+import { ExternalCacheService } from '../common/cache/external-cache.service';
 
 /**
  * Dış isteğin en fazla süresi.
@@ -230,7 +230,7 @@ export class TmdbTvService {
   private readonly watchRegion: string;
 
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly cache: ExternalCacheService,
     config: ConfigService,
   ) {
     this.apiKey =
@@ -269,42 +269,25 @@ export class TmdbTvService {
    */
   async getShow(tmdbId: number): Promise<TmdbShow> {
     const cacheKey = `tmdb:show:v2:${tmdbId}:${this.language}`;
-    const cached = await this.prisma.externalCache.findUnique({
-      where: { cacheKey },
-    });
-    const isFresh =
-      cached && Date.now() - cached.fetchedAt.getTime() < CACHE_TTL_MS;
-    if (cached && isFresh) {
-      return cached.payload as unknown as TmdbShow;
-    }
-
-    try {
-      const raw = await this.request<TmdbShowResponse>(`/tv/${tmdbId}`, {
-        append_to_response:
-          'credits,videos,watch/providers,images,external_ids',
-        include_video_language: 'tr,en,null',
-        include_image_language: 'null',
-      });
-      const show = normalize(raw, this.watchRegion);
-      await this.prisma.externalCache.upsert({
-        where: { cacheKey },
-        create: {
-          cacheKey,
-          payload: show as unknown as object,
-          fetchedAt: new Date(),
-        },
-        update: { payload: show as unknown as object, fetchedAt: new Date() },
-      });
-      return show;
-    } catch (error) {
-      if (cached) {
-        this.logger.warn(
-          `TMDB tv/${tmdbId} yenilenemedi, bayat cache sunuluyor: ${String(error)}`,
-        );
-        return cached.payload as unknown as TmdbShow;
-      }
-      throw error;
-    }
+    return this.cache.remember<TmdbShow>(
+      cacheKey,
+      CACHE_TTL_MS,
+      async () => {
+        const raw = await this.request<TmdbShowResponse>(`/tv/${tmdbId}`, {
+          append_to_response:
+            'credits,videos,watch/providers,images,external_ids',
+          include_video_language: 'tr,en,null',
+          include_image_language: 'null',
+        });
+        return normalize(raw, this.watchRegion);
+      },
+      {
+        onStale: (error) =>
+          this.logger.warn(
+            `TMDB tv/${tmdbId} yenilenemedi, bayat cache sunuluyor: ${String(error)}`,
+          ),
+      },
+    );
   }
 
   trending(): Promise<TmdbSearchResult[]> {
@@ -374,48 +357,35 @@ export class TmdbTvService {
     seasonNumber: number,
   ): Promise<TmdbEpisode[]> {
     const cacheKey = `tmdb:show:season:${tmdbId}:${seasonNumber}:${this.language}`;
-    const cached = await this.prisma.externalCache.findUnique({
-      where: { cacheKey },
-    });
-    if (cached && Date.now() - cached.fetchedAt.getTime() < LIST_CACHE_TTL_MS) {
-      return cached.payload as unknown as TmdbEpisode[];
-    }
-
     try {
-      const raw = await this.request<TmdbSeasonResponse>(
-        `/tv/${tmdbId}/season/${seasonNumber}`,
+      return await this.cache.remember<TmdbEpisode[]>(
+        cacheKey,
+        LIST_CACHE_TTL_MS,
+        async () => {
+          const raw = await this.request<TmdbSeasonResponse>(
+            `/tv/${tmdbId}/season/${seasonNumber}`,
+          );
+          return (raw.episodes ?? [])
+            .filter((episode) => typeof episode.episode_number === 'number')
+            .map((episode) => ({
+              number: episode.episode_number!,
+              title: episode.name || null,
+              airDate: episode.air_date || null,
+              stillPath: episode.still_path ?? null,
+              overview: episode.overview || null,
+            }))
+            .sort((a, b) => a.number - b.number);
+        },
+        {
+          onStale: (error) =>
+            this.logger.warn(
+              `TMDB tv/${tmdbId}/season/${seasonNumber} yenilenemedi, bayat cache: ${String(error)}`,
+            ),
+        },
       );
-      const episodes: TmdbEpisode[] = (raw.episodes ?? [])
-        .filter((episode) => typeof episode.episode_number === 'number')
-        .map((episode) => ({
-          number: episode.episode_number!,
-          title: episode.name || null,
-          airDate: episode.air_date || null,
-          stillPath: episode.still_path ?? null,
-          overview: episode.overview || null,
-        }))
-        .sort((a, b) => a.number - b.number);
-      await this.prisma.externalCache.upsert({
-        where: { cacheKey },
-        create: {
-          cacheKey,
-          payload: episodes as unknown as object,
-          fetchedAt: new Date(),
-        },
-        update: {
-          payload: episodes as unknown as object,
-          fetchedAt: new Date(),
-        },
-      });
-      return episodes;
-    } catch (error) {
-      if (cached) {
-        this.logger.warn(
-          `TMDB tv/${tmdbId}/season/${seasonNumber} yenilenemedi, bayat cache: ${String(error)}`,
-        );
-        return cached.payload as unknown as TmdbEpisode[];
-      }
-      // Izgara süs: alınamazsa sayfa sayaçla açılır, hata göstermez
+    } catch {
+      // Izgara süs: hiç kayıt yokken alınamazsa sayfa sayaçla açılır, hata
+      // göstermez (bayat kayıt varsa `remember` onu zaten sundu)
       return [];
     }
   }
@@ -426,37 +396,22 @@ export class TmdbTvService {
     params: Record<string, string>,
     ttlMs: number,
   ): Promise<TmdbSearchResult[]> {
-    const cached = await this.prisma.externalCache.findUnique({
-      where: { cacheKey },
-    });
-    if (cached && Date.now() - cached.fetchedAt.getTime() < ttlMs) {
-      return cached.payload as unknown as TmdbSearchResult[];
-    }
-
-    try {
-      const payload = await this.request<TmdbSearchResponse>(path, params);
-      const items = (payload.results ?? [])
-        .filter((item) => Boolean(item.poster_path) && !isAnime(item))
-        .map(toSearchResult);
-      await this.prisma.externalCache.upsert({
-        where: { cacheKey },
-        create: {
-          cacheKey,
-          payload: items as unknown as object,
-          fetchedAt: new Date(),
-        },
-        update: { payload: items as unknown as object, fetchedAt: new Date() },
-      });
-      return items;
-    } catch (error) {
-      if (cached) {
-        this.logger.warn(
-          `TMDB ${path} yenilenemedi, bayat cache sunuluyor: ${String(error)}`,
-        );
-        return cached.payload as unknown as TmdbSearchResult[];
-      }
-      throw error;
-    }
+    return this.cache.remember<TmdbSearchResult[]>(
+      cacheKey,
+      ttlMs,
+      async () => {
+        const payload = await this.request<TmdbSearchResponse>(path, params);
+        return (payload.results ?? [])
+          .filter((item) => Boolean(item.poster_path) && !isAnime(item))
+          .map(toSearchResult);
+      },
+      {
+        onStale: (error) =>
+          this.logger.warn(
+            `TMDB ${path} yenilenemedi, bayat cache sunuluyor: ${String(error)}`,
+          ),
+      },
+    );
   }
 
   private async request<T>(

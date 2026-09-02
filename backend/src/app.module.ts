@@ -8,6 +8,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { validateEnv } from './common/env.validation';
 import { AppThrottlerGuard } from './common/guards/app-throttler.guard';
+import { ExternalCacheModule } from './common/cache/external-cache.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { StoriesModule } from './stories/stories.module';
@@ -36,6 +37,8 @@ import { PulseModule } from './pulse/pulse.module';
     // yazar (bkz. env.validation.ts). Sessiz yanlış yapılandırma sınıfına karşı.
     ConfigModule.forRoot({ isGlobal: true, validate: validateEnv }),
     ScheduleModule.forRoot(),
+    // Dış kaynak anlık görüntülerinin tek kapısı (D-B7); global, PrismaModule gibi
+    ExternalCacheModule,
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 100 }]),
     // Yüklenen görseller /uploads/* altından public servis edilir
     ServeStaticModule.forRootAsync({

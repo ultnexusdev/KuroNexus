@@ -88,6 +88,7 @@ Data Cache'ten, deploy 15 dk → 4 dk.
 | `formatDate/languageName/today/initials` | `lib/format.ts` | BookHall'un sözlük tabanlı `languageName`'i bilerek ayrı |
 | YouTube adresleri | `lib/youtube.ts` | CSP ile senkron tek yer |
 | `tmdbImage` | `lib/api/tmdb.ts` | movies/shows yeniden dışa aktarıyor |
+| Backend: dış kaynak önbelleği | `common/cache/external-cache.service.ts` → `remember(key, ttl, fetcher, { onStale })`, `readFresh`, `write` | `externalCache.findUnique/upsert` çiftini elle yazma; TMDB kanadı taşındı, kalan kanatlar rapor D-B7'de listeli |
 | Backend: JSON daraltma | `common/prisma/json-projection.ts` → `projectedColumns`, `attachChildren`; kanat başına `readArchiveEntries` + `ARCHIVE_JSON_KEYS` | liste sorgusu `externalData`'dan yeni alan okuyacaksa anahtarı listeye ekle; sütun listesi `ScalarFieldEnum`'dan gelir, elle yazma |
 | Backend: env kapısı | `common/env.validation.ts` | üretimde `CORS_ORIGIN` zorunlu; eksik özellik anahtarı yalnız uyarır |
 | Backend: throttle | `common/guards/app-throttler.guard.ts` | iç ağ (XFF yok + özel IP) muaf |
@@ -179,8 +180,10 @@ literalleri~~ (2 Eylül gecesi süpürüldü: `filmHref`/`showHref` açıldı,
 `animeHref` TODO'su kapandı, 36 dosya — rapor H-F3),
 API-13 (~~API-07/09/11~~ 2 Eylül gecesi kapandı — kitap uçları ince dizin +
 kimlikle çekim, dizi arşivi saf okuma, müzik tür payı tek gruplu SQL;
-~~API-12~~ gerekçesiz), D-B7 `externalCache` (22 nokta; "fetchedAt eksik" YANLIŞ
-ALARM), ~~i18n ölü anahtarlar (16×2)~~ ve ~~ölü exportlar~~ (2 Eylül gecesi
+~~API-12~~ gerekçesiz), **D-B7 `externalCache` — BAŞLADI:** `ExternalCacheService` + 7 test + TMDB
+kanadı (film/dizi) taşındı; kalan 9 servis rapor D-B7'de listeli, kanat başına
+bir commit, "davranışı birebir koru" kuralıyla ("fetchedAt eksik" YANLIŞ
+ALARM'dı ama `write` artık iki dalda da yazıyor), ~~i18n ölü anahtarlar (16×2)~~ ve ~~ölü exportlar~~ (2 Eylül gecesi
 silindi; GOJO_*, RESERVED_*, curatedCharacterIds bilerek kaldı — rapor 1.2/1.5),
 `music-playlist`/`music-sync` slug varyantları, P-04/05/10 animasyon hijyeni
 (tasarımı değiştirir — kullanıcıyla). ~~Ölü CSS sınıfları (rapor 1.4)~~ 2 Eylül

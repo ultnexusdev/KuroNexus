@@ -4,7 +4,7 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PrismaService } from '../prisma/prisma.service';
+import { ExternalCacheService } from '../common/cache/external-cache.service';
 
 /**
  * Dış isteğin en fazla süresi.
@@ -165,7 +165,7 @@ export class TmdbService {
   private readonly watchRegion: string;
 
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly cache: ExternalCacheService,
     config: ConfigService,
   ) {
     // UltNexus'ta jeton `TMDB_READ_ACCESS_TOKEN` adıyla duruyor olabilir;
@@ -209,46 +209,26 @@ export class TmdbService {
   async getMovie(tmdbId: number): Promise<TmdbMovie> {
     // v3: sahne kareleri, bütçe/hâsılat ve dil de künyeye girdi
     const cacheKey = `tmdb:movie:v3:${tmdbId}:${this.language}`;
-    const cached = await this.prisma.externalCache.findUnique({
-      where: { cacheKey },
-    });
-    const isFresh =
-      cached && Date.now() - cached.fetchedAt.getTime() < CACHE_TTL_MS;
-    if (cached && isFresh) {
-      return cached.payload as unknown as TmdbMovie;
-    }
-
-    try {
-      const raw = await this.request<TmdbMovieResponse>(`/movie/${tmdbId}`, {
-        append_to_response: 'credits,videos,watch/providers,images',
-        // Türkçe fragman çoğu filmde yok; dil kısıtı konmazsa liste boş döner
-        include_video_language: 'tr,en,null',
-        // Sahne kareleri yazısız olsun: dili olan görsellerde afiş yazısı var
-        include_image_language: 'null',
-      });
-      const movie = normalize(raw, this.watchRegion);
-      await this.prisma.externalCache.upsert({
-        where: { cacheKey },
-        create: {
-          cacheKey,
-          payload: movie as unknown as object,
-          fetchedAt: new Date(),
-        },
-        update: {
-          payload: movie as unknown as object,
-          fetchedAt: new Date(),
-        },
-      });
-      return movie;
-    } catch (error) {
-      if (cached) {
-        this.logger.warn(
-          `TMDB ${tmdbId} yenilenemedi, bayat cache sunuluyor: ${String(error)}`,
-        );
-        return cached.payload as unknown as TmdbMovie;
-      }
-      throw error;
-    }
+    return this.cache.remember<TmdbMovie>(
+      cacheKey,
+      CACHE_TTL_MS,
+      async () => {
+        const raw = await this.request<TmdbMovieResponse>(`/movie/${tmdbId}`, {
+          append_to_response: 'credits,videos,watch/providers,images',
+          // Türkçe fragman çoğu filmde yok; dil kısıtı konmazsa liste boş döner
+          include_video_language: 'tr,en,null',
+          // Sahne kareleri yazısız olsun: dili olan görsellerde afiş yazısı var
+          include_image_language: 'null',
+        });
+        return normalize(raw, this.watchRegion);
+      },
+      {
+        onStale: (error) =>
+          this.logger.warn(
+            `TMDB ${tmdbId} yenilenemedi, bayat cache sunuluyor: ${String(error)}`,
+          ),
+      },
+    );
   }
 
   /** Bu haftanın trendleri — öneri havuzunun "gündem" yarısı. */
@@ -330,49 +310,31 @@ export class TmdbService {
     params: Record<string, string>,
     ttlMs: number,
   ): Promise<TmdbSearchResult[]> {
-    const cached = await this.prisma.externalCache.findUnique({
-      where: { cacheKey },
-    });
-    if (cached && Date.now() - cached.fetchedAt.getTime() < ttlMs) {
-      return cached.payload as unknown as TmdbSearchResult[];
-    }
-
-    try {
-      const payload = await this.request<TmdbSearchResponse>(path, params);
-      // Postersiz film öneri duvarında boş kare bırakıyor — havuza alınmaz
-      const items = (payload.results ?? [])
-        .filter((item) => Boolean(item.poster_path))
-        .map((item) => ({
-          tmdbId: item.id,
-          title: item.title ?? item.original_title ?? '',
-          releaseDate: item.release_date || null,
-          posterPath: item.poster_path ?? null,
-          voteAverage:
-            typeof item.vote_average === 'number' ? item.vote_average : null,
-          overview: item.overview || null,
-        }));
-      await this.prisma.externalCache.upsert({
-        where: { cacheKey },
-        create: {
-          cacheKey,
-          payload: items as unknown as object,
-          fetchedAt: new Date(),
-        },
-        update: {
-          payload: items as unknown as object,
-          fetchedAt: new Date(),
-        },
-      });
-      return items;
-    } catch (error) {
-      if (cached) {
-        this.logger.warn(
-          `TMDB ${path} yenilenemedi, bayat cache sunuluyor: ${String(error)}`,
-        );
-        return cached.payload as unknown as TmdbSearchResult[];
-      }
-      throw error;
-    }
+    return this.cache.remember<TmdbSearchResult[]>(
+      cacheKey,
+      ttlMs,
+      async () => {
+        const payload = await this.request<TmdbSearchResponse>(path, params);
+        // Postersiz film öneri duvarında boş kare bırakıyor — havuza alınmaz
+        return (payload.results ?? [])
+          .filter((item) => Boolean(item.poster_path))
+          .map((item) => ({
+            tmdbId: item.id,
+            title: item.title ?? item.original_title ?? '',
+            releaseDate: item.release_date || null,
+            posterPath: item.poster_path ?? null,
+            voteAverage:
+              typeof item.vote_average === 'number' ? item.vote_average : null,
+            overview: item.overview || null,
+          }));
+      },
+      {
+        onStale: (error) =>
+          this.logger.warn(
+            `TMDB ${path} yenilenemedi, bayat cache sunuluyor: ${String(error)}`,
+          ),
+      },
+    );
   }
 
   private async request<T>(

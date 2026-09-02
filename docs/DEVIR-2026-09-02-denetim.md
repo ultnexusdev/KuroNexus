@@ -33,8 +33,9 @@
 | --- | --- |
 | `yedek-denetim-oncesi-2026-09-01` | Denetim uygulamasından ÖNCE (`83870ff`, B-06 sonrası) |
 
-`main`'in tamamı canlıda ve doğrulanmış; pushlanmamış commit yok. Tek takipsiz
-şey: `frontend/public/assets/jujutsu-kaisen/` (15 MB, karar §3.2).
+`main`'in tamamı canlıda ve doğrulanmış; pushlanmamış commit yok. Çalışma
+ağacı temiz (jujutsu-kaisen görsel seti 2 Eylül gecesi
+`K:\KURONEXUS-uretim\jjk-2026-09-02\`e taşındı, bkz. §3.2).
 
 ---
 
@@ -150,8 +151,13 @@ Medium/Low kümesi; kod tarafında açık High kalmadı.
   ölçüm: kod-yapısı raporu H-F6. **A seçeneği (tam çeviri, ~15 KB lore
   yazarlığı) açık kapı:** yapılırsa `turkishOnly` bayrağı, sitemap seti,
   `noindex` ve not kalkar; Bleach'in `Localized`/`pick` kalıbı hazır.
-- **`frontend/public/assets/jujutsu-kaisen/`** (15 MB, takipsiz, kodda referans
-  yok): commit mi, `K:\KURONEXUS-uretim\`e mi taşınsın?
+- ~~`frontend/public/assets/jujutsu-kaisen/` (15 MB, takipsiz)~~ → **TAŞINDI
+  (2 Eylül gecesi)**: `K:\KURONEXUS-uretim\jjk-2026-09-02\` — README'de yuva→dosya
+  tablosu, lisans notu (9 PNG AniList/telifli, skyline Commons) ve küratör
+  modundan yükleme adımları. Skyline için 306 KB'lık `-1920.webp` üretildi
+  (orijinal 14 MB yükleme için değil). **Kullanıcı görselleri küratör modundan
+  kendisi yükleyecek; portre üretimi İSTENMEDİ.** Çalışma ağacı artık tamamen
+  temiz.
 - **Küratör sınavı** (2 dk): giriş → kayıt değiştir → yenile → anında görünmeli.
   2 Eylül akşamı sonucu bildirilmedi.
 

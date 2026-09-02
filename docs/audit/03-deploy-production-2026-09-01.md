@@ -228,7 +228,7 @@
 - **Etki:** **Low**
 - **Çözüm:** İstenirse `crypto.timingSafeEqual` (Edge runtime'da `crypto.subtle` türevi). Zorunlu değil.
 
-### SEC-04 — 15 MB'lık üretilmiş görsel seti depoda takipsiz
+### ~~SEC-04~~ — 15 MB'lık üretilmiş görsel seti depoda takipsiz → **KAPANDI (2 Eylül 2026 gecesi, kullanıcı kararı):** set `K:\KURONEXUS-uretim\jjk-2026-09-02\`e taşındı (README: yuva→dosya tablosu, lisans notu, küratör modundan yükleme adımları; skyline için 306 KB webp). Repoya commit edilmedi; görseller küratör modundan elle yüklenecek. Çalışma ağacı temiz.
 - **Dosya:** `frontend/public/assets/jujutsu-kaisen/` (git durumu: `??`, 15 MB, `gorsel-manifest.json` + PNG'ler)
 - **Problem:** Kod içinde bu yollara referans **yok** (ölçüldü: `assets/jujutsu-kaisen` dizgisi 0 eşleşme), yani bugün kırık bağlantı üretmiyor. Ama Coolify git'ten build aldığı için bu dosyalar commit edilmeden canlıya ÇIKMAZ; ileride bir sayfa bu yolları kullanırsa yerelde çalışıp canlıda 404 verir — fark edilmesi zor bir sınıf.
 - **Etki:** **Low** (bugün); referans eklendiği gün High

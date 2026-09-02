@@ -51,6 +51,15 @@ ağacı temiz (jujutsu-kaisen görsel seti 2 Eylül gecesi
 | Medium/Low | SEC-01/02, DCK-02/03/04, API-10, D-B8, D-F6/D-F8, H-F2/H-F4, P-09/P-11 |
 | Sunucu/panel | Disk temizliği + zamanlanmış temizlik (03:00), backend healthcheck `(healthy)`, journald tavanı 200M, UltNexus'un internete açık Postgres portu kapatıldı |
 
+**2 Eylül gecesi (16:00–20:00 UTC) eklenenler:** Dependabot 0 açık, API-08
+(JSON projeksiyonu, gerçek-PG eşdeğerlik testi), D-F2 (TmdbCurator, −425
+satır, küratör sınavı geçti), F-4 emekli, H-F6 bilinçli istisna, jujutsu
+görsel seti taşındı, API-09/07/11, ölü kod (16 i18n + 9 export), H-F3 rota
+süpürmesi (36 dosya), ölü CSS (669 satır), D-B7 başladı (ExternalCacheService
++ TMDB kanadı), Docker temizliği 15 dk, MEM-01 soğuk sınav geçti.
+`pnpm test` 21 paket / 168 test yeşil. **Kod tarafında açık Critical/High
+yok; D-B7'nin kalan 9 servisi tek açık refactor.**
+
 Ölçülebilir sonuç: ~1.800 satır tekrar silindi, **62 yeni test** (öncesinde 0),
 backend imajı 996 → 842 MB, `/books` gibi 558 KB'lık yanıtlar artık ziyaretçiye
 Data Cache'ten, deploy 15 dk → 4 dk.

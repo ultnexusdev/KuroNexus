@@ -37,8 +37,6 @@ import {
  */
 
 const HOST = 'https://v3.football.api-sports.io';
-/** Süper Lig (ölçüldü: /leagues?id=203 → "Süper Lig", Turkey) */
-export const AF_SUPER_LIG = 203;
 /** Galatasaray (TheSportsDB kaydı da bunu doğruluyor: idAPIfootball 645) */
 export const AF_GALATASARAY = 645;
 

@@ -34,13 +34,6 @@ export class SyncSpotifyDto {
   spotifyId!: string;
 }
 
-export class SearchSpotifyDto {
-  @IsString()
-  @MinLength(2)
-  @MaxLength(120)
-  q!: string;
-}
-
 export class UpdateGenreDto {
   /**
    * Türü onaylar ya da onayı kaldırır.

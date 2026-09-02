@@ -36,9 +36,6 @@ import { displayNameWithoutSponsor, normalizeTeamKey } from './types';
 const BASE = 'https://www.thesportsdb.com/api/v1/json';
 const UA = 'KuroNexus/1.0 (+https://kuronexus.com)';
 
-/** Süper Lig'in TheSportsDB lig kimliği (ölçüldü: idLeague 4339) */
-export const TSDB_SUPER_LIG = '4339';
-
 export interface TsdbTeamAssets {
   key: string;
   name: string;

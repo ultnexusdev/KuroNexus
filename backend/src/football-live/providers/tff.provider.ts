@@ -53,9 +53,6 @@ const PAGE_FIXTURE = '/Default.aspx?pageID=198';
 /** Maç detayı — tarih, saat, stat, hakem */
 const PAGE_MATCH = '/Default.aspx?pageID=29&macId=';
 
-/** Galatasaray'ın TFF kulüp kimliği (ölçüldü: fikstür bağlantılarında kulupId=3604) */
-export const TFF_GS_CLUB_ID = '3604';
-
 export interface TffProviderOptions {
   /** Kaç maçın detayı çekilsin (tarih/saat/stat için). Cron başına istek bütçesi. */
   detailBudget?: number;

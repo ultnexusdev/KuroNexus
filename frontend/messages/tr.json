@@ -19,7 +19,6 @@
     "title": "KuroNexus",
     "tagline": "Gölgede kalmış kadim bilgilerin arşivi",
     "intro": "İzlediklerim, okuduklarım, dinlediklerim ve yazdıklarım — gölgede kalmış her tutkunun kendi odası.",
-    "adminLink": "Yönetim Paneli",
     "eyebrow": "Kişisel Kültür Arşivi",
     "manifestoA": "Gölgede kalan",
     "manifestoB": "her tutkunun",
@@ -104,7 +103,6 @@
   "stories": {
     "listTitle": "Nexus'u Keşfet",
     "all": "Tümü",
-    "emptyUniverses": "Henüz evren yok.",
     "emptyCategory": "Bu kategoride henüz içerik yok.",
     "empty": "Henüz hikâye yok.",
     "backToList": "← Tüm evrenler",
@@ -488,11 +486,6 @@
     },
     "title": "Film Arşivim",
     "lede": "İzlediğim, tekrar izlemek istediğim ve sırada bekleyen filmler.",
-    "statTotal": "{count} film",
-    "statThisYear": "{count} bu yıl",
-    "statAverage": "ort. {value}",
-    "statNoRating": "puan yok",
-    "statWatchlist": "{count} sırada",
     "statCard": {
       "watched": "İzlediğim Filmler",
       "watchedSub": "Toplam film",
@@ -1057,8 +1050,7 @@
       "hallEyebrow": "Salon {num}",
       "nowReading": "Şu anda okunan",
       "progress": "Tamamlandı: %{percent}",
-      "noneReading": "Şu an elimde açık kitap yok — sıradakiler rafta bekliyor.",
-      "openBook": "Kitabı aç →"
+      "noneReading": "Şu an elimde açık kitap yok — sıradakiler rafta bekliyor."
     },
     "quoteTitle": "Günün alıntısı",
     "stats": {
@@ -1220,7 +1212,6 @@
   },
   "account": {
     "preferences": "Tercihler",
-    "profileTab": "Profil Bilgileri",
     "appearanceTab": "Görünüm",
     "name": "Ad",
     "email": "E-posta",
@@ -1583,8 +1574,7 @@
     "bleach": {
       "meta": {
         "title": "Bleach Evreni",
-        "description": "Üç dünya, Gotei 13, Zanpakutō arşivi, Espada, Wandenreich ve Bin Yıllık Kan Savaşı — ruh dünyalarının tam arşivi.",
-        "ogAlt": "Bleach Evreni — dört kimlik, dört deri"
+        "description": "Üç dünya, Gotei 13, Zanpakutō arşivi, Espada, Wandenreich ve Bin Yıllık Kan Savaşı — ruh dünyalarının tam arşivi."
       },
       "toc": {
         "aria": "Bölümlere atla",
@@ -1799,7 +1789,6 @@
     },
     "labels": {
       "ring": "Yüzük",
-      "partner": "Ortak",
       "dossier": "Dosyayı aç",
       "era": "Dönem"
     },
@@ -2250,7 +2239,6 @@
     "backToSport": "Spor",
     "backToFootball": "Futbol",
     "backToF1": "Formula 1",
-    "latest": "Son eklenenler",
     "worlds": "Dünyalar",
     "index": {
       "worlds": "dünya",
@@ -2418,7 +2406,6 @@
       "stadium": "Stadyum",
       "capacity": "Kapasite",
       "eras": "Dönemler",
-      "personalArchive": "Kişisel arşiv",
       "ongoing": "süregelen"
     },
     "era": {
@@ -2682,8 +2669,6 @@
     "lastSync": "Son eşitleme",
     "neverSynced": "henüz eşitlenmedi",
     "openInSpotify": "Spotify'da aç",
-    "embedTitle": "Spotify çalar",
-    "embedNote": "Gömülü çalar 30 saniyelik önizleme çalar; Premium hesapta tam parça.",
     "counts": {
       "acts": "Sanatçı",
       "albums": "Albüm",
@@ -2701,7 +2686,6 @@
       "spotifyBadge": "Spotify'dan",
       "emptyTracks": "Bu listede henüz parça yok.",
       "emptyAdmin": "Bu liste boş. Albüm ya da sanatçı sayfalarındaki + düğmesiyle parça ekleyin.",
-      "localPlayerNote": "Bu liste bizde kuruldu, Spotify'da karşılığı yok — gömü yerine alttaki şerit çalar kullanılıyor: “Listeyi çal”a basınca parçalar sırayla çalıyor ve başka sayfalara geçince susmuyor.",
       "createTitle": "Yeni çalma listesi",
       "nameLabel": "Liste adı",
       "namePlaceholder": "Listenin adı…",

@@ -237,9 +237,6 @@ export function ClanEmblem({
   );
 }
 
-/** Amblemi olan klan kimlikleri — çip çizerken hızlı üyelik testi */
-export const CLAN_EMBLEM_IDS = new Set(Object.keys(EMBLEMS));
-
 /**
  * Uzumaki girdabı — hero'nun malzeme katmanındaki motif (RinneganMotif
  * emsali). Amblemden farkı: tek renk, `currentColor`, iri fırça izi.

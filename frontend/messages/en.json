@@ -19,7 +19,6 @@
     "title": "KuroNexus",
     "tagline": "An archive of ancient knowledge lost to shadow",
     "intro": "What I watch, read, listen to and write — a room of its own for every passion left in shadow.",
-    "adminLink": "Admin Panel",
     "eyebrow": "A Personal Culture Archive",
     "manifestoA": "Every passion",
     "manifestoB": "left in shadow",
@@ -104,7 +103,6 @@
   "stories": {
     "listTitle": "Discover Nexus",
     "all": "All",
-    "emptyUniverses": "No universes yet.",
     "emptyCategory": "No content in this category yet.",
     "empty": "No stories yet.",
     "backToList": "← All universes",
@@ -488,11 +486,6 @@
     },
     "title": "My Film Archive",
     "lede": "Films I have watched, films I want to see again, and films still waiting.",
-    "statTotal": "{count} films",
-    "statThisYear": "{count} this year",
-    "statAverage": "avg. {value}",
-    "statNoRating": "no ratings",
-    "statWatchlist": "{count} waiting",
     "statCard": {
       "watched": "Films Watched",
       "watchedSub": "Total films",
@@ -1057,8 +1050,7 @@
       "hallEyebrow": "Hall {num}",
       "nowReading": "Currently reading",
       "progress": "{percent}% complete",
-      "noneReading": "No book open right now — the next ones wait on the shelf.",
-      "openBook": "Open the book →"
+      "noneReading": "No book open right now — the next ones wait on the shelf."
     },
     "quoteTitle": "Quote of the day",
     "stats": {
@@ -1220,7 +1212,6 @@
   },
   "account": {
     "preferences": "Preferences",
-    "profileTab": "Profile Info",
     "appearanceTab": "Appearance",
     "name": "Name",
     "email": "Email",
@@ -1583,8 +1574,7 @@
     "bleach": {
       "meta": {
         "title": "The Bleach Universe",
-        "description": "Three worlds, Gotei 13, the Zanpakutō archives, Espada, Wandenreich and the Thousand-Year Blood War — the complete archive of the soul realms.",
-        "ogAlt": "The Bleach Universe — four identities, four skins"
+        "description": "Three worlds, Gotei 13, the Zanpakutō archives, Espada, Wandenreich and the Thousand-Year Blood War — the complete archive of the soul realms."
       },
       "toc": {
         "aria": "Skip to a section",
@@ -1799,7 +1789,6 @@
     },
     "labels": {
       "ring": "Ring",
-      "partner": "Partner",
       "dossier": "Open dossier",
       "era": "Era"
     },
@@ -2250,7 +2239,6 @@
     "backToSport": "Sport",
     "backToFootball": "Football",
     "backToF1": "Formula 1",
-    "latest": "Recently added",
     "worlds": "Worlds",
     "index": {
       "worlds": "worlds",
@@ -2418,7 +2406,6 @@
       "stadium": "Stadium",
       "capacity": "Capacity",
       "eras": "Eras",
-      "personalArchive": "Personal archive",
       "ongoing": "ongoing"
     },
     "era": {
@@ -2682,8 +2669,6 @@
     "lastSync": "Last sync",
     "neverSynced": "not synced yet",
     "openInSpotify": "Open in Spotify",
-    "embedTitle": "Spotify player",
-    "embedNote": "The embedded player plays a 30-second preview; full tracks with a Premium account.",
     "counts": {
       "acts": "Artists",
       "albums": "Albums",
@@ -2701,7 +2686,6 @@
       "spotifyBadge": "From Spotify",
       "emptyTracks": "This list has no tracks yet.",
       "emptyAdmin": "This list is empty. Add tracks with the + button on album or artist pages.",
-      "localPlayerNote": "This list was built here and has no Spotify counterpart — instead of an embed it uses the player bar below: press “Play the list” and the tracks run in order, and they keep playing when you move to other pages.",
       "createTitle": "New playlist",
       "nameLabel": "Playlist name",
       "namePlaceholder": "Name of the list…",

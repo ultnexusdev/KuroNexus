@@ -32,8 +32,9 @@ export const musicHref = {
   /** 2d · dinleme kaydı */
   listening: () => "/muzik/dinleme",
 
-  /** Kişi sayfası (Chester Bennington, Hans Zimmer) */
-  person: (slug: string) => `/muzik/kisi/${slug}`,
+  /* `person` (`/muzik/kisi/[slug]`) 2 Eylül 2026'da kaldırıldı: sayfası hiç
+     kurulmamıştı, yardımcı hiç çağrılmıyordu (denetim 1.2). Kişi sayfası
+     kurulursa yardımcı buraya, rota dosyasıyla birlikte geri gelir. */
 
   /** Çalma listesi */
   playlist: (slug: string) => `/muzik/liste/${slug}`,

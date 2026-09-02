@@ -577,6 +577,3 @@ export const ZANPAKUTO: readonly ZanpakutoRecord[] = [
     ],
   },
 ];
-
-/** İç dünyası olan altı kılıç — brief: "20 yarım yamalak yerine 6 mükemmel" */
-export const INNER_WORLD_IDS = ZANPAKUTO.filter((z) => z.innerWorld).map((z) => z.id);

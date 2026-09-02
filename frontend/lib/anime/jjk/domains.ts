@@ -190,14 +190,3 @@ export const DOMAINS: readonly DomainRecord[] = [
     glyph: "真",
   },
 ];
-
-/** Kimlik → kayıt. Alan bölümü ve yuva manifestosu buradan okuyor. */
-const BY_SLUG = new Map(DOMAINS.map((domain) => [domain.slug, domain]));
-
-export function domainBySlug(slug: DomainSlug): DomainRecord {
-  /* Dizi `DOMAIN_SLUGS`tan türedigi için her slug'ın kaydı var; `!` değil
-     açık hata — kimlik kayarsa derlemede değil ilk çizimde net patlasın. */
-  const record = BY_SLUG.get(slug);
-  if (!record) throw new Error(`jjk: tanımsız alan kimliği "${slug}"`);
-  return record;
-}

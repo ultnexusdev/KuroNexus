@@ -179,8 +179,6 @@ const VESTIGE_FIGURES = [
   { head: 11, headY: 23, sy: 42, sw: 39, hw: 29 },
 ] as const;
 
-export const VESTIGE_FIGURE_COUNT = VESTIGE_FIGURES.length;
-
 export function VestigeFigure({
   index,
   className,

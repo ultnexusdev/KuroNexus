@@ -60,6 +60,7 @@ import {
   NarutoChronicle,
   NarutoDojutsu,
 } from "@/components/anime/naruto/NarutoSelectors";
+import { getTranslations } from "next-intl/server";
 import shell from "../layout.module.css";
 import styles from "./page.module.css";
 
@@ -83,6 +84,14 @@ const DESCRIPTION =
  * §1.3'te yazılı — sayfada tek bir `t()` çağrısı yok). Metadata'yı tek
  * başına çevirmek, İngilizce bir kartın Türkçe bir sayfaya açılması demekti;
  * dürüst olan, sayfa çevrilene kadar kartın da Türkçe kalması.
+ *
+ * ── BİLİNÇLİ İSTİSNA (H-F6, 2 Eylül 2026, kullanıcı kararı "C") ──────────
+ * Bleach/JJK deseni (`Localized` veri + sözlük) burada ~15 KB lore metninin
+ * İngilizce yeniden yazımını ister; o yapılana kadar `/en/anime/naruto`
+ * İngilizce bir sürüm gibi DAVRANMAZ: `turkishOnly` ile canonical/hreflang
+ * TR'ye kilitli, İngilizce adres `noindex`, içerik kökü `lang="tr"`, sayfa
+ * üstünde tek satırlık İngilizce not. Site haritasındaki eşi `app/sitemap.ts`
+ * → `TURKISH_ONLY_PATHS`. Sayfa çevrildiğinde üçü birden kalkar.
  */
 export async function generateMetadata({
   params,
@@ -93,11 +102,13 @@ export async function generateMetadata({
   return {
     title: TITLE,
     description: DESCRIPTION,
+    ...(locale === "en" ? { robots: { index: false, follow: true } } : {}),
     ...shareCard({
       title: TITLE,
       description: DESCRIPTION,
       locale,
       path: "/anime/naruto",
+      turkishOnly: true,
     }),
   };
 }
@@ -131,8 +142,18 @@ export async function generateMetadata({
  * kendi fonu var (`naruto:shadows`); yuva boşsa eski davranışa dönüp
  * serginin `akatsuki:legion` kadrajını ödünç alıyor.
  */
-export default async function NarutoUniversePage() {
+export default async function NarutoUniversePage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
   const isAdmin = await readIsAdmin();
+  // Yalnız İngilizce adreste basılan "bu kayıt Türkçe" notu (H-F6 istisnası)
+  const tNote =
+    locale === "en"
+      ? await getTranslations({ locale, namespace: "anime.naruto" })
+      : null;
   const [images, akatsukiImages] = await Promise.all([
     // Sayfanın kendi kadrajları + BÜTÜN kadro portreleri tek turda
     // (uç 50 kimlikte kesiyor; bulk yardımcı listeyi bölüp birleştiriyor)
@@ -282,7 +303,9 @@ export default async function NarutoUniversePage() {
 
   return (
     <CuratorFrame isAdmin={isAdmin}>
-      <div className={styles.page}>
+      {/* `lang="tr"`: içerik her adreste Türkçe — ekran okuyucu ve arama
+          motoru İngilizce kabuğun içinde Türkçe metni doğru okusun (H-F6) */}
+      <div className={styles.page} lang="tr">
         <nav className={shell.crumb} aria-label="breadcrumb">
           <Link href="/dark-stories">KuroNexus</Link>
           <span className={shell.sep}>/</span>
@@ -290,6 +313,11 @@ export default async function NarutoUniversePage() {
           <span className={shell.sep}>/</span>
           <span>Naruto Evreni</span>
         </nav>
+        {tNote ? (
+          <p className={shell.eyebrow} lang="en" role="note">
+            {tNote("turkishOnly")}
+          </p>
+        ) : null}
 
         {/* ══ AÇILIŞ — SİNEMATİK KADRAJ ═══════════════════════════════
             Akatsuki hero'sunun hareket ailesi: Ken Burns fon, yükselen

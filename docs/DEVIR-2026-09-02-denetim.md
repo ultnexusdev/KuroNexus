@@ -143,8 +143,13 @@ Medium/Low kümesi; kod tarafında açık High kalmadı.
   ad alanı silindi; eski adresler (iki nesil, tr+en) kulüp sayfasına 301.
   Ayrıntı sentez #17. Canlıda doğrulama: `curl -sI …/spor/futbol/oyuncu/401923`
   → `301` + `location: /spor/futbol/galatasaray`.
-- **H-F6** `anime/naruto/page.tsx` hiç çeviri kullanmıyor (sanatsal metin):
-  bleach desenine hizala ya da bilinçli istisna olarak belgele.
+- ~~H-F6 `anime/naruto/page.tsx` hiç çeviri kullanmıyor~~ → **BİLİNÇLİ İSTİSNA
+  (2 Eylül gecesi, karar "C")**: `/en/anime/naruto` artık "Türkçe kayıt" olarak
+  işaretli — `lang="tr"`, `noindex`, `shareCard({turkishOnly})` (hreflang'de
+  yalnız TR), sitemap'te `/en` eşi yok, üstte İngilizce not. Ayrıntı ve
+  ölçüm: kod-yapısı raporu H-F6. **A seçeneği (tam çeviri, ~15 KB lore
+  yazarlığı) açık kapı:** yapılırsa `turkishOnly` bayrağı, sitemap seti,
+  `noindex` ve not kalkar; Bleach'in `Localized`/`pick` kalıbı hazır.
 - **`frontend/public/assets/jujutsu-kaisen/`** (15 MB, takipsiz, kodda referans
   yok): commit mi, `K:\KURONEXUS-uretim\`e mi taşınsın?
 - **Küratör sınavı** (2 dk): giriş → kayıt değiştir → yenile → anında görünmeli.

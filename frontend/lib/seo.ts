@@ -43,9 +43,20 @@ import { SITE_URL } from "@/lib/site";
 export function localeAlternates(
   locale: string,
   path: string,
+  options: { turkishOnly?: boolean } = {},
 ): NonNullable<Metadata["alternates"]> {
   const tr = `${SITE_URL}${path}`;
   const en = `${SITE_URL}/en${path}`;
+  /*
+   * Yalnız Türkçe yazılmış sayfa (bilinçli istisna, H-F6 — 2026-09-02):
+   * `/en` adresi de aynı Türkçe içeriği bastığı için İngilizce bir eş
+   * DEĞİL, bir kopya. Kopyayı hreflang'e yazmak arama motoruna "İngilizce
+   * sürüm var" demek olurdu; canonical iki adreste de TR'ye gider, dil
+   * haritasında yalnız TR durur. Sayfa çevrildiğinde bayrak kalkar.
+   */
+  if (options.turkishOnly) {
+    return { canonical: tr, languages: { tr, "x-default": tr } };
+  }
   return {
     canonical: locale === "en" ? en : tr,
     languages: { tr, en, "x-default": tr },
@@ -58,6 +69,7 @@ export function shareCard({
   locale,
   path,
   image,
+  turkishOnly,
 }: {
   title: string;
   description?: string | null;
@@ -66,19 +78,22 @@ export function shareCard({
   /** Locale ÖNEKSİZ yol, örn. `/muzik/sanatcilar` ya da `/spor/futbol`. */
   path: string;
   image?: string | null;
+  /** İçeriği yalnız Türkçe olan sayfa: hreflang/canonical TR'ye kilitlenir
+      (bkz. `localeAlternates`). Kart dili de TR kalır — sayfa Türkçe. */
+  turkishOnly?: boolean;
 }): Pick<Metadata, "openGraph" | "twitter" | "alternates"> {
   const tr = `${SITE_URL}${path}`;
   const en = `${SITE_URL}/en${path}`;
   const url = locale === "en" ? en : tr;
   const img = image ?? "/brand/og.png";
   return {
-    alternates: localeAlternates(locale, path),
+    alternates: localeAlternates(locale, path, { turkishOnly }),
     openGraph: {
       type: "website",
       siteName: "KuroNexus",
       title,
       ...(description ? { description } : {}),
-      locale: locale === "en" ? "en_US" : "tr_TR",
+      locale: locale === "en" && !turkishOnly ? "en_US" : "tr_TR",
       url,
       images: [{ url: img }],
     },

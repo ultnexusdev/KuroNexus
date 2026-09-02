@@ -78,6 +78,11 @@ function localizedEntries(
   priority: number,
 ): MetadataRoute.Sitemap {
   const tr = `${SITE_URL}${path}`;
+  // Yalnız Türkçe sayfa: `/en` adresi aynı içeriğin kopyası, haritaya girmez
+  // ve dil eşi olarak bildirilmez (sayfanın `alternates`ı da TR'ye kilitli).
+  if (TURKISH_ONLY_PATHS.has(path)) {
+    return [{ url: tr, lastModified, priority, alternates: { languages: { tr } } }];
+  }
   const en = `${SITE_URL}/en${path}`;
   const languages = { tr, en };
   return [
@@ -85,6 +90,16 @@ function localizedEntries(
     { url: en, lastModified, priority, alternates: { languages } },
   ];
 }
+
+/**
+ * İçeriği baştan sona Türkçe gömülü sayfalar — BİLİNÇLİ İSTİSNA (H-F6,
+ * 2 Eylül 2026, kullanıcı kararı). Bleach/JJK deseninin (`Localized` veri +
+ * sözlük) uygulanması ~15 KB lore metninin İngilizce yeniden yazımı demek;
+ * o iş yapılana kadar İngilizce adres dürüstçe "Türkçe kayıt" olarak
+ * işaretlenir: `lang="tr"`, `noindex`, hreflang'de yalnız TR. Sayfa
+ * çevrilince buradan ve `generateMetadata`sından `turkishOnly` kalkar.
+ */
+const TURKISH_ONLY_PATHS = new Set(["/anime/naruto"]);
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();

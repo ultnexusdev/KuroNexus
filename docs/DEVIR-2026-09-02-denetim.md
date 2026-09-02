@@ -10,6 +10,18 @@
 
 ## 0 · YENİ OTURUMDA İLK İŞ
 
+0. **⚠️ 3 Eylül sabahı: `8a972a6` (D-B7 son commit, 2 Eylül 20:48 UTC push)
+   DEPLOY SONRASI DOĞRULANMADI** — kullanıcı geceyi orada kapattı. Önce
+   panelde deploy `Success` mi, `docker ps` backend `(healthy)` mi bak; sonra
+   bu uçların 200 döndüğünü ve boş olmadığını doğrula (vitrin ve dizin
+   önbellek yolları bu commit'te değişti):
+   ```bash
+   for u in /movies/showcase /shows/showcase /anime/showcase /anime/characters /football/squad /books/kisi/siddhartha-mukherjee /books/awards; do printf "%-40s %s %s bayt\n" "$u" "$(curl -s -o /tmp/r.json -w '%{http_code}' -m 40 "https://api.kuronexus.com$u")" "$(wc -c < /tmp/r.json)"; done
+   ```
+   Beklenen: hepsi 200; vitrinler ~160–260 bayt (left/right dolu), karakter
+   dizini ~21 KB, kadro ~10 KB. Bir vitrin `{"left":null,"right":null}`
+   dönerse önbellek okuması kırılmış demektir → `git revert 8a972a6` değil,
+   `ExternalCacheService.read`'e bak (payload/ageMs), deploy loguna bak.
 1. **Canlıyı doğrula** — hepsi 200 dönmeli (`-L` şart: `/tr` → `/` 307 atıyor):
    ```bash
    for u in /tr /tr/dark-stories/category/kitap/arsiv /tr/dark-stories/category/film/arsiv /tr/dark-stories/category/anime/arsiv /tr/dark-stories/category/kitap/korluk /en/muzik/the-weeknd/after-hours-2020; do printf "%-52s %s\n" "$u" "$(curl -s -o /dev/null -w '%{http_code}' -L -m 15 "https://kuronexus.com$u")"; done; curl -s https://api.kuronexus.com/health

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import type { Prisma } from '../generated/prisma/client';
+import { Prisma } from '../generated/prisma/client';
 
 /**
  * Müzik salonunun okuma katmanı.
@@ -115,73 +115,70 @@ export class MusicService {
         trackCount: true,
         durationMs: true,
         isFavorite: true,
-        tracks: {
-          select: {
-            track: {
-              select: {
-                album: {
-                  select: {
-                    act: {
-                      select: {
-                        genres: {
-                          where: { genre: { isApproved: true } },
-                          select: {
-                            genre: {
-                              select: {
-                                slug: true,
-                                name: true,
-                                accentKey: true,
-                              },
-                            },
-                          },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
+        _count: { select: { tracks: true } },
       },
     });
+    if (playlists.length === 0) {
+      return [];
+    }
+
+    /**
+     * Tür payı tek gruplu sorguyla (API-11, 2 Eylül 2026). Eskiden
+     * playlist → parça → albüm → act → tür zinciri yedi ayrı sorguyla ve
+     * parça bacağı sınırsız çekiliyordu; Spotify listeleri yüzlerce parça
+     * olabiliyor. Sayım kuralı aynı: bir parça act'inin ONAYLI her türüne
+     * bir pay verir, toplam da o kadar artar — yüzdeler 100'e tamamlanır.
+     * Silinmiş parça/albüm/act süzülmüyor; eski iç içe `select` de
+     * süzmüyordu, davranış birebir.
+     */
+    const rows = await this.prisma.$queryRaw<
+      Array<{
+        playlistId: string;
+        slug: string;
+        name: string;
+        accentKey: string | null;
+        count: number;
+      }>
+    >(Prisma.sql`
+      SELECT pt."playlistId", g."slug", g."name", g."accentKey",
+             COUNT(*)::int AS "count"
+      FROM "MusicPlaylistTrack" pt
+      JOIN "MusicTrack" t ON t."id" = pt."trackId"
+      JOIN "MusicAlbum" al ON al."id" = t."albumId"
+      JOIN "MusicGenreOnAct" ga ON ga."actId" = al."actId"
+      JOIN "MusicGenre" g ON g."id" = ga."genreId" AND g."isApproved" = true
+      WHERE pt."playlistId" IN (${Prisma.join(playlists.map((p) => p.id))})
+      GROUP BY pt."playlistId", g."slug", g."name", g."accentKey"
+    `);
+    const byPlaylist = new Map<string, typeof rows>();
+    for (const row of rows) {
+      const bucket = byPlaylist.get(row.playlistId);
+      if (bucket) {
+        bucket.push(row);
+      } else {
+        byPlaylist.set(row.playlistId, [row]);
+      }
+    }
 
     return playlists.map((playlist) => {
-      const tally = new Map<
-        string,
-        { name: string; accentKey: string | null; count: number }
-      >();
-      let total = 0;
-      for (const entry of playlist.tracks) {
-        // Bir parça birden çok türe bağlı act'e ait olabilir; her tür payını
-        // alır ve toplam da o kadar artar — yüzdeler yine 100'e tamamlanır
-        for (const link of entry.track.album.act.genres) {
-          const genre = link.genre;
-          const current = tally.get(genre.slug);
-          if (current) {
-            current.count += 1;
-          } else {
-            tally.set(genre.slug, {
-              name: genre.name,
-              accentKey: genre.accentKey,
-              count: 1,
-            });
-          }
-          total += 1;
-        }
-      }
-
+      const shares = byPlaylist.get(playlist.id) ?? [];
+      const total = shares.reduce((sum, row) => sum + row.count, 0);
       const genreMix: GenreShare[] =
         total === 0
           ? []
-          : [...tally.entries()]
-              .map(([slug, value]) => ({
-                slug,
-                name: value.name,
-                accentKey: value.accentKey,
-                percent: Math.round((value.count / total) * 100),
+          : shares
+              .map((row) => ({
+                slug: row.slug,
+                name: row.name,
+                accentKey: row.accentKey,
+                percent: Math.round((row.count / total) * 100),
               }))
-              .sort((a, b) => b.percent - a.percent);
+              // Eşit yüzdede ad sırası: eski kod ekleme sırasına (parça
+              // sırasına) bırakıyordu, o da tanımsızdı — burada sabit.
+              .sort(
+                (a, b) =>
+                  b.percent - a.percent || a.name.localeCompare(b.name, 'tr'),
+              );
 
       return {
         id: playlist.id,
@@ -189,7 +186,7 @@ export class MusicService {
         name: playlist.name,
         description: playlist.description,
         artwork: playlist.artwork,
-        trackCount: playlist.trackCount ?? playlist.tracks.length,
+        trackCount: playlist.trackCount ?? playlist._count.tracks,
         durationMs: playlist.durationMs,
         isFavorite: playlist.isFavorite,
         genreMix,

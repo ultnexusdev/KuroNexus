@@ -92,7 +92,7 @@
 - **Çözüm:** `readSettled`'ı `readMatches`'in dönüşünden türetmek; kişi dizinini `getArchive` sonucundan paylaşmak.
 - **Getiri:** Ödül uçlarında istek başına 2 büyük sorgu eksilir.
 
-### API-11 — Müzik genel bakış: 7 seviyeli ilişki zinciri, `take` yok
+### ~~API-11~~ — Müzik genel bakış: 7 seviyeli ilişki zinciri, `take` yok → **YAPILDI (2 Eylül 2026 gecesi):** `getFavoritePlaylists` tür payını tek gruplu ham SQL ile alıyor (playlist × onaylı tür başına bir satır, `COUNT(*)::int`); playlist listesi `_count.tracks` ile, parça bacağı hiç çekilmiyor. Sayım kuralı ve süzgeçsizlik (silinmiş parça/act süzülmez) eski davranışla birebir; tek fark eşit yüzdede sıralama artık ad sırasıyla sabit (eskiden parça sırasına, yani tanımsızdı). Kanıt: deploy sonrası `/music/overview` deploy öncesiyle kıyaslanacak (canlıda 1 liste, 8 parça).
 - **Dosya:** `backend/src/music/music.service.ts` — **Satır:** 106-147 (özellikle 118-146)
 - **Problem:** `GET /muzik` için tür yüzdesi hesabı `MusicPlaylist → …→ MusicGenre` zincirini 7 ayrı sorguyla ve `MusicPlaylistTrack` bacağında sınırsız çekiyor; Spotify listeleri yüzlerce parça olabiliyor (`music-playlist.service.ts:208`).
 - **Etki:** **Medium**

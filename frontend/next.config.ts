@@ -335,6 +335,22 @@ const nextConfig: NextConfig = {
         destination: "/en/spor/futbol/galatasaray",
         statusCode: 301,
       },
+      /*
+       * Emekli oyuncu künyesi (F-4, 2026-09-02): `/spor/futbol/oyuncu/[id]`
+       * kadro verisinden jenerik bir sayfaydı, siteden ona giden bağlantı
+       * yoktu; futbolcu kavramı `futbolcular/[slug]`. Dışarıdan gelen eski
+       * bağlantı kulüp sayfasına düşer (kadro orada).
+       */
+      {
+        source: "/spor/futbol/oyuncu/:id",
+        destination: "/spor/futbol/galatasaray",
+        statusCode: 301,
+      },
+      {
+        source: "/en/spor/futbol/oyuncu/:id",
+        destination: "/en/spor/futbol/galatasaray",
+        statusCode: 301,
+      },
       { source: "/dark-stories/formula-1", destination: "/spor/formula-1", statusCode: 301 },
       {
         source: "/en/dark-stories/formula-1",
@@ -443,14 +459,16 @@ const nextConfig: NextConfig = {
       // Öksüz kalan üst seviye oyuncu rotası. Brief'te yoktu ama zorunlu:
       // `/futbol/oyuncu/[playerId]` bugün canlı ve `SquadGrid` her kadro
       // kartından oraya bağlanıyor — yeni ağaç kurulunca ortada kalırdı.
+      // 2026-09-02: hedef sayfa da emekli edildi (F-4); zincir (301 → 301)
+      // olmasın diye doğrudan kulüp sayfasına.
       {
         source: "/futbol/oyuncu/:playerId",
-        destination: "/spor/futbol/oyuncu/:playerId",
+        destination: "/spor/futbol/galatasaray",
         statusCode: 301,
       },
       {
         source: "/en/futbol/oyuncu/:playerId",
-        destination: "/en/spor/futbol/oyuncu/:playerId",
+        destination: "/en/spor/futbol/galatasaray",
         statusCode: 301,
       },
     ];

@@ -121,19 +121,6 @@
     "bookSeriesAll": "Seri sayfasına git →",
     "bookVolume": "{index}. cilt"
   },
-  "futbol": {
-    "backToTeam": "Galatasaray",
-    "age": "{age} yaş",
-    "dossier": "Künye",
-    "club": "Kulüp",
-    "position": "Mevki",
-    "birthDate": "Doğum tarihi",
-    "height": "Boy",
-    "foot": "Ayak",
-    "marketValue": "Piyasa değeri",
-    "dossierNote": "Veriler Transfermarkt kadro senkronizasyonundan gelir; maç istatistikleri henüz aktarılmadı.",
-    "tmProfile": "Transfermarkt profili"
-  },
   "footer": {
     "about": "Gölgede kalmış her tutkunun bir odası olduğu kişisel bir kültür arşivi.",
     "explore": "Keşfet",

@@ -138,7 +138,11 @@ Medium/Low kümesi; kod tarafında açık High kalmadı.
    seçici, ✕ kaldır. Dizi tarafında "İzliyorum" seçeneği listede olmalı.
 
 ### 3.2 Kullanıcı kararı bekleyenler
-- **F-4** öksüz `/spor/futbol/oyuncu/[playerId]`: link ver ya da 301 ile emekli et.
+- ~~F-4 öksüz `/spor/futbol/oyuncu/[playerId]`~~ → **EMEKLİ EDİLDİ (2 Eylül
+  gecesi, karar "B")**: rota, backend ucu, tip, sarmalayıcı, `futbol` sözlük
+  ad alanı silindi; eski adresler (iki nesil, tr+en) kulüp sayfasına 301.
+  Ayrıntı sentez #17. Canlıda doğrulama: `curl -sI …/spor/futbol/oyuncu/401923`
+  → `301` + `location: /spor/futbol/galatasaray`.
 - **H-F6** `anime/naruto/page.tsx` hiç çeviri kullanmıyor (sanatsal metin):
   bleach desenine hizala ya da bilinçli istisna olarak belgele.
 - **`frontend/public/assets/jujutsu-kaisen/`** (15 MB, takipsiz, kodda referans

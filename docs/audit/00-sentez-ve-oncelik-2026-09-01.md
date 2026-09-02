@@ -100,7 +100,7 @@ Sentez yazıldıktan sonra Kademe 1 ve Kademe 2 aynı gün uygulandı. Kapananla
 14. **D-B1 · `suggestions()` movies↔shows ~100 satır birebir** — `suggestion-mixer.ts` + test edilebilir `interleave()`.
 15. **H-F1 · "sa/dk" süre etiketi 5 sayfada gömülü** — EN sayfalarda Türkçe görünüyor; `music.duration` anahtarı + tek format yardımcısı (D-F8 ile birlikte).
 16. **H-F3 · Rota literalleri + çelişen `KITAP_HREF`** — aynı adlı sabit iki farklı değerde; film/show routes modülleri yok, `/dark-stories` 154 dosyada literal. Önce `KITAP_HREF` tekleştir, sonra routes modülleri.
-17. **F-4 · Öksüz oyuncu sayfası** (`/spor/futbol/oyuncu/[playerId]`) — karar gerektirir: kadrodan yeniden link ver ya da emekli edip 301 at. (CSS'inin 20/36 class'ı zaten ölü; API-03'ün çift-fetch listesinde de aynı sayfa var — karar iki raporu birden kapatır.)
+17. ~~F-4 · Öksüz oyuncu sayfası~~ → **EMEKLİ EDİLDİ (2 Eylül 2026 gecesi, kullanıcı kararı "B").** Gerekçe: siteden hiçbir bağlantı gitmiyordu (`sportHref.player` yalnız sayfanın kendisinde), futbolcu kavramı `futbolcular/[slug]`, fotoğraflar Transfermarkt hotlink'iydi. Silinenler: rota + CSS, `fetchFootballPlayer`, `FootballPlayerDetail`, `sportHref.player`, backend `GET /football/player/:id` + `getPlayer()`, `futbol` sözlük ad alanı (tr+en, 11 anahtar — tek tüketicisi bu sayfaydı). `/spor/futbol/oyuncu/:id` ve daha eski `/futbol/oyuncu/:id` (tr+en) → kulüp sayfasına 301, zincirsiz. API-03'ün çift-fetch maddesi de bununla kapandı.
 18. **D-F1–D-F4 · Frontend duplicate dörtlüsü** — en mekaniği D-F4 (`getHall` ×22 → `lib/halls.ts`, ~290 satır); sonra D-F1 (filters), D-F2 (TmdbCuratorBar), D-F3 (`components/media/` parçaları). Toplam ~1.100+ satır.
 
 ### Sıraya girmeyen ama kayıtta duran Medium/Low kümeleri

@@ -1,5 +1,5 @@
 import { apiFetch } from "./client";
-import type { FootballPlayerDetail, FootballSquad } from "./types";
+import type { FootballSquad } from "./types";
 
 // Kadro/oyuncu verisi backend'in yerel Transfermarkt tablolarından gelir ve
 // yalnızca admin sync'inde değişir. Kaynak-doğruluk backend'de olduğundan
@@ -20,13 +20,10 @@ export function fetchFootballSquad(): Promise<FootballSquad> {
  * tanımıydı. Karşılık gelen backend uçları (GET /football/standings,
  * GET /football/next-match, GET /transfer-news/universe/:slug) hâlâ duruyor
  * — kaldırma kararı sahibinin (denetim raporunda listeli).
+ *
+ * fetchFootballPlayer ve `/spor/futbol/oyuncu/[id]` sayfası 2026-09-02'de
+ * EMEKLİ EDİLDİ (F-4, kullanıcı kararı): sayfaya siteden hiçbir bağlantı
+ * gitmiyordu, futbolcu kavramı `futbolcular/[slug]` (küratör profilleri).
+ * Backend `GET /football/player/:id` de kaldırıldı; eski adres kulüp
+ * sayfasına 301 (next.config.ts).
  */
-
-export function fetchFootballPlayer(
-  id: string,
-): Promise<FootballPlayerDetail> {
-  return apiFetch<FootballPlayerDetail>(
-    `/football/player/${encodeURIComponent(id)}`,
-    { cache: "no-store" },
-  );
-}

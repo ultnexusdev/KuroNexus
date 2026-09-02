@@ -153,27 +153,6 @@ export interface FootballStatBlock {
   cardsRed: number;
 }
 
-// Oyuncu künyesi — Transfermarkt kaydından. Sezon istatistiği YOK: TM veri
-// setindeki maç tablosu (TmGame) senkronize edilmiyor, o gelene kadar sayfa
-// yalnızca elimizdeki gerçek veriyi gösterir.
-export interface FootballPlayerDetail {
-  player: {
-    id: string;
-    name: string;
-    firstname: string | null;
-    lastname: string | null;
-    age: number | null;
-    birthDate: string | null;
-    heightInCm: number | null;
-    foot: string | null;
-    position: string | null;
-    marketValueInEur: number | null;
-    clubName: string | null;
-    photo: string | null;
-    tmUrl: string | null;
-  } | null;
-}
-
 // Transfer haberi — künye alanları (fotoğraf/mevki/piyasa değeri/yaş) haberin
 // içine kopyalanmaz, backend TM tablosundan okuyup `player` olarak döner.
 // TM kaydı varsa alanlar oradan; yoksa elle girilen künye (`facts` serbest

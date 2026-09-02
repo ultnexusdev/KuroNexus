@@ -17,15 +17,12 @@ export const sportHref = {
   club: (slug: string) => `/spor/futbol/${slug}`,
   legends: () => "/spor/futbol/efsaneler",
   legend: (slug: string) => `/spor/futbol/efsaneler/${slug}`,
-  /** Eski `/futbol/oyuncu/[id]` rotasının yeni yeri */
-  player: (id: string) => `/spor/futbol/oyuncu/${id}`,
   /**
    * Favori futbolcu profili — `lib/sport/favourite-players.ts` defterindeki
-   * kayıtların sayfası.
-   *
-   * `player()` ile karıştırma: o, canlı kadro verisinden gelen bir oyuncunun
-   * künyesi (TFF kimliğiyle). Bu, küratörün SEÇTİĞİ bir futbolcunun kendi
-   * atmosferiyle açılan profili. İki farklı kaynak, iki farklı ağaç.
+   * kayıtların sayfası: küratörün SEÇTİĞİ bir futbolcunun kendi atmosferiyle
+   * açılan profili. Sitedeki TEK futbolcu sayfası — kadro verisinden üretilen
+   * jenerik künye (`/spor/futbol/oyuncu/[id]`) 2026-09-02'de emekli edildi
+   * (F-4): ona giden bağlantı yoktu; eski adres kulüp sayfasına 301 döner.
    */
   favouritePlayer: (slug: string) => `/spor/futbol/futbolcular/${slug}`,
 

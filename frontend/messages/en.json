@@ -121,19 +121,6 @@
     "bookSeriesAll": "Go to the series page →",
     "bookVolume": "Volume {index}"
   },
-  "futbol": {
-    "backToTeam": "Galatasaray",
-    "age": "{age} yrs",
-    "dossier": "Dossier",
-    "club": "Club",
-    "position": "Position",
-    "birthDate": "Date of birth",
-    "height": "Height",
-    "foot": "Foot",
-    "marketValue": "Market value",
-    "dossierNote": "Data comes from the Transfermarkt squad sync; match statistics are not imported yet.",
-    "tmProfile": "Transfermarkt profile"
-  },
   "footer": {
     "about": "A personal culture archive where every passion left in shadow has a room of its own.",
     "explore": "Explore",

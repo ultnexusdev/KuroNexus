@@ -100,8 +100,16 @@ Data Cache'ten, deploy 15 dk → 4 dk.
 
 ## 3 · AÇIK İŞLER
 
-### 3.1 Sıradaki üç aday (öneri sırasıyla)
-1. **Dependabot 26 açık (16 high)** — hiç dokunulmadı, güvenlik, sınırlı iş.
+### 3.1 Sıradaki adaylar (öneri sırasıyla)
+1. ~~Dependabot 26 açık~~ → **YAPILDI, 2 Eylül akşamı, iki commit halinde
+   (backend + frontend ayrı — Watch Paths tek push'ta iki build açmasın diye).**
+   Ayrıntı sentez §0 son madde. **Push sırası:** `df -h /` → önce backend
+   commit'i (`git push origin <sha>:main`, ~5 dk) → canlı `/health` → sonra
+   frontend commit'i. ⚠️ `frontend/package.json` değişti: kurulum katmanı soğuk,
+   MEM-01 sonrası ilk ölçüm bu — 10+ dk normal, 504 görürsen §4.2.
+   Yerelde `pnpm audit` yeniden koşturmak için: `npx pnpm@11 audit` (pnpm PATH'te
+   yok, yerel node_modules pnpm 11 ile kurulu; Docker pnpm 10 aynı lockfile
+   biçimini okuyor).
 2. **API-08** (son açık kod High'ı): film/dizi/anime/pulse `externalData`'yı
    budamadan çekiyor. ⚠️ Kitaptaki `ARCHIVE_OMIT` çözümü İŞE YARAMAZ — bu üç
    kanat JSON'dan 10 alan okuyor. JSON projeksiyonu (raw SQL) ya da sütun
@@ -118,7 +126,18 @@ Data Cache'ten, deploy 15 dk → 4 dk.
 - **Küratör sınavı** (2 dk): giriş → kayıt değiştir → yenile → anında görünmeli.
   2 Eylül akşamı sonucu bildirilmedi.
 
-### 3.3 Medium/Low kümesi (sentez §0'da tam liste)
+### 3.3 Backend'de önceden düşen 6 test paketi (2 Eylül'de fark edildi, dokunulmadı)
+`pnpm test` → 18 paketten 6'sı düşüyor, ikisi de bağımlılık yükseltmesinden ÖNCE
+de öyleydi:
+- `books/{books,awards,bin-kitap,reading-orders}.service.spec.ts` — "Jest
+  encountered an unexpected token": `sanitize-html` → `htmlparser2@12`
+  yalnız-ESM; Node 24 `require(esm)` ile üretimde çalışıyor, Jest okuyamıyor.
+  Çözüm adayları: `transformIgnorePatterns`'a htmlparser2/domutils ailesini
+  eklemek ya da `moduleNameMapper` ile testte hafif bir sanitize mock'u.
+- `categories/categories.{service,controller}.spec.ts` — NestJS iskelet
+  testleri, `PrismaService` sağlayıcısı yok (1 Ağustos'tan beri dokunulmamış).
+
+### 3.4 Medium/Low kümesi (sentez §0'da tam liste)
 B-04 `lib/admin/api.ts` bölünmesi (44 importer), D-B4 movies↔shows kalan
 ikizler (TMDB istemci soyutlaması ister), H-F3 film/dizi/anime rota literalleri,
 API-07/09/11/12/13, D-B7 `externalCache` (22 nokta; "fetchedAt eksik" YANLIŞ

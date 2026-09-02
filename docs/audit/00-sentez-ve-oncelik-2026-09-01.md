@@ -49,7 +49,7 @@ Sentez yazıldıktan sonra Kademe 1 ve Kademe 2 aynı gün uygulandı. Kapananla
 - ~~API-04/05~~ → **YAPILDI (2 Eylül 2026, kullanıcı onayıyla):** arşivler/detaylar/karakter dizini ziyaretçiye 300 sn Data Cache, küratöre `fresh` (18 sayfa `readIsAdmin()`'ı öne alıp geçiriyor); tek kaynak `lib/api/freshness.ts`. `cache()` sarmalayıcıları `fresh === true` ile normalize (API-03 dedupe'u korunsun). Bilerek dışarıda: `getBookPerson`, ödül rafları, okuma sıraları (ziyaretçiye dönük gecikmeli doldurma — `pending` döngüsü kilitlenirdi), curated-images, spor görselleri. `force-dynamic` bildirimleri kaldırılmadı (çerez okuması render'ı zaten dinamik yapıyor; kazanç fetch katmanında). Kanıt: build'deki sitemap `Dynamic server usage` uyarısı kayboldu (MEM-03).
 - **Kademe 3–4'ten kalanlar** (Parça 1) — `externalCache` kalıbı 22 noktada (D-B7; not: "fetchedAt eksik" alt maddesi YANLIŞ ALARM çıktı, şemada `@default(now())` var); **D-F2** FilmCurator↔ShowCurator (~450 satır; küratör akışının canlıda gerçek girişle sınanması gerektiği için bilerek ertelendi); movies↔shows kalan ikizler (D-B4: showcase/buildLinks/buildStats — TMDB istemci soyutlaması ister); rota literalleri film/dizi/anime ayakları (H-F3'ün kalanı); öksüz oyuncu sayfası (F-4, karar gerektirir); D-F7 shelves fabrikası (Low). `music-playlist`/`music-sync` slug varyantları kendi imzalarıyla duruyor.
 - ~~Panel işleri~~ → **İKİSİ DE YAPILDI (1 Eylül akşamı):** backend healthcheck açık ve `(healthy)` doğrulandı; Coolify zamanlanmış Docker temizliği açıldı. Kalan tek küçük iş journald üst sınırı (`SystemMaxUse`) — sunucuda tek satır, acele değil.
-- **Kapsam dışı:** 26 Dependabot açığı (16 high).
+- ~~Kapsam dışı: 26 Dependabot açığı (16 high)~~ → **YAPILDI (2 Eylül 2026 akşamı):** `pnpm audit` iki serviste 0 açığa indi (öncesi frontend 14, backend 29 — Dependabot'un saydığı 26'nın üst kümesi). Doğrudan yükseltmeler: Next 15.5.25, tiptap 3.31, sharp 0.35.4, `@nestjs/platform-express` 11.2.3 (multer 2.2 → upload DoS kapandı), sanitize-html 2.17.7 (SVG XSS). Geçişliler `pnpm-workspace.yaml` → `overrides:` ile (brace-expansion ×3 hat, js-yaml ×2, nanoid, postcss, qs, fast-uri, browserslist, hono/@hono/node-server/valibot/mysql2/deepmerge-ts — son beşi Prisma CLI ağacı, 7.10 da eski sürümleri taşıyor). Prisma yükseltilmedi (hiçbir açığı kapatmıyor). Doğrulama: tsc + eslint + `next build` + `nest build` + `prisma validate` (deepmerge-ts 8 sınavı) + jest 76/78. Not: pnpm 11 `package.json` içindeki `pnpm.overrides`'ı OKUMUYOR; tek geçerli yer workspace dosyası (Dockerfile zaten kopyalıyor).
 
 ---
 
@@ -123,7 +123,7 @@ Sayım kuralı: her **etiketli** bulgu bir kez sayıldı; çok kalemli tablolar 
 
 - Açık iki Critical'ın ikisi de **konfigürasyon tuzağı** sınıfı (H-B1: env unutulursa; H-B2: dev dosyası sunucuda koşturulursa) — bugün aktif olarak sömürülebilir durumda değiller, düzeltmeleri toplam birkaç satır.
 - Açık 22 High'ın dağılımı: 7'si üretim kararlılığı (Parça 3'ün tamamı), 6'sı backend duplicate/davranış ayrışması, 5'i frontend yapı borcu, 3'ü env/config drift (H-B4), 1'i öksüz rota.
-- **Rapor kapsamı dışı kayıt:** GitHub'ın bildirdiği 26 Dependabot açığı (16 high) üç raporun hiçbirinde incelenmedi; ayrı bir iş olarak masada duruyor.
+- ~~Rapor kapsamı dışı kayıt: 26 Dependabot açığı~~ → 2 Eylül akşamı kapatıldı (§0 son madde).
 - **Doğrulanamayanlar:** panel-tarafı healthcheck durumu (DCK-03), üretim `DATABASE_URL` havuz ayarı (SEC-06), canlı responsive teyidi (Parça 2 §8), canlı kırık-link taraması — hepsi ilgili raporlarda açıkça işaretli.
 
 ---

@@ -496,7 +496,19 @@ eslint:     { ignoreDuringBuilds: isDockerBuild },
 Güvenlik kaybı sanıldığı kadar değil: aynı kontrolü yerel `next build`
 tam olarak yapıyor ve push öncesi `npx tsc --noEmit` + `npx eslint` zaten
 koşuluyor. 3,7 GB'lık sunucuda ikinci kez yapmanın tek getirisi deploy'u
-düşürmek. **Yine de ölçmeden uygulama** — bu turda gerekmedi.
+düşürmek.
+
+**✅ 2 Eylül 2026: ÖLÇÜLDÜ VE UYGULANDI.** Frontend deploy'u 5m44s/5m59s
+yerine **15m41s+** sürdü; o pencerede Coolify paneli cevapsız kaldı, site
+`504 Gateway Time-out` verdi, eski konteyner ise ayaktaydı (dış yoklamalar
+200 aldı) — yani düşen uygulama değil, swap'a düşen kutuydu (§2'deki
+mekanizma). Tetikleyici büyük ihtimalle aynı gün açılan zamanlanmış Docker
+temizliğinin build cache'ini süpürmesiyle build'in SOĞUK koşması (§9.6
+ölçümü: soğuk derleme kat kat uzun ve daha aç). Uygulanan iki satır
+`next.config.ts`te (`isDockerBuild`), üstüne `frontend/Dockerfile` build
+aşamasına `NODE_OPTIONS=--max-old-space-size=2048`: sığmazsa build HIZLI
+düşsün — backend healthcheck + rollback (§3c) sayesinde düşen build artık
+zararsız, boğulan kutu değil.
 
 ---
 

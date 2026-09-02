@@ -26,8 +26,19 @@ ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 RUN test -n "$NEXT_PUBLIC_API_URL" \
     || (echo "HATA: NEXT_PUBLIC_API_URL bos. Coolify'da Build Variable olarak tanimlayin." && exit 1)
 
-# standalone cikti yalnizca Docker build'inde etkin (bkz. next.config.ts)
+# standalone cikti yalnizca Docker build'inde etkin (bkz. next.config.ts).
+# Ayni bayrak sunucuda tip/lint kontrolunu de KAPATIYOR (next.config.ts,
+# typescript.ignoreBuildErrors / eslint.ignoreDuringBuilds) - gerekce orada.
 ENV NEXT_OUTPUT_STANDALONE=1
+
+# Bellek tavani: 3.7 GB'lik kutuda `next build` tepesi swap'a dusunce
+# uzerindeki HER SEY (Coolify paneli, Traefik, site) dakikalarca boguluyor -
+# 2 Eylul 2026'da olculdu: 6 dakikalik deploy 15+ dakika surdu, panel
+# cevapsiz kaldi, site 504 verdi (13-14 Agustos'un aynisi). Tavanla build
+# sigmazsa HIZLI DUSER; healthcheck + rollback sayesinde dusen build zararsiz,
+# bogulan kutu degil. Telemetri kapali: build sirasinda dis istek atmasin.
+ENV NODE_OPTIONS=--max-old-space-size=2048
+ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN pnpm run build
 

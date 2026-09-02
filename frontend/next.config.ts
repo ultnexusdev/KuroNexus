@@ -235,10 +235,29 @@ const PLAYER_SECURITY_HEADERS = [
   },
 ];
 
+/**
+ * "Bu bir Docker derlemesi" bayrağı. Aynı bayrak iki şeyi birden belirliyor:
+ * standalone çıktı VE sunucuda tip/lint kontrolünün atlanması.
+ *
+ * ── NEDEN SUNUCUDA TİP KONTROLÜ YOK (2 Eylül 2026, ölçüldü) ────────────────
+ * `next build`in "Linting and checking validity of types" adımı 3.7 GB'lık
+ * makinenin tepe noktası. Bugün altı dakikalık bir deploy 15+ dakika sürdü,
+ * o pencerede Coolify paneli cevapsız kaldı ve site 504 verdi — 13-14
+ * Ağustos'taki krizin aynısı (docs/deploy-duzeni.md §9.6.1'de "ölçmeden
+ * uygulama" notuyla bekleyen çözüm buydu). Güvenlik kaybı yok: aynı kontrol
+ * her push öncesi yerelde koşuyor (`tsc --noEmit`, `eslint`, `check:i18n`,
+ * `check:karakter`) ve YEREL `next build` bayrak kapalı olduğu için tam
+ * kontrolle çalışmaya devam ediyor. Sunucuda ikinci kez yapmanın tek getirisi
+ * deploy'u düşürmek ve kutuyu boğmaktı.
+ */
+const isDockerBuild = process.env.NEXT_OUTPUT_STANDALONE === "1";
+
 const nextConfig: NextConfig = {
   // Docker deploy: yalnizca gerekli dosyalari iceren .next/standalone ciktisi uretir.
   // Yalnizca Docker build'inde acik — Windows'ta pnpm + standalone symlink izni istiyor (EPERM).
-  output: process.env.NEXT_OUTPUT_STANDALONE === "1" ? "standalone" : undefined,
+  output: isDockerBuild ? "standalone" : undefined,
+  typescript: { ignoreBuildErrors: isDockerBuild },
+  eslint: { ignoreDuringBuilds: isDockerBuild },
   // "Bu bir Next.js uygulaması" bilgisini vermeye gerek yok
   poweredByHeader: false,
   async headers() {

@@ -43,7 +43,19 @@ export interface RememberOptions<T> {
    * dış kaynak düşünce eski veri hatadan iyidir — kural 4).
    */
   staleOnError?: boolean;
+  /**
+   * Çekilen sonuç yazılsın mı? `false` dönerse sonuç DÖNER ama cache'e
+   * girmez — "boş liste cache'lenmez, kaynak geçici düşmüş olabilir" (Jikan)
+   * ve "kayıt yoksa null dön, null'ı cache'leme" (AniList karakter) kalıbı.
+   */
+  shouldWrite?: (payload: T) => boolean;
 }
+
+/**
+ * TTL sabit ya da mevcut kayda bağlı: yayını süren yapımın künyesi 6 saatte,
+ * bitmişinki 7 günde eskir (AniList/Jikan) — karar cache'teki `status`a bakar.
+ */
+export type Ttl<T> = number | ((hit: CacheHit<T>) => number);
 
 @Injectable()
 export class ExternalCacheService {
@@ -88,17 +100,19 @@ export class ExternalCacheService {
    */
   async remember<T>(
     cacheKey: string,
-    ttlMs: number,
+    ttl: Ttl<T>,
     fetcher: () => Promise<T>,
     options: RememberOptions<T> = {},
   ): Promise<T> {
     const hit = await this.read<T>(cacheKey);
-    if (hit && isFresh(hit, ttlMs)) {
+    if (hit && isFresh(hit, typeof ttl === 'function' ? ttl(hit) : ttl)) {
       return hit.payload;
     }
     try {
       const payload = await fetcher();
-      await this.write(cacheKey, payload);
+      if (options.shouldWrite?.(payload) !== false) {
+        await this.write(cacheKey, payload);
+      }
       return payload;
     } catch (error) {
       if (hit && options.staleOnError !== false) {

@@ -110,6 +110,34 @@ describe('ExternalCacheService', () => {
     ).rejects.toThrow('yok');
   });
 
+  it('remember: TTL fonksiyonsa mevcut kayda gore hesaplanir (yayinda kisa)', async () => {
+    const { prisma } = fakePrisma({
+      k: { payload: { status: 'RELEASING' }, fetchedAt: ago(2 * MIN) },
+    });
+    const cache = new ExternalCacheService(prisma);
+    const fetcher = jest.fn(() => Promise.resolve({ status: 'FINISHED' }));
+    const ttl = (hit: { payload: { status: string } }) =>
+      hit.payload.status === 'RELEASING' ? MIN : 60 * MIN;
+    // 2 dk yasinda, yayinda → 1 dk TTL asildi → cekilir
+    expect(await cache.remember('k', ttl, fetcher)).toEqual({
+      status: 'FINISHED',
+    });
+    expect(fetcher).toHaveBeenCalledTimes(1);
+  });
+
+  it('remember: shouldWrite false donerse sonuc doner ama yazilmaz', async () => {
+    const { prisma, upserts } = fakePrisma({});
+    const cache = new ExternalCacheService(prisma);
+    const result = await cache.remember<number[]>(
+      'k',
+      MIN,
+      () => Promise.resolve([]),
+      { shouldWrite: (list) => list.length > 0 },
+    );
+    expect(result).toEqual([]);
+    expect(upserts).toHaveLength(0);
+  });
+
   it('remember: staleOnError=false ise bayat sunulmaz, hata yukselir', async () => {
     const { prisma } = fakePrisma({
       k: { payload: 'eski', fetchedAt: ago(10 * MIN) },

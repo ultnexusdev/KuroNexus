@@ -3,7 +3,7 @@ import {
   Logger,
   ServiceUnavailableException,
 } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { ExternalCacheService } from '../common/cache/external-cache.service';
 
 /**
  * Dış isteğin en fazla süresi.
@@ -339,7 +339,7 @@ interface RawCharacter {
 export class AnilistService {
   private readonly logger = new Logger(AnilistService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly cache: ExternalCacheService) {}
 
   /** Arşive seri eklerken kullanılan arama — cache'lenmez, sorgu hep farklı. */
   async search(query: string): Promise<AnilistSearchResult[]> {
@@ -375,35 +375,9 @@ export class AnilistService {
    * gün sonra" bilgisi bir hafta bekletilirse yanlış olur.
    */
   async getMedia(anilistId: number): Promise<AnilistMedia> {
-    const cacheKey = `anilist:media:v3:${anilistId}`;
-    const cached = await this.prisma.externalCache.findUnique({
-      where: { cacheKey },
-    });
-    const previous = cached
-      ? (cached.payload as unknown as { media: AnilistMedia })
-      : null;
-    const ttl =
-      previous?.media?.status === 'RELEASING' ||
-      previous?.media?.status === 'NOT_YET_RELEASED'
-        ? AIRING_CACHE_TTL_MS
-        : CACHE_TTL_MS;
-    if (cached && Date.now() - cached.fetchedAt.getTime() < ttl) {
-      return previous!.media;
-    }
-
-    try {
-      const { media, relations } = await this.fetchMedia(anilistId);
-      await this.writeCache(cacheKey, { media, relations });
-      return media;
-    } catch (error) {
-      if (previous) {
-        this.logger.warn(
-          `AniList ${anilistId} yenilenemedi, bayat cache sunuluyor: ${String(error)}`,
-        );
-        return previous.media;
-      }
-      throw error;
-    }
+    // Aynı anahtar, aynı görüntü — künye ilişkilerle birlikte tek kayıtta
+    const { media } = await this.getMediaWithRelations(anilistId);
+    return media;
   }
 
   /** Künye + ham ilişki listesi (zincir kurmak için). */
@@ -411,37 +385,25 @@ export class AnilistService {
     anilistId: number,
   ): Promise<{ media: AnilistMedia; relations: AnilistRelation[] }> {
     const cacheKey = `anilist:media:v3:${anilistId}`;
-    const cached = await this.prisma.externalCache.findUnique({
-      where: { cacheKey },
-    });
-    const previous = cached
-      ? (cached.payload as unknown as {
-          media: AnilistMedia;
-          relations: AnilistRelation[];
-        })
-      : null;
-    const ttl =
-      previous?.media?.status === 'RELEASING' ||
-      previous?.media?.status === 'NOT_YET_RELEASED'
-        ? AIRING_CACHE_TTL_MS
-        : CACHE_TTL_MS;
-    if (cached && previous && Date.now() - cached.fetchedAt.getTime() < ttl) {
-      return previous;
-    }
-
-    try {
-      const fresh = await this.fetchMedia(anilistId);
-      await this.writeCache(cacheKey, fresh);
-      return fresh;
-    } catch (error) {
-      if (previous) {
-        this.logger.warn(
-          `AniList ${anilistId} yenilenemedi, bayat cache sunuluyor: ${String(error)}`,
-        );
-        return previous;
-      }
-      throw error;
-    }
+    return this.cache.remember<{
+      media: AnilistMedia;
+      relations: AnilistRelation[];
+    }>(
+      cacheKey,
+      // TTL cache'teki duruma bakar: yayını süren/duyurulmuş yapımda kısa
+      (hit) =>
+        hit.payload?.media?.status === 'RELEASING' ||
+        hit.payload?.media?.status === 'NOT_YET_RELEASED'
+          ? AIRING_CACHE_TTL_MS
+          : CACHE_TTL_MS,
+      () => this.fetchMedia(anilistId),
+      {
+        onStale: (error) =>
+          this.logger.warn(
+            `AniList ${anilistId} yenilenemedi, bayat cache sunuluyor: ${String(error)}`,
+          ),
+      },
+    );
   }
 
   /**
@@ -523,67 +485,65 @@ export class AnilistService {
      * EN BÜYÜK boy (medya kapaklarındaki `extraLarge`in karakter karşılığı yok).
      */
     const cacheKey = `anilist:characters:v3:${anilistId}`;
-    const cached = await this.prisma.externalCache.findUnique({
-      where: { cacheKey },
-    });
-    if (cached && Date.now() - cached.fetchedAt.getTime() < CHARACTER_TTL_MS) {
-      return cached.payload as unknown as AnilistCharacter[];
-    }
-
     try {
-      const data = await this.request<{
-        Media: {
-          characters?: {
-            edges?: Array<{
-              role: string | null;
-              node: {
-                id: number;
-                name?: { full?: string; native?: string };
-                image?: { large?: string; medium?: string };
-                favourites?: number | null;
+      return await this.cache.remember<AnilistCharacter[]>(
+        cacheKey,
+        CHARACTER_TTL_MS,
+        async () => {
+          const data = await this.request<{
+            Media: {
+              characters?: {
+                edges?: Array<{
+                  role: string | null;
+                  node: {
+                    id: number;
+                    name?: { full?: string; native?: string };
+                    image?: { large?: string; medium?: string };
+                    favourites?: number | null;
+                  };
+                  voiceActors?: Array<{
+                    name?: { full?: string };
+                    image?: { large?: string; medium?: string };
+                  }>;
+                }>;
               };
-              voiceActors?: Array<{
-                name?: { full?: string };
-                image?: { large?: string; medium?: string };
-              }>;
-            }>;
-          };
-        };
-      }>(
-        `query($id:Int){Media(id:$id,type:ANIME){characters(sort:[ROLE,FAVOURITES_DESC],perPage:12){edges{
+            };
+          }>(
+            `query($id:Int){Media(id:$id,type:ANIME){characters(sort:[ROLE,FAVOURITES_DESC],perPage:12){edges{
           role
           node{id name{full native} image{large medium} favourites}
           voiceActors(language:JAPANESE){name{full} image{large medium}}
         }}}}`,
-        { id: anilistId },
+            { id: anilistId },
+          );
+          const characters: AnilistCharacter[] = (
+            data.Media?.characters?.edges ?? []
+          )
+            // id'siz bir kenar gelirse (AniList tarafında silinmiş kayıt) atlanır:
+            // adresi kurulamayan bir kart listede tıklanınca 404 verirdi
+            .filter((edge) => typeof edge.node?.id === 'number')
+            .map((edge) => ({
+              characterId: edge.node.id,
+              name: edge.node?.name?.full ?? '',
+              nameNative: edge.node?.name?.native ?? null,
+              // `large` yoksa `medium`e düş: eski/eksik kayıtlarda kart boş kalmasın
+              image:
+                edge.node?.image?.large ?? edge.node?.image?.medium ?? null,
+              imageSmall:
+                edge.node?.image?.medium ?? edge.node?.image?.large ?? null,
+              role: edge.role,
+              voiceActor: edge.voiceActors?.[0]?.name?.full ?? null,
+              voiceActorImage:
+                edge.voiceActors?.[0]?.image?.large ??
+                edge.voiceActors?.[0]?.image?.medium ??
+                null,
+              favourites: edge.node?.favourites ?? null,
+            }));
+          return characters;
+        },
       );
-      const characters: AnilistCharacter[] = (
-        data.Media?.characters?.edges ?? []
-      )
-        // id'siz bir kenar gelirse (AniList tarafında silinmiş kayıt) atlanır:
-        // adresi kurulamayan bir kart listede tıklanınca 404 verirdi
-        .filter((edge) => typeof edge.node?.id === 'number')
-        .map((edge) => ({
-          characterId: edge.node.id,
-          name: edge.node?.name?.full ?? '',
-          nameNative: edge.node?.name?.native ?? null,
-          // `large` yoksa `medium`e düş: eski/eksik kayıtlarda kart boş kalmasın
-          image: edge.node?.image?.large ?? edge.node?.image?.medium ?? null,
-          imageSmall: edge.node?.image?.medium ?? edge.node?.image?.large ?? null,
-          role: edge.role,
-          voiceActor: edge.voiceActors?.[0]?.name?.full ?? null,
-          voiceActorImage:
-            edge.voiceActors?.[0]?.image?.large ??
-            edge.voiceActors?.[0]?.image?.medium ??
-            null,
-          favourites: edge.node?.favourites ?? null,
-        }));
-      await this.writeCache(cacheKey, characters);
-      return characters;
     } catch (error) {
-      if (cached) {
-        return cached.payload as unknown as AnilistCharacter[];
-      }
+      // Bayat kayıt varsa `remember` onu sessizce sundu; buraya kayıt yokken düşer
       this.logger.warn(
         `AniList kadro alınamadı (${anilistId}): ${String(error)}`,
       );
@@ -603,49 +563,47 @@ export class AnilistService {
    * farklı sırayla istendiğinde ikinci bir kayıt açılmasın.
    */
   async getCharacterCards(ids: number[]): Promise<AnilistCharacterCard[]> {
-    const unique = [...new Set(ids)].filter((id) => Number.isInteger(id) && id > 0);
+    const unique = [...new Set(ids)].filter(
+      (id) => Number.isInteger(id) && id > 0,
+    );
     if (unique.length === 0) {
       return [];
     }
     const sorted = [...unique].sort((a, b) => a - b);
     const cacheKey = `anilist:character-cards:v1:${sorted.join(',')}`;
-    const cached = await this.prisma.externalCache.findUnique({
-      where: { cacheKey },
-    });
-    if (cached && Date.now() - cached.fetchedAt.getTime() < CHARACTER_TTL_MS) {
-      return cached.payload as unknown as AnilistCharacterCard[];
-    }
-
     try {
-      const data = await this.request<{
-        Page: {
-          characters?: Array<{
-            id: number;
-            name?: { full?: string; native?: string };
-            image?: { large?: string; medium?: string };
-          }>;
-        };
-      }>(
-        `query($ids:[Int]){Page(perPage:50){characters(id_in:$ids){
+      return await this.cache.remember<AnilistCharacterCard[]>(
+        cacheKey,
+        CHARACTER_TTL_MS,
+        async () => {
+          const data = await this.request<{
+            Page: {
+              characters?: Array<{
+                id: number;
+                name?: { full?: string; native?: string };
+                image?: { large?: string; medium?: string };
+              }>;
+            };
+          }>(
+            `query($ids:[Int]){Page(perPage:50){characters(id_in:$ids){
           id name{full native} image{large medium}
         }}}`,
-        { ids: sorted },
+            { ids: sorted },
+          );
+          const cards: AnilistCharacterCard[] = (
+            data.Page?.characters ?? []
+          ).map((character) => ({
+            characterId: character.id,
+            name: character.name?.full ?? `#${character.id}`,
+            nameNative: character.name?.native ?? null,
+            image: character.image?.large ?? character.image?.medium ?? null,
+          }));
+          return cards;
+        },
       );
-      const cards: AnilistCharacterCard[] = (data.Page?.characters ?? []).map(
-        (character) => ({
-          characterId: character.id,
-          name: character.name?.full ?? `#${character.id}`,
-          nameNative: character.name?.native ?? null,
-          image: character.image?.large ?? character.image?.medium ?? null,
-        }),
-      );
-      await this.writeCache(cacheKey, cards);
-      return cards;
     } catch (error) {
-      if (cached) {
-        return cached.payload as unknown as AnilistCharacterCard[];
-      }
-      // Portreler alınamazsa bölümler adlarla çizilir, sayfa düşmez (kural 4)
+      // Portreler alınamazsa bölümler adlarla çizilir, sayfa düşmez (kural 4);
+      // bayat kayıt varsa `remember` onu zaten sundu
       this.logger.warn(`AniList karakter kartları alınamadı: ${String(error)}`);
       return [];
     }
@@ -668,16 +626,13 @@ export class AnilistService {
     // Bu dosyanın 200. satırındaki not zaten uyarıyordu — AniList'te `large`
     // aslında orta boy dosyayı veriyor, gerçek büyük olan `extraLarge`.
     const cacheKey = `anilist:character:v2:${characterId}`;
-    const cached = await this.prisma.externalCache.findUnique({
-      where: { cacheKey },
-    });
-    if (cached && Date.now() - cached.fetchedAt.getTime() < CHARACTER_TTL_MS) {
-      return cached.payload as unknown as AnilistCharacterDetail;
-    }
-
     try {
-      const data = await this.request<{ Character: RawCharacter | null }>(
-        `query($id:Int){Character(id:$id){
+      return await this.cache.remember<AnilistCharacterDetail | null>(
+        cacheKey,
+        CHARACTER_TTL_MS,
+        async () => {
+          const data = await this.request<{ Character: RawCharacter | null }>(
+            `query($id:Int){Character(id:$id){
           id
           name{full native alternative}
           image{large}
@@ -694,21 +649,20 @@ export class AnilistService {
             node{id type format seasonYear title{romaji english native} coverImage{extraLarge large}}
           }}
         }}`,
-        { id: characterId },
+            { id: characterId },
+          );
+          // Kayıt yoksa null döner ama null CACHE'LENMEZ (shouldWrite)
+          return data.Character ? normalizeCharacter(data.Character) : null;
+        },
+        {
+          shouldWrite: (detail) => detail !== null,
+          onStale: (error) =>
+            this.logger.warn(
+              `AniList karakter ${characterId} yenilenemedi, bayat cache sunuluyor: ${String(error)}`,
+            ),
+        },
       );
-      if (!data.Character) {
-        return null;
-      }
-      const detail = normalizeCharacter(data.Character);
-      await this.writeCache(cacheKey, detail);
-      return detail;
     } catch (error) {
-      if (cached) {
-        this.logger.warn(
-          `AniList karakter ${characterId} yenilenemedi, bayat cache sunuluyor: ${String(error)}`,
-        );
-        return cached.payload as unknown as AnilistCharacterDetail;
-      }
       this.logger.warn(
         `AniList karakter alınamadı (${characterId}): ${String(error)}`,
       );
@@ -724,14 +678,6 @@ export class AnilistService {
       { id: anilistId },
     );
     return normalize(data.Media);
-  }
-
-  private async writeCache(cacheKey: string, payload: object): Promise<void> {
-    await this.prisma.externalCache.upsert({
-      where: { cacheKey },
-      create: { cacheKey, payload, fetchedAt: new Date() },
-      update: { payload, fetchedAt: new Date() },
-    });
   }
 
   private async request<T>(

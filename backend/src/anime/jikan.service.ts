@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { sleep } from '../common/utils/sleep';
-import { PrismaService } from '../prisma/prisma.service';
+import { ExternalCacheService } from '../common/cache/external-cache.service';
 
 /**
  * Dış isteğin en fazla süresi.
@@ -54,7 +54,7 @@ interface JikanEpisodesResponse {
 export class JikanService {
   private readonly logger = new Logger(JikanService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly cache: ExternalCacheService) {}
 
   /**
    * Bir yapımın bütün bölümleri (filler/recap bayraklarıyla).
@@ -64,34 +64,24 @@ export class JikanService {
    */
   async episodes(malId: number, isAiring = false): Promise<JikanEpisode[]> {
     const cacheKey = `jikan:episodes:${malId}`;
-    const cached = await this.prisma.externalCache.findUnique({
-      where: { cacheKey },
-    });
     const ttl = isAiring ? AIRING_EPISODES_TTL_MS : EPISODES_TTL_MS;
-    if (cached && Date.now() - cached.fetchedAt.getTime() < ttl) {
-      return cached.payload as unknown as JikanEpisode[];
-    }
-
     try {
-      const episodes = await this.fetchAllPages(malId);
-      // Boş liste cache'lenmez: kaynak geçici düşmüş olabilir, bir dahakine
-      // gerçekten dolu gelsin (bölümsüz yapımlarda maliyet zaten düşük)
-      if (episodes.length > 0) {
-        const payload = episodes as unknown as object;
-        await this.prisma.externalCache.upsert({
-          where: { cacheKey },
-          create: { cacheKey, payload, fetchedAt: new Date() },
-          update: { payload, fetchedAt: new Date() },
-        });
-      }
-      return episodes;
+      return await this.cache.remember<JikanEpisode[]>(
+        cacheKey,
+        ttl,
+        () => this.fetchAllPages(malId),
+        {
+          // Boş liste cache'lenmez: kaynak geçici düşmüş olabilir, bir dahakine
+          // gerçekten dolu gelsin (bölümsüz yapımlarda maliyet zaten düşük)
+          shouldWrite: (episodes) => episodes.length > 0,
+          onStale: (error) =>
+            this.logger.warn(
+              `Jikan ${malId} yenilenemedi, bayat cache sunuluyor: ${String(error)}`,
+            ),
+        },
+      );
     } catch (error) {
-      if (cached) {
-        this.logger.warn(
-          `Jikan ${malId} yenilenemedi, bayat cache sunuluyor: ${String(error)}`,
-        );
-        return cached.payload as unknown as JikanEpisode[];
-      }
+      // Bayat kayıt varsa `remember` onu sundu; buraya kayıt yokken düşer
       this.logger.warn(
         `Jikan ${malId} bölüm listesi alınamadı: ${String(error)}`,
       );
@@ -140,4 +130,3 @@ export class JikanService {
     return episodes.sort((a, b) => a.number - b.number);
   }
 }
-

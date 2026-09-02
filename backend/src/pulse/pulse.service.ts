@@ -6,12 +6,17 @@ import type { TmdbShow } from '../shows/tmdb-tv.service';
 import { slugify } from '../common/utils/slugify';
 /* "Son eklenenler" şeridinin adresleri salonların KENDİ slug üreticilerinden
    geliyor; burada yeniden türetilmiyor (gerekçe `buildAdditions`ın başında). */
-import { withSlugs as withMovieSlugs } from '../movies/movies.service';
 import {
+  readArchiveEntries as readMovieArchive,
+  withSlugs as withMovieSlugs,
+} from '../movies/movies.service';
+import {
+  readArchiveEntries as readShowArchive,
   withSlugs as withShowSlugs,
   type EntryWithSeasons,
 } from '../shows/shows.service';
 import {
+  readArchiveEntries as readAnimeArchive,
   withSlugs as withAnimeSlugs,
   type EntryWithParts,
 } from '../anime/anime.service';
@@ -199,10 +204,8 @@ export class PulseService {
        * `externalData` JSON'larıyla ikişer kez okuyordu. Sırayı değiştirmen
        * gerekiyorsa `buildAdditions` için ayrı sorgu aç, bunu bozma.
        */
-      this.prisma.movieEntry.findMany({
-        where: { isDeleted: false },
-        orderBy: [{ watchedAt: 'desc' }, { createdAt: 'desc' }],
-      }),
+      // Salonla aynı okuyucu: daraltılmış `externalData` (API-08)
+      readMovieArchive(this.prisma),
       /**
        * DİKKAT: bu sorgu anime salonunun arşiv sorgusuyla (`anime.service.ts`,
        * `getArchive`) BİREBİR aynı — süzgeç, `include` ve sıra dahil. "Son
@@ -211,17 +214,10 @@ export class PulseService {
        * liste paylaşılıyor. Sırası değişirse anime kartları yanlış adrese
        * gider; değiştirmen gerekiyorsa `buildAdditions`a ayrı sorgu aç.
        */
-      this.prisma.animeEntry.findMany({
-        where: { isDeleted: false },
-        include: { parts: { orderBy: { orderIndex: 'asc' } } },
-        orderBy: { updatedAt: 'desc' },
-      }),
-      this.prisma.showEntry.findMany({
-        where: { isDeleted: false },
-        // `seasons` şeridin slug'ı için şart: `toArchiveShow` sezonsuz çalışmaz
-        include: { seasons: { orderBy: { orderIndex: 'asc' } } },
-        orderBy: [{ watchedAt: 'desc' }, { createdAt: 'desc' }],
-      }),
+      readAnimeArchive(this.prisma),
+      // `seasons` şeridin slug'ı için şart: `toArchiveShow` sezonsuz çalışmaz;
+      // okuyucu onları da (daraltılmış künyeyle) getiriyor.
+      readShowArchive(this.prisma),
       this.prisma.bookEntry.findMany({
         where: { isDeleted: false },
         orderBy: [{ finishedAt: 'desc' }, { createdAt: 'desc' }],

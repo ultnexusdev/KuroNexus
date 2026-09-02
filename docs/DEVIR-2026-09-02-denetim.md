@@ -87,6 +87,7 @@ Data Cache'ten, deploy 15 dk → 4 dk.
 | `formatDate/languageName/today/initials` | `lib/format.ts` | BookHall'un sözlük tabanlı `languageName`'i bilerek ayrı |
 | YouTube adresleri | `lib/youtube.ts` | CSP ile senkron tek yer |
 | `tmdbImage` | `lib/api/tmdb.ts` | movies/shows yeniden dışa aktarıyor |
+| Backend: JSON daraltma | `common/prisma/json-projection.ts` → `projectedColumns`, `attachChildren`; kanat başına `readArchiveEntries` + `ARCHIVE_JSON_KEYS` | liste sorgusu `externalData`'dan yeni alan okuyacaksa anahtarı listeye ekle; sütun listesi `ScalarFieldEnum`'dan gelir, elle yazma |
 | Backend: env kapısı | `common/env.validation.ts` | üretimde `CORS_ORIGIN` zorunlu; eksik özellik anahtarı yalnız uyarır |
 | Backend: throttle | `common/guards/app-throttler.guard.ts` | iç ağ (XFF yok + özel IP) muaf |
 | Backend: SSRF indirici | `common/media/image-downloader.ts` | beş katman, 11 test |
@@ -115,10 +116,13 @@ Data Cache'ten, deploy 15 dk → 4 dk.
    Yerelde `pnpm audit` yeniden koşturmak için: `npx pnpm@11 audit` (pnpm PATH'te
    yok, yerel node_modules pnpm 11 ile kurulu; Docker pnpm 10 aynı lockfile
    biçimini okuyor).
-2. **API-08** (son açık kod High'ı): film/dizi/anime/pulse `externalData`'yı
-   budamadan çekiyor. ⚠️ Kitaptaki `ARCHIVE_OMIT` çözümü İŞE YARAMAZ — bu üç
-   kanat JSON'dan 10 alan okuyor. JSON projeksiyonu (raw SQL) ya da sütun
-   terfisi (migration; `K:\postgres` portatif PG ile sınanır, `--output` kullan).
+2. ~~API-08~~ → **YAPILDI (2 Eylül gecesi), JSON projeksiyonu, migration yok.**
+   Ayrıntı sentez §0. Yeni sözleşme (§2.2'ye eklendi): liste sorgusu yazarken
+   `externalData` okuyan mapper'ın anahtarlarını `ARCHIVE_JSON_KEYS`e ekle —
+   eklemezsen alan sessizce `null` gelir (`satisfies keyof …` yalnız yazımı
+   denetler, eksikliği değil). Entegrasyon testi yerel PG ister:
+   `prisma db push --url <test-db>` → `TEST_DATABASE_URL=<test-db> pnpm test
+   archive-readers`; iş bitince `DROP DATABASE`. Son açık kod High'ı buydu.
 3. **D-F2** FilmCurator↔ShowCurator (~450 satır, %89 aynı) — küratör akışı
    yalnız canlıda gerçek girişle sınanır; kullanıcıyla birlikte.
 
@@ -131,16 +135,16 @@ Data Cache'ten, deploy 15 dk → 4 dk.
 - **Küratör sınavı** (2 dk): giriş → kayıt değiştir → yenile → anında görünmeli.
   2 Eylül akşamı sonucu bildirilmedi.
 
-### 3.3 Backend'de önceden düşen 6 test paketi (2 Eylül'de fark edildi, dokunulmadı)
-`pnpm test` → 18 paketten 6'sı düşüyor, ikisi de bağımlılık yükseltmesinden ÖNCE
-de öyleydi:
-- `books/{books,awards,bin-kitap,reading-orders}.service.spec.ts` — "Jest
-  encountered an unexpected token": `sanitize-html` → `htmlparser2@12`
-  yalnız-ESM; Node 24 `require(esm)` ile üretimde çalışıyor, Jest okuyamıyor.
-  Çözüm adayları: `transformIgnorePatterns`'a htmlparser2/domutils ailesini
-  eklemek ya da `moduleNameMapper` ile testte hafif bir sanitize mock'u.
-- `categories/categories.{service,controller}.spec.ts` — NestJS iskelet
-  testleri, `PrismaService` sağlayıcısı yok (1 Ağustos'tan beri dokunulmamış).
+### 3.3 ~~Backend'de önceden düşen 6 test paketi~~ → KAPANDI (2 Eylül gecesi)
+`pnpm test` artık **20/20 paket yeşil** (entegrasyon paketi `TEST_DATABASE_URL`
+yoksa atlanır). İki sebep, iki düzeltme:
+- Kitap ×4 (`htmlparser2@12` yalnız-ESM) ve Prisma 7 istemcisinin iç dinamik
+  import'u aynı ilacı istiyordu: `test` betiği artık
+  `node --experimental-vm-modules node_modules/jest/bin/jest.js`
+  (`NODE_OPTIONS=` biçimi Windows'ta pnpm altında güvenilir değil).
+  `npx jest` doğrudan koşturursan bayrağı sen ver.
+- Kategori ×2: iskelet testlerine boş `PrismaService`/`CategoriesService`
+  taklidi verildi.
 
 ### 3.4 Medium/Low kümesi (sentez §0'da tam liste)
 B-04 `lib/admin/api.ts` bölünmesi (44 importer), D-B4 movies↔shows kalan

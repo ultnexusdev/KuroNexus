@@ -24,7 +24,16 @@ import { normalizeUrl } from '../common/utils/normalize-url';
 import { CreateAnimeEntryDto } from './dto/create-anime-entry.dto';
 import { UpdateAnimeEntryDto } from './dto/update-anime-entry.dto';
 import { UpdateAnimePartDto } from './dto/update-anime-part.dto';
-import type { AnimeEntry, AnimePart, Prisma } from '../generated/prisma/client';
+import {
+  Prisma,
+  type AnimeEntry,
+  type AnimePart,
+} from '../generated/prisma/client';
+import {
+  attachChildren,
+  projectedColumns,
+  type RawReader,
+} from '../common/prisma/json-projection';
 
 /**
  * Anime arşivi.
@@ -215,6 +224,82 @@ const RELATED_LIMIT = 12;
 
 export type EntryWithParts = AnimeEntry & { parts: AnimePart[] };
 
+/**
+ * Liste görünümünün kök yapımın AniList görüntüsünden okuduğu anahtarlar
+ * (`toArchiveAnime`, `pickBanner`, `buildLinks`). Tip kısıtı anahtarın
+ * `AnilistMedia`da var olmasını zorlar; mapper yeni alan okursa buraya da
+ * eklenmeli — yoksa alan sessizce `null` gelir.
+ */
+export const ARCHIVE_JSON_KEYS = [
+  'title',
+  'titleNative',
+  'description',
+  'coverImage',
+  'bannerImage',
+  'genres',
+  'tags',
+  'averageScore',
+  'seasonYear',
+  'startYear',
+  'manga',
+  'trailerUrl',
+  'officialSite',
+  'malId',
+] as const satisfies readonly (keyof AnilistMedia)[];
+
+/** Parçaların (sezon/film/OVA) görüntüsünden okunanlar — `toArchivePart`,
+    `deriveAiringState`, `pickBanner`, `buildLinks`. Atılan en ağır alan
+    parça başına tekrar eden `description`. */
+export const PART_JSON_KEYS = [
+  'anilistId',
+  'malId',
+  'title',
+  'format',
+  'status',
+  'episodes',
+  'seasonYear',
+  'startYear',
+  'coverImage',
+  'bannerImage',
+  'nextEpisode',
+  'nextAiringAt',
+] as const satisfies readonly (keyof AnilistMedia)[];
+
+/**
+ * Arşiv satırları — salon, karakter dizini ve nabız servisinin PAYLAŞTIĞI
+ * sorgu (API-08). Eski `findMany` + `include: { parts }` ile aynı süzgeç ve
+ * sıra; tek fark iki JSON sütununun yalnız okunan anahtarlarla gelmesi.
+ * Slug'lar listenin sırasına bağlı olduğu için sıra burada sabit: kök
+ * `updatedAt DESC`, parçalar `orderIndex ASC`.
+ */
+export async function readArchiveEntries(
+  prisma: RawReader,
+): Promise<EntryWithParts[]> {
+  const [entries, parts] = await Promise.all([
+    prisma.$queryRaw<AnimeEntry[]>(Prisma.sql`
+      SELECT ${projectedColumns(Prisma.AnimeEntryScalarFieldEnum, {
+        column: 'externalData',
+        keys: ARCHIVE_JSON_KEYS,
+      })}
+      FROM "AnimeEntry"
+      WHERE "isDeleted" = false
+      ORDER BY "updatedAt" DESC
+    `),
+    prisma.$queryRaw<AnimePart[]>(Prisma.sql`
+      SELECT ${projectedColumns(
+        Prisma.AnimePartScalarFieldEnum,
+        { column: 'externalData', keys: PART_JSON_KEYS },
+        'p',
+      )}
+      FROM "AnimePart" "p"
+      JOIN "AnimeEntry" "e" ON "e"."id" = "p"."entryId"
+      WHERE "e"."isDeleted" = false
+      ORDER BY "p"."orderIndex" ASC
+    `),
+  ]);
+  return attachChildren(entries, parts, (part) => part.entryId, 'parts');
+}
+
 @Injectable()
 export class AnimeService {
   constructor(
@@ -234,11 +319,7 @@ export class AnimeService {
     genres: string[];
     tags: string[];
   }> {
-    const rows = await this.prisma.animeEntry.findMany({
-      where: { isDeleted: false },
-      include: { parts: { orderBy: { orderIndex: 'asc' } } },
-      orderBy: { updatedAt: 'desc' },
-    });
+    const rows = await readArchiveEntries(this.prisma);
 
     const entries = withSlugs(rows);
     return {
@@ -335,11 +416,7 @@ export class AnimeService {
   async getDetail(
     slug: string,
   ): Promise<{ anime: ArchiveAnime; characters: AnilistCharacter[] }> {
-    const rows = await this.prisma.animeEntry.findMany({
-      where: { isDeleted: false },
-      include: { parts: { orderBy: { orderIndex: 'asc' } } },
-      orderBy: { updatedAt: 'desc' },
-    });
+    const rows = await readArchiveEntries(this.prisma);
     const anime = withSlugs(rows).find((entry) => entry.slug === slug);
     if (!anime) {
       throw new NotFoundException('ANIME.NOT_FOUND');
@@ -419,11 +496,7 @@ export class AnimeService {
 
   /** Dizinin derlenmiş, süzülmemiş hâli — cache burada. */
   private async buildCharacterIndex(): Promise<CharacterIndexPayload> {
-    const rows = await this.prisma.animeEntry.findMany({
-      where: { isDeleted: false },
-      include: { parts: { orderBy: { orderIndex: 'asc' } } },
-      orderBy: { updatedAt: 'desc' },
-    });
+    const rows = await readArchiveEntries(this.prisma);
     const entries = withSlugs(rows);
     if (entries.length === 0) {
       return { characters: [], series: [], stats: EMPTY_CHARACTER_STATS };
@@ -579,11 +652,7 @@ export class AnimeService {
       throw new NotFoundException('ANIME.CHARACTER_NOT_FOUND');
     }
 
-    const rows = await this.prisma.animeEntry.findMany({
-      where: { isDeleted: false },
-      include: { parts: { orderBy: { orderIndex: 'asc' } } },
-      orderBy: { updatedAt: 'desc' },
-    });
+    const rows = await readArchiveEntries(this.prisma);
     const entries = withSlugs(rows);
 
     // Bir yapım arşivde ya serinin kökü ya da bir sezonu olarak duruyor;

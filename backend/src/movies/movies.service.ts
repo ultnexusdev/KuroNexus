@@ -16,7 +16,50 @@ import { normalizeUrl } from '../common/utils/normalize-url';
 import { dedupe, interleave, shuffle } from '../common/tmdb/suggestion-mixer';
 import { CreateMovieEntryDto } from './dto/create-movie-entry.dto';
 import { UpdateMovieEntryDto } from './dto/update-movie-entry.dto';
-import type { MovieEntry, Prisma } from '../generated/prisma/client';
+import { Prisma, type MovieEntry } from '../generated/prisma/client';
+import {
+  projectedColumns,
+  type RawReader,
+} from '../common/prisma/json-projection';
+
+/**
+ * Liste görünümünün TMDB görüntüsünden okuduğu anahtarlar (`toArchiveMovie`).
+ * Tip kısıtı anahtarın `TmdbMovie`de var olmasını zorlar; mapper yeni bir alan
+ * okumaya başlarsa buraya da eklenmeli — yoksa alan sessizce `null` gelir.
+ */
+export const ARCHIVE_JSON_KEYS = [
+  'title',
+  'overview',
+  'posterPath',
+  'backdropPath',
+  'releaseDate',
+  'runtime',
+  'genres',
+  'voteAverage',
+  'director',
+] as const satisfies readonly (keyof TmdbMovie)[];
+
+/**
+ * Arşiv satırları — film salonu ile nabız servisinin PAYLAŞTIĞI sorgu (API-08).
+ * Eski `findMany` ile aynı süzgeç ve sıra; tek fark `externalData`'nın
+ * `ARCHIVE_JSON_KEYS`e daraltılmış gelmesi: kadro, sahne kareleri, platformlar
+ * veritabanından hiç çıkmaz. Tam görüntü gereken tek yer film sayfası, o da
+ * bulduğu kaydı ayrıca `findUnique` ile alıyor.
+ *
+ * Sıralamada `NULLS` yönü yazılmadı: Prisma da yazmıyor, Postgres'in
+ * varsayılanı (DESC → NULLS FIRST) iki tarafta aynı.
+ */
+export function readArchiveEntries(prisma: RawReader): Promise<MovieEntry[]> {
+  return prisma.$queryRaw<MovieEntry[]>(Prisma.sql`
+    SELECT ${projectedColumns(Prisma.MovieEntryScalarFieldEnum, {
+      column: 'externalData',
+      keys: ARCHIVE_JSON_KEYS,
+    })}
+    FROM "MovieEntry"
+    WHERE "isDeleted" = false
+    ORDER BY "watchedAt" DESC, "createdAt" DESC
+  `);
+}
 
 // Öneri havuzu: kaç kaynak filmden benzer istenir, havuz kaç film taşır
 const SUGGESTION_SEEDS = 4;
@@ -200,10 +243,7 @@ export class MoviesService {
     directors: Array<{ name: string; count: number }>;
     genres: string[];
   }> {
-    const entries = await this.prisma.movieEntry.findMany({
-      where: { isDeleted: false },
-      orderBy: [{ watchedAt: 'desc' }, { createdAt: 'desc' }],
-    });
+    const entries = await readArchiveEntries(this.prisma);
 
     const movies = withSlugs(entries);
     return {
@@ -222,17 +262,18 @@ export class MoviesService {
    * Benzerler alınamazsa sayfa onlarsız açılır (kural 4).
    */
   async getDetail(slug: string): Promise<MovieDetail> {
-    const entries = await this.prisma.movieEntry.findMany({
-      where: { isDeleted: false },
-      orderBy: [{ watchedAt: 'desc' }, { createdAt: 'desc' }],
-    });
+    const entries = await readArchiveEntries(this.prisma);
     const movies = withSlugs(entries);
     const index = movies.findIndex((movie) => movie.slug === slug);
     if (index === -1) {
       throw new NotFoundException('MOVIES.NOT_FOUND');
     }
     const movie = movies[index];
-    const entry = entries[index];
+    // Liste satırı daraltılmış künye taşıyor; sayfa kadro, fragman ve
+    // platform istiyor — tam görüntü yalnızca bu kayıt için okunur (API-08).
+    const entry = await this.prisma.movieEntry.findUniqueOrThrow({
+      where: { id: entries[index].id },
+    });
     let data = (entry.externalData ?? null) as TmdbMovie | null;
 
     /**

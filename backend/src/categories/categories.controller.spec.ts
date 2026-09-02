@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CategoriesController } from './categories.controller';
+import { CategoriesService } from './categories.service';
 
 describe('CategoriesController', () => {
   let controller: CategoriesController;
@@ -7,6 +8,8 @@ describe('CategoriesController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [CategoriesController],
+      // Nest iskeleti servissiz üretmişti; boş taklit yeter.
+      providers: [{ provide: CategoriesService, useValue: {} }],
     }).compile();
 
     controller = module.get<CategoriesController>(CategoriesController);

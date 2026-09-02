@@ -18,10 +18,92 @@ import { dedupe, interleave, shuffle } from '../common/tmdb/suggestion-mixer';
 import { CreateShowEntryDto } from './dto/create-show-entry.dto';
 import { UpdateShowEntryDto } from './dto/update-show-entry.dto';
 import { UpdateShowSeasonDto } from './dto/update-show-season.dto';
-import type { ShowEntry, ShowSeason, Prisma } from '../generated/prisma/client';
+import {
+  Prisma,
+  type ShowEntry,
+  type ShowSeason,
+} from '../generated/prisma/client';
+import {
+  attachChildren,
+  projectedColumns,
+  type RawReader,
+} from '../common/prisma/json-projection';
 
 /** Sezonlarıyla birlikte okunan kayıt — ilerleme buradan türetilir. */
 export type EntryWithSeasons = ShowEntry & { seasons: ShowSeason[] };
+
+/**
+ * Liste görünümünün TMDB görüntüsünden okuduğu anahtarlar (`toArchiveShow`,
+ * `syncEntryStatus`). Tip kısıtı anahtarın `TmdbShow`da var olmasını zorlar;
+ * mapper yeni alan okursa buraya da eklenmeli — yoksa alan sessizce `null`
+ * gelir.
+ */
+export const ARCHIVE_JSON_KEYS = [
+  'title',
+  'overview',
+  'posterPath',
+  'backdropPath',
+  'releaseDate',
+  'runtime',
+  'numberOfSeasons',
+  'numberOfEpisodes',
+  'genres',
+  'voteAverage',
+  'director',
+  'originCountry',
+  'airStatus',
+] as const satisfies readonly (keyof TmdbShow)[];
+
+/** Sezon satırının görüntüsünden okunanlar (`toArchiveSeason`); atılan alan
+    sezon başına tekrar eden `overview`. */
+export const SEASON_JSON_KEYS = [
+  'seasonNumber',
+  'name',
+  'episodeCount',
+  'airDate',
+  'posterPath',
+] as const satisfies readonly (keyof TmdbSeason)[];
+
+/**
+ * Arşiv satırları — dizi salonu ile nabız servisinin PAYLAŞTIĞI sorgu (API-08).
+ * Eski `findMany` + `include: { seasons }` ile aynı süzgeç ve sıra; tek fark
+ * iki JSON sütununun yalnız okunan anahtarlarla gelmesi: kadro, sahne
+ * kareleri, platformlar ve sezon listesi veritabanından hiç çıkmaz. Tam
+ * görüntü gereken tek yer dizi sayfası, o da kaydı ayrıca `findUnique` ile
+ * alıyor. Slug'lar listenin sırasına bağlı; sıra burada sabit.
+ */
+export async function readArchiveEntries(
+  prisma: RawReader,
+): Promise<EntryWithSeasons[]> {
+  const [entries, seasons] = await Promise.all([
+    prisma.$queryRaw<ShowEntry[]>(Prisma.sql`
+      SELECT ${projectedColumns(Prisma.ShowEntryScalarFieldEnum, {
+        column: 'externalData',
+        keys: ARCHIVE_JSON_KEYS,
+      })}
+      FROM "ShowEntry"
+      WHERE "isDeleted" = false
+      ORDER BY "watchedAt" DESC, "createdAt" DESC
+    `),
+    prisma.$queryRaw<ShowSeason[]>(Prisma.sql`
+      SELECT ${projectedColumns(
+        Prisma.ShowSeasonScalarFieldEnum,
+        { column: 'externalData', keys: SEASON_JSON_KEYS },
+        's',
+      )}
+      FROM "ShowSeason" "s"
+      JOIN "ShowEntry" "e" ON "e"."id" = "s"."entryId"
+      WHERE "e"."isDeleted" = false
+      ORDER BY "s"."orderIndex" ASC
+    `),
+  ]);
+  return attachChildren(
+    entries,
+    seasons,
+    (season) => season.entryId,
+    'seasons',
+  );
+}
 
 /**
  * Dizi salonu servisi — `movies/movies.service.ts`'in bire bir aynısı, tek
@@ -197,11 +279,7 @@ export class ShowsService {
     directors: Array<{ name: string; count: number }>;
     genres: string[];
   }> {
-    let entries = await this.prisma.showEntry.findMany({
-      where: { isDeleted: false },
-      include: { seasons: { orderBy: { orderIndex: 'asc' } } },
-      orderBy: [{ watchedAt: 'desc' }, { createdAt: 'desc' }],
-    });
+    let entries = await readArchiveEntries(this.prisma);
 
     /**
      * Sezon takibinden ÖNCE eklenmiş diziler sezonsuz duruyor. Zincir burada
@@ -234,11 +312,7 @@ export class ShowsService {
         }),
       );
       if (seeded.some(Boolean)) {
-        entries = await this.prisma.showEntry.findMany({
-          where: { isDeleted: false },
-          include: { seasons: { orderBy: { orderIndex: 'asc' } } },
-          orderBy: [{ watchedAt: 'desc' }, { createdAt: 'desc' }],
-        });
+        entries = await readArchiveEntries(this.prisma);
       }
     }
 
@@ -252,18 +326,21 @@ export class ShowsService {
   }
 
   async getDetail(slug: string): Promise<ShowDetail> {
-    const entries = await this.prisma.showEntry.findMany({
-      where: { isDeleted: false },
-      include: { seasons: { orderBy: { orderIndex: 'asc' } } },
-      orderBy: [{ watchedAt: 'desc' }, { createdAt: 'desc' }],
-    });
+    const entries = await readArchiveEntries(this.prisma);
     const shows = withSlugs(entries);
     const index = shows.findIndex((show) => show.slug === slug);
     if (index === -1) {
       throw new NotFoundException('SHOWS.NOT_FOUND');
     }
     const show = shows[index];
-    const entry = entries[index];
+    // Liste satırı daraltılmış künye taşıyor; sayfa kadro, fragman, platform
+    // ve sezon listesi istiyor — tam görüntü yalnızca bu kayıt için okunur
+    // (API-08). `seasons` sıralı geliyor ki aşağıdaki "sezonsuz mu" kontrolü
+    // ve `syncSeasons` eskisi gibi çalışsın.
+    const entry = await this.prisma.showEntry.findUniqueOrThrow({
+      where: { id: entries[index].id },
+      include: { seasons: { orderBy: { orderIndex: 'asc' } } },
+    });
     let data = (entry.externalData ?? null) as TmdbShow | null;
 
     if (!data || data.stills === undefined || data.seasons === undefined) {

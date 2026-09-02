@@ -61,7 +61,7 @@
 - **Çözüm:** Yalnızca gereken sütunları çeken ince bir "arşiv dizini" sorgusu (`select: { slug, coverImage, title, originalTitle, googleId, binKitapSlug, status }`) — `getArchive()`'e hiç girmeden.
 - **Getiri:** Uç başına ~10 sorgu → 1-2 sorgu; DB yükü ve yanıt süresi belirgin düşer.
 
-### API-07 — Tek kitap sayfası tüm arşivi çekiyor (slug türetme bedeli)
+### ~~API-07~~ — Tek kitap sayfası tüm arşivi çekiyor (slug türetme bedeli) → **YAPILDI (2 Eylül 2026 gecesi), ara çözüm yolu; migration YOK.** `getArchiveIndex` (API-06'nın ince dizini) `id/isbn13/genres/seriesName/seriesIndex/seriesId/universeId` ile genişledi; üç uç artık önce dizini okuyor (1 sorgu, ilişkisiz dar satırlar), tam kaydı (`CREDITS_INCLUDE`) yalnız SAYFADA GÖSTERİLEN kimlikler için `archiveBooksByIds` ile çekiyor: detay = hedef + komşular (≈20), seri = ciltler, kaynak = hiç (dizin yetiyor). Slug dizinden gelir, yeniden türetilmez. Kanıt: deploy sonrası dört yanıt (detay ×2, seri, kaynak) deploy öncesiyle bayt bayt kıyaslanacak.
 - **Dosya:** `backend/src/books/books.service.ts` — **Satır:** 427-432 (detay), 629-634 (seri), 863-868 (kaynak)
 - **Problem:** `GET /books/:slug`, `/books/seri/:slug`, `/books/kaynak/:slug` üçü de `bookEntry.findMany` ile ~253 kaydı 4 ilişkiyle (`CREDITS_INCLUDE`, satır 1868-1875) çekiyor; slug sütun olmadığı, liste sırasından türetildiği için (satır 85-86, 1795-1813; gerekçe 855-857).
 - **Etki:** **Medium**

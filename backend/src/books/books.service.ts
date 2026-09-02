@@ -213,17 +213,30 @@ function toListItem({ description: _unused, ...rest }: ArchiveBook): BookListIte
   return rest;
 }
 
-/** `getArchiveIndex()` satırı: rozet eşleşmesi için gereken en dar küme. */
+/**
+ * `getArchiveIndex()` satırı: slug türetmek ve "hangi kitaplar" sorusunu
+ * cevaplamak için gereken en dar küme — künye yok, ilişki yok. Rozet
+ * eşleşmesi (ödül/okuma sırası) ve tek-kitap uçlarının komşu seçimi
+ * (API-07) bu satırlarla çalışır; tam kayıt yalnız seçilen kimlikler için
+ * okunur (`archiveBooksByIds`).
+ */
 export type ArchiveIndexEntry = Pick<
   BookEntry,
+  | 'id'
   | 'title'
   | 'originalTitle'
   | 'firstPublishedYear'
   | 'coverImage'
   | 'googleId'
   | 'binKitapSlug'
+  | 'isbn13'
   | 'status'
   | 'authors'
+  | 'genres'
+  | 'seriesName'
+  | 'seriesIndex'
+  | 'seriesId'
+  | 'universeId'
 > & { slug: string };
 
 export interface BookArchive {
@@ -457,14 +470,21 @@ export class BooksService {
       where: { isDeleted: false },
       orderBy: [{ finishedAt: 'desc' }, { createdAt: 'desc' }],
       select: {
+        id: true,
         title: true,
         originalTitle: true,
         firstPublishedYear: true,
         coverImage: true,
         googleId: true,
         binKitapSlug: true,
+        isbn13: true,
         status: true,
         authors: true,
+        genres: true,
+        seriesName: true,
+        seriesIndex: true,
+        seriesId: true,
+        universeId: true,
       },
     });
     const used = new Set<string>();
@@ -474,54 +494,69 @@ export class BooksService {
     }));
   }
 
-  /** Kitap sayfası: künye + alıntılar + seri + komşular + evren bağı. */
-  async getDetail(slug: string): Promise<BookDetail> {
+  /**
+   * Seçilmiş kimliklerin TAM arşiv nesneleri (künye + `CREDITS_INCLUDE`),
+   * slug'ları dizinden (API-07, 2 Eylül 2026).
+   *
+   * Tek-kitap uçları eskiden ~253 kaydı üç ilişkiyle çekip `withSlugs` ile
+   * tarıyordu; oysa slug için dizin yetiyor, tam kayıt yalnız sayfada
+   * GÖSTERİLEN kitaplar için gerekiyor (hedef + komşular ≈ 20). Slug'ı
+   * burada yeniden türetmek yasak — liste sırasına bağlı, dizinden gelir.
+   */
+  private async archiveBooksByIds(
+    ids: readonly string[],
+    slugOf: ReadonlyMap<string, string>,
+  ): Promise<Map<string, { book: ArchiveBook; entry: BookEntryWithCredits }>> {
+    if (ids.length === 0) {
+      return new Map();
+    }
     const entries = await this.prisma.bookEntry.findMany({
-      where: { isDeleted: false },
-      orderBy: [{ finishedAt: 'desc' }, { createdAt: 'desc' }],
+      where: { id: { in: [...ids] }, isDeleted: false },
       include: CREDITS_INCLUDE,
       omit: ARCHIVE_OMIT,
     });
-    const books = withSlugs(entries);
-    const index = books.findIndex((item) => item.slug === slug);
-    if (index === -1) {
+    return new Map(
+      entries.map((entry) => [
+        entry.id,
+        {
+          entry,
+          book: { ...toArchiveBook(entry), slug: slugOf.get(entry.id) ?? '' },
+        },
+      ]),
+    );
+  }
+
+  /** Kitap sayfası: künye + alıntılar + seri + komşular + evren bağı. */
+  async getDetail(slug: string): Promise<BookDetail> {
+    /**
+     * API-07 (2 Eylül 2026): önce İNCE dizin — slug ve komşu seçimi için
+     * yazar/tür/seri sütunları yetiyor. Tam kayıt (künye + üç ilişki) yalnız
+     * hedef ve komşular için okunur; eskiden ~253 kayıt × 4 ilişki çekiliyordu.
+     */
+    const index = await this.getArchiveIndex();
+    const target = index.find((item) => item.slug === slug);
+    if (!target) {
       throw new NotFoundException('BOOKS.NOT_FOUND');
     }
-    const book = books[index];
-    const entry = entries[index];
 
-    const [quotes, universe] = await Promise.all([
-      this.prisma.bookQuote.findMany({
-        where: { entryId: entry.id, isDeleted: false },
-        orderBy: [{ orderIndex: 'asc' }, { createdAt: 'asc' }],
-      }),
-      entry.universeId
-        ? this.prisma.wikiUniverse.findFirst({
-            where: { id: entry.universeId, isDeleted: false },
-            select: { id: true, name: true, slug: true },
-          })
-        : Promise.resolve(null),
-    ]);
-
-    const series = book.seriesName
-      ? books
-          .filter((item) => item.seriesName === book.seriesName)
+    // Komşular dizin satırlarından seçilir; sıra listenin sırası
+    const seriesRows = target.seriesName
+      ? index
+          .filter((item) => item.seriesName === target.seriesName)
           .sort(sortBySeriesIndex)
       : [];
-
-    const others = books.filter((item) => item.id !== book.id);
-    const byAuthor = others
+    const others = index.filter((item) => item.id !== target.id);
+    const byAuthorRows = others
       .filter((item) =>
-        item.authors.some((name) => book.authors.includes(name)),
+        item.authors.some((name) => target.authors.includes(name)),
       )
       .slice(0, NEIGHBOUR_LIMIT);
-
     const picked = new Set([
-      ...byAuthor.map((item) => item.id),
-      ...series.map((item) => item.id),
+      ...byAuthorRows.map((item) => item.id),
+      ...seriesRows.map((item) => item.id),
     ]);
-    const genres = new Set(book.genres);
-    const byGenre = others
+    const genres = new Set(target.genres);
+    const byGenreRows = others
       .filter(
         (item) =>
           !picked.has(item.id) && item.genres.some((name) => genres.has(name)),
@@ -532,6 +567,37 @@ export class BooksService {
           a.genres.filter((name) => genres.has(name)).length,
       )
       .slice(0, NEIGHBOUR_LIMIT);
+
+    const slugOf = new Map(index.map((item) => [item.id, item.slug]));
+    const wanted = new Set([
+      target.id,
+      ...seriesRows.map((item) => item.id),
+      ...byAuthorRows.map((item) => item.id),
+      ...byGenreRows.map((item) => item.id),
+    ]);
+    const [full, quotes, universe] = await Promise.all([
+      this.archiveBooksByIds([...wanted], slugOf),
+      this.prisma.bookQuote.findMany({
+        where: { entryId: target.id, isDeleted: false },
+        orderBy: [{ orderIndex: 'asc' }, { createdAt: 'asc' }],
+      }),
+      target.universeId
+        ? this.prisma.wikiUniverse.findFirst({
+            where: { id: target.universeId, isDeleted: false },
+            select: { id: true, name: true, slug: true },
+          })
+        : Promise.resolve(null),
+    ]);
+    const hit = full.get(target.id);
+    if (!hit) {
+      throw new NotFoundException('BOOKS.NOT_FOUND');
+    }
+    const { book, entry } = hit;
+    const pickBooks = (rows: ArchiveIndexEntry[]) =>
+      rows.flatMap((row) => full.get(row.id)?.book ?? []);
+    const series = pickBooks(seriesRows);
+    const byAuthor = pickBooks(byAuthorRows);
+    const byGenre = pickBooks(byGenreRows);
 
     return {
       book,
@@ -677,42 +743,46 @@ export class BooksService {
    * bakılsaydı ilişkisi kurulmuş ama adı boş kalmış cilt kaybolurdu.
    */
   async getSeriesPage(slug: string): Promise<BookSeriesPage> {
-    const [entries, universes, record] = await Promise.all([
-      this.prisma.bookEntry.findMany({
-        where: { isDeleted: false },
-        orderBy: [{ finishedAt: 'desc' }, { createdAt: 'desc' }],
-        include: CREDITS_INCLUDE,
-        omit: ARCHIVE_OMIT,
-      }),
+    const [index, universes, record] = await Promise.all([
+      // API-07: ince dizin; tam kayıt yalnız serinin ciltleri için okunur
+      this.getArchiveIndex(),
       this.prisma.wikiUniverse.findMany({
         where: { isDeleted: false },
         select: { id: true, slug: true },
       }),
       this.prisma.bookSeries.findUnique({
         where: { slug },
-        select: { name: true, description: true, coverImage: true },
+        select: { id: true, name: true, description: true, coverImage: true },
       }),
     ]);
 
-    const books = withSlugs(entries);
-    const list = books
+    // Seri bağı iki yoldan: `BookSeries` kaydı (seriesId) ya da serbest
+    // `seriesName` metninin slug'ı — eski davranışla birebir aynı küme.
+    const rows = index
       .filter(
-        (book) =>
-          book.credits.series?.slug === slug ||
-          (book.seriesName !== null && slugify(book.seriesName) === slug),
+        (row) =>
+          (record !== null && row.seriesId === record.id) ||
+          (row.seriesName !== null && slugify(row.seriesName) === slug),
       )
       .sort(sortBySeriesIndex);
 
-    if (list.length === 0 && !record) {
+    if (rows.length === 0 && !record) {
       throw new NotFoundException('BOOKS.SERIES_NOT_FOUND');
     }
+
+    const slugOf = new Map(index.map((item) => [item.id, item.slug]));
+    const full = await this.archiveBooksByIds(
+      rows.map((row) => row.id),
+      slugOf,
+    );
+    const list = rows.flatMap((row) => full.get(row.id)?.book ?? []);
 
     // Evren bağı ciltlerden herhangi biri bağlıysa kuruluyor (seri kartıyla aynı)
     const universeSlugs = new Map(
       universes.map((universe) => [universe.id, universe.slug]),
     );
     const universeByEntry = new Map(
-      entries.map((entry) => [entry.id, entry.universeId]),
+      rows.map((row) => [row.id, row.universeId]),
     );
     const universeId =
       list
@@ -912,12 +982,8 @@ export class BooksService {
     binKitapSlug: string,
     isbn13: string | null,
   ): Promise<string | null> {
-    const entries = await this.prisma.bookEntry.findMany({
-      where: { isDeleted: false },
-      orderBy: [{ finishedAt: 'desc' }, { createdAt: 'desc' }],
-      include: CREDITS_INCLUDE,
-      omit: ARCHIVE_OMIT,
-    });
+    // API-07: yalnız slug ve iki eşleme sütunu gerekiyor — ince dizin yeter
+    const index = await this.getArchiveIndex();
     /**
      * ISBN'in **boş olmadığı** ayrıca sınanıyor, `!== null` yetmiyor.
      *
@@ -931,7 +997,7 @@ export class BooksService {
      * kalıcı savunma burada.
      */
     const wantedIsbn = isbn13?.trim() ? isbn13.trim() : null;
-    const hit = withSlugs(entries).find(
+    const hit = index.find(
       (book) =>
         book.binKitapSlug === binKitapSlug ||
         (wantedIsbn !== null && book.isbn13?.trim() === wantedIsbn),
@@ -1966,7 +2032,11 @@ function toArchiveBook(entry: BookEntryWithCredits): ArchiveBook {
   };
 }
 
-function sortBySeriesIndex(a: ArchiveBook, b: ArchiveBook): number {
+/** Hem tam arşiv nesnesi hem ince dizin satırı için (yapısal tip). */
+function sortBySeriesIndex(
+  a: { seriesIndex: number | null; title: string },
+  b: { seriesIndex: number | null; title: string },
+): number {
   // Sırasız ciltler sona: seri listesi "1, 2, 3, … sırası bilinmeyen" okunur
   const left = a.seriesIndex ?? Number.MAX_SAFE_INTEGER;
   const right = b.seriesIndex ?? Number.MAX_SAFE_INTEGER;

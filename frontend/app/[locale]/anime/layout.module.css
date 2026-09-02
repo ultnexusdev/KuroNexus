@@ -97,10 +97,6 @@
   padding-block: 0.04em;
 }
 
-.title {
-  font-size: var(--an-title);
-}
-
 .section {
   font-size: var(--an-section);
   letter-spacing: 0.04em;

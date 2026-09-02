@@ -454,20 +454,6 @@
   line-height: 1.4;
 }
 
-/* Galeri bos: bu bir hata degil, "burasi senin" mesaji. Kurator degilse
-   bolum hic cizilmiyor (bkz. bilesende kosul). */
-.galleryEmpty {
-  box-sizing: border-box;
-  padding: var(--pad-lg);
-  border: 0.5px dashed var(--border-strong);
-  border-radius: var(--radius-card);
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-  line-height: 1.7;
-  text-align: center;
-  text-wrap: pretty;
-}
-
 /* --- Izleme rehberi --- */
 
 .guide {
@@ -591,81 +577,3 @@
 
 /* --- Kurator yukleme kutusu --- */
 
-.uploader {
-  box-sizing: border-box;
-  margin-top: var(--gap-md);
-  padding: var(--pad-md);
-  border: 0.5px solid var(--accent-muted);
-  border-radius: var(--radius-card);
-  background: color-mix(in srgb, var(--accent) 6%, transparent);
-}
-
-.uploaderTitle {
-  margin: 0 0 var(--gap-sm);
-  color: var(--accent);
-  font-family: var(--font-bebas), var(--font-sans);
-  font-size: 0.9rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.uploaderHint {
-  margin: 0 0 var(--gap-md);
-  color: var(--text-secondary);
-  font-size: 0.84rem;
-  line-height: 1.65;
-  text-wrap: pretty;
-}
-
-.uploaderInput {
-  display: block;
-  width: 100%;
-  min-height: var(--touch-min);
-  color: var(--text-secondary);
-  font-family: inherit;
-  font-size: 0.84rem;
-}
-
-.uploaderResult {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--gap-sm);
-  align-items: center;
-  margin-top: var(--gap-md);
-}
-
-/* Donen adres: secilip kopyalanmak icin var, o yuzden mono ve kirilabilir */
-.uploaderUrl {
-  box-sizing: border-box;
-  flex: 1 1 220px;
-  min-height: var(--touch-min);
-  padding: 10px 12px;
-  border: 0.5px solid var(--border-strong);
-  border-radius: var(--radius);
-  background: var(--bg);
-  color: var(--text-primary);
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-}
-
-.uploaderCopy {
-  min-height: var(--touch-min);
-  padding: 0 14px;
-  border: 0.5px solid var(--border-strong);
-  border-radius: var(--radius);
-  background: var(--surface);
-  color: var(--accent);
-  font-family: inherit;
-  font-size: 0.82rem;
-  cursor: pointer;
-}
-
-.uploaderCopy:hover {
-  background: var(--surface-hover);
-}
-
-.uploaderError {
-  margin: var(--gap-sm) 0 0;
-  color: var(--warn);
-  font-size: 0.82rem;
-}

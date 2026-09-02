@@ -183,8 +183,9 @@ kimlikle çekim, dizi arşivi saf okuma, müzik tür payı tek gruplu SQL;
 ALARM), ~~i18n ölü anahtarlar (16×2)~~ ve ~~ölü exportlar~~ (2 Eylül gecesi
 silindi; GOJO_*, RESERVED_*, curatedCharacterIds bilerek kaldı — rapor 1.2/1.5),
 `music-playlist`/`music-sync` slug varyantları, P-04/05/10 animasyon hijyeni
-(tasarımı değiştirir — kullanıcıyla). Ölü CSS sınıfları (rapor 1.4, 72 aday)
-henüz dokunulmadı.
+(tasarımı değiştirir — kullanıcıyla). ~~Ölü CSS sınıfları (rapor 1.4)~~ 2 Eylül
+gecesi silindi: 17 dosya, 669 satır; tarayıcı betiği yorum-farkında, kalan 8
+aday kompozit seçicilerde (bilerek).
 
 ---
 

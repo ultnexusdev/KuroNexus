@@ -130,18 +130,6 @@
   margin-bottom: var(--gap-sm);
 }
 
-.rank {
-  color: var(--text-muted);
-  font-family: var(--font-bebas), var(--font-sans);
-  font-size: 0.8rem;
-  letter-spacing: 0.26em;
-  text-transform: uppercase;
-}
-
-.rankMain {
-  color: var(--accent);
-}
-
 .favourites {
   display: inline-flex;
   align-items: baseline;

@@ -40,49 +40,8 @@
   z-index: 20;
 }
 
-.tabs {
-  display: flex;
-  border-bottom: 0.5px solid var(--border);
-}
-
-.tab,
-.tabActive {
-  flex: 1;
-  min-height: var(--touch-min);
-  padding: 0 8px;
-  color: var(--text-secondary);
-  font-size: 0.85rem;
-  border-bottom: 2px solid transparent;
-}
-
-.tab:hover {
-  color: var(--text-primary);
-}
-
-.tabActive {
-  color: var(--accent);
-  border-bottom-color: var(--accent);
-}
-
 .content {
   padding: var(--pad-md);
-}
-
-.profile {
-  margin: 0;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 4px var(--gap-sm);
-  font-size: 0.9rem;
-}
-
-.profile dt {
-  color: var(--text-muted);
-}
-
-.profile dd {
-  margin: 0;
-  color: var(--text-primary);
 }
 
 .sectionLabel {

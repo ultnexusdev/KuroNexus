@@ -214,13 +214,6 @@
     0 0 46px color-mix(in srgb, var(--team-glow) 28%, transparent);
 }
 
-.neonSolid {
-  color: var(--sd-ink);
-  text-shadow:
-    0 0 12px color-mix(in srgb, var(--team-glow) 60%, transparent),
-    0 0 38px color-mix(in srgb, var(--team-glow) 30%, transparent);
-}
-
 /**
  * Bölüm gövdesi — sayfanın her çeyreği bu kutuda.
  *

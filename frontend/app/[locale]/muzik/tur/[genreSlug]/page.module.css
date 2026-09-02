@@ -194,55 +194,6 @@
 
 /* ── Albüm ızgarası ───────────────────────────────────────────────────── */
 
-.albumGrid {
-  display: grid;
-  /* Tasarım 6 sütun; mobilde 2'ye iniyor (kural 2) */
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.875rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-@media (min-width: 620px) {
-  .albumGrid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-@media (min-width: 1000px) {
-  .albumGrid {
-    grid-template-columns: repeat(6, 1fr);
-  }
-}
-
-.albumCell {
-  min-width: 0;
-}
-
-.albumLink {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  color: inherit;
-}
-
-.albumLink:hover .albumTitle {
-  color: var(--accent);
-}
-
-.albumTitle {
-  font-size: 0.92rem;
-  line-height: 1.3;
-  color: var(--text-primary);
-  overflow-wrap: anywhere;
-}
-
-.albumMeta {
-  font-size: 0.82rem;
-  color: var(--text-secondary);
-}
-
 /* ── Son dinlenenler ──────────────────────────────────────────────────── */
 
 .recentList {

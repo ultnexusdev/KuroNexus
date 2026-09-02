@@ -3244,12 +3244,6 @@
   list-style: none;
 }
 
-.webTeacher {
-  margin-block-start: var(--g-step);
-  inline-size: min(100%, 20rem);
-  margin-inline: auto;
-}
-
 /* ── Dar ekran ─────────────────────────────────────────────────
    375px'te dairesel yerleşim okunmuyor: düğümler mutlak konumdan
    çıkıp akışa giriyor, harita gizleniyor. Bilgi kaybı yok —
@@ -3968,10 +3962,6 @@
 .eggMark {
   font-size: 1.15rem;
   line-height: 1;
-}
-
-.eggSlot {
-  inline-size: 1.6rem;
 }
 
 /* Objelerin yerleşim yerleri — bölümlerin kenarında, akışı bozmadan */

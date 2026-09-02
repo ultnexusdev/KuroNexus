@@ -913,26 +913,6 @@
   width: 3.5rem;
 }
 
-.noteFaceArt {
-  position: relative;
-  display: block;
-  width: 3.25rem;
-  height: 3.25rem;
-  border-radius: 50%;
-  overflow: hidden;
-  border: 1px solid var(--border-strong);
-  background: var(--surface);
-}
-
-.noteFaceArt img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: 50% 22%;
-  filter: grayscale(0.75) contrast(1.05);
-  transition: filter var(--oro-dur) var(--oro-ease-soft);
-}
-
 .note:hover .noteFaceArt img {
   filter: grayscale(0.25) contrast(1.02);
 }

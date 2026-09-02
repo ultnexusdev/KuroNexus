@@ -63,13 +63,6 @@
   text-transform: uppercase;
 }
 
-/* Kanji/basliklarin murekkep sesi */
-.display {
-  font-family: var(--j-display);
-  font-weight: 600;
-  line-height: 1.04;
-}
-
 /* Bolum govde paragraflari */
 .lede {
   max-width: var(--measure);

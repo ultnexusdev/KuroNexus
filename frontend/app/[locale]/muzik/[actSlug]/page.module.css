@@ -208,15 +208,6 @@
   min-width: 0;
 }
 
-.note {
-  margin: 0;
-  padding: 1rem;
-  background: var(--surface);
-  border: var(--mz-hairline) solid var(--border);
-  border-left: 2px solid var(--accent);
-  border-radius: var(--mz-radius);
-}
-
 .spotifyLink {
   min-height: 44px;
   display: inline-flex;
@@ -245,98 +236,7 @@
 
 /* ── Parça listesi ────────────────────────────────────────────────────── */
 
-.trackList {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  counter-reset: track;
-}
-
-.trackRow {
-  display: grid;
-  grid-template-columns: 2rem 44px 1fr auto;
-  align-items: center;
-  gap: 0.5rem 1rem;
-  padding: 0.5rem 0;
-  border-bottom: var(--mz-hairline) solid var(--border);
-  min-height: 44px;
-}
-
-@media (min-width: 760px) {
-  .trackRow {
-    grid-template-columns: 2rem 44px 1fr 220px 60px;
-  }
-}
-
-.trackNo {
-  font-family: var(--font-bebas), var(--font-sans);
-  font-size: 0.9rem;
-  letter-spacing: 0.12em;
-  color: var(--text-muted);
-}
-
-.trackTitle {
-  font-size: 1rem;
-  color: var(--text-primary);
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-
-.trackAlbum {
-  font-size: 0.88rem;
-  color: var(--text-secondary);
-  display: none;
-}
-
-@media (min-width: 760px) {
-  .trackAlbum {
-    display: block;
-  }
-}
-
 /* ── Diskografi ───────────────────────────────────────────────────────── */
-
-.discGrid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-@media (min-width: 620px) {
-  .discGrid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (min-width: 1000px) {
-  .discGrid {
-    grid-template-columns: repeat(5, 1fr);
-  }
-}
-
-.discCell {
-  min-width: 0;
-}
-
-.discLink {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  color: inherit;
-}
-
-.discTitle {
-  font-size: 0.95rem;
-  color: var(--accent);
-  overflow-wrap: anywhere;
-}
-
-.discLink:hover .discTitle {
-  color: var(--accent-hover);
-}
 
 .roomMates {
   display: flex;

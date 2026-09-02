@@ -31,16 +31,6 @@
   font-size: 0.84rem;
 }
 
-.searchForm {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--gap-sm);
-}
-
-.searchForm input {
-  flex: 1 1 220px;
-}
-
 /* Canlı arama: kutu ile açılır liste tek sarmalayıcıda, liste kutunun
    üstüne biniyor — form alanlarını aşağı itip sayfayı zıplatmasın */
 .searchBox {
@@ -153,11 +143,6 @@
 .saved {
   color: var(--accent);
   font-size: 0.82rem;
-}
-
-.muted {
-  color: var(--text-muted);
-  font-size: 0.86rem;
 }
 
 /* --- Arama sonuclari --- */

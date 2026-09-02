@@ -519,10 +519,6 @@
   color: var(--text-primary);
 }
 
-.modeNative {
-  display: none;
-}
-
 .modeButton {
   justify-self: start;
   min-height: var(--touch-min);
